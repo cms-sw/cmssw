@@ -14,7 +14,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
-#include "RecoTracker/LST/interface/LSTOutput.h"
+#include "RecoTracker/LSTCore/interface/TrackCandidatesHostCollection.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
@@ -35,7 +35,7 @@ public:
 private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  const edm::EDGetTokenT<LSTOutput> lstOutputToken_;
+  const edm::EDGetTokenT<lst::TrackCandidatesBaseHostCollection> lstOutputToken_;
   const edm::EDGetTokenT<lst::LSTInputHostCollection> lstInputToken_;
   const edm::EDGetTokenT<TrajectorySeedCollection> lstPixelSeedToken_;
   const bool includeT5s_;
@@ -54,6 +54,9 @@ private:
   const edm::EDPutTokenT<TrackCandidateCollection> trackCandidatepTTCPutToken_;
   const edm::EDPutTokenT<TrackCandidateCollection> trackCandidatepLSTCPutToken_;
   const edm::EDPutTokenT<std::vector<SeedStopInfo>> seedStopInfoPutToken_;
+  const edm::EDPutTokenT<std::vector<SeedStopInfo>> pTCsSeedStopInfoPutToken_;
+  const edm::EDPutTokenT<std::vector<SeedStopInfo>> t5TCsSeedStopInfoPutToken_;
+  const edm::EDPutTokenT<std::vector<SeedStopInfo>> pTTCsSeedStopInfoPutToken_;
 };
 
 LSTOutputConverter::LSTOutputConverter(edm::ParameterSet const& iConfig)
@@ -83,7 +86,10 @@ LSTOutputConverter::LSTOutputConverter(edm::ParameterSet const& iConfig)
       trackCandidateNopLSTCPutToken_(produces("nopLSTCsLST")),
       trackCandidatepTTCPutToken_(produces("pTTCsLST")),
       trackCandidatepLSTCPutToken_(produces("pLSTCsLST")),
-      seedStopInfoPutToken_(produces()) {}
+      seedStopInfoPutToken_(produces("")),
+      pTCsSeedStopInfoPutToken_(produces("pTCsLST")),
+      t5TCsSeedStopInfoPutToken_(produces("t5TCsLST")),
+      pTTCsSeedStopInfoPutToken_(produces("pTTCsLST")) {}
 
 void LSTOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -115,46 +121,66 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   auto const& lstOutput = iEvent.get(lstOutputToken_);
   auto const& lstInputHC = iEvent.get(lstInputToken_);
   auto const& pixelSeeds = iEvent.get(lstPixelSeedToken_);
+  auto const& pixelSeedsRBP = edm::RefToBaseProd<TrajectorySeed>(iEvent.getHandle(lstPixelSeedToken_));
   auto const& mf = iSetup.getData(mfToken_);
   auto const& propAlo = iSetup.getData(propagatorAlongToken_);
   auto const& propOppo = iSetup.getData(propagatorOppositeToken_);
   auto const& tracker = iSetup.getData(tGeomToken_);
 
-  // Vector definitions
-  std::vector<std::vector<unsigned int>> const& lstTC_hitIdx = lstOutput.hitIdx();
-  std::vector<unsigned int> const& lstTC_len = lstOutput.len();
-  std::vector<int> const& lstTC_seedIdx = lstOutput.seedIdx();
-  std::vector<short> const& lstTC_trackCandidateType = lstOutput.trackCandidateType();
+  auto lstOutput_view = lstOutput.const_view();
+  unsigned int nTrackCandidates = lstOutput_view.nTrackCandidates();
+
+  auto const outputTSRP = iEvent.getRefBeforePut(trajectorySeedPutToken_);
 
   TrajectorySeedCollection outputTS, outputpLSTS;
-  outputTS.reserve(lstTC_len.size());
-  outputpLSTS.reserve(lstTC_len.size());
+  outputTS.reserve(nTrackCandidates);
+  outputpLSTS.reserve(nTrackCandidates);
   TrackCandidateCollection outputTC, outputpTC, outputT5TC, outputNopLSTC, outputpTTC, outputpLSTC;
-  outputTC.reserve(lstTC_len.size());
-  outputpTC.reserve(lstTC_len.size());
-  outputT5TC.reserve(lstTC_len.size());
-  outputNopLSTC.reserve(lstTC_len.size());
-  outputpTTC.reserve(lstTC_len.size());
-  outputpLSTC.reserve(lstTC_len.size());
+  outputTC.reserve(nTrackCandidates);
+  outputpTC.reserve(nTrackCandidates);
+  outputT5TC.reserve(nTrackCandidates);
+  outputNopLSTC.reserve(nTrackCandidates);
+  outputpTTC.reserve(nTrackCandidates);
+  outputpLSTC.reserve(nTrackCandidates);
 
   auto OTHits = lstInputHC.const_view<lst::HitsBaseSoA>().hits();
 
-  LogDebug("LSTOutputConverter") << "lstTC size " << lstTC_len.size();
-  for (unsigned int i = 0; i < lstTC_len.size(); i++) {
-    LogDebug("LSTOutputConverter") << " cand " << i << " " << lstTC_len[i] << " " << lstTC_seedIdx[i];
+  LogDebug("LSTOutputConverter") << "nTrackCandidates " << nTrackCandidates;
+  for (unsigned int i = 0; i < nTrackCandidates; i++) {
+    auto iType = lstOutput_view.trackCandidateType()[i];
+    LogDebug("LSTOutputConverter") << " cand " << i << " " << iType << " " << lstOutput_view.pixelSeedIndex()[i];
     TrajectorySeed seed;
-    if (lstTC_trackCandidateType[i] != LSTOutput::LSTTCType::T5)
-      seed = pixelSeeds[lstTC_seedIdx[i]];
+    edm::RefToBase<TrajectorySeed> seedRef;
+    if (iType != lst::LSTObjType::T5) {
+      seed = pixelSeeds[lstOutput_view.pixelSeedIndex()[i]];
+      seedRef = {pixelSeedsRBP, lstOutput_view.pixelSeedIndex()[i]};
+    }
 
     edm::OwnVector<TrackingRecHit> recHits;
-    if (lstTC_trackCandidateType[i] != LSTOutput::LSTTCType::T5) {
+    if (iType != lst::LSTObjType::T5) {
       for (auto const& hit : seed.recHits())
         recHits.push_back(hit.clone());
     }
 
-    unsigned int const nPixelHits = lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5 ? 0 : recHits.size();
-    for (unsigned int j = nPixelHits; j < lstTC_hitIdx[i].size(); j++)
-      recHits.push_back(OTHits[lstTC_hitIdx[i][j]]->clone());
+    // pixel-seeded TCs from LST always have 4 pixel hits
+    unsigned int const nPixelHits = iType == lst::LSTObjType::T5 ? 0 : 4;
+    unsigned int nHits = 0;
+    switch (iType) {
+      case lst::LSTObjType::T5:
+        nHits = lst::Params_T5::kHits;
+        break;
+      case lst::LSTObjType::pT3:
+        nHits = lst::Params_pT3::kHits;
+        break;
+      case lst::LSTObjType::pT5:
+        nHits = lst::Params_pT5::kHits;
+        break;
+      case lst::LSTObjType::pLS:
+        nHits = lst::Params_pLS::kHits;
+        break;
+    }
+    for (unsigned int j = nPixelHits; j < nHits; j++)
+      recHits.push_back(OTHits[lstOutput_view.hitIndices()[i][j]]->clone());
 
     recHits.sort([](const auto& a, const auto& b) {
       const auto asub = a.det()->subDetector();
@@ -177,40 +203,42 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     });
 
     TrajectorySeedCollection seeds;
-    if (lstTC_trackCandidateType[i] != LSTOutput::LSTTCType::pLS) {
+    if (iType != lst::LSTObjType::pLS) {
       // Construct a full-length TrajectorySeed always for T5s,
       // only when required by a flag for other pT objects.
-      if (includeNonpLSTSs_ || lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5) {
+      if (includeNonpLSTSs_ || iType == lst::LSTObjType::T5) {
         using Hit = SeedingHitSet::ConstRecHitPointer;
         std::vector<Hit> hitsForSeed;
-        hitsForSeed.reserve(lstTC_len[i]);
-        int nHits = 0;
+        hitsForSeed.reserve(nHits);
+        int n = 0;
         for (auto const& hit : recHits) {
-          if (lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5) {
+          if (iType == lst::LSTObjType::T5) {
             auto hType = tracker.getDetectorType(hit.geographicalId());
-            if (hType != TrackerGeometry::ModuleType::Ph2PSP && nHits < 2)
+            if (hType != TrackerGeometry::ModuleType::Ph2PSP && n < 2)
               continue;  // the first two should be P
           }
           hitsForSeed.emplace_back(dynamic_cast<Hit>(&hit));
-          nHits++;
+          n++;
         }
         GlobalTrackingRegion region;
         seedCreator_->init(region, iSetup, nullptr);
         seedCreator_->makeSeed(seeds, hitsForSeed);
         if (seeds.empty()) {
-          edm::LogInfo("LSTOutputConverter")
-              << "failed to convert a LST object to a seed" << i << " " << lstTC_len[i] << " " << lstTC_seedIdx[i];
-          if (lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5)
+          edm::LogInfo("LSTOutputConverter") << "failed to convert a LST object to a seed" << i << " " << iType << " "
+                                             << lstOutput_view.pixelSeedIndex()[i];
+          if (iType == lst::LSTObjType::T5)
             continue;
         }
-        if (lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5)
+        if (iType == lst::LSTObjType::T5) {
           seed = seeds[0];
+          seedRef = edm::RefToBase<TrajectorySeed>(edm::Ref(outputTSRP, outputTS.size()));
+        }
 
         auto trajectorySeed = (seeds.empty() ? seed : seeds[0]);
         outputTS.emplace_back(trajectorySeed);
         auto const& ss = trajectorySeed.startingState();
-        LogDebug("LSTOutputConverter") << "Created a seed with " << seed.nHits() << " " << ss.detId() << " " << ss.pt()
-                                       << " " << ss.parameters().vector() << " " << ss.error(0);
+        LogDebug("LSTOutputConverter") << "Created a seed with " << trajectorySeed.nHits() << " " << ss.detId() << " "
+                                       << ss.pt() << " " << ss.parameters().vector() << " " << ss.error(0);
       }
     } else {
       outputTS.emplace_back(seed);
@@ -229,20 +257,17 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       PTrajectoryStateOnDet st =
           trajectoryStateTransform::persistentState(tsosPair.first, recHits[0].det()->geographicalId().rawId());
 
-      if (lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5) {
-        if (!includeT5s_) {
-          continue;
-        } else {
-          auto tc = TrackCandidate(recHits, seed, st);
-          outputTC.emplace_back(tc);
-          outputT5TC.emplace_back(tc);
-          outputNopLSTC.emplace_back(tc);
-        }
+      if (!includeT5s_ && iType == lst::LSTObjType::T5)
+        continue;
+
+      auto tc = TrackCandidate(recHits, seed, st, seedRef);
+      outputTC.emplace_back(tc);
+      if (iType == lst::LSTObjType::T5) {
+        outputT5TC.emplace_back(tc);
+        outputNopLSTC.emplace_back(tc);
       } else {
-        auto tc = TrackCandidate(recHits, seed, st);
-        outputTC.emplace_back(tc);
         outputpTC.emplace_back(tc);
-        if (lstTC_trackCandidateType[i] != LSTOutput::LSTTCType::pLS) {
+        if (iType != lst::LSTObjType::pLS) {
           outputNopLSTC.emplace_back(tc);
           outputpTTC.emplace_back(tc);
         } else {
@@ -251,15 +276,25 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       }
     } else {
       edm::LogInfo("LSTOutputConverter") << "Failed to make a candidate initial state. Seed state is " << tsos
-                                         << " TC cand " << i << " " << lstTC_len[i] << " " << lstTC_seedIdx[i]
-                                         << " first hit " << recHits.front().globalPosition() << " last hit "
+                                         << " TC cand " << i << " " << lstOutput_view.pixelSeedIndex()[i] << " "
+                                         << lstOutput_view.pixelSeedIndex()[i] << " first hit "
+                                         << recHits.front().globalPosition() << " last hit "
                                          << recHits.back().globalPosition();
     }
   }
 
   LogDebug("LSTOutputConverter") << "done with conversion: Track candidate output size = " << outputpTC.size()
                                  << " (p* objects) + " << outputT5TC.size() << " (T5 objects)";
-  std::vector<SeedStopInfo> outputSeedStopInfo(pixelSeeds.size());
+  //dummy (for now) stop infos: one per used kind of candidates
+  std::vector<SeedStopInfo> seedStopInfo(pixelSeeds.size());
+  iEvent.emplace(seedStopInfoPutToken_, std::move(seedStopInfo));
+  std::vector<SeedStopInfo> pTCsSeedStopInfo(pixelSeeds.size());
+  iEvent.emplace(pTCsSeedStopInfoPutToken_, std::move(pTCsSeedStopInfo));
+  std::vector<SeedStopInfo> t5TCsSeedStopInfo(outputTS.size());
+  iEvent.emplace(t5TCsSeedStopInfoPutToken_, std::move(t5TCsSeedStopInfo));
+  std::vector<SeedStopInfo> pTTCsSeedStopInfo(pixelSeeds.size());
+  iEvent.emplace(pTTCsSeedStopInfoPutToken_, std::move(pTTCsSeedStopInfo));
+
   iEvent.emplace(trajectorySeedPutToken_, std::move(outputTS));
   iEvent.emplace(trajectorySeedpLSPutToken_, std::move(outputpLSTS));
   iEvent.emplace(trackCandidatePutToken_, std::move(outputTC));
@@ -268,7 +303,6 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.emplace(trackCandidateNopLSTCPutToken_, std::move(outputNopLSTC));
   iEvent.emplace(trackCandidatepTTCPutToken_, std::move(outputpTTC));
   iEvent.emplace(trackCandidatepLSTCPutToken_, std::move(outputpLSTC));
-  iEvent.emplace(seedStopInfoPutToken_, std::move(outputSeedStopInfo));  //dummy stop info
 }
 
 DEFINE_FWK_MODULE(LSTOutputConverter);

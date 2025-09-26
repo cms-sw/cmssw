@@ -134,6 +134,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_BTV_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_JME_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_TRK_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfBaseTrajectoryFilter_block_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/ckfBaseTrajectoryFilterP5_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfTrajectoryBuilder_cfi")
@@ -226,7 +227,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCaloTowersRecSeque
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCsclocalrecoSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTDtlocalrecoSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTGemLocalRecoSequence_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTHgcalLocalRecoSequence_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTTICLLocalRecoSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTHighPtTripletStepSeedingSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTHighPtTripletStepSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTAK4PFJetsReconstruction_cfi")
@@ -365,6 +366,7 @@ fragment.schedule = cms.Schedule(*[
 
     fragment.MC_JME,
     fragment.MC_BTV,
+    fragment.MC_TRK,
     fragment.MC_Ele5_Open_Unseeded,
     fragment.MC_Ele5_Open_L1Seeded,
 

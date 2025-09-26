@@ -52,10 +52,7 @@
   <class name="std::vector<ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> > >"/>
   <class name="std::vector<std::vector<ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> > > >"/>
   
-  <class name="std::monostate"/>
-  <class name="edm::RefProd<std::vector<ticl::Trackster> >"/>
-  <class name="std::pair<edm::RefProd<std::vector<ticl::Trackster> >, edm::RefProd<std::vector<ticl::Trackster> > >"/>
-  <class name="std::pair<edm::RefProd<std::vector<SimCluster> >, edm::RefProd<std::vector<CaloParticle> > >"/>
+  <class name="std::pair<edm::RefProd<std::vector<reco::CaloCluster> >,edm::RefProd<std::vector<ticl::Trackster> > >"/>
 
   <!-- For one-to-many map with FractionType -->
   <class name="ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster> >"/>
@@ -126,7 +123,6 @@
   </class>
   <class name="edm::Wrapper<ticl::RecoToSimCollectionWithSimClusters>" />
 
-  <class name="edm::RefProd<vector<ticl::Trackster> >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >, edm::RefProd<vector<ticl::Trackster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<ticl::Trackster> >, edm::RefProd<vector<SimCluster> > >" />
 
@@ -170,7 +166,6 @@
   </class>
   <class name="edm::Wrapper<hgcal::RecoToSimCollectionWithMultiClusters>" />
 
-  <class name="edm::RefProd<vector<reco::HGCalMultiCluster> >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<CaloParticle> >,edm::RefProd<vector<reco::HGCalMultiCluster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::HGCalMultiCluster> >,edm::RefProd<vector<CaloParticle> > >" />
 

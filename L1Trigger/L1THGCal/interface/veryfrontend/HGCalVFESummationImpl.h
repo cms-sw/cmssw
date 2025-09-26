@@ -5,6 +5,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
+#include <cstdint>
 #include <vector>
 #include <utility>
 #include <unordered_map>
@@ -13,7 +14,11 @@ class HGCalVFESummationImpl {
 public:
   HGCalVFESummationImpl(const edm::ParameterSet& conf);
 
-  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) {
+    triggerTools_.setGeometry(geom);
+    checkSizeValidity();
+  }
+  void checkSizeValidity() const;
   void triggerCellSums(const std::vector<std::pair<DetId, uint32_t> >&, std::unordered_map<uint32_t, uint32_t>&);
 
 private:

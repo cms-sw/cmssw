@@ -174,18 +174,16 @@ FastTimerService::Resources FastTimerService::AtomicResources::operator+(Resourc
 
 // ResourcesPerModule
 
-FastTimerService::ResourcesPerModule::ResourcesPerModule() noexcept : total(), events(0), has_acquire(false) {}
+FastTimerService::ResourcesPerModule::ResourcesPerModule() noexcept : total(), events(0) {}
 
 void FastTimerService::ResourcesPerModule::reset() noexcept {
   total.reset();
   events = 0;
-  has_acquire = false;
 }
 
 FastTimerService::ResourcesPerModule& FastTimerService::ResourcesPerModule::operator+=(ResourcesPerModule const& other) {
   total += other.total;
   events += other.events;
-  has_acquire = has_acquire or other.has_acquire;
   return *this;
 }
 
@@ -261,6 +259,7 @@ void FastTimerService::ResourcesPerJob::reset() {
   total.reset();
   overhead.reset();
   idle.reset();
+  source.reset();
   eventsetup.reset();
   event.reset();
   for (auto& module : highlight)
@@ -275,6 +274,7 @@ FastTimerService::ResourcesPerJob& FastTimerService::ResourcesPerJob::operator+=
   total += other.total;
   overhead += other.overhead;
   idle += other.idle;
+  source += other.source;
   eventsetup += other.eventsetup;
   event += other.event;
   assert(highlight.size() == other.highlight.size());
@@ -696,8 +696,7 @@ void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::IBooker& booker,
   event_ex_.book(booker, "explicit", "Event (explicit)", event_ranges, lumisections, byls);
   overhead_.book(booker, "overhead", "Overhead", event_ranges, lumisections, byls);
   idle_.book(booker, "idle", "Idle", event_ranges, lumisections, byls);
-
-  modules_[job.source().id()].book(booker, "source", "Source", module_ranges, lumisections, byls);
+  source_.book(booker, "source", "Source", event_ranges, lumisections, byls);
 
   if (transitions) {
     lumi_.book(booker, "lumi", "LumiSection transitions", event_ranges, lumisections, byls);
@@ -733,6 +732,7 @@ void FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesP
   event_ex_.fill(data.event, ls);
   overhead_.fill(data.overhead, ls);
   idle_.fill(data.idle, ls);
+  source_.fill(data.source, ls);
 
   // fill highltight plots
   for (unsigned int group : boost::irange(0ul, highlight_.size()))
@@ -972,6 +972,10 @@ void FastTimerService::lookupInitializationComplete(edm::PathsAndConsumesOfModul
     highlight_modules_[group].modules.reserve(labels.size());
     // convert the module labels in module ids
     for (unsigned int i = 0; i < modules; ++i) {
+      if (i == callgraph_.source().id()) {
+        // skip the source module
+        continue;
+      }
       auto const& label = callgraph_.module(i).moduleLabel();
       if (std::binary_search(labels.begin(), labels.end(), label))
         highlight_modules_[group].modules.push_back(i);
@@ -1130,8 +1134,7 @@ void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const {
   printHeader(out, "Event");
   printEventHeader(out, "Modules");
   auto const& source_d = callgraph_.source();
-  auto const& source = data.modules[source_d.id()];
-  printEventLine(out, source.total, source_d.moduleLabel());
+  printEventLine(out, data.source, source_d.moduleLabel());
   auto const& proc_d = callgraph_.processDescription();
   auto const& proc = data.process;
   printEventLine(out, proc.total, "process " + proc_d.name_);
@@ -1143,7 +1146,7 @@ void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const {
   printEventLine(out, data.total, "total");
   out << '\n';
   printEventHeader(out, "Processes and Paths");
-  printEventLine(out, source.total, source_d.moduleLabel());
+  printEventLine(out, data.source, source_d.moduleLabel());
   printEventLine(out, proc.total, "process " + proc_d.name_);
   for (unsigned int p = 0; p < proc.paths.size(); ++p) {
     auto const& name = proc_d.paths_[p].name_;
@@ -1277,8 +1280,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
   printHeader(out, label);
   printSummaryHeader(out, "Modules", true);
   auto const& source_d = callgraph_.source();
-  auto const& source = data.modules[source_d.id()];
-  printSummaryLine(out, source.total, data.events, source.events, source_d.moduleLabel());
+  printSummaryLine(out, data.source, data.events, source_d.moduleLabel());
   auto const& proc_d = callgraph_.processDescription();
   auto const& proc = data.process;
   printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
@@ -1293,7 +1295,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
   printSummaryLine(out, data.idle, data.events, "idle");
   out << '\n';
   printPathSummaryHeader(out, "Processes and Paths");
-  printSummaryLine(out, source.total, data.events, source_d.moduleLabel());
+  printSummaryLine(out, data.source, data.events, source_d.moduleLabel());
   printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
   for (unsigned int p = 0; p < proc.paths.size(); ++p) {
     auto const& name = proc_d.paths_[p].name_;
@@ -1365,9 +1367,14 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
   // write the resources used by every module
   j["modules"] = json::array();
   for (unsigned int i = 0; i < callgraph_.size(); ++i) {
-    auto const& module = callgraph_.module(i);
-    auto const& data_m = data.modules[i];
-    j["modules"].push_back(encodeToJSON(module, data_m));
+    if (i == callgraph_.source().id()) {
+      j["modules"].push_back(
+          encodeToJSON(callgraph_.source().moduleName(), callgraph_.source().moduleLabel(), data.events, data.source));
+    } else {
+      auto const& module = callgraph_.module(i);
+      auto const& data_m = data.modules[i];
+      j["modules"].push_back(encodeToJSON(module, data_m));
+    }
   }
 
   // add an entry for the non-event transitions, modules, and idle states
@@ -1390,8 +1397,9 @@ void FastTimerService::postEvent(edm::StreamContext const& sc) {
 
   // measure the event resources as the sum of all modules' resources
   auto& data = stream.process.total;
-  for (unsigned int id : process.modules_)
+  for (unsigned int id : process.modules_) {
     data += stream.modules[id].total;
+  }
   stream.total += data;
 
   // handle the summaries and fill the plots
@@ -1400,8 +1408,7 @@ void FastTimerService::postEvent(edm::StreamContext const& sc) {
   stream.event_measurement.measure_and_store(stream.event);
 
   // add to the event resources those used by source (which is not part of any process)
-  unsigned int id = 0;
-  stream.total += stream.modules[id].total;
+  stream.total += stream.source;
 
   // highlighted modules
   for (unsigned int group : boost::irange(0ul, highlight_modules_.size()))
@@ -1438,13 +1445,9 @@ void FastTimerService::preSourceEvent(edm::StreamID sid) {
 }
 
 void FastTimerService::postSourceEvent(edm::StreamID sid) {
-  edm::ModuleDescription const& md = callgraph_.source();
-  unsigned int id = md.id();
   auto& stream = streams_[sid];
-  auto& module = stream.modules[id];
 
-  thread().measure_and_store(module.total);
-  ++stream.modules[id].events;
+  thread().measure_and_accumulate(stream.source);
 }
 
 void FastTimerService::prePathEvent(edm::StreamContext const& sc, edm::PathContext const& pc) {
@@ -1492,7 +1495,6 @@ void FastTimerService::postModuleEventAcquire(edm::StreamContext const& sc, edm:
   auto& stream = streams_[sid];
   auto& module = stream.modules[id];
 
-  module.has_acquire = true;
   thread().measure_and_store(module.total);
 }
 
@@ -1509,20 +1511,29 @@ void FastTimerService::postModuleEvent(edm::StreamContext const& sc, edm::Module
   auto& stream = streams_[sid];
   auto& module = stream.modules[id];
 
-  if (module.has_acquire) {
-    thread().measure_and_accumulate(module.total);
-  } else {
-    thread().measure_and_store(module.total);
-  }
+  thread().measure_and_accumulate(module.total);
   ++module.events;
 }
 
 void FastTimerService::preModuleEventDelayedGet(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
-  unsupportedSignal(__func__);
+  edm::ModuleDescription const& md = *mcc.moduleDescription();
+  unsigned int id = md.id();
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+  auto& module = stream.modules[id];
+
+  if (mcc.state() == edm::ModuleCallingContext::State::kRunning) {
+    thread().measure_and_accumulate(module.total);
+  }
 }
 
 void FastTimerService::postModuleEventDelayedGet(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
-  unsupportedSignal(__func__);
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+
+  if (mcc.state() == edm::ModuleCallingContext::State::kRunning) {
+    thread().measure_and_accumulate(stream.source);
+  }
 }
 
 void FastTimerService::preModuleEventPrefetching(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
@@ -1542,12 +1553,9 @@ void FastTimerService::preEventReadFromSource(edm::StreamContext const& sc, edm:
 
 void FastTimerService::postEventReadFromSource(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
   if (mcc.state() == edm::ModuleCallingContext::State::kPrefetching) {
-    edm::ModuleDescription const& md = callgraph_.source();
-    unsigned int id = md.id();
     auto& stream = streams_[sc.streamID()];
-    auto& module = stream.modules[id];
 
-    thread().measure_and_accumulate(module.total);
+    thread().measure_and_accumulate(stream.source);
   }
 }
 

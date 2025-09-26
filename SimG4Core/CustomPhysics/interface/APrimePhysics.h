@@ -15,7 +15,7 @@ public:
   /**
        * Class destructor.
        */
-  ~APrimePhysics() override;
+  ~APrimePhysics() override = default;
 
   /**
        * Construct particles.

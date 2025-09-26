@@ -404,13 +404,16 @@ bool PVFitter::runFitter() {
     upar.Add("ez", 1., 0.1, 0., 30.);                                                       // 8
     upar.Add("scale", errorScale_, errorScale_ / 10., errorScale_ / 2., errorScale_ * 2.);  // 9
     MnMigrad migrad(fcn, upar);
+    // const_cast to be compatible with ROOT before 6.38
+    auto& state = const_cast<MnUserParameterState&>(migrad.State());
+
     //
     // first iteration without correlations
     //
-    migrad.Fix(4);
-    migrad.Fix(6);
-    migrad.Fix(7);
-    migrad.Fix(9);
+    state.Fix(4);
+    state.Fix(6);
+    state.Fix(7);
+    state.Fix(9);
     FunctionMinimum ierr = migrad(0, 1.);
     if (!ierr.IsValid()) {
       edm::LogWarning("PVFitter") << "3D beam spot fit failed in 1st iteration" << std::endl;
@@ -439,9 +442,9 @@ bool PVFitter::runFitter() {
     //
     // refit with correlations
     //
-    migrad.Release(4);
-    migrad.Release(6);
-    migrad.Release(7);
+    state.Release(4);
+    state.Release(6);
+    state.Release(7);
     ierr = migrad(0, 1.);
     if (!ierr.IsValid()) {
       edm::LogWarning("PVFitter") << "3D beam spot fit failed in 3rd iteration" << std::endl;

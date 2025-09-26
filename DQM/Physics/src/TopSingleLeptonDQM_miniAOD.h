@@ -94,7 +94,7 @@ namespace TopSingleLepton_miniAOD {
     /// to be of form signalPath:MonitorPath
     std::vector<std::string> triggerPaths_;
 
-    edm::InputTag rhoTag;
+    edm::EDGetTokenT<double> rhoToken_;
 
     /// electronId label
     edm::EDGetTokenT<edm::ValueMap<float> > electronId_;

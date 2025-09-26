@@ -72,14 +72,14 @@ void testmakepset::secsourceAux() {
       "process.maxEvents = cms.untracked.PSet(\n"
       "    input = cms.untracked.int32(2)\n"
       ")\n"
-      "process.source = cms.Source('PoolSource',\n"
+      "process.source = cms.Source('FileBasedSource',\n"
       "    fileNames = cms.untracked.vstring('file:main.root')\n"
       ")\n"
-      "process.out = cms.OutputModule('PoolOutputModule',\n"
+      "process.out = cms.OutputModule('FileBasedOutputModule',\n"
       "    fileName = cms.string('file:CumHits.root')\n"
       ")\n"
       "process.mix = cms.EDFilter('MixingModule',\n"
-      "    input = cms.SecSource('EmbeddedRootSource',\n"
+      "    input = cms.SecSource('EmbeddedFileBasedSource',\n"
       "        fileNames = cms.untracked.vstring('file:pileup.root')\n"
       "    ),\n"
       "    max_bunch = cms.int32(3),\n"
@@ -101,7 +101,7 @@ void testmakepset::secsourceAux() {
   // Make sure this ParameterSet object has the right contents
   edm::ParameterSet const& mixingModuleParams = ps->getParameterSet("mix");
   edm::ParameterSet const& secondarySourceParams = mixingModuleParams.getParameterSet("input");
-  CPPUNIT_ASSERT(secondarySourceParams.getParameter<std::string>("@module_type") == "EmbeddedRootSource");
+  CPPUNIT_ASSERT(secondarySourceParams.getParameter<std::string>("@module_type") == "EmbeddedFileBasedSource");
   CPPUNIT_ASSERT(secondarySourceParams.getParameter<std::string>("@module_label") == "input");
   CPPUNIT_ASSERT(secondarySourceParams.getUntrackedParameter<std::vector<std::string> >("fileNames")[0] ==
                  "file:pileup.root");
@@ -127,7 +127,7 @@ void testmakepset::usingBlockAux() {
       "process.maxEvents = cms.untracked.PSet(\n"
       "    input = cms.untracked.int32(2)\n"
       ")\n"
-      "process.source = cms.Source('PoolSource',\n"
+      "process.source = cms.Source('FileBasedSource',\n"
       "    fileNames = cms.untracked.vstring('file:main.root')\n"
       ")\n"
       "process.b = cms.PSet(\n"

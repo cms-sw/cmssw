@@ -268,7 +268,6 @@ private:
   public:
     Resources total;
     unsigned events;
-    bool has_acquire;  // whether this module has an acquire() method
   };
 
   struct ResourcesPerPath {
@@ -311,6 +310,7 @@ private:
     AtomicResources overhead;
     AtomicResources eventsetup;
     AtomicResources idle;
+    AtomicResources source;
     Resources event;  // total time etc. spent between preSourceEvent and postEvent
     Measurement event_measurement;
     std::vector<Resources> highlight;
@@ -439,6 +439,7 @@ private:
     PlotsPerElement event_ex_;
     PlotsPerElement overhead_;
     PlotsPerElement idle_;
+    PlotsPerElement source_;
     // resources spent in the modules' lumi and run transitions
     PlotsPerElement lumi_;
     PlotsPerElement run_;

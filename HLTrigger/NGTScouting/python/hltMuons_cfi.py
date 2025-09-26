@@ -1,17 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+from Validation.RecoMuon.track_selectors_cff import hltPhase2L3MuonIdTracks
 from PhysicsTools.NanoAOD.common_cff import *
-
-hltPhase2L3MuonIdTracks = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("hltPhase2L3Muons"),
-   inputDTRecSegment4DCollection = cms.InputTag("hltDt4DSegments"),
-   inputCSCSegmentCollection = cms.InputTag("hltCscSegments"),
-   selectionTags = cms.vstring('All'),
-   trackType = cms.string('recomuonTrack'),
-   ignoreMissingMuonCollection = cms.untracked.bool(False)
-)
 
 hltMuonTable = cms.EDProducer(
     "SimpleTriggerTrackFlatTableProducer",
+    skipNonExistingSrc = cms.bool(True),
     src = cms.InputTag("hltPhase2L3MuonIdTracks"),
     cut = cms.string(""),
     name = cms.string("hltMuon"),

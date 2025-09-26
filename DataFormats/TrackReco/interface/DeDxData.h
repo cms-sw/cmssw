@@ -8,7 +8,8 @@ namespace reco {
   class DeDxData {
   public:
     DeDxData();
-    DeDxData(float val, float er, unsigned int num);
+    DeDxData(float val, int nsat, unsigned int num);
+    DeDxData(float val, float er, int sat, unsigned int num);
     virtual ~DeDxData();
     float dEdx() const;
     float dEdxError() const;
@@ -19,6 +20,7 @@ namespace reco {
     float value_;
     float error_;
     unsigned int numberOfMeasurements_;
+    int numberOfSatMeasurements_;
   };
 
   //Association Track -> float estimator

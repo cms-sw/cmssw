@@ -20,7 +20,8 @@ private:
   void doProjection(DQMStore::IBooker &, DQMStore::IGetter &);
   void doProfiles(DQMStore::IBooker &, DQMStore::IGetter &);
   void createResolutionPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string &folder, std::string &name);
-  void getHistogramParameters(MonitorElement *me_slice, double &avarage, double &rms, double &mean, double &sigma);
+  void getHistogramParameters(
+      TH1F &th_slice, unsigned int nNonZeroBins, double &avarage, double &rms, double &mean, double &sigma);
   void createEfficiencyPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string &folder, std::string &name);
 
   void createProjectionPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string &folder, std::string &name);

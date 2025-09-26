@@ -31,36 +31,36 @@ calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
     recHitCollectionEE = 'reducedEgamma:reducedEERecHits'
     )
 
+# This is now the same configuration as the one used in the Egamma regression v3 in 106XUL 
 ecalTrkCombinationRegression = cms.PSet(
     ecalTrkRegressionConfig = cms.PSet(
-        rangeMinLowEt = cms.double(-1.),
-        rangeMaxLowEt = cms.double(3.0),
-        rangeMinHighEt = cms.double(-1.),
-        rangeMaxHighEt = cms.double(3.0),
-        lowEtHighEtBoundary = cms.double(50.),
+        rangeMinLowEt = cms.double(0.2),
+        rangeMaxLowEt = cms.double(2.0),
+        rangeMinHighEt = cms.double(0.2),
+        rangeMaxHighEt = cms.double(2.0),
+        lowEtHighEtBoundary = cms.double(999999.),
         forceHighEnergyTrainingIfSaturated = cms.bool(False),
-        ebLowEtForestName = cms.ESInputTag('', 'electron_eb_ECALTRK_lowpt'),
-        ebHighEtForestName = cms.ESInputTag('', 'electron_eb_ECALTRK'),
-        eeLowEtForestName = cms.ESInputTag('', 'electron_ee_ECALTRK_lowpt'),
-        eeHighEtForestName = cms.ESInputTag('', 'electron_ee_ECALTRK')
+        ebLowEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To300_0p2To2_mean'),
+        ebHighEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To300_0p2To2_mean'),
+        eeLowEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To300_0p2To2_mean'),
+        eeHighEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To300_0p2To2_mean'),
         ),
     ecalTrkRegressionUncertConfig = cms.PSet(
         rangeMinLowEt = cms.double(0.0002),
         rangeMaxLowEt = cms.double(0.5),
         rangeMinHighEt = cms.double(0.0002),
         rangeMaxHighEt = cms.double(0.5),
-        lowEtHighEtBoundary = cms.double(50.),  
+        lowEtHighEtBoundary = cms.double(999999.),  
         forceHighEnergyTrainingIfSaturated = cms.bool(False),
-        ebLowEtForestName = cms.ESInputTag('', 'electron_eb_ECALTRK_lowpt_var'),
-        ebHighEtForestName = cms.ESInputTag('', 'electron_eb_ECALTRK_var'),
-        eeLowEtForestName = cms.ESInputTag('', 'electron_ee_ECALTRK_lowpt_var'),
-        eeHighEtForestName = cms.ESInputTag('', 'electron_ee_ECALTRK_var')
+        ebLowEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To300_0p0002To0p5_sigma'),
+        ebHighEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To300_0p0002To0p5_sigma'),
+        eeLowEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To300_0p0002To0p5_sigma'),
+        eeHighEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To300_0p0002To0p5_sigma'),
         ),
     maxEcalEnergyForComb=cms.double(200.),
     minEOverPForComb=cms.double(0.025),
     maxEPDiffInSigmaForComb=cms.double(15.),
-    maxRelTrkMomErrForComb=cms.double(10.),
-    
+    maxRelTrkMomErrForComb=cms.double(10.),                
 )
 
 import RecoEgamma.EgammaTools.calibratedElectronProducer_cfi as _mod_ele

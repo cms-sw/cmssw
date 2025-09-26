@@ -495,8 +495,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
       vMat(2, 1) = vMat(1, 2) = hits_ge.col(i)[4];  // cov_yz
       vMat(2, 2) = hits_ge.col(i)[5];               // z errors
       auto tmp = 1. / radii.block(0, i, 2, 1).norm();
-      jacobXYZtosZ(0, 0) = radii(1, i) * tmp;
-      jacobXYZtosZ(0, 1) = -radii(0, i) * tmp;
+      jacobXYZtosZ(0, 0) = data.qCharge * radii(1, i) * tmp;
+      jacobXYZtosZ(0, 1) = -data.qCharge * radii(0, i) * tmp;
       jacobXYZtosZ(1, 2) = 1.;
       weights(i) = 1. / ((rotMat * jacobXYZtosZ * vMat * jacobXYZtosZ.transpose() * rotMat.transpose())(
                             1, 1));  // compute the orthogonal weight point by point

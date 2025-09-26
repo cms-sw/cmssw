@@ -37,8 +37,8 @@ void TracksterLinkingbyFastJet::linkTracksters(
       for (const auto& constituent : jet.constituents()) {
         auto tracksterIndex = constituent.user_index();
         linkedTracksterIdToInputTracksterId[i].push_back(tracksterIndex);
-        outTrackster.mergeTracksters(input.tracksters[tracksterIndex]);
       }
+      outTrackster.mergeTracksters(input.tracksters, linkedTracksterIdToInputTracksterId[i]);
       linkedTracksters.push_back(resultTracksters.size());
       resultTracksters.push_back(outTrackster);
       // Store the linked tracksters

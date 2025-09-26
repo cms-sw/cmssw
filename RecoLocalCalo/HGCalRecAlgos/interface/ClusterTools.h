@@ -9,7 +9,7 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
-#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"

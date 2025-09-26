@@ -1273,7 +1273,7 @@ void DTTrigPhase2Prod::processDigi(std::queue<std::pair<DTLayerId, DTDigi>>& inQ
     for (auto& sC : vec) {  // Conditions for entering a super cell.
       if ((sC->front().second.time() + superCelltimewidth_) > inQ.front().second.time()) {
         // Time requirement
-        if (TMath::Abs(sC->front().second.wire() - inQ.front().second.wire()) <= superCellhalfspacewidth_) {
+        if (std::abs(sC->front().second.wire() - inQ.front().second.wire()) <= superCellhalfspacewidth_) {
           // Spatial requirement
           sC->push(std::move(inQ.front()));
           classified = true;

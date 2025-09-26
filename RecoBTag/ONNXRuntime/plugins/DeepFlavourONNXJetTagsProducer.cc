@@ -153,7 +153,7 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
         (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
         if (produceValueMap_) {
-          output_scores[flav_n][jet_n] = outputs[flav_n];
+          output_scores[flav_n][jet_n] = outputs[i_output];
         }
         ++i_output;
       }

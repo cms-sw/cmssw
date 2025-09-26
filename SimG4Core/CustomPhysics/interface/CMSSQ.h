@@ -13,8 +13,9 @@
 class CMSSQ : public G4ParticleDefinition {
 private:
   static CMSSQ* theInstance;
-  CMSSQ() {}
-  ~CMSSQ() {}
+  CMSSQ() = default;
+  ;
+  ~CMSSQ() override = default;
 
 public:
   static CMSSQ* Definition(double mass);

@@ -88,11 +88,9 @@ public:
           keep = false;
         }
       }
-
-      if (keep) {
-        rh.setTime(time);
-        rh.setDepth(1);
-      } else {
+      rh.setTime(time);
+      rh.setDepth(1);
+      if (!keep) {
         if (rcleaned)
           cleaned->push_back(std::move(out->back()));
         out->pop_back();

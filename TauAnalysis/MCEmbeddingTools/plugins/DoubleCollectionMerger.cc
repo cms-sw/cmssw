@@ -1,4 +1,4 @@
-#include "TauAnalysis/MCEmbeddingTools/plugins/DoubleCollectionMerger.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/DoubleCollectionMerger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Common/interface/SortedCollection.h"
@@ -18,7 +18,7 @@ typedef DoubleCollectionMerger<HBHEDigiCollection, HBHEDataFrame, HcalCalibDigiC
 
 template <typename T1, typename T2, typename T3, typename T4>
 DoubleCollectionMerger<T1, T2, T3, T4>::DoubleCollectionMerger(const edm::ParameterSet &iConfig) {
-  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("mergCollections");
+  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("mergeCollections");
   for (auto const &inCollection : inCollections) {
     inputs1_[inCollection.instance()].push_back(consumes<MergeCollection1>(inCollection));
     inputs2_[inCollection.instance()].push_back(consumes<MergeCollection2>(inCollection));

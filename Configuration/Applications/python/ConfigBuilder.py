@@ -732,14 +732,16 @@ class ConfigBuilder(object):
         CppType='PoolOutputModule'
         if self._options.timeoutOutput:
             CppType='TimeoutPoolOutputModule'
-        if streamType=='DQM' and tier=='DQMIO':
+        elif streamType=='DQM' and tier=='DQMIO':
             CppType='DQMRootOutputModule'
-            fileName = fileName.replace('.rntpl', '.root')
-        if not ignoreNano and "NANOAOD" in streamType : CppType='NanoAODOutputModule'
-        if self._options.rntuple_out and CppType == 'PoolOutputModule':
+        elif not ignoreNano and "NANOAOD" in streamType:
+            CppType='NanoAODRNTupleOutputModule' if self._options.rntuple_out else 'NanoAODOutputModule'
+        elif self._options.rntuple_out:
             CppType='RNTupleOutputModule'
-            if len(fileName) > 5 and fileName[-5:] == '.root':
-                fileName = fileName.replace('.root', '.rntpl')
+        if 'RNTuple' in CppType:
+            fileName = fileName.replace('.root', '.rntpl')
+        else:
+            fileName = fileName.replace('.rntpl', '.root')
         output = cms.OutputModule(CppType,
                                   eventContent.clone(),
                                   fileName = cms.untracked.string(fileName),
@@ -1697,6 +1699,12 @@ class ConfigBuilder(object):
             else:
                 self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(stepSpec.replace(',',':'),optionsForHLTConfig))
         else:
+            # case where HLT:something was provided (most of the cases)
+            if '+' in stepSpec:
+                # case where HLT:menu+customisation+customisation+... was provided
+                # the customiser allows to modify parts of the HLT menu
+                stepSpec, *hltcustomiser = stepSpec.rsplit('+')
+                self._options.customisation_file_unsch = hltcustomiser + self._options.customisation_file_unsch
             self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff' % stepSpec)
 
         if self._options.isMC:
@@ -1909,9 +1917,15 @@ class ConfigBuilder(object):
             print("replacing %s process name - step SKIM:%s will use '%s'" % (stdHLTProcName, sequence, newHLTProcName))
 
         ## support @Mu+DiJet+@Electron configuration via autoSkim.py
-        from Configuration.Skimming.autoSkim import autoSkim
+        from Configuration.Skimming.autoSkim import autoSkim, autoSkimRunI
         skimlist = sequence.split('+')
         self.expandMapping(skimlist,autoSkim)
+
+        autoSkimRunIList = list(set(
+            item
+            for v in autoSkimRunI.values()
+            for item in v.split('+')
+        ))
 
         #print("dictionary for skims:", skimConfig.__dict__)
         for skim in skimConfig.__dict__:
@@ -1931,6 +1945,10 @@ class ConfigBuilder(object):
             shortname = skim.replace('SKIMStream','')
             if (sequence=="all"):
                 self.addExtraStream(skim,skimstream)
+            elif (sequence=="allRun1"):
+                if not shortname in autoSkimRunIList:
+                    continue
+                self.addExtraStream(skim,skimstream)
             elif (shortname in skimlist):
                 self.addExtraStream(skim,skimstream)
                 #add a DQM eventcontent for this guy
@@ -1948,7 +1966,7 @@ class ConfigBuilder(object):
                 for i in range(skimlist.count(shortname)):
                     skimlist.remove(shortname)
 
-        if (skimlist.__len__()!=0 and sequence!="all"):
+        if (skimlist.__len__()!=0 and sequence!="all" and sequence!="allRun1"):
             print('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
             raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 

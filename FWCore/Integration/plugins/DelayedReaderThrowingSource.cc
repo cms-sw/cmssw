@@ -85,22 +85,21 @@ namespace edm {
 
     ParameterSet dummy;
     dummy.registerIt();
-    auto twd = TypeWithDict::byTypeInfo(typeid(edmtest::IntProduct));
+    TypeID tid = TypeID(typeid(edmtest::IntProduct));
 
     std::vector<ProductDescription> branches;
     for (auto const& label : pset.getUntrackedParameter<std::vector<std::string>>("labels")) {
       branches.push_back(ProductDescription(InEvent,
                                             label,        //module label
                                             "INPUTTEST",  //can't be the present process name
-                                            twd.userClassName(),
-                                            twd.friendlyClassName(),
-                                            "",  //product instance name
-                                            twd,
+                                            "",           //product instance name
+                                            tid,
                                             false  //not produced
                                             ));
       branches.back().setOnDemand(true);  //says we use delayed reader
     }
-    productRegistryUpdate().updateFromInput(branches);
+    std::vector<std::string> processOrder = {"INPUTTEST"};
+    productRegistryUpdate().updateFromInput(branches, processOrder);
 
     ProcessHistory ph;
     ph.emplace_back("INPUTTEST", dummy.id(), PROJECT_VERSION, HardwareResourcesDescription());

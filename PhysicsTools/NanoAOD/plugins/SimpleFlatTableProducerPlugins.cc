@@ -5,6 +5,9 @@ typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProduce
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 typedef SimpleFlatTableProducer<reco::PFCandidate> SimplePFCandidateFlatTableProducer;
 
+#include "DataFormats/METReco/interface/MET.h"
+typedef SimpleFlatTableProducer<reco::MET> SimpleMETFlatTableProducer;
+
 #include "DataFormats/TauReco/interface/PFTau.h"
 typedef SimpleFlatTableProducer<reco::PFTau> SimplePFTauCandidateFlatTableProducer;
 
@@ -76,6 +79,7 @@ typedef SimpleFlatTableProducer<pat::CompositeCandidate> SimpleCompositeCandidat
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePFCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleMETFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePFTauCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCandidateCollectionFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTrackFlatTableProducer);

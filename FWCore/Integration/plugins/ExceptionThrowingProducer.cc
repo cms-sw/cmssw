@@ -36,7 +36,7 @@ constexpr unsigned int kUnset = std::numeric_limits<unsigned int>::max();
 constexpr unsigned int kNumberOfTestModules = 2;
 // 3 modules configured plus TriggerResultsInserter plus PathStatusInserter plus EndPathStatusInserter
 constexpr unsigned int kNumberOfModulesWithJobTransitions = 6;
-constexpr unsigned int kNumberOfModulesWithStreamTransitions = 3;
+constexpr unsigned int kNumberOfModulesWithStreamTransitions = kNumberOfModulesWithJobTransitions;
 constexpr unsigned int kNumberOfModulesWithProcessBlockTransitions = 2;
 constexpr unsigned int kStreamToThrowOn = 2;
 

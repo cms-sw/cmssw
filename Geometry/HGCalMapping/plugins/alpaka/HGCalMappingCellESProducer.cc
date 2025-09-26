@@ -63,11 +63,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ::hgcal::mappingtools::HGCalEntityList omap;
         edm::FileInPath fip(offsetfile);
         omap.buildFrom(fip.fullPath());
-        auto& mapEntries = omap.getEntries();
 
-        for (auto row : mapEntries) {
+        const auto& mapEntries = omap.getEntries();
+        for (const auto& row : mapEntries) {
           std::string typecode = omap.getAttr("Typecode", row);
-          const auto& allTypecodes = moduleIndexer.getTypecodeMap();
+          const auto& allTypecodes = moduleIndexer.typecodeMap();
           // Skip if typecode is not in the module indexer
           bool typecodeFound = false;
           for (const auto& key : allTypecodes) {
@@ -105,12 +105,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ::hgcal::mappingtools::HGCalEntityList pmap;
           edm::FileInPath fip(url);
           pmap.buildFrom(fip.fullPath());
-          auto& entities = pmap.getEntries();
-          for (auto row : entities) {
+          const auto& entities = pmap.getEntries();
+          for (const auto& row : entities) {
             //identify special cases (Si vs SiPM, calib vs normal)
-            std::string typecode = pmap.getAttr("Typecode", row);
+            const std::string& typecode = pmap.getAttr("Typecode", row);
             auto typeidx = cellIndexer.getEnumFromTypecode(typecode);
-            bool isSiPM = typecode.find("TM") != std::string::npos;
+            bool isSiPM = (typecode[0] == 'T');
             int rocpin = pmap.getIntAttr("ROCpin", row);
             int celltype = pmap.getIntAttr("t", row);
             int i1(0), i2(0), sensorcell(0);
@@ -119,6 +119,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (isSiPM) {
               i1 = pmap.getIntAttr("iring", row);
               i2 = pmap.getIntAttr("iphi", row);
+              isHD = {typecode.find("TH") != std::string::npos ? true : false};
             } else {
               i1 = pmap.getIntAttr("iu", row);
               i2 = pmap.getIntAttr("iv", row);

@@ -3,6 +3,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 ##################### Tables for final output and docs ##########################
 hltPhotonTable = cms.EDProducer("HLTPhotonTableProducer",
+     skipNonExistingSrc = cms.bool(True),
      src = cms.InputTag("hltEgammaPacker"),
      cut = cms.string(""),
      name = cms.string("hltPhoton"),

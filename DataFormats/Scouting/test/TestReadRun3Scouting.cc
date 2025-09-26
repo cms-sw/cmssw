@@ -24,6 +24,9 @@
 #include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingEBRecHit.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingEERecHit.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingHBHERecHit.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
@@ -55,6 +58,9 @@ namespace edmtest {
     void analyzePhotons(edm::Event const&) const;
     void analyzeTracks(edm::Event const&) const;
     void analyzeVertexes(edm::Event const&) const;
+    void analyzeEBRecHits(edm::Event const&) const;
+    void analyzeEERecHits(edm::Event const&) const;
+    void analyzeHBHERecHits(edm::Event const&) const;
 
     void throwWithMessageFromConstructor(const char*) const;
     void throwWithMessage(const char*) const;
@@ -96,6 +102,21 @@ namespace edmtest {
     const std::vector<double> expectedVertexFloatingPointValues_;
     const std::vector<int> expectedVertexIntegralValues_;
     const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> vertexesToken_;
+
+    const int inputEBRecHitClassVersion_;
+    const std::vector<double> expectedEBRecHitFloatingPointValues_;
+    const std::vector<int> expectedEBRecHitIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingEBRecHit>> ebRecHitsToken_;
+
+    const int inputEERecHitClassVersion_;
+    const std::vector<double> expectedEERecHitFloatingPointValues_;
+    const std::vector<int> expectedEERecHitIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingEERecHit>> eeRecHitsToken_;
+
+    const int inputHBHERecHitClassVersion_;
+    const std::vector<double> expectedHBHERecHitFloatingPointValues_;
+    const std::vector<int> expectedHBHERecHitIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingHBHERecHit>> hbheRecHitsToken_;
   };
 
   TestReadRun3Scouting::TestReadRun3Scouting(edm::ParameterSet const& iPSet)
@@ -128,7 +149,22 @@ namespace edmtest {
         expectedVertexFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedVertexFloatingPointValues")),
         expectedVertexIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedVertexIntegralValues")),
-        vertexesToken_(consumes(iPSet.getParameter<edm::InputTag>("vertexesTag"))) {
+        vertexesToken_(consumes(iPSet.getParameter<edm::InputTag>("vertexesTag"))),
+        inputEBRecHitClassVersion_(iPSet.getParameter<int>("ebRecHitClassVersion")),
+        expectedEBRecHitFloatingPointValues_(
+            iPSet.getParameter<std::vector<double>>("expectedEBRecHitFloatingPointValues")),
+        expectedEBRecHitIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedEBRecHitIntegralValues")),
+        ebRecHitsToken_(consumes(iPSet.getParameter<edm::InputTag>("ebRecHitsTag"))),
+        inputEERecHitClassVersion_(iPSet.getParameter<int>("eeRecHitClassVersion")),
+        expectedEERecHitFloatingPointValues_(
+            iPSet.getParameter<std::vector<double>>("expectedEERecHitFloatingPointValues")),
+        expectedEERecHitIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedEERecHitIntegralValues")),
+        eeRecHitsToken_(consumes(iPSet.getParameter<edm::InputTag>("eeRecHitsTag"))),
+        inputHBHERecHitClassVersion_(iPSet.getParameter<int>("hbheRecHitClassVersion")),
+        expectedHBHERecHitFloatingPointValues_(
+            iPSet.getParameter<std::vector<double>>("expectedHBHERecHitFloatingPointValues")),
+        expectedHBHERecHitIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedHBHERecHitIntegralValues")),
+        hbheRecHitsToken_(consumes(iPSet.getParameter<edm::InputTag>("hbheRecHitsTag"))) {
     if (expectedCaloJetsValues_.size() != 16) {
       throwWithMessageFromConstructor("test configuration error, expectedCaloJetsValues must have size 16");
     }
@@ -176,6 +212,25 @@ namespace edmtest {
     if (expectedVertexIntegralValues_.size() != 3) {
       throwWithMessageFromConstructor("test configuration error, expectedVertexIntegralValues must have size 3");
     }
+    if (expectedEBRecHitFloatingPointValues_.size() != 2) {
+      throwWithMessageFromConstructor("test configuration error, expectedEBRecHitFloatingPointValues must have size 2");
+    }
+    if (expectedEBRecHitIntegralValues_.size() != 2) {
+      throwWithMessageFromConstructor("test configuration error, expectedEBRecHitIntegralValues must have size 2");
+    }
+    if (expectedEERecHitFloatingPointValues_.size() != 2) {
+      throwWithMessageFromConstructor("test configuration error, expectedEERecHitFloatingPointValues must have size 2");
+    }
+    if (expectedEERecHitIntegralValues_.size() != 1) {
+      throwWithMessageFromConstructor("test configuration error, expectedEERecHitIntegralValues must have size 1");
+    }
+    if (expectedHBHERecHitFloatingPointValues_.size() != 1) {
+      throwWithMessageFromConstructor(
+          "test configuration error, expectedHBHERecHitFloatingPointValues must have size 1");
+    }
+    if (expectedHBHERecHitIntegralValues_.size() != 1) {
+      throwWithMessageFromConstructor("test configuration error, expectedHBHERecHitIntegralValues must have size 1");
+    }
   }
 
   void TestReadRun3Scouting::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
@@ -187,6 +242,9 @@ namespace edmtest {
     analyzePhotons(iEvent);
     analyzeTracks(iEvent);
     analyzeVertexes(iEvent);
+    analyzeEBRecHits(iEvent);
+    analyzeEERecHits(iEvent);
+    analyzeHBHERecHits(iEvent);
   }
 
   void TestReadRun3Scouting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -217,6 +275,18 @@ namespace edmtest {
     desc.add<std::vector<double>>("expectedVertexFloatingPointValues");
     desc.add<std::vector<int>>("expectedVertexIntegralValues");
     desc.add<edm::InputTag>("vertexesTag");
+    desc.add<int>("ebRecHitClassVersion");
+    desc.add<std::vector<double>>("expectedEBRecHitFloatingPointValues");
+    desc.add<std::vector<int>>("expectedEBRecHitIntegralValues");
+    desc.add<edm::InputTag>("ebRecHitsTag");
+    desc.add<int>("eeRecHitClassVersion");
+    desc.add<std::vector<double>>("expectedEERecHitFloatingPointValues");
+    desc.add<std::vector<int>>("expectedEERecHitIntegralValues");
+    desc.add<edm::InputTag>("eeRecHitsTag");
+    desc.add<int>("hbheRecHitClassVersion");
+    desc.add<std::vector<double>>("expectedHBHERecHitFloatingPointValues");
+    desc.add<std::vector<int>>("expectedHBHERecHitIntegralValues");
+    desc.add<edm::InputTag>("hbheRecHitsTag");
     descriptions.addDefault(desc);
   }
 
@@ -1173,6 +1243,90 @@ namespace edmtest {
         if (vertex.yzCov() != expectedVertexFloatingPointValues_[9] + offset) {
           throwWithMessage("analyzeVertexes, yz cov. does not equal expected value");
         }
+      }
+      ++i;
+    }
+  }
+
+  void TestReadRun3Scouting::analyzeEBRecHits(edm::Event const& iEvent) const {
+    if (inputEBRecHitClassVersion_ < 3) {
+      return;
+    }
+
+    auto const& ebRecHits = iEvent.get(ebRecHitsToken_);
+    unsigned int vectorSize = 2 + iEvent.id().event() % 4;
+    if (ebRecHits.size() != vectorSize) {
+      throwWithMessage("analyzeEBRecHits, ebRecHits does not have expected size");
+    }
+    unsigned int i = 0;
+    for (auto const& ebRecHit : ebRecHits) {
+      double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
+
+      if (ebRecHit.energy() != expectedEBRecHitFloatingPointValues_[0] + offset) {
+        throwWithMessage("analyzeEBRecHits, energy does not equal expected value");
+      }
+      if (ebRecHit.time() != expectedEBRecHitFloatingPointValues_[1] + offset) {
+        throwWithMessage("analyzeEBRecHits, time does not equal expected value");
+      }
+      if (ebRecHit.detId() != static_cast<unsigned int>(expectedEBRecHitIntegralValues_[0] + iOffset)) {
+        throwWithMessage("analyzeEBRecHits, detId does not equal expected value");
+      }
+      if (ebRecHit.flags() != static_cast<uint32_t>(expectedEBRecHitIntegralValues_[1] + iOffset)) {
+        throwWithMessage("analyzeEBRecHits, flags does not equal expected value");
+      }
+      ++i;
+    }
+  }
+
+  void TestReadRun3Scouting::analyzeEERecHits(edm::Event const& iEvent) const {
+    if (inputEERecHitClassVersion_ < 3) {
+      return;
+    }
+
+    auto const& eeRecHits = iEvent.get(eeRecHitsToken_);
+    unsigned int vectorSize = 2 + iEvent.id().event() % 4;
+    if (eeRecHits.size() != vectorSize) {
+      throwWithMessage("analyzeEERecHits, eeRecHits does not have expected size");
+    }
+    unsigned int i = 0;
+    for (auto const& eeRecHit : eeRecHits) {
+      double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
+
+      if (eeRecHit.energy() != expectedEERecHitFloatingPointValues_[0] + offset) {
+        throwWithMessage("analyzeEERecHits, energy does not equal expected value");
+      }
+      if (eeRecHit.time() != expectedEERecHitFloatingPointValues_[1] + offset) {
+        throwWithMessage("analyzeEERecHits, time does not equal expected value");
+      }
+      if (eeRecHit.detId() != static_cast<unsigned int>(expectedEERecHitIntegralValues_[0] + iOffset)) {
+        throwWithMessage("analyzeEERecHits, detId does not equal expected value");
+      }
+      ++i;
+    }
+  }
+
+  void TestReadRun3Scouting::analyzeHBHERecHits(edm::Event const& iEvent) const {
+    if (inputHBHERecHitClassVersion_ < 3) {
+      return;
+    }
+
+    auto const& hbheRecHits = iEvent.get(hbheRecHitsToken_);
+    unsigned int vectorSize = 2 + iEvent.id().event() % 4;
+    if (hbheRecHits.size() != vectorSize) {
+      throwWithMessage("analyzeHBHERecHits, hbheRecHits does not have expected size");
+    }
+    unsigned int i = 0;
+    for (auto const& hbheRecHit : hbheRecHits) {
+      double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
+
+      if (hbheRecHit.energy() != expectedHBHERecHitFloatingPointValues_[0] + offset) {
+        throwWithMessage("analyzeHBHERecHits, energy does not equal expected value");
+      }
+      if (hbheRecHit.detId() != static_cast<unsigned int>(expectedHBHERecHitIntegralValues_[0] + iOffset)) {
+        throwWithMessage("analyzeHBHERecHits, detId does not equal expected value");
       }
       ++i;
     }

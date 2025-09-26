@@ -276,10 +276,6 @@ void testEsproducer::getFromTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  // This manner of adding directly to the EventSetupProvider should work OK in tests
-  // unless there are multiple EventSetupProviders (the case with SubProcesses).
-  // Then there would be addition work to do to get things setup properly for the
-  // functions that check for module sharing between EventSetupProviders.
   provider.add(std::make_shared<Test1Producer>());
 
   auto pFinder = std::make_shared<DummyFinder>();

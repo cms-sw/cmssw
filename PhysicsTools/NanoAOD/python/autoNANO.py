@@ -38,6 +38,11 @@ autoNANO = {
                       'customize': '@Scout+PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoForScoutingPFMonitor'},
     'ScoutFromMini' : {'sequence': '@Scout',
                        'customize': '@Scout+PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoFromMini'},
+    # L1Scouting nano
+    'L1Scout': {'sequence': 'PhysicsTools/NanoAOD/custom_l1scoutingrun3_cff',
+                'customize': 'PhysicsTools/NanoAOD/custom_l1scoutingrun3_cff.customiseL1ScoutingNanoAOD'},
+    'L1ScoutSelect': {'sequence': '@L1Scout',
+                      'customize': '@L1Scout+PhysicsTools/NanoAOD/custom_l1scoutingrun3_cff.customiseL1ScoutingNanoAODSelection'},
     # BPH nano
     'BPH' : {'sequence': '@PHYS',
              'customize': '@PHYS+PhysicsTools/NanoAOD/custom_bph_cff.nanoAOD_customizeBPH'},
@@ -76,6 +81,8 @@ autoNANO = {
     # NGT scouting Nano
     'NGTScouting' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.dstNanoProducer',
                      'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
+    'NGTScoutingVal' : {'sequence': '@NGTScouting',
+                        'customize': ','.join(['HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize', 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoValCustomize'])},
     # Muon High Level Trigger
     'MUHLT' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoProducer',
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoCustomize'},
@@ -103,4 +110,7 @@ autoNANO = {
     # NANOGEN (from MiniAOD)
     'GENFromMini': {'sequence': 'PhysicsTools/NanoAOD/nanogen_cff.nanogenSequence',
                     'customize': 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGENFromMini'},
+    # Tau embedding NanoAOD (includes Data as well as MC tables with an addition tau embedding table)
+    'TauEmbedding': {'sequence': '@PHYS+PhysicsTools/NanoAOD/nano_cff.nanoSequenceFS+TauAnalysis/MCEmbeddingTools/Nano_cff.embeddingTable_seq',
+                     'customize': '@PHYS'},
 }

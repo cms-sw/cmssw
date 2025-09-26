@@ -245,6 +245,37 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     _cTDC_EChannel[didm()]->setAxisTitle("N", 2);
   }
 
+  // adding 6 FSC channels on z- side (labeled as EM7_minus - EM12_minus)
+  for (int channel = 7; channel < 13; channel++) {
+    // EM Minus
+    HcalZDCDetId didm(HcalZDCDetId::EM, false, channel);
+
+    histoname = "EM_M_" + std::to_string(channel);
+    ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
+    _cADC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
+    _cADC_EChannel[didm()]->setAxisTitle("ADC", 1);
+    _cADC_EChannel[didm()]->setAxisTitle("N", 2);
+    ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_vs_TS_perChannel");
+    _cADC_vs_TS_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 6, 0, 6);
+    _cADC_vs_TS_EChannel[didm()]->setAxisTitle("TS", 1);
+    _cADC_vs_TS_EChannel[didm()]->setAxisTitle("sum ADC", 2);
+
+    histoname = "EM_M_" + std::to_string(channel);
+    ib.setCurrentFolder("Hcal/ZDCQIE10Task/fC_perChannel");
+    _cfC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 100, 0, 8000);
+    _cfC_EChannel[didm()]->setAxisTitle("fC", 1);
+    _cfC_EChannel[didm()]->setAxisTitle("N", 2);
+    ib.setCurrentFolder("Hcal/ZDCQIE10Task/fC_vs_TS_perChannel");
+    _cfC_vs_TS_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 6, 0, 6);
+    _cfC_vs_TS_EChannel[didm()]->setAxisTitle("TS", 1);
+    _cfC_vs_TS_EChannel[didm()]->setAxisTitle("sum fC", 2);
+
+    histoname = "EM_M_" + std::to_string(channel);
+    _cTDC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 50, 1, 50);
+    _cTDC_EChannel[didm()]->setAxisTitle("TDC", 1);
+    _cTDC_EChannel[didm()]->setAxisTitle("N", 2);
+  }
+
   for (int channel = 1; channel < 5; channel++) {
     // HAD Pos
     HcalZDCDetId didp(HcalZDCDetId::HAD, true, channel);
@@ -402,6 +433,7 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
     const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
 
     HcalZDCDetId const& did = digi.detid();
+    bool isFSC = (did.zside() < 0 && did.section() == 1 && did.channel() > 6);
 
     uint32_t rawid = _ehashmap.lookup(did);
     if (rawid == 0) {
@@ -439,8 +471,8 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
         }
 
       }
-      // ZDC Minus
-      else {
+      // ZDC Minus (exclude FSC)
+      else if (!isFSC) {
         _cADC_PM[0]->Fill(digi[i].adc());
         _cADC_vs_TS_PM[0]->Fill(i, digi[i].adc());
         sample[0][i] = constants::adc2fC[digi[i].adc()];

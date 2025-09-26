@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
@@ -44,6 +46,12 @@ namespace edm {
       }
 
       iEvent.put(std::move(pOutputFwdPtr));
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& desc) {
+      edm::ParameterSetDescription ps;
+      ps.add<edm::InputTag>("src", {""});
+      desc.addWithDefaultLabel(ps);
     }
 
   protected:

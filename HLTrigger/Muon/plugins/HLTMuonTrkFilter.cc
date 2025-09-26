@@ -96,7 +96,7 @@ bool HLTMuonTrkFilter::hltFilter(edm::Event& iEvent,
   std::vector<l1extra::L1MuonParticleRef>::iterator vl1cands_end;
 
   bool check_l1match = true;
-  if (m_previousCandTag == edm::InputTag(""))
+  if (m_previousCandTag.isUninitialized())
     check_l1match = false;
   if (check_l1match) {
     iEvent.getByToken(m_previousCandToken, previousLevelCands);

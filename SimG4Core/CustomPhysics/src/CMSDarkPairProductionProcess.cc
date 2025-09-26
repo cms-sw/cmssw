@@ -24,8 +24,6 @@ CMSDarkPairProductionProcess::CMSDarkPairProductionProcess(G4double df, const G4
   SetLambdaBinning(220);
 }
 
-CMSDarkPairProductionProcess::~CMSDarkPairProductionProcess() {}
-
 G4bool CMSDarkPairProductionProcess::IsApplicable(const G4ParticleDefinition& p) {
   G4int pdg = std::abs(p.GetPDGEncoding());
   return (pdg == 1023 || pdg == 1072000);

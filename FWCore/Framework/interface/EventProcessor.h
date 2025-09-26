@@ -8,6 +8,16 @@ configured in the user's main() function, and is set running.
 
 ----------------------------------------------------------------------*/
 
+#include <atomic>
+#include <exception>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <vector>
+
+#include "oneapi/tbb/task_group.h"
+
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -33,17 +43,6 @@ configured in the user's main() function, and is set running.
 
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
-
-#include "oneapi/tbb/task_group.h"
-
-#include <atomic>
-#include <map>
-#include <memory>
-#include <set>
-#include <string>
-#include <vector>
-#include <exception>
-#include <mutex>
 
 namespace edm {
 
@@ -367,10 +366,6 @@ namespace edm {
     PreallocationConfiguration preallocations_;
 
     bool firstEventInBlock_ = true;
-
-    typedef std::set<std::pair<std::string, std::string>> ExcludedData;
-    typedef std::map<std::string, ExcludedData> ExcludedDataMap;
-    ExcludedDataMap eventSetupDataToExcludeFromPrefetching_;
 
     bool printDependencies_ = false;
     bool deleteNonConsumedUnscheduledModules_ = true;

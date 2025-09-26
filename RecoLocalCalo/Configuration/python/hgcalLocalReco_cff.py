@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import *
 
-from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cfi import recHitMapProducer
+from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer
 
 # patch particle flow clusters for HGC into local reco sequence
 # (for now until global reco is going with some sort of clustering)

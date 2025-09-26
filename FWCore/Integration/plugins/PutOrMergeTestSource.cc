@@ -50,31 +50,14 @@ using namespace edmtest;
 PutOrMergeTestSource::PutOrMergeTestSource(ParameterSet const& iPS, InputSourceDescription const& iISD)
     : InputSource(iPS, iISD),
       stage_(0),
-      thingDesc_(InRun,
-                 "thingWithMergeProducer",
-                 "PROD",
-                 "edmtest::Thing",
-                 "edmtestThing",
-                 "endRun",
-                 edm::TypeWithDict(typeid(edmtest::Thing)),
-                 false,
-                 true),
-      thingWithMergeDesc_(InRun,
-                          "thingWithMergeProducer",
-                          "PROD",
-                          "edmtest::ThingWithMerge",
-                          "edmtestThingWithMerge",
-                          "endRun",
-                          edm::TypeWithDict(typeid(edmtest::ThingWithMerge)),
-                          false,
-                          true),
+      thingDesc_(InRun, "thingWithMergeProducer", "PROD", "endRun", edm::TypeID(typeid(edmtest::Thing)), false, true),
+      thingWithMergeDesc_(
+          InRun, "thingWithMergeProducer", "PROD", "endRun", edm::TypeID(typeid(edmtest::ThingWithMerge)), false, true),
       thingWithEqualDesc_(InRun,
                           "thingWithMergeProducer",
                           "PROD",
-                          "edmtest::ThingWithIsEqual",
-                          "edmtestThingWithIsEqual",
                           "endRun",
-                          edm::TypeWithDict(typeid(edmtest::ThingWithIsEqual)),
+                          edm::TypeID(typeid(edmtest::ThingWithIsEqual)),
                           false,
                           true) {
   edm::ParameterSet dummyPset;
@@ -95,6 +78,7 @@ void PutOrMergeTestSource::registerProducts() {
   productRegistryUpdate().copyProduct(thingDesc_);
   productRegistryUpdate().copyProduct(thingWithMergeDesc_);
   productRegistryUpdate().copyProduct(thingWithEqualDesc_);
+  productRegistryUpdate().setProcessOrder({"PROD"});
 }
 
 InputSource::ItemTypeInfo PutOrMergeTestSource::getNextItemType() {

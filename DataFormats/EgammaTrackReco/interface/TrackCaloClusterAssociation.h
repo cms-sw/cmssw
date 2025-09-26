@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 namespace reco {

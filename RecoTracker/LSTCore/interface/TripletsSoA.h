@@ -9,20 +9,21 @@
 
 namespace lst {
   GENERATE_SOA_LAYOUT(TripletsSoALayout,
-                      SOA_COLUMN(ArrayUx2, segmentIndices),                        // inner and outer segment indices
+                      SOA_COLUMN(ArrayUx2,
+                                 preAllocatedSegmentIndices),  // pre-allocated the theoretical max segment indices
+                      SOA_COLUMN(ArrayUx2, segmentIndices),    // inner and outer segment indices
                       SOA_COLUMN(Params_T3::ArrayU16xLayers, lowerModuleIndices),  // lower module index in each layer
                       SOA_COLUMN(Params_T3::ArrayU8xLayers, logicalLayers),        // layer ID
                       SOA_COLUMN(Params_T3::ArrayUxHits, hitIndices),              // hit indices
-                      SOA_COLUMN(FPX, betaIn),            // beta/chord angle of the inner segment
-                      SOA_COLUMN(float, centerX),         // lower/anchor-hit based circle center x
-                      SOA_COLUMN(float, centerY),         // lower/anchor-hit based circle center y
-                      SOA_COLUMN(float, radius),          // lower/anchor-hit based circle radius
-                      SOA_COLUMN(float, fakeScore),       // DNN confidence score for fake t3
-                      SOA_COLUMN(float, promptScore),     // DNN confidence score for real (prompt) t3
-                      SOA_COLUMN(float, displacedScore),  // DNN confidence score for real (displaced) t3
+                      SOA_COLUMN(FPX, betaIn),                 // beta/chord angle of the inner segment
+                      SOA_COLUMN(float, centerX),              // lower/anchor-hit based circle center x
+                      SOA_COLUMN(float, centerY),              // lower/anchor-hit based circle center y
+                      SOA_COLUMN(float, radius),               // lower/anchor-hit based circle radius
+                      SOA_COLUMN(float, fakeScore),            // DNN confidence score for fake t3
+                      SOA_COLUMN(float, promptScore),          // DNN confidence score for real (prompt) t3
+                      SOA_COLUMN(float, displacedScore),       // DNN confidence score for real (displaced) t3
+                      SOA_COLUMN(unsigned int, connectedMax),  // number of outer-triplets that pass the MD-equality cut
 #ifdef CUT_VALUE_DEBUG
-                      SOA_COLUMN(float, zOut),
-                      SOA_COLUMN(float, rtOut),
                       SOA_COLUMN(float, betaInCut),
 #endif
                       SOA_COLUMN(bool, partOfPT5),   // is it used in a pT5

@@ -46,8 +46,7 @@ int main(int argc, char** argv) {
                                   TString("TC_") + selnames[isel],
                                   /* pdgid */ pdgid,
                                   /* q     */ charge,
-                                  /* pass  */
-                                  [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched").at(isim) > 0; },
+                                  /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_tcIdx").at(isim) >= 0; },
                                   /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
@@ -55,7 +54,11 @@ int main(int argc, char** argv) {
             /* pdgid */ pdgid,
             /* q     */ charge,
             /* pass  */
-            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << pT5); },
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == pT5 : false;
+            },
             /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
@@ -63,7 +66,11 @@ int main(int argc, char** argv) {
             /* pdgid */ pdgid,
             /* q     */ charge,
             /* pass  */
-            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << pT3); },
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == pT3 : false;
+            },
             /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
@@ -71,7 +78,11 @@ int main(int argc, char** argv) {
             /* pdgid */ pdgid,
             /* q     */ charge,
             /* pass  */
-            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << T5); },
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == T5 : false;
+            },
             /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
@@ -79,7 +90,11 @@ int main(int argc, char** argv) {
             /* pdgid */ pdgid,
             /* q     */ charge,
             /* pass  */
-            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << pLS); },
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == pLS : false;
+            },
             /* sel   */ sels[isel]));
 
         if (ana.do_lower_level) {
@@ -89,7 +104,15 @@ int main(int argc, char** argv) {
               TString("pT5_lower_") + selnames[isel],
               /* pdgid */ pdgid,
               /* q     */ charge,
-              /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_pT5_matched").at(isim) > 0; },
+              /* pass  */
+              [&](unsigned int isim) {
+                auto& lstEff_sim_pt5IdxAllFrac = lstEff.getVVF("sim_pt5IdxAllFrac");
+                for (size_t i = 0; i < lstEff_sim_pt5IdxAllFrac.at(isim).size(); ++i) {
+                  if (lstEff_sim_pt5IdxAllFrac.at(isim).at(i) > 0.75)
+                    return true;
+                }
+                return false;
+              },
               /* sel   */ sels[isel]));
           list_effSetDef.push_back(
               SimTrackSetDefinition(/* name  */
@@ -97,14 +120,44 @@ int main(int argc, char** argv) {
                                     /* pdgid */ pdgid,
                                     /* q     */ charge,
                                     /* pass  */
-                                    [&](unsigned int isim) { return lstEff.getVI("sim_T5_matched").at(isim) > 0; },
+                                    [&](unsigned int isim) {
+                                      auto& lstEff_sim_t5IdxAllFrac = lstEff.getVVF("sim_t5IdxAllFrac");
+                                      for (size_t i = 0; i < lstEff_sim_t5IdxAllFrac.at(isim).size(); ++i) {
+                                        if (lstEff_sim_t5IdxAllFrac.at(isim).at(i) > 0.75)
+                                          return true;
+                                      }
+                                      return false;
+                                    },
                                     /* sel   */ sels[isel]));
           list_effSetDef.push_back(SimTrackSetDefinition(
               /* name  */
               TString("pT3_lower_") + selnames[isel],
               /* pdgid */ pdgid,
               /* q     */ charge,
-              /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_pT3_matched").at(isim) > 0; },
+              /* pass  */
+              [&](unsigned int isim) {
+                auto& lstEff_sim_pt3IdxAllFrac = lstEff.getVVF("sim_pt3IdxAllFrac");
+                for (size_t i = 0; i < lstEff_sim_pt3IdxAllFrac.at(isim).size(); ++i) {
+                  if (lstEff_sim_pt3IdxAllFrac.at(isim).at(i) > 0.75)
+                    return true;
+                }
+                return false;
+              },
+              /* sel   */ sels[isel]));
+          list_effSetDef.push_back(SimTrackSetDefinition(
+              /* name  */
+              TString("pLS_lower_") + selnames[isel],
+              /* pdgid */ pdgid,
+              /* q     */ charge,
+              /* pass  */
+              [&](unsigned int isim) {
+                auto& lstEff_sim_plsIdxAllFrac = lstEff.getVVF("sim_plsIdxAllFrac");
+                for (size_t i = 0; i < lstEff_sim_plsIdxAllFrac.at(isim).size(); ++i) {
+                  if (lstEff_sim_plsIdxAllFrac.at(isim).at(i) > 0.75)
+                    return true;
+                }
+                return false;
+              },
               /* sel   */ sels[isel]));
         }
       }
@@ -198,6 +251,15 @@ int main(int argc, char** argv) {
         /* eta   */ [&]() { return lstEff.getVF("pT3_eta"); },
         /* phi   */ [&]() { return lstEff.getVF("pT3_phi"); },
         /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT3_pt").size(), 1); }));
+    list_FRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */
+        "pLS_lower",
+        /* pass  */ [&](unsigned int ipLS) { return lstEff.getVI("pLS_isFake").at(ipLS) > 0; },
+        /* sel   */ [&](unsigned int ipLS) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pLS_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pLS_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pLS_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pLS_pt").size(), 1); }));
   }
 
   bookFakeRateSets(list_FRSetDef);
@@ -287,6 +349,15 @@ int main(int argc, char** argv) {
         /* eta   */ [&]() { return lstEff.getVF("pT3_eta"); },
         /* phi   */ [&]() { return lstEff.getVF("pT3_phi"); },
         /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT3_pt").size(), 1); }));
+    list_DRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */
+        "pLS_lower",
+        /* pass  */ [&](unsigned int ipLS) { return lstEff.getVI("pLS_isDuplicate").at(ipLS) > 0; },
+        /* sel   */ [&](unsigned int ipLS) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pLS_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pLS_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pLS_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pLS_pt").size(), 1); }));
   }
 
   bookDuplicateRateSets(list_DRSetDef);
@@ -351,8 +422,119 @@ void bookEfficiencySets(std::vector<SimTrackSetDefinition>& effsets) {
 void bookEfficiencySet(SimTrackSetDefinition& effset) {
   TString category_name = TString::Format("%s_%d_%d", effset.set_name.Data(), effset.pdgid, effset.q);
 
-  // Denominator tracks' quantities
+  // Lines for deltaEta
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_deltaEta");
+  ana.histograms.addVecHistogram(category_name + "_ef_denom_deltaEta", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_deltaEta");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_deltaEta");
+  ana.histograms.addVecHistogram(category_name + "_ef_numer_deltaEta", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_deltaEta");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_deltaEta");
+  ana.histograms.addVecHistogram(category_name + "_ie_numer_deltaEta", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_deltaEta");
+  });
+
+  // Lines for deltaPhi
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_deltaPhi");
+  ana.histograms.addVecHistogram(category_name + "_ef_denom_deltaPhi", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_deltaPhi");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_deltaPhi");
+  ana.histograms.addVecHistogram(category_name + "_ef_numer_deltaPhi", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_deltaPhi");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_deltaPhi");
+  ana.histograms.addVecHistogram(category_name + "_ie_numer_deltaPhi", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_deltaPhi");
+  });
+
+  // Lines for deltaR
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_deltaR");
+  ana.histograms.addVecHistogram(category_name + "_ef_denom_deltaR", 50, 0, 0.1, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_deltaR");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_deltaR");
+  ana.histograms.addVecHistogram(category_name + "_ef_numer_deltaR", 50, 0, 0.1, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_deltaR");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_deltaR");
+  ana.histograms.addVecHistogram(category_name + "_ie_numer_deltaR", 50, 0, 0.1, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_deltaR");
+  });
+
+  // Lines for jet_eta
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_jet_eta");
+  ana.histograms.addVecHistogram(category_name + "_ef_denom_jet_eta", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_jet_eta");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_jet_eta");
+  ana.histograms.addVecHistogram(category_name + "_ef_numer_jet_eta", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_jet_eta");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_jet_eta");
+  ana.histograms.addVecHistogram(category_name + "_ie_numer_jet_eta", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_jet_eta");
+  });
+
+  // Lines for jet_phi
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_jet_phi");
+  ana.histograms.addVecHistogram(category_name + "_ef_denom_jet_phi", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_jet_phi");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_jet_phi");
+  ana.histograms.addVecHistogram(category_name + "_ef_numer_jet_phi", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_jet_phi");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_jet_phi");
+  ana.histograms.addVecHistogram(category_name + "_ie_numer_jet_phi", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_jet_phi");
+  });
+
+  // Lines for jet_pt
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_jet_pt");
+  ana.histograms.addVecHistogram(category_name + "_ef_denom_jet_pt", 50, 50, 1000, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_jet_pt");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_jet_pt");
+  ana.histograms.addVecHistogram(category_name + "_ef_numer_jet_pt", 50, 50, 1000, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_jet_pt");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_jet_pt");
+  ana.histograms.addVecHistogram(category_name + "_ie_numer_jet_pt", 50, 50, 1000, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_jet_pt");
+  });
+
+  // Moving the standard pT code up here for convenience
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_pt");
+  ana.histograms.addVecHistogram(category_name + "_ef_denom_pt", getPtBounds(0), [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_pt");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_pt");
+  ana.histograms.addVecHistogram(category_name + "_ef_numer_pt", getPtBounds(0), [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_pt");
+  });
+
+  ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_pt");
+  ana.histograms.addVecHistogram(category_name + "_ie_numer_pt", getPtBounds(0), [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_pt");
+  });
+
+  // Denominator tracks' quantities
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_eta");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_dxy");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_vxy");
@@ -360,7 +542,6 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_phi");
 
   // Numerator tracks' quantities
-  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_pt");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_eta");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_dxy");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_vxy");
@@ -368,16 +549,12 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_phi");
 
   // Inefficiencies
-  ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_pt");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_eta");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_dxy");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_vxy");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_dz");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_phi");
 
-  ana.histograms.addVecHistogram(category_name + "_ef_denom_pt", getPtBounds(0), [&, category_name]() {
-    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_pt");
-  });
   ana.histograms.addVecHistogram(category_name + "_ef_denom_ptlow", getPtBounds(4), [&, category_name]() {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_pt");
   });
@@ -403,9 +580,6 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_phi");
   });
 
-  ana.histograms.addVecHistogram(category_name + "_ef_numer_pt", getPtBounds(0), [&, category_name]() {
-    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_pt");
-  });
   ana.histograms.addVecHistogram(category_name + "_ef_numer_ptlow", getPtBounds(4), [&, category_name]() {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_pt");
   });
@@ -431,9 +605,6 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_phi");
   });
 
-  ana.histograms.addVecHistogram(category_name + "_ie_numer_pt", getPtBounds(0), [&, category_name]() {
-    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_pt");
-  });
   ana.histograms.addVecHistogram(category_name + "_ie_numer_ptlow", getPtBounds(4), [&, category_name]() {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_pt");
   });
@@ -587,25 +758,212 @@ void fillEfficiencySets(std::vector<SimTrackSetDefinition>& effsets) {
   std::vector<float> const& vtx_y = lstEff.getVF("sim_vy");
   std::vector<float> const& vtx_z = lstEff.getVF("sim_vz");
 
-  for (auto& effset : effsets) {
-    for (unsigned int isimtrk = 0; isimtrk < lstEff.getVF("sim_pt").size(); ++isimtrk) {
-      fillEfficiencySet(isimtrk,
-                        effset,
-                        pt.at(isimtrk),
-                        eta.at(isimtrk),
-                        dz.at(isimtrk),
-                        dxy.at(isimtrk),
-                        phi.at(isimtrk),
-                        pdgidtrk.at(isimtrk),
-                        q.at(isimtrk),
-                        vtx_x.at(isimtrk),
-                        vtx_y.at(isimtrk),
-                        vtx_z.at(isimtrk));
+  if (ana.jet_branches) {
+    std::vector<float> const& deltaEta = lstEff.getVF("sim_deltaEta");
+    std::vector<float> const& deltaPhi = lstEff.getVF("sim_deltaPhi");
+    std::vector<float> const& deltaR = lstEff.getVF("sim_deltaR");
+    std::vector<float> const& jet_eta = lstEff.getVF("sim_jet_eta");
+    std::vector<float> const& jet_phi = lstEff.getVF("sim_jet_phi");
+    std::vector<float> const& jet_pt = lstEff.getVF("sim_jet_pt");
+
+    for (auto& effset : effsets) {
+      for (unsigned int isimtrk = 0; isimtrk < lstEff.getVF("sim_pt").size(); ++isimtrk) {
+        fillEfficiencySet(isimtrk,
+                          effset,
+                          pt.at(isimtrk),
+                          eta.at(isimtrk),
+                          dz.at(isimtrk),
+                          dxy.at(isimtrk),
+                          phi.at(isimtrk),
+                          pdgidtrk.at(isimtrk),
+                          q.at(isimtrk),
+                          vtx_x.at(isimtrk),
+                          vtx_y.at(isimtrk),
+                          vtx_z.at(isimtrk),
+                          deltaEta.at(isimtrk),
+                          deltaPhi.at(isimtrk),
+                          deltaR.at(isimtrk),
+                          jet_eta.at(isimtrk),
+                          jet_phi.at(isimtrk),
+                          jet_pt.at(isimtrk));
+      }
+    }
+  } else {
+    for (auto& effset : effsets) {
+      for (unsigned int isimtrk = 0; isimtrk < lstEff.getVF("sim_pt").size(); ++isimtrk) {
+        fillEfficiencySet(isimtrk,
+                          effset,
+                          pt.at(isimtrk),
+                          eta.at(isimtrk),
+                          dz.at(isimtrk),
+                          dxy.at(isimtrk),
+                          phi.at(isimtrk),
+                          pdgidtrk.at(isimtrk),
+                          q.at(isimtrk),
+                          vtx_x.at(isimtrk),
+                          vtx_y.at(isimtrk),
+                          vtx_z.at(isimtrk));
+      }
     }
   }
 }
 
 //__________________________________________________________________________________________________________________________________________________________________________
+void fillEfficiencySet(int isimtrk,
+                       SimTrackSetDefinition& effset,
+                       float pt,
+                       float eta,
+                       float dz,
+                       float dxy,
+                       float phi,
+                       int pdgidtrk,
+                       int q,
+                       float vtx_x,
+                       float vtx_y,
+                       float vtx_z,
+                       float deltaEta,
+                       float deltaPhi,
+                       float deltaR,
+                       float jet_eta,
+                       float jet_phi,
+                       float jet_pt) {
+  //=========================================================
+  // NOTE: The following is not applied as the LSTNtuple no longer writes this.
+  // const int &bunch = lstEff.getVI("sim_bunchCrossing")[isimtrk];
+  // const int &event = lstEff.getVI("sim_event")[isimtrk];
+  // if (bunch != 0)
+  //     return;
+  // if (event != 0)
+  //     return;
+  //=========================================================
+
+  const float vtx_perp = sqrt(vtx_x * vtx_x + vtx_y * vtx_y);
+  bool pass = effset.pass(isimtrk);
+  bool sel = effset.sel(isimtrk);
+
+  if (effset.pdgid != 0) {
+    if (std::abs(pdgidtrk) != std::abs(effset.pdgid))
+      return;
+  }
+
+  if (effset.q != 0) {
+    if (q != effset.q)
+      return;
+  }
+
+  if (effset.pdgid == 0 and q == 0)
+    return;
+
+  if (not sel)
+    return;
+
+  TString category_name = TString::Format("%s_%d_%d", effset.set_name.Data(), effset.pdgid, effset.q);
+
+  // https://github.com/cms-sw/cmssw/blob/7cbdb18ec6d11d5fd17ca66c1153f0f4e869b6b0/SimTracker/Common/python/trackingParticleSelector_cfi.py
+  // https://github.com/cms-sw/cmssw/blob/7cbdb18ec6d11d5fd17ca66c1153f0f4e869b6b0/SimTracker/Common/interface/TrackingParticleSelector.h#L122-L124
+  const float vtx_z_thresh = 30;
+  const float vtx_perp_thresh = 2.5;
+
+  if (pt > 0 && jet_eta < 140 && jet_eta > -140 && (jet_eta > -999 && deltaEta > -999)) {
+    // N minus eta cut
+    if (pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh and std::abs(vtx_perp) < vtx_perp_thresh) {
+      // vs. eta plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_eta", eta);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_eta", eta);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_eta", eta);
+    }
+
+    // N minus pt cut
+    if (std::abs(eta) < ana.eta_cut and std::abs(vtx_z) < vtx_z_thresh and std::abs(vtx_perp) < vtx_perp_thresh) {
+      // vs. pt plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_pt", pt);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_pt", pt);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_pt", pt);
+    }
+
+    // N minus dxy cut
+    if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh) {
+      // vs. dxy plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_dxy", dxy);
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_vxy", vtx_perp);
+      if (pass) {
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_dxy", dxy);
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_vxy", vtx_perp);
+      } else {
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_dxy", dxy);
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_vxy", vtx_perp);
+      }
+    }
+
+    // N minus dz cut
+    if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_perp) < vtx_perp_thresh) {
+      // vs. dz plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_dz", dz);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_dz", dz);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_dz", dz);
+    }
+
+    // All phase-space cuts
+    if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh and
+        std::abs(vtx_perp) < vtx_perp_thresh) {
+      // vs. Phi plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_phi", phi);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_phi", phi);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_phi", phi);
+
+      // vs. deltaEta plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_deltaEta", deltaEta);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_deltaEta", deltaEta);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_deltaEta", deltaEta);
+
+      // vs. deltaPhi plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_deltaPhi", deltaPhi);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_deltaPhi", deltaPhi);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_deltaPhi", deltaPhi);
+
+      // vs. deltaR plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_deltaR", deltaR);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_deltaR", deltaR);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_deltaR", deltaR);
+
+      // vs. jet_eta plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_jet_eta", jet_eta);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_jet_eta", jet_eta);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_jet_eta", jet_eta);
+
+      // vs. jet_phi plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_jet_phi", jet_phi);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_jet_phi", jet_phi);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_jet_phi", jet_phi);
+
+      // vs. jet_pt plot
+      ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_jet_pt", jet_pt);
+      if (pass)
+        ana.tx.pushbackToBranch<float>(category_name + "_ef_numer_jet_pt", jet_pt);
+      else
+        ana.tx.pushbackToBranch<float>(category_name + "_ie_numer_jet_pt", jet_pt);
+    }
+  }
+}
+
 void fillEfficiencySet(int isimtrk,
                        SimTrackSetDefinition& effset,
                        float pt,

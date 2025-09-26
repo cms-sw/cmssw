@@ -6,7 +6,7 @@ from RecoHGCal.TICL.mergedTrackstersProducer_cfi import mergedTrackstersProducer
 from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClustersEE, hgcalLayerClustersHSi, hgcalLayerClustersHSci
 from RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters
 from RecoTracker.IterativeTracking.iterativeTk_cff import trackdnn_source
-from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cfi import recHitMapProducer
+from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer

@@ -5,7 +5,7 @@ from RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cfi import hgcalMer
 from RecoHGCal.TICL.ticlDumper_cff import ticlDumper
 # Validation
 from Validation.HGCalValidation.HGCalValidator_cff import *
-from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cfi import recHitMapProducer
+from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer
 
 # Load DNN ESSource
 from RecoTracker.IterativeTracking.iterativeTk_cff import trackdnn_source

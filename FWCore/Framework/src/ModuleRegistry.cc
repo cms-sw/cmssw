@@ -14,7 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ModuleRegistry.h"
-#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/ModuleHolderFactory.h"
 
 namespace edm {
   std::shared_ptr<maker::ModuleHolder> ModuleRegistry::getModule(
@@ -24,11 +24,22 @@ namespace edm {
       signalslot::Signal<void(ModuleDescription const&)>& iPost) {
     auto modItr = labelToModule_.find(moduleLabel);
     if (modItr == labelToModule_.end()) {
-      auto modPtr = Factory::get()->makeModule(p, typeResolverMaker_, iPre, iPost);
+      auto modPtr = ModuleHolderFactory::get()->makeModule(p, typeResolverMaker_, iPre, iPost);
 
+      if (maxModuleID_ < modPtr->moduleDescription().id()) {
+        maxModuleID_ = modPtr->moduleDescription().id();
+      }
       // Transfer ownership of worker to the registry
       labelToModule_[moduleLabel] = modPtr;
       return modPtr;
+    }
+    return get_underlying_safe(modItr->second);
+  }
+
+  std::shared_ptr<maker::ModuleHolder> ModuleRegistry::getExistingModule(std::string const& moduleLabel) {
+    auto modItr = labelToModule_.find(moduleLabel);
+    if (modItr == labelToModule_.end()) {
+      return {};
     }
     return get_underlying_safe(modItr->second);
   }
@@ -41,9 +52,12 @@ namespace edm {
       return nullptr;
     }
 
-    auto modPtr = Factory::get()->makeReplacementModule(iPSet);
-    modPtr->setModuleDescription(modItr->second->moduleDescription());
-    modPtr->preallocate(iPrealloc);
+    auto modPtr = ModuleHolderFactory::get()->makeReplacementModule(iPSet);
+    modPtr->finishModuleInitialization(modItr->second->moduleDescription(), iPrealloc, nullptr);
+
+    if (maxModuleID_ < modPtr->moduleDescription().id()) {
+      maxModuleID_ = modPtr->moduleDescription().id();
+    }
 
     // Transfer ownership of worker to the registry
     modItr->second = modPtr;

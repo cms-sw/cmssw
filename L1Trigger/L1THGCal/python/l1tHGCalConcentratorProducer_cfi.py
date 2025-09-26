@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
+from HLTrigger.Configuration.HLT_75e33.psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
 
 # Digitization parameters
 adcSaturationBH_MIP = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC
@@ -7,11 +8,14 @@ adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 
 # MAX_LAYERS should be equal to kNHGCalLayersMax_ defined in interface/HGCalCoarseTriggerCellMapping.h
 # MAX_LAYERS can be larger than the actual number of layers
-# CTC / STC sizes vectors should have a length of 4*MAX_LAYERS, 4 = 3 different silicon thicknesses + scintillator portion
+# CTC / STC sizes vectors should have a length of (N_THICKNESSES+1)*MAX_LAYERS
+# <V19: 3 different silicon thicknesses/types (HD120, LD200, LD300) + scintillator portion
+# >=V19: 4 different silicon thicknesses/types (HD120, LD200, LD300, HD200) + scintillator portion
 MAX_LAYERS = 52
-CTC_2_SIZES = cms.vuint32( [2]*(MAX_LAYERS+1)*4 )
-STC_4_AND_16_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*3 )
-STC_4_AND_8_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*3 )
+N_THICKNESSES = HGCAL_reco_constants.numberOfThicknesses.value()
+CTC_2_SIZES = cms.vuint32( [2]*(MAX_LAYERS+1)*(N_THICKNESSES+1) )
+STC_4_AND_16_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*N_THICKNESSES )
+STC_4_AND_8_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*N_THICKNESSES )
 
 threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                                Method = cms.vstring(['thresholdSelect']*3),
@@ -22,6 +26,7 @@ threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorPro
                                allTrigCellsInTrigSums = cms.bool(True),
                                ctcSize = CTC_2_SIZES,
                                )
+
 
 # Column is Nlinks, Row is NWafers
 # Requested size = 8(links)x8(wafers)
@@ -95,6 +100,7 @@ supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProce
                              superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                              superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                              )
+
 
 custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                           Method = cms.vstring('bestChoiceSelect','superTriggerCellSelect','superTriggerCellSelect'),

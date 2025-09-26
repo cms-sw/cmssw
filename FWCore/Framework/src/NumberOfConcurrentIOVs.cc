@@ -19,7 +19,7 @@ namespace edm {
     void NumberOfConcurrentIOVs::readConfigurationParameters(ParameterSet const* eventSetupPset,
                                                              unsigned int maxConcurrentIOVs,
                                                              bool dumpOptions) {
-      if (eventSetupPset) {  // this condition is false for SubProcesses
+      if (eventSetupPset) {  // currently in a cmsRun process this condition will always be true
         maxConcurrentIOVs_ = maxConcurrentIOVs;
         numberConcurrentIOVs_ = eventSetupPset->getUntrackedParameter<unsigned int>("numberOfConcurrentIOVs");
         if (numberConcurrentIOVs_ == 0 || numberConcurrentIOVs_ > maxConcurrentIOVs) {

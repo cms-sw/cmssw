@@ -40,7 +40,7 @@ import RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi
 hfprerecoMB = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
     dropZSmarkedPassed = False
 )
-_phase1_hfrecoMB = RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi.hfreco.clone(
+_phase1_hfrecoMB = RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi._hfreco.clone(
     inputLabel = "hfprerecoMB",
     setNoiseFlags = False,
     algorithm = dict(

@@ -61,8 +61,6 @@ namespace edm {
 
       // ---------- member functions ---------------------------
 
-      std::string workerType() const { return "WorkerT<EDProducerAdaptorBase>"; }
-
     protected:
       using ProducingModuleAdaptorBase<EDProducerBase>::commit;
 

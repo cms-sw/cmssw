@@ -12,7 +12,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 

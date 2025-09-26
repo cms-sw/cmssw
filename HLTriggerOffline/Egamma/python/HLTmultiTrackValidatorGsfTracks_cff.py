@@ -1,6 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoTrack.HLTmultiTrackValidator_cfi import *
+from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackAssociatorByHits
+from Validation.RecoTrack.HLTmultiTrackValidator_cfi import hltMultiTrackValidator
+from Validation.RecoTrack.TrackValidation_cff import trackingParticlesElectron
+
+hltTPClusterOnDemandProducer = hltTPClusterProducer.clone(
+    stripClusterSrc = "hltSiStripRawToClustersFacilityOnDemand"
+)
+
+hltGsfTrackAssociatorByHits = hltTrackAssociatorByHits.clone(
+    cluster2TPSrc = "hltTPClusterOnDemandProducer"
+)
+
 hltGsfTrackValidator = hltMultiTrackValidator.clone(
     label = [
         "hltEgammaGsfTracks",
@@ -20,6 +31,7 @@ hltGsfTrackValidator = hltMultiTrackValidator.clone(
     ),
     maxRapidityTP =  3.0,
     minRapidityTP = -3.0,
+    associators = ['hltGsfTrackAssociatorByHits']
 )
 
 def _modifyForPhase2(trackvalidator):
@@ -28,11 +40,10 @@ def _modifyForPhase2(trackvalidator):
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(hltGsfTrackValidator, _modifyForPhase2)
 
-from Validation.RecoTrack.TrackValidation_cff import trackingParticlesElectron
 hltMultiTrackValidationGsfTracksTask = cms.Task(
-   hltTPClusterProducer
-   , hltTrackAssociatorByHits
-   , trackingParticlesElectron
+    hltTPClusterOnDemandProducer,
+    hltGsfTrackAssociatorByHits,
+    trackingParticlesElectron
  )
 hltMultiTrackValidationGsfTracks = cms.Sequence(
     hltGsfTrackValidator,

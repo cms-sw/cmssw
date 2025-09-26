@@ -25,14 +25,16 @@ namespace mkfit {
     bool isPhase2() const { return lo_ == TkLayout::phase2; }
     int convertLayerNumber(int det, int lay, bool useMatched, int isStereo, bool posZ) const {
       if (lo_ == TkLayout::phase2) {
+        // For TOB / TEC stereo is used for P in PS modules so we move stereo before the other
+        // one. The same is done for 2S layers (well, TEC is mixed PS / 2S anyway).
         if (det == 1)
           return lay - 1;
         if (det == 2)
           return 16 + lay - 1 + (posZ ? 0 : 22);
         if (det == 5)
-          return 4 + (2 * (lay - 1)) + isStereo;
+          return 4 + (2 * (lay - 1)) + 1 - isStereo;
         if (det == 4)
-          return 16 + 12 + (2 * (lay - 1)) + isStereo + (posZ ? 0 : 22);
+          return 16 + 12 + (2 * (lay - 1)) + 1 - isStereo + (posZ ? 0 : 22);
         throw std::runtime_error("bad subDet");
       }
 

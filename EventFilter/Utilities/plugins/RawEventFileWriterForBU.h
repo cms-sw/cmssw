@@ -88,6 +88,8 @@ private:
 
   int microSleep_;
   unsigned int frdFileVersion_;
+  bool writeEoR_;
+  bool writeToOpen_;
 
   edm::streamer::uint32 adlera_;
   edm::streamer::uint32 adlerb_;

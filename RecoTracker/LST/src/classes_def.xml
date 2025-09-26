@@ -1,4 +1,0 @@
-<lcgdict>
-  <class name="LSTOutput" persistent="false"/>
-  <class name="edm::Wrapper<LSTOutput>" persistent="false"/>
-</lcgdict>

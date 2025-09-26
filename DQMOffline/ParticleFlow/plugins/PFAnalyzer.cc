@@ -389,10 +389,10 @@ std::string PFAnalyzer::stringWithDecimals(int bin, std::vector<double> bins) {
     signStringHigh = "m";
   return Form("%s%.0fp%.0f_%s%.0fp%.0f",
               signStringLow.c_str(),
-              abs(bins[bin]),
+              std::abs(bins[bin]),
               newDigit,
               signStringHigh.c_str(),
-              abs(bins[bin + 1]),
+              std::abs(bins[bin + 1]),
               newDigit2);
 }
 

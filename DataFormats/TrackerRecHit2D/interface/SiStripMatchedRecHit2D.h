@@ -76,10 +76,20 @@ private:
 inline bool sharesClusters(SiStripMatchedRecHit2D const& h1,
                            SiStripMatchedRecHit2D const& h2,
                            TrackingRecHit::SharedInputType what) {
-  bool mono = h1.monoClusterRef() == h2.monoClusterRef();
-  bool stereo = h1.stereoClusterRef() == h2.stereoClusterRef();
+  auto const& thisMonoClus = h1.monoClusterRef();
+  auto const& otherMonoClus = h2.monoClusterRef();
+  auto const& thisStereoClus = h1.stereoClusterRef();
+  auto const& otherStereoClus = h2.stereoClusterRef();
 
-  return (what == TrackingRecHit::all) ? (mono && stereo) : (mono || stereo);
+  if (thisMonoClus.id() == otherMonoClus.id()) {
+    const bool monoIdentity = thisMonoClus == otherMonoClus;
+    const bool stereoIdentity = thisStereoClus == otherStereoClus;
+    return (what == TrackingRecHit::all) ? (monoIdentity && stereoIdentity) : (monoIdentity || stereoIdentity);
+  } else {
+    bool monoOverlap = (h1.monoId() == h2.monoId()) ? otherMonoClus.stripOverlap(thisMonoClus) : false;
+    bool stereoOverlap = (h1.stereoId() == h2.stereoId()) ? otherStereoClus.stripOverlap(thisStereoClus) : false;
+    return (what == TrackingRecHit::all) ? (monoOverlap && stereoOverlap) : (monoOverlap || stereoOverlap);
+  }
 }
 
 #endif

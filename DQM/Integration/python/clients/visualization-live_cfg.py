@@ -65,7 +65,7 @@ if unitTest:
 
 process.source = source
 
-if not unitTest:
+if not unitTest and (not options.inputFiles):
     process.source.inputFileTransitionsEachEvent = True
     process.source.skipFirstLumis                = True
     process.source.minEventsPerLumi              = 0

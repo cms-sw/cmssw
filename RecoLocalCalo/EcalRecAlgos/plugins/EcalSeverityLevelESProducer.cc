@@ -26,6 +26,8 @@ public:
 
   ReturnType produce(const EcalSeverityLevelAlgoRcd& iRecord);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void setupChannelStatus(const EcalChannelStatusRcd&, EcalSeverityLevelAlgo*);
 
@@ -50,6 +52,78 @@ EcalSeverityLevelESProducer::ReturnType EcalSeverityLevelESProducer::produce(con
 
 void EcalSeverityLevelESProducer::setupChannelStatus(const EcalChannelStatusRcd& chs, EcalSeverityLevelAlgo* algo) {
   algo->setChannelStatus(chs.get(channelToken_));
+}
+
+void EcalSeverityLevelESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::vector<std::string>>("kGood",
+                                       {
+                                           "kGood",
+                                       });
+    psd0.add<std::vector<std::string>>("kProblematic",
+                                       {
+                                           "kPoorReco",
+                                           "kPoorCalib",
+                                           "kNoisy",
+                                           "kSaturated",
+                                       });
+    psd0.add<std::vector<std::string>>("kRecovered",
+                                       {
+                                           "kLeadingEdgeRecovered",
+                                           "kTowerRecovered",
+                                       });
+    psd0.add<std::vector<std::string>>("kTime",
+                                       {
+                                           "kOutOfTime",
+                                       });
+    psd0.add<std::vector<std::string>>("kWeird",
+                                       {
+                                           "kWeird",
+                                           "kDiWeird",
+                                       });
+    psd0.add<std::vector<std::string>>("kBad",
+                                       {
+                                           "kFaultyHardware",
+                                           "kDead",
+                                           "kKilled",
+                                       });
+    desc.add<edm::ParameterSetDescription>("flagMask", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::vector<std::string>>("kGood",
+                                       {
+                                           "kOk",
+                                       });
+    psd0.add<std::vector<std::string>>("kProblematic",
+                                       {
+                                           "kDAC",
+                                           "kNoLaser",
+                                           "kNoisy",
+                                           "kNNoisy",
+                                           "kNNNoisy",
+                                           "kNNNNoisy",
+                                           "kNNNNNoisy",
+                                           "kFixedG6",
+                                           "kFixedG1",
+                                           "kFixedG0",
+                                       });
+    psd0.add<std::vector<std::string>>("kRecovered", {});
+    psd0.add<std::vector<std::string>>("kTime", {});
+    psd0.add<std::vector<std::string>>("kWeird", {});
+    psd0.add<std::vector<std::string>>("kBad",
+                                       {
+                                           "kNonRespondingIsolated",
+                                           "kDeadVFE",
+                                           "kDeadFE",
+                                           "kNoDataNoTP",
+                                       });
+    desc.add<edm::ParameterSetDescription>("dbstatusMask", psd0);
+  }
+  desc.add<double>("timeThresh", 2.0);
+  descriptions.add("ecalSeverityLevel", desc);
 }
 
 //define this as a plug-in

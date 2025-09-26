@@ -14,6 +14,25 @@ void bookDuplicateRateSets(std::vector<RecoTrackSetDefinition>& DRset);
 void bookDuplicateRateSet(RecoTrackSetDefinition& DRset);
 
 void fillEfficiencySets(std::vector<SimTrackSetDefinition>& effset);
+
+void fillEfficiencySet(int isimtrk,
+                       SimTrackSetDefinition& effset,
+                       float pt,
+                       float eta,
+                       float dz,
+                       float dxy,
+                       float phi,
+                       int pdgidtrk,
+                       int q,
+                       float vtx_x,
+                       float vtx_y,
+                       float vtx_z,
+                       float deltaEta,
+                       float deltaPhi,
+                       float deltaR,
+                       float jet_eta,
+                       float jet_phi,
+                       float jet_pt);
 void fillEfficiencySet(int isimtrk,
                        SimTrackSetDefinition& effset,
                        float pt,
@@ -26,6 +45,7 @@ void fillEfficiencySet(int isimtrk,
                        float vtx_x,
                        float vtx_y,
                        float vtx_z);
+
 void fillFakeRateSets(std::vector<RecoTrackSetDefinition>& FRset);
 void fillFakeRateSet(int isimtrk, RecoTrackSetDefinition& FRset, float pt, float eta, float phi);
 void fillDuplicateRateSets(std::vector<RecoTrackSetDefinition>& DRset);

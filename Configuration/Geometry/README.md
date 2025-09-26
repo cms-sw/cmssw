@@ -47,6 +47,7 @@ Muon system:
 * M14: Same as M10 with modified DTShield
 * M15: Same as M11 with modified DTShield
 * M16: Same as M12 with unmounted GE11 for 2025
+* M17: Same as M16 where the list of unmounted GE11 is correctd
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
@@ -60,8 +61,9 @@ The script also handles the common and forward elements of the geometry:
 * O8: as O4 with added material for muon shield
 * O9: as O5 with added material for muon shield
 * F1: 2021 baseline
-* F2: same as F1 with modified file zdc.xmlfrom ZDC group
+* F2: same as F1 with modified file zdc.xml from ZDC group
 * F3: same as F2 with added simulti geometry for RPD
+* F4: same as F3 with corrected version of zdc.xml from ZDC group
 
 Several detector combinations have been generated:
 * 2021 = T3+C3+M13+P7+O7+F1
@@ -82,7 +84,7 @@ Several detector combinations have been generated:
 * 2024FlatMinus10Percent = T6+C2+M11+P7+O5+F2
 * 2024FlatPlus05Percent = T7+C2+M11+P7+O5+F2
 * 2024FlatPlus10Percent = T8+C2+M11+P7+O5+F2
-* 2025 = T3+C2+M16+P8+O7+F3
+* 2025 = T3+C2+M17+P8+O7+F4
 * 2025ZeroMaterial = T4+C2+M12+P8+O8+F3
 * 2025FlatMinus05Percent = T5+C2+M12+P8+O9+F3
 * 2025FlatMinus10Percent = T6+C2+M12+P8+O9+F3
@@ -194,7 +196,7 @@ Several detector combinations have been generated:
 * D107 = T32+C17+M14+I17+O9+F8
 * D108 = T35+C19+M14+I17+O9+F8
 * D109 = T35+C24+M14+I17+O9+F8
-* D110 = T35+C18+M14+I17+O9+F8 (Current Phase-2 baseline from CMSSW_14_1_0_pre2)
+* D110 = T35+C18+M14+I17+O9+F8
 * D111 = T36+C24+M14+I17+O9+F8
 * D112 = T37+C24+M14+I17+O9+F8
 * D113 = T38+C24+M14+I17+O9+F8
@@ -205,6 +207,6 @@ Several detector combinations have been generated:
 * D118 = T35+C25+M15+I19+O10+F9
 * D119 = T35+C25+M15+I20+O10+F9
 * D120 = T35+C26+M16+I20+O10+F9
-* D121 = T35+C25+M16+I18+O10+F9
+* D121 = T35+C25+M16+I18+O10+F9  (Current Phase-2 baseline from CMSSW_15_1_0_pre4)
 * D122 = T35+C27+M16+I18+O10+F9 
 * D123 = T35+C28+M16+I18+O10+F9 

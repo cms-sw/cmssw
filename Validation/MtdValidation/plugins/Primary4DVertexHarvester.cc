@@ -142,7 +142,7 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   MonitorElement* meTrackEffEtaTot = igetter.get(folder_ + "EffEtaTot");
   MonitorElement* meTrackMatchedTPEffEtaTot = igetter.get(folder_ + "MatchedTPEffEtaTot");
   MonitorElement* meTrackMatchedTPEffEtaMtd = igetter.get(folder_ + "MatchedTPEffEtaMtd");
-  MonitorElement* meRecVerNumber = igetter.get(folder_ + "RecVerNumber");
+  MonitorElement* meRecSelVerNumber = igetter.get(folder_ + "RecSelVerNumber");
   MonitorElement* meRecVerZ = igetter.get(folder_ + "recPVZ");
   MonitorElement* meRecVerT = igetter.get(folder_ + "recPVT");
   MonitorElement* meSimVerNumber = igetter.get(folder_ + "SimVerNumber");
@@ -150,14 +150,14 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   MonitorElement* meSimVerT = igetter.get(folder_ + "simPVT");
 
   if (!meTrackEffPtTot || !meTrackMatchedTPEffPtTot || !meTrackMatchedTPEffPtMtd || !meTrackEffEtaTot ||
-      !meTrackMatchedTPEffEtaTot || !meTrackMatchedTPEffEtaMtd || !meRecVerNumber || !meRecVerZ || !meRecVerT ||
+      !meTrackMatchedTPEffEtaTot || !meTrackMatchedTPEffEtaMtd || !meRecSelVerNumber || !meRecVerZ || !meRecVerT ||
       !meSimVerNumber || !meSimVerZ || !meSimVerT) {
     edm::LogError("Primary4DVertexHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
 
   // Normalize z,time multiplicty plots to get correct line densities
-  double scale = meRecVerNumber->getTH1F()->Integral();
+  double scale = meRecSelVerNumber->getTH1F()->Integral();
   scale = (scale > 0.) ? 1. / scale : 0.;
   if (scale > 0.) {
     scaleby(meRecVerZ, scale);

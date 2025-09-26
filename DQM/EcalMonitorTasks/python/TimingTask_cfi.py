@@ -62,6 +62,18 @@ ecalTimingTask = cms.untracked.PSet(
             btype = cms.untracked.string('Crystal'),
             description = cms.untracked.string('2D distribution of the mean rec hit timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. Hits with |t| > ' + str(timeWindow) + ' ns are discarded. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
         ),
+        TimeMap_nonCorr = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/nonCorrectedTime/%(prefix)sTMT timing %(sm)s'),
+            kind = cms.untracked.string('TProfile2D'),
+            zaxis = cms.untracked.PSet(
+                high = cms.untracked.double(timeWindow),
+                low = cms.untracked.double(-timeWindow),
+                title = cms.untracked.string('time (ns)')
+            ),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('2D distribution of the mean rec hit non-corrected timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. Hits with |t| > ' + str(timeWindow) + ' ns are discarded. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
+        ),
         TimeMapByLS = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT timing by LS %(sm)s'),
             kind = cms.untracked.string('TProfile2D'),
@@ -73,6 +85,18 @@ ecalTimingTask = cms.untracked.PSet(
             otype = cms.untracked.string('SM'),
             btype = cms.untracked.string('Crystal'),
             description = cms.untracked.string('2D distribution of the mean rec hit timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. Hits with |t| > ' + str(timeWindow) + ' ns are discarded. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
+        ),
+        TimeMapByLS_nonCorr = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/nonCorrectedTime/%(prefix)sTMT timing by LS %(sm)s'),
+            kind = cms.untracked.string('TProfile2D'),
+            zaxis = cms.untracked.PSet(
+                high = cms.untracked.double(timeWindow),
+                low = cms.untracked.double(-timeWindow),
+                title = cms.untracked.string('time (ns)')
+            ),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('2D distribution of the mean rec hit non-corrected timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. Hits with |t| > ' + str(timeWindow) + ' ns are discarded. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
         ),
         TimeAll = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT timing 1D summary%(suffix)s'),
@@ -87,6 +111,19 @@ ecalTimingTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Distribution of the mean rec hit timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
         ),
+        TimeAll_nonCorr = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/nonCorrectedTime/%(prefix)sTMT timing 1D summary%(suffix)s'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal3P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(timeWindow),
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-timeWindow),
+                title = cms.untracked.string('time (ns)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Distribution of the mean rec hit non-corrected timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
+        ),
         TimeAllMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT timing map%(suffix)s'),
             kind = cms.untracked.string('TProfile2D'),
@@ -98,6 +135,18 @@ ecalTimingTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('2D distribution of the mean rec hit timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. Hits with |t| > ' + str(summaryTimeWindow) + ' ns are discarded. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
+        ),
+        TimeAllMap_nonCorr = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/nonCorrectedTime/%(prefix)sTMT timing map%(suffix)s'),
+            kind = cms.untracked.string('TProfile2D'),
+            zaxis = cms.untracked.PSet(
+                high = cms.untracked.double(summaryTimeWindow),
+                low = cms.untracked.double(-summaryTimeWindow),
+                title = cms.untracked.string('time (ns)')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('2D distribution of the mean rec hit non-corrected timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. Hits with |t| > ' + str(summaryTimeWindow) + ' ns are discarded. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
         ),
         TimeAmpAll = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
@@ -116,6 +165,23 @@ ecalTimingTask = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT timing vs amplitude summary%(suffix)s'),
             description = cms.untracked.string('Correlation between hit timing and energy. Only hits with GOOD or OUT_OF_TIME reconstruction flags are used.')
         ),
+        TimeAmpAll_nonCorr = cms.untracked.PSet(
+            kind = cms.untracked.string('TH2F'),
+            yaxis = cms.untracked.PSet(
+                high = cms.untracked.double(50.0),
+                nbins = cms.untracked.int32(200),
+                low = cms.untracked.double(-50.0),
+                title = cms.untracked.string('time (ns)')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            xaxis = cms.untracked.PSet(
+                edges = cms.untracked.vdouble(EaxisEdges),
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            btype = cms.untracked.string('User'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/nonCorrectedTime/%(prefix)sTMT timing vs amplitude summary%(suffix)s'),
+            description = cms.untracked.string('Correlation between non-corrected hit timing and energy. Only hits with GOOD or OUT_OF_TIME reconstruction flags are used.')
+        ),
         TimeAmp = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
             yaxis = cms.untracked.PSet(
@@ -132,6 +198,23 @@ ecalTimingTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT timing vs amplitude %(sm)s'),
             description = cms.untracked.string('Correlation between hit timing and energy. Only hits with GOOD or OUT_OF_TIME reconstruction flags are used.')
+        ),
+        TimeAmp_nonCorr = cms.untracked.PSet(
+            kind = cms.untracked.string('TH2F'),
+            yaxis = cms.untracked.PSet(
+                high = cms.untracked.double(50.0),
+                nbins = cms.untracked.int32(200),
+                low = cms.untracked.double(-50.0),
+                title = cms.untracked.string('time (ns)')
+            ),
+            otype = cms.untracked.string('SM'),
+            xaxis = cms.untracked.PSet(
+                edges = cms.untracked.vdouble(EaxisEdges),
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            btype = cms.untracked.string('User'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/nonCorrectedTime/%(prefix)sTMT timing vs amplitude %(sm)s'),
+            description = cms.untracked.string('Correlation between non-corrected hit timing and energy. Only hits with GOOD or OUT_OF_TIME reconstruction flags are used.')
         ),
         BarrelTimingVsBX = cms.untracked.PSet(
             path = cms.untracked.string('EcalBarrel/EBTimingTask/EBTMT Timing vs BX'),
@@ -166,6 +249,23 @@ ecalTimingTask = cms.untracked.PSet(
             ),
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Average hit timing in EB as a finely binned function of BX number. BX ids start at 1. Only events with energy above 2.02 GeV and chi2 less than 16 are used. The Customize button can be used to zoom in.')
+        ),
+         BarrelTimingVsBXFineBinned_nonCorr = cms.untracked.PSet(
+            path = cms.untracked.string('EcalBarrel/EBTimingTask/nonCorrectedTime/EBTMT Timing vs Finely Binned BX'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('EB'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(1.0*nBXBinsFine),
+                nbins = cms.untracked.int32(nBXBinsFine),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('BX Id'),
+                labels = cms.untracked.vstring(bxBinLabelsFine)
+            ),
+            yaxis = cms.untracked.PSet(
+                title = cms.untracked.string('Timing (ns)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Average hit non-corrected timing in EB as a finely binned function of BX number. BX ids start at 1. Only events with energy above 2.02 GeV and chi2 less than 16 are used. The Customize button can be used to zoom in.')
         ),
         TimeAmpBXm = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
@@ -217,6 +317,19 @@ ecalTimingTask = cms.untracked.PSet(
             ),
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Distribution of the mean rec hit timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
+        ),
+        Time1D_nonCorr = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/nonCorrectedTime/%(prefix)sTMT timing 1D %(sm)s'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('SM'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(timeWindow),
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-timeWindow),
+                title = cms.untracked.string('time (ns)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Distribution of the mean rec hit non-corrected timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
         ),
         Chi2 = cms.untracked.PSet(
             path = cms.untracked.string("%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT %(subdetshortsig)s Chi2"),

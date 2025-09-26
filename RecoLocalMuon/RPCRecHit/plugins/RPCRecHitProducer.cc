@@ -5,14 +5,14 @@
 
 #include "RPCRecHitProducer.h"
 
-#include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
-
-#include "RPCRecHitAlgoFactory.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
+#include "RPCRecHitAlgoFactory.h"
 
 #include <string>
 #include <fstream>
@@ -159,4 +159,19 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
   }
 
   event.put(std::move(recHitCollection));
+}
+
+void RPCRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("recAlgoConfig", psd0);
+  }
+  desc.add<std::string>("recAlgo", "RPCRecHitStandardAlgo");
+  desc.add<edm::InputTag>("rpcDigiLabel", edm::InputTag("muonRPCDigis"));
+  desc.add<std::string>("maskSource", "File");
+  desc.add<edm::FileInPath>("maskvecfile", edm::FileInPath("RecoLocalMuon/RPCRecHit/data/RPCMaskVec.dat"));
+  desc.add<std::string>("deadSource", "File");
+  desc.add<edm::FileInPath>("deadvecfile", edm::FileInPath("RecoLocalMuon/RPCRecHit/data/RPCDeadVec.dat"));
+  descriptions.addWithDefaultLabel(desc);
 }

@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_LuminosityBlockProcessingStatus_h
 #define FWCore_Framework_LuminosityBlockProcessingStatus_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     LuminosityBlockProcessingStatus
@@ -21,17 +21,16 @@
 // system include files
 #include <memory>
 #include <atomic>
-#include <vector>
 
 // user include files
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
 namespace edm {
+  class EventSetupImpl;
 #if !defined(TEST_NO_FWD_DECL)
   class LuminosityBlockPrincipal;
   class LuminosityBlockProcessingStatus;
@@ -58,12 +57,9 @@ namespace edm {
     std::shared_ptr<LuminosityBlockPrincipal>& lumiPrincipal() { return lumiPrincipal_; }
     void setLumiPrincipal(std::shared_ptr<LuminosityBlockPrincipal> val) { lumiPrincipal_ = std::move(val); }
 
-    EventSetupImpl const& eventSetupImpl(unsigned subProcessIndex) const {
-      return *eventSetupImpls_.at(subProcessIndex);
-    }
+    EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
-    std::vector<std::shared_ptr<const EventSetupImpl>>& eventSetupImpls() { return eventSetupImpls_; }
-    std::vector<std::shared_ptr<const EventSetupImpl>> const& eventSetupImpls() const { return eventSetupImpls_; }
+    std::shared_ptr<const EventSetupImpl>& eventSetupImplPtr() { return eventSetupImpl_; }
 
     WaitingTaskList& endIOVWaitingTasks() { return endIOVWaitingTasks_; }
 
@@ -102,7 +98,7 @@ namespace edm {
     // ---------- member data --------------------------------
     LimitedTaskQueue::Resumer globalLumiQueueResumer_;
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
-    std::vector<std::shared_ptr<const EventSetupImpl>> eventSetupImpls_;
+    std::shared_ptr<const EventSetupImpl> eventSetupImpl_;
     WaitingTaskList endIOVWaitingTasks_;
     edm::WaitingTaskHolder globalEndRunHolder_;
     edm::Timestamp endTime_{};

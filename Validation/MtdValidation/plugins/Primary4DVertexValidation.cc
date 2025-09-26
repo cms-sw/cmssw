@@ -377,6 +377,7 @@ private:
   MonitorElement* meRecoPVPosSignalNotHighestPt_;
   MonitorElement* meRecoVtxVsLineDensity_;
   MonitorElement* meRecVerNumber_;
+  MonitorElement* meRecSelVerNumber_;
   MonitorElement* meRecPVZ_;
   MonitorElement* meRecPVT_;
   MonitorElement* meSimVerNumber_;
@@ -727,13 +728,13 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meTimeSignalPull_ =
       ibook.book1D("TimeSignalPull", "Pull for signal; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   mePUvsRealV_ =
-      ibook.bookProfile("PUvsReal", "#PU vertices vs #real matched vertices;#PU;#real ", 100, 0, 300, 100, 0, 200);
+      ibook.bookProfile("PUvsReal", "#PU vertices vs #real matched vertices;#PU;#real ", 100, 0, 300, 100, 0, 300);
   mePUvsFakeV_ =
-      ibook.bookProfile("PUvsFake", "#PU vertices vs #fake matched vertices;#PU;#fake ", 100, 0, 300, 100, 0, 20);
+      ibook.bookProfile("PUvsFake", "#PU vertices vs #fake matched vertices;#PU;#fake ", 100, 0, 300, 100, 0, 300);
   mePUvsOtherFakeV_ = ibook.bookProfile(
-      "PUvsOtherFake", "#PU vertices vs #other fake matched vertices;#PU;#other fake ", 100, 0, 300, 100, 0, 20);
+      "PUvsOtherFake", "#PU vertices vs #other fake matched vertices;#PU;#other fake ", 100, 0, 300, 100, 0, 300);
   mePUvsSplitV_ =
-      ibook.bookProfile("PUvsSplit", "#PU vertices vs #split matched vertices;#PU;#split ", 100, 0, 300, 100, 0, 20);
+      ibook.bookProfile("PUvsSplit", "#PU vertices vs #split matched vertices;#PU;#split ", 100, 0, 300, 100, 0, 300);
   meMatchQual_ = ibook.book1D("MatchQuality", "RECO-SIM vertex match quality; ", 8, 0, 8.);
   meDeltaZrealreal_ = ibook.book1D("DeltaZrealreal", "#Delta Z real-real; |#Delta Z (r-r)| [cm]", 100, 0, 0.5);
   meDeltaZfakefake_ = ibook.book1D("DeltaZfakefake", "#Delta Z fake-fake; |#Delta Z (f-f)| [cm]", 100, 0, 0.5);
@@ -758,6 +759,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    0,
                    20);
   meRecVerNumber_ = ibook.book1D("RecVerNumber", "RECO Vertex Number: Number of vertices", 50, 0, 250);
+  meRecSelVerNumber_ = ibook.book1D("RecSelVerNumber", "RECO Selected Vertex Number: real + fake", 50, 0, 250);
   meSimVerNumber_ = ibook.book1D("SimVerNumber", "SIM Vertex Number: Number of vertices", 50, 0, 250);
   meRecPVZ_ = ibook.book1D("recPVZ", "#Rec vertices/10 mm", 30, -15., 15.);
   meRecPVT_ = ibook.book1D("recPVT", "#Rec vertices/50 ps", 30, -0.75, 0.75);
@@ -2908,6 +2910,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   LogTrace("Primary4DVertexValidation") << "is_fake: " << fake;
   LogTrace("Primary4DVertexValidation") << "split_from: " << split;
   LogTrace("Primary4DVertexValidation") << "other fake: " << other_fake;
+  meRecSelVerNumber_->Fill(real + fake);
   mePUvsRealV_->Fill(simpv.size(), real);
   mePUvsFakeV_->Fill(simpv.size(), fake);
   mePUvsOtherFakeV_->Fill(simpv.size(), other_fake);

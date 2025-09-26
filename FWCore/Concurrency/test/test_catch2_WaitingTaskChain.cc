@@ -513,4 +513,47 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       REQUIRE(not waitTask.exceptionPtr());
     }
   }
+  SECTION("firstIf testing") {
+    SECTION("firstIf(true) | then | runLast") {
+      std::atomic<int> count{0};
+
+      oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
+      {
+        using namespace edm::waiting_task::chain;
+        firstIf(true, [&count](auto h) {
+          ++count;
+          REQUIRE(count.load() == 1);
+        }) | then([&count](auto h) {
+          ++count;
+          REQUIRE(count.load() == 2);
+        }) | runLast(edm::WaitingTaskHolder(group, &waitTask));
+      }
+      waitTask.waitNoThrow();
+      REQUIRE(count.load() == 2);
+      REQUIRE(waitTask.done());
+      REQUIRE(not waitTask.exceptionPtr());
+    }
+
+    SECTION("first(false) | then | runLast") {
+      std::atomic<int> count{0};
+
+      oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
+      {
+        using namespace edm::waiting_task::chain;
+        firstIf(false, [&count](auto h) {
+          ++count;
+          REQUIRE(false);
+        }) | then([&count](auto h) {
+          ++count;
+          REQUIRE(count.load() == 1);
+        }) | runLast(edm::WaitingTaskHolder(group, &waitTask));
+      }
+      waitTask.waitNoThrow();
+      REQUIRE(count.load() == 1);
+      REQUIRE(waitTask.done());
+      REQUIRE(not waitTask.exceptionPtr());
+    }
+  }
 }

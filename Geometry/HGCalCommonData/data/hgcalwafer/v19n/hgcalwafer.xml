@@ -568,7 +568,7 @@
     <Vector name="Layers" type="numeric" nEntries="6"> 
       5, 3, 4, 2, 1, 0</Vector>
     <String name="SenseName"     value="HGCalEECellSensitive"/>
-    <Numeric name="SenseType"    value="0"/>
+    <Numeric name="SenseType"    value="-1"/>
     <Numeric name="SenseThick"   value="[CellThickness120]"/>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
@@ -604,7 +604,7 @@
     <Vector name="Layers" type="numeric" nEntries="6"> 
       0, 1, 2, 4, 3, 5</Vector>
     <String name="SenseName"     value="HGCalEECellSensitive"/>
-    <Numeric name="SenseType"    value="0"/>
+    <Numeric name="SenseType"    value="-1"/>
     <Numeric name="SenseThick"   value="[CellThickness120]"/>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
@@ -642,7 +642,7 @@
     <Vector name="Layers" type="numeric" nEntries="7">
       5, 3, 4, 2, 1, 6, 0</Vector>
     <String name="SenseName"     value="HGCalEECellSensitive"/>
-    <Numeric name="SenseType"    value="0"/>
+    <Numeric name="SenseType"    value="-1"/>
     <Numeric name="SenseThick"   value="[CellThickness200]"/>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
@@ -680,7 +680,7 @@
     <Vector name="Layers" type="numeric" nEntries="7"> 
       0, 6, 1, 2, 4, 3, 5</Vector>
     <String name="SenseName"     value="HGCalEECellSensitive"/>
-    <Numeric name="SenseType"    value="0"/>
+    <Numeric name="SenseType"    value="-1"/>
     <Numeric name="SenseThick"   value="[CellThickness200]"/>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
@@ -718,7 +718,7 @@
     <Vector name="Layers" type="numeric" nEntries="7"> 
       5, 3, 4, 2, 1, 6, 0</Vector>
     <String name="SenseName"     value="HGCalEECellSensitive"/>
-    <Numeric name="SenseType"    value="1"/>
+    <Numeric name="SenseType"    value="-1"/>
     <Numeric name="SenseThick"   value="[CellThickness200]"/>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
@@ -756,7 +756,7 @@
     <Vector name="Layers" type="numeric" nEntries="7"> 
       0, 6, 1, 2, 4, 3, 5</Vector>
     <String name="SenseName"     value="HGCalEECellSensitive"/>
-    <Numeric name="SenseType"    value="1"/>
+    <Numeric name="SenseType"    value="-1"/>
     <Numeric name="SenseThick"   value="[CellThickness200]"/>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
@@ -792,7 +792,7 @@
     <Vector name="Layers" type="numeric" nEntries="6"> 
       5, 3, 4, 2, 1, 0</Vector>
     <String name="SenseName"     value="HGCalEECellSensitive"/>
-    <Numeric name="SenseType"    value="2"/>
+    <Numeric name="SenseType"    value="-1"/>
     <Numeric name="SenseThick"   value="[CellThickness300]"/>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
@@ -828,7 +828,7 @@
     <Vector name="Layers" type="numeric" nEntries="6"> 
       0, 1, 2, 4, 3, 5</Vector>
     <String name="SenseName"     value="HGCalEECellSensitive"/>
-    <Numeric name="SenseType"    value="2"/>
+    <Numeric name="SenseType"    value="-1"/>
     <Numeric name="SenseThick"   value="[CellThickness300]"/>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalWaferPartialRotated">

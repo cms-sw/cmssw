@@ -46,5 +46,5 @@
   <class name="edm::Wrapper<l1ScoutingRun3::JetOrbitCollection>"/>
   <class name="edm::Wrapper<l1ScoutingRun3::MuonOrbitCollection>"/>
   <class name="edm::Wrapper<l1ScoutingRun3::TauOrbitCollection>"/>
-  
+ 
 </lcgdict>

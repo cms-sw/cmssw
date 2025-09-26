@@ -93,10 +93,7 @@ namespace edm {
 
   public:  // Made public (temporarily) at the request of Emilio Meschi.
     static ServiceToken createSet(std::vector<ParameterSet>&);
-    static ServiceToken createSet(std::vector<ParameterSet>&,
-                                  ServiceToken,
-                                  serviceregistry::ServiceLegacy,
-                                  bool associate = true);
+    static ServiceToken createSet(std::vector<ParameterSet>&, ServiceToken, serviceregistry::ServiceLegacy);
     /// create a service token that holds the service defined by iService
     template <typename T>
     static ServiceToken createContaining(std::unique_ptr<T> iService) {

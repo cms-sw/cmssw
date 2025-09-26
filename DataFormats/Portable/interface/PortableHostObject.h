@@ -112,7 +112,7 @@ public:
 
 private:
   std::optional<Buffer> buffer_;  //!
-  Product* product_;
+  Product* product_ = nullptr;
 };
 
 #endif  // DataFormats_Portable_interface_PortableHostObject_h

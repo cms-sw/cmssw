@@ -15,6 +15,7 @@
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ISessionProxy.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 using std::make_pair;
 using std::pair;
@@ -722,7 +723,7 @@ bool LHCInfoPerFillPopConSourceHandler::getEcalData(cond::persistency::Session& 
         dipVal = dipValAttribute.data<std::string>();
         elementNr = elementNrAttribute.data<unsigned int>();
         value = valueNumberAttribute.data<float>();
-        if (std::isnan(value))
+        if (edm::isNotFinite(value))
           value = 0.;
         if (filter.process(iovTime)) {
           iovMap.insert(make_pair(changeTime, filter.current()->first));

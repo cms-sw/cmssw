@@ -45,9 +45,11 @@
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessFine]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse1]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="FirstMixedLayer"     value="-1"/>
     <Parameter name="LayerOffset"         value="0"/>
     <Parameter name="DetectorType"        value="1"/>
@@ -110,9 +112,11 @@
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessFine]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse1]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerOffset"         value="26"/>
     <Parameter name="DetectorType"        value="2"/>

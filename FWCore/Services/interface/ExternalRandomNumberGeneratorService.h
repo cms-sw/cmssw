@@ -46,7 +46,7 @@ namespace edm {
     std::vector<RandomEngineState> const& getEventCache(StreamID const&) const final;
     std::vector<RandomEngineState> const& getLumiCache(LuminosityBlockIndex const&) const final;
 
-    void consumes(ConsumesCollector&& iC) const final;
+    EDConsumerBase* consumer() final;
 
     /// For debugging purposes only.
     void print(std::ostream& os) const final;

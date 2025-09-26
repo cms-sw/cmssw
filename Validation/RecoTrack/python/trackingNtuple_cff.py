@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi import *
-from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 from Validation.RecoTrack.trackingNtuple_cfi import *
@@ -43,6 +41,9 @@ trackingNtuple.includeAllHits = _includeHits
 trackingNtuple.includeSeeds = _includeSeeds
 trackingNtuple.includeMVA = _includeMVA
 trackingNtuple.includeTrackingParticles = _includeTrackingParticles
+
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+trackingLST.toModify(trackingNtuple, seedUniqueCheck = False)
 
 def _filterForNtuple(lst):
     ret = []
@@ -86,6 +87,8 @@ trackingPhase2PU140.toModify(trackingNtuple, trackCandidates=[_seedProdToTrackCa
 trackingNtupleTask = cms.Task()
 # reproduce hits because they're not stored in RECO
 if _includeHits:
+    from RecoLocalTracker.Configuration.RecoLocalTracker_cff import siPixelRecHits,siStripMatchedRecHits
+    from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import siPhase2RecHits
     trackingNtupleTask.add(siPixelRecHits, siStripMatchedRecHits)
     _phase2_trackingNtupleTask = trackingNtupleTask.copy()
     _phase2_trackingNtupleTask.remove(siStripMatchedRecHits)

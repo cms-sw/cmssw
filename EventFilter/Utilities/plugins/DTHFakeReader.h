@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "EventFilter/Utilities/interface/DTHHeaders.h"
 #include <algorithm>
 
@@ -30,7 +30,7 @@ namespace evf {
 
   private:
     // Generate and fill FED raw data for a full event
-    void fillRawData(edm::Event& e, FEDRawDataCollection*& data);
+    void fillRawData(edm::Event& e, RawDataBuffer*& data);
 
     uint32_t fillSLRFED(unsigned char* buf,
                         const uint32_t sourceId,
@@ -38,9 +38,7 @@ namespace evf {
                         const uint32_t orbitId,
                         uint32_t size,
                         uint32_t& accum_crc32c);
-    uint32_t fillFED(
-        unsigned char* buf, const int sourceId, edm::EventNumber_t eventId, uint32_t size, uint32_t& accum_crc32c);
-    //void fillTCDSFED(edm::EventID& eID, FEDRawDataCollection& data, uint32_t ls, timeval* now);
+    //void fillTCDSFED(edm::EventID& eID, RawDataBuffer& data, uint32_t ls, timeval* now);
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, edm::EventSetup const& iE);
 
   private:

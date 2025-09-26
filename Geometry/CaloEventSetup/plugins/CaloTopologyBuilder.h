@@ -40,6 +40,8 @@ public:
 
   ReturnType produceCalo(const CaloTopologyRecord&);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   // ----------member data ---------------------------
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;

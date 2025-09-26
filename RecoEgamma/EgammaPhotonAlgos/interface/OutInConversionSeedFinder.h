@@ -9,6 +9,7 @@
  ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"

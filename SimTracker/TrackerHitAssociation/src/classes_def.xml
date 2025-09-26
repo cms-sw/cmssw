@@ -14,7 +14,7 @@
 
   <class name="std::pair<OmniClusterRef, TrackingParticleRef>" persistent="true" />
   <class name="std::vector<std::pair<OmniClusterRef, TrackingParticleRef> >" />
-  <class name="ClusterTPAssociation" persistent="true" />
+  <class name="ClusterTPAssociation" persistent="false" />
   <class name="edm::Wrapper<ClusterTPAssociation>" />
   <class name="std::map<TrackingParticleRef, std::vector<OmniClusterRef> >" persistent="false" /> 
   <class name="edm::Wrapper<std::map<TrackingParticleRef, std::vector<OmniClusterRef> > >" persistent="false" /> 

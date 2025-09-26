@@ -22,13 +22,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   _cutSumQ_HF = ps.getUntrackedParameter<double>("cutSumQ_HF", 20);
   _thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
   _thresh_led = ps.getUntrackedParameter<double>("thresh_led", 20);
+  _thresh_laser = ps.getUntrackedParameter<double>("thresh_laser", 20);
+  _thresh_raddam = ps.getUntrackedParameter<double>("thresh_raddam", 20);
 
   _vflags.resize(nDigiFlag);
   _vflags[fUni] = hcaldqm::flag::Flag("UniSlotHF");
   _vflags[fDigiSize] = hcaldqm::flag::Flag("DigiSize");
   _vflags[fNChsHF] = hcaldqm::flag::Flag("NChsHF");
   _vflags[fUnknownIds] = hcaldqm::flag::Flag("UnknownIds");
-  _vflags[fLED] = hcaldqm::flag::Flag("LEDMisfire");
+  _vflags[fLED] = hcaldqm::flag::Flag("LedMonCU");
+  _vflags[fRADDAM] = hcaldqm::flag::Flag("RaddamMon");
+  _vflags[fLASER] = hcaldqm::flag::Flag("LaserMonCU");
+  _vflags[fPinDiode] = hcaldqm::flag::Flag("LaserMon");
   _vflags[fCapId] = hcaldqm::flag::Flag("BadCapId");
 
   _qie10InConditions = ps.getUntrackedParameter<bool>("qie10InConditions", true);
@@ -67,26 +72,54 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     if (HcalGenericDetId(id.rawId()).isHcalCalibDetId()) {
       HcalCalibDetId calibId(id);
       if (calibId.calibFlavor() == HcalCalibDetId::CalibrationBox) {
+        auto cUch = calibId.cboxChannel();
+        bool isLAS(false), isLED(false), isRAD(false);
         HcalSubdetector this_subdet = HcalEmpty;
+
         switch (calibId.hcalSubdet()) {
           case HcalBarrel:
             this_subdet = HcalBarrel;
+            if (cUch == 0 || cUch == 1) {
+              isLED = true;
+            } else if (cUch == 2) {
+              isLAS = true;
+            }
             break;
           case HcalEndcap:
             this_subdet = HcalEndcap;
+            if (cUch == 0 || cUch == 1) {
+              isLED = true;
+            } else if (cUch == 3 || cUch == 5) {
+              isLAS = true;
+            }
             break;
           case HcalOuter:
             this_subdet = HcalOuter;
+            isLED = true;
             break;
           case HcalForward:
             this_subdet = HcalForward;
+            if (cUch == 0 || cUch == 8) {
+              isLED = true;
+              isLAS = true;
+            } else if (cUch == 9) {
+              isRAD = true;
+            }
             break;
           default:
             this_subdet = HcalEmpty;
             break;
         }
-        _ledCalibrationChannels[this_subdet].push_back(
-            HcalDetId(HcalOther, calibId.ieta(), calibId.iphi(), calibId.cboxChannel()));
+
+        if (isLED) {
+          _ledCalibrationChannels[this_subdet].push_back(HcalDetId(id.rawId()));
+        }
+        if (isLAS) {
+          _laserCalibrationChannels[this_subdet].push_back(HcalDetId(id.rawId()));
+        }
+        if (isRAD) {
+          _raddamCalibrationChannels[this_subdet].push_back(HcalDetId(id.rawId()));
+        }
       }
     }
   }
@@ -391,24 +424,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                           new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
                                           new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
                                           0);
-    _cTimingCutvsieta_Subdet.initialize(_name,
-                                        "TimingCutvsieta",
-                                        hcaldqm::hashfunctions::fSubdet,
-                                        new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
-                                        0);
     _cOccupancyCutvsiphi_SubdetPM.initialize(_name,
                                              "OccupancyCutvsiphi",
                                              hcaldqm::hashfunctions::fSubdetPM,
                                              new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
                                              new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                              0);
-    _cOccupancyCutvsieta_Subdet.initialize(_name,
-                                           "OccupancyCutvsieta",
-                                           hcaldqm::hashfunctions::fSubdet,
-                                           new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-                                           new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                           0);
     _cOccupancyCutvsiphivsLS_SubdetPM.initialize(_name,
                                                  "OccupancyCutvsiphivsLS",
                                                  hcaldqm::hashfunctions::fSubdetPM,
@@ -469,7 +490,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                           new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
                                           new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                           0);
-
+    _cTimingCutvsieta_Subdet.initialize(_name,
+                                        "TimingCutvsieta",
+                                        hcaldqm::hashfunctions::fSubdet,
+                                        new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
+                                        0);
+    _cOccupancyCutvsieta_Subdet.initialize(_name,
+                                           "OccupancyCutvsieta",
+                                           hcaldqm::hashfunctions::fSubdet,
+                                           new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+                                           new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                           0);
     //		_cOccupancyCutvsSlotvsLS_HFPM.initialize(_name,
     //			"OccupancyCutvsSlotvsLS", hcaldqm::hashfunctions::fSubdetPM,
     //			new hcaldqm::quantity::LumiSection(_maxLS),
@@ -631,28 +663,107 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     }
   }
   if (_ptype != fLocal) {
-    _LED_ADCvsBX_Subdet.initialize(_name,
-                                   "LED_ADCvsBX",
+    _LED_ADCvsBX_Subdet.initialize(_name + "/CU_LED",
+                                   "CU_LED_ADCvsBX",
                                    hcaldqm::hashfunctions::fSubdet,
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX_36),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_256_4),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                    0);
 
-    _LED_CUCountvsLS_Subdet.initialize(_name,
-                                       "LED_CUCountvsLS",
+    _LED_ADCvsTS_Subdet.initialize(_name + "/CU_LED",
+                                   "CU_LED_ADCvsTS",
+                                   hcaldqm::hashfunctions::fSubdet,
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                   0);
+
+    _LED_CUCountvsLS_Subdet.initialize(_name + "/CU_LED",
+                                       "CU_LED_CUCountvsLS",
                                        hcaldqm::hashfunctions::fSubdet,
                                        new hcaldqm::quantity::LumiSection(_maxLS),
                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                        0);
     if (_ptype == fOnline) {
-      _LED_CUCountvsLSmod60_Subdet.initialize(_name,
-                                              "LED_CUCountvsLSmod60",
+      _LED_CUCountvsLSmod60_Subdet.initialize(_name + "/CU_LED",
+                                              "CU_LED_CUCountvsLSmod60",
                                               hcaldqm::hashfunctions::fSubdet,
                                               new hcaldqm::quantity::LumiSection(60),
                                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                               0);
     }
+    // Laser monitoring containers
+    _LASER_ADCvsBX_Subdet.initialize(_name + "/CU_Laser",
+                                     "CU_LASER_ADCvsBX",
+                                     hcaldqm::hashfunctions::fSubdet,
+                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX_36),
+                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_256_4),
+                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                     0);
+    _LASER_ADCvsTS_Subdet.initialize(_name + "/CU_Laser",
+                                     "CU_LASER_ADCvsTS",
+                                     hcaldqm::hashfunctions::fSubdet,
+                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                     0);
+    _LASER_CUCountvsLS_Subdet.initialize(_name + "/CU_Laser",
+                                         "CU_LASER_CUCountvsLS",
+                                         hcaldqm::hashfunctions::fSubdet,
+                                         new hcaldqm::quantity::LumiSection(_maxLS),
+                                         new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                         0);
+    if (_ptype == fOnline) {
+      _LASER_CUCountvsLSmod60_Subdet.initialize(_name + "/CU_Laser",
+                                                "CU_LASER_CUCountvsLSmod60",
+                                                hcaldqm::hashfunctions::fSubdet,
+                                                new hcaldqm::quantity::LumiSection(60),
+                                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                                0);
+    }
+    // Raddam monitoring containers
+    _Raddam_ADCvsBX.initialize(_name + "/CU_Raddam",
+                               "CU_Raddam_ADCvsBX",
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX_36),
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_256_4),
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                               0);
+    _Raddam_ADCvsTS.initialize(_name + "/CU_Raddam",
+                               "CU_Raddam_ADCvsTS",
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                               0);
+    _Raddam_CUCountvsLS.initialize(_name + "/CU_Raddam",
+                                   "CU_Raddam_CUCountvsLS",
+                                   new hcaldqm::quantity::LumiSection(_maxLS),
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                   0);
+    if (_ptype == fOnline) {
+      _Raddam_CUCountvsLSmod60.initialize(_name + "/CU_Raddam",
+                                          "CU_Raddam_CUCountvsLSmod60",
+                                          new hcaldqm::quantity::LumiSection(60),
+                                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                          0);
+    }
+    // Laser monitoring containers for pin diode channel (0, 31, 0)
+    _cSumQvsBX_PinDiode.initialize(_name + "/PinDiodeMon",
+                                   "sumQvsBX",
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_1000000),
+                                   0);
+    _cSumQvsLS_PinDiode.initialize(_name + "/PinDiodeMon",
+                                   "sumQvsLS",
+                                   new hcaldqm::quantity::LumiSection(_maxLS),
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_1000000),
+                                   0);
+    _cADCvsTS_PinDiode.initialize(_name + "/PinDiodeMon",
+                                  "ADCvsTS",
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                  0);
   }
 
   //	BOOK HISTOGRAMS
@@ -733,10 +844,28 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
 
   if (_ptype != fLocal) {
     _LED_ADCvsBX_Subdet.book(ib, _emap, _subsystem);
+    _LED_ADCvsTS_Subdet.book(ib, _emap, _subsystem);
     _LED_CUCountvsLS_Subdet.book(ib, _emap, _subsystem);
     if (_ptype == fOnline) {
       _LED_CUCountvsLSmod60_Subdet.book(ib, _emap, _subsystem);
     }
+    // Book laser monitoring containers
+    _LASER_ADCvsBX_Subdet.book(ib, _emap, _subsystem);
+    _LASER_ADCvsTS_Subdet.book(ib, _emap, _subsystem);
+    _LASER_CUCountvsLS_Subdet.book(ib, _emap, _subsystem);
+    if (_ptype == fOnline) {
+      _LASER_CUCountvsLSmod60_Subdet.book(ib, _emap, _subsystem);
+    }
+    // Book Raddam monitoring containers
+    _Raddam_ADCvsBX.book(ib, _subsystem);
+    _Raddam_ADCvsTS.book(ib, _subsystem);
+    _Raddam_CUCountvsLS.book(ib, _subsystem);
+    if (_ptype == fOnline) {
+      _Raddam_CUCountvsLSmod60.book(ib, _subsystem);
+    }
+    _cSumQvsBX_PinDiode.book(ib, _subsystem);
+    _cSumQvsLS_PinDiode.book(ib, _subsystem);
+    _cADCvsTS_PinDiode.book(ib, _subsystem);
   }
 
   //	BOOK HISTOGRAMS that are only for Online
@@ -750,12 +879,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
 
   if (_ptype == fOnline || _ptype == fOffline) {
     _cOccupancyCutvsiphi_SubdetPM.book(ib, _emap, _subsystem);
-    _cOccupancyCutvsieta_Subdet.book(ib, _emap, _subsystem);
     _cOccupancyCutvsLS_Subdet.book(ib, _emap, _subsystem);
     _cOccupancyCutvsiphivsLS_SubdetPM.book(ib, _emap, _subsystem);
     _cOccupancyCutvsBX_Subdet.book(ib, _emap, _subsystem);
     _cTimingCutvsiphi_SubdetPM.book(ib, _emap, _subsystem);
-    _cTimingCutvsieta_Subdet.book(ib, _emap, _subsystem);
     _cOccupancyBadCapidvsLS_Subdet.book(ib, _emap, _subsystem);
     _cOccupancyBadCapidvsLS_depth.book(ib, _emap, _subsystem);
     _xBadCapid.book(_emap);
@@ -771,7 +898,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     _cOccupancyvsieta_Subdet.book(ib, _emap, _subsystem);
     _cSummaryvsLS_FED.book(ib, _emap, _subsystem);
     _cSummaryvsLS.book(ib, _subsystem);
-
+    _cOccupancyCutvsieta_Subdet.book(ib, _emap, _subsystem);
+    _cTimingCutvsieta_Subdet.book(ib, _emap, _subsystem);
     _xUniHF.book(_emap, _filter_FEDHF);
     _xNChs.book(_emap);
     _xNChsNominal.book(_emap);
@@ -892,19 +1020,34 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
 
     //	Explicit check on the DetIds present in the Collection
     HcalDetId const& did = digi.detid();
+    // Pin diode monitoring
+    HcalCalibDetId hcdid(digi.id());
+    if (hcdid.rawId() == constants::HBLasMon.rawId()) {
+      // Calculate minimum of ADC values converted to fC
+      double minAdc2fC = constants::adc2fC[digi[0].adc()];
+      for (int i = 1; i < digi.samples(); i++) {
+        minAdc2fC = std::min(minAdc2fC, constants::adc2fC[digi[i].adc()]);
+      }
+      double laserMonSumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, minAdc2fC, 0, digi.samples() - 1);
+      _cSumQvsBX_PinDiode.fill(bx, laserMonSumQ);
+      _cSumQvsLS_PinDiode.fill(_currentLS, laserMonSumQ);
+      for (int i = 0; i < digi.samples(); i++) {
+        _cADCvsTS_PinDiode.fill(i, digi[i].adc());
+      }
+    }
     if ((did.subdet() != HcalBarrel) && (did.subdet() != HcalEndcap)) {
-      // LED monitoring from calibration channels
       if (_ptype != fLocal) {
         if (did.subdet() == HcalOther) {
           HcalOtherDetId hodid(digi.detid());
           if (hodid.subdet() == HcalCalibration) {
+            // LED monitoring from calibration channels
             if (std::find(_ledCalibrationChannels[HcalEndcap].begin(),
                           _ledCalibrationChannels[HcalEndcap].end(),
                           did) != _ledCalibrationChannels[HcalEndcap].end()) {
               bool channelLEDSignalPresent = false;
               for (int i = 0; i < digi.samples(); i++) {
                 _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), bx, digi[i].adc());
-
+                _LED_ADCvsTS_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), i, digi[i].adc());
                 if (digi[i].adc() > _thresh_led) {
                   channelLEDSignalPresent = true;
                 }
@@ -918,10 +1061,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
             } else if (std::find(_ledCalibrationChannels[HcalBarrel].begin(),
                                  _ledCalibrationChannels[HcalBarrel].end(),
                                  did) != _ledCalibrationChannels[HcalBarrel].end()) {
+              if (hcdid.rawId() == constants::HBLasMon.rawId())
+                continue;
               bool channelLEDSignalPresent = false;
               for (int i = 0; i < digi.samples(); i++) {
                 _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), bx, digi[i].adc());
-
+                _LED_ADCvsTS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), i, digi[i].adc());
                 if (digi[i].adc() > _thresh_led) {
                   channelLEDSignalPresent = true;
                 }
@@ -930,6 +1075,42 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 _LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS);
                 if (_ptype == fOnline) {
                   _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS % 60);
+                }
+              }
+            }
+            // Laser monitoring from calibration channels
+            if (std::find(_laserCalibrationChannels[HcalEndcap].begin(),
+                          _laserCalibrationChannels[HcalEndcap].end(),
+                          did) != _laserCalibrationChannels[HcalEndcap].end()) {
+              bool channelLASERSignalPresent = false;
+              for (int i = 0; i < digi.samples(); i++) {
+                _LASER_ADCvsBX_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), bx, digi[i].adc());
+                _LASER_ADCvsTS_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), i, digi[i].adc());
+                if (digi[i].adc() > _thresh_laser) {
+                  channelLASERSignalPresent = true;
+                }
+              }
+              if (channelLASERSignalPresent) {
+                _LASER_CUCountvsLS_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS);
+                if (_ptype == fOnline) {
+                  _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS % 60);
+                }
+              }
+            } else if (std::find(_laserCalibrationChannels[HcalBarrel].begin(),
+                                 _laserCalibrationChannels[HcalBarrel].end(),
+                                 did) != _laserCalibrationChannels[HcalBarrel].end()) {
+              bool channelLASERSignalPresent = false;
+              for (int i = 0; i < digi.samples(); i++) {
+                _LASER_ADCvsBX_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), bx, digi[i].adc());
+                _LASER_ADCvsTS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), i, digi[i].adc());
+                if (digi[i].adc() > _thresh_laser) {
+                  channelLASERSignalPresent = true;
+                }
+              }
+              if (channelLASERSignalPresent) {
+                _LASER_CUCountvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS);
+                if (_ptype == fOnline) {
+                  _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS % 60);
                 }
               }
             }
@@ -1087,13 +1268,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
       _cSumQ_depth.fill(did, sumQ);
       _cSumQvsLS_SubdetPM_QIE1011.fill(did, _currentLS, sumQ);
       if (_ptype == fOnline) {
+        _cOccupancyCutvsieta_Subdet.fill(did);
+        _cTimingCutvsieta_Subdet.fill(did, timing);
         _cSumQvsBX_SubdetPM_QIE1011.fill(did, bx, sumQ);
       }
       if (_ptype == fOnline || _ptype == fOffline) {
         _cTimingCutvsiphi_SubdetPM.fill(did, timing);
-        _cTimingCutvsieta_Subdet.fill(did, timing);
         _cOccupancyCutvsiphi_SubdetPM.fill(did);
-        _cOccupancyCutvsieta_Subdet.fill(did);
         _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
       }
       if (_ptype != fOffline) {  // hidefed2crate
@@ -1141,17 +1322,17 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     //	Explicit check on the DetIds present in the Collection
     HcalDetId const& did = it->id();
     if (did.subdet() != HcalOuter) {
-      // LED monitoring from calibration channels
       if (_ptype != fLocal) {
         if (did.subdet() == HcalOther) {
           HcalOtherDetId hodid(did);
           if (hodid.subdet() == HcalCalibration) {
+            // LED monitoring from calibration channels (HO)
             if (std::find(_ledCalibrationChannels[HcalOuter].begin(), _ledCalibrationChannels[HcalOuter].end(), did) !=
                 _ledCalibrationChannels[HcalOuter].end()) {
               bool channelLEDSignalPresent = false;
               for (int i = 0; i < digi.size(); i++) {
                 _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), bx, digi[i].adc());
-
+                _LED_ADCvsTS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), i, digi[i].adc());
                 if (digi[i].adc() > _thresh_led) {
                   channelLEDSignalPresent = true;
                 }
@@ -1160,6 +1341,25 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 _LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS);
                 if (_ptype == fOnline) {
                   _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS % 60);
+                }
+              }
+            }
+            // Laser monitoring from calibration channels (HO)
+            if (std::find(_laserCalibrationChannels[HcalOuter].begin(),
+                          _laserCalibrationChannels[HcalOuter].end(),
+                          did) != _laserCalibrationChannels[HcalOuter].end()) {
+              bool channelLASERSignalPresent = false;
+              for (int i = 0; i < digi.size(); i++) {
+                _LASER_ADCvsBX_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), bx, digi[i].adc());
+                _LASER_ADCvsTS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), i, digi[i].adc());
+                if (digi[i].adc() > _thresh_laser) {
+                  channelLASERSignalPresent = true;
+                }
+              }
+              if (channelLASERSignalPresent) {
+                _LASER_CUCountvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS);
+                if (_ptype == fOnline) {
+                  _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS % 60);
                 }
               }
             }
@@ -1268,12 +1468,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
       }
       if (_ptype == fOnline) {
         _cSumQvsBX_SubdetPM.fill(did, bx, sumQ);
+        _cTimingCutvsieta_Subdet.fill(did, timing);
+        _cOccupancyCutvsieta_Subdet.fill(did);
       }
       if (_ptype == fOnline || _ptype == fOffline) {
         _cTimingCutvsiphi_SubdetPM.fill(did, timing);
-        _cTimingCutvsieta_Subdet.fill(did, timing);
         _cOccupancyCutvsiphi_SubdetPM.fill(did);
-        _cOccupancyCutvsieta_Subdet.fill(did);
         _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
       }
       if (_ptype != fOffline) {  // hidefed2crate
@@ -1314,18 +1514,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
       //	Explicit check on the DetIds present in the Collection
       HcalDetId const& did = digi.detid();
       if (did.subdet() != HcalForward) {
-        // LED monitoring from calibration channels
         if (_ptype != fLocal) {
           if (did.subdet() == HcalOther) {
             HcalOtherDetId hodid(digi.detid());
             if (hodid.subdet() == HcalCalibration) {
+              // LED monitoring from calibration channels (HF)
               if (std::find(_ledCalibrationChannels[HcalForward].begin(),
                             _ledCalibrationChannels[HcalForward].end(),
                             did) != _ledCalibrationChannels[HcalForward].end()) {
                 bool channelLEDSignalPresent = false;
                 for (int i = 0; i < digi.samples(); i++) {
                   _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), bx, digi[i].adc());
-
+                  _LED_ADCvsTS_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), i, digi[i].adc());
                   if (digi[i].adc() > _thresh_led) {
                     channelLEDSignalPresent = true;
                   }
@@ -1334,6 +1534,44 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                   _LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS);
                   if (_ptype == fOnline) {
                     _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS % 60);
+                  }
+                }
+              }
+              // Laser monitoring from calibration channels (HF)
+              if (std::find(_laserCalibrationChannels[HcalForward].begin(),
+                            _laserCalibrationChannels[HcalForward].end(),
+                            did) != _laserCalibrationChannels[HcalForward].end()) {
+                bool channelLASERSignalPresent = false;
+                for (int i = 0; i < digi.samples(); i++) {
+                  _LASER_ADCvsBX_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), bx, digi[i].adc());
+                  _LASER_ADCvsTS_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), i, digi[i].adc());
+                  if (digi[i].adc() > _thresh_laser) {
+                    channelLASERSignalPresent = true;
+                  }
+                }
+                if (channelLASERSignalPresent) {
+                  _LASER_CUCountvsLS_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS);
+                  if (_ptype == fOnline) {
+                    _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS % 60);
+                  }
+                }
+              }
+              // Raddam monitoring from calibration channels
+              if (std::find(_raddamCalibrationChannels[HcalForward].begin(),
+                            _raddamCalibrationChannels[HcalForward].end(),
+                            did) != _raddamCalibrationChannels[HcalForward].end()) {
+                bool channelRaddamSignalPresent = false;
+                for (int i = 0; i < digi.samples(); i++) {
+                  _Raddam_ADCvsBX.fill(bx, digi[i].adc());
+                  _Raddam_ADCvsTS.fill(i, digi[i].adc());
+                  if (digi[i].adc() > _thresh_raddam) {
+                    channelRaddamSignalPresent = true;
+                  }
+                }
+                if (channelRaddamSignalPresent) {
+                  _Raddam_CUCountvsLS.fill(_currentLS);
+                  if (_ptype == fOnline) {
+                    _Raddam_CUCountvsLSmod60.fill(_currentLS % 60);
                   }
                 }
               }
@@ -1469,21 +1707,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
         _cTimingCutvsLS_depth.fill(did, _currentLS, timing);
         if (_ptype == fOnline) {
           //if (!_filter_QIE1011.filter(did)) {
+          _cTimingCutvsieta_Subdet.fill(did, timing);
+          _cOccupancyCutvsieta_Subdet.fill(did);
           _cSumQvsBX_SubdetPM_QIE1011.fill(did, bx, sumQ);
           //}
-          _cTimingCutvsiphi_SubdetPM.fill(did, timing);
-          _cTimingCutvsieta_Subdet.fill(did, timing);
-          _cOccupancyCutvsiphi_SubdetPM.fill(did);
-          _cOccupancyCutvsieta_Subdet.fill(did);
-          _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
-          //				_cOccupancyCutvsSlotvsLS_HFPM.fill(did, _currentLS);
           _xUniHF.get(eid)++;
         }
         if (_ptype == fOnline || _ptype == fOffline) {
           _cTimingCutvsiphi_SubdetPM.fill(did, timing);
-          _cTimingCutvsieta_Subdet.fill(did, timing);
           _cOccupancyCutvsiphi_SubdetPM.fill(did);
-          _cOccupancyCutvsieta_Subdet.fill(did);
           _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
         }
         if (_ptype != fOffline) {  // hidefed2crate
@@ -1552,7 +1784,7 @@ std::shared_ptr<hcaldqm::Cache> DigiTask::globalBeginLuminosityBlock(edm::Lumino
   if (_ptype == fOffline || _ptype == fOnline) {
     HcalDetId did_HB(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalBarrel, 1, 1, 1)));
     HcalDetId did_HE(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalEndcap, 16, 1, 1)));
-    HcalDetId did_HF(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalForward, 29, 1, 1)));
+    HcalDetId did_HF(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalForward, 30, 1, 1)));
     HcalDetId did_HO(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalOuter, 1, 1, 1)));
     _cAveragedSumQvsLS_Subdet_QIE1011.fill(did_HB, _currentLS, (_HBSumMeanofSumQForEachEvent / _evsPerLS));
     _cAveragedSumQvsLS_Subdet_QIE1011.fill(did_HE, _currentLS, (_HESumMeanofSumQForEachEvent / _evsPerLS));
@@ -1623,6 +1855,20 @@ std::shared_ptr<hcaldqm::Cache> DigiTask::globalBeginLuminosityBlock(edm::Lumino
           } else {
             _vflags[fLED]._state = hcaldqm::flag::fGOOD;
           }
+          // Laser misfires
+          if (_LASER_CUCountvsLS_Subdet.getBinContent(did_hb, _currentLS) > 0 ||
+              _LASER_CUCountvsLS_Subdet.getBinContent(did_he, _currentLS) > 0) {
+            _vflags[fLASER]._state = hcaldqm::flag::fBAD;
+          } else {
+            _vflags[fLASER]._state = hcaldqm::flag::fGOOD;
+          }
+          // Pin diode misfires
+          if (_cSumQvsLS_PinDiode.getBinContent(_currentLS) >
+              2000) {  // 2000 fC is the hardcoded threshold for pin diode misfires, this is a temporary fix
+            _vflags[fPinDiode]._state = hcaldqm::flag::fBAD;
+          } else {
+            _vflags[fPinDiode]._state = hcaldqm::flag::fGOOD;
+          }
         } else if (hcaldqm::utilities::isFEDHF(eid)) {
           HcalDetId did_hf(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalForward, 29, 1, 1)));
           if (_LED_CUCountvsLS_Subdet.getBinContent(did_hf, _currentLS) > 0) {
@@ -1630,12 +1876,27 @@ std::shared_ptr<hcaldqm::Cache> DigiTask::globalBeginLuminosityBlock(edm::Lumino
           } else {
             _vflags[fLED]._state = hcaldqm::flag::fGOOD;
           }
+          if (_LASER_CUCountvsLS_Subdet.getBinContent(did_hf, _currentLS) > 0) {
+            _vflags[fLASER]._state = hcaldqm::flag::fBAD;
+          } else {
+            _vflags[fLASER]._state = hcaldqm::flag::fGOOD;
+          }
+          if (_Raddam_CUCountvsLS.getBinContent(_currentLS) > 0) {
+            _vflags[fRADDAM]._state = hcaldqm::flag::fBAD;
+          } else {
+            _vflags[fRADDAM]._state = hcaldqm::flag::fGOOD;
+          }
         } else if (hcaldqm::utilities::isFEDHO(eid)) {
           HcalDetId did_ho(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalOuter, 1, 1, 1)));
           if (_LED_CUCountvsLS_Subdet.getBinContent(did_ho, _currentLS) > 0) {
             _vflags[fLED]._state = hcaldqm::flag::fBAD;
           } else {
             _vflags[fLED]._state = hcaldqm::flag::fGOOD;
+          }
+          if (_LASER_CUCountvsLS_Subdet.getBinContent(did_ho, _currentLS) > 0) {
+            _vflags[fLASER]._state = hcaldqm::flag::fBAD;
+          } else {
+            _vflags[fLASER]._state = hcaldqm::flag::fGOOD;
           }
         }
       }

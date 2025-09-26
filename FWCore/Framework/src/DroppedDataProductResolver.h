@@ -13,18 +13,16 @@ namespace edm {
   class DroppedDataProductResolver : public ProductResolverBase {
   public:
     DroppedDataProductResolver(std::shared_ptr<ProductDescription const> bd)
-        : ProductResolverBase(), m_provenance(std::move(bd), {}) {}
+        : ProductResolverBase(), m_provenance(bd, {}) {}
 
     void connectTo(ProductResolverBase const&, Principal const*) final {}
 
   private:
     Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const final;
     void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
-                        bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const noexcept final;
@@ -34,7 +32,7 @@ namespace edm {
     bool productUnavailable_() const final { return true; }
     bool productResolved_() const final { return true; }
     bool productWasDeleted_() const final { return false; }
-    bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final { return false; }
+    bool productWasFetchedAndIsValid_() const final { return false; }
     bool unscheduledWasNotRun_() const final { return false; }
     void resetProductData_(bool deleteEarly) final {}
     ProductDescription const& productDescription_() const final { return m_provenance.productDescription(); }

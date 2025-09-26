@@ -16,68 +16,6 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm {
-  namespace {
-    class ModuleBeginJobTraits {
-    public:
-      using Context = GlobalContext;
-      static void preModuleSignal(ActivityRegistry* activityRegistry,
-                                  GlobalContext const*,
-                                  ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleBeginJobSignal_(*moduleCallingContext->moduleDescription());
-      }
-      static void postModuleSignal(ActivityRegistry* activityRegistry,
-                                   GlobalContext const*,
-                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleBeginJobSignal_(*moduleCallingContext->moduleDescription());
-      }
-    };
-
-    class ModuleEndJobTraits {
-    public:
-      using Context = GlobalContext;
-      static void preModuleSignal(ActivityRegistry* activityRegistry,
-                                  GlobalContext const*,
-                                  ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleEndJobSignal_(*moduleCallingContext->moduleDescription());
-      }
-      static void postModuleSignal(ActivityRegistry* activityRegistry,
-                                   GlobalContext const*,
-                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleEndJobSignal_(*moduleCallingContext->moduleDescription());
-      }
-    };
-
-    class ModuleBeginStreamTraits {
-    public:
-      using Context = StreamContext;
-      static void preModuleSignal(ActivityRegistry* activityRegistry,
-                                  StreamContext const* streamContext,
-                                  ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleBeginStreamSignal_(*streamContext, *moduleCallingContext);
-      }
-      static void postModuleSignal(ActivityRegistry* activityRegistry,
-                                   StreamContext const* streamContext,
-                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleBeginStreamSignal_(*streamContext, *moduleCallingContext);
-      }
-    };
-
-    class ModuleEndStreamTraits {
-    public:
-      using Context = StreamContext;
-      static void preModuleSignal(ActivityRegistry* activityRegistry,
-                                  StreamContext const* streamContext,
-                                  ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleEndStreamSignal_(*streamContext, *moduleCallingContext);
-      }
-      static void postModuleSignal(ActivityRegistry* activityRegistry,
-                                   StreamContext const* streamContext,
-                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleEndStreamSignal_(*streamContext, *moduleCallingContext);
-      }
-    };
-
-  }  // namespace
 
   Worker::Worker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions)
       : timesRun_(0),
@@ -198,11 +136,9 @@ namespace edm {
 
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
-      bool skipCurrentProcess = item.skipCurrentProcess();
       if (productResolverIndex != ProductResolverIndexAmbiguous and
           productResolverIndex != ProductResolverIndexInvalid) {
-        iPrincipal->prefetchAsync(
-            choiceHolder, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+        iPrincipal->prefetchAsync(choiceHolder, productResolverIndex, token, &moduleCallingContext_);
       }
     }
     choiceHolder.doneWaiting(std::exception_ptr{});
@@ -241,9 +177,8 @@ namespace edm {
 
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
-      bool skipCurrentProcess = item.skipCurrentProcess();
       if (productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+        iPrincipal.prefetchAsync(iTask, productResolverIndex, token, &moduleCallingContext_);
       }
     }
   }
@@ -275,7 +210,7 @@ namespace edm {
     //pre prefetch signal
     actReg_->preModuleTransformPrefetchingSignal_.emit(*mcc.getStreamContext(), mcc);
     iPrincipal.prefetchAsync(
-        WaitingTaskHolder(*iTask.group(), task), itemToGetForTransform(iTransformIndex), false, iToken, &mcc);
+        WaitingTaskHolder(*iTask.group(), task), itemToGetForTransform(iTransformIndex), iToken, &mcc);
   }
 
   void Worker::resetModuleDescription(ModuleDescription const* iDesc) {
@@ -287,95 +222,6 @@ namespace edm {
     moduleCallingContext_ = temp;
     assert(iDesc);
     checkForShouldTryToContinue(*iDesc);
-  }
-
-  void Worker::beginJob(GlobalContext const& globalContext) {
-    ParentContext parentContext(&globalContext);
-    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    ModuleSignalSentry<ModuleBeginJobTraits> sentry(activityRegistry(), &globalContext, &moduleCallingContext_);
-
-    try {
-      convertException::wrap([this, &sentry]() {
-        beginSucceeded_ = false;
-        sentry.preModuleSignal();
-        implBeginJob();
-        sentry.postModuleSignal();
-        beginSucceeded_ = true;
-      });
-    } catch (cms::Exception& ex) {
-      exceptionContext(ex, moduleCallingContext_);
-      throw;
-    }
-  }
-
-  void Worker::endJob(GlobalContext const& globalContext) {
-    if (beginSucceeded_) {
-      beginSucceeded_ = false;
-
-      ParentContext parentContext(&globalContext);
-      ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-      ModuleSignalSentry<ModuleEndJobTraits> sentry(activityRegistry(), &globalContext, &moduleCallingContext_);
-
-      try {
-        convertException::wrap([this, &sentry]() {
-          sentry.preModuleSignal();
-          implEndJob();
-          sentry.postModuleSignal();
-        });
-      } catch (cms::Exception& ex) {
-        exceptionContext(ex, moduleCallingContext_);
-        throw;
-      }
-    }
-  }
-
-  void Worker::beginStream(StreamID streamID, StreamContext const& streamContext) {
-    ParentContext parentContext(&streamContext);
-    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    ModuleSignalSentry<ModuleBeginStreamTraits> sentry(activityRegistry(), &streamContext, &moduleCallingContext_);
-
-    try {
-      convertException::wrap([this, &sentry, streamID]() {
-        beginSucceeded_ = false;
-        sentry.preModuleSignal();
-        implBeginStream(streamID);
-        sentry.postModuleSignal();
-        beginSucceeded_ = true;
-      });
-    } catch (cms::Exception& ex) {
-      exceptionContext(ex, moduleCallingContext_);
-      throw;
-    }
-  }
-
-  void Worker::endStream(StreamID id, StreamContext const& streamContext) {
-    if (beginSucceeded_) {
-      beginSucceeded_ = false;
-
-      ParentContext parentContext(&streamContext);
-      ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-      ModuleSignalSentry<ModuleEndStreamTraits> sentry(activityRegistry(), &streamContext, &moduleCallingContext_);
-
-      try {
-        convertException::wrap([this, &sentry, id]() {
-          sentry.preModuleSignal();
-          implEndStream(id);
-          sentry.postModuleSignal();
-        });
-      } catch (cms::Exception& ex) {
-        exceptionContext(ex, moduleCallingContext_);
-        throw;
-      }
-    }
-  }
-
-  void Worker::registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) {
-    try {
-      implRegisterThinnedAssociations(registry, helper);
-    } catch (cms::Exception& ex) {
-      ex.addContext("Calling registerThinnedAssociations() for module " + description()->moduleLabel());
-      throw ex;
-    }
   }
 
   void Worker::skipOnPath(EventPrincipal const& iEvent) {

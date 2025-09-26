@@ -51,7 +51,6 @@ if skip>4:
 # ------------------------------------------------------------
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run3_cff import Run3
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 process = cms.Process('L1TEMULATION', Run3)
 
 process.load('Configuration.StandardSequences.Services_cff')

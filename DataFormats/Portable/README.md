@@ -100,7 +100,13 @@ This could make it possible to read them back with different portability solutio
 
 The member function `void deepCopy(ConstView const& view)` copies the content of all scalars and columns from `view`
 (pointing to data in host memory and potentially to multiple buffers) into the `PortableHostCollection` contiguous buffer.
-See the [`View` section](../../DataFormats/SoATemplate/README.md#view) of [`DataFormats/SoATemplate/README.md`](../../DataFormats/SoATemplate/README.md) for more details.
+This method should be used for host to host data transfer. See the [`View` section](../../DataFormats/SoATemplate/README.md#view)
+of [`DataFormats/SoATemplate/README.md`](../../DataFormats/SoATemplate/README.md) for more details.
+
+The member function `void deepCopy(ConstView const& src, TQueue& queue)` copies the content of all scalars and columns 
+from a `View` or `ConstView` (pointing to data in host/device memory and potentially to multiple buffers), passing through
+a `ConstDescriptor` object, into the `PortableHostCollection` contigous buffer. This method should be used for device to
+host data transfer.
 
 ### `PortableDeviceCollection<T, TDev>`
 
@@ -109,6 +115,11 @@ owns the memory where the SoA is allocated.
 To avoid confusion and ODR-violations, the `PortableDeviceCollection<T, TDev>` template cannot be used with the `Host`
 device type.
 Specialisations of this template are transient and cannot be persisted.
+
+The member function `void deepCopy(ConstView const& src, TQueue& queue)` copies the content of all scalars and columns 
+from a `View` or `ConstView` (pointing to data in host/device memory and potentially to multiple buffers), passing through
+a `ConstDescriptor` object into the `PortableDeviceCollection` contigous buffer. This method should be used for 
+host to device or device to device data transfer.
 
 ### `ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T>`
 
@@ -120,7 +131,6 @@ backend.
 
 `PortableCollection<T, TDev>` is an alias template that resolves to `ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T>`
 for the matching device.
-
 
 ## Notes
 

@@ -886,6 +886,8 @@ if 'GlobalTag' in %%(dict)s:
       # remove Scouting OutputModules even though the EndPaths are kept
       self.options['modules'].append( "-hltOutputScoutingCaloMuon" )
       self.options['modules'].append( "-hltOutputScoutingPF" )
+      self.options['modules'].append( "-hltOutputScoutingPF0" )
+      self.options['modules'].append( "-hltOutputScoutingPF1" )
 
     if self.config.fragment or (self.config.prescale and (self.config.prescale.lower() == 'none')):
       self.options['services'].append( "-PrescaleService" )

@@ -94,7 +94,7 @@ public:
 
   void checkExpandLevel();
 
-  int getTopNodeIdx() const { return TMath::Max((int)m_topNodeIdx.value(), 0); }
+  int getTopNodeIdx() const { return std::max((int)m_topNodeIdx.value(), 0); }
 
   FWEveDigitSetScalableMarker* getMarker() { return m_marker; }
   void transparencyChanged();

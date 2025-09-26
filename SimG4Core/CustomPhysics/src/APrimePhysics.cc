@@ -1,6 +1,6 @@
 #include "SimG4Core/CustomPhysics/interface/APrimePhysics.h"
-#include "SimG4Core/CustomPhysics/interface/G4APrime.h"
-#include "SimG4Core/CustomPhysics/interface/G4muDarkBremsstrahlung.h"
+#include "SimG4Core/CustomPhysics/interface/CMSAPrime.h"
+#include "SimG4Core/CustomPhysics/interface/CMSmuDarkBremsstrahlung.h"
 // Geant 4
 #include "G4Electron.hh"
 #include "G4MuonMinus.hh"
@@ -15,15 +15,12 @@ APrimePhysics::APrimePhysics(double APMass, const G4String& scalefile, const G4d
   biasFactor = cxBias;
 }
 
-APrimePhysics::~APrimePhysics() {}
-
 void APrimePhysics::ConstructParticle() {
   /**
         * Insert A-prime into the Geant4 particle table.
         * For now we flag it as stable.
         */
-  aprimeDef_ = G4APrime::APrime(apmass);
-  //aprimeDef->SetProcessManager(new G4ProcessManager(aprimeDef));
+  aprimeDef_ = CMSAPrime::APrime(apmass);
 }
 
 void APrimePhysics::ConstructProcess() {
@@ -31,6 +28,6 @@ void APrimePhysics::ConstructProcess() {
   G4ParticleDefinition* muonplus = G4MuonPlus::MuonPlusDefinition();
   G4ProcessManager* pmplus = muonplus->GetProcessManager();
   G4ProcessManager* pmminus = muonminus->GetProcessManager();
-  pmplus->AddDiscreteProcess(new G4muDarkBremsstrahlung(mgfile, biasFactor), 6);
-  pmminus->AddDiscreteProcess(new G4muDarkBremsstrahlung(mgfile, biasFactor), 6);
+  pmplus->AddDiscreteProcess(new CMSmuDarkBremsstrahlung(mgfile, biasFactor), 6);
+  pmminus->AddDiscreteProcess(new CMSmuDarkBremsstrahlung(mgfile, biasFactor), 6);
 }

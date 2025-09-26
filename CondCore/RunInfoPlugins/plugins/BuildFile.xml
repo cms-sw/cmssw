@@ -3,3 +3,14 @@
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
 </library>
+
+<library file="LHCInfoPerFill_PayloadInspector.cc" name="LHCInfoPerFill_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+</library>
+
+<library file="LHCInfoPerLS_PayloadInspector.cc" name="LHCInfoPerLS_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+</library>
+

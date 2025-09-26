@@ -99,10 +99,10 @@ if __name__ == '__main__':
             12846.0,    # RelValZEE_13                  2024
             13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
             16834.0,    # RelValTTbar_14TeV             2025
-            17034.0,    # RelValTTbar_14TeV		2025 PU = Run3_Flat55To75_PoissonOOTPU
+            17034.0,    # RelValTTbar_14TeV             2025 PU = Run3_Flat55To75_PoissonOOTPU
             14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
             14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
-            2500.301,   # RelValTTbar_14TeV             NanoAOD from existing MINI
+            2500.3001,   # RelValTTbar_14TeV             NanoAOD from existing MINI
 
             ###### pp Data
             ## Run3
@@ -110,27 +110,30 @@ if __name__ == '__main__':
             139.001,    # Run2021  MinimumBias                  Commissioning2021
 
             # 2022
-            140.045,    # Run2022C JetHT
+            2022.0030001,     # Run2022C JetHT
 
             # 2023
-            141.042,    # Run2023D ZeroBias
+            2023.0020001,     # Run2023D JetMET0
 
             # 2024
-            145.014,      # Run2024B ZeroBias
-            145.104,      # Run2024C JetMet0
-            145.202,      # Run2024D EGamma0
-            145.301,      # Run2024E DisplacedJet
-            145.408,      # Run2024F ParkingDoubleMuonLowMass0
-            145.500,      # Run2024G BTagMu
-            145.604,      # Run2024H JetMET0
-            145.713,      # Run2024I Tau
+            2024.0000001,      # Run2024B ZeroBias
+            2024.0010001,      # Run2024C JetMET0
+            2024.0020001,      # Run2024D EGamma0
+            2024.0030001,      # Run2024E DisplacedJet
+            2024.0040001,      # Run2024F ParkingDoubleMuonLowMass0
+            2024.0050001,      # Run2024G BTagMu
+            2024.0060001,      # Run2024H Muon0
+            2024.0070001,      # Run2024I Tau
+
+            # 2025
+            2025.0000001,     # Run2025B ZeroBias
+            2025.0010001,     # Run2025C JetMET0
         ],
 
         'phase2' : [
             ###### MC (generated from scratch or from RelVals)
             # Phase2
             29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline)
-            24834.911,  # Previous DD4hep baseline for monitoring the stability of DD4hep workflow
             29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D110   DD4Hep (HLLHC14TeV BeamSpot)
             29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D110         AVE_50_BX_25ns_m3p3
             29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D110
@@ -153,6 +156,7 @@ if __name__ == '__main__':
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
 
         'ph2_hlt' : [29634.75,    # HLT phase-2 timing menu
+                     29634.7501,  # HLT phase-2 tracking-only menu
                      29634.751,   # HLT phase-2 timing menu Alpaka variant
                      29634.752,   # HLT phase-2 timing menu ticl_v5 variant
                      29634.753,   # HLT phase-2 timing menu Alpaka, single tracking iteration variant
@@ -161,10 +165,13 @@ if __name__ == '__main__':
                      29634.756,   # HLT phase-2 timing menu trimmed tracking
                      29634.7561,  # HLT phase-2 timing menu Alpaka, trimmed tracking
                      29634.7562,  # HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
-                     29634.759,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
                      29634.757,   # HLT phase-2 timing menu, with NANO:@Phase2HLT
+                     29634.758,   # HLT phase-2 timing menu ticl_barrel variant
+                     29634.759,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
                      29634.77,    # HLT phase-2 NGT Scouting menu
-                     29634.771]   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+                     29634.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
+                     29634.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+                     29634.773]   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
     }
 
     predefinedSet['limited'] = (

@@ -60,6 +60,7 @@ ProductRegistry is frozen.
 #include <memory>
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <tuple>
 #include <unordered_map>
@@ -155,9 +156,6 @@ namespace edm {
                            char const* moduleLabel,
                            char const* instance) const;
 
-    // Return indexes for all groups that match the type.
-    Matches relatedIndexes(KindOfType kindOfType, TypeID const& typeID) const;
-
     // This will throw if called after the object is frozen.
     // The typeID must be for a type with a dictionary
     // (the calling function is expected to check that)
@@ -195,8 +193,11 @@ namespace edm {
     // Before the object is frozen the accessors above will
     // fail to find a match. Once frozen, no more new entries
     // can be added with insert.
-    void setFrozen();
+    void setFrozen(std::vector<std::string> const& orderedProcessNames);
 
+    /**The list of process names for data products associated to the ProductResolvers.
+     * If no products are associated with a process for this transition, the process name will not be in this list.
+     */
     std::vector<std::string> const& lookupProcessNames() const;
 
     class Range {
@@ -256,6 +257,10 @@ namespace edm {
 
     // For debugging only
     void print(std::ostream& os) const;
+
+    //ProcessName label used to denote the current process should be skipped
+    //used by all methods of this class that accept the process name
+    static constexpr char const* const skipCurrentProcessLabel() { return "#"; }
 
   private:
     // Next available value for a ProductResolverIndex. This just
@@ -329,6 +334,7 @@ namespace edm {
       ProductResolverIndex index() const { return index_; }
 
       void clearProcess() { process_.clear(); }
+      void setSkipCurrentProcess() { process_ = ProductResolverIndexHelper::skipCurrentProcessLabel(); }
       void setIndex(ProductResolverIndex v) { index_ = v; }
 
       bool operator<(Item const& right) const;

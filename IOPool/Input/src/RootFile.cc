@@ -19,6 +19,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/processingOrderMerge.h"
 #include "DataFormats/Provenance/interface/StoredMergeableRunProductMetadata.h"
 #include "DataFormats/Provenance/interface/StoredProcessBlockHelper.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
@@ -558,10 +559,17 @@ namespace edm {
       for (auto& processBlockTree : processBlockTrees_) {
         treePointers_.push_back(processBlockTree.get());
       }
+      auto processingOrder = inputProdDescReg.processOrder();
+      processingOrderMerge(*processHistoryRegistry_, processingOrder);
+      newReg->setProcessOrder(processingOrder);
 
-      // freeze the product registry
-      newReg->setFrozen(inputType != InputType::Primary);
-      productRegistry_.reset(newReg.release());
+      if (not processingOrder.empty()) {
+        // freeze the product registry
+        newReg->setFrozen(inputType != InputType::Primary);
+        productRegistry_.reset(newReg.release());
+      } else {
+        productRegistry_ = std::make_shared<ProductRegistry>();
+      }
     }
 
     // Set up information from the product registry.
@@ -622,6 +630,7 @@ namespace edm {
 
   RootFile::~RootFile() {}
 
+  bool RootFile::empty() const { return runTree_.entries() == 0; }
   void RootFile::readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap, InputType inputType) {
     // Called only for old format files.
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.

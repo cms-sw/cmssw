@@ -4,17 +4,18 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-ShallowDigisProducer::ShallowDigisProducer(const edm::ParameterSet& conf)
-    : inputTags(conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList")), noisesToken_(esConsumes()) {
-  produces<std::vector<unsigned> >("id");
-  produces<std::vector<unsigned> >("subdet");
-  produces<std::vector<unsigned> >("strip");
-  produces<std::vector<unsigned> >("adc");
-  produces<std::vector<float> >("noise");
+ShallowDigisProducer::ShallowDigisProducer(const edm::ParameterSet& conf) : noisesToken_(esConsumes()) {
+  for (auto const& tag : conf.getParameter<std::vector<edm::InputTag>>("DigiProducersList")) {
+    oldTokens_.emplace_back(consumes<edm::DetSetVector<SiStripDigi>>(tag));
+    newTokens_.emplace_back(consumes<edmNew::DetSetVector<SiStripDigi>>(tag));
+  }
+  produces<std::vector<unsigned>>("id");
+  produces<std::vector<unsigned>>("subdet");
+  produces<std::vector<unsigned>>("strip");
+  produces<std::vector<unsigned>>("adc");
+  produces<std::vector<float>>("noise");
 }
 
 void ShallowDigisProducer::insert(products& p, edm::Event& e) {
@@ -41,12 +42,12 @@ inline void ShallowDigisProducer::recordDigis(const T& digiCollection, products&
 
 void ShallowDigisProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   products p;
-  edm::Handle<edm::DetSetVector<SiStripDigi> > inputOld;
-  edm::Handle<edmNew::DetSetVector<SiStripDigi> > inputNew;
+  edm::Handle<edm::DetSetVector<SiStripDigi>> inputOld;
+  edm::Handle<edmNew::DetSetVector<SiStripDigi>> inputNew;
   const auto& noises = es.getData(noisesToken_);
-  if (findInput(inputOld, e))
+  if (findInput(inputOld, oldTokens_, e))
     recordDigis(*inputOld, p, noises);
-  else if (findInput(inputNew, e))
+  else if (findInput(inputNew, newTokens_, e))
     recordDigis(*inputNew, p, noises);
   else
     edm::LogWarning("Input Not Found");
@@ -54,11 +55,12 @@ void ShallowDigisProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 }
 
 template <class T>
-inline bool ShallowDigisProducer::findInput(edm::Handle<T>& handle, const edm::Event& e) {
-  for (auto const& inputTag : inputTags) {
-    e.getByLabel(inputTag, handle);
+inline bool ShallowDigisProducer::findInput(edm::Handle<T>& handle,
+                                            std::vector<edm::EDGetTokenT<T>> const& tokens,
+                                            const edm::Event& e) {
+  for (auto const& token : tokens) {
+    handle = e.getHandle(token);
     if (handle.isValid() && !handle->empty()) {
-      LogDebug("Input") << inputTag;
       return true;
     }
   }

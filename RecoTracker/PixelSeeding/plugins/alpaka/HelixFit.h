@@ -10,7 +10,7 @@
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitResult.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 
 #include "CAStructures.h"
 
@@ -53,34 +53,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class HelixFit {
   public:
-    using TrackingRecHitSoAs = TrackingRecHitSoA<TrackerTraits>;
+    using HitView = ::reco::TrackingRecHitView;
+    using HitConstView = ::reco::TrackingRecHitConstView;
+    using OutputSoAView = ::reco::TrackSoAView;
+    using OutputHitSoAView = ::reco::TrackHitSoAView;
 
-    using HitView = TrackingRecHitSoAView<TrackerTraits>;
-    using HitConstView = TrackingRecHitSoAConstView<TrackerTraits>;
-
-    using Tuples = typename reco::TrackSoA<TrackerTraits>::HitContainer;
-    using OutputSoAView = reco::TrackSoAView<TrackerTraits>;
-
-    using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
-
-    using ParamsOnDevice = pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>;
+    using Tuples = caStructures::SequentialContainer;
+    using TupleMultiplicity = caStructures::GenericContainer;
 
     explicit HelixFit(float bf, bool fitNas4) : bField_(bf), fitNas4_(fitNas4) {}
     ~HelixFit() { deallocate(); }
 
     void setBField(double bField) { bField_ = bField; }
     void launchRiemannKernels(const HitConstView &hv,
-                              ParamsOnDevice const *cpeParams,
+                              const ::reco::CAModulesConstView &fr,
                               uint32_t nhits,
                               uint32_t maxNumberOfTuples,
                               Queue &queue);
     void launchBrokenLineKernels(const HitConstView &hv,
-                                 ParamsOnDevice const *cpeParams,
+                                 const ::reco::CAModulesConstView &fr,
                                  uint32_t nhits,
                                  uint32_t maxNumberOfTuples,
                                  Queue &queue);
 
-    void allocate(TupleMultiplicity const *tupleMultiplicity, OutputSoAView &helix_fit_results);
+    void allocate(TupleMultiplicity const *tupleMultiplicity,
+                  OutputSoAView &helix_fit_results,
+                  Tuples const *__restrict__ foundNtuplets);
     void deallocate();
 
   private:

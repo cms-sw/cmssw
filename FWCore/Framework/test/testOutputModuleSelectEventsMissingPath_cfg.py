@@ -11,7 +11,7 @@ process = cms.Process("TEST")
 
 process.source = cms.Source("EmptySource")
 if args.missingPath == "earlierProcess":
-    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("file:testOutputModuleSelectEventsMissingPath.root"))
+    process.source = cms.Source("TriggerResultsTestSource", paths = cms.untracked.vstring("p1"), pathStates=cms.untracked.vuint32(2), process=cms.untracked.string("EARLIER"))
 process.maxEvents.input = 3
 
 selectEvents = {

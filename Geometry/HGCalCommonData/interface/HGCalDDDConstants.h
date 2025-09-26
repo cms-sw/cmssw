@@ -67,6 +67,7 @@ public:
   inline std::pair<double, double> cellSizeTrap(int type, int irad) const {
     return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
   }
+  std::vector<double> cellThickness() const;
   double cellThickness(int layer, int waferU, int waferV) const;
   int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;
   double distFromEdgeHex(double x, double y, double z) const;
@@ -148,6 +149,7 @@ public:
   int numberCellsHexagon(int wafer) const;
   int numberCellsHexagon(int lay, int waferU, int waferV, bool flag) const;
   inline int partialWaferType(int lay, int waferU, int waferV) const {
+    // Works for zside = -1
     int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
     auto ktr = hgpar_->waferInfoMap_.find(indx);
     int part = (ktr != hgpar_->waferInfoMap_.end()) ? (ktr->second).part : HGCalTypes::WaferFull;
@@ -266,6 +268,10 @@ public:
   }
   int waferType(DetId const& id, bool fromFile) const;
   int waferType(int layer, int waferU, int waferV, bool fromFile) const;
+  inline int waferTypes() const {
+    return ((waferHexagon8()) ? (hgpar_->cellThickness_.size()) : ((waferHexagon6()) ? 3 : 0));
+    ;
+  }
   std::tuple<int, int, int> waferType(HGCSiliconDetId const& id, bool fromFile) const;
   std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV, bool fromFile, bool debug) const;
   inline int waferUVMax() const { return hgpar_->waferUVMax_; }

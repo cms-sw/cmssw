@@ -9,7 +9,7 @@ class CMSSIMPInelasticProcess : public G4HadronicProcess {
 public:
   CMSSIMPInelasticProcess(const G4String& processName = "SIMPInelastic");
 
-  ~CMSSIMPInelasticProcess() override;
+  ~CMSSIMPInelasticProcess() override = default;
 
   G4bool IsApplicable(const G4ParticleDefinition& aParticleType) override;
 

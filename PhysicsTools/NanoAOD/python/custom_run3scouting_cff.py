@@ -221,7 +221,8 @@ def skipEventsWithoutScouting(process):
     import HLTrigger.HLTfilters.hltHighLevel_cfi
 
     process.scoutingTriggerPathFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-            HLTPaths = cms.vstring("Dataset_ScoutingPFRun3")
+            HLTPaths = cms.vstring("Dataset_ScoutingPFRun3", "Dataset_ScoutingPF0", "Dataset_ScoutingPF1"),
+            throw = cms.bool(False)
             )
 
     process.nanoSkim_step = cms.Path(process.scoutingTriggerPathFilter)

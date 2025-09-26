@@ -2,6 +2,11 @@
 #define SimG4Core_MagneticField_FieldStepper_H
 
 #include "G4MagIntegratorStepper.hh"
+#include "G4Version.hh"
+
+#if G4VERSION_NUMBER >= 1132
+#include "G4FieldParameters.hh"
+#endif
 
 class G4Mag_UsualEqRhs;
 
@@ -14,6 +19,10 @@ public:
   void Stepper(const G4double y[], const G4double dydx[], G4double h, G4double yout[], G4double yerr[]) override;
   G4double DistChord() const override;
   G4int IntegratorOrder() const override;
+
+#if G4VERSION_NUMBER >= 1132
+  G4StepperType StepperType() const override { return kTDormandPrince45; };
+#endif
 
 private:
   void selectStepper(const std::string &);

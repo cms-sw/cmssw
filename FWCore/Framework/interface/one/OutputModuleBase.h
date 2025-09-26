@@ -71,8 +71,6 @@ namespace edm {
 
       virtual SharedResourcesAcquirer createAcquirer();
 
-      std::string workerType() const { return "WorkerT<edm::one::OutputModuleBase>"; }
-
       virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                 ModuleCallingContext const& iModuleCallingContext,
                                                 Principal const& iPrincipal) const noexcept {}

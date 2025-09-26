@@ -9,6 +9,18 @@
 
 <test name="TestFEDRawDataCollectionFormat" command="TestFEDRawDataCollectionFormat.sh"/>
 
+
+<library name="testRawDataBuffer" file="TestReadRawDataBuffer.cc,TestWriteRawDataBuffer.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
+<test name="TestRawDataBufferFormat" command="TestRawDataBufferFormat.sh"/>
+
+
+
 <bin name="testFEDRawData" file="FEDRawData_t.cpp,FEDRawDataProduct_t.cc, FEDNumbering_t.cpp">
   <use name="cppunit"/>
 </bin>

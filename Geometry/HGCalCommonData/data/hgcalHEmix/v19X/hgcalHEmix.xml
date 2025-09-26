@@ -125,7 +125,8 @@
     <Vector name="PassiveNamesPartial" type="string" nEntries="1"> "NULL"</Vector>
     <Vector name="MaterialNames" type="string" nEntries="7">
       materials:StainlessSteel, materials:StainlessSteel, materials:Air,
-      materials:Air, materials:Air, materials:Copper, materials:Air</Vector>
+      materials:StainlessSteel, materials:Air, materials:Copper,
+      materials:Air</Vector>
     <Vector name="VolumeNames" type="string" nEntries="7">
       HGCalHEAbsorber1, HGCalHEAbsorber2, HGCalHEAirGap1, HGCalHECover, 
       HGCalHESiliconLayer, HGCalHECoolingPlate, HGCalHEAirGap2</Vector>

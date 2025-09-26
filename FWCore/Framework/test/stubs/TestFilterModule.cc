@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/TypeMatch.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -65,6 +67,16 @@ namespace edmtest {
 
     virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
     void endJob() override;
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<int>("acceptValue", 1)
+          ->setComment(
+              "If onlyOne is false, sets how many out of 100 will be accepted. If onlyOne is true, then only every Nth "
+              "event will be accepted.");
+      desc.addUntracked<bool>("onlyOne", false)->setComment("Sets the behavior of acceptValue.");
+      descriptions.addDefault(desc);
+    }
 
   private:
     int count_;

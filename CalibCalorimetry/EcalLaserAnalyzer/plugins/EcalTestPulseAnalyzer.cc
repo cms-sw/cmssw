@@ -12,6 +12,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -323,7 +324,7 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
       if (samId == 0)
         pngain = pnG[samId];
       if (samId > 0)
-        pngain = TMath::Max(pnG[samId], pngain);
+        pngain = std::max(pnG[samId], pngain);
     }
 
     for (dsum = 0., k = 0; k < _presamplePN; k++) {
@@ -430,7 +431,7 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
         if (i == 0)
           adcgain = adcG[i];
         if (i > 0)
-          adcgain = TMath::Max(adcG[i], adcgain);
+          adcgain = std::max(adcG[i], adcgain);
       }
       // Remove pedestal
       //====================
@@ -555,7 +556,7 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
         if (i == 0)
           adcgain = adcG[i];
         if (i > 0)
-          adcgain = TMath::Max(adcG[i], adcgain);
+          adcgain = std::max(adcG[i], adcgain);
       }
 
       // Remove pedestal

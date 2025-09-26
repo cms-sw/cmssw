@@ -33,8 +33,13 @@ static void readPortableHostObject_v1(char *target, TVirtualObject *from_buffer)
   // pointer to the Object object being constructed in memory
   Object *newObj = (Object *)target;
 
-  // move the data from the on-file layout to the newly constructed object
-  Object::ROOTReadStreamer(newObj, *onfile.product_);
+  // product_ can be null if the Wrapper<PortableHostObject<T>> was
+  // default-constructed because a producer did not produce the
+  // product
+  if (onfile.product_) {
+    // move the data from the on-file layout to the newly constructed object
+    Object::ROOTReadStreamer(newObj, *onfile.product_);
+  }
 }
 
 // put set_PortableHostObject_read_rules in the ROOT namespace to let it forward declare GenerateInitInstance

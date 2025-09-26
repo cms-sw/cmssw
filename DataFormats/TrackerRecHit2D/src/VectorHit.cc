@@ -72,14 +72,28 @@ bool VectorHit::sharesInput(const TrackingRecHit* other, SharedInputType what) c
 
   // what about multi???
   auto const& otherClus = reinterpret_cast<const BaseTrackerRecHit*>(other)->firstClusterRef();
-  return (otherClus == lowerClusterRef()) || (otherClus == upperClusterRef());
+
+  if (lowerClusterRef().id() == otherClus.id() || upperClusterRef().id() == otherClus.id())
+    return (otherClus == lowerClusterRef()) || (otherClus == upperClusterRef());
+  else {
+    bool lowerOverlap = otherClus.stripOverlap(lowerClusterRef());
+    bool upperOverlap = otherClus.stripOverlap(upperClusterRef());
+    return (lowerOverlap || upperOverlap);
+  }
 }
 
 bool VectorHit::sharesClusters(VectorHit const& other, SharedInputType what) const {
-  bool lower = this->lowerClusterRef() == other.lowerClusterRef();
-  bool upper = this->upperClusterRef() == other.upperClusterRef();
-
-  return (what == TrackingRecHit::all) ? (lower && upper) : (upper || lower);
+  if (this->lowerClusterRef().id() == other.lowerClusterRef().id() ||
+      this->upperClusterRef().id() == other.upperClusterRef().id()) {
+    const bool lowerIdentity = this->lowerClusterRef() == other.lowerClusterRef();
+    const bool upperIdentity = this->upperClusterRef() == other.upperClusterRef();
+    return (what == TrackingRecHit::all) ? (lowerIdentity && upperIdentity) : (lowerIdentity || upperIdentity);
+  } else {
+    const bool sameDetId = sameDetModule(other);
+    bool lowerOverlap = (sameDetId) ? other.lowerClusterRef().stripOverlap(this->lowerClusterRef()) : false;
+    bool upperOverlap = (sameDetId) ? other.upperClusterRef().stripOverlap(this->upperClusterRef()) : false;
+    return (what == TrackingRecHit::all) ? (lowerOverlap && upperOverlap) : (lowerOverlap || upperOverlap);
+  }
 }
 
 void VectorHit::getKfComponents4D(KfComponentsHolder& holder) const {

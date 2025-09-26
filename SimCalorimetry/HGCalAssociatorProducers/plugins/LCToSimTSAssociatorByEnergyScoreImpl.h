@@ -10,6 +10,7 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimTracksterAssociator.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"

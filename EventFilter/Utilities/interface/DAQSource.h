@@ -126,6 +126,9 @@ private:
   const bool fileListLoopMode_;
   unsigned int loopModeIterationInc_ = 0;
 
+  std::vector<unsigned int> overrideRangeLS_;
+  bool keepRawFiles_;
+
   edm::RunNumber_t runNumber_;
   std::string fuOutputDir_;
 

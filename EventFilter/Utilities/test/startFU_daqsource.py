@@ -52,6 +52,11 @@ options.register ('numFwkStreams',
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Number of CMSSW streams")
 
+options.register ('keepRawFiles',
+                  False, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.bool,          # string, int, or float
+                  "Read-only")
 
 options.parseArguments()
 
@@ -110,6 +115,7 @@ process.source = cms.Source("DAQSource",
     maxChunkSize = cms.untracked.uint32(10),
     numBuffers = cms.untracked.uint32(3),
     maxBufferedFiles = cms.untracked.uint32(2),
+    keepRawFiles = cms.untracked.bool(options.keepRawFiles)
 )
 
 process.PrescaleService = cms.Service( "PrescaleService",

@@ -1,5 +1,4 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
-#include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"

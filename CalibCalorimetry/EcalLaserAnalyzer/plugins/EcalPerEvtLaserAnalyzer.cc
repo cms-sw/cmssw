@@ -401,7 +401,7 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
         if (i == 0)
           adcGain = adcG[i];
         if (i > 0)
-          adcGain = TMath::Max(adcG[i], adcGain);
+          adcGain = std::max(adcG[i], adcGain);
 
         if (adc[i] > adcmax) {
           adcmax = adc[i];
@@ -485,7 +485,7 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
         if (i == 0)
           adcGain = adcG[i];
         if (i > 0)
-          adcGain = TMath::Max(adcG[i], adcGain);
+          adcGain = std::max(adcG[i], adcGain);
 
         if (adc[i] > adcmax) {
           adcmax = adc[i];

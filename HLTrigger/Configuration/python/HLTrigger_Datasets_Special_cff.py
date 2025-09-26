@@ -118,6 +118,15 @@ streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstr
 )
 
 
+# stream PhysicsScoutingPFMonitor
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector
+streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.l1tResults = cms.InputTag('')
+streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.throw      = cms.bool(False)
+streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditions = cms.vstring('HLT_TriggersForScoutingPFMonitor_SingleMuon_v1')
+
+
 # stream PhysicsSpecialHLTPhysics0
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialHLTPhysics0_datasetSpecialHLTPhysics0_selector
@@ -504,7 +513,7 @@ streamPhysicsSpecialZeroBias0_datasetSpecialZeroBias0_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias0_datasetSpecialZeroBias0_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias0_datasetSpecialZeroBias0_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -517,7 +526,7 @@ streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias1_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias1_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias1_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -530,7 +539,7 @@ streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias10_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias10_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias10_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -543,7 +552,7 @@ streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias11_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias11_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias11_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -556,7 +565,7 @@ streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias12_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias12_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias12_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -569,7 +578,7 @@ streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias13_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias13_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias13_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -582,7 +591,7 @@ streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias14_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias14_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias14_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -595,7 +604,7 @@ streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias15_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias15_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias15_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -608,7 +617,7 @@ streamPhysicsSpecialZeroBias16_datasetSpecialZeroBias16_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias16_datasetSpecialZeroBias16_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias16_datasetSpecialZeroBias16_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -621,7 +630,7 @@ streamPhysicsSpecialZeroBias17_datasetSpecialZeroBias17_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias17_datasetSpecialZeroBias17_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias17_datasetSpecialZeroBias17_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -634,7 +643,7 @@ streamPhysicsSpecialZeroBias18_datasetSpecialZeroBias18_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias18_datasetSpecialZeroBias18_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias18_datasetSpecialZeroBias18_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -647,7 +656,7 @@ streamPhysicsSpecialZeroBias19_datasetSpecialZeroBias19_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias19_datasetSpecialZeroBias19_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias19_datasetSpecialZeroBias19_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -660,7 +669,7 @@ streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias2_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias2_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias2_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -673,7 +682,7 @@ streamPhysicsSpecialZeroBias20_datasetSpecialZeroBias20_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias20_datasetSpecialZeroBias20_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias20_datasetSpecialZeroBias20_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -686,7 +695,7 @@ streamPhysicsSpecialZeroBias21_datasetSpecialZeroBias21_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias21_datasetSpecialZeroBias21_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias21_datasetSpecialZeroBias21_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -699,7 +708,7 @@ streamPhysicsSpecialZeroBias22_datasetSpecialZeroBias22_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias22_datasetSpecialZeroBias22_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias22_datasetSpecialZeroBias22_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -712,7 +721,7 @@ streamPhysicsSpecialZeroBias23_datasetSpecialZeroBias23_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias23_datasetSpecialZeroBias23_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias23_datasetSpecialZeroBias23_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -725,7 +734,7 @@ streamPhysicsSpecialZeroBias24_datasetSpecialZeroBias24_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias24_datasetSpecialZeroBias24_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias24_datasetSpecialZeroBias24_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -738,7 +747,7 @@ streamPhysicsSpecialZeroBias25_datasetSpecialZeroBias25_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias25_datasetSpecialZeroBias25_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias25_datasetSpecialZeroBias25_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -751,7 +760,7 @@ streamPhysicsSpecialZeroBias26_datasetSpecialZeroBias26_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias26_datasetSpecialZeroBias26_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias26_datasetSpecialZeroBias26_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -764,7 +773,7 @@ streamPhysicsSpecialZeroBias27_datasetSpecialZeroBias27_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias27_datasetSpecialZeroBias27_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias27_datasetSpecialZeroBias27_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -777,7 +786,7 @@ streamPhysicsSpecialZeroBias28_datasetSpecialZeroBias28_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias28_datasetSpecialZeroBias28_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias28_datasetSpecialZeroBias28_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -790,7 +799,7 @@ streamPhysicsSpecialZeroBias29_datasetSpecialZeroBias29_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias29_datasetSpecialZeroBias29_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias29_datasetSpecialZeroBias29_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -803,7 +812,7 @@ streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias3_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias3_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias3_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -816,7 +825,7 @@ streamPhysicsSpecialZeroBias30_datasetSpecialZeroBias30_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias30_datasetSpecialZeroBias30_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias30_datasetSpecialZeroBias30_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -829,7 +838,7 @@ streamPhysicsSpecialZeroBias31_datasetSpecialZeroBias31_selector.l1tResults = cm
 streamPhysicsSpecialZeroBias31_datasetSpecialZeroBias31_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias31_datasetSpecialZeroBias31_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -842,7 +851,7 @@ streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias4_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias4_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias4_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -855,7 +864,7 @@ streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias5_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias5_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias5_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -868,7 +877,7 @@ streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias6_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias6_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias6_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -881,7 +890,7 @@ streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias7_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias7_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias7_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -894,7 +903,7 @@ streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias8_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias8_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias8_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 
@@ -907,7 +916,7 @@ streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias9_selector.l1tResults = cms.
 streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias9_selector.throw      = cms.bool(False)
 streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias9_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_Gated_v6',
     'HLT_ZeroBias_HighRate_v5'
 )
 

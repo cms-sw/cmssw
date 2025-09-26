@@ -427,25 +427,6 @@ process.producerGPU = cms.EDProducer("alpaka_cuda_async::ExampleAlpakaProducer",
 Obviously this kind of configuration can be run only on machines that provide the necessary hardware. The configuration is thus explicitly non-portable.
 
 
-### SwitchProducerCUDA (semi-portable)
-
-A step towards a portable configuration is to use the `SwitchProcucer` mechanism, for which currently the only concrete implementation is [`SwitchProducerCUDA`](../../HeterogeneousCore/CUDACore/README.md#automatic-switching-between-cpu-and-gpu-modules). The modules for different Alpaka backends still need to be specified explicitly
-```python
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
-process.producer = SwitchProducerCUDA(
-    cpu = cms.EDProducer("alpaka_serial_sync::ExampleAlpakaProducer", ...),
-    cuda = cms.EDProducer("alpaka_cuda_async::ExampleAlpakaProducer", ...)
-)
-
-# or
-
-process.producer = SwitchProducerCUDA(
-    cpu = cms.EDAlias(producerCPU = cms.EDAlias.allProducts(),
-    cuda = cms.EDAlias(producerGPU = cms.EDAlias.allProducts()
-)
-```
-This kind of configuration can be run on any machine (a given CMSSW build supports), but is limited to CMSSW builds where the modules for all the Alpaka backends declared in the configuration can be built (`alpaka_serial_sync` and `alpaka_cuda_async` in this example). Therefore the `SwitchProducer` approach is here called "semi-portable".
-
 ### Module type resolver (portable)
 
 A fully portable way to express a configuration can be achieved with "module type resolver" approach. The module is specified in the configuration without the backend-specific namespace, and with `@alpaka` postfix

@@ -437,7 +437,7 @@ namespace mkfit {
     void addHitIdx(int hitIdx, int hitLyr, float chi2) {
       hitsOnTrk_.push_back({hitIdx, hitLyr});
       ++lastHitIdx_;
-      if (hitIdx >= 0 || hitIdx == -9) {
+      if (hitIdx >= 0 || hitIdx == Hit::kHitCCCFilterIdx) {
         ++nFoundHits_;
         chi2_ += chi2;
       }
@@ -503,7 +503,7 @@ namespace mkfit {
     void countAndSetNFoundHits() {
       nFoundHits_ = 0;
       for (int i = 0; i <= lastHitIdx_; i++) {
-        if (hitsOnTrk_[i].index >= 0 || hitsOnTrk_[i].index == -9)
+        if (hitsOnTrk_[i].index >= 0 || hitsOnTrk_[i].index == Hit::kHitCCCFilterIdx)
           nFoundHits_++;
       }
     }
@@ -553,7 +553,7 @@ namespace mkfit {
         const auto& hot = tmp_hitsOnTrk[ihit];
         const auto lyr = hot.layer;
         const auto idx = hot.index;
-        if (lyr >= 0 && (idx >= 0 || idx == -9) && lyr != prev_lyr) {
+        if (lyr >= 0 && (idx >= 0 || idx == Hit::kHitCCCFilterIdx) && lyr != prev_lyr) {
           ++lyr_cnt;
           prev_lyr = lyr;
         }
@@ -568,7 +568,7 @@ namespace mkfit {
     std::vector<int> foundLayers() const {
       std::vector<int> layers;
       for (int ihit = 0; ihit <= lastHitIdx_; ++ihit) {
-        if (hitsOnTrk_[ihit].index >= 0 || hitsOnTrk_[ihit].index == -9) {
+        if (hitsOnTrk_[ihit].index >= 0 || hitsOnTrk_[ihit].index == Hit::kHitCCCFilterIdx) {
           layers.push_back(hitsOnTrk_[ihit].layer);
         }
       }

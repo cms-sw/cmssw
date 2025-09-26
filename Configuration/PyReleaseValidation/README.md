@@ -54,6 +54,7 @@ The offsets currently in use are:
 * 0.703: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
 * 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
 * 0.75: HLT phase-2 timing menu
+* 0.7501: HLT phase-2 tracking-only menu
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.752: HLT phase-2 timing menu ticl_v5 variant
 * 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
@@ -63,11 +64,13 @@ The offsets currently in use are:
 * 0.7561 HLT phase-2 timing menu Alpaka, trimmed tracking
 * 0.7562 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
 * 0.757: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+* 0.758 HLT phase-2 timing menu ticl_barrel variant
 * 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
 * 0.77: HLT phase-2 NGT Scouting menu
-* 0.771: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
-* 0.777 New Phase 2 Standalone Muon seeding, streamlined L3 Tracker Muons reconstruction (Inside-Out first), HLT Muon NanoAOD
-* 0.778 New Phase 2 Standalone Muon seeding, streamlined L3 Tracker Muons reconstruction (Outside-In first), HLT Muon NanoAOD
+* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
+* 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+* 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+* 0.778 L3 Tracker Muons reconstruction Outside-In first, HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
 * 0.781: Complete L1 workflow, producing FEVT and NANO output L1/P2GT objects
 * 0.782: Complete L1 workflow, producing only NANO output L1/P2GT objects
@@ -109,6 +112,8 @@ The offsets currently in use are:
 * 0.203: HGCAL TICLv5
 * 0.204: HGCAL superclustering : using Mustache in TICLv5
 * 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICLv5
+* 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters
+* 0.2091: TICL barrel with CaloParticles from PU enabled
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton
@@ -119,3 +124,4 @@ The offsets currently in use are:
 * 0.113: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency; PS-s and SS: 5% bad strips)
 * 0.114: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency; PS-s and SS: 10% bad strips)
 * 0.141: Activate emulation of the signal shape of the InnerTracker FE chip (CROC)
+* 0.186: Run-3 goodEdgeAlgo CPE

@@ -13,7 +13,8 @@ namespace l1t::demo {
                                    const size_t framesPerBX,
                                    const size_t tmux,
                                    const size_t maxFramesPerFile,
-                                   const ChannelMap_t& channelSpecs)
+                                   const ChannelMap_t& channelSpecs,
+                                   const bool staggerTmuxSlices)
       : fileFormat_(format),
         boardDataFileID_("CMSSW"),
         filePathGen_([=](const size_t i) { return path + "_" + std::to_string(i) + "." + fileExt; }),
@@ -23,7 +24,8 @@ namespace l1t::demo {
         maxEventsPerFile_(maxFramesPerFile_),
         eventIndex_(0),
         pendingEvents_(0),
-        channelMap_(channelSpecs) {
+        channelMap_(channelSpecs),
+        staggerTmuxSlices_(staggerTmuxSlices) {
     if (channelMap_.empty())
       throw std::runtime_error("BoardDataWriter channel map cannnot be empty");
     if (fileExt != "txt" && fileExt != "txt.gz" && fileExt != "txt.xz")
@@ -45,8 +47,12 @@ namespace l1t::demo {
                                  "]: Number of channel indices specified, " + std::to_string(indices.size()) +
                                  ", does not match link:board TMUX ratio, " + std::to_string(tmuxRatio));
 
-      maxEventsPerFile_ = std::min(maxEventsPerFile_,
-                                   ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_)) - (tmuxRatio - 1));
+      const size_t maxEventsPerFileStaggered =
+          ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_)) - (tmuxRatio - 1);
+      const size_t maxEventsPerFileUnstaggered =
+          tmuxRatio * ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_ * tmuxRatio));
+      maxEventsPerFile_ =
+          std::min(maxEventsPerFile_, staggerTmuxSlices ? maxEventsPerFileStaggered : maxEventsPerFileUnstaggered);
     }
 
     resetBoardData();
@@ -59,9 +65,31 @@ namespace l1t::demo {
                                    const size_t tmux,
                                    const size_t maxFramesPerFile,
                                    const std::map<LinkId, std::vector<size_t>>& channelMap,
-                                   const std::map<std::string, ChannelSpec>& channelSpecs)
-      : BoardDataWriter(
-            format, path, fileExt, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs)) {}
+                                   const std::map<std::string, ChannelSpec>& channelSpecs,
+                                   const bool staggerTmuxSlices)
+      : BoardDataWriter(format,
+                        path,
+                        fileExt,
+                        framesPerBX,
+                        tmux,
+                        maxFramesPerFile,
+                        mergeMaps(channelMap, channelSpecs),
+                        staggerTmuxSlices) {}
+
+  BoardDataWriter::~BoardDataWriter() {
+    // Print a warning if there are events that have been processed but not written to file.
+    // Note we don't call flush() in the destructor because any exceptions would not be properly handled.
+    // BoardDataWriter::flush() should be called in the endJob() function, e.g. GTTFileWriter::endJob().
+    if (pendingEvents_ > 0) {
+      std::cerr << "BoardDataWriter: WARNING: The last " << pendingEvents_
+                << " events were not written to file. Please remember to flush() in the endJob() function of your file "
+                   "writer."
+                << std::endl;
+      if (!fileNames_.empty()) {
+        std::cerr << " The name of the last complete output buffer file was " << fileNames_.back() << std::endl;
+      }
+    }
+  }
 
   void BoardDataWriter::setBoardDataFileID(const std::string& aId) { boardDataFileID_ = aId; }
 
@@ -156,13 +184,59 @@ namespace l1t::demo {
     for (auto& x : boardData_)
       x.second.clear();
 
-    for (const auto& [id, value] : channelMap_) {
-      const auto& [spec, indices] = value;
-      for (size_t tmuxIndex = 0; tmuxIndex < indices.size(); tmuxIndex++)
-        boardData_.at(indices.at(tmuxIndex)).resize(tmuxIndex * boardTMUX_ * framesPerBX_ + spec.offset);
+    if (staggerTmuxSlices_) {
+      for (const auto& [id, value] : channelMap_) {
+        const auto& [spec, indices] = value;
+        for (size_t tmuxIndex = 0; tmuxIndex < indices.size(); tmuxIndex++)
+          boardData_.at(indices.at(tmuxIndex)).resize(tmuxIndex * boardTMUX_ * framesPerBX_ + spec.offset);
+      }
     }
 
     pendingEvents_ = 0;
+  }
+
+  void BoardDataWriter::checkNumEventsPerFile(const std::vector<BoardDataWriter*>& fileWriters) {
+    // Check that all given file writers have the same maxEventsPerFile_
+    if (fileWriters.empty())
+      return;
+
+    // Create a vector of pointers to all unstaggered file writers
+    std::vector<BoardDataWriter*> fileWritersUnstaggered;
+    for (const auto& fileWriter : fileWriters) {
+      if (!fileWriter->staggerTmuxSlices_) {
+        fileWritersUnstaggered.push_back(fileWriter);
+      }
+    }
+
+    const size_t maxEventsPerFile = fileWritersUnstaggered.empty() ? fileWriters.front()->maxEventsPerFile_
+                                                                   : fileWritersUnstaggered.front()->maxEventsPerFile_;
+
+    // Print a warning if a staggered file writer has a different maxEventsPerFile_ (only a warning because staggered file writers
+    // are not expected to all have the same maxEventsPerFile_ when they don't share the same link:board TMUX ratio)
+    for (const auto& fileWriter : fileWriters) {
+      if (fileWriter->staggerTmuxSlices_ && fileWriter->maxEventsPerFile_ != maxEventsPerFile) {
+        std::cerr << "\nBoardDataWriter: WARNING: A staggered BoardDataWriter has a different maxEventsPerFile_.\n"
+                  << " The first file writer has maxEventsPerFile_ = " << maxEventsPerFile
+                  << ", but a staggered file writer has maxEventsPerFile_ = " << fileWriter->maxEventsPerFile_
+                  << ".\n This is expected only if they are using different link:board TMUX ratios"
+                  << " (or if you're using a mixture of staggered and unstaggered file writers).\n"
+                  << std::endl;
+        break;
+      }
+    }
+
+    // Throw an error if the maxEventsPerFile_ is not the same for all unstaggered file writers
+    for (const auto& fileWriter : fileWritersUnstaggered) {
+      if (fileWriter->maxEventsPerFile_ != maxEventsPerFile) {
+        throw std::runtime_error(
+            "BoardDataWriter: All unstaggered BoardDataWriters must have the same maxEventsPerFile_.\n"
+            " The first file writer has maxEventsPerFile_ = " +
+            std::to_string(maxEventsPerFile) +
+            ", but another file writer has maxEventsPerFile_ = " + std::to_string(fileWriter->maxEventsPerFile_) +
+            ".\n Please set the maxFramesPerFile parameter to use a multiple of the link TMUX (after accounting for "
+            "any offset).");
+      }
+    }
   }
 
 }  // namespace l1t::demo

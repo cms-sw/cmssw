@@ -38,6 +38,10 @@
   <class name="std::vector<TTTrack_TrackWord>"/>
   <class name="edm::Wrapper<std::vector<TTTrack_TrackWord> >"/>
   <class name="edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+  <class name="tt::FrameStub"/>
+  <class name="tt::FrameTrack"/>
+  <class name="tt::StreamStub"/>
+  <class name="tt::StreamTrack"/>
   <class name="tt::StreamsStub"/>
   <class name="tt::StreamsTrack"/>
   <class name="tt::Streams"/>

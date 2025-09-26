@@ -50,8 +50,13 @@ _iterations_trackingPhase1 = [
 
 from Configuration.ProcessModifiers.displacedTracking_cff import displacedTracking
 displacedTracking.toModify(_iterations_trackingPhase1, func=lambda x: x.append('DisplacedGeneralStep'))
-
 _iterations_trackingPhase1.append('JetCoreRegionalStep')
+
+from Configuration.ProcessModifiers.trackingIters01_cff import trackingIters01
+trackingIters01.toModify(
+    _iterations_trackingPhase1,
+    func=lambda x: x.clear() or x.extend(["InitialStep", "HighPtTripletStep"])
+)
 
 _iterations_trackingPhase2PU140_VS = cms.PSet(names = cms.vstring(
     "InitialStep",
@@ -63,8 +68,8 @@ _iterations_trackingPhase2PU140_VS = cms.PSet(names = cms.vstring(
 ))
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(_iterations_trackingPhase2PU140_VS.names, func=lambda x: x.append('PixelLessStep'))
-from Configuration.ProcessModifiers.trackingIters01_cff import trackingIters01
 trackingIters01.toModify(_iterations_trackingPhase2PU140_VS, names = ["InitialStep", "HighPtTripletStep"])
+
 # apply all procModifiers before this
 _iterations_trackingPhase2PU140 = _iterations_trackingPhase2PU140_VS.names.value()
 

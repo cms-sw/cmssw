@@ -215,6 +215,9 @@ int main(int argc, char** argv) try {
       edm::ParameterSetDescriptionFillerPluginFactory* factory;
       std::vector<std::string> pluginNames;
 
+      //The listener must live as long as any plugin might be loaded, which can happen while
+      // writing plugins
+      std::unique_ptr<Listener> listenerPtr;
       if (vm.count(kPluginOpt)) {
         edmplugin::PluginManager::configure(edmplugin::standard::config());
         factory = edm::ParameterSetDescriptionFillerPluginFactory::get();
@@ -245,10 +248,12 @@ int main(int argc, char** argv) try {
       } else {
         // the library name is part of a path
 
-        Listener listener;
+        listenerPtr = std::make_unique<Listener>();
         edmplugin::PluginFactoryManager* pfm = edmplugin::PluginFactoryManager::get();
-        pfm->newFactory_.connect(std::bind(std::mem_fn(&Listener::newFactory), &listener, _1));
-        edm::for_all(*pfm, std::bind(std::mem_fn(&Listener::newFactory), &listener, _1));
+        pfm->newFactory_.connect([&listenerPtr](auto const* factory) { listenerPtr->newFactory(factory); });
+        for (auto& fact : *pfm) {
+          listenerPtr->newFactory(fact);
+        }
 
         std::filesystem::path loadableFile(library);
 
@@ -283,12 +288,15 @@ int main(int argc, char** argv) try {
 
         factory = edm::ParameterSetDescriptionFillerPluginFactory::get();
 
-        edm::for_all(listener.nameAndTypes_,
-                     std::bind(&getPluginsMatchingCategory, _1, std::ref(pluginNames), std::cref(factory->category())));
+        for (auto const& nt : listenerPtr->nameAndTypes_) {
+          getPluginsMatchingCategory(nt, pluginNames, factory->category());
+        }
       }
 
       std::set<std::string> usedCfiFileNames;
-      edm::for_all(pluginNames, std::bind(&writeCfisForPlugin, _1, factory, std::ref(usedCfiFileNames)));
+      for (auto const& plugin : pluginNames) {
+        writeCfisForPlugin(plugin, factory, usedCfiFileNames);
+      }
     });
   } catch (cms::Exception& iException) {
     if (!library.empty()) {

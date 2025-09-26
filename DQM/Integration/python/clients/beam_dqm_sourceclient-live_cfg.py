@@ -43,6 +43,9 @@ else:
     process.load("DQM.Integration.config.fileinputsource_cfi")
     from DQM.Integration.config.fileinputsource_cfi import options
 
+if (options.inputFiles):
+  useLockRecords = False
+
 #--------------------------
 # HLT Filter
 process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
@@ -299,7 +302,7 @@ else:
 process.castorDigis.InputLabel           = rawDataInputTag
 process.csctfDigis.producer              = rawDataInputTag 
 process.dttfDigis.DTTF_FED_Source        = rawDataInputTag
-process.ecalDigisCPU.InputLabel          = rawDataInputTag
+process.ecalDigis.InputLabel             = rawDataInputTag
 process.ecalPreshowerDigis.sourceTag     = rawDataInputTag
 process.gctDigis.inputLabel              = rawDataInputTag
 process.gtDigis.DaqGtInputTag            = rawDataInputTag
@@ -377,18 +380,15 @@ process.dqmBeamMonitor.hltResults = "TriggerResults::HLT"
 
 #---------
 # Upload BeamSpotOnlineObject (LegacyRcd) to CondDB
-if unitTest == False:
-    process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
-
+if (not unitTest) and (not options.inputFiles):
+  process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
         DBParameters = cms.PSet(
-                                messageLevel = cms.untracked.int32(0),
-                                authenticationPath = cms.untracked.string('.')
-                            ),
-
+          messageLevel = cms.untracked.int32(0),
+          authenticationPath = cms.untracked.string('.')
+        ),
         # Upload to CondDB
         connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS'),
         preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
-
         runNumber = cms.untracked.uint64(options.runNumber),
         omsServiceUrl = cms.untracked.string(BSOnlineOmsServiceUrl),
         latency = cms.untracked.uint32(2),
@@ -405,13 +405,11 @@ if unitTest == False:
     )
 
 else:
-    process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
-
+  process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
         DBParameters = cms.PSet(
-                                messageLevel = cms.untracked.int32(0),
-                                authenticationPath = cms.untracked.string('.')
-                            ),
-
+          messageLevel = cms.untracked.int32(0),
+          authenticationPath = cms.untracked.string('.')
+        ),
         # Upload to CondDB
         connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db'),
         preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db'),

@@ -190,9 +190,20 @@ namespace hcaldqm {
 
       return false;
     }
+    bool isFEDZDC(HcalElectronicsId const &eid) {
+      if (eid.isVMEid())
+        return false;
+      int fed = crate2fed(eid.crateId(), eid.slot());
+      if (fed == 1136)
+        return true;
+      else
+        return false;
+
+      return false;
+    }
 
     /*
- *	Orbit Gap Related
+       *	Orbit Gap Related
  */
     std::string ogtype2string(OrbitGapType type) {
       switch (type) {
@@ -238,7 +249,24 @@ namespace hcaldqm {
           return "Null";
       }
     }
-
+    std::string uhtrtype2string(uHTRType type) {
+      switch (type) {
+        case uUnknown:
+          return "Unknown";
+        case uPhysics:
+          return "Physics";
+        case uPedestal:
+          return "Pedestal";
+        case uLED:
+          return "LED";
+        case uHFRaddam:
+          return "HFRaddam";
+        case uLaser:
+          return "Laser";
+        default:
+          return "Unknown";
+      }
+    }
     int getRBX(uint32_t iphi) { return (((iphi + 2) % 72) + 4 - 1) / 4; }
 
   }  // namespace utilities

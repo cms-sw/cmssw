@@ -1,8 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROD")
+import argparse
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
+parser = argparse.ArgumentParser(description='Create schema evolution test file')
+parser.add_argument("--splitLevel", type=int, default=99, help="Split level for PoolOutputModule")
+
+args = parser.parse_args()
+
+process = cms.Process("PROD")
 
 process.source = cms.Source("EmptySource")
 process.maxEvents.input = 10
@@ -18,7 +23,8 @@ process.writeSchemaEvolutionTest = cms.EDProducer("SchemaEvolutionTestWrite",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('SchemaEvolutionTest.root')
+    fileName = cms.untracked.string(f'SchemaEvolutionTest_splitLevel{args.splitLevel}.root'),
+    splitLevel = cms.untracked.int32(args.splitLevel)
 )
 
 process.path = cms.Path(process.writeSchemaEvolutionTest)

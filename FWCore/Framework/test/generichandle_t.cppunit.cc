@@ -137,9 +137,6 @@ void testGenericHandle::getbyLabelTest() {
   std::string label("fred");
   std::string productInstanceName("Rick");
 
-  edm::TypeWithDict dummytype(typeid(edmtest::DummyProduct));
-  std::string className = dummytype.friendlyClassName();
-
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
 
@@ -147,12 +144,13 @@ void testGenericHandle::getbyLabelTest() {
   pset.registerIt();
 
   edm::ProductDescription product(
-      edm::InEvent, label, processName, dummytype.userClassName(), className, productInstanceName, dummytype);
+      edm::InEvent, label, processName, productInstanceName, edm::TypeID(typeid(edmtest::DummyProduct)));
 
   product.init();
 
   auto preg = std::make_unique<edm::SignallingProductRegistryFiller>();
   preg->addProduct(product);
+  preg->setCurrentProcess(processName);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(preg->registry());

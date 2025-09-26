@@ -44,6 +44,8 @@ Example file name for this mode is `run123456_ls000_index000000_source01234.raw`
 
 It is possible that another DAQ-specific header will be added to both file and per-orbit to better encapsulate data (similar is done for Run2/3 FRD files), to provide additional metadata to improve integrity and completeness checks after aggregation of data in DAQ. At present, only RAW DTH is supported by the "DTH" module.
 
+Additional parameters were added **for file discovery mode only** to allow only specific lumisection range to be processed, `overrideRangeLS = cms.untracked.vuint32($N,$M)`, and to keep input read only, `keepRawFiles = cms.untracked.bool(True)`
+
 # DAQ file formats
 Documentation:
 https://twiki.cern.ch/twiki/bin/view/CMS/FFFMetafileFormats

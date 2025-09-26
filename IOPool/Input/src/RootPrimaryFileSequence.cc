@@ -9,6 +9,7 @@
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -65,11 +66,14 @@ namespace edm {
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
       initFile(input_.skipBadFiles());
-      if (rootFile())
+      if (rootFile() and not rootFile()->empty())
         break;
     }
     if (rootFile()) {
-      input_.productRegistryUpdate().updateFromInput(rootFile()->productRegistry()->productList());
+      std::vector<std::string> processOrder;
+      processingOrderMerge(input_.processHistoryRegistry(), processOrder);
+
+      input_.productRegistryUpdate().updateFromInput(rootFile()->productRegistry()->productList(), processOrder);
       if (initialNumberOfEventsToSkip_ != 0) {
         skipEventsAtBeginning(initialNumberOfEventsToSkip_);
       }

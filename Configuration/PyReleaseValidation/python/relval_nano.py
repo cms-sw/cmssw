@@ -3,32 +3,39 @@ import math
 
 
 class WFN:
-    # a simple class to number workflows dynamically
-    def __init__(self, offset):
+    def __init__(self, offset: int):
         self.offset = offset
-        self.index = 0
-        self.subindex = 1
+        self.index = 1
+        self.thousands = 0
+        self.hundreds = 0
 
-    def __call__(self):
-        if self.subindex == 100:
-            print("this is not going to work nicely")
-            self.subindex = 0 / 0
-        r = float(f'{self.offset}.{self.index}{self.subindex:02d}')
-        self.subindex += 1
-        return r
+    def __call__(self) -> float:
+        if self.index >= 100:
+            raise ValueError("Overflow: Leading-index exceeded limit (100)")
+        value_str = f"{self.offset}.{self.thousands}{self.hundreds}{self.index:02d}"
+        result = float(value_str)
+        self.index += 1
+        return result
 
-    def next(self, index=None):
+    def subnext(self) -> None:
+        self.hundreds += 1
+        self.index = 1
+        if self.hundreds >= 10:
+            raise ValueError("Overflow: Sub-index (hundreds) exceeded limit (999)")
+
+    def next(self, index: int = None) -> None:
         if index is None:
-            self.index += 1
+            self.thousands += 1
+            self.hundreds = 0
         else:
-            # manually set the index if given
-            assert index > self.index
-            self.index = index
-        self.subindex = 1
+            if index <= self.thousands:
+                raise ValueError("New index must be greater than current index")
+            self.thousands = index
+            self.hundreds = 0
 
-    def subnext(self):
-        # go to the next tenth for the subindex 10 because of 02d formating
-        self.subindex = math.ceil(self.subindex / 10.) * 10 + 1
+        if self.thousands >= 10:
+            raise ValueError("Overflow: Sub-sub-index (thousands) exceeded limit (9999)")
+        self.index = 1
 
 
 workflows = Matrix()
@@ -218,6 +225,12 @@ steps['ScoutingPFRun32024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls=lumi
 steps['ScoutingPFMonitor2024MINIAOD14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2024D,
                                                                 dataSet='/ScoutingPFMonitor/Run2024D-PromptReco-v1/MINIAOD')}
 
+steps['L1Scouting2024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls={386873: [[1, 332]]},
+                                                     dataSet='/L1Scouting/Run2024I-v1/L1SCOUT')}
+
+steps['L1ScoutingSelection2024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls={386873: [[1, 332]]},
+                                                              dataSet='/L1ScoutingSelection/Run2024I-v1/L1SCOUT')}
+
 steps['ZMuSkim2024RAWRECO14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2024D,
                                                       dataSet='/Muon0/Run2024D-ZMu-PromptReco-v1/RAW-RECO')}
 
@@ -254,11 +267,17 @@ steps['scoutingNANO_data14.0'] = merge([{'-s': 'NANO:@Scout'},
 steps['scoutingNANO_withPrompt_data14.0'] = merge([{'-s': 'NANO:@Prompt+@ScoutMonitor'},
                                                    steps['NANO_data14.0']])
 
+steps['l1ScoutingNANO_data14.0'] = merge([{'-s': 'NANO:@L1Scout', '-n': '1000'},
+                                          steps['NANO_data14.0']])
+
+steps['l1ScoutingSelectionNANO_data14.0'] = merge([{'-s': 'NANO:@L1ScoutSelect', '-n': '1000'},
+                                                   steps['NANO_data14.0']])
+
 # DPG custom NANO
 steps['muDPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@MUDPG', '-n': '100'},
                                      steps['NANO_data14.0']])
 
-steps['muDPGNANOBkg_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@MUDPGBKG', '-n': '100'},
+steps['muDPGNANOBkg_data14.0'] = merge([{'-s': 'RAW2DIGI,RECO:localreco,NANO:@MUDPGBKG', '-n': '100'},
                                         steps['NANO_data14.0']])
 
 steps['hcalDPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,RECO,NANO:@HCAL', '-n': '100',
@@ -378,7 +397,7 @@ steps['NANOGENFromMini'] = merge([{'-s': 'NANO:@GENFromMini,DQM:@nanogenDQM',
 
 ################################################################
 _wfn = WFN(2500)
-######## 2500.0xx ########
+######## 2500.0xxx ########
 # Run2, 10_6_X MiniAOD input (current recommendation for 2016--2018)
 workflows[_wfn()] = ['NANOmc106Xul16v2', ['TTbarMINIAOD10.6_UL16v2', 'NANO_mc10.6ul16v2', 'HRV_NANO_mc']]
 workflows[_wfn()] = ['NANOmc106Xul17v2', ['TTbarMINIAOD10.6_UL17v2', 'NANO_mc10.6ul17v2', 'HRV_NANO_mc']]
@@ -403,7 +422,7 @@ workflows[_wfn()] = ['NANOdataUL17reMINI', ['RunJetHT2017F_reminiaodUL', 'REMINI
 workflows[_wfn()] = ['NANOdataUL18reMINI', ['RunJetHT2018D_reminiaodUL', 'REMINIAOD_data2018UL', 'NANO_data_UL18reMINI', 'HRV_NANO_data']]  # noqa
 
 _wfn.next(1)
-######## 2500.1xx ########
+######## 2500.1xxx ########
 # Run3, 13_0_X input (current recommendation for 2022--2023)
 workflows[_wfn()] = ['NANOmc130X', ['TTbarMINIAOD13.0', 'NANO_mc13.0', 'HRV_NANO_mc']]
 
@@ -421,7 +440,7 @@ workflows[_wfn()] = ['ScoutingNANOdata130Xrun3', ['ScoutingPFRun32022RAW13.0', '
 _wfn.subnext()
 
 _wfn.next(2)
-######## 2500.2xx ########
+######## 2500.2xxx ########
 # Run3, 14_0_X input (2024 RAW/AOD)
 # Standard NANO, MC
 
@@ -449,6 +468,8 @@ _wfn()  # workflows[_wfn()] = ['jmeNANOrePuppidata140Xrun3', ['MuonEG2024MINIAOD
 workflows[_wfn()] = ['lepTrackInfoNANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'lepTrackInfoNANO_data14.0']]
 workflows[_wfn()] = ['ScoutingNANOdata140Xrun3', ['ScoutingPFRun32024RAW14.0', 'scoutingNANO_data14.0']]
 workflows[_wfn()] = ['ScoutingNANOwithPromptdata140Xrun3', ['ScoutingPFMonitor2024MINIAOD14.0', 'scoutingNANO_withPrompt_data14.0']]
+workflows[_wfn()] = ['L1ScoutingNANOdata140Xrun3', ['L1Scouting2024RAW14.0', 'l1ScoutingNANO_data14.0']]
+workflows[_wfn()] = ['L1ScoutingSelectionNANOdata140Xrun3', ['L1ScoutingSelection2024RAW14.0', 'l1ScoutingSelectionNANO_data14.0']]
 
 # DPG custom NANOs, data
 _wfn.subnext()
@@ -474,7 +495,7 @@ _wfn.subnext()
 workflows[_wfn()] = ['NANOdata2024reMINI', ['JetMET1_Run2024H_AOD_140X', 'REMINIAOD_data2024', 'NANO_data_2024_reMINI', 'HRV_NANO_data']]  # noqa
 
 _wfn.next(3)
-######## 2500.3xx ########
+######## 2500.3xxx ########
 # Run3, 15_0_X input (2024 MINIv6+NANOv15 & 2025 data-taking)
 # Standard NANO, MC
 workflows[_wfn()] = ['NANOmc150X', ['TTbar_13p6_Summer24_MINIAOD_150X', 'NANO_mc15.0', 'HRV_NANO_mc']]
@@ -516,7 +537,7 @@ _wfn.subnext()
 
 
 _wfn.next(9)
-######## 2500.9xx ########
+######## 2500.9xxx ########
 # NANOGEN
 workflows[_wfn()] = ['', ['TTbarMINIAOD10.6_UL18v2', 'NANOGENFromMini']]
 workflows[_wfn()] = ['', ['TTbarMINIAOD14.0', 'NANOGENFromMini']]

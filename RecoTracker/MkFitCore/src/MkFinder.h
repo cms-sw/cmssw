@@ -171,6 +171,11 @@ namespace mkfit {
                         const int N_proc,
                         bool chiDebug = false);
 
+    void bkFitFitTracksProp2Plane(const EventOfHits &eventofhits,
+                                  const SteeringParams &st_par,
+                                  const int N_proc,
+                                  bool chiDebug = false);
+
     void bkFitPropTracksToPCA(const int N_proc);
 
     //----------------------------------------------------------------------------

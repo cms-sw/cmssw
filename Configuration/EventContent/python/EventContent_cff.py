@@ -95,7 +95,13 @@ from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 #
 #
 from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
-#
+from HLTrigger.Configuration.HLTScouting_EventContent_cff import HLTScoutingExtra
+# Extend HLT dataformats to the previous scouting objects, to keep them when running on old data/MC
+HLTriggerMINIAODSIM.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTriggerMINIAOD.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTriggerAOD.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTriggerRECO.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTDebugFEVT.outputCommands.extend(HLTScoutingExtra.outputCommands)
 #
 # DQM
 #
@@ -700,7 +706,8 @@ phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                            'keep *_hltHGCalRecHit_*_*',
-                           'keep *_hltHgcalMergeLayerClusters_*_*',
+                           'keep *_hltMergeLayerClusters_*_*',
+                           'keep *_hltParticleFlowRecHit*_*_*',
                            'keep *_hltEgammaGsfTracksL1Seeded_*_*',
                        ])
 
@@ -711,21 +718,11 @@ phase2_muon.toModify(FEVTDEBUGHLTEventContent,
         'keep *_hltL2MuonsFromL1TkMuon_*_*',
         'keep *_hltIter2Phase2L3FromL1TkMuonMerged_*_*',
         'keep *_hltPhase2L3OIMuonTrackSelectionHighPurity_*_*',
+        'keep *_hltPhase2L3MuonFilter_*_*',
         'keep *_hltPhase2L3MuonMerged_*_*',
         'keep *_hltPhase2L3GlbMuon_*_*',
         'keep *_hltPhase2L3MuonsNoID_*_*',
         'keep *_hltPhase2L3Muons_*_*'])
-
-from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
-(phase2_muon & ~phase2L2AndL3Muons).toModify(FEVTDEBUGHLTEventContent, 
-    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
-        'keep *_hltL2OfflineMuonSeeds_*_*'
-    ])
-
-(phase2_muon & phase2L2AndL3Muons).toModify(FEVTDEBUGHLTEventContent, 
-    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
-        'keep *_hltPhase2L3MuonFilter_*_*'
-    ])
 
 phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + TICL_FEVTHLT.outputCommands)
@@ -966,7 +963,7 @@ MINIAODSIMEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
-MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAOD.outputCommands)
+MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAODSIM.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -1024,3 +1021,36 @@ for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventConten
 for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
 
+# Tau Embedding EventContent
+from TauAnalysis.MCEmbeddingTools.Embedding_EventContent_cff import (
+    TauEmbCleaning,
+    TauEmbMerge,
+    TauEmbNano,
+    TauEmbSelection,
+    TauEmbSimGen,
+    TauEmbSimHLT,
+    TauEmbSimReco,
+)
+
+TauEmbeddingSelectionEventContent = RAWRECOEventContent.clone()
+TauEmbeddingSelectionEventContent.outputCommands.extend(TauEmbSelection.outputCommands)
+
+TauEmbeddingCleaningEventContent = RAWRECOEventContent.clone()
+TauEmbeddingCleaningEventContent.outputCommands.extend(TauEmbCleaning.outputCommands)
+
+TauEmbeddingSimGenEventContent = RAWSIMEventContent.clone()
+TauEmbeddingSimGenEventContent.outputCommands.extend(TauEmbSimGen.outputCommands)
+
+TauEmbeddingSimHLTEventContent = RAWSIMEventContent.clone()
+TauEmbeddingSimHLTEventContent.outputCommands.extend(TauEmbSimHLT.outputCommands)
+
+TauEmbeddingSimRecoEventContent = RAWRECOSIMHLTEventContent.clone()
+TauEmbeddingSimRecoEventContent.outputCommands.extend(TauEmbSimReco.outputCommands)
+
+# needs to have MINIAOD in its name to be recognized by cmsDriver as a MINIAOD output so that miniAOD_customizeOutput is applied
+TauEmbeddingMergeMINIAODEventContent = MINIAODSIMEventContent.clone()
+TauEmbeddingMergeMINIAODEventContent.outputCommands.extend(TauEmbMerge.outputCommands)
+
+# needs to have NANOAOD in its name to be recognized by cmsDriver as a NANOAOD output so that NanoAODOutputModule is used
+TauEmbeddingNANOAODEventContent = NANOAODSIMEventContent.clone()
+TauEmbeddingNANOAODEventContent.outputCommands.extend(TauEmbNano.outputCommands)

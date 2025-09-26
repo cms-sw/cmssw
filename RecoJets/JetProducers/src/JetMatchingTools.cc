@@ -57,7 +57,7 @@ JetMatchingTools::JetMatchingTools(const edm::Event& fEvent, edm::ConsumesCollec
   input_pcalohits_hcal_token_ = iC.mayConsume<edm::PCaloHitContainer>(edm::InputTag("g4SimHits:HcalHits"));
   input_simtrack_token_ = iC.mayConsume<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
   input_simvertex_token_ = iC.mayConsume<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  input_cands_token_ = iC.mayConsume<reco::CandidateCollection>(edm::InputTag("genParticleCandidates"));
+  input_cands_token_ = iC.mayConsume<reco::CandidateCollection>(edm::InputTag("genParticles"));
 }
 
 JetMatchingTools::~JetMatchingTools() {}

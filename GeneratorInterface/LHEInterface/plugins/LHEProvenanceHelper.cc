@@ -26,20 +26,16 @@ namespace edm {
                                                            "LHEFile"
                                                            // , "LHE"
                                                            ,
-                                                           "LHEEventProduct",
-                                                           "LHEEventProduct",
                                                            "",
-                                                           TypeWithDict(eventProductType.typeInfo()),
+                                                           eventProductType,
                                                            false)),
         runProductProductDescription_(ProductDescription(InRun,
                                                          "source",
                                                          "LHEFile"
                                                          // , "LHE"
                                                          ,
-                                                         "LHERunInfoProduct",
-                                                         "LHERunInfoProduct",
                                                          "",
-                                                         TypeWithDict(runProductType.typeInfo()),
+                                                         runProductType,
                                                          false)),
         eventProductProvenance_(eventProductProductDescription_.branchID()),
         commonProcessParameterSet_(fillCommonProcessParameterSet()),
@@ -52,6 +48,7 @@ namespace edm {
     auto rp = runProductProductDescription_;
     rp.setIsProvenanceSetOnRead();
     productRegistry.copyProduct(rp);
+    productRegistry.setProcessOrder({eventProductProductDescription_.processName()});
     BranchIDList bli(1UL, ep.branchID().id());
     branchIDListHelper.updateFromInput({{bli}});
   }

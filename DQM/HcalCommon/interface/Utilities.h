@@ -182,7 +182,7 @@ namespace hcaldqm {
     bool isFEDHBHE(HcalElectronicsId const &);
     bool isFEDHF(HcalElectronicsId const &);
     bool isFEDHO(HcalElectronicsId const &);
-
+    bool isFEDZDC(HcalElectronicsId const &);
     /**
  *	This is wrap around in case hashing scheme changes in the future
  */
@@ -194,6 +194,7 @@ namespace hcaldqm {
  *	Orbit Gap Related
  */
     std::string ogtype2string(constants::OrbitGapType type);
+    std::string uhtrtype2string(constants::uHTRType type);
 
     int getRBX(uint32_t iphi);
   }  // namespace utilities

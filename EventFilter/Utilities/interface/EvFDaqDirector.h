@@ -68,7 +68,6 @@ namespace evf {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void preallocate(edm::service::SystemBounds const& bounds);
     void preBeginRun(edm::GlobalContext const& globalContext);
-    void postEndRun(edm::GlobalContext const& globalContext);
     void preGlobalEndLumi(edm::GlobalContext const& globalContext);
     void updateRunParams();
     void overrideRunNumber(unsigned int run) {
@@ -186,6 +185,11 @@ namespace evf {
     void setFileListMode() { fileListMode_ = true; }
     bool fileListMode() const { return fileListMode_; }
     unsigned int lsWithFilesOpen(unsigned int ls) const;
+
+    void setDiscoveryRange(int minDiscoveryLS, bool readOnly) {
+      minDiscoveryLS_ = minDiscoveryLS;
+      discoveryReadOnly_ = readOnly;
+    }
 
   private:
     void createLumiSectionFiles(const uint32_t lumiSection,
@@ -314,6 +318,9 @@ namespace evf {
     std::string discard_ls_filestem_;
     bool fileListMode_ = false;
     std::pair<unsigned, int> lastFileIdx_ = std::make_pair<unsigned, int>(0, -1);
+
+    int minDiscoveryLS_ = -1;
+    bool discoveryReadOnly_ = false;
   };
 }  // namespace evf
 

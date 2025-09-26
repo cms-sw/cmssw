@@ -1,27 +1,10 @@
 #!/bin/sh
 
 SCRIPTS_DIR=${CMSSW_BASE}/src/CondTools/RunInfo/python
+LOCAL_TEST_DIR=$CMSSW_BASE/src/CondTools/RunInfo/test
 
-function die {
-  log_file="$3"
-  if [ -f "$log_file" ]; then
-    echo "Log output:"
-    cat "$log_file"
-  fi
-  echo "Failure $1: status $2"
-  exit $2
-}
-
-assert_equal() {
-  expected="$1"
-  actual="$2"
-  message="$3"
-  log_file="$4"
-  
-  if [ "$expected" != "$actual" ]; then
-    die "$message: Expected $expected, but got $actual" 1 "$log_file"
-  fi
-}
+# Source shared utility functions
+source "${LOCAL_TEST_DIR}/testing_utils.sh"
 
 function assert_found_fills {
   log_file="$1"

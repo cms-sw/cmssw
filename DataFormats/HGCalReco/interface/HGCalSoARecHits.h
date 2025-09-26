@@ -6,7 +6,6 @@
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 
 // SoA layout with dim1, dim2, weight, sigmaNoise, recHitsIndex layer and cellsCount fields
 GENERATE_SOA_LAYOUT(HGCalSoARecHitsLayout,
@@ -15,13 +14,17 @@ GENERATE_SOA_LAYOUT(HGCalSoARecHitsLayout,
                     SOA_COLUMN(float, dim2),
                     SOA_COLUMN(float, dim3),
                     SOA_COLUMN(int, layer),
-                    SOA_COLUMN(float, weight),
+                    SOA_COLUMN(float, energy),
+                    SOA_COLUMN(float, mipEnergy),
                     SOA_COLUMN(float, sigmaNoise),
                     SOA_COLUMN(unsigned int, recHitIndex),
+                    SOA_COLUMN(uint16_t, flags),
                     SOA_COLUMN(uint32_t, detid),
                     SOA_COLUMN(float, time),
                     SOA_COLUMN(float, timeError))
 
 using HGCalSoARecHits = HGCalSoARecHitsLayout<>;
+
+enum HGCalRecHitFlags { kNormal = 0x0, kEnergyInvalid = 0x1, kTimeInvalid = 0x2 };
 
 #endif  // DataFormats_PortableTestObjects_interface_TestSoA_h

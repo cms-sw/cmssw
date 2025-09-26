@@ -85,7 +85,7 @@ std::vector<RandomEngineState> const& ExternalRandomNumberGeneratorService::getL
   return s_dummyStates;
 }
 
-void ExternalRandomNumberGeneratorService::consumes(ConsumesCollector&& iC) const {}
+EDConsumerBase* ExternalRandomNumberGeneratorService::consumer() { return nullptr; }
 
 /// For debugging purposes only.
 void ExternalRandomNumberGeneratorService::print(std::ostream& os) const {}

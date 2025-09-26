@@ -158,14 +158,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         std::vector<int> hitIdx;
         for (auto const& hit : seed.recHits()) {
+          auto det = hit.geographicalId().det();
           int subid = hit.geographicalId().subdetId();
-          if (subid == (int)PixelSubdetector::PixelBarrel || subid == (int)PixelSubdetector::PixelEndcap) {
+          if (det == DetId::Tracker) {
             const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&hit);
             const auto& clusterRef = bhit->firstClusterRef();
-            const auto clusterKey = clusterRef.cluster_pixel().key();
-            hitIdx.push_back(clusterKey);
+            if (subid == (int)PixelSubdetector::PixelBarrel || subid == (int)PixelSubdetector::PixelEndcap) {
+              const auto clusterKey = clusterRef.cluster_pixel().key();
+              hitIdx.push_back(clusterKey);
+            } else if (clusterRef.isPhase2()) {
+              hitIdx.push_back(clusterRef.rawIndex());
+            } else {
+              throw cms::Exception("LSTInputProducer") << "Unknown tracker hit type found!";
+            }
           } else {
-            throw cms::Exception("LSTInputProducer") << "Not pixel hits found!";
+            throw cms::Exception("LSTInputProducer") << "Not tracker hit found!";
           }
         }
 

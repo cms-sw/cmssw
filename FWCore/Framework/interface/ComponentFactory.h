@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef Framework_ComponentFactory_h
 #define Framework_ComponentFactory_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ComponentFactory
 //
-/**\class ComponentFactory ComponentFactory.h FWCore/Framework/interface/ComponentFactory.h
+/**\class edm::eventsetup::ComponentFactory
 
  Description: Factory for building the Factories for the various 'plug-in' components needed for the EventSetup
 
@@ -22,7 +22,7 @@
 #include <string>
 #include <map>
 #include <memory>
-#include <exception>
+#include <sstream>
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactory.h"
@@ -40,23 +40,23 @@ namespace edm {
 
   namespace eventsetup {
     class EventSetupProvider;
-    class EventSetupsController;
 
     template <typename T>
     class ComponentFactory {
     public:
       ComponentFactory() : makers_() {}
-      //~ComponentFactory();
+      ComponentFactory(const ComponentFactory&) = delete;
+      ComponentFactory(ComponentFactory&&) = delete;
+      ComponentFactory& operator=(ComponentFactory&&) = delete;
+      const ComponentFactory& operator=(const ComponentFactory&) = delete;
 
       typedef ComponentMakerBase<T> Maker;
       typedef std::map<std::string, std::shared_ptr<Maker const>> MakerMap;
       typedef typename T::base_type base_type;
       // ---------- const member functions ---------------------
-      std::shared_ptr<base_type> addTo(EventSetupsController& esController,
-                                       EventSetupProvider& iProvider,
+      std::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
                                        edm::ParameterSet& iConfiguration,
-                                       ModuleTypeResolverMaker const* resolverMaker,
-                                       bool replaceExisting = false) const {
+                                       ModuleTypeResolverMaker const* resolverMaker) const {
         std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
         //cerr << "Factory: module_type = " << modtype << endl;
         typename MakerMap::iterator it = makers_.find(modtype);
@@ -74,9 +74,8 @@ namespace edm {
         }
 
         try {
-          return convertException::wrap([&]() -> std::shared_ptr<base_type> {
-            return maker->addTo(esController, iProvider, iConfiguration, replaceExisting);
-          });
+          return convertException::wrap(
+              [&]() -> std::shared_ptr<base_type> { return maker->addTo(iProvider, iConfiguration); });
         } catch (cms::Exception& iException) {
           std::string edmtype = iConfiguration.template getParameter<std::string>("@module_edm_type");
           std::string label = iConfiguration.template getParameter<std::string>("@module_label");
@@ -94,10 +93,6 @@ namespace edm {
       // ---------- member functions ---------------------------
 
     private:
-      ComponentFactory(const ComponentFactory&);  // stop default
-
-      const ComponentFactory& operator=(const ComponentFactory&);  // stop default
-
       // ---------- member data --------------------------------
       //Creating a new component is not done across threads
       CMS_SA_ALLOW mutable MakerMap makers_;

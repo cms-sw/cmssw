@@ -1,6 +1,8 @@
-<bin name="testFWCoreConcurrency" file="*.cppunit.cpp">
-  <use name="cppunit"/>
+<bin name="testFWCoreConcurrency" file="test2_catch2_*.cc">
+  <use name="catch2"/>
   <use name="FWCore/Concurrency"/>
+  <use name="tbb"/>
+  <flags TEST_RUNNER_CMD="testFWCoreConcurrency"/>
 </bin>
 
 <bin file="test_threadSafeOutputFileStream.cpp">

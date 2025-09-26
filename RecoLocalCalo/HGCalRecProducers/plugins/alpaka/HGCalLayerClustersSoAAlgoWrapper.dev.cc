@@ -25,7 +25,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           continue;
         }
         auto clIdx = input_clusters_soa[i].clusterIndex();
-        alpaka::atomicAdd(acc, &outputs[clIdx].energy(), input_rechits_soa[i].weight());
+        alpaka::atomicAdd(acc, &outputs[clIdx].energy(), input_rechits_soa[i].energy());
         alpaka::atomicAdd(acc, &outputs[clIdx].cells(), 1);
         if (input_clusters_soa[i].isSeed() == 1) {
           outputs[clIdx].seed() = input_rechits_soa[i].detid();
@@ -54,12 +54,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           continue;
         }
 
-        alpaka::atomicAdd(acc, &outputs_service[cluster_index].total_weight(), input_rechits_soa[hit_index].weight());
+        alpaka::atomicAdd(acc, &outputs_service[cluster_index].total_weight(), input_rechits_soa[hit_index].energy());
         // Read the current seed index, and the associated energy.
         int clusterSeed = outputs_service[cluster_index].maxEnergyIndex();
-        float clusterEnergy = (clusterSeed == kInvalidIndex) ? 0.f : input_rechits_soa[clusterSeed].weight();
+        float clusterEnergy = (clusterSeed == kInvalidIndex) ? 0.f : input_rechits_soa[clusterSeed].energy();
 
-        while (input_rechits_soa[hit_index].weight() > clusterEnergy) {
+        while (input_rechits_soa[hit_index].energy() > clusterEnergy) {
           // If output_service[cluster_index].maxEnergyIndex() did not change,
           // store the new value and exit the loop.  Otherwise return the value
           // that has been updated, and decide again if the maximum needs to be
@@ -71,7 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           } else {
             // Update the seed index and re-read the associated energy.
             clusterSeed = seed;
-            clusterEnergy = (clusterSeed == kInvalidIndex) ? 0.f : input_rechits_soa[clusterSeed].weight();
+            clusterEnergy = (clusterSeed == kInvalidIndex) ? 0.f : input_rechits_soa[clusterSeed].energy();
           }
         }  // CAS
       }  // uniform_elements
@@ -105,7 +105,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (std::fmaf(d1, d1, d2 * d2) > positionDeltaRho2) {
           continue;
         }
-        float Wi = std::max(thresholdW0 + std::log(input_rechits_soa[hit_index].weight() /
+        float Wi = std::max(thresholdW0 + std::log(input_rechits_soa[hit_index].energy() /
                                                    outputs_service[cluster_index].total_weight()),
                             0.f);
         alpaka::atomicAdd(acc, &outputs[cluster_index].x(), input_rechits_soa[hit_index].dim1() * Wi);

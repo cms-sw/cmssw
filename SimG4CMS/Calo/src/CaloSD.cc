@@ -863,8 +863,8 @@ void CaloSD::clearHits() {
     primIDSaved[k] = -99;
     cleanIndex[k] = 0;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD: Clears hit vector for " << GetName()
-                                << " and initialise slave: " << slave[k].get()->name();
+    edm::LogVerbatim("CaloSim") << "CaloSD: Clears hit vector for " << GetName() << " and initialise slave: "
+                                << ((nullptr != slave[k].get()) ? slave[k].get()->name() : "Unknown");
 #endif
     if (nullptr != slave[k].get())
       slave[k].get()->Initialize();

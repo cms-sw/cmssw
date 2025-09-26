@@ -17,16 +17,16 @@
 
 #include <memory>
 
+#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ESProductTag.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
-
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 
 using namespace edm;
 
@@ -34,6 +34,7 @@ class SiPixelTemplateDBObjectESProducer : public edm::ESProducer {
 public:
   SiPixelTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
   std::shared_ptr<const SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectESProducerRcd&);
+  static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
 private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
@@ -71,6 +72,11 @@ std::shared_ptr<const SiPixelTemplateDBObject> SiPixelTemplateDBObjectESProducer
         << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject.sVector()[22];
 
   return std::shared_ptr<const SiPixelTemplateDBObject>(&dbobject, edm::do_nothing_deleter());
+}
+
+void SiPixelTemplateDBObjectESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixelTemplateDBObjectESProducer);

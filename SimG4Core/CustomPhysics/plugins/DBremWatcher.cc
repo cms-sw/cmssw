@@ -9,8 +9,6 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
-#include "SimG4Core/CustomPhysics/interface/G4muDarkBremsstrahlung.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
