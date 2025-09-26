@@ -51,7 +51,6 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
       mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx) = iget.get(metdir + "/METDiff_GenMETTrue_" + bt + edges);
       mArrayIdx<MElem *>(mMETRatio_GenMETTrue[bt], idx) = iget.get(metdir + "/METRatio_GenMETTrue_" + bt + edges);
       mArrayIdx<MElem *>(mMETDeltaPhi_GenMETTrue[bt], idx) = iget.get(metdir + "/METDeltaPhi_GenMETTrue_" + bt + edges);
-      std::cout << idx << ": " << edges << std::endl;
     }
 
     // check one object, if it exists, then the remaining ME's exists too
@@ -72,8 +71,6 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
         float resolError = mArrayIdx<MElem *>(mMET[bt], idx)->getRMSError();
         mMETResolAggr[bt]->setBinContent(idx + 1, metRMS);
         mMETResolAggr[bt]->setBinError(idx + 1, resolError);
-
-        std::cout << idx << ": " << metRMS << ", " << metMean << ", " << std::endl;
 
         float significance = metMean / metRMS;
         mMETSignAggr[bt]->setBinContent(idx + 1, significance);
