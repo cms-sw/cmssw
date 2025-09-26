@@ -49,10 +49,56 @@ hltVerticesL3PFBjetsMonitoring = hltVerticesMonitoring.clone(
     vertexLabel   = "hltVerticesL3PFBjets",
     useHPforAlignmentPlots = False
 )
+
+#### vertexing resolution plots
+
+from DQM.TrackingMonitor.primaryVertexResolution_cfi import primaryVertexResolution as _primaryVertexResolution
+
+hltPixelVertexResolution = _primaryVertexResolution.clone(
+    vertexSrc = "hltPixelVertices",
+    rootFolder = "HLT/Vertexing/hltPixelVertices/Resolution"
+)
+
+pp_on_PbPb_run3.toModify(hltPixelVertexResolution,
+                         vertexSrc = "hltPixelVerticesPPOnAA")
+
+
+phase2_tracker.toModify(hltPixelVertexResolution,
+                        vertexSrc = "hltPhase2PixelVertices")
+
+hltTrimmedPixelVertexResolution = _primaryVertexResolution.clone(
+    vertexSrc = "hltTrimmedPixelVertices",
+    rootFolder = "HLT/Vertexing/hltTrimmedPixelVertices/Resolution"
+)
+
+pp_on_PbPb_run3.toModify(hltTrimmedPixelVertexResolution,
+                         vertexSrc = "hltTrimmedPixelVerticesPPOnAA")
+
+hltVerticesPFFilterResolution =  _primaryVertexResolution.clone(
+    vertexSrc = "hltVerticesPFFilter",
+    rootFolder = "HLT/Vertexing/hltVerticesPFFilter/Resolution"
+)
+
+pp_on_PbPb_run3.toModify(hltVerticesPFFilterResolution,
+                         vertexSrc = "hltVerticesPFFilterPPOnAA")
+
+phase2_tracker.toModify(hltVerticesPFFilterResolution,
+                        rootFolder = "HLT/Vertexing/hltFullVertices/Resolution",
+                        vertexSrc = "hltOfflinePrimaryVertices")
+
+### the sequence
+
 vertexingMonitorHLT = cms.Sequence(
     hltPixelVerticesMonitoring +
     hltTrimmedPixelVerticesMonitoring +
-    hltVerticesPFFilterMonitoring
+    hltVerticesPFFilterMonitoring +
+    hltPixelVertexResolution +
+    hltTrimmedPixelVertexResolution +
+    hltVerticesPFFilterResolution
 )
 
-phase2_tracker.toReplaceWith(vertexingMonitorHLT, cms.Sequence(hltPixelVerticesMonitoring + hltVerticesMonitoring))
+phase2_tracker.toReplaceWith(vertexingMonitorHLT, cms.Sequence(hltPixelVerticesMonitoring +
+                                                               hltVerticesMonitoring +
+                                                               hltPixelVertexResolution +
+                                                               hltVerticesPFFilterResolution
+                                                               ))
