@@ -76,6 +76,7 @@ defaultOptions.prefix = None
 defaultOptions.profile = None
 defaultOptions.heap_profile = None
 defaultOptions.maxmem_profile = None
+defaultOptions.alloc_monitor = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
 defaultOptions.donotDropOnInput = ''
