@@ -52,8 +52,7 @@ void METTesterPostProcessorHarvesting::dqmEndJob(DQMStore::IBooker &ibook_, DQMS
     MonitorElement *mPFChargedHadronEtFraction_Reco = iget_.get(rundir_reco + "/" + "chargedHadronEtFraction");
     MonitorElement *mPFHFHadronEtFraction_Reco = iget_.get(rundir_reco + "/" + "HFHadronEtFraction");
     MonitorElement *mPFHFEMEtFraction_Reco = iget_.get(rundir_reco + "/" + "HFEMEtFraction");
-    MonitorElement *mMETDiff_GenMETTrue_MET20to40_Reco =
-        iget_.get(rundir_reco + "/" + "METDiff_GenMETTrue_MET20to40");
+    MonitorElement *mMETDiff_GenMETTrue_MET20to40_Reco = iget_.get(rundir_reco + "/" + "METDiff_GenMETTrue_MET20to40");
     MonitorElement *mMETDiff_GenMETTrue_MET100to150_Reco =
         iget_.get(rundir_reco + "/" + "METDiff_GenMETTrue_MET100to150");
     MonitorElement *mMETDiff_GenMETTrue_MET300to400_Reco =
@@ -110,8 +109,8 @@ void METTesterPostProcessorHarvesting::dqmEndJob(DQMStore::IBooker &ibook_, DQMS
     mMET_MiniAOD_over_Reco = ibook_.book1D("MET_MiniAOD_over_RECO", (TH1F *)mMET_Reco->getRootObject());
     mMETPhi_MiniAOD_over_Reco = ibook_.book1D("METPhi_MiniAOD_over_RECO", (TH1F *)mMETPhi_Reco->getRootObject());
     mSumET_MiniAOD_over_Reco = ibook_.book1D("SumET_MiniAOD_over_RECO", (TH1F *)mSumET_Reco->getRootObject());
-    mMETDiff_GenMETTrue_MiniAOD_over_Reco = ibook_.book1D(
-        "METDiff_GenMETTrue_MiniAOD_over_RECO", (TH1F *)mMETDiff_GenMETTrue_Reco->getRootObject());
+    mMETDiff_GenMETTrue_MiniAOD_over_Reco =
+        ibook_.book1D("METDiff_GenMETTrue_MiniAOD_over_RECO", (TH1F *)mMETDiff_GenMETTrue_Reco->getRootObject());
     mMETDeltaPhi_GenMETTrue_MiniAOD_over_Reco = ibook_.book1D("METDeltaPhi_GenMETTrue_MiniAOD_over_RECO",
                                                               (TH1F *)mMETDeltaPhi_GenMETTrue_Reco->getRootObject());
     mPFPhotonEtFraction_MiniAOD_over_Reco =

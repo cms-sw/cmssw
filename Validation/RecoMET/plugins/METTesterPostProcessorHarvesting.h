@@ -28,7 +28,7 @@ class METTesterPostProcessorHarvesting : public DQMEDHarvester {
 public:
   explicit METTesterPostProcessorHarvesting(const edm::ParameterSet &);
   ~METTesterPostProcessorHarvesting() override;
-  
+
 private:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
