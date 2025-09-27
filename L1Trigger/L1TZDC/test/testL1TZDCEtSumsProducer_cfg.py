@@ -14,7 +14,7 @@ parser.add_argument('-f', '--fileNames', dest='fileNames', nargs='+',
 parser.add_argument('-l', '--rawDataLabel', dest='rawDataLabel', type=str, default='rawDataRepacker',
     help="Label of the FEDRawDataCollection product to be used as input")
 
-parser.add_argument('-g', '--globalTag', dest='globalTag', type=str, default='auto:run3_hlt_relval',
+parser.add_argument('-g', '--globalTag', dest='globalTag', type=str, default='141X_dataRun3_HLT_frozen_v2',
     help="Name of the GlobalTag")
 
 parser.add_argument('-n', '--maxEvents', dest='maxEvents', type=int, default=10,
