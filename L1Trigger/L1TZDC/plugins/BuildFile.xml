@@ -1,13 +1,11 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/Utilities"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/L1Trigger"/>
-<use name="DataFormats/L1TCalorimeter"/>
-<use name="CondFormats/L1TObjects"/>
-<use name="CondFormats/DataRecord"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
 <use name="L1Trigger/L1TCalorimeter"/>
 <library file="*.cc" name="L1TriggerL1TZDCPlugins">
   <flags EDM_PLUGIN="1"/>
