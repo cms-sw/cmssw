@@ -2,24 +2,15 @@
 //Modified by Chris McGinn to instead work for just ZDC etSums
 //Contact at christopher.mc.ginn@cern.ch or cfmcginn @ github for bugs
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
-
-#include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
-#include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
-#include "DataFormats/L1Trigger/interface/EGamma.h"
-#include "DataFormats/L1Trigger/interface/Tau.h"
-#include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 //For the output
 #include "TTree.h"
@@ -32,10 +23,10 @@
 
 namespace l1t {
 
-  class L1TZDCAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+  class L1TZDCEtSumsAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
-    explicit L1TZDCAnalyzer(const edm::ParameterSet&);
-    ~L1TZDCAnalyzer() override = default;
+    explicit L1TZDCEtSumsAnalyzer(const edm::ParameterSet&);
+    ~L1TZDCEtSumsAnalyzer() override = default;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -73,7 +64,7 @@ namespace l1t {
   //
   // constructors and destructor
   //
-  L1TZDCAnalyzer::L1TZDCAnalyzer(const edm::ParameterSet& iConfig)
+  L1TZDCEtSumsAnalyzer::L1TZDCEtSumsAnalyzer(const edm::ParameterSet& iConfig)
       : doHistos_(iConfig.getUntrackedParameter<bool>("doHistos", true)) {
     usesResource(TFileService::kSharedResource);
     //now do what ever initialization is needed
@@ -84,7 +75,7 @@ namespace l1t {
     edm::InputTag sumTag = iConfig.getParameter<edm::InputTag>("etSumTag");
     sumToken_ = consumes<l1t::EtSumBxCollection>(sumTag);
 
-    edm::LogInfo("L1TZDCAnalyzer") << "Processing " << sumTag.label() << std::endl;
+    edm::LogInfo("L1TZDCEtSumsAnalyzer") << "Processing " << sumTag.label() << std::endl;
   }
 
   //
@@ -92,7 +83,7 @@ namespace l1t {
   //
 
   // ------------ method called for each event  ------------
-  void L1TZDCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  void L1TZDCEtSumsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     using namespace edm;
 
     //    Handle<EtSumBxCollection> sums;
@@ -114,26 +105,25 @@ namespace l1t {
   }
 
   // ------------ method called once each job just before starting event loop  ------------
-  void L1TZDCAnalyzer::beginJob() {
+  void L1TZDCEtSumsAnalyzer::beginJob() {
     etSumZdcTree_ = fs_->make<TTree>("etSumZdcTree", "");
     etSumZdcTree_->Branch("etSumZdcP", etSumZdcP_, ("etSumZdcP[" + std::to_string(maxBPX_) + "]/F").c_str());
     etSumZdcTree_->Branch("etSumZdcM", etSumZdcM_, ("etSumZdcM[" + std::to_string(maxBPX_) + "]/F").c_str());
   }
 
   // ------------ method called once each job just after ending the event loop  ------------
-  void L1TZDCAnalyzer::endJob() {}
+  void L1TZDCEtSumsAnalyzer::endJob() {}
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-  void L1TZDCAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  void L1TZDCEtSumsAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-
     desc.add<edm::InputTag>("etSumTag", edm::InputTag("l1tZDCEtSums", ""));
-    descriptions.add("l1tZDCAnalyzer", desc);
+    descriptions.add("l1tZDCEtSumsAnalyzer", desc);
   }
 
 }  // namespace l1t
 
 using namespace l1t;
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TZDCAnalyzer);
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L1TZDCEtSumsAnalyzer);
