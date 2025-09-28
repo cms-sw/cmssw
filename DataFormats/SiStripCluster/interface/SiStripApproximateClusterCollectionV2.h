@@ -1,5 +1,5 @@
-#ifndef DataFormats_SiStripCluster_SiStripApproximateClusterCollection_v1_h
-#define DataFormats_SiStripCluster_SiStripApproximateClusterCollection_v1_h
+#ifndef DataFormats_SiStripCluster_SiStripApproximateClusterCollectionV2_v1_h
+#define DataFormats_SiStripCluster_SiStripApproximateClusterCollectionV2_v1_h
 
 #include <vector>
 
@@ -13,8 +13,7 @@
  * (like all RAW data). Any modifications need to be made with care.
  * Please consult core software group if in doubt.
 **/
-namespace v1 {
-class SiStripApproximateClusterCollection {
+class SiStripApproximateClusterCollectionV2 {
 public:
   // Helper classes to make creation and iteration easier
   class Filler {
@@ -22,7 +21,7 @@ public:
     void push_back(SiStripApproximateCluster const& cluster) { clusters_.push_back(cluster); }
 
   private:
-    friend SiStripApproximateClusterCollection;
+    friend SiStripApproximateClusterCollectionV2;
     Filler(std::vector<SiStripApproximateCluster>& clusters) : clusters_(clusters) {}
 
     std::vector<SiStripApproximateCluster>& clusters_;
@@ -42,8 +41,8 @@ public:
     const_iterator cend() const { return end(); }
 
   private:
-    friend SiStripApproximateClusterCollection::const_iterator;
-    DetSet(SiStripApproximateClusterCollection const* coll, unsigned int detIndex)
+    friend SiStripApproximateClusterCollectionV2::const_iterator;
+    DetSet(SiStripApproximateClusterCollectionV2 const* coll, unsigned int detIndex)
         : coll_(coll),
           detIndex_(detIndex),
           clusEnd_(coll->clusters_.size())
@@ -52,7 +51,7 @@ public:
                                                                //: coll_->beginIndices_[detIndex + 1]) {}
           {}
 
-    SiStripApproximateClusterCollection const* const coll_;
+    SiStripApproximateClusterCollectionV2 const* const coll_;
     unsigned int const detIndex_;
     mutable unsigned int clusBegin_ = 0;
     unsigned int const clusEnd_;
@@ -80,17 +79,17 @@ public:
     bool operator!=(const_iterator const& other) const { return not operator==(other); }
 
   private:
-    friend SiStripApproximateClusterCollection;
+    friend SiStripApproximateClusterCollectionV2;
     // default-constructed object acts as the sentinel
     const_iterator() = default;
-    const_iterator(SiStripApproximateClusterCollection const* coll) : coll_(coll) {}
+    const_iterator(SiStripApproximateClusterCollectionV2 const* coll) : coll_(coll) {}
 
-    SiStripApproximateClusterCollection const* coll_ = nullptr;
+    SiStripApproximateClusterCollectionV2 const* coll_ = nullptr;
     unsigned int index_ = 0;
   };
 
   // Actual public interface
-  SiStripApproximateClusterCollection() = default;
+  SiStripApproximateClusterCollectionV2() = default;
 
   void reserve(std::size_t dets, std::size_t clusters);
   Filler beginDet(unsigned int detId);
@@ -107,5 +106,4 @@ private:
   std::vector<unsigned int> detIds_;  // DetId for the Det
   std::vector<SiStripApproximateCluster> clusters_;
 };
-}
 #endif

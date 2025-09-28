@@ -1,32 +1,23 @@
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include <algorithm>
+#include <cassert>
 #include <cmath>
-#include <assert.h>
 
 SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& cluster,
                                                      unsigned int maxNSat,
                                                      float hitPredPos,
-                                                     float& previous_cluster,
-                                                     unsigned int& module_length,
-                                                     unsigned int& previous_module_length,
-                                                     bool peakFilter) {
-  bool filter_, isSaturated_, peakFilter_;
-  if (previous_cluster == -999.)
-   compBarycenter_ = std::round(cluster.barycenter() * maxRange_/maxBarycenter_);
-  else
-   compBarycenter_ = std::round(((cluster.barycenter()-previous_cluster)+(module_length-previous_module_length))* maxRange_/maxBarycenter_);
-  previous_cluster = barycenter(previous_cluster, module_length, previous_module_length);
-  assert(cluster.barycenter() <= maxBarycenter_ && "Got a barycenter > maxBarycenter");
-  assert(compBarycenter_ <= maxRange_ && "Filling compBarycenter > maxRange");
+                                                     bool peakFilter,
+                                                     unsigned char version,
+                                                     float previous_barycenter,
+                                                     unsigned int offset_module_change) {
+  barycenter_ = std::round(cluster.barycenter() * 10);
   width_ = cluster.size();
-  float avgCharge_ = cluster.charge() * 1. / width_;
-  assert(avgCharge_ <= maxavgCharge_ && "Got a avgCharge > maxavgCharge");
-  compavgCharge_ = std::round(avgCharge_ * maxavgChargeRange_/maxavgCharge_);
-  assert(compavgCharge_ <= maxavgChargeRange_ && "Filling compavgCharge > maxavgChargeRange");
+  avgCharge_ = cluster.charge() / cluster.size();
   filter_ = false;
   isSaturated_ = false;
   peakFilter_ = peakFilter;
+  version_ = version;
 
   //mimicing the algorithm used in StripSubClusterShapeTrajectoryFilter...
   //Looks for 3 adjacent saturated strips (ADC>=254)
@@ -68,7 +59,28 @@ SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& clust
   } else {
     filter_ = peakFilter_;
   }
-  compavgCharge_ = (compavgCharge_ | (filter_ << kfilterMask));
-  compavgCharge_ = (compavgCharge_ | (peakFilter_ << kpeakFilterMask));
-  compBarycenter_ = (compBarycenter_ | (isSaturated_ << kSaturatedMask));
+
+  if (version_ == 2) {
+    // Compression of avgCharge_ to integer
+    avgCharge_ = floor((float(cluster.charge()) / cluster.size()) / avgChargeScale_);
+    // In v2, we encode the filter_ and peakFilter_ info in avgCharge_ as the two highest bits
+    assert(avgCharge_ <= ((1 << (nbits_avgCharge_ - 2)) - 1) && "Setting avgCharge > 63");
+    // filter_ and peakFilter_ are encoded in the two highest bits of avgCharge_
+    avgCharge_ = (avgCharge_ | (filter_ << kfilterMask));
+    assert(avgCharge_ <= ((1 << (nbits_avgCharge_ - 1)) - 1) && "Setting avgCharge > 127");
+    avgCharge_ = (avgCharge_ | (peakFilter_ << kpeakFilterMask));
+    assert(avgCharge_ <= ((1 << (nbits_avgCharge_)) - 1) && "Setting avgCharge > 255");
+
+    // Compression of barycenter_ to integer [note: it contains the distance from the previous cluster]
+    barycenter_ = round(float(cluster.barycenter() - previous_barycenter + (offset_module_change)) * barycenterScale_);
+    assert(barycenter_ <= ((1 << (nbits_barycenter_ - 1)) - 1) && "Setting barycenter > 32767");
+    // isSaturated_ is encoded in the highest bit of barycenter_
+    barycenter_ = (barycenter_ | (isSaturated_ << kSaturatedMask));
+    assert(barycenter_ <= ((1 << nbits_barycenter_) - 1) && "Setting barycenter > 65535");
+
+    // Flags set to false to reduce event size (they should be removed when moving to v2 only)
+    filter_ = false;
+    isSaturated_ = false;
+    peakFilter_ = false;
+  }
 }

@@ -9,7 +9,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
-#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection_v1.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollectionV2.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -41,6 +42,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  template<typename CollectionType>
+  void fillCollection(CollectionType& result, 
+                      const edmNew::DetSetVector<SiStripCluster>& clusterCollection,
+                      edm::Event& event, 
+                      const edm::EventSetup& iSetup);
+                      
   edm::InputTag inputClusters;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken;
 
@@ -60,6 +67,8 @@ private:
   SiStripDetInfo detInfo_;
 
   std::string csfLabel_;
+  unsigned int version;
+  unsigned int collectionVersion;
   edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> csfToken_;
 
   edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> stripNoiseToken_;
@@ -83,14 +92,51 @@ SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::Parame
   csfLabel_ = conf.getParameter<std::string>("clusterShapeHitFilterLabel");
   csfToken_ = esConsumes(edm::ESInputTag("", csfLabel_));
 
+  version = conf.getParameter<unsigned int>("version");
+  collectionVersion = conf.getParameter<unsigned int>("collectionVersion");
+
+  // Validate version parameter
+  if (version != 1 && version != 2) {
+    throw cms::Exception("InvalidParameter") << "Invalid version: " << version << ". Must be 1 or 2.";
+  }
+
+  // Validate collectionVersion parameter
+  if (collectionVersion != 1 && collectionVersion != 2) {
+    throw cms::Exception("InvalidParameter") << "Invalid collectionVersion: " << collectionVersion << ". Must be '1' or '2'.";
+  }
+
   stripNoiseToken_ = esConsumes();
-  produces<v1::SiStripApproximateClusterCollection>();
+  
+  if (collectionVersion == 1) {
+    produces<SiStripApproximateClusterCollection>();
+  } else if (collectionVersion == 2) {
+    produces<SiStripApproximateClusterCollectionV2>();
+  }
 }
 
 void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup const& iSetup) {
   const auto& clusterCollection = event.get(clusterToken);
-  auto result = std::make_unique<v1::SiStripApproximateClusterCollection>();
-  result->reserve(clusterCollection.size(), clusterCollection.dataSize());
+  
+  if (collectionVersion == 1) {
+    auto result = std::make_unique<SiStripApproximateClusterCollection>();
+    result->reserve(clusterCollection.size(), clusterCollection.dataSize());
+    
+    fillCollection(*result, clusterCollection, event, iSetup);
+    event.put(std::move(result));
+  } else if (collectionVersion == 2) {
+    auto result = std::make_unique<SiStripApproximateClusterCollectionV2>();
+    result->reserve(clusterCollection.size(), clusterCollection.dataSize());
+    
+    fillCollection(*result, clusterCollection, event, iSetup);
+    event.put(std::move(result));
+  }
+}
+
+template<typename CollectionType>
+void SiStripClusters2ApproxClusters::fillCollection(CollectionType& result, 
+                                                    const edmNew::DetSetVector<SiStripCluster>& clusterCollection,
+                                                    edm::Event& event, 
+                                                    const edm::EventSetup& iSetup) {
 
   auto const beamSpotHandle = event.getHandle(beamSpotToken_);
   auto const& bs = beamSpotHandle.isValid() ? *beamSpotHandle : reco::BeamSpot();
@@ -103,15 +149,11 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
   const auto& theFilter = &iSetup.getData(csfToken_);
   const auto& theNoise_ = &iSetup.getData(stripNoiseToken_);
 
-  float previous_cluster = -999.;
-  unsigned int module_length = 0;
-  unsigned int previous_module_length = 0;
-  const auto tkDets = tkGeom->dets();
-
-  std::vector<uint16_t> v_strip;
+  float previous_barycenter = SiStripApproximateCluster::barycenterOffset_;
+  unsigned int offset_module_change = 0;
 
   for (const auto& detClusters : clusterCollection) {
-    auto ff = result->beginDet(detClusters.id());
+    auto ff = result.beginDet(detClusters.id());
 
     unsigned int detId = detClusters.id();
     const GeomDet* det = tkGeom->idToDet(detId);
@@ -121,20 +163,6 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
 
     const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
     float mip = 3.9 / (sistrip::MeVperADCStrip / stripDet->surface().bounds().thickness());
-
-    uint16_t nStrips{0};
-    const auto& _detId = detId; // for the capture clause in the lambda function
-    auto _det = std::find_if(tkDets.begin(), tkDets.end(), [_detId](auto& elem) -> bool {
-        return (elem->geographicalId().rawId() == _detId);
-      });
-    const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>(*_det)->specificTopology();
-    nStrips = p.nstrips();
-    v_strip.push_back(nStrips);
-
-    previous_module_length += (v_strip.size() <3) ? 0 : v_strip[v_strip.size()-3];
-    module_length += (v_strip.size() <2) ? 0 : v_strip[v_strip.size()-2];
-    assert(detClusters.size());
-    bool first_cluster = true;
 
     for (const auto& cluster : detClusters) {
       const LocalPoint& lp = LocalPoint(((cluster.barycenter() * 10 / (sistrip::STRIPS_PER_APV * nApvs)) -
@@ -153,7 +181,10 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
       bool isTrivial = (std::abs(hitPredPos) < 2.f && hitStrips <= 2);
 
       if (!usable || isTrivial) {
-        ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, previous_cluster, module_length, first_cluster ? previous_module_length : module_length, true));
+        SiStripApproximateCluster approxCluster(
+            cluster, maxNSat, hitPredPos, true, version, previous_barycenter, offset_module_change);
+        ff.push_back(approxCluster);
+        previous_barycenter = approxCluster.getBarycenter(previous_barycenter, offset_module_change);
       } else {
         bool peakFilter = false;
         SlidingPeakFinder pf(std::max<int>(2, std::ceil(std::abs(hitPredPos) + subclusterWindow_)));
@@ -168,13 +199,15 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
                             subclusterCutSN_);
         peakFilter = pf.apply(cluster.amplitudes(), test);
 
-        ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, previous_cluster, module_length, first_cluster? previous_module_length : module_length, peakFilter));
+        SiStripApproximateCluster approxCluster(
+            cluster, maxNSat, hitPredPos, peakFilter, version, previous_barycenter, offset_module_change);
+        ff.push_back(approxCluster);
+        previous_barycenter = approxCluster.getBarycenter(previous_barycenter, offset_module_change);
       }
-      first_cluster = false;
+      offset_module_change = 0;
     }
+    offset_module_change = nApvs * sistrip::STRIPS_PER_APV;
   }
-
-  event.put(std::move(result));
 }
 
 void SiStripClusters2ApproxClusters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -183,6 +216,8 @@ void SiStripClusters2ApproxClusters::fillDescriptions(edm::ConfigurationDescript
   desc.add<unsigned int>("maxSaturatedStrips", 3);
   desc.add<std::string>("clusterShapeHitFilterLabel", "ClusterShapeHitFilter");  // add CSF label
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));         // add BeamSpot tag
+  desc.add<unsigned int>("version", 1);  // RawPrime version (1= default, 2= new v2 format)
+  desc.add<unsigned int>("collectionVersion", 1);  // Collection version (1 for SiStripApproximateClusterCollection, 2 for SiStripApproximateClusterCollectionV2)
   descriptions.add("SiStripClusters2ApproxClusters", desc);
 }
 

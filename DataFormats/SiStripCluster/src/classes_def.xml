@@ -32,8 +32,8 @@
  <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > >" />
 
 
-					 <class name="SiStripApproximateCluster" ClassVersion="7">
-						 <version ClassVersion="7" checksum="1442419399"/>
+ <class name="SiStripApproximateCluster" ClassVersion="7">
+  <version ClassVersion="7" checksum="412957886"/>     
   <version ClassVersion="6" checksum="132211472"/>
   <version ClassVersion="5" checksum="3495825183"/>
   <version ClassVersion="4" checksum="2854791577"/>
@@ -59,13 +59,13 @@
  <class name="std::vector<edm::Ref<edmNew::DetSetVector<SiStripApproximateCluster>,SiStripApproximateCluster,edmNew::DetSetVector<SiStripApproximateCluster>::FindForDetSetVector> >" />
  <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripApproximateCluster>,SiStripApproximateCluster,edmNew::DetSetVector<SiStripApproximateCluster>::FindForDetSetVector> >" />
  <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripApproximateCluster>,SiStripApproximateCluster,edmNew::DetSetVector<SiStripApproximateCluster>::FindForDetSetVector> > >" />
- <class name="v1::SiStripApproximateClusterCollection" ClassVersion="6">
-   <version ClassVersion="6" checksum="1698009625"/>
-   <version ClassVersion="5" checksum="2723004116"/>
-   <version ClassVersion="4" checksum="3101417750"/>
-   <version ClassVersion="3" checksum="2723004116"/>
-  </class>
-  <class name="edm::Wrapper<v1::SiStripApproximateClusterCollection>"/>
+
+ <class name="SiStripApproximateClusterCollectionV2" ClassVersion="3">
+  <version ClassVersion="3" checksum="707370962"/>
+ </class>
+ <class name="edm::Wrapper<SiStripApproximateClusterCollectionV2>"/>
+
+
  <class name="SiStripClustersSOA" ClassVersion="3">
   <version ClassVersion="3" checksum="2739562998"/>
  </class>
