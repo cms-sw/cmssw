@@ -237,6 +237,8 @@ namespace edm {
         pathNames_(&tns.getTrigPaths()),
         endPathNames_(&tns.getEndPaths()),
         wantSummary_(tns.wantSummary()) {
+    preModulesInitializationFinalizedSignal_.connect(std::cref(areg->preModulesInitializationFinalizedSignal_));
+    postModulesInitializationFinalizedSignal_.connect(std::cref(areg->postModulesInitializationFinalizedSignal_));
     ScheduleBuilder builder(
         *moduleRegistry_, proc_pset, *pathNames_, *endPathNames_, prealloc, preg, *areg, processConfiguration);
     resultsInserter_ = std::move(builder.resultsInserter_);
@@ -900,6 +902,9 @@ namespace edm {
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           std::string const& iProcessName) {
+    preModulesInitializationFinalizedSignal_();
+    auto post = [this](void*) { postModulesInitializationFinalizedSignal_(); };
+    std::unique_ptr<void, decltype(post)> const postGuard(this, post);
     finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
     globalSchedule_->beginJob(*moduleRegistry_);
   }

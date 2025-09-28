@@ -44,7 +44,7 @@ algorithms.append(cms.PSet(expression = cms.string("pTkMuonTkEle7_23")))
 
 TkEleTkMuon1020 = l1tGTDoubleObjectCond.clone(
     collection1 = l1tGTtkElectron.clone(
-        regionsMinPt = get_object_thrs(36, "CL2Electrons","NoIso"),
+        regionsMinPt = get_object_thrs(10, "CL2Electrons","NoIso"),
     ),
     collection2 = l1tGTtkMuonVLoose.clone(
         regionsMinPt = get_object_thrs(20, "GMTTkMuons","VLoose"),
