@@ -11,10 +11,7 @@ public:
 
   explicit SiStripApproximateCluster_v1(cms_uint16_t compBarycenter,
                                      cms_uint8_t width,
-                                     cms_uint8_t compavgCharge,
-				     bool filter,
-                                     bool isSaturated,
-                                     bool peakFilter = false
+                                     cms_uint8_t compavgCharge
                                     )
       : compBarycenter_(compBarycenter),
         width_(width),
