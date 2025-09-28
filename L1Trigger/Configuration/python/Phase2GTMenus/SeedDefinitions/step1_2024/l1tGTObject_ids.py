@@ -11,7 +11,7 @@ objectIDs = {
     "CL2Photons":{
         "Iso": {
             "qual": {
-                "barrel": 0b0010,
+                "barrel": 0b0100,
                 "endcap": 0b0100,
             },
             "iso": {
@@ -22,10 +22,10 @@ objectIDs = {
     },
     "CL2Electrons":{
         "Iso": {
-            # "qual": {
-            #     "barrel": 0b0010,
-            #     "endcap": 0b0010,
-            # },
+            "qual": {
+                "barrel": 0b0010,
+                "endcap": 0b0010,
+            },
             "iso": {
                 "barrel": 0.13,
                 "endcap": 0.28,
@@ -40,7 +40,7 @@ objectIDs = {
         "NoIsoLowPt": {
             "qual": {
                 "barrel": 0b0010,
-                "endcap": 0b0000,
+                "endcap": 0b0010, # Now apply electron ID in endcap for all pT, remove separate LowPt category?
             },
         }
     },
