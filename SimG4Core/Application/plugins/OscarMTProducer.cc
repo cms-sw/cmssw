@@ -268,7 +268,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
         edm::LogVerbatim("Track") << " " << i << ". " << (*p1)[i].trackId() << ", " << (*p1)[i] << ", "
                                   << (*p1)[i].crossedBoundary() << "-> " << (*p1)[i].getIDAtBoundary() << ", "
                                   << (*p1)[i].isFromBackScattering() << ", " << (*p1)[i].isPrimary() << "-> "
-                                  << (*p1)[i].getPrimaryID();
+                                  << (*p1)[i].getPrimaryOrLastStoredID();
       }
     }
   }
