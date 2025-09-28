@@ -47,9 +47,6 @@ public:
         : coll_(coll),
           detIndex_(detIndex),
           clusEnd_(coll->clusters_.size())
-          //clusBegin_(coll_->beginIndices_[detIndex]),
-          //clusEnd_(detIndex == coll_->beginIndices_.size() - 1 ? coll->clusters_.size()
-                                                               //: coll_->beginIndices_[detIndex + 1]) {}
           {}
 
     SiStripApproximateClusterCollection const* const coll_;
