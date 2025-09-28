@@ -164,7 +164,7 @@ void CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSet
     LogVerbatim("CaloParticleDebuggerSimTracks")
         << i << "\t" << t.trackId() << "\t" << t << "  Crossed  Boundary: " << t.crossedBoundary()
         << "  Vtx: " << t.vertIndex() << " isFromBackScattering: " << t.isFromBackScattering()
-        << " isPrimary: " << t.isPrimary() << " ParentID: " << t.getPrimaryID()
+        << " isPrimary: " << t.isPrimary() << " ParentID: " << t.getPrimaryOrLastStoredID()
         << "  Position Boundary: " << t.getPositionAtBoundary() << "  Momentum Boundary: " << t.getMomentumAtBoundary()
         << "  Momemtum Origin:   " << t.momentum();
     trackid_to_track_index[t.trackId()] = i;
@@ -232,10 +232,11 @@ void CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSet
         << "\n\n"
         << i << "\tType: " << simcl.pdgId() << "\tEnergy: " << simcl.energy() << "\tKey: " << i;  // << simcl ;
     auto const& simtrack = simcl.g4Tracks()[0];
-    LogVerbatim("CaloParticleDebuggerSimClusters") << "\n  Primary GenParticleID: " << simtrack.getPrimaryID()
-                                                   << "\n  Crossed  Boundary:     " << simtrack.crossedBoundary()
-                                                   << "\n  Position Boundary:     " << simtrack.getPositionAtBoundary()
-                                                   << "\n  Momentum Boundary:     " << simtrack.getMomentumAtBoundary();
+    LogVerbatim("CaloParticleDebuggerSimClusters")
+        << "\n  GenParticleID/ancestor: " << simtrack.getPrimaryOrLastStoredID()
+        << "\n  Crossed  Boundary:      " << simtrack.crossedBoundary()
+        << "\n  Position Boundary:      " << simtrack.getPositionAtBoundary()
+        << "\n  Momentum Boundary:      " << simtrack.getMomentumAtBoundary();
     if (simClusters_in_CaloParticles.find(simcl.g4Tracks()[0].trackId()) == simClusters_in_CaloParticles.end()) {
       LogVerbatim("CaloParticleDebuggerSimClusters") << "  Orphan SimCluster: " << simtrack.trackId();
     }
