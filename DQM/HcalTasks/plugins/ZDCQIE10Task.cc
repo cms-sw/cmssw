@@ -126,25 +126,38 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
 
   // create variable binning for TP sum histograms
   std::vector<double> varbins;
-  // -1 - 100 : 101 1-unit bins
-  // 100 - 700 :100 6-unit bins
-  // 700 - 1024 : 18 18-unit bins
-  for (int i = -1; i < 100; i += 1)
+  // -1 - 64 : 65 1-unit bins
+  // 64 - 128 : 32 2-unit bins
+  // 128 - 256 : 32 4-unit bins
+  // 256 - 512 : 32 8-unit bins
+  // 512 - 1008 : 31 16-unit bins
+  // 1008 - 1023: 1 bin
+  // 1023 - 1024: 1 bin
+  for (int i = -1; i < 64; i += 1)
     varbins.push_back(i);
-  for (int i = 100; i < 700; i += 6)
+  for (int i = 64; i < 128; i += 2)
     varbins.push_back(i);
-  for (int i = 700; i < 1024; i += 18)
+  for (int i = 128; i < 256; i += 4)
     varbins.push_back(i);
+  for (int i = 256; i < 512; i += 8)
+    varbins.push_back(i);
+  for (int i = 512; i <= 1008; i += 16)
+    varbins.push_back(i);
+
+  // add additional bins
+  varbins.push_back(1023);
+  varbins.push_back(1024);
+
+  histoname = "ZDCM_EmuSumTP_DataSum";
+  ib.setCurrentFolder("Hcal/ZDCQIE10Task/TPs");
+
   TH2D* varBinningTH2D = new TH2D(
       histoname.c_str(), histoname.c_str(), varbins.size() - 1, varbins.data(), varbins.size() - 1, varbins.data());
   _cZDC_EmuSumTP_DataSum[0] = ib.book2DD(histoname.c_str(), varBinningTH2D);
-
-  histoname = "ZDCM_EmuSumTP_DataSum";
-  ib.setCurrentFolder("Hcal/ZDCQIE10Task/Sums");
   _cZDC_EmuSumTP_DataSum[0]->setAxisTitle("Emulated TP Sum (Online Counts)", 2);
 
   histoname = "ZDCP_EmuSumTP_DataSum";
-  ib.setCurrentFolder("Hcal/ZDCQIE10Task/Sums");
+  ib.setCurrentFolder("Hcal/ZDCQIE10Task/TPs");
   _cZDC_EmuSumTP_DataSum[1] = ib.book2DD(histoname.c_str(), varBinningTH2D);
   _cZDC_EmuSumTP_DataSum[1]->setAxisTitle("Data TP Sum (Online Counts)", 1);
   _cZDC_EmuSumTP_DataSum[1]->setAxisTitle("Emulated TP Sum (Online Counts)", 2);
