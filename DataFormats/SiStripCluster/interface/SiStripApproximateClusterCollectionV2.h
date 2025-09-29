@@ -32,7 +32,9 @@ public:
   public:
     using const_iterator = std::vector<SiStripApproximateCluster>::const_iterator;
 
-    unsigned int id() const { return std::accumulate(coll_->detIds_.cbegin(), coll_->detIds_.cbegin()+detIndex_+1, 0); }
+    unsigned int id() const {
+      return std::accumulate(coll_->detIds_.cbegin(), coll_->detIds_.cbegin() + detIndex_ + 1, 0);
+    }
 
     void move(unsigned int clusBegin) const { clusBegin_ = clusBegin; }
     const_iterator begin() const { return coll_->clusters_.begin() + clusBegin_; }
@@ -46,10 +48,10 @@ public:
         : coll_(coll),
           detIndex_(detIndex),
           clusEnd_(coll->clusters_.size())
-          //clusBegin_(coll_->beginIndices_[detIndex]),
-          //clusEnd_(detIndex == coll_->beginIndices_.size() - 1 ? coll->clusters_.size()
-                                                               //: coll_->beginIndices_[detIndex + 1]) {}
-          {}
+    //clusBegin_(coll_->beginIndices_[detIndex]),
+    //clusEnd_(detIndex == coll_->beginIndices_.size() - 1 ? coll->clusters_.size()
+    //: coll_->beginIndices_[detIndex + 1]) {}
+    {}
 
     SiStripApproximateClusterCollectionV2 const* const coll_;
     unsigned int const detIndex_;

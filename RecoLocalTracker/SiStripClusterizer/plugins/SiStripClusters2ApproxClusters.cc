@@ -42,12 +42,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  template<typename CollectionType>
-  void fillCollection(CollectionType& result, 
+  template <typename CollectionType>
+  void fillCollection(CollectionType& result,
                       const edmNew::DetSetVector<SiStripCluster>& clusterCollection,
-                      edm::Event& event, 
+                      edm::Event& event,
                       const edm::EventSetup& iSetup);
-                      
+
   edm::InputTag inputClusters;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken;
 
@@ -102,11 +102,12 @@ SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::Parame
 
   // Validate collectionVersion parameter
   if (collectionVersion != 1 && collectionVersion != 2) {
-    throw cms::Exception("InvalidParameter") << "Invalid collectionVersion: " << collectionVersion << ". Must be '1' or '2'.";
+    throw cms::Exception("InvalidParameter")
+        << "Invalid collectionVersion: " << collectionVersion << ". Must be '1' or '2'.";
   }
 
   stripNoiseToken_ = esConsumes();
-  
+
   if (collectionVersion == 1) {
     produces<SiStripApproximateClusterCollection>();
   } else if (collectionVersion == 2) {
@@ -116,28 +117,27 @@ SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::Parame
 
 void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup const& iSetup) {
   const auto& clusterCollection = event.get(clusterToken);
-  
+
   if (collectionVersion == 1) {
     auto result = std::make_unique<SiStripApproximateClusterCollection>();
     result->reserve(clusterCollection.size(), clusterCollection.dataSize());
-    
+
     fillCollection(*result, clusterCollection, event, iSetup);
     event.put(std::move(result));
   } else if (collectionVersion == 2) {
     auto result = std::make_unique<SiStripApproximateClusterCollectionV2>();
     result->reserve(clusterCollection.size(), clusterCollection.dataSize());
-    
+
     fillCollection(*result, clusterCollection, event, iSetup);
     event.put(std::move(result));
   }
 }
 
-template<typename CollectionType>
-void SiStripClusters2ApproxClusters::fillCollection(CollectionType& result, 
+template <typename CollectionType>
+void SiStripClusters2ApproxClusters::fillCollection(CollectionType& result,
                                                     const edmNew::DetSetVector<SiStripCluster>& clusterCollection,
-                                                    edm::Event& event, 
+                                                    edm::Event& event,
                                                     const edm::EventSetup& iSetup) {
-
   auto const beamSpotHandle = event.getHandle(beamSpotToken_);
   auto const& bs = beamSpotHandle.isValid() ? *beamSpotHandle : reco::BeamSpot();
   if (not beamSpotHandle.isValid()) {
@@ -217,7 +217,9 @@ void SiStripClusters2ApproxClusters::fillDescriptions(edm::ConfigurationDescript
   desc.add<std::string>("clusterShapeHitFilterLabel", "ClusterShapeHitFilter");  // add CSF label
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));         // add BeamSpot tag
   desc.add<unsigned int>("version", 1);  // RawPrime version (1= default, 2= new v2 format)
-  desc.add<unsigned int>("collectionVersion", 1);  // Collection version (1 for SiStripApproximateClusterCollection, 2 for SiStripApproximateClusterCollectionV2)
+  desc.add<unsigned int>(
+      "collectionVersion",
+      1);  // Collection version (1 for SiStripApproximateClusterCollection, 2 for SiStripApproximateClusterCollectionV2)
   descriptions.add("SiStripClusters2ApproxClusters", desc);
 }
 

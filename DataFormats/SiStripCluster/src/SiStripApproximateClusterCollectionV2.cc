@@ -5,6 +5,6 @@ void SiStripApproximateClusterCollectionV2::reserve(std::size_t dets, std::size_
 }
 
 SiStripApproximateClusterCollectionV2::Filler SiStripApproximateClusterCollectionV2::beginDet(unsigned int detId) {
-  detIds_.push_back((detIds_.size() == 0) ? detId : detId - (std::accumulate(detIds_.cbegin(), detIds_.cend(),0)));
+  detIds_.push_back((detIds_.empty()) ? detId : detId - (std::accumulate(detIds_.cbegin(), detIds_.cend(), 0)));
   return Filler(clusters_);
 }
