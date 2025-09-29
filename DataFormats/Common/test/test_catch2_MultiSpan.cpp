@@ -11,9 +11,9 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
   edm::MultiSpan<int> emptyMultiSpan;
   edm::MultiSpan<int> ms;
 
-  edm::MultiSpan<int> ms1; // MultiSpan with empty span as first span
-  edm::MultiSpan<int> ms2; // MultiSpan with several empty spans
-  edm::MultiSpan<int> ms3; // MultiSpan with empty span as last span
+  edm::MultiSpan<int> ms1;  // MultiSpan with empty span as first span
+  edm::MultiSpan<int> ms2;  // MultiSpan with several empty spans
+  edm::MultiSpan<int> ms3;  // MultiSpan with empty span as last span
 
   std::vector<int> a = {1, 2, 3};
   std::vector<int> b = {4, 5};
