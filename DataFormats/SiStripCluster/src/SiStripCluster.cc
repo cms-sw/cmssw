@@ -40,7 +40,12 @@ SiStripCluster::SiStripCluster(const SiStripApproximateCluster cluster, const ui
   firstStrip_ |= approximateMask;
 }
 
-SiStripCluster::SiStripCluster(const SiStripApproximateCluster_v1 cluster, const uint16_t maxStrips, float p_bc,unsigned int module_length, unsigned int previous_module_length) : error_x(-99999.9) {
+SiStripCluster::SiStripCluster(const SiStripApproximateCluster_v1 cluster,
+                               const uint16_t maxStrips,
+                               float p_bc,
+                               unsigned int module_length,
+                               unsigned int previous_module_length)
+    : error_x(-99999.9) {
   barycenter_ = cluster.barycenter(p_bc, module_length, previous_module_length);
   charge_ = cluster.width() * cluster.avgCharge();
   amplitudes_.resize(cluster.width(), cluster.avgCharge());

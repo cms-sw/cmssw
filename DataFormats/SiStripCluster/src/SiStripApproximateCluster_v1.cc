@@ -1,28 +1,30 @@
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster_v1.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include <algorithm>
+#include <cassert>
 #include <cmath>
-#include <assert.h>
 
 SiStripApproximateCluster_v1::SiStripApproximateCluster_v1(const SiStripCluster& cluster,
-                                                     unsigned int maxNSat,
-                                                     float hitPredPos,
-                                                     float& previous_cluster,
-                                                     unsigned int& module_length,
-                                                     unsigned int& previous_module_length,
-                                                     bool peakFilter) {
+                                                           unsigned int maxNSat,
+                                                           float hitPredPos,
+                                                           float& previous_cluster,
+                                                           unsigned int& module_length,
+                                                           unsigned int& previous_module_length,
+                                                           bool peakFilter) {
   bool filter_, isSaturated_, peakFilter_;
   if (previous_cluster == -999.)
-   compBarycenter_ = std::round(cluster.barycenter() * maxRange_/maxBarycenter_);
+    compBarycenter_ = std::round(cluster.barycenter() * maxRange_ / maxBarycenter_);
   else
-   compBarycenter_ = std::round(((cluster.barycenter()-previous_cluster)+(module_length-previous_module_length))* maxRange_/maxBarycenter_);
+    compBarycenter_ =
+        std::round(((cluster.barycenter() - previous_cluster) + (module_length - previous_module_length)) * maxRange_ /
+                   maxBarycenter_);
   previous_cluster = barycenter(previous_cluster, module_length, previous_module_length);
   assert(cluster.barycenter() <= maxBarycenter_ && "Got a barycenter > maxBarycenter");
   assert(compBarycenter_ <= maxRange_ && "Filling compBarycenter > maxRange");
-  width_ = std::min(255,(int)cluster.size());//cluster.size();
+  width_ = std::min(255, (int)cluster.size());  //cluster.size();
   float avgCharge_ = cluster.charge() * 1. / width_;
   assert(avgCharge_ <= maxavgCharge_ && "Got a avgCharge > maxavgCharge");
-  compavgCharge_ = std::round(avgCharge_ * maxavgChargeRange_/maxavgCharge_);
+  compavgCharge_ = std::round(avgCharge_ * maxavgChargeRange_ / maxavgCharge_);
   assert(compavgCharge_ <= maxavgChargeRange_ && "Filling compavgCharge > maxavgChargeRange");
   filter_ = false;
   isSaturated_ = false;
