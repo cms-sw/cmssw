@@ -270,10 +270,7 @@ namespace edm {
     desc.addObsoleteUntracked<int>("splitLevel");
     desc.addObsoleteUntracked<std::string>("sortBaskets");
     desc.addObsoleteUntracked<int>("treeMaxVirtualSize");
-    desc.addUntracked<bool>("fastCloning", true)
-        ->setComment(
-            "True:  Allow fast copying, if possible.\n"
-            "False: Disable fast copying.");
+    desc.addUntracked<bool>("fastCloning", false)->setComment("Unused");
     desc.addOptionalUntracked<bool>("mergeJob");
     desc.addObsoleteUntracked<bool>("compactEventAuxiliary");
     desc.addObsoleteUntracked<bool>("overrideInputFileSplitLevels");

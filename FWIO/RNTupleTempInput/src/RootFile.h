@@ -153,7 +153,6 @@ namespace edm {
       RootRNTuple const& lumiTree() const { return lumiTree_; }
       RootRNTuple const& runTree() const { return runTree_; }
       FileFormatVersion fileFormatVersion() const { return fileFormatVersion_; }
-      int whyNotFastClonable() const { return whyNotFastClonable_; }
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
       bool branchListIndexesUnchanged() const { return branchListIndexesUnchanged_; }
       bool modifiedIDs() const { return daqProvenanceHelper_.get() != nullptr; }
@@ -214,7 +213,6 @@ namespace edm {
                                         InputType inputType,
                                         StoredProcessBlockHelper const& storedProcessBlockHelper);
       bool skipThisEntry();
-      void setIfFastClonable(int remainingEvents, int remainingLumis);
       void validateFile(InputType inputType,
                         bool usingGoToEvent,
                         std::vector<ProcessHistoryID>& orderedProcessHistoryIDs);
@@ -288,7 +286,6 @@ namespace edm {
       bool noRunLumiSort_;
       bool noEventSort_;
       bool enforceGUIDInFileName_;
-      int whyNotFastClonable_;
       std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
       bool branchListIndexesUnchanged_;
       EventAuxiliary eventAuxCache_;  //Should only be used by fillThisEventAuxiliary()
