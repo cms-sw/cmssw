@@ -11,11 +11,31 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
   edm::MultiSpan<int> emptyMultiSpan;
   edm::MultiSpan<int> ms;
 
+  edm::MultiSpan<int> ms1; // MultiSpan with empty span as first span
+  edm::MultiSpan<int> ms2; // MultiSpan with several empty spans
+  edm::MultiSpan<int> ms3; // MultiSpan with empty span as last span
+
   std::vector<int> a = {1, 2, 3};
   std::vector<int> b = {4, 5};
+  std::vector<int> c;
 
   ms.add(a);
   ms.add(b);
+
+  ms1.add(c);
+  ms1.add(b);
+  ms1.add(a);
+
+  ms2.add(b);
+  ms2.add(c);
+  ms2.add(c);
+  ms2.add(c);
+  ms2.add(b);
+  ms2.add(a);
+  ms2.add(c);
+
+  ms3.add(a);
+  ms3.add(c);
 
   using ElementType = decltype(ms[0]);
   // Check that the const-correctness of the MultiSpan
@@ -99,5 +119,60 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
     REQUIRE(ms[2] == out[2]);
     REQUIRE(ms[3] == out[3]);
     REQUIRE(ms[4] == out[4]);
+  }
+
+  SECTION("Check MultiSpan with empty span as first span") {
+    REQUIRE(ms1.size() == 5);
+
+    REQUIRE(ms1[0] == b[0]);
+    REQUIRE(ms1[1] == b[1]);
+    REQUIRE(ms1[2] == a[0]);
+    REQUIRE(ms1[3] == a[1]);
+    REQUIRE(ms1[4] == a[2]);
+
+    REQUIRE(ms1.globalIndex(1, 0) == 0);
+    REQUIRE(ms1.globalIndex(2, 1) == 3);
+
+    std::vector<int> collected;
+    for (auto val : ms1) {
+      collected.push_back(val);
+    }
+    REQUIRE(collected == std::vector<int>{b[0], b[1], a[0], a[1], a[2]});
+  }
+
+  SECTION("Check MultiSpan with serveral empty spans") {
+    REQUIRE(ms2.size() == 7);
+
+    REQUIRE(ms2[0] == b[0]);
+    REQUIRE(ms2[1] == b[1]);
+    REQUIRE(ms2[2] == b[0]);
+    REQUIRE(ms2[3] == b[1]);
+    REQUIRE(ms2[4] == a[0]);
+    REQUIRE(ms2[5] == a[1]);
+    REQUIRE(ms2[6] == a[2]);
+
+    REQUIRE(ms2.globalIndex(0, 0) == 0);
+    REQUIRE(ms2.globalIndex(4, 1) == 3);
+    REQUIRE(ms2.globalIndex(5, 1) == 5);
+
+    std::vector<int> collected;
+    for (auto val : ms2) {
+      collected.push_back(val);
+    }
+    REQUIRE(collected == std::vector<int>{b[0], b[1], b[0], b[1], a[0], a[1], a[2]});
+  }
+
+  SECTION("Check MultiSpan with serveral empty spans") {
+    REQUIRE(ms3.size() == 3);
+
+    REQUIRE(ms3[0] == a[0]);
+    REQUIRE(ms3[1] == a[1]);
+    REQUIRE(ms3[2] == a[2]);
+
+    std::vector<int> collected;
+    for (auto val : ms3) {
+      collected.push_back(val);
+    }
+    REQUIRE(collected == std::vector<int>{a[0], a[1], a[2]});
   }
 }
