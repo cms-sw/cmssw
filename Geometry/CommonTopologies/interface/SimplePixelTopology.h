@@ -377,7 +377,7 @@ namespace pixelTopology {
     static constexpr uint16_t last_barrel_detIndex = 864;
 
     static constexpr uint32_t maxPixInModule = 6000;
-    static constexpr uint32_t maxPixInModuleForMorphing = maxPixInModule;
+    static constexpr uint32_t maxPixInModuleForMorphing = 0;
     static constexpr uint32_t maxIterClustering = 16;
 
     static constexpr uint32_t maxNumClustersPerModules = phase2PixelTopology::maxNumClustersPerModules;
@@ -474,7 +474,7 @@ namespace pixelTopology {
     static constexpr uint16_t last_barrel_detIndex = 1184;
 
     static constexpr uint32_t maxPixInModule = 6000;
-    static constexpr uint32_t maxPixInModuleForMorphing = maxPixInModule * 7/5;
+    static constexpr uint32_t maxPixInModuleForMorphing = maxPixInModule * 2 / 5;
     static constexpr uint32_t maxIterClustering = 24;
 
     static constexpr uint32_t maxNumClustersPerModules = phase1PixelTopology::maxNumClustersPerModules;
@@ -588,7 +588,7 @@ namespace pixelTopology {
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
 
     static constexpr uint32_t maxPixInModule = 10000;
-    static constexpr uint32_t maxPixInModuleForMorphing = maxPixInModule * 11/10;
+    static constexpr uint32_t maxPixInModuleForMorphing = maxPixInModule * 1 / 10;
     static constexpr uint32_t maxIterClustering = 32;
 
     static constexpr uint32_t maxNumOfActiveDoublets =
