@@ -850,6 +850,7 @@ void FedRawDataInputSource::readSupervisor() {
     uint32_t lsFromRaw = 0;
     int32_t serverEventsInNewFile = -1;
     int rawFd = -1;
+    uint16_t rawDataType = 0;
 
     int backoff_exp = 0;
 
@@ -895,7 +896,6 @@ void FedRawDataInputSource::readSupervisor() {
         //return LS if LS not set, otherwise return file
         status = getFile(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);
         if (status == evf::EvFDaqDirector::newFile) {
-          uint16_t rawDataType;
           if (evf::EvFDaqDirector::parseFRDFileHeader(nextFile,
                                                       rawFd,
                                                       rawHeaderSize,
@@ -922,6 +922,7 @@ void FedRawDataInputSource::readSupervisor() {
                                                      ls,
                                                      nextFile,
                                                      rawFd,
+                                                     rawDataType,
                                                      rawHeaderSize,
                                                      serverEventsInNewFile,
                                                      fileSizeFromMetadata,
@@ -1102,7 +1103,7 @@ void FedRawDataInputSource::readSupervisor() {
             uint16_t rawHeaderCheck;
             bool fileFound;
             eventsInNewFile = daqDirector_->grabNextJsonFromRaw(
-                nextFile, rawFdEmpty, rawHeaderCheck, fileSizeFromMetadata, fileFound, 0, true);
+                nextFile, rawFdEmpty, rawDataType, rawHeaderCheck, fileSizeFromMetadata, fileFound, 0, true);
             assert(fileFound && rawHeaderCheck == rawHeaderSize);
             daqDirector_->unlockFULocal();
           } else
@@ -1125,6 +1126,7 @@ void FedRawDataInputSource::readSupervisor() {
                                                               rawFile,
                                                               !fileListMode_,
                                                               rawFd,
+                                                              rawDataType,
                                                               fileSize,
                                                               rawHeaderSize,
                                                               neededChunks,
