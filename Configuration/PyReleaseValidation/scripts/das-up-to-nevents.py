@@ -93,6 +93,7 @@ def no_intersection():
     print("Exiting.")
     sys.exit(1)
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -129,7 +130,7 @@ if __name__ == '__main__':
     if runs is not None:
         das_opt = "run in %s"%(str([int(r) for r in runs]))
 
-    if not args.nogolden:
+    if not args.nogolden and not testing:
             
         ## get the greatest golden json
         year = dataset.split("Run")[1][2:4] # from 20XX to XX
@@ -196,12 +197,10 @@ if __name__ == '__main__':
         if (len(golden_data_runs)==0):
             no_intersection()
 
-        if testing:
-            golden_data_runs = golden_data_runs[:1] # take only the first run
         # building the dataframe, cleaning for bad lumis
         golden_data_runs_tocheck = golden_data_runs
        
-        if args.precheck and not testing:
+        if args.precheck:
             golden_data_runs_tocheck = []
             # Here we check run per run.
             # This implies more dasgoclient queries, but smaller outputs
@@ -214,16 +213,8 @@ if __name__ == '__main__':
                 if events > 0 and sum_events > events:
                     break
             das_opt = "run in %s"%(str([int(g) for g in golden_data_runs_tocheck]))
-            
-        if testing:
-            golden_data_runs_tocheck = golden_data_runs[:1] # take only the first run
-            # in testing mode we just take the first file
-            das_opt = "run=%s"%(golden_data_runs_tocheck[0])
     
-    if not testing:
-        df = das_lumi_data(dataset,opt=das_opt).merge(das_file_data(dataset,opt=das_opt),on="file",how="inner") # merge file informations with run and lumis
-    else:
-        df = das_lumi_data(dataset,opt=das_opt)
+    df = das_lumi_data(dataset,opt=das_opt).merge(das_file_data(dataset,opt=das_opt),on="file",how="inner") # merge file informations with run and lumis
 
     df["lumis"] = [[int(ff) for ff in f.replace("[","").replace("]","").split(",")] for f in df.lumis.values]
     
@@ -255,6 +246,7 @@ if __name__ == '__main__':
     df = df.sort_values(["run","min_lumi","max_lumi"])
 
     if testing:
+        df = df[df["events"] >= 100] #jump too small files
         df = df.head(1) # take only the first file
     if site is not None:
         df = df.merge(das_file_site(dataset,site),on="file",how="inner")
