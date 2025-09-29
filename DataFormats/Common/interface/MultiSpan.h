@@ -30,6 +30,11 @@ namespace edm {
     MultiSpan() = default;
 
     void add(std::span<const T> sp) {
+      // Empty spans are not added to reduce the number of spans and speed up the binary search
+      if (sp.empty()) {
+        return;
+      }
+
       spans_.emplace_back(sp);
       offsets_.push_back(totalSize_);
       totalSize_ += sp.size();

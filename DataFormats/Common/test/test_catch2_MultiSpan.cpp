@@ -130,8 +130,8 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
     REQUIRE(ms1[3] == a[1]);
     REQUIRE(ms1[4] == a[2]);
 
-    REQUIRE(ms1.globalIndex(1, 0) == 0);
-    REQUIRE(ms1.globalIndex(2, 1) == 3);
+    REQUIRE(ms1.globalIndex(0, 0) == 0);
+    REQUIRE(ms1.globalIndex(1, 1) == 3);
 
     std::vector<int> collected;
     for (auto val : ms1) {
@@ -152,8 +152,8 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
     REQUIRE(ms2[6] == a[2]);
 
     REQUIRE(ms2.globalIndex(0, 0) == 0);
-    REQUIRE(ms2.globalIndex(4, 1) == 3);
-    REQUIRE(ms2.globalIndex(5, 1) == 5);
+    REQUIRE(ms2.globalIndex(1, 1) == 3);
+    REQUIRE(ms2.globalIndex(2, 1) == 5);
 
     std::vector<int> collected;
     for (auto val : ms2) {
