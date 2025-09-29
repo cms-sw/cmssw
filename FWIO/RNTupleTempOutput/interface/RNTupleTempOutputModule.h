@@ -66,7 +66,6 @@ namespace edm::rntuple_temp {
     std::string const& moduleLabel() const { return moduleLabel_; }
     unsigned int maxFileSize() const { return maxFileSize_; }
     int inputFileCount() const { return inputFileCount_; }
-    int whyNotFastClonable() const { return whyNotFastClonable_; }
 
     std::string const& currentFileName() const;
 
@@ -213,7 +212,6 @@ namespace edm::rntuple_temp {
     int const splitLevel_;
     std::string basketOrder_;
     int const treeMaxVirtualSize_;
-    int whyNotFastClonable_;
     DropMetaData dropMetaData_;
     std::string const moduleLabel_;
     bool initializedFromInput_;

@@ -104,10 +104,6 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   echo ${test}PickEventsx------------------------------------------------------------
   cmsRun ${LOCAL_TEST_DIR}/${test}PickEventsx_cfg.py || die "cmsRun ${test}PickEventsx_cfg.py" $?
 
-  echo ${test}FastCloning------------------------------------------------------------
-  cmsRun ${LOCAL_TEST_DIR}/${test}FastCloning_cfg.py 2> testFastCloning.txt
-  grep "Another exception was caught" testFastCloning.txt || die "cmsRun testRunMergeFastCloning_cfg.py" $?
-
   echo testLooperEventNavigation-----------------------------------------------------
   cmsRun ${LOCAL_TEST_DIR}/testLooperEventNavigation_cfg.py < ${LOCAL_TEST_DIR}/testLooperEventNavigation.txt > testLooperEventNavigationOutput.txt || die "cmsRun testLooperEventNavigation_cfg.py " $?
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testLooperEventNavigationOutput.txt testLooperEventNavigationOutput.txt || die "comparing testLooperEventNavigationOutput.txt" $?

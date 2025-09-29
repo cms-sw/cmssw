@@ -130,8 +130,6 @@ namespace edm::rntuple_temp {
     std::string logicalFile_;
     JobReport::Token reportToken_;
     edm::propagate_const<RNTupleTempOutputModule*> om_;
-    int whyNotFastClonable_;
-    bool canFastCloneAux_;
     edm::propagate_const<std::shared_ptr<TFile>> filePtr_;
     FileID fid_;
     IndexIntoFile::EntryNumber_t eventEntryNumber_;

@@ -90,8 +90,6 @@ namespace edm::rntuple_temp {
         logicalFile_(logicalFileName),
         reportToken_(0),
         om_(om),
-        whyNotFastClonable_(om_->whyNotFastClonable()),
-        canFastCloneAux_(false),
         filePtr_(openTFile(file_.c_str(), om_->compressionLevel())),
         fid_(),
         eventEntryNumber_(0LL),
@@ -143,7 +141,7 @@ namespace edm::rntuple_temp {
     }
     if (om_->compactEventAuxiliary()) {
       eventTree_.addAuxiliary<EventAuxiliary>(
-          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_, false);
+          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_);
       eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(),
                                          false);  // see writeEventAuxiliary
     } else {
@@ -155,7 +153,7 @@ namespace edm::rntuple_temp {
                                                            pEventEntryInfoVector(),
                                                            om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<EventSelectionIDVector>(
-        poolNames::eventSelectionsBranchName(), pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_, false);
+        poolNames::eventSelectionsBranchName(), pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<BranchListIndexes>(
         poolNames::branchListIndexesBranchName(), pBranchListIndexes_, om_->auxItems()[InEvent].basketSize_);
 
@@ -245,210 +243,7 @@ namespace edm::rntuple_temp {
                                                branchNames);                // branch names being written
   }
 
-  namespace {
-    void maybeIssueWarning(int whyNotFastClonable, std::string const& ifileName, std::string const& ofileName) {
-      // No message if fast cloning was deliberately disabled, or if there are no events to copy anyway.
-      if ((whyNotFastClonable & (FileBlock::DisabledInConfigFile | FileBlock::NoRootInputSource |
-                                 FileBlock::NotProcessingEvents | FileBlock::NoEventsInFile)) != 0) {
-        return;
-      }
-
-      // There will be a message stating every reason that fast cloning was not possible.
-      // If at one or more of the reasons was because of something the user explicitly specified (e.g. event selection, skipping events),
-      // or if the input file was in an old format, the message will be informational.  Otherwise, the message will be a warning.
-      bool isWarning = true;
-      std::ostringstream message;
-      message << "Fast copying of file " << ifileName << " to file " << ofileName << " is disabled because:\n";
-      if ((whyNotFastClonable & FileBlock::HasSecondaryFileSequence) != 0) {
-        message << "a SecondaryFileSequence was specified.\n";
-        whyNotFastClonable &= ~(FileBlock::HasSecondaryFileSequence);
-        isWarning = false;
-      }
-      if ((whyNotFastClonable & FileBlock::FileTooOld) != 0) {
-        message << "the input file is in an old format.\n";
-        whyNotFastClonable &= ~(FileBlock::FileTooOld);
-        isWarning = false;
-      }
-      if ((whyNotFastClonable & FileBlock::EventsToBeSorted) != 0) {
-        message << "events need to be sorted.\n";
-        whyNotFastClonable &= ~(FileBlock::EventsToBeSorted);
-      }
-      if ((whyNotFastClonable & FileBlock::RunOrLumiNotContiguous) != 0) {
-        message << "a run or a lumi is not contiguous in the input file.\n";
-        whyNotFastClonable &= ~(FileBlock::RunOrLumiNotContiguous);
-      }
-      if ((whyNotFastClonable & FileBlock::EventsOrLumisSelectedByID) != 0) {
-        message << "events or lumis were selected or skipped by ID.\n";
-        whyNotFastClonable &= ~(FileBlock::EventsOrLumisSelectedByID);
-        isWarning = false;
-      }
-      if ((whyNotFastClonable & FileBlock::InitialEventsSkipped) != 0) {
-        message << "initial events, lumis or runs were skipped.\n";
-        whyNotFastClonable &= ~(FileBlock::InitialEventsSkipped);
-        isWarning = false;
-      }
-      if ((whyNotFastClonable & FileBlock::DuplicateEventsRemoved) != 0) {
-        message << "some events were skipped because of duplicate checking.\n";
-        whyNotFastClonable &= ~(FileBlock::DuplicateEventsRemoved);
-      }
-      if ((whyNotFastClonable & FileBlock::MaxEventsTooSmall) != 0) {
-        message << "some events were not copied because of maxEvents limit.\n";
-        whyNotFastClonable &= ~(FileBlock::MaxEventsTooSmall);
-        isWarning = false;
-      }
-      if ((whyNotFastClonable & FileBlock::MaxLumisTooSmall) != 0) {
-        message << "some events were not copied because of maxLumis limit.\n";
-        whyNotFastClonable &= ~(FileBlock::MaxLumisTooSmall);
-        isWarning = false;
-      }
-      if ((whyNotFastClonable & FileBlock::ParallelProcesses) != 0) {
-        message << "parallel processing was specified.\n";
-        whyNotFastClonable &= ~(FileBlock::ParallelProcesses);
-        isWarning = false;
-      }
-      if ((whyNotFastClonable & FileBlock::EventSelectionUsed) != 0) {
-        message << "an EventSelector was specified.\n";
-        whyNotFastClonable &= ~(FileBlock::EventSelectionUsed);
-        isWarning = false;
-      }
-      if ((whyNotFastClonable & FileBlock::OutputMaxEventsTooSmall) != 0) {
-        message << "some events were not copied because of maxEvents output limit.\n";
-        whyNotFastClonable &= ~(FileBlock::OutputMaxEventsTooSmall);
-        isWarning = false;
-      }
-      if ((whyNotFastClonable & FileBlock::SplitLevelMismatch) != 0) {
-        message << "the split level or basket size of a branch or branches was modified.\n";
-        whyNotFastClonable &= ~(FileBlock::SplitLevelMismatch);
-      }
-      if ((whyNotFastClonable & FileBlock::BranchMismatch) != 0) {
-        message << "The format of a data product has changed.\n";
-        whyNotFastClonable &= ~(FileBlock::BranchMismatch);
-      }
-      assert(whyNotFastClonable == FileBlock::CanFastClone);
-      if (isWarning) {
-        LogWarning("FastCloningDisabled") << message.str();
-      } else {
-        LogInfo("FastCloningDisabled") << message.str();
-      }
-    }
-  }  // namespace
-
-  void RootOutputFile::beginInputFile(FileBlock const& fb, int remainingEvents) {
-    // Reset per input file information
-    whyNotFastClonable_ = om_->whyNotFastClonable();
-    canFastCloneAux_ = false;
-
-    if (fb.tree() != nullptr) {
-      whyNotFastClonable_ |= fb.whyNotFastClonable();
-
-      if (remainingEvents >= 0 && remainingEvents < fb.tree()->GetEntries()) {
-        whyNotFastClonable_ |= FileBlock::OutputMaxEventsTooSmall;
-      }
-
-      bool match = eventTree_.checkSplitLevelsAndBasketSizes(fb.tree());
-      if (!match) {
-        if (om_->overrideInputFileSplitLevels()) {
-          // We may be fast copying.  We must disable fast copying if the split levels
-          // or basket sizes do not match.
-          whyNotFastClonable_ |= FileBlock::SplitLevelMismatch;
-        } else {
-          // We are using the input split levels and basket sizes from the first input file
-          // for copied output branches.  In this case, we throw an exception if any branches
-          // have different split levels or basket sizes in a subsequent input file.
-          // If the mismatch is in the first file, there is a bug somewhere, so we assert.
-          assert(om_->inputFileCount() > 1);
-          throw Exception(errors::MismatchedInputFiles, "RootOutputFile::beginInputFile()")
-              << "Merge failure because input file " << file_ << " has different ROOT split levels or basket sizes\n"
-              << "than previous files.  To allow merging in spite of this, use the configuration parameter\n"
-              << "overrideInputFileSplitLevels=cms.untracked.bool(True)\n"
-              << "in every RNTupleTempOutputModule.\n";
-        }
-      }
-
-      // Since this check can be time consuming, we do it only if we would otherwise fast clone.
-      if (whyNotFastClonable_ == FileBlock::CanFastClone) {
-        if (!eventTree_.checkIfFastClonable(fb.tree())) {
-          whyNotFastClonable_ |= FileBlock::BranchMismatch;
-        }
-      }
-
-      // reasons for whyNotFastClonable that are also inconsistent with a merge job
-      constexpr auto setSubBranchBasketConditions =
-          FileBlock::EventsOrLumisSelectedByID | FileBlock::InitialEventsSkipped | FileBlock::MaxEventsTooSmall |
-          FileBlock::MaxLumisTooSmall | FileBlock::EventSelectionUsed | FileBlock::OutputMaxEventsTooSmall |
-          FileBlock::SplitLevelMismatch | FileBlock::BranchMismatch;
-
-      if (om_->inputFileCount() == 1) {
-        if (om_->mergeJob()) {
-          // for merge jobs always forward the compression mode
-          auto infile = fb.tree()->GetCurrentFile();
-          if (infile != nullptr) {
-            filePtr_->SetCompressionSettings(infile->GetCompressionSettings());
-          }
-        }
-
-        // if we aren't fast cloning, and the reason why is consistent with a
-        // merge job or is only because of parallel processes, then forward all
-        // the sub-branch basket sizes
-        if (whyNotFastClonable_ != FileBlock::CanFastClone &&
-            ((om_->mergeJob() && (whyNotFastClonable_ & setSubBranchBasketConditions) == 0) ||
-             (whyNotFastClonable_ == FileBlock::ParallelProcesses))) {
-          eventTree_.setSubBranchBasketSizes(fb.tree());
-        }
-      }
-
-      // We now check if we can fast copy the auxiliary branches.
-      // We can do so only if we can otherwise fast copy,
-      // the input file has the current format (these branches are in the Events Tree),
-      // there are no newly dropped or produced products,
-      // no metadata has been dropped,
-      // ID's have not been modified,
-      // and the branch list indexes do not need modification.
-
-      // Note: Fast copy of the EventProductProvenance branch is unsafe
-      // unless we can enforce that the parentage information for a fully copied
-      // output file will be the same as for the input file, with nothing dropped.
-      // This has never been enforced, and, withthe EDAlias feature, it may no longer
-      // work by accident.
-      // So, for now, we do not enable fast cloning of the non-product branches.
-      /*
-      canFastCloneAux_ = (whyNotFastClonable_ == FileBlock::CanFastClone) &&
-                          fb.fileFormatVersion().noMetaDataTrees() &&
-                          !om_->hasNewlyDroppedBranch()[InEvent] &&
-                          !fb.hasNewlyDroppedBranch()[InEvent] &&
-                          om_->dropMetaData() == RNTupleTempOutputModule::DropNone &&
-                          !reg->anyProductProduced() &&
-                          !fb.modifiedIDs() &&
-                          fb.branchListIndexesUnchanged();
-      */
-
-      // Report the fast copying status.
-      Service<JobReport> reportSvc;
-      reportSvc->reportFastCopyingStatus(reportToken_, fb.fileName(), whyNotFastClonable_ == FileBlock::CanFastClone);
-    } else {
-      whyNotFastClonable_ |= FileBlock::NoRootInputSource;
-    }
-
-    eventTree_.maybeFastCloneTree(
-        whyNotFastClonable_ == FileBlock::CanFastClone, canFastCloneAux_, fb.tree(), om_->basketOrder());
-
-    // Possibly issue warning or informational message if we haven't fast cloned.
-    if (fb.tree() != nullptr && whyNotFastClonable_ != FileBlock::CanFastClone) {
-      maybeIssueWarning(whyNotFastClonable_, fb.fileName(), file_);
-    }
-
-    if (om_->compactEventAuxiliary() &&
-        (whyNotFastClonable_ & (FileBlock::EventsOrLumisSelectedByID | FileBlock::InitialEventsSkipped |
-                                FileBlock::EventSelectionUsed)) == 0) {
-      long long int reserve = remainingEvents;
-      if (fb.tree() != nullptr) {
-        reserve = reserve > 0 ? std::min(fb.tree()->GetEntries(), reserve) : fb.tree()->GetEntries();
-      }
-      if (reserve > 0) {
-        compactEventAuxiliary_.reserve(compactEventAuxiliary_.size() + reserve);
-      }
-    }
-  }
+  void RootOutputFile::beginInputFile(FileBlock const& fb, int remainingEvents) {}
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
     // We can't do setEntries() on the event tree if the EventAuxiliary branch is empty & disabled
@@ -693,15 +488,6 @@ namespace edm::rntuple_temp {
   }
 
   void RootOutputFile::writeIndexIntoFile(ROOT::REntry& rentry) {
-    if (eventTree_.checkEntriesInReadBranches(eventEntryNumber_) == false) {
-      Exception ex(errors::OtherCMS);
-      ex << "The number of entries in at least one output TBranch whose entries\n"
-            "were copied from the input does not match the number of events\n"
-            "recorded in IndexIntoFile. This might (or might not) indicate a\n"
-            "problem related to fast copy.";
-      ex.addContext("Calling RootOutputFile::writeIndexIntoFile");
-      throw ex;
-    }
     indexIntoFile_.sortVector_Run_Or_Lumi_Entries();
     rentry.BindRawPtr(poolNames::indexIntoFileBranchName(), &indexIntoFile_);
   }
@@ -943,7 +729,6 @@ namespace edm::rntuple_temp {
         (productProvenanceVecPtr != nullptr) && (om_->dropMetaData() != RNTupleTempOutputModule::DropAll);
     bool const keepProvenanceForPrior = doProvenance && om_->dropMetaData() != RNTupleTempOutputModule::DropPrior;
 
-    bool const fastCloning = (branchType == InEvent) && (whyNotFastClonable_ == FileBlock::CanFastClone);
     std::set<StoredProductProvenance> provenanceToKeep;
     //
     //If we are dropping some of the meta data we need to know
@@ -965,8 +750,7 @@ namespace edm::rntuple_temp {
       branchesWithStoredHistory_.insert(id);
 
       bool produced = item.productDescription()->produced();
-      bool getProd =
-          (produced || !fastCloning || treePointers_[ttreeIndex]->uncloned(item.productDescription()->branchName()));
+      bool getProd = true;
       bool keepProvenance = doProvenance && (produced || keepProvenanceForPrior);
 
       WrapperBase const* product = nullptr;

@@ -50,8 +50,6 @@ namespace edm::rntuple_temp {
         splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel") + 1, 99)),
         basketOrder_(pset.getUntrackedParameter<std::string>("sortBaskets")),
         treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize")),
-        whyNotFastClonable_(pset.getUntrackedParameter<bool>("fastCloning") ? FileBlock::CanFastClone
-                                                                            : FileBlock::DisabledInConfigFile),
         dropMetaData_(DropNone),
         moduleLabel_(pset.getParameter<std::string>("@module_label")),
         initializedFromInput_(false),
@@ -86,10 +84,6 @@ namespace edm::rntuple_temp {
       throw edm::Exception(errors::Configuration, "Illegal dropMetaData parameter value: ")
           << dropMetaData << ".\n"
           << "Legal values are 'NONE', 'DROPPED', 'PRIOR', and 'ALL'.\n";
-    }
-
-    if (!wantAllEvents()) {
-      whyNotFastClonable_ += FileBlock::EventSelectionUsed;
     }
 
     auto const& specialSplit{pset.getUntrackedParameterSetVector("overrideBranchesSplitLevel")};
@@ -509,10 +503,7 @@ namespace edm::rntuple_temp {
             "Used by ROOT when fast copying. Affects performance.");
     desc.addUntracked<int>("treeMaxVirtualSize", -1)
         ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
-    desc.addUntracked<bool>("fastCloning", true)
-        ->setComment(
-            "True:  Allow fast copying, if possible.\n"
-            "False: Disable fast copying.");
+    desc.addUntracked<bool>("fastCloning", false)->setComment("Not used by RNTuple");
     desc.addUntracked("mergeJob", false)
         ->setComment(
             "If set to true and fast copying is disabled, copy input file compression and basket sizes to the output "

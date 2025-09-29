@@ -163,9 +163,6 @@ namespace edm::rntuple_temp {
 
   std::shared_ptr<FileBlock> RNTupleTempSource::readFile_() {
     std::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
-    if (secondaryFileSequence_) {
-      fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
-    }
     return fb;
   }
 
