@@ -40,7 +40,8 @@ public:
         return barycenter_ * 0.1;  // in the old format barycenter_ is in tenths of strips
       case 2: {
         // Drop the first bit (encoding the saturation info)
-        double barycenter_decoded = (barycenter_ & 0b0111'1111'1111'1111);
+        // barycenterRangeMax_ is 1 in 15 bits (the 16th bit is used to encode isSaturated_ info)
+        double barycenter_decoded = (barycenter_ & barycenterRangeMax_);
         // rescale to get the original barycenter value (float)
         return barycenter_decoded / barycenterScale_ - offset_module_change + previous_barycenter;
       }
@@ -66,7 +67,8 @@ public:
         return avgCharge_;
       case 2: {
         // Drop the first two bits (encoding filter_ and peakFilter_ info)
-        double avgCharge_decoded = (avgCharge_ & 0b0011'1111);
+        // avgChargeRangeMax_ is 1 in 6 bits (the 2 highest bits are used to encode filter_ and peakFilter_ info)
+        double avgCharge_decoded = (avgCharge_ & avgChargeRangeMax_);
         // Rescale to get the original average charge (float)
         return (avgCharge_decoded)*avgChargeScale_ + avgChargeOffset_;
       }
@@ -100,7 +102,7 @@ public:
         return filter_;
       // In v2, filter_ info are encoded in avgCharge_
       case 2:
-        return (avgCharge_ & (1 << kfilterMask));
+        return (avgCharge_ & (1 << kFilterBit));
       default:
         throw cms::Exception("VersionNotSupported")
             << "Version " << int(version_) << " of SiStripApproximateCluster not supported";
@@ -110,9 +112,9 @@ public:
     switch (version_) {
       case 1:
         return peakFilter_;
-      // In v2, filter_ and kpeakFilter_ info are encoded in avgCharge_
+      // In v2, filter_ and peakFilter_ info are encoded in avgCharge_
       case 2:
-        return (avgCharge_ & (1 << kpeakFilterMask));
+        return (avgCharge_ & (1 << kPeakFilterBit));
       default:
         throw cms::Exception("VersionNotSupported")
             << "Version " << int(version_) << " of SiStripApproximateCluster not supported";
@@ -123,9 +125,9 @@ public:
     switch (version_) {
       case 1:
         return isSaturated_;
-      // In v2, peakFilter_ info is encoded in barycenter_
+      // In v2, isSaturated_ info is encoded in barycenter_
       case 2:
-        return (barycenter_ & (1 << kSaturatedMask));
+        return (barycenter_ & (1 << kSaturatedBit));
       default:
         throw cms::Exception("VersionNotSupported")
             << "Version " << int(version_) << " of SiStripApproximateCluster not supported";
@@ -155,7 +157,7 @@ private:
   // get the total number of bits in barycenter_ (16 bits for cms_uint16_t)
   static constexpr int nbits_barycenter_ = sizeof(barycenter_) * CHAR_BIT;
   // position of the bit used to encode isSaturated_ in barycenter_
-  static constexpr int kSaturatedMask = nbits_barycenter_ - 1;
+  static constexpr int kSaturatedBit = nbits_barycenter_ - 1;
   // get the largest number storable in barycenter_ with the remaining bits (2^15 -1 = 32767)
   static constexpr int barycenterRangeMax_ = (1 << (nbits_barycenter_ - 1)) - 1;
 
@@ -164,8 +166,8 @@ private:
   // get the number of bits in avgCharge_ (8 bits for cms_uint8_t)
   static constexpr int nbits_avgCharge_ = sizeof(avgCharge_) * CHAR_BIT;
   // positions of the bit used to encode filter_ and peakFilter_ in avgCharge_
-  static constexpr int kpeakFilterMask = nbits_avgCharge_ - 1;
-  static constexpr int kfilterMask = nbits_avgCharge_ - 2;
+  static constexpr int kPeakFilterBit = nbits_avgCharge_ - 1;
+  static constexpr int kFilterBit = nbits_avgCharge_ - 2;
   // get the largest number storable in avgCharge_ with the remaining bits (2^6 -1 = 63)
   static constexpr int avgChargeRangeMax_ = (1 << (nbits_avgCharge_ - 2)) - 1;
 

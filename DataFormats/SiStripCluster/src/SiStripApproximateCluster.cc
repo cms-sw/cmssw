@@ -64,19 +64,19 @@ SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& clust
     // Compression of avgCharge_ to integer
     avgCharge_ = floor((float(cluster.charge()) / cluster.size()) / avgChargeScale_);
     // In v2, we encode the filter_ and peakFilter_ info in avgCharge_ as the two highest bits
-    assert(avgCharge_ <= ((1 << (nbits_avgCharge_ - 2)) - 1) && "Setting avgCharge > 63");
+    assert(avgCharge_ <= avgChargeRangeMax_ && "Setting avgCharge > avgChargeRangeMax_");
     // filter_ and peakFilter_ are encoded in the two highest bits of avgCharge_
-    avgCharge_ = (avgCharge_ | (filter_ << kfilterMask));
-    assert(avgCharge_ <= ((1 << (nbits_avgCharge_ - 1)) - 1) && "Setting avgCharge > 127");
-    avgCharge_ = (avgCharge_ | (peakFilter_ << kpeakFilterMask));
-    assert(avgCharge_ <= ((1 << (nbits_avgCharge_)) - 1) && "Setting avgCharge > 255");
+    avgCharge_ = (avgCharge_ | (filter_ << kFilterBit));
+    assert(avgCharge_ <= ((1 << (nbits_avgCharge_ - 1)) - 1) && "Setting avgCharge with filter > max single bit range");
+    avgCharge_ = (avgCharge_ | (peakFilter_ << kPeakFilterBit));
+    assert(avgCharge_ <= ((1 << nbits_avgCharge_) - 1) && "Setting avgCharge with peakFilter > max full range");
 
     // Compression of barycenter_ to integer [note: it contains the distance from the previous cluster]
     barycenter_ = round(float(cluster.barycenter() - previous_barycenter + (offset_module_change)) * barycenterScale_);
-    assert(barycenter_ <= ((1 << (nbits_barycenter_ - 1)) - 1) && "Setting barycenter > 32767");
+    assert(barycenter_ <= barycenterRangeMax_ && "Setting barycenter > barycenterRangeMax_");
     // isSaturated_ is encoded in the highest bit of barycenter_
-    barycenter_ = (barycenter_ | (isSaturated_ << kSaturatedMask));
-    assert(barycenter_ <= ((1 << nbits_barycenter_) - 1) && "Setting barycenter > 65535");
+    barycenter_ = (barycenter_ | (isSaturated_ << kSaturatedBit));
+    assert(barycenter_ <= ((1 << nbits_barycenter_) - 1) && "Setting barycenter with isSaturated > max full range");
 
     // Flags set to false to reduce event size (they should be removed when moving to v2 only)
     filter_ = false;
