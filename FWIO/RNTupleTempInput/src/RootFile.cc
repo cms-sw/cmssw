@@ -179,7 +179,6 @@ namespace edm::rntuple_temp {
         noRunLumiSort_(processingOptions.noRunLumiSort),
         noEventSort_(processingOptions.noEventSort),
         enforceGUIDInFileName_(fileOptions.enforceGUIDInFileName),
-        whyNotFastClonable_(0),
         hasNewlyDroppedBranch_(),
         branchListIndexesUnchanged_(false),
         eventAuxCache_(),
@@ -405,11 +404,6 @@ namespace edm::rntuple_temp {
     // propagate_const<T> has no reset() function
     provenanceReaderMaker_ = std::unique_ptr<MakeProvenanceReader>(makeProvenanceReaderMaker(inputType).release());
 
-    // Merge into the hashed registries.
-    if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
-      whyNotFastClonable_ += FileBlock::EventsOrLumisSelectedByID;
-    }
-
     initializeDuplicateChecker(crossFileInfo.indexesIntoFiles, crossFileInfo.currentIndexIntoFile);
     indexIntoFileIter_ = indexIntoFileBegin_ = indexIntoFile_.begin(
         processingOptions.noRunLumiSort
@@ -528,9 +522,6 @@ namespace edm::rntuple_temp {
       }
     }
 
-    // Determine if this file is fast clonable.
-    setIfFastClonable(processingOptions.remainingEvents, processingOptions.remainingLumis);
-
     // We are done with our initial reading of EventAuxiliary.
     indexIntoFile_.doneFileInitialization();
 
@@ -630,51 +621,6 @@ namespace edm::rntuple_temp {
     }
   }
 
-  void RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) {
-    if (fileFormatVersion().noMetaDataTrees() and !fileFormatVersion().storedProductProvenanceUsed()) {
-      //we must avoid copying the old branch which stored the per product per event provenance
-      whyNotFastClonable_ += FileBlock::FileTooOld;
-      return;
-    }
-    if (!fileFormatVersion().splitProductIDs()) {
-      whyNotFastClonable_ += FileBlock::FileTooOld;
-      return;
-    }
-    if (processingMode_ != InputSource::RunsLumisAndEvents) {
-      whyNotFastClonable_ += FileBlock::NotProcessingEvents;
-      return;
-    }
-    // Find entry for first event in file
-    IndexIntoFile::IndexIntoFileItr it = indexIntoFileBegin_;
-    while (it != indexIntoFileEnd_ && it.getEntryType() != IndexIntoFile::kEvent) {
-      ++it;
-    }
-    if (it == indexIntoFileEnd_) {
-      whyNotFastClonable_ += FileBlock::NoEventsInFile;
-      return;
-    }
-
-    // From here on, record all reasons we can't fast clone.
-    IndexIntoFile::SortOrder sortOrder =
-        (noRunLumiSort_ ? IndexIntoFile::entryOrder
-                        : (noEventSort_ ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
-    if (!indexIntoFile_.iterationWillBeInEntryOrder(sortOrder)) {
-      whyNotFastClonable_ += (noEventSort_ ? FileBlock::RunOrLumiNotContiguous : FileBlock::EventsToBeSorted);
-    }
-    if (skipAnyEvents_) {
-      whyNotFastClonable_ += FileBlock::InitialEventsSkipped;
-    }
-    if (remainingEvents >= 0 && eventTree_.entries() > remainingEvents) {
-      whyNotFastClonable_ += FileBlock::MaxEventsTooSmall;
-    }
-    if (remainingLumis >= 0 && lumiTree_.entries() > remainingLumis) {
-      whyNotFastClonable_ += FileBlock::MaxLumisTooSmall;
-    }
-    if (duplicateChecker_ && !duplicateChecker_->checkDisabled() && !duplicateChecker_->noDuplicatesInFile()) {
-      whyNotFastClonable_ += FileBlock::DuplicateEventsRemoved;
-    }
-  }
-
   std::shared_ptr<FileBlock> RootFile::createFileBlock() {
     std::vector<TTree*> processBlockTrees;
     std::vector<std::string> processesWithProcessBlockTrees;
@@ -693,7 +639,7 @@ namespace edm::rntuple_temp {
                                        runTree_.metaTree(),
                                        std::move(processBlockTrees),
                                        std::move(processesWithProcessBlockTrees),
-                                       whyNotFastClonable(),
+                                       0,
                                        hasNewlyDroppedBranch(),
                                        file_,
                                        branchListIndexesUnchanged(),
