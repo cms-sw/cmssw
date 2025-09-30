@@ -182,6 +182,7 @@ namespace edm {
           iter->second.merge(prod.second);
         }
       }
+      mergeProcessOrderFromAddInput(iReg.processOrder());
     }
 
   private:
@@ -206,6 +207,7 @@ namespace edm {
 
     void checkForDuplicateProcessName(ProductDescription const& desc, std::string const* processName) const;
     void updateProcessOrder(std::vector<std::string> const& processOrder);
+    void mergeProcessOrderFromAddInput(std::vector<std::string> const& processOrder);
 
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;

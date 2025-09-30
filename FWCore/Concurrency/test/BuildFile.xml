@@ -2,8 +2,7 @@
   <use name="catch2"/>
   <use name="FWCore/Concurrency"/>
   <use name="tbb"/>
-  <!-- be verbose to help find failure-->
-  <flags TEST_RUNNER_CMD="testFWCoreConcurrency -s"/>
+  <flags TEST_RUNNER_CMD="testFWCoreConcurrency"/>
 </bin>
 
 <bin file="test_threadSafeOutputFileStream.cpp">

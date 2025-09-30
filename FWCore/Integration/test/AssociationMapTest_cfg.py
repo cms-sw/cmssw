@@ -45,10 +45,4 @@ process.test = cms.EDAnalyzer("AssociationMapAnalyzer",
     associationMapTag8 = cms.InputTag("associationMapProducer", "twoArg")
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('AssociationMapTest.root')
-)
-
 process.p = cms.Path(process.intvec1 * process.intvec2 * process.associationMapProducer * process.test)
-
-process.e = cms.EndPath(process.out)

@@ -142,8 +142,8 @@ namespace edm {
   size_t Principal::size() const {
     size_t size = 0U;
     for (auto const& prod : *this) {
-      if (prod->singleProduct() &&  // Not a NoProcessProductResolver
-          !prod->productUnavailable() && !prod->unscheduledWasNotRun() && !prod->productDescription().dropped()) {
+      if (prod->singleProduct() && !prod->productUnavailable() && !prod->unscheduledWasNotRun() &&
+          !prod->productDescription().dropped()) {
         ++size;
       }
     }
@@ -409,14 +409,13 @@ namespace edm {
   BasicHandle Principal::getByToken(KindOfType,
                                     TypeID const&,
                                     ProductResolverIndex index,
-                                    bool skipCurrentProcess,
                                     bool& ambiguous,
                                     SharedResourcesAcquirer* sra,
                                     ModuleCallingContext const* mcc) const {
     assert(index != ProductResolverIndexInvalid);
     auto& productResolver = productResolvers_[index];
     assert(nullptr != productResolver.get());
-    auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
+    auto resolution = productResolver->resolveProduct(*this, sra, mcc);
     if (resolution.isAmbiguous()) {
       ambiguous = true;
       //The caller is looking explicitly for this case
@@ -434,12 +433,11 @@ namespace edm {
 
   void Principal::prefetchAsync(WaitingTaskHolder task,
                                 ProductResolverIndex index,
-                                bool skipCurrentProcess,
                                 ServiceToken const& token,
                                 ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
     assert(nullptr != productResolver.get());
-    productResolver->prefetchAsync(task, *this, skipCurrentProcess, token, nullptr, mcc);
+    productResolver->prefetchAsync(task, *this, token, nullptr, mcc);
   }
 
   ProductData const* Principal::findProductByLabel(KindOfType kindOfType,
@@ -459,6 +457,10 @@ namespace edm {
       if (inputTag.process() == InputTag::kCurrentProcess) {
         processName = &processConfiguration_->processName();
       }
+      std::string const kSkipCurrentProcess = ProductResolverIndexHelper::skipCurrentProcessLabel();
+      if (skipCurrentProcess) {
+        processName = &kSkipCurrentProcess;
+      }
       token = consumer->getRegisteredToken(
           typeID, inputTag.label(), inputTag.instance(), *processName, branchType(), skipCurrentProcess);
       if (token.isUninitialized()) {
@@ -472,11 +474,14 @@ namespace edm {
     }
     //check that the InputTag is not being used for a different type/Principal than the first call
     auto index = consumer ? consumer->indexFromIfExactMatch(token, branchType(), typeID).productResolverIndex()
-                          : ProductResolverIndexInvalid;
+                          : ProductResolverIndexInitializing;
     if (index == ProductResolverIndexInvalid) {
+      return nullptr;
+    }
+    if (index == ProductResolverIndexInitializing) {
       char const* processName = inputTag.process().c_str();
       if (skipCurrentProcess) {
-        processName = "\0";
+        processName = ProductResolverIndexHelper::skipCurrentProcessLabel();
       } else if (inputTag.process() == InputTag::kCurrentProcess) {
         processName = processConfiguration_->processName().c_str();
       }
@@ -490,6 +495,9 @@ namespace edm {
                                 inputTag.instance(),
                                 appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
       } else if (index == ProductResolverIndexInvalid) {
+        if (not consumer) {
+          return nullptr;
+        }
         // can occur because of missing consumes if nothing else in the process consumes the product
         for (auto const& item : preg_->productList()) {
           auto const& bd = item.second;
@@ -514,7 +522,7 @@ namespace edm {
 
     auto const& productResolver = productResolvers_[index];
 
-    auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
+    auto resolution = productResolver->resolveProduct(*this, sra, mcc);
     if (resolution.isAmbiguous()) {
       throwAmbiguousException("findProductByLabel",
                               typeID,
@@ -558,7 +566,7 @@ namespace edm {
 
     auto const& productResolver = productResolvers_[index];
 
-    auto resolution = productResolver->resolveProduct(*this, false, sra, mcc);
+    auto resolution = productResolver->resolveProduct(*this, sra, mcc);
     if (resolution.isAmbiguous()) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     }
@@ -604,7 +612,7 @@ namespace edm {
     provenances.clear();
     for (auto const& productResolver : *this) {
       if (productResolver->singleProduct() && productResolver->provenanceAvailable() &&
-          !productResolver->productDescription().isAnyAlias()) {
+          !productResolver->productDescription().isAlias()) {
         // We do not attempt to get the event/lumi/run status from the provenance,
         // because the per event provenance may have been dropped.
         if (productResolver->provenance()->productDescription().present()) {
@@ -620,7 +628,7 @@ namespace edm {
   void Principal::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
     provenances.clear();
     for (auto const& productResolver : *this) {
-      if (productResolver->singleProduct() && !productResolver->productDescription().isAnyAlias()) {
+      if (productResolver->singleProduct() && !productResolver->productDescription().isAlias()) {
         if (productResolver->stableProvenance()->productDescription().present()) {
           provenances.push_back(productResolver->stableProvenance());
         }

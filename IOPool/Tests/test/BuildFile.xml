@@ -1,0 +1,122 @@
+<test name="IOPoolTestsMaxEventsOutput" command="run_testMaxEventsOutput.sh"/>
+<test name="TestIOPoolRunMerge" command="run_RunMerge.sh"/>
+<test name="TestIOPoolRunMerge2" command="run_RunMerge2.sh"/>
+<test name="TestIOPoolConcurrentIOVsAndRuns" command="concurrentIOVsAndRuns.sh"/>
+<test name="TestIOPool_TestEDAlias" command="run_TestEDAlias.sh"/>
+
+<test name="TestIOPoolEventHistory" command="eventHistoryTest.sh"/>
+
+<test name="TestIOPoolDropOnInput" command="run_TestDropOnInput.sh"/>
+<test name="TestIOPoolThinningTests" command="run_ThinningTests.sh"/>
+
+<test name="TestIOPoolSeriesOfProcesses" command="run_SeriesOfProcesses.sh"/>
+
+<test name="TestIOPoolGetBy" command="run_TestGetBy.sh"/>
+<test name="TestIOPoolGetByLabel" command="run_TestGetByLabel.sh"/>
+
+<test name="TestIOPoolProcessBlock1" command="run_TestProcessBlock.sh 1"/>
+<test name="TestIOPoolProcessBlock2" command="run_TestProcessBlock.sh 2"/>
+<test name="TestIOPoolProcessBlock3" command="run_TestProcessBlock.sh 3"/>
+<test name="TestIOPoolProcessBlock4" command="run_TestProcessBlock.sh 4"/>
+<test name="TestIOPoolProcessBlock5" command="run_TestProcessBlock.sh 5">
+  <flags PRE_TEST="TestIOPoolProcessBlock1"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock2"/>
+</test>
+<test name="TestIOPoolProcessBlock6" command="run_TestProcessBlock.sh 6">
+  <flags PRE_TEST="TestIOPoolProcessBlock5"/>
+</test>
+<test name="TestIOPoolProcessBlock7" command="run_TestProcessBlock.sh 7"/>
+<test name="TestIOPoolProcessBlock8" command="run_TestProcessBlock.sh 8">
+  <flags PRE_TEST="TestIOPoolProcessBlock1"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock7"/>
+</test>
+<test name="TestIOPoolProcessBlock9" command="run_TestProcessBlock.sh 9">
+  <flags PRE_TEST="TestIOPoolProcessBlock3"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock4"/>
+</test>
+<test name="TestIOPoolProcessBlock10" command="run_TestProcessBlock.sh 10">
+  <flags PRE_TEST="TestIOPoolProcessBlock5"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock9"/>
+</test>
+<test name="TestIOPoolProcessBlock11" command="run_TestProcessBlock.sh 11">
+  <flags PRE_TEST="TestIOPoolProcessBlock5"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock9"/>
+</test>
+<test name="TestIOPoolProcessBlock12" command="run_TestProcessBlock.sh 12">
+  <flags PRE_TEST="TestIOPoolProcessBlock10"/>
+</test>
+<test name="TestIOPoolProcessBlock17" command="run_TestProcessBlock.sh 17">
+  <flags PRE_TEST="TestIOPoolProcessBlock10"/>
+</test>
+<test name="TestIOPoolProcessBlock18" command="run_TestProcessBlock.sh 18"/>
+<test name="TestIOPoolProcessBlock19" command="run_TestProcessBlock.sh 19">
+  <flags PRE_TEST="TestIOPoolProcessBlock10"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock18"/>
+</test>
+<test name="TestIOPoolProcessBlock20" command="run_TestProcessBlock.sh 20">
+  <flags PRE_TEST="TestIOPoolProcessBlock10"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock18"/>
+</test>
+<test name="TestIOPoolProcessBlock21" command="run_TestProcessBlock.sh 21">
+  <flags PRE_TEST="TestIOPoolProcessBlock5"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock9"/>
+</test>
+<test name="TestIOPoolProcessBlock22" command="run_TestProcessBlock.sh 22">
+  <flags PRE_TEST="TestIOPoolProcessBlock5"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock9"/>
+</test>
+<test name="TestIOPoolProcessBlock23" command="run_TestProcessBlock.sh 23">
+  <flags PRE_TEST="TestIOPoolProcessBlock10"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock18"/>
+</test>
+<test name="TestIOPoolProcessBlock24" command="run_TestProcessBlock.sh 24">
+  <flags PRE_TEST="TestIOPoolProcessBlock10"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock18"/>
+</test>
+<test name="TestIOPoolProcessBlock100" command="run_TestProcessBlock.sh 100">
+  <flags PRE_TEST="TestIOPoolProcessBlock6"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock8"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock11"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock12"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock15"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock16"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock17"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock19"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock20"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock21"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock22"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock23"/>
+  <flags PRE_TEST="TestIOPoolProcessBlock24"/>
+</test>
+
+<test name="TestIOPoolAssociationMapWrite" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/AssociationMapTest_cfg.py"/>
+
+<test name="TestIOPoolAssociationMapTest" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/AssociationMapReadTest_cfg.py">
+ <flags PRE_TEST="TestIOPoolAssociationMapWrite"/>
+</test>
+
+<test name="TestIOPoolInconsistentProducts" command="run_inconsistent_products.sh"/>
+
+<test name="TestIOPoolEmptyRootFileWrite" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/makeEmptyRootFile.py"/>
+
+<test name="TestIOPoolEmptyRootFileRead" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/useEmptyRootFile.py">
+ <flags PRE_TEST="TestIOPoolEmptyRootFileWrite"/>
+</test>
+
+<test name="TestIOPoolOutputSignals" command="run_TestOutput.sh"/>
+
+<test name="TestIOPoolRefMerge" command="run_RefMerge.sh"/>
+<test name="TestIOPoolRefAlias" command="run_RefAlias.sh"/>
+
+<test name="TestIOPoolFallback" command="run_TestFallback.sh"/>
+
+<test name="TestIOPoolExistingDictionary" command="run_TestExistingDictionary.sh"/>
+<test name="TestIOPoolMissingDictionary" command="Run_MissingDictionary.sh"/>
+
+<test name="TestIOPoolProvenance" command ="provenance_test.sh"/>
+<test name="TestMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/IOPool/Tests/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
+<test name="TestParentageWithStreamerIO" command="run_ParentageWithStreamerIO.sh"/>
+
+<test name="TestIOPoolUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
+
+<test name="TestIOPoolDifferentProductRegistries" command="runDifferentProductRegistries.sh"/>

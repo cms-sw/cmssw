@@ -41,6 +41,7 @@ PuttableSourceBase::PuttableSourceBase(ParameterSet const& iPSet, InputSourceDes
 
 void PuttableSourceBase::registerProducts() {
   SignallingProductRegistryFiller reg;
+  reg.setProcessOrder({moduleDescription().processName()});
   //this handled case were Source's construct injects items into the ProductRegistry
   reg.addFromInput(productRegistryUpdate());
   registerProducts(this, &reg, moduleDescription());

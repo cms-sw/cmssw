@@ -294,20 +294,29 @@ class ModuleData(object):
         return {'run' : self.sync[0], 'lumi' : self.sync[1], 'event' : self.sync[2] }
     def toSimpleDict(self) :
         if self.record[0]:
-            return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': self.record[0], 'callID' : self.record[1] }, 'alloc' : self.allocInfo.toSimpleDict() }
+            return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': self.record[0], 'callID' : self.record[1]}, 'alloc' : self.allocInfo.toSimpleDict() }
         return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity': activityName(self.activity), 'alloc' : self.allocInfo.toSimpleDict() }
         
-    
+class ModuleInfo(object):
+    def __init__(self, name, cpptype):
+        self._name = name
+        self._cpptype = cpptype
+    def __repr__(self):
+        return "{{'name': {}, 'cpptype': {} }}".format(self._name, self._cpptype) 
+
+
 class ModuleCentricModuleData(object):
     def __init__(self):
         self._data = {}
         self._last = {}
+        self._cpptypes = {}
         self._startTime = None
     def setStartTime(self, time):
         self._startTime = time
-    def insert(self, label, start, stop, transition, index, sync, activity, allocInfo, recordName=None, callID=None):
+    def insert(self, label, cpptype, start, stop, transition, index, sync, activity, allocInfo, recordName=None, callID=None):
         if label not in self._data:
             self._data[label] = []
+            self._cpptypes[label] = cpptype
         self._data[label].append(ModuleData(start, stop, transition, sync, activity, allocInfo, recordName, callID))
         self._last[(label, transition, index, activity)] = self._data[label][-1]
     def findLast(self, label, transition, index, activity):
@@ -317,8 +326,9 @@ class ModuleCentricModuleData(object):
     def data(self):
         return self._data
     def toSimpleDict(self):
-        dct = {'startedMonitoring': self._startTime, 'source' :[], 'clearEvent': [], 'modules' :{}}
+        dct = {'startedMonitoring': self._startTime, 'source' :[], 'clearEvent': [], 'modules' :{}, 'cpptypes':{}}
         modules = dct['modules']
+        cpptypes = dct['cpptypes']
         for m,lst in self._data.items():
             l = None
             if m == 'source':
@@ -328,6 +338,7 @@ class ModuleCentricModuleData(object):
             else:
                 modules[m]=[]
                 l = modules[m]
+                cpptypes[m]=self._cpptypes[m]
             for d in lst:
                 l.append( d.toSimpleDict() )
         return dct
@@ -345,7 +356,7 @@ class TemporalModuleData(object):
         self._startTime = None
     def setStartTime(self, time):
         self._startTime = time
-    def insert(self, label, start, stop, transition, index, sync, activity, allocInfo, recordName=None, callID=None):
+    def insert(self, label, cpptype, start, stop, transition, index, sync, activity, allocInfo, recordName=None, callID=None):
         self._data.append((label, ModuleData(start, stop, transition, sync, activity, allocInfo, recordName, callID)))
         self._last[(label,transition, index, activity)] = self._data[-1]
     def findLast(self, label, transition,index, activity):
@@ -501,7 +512,7 @@ class PostFrameworkTransitionParser (FrameworkTransitionParser):
     def jsonInfo(self, syncs, temp, data):
         if self.transition == Phase.clearEvent:
             start = temp.findTime("clearEvent", self.transition, self.index)
-            data.insert( "clearEvent" , start, self.time, self.transition, self.index, syncs.get(Phase.Event, self.index) , Activity.process, self.alloc)
+            data.insert( "clearEvent" , "clearEventType", start, self.time, self.transition, self.index, syncs.get(Phase.Event, self.index) , Activity.process, self.alloc)
     def jsonVisInfo(self,  data):
         if transitionIsGlobal(self.transition):
             index = findMatchingTransition(list(self.sync), data.allGlobals())
@@ -598,7 +609,6 @@ class PreSourceTransitionParser(SourceTransitionParser):
 class PostSourceTransitionParser(SourceTransitionParser):
     def __init__(self, payload, moduleCentric):
         super().__init__(payload)
-        #print(payload)
         if self.index == -1:
             self.allocInfo = AllocInfo(payload[2:])
         else:
@@ -610,9 +620,9 @@ class PostSourceTransitionParser(SourceTransitionParser):
         start = temp.findTime("source", self.transition, self.index)
         #we do not know the sync yet so have to wait until the framework transition
         if self.transition in [ Phase.construction, Phase.getNextTransition, Phase.destruction, Phase.openFile]:
-            data.insert( "source" , start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
+            data.insert( "source" , "PoolSource", start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
         else:
-            data.insert( "source" , start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
+            data.insert( "source" , "PoolSource", start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
     def jsonVisInfo(self,  data):
         index = self.index
         if self.transition == Phase.Event:
@@ -642,11 +652,11 @@ class PostSourceTransitionParser(SourceTransitionParser):
         self.allocInfo.inject(container[-1])
 
 class EDModuleTransitionParser(object):
-    def __init__(self, payload, moduleNames):
+    def __init__(self, payload, moduleInfos):
         self.transition = int(payload[0])
         self.index = int(payload[1])
         self.moduleID = int(payload[2])
-        self.moduleName = moduleNames[self.moduleID]
+        self.moduleInfo = moduleInfos[self.moduleID]
         self.callID = int(payload[3])
         self.time = int(payload[4])
     def baseIndentLevel(self):
@@ -656,7 +666,7 @@ class EDModuleTransitionParser(object):
         context[(self.transition, self.index, self.moduleID, self.callID)] = indent+1
         return textPrefix_(self.time, indent+1+self.baseIndentLevel())
     def textPostfix(self):
-        return f'{self.moduleName} during {transitionName(self.transition)} : id={self.index}'
+        return f'{self.moduleInfo._name} during {transitionName(self.transition)} : id={self.index}'
     def textIfTransform(self):
         if self.callID:
             return f' transform {self.callID-1}'
@@ -700,15 +710,15 @@ class EDModuleTransitionParser(object):
             if injectAfter:
                 slot.append(injectAfter)
     def _preJsonInfo(self, temp):
-        temp.insertTime(self.moduleName, self.transition, self.index, self.time)
+        temp.insertTime(self.moduleInfo._name, self.transition, self.index, self.time)
     def _postJsonInfo(self, syncs, temp, data, activity):
-        start = temp.findTime(self.moduleName, self.transition, self.index)
-        data.insert( self.moduleName , start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo)
+        start = temp.findTime(self.moduleInfo._name, self.transition, self.index)
+        data.insert( self.moduleInfo._name, self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo)
 
                 
 class PreEDModuleTransitionParser(EDModuleTransitionParser):
-    def __init__(self, payload, names, moduleCentric):
-        super().__init__(payload, names)
+    def __init__(self, payload, infos, moduleCentric):
+        super().__init__(payload, infos)
         self._moduleCentric = moduleCentric
     def textSpecial(self):
         return "starting action"
@@ -719,8 +729,8 @@ class PreEDModuleTransitionParser(EDModuleTransitionParser):
 
     
 class PostEDModuleTransitionParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, infos):
+        super().__init__(payload, infos)
         self.allocInfo = AllocInfo(payload[5:])
     def textSpecial(self):
         return "finished action"
@@ -731,8 +741,8 @@ class PostEDModuleTransitionParser(EDModuleTransitionParser):
         
 
 class PreEDModuleAcquireParser(EDModuleTransitionParser):
-    def __init__(self, payload, names, moduleCentric):
-        super().__init__(payload, names)
+    def __init__(self, payload, infos, moduleCentric):
+        super().__init__(payload, infos)
         self._moduleCentric = moduleCentric
     def textSpecial(self):
         return "starting acquire"
@@ -743,8 +753,8 @@ class PreEDModuleAcquireParser(EDModuleTransitionParser):
 
 
 class PostEDModuleAcquireParser(EDModuleTransitionParser):
-    def __init__(self, payload, names, moduleCentric):
-        super().__init__(payload, names)
+    def __init__(self, payload, infos, moduleCentric):
+        super().__init__(payload, infos)
         self.allocInfo = AllocInfo(payload[5:])
         self._moduleCentric = moduleCentric
     def textSpecial(self):
@@ -758,8 +768,8 @@ class PostEDModuleAcquireParser(EDModuleTransitionParser):
         self._postJsonInfo(syncs, temp, data, Activity.acquire)
 
 class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, infos):
+        super().__init__(payload, infos)
     def textSpecial(self):
         return "starting delayed get"
     def jsonVisInfo(self,  data):
@@ -769,8 +779,8 @@ class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
         #self._preJsonInfo(temp)
 
 class PostEDModuleEventDelayedGetParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, infos):
+        super().__init__(payload, infos)
         self.allocInfo = AllocInfo(payload[5:])
     def textSpecial(self):
         return "finished delayed get"
@@ -781,8 +791,8 @@ class PostEDModuleEventDelayedGetParser(EDModuleTransitionParser):
         #self._postJsonInfo(syncs, temp, data, Activity.delayedGet)
 
 class PreEventReadFromSourceParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, infos):
+        super().__init__(payload, infos)
     def textSpecial(self):
         return "starting read from source"
     def jsonVisInfo(self,  data):
@@ -790,26 +800,26 @@ class PreEventReadFromSourceParser(EDModuleTransitionParser):
         slot['isSrc'] = True
         return slot
     def jsonInfo(self, syncs, temp, data):
-        temp.insertTime(self.moduleName+'source', self.transition, self.index, self.time)
+        temp.insertTime(self.moduleInfo._name+'source', self.transition, self.index, self.time)
 
 class PostEventReadFromSourceParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, infos):
+        super().__init__(payload, infos)
         self.allocInfo = AllocInfo(payload[5:])
     def textSpecial(self):
         return "finished read from source"
     def jsonVisInfo(self,  data):
         return self._postJsonVis(data, self.allocInfo)
     def jsonInfo(self, syncs, temp, data):
-        start = temp.findTime(self.moduleName+'source', self.transition, self.index)
-        data.insert( "source" , start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
+        start = temp.findTime(self.moduleInfo._name+'source', self.transition, self.index)
+        data.insert( "source" , "PoolSource", start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
 
 class ESModuleTransitionParser(object):
-    def __init__(self, payload, moduleNames, esModuleNames, recordNames):
+    def __init__(self, payload, moduleInfos, esModuleInfos, recordNames):
         self.transition = int(payload[0])
         self.index = int(payload[1])
         self.moduleID = int(payload[2])
-        self.moduleName = esModuleNames[self.moduleID]
+        self.moduleInfo = esModuleInfos[self.moduleID]
         self.recordID = int(payload[3])
         self.recordName = recordNames[self.recordID]
         self.callID = int(payload[4])
@@ -821,7 +831,7 @@ class ESModuleTransitionParser(object):
         context[(self.transition, self.index, -1*self.moduleID, self.callID)] = indent+1
         return textPrefix_(self.time, indent+1+self.baseIndentLevel())
     def textPostfix(self):
-        return f'esmodule {self.moduleName} in record {self.recordName} during {transitionName(self.transition)} : id={self.index}'
+        return f'esmodule {self.moduleInfo._name} in record {self.recordName} during {transitionName(self.transition)} : id={self.index}'
     def text(self, context):
         return f'{self.textPrefix(context)} {self.textSpecial()}: {self.textPostfix()}'
     def _preJsonVis(self, activity,  data):
@@ -845,15 +855,15 @@ class ESModuleTransitionParser(object):
         item["finish"]=self.time*kMicroToSec
         alloc.inject(item)
     def _preJsonInfo(self, temp):
-        temp.insertTimeES(self.moduleName, self.transition, self.index, self.recordID, self.callID, self.time)
+        temp.insertTimeES(self.moduleInfo._name, self.transition, self.index, self.recordID, self.callID, self.time)
     def _postJsonInfo(self, syncs, temp, data, activity):
-        start = temp.findTimeES(self.moduleName, self.transition, self.index, self.recordID, self.callID)
-        data.insert( self.moduleName , start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo, self.recordName, self.callID)
+        start = temp.findTimeES(self.moduleInfo._name, self.transition, self.index, self.recordID, self.callID)
+        data.insert( self.moduleInfo._name , self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo, self.recordName, self.callID)
 
 
 class PreESModuleTransitionParser(ESModuleTransitionParser):
-    def __init__(self, payload, names, esNames, recordNames):
-        super().__init__(payload, names, esNames, recordNames)
+    def __init__(self, payload, infos, esInfos, recordNames):
+        super().__init__(payload, infos, esInfos, recordNames)
     def textSpecial(self):
         return "starting action"
     def jsonVisInfo(self,  data):
@@ -862,8 +872,8 @@ class PreESModuleTransitionParser(ESModuleTransitionParser):
         self._preJsonInfo(temp)
 
 class PostESModuleTransitionParser(ESModuleTransitionParser):
-    def __init__(self, payload, names, esNames, recordNames):
-        super().__init__(payload, names, esNames, recordNames)
+    def __init__(self, payload, infos, esInfos, recordNames):
+        super().__init__(payload, infos, esInfos, recordNames)
         self.allocInfo = AllocInfo(payload[6:])
     def textSpecial(self):
         return "finished action"
@@ -873,16 +883,16 @@ class PostESModuleTransitionParser(ESModuleTransitionParser):
         self._postJsonInfo(syncs, temp, data, Activity.process)
 
 class PreESModuleAcquireParser(ESModuleTransitionParser):
-    def __init__(self, payload, names, recordNames):
-        super().__init__(payload, names, recordNames)
+    def __init__(self, payload, infos, esInfos, recordNames):
+        super().__init__(payload, infos, esInfos, recordNames)
     def textSpecial(self):
         return "starting acquire"
     def jsonVisInfo(self,  data):
         return self._preJsonVis(Activity.acquire, data)
 
 class PostESModuleAcquireParser(ESModuleTransitionParser):
-    def __init__(self, payload, names, esNames, recordNames):
-        super().__init__(payload, names, esNames, recordNames)
+    def __init__(self, payload, infos, esInfos, recordNames):
+        super().__init__(payload, infos, esInfos, recordNames)
         self.allocInfo = AllocInfo(payload[6:])
     def textSpecial(self):
         return "finished acquire"
@@ -890,7 +900,7 @@ class PostESModuleAcquireParser(ESModuleTransitionParser):
         return self._postJsonVis(data, self.allocInfo)
 
 
-def lineParserFactory (step, payload, moduleNames, esModuleNames, recordNames, moduleCentric):
+def lineParserFactory (step, payload, moduleInfos, esModuleInfos, recordNames, moduleCentric):
     if step == 'F':
         parser = PreFrameworkTransitionParser(payload)
         return parser
@@ -901,33 +911,33 @@ def lineParserFactory (step, payload, moduleNames, esModuleNames, recordNames, m
     if step == 's':
         return PostSourceTransitionParser(payload, moduleCentric)
     if step == 'M':
-        return PreEDModuleTransitionParser(payload, moduleNames, moduleCentric)
+        return PreEDModuleTransitionParser(payload, moduleInfos, moduleCentric)
     if step == 'm':
-        return PostEDModuleTransitionParser(payload, moduleNames)
+        return PostEDModuleTransitionParser(payload, moduleInfos)
     if step == 'A':
-        return PreEDModuleAcquireParser(payload, moduleNames, moduleCentric)
+        return PreEDModuleAcquireParser(payload, moduleInfos, moduleCentric)
     if step == 'a':
-        return PostEDModuleAcquireParser(payload, moduleNames, moduleCentric)
+        return PostEDModuleAcquireParser(payload, moduleInfos, moduleCentric)
     if step == 'D':
-        return PreEDModuleEventDelayedGetParser(payload, moduleNames)
+        return PreEDModuleEventDelayedGetParser(payload, moduleInfos)
     if step == 'd':
-        return PostEDModuleEventDelayedGetParser(payload, moduleNames)
+        return PostEDModuleEventDelayedGetParser(payload, moduleInfos)
     if step == 'R':
-        return PreEventReadFromSourceParser(payload, moduleNames)
+        return PreEventReadFromSourceParser(payload, moduleInfos)
     if step == 'r':
-        return PostEventReadFromSourceParser(payload, moduleNames)
+        return PostEventReadFromSourceParser(payload, moduleInfos)
     if step == 'N':
-        return PreESModuleTransitionParser(payload, moduleNames, esModuleNames, recordNames)
+        return PreESModuleTransitionParser(payload, moduleInfos, esModuleInfos, recordNames)
     if step == 'n':
-        return PostESModuleTransitionParser(payload, moduleNames, esModuleNames, recordNames)
+        return PostESModuleTransitionParser(payload, moduleInfos, esModuleInfos, recordNames)
     if step == 'B':
-        return PreESModuleAcquireParser(payload, moduleNames, esModuleNames, recordNames)
+        return PreESModuleAcquireParser(payload, moduleInfos, esModuleInfos, recordNames)
     if step == 'b':
-        return PostESModuleAcquireParser(payload, moduleNames, esModuleNames, recordNames)
+        return PostESModuleAcquireParser(payload, moduleInfos, esModuleInfos, recordNames)
     raise LogicError("Unknown step '{}'".format(step))
     
 #----------------------------------------------
-def processingStepsFromFile(f,moduleNames, esModuleNames, recordNames, moduleCentric):
+def processingStepsFromFile(f, moduleInfos, esModuleInfos, recordNames, moduleCentric):
     for rawl in f:
         l = rawl.strip()
         if not l or l[0] == '#':
@@ -935,7 +945,7 @@ def processingStepsFromFile(f,moduleNames, esModuleNames, recordNames, moduleCen
         (step,payload) = tuple(l.split(None,1))
         payload=payload.split()
 
-        parser = lineParserFactory(step, payload, moduleNames, esModuleNames, recordNames, moduleCentric)
+        parser = lineParserFactory(step, payload, moduleInfos, esModuleInfos, recordNames, moduleCentric)
         if parser:
             yield parser
     return
@@ -945,8 +955,8 @@ class ModuleAllocCompactFileParser(object):
         streamBeginRun = str(Phase.streamBeginRun)
         numStreams = 0
         numStreamsFromSource = 0
-        moduleNames = {}
-        esModuleNames = {}
+        moduleInfos = {}
+        esModuleInfos = {}
         recordNames = {}
         for rawl in f:
             l = rawl.strip()
@@ -962,11 +972,11 @@ class ModuleAllocCompactFileParser(object):
                   numStreamsFromSource = s
             if len(l) > 5 and l[0:2] == "#M":
                 (id,name,mType)=tuple(l[2:].split())
-                moduleNames[int(id)] = name
+                moduleInfos[int(id)] = ModuleInfo(name,mType)
                 continue
             if len(l) > 5 and l[0:2] == "#N":
                 (id,name,mType)=tuple(l[2:].split())
-                esModuleNames[int(id)] = name
+                esModuleInfos[int(id)] = ModuleInfo(name,mType)
                 continue
             if len(l) > 5 and l[0:2] == "#R":
                 (id,name)=tuple(l[2:].split())
@@ -978,13 +988,13 @@ class ModuleAllocCompactFileParser(object):
         if numStreams == 0:
           numStreams = numStreamsFromSource +2
         self.numStreams =numStreams
-        self._moduleNames = moduleNames
-        self._esModuleNames = esModuleNames
+        self._moduleInfos = moduleInfos
+        self._esModuleInfos = esModuleInfos
         self._recordNames = recordNames
         self.maxNameSize =0
-        for n in moduleNames.items():
+        for n in moduleInfos.items():
             self.maxNameSize = max(self.maxNameSize,len(n))
-        for n in esModuleNames.items():
+        for n in esModuleInfos.items():
             self.maxNameSize = max(self.maxNameSize,len(n))
         self.maxNameSize = max(self.maxNameSize,len(kSourceDelayedRead))
         self.maxNameSize = max(self.maxNameSize, len('streamBeginLumi'))
@@ -994,7 +1004,7 @@ class ModuleAllocCompactFileParser(object):
         Using a generator reduces the memory overhead when parsing a large file.
             """
         self._f.seek(0)
-        return processingStepsFromFile(self._f,self._moduleNames, self._esModuleNames, self._recordNames,  self._moduleCentric)
+        return processingStepsFromFile(self._f,self._moduleInfos, self._esModuleInfos, self._recordNames, self._moduleCentric)
 
 def textOutput( parser ):
     context = {}
@@ -1248,8 +1258,8 @@ def jsonVisualizationInfo(parser):
     if parser._moduleCentric:
         sourceSlot = data._modules[data._moduleID2Index(0)]
         modules = []
-        for i,m in parser._moduleNames.items():
-            modules.append({"name": f"{m}", "slots":[]})
+        for i,m in parser._moduleInfos.items():
+            modules.append({"name": f"{m._name}", "cpptype": f"{m._cpptype}", "slots":[]})
             slots = modules[-1]["slots"]
             foundSlots = data._modules[data._moduleID2Index(i)]
             time = 0
@@ -1259,8 +1269,8 @@ def jsonVisualizationInfo(parser):
                     if t["act"] !=Activity.prefetch:
                         time += t["finish"]-t["start"]
             modules[-1]['time']=time
-        for i,m in parser._esModuleNames.items():
-            modules.append({"name": f"{m}", "slots":[]})
+        for i,m in parser._esModuleInfos.items():
+            modules.append({"name": f"{m._name}", "cpptype": f"{m._cpptype}", "slots":[]})
             slots = modules[-1]["slots"]
             foundSlots = data._modules[data._moduleID2Index(-1*i)]
             time = 0
@@ -1276,21 +1286,21 @@ def jsonVisualizationInfo(parser):
             final['transitions'].append(m)
 
     max = 0
-    for k in parser._moduleNames.keys():
+    for k in parser._moduleInfos.keys():
         if k > max:
             max = k
         
     final["modules"] =['']*(max+1)
     final["modules"][0] = 'source'
-    for k,v in parser._moduleNames.items():
+    for k,v in parser._moduleInfos.items():
         final["modules"][k]=v
         
     max = 0
-    for k in parser._esModuleNames.keys():
+    for k in parser._esModuleInfos.keys():
         if k > max:
             max = k
     final["esModules"] = ['']*(max+1)
-    for k,v in parser._esModuleNames.items():
+    for k,v in parser._esModuleInfos.items():
         final["esModules"][k] = v
     return final
 
@@ -1422,7 +1432,6 @@ class TestModuleCommand(unittest.TestCase):
     def testSortBy(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, True)
         d = sortByAttribute(parser, 'maxTemp')
-        #print(d)
         self.assertEqual(len(d), 3)
         self.assertEqual(d[0][0], 'ESModule')
         self.assertEqual(d[1][0], 'Module')
@@ -1430,7 +1439,6 @@ class TestModuleCommand(unittest.TestCase):
     def testFullVisualization(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, False)
         j = jsonVisualizationInfo(parser)
-        #print(j)
         self.assertEqual(len(j["modules"]), 2)
         self.assertEqual(len(j["esModules"]), 2)
         self.assertEqual(len(j['transitions']), 3)
@@ -1449,7 +1457,6 @@ class TestModuleCommand(unittest.TestCase):
     def testModuleCentricVisualization(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, True)
         j = jsonVisualizationInfo(parser)
-        #print(j)
         self.assertEqual(len(j["modules"]), 2)
         self.assertEqual(len(j["esModules"]), 2)
         self.assertEqual(len(j['transitions']), 6)
@@ -1506,6 +1513,7 @@ if __name__=="__main__":
                         help='''Run internal tests.''')
 
     args = parser.parse_args()
+
     if args.test:
         runTests()
     else :

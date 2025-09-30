@@ -90,7 +90,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
            typecode.c_str(),
            idx,
            cellIdx.maxErx_[idx],
-           cellIdx.di_[idx].getMaxIndex(),
+           cellIdx.di_[idx].maxIndex(),
            cellIdx.offsets_[idx]);
   }
 
@@ -134,12 +134,12 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   auto const& modulesIdx = iSetup.getData(moduleIndexTkn_);
   printf("[HGCalMappingIndexESSourceTester][analyze] Module indexer has FEDs=%d Types in sequences=%ld max idx=%d\n",
          modulesIdx.fedCount(),
-         modulesIdx.getGlobalTypesCounter().size(),
+         modulesIdx.globalTypesCounter().size(),
          modulesIdx.maxModulesIndex());
   printf("[HGCalMappingIndexESSourceTester][analyze] FED Readout sequence\n");
   std::unordered_set<uint32_t> unique_modOffsets, unique_erxOffsets, unique_chDataOffsets;
   uint32_t totalmods(0);
-  for (const auto& frs : modulesIdx.getFEDReadoutSequences()) {
+  for (const auto& frs : modulesIdx.fedReadoutSequences()) {
     std::copy(
         frs.modOffsets_.begin(), frs.modOffsets_.end(), std::inserter(unique_modOffsets, unique_modOffsets.end()));
     std::copy(
@@ -178,7 +178,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     validModules++;
     printf(
         "\t idx=%d zside=%d isSiPM=%d plane=%d i1=%d i2=%d irot=%d celltype=%d typeidx=%d fedid=%d localfedid=%d "
-        "captureblock=%d capturesblockidx=%d econdidx=%d eleid=0x%x detid=0x%d\n",
+        "captureblock=%d capturesblockidx=%d econdidx=%d eleid=0x%x detid=0x%d cassette=0x%d\n",
         i,
         imod.zside(),
         imod.isSiPM(),
@@ -194,7 +194,8 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
         imod.captureblockidx(),
         imod.econdidx(),
         imod.eleid(),
-        imod.detid());
+        imod.detid(),
+        imod.cassette());
   }
 
   printf(

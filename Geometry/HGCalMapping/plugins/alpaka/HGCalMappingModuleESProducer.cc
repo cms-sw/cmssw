@@ -55,14 +55,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         ::hgcal::mappingtools::HGCalEntityList pmap;
         pmap.buildFrom(filename_.fullPath());
-        auto& entities = pmap.getEntries();
-        for (auto row : entities) {
+        const auto& entities = pmap.getEntries();
+        for (const auto& row : entities) {
+          int cassette = pmap.hasColumn("cassette") ? pmap.getIntAttr("cassette", row) : 1;
           int fedid = pmap.getIntAttr("fedid", row);
           int captureblockidx = pmap.getIntAttr("captureblockidx", row);
           int econdidx = pmap.getIntAttr("econdidx", row);
           int idx = modIndexer.getIndexForModule(fedid, captureblockidx, econdidx);
           int typeidx = modIndexer.getTypeForModule(fedid, captureblockidx, econdidx);
-          std::string typecode = pmap.getAttr("typecode", row);
+          const std::string& typecode = pmap.getAttr("typecode", row);
 
           auto celltypes = modIndexer.getCellType(typecode);
           bool isSiPM = celltypes.first;
@@ -74,7 +75,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           uint8_t irot = (uint8_t)(pmap.hasColumn("irot") ? pmap.getIntAttr("irot", row) : 0);
           uint32_t eleid = HGCalElectronicsId((zside > 0), fedid, captureblockidx, econdidx, 0, 0).raw();
           uint32_t detid(0);
-
           if (!isSiPM) {
             int zp(zside > 0 ? 1 : -1);
             DetId::Detector det = plane <= 26 ? DetId::Detector::HGCalEE : DetId::Detector::HGCalHSi;
@@ -98,6 +98,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           module.captureblockidx() = captureblockidx;
           module.eleid() = eleid;
           module.detid() = detid;
+          module.cassette() = cassette;
         }
 
         return moduleParams;

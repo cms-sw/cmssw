@@ -69,175 +69,6 @@ namespace edm {
 
     typedef std::vector<std::string> vstring;
 
-    void processSwitchProducers(ParameterSet const& proc_pset,
-                                std::string const& processName,
-                                SignallingProductRegistryFiller& preg) {
-      // Update Switch ProductDescriptions for the chosen case
-      struct BranchesCases {
-        BranchesCases(std::vector<std::string> cases) : caseLabels{std::move(cases)} {}
-        std::vector<BranchKey> chosenBranches;
-        std::vector<std::string> caseLabels;
-      };
-      std::map<std::string, BranchesCases> switchMap;
-      for (auto& prod : preg.productListUpdator()) {
-        if (prod.second.isSwitchAlias()) {
-          auto it = switchMap.find(prod.second.moduleLabel());
-          if (it == switchMap.end()) {
-            auto const& switchPSet = proc_pset.getParameter<edm::ParameterSet>(prod.second.moduleLabel());
-            auto inserted = switchMap.emplace(prod.second.moduleLabel(),
-                                              switchPSet.getParameter<std::vector<std::string>>("@all_cases"));
-            assert(inserted.second);
-            it = inserted.first;
-          }
-
-          bool found = false;
-          for (auto const& productIter : preg.registry().productList()) {
-            BranchKey const& branchKey = productIter.first;
-            // The alias-for product must be in the same process as
-            // the SwitchProducer (earlier processes
-            // may contain products with same type, module label, and
-            // instance name)
-            if (branchKey.processName() != processName) {
-              continue;
-            }
-
-            ProductDescription const& desc = productIter.second;
-            if (desc.branchType() == prod.second.branchType() and
-                desc.unwrappedTypeID().typeInfo() == prod.second.unwrappedTypeID().typeInfo() and
-                branchKey.moduleLabel() == prod.second.switchAliasModuleLabel() and
-                branchKey.productInstanceName() == prod.second.productInstanceName()) {
-              prod.second.setSwitchAliasForBranch(desc);
-              if (!prod.second.transient()) {
-                it->second.chosenBranches.push_back(prod.first);  // with moduleLabel of the Switch
-              }
-              found = true;
-            }
-          }
-          if (not found) {
-            Exception ex(errors::LogicError);
-            ex << "Trying to find a ProductDescription to be aliased-for by SwitchProducer with\n"
-               << "  friendly class name = " << prod.second.friendlyClassName() << "\n"
-               << "  module label = " << prod.second.moduleLabel() << "\n"
-               << "  product instance name = " << prod.second.productInstanceName() << "\n"
-               << "  process name = " << processName
-               << "\n\nbut did not find any. Please contact a framework developer.";
-            ex.addContext("Calling Schedule.cc:processSwitchProducers()");
-            throw ex;
-          }
-        }
-      }
-      if (switchMap.empty())
-        return;
-
-      for (auto& elem : switchMap) {
-        std::sort(elem.second.chosenBranches.begin(), elem.second.chosenBranches.end());
-      }
-
-      auto addProductsToException = [&preg, &processName](auto const& caseLabels, edm::Exception& ex) {
-        std::map<std::string, std::vector<BranchKey>> caseBranches;
-        for (auto const& item : preg.registry().productList()) {
-          if (item.first.processName() != processName)
-            continue;
-
-          if (auto found = std::find(caseLabels.begin(), caseLabels.end(), item.first.moduleLabel());
-              found != caseLabels.end()) {
-            caseBranches[*found].push_back(item.first);
-          }
-        }
-
-        for (auto const& caseLabel : caseLabels) {
-          ex << "Products for case " << caseLabel << " (friendly class name, product instance name):\n";
-          auto& branches = caseBranches[caseLabel];
-          std::sort(branches.begin(), branches.end());
-          for (auto const& branch : branches) {
-            ex << " " << branch.friendlyClassName() << " " << branch.productInstanceName() << "\n";
-          }
-        }
-      };
-
-      // Check that non-chosen cases declare exactly the same non-transient branches
-      // Also set the alias-for branches to transient
-      std::vector<bool> foundBranches;
-      for (auto const& switchItem : switchMap) {
-        auto const& switchLabel = switchItem.first;
-        auto const& chosenBranches = switchItem.second.chosenBranches;
-        auto const& caseLabels = switchItem.second.caseLabels;
-        foundBranches.resize(chosenBranches.size());
-        for (auto const& caseLabel : caseLabels) {
-          std::fill(foundBranches.begin(), foundBranches.end(), false);
-          for (auto& nonConstItem : preg.productListUpdator()) {
-            auto const& item = nonConstItem;
-            if (item.first.moduleLabel() == caseLabel and item.first.processName() == processName) {
-              // Check that products which are not transient in the dictionary are consistent between
-              // all the cases of a SwitchProducer.
-              if (!item.second.transient()) {
-                auto range = std::equal_range(chosenBranches.begin(),
-                                              chosenBranches.end(),
-                                              BranchKey(item.first.friendlyClassName(),
-                                                        switchLabel,
-                                                        item.first.productInstanceName(),
-                                                        item.first.processName()));
-                if (range.first == range.second) {
-                  Exception ex(errors::Configuration);
-                  ex << "SwitchProducer " << switchLabel << " has a case " << caseLabel << " with a product "
-                     << item.first << " that is not produced by the chosen case "
-                     << proc_pset.getParameter<edm::ParameterSet>(switchLabel)
-                            .getUntrackedParameter<std::string>("@chosen_case")
-                     << " and that product is not transient. "
-                     << "If the intention is to produce only a subset of the non-transient products listed below, each "
-                        "case with more non-transient products needs to be replaced with an EDAlias to only the "
-                        "necessary products, and the EDProducer itself needs to be moved to a Task.\n\n";
-                  addProductsToException(caseLabels, ex);
-                  throw ex;
-                }
-                assert(std::distance(range.first, range.second) == 1);
-                foundBranches[std::distance(chosenBranches.begin(), range.first)] = true;
-              }
-
-              // Set the alias-for branch as transient so it gets fully ignored in output.
-              // I tried first to implicitly drop all branches with
-              // '@' in ProductSelector, but that gave problems on
-              // input (those branches would be implicitly dropped on
-              // input as well, leading to the SwitchProducer branches
-              // do be dropped as dependent ones, as the alias
-              // detection logic in RootFile says that the
-              // SwitchProducer branches are not alias branches)
-              nonConstItem.second.setTransient(true);
-
-              // Check that there are no BranchAliases for any of the cases
-              auto const& bd = item.second;
-              if (not bd.branchAliases().empty()) {
-                auto ex = Exception(errors::UnimplementedFeature)
-                          << "SwitchProducer does not support ROOT branch aliases. Got the following ROOT branch "
-                             "aliases for SwitchProducer with label "
-                          << switchLabel << " for case " << caseLabel << ":";
-                for (auto const& branchAlias : bd.branchAliases()) {
-                  ex << " " << branchAlias;
-                }
-                throw ex;
-              }
-            }
-          }
-
-          for (size_t i = 0; i < chosenBranches.size(); i++) {
-            if (not foundBranches[i]) {
-              auto chosenLabel = proc_pset.getParameter<edm::ParameterSet>(switchLabel)
-                                     .getUntrackedParameter<std::string>("@chosen_case");
-              Exception ex(errors::Configuration);
-              ex << "SwitchProducer " << switchLabel << " has a case " << caseLabel
-                 << " that does not produce a product " << chosenBranches[i] << " that is produced by the chosen case "
-                 << chosenLabel << " and that product is not transient. "
-                 << "If the intention is to produce only a subset of the non-transient products listed below, each "
-                    "case with more non-transient products needs to be replaced with an EDAlias to only the "
-                    "necessary products, and the EDProducer itself needs to be moved to a Task.\n\n";
-              addProductsToException(caseLabels, ex);
-              throw ex;
-            }
-          }
-        }
-      }
-    }
-
     void reduceParameterSet(ParameterSet& proc_pset,
                             vstring const& end_path_name_list,
                             vstring& modulesInConfig,
@@ -406,6 +237,8 @@ namespace edm {
         pathNames_(&tns.getTrigPaths()),
         endPathNames_(&tns.getEndPaths()),
         wantSummary_(tns.wantSummary()) {
+    preModulesInitializationFinalizedSignal_.connect(std::cref(areg->preModulesInitializationFinalizedSignal_));
+    postModulesInitializationFinalizedSignal_.connect(std::cref(areg->postModulesInitializationFinalizedSignal_));
     ScheduleBuilder builder(
         *moduleRegistry_, proc_pset, *pathNames_, *endPathNames_, prealloc, preg, *areg, processConfiguration);
     resultsInserter_ = std::move(builder.resultsInserter_);
@@ -502,7 +335,6 @@ namespace edm {
       }
     }
 
-    processSwitchProducers(proc_pset, processConfiguration->processName(), preg);
     proc_pset.registerIt();
     processConfiguration->setParameterSetID(proc_pset.id());
     processConfiguration->setProcessConfigurationID();
@@ -1070,6 +902,9 @@ namespace edm {
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           std::string const& iProcessName) {
+    preModulesInitializationFinalizedSignal_();
+    auto post = [this](void*) { postModulesInitializationFinalizedSignal_(); };
+    std::unique_ptr<void, decltype(post)> const postGuard(this, post);
     finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
     globalSchedule_->beginJob(*moduleRegistry_);
   }

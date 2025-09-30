@@ -131,6 +131,7 @@ void test_ep::setUp() {
   pProductRegistry_->addProduct(*fake_single_process_branch("test", "TEST"));
   pProductRegistry_->addProduct(*fake_single_process_branch("user", "USER"));
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
+  pProductRegistry_->setProcessOrder({"USER2", "USER", "TEST", "PROD", "HLT"});
   pProductRegistry_->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(pProductRegistry_->registry());

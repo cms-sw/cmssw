@@ -1,5 +1,5 @@
 # import the definition of the steps and input files:
-from  Configuration.PyReleaseValidation.relval_steps import *
+from Configuration.PyReleaseValidation.relval_steps import *
 
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
@@ -410,11 +410,15 @@ workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHL
 workflows[136.8862] = ['',['RunEGamma2018Dml2','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
 
 #### Test of tau embedding on RUN2 data ####
-workflows[136.901] = ['', ['RunDoubleMuon2016C', 'TauEmbedding_Selection_2016_HIPM', 'TauEmbedding_Cleaning_2016_HIPM', 'TauEmbedding_GenPreHLT_2016_HIPM', 'TauEmbedding_GenHLT_2016_HIPM', 'TauEmbedding_GenPostHLT_2016_HIPM', 'TauEmbedding_Merging_2016_HIPM']]
-workflows[136.902] = ['', ['RunDoubleMuon2016H', 'TauEmbedding_Selection_2016', 'TauEmbedding_Cleaning_2016', 'TauEmbedding_GenPreHLT_2016', 'TauEmbedding_GenHLT_2016', 'TauEmbedding_GenPostHLT_2016', 'TauEmbedding_Merging_2016']]
-workflows[136.903] = ['', ['RunDoubleMuon2017B', 'TauEmbedding_Selection_2017', 'TauEmbedding_Cleaning_2017', 'TauEmbedding_GenPreHLT_2017', 'TauEmbedding_GenHLT_2017', 'TauEmbedding_GenPostHLT_2017', 'TauEmbedding_Merging_2017']]
-workflows[136.904] = ['', ['RunDoubleMuon2018C', 'TauEmbedding_Selection_2018', 'TauEmbedding_Cleaning_2018', 'TauEmbedding_GenPreHLT_2018', 'TauEmbedding_GenHLT_2018', 'TauEmbedding_GenPostHLT_2018', 'TauEmbedding_Merging_2018']]
-
+workflows[136.901] = ['', ['RunDoubleMuon2016C', 'TauEmbedding_Selection_2016_HIPM', 'TauEmbedding_Cleaning_2016_HIPM', 'TauEmbedding_GenPreHLT_2016_HIPM', 'TauEmbedding_GenHLT_2016_HIPM', 'TauEmbedding_GenPostHLT_2016_HIPM', 'TauEmbedding_Merging_2016_HIPM', 'TauEmbedding_Nano_2016_HIPM']]
+workflows[136.902] = ['', ['RunDoubleMuon2016H', 'TauEmbedding_Selection_2016', 'TauEmbedding_Cleaning_2016', 'TauEmbedding_GenPreHLT_2016', 'TauEmbedding_GenHLT_2016', 'TauEmbedding_GenPostHLT_2016', 'TauEmbedding_Merging_2016', 'TauEmbedding_Nano_2016']]
+workflows[136.903] = ['', ['RunDoubleMuon2017B', 'TauEmbedding_Selection_2017', 'TauEmbedding_Cleaning_2017', 'TauEmbedding_GenPreHLT_2017', 'TauEmbedding_GenHLT_2017', 'TauEmbedding_GenPostHLT_2017', 'TauEmbedding_Merging_2017', 'TauEmbedding_Nano_2017']]
+workflows[136.904] = ['', ['RunDoubleMuon2018C', 'TauEmbedding_Selection_2018', 'TauEmbedding_Cleaning_2018', 'TauEmbedding_GenPreHLT_2018', 'TauEmbedding_GenHLT_2018', 'TauEmbedding_GenPostHLT_2018', 'TauEmbedding_Merging_2018', 'TauEmbedding_Nano_2018']]
+#### Test of tau embedding on RUN3 data ####
+workflows[136.905] = ['', ['RunDoubleMuon2022C', 'TauEmbedding_Selection_2022', 'TauEmbedding_Cleaning_2022', 'TauEmbedding_GenPreHLT_2022', 'TauEmbedding_GenHLT_2022', 'TauEmbedding_GenPostHLT_2022', 'TauEmbedding_Merging_2022', 'TauEmbedding_Nano_2022']]
+workflows[136.906] = ['', ['RunMuon2022E', 'TauEmbedding_Selection_2022_EE', 'TauEmbedding_Cleaning_2022_EE', 'TauEmbedding_GenPreHLT_2022_EE', 'TauEmbedding_GenHLT_2022_EE', 'TauEmbedding_GenPostHLT_2022_EE', 'TauEmbedding_Merging_2022_EE', 'TauEmbedding_Nano_2022_EE']]
+# Input file for 2024 is not there yet, so this will be activated in the future.
+# workflows[136.909] = ['', ['RunMuon2024C', 'TauEmbedding_Selection_2024', 'TauEmbedding_Cleaning_2024', 'TauEmbedding_GenPreHLT_2024', 'TauEmbedding_GenHLT_2024', 'TauEmbedding_GenPostHLT_2024', 'TauEmbedding_Merging_2024']]
 
 ### run 2021 collisions ###
 workflows[139.001] = ['RunMinimumBias2021',['RunMinimumBias2021','HLTDR3_2022','RECODR3_reHLT_MinBiasOffline','HARVESTD2021MB_reHLT']]
@@ -575,39 +579,51 @@ workflows[143.911] = ['',['RunUPC2024','RECODR3_2025_OXY','HARVESTDPROMPTR3']]
 workflows[143.912] = ['',['RunUPC2024','RECODR3_2025_UPC_OXY','HARVESTDPROMPTR3']]
 workflows[143.921] = ['',['RunUPC2024','RECODR3_2025_OXY_SKIMIONPHYSICS0','HARVESTDPROMPTR3']]
 
-## Lumi mask fixed 2024 wfs
-base_wf = 145.0
-offset_era = 0.1 # less than 10 eras per year (hopefully)
-offset_pd = 0.001 # less than 100 pds per year
-
-for e_n,era in enumerate(era_mask_2024):
-    for p_n,pd in enumerate(pds_2024):
-        
-        # JetMET1 PD is used to run the TeVJet skims
-        # we don't really need it here
-        # (also as is the numbering conflicts with 
-        # the scouting wf below, so if we really want to
-        # extend the pds for standar relvals for 2024 data
-        # one needs to change the 145.415 below)
-        if pd == 'JetMET1':
-            continue
-
-        wf_number = round(base_wf + offset_era * e_n + offset_pd * p_n,3)
-        dataset = '/' + pd + '/' + era + '-v1/RAW'
-
-        ## ZeroBias have their own HARVESTING
-        suff = 'ZB_' if 'ZeroBias' in step_name else ''
-
-        # Running C,D,E with the offline GT.
-        # Could be removed once 2025 wfs are in and we'll test the online GT with them
-        recosetup = 'RECONANORUN3_' + suff + 'reHLT_2024' 
-        recosetup = recosetup if era[-1] > 'E' else recosetup + '_Offline'
-
-        step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1]
-        workflows[wf_number] = ['',[step_name,'HLTDR3_2024',recosetup,'HARVESTRUN3_' + suff + '2024']]
-
 ## special HLT scouting workflow (with hardcoded private input file from ScoutingPFMonitor skimmed to remove all events without scouting)
 workflows[145.415] = ['',['HLTDR3_ScoutingPFMonitor_2024','RECONANORUN3_ScoutingPFMonitor_reHLT_2024','HARVESTRUN3_ScoutingPFMonitor_2024']]
+
+######################################################################################################################################
+######################################################################################################################################
+
+## Run3 Fixed Events for Testing and IBs
+## (with 1k events in input, cut to 100 at step2)
+
+fixed_events_offset = 1e-7 # to have it unique
+
+def addFixedEventsTestingWfs(years, pds, eras):
+
+    for y in years:
+        for era,pd in zip(eras, pds):
+
+            ## ZeroBias have their own HARVESTING
+            suff = 'ZB_' if 'ZeroBias' in pd else ''
+
+            wf_number = round(float(y) + offset_pd * pds.index(pd) + fixed_events_offset, 7)
+            step_name = 'Run' + pd.replace('ParkingDouble','Park2') + y + era + "_10k"
+
+            workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_reHLT_' + y,'HARVESTRUN3_' + suff + y]]
+
+## 2025 
+pds  = ['ZeroBias', 'JetMET0', 'EGamma0']
+eras = ['B','C','D']
+addFixedEventsTestingWfs(['2025'], pds, eras)
+## 2024 
+pds  = ['ZeroBias', 'JetMET0', 'EGamma0', 'DisplacedJet', 'ParkingDoubleMuonLowMass0', 'BTagMu', 'Muon0', 'Tau']
+eras = ['B','C','D','E','F','G','H','I']
+addFixedEventsTestingWfs(['2024'], pds, eras)
+
+## 2023
+pds  = ['ZeroBias', 'EGamma0', 'JetMET0']
+eras = ['B','C','D']
+addFixedEventsTestingWfs(['2023'], pds, eras)
+
+## 2022
+pds  = ['ZeroBias', 'JetHT', 'Tau', 'BTagMu']
+eras = ['B','C','D','E']
+addFixedEventsTestingWfs(['2022'], pds, eras)
+
+######################################################################################################################################
+######################################################################################################################################
 
 ##################################################################
 ### run3 (2024) skims - Era F ###

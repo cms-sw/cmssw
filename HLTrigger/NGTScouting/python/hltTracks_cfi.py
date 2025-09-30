@@ -15,6 +15,8 @@ hltPixelTrackTable = cms.EDProducer(
         phi = Var("phi()", "float", doc = "#phi (rad)"),
         dXY = Var("dxy()", "float", doc = "dXY (cm)"),
         dZ = Var("dz()", "float", doc = "dZ (cm)"),
+        dxyError = Var("dxyError()", "float", doc = "dxyError (cm)"),
+        dZError = Var("dzError()", "float", doc = "dzError (cm)"),
         t0 = Var("t0()", "float", doc = "t0 (ns)"),
         vx = Var("vx()", "float", doc = "vx (cm)"),
         vy = Var("vy()", "float", doc = "vy (cm)"),
@@ -29,6 +31,13 @@ hltPixelTrackTable = cms.EDProducer(
         isHighPurity = Var("quality('highPurity')", "bool", doc = "High-purity track flag"),
     )
 )
+
+hltPixelTrackExtTable = cms.EDProducer("HLTTracksExtraTableProducer",
+                                       tableName = cms.string("hltPixelTrack"),                                    
+                                       skipNonExistingSrc = cms.bool(True),
+                                       tracksSrc = cms.InputTag("hltPhase2PixelTracks"),
+                                       beamSpot = cms.InputTag("hltOnlineBeamSpot"),
+                                       precision = cms.int32(7))
 
 hltGeneralTrackTable = cms.EDProducer(
     "SimpleTriggerTrackFlatTableProducer",
@@ -55,3 +64,10 @@ hltGeneralTrackTable = cms.EDProducer(
         ndof = Var("ndof()", "float", doc = "Number of degrees of freedom"),
     )
 )
+
+hltGeneralTrackExtTable = cms.EDProducer("HLTTracksExtraTableProducer",
+                                         tableName = cms.string("hltGeneralTrack"),
+                                         skipNonExistingSrc = cms.bool(True),
+                                         tracksSrc = cms.InputTag("hltGeneralTracks"),
+                                         beamSpot = cms.InputTag("hltOnlineBeamSpot"),
+                                         precision = cms.int32(7))

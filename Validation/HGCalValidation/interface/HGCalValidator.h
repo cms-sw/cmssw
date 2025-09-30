@@ -32,8 +32,8 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 class PileupSummaryInfo;
 
@@ -68,7 +68,7 @@ public:
                                 std::vector<size_t>& selected_cPeff,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                MultiVectorManager<HGCRecHit> const& hits) const;
+                                edm::MultiSpan<HGCRecHit> const& hits) const;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -238,6 +238,7 @@ void testProductRegistry::testAddAlias() {
                                              simpleVecBranch_->unwrappedTypeID(),
                                              simpleDerivedVecBranch_->unwrappedTypeID()};
   std::set<edm::TypeID> elementTypesConsumed{intBranch_->unwrappedTypeID(), edm::TypeID(typeid(edmtest::Simple))};
+  reg.setProcessOrder({"PROD"});
   reg.setFrozen(productTypesConsumed, elementTypesConsumed, "TEST");
   {
     auto notFound =

@@ -11,7 +11,7 @@ import math
 options = VarParsing.VarParsing ('analysis')
 
 options.register ('runNumber',
-                  100, # default value
+                  100101, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Run Number")
@@ -70,12 +70,18 @@ options.register ('subsystems',
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "List of generated subsystem FEDs. Empty means all.")
 
-
 options.register ('conversionTest',
                   False,
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.bool,
                   "Test conversion between new and old format")
+
+options.register ('writeToOpen',
+                  0,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "Write only to open directory")
+
 
 
 options.parseArguments()
@@ -155,6 +161,7 @@ if  options.dataType == "FRD":
         numEventsPerFile = cms.uint32(options.eventsPerFile),
         frdVersion = cms.uint32(6),
         frdFileVersion = cms.uint32(options.frdFileVersion),
+        writeToOpen = cms.untracked.bool(True if options.writeToOpen else False)
         )
 
 elif  options.dataType == "DTH":

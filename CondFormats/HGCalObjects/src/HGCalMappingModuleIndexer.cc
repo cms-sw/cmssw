@@ -70,13 +70,10 @@ void HGCalMappingModuleIndexer::finalize() {
   erxOffsets_.resize(maxModulesIdx_, 0);
   dataOffsets_.resize(maxModulesIdx_, 0);
   for (size_t i = 1; i < globalTypesCounter_.size(); i++) {
-    moduleOffsets_[i] = globalTypesCounter_[i - 1];
-    erxOffsets_[i] = globalTypesCounter_[i - 1] * globalTypesNErx_[i - 1];
-    dataOffsets_[i] = globalTypesCounter_[i - 1] * globalTypesNWords_[i - 1];
+    moduleOffsets_[i] = globalTypesCounter_[i - 1] + moduleOffsets_[i - 1];
+    erxOffsets_[i] = globalTypesCounter_[i - 1] * globalTypesNErx_[i - 1] + erxOffsets_[i - 1];
+    dataOffsets_[i] = globalTypesCounter_[i - 1] * globalTypesNWords_[i - 1] + dataOffsets_[i - 1];
   }
-  std::partial_sum(moduleOffsets_.begin(), moduleOffsets_.end(), moduleOffsets_.begin());
-  std::partial_sum(erxOffsets_.begin(), erxOffsets_.end(), erxOffsets_.begin());
-  std::partial_sum(dataOffsets_.begin(), dataOffsets_.end(), dataOffsets_.begin());
 
   //now go through the FEDs and ascribe the offsets per module in the readout sequence
   std::vector<uint32_t> typeCounters(globalTypesCounter_.size(), 0);
