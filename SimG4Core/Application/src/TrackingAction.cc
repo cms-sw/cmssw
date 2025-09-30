@@ -84,7 +84,8 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   if (nullptr != trkInfo_) {
     ok = (ok || trkInfo_->storeTrack());
     if (trkInfo_->crossedBoundary()) {
-      currentHistory_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
+      currentHistory_->setCrossedBoundaryPosMom(
+          id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
       ok = (ok || saveCaloBoundaryInformation_ || doFineCalo_);
     }
   }

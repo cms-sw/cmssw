@@ -447,9 +447,13 @@ bool Phase2StackingAction::isThisRegion(const G4Region* reg, std::vector<const G
 
 int Phase2StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G4Track* mother) const {
   int flag = 0;
-  if (nullptr == mother) { return flag; }
+  if (nullptr == mother) {
+    return flag;
+  }
   auto motherInfo = dynamic_cast<const TrackInformation*>(mother->GetUserInformation());
-  if (nullptr == motherInfo) { return flag; }
+  if (nullptr == motherInfo) {
+    return flag;
+  }
 
   // Check whether mother is a primary
   if (motherInfo->isPrimary()) {
@@ -463,9 +467,13 @@ int Phase2StackingAction::isItPrimaryDecayProductOrConversion(const int stype, c
 }
 
 bool Phase2StackingAction::rrApplicable(const G4Track* aTrack, const G4Track* mother) const {
-  if (nullptr == mother) { return true; }
+  if (nullptr == mother) {
+    return true;
+  }
   auto motherInfo = dynamic_cast<const TrackInformation*>(mother->GetUserInformation());
-  if (nullptr == motherInfo) { return true; }
+  if (nullptr == motherInfo) {
+    return true;
+  }
 
   // Check whether mother is gamma, e+, e-
   const int genID = motherInfo->genParticlePID();

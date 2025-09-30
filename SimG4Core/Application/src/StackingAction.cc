@@ -258,12 +258,12 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             classification = fKill;
           }
           if (killInCaloEfH && classification != fKill && (pdg == 22 || abspdg == 11)) {
-	    auto mother = m_trackInterface->getCurrentTrack();
-	    if (nullptr != mother) {
-	      int pdgMother = std::abs(mother->GetDefinition()->GetPDGEncoding());
-	      if (pdgMother != 11 && pdgMother != 22 && isThisRegion(reg, caloRegions)) {
-		classification = fKill;
-	      }
+            auto mother = m_trackInterface->getCurrentTrack();
+            if (nullptr != mother) {
+              int pdgMother = std::abs(mother->GetDefinition()->GetPDGEncoding());
+              if (pdgMother != 11 && pdgMother != 22 && isThisRegion(reg, caloRegions)) {
+                classification = fKill;
+              }
             }
           }
         }
@@ -449,9 +449,13 @@ bool StackingAction::isThisRegion(const G4Region* reg, std::vector<const G4Regio
 
 int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G4Track* mother) const {
   int flag = 0;
-  if (nullptr == mother) { return flag; }
+  if (nullptr == mother) {
+    return flag;
+  }
   auto motherInfo = dynamic_cast<const TrackInformation*>(mother->GetUserInformation());
-  if (nullptr == motherInfo) { return flag; }
+  if (nullptr == motherInfo) {
+    return flag;
+  }
 
   // Check whether mother is a primary
   if (motherInfo->isPrimary()) {
@@ -465,9 +469,13 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G
 }
 
 bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track* mother) const {
-  if (nullptr == mother) { return true; }
+  if (nullptr == mother) {
+    return true;
+  }
   auto motherInfo = dynamic_cast<const TrackInformation*>(mother->GetUserInformation());
-  if (nullptr == motherInfo) { return true; }
+  if (nullptr == motherInfo) {
+    return true;
+  }
 
   // Check whether mother is gamma, e+, e-
   const int genID = motherInfo->genParticlePID();

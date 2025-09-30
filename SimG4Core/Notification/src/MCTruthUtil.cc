@@ -7,7 +7,7 @@
 #include "G4Track.hh"
 
 void MCTruthUtil::primary(G4Track* aTrack) {
-  TrackInformation *trkInfo = new TrackInformation();
+  TrackInformation* trkInfo = new TrackInformation();
   trkInfo->setPrimary(true);
   trkInfo->setStoreTrack();
   trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
@@ -87,7 +87,7 @@ void MCTruthUtil::secondary(G4Track* aTrack, const G4Track* mother, int flag) {
 #endif
 }
 
-bool MCTruthUtil::isInBTL(const G4Track *aTrack) {
+bool MCTruthUtil::isInBTL(const G4Track* aTrack) {
   bool out = false;
   G4String tName(aTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName());
   if (tName == "FastTimerRegionBTL" || tName == "FastTimerRegionSensBTL") {
