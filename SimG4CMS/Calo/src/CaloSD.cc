@@ -912,8 +912,7 @@ int CaloSD::setTrackID(const G4Step* aStep) {
   }
 #ifdef EDM_ML_DEBUG
   int ids = (nullptr != trkInfo) ? trkInfo->getIDonCaloSurface() : -1;
-  edm::LogVerbatim("CaloSim") << "Track ID: " << ids << ":" << theTrack->GetTrackID() << ":"
-                              << primaryID;
+  edm::LogVerbatim("CaloSim") << "Track ID: " << ids << ":" << theTrack->GetTrackID() << ":" << primaryID;
 #endif
 
   if (primaryID != previousID[0].trackID()) {

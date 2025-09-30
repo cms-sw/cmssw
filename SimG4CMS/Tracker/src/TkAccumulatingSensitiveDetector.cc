@@ -152,7 +152,7 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack* bot) {
     if (nullptr != info && gTrack->GetKineticEnergy() > energyCut) {
       info->setStoreTrack();
       if (info->idLastStoredAncestor() == gTrack->GetParentID()) {
-	info->setIdLastStoredAncestor(gTrack->GetTrackID());
+        info->setIdLastStoredAncestor(gTrack->GetTrackID());
       }
     }
     //

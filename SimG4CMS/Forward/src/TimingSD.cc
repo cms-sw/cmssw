@@ -161,12 +161,12 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
     TrackInformation* info = cmsTrackInformation(theTrack);
     if (nullptr != info) {
       if (incidentEnergy > energyCut) {
-	info->setStoreTrack();
-	if (info->idLastStoredAncestor() == theTrack->GetParentID())
-	  info->setIdLastStoredAncestor(theTrack->GetTrackID());
+        info->setStoreTrack();
+        if (info->idLastStoredAncestor() == theTrack->GetParentID())
+          info->setIdLastStoredAncestor(theTrack->GetTrackID());
       }
       if (incidentEnergy > energyHistoryCut) {
-	info->putInHistory();
+        info->putInHistory();
       }
 #ifdef EDM_ML_DEBUG
       LogDebug("TimingSim") << "TrackInformation for ID = " << theTrack->GetTrackID();

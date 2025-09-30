@@ -251,7 +251,7 @@ void MuonSensitiveDetector::createHit(const G4Step* aStep) {
     if (nullptr != info) {
       info->setStoreTrack();
       if (info->idLastStoredAncestor() == theTrack->GetParentID()) {
-	info->setIdLastStoredAncestor(theTrack->GetTrackID());
+        info->setIdLastStoredAncestor(theTrack->GetTrackID());
       }
     }
   }
