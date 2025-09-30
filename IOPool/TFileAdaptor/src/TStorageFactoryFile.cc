@@ -475,11 +475,10 @@ Bool_t TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, In
   }
 
   // Null buffer means asynchronous reads into I/O system's cache.
-  bool success;
   StorageAccount::Stamp astats(storageCounter(s_statsARead, StorageAccount::Operation::readAsync));
   // Synchronise low-level cache with the supposed cache in TFile.
   // storage_->caching(true, -1, 0);
-  success = storage_->prefetch(iov.data(), nbuf);
+  bool success = storage_->prefetch(iov.data(), nbuf);
   astats.tick(total);
 
   // If it didn't suceeed, pass down to the base class.
