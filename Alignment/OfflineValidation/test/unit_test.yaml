@@ -224,6 +224,7 @@ validations:
     Zmumu:
         merge:
             testSingleZMM:
+                customrighttitle: UnitTest
                 singles:
                 - testSingleZMM
         single:
@@ -236,7 +237,7 @@ validations:
                 bsIncompatibleWarnThresh: 100
                 bsIncompatibleErrThresh: 1000
                 trackcollection: ALCARECOTkAlZMuMu
-                maxevents: 100
+                maxevents: -1
     MTS:
         merge:
             testSingleMTS:
@@ -340,7 +341,10 @@ style:
             CMSlabel: "Internal" 
     PV:
         merge:
-            CMSlabel: "Preliminary" 
+            CMSlabel: "Preliminary"
+    Zmumu:
+        merge:
+            CMSlabel: "Internal"
     trends:
         CMSlabel: "Internal"
         Rlabel: "Unit Test"
