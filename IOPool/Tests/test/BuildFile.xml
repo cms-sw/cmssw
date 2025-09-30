@@ -118,3 +118,5 @@
 <test name="TestParentageWithStreamerIO" command="run_ParentageWithStreamerIO.sh"/>
 
 <test name="TestIOPoolUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
+
+<test name="TestIOPoolDifferentProductRegistries" command="runDifferentProductRegistries.sh"/>
