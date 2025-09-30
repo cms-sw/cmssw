@@ -1,7 +1,6 @@
 #include "SimG4CMS/Forward/interface/TotemT2ScintSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"

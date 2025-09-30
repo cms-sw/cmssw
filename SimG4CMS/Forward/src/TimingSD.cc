@@ -9,7 +9,6 @@
 
 #include "SimG4CMS/Forward/interface/TimingSD.h"
 
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
@@ -159,25 +158,21 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
   // should MC truth be saved
   if (newTrack != theTrack) {
     theTrack = newTrack;
-    TrackInformation* info = nullptr;
-    if (incidentEnergy > energyCut) {
-      info = cmsTrackInformation(theTrack);
-      info->setStoreTrack();
-      if (info->idLastStoredAncestor() == theTrack->GetParentID())
-        info->setIdLastStoredAncestor(theTrack->GetTrackID());
-    }
-    if (incidentEnergy > energyHistoryCut) {
-      if (nullptr == info) {
-        info = cmsTrackInformation(theTrack);
+    TrackInformation* info = cmsTrackInformation(theTrack);
+    if (nullptr != info) {
+      if (incidentEnergy > energyCut) {
+	info->setStoreTrack();
+	if (info->idLastStoredAncestor() == theTrack->GetParentID())
+	  info->setIdLastStoredAncestor(theTrack->GetTrackID());
       }
-      info->putInHistory();
-    }
+      if (incidentEnergy > energyHistoryCut) {
+	info->putInHistory();
+      }
 #ifdef EDM_ML_DEBUG
-    if (info != nullptr) {
       LogDebug("TimingSim") << "TrackInformation for ID = " << theTrack->GetTrackID();
       info->Print();
-    }
 #endif
+    }
   }
 
   edeposit *= invgev;

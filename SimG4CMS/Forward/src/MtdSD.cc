@@ -147,6 +147,7 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
 
 void MtdSD::setHitClassID(const G4Step* aStep) {
   TrackInformation* trkInfo = cmsTrackInformation(aStep->GetTrack());
+  if (nullptr == trkInfo) { return; }
   const G4String& rname = aStep->GetTrack()->GetVolume()->GetLogicalVolume()->GetRegion()->GetName();
   if (rname == "FastTimerRegionSensETL") {
     double zin = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
