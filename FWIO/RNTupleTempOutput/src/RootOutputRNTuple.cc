@@ -31,66 +31,94 @@ namespace edm {
                                        int treeMaxVirtualSize,
                                        std::string const& processName)
       : filePtr_(filePtr),
-        tree_(processName.empty()
-                  ? makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)
-                  : makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType, processName), splitLevel)),
+        name_(processName.empty() ? BranchTypeToProductTreeName(branchType)
+                                  : BranchTypeToProductTreeName(branchType, processName)),
+        model_(ROOT::RNTupleModel::Create()),
         producedBranches_(),
-        auxBranches_() {
-    if (treeMaxVirtualSize >= 0)
-      tree_->SetMaxVirtualSize(treeMaxVirtualSize);
-  }
+        auxBranches_() {}
 
-  TTree* RootOutputRNTuple::assignTTree(TFile* filePtr, TTree* tree) {
-    tree->SetDirectory(filePtr);
-    // Turn off autosaving because it is such a memory hog and we are not using
-    // this check-pointing feature anyway.
-    tree->SetAutoSave(std::numeric_limits<Long64_t>::max());
-    return tree;
-  }
+  namespace {
+    template <typename T, typename U>
+    struct Zip {
+      T const& first;
+      U const& second;
 
-  TTree* RootOutputRNTuple::makeTTree(TFile* filePtr, std::string const& name, int splitLevel) {
-    TTree* tree = new TTree(name.c_str(), "", splitLevel);
-    if (!tree)
-      throw edm::Exception(errors::FatalRootError) << "Failed to create the tree: " << name << "\n";
-    if (tree->IsZombie())
-      throw edm::Exception(errors::FatalRootError) << "Tree: " << name << " is a zombie."
-                                                   << "\n";
+      Zip(T const& t, U const& u) : first(t), second(u) { assert(t.size() == u.size()); }
 
-    return assignTTree(filePtr, tree);
-  }
+      struct iterator {
+        using value_type = std::pair<typename T::value_type, typename U::value_type>;
+        using difference_type = std::ptrdiff_t;
+        using pointer = value_type*;
+        using reference = value_type&;
+        using iterator_category = std::input_iterator_tag;
 
-  void RootOutputRNTuple::writeTTree(TTree* tree) {
-    if (tree->GetNbranches() != 0) {
-      // This is required when Fill is called on individual branches
-      // in the TTree instead of calling Fill once for the entire TTree.
-      tree->SetEntries(-1);
+        typename T::const_iterator t_iter;
+        typename U::const_iterator u_iter;
+
+        iterator(typename T::const_iterator t, typename U::const_iterator u) : t_iter(t), u_iter(u) {}
+
+        value_type operator*() const { return std::make_pair(*t_iter, *u_iter); }
+        iterator& operator++() {
+          ++t_iter;
+          ++u_iter;
+          return *this;
+        }
+        iterator operator++(int) {
+          iterator tmp = *this;
+          ++(*this);
+          return tmp;
+        }
+        bool operator==(iterator const& other) const { return t_iter == other.t_iter && u_iter == other.u_iter; }
+        bool operator!=(iterator const& other) const { return !(*this == other); }
+      };
+
+      iterator begin() const { return iterator(first.begin(), second.begin()); }
+      iterator end() const { return iterator(first.end(), second.end()); }
+    };
+
+    template <typename T, typename U>
+    Zip<T, U> zip(T const& t, U const& u) {
+      return Zip<T, U>(t, u);
     }
-    tree->AutoSave("FlushBaskets");
-  }
+  }  // namespace
 
-  void RootOutputRNTuple::fillTTree(std::vector<TBranch*> const& branches) {
-    for_all(branches, std::bind(&TBranch::Fill, std::placeholders::_1));
-  }
-
-  void RootOutputRNTuple::writeTree() { writeTTree(tree()); }
-
-  void RootOutputRNTuple::fillTree() {
+  void RootOutputRNTuple::fill() {
     // Isolate the fill operation so that IMT doesn't grab other large tasks
     // that could lead to RNTupleTempOutputModule stalling
-    oneapi::tbb::this_task_arena::isolate([&] { tree_->Fill(); });
+    std::exception_ptr e;
+    oneapi::tbb::this_task_arena::isolate([&] {
+      try {
+        auto entry = writer_->CreateEntry();
+        for (auto z = zip(producedBranchPointers_, producedBranches_); auto prod : z) {
+          entry->BindRawPtr(prod.second, *prod.first);
+        }
+        for (auto z = zip(auxBranchPointers_, auxBranches_); auto aux : z) {
+          entry->BindRawPtr(aux.second, *aux.first);
+        }
+        writer_->Fill(*entry);
+      } catch (...) {
+        e = std::current_exception();
+      }
+    });
+    if (e) {
+      std::rethrow_exception(e);
+    }
   }
 
-  void RootOutputRNTuple::addBranch(std::string const& branchName,
-                                    std::string const& className,
-                                    void const*& pProd,
-                                    int splitLevel,
-                                    int basketSize,
-                                    bool produced) {
-    assert(splitLevel != ProductDescription::invalidSplitLevel);
-    assert(basketSize != ProductDescription::invalidBasketSize);
-    TBranch* branch = tree_->Branch(branchName.c_str(), className.c_str(), &pProd, basketSize, splitLevel);
-    assert(branch != nullptr);
-    producedBranches_.push_back(branch);
+  void RootOutputRNTuple::finishInitialization() {
+    writer_ = ROOT::RNTupleWriter::Append(std::move(model_), name_, *filePtr_, ROOT::RNTupleWriteOptions());
+  }
+
+  void RootOutputRNTuple::addField(std::string const& branchName,
+                                   std::string const& className,
+                                   void const** pProd,
+                                   int splitLevel,
+                                   int basketSize,
+                                   bool produced) {
+    auto field = ROOT::RFieldBase::Create(branchName, className).Unwrap();
+    model_->AddField(std::move(field));
+    producedBranches_.push_back(model_->GetToken(branchName.c_str()));
+    producedBranchPointers_.push_back(const_cast<void**>(pProd));
   }
 
   void RootOutputRNTuple::close() {
@@ -98,7 +126,7 @@ namespace edm {
     // Just to play it safe, zero all pointers to quantities in the file.
     auxBranches_.clear();
     producedBranches_.clear();
-    tree_ = nullptr;     // propagate_const<T> has no reset() function
+    writer_ = nullptr;   // propagate_const<T> has no reset() function
     filePtr_ = nullptr;  // propagate_const<T> has no reset() function
   }
 }  // namespace edm
