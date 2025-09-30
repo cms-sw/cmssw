@@ -334,7 +334,7 @@ def printMapReadRanges(logEntries, mapFileName):
         # Extract the offset (At:...), size (N=...), type, and content
         # (with name and possibly title) of an element in
         # TFile::Map("extended") printout
-        line_re = re.compile("At:(?P<offset>\d+)\s*N=(?P<size>\d+)\s*(?P<type>\w+).*(?P<content>name:.*$)")
+        line_re = re.compile(r"At:(?P<offset>\d+)\s*N=(?P<size>\d+)\s*(?P<type>\w+).*(?P<content>name:.*$)")
         for line in f:
             m = line_re.search(line)
             if m:
