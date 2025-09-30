@@ -42,16 +42,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-namespace {
-  //template function for reading results
-  template <typename ResultType, typename LossType>
-  LossType readResult(hls4mlEmulator::Model& model) {
-    std::pair<ResultType, LossType> ADModelResult;  //model outputs a pair of the (result vector, loss)
-    model.read_result(&ADModelResult);
-    return ADModelResult.second;
-  }
-}  // namespace
-
 l1t::TOPOCondition::TOPOCondition()
     : ConditionEvaluation(), m_gtTOPOTemplate{nullptr}, m_gtGTB{nullptr}, m_model{nullptr} {}
 
@@ -134,11 +124,6 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   const BXVector<const l1t::L1Candidate*>* candJetVec = m_gtGTB->getCandL1Jet();
   const BXVector<const l1t::L1Candidate*>* candEGVec = m_gtGTB->getCandL1EG();
   const BXVector<const l1t::EtSum*>* candEtSumVec = m_gtGTB->getCandL1EtSum();
-
-  // const int NMuons = 4;
-  // const int NJets = 10;
-  // const int NEgammas = 4;
-  // const int NEtSums = 1;  
   
   const int NMuons = 2;
   const int NJets = 4;
@@ -149,7 +134,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   const int MuVecSize = NMuons * 3;      //so 6
   const int JVecSize = NJets * 3;        //so 12
   const int EGVecSize = NEgammas * 3;    //so 0
-  const int EtSumVecSize = NEtSums * 2;    //no eta
+  const int EtSumVecSize = NEtSums * 2;  //no eta
 
   //total # inputs in vector
   const int NInputs = MuVecSize + JVecSize + EGVecSize + EtSumVecSize;  //so 20
@@ -172,10 +157,8 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   double EtSumInput[EtSumVecSize];
 
   //declare result vectors +score
-  // resulttype result;
   losstype loss;
-  // pairtype ADModelResult;  //model outputs a pair of the (result vector, loss)
-  float score = -1.0;  //not sure what the best default is hm??
+  float score = -1.0; 
 
   //check number of input objects we actually have (muons, jets etc)
   int NCandMu = candMuVec->size(useBx);
@@ -192,14 +175,11 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   std::fill(scaledInput, scaledInput + NInputs, fillzero);
 
   //then fill the object vectors
-  //NOTE assume candidates are already sorted by pt
-  //loop over EtSums first, easy because there is max 1 of them
   if (NCandEtSum > 0) {  //check if not empty
     for (int iEtSum = 0; iEtSum < NCandEtSum; iEtSum++) {
       if ((candEtSumVec->at(useBx, iEtSum))->getType() == 1) {
         EtSumInput[0] = (candEtSumVec->at(useBx, iEtSum))->hwPt();
-        // EtSumInput[1] = (candEtSumVec->at(useBx, iEtSum))->hwPhi();
-        EtSumInput[1] = 0.0; //no phi for etsum
+        EtSumInput[1] = 0.0; //no phi for ht
       }
     }
   }
@@ -219,7 +199,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   if (NCandMu > 0) {  //check if not empty
     for (int iMu = 0; iMu < NCandMu; iMu++) {
       if (iMu < NMuons) {  //stop if fill the Nobjects we need
-        MuInput[0 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPt();        //index 0,3,6,9
+        MuInput[0 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPt();   //index 0,3,6,9
         MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEta();  //index 1,4,7,10
         MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhi();  //index 2,5,8,11
       }
@@ -230,7 +210,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   if (NCandJet > 0) {  //check if not empty
     for (int iJet = 0; iJet < NCandJet; iJet++) {
       if (iJet < NJets) {  //stop if fill the Nobjects we need
-        JetInput[0 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwPt(); //index 0,3,6,9
+        JetInput[0 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwPt();   //index 0,3,6,9
         JetInput[1 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwEta();  //index 1,4,7,10
         JetInput[2 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwPhi();  //index 2,5,8,11
       }
@@ -252,6 +232,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     ADModelInput[index++] = JetInput[idJ];
   }
 
+  //for scaling input features, load from external? 
   int norm[NInputs] = {256, 1, 64, 128, 256, 16, 32, 64, 128, 64, 64, 64, 64, 64, 32, 32, 64, 32, 32, 64};
   int bias[NInputs] = {51, 0, 7, 0, 54, 1, 0, 11, 59, 0, 64, 33, 0, 49, 19, 0, 33, 10, 0, 20};
 
@@ -270,10 +251,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   m_model->prepare_input(scaledInput);  //scaling internal here
   m_model->predict();
   m_model->read_result(&loss); //store result as loss variable
-    
-  //CHECK: I'm not sure if topo needs this or not
-  score = ((loss).to_float());  //scaling to match threshold
-  //save score to class variable in case score saving needed
+  score = ((loss).to_float()); 
   setScore(score);
 
   // Write ADModelInput to text file (append mode)
@@ -287,8 +265,6 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     }
     inputFile << std::endl;
     inputFile.close();
-  } else {
-    std::cout << "Error: Could not open features.txt for writing" << std::endl;
   }
   
   // Write score to text file (append mode)
@@ -296,8 +272,6 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   if (scoreFile.is_open()) {
     scoreFile << score << std::endl;
     scoreFile.close();
-  } else {
-    std::cout << "Error: Could not open scores.txt for writing" << std::endl;
   }
 
   //number of objects/thrsholds to check
