@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"  // needed for fillDescriptions
 
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerBase.h"
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerRecord.h"
@@ -16,6 +17,8 @@ public:
   ~CSCIndexerESProducer() override;
 
   BSP_TYPE produce(const CSCIndexerRecord &);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   std::string algoName;
