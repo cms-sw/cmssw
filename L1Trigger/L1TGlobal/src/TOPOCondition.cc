@@ -118,7 +118,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
 
   // overwrite model for now using local path
   std::cout << "Overwriting topo model loading..." << m_model_loader.model_name() <<std::endl;
-  std::string TOPOmodelversion = "/eos/user/l/lebeling/AXO_v5/test_TOPO/topo_v1";
+  std::string TOPOmodelversion = "/eos/user/l/lebeling/topo-new/TOPO_v1/topo_v1";
   hls4mlEmulator::ModelLoader loader(TOPOmodelversion);
   std::shared_ptr<hls4mlEmulator::Model> m_model;
   m_model = loader.load_model();
@@ -162,13 +162,14 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   inputtype fillzero = 0.0;
 
   //AD vector declaration, will fill later
-  inputtype ADModelInput[NInputs] = {};
+  double ADModelInput[NInputs] = {};
+  inputtype scaledInput[NInputs] = {};
 
   //initializing vector by type for my sanity
-  inputtype MuInput[MuVecSize];
-  inputtype JetInput[JVecSize];
-  inputtype EgammaInput[EGVecSize];
-  inputtype EtSumInput[EtSumVecSize];
+  double MuInput[MuVecSize];
+  double JetInput[JVecSize];
+  double EgammaInput[EGVecSize];
+  double EtSumInput[EtSumVecSize];
 
   //declare result vectors +score
   // resulttype result;
@@ -183,20 +184,22 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   int NCandEtSum = candEtSumVec->size(useBx);
 
   //initialize arrays to zero (std::fill(first, last, value);)
-  std::fill(EtSumInput, EtSumInput + EtSumVecSize, fillzero);
-  std::fill(MuInput, MuInput + MuVecSize, fillzero);
-  std::fill(JetInput, JetInput + JVecSize, fillzero);
-  std::fill(EgammaInput, EgammaInput + EGVecSize, fillzero);
-  std::fill(ADModelInput, ADModelInput + NInputs, fillzero);
+  std::fill(EtSumInput, EtSumInput + EtSumVecSize, 0.0);
+  std::fill(MuInput, MuInput + MuVecSize, 0.0);
+  std::fill(JetInput, JetInput + JVecSize, 0.0);
+  std::fill(EgammaInput, EgammaInput + EGVecSize, 0.0);
+  std::fill(ADModelInput, ADModelInput + NInputs, 0.0);
+  std::fill(scaledInput, scaledInput + NInputs, fillzero);
 
   //then fill the object vectors
   //NOTE assume candidates are already sorted by pt
   //loop over EtSums first, easy because there is max 1 of them
   if (NCandEtSum > 0) {  //check if not empty
     for (int iEtSum = 0; iEtSum < NCandEtSum; iEtSum++) {
-      if ((candEtSumVec->at(useBx, iEtSum))->getType() == l1t::EtSum::EtSumType::kMissingEt) {
+      if ((candEtSumVec->at(useBx, iEtSum))->getType() == 1) {
         EtSumInput[0] = (candEtSumVec->at(useBx, iEtSum))->hwPt();
-        EtSumInput[1] = (candEtSumVec->at(useBx, iEtSum))->hwPhi();
+        // EtSumInput[1] = (candEtSumVec->at(useBx, iEtSum))->hwPhi();
+        EtSumInput[1] = 0.0; //no phi for etsum
       }
     }
   }
@@ -249,13 +252,27 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     ADModelInput[index++] = JetInput[idJ];
   }
 
+  int norm[NInputs] = {256, 1, 64, 128, 256, 16, 32, 64, 128, 64, 64, 64, 64, 64, 32, 32, 64, 32, 32, 64};
+  int bias[NInputs] = {51, 0, 7, 0, 54, 1, 0, 11, 59, 0, 64, 33, 0, 49, 19, 0, 33, 10, 0, 20};
+
+  for (int i = 0; i < NInputs; ++i) {
+    std::cout << ADModelInput[i] << ", ";
+  }
+  std::cout << std::endl;
+  
+  for (int i = 0; i < NInputs; ++i) {
+    scaledInput[i] = static_cast<inputtype>((ADModelInput[i] - bias[i]) / norm[i]);
+    std::cout << scaledInput[i] << ", ";
+  }
+  std::cout << std::endl;
+
   //now run the inference
-  m_model->prepare_input(ADModelInput);  //scaling internal here
+  m_model->prepare_input(scaledInput);  //scaling internal here
   m_model->predict();
   m_model->read_result(&loss); //store result as loss variable
     
   //CHECK: I'm not sure if topo needs this or not
-  score = ((loss).to_float()) * 16.0;  //scaling to match threshold
+  score = ((loss).to_float());  //scaling to match threshold
   //save score to class variable in case score saving needed
   setScore(score);
 
@@ -263,7 +280,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   std::ofstream inputFile("features.txt", std::ios::app);
   if (inputFile.is_open()) {
     for (int i = 0; i < NInputs; i++) {
-      inputFile << ADModelInput[i].to_float();
+      inputFile << ADModelInput[i];
       if (i < NInputs - 1) {
         inputFile << ", ";
       }
@@ -271,7 +288,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     inputFile << std::endl;
     inputFile.close();
   } else {
-    std::cout << "Error: Could not open ADModelInput.txt for writing" << std::endl;
+    std::cout << "Error: Could not open features.txt for writing" << std::endl;
   }
   
   // Write score to text file (append mode)
@@ -301,7 +318,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
 
   condResult |= passCondition;  //condresult true if passCondition true else it is false
   
-  std::cout << "score (loss*16) :" << score << std::endl;
+  std::cout << "score: " << score << std::endl;
   
   //return result
   return condResult;
