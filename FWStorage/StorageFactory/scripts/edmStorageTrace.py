@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from enum import Enum
 import argparse
 from collections import namedtuple
 
@@ -166,6 +167,88 @@ def analyzeReadOrder(logEntries):
 ####################
 # Read overlaps analysis
 ####################
+class OverlapType(Enum):
+    UNIQUE = "unique"
+    PARTIAL_OVERLAP = "partial overlap"
+    FULL_OVERLAP = "full overlap"
+
+def addAndMergeRange(chunk, seen_ranges):
+    """Add chunk to seen_ranges, merging with any overlapping ranges
+
+    seen_ranges is a list of (start, end) tuples, sorted by start and properly merged.
+    The function modifies seen_ranges in-place by adding the chunk and merging
+    it with any overlapping existing ranges.
+
+    Returns:
+        OverlapResult with:
+        - overlap_type: OverlapType.UNIQUE/PARTIAL_OVERLAP/FULL_OVERLAP
+        - overlap_bytes: number of bytes in chunk that overlapped with existing ranges
+    """
+    OverlapResult = namedtuple("OverlapResult", ("overlap_type", "overlap_bytes"))
+    if len(seen_ranges) == 0:
+        seen_ranges.append((chunk.begin, chunk.end))
+        return OverlapResult(OverlapType.UNIQUE, 0)
+
+    import bisect
+
+    # Find the first range that could potentially overlap with chunk
+    # We need to find ranges where range.end > chunk.begin
+    # Since ranges are sorted by start, we use bisect to find insertion point
+    left_idx = bisect.bisect_left(seen_ranges, (chunk.begin, 0))
+
+    # Check if chunk overlaps with the previous range (if any)
+    if left_idx > 0 and seen_ranges[left_idx - 1][1] > chunk.begin:
+        left_idx -= 1
+
+    # Find the rightmost range that overlaps with chunk
+    # We need ranges where range.start < chunk.end
+    right_idx = left_idx
+    while right_idx < len(seen_ranges) and seen_ranges[right_idx][0] < chunk.end:
+        right_idx += 1
+
+    # No overlapping ranges found
+    if left_idx == right_idx:
+        # Insert chunk at the correct position
+        seen_ranges.insert(left_idx, (chunk.begin, chunk.end))
+        return OverlapResult(OverlapType.UNIQUE, 0)
+
+    # Calculate overlapping bytes
+    overlap_bytes = 0
+    for i in range(left_idx, right_idx):
+        start, end = seen_ranges[i]
+        # Find intersection of chunk and current range
+        intersection_start = max(chunk.begin, start)
+        intersection_end = min(chunk.end, end)
+        if intersection_start < intersection_end:
+            overlap_bytes += intersection_end - intersection_start
+
+    # Check if chunk is fully contained within a single range
+    for i in range(left_idx, right_idx):
+        start, end = seen_ranges[i]
+        if chunk.begin >= start and chunk.end <= end:
+            # Chunk is fully contained, no modification needed
+            return OverlapResult(OverlapType.FULL_OVERLAP, chunk.end - chunk.begin)
+
+    # Partial overlap: merge chunk with all overlapping ranges
+    merge_start = chunk.begin
+    merge_end = chunk.end
+
+    # Extend merge bounds to include all overlapping ranges
+    for i in range(left_idx, right_idx):
+        start, end = seen_ranges[i]
+        merge_start = min(merge_start, start)
+        merge_end = max(merge_end, end)
+
+    # Remove all overlapping ranges (in reverse order to maintain indices)
+    for i in range(right_idx - 1, left_idx - 1, -1):
+        del seen_ranges[i]
+
+    # Insert the merged range at the correct position
+    seen_ranges.insert(left_idx, (merge_start, merge_end))
+
+    return OverlapResult(OverlapType.PARTIAL_OVERLAP, overlap_bytes)
+
+
 def processReadOverlaps(read_chunks):
     """Takes a list of Chunks
 
@@ -514,6 +597,120 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(searchMapChunk(chunks, 0, 200), [0, 1])
         self.assertEqual(searchMapChunk(chunks, 49, 101-49), [0, 1])
         self.assertEqual(searchMapChunk(chunks, 149, 301-149), [1, 2, 3])
+
+    def test_addAndMergeRange(self):
+        # Test with empty seen_ranges
+        seen_ranges = []
+        result = addAndMergeRange(Chunk(0, 10), seen_ranges)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges, [(0, 10)])
+
+        # Test UNIQUE cases - no overlap
+        seen_ranges = [(10, 20), (30, 40), (50, 60)]
+        original_ranges = seen_ranges.copy()
+
+        # Before all ranges
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(0, 5), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges_copy, [(0, 5), (10, 20), (30, 40), (50, 60)])
+
+        # Between ranges
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(25, 30), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges_copy, [(10, 20), (25, 30), (30, 40), (50, 60)])
+
+        # After all ranges
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(65, 70), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges_copy, [(10, 20), (30, 40), (50, 60), (65, 70)])
+
+        # Adjacent but not overlapping - should remain separate
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(0, 10), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges_copy, [(0, 10), (10, 20), (30, 40), (50, 60)])
+
+        # Test FULL_OVERLAP cases - chunk completely contained within a seen range
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(12, 18), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.FULL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 6)  # 18 - 12 = 6 bytes fully overlapped
+        self.assertEqual(seen_ranges_copy, original_ranges)  # No change expected
+
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(10, 20), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.FULL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 10)  # 20 - 10 = 10 bytes fully overlapped
+        self.assertEqual(seen_ranges_copy, original_ranges)  # No change expected
+
+        # Test PARTIAL_OVERLAP cases - chunk partially overlaps with seen ranges
+
+        # Overlaps beginning of first range
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(5, 15), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 5)  # 15 - 10 = 5 bytes overlapped with (10, 20)
+        self.assertEqual(seen_ranges_copy, [(5, 20), (30, 40), (50, 60)])
+
+        # Overlaps end of first range
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(15, 25), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 5)  # 20 - 15 = 5 bytes overlapped with (10, 20)
+        self.assertEqual(seen_ranges_copy, [(10, 25), (30, 40), (50, 60)])
+
+        # Spans multiple ranges
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(15, 35), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 10)  # (20-15) + (35-30) = 5 + 5 = 10 bytes
+        self.assertEqual(seen_ranges_copy, [(10, 40), (50, 60)])
+
+        # Encompasses a range
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(5, 45), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 20)  # (20-10) + (40-30) = 10 + 10 = 20 bytes
+        self.assertEqual(seen_ranges_copy, [(5, 45), (50, 60)])
+
+        # Test edge cases with single range
+        single_range = [(20, 30)]
+
+        # Overlaps beginning
+        single_range_copy = single_range.copy()
+        result = addAndMergeRange(Chunk(10, 25), single_range_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 5)  # 25 - 20 = 5 bytes overlapped
+        self.assertEqual(single_range_copy, [(10, 30)])
+
+        # Overlaps end
+        single_range_copy = single_range.copy()
+        result = addAndMergeRange(Chunk(25, 35), single_range_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 5)  # 30 - 25 = 5 bytes overlapped
+        self.assertEqual(single_range_copy, [(20, 35)])
+
+        # Fully contained
+        single_range_copy = single_range.copy()
+        result = addAndMergeRange(Chunk(22, 28), single_range_copy)
+        self.assertEqual(result.overlap_type, OverlapType.FULL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 6)  # 28 - 22 = 6 bytes fully overlapped
+        self.assertEqual(single_range_copy, [(20, 30)])  # No change
+
+        # Encompasses the range
+        single_range_copy = single_range.copy()
+        result = addAndMergeRange(Chunk(15, 35), single_range_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 10)  # 30 - 20 = 10 bytes overlapped
+        self.assertEqual(single_range_copy, [(15, 35)])
 
 def test():
     import sys
