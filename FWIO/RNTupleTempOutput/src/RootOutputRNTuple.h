@@ -1,5 +1,5 @@
-#ifndef IOPool_Output_RootOutputRNTuple_h
-#define IOPool_Output_RootOutputRNTuple_h
+#ifndef FWIO_RNTupleTempOutput_RootOutputRNTuple_h
+#define FWIO_RNTupleTempOutput_RootOutputRNTuple_h
 
 /*----------------------------------------------------------------------
 
@@ -15,10 +15,10 @@ RootOutputRNTuple.h // used by ROOT output modules
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "TTree.h"
+#include "ROOT/RNTuple.hxx"
+#include "ROOT/RNTupleWriter.hxx"
 
 class TFile;
-class TBranch;
 
 namespace edm {
   class RootOutputRNTuple {
@@ -35,59 +35,50 @@ namespace edm {
     RootOutputRNTuple& operator=(RootOutputRNTuple const&) = delete;  // Disallow copying and moving
 
     template <typename T>
-    void addAuxiliary(std::string const& branchName, T const*& pAux, int bufSize) {
-      auxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));
+    void addAuxiliary(std::string const& branchName, T const** pAux, int bufSize) {
+      assert(model_);
+      auto field = std::make_unique<ROOT::RField<T>>(branchName);
+      model_->AddField(std::move(field));
+      auxBranches_.push_back(model_->GetToken(branchName.c_str()));
+      auxBranchPointers_.push_back(reinterpret_cast<void**>(const_cast<T**>(pAux)));
     }
-
-    template <typename T>
-    void addAuxiliary(std::string const& branchName, T*& pAux, int bufSize) {
-      auxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));
-    }
-
-    static TTree* makeTTree(TFile* filePtr, std::string const& name, int splitLevel);
-
-    static TTree* assignTTree(TFile* file, TTree* tree);
-
-    static void writeTTree(TTree* tree);
 
     bool isValid() const;
 
-    void addBranch(std::string const& branchName,
-                   std::string const& className,
-                   void const*& pProd,
-                   int splitLevel,
-                   int basketSize,
-                   bool produced);
+    void addField(std::string const& branchName,
+                  std::string const& className,
+                  void const** pProd,
+                  int splitLevel,
+                  int basketSize,
+                  bool produced);
 
-    void fillTree();
+    void fill();
 
-    void writeTree();
+    void finishInitialization();
 
-    TTree const* tree() const { return tree_.get(); }
+    std::string const& name() const { return name_; }
 
-    TTree* tree() { return tree_.get(); }
-
-    void setEntries() {
-      if (tree_->GetNbranches() != 0)
-        tree_->SetEntries(-1);
-    }
+    void setEntries() {}
 
     void close();
 
-    void optimizeBaskets(ULong64_t size) { tree_->OptimizeBaskets(size); }
+    void optimizeBaskets(ULong64_t size) {}
 
-    void setAutoFlush(Long64_t size) { tree_->SetAutoFlush(size); }
+    void setAutoFlush(Long64_t size) {}
 
   private:
-    static void fillTTree(std::vector<TBranch*> const& branches);
     // We use bare pointers for pointers to some ROOT entities.
     // Root owns them and uses bare pointers internally.
     // Therefore, using smart pointers here will do no good.
     edm::propagate_const<std::shared_ptr<TFile>> filePtr_;
-    edm::propagate_const<TTree*> tree_;
+    std::string name_;
+    std::unique_ptr<ROOT::RNTupleModel> model_;
+    edm::propagate_const<std::unique_ptr<ROOT::RNTupleWriter>> writer_;
 
-    std::vector<TBranch*> producedBranches_;
-    std::vector<TBranch*> auxBranches_;
+    std::vector<ROOT::RFieldToken> producedBranches_;
+    std::vector<void**> producedBranchPointers_;
+    std::vector<ROOT::RFieldToken> auxBranches_;
+    std::vector<void**> auxBranchPointers_;
   };
 }  // namespace edm
 #endif

@@ -29,7 +29,6 @@
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
-class TTree;
 namespace edm {
 
   class EDGetToken;
@@ -83,15 +82,6 @@ namespace edm::rntuple_temp {
     AuxItemArray const& auxItems() const { return auxItems_; }
 
     struct OutputItem {
-      class Sorter {
-      public:
-        explicit Sorter(TTree* tree);
-        bool operator()(OutputItem const& lh, OutputItem const& rh) const;
-
-      private:
-        std::shared_ptr<std::map<std::string, int>> treeMap_;
-      };
-
       explicit OutputItem(ProductDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
 
       BranchID branchID() const { return productDescription_->branchID(); }
@@ -103,6 +93,7 @@ namespace edm::rntuple_temp {
       EDGetToken token() const { return token_; }
       void const* const product() const { return product_; }
       void const*& product() { return product_; }
+      void const** productPtr() { return &product_; }
       void setProduct(void const* iProduct) { product_ = iProduct; }
       int splitLevel() const { return splitLevel_; }
       int basketSize() const { return basketSize_; }
@@ -185,13 +176,9 @@ namespace edm::rntuple_temp {
 
     void writeParameterSetRegistry();
     void writeParentageRegistry();
-    void writeEventAuxiliary();
     void finishEndFile();
 
-    void fillSelectedItemList(BranchType branchtype,
-                              std::string const& processName,
-                              TTree* theInputTree,
-                              OutputItemList&);
+    void fillSelectedItemList(BranchType branchtype, std::string const& processName, OutputItemList&);
     void beginInputFile(FileBlock const& fb);
 
     RootServiceChecker rootServiceChecker_;

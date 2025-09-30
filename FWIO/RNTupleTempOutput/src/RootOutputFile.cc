@@ -41,7 +41,6 @@
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 #include "IOPool/Provenance/interface/CommonProvenanceFiller.h"
 
-#include "TTree.h"
 #include "TFile.h"
 #include "TClass.h"
 #include "Rtypes.h"
@@ -79,6 +78,14 @@ namespace edm::rntuple_temp {
       }
       return file;
     }
+
+    std::string fixName(std::string_view iName) {
+      if (not iName.empty() and iName.back() == '.') {
+        iName.remove_suffix(1);
+      }
+      return std::string(iName);
+    }
+
   }  // namespace
 
   RootOutputFile::RootOutputFile(RNTupleTempOutputModule* om,
@@ -107,9 +114,9 @@ namespace edm::rntuple_temp {
         pEventEntryInfoVector_(&eventEntryInfoVector_),
         pBranchListIndexes_(nullptr),
         pEventSelectionIDs_(nullptr),
-        eventTree_(filePtr(), InEvent, om_->splitLevel(), om_->treeMaxVirtualSize()),
-        lumiTree_(filePtr(), InLumi, om_->splitLevel(), om_->treeMaxVirtualSize()),
-        runTree_(filePtr(), InRun, om_->splitLevel(), om_->treeMaxVirtualSize()),
+        eventRNTuple_(filePtr(), InEvent, om_->splitLevel(), om_->treeMaxVirtualSize()),
+        lumiRNTuple_(filePtr(), InLumi, om_->splitLevel(), om_->treeMaxVirtualSize()),
+        runRNTuple_(filePtr(), InRun, om_->splitLevel(), om_->treeMaxVirtualSize()),
         dataTypeReported_(false),
         processHistoryRegistry_(),
         parentageIDs_(),
@@ -118,7 +125,7 @@ namespace edm::rntuple_temp {
     std::vector<std::string> const& processesWithProcessBlockProducts =
         om_->outputProcessBlockHelper().processesWithProcessBlockProducts();
     for (auto const& processName : processesWithProcessBlockProducts) {
-      processBlockTrees_.emplace_back(std::make_unique<RootOutputRNTuple>(
+      processBlockRNTuples_.emplace_back(std::make_unique<RootOutputRNTuple>(
           filePtr(), InProcess, om_->splitLevel(), om_->treeMaxVirtualSize(), processName));
     }
 
@@ -137,59 +144,55 @@ namespace edm::rntuple_temp {
           << "Allowed compression algorithms are ZLIB, LZMA, LZ4, and ZSTD\n";
     }
     if (-1 != om->eventAutoFlushSize()) {
-      eventTree_.setAutoFlush(-1 * om->eventAutoFlushSize());
+      eventRNTuple_.setAutoFlush(-1 * om->eventAutoFlushSize());
     }
-    if (om_->compactEventAuxiliary()) {
-      eventTree_.addAuxiliary<EventAuxiliary>(
-          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_);
-      eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(),
-                                         false);  // see writeEventAuxiliary
-    } else {
-      eventTree_.addAuxiliary<EventAuxiliary>(
-          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_);
-    }
+    eventRNTuple_.addAuxiliary<EventAuxiliary>(
+        BranchTypeToAuxiliaryBranchName(InEvent), &pEventAux_, om_->auxItems()[InEvent].basketSize_);
 
-    eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
-                                                           pEventEntryInfoVector(),
-                                                           om_->auxItems()[InEvent].basketSize_);
-    eventTree_.addAuxiliary<EventSelectionIDVector>(
-        poolNames::eventSelectionsBranchName(), pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_);
-    eventTree_.addAuxiliary<BranchListIndexes>(
-        poolNames::branchListIndexesBranchName(), pBranchListIndexes_, om_->auxItems()[InEvent].basketSize_);
+    eventRNTuple_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
+                                                              &pEventEntryInfoVector_,
+                                                              om_->auxItems()[InEvent].basketSize_);
+    eventRNTuple_.addAuxiliary<EventSelectionIDVector>(
+        poolNames::eventSelectionsBranchName(), &pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_);
+    eventRNTuple_.addAuxiliary<BranchListIndexes>(
+        poolNames::branchListIndexesBranchName(), &pBranchListIndexes_, om_->auxItems()[InEvent].basketSize_);
 
     if (om_->outputProcessBlockHelper().productsFromInputKept()) {
-      eventTree_.addAuxiliary<EventToProcessBlockIndexes>(poolNames::eventToProcessBlockIndexesBranchName(),
-                                                          pEventToProcessBlockIndexes_,
-                                                          om_->auxItems()[InEvent].basketSize_);
+      eventRNTuple_.addAuxiliary<EventToProcessBlockIndexes>(poolNames::eventToProcessBlockIndexesBranchName(),
+                                                             &pEventToProcessBlockIndexes_,
+                                                             om_->auxItems()[InEvent].basketSize_);
     }
 
-    lumiTree_.addAuxiliary<LuminosityBlockAuxiliary>(
-        BranchTypeToAuxiliaryBranchName(InLumi), pLumiAux_, om_->auxItems()[InLumi].basketSize_);
+    lumiRNTuple_.addAuxiliary<LuminosityBlockAuxiliary>(
+        BranchTypeToAuxiliaryBranchName(InLumi), &pLumiAux_, om_->auxItems()[InLumi].basketSize_);
 
-    runTree_.addAuxiliary<RunAuxiliary>(
-        BranchTypeToAuxiliaryBranchName(InRun), pRunAux_, om_->auxItems()[InRun].basketSize_);
+    runRNTuple_.addAuxiliary<RunAuxiliary>(
+        BranchTypeToAuxiliaryBranchName(InRun), &pRunAux_, om_->auxItems()[InRun].basketSize_);
 
-    treePointers_.emplace_back(&eventTree_);
-    treePointers_.emplace_back(&lumiTree_);
-    treePointers_.emplace_back(&runTree_);
-    for (auto& processBlockTree : processBlockTrees_) {
-      treePointers_.emplace_back(processBlockTree.get());
+    treePointers_.emplace_back(&eventRNTuple_);
+    treePointers_.emplace_back(&lumiRNTuple_);
+    treePointers_.emplace_back(&runRNTuple_);
+    for (auto& processBlockRNTuple : processBlockRNTuples_) {
+      treePointers_.emplace_back(processBlockRNTuple.get());
     }
 
     for (unsigned int i = 0; i < treePointers_.size(); ++i) {
-      RootOutputRNTuple* theTree = treePointers_[i];
+      RootOutputRNTuple* theRNTuple = treePointers_[i];
       for (auto& item : om_->selectedOutputItemList()[i]) {
         item.setProduct(nullptr);
         ProductDescription const& desc = *item.productDescription();
-        theTree->addBranch(desc.branchName(),
-                           desc.wrappedName(),
-                           item.product(),
-                           item.splitLevel(),
-                           item.basketSize(),
-                           item.productDescription()->produced());
+        theRNTuple->addField(fixName(desc.branchName()),
+                             desc.wrappedName(),
+                             item.productPtr(),
+                             item.splitLevel(),
+                             item.basketSize(),
+                             item.productDescription()->produced());
         //make sure we always store product registry info for all branches we create
         branchesWithStoredHistory_.insert(item.branchID());
       }
+    }
+    for (auto& tree : treePointers_) {
+      tree->finishInitialization();
     }
 
     if (overrideGUID.empty()) {
@@ -248,10 +251,10 @@ namespace edm::rntuple_temp {
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
     // We can't do setEntries() on the event tree if the EventAuxiliary branch is empty & disabled
     if (not om_->compactEventAuxiliary()) {
-      eventTree_.setEntries();
+      eventRNTuple_.setEntries();
     }
-    lumiTree_.setEntries();
-    runTree_.setEntries();
+    lumiRNTuple_.setEntries();
+    runRNTuple_.setEntries();
   }
 
   bool RootOutputFile::shouldWeCloseFile() const {
@@ -283,7 +286,7 @@ namespace edm::rntuple_temp {
     ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
     assert(provRetriever);
     unsigned int ttreeIndex = InEvent;
-    fillBranches(InEvent, e, ttreeIndex, pEventEntryInfoVector_, provRetriever);
+    fillBranches(InEvent, e, ttreeIndex, &eventEntryInfoVector_, provRetriever);
 
     // Add the dataType to the job report if it hasn't already been done
     if (!dataTypeReported_) {
@@ -303,10 +306,6 @@ namespace edm::rntuple_temp {
     indexIntoFile_.addEntry(
         reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
-
-    if (om_->compactEventAuxiliary()) {
-      compactEventAuxiliary_.push_back(*pEventAux_);
-    }
 
     // Report event written
     Service<JobReport> reportSvc;
@@ -329,7 +328,7 @@ namespace edm::rntuple_temp {
     ++lumiEntryNumber_;
     unsigned int ttreeIndex = InLumi;
     fillBranches(InLumi, lb, ttreeIndex);
-    lumiTree_.optimizeBaskets(10ULL * 1024 * 1024);
+    lumiRNTuple_.optimizeBaskets(10ULL * 1024 * 1024);
 
     Service<JobReport> reportSvc;
     reportSvc->reportLumiSection(reportToken_, lb.id().run(), lb.id().luminosityBlock(), nEventsInLumi_);
@@ -352,7 +351,7 @@ namespace edm::rntuple_temp {
     ++runEntryNumber_;
     unsigned int ttreeIndex = InRun;
     fillBranches(InRun, r, ttreeIndex);
-    runTree_.optimizeBaskets(10ULL * 1024 * 1024);
+    runRNTuple_.optimizeBaskets(10ULL * 1024 * 1024);
 
     Service<JobReport> reportSvc;
     reportSvc->reportRunNumber(reportToken_, r.run());
@@ -426,7 +425,7 @@ namespace edm::rntuple_temp {
     }
     auto rentry = parentageWriter->CreateEntry();
 
-    //now put them into the TTree in the correct order
+    //now put them into the RNTuple in the correct order
     for (auto const& orderedID : orderedIDs) {
       rentry->BindRawPtr(poolNames::parentageBranchName(), const_cast<edm::Parentage*>(ptReg.getMapped(orderedID)));
       parentageWriter->Fill(*rentry);
@@ -580,67 +579,13 @@ namespace edm::rntuple_temp {
     }
   }
 
-  // For duplicate removal and to determine if fast cloning is possible, the input
-  // module by default reads the entire EventAuxiliary branch when it opens the
-  // input files.  If EventAuxiliary is written in the usual way, this results
-  // in many small reads scattered throughout the file, which can have very poor
-  // performance characteristics on some filesystems.  As a workaround, we save
-  // EventAuxiliary and write it at the end of the file.
-
-  void RootOutputFile::writeEventAuxiliary() {
-    constexpr std::size_t maxEaBasketSize = 4 * 1024 * 1024;
-
-    if (om_->compactEventAuxiliary()) {
-      auto tree = eventTree_.tree();
-      auto const& bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
-
-      tree->SetBranchStatus(bname, true);
-      auto basketsize =
-          std::min(maxEaBasketSize,
-                   compactEventAuxiliary_.size() * (sizeof(EventAuxiliary) + 26));  // 26 is an empirical fudge factor
-      tree->SetBasketSize(bname, basketsize);
-      auto b = tree->GetBranch(bname);
-
-      assert(b);
-
-      LogDebug("writeEventAuxiliary") << "EventAuxiliary ratio extras/GUIDs/all = "
-                                      << compactEventAuxiliary_.extrasSize() << "/"
-                                      << compactEventAuxiliary_.guidsSize() << "/" << compactEventAuxiliary_.size();
-
-      for (auto const& aux : compactEventAuxiliary_) {
-        const auto ea = aux.eventAuxiliary();
-        pEventAux_ = &ea;
-        // Fill EventAuxiliary branch
-        b->Fill();
-      }
-      eventTree_.setEntries();
-    }
-  }
-
   void RootOutputFile::finishEndFile() {
     std::string_view status = "beginning";
     std::string_view value = "";
     try {
-      // Create branch aliases for all the branches in the
-      // events/lumis/runs/processblock trees. The loop is over
-      // all types of data products.
-      status = "writeTree() for ";
-      for (unsigned int i = 0; i < treePointers_.size(); ++i) {
-        std::string processName;
-        BranchType branchType = InProcess;
-        if (i < InProcess) {
-          branchType = static_cast<BranchType>(i);
-        } else {
-          processName = om_->outputProcessBlockHelper().processesWithProcessBlockProducts()[i - InProcess];
-        }
-        setBranchAliases(treePointers_[i]->tree(), om_->keptProducts()[branchType], processName);
-        value = treePointers_[i]->tree()->GetName();
-        treePointers_[i]->writeTree();
-      }
-
       // close the file -- mfp
       // Just to play it safe, zero all pointers to objects in the TFile to be closed.
-      status = "closing TTrees";
+      status = "closing RNTuples";
       value = "";
       for (auto& treePointer : treePointers_) {
         treePointer->close();
@@ -658,36 +603,6 @@ namespace edm::rntuple_temp {
       e.addContext("Calling RootOutputFile::finishEndFile() while closing " + file_);
       e.addAdditionalInfo("While calling " + std::string(status) + std::string(value));
       throw;
-    }
-  }
-
-  void RootOutputFile::setBranchAliases(TTree* tree,
-                                        SelectedProducts const& branches,
-                                        std::string const& processName) const {
-    if (tree && tree->GetNbranches() != 0) {
-      auto const& aliasForBranches = om_->aliasForBranches();
-      for (auto const& selection : branches) {
-        ProductDescription const& pd = *selection.first;
-        if (pd.branchType() == InProcess && processName != pd.processName()) {
-          continue;
-        }
-        std::string const& full = pd.branchName() + "obj";
-        bool matched = false;
-        for (auto const& matcher : aliasForBranches) {
-          if (matcher.match(pd.branchName())) {
-            tree->SetAlias(matcher.alias_.c_str(), full.c_str());
-            matched = true;
-          }
-        }
-        if (not matched and pd.branchAliases().empty()) {
-          std::string const& alias = (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
-          tree->SetAlias(alias.c_str(), full.c_str());
-        } else {
-          for (auto const& alias : pd.branchAliases()) {
-            tree->SetAlias(alias.c_str(), full.c_str());
-          }
-        }
-      }
     }
   }
 
@@ -785,7 +700,7 @@ namespace edm::rntuple_temp {
 
     if (doProvenance)
       productProvenanceVecPtr->assign(provenanceToKeep.begin(), provenanceToKeep.end());
-    treePointers_[ttreeIndex]->fillTree();
+    treePointers_[ttreeIndex]->fill();
     if (doProvenance)
       productProvenanceVecPtr->clear();
   }

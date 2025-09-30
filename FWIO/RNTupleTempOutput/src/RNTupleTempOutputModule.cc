@@ -20,7 +20,6 @@
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
-#include "TTree.h"
 #include "TBranchElement.h"
 #include "TObjArray.h"
 #include "RVersion.h"
@@ -122,38 +121,6 @@ namespace edm::rntuple_temp {
                                                   int basketSize)
       : productDescription_(bd), token_(token), product_(nullptr), splitLevel_(splitLevel), basketSize_(basketSize) {}
 
-  RNTupleTempOutputModule::OutputItem::Sorter::Sorter(TTree* tree) : treeMap_(new std::map<std::string, int>) {
-    // Fill a map mapping branch names to an index specifying the order in the tree.
-    if (tree != nullptr) {
-      TObjArray* branches = tree->GetListOfBranches();
-      for (int i = 0; i < branches->GetEntries(); ++i) {
-        TBranchElement* br = (TBranchElement*)branches->At(i);
-        treeMap_->insert(std::make_pair(std::string(br->GetName()), i));
-      }
-    }
-  }
-
-  bool RNTupleTempOutputModule::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const {
-    // Provides a comparison for sorting branches according to the index values in treeMap_.
-    // Branches not found are always put at the end (i.e. not found > found).
-    if (treeMap_->empty())
-      return lh < rh;
-    std::string const& lstring = lh.productDescription_->branchName();
-    std::string const& rstring = rh.productDescription_->branchName();
-    std::map<std::string, int>::const_iterator lit = treeMap_->find(lstring);
-    std::map<std::string, int>::const_iterator rit = treeMap_->find(rstring);
-    bool lfound = (lit != treeMap_->end());
-    bool rfound = (rit != treeMap_->end());
-    if (lfound && rfound) {
-      return lit->second < rit->second;
-    } else if (lfound) {
-      return true;
-    } else if (rfound) {
-      return false;
-    }
-    return lh < rh;
-  }
-
   namespace {
     std::regex convertBranchExpression(std::string const& iGlobBranchExpression) {
       std::string tmp(iGlobBranchExpression);
@@ -182,27 +149,8 @@ namespace edm::rntuple_temp {
 
   void RNTupleTempOutputModule::fillSelectedItemList(BranchType branchType,
                                                      std::string const& processName,
-                                                     TTree* theInputTree,
                                                      OutputItemList& outputItemList) {
     SelectedProducts const& keptVector = keptProducts()[branchType];
-
-    if (branchType != InProcess) {
-      AuxItem& auxItem = auxItems_[branchType];
-
-      auto basketSize = (InEvent == branchType) ? eventAuxBasketSize_ : basketSize_;
-
-      // Fill AuxItem
-      if (theInputTree != nullptr && !overrideInputFileSplitLevels_) {
-        TBranch* auxBranch = theInputTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
-        if (auxBranch) {
-          auxItem.basketSize_ = auxBranch->GetBasketSize();
-        } else {
-          auxItem.basketSize_ = basketSize;
-        }
-      } else {
-        auxItem.basketSize_ = basketSize;
-      }
-    }
 
     // Fill outputItemList with an entry for each branch.
     for (auto const& kept : keptVector) {
@@ -213,46 +161,8 @@ namespace edm::rntuple_temp {
       if (branchType == InProcess && processName != prod.processName()) {
         continue;
       }
-      TBranch* theBranch = ((!prod.produced() && theInputTree != nullptr && !overrideInputFileSplitLevels_)
-                                ? theInputTree->GetBranch(prod.branchName().c_str())
-                                : nullptr);
-
-      if (theBranch != nullptr) {
-        splitLevel = theBranch->GetSplitLevel();
-        basketSize = theBranch->GetBasketSize();
-      } else {
-        auto wp = prod.wrappedType().getClass()->GetAttributeMap();
-        auto wpSplitLevel = ProductDescription::invalidSplitLevel;
-        if (wp && wp->HasKey("splitLevel")) {
-          wpSplitLevel = strtol(wp->GetPropertyAsString("splitLevel"), nullptr, 0);
-          if (wpSplitLevel < 0) {
-            throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " << wpSplitLevel
-                                                      << " is specified for class " << prod.wrappedName() << ".'\n";
-          }
-          wpSplitLevel += 1;  //Compensate for wrapper
-        }
-        splitLevel = (wpSplitLevel == ProductDescription::invalidSplitLevel ? splitLevel_ : wpSplitLevel);
-        for (auto const& b : specialSplitLevelForBranches_) {
-          if (b.match(prod.branchName())) {
-            splitLevel = b.splitLevel_;
-          }
-        }
-        auto wpBasketSize = ProductDescription::invalidBasketSize;
-        if (wp && wp->HasKey("basketSize")) {
-          wpBasketSize = strtol(wp->GetPropertyAsString("basketSize"), nullptr, 0);
-          if (wpBasketSize <= 0) {
-            throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " << wpBasketSize
-                                                      << " is specified for class " << prod.wrappedName() << "'.\n";
-          }
-        }
-        basketSize = (wpBasketSize == ProductDescription::invalidBasketSize ? basketSize_ : wpBasketSize);
-      }
       outputItemList.emplace_back(&prod, kept.second, splitLevel, basketSize);
     }
-
-    // Sort outputItemList to allow fast copying.
-    // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
-    sort_all(outputItemList, OutputItem::Sorter(theInputTree));
   }
 
   void RNTupleTempOutputModule::beginInputFile(FileBlock const& fb) {
@@ -281,24 +191,21 @@ namespace edm::rntuple_temp {
       std::vector<std::string> const& processesWithProcessBlockProducts =
           outputProcessBlockHelper().processesWithProcessBlockProducts();
       unsigned int numberOfProcessesWithProcessBlockProducts = processesWithProcessBlockProducts.size();
-      unsigned int numberOfTTrees = numberOfRunLumiEventProductTrees + numberOfProcessesWithProcessBlockProducts;
-      selectedOutputItemList_.resize(numberOfTTrees);
+      unsigned int numberOfTRNTuples = numberOfRunLumiEventProductTrees + numberOfProcessesWithProcessBlockProducts;
+      selectedOutputItemList_.resize(numberOfTRNTuples);
 
       for (unsigned int i = InEvent; i < NumBranchTypes; ++i) {
         BranchType branchType = static_cast<BranchType>(i);
         if (branchType != InProcess) {
           std::string processName;
-          TTree* theInputTree =
-              (branchType == InEvent ? fb.tree() : (branchType == InLumi ? fb.lumiTree() : fb.runTree()));
           OutputItemList& outputItemList = selectedOutputItemList_[branchType];
-          fillSelectedItemList(branchType, processName, theInputTree, outputItemList);
+          fillSelectedItemList(branchType, processName, outputItemList);
         } else {
           // Handle output items in ProcessBlocks
-          for (unsigned int k = InProcess; k < numberOfTTrees; ++k) {
+          for (unsigned int k = InProcess; k < numberOfTRNTuples; ++k) {
             OutputItemList& outputItemList = selectedOutputItemList_[k];
             std::string const& processName = processesWithProcessBlockProducts[k - InProcess];
-            TTree* theInputTree = fb.processBlockTree(processName);
-            fillSelectedItemList(branchType, processName, theInputTree, outputItemList);
+            fillSelectedItemList(branchType, processName, outputItemList);
           }
         }
       }
@@ -345,7 +252,6 @@ namespace edm::rntuple_temp {
   }
 
   void RNTupleTempOutputModule::reallyCloseFile() {
-    writeEventAuxiliary();
     fillDependencyGraph();
     branchParents_.clear();
     startEndFile();
@@ -366,7 +272,6 @@ namespace edm::rntuple_temp {
 
   void RNTupleTempOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
   void RNTupleTempOutputModule::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
-  void RNTupleTempOutputModule::writeEventAuxiliary() { rootOutputFile_->writeEventAuxiliary(); }
   void RNTupleTempOutputModule::finishEndFile() {
     rootOutputFile_->finishEndFile();
     rootOutputFile_ = nullptr;
@@ -490,19 +395,13 @@ namespace edm::rntuple_temp {
     desc.addUntracked<int>("basketSize", 16384)->setComment("Default ROOT basket size in output file.");
     desc.addUntracked<int>("eventAuxiliaryBasketSize", 16384)
         ->setComment("Default ROOT basket size in output file for EventAuxiliary branch.");
-    desc.addUntracked<int>("eventAutoFlushCompressedSize", 20 * 1024 * 1024)
-        ->setComment(
-            "Set ROOT auto flush stored data size (in bytes) for event TTree. The value sets how large the compressed "
-            "buffer is allowed to get. The uncompressed buffer can be quite a bit larger than this depending on the "
-            "average compression ratio. The value of -1 just uses ROOT's default value. The value of 0 turns off this "
-            "feature. A value of -N changes the behavior to flush after every Nth event.");
+    desc.addUntracked<int>("eventAutoFlushCompressedSize", 20 * 1024 * 1024)->setComment("Not used by RNTuple");
     desc.addUntracked<int>("splitLevel", 99)->setComment("Default ROOT branch split level in output file.");
     desc.addUntracked<std::string>("sortBaskets", std::string("sortbasketsbyoffset"))
         ->setComment(
             "Legal values: 'sortbasketsbyoffset', 'sortbasketsbybranch', 'sortbasketsbyentry'.\n"
             "Used by ROOT when fast copying. Affects performance.");
-    desc.addUntracked<int>("treeMaxVirtualSize", -1)
-        ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
+    desc.addUntracked<int>("treeMaxVirtualSize", -1)->setComment("Not used by RNTuple.");
     desc.addUntracked<bool>("fastCloning", false)->setComment("Not used by RNTuple");
     desc.addUntracked("mergeJob", false)
         ->setComment(
