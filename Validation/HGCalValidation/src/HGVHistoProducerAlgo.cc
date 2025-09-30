@@ -1490,16 +1490,14 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     float hitEnergyWeight_invSum = 0;
     std::vector<std::pair<DetId, float>> haf_cp;
     for (const auto& sc : caloParticle.simClusters()) {
-      LogDebug("HGCalValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and "
-                                 << sc->energy() << " energy. " << std::endl;
+      auto endcap_hf = sc->filtered_hits_and_fractions([this](const DetId& x) { return !recHitTools_->isBarrel(x); });
 
-      auto endcap_hf =
-          sc->filtered_hits_and_fractions([this](const DetId& detid) { return !recHitTools_->isBarrel(detid); });
+      LogDebug("HGCalValidator") << " This sim cluster has " << endcap_hf.size() << " simHits and " << sc->energy()
+                                 << " energy. " << std::endl;
+
       simHits += endcap_hf.size();
       for (auto const& h_and_f : endcap_hf) {
         const auto hitDetId = h_and_f.first;
-        if (recHitTools_->isBarrel(hitDetId))
-          continue;
         const int layerId =
             recHitTools_->getLayerWithOffset(hitDetId) + layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
         // set to 0 if matched RecHit not found

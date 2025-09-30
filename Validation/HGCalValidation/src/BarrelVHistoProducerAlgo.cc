@@ -700,10 +700,13 @@ void BarrelVHistoProducerAlgo::fill_caloparticle_histos(
     float hitEnergyWeight_invSum = 0;
     std::vector<std::pair<DetId, float>> haf_cp;
     for (const auto& sc : caloParticle.simClusters()) {
-      LogDebug("BarrelValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and "
-                                  << sc->energy() << " energy. " << std::endl;
-      simHits += sc->hits_and_fractions().size();
-      for (auto const& h_and_f : sc->hits_and_fractions()) {
+      auto barrel_hf = sc->filtered_hits_and_fractions([this](const DetId& x) { return recHitTools_->isBarrel(x); });
+
+      LogDebug("BarrelValidator") << " This sim cluster has " << barrel_hf.size() << " simHits and " << sc->energy()
+                                  << " energy. " << std::endl;
+
+      simHits += barrel_hf.size();
+      for (auto const& h_and_f : barrel_hf) {
         const auto hitDetId = h_and_f.first;
         const int layerId = recHitTools_->getLayerWithOffset(hitDetId);
         // set to 0 if matched RecHit not found

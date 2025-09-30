@@ -418,9 +418,9 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& hitMap = *hitMapHandle;
 
   edm::MultiSpan<HGCRecHit> rechitSpan;
-  for (const auto& token : hits_tokens_) {
+  for (unsigned int i = 0; i < hits_tokens_.size(); ++i) {
     Handle<HGCRecHitCollection> hitsHandle;
-    event.getByToken(token, hitsHandle);
+    event.getByToken(hits_tokens_[i], hitsHandle);
 
     if (!hitsHandle.isValid()) {
       edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";

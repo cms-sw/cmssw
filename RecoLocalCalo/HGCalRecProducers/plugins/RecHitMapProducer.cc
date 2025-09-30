@@ -91,7 +91,7 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
 
     if (!ecal_hits.isValid() || !hbhe_hits.isValid()) {
       edm::LogWarning("HGCalRecHitMapProducer")
-	<< "One or more barrel hit collections are unavailable. Returning an empty map.";
+          << "One or more barrel hit collections are unavailable. Returning an empty map.";
       evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
       return;
     }
