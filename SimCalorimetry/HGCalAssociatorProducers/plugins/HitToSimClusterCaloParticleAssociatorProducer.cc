@@ -11,7 +11,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
@@ -42,7 +42,7 @@ void HitToSimClusterCaloParticleAssociatorProducer::produce(edm::StreamID,
   Handle<std::unordered_map<DetId, const unsigned int>> hitMap;
   iEvent.getByToken(hitMapToken_, hitMap);
 
-  MultiVectorManager<HGCRecHit> rechitManager;
+  edm::MultiSpan<HGCRecHit> rechitSpan;
   // Loop over tokens with index to access corresponding InputTag
   for (size_t i = 0; i < hitsTokens_.size(); ++i) {
     const auto &token = hitsTokens_[i];
@@ -55,11 +55,11 @@ void HitToSimClusterCaloParticleAssociatorProducer::produce(edm::StreamID,
           << "Missing HGCRecHitCollection for tag: " << hitsTags_[i].encode();
       continue;
     }
-    rechitManager.addVector(*hitsHandle);
+    rechitSpan.add(*hitsHandle);
   }
 
-  // Check if rechitManager is empty after processing hitsTokens_
-  if (rechitManager.size() == 0) {
+  // Check if rechitSpan is empty after processing hitsTokens_
+  if (rechitSpan.size() == 0) {
     edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
         << "No valid HGCRecHitCollections found. Association maps will be empty.";
     // Store empty maps in the event
@@ -69,8 +69,8 @@ void HitToSimClusterCaloParticleAssociatorProducer::produce(edm::StreamID,
   }
 
   // Create association maps
-  auto hitToSimClusterMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(rechitManager.size());
-  auto hitToCaloParticleMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(rechitManager.size());
+  auto hitToSimClusterMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(rechitSpan.size());
+  auto hitToCaloParticleMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(rechitSpan.size());
 
   // Loop over caloParticles
   for (unsigned int cpId = 0; cpId < caloParticles.size(); ++cpId) {
