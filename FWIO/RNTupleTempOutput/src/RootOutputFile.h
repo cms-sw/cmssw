@@ -37,7 +37,6 @@
 #include "FWIO/RNTupleTempOutput/interface/RNTupleTempOutputModule.h"
 #include "FWIO/RNTupleTempOutput/src/RootOutputRNTuple.h"
 
-class TTree;
 class TFile;
 class TClass;
 
@@ -68,7 +67,6 @@ namespace edm::rntuple_temp {
     void writeParameterSetRegistry();
     void writeParentageRegistry();
     void writeMetaData(ProductRegistry const&);
-    void writeEventAuxiliary();
 
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, int remainingEvents);
@@ -100,8 +98,6 @@ namespace edm::rntuple_temp {
     void writeProductDependencies(ROOT::REntry&);
     void writeProcessBlockHelper(ROOT::REntry&);
 
-    void setBranchAliases(TTree* tree, SelectedProducts const& branches, std::string const& processName) const;
-
     void fillBranches(BranchType const& branchType,
                       OccurrenceForOutput const& occurrence,
                       unsigned int ttreeIndex,
@@ -118,10 +114,6 @@ namespace edm::rntuple_temp {
 
     std::shared_ptr<TFile const> filePtr() const { return get_underlying_safe(filePtr_); }
     std::shared_ptr<TFile>& filePtr() { return get_underlying_safe(filePtr_); }
-    StoredProductProvenanceVector const* pEventEntryInfoVector() const {
-      return get_underlying_safe(pEventEntryInfoVector_);
-    }
-    StoredProductProvenanceVector*& pEventEntryInfoVector() { return get_underlying_safe(pEventEntryInfoVector_); }
 
     //-------------------------------
     // Member data
@@ -144,21 +136,20 @@ namespace edm::rntuple_temp {
     LuminosityBlockAuxiliary const* pLumiAux_;
     RunAuxiliary const* pRunAux_;
     StoredProductProvenanceVector eventEntryInfoVector_;
-    edm::propagate_const<StoredProductProvenanceVector*> pEventEntryInfoVector_;
+    StoredProductProvenanceVector const* pEventEntryInfoVector_;
     BranchListIndexes const* pBranchListIndexes_;
     EventToProcessBlockIndexes const* pEventToProcessBlockIndexes_;
     EventSelectionIDVector const* pEventSelectionIDs_;
-    RootOutputRNTuple eventTree_;
-    RootOutputRNTuple lumiTree_;
-    RootOutputRNTuple runTree_;
-    std::vector<edm::propagate_const<std::unique_ptr<RootOutputRNTuple>>> processBlockTrees_;
+    RootOutputRNTuple eventRNTuple_;
+    RootOutputRNTuple lumiRNTuple_;
+    RootOutputRNTuple runRNTuple_;
+    std::vector<edm::propagate_const<std::unique_ptr<RootOutputRNTuple>>> processBlockRNTuples_;
     std::vector<edm::propagate_const<RootOutputRNTuple*>> treePointers_;
     bool dataTypeReported_;
     ProcessHistoryRegistry processHistoryRegistry_;
     std::map<ParentageID, unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
     edm::propagate_const<TClass*> wrapperBaseTClass_;
-    CompactEventAuxiliaryVector compactEventAuxiliary_;
   };
 
 }  // namespace edm::rntuple_temp
