@@ -92,7 +92,10 @@ void l1t::TOPOCondition::setScore(const float scoreval) const { m_savedscore = s
 
 void l1t::TOPOCondition::loadModel() {
   try {
-    m_model = m_model_loader.load_model();
+    // m_model = m_model_loader.load_model();
+    std::string TOPOmodelversion = "/eos/user/l/lebeling/topo-new/TOPO_v1/topo_v1";
+    hls4mlEmulator::ModelLoader loader(TOPOmodelversion);
+    m_model = loader.load_model();
   } catch (std::runtime_error& e) {
     throw cms::Exception("ModelError") << " ERROR: failed to load TOPO model version \""
                                        << m_model_loader.model_name()
@@ -105,17 +108,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     throw cms::Exception("ModelError") << " ERROR: no model was loaded for TOPO model version \""
                                        << m_model_loader.model_name() << "\".";
   }
-
-  // overwrite model for now using local path
-  std::cout << "Overwriting topo model loading..." << m_model_loader.model_name() <<std::endl;
-  std::string TOPOmodelversion = "/eos/user/l/lebeling/topo-new/TOPO_v1/topo_v1";
-  hls4mlEmulator::ModelLoader loader(TOPOmodelversion);
-  std::shared_ptr<hls4mlEmulator::Model> m_model;
-  m_model = loader.load_model();
-  std::cout << "loading model... " << TOPOmodelversion << std::endl;
   
-  std::cout << "#### evaluate topo condition ####" << std::endl;
-
   bool condResult = false;
   int useBx = bxEval + m_gtTOPOTemplate->condRelativeBx();
 
@@ -235,17 +228,10 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   //for scaling input features, load from external? 
   int norm[NInputs] = {256, 1, 64, 128, 256, 16, 32, 64, 128, 64, 64, 64, 64, 64, 32, 32, 64, 32, 32, 64};
   int bias[NInputs] = {51, 0, 7, 0, 54, 1, 0, 11, 59, 0, 64, 33, 0, 49, 19, 0, 33, 10, 0, 20};
-
-  for (int i = 0; i < NInputs; ++i) {
-    std::cout << ADModelInput[i] << ", ";
-  }
-  std::cout << std::endl;
   
   for (int i = 0; i < NInputs; ++i) {
     scaledInput[i] = static_cast<inputtype>((ADModelInput[i] - bias[i]) / norm[i]);
-    std::cout << scaledInput[i] << ", ";
   }
-  std::cout << std::endl;
 
   //now run the inference
   m_model->prepare_input(scaledInput);  //scaling internal here
@@ -291,9 +277,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   passCondition = checkCut(objPar.minTOPOThreshold, score, condGEqVal);
 
   condResult |= passCondition;  //condresult true if passCondition true else it is false
-  
-  std::cout << "score: " << score << std::endl;
-  
+    
   //return result
   return condResult;
 }
