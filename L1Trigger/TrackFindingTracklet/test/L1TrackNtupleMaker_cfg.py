@@ -15,8 +15,8 @@ process = cms.Process("L1TrackNtuple")
 ############################################################
 
 # D110 recommended (but D98 still works)
-GEOMETRY = "D98"
-#GEOMETRY = "D110"
+#GEOMETRY = "D98"
+GEOMETRY = "D110"
 
 # Set L1 tracking algorithm:
 # 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
@@ -84,15 +84,19 @@ if GEOMETRY == "D110":
   #inputMC=getCMSlocaldata(dirName)  
 
   # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
-  #dataName="/RelValTTbar_14TeV/CMSSW_15_1_0_pre3-PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/GEN-SIM-DIGI-RAW"
+  #dataName="/RelValTTbar_14TeV_TuneCP5/CMSSW_15_1_0_pre5-PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2/GEN-SIM-DIGI-RAW"
   #inputMC=getCMSdata(dataName)
   
   # ttbar + 200PU
-  inputMC = ["/store/relval/CMSSW_15_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/2590000/00c675dc-1517-4af7-8dd4-841e0668fefe.root"]
+  inputMC = ["/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2/2590000/0f0bcfd3-dafe-4dda-8d39-9765f6eae68e.root"]
 
 elif GEOMETRY == "D98":
 
-  inputMC = ['/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root']  
+  # Or read .root files from directory on local computer:
+  dirName = "$scratchmc/MCsamples1400_D98/RelVal/TTbar/PU200/"
+  inputMC=getCMSlocaldata(dirName)  
+  
+  #  inputMC = ['/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root']  
   
 else:
 
@@ -100,15 +104,20 @@ else:
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
 
+# Drop previously reconstructed L1 tracks + their truth association to avoid risk of analysing them instead of new tracks created by this job.
+process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+process.source.inputCommands = cms.untracked.vstring()
+process.source.inputCommands.append('keep *_*_*_*')
+process.source.inputCommands.append('drop  *_*_*Level1TTTracks*_*')
+
 #if GEOMETRY == "D76":
 #  # If reading old MC dataset, drop incompatible EDProducts.
-#  process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
-#  process.source.inputCommands = cms.untracked.vstring()
-#  process.source.inputCommands.append('keep  *_*_*Level1TTTracks*_*')
-#  process.source.inputCommands.append('keep  *_*_*StubAccepted*_*')
-#  process.source.inputCommands.append('keep  *_*_*ClusterAccepted*_*')
-#  process.source.inputCommands.append('keep  *_*_*MergedTrackTruth*_*')
-#  process.source.inputCommands.append('keep  *_genParticles_*_*')
+#  process.source.inputCommands.append('drop *_*_*_*')
+#  process.source.inputCommands.append('keep *_*_*Level1TTTracks*_*')
+#  process.source.inputCommands.append('keep *_*_*StubAccepted*_*')
+#  process.source.inputCommands.append('keep *_*_*ClusterAccepted*_*')
+#  process.source.inputCommands.append('keep *_*_*MergedTrackTruth*_*')
+#  process.source.inputCommands.append('keep *_genParticles_*_*')
 
 # Use skipEvents to select particular single events for test vectors
 #process.source.skipEvents = cms.untracked.uint32(11)
@@ -166,12 +175,14 @@ if (L1TRKALGO == 'HYBRID'):
 
 # HYBRID: extended tracking
 elif (L1TRKALGO == 'HYBRID_DISPLACED'):
-    process.TTTracksEmulation = cms.Path(process.L1TExtendedHybridTracks)
-    process.TTTracksEmulationWithTruth = cms.Path(process.L1TExtendedHybridTracksWithAssociators)
     NHELIXPAR = 5
     L1TRK_NAME  = "l1tTTTracksFromExtendedTrackletEmulation"
     L1TRK_LABEL = "Level1TTTracks"
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisExtended"
+    process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
+    process.AnalyzerTracklet.InputTag = cms.InputTag(L1TRK_NAME, L1TRK_LABEL)
+    process.TTTracksEmulation = cms.Path(process.L1TExtendedHybridTracks)
+    process.TTTracksEmulationWithTruth = cms.Path(process.L1TExtendedHybridTracksWithAssociators + process.AnalyzerTracklet)
 
 # HYBRID_NEWKF: prompt tracking or reduced
 elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
@@ -203,10 +214,13 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED_NEWKF_KILL' or L1TRKALGO == 'HYBRID_DISPLAC
     process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
     from L1Trigger.TrackFindingTracklet.Customize_cff import *
     NHELIXPAR = 5
+    TRACKLET_NAME  = "l1tTTTracksFromExtendedTrackletEmulation"
+    TRACKLET_LABEL = "Level1TTTracks"
     L1TRK_NAME  = process.TrackFindingTrackletAnalyzer_params.OutputLabelTFP.value()
     L1TRK_LABEL = process.TrackFindingTrackletProducer_params.BranchTTTracks.value()
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisExtended"
     process.TTTrackAssociatorFromPixelDigisExtended.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
+    process.AnalyzerTracklet.InputTag = cms.InputTag(TRACKLET_NAME, TRACKLET_LABEL)
     if (L1TRKALGO == 'HYBRID_DISPLACED_NEWKF_MERGE'):
         displacedNewKFMergeConfig( process )
         process.HybridNewKF = cms.Sequence(process.L1TExtendedHybridTracks + process.ProducerFakeDR + process.ProducerKF + process.ProducerTQ + process.ProducerTFP)
