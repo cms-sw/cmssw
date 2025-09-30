@@ -10,8 +10,8 @@ G4ClassificationOfNewTrack KillSecondariesStackingAction::ClassifyNewTrack(const
     MCTruthUtil::primary(track);
     return fUrgent;
   } else {
-    const G4Track *mother = CurrentG4Track::track();
-    MCTruthUtil::secondary(track, *mother, 0);
+    const G4Track* mother = CurrentG4Track::track();
+    MCTruthUtil::secondary(track, mother, 0);
     return fKill;
   }
 }
