@@ -263,33 +263,31 @@ def processReadOverlaps(read_chunks):
     N reads that overlap with each other, total_count is increased by N,
     and overlap_count by N-1.
     """
-    # smallest begin first, and among them, largest end first
-    read_chunks.sort(key=lambda x: (x.begin, -x.end))
+    read_total_bytes = 0
 
     read_total_bytes = 0
-    read_unique_bytes = 0
+    read_total_count = 0
 
-    prev = read_chunks[0]
-    read_total_bytes = prev.end-prev.begin
-    read_total_count = 1
+    read_overlap_bytes = 0
+    read_full_overlap_count = 0
+    read_partial_overlap_count = 0
 
-    read_unique_bytes = 0
-    read_overlap_count = 0
-
-    for chunk in read_chunks[1:]:
+    seen_ranges = []
+    for chunk in read_chunks:
         read_total_bytes += chunk.end-chunk.begin
         read_total_count += 1
-        if chunk.begin >= prev.end:
-            read_unique_bytes += prev.end-prev.begin
-            prev = chunk
-        else:
-            read_overlap_count += 1
-            if chunk.end > prev.end:
-                prev = Chunk(prev.begin, chunk.end)
-    read_unique_bytes += prev.end-prev.begin
 
-    OverlapResult = namedtuple("OverlapResult", ("total_bytes", "overlap_bytes", "total_count", "overlap_count"))
-    return OverlapResult(read_total_bytes, read_total_bytes-read_unique_bytes, read_total_count, read_overlap_count)
+        ret = addAndMergeRange(chunk, seen_ranges)
+        read_overlap_bytes += ret.overlap_bytes
+        if ret.overlap_type == OverlapType.UNIQUE:
+            pass
+        elif ret.overlap_type == OverlapType.PARTIAL_OVERLAP:
+            read_partial_overlap_count += 1
+        elif ret.overlap_type == OverlapType.FULL_OVERLAP:
+            read_full_overlap_count += 1
+
+    OverlapSummary = namedtuple("OverlapSummary", ("total_bytes", "overlap_bytes", "total_count", "full_overlap_count", "partial_overlap_count"))
+    return OverlapSummary(read_total_bytes, read_overlap_bytes, read_total_count, read_full_overlap_count, read_partial_overlap_count)
 
 def analyzeReadOverlaps(logEntries, args):
     read_chunks = []
@@ -306,8 +304,10 @@ def analyzeReadOverlaps(logEntries, args):
     print(f" Number of reads (singular or vector elements) {result.total_count}")
     print(f" Bytes read {format_bytes(result.total_bytes)}")
     print(f"Overlaps")
-    print(f" Number of reads that could overlapped with another read {result.overlap_count}")
-    print(f"  Fraction of all reads {result.overlap_count/float(result.total_count)*100} %")
+    print(f" Number of reads that partially overlapped with an earlier read {result.partial_overlap_count}")
+    print(f"  Fraction of all reads {result.partial_overlap_count/float(result.total_count)*100} %")
+    print(f" Number of reads that fully overlapped with an earlier read {result.full_overlap_count}")
+    print(f"  Fraction of all reads {result.full_overlap_count/float(result.total_count)*100} %")
     print(f" Bytes read that had been already read {format_bytes(result.overlap_bytes)}")
     print(f"  Fraction of all bytes {result.overlap_bytes/float(result.total_bytes)*100} %")
 
@@ -493,7 +493,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 10)
         self.assertEqual(result.overlap_bytes, 0)
         self.assertEqual(result.total_count, 2)
-        self.assertEqual(result.overlap_count, 0)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 0)
 
         chunks = [
             Chunk(0, 10),
@@ -503,7 +504,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 15)
         self.assertEqual(result.overlap_bytes, 5)
         self.assertEqual(result.total_count, 2)
-        self.assertEqual(result.overlap_count, 1)
+        self.assertEqual(result.full_overlap_count, 1)
+        self.assertEqual(result.partial_overlap_count, 0)
 
         chunks = [
             Chunk(0, 10),
@@ -514,7 +516,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 20)
         self.assertEqual(result.overlap_bytes, 10)
         self.assertEqual(result.total_count, 3)
-        self.assertEqual(result.overlap_count, 2)
+        self.assertEqual(result.full_overlap_count, 2)
+        self.assertEqual(result.partial_overlap_count, 0)
 
         chunks = [
             Chunk(0, 10),
@@ -524,7 +527,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 20)
         self.assertEqual(result.overlap_bytes, 5)
         self.assertEqual(result.total_count, 2)
-        self.assertEqual(result.overlap_count, 1)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 1)
 
         chunks = [
             Chunk(0, 5),
@@ -535,7 +539,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 16)
         self.assertEqual(result.overlap_bytes, 4)
         self.assertEqual(result.total_count, 3)
-        self.assertEqual(result.overlap_count, 2)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 2)
 
         chunks = [
             Chunk(0, 5),
@@ -548,7 +553,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 19)
         self.assertEqual(result.overlap_bytes, 6)
         self.assertEqual(result.total_count, 5)
-        self.assertEqual(result.overlap_count, 3)
+        self.assertEqual(result.full_overlap_count, 1)
+        self.assertEqual(result.partial_overlap_count, 2)
 
         chunks = [
             Chunk(2, 4),
@@ -560,7 +566,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 26)
         self.assertEqual(result.overlap_bytes, 6)
         self.assertEqual(result.total_count, 4)
-        self.assertEqual(result.overlap_count, 3)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 1)
 
         chunks = [
             Chunk(0, 20),
@@ -571,8 +578,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 27)
         self.assertEqual(result.overlap_bytes, 2)
         self.assertEqual(result.total_count, 3)
-        # Value 2 here is debatable
-        self.assertEqual(result.overlap_count, 2)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 2)
 
     def test_searchMapChunk(self):
         self.assertEqual(searchMapChunk([], 0, 10), [])
