@@ -110,12 +110,9 @@ process.emulTPDigis = process.simHcalTriggerPrimitiveDigis.clone(
    ZS_threshold = 0
 )
 
-#inserting zdc emulator after tp digis
-process.etSumZdcProducer = cms.EDProducer('L1TZDCProducer',
-                                          hcalTPDigis = cms.InputTag("emulTPDigis"),
-                                          bxFirst = cms.int32(-2),
-                                          bxLast = cms.int32(3)
-)
+# Emulation of L1T ZDC EtSums based on HCAL trigger primitives
+from L1Trigger.L1TZDC.l1tZDCEtSums_cfi import l1tZDCEtSums as _l1tZDCEtSums
+process.etSumZdcProducer = _l1tZDCEtSums.clone(hcalTPDigis = "emulTPDigis")
 
 process.hcalDigis.InputLabel = rawTag
 process.emulTPDigisNoTDCCut = process.emulTPDigis.clone(
