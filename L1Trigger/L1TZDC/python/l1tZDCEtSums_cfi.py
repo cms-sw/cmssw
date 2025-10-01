@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1TZDC.l1tZDCProducer_cfi import l1tZDCProducer as _l1tZDCProducer
+from L1Trigger.L1TZDC.l1tZDCEtSumsProducer_cfi import l1tZDCEtSumsProducer as _l1tZDCEtSumsProducer
 
-l1tZDCEtSums = _l1tZDCProducer.clone(
+l1tZDCEtSums = _l1tZDCEtSumsProducer.clone(
     bxLast = 3
 )
