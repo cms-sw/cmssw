@@ -8,8 +8,6 @@
 #include <numeric>
 #include <iostream>
 
-class SiStripApproximateCluster;
-
 class SiStripCluster {
 public:
   typedef std::vector<SiStripDigi>::const_iterator SiStripDigiIter;
@@ -46,7 +44,7 @@ public:
   }
 
   SiStripCluster(const SiStripApproximateCluster cluster, const uint16_t maxStrips);
-  SiStripCluster(const SiStripApproximateCluster_v1 cluster,
+  SiStripCluster(const v1::SiStripApproximateCluster cluster,
                  const uint16_t maxStrips,
                  float pc = -999,
                  unsigned int module_length = 0,
