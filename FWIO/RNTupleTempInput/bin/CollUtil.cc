@@ -17,6 +17,7 @@
 #include "TTree.h"
 #include "ROOT/RNTupleReader.hxx"
 #include "ROOT/RNTupleDescriptor.hxx"
+#include "ROOT/RNTuple.hxx"
 
 #include <iomanip>
 #include <iostream>
@@ -52,13 +53,19 @@ namespace edm::rntuple_temp {
 
   // number of entries in a tree
   Long64_t numEntries(TFile *hdl, std::string const &trname) {
-    TTree *tree = (TTree *)hdl->Get(trname.c_str());
-    if (tree) {
-      return tree->GetEntries();
+    auto tuple = hdl->Get<ROOT::RNTuple>(trname.c_str());
+    if (tuple) {
+      auto reader = ROOT::RNTupleReader::Open(*tuple);
+      return reader->GetNEntries();
     } else {
-      std::cout << "ERR cannot find a TTree named \"" << trname << "\"" << std::endl;
-      return -1;
+      // Try as a TTree
+      TTree *tree = (TTree *)hdl->Get(trname.c_str());
+      if (tree) {
+        return tree->GetEntries();
+      }
     }
+    std::cout << "ERR cannot find a RNTuple named \"" << trname << "\"" << std::endl;
+    return -1;
   }
 
   namespace {
@@ -344,75 +351,31 @@ namespace edm::rntuple_temp {
 
   void printUuids(ROOT::RNTupleReader *uuidTree) { std::cout << "UUID: " << getUuid(uuidTree) << std::endl; }
 
-  static void preIndexIntoFilePrintEventLists(TFile *,
-                                              FileFormatVersion const &fileFormatVersion,
-                                              TTree *metaDataTree) {
-    FileIndex fileIndex;
-    FileIndex *findexPtr = &fileIndex;
-    if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != nullptr) {
-      TBranch *fndx = metaDataTree->GetBranch(poolNames::fileIndexBranchName().c_str());
-      fndx->SetAddress(&findexPtr);
-      fndx->GetEntry(0);
-    } else {
-      std::cout << "FileIndex not found.  If this input file was created with release 1_8_0 or later\n"
-                   "this indicates a problem with the file.  This condition should be expected with\n"
-                   "files created with earlier releases and printout of the event list will fail.\n";
+  static void postIndexIntoFilePrintEventLists(TFile *tfl, ROOT::RNTupleReader &metaDataReader) {
+    if (metaDataReader.GetModel().GetFieldNames().find(poolNames::indexIntoFileBranchName()) ==
+        metaDataReader.GetModel().GetFieldNames().end()) {
+      std::cout << "IndexIntoFile not found this indicates a problem with the file.";
       return;
     }
-
-    std::cout << "\n" << fileIndex;
-
-    std::cout << "\nFileFormatVersion = " << fileFormatVersion << ".  ";
-    if (fileFormatVersion.fastCopyPossible())
-      std::cout << "This version supports fast copy\n";
-    else
-      std::cout << "This version does not support fast copy\n";
-
-    if (fileIndex.allEventsInEntryOrder()) {
-      std::cout << "Events are sorted such that fast copy is possible in the \"noEventSort = False\" mode\n";
-    } else {
-      std::cout << "Events are sorted such that fast copy is NOT possible in the \"noEventSort = False\" mode\n";
-    }
-
-    fileIndex.sortBy_Run_Lumi_EventEntry();
-    if (fileIndex.allEventsInEntryOrder()) {
-      std::cout << "Events are sorted such that fast copy is possible in the \"noEventSort\" mode\n";
-    } else {
-      std::cout << "Events are sorted such that fast copy is NOT possible in the \"noEventSort\" mode\n";
-    }
-    std::cout << "(Note that other factors can prevent fast copy from occurring)\n\n";
-  }
-
-  static void postIndexIntoFilePrintEventLists(TFile *tfl,
-                                               FileFormatVersion const &fileFormatVersion,
-                                               TTree *metaDataTree) {
     IndexIntoFile indexIntoFile;
-    IndexIntoFile *findexPtr = &indexIntoFile;
-    if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
-      TBranch *fndx = metaDataTree->GetBranch(poolNames::indexIntoFileBranchName().c_str());
-      fndx->SetAddress(&findexPtr);
-      fndx->GetEntry(0);
-    } else {
-      std::cout << "IndexIntoFile not found.  If this input file was created with release 1_8_0 or later\n"
-                   "this indicates a problem with the file.  This condition should be expected with\n"
-                   "files created with earlier releases and printout of the event list will fail.\n";
-      return;
-    }
+    auto metaDataEntry = metaDataReader.GetModel().CreateEntry();
+    metaDataEntry->BindRawPtr(poolNames::indexIntoFileBranchName(), &indexIntoFile);
+    metaDataReader.LoadEntry(0, *metaDataEntry);
+
     //need to read event # from the EventAuxiliary branch
-    TTree *eventsTree = dynamic_cast<TTree *>(tfl->Get(poolNames::eventTreeName().c_str()));
-    TBranch *eventAuxBranch = nullptr;
-    assert(nullptr != eventsTree);
-    char const *const kEventAuxiliaryBranchName = "EventAuxiliary";
-    if (eventsTree->FindBranch(kEventAuxiliaryBranchName) != nullptr) {
-      eventAuxBranch = eventsTree->GetBranch(kEventAuxiliaryBranchName);
-    } else {
-      std::cout << "Failed to find " << kEventAuxiliaryBranchName
-                << " branch in Events TTree.  Something is wrong with this file." << std::endl;
+    auto *eventsTuple = tfl->Get<ROOT::RNTuple>(poolNames::eventTreeName().c_str());
+    assert(nullptr != eventsTuple);
+    auto eventsReader = ROOT::RNTupleReader::Open(*eventsTuple);
+    if (eventsReader->GetModel().GetFieldNames().find("EventAuxiliary") ==
+        eventsReader->GetModel().GetFieldNames().end()) {
+      std::cout << "Failed to find EventAuxiliary Field in Events RNTuple.  Something is wrong with this file."
+                << std::endl;
       return;
     }
+
     EventAuxiliary eventAuxiliary;
-    EventAuxiliary *eAPtr = &eventAuxiliary;
-    eventAuxBranch->SetAddress(&eAPtr);
+    auto eventAuxEntry = eventsReader->GetModel().CreateEntry();
+    eventAuxEntry->BindRawPtr("EventAuxiliary", &eventAuxiliary);
     std::cout << "\nPrinting IndexIntoFile contents.  This includes a list of all Runs, LuminosityBlocks\n"
               << "and Events stored in the root file.\n\n";
     std::cout << std::setw(15) << "Run" << std::setw(15) << "Lumi" << std::setw(15) << "Event" << std::setw(15)
@@ -435,7 +398,7 @@ namespace edm::rntuple_temp {
           type = "(Lumi)";
           break;
         case IndexIntoFile::kEvent:
-          eventAuxBranch->GetEntry(it.entry());
+          eventsReader->LoadEntry(it.entry(), *eventAuxEntry);
           eventNum = eventAuxiliary.id().event();
           break;
         default:
@@ -443,12 +406,6 @@ namespace edm::rntuple_temp {
       }
       std::cout << std::setw(15) << eventNum << std::setw(15) << it.entry() << " " << type << std::endl;
     }
-
-    std::cout << "\nFileFormatVersion = " << fileFormatVersion << ".  ";
-    if (fileFormatVersion.fastCopyPossible())
-      std::cout << "This version supports fast copy\n";
-    else
-      std::cout << "This version does not support fast copy\n";
 
     if (indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::firstAppearanceOrder)) {
       std::cout << "Events are sorted such that fast copy is possible in the \"noEventSort = false\" mode\n";
@@ -467,79 +424,21 @@ namespace edm::rntuple_temp {
   }
 
   void printEventLists(TFile *tfl) {
-    TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
-    assert(nullptr != metaDataTree);
+    auto metaDataTuple = tfl->Get<ROOT::RNTuple>(edm::poolNames::metaDataTreeName().c_str());
+    assert(nullptr != metaDataTuple);
+    auto reader = ROOT::RNTupleReader::Open(*metaDataTuple);
 
-    FileFormatVersion fileFormatVersion;
-    FileFormatVersion *fftPtr = &fileFormatVersion;
-    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != nullptr) {
-      TBranch *fft = metaDataTree->GetBranch(poolNames::fileFormatVersionBranchName().c_str());
-      fft->SetAddress(&fftPtr);
-      fft->GetEntry(0);
-    }
-    if (fileFormatVersion.hasIndexIntoFile()) {
-      postIndexIntoFilePrintEventLists(tfl, fileFormatVersion, metaDataTree);
-    } else {
-      preIndexIntoFilePrintEventLists(tfl, fileFormatVersion, metaDataTree);
-    }
+    postIndexIntoFilePrintEventLists(tfl, *reader);
   }
 
-  static void preIndexIntoFilePrintEventsInLumis(TFile *,
-                                                 FileFormatVersion const &fileFormatVersion,
-                                                 TTree *metaDataTree) {
-    FileIndex fileIndex;
-    FileIndex *findexPtr = &fileIndex;
-    if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != nullptr) {
-      TBranch *fndx = metaDataTree->GetBranch(poolNames::fileIndexBranchName().c_str());
-      fndx->SetAddress(&findexPtr);
-      fndx->GetEntry(0);
-    } else {
-      std::cout << "FileIndex not found.  If this input file was created with release 1_8_0 or later\n"
-                   "this indicates a problem with the file.  This condition should be expected with\n"
-                   "files created with earlier releases and printout of the event list will fail.\n";
-      return;
-    }
-
-    std::cout << "\n"
-              << std::setw(15) << "Run" << std::setw(15) << "Lumi" << std::setw(15) << "# Events"
-              << "\n";
-    unsigned long nEvents = 0;
-    unsigned long runID = 0;
-    unsigned long lumiID = 0;
-    for (std::vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd;
-         ++it) {
-      if (it->getEntryType() == FileIndex::kEvent) {
-        ++nEvents;
-      } else if (it->getEntryType() == FileIndex::kLumi) {
-        if (runID != it->run_ || lumiID != it->lumi_) {
-          //print the previous one
-          if (lumiID != 0) {
-            std::cout << std::setw(15) << runID << std::setw(15) << lumiID << std::setw(15) << nEvents << "\n";
-          }
-          nEvents = 0;
-          runID = it->run_;
-          lumiID = it->lumi_;
-        }
-      }
-    }
-    //print the last one
-    if (lumiID != 0) {
-      std::cout << std::setw(15) << runID << std::setw(15) << lumiID << std::setw(15) << nEvents << "\n";
-    }
-
-    std::cout << "\n";
-  }
-
-  static void postIndexIntoFilePrintEventsInLumis(TFile *tfl,
-                                                  FileFormatVersion const &fileFormatVersion,
-                                                  TTree *metaDataTree) {
+  static void postIndexIntoFilePrintEventsInLumis(ROOT::RNTupleReader &metaDataReader) {
     IndexIntoFile indexIntoFile;
-    IndexIntoFile *findexPtr = &indexIntoFile;
-    if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
-      TBranch *fndx = metaDataTree->GetBranch(poolNames::indexIntoFileBranchName().c_str());
-      fndx->SetAddress(&findexPtr);
-      fndx->GetEntry(0);
-    } else {
+    auto metaDataEntry = metaDataReader.GetModel().CreateEntry();
+    metaDataEntry->BindRawPtr(poolNames::indexIntoFileBranchName(), &indexIntoFile);
+    metaDataReader.LoadEntry(0, *metaDataEntry);
+
+    if (metaDataReader.GetModel().GetFieldNames().find(poolNames::indexIntoFileBranchName()) ==
+        metaDataReader.GetModel().GetFieldNames().end()) {
       std::cout << "IndexIntoFile not found.  If this input file was created with release 1_8_0 or later\n"
                    "this indicates a problem with the file.  This condition should be expected with\n"
                    "files created with earlier releases and printout of the event list will fail.\n";
@@ -587,20 +486,10 @@ namespace edm::rntuple_temp {
   }
 
   void printEventsInLumis(TFile *tfl) {
-    TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
-    assert(nullptr != metaDataTree);
+    auto metaDataTuple = tfl->Get<ROOT::RNTuple>(edm::poolNames::metaDataTreeName().c_str());
+    assert(nullptr != metaDataTuple);
+    auto reader = ROOT::RNTupleReader::Open(*metaDataTuple);
 
-    FileFormatVersion fileFormatVersion;
-    FileFormatVersion *fftPtr = &fileFormatVersion;
-    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != nullptr) {
-      TBranch *fft = metaDataTree->GetBranch(poolNames::fileFormatVersionBranchName().c_str());
-      fft->SetAddress(&fftPtr);
-      fft->GetEntry(0);
-    }
-    if (fileFormatVersion.hasIndexIntoFile()) {
-      postIndexIntoFilePrintEventsInLumis(tfl, fileFormatVersion, metaDataTree);
-    } else {
-      preIndexIntoFilePrintEventsInLumis(tfl, fileFormatVersion, metaDataTree);
-    }
+    postIndexIntoFilePrintEventsInLumis(*reader);
   }
 }  // namespace edm::rntuple_temp
