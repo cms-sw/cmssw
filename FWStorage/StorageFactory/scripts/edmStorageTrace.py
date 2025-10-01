@@ -56,6 +56,7 @@ class Entries:
         return isinstance(obj, Entries.ReadvElement) or isinstance(obj, Entries.WritevElement) or isinstance(obj, Entries.PrefetchElement)
 
 Chunk = namedtuple("Chunk", ("begin", "end"))
+ChunkWithTime = namedtuple("ChunkWithTime", ("begin", "end", "begintime", "endtime"))
 
 def readlog(f):
     ret = []
@@ -171,6 +172,12 @@ class OverlapType(Enum):
     UNIQUE = "unique"
     PARTIAL_OVERLAP = "partial overlap"
     FULL_OVERLAP = "full overlap"
+
+overlapColors = {
+    OverlapType.UNIQUE: "#276827",
+    OverlapType.PARTIAL_OVERLAP: "#C6BA13",
+    OverlapType.FULL_OVERLAP: "#FF4400"
+}
 
 def addAndMergeRange(chunk, seen_ranges):
     """Add chunk to seen_ranges, merging with any overlapping ranges
@@ -437,6 +444,51 @@ def printMapReadRanges(logEntries, mapFileName):
                     ch = chunks[i]
                     print(f"{ch.begin} {ch.end} {ch.type} {ch.content}")
 
+#####################
+# Plot read patterns
+#####################
+def plotReadPatterns(logEntries, outputFileName):
+    if len(logEntries) == 0:
+        return
+
+    beginTime = logEntries[0].timestamp
+
+    def makeChunkWithTime(offset, requested, timestamp, duration):
+        timestamp = (timestamp-beginTime) / 1000.0 # convert ms to s
+        duration = duration / 1_000_000.0 # convert us to s
+        return ChunkWithTime(offset, offset+requested, timestamp, timestamp+duration)
+
+    read_chunks = []
+    for entry in logEntries:
+        if isinstance(entry, Entries.Read):
+            read_chunks.append(makeChunkWithTime(entry.offset, entry.requested, entry.timestamp, entry.duration))
+        elif isinstance(entry, Entries.Readv):
+            for element in entry.elements:
+                read_chunks.append(makeChunkWithTime(element.offset, element.requested, entry.timestamp, entry.duration))
+
+    if len(read_chunks) == 0:
+        return
+
+    import matplotlib.pyplot as plt
+
+    # Create a plot with read patterns
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    seen_ranges = []
+    for chunk in read_chunks:
+        ret = addAndMergeRange(chunk, seen_ranges)
+        ax.plot([chunk.begintime, chunk.endtime], [chunk.begin, chunk.end], color=overlapColors[ret.overlap_type], alpha=0.5)
+
+    ax.set_xlabel('Time (from job start) (s)')
+    ax.set_ylabel('Offset (B)')
+    ax.set_title('Read operations')
+    ax.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    plt.tight_layout()
+    plt.savefig(outputFileName)
+    print(f"Read pattern plot saved to {outputFileName}")
+
+
 ####################
 # Main function
 ####################
@@ -454,6 +506,8 @@ def main(logEntries, args):
         printReadRanges(logEntries)
     if args.mapReadRanges:
         printMapReadRanges(logEntries, args.mapReadRanges)
+    if args.plotReads:
+        plotReadPatterns(logEntries, args.plotReads)
     pass
 
 ####################
@@ -747,6 +801,7 @@ if __name__ == "__main__":
     parser.add_argument("--readOverlaps", action="store_true", help="Analyze overlaps of reads")
     parser.add_argument("--readRanges", action="store_true", help="Print offset ranges of each read element")
     parser.add_argument("--mapReadRanges", type=str, default=None, help="Like --readRanges, but uses the output of TFile::Map() to map the file regions to TFile content. The argument should be a file containing the output of 'edmFileUtil --map'.")
+    parser.add_argument("--plotReads", type=str, default=None, help="Generate a plot of the read patterns. The argument should be the name of the output PDF file.")
     parser.add_argument("--test", action="store_true", help="Run internal tests")
 
     args = parser.parse_args()
