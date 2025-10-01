@@ -99,7 +99,7 @@ void SeedProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
 
   auto const& tsoa = iEvent.get(tokenTrack_);
 
-  auto const* quality = tsoa.view().quality();
+  auto const quality = tsoa.view().quality();
   auto const& detIndices = tsoa.view().detIndices();
   auto maxTracks = tsoa.view().metadata().size();
 

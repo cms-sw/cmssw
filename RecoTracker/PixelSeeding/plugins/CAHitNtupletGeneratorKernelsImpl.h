@@ -359,7 +359,7 @@ namespace caHitNtupletGeneratorKernels {
           oc.setStatusBits(Cell::StatusBit::kUsed);
         }
       }  // loop on inner cells
-    }    // loop on outer cells
+    }  // loop on outer cells
   }
 
   template <typename TrackerTraits>
@@ -405,7 +405,7 @@ namespace caHitNtupletGeneratorKernels {
                                                   *cellTracks,
                                                   tracks_view.hitIndices(),
                                                   *apc,
-                                                  tracks_view.quality(),
+                                                  tracks_view.quality().data(),
                                                   stack,
                                                   params.minHitsPerNtuplet_,
                                                   bpix1Start);

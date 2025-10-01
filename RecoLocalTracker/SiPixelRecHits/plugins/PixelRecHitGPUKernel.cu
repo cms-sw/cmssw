@@ -53,7 +53,7 @@ namespace pixelgpudetails {
     auto nHits = clusters_d.nClusters();
 
     TrackingRecHitSoADevice<TrackerTraits> hits_d(
-        nHits, clusters_d.offsetBPIX2(), cpeParams, clusters_d->clusModuleStart(), stream);
+        nHits, clusters_d.offsetBPIX2(), cpeParams, clusters_d->clusModuleStart().data(), stream);
 
     int activeModulesWithDigis = digis_d.nModules();
     // protect from empty events
@@ -73,17 +73,17 @@ namespace pixelgpudetails {
 
       // assuming full warp of threads is better than a smaller number...
       if (nHits) {
-        setHitsLayerStart<TrackerTraits>
-            <<<1, 32, 0, stream>>>(clusters_d->clusModuleStart(), cpeParams, hits_d.view().hitsLayerStart().data());
+        setHitsLayerStart<TrackerTraits><<<1, 32, 0, stream>>>(
+            clusters_d->clusModuleStart().data(), cpeParams, hits_d.view().hitsLayerStart().data());
         cudaCheck(cudaGetLastError());
         constexpr auto nLayers = TrackerTraits::numberOfLayers;
         cms::cuda::fillManyFromVector(&(hits_d.view().phiBinner()),
                                       nLayers,
-                                      hits_d.view().iphi(),
+                                      hits_d.view().iphi().data(),
                                       hits_d.view().hitsLayerStart().data(),
                                       nHits,
                                       256,
-                                      hits_d.view().phiBinnerStorage(),
+                                      hits_d.view().phiBinnerStorage().data(),
                                       stream);
         cudaCheck(cudaGetLastError());
 
