@@ -51,7 +51,6 @@ namespace edm::rntuple_temp {
         // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
         // and should be deleted from the code.
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
-        treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", rootrntuple::defaultCacheSize)),
         enablePrefetching_(false),
         enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName", false)),
         maxFileSkips_(pset.getUntrackedParameter<unsigned int>("maxFileSkips", std::min(3_uz, numberOfFiles()))) {
@@ -63,9 +62,6 @@ namespace edm::rntuple_temp {
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
-      if (treeCacheSize_ != 0U && pSLC->sourceTTreeCacheSize()) {
-        treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
-      }
       enablePrefetching_ = pSLC->enablePrefetching();
     }
 

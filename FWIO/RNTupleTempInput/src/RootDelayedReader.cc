@@ -52,7 +52,7 @@ namespace edm::rntuple_temp {
         throw;
       }
     }
-    auto branchInfo = getBranchInfo(k);
+    auto branchInfo = getProductInfo(k);
     if (not branchInfo) {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);

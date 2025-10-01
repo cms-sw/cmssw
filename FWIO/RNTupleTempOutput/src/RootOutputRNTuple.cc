@@ -117,7 +117,7 @@ namespace edm {
                                    bool produced) {
     auto field = ROOT::RFieldBase::Create(branchName, className).Unwrap();
     model_->AddField(std::move(field));
-    producedBranches_.push_back(model_->GetToken(branchName.c_str()));
+    producedBranches_.push_back(model_->GetToken(branchName));
     producedBranchPointers_.push_back(const_cast<void**>(pProd));
   }
 

@@ -39,7 +39,7 @@ namespace edm {
       assert(model_);
       auto field = std::make_unique<ROOT::RField<T>>(branchName);
       model_->AddField(std::move(field));
-      auxBranches_.push_back(model_->GetToken(branchName.c_str()));
+      auxBranches_.push_back(model_->GetToken(branchName));
       auxBranchPointers_.push_back(reinterpret_cast<void**>(const_cast<T**>(pAux)));
     }
 
