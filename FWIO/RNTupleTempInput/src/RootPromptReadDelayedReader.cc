@@ -90,7 +90,7 @@ namespace edm::rntuple_temp {
       }
     }
     for (auto& it : cacheMap) {
-      auto branchInfo = getBranchInfo(it.first);
+      auto branchInfo = getProductInfo(it.first);
       if (branchInfo == nullptr || branchInfo->productBranch_ == nullptr) {
         continue;  // Skip if branch info or product branch is not available
       }

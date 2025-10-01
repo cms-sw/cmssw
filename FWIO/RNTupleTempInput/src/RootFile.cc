@@ -66,7 +66,6 @@
 #include "TClass.h"
 #include "TString.h"
 #include "TTree.h"
-#include "TTreeCache.h"
 
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleReader.hxx"
@@ -79,26 +78,6 @@
 namespace edm::rntuple_temp {
 
   // Algorithm classes for making ProvenanceReader:
-  class MakeDummyProvenanceReader : public MakeProvenanceReader {
-  public:
-    std::unique_ptr<ProvenanceReaderBase> makeReader(RootRNTuple& eventTree,
-                                                     DaqProvenanceHelper const* daqProvenanceHelper) const override;
-  };
-  class MakeOldProvenanceReader : public MakeProvenanceReader {
-  public:
-    MakeOldProvenanceReader(std::unique_ptr<EntryDescriptionMap>&& entryDescriptionMap)
-        : MakeProvenanceReader(), entryDescriptionMap_(std::move(entryDescriptionMap)) {}
-    std::unique_ptr<ProvenanceReaderBase> makeReader(RootRNTuple& eventTree,
-                                                     DaqProvenanceHelper const* daqProvenanceHelper) const override;
-
-  private:
-    edm::propagate_const<std::unique_ptr<EntryDescriptionMap>> entryDescriptionMap_;
-  };
-  class MakeFullProvenanceReader : public MakeProvenanceReader {
-  public:
-    std::unique_ptr<ProvenanceReaderBase> makeReader(RootRNTuple& eventTree,
-                                                     DaqProvenanceHelper const* daqProvenanceHelper) const override;
-  };
   class MakeReducedProvenanceReader : public MakeProvenanceReader {
   public:
     MakeReducedProvenanceReader(std::vector<ParentageID> const& parentageIDLookup)
@@ -389,8 +368,6 @@ namespace edm::rntuple_temp {
       processHistoryRegistry.registerProcessHistory(history);
     }
 
-    eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
-
     // Update the branch id info. This has to be done before validateFile since
     // depending on the file format, the branchIDListHelper_ may have its fixBranchListIndexes call made
     if (inputType == InputType::Primary) {
@@ -524,16 +501,6 @@ namespace edm::rntuple_temp {
 
     // We are done with our initial reading of EventAuxiliary.
     indexIntoFile_.doneFileInitialization();
-
-    // Tell the event tree to begin training at the next read.
-    eventTree_.resetTraining();
-
-    // Train the run and lumi trees.
-    runTree_.trainCache("*");
-    lumiTree_.trainCache("*");
-    for (auto& processBlockTree : processBlockTrees_) {
-      processBlockTree->trainCache("*");
-    }
   }
 
   RootFile::~RootFile() {}
@@ -632,11 +599,11 @@ namespace edm::rntuple_temp {
     }
     return std::make_shared<FileBlock>(fileFormatVersion(),
                                        eventTree_.tree(),
-                                       eventTree_.metaTree(),
+                                       nullptr,
                                        lumiTree_.tree(),
-                                       lumiTree_.metaTree(),
+                                       nullptr,
                                        runTree_.tree(),
-                                       runTree_.metaTree(),
+                                       nullptr,
                                        std::move(processBlockTrees),
                                        std::move(processesWithProcessBlockTrees),
                                        0,
@@ -657,11 +624,11 @@ namespace edm::rntuple_temp {
       processesWithProcessBlockTrees.push_back(processBlockTree->processName());
     }
     fileBlock.updateTTreePointers(eventTree_.tree(),
-                                  eventTree_.metaTree(),
+                                  nullptr,
                                   lumiTree_.tree(),
-                                  lumiTree_.metaTree(),
+                                  nullptr,
                                   runTree_.tree(),
-                                  runTree_.metaTree(),
+                                  nullptr,
                                   std::move(processBlockTrees),
                                   std::move(processesWithProcessBlockTrees));
   }
@@ -1988,19 +1955,9 @@ namespace edm::rntuple_temp {
   }
 
   std::unique_ptr<MakeProvenanceReader> RootFile::makeProvenanceReaderMaker(InputType inputType) {
-    if (fileFormatVersion_.storedProductProvenanceUsed()) {
-      readParentageTree(inputType);
-      return std::make_unique<MakeReducedProvenanceReader>(parentageIDLookup_);
-    } else if (fileFormatVersion_.splitProductIDs()) {
-      readParentageTree(inputType);
-      return std::make_unique<MakeFullProvenanceReader>();
-    } else if (fileFormatVersion_.perEventProductIDs()) {
-      auto entryDescriptionMap = std::make_unique<EntryDescriptionMap>();
-      readEntryDescriptionTree(*entryDescriptionMap, inputType);
-      return std::make_unique<MakeOldProvenanceReader>(std::move(entryDescriptionMap));
-    } else {
-      return std::make_unique<MakeDummyProvenanceReader>();
-    }
+    //if (fileFormatVersion_.storedProductProvenanceUsed()) {
+    readParentageTree(inputType);
+    return std::make_unique<MakeReducedProvenanceReader>(parentageIDLookup_);
   }
 
   std::shared_ptr<ProductProvenanceRetriever> RootFile::makeProductProvenanceRetriever(unsigned int iStreamID) {
@@ -2169,191 +2126,6 @@ namespace edm::rntuple_temp {
     const_cast<ReducedProvenanceReader*>(this)->provVector_.clear();
 
     return retValue;
-  }
-
-  class FullProvenanceReader : public ProvenanceReaderBase {
-  public:
-    explicit FullProvenanceReader(RootRNTuple* rootTree, DaqProvenanceHelper const* daqProvenanceHelper);
-    ~FullProvenanceReader() override {}
-    std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
-
-  private:
-    void readProvenanceAsync(WaitingTaskHolder task,
-                             ModuleCallingContext const* moduleCallingContext,
-                             unsigned int transitionIndex,
-                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept override;
-
-    RootRNTuple* rootTree_;
-    ProductProvenanceVector infoVector_;
-    //All access to a ROOT file is serialized
-    CMS_SA_ALLOW mutable ProductProvenanceVector* pInfoVector_;
-    DaqProvenanceHelper const* daqProvenanceHelper_;
-    std::shared_ptr<std::recursive_mutex> mutex_;
-    SharedResourcesAcquirer acquirer_;
-  };
-
-  FullProvenanceReader::FullProvenanceReader(RootRNTuple* rootTree, DaqProvenanceHelper const* daqProvenanceHelper)
-      : ProvenanceReaderBase(),
-        rootTree_(rootTree),
-        infoVector_(),
-        pInfoVector_(&infoVector_),
-        daqProvenanceHelper_(daqProvenanceHelper),
-        mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
-        acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {}
-
-  void FullProvenanceReader::readProvenanceAsync(
-      WaitingTaskHolder task,
-      ModuleCallingContext const* moduleCallingContext,
-      unsigned int transitionIndex,
-      std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept {
-    readProvenanceAsyncImpl(this,
-                            acquirer_.serialQueueChain(),
-                            task,
-                            transitionIndex,
-                            writeTo,
-                            moduleCallingContext,
-                            rootTree_->rootDelayedReader()->preEventReadFromSourceSignal(),
-                            rootTree_->rootDelayedReader()->postEventReadFromSourceSignal());
-  }
-
-  std::set<ProductProvenance> FullProvenanceReader::readProvenance(unsigned int transitionIndex) const {
-    {
-      std::lock_guard<std::recursive_mutex> guard(*mutex_);
-      rootTree_->fillBranchEntryMeta(
-          rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
-    }
-    std::set<ProductProvenance> retValue;
-    if (daqProvenanceHelper_) {
-      for (auto const& info : infoVector_) {
-        retValue.emplace(daqProvenanceHelper_->mapBranchID(info.branchID()),
-                         daqProvenanceHelper_->mapParentageID(info.parentageID()));
-      }
-    } else {
-      for (auto const& info : infoVector_) {
-        retValue.emplace(info);
-      }
-    }
-    return retValue;
-  }
-
-  class OldProvenanceReader : public ProvenanceReaderBase {
-  public:
-    explicit OldProvenanceReader(RootRNTuple* rootTree,
-                                 EntryDescriptionMap const& theMap,
-                                 DaqProvenanceHelper const* daqProvenanceHelper);
-    ~OldProvenanceReader() override {}
-    std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
-
-  private:
-    void readProvenanceAsync(WaitingTaskHolder task,
-                             ModuleCallingContext const* moduleCallingContext,
-                             unsigned int transitionIndex,
-                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept override;
-
-    edm::propagate_const<RootRNTuple*> rootTree_;
-    std::vector<EventEntryInfo> infoVector_;
-    //All access to ROOT file are serialized
-    CMS_SA_ALLOW mutable std::vector<EventEntryInfo>* pInfoVector_;
-    EntryDescriptionMap const& entryDescriptionMap_;
-    DaqProvenanceHelper const* daqProvenanceHelper_;
-    std::shared_ptr<std::recursive_mutex> mutex_;
-    SharedResourcesAcquirer acquirer_;
-  };
-
-  OldProvenanceReader::OldProvenanceReader(RootRNTuple* rootTree,
-                                           EntryDescriptionMap const& theMap,
-                                           DaqProvenanceHelper const* daqProvenanceHelper)
-      : ProvenanceReaderBase(),
-        rootTree_(rootTree),
-        infoVector_(),
-        pInfoVector_(&infoVector_),
-        entryDescriptionMap_(theMap),
-        daqProvenanceHelper_(daqProvenanceHelper),
-        mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
-        acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {}
-
-  void OldProvenanceReader::readProvenanceAsync(
-      WaitingTaskHolder task,
-      ModuleCallingContext const* moduleCallingContext,
-      unsigned int transitionIndex,
-      std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept {
-    readProvenanceAsyncImpl(this,
-                            acquirer_.serialQueueChain(),
-                            task,
-                            transitionIndex,
-                            writeTo,
-                            moduleCallingContext,
-                            rootTree_->rootDelayedReader()->preEventReadFromSourceSignal(),
-                            rootTree_->rootDelayedReader()->postEventReadFromSourceSignal());
-  }
-
-  std::set<ProductProvenance> OldProvenanceReader::readProvenance(unsigned int transitionIndex) const {
-    {
-      std::lock_guard<std::recursive_mutex> guard(*mutex_);
-      rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
-      rootrntuple::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
-    }
-    std::set<ProductProvenance> retValue;
-    for (auto const& info : infoVector_) {
-      EntryDescriptionMap::const_iterator iter = entryDescriptionMap_.find(info.entryDescriptionID());
-      assert(iter != entryDescriptionMap_.end());
-      Parentage parentage(iter->second.parents());
-      if (daqProvenanceHelper_) {
-        retValue.emplace(daqProvenanceHelper_->mapBranchID(info.branchID()),
-                         daqProvenanceHelper_->mapParentageID(parentage.id()));
-      } else {
-        retValue.emplace(info.branchID(), parentage.id());
-      }
-    }
-    return retValue;
-  }
-
-  class DummyProvenanceReader : public ProvenanceReaderBase {
-  public:
-    DummyProvenanceReader();
-    ~DummyProvenanceReader() override {}
-
-  private:
-    std::set<ProductProvenance> readProvenance(unsigned int) const override;
-    void readProvenanceAsync(WaitingTaskHolder task,
-                             ModuleCallingContext const* moduleCallingContext,
-                             unsigned int transitionIndex,
-                             std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept override;
-  };
-
-  DummyProvenanceReader::DummyProvenanceReader() : ProvenanceReaderBase() {}
-
-  std::set<ProductProvenance> DummyProvenanceReader::readProvenance(unsigned int) const {
-    // Not providing parentage!!!
-    return std::set<ProductProvenance>{};
-  }
-  void DummyProvenanceReader::readProvenanceAsync(
-      WaitingTaskHolder task,
-      ModuleCallingContext const* moduleCallingContext,
-      unsigned int transitionIndex,
-      std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept {
-    if (nullptr == writeTo.load()) {
-      auto emptyProv = std::make_unique<const std::set<ProductProvenance>>();
-      const std::set<ProductProvenance>* expected = nullptr;
-      if (writeTo.compare_exchange_strong(expected, emptyProv.get())) {
-        emptyProv.release();
-      }
-    }
-  }
-
-  std::unique_ptr<ProvenanceReaderBase> MakeDummyProvenanceReader::makeReader(RootRNTuple&,
-                                                                              DaqProvenanceHelper const*) const {
-    return std::make_unique<DummyProvenanceReader>();
-  }
-
-  std::unique_ptr<ProvenanceReaderBase> MakeOldProvenanceReader::makeReader(
-      RootRNTuple& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::make_unique<OldProvenanceReader>(&rootTree, *entryDescriptionMap_, daqProvenanceHelper);
-  }
-
-  std::unique_ptr<ProvenanceReaderBase> MakeFullProvenanceReader::makeReader(
-      RootRNTuple& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::make_unique<FullProvenanceReader>(&rootTree, daqProvenanceHelper);
   }
 
   std::unique_ptr<ProvenanceReaderBase> MakeReducedProvenanceReader::makeReader(
