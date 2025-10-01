@@ -495,7 +495,7 @@ namespace cms::alpakatools {
     // TODO replace with a tbb::concurrent_map ?
     using BusyBlocks = std::map<void*, BlockDescriptor>;  // ordered by the address of the allocated memory
 
-    inline static const std::string deviceType_ = alpaka::core::demangled<Device>;
+    inline static const std::string_view deviceType_ = alpaka::core::demangled<Device>;
 
     mutable std::mutex mutex_;
     Device device_;  // the device where the memory is allocated
