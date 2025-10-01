@@ -95,7 +95,10 @@ namespace pixelClustering {
             }
           }
           nclus = maxNumClustersPerModules;
+          clus_view[thisModuleId].clusInModule() = nclus;
         }
+
+        ALPAKA_ASSERT_ACC(clus_view[thisModuleId].clusInModule() <= maxNumClustersPerModules);
 
 #ifdef GPU_DEBUG
         if (thisModuleId % 100 == 1)
@@ -178,7 +181,7 @@ namespace pixelClustering {
         ALPAKA_ASSERT_ACC(nclus >= newclusId[nclus - 1]);
 
         clus_view[thisModuleId].clusInModule() = newclusId[nclus - 1];
-
+      
         // reassign id
         for (auto i : cms::alpakatools::independent_group_elements(acc, firstPixel, numElements)) {
           if (digi_view[i].moduleId() == invalidModuleId)
