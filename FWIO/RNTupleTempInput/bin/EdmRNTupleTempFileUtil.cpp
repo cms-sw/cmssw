@@ -58,9 +58,9 @@ int main(int argc, char* argv[]) {
       "eventsInLumis", "Print how many Events are in each LuminosityBlock.");
 
   // What trees do we require for this to be a valid collection?
-  std::vector<std::string> expectedTrees;
-  expectedTrees.push_back(edm::poolNames::metaDataTreeName());
-  expectedTrees.push_back(edm::poolNames::eventTreeName());
+  std::vector<std::string> expectedRNTuples;
+  expectedRNTuples.push_back(edm::poolNames::metaDataTreeName());
+  expectedRNTuples.push_back(edm::poolNames::eventTreeName());
 
   boost::program_options::positional_options_description p;
   p.add("file", -1);
@@ -187,20 +187,20 @@ int main(int argc, char* argv[]) {
       }
 
       // Ok. Do we have the expected trees?
-      for (unsigned int i = 0; i < expectedTrees.size(); ++i) {
-        TTree* t = (TTree*)tfile->Get(expectedTrees[i].c_str());
+      for (unsigned int i = 0; i < expectedRNTuples.size(); ++i) {
+        auto* t = tfile->Get<ROOT::RNTuple>(expectedRNTuples[i].c_str());
         if (t == nullptr) {
-          std::cout << "Tree " << expectedTrees[i] << " appears to be missing. Not a valid collection\n";
+          std::cout << "RNTuple " << expectedRNTuples[i] << " appears to be missing. Not a valid collection\n";
           std::cout << "Exiting\n";
           return 1;
         } else {
           if (verbose)
-            std::cout << "ECU:: Found Tree " << expectedTrees[i] << std::endl;
+            std::cout << "ECU:: Found RNTuple " << expectedRNTuples[i] << std::endl;
         }
       }
 
       if (verbose)
-        std::cout << "ECU:: Found all expected trees\n";
+        std::cout << "ECU:: Found all expected RNTuples\n";
 
       std::ostringstream auout;
       if (adler32) {
