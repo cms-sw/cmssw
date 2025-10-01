@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/HIon --cff --data --type HIon
 
-# /dev/CMSSW_15_0_0/HIon/V117 (CMSSW_15_0_11)
+# /dev/CMSSW_15_0_0/HIon/V118 (CMSSW_15_0_15)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/HIon/V117")
+  tableName = cms.string("/dev/CMSSW_15_0_0/HIon/V118")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -13410,7 +13410,7 @@ fragment.hltL1EventNumberL1Fat = cms.EDFilter( "HLTL1NumberFilter",
     rawInput = cms.InputTag( "rawDataCollector" ),
     period = cms.uint32( 107 ),
     invert = cms.bool( False ),
-    fedId = cms.int32( 1024 ),
+    fedIds = cms.vint32( 1024 ),
     useTCDSEventNumber = cms.bool( True )
 )
 fragment.hltPreHIPhysics = cms.EDFilter( "HLTPrescaler",
@@ -13436,7 +13436,7 @@ fragment.hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
     rawInput = cms.InputTag( "rawDataCollector" ),
     period = cms.uint32( 4096 ),
     invert = cms.bool( False ),
-    fedId = cms.int32( 1024 ),
+    fedIds = cms.vint32( 1024 ),
     useTCDSEventNumber = cms.bool( False )
 )
 fragment.hltL1sHIHcalNZS = cms.EDFilter( "HLTL1TSeed",
