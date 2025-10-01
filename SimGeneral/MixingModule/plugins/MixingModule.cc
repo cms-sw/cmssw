@@ -96,23 +96,22 @@ namespace edm {
       std::string labelCF = " ";
 
       if (object == "SimTrack") {
-        InputTag tag;
-        if (!tags.empty())
-          tag = tags[0];
-        std::string label;
+        for (auto& tag : tags) {
+          std::string label;
 
-        branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(), std::string(""), tag, label);
-        adjustersObjects_.push_back(new Adjuster<std::vector<SimTrack> >(tag, consumesCollector(), wrapLongTimes_));
-        bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
-        if (makeCrossingFrame) {
-          workersObjects_.push_back(new MixingWorker<SimTrack>(
-              minBunch_, maxBunch_, bunchSpace_, std::string(""), label, labelCF, maxNbSources_, tag, tagCF));
-          produces<CrossingFrame<SimTrack> >(label);
+          branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(), std::string(""), tag, label);
+          adjustersObjects_.push_back(new Adjuster<std::vector<SimTrack> >(tag, consumesCollector(), wrapLongTimes_));
+          bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
+          if (makeCrossingFrame) {
+            workersObjects_.push_back(new MixingWorker<SimTrack>(
+                minBunch_, maxBunch_, bunchSpace_, std::string(""), label, labelCF, maxNbSources_, tag, tagCF));
+            produces<CrossingFrame<SimTrack> >(label);
+          }
+          consumes<std::vector<SimTrack> >(tag);
+
+          LogInfo("MixingModule") << "Will mix " << object << "s with InputTag= " << tag.encode() << ", label will be "
+                                  << label;
         }
-        consumes<std::vector<SimTrack> >(tag);
-
-        LogInfo("MixingModule") << "Will mix " << object << "s with InputTag= " << tag.encode() << ", label will be "
-                                << label;
       } else if (object == "RecoTrack") {
         InputTag tag;
         if (!tags.empty())
@@ -134,23 +133,22 @@ namespace edm {
         LogInfo("MixingModule") << "Will mix " << object << "s with InputTag= " << tag.encode() << ", label will be "
                                 << label;
       } else if (object == "SimVertex") {
-        InputTag tag;
-        if (!tags.empty())
-          tag = tags[0];
-        std::string label;
+        for (auto& tag : tags) {
+          std::string label;
 
-        branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(), std::string(""), tag, label);
-        adjustersObjects_.push_back(new Adjuster<std::vector<SimVertex> >(tag, consumesCollector(), wrapLongTimes_));
-        bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
-        if (makeCrossingFrame) {
-          workersObjects_.push_back(new MixingWorker<SimVertex>(
-              minBunch_, maxBunch_, bunchSpace_, std::string(""), label, labelCF, maxNbSources_, tag, tagCF));
-          produces<CrossingFrame<SimVertex> >(label);
+          branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(), std::string(""), tag, label);
+          adjustersObjects_.push_back(new Adjuster<std::vector<SimVertex> >(tag, consumesCollector(), wrapLongTimes_));
+          bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
+          if (makeCrossingFrame) {
+            workersObjects_.push_back(new MixingWorker<SimVertex>(
+                minBunch_, maxBunch_, bunchSpace_, std::string(""), label, labelCF, maxNbSources_, tag, tagCF));
+            produces<CrossingFrame<SimVertex> >(label);
+          }
+          consumes<std::vector<SimVertex> >(tag);
+
+          LogInfo("MixingModule") << "Will mix " << object << "s with InputTag " << tag.encode() << ", label will be "
+                                  << label;
         }
-        consumes<std::vector<SimVertex> >(tag);
-
-        LogInfo("MixingModule") << "Will mix " << object << "s with InputTag " << tag.encode() << ", label will be "
-                                << label;
       } else if (object == "HepMCProduct") {
         InputTag tag;
         if (!tags.empty())
