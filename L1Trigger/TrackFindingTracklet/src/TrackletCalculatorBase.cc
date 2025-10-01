@@ -570,21 +570,21 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
   calcPars(idr, iphi1, ir1, iz1abs, iphi2, ir2, iz2abs, irinv_new, iphi0_new, iz0_new, it_new);
 
   if (print) {
-    std::cout << "=======================" << std::endl;
-    std::cout << "iphi1, ir1, iz1abs : " << iphi1 << " " << ir1 << " " << iz1abs << std::endl;
-    std::cout << "iphi2, ir2, iz2abs : " << iphi2 << " " << ir2 << " " << iz2abs << std::endl;
-    std::cout << "idr irinv iphi0 iz0 it : " << idr << " " << irinv_new << " " << iphi0_new << " " << iz0_new << " "
-              << it_new << std::endl;
+    edm::LogVerbatim("Tracklet") << "=======================";
+    edm::LogVerbatim("Tracklet") << "iphi1, ir1, iz1abs : " << iphi1 << " " << ir1 << " " << iz1abs;
+    edm::LogVerbatim("Tracklet") << "iphi2, ir2, iz2abs : " << iphi2 << " " << ir2 << " " << iz2abs;
+    edm::LogVerbatim("Tracklet") << "idr irinv iphi0 iz0 it : " << idr << " " << irinv_new << " " << iphi0_new << " "
+                                 << iz0_new << " " << it_new;
   }
 
   bool rinvcut = abs(irinv_new) < settings_.rinvcut() * (120.0 * (1 << n_rinv_)) / phiHG_;
   bool z0cut = abs(iz0_new) < settings_.z0cut() * (1 << n_z_) / 120.0;
 
   if (print) {
-    std::cout << "Pass cuts: " << rinvcut << " " << z0cut << " " << inSector(iphi0_new, irinv_new, phi0, rinv)
-              << std::endl;
-    std::cout << "rinvcut  : " << settings_.rinvmax() * (120.0 * (1 << n_rinv_)) / phiHG_ << " " << settings_.rinvmax()
-              << " " << 1.0 / ((120.0 * (1 << n_rinv_)) / phiHG_) << std::endl;
+    edm::LogVerbatim("Tracklet") << "Pass cuts: " << rinvcut << " " << z0cut << " "
+                                 << inSector(iphi0_new, irinv_new, phi0, rinv);
+    edm::LogVerbatim("Tracklet") << "rinvcut  : " << settings_.rinvmax() * (120.0 * (1 << n_rinv_)) / phiHG_ << " "
+                                 << settings_.rinvmax() << " " << 1.0 / ((120.0 * (1 << n_rinv_)) / phiHG_);
   }
 
   if (!goodTrackPars(rinvcut, z0cut))
@@ -741,12 +741,12 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
   calcPars(idr, iphi1, ir1abs, iz1, iphi2, ir2, iz2abs, irinv_new, iphi0_new, iz0_new, it_new);
 
   if (print) {
-    std::cout << "======================================" << std::endl;
-    std::cout << "ir:   " << ir1abs << " " << ir2 << std::endl;
-    std::cout << "iphi: " << iphi1 << " " << iphi2 << std::endl;
-    std::cout << "iz:   " << iz1 << " " << iz2abs << std::endl;
-    std::cout << "iz2 iz2mean " << iz2 << " " << iz2mean << std::endl;
-    std::cout << "pars: " << irinv_new << " " << iphi0_new << " " << iz0_new << " " << it_new << std::endl;
+    edm::LogVerbatim("Tracklet") << "======================================";
+    edm::LogVerbatim("Tracklet") << "ir:   " << ir1abs << " " << ir2;
+    edm::LogVerbatim("Tracklet") << "iphi: " << iphi1 << " " << iphi2;
+    edm::LogVerbatim("Tracklet") << "iz:   " << iz1 << " " << iz2abs;
+    edm::LogVerbatim("Tracklet") << "iz2 iz2mean " << iz2 << " " << iz2mean;
+    edm::LogVerbatim("Tracklet") << "pars: " << irinv_new << " " << iphi0_new << " " << iz0_new << " " << it_new;
   }
 
   bool rinvcut = abs(irinv_new) < settings_.rinvcut() * (120.0 * (1 << n_rinv_)) / phiHG_;

@@ -11,6 +11,7 @@
 
 #include <utility>
 #include <tuple>
+#include <sstream>
 
 using namespace std;
 using namespace trklet;
@@ -236,20 +237,21 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
   bool tebuffernearfull;
 
   for (unsigned int istep = 0; istep < maxStep_; istep++) {
-    // These print statements are not on by defaul but can be enabled for the
+    // These print statements are not on by default but can be enabled for the
     // comparison with HLS code to track differences.
     if (print) {
       CircularBuffer<TEData>& tedatabuffer = std::get<0>(tebuffer_);
       unsigned int& istub = std::get<1>(tebuffer_);
       unsigned int& imem = std::get<2>(tebuffer_);
-      cout << "istep=" << istep << " TEBuffer: " << istub << " " << imem << " " << tedatabuffer.rptr() << " "
+      std::stringstream mess;
+      mess << "istep=" << istep << " TEBuffer: " << istub << " " << imem << " " << tedatabuffer.rptr() << " "
            << tedatabuffer.wptr();
       int k = -1;
       for (auto& teunit : teunits_) {
         k++;
-        cout << " [" << k << " " << teunit.rptr() << " " << teunit.wptr() << " " << teunit.idle() << "]";
+        mess << " [" << k << " " << teunit.rptr() << " " << teunit.wptr() << " " << teunit.idle() << "]";
       }
-      cout << endl;
+      edm::LogVerbatim("Tracklet") << mess.str();
     }
 
     CircularBuffer<TEData>& tedatabuffer = std::get<0>(tebuffer_);

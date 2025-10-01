@@ -18,7 +18,7 @@ namespace trklet {
 
     ~TrackletProjectionsMemory() override {
       if (settings_.writeMonitorData("WriteEmptyProj") && (!hasProj_)) {
-        edm::LogPrint("Tracklet") << "Empty Projection Memory : " << getName() << std::endl;
+        edm::LogPrint("Tracklet") << "Empty Projection Memory : " << getName();
       }
     };
 

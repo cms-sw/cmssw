@@ -448,7 +448,7 @@ namespace trklet {
         layerdisk += N_DISK;
       double bendcut = bendcut_[layerdisk][ibend];
       if (bendcut <= 0.0)
-        std::cout << "bendcut : " << layerdisk << " " << ibend << " " << isPSmodule << std::endl;
+        edm::LogError("Tracklet") << "bendcut : " << layerdisk << " " << ibend << " " << isPSmodule;
       assert(bendcut > 0.0);
       return bendcut;
     }

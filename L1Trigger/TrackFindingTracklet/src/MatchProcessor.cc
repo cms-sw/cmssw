@@ -260,8 +260,8 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
   if (print) {
     for (unsigned int i = 0; i < inputprojs_.size(); i++) {
       for (unsigned int p = 0; p < inputprojs_[i]->nPage(); p++) {
-        std::cout << "ProjOcc: " << inputprojs_[i]->getName() << " " << p << " " << inputprojs_[i]->nTracklets(p)
-                  << std::endl;
+        edm::LogVerbatim("Tracklet") << "ProjOcc: " << inputprojs_[i]->getName() << " " << p << " "
+                                     << inputprojs_[i]->nTracklets(p);
       }
     }
   }
@@ -318,17 +318,18 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     // This print statement is useful for detailed comparison with the HLS code
     // It prints out detailed status information for each clock step
 
+    std::stringstream mess;
     if (print) {
-      std::cout << "istep = " << istep << " projBuff: " << inputProjBuffer_.rptr() << " " << inputProjBuffer_.wptr()
-                << " " << projBufferNearFull;
-      std::cout << " " << validin << " " << validin_ << " " << validmem;
+      mess << "istep = " << istep << " projBuff: " << inputProjBuffer_.rptr() << " " << inputProjBuffer_.wptr() << " "
+           << projBufferNearFull;
+      mess << " " << validin << " " << validin_ << " " << validmem;
       unsigned int iMEU = 0;
       for (auto& matchengine : matchengines_) {
-        std::cout << " MEU" << iMEU << ": " << matchengine.rptr() << " " << matchengine.wptr() << " "
-                  << matchengine.idle() << " " << matchengine.empty() << " " << matchengine.TCID();
+        mess << " MEU" << iMEU << ": " << matchengine.rptr() << " " << matchengine.wptr() << " " << matchengine.idle()
+             << " " << matchengine.empty() << " " << matchengine.TCID();
         iMEU++;
       }
-      std::cout << std::endl;
+      edm::LogVerbatim("Tracklet") << mess.str();
     }
 
     //First do some caching of state at the start of the clock
@@ -367,7 +368,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     }
 
     if (print) {
-      std::cout << "hasMatch: " << (!matchengines_[iMEbest].empty()) << std::endl;
+      edm::LogVerbatim("Tracklet") << "hasMatch: " << (!matchengines_[iMEbest].empty());
     }
 
     candidatematch_ = false;
@@ -382,7 +383,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
       //Consistency check
       if (oldTracklet != nullptr) {
         //allow equal here since we can have more than one cadidate match per tracklet projection
-        //cout << "old new : "<<oldTracklet->TCID()<<" "<<tracklet->TCID()<<" "<<iMEbest<<endl;
+        //edm::LogVerbatim("Tracklet") << "old new : "<<oldTracklet->TCID()<<" "<<tracklet->TCID()<<" "<<iMEbest;
         assert(oldTracklet->TCID() <= tracklet_->TCID());
       }
       oldTracklet = tracklet_;
@@ -574,7 +575,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
                                usesecondPlus,
                                isPSseed);
         if (print) {
-          std::cout << "Add projection to inputProjBuffer istep = " << istep << std::endl;
+          edm::LogVerbatim("Tracklet") << "Add projection to inputProjBuffer istep = " << istep;
         }
         inputProjBuffer_.store(tmpProj);
       }
@@ -589,8 +590,8 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
       TrackletProjectionsMemory* projMem = inputprojs_[imem];
       projdata = projMem->getTracklet(read_address, ipage);
       if (print & validin) {
-        std::cout << "Reading iprojmem page, readaddress : " << istep << " " << imem << " " << ipage << " "
-                  << read_address << std::endl;
+        edm::LogVerbatim("Tracklet") << "Reading iprojmem page, readaddress : " << istep << " " << imem << " " << ipage
+                                     << " " << read_address;
       }
     }
 
@@ -727,7 +728,7 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
     if (std::abs(dphi) > 0.5 * settings_.dphisectorHG() || std::abs(dphiapprox) > 0.5 * settings_.dphisectorHG()) {
       //throw cms::Exception("LogicError") << "WARNING dphi and/or dphiapprox too large : " << dphi << " " << dphiapprox
       //                                   << endl;
-      std::cout << "WARNING dphi and/or dphiapprox too large : " << dphi << " " << dphiapprox << std::endl;
+      edm::LogWarning("Tracklet") << "WARNING dphi and/or dphiapprox too large : " << dphi << " " << dphiapprox;
     }
 
     bool keep = true;
@@ -748,7 +749,7 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
 
     if (imatch) {
       if (print) {
-        std::cout << "Adding match on istep = " << istep << std::endl;
+        edm::LogVerbatim("Tracklet") << "Adding match on istep = " << istep;
       }
 
       tracklet->addMatch(layerdisk_,

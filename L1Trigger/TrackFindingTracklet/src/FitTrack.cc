@@ -10,6 +10,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace trklet;
 
@@ -900,14 +902,15 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
     //Counts unique hits in each layer
     int nMatchesUniq = 0;
 
+    std::stringstream mess;
     if (print)
-      std::cout << "istep = " << istep;
+      mess << "istep = " << istep;
 
     for (unsigned int i = 0; i < matches.size(); i++) {
       bool match = false;
       while (indexArray[i] < matches[i].size() && matches[i][indexArray[i]] == bestTracklet) {
         if (print)
-          std::cout << " match" << i;
+          mess << " match" << i;
         indexArray[i]++;
         nMatches++;
         match = true;
@@ -917,12 +920,14 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
         nMatchesUniq++;
     }
 
+    if (print) {
+      mess << " nMatchesUniq = " << nMatchesUniq;
+      edm::LogVerbatim("Tracklet") << mess.str();
+    }
+
     if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << getName() << " : nMatches = " << nMatches << " nMatchesUniq = " << nMatchesUniq;
     }
-
-    if (print)
-      std::cout << " nMatchesUniq = " << nMatchesUniq << std::endl;
 
     std::vector<const Stub*> trackstublist;
     std::vector<std::pair<int, int>> stubidslist;
@@ -998,14 +1003,14 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
           bool disk2S = (stub->disk() != 0) && (stub->isPSmodule() == 0);
           if (disk2S) {
             r = string(widthDisk2Sidentifier, '0') + r;
-            //std::cout << "2s stub : " << r << std::endl;
+            // edm::LogVerbatim("Tracklet") << "2s stub : " << r;
           }
           bool diskPS = (stub->disk() != 0) && (stub->isPSmodule() != 0);
           if (diskPS) {
-            //  std::cout << "old r: " << r << " new r: " ;
+            //  string oldr = r;
             FPGAWord tmp(resid.stubptr()->rvalue(), 12);
             r = tmp.str();
-            //  std::cout << r << std::endl;
+            // edm::LogVerbatim("Tracklet") << "old r: "<< oldr << "new r: " << r;
           }
           const string& stubId = resid.fpgastubid().str();
           // store seed, L1TStub, and bit accurate 64 bit word in clock accurate output

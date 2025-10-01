@@ -15,6 +15,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #endif
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace trklet;
@@ -669,14 +670,14 @@ void TrackletConfigBuilder::writeMergedProjectionMemories(std::ostream& os,
 
           std::string mtprojname = MPROJName(iSeed, iMergedTC, ilayer, ireg);
 
-          //std::cout << "mtprojname: " << mtprojname << " " << iSeed << std::endl;
+          //edm::LogVerbatim("Tracklet") << "mtprojname: " << mtprojname << " " << iSeed;
 
           if (MPROJNames.find(mtprojname) != MPROJNames.end()) {
-            //std::cout << "Already have: " << mtprojname << std::endl;
+            //edm::LogVerbatim("Tracklet") << "Already have: " << mtprojname;
             continue;
           }
 
-          //std::cout << "Adding: " << mtprojname << std::endl;
+          //edm::LogVerbatim("Tracklet") << "Adding: " << mtprojname;
           MPROJNames.insert(mtprojname);
           if (duplicateMPs_ &&
               (settings_.layersDisksDuplicatedEqualProjBalance()[ilayer] ||

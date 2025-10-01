@@ -588,7 +588,7 @@ const std::string Tracklet::layerstubstr(const unsigned layer) const {
     oss << "0|0000000|0000000000|0000000|000000000000|000000000";
   else {
     if (trackIndex_ < 0 || trackIndex_ > (int)settings_.ntrackletmax()) {
-      cout << "trackIndex_ = " << trackIndex_ << endl;
+      edm::LogWarning("Tracklet") << "trackIndex_ = " << trackIndex_;
       assert(0);
     }
     const FPGAWord tmp(trackIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);
@@ -611,7 +611,7 @@ const std::string Tracklet::diskstubstr(const unsigned disk) const {
     oss << "0|0000000|0000000000|000000000000|000000000000|0000000";
   else {
     if (trackIndex_ < 0 || trackIndex_ > (int)settings_.ntrackletmax()) {
-      cout << "trackIndex_ = " << trackIndex_ << endl;
+      edm::LogWarning("Tracklet") << "trackIndex_ = " << trackIndex_;
       assert(0);
     }
     const FPGAWord tmp(trackIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);

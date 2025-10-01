@@ -1,6 +1,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/MatchEngineUnit.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace trklet;
@@ -79,7 +80,7 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   proj_ = proj;
 
   if (print) {
-    std::cout << "MEU Init: " << imeu_ << " " << projfinerz << " " << projfinephi << std::endl;
+    edm::LogVerbatim("Tracklet") << "MEU Init: " << imeu_ << " " << projfinerz << " " << projfinephi;
   }
 
   good__ = false;
@@ -109,8 +110,8 @@ void MatchEngineUnit::step(bool print) {
   vmstub__ = vmstubsmemory_->getVMStubMEBin(slot, istub_);
 
   if (print) {
-    std::cout << "Read vmstub MEU " << imeu_ << " " << slot << " " << istub_ << " " << vmstub__.bend().value()
-              << std::endl;
+    edm::LogVerbatim("Tracklet") << "Read vmstub MEU " << imeu_ << " " << slot << " " << istub_ << " "
+                                 << vmstub__.bend().value();
   }
 
   rzbin__ = rzbin_ + use_[iuse_].first;
@@ -187,10 +188,10 @@ void MatchEngineUnit::processPipeline(bool print) {
     }
 
     if (print) {
-      std::cout << "MEU: " << imeu_ << " "
-                << " "
-                << " " << index << " " << luttable_.lookup(index) << " " << pass << " " << dphicut << " " << stubfinephi
-                << " " << projfinephi____ << std::endl;
+      edm::LogVerbatim("Tracklet") << "MEU: " << imeu_ << " "
+                                   << " "
+                                   << " " << index << " " << luttable_.lookup(index) << " " << pass << " " << dphicut
+                                   << " " << stubfinephi << " " << projfinephi____;
     }
 
     bool goodpair = (pass && dphicut) && luttable_.lookup(index);
@@ -199,7 +200,7 @@ void MatchEngineUnit::processPipeline(bool print) {
 
     if (goodpair) {
       if (print) {
-        std::cout << "Write tp match buffer : " << imeu_ << " " << candmatches_.rptr() << std::endl;
+        edm::LogVerbatim("Tracklet") << "Write tp match buffer : " << imeu_ << " " << candmatches_.rptr();
       }
       candmatches_.store(tmppair);
     }
