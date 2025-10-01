@@ -34,6 +34,8 @@ private:
 };
 
 SiStripApprox2Clusters::SiStripApprox2Clusters(const edm::ParameterSet& conf) {
+  tkGeomToken_ = esConsumes();
+  v1 = conf.getParameter<bool>("v1");
   if (v1) {
     clusterToken_v1_ = consumes(conf.getParameter<edm::InputTag>("inputApproxClusters"));
   } else {
