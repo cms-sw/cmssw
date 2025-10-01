@@ -74,18 +74,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
         }
 
         makeRecHit(ch,
-                   uncalibRecHits.id(),
-                   uncalibRecHits.amplitude(),
-                   uncalibRecHits.amplitudeError(),
-                   uncalibRecHits.jitter(),
-                   uncalibRecHits.aux(),
-                   uncalibRecHits.chi2(),
-                   uncalibRecHits.flags(),
-                   recHits.id(),
-                   recHits.energy(),
-                   recHits.time(),
-                   recHits.flagBits(),
-                   recHits.extra(),
+                   uncalibRecHits.id().data(),
+                   uncalibRecHits.amplitude().data(),
+                   uncalibRecHits.amplitudeError().data(),
+                   uncalibRecHits.jitter().data(),
+                   uncalibRecHits.aux().data(),
+                   uncalibRecHits.chi2().data(),
+                   uncalibRecHits.flags().data(),
+                   recHits.id().data(),
+                   recHits.energy().data(),
+                   recHits.time().data(),
+                   recHits.flagBits().data(),
+                   recHits.extra().data(),
                    conditionsDev,
                    parametersDev,
                    eventTime,
@@ -130,20 +130,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
         int const inputCh = isEndcap ? ch - nchannelsEB : ch;
 
         // inputs
-        auto const* didCh = isEndcap ? eeUncalibRecHits.id() : ebUncalibRecHits.id();
-        auto const* amplitude = isEndcap ? eeUncalibRecHits.amplitude() : ebUncalibRecHits.amplitude();
-        auto const* amplitudeError = isEndcap ? eeUncalibRecHits.amplitudeError() : ebUncalibRecHits.amplitudeError();
-        auto const* jitter = isEndcap ? eeUncalibRecHits.jitter() : ebUncalibRecHits.jitter();
-        auto const* aux = isEndcap ? eeUncalibRecHits.aux() : ebUncalibRecHits.aux();
-        auto const* chi2_in = isEndcap ? eeUncalibRecHits.chi2() : ebUncalibRecHits.chi2();
-        auto const* flags_in = isEndcap ? eeUncalibRecHits.flags() : ebUncalibRecHits.flags();
+        auto const didCh = isEndcap ? eeUncalibRecHits.id() : ebUncalibRecHits.id();
+        auto const amplitude = isEndcap ? eeUncalibRecHits.amplitude() : ebUncalibRecHits.amplitude();
+        auto const amplitudeError = isEndcap ? eeUncalibRecHits.amplitudeError() : ebUncalibRecHits.amplitudeError();
+        auto const jitter = isEndcap ? eeUncalibRecHits.jitter() : ebUncalibRecHits.jitter();
+        auto const aux = isEndcap ? eeUncalibRecHits.aux() : ebUncalibRecHits.aux();
+        auto const chi2_in = isEndcap ? eeUncalibRecHits.chi2() : ebUncalibRecHits.chi2();
+        auto const flags_in = isEndcap ? eeUncalibRecHits.flags() : ebUncalibRecHits.flags();
 
         // outputs
-        auto* did = isEndcap ? eeRecHits.id() : ebRecHits.id();
-        auto* energy = isEndcap ? eeRecHits.energy() : ebRecHits.energy();
-        auto* time = isEndcap ? eeRecHits.time() : ebRecHits.time();
-        auto* flagBits = isEndcap ? eeRecHits.flagBits() : ebRecHits.flagBits();
-        auto* extra = isEndcap ? eeRecHits.extra() : ebRecHits.extra();
+        auto did = isEndcap ? eeRecHits.id() : ebRecHits.id();
+        auto energy = isEndcap ? eeRecHits.energy() : ebRecHits.energy();
+        auto time = isEndcap ? eeRecHits.time() : ebRecHits.time();
+        auto flagBits = isEndcap ? eeRecHits.flagBits() : ebRecHits.flagBits();
+        auto extra = isEndcap ? eeRecHits.extra() : ebRecHits.extra();
 
         bool const recoverIsolatedChannels =
             isEndcap ? configParams.recoverEEIsolatedChannels : configParams.recoverEBIsolatedChannels;
@@ -153,18 +153,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
         float const laserMAX = isEndcap ? configParams.EELaserMAX : configParams.EBLaserMAX;
 
         makeRecHit(inputCh,
-                   didCh,
-                   amplitude,
-                   amplitudeError,
-                   jitter,
-                   aux,
-                   chi2_in,
-                   flags_in,
-                   did,
-                   energy,
-                   time,
-                   flagBits,
-                   extra,
+                   didCh.data(),
+                   amplitude.data(),
+                   amplitudeError.data(),
+                   jitter.data(),
+                   aux.data(),
+                   chi2_in.data(),
+                   flags_in.data(),
+                   did.data(),
+                   energy.data(),
+                   time.data(),
+                   flagBits.data(),
+                   extra.data(),
                    conditionsDev,
                    parametersDev,
                    eventTime,

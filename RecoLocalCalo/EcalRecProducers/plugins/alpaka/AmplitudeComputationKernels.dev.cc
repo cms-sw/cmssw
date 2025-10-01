@@ -84,7 +84,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto const nchannels = nchannelsEB + digisDevEE.size();
       auto const offsetForHashes = conditionsDev.offsetEE();
 
-      auto const* pulse_covariance = reinterpret_cast<const EcalPulseCovariance*>(conditionsDev.pulseCovariance());
+      auto const* pulse_covariance =
+          reinterpret_cast<const EcalPulseCovariance*>(conditionsDev.pulseCovariance().data());
 
       // shared memory
       DataType* shrmem = alpaka::getDynSharedMem<DataType>(acc);
@@ -101,15 +102,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
         DataType* shrAtAStorage =
             shrmem + calo::multifit::MapSymM<DataType, NPULSES>::total * (elemIdx + elemsPerBlock);
 
+        // uncalibRecHitsEE.outOfTimeAmplitudes() returns a span<EcalOotAmpArray>, where EcalOotAmpArray is an array of float
+        // uncalibRecHitsEE.outOfTimeAmplitudes().data() returns a pointer to the first EcalOotAmpArray of the data column
+        // uncalibRecHitsEE.outOfTimeAmplitudes().data()->data() returns a pointer to the first float of the first EcalOotAmpArray of the data column
         auto* amplitudes =
-            reinterpret_cast<SampleVector*>(idx >= nchannelsEB ? uncalibRecHitsEE.outOfTimeAmplitudes()->data()
-                                                               : uncalibRecHitsEB.outOfTimeAmplitudes()->data());
-        auto* energies = idx >= nchannelsEB ? uncalibRecHitsEE.amplitude() : uncalibRecHitsEB.amplitude();
-        auto* chi2s = idx >= nchannelsEB ? uncalibRecHitsEE.chi2() : uncalibRecHitsEB.chi2();
+            reinterpret_cast<SampleVector*>(idx >= nchannelsEB ? uncalibRecHitsEE.outOfTimeAmplitudes().data()->data()
+                                                               : uncalibRecHitsEB.outOfTimeAmplitudes().data()->data());
+        auto energies = idx >= nchannelsEB ? uncalibRecHitsEE.amplitude() : uncalibRecHitsEB.amplitude();
+        auto chi2s = idx >= nchannelsEB ? uncalibRecHitsEE.chi2() : uncalibRecHitsEB.chi2();
 
         // get the hash
         int const inputCh = idx >= nchannelsEB ? idx - nchannelsEB : idx;
-        auto const* dids = idx >= nchannelsEB ? digisDevEE.id() : digisDevEB.id();
+        auto const dids = idx >= nchannelsEB ? digisDevEE.id() : digisDevEB.id();
         auto const did = DetId{dids[inputCh]};
         auto const isBarrel = did.subdetId() == EcalBarrel;
         auto const hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId())
