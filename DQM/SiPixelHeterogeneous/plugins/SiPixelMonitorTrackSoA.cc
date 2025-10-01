@@ -86,7 +86,7 @@ void SiPixelMonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
   using helper = TracksUtilities<T>;
   auto const& tsoa = *tsoaHandle.product();
   auto maxTracks = tsoa.view().metadata().size();
-  auto const* quality = tsoa.view().quality();
+  auto const quality = tsoa.view().quality();
   int32_t nTracks = 0;
   int32_t nLooseAndAboveTracks = 0;
 

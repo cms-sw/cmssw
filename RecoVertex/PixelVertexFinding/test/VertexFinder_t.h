@@ -153,17 +153,17 @@ int main() {
       auto nt = ev.ztrack.size();
 #ifdef __CUDACC__
       cudaCheck(cudaMemcpy(&ws_d.view().ntrks(), &nt, sizeof(uint32_t), cudaMemcpyHostToDevice));
-      cudaCheck(
-          cudaMemcpy(ws_d.view().zt(), ev.ztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(
-          cudaMemcpy(ws_d.view().ezt2(), ev.eztrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(
-          cudaMemcpy(ws_d.view().ptt2(), ev.pttrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(
+          ws_d.view().zt().data(), ev.ztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(
+          ws_d.view().ezt2().data(), ev.eztrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(
+          ws_d.view().ptt2().data(), ev.pttrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
 #else
       ::memcpy(&ws_d.view().ntrks(), &nt, sizeof(uint32_t));
-      ::memcpy(ws_d.view().zt(), ev.ztrack.data(), sizeof(float) * ev.ztrack.size());
-      ::memcpy(ws_d.view().ezt2(), ev.eztrack.data(), sizeof(float) * ev.eztrack.size());
-      ::memcpy(ws_d.view().ptt2(), ev.pttrack.data(), sizeof(float) * ev.eztrack.size());
+      ::memcpy(ws_d.view().zt().data(), ev.ztrack.data(), sizeof(float) * ev.ztrack.size());
+      ::memcpy(ws_d.view().ezt2().data(), ev.eztrack.data(), sizeof(float) * ev.eztrack.size());
+      ::memcpy(ws_d.view().ptt2().data(), ev.pttrack.data(), sizeof(float) * ev.eztrack.size());
 #endif
 
       std::cout << "M eps, pset " << kk << ' ' << eps << ' ' << (i % 4) << std::endl;
@@ -232,18 +232,18 @@ int main() {
       nn = hnn;
       ind = hind;
 #else
-      zv = onGPU_d.view().zv();
-      wv = onGPU_d.view().wv();
-      ptv2 = onGPU_d.view().ptv2();
-      nn = onGPU_d.view().ndof();
-      ind = onGPU_d.view().sortInd();
+      zv = onGPU_d.view().zv().data();
+      wv = onGPU_d.view().wv().data();
+      ptv2 = onGPU_d.view().ptv2().data();
+      nn = onGPU_d.view().ndof().data();
+      ind = onGPU_d.view().sortInd().data();
 #endif
 
 #ifdef __CUDACC__
-      cudaCheck(cudaMemcpy(nn, onGPU_d.view().ndof(), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(chi2, onGPU_d.view().chi2(), nv * sizeof(float), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(nn, onGPU_d.view().ndof().data(), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(chi2, onGPU_d.view().chi2().data(), nv * sizeof(float), cudaMemcpyDeviceToHost));
 #else
-      memcpy(chi2, onGPU_d.view().chi2(), nv * sizeof(float));
+      memcpy(chi2, onGPU_d.view().chi2().data(), nv * sizeof(float));
 #endif
 
       for (auto j = 0U; j < nv; ++j)
@@ -257,12 +257,12 @@ int main() {
 #ifdef __CUDACC__
       cms::cuda::launch(gpuVertexFinder::fitVerticesKernel, {1, 1024 - 256}, onGPU_d.view(), ws_d.view(), 50.f);
       cudaCheck(cudaMemcpy(&nv, &onGPU_d.view().nvFinal(), sizeof(uint32_t), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(nn, onGPU_d.view().ndof(), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(chi2, onGPU_d.view().chi2(), nv * sizeof(float), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(nn, onGPU_d.view().ndof().data(), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(chi2, onGPU_d.view().chi2().data(), nv * sizeof(float), cudaMemcpyDeviceToHost));
 #else
       gpuVertexFinder::fitVertices(onGPU_d.view(), ws_d.view(), 50.f);
       nv = onGPU_d.view().nvFinal();
-      memcpy(chi2, onGPU_d.view().chi2(), nv * sizeof(float));
+      memcpy(chi2, onGPU_d.view().chi2().data(), nv * sizeof(float));
 #endif
 
       for (auto j = 0U; j < nv; ++j)
@@ -294,7 +294,7 @@ int main() {
       gpuVertexFinder::fitVertices(onGPU_d.view(), ws_d.view(), 5000.f);
       gpuVertexFinder::sortByPt2(onGPU_d.view(), ws_d.view());
       nv = onGPU_d.view().nvFinal();
-      memcpy(chi2, onGPU_d.view().chi2(), nv * sizeof(float));
+      memcpy(chi2, onGPU_d.view().chi2().data(), nv * sizeof(float));
 #endif
 
       if (nv == 0) {
@@ -303,12 +303,12 @@ int main() {
       }
 
 #ifdef __CUDACC__
-      cudaCheck(cudaMemcpy(zv, onGPU_d.view().zv(), nv * sizeof(float), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(wv, onGPU_d.view().wv(), nv * sizeof(float), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(chi2, onGPU_d.view().chi2(), nv * sizeof(float), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(ptv2, onGPU_d.view().ptv2(), nv * sizeof(float), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(nn, onGPU_d.view().ndof(), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(ind, onGPU_d.view().sortInd(), nv * sizeof(uint16_t), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(zv, onGPU_d.view().zv().data(), nv * sizeof(float), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(wv, onGPU_d.view().wv().data(), nv * sizeof(float), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(chi2, onGPU_d.view().chi2().data(), nv * sizeof(float), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(ptv2, onGPU_d.view().ptv2().data(), nv * sizeof(float), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(nn, onGPU_d.view().ndof().data(), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(ind, onGPU_d.view().sortInd().data(), nv * sizeof(uint16_t), cudaMemcpyDeviceToHost));
 #endif
       for (auto j = 0U; j < nv; ++j)
         if (nn[j] > 0)
@@ -353,7 +353,7 @@ int main() {
       std::cout << "min max rms " << *mx.first << ' ' << *mx.second << ' ' << rms << std::endl;
 
     }  // loop on events
-  }    // lopp on ave vert
+  }  // lopp on ave vert
 
   return 0;
 }

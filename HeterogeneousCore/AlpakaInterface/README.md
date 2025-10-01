@@ -361,6 +361,11 @@ These helper functions instantiate zero-dimensional (scalars) and one-dimensiona
     instantiates a one-dimensional view over an array starting at `span.data()` with
     `span.size()` elements in host memory;
 
+  - `auto make_host_view<T[]>(std::span<T> span, size)`
+    instantiates a one-dimensional view over an array starting at `span.data()` with
+    `size` elements in host memory. If `size` is greater than `span.size()`, an exception
+    is launched.
+
 
 ## Device memory views
 
@@ -395,11 +400,16 @@ These helper functions instantiate zero-dimensional (scalars) and one-dimensiona
 
   - `auto make_device_view<T[]>(device, T* data, size)`
     instantiates a one-dimensional view over an array starting at `data` with
-    `size` elements in device global memory.
+    `size` elements in device global memory;
 
   - `auto make_device_view<T[]>(device, std::span<T> span)`
     instantiates a one-dimensional view over an array starting at `span.data()` with
-    `span.size()` elements in device global memory.
+    `span.size()` elements in device global memory;
+
+  - `auto make_device_view<T[]>(device, std::span<T> span, size)`
+    instantiates a one-dimensional view over an array starting at `span.data()` with
+    `size` elements in host memory; if `size` is greater than `span.size()`, an exception
+    is launched.
 
 The `make_device_view` functions can also accept as a first argument a `queue`
 instead of a `device`:
@@ -414,11 +424,16 @@ instead of a `device`:
 
   - `auto make_device_view<T[]>(queue, T* data, size)`
     instantiates a one-dimensional view over an array starting at `data` with
-    `size` elements in device global memory.
+    `size` elements in device global memory;
 
   - `auto make_device_view<T[]>(queue, std::span<T> span)`
     instantiates a one-dimensional view over an array starting at `span.data()` with
-    `span.size()` elements in device global memory.  
+    `span.size()` elements in device global memory;  
+
+  - `auto make_device_view<T[]>(queue, std::span<T> span, size)`
+    instantiates a one-dimensional view over an array starting at `span.data()` with
+    `size` elements in host memory; if `size` is greater than `span.size()`, an exception
+    is launched.
 
 These functions use the device associated to the given `queue`. These operations
 are otherwise identical to those that take a `device` as their first argument.
