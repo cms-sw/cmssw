@@ -48,9 +48,6 @@ namespace edm::rntuple_temp {
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
-      if (treeCacheSize_ != 0U && pSLC->sourceTTreeCacheSize()) {
-        treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
-      }
       enablePrefetching_ = pSLC->enablePrefetching();
     }
 

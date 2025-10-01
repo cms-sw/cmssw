@@ -28,7 +28,6 @@ RootRNTuple.h // used by ROOT input sources
 
 class TClass;
 class TTree;
-class TTreeCache;
 
 namespace edm::rntuple_temp {
   class InputFile;
@@ -40,8 +39,8 @@ namespace edm::rntuple_temp {
     unsigned int const defaultLearningEntries = 20U;
     unsigned int const defaultNonEventLearningEntries = 1U;
     using EntryNumber = IndexIntoFile::EntryNumber_t;
-    struct BranchInfo {
-      BranchInfo(ProductDescription const& prod)
+    struct ProductInfo {
+      ProductInfo(ProductDescription const& prod)
           : productDescription_(prod), productBranch_(nullptr), classCache_(nullptr), offsetToWrapperBase_(0) {}
       ProductDescription const productDescription_;
       void setBranch(TBranch* branch, TClass const* wrapperBaseTClass);
@@ -54,14 +53,14 @@ namespace edm::rntuple_temp {
       Int_t offsetToWrapperBase_;
     };
 
-    class BranchMap {
+    class ProductMap {
     public:
-      using Map = std::unordered_map<unsigned int, BranchInfo>;
+      using Map = std::unordered_map<unsigned int, ProductInfo>;
 
       void reserve(Map::size_type iSize) { map_.reserve(iSize); }
-      void insert(edm::BranchID const& iKey, BranchInfo const& iInfo) { map_.emplace(iKey.id(), iInfo); }
-      BranchInfo const* find(BranchID const& iKey) const { return find(iKey.id()); }
-      BranchInfo const* find(unsigned int iKey) const {
+      void insert(edm::BranchID const& iKey, ProductInfo const& iInfo) { map_.emplace(iKey.id(), iInfo); }
+      ProductInfo const* find(BranchID const& iKey) const { return find(iKey.id()); }
+      ProductInfo const* find(unsigned int iKey) const {
         auto itFound = map_.find(iKey);
         if (itFound == map_.end()) {
           return nullptr;
@@ -80,15 +79,11 @@ namespace edm::rntuple_temp {
 
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
-    std::unique_ptr<TTreeCache> trainCache(TTree* tree,
-                                           InputFile& file,
-                                           unsigned int cacheSize,
-                                           char const* branchNames);
   }  // namespace rootrntuple
 
   class RootRNTuple {
   public:
-    using BranchMap = rootrntuple::BranchMap;
+    using ProductMap = rootrntuple::ProductMap;
     using EntryNumber = rootrntuple::EntryNumber;
     struct Options {
       unsigned int treeCacheSize = 0U;
@@ -124,7 +119,7 @@ namespace edm::rntuple_temp {
     RootRNTuple& operator=(RootRNTuple const&) = delete;  // Disallow copying and moving
 
     bool isValid() const;
-    void numberOfBranchesToAdd(BranchMap::Map::size_type iSize) { branches_.reserve(iSize); }
+    void numberOfBranchesToAdd(ProductMap::Map::size_type iSize) { branches_.reserve(iSize); }
     void addBranch(ProductDescription const& prod, std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
     void getEntry(TBranch* branch, EntryNumber entry) const;
@@ -150,8 +145,7 @@ namespace edm::rntuple_temp {
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
-      auto cache = getAuxCache(auxBranch_);
-      getEntryUsingCache(auxBranch_, entryNumber_, cache);
+      getEntry(auxBranch_, entryNumber_);
       auxBranch_->SetAddress(nullptr);
     }
 
@@ -164,13 +158,7 @@ namespace edm::rntuple_temp {
 
     template <typename T>
     void fillBranchEntryMeta(TBranch* branch, EntryNumber entryNumber, T*& pbuf) {
-      if (metaTree_ != nullptr) {
-        // Metadata was in separate tree.  Not cached.
-        branch->SetAddress(&pbuf);
-        rootrntuple::getEntry(branch, entryNumber);
-      } else {
-        fillBranchEntry<T>(branch, entryNumber, pbuf);
-      }
+      fillBranchEntry<T>(branch, entryNumber, pbuf);
     }
 
     template <typename T>
@@ -181,18 +169,7 @@ namespace edm::rntuple_temp {
 
     TTree const* tree() const { return tree_; }
     TTree* tree() { return tree_; }
-    TTree const* metaTree() const { return metaTree_; }
-    TTree* metaTree() { return metaTree_; }
-    BranchMap const& branches() const;
-
-    //For backwards compatibility
-    TBranch* branchEntryInfoBranch() const { return branchEntryInfoBranch_; }
-
-    inline TTreeCache* checkTriggerCache(TBranch* branch, EntryNumber entryNumber) const;
-    TTreeCache* checkTriggerCacheImpl(TBranch* branch, EntryNumber entryNumber) const;
-    inline TTreeCache* selectCache(TBranch* branch, EntryNumber entryNumber) const;
-    void trainCache(char const* branchNames);
-    void resetTraining() { trainNow_ = true; }
+    ProductMap const& branches() const;
 
     BranchType branchType() const { return branchType_; }
     std::string const& processName() const { return processName_; }
@@ -210,56 +187,27 @@ namespace edm::rntuple_temp {
                 bool promptRead,
                 InputType inputType);
 
-    std::shared_ptr<TTreeCache> createCacheWithSize(unsigned int cacheSize) const;
     void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
-    void startTraining();
-    void stopTraining();
-    void getEntryUsingCache(TBranch* branch, EntryNumber entry, TTreeCache*) const;
-    TTreeCache* getAuxCache(TBranch* auxBranch) const;
 
     std::shared_ptr<InputFile> filePtr_;
     // We use bare pointers for pointers to some ROOT entities.
     // Root owns them and uses bare pointers internally.
     // Therefore,using smart pointers here will do no good.
     TTree* tree_ = nullptr;
-    TTree* metaTree_ = nullptr;
     BranchType branchType_;
     std::string processName_;
     TBranch* auxBranch_ = nullptr;
-    // We use a smart pointer to own the TTreeCache.
-    // Unfortunately, ROOT owns it when attached to a TFile, but not after it is detached.
-    // So, we make sure to it is detached before closing the TFile so there is no double delete.
-    std::shared_ptr<TTreeCache> treeCache_;
-    std::shared_ptr<TTreeCache> rawTreeCache_;
-    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> auxCache_;
-    //All access to a ROOT file is serialized
-    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> triggerTreeCache_;
-    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> rawTriggerTreeCache_;
-    CMS_SA_ALLOW mutable std::unordered_set<TBranch*> trainedSet_;
-    CMS_SA_ALLOW mutable std::unordered_set<TBranch*> triggerSet_;
     EntryNumber entries_ = 0;
     EntryNumber entryNumber_ = IndexIntoFile::invalidEntry;
     std::unique_ptr<std::vector<EntryNumber> > entryNumberForIndex_;
     std::vector<std::string> branchNames_;
-    BranchMap branches_;
-    bool trainNow_ = false;
-    EntryNumber switchOverEntry_ = -1;
-    CMS_SA_ALLOW mutable EntryNumber rawTriggerSwitchOverEntry_ = -1;
-    CMS_SA_ALLOW mutable bool performedSwitchOver_ = false;
-    unsigned int learningEntries_;
+    ProductMap branches_;
     unsigned int cacheSize_ = 0;
     unsigned long treeAutoFlush_ = 0;
-    // Enable asynchronous I/O in ROOT (done in a separate thread).  Only takes
-    // effect on the primary treeCache_; all other caches have this explicitly disabled.
     bool enablePrefetching_;
-    bool enableTriggerCache_;
     bool promptRead_;
     std::unique_ptr<RootDelayedReaderBase> rootDelayedReader_;
-
-    TBranch* branchEntryInfoBranch_ = nullptr;  //backwards compatibility
-    // below for backward compatibility
-    TTree* infoTree_ = nullptr;  // backward compatibility
   };
 }  // namespace edm::rntuple_temp
 #endif

@@ -34,8 +34,8 @@ namespace edm::rntuple_temp {
 
   class RootDelayedReader : public RootDelayedReaderBase {
   public:
-    typedef rootrntuple::BranchInfo BranchInfo;
-    typedef rootrntuple::BranchMap BranchMap;
+    typedef rootrntuple::ProductInfo ProductInfo;
+    typedef rootrntuple::ProductMap ProductMap;
     typedef rootrntuple::EntryNumber EntryNumber;
     RootDelayedReader(RootRNTuple const& tree, std::shared_ptr<InputFile> filePtr, InputType inputType);
 
@@ -52,8 +52,8 @@ namespace edm::rntuple_temp {
     void reset_() override { nextReader_ = nullptr; }
     std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const override;
 
-    BranchMap const& branches() const { return tree_.branches(); }
-    BranchInfo const* getBranchInfo(BranchID const& k) const { return branches().find(k); }
+    ProductMap const& branches() const { return tree_.branches(); }
+    ProductInfo const* getProductInfo(BranchID const& k) const { return branches().find(k); }
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
     // the file containing the branch from being reclaimed.
     RootRNTuple const& tree_;
