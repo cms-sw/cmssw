@@ -68,19 +68,13 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
 
   if (hits.empty()) {
     edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT") << "No hits collected. Producing empty associator.";
-    auto emptyAssociator = std::make_unique<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>();
-    iEvent.put(std::move(emptyAssociator));
-    return;
   }
 
   if (!iEvent.getHandle(hitMap_)) {
     edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT") << "Hit map not valid. Producing empty associator.";
-    auto emptyAssociator = std::make_unique<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>();
-    iEvent.put(std::move(emptyAssociator));
-    return;
   }
-  const auto hitMap = &iEvent.get(hitMap_);
 
+  const auto hitMap = &iEvent.get(hitMap_);
   auto impl = std::make_unique<LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap, hits);
   auto toPut = std::make_unique<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>(std::move(impl));

@@ -96,12 +96,12 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
       barrelRechitSpan.add(*ecal_hits);
       barrelRechitSpan.add(*hbhe_hits);
       for (unsigned int i = 0; i < barrelRechitSpan.size(); ++i) {
-	const auto recHitDetId = barrelRechitSpan[i].detId();
-	hitMapBarrel->emplace(recHitDetId, i);
+        const auto recHitDetId = barrelRechitSpan[i].detId();
+        hitMapBarrel->emplace(recHitDetId, i);
       }
     } else {
       edm::LogWarning("RecHitMapProducer")
-	<< "One or more barrel hit collections are unavailable. Returning an empty map.";
+          << "One or more barrel hit collections are unavailable. Returning an empty map.";
     }
     evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
   }

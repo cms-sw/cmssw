@@ -6,8 +6,8 @@
 #include <memory>
 
 // user include files
-
 #include "SimDataFormats/Associations/interface/LayerClusterToSimTracksterAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 // forward declarations
 
@@ -16,7 +16,8 @@ namespace ticl {
   class LayerClusterToSimTracksterAssociator {
   public:
     LayerClusterToSimTracksterAssociator(std::unique_ptr<ticl::LayerClusterToSimTracksterAssociatorBaseImpl>);
-    LayerClusterToSimTracksterAssociator() = default;
+    LayerClusterToSimTracksterAssociator() = delete;
+    explicit LayerClusterToSimTracksterAssociator(edm::Uninitialized) noexcept {};
     LayerClusterToSimTracksterAssociator(LayerClusterToSimTracksterAssociator &&) = default;
     LayerClusterToSimTracksterAssociator &operator=(LayerClusterToSimTracksterAssociator &&) = default;
     LayerClusterToSimTracksterAssociator(const LayerClusterToSimTracksterAssociator &) = delete;  // stop default

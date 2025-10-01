@@ -19,8 +19,7 @@ namespace ticl {
       const edm::Handle<CLUSTER> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH) const {
     return ticl::SimToRecoCollectionT<CLUSTER>();
   }
-
-  template class ticl::LayerClusterToCaloParticleAssociatorBaseImplT<reco::CaloClusterCollection>;
-  template class ticl::LayerClusterToCaloParticleAssociatorBaseImplT<reco::PFClusterCollection>;
-
 }  // namespace ticl
+
+template class ticl::LayerClusterToCaloParticleAssociatorBaseImplT<reco::CaloClusterCollection>;
+template class ticl::LayerClusterToCaloParticleAssociatorBaseImplT<reco::PFClusterCollection>;

@@ -6,8 +6,8 @@
 #include <memory>
 
 // user include files
-
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 // forward declarations
 
@@ -19,7 +19,8 @@ namespace ticl {
     explicit LayerClusterToSimClusterAssociatorT(
         std::unique_ptr<LayerClusterToSimClusterAssociatorBaseImplT<CLUSTER>> impl)
         : m_impl(std::move(impl)) {}
-    LayerClusterToSimClusterAssociatorT() = default;
+    LayerClusterToSimClusterAssociatorT() = delete;
+    explicit LayerClusterToSimClusterAssociatorT(edm::Uninitialized) noexcept {};
     LayerClusterToSimClusterAssociatorT(LayerClusterToSimClusterAssociatorT<CLUSTER> &&) = default;
     LayerClusterToSimClusterAssociatorT &operator=(LayerClusterToSimClusterAssociatorT<CLUSTER> &&) = default;
     LayerClusterToSimClusterAssociatorT(const LayerClusterToSimClusterAssociatorT<CLUSTER> &) = delete;  // stop default

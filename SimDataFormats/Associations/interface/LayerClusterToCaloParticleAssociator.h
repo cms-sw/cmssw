@@ -6,8 +6,8 @@
 #include <memory>
 
 // user include files
-
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 // forward declarations
 
@@ -19,7 +19,8 @@ namespace ticl {
     explicit LayerClusterToCaloParticleAssociatorT(
         std::unique_ptr<ticl::LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER>> impl)
         : m_impl(std::move(impl)) {}
-    LayerClusterToCaloParticleAssociatorT() = default;
+    LayerClusterToCaloParticleAssociatorT() = delete;
+    explicit LayerClusterToCaloParticleAssociatorT(edm::Uninitialized) noexcept {};
     LayerClusterToCaloParticleAssociatorT(LayerClusterToCaloParticleAssociatorT<CLUSTER> &&) = default;
     LayerClusterToCaloParticleAssociatorT &operator=(LayerClusterToCaloParticleAssociatorT<CLUSTER> &&) = default;
     LayerClusterToCaloParticleAssociatorT(const LayerClusterToCaloParticleAssociatorT<CLUSTER> &) =
