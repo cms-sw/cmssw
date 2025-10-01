@@ -396,7 +396,7 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
   for (unsigned &i : candidateTrackIds) {
     if (tsNearTk[i].empty() && tsNearTkAtInt[i].empty()) {  // nothing linked to track, make charged hadrons
       TICLCandidate chargedHad;
-      chargedHad.setTrackPtr(edm::Ptr<reco::Track>(tkH, i));
+      chargedHad.addTrackPtr(edm::Ptr<reco::Track>(tkH, i));
       chargedHadronsFromTk.push_back(chargedHad);
       continue;
     }
@@ -506,11 +506,11 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
     // do not create a candidate if no tracksters were added to candidate
     // can happen if all the tracksters linked to that track were already masked
     if (!chargedCandidate.tracksters().empty()) {
-      chargedCandidate.setTrackPtr(edm::Ptr<reco::Track>(tkH, i));
+      chargedCandidate.addTrackPtr(edm::Ptr<reco::Track>(tkH, i));
       chargedCandidates.push_back(chargedCandidate);
     } else {  // create charged hadron
       TICLCandidate chargedHad;
-      chargedHad.setTrackPtr(edm::Ptr<reco::Track>(tkH, i));
+      chargedHad.addTrackPtr(edm::Ptr<reco::Track>(tkH, i));
       chargedHadronsFromTk.push_back(chargedHad);
     }
   }

@@ -95,7 +95,10 @@ namespace pixelClustering {
             }
           }
           nclus = maxNumClustersPerModules;
+          clus_view[thisModuleId].clusInModule() = nclus;
         }
+
+        ALPAKA_ASSERT_ACC(clus_view[thisModuleId].clusInModule() <= maxNumClustersPerModules);
 
 #ifdef GPU_DEBUG
         if (thisModuleId % 100 == 1)

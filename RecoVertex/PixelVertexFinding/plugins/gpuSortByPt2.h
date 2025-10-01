@@ -19,12 +19,12 @@ namespace gpuVertexFinder {
     auto& __restrict__ data = pdata;
     auto& __restrict__ ws = pws;
     auto nt = ws.ntrks();
-    float const* __restrict__ ptt2 = ws.ptt2();
+    float const* __restrict__ ptt2 = ws.ptt2().data();
     uint32_t const& nvFinal = data.nvFinal();
 
-    int32_t const* __restrict__ iv = ws.iv();
-    float* __restrict__ ptv2 = data.ptv2();
-    uint16_t* __restrict__ sortInd = data.sortInd();
+    int32_t const* __restrict__ iv = ws.iv().data();
+    float* __restrict__ ptv2 = data.ptv2().data();
+    uint16_t* __restrict__ sortInd = data.sortInd().data();
 
     assert(ptv2);
     assert(sortInd);

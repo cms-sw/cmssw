@@ -4,7 +4,7 @@
 #
 #   Options for geometry D98, D99, D103, D104, D105, D106, D107, D108, D109,
 #                        D110, D111, D112, D113, D114, D115, D116, D117, D118,
-#                        D119, D120
+#                        D119, D120, D121, D122, D123
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -15,10 +15,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D120",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D98, D99, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120")
+                  "geometry of operations: D98, D99, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120, D121, D122, D123")
 ### get and parse the command line arguments
 options.parseArguments()
 

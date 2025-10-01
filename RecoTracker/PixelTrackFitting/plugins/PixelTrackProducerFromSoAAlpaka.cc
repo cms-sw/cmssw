@@ -163,9 +163,9 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   hits.reserve(5);  //TODO move to a configurable parameter?
 
   auto const &tsoa = iEvent.get(tokenTrack_);
-  auto const *quality = tsoa.view().quality();
-  auto const *hitOffs = tsoa.view().hitOffsets();
-  auto const *hitIdxs = tsoa.template view<TrackHitSoA>().id();
+  auto const quality = tsoa.view().quality();
+  auto const hitOffs = tsoa.view().hitOffsets();
+  auto const hitIdxs = tsoa.template view<TrackHitSoA>().id();
   // auto const &hitIndices = tsoa.view().hitIndices();
   auto nTracks = tsoa.view().nTracks();
 
