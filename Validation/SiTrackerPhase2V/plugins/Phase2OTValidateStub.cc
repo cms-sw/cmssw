@@ -1,21 +1,22 @@
+
 // -*- C++ -*-
 //
-// Package:    Validation/SiTrackerPhase2V
-// Class:      Phase2OTValidateTTStub
-
+// Package:   Validation/SiTrackerPhase2V
+// Class:     Phase2OTValidateStub.cc
 /**
- * This class is part of the Phase 2 Tracker validation framework. It validates the
- * association of tracking particles to stubs and evaluates stub reconstruction performance
- * by generating detailed histograms, including residuals for key parameters.
- * 
+ * This class is part of the Phase 2 Tracker validation framework. It validates
+ * the performance of stub reconstruction by comparing them with tracking
+ * particles. It generates histograms to assess stub efficiency and residual
+ * performance.
+ *
  * Usage:
- * To generate histograms from this code, run the test configuration files provided
- * in the DQM/SiTrackerPhase2/test directory. The generated histograms can then be
- * analyzed or visualized to study stub performance.
+ * To generate histograms from this code, run the test configuration files
+ * provided in the DQM/SiTrackerPhase2/test directory. The generated histograms
+ * can then be analyzed or visualized.
  */
-
+//
 // Original Author:
-
+//
 // Updated by: Brandi Skipworth, 2025
 
 // system include files
@@ -24,42 +25,38 @@
 #include <vector>
 
 // user include files
-#include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
-
-#include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/L1TrackTrigger/interface/TTStub.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "DataFormats/L1TrackTrigger/interface/TTStub.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
+#include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
+#include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-class Phase2OTValidateTTStub : public DQMEDAnalyzer {
+class Phase2OTValidateStub : public DQMEDAnalyzer {
 public:
-  explicit Phase2OTValidateTTStub(const edm::ParameterSet&);
-  ~Phase2OTValidateTTStub() override;
+  explicit Phase2OTValidateStub(const edm::ParameterSet&);
+  ~Phase2OTValidateStub() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
@@ -101,6 +98,7 @@ public:
   // delta_bend hists
   MonitorElement* bend_res_fw_endcap = nullptr;
   MonitorElement* bend_res_bw_endcap = nullptr;
+  MonitorElement* bend_res_barrel = nullptr;
   std::vector<MonitorElement*> bend_res_barrel_layers;
   std::vector<MonitorElement*> bend_res_fw_endcap_discs;
   std::vector<MonitorElement*> bend_res_bw_endcap_discs;
@@ -108,46 +106,69 @@ public:
   std::vector<MonitorElement*>* phi_res_vec = nullptr;
   std::vector<MonitorElement*>* bend_res_vec = nullptr;
 
+  // stub efficiency plots
+  MonitorElement* gen_clusters_barrel = nullptr;                // denominator
+  MonitorElement* gen_clusters_zoom_barrel = nullptr;           // denominator
+  MonitorElement* gen_clusters_endcaps = nullptr;               // denominator
+  MonitorElement* gen_clusters_zoom_endcaps = nullptr;          // denominator
+  MonitorElement* gen_clusters_if_stub_barrel = nullptr;        // numerator
+  MonitorElement* gen_clusters_if_stub_zoom_barrel = nullptr;   // numerator
+  MonitorElement* gen_clusters_if_stub_endcaps = nullptr;       // numerator
+  MonitorElement* gen_clusters_if_stub_zoom_endcaps = nullptr;  // numerator
+
 private:
   edm::ParameterSet conf_;
+  edm::EDGetTokenT<std::vector<TrackingParticle>> trackingParticleToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> tagTTStubsToken_;
-  edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> ttStubMCTruthToken_;
+  edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>
+      ttStubMCTruthToken_;  // MC truth association map for stubs
+  edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>
+      ttClusterMCTruthToken_;  // MC truth association map for clusters
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeom_;
   std::string topFolderName_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
+  int TP_minNStub;
+  int TP_minNLayersStub;
   double TP_minPt;
   double TP_maxEta;
   double TP_maxVtxZ;
   double TP_maxD0;
-  double TP_maxDxy;
+  double TP_maxLxy;
 };
 
 // constructors and destructor
-Phase2OTValidateTTStub::Phase2OTValidateTTStub(const edm::ParameterSet& iConfig)
+Phase2OTValidateStub::Phase2OTValidateStub(const edm::ParameterSet& iConfig)
     : conf_(iConfig),
       geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   // now do what ever initialization is needed
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+  trackingParticleToken_ =
+      consumes<std::vector<TrackingParticle>>(conf_.getParameter<edm::InputTag>("trackingParticleToken"));
   tagTTStubsToken_ =
       consumes<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>(conf_.getParameter<edm::InputTag>("TTStubs"));
   ttStubMCTruthToken_ =
       consumes<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>(conf_.getParameter<edm::InputTag>("MCTruthStubInputTag"));
+  ttClusterMCTruthToken_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(
+      conf_.getParameter<edm::InputTag>("MCTruthClusterInputTag"));
+  TP_minNStub = conf_.getParameter<int>("TP_minNStub");
+  TP_minNLayersStub = conf_.getParameter<int>("TP_minNLayersStub");
   TP_minPt = conf_.getParameter<double>("TP_minPt");
   TP_maxEta = conf_.getParameter<double>("TP_maxEta");
   TP_maxVtxZ = conf_.getParameter<double>("TP_maxVtxZ");
   TP_maxD0 = conf_.getParameter<double>("TP_maxD0");
-  TP_maxDxy = conf_.getParameter<double>("TP_maxDxy");
+  TP_maxLxy = conf_.getParameter<double>("TP_maxLxy");
 }
 
-Phase2OTValidateTTStub::~Phase2OTValidateTTStub() {
+Phase2OTValidateStub::~Phase2OTValidateStub() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
 
-void Phase2OTValidateTTStub::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void Phase2OTValidateStub::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &(iSetup.getData(geomToken_));
   tTopo_ = &(iSetup.getData(topoToken_));
 
@@ -170,13 +191,13 @@ void Phase2OTValidateTTStub::dqmBeginRun(const edm::Run& iRun, const edm::EventS
 // member functions
 
 // Calculate the correction factor for tilted modules in barrel
-float Phase2OTValidateTTStub::phiOverBendCorrection(bool isBarrel,
-                                                    float stub_z,
-                                                    float stub_r,
-                                                    const TrackerTopology* tTopo,
-                                                    uint32_t detid,
-                                                    const GeomDetUnit* det0,
-                                                    const GeomDetUnit* det1) {
+float Phase2OTValidateStub::phiOverBendCorrection(bool isBarrel,
+                                                  float stub_z,
+                                                  float stub_r,
+                                                  const TrackerTopology* tTopo,
+                                                  uint32_t detid,
+                                                  const GeomDetUnit* det0,
+                                                  const GeomDetUnit* det1) {
   // Get R0, R1, Z0, Z1 values
   float R0 = det0->position().perp();
   float R1 = det1->position().perp();
@@ -188,9 +209,8 @@ float Phase2OTValidateTTStub::phiOverBendCorrection(bool isBarrel,
   float tiltAngle = 0;  // Initialize to 0 (meaning no tilt, in the endcaps)
   if (isTiltedBarrel) {
     float deltaR = std::abs(R1 - R0);
-    float deltaZ = (R1 - R0 > 0)
-                       ? (Z1 - Z0)
-                       : -(Z1 - Z0);  // if module parallel, tilt angle should be π/2 and deltaZ would approach zero
+    float deltaZ = (R1 - R0 > 0) ? (Z1 - Z0) : -(Z1 - Z0);  // if module parallel, tilt angle should
+                                                            // be π/2 and deltaZ would approach zero
     // fill histograms here
     tiltAngle = atan(deltaR / std::abs(deltaZ));
   }
@@ -201,19 +221,18 @@ float Phase2OTValidateTTStub::phiOverBendCorrection(bool isBarrel,
   } else if (isBarrel) {
     correction = 1;
   } else {
-    correction =
-        std::abs(stub_z) /
-        stub_r;  // if tiltAngle = 0, stub (not module) is parallel to the beam line, if tiltAngle = 90, stub is perpendicular to beamline
+    correction = std::abs(stub_z) / stub_r;  // if tiltAngle = 0, stub (not module) is parallel to the beam
+                                             // line, if tiltAngle = 90, stub is perpendicular to beamline
   }
 
   return correction;
 }
 
 // Compute derived coordinates (z, phi, r) for tracking particle (TP)
-std::vector<double> Phase2OTValidateTTStub::getTPDerivedCoords(edm::Ptr<TrackingParticle> associatedTP,
-                                                               bool isBarrel,
-                                                               float stub_z,
-                                                               float stub_r) const {
+std::vector<double> Phase2OTValidateStub::getTPDerivedCoords(edm::Ptr<TrackingParticle> associatedTP,
+                                                             bool isBarrel,
+                                                             float stub_z,
+                                                             float stub_r) const {
   double tp_phi = -99;
   double tp_r = -99;
   double tp_z = -99;
@@ -246,23 +265,33 @@ std::vector<double> Phase2OTValidateTTStub::getTPDerivedCoords(edm::Ptr<Tracking
 }
 
 // ------------ method called for each event  ------------
-void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // Tracking Particles
+  edm::Handle<std::vector<TrackingParticle>> trackingParticleHandle;
+  iEvent.getByToken(trackingParticleToken_, trackingParticleHandle);
+
   /// Track Trigger Stubs
   edm::Handle<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> Phase2TrackerDigiTTStubHandle;
   iEvent.getByToken(tagTTStubsToken_, Phase2TrackerDigiTTStubHandle);
   edm::Handle<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTStubHandle;
   iEvent.getByToken(ttStubMCTruthToken_, MCTruthTTStubHandle);
+  edm::Handle<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTClusterHandle;
+  iEvent.getByToken(ttClusterMCTruthToken_, MCTruthTTClusterHandle);
 
   trklet::Settings settings;
   double bfield_ = settings.bfield();
   double c_ = settings.c();
+
+  // Geometries
+  const TrackerGeometry* theTrackerGeom = tkGeom_;
+  const TrackerTopology* tTopo = tTopo_;
 
   /// Loop over input Stubs for basic histogram filling (e.g., Stub_RZ)
   typename edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>::const_iterator inputIter;
   typename edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>>::const_iterator contentIter;
   // Adding protection
   if (!Phase2TrackerDigiTTStubHandle.isValid() || !MCTruthTTStubHandle.isValid()) {
-    edm::LogError("Phase2OTValidateTTStub") << "Invalid handle(s) detected.";
+    edm::LogError("Phase2OTValidateStub") << "Invalid handle(s) detected.";
     return;
   }
 
@@ -278,8 +307,8 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
       DetId detIdStub = tkGeom_->idToDet((tempStubRef->clusterRef(0))->getDetId())->geographicalId();
 
       /// Get trigger displacement/offset
-      //double rawBend = tempStubRef->rawBend();
-      //double bendOffset = tempStubRef->bendOffset();
+      // double rawBend = tempStubRef->rawBend();
+      // double bendOffset = tempStubRef->bendOffset();
 
       /// Define position stub by position inner cluster
       MeasurementPoint mp = (tempStubRef->clusterRef(0))->findAverageLocalCoordinates();
@@ -316,7 +345,7 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
     const GeomDetUnit* det0 = tkGeom_->idToDetUnit(detid);
     const GeomDetUnit* det1 = tkGeom_->idToDetUnit(tTopo_->partnerDetId(detid));
     if (!det0 || !det1) {
-      edm::LogError("Phase2OTValidateTTStub") << "Error: det0 or det1 is null";
+      edm::LogError("Phase2OTValidateStub") << "Error: det0 or det1 is null";
       continue;
     }
     float modMinR = std::min(det0->position().perp(), det1->position().perp());
@@ -328,7 +357,7 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
     // Calculate strip pitch
     const PixelGeomDetUnit* theGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(det0);
     if (!theGeomDetUnit) {
-      edm::LogError("Phase2OTValidateTTStub") << "Error: theGeomDetUnit is null";
+      edm::LogError("Phase2OTValidateStub") << "Error: theGeomDetUnit is null";
       continue;
     }
     const PixelTopology& topo = theGeomDetUnit->specificTopology();
@@ -350,7 +379,7 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
       // Retrieve geometrical detector
       const GeomDet* theGeomDet = tkGeom_->idToDet(detIdStub);
       if (!theGeomDet) {
-        edm::LogError("Phase2OTValidateTTStub") << "Error: theGeomDet is null";
+        edm::LogError("Phase2OTValidateStub") << "Error: theGeomDet is null";
         continue;
       }
 
@@ -373,7 +402,7 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
         layer = -1;
       }
 
-      bool isPSmodule = tkGeom_->getDetectorType(detid) == TrackerGeometry::ModuleType::Ph2PSP;
+      int isPSmodule = (topo.nrows() == 960) ? 1 : 0;
 
       // Calculate local coordinates of clusters
       MeasurementPoint innerClusterCoords = tempStubPtr->clusterRef(0)->findAverageLocalCoordinatesCentered();
@@ -401,7 +430,7 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
       float tp_vx = associatedTP->vx();
       float tp_vy = associatedTP->vy();
       float tp_vz = associatedTP->vz();
-      float tp_dxy = std::sqrt(tp_vx * tp_vx + tp_vy * tp_vy);
+      float tp_Lxy = std::sqrt(tp_vx * tp_vx + tp_vy * tp_vy);
 
       if (tp_charge == 0)
         continue;
@@ -413,7 +442,7 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
         continue;
       if (std::abs(tp_d0) > TP_maxD0)
         continue;
-      if (std::abs(tp_dxy) > TP_maxDxy)
+      if (std::abs(tp_Lxy) > TP_maxLxy)
         continue;
 
       // Derived coordinates
@@ -437,8 +466,10 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
       float phiRes = tp_phi - stub_phi;
       float rRes = tp_r - stub_r;
 
-      // Histograms for z_res, phi_res, and r_res based on module type and location
+      // Histograms for z_res, phi_res, and r_res based on module type and
+      // location
       if (isBarrel == 1) {
+        bend_res_barrel->Fill(bendRes);
         if (isPSmodule) {
           z_res_isPS_barrel->Fill(zRes);
           phi_res_isPS_barrel->Fill(phiRes);
@@ -486,19 +517,166 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
         (*bend_res_vec)[layer - 1]->Fill(bendRes);
         (*phi_res_vec)[layer - 1]->Fill(phiRes);
       }
+    }  // end loop over input stubs
+  }  // end loop over geometric detectors
+
+  // loop over tracking particles
+  for (size_t i = 0; i < trackingParticleHandle->size(); ++i) {
+    edm::Ptr<TrackingParticle> tp_ptr(trackingParticleHandle, i);
+
+    // Calculate nLayers variable
+    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
+        theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
+
+    float tmp_tp_pt = tp_ptr->pt();
+    float tmp_tp_eta = tp_ptr->eta();
+
+    int hasStubInLayer[11] = {0};
+    for (unsigned int is = 0; is < theStubRefs.size(); is++) {
+      DetId detid(theStubRefs.at(is)->getDetId());
+      int layer = -1;
+      if (detid.subdetId() == StripSubdetector::TOB)
+        layer = static_cast<int>(tTopo->layer(detid)) - 1;  // fill in array as entries 0-5
+      else if (detid.subdetId() == StripSubdetector::TID)
+        layer = static_cast<int>(tTopo->layer(detid)) + 5;  // fill in array as entries 6-10
+
+      // treat genuine stubs separately (==2 is genuine, ==1 is not)
+      if (MCTruthTTStubHandle->findTrackingParticlePtr(theStubRefs.at(is)).isNull() && hasStubInLayer[layer] < 2)
+        hasStubInLayer[layer] = 1;
+      else
+        hasStubInLayer[layer] = 2;
     }
-  }
+
+    int nStubLayerTP = 0;
+    for (int isum = 0; isum < 11; isum++) {
+      if (hasStubInLayer[isum] >= 1)
+        nStubLayerTP += 1;
+    }
+
+    if (std::fabs(tmp_tp_eta) > TP_maxEta)
+      continue;
+    int nStubTP = -1;
+    if (MCTruthTTStubHandle.isValid()) {
+      std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
+          theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
+      nStubTP = (int)theStubRefs.size();
+    }
+    if (MCTruthTTClusterHandle.isValid() && MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).empty())
+      continue;
+
+    float tmp_tp_z0, tmp_tp_Lxy, unused_d0;
+    std::tie(tmp_tp_z0, tmp_tp_Lxy, unused_d0) = phase2tkutil::computeZ0LxyD0(*tp_ptr);
+    (void)unused_d0;  // suppress unused variable warning
+
+    if (std::fabs(tmp_tp_z0) > TP_maxVtxZ)
+      continue;
+    if (tmp_tp_pt < TP_minPt)
+      continue;
+    if (tmp_tp_Lxy > TP_maxLxy)
+      continue;
+    if (nStubTP < TP_minNStub || nStubLayerTP < TP_minNLayersStub)
+      continue;
+
+    // Find all clusters that can be associated to a tracking particle with at
+    // least one hit
+    std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>>
+        associatedClusters = MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr);
+
+    // Loop through associated clusters
+    for (std::size_t k = 0; k < associatedClusters.size(); ++k) {
+      auto clusA = associatedClusters[k];
+
+      // Get cluster details
+      DetId clusdetid = clusA->getDetId();
+      if (clusdetid.subdetId() != StripSubdetector::TOB && clusdetid.subdetId() != StripSubdetector::TID)
+        continue;
+
+      bool isGenuine = MCTruthTTClusterHandle->isGenuine(clusA);
+      if (!isGenuine)
+        continue;
+
+      DetId detidA = tTopo->stack(clusdetid);
+      const GeomDetUnit* detA = theTrackerGeom->idToDetUnit(clusdetid);
+      const PixelGeomDetUnit* theGeomDetA = dynamic_cast<const PixelGeomDetUnit*>(detA);
+      const PixelTopology* topoA = dynamic_cast<const PixelTopology*>(&(theGeomDetA->specificTopology()));
+      GlobalPoint coordsA =
+          theGeomDetA->surface().toGlobal(topoA->localPosition(clusA->findAverageLocalCoordinatesCentered()));
+
+      int isBarrel = 0;
+      if (clusdetid.subdetId() == StripSubdetector::TOB) {
+        isBarrel = 1;
+      } else if (clusdetid.subdetId() == StripSubdetector::TID) {
+        isBarrel = 0;
+      } else {
+        edm::LogVerbatim("Tracklet") << "WARNING -- neither TOB or TID stub, shouldn't happen...";
+      }
+
+      if (isBarrel == 1) {
+        gen_clusters_barrel->Fill(tmp_tp_pt);
+        gen_clusters_zoom_barrel->Fill(tmp_tp_pt);
+      } else {
+        gen_clusters_endcaps->Fill(tmp_tp_pt);
+        gen_clusters_zoom_endcaps->Fill(tmp_tp_pt);
+      }
+
+      // If there are stubs on the same detid, loop on those stubs
+      if (Phase2TrackerDigiTTStubHandle->find(detidA) != Phase2TrackerDigiTTStubHandle->end()) {
+        edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>> stubs = (*Phase2TrackerDigiTTStubHandle)[detidA];
+        for (auto stubIter = stubs.begin(); stubIter != stubs.end(); ++stubIter) {
+          auto stubRef = edmNew::makeRefTo(Phase2TrackerDigiTTStubHandle, stubIter);
+
+          // Retrieve clusters of stubs
+          auto clusterRefB = stubIter->clusterRef(0);
+          auto clusterRefC = stubIter->clusterRef(1);
+
+          // Retrieve sensor DetIds from the stub's clusters
+          DetId detIdB = stubIter->clusterRef(0)->getDetId();
+          DetId detIdC = stubIter->clusterRef(1)->getDetId();
+
+          const GeomDetUnit* detB = theTrackerGeom->idToDetUnit(detIdB);
+          const GeomDetUnit* detC = theTrackerGeom->idToDetUnit(detIdC);
+          const PixelGeomDetUnit* theGeomDetB = dynamic_cast<const PixelGeomDetUnit*>(detB);
+          const PixelGeomDetUnit* theGeomDetC = dynamic_cast<const PixelGeomDetUnit*>(detC);
+          const PixelTopology* topoB = dynamic_cast<const PixelTopology*>(&(theGeomDetB->specificTopology()));
+          const PixelTopology* topoC = dynamic_cast<const PixelTopology*>(&(theGeomDetC->specificTopology()));
+
+          GlobalPoint coordsB = theGeomDetB->surface().toGlobal(
+              topoB->localPosition(stubIter->clusterRef(0)->findAverageLocalCoordinatesCentered()));
+          GlobalPoint coordsC = theGeomDetC->surface().toGlobal(
+              topoC->localPosition(stubIter->clusterRef(1)->findAverageLocalCoordinatesCentered()));
+
+          if (coordsA.x() == coordsB.x() || coordsA.x() == coordsC.x()) {
+            edm::Ptr<TrackingParticle> stubTP = MCTruthTTStubHandle->findTrackingParticlePtr(
+                edmNew::makeRefTo(Phase2TrackerDigiTTStubHandle, stubIter));
+            if (stubTP.isNull())
+              continue;
+            float stub_tp_pt = stubTP->pt();
+            if (stub_tp_pt == tmp_tp_pt) {
+              if (isBarrel == 1) {
+                gen_clusters_if_stub_barrel->Fill(tmp_tp_pt);
+                gen_clusters_if_stub_zoom_barrel->Fill(tmp_tp_pt);
+              } else {
+                gen_clusters_if_stub_endcaps->Fill(tmp_tp_pt);
+                gen_clusters_if_stub_zoom_endcaps->Fill(tmp_tp_pt);
+              }
+              break;
+            }
+          }  // end if stub cluster coords.x matches associated cluster coords.x
+        }  // end loop over stubs on the same detid as associated clusters
+      }  // end if stubs on same detid
+    }  // end loop over associated clusters
+  }  // end loop over tracking particles
 }  // end of method
 
 // ------------ method called when starting to processes a run  ------------
-void Phase2OTValidateTTStub::bookHistograms(DQMStore::IBooker& iBooker,
-                                            edm::Run const& run,
-                                            edm::EventSetup const& es) {
+void Phase2OTValidateStub::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& es) {
   edm::ParameterSet psTTStub_RZ = conf_.getParameter<edm::ParameterSet>("TH2TTStub_RZ");
   edm::ParameterSet ps_2S_Res = conf_.getParameter<edm::ParameterSet>("TH1_2S_Res");
   edm::ParameterSet ps_PS_Res = conf_.getParameter<edm::ParameterSet>("TH1_PS_Res");
   edm::ParameterSet psPhi_Res = conf_.getParameter<edm::ParameterSet>("TH1Phi_Res");
   edm::ParameterSet psBend_Res = conf_.getParameter<edm::ParameterSet>("TH1Bend_Res");
+  edm::ParameterSet psEffic_pt = conf_.getParameter<edm::ParameterSet>("TH1Effic_pt");
+  edm::ParameterSet psEffic_pt_zoom = conf_.getParameter<edm::ParameterSet>("TH1Effic_pt_zoom");
   std::string HistoName;
   iBooker.setCurrentFolder(topFolderName_);
   // 2D histogram for stub_RZ
@@ -618,6 +796,13 @@ void Phase2OTValidateTTStub::bookHistograms(DQMStore::IBooker& iBooker,
                                       psBend_Res.getParameter<double>("xmin"),
                                       psBend_Res.getParameter<double>("xmax"));
 
+  HistoName = "#Delta bend Barrel";
+  bend_res_barrel = iBooker.book1D(HistoName,
+                                   HistoName,
+                                   psBend_Res.getParameter<int32_t>("Nbinsx"),
+                                   psBend_Res.getParameter<double>("xmin"),
+                                   psBend_Res.getParameter<double>("xmax"));
+
   // barrel layers
   for (int i = 0; i < trklet::N_LAYER; ++i) {
     std::string HistoName = "#Delta #phi Barrel L" + std::to_string(i + 1);
@@ -677,10 +862,93 @@ void Phase2OTValidateTTStub::bookHistograms(DQMStore::IBooker& iBooker,
     bend_res_bw_endcap_discs[i]->setAxisTitle("tp_bend - stub_bend", 1);
     bend_res_bw_endcap_discs[i]->setAxisTitle("events", 2);
   }
+
+  // 1D plots for efficiency
+  iBooker.setCurrentFolder(topFolderName_ + "/EfficiencyIngredients");
+
+  // Gen clusters barrel
+  HistoName = "gen_clusters_barrel";
+  gen_clusters_barrel = iBooker.book1D(HistoName,
+                                       HistoName,
+                                       psEffic_pt.getParameter<int32_t>("Nbinsx"),
+                                       psEffic_pt.getParameter<double>("xmin"),
+                                       psEffic_pt.getParameter<double>("xmax"));
+  gen_clusters_barrel->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_barrel->setAxisTitle("# tracking particles", 2);
+
+  // Gen clusters if stub barrel
+  HistoName = "gen_clusters_if_stub_barrel";
+  gen_clusters_if_stub_barrel = iBooker.book1D(HistoName,
+                                               HistoName,
+                                               psEffic_pt.getParameter<int32_t>("Nbinsx"),
+                                               psEffic_pt.getParameter<double>("xmin"),
+                                               psEffic_pt.getParameter<double>("xmax"));
+  gen_clusters_if_stub_barrel->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_if_stub_barrel->setAxisTitle("# tracking particles", 2);
+
+  // Gen clusters endcaps
+  HistoName = "gen_clusters_endcaps";
+  gen_clusters_endcaps = iBooker.book1D(HistoName,
+                                        HistoName,
+                                        psEffic_pt.getParameter<int32_t>("Nbinsx"),
+                                        psEffic_pt.getParameter<double>("xmin"),
+                                        psEffic_pt.getParameter<double>("xmax"));
+  gen_clusters_endcaps->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_endcaps->setAxisTitle("# tracking particles", 2);
+
+  // Gen clusters if stub endcaps
+  HistoName = "gen_clusters_if_stub_endcaps";
+  gen_clusters_if_stub_endcaps = iBooker.book1D(HistoName,
+                                                HistoName,
+                                                psEffic_pt.getParameter<int32_t>("Nbinsx"),
+                                                psEffic_pt.getParameter<double>("xmin"),
+                                                psEffic_pt.getParameter<double>("xmax"));
+  gen_clusters_if_stub_endcaps->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_if_stub_endcaps->setAxisTitle("# tracking particles", 2);
+
+  // Gen clusters pT zoom (0-10 GeV) barrel
+  HistoName = "gen_clusters_zoom_barrel";
+  gen_clusters_zoom_barrel = iBooker.book1D(HistoName,
+                                            HistoName,
+                                            psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+                                            psEffic_pt_zoom.getParameter<double>("xmin"),
+                                            psEffic_pt_zoom.getParameter<double>("xmax"));
+  gen_clusters_zoom_barrel->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_zoom_barrel->setAxisTitle("# tracking particles", 2);
+
+  // Gen cluters if stub pT zoom (0-10 GeV) barrel
+  HistoName = "gen_clusters_if_stub_zoom_barrel";
+  gen_clusters_if_stub_zoom_barrel = iBooker.book1D(HistoName,
+                                                    HistoName,
+                                                    psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+                                                    psEffic_pt_zoom.getParameter<double>("xmin"),
+                                                    psEffic_pt_zoom.getParameter<double>("xmax"));
+  gen_clusters_if_stub_zoom_barrel->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_if_stub_zoom_barrel->setAxisTitle("# tracking particles", 2);
+
+  // Gen clusters pT zoom (0-10 GeV) endcaps
+  HistoName = "gen_clusters_zoom_endcaps";
+  gen_clusters_zoom_endcaps = iBooker.book1D(HistoName,
+                                             HistoName,
+                                             psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+                                             psEffic_pt_zoom.getParameter<double>("xmin"),
+                                             psEffic_pt_zoom.getParameter<double>("xmax"));
+  gen_clusters_zoom_endcaps->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_zoom_endcaps->setAxisTitle("# tracking particles", 2);
+
+  // Gen cluters if stub pT zoom (0-10 GeV) endcaps
+  HistoName = "gen_clusters_if_stub_zoom_endcaps";
+  gen_clusters_if_stub_zoom_endcaps = iBooker.book1D(HistoName,
+                                                     HistoName,
+                                                     psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+                                                     psEffic_pt_zoom.getParameter<double>("xmin"),
+                                                     psEffic_pt_zoom.getParameter<double>("xmax"));
+  gen_clusters_if_stub_zoom_endcaps->setAxisTitle("p_{T} [GeV]", 1);
+  gen_clusters_if_stub_zoom_endcaps->setAxisTitle("# tracking particles", 2);
 }
 
-void Phase2OTValidateTTStub::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // Phase2OTValidateTTStub
+void Phase2OTValidateStub::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // Phase2OTValidateStub
   edm::ParameterSetDescription desc;
   {
     edm::ParameterSetDescription psd0;
@@ -720,6 +988,20 @@ void Phase2OTValidateTTStub::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<double>("xmin", -5.5);
     desc.add<edm::ParameterSetDescription>("TH1Bend_Res", psd0);
   }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<int>("Nbinsx", 50);
+    psd0.add<double>("xmax", 100);
+    psd0.add<double>("xmin", 0);
+    desc.add<edm::ParameterSetDescription>("TH1Effic_pt", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<int>("Nbinsx", 50);
+    psd0.add<double>("xmax", 10);
+    psd0.add<double>("xmin", 0);
+    desc.add<edm::ParameterSetDescription>("TH1Effic_pt_zoom", psd0);
+  }
 
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTStubV");
   desc.add<edm::InputTag>("TTStubs", edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
@@ -729,13 +1011,13 @@ void Phase2OTValidateTTStub::fillDescriptions(edm::ConfigurationDescriptions& de
                           edm::InputTag("TTClusterAssociatorFromPixelDigis", "ClusterInclusive"));
   desc.add<int>("TP_minNStub", 4);
   desc.add<int>("TP_minNLayersStub", 4);
-  desc.add<double>("TP_minPt", 2.0);
+  desc.add<double>("TP_minPt", 1.5);
   desc.add<double>("TP_maxEta", 2.4);
   desc.add<double>("TP_maxVtxZ", 15.0);
   desc.add<double>("TP_maxD0", 1.0);
-  desc.add<double>("TP_maxDxy", 1.0);
-  descriptions.add("Phase2OTValidateTTStub", desc);
+  desc.add<double>("TP_maxLxy", 1.0);
+  descriptions.add("Phase2OTValidateStub", desc);
   // or use the following to generate the label from the module's C++ type
-  //descriptions.addWithDefaultLabel(desc);
+  // descriptions.addWithDefaultLabel(desc);
 }
-DEFINE_FWK_MODULE(Phase2OTValidateTTStub);
+DEFINE_FWK_MODULE(Phase2OTValidateStub);
