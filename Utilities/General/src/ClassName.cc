@@ -5,7 +5,7 @@
 Demangle::Demangle(const char* sc) : demangle(nullptr) {
   if (sc == nullptr)
     return;
-  int status;
+  int status = 0;
   demangle = abi::__cxa_demangle(sc, nullptr, nullptr, &status);
   if (status == 0)
     return;
