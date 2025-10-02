@@ -23,11 +23,9 @@ public:
                              bool calo,
                              const std::string& newcollname = "");
 
-  ~SensitiveDetector() override;
+  ~SensitiveDetector() override = default;
 
-  void Initialize(G4HCofThisEvent* eventHC) override;
   G4bool ProcessHits(G4Step* step, G4TouchableHistory* tHistory) override = 0;
-  void EndOfEvent(G4HCofThisEvent* eventHC) override;
 
   virtual uint32_t setDetUnitId(const G4Step* step) = 0;
   virtual void clearHits() = 0;

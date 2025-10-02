@@ -12,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
 
 #include "G4SDManager.hh"
@@ -583,8 +582,8 @@ uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
 
 int ZdcSD::setTrackID(const G4Step* aStep) {
   auto const theTrack = aStep->GetTrack();
-  TrackInformation* trkInfo = (TrackInformation*)(theTrack->GetUserInformation());
-  int primaryID = trkInfo->getIDonCaloSurface();
+  auto const trkInfo = cmsTrackInformation(theTrack);
+  int primaryID = (nullptr != trkInfo) ? trkInfo->getIDonCaloSurface() : 0;
   if (primaryID == 0) {
 #ifdef EDM_ML_DEBUG
     auto const preStepPoint = aStep->GetPreStepPoint();
