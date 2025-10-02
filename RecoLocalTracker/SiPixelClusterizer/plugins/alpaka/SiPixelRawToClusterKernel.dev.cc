@@ -291,7 +291,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Kernel to perform Raw to Digi conversion
     template <bool debug = false>
     struct RawToDigi_kernel {
-    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                     const SiPixelMappingSoAConstView &cablingMap,
                                     const unsigned char *modToUnp,
                                     const uint32_t wordCounter,
@@ -571,7 +571,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         {
           const int blocks = 64;
 
-          const auto elementsPerBlockFindClus = digiMorphingConfig.applyDigiMorphing ? FindClus<TrackerTraits>::maxElementsPerBlockMorph : FindClus<TrackerTraits>::maxElementsPerBlock;
+          const auto elementsPerBlockFindClus = digiMorphingConfig.applyDigiMorphing
+                                                    ? FindClus<TrackerTraits>::maxElementsPerBlockMorph
+                                                    : FindClus<TrackerTraits>::maxElementsPerBlock;
           const auto workDivFindClus = cms::alpakatools::make_workdiv<Acc1D>(blocks, elementsPerBlockFindClus);
 
           // allocate a transient collection for the fake pixels recovered by the digi morphing algorithm
@@ -591,7 +593,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               digiMorphingConfig.applyDigiMorphing,
                               morphingModulesDevice,
                               digiMorphingConfig.numMorphingModules,
-                              digiMorphingConfig.maxFakesInModule, 
+                              digiMorphingConfig.maxFakesInModule,
                               clusters_d->view(),
                               wordCounter);
 #ifdef GPU_DEBUG
@@ -767,5 +769,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template class SiPixelRawToClusterKernel<pixelTopology::HIonPhase1>;
 
   }  // namespace pixelDetails
-  
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
