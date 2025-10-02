@@ -70,8 +70,8 @@ int ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf
   m_idx_to_iopb_offset.push_back(0);
 
   IOSize buffer_used = len[0];
-  int idx;
-  for (idx = 1; idx < nbuf; idx++) {
+  int idx = 1;
+  for (; idx < nbuf; idx++) {
     if (buffer_used + len[idx] > buffer_size) {
       // No way we can include this chunk in the read buffer
       break;

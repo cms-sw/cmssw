@@ -928,10 +928,10 @@ namespace edm {
 
   bool RootFile::wasFirstEventJustRead() const {
     IndexIntoFile::IndexIntoFileItr itr(indexIntoFileIter_);
-    int phIndex;
-    RunNumber_t run;
-    LuminosityBlockNumber_t lumi;
-    IndexIntoFile::EntryNumber_t eventEntry;
+    int phIndex = 0;
+    RunNumber_t run = 0;
+    LuminosityBlockNumber_t lumi = 0;
+    IndexIntoFile::EntryNumber_t eventEntry = 0;
     itr.skipEventBackward(phIndex, run, lumi, eventEntry);
     itr.skipEventBackward(phIndex, run, lumi, eventEntry);
     return eventEntry == IndexIntoFile::invalidEntry;
