@@ -45,7 +45,6 @@ namespace reco {
     CAGeometryParams(edm::ParameterSet const& iConfig)
         : caThetaCuts_(iConfig.getParameter<std::vector<double>>("caThetaCuts")),
           caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
-          isBarrel_(iConfig.getParameter<std::vector<int>>("isBarrel")),
           pairGraph_(iConfig.getParameter<std::vector<unsigned int>>("pairGraph")),
           startingPairs_(iConfig.getParameter<std::vector<unsigned int>>("startingPairs")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
@@ -127,7 +126,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       assert(iCache->maxDR_.size() == iCache->ptCuts_.size());
 
       assert(iCache->caThetaCuts_.size() == iCache->caDCACuts_.size());
-      assert(iCache->caThetaCuts_.size() == iCache->isBarrel_.size());
 
       int n_layers = iCache->caThetaCuts_.size();
       int n_pairs = iCache->pairGraph_.size() / 2;
@@ -142,25 +140,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       assert(int(*std::max_element(iCache->startingPairs_.begin(), iCache->startingPairs_.end())) < n_pairs);
       assert(int(*std::max_element(iCache->pairGraph_.begin(), iCache->pairGraph_.end())) < n_layers);
 
-      const auto& trackerGeometry = iSetup.getData(iCache->tokenGeometry_);
-      const auto& trackerTopology = iSetup.getData(iCache->tokenTopology_);
+      auto const& trackerGeometry = iSetup.getData(iCache->tokenGeometry_);
+      auto const& trackerTopology = iSetup.getData(iCache->tokenTopology_);
       auto const& dets = trackerGeometry.dets();
 
 #ifdef GPU_DEBUG
-      auto subSystem = 1;
+      auto subSystem = 0;
       auto subSystemName = GeomDetEnumerators::tkDetEnum[subSystem];
-      auto subSystemOffset = trackerGeometry.offsetDU(subSystemName);
       std::cout
           << "========================================================================================================="
           << std::endl;
-      std::cout << " ===================== Subsystem: " << subSystemName << std::endl;
-      subSystemName = GeomDetEnumerators::tkDetEnum[++subSystem];
-      subSystemOffset = trackerGeometry.offsetDU(subSystemName);
 #endif
 
       auto oldLayer = 0u;
       auto layerCount = 0u;
 
+      std::vector<bool> layerIsBarrel(n_layers);
       std::vector<int> layerStarts(n_layers + 1);
       //^ why n_layers + 1? This is a cumulative sum of the number
       // of modules each layer has. And we need the  extra spot
@@ -169,98 +164,89 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::vector<int> moduleToindexInDets;
 
       auto isPinPSinOTBarrel = [&](DetId detId) {
-        //    std::cout << (int)trackerGeometry->getDetectorType(detId) << " " << (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP) << "\n";
-        //    std::cout << (int)detId.subdetId() << " " << (detId.subdetId() == StripSubdetector::TOB) << std::endl;
         // Select only P-hits from the OT barrel
         return (trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
                 detId.subdetId() == StripSubdetector::TOB);
       };
-      auto isPh2Pixel = [&](DetId detId) {
+      auto isPixel = [&](DetId detId) {
         auto subId = detId.subdetId();
         return (subId == PixelSubdetector::PixelBarrel || subId == PixelSubdetector::PixelEndcap);
       };
-      if constexpr (std::is_same_v<pixelTopology::Phase2OT, TrackerTraits>) {
-        int counter = 0;
-        for (auto& det : dets) {
-          DetId detid = det->geographicalId();
-          auto layer = trackerTopology.layer(detid);
-          //          std::cout << "Looping on " << detid.rawId() << " on layer " << layer << std::endl;
-          // Logic:
-          // - if we are not inside pixels, we need to ignore anything **but** the OT.
-          // - for the time being, this is assuming that the CA extension will
-          //   only cover the OT barrel part, and will ignore the OT forward.
-          if (isPh2Pixel(detid)) {
-            //            std::cout << "Good Pixel" << std::endl;
-            if (layer != oldLayer) {
+      auto isBarrel = [&](DetId detId) {
+        auto subId = detId.subdetId();
+        auto subDetector = trackerGeometry.geomDetSubDetector(subId);
+        return GeomDetEnumerators::isBarrel(subDetector);
+      };
+
+      // loop over all detector modules and build the CA layers
+      int counter = 0;
+      for (auto& det : dets) {
+        DetId detid = det->geographicalId();
+        auto layer = trackerTopology.layer(detid);
+        // Logic:
+        // - if we are not inside pixels, we need to ignore anything **but** the OT.
+        // - for the time being, this is assuming that the CA extension will
+        //   only cover the OT barrel part, and will ignore the OT forward.
+
 #ifdef GPU_DEBUG
-              std::cout << "Pixel LayerStart: " << layerCount << " at layer " << layer << " has " << n_modules
-                        << " modules." << std::endl;
-#endif
-              layerStarts[layerCount++] = n_modules;
-              if (layerCount >= layerStarts.size())
-                break;
-              oldLayer = layer;
-            }
-            moduleToindexInDets.push_back(counter);
-            n_modules++;
-          } else {
-            auto const& detUnits = det->components();
-            for (auto& detUnit : detUnits) {
-              DetId unitDetId(detUnit->geographicalId());
-              if (isPinPSinOTBarrel(unitDetId)) {
-                //std::cout << "Good OT Barrel" << std::endl;
-                if (layer != oldLayer) {
-#ifdef GPU_DEBUG
-                  std::cout << "OT LayerStart: " << layerCount << " at layer " << layer << " has " << n_modules
-                            << " modules." << std::endl;
-#endif
-                  layerStarts[layerCount++] = n_modules;
-                  if (layerCount >= layerStarts.size())
-                    break;
-                  oldLayer = layer;
-                }
-                moduleToindexInDets.push_back(counter);
-                n_modules++;
-              } else {
-                //std::cout << "BAD OT" << std::endl;
-              }
-            }
-            //std::cout << "Done OT" << std::endl;
-          }
-          counter++;
+        auto subId = detid.subdetId();
+        if (subSystemName != trackerGeometry.geomDetSubDetector(subId)) {
+          subSystemName = trackerGeometry.geomDetSubDetector(subId);
+          std::cout << " ===================== Subsystem: " << subSystemName << std::endl;
         }
-        layerStarts[n_layers] = n_modules;
-#ifdef GPU_DEBUG
-        std::cout << "OT LayerStart: " << n_layers << " has " << n_modules << " modules." << std::endl;
-#endif
-      } else {
-        for (auto& det : dets) {
-          DetId detid = det->geographicalId();
-#ifdef GPU_DEBUG
-          if (n_modules >= int(subSystemOffset)) {
-            subSystemName = GeomDetEnumerators::tkDetEnum[++subSystem];
-            subSystemOffset = trackerGeometry.offsetDU(subSystemName);
-            std::cout << " ===================== Subsystem: " << subSystemName << std::endl;
-          }
 #endif
 
-          auto layer = trackerTopology.layer(detid);
-
+        // Modules of the pixel layers
+        if (isPixel(detid)) {
           if (layer != oldLayer) {
+#ifdef GPU_DEBUG
+            std::cout << "Pixel LayerStart: CA layer " << layerCount << " at subdetector layer " << layer
+                      << " starts at module " << n_modules << " and is " << (isBarrel(detid) ? "barrel" : "not barrel")
+                      << std::endl;
+#endif
+            layerIsBarrel[layerCount] = isBarrel(detid);
             layerStarts[layerCount++] = n_modules;
-
             if (layerCount >= layerStarts.size())
               break;
-
             oldLayer = layer;
-#ifdef GPU_DEBUG
-            std::cout << " > New layer at module : " << n_modules << " (detId: " << detid << ")" << std::endl;
-#endif
           }
-
+          moduleToindexInDets.push_back(counter);
           n_modules++;
         }
+
+        // if we are using the CA extension for Phase-2,
+        // we also have to collect the modules from the considered OT layers
+        if constexpr (std::is_same_v<pixelTopology::Phase2OT, TrackerTraits>) {
+          auto const& detUnits = det->components();
+          for (auto& detUnit : detUnits) {
+            DetId unitDetId(detUnit->geographicalId());
+            // Modules of the considered OT layers
+            if (isPinPSinOTBarrel(unitDetId)) {
+              if (layer != oldLayer) {
+#ifdef GPU_DEBUG
+                std::cout << "OT LayerStart: CA layer " << layerCount << " at subdetector layer " << layer
+                          << " starts at module " << n_modules << " and is "
+                          << (isBarrel(detid) ? "barrel" : "not barrel") << std::endl;
+#endif
+                layerIsBarrel[layerCount] = isBarrel(detid);
+                layerStarts[layerCount++] = n_modules;
+                if (layerCount >= layerStarts.size())
+                  break;
+                oldLayer = layer;
+              }
+              moduleToindexInDets.push_back(counter);
+              n_modules++;
+            }
+          }
+        }
+        counter++;
       }
+
+#ifdef GPU_DEBUG
+      std::cout << "Full CA LayerStart: " << n_layers << " layers with " << n_modules << " modules in total."
+                << std::endl;
+#endif
+      layerStarts[n_layers] = n_modules;
 
       reco::CAGeometryHost product{{{n_layers + 1, n_pairs, n_modules}}, cms::alpakatools::host()};
 
@@ -268,53 +254,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto cellSoA = product.view<::reco::CAGraphSoA>();
       auto modulesSoA = product.view<::reco::CAModulesSoA>();
 
-      if constexpr (std::is_same_v<pixelTopology::Phase2OT, TrackerTraits>) {
-        for (int i = 0; i < n_modules; ++i) {
-          auto idx = moduleToindexInDets[i];
-          auto det = dets[idx];
+      for (int i = 0; i < n_modules; ++i) {
+        auto idx = moduleToindexInDets[i];
+        auto det = dets[idx];
+        auto vv = det->surface().position();
+        auto rr = Rotation(det->surface().rotation());
+        modulesSoA[i].detFrame() = Frame(vv.x(), vv.y(), vv.z(), rr);
 #ifdef GPU_DEBUG
-          auto const& detUnits = det->components();
-          for (auto& detUnit : detUnits) {
-            DetId unitDetId(detUnit->geographicalId());
-            if (isPinPSinOTBarrel(unitDetId)) {
-              std::cout << "Filling frame at index " << idx << " in SoA position " << i << " for det "
-                        << det->geographicalId() << " and detUnit->index: " << detUnit->index() << std::endl;
-            }
+        auto const& detUnits = det->components();
+        for (auto& detUnit : detUnits) {
+          DetId unitDetId(detUnit->geographicalId());
+          if (isPinPSinOTBarrel(unitDetId)) {
+            std::cout << "Filling frame at index " << idx << " in SoA position " << i << " for det "
+                      << det->geographicalId() << " and detUnit->index: " << detUnit->index() << std::endl;
           }
-          std::cout << "Filling frame at index " << idx << " in SoA position " << i << " for det "
-                    << det->geographicalId() << std::endl;
+        }
+        std::cout << "Filling frame at index " << idx << " in SoA position " << i << " for det "
+                  << det->geographicalId() << std::endl;
+        std::cout << "Position: " << vv << " with Rotation: " << det->surface().rotation() << std::endl;
+        std::cout << "Rotation in z-r plane: "
+                  << atan2(det->surface().normalVector().perp(), det->surface().normalVector().z()) * 180. / M_PI
+                  << std::endl;
 #endif
-          auto vv = det->surface().position();
-          auto rr = Rotation(det->surface().rotation());
-          modulesSoA[i].detFrame() = Frame(vv.x(), vv.y(), vv.z(), rr);
-#ifdef GPU_DEBUG
-          std::cout << "Position: " << vv << " with Rotation: " << det->surface().rotation() << std::endl;
-          std::cout << "Rotation in Z-r plane: "
-                    << atan2(det->surface().normalVector().perp(), det->surface().normalVector().z()) * 180. / M_PI
-                    << std::endl;
-#endif
-        }
+      }
 
-        for (int i = 0; i < n_layers; ++i) {
-          layerSoA.layerStarts()[i] = layerStarts[i];
-          layerSoA.caThetaCut()[i] = iCache->caThetaCuts_[i];
-          layerSoA.caDCACut()[i] = iCache->caDCACuts_[i];
-          layerSoA.isBarrel()[i] = (bool)iCache->isBarrel_[i];
-        }
-      } else {
-        for (int i = 0; i < n_modules; ++i) {
-          auto det = dets[i];
-          auto vv = det->surface().position();
-          auto rr = Rotation(det->surface().rotation());
-          modulesSoA[i].detFrame() = Frame(vv.x(), vv.y(), vv.z(), rr);
-        }
-
-        for (int i = 0; i < n_layers; ++i) {
-          layerSoA.layerStarts()[i] = layerStarts[i];
-          layerSoA.caThetaCut()[i] = iCache->caThetaCuts_[i];
-          layerSoA.caDCACut()[i] = iCache->caDCACuts_[i];
-          layerSoA.isBarrel()[i] = (bool)iCache->isBarrel_[i];
-        }
+      for (int i = 0; i < n_layers; ++i) {
+        layerSoA.layerStarts()[i] = layerStarts[i];
+        layerSoA.caThetaCut()[i] = iCache->caThetaCuts_[i];
+        layerSoA.caDCACut()[i] = iCache->caDCACuts_[i];
+        layerSoA.isBarrel()[i] = layerIsBarrel[i];
       }
 
       layerSoA.layerStarts()[n_layers] = layerStarts[n_layers];

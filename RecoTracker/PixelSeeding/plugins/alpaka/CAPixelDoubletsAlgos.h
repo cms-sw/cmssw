@@ -179,10 +179,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
     auto layerSize = [=](uint8_t li) { return offsets[li + 1] - offsets[li]; };
 
-    // nPairsMax to be optimized later (originally was 64).
-    // If it should much be bigger, consider using a block-wide parallel prefix scan,
+    // nPairs for the OT-extended CA is 73.
+    // If it should become much bigger than 64, consider using a block-wide parallel prefix scan,
     // e.g. see  https://nvlabs.github.io/cub/classcub_1_1_warp_scan.html
-    auto& innerLayerCumulativeSize = alpaka::declareSharedVar<uint32_t[pixelTopology::maxPairs], __COUNTER__>(acc);
+    auto& innerLayerCumulativeSize = alpaka::declareSharedVar<uint32_t[TrackerTraits::nPairs], __COUNTER__>(acc);
     auto& ntot = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
 
 #ifdef DOUBLETS_DEBUG

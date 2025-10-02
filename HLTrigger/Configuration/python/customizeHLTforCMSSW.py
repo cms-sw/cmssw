@@ -108,10 +108,6 @@ def customizeHLTfor48921(process):
                 else:
                     setattr(geometry, "caThetaCuts", cms.vdouble(0.001, 0.001, 0.001, 0.001, 0.002,
                                                                  0.002, 0.002, 0.002, 0.002, 0.002))
-            
-            # is barrel information for layers (set to true for all layers to force min/maxInner cuts to act in z direction)
-            if not hasattr(geometry, "isBarrel"):
-                setattr(geometry, "isBarrel", cms.vint32([1] * nLayers))
 
             if not hasattr(geometry, "startingPairs"):
                 if isPP:
