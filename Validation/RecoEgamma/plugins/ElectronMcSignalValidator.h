@@ -1,4 +1,3 @@
-
 #ifndef Validation_RecoEgamma_ElectronMcSignalValidator_h
 #define Validation_RecoEgamma_ElectronMcSignalValidator_h
 
@@ -136,9 +135,10 @@ private:
   int seed_nbin;
   double seed_min;
   double seed_max;
-  int et_nbin;
-  double et_min;
-  double et_max;
+  double et_IsolationConeSize;
+  int et_NbinsDeltaRPlot;
+  double et_RMaxDeltaRPlot;
+  double et_RMinDeltaRPlot;
 
   // histos
 

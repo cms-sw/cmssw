@@ -27,7 +27,7 @@ electronMcSignalHistosCfg = cms.PSet(
   NbinCORE = cms.int32(21), CORE_min = cms.double(-0.5), CORE_max = cms.double(20.5), # CORE : recCoreNum
   NbinTRACK = cms.int32(41), TRACK_min = cms.double(-0.5), TRACK_max = cms.double(40.5), # TRACK : recTrackNum
   NbinSEED = cms.int32(101), SEED_min = cms.double(-0.5), SEED_max = cms.double(100.5), # SEED : recSeedNum
-  NetBin = cms.int32(100), etMax = cms.double(250.), etMin = cms.double(0.0), #### NEW PR ####
+  IsolationConeSize = cms.double(0.4), NbinsDeltaRPlot = cms.int32(101), RMaxDeltaRPlot = cms.double(0.5), RMinDeltaRPlot = cms.double(0.), # Differential isolation
 )
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
