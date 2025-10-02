@@ -60,10 +60,12 @@ The script also handles the common and forward elements of the geometry:
 * O7: 2021 with added material for muon shield
 * O8: as O4 with added material for muon shield
 * O9: as O5 with added material for muon shield
+* O10: as O7 with the material for IP to ZDC or ZDC to beyond as vacuum
 * F1: 2021 baseline
 * F2: same as F1 with modified file zdc.xml from ZDC group
 * F3: same as F2 with added simulti geometry for RPD
 * F4: same as F3 with corrected version of zdc.xml from ZDC group
+* F5: same as F4 with corrected diameter of the Fibre
 
 Several detector combinations have been generated:
 * 2021 = T3+C3+M13+P7+O7+F1
@@ -84,7 +86,7 @@ Several detector combinations have been generated:
 * 2024FlatMinus10Percent = T6+C2+M11+P7+O5+F2
 * 2024FlatPlus05Percent = T7+C2+M11+P7+O5+F2
 * 2024FlatPlus10Percent = T8+C2+M11+P7+O5+F2
-* 2025 = T3+C2+M17+P8+O7+F4
+* 2025 = T3+C2+M17+P8+O10+F5
 * 2025ZeroMaterial = T4+C2+M12+P8+O8+F3
 * 2025FlatMinus05Percent = T5+C2+M12+P8+O9+F3
 * 2025FlatMinus10Percent = T6+C2+M12+P8+O9+F3
