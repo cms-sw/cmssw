@@ -7,10 +7,11 @@ from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerCluste
 # CLUSTER FILTERING/MASKING
 
 filteredLayerClustersRecovery = _filteredLayerClustersProducer.clone(
-    clusterFilter = "ClusterFilterBySize",
+    clusterFilter = "ClusterFilterByAlgoAndSize",
     min_cluster_size = 2, # inclusive
     iteration_label = "Recovery",
     LayerClustersInputMask = 'ticlTrackstersCLUE3DHigh',
+    algo_number = [6, 7, 8],
 )
 
 # PATTERN RECOGNITION

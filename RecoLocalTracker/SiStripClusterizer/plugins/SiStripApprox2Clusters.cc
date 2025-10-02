@@ -34,10 +34,13 @@ private:
 };
 
 SiStripApprox2Clusters::SiStripApprox2Clusters(const edm::ParameterSet& conf) {
-  clusterToken_ = consumes(conf.getParameter<edm::InputTag>("inputApproxClusters"));
-  clusterToken_v1_ = consumes(conf.getParameter<edm::InputTag>("inputApproxClusters"));
   tkGeomToken_ = esConsumes();
   v1 = conf.getParameter<bool>("v1");
+  if (v1) {
+    clusterToken_v1_ = consumes(conf.getParameter<edm::InputTag>("inputApproxClusters"));
+  } else {
+    clusterToken_ = consumes(conf.getParameter<edm::InputTag>("inputApproxClusters"));
+  }
   produces<edmNew::DetSetVector<SiStripCluster>>();
 }
 
@@ -47,7 +50,7 @@ void SiStripApprox2Clusters::produce(edm::StreamID id, edm::Event& event, const 
   const auto& tkGeom = &iSetup.getData(tkGeomToken_);
   const auto& tkDets = tkGeom->dets();
 
-  if (!v1) {
+  if (clusterToken_v1_.isUninitialized()) {
     const auto& clusterCollection = event.get(clusterToken_);
     for (const auto& detClusters : clusterCollection) {
       edmNew::DetSetVector<SiStripCluster>::FastFiller ff{*result, detClusters.id()};
