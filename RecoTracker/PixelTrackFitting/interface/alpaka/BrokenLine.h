@@ -62,7 +62,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE double multScatt(
       const TAcc& acc, const double& length, const double bField, const double radius, int layer, double slope) {
     // limit R to 20GeV...
-    auto pt2 = alpaka::math::min(acc, 50., bField * radius);
+    auto pt2 = alpaka::math::min(acc, 20., bField * radius);
     pt2 *= pt2;
     constexpr double inv_X0 = 0.06 / 16.;  //!< inverse of radiation length of the material in cm
     //if(Layer==1) XXI_0=0.06/16.;
