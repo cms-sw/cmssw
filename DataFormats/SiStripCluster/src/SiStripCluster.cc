@@ -40,7 +40,7 @@ SiStripCluster::SiStripCluster(const SiStripApproximateCluster cluster, const ui
   firstStrip_ |= approximateMask;
 }
 
-SiStripCluster::SiStripCluster(const SiStripApproximateCluster_v1 cluster,
+SiStripCluster::SiStripCluster(const v1::SiStripApproximateCluster cluster,
                                const uint16_t maxStrips,
                                float p_bc,
                                unsigned int module_length,
