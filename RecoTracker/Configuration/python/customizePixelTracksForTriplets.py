@@ -51,7 +51,7 @@ def customizePixelTracksForTriplets(process):
             producer.geometry.maxDZ = [10000] * nPairs
             producer.geometry.minOuter = [-10000] * nPairs
             producer.geometry.maxOuter = [10000] * nPairs
-            producer.geometry.ptCuts = [producer.cellPtCut.value()] * nPairs
+            producer.geometry.ptCuts = [0.5] * nPairs
                    
          elif name == 'CAHitNtupletAlpakaPhase2@alpaka':
 
