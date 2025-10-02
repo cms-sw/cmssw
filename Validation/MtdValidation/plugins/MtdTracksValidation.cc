@@ -2631,7 +2631,7 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meTrackResEtlvsEta_ = ibook.bookProfile(
       "TrackResEtlvsEta",
       "t_{rec} - t_{sim} for LV associated tracks matched to TP vs eta; eta; t_{rec} - t_{sim} [ns] ",
-      100,
+      30,
       1.5,
       3.0,
       -0.15,
