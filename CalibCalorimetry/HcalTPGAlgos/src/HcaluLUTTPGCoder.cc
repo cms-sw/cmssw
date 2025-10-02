@@ -43,6 +43,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder()
       emap_{},
       delay_{},
       LUTGenerationMode_{},
+      overrideFGHF_{},
       FG_HF_thresholds_{},
       bitToMask_{},
       firstHBEta_{},
@@ -81,6 +82,7 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalElectronicsMap* e
   emap_ = emap;
   delay_ = delay;
   LUTGenerationMode_ = true;
+  overrideFGHF_ = false;
   FG_HF_thresholds_ = {0, 0};
   bitToMask_ = 0;
   allLinear_ = false;
@@ -381,6 +383,34 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
   bool newHBtp = false;
   bool newHEtp = false;
   std::vector<HcalElectronicsId> vIds = emap_->allElectronicsIdTrigger();
+
+  // Access TPParameters to get HF fine-grain thresholds
+  const HcalTPParameters* tpparameters = conditions.getHcalTPParameters();
+
+  // Read thresholds from auxi1 field
+  // aux1: 32-bit auxiliary word. Currently, only the low 16 bits are used (HF MinBias FG thresholds). The high 16 bits are reserved for future use.
+  const uint32_t aux1 = tpparameters->getAuxi1();
+  unsigned fg_hf_lo, fg_hf_hi;
+
+  // The first 16 bits of auxi1 are empty OR the switch is open: Read from configuration parameters
+  const bool zerothresFGHF = (aux1 & 0xFFFFu) == 0u;
+  if (overrideFGHF_ || zerothresFGHF) {
+    fg_hf_lo = FG_HF_thresholds_[0];
+    fg_hf_hi = FG_HF_thresholds_[1];
+  } else {
+    // First 8-bits: low threshold
+    // Second 8-bits: high threshold
+    fg_hf_lo = aux1 & 0xFFu;
+    fg_hf_hi = (aux1 >> 8) & 0xFFu;
+  }
+
+  // Sanity check: low less than high
+  if (fg_hf_hi < fg_hf_lo) {
+    edm::LogError("HcaluLUTTPGCoder")
+        << "ERROR: HF fine-grain thresholds, taken from auxi1 field of HcalTPParameters, are possibly mis-ordered: "
+        << "lower threshold (" << fg_hf_lo << ") > high threshold (" << fg_hf_hi << ").";
+  }
+
   for (std::vector<HcalElectronicsId>::const_iterator eId = vIds.begin(); eId != vIds.end(); eId++) {
     // The first HB or HE id is enough to tell whether to use new scheme in HB or HE
     if (foundHB and foundHE)
@@ -577,9 +607,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
           else {
             lut[adc] = std::min(
                 std::max(0, int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta_[cell.ietaAbs()])), MASK);
-            if (adc > FG_HF_thresholds_[0])
+            if (adc > fg_hf_lo)
               lut[adc] |= QIE10_LUT_MSB0;
-            if (adc > FG_HF_thresholds_[1])
+            if (adc > fg_hf_hi)
               lut[adc] |= QIE10_LUT_MSB1;
           }
         }
