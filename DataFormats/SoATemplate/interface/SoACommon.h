@@ -816,6 +816,60 @@ namespace cms::soa {
     static constexpr byte_size_type defaultSize = NvidiaGPU;
   };
 
+  // Proxy structs for SoA-like accessors with AoS layout
+  template <auto Member, class ValueElement>
+  struct ColumnProxy {
+    using value_element = ValueElement;
+
+    SOA_HOST_DEVICE SOA_INLINE ColumnProxy(value_element* val, size_type len) : proxy_(val, len) {}
+
+    // Reference/proxy to the field of the i-th element
+    SOA_HOST_DEVICE SOA_INLINE auto operator[](size_type i) -> decltype(auto) { return (proxy_[i].*Member); }
+
+    // const version
+    SOA_HOST_DEVICE SOA_INLINE auto operator[](size_type i) const -> decltype(auto) { return (proxy_[i].*Member); }
+
+    SOA_HOST_DEVICE SOA_INLINE size_type size() const { return proxy_.size(); }
+
+  private:
+    // value_element* base = nullptr;
+    // size_type length = 0;
+    std::span<value_element> proxy_;
+  };
+
+  // Proxy structs for const SoA-like accessors with AoS layout
+  template <auto Member, class ValueElement>
+  struct ConstColumnProxy {
+    using value_element = ValueElement;
+
+    SOA_HOST_DEVICE SOA_INLINE ConstColumnProxy(const value_element* val, size_type len) : proxy_(val, len) {}
+
+    SOA_HOST_DEVICE SOA_INLINE auto operator[](size_type i) const -> decltype(auto) { return (proxy_[i].*Member); }
+
+    SOA_HOST_DEVICE SOA_INLINE size_type size() const { return proxy_.size(); }
+
+  private:
+    // const value_element* proxy_ = nullptr;
+    // size_type length = 0;
+    std::span<const value_element> proxy_;
+  };
+
+  template <auto Member>
+  struct AoSMember {
+    template <typename ValueElement>
+    struct AoSElement {
+      using Column = ColumnProxy<Member, ValueElement>;
+    };
+  };
+
+  template <auto Member>
+  struct AoSConstMember {
+    template <typename ValueElement>
+    struct AoSElement {
+      using ConstColumn = ConstColumnProxy<Member, ValueElement>;
+    };
+  };
+
 }  // namespace cms::soa
 
 // Small wrapper for stream insertion of SoA printing
@@ -894,6 +948,24 @@ namespace cms::soa::detail {
       return cms::soa::alignSize(elements * sizeof(typename T::Scalar), alignment) * T::RowsAtCompileTime *
              T::ColsAtCompileTime;
     }
+  };
+
+  template <typename ColumnType>
+  struct AccumulateAoSByteSizes;
+
+  template <typename T>
+  struct AccumulateAoSByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
+    cms::soa::byte_size_type operator()() const { return sizeof(T); }
+  };
+
+  template <typename T>
+  struct AccumulateAoSByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
+    cms::soa::byte_size_type operator()() const { return 0; }
+  };
+
+  template <typename T>
+  struct AccumulateAoSByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
+    cms::soa::byte_size_type operator()() const { return 0; }
   };
 
   // Helper functions for computing the pitch of each column
