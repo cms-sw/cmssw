@@ -3302,8 +3302,13 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                                              et_RMaxDeltaRPlot,
                                                              "N_{ele}");
 
-  h1_ele_dRElectronsPFcand_Pho_unCleaned = bookH1(
-      iBooker, "dRElectronsPFcand_Pho_unCleaned", "dR(pho,cand) Photons :  All Ecal", et_NbinsDeltaRPlot, et_RMinDeltaRPlot, et_RMaxDeltaRPlot, "N_{ele}");
+  h1_ele_dRElectronsPFcand_Pho_unCleaned = bookH1(iBooker,
+                                                  "dRElectronsPFcand_Pho_unCleaned",
+                                                  "dR(pho,cand) Photons :  All Ecal",
+                                                  et_NbinsDeltaRPlot,
+                                                  et_RMinDeltaRPlot,
+                                                  et_RMaxDeltaRPlot,
+                                                  "N_{ele}");
   h1_ele_dRElectronsPFcand_Pho_unCleaned_barrel = bookH1(iBooker,
                                                          "dRElectronsPFcand_Pho_unCleaned_barrel",
                                                          "dR(pho,cand) Photons :  Barrel",
