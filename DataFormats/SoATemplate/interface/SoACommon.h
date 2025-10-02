@@ -882,6 +882,24 @@ namespace cms::soa::detail {
     }
   };
 
+  template <typename ColumnType>
+  struct AccumulateAoSByteSizes;
+
+  template <typename T>
+  struct AccumulateAoSByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
+    cms::soa::byte_size_type operator()() const { return sizeof(T); }
+  };
+
+  template <typename T>
+  struct AccumulateAoSByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
+    cms::soa::byte_size_type operator()() const { return 0; }
+  };
+
+  template <typename T>
+  struct AccumulateAoSByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
+    cms::soa::byte_size_type operator()() const { return 0; }
+  };
+
   // Helper functions for computing the pitch of each column
   template <typename T>
   SOA_HOST_DEVICE constexpr cms::soa::byte_size_type computePitch(
