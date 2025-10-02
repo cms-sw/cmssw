@@ -125,7 +125,6 @@ mixSimVertices = cms.PSet(
 # fastsim customs
 fastSim.toModify(mixSimTracks, input = ["fastSimProducer"])
 fastSim.toModify(mixSimVertices, input = ["fastSimProducer"])
-    
 mixHepMCProducts = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(True),
     input = cms.VInputTag(cms.InputTag("generatorSmeared"),cms.InputTag("generator")),
@@ -259,6 +258,8 @@ phase2_muon.toModify( theMixObjects,
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
     )
 )
+
+
 (premix_stage1 & phase2_muon).toModify(theMixObjects,
     mixSH = dict(
         pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonME0Hits' ]
@@ -268,7 +269,7 @@ phase2_muon.toModify( theMixObjects,
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 phase2_GE0.toModify( theMixObjects,
     mixSH = dict(
-        input = list(filter(lambda x: type(x) == type(cms.InputTag("","")) and x != cms.InputTag("g4SimHits","MuonME0Hits"), theMixObjects.mixSH.input)),
+        input = list(filter(lambda x: type(x) == type(cms.InputTag("","")) and x != cms.InputTag("g4SimHits","MuonME0Hits") and x != cms.InputTag("g4SimHits","MuonGEMHits"), theMixObjects.mixSH.input)),
         subdets = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.subdets)),
         crossingFrames = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.crossingFrames))
     )
@@ -279,7 +280,26 @@ phase2_GE0.toModify( theMixObjects,
     )
 )
 
+(fastSim & phase2_GE0).toModify(theMixObjects,
+                                mixSH = dict(
+                                    input = cms.VInputTag(cms.InputTag("MuonSimHits","MuonCSCHits"), cms.InputTag("MuonSimHits","MuonDTHits"), cms.InputTag("MuonSimHits","MuonRPCHits"), cms.InputTag("fastSimProducer","TrackerHits"), cms.InputTag("MuonSimHits","MuonGEMHits")),
+                                    subdets = cms.vstring(
+                                        'MuonCSCHits',
+                                        'MuonDTHits',
+                                        'MuonRPCHits',
+                                        'TrackerHits',
+                                        'MuonGEMHits'),
+                                    crossingframes =  cms.untracked.vstring(
+                                        'MuonCSCHits',
+                                        'MuonDTHits',
+                                        'MuonRPCHits',
+                                        'MuonGEMHits')
+                                )
+
+)
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+
 phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(
         input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()),

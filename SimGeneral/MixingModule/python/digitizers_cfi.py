@@ -110,12 +110,17 @@ premix_stage2.toModify(theDigitizers,
     MC_fastTimingLayer = dict(premixStage1 = True),
 )
 
+#(fastSim & phase2_hgcal).toModify(theDigitizersValid, calotruth = None)
+
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 (phase2_tracker& ~fastSim).toModify(theDigitizers,
                         strip = None)
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
+
+(fastSim & phase2_hgcal).toModify(theDigitizersValid, calotruth = None)
+#No calo clustering for fastsim phase2
 
 from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
 run3_ecalclustering.toModify( theDigitizersValid, 
