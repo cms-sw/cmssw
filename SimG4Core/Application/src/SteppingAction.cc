@@ -176,8 +176,8 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   bool isKilled = false;
   if (sAlive == tstat || sVeryForward == tstat) {
     if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
-      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-      if (!trkinfo->crossedBoundary()) {
+      TrackInformation* trkinfo = dynamic_cast<TrackInformation*>(theTrack->GetUserInformation());
+      if (nullptr != trkinfo && !trkinfo->crossedBoundary()) {
         trkinfo->setCrossedBoundary(theTrack);
       }
     }

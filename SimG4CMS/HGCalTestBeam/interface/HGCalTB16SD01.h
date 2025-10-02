@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4CMS/Calo/interface/CaloSD.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4Material.hh"
 #include "G4Step.hh"

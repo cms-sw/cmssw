@@ -7,7 +7,6 @@
 #include "SimG4CMS/PPS/interface/PPSDiamondOrganization.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
@@ -19,7 +18,6 @@
 #include "G4VProcess.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "G4PhysicalConstants.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <iostream>
