@@ -23,7 +23,6 @@
 
 #include "TError.h"
 #include "TFile.h"
-#include "TTree.h"
 
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleReader.hxx"
@@ -440,31 +439,31 @@ void ProvenanceDumper::dumpEventFilteringParameterSets(edm::EventSelectionIDVect
 }
 
 void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file, ProcessSimpleIDsType const& processSimpleIDs) {
-  TTree* history = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventHistoryTreeName().c_str()));
-  if (history != nullptr) {
-    edm::History h;
-    edm::History* ph = &h;
+  auto eventsRNTuple = file->Get<ROOT::RNTuple>(edm::poolNames::eventTreeName().c_str());
+  assert(eventsRNTuple != nullptr);
+  auto eventsReader = ROOT::RNTupleReader::Open(*eventsRNTuple);
 
-    history->SetBranchAddress(edm::poolNames::eventHistoryBranchName().c_str(), &ph);
-    if (history->GetEntry(0) <= 0) {
-      std::cout << "No event filtering information is available; the event history tree has no entries\n";
-    } else {
-      dumpEventFilteringParameterSets(h.eventSelectionIDs(), processSimpleIDs);
-    }
-  } else {
-    TTree* events = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventTreeName().c_str()));
-    assert(events != nullptr);
-    TBranch* eventSelectionsBranch = events->GetBranch(edm::poolNames::eventSelectionsBranchName().c_str());
-    if (eventSelectionsBranch == nullptr)
-      return;
+  if (eventsReader->GetNEntries() == 0) {
+    std::cout << "No event filtering information is available; the event selections branch has no entries\n";
+    return;
+  }
+
+  if (eventsReader->GetModel().GetFieldNames().find(edm::poolNames::eventSelectionsBranchName()) ==
+      eventsReader->GetModel().GetFieldNames().end()) {
+    std::cout << "No event filtering information is available; the event selections field is not present\n";
+    return;
+  }
+
+  try {
+    auto entry = eventsReader->GetModel().CreateEntry();
     edm::EventSelectionIDVector ids;
-    edm::EventSelectionIDVector* pids = &ids;
-    eventSelectionsBranch->SetAddress(&pids);
-    if (eventSelectionsBranch->GetEntry(0) <= 0) {
-      std::cout << "No event filtering information is available; the event selections branch has no entries\n";
-    } else {
-      dumpEventFilteringParameterSets(ids, processSimpleIDs);
-    }
+    entry->BindRawPtr(edm::poolNames::eventSelectionsBranchName(), &ids);
+    eventsReader->LoadEntry(0, *entry);
+    dumpEventFilteringParameterSets(ids, processSimpleIDs);
+  } catch (ROOT::RException const& iExcept) {
+    std::cout << "The following exception occured while reading the event filtering information:\n"
+              << iExcept.what() << std::endl;
+    return;
   }
 }
 
@@ -681,49 +680,76 @@ ProvenanceDumper::makeBranchIDListHelper() {
     return {};
   }
 
-  TTree* metaTree = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
-  if (nullptr == metaTree) {
-    //std::cerr << "Did not find " << edm::poolNames::metaDataTreeName() << " tree" << std::endl;
+  // Read BranchIDLists from metadata RNTuple
+  auto metaRNTuple = inputFile_->Get<ROOT::RNTuple>(edm::poolNames::metaDataTreeName().c_str());
+  if (nullptr == metaRNTuple) {
+    std::cerr << "Did not find " << edm::poolNames::metaDataTreeName() << " RNTuple" << std::endl;
     return {};
   }
 
-  TBranch* branchIDListsBranch = metaTree->GetBranch(edm::poolNames::branchIDListBranchName().c_str());
-  if (nullptr == branchIDListsBranch) {
-    /*
+  auto metaReader = ROOT::RNTupleReader::Open(*metaRNTuple);
+  if (metaReader->GetNEntries() == 0) {
+    std::cerr << "No entries in " << edm::poolNames::metaDataTreeName() << " RNTuple" << std::endl;
+    return {};
+  }
+
+  // Check if the required field exists in the metadata RNTuple
+  auto metaFieldNames = metaReader->GetModel().GetFieldNames();
+  if (metaFieldNames.find(edm::poolNames::branchIDListBranchName()) == metaFieldNames.end()) {
     std::cerr << "Did not find " << edm::poolNames::branchIDListBranchName() << " from "
-              << edm::poolNames::metaDataTreeName() << " tree" << std::endl;
-    */
+              << edm::poolNames::metaDataTreeName() << " RNTuple" << std::endl;
     return {};
   }
 
   edm::BranchIDLists branchIDLists;
-  edm::BranchIDLists* branchIDListsPtr = &branchIDLists;
-  branchIDListsBranch->SetAddress(&branchIDListsPtr);
-  if (branchIDListsBranch->GetEntry(0) <= 0) {
-    //std::cerr << "Failed to read an entry from " << edm::poolNames::branchIDListBranchName() << std::endl;
+  try {
+    auto metaEntry = metaReader->GetModel().CreateEntry();
+    metaEntry->BindRawPtr(edm::poolNames::branchIDListBranchName(), &branchIDLists);
+    metaReader->LoadEntry(0, *metaEntry);
+  } catch (ROOT::RException const& iExcept) {
+    std::cerr << "The following exception occurred while reading " << edm::poolNames::branchIDListBranchName()
+              << " from " << edm::poolNames::metaDataTreeName() << " RNTuple:\n"
+              << iExcept.what() << std::endl;
     return {};
   }
 
   edm::BranchIDListHelper branchIDListHelper;
   branchIDListHelper.updateFromInput(branchIDLists);
 
-  TTree* events = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::eventTreeName().c_str()));
-  assert(events != nullptr);
-  TBranch* branchListIndexesBranch = events->GetBranch(edm::poolNames::branchListIndexesBranchName().c_str());
-  if (nullptr == branchListIndexesBranch) {
-    /*
-    std::cerr << "Did not find " << edm::poolNames::branchListIndexesBranchName() << " from "
-              << edm::poolNames::eventTreeName() << " tree" << std::endl;
-    */
+  // Read BranchListIndexes from events RNTuple
+  auto eventsRNTuple = inputFile_->Get<ROOT::RNTuple>(edm::poolNames::eventTreeName().c_str());
+  assert(eventsRNTuple != nullptr);
+  auto eventsReader = ROOT::RNTupleReader::Open(*eventsRNTuple);
+
+  if (eventsReader->GetNEntries() <= static_cast<ROOT::NTupleSize_t>(productIDEntry_)) {
+    std::cerr << "Requested entry " << productIDEntry_ << " but only " << eventsReader->GetNEntries() << " entries in "
+              << edm::poolNames::eventTreeName() << " RNTuple" << std::endl;
     return {};
   }
+
+  // Check if the required field exists in the events RNTuple
+  auto eventsFieldNames = eventsReader->GetModel().GetFieldNames();
+  if (eventsFieldNames.find(edm::poolNames::branchListIndexesBranchName()) == eventsFieldNames.end()) {
+    std::cerr << "Did not find " << edm::poolNames::branchListIndexesBranchName() << " from "
+              << edm::poolNames::eventTreeName() << " RNTuple" << std::endl;
+    return {};
+  }
+
   edm::BranchListIndexes branchListIndexes;
-  edm::BranchListIndexes* pbranchListIndexes = &branchListIndexes;
-  branchListIndexesBranch->SetAddress(&pbranchListIndexes);
-  if (branchListIndexesBranch->GetEntry(productIDEntry_) <= 0 or branchListIndexes.empty()) {
+  try {
+    auto eventsEntry = eventsReader->GetModel().CreateEntry();
+    eventsEntry->BindRawPtr(edm::poolNames::branchListIndexesBranchName(), &branchListIndexes);
+    eventsReader->LoadEntry(productIDEntry_, *eventsEntry);
+  } catch (ROOT::RException const& iExcept) {
+    std::cerr << "The following exception occurred while reading " << edm::poolNames::branchListIndexesBranchName()
+              << " from " << edm::poolNames::eventTreeName() << " RNTuple:\n"
+              << iExcept.what() << std::endl;
+    return {};
+  }
+
+  if (branchListIndexes.empty()) {
     /*
-    std::cerr << "Failed to read entry from " << edm::poolNames::branchListIndexesBranchName() << ", or it is empty"
-              << std::endl;
+    std::cerr << "BranchListIndexes is empty" << std::endl;
     */
     return {};
   }
@@ -741,7 +767,6 @@ ProvenanceDumper::makeBranchIDListHelper() {
 
 void ProvenanceDumper::work_() {
   auto metaRNTuple = inputFile_->Get<ROOT::RNTuple>(edm::poolNames::metaDataTreeName().c_str());
-  //TTree* meta = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
   assert(metaRNTuple);
 
   auto reader = ROOT::RNTupleReader::Open(*metaRNTuple);
@@ -755,7 +780,7 @@ void ProvenanceDumper::work_() {
     assert(rntuple);
     auto psets = ROOT::RNTupleReader::Open(*rntuple);
     assert(psets.get());
-    auto entry = psets->GetModel().CreateBareEntry();
+    auto entry = psets->GetModel().CreateEntry();
 
     std::pair<edm::ParameterSetID, edm::ParameterSetBlob> idToBlob;
     entry->BindRawPtr("IdToParameterSetsBlobs", &idToBlob);
@@ -817,74 +842,72 @@ void ProvenanceDumper::work_() {
   std::map<edm::BranchID, std::set<edm::ParentageID>> perProductParentage;
 
   if (showDependencies_ || extendedAncestors_ || extendedDescendants_) {
-    TTree* parentageTree = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::parentageTreeName().c_str()));
-    if (nullptr == parentageTree) {
-      std::cerr << "ERROR, no Parentage tree available so cannot show dependencies, ancestors, or descendants.\n";
+    auto parentageRNTuple = inputFile_->Get<ROOT::RNTuple>(edm::poolNames::parentageTreeName().c_str());
+    if (nullptr == parentageRNTuple) {
+      std::cerr << "ERROR, no Parentage RNTuple available so cannot show dependencies, ancestors, or descendants.\n";
       std::cerr << "Possibly this is not a standard EDM format file. For example, dependency, ancestor, and\n";
       std::cerr << "descendant options to edmProvDump will not work with nanoAOD format files.\n\n";
       showDependencies_ = false;
       extendedAncestors_ = false;
       extendedDescendants_ = false;
     } else {
-      edm::ParentageRegistry& registry = *edm::ParentageRegistry::instance();
+      auto parentageReader = ROOT::RNTupleReader::Open(*parentageRNTuple);
 
-      std::vector<edm::ParentageID> orderedParentageIDs;
-      orderedParentageIDs.reserve(parentageTree->GetEntries());
-      for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
-        edm::Parentage parentageBuffer;
-        edm::Parentage* pParentageBuffer = &parentageBuffer;
-        parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), &pParentageBuffer);
-        parentageTree->GetEntry(i);
-        registry.insertMapped(parentageBuffer);
-        orderedParentageIDs.push_back(parentageBuffer.id());
-      }
-      parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), nullptr);
-
-      TTree* eventMetaTree =
-          dynamic_cast<TTree*>(inputFile_->Get(edm::BranchTypeToMetaDataTreeName(edm::InEvent).c_str()));
-      if (nullptr == eventMetaTree) {
-        eventMetaTree = dynamic_cast<TTree*>(inputFile_->Get(edm::BranchTypeToProductTreeName(edm::InEvent).c_str()));
-      }
-      if (nullptr == eventMetaTree) {
-        std::cerr << "ERROR, no '" << edm::BranchTypeToProductTreeName(edm::InEvent)
-                  << "' Tree in file so can not show dependencies\n";
+      // Check if the required field exists in the parentage RNTuple
+      auto parentageFieldNames = parentageReader->GetModel().GetFieldNames();
+      if (parentageFieldNames.find(edm::poolNames::parentageBranchName()) == parentageFieldNames.end()) {
+        std::cerr << "ERROR, no '" << edm::poolNames::parentageBranchName()
+                  << "' field in Parentage RNTuple so cannot show dependencies\n";
         showDependencies_ = false;
         extendedAncestors_ = false;
         extendedDescendants_ = false;
       } else {
-        TBranch* storedProvBranch =
-            eventMetaTree->GetBranch(edm::BranchTypeToProductProvenanceBranchName(edm::InEvent).c_str());
+        edm::ParentageRegistry& registry = *edm::ParentageRegistry::instance();
 
-        if (nullptr != storedProvBranch) {
-          std::vector<edm::StoredProductProvenance> info;
-          std::vector<edm::StoredProductProvenance>* pInfo = &info;
-          storedProvBranch->SetAddress(&pInfo);
-          for (Long64_t i = 0, numEntries = eventMetaTree->GetEntries(); i < numEntries; ++i) {
-            storedProvBranch->GetEntry(i);
-            for (auto const& item : info) {
-              edm::BranchID bid(item.branchID_);
-              perProductParentage[bid].insert(orderedParentageIDs.at(item.parentageIDIndex_));
-            }
-          }
+        std::vector<edm::ParentageID> orderedParentageIDs;
+        orderedParentageIDs.reserve(parentageReader->GetNEntries());
+
+        auto parentageEntry = parentageReader->GetModel().CreateEntry();
+        edm::Parentage parentageBuffer;
+        parentageEntry->BindRawPtr(edm::poolNames::parentageBranchName(), &parentageBuffer);
+
+        for (ROOT::NTupleSize_t i = 0, numEntries = parentageReader->GetNEntries(); i < numEntries; ++i) {
+          parentageReader->LoadEntry(i, *parentageEntry);
+          registry.insertMapped(parentageBuffer);
+          orderedParentageIDs.push_back(parentageBuffer.id());
+        }
+
+        auto eventsRNTuple = inputFile_->Get<ROOT::RNTuple>(edm::BranchTypeToProductTreeName(edm::InEvent).c_str());
+        if (nullptr == eventsRNTuple) {
+          std::cerr << "ERROR, no '" << edm::BranchTypeToProductTreeName(edm::InEvent)
+                    << "' RNTuple in file so can not show dependencies\n";
+          showDependencies_ = false;
+          extendedAncestors_ = false;
+          extendedDescendants_ = false;
         } else {
-          //backwards compatible check
-          TBranch* productProvBranch =
-              eventMetaTree->GetBranch(edm::BranchTypeToBranchEntryInfoBranchName(edm::InEvent).c_str());
-          if (nullptr != productProvBranch) {
-            std::vector<edm::ProductProvenance> info;
-            std::vector<edm::ProductProvenance>* pInfo = &info;
-            productProvBranch->SetAddress(&pInfo);
-            for (Long64_t i = 0, numEntries = eventMetaTree->GetEntries(); i < numEntries; ++i) {
-              productProvBranch->GetEntry(i);
-              for (auto const& item : info) {
-                perProductParentage[item.branchID()].insert(item.parentageID());
-              }
-            }
-          } else {
-            std::cerr << " ERROR, could not find provenance information so can not show dependencies\n";
+          auto eventsReader = ROOT::RNTupleReader::Open(*eventsRNTuple);
+
+          // Check if the required field exists in the events RNTuple
+          auto eventsFieldNames = eventsReader->GetModel().GetFieldNames();
+          if (eventsFieldNames.find(edm::BranchTypeToProductProvenanceBranchName(edm::InEvent)) ==
+              eventsFieldNames.end()) {
+            std::cerr << "ERROR, no '" << edm::BranchTypeToProductProvenanceBranchName(edm::InEvent)
+                      << "' field in events RNTuple so cannot show dependencies\n";
             showDependencies_ = false;
             extendedAncestors_ = false;
             extendedDescendants_ = false;
+          } else {
+            auto eventsEntry = eventsReader->GetModel().CreateEntry();
+            std::vector<edm::StoredProductProvenance> info;
+            eventsEntry->BindRawPtr(edm::BranchTypeToProductProvenanceBranchName(edm::InEvent), &info);
+
+            for (ROOT::NTupleSize_t i = 0, numEntries = eventsReader->GetNEntries(); i < numEntries; ++i) {
+              eventsReader->LoadEntry(i, *eventsEntry);
+              for (auto const& item : info) {
+                edm::BranchID bid(item.branchID_);
+                perProductParentage[bid].insert(orderedParentageIDs.at(item.parentageIDIndex_));
+              }
+            }
           }
         }
       }
