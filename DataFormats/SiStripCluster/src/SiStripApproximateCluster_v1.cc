@@ -3,14 +3,13 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-
-SiStripApproximateCluster_v1::SiStripApproximateCluster_v1(const SiStripCluster& cluster,
-                                                           unsigned int maxNSat,
-                                                           float hitPredPos,
-                                                           float& previous_cluster,
-                                                           unsigned int& module_length,
-                                                           unsigned int& previous_module_length,
-                                                           bool peakFilter) {
+v1::SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& cluster,
+                                                         unsigned int maxNSat,
+                                                         float hitPredPos,
+                                                         float& previous_cluster,
+                                                         unsigned int& module_length,
+                                                         unsigned int& previous_module_length,
+                                                         bool peakFilter) {
   bool filter_, isSaturated_, peakFilter_;
   if (previous_cluster == -999.)
     compBarycenter_ = std::round(cluster.barycenter() * maxRange_ / maxBarycenter_);
