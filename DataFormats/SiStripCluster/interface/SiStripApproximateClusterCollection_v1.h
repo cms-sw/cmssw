@@ -19,19 +19,19 @@ namespace v1 {
     // Helper classes to make creation and iteration easier
     class Filler {
     public:
-      void push_back(SiStripApproximateCluster_v1 const& cluster) { clusters_.push_back(cluster); }
+      void push_back(v1::SiStripApproximateCluster const& cluster) { clusters_.push_back(cluster); }
 
     private:
       friend SiStripApproximateClusterCollection;
-      Filler(std::vector<SiStripApproximateCluster_v1>& clusters) : clusters_(clusters) {}
+      Filler(std::vector<v1::SiStripApproximateCluster>& clusters) : clusters_(clusters) {}
 
-      std::vector<SiStripApproximateCluster_v1>& clusters_;
+      std::vector<v1::SiStripApproximateCluster>& clusters_;
     };
 
     class const_iterator;
     class DetSet {
     public:
-      using const_iterator = std::vector<SiStripApproximateCluster_v1>::const_iterator;
+      using const_iterator = std::vector<v1::SiStripApproximateCluster>::const_iterator;
 
       unsigned int id() const {
         return std::accumulate(coll_->detIds_.cbegin(), coll_->detIds_.cbegin() + detIndex_ + 1, 0);
@@ -101,7 +101,7 @@ namespace v1 {
     // element of beginIndices_ points to the first cluster of the Det
     // in clusters_.
     std::vector<unsigned int> detIds_;  // DetId for the Det
-    std::vector<SiStripApproximateCluster_v1> clusters_;
+    std::vector<v1::SiStripApproximateCluster> clusters_;
   };
 }  // namespace v1
 #endif

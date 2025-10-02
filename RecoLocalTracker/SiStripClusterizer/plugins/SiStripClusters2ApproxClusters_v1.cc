@@ -153,13 +153,13 @@ void SiStripClusters2ApproxClusters_v1::produce(edm::Event& event, edm::EventSet
       bool isTrivial = (std::abs(hitPredPos) < 2.f && hitStrips <= 2);
 
       if (!usable || isTrivial) {
-        ff.push_back(SiStripApproximateCluster_v1(cluster,
-                                                  maxNSat,
-                                                  hitPredPos,
-                                                  previous_cluster,
-                                                  module_length,
-                                                  first_cluster ? previous_module_length : module_length,
-                                                  true));
+        ff.push_back(v1::SiStripApproximateCluster(cluster,
+                                                   maxNSat,
+                                                   hitPredPos,
+                                                   previous_cluster,
+                                                   module_length,
+                                                   first_cluster ? previous_module_length : module_length,
+                                                   true));
       } else {
         bool peakFilter = false;
         SlidingPeakFinder pf(std::max<int>(2, std::ceil(std::abs(hitPredPos) + subclusterWindow_)));
@@ -174,13 +174,13 @@ void SiStripClusters2ApproxClusters_v1::produce(edm::Event& event, edm::EventSet
                             subclusterCutSN_);
         peakFilter = pf.apply(cluster.amplitudes(), test);
 
-        ff.push_back(SiStripApproximateCluster_v1(cluster,
-                                                  maxNSat,
-                                                  hitPredPos,
-                                                  previous_cluster,
-                                                  module_length,
-                                                  first_cluster ? previous_module_length : module_length,
-                                                  peakFilter));
+        ff.push_back(v1::SiStripApproximateCluster(cluster,
+                                                   maxNSat,
+                                                   hitPredPos,
+                                                   previous_cluster,
+                                                   module_length,
+                                                   first_cluster ? previous_module_length : module_length,
+                                                   peakFilter));
       }
       first_cluster = false;
     }
