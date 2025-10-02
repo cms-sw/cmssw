@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 from enum import Enum
 import argparse
 from collections import namedtuple
@@ -54,6 +55,18 @@ class Entries:
     @staticmethod
     def isVectorElement(obj):
         return isinstance(obj, Entries.ReadvElement) or isinstance(obj, Entries.WritevElement) or isinstance(obj, Entries.PrefetchElement)
+
+    @staticmethod
+    def toString(obj, indent=""):
+        s = f"{indent}{obj.__class__.__name__}"
+        for f in obj._fields:
+            if f in ["actual", "elements"]:
+                continue
+            s += f" {f} {getattr(obj, f)}"
+        if Entries.isVector(obj):
+            for e in obj.elements:
+                s += f"\n{indent}{Entries.toString(e, indent)}"
+        return s
 
 Chunk = namedtuple("Chunk", ("begin", "end"))
 ChunkWithTime = namedtuple("ChunkWithTime", ("begin", "end", "begintime", "endtime"))
@@ -444,6 +457,52 @@ def printMapReadRanges(logEntries, mapFileName):
                     ch = chunks[i]
                     print(f"{ch.begin} {ch.end} {ch.type} {ch.content}")
 
+######################
+# Correlate reads with log file
+#######################
+
+def printReadCorrelations(logEntries, logFileName):
+    if len(logEntries) == 0:
+        return
+
+    openEntry = logEntries[0]
+    if not isinstance(openEntry, Entries.Open):
+        raise Exception("First log entry is not file open")
+
+    traceFileID = openEntry.traceid
+
+    def create_read_entry_finder():
+        for entry in logEntries:
+            yield entry
+    entry_generator = create_read_entry_finder()
+    def nextEntryIfRead(trace_id):
+        for entry in entry_generator:
+            if entry.id == trace_id:
+                if isinstance(entry, Entries.Read) or isinstance(entry, Entries.Readv):
+                    return entry
+                else:
+                    return None
+        return None
+
+    keepLogLinePatterns = [
+        "Initiating request to open file",
+        "Successfully opened file",
+        "RootTree::getEntryUsingCache()",
+        "RootTree::getEntryForAllBranches()",
+        "DataProductsRNTuple::dataProduct()",
+    ]
+    trace_re = re.compile(r"IOTrace {} id (\d+)".format(traceFileID))
+    with open(logFileName) as f:
+        for line in f:
+            if any(pattern in line for pattern in keepLogLinePatterns):
+                print(line.strip())
+                continue
+            m = trace_re.search(line)
+            if m:
+                entry = nextEntryIfRead(int(m.group(1)))
+                if entry is not None:
+                    print(Entries.toString(entry, " "))
+
 #####################
 # Plot read patterns
 #####################
@@ -506,6 +565,8 @@ def main(logEntries, args):
         printReadRanges(logEntries)
     if args.mapReadRanges:
         printMapReadRanges(logEntries, args.mapReadRanges)
+    if args.correlateReads:
+        printReadCorrelations(logEntries, args.correlateReads)
     if args.plotReads:
         plotReadPatterns(logEntries, args.plotReads)
     pass
@@ -801,6 +862,7 @@ if __name__ == "__main__":
     parser.add_argument("--readOverlaps", action="store_true", help="Analyze overlaps of reads")
     parser.add_argument("--readRanges", action="store_true", help="Print offset ranges of each read element")
     parser.add_argument("--mapReadRanges", type=str, default=None, help="Like --readRanges, but uses the output of TFile::Map() to map the file regions to TFile content. The argument should be a file containing the output of 'edmFileUtil --map'.")
+    parser.add_argument("--correlateReads", type=str, default=None, help="Correlate reads with high-level IOTrace printouts from the CMSSW log file.")
     parser.add_argument("--plotReads", type=str, default=None, help="Generate a plot of the read patterns. The argument should be the name of the output PDF file.")
     parser.add_argument("--test", action="store_true", help="Run internal tests")
 
