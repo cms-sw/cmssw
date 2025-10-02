@@ -21,3 +21,14 @@ _hltPhase2PixelTracksCAExtensionSelectionHighPurity = cms.EDProducer("TrackColle
     originalSource = cms.InputTag("hltPhase2PixelTracksCAExtension")
 )
 phase2CAExtension.toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksCAExtensionSelectionHighPurity)
+
+from Configuration.ProcessModifiers.phase2LegacyPixelTracks_cff import phase2LegacyPixelTracks
+_hltPhase2PixelTracksLegacy = cms.EDProducer("PixelTrackProducer",
+    Cleaner = cms.string('pixelTrackCleanerBySharedHits'),
+    Filter = cms.InputTag("hltPhase2PixelTrackFilterByKinematics"),
+    Fitter = cms.InputTag("hltPhase2PixelFitterByHelixProjections"),
+    SeedingHitSets = cms.InputTag("hltPhase2PixelTracksHitSeeds"),
+    mightGet = cms.optional.untracked.vstring,
+    passLabel = cms.string('hltPhase2PixelTracks')
+)
+phase2LegacyPixelTracks.toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksLegacy)

@@ -5,6 +5,9 @@ from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import hltPhase2PixelTr
 from ..modules.hltPhase2PixelTracks_cfi import hltPhase2PixelTracks
 from ..modules.hltPhase2PixelTracksSoA_cfi import hltPhase2PixelTracksSoA
 from ..modules.hltPhase2PixelTracksAndHighPtStepTrackingRegions_cfi import hltPhase2PixelTracksAndHighPtStepTrackingRegions
+from ..modules.hltPhase2PixelTracksHitDoublets_cfi import hltPhase2PixelTracksHitDoublets
+from ..modules.hltPhase2PixelTracksHitSeeds_cfi import hltPhase2PixelTracksHitSeeds
+from ..modules.hltPhase2PixelTracksSeedLayers_cfi import hltPhase2PixelTracksSeedLayers
 from ..modules.hltPhase2PixelVertices_cfi import *
 from ..sequences.HLTPhase2PixelVertexingSequence_cfi import HLTPhase2PixelVertexingSequence
 from ..sequences.HLTBeamSpotSequence_cfi import HLTBeamSpotSequence
@@ -57,3 +60,17 @@ _HLTPhase2PixelTracksAndVerticesSequenceCAExtension = cms.Sequence(
 
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
 phase2CAExtension.toReplaceWith(HLTPhase2PixelTracksAndVerticesSequence, _HLTPhase2PixelTracksAndVerticesSequenceCAExtension)
+
+from Configuration.ProcessModifiers.phase2LegacyPixelTracks_cff import phase2LegacyPixelTracks
+_HLTPhase2PixelTracksAndVerticesSequenceLegacy = cms.Sequence(
+  hltPhase2PixelTracksSeedLayers
+  +hltPhase2PixelTracksAndHighPtStepTrackingRegions
+  +hltPhase2PixelTracksHitDoublets
+  +hltPhase2PixelTracksHitSeeds
+  +hltPhase2PixelFitterByHelixProjections
+  +hltPhase2PixelTrackFilterByKinematics
+  +hltPhase2PixelTracks
+  +HLTPhase2PixelVertexingSequence
+)
+phase2LegacyPixelTracks.toReplaceWith(HLTPhase2PixelTracksAndVerticesSequence, _HLTPhase2PixelTracksAndVerticesSequenceLegacy)
+
