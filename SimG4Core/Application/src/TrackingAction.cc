@@ -39,18 +39,18 @@ TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, con
 
 void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   g4Track_ = aTrack;
-  currentTrack_ = new TrackWithHistory(aTrack, aTrack->GetParentID());
+  currentHistory_ = new TrackWithHistory(aTrack, aTrack->GetParentID());
   interface_->setCurrentTrack(aTrack);
 
   BeginOfTrack bt(aTrack);
   m_beginOfTrackSignal(&bt);
 
-  trkInfo_ = static_cast<TrackInformation*>(aTrack->GetUserInformation());
+  trkInfo_ = dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
 
   // Always save primaries
-  if (trkInfo_->isPrimary()) {
+  if (nullptr != trkInfo_ && trkInfo_->isPrimary()) {
     trackManager_->cleanTracksWithHistory();
-    currentTrack_->setToBeSaved();
+    currentHistory_->setToBeSaved();
   }
 
   if (nullptr != steppingVerbose_) {
@@ -70,7 +70,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
                                  << aTrack->GetVertexPosition().z() / CLHEP::cm << ")"
                                  << " parentid=" << aTrack->GetParentID();
 #endif
-  if (ekin > ekinMin_) {
+  if (nullptr != trkInfo_ && ekin > ekinMin_) {
     // Each track with energy above the threshold should be saved
     trkInfo_->putInHistory();
   }
@@ -80,19 +80,27 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   // Tracks in history may be upgraded to stored secondary tracks,
   // which cross the boundary between Tracker and Calo
   int id = aTrack->GetTrackID();
-  bool ok = (trkInfo_->storeTrack() || currentTrack_->saved());
-  if (trkInfo_->crossedBoundary()) {
-    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
-    ok = (ok || saveCaloBoundaryInformation_ || doFineCalo_);
+  bool ok = currentHistory_->saved();
+  if (nullptr != trkInfo_) {
+    ok = (ok || trkInfo_->storeTrack());
+    if (trkInfo_->crossedBoundary()) {
+      currentHistory_->setCrossedBoundaryPosMom(
+          id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
+      ok = (ok || saveCaloBoundaryInformation_ || doFineCalo_);
+    }
   }
   if (ok) {
-    currentTrack_->setToBeSaved();
+    currentHistory_->setToBeSaved();
   }
 
-  bool withAncestor = (trkInfo_->getIDonCaloSurface() == id || trkInfo_->isAncestor());
-  bool isInHistory = trkInfo_->isInHistory();
+  bool withAncestor = false;
+  bool isInHistory = false;
+  if (nullptr != trkInfo_) {
+    withAncestor = (trkInfo_->getIDonCaloSurface() == id || trkInfo_->isAncestor());
+    isInHistory = trkInfo_->isInHistory();
+  }
 
-  trackManager_->addTrack(currentTrack_, aTrack, isInHistory, withAncestor);
+  trackManager_->addTrack(currentHistory_, aTrack, isInHistory, withAncestor);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("TrackingAction") << "TrackingAction end track=" << id << "  "
@@ -101,7 +109,7 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 #endif
 
   if (!isInHistory) {
-    delete currentTrack_;
+    delete currentHistory_;
   }
 
   EndOfTrack et(aTrack);

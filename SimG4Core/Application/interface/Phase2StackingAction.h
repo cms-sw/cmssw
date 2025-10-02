@@ -24,17 +24,14 @@ public:
 
   G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack) final;
 
-  void NewStage() override;
-  void PrepareNewEvent() override;
-
 private:
   void initPointer();
 
-  int isItPrimaryDecayProductOrConversion(const int subtype, const G4Track&) const;
+  int isItPrimaryDecayProductOrConversion(const int subtype, const G4Track* mother) const;
 
-  int isItFromPrimary(const G4Track&, int) const;
+  int isItFromPrimary(const G4Track* mother, int) const;
 
-  bool rrApplicable(const G4Track*, const G4Track&) const;
+  bool rrApplicable(const G4Track* current, const G4Track* mother) const;
 
   bool isItOutOfTimeWindow(const G4Region*, const double&) const;
 
