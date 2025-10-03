@@ -247,7 +247,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // But this is the common practice at the moment
     // also for legacy data formats.
     std::memcpy(moduleStartVec.data(),
-                stripHitsModuleView.moduleStart(),
+                stripHitsModuleView.moduleStart().data(),
                 sizeof(uint32_t) * stripHitsModuleView.metadata().size());
     iEvent.emplace(hitModuleStart_, std::move(moduleStartVec));
 
