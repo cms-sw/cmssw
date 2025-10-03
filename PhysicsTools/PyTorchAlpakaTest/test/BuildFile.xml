@@ -1,0 +1,7 @@
+<test name="testPyTorchAlpakaTestSerialSync" command="cmsRun ${CMSSW_BASE}/src/PhysicsTools/PyTorchAlpakaTest/test/testPyTorchAlpakaHeterogeneousPipeline.py backend=serial_sync"/>
+<test name="testPyTorchAlpakaTestCudaAsync" command="cmsRun ${CMSSW_BASE}/src/PhysicsTools/PyTorchAlpakaTest/test/testPyTorchAlpakaHeterogeneousPipeline.py backend=cuda_async">
+  <use name="cuda"/>
+</test>
+<test name="testPyTorchAlpakaTestROCmAsync" command="cmsRun ${CMSSW_BASE}/src/PhysicsTools/PyTorchAlpakaTest/test/testPyTorchAlpakaHeterogeneousPipeline.py backend=rocm_async">
+  <use name="rocm"/>
+</test>
