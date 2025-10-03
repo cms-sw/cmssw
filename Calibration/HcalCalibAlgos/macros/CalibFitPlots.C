@@ -48,6 +48,8 @@
 //           text0 is the text for general title added within ()
 //           type=0 plots response distributions and MPV of response vs ieta
 //               =1 plots MPV of response vs RBX #
+//           *drawStatBox* is of type *int* here specifying the index for
+//           calling SetOptStat and SetOptFit
 //
 //             For plotting stored histograms from CalibTree
 //  PlotFiveHists(infile, text0, prefix0, type, iname, drawStatBox, normalize,
@@ -59,6 +61,8 @@
 //           text0 is the text for general title added within ()
 //           prefix0 is the tag attached to the canvas name
 //           type has the same meaning as in PlotTwoHists
+//           *drawStatBox* is of type *int* here specifying the index for
+//           calling SetOptStat and SetOptFit
 //
 //  PlotHistCorrResults(infile, text, prefixF, save);
 //      Defaults: save=0
@@ -66,7 +70,7 @@
 //             For plotting correction factors
 //  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, isRealData,
 //                     drawStatBox, iformat, save);
-//      Defaults: scale=1.0, nmin=100, isRealData=true, drwaStatBox=false,
+//      Defaults: scale=1.0, nmin=100, isRealData=true, drawStatBox=false,
 //                iformat=0, save=0
 //
 //             For plotting correction factors for a sigle depth
