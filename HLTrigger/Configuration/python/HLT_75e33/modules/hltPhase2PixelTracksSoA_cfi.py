@@ -202,7 +202,6 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2@alpaka',
     geometry = cms.PSet(
         caDCACuts   = cms.vdouble([l[2] for l in layers[:28]]),
         caThetaCuts = cms.vdouble([l[3] for l in layers[:28]]),
-        isBarrel    = cms.vint32( [l[1] for l in layers[:28]]),
         startingPairs = cms.vuint32(startingPairsAlpaka),
         pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsAlpaka], [])),
         phiCuts   = cms.vint32( [lp[ 3] for lp in layerPairsAlpaka]),
@@ -269,7 +268,6 @@ _hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
         # the layers, and is percolated into this compatibility function via
         # the SoA itself.
         caThetaCuts = cms.vdouble([l[3] for l in layers]),
-        isBarrel    = cms.vint32( [l[1] for l in layers]),
         startingPairs = cms.vuint32(startingPairsCAExtension),
         pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsCAExtension], [])),
         phiCuts   = cms.vint32( [lp[ 3] for lp in layerPairsCAExtension]),
