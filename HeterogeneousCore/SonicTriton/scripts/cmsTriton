@@ -313,9 +313,6 @@ start_apptainer(){
 		fi
 	fi
 
-    # workaround for https://github.com/apptainer/apptainer/issues/2164
-    unset DBUS_SESSION_BUS_ADDRESS
-
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
 	$DRYRUN $APPTAINER instance start \
