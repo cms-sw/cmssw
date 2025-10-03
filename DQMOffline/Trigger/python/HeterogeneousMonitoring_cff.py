@@ -35,7 +35,36 @@ hltSiPixelPhase1CompareDigiErrors = siPixelPhase1RawDataErrorComparator.clone(
 
 # Ecal
 
-# TBD
+from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
+from DQM.EcalMonitorTasks.ecalGpuTask_cfi import ecalGpuTask as _ecalGpuTask
+
+hltEcalGpuTask =  _ecalGpuTask.clone(
+    params = _ecalGpuTask.params.clone(
+        runGpuTask = True,
+        enableRecHit = False
+    )
+)
+
+hltEcalMonitorTask = ecalMonitorTask.clone(
+    workers = ['GpuTask'],
+    workerParameters = cms.untracked.PSet(GpuTask = hltEcalGpuTask),
+    verbosity = 0,
+    commonParameters = ecalMonitorTask.commonParameters.clone(
+        willConvertToEDM = False,
+        onlineMode = True
+    ),
+    collectionTags = ecalMonitorTask.collectionTags.clone(
+        EcalRawData          = cms.untracked.InputTag("hltEcalDigisSerialSync"),
+        EBCpuDigi            = cms.untracked.InputTag("hltEcalDigisSerialSync", "ebDigis"),
+        EECpuDigi            = cms.untracked.InputTag("hltEcalDigisSerialSync", "eeDigis"),
+        EBGpuDigi            = cms.untracked.InputTag("hltEcalDigis", "ebDigis"),
+        EEGpuDigi            = cms.untracked.InputTag("hltEcalDigis", "eeDigis"),
+        EBCpuUncalibRecHit   = cms.untracked.InputTag("hltEcalUncalibRecHitSerialSync", "EcalUncalibRecHitsEB"),
+        EECpuUncalibRecHit   = cms.untracked.InputTag("hltEcalUncalibRecHitSerialSync", "EcalUncalibRecHitsEE"),
+        EBGpuUncalibRecHit   = cms.untracked.InputTag("hltEcalUncalibRecHit", "EcalUncalibRecHitsEB"),
+        EEGpuUncalibRecHit   = cms.untracked.InputTag("hltEcalUncalibRecHit", "EcalUncalibRecHitsEE")
+    )
+)
 
 # Hcal
 from DQM.HcalTasks.hcalGPUComparisonTask_cfi import *
@@ -49,5 +78,6 @@ hltHcalGPUComparisonTask = hcalGPUComparisonTask.clone(
 HLT_HeterogeneousMonitoringSequence = cms.Sequence(
     hltPfHcalGPUComparisonTask+
     hltSiPixelPhase1CompareDigiErrors+
+    hltEcalMonitorTask+
     hltHcalGPUComparisonTask    
 )
