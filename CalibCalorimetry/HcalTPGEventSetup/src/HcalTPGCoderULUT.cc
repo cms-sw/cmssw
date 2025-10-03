@@ -64,6 +64,7 @@ private:
   bool overrideDBweightsAndFilterHB_, overrideDBweightsAndFilterHE_;
   double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
+  bool overrideFGHF_;
   std::vector<uint32_t> FG_HF_thresholds_;
   edm::FileInPath fgfile_, ifilename_;
 };
@@ -107,6 +108,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
     linearLSB_QIE11_ = scales.getParameter<double>("LSBQIE11");
     linearLSB_QIE11Overlap_ = scales.getParameter<double>("LSBQIE11Overlap");
     maskBit_ = iConfig.getParameter<int>("MaskBit");
+    overrideFGHF_ = iConfig.getParameter<bool>("overrideFGHF");
     FG_HF_thresholds_ = iConfig.getParameter<std::vector<uint32_t> >("FG_HF_thresholds");
   } else {
     ifilename_ = iConfig.getParameter<edm::FileInPath>("inputLUTs");
@@ -146,6 +148,7 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo,
     theCoder->setAllLinear(linearLUTs_, linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_);
     theCoder->setLUTGenerationMode(LUTGenerationMode_);
     theCoder->setMaskBit(maskBit_);
+    theCoder->setOverrideFGHF(overrideFGHF_);
     theCoder->setFGHFthresholds(FG_HF_thresholds_);
   }
 }
