@@ -172,13 +172,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // copy hitModuleStart for Pixel modules
     alpaka::memcpy(
         queue,
-        cms::alpakatools::make_device_view(queue, output.view<::reco::HitModuleSoA>().moduleStart(), nPixMod),
-        cms::alpakatools::make_device_view(queue, pixColl.view<::reco::HitModuleSoA>().moduleStart(), nPixMod));
+        cms::alpakatools::make_device_view(queue, output.view<::reco::HitModuleSoA>().moduleStart().data(), nPixMod),
+        cms::alpakatools::make_device_view(queue, pixColl.view<::reco::HitModuleSoA>().moduleStart().data(), nPixMod));
     // copy hitModuleStart for Tracker modules (offset after Pixel modules)
     alpaka::memcpy(
         queue,
-        cms::alpakatools::make_device_view(queue, output.view<::reco::HitModuleSoA>().moduleStart() + nPixMod, nTrkMod),
-        cms::alpakatools::make_device_view(queue, trkColl.view<::reco::HitModuleSoA>().moduleStart(), nTrkMod));
+        cms::alpakatools::make_device_view(
+            queue, output.view<::reco::HitModuleSoA>().moduleStart().data() + nPixMod, nTrkMod),
+        cms::alpakatools::make_device_view(queue, trkColl.view<::reco::HitModuleSoA>().moduleStart().data(), nTrkMod));
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Copied hitModuleStart for Pixel and Tracker modules\n";
