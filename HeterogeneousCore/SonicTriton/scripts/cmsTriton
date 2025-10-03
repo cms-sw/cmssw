@@ -188,7 +188,6 @@ SANDBOX=$(get_sandbox)
 SANDBOX=$(readlink -f ${SANDBOX})
 LOG="log_${SERVER}.log"
 STOPLOG="log_stop_${SERVER}.log"
-LIB=lib
 STARTED_INDICATOR="Started GRPCInferenceService"
 SEGFAULT_INDICATOR="Address already in use"
 EXTRA=""
@@ -290,13 +289,6 @@ start_podman(){
 }
 
 start_apptainer(){
-	# triton server image may need to modify contents of opt/tritonserver/lib/
-	# but cvmfs is read-only
-	# -> make a writable local directory with the same contents
-	# this is no longer needed as of triton 2.11.0, but kept for compatibility w/ older server versions
-	$DRYRUN mkdir ${LIB}
-	$DRYRUN ln -s ${SANDBOX}/opt/tritonserver/lib/* ${LIB}/
-
 	# mount all model repositories
 	MOUNTARGS=""
 	REPOARGS=""
@@ -316,12 +308,11 @@ start_apptainer(){
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
 	$DRYRUN $APPTAINER instance start \
-		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
+		-B ${SHM}:/run/shm -B ${SANDBOX} $MOUNTARGS $EXTRA \
 		${SANDBOX} ${SERVER}
 
 	START_EXIT=$?
 	if [ "$START_EXIT" -ne 0 ]; then
-		rm -rf ${LIB}
 		return "$START_EXIT"
 	fi
 
