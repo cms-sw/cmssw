@@ -13,22 +13,22 @@
 //                debug=false
 //
 //             Same as FitHistExtend with summary of each ieta/depth
-//  FitHistExtended2(infile, outfile, prefix, numb, append, iname, debug);
-//      Defaults: numb=50, append=true, iname=3, debug=false
+//  FitHistExtended2(infile, outfile, prefix, numb, type, append, iname, debug);
+//      Defaults: numb=50, type=0, append=true, iname=3, debug=false
 //
 //             For RBX dependence in sets of histograms from CalibMonitor
 //  FitHistRBX(infile, outfile, prefix, append, iname);
-//      Defaults: append=true, iname=2
+//      Defaults: append=true, iname=3
 //
 //             For plotting stored histograms from FitHist's
 //  PlotHist(infile, prefix, text, modePlot, kopt, lumi, ener, isRealData,
 //           drawStatBox, save);
-//      Defaults: modePlot=4, kopt=100, lumi=0, ener=13, isRealData=false,
+//      Defaults: modePlot=4, kopt=100, lumi=0, ener=13.0, isRealData=false,
 //                drawStatBox=true, save=0
 //
 //             For plotting histograms corresponding to individual ieta's
 //  PlotHistEta(infile, prefix, text, iene, numb, ieta, lumi, ener, isRealData,
-//           drawStatBox, save);
+//              drawStatBox, save);
 //      Defaults iene=3, numb=50, ieta=0, lumi=0, ener=13.0, isRealData=false,
 //                drawStatBox=true, save=0
 //
@@ -42,23 +42,27 @@
 //             prefixes residing in the same file with approrprate text
 //  PlotTwoHists(infile, prefix1, text1, prefix2, text2, text0, type, iname,
 //               lumi, ener, drawStatBox, save);
-//      Defaults: type=0; iname=2; lumi=0; ener=13; drawStatBox=true;
+//      Defaults: type=0; iname=3; lumi=0; ener=13.0; drawStatBox=0;
 //                save=0;
 //      Note prefixN, textN have the same meaning as prefix and text for set N
 //           text0 is the text for general title added within ()
 //           type=0 plots response distributions and MPV of response vs ieta
 //               =1 plots MPV of response vs RBX #
+//           *drawStatBox* is of type *int* here specifying the index for
+//           calling SetOptStat and SetOptFit
 //
 //             For plotting stored histograms from CalibTree
 //  PlotFiveHists(infile, text0, prefix0, type, iname, drawStatBox, normalize,
 //                save, prefix1, text1, prefix2, text2, prefix3, text3,
 //                 prefix4, text4, prefix5, text5);
-//      Defaults: type=0; iname=0; drawStatBox=true; normalize=false;
+//      Defaults: type=0; iname=3; drawStatBox=0; normalize=false;
 //                save=0; prefixN=""; textN=""; (for N > 0)
 //      Note prefixN, textN have the same meaning as prefix and text for set N
 //           text0 is the text for general title added within ()
 //           prefix0 is the tag attached to the canvas name
 //           type has the same meaning as in PlotTwoHists
+//           *drawStatBox* is of type *int* here specifying the index for
+//           calling SetOptStat and SetOptFit
 //
 //  PlotHistCorrResults(infile, text, prefixF, save);
 //      Defaults: save=0
@@ -66,14 +70,14 @@
 //             For plotting correction factors
 //  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, isRealData,
 //                     drawStatBox, iformat, save);
-//      Defaults: isRealData=true, drwaStatBox=false, nmin=100, iformat=0,
-//                save=0
+//      Defaults: scale=1.0, nmin=100, isRealData=true, drawStatBox=false,
+//                iformat=0, save=0
 //
 //             For plotting correction factors for a sigle depth
 //  PlotHistCorrFactor(infile, text, depth, prefixF, scale, nmin, isRealData,
 //                     drawStatBox, iformat, save);
-//      Defaults: isRealData=true, drwaStatBox=false, nmin=100, iformat=0,
-//                save=0
+//      Defaults: scale=1.0, nmin=100, isRealData=true, drwaStatBox=false,
+//                iformat=0, save=0
 //
 //             For plotting (fractional) asymmetry in the correction factors
 //
@@ -85,20 +89,23 @@
 //
 //  PlotHistCorrFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, prefixF, ratio,
-//                      drawStatBox, nmin, isRealData, year, iformat, save)
+//                      drawStatBox, nmin, isRealData, year, iformat, range,
+//                      save)
 //      Defaults: ratio=false, drawStatBox=true, nmin=100, isRealData=false,
-//                year="2024", iformat=0, save=0
+//                year="2025", iformat=0, range=1, save=0
 //
 //  PlotHistCorr2Factors(infile1, text1, infile2, text2, depth, prefixF, ratio,
-//                      drawStatBox, nmin, isRealData, year, iformat, save)
+//                      drawStatBox, nmin, isRealData, year, iformat, range,
+//                      save)
 //      Defaults: ratio=true, drawStatBox=false, nmin=100, isRealData=true,
-//                year="2024", iformat=0, save=0
+//                year="2025", iformat=0, range=1, save=0
 //
 //  PlotHistCorrDFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, depth, prefixF, ratio,
-//                      drawStatBox, nmin, isRealData, year, iformat, save)
+//                      drawStatBox, nmin, isRealData, year, iformat, range,
+//                      save)
 //      Defaults: ratio=true, drawStatBox=false, nmin=100, isRealData=true,
-//                year="2024", iformat=0, save=0
+//                year="2025", iformat=0, range=0, save=0
 //
 //             For plotting correction factors including systematics
 //  PlotHistCorrSys(infilec, conds, text, save)
@@ -115,8 +122,8 @@
 //
 //             For plotting difference of correction factors for a given depth
 //  PlotHistCorrDepth(infile1, infile2, text1, text2, depth, iformat1, iformat2,
-//                    save)
-//      Defaults: iformat1=0, iformat2=0, save=0
+//                    save, debug)
+//      Defaults: iformat1=0, iformat2=0, save=0, debug=1
 //
 //             For plotting four histograms
 //  PlotFourHists(infile, prefix0, type, drawStatBox, normalize, save, prefix1,
@@ -126,26 +133,26 @@
 //
 //            For plotting PU corrected histograms (o/p of CalibPlotCombine)
 //  PlotPUCorrHists(infile, prefix drawStatBox, approve, save)
-//      Defaults: infile = "corrfac.root", prefix = "", drawStatBox = 0,
-//                approve = true, save = 0
+//      Defaults: infile="corrfac.root", prefix="", drawStatBox=0,
+//                approve=true, save=0
 //
 //             For plotting histograms obtained from fits to PU correction
 //             (o/p of CalibFitPU) for a given ieta using 2D/profile/Graphs
 //  PlotHistCorr(infile, prefix, text, eta, mode, drawStatBox, save)
-//      Defaults eta = 0 (all ieta values), mode = 1 (profile histograms),
-//               drawStatBox = true, save = 0
+//      Defaults eta=0 (all ieta values), mode=1 (profile histograms),
+//               drawStatBox=true, save=0
 //
 //             For plotting histograms created by CalibPlotProperties
 //  PlotPropertyHist(infile, prefix, text, etaMax, lumi, ener, isRealData,
 //		     drawStatBox, save)
-//      Defaults etaMax = 25 (draws for eta = 1 .. etaMax), lumi = 0,
-//               ener = 13.0, isRealData = false,  drawStatBox = true, save = 0
+//      Defaults etaMax=25 (draws for eta = 1 .. etaMax), lumi=0,
+//               ener=13.0, isRealData=false,  drawStatBox=true, save=0
 //
 //            For plotting mean response and resolution as a function of
 //            particle momentum
 //  PlotMeanError(infilest, region, resol, save, debug)
-//      Defaults region = 3 (overall), resol = false (response), save = 0,
-//               debug = false
+//      Defaults region=3 (overall), resol=false (response), save=0,
+//               debug=false
 //      Format of the input file:
 //       # of energy points, # of types, # of regions
 //       Then for each type, energy point
@@ -155,18 +162,26 @@
 //
 //            For plotting depth dependent correction factors from muon study
 //  PlotDepthCorrFactor(infile, text, prefix, isRealData, drawStatBox, save)
-//      Defaults prefix = "", isRealData = true, drawStatBox = true, save = 0
+//      Defaults prefix="", isRealData=true, drawStatBox=true, save=0
 //      Format for the input file: ieta and correcrion factor with its
 //             uncertainty for each depth
+//
+//            For plotting histogram defined in "hist0" of phisymmetry
+//  DrawHistPhiSymmetry(hist0, isRealData, drawStatBox, save)
+//      Defaults save=false
+//
+//            For plotting phisymmetry results
+//  PlotPhiSymmetryResults(char* infile, isRealData, drawStatBox, debug, save)
+//      Defaults isRealData=true, drawStatBox=true, debug=false, save=false
 //
 //            For plotting ratio of correction factors as defined in a file
 //            give by infileX for 2 depths (depth1, depth2) as a function of
 //            ieta obaned from 2 sources of data (defined by text1 and text2)
 //  PlotHistCorrRatio(infile1, text1, infile2, text2, depth1, depth2, prefix,
 //                    text0, etaMin, etaMax, doFit, isRealData, year, iformat,
-//                    save)
-//      Defaults etaMin = -1, etaMax = -1, doFit = true, isRealData = true,
-//               year = "2024", iformat = 0, save = 0
+//                    range, save)
+//      Defaults etaMin=-1, etaMax=-1, doFit=true, isRealData=true,
+//               year="2025", iformat=0, range=2, save=0
 //      text0 is a general description common to both sets of corr factors
 //      etaMin < 0 and etaMax > 0 will take ieta range from -etaMax to +etaMax;
 //      etaMin > 0 will select ieta's where |ieta| is greater than etaMin
@@ -235,6 +250,11 @@
 //                           false = response (false)
 //  iformat  (int)         = flag if it is created by standard (0) or by
 //                           Marina's (1) code
+//  range    (int)         = sets the range for y-axis
+//                           if (range == 0) ylow = 0.8; yhigh = 1.2;
+//                           else if (range == 1) ylow = 0.5; yhigh = 1.5;
+//                           else if (range == 2) ylow = 0.0; yhigh = 3.0;
+//                           else ylow = 0.0; yhigh = 2.0;
 //////////////////////////////////////////////////////////////////////////////
 
 #include <TCanvas.h>
@@ -2697,7 +2717,7 @@ void PlotHistCorrFactors(char* infile1,
                          bool drawStatBox = true,
                          int nmin = 100,
                          bool isRealData = false,
-                         const char* year = "2024",
+                         const char* year = "2025",
                          int iformat = 0,
                          int range = 1,
                          int save = 0) {
@@ -2754,6 +2774,9 @@ void PlotHistCorrFactors(char* infile1,
     } else if (range == 1) {
       ylow = 0.5;
       yhigh = 1.5;
+    } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 3.0;
     } else {
       ylow = 0.0;
       yhigh = 2.0;
@@ -2964,7 +2987,7 @@ void PlotHistCorr2Factors(char* infile1,
                           bool drawStatBox = false,
                           int nmin = 100,
                           bool isRealData = true,
-                          const char* year = "2024",
+                          const char* year = "2025",
                           int iformat = 0,
                           int range = 1,
                           int save = 0) {
@@ -3000,6 +3023,9 @@ void PlotHistCorr2Factors(char* infile1,
     } else if (range == 1) {
       ylow = 0.5;
       yhigh = 1.5;
+    } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 3.0;
     } else {
       ylow = 0.0;
       yhigh = 2.0;
@@ -3198,7 +3224,7 @@ void PlotHistCorrDFactors(char* infile1,
                           bool drawStatBox = false,
                           int nmin = 100,
                           bool isRealData = true,
-                          const char* year = "2024",
+                          const char* year = "2025",
                           int iformat = 0,
                           int range = 0,
                           int save = 0) {
@@ -3255,6 +3281,9 @@ void PlotHistCorrDFactors(char* infile1,
     } else if (range == 1) {
       ylow = 0.5;
       yhigh = 1.5;
+    } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 3.0;
     } else {
       ylow = 0.0;
       yhigh = 2.0;
@@ -4763,7 +4792,7 @@ void PlotDepthCorrFactor(char* infile,
   }
 }
 
-void DrawHistPhiSymmetry(TH1D* hist0, bool isRealData, bool drawStatBox, bool save) {
+void DrawHistPhiSymmetry(TH1D* hist0, bool isRealData, bool drawStatBox, bool save = false) {
   char name[30], namep[30], txt1[30];
   TH1D* hist = (TH1D*)(hist0->Clone());
   sprintf(namep, "c_%s", hist->GetName());
@@ -4931,6 +4960,7 @@ void PlotHistCorrRatio(char* infile1,
                        bool isRealData = true,
                        const char* year = "2024",
                        int iformat = 0,
+                       int range = 2,
                        int save = 0) {
   std::map<int, cfactors> cfacs[2];
   std::vector<std::string> texts;
@@ -4967,6 +4997,20 @@ void PlotHistCorrRatio(char* infile1,
     } else {
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
+    }
+    double ylow, yhigh;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
+    } else if (range == 1) {
+      ylow = 0.5;
+      yhigh = 1.5;
+    } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 3.0;
+    } else {
+      ylow = 0.0;
+      yhigh = 2.0;
     }
     int colors[7] = {1, 6, 4, 7, 2, 9, 3};
     int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
@@ -5018,7 +5062,7 @@ void PlotHistCorrRatio(char* infile1,
       h->GetYaxis()->SetLabelOffset(0.005);
       h->GetYaxis()->SetTitleSize(0.036);
       h->GetYaxis()->SetTitleOffset(1.20);
-      h->GetYaxis()->SetRangeUser(0.0, 3.0);
+      h->GetYaxis()->SetRangeUser(ylow, yhigh);
       if (doFit) {
         TObject* ob = gROOT->FindObject(name);
         if (ob)
