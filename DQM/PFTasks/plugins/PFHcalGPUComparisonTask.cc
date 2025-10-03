@@ -101,8 +101,7 @@ PFHcalGPUComparisonTask::PFHcalGPUComparisonTask(edm::ParameterSet const& conf)
       pfCaloGPUCompDir_{conf.getUntrackedParameter<std::string>("name")} {}
 
 void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r, edm::EventSetup const& es) {
-  _subsystem = "ParticleFlow";
-  ibooker.setCurrentFolder("ParticleFlow/" + pfCaloGPUCompDir_);
+  ibooker.setCurrentFolder(pfCaloGPUCompDir_);
   DQTask::bookHistograms(ibooker, r, es);
   //	Book monitoring elements
   const char* histo;
@@ -158,11 +157,19 @@ void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
 void PFHcalGPUComparisonTask::_resetMonitors(hcaldqm::UpdateFreq uf) { DQTask::_resetMonitors(uf); }
 
 void PFHcalGPUComparisonTask::_process(edm::Event const& event, edm::EventSetup const&) {
-  edm::Handle<reco::PFClusterCollection> pfClusters_ref;
-  event.getByToken(pfClusterTok_ref_, pfClusters_ref);
+  const auto& pfClusters_ref = event.getHandle(pfClusterTok_ref_);
+  const auto& pfClusters_target = event.getHandle(pfClusterTok_target_);
 
-  edm::Handle<reco::PFClusterCollection> pfClusters_target;
-  event.getByToken(pfClusterTok_target_, pfClusters_target);
+  // Exit early if any handle is invalid
+  if (!pfClusters_ref || !pfClusters_target) {
+    edm::LogWarning out("PFHcalGPUComparisonTask");
+    if (!pfClusters_ref)
+      out << "reference PF cluster collection not found; ";
+    if (!pfClusters_target)
+      out << "target PF cluster collection not found; ";
+    out << "the comparison will not run.";
+    return;
+  }
 
   auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
   _currentLS = lumiCache->currentLS;
@@ -247,7 +254,7 @@ void PFHcalGPUComparisonTask::globalEndLuminosityBlock(edm::LuminosityBlock cons
 
 void PFHcalGPUComparisonTask::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("name", "pfCaloGPUCompDir");
+  desc.addUntracked<std::string>("name", "ParticleFlow/pfCaloGPUCompDir");
   desc.addUntracked<edm::InputTag>("pfClusterToken_ref", edm::InputTag("hltParticleFlowClusterHCALSerialSync"));
   desc.addUntracked<edm::InputTag>("pfClusterToken_target", edm::InputTag("hltParticleFlowClusterHCAL"));
   descriptions.addWithDefaultLabel(desc);
