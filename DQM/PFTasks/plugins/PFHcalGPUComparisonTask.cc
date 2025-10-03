@@ -89,6 +89,7 @@ private:
   MonitorElement* pfCluster_Eta_Diff_HostvsDevice_;
   MonitorElement* pfCluster_Phi_Diff_HostvsDevice_;
 
+  std::string subsystemDir_;
   std::string pfCaloGPUCompDir_;
 };
 
@@ -98,9 +99,11 @@ PFHcalGPUComparisonTask::PFHcalGPUComparisonTask(edm::ParameterSet const& conf)
           consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_ref"))},
       pfClusterTok_target_{
           consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_target"))},
+      subsystemDir_{conf.getUntrackedParameter<std::string>("subsystem")},
       pfCaloGPUCompDir_{conf.getUntrackedParameter<std::string>("name")} {}
 
 void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r, edm::EventSetup const& es) {
+  _subsystem = subsystemDir_;
   ibooker.setCurrentFolder(pfCaloGPUCompDir_);
   DQTask::bookHistograms(ibooker, r, es);
   //	Book monitoring elements
@@ -254,6 +257,7 @@ void PFHcalGPUComparisonTask::globalEndLuminosityBlock(edm::LuminosityBlock cons
 
 void PFHcalGPUComparisonTask::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("subsystem", "ParticleFlow");
   desc.addUntracked<std::string>("name", "ParticleFlow/pfCaloGPUCompDir");
   desc.addUntracked<edm::InputTag>("pfClusterToken_ref", edm::InputTag("hltParticleFlowClusterHCALSerialSync"));
   desc.addUntracked<edm::InputTag>("pfClusterToken_target", edm::InputTag("hltParticleFlowClusterHCAL"));

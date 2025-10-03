@@ -18,7 +18,8 @@ import FWCore.ParameterSet.Config as cms
 from DQM.PFTasks.pfHcalGPUComparisonTask_cfi import *  
 
 hltPfHcalGPUComparisonTask = pfHcalGPUComparisonTask.clone(
-    name = cms.untracked.string('HLT/HeterogeneousComparisons/ParticleFlow'),
+    subsystem = cms.untracked.string("HLT"),
+    name = cms.untracked.string('HeterogeneousComparisons/ParticleFlow'),
     pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCALSerialSync'),
     pfClusterToken_target = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),   
 )
@@ -40,6 +41,7 @@ hltSiPixelPhase1CompareDigiErrors = siPixelPhase1RawDataErrorComparator.clone(
 from DQM.HcalTasks.hcalGPUComparisonTask_cfi import *
 
 hltHcalGPUComparisonTask = hcalGPUComparisonTask.clone(
+    subsystem = "HLT",
     tagHBHE_ref = "hltHbherecoSerialSync",
     tagHBHE_target = "hltHbhereco"
 )
