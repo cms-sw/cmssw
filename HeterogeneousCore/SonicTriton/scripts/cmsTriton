@@ -254,9 +254,6 @@ start_docker(){
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS -v$COMPAT"
-		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
-			MOUNTARGS="$MOUNTARGS -v$COMPAT_SCRIPT_MOUNT"
-		fi
 	fi
 
 	$DRYRUN $DOCKER run -d --name ${SERVER} \
@@ -277,9 +274,6 @@ start_podman(){
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS --volume $COMPAT"
-		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
-			MOUNTARGS="$MOUNTARGS --volume $COMPAT_SCRIPT_MOUNT"
-		fi
 	fi
 
 	$DRYRUN $PODMAN run -d --name ${SERVER} \
@@ -300,9 +294,6 @@ start_apptainer(){
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS -B $COMPAT"
-		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
-			MOUNTARGS="$MOUNTARGS -B $COMPAT_SCRIPT_MOUNT"
-		fi
 	fi
 
 	# start instance
@@ -566,17 +557,6 @@ check_drivers(){
 	if [ -n "$COMPAT" ]; then
 		# in order to mount drivers where Triton expects them
 		export COMPAT="${COMPAT}:${COMPAT_SYS}/lib.real"
-		# workaround for bug in Triton/Nvidia compatibility check
-		if [ "$PWD" == "$TMPDIR" ]; then
-			$DRYRUN $COMPAT_FN
-			COMPAT_SCRIPT_BASE=$(basename $COMPAT_SCRIPT)
-			# newer containers already include this fix, no need to do it twice
-			if ! grep -Fq 'LD_PRELOAD=""' $COMPAT_SCRIPT_BASE; then
-				$DRYRUN sed -i 's/LD_LIBRARY_PATH="${_CUDA_COMPAT_REALLIB}"/&; LD_PRELOAD=""/' $COMPAT_SCRIPT_BASE
-				COMPAT_SCRIPT_PATH=$(readlink -f $TMPDIR/$COMPAT_SCRIPT_BASE)
-				COMPAT_SCRIPT_MOUNT="$COMPAT_SCRIPT_PATH:$COMPAT_SCRIPT"
-			fi
-		fi
 		return 0
 	else
 		return 1
