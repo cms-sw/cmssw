@@ -76,6 +76,14 @@
 #include <iostream>
 
 namespace edm::rntuple_temp {
+  namespace {
+    std::string fixName(std::string_view iName) {
+      if (not iName.empty() and iName.back() == '.') {
+        iName.remove_suffix(1);
+      }
+      return std::string(iName);
+    }
+  }  // namespace
 
   // Algorithm classes for making ProvenanceReader:
   class MakeReducedProvenanceReader : public MakeProvenanceReader {
@@ -186,10 +194,9 @@ namespace edm::rntuple_temp {
         processingMode_(processingOptions.processingMode),
         runHelper_(crossFileInfo.runHelper),
         newBranchToOldBranch_(),
-        eventToProcessBlockIndexesBranch_(
-            inputType == InputType::Primary
-                ? eventTree_.tree()->GetBranch(poolNames::eventToProcessBlockIndexesBranchName().c_str())
-                : nullptr),
+        eventToProcessBlockIndexesView_(inputType == InputType::Primary
+                                            ? eventTree_.view(poolNames::eventToProcessBlockIndexesBranchName())
+                                            : std::optional<ROOT::RNTupleView<void>>()),
         productDependencies_(new ProductDependencies),
         duplicateChecker_(crossFileInfo.duplicateChecker),
         provenanceReaderMaker_(),
@@ -491,11 +498,11 @@ namespace edm::rntuple_temp {
         auto it = std::find(processes.begin(), processes.end(), prod.processName());
         if (it != processes.end()) {
           auto index = std::distance(processes.begin(), it);
-          treePointers_[numberOfRunLumiEventProductTrees + index]->addBranch(prod,
-                                                                             newBranchToOldBranch(prod.branchName()));
+          treePointers_[numberOfRunLumiEventProductTrees + index]->addBranch(
+              prod, fixName(newBranchToOldBranch(prod.branchName())));
         }
       } else {
-        treePointers_[prod.branchType()]->addBranch(prod, newBranchToOldBranch(prod.branchName()));
+        treePointers_[prod.branchType()]->addBranch(prod, fixName(newBranchToOldBranch(prod.branchName())));
       }
     }
 
@@ -506,51 +513,6 @@ namespace edm::rntuple_temp {
   RootFile::~RootFile() {}
 
   bool RootFile::empty() const { return runTree_.entries() == 0; }
-  void RootFile::readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap, InputType inputType) {
-    // Called only for old format files.
-    // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-    std::unique_ptr<TTree> entryDescriptionTree(
-        dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str())));
-    if (nullptr == entryDescriptionTree.get()) {
-      throw Exception(errors::FileReadError)
-          << "Could not find tree " << poolNames::entryDescriptionTreeName() << " in the input file.\n";
-    }
-
-    EntryDescriptionID idBuffer;
-    EntryDescriptionID* pidBuffer = &idBuffer;
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
-
-    EventEntryDescription entryDescriptionBuffer;
-    EventEntryDescription* pEntryDescriptionBuffer = &entryDescriptionBuffer;
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
-
-    // Fill in the parentage registry.
-    ParentageRegistry& registry = *ParentageRegistry::instance();
-
-    for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-      rootrntuple::getEntry(entryDescriptionTree.get(), i);
-      if (idBuffer != entryDescriptionBuffer.id()) {
-        throw Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
-      }
-      entryDescriptionMap.insert(std::make_pair(entryDescriptionBuffer.id(), entryDescriptionBuffer));
-      Parentage parents;
-      parents.setParents(entryDescriptionBuffer.parents());
-      if (daqProvenanceHelper_) {
-        ParentageID const oldID = parents.id();
-        daqProvenanceHelper_->fixMetaData(parents.parentsForUpdate());
-        ParentageID newID = parents.id();
-        if (newID != oldID) {
-          daqProvenanceHelper_->setOldParentageIDToNew(oldID, newID);
-        }
-      }
-      // For thread safety, don't update global registries when a secondary source opens a file.
-      if (inputType != InputType::SecondarySource) {
-        registry.insertMapped(parents);
-      }
-    }
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), nullptr);
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), nullptr);
-  }
 
   void RootFile::readParentageTree(InputType inputType) {
     // New format file
@@ -593,16 +555,12 @@ namespace edm::rntuple_temp {
     std::vector<std::string> processesWithProcessBlockTrees;
     processBlockTrees.reserve(processBlockTrees_.size());
     processesWithProcessBlockTrees.reserve(processBlockTrees_.size());
-    for (auto& processBlockTree : processBlockTrees_) {
-      processBlockTrees.push_back(processBlockTree->tree());
-      processesWithProcessBlockTrees.push_back(processBlockTree->processName());
-    }
     return std::make_shared<FileBlock>(fileFormatVersion(),
-                                       eventTree_.tree(),
                                        nullptr,
-                                       lumiTree_.tree(),
                                        nullptr,
-                                       runTree_.tree(),
+                                       nullptr,
+                                       nullptr,
+                                       nullptr,
                                        nullptr,
                                        std::move(processBlockTrees),
                                        std::move(processesWithProcessBlockTrees),
@@ -617,17 +575,11 @@ namespace edm::rntuple_temp {
   void RootFile::updateFileBlock(FileBlock& fileBlock) {
     std::vector<TTree*> processBlockTrees;
     std::vector<std::string> processesWithProcessBlockTrees;
-    processBlockTrees.reserve(processBlockTrees_.size());
-    processesWithProcessBlockTrees.reserve(processBlockTrees_.size());
-    for (auto& processBlockTree : processBlockTrees_) {
-      processBlockTrees.push_back(processBlockTree->tree());
-      processesWithProcessBlockTrees.push_back(processBlockTree->processName());
-    }
-    fileBlock.updateTTreePointers(eventTree_.tree(),
+    fileBlock.updateTTreePointers(nullptr,
                                   nullptr,
-                                  lumiTree_.tree(),
                                   nullptr,
-                                  runTree_.tree(),
+                                  nullptr,
+                                  nullptr,
                                   nullptr,
                                   std::move(processBlockTrees),
                                   std::move(processesWithProcessBlockTrees));
@@ -1143,8 +1095,7 @@ namespace edm::rntuple_temp {
   }
 
   void RootFile::fillEventToProcessBlockIndexes() {
-    TBranch* eventToProcessBlockIndexesBranch = get_underlying_safe(eventToProcessBlockIndexesBranch_);
-    if (eventToProcessBlockIndexesBranch == nullptr) {
+    if (not eventToProcessBlockIndexesView_.has_value()) {
       if (processBlockHelper_.get() == nullptr) {
         eventToProcessBlockIndexes_.setIndex(0);
       } else {
@@ -1154,8 +1105,8 @@ namespace edm::rntuple_temp {
       if (processBlockHelper_->cacheIndexVectorsPerFile().back() == 1u) {
         eventToProcessBlockIndexes_.setIndex(processBlockHelper_->outerOffset());
       } else {
-        EventToProcessBlockIndexes* pEventToProcessBlockIndexes = &eventToProcessBlockIndexes_;
-        eventTree_.fillBranchEntry(eventToProcessBlockIndexesBranch, pEventToProcessBlockIndexes);
+        eventToProcessBlockIndexesView_->BindRawPtr(&eventToProcessBlockIndexes_);
+        eventTree_.fillEntry(*eventToProcessBlockIndexesView_);
         unsigned int updatedIndex = eventToProcessBlockIndexes_.index() + processBlockHelper_->outerOffset();
         eventToProcessBlockIndexes_.setIndex(updatedIndex);
       }
@@ -1176,14 +1127,14 @@ namespace edm::rntuple_temp {
       // for backward compatibility.
     } else if (fileFormatVersion().noMetaDataTrees()) {
       // Current format
-      EventSelectionIDVector* pESV = &eventSelectionIDs;
-      TBranch* eventSelectionIDBranch = eventTree_.tree()->GetBranch(poolNames::eventSelectionsBranchName().c_str());
-      assert(eventSelectionIDBranch != nullptr);
-      eventTree_.fillBranchEntry(eventSelectionIDBranch, pESV);
-      BranchListIndexes* pBLI = &branchListIndexes;
-      TBranch* branchListIndexesBranch = eventTree_.tree()->GetBranch(poolNames::branchListIndexesBranchName().c_str());
-      assert(branchListIndexesBranch != nullptr);
-      eventTree_.fillBranchEntry(branchListIndexesBranch, pBLI);
+      auto eventSelectionIDsView = eventTree_.view(poolNames::eventSelectionsBranchName());
+      assert(eventSelectionIDsView.has_value());
+      eventSelectionIDsView->BindRawPtr(&eventSelectionIDs);
+      eventTree_.fillEntry(*eventSelectionIDsView);
+      auto branchListIndexesView = eventTree_.view(poolNames::branchListIndexesBranchName());
+      assert(branchListIndexesView.has_value());
+      branchListIndexesView->BindRawPtr(&branchListIndexes);
+      eventTree_.fillEntry(*branchListIndexesView);
     }
     if (daqProvenanceHelper_) {
       evtAux.setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(evtAux.processHistoryID()));
@@ -1701,14 +1652,14 @@ namespace edm::rntuple_temp {
         auto it = std::find(processes.begin(), processes.end(), prod.processName());
         if (it != processes.end()) {
           auto index = std::distance(processes.begin(), it);
-          processBlockTrees_[index]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
+          processBlockTrees_[index]->setPresence(prod, fixName(newBranchToOldBranch(prod.branchName())));
         } else {
           // Given current rules for saving ProductDescriptions, this case should only occur
           // in non-Primary sequences.
           prod.setDropped(true);
         }
       } else {
-        treePointers_[prod.branchType()]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
+        treePointers_[prod.branchType()]->setPresence(prod, fixName(newBranchToOldBranch(prod.branchName())));
       }
       if (prod.present()) {
         prod.initFromDictionary();
@@ -1829,9 +1780,9 @@ namespace edm::rntuple_temp {
             auto it = std::find(processes.begin(), processes.end(), prod.processName());
             assert(it != processes.end());
             auto index = std::distance(processes.begin(), it);
-            processBlockTrees_[index]->dropBranch(newBranchToOldBranch(prod.branchName()));
+            processBlockTrees_[index]->dropBranch(fixName(newBranchToOldBranch(prod.branchName())));
           } else {
-            treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+            treePointers_[prod.branchType()]->dropBranch(fixName(newBranchToOldBranch(prod.branchName())));
           }
           hasNewlyDroppedBranch_[prod.branchType()] = true;
         }
@@ -1859,7 +1810,7 @@ namespace edm::rntuple_temp {
           int offset = cp->GetBaseClassOffset(edProductClass_);
           std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offset);
           if (edp->isMergeable()) {
-            treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+            treePointers_[prod.branchType()]->dropBranch(fixName(newBranchToOldBranch(prod.branchName())));
             ProductRegistry::ProductList::iterator icopy = it;
             ++it;
             prodList.erase(icopy);
@@ -1990,7 +1941,7 @@ namespace edm::rntuple_temp {
                              std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept override;
 
     edm::propagate_const<RootRNTuple*> rootTree_;
-    edm::propagate_const<TBranch*> provBranch_;
+    ROOT::DescriptorId_t provID_;
     StoredProductProvenanceVector provVector_;
     StoredProductProvenanceVector const* pProvVector_;
     std::vector<ParentageID> const& parentageIDLookup_;
@@ -2004,14 +1955,12 @@ namespace edm::rntuple_temp {
                                                    DaqProvenanceHelper const* daqProvenanceHelper)
       : ProvenanceReaderBase(),
         rootTree_(iRootRNTuple),
+        provID_(rootTree_->descriptorFor(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()))),
         pProvVector_(&provVector_),
         parentageIDLookup_(iParentageIDLookup),
         daqProvenanceHelper_(daqProvenanceHelper),
         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
-        acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {
-    provBranch_ =
-        rootTree_->tree()->GetBranch(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()).c_str());
-  }
+        acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {}
 
   namespace {
     using SignalType = signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)>;
@@ -2091,16 +2040,14 @@ namespace edm::rntuple_temp {
   //
   void ReducedProvenanceReader::unsafe_fillProvenance(unsigned int transitionIndex) const {
     ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-    me->rootTree_->fillBranchEntry(
-        me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
+    me->rootTree_->fillEntry(me->provID_, me->rootTree_->entryNumberForIndex(transitionIndex), &me->provVector_);
   }
 
   std::set<ProductProvenance> ReducedProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     if (provVector_.empty()) {
       std::lock_guard<std::recursive_mutex> guard(*mutex_);
       ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-      me->rootTree_->fillBranchEntry(
-          me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
+      me->rootTree_->fillEntry(me->provID_, me->rootTree_->entryNumberForIndex(transitionIndex), &me->provVector_);
     }
     std::set<ProductProvenance> retValue;
     if (daqProvenanceHelper_) {

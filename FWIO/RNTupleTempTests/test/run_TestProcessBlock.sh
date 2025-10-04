@@ -23,14 +23,14 @@ then
   echo "testProcessBlock1"
   cmsRun ${LOCAL_TEST_DIR}/testProcessBlock1_cfg.py &> testProcessBlock1.log || die "cmsRun testProcessBlock1_cfg.py" $?
 
-  # The MetaData ProcessBlock branch and the TTree should exist to hold the ProcessBlock
+  # The MetaData ProcessBlock branch and the RNTuple should exist to hold the ProcessBlock
   # data. The Events branch should not exist because there were not any ProcessBlock branches
   # saved from an input file. Test that here:
   edmRNTupleTempFileUtil -l -t MetaData -P file:testProcessBlock1.root > testProcessBlock1ContentsM.txt
   grep "Field.* ProcessBlockHelper " testProcessBlock1ContentsM.txt || die "Check for existence of ProcessBlockHelper branch" $?
-  grep "TTree.*ProcessBlocksPROD1" testProcessBlock1ContentsM.txt || die "Check for existence of ProcessBlocksPROD1 TTree" $?
+  grep "RNTuple.*ProcessBlocksPROD1" testProcessBlock1ContentsM.txt || die "Check for existence of ProcessBlocksPROD1 RNTuple" $?
   edmRNTupleTempFileUtil -t Events -P file:testProcessBlock1.root > testProcessBlock1ContentsE.txt
-  grep "Branch.* EventToProcessBlockIndexes " testProcessBlock1ContentsE.txt && die "Check for non-existence of eventToProcessBlockIndexes branch" 1
+  grep "Field.* EventToProcessBlockIndexes " testProcessBlock1ContentsE.txt && die "Check for non-existence of eventToProcessBlockIndexes branch" 1
 fi
 
 if [ $1 -eq 2 ]
@@ -56,13 +56,13 @@ then
   echo "testProcessBlockMerge"
   cmsRun ${LOCAL_TEST_DIR}/testProcessBlockMerge_cfg.py &> testProcessBlockMerge.log || die "cmsRun testProcessBlockMerge_cfg.py" $?
 
-  # The ProcessBlock Branches and TTrees should exist in this case. Test that here:
+  # The ProcessBlock Branches and RNTuples should exist in this case. Test that here:
   edmRNTupleTempFileUtil -l -t MetaData -P file:testProcessBlockMerge.root > testProcessBlockMContentsM.txt
   grep "Field.* ProcessBlockHelper " testProcessBlockMContentsM.txt || die "Check for existence of ProcessBlockHelper branch" $?
-  grep "TTree.*ProcessBlocksPROD1" testProcessBlockMContentsM.txt || die "Check for existence of ProcessBlocksPROD1 TTree" $?
-  grep "TTree.*ProcessBlocksMERGE" testProcessBlockMContentsM.txt || die "Check for existence of ProcessBlocksMERGE TTree" $?
+  grep "RNTuple.*ProcessBlocksPROD1" testProcessBlockMContentsM.txt || die "Check for existence of ProcessBlocksPROD1 RNTuple" $?
+  grep "RNTuple.*ProcessBlocksMERGE" testProcessBlockMContentsM.txt || die "Check for existence of ProcessBlocksMERGE RNTuple" $?
   edmRNTupleTempFileUtil -t Events -P file:testProcessBlockMerge.root > testProcessBlockMContentsE.txt
-  grep "Branch.* EventToProcessBlockIndexes " testProcessBlockMContentsE.txt || die "Check for existence of eventToProcessBlockIndexes branch" $?
+  grep "Field.* EventToProcessBlockIndexes " testProcessBlockMContentsE.txt || die "Check for existence of eventToProcessBlockIndexes branch" $?
 fi
 
 if [ $1 -eq 6 ]
@@ -82,13 +82,13 @@ then
   echo "testProcessBlock2Dropped"
   cmsRun ${LOCAL_TEST_DIR}/testProcessBlock2Dropped_cfg.py &> testProcessBlock2Dropped.log || die "cmsRun testProcessBlock2Dropped_cfg.py" $?
 
-  # The ProcessBlock Branches and TTrees should not exist in this case because
+  # The ProcessBlock Branches and RNTuples should not exist in this case because
   # all the ProcessBlock products are dropped. Test that here:
   edmRNTupleTempFileUtil -l -t MetaData -P file:testProcessBlock2Dropped.root > testProcessBlock2DroppedContentsM.txt
   grep "Field.* ProcessBlockHelper " testProcessBlock2DroppedContentsM.txt && die "Check for non-existence of ProcessBlockHelper branch" 1
-  grep "TTree.*ProcessBlocksPROD1" testProcessBlock2DroppedContentsM.txt && die "Check for non-existence of ProcessBlocksPROD1 TTree" 1
+  grep "RNTuple.*ProcessBlocksPROD1" testProcessBlock2DroppedContentsM.txt && die "Check for non-existence of ProcessBlocksPROD1 RNTuple" 1
   edmRNTupleTempFileUtil -t Events -P file:testProcessBlock2Dropped.root > testProcessBlock2DroppedContentsE.txt
-  grep "Branch.* EventToProcessBlockIndexes " testProcessBlock2DroppedContentsE.txt && die "Check for non-existence of eventToProcessBlockIndexes branch" 1
+  grep "Field.* EventToProcessBlockIndexes " testProcessBlock2DroppedContentsE.txt && die "Check for non-existence of eventToProcessBlockIndexes branch" 1
 fi
 
 if [ $1 -eq 8 ]

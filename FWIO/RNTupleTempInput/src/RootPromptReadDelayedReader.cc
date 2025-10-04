@@ -13,9 +13,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "TBranch.h"
 #include "TClass.h"
-#include "TTree.h"
 
 #include <cassert>
 
@@ -62,14 +60,14 @@ namespace edm::rntuple_temp {
     auto& cacheMap = cacheMaps_[indexFor(tree_, ep)];
     auto itFound = cacheMap.find(k.id());
     if (itFound != cacheMap.end()) {
-      auto& cache = itFound->second;
-      if (cache.wrapperBase_) {
+      auto cache = std::move(itFound->second);
+      if (cache) {
         if (tree_.branchType() == InEvent) {
           // CMS-THREADING For the primary input source calls to this function need to be serialized
-          InputFile::reportReadBranch(inputType_,
-                                      std::string(tree_.branches().find(itFound->first)->productBranch_->GetName()));
+          InputFile::reportReadBranch(
+              inputType_, std::string(tree_.branches().find(itFound->first)->productDescription().branchName()));
         }
-        return std::shared_ptr<WrapperBase>(std::move(cache.wrapperBase_));
+        return std::shared_ptr<WrapperBase>(std::move(cache));
       }
     }
     if (nextReader_) {
@@ -85,25 +83,14 @@ namespace edm::rntuple_temp {
       for (auto& cacheMap : cacheMaps_) {
         cacheMap.reserve(tree_.branches().size());
         for (auto const& branch : tree_.branches()) {
-          cacheMap.emplace(branch.first, Cache{});
+          cacheMap[branch.first];
         }
       }
     }
-    for (auto& it : cacheMap) {
-      auto branchInfo = getProductInfo(it.first);
-      if (branchInfo == nullptr || branchInfo->productBranch_ == nullptr) {
-        continue;  // Skip if branch info or product branch is not available
-      }
-      auto& cache = it.second;
-      cache.wrapperBase_ = branchInfo->newWrapper();
-      cache.wrapperBasePtr_ = cache.wrapperBase_.get();
-      branchInfo->productBranch_->SetAddress(&cache.wrapperBasePtr_);
-    }
-
     {
       // ROOT might use multiple threads while reading the entries
       MultiThreadRefCoreStreamerGuard epGuard(ep);
-      tree_.getEntryForAllBranches();
+      tree_.getEntryForAllBranches(cacheMap);
     }
   }
 }  // namespace edm::rntuple_temp
