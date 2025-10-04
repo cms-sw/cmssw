@@ -7,7 +7,6 @@
 
   <test name="TestRNTupleInputInputOverlappingLumis" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempInput/test/test_make_overlapping_lumis_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempInput/test/test_read_overlapping_lumis_cfg.py"/>
 
-  <test name="TestFWIORNTupleTempInputNoParentDictionary" command="testNoParentDictionary.sh"/>
   <test name="TestRNTupleTempFileOpenErrorExitCode" command="testFileOpenErrorExitCode.sh"/>
   <test name="TestFWIORNTupleTempInputRefProductIDMetadataConsistency" command="testRefProductIDMetadataConsistencyRoot.sh"/>
   <test name="TestFWIORNTupleTempInputReducedProcessHistoryVersion" command="testReducedProcessHistoryVersion.sh"/>

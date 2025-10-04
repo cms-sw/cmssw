@@ -30,8 +30,6 @@ RootFile.h // used by ROOT input sources
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "TBranch.h"
-
 #include <array>
 #include <map>
 #include <memory>
@@ -243,8 +241,6 @@ namespace edm {
                                    ProcessBlockHelper const*);
 
       void readParentageTree(InputType inputType);
-      void readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap,
-                                    InputType inputType);  // backward compatibility
       bool isDuplicateEvent();
 
       void initializeDuplicateChecker(std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles,
@@ -308,7 +304,7 @@ namespace edm {
       edm::propagate_const<InputSourceRunHelperBase*> runHelper_;
       std::map<std::string, std::string> newBranchToOldBranch_;
       EventToProcessBlockIndexes eventToProcessBlockIndexes_;
-      edm::propagate_const<TBranch*> eventToProcessBlockIndexesBranch_;
+      std::optional<ROOT::RNTupleView<void>> eventToProcessBlockIndexesView_;
       edm::propagate_const<std::shared_ptr<ProductDependencies>> productDependencies_;
       edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;
       edm::propagate_const<std::unique_ptr<MakeProvenanceReader>> provenanceReaderMaker_;

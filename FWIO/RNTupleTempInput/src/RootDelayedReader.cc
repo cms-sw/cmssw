@@ -13,15 +13,16 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "TBranch.h"
 #include "TClass.h"
 
 #include <cassert>
 
 namespace edm::rntuple_temp {
 
-  RootDelayedReader::RootDelayedReader(RootRNTuple const& tree, std::shared_ptr<InputFile> filePtr, InputType inputType)
-      : tree_(tree), filePtr_(filePtr), nextReader_(), inputType_(inputType) {
+  RootDelayedReader::RootDelayedReader(RootRNTuple const& tuple,
+                                       std::shared_ptr<InputFile> filePtr,
+                                       InputType inputType)
+      : rntuple_(tuple), filePtr_(filePtr), nextReader_(), inputType_(inputType) {
     if (inputType == InputType::Primary) {
       auto resources = SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader();
       resourceAcquirer_ = std::make_unique<SharedResourcesAcquirer>(std::move(resources.first));
@@ -60,8 +61,7 @@ namespace edm::rntuple_temp {
         return std::shared_ptr<WrapperBase>();
       }
     }
-    TBranch* br = branchInfo->productBranch_;
-    if (br == nullptr) {
+    if (not branchInfo->valid()) {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);
       } else {
@@ -71,19 +71,19 @@ namespace edm::rntuple_temp {
 
     RefCoreStreamerGuard guard(ep);
     std::unique_ptr<WrapperBase> edp = branchInfo->newWrapper();
-    void* edpPtr = edp.get();
-    branchInfo->productBranch_->SetAddress(&edpPtr);
+    branchInfo->view().BindRawPtr(edp.get());
 
     try {
       //Run, Lumi, and ProcessBlock only have 1 entry number, which is index 0
-      tree_.getEntry(br, tree_.entryNumberForIndex(tree_.branchType() == InEvent ? ep->transitionIndex() : 0));
+      rntuple_.getEntry(branchInfo->view(),
+                        rntuple_.entryNumberForIndex(rntuple_.branchType() == InEvent ? ep->transitionIndex() : 0));
     } catch (...) {
       lastException_ = std::current_exception();
       std::rethrow_exception(lastException_);
     }
-    if (tree_.branchType() == InEvent) {
+    if (rntuple_.branchType() == InEvent) {
       // CMS-THREADING For the primary input source calls to this function need to be serialized
-      InputFile::reportReadBranch(inputType_, std::string(br->GetName()));
+      InputFile::reportReadBranch(inputType_, std::string(branchInfo->productDescription().branchName()));
     }
     return edp;
   }

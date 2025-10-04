@@ -48,11 +48,6 @@ namespace edm::rntuple_temp {
     RootPromptReadDelayedReader(RootPromptReadDelayedReader&&) = delete;
     RootPromptReadDelayedReader& operator=(RootPromptReadDelayedReader&&) = delete;
 
-    struct Cache {
-      std::unique_ptr<edm::WrapperBase> wrapperBase_;
-      edm::WrapperBase* wrapperBasePtr_ = nullptr;  // TBranch::SetAddress() needs a long live pointer to reference.
-    };
-
     void readAllProductsNow(EDProductGetter const* ep) override;
 
   private:
@@ -63,7 +58,7 @@ namespace edm::rntuple_temp {
 
     ProductMap const& branches() const { return tree_.branches(); }
     ProductInfo const* getProductInfo(unsigned int k) const { return branches().find(k); }
-    std::vector<std::unordered_map<unsigned int, Cache>> cacheMaps_;
+    std::vector<std::unordered_map<unsigned int, std::unique_ptr<edm::WrapperBase>>> cacheMaps_;
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
     // the file containing the branch from being reclaimed.
     RootRNTuple const& tree_;
