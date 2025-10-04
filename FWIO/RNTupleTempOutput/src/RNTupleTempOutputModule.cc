@@ -20,7 +20,6 @@
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
-#include "TBranchElement.h"
 #include "TObjArray.h"
 #include "RVersion.h"
 #include "TDictAttributeMap.h"
