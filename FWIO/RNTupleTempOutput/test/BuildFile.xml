@@ -1,2 +1,1 @@
 <test name="TestRNTupleTempOutput" command="TestRNTupleTempOutput.sh"/>
-<test name="TestRNTupleTempOutputAlias" command="RNTupleTempOutputAliasTest.sh"/>

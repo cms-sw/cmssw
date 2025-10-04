@@ -67,7 +67,7 @@ process.testOneOutput = cms.OutputModule("TestOneOutput",
     verbose = cms.untracked.bool(False),
     expectedProcessesWithProcessBlockProducts = cms.untracked.vstring('PROD1', 'MERGE', 'MERGEOFMERGED'),
     expectedWriteProcessBlockTransitions = cms.untracked.int32(8),
-    testTTreesInFileBlock = cms.untracked.bool(True),
+    testTTreesInFileBlock = cms.untracked.bool(False),
     expectedCacheIndexSize = cms.untracked.vuint32(2, 2, 2, 2, 2, 2, 2, 2)
 )
 

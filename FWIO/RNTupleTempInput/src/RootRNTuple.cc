@@ -9,24 +9,13 @@
 #include "RootDelayedReader.h"
 #include "RootPromptReadDelayedReader.h"
 
-#include "TTree.h"
-#include "TLeaf.h"
-
 #include "oneapi/tbb/task_arena.h"
 #include <cassert>
 
 namespace edm::rntuple_temp {
   namespace {
-    TBranch* getAuxiliaryBranch(TTree* tree, BranchType const& branchType) {
-      TBranch* branch = tree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
-      if (branch == nullptr) {
-        branch = tree->GetBranch(BranchTypeToAuxBranchName(branchType).c_str());
-      }
-      return branch;
-    }
-    TBranch* getProductProvenanceBranch(TTree* tree, BranchType const& branchType) {
-      TBranch* branch = tree->GetBranch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str());
-      return branch;
+    ROOT::DescriptorId_t getAuxiliaryFieldId(ROOT::RNTupleReader& reader, BranchType const& branchType) {
+      return reader.GetDescriptor().FindFieldId(BranchTypeToAuxiliaryBranchName(branchType));
     }
 
     std::unique_ptr<RootDelayedReaderBase> makeRootDelayedReader(RootRNTuple const& tree,
@@ -67,7 +56,7 @@ namespace edm::rntuple_temp {
       : RootRNTuple(
             filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
     init(BranchTypeToProductTreeName(branchType), options.treeMaxVirtualSize, options.treeCacheSize);
-    auxBranch_ = getAuxiliaryBranch(tree_, branchType_);
+    auxDesc_ = getAuxiliaryFieldId(*reader_, branchType_);
   }
 
   // Used for ProcessBlock RootRNTuples
@@ -86,30 +75,31 @@ namespace edm::rntuple_temp {
 
   void RootRNTuple::init(std::string const& productTreeName, unsigned int maxVirtualSize, unsigned int cacheSize) {
     if (filePtr_.get() != nullptr) {
-      tree_ = dynamic_cast<TTree*>(filePtr_->Get(productTreeName.c_str()));
+      auto tuple = filePtr_->Get<ROOT::RNTuple>(productTreeName.c_str());
+      if (tuple != nullptr) {
+        reader_ = ROOT::RNTupleReader::Open(*tuple);
+      }
     }
-    if (not tree_) {
+    if (not reader_) {
       throw cms::Exception("WrongFileFormat")
           << "The ROOT file does not contain a TTree named " << productTreeName
           << "\n This is either not an edm ROOT file or is one that has been corrupted.";
     }
-    entries_ = tree_->GetEntries();
+    entries_ = reader_->GetNEntries();
 
-    // On merged files in older releases of ROOT, the autoFlush setting is always negative; we must guess.
-    // TODO: On newer merged files, we should be able to get this from the cluster iterator.
-    long treeAutoFlush = tree_->GetAutoFlush();
-    if (treeAutoFlush < 0) {
-      // The "+1" is here to avoid divide-by-zero in degenerate cases.
-      Long64_t averageEventSizeBytes = tree_->GetZipBytes() / (tree_->GetEntries() + 1) + 1;
-      treeAutoFlush_ = cacheSize / averageEventSizeBytes + 1;
-    } else {
-      treeAutoFlush_ = treeAutoFlush;
-    }
     setTreeMaxVirtualSize(maxVirtualSize);
     setCacheSize(cacheSize);
   }
 
   RootRNTuple::~RootRNTuple() {}
+
+  std::optional<ROOT::RNTupleView<void>> RootRNTuple::view(std::string_view iName) {
+    auto id = reader_->GetDescriptor().FindFieldId(iName);
+    if (id == ROOT::kInvalidDescriptorId) {
+      return std::nullopt;
+    }
+    return reader_->GetView<void>(id, std::shared_ptr<void>());
+  }
 
   RootRNTuple::EntryNumber const& RootRNTuple::entryNumberForIndex(unsigned int index) const {
     assert(index < entryNumberForIndex_->size());
@@ -124,10 +114,10 @@ namespace edm::rntuple_temp {
   bool RootRNTuple::isValid() const {
     // ProcessBlock
     if (branchType_ == InProcess) {
-      return tree_ != nullptr;
+      return bool(reader_);
     }
     // Run/Lumi/Event
-    return tree_ != nullptr && auxBranch_ != nullptr;
+    return bool(reader_) && auxDesc_ != ROOT::kInvalidDescriptorId;
   }
 
   DelayedReader* RootRNTuple::resetAndGetRootDelayedReader() const {
@@ -139,17 +129,18 @@ namespace edm::rntuple_temp {
 
   void RootRNTuple::setPresence(ProductDescription& prod, std::string const& oldBranchName) {
     assert(isValid());
-    if (tree_->GetBranch(oldBranchName.c_str()) == nullptr) {
+    if (reader_->GetDescriptor().FindFieldId(oldBranchName) == ROOT::kInvalidDescriptorId) {
       prod.setDropped(true);
     }
   }
 
-  void rootrntuple::ProductInfo::setBranch(TBranch* branch, TClass const* wrapperBaseTClass) {
-    productBranch_ = branch;
-    if (branch) {
-      classCache_ = TClass::GetClass(productDescription_.wrappedName().c_str());
-      offsetToWrapperBase_ = classCache_->GetBaseClassOffset(wrapperBaseTClass);
-    }
+  void rootrntuple::ProductInfo::setField(ROOT::RFieldToken token,
+                                          ROOT::RNTupleView<void> view,
+                                          TClass const* wrapperBaseTClass) {
+    token_ = token;
+    view_ = std::move(view);
+    classCache_ = TClass::GetClass(productDescription_.wrappedName().c_str());
+    offsetToWrapperBase_ = classCache_->GetBaseClassOffset(wrapperBaseTClass);
   }
   std::unique_ptr<WrapperBase> rootrntuple::ProductInfo::newWrapper() const {
     assert(nullptr != classCache_);
@@ -161,49 +152,25 @@ namespace edm::rntuple_temp {
     assert(isValid());
     static TClass const* const wrapperBaseTClass = TClass::GetClass("edm::WrapperBase");
     //use the translated branch name
-    TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
-    rootrntuple::ProductInfo info = rootrntuple::ProductInfo(prod);
-    info.productBranch_ = nullptr;
-    if (prod.present()) {
-      info.setBranch(branch, wrapperBaseTClass);
+    auto id = reader_->GetDescriptor().FindFieldId(oldBranchName);
+    rootrntuple::ProductInfo info(prod);
+    if (prod.present() and id != ROOT::kInvalidDescriptorId) {
+      info.setField(reader_->GetModel().GetToken(oldBranchName),
+                    reader_->GetView<void>(id, std::shared_ptr<void>()),
+                    wrapperBaseTClass);
       //we want the new branch name for the JobReport
       branchNames_.push_back(prod.branchName());
     }
-    branches_.insert(prod.branchID(), info);
+    branches_.insert(prod.branchID(), std::move(info));
   }
 
-  void RootRNTuple::dropBranch(std::string const& oldBranchName) {
-    //use the translated branch name
-    TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
-    if (branch != nullptr) {
-      TObjArray* leaves = tree_->GetListOfLeaves();
-      int entries = leaves->GetEntries();
-      for (int i = 0; i < entries; ++i) {
-        TLeaf* leaf = (TLeaf*)(*leaves)[i];
-        if (leaf == nullptr)
-          continue;
-        TBranch* br = leaf->GetBranch();
-        if (br == nullptr)
-          continue;
-        if (br->GetMother() == branch) {
-          leaves->Remove(leaf);
-        }
-      }
-      leaves->Compress();
-      tree_->GetListOfBranches()->Remove(branch);
-      tree_->GetListOfBranches()->Compress();
-      delete branch;
-    }
-  }
+  void RootRNTuple::dropBranch(std::string const& oldBranchName) {}
 
   rootrntuple::ProductMap const& RootRNTuple::branches() const { return branches_; }
 
   void RootRNTuple::setCacheSize(unsigned int cacheSize) {}
 
-  void RootRNTuple::setTreeMaxVirtualSize(int treeMaxVirtualSize) {
-    if (treeMaxVirtualSize >= 0)
-      tree_->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
-  }
+  void RootRNTuple::setTreeMaxVirtualSize(int treeMaxVirtualSize) {}
 
   bool RootRNTuple::nextWithCache() {
     bool returnValue = ++entryNumber_ < entries_;
@@ -213,42 +180,48 @@ namespace edm::rntuple_temp {
     return returnValue;
   }
 
-  void RootRNTuple::setEntryNumber(EntryNumber theEntryNumber) {
-    {
-      entryNumber_ = theEntryNumber;
-      tree_->LoadTree(entryNumber_);
-      //want guard to end here
-    }
+  void RootRNTuple::setEntryNumber(EntryNumber theEntryNumber) { entryNumber_ = theEntryNumber; }
+
+  void RootRNTuple::getEntryForAllBranches(
+      std::unordered_map<unsigned int, std::unique_ptr<edm::WrapperBase>>& iFields) const {
+    oneapi::tbb::this_task_arena::isolate([&]() {
+      auto entry = reader_->GetModel().CreateEntry();
+      for (auto& iField : iFields) {
+        auto const& prod = branches_.find(iField.first);
+        if (prod == nullptr or not prod->valid()) {
+          continue;
+        }
+        iField.second = prod->newWrapper();
+        entry->BindRawPtr(prod->token(), reinterpret_cast<void*>(iField.second.get()));
+      }
+      reader_->LoadEntry(entryNumber_, *entry);
+    });
   }
 
-  void RootRNTuple::getEntryForAllBranches() const {
-    oneapi::tbb::this_task_arena::isolate([&]() { tree_->GetEntry(entryNumber_); });
-  }
-
-  void RootRNTuple::getEntry(TBranch* branch, EntryNumber entryNumber) const {
+  void RootRNTuple::getEntry(ROOT::RNTupleView<void>& view, EntryNumber entryNumber) const {
     LogTrace("IOTrace").format(
-        "RootRNTuple::getEntryUsingCache() begin for branch {} entry {}", branch->GetName(), entryNumber);
+        "RootRNTuple::getEntryUsingCache() begin for branch {} entry {}", view.GetField().GetFieldName(), entryNumber);
     try {
-      branch->GetEntry(entryNumber);
+      view(entryNumber);
     } catch (cms::Exception const& e) {
       // We make sure the treeCache_ is detached from the file,
       // so that ROOT does not also delete it.
       Exception t(errors::FileReadError, "", e);
-      t.addContext(std::string("Reading branch ") + branch->GetName());
+      t.addContext(std::string("Reading branch ") + view.GetField().GetFieldName());
       throw t;
     } catch (std::exception const& e) {
       Exception t(errors::FileReadError);
       t << e.what();
-      t.addContext(std::string("Reading branch ") + branch->GetName());
+      t.addContext(std::string("Reading branch ") + view.GetField().GetFieldName());
       throw t;
     } catch (...) {
       Exception t(errors::FileReadError);
       t << "An exception of unknown type was thrown.";
-      t.addContext(std::string("Reading branch ") + branch->GetName());
+      t.addContext(std::string("Reading branch ") + view.GetField().GetFieldName());
       throw t;
     }
     LogTrace("IOTrace").format(
-        "RootRNTuple::getEntryUsingCache() end for branch {} entry {}", branch->GetName(), entryNumber);
+        "RootRNTuple::getEntryUsingCache() end for branch {} entry {}", view.GetField().GetFieldName(), entryNumber);
   }
 
   bool RootRNTuple::skipEntries(unsigned int& offset) {
@@ -269,8 +242,8 @@ namespace edm::rntuple_temp {
   void RootRNTuple::close() {
     // The TFile is about to be closed, and destructed.
     // Just to play it safe, zero all pointers to quantities that are owned by the TFile.
-    auxBranch_ = nullptr;
-    tree_ = nullptr;
+    auxDesc_ = ROOT::kInvalidDescriptorId;
+    //reader_.reset(); //if there are any outstanding views, they will be invalidated
     // We give up our shared ownership of the TFile itself.
     filePtr_.reset();
   }
@@ -281,25 +254,4 @@ namespace edm::rntuple_temp {
     rootDelayedReader_->setSignals(preEventReadSource, postEventReadSource);
   }
 
-  namespace rootrntuple {
-    Int_t getEntry(TBranch* branch, EntryNumber entryNumber) {
-      Int_t n = 0;
-      try {
-        n = branch->GetEntry(entryNumber);
-      } catch (cms::Exception const& e) {
-        throw Exception(errors::FileReadError, "", e);
-      }
-      return n;
-    }
-
-    Int_t getEntry(TTree* tree, EntryNumber entryNumber) {
-      Int_t n = 0;
-      try {
-        n = tree->GetEntry(entryNumber);
-      } catch (cms::Exception const& e) {
-        throw Exception(errors::FileReadError, "", e);
-      }
-      return n;
-    }
-  }  // namespace rootrntuple
 }  // namespace edm::rntuple_temp

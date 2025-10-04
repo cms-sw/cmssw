@@ -52,11 +52,11 @@ namespace edm::rntuple_temp {
     void reset_() override { nextReader_ = nullptr; }
     std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const override;
 
-    ProductMap const& branches() const { return tree_.branches(); }
+    ProductMap const& branches() const { return rntuple_.branches(); }
     ProductInfo const* getProductInfo(BranchID const& k) const { return branches().find(k); }
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
     // the file containing the branch from being reclaimed.
-    RootRNTuple const& tree_;
+    RootRNTuple const& rntuple_;
     edm::propagate_const<std::shared_ptr<InputFile>> filePtr_;
     edm::propagate_const<DelayedReader*> nextReader_;
     std::unique_ptr<SharedResourcesAcquirer>

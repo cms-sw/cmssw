@@ -16,9 +16,9 @@ RootRNTuple.h // used by ROOT input sources
 #include "FWCore/Utilities/interface/InputType.h"
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "Rtypes.h"
-#include "TBranch.h"
 
 #include <memory>
 #include <string>
@@ -26,8 +26,10 @@ RootRNTuple.h // used by ROOT input sources
 #include <unordered_set>
 #include <unordered_map>
 
+#include "ROOT/RNTuple.hxx"
+#include "ROOT/RNTupleReader.hxx"
+#include "ROOT/RNTupleView.hxx"
 class TClass;
-class TTree;
 
 namespace edm::rntuple_temp {
   class InputFile;
@@ -40,17 +42,26 @@ namespace edm::rntuple_temp {
     unsigned int const defaultNonEventLearningEntries = 1U;
     using EntryNumber = IndexIntoFile::EntryNumber_t;
     struct ProductInfo {
-      ProductInfo(ProductDescription const& prod)
-          : productDescription_(prod), productBranch_(nullptr), classCache_(nullptr), offsetToWrapperBase_(0) {}
-      ProductDescription const productDescription_;
-      void setBranch(TBranch* branch, TClass const* wrapperBaseTClass);
+      ProductInfo(ProductDescription const& prod) : productDescription_(prod) {}
+      ProductInfo(ProductInfo const&) = default;
+      ProductInfo& operator=(ProductInfo const&) = default;
+      ProductInfo(ProductInfo&&) = default;
+      ProductInfo& operator=(ProductInfo&&) = default;
+      void setField(ROOT::RFieldToken token, ROOT::RNTupleView<void> view, TClass const* wrapperBaseTClass);
       std::unique_ptr<WrapperBase> newWrapper() const;
-      TBranch* productBranch_;
+      bool valid() const { return view_.has_value(); }
+      ROOT::RNTupleView<void>& view() const { return view_.value(); }
+      ProductDescription const& productDescription() const { return productDescription_; }
+
+      ROOT::RFieldToken token() const { return token_; }
 
     private:
+      ProductDescription const productDescription_;
+      ROOT::RFieldToken token_;
+      mutable std::optional<ROOT::RNTupleView<void>> view_;
       //All access to a ROOT file is serialized
-      TClass* classCache_;
-      Int_t offsetToWrapperBase_;
+      TClass* classCache_ = nullptr;
+      Int_t offsetToWrapperBase_ = 0;
     };
 
     class ProductMap {
@@ -58,7 +69,7 @@ namespace edm::rntuple_temp {
       using Map = std::unordered_map<unsigned int, ProductInfo>;
 
       void reserve(Map::size_type iSize) { map_.reserve(iSize); }
-      void insert(edm::BranchID const& iKey, ProductInfo const& iInfo) { map_.emplace(iKey.id(), iInfo); }
+      void insert(edm::BranchID const& iKey, ProductInfo iInfo) { map_.emplace(iKey.id(), std::move(iInfo)); }
       ProductInfo const* find(BranchID const& iKey) const { return find(iKey.id()); }
       ProductInfo const* find(unsigned int iKey) const {
         auto itFound = map_.find(iKey);
@@ -76,9 +87,6 @@ namespace edm::rntuple_temp {
     private:
       Map map_;
     };
-
-    Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
-    Int_t getEntry(TTree* tree, EntryNumber entryNumber);
   }  // namespace rootrntuple
 
   class RootRNTuple {
@@ -122,8 +130,8 @@ namespace edm::rntuple_temp {
     void numberOfBranchesToAdd(ProductMap::Map::size_type iSize) { branches_.reserve(iSize); }
     void addBranch(ProductDescription const& prod, std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
-    void getEntry(TBranch* branch, EntryNumber entry) const;
-    void getEntryForAllBranches() const;
+    void getEntry(ROOT::RNTupleView<void>& view, EntryNumber entry) const;
+    void getEntryForAllBranches(std::unordered_map<unsigned int, std::unique_ptr<edm::WrapperBase>>&) const;
     void setPresence(ProductDescription& prod, std::string const& oldBranchName);
 
     bool next() { return ++entryNumber_ < entries_; }
@@ -144,31 +152,29 @@ namespace edm::rntuple_temp {
     DelayedReader* resetAndGetRootDelayedReader() const;
     template <typename T>
     void fillAux(T*& pAux) {
-      auxBranch_->SetAddress(&pAux);
-      getEntry(auxBranch_, entryNumber_);
-      auxBranch_->SetAddress(nullptr);
+      try {
+        auto view = reader_->GetView(auxDesc_, pAux);
+        view(entryNumber_);
+      } catch (cms::Exception const& e) {
+        throw Exception(errors::FileReadError, "", e);
+      } catch (std::exception const& e) {
+        Exception t(errors::FileReadError);
+        t << e.what();
+        throw t;
+      }
     }
 
-    template <typename T>
-    void fillBranchEntry(TBranch* branch, T*& pbuf) {
-      branch->SetAddress(&pbuf);
-      getEntry(branch, entryNumber_);
-      branch->SetAddress(nullptr);
+    std::optional<ROOT::RNTupleView<void>> view(std::string_view iName);
+    ROOT::DescriptorId_t descriptorFor(std::string_view iName) { return reader_->GetDescriptor().FindFieldId(iName); }
+
+    void fillEntry(ROOT::RNTupleView<void>& view) { getEntry(view, entryNumber_); }
+    void fillEntry(ROOT::RNTupleView<void>& view, EntryNumber entryNumber) { getEntry(view, entryNumber); }
+
+    void fillEntry(ROOT::DescriptorId_t id, EntryNumber entryNumber, void* iData) {
+      auto view = reader_->GetView(id, iData);
+      getEntry(view, entryNumber);
     }
 
-    template <typename T>
-    void fillBranchEntryMeta(TBranch* branch, EntryNumber entryNumber, T*& pbuf) {
-      fillBranchEntry<T>(branch, entryNumber, pbuf);
-    }
-
-    template <typename T>
-    void fillBranchEntry(TBranch* branch, EntryNumber entryNumber, T*& pbuf) {
-      branch->SetAddress(&pbuf);
-      getEntry(branch, entryNumber);
-    }
-
-    TTree const* tree() const { return tree_; }
-    TTree* tree() { return tree_; }
     ProductMap const& branches() const;
 
     BranchType branchType() const { return branchType_; }
@@ -194,13 +200,13 @@ namespace edm::rntuple_temp {
     // We use bare pointers for pointers to some ROOT entities.
     // Root owns them and uses bare pointers internally.
     // Therefore,using smart pointers here will do no good.
-    TTree* tree_ = nullptr;
+    std::unique_ptr<ROOT::RNTupleReader> reader_;
     BranchType branchType_;
     std::string processName_;
-    TBranch* auxBranch_ = nullptr;
+    ROOT::DescriptorId_t auxDesc_ = ROOT::kInvalidDescriptorId;
     EntryNumber entries_ = 0;
     EntryNumber entryNumber_ = IndexIntoFile::invalidEntry;
-    std::unique_ptr<std::vector<EntryNumber> > entryNumberForIndex_;
+    std::unique_ptr<std::vector<EntryNumber>> entryNumberForIndex_;
     std::vector<std::string> branchNames_;
     ProductMap branches_;
     unsigned int cacheSize_ = 0;
