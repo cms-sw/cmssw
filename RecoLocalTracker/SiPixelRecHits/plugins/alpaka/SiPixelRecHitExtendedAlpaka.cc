@@ -7,17 +7,11 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
@@ -105,7 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const int nTrkHits = trkColl.nHits();
 
     const int nPixMod = pixColl.nModules();
-    const int nTrkMod = trkColl.nModules() + 1;  // +1 for the "hidden" last element in the SoA
+    const int nTrkMod = trkColl.nModules();
 
     // the output is also a SoA collection with the same layout as the input ones
     auto output = reco::TrackingRecHitsSoACollection(queue, nPixHits + nTrkHits, nPixMod + nTrkMod);
@@ -116,7 +110,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               << "Number of Tracker recHits: " << nTrkHits << '\n'
               << "Total number of recHits: " << output.nHits() << '\n'
               << "Number of Pixel modules: " << nPixMod << '\n'
-              << "Number of Tracker modules: " << nTrkMod - 1 << '\n'
+              << "Number of Tracker modules: " << nTrkMod << '\n'
               << "Total number of modules: " << output.nModules() << '\n'
               << "---------------------------------------------------------------------\n";
 #endif
@@ -175,11 +169,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         cms::alpakatools::make_device_view(queue, output.view<::reco::HitModuleSoA>().moduleStart().data(), nPixMod),
         cms::alpakatools::make_device_view(queue, pixColl.view<::reco::HitModuleSoA>().moduleStart().data(), nPixMod));
     // copy hitModuleStart for Tracker modules (offset after Pixel modules)
-    alpaka::memcpy(
-        queue,
-        cms::alpakatools::make_device_view(
-            queue, output.view<::reco::HitModuleSoA>().moduleStart().data() + nPixMod, nTrkMod),
-        cms::alpakatools::make_device_view(queue, trkColl.view<::reco::HitModuleSoA>().moduleStart().data(), nTrkMod));
+    // copy nTrkMod + 1 elements to include the last "hidden" element
+    alpaka::memcpy(queue,
+                   cms::alpakatools::make_device_view(
+                       queue, output.view<::reco::HitModuleSoA>().moduleStart().data() + nPixMod, nTrkMod + 1),
+                   cms::alpakatools::make_device_view(
+                       queue, trkColl.view<::reco::HitModuleSoA>().moduleStart().data(), nTrkMod + 1));
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Copied hitModuleStart for Pixel and Tracker modules\n";
