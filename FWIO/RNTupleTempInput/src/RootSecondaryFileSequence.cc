@@ -82,8 +82,7 @@ namespace edm::rntuple_temp {
         RootFile::ProcessingOptions{
             .processingMode = input_.processingMode(),
         },
-        RootFile::TTreeOptions{.treeMaxVirtualSize = input_.treeMaxVirtualSize(),
-                               .enablePrefetching = enablePrefetching_,
+        RootFile::TTreeOptions{.useClusterCache = input_.optimizations().useClusterCache,
                                .promptReading = not input_.delayReadingEventProducts()},
         RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
                                  .associationsFromSecondary = &associationsFromSecondary_,

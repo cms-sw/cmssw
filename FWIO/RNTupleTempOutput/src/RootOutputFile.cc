@@ -114,9 +114,9 @@ namespace edm::rntuple_temp {
         pEventEntryInfoVector_(&eventEntryInfoVector_),
         pBranchListIndexes_(nullptr),
         pEventSelectionIDs_(nullptr),
-        eventRNTuple_(filePtr(), InEvent, om_->splitLevel(), om_->treeMaxVirtualSize()),
-        lumiRNTuple_(filePtr(), InLumi, om_->splitLevel(), om_->treeMaxVirtualSize()),
-        runRNTuple_(filePtr(), InRun, om_->splitLevel(), om_->treeMaxVirtualSize()),
+        eventRNTuple_(filePtr(), InEvent),
+        lumiRNTuple_(filePtr(), InLumi),
+        runRNTuple_(filePtr(), InRun),
         dataTypeReported_(false),
         processHistoryRegistry_(),
         parentageIDs_(),
@@ -125,8 +125,7 @@ namespace edm::rntuple_temp {
     std::vector<std::string> const& processesWithProcessBlockProducts =
         om_->outputProcessBlockHelper().processesWithProcessBlockProducts();
     for (auto const& processName : processesWithProcessBlockProducts) {
-      processBlockRNTuples_.emplace_back(std::make_unique<RootOutputRNTuple>(
-          filePtr(), InProcess, om_->splitLevel(), om_->treeMaxVirtualSize(), processName));
+      processBlockRNTuples_.emplace_back(std::make_unique<RootOutputRNTuple>(filePtr(), InProcess, processName));
     }
 
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
@@ -142,9 +141,6 @@ namespace edm::rntuple_temp {
           << "RNTupleTempOutputModule configured with unknown compression algorithm '" << om_->compressionAlgorithm()
           << "'\n"
           << "Allowed compression algorithms are ZLIB, LZMA, LZ4, and ZSTD\n";
-    }
-    if (-1 != om->eventAutoFlushSize()) {
-      eventRNTuple_.setAutoFlush(-1 * om->eventAutoFlushSize());
     }
     eventRNTuple_.addAuxiliary<EventAuxiliary>(
         BranchTypeToAuxiliaryBranchName(InEvent), &pEventAux_, om_->auxItems()[InEvent].basketSize_);
@@ -191,8 +187,23 @@ namespace edm::rntuple_temp {
         branchesWithStoredHistory_.insert(item.branchID());
       }
     }
+    RootOutputRNTuple::Config config;
+    config.compressionAlgo =
+        om_->compressionAlgorithm() == std::string("LZMA")   ? RootOutputRNTuple::Config::CompressionAlgos::kLZMA
+        : om_->compressionAlgorithm() == std::string("ZSTD") ? RootOutputRNTuple::Config::CompressionAlgos::kZSTD
+        : om_->compressionAlgorithm() == std::string("LZ4")  ? RootOutputRNTuple::Config::CompressionAlgos::kLZ4
+                                                             : RootOutputRNTuple::Config::CompressionAlgos::kZLIB;
+    config.compressionLevel = om_->compressionLevel();
+    auto& optimizations = om_->optimizations();
+    config.approxZippedClusterSize = optimizations.approxZippedClusterSize;
+    config.maxUnzippedClusterSize = optimizations.maxUnzippedClusterSize;
+    config.initialUnzippedPageSize = optimizations.initialUnzippedPageSize;
+    config.maxUnzippedPageSize = optimizations.maxUnzippedPageSize;
+    config.pageBufferBudget = optimizations.pageBufferBudget;
+    config.useBufferedWrite = optimizations.useBufferedWrite;
+    config.useDirectIO = optimizations.useDirectIO;
     for (auto& tree : treePointers_) {
-      tree->finishInitialization();
+      tree->finishInitialization(config);
     }
 
     if (overrideGUID.empty()) {
@@ -250,9 +261,7 @@ namespace edm::rntuple_temp {
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
     // We can't do setEntries() on the event tree if the EventAuxiliary branch is empty & disabled
-    if (not om_->compactEventAuxiliary()) {
-      eventRNTuple_.setEntries();
-    }
+    eventRNTuple_.setEntries();
     lumiRNTuple_.setEntries();
     runRNTuple_.setEntries();
   }
