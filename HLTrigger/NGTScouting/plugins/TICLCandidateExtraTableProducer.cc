@@ -1,6 +1,3 @@
-#ifndef HLTrigger_HLTUpgradeNano_TICLCandidateExtraTableProducer_h
-#define HLTrigger_HLTUpgradeNano_TICLCandidateExtraTableProducer_h
-
 #include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
@@ -123,5 +120,3 @@ protected:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TICLCandidateExtraTableProducer);
-
-#endif
