@@ -453,6 +453,37 @@ def printReadRanges(logEntries, mapChunks=None):
                 else:
                     print(f"{element.offset} {element.offset+element.requested}")
 
+####################
+# Read overlapping ranges
+####################
+def printReadOverlapRanges(logEntries, mapChunks=None):
+    seen_chunks = []
+    for entry in logEntries:
+        if isinstance(entry, Entries.Read):
+            chunk = Chunk(entry.offset, entry.offset+entry.requested)
+            ret = addAndMergeRange(chunk, seen_chunks)
+            if ret.overlap_type != OverlapType.UNIQUE:
+                print(f"# id {entry.id} overlap_type {ret.overlap_type.value}")
+                print(f"{entry.offset} {entry.offset+entry.requested}")
+                if mapChunks:
+                    for ch in mapChunks.chunks(entry.offset, entry.requested):
+                        print(f" {ch.begin} {ch.end} {ch.type} {ch.content}")
+        elif isinstance(entry, Entries.Readv):
+            overlaps = []
+            for element in entry.elements:
+                chunk = Chunk(element.offset, element.offset+element.requested)
+                ret = addAndMergeRange(chunk, seen_chunks)
+                if ret.overlap_type != OverlapType.UNIQUE:
+                    overlaps.append(f"# element overlap type {ret.overlap_type.value}")
+                    overlaps.append(f" {element.offset} {element.offset+element.requested}")
+                    if mapChunks:
+                        for ch in mapChunks.chunks(element.offset, element.requested):
+                            overlaps.append(f"  {ch.begin} {ch.end} {ch.type} {ch.content}")
+            if len(overlaps) > 0:
+                print(f"# id {entry.id}")
+                for line in overlaps:
+                    print(line)
+
 ######################
 # Correlate reads with log file
 #######################
@@ -563,6 +594,8 @@ def main(logEntries, args):
         print()
     if args.readRanges:
         printReadRanges(logEntries, mapChunks)
+    if args.readOverlapRanges:
+        printReadOverlapRanges(logEntries, mapChunks)
     if args.correlateReads:
         printReadCorrelations(logEntries, args.correlateReads)
     if args.plotReads:
@@ -835,7 +868,8 @@ if __name__ == "__main__":
     parser.add_argument("--readOrder", action="store_true", help="Analyze ordering of reads")
     parser.add_argument("--readOverlaps", action="store_true", help="Analyze overlaps of reads")
     parser.add_argument("--readRanges", action="store_true", help="Print offset ranges of each read element")
-    parser.add_argument("--mapFile", type=str, default=None, help="Alter behavior of --readRanges using the output of TFile::Map() to map the file regions to TFile content. The argument should be a file containing the output of 'edmFileUtil --map'.")
+    parser.add_argument("--readOverlapRanges", action="store_true", help="Print offset ranges of reads that overlap with any earlier read")
+    parser.add_argument("--mapFile", type=str, default=None, help="Alter behavior of --readRanges or --readOverlapRanges using the output of TFile::Map() to map the file regions to TFile content. The argument should be a file containing the output of 'edmFileUtil --map'.")
     parser.add_argument("--correlateReads", type=str, default=None, help="Correlate reads with high-level IOTrace printouts from the CMSSW log file.")
     parser.add_argument("--plotReads", type=str, default=None, help="Generate a plot of the read patterns. The argument should be the name of the output PDF file.")
     parser.add_argument("--test", action="store_true", help="Run internal tests")
@@ -844,6 +878,8 @@ if __name__ == "__main__":
     if args.test:
         test()
     else:
+        if args.readRanges and args.readOverlapRanges:
+            parser.error("Cannot use --readRanges and --readOverlapRanges at the same time")
         if args.filename is None:
             parser.error("filename argument is missing")
         with open(args.filename) as f:
