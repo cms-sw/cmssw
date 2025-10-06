@@ -74,11 +74,9 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
       const SimCluster& simCluster = (*(it_sc));
       std::vector<std::pair<uint32_t, float>> hits_and_fractions;
       if constexpr (std::is_same_v<HIT, HGCRecHit>)
-        hits_and_fractions = simCluster.filtered_hits_and_fractions(
-            [this](const DetId& detid) { return !recHitTools_->isBarrel(detid); });
+        hits_and_fractions = simCluster.endcap_hits_and_fractions();
       else
-        hits_and_fractions = simCluster.filtered_hits_and_fractions(
-            [this](const DetId& detid) { return recHitTools_->isBarrel(detid); });
+        hits_and_fractions = simCluster.barrel_hits_and_fractions();
       for (const auto& it_haf : hits_and_fractions) {
         const auto hitid = (it_haf.first);
         unsigned int cpLayerId = recHitTools_->getLayerWithOffset(hitid);
@@ -357,11 +355,13 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     // find the unique caloparticles id contributing to the layer clusters
     if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-      if (recHitTools_->isBarrel(clusters[lcId].seed()))
+      if (recHitTools_->isBarrel(clusters[lcId].seed())) {
         continue;
+      }
     } else {
-      if (!recHitTools_->isBarrel(clusters[lcId].seed()))
+      if (!recHitTools_->isBarrel(clusters[lcId].seed())) {
         continue;
+      }
     }
     std::sort(cpsInLayerCluster[lcId].begin(), cpsInLayerCluster[lcId].end());
     auto last = std::unique(cpsInLayerCluster[lcId].begin(), cpsInLayerCluster[lcId].end());

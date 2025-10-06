@@ -700,13 +700,10 @@ void BarrelVHistoProducerAlgo::fill_caloparticle_histos(
     float hitEnergyWeight_invSum = 0;
     std::vector<std::pair<DetId, float>> haf_cp;
     for (const auto& sc : caloParticle.simClusters()) {
-      auto barrel_hf = sc->filtered_hits_and_fractions([this](const DetId& x) { return recHitTools_->isBarrel(x); });
-
-      LogDebug("BarrelValidator") << " This sim cluster has " << barrel_hf.size() << " simHits and " << sc->energy()
-                                  << " energy. " << std::endl;
-
-      simHits += barrel_hf.size();
-      for (auto const& h_and_f : barrel_hf) {
+      LogDebug("BarrelValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and "
+                                  << sc->energy() << " energy. " << std::endl;
+      simHits += sc->hits_and_fractions().size();
+      for (auto const& h_and_f : sc->hits_and_fractions()) {
         const auto hitDetId = h_and_f.first;
         const int layerId = recHitTools_->getLayerWithOffset(hitDetId);
         // set to 0 if matched RecHit not found
@@ -800,16 +797,18 @@ void BarrelVHistoProducerAlgo::BarrelVHistoProducerAlgo::fill_simCluster_histos(
     std::vector<int> occurenceSCinlayer(layers, 0);
 
     //loop through hits of the simCluster
-    for (const auto& hAndF :
-         sc.filtered_hits_and_fractions([this](const DetId& x) { return recHitTools_->isBarrel(x); })) {
+    for (const auto& hAndF : sc.hits_and_fractions()) {
       const DetId sh_detid = hAndF.first;
 
-      //The layer the cluster belongs to
-      int layerid = recHitTools_->getLayerWithOffset(sh_detid);
-      if (occurenceSCinlayer[layerid] == 0) {
-        tnscpl[layerid]++;
+      if (recHitTools_->isBarrel(sh_detid)) {
+        //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z.
+        int layerid = recHitTools_->getLayerWithOffset(sh_detid);
+        //zside that the current cluster belongs to.
+        if (occurenceSCinlayer[layerid] == 0) {
+          tnscpl[layerid]++;
+        }
+        occurenceSCinlayer[layerid]++;
       }
-      occurenceSCinlayer[layerid]++;
     }  //end of loop through hits
   }  //end of loop through SimClusters of the event
 

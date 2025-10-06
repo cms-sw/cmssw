@@ -194,15 +194,26 @@ public:
     return result;
   }
 
-  /** @brief Returns filtered list of rechit IDs and fractions for this SimCluster based on a predicate */
-  std::vector<std::pair<uint32_t, float>> filtered_hits_and_fractions(
-      const std::function<bool(const DetId &)> &predicate) const {
+  /** @brief Returns list of rechit IDs and fractions in the barrel for this SimCluster */
+  std::vector<std::pair<uint32_t, float>> barrel_hits_and_fractions() const {
     std::vector<std::pair<uint32_t, float>> result;
     for (size_t i = 0; i < hits_.size(); ++i) {
       DetId detid(hits_[i]);
-      if (predicate(detid)) {
-        result.emplace_back(hits_[i], fractions_[i]);
-      }
+      if (detid.subdetId() != EcalBarrel && detid.subdetId() != HcalBarrel && detid.subdetId() != HcalOuter)
+        continue;
+      result.emplace_back(hits_[i], fractions_[i]);
+    }
+    return result;
+  }
+
+  /** @brief Returns list of rechit IDs and fractions in the endcap for this SimCluster */
+  std::vector<std::pair<uint32_t, float>> endcap_hits_and_fractions() const {
+    std::vector<std::pair<uint32_t, float>> result;
+    for (size_t i = 0; i < hits_.size(); ++i) {
+      DetId detid(hits_[i]);
+      if (detid.subdetId() == EcalBarrel || detid.subdetId() == HcalBarrel || detid.subdetId() == HcalOuter)
+        continue;
+      result.emplace_back(hits_[i], fractions_[i]);
     }
     return result;
   }
