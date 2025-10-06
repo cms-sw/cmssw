@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
-scoutingMuonPropertiesMonitor = DQMEDAnalyzer('ScoutingMuonPropertiesAnalyzer',
+ScoutingMuonPropertiesMonitor = DQMEDAnalyzer('ScoutingMuonPropertiesAnalyzer',
+                                              OutputInternalPath = cms.string('/HLT/ScoutingOffline/Muons/Properties'), #Output of the root file
                                               triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
                                               muonsNoVtx = cms.InputTag("hltScoutingMuonPackerNoVtx", "", "HLT"),
                                               muonsVtx = cms.InputTag("hltScoutingMuonPackerVtx", "", "HLT"),
