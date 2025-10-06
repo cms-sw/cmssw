@@ -10,6 +10,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -286,66 +287,76 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     }
   }
 
-  // function that returns the layerId given a TrackingRecHit pointer (only works for Phase-2 for now...)
-  auto getLayerId = [&](const TrackingRecHit *recHit) {
-    constexpr unsigned int numBarrelLayers{4};
-    constexpr unsigned int numEndcapDisks{12};
-    auto detId = recHit->geographicalId();
-
-    // set default to 999 (invalid)
-    int layerId{99};
-
-    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
-      // subtract 1 in the barrel to get, e.g. for Phase 2, from (1,4) to (0,3)
-      layerId = trackerTopology.pxbLayer(detId) - 1;
-    } else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
-      if (trackerTopology.pxfSide(detId) == 1) {
-        // add offset in the backward endcap to get, e.g. for Phase 2, from (1,12) to (16,27)
-        layerId = trackerTopology.pxfDisk(detId) + numBarrelLayers + numEndcapDisks - 1;
-      } else {
-        // add offest in the forward endcap to get, e.g. for Phase 2, from (1,12) to (4,15)
-        layerId = trackerTopology.pxfDisk(detId) + numBarrelLayers - 1;
-      }
-    } else if (detId.subdetId() == StripSubdetector::TOB) {
-      layerId = trackerTopology.getOTLayerNumber(detId) + 27;
+  // function that returns the number of skipped layers for a given pair of RecHits
+  // for the case where the inner RecHit is in the pixel barrel.
+  auto getNSkippedLayersInnerInBarrel = [&](const DetId &innerDetId,
+                                            const DetId &outerDetId,
+                                            const TrackingRecHit *innerRecHit) {
+    int nSkippedLayers = 0;
+    switch (outerDetId.subdetId()) {
+      case PixelSubdetector::PixelBarrel:
+        nSkippedLayers = trackerTopology.pxbLayer(outerDetId) - trackerTopology.pxbLayer(innerDetId) - 1;
+        break;
+      case PixelSubdetector::PixelEndcap:
+        nSkippedLayers = trackerTopology.pxfDisk(outerDetId) - 1;  // -1 because first disk has Id 1
+        break;
+      case StripSubdetector::TOB:
+        // if the inner RecHit is at the edge of the barrel layer, consider the jump to the first OT layer as no skip
+        if (std::abs(innerRecHit->globalPosition().z()) > 17)
+          nSkippedLayers = trackerTopology.getOTLayerNumber(outerDetId) - 1;  // -1 because first barrel has Id 1
+        else
+          nSkippedLayers = trackerTopology.getOTLayerNumber(outerDetId) + 4 - trackerTopology.pxbLayer(innerDetId) - 1;
+        break;
     }
-    return layerId;
+    return nSkippedLayers;
   };
 
-  // stupid function that returns the skipped layers for a given layer pair (i, o)
-  // It works only for Phase-2 at the moment, but is meant as a temporary solution 
+  // function that returns the number of skipped layers for a given pair of RecHits
+  // for the case where the inner RecHit is in the pixel endcap.
+  auto getNSkippedLayersInnerInEndcap = [&](const DetId &innerDetId, const DetId &outerDetId) {
+    int nSkippedLayers = 0;
+    switch (outerDetId.subdetId()) {
+      case PixelSubdetector::PixelEndcap:
+        nSkippedLayers = trackerTopology.pxfDisk(outerDetId) - trackerTopology.pxfDisk(innerDetId) - 1;
+        break;
+      case StripSubdetector::TOB:
+        nSkippedLayers = trackerTopology.getOTLayerNumber(outerDetId) - 1;  // -1 because first disk has Id 1
+        break;
+    }
+    return nSkippedLayers;
+  };
+
+  // function that returns the number of skipped layers for a given pair of RecHits
+  // for the case where the inner RecHit is in the OT barrel.
+  auto getNSkippedLayersInnerInOT = [&](const DetId &innerDetId, const DetId &outerDetId) {
+    assert(outerDetId.subdetId() == StripSubdetector::TOB);
+    int nSkippedLayers =
+        trackerTopology.getOTLayerNumber(outerDetId) - trackerTopology.getOTLayerNumber(innerDetId) - 1;
+    return nSkippedLayers;
+  };
+
+  // function that returns the number of skipped layers for a given pair of RecHits
+  // It works only for Phase-2, as this feature does not make sense for Phase-1 due to the smaller number of layers.
   // (needed for layer-skipping quadruplet rejection)
-  auto getNskippedLayers = [&](const int i, const int o) {
-    if (i == o)
-      return 0;
+  auto getNSkippedLayers = [&](const TrackingRecHit *innerRecHit, const TrackingRecHit *outerRecHit) {
+    // get detIds and subdetectors of the hits to determine their layers
+    auto innerDetId = innerRecHit->geographicalId();
+    auto outerDetId = outerRecHit->geographicalId();
 
-    bool innerInBarrel = (i <= 3);
-    bool outerInBarrel = (o <= 3);
-    bool innerInOTExtension = (i >= 28);
-    bool outerInOTExtension = (o >= 28);
-    bool innerInBackward = (i >= 16) && (i <= 27);
-    bool outerInBackward = (o >= 16) && (o <= 27);
-    bool innerInForward = (i >= 4) && (i <= 15);
-    bool outerInForward = (o >= 4) && (o <= 15);
+    int nSkippedLayers = 0;
 
-    if ((innerInBarrel && outerInBarrel) || (innerInForward && outerInForward) ||
-        (innerInBackward && outerInBackward) || (innerInOTExtension && outerInOTExtension))
-      return (o - i - 1);
-
-    else if (innerInBarrel && outerInOTExtension)
-      return (o - i - 25);
-
-    else if (outerInOTExtension)
-      return (o - 28);
-
-    else if (innerInBarrel && outerInBackward)
-      return (o - 16);
-
-    else if (innerInBarrel && outerInForward)
-      return (o - 4);
-
-    else
-      return -99;
+    switch (innerDetId.subdetId()) {
+      case PixelSubdetector::PixelBarrel:
+        nSkippedLayers = getNSkippedLayersInnerInBarrel(innerDetId, outerDetId, innerRecHit);
+        break;
+      case PixelSubdetector::PixelEndcap:
+        nSkippedLayers = getNSkippedLayersInnerInEndcap(innerDetId, outerDetId);
+        break;
+      case StripSubdetector::TOB:
+        nSkippedLayers = getNSkippedLayersInnerInOT(innerDetId, outerDetId);
+        break;
+    }
+    return nSkippedLayers;
   };
 
   std::vector<const TrackingRecHit *> hits;
@@ -414,12 +425,11 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     // implement custome requirement for quadruplets coming from consecutive layers
     if (requireQuadsFromConsecutiveLayers_ && (nHits == 4)) {
       bool skipThisTrack{false};
-      int i, o;
       // loop over layer pairs and check if they skip
       for (auto iHit = start; iHit < end - 1; ++iHit) {
-        i = getLayerId(hits[iHit - start]);
-        o = getLayerId(hits[iHit - start + 1]);
-        if (getNskippedLayers(i, o) > 0) {
+        // if the inner (iHit-start) to outer (iHit-start+1) hit layer-change skips 1 or more
+        // layers skipt the track
+        if (getNSkippedLayers(hits[iHit - start], hits[iHit - start + 1]) > 0) {
           skipThisTrack = true;
           break;
         }
