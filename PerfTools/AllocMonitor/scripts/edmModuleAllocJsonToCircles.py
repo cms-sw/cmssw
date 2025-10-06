@@ -14,7 +14,7 @@ transitionTypes = [
     "global begin luminosity block",
     "stream begin luminosity block",
     "event",
-    "ESProducer",
+    "event setup",
 ]
 allocTypes = ["added", "nAlloc", "nDealloc", "maxTemp", "max1Alloc"]
 
@@ -125,7 +125,7 @@ def formatToCircles(moduleTransitions):
     all_module_keys = set()
     for transitionType, moduleTransition in moduleTransitions.items():
         for uniqueKey in moduleTransition.keys():
-            if transitionType == "ESProducer":
+            if transitionType == "event setup":
                 displayKey = uniqueKey
             else:
                 displayKey = uniqueKey  # For regular transitions, this is just the module label
@@ -153,7 +153,7 @@ def formatToCircles(moduleTransitions):
                 recordName = ""
 
             modules_dict[displayKey] = {
-                "label": moduleLabel,
+                "label": recordName if recordName else moduleLabel,
                 "type": moduleType,
                 "record": recordName
             }
@@ -169,7 +169,7 @@ def formatToCircles(moduleTransitions):
             allocs = info.get("allocs", [])
 
             # For ESProducer transitions, use the unique key; for others, use original label
-            if transitionType == "ESProducer":
+            if transitionType == "event setup":
                 displayKey = uniqueKey
             else:
                 displayKey = uniqueKey  # For regular transitions, this is just the module label
@@ -255,7 +255,7 @@ def main(args):
     moduleTransitions = dict()
     for transition in transitionTypes:
         moduleTransition = dict()
-        if transition == "ESProducer":
+        if transition == "event setup":
             # ESProducer transitions are handled differently - look for records with names
             processESProducerTransition("source", "PoolSource", doc["source"], moduleTransition)
             for moduleLabel, moduleInfo in doc["modules"].items():
