@@ -21,12 +21,26 @@ RootOutputRNTuple.h // used by ROOT output modules
 class TFile;
 
 namespace edm {
+
   class RootOutputRNTuple {
   public:
+    struct Config {
+      enum class CompressionAlgos { kLZMA, kZSTD, kZLIB, kLZ4 };
+
+      std::vector<std::string> doNotSplitSubFields;
+      CompressionAlgos compressionAlgo = CompressionAlgos::kZSTD;
+      int compressionLevel = 4;
+      unsigned long long approxZippedClusterSize;
+      unsigned long long maxUnzippedClusterSize;
+      unsigned long long initialUnzippedPageSize;
+      unsigned long long maxUnzippedPageSize;
+      unsigned long long pageBufferBudget;
+      bool useBufferedWrite;
+      bool useDirectIO;
+    };
+
     RootOutputRNTuple(std::shared_ptr<TFile> filePtr,
                       BranchType const& branchType,
-                      int splitLevel,
-                      int treeMaxVirtualSize,
                       std::string const& processName = std::string());
 
     ~RootOutputRNTuple() {}
@@ -54,7 +68,7 @@ namespace edm {
 
     void fill();
 
-    void finishInitialization();
+    void finishInitialization(Config const& config);
 
     std::string const& name() const { return name_; }
 

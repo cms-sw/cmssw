@@ -32,6 +32,9 @@ namespace edm::rntuple_temp {
 
   class RNTupleTempSource : public InputSource {
   public:
+    struct Optimizations {
+      bool useClusterCache = true;
+    };
     explicit RNTupleTempSource(ParameterSet const& pset, InputSourceDescription const& desc);
     ~RNTupleTempSource() override;
     using InputSource::processHistoryRegistryForUpdate;
@@ -45,6 +48,7 @@ namespace edm::rntuple_temp {
     bool delayReadingEventProducts() const { return delayReadingEventProducts_; }
     unsigned int nStreams() const { return nStreams_; }
     int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
+    Optimizations const& optimizations() const { return optimizations_; }
     ProductSelectorRules const& productSelectorRules() const { return productSelectorRules_; }
     InputSourceRunHelperBase* runHelper() { return runHelper_.get(); }
 
@@ -87,6 +91,7 @@ namespace edm::rntuple_temp {
     bool skipBadFiles_;
     bool bypassVersionCheck_;
     int const treeMaxVirtualSize_;
+    Optimizations optimizations_;
     ProductSelectorRules productSelectorRules_;
     bool dropDescendants_;
     bool labelRawDataLikeMC_;

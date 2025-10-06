@@ -62,6 +62,11 @@ namespace edm::rntuple_temp {
             << primary.id() << " has inconsistent RunAuxiliary data in the primary and secondary file\n";
       }
     }
+    RNTupleTempSource::Optimizations fromConfig(edm::ParameterSet const& iConfig) {
+      RNTupleTempSource::Optimizations opts;
+      opts.useClusterCache = iConfig.getUntrackedParameter<bool>("useClusterCache");
+      return opts;
+    }
   }  // namespace
 
   RNTupleTempSource::RNTupleTempSource(ParameterSet const& pset, InputSourceDescription const& desc)
@@ -79,7 +84,8 @@ namespace edm::rntuple_temp {
         nStreams_(desc.allocations_->numberOfStreams()),
         skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles")),
         bypassVersionCheck_(pset.getUntrackedParameter<bool>("bypassVersionCheck")),
-        treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize")),
+        treeMaxVirtualSize_(0),
+        optimizations_(fromConfig(pset.getUntrackedParameterSet("rntupleReadOptions"))),
         productSelectorRules_(pset, "inputCommands", "InputSource"),
         dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches")),
         labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC")),
@@ -301,7 +307,7 @@ namespace edm::rntuple_temp {
     ParameterSetDescription desc;
 
     std::vector<std::string> defaultStrings;
-    desc.setComment("Reads EDM/Root files.");
+    desc.setComment("Reads EDM/RNTuple Root files.");
     desc.addUntracked<std::vector<std::string> >("fileNames")->setComment("Names of files to be processed.");
     desc.addUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings)
         ->setComment("Names of secondary files to be processed.");
@@ -316,8 +322,13 @@ namespace edm::rntuple_temp {
         ->setComment(
             "True:  Bypass release version check.\n"
             "False: Throw exception if reading file in a release prior to the release in which the file was written.");
-    desc.addUntracked<int>("treeMaxVirtualSize", -1)
-        ->setComment("Size of ROOT TTree TBasket cache. Affects performance.");
+    desc.addOptionalUntracked<int>("treeMaxVirtualSize", -1)->setComment("Not used by RNTuple.");
+    {
+      ParameterSetDescription rntupleReadOptions;
+      rntupleReadOptions.addUntracked<bool>("useClusterCache", true)
+          ->setComment("True: use ROOT cluster cache. False: do not use cluster cache.");
+      desc.addUntracked("rntupleReadOptions", rntupleReadOptions);
+    }
     desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
         ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
     desc.addUntracked<bool>("labelRawDataLikeMC", true)

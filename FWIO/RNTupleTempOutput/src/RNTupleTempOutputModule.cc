@@ -29,6 +29,19 @@
 #include <sstream>
 #include "boost/algorithm/string.hpp"
 
+namespace {
+  edm::rntuple_temp::RNTupleTempOutputModule::Optimizations fromConfig(edm::ParameterSet const& iConfig) {
+    edm::rntuple_temp::RNTupleTempOutputModule::Optimizations opts;
+    opts.approxZippedClusterSize = iConfig.getUntrackedParameter<unsigned long long>("approxZippedClusterSize");
+    opts.maxUnzippedClusterSize = iConfig.getUntrackedParameter<unsigned long long>("maxUnzippedClusterSize");
+    opts.initialUnzippedPageSize = iConfig.getUntrackedParameter<unsigned long long>("initialUnzippedPageSize");
+    opts.maxUnzippedPageSize = iConfig.getUntrackedParameter<unsigned long long>("maxUnzippedPageSize");
+    opts.pageBufferBudget = iConfig.getUntrackedParameter<unsigned long long>("pageBufferBudget");
+    opts.useBufferedWrite = iConfig.getUntrackedParameter<bool>("useBufferedWrite");
+    opts.useDirectIO = iConfig.getUntrackedParameter<bool>("useDirectIO");
+    return opts;
+  }
+}  // namespace
 namespace edm::rntuple_temp {
   RNTupleTempOutputModule::RNTupleTempOutputModule(ParameterSet const& pset)
       : edm::one::OutputModuleBase::OutputModuleBase(pset),
@@ -42,12 +55,7 @@ namespace edm::rntuple_temp {
         maxFileSize_(pset.getUntrackedParameter<int>("maxSize")),
         compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel")),
         compressionAlgorithm_(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
-        basketSize_(pset.getUntrackedParameter<int>("basketSize")),
-        eventAuxBasketSize_(pset.getUntrackedParameter<int>("eventAuxiliaryBasketSize")),
-        eventAutoFlushSize_(pset.getUntrackedParameter<int>("eventAutoFlushCompressedSize")),
-        splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel") + 1, 99)),
-        basketOrder_(pset.getUntrackedParameter<std::string>("sortBaskets")),
-        treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize")),
+        optimizations_(fromConfig(pset.getUntrackedParameterSet("rntupleWriteOptions"))),
         dropMetaData_(DropNone),
         moduleLabel_(pset.getParameter<std::string>("@module_label")),
         initializedFromInput_(false),
@@ -55,9 +63,6 @@ namespace edm::rntuple_temp {
         inputFileCount_(0),
         branchParents_(),
         productDependencies_(),
-        overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
-        compactEventAuxiliary_(pset.getUntrackedParameter<bool>("compactEventAuxiliary")),
-        mergeJob_(pset.getUntrackedParameter<bool>("mergeJob")),
         rootOutputFile_(),
         statusFileName_(),
         overrideGUID_(pset.getUntrackedParameter<std::string>("overrideGUID")) {
@@ -84,20 +89,6 @@ namespace edm::rntuple_temp {
           << "Legal values are 'NONE', 'DROPPED', 'PRIOR', and 'ALL'.\n";
     }
 
-    auto const& specialSplit{pset.getUntrackedParameterSetVector("overrideBranchesSplitLevel")};
-
-    specialSplitLevelForBranches_.reserve(specialSplit.size());
-    for (auto const& s : specialSplit) {
-      specialSplitLevelForBranches_.emplace_back(s.getUntrackedParameter<std::string>("branch"),
-                                                 s.getUntrackedParameter<int>("splitLevel"));
-    }
-
-    auto const& branchAliases{pset.getUntrackedParameterSetVector("branchAliases")};
-    aliasForBranches_.reserve(branchAliases.size());
-    for (auto const& a : branchAliases) {
-      aliasForBranches_.emplace_back(a.getUntrackedParameter<std::string>("branch"),
-                                     a.getUntrackedParameter<std::string>("alias"));
-    }
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
     // configuration by reading this source code.
@@ -391,30 +382,20 @@ namespace edm::rntuple_temp {
     desc.addUntracked<std::string>("compressionAlgorithm", "ZSTD")
         ->setComment(
             "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, LZ4, and ZSTD");
-    desc.addUntracked<int>("basketSize", 16384)->setComment("Default ROOT basket size in output file.");
-    desc.addUntracked<int>("eventAuxiliaryBasketSize", 16384)
+    desc.addOptionalUntracked<int>("basketSize", 16384)->setComment("Default ROOT basket size in output file.");
+    desc.addOptionalUntracked<int>("eventAuxiliaryBasketSize", 16384)
         ->setComment("Default ROOT basket size in output file for EventAuxiliary branch.");
-    desc.addUntracked<int>("eventAutoFlushCompressedSize", 20 * 1024 * 1024)->setComment("Not used by RNTuple");
-    desc.addUntracked<int>("splitLevel", 99)->setComment("Default ROOT branch split level in output file.");
-    desc.addUntracked<std::string>("sortBaskets", std::string("sortbasketsbyoffset"))
+    desc.addOptionalUntracked<int>("eventAutoFlushCompressedSize", 20 * 1024 * 1024)->setComment("Not used by RNTuple");
+    desc.addOptionalUntracked<int>("splitLevel", 99)->setComment("Default ROOT branch split level in output file.");
+    desc.addOptionalUntracked<std::string>("sortBaskets", std::string("sortbasketsbyoffset"))
         ->setComment(
             "Legal values: 'sortbasketsbyoffset', 'sortbasketsbybranch', 'sortbasketsbyentry'.\n"
             "Used by ROOT when fast copying. Affects performance.");
-    desc.addUntracked<int>("treeMaxVirtualSize", -1)->setComment("Not used by RNTuple.");
-    desc.addUntracked<bool>("fastCloning", false)->setComment("Not used by RNTuple");
-    desc.addUntracked("mergeJob", false)
-        ->setComment(
-            "If set to true and fast copying is disabled, copy input file compression and basket sizes to the output "
-            "file.");
-    desc.addUntracked<bool>("compactEventAuxiliary", false)
-        ->setComment(
-            "False: Write EventAuxiliary as we go like any other event metadata branch.\n"
-            "True:  Optimize the file layout by deferring writing the EventAuxiliary branch until the output file is "
-            "closed.");
-    desc.addUntracked<bool>("overrideInputFileSplitLevels", false)
-        ->setComment(
-            "False: Use branch split levels and basket sizes from input file, if possible.\n"
-            "True:  Always use specified or default split levels and basket sizes.");
+    desc.addOptionalUntracked<int>("treeMaxVirtualSize", -1)->setComment("Not used by RNTuple.");
+    desc.addOptionalUntracked<bool>("fastCloning", false)->setComment("Not used by RNTuple");
+    desc.addOptionalUntracked("mergeJob", false)->setComment("Not used by RNTuple.");
+    desc.addOptionalUntracked<bool>("compactEventAuxiliary", false)->setComment("Not used by RNTuple.");
+    desc.addOptionalUntracked<bool>("overrideInputFileSplitLevels", false)->setComment("Not used by RNTuple.");
     desc.addUntracked<bool>("writeStatusFile", false)
         ->setComment("Write a status file. Intended for use by workflow management.");
     desc.addUntracked<std::string>("dropMetaData", defaultString)
@@ -439,17 +420,48 @@ namespace edm::rntuple_temp {
     }
     {
       ParameterSetDescription specialSplit;
-      specialSplit.addUntracked<std::string>("branch")->setComment(
-          "Name of branch needing a special split level. The name can contain wildcards '*' and '?'");
-      specialSplit.addUntracked<int>("splitLevel")->setComment("The special split level for the branch");
+      specialSplit.addOptionalUntracked<std::string>("branch")->setComment("Not used by RNTuple.");
+      specialSplit.addOptionalUntracked<int>("splitLevel")->setComment("Not used by RNTuple.");
       desc.addVPSetUntracked("overrideBranchesSplitLevel", specialSplit, std::vector<ParameterSet>());
     }
     {
       ParameterSetDescription alias;
-      alias.addUntracked<std::string>("branch")->setComment(
-          "Name of branch which will get alias. The name can contain wildcards '*' and '?'");
-      alias.addUntracked<std::string>("alias")->setComment("The alias to give to the TBranch");
-      desc.addVPSetUntracked("branchAliases", alias, std::vector<ParameterSet>());
+      alias.addOptionalUntracked<std::string>("branch")->setComment("Not used by RNTuple.");
+      alias.addOptionalUntracked<std::string>("alias")->setComment("The alias to give to the TBranch");
+      desc.addVPSetOptionalUntracked("branchAliases", alias, std::vector<ParameterSet>());
+    }
+    {
+      ParameterSetDescription optimizations;
+
+      ROOT::RNTupleWriteOptions ops;
+      optimizations.addUntracked<unsigned long long>("approxZippedClusterSize", ops.GetApproxZippedClusterSize())
+          ->setComment("Approximation of the target compressed cluster size");
+      optimizations.addUntracked<unsigned long long>("maxUnzippedClusterSize", ops.GetMaxUnzippedClusterSize())
+          ->setComment("Memory limit for committing a cluster. High compression leads to high IO buffer size.");
+
+      optimizations.addUntracked<unsigned long long>("initialUnzippedPageSize", ops.GetInitialUnzippedPageSize())
+          ->setComment("Initially, columns start with a page of this size (bytes).");
+      optimizations.addUntracked<unsigned long long>("maxUnzippedPageSize", ops.GetMaxUnzippedPageSize())
+          ->setComment("Pages can grow only to the given limit (bytes).");
+      optimizations.addUntracked<unsigned long long>("pageBufferBudget", 0)
+          ->setComment(
+              "The maximum size that the sum of all page buffers used for writing into a persistent sink are allowed "
+              "to "
+              "use."
+              " If set to zero, RNTuple will auto-adjust the budget based on the value of 'approxZippedClusterSize'."
+              " If set manually, the size needs to be large enough to hold all initial page buffers.");
+
+      optimizations.addUntracked<bool>("useBufferedWrite", ops.GetUseBufferedWrite())
+          ->setComment(
+              "Turn on use of buffered writing. This buffers compressed pages in memory, reorders them to keep pages "
+              "of "
+              "the same column adjacent, and coalesces the writes when committing a cluster.");
+      optimizations.addUntracked<bool>("useDirectIO", ops.GetUseDirectIO())
+          ->setComment(
+              "Set use of direct IO. this introduces alignment requirements that may vary between filesystems and "
+              "platforms");
+      desc.addUntracked("rntupleWriteOptions", optimizations)
+          ->setComment("Options to control RNTuple specific output features.");
     }
     OutputModule::fillDescription(desc);
   }

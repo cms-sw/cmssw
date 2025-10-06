@@ -36,10 +36,6 @@ namespace edm::rntuple_temp {
   class RootDelayedReaderBase;
 
   namespace rootrntuple {
-    unsigned int const defaultCacheSize = 20U * 1024 * 1024;
-    unsigned int const defaultNonEventCacheSize = 1U * 1024 * 1024;
-    unsigned int const defaultLearningEntries = 20U;
-    unsigned int const defaultNonEventLearningEntries = 1U;
     using EntryNumber = IndexIntoFile::EntryNumber_t;
     struct ProductInfo {
       ProductInfo(ProductDescription const& prod) : productDescription_(prod) {}
@@ -94,21 +90,16 @@ namespace edm::rntuple_temp {
     using ProductMap = rootrntuple::ProductMap;
     using EntryNumber = rootrntuple::EntryNumber;
     struct Options {
-      unsigned int treeCacheSize = 0U;
-      int treeMaxVirtualSize;
-      bool enablePrefetching;
+      bool useClusterCache = true;
       bool promptReading = false;
 
-      Options usingDefaultNonEventOptions() const {
-        return {rootrntuple::defaultNonEventCacheSize, treeMaxVirtualSize, enablePrefetching, false};
-      }
+      Options usingDefaultNonEventOptions() const { return {}; }
     };
 
     RootRNTuple(std::shared_ptr<InputFile> filePtr,
                 BranchType const& branchType,
                 unsigned int nIndexes,
                 Options const& options,
-                unsigned int learningEntries,
                 InputType inputType);
 
     RootRNTuple(std::shared_ptr<InputFile> filePtr,
@@ -116,10 +107,7 @@ namespace edm::rntuple_temp {
                 std::string const& processName,
                 unsigned int nIndexes,
                 Options const& options,
-                unsigned int learningEntries,
                 InputType inputType);
-
-    void init(std::string const& productTreeName, unsigned int maxVirtualSize, unsigned int cacheSize);
 
     ~RootRNTuple();
 
@@ -185,11 +173,11 @@ namespace edm::rntuple_temp {
         signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource);
 
   private:
+    void init(std::string const& productTreeName, Options const& options);
+
     RootRNTuple(std::shared_ptr<InputFile> filePtr,
                 BranchType const& branchType,
                 unsigned int nIndexes,
-                unsigned int learningEntries,
-                bool enablePrefetching,
                 bool promptRead,
                 InputType inputType);
 
@@ -211,7 +199,6 @@ namespace edm::rntuple_temp {
     ProductMap branches_;
     unsigned int cacheSize_ = 0;
     unsigned long treeAutoFlush_ = 0;
-    bool enablePrefetching_;
     bool promptRead_;
     std::unique_ptr<RootDelayedReaderBase> rootDelayedReader_;
   };
