@@ -144,9 +144,7 @@ namespace edm::rntuple_temp {
                                                             .enforceGUIDInFileName = enforceGUIDInFileName_},
                                       InputType::SecondarySource,
                                       RootFile::ProcessingOptions{},
-                                      RootFile::TTreeOptions{.treeCacheSize = treeCacheSize_,
-                                                             .treeMaxVirtualSize = input_.treeMaxVirtualSize(),
-                                                             .enablePrefetching = enablePrefetching_},
+                                      RootFile::TTreeOptions{.useClusterCache = input_.optimizations().useClusterCache},
                                       RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules()},
                                       RootFile::CrossFileInfo{.runHelper = input_.runHelper(),
                                                               .indexesIntoFiles = indexesIntoFiles(),
@@ -379,8 +377,7 @@ namespace edm::rntuple_temp {
         ->setComment(
             "How many files to try if 'sequential' is False and 'skipBadFiles' is True.\n"
             "Defaults to 3 (or # of files if smaller).");
-    desc.addUntracked<unsigned int>("cacheSize", rootrntuple::defaultCacheSize)
-        ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
+    desc.addOptionalUntracked<unsigned int>("cacheSize", 0)->setComment("Not used by RNTuple.");
     desc.addUntracked<bool>("enforceGUIDInFileName", false)
         ->setComment(
             "True:  file name part is required to be equal to the GUID of the file\n"

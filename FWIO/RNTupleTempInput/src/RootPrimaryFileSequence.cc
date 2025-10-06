@@ -32,7 +32,7 @@ namespace edm::rntuple_temp {
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")),
         noRunLumiSort_(pset.getUntrackedParameter<bool>("noRunLumiSort")),
         noEventSort_(noRunLumiSort_ ? true : pset.getUntrackedParameter<bool>("noEventSort")),
-        treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize") : 0U),
+        treeCacheSize_(0U),
         duplicateChecker_(new DuplicateChecker(pset)),
         usingGoToEvent_(false),
         enablePrefetching_(false),
@@ -161,9 +161,7 @@ namespace edm::rntuple_temp {
                                     .noRunLumiSort = noRunLumiSort_,
                                     .noEventSort = noEventSort_,
                                     .usingGoToEvent = usingGoToEvent_},
-        RootFile::TTreeOptions{.treeCacheSize = treeCacheSize_,
-                               .treeMaxVirtualSize = input_.treeMaxVirtualSize(),
-                               .enablePrefetching = enablePrefetching_,
+        RootFile::TTreeOptions{.useClusterCache = input_.optimizations().useClusterCache,
                                .promptReading = not input_.delayReadingEventProducts()},
         RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
                                  .associationsFromSecondary = nullptr,  // associationsFromSecondary
@@ -427,8 +425,7 @@ namespace edm::rntuple_temp {
         ->setComment(
             "True:  Process runs, lumis and events in the order they appear in the file.\n"
             "False: Follow settings based on 'noEventSort' setting.");
-    desc.addUntracked<unsigned int>("cacheSize", rootrntuple::defaultCacheSize)
-        ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
+    desc.addOptionalUntracked<unsigned int>("cacheSize", 0)->setComment("Not used by RNTuple");
     std::string defaultString("permissive");
     desc.addUntracked<std::string>("branchesMustMatch", defaultString)
         ->setComment(

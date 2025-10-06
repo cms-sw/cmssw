@@ -27,8 +27,6 @@ namespace edm {
 
   RootOutputRNTuple::RootOutputRNTuple(std::shared_ptr<TFile> filePtr,
                                        BranchType const& branchType,
-                                       int splitLevel,
-                                       int treeMaxVirtualSize,
                                        std::string const& processName)
       : filePtr_(filePtr),
         name_(processName.empty() ? BranchTypeToProductTreeName(branchType)
@@ -105,7 +103,32 @@ namespace edm {
     }
   }
 
-  void RootOutputRNTuple::finishInitialization() {
+  void RootOutputRNTuple::finishInitialization(Config const& config) {
+    ROOT::RNTupleWriteOptions options;
+    switch (config.compressionAlgo) {
+      case Config::CompressionAlgos::kLZMA:
+        options.SetCompression(ROOT::RCompressionSetting::EAlgorithm::kLZMA, config.compressionLevel);
+        break;
+      case Config::CompressionAlgos::kZSTD:
+        options.SetCompression(ROOT::RCompressionSetting::EAlgorithm::kZSTD, config.compressionLevel);
+        break;
+      case Config::CompressionAlgos::kZLIB:
+        options.SetCompression(ROOT::RCompressionSetting::EAlgorithm::kZLIB, config.compressionLevel);
+        break;
+      case Config::CompressionAlgos::kLZ4:
+        options.SetCompression(ROOT::RCompressionSetting::EAlgorithm::kLZ4, config.compressionLevel);
+        break;
+      default:
+        throw edm::Exception(edm::errors::Configuration)
+            << "Unknown compression algorithm enum value: " << static_cast<int>(config.compressionAlgo) << "\n";
+    }
+    options.SetApproxZippedClusterSize(config.approxZippedClusterSize);
+    options.SetMaxUnzippedClusterSize(config.maxUnzippedClusterSize);
+    options.SetInitialUnzippedPageSize(config.initialUnzippedPageSize);
+    options.SetMaxUnzippedPageSize(config.maxUnzippedPageSize);
+    options.SetPageBufferBudget(config.pageBufferBudget);
+    options.SetUseBufferedWrite(config.useBufferedWrite);
+    options.SetUseDirectIO(config.useDirectIO);
     writer_ = ROOT::RNTupleWriter::Append(std::move(model_), name_, *filePtr_, ROOT::RNTupleWriteOptions());
   }
 

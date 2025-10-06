@@ -169,20 +169,9 @@ namespace edm::rntuple_temp {
         hasNewlyDroppedBranch_(),
         branchListIndexesUnchanged_(false),
         eventAuxCache_(),
-        eventTree_(
-            fileOptions.filePtr, InEvent, nStreams, ttreeOptions, rootrntuple::defaultLearningEntries, inputType),
-        lumiTree_(fileOptions.filePtr,
-                  InLumi,
-                  1,
-                  ttreeOptions.usingDefaultNonEventOptions(),
-                  rootrntuple::defaultNonEventLearningEntries,
-                  inputType),
-        runTree_(fileOptions.filePtr,
-                 InRun,
-                 1,
-                 ttreeOptions.usingDefaultNonEventOptions(),
-                 rootrntuple::defaultNonEventLearningEntries,
-                 inputType),
+        eventTree_(fileOptions.filePtr, InEvent, nStreams, ttreeOptions, inputType),
+        lumiTree_(fileOptions.filePtr, InLumi, 1, ttreeOptions.usingDefaultNonEventOptions(), inputType),
+        runTree_(fileOptions.filePtr, InRun, 1, ttreeOptions.usingDefaultNonEventOptions(), inputType),
         treePointers_(),
         lastEventEntryNumberRead_(IndexIntoFile::invalidEntry),
         productRegistry_(),
@@ -1895,13 +1884,8 @@ namespace edm::rntuple_temp {
     // the ProcessBlock TTree's in the file. (later in the RootFile constructor, dropOnInput might
     // remove some and also reordering may occur).
     for (auto const& process : storedProcessBlockHelper.processesWithProcessBlockProducts()) {
-      processBlockTrees_.emplace_back(std::make_unique<RootRNTuple>(filePtr,
-                                                                    InProcess,
-                                                                    process,
-                                                                    1,
-                                                                    options.usingDefaultNonEventOptions(),
-                                                                    rootrntuple::defaultNonEventLearningEntries,
-                                                                    inputType));
+      processBlockTrees_.emplace_back(std::make_unique<RootRNTuple>(
+          filePtr, InProcess, process, 1, options.usingDefaultNonEventOptions(), inputType));
     }
   }
 

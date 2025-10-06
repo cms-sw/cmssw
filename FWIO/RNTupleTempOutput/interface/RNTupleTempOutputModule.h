@@ -43,6 +43,15 @@ namespace edm::rntuple_temp {
   class RNTupleTempOutputModule : public one::OutputModule<WatchInputFiles> {
   public:
     enum DropMetaData { DropNone, DropDroppedPrior, DropPrior, DropAll };
+    struct Optimizations {
+      unsigned long long approxZippedClusterSize;
+      unsigned long long maxUnzippedClusterSize;
+      unsigned long long initialUnzippedPageSize;
+      unsigned long long maxUnzippedPageSize;
+      unsigned long long pageBufferBudget;
+      bool useBufferedWrite;
+      bool useDirectIO;
+    };
     explicit RNTupleTempOutputModule(ParameterSet const& ps);
     ~RNTupleTempOutputModule() override;
     RNTupleTempOutputModule(RNTupleTempOutputModule const&) = delete;             // Disallow copying and moving
@@ -51,14 +60,7 @@ namespace edm::rntuple_temp {
     std::string const& logicalFileName() const { return logicalFileName_; }
     int compressionLevel() const { return compressionLevel_; }
     std::string const& compressionAlgorithm() const { return compressionAlgorithm_; }
-    int basketSize() const { return basketSize_; }
-    int eventAuxiliaryBasketSize() const { return eventAuxBasketSize_; }
-    int eventAutoFlushSize() const { return eventAutoFlushSize_; }
-    int splitLevel() const { return splitLevel_; }
-    std::string const& basketOrder() const { return basketOrder_; }
-    int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
-    bool overrideInputFileSplitLevels() const { return overrideInputFileSplitLevels_; }
-    bool compactEventAuxiliary() const { return compactEventAuxiliary_; }
+    Optimizations const& optimizations() const { return optimizations_; }
     bool mergeJob() const { return mergeJob_; }
     DropMetaData const& dropMetaData() const { return dropMetaData_; }
     std::string const& catalog() const { return catalog_; }
@@ -193,12 +195,7 @@ namespace edm::rntuple_temp {
     unsigned int const maxFileSize_;
     int const compressionLevel_;
     std::string const compressionAlgorithm_;
-    int const basketSize_;
-    int const eventAuxBasketSize_;
-    int const eventAutoFlushSize_;
-    int const splitLevel_;
-    std::string basketOrder_;
-    int const treeMaxVirtualSize_;
+    Optimizations const optimizations_;
     DropMetaData dropMetaData_;
     std::string const moduleLabel_;
     bool initializedFromInput_;
@@ -208,7 +205,6 @@ namespace edm::rntuple_temp {
     ProductDependencies productDependencies_;
     std::vector<BranchID> producedBranches_;
     bool overrideInputFileSplitLevels_;
-    bool compactEventAuxiliary_;
     bool mergeJob_;
     edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;

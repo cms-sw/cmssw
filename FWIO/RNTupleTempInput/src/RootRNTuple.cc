@@ -35,14 +35,11 @@ namespace edm::rntuple_temp {
   RootRNTuple::RootRNTuple(std::shared_ptr<InputFile> filePtr,
                            BranchType const& branchType,
                            unsigned int nIndexes,
-                           unsigned int learningEntries,
-                           bool enablePrefetching,
                            bool promptRead,
                            InputType inputType)
       : filePtr_(filePtr),
         branchType_(branchType),
         entryNumberForIndex_(std::make_unique<std::vector<EntryNumber>>(nIndexes, IndexIntoFile::invalidEntry)),
-        enablePrefetching_(enablePrefetching),
         promptRead_(promptRead),
         rootDelayedReader_(makeRootDelayedReader(*this, filePtr, inputType, nIndexes, promptRead)) {}
 
@@ -51,11 +48,9 @@ namespace edm::rntuple_temp {
                            BranchType const& branchType,
                            unsigned int nIndexes,
                            Options const& options,
-                           unsigned int learningEntries,
                            InputType inputType)
-      : RootRNTuple(
-            filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
-    init(BranchTypeToProductTreeName(branchType), options.treeMaxVirtualSize, options.treeCacheSize);
+      : RootRNTuple(filePtr, branchType, nIndexes, options.promptReading, inputType) {
+    init(BranchTypeToProductTreeName(branchType), options);
     auxDesc_ = getAuxiliaryFieldId(*reader_, branchType_);
   }
 
@@ -65,19 +60,20 @@ namespace edm::rntuple_temp {
                            std::string const& processName,
                            unsigned int nIndexes,
                            Options const& options,
-                           unsigned int learningEntries,
                            InputType inputType)
-      : RootRNTuple(
-            filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
+      : RootRNTuple(filePtr, branchType, nIndexes, options.promptReading, inputType) {
     processName_ = processName;
-    init(BranchTypeToProductTreeName(branchType, processName), options.treeMaxVirtualSize, options.treeCacheSize);
+    init(BranchTypeToProductTreeName(branchType, processName), options);
   }
 
-  void RootRNTuple::init(std::string const& productTreeName, unsigned int maxVirtualSize, unsigned int cacheSize) {
+  void RootRNTuple::init(std::string const& productTreeName, Options const& options) {
     if (filePtr_.get() != nullptr) {
       auto tuple = filePtr_->Get<ROOT::RNTuple>(productTreeName.c_str());
       if (tuple != nullptr) {
-        reader_ = ROOT::RNTupleReader::Open(*tuple);
+        ROOT::RNTupleReadOptions rntupleOptions;
+        rntupleOptions.SetClusterCache(options.useClusterCache ? ROOT::RNTupleReadOptions::EClusterCache::kOn
+                                                               : ROOT::RNTupleReadOptions::EClusterCache::kOff);
+        reader_ = ROOT::RNTupleReader::Open(*tuple, rntupleOptions);
       }
     }
     if (not reader_) {
@@ -86,9 +82,6 @@ namespace edm::rntuple_temp {
           << "\n This is either not an edm ROOT file or is one that has been corrupted.";
     }
     entries_ = reader_->GetNEntries();
-
-    setTreeMaxVirtualSize(maxVirtualSize);
-    setCacheSize(cacheSize);
   }
 
   RootRNTuple::~RootRNTuple() {}

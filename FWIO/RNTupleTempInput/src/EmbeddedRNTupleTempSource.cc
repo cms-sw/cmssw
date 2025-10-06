@@ -14,6 +14,14 @@ namespace edm {
   class EventPrincipal;
 }  // namespace edm
 namespace edm::rntuple_temp {
+  namespace {
+    EmbeddedRNTupleTempSource::Optimizations fromConfig(edm::ParameterSet const& iConfig) {
+      EmbeddedRNTupleTempSource::Optimizations opts;
+      opts.useClusterCache = iConfig.getUntrackedParameter<bool>("useClusterCache");
+      return opts;
+    }
+
+  }  // namespace
 
   EmbeddedRNTupleTempSource::EmbeddedRNTupleTempSource(ParameterSet const& pset,
                                                        VectorInputSourceDescription const& desc)
@@ -30,7 +38,8 @@ namespace edm::rntuple_temp {
         //
         skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
         bypassVersionCheck_(pset.getUntrackedParameter<bool>("bypassVersionCheck", false)),
-        treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
+        treeMaxVirtualSize_(0),
+        optimizations_(fromConfig(pset.getUntrackedParameterSet("rntupleReadOptions"))),
         productSelectorRules_(pset, "inputCommands", "InputSource"),
         runHelper_(new DefaultInputSourceRunHelper()),
         catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
@@ -91,8 +100,13 @@ namespace edm::rntuple_temp {
         ->setComment(
             "True:  Bypass release version check.\n"
             "False: Throw exception if reading file in a release prior to the release in which the file was written.");
-    desc.addUntracked<int>("treeMaxVirtualSize", -1)
-        ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
+    desc.addUntracked<int>("treeMaxVirtualSize", -1)->setComment("Not used by RNTuple.");
+    {
+      ParameterSetDescription rntupleReadOptions;
+      rntupleReadOptions.addUntracked<bool>("useClusterCache", true)
+          ->setComment("True: use ROOT cluster cache. False: do not use cluster cache.");
+      desc.addUntracked("rntupleReadOptions", rntupleReadOptions);
+    }
 
     ProductSelectorRules::fillDescription(desc, "inputCommands");
     RootEmbeddedFileSequence::fillDescription(desc);
