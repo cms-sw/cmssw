@@ -95,13 +95,13 @@ namespace edm {
     }
 
     template <typename... Args>
-    ThisLog& format(fmt::format_string<Args...> format, Args&&... args) {
+    ThisLog& format(std::format_string<Args...> format, Args&&... args) {
       if (ap.valid())
         ap.format(std::move(format), std::forward<Args>(args)...);
       return *this;
     }
 
-    ThisLog& vformat(std::string_view fmt, fmt::format_args args) {
+    ThisLog& vformat(std::string_view fmt, std::format_args args) {
       if (ap.valid())
         ap.vformat(fmt, args);
       return *this;
@@ -204,11 +204,11 @@ namespace edm {
     Suppress_LogDebug_& operator<<(std::ios_base& (*)(std::ios_base&)) { return *this; }
 
     template <typename... Args>
-    Suppress_LogDebug_& format(fmt::format_string<Args...> format, Args&&... args) {
+    Suppress_LogDebug_& format(std::format_string<Args...> format, Args&&... args) {
       return *this;
     }
 
-    Suppress_LogDebug_& vformat(std::string_view fmt, fmt::format_args args) { return *this; }
+    Suppress_LogDebug_& vformat(std::string_view fmt, std::format_args args) { return *this; }
 
     template <typename F>
     Suppress_LogDebug_& log(F&& iF) {

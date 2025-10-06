@@ -6,7 +6,7 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
 #include <iostream>
-#include <fmt/format.h>
+#include <format>
 
 static constexpr auto s_tag = "[EDAlias]";
 
@@ -198,7 +198,7 @@ process.test = cms.EDProducer('AddIntsProducer',
 process.moduleToTest(process.test, cms.Task(process.intprod))
 )_"};
 
-  edm::test::TestProcessor::Config config{fmt::format(baseConfig, "'intalias:another'")};
+  edm::test::TestProcessor::Config config{std::format(baseConfig, "'intalias:another'")};
 
   SECTION("Base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
 
@@ -230,12 +230,12 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
 
   SECTION("Other product instances are not aliased") {
     {
-      edm::test::TestProcessor::Config config{fmt::format(baseConfig, "'intalias:foo'")};
+      edm::test::TestProcessor::Config config{std::format(baseConfig, "'intalias:foo'")};
       edm::test::TestProcessor tester(config);
       REQUIRE_THROWS_WITH(tester.test(), Catch::Contains("ProductNotFound"));
     }
     {
-      edm::test::TestProcessor::Config config{fmt::format(baseConfig, "'intalias'")};
+      edm::test::TestProcessor::Config config{std::format(baseConfig, "'intalias'")};
       edm::test::TestProcessor tester(config);
       REQUIRE_THROWS_WITH(tester.test(), Catch::Contains("ProductNotFound"));
     }
@@ -337,7 +337,7 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
 )_"};
 
   SECTION("Type wildcard") {
-    edm::test::TestProcessor::Config config{fmt::format(
+    edm::test::TestProcessor::Config config{std::format(
         baseConfig,
         "intprod = cms.VPSet(cms.PSet(type = cms.string('*'), fromProductInstance = cms.string('nonexistent')))")};
 
@@ -348,7 +348,7 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
 
   SECTION("Instance wildcard") {
     edm::test::TestProcessor::Config config{
-        fmt::format(baseConfig, "intprod = cms.VPSet(cms.PSet(type = cms.string('nonexistentType')))")};
+        std::format(baseConfig, "intprod = cms.VPSet(cms.PSet(type = cms.string('nonexistentType')))")};
 
     REQUIRE_THROWS_WITH(edm::test::TestProcessor(config),
                         Catch::Contains("There are no products of type 'nonexistentType'") &&

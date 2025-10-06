@@ -15,12 +15,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fcntl.h>
-#include <fmt/format.h>
+#include <format>
 #include <iostream>
 #include <libgen.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <zlib.h>
+#include <memory>
 #ifdef __APPLE__
 typedef off_t off64_t;
 #define O_LARGEFILE 0
@@ -54,7 +55,7 @@ int main(int argc, char* argv[]) {
       fileSize += readSize;
     }
 
-    std::cout << fmt::format("{:x} {} {}\n", adlerCksum, fileSize, argv[fileNum]);
+    std::cout << std::format("{:x} {} {}\n", adlerCksum, fileSize, argv[fileNum]);
   }
 
   return (0);

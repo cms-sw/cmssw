@@ -14,7 +14,7 @@
 #include <type_traits>
 
 #include <boost/algorithm/string.hpp>
-#include <fmt/format.h>
+#include <format>
 
 namespace edm::storage {
   class StorageTracerProxy : public Storage {
@@ -41,35 +41,35 @@ namespace edm::storage {
       using namespace std::literals::string_literals;
       file_.write(
           "# Format\n"s + "# --------\n"s + "# prefixes\n"s + "# #: comment\n"s +
-          fmt::format("# {}: file open\n", kOpen) + fmt::format("# {}: singular read\n", kRead) +
-          fmt::format("# {}: vector read\n", kReadv) +
-          fmt::format("# {}: vector read element of the preceding '{}' line\n", kReadvElement, kReadv) +
-          fmt::format("# {}: singular write\n", kWrite) + fmt::format("# {}: vector write\n", kWritev) +
-          fmt::format("# {}: vector write element of the preceding '{}' line\n", kWritevElement, kWritev) +
-          fmt::format("# {}: position (seek)\n", kPosition) + fmt::format("# {}: prefetch\n", kPrefetch) +
-          fmt::format("# {}: prefetch element of the preceding '{}' line\n", kPrefetch, kPrefetchElement) +
-          fmt::format("# {}: resize\n", kResize) + fmt::format("# {}: flush\n", kFlush) +
-          fmt::format("# {}: close\n", kClose) + "# --------\n"s + "# line formats\n"s +
-          fmt::format("# {} <id> <timestamp ms> <file name>\n", kOpen) +
-          fmt::format("# {} <id> <timestamp ms> <duration us> <offset B> <requested B> <actual B>\n", kRead) +
-          fmt::format(
+          std::format("# {}: file open\n", kOpen) + std::format("# {}: singular read\n", kRead) +
+          std::format("# {}: vector read\n", kReadv) +
+          std::format("# {}: vector read element of the preceding '{}' line\n", kReadvElement, kReadv) +
+          std::format("# {}: singular write\n", kWrite) + std::format("# {}: vector write\n", kWritev) +
+          std::format("# {}: vector write element of the preceding '{}' line\n", kWritevElement, kWritev) +
+          std::format("# {}: position (seek)\n", kPosition) + std::format("# {}: prefetch\n", kPrefetch) +
+          std::format("# {}: prefetch element of the preceding '{}' line\n", kPrefetch, kPrefetchElement) +
+          std::format("# {}: resize\n", kResize) + std::format("# {}: flush\n", kFlush) +
+          std::format("# {}: close\n", kClose) + "# --------\n"s + "# line formats\n"s +
+          std::format("# {} <id> <timestamp ms> <file name>\n", kOpen) +
+          std::format("# {} <id> <timestamp ms> <duration us> <offset B> <requested B> <actual B>\n", kRead) +
+          std::format(
               "# {} <id> <timestamp ms> <duration us> <requested total B> <actual total B> <number of elements>\n",
               kReadv) +
-          fmt::format("# {} <index> <offset B> <requested B>\n", kReadvElement) +
-          fmt::format("# {} <id> <timestamp ms> <duration us> <offset B> <requested B> <actual B>\n", kWrite) +
-          fmt::format(
+          std::format("# {} <index> <offset B> <requested B>\n", kReadvElement) +
+          std::format("# {} <id> <timestamp ms> <duration us> <offset B> <requested B> <actual B>\n", kWrite) +
+          std::format(
               "# {} <id> <timestamp ms> <duration us> <requested total B> <actual total B> <number of elements>\n",
               kWritev) +
-          fmt::format("# {} <index> <offset B> <requested B>\n", kWritevElement) +
-          fmt::format("# {} <id> <timestamp ms> <duration us> <offset B> <whence>\n", kPosition) +
-          fmt::format("# {} <id> <timestamp ms> <duration us> <requested total B> <number of elements> <supported?>\n",
+          std::format("# {} <index> <offset B> <requested B>\n", kWritevElement) +
+          std::format("# {} <id> <timestamp ms> <duration us> <offset B> <whence>\n", kPosition) +
+          std::format("# {} <id> <timestamp ms> <duration us> <requested total B> <number of elements> <supported?>\n",
                       kPrefetch) +
-          fmt::format("# {} <index> <offset B> <requested B>\n", kPrefetchElement) +
-          fmt::format("# {} <id> <timestamp ms> <duration us> <size B>\n", kResize) +
-          fmt::format("# {} <id> <timestamp ms> <duration us>\n", kFlush) +
-          fmt::format("# {} <id> <timestamp ms> <duration us>\n", kClose) + "# --------\n"s);
+          std::format("# {} <index> <offset B> <requested B>\n", kPrefetchElement) +
+          std::format("# {} <id> <timestamp ms> <duration us> <size B>\n", kResize) +
+          std::format("# {} <id> <timestamp ms> <duration us>\n", kFlush) +
+          std::format("# {} <id> <timestamp ms> <duration us>\n", kClose) + "# --------\n"s);
       auto const entryId = idCounter_.fetch_add(1);
-      file_.write(fmt::format("{} {} {} {}\n",
+      file_.write(std::format("{} {} {} {}\n",
                               kOpen,
                               entryId,
                               std::chrono::round<std::chrono::milliseconds>(now().time_since_epoch()).count(),
@@ -80,13 +80,13 @@ namespace edm::storage {
     IOSize read(void* into, IOSize n) override {
       auto const offset = baseStorage_->position();
       auto const [result, message] = operate([this, into, n]() { return baseStorage_->read(into, n); });
-      file_.write(fmt::format("{} {} {} {} {}\n", kRead, message, offset, n, result));
+      file_.write(std::format("{} {} {} {} {}\n", kRead, message, offset, n, result));
       return result;
     }
 
     IOSize read(void* into, IOSize n, IOOffset pos) override {
       auto const [result, message] = operate([this, into, n, pos]() { return baseStorage_->read(into, n, pos); });
-      file_.write(fmt::format("{} {} {} {} {}\n", kRead, message, pos, n, result));
+      file_.write(std::format("{} {} {} {} {}\n", kRead, message, pos, n, result));
       return result;
     }
 
@@ -96,11 +96,11 @@ namespace edm::storage {
       std::string elements;
       IOSize total = 0;
       for (IOSize i = 0; i < n; ++i) {
-        elements += fmt::format("{} {} {} {}\n", kReadvElement, i, offset, into[i].size());
+        elements += std::format("{} {} {} {}\n", kReadvElement, i, offset, into[i].size());
         total += into[i].size();
         offset += into[i].size();
       }
-      file_.write(fmt::format("{} {} {} {} {}\n", kReadv, message, total, result, n) + elements);
+      file_.write(std::format("{} {} {} {} {}\n", kReadv, message, total, result, n) + elements);
       return result;
     }
 
@@ -109,23 +109,23 @@ namespace edm::storage {
       std::string elements;
       IOSize total = 0;
       for (IOSize i = 0; i < n; ++i) {
-        elements += fmt::format("{} {} {} {}\n", kReadvElement, i, into[i].offset(), into[i].size());
+        elements += std::format("{} {} {} {}\n", kReadvElement, i, into[i].offset(), into[i].size());
         total += into[i].size();
       }
-      file_.write(fmt::format("{} {} {} {} {}\n", kReadv, message, total, result, n) + elements);
+      file_.write(std::format("{} {} {} {} {}\n", kReadv, message, total, result, n) + elements);
       return result;
     }
 
     IOSize write(const void* from, IOSize n) override {
       auto const offset = baseStorage_->position();
       auto const [result, message] = operate([this, from, n]() { return baseStorage_->write(from, n); });
-      file_.write(fmt::format("{} {} {} {} {}\n", kWrite, message, offset, n, result));
+      file_.write(std::format("{} {} {} {} {}\n", kWrite, message, offset, n, result));
       return result;
     }
 
     IOSize write(const void* from, IOSize n, IOOffset pos) override {
       auto const [result, message] = operate([this, from, n, pos]() { return baseStorage_->write(from, n, pos); });
-      file_.write(fmt::format("{} {} {} {} {}\n", kWrite, message, pos, n, result));
+      file_.write(std::format("{} {} {} {} {}\n", kWrite, message, pos, n, result));
       return result;
     }
 
@@ -135,11 +135,11 @@ namespace edm::storage {
       std::string elements;
       IOSize total = 0;
       for (IOSize i = 0; i < n; ++i) {
-        elements += fmt::format("{} {} {} {}\n", kWritevElement, i, offset, from[i].size());
+        elements += std::format("{} {} {} {}\n", kWritevElement, i, offset, from[i].size());
         total += from[i].size();
         offset += from[i].size();
       }
-      file_.write(fmt::format("{} {} {} {} {}\n", kWritev, message, total, result, n) + elements);
+      file_.write(std::format("{} {} {} {} {}\n", kWritev, message, total, result, n) + elements);
       return result;
     }
 
@@ -148,33 +148,33 @@ namespace edm::storage {
       std::string elements;
       IOSize total = 0;
       for (IOSize i = 0; i < n; ++i) {
-        elements += fmt::format("{} {} {} {}\n", kWritevElement, i, from[i].offset(), from[i].size());
+        elements += std::format("{} {} {} {}\n", kWritevElement, i, from[i].offset(), from[i].size());
         total += from[i].size();
       }
-      file_.write(fmt::format("{} {} {} {} {}\n", kWritev, message, total, result, n) + elements);
+      file_.write(std::format("{} {} {} {} {}\n", kWritev, message, total, result, n) + elements);
       return result;
     }
 
     IOOffset position(IOOffset offset, Relative whence) override {
       auto const [result, message] =
           operate([this, offset, whence]() { return baseStorage_->position(offset, whence); });
-      file_.write(fmt::format("{} {} {} {}\n", kPosition, message, offset, static_cast<int>(whence)));
+      file_.write(std::format("{} {} {} {}\n", kPosition, message, offset, static_cast<int>(whence)));
       return result;
     }
 
     void resize(IOOffset size) override {
       auto const message = operate([this, size]() { return baseStorage_->resize(size); });
-      file_.write(fmt::format("{} {} {}\n", kResize, message, size));
+      file_.write(std::format("{} {} {}\n", kResize, message, size));
     }
 
     void flush() override {
       auto const message = operate([this]() { return baseStorage_->flush(); });
-      file_.write(fmt::format("{} {}\n", kFlush, message));
+      file_.write(std::format("{} {}\n", kFlush, message));
     }
 
     void close() override {
       auto const message = operate([this]() { return baseStorage_->close(); });
-      file_.write(fmt::format("{} {}\n", kClose, message));
+      file_.write(std::format("{} {}\n", kClose, message));
     }
 
     bool prefetch(const IOPosBuffer* what, IOSize n) override {
@@ -182,10 +182,10 @@ namespace edm::storage {
       std::string elements;
       IOSize total = 0;
       for (IOSize i = 0; i < n; ++i) {
-        elements += fmt::format("{} {} {} {}\n", kPrefetchElement, i, what[i].offset(), what[i].size());
+        elements += std::format("{} {} {} {}\n", kPrefetchElement, i, what[i].offset(), what[i].size());
         total += what[i].size();
       }
-      file_.write(fmt::format("{} {} {} {} {}\n", kPrefetch, message, total, n, value) + elements);
+      file_.write(std::format("{} {} {} {} {}\n", kPrefetch, message, total, n, value) + elements);
       return value;
     }
 
@@ -198,7 +198,7 @@ namespace edm::storage {
       auto const end = now();
       LogTrace("IOTrace").format("IOTrace {} id {}", traceId_, id);
       return std::tuple(result,
-                        fmt::format("{} {} {}",
+                        std::format("{} {} {}",
                                     id,
                                     std::chrono::round<std::chrono::milliseconds>(begin.time_since_epoch()).count(),
                                     std::chrono::round<std::chrono::microseconds>(end - begin).count()));
@@ -212,7 +212,7 @@ namespace edm::storage {
       func();
       auto const end = now();
       LogTrace("IOTrace").format("IOTrace {} id {}", traceId_, id);
-      return fmt::format("{} {} {}",
+      return std::format("{} {} {}",
                          id,
                          std::chrono::round<std::chrono::milliseconds>(begin.time_since_epoch()).count(),
                          std::chrono::round<std::chrono::microseconds>(end - begin).count());
