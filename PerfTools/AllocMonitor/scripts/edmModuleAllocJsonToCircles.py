@@ -32,26 +32,26 @@ def processModuleTransition(moduleLabel, moduleType, moduleInfo, transitionType,
         }
     Any missing field defaults to 0.
 
-    Note: Entries with record names are excluded as they belong to ESProducer transition only.
+    Note: Entries with record names are excluded as they belong to event setup transition only.
     """
     moduleTransition[moduleLabel] = {"cpptype": moduleType, "allocs": []}
     for entry in moduleInfo:
         # Only process entries that match the transition type AND don't have record names
-        # (entries with record names are ESProducer-only)
+        # (entries with record names are event setup-only)
         if (entry.get("transition", None) == transitionType and
             not ("record" in entry and "name" in entry["record"])):
             moduleTransition[moduleLabel]["allocs"].append(entry.get("alloc", {}))
     moduleTransition[moduleLabel]["nTransitions"] = len(moduleTransition[moduleLabel]["allocs"])
 
 def processESProducerTransition(moduleLabel, moduleType, moduleInfo, moduleTransition):
-    """Process ESProducer transitions - entries with record names
+    """Process event setup transitions - entries with record names
 
     Creates unique entries for each module+type+record combination.
     """
     # Group allocations by record name
     recordAllocations = {}
     for entry in moduleInfo:
-        # ESProducer entries are those with a "record" field containing "name"
+        # event setup entries are those with a "record" field containing "name"
         if "record" in entry and "name" in entry["record"]:
             recordName = entry["record"]["name"]
             if recordName not in recordAllocations:
@@ -136,7 +136,7 @@ def formatToCircles(moduleTransitions):
         if displayKey not in modules_dict:
             # Determine module info from the key
             if "::" in displayKey:
-                # ESProducer key format: moduleLabel::moduleType::recordName
+                # event setup key format: moduleLabel::moduleType::recordName
                 parts = displayKey.split("::", 2)
                 moduleLabel = parts[0]
                 moduleType = parts[1]
@@ -153,7 +153,7 @@ def formatToCircles(moduleTransitions):
                 recordName = ""
 
             modules_dict[displayKey] = {
-                "label": recordName if recordName else moduleLabel,
+                "label": f"{recordName}" if recordName else moduleLabel,
                 "type": moduleType,
                 "record": recordName
             }
@@ -168,7 +168,7 @@ def formatToCircles(moduleTransitions):
         for uniqueKey, info in moduleTransition.items():
             allocs = info.get("allocs", [])
 
-            # For ESProducer transitions, use the unique key; for others, use original label
+            # For event setup transitions, use the unique key; for others, use original label
             if transitionType == "event setup":
                 displayKey = uniqueKey
             else:
@@ -220,7 +220,7 @@ def formatToCircles(moduleTransitions):
             if not hasNonZeroAllocations:
                 continue
 
-        # For ESProducer entries (with ::), use the module label part for events count
+        # For event setup entries (with ::), use the module label part for events count
         # For regular entries, use the key directly
         if "::" in key:
             moduleLabel = key.split("::")[0]
@@ -256,7 +256,7 @@ def main(args):
     for transition in transitionTypes:
         moduleTransition = dict()
         if transition == "event setup":
-            # ESProducer transitions are handled differently - look for records with names
+            # event setup transitions are handled differently - look for records with names
             processESProducerTransition("source", "PoolSource", doc["source"], moduleTransition)
             for moduleLabel, moduleInfo in doc["modules"].items():
                 processESProducerTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, moduleTransition)
