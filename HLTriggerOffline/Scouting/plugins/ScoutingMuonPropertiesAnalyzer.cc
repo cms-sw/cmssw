@@ -56,6 +56,9 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
+  // Output Folder
+  const std::string outputInternalPath_;
+
   // Tokens
   const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsNoVtxToken_;
@@ -187,7 +190,8 @@ private:
 };
 
 ScoutingMuonPropertiesAnalyzer::ScoutingMuonPropertiesAnalyzer(const edm::ParameterSet& iConfig)
-    : triggerResultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
+    : outputInternalPath_{iConfig.getParameter<std::string>("OutputInternalPath")},
+      triggerResultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
       muonsNoVtxToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muonsNoVtx"))),
       muonsVtxToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muonsVtx"))),
       PVToken_(consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("PV"))),
@@ -220,7 +224,7 @@ ScoutingMuonPropertiesAnalyzer::ScoutingMuonPropertiesAnalyzer(const edm::Parame
 void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                                     edm::Run const&,
                                                     edm::EventSetup const&) {
-  ibooker.setCurrentFolder("HLTScoutingAnalyzer/Ntuplizer");
+  ibooker.setCurrentFolder(outputInternalPath_);
 
   for (const auto& trig : triggerPathsVector)
     triggerMEMap_[trig] = ibooker.book1D(trig, trig + " fired", 2, 0, 2);
@@ -669,12 +673,13 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
 
 void ScoutingMuonPropertiesAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLTX"));   
-  desc.add<edm::InputTag>("muonsNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "", "HLTX"));
-  desc.add<edm::InputTag>("muonsVtx", edm::InputTag("hltScoutingMuonPackerVtx", "", "HLTX"));
-  desc.add<edm::InputTag>("PV", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx", "HLTX"));
-  desc.add<edm::InputTag>("SVNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx", "HLTX"));
-  desc.add<edm::InputTag>("SVVtx", edm::InputTag("hltScoutingMuonPackerVtx", "displacedVtx", "HLTX"));  
+  desc.add<std::string>("OutputInternalPath", "HLT/ScoutingOffline/Muons/Properties");
+  desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<edm::InputTag>("muonsNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "", "HLT"));
+  desc.add<edm::InputTag>("muonsVtx", edm::InputTag("hltScoutingMuonPackerVtx", "", "HLT"));
+  desc.add<edm::InputTag>("PV", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx", "HLT"));
+  desc.add<edm::InputTag>("SVNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx", "HLT"));
+  desc.add<edm::InputTag>("SVVtx", edm::InputTag("hltScoutingMuonPackerVtx", "displacedVtx", "HLT"));
   descriptions.addWithDefaultLabel(desc);
 }
 
