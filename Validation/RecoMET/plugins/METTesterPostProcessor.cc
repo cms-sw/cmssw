@@ -67,11 +67,13 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
         mMETResolAggr[bt]->setBinContent(idx + 1, metRMS);
         mMETResolAggr[bt]->setBinError(idx + 1, resolError);
 
-        float significance = metMean / metRMS;
+        float significance = metRMS == 0 ? 0.f : metMean / metRMS;
+        float significance_error = metRMS == 0 || metMean == 0
+                                       ? 0.f
+                                       : significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
+                                                                  (resolError * resolError / (metRMS * metRMS)));
         mMETSignAggr[bt]->setBinContent(idx + 1, significance);
-        mMETSignAggr[bt]->setBinError(idx + 1,
-                                      significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
-                                                               (resolError * resolError / (metRMS * metRMS))));
+        mMETSignAggr[bt]->setBinError(idx + 1, significance_error);
       }
     }
   }
