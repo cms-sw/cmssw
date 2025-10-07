@@ -59,6 +59,9 @@ private:
   ElemMap mMETSignAggr;
 
   std::string runDir;
+
+  float mEpsilonFloat = std::numeric_limits<float>::epsilon();
+  double mEpsilonDouble = std::numeric_limits<double>::epsilon();
 };
 
 #endif
