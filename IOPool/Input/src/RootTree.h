@@ -35,6 +35,8 @@ namespace edm {
   class InputFile;
 
   namespace roottree {
+    class CacheManagerBase;
+
     unsigned int const defaultCacheSize = 20U * 1024 * 1024;
     unsigned int const defaultNonEventCacheSize = 1U * 1024 * 1024;
     unsigned int const defaultLearningEntries = 20U;
@@ -142,7 +144,7 @@ namespace edm {
     EntryNumber const& entryNumber() const { return entryNumber_; }
     EntryNumber const& entryNumberForIndex(unsigned int index) const;
     EntryNumber const& entries() const { return entries_; }
-    void setEntryNumber(EntryNumber theEntryNumber);
+    void setEntryNumber(EntryNumber newEntryNumber);
     void insertEntryForIndex(unsigned int index);
     std::vector<std::string> const& branchNames() const { return branchNames_; }
     RootDelayedReaderBase* rootDelayedReader() const;
@@ -150,8 +152,7 @@ namespace edm {
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
-      auto cache = getAuxCache(auxBranch_);
-      getEntryUsingCache(auxBranch_, entryNumber_, cache);
+      fillAuxHelper();
       auxBranch_->SetAddress(nullptr);
     }
 
@@ -188,11 +189,8 @@ namespace edm {
     //For backwards compatibility
     TBranch* branchEntryInfoBranch() const { return branchEntryInfoBranch_; }
 
-    inline TTreeCache* checkTriggerCache(TBranch* branch, EntryNumber entryNumber) const;
-    TTreeCache* checkTriggerCacheImpl(TBranch* branch, EntryNumber entryNumber) const;
-    inline TTreeCache* selectCache(TBranch* branch, EntryNumber entryNumber) const;
     void trainCache(char const* branchNames);
-    void resetTraining() { trainNow_ = true; }
+    void resetTraining();
 
     BranchType branchType() const { return branchType_; }
     std::string const& processName() const { return processName_; }
@@ -210,13 +208,10 @@ namespace edm {
              bool promptRead,
              InputType inputType);
 
-    std::shared_ptr<TTreeCache> createCacheWithSize(unsigned int cacheSize) const;
-    void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     void startTraining();
     void stopTraining();
-    void getEntryUsingCache(TBranch* branch, EntryNumber entry, TTreeCache*) const;
-    TTreeCache* getAuxCache(TBranch* auxBranch) const;
+    void fillAuxHelper();
 
     std::shared_ptr<InputFile> filePtr_;
     // We use bare pointers for pointers to some ROOT entities.
@@ -227,35 +222,16 @@ namespace edm {
     BranchType branchType_;
     std::string processName_;
     TBranch* auxBranch_ = nullptr;
-    // We use a smart pointer to own the TTreeCache.
-    // Unfortunately, ROOT owns it when attached to a TFile, but not after it is detached.
-    // So, we make sure to it is detached before closing the TFile so there is no double delete.
-    std::shared_ptr<TTreeCache> treeCache_;
-    std::shared_ptr<TTreeCache> rawTreeCache_;
-    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> auxCache_;
-    //All access to a ROOT file is serialized
-    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> triggerTreeCache_;
-    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> rawTriggerTreeCache_;
-    CMS_SA_ALLOW mutable std::unordered_set<TBranch*> trainedSet_;
-    CMS_SA_ALLOW mutable std::unordered_set<TBranch*> triggerSet_;
     EntryNumber entries_ = 0;
     EntryNumber entryNumber_ = IndexIntoFile::invalidEntry;
     std::unique_ptr<std::vector<EntryNumber> > entryNumberForIndex_;
     std::vector<std::string> branchNames_;
     BranchMap branches_;
-    bool trainNow_ = false;
-    EntryNumber switchOverEntry_ = -1;
-    CMS_SA_ALLOW mutable EntryNumber rawTriggerSwitchOverEntry_ = -1;
-    CMS_SA_ALLOW mutable bool performedSwitchOver_ = false;
-    unsigned int learningEntries_;
-    unsigned int cacheSize_ = 0;
     unsigned long treeAutoFlush_ = 0;
-    // Enable asynchronous I/O in ROOT (done in a separate thread).  Only takes
-    // effect on the primary treeCache_; all other caches have this explicitly disabled.
-    bool enablePrefetching_;
-    bool enableTriggerCache_;
     bool promptRead_;
     std::unique_ptr<RootDelayedReaderBase> rootDelayedReader_;
+    //All access to a ROOT file is serialized
+    CMS_SA_ALLOW mutable std::unique_ptr<roottree::CacheManagerBase> treeCacheManager_;
 
     TBranch* branchEntryInfoBranch_ = nullptr;  //backwards compatibility
     // below for backward compatibility
