@@ -46,6 +46,18 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
       mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx) = iget.get(metdir + "/METDiff_GenMETTrue_" + bt + edges);
       mArrayIdx<MElem *>(mMETRatio_GenMETTrue[bt], idx) = iget.get(metdir + "/METRatio_GenMETTrue_" + bt + edges);
       mArrayIdx<MElem *>(mMETDeltaPhi_GenMETTrue[bt], idx) = iget.get(metdir + "/METDeltaPhi_GenMETTrue_" + bt + edges);
+
+      if (mArrayIdx<MElem *>(mMET[bt], idx)->getEntries() < std::numeric_limits<float>::epsilon() ||
+          mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx)->getEntries() < std::numeric_limits<float>::epsilon() ||
+          mArrayIdx<MElem *>(mMETRatio_GenMETTrue[bt], idx)->getEntries() < std::numeric_limits<float>::epsilon() ||
+          mArrayIdx<MElem *>(mMETDeltaPhi_GenMETTrue[bt], idx)->getEntries() < std::numeric_limits<float>::epsilon()) {
+        edm::LogWarning("METTesterPostProcessor")
+            << "At least one of the " << bt + edges << " histograms has zero entries:\n"
+            << "  MET: " << mArrayIdx<MElem *>(mMET[bt], idx)->getEntries() << "\n"
+            << "  METDiff: " << mArrayIdx<MElem *>(mMET[bt], idx)->getEntries() << "\n"
+            << "  METRatio: " << mArrayIdx<MElem *>(mMET[bt], idx)->getEntries() << "\n"
+            << "  METDeltaPhi: " << mArrayIdx<MElem *>(mMET[bt], idx)->getEntries();
+      }
     }
 
     // check one object, if it exists, then the remaining ME's exists too
@@ -68,10 +80,11 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
         mMETResolAggr[bt]->setBinError(idx + 1, resolError);
 
         float significance = metRMS < std::numeric_limits<float>::epsilon() ? 0.f : metMean / metRMS;
-        float significance_error = metRMS < std::numeric_limits<float>::epsilon() || metMean < std::numeric_limits<float>::epsilon()
-                                       ? 0.f
-                                       : significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
-                                                                  (resolError * resolError / (metRMS * metRMS)));
+        float significance_error =
+            metRMS < std::numeric_limits<float>::epsilon() || metMean < std::numeric_limits<float>::epsilon()
+                ? 0.f
+                : significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
+                                           (resolError * resolError / (metRMS * metRMS)));
         mMETSignAggr[bt]->setBinContent(idx + 1, significance);
         mMETSignAggr[bt]->setBinError(idx + 1, significance_error);
       }
