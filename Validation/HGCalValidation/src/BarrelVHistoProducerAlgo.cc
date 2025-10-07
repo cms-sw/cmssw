@@ -789,12 +789,12 @@ void BarrelVHistoProducerAlgo::fill_caloparticle_histos(
 void BarrelVHistoProducerAlgo::BarrelVHistoProducerAlgo::fill_simCluster_histos(
     const Histograms& histograms, std::vector<SimCluster> const& simClusters, unsigned int layers) const {
   //To keep track of total num of simClusters per layer
-  std::vector<int> tnscpl(layers, 0);
+  std::vector<int> tnscpl(1000, 0);
 
   //loop through simClusters
   for (const auto& sc : simClusters) {
     //To keep track if we added the simCluster in a specific layer
-    std::vector<int> occurenceSCinlayer(layers, 0);
+    std::vector<int> occurenceSCinlayer(1000, 0);
 
     //loop through hits of the simCluster
     for (const auto& hAndF : sc.hits_and_fractions()) {
@@ -1342,7 +1342,7 @@ void BarrelVHistoProducerAlgo::fill_generic_cluster_histos(
     const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& cPOnLayerMap,
     edm::MultiSpan<reco::PFRecHit> const& barrelHits) const {
   //To keep track of total num of layer clusters per layer
-  std::vector<int> tnlcpl(layers, 0);
+  std::vector<int> tnlcpl(1000, 0);
 
   layerClusters_to_CaloParticles(histograms,
                                  clusterHandle,
@@ -1357,7 +1357,7 @@ void BarrelVHistoProducerAlgo::fill_generic_cluster_histos(
                                  cPOnLayerMap,
                                  barrelHits);
 
-  std::vector<double> tecpl(layers, 0.0);
+  std::vector<double> tecpl(1000, 0.0);
 
   // loop through clusters of the event
   for (const auto& lcId : clusters) {
