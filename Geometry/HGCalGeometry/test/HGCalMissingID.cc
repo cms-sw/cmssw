@@ -91,18 +91,18 @@ HGCalMissingID::HGCalMissingID(const edm::ParameterSet &iC)
       int kount(0);
       while (fInput.getline(buffer, 80)) {
         std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
-	unsigned int id = static_cast<unsigned int>(std::atoi(items[0].c_str()));
-	DetId::Detector det = DetId(id).det();
-	auto itr = std::find(dets.begin(), dets.end(), det);
-	if (itr != dets.end()) {
-	  uint32_t pos = static_cast<uint32_t>(itr - dets.begin());
-	  ++kount;
-	  if (kount > nFirst_) {
-	    detIds_.emplace_back(std::pair<DetId, int>(id, pos));
-	    if ((detIds_.size() > static_cast<size_t>(nTot_)) && (nTot_ > 0))
-	      break;
-	  }
-	}
+        unsigned int id = static_cast<unsigned int>(std::atoi(items[0].c_str()));
+        DetId::Detector det = DetId(id).det();
+        auto itr = std::find(dets.begin(), dets.end(), det);
+        if (itr != dets.end()) {
+          uint32_t pos = static_cast<uint32_t>(itr - dets.begin());
+          ++kount;
+          if (kount > nFirst_) {
+            detIds_.emplace_back(std::pair<DetId, int>(id, pos));
+            if ((detIds_.size() > static_cast<size_t>(nTot_)) && (nTot_ > 0))
+              break;
+          }
+        }
       }
       fInput.close();
     }
@@ -112,8 +112,8 @@ HGCalMissingID::HGCalMissingID(const edm::ParameterSet &iC)
     int32_t nt(0);
     for (unsigned int k = 0; k < detIds_.size(); ++k) {
       if (detIds_[k].second == i)
-	++nt;
-    } 
+        ++nt;
+    }
     edm::LogVerbatim("HGCGeom") << "[" << i << "] " << nt << " IDs for " << dets[i];
   }
 }
@@ -157,7 +157,7 @@ void HGCalMissingID::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetu
 
   for (unsigned int k = 0; k < detIds_.size(); ++k) {
     std::ostringstream st1;
-    const HGCalGeometry* geom = hgcGeom_[detMap[(detIds_[k].first).det()]];
+    const HGCalGeometry *geom = hgcGeom_[detMap[(detIds_[k].first).det()]];
     HGCSiliconDetId id(detIds_[k].first);
     GlobalPoint xy = geom->getPosition(id, false, false);
     bool valid = geom->topology().valid(id);
@@ -165,7 +165,8 @@ void HGCalMissingID::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetu
     DetId idx = geom->getClosestCell(cell);
     std::string ok = (id.rawId() == idx.rawId()) ? "OK" : "ERROR";
     st1 << "Old: " << id << " Valid " << valid << " New: " << HGCSiliconDetId(idx) << " === " << ok << " at " << xy;
-    edm::LogVerbatim("HGCGeom") << "Hit[" << k << "] " << st1.str() << " Position (" << cell.x() << ", " << cell.y() << ", " << cell.z() << ")";
+    edm::LogVerbatim("HGCGeom") << "Hit[" << k << "] " << st1.str() << " Position (" << cell.x() << ", " << cell.y()
+                                << ", " << cell.z() << ")";
   }
 }
 
