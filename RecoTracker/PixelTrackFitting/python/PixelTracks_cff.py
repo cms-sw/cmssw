@@ -102,6 +102,7 @@ from Configuration.ProcessModifiers.alpaka_cff import alpaka
 from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase1_cfi import caHitNtupletAlpakaPhase1 as _pixelTracksAlpakaPhase1
 from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase2_cfi import caHitNtupletAlpakaPhase2 as _pixelTracksAlpakaPhase2
 from RecoTracker.PixelSeeding.caHitNtupletAlpakaHIonPhase1_cfi import caHitNtupletAlpakaHIonPhase1 as _pixelTracksAlpakaHIonPhase1
+from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase2OT_cfi import caHitNtupletAlpakaPhase2OT as _pixelTracksAlpakaPhase2Extended
 
 pixelTracksAlpaka = _pixelTracksAlpakaPhase1.clone(
     avgHitsPerTrack    = 4.6,      
@@ -130,7 +131,6 @@ def _modifyForPhase2(producer):
 
 phase2_tracker.toModify(pixelTracksAlpaka, _modifyForPhase2)
 
-
 def _modifyForPPonAAandNotPhase2(producer):
     nPairs = int(len(producer.geometry.pairGraph) / 2)
     producer.maxNumberOfDoublets = str(6 * 512 *1024)    # this could be 2.3M
@@ -144,16 +144,38 @@ def _modifyForPPonAAandNotPhase2(producer):
 
 (pp_on_AA & ~phase2_tracker).toModify(pixelTracksAlpaka, _modifyForPPonAAandNotPhase2)
 
+
+from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
+phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2Extended.clone(
+    pixelRecHitSrc = "siPixelRecHitsExtendedPreSplittingAlpaka",
+))
+
 # pixel tracks SoA producer on the cpu, for validation
 pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
     pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial'
 )
 
+phase2CAExtension.toModify(pixelTracksAlpakaSerial,
+                           pixelRecHitSrc = 'siPixelRecHitsExtendedPreSplittingAlpakaSerial'
+                           )
+
 # legacy pixel tracks from SoA
 from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpaka_cfi import pixelTrackProducerFromSoAAlpaka as _pixelTrackProducerFromSoAAlpaka
 
-(alpaka).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.clone(
+(alpaka & ~phase2CAExtension).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.clone(
     pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+))
+
+phase2CAExtension.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+    beamSpot = cms.InputTag("offlineBeamSpot"),
+    minNumberOfHits = cms.int32(0),
+    minQuality = cms.string('tight'),
+    trackSrc = cms.InputTag("pixelTracksAlpaka"),
+    outerTrackerRecHitSrc = cms.InputTag("siPhase2RecHits"),
+    outerTrackerRecHitSoAConverterSrc = cms.InputTag("phase2OTRecHitsSoAConverter"),
+    useOTExtension = cms.bool(True),
+    requireQuadsFromConsecutiveLayers = cms.bool(True)
 ))
 
 alpaka.toReplaceWith(pixelTracksTask, cms.Task(
