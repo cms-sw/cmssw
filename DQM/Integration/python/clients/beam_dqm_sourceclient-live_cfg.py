@@ -346,8 +346,7 @@ process.tracking_FirstStep = cms.Sequence(
     * process.siStripDigis
     * process.striptrackerlocalreco
     * process.offlineBeamSpot
-    * process.siPixelClustersPreSplitting
-    * process.siPixelRecHitsPreSplitting
+    * process.pixeltrackerlocalreco
     * process.siPixelClusterShapeCachePreSplitting
     * process.recopixelvertexing)
 
