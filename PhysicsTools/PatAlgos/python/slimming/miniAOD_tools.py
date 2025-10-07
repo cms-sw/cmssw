@@ -656,11 +656,16 @@ def miniAOD_customizeMC(process):
     pp_on_AA.toReplaceWith(task,task.copyAndExclude([process.slimmedGenJetsFlavourInfos]))
 
     from Configuration.Eras.Modifier_fastSim_cff import fastSim
-    fastSim.toModify(process.patMuons, addTriggerMatching = False)
-    fastSim.toModify(process.patJets, addTagInfos = cms.bool(False) )
-    fastSim.toModify(process.slimmedJetsNoDeepFlavour, dropTagInfos = cms.string('1') )
-    fastSim.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
-    fastSim.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
+    if hasattr(process, 'patMuons'):
+        fastSim.toModify(process.patMuons, addTriggerMatching = False)
+    if hasattr(process, 'patJets'):
+        fastSim.toModify(process.patJets, addTagInfos = cms.bool(False) )
+    if hasattr(process, 'slimmedJetsNoDeepFlavour'):
+        fastSim.toModify(process.slimmedJetsNoDeepFlavour, dropTagInfos = cms.string('1') )
+    if hasattr(process, 'updatedPatJetsSlimmedDeepFlavour'):
+        fastSim.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
+    if hasattr(process, "updatedPatJetsTransientCorrectedSlimmedDeepFlavour"):
+        fastSim.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
 
 def miniAOD_customizeOutput(out):
     from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
