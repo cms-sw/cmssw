@@ -35,6 +35,7 @@
 #include "ClusterChargeCut.h"
 #include "PixelClustering.h"
 #include "SiPixelRawToClusterKernel.h"
+#include "SiPixelMorphingConfig.h"
 
 //#define GPU_DEBUG
 
@@ -509,6 +510,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const uint32_t fedCounter,
         bool useQualityInfo,
         bool includeErrors,
+        SiPixelMorphingConfig digiMorphingConfig,
+        uint32_t *morphingModulesDevice,
         bool debug) {
       nDigis = wordCounter;
 
@@ -623,15 +626,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         {
           const int blocks = 64;
-          const auto elementsPerBlockFindClus = FindClus<TrackerTraits>::maxElementsPerBlock;
-          const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(blocks, elementsPerBlockFindClus);
 
+          const auto elementsPerBlockFindClus = digiMorphingConfig.applyDigiMorphing
+                                                    ? FindClus<TrackerTraits>::maxElementsPerBlockMorph
+                                                    : FindClus<TrackerTraits>::maxElementsPerBlock;
+          const auto workDivFindClus = cms::alpakatools::make_workdiv<Acc1D>(blocks, elementsPerBlockFindClus);
+
+          // allocate a transient collection for the fake pixels recovered by the digi morphing algorithm
+          auto fakes_d = SiPixelDigisSoACollection(blocks * digiMorphingConfig.maxFakesInModule, queue);
 #ifdef GPU_DEBUG
-          std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
+          alpaka::wait(queue);
+          std::cout << "FindClus kernel launch with " << blocks << " blocks of " << elementsPerBlockFindClus
                     << " threadsPerBlockOrElementsPerThread\n";
 #endif
-          alpaka::exec<Acc1D>(
-              queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
+
+          // Use device buffer created by producer and the module count stored in digiMorphingConfig
+          alpaka::exec<Acc1D>(queue,
+                              workDivFindClus,
+                              FindClus<TrackerTraits>{},
+                              digis_d->view(),
+                              fakes_d.view(),
+                              digiMorphingConfig.applyDigiMorphing,
+                              morphingModulesDevice,
+                              digiMorphingConfig.numMorphingModules,
+                              digiMorphingConfig.maxFakesInModule,
+                              clusters_d->view(),
+                              wordCounter);
 #ifdef GPU_DEBUG
           alpaka::wait(queue);
 #endif
@@ -681,7 +701,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       }  // end clusterizer scope
     }
-
     template <typename TrackerTraits>
     void SiPixelRawToClusterKernel<TrackerTraits>::makePhase2ClustersAsync(
         Queue &queue,
@@ -720,8 +739,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
                 << " threadsPerBlockOrElementsPerThread\n";
 #endif
-      alpaka::exec<Acc1D>(
-          queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_view, clusters_d->view(), numDigis);
+      auto unused = SiPixelDigisSoACollection(0, queue);
+
+      alpaka::exec<Acc1D>(queue,
+                          workDivMaxNumModules,
+                          FindClus<TrackerTraits>{},
+                          digis_view,
+                          unused.view(),
+                          false,
+                          static_cast<uint32_t *>(nullptr),
+                          static_cast<uint32_t>(0),
+                          static_cast<uint32_t>(0),
+                          clusters_d->view(),
+                          numDigis);
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
 #endif
