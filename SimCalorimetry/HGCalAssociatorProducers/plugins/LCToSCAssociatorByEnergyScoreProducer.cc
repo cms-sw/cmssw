@@ -29,10 +29,9 @@ void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
   rhtools_->setGeometry(*geom);
 
   std::vector<const HIT *> hits;
-  edm::Handle<std::vector<HIT>> hits_handle;
 
   for (unsigned i = 0; i < hits_token_.size(); ++i) {
-    iEvent.getByToken(hits_token_[i], hits_handle);
+    auto hits_handle = iEvent.getHandle(hits_token_[i]);
 
     // Check handle validity
     if (!hits_handle.isValid()) {
