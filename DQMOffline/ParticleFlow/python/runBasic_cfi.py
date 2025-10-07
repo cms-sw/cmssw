@@ -2,17 +2,15 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
-    pfJetCollection        = cms.InputTag("ak4PFJetsCHS"),
-    pfCandidates             = cms.InputTag("particleFlow"),
-    PVCollection             = cms.InputTag("offlinePrimaryVertices"),
-    JetCorrections = cms.InputTag("dqmAk4PFPuppiL1FastL2L3ResidualCorrector"),
-
-    eventSelection = cms.string("none"),
+    # JEC-applied, pt-sorted AK4 Puppi jets
+    pfJetCollection   = cms.InputTag("ak4PFJetsPuppiCorrected"),
+    pfCandidates      = cms.InputTag("particleFlow"),
+    PVCollection      = cms.InputTag("offlinePrimaryVertices"),
+    eventSelection    = cms.string("none"),
     TriggerNames = cms.vstring("HLT_PFJet450"),
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
     TriggerName = cms.InputTag(""),
     srcWeights = cms.InputTag("puppi"),
-
 
     pfAnalysis = cms.PSet(
       # Bins of NPV for plots
