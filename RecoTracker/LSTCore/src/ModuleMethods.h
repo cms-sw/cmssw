@@ -255,8 +255,10 @@ namespace lst {
     std::span<short> host_sides = modules_view.sides();
     std::span<float> host_eta = modules_view.eta();
     std::span<float> host_r = modules_view.r();
+    std::span<float> host_z = modules_view.z();
     std::span<bool> host_isInverted = modules_view.isInverted();
     std::span<bool> host_isLower = modules_view.isLower();
+    std::span<bool> host_isGloballyInner = modules_view.isGloballyInner();
     std::span<bool> host_isAnchor = modules_view.isAnchor();
     std::span<ModuleType> host_moduleType = modules_view.moduleType();
     std::span<ModuleLayerType> host_moduleLayerType = modules_view.moduleLayerType();
@@ -320,10 +322,12 @@ namespace lst {
       host_sides[index] = side;
       host_eta[index] = eta;
       host_r[index] = r;
+      host_z[index] = m_z;
       host_isInverted[index] = isInverted;
       host_isLower[index] = isLower;
 
       //assigning other variables!
+      host_isGloballyInner[index] = false;
       if (detId == 1) {
         host_moduleType[index] = PixelModule;
         host_moduleLayerType[index] = lst::InnerPixelLayer;
@@ -356,12 +360,22 @@ namespace lst {
       if (detId != 1) {
         host_partnerModuleIndices[index] =
             mmd.detIdToIndex[parsePartnerModuleId(detId, host_isLower[index], host_isInverted[index])];
+        auto const partnerIdx = host_partnerModuleIndices[index];
         //add drdz and slope importing stuff here!
         if (host_drdzs[index] == 0) {
-          host_drdzs[index] = host_drdzs[host_partnerModuleIndices[index]];
+          host_drdzs[index] = host_drdzs[partnerIdx];
         }
         if (host_dxdys[index] == 0) {
-          host_dxdys[index] = host_dxdys[host_partnerModuleIndices[index]];
+          host_dxdys[index] = host_dxdys[partnerIdx];
+        }
+        if (host_isLower[index]) {
+          if (host_subdets[index] == Barrel) {
+            // 3D r should be reliable to order all modules
+            host_isGloballyInner[index] = host_r[index] < host_r[partnerIdx];
+          } else {
+            host_isGloballyInner[index] = std::abs(host_z[index]) < std::abs(host_z[partnerIdx]);
+          }
+          host_isGloballyInner[partnerIdx] = !host_isGloballyInner[index];
         }
       }
     }
