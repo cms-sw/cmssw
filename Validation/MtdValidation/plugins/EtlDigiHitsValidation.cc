@@ -58,6 +58,9 @@ private:
 
   MonitorElement* meNhits_[4];
   MonitorElement* meNhitsPerLGAD_[4];
+  MonitorElement* meNLgadWithHits_[4];
+  MonitorElement* meNhitsPerLGADoverQ_[4];
+  MonitorElement* meNLgadWithHitsoverQ_[4];
 
   MonitorElement* meHitCharge_[4];
   MonitorElement* meHitTime_[4];
@@ -83,6 +86,13 @@ private:
   MonitorElement* meHitTvsEta_[4];
 
   std::array<std::unordered_map<uint32_t, uint32_t>, 4> ndigiPerLGAD_;
+
+  // Constants to define the threshold bins for Q in occupancy studies
+  static constexpr int n_bin_Q = 32;
+  static constexpr double Q_Min = 0.;
+  static constexpr double Q_Max = 256.;
+
+  std::array<std::unordered_map<uint32_t, std::array<uint32_t, n_bin_Q>>, 4> ndigiPerLGADoverQ_;
 };
 
 // ------------ constructor and destructor --------------
@@ -110,6 +120,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   unsigned int n_digi_etl[4] = {0, 0, 0, 0};
   for (size_t i = 0; i < 4; i++) {
     ndigiPerLGAD_[i].clear();
+    ndigiPerLGADoverQ_[i].clear();
   }
 
   size_t index(0);
@@ -189,12 +200,64 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     ndigiPerLGAD_[idet].emplace(detId.rawId(), ncount);
     ndigiPerLGAD_[idet].at(detId.rawId())++;
 
+    // --- Occupancy study for different thresholds on Q
+    double bin_w_Q = (Q_Max - Q_Min) / n_bin_Q;
+    // Initialize the Map Entry (if first hit for this LGAD)
+    // The array must be initialized to all zeros.
+    std::array<uint32_t, n_bin_Q> zero_counts{}; // Array of N_bin_q zeros
+    ndigiPerLGADoverQ_[idet].emplace(detId.rawId(), zero_counts);
+    // Increment the Appropriate Counters
+    auto& threshold_counters = ndigiPerLGADoverQ_[idet].at(detId.rawId());
+    for (int i = 0; i < n_bin_Q; i++) {
+      // Calculate the lower bound of the charge bin, which acts as the threshold
+      double th_Q = Q_Min + i * bin_w_Q;
+      // If the hit charge is greater than this threshold, increment the counter for this bin
+      if (sample.data() > th_Q) {
+        threshold_counters[i]++;
+      }
+    }
+
   }  // dataFrame loop
 
   for (int i = 0; i < 4; i++) {
     meNhits_[i]->Fill(log10(n_digi_etl[i]));
     for (const auto& thisNdigi : ndigiPerLGAD_[i]) {
       meNhitsPerLGAD_[i]->Fill(thisNdigi.second);
+    }
+    // Number of LGADs with at least one hit.
+    meNLgadWithHits_[i]->Fill(ndigiPerLGAD_[i].size());
+  }
+
+  // --- Occupancy study for different thresholds on Q
+  double bin_w_Q = (Q_Max - Q_Min) / n_bin_Q;
+  for (int i = 0; i < 4; i++) { // Loop over the 4 ETL regions
+    // For each threshold bin (x-axis of the profile)
+    for (int j = 0; j < n_bin_Q; j++) {
+      double Q_value = Q_Min + j * bin_w_Q + (bin_w_Q / 2.); // Center of the threshold bin
+      double total_n_hits_for_this_threshold = 0.;
+      // Variable to count LGADs with at least one hit above threshold j
+      size_t n_lgads_with_hits_for_this_threshold = 0;
+      // Sum the counts from all LGADs for the current threshold 'j'
+      for (const auto& entry : ndigiPerLGADoverQ_[i]) {
+        total_n_hits_for_this_threshold += entry.second[j];
+        // Check if the total hits for this LGAD at this specific threshold is > 0
+        if (entry.second[j] > 0) {
+          n_lgads_with_hits_for_this_threshold++;
+        }
+      }
+      // Calculate the average number of hits per LGAD
+      double average_n_hits = 0.;
+      const size_t n_lgads_hit = ndigiPerLGADoverQ_[i].size();
+//      if (n_lgads_hit > 0) {
+//        average_n_hits = total_n_hits_for_this_threshold / static_cast<double>(n_lgads_hit);
+//      }
+      if (n_lgads_with_hits_for_this_threshold > 0) {
+        average_n_hits = total_n_hits_for_this_threshold / static_cast<double>(n_lgads_with_hits_for_this_threshold);
+      }
+      // Fill the profile with the AVERAGE N_hits found at this threshold
+      meNhitsPerLGADoverQ_[i]->Fill(Q_value, average_n_hits);
+      // Fill the profile with average Number of LGADs with Hits per Event vs Q Threshold
+      meNLgadWithHitsoverQ_[i]->Fill(Q_value, n_lgads_with_hits_for_this_threshold);
     }
   }
 }
@@ -236,6 +299,33 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     50.);
   meNhitsPerLGAD_[3] =
       ibook.book1D("EtlNhitsPerLGADZposD2", "Number of ETL DIGI hits (+Z, Second disk) per LGAD;N_{DIGI}", 50, 0., 50.);
+
+  meNLgadWithHits_[0] =
+      ibook.book1D("EtlNLgadWithHitsZnegD1", "Number of ETL LGADs with at least 1 DIGI hit (-Z, D1);N_{LGAD with hit}", 100, 0., 4000.);
+  meNLgadWithHits_[1] =
+      ibook.book1D("EtlNLgadWithHitsZnegD2", "Number of ETL LGADs with at least 1 DIGI hit (-Z, D2);N_{LGAD with hit}", 100, 0., 4000.);
+  meNLgadWithHits_[2] =
+      ibook.book1D("EtlNLgadWithHitsZposD1", "Number of ETL LGADs with at least 1 DIGI hit (+Z, D1);N_{LGAD with hit}", 100, 0., 4000.);
+  meNLgadWithHits_[3] =
+       ibook.book1D("EtlNLgadWithHitsZposD2", "Number of ETL LGADs with at least 1 DIGI hit (+Z, D2);N_{LGAD with hit}", 100, 0., 4000.);
+
+  meNhitsPerLGADoverQ_[0] =
+       ibook.bookProfile("EtlNhitsPerLGADvsQThZnegD1", "ETL DIGI Hits per LGAD vs Q Threshold (-Z, D1);Q Threshold [ADC counts];<N_{DIGI} per LGAD>", n_bin_Q, Q_Min, Q_Max, 0., 50.);
+  meNhitsPerLGADoverQ_[1] =
+       ibook.bookProfile("EtlNhitsPerLGADvsQThZnegD2", "ETL DIGI Hits per LGAD vs Q Threshold (-Z, D2);Q Threshold [ADC counts];<N_{DIGI} per LGAD>", n_bin_Q, Q_Min, Q_Max, 0., 50.);
+  meNhitsPerLGADoverQ_[2] =
+       ibook.bookProfile("EtlNhitsPerLGADvsQThZposD1", "ETL DIGI Hits per LGAD vs Q Threshold (+Z, D1);Q Threshold [ADC counts];<N_{DIGI} per LGAD>", n_bin_Q, Q_Min, Q_Max, 0., 50.);
+  meNhitsPerLGADoverQ_[3] =
+       ibook.bookProfile("EtlNhitsPerLGADvsQThZposD2", "ETL DIGI Hits per LGAD vs Q Threshold (+Z, D2);Q Threshold [ADC counts];<N_{DIGI} per LGAD>", n_bin_Q, Q_Min, Q_Max, 0., 50.);
+
+  meNLgadWithHitsoverQ_[0] =
+       ibook.bookProfile("EtlNLgadWithHitsvsQThZnegD1", "Number of ETL LGADs with at least 1 DIGI hit vs Q Threshold (-Z, D1);Q Threshold [ADC counts];N_{LGAD with hit}", n_bin_Q, Q_Min, Q_Max, 0., 4000.);
+  meNLgadWithHitsoverQ_[1] =
+       ibook.bookProfile("EtlNLgadWithHitsvsQThZnegD2", "Number of ETL LGADs with at least 1 DIGI hit vs Q Threshold (-Z, D2);Q Threshold [ADC counts];N_{LGAD with hit}", n_bin_Q, Q_Min, Q_Max, 0., 4000.);
+  meNLgadWithHitsoverQ_[2] =
+       ibook.bookProfile("EtlNLgadWithHitsvsQThZposD1", "Number of ETL LGADs with at least 1 DIGI hit vs Q Threshold (+Z, D1);Q Threshold [ADC counts];N_{LGAD with hit}", n_bin_Q, Q_Min, Q_Max, 0., 4000.);
+  meNLgadWithHitsoverQ_[3] =
+       ibook.bookProfile("EtlNLgadWithHitsvsQThZposD2", "Number of ETL LGADs with at least 1 DIGI hit vs Q Threshold (+Z, D2);Q Threshold [ADC counts];N_{LGAD with hit}", n_bin_Q, Q_Min, Q_Max, 0., 4000.);
 
   meHitCharge_[0] = ibook.book1D("EtlHitChargeZnegD1",
                                  "ETL DIGI hits charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts]",
