@@ -49,7 +49,7 @@
 
 // For jets
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+
 class PFAnalyzer;
 
 class PFAnalyzer : public DQMEDAnalyzer {
@@ -91,8 +91,6 @@ private:
 
   //Jet calibration stuff
   static bool jetSortingRule(reco::Jet x, reco::Jet y) { return x.pt() > y.pt(); }
-  edm::InputTag jetCorrectorTag_;
-  edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
 
   // Book MonitorElements
   void bookMESetSelection(std::string, DQMStore::IBooker&);
