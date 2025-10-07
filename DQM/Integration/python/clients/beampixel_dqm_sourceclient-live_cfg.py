@@ -230,8 +230,7 @@ process.reconstructionStep = cms.Sequence(process.siPixelDigis*
                                           process.siStripDigis*
                                           process.striptrackerlocalreco*
                                           process.offlineBeamSpot*
-                                          process.siPixelClustersPreSplitting*
-                                          process.siPixelRecHitsPreSplitting*
+                                          process.pixeltrackerlocalreco*
                                           process.siPixelClusterShapeCachePreSplitting*
                                           process.recopixelvertexing)
 
