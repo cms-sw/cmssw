@@ -233,6 +233,32 @@ def miniAODFromMiniAOD_customizeCommon(process):
       process, task
     )
 
+    mini_output = None
+    for out_name in process.outputModules_().keys():
+        if out_name.startswith('MINIAOD'):
+            mini_output = getattr(process, out_name)
+            break
+    if mini_output:
+        for new_collection_to_keep in ['packedPFCandidates',
+                                       'slimmedJets',
+                                       'slimmedJetsPuppi',
+                                       'slimmedJetsAK8',
+                                       'slimmedJetsAK8PFPuppiSoftDropPacked_SubJets',
+                                       'slimmedMETsPuppi',
+                                       'slimmedTaus',
+                                       'slimmedTausBoosted',
+                                       'slimmedElectrons',
+                                       'slimmedMuons',
+                                       'slimmedPhotons',
+                                       'slimmedLowPtElectrons',
+                                       'slimmedKshortVertices',
+                                       'slimmedLambdaVertices',
+                                       'slimmedSecondaryVertices']:
+            new_collection_to_keep += '_*' if not '_' in new_collection_to_keep else ''
+            mini_output.outputCommands += [
+                f'drop *_{new_collection_to_keep}_*',
+                f'keep *_{new_collection_to_keep}_{process.name_()}']
+
     return process
 
 def miniAODFromMiniAOD_customizeData(process):
