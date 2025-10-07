@@ -153,7 +153,7 @@ def formatToCircles(moduleTransitions):
                 recordName = ""
 
             modules_dict[displayKey] = {
-                "label": f"{recordName}" if recordName else moduleLabel,
+                "label": moduleLabel,
                 "type": moduleType,
                 "record": recordName
             }
