@@ -182,15 +182,6 @@ def customizeHLTfor47611(process):
 
     return process
 
-def customizeHLTfor48957(process):
-    for filt in filters_by_type(process, "HLTL1NumberFilter"):
-        if hasattr(filt, "fedId"):
-            value = filt.fedId.value()
-            del filt.fedId
-            filt.fedIds = cms.vint32([value])
-
-    return process
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -200,7 +191,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     
     process = customizeHLTfor47611(process)
-    process = customizeHLTfor48957(process)
 
     return process
 
