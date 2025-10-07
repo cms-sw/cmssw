@@ -44,19 +44,35 @@ Flag_trkPOG_toomanystripclus53X = cms.Path(~toomanystripclus53X)
 Flag_trkPOG_logErrorTooManyClusters = cms.Path(~logErrorTooManyClusters)
 
 #add your new path here!!
-allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','ecalBadCalibFilter','goodVertices','eeBadScFilter',
-                   'ecalLaserCorrFilter','trkPOGFilters','chargedHadronTrackResolutionFilter','muonBadTrackFilter',
-                   'BadChargedCandidateFilter','BadPFMuonFilter', 'BadPFMuonDzFilter', 'hfNoisyHitsFilter', 'BadChargedCandidateSummer16Filter','BadPFMuonSummer16Filter',
-                   'trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters']
+#allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','ecalBadCalibFilter','goodVertices','eeBadScFilter',
+#                   'ecalLaserCorrFilter','trkPOGFilters','chargedHadronTrackResolutionFilter','muonBadTrackFilter',
+#                   'BadChargedCandidateFilter','BadPFMuonFilter', 'BadPFMuonDzFilter', 'hfNoisyHitsFilter', 'BadChargedCandidateSummer16Filter','BadPFMuonSummer16Filter',
+#                   'trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters']
 
+"""Replace some MET filters that don't work in FastSim with trivial bools"""
+_fake_bool = cms.EDFilter("HLTBool", result=cms.bool(True))
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith( CSCTightHaloFilter, _fake_bool.clone( result = True))
+fastSim.toReplaceWith( CSCTightHaloTrkMuUnvetoFilter, _fake_bool.clone( result = True))
+fastSim.toReplaceWith( CSCTightHalo2015Filter, _fake_bool.clone( result = True))
+fastSim.toReplaceWith( globalTightHalo2016Filter, _fake_bool.clone( result = True))
+fastSim.toReplaceWith( globalSuperTightHalo2016Filter, _fake_bool.clone( result = True))
+fastSim.toReplaceWith( HcalStripHaloFilter, _fake_bool.clone( result = True))
+fastSim.toReplaceWith( manystripclus53X, _fake_bool.clone( result = False))
+fastSim.toReplaceWith( toomanystripclus53X, _fake_bool.clone( result = False))
+fastSim.toReplaceWith( logErrorTooManyClusters, _fake_bool.clone( result = False))
+#for X in CSCTightHaloFilter, CSCTightHaloTrkMuUnvetoFilter,CSCTightHalo2015Filter,globalTightHalo2016Filter,globalSuperTightHalo2016Filter,HcalStripHaloFilter:
+#    fastSim.toReplaceWith( X, fake_bool.clone( result = True))
+#for X in manystripclus53X, toomanystripclus53X, logErrorTooManyClusters:
+#    fastSim.toReplaceWith( X, fake_bool.clone( result = False))
 
-def miniAOD_customizeMETFiltersFastSim(process):
-    """Replace some MET filters that don't work in FastSim with trivial bools"""
-    for X in 'CSCTightHaloFilter', 'CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter':
-        process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(True)))    
-    for X in 'manystripclus53X', 'toomanystripclus53X', 'logErrorTooManyClusters':
-        process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(False)))
-    return process
+#def miniAOD_customizeMETFiltersFastSim(process):
+#    """Replace some MET filters that don't work in FastSim with trivial bools""
+#    for X in 'CSCTightHaloFilter', 'CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter':
+#        process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(True)))
+#    for X in 'manystripclus53X', 'toomanystripclus53X', 'logErrorTooManyClusters':
+#        process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(False)))
+#    return process
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith( Flag_trkPOG_manystripclus53X, cms.Path() )
