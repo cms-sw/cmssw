@@ -31,12 +31,12 @@ void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
   std::vector<const HIT *> hits;
 
   for (unsigned i = 0; i < hits_token_.size(); ++i) {
-    auto hits_handle = iEvent.getHandle(hits_token_[i]);
+	auto hits_handle = iEvent.getHandle(hits_token_[i]);
 
     // Check handle validity
     if (!hits_handle.isValid()) {
       edm::LogWarning("LCToSCAssociatorByEnergyScoreProducer")
-          << "Hit collection not available for token \n    " << hits_label_[i] << "\nSkipping this collection.";
+          << "Hit collection not available for token " << hits_label_[i] << ". Skipping this collection.";
       continue;  // Skip invalid handle
     }
 
