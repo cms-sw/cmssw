@@ -61,6 +61,8 @@ private:
   MonitorElement* meNLgadWithHits_[4];
   MonitorElement* meNhitsPerLGADoverQ_[4];
   MonitorElement* meNLgadWithHitsoverQ_[4];
+  MonitorElement* meNhitsPerLGADoverEta_[4];
+  MonitorElement* meNLgadWithHitsoverEta_[4];
 
   MonitorElement* meHitCharge_[4];
   MonitorElement* meHitTime_[4];
@@ -87,12 +89,17 @@ private:
 
   std::array<std::unordered_map<uint32_t, uint32_t>, 4> ndigiPerLGAD_;
 
-  // Constants to define the threshold bins for Q in occupancy studies
+  // Constants to define the bins for Q and Eta in occupancy studies
   static constexpr int n_bin_Q = 32;
   static constexpr double Q_Min = 0.;
   static constexpr double Q_Max = 256.;
 
+  static constexpr int n_bin_Eta = 3;
+  static constexpr double eta_bins_edges_neg[n_bin_Eta + 1] = {-3.0, -2.5, -2.1, -1.5};
+  static constexpr double eta_bins_edges_pos[n_bin_Eta + 1] = {1.5, 2.1, 2.5, 3.0};
+
   std::array<std::unordered_map<uint32_t, std::array<uint32_t, n_bin_Q>>, 4> ndigiPerLGADoverQ_;
+  std::array<std::unordered_map<uint32_t, std::array<uint32_t, n_bin_Eta>>, 4> ndigiPerLGADoverEta_;
 };
 
 // ------------ constructor and destructor --------------
@@ -121,6 +128,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   for (size_t i = 0; i < 4; i++) {
     ndigiPerLGAD_[i].clear();
     ndigiPerLGADoverQ_[i].clear();
+    ndigiPerLGADoverEta_[i].clear();
   }
 
   size_t index(0);
@@ -204,8 +212,8 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     double bin_w_Q = (Q_Max - Q_Min) / n_bin_Q;
     // Initialize the Map Entry (if first hit for this LGAD)
     // The array must be initialized to all zeros.
-    std::array<uint32_t, n_bin_Q> zero_counts{}; // Array of N_bin_q zeros
-    ndigiPerLGADoverQ_[idet].emplace(detId.rawId(), zero_counts);
+    std::array<uint32_t, n_bin_Q> zero_counts_Q{}; // Array of N_bin_q zeros
+    ndigiPerLGADoverQ_[idet].emplace(detId.rawId(), zero_counts_Q);
     // Increment the Appropriate Counters
     auto& threshold_counters = ndigiPerLGADoverQ_[idet].at(detId.rawId());
     for (int i = 0; i < n_bin_Q; i++) {
@@ -214,6 +222,17 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
       // If the hit charge is greater than this threshold, increment the counter for this bin
       if (sample.data() > th_Q) {
         threshold_counters[i]++;
+      }
+    }
+    // --- Occupancy study for different Eta bins
+    std::array<uint32_t, n_bin_Eta> zero_counts_Eta{};
+    ndigiPerLGADoverEta_[idet].emplace(detId.rawId(), zero_counts_Eta);
+    auto& Eta_counters = ndigiPerLGADoverEta_[idet].at(detId.rawId());
+    for (int i = 0; i < n_bin_Eta; i++) {
+      double lower_edge = ((idet == 0) || (idet == 1)) ? eta_bins_edges_neg[i] : eta_bins_edges_pos[i];
+      double upper_edge = ((idet == 0) || (idet == 1)) ? eta_bins_edges_neg[i + 1] : eta_bins_edges_pos[i + 1];
+      if (global_point.eta() >= lower_edge && global_point.eta() < upper_edge) {
+        Eta_counters[i]++;
       }
     }
 
@@ -247,7 +266,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
       }
       // Calculate the average number of hits per LGAD
       double average_n_hits = 0.;
-      const size_t n_lgads_hit = ndigiPerLGADoverQ_[i].size();
+//      const size_t n_lgads_hit = ndigiPerLGADoverQ_[i].size();
 //      if (n_lgads_hit > 0) {
 //        average_n_hits = total_n_hits_for_this_threshold / static_cast<double>(n_lgads_hit);
 //      }
@@ -258,6 +277,28 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
       meNhitsPerLGADoverQ_[i]->Fill(Q_value, average_n_hits);
       // Fill the profile with average Number of LGADs with Hits per Event vs Q Threshold
       meNLgadWithHitsoverQ_[i]->Fill(Q_value, n_lgads_with_hits_for_this_threshold);
+    }
+  }
+  // --- Occupancy study for different bins on Eta
+  for (int i = 0; i < 4; i++) { // Loop over the 4 ETL regions
+    for (int j = 0; j < n_bin_Eta; j++) {
+      double eta_low = ((i == 0) || (i == 1)) ? eta_bins_edges_neg[j] : eta_bins_edges_pos[j];
+      double eta_high = ((i == 0) || (i == 1)) ? eta_bins_edges_neg[j + 1] : eta_bins_edges_pos[j + 1];
+      double eta_value = (eta_low + eta_high) / 2.; // Center of the Eta bin
+      double total_n_hits_for_this_eta_bin = 0.;
+      size_t n_lgads_with_hits_for_this_eta_bin = 0;
+      for (const auto& entry : ndigiPerLGADoverEta_[i]) {
+        total_n_hits_for_this_eta_bin += entry.second[j];
+        if (entry.second[j] > 0) {
+          n_lgads_with_hits_for_this_eta_bin++;
+        }
+      }
+      double average_n_hits = 0.;
+      if (n_lgads_with_hits_for_this_eta_bin > 0) {
+        average_n_hits = total_n_hits_for_this_eta_bin / static_cast<double>(n_lgads_with_hits_for_this_eta_bin);
+      }
+      meNhitsPerLGADoverEta_[i]->Fill(eta_value, average_n_hits);
+      meNLgadWithHitsoverEta_[i]->Fill(eta_value, n_lgads_with_hits_for_this_eta_bin);
     }
   }
 }
@@ -326,6 +367,24 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
        ibook.bookProfile("EtlNLgadWithHitsvsQThZposD1", "Number of ETL LGADs with at least 1 DIGI hit vs Q Threshold (+Z, D1);Q Threshold [ADC counts];N_{LGAD with hit}", n_bin_Q, Q_Min, Q_Max, 0., 4000.);
   meNLgadWithHitsoverQ_[3] =
        ibook.bookProfile("EtlNLgadWithHitsvsQThZposD2", "Number of ETL LGADs with at least 1 DIGI hit vs Q Threshold (+Z, D2);Q Threshold [ADC counts];N_{LGAD with hit}", n_bin_Q, Q_Min, Q_Max, 0., 4000.);
+
+  meNhitsPerLGADoverEta_[0] =
+       ibook.bookProfile("EtlNhitsPerLGADvsEtaZnegD1", "ETL DIGI Hits per LGAD vs Eta Bin (-Z, D1);#eta_{DIGI};<N_{DIGI} per LGAD>", n_bin_Eta, eta_bins_edges_neg, 0., 50.);
+  meNhitsPerLGADoverEta_[1] =
+       ibook.bookProfile("EtlNhitsPerLGADvsEtaZnegD2", "ETL DIGI Hits per LGAD vs Eta Bin (-Z, D2);#eta_{DIGI};<N_{DIGI} per LGAD>", n_bin_Eta, eta_bins_edges_neg, 0., 50.);
+  meNhitsPerLGADoverEta_[2] =
+       ibook.bookProfile("EtlNhitsPerLGADvsEtaZposD1", "ETL DIGI Hits per LGAD vs Eta Bin (+Z, D1);#eta_{DIGI};<N_{DIGI} per LGAD>", n_bin_Eta, eta_bins_edges_pos, 0., 50.);
+  meNhitsPerLGADoverEta_[3] =
+       ibook.bookProfile("EtlNhitsPerLGADvsEtaZposD2", "ETL DIGI Hits per LGAD vs Eta Bin (+Z, D2);#eta_{DIGI};<N_{DIGI} per LGAD>", n_bin_Eta, eta_bins_edges_pos, 0., 50.);
+
+  meNLgadWithHitsoverEta_[0] =
+       ibook.bookProfile("EtlNLgadWithHitsvsEtaZnegD1", "Number of ETL LGADs with at least 1 DIGI hit vs Eta Bin (-Z, D1);#eta_{DIGI};N_{LGAD with hit}", n_bin_Eta, eta_bins_edges_neg, 0., 4000.);
+  meNLgadWithHitsoverEta_[1] =
+       ibook.bookProfile("EtlNLgadWithHitsvsEtaZnegD2", "Number of ETL LGADs with at least 1 DIGI hit vs Eta Bin (-Z, D2);#eta_{DIGI};N_{LGAD with hit}", n_bin_Eta, eta_bins_edges_neg, 0., 4000.);
+  meNLgadWithHitsoverEta_[2] =
+       ibook.bookProfile("EtlNLgadWithHitsvsEtaZposD1", "Number of ETL LGADs with at least 1 DIGI hit vs Eta Bin (+Z, D1);#eta_{DIGI};N_{LGAD with hit}", n_bin_Eta, eta_bins_edges_pos, 0., 4000.);
+  meNLgadWithHitsoverEta_[3] =
+       ibook.bookProfile("EtlNLgadWithHitsvsEtaZposD2", "Number of ETL LGADs with at least 1 DIGI hit vs Eta Bin (+Z, D2);#eta_{DIGI};N_{LGAD with hit}", n_bin_Eta, eta_bins_edges_pos, 0., 4000.);
 
   meHitCharge_[0] = ibook.book1D("EtlHitChargeZnegD1",
                                  "ETL DIGI hits charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts]",
