@@ -96,7 +96,7 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
   }
   if (!LCCollection.isValid()) {
     edm::LogWarning("LCToSCAssociatorEDProducer")
-      << "CaloCluster collection with label\n    " << label_lcl << "\nis unavailable. Producing empty associations.";
+      << "CaloCluster collection with label " << label_lcl << " is unavailable. Producing empty associations.";
 
     // Return empty collections
     auto emptyRecSimColl = std::make_unique<ticl::RecoToSimCollectionWithSimClusters>();

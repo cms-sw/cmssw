@@ -36,7 +36,7 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
     // Check handle validity
     if (!hits_handle.isValid()) {
       edm::LogWarning("LCToCPAssociatorByEnergyScoreProducer")
-          << "Hit collection not available for token     " << hits_label_[i] << "\nSkipping this collection.";
+          << "Hit collection not available for token " << hits_label_[i] << ". Skipping this collection.";
       continue;  // Skip invalid handle
     }
 
