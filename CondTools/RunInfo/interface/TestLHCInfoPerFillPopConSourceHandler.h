@@ -10,6 +10,11 @@
 #include <string>
 #include <tuple>
 
+/*
+* A mock PopCon source handler for testing LHCInfoPerFillPopCon logic without
+* external dependencies (e.g. OMS, subsystem DBs, destination DB).
+*/
+
 class TestLHCInfoPerFillPopConSourceHandler : public LHCInfoPerFillPopConSourceHandler {
 public:
   TestLHCInfoPerFillPopConSourceHandler(edm::ParameterSet const& pset);
@@ -19,7 +24,7 @@ public:
   std::map<unsigned short /*fillNr*/, cond::OMSServiceResult> mockLumiData;
   boost::posix_time::ptime mockExecutionTime;
 
-  Container& iovs() { return m_iovs; }
+  const Container& iovs() const { return m_iovs; }
 
 protected:
   std::unique_ptr<LHCInfoPerFill> findFillToProcess(cond::OMSService& oms,
