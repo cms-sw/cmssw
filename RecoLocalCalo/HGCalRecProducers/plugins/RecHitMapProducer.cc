@@ -72,30 +72,37 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
     edm::LogWarning("HGCalRecHitMapProducer")
         << "One or more HGCal hit collections are unavailable. Returning an empty map.";
     evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
+  } else {
+    // TODO may be worth to avoid dependency on the order
+    // of the collections, maybe using a map
+    edm::MultiSpan<HGCRecHit> rechitSpan;
+    rechitSpan.add(*ee_hits);
+    rechitSpan.add(*fh_hits);
+    rechitSpan.add(*bh_hits);
 
-    if (!hgcalOnly_) {
-      auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
-      evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
+    for (unsigned int i = 0; i < rechitSpan.size(); ++i) {
+      const auto recHitDetId = rechitSpan[i].detid();
+      hitMapHGCal->emplace(recHitDetId, i);
     }
 
+    evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
+  }
+
+  if (hgcalOnly_) {
     return;
   }
-  evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
 
-  if (!hgcalOnly_) {
-    auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
+  auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
 
-    assert(barrel_hits_token_.size() == 2);
-    const auto& ecal_hits = evt.getHandle(barrel_hits_token_[0]);
-    const auto& hbhe_hits = evt.getHandle(barrel_hits_token_[1]);
+  assert(barrel_hits_token_.size() == 2);
+  const auto& ecal_hits = evt.getHandle(barrel_hits_token_[0]);
+  const auto& hbhe_hits = evt.getHandle(barrel_hits_token_[1]);
 
-    if (!ecal_hits.isValid() || !hbhe_hits.isValid()) {
-      edm::LogWarning("HGCalRecHitMapProducer")
-          << "One or more barrel hit collections are unavailable. Returning an empty map.";
-      evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
-      return;
-    }
-
+  if (!ecal_hits.isValid() || !hbhe_hits.isValid()) {
+    edm::LogWarning("HGCalRecHitMapProducer")
+        << "One or more barrel hit collections are unavailable. Returning an empty map.";
+    evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
+  } else {
     edm::MultiSpan<reco::PFRecHit> barrelRechitSpan;
     barrelRechitSpan.add(evt.get(barrel_hits_token_[0]));
     barrelRechitSpan.add(evt.get(barrel_hits_token_[1]));
