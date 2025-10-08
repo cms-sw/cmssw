@@ -31,7 +31,7 @@ void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
   std::vector<const HIT *> hits;
 
   for (unsigned i = 0; i < hits_token_.size(); ++i) {
-	auto hits_handle = iEvent.getHandle(hits_token_[i]);
+    auto hits_handle = iEvent.getHandle(hits_token_[i]);
 
     // Check handle validity
     if (!hits_handle.isValid()) {

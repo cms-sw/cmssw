@@ -39,8 +39,6 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
-
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
@@ -120,13 +118,13 @@ void LCToCPAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
   iEvent.put(std::move(str));
 }
 
-void LCToCPAssociatorEDProducerT<CLUSTER>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("label_cp", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.add<edm::InputTag>("label_lc", edm::InputTag("hgcalMergeLayerClusters"));
-  desc.add<edm::InputTag>("associator", edm::InputTag("lcAssocByEnergyScoreProducer"));
-  descriptions.addWithDefaultLabel(desc);
-}
+// void LCToCPAssociatorEDProducerT<CLUSTER>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+//   edm::ParameterSetDescription desc;
+//   desc.add<edm::InputTag>("label_cp", edm::InputTag("mix", "MergedCaloTruth"));
+//   desc.add<edm::InputTag>("label_lc", edm::InputTag("hgcalMergeLayerClusters"));
+//   desc.add<edm::InputTag>("associator", edm::InputTag("lcAssocByEnergyScoreProducer"));
+//   descriptions.addWithDefaultLabel(desc);
+// }
 
 // define this as a plug-in
 using LCToCPAssociatorEDProducer = LCToCPAssociatorEDProducerT<reco::CaloClusterCollection>;
