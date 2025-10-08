@@ -93,7 +93,7 @@ void l1t::TOPOCondition::setScore(const float scoreval) const { m_savedscore = s
 void l1t::TOPOCondition::loadModel() {
   try {
     // m_model = m_model_loader.load_model();
-    std::string TOPOmodelversion = "/eos/user/l/lebeling/topo-new/TOPO_v1/topo_v1";
+    std::string TOPOmodelversion = "/afs/desy.de/user/e/ebelingl/topo/compile/topo_v1";
     hls4mlEmulator::ModelLoader loader(TOPOmodelversion);
     m_model = loader.load_model();
   } catch (std::runtime_error& e) {
