@@ -227,9 +227,6 @@ void testRefInROOT::testGoodChain() {
   eventChain.SetBranchAddress("edmtestThings_Thing__TEST.", &pThings, &thingsBranch);
 
   int nev = eventChain.GetEntries();
-  if (nev == TTree::kMaxEntries) {
-    return;
-  }
   for (int ev = 0; ev < nev; ++ev) {
     std::cout << "event #" << ev << std::endl;
     othersBranch->SetAddress(&pOthers);
