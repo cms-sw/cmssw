@@ -148,7 +148,12 @@ void ProjectionCalculator::addInput(MemoryBase* memory, string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " could not find input: " << input;
 }
 
-void ProjectionCalculator::execute() {
+void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
+  //bool print = getName() == "PC_L2L3ABCD" && iSector == 3;
+
+  unsigned int nPar1 = 0;
+  unsigned int nPar2 = 0;
+
   for (unsigned int i = 0; i < inputpars_.size(); i++) {  // send copy of tpars to TB
     int projPage = 0;
     std::string iname = inputpars_[i]->getName();
@@ -170,15 +175,22 @@ void ProjectionCalculator::execute() {
           }
         }
 
+        //FIXME logic here is confusing with two loops and counting nPar1 and nPar2
         for (unsigned int k = 0; k < outputpars_.size(); k++) {  // add copy of par to merged par output memory
           std::string oname = outputpars_[k]->getName();
           int parPage = iname[9] - oname[9];
           for (unsigned int j = 0; j < inputpars_[i]->nTracklets(); j++) {
+            if (nPar1 >= settings_.maxStep("PC"))
+              continue;
+            nPar1++;
             outputpars_[k]->addTracklet(inputpars_[i]->getTracklet(j), parPage);
           }
         }
 
         for (unsigned int k = 0; k < inputpars_[i]->nTracklets(); k++) {
+          if (nPar2 >= settings_.maxStep("PC"))
+            continue;
+          nPar2++;
           auto tracklet = inputpars_[i]->getTracklet(k);
           //double phi0 = tracklet->phi0(); // non-digi track params, currently unneeded / unused
           //double z0 = tracklet->z0();
@@ -240,6 +252,9 @@ void ProjectionCalculator::execute() {
             int izproj = settings_.izmean(iDisk % N_LAYER);
             projDisk(izproj, irinv, iphi0, it, iz0, izr_LD[iDisk], iphi_LD[iDisk], der_phi_LD[1], der_zr_LD[1]);
             valid_LD[iDisk] = izr_LD[iDisk] >= irmindisk && izr_LD[iDisk] < irmaxdisk && ((it > tcut) || (it < -tcut));
+            //if (print) {
+            //  std::cout << "iDisk iphi_LD : " << iDisk << " " << iphi_LD[iDisk] << " valid: " << valid_LD[iDisk] << std::endl;
+            //}
           }
 
           ///////////////////////////////////

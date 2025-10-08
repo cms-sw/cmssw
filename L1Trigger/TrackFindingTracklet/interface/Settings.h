@@ -865,6 +865,7 @@ namespace trklet {
         //Set to 108 to match firmware project 240 MHz clock
         {"VMR", 108},
         {"TB", 108},
+        {"PC", 108},
         {"MP", 108},
         {"TP", 108},
         {"TPD", 108},

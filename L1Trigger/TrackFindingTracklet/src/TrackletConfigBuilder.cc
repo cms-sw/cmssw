@@ -1026,33 +1026,19 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
             int ratio = NRegions_[l1] / NRegions_[l2];
             int min = iTCReg * ratio - 1 + jTCReg;
             int max = (iTCReg + 1) * ratio - (nTCReg - jTCReg - 1);
+
             if ((int)iReg < min || (int)iReg > max)
               continue;
 
             if (max - min >= 2) {
               ext = "M";
               if (iReg == min) {
-                if (iReg % 2 == 0)
-                  continue;
                 ext = "R";
               }
               if (iReg == max) {
-                if (iReg % 2 == 1)
-                  continue;
                 ext = "L";
               }
             }
-
-            //old code
-            /*
-	    if (max - min >= 2) {
-	      ext = "M";
-	      if (iReg == min)
-		ext = "R";
-	      if (iReg == max)
-		ext = "L";
-	    }
-	      */
 
             if (max - min == 1) {
               if (nTCReg == 2) {

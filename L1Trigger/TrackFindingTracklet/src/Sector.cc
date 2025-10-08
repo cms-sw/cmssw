@@ -312,7 +312,7 @@ void Sector::executeTCD() {
 
 void Sector::executePC() {
   for (auto& i : PC_) {
-    i->execute();
+    i->execute(isector_, phimin_);
   }
 }
 

@@ -22,7 +22,7 @@ namespace trklet {
     void addOutput(MemoryBase *memory, std::string output) override;
     void addInput(MemoryBase *memory, std::string input) override;
 
-    void execute();
+    void execute(unsigned int iSector, double phimin);
 
     void projLayer(int ir, int irinv, int iphi0, int it, int iz0, int &iz, int &iphi);
 
