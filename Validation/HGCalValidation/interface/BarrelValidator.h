@@ -74,9 +74,9 @@ protected:
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
   const bool doSimClustersPlots_;
-  edm::InputTag label_SimClustersPlots_, label_SimClustersLevel_;
+  std::string label_SimClustersPlots_, label_SimClustersLevel_;
   const bool doLayerClustersPlots_;
-  edm::InputTag label_layerClustersPlots_, label_LCToCPLinking_;
+  std::string label_layerClustersPlots_, label_LCToCPLinking_;
   std::vector<edm::InputTag> label_clustersmask;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
