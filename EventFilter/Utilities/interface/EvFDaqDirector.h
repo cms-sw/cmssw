@@ -139,8 +139,12 @@ namespace evf {
                                   bool requireHeader,
                                   bool retry,
                                   bool closeFile);
+
+    uint16_t frdFileDataType(const void* buf) const;
+
     int grabNextJsonFromRaw(std::string const& rawSourcePath,
                             int& rawFd,
+                            uint16_t& rawDataType,
                             uint16_t& rawHeaderSize,
                             int64_t& fileSizeFromHeader,
                             bool& fileFound,
@@ -157,6 +161,7 @@ namespace evf {
                                      unsigned int& ls,
                                      std::string& nextFile,
                                      int& rawFd,
+                                     uint16_t& rawDataType,
                                      uint16_t& rawHeaderSize,
                                      int32_t& serverEventsInNewFile_,
                                      int64_t& fileSize,
