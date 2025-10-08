@@ -13,6 +13,7 @@ import json
 import sys
 import itertools
 import json
+import re
 
 ## Helpers
 base_cert_url = "https://cms-service-dqmdc.web.cern.ch/CAF/certification/"
@@ -143,35 +144,31 @@ if __name__ == '__main__':
         elif "HI" in PD:
             cert_type = "Collisions" + str(year) + "HI"
         
-        cert_path = base_cert_cvmfs + cert_type + "/"
-        web_fallback = True
-
+        cvmfs_path = base_cert_cvmfs + cert_type + "/"
+        eos_path = ""
+        web_path = ""
+        json_list_full = []
         ## if we have access to cvmfs we get from there ...
-        if os.path.isdir(cert_path):
-            cert_path = cert_path + "/latest/"
-            web_fallback = False
-            json_list = os.listdir(cert_path)
-            if len(json_list) == 0:
-                web_fallback == True 
-            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "ppref" not in c.lower()]
-            json_list = [c for c in json_list if c.lower().startswith("cert_c") and c.endswith("json")]
-        
+        if os.path.isdir(cvmfs_path):
+            cvmfs_path = cvmfs_path + "/latest/"
+            json_list_full = os.listdir(cvmfs_path)
         ## ... if not we try eos ...
-        if web_fallback and os.path.isdir(base_cert_eos + cert_type +"/"):
-            web_fallback = False
-            cert_path = base_cert_eos + cert_type +"/"
-            json_list = os.listdir(cert_path)
-            if len(json_list) == 0:
-                web_fallback == True 
-            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "ppref" not in c.lower()]
-            json_list = [c for c in json_list if c.lower().startswith("cert_c") and c.endswith("json")]
-
+        if len(json_list_full)==0:
+            eos_path = base_cert_eos + cert_type + "/"
+            if os.path.isdir(eos_path):
+                json_list_full = os.listdir(eos_path)
         ## ... if not we go to the website
-        if web_fallback:
-            cert_url = base_cert_url + cert_type + "/"
-            json_list = get_url_clean(cert_url).split("\n")
-            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "cert_c" in c.lower() and "ppref" not in c.lower()]
-            json_list = [[cc for cc in c.split(" ") if cc.lower().startswith("cert_c") and cc.endswith("json")][0] for c in json_list]
+        if len(json_list_full)==0:
+            web_path = base_cert_url + cert_type + "/"
+            json_list_full = get_url_clean(web_path).split("\n")
+        pattern = re.compile("(cert_collisions\d{4}_\d*_\d*_golden.json)(\s|$)", re.IGNORECASE)
+        json_list = [match.group(1) for entry in json_list_full for match in [re.search(pattern, entry)] if match and match.group(1)]
+        if len(json_list)==0:
+            raise RuntimeError("No matching JSON files found from {source} ({path}). The full list was:\n{list_full}".format(
+                source="web" if web_path else "eos" if eos_path else "cvmfs",
+                path=web_path if web_path else eos_path if eos_path else cvmfs_path,
+                list_full='\n'.join(json_list_full),
+            ))
 
         # the larger the better, assuming file naming schema 
         # Cert_X_RunStart_RunFinish_Type.json
@@ -179,11 +176,11 @@ if __name__ == '__main__':
         run_ranges = [int(c.split("_")[-2]) - int(c.split("_")[-3]) for c in json_list]
         latest_json = np.array(json_list[np.argmax(run_ranges)]).reshape(1,-1)[0].astype(str)
         best_json = str(latest_json[0])
-        if not web_fallback:
-            with open(cert_path + "/" + best_json) as js:
+        if not web_path:
+            with open((eos_path if eos_path else cvmfs_path) + "/" + best_json) as js:
                 golden = json.load(js)
         else:
-            golden = get_url_clean(cert_url + best_json)
+            golden = get_url_clean(web_path + best_json)
             golden = ast.literal_eval(golden) #converts string to dict
         
         # skim for runs in input
