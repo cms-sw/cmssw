@@ -19,7 +19,7 @@ transitionTypes = [
     "global begin luminosity block",
     "stream begin luminosity block",
     "event",
-    "event setup",
+    EVENTSETUP_TRANSITION,
 ]
 allocTypes = ["added", "nAlloc", "nDealloc", "maxTemp", "max1Alloc"]
 
