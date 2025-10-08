@@ -37,27 +37,27 @@ def processModuleTransition(moduleLabel, moduleType, moduleInfo, transitionType,
         }
     Any missing field defaults to 0.
 
-    Note: Entries with record names are excluded as they belong to event setup transition only.
+    Note: Entries with record names are excluded as they belong to EventSetup transition only.
     """
     moduleKey = UniqueKey(moduleLabel, moduleType, "")
     moduleTransition[moduleKey] = {"cpptype": moduleType, "allocs": []}
     for entry in moduleInfo:
         # Only process entries that match the transition type AND don't have record names
-        # (entries with record names are event setup-only)
+        # (entries with record names are EventSetup only)
         if (entry.get("transition", None) == transitionType and
             not ("record" in entry and "name" in entry["record"])):
             moduleTransition[moduleKey]["allocs"].append(entry.get("alloc", {}))
     moduleTransition[moduleKey]["nTransitions"] = len(moduleTransition[moduleKey]["allocs"])
 
 def processESModuleTransition(moduleLabel, moduleType, moduleInfo, moduleTransition):
-    """Process event setup transitions - entries with record names
+    """Process EventSetup transitions - entries with record names
 
     Creates unique entries for each module+type+record combination.
     """
     # Group allocations by record name
     recordAllocations = {}
     for entry in moduleInfo:
-        # event setup entries are those with a "record" field containing "name"
+        # EventSetup entries are those with a "record" field containing "name"
         if "record" in entry and "name" in entry["record"]:
             recordName = entry["record"]["name"]
             if recordName not in recordAllocations:
@@ -233,7 +233,7 @@ def main(args):
     for transition in transitionTypes:
         moduleTransition = dict()
         if transition == EVENTSETUP_TRANSITION:
-            # event setup transitions are handled differently - look for records with names
+            # EventSetup transitions are handled differently - look for records with names
             for moduleLabel, moduleInfo in doc["modules"].items():
                 processESModuleTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, moduleTransition)
         else:
