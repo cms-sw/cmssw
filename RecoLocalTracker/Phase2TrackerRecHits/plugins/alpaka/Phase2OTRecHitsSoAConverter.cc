@@ -82,6 +82,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   void Phase2OTRecHitsSoAConverter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+    detIdIsP_.clear();
+    orderedModules_.clear();
+    moduleIndexToOffset_.clear();
+    detIdToIndex_.clear();
+    modulesInPixel_ = 0;
+
     const auto& trackerGeometry = &iSetup.getData(geomTokenRun_);
     auto isPinPSinOTBarrel = [&](DetId detId) {
       LogDebug("Phase2OTRecHitsSoAConverter")
