@@ -81,11 +81,11 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       doCaloParticlePlots_(pset.getUntrackedParameter<bool>("doCaloParticlePlots")),
       doCaloParticleSelection_(pset.getUntrackedParameter<bool>("doCaloParticleSelection")),
       doSimClustersPlots_(pset.getUntrackedParameter<bool>("doSimClustersPlots")),
-      label_SimClustersPlots_(pset.getParameter<edm::InputTag>("label_SimClusters")),
-      label_SimClustersLevel_(pset.getParameter<edm::InputTag>("label_SimClustersLevel")),
+      label_SimClustersPlots_(pset.getParameter<std::string>("label_SimClusters")),
+      label_SimClustersLevel_(pset.getParameter<std::string>("label_SimClustersLevel")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
-      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClustersPlots")),
-      label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
+      label_layerClustersPlots_(pset.getParameter<std::string>("label_layerClustersPlots")),
+      label_LCToCPLinking_(pset.getParameter<std::string>("label_LCToCPLinking")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
       label_TS_(pset.getParameter<std::string>("label_TS")),
       label_TSbyHitsCP_(pset.getParameter<std::string>("label_TSbyHitsCP")),
@@ -233,14 +233,14 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   //Booking histograms concerning with simClusters
   if (doSimClustersPlots_) {
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + label_SimClustersPlots_.label() + "/" + label_SimClustersLevel_.label());
+    ibook.setCurrentFolder(dirName_ + label_SimClustersPlots_ + "/" + label_SimClustersLevel_);
     histoProducerAlgo_->bookSimClusterHistos(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
       ibook.cd();
       InputTag algo = label_clustersmask[ws];
-      string dirName = dirName_ + label_SimClustersPlots_.label() + "/";
+      string dirName = dirName_ + label_SimClustersPlots_ + "/";
       if (!algo.process().empty())
         dirName += algo.process() + "_";
       LogDebug("HGCalValidator") << dirName << "\n";
@@ -267,19 +267,19 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   //Booking histograms concerning with hgcal layer clusters
   if (doLayerClustersPlots_) {
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/ClusterLevel");
+    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_ + "/ClusterLevel");
     histoProducerAlgo_->bookClusterHistos_ClusterLevel(ibook,
                                                        histograms.histoProducerAlgo,
                                                        totallayers_to_monitor_,
                                                        thicknesses_to_monitor_,
                                                        cummatbudinxo_.fullPath());
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/" + label_LCToCPLinking_.label());
+    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_ + "/" + label_LCToCPLinking_);
     histoProducerAlgo_->bookClusterHistos_LCtoCP_association(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
 
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/CellLevel");
+    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_ + "/CellLevel");
     histoProducerAlgo_->bookClusterHistos_CellLevel(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
   }
@@ -805,11 +805,11 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<bool>("doCaloParticlePlots", true);
   desc.addUntracked<bool>("doCaloParticleSelection", true);
   desc.addUntracked<bool>("doSimClustersPlots", true);
-  desc.add<edm::InputTag>("label_SimClusters", edm::InputTag("SimClusters"));
-  desc.add<edm::InputTag>("label_SimClustersLevel", edm::InputTag("ClusterLevel"));
+  desc.add<std::string>("label_SimClusters", "SimClusters");
+  desc.add<std::string>("label_SimClustersLevel", "ClusterLevel");
   desc.addUntracked<bool>("doLayerClustersPlots", true);
-  desc.add<edm::InputTag>("label_layerClustersPlots", edm::InputTag("hgcalMergeLayerClusters"));
-  desc.add<edm::InputTag>("label_LCToCPLinking", edm::InputTag("LCToCP_association"));
+  desc.add<std::string>("label_layerClustersPlots", "LayerClusters");
+  desc.add<std::string>("label_LCToCPLinking", "LCToCP_association");
   desc.addUntracked<bool>("doTrackstersPlots", true);
   desc.add<std::string>("label_TS", "Morphology");
   desc.add<std::string>("label_TSbyHitsCP", "TSbyHits_CP");
