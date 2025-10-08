@@ -78,7 +78,7 @@ namespace l1t {
     /// pointer to uGt GlobalBoard, to be able to get the trigger objects
     const GlobalBoard* m_gtGTB;
 
-    static constexpr char const* kModelNamePrefix = "GTADModel_";
+    static constexpr char const* kModelNamePrefix = "topo_";
 
     hls4mlEmulator::ModelLoader m_model_loader;
     std::shared_ptr<hls4mlEmulator::Model> m_model;
