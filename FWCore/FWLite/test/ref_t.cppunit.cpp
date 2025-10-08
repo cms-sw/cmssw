@@ -216,6 +216,7 @@ void testRefInROOT::testGoodChain() {
   TChain eventChain(edm::poolNames::eventTreeName().c_str());
   eventChain.Add("good.root");
   eventChain.Add("good_delta5.root");
+  eventChain.LoadTree(0);
 
   edm::Wrapper<edmtest::OtherThingCollection>* pOthers = nullptr;
   TBranch* othersBranch = nullptr;
@@ -226,6 +227,9 @@ void testRefInROOT::testGoodChain() {
   eventChain.SetBranchAddress("edmtestThings_Thing__TEST.", &pThings, &thingsBranch);
 
   int nev = eventChain.GetEntries();
+  if (nev == TTree::kMaxEntries) {
+    return;
+  }
   for (int ev = 0; ev < nev; ++ev) {
     std::cout << "event #" << ev << std::endl;
     othersBranch->SetAddress(&pOthers);
