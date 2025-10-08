@@ -1226,8 +1226,22 @@ namespace evf {
     return false;
   }
 
+  uint16_t EvFDaqDirector::frdFileDataType(const void* buf) const {
+    //v2 is the largest possible read
+    const FRDFileHeader_v2* hdr = static_cast<const FRDFileHeader_v2*>(buf);
+
+    const FRDFileHeaderIdentifier* fileId = (const FRDFileHeaderIdentifier*)hdr;
+    uint16_t frd_version = getFRDFileHeaderVersion(fileId->id_, fileId->version_);
+
+    if (frd_version == 2) {
+      return hdr->c_.dataType_;
+    }
+    return 0;
+  }
+
   int EvFDaqDirector::grabNextJsonFromRaw(std::string const& rawSourcePath,
                                           int& rawFd,
+                                          uint16_t& rawDataType,
                                           uint16_t& rawHeaderSize,
                                           int64_t& fileSizeFromHeader,
                                           bool& fileFound,
@@ -1255,7 +1269,6 @@ namespace evf {
     uint32_t lsFromRaw;
     int32_t nbEventsWrittenRaw;
     int64_t fileSizeFromRaw;
-    uint16_t rawDataType;
     auto ret = parseFRDFileHeader(rawSourcePath,
                                   rawFd,
                                   rawHeaderSize,
@@ -2068,6 +2081,7 @@ namespace evf {
                                                                    unsigned int& ls,
                                                                    std::string& nextFileRaw,
                                                                    int& rawFd,
+                                                                   uint16_t& rawDataType,
                                                                    uint16_t& rawHeaderSize,
                                                                    int32_t& serverEventsInNewFile,
                                                                    int64_t& fileSizeFromMetadata,
@@ -2166,8 +2180,15 @@ namespace evf {
         //error reading header, set to -1 and trigger error downstream
         serverEventsInNewFile = -1;
       } else if (rawHeader) {
-        serverEventsInNewFile = grabNextJsonFromRaw(
-            nextFileRaw, rawFd, rawHeaderSize, fileSizeFromMetadata, fileFound, serverLS, false, requireHeader);
+        serverEventsInNewFile = grabNextJsonFromRaw(nextFileRaw,
+                                                    rawFd,
+                                                    rawDataType,
+                                                    rawHeaderSize,
+                                                    fileSizeFromMetadata,
+                                                    fileFound,
+                                                    serverLS,
+                                                    false,
+                                                    requireHeader);
       } else if (eventCounter) {
         //there is no header: then try to use model to count events
         serverEventsInNewFile = eventCounter(nextFileRaw, rawFd, fileSizeFromMetadata, serverLS, fileFound);
