@@ -61,17 +61,26 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
         mMETRespAggr[bt]->setBinContent(idx + 1, ratioMean);
         mMETRespAggr[bt]->setBinError(idx + 1, ratioRMS);
 
-        float metMean = mArrayIdx<MElem *>(mMET[bt], idx)->getMean();
-        float metRMS = mArrayIdx<MElem *>(mMET[bt], idx)->getRMS();
-        float resolError = mArrayIdx<MElem *>(mMET[bt], idx)->getRMSError();
+        const auto &elem = mArrayIdx<MElem *>(mMET[bt], idx);
+        float metMean = elem->getMean();
+        float metRMS = elem->getRMS();
+        float resolError = elem->getRMSError();
+        int entries = elem->getEntries();
+
         mMETResolAggr[bt]->setBinContent(idx + 1, metRMS);
         mMETResolAggr[bt]->setBinError(idx + 1, resolError);
 
-        float significance = metMean / metRMS;
+        float significance = 0.f;
+        float significanceError = 0.f;
+
+        if (entries > 1 && metRMS > 0.f && metMean > 0.f) {
+          significance = metMean / metRMS;
+          significanceError = significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
+                                                       (resolError * resolError / (metRMS * metRMS)));
+        }
+
         mMETSignAggr[bt]->setBinContent(idx + 1, significance);
-        mMETSignAggr[bt]->setBinError(idx + 1,
-                                      significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
-                                                               (resolError * resolError / (metRMS * metRMS))));
+        mMETSignAggr[bt]->setBinError(idx + 1, significanceError);
       }
     }
   }
