@@ -168,5 +168,3 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                                            )
 
                         ) # cms.EDProducers
-
-
