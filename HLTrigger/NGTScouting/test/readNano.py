@@ -32,6 +32,17 @@ def main():
     # Event loop
     for i, event in enumerate(events):
         print(f"Processing event {i}")
+        #LayerClusters
+
+        print("Found {} LayerClusters ".format(event.nhltMergeLayerClusters))
+        for lc_idx in range(event.nhltMergeLayerClusters):
+            lcX = event.hltMergeLayerClusters_position_x[lc_idx]
+            lcY = event.hltMergeLayerClusters_position_y[lc_idx]
+            lcZ = event.hltMergeLayerClusters_position_z[lc_idx]
+            lcEta = event.hltMergeLayerClusters_position_eta[lc_idx]
+            lcPhi = event.hltMergeLayerClusters_position_phi[lc_idx]
+            lcE = event.hltMergeLayerClusters_energy[lc_idx]
+            print(f"LC Idx {lc_idx} at ({lcX},{lcY},{lcZ}) (eta-phi) : ({lcEta}, {lcPhi}) with energy {lcE}")
         ## CLUE3D Tracksters ##
         print("Found {} CLUE3D Tracksters".format(event.nhltTiclTrackstersCLUE3DHigh))
         for t_idx in range(event.nhltTiclTrackstersCLUE3DHigh):
