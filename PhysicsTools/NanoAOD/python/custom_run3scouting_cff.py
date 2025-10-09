@@ -20,7 +20,7 @@ scoutingMuonTableTask = cms.Task(scoutingMuonTable)
 scoutingMuonDisplacedVertexTableTask = cms.Task(scoutingMuonDisplacedVertexTable)
 
 # from 2024, there are two muon collections (https://its.cern.ch/jira/browse/CMSHLT-3089)
-run3_scouting_nanoAOD_2024.toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
+(run3_scouting_2024 | run3_scouting_2025).toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
     .toReplaceWith(scoutingMuonDisplacedVertexTableTask, cms.Task(scoutingMuonVtxDisplacedVertexTable, scoutingMuonNoVtxDisplacedVertexTable))
 
 # Scouting Electron
@@ -28,7 +28,7 @@ scoutingElectronTableTask = cms.Task(scoutingElectronTable)
 
 # from 2023, scouting electron's tracks are added as std::vector since multiple tracks can be associated to a scouting electron
 # plugin to select the best track to reduce to a single track per scouting electron is added
-(run3_scouting_nanoAOD_2023 | run3_scouting_nanoAOD_2024).toReplaceWith(
+(run3_scouting_2023 | run3_scouting_2024 | run3_scouting_2025).toReplaceWith(
      scoutingElectronTableTask, cms.Task(scoutingElectronBestTrack, scoutingElectronTable)
 )
 
@@ -149,6 +149,18 @@ def customiseScoutingNano(process):
     
     return process
 
+##############
+### Filter ###
+##############
+
+# this filter selects only events triggered by scouting paths by checking scouting primary dataset bit(s)
+# if scouting paths are triggered, scouting objects will be reconstructed, so this gurantees that scouting objects  exist
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+scoutingTriggerPathFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    HLTPaths = cms.vstring("Dataset_ScoutingPFRun3", "Dataset_ScoutingPF0", "Dataset_ScoutingPF1"),
+    throw = cms.bool(False)
+)
+
 #####################
 ### Customisation ###
 #####################
@@ -160,7 +172,7 @@ def customiseScoutingNano(process):
 # this is suitable when ScoutingPFMonitor/RAW is involved, e.g. RAW, RAW-MiniAOD two-file solution, full chain RAW-MiniAOD-NanoAOD
 # when running full chain RAW-MiniAOD-NanoAOD, this ensures that gtStage2Digis, gmtStage2Digis, and caloStage2Digis are run
 def customiseScoutingNanoForScoutingPFMonitor(process):
-    process = skipEventsWithoutScouting(process)
+    process = skipEventsWithoutScoutingByEra(process)
 
     # replace gtStage2DigisScouting with standard gtStage2Digis
     process.scoutingTriggerTask.remove(process.gtStage2DigisScouting)
@@ -194,7 +206,7 @@ def customiseScoutingNanoFromMini(process):
     # when running on data, assume ScoutingPFMonitor/MiniAOD dataset as inputs
     runOnData = hasattr(process,"NANOAODSIMoutput") or hasattr(process,"NANOAODoutput")
     if runOnData:
-        process = skipEventsWithoutScouting(process)
+        process = skipEventsWithoutScoutingByEra(process)
 
     # remove gtStage2Digis since they are already run for Mini
     process.scoutingTriggerTask.remove(process.gtStage2DigisScouting)
@@ -213,29 +225,50 @@ def customiseScoutingNanoFromMini(process):
     return process
 
 # skip events without scouting object products
-# this may be needed since for there are some events which do not contain scouting object products in 2022-24
+# this may be useful since ScoutingPFMonitor dataset contains some events which do not contain scouting object products in 2022-24
 # this is fixed for 2025: https://its.cern.ch/jira/browse/CMSHLT-3331
 def skipEventsWithoutScouting(process):
-    # if scouting paths are triggered, scouting objects will be reconstructed
-    # so we select events passing scouting paths
-    import HLTrigger.HLTfilters.hltHighLevel_cfi
+    # add filter/skim path to the process
+    process.scoutingNanoSkim_step = cms.Path(process.scoutingTriggerPathFilter)
 
-    process.scoutingTriggerPathFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-            HLTPaths = cms.vstring("Dataset_ScoutingPFRun3", "Dataset_ScoutingPF0", "Dataset_ScoutingPF1"),
-            throw = cms.bool(False)
-            )
-
-    process.nanoSkim_step = cms.Path(process.scoutingTriggerPathFilter)
-    process.schedule.extend([process.nanoSkim_step])
+    # schedule filter/skim path to run
+    process.schedule.extend([process.scoutingNanoSkim_step])
 
     if hasattr(process, "NANOAODoutput"):
-        process.NANOAODoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("nanoSkim_step"))
+        process.NANOAODoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("scoutingNanoSkim_step"))
 
-    if hasattr(process, "NANOAODEDMoutput"):
-        process.NANOEDMAODoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("nanoSkim_step"))
+    if hasattr(process, "NANOEDMAODoutput"):
+        process.NANOEDMAODoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("scoutingNanoSkim_step"))
 
     if hasattr(process, "write_NANOAOD"): # PromptReco
-        process.write_NANOAOD.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("nanoSkim_step")) 
+        process.write_NANOAOD.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("scoutingNanoSkim_step")) 
+
+    return process
+
+# skip events without scouting object products by era
+# this may be useful since ScoutingPFMonitor dataset contains some events which do not contain scouting object products in 2022-24
+# this is fixed for 2025: https://its.cern.ch/jira/browse/CMSHLT-3331
+def skipEventsWithoutScoutingByEra(process):
+    # add filter/skim path to the process
+    process.scoutingNanoSkim_step = cms.Path(process.scoutingTriggerPathFilter)
+
+    if hasattr(process, "NANOAODoutput"):
+        (~run3_scouting_2025).toModify(process.NANOAODoutput, SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("scoutingNanoSkim_step")))
+        if hasattr(process.NANOAODoutput, "SelectEvents") and "scoutingNanoSkim_step" in process.NANOAODoutput.SelectEvents.SelectEvents:
+            # schedule filter/skim path to run
+            process.schedule.extend([process.scoutingNanoSkim_step])
+
+    if hasattr(process, "NANOEDMAODoutput"):
+        (~run3_scouting_2025).toModify(process.NANOEDMAODoutput, SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("scoutingNanoSkim_step")))
+        if hasattr(process.NANOEDMAODoutput, "SelectEvents") and "scoutingNanoSkim_step" in process.NANOEDMAODoutput.SelectEvents.SelectEvents:
+            # schedule filter/skim path to run
+            process.schedule.extend([process.scoutingNanoSkim_step])
+
+    if hasattr(process, "write_NANOAOD"): # PromptReco
+        (~run3_scouting_2025).toModify(process.write_NANOAOD, SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("scoutingNanoSkim_step")))
+        if hasattr(process.write_NANOAOD, "SelectEvents") and "scoutingNanoSkim_step" in process.write_NANOAOD.SelectEvents.SelectEvents:
+            # schedule filter/skim path to run
+            process.schedule.extend([process.scoutingNanoSkim_step])
 
     return process
 
@@ -278,7 +311,7 @@ def addScoutingElectronTrack(process):
     )
     
     # additional electron track variables added in 2024 in https://github.com/cms-sw/cmssw/pull/43744
-    run3_scouting_nanoAOD_2024.toModify(
+    (run3_scouting_2024 | run3_scouting_2025).toModify(
         process.scoutingElectronTable.collectionVariables.variables,
         pMode = Var("trkpMode", "float", doc="track pMode"),
         etaMode = Var("trketaMode", "float", doc="track etaMode"),

@@ -2,8 +2,8 @@
 
 #include <memory>
 
-template <typename HIT>
-LCToCPAssociatorByEnergyScoreProducer<HIT>::LCToCPAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
+template <typename HIT, typename CLUSTER>
+LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::LCToCPAssociatorByEnergyScoreProducerT(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
@@ -18,16 +18,16 @@ LCToCPAssociatorByEnergyScoreProducer<HIT>::LCToCPAssociatorByEnergyScoreProduce
   rhtools_ = std::make_shared<hgcal::RecHitTools>();
 
   // Register the product
-  produces<ticl::LayerClusterToCaloParticleAssociator>();
+  produces<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>();
 }
 
-template <typename HIT>
-LCToCPAssociatorByEnergyScoreProducer<HIT>::~LCToCPAssociatorByEnergyScoreProducer() {}
+template <typename HIT, typename CLUSTER>
+LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::~LCToCPAssociatorByEnergyScoreProducerT() {}
 
-template <typename HIT>
-void LCToCPAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
-                                                         edm::Event &iEvent,
-                                                         const edm::EventSetup &es) const {
+template <typename HIT, typename CLUSTER>
+void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID,
+                                                                   edm::Event &iEvent,
+                                                                   const edm::EventSetup &es) const {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
@@ -39,8 +39,8 @@ void LCToCPAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
 
       // Check handle validity
       if (!hits_handle.isValid()) {
-        edm::LogWarning("LCToCPAssociatorByEnergyScoreProducer")
-            << "Hit collection not available for token. Skipping this collection.";
+        edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT")
+            << "HGCAL Hit collection not available for token. Skipping this collection.";
         continue;  // Skip invalid handle
       }
 
@@ -55,8 +55,8 @@ void LCToCPAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
 
       // Check handle validity
       if (!hits_handle.isValid()) {
-        edm::LogWarning("LCToCPAssociatorByEnergyScoreProducer")
-            << "Hit collection not available for token. Skipping this collection.";
+        edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT")
+            << "Barrel Hit collection not available for token. Skipping this collection.";
         continue;  // Skip invalid handle
       }
 
@@ -66,16 +66,30 @@ void LCToCPAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
     }
   }
 
-  const auto hitMap = &iEvent.get(hitMap_);
+  if (hits.empty()) {
+    edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT") << "No hits collected. Producing empty associator.";
+  }
 
-  auto impl = std::make_unique<LCToCPAssociatorByEnergyScoreImpl<HIT>>(
+  if (!iEvent.getHandle(hitMap_)) {
+    edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT") << "Hit map not valid. Producing empty associator.";
+
+    const std::unordered_map<DetId, const unsigned int> hitMap;  // empty map
+    auto impl = std::make_unique<LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>>(
+        iEvent.productGetter(), hardScatterOnly_, rhtools_, &hitMap, hits);
+    auto emptyAssociator = std::make_unique<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>(std::move(impl));
+    iEvent.put(std::move(emptyAssociator));
+    return;
+  }
+
+  const auto hitMap = &iEvent.get(hitMap_);
+  auto impl = std::make_unique<LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap, hits);
-  auto toPut = std::make_unique<ticl::LayerClusterToCaloParticleAssociator>(std::move(impl));
+  auto toPut = std::make_unique<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 
-template <typename HIT>
-void LCToCPAssociatorByEnergyScoreProducer<HIT>::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
+template <typename HIT, typename CLUSTER>
+void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("hardScatterOnly", true);
   if constexpr (std::is_same_v<HIT, HGCRecHit>) {
