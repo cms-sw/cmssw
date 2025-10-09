@@ -55,7 +55,7 @@ void PATElectronCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup c
   auto outPtrP = std::make_unique<std::vector<pat::Electron>>();
   outPtrP->reserve(src->size());
 
-  for (const auto &obj : *src){
+  for (const auto &obj : *src) {
     // copy original pat object and append to vector
     outPtrP->emplace_back(obj);
 
@@ -65,7 +65,8 @@ void PATElectronCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup c
     };
     outPtrP->back().setAssociatedPackedPFCandidates(
         edm::RefProd<pat::PackedCandidateCollection>(pcNewHandle), keys.begin(), keys.end());
-    outPtrP->back().refToOrig_ = (keys.size() == 1) ? outPtrP->back().sourceCandidatePtr(0) : reco::CandidatePtr(pcNewHandle.id());
+    outPtrP->back().refToOrig_ =
+        (keys.size() == 1) ? outPtrP->back().sourceCandidatePtr(0) : reco::CandidatePtr(pcNewHandle.id());
   }
   iEvent.put(std::move(outPtrP));
 }

@@ -61,8 +61,8 @@ void PATJetCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const 
   //
   //
   //
-  for (const auto & jet : *src){
-    for (const auto & info : jet.tagInfosFwdPtr()){
+  for (const auto &jet : *src) {
+    for (const auto &info : jet.tagInfosFwdPtr()) {
       tagInfosOut->push_back(*info);
     }
   }
@@ -74,7 +74,7 @@ void PATJetCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const 
   //
   unsigned int tagInfoIndex = 0;
 
-  for (const auto & obj : *src){
+  for (const auto &obj : *src) {
     // copy original pat object and append to vector
     outPtrP->emplace_back(obj);
 
@@ -86,7 +86,7 @@ void PATJetCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const 
 
     // Copy the tag infos
     for (TagInfoFwdPtrCollection::const_iterator iinfoBegin = outPtrP->back().tagInfosFwdPtr().begin(),
-	                                         iinfoEnd = outPtrP->back().tagInfosFwdPtr().end(),
+                                                 iinfoEnd = outPtrP->back().tagInfosFwdPtr().end(),
                                                  iinfo = iinfoBegin;
          iinfo != iinfoEnd;
          ++iinfo) {
