@@ -85,11 +85,15 @@ void PATJetCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const 
     }
 
     // Copy the tag infos
-    for (const auto &info : outPtrP->back().tagInfosFwdPtr()) {
+    for (TagInfoFwdPtrCollection::const_iterator iinfoBegin = outPtrP->back().tagInfosFwdPtr().begin(),
+                                                 iinfoEnd = outPtrP->back().tagInfosFwdPtr().end(),
+                                                 iinfo = iinfoBegin;
+         iinfo != iinfoEnd;
+         ++iinfo) {
       // Update the "forward" bit of the FwdPtr to point at the new collection.
       // ptr to "this" info in the global list
       edm::Ptr<reco::BaseTagInfo> outPtr(oh_tagInfosOut, tagInfoIndex);
-      outPtrP->back().updateFwdTagInfoFwdPtr(tagInfoIndex, outPtr);
+      outPtrP->back().updateFwdTagInfoFwdPtr(iinfo - iinfoBegin, outPtr);
       ++tagInfoIndex;
     }
   }
