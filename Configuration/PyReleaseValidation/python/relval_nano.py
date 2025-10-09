@@ -184,12 +184,12 @@ steps['NANO_data_UL18reMINI'] = merge([{'--era': 'Run2_2018',
 # 13.0 workflows
 steps['TTbarMINIAOD13.0'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer23MiniAODv4-130X_mcRun3_2023_realistic_v14-v2/MINIAODSIM')}
-steps['M2M_mc13.0'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2023_realistic', '--procModifier': 'run3_miniAOD_miniAODpre142X'},
+steps['M2M_mc13.0s23'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2023_realistic', '--procModifier': 'run3_miniAOD_miniAODpre142X'},
                              steps['M2M_mc10.6ul18']])
 steps['NANO_mc13.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:phase1_2023_realistic'},
                               _NANO_mc])
 ## below: nano steps in current release, using MINI redone with the current release, either from AOD or MINIAOD
-steps['NANO_mc_reMINI'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2023_realistic'},
+steps['NANO_mc_S23reMINI'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2023_realistic'},
                               _NANO_mc])
 #steps['NANO_mc_S22reMINI'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2023_realistic'},## fig GT
 #                              _NANO_mc])
@@ -207,10 +207,11 @@ steps['MuonEG2023MINIAOD13.0'] = {'INPUT': InputInfo(location='STD', ls={368489:
 steps['ScoutingPFRun32022RAW13.0'] = {'INPUT': InputInfo(
     dataSet='/ScoutingPFRun3/Run2022D-v1/RAW', label='2022D', events=100000, location='STD', ls=Run2022D)}
 
-
+steps['M2M_data13.0'] = merge([_MINI_from_MINI, {'--era': 'Run3', '--conditions': 'auto:run3_data', '--procModifier': 'run3_miniAOD_miniAODpre142X'}])
 steps['NANO_data13.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:run3_data'},
                                 _NANO_data])
-
+steps['NANO_data_23reMINI'] = merge([{'--era': 'Run3_2023', '--conditions': 'auto:run3_data'},
+                                  _NANO_data])
 steps['NANO_data13.0_prompt'] = merge([{'-s': 'NANO:@Prompt,DQM:@nanoAODDQM', '-n': '1000'},
                                        steps['NANO_data13.0']])
 
@@ -471,7 +472,10 @@ _wfn.subnext()
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0', 'HRV_NANO_data']]
 
 _wfn.subnext()
-workflows[_wfn()] = ['NANOmc23Mini2Mini', ['TTbarMINIAOD13.0', 'M2M_mc13.0', 'NANO_mc_reMINI', 'HRV3_NANO_mc']]
+workflows[_wfn()] = ['NANOmc23Mini2Mini', ['TTbarMINIAOD13.0', 'M2M_mc13.0s23', 'NANO_mc_S23reMINI', 'HRV3_NANO_mc']]
+
+_wfn.subnext()
+workflows[_wfn()] = ['NANOdata23Mini2Mini', ['MuonEG2023MINIAOD13.0', 'M2M_data13.0', 'NANO_data_23reMINI', 'HRV3_NANO_data']]
 
 # POG/PAG custom NANOs, MC
 _wfn.subnext()
