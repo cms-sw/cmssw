@@ -9,7 +9,7 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 struct Dummy {
   Dummy() : id() {}

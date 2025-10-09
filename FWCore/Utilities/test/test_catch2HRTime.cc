@@ -5,7 +5,7 @@
 #include <typeinfo>
 #include <iostream>
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace {
 

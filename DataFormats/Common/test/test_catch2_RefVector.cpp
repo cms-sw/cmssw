@@ -1,5 +1,5 @@
 #include <vector>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
