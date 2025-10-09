@@ -154,6 +154,7 @@ def miniAODFromMiniAOD_customizeCommon(process):
     # Rekey tau constituents
     ###########################################################################
     from Configuration.ProcessModifiers.run2_miniAOD_miniAODUL_cff import run2_miniAOD_miniAODUL
+    from Configuration.ProcessModifiers.run3_miniAOD_miniAODpre142X_cff import run3_miniAOD_miniAODpre142X
     import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
     taus_to_use = 'slimmedTaus::@skipCurrentProcess'
     idsToRun_for_taus = cms.PSet(idsToAdd=cms.vstring())
@@ -182,6 +183,8 @@ def miniAODFromMiniAOD_customizeCommon(process):
     idsToRun_for_boosted_taus = cms.PSet(idsToAdd=cms.vstring())
     run2_miniAOD_miniAODUL.toModify(
         idsToRun_for_boosted_taus, idsToAdd=["mvaIso", "mvaIsoNewDM", "mvaIsoDR0p3", "againstEle", "boostedDeepTauRunIIv2p0"])
+    run3_miniAOD_miniAODpre142X.toModify(
+        idsToRun_for_boosted_taus, idsToAdd=["boostedDeepTauRunIIv2p0"])
     if idsToRun_for_boosted_taus.idsToAdd:
         if not hasattr(process,'tauTask'): process.tauTask = cms.Task()
         boosted_taus_from_mini = boosted_taus_to_use
