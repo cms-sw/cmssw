@@ -90,6 +90,7 @@ public:
     CAGeometryParams(edm::ParameterSet const& iConfig, double const ptmin)
         : caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
+          ptCuts_(iConfig.getParameter<std::vector<double>>("ptCuts")),
           minInner_(iConfig.getParameter<std::vector<double>>("minInner")),
           maxInner_(iConfig.getParameter<std::vector<double>>("maxInner")),
           minOuter_(iConfig.getParameter<std::vector<double>>("minOuter")),
@@ -112,6 +113,7 @@ public:
 
     // Cells params
     const std::vector<int> phiCuts_;
+    const std::vector<double> ptCuts_;
     const std::vector<double> minInner_;
     const std::vector<double> maxInner_;
     const std::vector<double> minOuter_;
