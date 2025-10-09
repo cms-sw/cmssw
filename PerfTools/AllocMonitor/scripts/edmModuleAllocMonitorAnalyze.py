@@ -19,29 +19,29 @@ To Use: Add the ModuleAllocMonitor Service to the cmsRun job use something like 
   This script will output a more human readable form of the data in the log file.'''
     return s
 
-#these values come from moduleALloc_setupFile.cc
-#enum class Step : char {
-#  preSourceTransition = 'S',
-#  postSourceTransition = 's',
-#  preModulePrefetching = 'P',
-#  postModulePrefetching = 'p',
-#  preModuleEventAcquire = 'A',
-#  postModuleEventAcquire = 'a',
-#  preModuleTransition = 'M',
-#  preEventReadFromSource = 'R',
-#  postEventReadFromSource = 'r',
-#  preModuleEventDelayedGet = 'D',
-#  postModuleEventDelayedGet = 'd',
-#  postModuleTransition = 'm',
-#  preESModulePrefetching = 'Q',
-#  postESModulePrefetching = 'q',
-#  preESModule = 'N',
-#  postESModule = 'n',
-#  preESModuleAcquire = 'B',
-#  postESModuleAcquire = 'b',
-#  preFrameworkTransition = 'F',
-#  postFrameworkTransition = 'f'
-#};
+# These values come from moduleAlloc_setupFile.cc
+# enum class Step : char {
+#   preSourceTransition = 'S',
+#   postSourceTransition = 's',
+#   preModulePrefetching = 'P',
+#   postModulePrefetching = 'p',
+#   preModuleEventAcquire = 'A',
+#   postModuleEventAcquire = 'a',
+#   preModuleTransition = 'M',
+#   preEventReadFromSource = 'R',
+#   postEventReadFromSource = 'r',
+#   preModuleEventDelayedGet = 'D',
+#   postModuleEventDelayedGet = 'd',
+#   postModuleTransition = 'm',
+#   preESModulePrefetching = 'Q',
+#   postESModulePrefetching = 'q',
+#   preESModule = 'N',
+#   postESModule = 'n',
+#   preESModuleAcquire = 'B',
+#   postESModuleAcquire = 'b',
+#   preFrameworkTransition = 'F',
+#   postFrameworkTransition = 'f'
+# };
 
 
 kMicroToSec = 0.000001
@@ -192,6 +192,16 @@ def textPrefix_(time, indentLevel):
     return f'{time:>11} '+"++"*indentLevel
 
 class AllocInfo(object):
+    """Container for memory allocation information from CMSSW module transitions.
+    
+    Attributes:
+        nAllocs: Number of memory allocations
+        nDeallocs: Number of memory deallocations  
+        added: Net memory added (in bytes)
+        minTemp: Minimum temporary memory usage
+        maxTemp: Maximum temporary memory usage
+        max1Alloc: Largest single allocation
+    """
     def __init__(self,payload):
         self.nAllocs = int(payload[0])
         self.nDeallocs = int(payload[1])
@@ -934,7 +944,7 @@ def lineParserFactory (step, payload, moduleInfos, esModuleInfos, recordNames, m
         return PreESModuleAcquireParser(payload, moduleInfos, esModuleInfos, recordNames)
     if step == 'b':
         return PostESModuleAcquireParser(payload, moduleInfos, esModuleInfos, recordNames)
-    raise LogicError("Unknown step '{}'".format(step))
+    raise ValueError("Unknown step '{}'".format(step))
     
 #----------------------------------------------
 def processingStepsFromFile(f, moduleInfos, esModuleInfos, recordNames, moduleCentric):
@@ -1493,6 +1503,7 @@ if __name__=="__main__":
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog=printHelp())
     parser.add_argument('filename',
+                        nargs='?',  # Make filename optional
                         type=argparse.FileType('r'), # open file
                         help='file to process')
     parser.add_argument('-j', '--json',
@@ -1501,7 +1512,7 @@ if __name__=="__main__":
     parser.add_argument('-s', '--sortBy',
                         default = '',
                         type = str,
-                        help="sort modules by attribute. Alloed values 'nAllocs', 'nDeallocs', 'added', 'minTemp', maxTemp', and 'max1Alloc'")
+                        help="sort modules by attribute. Allowed values 'nAllocs', 'nDeallocs', 'added', 'minTemp', 'maxTemp', and 'max1Alloc'")
 #    parser.add_argument('-w', '--web',
 #                        action='store_true',
 #                        help='''Writes data.js file that can be used with the web based inspector. To use, copy directory ${CMSSW_RELEASE_BASE}/src/FWCore/Services/template/web to a web accessible area and move data.js into that directory.''')
@@ -1516,6 +1527,9 @@ if __name__=="__main__":
 
     if args.test:
         runTests()
+    elif args.filename is None:
+        parser.print_help()
+        sys.exit(1)
     else :
         parser = ModuleAllocCompactFileParser(args.filename, not args.timeOrdered)
 #        if args.json or args.web:
