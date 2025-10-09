@@ -342,7 +342,7 @@ TEST_CASE("LHCInfoPerFillPopConSourceHandler.getNewObjects fills IOVs correctly 
       boost::posix_time::time_from_string("2023-06-01 12:00:00")};
   std::vector<boost::posix_time::ptime> fillEndTimes = {boost::posix_time::time_from_string("2023-06-01 12:30:00")};
 
-  for (size_t i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < fillNumbers.size(); ++i) {
     auto fillPayload = std::make_shared<LHCInfoPerFill>();
     fillPayload->setFillNumber(fillNumbers[i]);
     fillPayload->setEnergy(energies[i]);
