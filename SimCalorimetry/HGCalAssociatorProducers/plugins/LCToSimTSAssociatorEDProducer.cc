@@ -44,13 +44,13 @@ private:
 
   edm::EDGetTokenT<CaloParticleCollection> CPCollectionToken_;
   edm::InputTag associatorCP_;
-  edm::EDGetTokenT<ticl::RecoToSimCollection> associationMapLCToCPToken_;
-  edm::EDGetTokenT<ticl::SimToRecoCollection> associationMapCPToLCToken_;
+  edm::EDGetTokenT<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>> associationMapLCToCPToken_;
+  edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> associationMapCPToLCToken_;
 
   edm::EDGetTokenT<SimClusterCollection> SCCollectionToken_;
   edm::InputTag associatorSC_;
-  edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters> associationMapLCToSCToken_;
-  edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters> associationMapSCToLCToken_;
+  edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> associationMapLCToSCToken_;
+  edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> associationMapSCToLCToken_;
 };
 
 LCToSimTSAssociatorEDProducer::LCToSimTSAssociatorEDProducer(const edm::ParameterSet &pset)
@@ -60,12 +60,14 @@ LCToSimTSAssociatorEDProducer::LCToSimTSAssociatorEDProducer(const edm::Paramete
           consumes<ticl::LayerClusterToSimTracksterAssociator>(pset.getParameter<edm::InputTag>("associator"))),
       CPCollectionToken_(consumes<CaloParticleCollection>(pset.getParameter<edm::InputTag>("label_cp"))),
       associatorCP_(pset.getParameter<edm::InputTag>("associator_cp")),
-      associationMapLCToCPToken_(consumes<ticl::RecoToSimCollection>(associatorCP_)),
-      associationMapCPToLCToken_(consumes<ticl::SimToRecoCollection>(associatorCP_)),
+      associationMapLCToCPToken_(consumes<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>>(associatorCP_)),
+      associationMapCPToLCToken_(consumes<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>>(associatorCP_)),
       SCCollectionToken_(consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("label_scl"))),
       associatorSC_(pset.getParameter<edm::InputTag>("associator_sc")),
-      associationMapLCToSCToken_(consumes<ticl::RecoToSimCollectionWithSimClusters>(associatorSC_)),
-      associationMapSCToLCToken_(consumes<ticl::SimToRecoCollectionWithSimClusters>(associatorSC_)) {
+      associationMapLCToSCToken_(
+          consumes<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>(associatorSC_)),
+      associationMapSCToLCToken_(
+          consumes<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>(associatorSC_)) {
   produces<ticl::SimTracksterToRecoCollection>();
   produces<ticl::RecoToSimTracksterCollection>();
 }
