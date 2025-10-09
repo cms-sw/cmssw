@@ -53,9 +53,9 @@ void PATPhotonCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup con
   auto outPtrP = std::make_unique<std::vector<pat::Photon>>();
   outPtrP->reserve(src->size());
 
-  for (size_t i = 0; i < src->size(); ++i) {
+  for (const auto & obj : *src){
     // copy original pat object and append to vector
-    outPtrP->emplace_back((*src)[i]);
+    outPtrP->emplace_back(obj);
 
     std::vector<unsigned int> keys;
     for (const edm::Ref<pat::PackedCandidateCollection> &ref : outPtrP->back().associatedPackedPFCandidates()) {
