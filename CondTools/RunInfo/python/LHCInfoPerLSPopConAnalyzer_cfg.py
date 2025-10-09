@@ -131,8 +131,7 @@ options.register( 'defaultBetaY'
                      The default payload is inserted after the last processed fill has ended
                      and there's no ongoing stable beam yet. """
                   )
-
-
+# checking for invalid values, duringFill mode specific
 # it's unlikely to ever use values different from the defaults, added as a parameter just in case
 options.register('minBetaStar',  0.1 
                 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float
@@ -150,7 +149,7 @@ options.register('maxCrossingAngle',  500.
                 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float
                 , """duringFill only: [urad] max value of the range of valid values (inclusive).
                      If the value is outside of this range the payload is not uploaded""")
-options.register('throwOnInvalid', False,
+options.register('throwOnInvalid', False, # Intended production setup: False for endFill, True for duringFill
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.bool,
                 "duringFill only: If true, throw on invalid payloads; if false, filter them out.")

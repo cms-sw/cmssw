@@ -521,12 +521,8 @@ LHCInfoPerFillPopConSourceHandler::executeLumiQuery(const cond::OMSService& oms,
   query->filterEQ("beams_stable", "true");
   query->limit(cond::lhcInfoHelper::kLumisectionsQueryLimit);
 
-  bool executed = query->execute();
-  if (executed) {
-    return std::make_tuple(query->result(), true, std::move(query));
-  } else {
-    return std::make_tuple(cond::OMSServiceResult(), false, std::move(query));
-  }
+  bool success = query->execute();
+  return {(success ? query->result() : cond::OMSServiceResult()), success, std::move(query)};
 }
 
 void LHCInfoPerFillPopConSourceHandler::getLumiData(const cond::OMSService& oms,
