@@ -53,7 +53,7 @@ void PATTauCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const 
   auto outPtrP = std::make_unique<std::vector<pat::Tau>>();
   outPtrP->reserve(src->size());
 
-  for (const auto & obj : *src){
+  for (const auto &obj : *src) {
     // copy original pat object and append to vector
     outPtrP->emplace_back(obj);
 
