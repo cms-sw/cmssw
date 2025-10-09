@@ -5,7 +5,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
 
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 int countEntries(const HGCalScintillatorLayerTiles &t, const std::array<int, 4> &limits) {
   int entries = 0;

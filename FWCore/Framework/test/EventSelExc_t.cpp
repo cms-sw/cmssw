@@ -13,7 +13,7 @@
 //    11 - Exception demanded
 //    12 - Specific and wildcarded exceptions
 //    13 - Everything - also tests that it accepts all Ready
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -208,8 +208,9 @@ void evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans) {
       << "pathspecs = " << ps.path << "\n"
       << "trigger results = " << tr << "\n";
   }
-  REQUIRE_THAT(ans,
-               Catch::Predicate<bool>([a, b, aa](auto ans) { return a == ans and b == ans and aa == ans; }, s.str()));
+  REQUIRE_THAT(
+      ans,
+      Catch::Matchers::Predicate<bool>([a, b, aa](auto ans) { return a == ans and b == ans and aa == ans; }, s.str()));
 
   // Repeat putting the list of trigger names in the pset
   // registry
@@ -230,7 +231,7 @@ void evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans) {
       << "pathspecs =" << ps.path << "\n"
       << "trigger results = " << tr << "\n";
   }
-  REQUIRE_THAT(ans, Catch::Predicate<bool>([x, y](auto ans) { return x == ans and y == ans; }, s.str()));
+  REQUIRE_THAT(ans, Catch::Matchers::Predicate<bool>([x, y](auto ans) { return x == ans and y == ans; }, s.str()));
 }
 
 TEST_CASE("test EventSelector test", "[EventSelector]") {

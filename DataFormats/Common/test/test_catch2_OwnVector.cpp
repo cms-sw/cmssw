@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <memory>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "FWCore/Utilities/interface/propagate_const.h"

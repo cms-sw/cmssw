@@ -1,6 +1,6 @@
 #include "FWCore/Utilities/interface/stemFromPath.h"
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 TEST_CASE("Test stemFromPath", "[sources]") {
   CHECK(edm::stemFromPath("foo.root") == "foo");

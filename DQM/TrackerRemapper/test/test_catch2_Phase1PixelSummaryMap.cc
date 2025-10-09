@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include <iostream>
 #include <numeric>  // std::accumulate
 #include "TCanvas.h"

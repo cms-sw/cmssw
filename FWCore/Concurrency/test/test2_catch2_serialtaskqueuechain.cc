@@ -5,7 +5,7 @@
 //  Created by Chris Jones on 9/27/11.
 //
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <chrono>
 #include <memory>
 #include <atomic>

@@ -1,6 +1,6 @@
 /*
  */
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/Common/interface/Trie.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -131,7 +131,7 @@ TEST_CASE("test Trie", "[Trie]") {
         label[i] value[8]
         label[j] value[9]
 )";
-    REQUIRE_THAT(s.str(), Catch::Equals(output));
+    REQUIRE_THAT(s.str(), Catch::Matchers::Equals(output));
 
     SECTION("ab display") {
       pointer pn = trie.node("ab", 2);

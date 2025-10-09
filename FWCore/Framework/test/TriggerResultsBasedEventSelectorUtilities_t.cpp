@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 namespace trigger_results_based_event_selector_utils {
   // Implemented in TriggerResultsBasedEventSelector.cc
   void remove_whitespace(std::string& s);

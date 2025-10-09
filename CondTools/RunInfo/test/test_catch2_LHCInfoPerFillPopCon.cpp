@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "CondTools/RunInfo/interface/LHCInfoPerFillPopConSourceHandler.h"
 #include "CondTools/RunInfo/interface/TestLHCInfoPerFillPopConSourceHandler.h"
@@ -336,7 +336,7 @@ TEST_CASE("LHCInfoPerFillPopConSourceHandler.getNewObjects fills IOVs correctly 
 
   // Populate mock data
   std::vector<unsigned short> fillNumbers = {1000};
-  std::vector<float> energies = {GENERATE(450.0, 6600.0, 8000.0)};
+  std::vector<float> energies = {GENERATE(450.0f, 6600.0f, 8000.0f)};
   std::vector<boost::posix_time::ptime> fillStartTimes = {boost::posix_time::time_from_string("2023-06-01 11:30:00")};
   std::vector<boost::posix_time::ptime> fillStableBeamBeginTimes = {
       boost::posix_time::time_from_string("2023-06-01 12:00:00")};
@@ -436,7 +436,7 @@ TEST_CASE(
 
   // Populate mock data
   std::vector<unsigned short> fillNumbers = {1000};
-  std::vector<float> energies = {GENERATE(-6800., -1., 0., 449.9, 8000.1)};  // invalid energy
+  std::vector<float> energies = {GENERATE(-6800.f, -1.f, 0.f, 449.9f, 8000.1f)};  // invalid energy
   std::vector<boost::posix_time::ptime> fillStartTimes = {boost::posix_time::time_from_string("2023-06-01 11:30:00")};
   std::vector<boost::posix_time::ptime> fillStableBeamBeginTimes = {
       boost::posix_time::time_from_string("2023-06-01 12:00:00")};

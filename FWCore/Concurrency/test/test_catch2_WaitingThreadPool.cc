@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "oneapi/tbb/global_control.h"
 
@@ -126,9 +126,10 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
                  lastTask(edm::WaitingTaskHolder(group, &waitTask));
         h.doneWaiting(std::exception_ptr());
       }
-      REQUIRE_THROWS_WITH(
-          waitTask.wait(),
-          Catch::Contains("error") and Catch::Contains("StdException") and Catch::Contains("WaitingThreadPool test"));
+      REQUIRE_THROWS_WITH(waitTask.wait(),
+                          Catch::Matchers::ContainsSubstring("error") and
+                              Catch::Matchers::ContainsSubstring("StdException") and
+                              Catch::Matchers::ContainsSubstring("WaitingThreadPool test"));
       REQUIRE(count.load() == 0);
     }
 
