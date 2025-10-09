@@ -81,9 +81,9 @@ _NANO_mc = merge([{'-s': 'NANO,DQM:@nanoAODDQM',
 _HARVEST_mc = merge([_HARVEST_nano, {'--mc': ''}])
 ## the validation sequence VALIDATION:@miniAODValidation will not function on M2M, because it requires AOD-bound collections TBF
 ## the dqm sequence DQM:@miniAODDQM will not function on M2M, because it requires AOD-bound collections TBF
-#_MIMI_from_MINI = {'-s': 'PAT:Configuration/StandardSequences/REMINI_cff.patAlgosToolsTask,DQM:@miniAODDQM',
+#_MINI_from_MINI = {'-s': 'PAT:Configuration/StandardSequences/REMINI_cff.patAlgosToolsTask,DQM:@miniAODDQM',
 #                   '--process': 'M2M'}
-_MIMI_from_MINI = {'-s': 'PAT:Configuration/StandardSequences/REMINI_cff.patAlgosToolsTask',
+_MINI_from_MINI = {'-s': 'PAT:Configuration/StandardSequences/REMINI_cff.patAlgosToolsTask',
                    '--eventcontent' : 'MINIAODSIM',
                    '--datatier' : 'MINIAODSIM',
                    '--process': 'M2M'}
@@ -99,7 +99,7 @@ steps['HRV3_NANO_data'] = merge([{'--filein':'file:step3_inDQM.root'},
 steps['TTbarAOD10.6_UL16APV'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16RECOAPV-106X_mcRun2_asymptotic_preVFP_v8-v2/AODSIM')}
 steps['MINI_mc10.6ul16APV'] = merge([{'--procModifiers':'run2_miniAOD_UL'}, steps['REMINIAOD_mc2016UL_preVFP']])
-steps['M2M_mc10.6ul16APV'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul16APV']])
+steps['M2M_mc10.6ul16APV'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul16APV']])
 steps['TTbarMINIAOD10.6_UL16APVv2'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16MiniAODAPVv2-106X_mcRun2_asymptotic_preVFP_v11-v2/MINIAODSIM')}
 steps['NANO_mc10.6ul16APVv2'] = merge([{'--era': 'Run2_2016_HIPM,run2_nanoAOD_106Xv2',
@@ -108,7 +108,7 @@ steps['NANO_mc10.6ul16APVv2'] = merge([{'--era': 'Run2_2016_HIPM,run2_nanoAOD_10
 steps['TTbarAOD10.6_UL16'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16RECO-106X_mcRun2_asymptotic_v13-v2/AODSIM')}
 steps['MINI_mc10.6ul16'] = merge([{'--procModifiers':'run2_miniAOD_UL'}, steps['REMINIAOD_mc2016UL_postVFP']])
-steps['M2M_mc10.6ul16'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul16']])
+steps['M2M_mc10.6ul16'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul16']])
 steps['TTbarMINIAOD10.6_UL16v2'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16MiniAODv2-106X_mcRun2_asymptotic_v17-v2/MINIAODSIM')}
 steps['NANO_mc10.6ul16v2'] = merge([{'--era': 'Run2_2016,run2_nanoAOD_106Xv2',
@@ -118,7 +118,7 @@ steps['NANO_mc10.6ul16v2'] = merge([{'--era': 'Run2_2016,run2_nanoAOD_106Xv2',
 steps['TTbarAOD10.6_UL17'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL17RECO-106X_mc2017_realistic_v6-v2/AODSIM')}
 steps['MINI_mc10.6ul17'] = merge([{'--procModifiers':'run2_miniAOD_UL'}, steps['REMINIAOD_mc2017UL']])
-steps['M2M_mc10.6ul17'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul17']])
+steps['M2M_mc10.6ul17'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul17']])
 steps['TTbarMINIAOD10.6_UL17v2'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2/MINIAODSIM')}
 steps['NANO_mc10.6ul17v2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv2',
@@ -128,7 +128,7 @@ steps['NANO_mc10.6ul17v2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv2',
 steps['TTbarAOD10.6_UL18'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v2/AODSIM')}
 steps['MINI_mc10.6ul18'] = merge([{'--procModifiers':'run2_miniAOD_UL'}, steps['REMINIAOD_mc2018UL']])
-steps['M2M_mc10.6ul18'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul18']])
+steps['M2M_mc10.6ul18'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul18']])
 steps['TTbarMINIAOD10.6_UL18v2'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2/MINIAODSIM')}
 steps['NANO_mc10.6ul18v2'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_106Xv2',
@@ -138,14 +138,14 @@ steps['NANO_mc10.6ul18v2'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_106Xv2',
 # HIPM_UL2016_MiniAODv2 campaign is CMSSW_10_6_25
 steps['MuonEG2016MINIAOD10.6v2'] = {'INPUT': InputInfo(location='STD', ls=run2_lumis,
                                                        dataSet='/MuonEG/Run2016E-HIPM_UL2016_MiniAODv2-v2/MINIAOD')}
-steps['M2M_data10.6ul16'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2016UL']])
+steps['M2M_data10.6ul16'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2016UL']])
 steps['NANO_data10.6ul16v2'] = merge([{'--era': 'Run2_2016_HIPM,run2_nanoAOD_106Xv2',
                                      '--conditions': 'auto:run2_data'},
                                       _NANO_data])
 # UL2017_MiniAODv2 campaign is CMSSW_10_6_20
 steps['MuonEG2017MINIAOD10.6v2'] = {'INPUT': InputInfo(location='STD', ls=run2_lumis,
                                                        dataSet='/MuonEG/Run2017F-UL2017_MiniAODv2-v1/MINIAOD')}
-steps['M2M_data10.6ul17'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2017UL']])
+steps['M2M_data10.6ul17'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2017UL']])
 steps['NANO_data10.6ul17v2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv2',
                                      '--conditions': 'auto:run2_data'},
                                       _NANO_data])
@@ -153,7 +153,7 @@ steps['NANO_data10.6ul17v2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv2',
 # UL2018_MiniAODv2 campaign is CMSSW_10_6_20
 steps['MuonEG2018MINIAOD10.6v2'] = {'INPUT': InputInfo(location='STD', ls=run2_lumis,
                                                        dataSet='/MuonEG/Run2018D-UL2018_MiniAODv2-v1/MINIAOD')}
-steps['M2M_data10.6ul18'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2018UL']])
+steps['M2M_data10.6ul18'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2018UL']])
 steps['NANO_data10.6ul18v2'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_106Xv2',
                                      '--conditions': 'auto:run2_data'},
                                       _NANO_data])
