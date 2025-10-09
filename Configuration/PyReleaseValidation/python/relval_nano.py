@@ -138,12 +138,14 @@ steps['NANO_mc10.6ul18v2'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_106Xv2',
 # HIPM_UL2016_MiniAODv2 campaign is CMSSW_10_6_25
 steps['MuonEG2016MINIAOD10.6v2'] = {'INPUT': InputInfo(location='STD', ls=run2_lumis,
                                                        dataSet='/MuonEG/Run2016E-HIPM_UL2016_MiniAODv2-v2/MINIAOD')}
+steps['M2M_data10.6ul16'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2016UL']])
 steps['NANO_data10.6ul16v2'] = merge([{'--era': 'Run2_2016_HIPM,run2_nanoAOD_106Xv2',
                                      '--conditions': 'auto:run2_data'},
                                       _NANO_data])
 # UL2017_MiniAODv2 campaign is CMSSW_10_6_20
 steps['MuonEG2017MINIAOD10.6v2'] = {'INPUT': InputInfo(location='STD', ls=run2_lumis,
                                                        dataSet='/MuonEG/Run2017F-UL2017_MiniAODv2-v1/MINIAOD')}
+steps['M2M_data10.6ul17'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2017UL']])
 steps['NANO_data10.6ul17v2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv2',
                                      '--conditions': 'auto:run2_data'},
                                       _NANO_data])
@@ -151,6 +153,7 @@ steps['NANO_data10.6ul17v2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv2',
 # UL2018_MiniAODv2 campaign is CMSSW_10_6_20
 steps['MuonEG2018MINIAOD10.6v2'] = {'INPUT': InputInfo(location='STD', ls=run2_lumis,
                                                        dataSet='/MuonEG/Run2018D-UL2018_MiniAODv2-v1/MINIAOD')}
+steps['M2M_data10.6ul18'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2018UL']])
 steps['NANO_data10.6ul18v2'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_106Xv2',
                                      '--conditions': 'auto:run2_data'},
                                       _NANO_data])
@@ -473,9 +476,10 @@ workflows[_wfn()] = ['NANOmcUL16Mini2Mini', ['TTbarMINIAOD10.6_UL16v2', 'M2M_mc1
 workflows[_wfn()] = ['NANOmcUL17Mini2Mini', ['TTbarMINIAOD10.6_UL17v2', 'M2M_mc10.6ul17', 'NANO_mc_UL17reMINI', 'HRV3_NANO_mc']]
 workflows[_wfn()] = ['NANOmcUL18Mini2Mini', ['TTbarMINIAOD10.6_UL18v2', 'M2M_mc10.6ul18', 'NANO_mc_UL18reMINI', 'HRV3_NANO_mc']]
 
-
 _wfn.subnext()
-## M2M for data
+workflows[_wfn()] = ['NANOdataUL16Mini2Mini', ['MuonEG2016MINIAOD10.6v2', 'M2M_data10.6ul16', 'NANO_data_UL16reMINI', 'HRV3_NANO_data']]
+workflows[_wfn()] = ['NANOdataUL17Mini2Mini', ['MuonEG2017MINIAOD10.6v2', 'M2M_data10.6ul17', 'NANO_data_UL17reMINI', 'HRV3_NANO_data']]
+workflows[_wfn()] = ['NANOdataUL18Mini2Mini', ['MuonEG2018MINIAOD10.6v2', 'M2M_data10.6ul18', 'NANO_data_UL18reMINI', 'HRV3_NANO_data']]
 
 _wfn.next(1)
 ######## 2500.1xxx ########
