@@ -287,7 +287,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
 
     if (!hitsHandle.isValid()) {
       edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
-      return;
+      continue;
     }
 
     barrelRechitSpan.add(*hitsHandle);
