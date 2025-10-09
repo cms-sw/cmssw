@@ -4,6 +4,7 @@
 #include "SimDataFormats/Associations/interface/VertexAssociation.h"
 
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 namespace reco {
   class VertexToTrackingVertexAssociator {
@@ -11,7 +12,8 @@ namespace reco {
 #ifndef __GCCXML__
     VertexToTrackingVertexAssociator(std::unique_ptr<reco::VertexToTrackingVertexAssociatorBaseImpl>);
 #endif
-    VertexToTrackingVertexAssociator() = default;
+    VertexToTrackingVertexAssociator() = delete;
+    explicit VertexToTrackingVertexAssociator(edm::Uninitialized) noexcept {};
     VertexToTrackingVertexAssociator(VertexToTrackingVertexAssociator &&) = default;
     VertexToTrackingVertexAssociator &operator=(VertexToTrackingVertexAssociator &&) = default;
     VertexToTrackingVertexAssociator(const VertexToTrackingVertexAssociator &) = delete;  // stop default

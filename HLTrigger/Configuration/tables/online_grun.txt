@@ -228,6 +228,7 @@ HLT_Dimuon0_Jpsi_v*	#	CMSHLT-1298
 HLT_Dimuon0_LowMass_L1_0er1p5_v*	#	CMSHLT-1298
 HLT_Dimuon0_LowMass_L1_4_v*	#	CMSHLT-1298
 HLT_Dimuon0_LowMass_v*	#	CMSHLT-1298
+HLT_Dimuon0_LowMass_Inclusive_v*	# CMSHLT-3629
 HLT_Dimuon0_Upsilon_L1_4p5_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_L1_4p5er2p0_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_L1_4p5er2p0M_v*	#	CMSHLT-1298

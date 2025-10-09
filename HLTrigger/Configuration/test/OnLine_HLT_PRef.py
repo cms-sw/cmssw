@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_15_0_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
+# hltGetConfiguration /dev/CMSSW_15_1_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_15_0_0/PRef/V114 (CMSSW_15_0_11)
+# /dev/CMSSW_15_1_0/PRef/V10 (CMSSW_15_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTPRef" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/PRef/V114")
+  tableName = cms.string("/dev/CMSSW_15_1_0/PRef/V10")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -2386,7 +2386,9 @@ process.CaloGeometryBuilder = cms.ESProducer( "CaloGeometryBuilder",
     'EcalPreshower',
     'TOWER' )
 )
-process.CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder" )
+process.CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder",
+  appendToDataLabel = cms.string( "" )
+)
 process.CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
   MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" ),
   MapAuto = cms.untracked.bool( False ),
@@ -2485,67 +2487,81 @@ process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP",
   appendToDataLabel = cms.string( "" )
 )
 process.MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "alongMomentum" ),
   SimpleMagneticField = cms.string( "" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "PropagatorWithMaterial" ),
   Mass = cms.double( 0.105 ),
-  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.MaterialPropagatorForHI = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "alongMomentum" ),
   SimpleMagneticField = cms.string( "ParabolicMf" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "PropagatorWithMaterialForHI" ),
   Mass = cms.double( 0.139 ),
-  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.MaterialPropagatorParabolicMF = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "alongMomentum" ),
   SimpleMagneticField = cms.string( "ParabolicMf" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "PropagatorWithMaterialParabolicMf" ),
   Mass = cms.double( 0.105 ),
-  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
   SimpleMagneticField = cms.string( "" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "PropagatorWithMaterialOpposite" ),
   Mass = cms.double( 0.105 ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.OppositeMaterialPropagatorForHI = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
   SimpleMagneticField = cms.string( "ParabolicMf" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "PropagatorWithMaterialOppositeForHI" ),
   Mass = cms.double( 0.139 ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.OppositeMaterialPropagatorParabolicMF = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
   SimpleMagneticField = cms.string( "ParabolicMf" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   Mass = cms.double( 0.105 ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.OppositePropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
   SimpleMagneticField = cms.string( "ParabolicMf" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "PropagatorWithMaterialForMixedStepOpposite" ),
   Mass = cms.double( 0.105 ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( 0.1 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( 0.1 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.ParametrizedMagneticFieldProducer = cms.ESProducer( "AutoParametrizedMagneticFieldProducer",
   version = cms.string( "Parabolic" ),
@@ -2553,22 +2569,26 @@ process.ParametrizedMagneticFieldProducer = cms.ESProducer( "AutoParametrizedMag
   valueOverride = cms.int32( -1 )
 )
 process.PropagatorWithMaterialForLoopers = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "alongMomentum" ),
   SimpleMagneticField = cms.string( "ParabolicMf" ),
-  MaxDPhi = cms.double( 4.0 ),
   ComponentName = cms.string( "PropagatorWithMaterialForLoopers" ),
   Mass = cms.double( 0.1396 ),
-  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 4.0 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.PropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "alongMomentum" ),
   SimpleMagneticField = cms.string( "ParabolicMf" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "PropagatorWithMaterialForMixedStep" ),
   Mass = cms.double( 0.105 ),
-  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( 0.1 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( 0.1 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
   fromDDD = cms.untracked.bool( False ),
@@ -2778,7 +2798,9 @@ process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   ),
   timeThresh = cms.double( 2.0 )
 )
-process.hcalChannelPropertiesESProd = cms.ESProducer( "HcalChannelPropertiesEP" )
+process.hcalChannelPropertiesESProd = cms.ESProducer( "HcalChannelPropertiesEP",
+  appendToDataLabel = cms.string( "" )
+)
 process.hcalDDDRecConstants = cms.ESProducer( "HcalDDDRecConstantsESModule",
   appendToDataLabel = cms.string( "" )
 )
@@ -3080,13 +3102,15 @@ process.hltESPBwdAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESP
   appendToDataLabel = cms.string( "" )
 )
 process.hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
   SimpleMagneticField = cms.string( "" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPBwdElectronPropagator" ),
   Mass = cms.double( 5.11E-4 ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.hltESPChi2ChargeLooseMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
   MaxChi2 = cms.double( 16.0 ),
@@ -3465,13 +3489,15 @@ process.hltESPFlexibleKFFittingSmoother = cms.ESProducer( "FlexibleKFFittingSmoo
   appendToDataLabel = cms.string( "" )
 )
 process.hltESPFwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "alongMomentum" ),
   SimpleMagneticField = cms.string( "" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPFwdElectronPropagator" ),
   Mass = cms.double( 5.11E-4 ),
-  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.hltESPGlobalDetLayerGeometry = cms.ESProducer( "GlobalDetLayerGeometryESProducer",
   ComponentName = cms.string( "hltESPGlobalDetLayerGeometry" ),
@@ -4047,13 +4073,15 @@ process.hltESPRKTrajectorySmoother = cms.ESProducer( "KFTrajectorySmootherESProd
   appendToDataLabel = cms.string( "" )
 )
 process.hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "alongMomentum" ),
   SimpleMagneticField = cms.string( "" ),
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
   Mass = cms.double( 0.105 ),
-  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True ),
-  ptMin = cms.double( -1.0 )
+  useOldAnalPropLogic = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 process.hltESPSiPixelCablingSoA = cms.ESProducer( "SiPixelCablingSoAESProducer@alpaka",
   CablingMapLabel = cms.string( "" ),
@@ -4152,7 +4180,8 @@ process.hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
     mTIB_P0 = cms.double( -0.742 ),
     mTID_P1 = cms.double( 0.433 ),
     mTID_P0 = cms.double( -1.427 )
-  )
+  ),
+  appendToDataLabel = cms.string( "" )
 )
 process.hltESPTTRHBWithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "hltESPTTRHBWithTrackAngle" ),
@@ -4427,7 +4456,9 @@ process.siPixelROCsStatusAndMappingWrapperESProducer = cms.ESProducer( "SiPixelR
   UseQualityInfo = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-process.siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer" )
+process.siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
+  appendToDataLabel = cms.string( "" )
+)
 process.siStripBackPlaneCorrectionDepESProducer = cms.ESProducer( "SiStripBackPlaneCorrectionDepESProducer",
   LatencyRecord = cms.PSet( 
     label = cms.untracked.string( "" ),
@@ -4440,7 +4471,8 @@ process.siStripBackPlaneCorrectionDepESProducer = cms.ESProducer( "SiStripBackPl
   BackPlaneCorrectionDeconvMode = cms.PSet( 
     label = cms.untracked.string( "deconvolution" ),
     record = cms.string( "SiStripBackPlaneCorrectionRcd" )
-  )
+  ),
+  appendToDataLabel = cms.string( "" )
 )
 process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleDepESProducer",
   LatencyRecord = cms.PSet( 
@@ -4454,7 +4486,8 @@ process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleD
   LorentzAngleDeconvMode = cms.PSet( 
     label = cms.untracked.string( "deconvolution" ),
     record = cms.string( "SiStripLorentzAngleRcd" )
-  )
+  ),
+  appendToDataLabel = cms.string( "" )
 )
 process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 process.trackerTopology = cms.ESProducer( "TrackerTopologyEP",
@@ -4703,9 +4736,9 @@ process.hltEcalUncalibRecHitSoA = cms.EDProducer( "EcalUncalibRecHitProducerPort
     alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
 )
 process.hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitSoAToLegacy",
-    inputCollectionEB = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEB' ),
     outputLabelEB = cms.string( "EcalUncalibRecHitsEB" ),
     isPhase2 = cms.bool( False ),
+    inputCollectionEB = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEB' ),
     inputCollectionEE = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEE' ),
     outputLabelEE = cms.string( "EcalUncalibRecHitsEE" )
 )
@@ -5367,14 +5400,22 @@ process.hltOnlineBeamSpotDevice = cms.EDProducer( "BeamSpotDeviceProducer@alpaka
 process.hltSiPixelClustersSoA = cms.EDProducer( "SiPixelRawToClusterPhase1@alpaka",
     IncludeErrors = cms.bool( True ),
     UseQualityInfo = cms.bool( False ),
+    verbose = cms.bool( False ),
     clusterThreshold_layer1 = cms.int32( 2000 ),
     clusterThreshold_otherLayers = cms.int32( 4000 ),
     VCaltoElectronGain = cms.double( 1.0 ),
     VCaltoElectronGain_L1 = cms.double( 1.0 ),
     VCaltoElectronOffset = cms.double( 0.0 ),
     VCaltoElectronOffset_L1 = cms.double( 0.0 ),
+    DoDigiMorphing = cms.bool( False ),
+    MaxFakesInModule = cms.uint32( 2400 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
+    barrelRegions = cms.vstring( '1,1-12,1-2',
+      '1,1-12,7-8',
+      '2,1-28,1',
+      '2,1-28,8' ),
+    endcapRegions = cms.vstring(  ),
     CablingMapLabel = cms.string( "" ),
     alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
 )
@@ -5400,6 +5441,7 @@ process.hltSiPixelRecHitsSoA = cms.EDProducer( "SiPixelRecHitAlpakaPhase1@alpaka
     alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
 )
 process.hltSiPixelRecHits = cms.EDProducer( "SiPixelRecHitFromSoAAlpakaPhase1",
+    maxHitsInModules = cms.uint32( 1024 ),
     pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsSoA" ),
     src = cms.InputTag( "hltSiPixelClusters" )
 )
@@ -5448,14 +5490,22 @@ process.hltOnlineBeamSpotDeviceSerialSync = cms.EDProducer( "alpaka_serial_sync:
 process.hltSiPixelClustersSoASerialSync = cms.EDProducer( "alpaka_serial_sync::SiPixelRawToClusterPhase1",
     IncludeErrors = cms.bool( True ),
     UseQualityInfo = cms.bool( False ),
+    verbose = cms.bool( False ),
     clusterThreshold_layer1 = cms.int32( 2000 ),
     clusterThreshold_otherLayers = cms.int32( 4000 ),
     VCaltoElectronGain = cms.double( 1.0 ),
     VCaltoElectronGain_L1 = cms.double( 1.0 ),
     VCaltoElectronOffset = cms.double( 0.0 ),
     VCaltoElectronOffset_L1 = cms.double( 0.0 ),
+    DoDigiMorphing = cms.bool( False ),
+    MaxFakesInModule = cms.uint32( 2400 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
+    barrelRegions = cms.vstring( '1,1-12,1-2',
+      '1,1-12,7-8',
+      '2,1-28,1',
+      '2,1-28,8' ),
+    endcapRegions = cms.vstring(  ),
     CablingMapLabel = cms.string( "" )
 )
 process.hltSiPixelClustersSerialSync = cms.EDProducer( "SiPixelDigisClustersFromSoAAlpakaPhase1",
@@ -5479,36 +5529,38 @@ process.hltSiPixelRecHitsSoASerialSync = cms.EDProducer( "alpaka_serial_sync::Si
     CPE = cms.string( "PixelCPEFastParams" )
 )
 process.hltSiPixelRecHitsSerialSync = cms.EDProducer( "SiPixelRecHitFromSoAAlpakaPhase1",
+    maxHitsInModules = cms.uint32( 1024 ),
     pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsSoASerialSync" ),
     src = cms.InputTag( "hltSiPixelClustersSerialSync" )
 )
 process.hltPixelTracksSoA = cms.EDProducer( "CAHitNtupletAlpakaPhase1@alpaka",
     pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsSoA" ),
-    CPE = cms.string( "PixelCPEFastParams" ),
+    cellZ0Cut = cms.double( 12.0 ),
+    cellPtCut = cms.double( 0.5 ),
+    dzdrFact = cms.double( 15.2 ),
+    minYsizeB1 = cms.int32( 1 ),
+    minYsizeB2 = cms.int32( 1 ),
+    maxDYsize12 = cms.int32( 28 ),
+    maxDYsize = cms.int32( 20 ),
+    maxDYPred = cms.int32( 20 ),
+    maxNumberOfDoublets = cms.string( "524288" ),
+    maxNumberOfTuples = cms.string( "32768" ),
+    avgHitsPerTrack = cms.double( 4.5 ),
+    avgCellsPerHit = cms.double( 27.0 ),
+    avgCellsPerCell = cms.double( 0.071 ),
+    avgTracksPerCell = cms.double( 0.127 ),
     ptmin = cms.double( 0.9 ),
-    CAThetaCutBarrel = cms.double( 0.00123302705499 ),
-    CAThetaCutForward = cms.double( 0.00355691321774 ),
     hardCurvCut = cms.double( 0.0328407225 ),
-    dcaCutInnerTriplet = cms.double( 0.0918113099491 ),
-    dcaCutOuterTriplet = cms.double( 0.420724617835 ),
     earlyFishbone = cms.bool( True ),
     lateFishbone = cms.bool( False ),
     fillStatistics = cms.bool( False ),
     minHitsPerNtuplet = cms.uint32( 3 ),
     minHitsForSharingCut = cms.uint32( 10 ),
     fitNas4 = cms.bool( False ),
-    doClusterCut = cms.bool( True ),
-    doZ0Cut = cms.bool( True ),
-    doPtCut = cms.bool( True ),
     useRiemannFit = cms.bool( False ),
     doSharedHitCut = cms.bool( True ),
     dupPassThrough = cms.bool( False ),
     useSimpleTripletCleaner = cms.bool( True ),
-    maxNumberOfDoublets = cms.uint32( 524288 ),
-    idealConditions = cms.bool( False ),
-    includeJumpingForwardDoublets = cms.bool( True ),
-    cellZ0Cut = cms.double( 12.0 ),
-    cellPtCut = cms.double( 0.5 ),
     trackQualityCuts = cms.PSet( 
       chi2MaxPt = cms.double( 10.0 ),
       tripletMaxTip = cms.double( 0.3 ),
@@ -5520,9 +5572,16 @@ process.hltPixelTracksSoA = cms.EDProducer( "CAHitNtupletAlpakaPhase1@alpaka",
       tripletMinPt = cms.double( 0.5 ),
       chi2Coeff = cms.vdouble( 0.9, 1.8 )
     ),
-    minYsizeB1 = cms.int32( 1 ),
-    minYsizeB2 = cms.int32( 1 ),
-    phiCuts = cms.vint32( 965, 1241, 395, 698, 1058, 1211, 348, 782, 1016, 810, 463, 755, 694, 531, 770, 471, 592, 750, 348 ),
+    geometry = cms.PSet( 
+      caThetaCuts = cms.vdouble( 0.00123302705499, 0.00123302705499, 0.00123302705499, 0.00123302705499, 0.00355691321774, 0.00355691321774, 0.00355691321774, 0.00355691321774, 0.00355691321774, 0.00355691321774 ),
+      pairGraph = cms.vuint32( 0, 1, 0, 4, 0, 7, 1, 2, 1, 4, 1, 7, 4, 5, 7, 8, 2, 3, 2, 4, 2, 7, 5, 6, 8, 9, 0, 2, 1, 3, 0, 5, 0, 8, 4, 6, 7, 9 ),
+      startingPairs = cms.vuint32( 0, 1, 2, 3, 4, 5, 6, 7, 13, 14, 15, 16, 17, 18, 19 ),
+      maxZ = cms.vdouble( 20.0, 30.0, 0.0, 22.0, 30.0, -10.0, 70.0, 70.0, 22.0, 30.0, -15.0, 70.0, 70.0, 20.0, 22.0, 30.0, 0.0, 70.0, 70.0 ),
+      caDCACuts = cms.vdouble( 0.0918113099491, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835 ),
+      minZ = cms.vdouble( -20.0, 0.0, -30.0, -22.0, 10.0, -30.0, -70.0, -70.0, -22.0, 15.0, -30.0, -70.0, -70.0, -20.0, -22.0, 0.0, -30.0, -70.0, -70.0 ),
+      phiCuts = cms.vint32( 965, 1241, 395, 698, 1058, 1211, 348, 782, 1016, 810, 463, 755, 694, 531, 770, 471, 592, 750, 348 ),
+      maxR = cms.vdouble( 20.0, 9.0, 9.0, 20.0, 7.0, 7.0, 5.0, 5.0, 20.0, 6.0, 6.0, 5.0, 5.0, 20.0, 20.0, 9.0, 9.0, 9.0, 9.0 )
+    ),
     alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
 )
 process.hltPixelTracks = cms.EDProducer( "PixelTrackProducerFromSoAAlpakaPhase1",
@@ -5562,31 +5621,32 @@ process.hltTrimmedPixelVertices = cms.EDProducer( "PixelVertexCollectionTrimmer"
 )
 process.hltPixelTracksSoASerialSync = cms.EDProducer( "alpaka_serial_sync::CAHitNtupletAlpakaPhase1",
     pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsSoASerialSync" ),
-    CPE = cms.string( "PixelCPEFastParams" ),
+    cellZ0Cut = cms.double( 12.0 ),
+    cellPtCut = cms.double( 0.5 ),
+    dzdrFact = cms.double( 15.2 ),
+    minYsizeB1 = cms.int32( 1 ),
+    minYsizeB2 = cms.int32( 1 ),
+    maxDYsize12 = cms.int32( 28 ),
+    maxDYsize = cms.int32( 20 ),
+    maxDYPred = cms.int32( 20 ),
+    maxNumberOfDoublets = cms.string( "524288" ),
+    maxNumberOfTuples = cms.string( "32768" ),
+    avgHitsPerTrack = cms.double( 4.5 ),
+    avgCellsPerHit = cms.double( 27.0 ),
+    avgCellsPerCell = cms.double( 0.071 ),
+    avgTracksPerCell = cms.double( 0.127 ),
     ptmin = cms.double( 0.9 ),
-    CAThetaCutBarrel = cms.double( 0.00123302705499 ),
-    CAThetaCutForward = cms.double( 0.00355691321774 ),
     hardCurvCut = cms.double( 0.0328407225 ),
-    dcaCutInnerTriplet = cms.double( 0.0918113099491 ),
-    dcaCutOuterTriplet = cms.double( 0.420724617835 ),
     earlyFishbone = cms.bool( True ),
     lateFishbone = cms.bool( False ),
     fillStatistics = cms.bool( False ),
     minHitsPerNtuplet = cms.uint32( 3 ),
     minHitsForSharingCut = cms.uint32( 10 ),
     fitNas4 = cms.bool( False ),
-    doClusterCut = cms.bool( True ),
-    doZ0Cut = cms.bool( True ),
-    doPtCut = cms.bool( True ),
     useRiemannFit = cms.bool( False ),
     doSharedHitCut = cms.bool( True ),
     dupPassThrough = cms.bool( False ),
     useSimpleTripletCleaner = cms.bool( True ),
-    maxNumberOfDoublets = cms.uint32( 524288 ),
-    idealConditions = cms.bool( False ),
-    includeJumpingForwardDoublets = cms.bool( True ),
-    cellZ0Cut = cms.double( 12.0 ),
-    cellPtCut = cms.double( 0.5 ),
     trackQualityCuts = cms.PSet( 
       chi2MaxPt = cms.double( 10.0 ),
       tripletMaxTip = cms.double( 0.3 ),
@@ -5598,9 +5658,16 @@ process.hltPixelTracksSoASerialSync = cms.EDProducer( "alpaka_serial_sync::CAHit
       tripletMinPt = cms.double( 0.5 ),
       chi2Coeff = cms.vdouble( 0.9, 1.8 )
     ),
-    minYsizeB1 = cms.int32( 1 ),
-    minYsizeB2 = cms.int32( 1 ),
-    phiCuts = cms.vint32( 965, 1241, 395, 698, 1058, 1211, 348, 782, 1016, 810, 463, 755, 694, 531, 770, 471, 592, 750, 348 )
+    geometry = cms.PSet( 
+      caThetaCuts = cms.vdouble( 0.00123302705499, 0.00123302705499, 0.00123302705499, 0.00123302705499, 0.00355691321774, 0.00355691321774, 0.00355691321774, 0.00355691321774, 0.00355691321774, 0.00355691321774 ),
+      pairGraph = cms.vuint32( 0, 1, 0, 4, 0, 7, 1, 2, 1, 4, 1, 7, 4, 5, 7, 8, 2, 3, 2, 4, 2, 7, 5, 6, 8, 9, 0, 2, 1, 3, 0, 5, 0, 8, 4, 6, 7, 9 ),
+      startingPairs = cms.vuint32( 0, 1, 2, 3, 4, 5, 6, 7, 13, 14, 15, 16, 17, 18, 19 ),
+      maxZ = cms.vdouble( 20.0, 30.0, 0.0, 22.0, 30.0, -10.0, 70.0, 70.0, 22.0, 30.0, -15.0, 70.0, 70.0, 20.0, 22.0, 30.0, 0.0, 70.0, 70.0 ),
+      caDCACuts = cms.vdouble( 0.0918113099491, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835, 0.420724617835 ),
+      minZ = cms.vdouble( -20.0, 0.0, -30.0, -22.0, 10.0, -30.0, -70.0, -70.0, -22.0, 15.0, -30.0, -70.0, -70.0, -20.0, -22.0, 0.0, -30.0, -70.0, -70.0 ),
+      phiCuts = cms.vint32( 965, 1241, 395, 698, 1058, 1211, 348, 782, 1016, 810, 463, 755, 694, 531, 770, 471, 592, 750, 348 ),
+      maxR = cms.vdouble( 20.0, 9.0, 9.0, 20.0, 7.0, 7.0, 5.0, 5.0, 20.0, 6.0, 6.0, 5.0, 5.0, 20.0, 20.0, 9.0, 9.0, 9.0, 9.0 )
+    )
 )
 process.hltPixelTracksSerialSync = cms.EDProducer( "PixelTrackProducerFromSoAAlpakaPhase1",
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -5750,9 +5817,9 @@ process.hltEcalUncalibRecHitSoASerialSync = cms.EDProducer( "alpaka_serial_sync:
     shouldRunTimingComputation = cms.bool( True )
 )
 process.hltEcalUncalibRecHitSerialSync = cms.EDProducer( "EcalUncalibRecHitSoAToLegacy",
-    inputCollectionEB = cms.InputTag( 'hltEcalUncalibRecHitSoASerialSync','EcalUncalibRecHitsEB' ),
     outputLabelEB = cms.string( "EcalUncalibRecHitsEB" ),
     isPhase2 = cms.bool( False ),
+    inputCollectionEB = cms.InputTag( 'hltEcalUncalibRecHitSoASerialSync','EcalUncalibRecHitsEB' ),
     inputCollectionEE = cms.InputTag( 'hltEcalUncalibRecHitSoASerialSync','EcalUncalibRecHitsEE' ),
     outputLabelEE = cms.string( "EcalUncalibRecHitsEE" )
 )
@@ -6435,7 +6502,7 @@ process.hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
     rawInput = cms.InputTag( "rawDataCollector" ),
     period = cms.uint32( 4096 ),
     invert = cms.bool( False ),
-    fedId = cms.int32( 1024 ),
+    fedIds = cms.vint32( 1024 ),
     useTCDSEventNumber = cms.bool( False )
 )
 process.hltL1sHcalNZS = cms.EDFilter( "HLTL1TSeed",
@@ -6480,7 +6547,7 @@ process.hltL1EventNumberL1Fat = cms.EDFilter( "HLTL1NumberFilter",
     rawInput = cms.InputTag( "rawDataCollector" ),
     period = cms.uint32( 107 ),
     invert = cms.bool( False ),
-    fedId = cms.int32( 1024 ),
+    fedIds = cms.vint32( 1024 ),
     useTCDSEventNumber = cms.bool( True )
 )
 process.hltPrePhysics = cms.EDFilter( "HLTPrescaler",
@@ -6512,74 +6579,74 @@ process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     EBSumThreshold = cms.double( 0.2 ),
     HF2Weight = cms.double( 1.0 ),
     EBWeight = cms.double( 1.0 ),
-    hfInput = cms.InputTag( "hltHfreco" ),
     EESumThreshold = cms.double( 0.45 ),
     HOThreshold0 = cms.double( 3.5 ),
     HOThresholdPlus1 = cms.double( 3.5 ),
     HOThresholdMinus1 = cms.double( 3.5 ),
     HOThresholdPlus2 = cms.double( 3.5 ),
     HOThresholdMinus2 = cms.double( 3.5 ),
-    HBGrid = cms.vdouble(  ),
+    HBThreshold = cms.double( 0.3 ),
     HBThreshold1 = cms.double( 0.4 ),
     HBThreshold2 = cms.double( 0.3 ),
-    HBThreshold = cms.double( 0.3 ),
-    EEWeights = cms.vdouble(  ),
     HF1Threshold = cms.double( 0.5 ),
-    HF2Weights = cms.vdouble(  ),
-    HOWeights = cms.vdouble(  ),
-    EEGrid = cms.vdouble(  ),
     HEDWeight = cms.double( 1.0 ),
     EEWeight = cms.double( 1.0 ),
-    UseHO = cms.bool( False ),
-    HBWeights = cms.vdouble(  ),
     HESWeight = cms.double( 1.0 ),
     HF1Weight = cms.double( 1.0 ),
-    HF2Grid = cms.vdouble(  ),
-    HEDWeights = cms.vdouble(  ),
-    HF1Grid = cms.vdouble(  ),
-    EBWeights = cms.vdouble(  ),
     HOWeight = cms.double( 1.0E-99 ),
     EBThreshold = cms.double( 0.07 ),
     EEThreshold = cms.double( 0.3 ),
-    UseEtEBTreshold = cms.bool( False ),
-    UseSymEBTreshold = cms.bool( False ),
-    UseEtEETreshold = cms.bool( False ),
-    UseSymEETreshold = cms.bool( False ),
-    hbheInput = cms.InputTag( "hltHbhereco" ),
     HcalThreshold = cms.double( -1000.0 ),
     HF2Threshold = cms.double( 0.85 ),
-    HESThreshold1 = cms.double( 0.1 ),
     HESThreshold = cms.double( 0.2 ),
-    HF1Weights = cms.vdouble(  ),
-    hoInput = cms.InputTag( "hltHoreco" ),
-    HESGrid = cms.vdouble(  ),
-    HESWeights = cms.vdouble(  ),
-    HEDThreshold1 = cms.double( 0.1 ),
+    HESThreshold1 = cms.double( 0.1 ),
     HEDThreshold = cms.double( 0.2 ),
+    HEDThreshold1 = cms.double( 0.1 ),
     EcutTower = cms.double( -1000.0 ),
-    HEDGrid = cms.vdouble(  ),
-    ecalInputs = cms.VInputTag( 'hltEcalRecHit:EcalRecHitsEB','hltEcalRecHit:EcalRecHitsEE' ),
     HBWeight = cms.double( 1.0 ),
-    HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    MomConstrMethod = cms.int32( 1 ),
     MomHBDepth = cms.double( 0.2 ),
     MomHEDepth = cms.double( 0.4 ),
     MomEBDepth = cms.double( 0.3 ),
     MomEEDepth = cms.double( 0.0 ),
-    HcalAcceptSeverityLevel = cms.uint32( 9 ),
-    EcalRecHitSeveritiesToBeExcluded = cms.vstring( 'kTime',
-      'kWeird',
-      'kBad' ),
+    UseHO = cms.bool( False ),
+    UseEtEBTreshold = cms.bool( False ),
+    UseSymEBTreshold = cms.bool( False ),
+    UseEtEETreshold = cms.bool( False ),
+    UseSymEETreshold = cms.bool( False ),
     UseHcalRecoveredHits = cms.bool( False ),
     UseEcalRecoveredHits = cms.bool( False ),
     UseRejectedHitsOnly = cms.bool( False ),
-    HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
-    EcalSeveritiesToBeUsedInBadTowers = cms.vstring(  ),
     UseRejectedRecoveredHcalHits = cms.bool( False ),
     UseRejectedRecoveredEcalHits = cms.bool( False ),
     missingHcalRescaleFactorForEcal = cms.double( 0.0 ),
     AllowMissingInputs = cms.bool( False ),
+    HBGrid = cms.vdouble(  ),
+    EEWeights = cms.vdouble(  ),
+    HF2Weights = cms.vdouble(  ),
+    HOWeights = cms.vdouble(  ),
+    EEGrid = cms.vdouble(  ),
+    HBWeights = cms.vdouble(  ),
+    HF2Grid = cms.vdouble(  ),
+    HEDWeights = cms.vdouble(  ),
+    HF1Grid = cms.vdouble(  ),
+    EBWeights = cms.vdouble(  ),
+    HF1Weights = cms.vdouble(  ),
+    HESGrid = cms.vdouble(  ),
+    HESWeights = cms.vdouble(  ),
+    HEDGrid = cms.vdouble(  ),
+    HOGrid = cms.vdouble(  ),
+    EBGrid = cms.vdouble(  ),
+    hfInput = cms.InputTag( "hltHfreco" ),
+    hbheInput = cms.InputTag( "hltHbhereco" ),
+    hoInput = cms.InputTag( "hltHoreco" ),
+    ecalInputs = cms.VInputTag( 'hltEcalRecHit:EcalRecHitsEB','hltEcalRecHit:EcalRecHitsEE' ),
+    MomConstrMethod = cms.int32( 1 ),
+    HcalAcceptSeverityLevel = cms.uint32( 9 ),
+    EcalRecHitSeveritiesToBeExcluded = cms.vstring( 'kTime',
+      'kWeird',
+      'kBad' ),
+    HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
+    EcalSeveritiesToBeUsedInBadTowers = cms.vstring(  ),
     HcalPhase = cms.int32( 1 ),
     usePFThresholdsFromDB = cms.bool( True ),
     EcalRecHitThresh = cms.bool( True )
