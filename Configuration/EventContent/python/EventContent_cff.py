@@ -1021,3 +1021,36 @@ for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventConten
 for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
 
+# Tau Embedding EventContent
+from TauAnalysis.MCEmbeddingTools.Embedding_EventContent_cff import (
+    TauEmbCleaning,
+    TauEmbMerge,
+    TauEmbNano,
+    TauEmbSelection,
+    TauEmbSimGen,
+    TauEmbSimHLT,
+    TauEmbSimReco,
+)
+
+TauEmbeddingSelectionEventContent = RAWRECOEventContent.clone()
+TauEmbeddingSelectionEventContent.outputCommands.extend(TauEmbSelection.outputCommands)
+
+TauEmbeddingCleaningEventContent = RAWRECOEventContent.clone()
+TauEmbeddingCleaningEventContent.outputCommands.extend(TauEmbCleaning.outputCommands)
+
+TauEmbeddingSimGenEventContent = RAWSIMEventContent.clone()
+TauEmbeddingSimGenEventContent.outputCommands.extend(TauEmbSimGen.outputCommands)
+
+TauEmbeddingSimHLTEventContent = RAWSIMEventContent.clone()
+TauEmbeddingSimHLTEventContent.outputCommands.extend(TauEmbSimHLT.outputCommands)
+
+TauEmbeddingSimRecoEventContent = RAWRECOSIMHLTEventContent.clone()
+TauEmbeddingSimRecoEventContent.outputCommands.extend(TauEmbSimReco.outputCommands)
+
+# needs to have MINIAOD in its name to be recognized by cmsDriver as a MINIAOD output so that miniAOD_customizeOutput is applied
+TauEmbeddingMergeMINIAODEventContent = MINIAODSIMEventContent.clone()
+TauEmbeddingMergeMINIAODEventContent.outputCommands.extend(TauEmbMerge.outputCommands)
+
+# needs to have NANOAOD in its name to be recognized by cmsDriver as a NANOAOD output so that NanoAODOutputModule is used
+TauEmbeddingNANOAODEventContent = NANOAODSIMEventContent.clone()
+TauEmbeddingNANOAODEventContent.outputCommands.extend(TauEmbNano.outputCommands)
