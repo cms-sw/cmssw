@@ -56,9 +56,9 @@ void VertexCompositeCandidateDaughtersRekeyer::produce(edm::Event &iEvent, edm::
   auto outPtrP = std::make_unique<reco::VertexCompositePtrCandidateCollection>();
   outPtrP->reserve(src->size());
 
-  for (size_t i = 0; i < src->size(); ++i) {
+  for (const auto & obj : *src){
     // copy original object and append to vector
-    outPtrP->emplace_back((*src)[i]);
+    outPtrP->emplace_back(obj);
 
     std::vector<reco::CandidatePtr> daughters = outPtrP->back().daughterPtrVector();
     outPtrP->back().clearDaughters();
@@ -68,11 +68,7 @@ void VertexCompositeCandidateDaughtersRekeyer::produce(edm::Event &iEvent, edm::
       // We check if this CandidatePtr points to a candidate in the original packedPFCandidates collection
       // This is needed because the CandidatePtr can point to a candidate in lostTracks collection
       //
-      if (dau.id() == pcOriHandle.id()) {
-        outPtrP->back().addDaughter(edm::Ptr<reco::Candidate>(pcNewHandle, dau.key()));
-      } else {
-        outPtrP->back().addDaughter(dau);
-      }
+      outPtrP->back().addDaughter( (dau.id() == pcOriHandle.id()) ? edm::Ptr<reco::Candidate>(pcNewHandle, dau.key()) : dau);
     }
   }
   iEvent.put(std::move(outPtrP));
