@@ -153,19 +153,53 @@ def miniAODFromMiniAOD_customizeCommon(process):
     ###########################################################################
     # Rekey tau constituents
     ###########################################################################
-    addToProcessAndTask("slimmedTaus", cms.EDProducer("PATTauCandidatesRekeyer",
-        src = cms.InputTag("slimmedTaus", processName=cms.InputTag.skipCurrentProcess()),
-        packedPFCandidatesNew = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
-      ),
-      process, task
-    )
+    from Configuration.ProcessModifiers.run2_miniAOD_miniAODUL_cff import run2_miniAOD_miniAODUL
+    import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+    taus_to_use = 'slimmedTaus::@skipCurrentProcess'
+    idsToRun_for_taus = cms.PSet(idsToAdd=cms.vstring())
+    run2_miniAOD_miniAODUL.toModify(
+        idsToRun_for_taus, idsToAdd=["deepTau2018v2p5"])
+    if idsToRun_for_taus.idsToAdd:
+        if not hasattr(process,'tauTask'): process.tauTask = cms.Task()
+        taus_from_mini = taus_to_use
+        taus_to_use = 'slimmedTausUpdated'
+        tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug=False,
+                                                  originalTauName=taus_from_mini,
+                                                  updatedTauName=taus_to_use,
+                                                  postfix="M2M",
+                                                  toKeep=idsToRun_for_taus.idsToAdd)
+        tauIdEmbedder.runTauID()
+        task.add(process.rerunMvaIsolationTaskM2M, getattr(process, taus_to_use))
 
+    addToProcessAndTask("slimmedTaus", cms.EDProducer("PATTauCandidatesRekeyer",
+                                                      src = cms.InputTag(taus_to_use),
+                                                      packedPFCandidatesNew = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
+                                                      ),
+                        process, task
+                        )
+
+    boosted_taus_to_use = 'slimmedTausBoosted::@skipCurrentProcess'
+    idsToRun_for_boosted_taus = cms.PSet(idsToAdd=cms.vstring())
+    run2_miniAOD_miniAODUL.toModify(
+        idsToRun_for_boosted_taus, idsToAdd=["mvaIso", "mvaIsoNewDM", "mvaIsoDR0p3", "againstEle", "boostedDeepTauRunIIv2p0"])
+    if idsToRun_for_boosted_taus.idsToAdd:
+        if not hasattr(process,'tauTask'): process.tauTask = cms.Task()
+        boosted_taus_from_mini = boosted_taus_to_use
+        boosted_taus_to_use = 'slimmedTausBoostedUpdated'
+        tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug=False,
+                                                  originalTauName=boosted_taus_from_mini,
+                                                  updatedTauName=boosted_taus_to_use,
+                                                  postfix="BoostedM2M",
+                                                  toKeep=idsToRun_for_boosted_taus.idsToAdd)
+        tauIdEmbedder.runTauID()
+        task.add(process.rerunMvaIsolationTaskBoostedM2M, getattr(process, boosted_taus_to_use))
+        
     addToProcessAndTask("slimmedTausBoosted", cms.EDProducer("PATTauCandidatesRekeyer",
-        src = cms.InputTag("slimmedTausBoosted", processName=cms.InputTag.skipCurrentProcess()),
-        packedPFCandidatesNew = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
-      ),
-      process, task
-    )
+                                                             src = cms.InputTag(boosted_taus_to_use),
+                                                             packedPFCandidatesNew = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
+                                                             ),
+                        process, task
+                        )
 
     ###########################################################################
     # Rekey candidates in electrons, photons and muons
@@ -232,6 +266,17 @@ def miniAODFromMiniAOD_customizeCommon(process):
       ),
       process, task
     )
+
+
+    _modified_run2_task = task.copyAndExclude([getattr(process,thisone) for thisone in ['slimmedDisplacedMuons']])
+    from PhysicsTools.PatAlgos.patRefitVertexProducer_cfi import patRefitVertexProducer
+    process.offlineSlimmedPrimaryVerticesWithBS = patRefitVertexProducer.clone(
+        srcVertices = "offlineSlimmedPrimaryVertices",
+    )
+    
+    _modified_run2_task.add( process.offlineSlimmedPrimaryVerticesWithBS )
+    run2_miniAOD_miniAODUL.toReplaceWith(
+        task, _modified_run2_task)
 
     mini_output = None
     for out_name in process.outputModules_().keys():
