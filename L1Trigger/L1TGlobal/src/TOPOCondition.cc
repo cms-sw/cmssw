@@ -237,7 +237,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   m_model->prepare_input(scaledInput);  //scaling internal here
   m_model->predict();
   m_model->read_result(&loss); //store result as loss variable
-  score = ((loss).to_float()); 
+  score = ((loss).to_float() * 1023); 
   setScore(score);
 
   // Write ADModelInput to text file (append mode)
@@ -275,6 +275,9 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   bool passCondition = false;
 
   passCondition = checkCut(objPar.minTOPOThreshold, score, condGEqVal);
+
+  std::cout << "TOPOCondition::evaluateCondition : TOPO score = " << score << " threshold = "
+            << objPar.minTOPOThreshold << " pass = " << passCondition << std::endl;
 
   condResult |= passCondition;  //condresult true if passCondition true else it is false
     
