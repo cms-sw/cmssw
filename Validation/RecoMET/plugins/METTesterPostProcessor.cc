@@ -57,7 +57,7 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
             mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx)->getEntries() < mEpsilonDouble ||
             mArrayIdx<MElem *>(mMETRatio_GenMETTrue[bt], idx)->getEntries() < mEpsilonDouble ||
             mArrayIdx<MElem *>(mMETDeltaPhi_GenMETTrue[bt], idx)->getEntries() < mEpsilonDouble) {
-          edm::LogWarning("METTesterPostProcessor")
+          LogDebug("METTesterPostProcessor")
               << "At least one of the " << bt + edges << " histograms has zero entries:\n"
               << "  MET: " << mArrayIdx<MElem *>(mMET[bt], idx)->getEntries() << "\n"
               << "  METDiff: " << mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx)->getEntries() << "\n"
