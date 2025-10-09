@@ -79,23 +79,47 @@ _NANO_mc = merge([{'-s': 'NANO,DQM:@nanoAODDQM',
                    '--customise': '"Configuration/DataProcessing/Utils.addMonitoring"'
                    }])
 _HARVEST_mc = merge([_HARVEST_nano, {'--mc': ''}])
+## the validation sequence VALIDATION:@miniAODValidation will not function on M2M, because it requires AOD-bound collections TBF under a proc-Modifier
+_MIMI_from_MINI = {'-s': 'PAT:Configuration/StandardSequences/REMINI_cff.patAlgosToolsTask,DQM:@miniAODDQM',
+                   '--process': 'M2M'}
 steps['HRV_NANO_mc'] = _HARVEST_mc
 steps['HRV_NANO_data'] = _HARVEST_data
 
 ################################################################
 # 10.6 INPUT and workflows
+steps['TTbarAOD10.6_UL16APV'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16RECOAPV-106X_mcRun2_asymptotic_preVFP_v8-v2/AODSIM')}
+steps['MINI_mc10.6ul16APV'] = merge([{'--procModifiers':'run2_miniAOD_UL'}, steps['REMINIAOD_mc2016UL_preVFP']])
+steps['M2M_mc10.6ul16APV'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul16APV']])
+steps['TTbarMINIAOD10.6_UL16APVv2'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16MiniAODAPVv2-106X_mcRun2_asymptotic_preVFP_v11-v2/MINIAODSIM')}
+steps['NANO_mc10.6ul16APVv2'] = merge([{'--era': 'Run2_2016_HIPM,run2_nanoAOD_106Xv2',
+                                        '--conditions': 'auto:run2_mc'},
+                                       _NANO_mc])
+steps['TTbarAOD10.6_UL16'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16RECO-106X_mcRun2_asymptotic_v13-v2/AODSIM')}
+steps['MINI_mc10.6ul16'] = merge([{'--procModifiers':'run2_miniAOD_UL'}, steps['REMINIAOD_mc2016UL_postVFP']])
+steps['M2M_mc10.6ul16'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul16']])
 steps['TTbarMINIAOD10.6_UL16v2'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16MiniAODv2-106X_mcRun2_asymptotic_v17-v2/MINIAODSIM')}
 steps['NANO_mc10.6ul16v2'] = merge([{'--era': 'Run2_2016,run2_nanoAOD_106Xv2',
                                    '--conditions': 'auto:run2_mc'},
                                     _NANO_mc])
 # 2017 looking Monte-Carlo: two versions in 10.6
+steps['TTbarAOD10.6_UL17'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL17RECO-106X_mc2017_realistic_v6-v2/AODSIM')}
+steps['MINI_mc10.6ul17'] = merge([{'--procModifiers':'run2_miniAOD_UL'}, steps['REMINIAOD_mc2017UL']])
+steps['M2M_mc10.6ul17'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul17']])
 steps['TTbarMINIAOD10.6_UL17v2'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2/MINIAODSIM')}
 steps['NANO_mc10.6ul17v2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv2',
                                    '--conditions': 'auto:phase1_2017_realistic'},
                                     _NANO_mc])
 
+steps['TTbarAOD10.6_UL18'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v2/AODSIM')}
+steps['MINI_mc10.6ul18'] = merge([{'--procModifiers':'run2_miniAOD_UL'}, steps['REMINIAOD_mc2018UL']])
+steps['M2M_mc10.6ul18'] = merge([_MIMI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'} ,steps['MINI_mc10.6ul18']])
 steps['TTbarMINIAOD10.6_UL18v2'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2/MINIAODSIM')}
 steps['NANO_mc10.6ul18v2'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_106Xv2',
@@ -400,6 +424,7 @@ _wfn = WFN(2500)
 ######## 2500.0xxx ########
 # Run2, 10_6_X MiniAOD input (current recommendation for 2016--2018)
 workflows[_wfn()] = ['NANOmc106Xul16v2', ['TTbarMINIAOD10.6_UL16v2', 'NANO_mc10.6ul16v2', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmc106Xul16APVv2', ['TTbarMINIAOD10.6_UL16APVv2', 'NANO_mc10.6ul16APVv2', 'HRV_NANO_mc']]
 workflows[_wfn()] = ['NANOmc106Xul17v2', ['TTbarMINIAOD10.6_UL17v2', 'NANO_mc10.6ul17v2', 'HRV_NANO_mc']]
 workflows[_wfn()] = ['NANOmc106Xul18v2', ['TTbarMINIAOD10.6_UL18v2', 'NANO_mc10.6ul18v2', 'HRV_NANO_mc']]
 
@@ -410,16 +435,31 @@ workflows[_wfn()] = ['NANOdata106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_dat
 
 # Run2, 10_6_X AOD, reMINI+reNANO
 _wfn.subnext()
-workflows[_wfn()] = ['NANOmcUL16APVreMINI', ['TTbar_13_reminiaod2016UL_preVFP_INPUT', 'REMINIAOD_mc2016UL_preVFP', 'NANO_mc_UL16APVreMINI', 'HRV_NANO_mc']]  # noqa
-workflows[_wfn()] = ['NANOmcUL16reMINI', ['TTbar_13_reminiaod2016UL_postVFP_INPUT', 'REMINIAOD_mc2016UL_postVFP', 'NANO_mc_UL16reMINI', 'HRV_NANO_mc']]  # noqa
-workflows[_wfn()] = ['NANOmcUL17reMINI', ['TTbar_13_reminiaod2017UL_INPUT', 'REMINIAOD_mc2017UL', 'NANO_mc_UL17reMINI', 'HRV_NANO_mc']]  # noqa
-workflows[_wfn()] = ['NANOmcUL18reMINI', ['TTbar_13_reminiaod2018UL_INPUT', 'REMINIAOD_mc2018UL', 'NANO_mc_UL18reMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcPreUL16APVreMINI', ['TTbar_13_reminiaod2016UL_preVFP_INPUT', 'REMINIAOD_mc2016UL_preVFP', 'NANO_mc_UL16APVreMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcPreUL16reMINI', ['TTbar_13_reminiaod2016UL_postVFP_INPUT', 'REMINIAOD_mc2016UL_postVFP', 'NANO_mc_UL16reMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcPreUL17reMINI', ['TTbar_13_reminiaod2017UL_INPUT', 'REMINIAOD_mc2017UL', 'NANO_mc_UL17reMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcPreUL18reMINI', ['TTbar_13_reminiaod2018UL_INPUT', 'REMINIAOD_mc2018UL', 'NANO_mc_UL18reMINI', 'HRV_NANO_mc']]  # noqa
+
+workflows[_wfn()] = ['NANOmcUL16APVreMINI', ['TTbarAOD10.6_UL16APV', 'MINI_mc10.6ul16APV', 'NANO_mc_UL16APVreMINI', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmcUL16reMINI', ['TTbarAOD10.6_UL16', 'MINI_mc10.6ul16', 'NANO_mc_UL16reMINI', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmcUL17reMINI', ['TTbarAOD10.6_UL17', 'MINI_mc10.6ul17', 'NANO_mc_UL17reMINI', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmcUL18reMINI', ['TTbarAOD10.6_UL18', 'MINI_mc10.6ul18', 'NANO_mc_UL18reMINI', 'HRV_NANO_mc']]
 
 _wfn.subnext()
 workflows[_wfn()] = ['NANOdataUL16APVreMINI', ['RunJetHT2016E_reminiaodUL', 'REMINIAOD_data2016UL_HIPM', 'NANO_data_UL16APVreMINI', 'HRV_NANO_data']]  # noqa
 workflows[_wfn()] = ['NANOdataUL16reMINI', ['RunJetHT2016H_reminiaodUL', 'REMINIAOD_data2016UL', 'NANO_data_UL16reMINI', 'HRV_NANO_data']]  # noqa
 workflows[_wfn()] = ['NANOdataUL17reMINI', ['RunJetHT2017F_reminiaodUL', 'REMINIAOD_data2017UL', 'NANO_data_UL17reMINI', 'HRV_NANO_data']]  # noqa
 workflows[_wfn()] = ['NANOdataUL18reMINI', ['RunJetHT2018D_reminiaodUL', 'REMINIAOD_data2018UL', 'NANO_data_UL18reMINI', 'HRV_NANO_data']]  # noqa
+
+_wfn.subnext()
+workflows[_wfn()] = ['NANOmcUL16APVMini2Mini', ['TTbarMINIAOD10.6_UL16APVv2', 'M2M_mc10.6ul16APV', 'NANO_mc_UL16APVreMINI', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmcUL16Mini2Mini', ['TTbarMINIAOD10.6_UL16v2', 'M2M_mc10.6ul16', 'NANO_mc_UL16reMINI', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmcUL17Mini2Mini', ['TTbarMINIAOD10.6_UL17v2', 'M2M_mc10.6ul17', 'NANO_mc_UL17reMINI', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmcUL18Mini2Mini', ['TTbarMINIAOD10.6_UL18v2', 'M2M_mc10.6ul18', 'NANO_mc_UL18reMINI', 'HRV_NANO_mc']]
+
+
+_wfn.subnext()
+## M2M for data
 
 _wfn.next(1)
 ######## 2500.1xxx ########
