@@ -41,10 +41,10 @@ public:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
-  static const int mNMETBins = 11;
+  static constexpr int mNMETBins = 11;
   static constexpr std::array<float, mNMETBins + 1> mMETBins = {
       {0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 1000.}};
-  static const int mNPhiBins = 6;
+  static constexpr int mNPhiBins = 6;
   static constexpr std::array<float, mNPhiBins + 1> mPhiBins = {{-3.15, -2., -1., 0., 1., 2., 3.15}};
 
   static std::string binStr(float left, float right, bool roundInt = true);

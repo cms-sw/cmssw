@@ -22,9 +22,11 @@ private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
   std::vector<std::string> met_dirs;
 
-  void mFillAggrHistograms(std::string, DQMStore::IGetter&);
-
   using MElem = MonitorElement;
+
+  void mFillAggrHistograms(std::string, DQMStore::IGetter&);
+  bool mCheckHisto(MElem* h);
+
   template <typename T>
   using ArrayVariant = std::variant<std::array<T, METTester::mNMETBins + 1>, std::array<T, METTester::mNPhiBins + 1>>;
 
@@ -59,6 +61,9 @@ private:
   ElemMap mMETSignAggr;
 
   std::string runDir;
+
+  float mEpsilonFloat = std::numeric_limits<float>::epsilon();
+  double mEpsilonDouble = std::numeric_limits<double>::epsilon();
 };
 
 #endif

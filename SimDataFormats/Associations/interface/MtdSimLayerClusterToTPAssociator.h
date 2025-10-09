@@ -6,8 +6,8 @@
 #include <memory>
 
 // user include files
-
 #include "SimDataFormats/Associations/interface/MtdSimLayerClusterToTPAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 // forward declarations
 
@@ -15,7 +15,8 @@ namespace reco {
   class MtdSimLayerClusterToTPAssociator {
   public:
     MtdSimLayerClusterToTPAssociator(std::unique_ptr<reco::MtdSimLayerClusterToTPAssociatorBaseImpl>);
-    MtdSimLayerClusterToTPAssociator() = default;
+    MtdSimLayerClusterToTPAssociator() = delete;
+    explicit MtdSimLayerClusterToTPAssociator(edm::Uninitialized) noexcept {};
     MtdSimLayerClusterToTPAssociator(MtdSimLayerClusterToTPAssociator &&) = default;
     MtdSimLayerClusterToTPAssociator &operator=(MtdSimLayerClusterToTPAssociator &&) = default;
     MtdSimLayerClusterToTPAssociator(const MtdSimLayerClusterToTPAssociator &) = delete;  // stop default

@@ -8,13 +8,15 @@
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociatorBaseImpl.h"
 #include "SimDataFormats/Associations/interface/MuonTrackType.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 #include <memory>
 
 namespace reco {
   class MuonToTrackingParticleAssociator {
   public:
-    MuonToTrackingParticleAssociator() = default;
+    MuonToTrackingParticleAssociator() = delete;
+    explicit MuonToTrackingParticleAssociator(edm::Uninitialized) noexcept {};
     ~MuonToTrackingParticleAssociator() = default;
 #ifndef __GCCXML__
     MuonToTrackingParticleAssociator(std::unique_ptr<MuonToTrackingParticleAssociatorBaseImpl>);
