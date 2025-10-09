@@ -467,7 +467,7 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
       muonNoVtx_vtxIndx.push_back(mu.vtxIndx());
       // Extrapolated phiCorr logic
       float phiCorr = mu.phi();
-      if (SVNoVtx.isValid() && mu.vtxIndx().size() > 0 && theB) {
+      if (SVNoVtx.isValid() && !mu.vtxIndx().empty() && theB) {
         int vtxIndx = mu.vtxIndx()[0];
         if (vtxIndx >= 0 && vtxIndx < int(SVNoVtx->size())) {
           const auto& sv = SVNoVtx->at(vtxIndx);
@@ -531,7 +531,7 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
       muonVtx_vtxIndx.push_back(mu.vtxIndx());
       // Extrapolated phiCorr logic
       float phiCorr = mu.phi();
-      if (SVVtx.isValid() && mu.vtxIndx().size() > 0 && theB) {
+      if (SVVtx.isValid() && !mu.vtxIndx().empty() && theB) {
         int vtxIndx = mu.vtxIndx()[0];
         if (vtxIndx >= 0 && vtxIndx < int(SVVtx->size())) {
           const auto& sv = SVVtx->at(vtxIndx);
