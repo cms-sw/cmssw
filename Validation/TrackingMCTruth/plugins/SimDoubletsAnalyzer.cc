@@ -4,7 +4,8 @@
 // Class:      SimDoubletsAnalyzer
 //
 
-#define DOUBLETCUTS_PRINTOUTS
+// #define DOUBLETCUTS_PRINTOUTS
+#define LOSTNTUPLETS_PRINTOUTS
 
 // user include files
 #include "Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.h"
@@ -466,7 +467,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
   if (cellCutVariables.z0() > cellZ0Cut_)
     passZ0 = false;
   /* ptcut */
-  if (cellCutVariables.pT() < cellPtCut_)
+  if (cellCutVariables.pT() < cellCuts_.ptCuts_[layerPairIdIndex])
     passPt = false;
   /* idphicut */
   if (cellCutVariables.idphi() > cellCuts_.phiCuts_[layerPairIdIndex])
@@ -1103,6 +1104,28 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       numSkippedLayers = simDoublets.longestSimNtuplet().numSkippedLayers();
       fillSimNtupletHistograms(simDoublets, trackTruth);
     }
+
+#ifdef LOSTNTUPLETS_PRINTOUTS
+    if (!simDoublets.hasAliveSimNtuplet()) {
+      printf(
+          "\n------------------------------------------\n Lost Particle: pdgId %d, eta %f, pT %f, dz %f, dxy "
+          "%f\n------------------------------------------\n",
+          trackTruth.pdgId,
+          trackTruth.eta,
+          trackTruth.pt,
+          trackTruth.dz,
+          trackTruth.dxy);
+      for (auto const& doublet : doublets) {
+        printf(" doublet (%d, %d) is %s\n",
+               doublet.innerLayerId(),
+               doublet.outerLayerId(),
+               doublet.isAlive() ? "alive" : "killed");
+        for (auto const& neighbor : doublet.innerNeighborsView()) {
+          printf("   - connection to %ld is %s \n", neighbor.index(), neighbor.isAlive() ? "alive" : "killed");
+        }
+      }
+    }
+#endif
 
     // -----------------------------------------------------------------------------
     //  general plots related to TrackingParticles (general folder)
@@ -2369,6 +2392,8 @@ void SimDoubletsAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
           "phiCuts",
           std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::begin(phase1PixelTopology::phicuts) + nPairs))
       ->setComment("Cuts in phi for cells");
+  geometryParams.add<std::vector<double>>("ptCuts", std::vector<double>(nPairs, 0.5))
+      ->setComment("Minimum tranverse momentum");
   geometryParams
       .add<std::vector<double>>(
           "minInner",
@@ -2451,6 +2476,8 @@ void SimDoubletsAnalyzer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
           "phiCuts",
           std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::begin(phase2PixelTopology::phicuts) + nPairs))
       ->setComment("Cuts in phi for cells");
+  geometryParams.add<std::vector<double>>("ptCuts", std::vector<double>(nPairs, 0.85))
+      ->setComment("Minimum tranverse momentum");
   geometryParams
       .add<std::vector<double>>(
           "minInner",
