@@ -1004,14 +1004,10 @@
         "L1PHIA",
         "L1PHIB",
         "L1PHIC",
-        "L3PHIA",
-        "L3PHIB",
         "D3PHIA",
         "D3PHIB",
         "D4PHIA",
-        "D4PHIB",
-        "D5PHIA",
-        "D5PHIB"
+        "D4PHIB"
       ]
     },
     "B": {
@@ -1031,17 +1027,12 @@
         "L1PHIA",
         "L1PHIB",
         "L1PHIC",
-        "L3PHIA",
-        "L3PHIB",
         "D3PHIA",
         "D3PHIB",
         "D3PHIC",
         "D4PHIA",
         "D4PHIB",
-        "D4PHIC",
-        "D5PHIA",
-        "D5PHIB",
-        "D5PHIC"
+        "D4PHIC"
       ]
     },
     "C": {
@@ -1062,18 +1053,12 @@
         "L1PHIC",
         "L1PHID",
         "L1PHIE",
-        "L3PHIA",
-        "L3PHIB",
-        "L3PHIC",
         "D3PHIA",
         "D3PHIB",
         "D3PHIC",
         "D4PHIA",
         "D4PHIB",
-        "D4PHIC",
-        "D5PHIA",
-        "D5PHIB",
-        "D5PHIC"
+        "D4PHIC"
       ]
     },
     "D": {
@@ -1093,17 +1078,11 @@
         "L1PHIC",
         "L1PHID",
         "L1PHIE",
-        "L3PHIA",
-        "L3PHIB",
-        "L3PHIC",
         "D3PHIB",
         "D3PHIC",
         "D4PHIA",
         "D4PHIB",
-        "D4PHIC",
-        "D5PHIA",
-        "D5PHIB",
-        "D5PHIC"
+        "D4PHIC"
       ]
     },
     "E": {
@@ -1122,17 +1101,12 @@
       "projections": [
         "L1PHID",
         "L1PHIE",
-        "L3PHIB",
-        "L3PHIC",
         "D3PHIB",
         "D3PHIC",
         "D3PHID",
         "D4PHIB",
         "D4PHIC",
-        "D4PHID",
-        "D5PHIB",
-        "D5PHIC",
-        "D5PHID"
+        "D4PHID"
       ]
     },
     "F": {
@@ -1153,17 +1127,12 @@
         "L1PHIE",
         "L1PHIF",
         "L1PHIG",
-        "L3PHIC",
-        "L3PHID",
         "D3PHIB",
         "D3PHIC",
         "D3PHID",
         "D4PHIB",
         "D4PHIC",
-        "D4PHID",
-        "D5PHIB",
-        "D5PHIC",
-        "D5PHID"
+        "D4PHID"
       ]
     },
     "G": {
@@ -1183,17 +1152,11 @@
         "L1PHIE",
         "L1PHIF",
         "L1PHIG",
-        "L3PHIB",
-        "L3PHIC",
-        "L3PHID",
         "D3PHIB",
         "D3PHIC",
         "D3PHID",
         "D4PHIC",
-        "D4PHID",
-        "D5PHIB",
-        "D5PHIC",
-        "D5PHID"
+        "D4PHID"
       ]
     },
     "H": {
@@ -1212,14 +1175,10 @@
       "projections": [
         "L1PHIF",
         "L1PHIG",
-        "L3PHIC",
-        "L3PHID",
         "D3PHIC",
         "D3PHID",
         "D4PHIC",
-        "D4PHID",
-        "D5PHIC",
-        "D5PHID"
+        "D4PHID"
       ]
     },
     "I": {
@@ -1239,14 +1198,10 @@
         "L1PHIF",
         "L1PHIG",
         "L1PHIH",
-        "L3PHIC",
-        "L3PHID",
         "D3PHIC",
         "D3PHID",
         "D4PHIC",
-        "D4PHID",
-        "D5PHIC",
-        "D5PHID"
+        "D4PHID"
       ]
     },
     "J": {
@@ -1266,12 +1221,9 @@
         "L1PHIF",
         "L1PHIG",
         "L1PHIH",
-        "L3PHIC",
-        "L3PHID",
         "D3PHID",
         "D4PHIC",
-        "D4PHID",
-        "D5PHID"
+        "D4PHID"
       ]
     }
   }
