@@ -20,11 +20,11 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-template <typename HIT>
-class LCToCPAssociatorByEnergyScoreProducer : public edm::global::EDProducer<> {
+template <typename HIT, typename CLUSTER>
+class LCToCPAssociatorByEnergyScoreProducerT : public edm::global::EDProducer<> {
 public:
-  explicit LCToCPAssociatorByEnergyScoreProducer(const edm::ParameterSet &);
-  ~LCToCPAssociatorByEnergyScoreProducer() override;
+  explicit LCToCPAssociatorByEnergyScoreProducerT(const edm::ParameterSet &);
+  ~LCToCPAssociatorByEnergyScoreProducerT() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -39,12 +39,22 @@ private:
   std::vector<edm::EDGetTokenT<std::vector<HIT>>> hits_token_;
 };
 
-template class LCToCPAssociatorByEnergyScoreProducer<HGCRecHit>;
-template class LCToCPAssociatorByEnergyScoreProducer<reco::PFRecHit>;
+template class LCToCPAssociatorByEnergyScoreProducerT<HGCRecHit, reco::CaloClusterCollection>;
+template class LCToCPAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::CaloClusterCollection>;
+template class LCToCPAssociatorByEnergyScoreProducerT<HGCRecHit, reco::PFClusterCollection>;
+template class LCToCPAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::PFClusterCollection>;
 
-using HGCalLCToCPAssociatorByEnergyScoreProducer = LCToCPAssociatorByEnergyScoreProducer<HGCRecHit>;
+using HGCalLCToCPAssociatorByEnergyScoreProducer =
+    LCToCPAssociatorByEnergyScoreProducerT<HGCRecHit, reco::CaloClusterCollection>;
 DEFINE_FWK_MODULE(HGCalLCToCPAssociatorByEnergyScoreProducer);
-using BarrelLCToCPAssociatorByEnergyScoreProducer = LCToCPAssociatorByEnergyScoreProducer<reco::PFRecHit>;
+using BarrelLCToCPAssociatorByEnergyScoreProducer =
+    LCToCPAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::CaloClusterCollection>;
 DEFINE_FWK_MODULE(BarrelLCToCPAssociatorByEnergyScoreProducer);
+using HGCalPCToCPAssociatorByEnergyScoreProducer =
+    LCToCPAssociatorByEnergyScoreProducerT<HGCRecHit, reco::PFClusterCollection>;
+DEFINE_FWK_MODULE(HGCalPCToCPAssociatorByEnergyScoreProducer);
+using BarrelPCToCPAssociatorByEnergyScoreProducer =
+    LCToCPAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::PFClusterCollection>;
+DEFINE_FWK_MODULE(BarrelPCToCPAssociatorByEnergyScoreProducer);
 
 #endif

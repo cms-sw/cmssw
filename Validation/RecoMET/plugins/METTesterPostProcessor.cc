@@ -37,6 +37,8 @@ void METTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
   }
 }
 
+bool METTesterPostProcessor::mCheckHisto(MElem *h) { return h && h->getRootObject(); }
+
 void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::IGetter &iget) {
   for (std::string bt : {"MET", "Phi"}) {  // loop over bin types
     for (unsigned idx = 0; idx < mNBins[bt]; ++idx) {
@@ -46,12 +48,27 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
       mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx) = iget.get(metdir + "/METDiff_GenMETTrue_" + bt + edges);
       mArrayIdx<MElem *>(mMETRatio_GenMETTrue[bt], idx) = iget.get(metdir + "/METRatio_GenMETTrue_" + bt + edges);
       mArrayIdx<MElem *>(mMETDeltaPhi_GenMETTrue[bt], idx) = iget.get(metdir + "/METDeltaPhi_GenMETTrue_" + bt + edges);
+
+      // check one object, if it exists, then the remaining ME's exists too
+      // for genmet none of these ME's are filled
+      if (mCheckHisto(mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], 0))) {
+        // log histograms with zero entries
+        if (mArrayIdx<MElem *>(mMET[bt], idx)->getEntries() < mEpsilonDouble ||
+            mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx)->getEntries() < mEpsilonDouble ||
+            mArrayIdx<MElem *>(mMETRatio_GenMETTrue[bt], idx)->getEntries() < mEpsilonDouble ||
+            mArrayIdx<MElem *>(mMETDeltaPhi_GenMETTrue[bt], idx)->getEntries() < mEpsilonDouble) {
+          LogDebug("METTesterPostProcessor")
+              << "At least one of the " << bt + edges << " histograms has zero entries:\n"
+              << "  MET: " << mArrayIdx<MElem *>(mMET[bt], idx)->getEntries() << "\n"
+              << "  METDiff: " << mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx)->getEntries() << "\n"
+              << "  METRatio: " << mArrayIdx<MElem *>(mMETRatio_GenMETTrue[bt], idx)->getEntries() << "\n"
+              << "  METDeltaPhi: " << mArrayIdx<MElem *>(mMETDeltaPhi_GenMETTrue[bt], idx)->getEntries();
+        }
+      }
     }
 
-    // check one object, if it exists, then the remaining ME's exists too
-    // for genmet none of these ME's are filled
-    if (mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], 0) &&
-        mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], 0)->getRootObject()) {
+    if (mCheckHisto(mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], 0))) {
+      // compute and store MET quantities
       for (unsigned idx = 0; idx < mNBins[bt]; ++idx) {
         mMETDiffAggr[bt]->setBinContent(idx + 1, mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx)->getMean());
         mMETDiffAggr[bt]->setBinError(idx + 1, mArrayIdx<MElem *>(mMETDiff_GenMETTrue[bt], idx)->getRMS());
@@ -67,11 +84,13 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
         mMETResolAggr[bt]->setBinContent(idx + 1, metRMS);
         mMETResolAggr[bt]->setBinError(idx + 1, resolError);
 
-        float significance = metMean / metRMS;
+        float significance = metRMS < mEpsilonFloat ? 0.f : metMean / metRMS;
+        float significance_error = metRMS < mEpsilonFloat || metMean < mEpsilonFloat
+                                       ? 0.f
+                                       : significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
+                                                                  (resolError * resolError / (metRMS * metRMS)));
         mMETSignAggr[bt]->setBinContent(idx + 1, significance);
-        mMETSignAggr[bt]->setBinError(idx + 1,
-                                      significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
-                                                               (resolError * resolError / (metRMS * metRMS))));
+        mMETSignAggr[bt]->setBinError(idx + 1, significance_error);
       }
     }
   }
