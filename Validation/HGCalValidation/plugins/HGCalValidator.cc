@@ -423,7 +423,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
     if (!hitsHandle.isValid()) {
       edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
-      return;
+      continue;
     }
 
     rechitSpan.add(*hitsHandle);
