@@ -456,11 +456,6 @@ workflows[_wfn()] = ['NANOdata106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_dat
 
 # Run2, 10_6_X AOD, reMINI+reNANO
 _wfn.subnext()
-workflows[_wfn()] = ['NANOmcPreUL16APVreMINI', ['TTbar_13_reminiaod2016UL_preVFP_INPUT', 'REMINIAOD_mc2016UL_preVFP', 'NANO_mc_UL16APVreMINI', 'HRV_NANO_mc']]  # noqa
-workflows[_wfn()] = ['NANOmcPreUL16reMINI', ['TTbar_13_reminiaod2016UL_postVFP_INPUT', 'REMINIAOD_mc2016UL_postVFP', 'NANO_mc_UL16reMINI', 'HRV_NANO_mc']]  # noqa
-workflows[_wfn()] = ['NANOmcPreUL17reMINI', ['TTbar_13_reminiaod2017UL_INPUT', 'REMINIAOD_mc2017UL', 'NANO_mc_UL17reMINI', 'HRV_NANO_mc']]  # noqa
-workflows[_wfn()] = ['NANOmcPreUL18reMINI', ['TTbar_13_reminiaod2018UL_INPUT', 'REMINIAOD_mc2018UL', 'NANO_mc_UL18reMINI', 'HRV_NANO_mc']]  # noqa
-
 workflows[_wfn()] = ['NANOmcUL16APVreMINI', ['TTbarAOD10.6_UL16APV', 'MINI_mc10.6ul16APV', 'NANO_mc_UL16APVreMINI', 'HRV3_NANO_mc']]
 workflows[_wfn()] = ['NANOmcUL16reMINI', ['TTbarAOD10.6_UL16', 'MINI_mc10.6ul16', 'NANO_mc_UL16reMINI', 'HRV3_NANO_mc']]
 workflows[_wfn()] = ['NANOmcUL17reMINI', ['TTbarAOD10.6_UL17', 'MINI_mc10.6ul17', 'NANO_mc_UL17reMINI', 'HRV3_NANO_mc']]
