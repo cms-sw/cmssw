@@ -8,9 +8,9 @@
 namespace reco {
 
   GENERATE_SOA_LAYOUT(PFMultiDepthClusteringEdgeVarsSoALayout,
-                        SOA_COLUMN(int, mdpf_adjacencyIndex),  // needs nClusters+1 allocation
-                        SOA_COLUMN(int, mdpf_adjacencyList)    // needs 2*nClusters allocation
-                      )  
+                      SOA_COLUMN(int, mdpf_adjacencyIndex),  // needs nClusters+1 allocation
+                      SOA_COLUMN(int, mdpf_adjacencyList)    // needs 2*nClusters allocation
+  )
 
   using PFMultiDepthClusteringEdgeVarsSoA = PFMultiDepthClusteringEdgeVarsSoALayout<>;
 }  // namespace reco

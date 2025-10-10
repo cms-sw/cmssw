@@ -50,8 +50,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                const reco::PFClusterDeviceCollection& pfCluster,
                const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs,
                const reco::PFRecHitDeviceCollection& pfRecHit,
-	       const PFMultiDepthClusterParams* params,
-	       const int nClusters);
+               const PFMultiDepthClusterParams* params,
+               const int nClusters);
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

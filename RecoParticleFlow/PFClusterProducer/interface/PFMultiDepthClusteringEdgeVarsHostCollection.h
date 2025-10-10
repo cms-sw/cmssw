@@ -1,0 +1,11 @@
+#ifndef RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthClusteringEdgeVarsHostCollection_h
+#define RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthClusteringEdgeVarsHostCollection_h
+
+#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringEdgeVarsSoA.h"
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+
+namespace reco {
+  using PFMultiDepthClusteringEdgeVarsHostCollection = PortableHostCollection<PFMultiDepthClusteringEdgeVarsSoA>;
+}
+
+#endif  // RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthClusteringEdgeVarsHostCollection_h

@@ -14,9 +14,8 @@ namespace reco {
                       SOA_COLUMN(float, eta),
                       SOA_COLUMN(float, phi),
                       SOA_COLUMN(int, mdpf_topoId),
-                      SOA_SCALAR(int, size)
-                    )
-                    
+                      SOA_SCALAR(int, size))
+
   using PFMultiDepthClusteringVarsSoA = PFMultiDepthClusteringVarsSoALayout<>;
 }  // namespace reco
 
