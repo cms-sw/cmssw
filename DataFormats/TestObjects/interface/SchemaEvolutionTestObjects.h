@@ -1,6 +1,7 @@
 #ifndef DataFormats_TestObjects_SchemaEvolutionTestObjects_h
 #define DataFormats_TestObjects_SchemaEvolutionTestObjects_h
 
+#include <memory>
 #include <vector>
 
 // Don't delete the following comment line.
@@ -23,7 +24,6 @@
 
 #include <array>
 #include <list>
-#include <memory>
 #include <unordered_map>
 
 #endif
@@ -208,6 +208,37 @@ namespace edmtest {
 #endif
   };
 
+  class SchemaEvolutionAutoPtrToUniquePtr {
+  public:
+    SchemaEvolutionAutoPtrToUniquePtr(SchemaEvolutionAutoPtrToUniquePtr&&) = delete;
+    SchemaEvolutionAutoPtrToUniquePtr& operator=(SchemaEvolutionAutoPtrToUniquePtr const&) = delete;
+    SchemaEvolutionAutoPtrToUniquePtr& operator=(SchemaEvolutionAutoPtrToUniquePtr&&) = delete;
+
+    SchemaEvolutionAutoPtrToUniquePtr() : a_(0), b_(0) {}
+    ~SchemaEvolutionAutoPtrToUniquePtr() {}
+#if defined DataFormats_TestObjects_USE_OLD
+    SchemaEvolutionAutoPtrToUniquePtr(SchemaEvolutionAutoPtrToUniquePtr const& other)
+        : a_(other.a_), b_(other.b_), contained_(new SchemaEvolutionContained(other.contained_->c_)) {}
+
+    SchemaEvolutionAutoPtrToUniquePtr(int a, int b, int c)
+        : a_(a), b_(b), contained_(new SchemaEvolutionContained(c)) {}
+    int a_;
+    int b_;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    std::auto_ptr<SchemaEvolutionContained> contained_;
+#pragma GCC diagnostic pop
+#else
+    SchemaEvolutionAutoPtrToUniquePtr(int a, int b, int c)
+        : a_(a), b_(b), contained_(std::make_unique<SchemaEvolutionContained>(c)) {}
+    SchemaEvolutionAutoPtrToUniquePtr(SchemaEvolutionAutoPtrToUniquePtr const& other)
+        : a_(other.a_), b_(other.b_), contained_(std::make_unique<SchemaEvolutionContained>(other.contained_->c_)) {}
+    int a_;
+    int b_;
+    std::unique_ptr<SchemaEvolutionContained> contained_;
+#endif
+  };
+
   class SchemaEvolutionCArrayToStdArray {
   public:
 #if defined DataFormats_TestObjects_USE_OLD
@@ -285,6 +316,7 @@ namespace edmtest {
                         SchemaEvolutionAddBase const&,
                         SchemaEvolutionPointerToMember const&,
                         SchemaEvolutionPointerToUniquePtr const&,
+                        SchemaEvolutionAutoPtrToUniquePtr const&,
                         SchemaEvolutionCArrayToStdArray const&,
                         // SchemaEvolutionCArrayToStdVector const&,
                         SchemaEvolutionVectorToList const&,
@@ -305,6 +337,7 @@ namespace edmtest {
     SchemaEvolutionAddBase addBase_;
     SchemaEvolutionPointerToMember pointerToMember_;
     SchemaEvolutionPointerToUniquePtr pointerToUniquePtr_;
+    SchemaEvolutionAutoPtrToUniquePtr autoPtrToUniquePtr_;
     SchemaEvolutionCArrayToStdArray cArrayToStdArray_;
     // This one is commented out because it fails reading an old format
     // input file with an executable built with the modified format.
