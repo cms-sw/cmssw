@@ -28,6 +28,16 @@ are supported. Scalar members are members of layout with one element, irrespecti
 Static utility functions automatically compute the byte size of a layout, taking into account all its columns and
 alignment.
 
+## AoSWrapper
+`AoSWrapper` is a minimal Array-of-Structures companion to a SoA layout. It mirrors the SoA’s constructors and data
+accessors so existing code can be written the same way, while keeping distinct types 
+(e.g. `SoA::ConstView` ≠ `SoA::AoSWrapper::ConstView`). It exists to enable easy interoperability with 
+`Portable{Host,Device}Collection`.
+
+A two-way transposition between AoS and SoA is provided by `void transpose(...)` for both `SoA::View` and 
+`SoA::AoSWrapper::View`. This function is invoked by the `PortableCollection`s to move data back and forth reliably,
+preserving a one-to-one mapping between elements and scalars.
+
 ## View
 
 Layout classes also define a `View` and `ConstView` subclass that provide access to each column and

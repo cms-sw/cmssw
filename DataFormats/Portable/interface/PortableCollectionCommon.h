@@ -4,6 +4,9 @@
 #include <cstddef>
 #include <type_traits>
 #include <array>
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 namespace portablecollection {
 
@@ -98,6 +101,19 @@ namespace portablecollection {
   template <typename T, typename... Args>
   inline constexpr std::size_t typeIndex = TypeIndex<T, Args...>::value;
 
+  namespace kernels {
+    // Kernel for filling the AoS
+    struct Transpose {
+      template <typename TAcc, typename DestView, typename SourceView>
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE void operator()(TAcc const& acc,
+                                                     DestView destView,
+                                                     SourceView const& sourceView) const {
+        for (auto local_idx : cms::alpakatools::uniform_elements(acc, sourceView.metadata().size())) {
+          destView.transpose(sourceView, local_idx);
+        }
+      }
+    };
+  }  // namespace kernels
 }  // namespace portablecollection
 
 #endif  // DataFormats_Portable_interface_PortableCollectionCommon_h
