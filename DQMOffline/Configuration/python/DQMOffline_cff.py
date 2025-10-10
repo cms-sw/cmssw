@@ -34,7 +34,7 @@ DQMOfflineDCS = cms.Sequence( dqmProvInfo )
 DQMOfflineScouting = cms.Sequence( hltScoutingDqmOffline ) 
 
 # HLT Heterogeneous monitoring sequence
-DQMOfflineHLTGPUvsCPU =  cms.Sequence( HLT_HeterogeneousMonitoringSequence )
+DQMOfflineHLTGPUvsCPU =  cms.Sequence( HLTHeterogeneousMonitoringSequence )
 
 # L1 trigger sequences
 DQMOfflineL1T = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is run within this sequence for real data

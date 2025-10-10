@@ -75,9 +75,12 @@ hltHcalGPUComparisonTask = hcalGPUComparisonTask.clone(
     tagHBHE_target = "hltHbhereco"
 )
 
-HLT_HeterogeneousMonitoringSequence = cms.Sequence(
+HLTHeterogeneousMonitoringSequence = cms.Sequence(
     hltPfHcalGPUComparisonTask+
     hltSiPixelPhase1CompareDigiErrors+
     hltEcalMonitorTask+
     hltHcalGPUComparisonTask    
 )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(HLTHeterogeneousMonitoringSequence,cms.Sequence())
