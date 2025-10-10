@@ -10,6 +10,7 @@ namespace magneticFieldParabolicPortable {
   struct Parameters {
     // These parameters are the best fit of 3.8T to the OAEParametrizedMagneticField parametrization.
     // See MagneticField/ParametrizedEngine/src/ParabolicParametrizedMagneticField.cc
+
     static constexpr float c1 = 3.8114;
     static constexpr float b0 = -3.94991e-06;
     static constexpr float b1 = 7.53701e-06;
@@ -20,17 +21,17 @@ namespace magneticFieldParabolicPortable {
 
   template <typename Vec3>
   constexpr float Kr(Vec3 const& vec) {
-    return Parameters::a * (vec(0) * vec(0) + vec(1) * vec(1)) + 1.f;
+    return Parameters::a * (vec[0] * vec[0] + vec[1] * vec[1]) + 1.f;
   }
 
   template <typename Vec3>
   constexpr float B0Z(Vec3 const& vec) {
-    return Parameters::b0 * vec(2) * vec(2) + Parameters::b1 * vec(2) + Parameters::c1;
+    return Parameters::b0 * vec[2] * vec[2] + Parameters::b1 * vec[2] + Parameters::c1;
   }
 
   template <typename Vec3>
-  constexpr bool isValid(Vec3 const& vec) {
-    return ((vec(0) * vec(0) + vec(1) * vec(1)) < Parameters::max_radius2 && fabs(vec(2)) < Parameters::max_z);
+  bool isValid(Vec3 const& vec) {
+    return ((vec[0] * vec[0] + vec[1] * vec[1]) < Parameters::max_radius2 && fabs(vec[2]) < Parameters::max_z);
   }
 
   template <typename Vec3>
@@ -43,5 +44,4 @@ namespace magneticFieldParabolicPortable {
   }
 
 }  // namespace magneticFieldParabolicPortable
-
 #endif
