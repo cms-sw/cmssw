@@ -406,7 +406,7 @@ if __name__ == '__main__':
                           'E': (30, 40, 50, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), # endcap
                           'F': (30, 40, 50, 80, 120, 240, 600)} # forward
 
-    METType = {'hltAK4PFPuppiJets'   : "AK4 PF Puppi Jets",
+    JetType = {'hltAK4PFPuppiJets'   : "AK4 PF Puppi Jets",
                'hltAK4PFClusterJets' : "AK4 PF Cluster Jets",
                'hltAK4PFJets'        : "AK4 PF Jets",
                'hltAK4PFCHSJets'     : "AK4 PF CHS Jets"}.get(args.jet, args.jet)
