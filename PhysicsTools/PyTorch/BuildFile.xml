@@ -1,8 +1,9 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/MessageLogger"/>
-<use name="FWCore/Utilities"/>
-<use name="FWCore/ServiceRegistry"/>
+<use name="eigen"/>
 <use name="pytorch"/>
+<iftool name="cuda-gcc-support">
+  <use name="pytorch-cuda"/>
+</iftool>
+<use name="FWCore/Utilities"/>
 <export>
   <lib name="1"/>
 </export>

@@ -26,9 +26,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   }  // namespace portabletest
 
+  namespace torchportabletest {
+
+    using namespace ::torchportabletest;
+
+    using ParticleDeviceCollection = PortableCollection<ParticleSoA>;
+    using SimpleNetDeviceCollection = PortableCollection<SimpleNetSoA>;
+    using MultiHeadNetDeviceCollection = PortableCollection<MultiHeadNetSoA>;
+    using ImageDeviceCollection = PortableCollection<Image>;
+    using LogitsDeviceCollection = PortableCollection<Logits>;
+
+  }  // namespace torchportabletest
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 // check that the portable device collection for the host device is the same as the portable host collection
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(portabletest::TestDeviceCollection, portabletest::TestHostCollection);
+
+// heterogeneous ml data checks
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(torchportabletest::ParticleDeviceCollection,
+                                      torchportabletest::ParticleHostCollection);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(torchportabletest::SimpleNetDeviceCollection,
+                                      torchportabletest::SimpleNetHostCollection);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(torchportabletest::MultiHeadNetDeviceCollection,
+                                      torchportabletest::MultiHeadNetHostCollection);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(torchportabletest::ImageDeviceCollection, torchportabletest::ImageHostCollection);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(torchportabletest::LogitsDeviceCollection,
+                                      torchportabletest::LogitsHostCollection);
 
 #endif  // DataFormats_PortableTestObjects_interface_alpaka_TestDeviceCollection_h

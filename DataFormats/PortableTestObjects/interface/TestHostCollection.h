@@ -15,4 +15,14 @@ namespace portabletest {
 
 }  // namespace portabletest
 
+namespace torchportabletest {
+
+  using ParticleHostCollection = PortableHostCollection<ParticleSoA>;
+  using SimpleNetHostCollection = PortableHostCollection<SimpleNetSoA>;
+  using MultiHeadNetHostCollection = PortableHostCollection<MultiHeadNetSoA>;
+  using ImageHostCollection = PortableHostCollection<Image>;
+  using LogitsHostCollection = PortableHostCollection<Logits>;
+
+}  // namespace torchportabletest
+
 #endif  // DataFormats_PortableTestObjects_interface_TestHostCollection_h
