@@ -5,7 +5,7 @@
 //
 
 // #define DOUBLETCUTS_PRINTOUTS
-#define LOSTNTUPLETS_PRINTOUTS
+// #define LOSTNTUPLETS_PRINTOUTS
 
 // user include files
 #include "Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.h"
