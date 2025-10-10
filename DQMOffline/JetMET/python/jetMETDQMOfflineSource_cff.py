@@ -9,12 +9,21 @@ from RecoJets.JetProducers.PileupJetID_cfi  import *
 from RecoJets.JetProducers.QGTagger_cfi  import *
 from RecoMET.METFilters.metFilters_cff import*
 
-HcalStripHaloFilterDQM=HcalStripHaloFilter.clone(taggingMode = True)
-CSCTightHaloFilterDQM=CSCTightHaloFilter.clone(taggingMode = True)
-CSCTightHalo2015FilterDQM=CSCTightHalo2015Filter.clone(taggingMode = True)
-eeBadScFilterDQM=eeBadScFilter.clone(taggingMode = True)
-EcalDeadCellTriggerPrimitiveFilterDQM=EcalDeadCellTriggerPrimitiveFilter.clone(taggingMode = True)
-EcalDeadCellBoundaryEnergyFilterDQM=EcalDeadCellBoundaryEnergyFilter.clone(taggingMode = True) 
+
+## interferes with fastSim sequence that replaced these modules by an HLTBool module
+## is it sufficient to have them scheduled with cms.ignore, and not need for tagging mode?
+def clone_in_tagging_mode( m ):
+    if hasattr( m , 'taggingMode'):
+        return m.clone(taggingMode = True)
+    else:
+        return m.clone()
+
+HcalStripHaloFilterDQM = clone_in_tagging_mode( HcalStripHaloFilter )
+CSCTightHaloFilterDQM = clone_in_tagging_mode( CSCTightHaloFilter )
+CSCTightHalo2015FilterDQM = clone_in_tagging_mode( CSCTightHalo2015Filter )
+eeBadScFilterDQM = clone_in_tagging_mode( eeBadScFilter )
+EcalDeadCellTriggerPrimitiveFilterDQM = clone_in_tagging_mode( EcalDeadCellTriggerPrimitiveFilter )
+EcalDeadCellBoundaryEnergyFilterDQM = clone_in_tagging_mode( EcalDeadCellBoundaryEnergyFilter )
 
 pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
     jets = "ak4PFJets",
