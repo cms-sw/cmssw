@@ -3,7 +3,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-//#include <memory>
+#include <memory>
 #include <span>
 
 /*

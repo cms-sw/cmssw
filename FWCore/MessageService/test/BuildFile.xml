@@ -261,8 +261,3 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
 </bin>
-
-<bin file="fmt_test.cppunit.cpp">
-  <use name="fmt"/>
-  <use name="cppunit"/>
-</bin>

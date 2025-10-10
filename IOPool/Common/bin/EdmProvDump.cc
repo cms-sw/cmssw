@@ -27,7 +27,7 @@
 
 #include "boost/program_options.hpp"
 
-#include <fmt/format.h>
+#include <format>
 
 #include <cassert>
 #include <iostream>
@@ -114,7 +114,7 @@ namespace {
 
   std::string formatHeader(std::string_view text) {
     constexpr std::string_view decoration = "---------";
-    return fmt::format("{}{}{}", decoration, text, decoration);
+    return std::format("{}{}{}", decoration, text, decoration);
   }
 }  // namespace
 

@@ -24,6 +24,7 @@
 #include <utility>
 #include <tuple>
 #include <unistd.h>
+#include <format>
 
 namespace tc = triton::client;
 
@@ -385,7 +386,7 @@ void TritonService::postEndJob() {
     printFallbackServerLog<edm::LogError>();
     if (rv != 0) {
       std::string stopCat("FallbackFailed");
-      std::string stopMsg = fmt::format("TritonService: Stopping the fallback server failed with exit code {}", rv);
+      std::string stopMsg = std::format("TritonService: Stopping the fallback server failed with exit code {}", rv);
       //avoid throwing if the stack is already unwinding
       if (callFails_ > 0)
         edm::LogWarning(stopCat) << stopMsg;

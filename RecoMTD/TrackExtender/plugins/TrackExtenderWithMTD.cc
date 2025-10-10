@@ -1,4 +1,5 @@
 #include <sstream>
+#include <format>
 
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 
@@ -980,12 +981,12 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
 
         LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: tmtd " << tmtdMap << " +/- " << sigmatmtdMap
                                          << " t0 " << t0Map << " +/- " << sigmat0Map << " tof pi/K/p " << tofpiMap
-                                         << "+/-" << fmt::format("{:0.2g}", sigmatofpiMap) << " ("
-                                         << fmt::format("{:0.2g}", sigmatofpiMap / tofpiMap * 100) << "%) " << tofkMap
-                                         << "+/-" << fmt::format("{:0.2g}", sigmatofkMap) << " ("
-                                         << fmt::format("{:0.2g}", sigmatofkMap / tofkMap * 100) << "%) " << tofpMap
-                                         << "+/-" << fmt::format("{:0.2g}", sigmatofpMap) << " ("
-                                         << fmt::format("{:0.2g}", sigmatofpMap / tofpMap * 100) << "%) ";
+                                         << "+/-" << std::format("{:0.2g}", sigmatofpiMap) << " ("
+                                         << std::format("{:0.2g}", sigmatofpiMap / tofpiMap * 100) << "%) " << tofkMap
+                                         << "+/-" << std::format("{:0.2g}", sigmatofkMap) << " ("
+                                         << std::format("{:0.2g}", sigmatofkMap / tofkMap * 100) << "%) " << tofpMap
+                                         << "+/-" << std::format("{:0.2g}", sigmatofpMap) << " ("
+                                         << std::format("{:0.2g}", sigmatofpMap / tofpMap * 100) << "%) ";
       } else {
         LogTrace("TrackExtenderWithMTD") << "Error in the MTD track refitting. This should not happen";
       }
