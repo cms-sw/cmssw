@@ -3,6 +3,5 @@
 </bin>
 
 <bin name="cms_adler32" file="adler32.cc">
-  <use name="fmt"/>
   <use name="zlib"/>
 </bin>

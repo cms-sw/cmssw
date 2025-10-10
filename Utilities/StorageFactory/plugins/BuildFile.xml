@@ -10,7 +10,6 @@
   <use name="FWCore/ParameterSet"/>
   <use name="Utilities/StorageFactory"/>
   <use name="boost"/>
-  <use name="fmt"/>
   <flags EDM_PLUGIN="1"/>
   <flags cppflags="-D_FILE_OFFSET_BITS=64"/>
 </library>

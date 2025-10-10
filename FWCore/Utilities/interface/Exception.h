@@ -41,7 +41,7 @@
 #include <string_view>
 #include <concepts>
 
-#include <fmt/format.h>
+#include <format>
 
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -123,8 +123,8 @@ namespace cms {
     friend E& operator<<(E&& e, std::ios_base& (*f)(std::ios_base&));
 
     template <typename... Args>
-    inline void format(fmt::format_string<Args...> format, Args&&... args);
-    inline void vformat(std::string_view fmt, fmt::format_args args);
+    inline void format(std::format_string<Args...> format, Args&&... args);
+    inline void vformat(std::string_view fmt, std::format_args args);
 
     // This function is deprecated and we are in the process of removing
     // all code that uses it from CMSSW.  It will then be deleted.
@@ -153,11 +153,11 @@ namespace cms {
   // -------- implementation ---------
 
   template <typename... Args>
-  inline void Exception::format(fmt::format_string<Args...> format, Args&&... args) {
-    ost_ << fmt::format(std::move(format), std::forward<Args>(args)...);
+  inline void Exception::format(std::format_string<Args...> format, Args&&... args) {
+    ost_ << std::format(std::move(format), std::forward<Args>(args)...);
   }
 
-  inline void Exception::vformat(std::string_view format, fmt::format_args args) { ost_ << fmt::vformat(format, args); }
+  inline void Exception::vformat(std::string_view format, std::format_args args) { ost_ << std::vformat(format, args); }
 
   template <typename E, typename T>
     requires std::derived_from<std::remove_reference_t<E>, Exception>
