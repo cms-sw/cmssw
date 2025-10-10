@@ -7,6 +7,8 @@
 #include <DataFormats/FEDRawData/interface/RawDataBuffer.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/SourceIDNumbering.h>
+#include "FWCore/Utilities/interface/Exception.h"
+#include <cstring>
 
 RawDataBuffer::RawDataBuffer() {}
 RawDataBuffer::RawDataBuffer(uint32_t preallocSize) : usedSize_(0), data_(preallocSize) {}

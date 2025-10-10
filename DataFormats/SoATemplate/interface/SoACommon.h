@@ -17,7 +17,7 @@
 
 #include <boost/preprocessor.hpp>
 
-#include <fmt/format.h>
+#include <format>
 
 #include "FWCore/Utilities/interface/typedefs.h"
 
@@ -49,7 +49,7 @@
   }
 #else
 #define SOA_THROW_OUT_OF_RANGE(A, I, R) \
-  { throw std::out_of_range(fmt::format("{}: index {} out of range {}", (A), (I), (R))); }
+  { throw std::out_of_range(std::format("{}: index {} out of range {}", (A), (I), (R))); }
 #endif
 
 /* declare "scalars" (one value shared across the whole SoA) and "columns" (one value per element) */
