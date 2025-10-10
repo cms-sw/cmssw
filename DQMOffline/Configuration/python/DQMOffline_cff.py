@@ -4,22 +4,23 @@ from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMProvInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
 
-from DQMOffline.HLTScouting.HLTScoutingDqmOffline_cff import *
-from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
-from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
-from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
-from DQM.HcalTasks.OfflineSourceSequence_pp import *
-from DQMOffline.Hcal.HcalDQMOfflineSequence_cff import *
-from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_cff import *
-from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
-from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
-from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
-from DQM.GEM.gem_dqm_offline_source_cff import *
-from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
-from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
+from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
+from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
+from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
+from DQM.GEM.gem_dqm_offline_source_cff import *
+from DQM.HcalTasks.OfflineSourceSequence_pp import *
+from DQM.RPCMonitorClient.RPCTier0Source_cff import *
+from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQM_FirstStep_cff import *
+from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_cff import *
+from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
+from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
+from DQMOffline.HLTScouting.HLTScoutingDqmOffline_cff import *
+from DQMOffline.Hcal.HcalDQMOfflineSequence_cff import *
+from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
+from DQMOffline.Trigger.HeterogeneousMonitoring_cff import *
 
 DQMNone = cms.Sequence()
 
@@ -31,6 +32,9 @@ DQMOfflineDCS = cms.Sequence( dqmProvInfo )
 
 # HLT Scouting trigger sequence
 DQMOfflineScouting = cms.Sequence( hltScoutingDqmOffline ) 
+
+# HLT Heterogeneous monitoring sequence
+DQMOfflineHLTGPUvsCPU =  cms.Sequence( HLTHeterogeneousMonitoringSequence )
 
 # L1 trigger sequences
 DQMOfflineL1T = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is run within this sequence for real data
