@@ -26,7 +26,10 @@ hltPhase2L3OIMuonTrackCutClassifier = cms.EDProducer("TrackCutClassifier",
         minLayers = cms.vint32(3, 5, 5),
         minNVtxTrk = cms.int32(3),
         minNdof = cms.vdouble(1e-05, 1e-05, 1e-05),
-        minPixelHits = cms.vint32(0, 0, 1)
+        minPixelHits = cms.vint32(0, 0, 1),
+        passThroughForAll = cms.bool(False),
+        passThroughForDisplaced = cms.bool(False),
+        minLayersForDisplaced = cms.int32(4)
     ),
     qualityCuts = cms.vdouble(-0.7, 0.1, 0.7),
     src = cms.InputTag("hltPhase2L3OIMuCtfWithMaterialTracks"),

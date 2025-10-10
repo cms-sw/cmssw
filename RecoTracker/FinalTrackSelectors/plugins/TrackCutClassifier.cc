@@ -188,6 +188,9 @@ namespace {
       fillArrayF(d0err, dr_par, "d0err");
       fillArrayF(d0err_par, dr_par, "d0err_par");
       fillArrayF(drWPVerr_par, dr_par, "drWPVerr_par");
+      passThroughForAll = cfg.getParameter<bool>("passThroughForAll");
+      passThroughForDisplaced = cfg.getParameter<bool>("passThroughForDisplaced");
+      minLayersForDisplaced = cfg.getParameter<int>("minLayersForDisplaced");
     }
 
     void beginStream() {}
@@ -197,11 +200,23 @@ namespace {
                      reco::BeamSpot const& beamSpot,
                      reco::VertexCollection const& vertices) const {
       float ret = 1.f;
+      // If requested in the configuration, bypass the other checks
+      if (passThroughForAll)
+        return 1.f;
+
       // minimum number of hits for by-passing the other checks
       if (minHits4pass[0] < std::numeric_limits<int>::max()) {
         ret = std::min(ret, cut(nHits(trk), minHits4pass, std::greater_equal<int>()));
         if (ret == 1.f)
           return ret;
+      }
+
+      // If requested in the configuration, bypass the other checks
+      // for tracks without pixel hits (displaced tracks)
+      auto nLayers = trk.hitPattern().trackerLayersWithMeasurement();
+      if (passThroughForDisplaced) {
+        if (nPixelHits(trk) == 0 && nLayers >= minLayersForDisplaced)
+          return 1.f;
       }
 
       if (maxRelPtErr[2] < std::numeric_limits<float>::max()) {
@@ -214,7 +229,6 @@ namespace {
       if (ret == -1.f)
         return ret;
 
-      auto nLayers = trk.hitPattern().trackerLayersWithMeasurement();
       ret = std::min(ret, cut(nLayers, minLayers, std::greater_equal<int>()));
       if (ret == -1.f)
         return ret;
@@ -396,6 +410,9 @@ namespace {
                                        std::numeric_limits<float>::max(),
                                        std::numeric_limits<float>::max()});  // par = 3.
       desc.add<edm::ParameterSetDescription>("dr_par", dr_par);
+      desc.add<bool>("passThroughForAll", false);
+      desc.add<bool>("passThroughForDisplaced", false);
+      desc.add<int>("minLayersForDisplaced", 4);
     }
 
     bool isHLT;
@@ -423,6 +440,9 @@ namespace {
     float d0err[3];
     float d0err_par[3];
     float drWPVerr_par[3];
+    bool passThroughForAll;
+    bool passThroughForDisplaced;
+    int minLayersForDisplaced;
   };
 
   using TrackCutClassifier = TrackMVAClassifier<Cuts>;
