@@ -17,7 +17,7 @@ eff_layers.extend(["merge_phi_layer_barrel{} 'LayerCluster Merge Rate vs #phi La
 
 lcToCP_linking = barrelValidator.label_LCToCPLinking._InputTag__moduleLabel
 postProcessorBarrellayerclusters = DQMEDHarvester('DQMGenericClient',
-    subDirs = cms.untracked.vstring(prefix + barrelValidator.label_layerClusterPlots._InputTag__moduleLabel + '/' + lcToCP_linking),
+    subDirs = cms.untracked.vstring(prefix + barrelValidator.label_layerClustersPlots._InputTag__moduleLabel + '/' + lcToCP_linking),
     efficiency = cms.vstring(eff_layers),
     resolution = cms.vstring(),
     cumulativeDists = cms.untracked.vstring(),

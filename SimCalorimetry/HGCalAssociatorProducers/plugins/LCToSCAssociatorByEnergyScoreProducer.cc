@@ -9,10 +9,7 @@ LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::LCToSCAssociatorByEnergySc
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
   for (auto &label : hits_label_) {
-    if constexpr (std::is_same_v<HIT, HGCRecHit>)
-      hgcal_hits_token_.push_back(consumes<HGCRecHitCollection>(label));
-    else
-      hits_token_.push_back(consumes<std::vector<HIT>>(label));
+    hits_token_.push_back(consumes<std::vector<HIT>>(label));
   }
 
   rhtools_ = std::make_shared<hgcal::RecHitTools>();
@@ -32,37 +29,19 @@ void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
   rhtools_->setGeometry(*geom);
 
   std::vector<const HIT *> hits;
-  if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-    for (auto &token : hgcal_hits_token_) {
-      edm::Handle<HGCRecHitCollection> hits_handle;
-      iEvent.getByToken(token, hits_handle);
 
-      // Check handle validity
-      if (!hits_handle.isValid()) {
-        edm::LogWarning("LCToSCAssociatorByEnergyScoreProducerT")
-            << "HGCAL Hit collection not available for token. Skipping this collection.";
-        continue;  // Skip invalid handle
-      }
+  for (unsigned i = 0; i < hits_token_.size(); ++i) {
+    auto hits_handle = iEvent.getHandle(hits_token_[i]);
 
-      for (const auto &hit : *hits_handle) {
-        hits.push_back(&hit);
-      }
+    // Check handle validity
+    if (!hits_handle.isValid()) {
+      edm::LogWarning("LCToSCAssociatorByEnergyScoreProducer")
+          << "Hit collection not available for token " << hits_label_[i] << ". Skipping this collection.";
+      continue;  // Skip invalid handle
     }
-  } else {
-    for (auto &token : hits_token_) {
-      edm::Handle<std::vector<HIT>> hits_handle;
-      iEvent.getByToken(token, hits_handle);
 
-      // Check handle validity
-      if (!hits_handle.isValid()) {
-        edm::LogWarning("LCToSCAssociatorByEnergyScoreProducerT")
-            << "Barrel Hit collection not available for token. Skipping this collection.";
-        continue;  // Skip invalid handle
-      }
-
-      for (const auto &hit : *hits_handle) {
-        hits.push_back(&hit);
-      }
+    for (const auto &hit : *hits_handle) {
+      hits.push_back(&hit);
     }
   }
 

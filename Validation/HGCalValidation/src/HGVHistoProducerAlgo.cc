@@ -1590,8 +1590,7 @@ void HGVHistoProducerAlgo::fill_simCluster_histos(const Histograms& histograms,
   //+z: 50->99
 
   //To keep track of total num of simClusters per layer
-  //tnscpl[layerid]
-  std::vector<int> tnscpl(1000, 0);  //tnscpl.clear(); tnscpl.reserve(1000);
+  std::vector<int> tnscpl(1000, 0);
 
   //To keep track of the total num of clusters per thickness in plus and in minus endcaps
   std::map<std::string, int> tnscpthplus;
@@ -2231,8 +2230,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
   //+z: 52->103
 
   //To keep track of total num of layer clusters per layer
-  //tnlcpl[layerid]
-  std::vector<int> tnlcpl(1000, 0);  //tnlcpl.clear(); tnlcpl.reserve(1000);
+  std::vector<int> tnlcpl(1000, 0);
 
   //To keep track of the total num of clusters per thickness in plus and in minus endcaps
   std::map<std::string, int> tnlcpthplus;
@@ -2263,9 +2261,9 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
 
   //To find out the total amount of energy clustered per layer
   //Initialize with zeros because I see clear gives weird numbers.
-  std::vector<double> tecpl(1000, 0.0);  //tecpl.clear(); tecpl.reserve(1000);
+  std::vector<double> tecpl(1000, 0.0);
   //for the longitudinal depth barycenter
-  std::vector<double> ldbar(1000, 0.0);  //ldbar.clear(); ldbar.reserve(1000);
+  std::vector<double> ldbar(1000, 0.0);
 
   // Need to compare with the total amount of energy coming from CaloParticles
   double caloparteneplus = 0.;

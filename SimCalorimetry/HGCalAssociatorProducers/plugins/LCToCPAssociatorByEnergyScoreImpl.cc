@@ -355,11 +355,13 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     // find the unique caloparticles id contributing to the layer clusters
     if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-      if (recHitTools_->isBarrel(clusters[lcId].seed()))
+      if (recHitTools_->isBarrel(clusters[lcId].seed())) {
         continue;
+      }
     } else {
-      if (!recHitTools_->isBarrel(clusters[lcId].seed()))
+      if (!recHitTools_->isBarrel(clusters[lcId].seed())) {
         continue;
+      }
     }
     std::sort(cpsInLayerCluster[lcId].begin(), cpsInLayerCluster[lcId].end());
     auto last = std::unique(cpsInLayerCluster[lcId].begin(), cpsInLayerCluster[lcId].end());
