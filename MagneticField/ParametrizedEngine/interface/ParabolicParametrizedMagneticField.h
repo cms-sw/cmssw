@@ -5,8 +5,6 @@
 #ifndef MagneticField_ParametrizedEngine_interface_ParabolicParametrizedMagneticField_h
 #define MagneticField_ParametrizedEngine_interface_ParabolicParametrizedMagneticField_h
 
-#include <alpaka/alpaka.hpp>
-
 namespace magneticFieldParabolicPortable {
 
   struct Parameters {
@@ -31,23 +29,8 @@ namespace magneticFieldParabolicPortable {
     return Parameters::b0 * vec[2] * vec[2] + Parameters::b1 * vec[2] + Parameters::c1;
   }
 
-  template <typename TAcc, typename Vec3>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isValid(TAcc const& acc, Vec3 const& vec) {
-    return ((vec[0] * vec[0] + vec[1] * vec[1]) < Parameters::max_radius2 &&
-            alpaka::math::abs(acc, vec[2]) < Parameters::max_z);
-  }
-
-  template <typename TAcc, typename Vec3>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float magneticFieldAtPoint(TAcc const& acc, Vec3 const& vec) {
-    if (isValid(acc, vec)) {
-      return B0Z(vec) * Kr(vec);
-    } else {
-      return 0;
-    }
-  }
-
   template <typename Vec3>
-  constexpr bool isValid(Vec3 const& vec) {
+  bool isValid(Vec3 const& vec) {
     return ((vec[0] * vec[0] + vec[1] * vec[1]) < Parameters::max_radius2 && fabs(vec[2]) < Parameters::max_z);
   }
 
