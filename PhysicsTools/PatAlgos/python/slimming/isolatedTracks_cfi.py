@@ -76,7 +76,5 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(isolatedTracks, useHighPurity = True)
 
-def miniAOD_customizeIsolatedTracksFastSim(process):
-    """Switch off dE/dx hit info on fast sim, as it's not available"""
-    process.isolatedTracks.saveDeDxHitInfo = False
-    return process
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(isolatedTracks, saveDeDxHitInfo = False)
