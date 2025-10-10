@@ -39,11 +39,50 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
-  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  template <typename TQueue>
+    requires(alpaka::isQueue<TQueue>)
   PortableDeviceCollection(int32_t elements, TQueue const& queue)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, Layout::computeDataSize(elements))},
         layout_{buffer_->data(), elements},
         view_{layout_} {
+    // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
+    assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
+  }
+
+  // constructor for SoA by blocks with a variadic of sizes
+  template <std::integral... Ints>
+    requires(portablecollection::hasBlocksNumber<Layout>)
+  explicit PortableDeviceCollection(TDev const& device, Ints... sizes)
+    requires((sizeof...(sizes) == Layout::blocksNumber) && (sizeof...(sizes) > 1))
+      : PortableDeviceCollection(device, std::array<int32_t, sizeof...(sizes)>{{static_cast<int32_t>(sizes)...}}) {}
+
+  // constructor for SoA by blocks with a variadic of sizes
+  template <typename TQueue, std::integral... Ints>
+    requires(alpaka::isQueue<TQueue>) && (portablecollection::hasBlocksNumber<Layout>)
+                                       explicit PortableDeviceCollection(TQueue const& queue, Ints... sizes)
+              requires((sizeof...(sizes) == Layout::blocksNumber) && (sizeof...(sizes) > 1))
+      : PortableDeviceCollection(queue, std::array<int32_t, sizeof...(sizes)>{{static_cast<int32_t>(sizes)...}}) {}
+
+  // constructor for SoA by blocks with an array of sizes
+  template <std::size_t N>
+    requires(portablecollection::hasBlocksNumber<Layout>)
+  explicit PortableDeviceCollection(TDev const& device, std::array<int32_t, N> const& sizes)
+      : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout::computeDataSize(sizes))},
+        layout_{buffer_->data(), sizes},
+        view_{layout_} {
+    static_assert(Layout::blocksNumber == N, "Number of sizes must match the number of blocks in the Layout");
+    // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
+    assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
+  }
+
+  // constructor for SoA by blocks with an array of sizes
+  template <typename TQueue, std::size_t N>
+    requires(alpaka::isQueue<TQueue>) && (portablecollection::hasBlocksNumber<Layout>)
+  explicit PortableDeviceCollection(TQueue const& queue, std::array<int32_t, N> const& sizes)
+      : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, Layout::computeDataSize(sizes))},
+        layout_{buffer_->data(), sizes},
+        view_{layout_} {
+    static_assert(Layout::blocksNumber == N, "Number of sizes must match the number of blocks in the Layout");
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
@@ -82,7 +121,9 @@ public:
   }
 
   // Copy column by column heterogeneously for device to host/device data transfer.
-  template <typename TQueue>
+  // TODO: implement heterogeneous deepCopy for SoA blocks
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+    requires(!requires { Layout::blocksNumber; })
   void deepCopy(ConstView const& view, TQueue& queue) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
