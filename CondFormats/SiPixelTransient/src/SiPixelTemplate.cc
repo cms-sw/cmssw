@@ -1563,6 +1563,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       }
       yrms_[i] = (1.f - yratio_) * enty0_->yrms[i] + yratio_ * enty1_->yrms[i];
 
+      assert(!goodEdgeAlgo && "goodEdgeAlgo triggered unexpectedly");
       if (goodEdgeAlgo) {  // restore y Gaussian Parameter interpolation
         ygx0_[i] = (1.f - yratio_) * enty0_->ygx0[i] + yratio_ * enty1_->ygx0[i];
         if (flip_y_) {
