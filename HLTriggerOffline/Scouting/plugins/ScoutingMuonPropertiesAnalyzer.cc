@@ -58,6 +58,8 @@ protected:
 private:
   // Output Folder
   const std::string outputInternalPath_;
+  // do to some histogram duplicates with the ScoutingCollectionMonitor.cc module, we added the option to just fill the unique plots w.r.t the aforementioned module, if this bool is set to false
+  const bool fillAllHistograms_;
 
   // Tokens
   const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
@@ -191,6 +193,7 @@ private:
 
 ScoutingMuonPropertiesAnalyzer::ScoutingMuonPropertiesAnalyzer(const edm::ParameterSet& iConfig)
     : outputInternalPath_{iConfig.getParameter<std::string>("OutputInternalPath")},
+      fillAllHistograms_{iConfig.getParameter<bool>("fillAllHistograms")},
       triggerResultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
       muonsNoVtxToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muonsNoVtx"))),
       muonsVtxToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muonsVtx"))),
@@ -234,100 +237,128 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   h_lumi_ = ibooker.book1D("lumi", "Luminosity block", 1000, 0, 5000);
 
   // ScoutingMuonNoVtx
-  h_nScoutingMuonNoVtx_ = ibooker.book1D("nScoutingMuonNoVtx", "Number of ScoutingMuonNoVtx", 20, 0, 10);
-  h_ScoutingMuonNoVtx_pt_ = ibooker.book1D("ScoutingMuonNoVtx_pt", "MuonNoVtx p_{T}", 100, 0, 100);
-  h_ScoutingMuonNoVtx_eta_ = ibooker.book1D("ScoutingMuonNoVtx_eta", "MuonNoVtx #eta", 80, -3, 3);
-  h_ScoutingMuonNoVtx_phi_ = ibooker.book1D("ScoutingMuonNoVtx_phi", "MuonNoVtx #phi", 64, -3.5, 3.5);
+
+  if (fillAllHistograms_) {
+    // ScoutingMuonNoVtx
+    h_nScoutingMuonNoVtx_ = ibooker.book1D("nScoutingMuonNoVtx", "Number of ScoutingMuonNoVtx", 20, 0, 10);
+    h_ScoutingMuonNoVtx_pt_ = ibooker.book1D("ScoutingMuonNoVtx_pt", "MuonNoVtx p_{T}", 100, 0, 100);
+    h_ScoutingMuonNoVtx_eta_ = ibooker.book1D("ScoutingMuonNoVtx_eta", "MuonNoVtx #eta", 80, -3, 3);
+    h_ScoutingMuonNoVtx_phi_ = ibooker.book1D("ScoutingMuonNoVtx_phi", "MuonNoVtx #phi", 64, -3.5, 3.5);
+    h_ScoutingMuonNoVtx_charge_ = ibooker.book1D("ScoutingMuonNoVtx_charge", "MuonNoVtx charge", 2, -1, 1);
+    h_ScoutingMuonNoVtx_trkchi2_ = ibooker.book1D("ScoutingMuonNoVtx_trkchi2", "MuonNoVtx track #chi^{2}", 100, 0, 100);
+    h_ScoutingMuonNoVtx_trkndof_ = ibooker.book1D("ScoutingMuonNoVtx_trkndof", "MuonNoVtx track ndof", 40, 0, 50);
+    h_ScoutingMuonNoVtx_trkdxy_ = ibooker.book1D("ScoutingMuonNoVtx_trkdxy", "MuonNoVtx track dxy", 100, -0.7, 0.7);
+    h_ScoutingMuonNoVtx_trkdz_ = ibooker.book1D("ScoutingMuonNoVtx_trkdz", "MuonNoVtx track dz", 100, -40, 40);
+    h_ScoutingMuonNoVtx_trkqoverp_ = ibooker.book1D("ScoutingMuonNoVtx_trkqoverp", "MuonNoVtx track q/p", 100, -1, 1);
+    h_ScoutingMuonNoVtx_trklambda_ =
+        ibooker.book1D("ScoutingMuonNoVtx_trklambda", "MuonNoVtx track lambda", 100, -2, 2);
+    h_ScoutingMuonNoVtx_trkpt_ = ibooker.book1D("ScoutingMuonNoVtx_trkpt", "MuonNoVtx track pt", 100, 0, 100);
+    h_ScoutingMuonNoVtx_trkphi_ = ibooker.book1D("ScoutingMuonNoVtx_trkphi", "MuonNoVtx track phi", 64, -3.4, 3.4);
+    h_ScoutingMuonNoVtx_trketa_ = ibooker.book1D("ScoutingMuonNoVtx_trketa", "MuonNoVtx track eta", 80, -4, 4);
+    h_ScoutingMuonNoVtx_trkqoverpError_ =
+        ibooker.book1D("ScoutingMuonNoVtx_trkqoverpError", "MuonNoVtx track q/p error", 100, 0, 0.01);
+    h_ScoutingMuonNoVtx_trklambdaError_ =
+        ibooker.book1D("ScoutingMuonNoVtx_trklambdaError", "MuonNoVtx track lambda error", 100, 0, 0.1);
+    h_ScoutingMuonNoVtx_trkdxyError_ =
+        ibooker.book1D("ScoutingMuonNoVtx_trkdxyError", "MuonNoVtx track dxy error", 100, 0, 0.1);
+    h_ScoutingMuonNoVtx_trkdzError_ =
+        ibooker.book1D("ScoutingMuonNoVtx_trkdzError", "MuonNoVtx track dz error", 100, 0, 1);
+    h_ScoutingMuonNoVtx_trkphiError_ =
+        ibooker.book1D("ScoutingMuonNoVtx_trkphiError", "MuonNoVtx track phi error", 100, 0, 0.1);
+    h_ScoutingMuonNoVtx_trkdsz_ = ibooker.book1D("ScoutingMuonNoVtx_trkdsz", "MuonNoVtx track dsz", 100, -50, 50);
+    h_ScoutingMuonNoVtx_trkdszError_ =
+        ibooker.book1D("ScoutingMuonNoVtx_trkdszError", "MuonNoVtx track dsz error", 100, 0, 1);
+    h_ScoutingMuonNoVtx_trkvx_ = ibooker.book1D("ScoutingMuonNoVtx_trkvx", "MuonNoVtx track vx", 100, -0.5, 0.5);
+    h_ScoutingMuonNoVtx_trkvy_ = ibooker.book1D("ScoutingMuonNoVtx_trkvy", "MuonNoVtx track vy", 100, -0.5, 0.5);
+    h_ScoutingMuonNoVtx_trkvz_ = ibooker.book1D("ScoutingMuonNoVtx_trkvz", "MuonNoVtx track vz", 100, -50, 50);
+
+    // ScoutingMuonVtx
+    h_nScoutingMuonVtx_ = ibooker.book1D("nScoutingMuonVtx", "Number of ScoutingMuonVtx", 20, 0, 20);
+    h_ScoutingMuonVtx_pt_ = ibooker.book1D("ScoutingMuonVtx_pt", "MuonVtx p_{T}", 100, 0, 100);
+    h_ScoutingMuonVtx_eta_ = ibooker.book1D("ScoutingMuonVtx_eta", "MuonVtx #eta", 80, -4, 4);
+    h_ScoutingMuonVtx_phi_ = ibooker.book1D("ScoutingMuonVtx_phi", "MuonVtx #phi", 64, -3.4, 3.4);
+    h_ScoutingMuonVtx_charge_ = ibooker.book1D("ScoutingMuonVtx_charge", "MuonVtx charge", 2, -1, 1);
+    h_ScoutingMuonVtx_trkchi2_ = ibooker.book1D("ScoutingMuonVtx_trkchi2", "MuonVtx track #chi^{2}", 100, 0, 100);
+    h_ScoutingMuonVtx_trkndof_ = ibooker.book1D("ScoutingMuonVtx_trkndof", "MuonVtx track ndof", 40, 0, 60);
+    h_ScoutingMuonVtx_trkdxy_ = ibooker.book1D("ScoutingMuonVtx_trkdxy", "MuonVtx track dxy", 100, -0.5, 0.5);
+    h_ScoutingMuonVtx_trkdz_ = ibooker.book1D("ScoutingMuonVtx_trkdz", "MuonVtx track dz", 100, -20, 20);
+    h_ScoutingMuonVtx_trkqoverp_ = ibooker.book1D("ScoutingMuonVtx_trkqoverp", "MuonVtx track q/p", 100, -0.4, 0.4);
+    h_ScoutingMuonVtx_trklambda_ = ibooker.book1D("ScoutingMuonVtx_trklambda", "MuonVtx track lambda", 100, -2, 2);
+    h_ScoutingMuonVtx_trkpt_ = ibooker.book1D("ScoutingMuonVtx_trkpt", "MuonVtx track pt", 100, 0, 100);
+    h_ScoutingMuonVtx_trkphi_ = ibooker.book1D("ScoutingMuonVtx_trkphi", "MuonVtx track phi", 64, -3.4, 3.4);
+    h_ScoutingMuonVtx_trketa_ = ibooker.book1D("ScoutingMuonVtx_trketa", "MuonVtx track eta", 80, -4, 4);
+    h_ScoutingMuonVtx_trkqoverpError_ =
+        ibooker.book1D("ScoutingMuonVtx_trkqoverpError", "MuonVtx track q/p error", 100, 0, 0.01);
+    h_ScoutingMuonVtx_trklambdaError_ =
+        ibooker.book1D("ScoutingMuonVtx_trklambdaError", "MuonVtx track lambda error", 100, 0, 0.1);
+    h_ScoutingMuonVtx_trkdxyError_ =
+        ibooker.book1D("ScoutingMuonVtx_trkdxyError", "MuonVtx track dxy error", 100, 0, 0.1);
+    h_ScoutingMuonVtx_trkdzError_ = ibooker.book1D("ScoutingMuonVtx_trkdzError", "MuonVtx track dz error", 100, 0, 1);
+    h_ScoutingMuonVtx_trkphiError_ =
+        ibooker.book1D("ScoutingMuonVtx_trkphiError", "MuonVtx track phi error", 100, 0, 0.1);
+    h_ScoutingMuonVtx_trkdsz_ = ibooker.book1D("ScoutingMuonVtx_trkdsz", "MuonVtx track dsz", 100, -20, 20);
+    h_ScoutingMuonVtx_trkdszError_ =
+        ibooker.book1D("ScoutingMuonVtx_trkdszError", "MuonVtx track dsz error", 100, 0, 1);
+    h_ScoutingMuonVtx_trkvx_ = ibooker.book1D("ScoutingMuonVtx_trkvx", "MuonVtx track vx", 100, -0.5, 0.5);
+    h_ScoutingMuonVtx_trkvy_ = ibooker.book1D("ScoutingMuonVtx_trkvy", "MuonVtx track vy", 100, -0.5, 0.5);
+    h_ScoutingMuonVtx_trkvz_ = ibooker.book1D("ScoutingMuonVtx_trkvz", "MuonVtx track vz", 100, -20, 20);
+
+    // PV
+    h_nPV_ = ibooker.book1D("nPV", "Number of PVs", 10, 0, 70);
+    h_PV_x_ = ibooker.book1D("PV_x", "PV x", 100, -0.5, 0.5);
+    h_PV_y_ = ibooker.book1D("PV_y", "PV y", 100, -0.5, 0.5);
+    h_PV_z_ = ibooker.book1D("PV_z", "PV z", 100, -20, 20);
+    h_PV_xError_ = ibooker.book1D("PV_xError", "PV x error", 100, 0, 0.01);
+    h_PV_yError_ = ibooker.book1D("PV_yError", "PV y error", 100, 0, 0.01);
+    h_PV_zError_ = ibooker.book1D("PV_zError", "PV z error", 100, 0, 0.1);
+    h_PV_trksize_ = ibooker.book1D("PV_trksize", "PV tracks size", 40, 0, 200);
+    h_PV_chi2_ = ibooker.book1D("PV_chi2", "PV #chi^2", 100, 0, 300);
+    h_PV_ndof_ = ibooker.book1D("PV_ndof", "PV ndof", 40, 0, 100);
+    h_PV_isvalidvtx_ = ibooker.book1D("PV_isvalidvtx", "PV is valid vtx", 2, 0, 2);
+
+    // SVNoVtx
+    h_nSVNoVtx_ = ibooker.book1D("nSVNoVtx", "Number of SVNoVtx", 20, 0, 20);
+    h_SVNoVtx_x_ = ibooker.book1D("SVNoVtx_x", "SVNoVtx x", 100, -0.5, 0.5);
+    h_SVNoVtx_y_ = ibooker.book1D("SVNoVtx_y", "SVNoVtx y", 100, -0.5, 0.5);
+    h_SVNoVtx_z_ = ibooker.book1D("SVNoVtx_z", "SVNoVtx z", 100, -20, 20);
+    h_SVNoVtx_xError_ = ibooker.book1D("SVNoVtx_xError", "SVNoVtx x error", 100, 0, 0.01);
+    h_SVNoVtx_yError_ = ibooker.book1D("SVNoVtx_yError", "SVNoVtx y error", 100, 0, 0.01);
+    h_SVNoVtx_zError_ = ibooker.book1D("SVNoVtx_zError", "SVNoVtx z error", 100, 0, 0.01);
+    h_SVNoVtx_trksize_ = ibooker.book1D("SVNoVtx_trksize", "SVNoVtx tracks size", 40, 0, 40);
+    h_SVNoVtx_chi2_ = ibooker.book1D("SVNoVtx_chi2", "SVNoVtx #chi^2", 100, 0, 50);
+    h_SVNoVtx_ndof_ = ibooker.book1D("SVNoVtx_ndof", "SVNoVtx ndof", 40, 0, 40);
+    h_SVNoVtx_isvalidvtx_ = ibooker.book1D("SVNoVtx_isvalidvtx", "SVNoVtx is valid vtx", 2, 0, 2);
+
+    // SVVtx
+    h_nSVVtx_ = ibooker.book1D("nSVVtx", "Number of SVVtx", 20, 0, 20);
+    h_SVVtx_x_ = ibooker.book1D("SVVtx_x", "SVVtx x", 100, -0.5, 0.5);
+    h_SVVtx_y_ = ibooker.book1D("SVVtx_y", "SVVtx y", 100, -0.5, 0.5);
+    h_SVVtx_z_ = ibooker.book1D("SVVtx_z", "SVVtx z", 100, -20, 20);
+    h_SVVtx_xError_ = ibooker.book1D("SVVtx_xError", "SVVtx x error", 100, 0, 0.01);
+    h_SVVtx_yError_ = ibooker.book1D("SVVtx_yError", "SVVtx y error", 100, 0, 0.01);
+    h_SVVtx_zError_ = ibooker.book1D("SVVtx_zError", "SVVtx z error", 100, 0, 0.01);
+    h_SVVtx_trksize_ = ibooker.book1D("SVVtx_trksize", "SVVtx tracks size", 40, 0, 40);
+    h_SVVtx_chi2_ = ibooker.book1D("SVVtx_chi2", "SVVtx #chi^2", 100, 0, 20);
+    h_SVVtx_ndof_ = ibooker.book1D("SVVtx_ndof", "SVVtx ndof", 40, 0, 40);
+    h_SVVtx_isvalidvtx_ = ibooker.book1D("SVVtx_isvalidvtx", "SVVtx is valid vtx", 2, 0, 2);
+  }
+
+  // ScoutingMuonNoVtx
+
   h_ScoutingMuonNoVtx_phiCorr_ =
       ibooker.book1D("ScoutingMuonNoVtx_phiCorr", "MuonNoVtx #phi extrapolated", 64, -3.5, 3.5);
   h_ScoutingMuonNoVtx_m_ = ibooker.book1D("ScoutingMuonNoVtx_m", "MuonNoVtx mass", 50, 0, 10);
-  h_ScoutingMuonNoVtx_charge_ = ibooker.book1D("ScoutingMuonNoVtx_charge", "MuonNoVtx charge", 2, -1, 1);
-  h_ScoutingMuonNoVtx_trkchi2_ = ibooker.book1D("ScoutingMuonNoVtx_trkchi2", "MuonNoVtx track #chi^{2}", 100, 0, 100);
-  h_ScoutingMuonNoVtx_trkndof_ = ibooker.book1D("ScoutingMuonNoVtx_trkndof", "MuonNoVtx track ndof", 40, 0, 50);
-  h_ScoutingMuonNoVtx_trkdxy_ = ibooker.book1D("ScoutingMuonNoVtx_trkdxy", "MuonNoVtx track dxy", 100, -0.7, 0.7);
-  h_ScoutingMuonNoVtx_trkdz_ = ibooker.book1D("ScoutingMuonNoVtx_trkdz", "MuonNoVtx track dz", 100, -40, 40);
-  h_ScoutingMuonNoVtx_trkqoverp_ = ibooker.book1D("ScoutingMuonNoVtx_trkqoverp", "MuonNoVtx track q/p", 100, -1, 1);
-  h_ScoutingMuonNoVtx_trklambda_ = ibooker.book1D("ScoutingMuonNoVtx_trklambda", "MuonNoVtx track lambda", 100, -2, 2);
-  h_ScoutingMuonNoVtx_trkpt_ = ibooker.book1D("ScoutingMuonNoVtx_trkpt", "MuonNoVtx track pt", 100, 0, 100);
-  h_ScoutingMuonNoVtx_trkphi_ = ibooker.book1D("ScoutingMuonNoVtx_trkphi", "MuonNoVtx track phi", 64, -3.4, 3.4);
-  h_ScoutingMuonNoVtx_trketa_ = ibooker.book1D("ScoutingMuonNoVtx_trketa", "MuonNoVtx track eta", 80, -4, 4);
-  h_ScoutingMuonNoVtx_trkqoverpError_ =
-      ibooker.book1D("ScoutingMuonNoVtx_trkqoverpError", "MuonNoVtx track q/p error", 100, 0, 0.01);
-  h_ScoutingMuonNoVtx_trklambdaError_ =
-      ibooker.book1D("ScoutingMuonNoVtx_trklambdaError", "MuonNoVtx track lambda error", 100, 0, 0.1);
-  h_ScoutingMuonNoVtx_trkdxyError_ =
-      ibooker.book1D("ScoutingMuonNoVtx_trkdxyError", "MuonNoVtx track dxy error", 100, 0, 0.1);
-  h_ScoutingMuonNoVtx_trkdzError_ =
-      ibooker.book1D("ScoutingMuonNoVtx_trkdzError", "MuonNoVtx track dz error", 100, 0, 1);
-  h_ScoutingMuonNoVtx_trkphiError_ =
-      ibooker.book1D("ScoutingMuonNoVtx_trkphiError", "MuonNoVtx track phi error", 100, 0, 0.1);
-  h_ScoutingMuonNoVtx_trkdsz_ = ibooker.book1D("ScoutingMuonNoVtx_trkdsz", "MuonNoVtx track dsz", 100, -50, 50);
-  h_ScoutingMuonNoVtx_trkdszError_ =
-      ibooker.book1D("ScoutingMuonNoVtx_trkdszError", "MuonNoVtx track dsz error", 100, 0, 1);
-  h_ScoutingMuonNoVtx_trkvx_ = ibooker.book1D("ScoutingMuonNoVtx_trkvx", "MuonNoVtx track vx", 100, -0.5, 0.5);
-  h_ScoutingMuonNoVtx_trkvy_ = ibooker.book1D("ScoutingMuonNoVtx_trkvy", "MuonNoVtx track vy", 100, -0.5, 0.5);
-  h_ScoutingMuonNoVtx_trkvz_ = ibooker.book1D("ScoutingMuonNoVtx_trkvz", "MuonNoVtx track vz", 100, -50, 50);
   h_ScoutingMuonNoVtx_vtxIndx_ =
       ibooker.book1D("ScoutingMuonNoVtx_vtxIndx", "MuonNoVtx SV multiplicity per muon", 10, 0, 5);
 
   // ScoutingMuonVtx
-  h_nScoutingMuonVtx_ = ibooker.book1D("nScoutingMuonVtx", "Number of ScoutingMuonVtx", 20, 0, 20);
-  h_ScoutingMuonVtx_pt_ = ibooker.book1D("ScoutingMuonVtx_pt", "MuonVtx p_{T}", 100, 0, 100);
-  h_ScoutingMuonVtx_eta_ = ibooker.book1D("ScoutingMuonVtx_eta", "MuonVtx #eta", 80, -4, 4);
-  h_ScoutingMuonVtx_phi_ = ibooker.book1D("ScoutingMuonVtx_phi", "MuonVtx #phi", 64, -3.4, 3.4);
+
+  h_ScoutingMuonVtx_vtxIndx_ = ibooker.book1D("ScoutingMuonVtx_vtxIndx", "MuonVtx SV multiplicity per muon", 10, 0, 10);
   h_ScoutingMuonVtx_phiCorr_ = ibooker.book1D("ScoutingMuonVtx_phiCorr", "MuonVtx #phi extrapolated", 64, -3.4, 3.4);
   h_ScoutingMuonVtx_m_ = ibooker.book1D("ScoutingMuonVtx_m", "MuonVtx mass", 50, 0, 10);
-  h_ScoutingMuonVtx_charge_ = ibooker.book1D("ScoutingMuonVtx_charge", "MuonVtx charge", 2, -1, 1);
-  h_ScoutingMuonVtx_trkchi2_ = ibooker.book1D("ScoutingMuonVtx_trkchi2", "MuonVtx track #chi^{2}", 100, 0, 100);
-  h_ScoutingMuonVtx_trkndof_ = ibooker.book1D("ScoutingMuonVtx_trkndof", "MuonVtx track ndof", 40, 0, 60);
-  h_ScoutingMuonVtx_trkdxy_ = ibooker.book1D("ScoutingMuonVtx_trkdxy", "MuonVtx track dxy", 100, -0.5, 0.5);
-  h_ScoutingMuonVtx_trkdz_ = ibooker.book1D("ScoutingMuonVtx_trkdz", "MuonVtx track dz", 100, -20, 20);
-  h_ScoutingMuonVtx_trkqoverp_ = ibooker.book1D("ScoutingMuonVtx_trkqoverp", "MuonVtx track q/p", 100, -0.4, 0.4);
-  h_ScoutingMuonVtx_trklambda_ = ibooker.book1D("ScoutingMuonVtx_trklambda", "MuonVtx track lambda", 100, -2, 2);
-  h_ScoutingMuonVtx_trkpt_ = ibooker.book1D("ScoutingMuonVtx_trkpt", "MuonVtx track pt", 100, 0, 100);
-  h_ScoutingMuonVtx_trkphi_ = ibooker.book1D("ScoutingMuonVtx_trkphi", "MuonVtx track phi", 64, -3.4, 3.4);
-  h_ScoutingMuonVtx_trketa_ = ibooker.book1D("ScoutingMuonVtx_trketa", "MuonVtx track eta", 80, -4, 4);
-  h_ScoutingMuonVtx_trkqoverpError_ =
-      ibooker.book1D("ScoutingMuonVtx_trkqoverpError", "MuonVtx track q/p error", 100, 0, 0.01);
-  h_ScoutingMuonVtx_trklambdaError_ =
-      ibooker.book1D("ScoutingMuonVtx_trklambdaError", "MuonVtx track lambda error", 100, 0, 0.1);
-  h_ScoutingMuonVtx_trkdxyError_ =
-      ibooker.book1D("ScoutingMuonVtx_trkdxyError", "MuonVtx track dxy error", 100, 0, 0.1);
-  h_ScoutingMuonVtx_trkdzError_ = ibooker.book1D("ScoutingMuonVtx_trkdzError", "MuonVtx track dz error", 100, 0, 1);
-  h_ScoutingMuonVtx_trkphiError_ =
-      ibooker.book1D("ScoutingMuonVtx_trkphiError", "MuonVtx track phi error", 100, 0, 0.1);
-  h_ScoutingMuonVtx_trkdsz_ = ibooker.book1D("ScoutingMuonVtx_trkdsz", "MuonVtx track dsz", 100, -20, 20);
-  h_ScoutingMuonVtx_trkdszError_ = ibooker.book1D("ScoutingMuonVtx_trkdszError", "MuonVtx track dsz error", 100, 0, 1);
-  h_ScoutingMuonVtx_trkvx_ = ibooker.book1D("ScoutingMuonVtx_trkvx", "MuonVtx track vx", 100, -0.5, 0.5);
-  h_ScoutingMuonVtx_trkvy_ = ibooker.book1D("ScoutingMuonVtx_trkvy", "MuonVtx track vy", 100, -0.5, 0.5);
-  h_ScoutingMuonVtx_trkvz_ = ibooker.book1D("ScoutingMuonVtx_trkvz", "MuonVtx track vz", 100, -20, 20);
-  h_ScoutingMuonVtx_vtxIndx_ = ibooker.book1D("ScoutingMuonVtx_vtxIndx", "MuonVtx SV multiplicity per muon", 10, 0, 10);
-
-  // PV
-  h_nPV_ = ibooker.book1D("nPV", "Number of PVs", 10, 0, 70);
-  h_PV_x_ = ibooker.book1D("PV_x", "PV x", 100, -0.5, 0.5);
-  h_PV_y_ = ibooker.book1D("PV_y", "PV y", 100, -0.5, 0.5);
-  h_PV_z_ = ibooker.book1D("PV_z", "PV z", 100, -20, 20);
-  h_PV_xError_ = ibooker.book1D("PV_xError", "PV x error", 100, 0, 0.01);
-  h_PV_yError_ = ibooker.book1D("PV_yError", "PV y error", 100, 0, 0.01);
-  h_PV_zError_ = ibooker.book1D("PV_zError", "PV z error", 100, 0, 0.1);
-  h_PV_trksize_ = ibooker.book1D("PV_trksize", "PV tracks size", 40, 0, 200);
-  h_PV_chi2_ = ibooker.book1D("PV_chi2", "PV #chi^2", 100, 0, 300);
-  h_PV_ndof_ = ibooker.book1D("PV_ndof", "PV ndof", 40, 0, 100);
-  h_PV_isvalidvtx_ = ibooker.book1D("PV_isvalidvtx", "PV is valid vtx", 2, 0, 2);
 
   // SVNoVtx
-  h_nSVNoVtx_ = ibooker.book1D("nSVNoVtx", "Number of SVNoVtx", 20, 0, 20);
-  h_SVNoVtx_x_ = ibooker.book1D("SVNoVtx_x", "SVNoVtx x", 100, -0.5, 0.5);
-  h_SVNoVtx_y_ = ibooker.book1D("SVNoVtx_y", "SVNoVtx y", 100, -0.5, 0.5);
-  h_SVNoVtx_z_ = ibooker.book1D("SVNoVtx_z", "SVNoVtx z", 100, -20, 20);
-  h_SVNoVtx_xError_ = ibooker.book1D("SVNoVtx_xError", "SVNoVtx x error", 100, 0, 0.01);
-  h_SVNoVtx_yError_ = ibooker.book1D("SVNoVtx_yError", "SVNoVtx y error", 100, 0, 0.01);
-  h_SVNoVtx_zError_ = ibooker.book1D("SVNoVtx_zError", "SVNoVtx z error", 100, 0, 0.01);
-  h_SVNoVtx_trksize_ = ibooker.book1D("SVNoVtx_trksize", "SVNoVtx tracks size", 40, 0, 40);
-  h_SVNoVtx_chi2_ = ibooker.book1D("SVNoVtx_chi2", "SVNoVtx #chi^2", 100, 0, 50);
-  h_SVNoVtx_ndof_ = ibooker.book1D("SVNoVtx_ndof", "SVNoVtx ndof", 40, 0, 40);
-  h_SVNoVtx_isvalidvtx_ = ibooker.book1D("SVNoVtx_isvalidvtx", "SVNoVtx is valid vtx", 2, 0, 2);
+
   h_SVNoVtx_dxy_ = ibooker.book1D("SVNoVtx_dxy", "SVNoVtx dxy", 100, 0, 0.5);
   h_SVNoVtx_dxySig_ = ibooker.book1D("SVNoVtx_dxySig", "SVNoVtx dxy significance", 100, 0, 10);
   h_SVNoVtx_dlen_ = ibooker.book1D("SVNoVtx_dlen", "SVNoVtx dlen", 100, 0, 20);
@@ -336,17 +367,6 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   h_SVNoVtx_nMuon_ = ibooker.book1D("SVNoVtx_nMuon", "SVNoVtx nMuon", 10, 0, 10);
 
   // SVVtx
-  h_nSVVtx_ = ibooker.book1D("nSVVtx", "Number of SVVtx", 20, 0, 20);
-  h_SVVtx_x_ = ibooker.book1D("SVVtx_x", "SVVtx x", 100, -0.5, 0.5);
-  h_SVVtx_y_ = ibooker.book1D("SVVtx_y", "SVVtx y", 100, -0.5, 0.5);
-  h_SVVtx_z_ = ibooker.book1D("SVVtx_z", "SVVtx z", 100, -20, 20);
-  h_SVVtx_xError_ = ibooker.book1D("SVVtx_xError", "SVVtx x error", 100, 0, 0.01);
-  h_SVVtx_yError_ = ibooker.book1D("SVVtx_yError", "SVVtx y error", 100, 0, 0.01);
-  h_SVVtx_zError_ = ibooker.book1D("SVVtx_zError", "SVVtx z error", 100, 0, 0.01);
-  h_SVVtx_trksize_ = ibooker.book1D("SVVtx_trksize", "SVVtx tracks size", 40, 0, 40);
-  h_SVVtx_chi2_ = ibooker.book1D("SVVtx_chi2", "SVVtx #chi^2", 100, 0, 20);
-  h_SVVtx_ndof_ = ibooker.book1D("SVVtx_ndof", "SVVtx ndof", 40, 0, 40);
-  h_SVVtx_isvalidvtx_ = ibooker.book1D("SVVtx_isvalidvtx", "SVVtx is valid vtx", 2, 0, 2);
   h_SVVtx_dxy_ = ibooker.book1D("SVVtx_dxy", "SVVtx dxy", 100, 0, 0.5);
   h_SVVtx_dxySig_ = ibooker.book1D("SVVtx_dxySig", "SVVtx dxy significance", 100, 0, 10);
   h_SVVtx_dlen_ = ibooker.book1D("SVVtx_dlen", "SVVtx dlen", 100, 0, 20);
@@ -419,50 +439,57 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
     PV0_err(2, 2) = std::pow(PV0Ptr.zError(), 2);
     PV0 = reco::Vertex(PV0_pos, PV0_err, PV0Ptr.chi2(), PV0Ptr.ndof(), PV0Ptr.tracksSize());
     pvAvailable = true;
-    h_PV_x_->Fill(PV0Ptr.x());
-    h_PV_y_->Fill(PV0Ptr.y());
-    h_PV_z_->Fill(PV0Ptr.z());
-    h_PV_xError_->Fill(PV0Ptr.xError());
-    h_PV_yError_->Fill(PV0Ptr.yError());
-    h_PV_zError_->Fill(PV0Ptr.zError());
-    h_PV_trksize_->Fill(PV0Ptr.tracksSize());
-    h_PV_chi2_->Fill(PV0Ptr.chi2());
-    h_PV_ndof_->Fill(PV0Ptr.ndof());
-    h_PV_isvalidvtx_->Fill(PV0Ptr.isValidVtx());
-    h_nPV_->Fill(PV->size());
+    if (fillAllHistograms_) {
+      h_PV_x_->Fill(PV0Ptr.x());
+      h_PV_y_->Fill(PV0Ptr.y());
+      h_PV_z_->Fill(PV0Ptr.z());
+      h_PV_xError_->Fill(PV0Ptr.xError());
+      h_PV_yError_->Fill(PV0Ptr.yError());
+      h_PV_zError_->Fill(PV0Ptr.zError());
+      h_PV_trksize_->Fill(PV0Ptr.tracksSize());
+      h_PV_chi2_->Fill(PV0Ptr.chi2());
+      h_PV_ndof_->Fill(PV0Ptr.ndof());
+      h_PV_isvalidvtx_->Fill(PV0Ptr.isValidVtx());
+      h_nPV_->Fill(PV->size());
+    }
   }
 
   // Fill ScoutingMuonNoVtx block, including phiCorr logic
   std::vector<float> muonNoVtx_phiCorr;
   std::vector<std::vector<int>> muonNoVtx_vtxIndx;
   if (muonsNoVtx.isValid()) {
-    h_nScoutingMuonNoVtx_->Fill(muonsNoVtx->size());
+    if (fillAllHistograms_) {
+      h_nScoutingMuonNoVtx_->Fill(muonsNoVtx->size());
+    }
     for (size_t i = 0; i < muonsNoVtx->size(); ++i) {
       const auto& mu = muonsNoVtx->at(i);
-      h_ScoutingMuonNoVtx_pt_->Fill(mu.pt());
-      h_ScoutingMuonNoVtx_eta_->Fill(mu.eta());
-      h_ScoutingMuonNoVtx_phi_->Fill(mu.phi());
+      if (fillAllHistograms_) {
+        h_ScoutingMuonNoVtx_pt_->Fill(mu.pt());
+        h_ScoutingMuonNoVtx_eta_->Fill(mu.eta());
+        h_ScoutingMuonNoVtx_phi_->Fill(mu.phi());
+        h_ScoutingMuonNoVtx_charge_->Fill(mu.charge());
+        h_ScoutingMuonNoVtx_trkchi2_->Fill(mu.trk_chi2());
+        h_ScoutingMuonNoVtx_trkndof_->Fill(mu.trk_ndof());
+        h_ScoutingMuonNoVtx_trkdxy_->Fill(mu.trk_dxy());
+        h_ScoutingMuonNoVtx_trkdz_->Fill(mu.trk_dz());
+        h_ScoutingMuonNoVtx_trkqoverp_->Fill(mu.trk_qoverp());
+        h_ScoutingMuonNoVtx_trklambda_->Fill(mu.trk_lambda());
+        h_ScoutingMuonNoVtx_trkpt_->Fill(mu.trk_pt());
+        h_ScoutingMuonNoVtx_trkphi_->Fill(mu.trk_phi());
+        h_ScoutingMuonNoVtx_trketa_->Fill(mu.trk_eta());
+        h_ScoutingMuonNoVtx_trkqoverpError_->Fill(mu.trk_qoverpError());
+        h_ScoutingMuonNoVtx_trklambdaError_->Fill(mu.trk_lambdaError());
+        h_ScoutingMuonNoVtx_trkdxyError_->Fill(mu.trk_dxyError());
+        h_ScoutingMuonNoVtx_trkdzError_->Fill(mu.trk_dzError());
+        h_ScoutingMuonNoVtx_trkphiError_->Fill(mu.trk_phiError());
+        h_ScoutingMuonNoVtx_trkdsz_->Fill(mu.trk_dsz());
+        h_ScoutingMuonNoVtx_trkdszError_->Fill(mu.trk_dszError());
+        h_ScoutingMuonNoVtx_trkvx_->Fill(mu.trk_vx());
+        h_ScoutingMuonNoVtx_trkvy_->Fill(mu.trk_vy());
+        h_ScoutingMuonNoVtx_trkvz_->Fill(mu.trk_vz());
+      }
+
       h_ScoutingMuonNoVtx_m_->Fill(mu.m());
-      h_ScoutingMuonNoVtx_charge_->Fill(mu.charge());
-      h_ScoutingMuonNoVtx_trkchi2_->Fill(mu.trk_chi2());
-      h_ScoutingMuonNoVtx_trkndof_->Fill(mu.trk_ndof());
-      h_ScoutingMuonNoVtx_trkdxy_->Fill(mu.trk_dxy());
-      h_ScoutingMuonNoVtx_trkdz_->Fill(mu.trk_dz());
-      h_ScoutingMuonNoVtx_trkqoverp_->Fill(mu.trk_qoverp());
-      h_ScoutingMuonNoVtx_trklambda_->Fill(mu.trk_lambda());
-      h_ScoutingMuonNoVtx_trkpt_->Fill(mu.trk_pt());
-      h_ScoutingMuonNoVtx_trkphi_->Fill(mu.trk_phi());
-      h_ScoutingMuonNoVtx_trketa_->Fill(mu.trk_eta());
-      h_ScoutingMuonNoVtx_trkqoverpError_->Fill(mu.trk_qoverpError());
-      h_ScoutingMuonNoVtx_trklambdaError_->Fill(mu.trk_lambdaError());
-      h_ScoutingMuonNoVtx_trkdxyError_->Fill(mu.trk_dxyError());
-      h_ScoutingMuonNoVtx_trkdzError_->Fill(mu.trk_dzError());
-      h_ScoutingMuonNoVtx_trkphiError_->Fill(mu.trk_phiError());
-      h_ScoutingMuonNoVtx_trkdsz_->Fill(mu.trk_dsz());
-      h_ScoutingMuonNoVtx_trkdszError_->Fill(mu.trk_dszError());
-      h_ScoutingMuonNoVtx_trkvx_->Fill(mu.trk_vx());
-      h_ScoutingMuonNoVtx_trkvy_->Fill(mu.trk_vy());
-      h_ScoutingMuonNoVtx_trkvz_->Fill(mu.trk_vz());
       h_ScoutingMuonNoVtx_vtxIndx_->Fill(mu.vtxIndx().size());
       muonNoVtx_vtxIndx.push_back(mu.vtxIndx());
       // Extrapolated phiCorr logic
@@ -500,33 +527,38 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
   std::vector<float> muonVtx_phiCorr;
   std::vector<std::vector<int>> muonVtx_vtxIndx;
   if (muonsVtx.isValid()) {
-    h_nScoutingMuonVtx_->Fill(muonsVtx->size());
+    if (fillAllHistograms_) {
+      h_nScoutingMuonVtx_->Fill(muonsVtx->size());
+    }
     for (size_t i = 0; i < muonsVtx->size(); ++i) {
       const auto& mu = muonsVtx->at(i);
-      h_ScoutingMuonVtx_pt_->Fill(mu.pt());
-      h_ScoutingMuonVtx_eta_->Fill(mu.eta());
-      h_ScoutingMuonVtx_phi_->Fill(mu.phi());
+      if (fillAllHistograms_) {
+        h_ScoutingMuonVtx_pt_->Fill(mu.pt());
+        h_ScoutingMuonVtx_eta_->Fill(mu.eta());
+        h_ScoutingMuonVtx_phi_->Fill(mu.phi());
+        h_ScoutingMuonVtx_charge_->Fill(mu.charge());
+        h_ScoutingMuonVtx_trkchi2_->Fill(mu.trk_chi2());
+        h_ScoutingMuonVtx_trkndof_->Fill(mu.trk_ndof());
+        h_ScoutingMuonVtx_trkdxy_->Fill(mu.trk_dxy());
+        h_ScoutingMuonVtx_trkdz_->Fill(mu.trk_dz());
+        h_ScoutingMuonVtx_trkqoverp_->Fill(mu.trk_qoverp());
+        h_ScoutingMuonVtx_trklambda_->Fill(mu.trk_lambda());
+        h_ScoutingMuonVtx_trkpt_->Fill(mu.trk_pt());
+        h_ScoutingMuonVtx_trkphi_->Fill(mu.trk_phi());
+        h_ScoutingMuonVtx_trketa_->Fill(mu.trk_eta());
+        h_ScoutingMuonVtx_trkqoverpError_->Fill(mu.trk_qoverpError());
+        h_ScoutingMuonVtx_trklambdaError_->Fill(mu.trk_lambdaError());
+        h_ScoutingMuonVtx_trkdxyError_->Fill(mu.trk_dxyError());
+        h_ScoutingMuonVtx_trkdzError_->Fill(mu.trk_dzError());
+        h_ScoutingMuonVtx_trkphiError_->Fill(mu.trk_phiError());
+        h_ScoutingMuonVtx_trkdsz_->Fill(mu.trk_dsz());
+        h_ScoutingMuonVtx_trkdszError_->Fill(mu.trk_dszError());
+        h_ScoutingMuonVtx_trkvx_->Fill(mu.trk_vx());
+        h_ScoutingMuonVtx_trkvy_->Fill(mu.trk_vy());
+        h_ScoutingMuonVtx_trkvz_->Fill(mu.trk_vz());
+      }
+
       h_ScoutingMuonVtx_m_->Fill(mu.m());
-      h_ScoutingMuonVtx_charge_->Fill(mu.charge());
-      h_ScoutingMuonVtx_trkchi2_->Fill(mu.trk_chi2());
-      h_ScoutingMuonVtx_trkndof_->Fill(mu.trk_ndof());
-      h_ScoutingMuonVtx_trkdxy_->Fill(mu.trk_dxy());
-      h_ScoutingMuonVtx_trkdz_->Fill(mu.trk_dz());
-      h_ScoutingMuonVtx_trkqoverp_->Fill(mu.trk_qoverp());
-      h_ScoutingMuonVtx_trklambda_->Fill(mu.trk_lambda());
-      h_ScoutingMuonVtx_trkpt_->Fill(mu.trk_pt());
-      h_ScoutingMuonVtx_trkphi_->Fill(mu.trk_phi());
-      h_ScoutingMuonVtx_trketa_->Fill(mu.trk_eta());
-      h_ScoutingMuonVtx_trkqoverpError_->Fill(mu.trk_qoverpError());
-      h_ScoutingMuonVtx_trklambdaError_->Fill(mu.trk_lambdaError());
-      h_ScoutingMuonVtx_trkdxyError_->Fill(mu.trk_dxyError());
-      h_ScoutingMuonVtx_trkdzError_->Fill(mu.trk_dzError());
-      h_ScoutingMuonVtx_trkphiError_->Fill(mu.trk_phiError());
-      h_ScoutingMuonVtx_trkdsz_->Fill(mu.trk_dsz());
-      h_ScoutingMuonVtx_trkdszError_->Fill(mu.trk_dszError());
-      h_ScoutingMuonVtx_trkvx_->Fill(mu.trk_vx());
-      h_ScoutingMuonVtx_trkvy_->Fill(mu.trk_vy());
-      h_ScoutingMuonVtx_trkvz_->Fill(mu.trk_vz());
       h_ScoutingMuonVtx_vtxIndx_->Fill(mu.vtxIndx().size());
       muonVtx_vtxIndx.push_back(mu.vtxIndx());
       // Extrapolated phiCorr logic
@@ -564,19 +596,23 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
   VertexDistance3D vdist;
   VertexDistanceXY vdistXY;
   if (SVNoVtx.isValid()) {
-    h_nSVNoVtx_->Fill(SVNoVtx->size());
+    if (fillAllHistograms_) {
+      h_nSVNoVtx_->Fill(SVNoVtx->size());
+    }
     for (size_t i = 0; i < SVNoVtx->size(); ++i) {
       const auto& sv = SVNoVtx->at(i);
-      h_SVNoVtx_x_->Fill(sv.x());
-      h_SVNoVtx_y_->Fill(sv.y());
-      h_SVNoVtx_z_->Fill(sv.z());
-      h_SVNoVtx_xError_->Fill(sv.xError());
-      h_SVNoVtx_yError_->Fill(sv.yError());
-      h_SVNoVtx_zError_->Fill(sv.zError());
-      h_SVNoVtx_trksize_->Fill(sv.tracksSize());
-      h_SVNoVtx_chi2_->Fill(sv.chi2());
-      h_SVNoVtx_ndof_->Fill(sv.ndof());
-      h_SVNoVtx_isvalidvtx_->Fill(sv.isValidVtx());
+      if (fillAllHistograms_) {
+        h_SVNoVtx_x_->Fill(sv.x());
+        h_SVNoVtx_y_->Fill(sv.y());
+        h_SVNoVtx_z_->Fill(sv.z());
+        h_SVNoVtx_xError_->Fill(sv.xError());
+        h_SVNoVtx_yError_->Fill(sv.yError());
+        h_SVNoVtx_zError_->Fill(sv.zError());
+        h_SVNoVtx_trksize_->Fill(sv.tracksSize());
+        h_SVNoVtx_chi2_->Fill(sv.chi2());
+        h_SVNoVtx_ndof_->Fill(sv.ndof());
+        h_SVNoVtx_isvalidvtx_->Fill(sv.isValidVtx());
+      }
       // Calculated for PV0:
       if (pvAvailable) {
         Point svPos(sv.x(), sv.y(), sv.z());
@@ -618,19 +654,23 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
 
   // SVVtx block w/ matching and calculations
   if (SVVtx.isValid()) {
-    h_nSVVtx_->Fill(SVVtx->size());
+    if (fillAllHistograms_) {
+      h_nSVVtx_->Fill(SVVtx->size());
+    }
     for (size_t i = 0; i < SVVtx->size(); ++i) {
       const auto& sv = SVVtx->at(i);
-      h_SVVtx_x_->Fill(sv.x());
-      h_SVVtx_y_->Fill(sv.y());
-      h_SVVtx_z_->Fill(sv.z());
-      h_SVVtx_xError_->Fill(sv.xError());
-      h_SVVtx_yError_->Fill(sv.yError());
-      h_SVVtx_zError_->Fill(sv.zError());
-      h_SVVtx_trksize_->Fill(sv.tracksSize());
-      h_SVVtx_chi2_->Fill(sv.chi2());
-      h_SVVtx_ndof_->Fill(sv.ndof());
-      h_SVVtx_isvalidvtx_->Fill(sv.isValidVtx());
+      if (fillAllHistograms_) {
+        h_SVVtx_x_->Fill(sv.x());
+        h_SVVtx_y_->Fill(sv.y());
+        h_SVVtx_z_->Fill(sv.z());
+        h_SVVtx_xError_->Fill(sv.xError());
+        h_SVVtx_yError_->Fill(sv.yError());
+        h_SVVtx_zError_->Fill(sv.zError());
+        h_SVVtx_trksize_->Fill(sv.tracksSize());
+        h_SVVtx_chi2_->Fill(sv.chi2());
+        h_SVVtx_ndof_->Fill(sv.ndof());
+        h_SVVtx_isvalidvtx_->Fill(sv.isValidVtx());
+      }
       // Calculated for PV0:
       if (pvAvailable) {
         Point svPos(sv.x(), sv.y(), sv.z());
@@ -674,6 +714,7 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
 void ScoutingMuonPropertiesAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "HLT/ScoutingOffline/Muons/Properties");
+  desc.add<bool>("fillAllHistograms", false);
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("muonsNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "", "HLT"));
   desc.add<edm::InputTag>("muonsVtx", edm::InputTag("hltScoutingMuonPackerVtx", "", "HLT"));
