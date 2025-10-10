@@ -655,6 +655,17 @@ def miniAOD_customizeMC(process):
     pp_on_AA.toModify(process, removeJECsForMC)
     pp_on_AA.toReplaceWith(task,task.copyAndExclude([process.slimmedGenJetsFlavourInfos]))
 
+    from Configuration.Eras.Modifier_fastSim_cff import fastSim
+    if hasattr(process, 'patMuons'):
+        fastSim.toModify(process.patMuons, addTriggerMatching = False)
+    if hasattr(process, 'patJets'):
+        fastSim.toModify(process.patJets, addTagInfos = cms.bool(False) )
+    if hasattr(process, 'slimmedJetsNoDeepFlavour'):
+        fastSim.toModify(process.slimmedJetsNoDeepFlavour, dropTagInfos = cms.string('1') )
+    if hasattr(process, 'updatedPatJetsSlimmedDeepFlavour'):
+        fastSim.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
+    if hasattr(process, "updatedPatJetsTransientCorrectedSlimmedDeepFlavour"):
+        fastSim.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
 
 def miniAOD_customizeOutput(out):
     from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
@@ -703,21 +714,4 @@ def miniAOD_customizeAllData(process):
 def miniAOD_customizeAllMC(process):
     miniAOD_customizeCommon(process)
     miniAOD_customizeMC(process)
-    return process
-
-def miniAOD_customizeAllMCFastSim(process):
-    miniAOD_customizeCommon(process)
-    miniAOD_customizeMC(process)
-    from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import miniAOD_customizeMETFiltersFastSim
-    process = miniAOD_customizeMETFiltersFastSim(process)
-    from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import miniAOD_customizeIsolatedTracksFastSim
-    process = miniAOD_customizeIsolatedTracksFastSim(process)
-    process.patMuons.addTriggerMatching = False
-    # Disable pixelClusterTagInfos in FastSim (no siPixelCluster available)
-    from Configuration.Eras.Modifier_fastSim_cff import fastSim
-    fastSim.toModify(process.patJets, addTagInfos = cms.bool(False) )
-    fastSim.toModify(process.slimmedJetsNoDeepFlavour, dropTagInfos = cms.string('1') )
-    fastSim.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
-    fastSim.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
-
     return process
