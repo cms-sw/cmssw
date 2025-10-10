@@ -12,6 +12,7 @@
 #include <bitset>
 #include <sstream>
 #include <iostream>
+#include <format>
 
 using namespace edm;
 using namespace std;
@@ -176,7 +177,7 @@ void CTPPSPixelDataFormatter::interpretRawData(
         } else if ((nroc - 1) >= maxRocIndex) {
           m_ErrorCheck.conversionError(fedId, iD, InvalidROCId, ww, errors);
           m_ErrorSummary.add("Invalid ROC",
-                             fmt::format("Id {0}, in link {1}, of FED {2} in DetId {3}", convroc, nlink, fedId, iD));
+                             std::format("Id {0}, in link {1}, of FED {2} in DetId {3}", convroc, nlink, fedId, iD));
 
         } else {
           m_ErrorCheck.conversionError(fedId, iD, Unknown, ww, errors);
@@ -210,7 +211,7 @@ void CTPPSPixelDataFormatter::interpretRawData(
     if (!isRun3 && (dcol < min_Dcol || dcol > max_Dcol || pxid < min_Pixid || pxid > max_Pixid)) {
       m_ErrorSummary.add(
           "unphysical dcol and/or pxid",
-          fmt::format("fedId= {0}, nllink= {1}, convroc= {2}, adc= {3}, dcol= {4}, pxid= {5}, detId= {6}",
+          std::format("fedId= {0}, nllink= {1}, convroc= {2}, adc= {3}, dcol= {4}, pxid= {5}, detId= {6}",
                       fedId,
                       nlink,
                       convroc,
@@ -225,7 +226,7 @@ void CTPPSPixelDataFormatter::interpretRawData(
     }
     if (isRun3 && (col < min_COL || col > max_COL || row < min_ROW || row > max_ROW)) {
       m_ErrorSummary.add("unphysical col and/or row",
-                         fmt::format("fedId= {0}, nllink= {1}, convroc= {2}, adc= {3}, col= {4}, row= {5}, detId= {6}",
+                         std::format("fedId= {0}, nllink= {1}, convroc= {2}, adc= {3}, col= {4}, row= {5}, detId= {6}",
                                      fedId,
                                      nlink,
                                      convroc,

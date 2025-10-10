@@ -22,7 +22,7 @@
 #include <memory>
 #include <string>
 
-#include <fmt/format.h>
+#include <format>
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
@@ -97,7 +97,7 @@ namespace edm {
             iConfiguration.registerIt();
           });
         } catch (cms::Exception& iException) {
-          iException.addContext(fmt::format(
+          iException.addContext(std::format(
               "Validating configuration of {} of type {} with label: '{}'", T::baseType(), modtype, moduleLabel));
           throw;
         }

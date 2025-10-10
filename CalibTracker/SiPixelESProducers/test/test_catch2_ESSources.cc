@@ -1,6 +1,7 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include <format>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -62,8 +63,8 @@ process.add_(cms.Service('JobReportService'))
 process.moduleToTest(process.getConditions)
     )_";
 
-  // Format the raw string literal using fmt::format
-  return fmt::format(rawString, recordName, dataName, esProducerName);
+  // Format the raw string literal using std::format
+  return std::format(rawString, recordName, dataName, esProducerName);
 }
 
 //___________________________________________________________________________________________

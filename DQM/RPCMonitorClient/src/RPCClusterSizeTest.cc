@@ -4,6 +4,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
+#include <format>
 
 RPCClusterSizeTest::RPCClusterSizeTest(const edm::ParameterSet& ps) {
   edm::LogVerbatim("rpceventsummary") << "[RPCClusterSizeTest]: Constructor";
@@ -55,7 +56,7 @@ void RPCClusterSizeTest::clientOperation() {
     //Barrel
     for (int wheel = -2; wheel <= 2; wheel++) {
       for (int sector = 1; sector <= 12; sector++) {
-        std::string tmpName = fmt::format("ClusterSize_Wheel_{}_Sector_{}", wheel, sector);
+        std::string tmpName = std::format("ClusterSize_Wheel_{}_Sector_{}", wheel, sector);
 
         if (tmpName == meName) {
           MEAN = MEANWheel[wheel + 2];
@@ -97,7 +98,7 @@ void RPCClusterSizeTest::clientOperation() {
       for (int disk = 1; disk <= numberOfDisks_; disk++) {
         for (int ring = 2; ring < numberOfRings_ + 2; ring++) {
           for (unsigned int ich = 0; ich < chNames.size(); ich++) {
-            std::string tmpName = fmt::format("ClusterSize_Disk_{}_Ring_{}_{}", (region * disk), ring, chNames[ich]);
+            std::string tmpName = std::format("ClusterSize_Disk_{}_Ring_{}_{}", (region * disk), ring, chNames[ich]);
 
             if (tmpName == meName) {
               xBin = (ich * 9);

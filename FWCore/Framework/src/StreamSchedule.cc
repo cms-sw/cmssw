@@ -38,7 +38,7 @@
 #include <limits>
 #include <list>
 #include <map>
-#include <fmt/format.h>
+#include <format>
 
 namespace edm {
 
@@ -248,7 +248,7 @@ namespace edm {
       if (not consumes.empty()) {
         bool foundAtLeastOneMatchingBranch = false;
         for (auto const& product : consumes) {
-          std::string branch = fmt::format("{}_{}_{}_{}",
+          std::string branch = std::format("{}_{}_{}_{}",
                                            product.type().friendlyClassName(),
                                            product.label().data(),
                                            product.instance().data(),

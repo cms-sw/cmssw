@@ -1,4 +1,5 @@
 #include "METTester.h"
+#include <format>
 
 using namespace reco;
 using namespace std;
@@ -98,7 +99,7 @@ std::string METTester::binStr(float left, float right, bool roundInt) {
   if (roundInt) {
     out = std::to_string((int)left) + "to" + std::to_string((int)right);
   } else {
-    out = fmt::format("{:.2f}", left) + "to" + fmt::format("{:.2f}", right);
+    out = std::format("{:.2f}", left) + "to" + std::format("{:.2f}", right);
     std::replace(out.begin(), out.end(), '.', 'p');
   }
   return out;
