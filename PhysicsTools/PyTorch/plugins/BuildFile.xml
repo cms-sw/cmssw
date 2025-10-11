@@ -5,4 +5,4 @@
   <use name="FWCore/Utilities"/>
   <use name="PhysicsTools/PyTorch"/>
   <flags EDM_PLUGIN="1"/>
- </library>
+</library>

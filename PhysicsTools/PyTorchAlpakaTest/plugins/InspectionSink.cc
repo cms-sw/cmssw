@@ -2,7 +2,7 @@
 
 #include <fmt/format.h>
 
-#include "DataFormats/PortableTestObjects/interface/TestHostCollection.h"
+#include "DataFormats/PortableTestObjects/interface/TorchTestHostCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
@@ -13,12 +13,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/Environment.h"
+#include "PhysicsTools/PyTorchAlpakaTest/plugins/Environment.h"
 
 namespace torchtest {
 
   using namespace torchportabletest;
-  using namespace cms::torchcommon;
 
   inline edm::InputTag getBackendTag(edm::InputTag const& tag) {
     return edm::InputTag(tag.label(), "backend", tag.process());
@@ -252,7 +251,8 @@ namespace torchtest {
       fmt::format_to(std::back_inserter(buffer), "{}", line);
 
       // Table rows (preview)
-      for (int32_t i = 0; i < std::min<int32_t>(kMaxView, size); ++i) {
+      int32_t range = (environment_ >= Environment::kTest) ? size : std::min<int32_t>(kMaxView, size);
+      for (int32_t i = 0; i < range; ++i) {
         fmt::format_to(std::back_inserter(buffer),
                        "| {:5d} | {:>15.2f} | {:5.2f} | {:5.2f} | {:5.2f} |\n",
                        static_cast<int>(i),
@@ -263,7 +263,7 @@ namespace torchtest {
       }
 
       // Ellipsis row if truncated
-      if (size > kMaxView) {
+      if (range < kMaxView) {
         fmt::format_to(std::back_inserter(buffer),
                        "| {:>5} | {:>15} | {:>5} | {:>5} | {:>5} |\n",
                        "...",
@@ -291,13 +291,14 @@ namespace torchtest {
       fmt::format_to(std::back_inserter(buffer), "{}", line);
 
       // Table rows (preview)
-      for (int32_t i = 0; i < std::min<int32_t>(kMaxView, size); ++i) {
+      int32_t range = (environment_ >= Environment::kTest) ? size : std::min<int32_t>(kMaxView, size);
+      for (int32_t i = 0; i < range; ++i) {
         fmt::format_to(
             std::back_inserter(buffer), "| {:5d} | {:7.2f} |\n", static_cast<int>(i), simple_net[i].reco_pt());
       }
 
       // Ellipsis row if truncated
-      if (size > kMaxView) {
+      if (range < kMaxView) {
         fmt::format_to(std::back_inserter(buffer), "| {:>5} | {:>7} |\n", "...", "...");
       }
 
@@ -317,7 +318,8 @@ namespace torchtest {
       fmt::format_to(std::back_inserter(buffer), "{}", line);
 
       // Table rows (preview)
-      for (int32_t i = 0; i < std::min<int32_t>(kMaxView, size); ++i) {
+      int32_t range = (environment_ >= Environment::kTest) ? size : std::min<int32_t>(kMaxView, size);
+      for (int32_t i = 0; i < range; ++i) {
         fmt::format_to(std::back_inserter(buffer),
                        "| {:5d} | {:7.2f} | {:7.2f} | {:7.2f} |\n",
                        static_cast<int>(i),
@@ -327,7 +329,7 @@ namespace torchtest {
       }
 
       // Ellipsis row if truncated
-      if (size > kMaxView) {
+      if (range < kMaxView) {
         fmt::format_to(std::back_inserter(buffer), "| {:>5} | {:>7} | {:>7} | {:>7} |\n", "...", "...", "...", "...");
       }
 

@@ -2,7 +2,7 @@
 #define PhysicsTools_PyTorchAlpakaTest_plugins_alpaka_CommonKernels_h
 
 #include <alpaka/alpaka.hpp>
-#include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/TorchTestDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "PhysicsTools/PyTorchAlpakaTest/interface/alpaka/MaskDevice.h"
 

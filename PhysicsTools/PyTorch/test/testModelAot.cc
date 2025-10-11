@@ -5,7 +5,6 @@
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "PhysicsTools/PyTorch/interface/ModelAOT.h"
-#include "PhysicsTools/PyTorch/test/Nvtx.h"
 #include "PhysicsTools/PyTorch/test/testUtilities.h"
 
 namespace torchtest {
@@ -29,7 +28,7 @@ namespace torchtest {
 
     CPPUNIT_TEST_SUITE_END();
 
-    const int64_t batch_size_ = 2 << 10;
+    const int64_t batch_size_ = 8;
   };
 
   CPPUNIT_TEST_SUITE_REGISTRATION(TestModelAOT);
@@ -77,8 +76,6 @@ namespace torchtest {
     if (!cms::cudatest::testDevices())
       return;
 
-    Nvtx test("test");
-
     cudaStream_t stream;
     cudaError_t err = cudaStreamCreate(&stream);
     if (err != cudaSuccess)
@@ -88,39 +85,27 @@ namespace torchtest {
     auto m_path = edm::FileInPath("PhysicsTools/PyTorch/models/regression_cpu.pt2").fullPath();
 
     // async model load and inference check
-    Nvtx range("testAsyncExecutionModelExplicitStream");
-    Nvtx mload("modelLoad");
     auto m = ModelAOT(m_path);
-    mload.end();
 
-    Nvtx inbuf("inputBuffers");
     auto inputs = std::vector<torch::IValue>();
     inputs.push_back(torch::randn({batch_size_, 3}, dev));
     std::vector<at::Tensor> inputs_tensor;
     for (const auto& val : inputs)
       inputs_tensor.push_back(val.toTensor());
-    inbuf.end();
 
     for (uint32_t i = 0; i < 10; ++i) {
-      Nvtx iter(("forwardPass:" + std::to_string(i)).c_str());
       auto out = m.forward(inputs_tensor, stream);
-      iter.end();
     }
-    range.end();
 
     // restore the default stream
     cudaStreamSynchronize(stream);
     cudaStreamDestroy(stream);
-
-    test.end();
   }
 
   void TestModelAOT::testAsyncExecutionImplicitStream() {
     // disable test on non-CUDA devices
     if (!cms::cudatest::testDevices())
       return;
-
-    Nvtx test("test");
 
     cudaStream_t stream;
     cudaError_t err = cudaStreamCreate(&stream);
@@ -136,32 +121,22 @@ namespace torchtest {
     c10::cuda::setCurrentCUDAStream(torch_stream);
 
     // async model load and inference check
-    Nvtx range("testAsyncExecutionImplicitStream");
-    Nvtx mload("modelLoad");
     auto m = ModelAOT(m_path);
-    mload.end();
 
-    Nvtx inbuf("inputBuffers");
     auto inputs = std::vector<torch::IValue>();
     inputs.push_back(torch::randn({batch_size_, 3}, dev));
     std::vector<at::Tensor> inputs_tensor;
     for (const auto& val : inputs)
       inputs_tensor.push_back(val.toTensor());
-    inbuf.end();
 
     for (uint32_t i = 0; i < 10; ++i) {
-      Nvtx iter(("forwardPass:" + std::to_string(i)).c_str());
       auto out = m.forward(inputs_tensor, torch_stream);
-      iter.end();
     }
-    range.end();
 
     // restore the default stream
     c10::cuda::setCurrentCUDAStream(default_stream);
     cudaStreamSynchronize(stream);
     cudaStreamDestroy(stream);
-
-    test.end();
   }
 
 }  // namespace torchtest

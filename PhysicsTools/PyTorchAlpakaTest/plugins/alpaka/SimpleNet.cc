@@ -1,5 +1,5 @@
 #include "DataFormats/PortableTestObjects/interface/TestSoA.h"
-#include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/TorchTestDeviceCollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -9,16 +9,15 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/Environment.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/NvtxRAII.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/QueueGuard.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/TensorRegistry.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
+#include "PhysicsTools/PyTorchAlpakaTest/plugins/Environment.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
   using namespace torchportabletest;
   using namespace cms::torch::alpakatools;
-  using namespace cms::torchcommon;
 
   class SimpleNet : public stream::EDProducer<> {
   public:
@@ -27,51 +26,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
           particles_token_(consumes(params.getParameter<edm::InputTag>("particles"))),
           simple_net_token_{produces()},
           model_(params.getParameter<edm::FileInPath>("model").fullPath()),
-          environment_{static_cast<Environment>(params.getUntrackedParameter<int>("environment"))} {}
+          environment_{static_cast<::torchtest::Environment>(params.getUntrackedParameter<int>("environment"))} {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::FileInPath>("model");
       desc.add<edm::InputTag>("particles");
-      desc.addUntracked<int>("environment", static_cast<int>(Environment::kProduction));
+      desc.addUntracked<int>("environment", static_cast<int>(::torchtest::Environment::kProduction));
       descriptions.addWithDefaultLabel(desc);
     }
 
     void produce(device::Event &event, const device::EventSetup &event_setup) override {
-      NvtxRAII produce_range("SimpleNet::produce", environment_);
-      NvtxRAII mem_alloc("SimpleNet::mem_alloc", environment_);
-
       // in/out collections
       const auto &particles = event.get(particles_token_);
       const auto batch_size = particles.const_view().metadata().size();
       auto regression_collection = SimpleNetDeviceCollection(batch_size, event.queue());
-      mem_alloc.end();
 
-      NvtxRAII metadata_def("SimpleNet::metadata_def", environment_);
       // records
       auto input_records = particles.const_view().records();
       auto output_records = regression_collection.view().records();
       // input tensor definition
-      SoAMetadata inputs_metadata(batch_size);
-      inputs_metadata.append_block<ParticleSoA>(
-          "particles", input_records.pt(), input_records.eta(), input_records.phi());
+      TensorRegistry inputs(batch_size);
+      inputs.register_tensor<ParticleSoA>("particles", input_records.pt(), input_records.eta(), input_records.phi());
       // output tensor definition
-      SoAMetadata outputs_metadata(batch_size);
-      outputs_metadata.append_block<SimpleNetSoA>("regression_head", output_records.reco_pt());
-      // metadata for automatic tensor conversion
-      ModelMetadata metadata(inputs_metadata, outputs_metadata);
-      metadata_def.end();
+      TensorRegistry outputs(batch_size);
+      outputs.register_tensor<SimpleNetSoA>("regression_head", output_records.reco_pt());
 
       // inference, queue guard restore stream when goes out of scope
       {
         QueueGuard<Queue> guard(event.queue());
-        NvtxRAII mmove("SimpleNet::mmove", environment_);
         model_.to(event.queue());
-        mmove.end();
-
-        NvtxRAII inference("SimpleNet::inference", environment_);
-        model_.forward(event.queue(), metadata);
-        inference.end();
+        model_.forward(event.queue(), inputs, outputs);
       }
 
       // put device-side product into event
@@ -85,7 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     // model
     torch::AlpakaModel model_;
     // debug mode flag
-    const Environment environment_;
+    const ::torchtest::Environment environment_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest

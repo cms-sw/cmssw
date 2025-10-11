@@ -6,7 +6,7 @@
 
 #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
 
-#include "PhysicsTools/PyTorch/interface/TorchCompat.h"
+#include "PhysicsTools/PyTorch/interface/TorchInterface.h"
 
 namespace cms::torch {
 

@@ -2,6 +2,7 @@
 #include "DataFormats/Portable/interface/PortableHostObjectReadRules.h"
 #include "DataFormats/PortableTestObjects/interface/TestHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/TestHostObject.h"
+#include "DataFormats/PortableTestObjects/interface/TorchTestHostCollection.h"
 
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection);
 SET_PORTABLEHOSTMULTICOLLECTION_READ_RULES(portabletest::TestHostMultiCollection2);

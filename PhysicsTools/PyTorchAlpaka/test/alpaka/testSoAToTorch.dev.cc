@@ -1,16 +1,19 @@
 #include <cppunit/extensions/HelperMacros.h>
+#include "DataFormats/Portable/interface/PortableCollection.h"
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+#include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "DataFormats/Portable/interface/PortableCollection.h"
-#include "DataFormats/Portable/interface/PortableHostCollection.h"
-#include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "PhysicsTools/PyTorch/test/testTorchBase.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/SoAConversion.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/TensorRegistry.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/alpaka/Config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
+
+  constexpr auto modelPath = "PhysicsTools/PyTorch/data/linear_dnn.pt";
 
   using namespace ALPAKA_ACCELERATOR_NAMESPACE::torch;
   using namespace cms::torch::alpakatools;
@@ -28,19 +31,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
   using SoAResult = SoAResultTemplate<>;
   using SoAResultView = SoAResult::View;
 
-  class testSOAToTorch : public ::torchtest::testTorchBase {
+  class testSOAToTorch : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(testSOAToTorch);
     CPPUNIT_TEST(test);
     CPPUNIT_TEST_SUITE_END();
 
   public:
-    std::string script() const override;
     void test();
   };
 
   CPPUNIT_TEST_SUITE_REGISTRATION(testSOAToTorch);
-
-  std::string testSOAToTorch::script() const { return "testExportLinearDnn.py"; }
 
   class FillKernel {
   public:
@@ -100,22 +100,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     fill(queue, positionCollection);
 
     // Deserialize the ScriptModule
-    std::string model_path = modelPath() + "/linear_dnn.pt";
+    std::string model_path = edm::FileInPath(modelPath).fullPath();
     auto model = AlpakaModel(model_path);
     model.to(queue);
 
     // Create SoA Metadata
-    SoAMetadata input(batch_size);
+    TensorRegistry input(batch_size);
     auto posview = positionCollection.view().records();
-    input.append_block<SoAPosition>("main", posview.x(), posview.y(), posview.z());
+    input.register_tensor<SoAPosition>("main", posview.x(), posview.y(), posview.z());
 
-    SoAMetadata output(batch_size);
+    TensorRegistry output(batch_size);
     auto view = resultCollection.view().records();
-    output.append_block<SoAResult>("result", view.x(), view.y());
-    ModelMetadata metadata(input, output);
+    output.register_tensor<SoAResult>("result", view.x(), view.y());
 
     // Call inference
-    model.forward(queue, metadata);
+    model.forward(queue, input, output);
     check(queue, resultCollection);
 
     PortableHostCollection<SoAResult> resultHostCollection(batch_size, cms::alpakatools::host());

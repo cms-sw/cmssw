@@ -1,94 +1,95 @@
+import argparse
 import os
 
-import FWCore.ParameterSet.VarParsing as VarParsing
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Configuration for PyTorch Alpaka test"
+    )
 
+    parser.add_argument(
+        "-nt", "--numberOfThreads",
+        type=int,
+        default=1,
+        help="Number of CMSSW threads"
+    )
 
-args = VarParsing.VarParsing("analysis")
+    parser.add_argument(
+        "-ns", "--numberOfStreams",
+        type=int,
+        default=1,
+        help="Number of CMSSW streams"
+    )
 
-args.register(
-    "numberOfThreads",
-    1,
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.int,
-    "Number of CMSSW threads"
-)
+    parser.add_argument(
+        "-ne", "--numberOfEvents",
+        type=int,
+        default=1,
+        help="Number of events to process"
+    )
 
-args.register(
-    "numberOfStreams",
-    1,
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.int,
-    "Number of CMSSW streams"
-)
+    parser.add_argument(
+        "-b", "--backend",
+        type=str,
+        choices=["serial_sync", "cuda_async", "rocm_async"],
+        default="serial_sync",
+        help="Accelerator backend"
+    )
 
-args.register(
-    "numberOfEvents",
-    1,
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.int,
-    "Number of events to process"
-)
+    parser.add_argument(
+        "-bs", "--batchSize",
+        type=int,
+        default=8,
+        help="Batch size"
+    )
 
-args.register(
-    "backend",
-    "serial_sync",
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,         
-    "Accelerator backend: serial_sync, cuda_async, or rocm_async"
-)
+    parser.add_argument(
+        "-e", "--environment",
+        type=int,
+        choices=[0, 1, 2, 3],
+        default=0,
+        help="Environment: 0 - production, 1 - development, 2 - test, 3 - debug"
+    )
 
-args.register(
-    "batchSize",
-    8,
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.int,        
-    "Batch size"
-)
+    parser.add_argument(
+        "--simpleNet",
+        type=str,
+        default="PhysicsTools/PyTorchAlpakaTest/data/SimpleNet.pt",
+        help="SimpleNet model (just-in-time compiled)"
+    )
 
-args.register(
-    "environment",
-    0,
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.int,        
-    "Environment: 0 - production, 1 - development, 2 - test, 3 - debug"
-)
+    parser.add_argument(
+        "--maskedNet",
+        type=str,
+        default="PhysicsTools/PyTorchAlpakaTest/data/MaskedNet.pt",
+        help="MaskedNet model (just-in-time compiled)"
+    )
 
-args.register(
-    "simpleNet",
-    "PhysicsTools/PyTorchAlpakaTest/data/SimpleNet.pt",
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,         
-    "SimpleNet model (just-in-time compiled)"
-)
+    parser.add_argument(
+        "--multiHeadNet",
+        type=str,
+        default="PhysicsTools/PyTorchAlpakaTest/data/MultiHeadNet.pt",
+        help="MultiHeadNet model (just-in-time compiled)"
+    )
 
-args.register(
-    "maskedNet",
-    "PhysicsTools/PyTorchAlpakaTest/data/MaskedNet.pt",
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,         
-    "MaskedNet model (just-in-time compiled)"
-)
+    parser.add_argument(
+        "--tinyResNet",
+        type=str,
+        default="PhysicsTools/PyTorchAlpakaTest/data/TinyResNet.pt",
+        help="TinyResNet model (just-in-time compiled)"
+    )
 
-args.register(
-    "multiHeadNet",
-    "PhysicsTools/PyTorchAlpakaTest/data/MultiHeadNet.pt",
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,         
-    "MultiHeadNet model (just-in-time compiled)"
-)
+    parser.add_argument(
+        "-o", "--only",
+        nargs="+",
+        default=["SimpleNet", "MultiHeadNet", "MaskedNet", "TinyResNet"],
+        choices=["SimpleNet", "MaskedNet", "MultiHeadNet", "TinyResNet"],
+        help="Run selected test(s). Default: all modules run in parallel."
+    )
 
-args.register(
-    "tinyResNet",
-    "PhysicsTools/PyTorchAlpakaTest/data/TinyResNet.pt",
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,         
-    "TinyResNet model (just-in-time compiled)"
-)
+    parser.add_argument(
+        "-ws", "--wantSummary",
+        action="store_true",
+        help="Modules execution summary"
+    )
 
-args.register(
-    "only",
-    ['simpleNet', 'multiHeadNet', 'maskedNet', 'tinyResNet'],
-    VarParsing.VarParsing.multiplicity.list,
-    VarParsing.VarParsing.varType.string,         
-    "Run selected test(s): simpleNet, maskedNet, multiHeadNet, tinyResNet. Default is all modules run in parallel."
-)
+    return parser.parse_args()

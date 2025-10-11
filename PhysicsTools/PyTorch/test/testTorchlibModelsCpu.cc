@@ -18,7 +18,7 @@ namespace torchtest {
     void testRegressionCpu();
     void testMultiTaskModelCpu();
 
-    const int64_t batch_size_ = 2 << 10;
+    const int64_t batch_size_ = 8;
     const torch::Device device_ = torch::Device(torch::kCPU, 0);
   };
 

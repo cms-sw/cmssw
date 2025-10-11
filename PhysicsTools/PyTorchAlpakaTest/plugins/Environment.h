@@ -1,10 +1,10 @@
-#ifndef PhysicsTools_PyTorchAlpaka_interface_Environment_h
-#define PhysicsTools_PyTorchAlpaka_interface_Environment_h
+#ifndef PhysicsTools_PyTorchAlpakaTest_plugins_Environment_h
+#define PhysicsTools_PyTorchAlpakaTest_plugins_Environment_h
 
 #include <compare>
 #include <cstdint>
 
-namespace cms::torchcommon {
+namespace torchtest {
 
   enum class Environment : int { kProduction = 0, kDevelopment = 1, kTest = 2, kDebug = 3 };
 
@@ -12,6 +12,6 @@ namespace cms::torchcommon {
     return static_cast<int>(t) <=> static_cast<int>(u);
   }
 
-}  // namespace cms::torchcommon
+}  // namespace torchtest
 
-#endif  // PhysicsTools_PyTorchAlpaka_interface_Environment_h
+#endif  // PhysicsTools_PyTorchAlpakaTest_plugins_Environment_h

@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "PhysicsTools/PyTorch/interface/ScriptModuleLoad.h"
-#include "PhysicsTools/PyTorch/interface/TorchCompat.h"
+#include "PhysicsTools/PyTorch/interface/TorchInterface.h"
 
 namespace cms::torch {
 

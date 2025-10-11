@@ -1,18 +1,29 @@
+#include <cppunit/extensions/HelperMacros.h>
 #include <cuda_runtime.h>
 #include <c10/cuda/CUDAStream.h>
+#include <c10/cuda/CUDAGuard.h>
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "PhysicsTools/PyTorch/interface/Model.h"
-#include "PhysicsTools/PyTorch/test/Nvtx.h"
-#include "PhysicsTools/PyTorch/test/testTorchBase.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 namespace torchtest {
 
+  constexpr auto modelPath = "PhysicsTools/PyTorch/data/linear_dnn.pt";
+
+  template <typename Fn>
+  void forEachCudaDevice(Fn&& fn) {
+    int count = ::torch::cuda::device_count();
+    for (int i = 0; i < count; ++i) {
+      auto dev = ::torch::Device(::torch::kCUDA, i);
+      std::cout << "Running test on device " << dev << std::endl;
+      fn(dev);
+    }
+  }
+
   using namespace cms::torch;
 
-  class TestModelJIT : public testTorchBase {
+  class TestModelJIT : public CppUnit::TestFixture {
   public:
-    std::string script() const override;
-
     void testCtor_DefaultDeviceIsCpu();
     void testCtor_ExplicitDeviceIsHonored();
     void testCtor_BadModelPathThrows();
@@ -34,15 +45,13 @@ namespace torchtest {
     CPPUNIT_TEST(testAsyncExecution);
     CPPUNIT_TEST_SUITE_END();
 
-    const int64_t batch_size_ = 2 << 10;
+    const int64_t batch_size_ = 8;
   };
 
   CPPUNIT_TEST_SUITE_REGISTRATION(TestModelJIT);
 
-  std::string TestModelJIT::script() const { return "testExportLinearDnn.py"; }
-
   void TestModelJIT::testCtor_DefaultDeviceIsCpu() {
-    auto m_path = modelPath() + "/linear_dnn.pt";
+    auto m_path = edm::FileInPath(modelPath).fullPath();
     auto m = Model(m_path);
 
     CPPUNIT_ASSERT_EQUAL(::torch::kCPU, m.device().type());
@@ -53,16 +62,15 @@ namespace torchtest {
     if (!cms::cudatest::testDevices())
       return;
 
-    auto m_path = modelPath() + "/linear_dnn.pt";
-    auto dev = ::torch::Device(::torch::kCUDA, 0);
-    auto m = Model(m_path, dev);
-
-    CPPUNIT_ASSERT_EQUAL(dev, m.device());
+    auto m_path = edm::FileInPath(modelPath).fullPath();
+    forEachCudaDevice([&](auto dev) {
+      auto m = Model(m_path, dev);
+      CPPUNIT_ASSERT_EQUAL(dev, m.device());
+    });
   }
 
   void TestModelJIT::testCtor_BadModelPathThrows() {
-    auto m_path = modelPath() + "/not_existing_model.pt";
-    CPPUNIT_ASSERT_THROW(Model m(m_path), cms::Exception);
+    CPPUNIT_ASSERT_THROW(Model m("/not_existing_model.pt"), cms::Exception);
   }
 
   void TestModelJIT::testToDevice_UpdatesUnderlyingState() {
@@ -70,15 +78,16 @@ namespace torchtest {
     if (!cms::cudatest::testDevices())
       return;
 
-    auto m_path = modelPath() + "/linear_dnn.pt";
-    auto m = Model(m_path);
-    auto dev = ::torch::Device(::torch::kCUDA, 0);
-    m.to(dev);
+    auto m_path = edm::FileInPath(modelPath).fullPath();
+    forEachCudaDevice([&](auto dev) {
+      auto m = Model(m_path);
+      m.to(dev);
 
-    CPPUNIT_ASSERT_EQUAL(dev, m.device());
+      CPPUNIT_ASSERT_EQUAL(dev, m.device());
 
-    m.to(::torch::kCPU);
-    CPPUNIT_ASSERT_EQUAL(::torch::kCPU, m.device().type());
+      m.to(::torch::kCPU);
+      CPPUNIT_ASSERT_EQUAL(::torch::kCPU, m.device().type());
+    });
   }
 
   void TestModelJIT::testToDevice_NonBlocking() {
@@ -86,24 +95,25 @@ namespace torchtest {
     if (!cms::cudatest::testDevices())
       return;
 
-    auto m_path = modelPath() + "/linear_dnn.pt";
-    auto m = Model(m_path);
-    auto dev = ::torch::Device(::torch::kCUDA, 0);
-    Nvtx range("testToDevice_NonBlocking");
-    m.to(dev, true);
-    range.end();
+    auto m_path = edm::FileInPath(modelPath).fullPath();
+    forEachCudaDevice([&](auto dev) {
+      auto m = Model(m_path);
+      m.to(dev, true);
 
-    CPPUNIT_ASSERT_EQUAL(dev, m.device());
+      CPPUNIT_ASSERT_EQUAL(dev, m.device());
+    });
   }
 
   void TestModelJIT::testForward_IdempotentOutput() {
-    auto m_path = modelPath() + "/linear_dnn.pt";
-    auto m = Model(m_path);
-    auto inputs = std::vector<torch::IValue>();
-    inputs.push_back(torch::randn({batch_size_, 3}));
-    auto out1 = m.forward(inputs).toTensor();
-    auto out2 = m.forward(inputs).toTensor();
-    CPPUNIT_ASSERT(out1.equal(out2));
+    auto m_path = edm::FileInPath(modelPath).fullPath();
+    forEachCudaDevice([&](auto dev) {
+      auto m = Model(m_path);
+      auto inputs = std::vector<torch::IValue>();
+      inputs.push_back(torch::randn({batch_size_, 3}));
+      auto out1 = m.forward(inputs).toTensor();
+      auto out2 = m.forward(inputs).toTensor();
+      CPPUNIT_ASSERT(out1.equal(out2));
+    });
   }
 
   void TestModelJIT::testForward_OutputOnCorrectDevice() {
@@ -111,13 +121,14 @@ namespace torchtest {
     if (!cms::cudatest::testDevices())
       return;
 
-    auto m_path = modelPath() + "/linear_dnn.pt";
-    auto dev = ::torch::Device(::torch::kCUDA, 0);
-    auto m = Model(m_path, dev);
-    auto inputs = std::vector<torch::IValue>();
-    inputs.push_back(torch::randn({batch_size_, 3}, dev));
-    auto out = m.forward(inputs).toTensor();
-    CPPUNIT_ASSERT_EQUAL(dev, out.device());
+    auto m_path = edm::FileInPath(modelPath).fullPath();
+    forEachCudaDevice([&](auto dev) {
+      auto m = Model(m_path, dev);
+      auto inputs = std::vector<torch::IValue>();
+      inputs.push_back(torch::randn({batch_size_, 3}, dev));
+      auto out = m.forward(inputs).toTensor();
+      CPPUNIT_ASSERT_EQUAL(dev, out.device());
+    });
   }
 
   void TestModelJIT::testAsyncExecution() {
@@ -125,42 +136,33 @@ namespace torchtest {
     if (!cms::cudatest::testDevices())
       return;
 
-    cudaStream_t stream;
-    cudaError_t err = cudaStreamCreate(&stream);
-    if (err != cudaSuccess)
-      CPPUNIT_FAIL("cudaStreamCreate failed");
+    auto m_path = edm::FileInPath(modelPath).fullPath();
 
-    auto m_path = modelPath() + "/linear_dnn.pt";
-    auto dev = ::torch::Device(::torch::kCUDA, 0);
+    forEachCudaDevice([&](auto dev) {
+      c10::cuda::CUDAGuard guard(dev);
+      cudaStream_t stream;
+      cudaError_t err = cudaStreamCreate(&stream);
+      if (err != cudaSuccess)
+        CPPUNIT_FAIL("cudaStreamCreate failed");
 
-    // set torch stream from external
-    auto default_stream = c10::cuda::getCurrentCUDAStream();
-    auto torch_stream = c10::cuda::getStreamFromExternal(stream, dev.index());
-    c10::cuda::setCurrentCUDAStream(torch_stream);
+      auto default_stream = c10::cuda::getCurrentCUDAStream(dev.index());
+      auto torch_stream = c10::cuda::getStreamFromExternal(stream, dev.index());
+      c10::cuda::setCurrentCUDAStream(torch_stream);
 
-    // async model load and inference check
-    Nvtx range("testAsyncExecutionModel");
-    Nvtx mload("modelLoad");
-    auto m = Model(m_path);
-    m.to(dev, true);
-    mload.end();
+      auto m = Model(m_path);
+      m.to(dev, true);
 
-    Nvtx inbuf("inputBuffers");
-    auto inputs = std::vector<torch::IValue>();
-    inputs.push_back(torch::randn({batch_size_, 3}, dev));
-    inbuf.end();
+      auto inputs = std::vector<torch::IValue>();
+      inputs.push_back(torch::randn({batch_size_, 3}, dev));
 
-    for (uint32_t i = 0; i < 10; ++i) {
-      Nvtx iter(("forwardPass:" + std::to_string(i)).c_str());
-      auto out = m.forward(inputs);
-      iter.end();
-    }
-    range.end();
+      for (uint32_t i = 0; i < 10; ++i) {
+        auto out = m.forward(inputs);
+      }
 
-    // restore the default stream
-    c10::cuda::setCurrentCUDAStream(default_stream);
-    cudaStreamSynchronize(stream);
-    cudaStreamDestroy(stream);
+      c10::cuda::setCurrentCUDAStream(default_stream);
+      cudaStreamSynchronize(stream);
+      cudaStreamDestroy(stream);
+    });
   }
 
 }  // namespace torchtest

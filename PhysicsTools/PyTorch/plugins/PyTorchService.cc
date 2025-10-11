@@ -5,12 +5,12 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "PhysicsTools/PyTorch/interface/TorchCompat.h"
+#include "PhysicsTools/PyTorch/interface/TorchInterface.h"
 
 class PyTorchService {
 public:
   PyTorchService(const edm::ParameterSet& config, edm::ActivityRegistry& registry) {
-    registry.watchPreGlobalBeginRun(this, &PyTorchService::preGlobalBeginRun);
+    registry.watchPreallocate(this, &PyTorchService::preallocate);
   };
   ~PyTorchService() = default;
 
@@ -20,7 +20,7 @@ public:
     descriptions.setComment("Disable internal PyTorch threading model.");
   }
 
-  void preGlobalBeginRun(edm::GlobalContext const&) {
+  void preallocate(edm::service::SystemBounds const&) {
     edm::LogInfo("PyTorchService") << "Disabling PyTorch internal threading model. "
                                       "All CPU based operations will run single-threaded.";
     at::set_num_threads(1);
