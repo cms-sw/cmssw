@@ -56,7 +56,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void ConstructLinksTest::apply(Queue& queue,
                                  reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars,
                                  const PFMultiDepthClusterParams* nSigma) const {
-    uint32_t items = 128;  
+    uint32_t items = 128;
 
     auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
     uint32_t groups = cms::alpakatools::divide_up_by(n, items);
@@ -308,7 +308,7 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = 100;  
+  const int nClusters = 100;
 
   ::reco::PFClusterCollection clusters;
   clusters.reserve(nClusters);

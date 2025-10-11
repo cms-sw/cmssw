@@ -36,7 +36,7 @@
 
 class LegacyMultiDepthPFClusterProducer : public edm::stream::EDProducer<> {
 public:
-    LegacyMultiDepthPFClusterProducer(edm::ParameterSet const& config)
+  LegacyMultiDepthPFClusterProducer(edm::ParameterSet const& config)
       : pfClusterSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
         pfRecHitFractionSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
         InputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
@@ -61,13 +61,13 @@ public:
         const std::string& algoac = acConf2.getParameter<std::string>("algoName");
         if (!algoac.empty())
           allCellsPositionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf2, cc);
-      }     
+      }
       // see if new need to apply corrections, setup if there.
       const edm::ParameterSet& cConf = config.getParameterSet("energyCorrector");
       if (!cConf.empty()) {
         const std::string& cName = cConf.getParameter<std::string>("algoName");
-      if (!cName.empty())
-        _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
+        if (!cName.empty())
+          _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
       }
     }
   }
@@ -78,7 +78,7 @@ public:
     desc.add<edm::InputTag>("src", edm::InputTag("pfClusterSoAProducer"));
     desc.add<edm::InputTag>("PFRecHitsLabelIn", edm::InputTag("pfRecHitSoAProducerHCAL"));
     desc.add<edm::InputTag>("recHitsSource", edm::InputTag("legacyPFRecHitProducer"));
-    desc.add<bool>("usePFThresholdsFromDB", true);  
+    desc.add<bool>("usePFThresholdsFromDB", true);
 
     desc.add<edm::ParameterSetDescription>("energyCorrector", {});
     {
@@ -146,26 +146,29 @@ void LegacyMultiDepthPFClusterProducer::produce(edm::Event& event, const edm::Ev
 
   // Build PFClusters in legacy format
 
-  std::unordered_map<int,int> nTopoSeeds;
+  std::unordered_map<int, int> nTopoSeeds;
   nTopoSeeds.reserve(static_cast<size_t>(pfClusterSoA.nSeeds()));
 
-  for (int i = 0; i < pfClusterSoA.nSeeds(); ++i) nTopoSeeds[pfClusterSoA[i].topoId()]++;
+  for (int i = 0; i < pfClusterSoA.nSeeds(); ++i)
+    nTopoSeeds[pfClusterSoA[i].topoId()]++;
 
   // Looping over SoA PFClusters to produce legacy PFCluster collection
   for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
     unsigned int seedIdx = pfClusterSoA[i].seedRHIdx();
 
-    if (seedIdx >= static_cast<unsigned>(nRH)) continue; 
+    if (seedIdx >= static_cast<unsigned>(nRH))
+      continue;
 
     reco::PFCluster temp;
 
-    temp.setSeed((*rechitsHandle)[seedIdx].detId()); 
-    
+    temp.setSeed((*rechitsHandle)[seedIdx].detId());
+
     int const offset = pfClusterSoA[i].rhfracOffset();
-    int const size   = pfClusterSoA[i].rhfracSize();
+    int const size = pfClusterSoA[i].rhfracSize();
 
     for (int k = offset; k < (offset + size) && k >= 0; k++) {  // Looping over PFRecHits in the same topo cluster
-      if (pfRecHitFractionSoA[k].pfrhIdx() < nRH && pfRecHitFractionSoA[k].pfrhIdx() > -1 && pfRecHitFractionSoA[k].frac() > 0.0f) {
+      if (pfRecHitFractionSoA[k].pfrhIdx() < nRH && pfRecHitFractionSoA[k].pfrhIdx() > -1 &&
+          pfRecHitFractionSoA[k].frac() > 0.0f) {
         const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechitsHandle, pfRecHitFractionSoA[k].pfrhIdx());
         temp.addRecHitFraction(reco::PFRecHitFraction(refhit, pfRecHitFractionSoA[k].frac()));
       }
@@ -179,7 +182,7 @@ void LegacyMultiDepthPFClusterProducer::produce(edm::Event& event, const edm::Ev
     }
     out.emplace_back(std::move(temp));
   }
-  
+
   event.emplace(legacyPfClustersToken_, std::move(out));
 }
 

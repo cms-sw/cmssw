@@ -116,8 +116,7 @@ namespace {
   }
 }  // namespace
 
-static inline HcalDetId makeDetId(int ieta, int iphi, int depth) {  
-
+static inline HcalDetId makeDetId(int ieta, int iphi, int depth) {
   iphi = std::max(1, std::min(iphi, 72));
   ieta = std::max(1, std::min(16, ieta));
   depth = (depth <= 1) ? 1 : 2;
