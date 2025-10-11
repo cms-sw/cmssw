@@ -23,14 +23,17 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void PutValueMapInEvent(edm::Event&, const edm::Handle<edm::View<reco::Candidate>>&, const std::vector<float>&, std::string);
+  void PutValueMapInEvent(edm::Event&,
+                          const edm::Handle<edm::View<reco::Candidate>>&,
+                          const std::vector<float>&,
+                          std::string);
   edm::EDGetTokenT<edm::View<reco::Candidate>> pfcands_token_;
   edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
 };
 
 PFCandidatesVarProducer::PFCandidatesVarProducer(const edm::ParameterSet& iConfig)
     : pfcands_token_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("src"))),
-      puppi_value_map_token_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppi_value_map"))){
+      puppi_value_map_token_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppi_value_map"))) {
   produces<edm::ValueMap<float>>("ptWeighted");
   produces<edm::ValueMap<float>>("massWeighted");
 }
@@ -38,7 +41,6 @@ PFCandidatesVarProducer::PFCandidatesVarProducer(const edm::ParameterSet& iConfi
 PFCandidatesVarProducer::~PFCandidatesVarProducer() {}
 
 void PFCandidatesVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   // Get PF candidates
   edm::Handle<edm::View<reco::Candidate>> pfcands_handle;
   iEvent.getByToken(pfcands_token_, pfcands_handle);
@@ -61,20 +63,19 @@ void PFCandidatesVarProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     massWeighted[pfcand_idx] = puppiWeightVal * cand.mass();
   }
 
-  PutValueMapInEvent(iEvent, pfcands_handle, ptWeighted,   "ptWeighted");
+  PutValueMapInEvent(iEvent, pfcands_handle, ptWeighted, "ptWeighted");
   PutValueMapInEvent(iEvent, pfcands_handle, massWeighted, "massWeighted");
 }
 void PFCandidatesVarProducer::PutValueMapInEvent(edm::Event& iEvent,
-                                                        const edm::Handle<edm::View<reco::Candidate>>& coll,
-                                                        const std::vector<float>& vec_var,
-                                                        std::string VMName) {
+                                                 const edm::Handle<edm::View<reco::Candidate>>& coll,
+                                                 const std::vector<float>& vec_var,
+                                                 std::string VMName) {
   std::unique_ptr<edm::ValueMap<float>> VM(new edm::ValueMap<float>());
   edm::ValueMap<float>::Filler fillerVM(*VM);
   fillerVM.insert(coll, vec_var.begin(), vec_var.end());
   fillerVM.fill();
   iEvent.put(std::move(VM), VMName);
 }
-
 
 void PFCandidatesVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
