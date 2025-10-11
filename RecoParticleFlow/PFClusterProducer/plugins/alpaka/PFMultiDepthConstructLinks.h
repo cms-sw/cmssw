@@ -231,7 +231,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const PFMultiDepthClusterParams* nSigma) const {
       const unsigned int nClusters = mdpfClusteringVars.size();
 
-      const unsigned int nBlocks = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
       const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
 
       const unsigned int w_extent = alpaka::warp::getSize(acc);

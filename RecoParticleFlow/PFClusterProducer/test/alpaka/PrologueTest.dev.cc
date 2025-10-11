@@ -100,8 +100,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const int begin = hClusteringEdgeVars[i].mdpf_adjacencyIndex();
       const int end = hClusteringEdgeVars[i + 1].mdpf_adjacencyIndex();
 
-      const int len = end - begin;
-
       std::cout << i << ": [";
       for (int j = begin; j < end; j++) {
         std::cout << hClusteringEdgeVars[j].mdpf_adjacencyList() << " ";

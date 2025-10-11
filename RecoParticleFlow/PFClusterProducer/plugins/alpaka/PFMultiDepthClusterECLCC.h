@@ -86,7 +86,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //
     data_t* tp;
     //
-    const int nClusters;
+    const unsigned int nClusters;
 
     CCGAlgorithmArgs(Queue& queue, TBufAcc& workl, TBufAcc& tp, const int nClusters_ = 0)
         : workl(workl.data()), tp(tp.data()), nClusters(nClusters_) {
@@ -267,8 +267,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         reco::PFMultiDepthClusteringVarsDeviceCollection::View pfClusteringVars,
         const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::ConstView pfClusteringEdgeVars) {
       auto const blockDim_x = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0];
-
-      const int w_extent = alpaka::warp::getSize(acc);
 
       int& v = alpaka::declareSharedVar<int, __COUNTER__>(acc);
 
