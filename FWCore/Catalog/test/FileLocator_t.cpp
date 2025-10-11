@@ -9,7 +9,7 @@
 #include <string>
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 TEST_CASE("FileLocator with Rucio data catalog", "[FWCore/Catalog]") {
   edm::ServiceToken tempToken = edmtest::catalog::makeTestSiteLocalConfigToken();

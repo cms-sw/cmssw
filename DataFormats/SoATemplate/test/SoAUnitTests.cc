@@ -2,7 +2,7 @@
 #include <tuple>
 
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 

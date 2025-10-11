@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include <iostream>
 #include <string>

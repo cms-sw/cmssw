@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include <atomic>
 
@@ -92,6 +92,6 @@ TEST_CASE("Test Async", "[edm::Async") {
     REQUIRE(waitTask.done());
     REQUIRE(waitTask.exceptionPtr());
     REQUIRE_THROWS_WITH(std::rethrow_exception(waitTask.exceptionPtr()),
-                        Catch::Contains("Calling run in this context is not allowed"));
+                        Catch::Matchers::ContainsSubstring("Calling run in this context is not allowed"));
   }
 }

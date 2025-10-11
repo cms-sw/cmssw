@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <algorithm>
 #include "RecoTracker/PixelTrackFitting/interface/RZLine.h"
 
@@ -19,11 +19,11 @@ TEST_CASE("test RZLine", "[RZLine]") {
     SECTION("array") {
       RZLine l(r, z, errz);
 
-      REQUIRE(l.cotTheta() == Approx(cotTheta));
-      REQUIRE(l.intercept() == Approx(intercept));
-      REQUIRE(l.covss() == Approx(covss));
-      REQUIRE(l.covii() == Approx(covii));
-      REQUIRE(l.covsi() == Approx(covsi));
+      REQUIRE_THAT(l.cotTheta(), Catch::Matchers::WithinRel(cotTheta));
+      REQUIRE_THAT(l.intercept(), Catch::Matchers::WithinRel(intercept));
+      REQUIRE_THAT(l.covss(), Catch::Matchers::WithinRel(covss));
+      REQUIRE_THAT(l.covii(), Catch::Matchers::WithinRel(covii));
+      REQUIRE_THAT(l.covsi(), Catch::Matchers::WithinRel(covsi));
       REQUIRE_THAT(l.chi2(), Catch::Matchers::WithinAbs(chi2, chi2_diff));
     }
 
@@ -33,11 +33,11 @@ TEST_CASE("test RZLine", "[RZLine]") {
       const std::vector<float> errzv{errz.begin(), errz.end()};
       RZLine l(rv, zv, errzv);
 
-      REQUIRE(l.cotTheta() == Approx(cotTheta));
-      REQUIRE(l.intercept() == Approx(intercept));
-      REQUIRE(l.covss() == Approx(covss));
-      REQUIRE(l.covii() == Approx(covii));
-      REQUIRE(l.covsi() == Approx(covsi));
+      REQUIRE_THAT(l.cotTheta(), Catch::Matchers::WithinRel(cotTheta));
+      REQUIRE_THAT(l.intercept(), Catch::Matchers::WithinRel(intercept));
+      REQUIRE_THAT(l.covss(), Catch::Matchers::WithinRel(covss));
+      REQUIRE_THAT(l.covii(), Catch::Matchers::WithinRel(covii));
+      REQUIRE_THAT(l.covsi(), Catch::Matchers::WithinRel(covsi));
       REQUIRE_THAT(l.chi2(), Catch::Matchers::WithinAbs(chi2, chi2_diff));
     }
 
@@ -48,11 +48,11 @@ TEST_CASE("test RZLine", "[RZLine]") {
       std::transform(errz.begin(), errz.end(), std::back_inserter(errzv), [](float v) { return v * v; });
       RZLine l(rv, zv, errzv, RZLine::ErrZ2_tag());
 
-      REQUIRE(l.cotTheta() == Approx(cotTheta));
-      REQUIRE(l.intercept() == Approx(intercept));
-      REQUIRE(l.covss() == Approx(covss));
-      REQUIRE(l.covii() == Approx(covii));
-      REQUIRE(l.covsi() == Approx(covsi));
+      REQUIRE_THAT(l.cotTheta(), Catch::Matchers::WithinRel(cotTheta));
+      REQUIRE_THAT(l.intercept(), Catch::Matchers::WithinRel(intercept));
+      REQUIRE_THAT(l.covss(), Catch::Matchers::WithinRel(covss));
+      REQUIRE_THAT(l.covii(), Catch::Matchers::WithinRel(covii));
+      REQUIRE_THAT(l.covsi(), Catch::Matchers::WithinRel(covsi));
       REQUIRE_THAT(l.chi2(), Catch::Matchers::WithinAbs(chi2, chi2_diff));
     }
 
@@ -73,11 +73,11 @@ TEST_CASE("test RZLine", "[RZLine]") {
       const std::vector<bool> barrel{{true, true}};
       RZLine l(p, err, barrel);
 
-      REQUIRE(l.cotTheta() == Approx(cotTheta));
-      REQUIRE(l.intercept() == Approx(intercept));
-      REQUIRE(l.covss() == Approx(covss));
-      REQUIRE(l.covii() == Approx(covii));
-      REQUIRE(l.covsi() == Approx(covsi));
+      REQUIRE_THAT(l.cotTheta(), Catch::Matchers::WithinRel(cotTheta));
+      REQUIRE_THAT(l.intercept(), Catch::Matchers::WithinRel(intercept));
+      REQUIRE_THAT(l.covss(), Catch::Matchers::WithinRel(covss));
+      REQUIRE_THAT(l.covii(), Catch::Matchers::WithinRel(covii));
+      REQUIRE_THAT(l.covsi(), Catch::Matchers::WithinRel(covsi));
       REQUIRE_THAT(l.chi2(), Catch::Matchers::WithinAbs(chi2, chi2_diff));
     }
   }

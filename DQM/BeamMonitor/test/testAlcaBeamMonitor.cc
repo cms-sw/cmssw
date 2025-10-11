@@ -1,7 +1,7 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 TEST_CASE("AlcaBeamMonitor tests", "[AlcaBeamMonitor]") {
   //The python configuration

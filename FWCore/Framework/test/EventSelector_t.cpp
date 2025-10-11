@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -103,7 +103,7 @@ void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bo
   }
   REQUIRE_THAT(
       answer,
-      Catch::Predicate<bool>(
+      Catch::Matchers::Predicate<bool>(
           [a1, a2, b2, c1](auto answer) { return a1 == answer and a2 == answer and b2 == answer and c1 == answer; },
           s.str()));
 
@@ -133,8 +133,8 @@ void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bo
   }
   REQUIRE_THAT(
       answer,
-      Catch::Predicate<bool>([a11, a12, a13](auto answer) { return a11 == answer and a12 == answer and a13 == answer; },
-                             s.str()));
+      Catch::Matchers::Predicate<bool>(
+          [a11, a12, a13](auto answer) { return a11 == answer and a12 == answer and a13 == answer; }, s.str()));
 }
 
 void testall(const Strings& paths, const VStrings& patterns, const VBools& masks, const Answers& answers) {

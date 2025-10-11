@@ -1,7 +1,7 @@
 #include "SimG4Core/Application/interface/ThreadHandoff.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 using namespace omt;
 TEST_CASE("Test omt::ThreadHandoff", "[ThreadHandoff]") {

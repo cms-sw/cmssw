@@ -6,7 +6,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include <iostream>
 

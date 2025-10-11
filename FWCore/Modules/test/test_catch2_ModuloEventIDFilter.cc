@@ -1,7 +1,7 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 static constexpr auto s_tag = "[ModuloEventIDFilter]";
 

@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -93,7 +93,7 @@ TEST_CASE("Configuration with ModuleTypeResolver", s_tag) {
     edm::makeParameterSets(baseConfigOtherDisabled_auto, psetOtherDisabled_auto);
     edm::makeParameterSets(baseConfigOtherDisabled_cpu, psetOtherDisabled_cpu);
     REQUIRE_THROWS_WITH(edm::makeParameterSets(baseConfigOtherDisabled_other, psetOtherDisabled_other),
-                        Catch::Contains("UnavailableAccelerator"));
+                        Catch::Matchers::ContainsSubstring("UnavailableAccelerator"));
     pset_auto->registerIt();
     pset_cpu->registerIt();
     pset_other->registerIt();

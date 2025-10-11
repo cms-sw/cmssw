@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "PerfTools/AllocMonitor/plugins/mea_AllocMap.h"
 

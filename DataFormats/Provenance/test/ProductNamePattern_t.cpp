@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "DataFormats/Provenance/interface/ProductNamePattern.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"

@@ -5,7 +5,7 @@
 #include <format>
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 // Function to run the catch2 tests
 //___________________________________________________________________________________________
