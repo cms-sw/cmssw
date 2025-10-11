@@ -233,146 +233,441 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
     triggerMEMap_[trig] = ibooker.book1D(trig, trig + " fired", 2, 0, 2);
 
   h_run_ = ibooker.book1D("run", "Run number", 1000, 200000, 600000);
-  h_event_ = ibooker.book1D("event", "Event number", 1000, 0, 100000000000);
-  h_lumi_ = ibooker.book1D("lumi", "Luminosity block", 1000, 0, 5000);
+  h_run_->setAxisTitle("Run Number", 1);
+  h_run_->setAxisTitle("Events", 2);
 
-  // ScoutingMuonNoVtx
+  h_event_ = ibooker.book1D("event", "Event number", 1000, 0, 100000000000);
+  h_event_->setAxisTitle("Event Number", 1);
+  h_event_->setAxisTitle("Events", 2);
+
+  h_lumi_ = ibooker.book1D("lumi", "Luminosity block", 1000, 0, 5000);
+  h_lumi_->setAxisTitle("Luminosity Block", 1);
+  h_lumi_->setAxisTitle("Events", 2);
 
   if (fillAllHistograms_) {
     // ScoutingMuonNoVtx
     h_nScoutingMuonNoVtx_ = ibooker.book1D("nScoutingMuonNoVtx", "Number of ScoutingMuonNoVtx", 20, 0, 10);
+    h_nScoutingMuonNoVtx_->setAxisTitle("Number of Muons", 1);
+    h_nScoutingMuonNoVtx_->setAxisTitle("Events", 2);
+
     h_ScoutingMuonNoVtx_pt_ = ibooker.book1D("ScoutingMuonNoVtx_pt", "MuonNoVtx p_{T}", 100, 0, 100);
+    h_ScoutingMuonNoVtx_pt_->setAxisTitle("p_{T} [GeV]", 1);
+    h_ScoutingMuonNoVtx_pt_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_eta_ = ibooker.book1D("ScoutingMuonNoVtx_eta", "MuonNoVtx #eta", 80, -3, 3);
+    h_ScoutingMuonNoVtx_eta_->setAxisTitle("#eta", 1);
+    h_ScoutingMuonNoVtx_eta_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_phi_ = ibooker.book1D("ScoutingMuonNoVtx_phi", "MuonNoVtx #phi", 64, -3.5, 3.5);
+    h_ScoutingMuonNoVtx_phi_->setAxisTitle("#phi [rad]", 1);
+    h_ScoutingMuonNoVtx_phi_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_charge_ = ibooker.book1D("ScoutingMuonNoVtx_charge", "MuonNoVtx charge", 2, -1, 1);
+    h_ScoutingMuonNoVtx_charge_->setAxisTitle("Charge", 1);
+    h_ScoutingMuonNoVtx_charge_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkchi2_ = ibooker.book1D("ScoutingMuonNoVtx_trkchi2", "MuonNoVtx track #chi^{2}", 100, 0, 100);
+    h_ScoutingMuonNoVtx_trkchi2_->setAxisTitle("Track #chi^{2}", 1);
+    h_ScoutingMuonNoVtx_trkchi2_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkndof_ = ibooker.book1D("ScoutingMuonNoVtx_trkndof", "MuonNoVtx track ndof", 40, 0, 50);
+    h_ScoutingMuonNoVtx_trkndof_->setAxisTitle("Track ndof", 1);
+    h_ScoutingMuonNoVtx_trkndof_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkdxy_ = ibooker.book1D("ScoutingMuonNoVtx_trkdxy", "MuonNoVtx track dxy", 100, -0.7, 0.7);
+    h_ScoutingMuonNoVtx_trkdxy_->setAxisTitle("Track dxy [cm]", 1);
+    h_ScoutingMuonNoVtx_trkdxy_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkdz_ = ibooker.book1D("ScoutingMuonNoVtx_trkdz", "MuonNoVtx track dz", 100, -40, 40);
+    h_ScoutingMuonNoVtx_trkdz_->setAxisTitle("Track dz [cm]", 1);
+    h_ScoutingMuonNoVtx_trkdz_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkqoverp_ = ibooker.book1D("ScoutingMuonNoVtx_trkqoverp", "MuonNoVtx track q/p", 100, -1, 1);
+    h_ScoutingMuonNoVtx_trkqoverp_->setAxisTitle("Track q/p [1/GeV]", 1);
+    h_ScoutingMuonNoVtx_trkqoverp_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trklambda_ =
         ibooker.book1D("ScoutingMuonNoVtx_trklambda", "MuonNoVtx track lambda", 100, -2, 2);
+    h_ScoutingMuonNoVtx_trklambda_->setAxisTitle("Track #lambda [rad]", 1);
+    h_ScoutingMuonNoVtx_trklambda_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkpt_ = ibooker.book1D("ScoutingMuonNoVtx_trkpt", "MuonNoVtx track pt", 100, 0, 100);
+    h_ScoutingMuonNoVtx_trkpt_->setAxisTitle("Track p_{T} [GeV]", 1);
+    h_ScoutingMuonNoVtx_trkpt_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkphi_ = ibooker.book1D("ScoutingMuonNoVtx_trkphi", "MuonNoVtx track phi", 64, -3.4, 3.4);
+    h_ScoutingMuonNoVtx_trkphi_->setAxisTitle("Track #phi [rad]", 1);
+    h_ScoutingMuonNoVtx_trkphi_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trketa_ = ibooker.book1D("ScoutingMuonNoVtx_trketa", "MuonNoVtx track eta", 80, -4, 4);
+    h_ScoutingMuonNoVtx_trketa_->setAxisTitle("Track #eta", 1);
+    h_ScoutingMuonNoVtx_trketa_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkqoverpError_ =
         ibooker.book1D("ScoutingMuonNoVtx_trkqoverpError", "MuonNoVtx track q/p error", 100, 0, 0.01);
+    h_ScoutingMuonNoVtx_trkqoverpError_->setAxisTitle("Track q/p Error", 1);
+    h_ScoutingMuonNoVtx_trkqoverpError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trklambdaError_ =
         ibooker.book1D("ScoutingMuonNoVtx_trklambdaError", "MuonNoVtx track lambda error", 100, 0, 0.1);
+    h_ScoutingMuonNoVtx_trklambdaError_->setAxisTitle("Track #lambda Error", 1);
+    h_ScoutingMuonNoVtx_trklambdaError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkdxyError_ =
         ibooker.book1D("ScoutingMuonNoVtx_trkdxyError", "MuonNoVtx track dxy error", 100, 0, 0.1);
+    h_ScoutingMuonNoVtx_trkdxyError_->setAxisTitle("Track dxy Error [cm]", 1);
+    h_ScoutingMuonNoVtx_trkdxyError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkdzError_ =
         ibooker.book1D("ScoutingMuonNoVtx_trkdzError", "MuonNoVtx track dz error", 100, 0, 1);
+    h_ScoutingMuonNoVtx_trkdzError_->setAxisTitle("Track dz Error [cm]", 1);
+    h_ScoutingMuonNoVtx_trkdzError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkphiError_ =
         ibooker.book1D("ScoutingMuonNoVtx_trkphiError", "MuonNoVtx track phi error", 100, 0, 0.1);
+    h_ScoutingMuonNoVtx_trkphiError_->setAxisTitle("Track #phi Error [rad]", 1);
+    h_ScoutingMuonNoVtx_trkphiError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkdsz_ = ibooker.book1D("ScoutingMuonNoVtx_trkdsz", "MuonNoVtx track dsz", 100, -50, 50);
+    h_ScoutingMuonNoVtx_trkdsz_->setAxisTitle("Track dsz [cm]", 1);
+    h_ScoutingMuonNoVtx_trkdsz_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkdszError_ =
         ibooker.book1D("ScoutingMuonNoVtx_trkdszError", "MuonNoVtx track dsz error", 100, 0, 1);
+    h_ScoutingMuonNoVtx_trkdszError_->setAxisTitle("Track dsz Error [cm]", 1);
+    h_ScoutingMuonNoVtx_trkdszError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkvx_ = ibooker.book1D("ScoutingMuonNoVtx_trkvx", "MuonNoVtx track vx", 100, -0.5, 0.5);
+    h_ScoutingMuonNoVtx_trkvx_->setAxisTitle("Track vx [cm]", 1);
+    h_ScoutingMuonNoVtx_trkvx_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkvy_ = ibooker.book1D("ScoutingMuonNoVtx_trkvy", "MuonNoVtx track vy", 100, -0.5, 0.5);
+    h_ScoutingMuonNoVtx_trkvy_->setAxisTitle("Track vy [cm]", 1);
+    h_ScoutingMuonNoVtx_trkvy_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonNoVtx_trkvz_ = ibooker.book1D("ScoutingMuonNoVtx_trkvz", "MuonNoVtx track vz", 100, -50, 50);
+    h_ScoutingMuonNoVtx_trkvz_->setAxisTitle("Track vz [cm]", 1);
+    h_ScoutingMuonNoVtx_trkvz_->setAxisTitle("Muons", 2);
 
     // ScoutingMuonVtx
     h_nScoutingMuonVtx_ = ibooker.book1D("nScoutingMuonVtx", "Number of ScoutingMuonVtx", 20, 0, 20);
+    h_nScoutingMuonVtx_->setAxisTitle("Number of Muons", 1);
+    h_nScoutingMuonVtx_->setAxisTitle("Events", 2);
+
     h_ScoutingMuonVtx_pt_ = ibooker.book1D("ScoutingMuonVtx_pt", "MuonVtx p_{T}", 100, 0, 100);
+    h_ScoutingMuonVtx_pt_->setAxisTitle("p_{T} [GeV]", 1);
+    h_ScoutingMuonVtx_pt_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_eta_ = ibooker.book1D("ScoutingMuonVtx_eta", "MuonVtx #eta", 80, -4, 4);
+    h_ScoutingMuonVtx_eta_->setAxisTitle("#eta", 1);
+    h_ScoutingMuonVtx_eta_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_phi_ = ibooker.book1D("ScoutingMuonVtx_phi", "MuonVtx #phi", 64, -3.4, 3.4);
+    h_ScoutingMuonVtx_phi_->setAxisTitle("#phi [rad]", 1);
+    h_ScoutingMuonVtx_phi_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_charge_ = ibooker.book1D("ScoutingMuonVtx_charge", "MuonVtx charge", 2, -1, 1);
+    h_ScoutingMuonVtx_charge_->setAxisTitle("Charge", 1);
+    h_ScoutingMuonVtx_charge_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkchi2_ = ibooker.book1D("ScoutingMuonVtx_trkchi2", "MuonVtx track #chi^{2}", 100, 0, 100);
+    h_ScoutingMuonVtx_trkchi2_->setAxisTitle("Track #chi^{2}", 1);
+    h_ScoutingMuonVtx_trkchi2_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkndof_ = ibooker.book1D("ScoutingMuonVtx_trkndof", "MuonVtx track ndof", 40, 0, 60);
+    h_ScoutingMuonVtx_trkndof_->setAxisTitle("Track ndof", 1);
+    h_ScoutingMuonVtx_trkndof_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkdxy_ = ibooker.book1D("ScoutingMuonVtx_trkdxy", "MuonVtx track dxy", 100, -0.5, 0.5);
+    h_ScoutingMuonVtx_trkdxy_->setAxisTitle("Track dxy [cm]", 1);
+    h_ScoutingMuonVtx_trkdxy_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkdz_ = ibooker.book1D("ScoutingMuonVtx_trkdz", "MuonVtx track dz", 100, -20, 20);
+    h_ScoutingMuonVtx_trkdz_->setAxisTitle("Track dz [cm]", 1);
+    h_ScoutingMuonVtx_trkdz_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkqoverp_ = ibooker.book1D("ScoutingMuonVtx_trkqoverp", "MuonVtx track q/p", 100, -0.4, 0.4);
+    h_ScoutingMuonVtx_trkqoverp_->setAxisTitle("Track q/p [1/GeV]", 1);
+    h_ScoutingMuonVtx_trkqoverp_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trklambda_ = ibooker.book1D("ScoutingMuonVtx_trklambda", "MuonVtx track lambda", 100, -2, 2);
+    h_ScoutingMuonVtx_trklambda_->setAxisTitle("Track #lambda [rad]", 1);
+    h_ScoutingMuonVtx_trklambda_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkpt_ = ibooker.book1D("ScoutingMuonVtx_trkpt", "MuonVtx track pt", 100, 0, 100);
+    h_ScoutingMuonVtx_trkpt_->setAxisTitle("Track p_{T} [GeV]", 1);
+    h_ScoutingMuonVtx_trkpt_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkphi_ = ibooker.book1D("ScoutingMuonVtx_trkphi", "MuonVtx track phi", 64, -3.4, 3.4);
+    h_ScoutingMuonVtx_trkphi_->setAxisTitle("Track #phi [rad]", 1);
+    h_ScoutingMuonVtx_trkphi_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trketa_ = ibooker.book1D("ScoutingMuonVtx_trketa", "MuonVtx track eta", 80, -4, 4);
+    h_ScoutingMuonVtx_trketa_->setAxisTitle("Track #eta", 1);
+    h_ScoutingMuonVtx_trketa_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkqoverpError_ =
         ibooker.book1D("ScoutingMuonVtx_trkqoverpError", "MuonVtx track q/p error", 100, 0, 0.01);
+    h_ScoutingMuonVtx_trkqoverpError_->setAxisTitle("Track q/p Error", 1);
+    h_ScoutingMuonVtx_trkqoverpError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trklambdaError_ =
         ibooker.book1D("ScoutingMuonVtx_trklambdaError", "MuonVtx track lambda error", 100, 0, 0.1);
+    h_ScoutingMuonVtx_trklambdaError_->setAxisTitle("Track #lambda Error", 1);
+    h_ScoutingMuonVtx_trklambdaError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkdxyError_ =
         ibooker.book1D("ScoutingMuonVtx_trkdxyError", "MuonVtx track dxy error", 100, 0, 0.1);
+    h_ScoutingMuonVtx_trkdxyError_->setAxisTitle("Track dxy Error [cm]", 1);
+    h_ScoutingMuonVtx_trkdxyError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkdzError_ = ibooker.book1D("ScoutingMuonVtx_trkdzError", "MuonVtx track dz error", 100, 0, 1);
+    h_ScoutingMuonVtx_trkdzError_->setAxisTitle("Track dz Error [cm]", 1);
+    h_ScoutingMuonVtx_trkdzError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkphiError_ =
         ibooker.book1D("ScoutingMuonVtx_trkphiError", "MuonVtx track phi error", 100, 0, 0.1);
+    h_ScoutingMuonVtx_trkphiError_->setAxisTitle("Track #phi Error [rad]", 1);
+    h_ScoutingMuonVtx_trkphiError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkdsz_ = ibooker.book1D("ScoutingMuonVtx_trkdsz", "MuonVtx track dsz", 100, -20, 20);
+    h_ScoutingMuonVtx_trkdsz_->setAxisTitle("Track dsz [cm]", 1);
+    h_ScoutingMuonVtx_trkdsz_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkdszError_ =
         ibooker.book1D("ScoutingMuonVtx_trkdszError", "MuonVtx track dsz error", 100, 0, 1);
+    h_ScoutingMuonVtx_trkdszError_->setAxisTitle("Track dsz Error [cm]", 1);
+    h_ScoutingMuonVtx_trkdszError_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkvx_ = ibooker.book1D("ScoutingMuonVtx_trkvx", "MuonVtx track vx", 100, -0.5, 0.5);
+    h_ScoutingMuonVtx_trkvx_->setAxisTitle("Track vx [cm]", 1);
+    h_ScoutingMuonVtx_trkvx_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkvy_ = ibooker.book1D("ScoutingMuonVtx_trkvy", "MuonVtx track vy", 100, -0.5, 0.5);
+    h_ScoutingMuonVtx_trkvy_->setAxisTitle("Track vy [cm]", 1);
+    h_ScoutingMuonVtx_trkvy_->setAxisTitle("Muons", 2);
+
     h_ScoutingMuonVtx_trkvz_ = ibooker.book1D("ScoutingMuonVtx_trkvz", "MuonVtx track vz", 100, -20, 20);
+    h_ScoutingMuonVtx_trkvz_->setAxisTitle("Track vz [cm]", 1);
+    h_ScoutingMuonVtx_trkvz_->setAxisTitle("Muons", 2);
 
     // PV
     h_nPV_ = ibooker.book1D("nPV", "Number of PVs", 10, 0, 70);
+    h_nPV_->setAxisTitle("Number of PVs", 1);
+    h_nPV_->setAxisTitle("Events", 2);
+
     h_PV_x_ = ibooker.book1D("PV_x", "PV x", 100, -0.5, 0.5);
+    h_PV_x_->setAxisTitle("x [cm]", 1);
+    h_PV_x_->setAxisTitle("Vertices", 2);
+
     h_PV_y_ = ibooker.book1D("PV_y", "PV y", 100, -0.5, 0.5);
+    h_PV_y_->setAxisTitle("y [cm]", 1);
+    h_PV_y_->setAxisTitle("Vertices", 2);
+
     h_PV_z_ = ibooker.book1D("PV_z", "PV z", 100, -20, 20);
+    h_PV_z_->setAxisTitle("z [cm]", 1);
+    h_PV_z_->setAxisTitle("Vertices", 2);
+
     h_PV_xError_ = ibooker.book1D("PV_xError", "PV x error", 100, 0, 0.01);
+    h_PV_xError_->setAxisTitle("x Error [cm]", 1);
+    h_PV_xError_->setAxisTitle("Vertices", 2);
+
     h_PV_yError_ = ibooker.book1D("PV_yError", "PV y error", 100, 0, 0.01);
+    h_PV_yError_->setAxisTitle("y Error [cm]", 1);
+    h_PV_yError_->setAxisTitle("Vertices", 2);
+
     h_PV_zError_ = ibooker.book1D("PV_zError", "PV z error", 100, 0, 0.1);
+    h_PV_zError_->setAxisTitle("z Error [cm]", 1);
+    h_PV_zError_->setAxisTitle("Vertices", 2);
+
     h_PV_trksize_ = ibooker.book1D("PV_trksize", "PV tracks size", 40, 0, 200);
+    h_PV_trksize_->setAxisTitle("PV Track Size", 1);
+    h_PV_trksize_->setAxisTitle("Vertices", 2);
+
     h_PV_chi2_ = ibooker.book1D("PV_chi2", "PV #chi^2", 100, 0, 300);
+    h_PV_chi2_->setAxisTitle("PV #chi^{2}", 1);
+    h_PV_chi2_->setAxisTitle("Vertices", 2);
+
     h_PV_ndof_ = ibooker.book1D("PV_ndof", "PV ndof", 40, 0, 100);
+    h_PV_ndof_->setAxisTitle("PV ndof", 1);
+    h_PV_ndof_->setAxisTitle("Vertices", 2);
+
     h_PV_isvalidvtx_ = ibooker.book1D("PV_isvalidvtx", "PV is valid vtx", 2, 0, 2);
+    h_PV_isvalidvtx_->setAxisTitle("Is Valid Vertex", 1);
+    h_PV_isvalidvtx_->setAxisTitle("Vertices", 2);
 
     // SVNoVtx
     h_nSVNoVtx_ = ibooker.book1D("nSVNoVtx", "Number of SVNoVtx", 20, 0, 20);
+    h_nSVNoVtx_->setAxisTitle("Number of SVNoVtx", 1);
+    h_nSVNoVtx_->setAxisTitle("Events", 2);
+
     h_SVNoVtx_x_ = ibooker.book1D("SVNoVtx_x", "SVNoVtx x", 100, -0.5, 0.5);
+    h_SVNoVtx_x_->setAxisTitle("x [cm]", 1);
+    h_SVNoVtx_x_->setAxisTitle("Vertices", 2);
+
     h_SVNoVtx_y_ = ibooker.book1D("SVNoVtx_y", "SVNoVtx y", 100, -0.5, 0.5);
+    h_SVNoVtx_y_->setAxisTitle("y [cm]", 1);
+    h_SVNoVtx_y_->setAxisTitle("Vertices", 2);
+
     h_SVNoVtx_z_ = ibooker.book1D("SVNoVtx_z", "SVNoVtx z", 100, -20, 20);
+    h_SVNoVtx_z_->setAxisTitle("z [cm]", 1);
+    h_SVNoVtx_z_->setAxisTitle("Vertices", 2);
+
     h_SVNoVtx_xError_ = ibooker.book1D("SVNoVtx_xError", "SVNoVtx x error", 100, 0, 0.01);
+    h_SVNoVtx_xError_->setAxisTitle("x Error [cm]", 1);
+    h_SVNoVtx_xError_->setAxisTitle("Vertices", 2);
+
     h_SVNoVtx_yError_ = ibooker.book1D("SVNoVtx_yError", "SVNoVtx y error", 100, 0, 0.01);
+    h_SVNoVtx_yError_->setAxisTitle("y Error [cm]", 1);
+    h_SVNoVtx_yError_->setAxisTitle("Vertices", 2);
+
     h_SVNoVtx_zError_ = ibooker.book1D("SVNoVtx_zError", "SVNoVtx z error", 100, 0, 0.01);
+    h_SVNoVtx_zError_->setAxisTitle("z Error [cm]", 1);
+    h_SVNoVtx_zError_->setAxisTitle("Vertices", 2);
+
     h_SVNoVtx_trksize_ = ibooker.book1D("SVNoVtx_trksize", "SVNoVtx tracks size", 40, 0, 40);
+    h_SVNoVtx_trksize_->setAxisTitle("SVNoVtx Track Size", 1);
+    h_SVNoVtx_trksize_->setAxisTitle("Vertices", 2);
+
     h_SVNoVtx_chi2_ = ibooker.book1D("SVNoVtx_chi2", "SVNoVtx #chi^2", 100, 0, 50);
+    h_SVNoVtx_chi2_->setAxisTitle("SVNoVtx #chi^{2}", 1);
+    h_SVNoVtx_chi2_->setAxisTitle("Vertices", 2);
+
     h_SVNoVtx_ndof_ = ibooker.book1D("SVNoVtx_ndof", "SVNoVtx ndof", 40, 0, 40);
+    h_SVNoVtx_ndof_->setAxisTitle("SVNoVtx ndof", 1);
+    h_SVNoVtx_ndof_->setAxisTitle("Vertices", 2);
+
     h_SVNoVtx_isvalidvtx_ = ibooker.book1D("SVNoVtx_isvalidvtx", "SVNoVtx is valid vtx", 2, 0, 2);
+    h_SVNoVtx_isvalidvtx_->setAxisTitle("Is Valid Vertex", 1);
+    h_SVNoVtx_isvalidvtx_->setAxisTitle("Vertices", 2);
 
     // SVVtx
     h_nSVVtx_ = ibooker.book1D("nSVVtx", "Number of SVVtx", 20, 0, 20);
+    h_nSVVtx_->setAxisTitle("Number of SVVtx", 1);
+    h_nSVVtx_->setAxisTitle("Events", 2);
+
     h_SVVtx_x_ = ibooker.book1D("SVVtx_x", "SVVtx x", 100, -0.5, 0.5);
+    h_SVVtx_x_->setAxisTitle("x [cm]", 1);
+    h_SVVtx_x_->setAxisTitle("Vertices", 2);
+
     h_SVVtx_y_ = ibooker.book1D("SVVtx_y", "SVVtx y", 100, -0.5, 0.5);
+    h_SVVtx_y_->setAxisTitle("y [cm]", 1);
+    h_SVVtx_y_->setAxisTitle("Vertices", 2);
+
     h_SVVtx_z_ = ibooker.book1D("SVVtx_z", "SVVtx z", 100, -20, 20);
+    h_SVVtx_z_->setAxisTitle("z [cm]", 1);
+    h_SVVtx_z_->setAxisTitle("Vertices", 2);
+
     h_SVVtx_xError_ = ibooker.book1D("SVVtx_xError", "SVVtx x error", 100, 0, 0.01);
+    h_SVVtx_xError_->setAxisTitle("x Error [cm]", 1);
+    h_SVVtx_xError_->setAxisTitle("Vertices", 2);
+
     h_SVVtx_yError_ = ibooker.book1D("SVVtx_yError", "SVVtx y error", 100, 0, 0.01);
+    h_SVVtx_yError_->setAxisTitle("y Error [cm]", 1);
+    h_SVVtx_yError_->setAxisTitle("Vertices", 2);
+
     h_SVVtx_zError_ = ibooker.book1D("SVVtx_zError", "SVVtx z error", 100, 0, 0.01);
+    h_SVVtx_zError_->setAxisTitle("z Error [cm]", 1);
+    h_SVVtx_zError_->setAxisTitle("Vertices", 2);
+
     h_SVVtx_trksize_ = ibooker.book1D("SVVtx_trksize", "SVVtx tracks size", 40, 0, 40);
+    h_SVVtx_trksize_->setAxisTitle("SVVtx Track Size", 1);
+    h_SVVtx_trksize_->setAxisTitle("Vertices", 2);
+
     h_SVVtx_chi2_ = ibooker.book1D("SVVtx_chi2", "SVVtx #chi^2", 100, 0, 20);
+    h_SVVtx_chi2_->setAxisTitle("SVVtx #chi^{2}", 1);
+    h_SVVtx_chi2_->setAxisTitle("Vertices", 2);
+
     h_SVVtx_ndof_ = ibooker.book1D("SVVtx_ndof", "SVVtx ndof", 40, 0, 40);
+    h_SVVtx_ndof_->setAxisTitle("SVVtx ndof", 1);
+    h_SVVtx_ndof_->setAxisTitle("Vertices", 2);
+
     h_SVVtx_isvalidvtx_ = ibooker.book1D("SVVtx_isvalidvtx", "SVVtx is valid vtx", 2, 0, 2);
+    h_SVVtx_isvalidvtx_->setAxisTitle("Is Valid Vertex", 1);
+    h_SVVtx_isvalidvtx_->setAxisTitle("Vertices", 2);
   }
 
   // ScoutingMuonNoVtx
 
   h_ScoutingMuonNoVtx_phiCorr_ =
       ibooker.book1D("ScoutingMuonNoVtx_phiCorr", "MuonNoVtx #phi extrapolated", 64, -3.5, 3.5);
+  h_ScoutingMuonNoVtx_phiCorr_->setAxisTitle("#phi extrapolated [rad]", 1);
+  h_ScoutingMuonNoVtx_phiCorr_->setAxisTitle("Muons", 2);
+
   h_ScoutingMuonNoVtx_m_ = ibooker.book1D("ScoutingMuonNoVtx_m", "MuonNoVtx mass", 50, 0, 10);
+  h_ScoutingMuonNoVtx_m_->setAxisTitle("Mass [GeV]", 1);
+  h_ScoutingMuonNoVtx_m_->setAxisTitle("Muons", 2);
+
   h_ScoutingMuonNoVtx_vtxIndx_ =
       ibooker.book1D("ScoutingMuonNoVtx_vtxIndx", "MuonNoVtx SV multiplicity per muon", 10, 0, 5);
+  h_ScoutingMuonNoVtx_vtxIndx_->setAxisTitle("SV Multiplicity per Muon", 1);
+  h_ScoutingMuonNoVtx_vtxIndx_->setAxisTitle("Muons", 2);
 
   // ScoutingMuonVtx
 
   h_ScoutingMuonVtx_vtxIndx_ = ibooker.book1D("ScoutingMuonVtx_vtxIndx", "MuonVtx SV multiplicity per muon", 10, 0, 10);
+  h_ScoutingMuonVtx_vtxIndx_->setAxisTitle("SV Multiplicity per Muon", 1);
+  h_ScoutingMuonVtx_vtxIndx_->setAxisTitle("Muons", 2);
+
   h_ScoutingMuonVtx_phiCorr_ = ibooker.book1D("ScoutingMuonVtx_phiCorr", "MuonVtx #phi extrapolated", 64, -3.4, 3.4);
+  h_ScoutingMuonVtx_phiCorr_->setAxisTitle("#phi extrapolated [rad]", 1);
+  h_ScoutingMuonVtx_phiCorr_->setAxisTitle("Muons", 2);
+
   h_ScoutingMuonVtx_m_ = ibooker.book1D("ScoutingMuonVtx_m", "MuonVtx mass", 50, 0, 10);
+  h_ScoutingMuonVtx_m_->setAxisTitle("Mass [GeV]", 1);
+  h_ScoutingMuonVtx_m_->setAxisTitle("Muons", 2);
 
   // SVNoVtx
 
   h_SVNoVtx_dxy_ = ibooker.book1D("SVNoVtx_dxy", "SVNoVtx dxy", 100, 0, 0.5);
+  h_SVNoVtx_dxy_->setAxisTitle("dxy [cm]", 1);
+  h_SVNoVtx_dxy_->setAxisTitle("Vertices", 2);
+
   h_SVNoVtx_dxySig_ = ibooker.book1D("SVNoVtx_dxySig", "SVNoVtx dxy significance", 100, 0, 10);
+  h_SVNoVtx_dxySig_->setAxisTitle("dxy Significance", 1);
+  h_SVNoVtx_dxySig_->setAxisTitle("Vertices", 2);
+
   h_SVNoVtx_dlen_ = ibooker.book1D("SVNoVtx_dlen", "SVNoVtx dlen", 100, 0, 20);
+  h_SVNoVtx_dlen_->setAxisTitle("Decay Length [cm]", 1);
+  h_SVNoVtx_dlen_->setAxisTitle("Vertices", 2);
+
   h_SVNoVtx_dlenSig_ = ibooker.book1D("SVNoVtx_dlenSig", "SVNoVtx dlen significance", 100, 0, 50);
+  h_SVNoVtx_dlenSig_->setAxisTitle("Decay Length Significance", 1);
+  h_SVNoVtx_dlenSig_->setAxisTitle("Vertices", 2);
+
   h_SVNoVtx_mass_ = ibooker.book1D("SVNoVtx_mass", "SVNoVtx mass", 50, 0, 10);
+  h_SVNoVtx_mass_->setAxisTitle("Mass [GeV]", 1);
+  h_SVNoVtx_mass_->setAxisTitle("Vertices", 2);
+
   h_SVNoVtx_nMuon_ = ibooker.book1D("SVNoVtx_nMuon", "SVNoVtx nMuon", 10, 0, 10);
+  h_SVNoVtx_nMuon_->setAxisTitle("Number of Muons", 1);
+  h_SVNoVtx_nMuon_->setAxisTitle("Vertices", 2);
 
   // SVVtx
+
   h_SVVtx_dxy_ = ibooker.book1D("SVVtx_dxy", "SVVtx dxy", 100, 0, 0.5);
+  h_SVVtx_dxy_->setAxisTitle("dxy [cm]", 1);
+  h_SVVtx_dxy_->setAxisTitle("Vertices", 2);
+
   h_SVVtx_dxySig_ = ibooker.book1D("SVVtx_dxySig", "SVVtx dxy significance", 100, 0, 10);
+  h_SVVtx_dxySig_->setAxisTitle("dxy Significance", 1);
+  h_SVVtx_dxySig_->setAxisTitle("Vertices", 2);
+
   h_SVVtx_dlen_ = ibooker.book1D("SVVtx_dlen", "SVVtx dlen", 100, 0, 20);
+  h_SVVtx_dlen_->setAxisTitle("Decay Length [cm]", 1);
+  h_SVVtx_dlen_->setAxisTitle("Vertices", 2);
+
   h_SVVtx_dlenSig_ = ibooker.book1D("SVVtx_dlenSig", "SVVtx dlen significance", 100, 0, 10);
+  h_SVVtx_dlenSig_->setAxisTitle("Decay Length Significance", 1);
+  h_SVVtx_dlenSig_->setAxisTitle("Vertices", 2);
+
   h_SVVtx_mass_ = ibooker.book1D("SVVtx_mass", "SVVtx mass", 50, 0, 10);
+  h_SVVtx_mass_->setAxisTitle("Mass [GeV]", 1);
+  h_SVVtx_mass_->setAxisTitle("Vertices", 2);
+
   h_SVVtx_nMuon_ = ibooker.book1D("SVVtx_nMuon", "SVVtx nMuon", 10, 0, 10);
+  h_SVVtx_nMuon_->setAxisTitle("Number of Muons", 1);
+  h_SVVtx_nMuon_->setAxisTitle("Vertices", 2);
 
   triggersMapped_ = false;
 }
