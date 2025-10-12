@@ -88,10 +88,10 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   vector<int>* trk_seed;
   vector<int>* trk_hitpattern;
   vector<unsigned int>* trk_phiSector;
-  vector<int>* trk_fake;
   vector<int>* trk_genuine;
   vector<int>* trk_loose;
   vector<float>* trk_MVA1;
+  vector<int>* trk_matchtp_eventtype;
   vector<float>* trk_matchtp_pdgid;
 
   TBranch* b_trk_pt;
@@ -106,10 +106,10 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   TBranch* b_trk_phiSector;
   TBranch* b_trk_seed;
   TBranch* b_trk_hitpattern;
-  TBranch* b_trk_fake;
   TBranch* b_trk_genuine;
   TBranch* b_trk_loose;
   TBranch* b_trk_MVA1;
+  TBranch* b_trk_matchtp_eventtype;
   TBranch* b_trk_matchtp_pdgid;
 
   trk_pt = 0;
@@ -124,7 +124,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   trk_phiSector = 0;
   trk_seed = 0;
   trk_hitpattern = 0;
-  trk_fake = 0;
+  trk_matchtp_eventtype = 0;
   trk_genuine = 0;
   trk_loose = 0;
   trk_MVA1 = 0;
@@ -142,10 +142,10 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   tree->SetBranchAddress("trk_phiSector", &trk_phiSector, &b_trk_phiSector);
   tree->SetBranchAddress("trk_seed", &trk_seed, &b_trk_seed);
   tree->SetBranchAddress("trk_hitpattern", &trk_hitpattern, &b_trk_hitpattern);
-  tree->SetBranchAddress("trk_fake", &trk_fake, &b_trk_fake);
   tree->SetBranchAddress("trk_genuine", &trk_genuine, &b_trk_genuine);
   tree->SetBranchAddress("trk_loose", &trk_loose, &b_trk_loose);
   tree->SetBranchAddress("trk_MVA1", &trk_MVA1, &b_trk_MVA1);
+  tree->SetBranchAddress("trk_matchtp_eventtype", &trk_matchtp_eventtype, &b_trk_matchtp_eventtype);
   tree->SetBranchAddress("trk_matchtp_pdgid", &trk_matchtp_pdgid, &b_trk_matchtp_pdgid);
 
   // ----------------------------------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   // ----------------------------------------------------------------------------------------------------------------
   // event loop
   vector<float> MVA1s;
-  vector<float> fakes;
+  vector<int> genuines;
   vector<float> etas;
   vector<float> pts;
   vector<int> pdgids;
@@ -181,22 +181,25 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
       // track properties
 
       float MVA1 = trk_MVA1->at(it);
-      float fake = trk_fake->at(it);
+      int genuine = trk_genuine->at(it);  // Track matches truth particle
+      int eventtype = trk_matchtp_eventtype->at(it);
       float eta = trk_eta->at(it);
       float pt = trk_pt->at(it);
       float pdgid = trk_matchtp_pdgid->at(it);
 
       MVA1s.push_back(MVA1);
-      fakes.push_back(fake);
+      genuines.push_back(genuine);
       etas.push_back(eta);
       pts.push_back(pt);
       pdgids.push_back(pdgid);
 
       h_trk_MVA1->Fill(MVA1);
-      if (fake == 1.)
-        h_trk_MVA1_real->Fill(MVA1);
-      else if (fake == 0.)
+      if (genuine) {
+        if (eventtype == 1)
+          h_trk_MVA1_real->Fill(MVA1);  // Genuine track in signal pp
+      } else {                          // Fake track
         h_trk_MVA1_fake->Fill(MVA1);
+      }
     }
   }
 
@@ -219,7 +222,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
     float P = 0, P_mu = 0, P_el = 0, P_had = 0;      //Total Positives
     float N = 0;                                     //Total Negatives
     for (int k = 0; k < (int)MVA1s.size(); k++) {
-      if (fakes.at(k)) {
+      if (genuines.at(k)) {
         P++;
         if (MVA1s.at(k) > dt)
           TP++;
@@ -330,7 +333,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
     float N = 0;
     for (int k = 0; k < (int)etas.size(); k++) {
       if (etas.at(k) > eta_temp && etas.at(k) <= (eta_temp + eta_step)) {
-        if (fakes.at(k)) {
+        if (genuines.at(k)) {
           P++;
           if (MVA1s.at(k) > dt)
             TP++;
@@ -421,7 +424,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
     float N = 0;
     for (int k = 0; k < (int)pts.size(); k++) {
       if (pts.at(k) > pow(10, logpt_temp) && pts.at(k) <= (pow(10, logpt_temp + logpt_step))) {
-        if (fakes.at(k)) {
+        if (genuines.at(k)) {
           P++;
           if (MVA1s.at(k) > dt)
             TP++;

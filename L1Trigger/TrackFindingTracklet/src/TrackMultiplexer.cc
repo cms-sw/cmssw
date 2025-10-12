@@ -147,7 +147,7 @@ namespace trklet {
           std::vector<TTStubRef> seedTTStubRefs;
           seedTTStubRefs.reserve(channelAssignment_->numSeedingLayers());
           std::map<int, TTStubRef> mapStubs;
-          for (TTStubRef& ttStubRef : ttTrackRef->getStubRefs())
+          for (const TTStubRef& ttStubRef : ttTrackRef->getStubRefs())
             mapStubs.emplace(setup_->layerId(ttStubRef), ttStubRef);
           for (int layer : channelAssignment_->seedingLayers(ttTrackRef->trackSeedType()))
             seedTTStubRefs.push_back(mapStubs[layer]);

@@ -55,7 +55,7 @@ namespace trackerTFP {
                    int& sum,
                    const std::vector<TH1F*>& his,
                    const std::vector<TProfile*>& prof,
-                   bool perfect = true) const;
+                   bool perfect = false) const;
     // ED input token of accepted Tracks
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED input token of accepted Stubs
@@ -290,7 +290,7 @@ namespace trackerTFP {
         if (!useMCTruth_)
           continue;
         int tmp(0);
-        associate(tracks, tracksStubs, region, selection, tpPtrsSelection, tmp, hisRes_, profRes_);
+        associate(tracks, tracksStubs, region, selection, tpPtrsSelection, tmp, hisRes_, profRes_, true);
         associate(tracks,
                   tracksStubs,
                   region,
@@ -299,16 +299,9 @@ namespace trackerTFP {
                   numMatched,
                   std::vector<TH1F*>(),
                   std::vector<TProfile*>(),
-                  false);
-        associate(tracks,
-                  tracksStubs,
-                  region,
-                  selection,
-                  tpPtrsMax,
-                  tmp,
-                  std::vector<TH1F*>(),
-                  std::vector<TProfile*>(),
-                  false);
+                  true);
+        associate(
+            tracks, tracksStubs, region, selection, tpPtrsMax, tmp, std::vector<TH1F*>(), std::vector<TProfile*>());
       }
       numTracks += nRegionTracks;
       prof_->Fill(1, nRegionStubs);

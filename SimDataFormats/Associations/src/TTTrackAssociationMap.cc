@@ -28,44 +28,60 @@ const std::vector<TTTrackPtr>& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::fi
   }
 }
 
-/// MC truth
+/// MC truth association according to user specified requirements
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isLooselyGenuine(TTTrackPtr aTrack) const {
-  /// Check if there is a TrackingParticle
-  if ((this->findTrackingParticlePtr(aTrack)).isNull())
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(
+    TTTrackPtr aTrack,
+    TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::MatchCrit matchCrit,
+    unsigned int minShareStubs) const {
+  /// Find associated TrackingParticle in map.
+  /// If none, then more than one stub on track is incorrect.
+  const TrackingParticlePtr& assocTP = this->findTrackingParticlePtr(aTrack);
+  if (assocTP.isNull())
     return false;
+
+  /// Get all stubs on this track
+  const std::vector<TTStubRef>& TRK_Stubs = aTrack->getStubRefs();
+  const unsigned int nStubs = TRK_Stubs.size();
+
+  // If track has fewer than the required number of shared stubs, then it fails.
+  if (nStubs < minShareStubs)
+    return false;
+
+  /// In this case, can't allow any incorrect stubs on track.
+  if (nStubs == minShareStubs)
+    matchCrit = MatchCrit::allCorrect;
+
+  /// At most one stub on track is incorrect, since track was in map.
+  if (matchCrit == MatchCrit::allowOneFalse2SorPS)
+    return true;
+
+  /// Get all stubs on associated TrackingParticle
+  const std::vector<TTStubRef>& TP_Stubs = theStubAssociationMap_->findTTStubRefs(assocTP);
+
+  /// Check if any stubs are incorrect.
+  for (const TTStubRef& trkStub : TRK_Stubs) {
+    if (std::find(TP_Stubs.begin(), TP_Stubs.end(), trkStub) == TP_Stubs.end()) {
+      /// This stub is incorrect. It wasn't produced by the TP.
+      if (matchCrit == MatchCrit::allCorrect)
+        return false;
+      if (matchCrit == MatchCrit::allowOneFalse2S && trkStub->moduleTypePS())
+        return false;
+    }
+  }
 
   return true;
 }
 
-/// MC truth
+/// MC truth association allowing one incorrect stub on track
+/// Same as calling isGenuine(trk, allowOneFalse2SorPS, 0).
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(TTTrackPtr aTrack) const {
-  /// Check if there is an associated TrackingParticle
-  if ((this->findTrackingParticlePtr(aTrack)).isNull())
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isLooselyGenuine(TTTrackPtr aTrack) const {
+  /// Check if there is an associated TrackingParticle in map.
+  /// If none, then more than one stub on track is incorrect.
+  const TrackingParticlePtr& assocTP = this->findTrackingParticlePtr(aTrack);
+  if (assocTP.isNull())
     return false;
-
-  /// Get all the stubs from this track & associated TrackingParticle
-  const std::vector<TTStubRef>& TRK_Stubs = aTrack->getStubRefs();
-  const std::vector<TTStubRef>& TP_Stubs =
-      theStubAssociationMap_->findTTStubRefs(this->findTrackingParticlePtr(aTrack));
-
-  bool one2SStub = false;
-  for (unsigned int js = 0; js < TRK_Stubs.size(); js++) {
-    /// We want that all the stubs of the track are included in the container of
-    /// all the stubs produced by this particular TrackingParticle which we
-    /// already know is one of the TrackingParticles that released hits
-    /// in this track we are evaluating right now
-    /// Now modifying to allow one and only one false 2S stub in the track  idr 06/19
-    if (std::find(TP_Stubs.begin(), TP_Stubs.end(), TRK_Stubs.at(js)) == TP_Stubs.end()) {
-      if (!AllowOneFalse2SStub || TRK_Stubs.at(js)->moduleTypePS() || one2SStub)  // Has to be first false 2S stub
-      {
-        return false;
-      } else {
-        one2SStub = true;
-      }
-    }
-  }
 
   return true;
 }
@@ -97,14 +113,4 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isUnknown(TTTrackPtr aTrack)
   }
 
   return true;
-}
-
-template <>
-void TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::setAllowOneFalse2SStub(bool allowFalse2SStub) {
-  AllowOneFalse2SStub = allowFalse2SStub;
-}
-
-template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::getAllowOneFalse2SStub() {
-  return AllowOneFalse2SStub;
 }

@@ -53,7 +53,7 @@ namespace trackerTFP {
                    const tt::StubAssociation* ass,
                    std::set<TPPtr>& tps,
                    int& sum,
-                   bool perfect = true) const;
+                   bool perfect = false) const;
     // ED input token of stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED input token of tracks
@@ -181,9 +181,9 @@ namespace trackerTFP {
         if (!useMCTruth_)
           continue;
         int tmp(0);
-        associate(tracks, selection, tpPtrsSelection, tmp);
-        associate(tracks, reconstructable, tpPtrs, allMatched, false);
-        associate(tracks, selection, tpPtrsMax, tmp, false);
+        associate(tracks, selection, tpPtrsSelection, tmp, true);
+        associate(tracks, reconstructable, tpPtrs, allMatched, true);
+        associate(tracks, selection, tpPtrsMax, tmp);
         const int size = acceptedTracks[offset + channel].size();
         hisChannel_->Fill(size);
         profChannel_->Fill(channel, size);

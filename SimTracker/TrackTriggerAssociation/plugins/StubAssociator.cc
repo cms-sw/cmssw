@@ -58,8 +58,8 @@ namespace tt {
     int minLayersPS_;
     // pt cut in GeV
     double minPt_;
-    // max eta for TP with z0 = 0
-    double maxEta0_;
+    // max eta for TP
+    double maxEta_;
     // half lumi region size in cm
     double maxZ0_;
     // cut on impact parameter in cm
@@ -68,8 +68,6 @@ namespace tt {
     double maxVertR_;
     // cut on vertex pos z in cm
     double maxVertZ_;
-    // cut on TP zT
-    double maxZT_;
     // selector to partly select TPs for efficiency measurements
     TrackingParticleSelector tpSelector_;
   };
@@ -78,7 +76,7 @@ namespace tt {
       : minLayers_(iConfig.getParameter<int>("MinLayers")),
         minLayersPS_(iConfig.getParameter<int>("MinLayersPS")),
         minPt_(iConfig.getParameter<double>("MinPt")),
-        maxEta0_(iConfig.getParameter<double>("MaxEta0")),
+        maxEta_(iConfig.getParameter<double>("MaxEta")),
         maxZ0_(iConfig.getParameter<double>("MaxZ0")),
         maxD0_(iConfig.getParameter<double>("MaxD0")),
         maxVertR_(iConfig.getParameter<double>("MaxVertR")),
@@ -100,7 +98,6 @@ namespace tt {
 
   void StubAssociator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     setup_ = &iSetup.getData(esGetTokenSetup_);
-    maxZT_ = std::sinh(maxEta0_) * setup_->chosenRofZ();
     // configure TrackingParticleSelector
     constexpr double ptMax = 9.e9;
     constexpr int minHit = 0;
@@ -108,9 +105,8 @@ namespace tt {
     constexpr bool intimeOnly = true;
     constexpr bool chargedOnly = true;
     constexpr bool stableOnly = false;
-    const double maxEta = std::asinh((maxZT_ + maxZ0_) / setup_->chosenRofZ());
     tpSelector_ = TrackingParticleSelector(
-        minPt_, ptMax, -maxEta, maxEta, maxVertR_, maxVertZ_, minHit, signalOnly, intimeOnly, chargedOnly, stableOnly);
+        minPt_, ptMax, -maxEta_, maxEta_, maxVertR_, maxVertZ_, minHit, signalOnly, intimeOnly, chargedOnly, stableOnly);
   }
 
   void StubAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -139,6 +135,7 @@ namespace tt {
     // associate reconstructable TrackingParticles with TTStubs
     StubAssociation reconstructable(iConfig_, setup_);
     StubAssociation selection(iConfig_, setup_);
+    // count layers with stubs on TP.
     for (const auto& p : mapTPPtrsTTStubRefs) {
       // require min layers
       std::set<int> hitPattern, hitPatternPS;
@@ -152,8 +149,7 @@ namespace tt {
         continue;
       reconstructable.insert(p.first, p.second);
       // require parameter space
-      const double zT = p.first->z0() + p.first->tanl() * setup_->chosenRofZ();
-      if ((std::abs(p.first->d0()) > maxD0_) || (std::abs(p.first->z0()) > maxZ0_) || (std::abs(zT) > maxZT_))
+      if ((std::abs(p.first->d0()) > maxD0_) || (std::abs(p.first->z0()) > maxZ0_))
         continue;
       // require signal only and min pt
       if (tpSelector_(*p.first))

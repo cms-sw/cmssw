@@ -90,14 +90,16 @@ public:
   ~TTTrack();
 
   /// Track components
-  std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > getStubRefs() const { return theStubRefs; }
+  const std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > >& getStubRefs() const {
+    return theStubRefs;
+  }
   void addStubRef(edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > aStub) { theStubRefs.push_back(aStub); }
   void setStubRefs(std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > aStubs) {
     theStubRefs = aStubs;
   }
 
   /// Track momentum
-  GlobalVector momentum() const;
+  const GlobalVector& momentum() const;
 
   /// Track curvature
   double rInv() const;
@@ -121,7 +123,7 @@ public:
   double eta() const;
 
   /// POCA
-  GlobalPoint POCA() const;
+  const GlobalPoint& POCA() const;
 
   /// MVA Track quality variables
   double trkMVA1() const;
@@ -292,7 +294,7 @@ void TTTrack<T>::setFitParNo(unsigned int nPar) {
 // the unpacked values must come from the TTTrack_Trackword member functions.
 
 template <typename T>
-GlobalVector TTTrack<T>::momentum() const {
+const GlobalVector& TTTrack<T>::momentum() const {
   return theMomentum_;
 }
 
@@ -332,7 +334,7 @@ double TTTrack<T>::z0() const {
 }
 
 template <typename T>
-GlobalPoint TTTrack<T>::POCA() const {
+const GlobalPoint& TTTrack<T>::POCA() const {
   return thePOCA_;
 }
 

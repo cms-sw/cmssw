@@ -167,7 +167,7 @@ namespace trklet {
     std::set<TPPtr> tpPtrs;
     std::set<TPPtr> tpPtrsSelection;
     std::set<TPPtr> tpPtrsPerfect;
-    int allMatched(0);
+    int nAllMatched(0);
     int allTracks(0);
     for (int region = 0; region < setup_->numRegions(); region++) {
       int nStubs(0);
@@ -184,7 +184,7 @@ namespace trklet {
       int tmp(0);
       associate(tracks, selection, tpPtrsSelection, tmp);
       associate(tracks, selection, tpPtrsPerfect, tmp, true);
-      associate(tracks, reconstructable, tpPtrs, allMatched);
+      associate(tracks, reconstructable, tpPtrs, nAllMatched, true);
       const tt::StreamTrack& stream = streamsTrack[region];
       const auto end = std::find_if(
           stream.rbegin(), stream.rend(), [](const tt::FrameTrack& frame) { return frame.first.isNonnull(); });
@@ -195,7 +195,7 @@ namespace trklet {
       prof_->Fill(1, nStubs);
       prof_->Fill(2, nTracks);
     }
-    prof_->Fill(4, allMatched);
+    prof_->Fill(4, nAllMatched);
     prof_->Fill(5, allTracks);
     prof_->Fill(6, tpPtrs.size());
     prof_->Fill(7, tpPtrsSelection.size());
@@ -209,8 +209,8 @@ namespace trklet {
     // printout summary
     const double totalTPs = prof_->GetBinContent(9);
     const double numStubs = prof_->GetBinContent(1);
-    const double numTracks = prof_->GetBinContent(2);
-    const double totalTracks = prof_->GetBinContent(5);
+    const double numTracks = prof_->GetBinContent(2);    // tracks/nonant/event
+    const double totalTracks = prof_->GetBinContent(5);  // tracks/tracker/event
     const double numTracksMatched = prof_->GetBinContent(4);
     const double numTPsAll = prof_->GetBinContent(6);
     const double numTPsEff = prof_->GetBinContent(7);

@@ -216,6 +216,7 @@ namespace trackerDTC {
       edm::Handle<tt::StubAssociation> handleReconstructable;
       iEvent.getByToken<tt::StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
       reconstructable = handleReconstructable.product();
+      // TO FIX: The next line should use "perfect" association, which it currently doesnt do.
       profMC_->Fill(3, reconstructable->numTPs() / (double)setup_->numRegions());
       profMC_->Fill(4, selection->numTPs() / (double)setup_->numRegions());
       profMC_->Fill(5, selection->numTPs());

@@ -50,7 +50,8 @@ namespace trackerTFP {
     void associate(const std::vector<std::vector<TTStubRef>>& tracks,
                    const tt::StubAssociation* ass,
                    std::set<TPPtr>& tps,
-                   int& sum) const;
+                   int& sum,
+                   bool perfect = false) const;
 
     // ED input token of stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetToken_;
@@ -214,7 +215,7 @@ namespace trackerTFP {
           continue;
         int tmp(0);
         associate(tracks, selection, tpPtrsSelection, tmp);
-        associate(tracks, reconstructable, tpPtrs, allMatched);
+        associate(tracks, reconstructable, tpPtrs, allMatched, true);
       }
       prof_->Fill(1, nStubs);
       prof_->Fill(2, nTracks);
@@ -307,9 +308,10 @@ namespace trackerTFP {
   void AnalyzerHT::associate(const std::vector<std::vector<TTStubRef>>& tracks,
                              const tt::StubAssociation* ass,
                              std::set<TPPtr>& tps,
-                             int& sum) const {
+                             int& sum,
+                             bool perfect) const {
     for (const std::vector<TTStubRef>& ttStubRefs : tracks) {
-      const std::vector<TPPtr>& tpPtrs = ass->associate(ttStubRefs);
+      const std::vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       sum++;

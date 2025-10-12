@@ -8,9 +8,9 @@ StubAssociator_params = cms.PSet (
   BranchSelection         = cms.string  ( "UseForAlgEff"    ),                                        # name of StubAssociation collection used for tracking efficiency 
 
   MinPt           = cms.double(  2.   ), # pt cut in GeV
-  MaxEta0         = cms.double(  2.4  ), # max eta for TP with z0 = 0
+  MaxEta          = cms.double(  2.5  ), # max eta for TP
   MaxZ0           = cms.double( 15.   ), # half lumi region size in cm
-  MaxD0           = cms.double(  5.   ), # cut on impact parameter in cm
+  MaxD0           = cms.double(  1.   ), # cut on impact parameter in cm
   MaxVertR        = cms.double(  1.   ), # cut on vertex pos r in cm
   MaxVertZ        = cms.double( 30.   ), # cut on vertex pos z in cm
   MinLayers       = cms.int32 (  4    ), # required number of associated stub layers to a TP to consider it reconstruct-able

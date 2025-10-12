@@ -54,7 +54,7 @@ namespace trklet {
                    int& sum,
                    const std::vector<TH1F*>& his,
                    const std::vector<TProfile*>& prof,
-                   bool perfect = true) const;
+                   bool perfect = false) const;
     //
     void analyzeTPz0(const tt::StubAssociation* sa);
     // ED input token of accepted Tracks
@@ -270,7 +270,7 @@ namespace trklet {
       if (!useMCTruth_)
         continue;
       int tmp(0);
-      associate(tracks, tracksStubs, region, selection, tpPtrsSelection, tmp, hisRes_, profRes_);
+      associate(tracks, tracksStubs, region, selection, tpPtrsSelection, tmp, hisRes_, profRes_, true);
       associate(tracks,
                 tracksStubs,
                 region,
@@ -278,9 +278,9 @@ namespace trklet {
                 tpPtrs,
                 numMatched,
                 std::vector<TH1F*>(),
-                std::vector<TProfile*>());
-      associate(
-          tracks, tracksStubs, region, selection, tpPtrsMax, tmp, std::vector<TH1F*>(), std::vector<TProfile*>(), false);
+                std::vector<TProfile*>(),
+                true);
+      associate(tracks, tracksStubs, region, selection, tpPtrsMax, tmp, std::vector<TH1F*>(), std::vector<TProfile*>());
       numTracks += nRegionTracks;
       prof_->Fill(1, nRegionStubs);
       prof_->Fill(2, nRegionTracks);

@@ -38,9 +38,9 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
-# D88 geometry (T24 tracker)
-process.load('Configuration.Geometry.GeometryExtendedRun4D98Reco_cff')
-process.load('Configuration.Geometry.GeometryExtendedRun4D98_cff')
+# D110 geometry
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
@@ -53,7 +53,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 from MCsamples.Scripts.getCMSdata_cfi import *
 
 # Read data from card files (defines getCMSdataFromCards()):
-from MCsamples.RelVal_1400_D98.PU0_TTbar_14TeV_cfi import *
+from MCsamples.RelVal_1510_D110.PU0_TTbar_14TeV_cfi import *
 inputMC = getCMSdataFromCards()
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))

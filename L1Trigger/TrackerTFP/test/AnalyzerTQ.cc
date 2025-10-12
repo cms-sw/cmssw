@@ -53,7 +53,7 @@ namespace trackerTFP {
                    const tt::StubAssociation* ass,
                    std::set<TPPtr>& tps,
                    int& sum,
-                   bool perfect = true) const;
+                   bool perfect = false) const;
     // ED input token of stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED input token of tracks
@@ -178,9 +178,9 @@ namespace trackerTFP {
       if (!useMCTruth_)
         continue;
       int tmp(0);
-      associate(tracks, selection, tpPtrsSelection, tmp);
-      associate(tracks, reconstructable, tpPtrs, allMatched, false);
-      associate(tracks, selection, tpPtrsMax, tmp, false);
+      associate(tracks, selection, tpPtrsSelection, tmp, true);
+      associate(tracks, reconstructable, tpPtrs, allMatched, true);
+      associate(tracks, selection, tpPtrsMax, tmp);
       const int size = acceptedTracks[region].size();
       hisChannel_->Fill(size);
       profChannel_->Fill(region, size);
@@ -201,8 +201,8 @@ namespace trackerTFP {
     // printout DR summary
     const double totalTPs = prof_->GetBinContent(9);
     const double numStubs = prof_->GetBinContent(1);
-    const double numTracks = prof_->GetBinContent(2);
-    const double totalTracks = prof_->GetBinContent(5);
+    const double numTracks = prof_->GetBinContent(2);    // tracks/nonant/event
+    const double totalTracks = prof_->GetBinContent(5);  // tracks/tracker/event
     const double numTracksMatched = prof_->GetBinContent(4);
     const double numTPsAll = prof_->GetBinContent(6);
     const double numTPsEff = prof_->GetBinContent(7);

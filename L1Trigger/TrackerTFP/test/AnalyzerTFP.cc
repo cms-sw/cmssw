@@ -177,6 +177,7 @@ namespace trackerTFP {
     std::set<TPPtr> tpPtrsSelection;
     std::set<TPPtr> tpPtrsPerfect;
     int nAllMatched(0);
+    int nAllMatchedPerf(0);
     // convert vector of tracks to vector of vector of associated stubs
     std::vector<std::vector<TTStubRef>> tracks;
     tracks.reserve(ttTracks.size());
@@ -187,8 +188,8 @@ namespace trackerTFP {
     if (useMCTruth_) {
       int tmp(0);
       associate(tracks, selection, tpPtrsSelection, tmp);
-      associate(tracks, selection, tpPtrsPerfect, tmp, true);
-      associate(tracks, reconstructable, tpPtrs, nAllMatched);
+      associate(tracks, selection, tpPtrsPerfect, nAllMatchedPerf, true);
+      associate(tracks, reconstructable, tpPtrs, nAllMatched, true);
     }
     for (const TPPtr& tpPtr : tpPtrsSelection)
       fill(tpPtr, hisEff_);
@@ -211,8 +212,8 @@ namespace trackerTFP {
     // printout SF summary
     const double totalTPs = prof_->GetBinContent(9);
     const double numStubs = prof_->GetBinContent(1);
-    const double numTracks = prof_->GetBinContent(2);
-    const double totalTracks = prof_->GetBinContent(5);
+    const double numTracks = prof_->GetBinContent(2);    // tracks/nonant/event
+    const double totalTracks = prof_->GetBinContent(5);  // tracks/tracker/event
     const double numTracksMatched = prof_->GetBinContent(4);
     const double numTPsAll = prof_->GetBinContent(6);
     const double numTPsEff = prof_->GetBinContent(7);
