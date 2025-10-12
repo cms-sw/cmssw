@@ -67,8 +67,10 @@ private:
   static constexpr double eta_bins_edges_neg[n_bin_Eta + 1] = {-3.0, -2.5, -2.1, -1.5};
   static constexpr double eta_bins_edges_pos[n_bin_Eta + 1] = {1.5, 2.1, 2.5, 3.0};
 
-  // LGAD counter per Disk
-  uint32_t totalLGADsPerDisk_[4] = {0};
+  // LGAD counter per Disc, DiscSide, and Sector: [disk][discSide][sector]
+  static constexpr int n_discSide = 2;
+  static constexpr int n_sector = 3;  // Use size 3 to allow 1-based indexing (1 to 2)
+  uint32_t LGADsPerDiscSideSector_[4][n_discSide][n_sector] = {{{{0}}}};
 
   // Counter for total LGADs per disk per eta bin: [disk][eta_bin]
   uint32_t LGADsPerDiskperEtaBin_[4][n_bin_Eta] = {{0}};
@@ -198,9 +200,13 @@ void MTDDigiGeometryAnalyzer::CheckETLstructure(const MTDGeometry& geom) {
 
   // Reset counters
   for (int d = 0; d < 4; ++d) {
-    totalLGADsPerDisk_[d] = 0;
     for (int eta = 0; eta < n_bin_Eta; ++eta) {
       LGADsPerDiskperEtaBin_[d][eta] = 0;
+    }
+    for (int k = 0; k < n_discSide; ++k) {
+      for (int l = 0; l < n_sector; ++l) {
+        LGADsPerDiscSideSector_[d][k][l] = 0;
+      }
     }
   }
 
@@ -212,6 +218,9 @@ void MTDDigiGeometryAnalyzer::CheckETLstructure(const MTDGeometry& geom) {
     // Get the global position of the detector center
     const GlobalPoint& global_point = thedet->position();
     double eta = global_point.eta();
+
+    int discSide = detId.discSide();  // 0 to 1
+    int sector = detId.sector();      // 1 to 2
 
     int idet = 999;
     if ((detId.zside() == -1) && (detId.nDisc() == 1)) {
@@ -228,8 +237,9 @@ void MTDDigiGeometryAnalyzer::CheckETLstructure(const MTDGeometry& geom) {
     }
 
     totalETLdets++;
-    // Count total LGADs per disk
-    totalLGADsPerDisk_[idet]++;
+
+    // Count LGADs per Disc, Side, Sector
+    LGADsPerDiscSideSector_[idet][discSide][sector]++;
 
     // Count LGADs per disk per eta bin
     const double* eta_edges = (idet < 2) ? eta_bins_edges_neg : eta_bins_edges_pos;
@@ -251,20 +261,35 @@ void MTDDigiGeometryAnalyzer::CheckETLstructure(const MTDGeometry& geom) {
   sunitt_ << " Total ETL Detectors (LGADs): " << totalETLdets << "\n";
   const char* diskNames[4] = {"Disc 1 (-Z)", "Disc 2 (-Z)", "Disc 1 (+Z)", "Disc 2 (+Z)"};
 
-  sunitt_ << "\n--- LGADs per Disk and Eta Bin ---\n";
+  sunitt_ << "\n--- LGADs per Eta Bin and per Disk, DiscSide, Sector ---\n";
   for (int d = 0; d < 4; ++d) {  // Physical Disk loop (0-3)
     std::string disk_name = diskNames[d];
-    uint32_t total_disk = totalLGADsPerDisk_[d];
-
+    uint32_t total_disk = 0;
+    for (int k = 0; k < n_discSide; ++k) {
+      for (int l = 1; l < n_sector; ++l) {
+        total_disk += LGADsPerDiscSideSector_[d][k][l];
+      }
+    }
     sunitt_ << "Region: " << disk_name << " | Total LGADs: " << total_disk << "\n";
-
-    // Print LGADs per Eta Bin
-    sunitt_ << "  - LGADs per Eta Bin (Center Eta):\n";
+    sunitt_ << "  - LGADs per Eta Bin:\n";
     const double* eta_edges = (d < 2) ? eta_bins_edges_neg : eta_bins_edges_pos;
-
     for (int j = 0; j < n_bin_Eta; ++j) {
       sunitt_ << "    Eta [" << std::setprecision(1) << std::fixed << eta_edges[j] << ", " << eta_edges[j + 1]
               << "): " << LGADsPerDiskperEtaBin_[d][j] << "\n";
+    }
+    for (int k = 0; k < n_discSide; ++k) {
+      uint32_t total_discside = 0;
+      for (int l = 1; l < n_sector; ++l) {
+        total_discside += LGADsPerDiscSideSector_[d][k][l];
+      }
+      sunitt_ << "  - Side: " << k << " | Total LGADs: " << total_discside << "\n";
+      sunitt_ << "    - Sectors: ";
+      for (int l = 1; l < n_sector; ++l) {
+        if (LGADsPerDiscSideSector_[d][k][l] > 0) {
+          sunitt_ << "Sec " << l << ": " << LGADsPerDiscSideSector_[d][k][l] << " | ";
+        }
+      }
+      sunitt_ << "\n";
     }
   }
 
