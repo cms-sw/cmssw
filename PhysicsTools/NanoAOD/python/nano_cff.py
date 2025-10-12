@@ -247,7 +247,7 @@ def nanoAOD_customizeCommon(process):
                                     reclusterAK8=nanoAOD_rePuppi_switch.reclusterAK8.value(),
                                     )
 
-    if nanoAOD_rePuppi_switch.useExistingWeights == False:
+    if not(nanoAOD_rePuppi_switch.useExistingWeights) and (nanoAOD_rePuppi_switch.reclusterAK4MET or nanoAOD_rePuppi_switch.reclusterAK8):
         process = UsePuppiWeightFromValueMapForPFCandTable(process)
 
     # This function is defined in jetsAK4_Puppi_cff.py
