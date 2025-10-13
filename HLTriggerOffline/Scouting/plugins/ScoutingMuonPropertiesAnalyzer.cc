@@ -1034,13 +1034,13 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
 void ScoutingMuonPropertiesAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "HLT/ScoutingOffline/Muons/Properties");
-  desc.add<bool>("fillAllHistograms", true);
+  desc.add<bool>("fillAllHistograms", false);
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
-  desc.add<edm::InputTag>("muonsNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "", "HLT"));
-  desc.add<edm::InputTag>("muonsVtx", edm::InputTag("hltScoutingMuonPackerVtx", "", "HLT"));
-  desc.add<edm::InputTag>("PV", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx", "HLT"));
-  desc.add<edm::InputTag>("SVNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx", "HLT"));
-  desc.add<edm::InputTag>("SVVtx", edm::InputTag("hltScoutingMuonPackerVtx", "displacedVtx", "HLT"));
+  desc.add<edm::InputTag>("muonsNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx"));
+  desc.add<edm::InputTag>("muonsVtx", edm::InputTag("hltScoutingMuonPackerVtx"));
+  desc.add<edm::InputTag>("PV", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"));
+  desc.add<edm::InputTag>("SVNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx"));
+  desc.add<edm::InputTag>("SVVtx", edm::InputTag("hltScoutingMuonPackerVtx", "displacedVtx"));
   descriptions.addWithDefaultLabel(desc);
 }
 
