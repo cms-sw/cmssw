@@ -989,16 +989,16 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(topfoldername_);
 
   // Book multiplicity histograms in the topfolder
-  nTracks_hist = ibook.book1D("nTracks", "Number of Tracks;N_{tracks};Entries", 101, 0, 115);
+  nTracks_hist = ibook.book1D("nTracks", "Number of Tracks;N_{tracks};Entries", 115, 0, 115);
   nPrimaryVertices_hist = ibook.book1D("nPrimaryVertices", "Number of Primary Vertices;N_{PV};Entries", 51, 0, 50);
   nDisplacedVertices_hist =
-      ibook.book1D("nDisplacedVertices", "Number of Displaced Vertices (Vtx);N_{DV};Entries", 51, 0, 10);
+      ibook.book1D("nDisplacedVertices", "Number of Displaced Vertices (Vtx);N_{DV};Entries", 10, 0, 10);
   nDisplacedVerticesNoVtx_hist =
-      ibook.book1D("nDisplacedVerticesNoVtx", "Number of Displaced Vertices (NoVtx);N_{DV}^{NoVtx};Entries", 51, 0, 10);
-  nMuons_hist = ibook.book1D("nMuons", "Number of Muons (NoVtx);N_{muons};Entries", 51, 0, 10);
-  nMuonsVtx_hist = ibook.book1D("nMuonsVtx", "Number of Muons (Vtx);N_{muons}^{Vtx};Entries", 51, 0, 10);
-  nElectrons_hist = ibook.book1D("nElectrons", "Number of Electrons;N_{ele};Entries", 51, 0, 10);
-  nPhotons_hist = ibook.book1D("nPhotons", "Number of Photons;N_{photon};Entries", 51, 0, 25);
+      ibook.book1D("nDisplacedVerticesNoVtx", "Number of Displaced Vertices (NoVtx);N_{DV}^{NoVtx};Entries", 10, 0, 10);
+  nMuons_hist = ibook.book1D("nMuons", "Number of Muons (NoVtx);N_{muons};Entries", 10, 0, 10);
+  nMuonsVtx_hist = ibook.book1D("nMuonsVtx", "Number of Muons (Vtx);N_{muons}^{Vtx};Entries", 10, 0, 10);
+  nElectrons_hist = ibook.book1D("nElectrons", "Number of Electrons;N_{ele};Entries", 10, 0, 10);
+  nPhotons_hist = ibook.book1D("nPhotons", "Number of Photons;N_{photon};Entries", 25, 0, 25);
   nPFJets_hist = ibook.book1D("nPFJets", "Number of PF Jets;N_{jet};Entries", 101, 0, 100);
   nPFCands_hist = ibook.book1D("nPFCands", "Number of PF Candidates;N_{pfcand};Entries", 1001, 0, 1000);
 
@@ -1494,7 +1494,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
 void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("onlyScouting", false);
+  desc.add<bool>("onlyScouting", true);
   desc.add<edm::InputTag>("electrons", edm::InputTag("hltScoutingEgammaPacker"));
   desc.add<edm::InputTag>("muons", edm::InputTag("hltScoutingMuonPackerNoVtx"));
   desc.add<edm::InputTag>("muonsVtx", edm::InputTag("hltScoutingMuonPackerVtx"));
