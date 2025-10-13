@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_interface_TrivialCopyTraits_h
-#define DataFormats_Common_interface_TrivialCopyTraits_h
+#ifndef TrivialSerialisation_Common_interface_TrivialCopyTraits_h
+#define TrivialSerialisation_Common_interface_TrivialCopyTraits_h
 
 #include <cassert>
 #include <span>
@@ -89,4 +89,4 @@ namespace edm {
 
 }  // namespace edm
 
-#endif  // DataFormats_Common_interface_TrivialCopyTraits_h
+#endif  // TrivialSerialisation_Common_interface_TrivialCopyTraits_h

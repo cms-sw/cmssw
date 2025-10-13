@@ -3,11 +3,8 @@
 
 #include <cstdio>
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/WrapperBase.h"
 #include "TrivialSerialisation/Common/interface/TrivialSerialiserBase.h"
 #include "TrivialSerialisation/Common/interface/TrivialCopyTraits.h"
-#include "TrivialSerialisation/Common/interface/TrivialSerialiserSourceBase.h"
-#include "DataFormats/Common/interface/Uninitialized.h"
 
 // defines all methods of TrivialSerialiserBase
 
@@ -28,24 +25,16 @@ namespace ngt {
     void trivialCopyFinalize() override;
 
   private:
-    constexpr T construct_() {
-      if constexpr (requires { T(); }) {
-        return T();
-      } else {
-        return T(edm::kUninitialized);
-      }
-    }
-
     const T& getWrappedObj_(WrapperType const& w) const {
       if (not w.isPresent()) {
-        throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper aa";
+        throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper";
       }
       return *w.product();
     }
 
     T& getWrappedObj_(WrapperType& w) {
       if (not w.isPresent()) {
-        throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper bb";
+        throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper";
       }
       return w.bareProduct();
     }
@@ -75,6 +64,9 @@ namespace ngt {
       return;
     } else {
       auto& w = static_cast<WrapperType const&>(*getWrapperBasePtr());
+      // Each serialiser stores a pointer to the wrapper used to initialize it as "const edm::WrapperBase*"
+      // For serialisers used for writing, that were initialized with a non-const wrapper, the const_cast below is safe because the wrapper was originally non-const.
+      // For serialisers used for reading, that were initialized with a const wrapper, this function cannot be called because it is not marked as const.
       if constexpr (std::is_same_v<typename edm::TrivialCopyTraits<T>::Properties, void>) {
         // if edm::TrivialCopyTraits<T>::Properties is void, call initialize() without any additional arguments
         edm::TrivialCopyTraits<T>::initialize(const_cast<WrapperType&>(w).bareProduct());
@@ -120,7 +112,7 @@ namespace ngt {
   template <typename T>
   inline std::vector<std::span<std::byte>> TrivialSerialiser<T>::trivialCopyRegions() {
     if constexpr (requires(T& t) { edm::TrivialCopyTraits<T>::regions(t); }) {
-      auto& w = const_cast<edm::Wrapper<T>&>(static_cast<edm::Wrapper<T> const&>(*getWrapperBasePtr()));
+      auto& w = const_cast<WrapperType&>(static_cast<WrapperType const&>(*getWrapperBasePtr()));
       T& obj = getWrappedObj_(w);
       return edm::TrivialCopyTraits<T>::regions(obj);
     } else {
@@ -140,19 +132,6 @@ namespace ngt {
     }
   }
 
-  template <typename T>
-  class TrivialSerialiserSource : public TrivialSerialiserSourceBase {
-  public:
-    std::unique_ptr<TrivialSerialiserBase> initialize(edm::WrapperBase& wrapper) override {
-      edm::Wrapper<T>& w = dynamic_cast<edm::Wrapper<T>&>(wrapper);
-      return std::make_unique<TrivialSerialiser<T>>(w);
-    }
-    std::unique_ptr<const TrivialSerialiserBase> initialize(edm::WrapperBase const& wrapper) override {
-      edm::Wrapper<T> const& w = dynamic_cast<edm::Wrapper<T> const&>(wrapper);
-      return std::make_unique<const TrivialSerialiser<T>>(w);
-    }
-  };
-
 }  // namespace ngt
 
-#endif
+#endif  // TrivialSerialisation_Common_TrivialSerialiser_h

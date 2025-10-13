@@ -5,7 +5,6 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 namespace ngt {
-    using TrivialSerialiserSourceFactory = edmplugin::PluginFactory<ngt::TrivialSerialiserSourceBase *(void)>;
-    // TODO: is the "void" necessary?
+  using TrivialSerialiserSourceFactory = edmplugin::PluginFactory<ngt::TrivialSerialiserSourceBase *()>;
 }
-#endif
+#endif  // TrivialSerialisation_src_TrivialSerialiserSourceFactory_h

@@ -138,14 +138,16 @@ namespace edmtest {
 
       event.getByToken(product.getToken_, handle);
 
+      // create a "wrapper", whose wrapped product will be cloned into "clone"
       edm::WrapperBase const* wrapper = handle.product();
       std::unique_ptr<edm::WrapperBase> clone(static_cast<edm::WrapperBase*>(product.wrappedType_.getClass()->New()));
 
-      // Object from which, for a given type, we can initialize both a const and a mutable serialiser.
+      // get a "serialiserSource" object from the plugin factory.
+      // serializeSource objects can produce, for a given type, both const and mutable TrivialSerialisers.
       std::unique_ptr<ngt::TrivialSerialiserSourceBase> serialiserSource{
           ngt::TrivialSerialiserSourceFactory::get()->create(product.objectType_.typeInfo().name())};
 
-      // initialise a const and a mutable serialisers.
+      // initialise a const and a mutable TrivialSerialisers.
       auto const_serialiser = serialiserSource->initialize(*wrapper);
       auto mutable_serialiser = serialiserSource->initialize(*clone);
 
@@ -157,7 +159,6 @@ namespace edmtest {
         if (mutable_serialiser->hasTrivialCopyProperties()) {
           mutable_serialiser->trivialCopyInitialize(const_serialiser->trivialCopyParameters());
         }
-
 
         // copy the source regions to the target
         auto targets = mutable_serialiser->trivialCopyRegions();
