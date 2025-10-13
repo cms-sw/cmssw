@@ -74,6 +74,13 @@ def _fastSimDigis(process):
 # no need for the aliases for premixing stage1
 modifyDigi_fastSimDigis = (fastSim & ~premix_stage1).makeProcessModifier(_fastSimDigis)
 
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+def _fastSimDigisGEM(process):
+    from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliasesGEM
+    loadDigiAliasesGEM(process)
+modifyDigi_fastSimDigisGEM = (fastSim & (run2_GEM_2017 | run3_GEM)).makeProcessModifier(_fastSimDigisGEM)
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 def _fastSimDigisHGCal(process):
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliasesHGCal
