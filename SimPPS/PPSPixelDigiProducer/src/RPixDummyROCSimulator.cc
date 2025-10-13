@@ -1,4 +1,5 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixDummyROCSimulator.h"
+#include <cmath>
 #include <vector>
 #include "TRandom.h"
 #include <iostream>

@@ -1,6 +1,7 @@
 #ifndef ALIGNMENT_OFFLINEVALIDATION_PVVALIDATIONHELPER_H
 #define ALIGNMENT_OFFLINEVALIDATION_PVVALIDATIONHELPER_H
 
+#include <cmath>
 #include <string>
 #include <vector>
 #include <map>

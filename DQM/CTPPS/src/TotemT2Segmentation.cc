@@ -11,6 +11,7 @@
 #include "DQM/CTPPS/interface/TotemT2Segmentation.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <cmath>
 #include "TH2D.h"
 
 TotemT2Segmentation::TotemT2Segmentation(size_t nbinsx, size_t nbinsy) : nbinsx_(nbinsx), nbinsy_(nbinsy) {

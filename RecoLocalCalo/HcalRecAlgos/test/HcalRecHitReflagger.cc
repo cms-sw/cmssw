@@ -16,6 +16,7 @@
 
 // system include files
 #include <iostream>
+#include <cmath>
 #include <memory>
 
 // user include files
