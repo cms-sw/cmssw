@@ -1494,7 +1494,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
 void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("onlyScouting", true);
+  desc.add<bool>("onlyScouting", false);
   desc.add<edm::InputTag>("electrons", edm::InputTag("hltScoutingEgammaPacker"));
   desc.add<edm::InputTag>("muons", edm::InputTag("hltScoutingMuonPackerNoVtx"));
   desc.add<edm::InputTag>("muonsVtx", edm::InputTag("hltScoutingMuonPackerVtx"));
