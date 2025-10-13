@@ -56,6 +56,12 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
+  template <typename T>
+  bool getValidHandle(const edm::Event& iEvent,
+                      const edm::EDGetTokenT<T>& token,
+                      edm::Handle<T>& handle,
+                      const std::string& label);
+
   // Output Folder
   const std::string outputInternalPath_;
   // do to some histogram duplicates with the ScoutingCollectionMonitor.cc module, we added the option to just fill the unique plots w.r.t the aforementioned module, if this bool is set to false
@@ -226,6 +232,19 @@ ScoutingMuonPropertiesAnalyzer::ScoutingMuonPropertiesAnalyzer(const edm::Parame
       "DST_PFScouting_SingleMuonMonitorJPsi_v",
       "DST_PFScouting_SingleMuonMonitorZ_v",
   };
+}
+
+template <typename T>
+bool ScoutingMuonPropertiesAnalyzer::getValidHandle(const edm::Event& iEvent,
+                                                    const edm::EDGetTokenT<T>& token,
+                                                    edm::Handle<T>& handle,
+                                                    const std::string& label) {
+  iEvent.getByToken(token, handle);
+  if (!handle.isValid()) {
+    edm::LogWarning("ScoutingMuonPropertiesAnalyzer") << "Invalid handle for " << label << "! Skipping event.";
+    return false;
+  }
+  return true;
 }
 
 void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
@@ -696,22 +715,21 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
   using namespace edm;
 
   edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByToken(triggerResultsToken_, triggerResults);
-
   edm::Handle<std::vector<Run3ScoutingMuon>> muonsNoVtx;
-  iEvent.getByToken(muonsNoVtxToken_, muonsNoVtx);
-
   edm::Handle<std::vector<Run3ScoutingMuon>> muonsVtx;
-  iEvent.getByToken(muonsVtxToken_, muonsVtx);
+  edm::Handle<std::vector<Run3ScoutingVertex>> SVNoVtx;
+  edm::Handle<std::vector<Run3ScoutingVertex>> SVVtx;
+
+  if (!getValidHandle(iEvent, triggerResultsToken_, triggerResults, "TriggerResults") ||
+      !getValidHandle(iEvent, muonsNoVtxToken_, muonsNoVtx, "muonsNoVtx") ||
+      !getValidHandle(iEvent, muonsVtxToken_, muonsVtx, "muonsVtx") ||
+      !getValidHandle(iEvent, SVNoVtxToken_, SVNoVtx, "SVNoVtx") ||
+      !getValidHandle(iEvent, SVVtxToken_, SVVtx, "SVVtx")) {
+    return;
+  }
 
   edm::Handle<std::vector<Run3ScoutingVertex>> PV;
   iEvent.getByToken(PVToken_, PV);
-
-  edm::Handle<std::vector<Run3ScoutingVertex>> SVNoVtx;
-  iEvent.getByToken(SVNoVtxToken_, SVNoVtx);
-
-  edm::Handle<std::vector<Run3ScoutingVertex>> SVVtx;
-  iEvent.getByToken(SVVtxToken_, SVVtx);
 
   const TransientTrackBuilder* theB = &iSetup.getData(ttbESToken_);
 
