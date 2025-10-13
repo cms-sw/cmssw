@@ -87,8 +87,8 @@ private:
   MonitorElement* h_ScoutingMuonNoVtx_eta_;
   MonitorElement* h_ScoutingMuonNoVtx_phi_;
   MonitorElement* h_ScoutingMuonNoVtx_phiCorr_;
-  MonitorElement* h_ScoutingMuonNoVtx_m_;
   MonitorElement* h_ScoutingMuonNoVtx_charge_;
+  MonitorElement* h_ScoutingMuonNoVtx_m_;
   MonitorElement* h_ScoutingMuonNoVtx_trkchi2_;
   MonitorElement* h_ScoutingMuonNoVtx_trkndof_;
   MonitorElement* h_ScoutingMuonNoVtx_trkdxy_;
@@ -116,8 +116,8 @@ private:
   MonitorElement* h_ScoutingMuonVtx_eta_;
   MonitorElement* h_ScoutingMuonVtx_phi_;
   MonitorElement* h_ScoutingMuonVtx_phiCorr_;
-  MonitorElement* h_ScoutingMuonVtx_m_;
   MonitorElement* h_ScoutingMuonVtx_charge_;
+  MonitorElement* h_ScoutingMuonVtx_m_;
   MonitorElement* h_ScoutingMuonVtx_trkchi2_;
   MonitorElement* h_ScoutingMuonVtx_trkndof_;
   MonitorElement* h_ScoutingMuonVtx_trkdxy_;
@@ -169,6 +169,8 @@ private:
   MonitorElement* h_SVNoVtx_dlen_;
   MonitorElement* h_SVNoVtx_dlenSig_;
   MonitorElement* h_SVNoVtx_mass_;
+  MonitorElement* h_SVNoVtx_mass_JPsi_;
+  MonitorElement* h_SVNoVtx_mass_Z_;
   MonitorElement* h_SVNoVtx_nMuon_;
 
   // SVVtx MEs
@@ -188,6 +190,8 @@ private:
   MonitorElement* h_SVVtx_dlen_;
   MonitorElement* h_SVVtx_dlenSig_;
   MonitorElement* h_SVVtx_mass_;
+  MonitorElement* h_SVVtx_mass_Z_;
+  MonitorElement* h_SVVtx_mass_JPsi_;
   MonitorElement* h_SVVtx_nMuon_;
 };
 
@@ -635,9 +639,17 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   h_SVNoVtx_dlenSig_->setAxisTitle("Decay Length Significance", 1);
   h_SVNoVtx_dlenSig_->setAxisTitle("Vertices", 2);
 
-  h_SVNoVtx_mass_ = ibooker.book1D("SVNoVtx_mass", "SVNoVtx mass", 50, 0, 10);
+  h_SVNoVtx_mass_ = ibooker.book1D("SVNoVtx_mass", "SVNoVtx mass", 50, 0, 100);
   h_SVNoVtx_mass_->setAxisTitle("Mass [GeV]", 1);
   h_SVNoVtx_mass_->setAxisTitle("Vertices", 2);
+
+  h_SVNoVtx_mass_JPsi_ = ibooker.book1D("SVNoVtx_mass_JPsi", "SVNoVtx mass J/Psi", 50, 0, 10);
+  h_SVNoVtx_mass_JPsi_->setAxisTitle("Mass [GeV]", 1);
+  h_SVNoVtx_mass_JPsi_->setAxisTitle("Vertices", 2);
+
+  h_SVNoVtx_mass_Z_ = ibooker.book1D("SVNoVtx_mass", "SVNoVtx mass Z", 50, 80, 100);
+  h_SVNoVtx_mass_Z_->setAxisTitle("Mass [GeV]", 1);
+  h_SVNoVtx_mass_Z_->setAxisTitle("Vertices", 2);
 
   h_SVNoVtx_nMuon_ = ibooker.book1D("SVNoVtx_nMuon", "SVNoVtx nMuon", 10, 0, 10);
   h_SVNoVtx_nMuon_->setAxisTitle("Number of Muons", 1);
@@ -661,9 +673,17 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   h_SVVtx_dlenSig_->setAxisTitle("Decay Length Significance", 1);
   h_SVVtx_dlenSig_->setAxisTitle("Vertices", 2);
 
-  h_SVVtx_mass_ = ibooker.book1D("SVVtx_mass", "SVVtx mass", 50, 0, 10);
+  h_SVVtx_mass_ = ibooker.book1D("SVVtx_mass", "SVVtx mass", 50, 0, 100);
   h_SVVtx_mass_->setAxisTitle("Mass [GeV]", 1);
   h_SVVtx_mass_->setAxisTitle("Vertices", 2);
+
+  h_SVVtx_mass_JPsi_ = ibooker.book1D("SVVtx_mass_JPsi", "SVVtx mass J/Psi", 50, 0, 10);
+  h_SVVtx_mass_JPsi_->setAxisTitle("Mass [GeV]", 1);
+  h_SVVtx_mass_JPsi_->setAxisTitle("Vertices", 2);
+
+  h_SVVtx_mass_Z_ = ibooker.book1D("SVVtx_mass_Z", "SVVtx mass Z", 50, 80, 100);
+  h_SVVtx_mass_Z_->setAxisTitle("Mass [GeV]", 1);
+  h_SVVtx_mass_Z_->setAxisTitle("Vertices", 2);
 
   h_SVVtx_nMuon_ = ibooker.book1D("SVVtx_nMuon", "SVVtx nMuon", 10, 0, 10);
   h_SVVtx_nMuon_->setAxisTitle("Number of Muons", 1);
@@ -942,7 +962,10 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
       }
       if (nMuonMatch > 0)
         sv_mass = sv_p4.M();
+
       h_SVNoVtx_mass_->Fill(sv_mass);
+      h_SVNoVtx_mass_JPsi_->Fill(sv_mass);
+      h_SVNoVtx_mass_Z_->Fill(sv_mass);
       h_SVNoVtx_nMuon_->Fill(nMuonMatch);
     }
   }
@@ -1001,6 +1024,8 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
       if (nMuonMatch > 0)
         sv_mass = sv_p4.M();
       h_SVVtx_mass_->Fill(sv_mass);
+      h_SVVtx_mass_JPsi_->Fill(sv_mass);
+      h_SVVtx_mass_Z_->Fill(sv_mass);
       h_SVVtx_nMuon_->Fill(nMuonMatch);
     }
   }
@@ -1009,7 +1034,7 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
 void ScoutingMuonPropertiesAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "HLT/ScoutingOffline/Muons/Properties");
-  desc.add<bool>("fillAllHistograms", false);
+  desc.add<bool>("fillAllHistograms", true);
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("muonsNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "", "HLT"));
   desc.add<edm::InputTag>("muonsVtx", edm::InputTag("hltScoutingMuonPackerVtx", "", "HLT"));
