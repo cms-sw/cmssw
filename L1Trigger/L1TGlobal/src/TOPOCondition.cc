@@ -97,8 +97,7 @@ void l1t::TOPOCondition::loadModel() {
     // hls4mlEmulator::ModelLoader loader(TOPOmodelversion);
     // m_model = loader.load_model();
   } catch (std::runtime_error& e) {
-    throw cms::Exception("ModelError") << " ERROR: failed to load TOPO model version \""
-                                       << m_model_loader.model_name()
+    throw cms::Exception("ModelError") << " ERROR: failed to load TOPO model version \"" << m_model_loader.model_name()
                                        << "\". Model version not found in cms-hls4ml externals.";
   }
 }
@@ -108,7 +107,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     throw cms::Exception("ModelError") << " ERROR: no model was loaded for TOPO model version \""
                                        << m_model_loader.model_name() << "\".";
   }
-  
+
   bool condResult = false;
   int useBx = bxEval + m_gtTOPOTemplate->condRelativeBx();
 
@@ -117,7 +116,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   const BXVector<const l1t::L1Candidate*>* candJetVec = m_gtGTB->getCandL1Jet();
   const BXVector<const l1t::L1Candidate*>* candEGVec = m_gtGTB->getCandL1EG();
   const BXVector<const l1t::EtSum*>* candEtSumVec = m_gtGTB->getCandL1EtSum();
-  
+
   const int NMuons = 2;
   const int NJets = 4;
   const int NEgammas = 0;
@@ -148,7 +147,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
 
   //declare result vectors +score
   losstype loss;
-  float score = -1.0; 
+  float score = -1.0;
 
   //check number of input objects we actually have (muons, jets etc)
   int NCandMu = candMuVec->size(useBx);
@@ -168,7 +167,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     for (int iEtSum = 0; iEtSum < NCandEtSum; iEtSum++) {
       if ((candEtSumVec->at(useBx, iEtSum))->getType() == 1) {
         EtSumInput[0] = (candEtSumVec->at(useBx, iEtSum))->hwPt();
-        EtSumInput[1] = 0.0; //no phi for ht
+        EtSumInput[1] = 0.0;  //no phi for ht
       }
     }
   }
@@ -176,7 +175,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   //next egammas
   if (NCandEG > 0) {  //check if not empty
     for (int iEG = 0; iEG < NCandEG; iEG++) {
-      if (iEG < NEgammas) {  //stop if fill the Nobjects we need
+      if (iEG < NEgammas) {                                                 //stop if fill the Nobjects we need
         EgammaInput[0 + (3 * iEG)] = (candEGVec->at(useBx, iEG))->hwPt();   //index 0,3,6,9
         EgammaInput[1 + (3 * iEG)] = (candEGVec->at(useBx, iEG))->hwEta();  //index 1,4,7,10
         EgammaInput[2 + (3 * iEG)] = (candEGVec->at(useBx, iEG))->hwPhi();  //index 2,5,8,11
@@ -187,7 +186,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   //next muons
   if (NCandMu > 0) {  //check if not empty
     for (int iMu = 0; iMu < NCandMu; iMu++) {
-      if (iMu < NMuons) {  //stop if fill the Nobjects we need
+      if (iMu < NMuons) {                                               //stop if fill the Nobjects we need
         MuInput[0 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPt();   //index 0,3,6,9
         MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEta();  //index 1,4,7,10
         MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhi();  //index 2,5,8,11
@@ -198,7 +197,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   //next jets
   if (NCandJet > 0) {  //check if not empty
     for (int iJet = 0; iJet < NCandJet; iJet++) {
-      if (iJet < NJets) {  //stop if fill the Nobjects we need
+      if (iJet < NJets) {                                                   //stop if fill the Nobjects we need
         JetInput[0 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwPt();   //index 0,3,6,9
         JetInput[1 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwEta();  //index 1,4,7,10
         JetInput[2 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwPhi();  //index 2,5,8,11
@@ -224,8 +223,8 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   //now run the inference
   m_model->prepare_input(ModelInput);  //scaling internal here
   m_model->predict();
-  m_model->read_result(&loss); //store result as loss variable
-  score = ((loss).to_float() * 1023); 
+  m_model->read_result(&loss);  //store result as loss variable
+  score = ((loss).to_float() * 1023);
   setScore(score);
 
   //number of objects/thrsholds to check
@@ -245,7 +244,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   passCondition = checkCut(objPar.minTOPOThreshold, score, condGEqVal);
 
   condResult |= passCondition;  //condresult true if passCondition true else it is false
-    
+
   //return result
   return condResult;
 }

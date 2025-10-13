@@ -319,8 +319,7 @@ void TriggerMenu::buildGtConditionMap() {
        itCondOnChip++) {
     chipNr++;
 
-    for (std::vector<TOPOTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (std::vector<TOPOTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }

@@ -338,7 +338,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
         } else if (condition.getType() == esConditionType::Axol1tlTrigger ||
                    condition.getType() == esConditionType::AnomalyDetectionTrigger) {
           parseAXOL1TL(condition, chipNr);
-        
+
           //parse TOPO
         } else if (condition.getType() == esConditionType::TopologicalTrigger) {
           parseTOPO(condition, chipNr);

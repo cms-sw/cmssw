@@ -7,9 +7,7 @@
 
 TOPOTemplate::TOPOTemplate() : GlobalCondition() { m_condCategory = l1t::CondTOPO; }
 
-TOPOTemplate::TOPOTemplate(const std::string& cName) : GlobalCondition(cName) {
-  m_condCategory = l1t::CondTOPO;
-}
+TOPOTemplate::TOPOTemplate(const std::string& cName) : GlobalCondition(cName) { m_condCategory = l1t::CondTOPO; }
 
 TOPOTemplate::TOPOTemplate(const std::string& cName, const l1t::GtConditionType& cType)  //not sure we need cType
     : GlobalCondition(cName, l1t::CondTOPO, cType) {
