@@ -1,6 +1,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 
 #include <iostream>
+#include <cmath>
 
 EnergyUncertaintyPhotonSpecific::EnergyUncertaintyPhotonSpecific(const edm::ParameterSet& config) {}
 
