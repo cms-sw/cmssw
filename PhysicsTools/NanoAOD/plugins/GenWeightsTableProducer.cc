@@ -15,6 +15,7 @@
 #include "boost/algorithm/string.hpp"
 
 #include <array>
+#include <cmath>
 #include <memory>
 
 #include <vector>
