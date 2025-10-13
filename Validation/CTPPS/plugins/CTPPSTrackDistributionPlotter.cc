@@ -26,6 +26,7 @@
 #include "TProfile2D.h"
 #include "TGraph.h"
 
+#include <cmath>
 #include <map>
 #include <memory>
 
