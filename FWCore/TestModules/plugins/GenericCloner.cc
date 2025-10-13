@@ -49,9 +49,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TypeDemangler.h"
 
-#include "TrivialSerialisation/Common/interface/TrivialSerialiserFactory.h"
+#include "TrivialSerialisation/Common/interface/TrivialSerialiserSourceFactory.h"
+#include "TrivialSerialisation/Common/interface/TrivialSerialiserBase.h"
 
 namespace edmtest {
 
@@ -136,48 +136,33 @@ namespace edmtest {
     for (auto& product : eventProducts_) {
       edm::Handle<edm::WrapperBase> handle(product.objectType_.typeInfo());
 
-      printf("Mangled of type name: %s\n", product.objectType_.typeInfo().name());
-      printf("Cloning product of type %s\n", product.wrappedType_.name().c_str());
-
-
       event.getByToken(product.getToken_, handle);
+
       edm::WrapperBase const* wrapper = handle.product();
+      std::unique_ptr<edm::WrapperBase> clone(static_cast<edm::WrapperBase*>(product.wrappedType_.getClass()->New()));
 
+      // Object from which, for a given type, we can initialize both a const and a mutable serialiser.
+      std::unique_ptr<ngt::TrivialSerialiserSourceBase> serialiserSource{
+          ngt::TrivialSerialiserSourceFactory::get()->create(product.objectType_.typeInfo().name())};
 
-      // Get the serialiser from the Plugin Factory
-      std::unique_ptr<ngt::TrivialSerialiserBase> serialiser{ngt::TrivialSerialiserFactory::get()->create(product.objectType_.typeInfo().name(), 42)};
+      // initialise a const and a mutable serialisers.
+      auto const_serialiser = serialiserSource->initialize(*wrapper);
+      auto mutable_serialiser = serialiserSource->initialize(*clone);
 
-      
-      if (serialiser) {
-        printf("Type %s has a serialiser plugin\n", product.objectType_.name().c_str());
-      }
-      else {
-        printf("Type %s does not have a serialiser plugin\n", product.objectType_.name().c_str());
-      }
-
-
-
-      std::unique_ptr<edm::WrapperBase> clone(
-          reinterpret_cast<edm::WrapperBase*>(product.wrappedType_.getClass()->New()));
-
-      printf("Wrapper type: %s\n", wrapper->dynamicTypeInfo().name());
-      printf("Clone type:   %s\n", clone->dynamicTypeInfo().name());
-
-    
-      if (serialiser->hasTrivialCopyTraits()) {
-
+      if (mutable_serialiser->hasTrivialCopyTraits()) {
         // mark the clone as present
         clone->markAsPresent();
 
         // initialise the clone, if the type requires it
-        if (serialiser->hasTrivialCopyProperties()) {
-          serialiser->trivialCopyInitialize(*clone, serialiser->trivialCopyParameters(*wrapper));
+        if (mutable_serialiser->hasTrivialCopyProperties()) {
+          mutable_serialiser->trivialCopyInitialize(const_serialiser->trivialCopyParameters());
         }
 
+
         // copy the source regions to the target
-        auto sources = serialiser->trivialCopyRegions(*wrapper);
-        auto targets = serialiser->trivialCopyRegions(*clone);
-        // auto targets = serialiser_clone->trivialCopyRegions(*clone);
+        auto targets = mutable_serialiser->trivialCopyRegions();
+        auto sources = const_serialiser->trivialCopyRegions();
+
         assert(sources.size() == targets.size());
         for (size_t i = 0; i < sources.size(); ++i) {
           assert(sources[i].data() != nullptr);
@@ -187,7 +172,7 @@ namespace edmtest {
         }
 
         // finalize the clone after the trivialCopy, if the type requires it
-        serialiser->trivialCopyFinalize(*clone);
+        mutable_serialiser->trivialCopyFinalize();
       } else {
         // Use ROOT-based serialisation and deserialisation to clone the wrapped object.
 

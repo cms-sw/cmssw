@@ -7,6 +7,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "TrivialSerialisation/Common/interface/TrivialCopyTraits.h"
 #include "DataFormats/Common/interface/Uninitialized.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"

@@ -2,6 +2,7 @@
 #define TrivialSerialisation_Common_interface_TrivialSerialiserBase_h
 
 #include "DataFormats/Common/interface/AnyBuffer.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 // #include "TrivialSerialisation/Common/interface/TrivialSerialiser.h"
 // #include "TrivialSerialisation/Common/interface/TrivialSerialiserSourceFactory.h"
