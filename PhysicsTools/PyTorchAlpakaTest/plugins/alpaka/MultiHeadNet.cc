@@ -46,10 +46,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       auto input_records = particles.const_view().records();
       auto output_records = multi_head_output.view().records();
       // input tensor definition
-      TensorRegistry inputs(batch_size);
+      TensorRegistry<Device> inputs(batch_size);
       inputs.register_tensor<ParticleSoA>("particles", input_records.pt(), input_records.eta(), input_records.phi());
       // output tensor definition
-      TensorRegistry outputs(batch_size);
+      TensorRegistry<Device> outputs(batch_size);
       outputs.register_tensor<MultiHeadNetSoA>("regression_head", output_records.regression_head());
       outputs.register_tensor<MultiHeadNetSoA>("classification_head", output_records.classification_head());
 

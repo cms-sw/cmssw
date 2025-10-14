@@ -7,11 +7,11 @@
 #include <type_traits>
 #include <vector>
 
+#include <alpaka/alpaka.hpp>
 #include <ATen/core/ScalarType.h>
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "PhysicsTools/PyTorch/interface/TorchInterface.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/Policy.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorHandle.h"
 
 namespace cms::torch::alpakatools {
@@ -49,11 +49,32 @@ namespace cms::torch::alpakatools {
   template <typename TSoAParamsImpl, typename... Others>
   concept SameScalarType = SameTypes<typename TSoAParamsImpl::ScalarType, typename Others::ScalarType...>;
 
-  template <typename T>
-  ::torch::ScalarType get_type() {
-    return ::torch::CppTypeToScalarType<T>();
-  }
-
+  // Container for user defined memory blobs that will be converted to PyTorch tensors constructs directly from
+  // provided recipies and contiguous memory blocks
+  //
+  // Provided memory blocks must be of the same type and to be contiguous e.g.:
+  //
+  // GENERATE_SOA_LAYOUT(ParticleLayout,
+  //                     SOA_COLUMN(float, pt),
+  //                     SOA_COLUMN(float, eta),
+  //                     SOA_COLUMN(float, phi))
+  //
+  // can register the following:
+  // TensorRegistry<Device> registry(batch_size);
+  // registry.register_tensor<ParticleLayout>("features", records.pt(), records.eta(), records.phi());
+  //
+  // but if want to use only pt() and phi() then below will not work as pt() and phi() are not contiguous:
+  // TensorRegistry<Device> registry(batch_size);
+  // registry.register_tensor<ParticleLayout>("features", records.pt(), records.phi());
+  //
+  // potential solution would be to arrange layout dependent on model requirements
+  // GENERATE_SOA_LAYOUT(ParticleLayout,
+  //                     SOA_COLUMN(float, pt),
+  //                     SOA_COLUMN(float, phi),  note features position was swapped to ensure continuity
+  //                     SOA_COLUMN(float, eta))
+  //
+  template <typename TDev>
+    requires alpaka::isDevice<TDev>
   class TensorRegistry {
   public:
     explicit TensorRegistry(int batch_size) : batch_size_(batch_size) {}
@@ -65,9 +86,9 @@ namespace cms::torch::alpakatools {
                          int batch_size,
                          std::tuple<TSoAParamsImpl, cms::soa::size_type> column,
                          std::tuple<Others, cms::soa::size_type>... others) {
-      using data_t = typename TSoAParamsImpl::ScalarType;
+      using DataType = typename TSoAParamsImpl::ScalarType;
       auto [ptr, stride] = std::get<0>(column).tupleOrPointer();
-      int n_elems = getElementsPerColumn(batch_size, SoALayout::alignment, sizeof(data_t));
+      int n_elems = num_elements_per_column(batch_size, SoALayout::alignment, sizeof(DataType));
       assert_location(
           n_elems * TSoAParamsImpl::ValueType::RowsAtCompileTime * TSoAParamsImpl::ValueType::ColsAtCompileTime,
           ptr,
@@ -81,7 +102,7 @@ namespace cms::torch::alpakatools {
       else
         tensor_dims = {1 + sizeof...(Others), TSoAParamsImpl::ValueType::RowsAtCompileTime};
 
-      emplace_tensor<data_t>(name, SoALayout::alignment, ptr, batch_size, tensor_dims);
+      emplace_tensor(name, SoALayout::alignment, ptr, batch_size, tensor_dims);
     }
 
     // SOA_EIGEN_COLUMN with default batch size
@@ -100,14 +121,11 @@ namespace cms::torch::alpakatools {
                          int batch_size,
                          std::tuple<TSoAParamsImpl, cms::soa::size_type> column,
                          std::tuple<Others, cms::soa::size_type>... others) {
-      using data_t = typename TSoAParamsImpl::ScalarType;
-      int n_elems = getElementsPerColumn(batch_size, SoALayout::alignment, sizeof(data_t));
+      using DataType = typename TSoAParamsImpl::ScalarType;
+      int n_elems = num_elements_per_column(batch_size, SoALayout::alignment, sizeof(DataType));
       assert_location(n_elems, std::get<0>(column).tupleOrPointer(), std::get<0>(others).tupleOrPointer()...);
-      emplace_tensor<data_t>(name,
-                             SoALayout::alignment,
-                             std::get<0>(column).tupleOrPointer(),
-                             batch_size,
-                             std::vector<int>{1 + sizeof...(Others)});
+      auto ptr = std::get<0>(column).tupleOrPointer();
+      emplace_tensor(name, SoALayout::alignment, ptr, batch_size, {1 + sizeof...(Others)});
     }
 
     // SOA_COLUMN with default batch size
@@ -125,8 +143,8 @@ namespace cms::torch::alpakatools {
     void register_tensor(const std::string& name,
                          int batch_size,
                          std::tuple<SoAParametersImpl<column_t, T>, cms::soa::size_type> column) {
-      const auto* ptr = std::get<0>(column).tupleOrPointer();
-      emplace_tensor<T>(name, SoALayout::alignment, ptr, batch_size);
+      auto ptr = std::get<0>(column).tupleOrPointer();
+      emplace_tensor(name, SoALayout::alignment, ptr, batch_size, {1}, true);
     }
 
     // SOA_SCALAR with default batch size
@@ -145,36 +163,38 @@ namespace cms::torch::alpakatools {
       order_ = std::move(order);
     }
     size_t size() const { return registry_.size(); }
-    const PortableTensorHandle& operator[](const size_t index) const { return registry_.at(order_[index]); }
+    ITensorHandle& operator[](const size_t index) const { return *registry_.at(order_[index]); }
 
     template <typename TQueue>
       requires ::alpaka::isQueue<TQueue>
-    void copyToHost(const TQueue& queue) {
+    void copy(TQueue& queue, const MemcpyKind kind) {
       for (const auto& name : order_)
-        registry_.at(name).copyToHost(queue);
+        registry_.at(name)->copy(&queue, kind);
       // explicit synchronize to ensure data is in place before inference
-      alpaka::wait(queue);
-    }
-
-    template <typename TQueue>
-      requires ::alpaka::isQueue<TQueue>
-    void copyToDevice(const TQueue& queue) {
-      for (const auto& name : order_)
-        registry_.at(name).copyToDevice(queue);
-      // no need to explicitly synchronize, rely on implicit synchronization mechanism in framework
+      // no need to explicitly synchronize D2D/H2D, rely on implicit synchronization mechanism in framework
+      if (kind == MemcpyKind::DeviceToHost)
+        alpaka::wait(queue);
     }
 
   private:
-    template <typename T>
-    void emplace_tensor(
-        const std::string& name, size_t alignment, const void* ptr, int batch_size, std::vector<int> dims = {}) {
-      registry_.try_emplace(name, alignment, sizeof(T), ptr, get_type<T>(), batch_size, std::move(dims));
+    // propagate pointer (Tptr) and type to distinguish between T* and const T* and trigger internal copy.
+    template <typename Tptr>
+    void emplace_tensor(const std::string& name,
+                        size_t alignment,
+                        Tptr ptr,
+                        int batch_size,
+                        std::vector<int> dims = {1},
+                        const bool is_scalar = false) {
+      using T = std::remove_pointer_t<Tptr>;
+      registry_.try_emplace(
+          name,
+          std::make_unique<TensorHandle<TDev, T>>(alignment, sizeof(T), ptr, batch_size, std::move(dims), is_scalar));
       order_.push_back(name);
     }
 
     int batch_size_;
     std::vector<std::string> order_;
-    std::map<std::string, PortableTensorHandle> registry_;
+    std::unordered_map<std::string, std::unique_ptr<ITensorHandle>> registry_;
   };
 
 }  // namespace cms::torch::alpakatools

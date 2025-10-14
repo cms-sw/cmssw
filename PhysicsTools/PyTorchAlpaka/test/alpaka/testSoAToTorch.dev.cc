@@ -7,13 +7,11 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/SoAConversion.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/TensorRegistry.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
-  constexpr auto modelPath = "PhysicsTools/PyTorch/data/linear_dnn.pt";
+  constexpr auto modelPath = "PhysicsTools/PyTorchAlpaka/data/linear_dnn.pt";
 
   using namespace ALPAKA_ACCELERATOR_NAMESPACE::torch;
   using namespace cms::torch::alpakatools;
@@ -47,7 +45,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, PortableCollection<SoAPosition, Device>::View view) const {
       float input[4][3] = {{1, 2, 1}, {2, 4, 3}, {3, 4, 1}, {2, 3, 2}};
-
       for (int32_t i : cms::alpakatools::uniform_elements(acc, view.metadata().size())) {
         view.x()[i] = input[i][0];
         view.y()[i] = input[i][1];
@@ -105,26 +102,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     model.to(queue);
 
     // Create SoA Metadata
-    TensorRegistry input(batch_size);
-    auto posview = positionCollection.view().records();
+    TensorRegistry<Device> input(batch_size);
+    auto posview = positionCollection.const_view().records();
     input.register_tensor<SoAPosition>("main", posview.x(), posview.y(), posview.z());
 
-    TensorRegistry output(batch_size);
+    TensorRegistry<Device> output(batch_size);
     auto view = resultCollection.view().records();
     output.register_tensor<SoAResult>("result", view.x(), view.y());
 
     // Call inference
     model.forward(queue, input, output);
     check(queue, resultCollection);
-
-    PortableHostCollection<SoAResult> resultHostCollection(batch_size, cms::alpakatools::host());
-    alpaka::memcpy(queue, resultHostCollection.buffer(), resultCollection.buffer());
-    alpaka::wait(queue);
-
-    for (uint32_t i = 0; i < batch_size; i++) {
-      std::cout << "(" << resultHostCollection.view().x()[i] << ", " << resultHostCollection.view().y()[i] << ")"
-                << std::endl;
-    }
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest

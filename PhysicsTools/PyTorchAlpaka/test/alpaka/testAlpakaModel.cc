@@ -10,7 +10,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
-  constexpr auto modelPath = "PhysicsTools/PyTorch/data/linear_dnn.pt";
+  constexpr auto modelPath = "PhysicsTools/PyTorchAlpaka/data/linear_dnn.pt";
 
   using namespace ALPAKA_ACCELERATOR_NAMESPACE::torch;
   using namespace cms::torch::alpakatools;

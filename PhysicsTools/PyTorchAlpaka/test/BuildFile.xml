@@ -20,7 +20,7 @@
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="PhysicsTools/PyTorch"/>
   <use name="PhysicsTools/PyTorchAlpaka"/>
-  <flags ALPAKA_BACKENDS="1"/> 
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
 <bin file="alpaka/testAlpakaModel.cc testRunner.cc" name="testAlpakaModel">

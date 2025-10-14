@@ -12,6 +12,8 @@ namespace cms::torch {
 
   using AotPkgLoader = ::torch::inductor::AOTIModelPackageLoader;
 
+  // Note that this solution is in the beta state not stable for production use (experimental only).
+  //
   // wrapper of AOTIModelPackageLoader
   // Following torchlib APIs are subject to change due to active development.
   // Authors provide NO BC guarantee for these APIs. Implementation based on 2.6 version.

@@ -46,10 +46,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       auto input_records = particles.const_view().records();
       auto output_records = regression_collection.view().records();
       // input tensor definition
-      TensorRegistry inputs(batch_size);
+      TensorRegistry<Device> inputs(batch_size);
       inputs.register_tensor<ParticleSoA>("particles", input_records.pt(), input_records.eta(), input_records.phi());
       // output tensor definition
-      TensorRegistry outputs(batch_size);
+      TensorRegistry<Device> outputs(batch_size);
       outputs.register_tensor<SimpleNetSoA>("regression_head", output_records.reco_pt());
 
       // inference, queue guard restore stream when goes out of scope
