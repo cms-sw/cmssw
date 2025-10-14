@@ -666,7 +666,7 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   h_SVNoVtx_mass_JPsi_->setAxisTitle("Mass [GeV]", 1);
   h_SVNoVtx_mass_JPsi_->setAxisTitle("Vertices", 2);
 
-  h_SVNoVtx_mass_Z_ = ibooker.book1D("SVNoVtx_mass", "SVNoVtx mass Z", 50, 80, 100);
+  h_SVNoVtx_mass_Z_ = ibooker.book1D("SVNoVtx_mass_Z", "SVNoVtx mass Z", 50, 80, 100);
   h_SVNoVtx_mass_Z_->setAxisTitle("Mass [GeV]", 1);
   h_SVNoVtx_mass_Z_->setAxisTitle("Vertices", 2);
 
