@@ -20,6 +20,7 @@ import warnings
 import urllib.request
 import urllib.error
 from pathlib import Path
+from matplotlib import colors as _mcolors
 
 # Suppress numpy warnings about subnormal float values
 warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
@@ -72,6 +73,25 @@ class DQMPlotter:
             processors if processors is not None else multiprocessing.cpu_count()
         )
 
+    def _extend_color_palette(self, needed: int):
+        """Ensure self.colors has at least 'needed' distinct entries."""
+        if needed <= len(self.colors):
+            return
+        
+        extra_needed = needed - len(self.colors)
+        new_colors = []
+
+        cmap = plt.colormaps["hsv"]
+        for i in range(max(extra_needed, 1)):
+            rgba = cmap(i / max(extra_needed, 1))
+            hexcol = _mcolors.to_hex(rgba, keep_alpha=False)
+            if hexcol not in self.colors and hexcol not in new_colors:
+                new_colors.append(hexcol)
+            if len(new_colors) >= extra_needed:
+                break
+
+        self.colors.extend(new_colors)
+
     def root_to_numpy(self, hist):
         """
         Convert ROOT histogram to numpy arrays.
@@ -92,7 +112,7 @@ class DQMPlotter:
         bin_labels = []
         for i in range(1, n_bins + 1):
             label = hist.GetXaxis().GetBinLabel(i)
-            bin_labels.append(self._clean_bin_label(label) if label else str(i))
+            bin_labels.append(self._clean_bin_label(label) if label else "")
         
         # Only use extracted labels if meaningful
         has_labels = any(label and not label.isdigit() for label in bin_labels)
@@ -103,27 +123,21 @@ class DQMPlotter:
         """Clean up bin label for better readability."""
         return label.replace("TrackSelectionHighPurity", "HP")
 
-    def _apply_axis_scaling(self, ax, xlabel, ylabel, title, logy=False):
+    def _apply_axis_scaling(self, ax, xlabel, ylabel, title, logy=False, has_negative_values=False):
         """Apply log scaling to axes based on content and user settings."""
         if logy:
-            y_min, y_max = ax.get_ylim()
-            if y_max <= 0:
+            if has_negative_values:
                 output_file = getattr(self, '_current_output_path', 'unknown')
-                print(f"\nWarning: Cannot set log scale for plot '{title}' (output: {output_file}) - no positive y-values (y_max: {y_max})")
+                print(f"\nWarning: Cannot set log scale for plot '{title}' (output: {output_file}) - plot contains negative y-values")
             else:
                 ax.set_yscale("log")
 
         # Automatic log scale for specific variable types
         if "p_{\mathrm{T}}" in xlabel and "pull" not in xlabel.lower():
             ax.set_xscale("log")
-            xlabel = r"$p_{\mathrm{T}}$ [GeV]"
 
         if ("p_{\mathrm{T}}" in ylabel and "pull" not in ylabel.lower()) or "Sigma" in title:
-            y_min, y_max = ax.get_ylim()
-            if y_max <= 0:
-                output_file = getattr(self, '_current_output_path', 'unknown')
-                print(f"\nWarning: Cannot set log scale for plot '{title}' (output: {output_file}) - no positive y-values (y_max: {y_max})")
-            else:
+            if not has_negative_values:
                 ax.set_yscale("log")
         
         if "vertpos" in xlabel:
@@ -285,7 +299,6 @@ class DQMPlotter:
         if legend_title and len(legend_title) > 30:
             legend_title_fontsize = "x-small"
 
-        
         if place_outside:
             y_min, y_max = ax.get_ylim()
             y_range = y_max - y_min
@@ -387,42 +400,48 @@ class DQMPlotter:
         xlabel = title
         ylabel = "Occurrences"
 
-        if " vs " in title:
+        vs_regex = re.compile(r'[_\s]+vs[_\s]+', re.IGNORECASE)
+        if vs_regex.search(title):
+            used_underscore_delim = "_vs_" in title.lower()
+            parts = vs_regex.split(title, maxsplit=1)
+            left, right = parts[0].strip(), parts[1].strip()
+
+            if used_underscore_delim:
+                left = left.replace("_", " ")
+                right = right.replace("_", " ")
+
             if "#sigma(" in title.lower():
-                parts = title.split(" vs ", 1)
-                ylabel = parts[0].strip()[parts[0].find('(') + 1 : (parts[0].rfind(')'))]
-                ylabel = r"$\delta$" + ylabel + "/" + ylabel
+                core = left[left.find("(") + 1 : left.rfind(")")]
+                ylabel = r"$\delta$" + core + "/" + core
+                right_clean = right
                 if "Mean" in title:
                     ylabel = "<" + ylabel + ">"
-                    parts[1] = parts[1].replace("Mean", "")
+                    right_clean = right_clean.replace("Mean", "")
                 elif "Sigma" in title:
                     ylabel = r"$\sigma$(" + ylabel + ")"
-                    parts[1] = parts[1].replace("Sigma", "")
-                xlabel = parts[1].strip()
+                    right_clean = right_clean.replace("Sigma", "")
+                xlabel = right_clean.strip()
             elif "Mean" in title:
-                title_clean = title.replace("Mean", "").strip()
-                parts = title_clean.split(" vs ", 1)
-                ylabel = "<" + parts[0].strip() + ">"
-                xlabel = parts[1].strip()
+                right_clean = right.replace("Mean", "").strip()
+                ylabel = "<" + left + ">"
+                xlabel = right_clean
             elif "Sigma" in title:
-                title_clean = title.replace("Sigma", "").strip()
-                parts = title_clean.split(" vs ", 1)
-                ylabel = r"$\sigma$" + "<" + parts[0].strip() + ">"
-                xlabel = parts[1].strip()
+                right_clean = right.replace("Sigma", "").strip()
+                ylabel = r"$\sigma$<" + left + ">"
+                xlabel = right_clean
             else:
-                # Format: "ylabel vs xlabel"
-                parts = title.split(" vs ", 1)
-                ylabel = parts[0].strip()
-                xlabel = parts[1].strip()
-
-                # For profile histograms, replace mean with <...>
-                if hist.InheritsFrom("TProfile"):
+                # Default: "ylabel vs xlabel"
+                ylabel = left
+                xlabel = right
+                if hist.InheritsFrom("TProfile") and "mean " in ylabel:
                     ylabel = ylabel.replace("mean ", "<") + ">"
         else:
             # Pull plots
             if "pull" not in title.lower():
                 if "eta" in title.lower():
                     xlabel = r"$\eta$"
+                elif "pt2" in title.lower():
+                    xlabel = r"$p_{\mathrm{T}}^2$"
                 elif "pt" in title.lower():
                     xlabel = r"$p_{\mathrm{T}}$"
                 elif "phi" in title.lower():
@@ -453,8 +472,6 @@ class DQMPlotter:
             ("#eta", r"$\eta$"),
             ("#phi", r"$\phi$"),
             ("#theta", r"$\theta$"),
-            ("#mu", r"$\mu$"),
-            ("#pi", r"$\pi$"),
             ("#alpha", r"$\alpha$"),
             ("#beta", r"$\beta$"),
             ("#gamma", r"$\gamma$"),
@@ -466,23 +483,46 @@ class DQMPlotter:
             ("#chi", r"$\chi$"),
             ("#nu", r"$\nu$"),
             ("#tau", r"$\tau$"),
+            ("pt2", r"$p_{\mathrm{T}}^2$"),
+            ("Pt2", r"$p_{\mathrm{T}}^2$"),
+            ("pT2", r"$p_{\mathrm{T}}^2$"),
             ("p_{T}", r"$p_{\mathrm{T}}$"),
             ("p_{t}", r"$p_{\mathrm{T}}$"),
-            ("E_{T}", r"$E_{\mathrm{T}}$"),
             ("pT", r"$p_{\mathrm{T}}$"),
-            ("ET", r"$E_T$"),
+            ("pt", r"$p_{\mathrm{T}}$"),
             ("GeV/c^{2}", r"GeV/$c^2$"),
             ("GeV/c", r"GeV/$c$"),
             ("^{2}", r"$^2$"),
             ("number of", "#"),
             ("Number of", "#"),
-            ("N of", "#"),
-            ("n of", "#"),
         ]
 
         result = text
         for root_notation, mathtext_notation in conversions:
             result = result.replace(root_notation, mathtext_notation)
+
+        # Replace standalone tokens without #
+        token_map = {
+            "eta": r"$\eta$",
+            "phi": r"$\phi$",
+            "theta": r"$\theta$",
+            "alpha": r"$\alpha$",
+            "beta": r"$\beta$",
+            "gamma": r"$\gamma$",
+            "delta": r"$\delta$",
+            "sigma": r"$\sigma$",
+            "chi": r"$\chi$"
+        }
+        # Tokens not preceded by letter/digit/_ or backslash and not followed by letter/digit/_.
+        pattern = re.compile(
+            r'(?<![A-Za-z0-9_\\])(' + "|".join(token_map.keys()) + r')(?![A-Za-z0-9_])',
+            re.IGNORECASE,
+        )
+
+        def _token_repl(m):
+            return token_map[m.group(1).lower()]
+
+        result = pattern.sub(_token_repl, result)
 
         return result
 
@@ -590,6 +630,7 @@ class DQMPlotter:
         ref_errors = None
         has_labels = False
         bin_labels = None
+        has_negative_values = False
 
         all_ratios = []
         ref_centers = ref_contents = ref_errors = None
@@ -624,22 +665,22 @@ class DQMPlotter:
         label_size = "medium" if len(visible_ylabel) < 20 else "small"
         if title:
             ax_main.set_title(title, pad=50)
-        
-        xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy)
+        has_negative_values = np.any(bin_contents <= 0)
+        xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, has_negative_values)
 
-        if not has_labels:
-            ax_main.set_xlabel(xlabel)
-
-        # Set x-ticks for collection plots to follow track collection names
-        if "collection" in title.lower():
+        # Set custom labels if available
+        if has_labels:
             ax_main.set_xticks(
                 ref_centers,
                 bin_labels,
-                size="small",
+                size="small" if len(bin_labels) < 10 else "xx-small",
                 rotation=45,
                 ha="right",
                 va="top",
             )
+            ax_main.tick_params(axis="x", which="minor", bottom=False)
+        else:
+            ax_main.set_xlabel(xlabel)
 
         ax_main.set_ylabel(ylabel, fontsize=label_size)
 
@@ -678,18 +719,18 @@ class DQMPlotter:
             else:
                 ax_ratio.set_ylim(0.5, 1.5)
 
-            if not has_labels:
-                ax_ratio.set_xlabel(xlabel)
-
-            if "collection" in title.lower():
+            if has_labels:
                 ax_ratio.set_xticks(
                     ref_centers,
                     bin_labels,
-                    size="small",
+                    size="small" if len(bin_labels) < 10 else "xx-small",
                     rotation=45,
                     ha="right",
                     va="top",
                 )
+                ax_ratio.tick_params(axis="x", which="minor", bottom=False)
+            else:
+                ax_ratio.set_xlabel(xlabel)
 
             ax_ratio.set_ylabel("Ratio")
             ax_ratio.axhline(y=1, color="black", linestyle="--", alpha=0.7)
@@ -711,7 +752,7 @@ class DQMPlotter:
         hist_pattern,
         labels=None,
         output_dir="plots",
-        check_n_files=True,
+        more_files=False,
         create_web_index=False,
         **plot_kwargs,
     ):
@@ -723,16 +764,25 @@ class DQMPlotter:
             hist_pattern: Regex pattern to match histogram paths
             labels: Labels for each file (uses filename if None)
             output_dir: Output directory for plots
-            check_n_files: Whether to enforce the 10-file limit
+            more_files: Color palette will be extended to support more than 10 files if True
             create_web_index: Whether to create index.php files for web viewing
             **plot_kwargs: Additional arguments for plot_comparison
         """
-        if check_n_files:
+        if more_files:
+            self._extend_color_palette(len(file_paths))
+        else:
             if len(file_paths) > 10:
                 raise ValueError(
                     f"Default color palette supports a maximum of 10 files, got {len(file_paths)}. "
                     "Please reduce the number of input files or use the option --more-files if you are really sure of what you are doing."
                 )
+
+        # Normalize patterns to a list
+        patterns = (
+            list(hist_pattern)
+            if isinstance(hist_pattern, (list, tuple, set))
+            else [hist_pattern]
+        )
 
         if labels is None:
             labels = []
@@ -742,7 +792,6 @@ class DQMPlotter:
                     legend_label = legend_label.replace("DQM_", "")
                 labels.append(legend_label)
         elif isinstance(labels, str):
-            # Get legend entries from comma-separated string
             labels = [label.strip() for label in labels.split(",")]
 
         if len(labels) != len(file_paths):
@@ -751,8 +800,9 @@ class DQMPlotter:
             )
 
         all_matching_hists = set()
+        hist_to_pattern = {}  # remember which pattern matched each histogram
 
-        print("Scanning all files for histograms matching the pattern...")
+        print("Scanning all files for histograms matching the pattern(s)...")
         for i, file_path in enumerate(file_paths):
             try:
                 root_file = ROOT.TFile.Open(file_path, "READ")
@@ -760,17 +810,24 @@ class DQMPlotter:
                     print(f"Error: Could not open {file_path}")
                     continue
 
-                file_hists = self.find_histograms_in_file(root_file, hist_pattern)
-                all_matching_hists.update(file_hists)
-                root_file.Close()
+                total_for_file = 0
+                for pat in patterns:
+                    file_hists = self.find_histograms_in_file(root_file, pat)
+                    total_for_file += len(file_hists)
+                    all_matching_hists.update(file_hists)
+                    # Set first matching pattern for each hist if not already set
+                    for hp in file_hists:
+                        hist_to_pattern.setdefault(hp, pat)
 
-                print(f"Found {len(file_hists)} matching histograms in {file_path}")
+                root_file.Close()
+                print(f"Found {total_for_file} matching histograms in {file_path}")
 
             except Exception as e:
                 print(f"Error scanning {file_path}: {e}")
 
         if not all_matching_hists:
-            print(f"No histograms matching pattern '{hist_pattern}' found in any file")
+            joined = ", ".join(map(str, patterns))
+            print(f"No histograms matching pattern(s) '{joined}' found in any file")
             return
 
         print(
@@ -780,9 +837,10 @@ class DQMPlotter:
 
         plot_tasks = []
         for hist_path in matching_hists:
-            # Generate output path preserving folder structure based on regex match
+            # Use the specific pattern that matched this histogram for path generation
+            matched_pat = hist_to_pattern.get(hist_path, patterns[0])
             output_path = self._generate_output_path(
-                hist_path, hist_pattern, output_dir
+                hist_path, matched_pat, output_dir
             )
 
             plot_tasks.append(
@@ -790,14 +848,14 @@ class DQMPlotter:
                     "file_paths": file_paths,
                     "hist_path": hist_path,
                     "labels": labels,
+                    "colors": self.colors,
                     "output_path": output_path,
                     "plot_kwargs": plot_kwargs,
                 }
             )
 
-        self._compare_files(plot_tasks)
+        self._process_files(plot_tasks)
 
-        # Create web index files if requested
         if create_web_index:
             print("Adding php index files for web viewing...")
             self._create_web_index_files(output_dir)
@@ -862,7 +920,7 @@ class DQMPlotter:
             n_index += 1
         print(f"Created index.php files in {n_index} directories for web viewing")
 
-    def _compare_files(self, plot_tasks):
+    def _process_files(self, plot_tasks):
         """Process plotting tasks using multiprocessing."""
         print(f"Using {self.processors} parallel processes")
 
@@ -901,107 +959,6 @@ class DQMPlotter:
                 print(f"\n{failed} tasks failed out of {len(plot_tasks)} total")
         print()
 
-    def _process_collection_histogram(
-        self, file_paths, hist_path, labels, output_path, plot_kwargs
-    ):
-        """Process a collection comparison histogram with unified track collections."""
-        self._current_output_path = output_path
-        all_collections = set()
-        file_histograms = {}
-
-        for file_path, label in zip(file_paths, labels):
-            try:
-                root_file = ROOT.TFile.Open(file_path, "READ")
-                if not root_file or root_file.IsZombie():
-                    print(f"Warning: Could not open {file_path}")
-                    continue
-
-                hist = root_file.Get(hist_path)
-                if not hist:
-                    print(f"Warning: Histogram {hist_path} not found in {file_path}")
-                    root_file.Close()
-                    continue
-
-                # Extract bin labels (track collections)
-                n_bins = hist.GetNbinsX()
-                collections = []
-                for i in range(1, n_bins + 1):
-                    label_text = hist.GetXaxis().GetBinLabel(i)
-                    if label_text:
-                        collections.append(label_text)
-                        all_collections.add(label_text)
-
-                # Store histogram data
-                hist_clone = hist.Clone(f"hist_{label}")
-                hist_clone.SetDirectory(0)
-                file_histograms[label] = {
-                    "histogram": hist_clone,
-                    "collections": collections,
-                }
-
-                root_file.Close()
-
-            except Exception as e:
-                print(f"Error processing {file_path}: {e}")
-                continue
-
-        if not file_histograms:
-            print(f"No valid histograms found for {hist_path}!")
-            return
-
-        # Sort collections for consistent ordering
-        all_collections = sorted(list(all_collections))
-
-        # Create unified histograms for each file
-        unified_histograms = []
-        valid_labels = []
-
-        first_hist = next(iter(file_histograms.values()))["histogram"]
-        title, xlabel, ylabel = self.extract_labels_from_hist(first_hist)
-
-        for label in labels:
-            if label not in file_histograms:
-                continue
-
-            original_hist = file_histograms[label]["histogram"]
-            file_collections = file_histograms[label]["collections"]
-
-            # Create new histogram with all collections
-            unified_hist = ROOT.TH1D(
-                f"unified_{label}",
-                original_hist.GetTitle(),
-                len(all_collections),
-                0,
-                len(all_collections),
-            )
-            unified_hist.SetDirectory(0)
-
-            # Set bin labels for all collections
-            for i, collection in enumerate(all_collections):
-                unified_hist.GetXaxis().SetBinLabel(i + 1, collection)
-
-            for i, collection in enumerate(file_collections):
-                if collection in all_collections:
-                    unified_bin = all_collections.index(collection) + 1
-                    original_bin = i + 1
-
-                    content = original_hist.GetBinContent(original_bin)
-                    error = original_hist.GetBinError(original_bin)
-
-                    unified_hist.SetBinContent(unified_bin, content)
-                    unified_hist.SetBinError(unified_bin, error)
-
-            unified_histograms.append(unified_hist)
-            valid_labels.append(label)
-
-        if len(unified_histograms) == 0:
-            print(f"No valid unified histograms created for {hist_path}!")
-            return
-
-        self.plot_comparison(
-            unified_histograms, valid_labels, output_path, **plot_kwargs
-        )
-
 def process_histogram_task(task):
     """Process a single histogram task in a separate process."""
     try:
@@ -1013,12 +970,7 @@ def process_histogram_task(task):
 
         plotter = DQMPlotter()
         plotter._current_output_path = output_path
-
-        if "_coll" in hist_path.lower():
-            plotter._process_collection_histogram(
-                file_paths, hist_path, labels, output_path, plot_kwargs
-            )
-            return
+        plotter.colors = task["colors"]
 
         histograms, valid_labels = plotter._load_histograms(file_paths, hist_path, labels)
 
@@ -1028,7 +980,6 @@ def process_histogram_task(task):
     except Exception as e:
         print(f"Error in process_histogram_task: {e}")
         raise
-
 
 if __name__ == "__main__":
     """Command line interface for DQM plotter."""
@@ -1040,7 +991,10 @@ if __name__ == "__main__":
         "-s",
         "--source",
         required=True,
-        help="Histogram path or regex pattern to match histograms",
+        nargs="+",
+        action="append",
+        help="Histogram path or regex pattern(s) to match. "
+             "Use multiple -s or space-separated values to provide several patterns.",
     )
     parser.add_argument(
         "-l", "--legend", help="Comma-separated list of legend entries for each file"
@@ -1098,9 +1052,12 @@ if __name__ == "__main__":
 
     plotter = DQMPlotter(processors=args.nProcessors)
 
+    # Flatten list of patterns
+    source_patterns = [p for group in args.source for p in group] if isinstance(args.source, list) else [args.source]
+
     plotter.compare_files(
         file_paths=args.files,
-        hist_pattern=args.source,
+        hist_pattern=source_patterns,
         labels=args.legend,
         output_dir=args.output_dir,
         logy=args.logy,
@@ -1113,6 +1070,6 @@ if __name__ == "__main__":
         grid=not args.no_grid,
         plot_histograms=args.histograms,
         save_as_pdf=args.pdf,
-        check_n_files=not args.more_files,
+        more_files=args.more_files,
         create_web_index=args.web,
     )
