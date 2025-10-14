@@ -87,6 +87,10 @@ _MINI_from_MINI = {'-s': 'PAT:Configuration/StandardSequences/REMINI_cff.patAlgo
                    '--eventcontent' : 'MINIAODSIM',
                    '--datatier' : 'MINIAODSIM',
                    '--process': 'M2M'}
+_MINI_from_MINI_data = merge([{'--data': '',
+                               '--eventcontent' : 'MINIAOD',
+                               '--datatier' : 'MINIAOD'},
+                              _MINI_from_MINI])
 steps['HRV_NANO_mc'] = _HARVEST_mc
 steps['HRV3_NANO_mc'] = merge([{'--filein':'file:step3_inDQM.root'},
                                  _HARVEST_mc])
@@ -138,14 +142,14 @@ steps['NANO_mc10.6ul18v2'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_106Xv2',
 # HIPM_UL2016_MiniAODv2 campaign is CMSSW_10_6_25
 steps['MuonEG2016MINIAOD10.6v2'] = {'INPUT': InputInfo(location='STD', ls=run2_lumis,
                                                        dataSet='/MuonEG/Run2016E-HIPM_UL2016_MiniAODv2-v2/MINIAOD')}
-steps['M2M_data10.6ul16'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2016UL']])
+steps['M2M_data10.6ul16'] = merge([_MINI_from_MINI_data, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2016UL']])
 steps['NANO_data10.6ul16v2'] = merge([{'--era': 'Run2_2016_HIPM,run2_nanoAOD_106Xv2',
                                      '--conditions': 'auto:run2_data'},
                                       _NANO_data])
 # UL2017_MiniAODv2 campaign is CMSSW_10_6_20
 steps['MuonEG2017MINIAOD10.6v2'] = {'INPUT': InputInfo(location='STD', ls=run2_lumis,
                                                        dataSet='/MuonEG/Run2017F-UL2017_MiniAODv2-v1/MINIAOD')}
-steps['M2M_data10.6ul17'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2017UL']])
+steps['M2M_data10.6ul17'] = merge([_MINI_from_MINI_data, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2017UL']])
 steps['NANO_data10.6ul17v2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv2',
                                      '--conditions': 'auto:run2_data'},
                                       _NANO_data])
@@ -153,7 +157,7 @@ steps['NANO_data10.6ul17v2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv2',
 # UL2018_MiniAODv2 campaign is CMSSW_10_6_20
 steps['MuonEG2018MINIAOD10.6v2'] = {'INPUT': InputInfo(location='STD', ls=run2_lumis,
                                                        dataSet='/MuonEG/Run2018D-UL2018_MiniAODv2-v1/MINIAOD')}
-steps['M2M_data10.6ul18'] = merge([_MINI_from_MINI, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2018UL']])
+steps['M2M_data10.6ul18'] = merge([_MINI_from_MINI_data, {'--procModifiers':'run2_miniAOD_miniAODUL'}, steps['REMINIAOD_data2018UL']])
 steps['NANO_data10.6ul18v2'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_106Xv2',
                                      '--conditions': 'auto:run2_data'},
                                       _NANO_data])
@@ -234,7 +238,7 @@ steps['ScoutingPFRun3_Run2023D_RAW_130X'] = {'INPUT': InputInfo(
 steps['ScoutingPFMonitor_Run2023D_RAW_130X'] = {'INPUT': InputInfo(
     dataSet='/ScoutingPFMonitor/Run2023D-v1/RAW', label='2023D', events=100000, location='STD', ls=Run2023D)}
 
-steps['M2M_data13.0'] = merge([_MINI_from_MINI, {'--era': 'Run3', '--conditions': 'auto:run3_data', '--procModifier': 'run3_miniAOD_miniAODpre142X'}])
+steps['M2M_data13.0'] = merge([_MINI_from_MINI_data, {'--era': 'Run3', '--conditions': 'auto:run3_data', '--procModifier': 'run3_miniAOD_miniAODpre142X'}])
 steps['NANO_data13.0'] = merge([{'--era': 'Run3_2023,run3_nanoAOD_pre142X', '--conditions': 'auto:run3_data'},
                                 _NANO_data])
 steps['NANO_data_23reMINI'] = merge([{'--era': 'Run3_2023', '--conditions': 'auto:run3_data'},
