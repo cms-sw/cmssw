@@ -144,7 +144,6 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   // ETL structure prints
   edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "\n";
-  sunitt_ << "\n";
   CheckETLstructure(*pDD);
 
   edm::LogVerbatim("MTDUnitTest") << sunitt_.str();
@@ -199,7 +198,6 @@ void MTDDigiGeometryAnalyzer::checkPixelsAcceptance(const GeomDetUnit& det) {
 
 void MTDDigiGeometryAnalyzer::CheckETLstructure(const MTDGeometry& geom) {
   edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "\n--- ETL Structure Validation ---";
-  sunitt_ << "\n--- ETL Structure Validation ---";
 
   // Reset counters
   for (int d = 0; d < 4; ++d) {
@@ -261,10 +259,10 @@ void MTDDigiGeometryAnalyzer::CheckETLstructure(const MTDGeometry& geom) {
 
   // --- Print Summary ---
 
-  sunitt_ << " Total ETL Detectors (LGADs): " << totalETLdets << "\n";
+  edm::LogVerbatim("MTDDigiGeometryAnalyzer") << " Total ETL Detectors (LGADs): " << totalETLdets << "\n";
   const char* diskNames[4] = {"Disc 1 (-Z)", "Disc 2 (-Z)", "Disc 1 (+Z)", "Disc 2 (+Z)"};
 
-  sunitt_ << "\n--- LGADs per Eta Bin and per Disk, DiscSide, Sector ---\n";
+  edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "\n--- LGADs per Eta Bin and per Disk, DiscSide, Sector ---\n";
   for (int d = 0; d < 4; ++d) {  // Physical Disk loop (0-3)
     std::string disk_name = diskNames[d];
     uint32_t total_disk = 0;
@@ -273,30 +271,30 @@ void MTDDigiGeometryAnalyzer::CheckETLstructure(const MTDGeometry& geom) {
         total_disk += LGADsPerDiscSideSector_[d][k][l];
       }
     }
-    sunitt_ << "Region: " << disk_name << " | Total LGADs: " << total_disk << "\n";
-    sunitt_ << "  - LGADs per Eta Bin:\n";
+    edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "Region: " << disk_name << " | Total LGADs: " << total_disk << "\n";
+    edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "  - LGADs per Eta Bin:\n";
     const double* eta_edges = (d < 2) ? eta_bins_edges_neg : eta_bins_edges_pos;
     for (int j = 0; j < n_bin_Eta; ++j) {
-      sunitt_ << "    Eta [" << std::setprecision(1) << std::fixed << eta_edges[j] << ", " << eta_edges[j + 1]
-              << "): " << LGADsPerDiskperEtaBin_[d][j] << "\n";
+      edm::LogVerbatim("MTDDigiGeometryAnalyzer")
+          << "    Eta [" << std::setprecision(1) << std::fixed << eta_edges[j] << ", " << eta_edges[j + 1]
+          << "): " << LGADsPerDiskperEtaBin_[d][j] << "\n";
     }
     for (int k = 0; k < n_discSide; ++k) {
       uint32_t total_discside = 0;
       for (int l = 1; l < n_sector; ++l) {
         total_discside += LGADsPerDiscSideSector_[d][k][l];
       }
-      sunitt_ << "  - Side: " << k << " | Total LGADs: " << total_discside << "\n";
-      sunitt_ << "    - Sectors: ";
+      edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "  - Side: " << k << " | Total LGADs: " << total_discside << "\n";
+      edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "    - Sectors: ";
       for (int l = 1; l < n_sector; ++l) {
         if (LGADsPerDiscSideSector_[d][k][l] > 0) {
-          sunitt_ << "Sec " << l << ": " << LGADsPerDiscSideSector_[d][k][l] << " | ";
+          edm::LogVerbatim("MTDDigiGeometryAnalyzer")
+              << "Sec " << l << ": " << LGADsPerDiscSideSector_[d][k][l] << " | ";
         }
       }
-      sunitt_ << "\n";
+      edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "\n";
     }
   }
-
-  edm::LogVerbatim("MTDDigiGeometryAnalyzer") << sunitt_.str();
 }
 
 //define this as a plug-in
