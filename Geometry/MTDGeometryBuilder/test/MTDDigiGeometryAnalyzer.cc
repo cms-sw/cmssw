@@ -70,7 +70,7 @@ private:
   // LGAD counter per Disc, DiscSide, and Sector: [disk][discSide][sector]
   static constexpr int n_discSide = 2;
   static constexpr int n_sector = 3;  // Use size 3 to allow 1-based indexing (1 to 2)
-  uint32_t LGADsPerDiscSideSector_[4][n_discSide][n_sector] = {{{{0}}}};
+  uint32_t LGADsPerDiscSideSector_[4][n_discSide][n_sector] = {};
 
   // Counter for total LGADs per disk per eta bin: [disk][eta_bin]
   uint32_t LGADsPerDiskperEtaBin_[4][n_bin_Eta] = {{0}};

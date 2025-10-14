@@ -324,37 +324,37 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   meNhitsPerLGAD_[0] = ibook.book1D("EtlNhitsPerLGADZnegD1",
                                     "Number of ETL DIGI hits (-Z, Single(topo1D)/First(topo2D) disk) per LGAD;N_{DIGI}",
-                                    50,
+                                    20,
                                     0.,
-                                    50.);
+                                    20.);
   meNhitsPerLGAD_[1] =
-      ibook.book1D("EtlNhitsPerLGADZnegD2", "Number of ETL DIGI hits (-Z, Second disk) per LGAD;N_{DIGI}", 50, 0., 50.);
+      ibook.book1D("EtlNhitsPerLGADZnegD2", "Number of ETL DIGI hits (-Z, Second disk) per LGAD;N_{DIGI}", 20, 0., 20.);
   meNhitsPerLGAD_[2] = ibook.book1D("EtlNhitsPerLGADZposD1",
                                     "Number of ETL DIGI hits (+Z, Single(topo1D)/First(topo2D) disk) per LGAD;N_{DIGI}",
-                                    50,
+                                    20,
                                     0.,
-                                    50.);
+                                    20.);
   meNhitsPerLGAD_[3] =
-      ibook.book1D("EtlNhitsPerLGADZposD2", "Number of ETL DIGI hits (+Z, Second disk) per LGAD;N_{DIGI}", 50, 0., 50.);
+      ibook.book1D("EtlNhitsPerLGADZposD2", "Number of ETL DIGI hits (+Z, Second disk) per LGAD;N_{DIGI}", 20, 0., 20.);
 
   meNLgadWithHits_[0] = ibook.book1D("EtlNLgadWithHitsZnegD1",
                                      "Number of ETL LGADs with at least 1 DIGI hit (-Z, D1);N_{LGAD with hit}",
-                                     100,
+                                     50,
                                      0.,
                                      4000.);
   meNLgadWithHits_[1] = ibook.book1D("EtlNLgadWithHitsZnegD2",
                                      "Number of ETL LGADs with at least 1 DIGI hit (-Z, D2);N_{LGAD with hit}",
-                                     100,
+                                     50,
                                      0.,
                                      4000.);
   meNLgadWithHits_[2] = ibook.book1D("EtlNLgadWithHitsZposD1",
                                      "Number of ETL LGADs with at least 1 DIGI hit (+Z, D1);N_{LGAD with hit}",
-                                     100,
+                                     50,
                                      0.,
                                      4000.);
   meNLgadWithHits_[3] = ibook.book1D("EtlNLgadWithHitsZposD2",
                                      "Number of ETL LGADs with at least 1 DIGI hit (+Z, D2);N_{LGAD with hit}",
-                                     100,
+                                     50,
                                      0.,
                                      4000.);
 
@@ -365,7 +365,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         Q_Min,
                         Q_Max,
                         0.,
-                        50.);
+                        20.);
   meNhitsPerLGADoverQ_[1] =
       ibook.bookProfile("EtlNhitsPerLGADvsQThZnegD2",
                         "ETL DIGI Hits per LGAD vs Q Threshold (-Z, D2);Q Threshold [ADC counts];<N_{DIGI} per LGAD>",
@@ -373,7 +373,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         Q_Min,
                         Q_Max,
                         0.,
-                        50.);
+                        20.);
   meNhitsPerLGADoverQ_[2] =
       ibook.bookProfile("EtlNhitsPerLGADvsQThZposD1",
                         "ETL DIGI Hits per LGAD vs Q Threshold (+Z, D1);Q Threshold [ADC counts];<N_{DIGI} per LGAD>",
@@ -381,7 +381,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         Q_Min,
                         Q_Max,
                         0.,
-                        50.);
+                        20.);
   meNhitsPerLGADoverQ_[3] =
       ibook.bookProfile("EtlNhitsPerLGADvsQThZposD2",
                         "ETL DIGI Hits per LGAD vs Q Threshold (+Z, D2);Q Threshold [ADC counts];<N_{DIGI} per LGAD>",
@@ -389,7 +389,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         Q_Min,
                         Q_Max,
                         0.,
-                        50.);
+                        20.);
 
   meNLgadWithHitsoverQ_[0] = ibook.bookProfile(
       "EtlNLgadWithHitsvsQThZnegD1",
@@ -430,28 +430,28 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         n_bin_Eta,
                         eta_bins_edges_neg,
                         0.,
-                        50.);
+                        20.);
   meNhitsPerLGADoverEta_[1] =
       ibook.bookProfile("EtlNhitsPerLGADvsEtaZnegD2",
                         "ETL DIGI Hits per LGAD vs Eta Bin (-Z, D2);#eta_{DIGI};<N_{DIGI} per LGAD>",
                         n_bin_Eta,
                         eta_bins_edges_neg,
                         0.,
-                        50.);
+                        20.);
   meNhitsPerLGADoverEta_[2] =
       ibook.bookProfile("EtlNhitsPerLGADvsEtaZposD1",
                         "ETL DIGI Hits per LGAD vs Eta Bin (+Z, D1);#eta_{DIGI};<N_{DIGI} per LGAD>",
                         n_bin_Eta,
                         eta_bins_edges_pos,
                         0.,
-                        50.);
+                        20.);
   meNhitsPerLGADoverEta_[3] =
       ibook.bookProfile("EtlNhitsPerLGADvsEtaZposD2",
                         "ETL DIGI Hits per LGAD vs Eta Bin (+Z, D2);#eta_{DIGI};<N_{DIGI} per LGAD>",
                         n_bin_Eta,
                         eta_bins_edges_pos,
                         0.,
-                        50.);
+                        20.);
 
   meNLgadWithHitsoverEta_[0] = ibook.bookProfile(
       "EtlNLgadWithHitsvsEtaZnegD1",
