@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "DataFormats/Common/interface/Wrapper.h"
 

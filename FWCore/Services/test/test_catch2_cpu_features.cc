@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "cpu_features/cpu_features_macros.h"
 

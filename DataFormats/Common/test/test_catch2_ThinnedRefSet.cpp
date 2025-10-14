@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/ThinnedRefSet.h"

@@ -5,7 +5,7 @@ Changed by Viji on 29-06-2005
 
  ----------------------------------------------------------------------*/
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <cassert>
 #include <cstdint>
 #include <iostream>

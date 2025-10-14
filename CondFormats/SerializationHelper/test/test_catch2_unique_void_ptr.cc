@@ -10,7 +10,7 @@
 //         Created:  Wed, 31 May 2023 15:24:23 GMT
 //
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include "CondFormats/SerializationHelper/interface/unique_void_ptr.h"
 
 using namespace cond::serialization;

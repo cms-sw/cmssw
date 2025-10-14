@@ -16,7 +16,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometryPtr.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometryMayOwnPtr.h"
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 namespace {
   class DummyCell : public CaloCellGeometry {

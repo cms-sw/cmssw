@@ -6,7 +6,7 @@
  *
  */
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <iostream>
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include <map>

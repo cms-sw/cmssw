@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>

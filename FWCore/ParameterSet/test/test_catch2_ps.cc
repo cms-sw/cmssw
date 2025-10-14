@@ -1,7 +1,7 @@
 /*
  */
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -17,6 +17,9 @@
 namespace edm {
   bool operator!=(const edm::EventRange& iLHS, const edm::EventRange& iRHS) {
     return ((iLHS.startEventID() != iRHS.startEventID()) or (iLHS.endEventID() != iRHS.endEventID()));
+  }
+  bool operator==(const edm::EventRange& iLHS, const edm::EventRange& iRHS) {
+    return ((iLHS.startEventID() == iRHS.startEventID()) or (iLHS.endEventID() == iRHS.endEventID()));
   }
 }  // namespace edm
 namespace {

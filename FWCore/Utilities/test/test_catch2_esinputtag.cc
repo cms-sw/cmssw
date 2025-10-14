@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <string>
 
 #include "FWCore/Utilities/interface/EDMException.h"

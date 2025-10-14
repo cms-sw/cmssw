@@ -8,7 +8,7 @@ Changed by Viji on 29-06-2005
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include "FWCore/Utilities/interface/TypeID.h"
 
 namespace edmtest {
