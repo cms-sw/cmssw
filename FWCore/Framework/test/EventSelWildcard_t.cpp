@@ -1,5 +1,5 @@
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -105,7 +105,7 @@ namespace {
         << "jmask = " << jmask << "\n";
     }
     REQUIRE_THAT(answer,
-                 Catch::Predicate<bool>(
+                 Catch::Matchers::Predicate<bool>(
                      [a, b, aa](bool answer) { return a == answer and b == answer and aa == answer; }, s.str()));
 
     // Repeat putting the list of trigger names in the pset
@@ -128,7 +128,8 @@ namespace {
         << "mask=" << mask << "\n"
         << "jmask = " << jmask << "\n";
     }
-    REQUIRE_THAT(answer, Catch::Predicate<bool>([x, y](bool answer) { return x == answer and y == answer; }, s.str()));
+    REQUIRE_THAT(
+        answer, Catch::Matchers::Predicate<bool>([x, y](bool answer) { return x == answer and y == answer; }, s.str()));
   }
 
   void testall(const Strings& paths, const VStrings& patterns, const VBools& masks, const Answers& answers) {

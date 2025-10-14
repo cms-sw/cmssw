@@ -1,7 +1,7 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/SoATemplate/interface/SoACommon.h"

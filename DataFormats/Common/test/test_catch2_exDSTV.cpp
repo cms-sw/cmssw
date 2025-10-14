@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <functional>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 namespace {
   struct T {
