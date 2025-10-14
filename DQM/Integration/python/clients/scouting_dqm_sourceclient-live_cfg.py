@@ -40,6 +40,9 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
+# import beamspot
+from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer as _onlineBeamSpotProducer
+process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
 
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
@@ -61,7 +64,12 @@ process.GlobalTag.toGet.append(
  )
 )
 
-process.p = cms.Path(process.dqmcommon * process.scoutingCollectionMonitor * process.ScoutingMuonMonitoring * process.ScoutingJetMonitoring * process.ScoutingElectronMonitoring)
+process.p = cms.Path(process.dqmcommon *
+                     process.hltOnlineBeamSpot *
+                     process.scoutingCollectionMonitor *
+                     process.ScoutingMuonMonitoring *
+                     process.ScoutingJetMonitoring *
+                     process.ScoutingElectronMonitoring)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
