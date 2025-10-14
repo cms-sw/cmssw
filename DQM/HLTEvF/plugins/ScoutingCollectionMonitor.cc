@@ -989,7 +989,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(topfoldername_);
 
   // Book multiplicity histograms in the topfolder
-  nTracks_hist = ibook.book1D("nTracks", "Number of Tracks;N_{tracks};Entries", 115, 0, 115);
+  nTracks_hist = ibook.book1D("nTracks", "Number of Tracks;N_{tracks};Entries", 400, 0, 400);
   nPrimaryVertices_hist = ibook.book1D("nPrimaryVertices", "Number of Primary Vertices;N_{PV};Entries", 51, 0, 50);
   nDisplacedVertices_hist =
       ibook.book1D("nDisplacedVertices", "Number of Displaced Vertices (Vtx);N_{DV};Entries", 10, 0, 10);
