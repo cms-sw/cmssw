@@ -24,6 +24,7 @@ It is based on the preexisting work of the scouting group and can be found at gi
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -72,7 +73,7 @@ private:
   void setToken(edm::EDGetTokenT<T>& token, const edm::ParameterSet& iConfig, std::string name) {
     const auto inputTag = iConfig.getParameter<edm::InputTag>(name);
     if (!inputTag.encode().empty()) {
-      token = consumes(inputTag);
+      token = mayConsume<T>(inputTag);
     }
   }
 
@@ -117,6 +118,7 @@ private:
   const edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> pfjetsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
   const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   const std::string topfoldername_;
 
   // calo rechits (only 2025 V1.3 onwards, see https://its.cern.ch/jira/browse/CMSHLT-3607)
@@ -125,6 +127,18 @@ private:
   edm::EDGetTokenT<Run3ScoutingEBRecHitCollection> ebCleanedRecHitsToken_;
   edm::EDGetTokenT<Run3ScoutingEERecHitCollection> eeCleanedRecHitsToken_;
   edm::EDGetTokenT<Run3ScoutingHBHERecHitCollection> hbheRecHitsToken_;
+
+  // Multiplicity histograms
+  dqm::reco::MonitorElement* nTracks_hist;
+  dqm::reco::MonitorElement* nPrimaryVertices_hist;
+  dqm::reco::MonitorElement* nDisplacedVertices_hist;
+  dqm::reco::MonitorElement* nDisplacedVerticesNoVtx_hist;
+  dqm::reco::MonitorElement* nMuons_hist;
+  dqm::reco::MonitorElement* nMuonsVtx_hist;
+  dqm::reco::MonitorElement* nElectrons_hist;
+  dqm::reco::MonitorElement* nPhotons_hist;
+  dqm::reco::MonitorElement* nPFJets_hist;
+  dqm::reco::MonitorElement* nPFCands_hist;
 
   // pv vs PU and rho vs PU plots
   int primaryVertex_counter = 0;
@@ -405,6 +419,8 @@ private:
   dqm::reco::MonitorElement* tk_chi2_prob_hist;
   dqm::reco::MonitorElement* tk_PV_dxy_hist;
   dqm::reco::MonitorElement* tk_PV_dz_hist;
+  dqm::reco::MonitorElement* tk_BS_dxy_hist;
+  dqm::reco::MonitorElement* tk_BS_dz_hist;
 
   // calo rechits histrograms (ECAL has two version, cleaned and unclean)
   dqm::reco::MonitorElement* ebRecHitsNumber_hist[2];
@@ -445,6 +461,7 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
       pfjetsToken_(consumes<std::vector<Run3ScoutingPFJet>>(iConfig.getParameter<edm::InputTag>("pfjets"))),
       tracksToken_(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))),
       onlineMetaDataDigisToken_(consumes(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
+      beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       topfoldername_(iConfig.getParameter<std::string>("topfoldername")) {
   setToken(ebRecHitsToken_, iConfig, "pfRecHitsEB");
   setToken(eeRecHitsToken_, iConfig, "pfRecHitsEE");
@@ -520,6 +537,18 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   rho_hist->Fill(*rhoH);
   pfMetPhi_hist->Fill(*pfMetPhiH);
   pfMetPt_hist->Fill(*pfMetPtH);
+
+  // --- Fill multiplicity histograms ---
+  nTracks_hist->Fill(tracksH->size());
+  nPrimaryVertices_hist->Fill(primaryVerticesH->size());
+  nDisplacedVertices_hist->Fill(verticesH->size());
+  nDisplacedVerticesNoVtx_hist->Fill(verticesNoVtxH->size());
+  nMuons_hist->Fill(muonsH->size());
+  nMuonsVtx_hist->Fill(muonsVtxH->size());
+  nElectrons_hist->Fill(electronsH->size());
+  nPhotons_hist->Fill(photonsH->size());
+  nPFJets_hist->Fill(PFjetsH->size());
+  nPFCands_hist->Fill(pfcandsH->size());
 
   // fill the PF candidate histograms (no electrons!)
 
@@ -798,6 +827,15 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   for (const auto& vtx : *verticesNoVtxH)
     fillVtxHistograms(vtx, 1);
 
+  // determine the beamspot position (if it exists in the event)
+  std::unique_ptr<Run3ScoutingVertex> beamspotVertex{nullptr};
+  edm::Handle<reco::BeamSpot> beamSpotH;
+  if (getValidHandle(iEvent, beamSpotToken_, beamSpotH, "beamSpot")) {
+    const auto& beamspot = *beamSpotH;
+    beamspotVertex = std::make_unique<Run3ScoutingVertex>(
+        beamspot.x0(), beamspot.y0(), beamspot.z0(), 0., 0., 0., 0., 0., true, 0., 0., 0., 0);
+  }
+
   // fill tracks histograms
   for (const auto& tk : *tracksH) {
     tk_pt_tk_hist->Fill(tk.tk_pt());
@@ -840,6 +878,13 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
 
     tk_PV_dxy_hist->Fill(best_offset.first);
     tk_PV_dz_hist->Fill(best_offset.second);
+
+    // skip beamspot-based plots if not valid
+    if (beamspotVertex) {
+      auto bs_offset = trk_vtx_offSet(tk, *beamspotVertex);
+      tk_BS_dxy_hist->Fill(bs_offset.first);
+      tk_BS_dz_hist->Fill(bs_offset.second);
+    }
   }
 
   // Define helper lambdas for EB and EE rechits
@@ -942,6 +987,20 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::Run const& run,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(topfoldername_);
+
+  // Book multiplicity histograms in the topfolder
+  nTracks_hist = ibook.book1D("nTracks", "Number of Tracks;N_{tracks};Entries", 400, 0, 400);
+  nPrimaryVertices_hist = ibook.book1D("nPrimaryVertices", "Number of Primary Vertices;N_{PV};Entries", 51, 0, 50);
+  nDisplacedVertices_hist =
+      ibook.book1D("nDisplacedVertices", "Number of Displaced Vertices (Vtx);N_{DV};Entries", 10, 0, 10);
+  nDisplacedVerticesNoVtx_hist =
+      ibook.book1D("nDisplacedVerticesNoVtx", "Number of Displaced Vertices (NoVtx);N_{DV}^{NoVtx};Entries", 10, 0, 10);
+  nMuons_hist = ibook.book1D("nMuons", "Number of Muons (NoVtx);N_{muons};Entries", 10, 0, 10);
+  nMuonsVtx_hist = ibook.book1D("nMuonsVtx", "Number of Muons (Vtx);N_{muons}^{Vtx};Entries", 10, 0, 10);
+  nElectrons_hist = ibook.book1D("nElectrons", "Number of Electrons;N_{ele};Entries", 10, 0, 10);
+  nPhotons_hist = ibook.book1D("nPhotons", "Number of Photons;N_{photon};Entries", 25, 0, 25);
+  nPFJets_hist = ibook.book1D("nPFJets", "Number of PF Jets;N_{jet};Entries", 101, 0, 100);
+  nPFCands_hist = ibook.book1D("nPFCands", "Number of PF Candidates;N_{pfcand};Entries", 1001, 0, 1000);
 
   rho_hist = ibook.book1D("rho", "#rho; #rho; Entries", 100, 0.0, 60.0);
   pfMetPhi_hist = ibook.book1D("pfMetPhi", "pf MET #phi; #phi ;Entries", 100, -3.14, 3.14);
@@ -1341,6 +1400,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_chi2_prob_hist = ibook.book1DD("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
   tk_PV_dz_hist = ibook.book1DD("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.35, 0.35);
   tk_PV_dxy_hist = ibook.book1DD("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.15, 0.15);
+  tk_BS_dxy_hist = ibook.book1D("tk_BS_dxy", "Track dxy w.r.t. BeamSpot;dxy_{BS} (cm);Entries", 100, -0.5, 0.5);
+  tk_BS_dz_hist = ibook.book1D("tk_BS_dz", "Track dz w.r.t. BeamSpot;dz_{BS} (cm);Entries", 100, -20.0, 20.0);
 
   // book the calo rechits histograms
   const std::array<std::string, 2> caloLabels = {{"All", "Cleaned"}};
@@ -1448,6 +1509,7 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
   desc.add<edm::InputTag>("rho", edm::InputTag("hltScoutingPFPacker", "rho"));
   desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis"));
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
   desc.add<edm::InputTag>("pfRecHitsEB", edm::InputTag("hltScoutingRecHitPacker", "EB"));
   desc.add<edm::InputTag>("pfRecHitsEE", edm::InputTag("hltScoutingRecHitPacker", "EE"));
   desc.add<edm::InputTag>("pfRecHitsHBHE", edm::InputTag("hltScoutingRecHitPacker", "HBHE"));
