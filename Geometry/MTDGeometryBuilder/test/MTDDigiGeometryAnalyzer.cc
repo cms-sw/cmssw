@@ -142,6 +142,9 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   auto const& etldet = *(dynamic_cast<const MTDGeomDetUnit*>(pDD->detsETL().front()));
   checkPixelsAcceptance(etldet);
 
+  // ETL structure prints
+  edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "\n";
+  sunitt_ << "\n";
   CheckETLstructure(*pDD);
 
   edm::LogVerbatim("MTDUnitTest") << sunitt_.str();
