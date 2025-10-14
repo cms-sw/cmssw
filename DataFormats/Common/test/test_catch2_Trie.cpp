@@ -19,7 +19,7 @@
 **   modified by Vincenzo Innocente on 15/08/2007
 */
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include <iostream>
 #include <sstream>
 #include <list>

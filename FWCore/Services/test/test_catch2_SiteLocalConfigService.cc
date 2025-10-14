@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
   std::string dirString;

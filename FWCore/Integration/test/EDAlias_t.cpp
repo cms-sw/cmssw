@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -81,11 +81,13 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
   edm::test::TestProcessor::Config config{baseConfig};
 
   SECTION("Alias with two instances pointing to the same product is not allowed") {
-    REQUIRE_THROWS_WITH(
-        edm::test::TestProcessor(config),
-        Catch::Contains("EDAlias conflict") && Catch::Contains("is used for multiple products of type") &&
-            Catch::Contains("with module label") && Catch::Contains("and instance name") &&
-            Catch::Contains("alias has the instance name") && Catch::Contains("and the other has the instance name"));
+    REQUIRE_THROWS_WITH(edm::test::TestProcessor(config),
+                        Catch::Matchers::ContainsSubstring("EDAlias conflict") &&
+                            Catch::Matchers::ContainsSubstring("is used for multiple products of type") &&
+                            Catch::Matchers::ContainsSubstring("with module label") &&
+                            Catch::Matchers::ContainsSubstring("and instance name") &&
+                            Catch::Matchers::ContainsSubstring("alias has the instance name") &&
+                            Catch::Matchers::ContainsSubstring("and the other has the instance name"));
   }
 }
 
@@ -112,9 +114,11 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
 
   SECTION("Alias with two instances pointing to the same product is not allowed") {
     REQUIRE_THROWS_WITH(edm::test::TestProcessor(config),
-                        Catch::Contains("EDAlias conflict") && Catch::Contains("and product instance alias") &&
-                            Catch::Contains("are used for multiple products of type") &&
-                            Catch::Contains("One has module label") && Catch::Contains("the other has module label"));
+                        Catch::Matchers::ContainsSubstring("EDAlias conflict") &&
+                            Catch::Matchers::ContainsSubstring("and product instance alias") &&
+                            Catch::Matchers::ContainsSubstring("are used for multiple products of type") &&
+                            Catch::Matchers::ContainsSubstring("One has module label") &&
+                            Catch::Matchers::ContainsSubstring("the other has module label"));
   }
 }
 
@@ -232,12 +236,12 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
     {
       edm::test::TestProcessor::Config config{std::format(baseConfig, "'intalias:foo'")};
       edm::test::TestProcessor tester(config);
-      REQUIRE_THROWS_WITH(tester.test(), Catch::Contains("ProductNotFound"));
+      REQUIRE_THROWS_WITH(tester.test(), Catch::Matchers::ContainsSubstring("ProductNotFound"));
     }
     {
       edm::test::TestProcessor::Config config{std::format(baseConfig, "'intalias'")};
       edm::test::TestProcessor tester(config);
-      REQUIRE_THROWS_WITH(tester.test(), Catch::Contains("ProductNotFound"));
+      REQUIRE_THROWS_WITH(tester.test(), Catch::Matchers::ContainsSubstring("ProductNotFound"));
     }
   }
 }
@@ -343,7 +347,8 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
 
     REQUIRE_THROWS_WITH(
         edm::test::TestProcessor(config),
-        Catch::Contains("There are no products with module label 'intprod' and product instance name 'nonexistent'"));
+        Catch::Matchers::ContainsSubstring(
+            "There are no products with module label 'intprod' and product instance name 'nonexistent'"));
   }
 
   SECTION("Instance wildcard") {
@@ -351,7 +356,7 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
         std::format(baseConfig, "intprod = cms.VPSet(cms.PSet(type = cms.string('nonexistentType')))")};
 
     REQUIRE_THROWS_WITH(edm::test::TestProcessor(config),
-                        Catch::Contains("There are no products of type 'nonexistentType'") &&
-                            Catch::Contains("with module label 'intprod'"));
+                        Catch::Matchers::ContainsSubstring("There are no products of type 'nonexistentType'") &&
+                            Catch::Matchers::ContainsSubstring("with module label 'intprod'"));
   }
 }

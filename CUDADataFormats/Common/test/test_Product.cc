@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"

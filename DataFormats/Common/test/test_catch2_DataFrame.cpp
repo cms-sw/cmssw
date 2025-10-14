@@ -4,7 +4,7 @@
 #include <numeric>
 #include <cstring>
 #include <random>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include "DataFormats/Common/interface/DataFrame.h"
 #include "DataFormats/Common/interface/DataFrameContainer.h"
 

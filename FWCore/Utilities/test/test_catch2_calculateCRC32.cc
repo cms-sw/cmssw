@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include "FWCore/Utilities/interface/calculateCRC32.h"
 
 TEST_CASE("test cms::calculateCRC32", "[calculateCRC32]") {
