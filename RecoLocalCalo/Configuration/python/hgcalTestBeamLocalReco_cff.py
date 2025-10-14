@@ -65,9 +65,9 @@ def runRecoForSep2024TB(process):
         cbHeaderMarker=cms.int32(-1),
         charMode=cms.int32(-1),
         econdHeaderMarker=cms.int32(-1),
-        fedjson=cms.string(os.path.abspath('local_daq/ramdisk/run20000000/config_feds_v1.json')),
+        fedjson=cms.FileInPath(os.path.abspath('local_daq/ramdisk/run20000000/config_feds_v1.json')),
         indexSource=cms.ESInputTag("hgCalMappingESProducer", ""),
-        modjson=cms.string(os.path.abspath('local_daq/ramdisk/run20000000/config_econds_v1.json')),
+        modjson=cms.FileInPath(os.path.abspath('local_daq/ramdisk/run20000000/config_econds_v1.json')),
         slinkHeaderMarker=cms.int32(-1))
 
     # Setup HGCal unpacker
@@ -88,7 +88,8 @@ def runRecoForSep2024TB(process):
                                              calibSource=cms.ESInputTag('hgcalCalibParamESProducer', ''),
                                              n_hits_scale=cms.int32(1),
                                              n_blocks=cms.int32(1024),
-                                             n_threads=cms.int32(1024)
+                                             n_threads=cms.int32(1024),
+                                             k_noise=cms.double(5.)
                                              )
 
     from RecoLocalCalo.HGCalRecProducers.hgCalSoARecHitsLayerClustersProducer_cfi import hgCalSoARecHitsLayerClustersProducer

@@ -52,6 +52,19 @@ public:
                         hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
                         bool headerOnlyMode);
 
+  /**
+     @short the 10-bit TOT word is decompressed back to 12 bit word
+     In case truncation occurred the word is shifted by 2 bit
+  */
+  uint16_t decompressToT(uint16_t totraw) const {
+    uint16_t totout(totraw & 0x1ff);
+    if (totraw & 0x200) {
+      totout = ((totraw & 0x1ff) << 3);
+      totout += (1 << 2);
+    }
+    return totout;
+  }
+
 private:
   constexpr static uint8_t tctp_[16] = {
       0b00, 0b00, 0b01, 0b00, 0b00, 0b00, 0b00, 0b00, 0b10, 0b10, 0b10, 0b10, 0b11, 0b11, 0b11, 0b11};
