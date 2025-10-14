@@ -45,7 +45,8 @@ def processModuleTransition(moduleLabel, moduleType, moduleInfo, transitionType,
         # Only process entries that match the transition type AND don't have record names
         # (entries with record names are EventSetup only)
         if (entry.get("transition", None) == transitionType and
-            not ("record" in entry and "name" in entry["record"])):
+            not ("record" in entry and "name" in entry["record"]) and
+            entry.get("activity") == "process"):
             moduleTransition[moduleKey]["allocs"].append(entry.get("alloc", {}))
     moduleTransition[moduleKey]["nTransitions"] = len(moduleTransition[moduleKey]["allocs"])
 
@@ -237,8 +238,9 @@ def main(args):
             for moduleLabel, moduleInfo in doc["modules"].items():
                 processESModuleTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, moduleTransition)
         else:
+            # Process the "source" module
+            processModuleTransition("source", moduleTypes["source"], doc["source"], transition, moduleTransition)
             # Regular transition processing
-            processModuleTransition("source", "PoolSource", doc["source"], transition, moduleTransition)
             for moduleLabel, moduleInfo in doc["modules"].items():
                 processModuleTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, transition, moduleTransition)
         moduleTransitions[transition] = moduleTransition
