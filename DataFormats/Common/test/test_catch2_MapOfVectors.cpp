@@ -1,6 +1,6 @@
 #include <vector>
 #include <algorithm>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include "DataFormats/Common/interface/MapOfVectors.h"
 
 typedef edm::MapOfVectors<int, int> MII;

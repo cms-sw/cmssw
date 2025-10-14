@@ -12,7 +12,7 @@
 
 // system include files
 #include <cassert>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 // user include files
 #include "FWCore/Utilities/interface/FileInPath.h"

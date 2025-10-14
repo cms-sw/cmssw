@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "DataFormats/Portable/interface/PortableCollection.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"

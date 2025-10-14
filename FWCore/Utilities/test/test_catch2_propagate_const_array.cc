@@ -4,7 +4,7 @@ Test program for edm::propagate_const_array class.
 
  ----------------------------------------------------------------------*/
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const_array.h"
 

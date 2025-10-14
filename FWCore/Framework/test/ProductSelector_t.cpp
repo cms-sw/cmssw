@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -243,9 +243,9 @@ TEST_CASE("test ProductSelector", "[ProductSelector]") {
     cmds.push_back(bad_rule);
     bad.addUntrackedParameter<std::vector<std::string> >("outputCommands", cmds);
     bad.registerIt();
-    REQUIRE_THROWS_MATCHES(
-        edm::ProductSelectorRules(bad, "outputCommands", "ProductSelectorTest"),
-        edm::Exception,
-        Catch::Predicate<edm::Exception>([](auto const& x) { return x.categoryCode() == edm::errors::Configuration; }));
+    REQUIRE_THROWS_MATCHES(edm::ProductSelectorRules(bad, "outputCommands", "ProductSelectorTest"),
+                           edm::Exception,
+                           Catch::Matchers::Predicate<edm::Exception>(
+                               [](auto const& x) { return x.categoryCode() == edm::errors::Configuration; }));
   }
 }
