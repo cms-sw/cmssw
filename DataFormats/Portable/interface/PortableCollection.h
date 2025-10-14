@@ -1,6 +1,8 @@
 #ifndef DataFormats_Portable_interface_PortableCollection_h
 #define DataFormats_Portable_interface_PortableCollection_h
 
+#include <type_traits>
+
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
