@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
-from RecoMuon.MuonRechitClusterProducer.cscRechitClusterProducer_cfi import cscRechitClusterProducer
-from RecoMuon.MuonRechitClusterProducer.dtRechitClusterProducer_cfi import dtRechitClusterProducer 
-
 unpackedTracksAndVertices = cms.EDProducer('PATTrackAndVertexUnpacker',
                                            slimmedVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                            slimmedSecondaryVertices = cms.InputTag("slimmedSecondaryVertices"),
@@ -79,34 +76,23 @@ displacedInclusiveSecondaryVertices.minSignificance = 10
 displacedInclusiveVertexing = cms.Sequence(unpackedTracksAndVertices * displacedInclusiveVertexFinder  * displacedVertexMerger * displacedTrackVertexArbitrator * displacedInclusiveSecondaryVertices)
 
 # MDSnano tables 
-cscMDSClusterTable = cms.EDProducer("SimpleMuonRecHitClusterFlatTableProducer",
-    src  = cms.InputTag("ca4CSCrechitClusters"),
-    name = cms.string("cscMDSHLTCluster"),
-    doc  = cms.string("MDS cluster at HLT"),
-    variables = cms.PSet(
-        eta = Var("eta", float, doc="cluster eta"),
-        phi = Var("phi", float, doc="cluster phi"),
-        x   = Var("x"  , float, doc="cluster x"),
-        y   = Var("y"  , float, doc="cluster y"),
-        z   = Var("z"  , float, doc="cluster z"),
-        r   = Var("r"  , float, doc="cluster r"),
-        size   = Var("size"  , int, doc="cluster size"),
-        nStation   = Var("nStation"  , int, doc="cluster nStation"),
-        avgStation   = Var("avgStation"  , float, doc="cluster avgStation"),
-        nMB1   = Var("nMB1"  , int, doc="cluster nMB1"),
-        nMB2   = Var("nMB2"  , int, doc="cluster nMB2"),
-        nME11   = Var("nME11"  , int, doc="cluster nME11"),
-        nME12   = Var("nME12"  , int, doc="cluster nME12"),
-        nME41   = Var("nME41"  , int, doc="cluster nME41"),
-        nME42   = Var("nME42"  , int, doc="cluster nME42"),
-        time   = Var("time"  , float, doc="cluster time = avg cathode and anode time"),
-        timeSpread   = Var("timeSpread"  , float, doc="cluster timeSpread")
-    )
+from RecoMuon.MuonRechitClusterProducer.cscRechitClusterProducer_cfi import cscRechitClusterProducer
+from RecoMuon.MuonRechitClusterProducer.dtRechitClusterProducer_cfi import dtRechitClusterProducer 
+
+from PhysicsTools.NanoAOD.cscMDSshowerTable_cfi import cscMDSshowerTable
+from PhysicsTools.NanoAOD.dtMDSshowerTable_cfi import dtMDSshowerTable
+
+cscMDSshowerTable = cscMDSshowerTable.clone( 
+    name = cms.string("cscMDSCluster"),
+    recHitLabel = cms.InputTag("csc2DRecHits"),
+    segmentLabel = cms.InputTag("dt4DSegments"),
+    rpcLabel = cms.InputTag("rpcRecHits")
 )
 
-dtMDSClusterTable = cscMDSClusterTable.clone(
-    src = cms.InputTag("ca4DTrechitClusters"),
-    name= cms.string("dtMDSHLTCluster")
+dtMDSshowerTable = dtMDSshowerTable.clone( 
+    name = cms.string("dtMDSCluster"),
+    recHitLabel = cms.InputTag("dt1DRecHits"),
+    rpcLabel = cms.InputTag("rpcRecHits")
 )
 
 #DSA muon tables
@@ -183,13 +169,13 @@ def add_dispJetTables(process):
 def add_mdsTables(process):
     process.ca4CSCrechitClusters = cscRechitClusterProducer    
     process.ca4DTrechitClusters = dtRechitClusterProducer
-    process.cscMDSClusterTable = cscMDSClusterTable
-    process.dtMDSClusterTable = dtMDSClusterTable 
+    process.cscMDSshowerTable = cscMDSshowerTable
+    process.dtMDSshowerTable = dtMDSshowerTable
 
     process.MDSTask = cms.Task(process.ca4CSCrechitClusters)
     process.MDSTask.add(process.ca4DTrechitClusters)
-    process.MDSTask.add(process.cscMDSClusterTable)
-    process.MDSTask.add(process.dtMDSClusterTable)
+    process.MDSTask.add(process.cscMDSshowerTable)
+    process.MDSTask.add(process.dtMDSshowerTable)
 
     process.nanoTableTaskCommon.add(process.MDSTask)
 
