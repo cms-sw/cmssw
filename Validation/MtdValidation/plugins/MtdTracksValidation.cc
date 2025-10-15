@@ -3118,7 +3118,7 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/Tracks");
-  desc.add<bool>("optionalPlots", true);
+  desc.add<bool>("optionalPlots", false);
   desc.add<edm::InputTag>("inputTagG", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD"));
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));
