@@ -328,7 +328,7 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
   // get the Outer Tracker RecHit collection from the event
   edm::Handle<Phase2TrackerRecHit1DCollectionNew> hitsOT;
   event.getByToken(otRecHits_getToken_, hitsOT);
-  if (!hitsOT.isValid()) {
+  if ((numLayersOT_ > 0) && (!hitsOT.isValid())) {
     return;
   }
 
