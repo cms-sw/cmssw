@@ -36,15 +36,6 @@ def customiseForOffline(process):
             ]
 
     return process
-def customizeHLTFor49147(process):
-    ca_producers_pp = ['CAHitNtupletAlpakaPhase1@alpaka','alpaka_serial_sync::CAHitNtupletAlpakaPhase1']
-    for ca_producer in ca_producers_pp:
-        for prod in producers_by_type(process, ca_producer):
-            if hasattr(prod, 'geometry'):
-                g = getattr(prod, 'geometry')
-                g.startingPairs = cms.vuint32( [i for i in range(8)] + [i for i in range(13,19)])
-                setattr(prod, 'geometry', g) 
-    return process 
 
 def customizeHLTfor48921(process):
     """ This customizer
@@ -181,7 +172,6 @@ def customizeHLTfor48921(process):
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseForOffline(process)
-    process = customizeHLTFor49147(process)
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
