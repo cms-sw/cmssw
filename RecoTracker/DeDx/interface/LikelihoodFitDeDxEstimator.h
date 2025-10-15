@@ -1,6 +1,7 @@
 #ifndef RecoTracker_DeDx_LikelihoodFitDeDxEstimator_h
 #define RecoTracker_DeDx_LikelihoodFitDeDxEstimator_h
 
+#include <cmath>
 #include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 
