@@ -40,6 +40,7 @@ public:
   class Jet : public l1ct::Jet {
   public:
     std::vector<l1ct::PuppiObjEmu> constituents;
+    Particle seed;
   };
 
   L1SCJetEmu(bool debug, float coneSize, unsigned nJets);
