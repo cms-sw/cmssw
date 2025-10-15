@@ -522,11 +522,11 @@ namespace edm::service::moduleAlloc {
       {
         std::ostringstream oss;
         if (!sourceTypesPtr->empty()) {
-            std::vector<std::string> sourceTypeList {1, *sourceTypesPtr};
-            std::vector<std::string> sourceNames {1, "source"};
-            moduleIdToLabelAndType(oss, sourceNames, sourceTypeList, 'S', "Source ID", "Source label", "Source type");
-            logFile->write(oss.str());
-            sourceTypesPtr.reset();
+          std::vector<std::string> sourceTypeList{1, *sourceTypesPtr};
+          std::vector<std::string> sourceNames{1, "source"};
+          moduleIdToLabelAndType(oss, sourceNames, sourceTypeList, 'S', "Source ID", "Source label", "Source type");
+          logFile->write(oss.str());
+          sourceTypesPtr.reset();
         }
       }
       {
