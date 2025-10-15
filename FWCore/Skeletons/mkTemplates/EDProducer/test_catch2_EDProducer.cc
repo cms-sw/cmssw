@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
