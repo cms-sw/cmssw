@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/corrector.h"
 
 #include <cmath>
 #include <vector>
@@ -30,7 +31,7 @@ private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::EDGetTokenT<edm::View<l1t::PFJet>> const jets_;
-  bool const fUseRawPt_;
+  const bool doJEC;
   double const fMinPt_;
   double const fMaxEta_;
   unsigned int const fMaxJets_;
@@ -41,11 +42,12 @@ private:
 
   hls4mlEmulator::ModelLoader loader;
   std::shared_ptr<hls4mlEmulator::Model> model;
+  std::optional<l1tpf::corrector> corrector;
 };
 
 L1TSC4NGJetProducer::L1TSC4NGJetProducer(const edm::ParameterSet& cfg)
     : jets_(consumes<edm::View<l1t::PFJet>>(cfg.getParameter<edm::InputTag>("jets"))),
-      fUseRawPt_(cfg.getParameter<bool>("useRawPt")),
+      doJEC(cfg.getParameter<bool>("doJEC")),
       fMinPt_(cfg.getParameter<double>("minPt")),
       fMaxEta_(cfg.getParameter<double>("maxEta")),
       fMaxJets_(cfg.getParameter<int>("maxJets")),
@@ -64,6 +66,10 @@ L1TSC4NGJetProducer::L1TSC4NGJetProducer(const edm::ParameterSet& cfg)
   }
   fJetId_ = std::make_unique<L1TSC4NGJetID>(model, fNParticles_, isDebugEnabled);
   produces<l1t::PFJetCollection>("l1tSC4NGJets");
+  if (doJEC) {
+    corrector = l1tpf::corrector(
+        cfg.getParameter<std::string>("correctorFile"), cfg.getParameter<std::string>("correctorDir"), -1., isDebugEnabled, true);
+  }
 }
 
 void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -73,17 +79,40 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   for (const auto& srcjet : *jets) {
     l1ct::Jet ctHWTaggedJet = l1ct::Jet::unpack(srcjet.encodedJet(l1t::PFJet::HWEncoding::CT));
-    if (((fUseRawPt_ ? srcjet.rawPt() : srcjet.pt()) < fMinPt_) || std::abs(srcjet.eta()) > fMaxEta_ ||
-        taggedJets.size() >= fMaxJets_) {
+    if (taggedJets.size() >= fMaxJets_) {
       ctHWTaggedJet.clear();
       continue;
     }
-    std::vector<float> JetScore_float = fJetId_->computeFixed(srcjet, fUseRawPt_);
+    L1TSC4NGJetID::outputpairtype JetModel_output = fJetId_->computeFixed(srcjet);
+    std::vector<float> JetScore_float;    
     for (unsigned i = 0; i < classes_.size(); i++) {
-      ctHWTaggedJet.hwTagScores[i] = JetScore_float[i];
+      ctHWTaggedJet.hwTagScores[i] = JetModel_output.second[i];
+      JetScore_float.push_back((float)JetModel_output.second[i]);
     }
-    float PtCorrection_ = JetScore_float[classes_.size()];
-    ctHWTaggedJet.hwPt = (l1ct::pt_t)((float)ctHWTaggedJet.hwPt * PtCorrection_);
+    L1TSC4NGJetID::output_regression_type PtCorrection_ = JetModel_output.first[0];
+    L1TSC4NGJetID::output_regression_type tempPt = ctHWTaggedJet.hwPt;
+
+    // If ctHWTaggedJet within eta and pt range, then apply the correction
+    l1ct::glbeta_t eta_abs = ctHWTaggedJet.hwEta < 0 ? l1ct::glbeta_t(-ctHWTaggedJet.hwEta) : ctHWTaggedJet.hwEta;
+    l1ct::glbeta_t max_eta = fMaxEta_ / l1ct::Scales::ETAPHI_LSB;
+    if (eta_abs < max_eta && ctHWTaggedJet.hwPt > fMinPt_) {
+      tempPt = ctHWTaggedJet.hwPt * PtCorrection_;
+    }
+    else {
+      //If outside of the eta and pt range, clear out the tag scores
+      JetScore_float.clear();
+      for (unsigned i = 0; i < classes_.size(); i++) {
+        ctHWTaggedJet.hwTagScores[i] = 0;
+        JetScore_float.push_back(0);
+      }
+
+      if (doJEC) {
+      float correctedPt = corrector->correctedPt(ctHWTaggedJet.floatPt(), ctHWTaggedJet.floatEta());
+      tempPt = correctedPt;
+      }
+    }
+
+    ctHWTaggedJet.hwPt = l1ct::pt_t(tempPt);
     l1gt::Jet gtHWTaggedJet = ctHWTaggedJet.toGT();
     // TODO set the regressed pT instead of the srcjet pt
     l1t::PFJet edmTaggedJet(srcjet.pt(),
@@ -103,7 +132,6 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     edmTaggedJet.addTagScores(JetScore_float, classes_, PtCorrection_);
     taggedJets.push_back(edmTaggedJet);
   }
-  std::sort(taggedJets.begin(), taggedJets.end(), [](l1t::PFJet a, l1t::PFJet b) { return (a.pt() > b.pt()); });
 
   auto taggedJetsCollection = std::make_unique<l1t::PFJetCollection>();
   taggedJetsCollection->swap(taggedJets);
@@ -113,7 +141,9 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 void L1TSC4NGJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("l1tSC4PFL1PuppiExtendedEmulator"));
-  desc.add<bool>("useRawPt", true);
+  desc.add<bool>("doJEC", true);
+  desc.add<std::string>("correctorFile", "");
+  desc.add<std::string>("correctorDir", "");
   desc.add<std::string>("l1tSC4NGJetModelPath", std::string("L1TSC4NGJetModel_v0"));
   desc.add<int>("maxJets", 16);
   desc.add<int>("nParticles", 16);

@@ -146,7 +146,7 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeSums(const std::vector<l1t::Et
   for (unsigned i = 0; i < nSums; i++) {
     if (2 * i < sums.size()) {
       l1gt::Sum gtSum;
-      gtSum.valid = 1;  // if the sums are sent at all, they are valid
+      gtSum.valid = sums.at(2 * i + 1).hwPt() != 0 || sums.at(2 * i).hwPt() != 0; // In accordance with toGT(), make sure vector and scalar pt are valid
       gtSum.vector_pt.V = sums.at(2 * i + 1).hwPt();
       gtSum.vector_phi.V = sums.at(2 * i + 1).hwPhi();
       gtSum.scalar_pt.V = sums.at(2 * i).hwPt();
