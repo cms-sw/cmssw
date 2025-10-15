@@ -3201,7 +3201,7 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("probK", edm::InputTag("tofPID:probK"));
   desc.add<edm::InputTag>("probP", edm::InputTag("tofPID:probP"));
   desc.add<bool>("useOnlyChargedTracks", true);
-  desc.addUntracked<bool>("optionalPlots", false);
+  desc.addUntracked<bool>("optionalPlots", true);
   desc.add<bool>("use3dNoTime", false);
   desc.add<double>("trackweightTh", 0.5);
   desc.add<double>("mvaTh", 0.8);
