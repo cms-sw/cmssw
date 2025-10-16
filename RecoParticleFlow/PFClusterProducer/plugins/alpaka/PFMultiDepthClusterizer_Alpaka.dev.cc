@@ -121,9 +121,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     // Create algorithm internal resources:
     using Args = CCGAlgorithmArgs<std::remove_cvref_t<decltype(workl)>>;
 
-    auto cc_args =
-        std::unique_ptr<Args>{new Args{queue, mdpfClusteringVars, mdpfClusteringEdgeVars, workl, tp, nClusters}};
-
+    auto cc_args = std::make_unique<Args>(queue, mdpfClusteringVars, mdpfClusteringEdgeVars, workl, tp, nClusters);
     // ECL-CC init stage:
     alpaka::exec<Acc1D>(
         queue, ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock), ECLCCInitKernel{}, cc_args.get());
