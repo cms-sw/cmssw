@@ -159,9 +159,6 @@ public:
   // Boolean to enable T5 DNN branches
   bool t5dnn_branches;
 
-  // Boolean to enable pT3 DNN branches
-  bool pt3dnn_branches;
-
   // Boolean to enable jet branches
   bool jet_branches;
 

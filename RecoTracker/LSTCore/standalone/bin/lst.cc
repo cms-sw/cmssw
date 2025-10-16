@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
       "pls", "Write pLS branches in output ntuple.")("pt3", "Write pT3 branches in output ntuple.")(
       "pt5", "Write pT5 branches in output ntuple.")("occ", "Write occupancy branches in output ntuple.")(
       "t5dnn", "Write T5 DNN branches in output ntuple.")("t3dnn", "Write T3 DNN branches in output ntuple.")(
-      "pt3dnn", "Write pT3 DNN branches in output ntuple.")("allobj", "Write all object branches in output ntuple.")(
+      "allobj", "Write all object branches in output ntuple.")(
       "J,jet", "Accounts for specific jet branches in input root file for testing")(
       "sim", "Write extra sim branches in output ntuple");
 
@@ -295,10 +295,6 @@ int main(int argc, char **argv) {
   //_______________________________________________________________________________
   // --t3dnn
   ana.t3dnn_branches = result["t3dnn"].as<bool>() || result["allobj"].as<bool>();
-
-  //_______________________________________________________________________________
-  // --pt3dnn
-  ana.pt3dnn_branches = result["pt3dnn"].as<bool>() || result["allobj"].as<bool>();
 
   //_______________________________________________________________________________
   // --jet

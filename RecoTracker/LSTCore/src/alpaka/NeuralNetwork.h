@@ -140,7 +140,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   namespace pt3dnn {
 
-    template <typename TAcc>
+    template <typename WP, typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runInference(TAcc const& acc,
                                                      const float rPhiChiSquared,
                                                      const float tripletRadius,
@@ -148,17 +148,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                      const float pixRadiusError,
                                                      const float rzChiSquared,
                                                      const float pixelEta,
-                                                     const float pixelPt) {
-      constexpr unsigned int kInputFeatures = 6;
+                                                     const float pixelPt,
+                                                     const int moduleType3) {
+      constexpr unsigned int kInputFeatures = 7;
       constexpr unsigned int kHiddenFeatures = 32;
       constexpr unsigned int kOutputFeatures = 1;
 
-      float x[kInputFeatures] = {alpaka::math::log10(acc, rPhiChiSquared),
-                                 alpaka::math::log10(acc, tripletRadius),
-                                 alpaka::math::log10(acc, pixelRadius),
-                                 alpaka::math::log10(acc, pixRadiusError),
-                                 alpaka::math::log10(acc, rzChiSquared),
-                                 alpaka::math::abs(acc, pixelEta) / dnn::pt3dnn::kEta_norm};
+      float x[kInputFeatures] = {
+          alpaka::math::log10(acc, rPhiChiSquared),
+          alpaka::math::log10(acc, tripletRadius),
+          alpaka::math::log10(acc, pixelRadius),
+          alpaka::math::log10(acc, pixRadiusError),
+          alpaka::math::log10(acc, rzChiSquared),
+          alpaka::math::abs(acc, pixelEta) / dnn::pt3dnn::kEta_norm,
+          static_cast<float>(moduleType3),
+      };
 
       float x1[kHiddenFeatures];
       float x2[kHiddenFeatures];
@@ -179,9 +183,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                               : static_cast<unsigned int>(alpaka::math::abs(acc, pixelEta) / dnn::kEtaSize);
 
       if (pixelPt > 5.0f)
-        return output > dnn::pt3dnn::kWpHigh;
+        return output > WP::wpHigh();
 
-      return output > dnn::pt3dnn::kWp[bin_index];
+      return output > WP::wp(bin_index);
     }
 
   }  // namespace pt3dnn
