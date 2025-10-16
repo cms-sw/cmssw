@@ -263,6 +263,11 @@ private:
   MonitorElement* meTrackResTotvsMVAQual_;
   MonitorElement* meTrackPullTotvsMVAQual_;
 
+  MonitorElement* meTrackResEtl_;
+  MonitorElement* meTrackResEtlLowEta_;
+  MonitorElement* meTrackResEtlHighEta_;
+  MonitorElement* meTrackResEtlvsEta_;
+
   MonitorElement* meTrackMatchedTPPtTotLV_;
   MonitorElement* meTrackMatchedTPEtaTotLV_;
   MonitorElement* meExtraPtMtd_;
@@ -1413,6 +1418,16 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             meTrackPullTot_->Fill(pullT);
             meTrackResTotvsMVAQual_->Fill(mtdQualMVA[trackref], dT);
             meTrackPullTotvsMVAQual_->Fill(mtdQualMVA[trackref], pullT);
+            if (optionalPlots_) {
+              if (isETL) {
+                meTrackResEtl_->Fill(dT);
+                meTrackResEtlvsEta_->Fill(std::abs(trackGen.eta()), dT);
+                if (std::abs(trackGen.eta()) < 2.1)
+                  meTrackResEtlLowEta_->Fill(dT);  // reduced coverage 1.7 disks option
+                if (std::abs(trackGen.eta()) >= 2.1)
+                  meTrackResEtlHighEta_->Fill(dT);  // full coverage 1.7 disks option
+              }
+            }
           }
         }  // time res and time pull
       }  // TP matching
@@ -2608,6 +2623,36 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       -5.,
       5.,
       "s");
+
+  if (optionalPlots_) {
+    meTrackResEtl_ =
+        ibook.book1D("TrackResEtl",
+                     "t_{rec} - t_{sim} for LV associated tracks matched to TP (ETL); t_{rec} - t_{sim} [ns] ",
+                     120,
+                     -0.15,
+                     0.15);
+    meTrackResEtlLowEta_ =
+        ibook.book1D("TrackResEtlLowEta",
+                     "t_{rec} - t_{sim} for LV associated tracks matched to TP (ETL, low eta); t_{rec} - t_{sim} [ns] ",
+                     120,
+                     -0.15,
+                     0.15);
+    meTrackResEtlHighEta_ = ibook.book1D(
+        "TrackResEtlHighEta",
+        "t_{rec} - t_{sim} for LV associated tracks matched to TP (ETL, high eta); t_{rec} - t_{sim} [ns] ",
+        120,
+        -0.15,
+        0.15);
+    meTrackResEtlvsEta_ = ibook.bookProfile(
+        "TrackResEtlvsEta",
+        "t_{rec} - t_{sim} for LV associated tracks matched to TP vs eta; eta; t_{rec} - t_{sim} [ns] ",
+        30,
+        1.5,
+        3.0,
+        -0.15,
+        0.15,
+        "s");
+  }
 
   meExtraPhiAtBTL_ = ibook.book1D(
       "ExtraPhiAtBTL", "Phi at BTL surface of extrapolated tracks associated to LV; phi [deg]", 720, -180., 180.);
