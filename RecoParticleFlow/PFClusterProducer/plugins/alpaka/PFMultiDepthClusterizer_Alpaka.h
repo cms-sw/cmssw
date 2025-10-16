@@ -36,7 +36,7 @@
  * connected component detection (ECL-CC), and postprocessing.
  */
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
   class PFMultiDepthClusterizer_Alpaka {
   public:
@@ -51,8 +51,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs,
                const reco::PFRecHitDeviceCollection& pfRecHit,
                const PFMultiDepthClusterParams* params,
-               const int nClusters);
+               const unsigned int nClusters);
   };
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc
 
 #endif

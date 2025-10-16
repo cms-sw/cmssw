@@ -30,31 +30,7 @@ using namespace reco;
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  enum class ECLCCStep { INIT, LOW, MID, HIGH, FLATTEN, INVALID_METHOD };
-
-  template <typename TAcc, typename CCAlgo, ECLCCStep step = ECLCCStep::INVALID_METHOD>
-  class CCGAlgoLauncher {
-  public:
-    ALPAKA_FN_ACC auto operator()(
-        TAcc const& acc,
-        CCAlgo cc_algo,
-        reco::PFMultiDepthClusteringVarsDeviceCollection::View mdpfClusteringVars,
-        const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::ConstView mdpfClusteringEdgeVars) const -> void {
-      static_assert(step != ECLCCStep::INVALID_METHOD, "Incorrect method.\n");
-      //
-      if constexpr (step == ECLCCStep::INIT) {
-        cc_algo.init(acc, mdpfClusteringVars, mdpfClusteringEdgeVars);
-      } else if constexpr (step == ECLCCStep::LOW) {
-        cc_algo.compute_low_degree_vertices(acc, mdpfClusteringVars, mdpfClusteringEdgeVars);
-      } else if constexpr (step == ECLCCStep::MID) {
-        cc_algo.compute_mid_degree_vertices(acc, mdpfClusteringVars, mdpfClusteringEdgeVars);
-      } else if constexpr (step == ECLCCStep::HIGH) {
-        cc_algo.compute_high_degree_vertices(acc, mdpfClusteringVars, mdpfClusteringEdgeVars);
-      } else {
-        cc_algo.flatten(acc, mdpfClusteringVars);
-      }
-    }
-  };
+  //using namespace cms::eclcc;
 
   class ECLCCTest {
   public:
@@ -77,49 +53,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto workl = ::cms::alpakatools::make_device_buffer<int[]>(queue, nClusters);
     auto tp = ::cms::alpakatools::make_device_buffer<int[]>(queue, 4);
     // Create algorithm internal resources:
-    auto cc_args = CCGAlgorithmArgs<decltype(workl)>(queue, workl, tp, nClusters);
-    // Create algorithm
-    auto cc_algo = CCGAlgorithm<decltype(cc_args)>(cc_args);
+    auto cc_args = eclcc::CCGAlgorithmArgs<decltype(workl)>(
+        queue, mdpfClusteringVars, mdpfClusteringEdgeVars, workl, tp, nClusters);
 
+    auto cc_args_ptr = &cc_args;
     // ECL-CC init stage:
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        CCGAlgoLauncher<Acc1D, decltype(cc_algo), ECLCCStep::INIT>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
+    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCInitKernel{}, cc_args_ptr);
 
     // ECL-CC run low-degree hooking:
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        CCGAlgoLauncher<Acc1D, decltype(cc_algo), ECLCCStep::LOW>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
-
+    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCLowDegreeComputeKernel{}, cc_args_ptr);
     // ECL-CC run mid-degree hooking:
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        CCGAlgoLauncher<Acc1D, decltype(cc_algo), ECLCCStep::MID>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
-
+    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCMidDegreeComputeKernel{}, cc_args_ptr);
     // ECL-CC run high-degree hooking:
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        CCGAlgoLauncher<Acc1D, decltype(cc_algo), ECLCCStep::HIGH>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
-
+    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCHighDegreeComputeKernel{}, cc_args_ptr);
     // ECL-CC run finalizing stage:
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        CCGAlgoLauncher<Acc1D, decltype(cc_algo), ECLCCStep::FLATTEN>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
+    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCFlattenKernel{}, cc_args_ptr);
 
     alpaka::wait(queue);
   }

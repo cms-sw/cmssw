@@ -61,7 +61,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::EDPutToken<reco::PFClusterDeviceCollection> outputPFClusterSoA_Token_;
     const device::EDPutToken<reco::PFRecHitFractionDeviceCollection> outputPFRHFractionsSoA_Token_;
 
-    std::optional<PFMultiDepthClusterizer_Alpaka> clusterizer_;
+    std::optional<eclcc::PFMultiDepthClusterizer_Alpaka> clusterizer_;
   };
 
   void PFMultiDepthClusterSoAProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

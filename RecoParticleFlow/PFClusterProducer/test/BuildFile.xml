@@ -83,3 +83,14 @@
   <use name="RecoParticleFlow/PFClusterProducer"/>
   <flags ALPAKA_BACKENDS="cuda"/>
 </bin>
+
+<bin file="alpaka/EpilogueTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>

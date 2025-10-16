@@ -42,43 +42,7 @@
  * and masked collectives.
  */
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-
-  enum class ECLCCMethod { INIT, LOW, MID, HIGH, FLATTEN, INVALID_METHOD };
-
-  /**
- * @class CCGAlgorithmLauncher
- * @brief Kernel driver for ECL-CC algorithm phases.
- * Launches a specific ECL-CC phase depending on the selected method tag.
- *
- * @tparam TAcc   Alpaka accelerator type.
- * @tparam CCAlgo Connected components algorithm class.
- * @tparam method ECL-CC processing stage (INIT, LOW, MID, HIGH, FLATTEN)
- */
-
-  template <typename TAcc, typename CCAlgo, ECLCCMethod method = ECLCCMethod::INVALID_METHOD>
-  class CCGAlgorithmKernels {
-  public:
-    ALPAKA_FN_ACC auto operator()(
-        TAcc const& acc,
-        CCAlgo cc_algo,
-        reco::PFMultiDepthClusteringVarsDeviceCollection::View mdpfClusteringVars,
-        const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::ConstView mdpfClusteringEdgeVars) const -> void {
-      static_assert(method != ECLCCMethod::INVALID_METHOD, "Incorrect method.\n");
-      //
-      if constexpr (method == ECLCCMethod::INIT) {
-        cc_algo.init(acc, mdpfClusteringVars, mdpfClusteringEdgeVars);
-      } else if constexpr (method == ECLCCMethod::LOW) {
-        cc_algo.compute_low_degree_vertices(acc, mdpfClusteringVars, mdpfClusteringEdgeVars);
-      } else if constexpr (method == ECLCCMethod::MID) {
-        cc_algo.compute_mid_degree_vertices(acc, mdpfClusteringVars, mdpfClusteringEdgeVars);
-      } else if constexpr (method == ECLCCMethod::HIGH) {
-        cc_algo.compute_high_degree_vertices(acc, mdpfClusteringVars, mdpfClusteringEdgeVars);
-      } else {
-        cc_algo.flatten(acc, mdpfClusteringVars);
-      }
-    }
-  };
+namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
   /**
  * @brief Executes the complete multi-depth clustering pipeline.
@@ -103,12 +67,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                              const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs,
                                              const reco::PFRecHitDeviceCollection& pfRecHit,
                                              const PFMultiDepthClusterParams* params,
-                                             const int nClusters) {
+                                             const unsigned int nClusters) {
     const unsigned int threadsPerBlock = 256;
     const unsigned int blocks = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock);
     //
-    reco::PFMultiDepthClusteringVarsDeviceCollection mdpfClusteringVars{nClusters + 1, queue};
-    reco::PFMultiDepthClusteringEdgeVarsDeviceCollection mdpfClusteringEdgeVars{2 * nClusters, queue};
+    reco::PFMultiDepthClusteringVarsDeviceCollection mdpfClusteringVars{static_cast<int>(nClusters) + 1, queue};
+    reco::PFMultiDepthClusteringEdgeVarsDeviceCollection mdpfClusteringEdgeVars{2 * static_cast<int>(nClusters), queue};
     //
     alpaka::exec<Acc1D>(queue,
                         ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
@@ -151,50 +115,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto workl = ::cms::alpakatools::make_device_buffer<int[]>(queue, nClusters);
     auto tp = ::cms::alpakatools::make_device_buffer<int[]>(queue, 4);
+    // reset all internal buffers:
+    alpaka::memset(queue, workl, 0);
+    alpaka::memset(queue, tp, 0);
     // Create algorithm internal resources:
-    auto cc_args = CCGAlgorithmArgs<decltype(workl)>(queue, workl, tp, nClusters);
-    // Create algorithm
-    auto cc_algo = CCGAlgorithm<decltype(cc_args)>(cc_args);
-    //
+    using Args = CCGAlgorithmArgs<std::remove_cvref_t<decltype(workl)>>;
+
+    auto cc_args =
+        std::unique_ptr<Args>{new Args{queue, mdpfClusteringVars, mdpfClusteringEdgeVars, workl, tp, nClusters}};
+
     // ECL-CC init stage:
-    alpaka::exec<Acc1D>(queue,
-                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                        CCGAlgorithmKernels<Acc1D, decltype(cc_algo), ECLCCMethod::INIT>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
+    alpaka::exec<Acc1D>(
+        queue, ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock), ECLCCInitKernel{}, cc_args.get());
 
     // ECL-CC run low-degree hooking:
     alpaka::exec<Acc1D>(queue,
                         ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                        CCGAlgorithmKernels<Acc1D, decltype(cc_algo), ECLCCMethod::LOW>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
-
+                        ECLCCLowDegreeComputeKernel{},
+                        cc_args.get());
     // ECL-CC run mid-degree hooking:
     alpaka::exec<Acc1D>(queue,
                         ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                        CCGAlgorithmKernels<Acc1D, decltype(cc_algo), ECLCCMethod::MID>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
-
+                        ECLCCMidDegreeComputeKernel{},
+                        cc_args.get());
     // ECL-CC run high-degree hooking:
     alpaka::exec<Acc1D>(queue,
                         ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                        CCGAlgorithmKernels<Acc1D, decltype(cc_algo), ECLCCMethod::HIGH>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
-
+                        ECLCCHighDegreeComputeKernel{},
+                        cc_args.get());
     // ECL-CC run finalizing stage:
-    alpaka::exec<Acc1D>(queue,
-                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                        CCGAlgorithmKernels<Acc1D, decltype(cc_algo), ECLCCMethod::FLATTEN>{},
-                        cc_algo,
-                        mdpfClusteringVars.view(),
-                        mdpfClusteringEdgeVars.view());
+    alpaka::exec<Acc1D>(
+        queue, ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock), ECLCCFlattenKernel{}, cc_args.get());
 
     // ECL-CC epilogue:
     if (nClusters < 256) {
@@ -233,4 +184,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   }
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc
