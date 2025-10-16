@@ -73,21 +73,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
   using namespace cms::alpakatools;
 
-  //namespace cms::eclcc{
   // Algorithm internal data:
   template <typename TBufAcc, Idx default_mid_degree_threshold = 400>
   class CCGAlgorithmArgs {
   public:
     static constexpr Idx mid_degree_threshold = default_mid_degree_threshold;
 
-    using data_t = typename alpaka::trait::ElemType<TBufAcc>::type;
-
     reco::PFMultiDepthClusteringVarsDeviceCollection::View pfClusteringVars_;
     const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::ConstView pfClusteringEdgeVars_;
 
-    data_t* workl;
+    int* workl;
 
-    data_t* tp;
+    int* tp;
 
     const unsigned int nClusters;
 
