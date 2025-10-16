@@ -280,24 +280,6 @@ phase2_GE0.toModify( theMixObjects,
     )
 )
 
-(fastSim & phase2_GE0).toModify(theMixObjects,
-                                mixSH = dict(
-                                    input = cms.VInputTag(cms.InputTag("MuonSimHits","MuonCSCHits"), cms.InputTag("MuonSimHits","MuonDTHits"), cms.InputTag("MuonSimHits","MuonRPCHits"), cms.InputTag("fastSimProducer","TrackerHits"), cms.InputTag("MuonSimHits","MuonGEMHits")),
-                                    subdets = cms.vstring(
-                                        'MuonCSCHits',
-                                        'MuonDTHits',
-                                        'MuonRPCHits',
-                                        'TrackerHits',
-                                        'MuonGEMHits'),
-                                    crossingframes =  cms.untracked.vstring(
-                                        'MuonCSCHits',
-                                        'MuonDTHits',
-                                        'MuonRPCHits',
-                                        'MuonGEMHits')
-                                )
-
-)
-
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 
 phase2_hgcal.toModify( theMixObjects,
