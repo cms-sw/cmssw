@@ -2,9 +2,17 @@
 #define TrivialSerialisation_Common_TrivialSerialiser_h
 
 #include <cstdio>
+#include <vector>
+#include <span>
+#include <cstddef>
+#include <type_traits>
+
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/AnyBuffer.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "TrivialSerialisation/Common/interface/TrivialSerialiserBase.h"
-#include "TrivialSerialisation/Common/interface/TrivialCopyTraits.h"
+#include "DataFormats/Common/interface/TrivialCopyTraits.h"
 
 // defines all methods of TrivialSerialiserBase
 

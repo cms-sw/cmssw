@@ -7,12 +7,10 @@ WrapperBase: The base class of all things that will be inserted into the Event.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/AnyBuffer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/FillViewHelperVector.h"
 #include "DataFormats/Provenance/interface/ViewTypeChecker.h"
 
-#include <span>
 #include <typeinfo>
 #include <vector>
 #include <memory>

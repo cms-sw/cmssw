@@ -3,6 +3,7 @@
 
 #include <type_traits>
 #include <typeinfo>
+#include <cstddef>
 
 #include <boost/container/small_vector.hpp>
 
