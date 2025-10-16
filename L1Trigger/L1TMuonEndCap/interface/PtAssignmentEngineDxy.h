@@ -10,15 +10,16 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "ap_fixed.h"
+#include "hls4ml/emulator.h"
 
 class PtAssignmentEngineDxy {
 public:
   explicit PtAssignmentEngineDxy();
   virtual ~PtAssignmentEngineDxy();
 
-  void configure(int verbose, const std::string pbFileNameDxy);
+  void configure(int verbose, const std::string nnModel);
 
   const PtAssignmentEngineAux2017& aux() const;
 
@@ -26,17 +27,13 @@ public:
 
   virtual void preprocessing_dxy(const EMTFTrack& track, emtf::Feature& feature) const;
 
-  virtual void call_tensorflow_dxy(const emtf::Feature& feature, emtf::Prediction& prediction) const;
+  virtual void call_hls_dxy(const emtf::Feature& feature, emtf::Prediction& prediction) const;
 
 protected:
   int verbose_;
-
-  tensorflow::GraphDef* graphDefDxy_;
-  tensorflow::Session* sessionDxy_;
-  std::string pbFileNameDxy_;
-  std::string pbFilePathDxy_;
-  std::string inputNameDxy_;
-  std::vector<std::string> outputNamesDxy_;
+  std::string nnModel_;
+  std::unique_ptr<hls4mlEmulator::ModelLoader> loader;
+  std::shared_ptr<hls4mlEmulator::Model> model;
 };
 
 #endif

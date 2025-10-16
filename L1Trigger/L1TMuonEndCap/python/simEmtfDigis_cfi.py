@@ -126,7 +126,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         PromoteMode7    = cms.bool(False), # Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
         ModeQualVer     = cms.int32(2),    # Version 2 contains modified mode-quality mapping for 2018
         PromoteMode7Sectors = cms.vint32(-1), # Sectors to promote mode 7 tracks in Run 2 and Run 3, -1 for all sectors
-        ProtobufFileName = cms.string('model_graph.displ.16.pb'), # Protobuf file name to be used by NN based pT assignment NNv16 is online since 26.06.2023
+        NNModel = cms.string('EMTFnn_v1'), # HLS model name to be used by NN based pT assignment NNv16 is online since 26.06.2023
     ),
 
 )
