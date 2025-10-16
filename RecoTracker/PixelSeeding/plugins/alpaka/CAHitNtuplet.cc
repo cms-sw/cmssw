@@ -120,7 +120,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
       assert(int(n_pairs) == int(iCache->minZ_.size()));
-      assert(int(*std::max_element(iCache->startingPairs_.begin(), iCache->startingPairs_.end())) <= n_pairs);
+      assert(int(*std::max_element(iCache->startingPairs_.begin(), iCache->startingPairs_.end())) < n_pairs);
       assert(int(*std::max_element(iCache->pairGraph_.begin(), iCache->pairGraph_.end())) < n_layers);
 
       const auto& trackerGeometry = iSetup.getData(iCache->tokenGeometry_);
