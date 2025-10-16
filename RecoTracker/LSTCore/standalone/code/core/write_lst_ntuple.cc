@@ -36,8 +36,6 @@ void createOutputBranches() {
     createT5DNNBranches();
   if (ana.t3dnn_branches)
     createT3DNNBranches();
-  if (ana.pt3dnn_branches)
-    createpT3DNNBranches();
 }
 
 //________________________________________________________________________________________________________________________________
@@ -53,8 +51,6 @@ void fillOutputBranches(LSTEvent* event) {
     setT3DNNBranches(event, matchfrac);
   if (ana.t5dnn_branches)
     setT5DNNBranches(event);
-  if (ana.pt3dnn_branches)
-    setpT3DNNBranches(event);
 
   auto const md_idx_map = (ana.md_branches ? setMiniDoubletBranches(event, n_accepted_simtrk, matchfrac)
                                            : std::map<unsigned int, unsigned int>());
@@ -113,16 +109,6 @@ void createT5DNNBranches() {
       }
     }
   }
-}
-
-//________________________________________________________________________________________________________________________________
-void createpT3DNNBranches() {
-  ana.tx->createBranch<std::vector<float>>("pT3_pixelRadius");
-  ana.tx->createBranch<std::vector<float>>("pT3_pixelRadiusError");
-  ana.tx->createBranch<std::vector<float>>("pT3_tripletRadius");
-  ana.tx->createBranch<std::vector<float>>("pT3_rPhiChiSquared");
-  ana.tx->createBranch<std::vector<float>>("pT3_rPhiChiSquaredInwards");
-  ana.tx->createBranch<std::vector<float>>("pT3_rzChiSquared");
 }
 
 //________________________________________________________________________________________________________________________________
@@ -474,10 +460,24 @@ void createPixelTripletBranches() {
   ana.tx->createBranch<std::vector<int>>("pT3_isFake");       // 1 if pT3 is fake 0 other if not
   ana.tx->createBranch<std::vector<int>>("pT3_isDuplicate");  // 1 if pT3 is duplicate 0 other if not
   ana.tx->createBranch<std::vector<int>>("pT3_simIdx");  // idx of best matched (highest nhit and > 75%) simulated track
+  ana.tx->createBranch<std::vector<float>>("pT3_pix_eta");
+  ana.tx->createBranch<std::vector<float>>("pT3_pix_phi");
+  ana.tx->createBranch<std::vector<float>>("pT3_t3_eta");
+  ana.tx->createBranch<std::vector<float>>("pT3_t3_phi");
+  ana.tx->createBranch<std::vector<float>>("pT3_t3_pMatched");
   // list of idx of all matched (> 0%) simulated track
   ana.tx->createBranch<std::vector<std::vector<int>>>("pT3_simIdxAll");
   // list of idx of all matched (> 0%) simulated track
   ana.tx->createBranch<std::vector<std::vector<float>>>("pT3_simIdxAllFrac");
+  // pT3 DNN branches below.
+  ana.tx->createBranch<std::vector<float>>("pT3_pixelRadius");
+  ana.tx->createBranch<std::vector<float>>("pT3_pixelRadiusError");
+  ana.tx->createBranch<std::vector<float>>("pT3_tripletRadius");
+  ana.tx->createBranch<std::vector<float>>("pT3_rPhiChiSquared");
+  ana.tx->createBranch<std::vector<float>>("pT3_rPhiChiSquaredInwards");
+  ana.tx->createBranch<std::vector<float>>("pT3_rzChiSquared");
+  ana.tx->createBranch<std::vector<int>>("pT3_moduleType_binary");
+  ana.tx->createBranch<std::vector<float>>("pT3_pLS_pMatched");
 }
 
 //________________________________________________________________________________________________________________________________
@@ -1566,6 +1566,7 @@ std::map<unsigned int, unsigned int> setPixelTripletBranches(LSTEvent* event,
   auto const& modules = event->getModules<ModulesSoA>();
   auto const& pixelSeeds = event->getInput<PixelSeedsSoA>();
   auto const& pixelTriplets = event->getPixelTriplets();
+  auto const& hitsExtended = event->getHits<HitsExtendedSoA>();
 
   int n_total_simtrk = trk_sim_pt.size();
   std::vector<int> sim_pT3_matched(n_accepted_simtrk, 0);
@@ -1639,6 +1640,80 @@ std::map<unsigned int, unsigned int> setPixelTripletBranches(LSTEvent* event,
       }
     }
     ana.tx->pushbackToBranch<int>("pT3_simIdx", pt3_simIdx);
+
+    // pT3 DNN branches below.
+
+    float pixelRadius = pixelTriplets.pixelRadius()[ipT3];
+    float pixelRadiusError = pixelTriplets.pixelRadiusError()[ipT3];
+    float tripletRadius = pixelTriplets.tripletRadius()[ipT3];
+    float phi_t3 = pixelTriplets.phi()[ipT3];       // from the T3
+    float phi_pix = pixelTriplets.phi_pix()[ipT3];  // from the pLS
+    float rPhiChiSquared = pixelTriplets.rPhiChiSquared()[ipT3];
+    float rPhiChiSquaredInwards = pixelTriplets.rPhiChiSquaredInwards()[ipT3];
+    float rzChiSquared = pixelTriplets.rzChiSquared()[ipT3];
+    float eta_t3 = pixelTriplets.eta()[ipT3];
+    float eta_pix = pixelTriplets.eta_pix()[ipT3];  // eta from pLS
+
+    unsigned int pLSIndex = getPixelLSFrompT3(event, ipT3);
+    unsigned int T3Index = getT3FrompT3(event, ipT3);
+
+    std::vector<unsigned int> pls_hit_idx = getPixelHitIdxsFrompLS(event, pLSIndex);
+    std::vector<unsigned int> pls_hit_type = getPixelHitTypesFrompLS(event, pLSIndex);
+    std::vector<unsigned int> t3_hit_idx = getHitsFromT3(event, T3Index);
+    std::vector<unsigned int> t3_hit_type = getHitTypesFromT3(event, T3Index);
+
+    // The anchor hits of the T3 are at indices 0, 2, and 4
+    unsigned int anchor_hit_1_full_idx = t3_hit_idx[0];
+    unsigned int anchor_hit_2_full_idx = t3_hit_idx[2];
+    unsigned int anchor_hit_3_full_idx = t3_hit_idx[4];
+
+    // Get module indices for each anchor hit from the full hit collection
+    unsigned int module_idx_1 = hitsExtended.moduleIndices()[anchor_hit_1_full_idx];
+    unsigned int module_idx_2 = hitsExtended.moduleIndices()[anchor_hit_2_full_idx];
+    unsigned int module_idx_3 = hitsExtended.moduleIndices()[anchor_hit_3_full_idx];
+
+    // Get module types (0 for PS, 1 for 2S)
+    int module_type_1 = modules.moduleType()[module_idx_1];
+    int module_type_2 = modules.moduleType()[module_idx_2];
+    int module_type_3 = modules.moduleType()[module_idx_3];
+    int module_type_binary = module_type_1 | (module_type_2 << 1) | (module_type_3 << 2);
+
+    float pLS_percent_matched = 0.f;
+    float t3_percent_matched = 0.f;
+    matchedSimTrkIdxs(pls_hit_idx,
+                      pls_hit_type,
+                      trk_simhit_simTrkIdx,
+                      trk_ph2_simHitIdx,
+                      trk_pix_simHitIdx,
+                      false,
+                      matchfrac,
+                      &pLS_percent_matched);
+
+    matchedSimTrkIdxs(t3_hit_idx,
+                      t3_hit_type,
+                      trk_simhit_simTrkIdx,
+                      trk_ph2_simHitIdx,
+                      trk_pix_simHitIdx,
+                      false,
+                      matchfrac,
+                      &t3_percent_matched);
+
+    ana.tx->pushbackToBranch<float>("pT3_pix_eta", eta_pix);
+    ana.tx->pushbackToBranch<float>("pT3_pix_phi", phi_pix);
+    ana.tx->pushbackToBranch<float>("pT3_t3_eta", eta_t3);
+    ana.tx->pushbackToBranch<float>("pT3_t3_phi", phi_t3);
+    ana.tx->pushbackToBranch<float>("pT3_t3_pMatched", t3_percent_matched);
+    ana.tx->pushbackToBranch<float>("pT3_pLS_pMatched", pLS_percent_matched);
+    ana.tx->pushbackToBranch<float>("pT3_rPhiChiSquared", rPhiChiSquared);
+    ana.tx->pushbackToBranch<float>("pT3_rPhiChiSquaredInwards", rPhiChiSquaredInwards);
+    ana.tx->pushbackToBranch<float>("pT3_rzChiSquared", rzChiSquared);
+    ana.tx->pushbackToBranch<float>("pT3_pixelRadius", pixelRadius);
+    ana.tx->pushbackToBranch<float>("pT3_pixelRadiusError", pixelRadiusError);
+    ana.tx->pushbackToBranch<float>("pT3_tripletRadius", tripletRadius);
+    ana.tx->pushbackToBranch<int>("pT3_moduleType_binary", module_type_binary);
+
+    // end of pT3 DNN branches.
+
     // count global
     pt3_idx++;
   }
@@ -2087,33 +2162,6 @@ void setOccupancyBranches(LSTEvent* event) {
 }
 
 //________________________________________________________________________________________________________________________________
-void fillpT3DNNBranches(LSTEvent* event, unsigned int iPT3) {
-  // Retrieve the pT3 object from the PixelTriplets SoA.
-  auto pixelTriplets = event->getPixelTriplets();
-
-  float pixelRadius = pixelTriplets.pixelRadius()[iPT3];
-  float pixelRadiusError = pixelTriplets.pixelRadiusError()[iPT3];
-  float tripletRadius = pixelTriplets.tripletRadius()[iPT3];
-  float phi = pixelTriplets.phi()[iPT3];          // from the T3
-  float phi_pix = pixelTriplets.phi_pix()[iPT3];  // from the pLS
-  float rPhiChiSquared = pixelTriplets.rPhiChiSquared()[iPT3];
-  float rPhiChiSquaredInwards = pixelTriplets.rPhiChiSquaredInwards()[iPT3];
-  float rzChiSquared = pixelTriplets.rzChiSquared()[iPT3];
-  float pt = pixelTriplets.pt()[iPT3];
-  float eta = pixelTriplets.eta()[iPT3];
-  float eta_pix = pixelTriplets.eta_pix()[iPT3];  // eta from pLS
-  float centerX = pixelTriplets.centerX()[iPT3];  // T3-based circle center x
-  float centerY = pixelTriplets.centerY()[iPT3];  // T3-based circle center y
-
-  ana.tx->pushbackToBranch<float>("pT3_rPhiChiSquared", rPhiChiSquared);
-  ana.tx->pushbackToBranch<float>("pT3_rPhiChiSquaredInwards", rPhiChiSquaredInwards);
-  ana.tx->pushbackToBranch<float>("pT3_rzChiSquared", rzChiSquared);
-  ana.tx->pushbackToBranch<float>("pT3_pixelRadius", pixelRadius);
-  ana.tx->pushbackToBranch<float>("pT3_pixelRadiusError", pixelRadiusError);
-  ana.tx->pushbackToBranch<float>("pT3_tripletRadius", tripletRadius);
-}
-
-//________________________________________________________________________________________________________________________________
 void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
   auto const& trk_ph2_subdet = trk.getVUS("ph2_subdet");
   auto const& trk_ph2_layer = trk.getVUS("ph2_layer");
@@ -2207,15 +2255,6 @@ void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
   // Angles
   ana.tx->pushbackToBranch<float>("t5_t3_eta", hitObjects[2].eta());
   ana.tx->pushbackToBranch<float>("t5_t3_phi", hitObjects[0].phi());
-}
-
-//________________________________________________________________________________________________________________________________
-void setpT3DNNBranches(LSTEvent* event) {
-  auto pixelTriplets = event->getPixelTriplets();
-  unsigned int nPT3 = pixelTriplets.nPixelTriplets();
-  for (unsigned int iPT3 = 0; iPT3 < nPT3; ++iPT3) {
-    fillpT3DNNBranches(event, iPT3);
-  }
 }
 
 //________________________________________________________________________________________________________________________________
