@@ -18,7 +18,6 @@ void createOutputBranches();
 void createJetBranches();
 void createT5DNNBranches();
 void createT3DNNBranches();
-void createpT3DNNBranches();
 void createSimTrackContainerBranches();
 void createTrackCandidateBranches();
 void createMiniDoubletBranches();
@@ -71,10 +70,8 @@ std::map<unsigned int, unsigned int> setPixelQuintupletBranches(LSTEvent* event,
 
 void fillT5DNNBranches(LSTEvent* event, unsigned int T3);
 void fillT3DNNBranches(LSTEvent* event, unsigned int iT3);
-void fillpT3DNNBranches(LSTEvent* event, unsigned int iPT3);
 void setT5DNNBranches(LSTEvent* event);
 void setT3DNNBranches(LSTEvent* event, float matchfrac = 0.75);
-void setpT3DNNBranches(LSTEvent* event);
 
 std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(
     LSTEvent* event,
