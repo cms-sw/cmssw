@@ -2,6 +2,7 @@
 #define HeterogeneousCore_MPICore_plugins_macros_h
 
 #include <boost/preprocessor.hpp>
+#include <iterator>
 
 #include <mpi.h>
 
