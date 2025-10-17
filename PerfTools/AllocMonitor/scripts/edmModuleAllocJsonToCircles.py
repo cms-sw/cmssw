@@ -237,6 +237,7 @@ def formatToCircles(moduleTransitions):
         eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", 0)
         # Set events to 1 if it's 0 to prevent NaNs in Circles visualization
         module["events"] = max(eventCount, 1)
+        doc["total"]["events"] = max(doc["total"]["events"], module["events"])
         doc["modules"].append(module)
 
     return doc
