@@ -1098,7 +1098,7 @@ class ConfigBuilder(object):
         self.VALIDATIONDefaultSeq=''
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
-        self.PATDefaultSeq='miniAOD'
+        self.PATDefaultSeq='patTask'
         self.PATGENDefaultSeq='miniGEN'
         #TODO: Check based of file input
         self.NANODefaultSeq='nanoSequence'
@@ -1118,7 +1118,6 @@ class ConfigBuilder(object):
         if self._options.isMC==True:
             self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
-            self.PATDefaultCFF="Configuration/StandardSequences/PATMC_cff"
             self.PATGENDefaultCFF="Configuration/StandardSequences/PATGEN_cff"
             self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
             self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
@@ -1745,12 +1744,6 @@ class ConfigBuilder(object):
         self.scheduleSequence(_raw2digiSeq,'raw2digi_step')
         return
 
-    def prepare_PATFILTER(self, stepSpec = None):
-        self.loadAndRemember("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff")
-        from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import allMetFilterPaths
-        for filt in allMetFilterPaths:
-            self.schedule.append(getattr(self.process,'Flag_'+filt))
-
     def prepare_L1HwVal(self, stepSpec = 'L1HwVal'):
         ''' Enrich the schedule with L1 HW validation '''
         self.loadDefaultOrSpecifiedCFF(stepSpec,self.L1HwValDefaultCFF)
@@ -1822,18 +1815,20 @@ class ConfigBuilder(object):
         self.scheduleSequence(_recobefmixSeq,'reconstruction_befmix_step')
         return
 
-    def prepare_PAT(self, stepSpec = "miniAOD"):
+    def prepare_PAT(self, stepSpec = "patTask"):
         ''' Enrich the schedule with PAT '''
-        self.prepare_PATFILTER(self)
-        self.loadDefaultOrSpecifiedCFF(stepSpec,self.PATDefaultCFF)
-        self.labelsToAssociate.append('patTask')
+        _,pat_sequence,pat_cff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.PATDefaultCFF)
+        ## handle the noise filters as Flag_* path that were loaded
+        for existing_path,path_ in self.process.paths_().items():
+            if existing_path.startswith('Flag_'):
+                print(f'scheduling {existing_path} as part of PAT configuration')
+                self.schedule.append( path_ )
+
+        self.labelsToAssociate.append(pat_sequence)
         if self._options.isData:
-            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+            self._options.customisation_file_unsch.insert(0,f"{pat_cff}.miniAOD_customizeAllData")
         else:
-            if self._options.fast:
-                self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMCFastSim")
-            else:
-                self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
+            self._options.customisation_file_unsch.insert(0,f"{pat_cff}.miniAOD_customizeAllMC")
 
         if self._options.hltProcess:
             self._customise_coms.append( f'process.patTrigger.processName = "{self._options.hltProcess}"')
