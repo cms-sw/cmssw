@@ -1,0 +1,11 @@
+#ifndef RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthClusteringVarsHostCollection_h
+#define RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthClusteringVarsHostCollection_h
+
+#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringVarsSoA.h"
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+
+namespace reco {
+  using PFMultiDepthClusteringVarsHostCollection = PortableHostCollection<PFMultiDepthClusteringVarsSoA>;
+}
+
+#endif  // RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthClusteringVarsHostCollection_h
