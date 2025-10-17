@@ -35,23 +35,102 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return x * x;
     }
 
-    //Common Params
+    // Common Params
+    template <typename TrackerTraits>
     void fillDescriptionsCommon(edm::ParameterSetDescription& desc) {
-      desc.add<double>("cellZ0Cut", 12.0f)->setComment("Z0 cut for cells");
-      desc.add<double>("cellPtCut", 0.5f)->setComment("Preliminary pT cut at cell building level.");
+      desc.add<double>("cellZ0Cut", TrackerTraits::cellZ0Cut)->setComment("Z0 cut for cells");
 
       //// Pixel Cluster Cuts (@cell level)
-      desc.add<double>("dzdrFact", 8.0f * 0.0285f / 0.015f);
-      desc.add<int>("minYsizeB1", 1)
-          ->setComment("Cut on inner hit cluster size (in Y) for barrel-forward cells. Barrel 1 cut.");
-      desc.add<int>("minYsizeB2", 1)
-          ->setComment("Cut on inner hit cluster size (in Y) for barrel-forward cells. Barrel 2 cut.");
-      desc.add<int>("maxDYsize12", 28)
-          ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Barrel 1-2 cells.");
-      desc.add<int>("maxDYsize", 20)
-          ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Other barrel cells.");
-      desc.add<int>("maxDYPred", 20)
-          ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Barrel-forward cells.");
+      desc.add<double>("dzdrFact", TrackerTraits::dzdrFact);
+      desc.add<int>("minYsizeB1", TrackerTraits::minYsizeB1)
+          ->setComment("Cut on inner hit cluster size (in global z / local y) for barrel-forward cells. Barrel 1 cut.");
+      desc.add<int>("minYsizeB2", TrackerTraits::minYsizeB2)
+          ->setComment(
+              "Cut on inner hit cluster size (in global z / local y) for barrel-forward cells. Anything but Barrel 1 "
+              "cut.");
+      desc.add<int>("maxDYsize12", TrackerTraits::maxDYsize12)
+          ->setComment(
+              "Cut on cluster size differences (in global z / local y) for barrel-forward cells. Barrel 1-2 cells.");
+      desc.add<int>("maxDYsize", TrackerTraits::maxDYsize)
+          ->setComment(
+              "Cut on cluster size differences (in global z / local y) for barrel-forward cells. Other barrel cells.");
+      desc.add<int>("maxDYPred", TrackerTraits::maxDYPred)
+          ->setComment(
+              "Maximum difference between actual and expected cluster size of inner RecHit. Barrel-forward cells.");
+
+      edm::ParameterSetDescription geometryParams;
+      // layers params
+      geometryParams
+          .add<std::vector<double>>(
+              "caDCACuts",
+              std::vector<double>(TrackerTraits::dcaCuts, TrackerTraits::dcaCuts + TrackerTraits::numberOfLayers))
+          ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
+      geometryParams
+          .add<std::vector<double>>(
+              "caThetaCuts",
+              std::vector<double>(TrackerTraits::thetaCuts, TrackerTraits::thetaCuts + TrackerTraits::numberOfLayers))
+          ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
+      geometryParams
+          .add<std::vector<unsigned int>>(
+              "startingPairs",
+              std::vector<unsigned int>(TrackerTraits::startingPairs,
+                                        TrackerTraits::startingPairs + TrackerTraits::nStartingPairs))
+          ->setComment("The list of the ids of pairs from which the CA ntuplets building may start.");
+      // cells params
+      geometryParams
+          .add<std::vector<unsigned int>>(
+              "pairGraph",
+              std::vector<unsigned int>(TrackerTraits::layerPairs,
+                                        TrackerTraits::layerPairs + (TrackerTraits::nPairsForQuadruplets * 2)))
+          ->setComment("CA graph (layer pairs used for building doublets/cells)");
+      geometryParams
+          .add<std::vector<int>>(
+              "phiCuts",
+              std::vector<int>(TrackerTraits::phicuts, TrackerTraits::phicuts + TrackerTraits::nPairsForQuadruplets))
+          ->setComment("Cuts in dphi for cells");
+      geometryParams
+          .add<std::vector<double>>(
+              "ptCuts",
+              std::vector<double>(TrackerTraits::ptCuts, TrackerTraits::ptCuts + TrackerTraits::nPairsForQuadruplets))
+          ->setComment("Cuts in pt for cells");
+      geometryParams
+          .add<std::vector<double>>("minInner",
+                                    std::vector<double>(TrackerTraits::minInner,
+                                                        TrackerTraits::minInner + TrackerTraits::nPairsForQuadruplets))
+          ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (min value)");
+      geometryParams
+          .add<std::vector<double>>("maxInner",
+                                    std::vector<double>(TrackerTraits::maxInner,
+                                                        TrackerTraits::maxInner + TrackerTraits::nPairsForQuadruplets))
+          ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (max value)");
+      geometryParams
+          .add<std::vector<double>>("minOuter",
+                                    std::vector<double>(TrackerTraits::minOuter,
+                                                        TrackerTraits::minOuter + TrackerTraits::nPairsForQuadruplets))
+          ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (min value)");
+      geometryParams
+          .add<std::vector<double>>("maxOuter",
+                                    std::vector<double>(TrackerTraits::maxOuter,
+                                                        TrackerTraits::maxOuter + TrackerTraits::nPairsForQuadruplets))
+          ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (max value)");
+      geometryParams
+          .add<std::vector<double>>(
+              "maxDR",
+              std::vector<double>(TrackerTraits::maxDR, TrackerTraits::maxDR + TrackerTraits::nPairsForQuadruplets))
+          ->setComment("Cuts in max dr for cells");
+      geometryParams
+          .add<std::vector<double>>(
+              "minDZ",
+              std::vector<double>(TrackerTraits::minDZ, TrackerTraits::minDZ + TrackerTraits::nPairsForQuadruplets))
+          ->setComment("Cuts in minimum dz between hits for cells");
+      geometryParams
+          .add<std::vector<double>>(
+              "maxDZ",
+              std::vector<double>(TrackerTraits::maxDZ, TrackerTraits::maxDZ + TrackerTraits::nPairsForQuadruplets))
+          ->setComment("Cuts in maximum dz between hits for cells");
+
+      desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
+          ->setComment("Layer-dependent cuts and settings of the CA");
 
       // Container sizes
       //
@@ -67,18 +146,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // 	 maxNumberOfDoublets = cms.string(str(512*1024))
       //
 
-      desc.add<std::string>("maxNumberOfDoublets", std::to_string(pixelTopology::Phase1::maxNumberOfDoublets))
+      desc.add<std::string>("maxNumberOfDoublets", std::to_string(TrackerTraits::maxNumberOfDoublets))
           ->setComment(
               "Max nummber of doublets (cells) as a string. The string will be parsed to a TFormula, depending on "
               "nHits (labeled 'x'), \n and evaluated for each event. May also be a constant.");
-      desc.add<std::string>("maxNumberOfTuples", std::to_string(pixelTopology::Phase1::maxNumberOfTuples))
+      desc.add<std::string>("maxNumberOfTuples", std::to_string(TrackerTraits::maxNumberOfTuples))
           ->setComment("Max nummber of tuples as a string. Same behavior as maxNumberOfDoublets.");
-      desc.add<double>("avgHitsPerTrack", 5.0f)->setComment("Number of hits per track. Average per track.");
-      desc.add<double>("avgCellsPerHit", 25.0f)
+      desc.add<double>("avgHitsPerTrack", double(TrackerTraits::avgHitsPerTrack))
+          ->setComment("Number of hits per track. Average per track.");
+      desc.add<double>("avgCellsPerHit", TrackerTraits::avgCellsPerHit)
           ->setComment("Number of cells for which an hit is the outer hit. Average per hit.");
-      desc.add<double>("avgCellsPerCell", 2.0f)
+      desc.add<double>("avgCellsPerCell", TrackerTraits::avgCellsPerCell)
           ->setComment("Number of cells connected to another cell. Average per cell.");
-      desc.add<double>("avgTracksPerCell", 1.0f)
+      desc.add<double>("avgTracksPerCell", TrackerTraits::avgTracksPerCell)
           ->setComment("Number of tracks to which a cell belongs. Average per cell.");
 
       // nTuplet Cuts and Params
@@ -86,7 +166,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //// p [GeV/c] = B [T] * R [m] * 0.3 (factor from conversion from J to GeV and q = e = 1.6 * 10e-19 C)
       //// 87 cm/GeV = 1/(3.8T * 0.3)
       //// take less than radius given by the hardPtCut and reject everything below
-      desc.add<double>("hardCurvCut", 1.f / (0.35 * 87.f))
+      desc.add<double>("hardCurvCut", TrackerTraits::hardCurvCut)
           ->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
 
       desc.add<bool>("earlyFishbone", true);
@@ -119,7 +199,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           (float)cfg.getParameter<double>("ptmin"),
           (float)cfg.getParameter<double>("hardCurvCut"),
           (float)cfg.getParameter<double>("cellZ0Cut"),
-          (float)cfg.getParameter<double>("cellPtCut"),
 
           // Pixel Cluster Cut Params
           (float)cfg.getParameter<double>("dzdrFact"),
@@ -173,6 +252,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       static constexpr ::pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
         return ::pixelTrack::QualityCutsT<TrackerTraits>{
             static_cast<float>(pset.getParameter<double>("maxChi2")),
+            static_cast<float>(pset.getParameter<double>("maxChi2TripletsOrQuadruplets")),
+            static_cast<float>(pset.getParameter<double>("maxChi2Quintuplets")),
             static_cast<float>(pset.getParameter<double>("minPt")),
             static_cast<float>(pset.getParameter<double>("maxTip")),
             static_cast<float>(pset.getParameter<double>("maxZip")),
@@ -219,7 +300,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <>
   void CAHitNtupletGenerator<pixelTopology::Phase1>::fillPSetDescription(edm::ParameterSetDescription& desc) {
-    fillDescriptionsCommon(desc);
+    fillDescriptionsCommon<pixelTopology::Phase1>(desc);
 
     edm::ParameterSetDescription trackQualityCuts;
     trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -237,60 +318,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply "
-            "\"region "
-            "cuts\" based on the fit results (pT, Tip, Zip).");
-
-    edm::ParameterSetDescription geometryParams;
-    using namespace phase1PixelTopology;
-    // layers params
-    geometryParams
-        .add<std::vector<double>>("caDCACuts",
-                                  std::vector<double>(std::begin(dcaCuts), std::begin(dcaCuts) + numberOfLayers))
-        ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
-    geometryParams
-        .add<std::vector<double>>("caThetaCuts",
-                                  std::vector<double>(std::begin(thetaCuts), std::begin(thetaCuts) + numberOfLayers))
-        ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
-    geometryParams.add<std::vector<unsigned int>>("startingPairs", {0u, 1u, 2u})
-        ->setComment(
-            "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
-    // cells params
-    geometryParams
-        .add<std::vector<unsigned int>>(
-            "pairGraph",
-            std::vector<unsigned int>(std::begin(layerPairs),
-                                      std::begin(layerPairs) + (pixelTopology::Phase1::nPairsForQuadruplets * 2)))
-        ->setComment("CA graph");
-    geometryParams
-        .add<std::vector<int>>(
-            "phiCuts",
-            std::vector<int>(std::begin(phicuts), std::begin(phicuts) + pixelTopology::Phase1::nPairsForQuadruplets))
-        ->setComment("Cuts in phi for cells");
-    geometryParams
-        .add<std::vector<double>>(
-            "minZ",
-            std::vector<double>(std::begin(minz), std::begin(minz) + pixelTopology::Phase1::nPairsForQuadruplets))
-        ->setComment("Cuts in min z (on inner hit) for cells");
-    geometryParams
-        .add<std::vector<double>>(
-            "maxZ",
-            std::vector<double>(std::begin(maxz), std::begin(maxz) + pixelTopology::Phase1::nPairsForQuadruplets))
-        ->setComment("Cuts in max z (on inner hit) for cells");
-    geometryParams
-        .add<std::vector<double>>(
-            "maxR",
-            std::vector<double>(std::begin(maxr), std::begin(maxr) + pixelTopology::Phase1::nPairsForQuadruplets))
-        ->setComment("Cuts in max r for cells");
-
-    desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
-        ->setComment(
-            "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
-            "Zip).");
+            "\"region cuts\" based on the fit results (pT, Tip, Zip).");
   }
 
   template <>
   void CAHitNtupletGenerator<pixelTopology::HIonPhase1>::fillPSetDescription(edm::ParameterSetDescription& desc) {
-    fillDescriptionsCommon(desc);
+    fillDescriptionsCommon<pixelTopology::HIonPhase1>(desc);
 
     edm::ParameterSetDescription trackQualityCuts;
     trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -309,66 +342,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply "
-            "\"region "
-            "cuts\" based on the fit results (pT, Tip, Zip).");
-
-    edm::ParameterSetDescription geometryParams;
-    using namespace phase1PixelTopology;
-    // layers params
-    geometryParams
-        .add<std::vector<double>>("caDCACuts",
-                                  std::vector<double>(std::begin(phase1HIonPixelTopology::dcaCuts),
-                                                      std::begin(phase1HIonPixelTopology::dcaCuts) + numberOfLayers))
-        ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
-    geometryParams
-        .add<std::vector<double>>("caThetaCuts",
-                                  std::vector<double>(std::begin(phase1HIonPixelTopology::thetaCuts),
-                                                      std::begin(phase1HIonPixelTopology::thetaCuts) + numberOfLayers))
-        ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
-    geometryParams.add<std::vector<unsigned int>>("startingPairs", {0u, 1u, 2u})
-        ->setComment(
-            "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
-    // cells params
-    geometryParams
-        .add<std::vector<unsigned int>>(
-            "pairGraph",
-            std::vector<unsigned int>(std::begin(layerPairs),
-                                      std::begin(layerPairs) + (pixelTopology::Phase1::nPairsForQuadruplets * 2)))
-        ->setComment("CA graph");
-    geometryParams
-        .add<std::vector<int>>("phiCuts",
-                               std::vector<int>(std::begin(phase1HIonPixelTopology::phicuts),
-                                                std::begin(phase1HIonPixelTopology::phicuts) +
-                                                    pixelTopology::Phase1::nPairsForQuadruplets))
-        ->setComment("Cuts in phi for cells");
-    geometryParams
-        .add<std::vector<double>>(
-            "minZ",
-            std::vector<double>(std::begin(minz), std::begin(minz) + pixelTopology::Phase1::nPairsForQuadruplets))
-        ->setComment("Cuts in min z (on inner hit) for cells");
-    geometryParams
-        .add<std::vector<double>>(
-            "maxZ",
-            std::vector<double>(std::begin(maxz), std::begin(maxz) + pixelTopology::Phase1::nPairsForQuadruplets))
-        ->setComment("Cuts in max z (on inner hit) for cells");
-    geometryParams
-        .add<std::vector<double>>(
-            "maxR",
-            std::vector<double>(std::begin(maxr), std::begin(maxr) + pixelTopology::Phase1::nPairsForQuadruplets))
-        ->setComment("Cuts in max r for cells");
-
-    desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
-        ->setComment(
-            "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
-            "Zip).");
+            "\"region cuts\" based on the fit results (pT, Tip, Zip).");
   }
 
   template <>
   void CAHitNtupletGenerator<pixelTopology::Phase2>::fillPSetDescription(edm::ParameterSetDescription& desc) {
-    fillDescriptionsCommon(desc);
+    fillDescriptionsCommon<pixelTopology::Phase2>(desc);
 
     edm::ParameterSetDescription trackQualityCuts;
-    trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2");
+    trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2 for tracks with 6 or more hits");
+    trackQualityCuts.add<double>("maxChi2TripletsOrQuadruplets", 5.)
+        ->setComment("Max normalized chi2 for tracks with 4 or less hits");
+    trackQualityCuts.add<double>("maxChi2Quintuplets", 5.)->setComment("Max normalized chi2 for tracks with 5 hits");
     trackQualityCuts.add<double>("minPt", 0.5)->setComment("Min pT in GeV");
     trackQualityCuts.add<double>("maxTip", 0.3)->setComment("Max |Tip| in cm");
     trackQualityCuts.add<double>("maxZip", 12.)->setComment("Max |Zip|, in cm");
@@ -376,40 +361,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
             "Zip).");
+  }
 
-    edm::ParameterSetDescription geometryParams;
-    using namespace phase2PixelTopology;
-    // layers params
-    geometryParams
-        .add<std::vector<double>>("caDCACuts",
-                                  std::vector<double>(std::begin(dcaCuts), std::begin(dcaCuts) + numberOfLayers))
-        ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
-    geometryParams
-        .add<std::vector<double>>("caThetaCuts",
-                                  std::vector<double>(std::begin(thetaCuts), std::begin(thetaCuts) + numberOfLayers))
-        ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
-    geometryParams
-        .add<std::vector<unsigned int>>("startingPairs",
-                                        {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16,
-                                         17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32})
-        ->setComment(
-            "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
-    // cells params
-    geometryParams
-        .add<std::vector<unsigned int>>(
-            "pairGraph", std::vector<unsigned int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2)))
-        ->setComment("CA graph");
-    geometryParams
-        .add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::begin(phicuts) + nPairs))
-        ->setComment("Cuts in phi for cells");
-    geometryParams.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs))
-        ->setComment("Cuts in min z (on inner hit) for cells");
-    geometryParams.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::begin(maxz) + nPairs))
-        ->setComment("Cuts in max z (on inner hit) for cells");
-    geometryParams.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::begin(maxr) + nPairs))
-        ->setComment("Cuts in max r for cells");
+  template <>
+  void CAHitNtupletGenerator<pixelTopology::Phase2OT>::fillPSetDescription(edm::ParameterSetDescription& desc) {
+    fillDescriptionsCommon<pixelTopology::Phase2OT>(desc);
 
-    desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
+    edm::ParameterSetDescription trackQualityCuts;
+    trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2 for tracks with 6 or more hits");
+    trackQualityCuts.add<double>("maxChi2TripletsOrQuadruplets", 1.)
+        ->setComment("Max normalized chi2 for tracks with 4 or less hits");
+    trackQualityCuts.add<double>("maxChi2Quintuplets", 3.)->setComment("Max normalized chi2 for tracks with 5 hits");
+    trackQualityCuts.add<double>("minPt", 0.9)->setComment("Min pT in GeV");
+    trackQualityCuts.add<double>("maxTip", 0.3)->setComment("Max |Tip| in cm");
+    trackQualityCuts.add<double>("maxZip", 12.)->setComment("Max |Zip|, in cm");
+    desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
             "Zip).");
@@ -482,5 +448,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template class CAHitNtupletGenerator<pixelTopology::Phase1>;
   template class CAHitNtupletGenerator<pixelTopology::Phase2>;
+  template class CAHitNtupletGenerator<pixelTopology::Phase2OT>;
   template class CAHitNtupletGenerator<pixelTopology::HIonPhase1>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

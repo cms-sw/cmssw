@@ -38,7 +38,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       // outermost parallel loop, using all grid elements along the slower dimension (Y or 0 in a 2D grid)
       for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, outerHits)) {
         uint32_t size = outerHitHisto->size(idy);
-
+#ifdef GPU_DEBUG
+        printf("fishbone ---> outersize %d - ", idy, size);
+#endif
         if (size < 2)
           continue;
 
@@ -50,11 +52,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         auto xo = c0.outer_x(hh);
         auto yo = c0.outer_y(hh);
         auto zo = c0.outer_z(hh);
+        //printf("first cell %d xo %.2f yo %.2f zo %.2f - ",bin[0],c0.outer_x(hh),c0.outer_y(hh),c0.outer_z(hh));ve
 
+#ifdef GPU_DEBUG
+        for (auto idx = 0u; idx < size; idx++) {
+          unsigned int otherCell = bin[idx];
+          printf("vc[0] %d idx %d vc[idx] %d otherCell %d \n", vc[0], idx, vc[idx], otherCell);
+        }
+#endif
         for (uint32_t ic : cms::alpakatools::independent_group_elements_x(acc, size)) {
+          //printf("cell0 = %d ci = %d\n",bin[0],bin[ic]);
           unsigned int otherCell = bin[ic];
           auto& ci = cells[otherCell];
-
+          //	printf("xo = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f \n",xo,yo,zo,ci.inner_x(hh),ci.inner_y(hh),ci.inner_z(hh));
           if (ci.unused())
             continue;  // for triplets equivalent to next
           if (checkTrack && cellTracksHisto->size(otherCell) == 0)
