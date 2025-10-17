@@ -308,10 +308,12 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_boostedTau_switch, idsToAdd=["boostedDeepTauRunIIv2p0"]
     )
     nanoAOD_addBoostedTauIds(process, nanoAOD_boostedTau_switch.idsToAdd.value())
-
-    # Add lepton time-life info
+    
     from PhysicsTools.NanoAOD.leptonTimeLifeInfo_common_cff import addTimeLifeInfoBase
     process = addTimeLifeInfoBase(process)
+    
+    process = nanoAOD_refineFastSim_puppiJet(process)
+    process = nanoAOD_refineFastSim_bTagDeepFlav(process)
 
     return process
 
