@@ -27,6 +27,11 @@ _phase2_muonDigiTask.add(muonME0DigiTask)
 # while GE0 is in development, just turn off ME0 tasks
 _phase2_ge0 = _phase2_muonDigiTask.copyAndExclude([muonME0DigiTask])
 
+_phase2_rpc_devel = _phase2_muonDigiTask.copyAndExclude([muonME0DigiTask,simMuonRPCDigis])
+_phase2_rpc_devel.add(simMuonRPCDigisPhase2)
+_phase2_rpc_devel.add(simMuonIRPCDigis)
+
+
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith( muonDigiTask, _run3_muonDigiTask )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
@@ -35,4 +40,12 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( muonDigiTask, _phase2_muonDigiTask )
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 phase2_GE0.toReplaceWith( muonDigiTask, _phase2_ge0 )
+
+# phase2_rpc_devel modifier
+from Configuration.Eras.Modifier_phase2_rpc_devel_cff import phase2_rpc_devel
+def _modifyRPCDigiForPhase2( theProcess ) :
+    phase2_muon.toReplaceWith( muonDigiTask, _phase2_rpc_devel)
+
+SimMuonConfigurationSimMuonRPCDigiForPhase2_ = phase2_rpc_devel.makeProcessModifier(_modifyRPCDigiForPhase2)
+
 
