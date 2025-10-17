@@ -1,5 +1,5 @@
-#ifndef MagneticField_PortableParametrizedTrackerField_interface_alpaka_ParabolicParametricTrackerMagneticField_h
-#define MagneticField_PortableParametrizedTrackerField_interface_alpaka_ParabolicParametricTrackerMagneticField_h
+#ifndef MagneticField_PortableParametrizations_interface_alpaka_ParabolicParametricTrackerMagneticField_h
+#define MagneticField_PortableParametrizations_interface_alpaka_ParabolicParametricTrackerMagneticField_h
 
 #include <alpaka/alpaka.hpp>
 
@@ -27,13 +27,13 @@ namespace trackerFieldParabolicPortable {
   }
 
   template <typename TAcc, typename Vec3>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isValid(TAcc const& acc, Vec3 const& vec) {
+  ALPAKA_FN_HOST_ACC inline bool isValid(TAcc const& acc, Vec3 const& vec) {
     return ((vec[0] * vec[0] + vec[1] * vec[1]) < Parameters::max_radius2 &&
             alpaka::math::abs(acc, vec[2]) < Parameters::max_z);
   }
 
   template <typename TAcc, typename Vec3>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float magneticFieldAtPoint(TAcc const& acc, Vec3 const& vec) {
+  ALPAKA_FN_HOST_ACC inline float magneticFieldAtPoint(TAcc const& acc, Vec3 const& vec) {
     if (isValid(acc, vec)) {
       return B0Z(vec) * Kr(vec);
     } else {

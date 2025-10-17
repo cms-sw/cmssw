@@ -11,7 +11,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "MagneticField/PortableParametrizedTrackerField/interface/alpaka/ParabolicParametricTrackerMagneticField.h"
+#include "MagneticField/PortableParametrizations/interface/alpaka/ParabolicParametricTrackerMagneticField.h"
 
 using namespace edm;
 using namespace std;
