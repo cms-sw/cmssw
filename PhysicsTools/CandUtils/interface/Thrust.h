@@ -31,7 +31,6 @@
  *
  *
  */
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
 
