@@ -28,6 +28,7 @@ namespace edm {
     WrapperBase();
     ~WrapperBase() override;
     bool isPresent() const { return isPresent_(); }
+    void markAsPresent() { markAsPresent_(); }
 
     // We have to use vector<void*> to keep the type information out
     // of the WrapperBase class.
@@ -63,6 +64,7 @@ namespace edm {
     // For technical ROOT related reasons, we cannot
     // declare it = 0.
     virtual bool isPresent_() const { return true; }
+    virtual void markAsPresent_() = 0;
 
     virtual bool isMergeable_() const = 0;
     virtual bool mergeProduct_(WrapperBase const* newProduct) = 0;
@@ -82,5 +84,7 @@ namespace edm {
 
     virtual std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const = 0;
   };
+
 }  // namespace edm
-#endif
+
+#endif  // DataFormats_Common_WrapperBase_h

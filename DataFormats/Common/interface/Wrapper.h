@@ -7,18 +7,17 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/WrapperDetail.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/Visibility.h"
 
 #include <algorithm>
 #include <cassert>
 #include <memory>
-#include <string>
 #include <typeinfo>
+#include <vector>
 
 namespace edm {
   template <typename T>
@@ -59,6 +58,7 @@ namespace edm {
     }
 
     bool isPresent_() const override { return present; }
+    void markAsPresent_() override { present = true; }
     std::type_info const& dynamicTypeInfo_() const override { return typeid(T); }
     std::type_info const& wrappedTypeInfo_() const override { return typeid(Wrapper<T>); }
 
@@ -176,6 +176,7 @@ namespace edm {
       }
     };
   }  // namespace soa
+
   template <typename T>
   inline std::shared_ptr<edm::soa::TableExaminerBase> Wrapper<T>::tableExaminer_() const {
     return soa::MakeTableExaminer<T>::make(&obj);
@@ -185,4 +186,4 @@ namespace edm {
 
 #include "DataFormats/Common/interface/WrapperView.icc"
 
-#endif
+#endif  // DataFormats_Common_Wrapper_h
