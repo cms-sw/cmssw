@@ -4,6 +4,7 @@ import os
 import argparse
 import numpy as np
 import hist
+import re
 import matplotlib.pyplot as plt
 from matplotlib.transforms import blended_transform_factory
 plt.style.use('tableau-colorblind10')
@@ -29,16 +30,25 @@ def createDir(adir):
 def checkRootDir(afile, adir):
     if not afile.Get(adir):
         raise RuntimeError(f"Directory '{adir}' not found in {afile}")
+    
+def GetRootSubDir(afile, adir):
+    subdirs = []
+    d = afile.GetDirectory(adir)
+    for key in d.GetListOfKeys():
+        obj = key.ReadObj()
+        if isinstance(obj, ROOT.TDirectory):
+            subdirs.append(obj.GetName())
+    return subdirs
 
 def checkRootFile(afile, hname, rebin=None):
     hist_orig = afile.Get(hname)
     if not hist_orig:
         raise RuntimeError(f"WARNING: Histogram {hname} not found.")
 
-    hist = hist_orig.Clone(hname + "_clone")
-    hist.SetDirectory(0) # detach from file
-
     if rebin is not None:
+        hist = hist_orig.Clone(hname + "_clone")
+        hist.SetDirectory(0) # detach from file
+
         if isinstance(rebin, (int, float)):
             hist = hist.Rebin(int(rebin), hname + "_rebin")
         elif hasattr(rebin, '__iter__'):
@@ -46,6 +56,9 @@ def checkRootFile(afile, hname, rebin=None):
             hist = hist.Rebin(len(bin_edges_c) - 1, hname + "_rebin", bin_edges_c)
         else:
             raise ValueError(f"Unknown type for rebin: {type(rebin)}")
+
+    else:
+        hist = hist_orig
 
     return hist
 
@@ -155,7 +168,73 @@ class Plotter:
             plt.savefig(name + '.' + ext)
         plt.close()
 
-def plotEffComp1D(afile, adir, vars1d, outdir, text, top_text=False):
+def plotOverlay(subdirs, adir, name, props, outdir):
+    """
+    Plots 1D distributions, overlaying plots with identical names in different 'subdirs'.
+    """
+    colors_iter = iter(('#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628',
+                        '#984ea3', '#999999', '#e41a1c', '#dede00')) #colour-blind friendly
+    pattern = r"Score(\d+)p(\d+)"
+    replacement = lambda m: f"score = {m.group(1)}.{m.group(2)}"
+    
+    plotter = Plotter(args.sample_label, grid_color=None)
+    for sub in subdirs:
+        root_hist = checkRootFile(afile, f"{adir}/{sub}/{name}", rebin=None)
+        nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
+        values, errors = histo_values_errors(root_hist)
+        errors /= 2
+    
+        line = plotter.ax.stairs(values, bin_edges, linewidth=2,
+                                 baseline=None, color=next(colors_iter))
+
+        sublabel = re.sub(pattern, replacement, sub)        
+        plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                            color=line.get_edgecolor(),
+                            fmt='s', label=sublabel, **errorbar_kwargs)
+
+    # plotter.limits_with_margin(valuesList, errorsList, logY=props['logy'])
+    plotter.labels(x=props['xtitle'], y=props['ytitle'], legend_title='')    
+    plotter.ax.grid(color='grey', axis='x')    
+    plt.tight_layout()
+    plotter.save( os.path.join(outdir, name) )
+
+def plotOverlayRatio(subdirs, adir, num, den, props, outdir):
+    """
+    Plots 1D distributions of numerator / denominator.
+    """
+    colors_iter = iter(('#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628',
+                        '#984ea3', '#999999', '#e41a1c', '#dede00')) #colour-blind friendly
+    pattern = r"Score(\d+)p(\d+)"
+    replacement = lambda m: f"score = {m.group(1)}.{m.group(2)}"
+    
+    plotter = Plotter(args.sample_label, grid_color=None)
+    for sub in subdirs:
+        hist_num = checkRootFile(afile, f"{adir}/{sub}/{num}", rebin=None)
+        hist_den = checkRootFile(afile, f"{adir}/{sub}/{den}", rebin=None)
+        
+        nbins, bin_edges, bin_centers, bin_widths = define_bins(hist_num)
+        num_vals, num_errors = histo_values_errors(hist_num)
+        den_vals, den_errors = histo_values_errors(hist_den)
+
+        ratio_vals = [s / m if m != 0 else np.nan for s, m in zip(num_vals, den_vals)]
+        ratio_errors = [np.sqrt((ds / m)**2 + ((s / m) * (dm / m))**2) / 2 if m != 0 else np.nan
+                        for s, ds, m, dm in zip(num_vals, num_errors, den_vals, den_errors)]
+
+        line = plotter.ax.stairs(ratio_vals, bin_edges, linewidth=2,
+                                 baseline=None, color=next(colors_iter))
+
+        sublabel = re.sub(pattern, replacement, sub)        
+        plotter.ax.errorbar(bin_centers, ratio_vals, xerr=None, yerr=ratio_errors,
+                            color=line.get_edgecolor(),
+                            fmt='s', label=sublabel, **errorbar_kwargs)
+
+    # plotter.limits_with_margin(valuesList, errorsList, logY=props['logy'])
+    plotter.labels(x=props['xtitle'], y=props['ytitle'], legend_title='')    
+    plotter.ax.grid(color='grey', axis='x')    
+    plt.tight_layout()
+    plotter.save( os.path.join(outdir, props['name']) )
+
+def plotEffComp1D(cached_histos, vars1d, outdir, text, top_text=False, suffix=''):
     """
     Plots 1D distributions.
     The `avars` variables is a dictionary whose values are (xlabel, ylabel, rebin).
@@ -168,16 +247,20 @@ def plotEffComp1D(afile, adir, vars1d, outdir, text, top_text=False):
     valuesList, errorsList = [], []
     colors_iter = iter(('black', 'blue'))
     for avar in vars1d:
-        name, (xlabel, _, rebin, logy, leglabel) = avar
+        name, (xlabel, ylabel, rebin, logy, doNormalize, leglabel) = avar
+        if doNormalize:
+            ylabel = '[a.u.]'
 
-        root_hist = checkRootFile(afile, f"{adir}/{name}", rebin=rebin)
+        root_hist = cached_histos[name]
         nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
         values, errors = histo_values_errors(root_hist)
         errors /= 2
 
         # normalization
-        errors /= sum(values)
-        values /= sum(values)
+        doNormalize = False
+        if 'Eff' not in name and doNormalize:
+            errors /= sum(values)
+            values /= sum(values)
 
         if 'Eff' in name:
             # ax2.set_yscale('log')
@@ -199,7 +282,7 @@ def plotEffComp1D(afile, adir, vars1d, outdir, text, top_text=False):
         errorsList.append(errors)
 
     plotter.limits_with_margin(valuesList, errorsList, logY=logy)
-    plotter.labels(x=xlabel, y='[a.u.]', legend_title='')
+    plotter.labels(x=xlabel, y=ylabel, legend_title='')
 
     plotter.ax.text(0.03, 0.97, text, transform=plotter.ax.transAxes, fontsize=fontsize,
                     verticalalignment='top', horizontalalignment='left')
@@ -214,7 +297,7 @@ def plotEffComp1D(afile, adir, vars1d, outdir, text, top_text=False):
     plotter.ax.grid(color=eff_color, axis='x')
     
     plt.tight_layout()
-    plotter.save( os.path.join(outdir, name + 'Comp') )
+    plotter.save( os.path.join(outdir, name) )
 
 def plot1Dvars(afile, adir, avars, outdir, text, top_text=False):
     for var, (xlabel, ylabel, rebin, logy, _) in avars.items():
@@ -240,7 +323,7 @@ def plot1Dvars(afile, adir, avars, outdir, text, top_text=False):
                             verticalalignment='top', horizontalalignment='right')
 
         plt.tight_layout()
-        plotter.save( os.path.join(outdir, var) )
+        plotter.save( os.path.join(outdir, var, suffix) )
 
 
 if __name__ == '__main__':
@@ -285,38 +368,78 @@ if __name__ == '__main__':
 
     nEventsLabel = '# Events'
     effLabel = 'Efficiency'
-    vars1D = {
-        # PF tester producer
-        **{x + 'ClustersEnergy': ('Energy [GeV]', nEventsLabel, None, True, x) for x in ('Sim', 'Reco')},
-        'Eff_vs_Energy': ('Energy [GeV]', effLabel, None, True, None),
-        **{x + 'ClustersPt': (r'$p_{T}$ [GeV]', nEventsLabel, None, True, x) for x in ('Sim', 'Reco')},
-        'Eff_vs_Pt': (r'$p_{T}$ [GeV]', effLabel, None, False, None),
-        **{x + 'ClustersEta': (r'$\eta$', nEventsLabel, None, False, x) for x in ('Sim', 'Reco')},
-        'Eff_vs_Eta': (r'$\eta$', effLabel, None, True, None),
-        **{x + 'ClustersPhi': (r'$\phi$', nEventsLabel, None, False, x) for x in ('Sim', 'Reco')},
-        'Eff_vs_Phi': (r'$\phi$', effLabel, None, True, None),
-        **{x + 'ClustersMult': ('Multiplicity', nEventsLabel, None, True, x) for x in ('Sim', 'Reco')},
-        'Eff_vs_Mult': ('Multiplicity', effLabel, None, False, None),
-    }
 
     dqm_dir = f"DQMData/Run 1/HLT/Run summary/ParticleFlow/PFClusterValidation"
-    if args.compare_files is not None:
-        for afile, alabel in zip(args.compare_files, args.compare_files_labels):
-            afile = ROOT.TFile.Open(afile)
-            checkRootDir(afile, dqm_dir)
-        plot1DFilesComparison(dqm_dir, vars1D, outdir=args.odir, text='',
-                              files=args.compare_files,
-                              files_labels=args.compare_files_labels)
+    afile = ROOT.TFile.Open(args.file)
+    checkRootDir(afile, dqm_dir)
 
-    else:
-        afile = ROOT.TFile.Open(args.file)
+    print("### INFO: Start caching histograms...")
+    subdirs = []
+    cached_histos = {}
+    directory = afile.GetDirectory(dqm_dir)
+    for key in directory.GetListOfKeys():
+        obj = key.ReadObj()
+        if isinstance(obj, ROOT.TDirectory):
+            subdirs.append(obj.GetName())
+            subdir = afile.GetDirectory(f"{dqm_dir}/{obj.GetName()}")
+            for subkey in subdir.GetListOfKeys():
+                name = subkey.GetName()
+                cached_histos[f"{obj.GetName()}/{name}"] = subkey.ReadObj()
+        else:
+            name = key.GetName()
+            cached_histos[name] = key.ReadObj()
+    print("...done.")
 
-        # Plot 1D PF variables
-        checkRootDir(afile, dqm_dir)
-        # plot1Dvars(afile, dqm_dir, vars1D, outdir=args.odir, text='')
+    # subdirs = GetRootSubDir(afile, dqm_dir)
+    for subdir in subdirs:
+        checkRootDir(afile, f"{dqm_dir}/{subdir}")
+        createDir(f'{args.odir}/{subdir}')
+        for name, suf in zip(('', '_Reconstructable'), ('', 'Reconstructable')):
+            vars1D = {
+                # PF tester producer
+                f'SimClusters{suf}En': ('Energy [GeV]', nEventsLabel, None, True, False, 'Sim'),
+                f'{subdir}/SimClustersMatchedRecoClustersEn': ('Energy [GeV]', nEventsLabel, None, True, False, 'Reco'),
+                f'{subdir}/Eff_vs_Energy{name}': ('Energy [GeV]', nEventsLabel, None, True, False, None),
+                f'SimClusters{suf}Pt': (r'$p_{T}$ [GeV]', nEventsLabel, None, True, False, 'Sim'),
+                f'{subdir}/SimClustersMatchedRecoClustersPt': (r'$p_{T}$ [GeV]', nEventsLabel, None, True, False, 'Reco'),
+                f'{subdir}/Eff_vs_Pt{name}': (r'$p_{T}$ [GeV]', nEventsLabel, None, True, False, None),
+                f'SimClusters{suf}Eta': (r'$\eta$', nEventsLabel, None, False, False, 'Sim'),
+                f'{subdir}/SimClustersMatchedRecoClustersEta': (r'$\eta$', nEventsLabel, None, False, False, 'Reco'),
+                f'{subdir}/Eff_vs_Eta{name}': (r'$\eta$', nEventsLabel, None, False, False, None),
+                f'SimClusters{suf}Phi': (r'$\phi$', nEventsLabel, None, False, False, 'Sim'),
+                f'{subdir}/SimClustersMatchedRecoClustersPhi': (r'$\phi$', nEventsLabel, None, False, False, 'Reco'),
+                f'{subdir}/Eff_vs_Phi{name}': (r'$\phi$', nEventsLabel, None, False, False, None),
+                f'SimClusters{suf}Mult': ('Multiplicity', nEventsLabel, None, True, False, 'Sim'),
+                f'{subdir}/SimClustersMatchedRecoClustersMult': ('Multiplicity', nEventsLabel, None, True, False, 'Reco'),
+                f'{subdir}/Eff_vs_Mult{name}': ('Multiplicity', nEventsLabel, None, True, False, None),
+            }
 
-        # Compare pairs of variables
-        it = iter(vars1D.items())
-        for var in it:
-            avars = (var, next(it), next(it)) # reco, sim and efficiency for a given variable
-            plotEffComp1D(afile, dqm_dir, vars1d=avars, outdir=args.odir, text='')
+            # Compare pairs of variables
+            it = iter(vars1D.items())
+            for var in it:
+                avars = (var, next(it), next(it)) # reco, sim and efficiency for a given variable
+                plotEffComp1D(cached_histos, vars1d=avars, outdir=args.odir, text='', suffix=f'')
+                
+    titles = {'response': r"$<p_{T}^{Reco}/p_{T}^{Sim}>$", 'resolution': r"$\sigma(p_{T}^{Reco}/p_{T}^{Sim}) / <p_{T}^{Reco}/p_{T}^{Sim}>$", 'eff': 'Efficiency'}
+
+    varsOverlay = {
+        "ResponsePt_Mean"             : dict(ytitle=titles['response'], xtitle=r'$p_{T} [GeV]$', logy=False),
+        "ResponseEta_Mean"            : dict(ytitle=titles['response'], xtitle=r'$\eta$', logy=False),
+        "ResponsePhi_Mean"            : dict(ytitle=titles['response'], xtitle=r'$\phi$', logy=False),
+        "ResponseMult_Mean"           : dict(ytitle=titles['response'], xtitle='Multiplicity', logy=False),
+        "Eff_vs_Pt_Reconstructable"   : dict(ytitle=titles['eff'], xtitle='$p_{T} [GeV]$', logy=False),
+        "Eff_vs_Eta_Reconstructable"  : dict(ytitle=titles['eff'], xtitle=r'$\eta$', logy=False),
+        "Eff_vs_Phi_Reconstructable"  : dict(ytitle=titles['eff'], xtitle=r'$\phi$', logy=False),
+        "Eff_vs_Mult_Reconstructable" : dict(ytitle=titles['eff'], xtitle='Multiplicity', logy=False),
+        }
+    for name, props in varsOverlay.items():
+        plotOverlay(subdirs, dqm_dir, name, props, outdir=args.odir)
+
+    varsResponse = {
+        ("ResponsePt_Sigma", "ResponsePt_Mean")     : dict(name='ResolutionPt', ytitle=titles['resolution'], xtitle=r'$p_{T} [GeV]$', logy=False),
+        ("ResponseEta_Sigma", "ResponseEta_Mean")   : dict(name='ResolutionEta', ytitle=titles['resolution'], xtitle=r'$\eta$', logy=False),
+        ("ResponsePhi_Sigma", "ResponsePhi_Mean")   : dict(name='ResolutionPhi',ytitle=titles['resolution'], xtitle=r'$\phi$', logy=False),
+        ("ResponseMult_Sigma", "ResponseMult_Mean") : dict(name='ResolutionMult',ytitle=titles['resolution'], xtitle='Multiplicity', logy=False),
+    }
+    for (num, den), props in varsResponse.items():
+        plotOverlayRatio(subdirs, dqm_dir, num, den, props, outdir=args.odir)
