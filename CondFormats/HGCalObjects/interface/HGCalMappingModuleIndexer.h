@@ -178,6 +178,7 @@ public:
   uint32_t maxErxIndex() const { return maxErxIdx_; }
   uint32_t maxModulesIndex() const { return maxModulesIdx_; }
   std::map<std::string, std::pair<uint32_t, uint32_t>> const &typecodeMap() const { return typecodeMap_; }
+  uint32_t maxModulesCount() const { return maxModulesCount_; }
 
   /// max number of main buffers/capture blocks per FED
   constexpr static uint32_t maxCBperFED_ = 10;
@@ -194,7 +195,7 @@ private:
   /// base offsets to apply per module type with different granularity : module, e-Rx, channel data
   std::vector<uint32_t> moduleOffsets_, erxOffsets_, dataOffsets_;
   /// global counters (sizes of vectors)
-  uint32_t nfeds_, maxDataIdx_, maxErxIdx_, maxModulesIdx_;
+  uint32_t nfeds_, maxDataIdx_, maxErxIdx_, maxModulesIdx_, maxModulesCount_;
   /// map from module type code string to (fedIdx,modIdx) pair (implemented to retrieve dense index offset)
   std::map<std::string, std::pair<uint32_t, uint32_t>> typecodeMap_;
 

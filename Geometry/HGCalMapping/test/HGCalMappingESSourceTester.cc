@@ -41,6 +41,8 @@ private:
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
   edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleTkn_;
   edm::ESGetToken<hgcal::HGCalDenseIndexInfoHost, HGCalDenseIndexInfoRcd> denseIndexTkn_;
+
+  int verbosity_;
 };
 
 //
@@ -49,7 +51,8 @@ HGCalMappingESSourceTester::HGCalMappingESSourceTester(const edm::ParameterSet& 
       cellTkn_(esConsumes()),
       moduleIndexTkn_(esConsumes()),
       moduleTkn_(esConsumes()),
-      denseIndexTkn_(esConsumes()) {}
+      denseIndexTkn_(esConsumes()),
+      verbosity_(iConfig.getParameter<int>("verbosity")) {}
 
 //
 void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -86,6 +89,8 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     totOffset += cellIdx.maxErx_[idx] * cellIdx.maxChPerErx_;
 
     //print
+    if (verbosity_ < 2)
+      continue;
     printf("[HGCalMappingIndexESSourceTester][analyze][%s] has index(internal)=%ld #eRx=%d #cells=%d offset=%d\n",
            typecode.c_str(),
            idx,
@@ -107,6 +112,8 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     if (!cells.view()[i].valid())
       continue;
     validCells++;
+    if (verbosity_ < 2)
+      continue;
     printf(
         "\t idx=%d isHD=%d iscalib=%d isSiPM=%d typeidx=%d chip=%d half=%d seq=%d rocpin=%d sensorcell=%d triglink=%d "
         "trigcell=%d i1=%d i2=%d t=%d trace=%f eleid=0x%x detid=0x%x\n",
@@ -149,6 +156,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
               std::inserter(unique_chDataOffsets, unique_chDataOffsets.end()));
 
     assert(frs.readoutTypes_.size() == frs.totalECONs_);
+
     size_t nmods = frs.totalECONs_;
     if (nmods == 0)
       continue;
@@ -160,6 +168,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     }
     printf("\n");
   }
+
   //check that there are unique offsets per modules in the full system
   assert(unique_modOffsets.size() == totalmods);
   assert(unique_erxOffsets.size() == totalmods);
@@ -167,7 +176,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
 
   //get the module mapper SoA
   auto const& modules = iSetup.getData(moduleTkn_);
-  int nmodules = modulesIdx.maxModulesIndex();
+  int nmodules = modulesIdx.maxModulesCount();
   int validModules = 0;
   assert(nmodules == modules.view().metadata().size());  //check for consistent size
   printf("[HGCalMappingIndexESSourceTester][analyze] Module mapping contents\n");
@@ -176,6 +185,8 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     if (!modules.view()[i].valid())
       continue;
     validModules++;
+    if (verbosity_ < 1)
+      continue;
     printf(
         "\t idx=%d zside=%d isSiPM=%d plane=%d i1=%d i2=%d irot=%d celltype=%d typeidx=%d fedid=%d localfedid=%d "
         "captureblock=%d capturesblockidx=%d econdidx=%d eleid=0x%x detid=0x%d cassette=0x%d\n",
@@ -317,7 +328,8 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   printf("\tTime: %f seconds\n", elapsed.count());
   HGCSiliconDetId did(detid);
   assert(did.type() == modules.view()[modidx].celltype());
-  assert(did.layer() == modules.view()[modidx].plane());
+  auto layer_offset = 26 * (did.det() == DetId::Detector::HGCalHSi);
+  assert(did.layer() + layer_offset == modules.view()[modidx].plane());
   assert(did.cellU() == cells.view()[cellidx].i1());
   assert(did.cellV() == cells.view()[cellidx].i2());
 
@@ -328,6 +340,8 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   printf("fedId fedReadoutSeq detId eleid modix cellidx channel x y z");
   for (int i = 0; i < nindices; i++) {
     auto row = denseIndexInfo.view()[i];
+    if (verbosity_ < 2)
+      continue;
     printf("%d %d 0x%x 0x%x %d %d %d %f %f %f\n",
            row.fedId(),
            row.fedReadoutSeq(),
@@ -345,6 +359,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
 //
 void HGCalMappingESSourceTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<int>("verbosity", 0)->setComment("0 - FED readout sequence / 1 - Module info / 2 - cell info");
   descriptions.addWithDefaultLabel(desc);
 }
 
