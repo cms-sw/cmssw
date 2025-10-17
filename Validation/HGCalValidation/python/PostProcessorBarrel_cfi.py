@@ -15,9 +15,9 @@ eff_layers.extend(["fake_phi_layer_barrel{} 'LayerCluster Fake Rate vs #phi Laye
 eff_layers.extend(["merge_eta_layer_barrel{} 'LayerCluster Merge Rate vs #eta Layer{}' NumMerge_LayerCluster_Eta_perlayer_barrel{} Denom_LayerCluster_Eta_perlayer_barrel{}".format(i, i, i, i) for i in range(maxlayer)])
 eff_layers.extend(["merge_phi_layer_barrel{} 'LayerCluster Merge Rate vs #phi Layer{}' NumMerge_LayerCluster_Phi_perlayer_barrel{} Denom_LayerCluster_Phi_perlayer_barrel{}".format(i, i, i, i) for i in range(maxlayer)])
 
-lcToCP_linking = barrelValidator.label_LCToCPLinking._InputTag__moduleLabel
+lcToCP_linking = barrelValidator.label_LCToCPLinking.value()
 postProcessorBarrellayerclusters = DQMEDHarvester('DQMGenericClient',
-    subDirs = cms.untracked.vstring(prefix + barrelValidator.label_layerClusterPlots._InputTag__moduleLabel + '/' + lcToCP_linking),
+    subDirs = cms.untracked.vstring(prefix + barrelValidator.label_layerClustersPlots.value() + '/' + lcToCP_linking),
     efficiency = cms.vstring(eff_layers),
     resolution = cms.vstring(),
     cumulativeDists = cms.untracked.vstring(),

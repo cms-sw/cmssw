@@ -1490,13 +1490,14 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     float hitEnergyWeight_invSum = 0;
     std::vector<std::pair<DetId, float>> haf_cp;
     for (const auto& sc : caloParticle.simClusters()) {
-      LogDebug("HGCalValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and "
-                                 << sc->energy() << " energy. " << std::endl;
-      simHits += sc->endcap_hits_and_fractions().size();
-      for (auto const& h_and_f : sc->endcap_hits_and_fractions()) {
+      auto endcap_hf = sc->filtered_hits_and_fractions([this](const DetId& x) { return !recHitTools_->isBarrel(x); });
+
+      LogDebug("HGCalValidator") << " This sim cluster has " << endcap_hf.size() << " simHits and " << sc->energy()
+                                 << " energy. " << std::endl;
+
+      simHits += endcap_hf.size();
+      for (auto const& h_and_f : endcap_hf) {
         const auto hitDetId = h_and_f.first;
-        if (recHitTools_->isBarrel(hitDetId))
-          continue;
         const int layerId =
             recHitTools_->getLayerWithOffset(hitDetId) + layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
         // set to 0 if matched RecHit not found
@@ -1590,8 +1591,7 @@ void HGVHistoProducerAlgo::fill_simCluster_histos(const Histograms& histograms,
   //+z: 50->99
 
   //To keep track of total num of simClusters per layer
-  //tnscpl[layerid]
-  std::vector<int> tnscpl(1000, 0);  //tnscpl.clear(); tnscpl.reserve(1000);
+  std::vector<int> tnscpl(2 * layers, 0);
 
   //To keep track of the total num of clusters per thickness in plus and in minus endcaps
   std::map<std::string, int> tnscpthplus;
@@ -1621,7 +1621,7 @@ void HGVHistoProducerAlgo::fill_simCluster_histos(const Histograms& histograms,
     //For the hits thickness of the layer cluster.
     double thickness = 0.;
     //To keep track if we added the simCluster in a specific layer
-    std::vector<int> occurenceSCinlayer(1000, 0);  //[layerid][0 if not added]
+    std::vector<int> occurenceSCinlayer(2 * layers, 0);  //[layerid][0 if not added]
 
     //loop through hits of the simCluster
     for (const auto& hAndF : sc.hits_and_fractions()) {
@@ -2231,8 +2231,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
   //+z: 52->103
 
   //To keep track of total num of layer clusters per layer
-  //tnlcpl[layerid]
-  std::vector<int> tnlcpl(1000, 0);  //tnlcpl.clear(); tnlcpl.reserve(1000);
+  std::vector<int> tnlcpl(2 * layers, 0);
 
   //To keep track of the total num of clusters per thickness in plus and in minus endcaps
   std::map<std::string, int> tnlcpthplus;
@@ -2263,9 +2262,9 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
 
   //To find out the total amount of energy clustered per layer
   //Initialize with zeros because I see clear gives weird numbers.
-  std::vector<double> tecpl(1000, 0.0);  //tecpl.clear(); tecpl.reserve(1000);
+  std::vector<double> tecpl(2 * layers, 0.0);
   //for the longitudinal depth barycenter
-  std::vector<double> ldbar(1000, 0.0);  //ldbar.clear(); ldbar.reserve(1000);
+  std::vector<double> ldbar(2 * layers, 0.0);
 
   // Need to compare with the total amount of energy coming from CaloParticles
   double caloparteneplus = 0.;
@@ -2764,7 +2763,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
 
     //To keep track of total num of layer clusters per Trackster
     //tnLcInTstperlaypz[layerid], tnLcInTstperlaymz[layerid]
-    std::vector<int> tnLcInTstperlay(1000, 0);  //+z
+    std::vector<int> tnLcInTstperlay(2 * layers, 0);  //+z
 
     //For the layers the Trackster expands to. Will use a set because there would be many
     //duplicates and then go back to vector for random access, since they say it is faster.
