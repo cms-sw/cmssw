@@ -1,0 +1,4 @@
+<use name="FWIO/RNTupleTempOutput"/>
+<library file="Module.cc" name="FWIORNTupleTempOutputPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
