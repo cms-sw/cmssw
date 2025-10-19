@@ -47,6 +47,9 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
+  // constructor for code that does not use alpaka explicitly, using the global "host" object returned by cms::alpakatools::host()
+  PortableHostCollection(int32_t elements) : PortableHostCollection(elements, cms::alpakatools::host()) {}
+
   // non-copyable
   PortableHostCollection(PortableHostCollection const&) = delete;
   PortableHostCollection& operator=(PortableHostCollection const&) = delete;
