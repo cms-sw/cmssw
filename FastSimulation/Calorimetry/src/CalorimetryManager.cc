@@ -19,7 +19,6 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
-#include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 #include "FastSimulation/Utilities/interface/LandauFluctuationGenerator.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -66,7 +65,8 @@ std::vector<std::pair<int, float> > CalorimetryManager::myZero_ =
 CalorimetryState::CalorimetryState(const edm::ParameterSet& fastMuECAL,
                                    const edm::ParameterSet& fastMuHCAL,
                                    const edm::ParameterSet& parGflash)
-  : thePiKProfile(std::make_unique<GflashPiKShowerProfile>(parGflash)),
+  : aGammaGenerator(std::make_unique<GammaFunctionGenerator>()),
+    thePiKProfile(std::make_unique<GflashPiKShowerProfile>(parGflash)),
     theProtonProfile(std::make_unique<GflashProtonShowerProfile>(parGflash)),
     theAntiProtonProfile(std::make_unique<GflashAntiProtonShowerProfile>(parGflash)) {
   // Material Effects for Muons in ECAL (only EnergyLoss implemented so far)
@@ -99,7 +99,6 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
                                        const CalorimetryConsumer& iConsumer)
     : bFixedLength_(false) {
   aLandauGenerator_ = std::make_unique<LandauFluctuationGenerator>();
-  aGammaGenerator_ = std::make_unique<GammaFunctionGenerator>();
 
   // FastHFShowerLibrary
   theHFShowerLibrary_ = std::make_unique<FastHFShowerLibrary>(fastCalo, iSetup, iConsumer);
@@ -149,7 +148,7 @@ void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngine
     float charge_ = (float)(myTrack.charge());
     if (pid == 11 || pid == 22) {
       if (myTrack.onEcal())
-        EMShowerSimulation(myTrack, random, container);
+        EMShowerSimulation(myTrack, random, container, state);
       else if (myTrack.onVFcal()) {
         if (useShowerLibrary_) {
           HFHitMaker myHits;
@@ -178,7 +177,7 @@ void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngine
 }
 
 // Simulation of electromagnetic showers in PS, ECAL, HCAL
-void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) const {
+void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, CalorimetryState& state) const {
   std::vector<const RawParticle*> thePart;
   double X0depth;
 
@@ -284,7 +283,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
   if (maxEnergy > 100)
     size = 11;
 
-  EMShower theShower(random, aGammaGenerator_.get(), &showerparam, &thePart, nullptr, nullptr, bFixedLength_);
+  EMShower theShower(random, state.aGammaGenerator.get(), &showerparam, &thePart, nullptr, nullptr, bFixedLength_);
 
   double maxShower = theShower.getMaximumOfShower();
   if (maxShower > 20.)

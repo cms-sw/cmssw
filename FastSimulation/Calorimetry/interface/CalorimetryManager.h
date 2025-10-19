@@ -9,6 +9,7 @@
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
+#include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
@@ -37,7 +38,6 @@ class CaloGeometryHelper;
 class Histos;
 class HSParameters;
 class LandauFluctuationGenerator;
-class GammaFunctionGenerator;
 class RandomEngineAndDistribution;
 // FastHFshowerLibrary
 class FastHFShowerLibrary;
@@ -65,6 +65,7 @@ struct CalorimetryState {
                    const edm::ParameterSet& fastGflash);
   GflashHadronShowerProfile* profile(int particleType);
 
+  std::unique_ptr<GammaFunctionGenerator> aGammaGenerator;
   std::unique_ptr<MaterialEffects> theMuonEcalEffects;  // material effects for muons in ECAL
   std::unique_ptr<MaterialEffects> theMuonHcalEffects;  // material effects for muons in HCAL
   std::unique_ptr<GflashPiKShowerProfile> thePiKProfile;
@@ -90,7 +91,7 @@ public:
 
 private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
-  void EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container) const;
+  void EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, CalorimetryState& state) const;
 
   void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container) const;
 
@@ -155,7 +156,6 @@ private:
   //RF
 
   std::unique_ptr<LandauFluctuationGenerator> aLandauGenerator_;
-  std::unique_ptr<GammaFunctionGenerator> aGammaGenerator_;
 
   static std::vector<std::pair<int, float> > myZero_;
 
