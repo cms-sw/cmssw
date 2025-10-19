@@ -20,6 +20,9 @@ namespace edm {
     void CacheManagerBase::getEntry(TBranch* branch, EntryNumber entryNumber) { branch->GetEntry(entryNumber); }
     void CacheManagerBase::getAuxEntry(TBranch* branch, EntryNumber entryNumber) { getEntry(branch, entryNumber); }
     void CacheManagerBase::getEntryForAllBranches(EntryNumber entryNumber) const { tree_->GetEntry(entryNumber); }
+    std::shared_ptr<TTreeCache> CacheManagerBase::createCacheWithSize(unsigned int cacheSize) {
+      return filePtr_->createCacheWithSize(tree_, cacheSize);
+    }
 
     // policy with no TTreeCache
     class NoCache : public CacheManagerBase {
@@ -52,13 +55,12 @@ namespace edm {
       void createPrimaryCache(unsigned int cacheSize) override;
       void setEntryNumber(EntryNumber nextEntryNumber, EntryNumber entryNumber, EntryNumber entries) override;
       void trainCache(char const* branchNames) override;
-      void resetTraining() override;
+      void resetTraining(bool promptRead) override;
       void getEntry(TBranch* branch, EntryNumber entryNumber) override;
       void getEntryForAllBranches(EntryNumber entryNumber) const override;
 
-    private:
-      // SimpleCache does not own the treeCache_
-      TTreeCache* treeCache_;
+    protected:
+      std::shared_ptr<TTreeCache> treeCache_;
       BranchType branchType_;
       unsigned int learningEntries_;
       bool enablePrefetching_;
@@ -77,46 +79,105 @@ namespace edm {
       if (cachestats && treeCache_) {
         treeCache_->Print("a cachedbranches");
       }
+      // We own the treeCache_.
+      // We make sure the treeCache_ is detached from the file,
+      // so that ROOT does not also delete it.
+      filePtr_->clearCacheRead(tree_);
+      treeCache_.reset();
     }
 
     void SimpleCache::setEntryNumber(EntryNumber nextEntryNumber, EntryNumber entryNumber, EntryNumber entries) {
       if (nextEntryNumber != entryNumber) {
-        oneapi::tbb::this_task_arena::isolate([&]() {
-          tree_->LoadTree(nextEntryNumber);
-          treeCache_->FillBuffer();
-        });
+        auto guard = filePtr_->setCacheReadTemporarily(treeCache_.get(), tree_);
+        oneapi::tbb::this_task_arena::isolate([&]() { tree_->LoadTree(nextEntryNumber); });
       }
     }
 
     void SimpleCache::getEntry(TBranch* branch, EntryNumber entryNumber) {
+      auto guard = filePtr_->setCacheReadTemporarily(treeCache_.get(), tree_);
       oneapi::tbb::this_task_arena::isolate([&]() { branch->GetEntry(entryNumber); });
     }
 
     void SimpleCache::getEntryForAllBranches(EntryNumber entryNumber) const {
+      auto guard = filePtr_->setCacheReadTemporarily(treeCache_.get(), tree_);
       oneapi::tbb::this_task_arena::isolate([&]() { tree_->GetEntry(entryNumber); });
     }
 
     void SimpleCache::createPrimaryCache(unsigned int cacheSize) {
-      tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
-      treeCache_ = dynamic_cast<TTreeCache*>(filePtr_->getCacheRead(tree_));
+      treeCache_ = createCacheWithSize(cacheSize);
       assert(treeCache_);
-
       treeCache_->SetEnablePrefetching(enablePrefetching_);
-      treeCache_->SetLearnEntries(learningEntries_);
     }
 
-    void SimpleCache::resetTraining() {
-      trainCache(nullptr);
-      treeCache_->SetLearnEntries(learningEntries_);
+    void SimpleCache::resetTraining(bool promptRead) {
+      if (cachestats) {
+        treeCache_->Print("a cachedbranches");
+      }
+      const auto addBranches = promptRead ? "*" : nullptr;
+      trainCache(addBranches);
     }
 
     void SimpleCache::trainCache(char const* branchNames) {
-      tree_->LoadTree(0);
       treeCache_->StartLearningPhase();
       treeCache_->SetEntryRange(0, tree_->GetEntries());
       if (branchNames) {
+        treeCache_->SetLearnEntries(0);
         treeCache_->AddBranch(branchNames, kTRUE);
+        treeCache_->StopLearningPhase();
+      } else {
+        treeCache_->SetLearnEntries(learningEntries_);
+        auto guard = filePtr_->setCacheReadTemporarily(treeCache_.get(), tree_);
+        tree_->LoadTree(0);
       }
+    }
+
+    class SimpleWithAuxCache : public SimpleCache {
+    public:
+      SimpleWithAuxCache(std::shared_ptr<InputFile> filePtr,
+                         unsigned int learningEntries,
+                         bool enablePrefetching,
+                         BranchType const& branchType);
+      void getAuxEntry(TBranch* branch, EntryNumber entryNumber) override;
+      void reset() override;
+
+    private:
+      TTreeCache* getAuxCache(TBranch* auxBranch);
+      std::shared_ptr<TTreeCache> auxCache_;
+    };
+
+    SimpleWithAuxCache::SimpleWithAuxCache(std::shared_ptr<InputFile> filePtr,
+                                           unsigned int learningEntries,
+                                           bool enablePrefetching,
+                                           BranchType const& branchType)
+        : SimpleCache(filePtr, learningEntries, enablePrefetching, branchType) {}
+
+    TTreeCache* SimpleWithAuxCache::getAuxCache(TBranch* auxBranch) {
+      if (not auxCache_) {
+        auxCache_ = createCacheWithSize(1 * 1024 * 1024);
+        if (auxCache_) {
+          auxCache_->SetEnablePrefetching(enablePrefetching_);
+          auxCache_->SetLearnEntries(0);
+          auxCache_->StartLearningPhase();
+          auxCache_->SetEntryRange(0, tree_->GetEntries());
+          auxCache_->AddBranch(auxBranch->GetName(), kTRUE);
+          auxCache_->StopLearningPhase();
+        }
+      }
+      return auxCache_.get();
+    }
+
+    void SimpleWithAuxCache::reset() {
+      if constexpr (cachestats) {
+        if (auxCache_)
+          auxCache_->Print("a cachedbranches");
+      }
+      auxCache_.reset();
+      SimpleCache::reset();
+    }
+
+    void SimpleWithAuxCache::getAuxEntry(TBranch* branch, EntryNumber entryNumber) {
+      auto guard = filePtr_->setCacheReadTemporarily(getAuxCache(branch), tree_);
+      branch->GetEntry(entryNumber);
     }
 
     //
@@ -139,7 +200,7 @@ namespace edm {
             enableTriggerCache_(branchType_ == InEvent) {}
       ~SparseReadCache() override { reset(); }
       void createPrimaryCache(unsigned int cacheSize) override;
-      void resetTraining() override;
+      void resetTraining(bool promptRead) override;
       void reset() override;
       void setEntryNumber(EntryNumber nextEntryNumber, EntryNumber entryNumber, EntryNumber entries) override;
       void trainCache(char const* branchNames) override;
@@ -152,7 +213,6 @@ namespace edm {
     private:
       void getEntryUsingCache(TBranch* branch, EntryNumber entryNumber, TTreeCache* cache);
       TTreeCache* getAuxCache(TBranch* auxBranch);
-      std::shared_ptr<TTreeCache> createCacheWithSize(unsigned int cacheSize);
       TTreeCache* selectCache(TBranch* branch, EntryNumber entryNumber);
       TTreeCache* checkTriggerCache(TBranch* branch, EntryNumber entryNumber);
       TTreeCache* checkTriggerCacheImpl(TBranch* branch, EntryNumber entryNumber);
@@ -185,10 +245,6 @@ namespace edm {
       std::unordered_set<TBranch*> trainedSet_;
       std::unordered_set<TBranch*> triggerSet_;
     };
-
-    std::shared_ptr<TTreeCache> SparseReadCache::createCacheWithSize(unsigned int cacheSize) {
-      return filePtr_->createCacheWithSize(*tree_, cacheSize);
-    }
 
     void SparseReadCache::createPrimaryCache(unsigned int cacheSize) {
       cacheSize_ = cacheSize;
@@ -353,10 +409,8 @@ namespace edm {
     }
 
     void SparseReadCache::getEntryForAllBranches(EntryNumber entryNumber) const {
-      oneapi::tbb::this_task_arena::isolate([&]() {
-        auto guard = filePtr_->setCacheReadTemporarily(treeCache_.get(), tree_);
-        tree_->GetEntry(entryNumber);
-      });
+      auto guard = filePtr_->setCacheReadTemporarily(treeCache_.get(), tree_);
+      oneapi::tbb::this_task_arena::isolate([&]() { tree_->GetEntry(entryNumber); });
     }
 
     void SparseReadCache::startTraining(EntryNumber entryNumber) {
@@ -404,9 +458,13 @@ namespace edm {
       rawTreeCache_.reset();
     }
 
-    void SparseReadCache::resetTraining() { trainNow_ = true; }
+    void SparseReadCache::resetTraining(bool promptRead) { trainNow_ = true; }
 
     void SparseReadCache::reset() {
+      // We own the treeCache_.
+      // We make sure the treeCache_ is detached from the file,
+      // so that ROOT does not also delete it.
+      filePtr_->clearCacheRead(tree_);
       if constexpr (cachestats) {
         if (treeCache_)
           treeCache_->Print("a cachedbranches");
@@ -479,10 +537,6 @@ namespace edm {
     }
 
     void SparseReadCache::trainCache(char const* branchNames) {
-      // We own the treeCache_.
-      // We make sure the treeCache_ is detached from the file,
-      // so that ROOT does not also delete it.
-
       if (cacheSize_ == 0) {
         return;
       }
@@ -529,12 +583,15 @@ namespace edm {
                                                                unsigned int learningEntries,
                                                                bool enablePrefetching,
                                                                BranchType const& branchType) {
-      if (strategy == CacheStrategy::kSimple) {
-        return std::make_unique<SimpleCache>(filePtr, learningEntries, enablePrefetching, branchType);
-      } else if (strategy == CacheStrategy::kSparse) {
-        return std::make_unique<SparseReadCache>(filePtr, learningEntries, enablePrefetching, branchType);
-      } else if (strategy == CacheStrategy::kNone) {
-        return std::make_unique<NoCache>(filePtr);
+      switch (strategy) {
+        case CacheStrategy::kNone:
+          return std::make_unique<NoCache>(filePtr);
+        case CacheStrategy::kSimple:
+          return std::make_unique<SimpleCache>(filePtr, learningEntries, enablePrefetching, branchType);
+        case CacheStrategy::kSimpleWithAuxCache:
+          return std::make_unique<SimpleWithAuxCache>(filePtr, learningEntries, enablePrefetching, branchType);
+        case CacheStrategy::kSparse:
+          return std::make_unique<SparseReadCache>(filePtr, learningEntries, enablePrefetching, branchType);
       }
 
       throw cms::Exception("BadConfig") << "CacheManagerBase:  unknown cache strategy requested";

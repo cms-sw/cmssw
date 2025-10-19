@@ -19,7 +19,7 @@
 
 #include <memory>
 
-class TFileCacheRead;
+class TTreeCache;
 class TBranch;
 class TTree;
 
@@ -34,6 +34,7 @@ namespace edm {
       enum class CacheStrategy {
         kNone,
         kSimple,
+        kSimpleWithAuxCache,
         kSparse,
       };
 
@@ -45,7 +46,7 @@ namespace edm {
       // non-serial reads, especially skipping backwards in the tree
       virtual void setEntryNumber(EntryNumber nextEntryNumber, EntryNumber entryNumber, EntryNumber entries) = 0;
 
-      virtual void resetTraining() {}
+      virtual void resetTraining(bool promptRead = false) {}
       virtual void reset() {}
       virtual void trainCache(char const* branchNames) {}
       virtual void init(TTree* tree, unsigned int treeAutoFlush) { tree_ = tree; }
@@ -61,6 +62,8 @@ namespace edm {
                                                       BranchType const& branchType);
 
     protected:
+      std::shared_ptr<TTreeCache> createCacheWithSize(unsigned int cacheSize);
+
       std::shared_ptr<InputFile> filePtr_;
       TTree* tree_ = nullptr;
 

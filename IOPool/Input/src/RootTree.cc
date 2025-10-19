@@ -270,17 +270,13 @@ namespace edm {
     return retval;
   }
 
-  void RootTree::resetTraining() { treeCacheManager_->resetTraining(); }
+  void RootTree::resetTraining() { treeCacheManager_->resetTraining(promptRead_); }
 
   void RootTree::close() {
     // The TFile is about to be closed, and destructed.
     // Just to play it safe, zero all pointers to quantities that are owned by the TFile.
     auxBranch_ = branchEntryInfoBranch_ = nullptr;
     tree_ = metaTree_ = infoTree_ = nullptr;
-    // We own the treeCache_.
-    // We make sure the treeCache_ is detached from the file,
-    // so that ROOT does not also delete it.
-    filePtr_->clearCacheRead(tree_);
     // We *must* delete the TTreeCache here because the TFilePrefetch object
     // references the TFile.  If TFile is closed, before the TTreeCache is
     // deleted, the TFilePrefetch may continue to do TFile operations, causing
@@ -324,7 +320,7 @@ namespace edm {
                                            unsigned int cacheSize,
                                            char const* branchNames) {
       tree->LoadTree(0);
-      std::unique_ptr<TTreeCache> treeCache = file.createCacheWithSize(*tree, cacheSize);
+      std::unique_ptr<TTreeCache> treeCache = file.createCacheWithSize(tree, cacheSize);
       if (nullptr != treeCache.get()) {
         treeCache->StartLearningPhase();
         treeCache->SetEntryRange(0, tree->GetEntries());
