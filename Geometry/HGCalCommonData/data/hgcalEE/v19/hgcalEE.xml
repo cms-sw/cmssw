@@ -299,11 +299,11 @@
       hgcalPassive:HGCalEECoolingL13F4PN, hgcalPassive:HGCalEECoolingL13F5PN</Vector>
     <Vector name="MaterialNames" type="string" nEntries="9">
       materials:Air, materials:Air, materials:Air, materials:Air,
-      materials:StainlessSteel, materials:Air, materials:Air,
+      materials:Air, materials:Air, materials:Air,
       materials:Air, materials:Air</Vector>
     <Vector name="VolumeNames" type="string" nEntries="9">
       HGCalEEAbsorber1, HGCalEEAbsorber2, HGCalEEAbsorber3,
-      HGCalEECoolingPlate, HGCalEEStainlessSteelCover, HGCalEELayerF, 
+      HGCalEECoolingPlate, HGCalAirGap0, HGCalEELayerF, 
       HGCalEELayerB, HGCalAirGap1, HGCalAirGap2</Vector>
     <Vector name="Thickness" type="numeric" nEntries="9">
       [hgcal:thickEEAbsorber1], [hgcal:thickEEAbsorber2], [hgcal:thickEEAbsorber3],
