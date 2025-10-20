@@ -697,7 +697,7 @@ void SimPixelTrackAnalyzer<TrackerTraits>::fillCutHistograms(
 //  function that fills all histograms of SimDoublets (in folder SimDoublets)
 template <typename TrackerTraits>
 void SimPixelTrackAnalyzer<TrackerTraits>::fillSimDoubletHistograms(SimPixelTrack::Doublet const& doublet,
-                                                                  simdoublets::TrackTruth const& trackTruth) {
+                                                                    simdoublets::TrackTruth const& trackTruth) {
   // check if doublet passed all cuts
   bool passed = doublet.isAlive();
 
@@ -719,7 +719,7 @@ void SimPixelTrackAnalyzer<TrackerTraits>::fillSimDoubletHistograms(SimPixelTrac
 //  function that fills all histograms of SimNtuplets (in folder SimNtuplets)
 template <typename TrackerTraits>
 void SimPixelTrackAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimPixelTrack const& simPixelTrack,
-                                                                  simdoublets::TrackTruth const& trackTruth) {
+                                                                    simdoublets::TrackTruth const& trackTruth) {
   // get the longest SimNtuplet of the TrackingParticle (if it exists)
   auto const& longNtuplet = simPixelTrack.longestSimNtuplet();
 
@@ -854,10 +854,10 @@ void SimPixelTrackAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimPixelTrac
 // function that fills all general histograms (in folder general)
 template <typename TrackerTraits>
 void SimPixelTrackAnalyzer<TrackerTraits>::fillGeneralHistograms(SimPixelTrack const& simPixelTrack,
-                                                               simdoublets::TrackTruth const& trackTruth,
-                                                               int const pass_numSimDoublets,
-                                                               int const numSimDoublets,
-                                                               int const numSkippedLayers) {
+                                                                 simdoublets::TrackTruth const& trackTruth,
+                                                                 int const pass_numSimDoublets,
+                                                                 int const numSimDoublets,
+                                                                 int const numSkippedLayers) {
   // Now check if the TrackingParticle has a surviving SimNtuplet
   bool passed = simPixelTrack.hasAliveSimNtuplet();
 
@@ -1131,8 +1131,8 @@ void SimPixelTrackAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, con
 // booking the histograms
 template <typename TrackerTraits>
 void SimPixelTrackAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook,
-                                                        edm::Run const& run,
-                                                        edm::EventSetup const& iSetup) {
+                                                          edm::Run const& run,
+                                                          edm::EventSetup const& iSetup) {
   // set some common parameters
   int pTNBins = 200;
   double pTmin = log10(0.01);

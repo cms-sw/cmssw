@@ -263,7 +263,7 @@ public:
   class CoupledCutMonitorElement : public CoupledMonitorElement {
   public:
     CoupledCutMonitorElement() {}
-    ~CoupledCutMonitorElement() = default;
+    ~CoupledCutMonitorElement() override = default;
 
     template <typename... Args>
     void fillCut(const bool pass, simdoublets::TrackTruth const& trackTruth, const double inner, Args... args) {
@@ -318,7 +318,7 @@ public:
       h_eta_ = ibooker.book2D(
           name + "_eta", title + "; Pseudorapidity #eta; " + title, etaNBins, etaMin, etaMax, cutNBins, cutMin, cutMax);
       h_passThisCut_ = ibooker.bookProfile(
-          name + "_passThisCut", title + ";;Fraction of Doublets passing this cut", 1, 0, 1, 0.0, 1.0, " ");
+          name + "_passThisCut", title + ";;Fraction of Doublets passing this cut", 1, 0.0, 1, 0.0, 1.0, " ");
     }
 
     // additional histograms for cuts
@@ -334,7 +334,10 @@ public:
   struct SimNtupletMonitorElement {
   public:
     struct histogramBlock {
-      void book(DQMStore::IBooker& ibook, const std::string& simNtupletName, const std::string& statusTag, const std::string& statusLabel) {
+      void book(DQMStore::IBooker& ibook,
+                const std::string& simNtupletName,
+                const std::string& statusTag,
+                const std::string& statusLabel) {
         int pTNBins = 200;
         double pTmin = log10(0.01);
         double pTmax = log10(1000);
@@ -349,21 +352,18 @@ public:
         double etamin = -4.5;
         double etamax = 4.5;
         const auto name2 = ("num_eta_" + statusTag).c_str();
-        const auto title2 = (simNtupletName + statusLabel + ";True pseudorapidity #eta;Number of TrackingParticles").c_str();
-        h_eta = ibook.book1D(
-            name2,
-            title2,
-            etaNBins,
-            etamin,
-            etamax);
+        const auto title2 =
+            (simNtupletName + statusLabel + ";True pseudorapidity #eta;Number of TrackingParticles").c_str();
+        h_eta = ibook.book1D(name2, title2, etaNBins, etamin, etamax);
 
         int vertPosNBins = 40;
         double vertPosmin = log10(0.01);
         double vertPosmax = log10(100);
         const auto name3 = ("num_vertpos_" + statusTag).c_str();
-        const auto title3 =
-            (simNtupletName + statusLabel + ";True radial vertex position r_{vertex} [cm];Number of "
-            "TrackingParticles").c_str();
+        const auto title3 = (simNtupletName + statusLabel +
+                             ";True radial vertex position r_{vertex} [cm];Number of "
+                             "TrackingParticles")
+                                .c_str();
         auto h2 = std::make_unique<TH1F>(name3, title3, vertPosNBins, vertPosmin, vertPosmax);
         simdoublets::BinLogX(h2.get());
         h_vertpos = ibook.book1D(name3, h2.release());
@@ -379,15 +379,19 @@ public:
     };
     void bookHistograms(DQMStore::IBooker& ibook, const std::string& simNtupletName) {
       alive_.book(ibook, simNtupletName, "Alive", " (alive)");
-      undefDoubletCuts_.book(ibook, simNtupletName ,"UndefDoubletCuts", " (with undef doublet cuts)");
+      undefDoubletCuts_.book(ibook, simNtupletName, "UndefDoubletCuts", " (with undef doublet cuts)");
       undefConnectionCuts_.book(ibook, simNtupletName, "UndefConnectionCuts", " (with undef connection cuts)");
       missingLayerPair_.book(ibook, simNtupletName, "MissingLayerPair", " (with missing layer pair)");
       killedDoublets_.book(ibook, simNtupletName, "KilledDoublets", " (killed by doublet cuts)");
-      killedDoubletConnections_.book(ibook, simNtupletName, "KilledConnections", " (killed by doublet connection cuts)");
-      killedTripletConnections_.book(ibook, simNtupletName, "KilledTripletConnections", " (killed by triplet connection cuts)");
+      killedDoubletConnections_.book(
+          ibook, simNtupletName, "KilledConnections", " (killed by doublet connection cuts)");
+      killedTripletConnections_.book(
+          ibook, simNtupletName, "KilledTripletConnections", " (killed by triplet connection cuts)");
       tooShort_.book(ibook, simNtupletName, "TooShort", " (3 RecHits but still shorter than the threshold)");
-      notStartingPair_.book(
-          ibook, simNtupletName, "NotStartingPair"," (has first doublet in layer pair not considered for starting Ntuplets)");
+      notStartingPair_.book(ibook,
+                            simNtupletName,
+                            "NotStartingPair",
+                            " (has first doublet in layer pair not considered for starting Ntuplets)");
     }
 
     histogramBlock alive_;
