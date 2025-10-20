@@ -1,4 +1,4 @@
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsA.h"
+#include "SimG4Core/PhysicsLists/plugins/adept/CMSEmStandardPhysicsA.h"
 #include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

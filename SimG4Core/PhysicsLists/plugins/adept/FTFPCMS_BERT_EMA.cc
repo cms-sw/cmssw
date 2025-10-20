@@ -1,5 +1,5 @@
 #include "FTFPCMS_BERT_EMA.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsA.h"
+#include "SimG4Core/PhysicsLists/plugins/adept/CMSEmStandardPhysicsA.h"
 #include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

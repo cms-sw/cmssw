@@ -2,7 +2,6 @@
 <use name="clhep"/>
 <use name="geant4core"/>
 <use name="g4hepemcore"/>
-<use name="adept"/>
 <use name="heppdt"/>
 <use name="FWCore/MessageLogger"/>
 <use name="SimG4Core/MagneticField"/>
@@ -11,4 +10,3 @@
 <export>
   <lib name="1"/>
 </export>
-<flags CXXFLAGS="-DASYNC_MODE=ON -DADEPT_USE_EXT_BFIELD=ON"/>
