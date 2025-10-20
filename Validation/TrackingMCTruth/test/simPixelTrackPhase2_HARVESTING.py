@@ -1,10 +1,10 @@
 """
-This script runs the harvesting step on top of the file `simDoublets_DQMIO.root` produced when running the
-simDoubletsPhase2_TEST.py script. To harvest simply run:
+This script runs the harvesting step on top of the file `simPixelTrack_DQMIO.root` produced when running the
+simPixelTrackPhase2_TEST.py script. To harvest simply run:
 
-cmsRun simDoubletsPhase2_HARVESTING.py
+cmsRun simPixelTrackPhase2_HARVESTING.py
 
-This will produce a DQM file with all SimDoublets histograms.
+This will produce a DQM file with all SimPixelTrack histograms.
 """
 
 import FWCore.ParameterSet.Config as cms
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring('file:simDoublets_DQMIO.root')
+    fileNames = cms.untracked.vstring('file:simPixelTrack_DQMIO.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -51,8 +51,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
 
 # Path and EndPath definitions
-process.load('Validation.TrackingMCTruth.PostProcessorSimDoublets_cff')  # load harvesting config for SimDoublets
-process.harvesting_step = cms.Path(process.postProcessorSimDoubletsSequence)
+process.load('Validation.TrackingMCTruth.PostProcessorSimPixelTrack_cff')  # load harvesting config for SimPixelTrack
+process.harvesting_step = cms.Path(process.postProcessorSimPixelTrackSequence)
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition

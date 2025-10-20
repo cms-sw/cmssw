@@ -141,7 +141,7 @@ postProcessorSimNtuplets2D = DQMEDHarvester("DQMGenericClient",
 
 
 
-postProcessorSimDoubletsSequence = cms.Sequence(
+postProcessorSimPixelTrackSequence = cms.Sequence(
     postProcessorGeneral +
     postProcessorGeneral2D +
     postProcessorSimDoublets +
