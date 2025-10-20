@@ -1,14 +1,14 @@
 """
-This script runs the SimDoubletsProducer and SimDoubletsAnalyzer for Phase2.
+This script runs the SimPixelTrackProducer and SimPixelTrackAnalyzer for Phase2.
 
 To run it, you first have to produce or get the output root file from a step 2 that runs the HLT.
 The input file is expected to be named `step2.root` by default, but you can also rename it below.
 Then you can simply run the config using:
 
-cmsRun simDoubletsPhase2_TEST.py
+cmsRun simPixelTrackPhase2_TEST.py
 
-It will produce one DQMIO output file named `simDoublets_DQMIO.root`. 
-This can be further processed in the harvesting step by running the simDoubletsPhase2_HARVESTING.py script.
+It will produce one DQMIO output file named `simPixelTrack_DQMIO.root`. 
+This can be further processed in the harvesting step by running the simPixelTrackPhase2_HARVESTING.py script.
 """
 inputFile = "step2.root"
 
@@ -52,17 +52,17 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load("HLTrigger.Configuration.HLT_75e33.modules.hltSiPixelRecHits_cfi")
 ### load hltTPClusterProducer
 process.load("Validation.RecoTrack.associators_cff")
-### load the new EDProducer "SimDoubletsProducerPhase2"
-process.load("SimTracker.TrackerHitAssociation.simDoubletsProducerPhase2_cfi")
-### load the new DQM EDAnalyzer "SimDoubletsAnalyzerPhase2"
-process.load("Validation.TrackingMCTruth.simDoubletsAnalyzerPhase2_cfi")
+### load the new EDProducer "SimPixelTrackProducerPhase2"
+process.load("SimTracker.TrackerHitAssociation.simPixelTrackProducerPhase2_cfi")
+### load the new DQM EDAnalyzer "SimPixelTrackAnalyzerPhase2"
+process.load("Validation.TrackingMCTruth.simPixelTrackAnalyzerPhase2_cfi")
 
 ####  set up the paths
 process.simDoubletPath = cms.Path(
     process.hltSiPixelRecHits *         # reproduce the SiPixelRecHits
     process.hltTPClusterProducer *      # run the cluster to TrackingParticle association
-    process.simDoubletsProducerPhase2 * # produce the SimDoublets
-    process.simDoubletsAnalyzerPhase2   # analyze the SimDoublets
+    process.simPixelTrackProducerPhase2 * # produce the SimPixelTracks
+    process.simPixelTrackAnalyzerPhase2   # analyze the SimPixelTracks
 )
 
 # Output definition
@@ -71,7 +71,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:simDoublets_DQMIO.root'),
+    fileName = cms.untracked.string('file:simPixelTrack_DQMIO.root'),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
