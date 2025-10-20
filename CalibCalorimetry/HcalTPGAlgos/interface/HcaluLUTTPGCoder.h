@@ -61,7 +61,9 @@ public:
   void updateXML(const char* filename);
   void setLUTGenerationMode(bool gen) { LUTGenerationMode_ = gen; };
   void setOverrideFGHF(bool overrideFGHF) { overrideFGHF_ = overrideFGHF; };
-  void setFGHFthresholds(const std::vector<uint32_t>& fgthresholds) { FG_HF_thresholds_ = fgthresholds; };
+  void setFGHFthresholds(const std::array<uint32_t, 2>& fgthresholds) { FG_HF_thresholds_ = fgthresholds; };
+  void setOverrideHBLLP(bool overrideHBLLP) { overrideHBLLP_ = overrideHBLLP; };
+  void setHBLLPthresholds(const std::array<uint32_t, 4>& llpthresholds) { HB_LLP_thresholds_ = llpthresholds; };
   void setMaskBit(int bit) { bitToMask_ = bit; };
   void setAllLinear(bool linear, double lsb8, double lsb11, double lsb11overlap) {
     allLinear_ = linear;
@@ -116,7 +118,9 @@ private:
   const HcalTimeSlew* delay_;
   bool LUTGenerationMode_;
   bool overrideFGHF_ = false;
-  std::vector<uint32_t> FG_HF_thresholds_;
+  std::array<uint32_t, 2> FG_HF_thresholds_;
+  bool overrideHBLLP_ = false;
+  std::array<uint32_t, 4> HB_LLP_thresholds_;
   int bitToMask_;
   int firstHBEta_, lastHBEta_, nHBEta_, maxDepthHB_, sizeHB_;
   int firstHEEta_, lastHEEta_, nHEEta_, maxDepthHE_, sizeHE_;
