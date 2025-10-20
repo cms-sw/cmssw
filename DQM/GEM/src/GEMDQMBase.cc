@@ -147,6 +147,11 @@ int GEMDQMBase::SortingLayers(std::vector<ME4IdsKey>& listLayers) {
   return 0;
 }
 
+int GEMDQMBase::getDisplayModuleNumber(int station, int layer, int module_number) {
+    if (station == 2 && layer == 1) return module_number + 4;
+    return module_number;
+}
+
 dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& ibooker, TString strName) {
   std::vector<ME4IdsKey> listLayers;
   for (auto const& [key3, stationInfo] : mapStationInfo_) {
@@ -175,14 +180,15 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
 
     auto region = keyToRegion(key);
     auto strInfo = GEMUtils::getSuffixName(key3);  // NOTE: It starts with '_'
+    auto module_number = getDisplayModuleNumber(keyToStation(key), keyToLayer(key), keyToModule(key));
     if (mapStationInfo_[key3].nNumModules_ > 1) {
-      strInfo += Form("-M%i", keyToModule(key));
+      strInfo += Form("-M%i", module_number);
     }
     auto label = Form("GE%+i1-%cL%i-M%i;%s",
                       region * keyToStation(key),
                       (region > 0 ? 'P' : 'M'),
                       keyToLayer(key),
-                      keyToModule(key),
+                      module_number,
                       strInfo.Data());
     h2Res->setBinLabel(i, label, 2);
     Int_t nNumCh = mapStationInfo_[key3].nNumChambers_;
@@ -246,8 +252,10 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
       if (!MEMap4Check_[key4]) {
         Int_t nLa = gid.layer();
         TString strSuffixCh = Form("-L%i", nLa);
-        if (mapStationInfo_[key3].nNumModules_ > 1)
-          strSuffixCh = Form("-L%i-M%i", nLa, module_number);
+        if (mapStationInfo_[key3].nNumModules_ > 1) {
+          Int_t nMo = getDisplayModuleNumber(gid.station(), nLa, module_number);
+          strSuffixCh = Form("-L%i-M%i", nLa, nMo);
+        }
         auto strSuffixName = GEMUtils::getSuffixName(key2) + strSuffixCh;
         auto strSuffixTitle = GEMUtils::getSuffixTitle(key2) + strSuffixCh;
         BookingHelper bh4(ibooker, strSuffixName, strSuffixTitle);
@@ -270,8 +278,10 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
         Int_t nLa = gid.layer();
         char cLS = (nCh % 2 == 0 ? 'L' : 'S');  // FIXME: Is it general enough?
         TString strSuffixCh = Form("-%02iL%i-%c", nCh, nLa, cLS);
-        if (mapStationInfo_[key3].nNumModules_ > 1)
-          strSuffixCh = Form("-%02iL%i-M%i-%c", nCh, nLa, module_number, cLS);
+        if (mapStationInfo_[key3].nNumModules_ > 1) {
+          Int_t nMo = getDisplayModuleNumber(gid.station(), nLa, module_number);
+          strSuffixCh = Form("-%02iL%i-M%i-%c", nCh, nLa, nMo, cLS);
+        }
         auto strSuffixName = GEMUtils::getSuffixName(key2) + strSuffixCh;
         auto strSuffixTitle = GEMUtils::getSuffixTitle(key2) + strSuffixCh;
         BookingHelper bh5Ch(ibooker, strSuffixName, strSuffixTitle);
