@@ -52,7 +52,7 @@ namespace simpixeltracks {
 
   // function that determines the cluster size of a Pixel RecHit in local y direction
   // according to the formula used in Patatrack reconstruction
-  int clusterYSize(OmniClusterRef::ClusterPixelRef const cluster, uint16_t const pixmx, int const maxCol) {
+  inline int clusterYSize(OmniClusterRef::ClusterPixelRef const cluster, uint16_t const pixmx, int const maxCol) {
     // check if the cluster lies at the y-edge of the module
     if (cluster->minPixelCol() == 0 || cluster->maxPixelCol() == maxCol) {
       // if so, return -1
