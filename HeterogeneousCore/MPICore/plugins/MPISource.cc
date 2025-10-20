@@ -85,6 +85,7 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
       mode_(parseMode(config.getUntrackedParameter<std::string>("mode")))  //
 {
   // make sure that MPI is initialised
+
   MPIService::required();
 
   // Make sure the EDM MPI types are available.

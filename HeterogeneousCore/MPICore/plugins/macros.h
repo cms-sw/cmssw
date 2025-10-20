@@ -3,7 +3,6 @@
 
 #include <boost/preprocessor.hpp>
 #include <iterator>
-
 #include <mpi.h>
 
 namespace mpi_traits {

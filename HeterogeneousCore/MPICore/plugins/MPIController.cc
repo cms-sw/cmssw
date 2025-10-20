@@ -82,6 +82,7 @@ MPIController::MPIController(edm::ParameterSet const& config)
     : token_(produces<MPIToken>()),
       mode_(parseMode(config.getUntrackedParameter<std::string>("mode")))  //
 {
+
   // make sure that MPI is initialised
   MPIService::required();
 
@@ -268,6 +269,7 @@ void MPIController::produce(edm::Event& event, edm::EventSetup const& setup) {
     delete ptr;
   });
   event.emplace(token_, std::move(link));
+
 }
 
 void MPIController::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

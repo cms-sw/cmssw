@@ -1,0 +1,39 @@
+#! /bin/bash
+
+
+# MPICH passes "-x" to ssh by default
+# OMPI doesn't
+SSH_OPTS=""
+while [[ "$1" == -* ]]; do
+    SSH_OPTS="$SSH_OPTS $1"
+    shift
+done
+
+host="$1"
+cmd="${@:2}"
+
+function set_remote_cmsenv() {
+    # The paths needed to set cmsenv obtained in the local node and passed to this function
+    # This function is evaluated in the remote node
+
+    local LOCAL_VO_CMS_SW_DIR="$1"
+    local LOCAL_CMSSW_BASE="$2"
+
+    if [ -f "$LOCAL_VO_CMS_SW_DIR/cmsset_default.sh" ]; then
+        source "$LOCAL_VO_CMS_SW_DIR/cmsset_default.sh"
+    else
+        echo "error: invalid CMS installation at $LOCAL_VO_CMS_SW_DIR/ in host $(hostname)"
+        exit 1
+    fi
+
+    if [ ! -d "$LOCAL_CMSSW_BASE" ]; then
+        echo "error: Local \$CMSSW_BASE \"$LOCAL_CMSSW_BASE\" could not be found in host $(hostname)"
+        exit 1
+    fi
+
+    cd $LOCAL_CMSSW_BASE
+    eval $(scram runtime -sh)
+}
+
+# set cmssw env in remote before executing cmd
+ssh $SSH_OPTS $host "$(declare -f set_remote_cmsenv) && set_remote_cmsenv $VO_CMS_SW_DIR $CMSSW_BASE; $cmd"

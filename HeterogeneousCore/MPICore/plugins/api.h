@@ -15,6 +15,12 @@
 
 // local headers
 #include "messages.h"
+#include "metadata.h"
+
+#include <iostream>
+#include <utility>
+#include <bitset>
+
 
 class MPIChannel {
 public:
@@ -59,13 +65,19 @@ public:
   void sendEvent(edm::EventAuxiliary const& aux) { sendEventAuxiliary_(aux); }
 
   // start processing a new event, and receive the EventAuxiliary
-  MPI_Status receiveEvent(edm::EventAuxiliary& aux, int source) {
-    return receiveEventAuxiliary_(aux, source, EDM_MPI_ProcessEvent);
-  }
+  // MPI_Status receiveEvent(edm::EventAuxiliary& aux, int source) {
+  //   return receiveEventAuxiliary_(aux, source, EDM_MPI_ProcessEvent);
+  // }
 
   MPI_Status receiveEvent(edm::EventAuxiliary& aux, MPI_Message& message) {
     return receiveEventAuxiliary_(aux, message);
   }
+
+  void sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+  void receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+
+  // send buffer of serialized products
+  void sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag);
 
   // serialize an object of type T using its ROOT dictionary, and transmit it
   template <typename T>
@@ -81,33 +93,6 @@ public:
     }
   }
 
-  // serialize an object of generic type using its ROOT dictionary, and transmit it
-  void sendProduct(int instance, edm::ObjectWithDict const& product) {
-    // the expected use case is that the product type corresponds to the actual type,
-    // so we access the type with typeOf() instead of dynamicType()
-    edm::TypeWithDict const& type = product.typeOf();
-    if (not type.isFundamental()) {
-      sendSerializedProduct_(instance, product.typeOf().getClass(), product.address());
-    } else {
-      sendTrivialProduct_(instance, product);
-    }
-  }
-
-  // transfer a wrapped object using the TrivialCopyTraits or its ROOT dictionary
-  void sendProduct(int instance, edm::TypeWithDict const& type, edm::WrapperBase const& wrapper) {
-    if (wrapper.hasTrivialCopyTraits()) {
-      sendTrivialCopyProduct_(instance, &wrapper);
-    } else {
-      sendSerializedProduct_(instance, type.getClass(), &wrapper);
-    }
-  }
-
-  // signal that an expected product will not be transmitted
-  void sendSkipProduct() { sendEmpty_(EDM_MPI_SkipProduct); }
-
-  // signal that the transmission of multiple products is complete
-  void sendComplete() { sendEmpty_(EDM_MPI_SendComplete); }
-
   // receive and object of type T, and deserialize it using its ROOT dictionary
   template <typename T>
   void receiveProduct(int instance, T& product) {
@@ -122,26 +107,20 @@ public:
     }
   }
 
-  // receive and object of generic type, and deserialize it using its ROOT dictionary
-  void receiveProduct(int instance, edm::ObjectWithDict& product) {
-    // the expected use case is that the product type corresponds to the actual type,
-    // so we access the type with typeOf() instead of dynamicType()
-    edm::TypeWithDict const& type = product.typeOf();
-    if (not type.isFundamental()) {
-      receiveSerializedProduct_(instance, product.typeOf().getClass(), product.address());
-    } else {
-      receiveTrivialProduct_(instance, product);
-    }
-  }
+  // serialize a generic object using its ROOT dictionary, and send the binary blob
+  void sendSerializedProduct_(int instance, TClass const* type, void const* product);
 
-  // receive a wrapped object using the TrivialCopyTraits or its ROOT dictionary
-  void receiveProduct(int instance, edm::TypeWithDict const& type, edm::WrapperBase& wrapper) {
-    if (wrapper.hasTrivialCopyTraits()) {
-      receiveTrivialCopyProduct_(instance, &wrapper);
-    } else {
-      receiveSerializedProduct_(instance, type.getClass(), &wrapper);
-    }
-  }
+  // receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
+  void receiveSerializedProduct_(int instance, TClass const* type, void* product);
+
+  // receive product buffer of known size
+  std::unique_ptr<TBufferFile> receiveSerializedBuffer(int instance, int bufSize);
+
+  // transfer a wrapped object using its TrivialCopyTraits
+  void sendTrivialCopyProduct(int instance, edm::WrapperBase const* wrapper);
+
+  // receive into wrapped object
+  void receiveInitializedTrivialCopy(int instance, edm::WrapperBase* wrapper);
 
 private:
   // serialize an EDM object to a simplified representation that can be transmitted as an MPI message
@@ -177,9 +156,6 @@ private:
     MPI_Send(&product, sizeof(T), MPI_BYTE, dest_, tag, comm_);
   }
 
-  // send and receive generic primitive datatype
-  void sendTrivialProduct_(int instance, edm::ObjectWithDict const& product);
-
   // this is what is used when product is of raw fundamental type
   template <typename T>
   void receiveTrivialProduct_(int instance, T& product) {
@@ -192,21 +168,6 @@ private:
     assert(static_cast<int>(sizeof(T)) == size);
     MPI_Mrecv(&product, size, MPI_BYTE, &message, MPI_STATUS_IGNORE);
   }
-
-  // this is what is used when fundamental datatype is wrapped in ObjectWithDict
-  void receiveTrivialProduct_(int instance, edm::ObjectWithDict& product);
-
-  // serialize a generic object using its ROOT dictionary, and send the binary blob
-  void sendSerializedProduct_(int instance, TClass const* type, void const* product);
-
-  // receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
-  void receiveSerializedProduct_(int instance, TClass const* type, void* product);
-
-  // transfer a wrapped object using its TrivialCopyTraits
-  void sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper);
-
-  // receive a wrapped object using its TrivialCopyTraits
-  void receiveTrivialCopyProduct_(int instance, edm::WrapperBase* wrapper);
 
   // MPI intercommunicator
   MPI_Comm comm_ = MPI_COMM_NULL;

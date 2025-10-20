@@ -18,6 +18,8 @@
 #include "conversion.h"
 #include "messages.h"
 
+#include <iostream>
+
 namespace {
   // copy the content of an std::string-like object to an N-sized char buffer:
   // if the string is larger than the buffer, copy only the first N bytes;
@@ -156,7 +158,22 @@ MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Mess
   return status;
 }
 
-// serialize an object of generic type using its ROOT dictionary, and send the binary blob
+void MPIChannel::sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  meta->setHeader();
+  MPI_Ssend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_);
+}
+
+void MPIChannel::receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  meta->receiveMetadata(dest_, tag, comm_);
+}
+
+void MPIChannel::sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag) {
+  int commtag = tag | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Send(buf, size, MPI_BYTE, dest_, commtag, comm_);
+}
+
 void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void const* product) {
   TBufferFile buffer{TBuffer::kWrite};
   type->Streamer(const_cast<void*>(product), buffer);
@@ -164,13 +181,17 @@ void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void c
   MPI_Send(buffer.Buffer(), buffer.Length(), MPI_BYTE, dest_, tag, comm_);
 }
 
-// send simple datatypes directly
-void MPIChannel::sendTrivialProduct_(int instance, edm::ObjectWithDict const& product) {
-  int tag = EDM_MPI_SendTrivialProduct | instance * EDM_MPI_MessageTagWidth_;
-  MPI_Send(product.address(), product.typeOf().size(), MPI_BYTE, dest_, tag, comm_);
+std::unique_ptr<TBufferFile> MPIChannel::receiveSerializedBuffer(int instance, int bufSize) {
+  int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Status status;
+  auto buffer = std::make_unique<TBufferFile>(TBuffer::kRead,  bufSize);
+  MPI_Recv(buffer->Buffer(), bufSize, MPI_BYTE, dest_, tag, comm_, &status);
+  int receivedCount = 0;
+  MPI_Get_count(&status, MPI_BYTE, &receivedCount);
+  assert( receivedCount == bufSize && "received serialized buffer size mismatches the size expected from metadata");
+  return buffer;
 }
 
-// receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
 void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, void* product) {
   int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
   MPI_Message message;
@@ -183,27 +204,8 @@ void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, voi
   type->Streamer(product, buffer);
 }
 
-void MPIChannel::receiveTrivialProduct_(int instance, edm::ObjectWithDict& product) {
-  int tag = EDM_MPI_SendTrivialProduct | instance * EDM_MPI_MessageTagWidth_;
-  MPI_Message message;
-  MPI_Status status;
-  MPI_Mprobe(dest_, tag, comm_, &message, &status);
-  int size;
-  MPI_Get_count(&status, MPI_BYTE, &size);
-  assert(static_cast<int>(product.typeOf().size()) == size);
-  MPI_Mrecv(product.address(), size, MPI_BYTE, &message, MPI_STATUS_IGNORE);
-}
-
-// transfer a wrapped object using its TrivialCopyTraits
-void MPIChannel::sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper) {
+void MPIChannel::sendTrivialCopyProduct(int instance, edm::WrapperBase const* wrapper) {
   int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
-
-  // if the wrapped type requires it, send the properties required toinitialise the remote copy
-  if (wrapper->hasTrivialCopyProperties()) {
-    edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
-    MPI_Send(buffer.data(), buffer.size_bytes(), MPI_BYTE, dest_, tag, comm_);
-  }
-
   // transfer the memory regions
   auto regions = wrapper->trivialCopyRegions();
   // TODO send the number of regions ?
@@ -213,42 +215,14 @@ void MPIChannel::sendTrivialCopyProduct_(int instance, edm::WrapperBase const* w
   }
 }
 
-// receive a wrapped object using its TrivialCopyTraits
-void MPIChannel::receiveTrivialCopyProduct_(int instance, edm::WrapperBase* wrapper) {
+void MPIChannel::receiveInitializedTrivialCopy(int instance, edm::WrapperBase* wrapper) {
   int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
-
-  MPI_Message message;
   MPI_Status status;
-  int size;
-
-  // mark the wrapped object as present
-  wrapper->markAsPresent();
-
-  // if the wrapped type requires it, send the properties required toinitialise the remote copy
-  if (wrapper->hasTrivialCopyProperties()) {
-    edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
-    MPI_Mprobe(dest_, tag, comm_, &message, &status);
-    // check that the message size matches the expected buffer size
-    MPI_Get_count(&status, MPI_BYTE, &size);
-    assert(static_cast<int>(buffer.size_bytes()) == size);
-    // receive the properties
-    MPI_Mrecv(buffer.data(), buffer.size_bytes(), MPI_BYTE, &message, &status);
-    wrapper->trivialCopyInitialize(buffer);
-  }
-
   // receive the memory regions
   auto regions = wrapper->trivialCopyRegions();
   // TODO receive and validate the number of regions ?
   for (size_t i = 0; i < regions.size(); ++i) {
     assert(regions[i].data() != nullptr);
-    MPI_Mprobe(dest_, tag, comm_, &message, &status);
-    // check that the message size matches the expected region size
-    MPI_Get_count(&status, MPI_BYTE, &size);
-    assert(static_cast<int>(regions[i].size_bytes()) == size);
-    // receive the data region
-    MPI_Mrecv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, &message, &status);
+    MPI_Recv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_, &status);
   }
-
-  // finalize the clone after the trivialCopy, if the type requires it
-  wrapper->trivialCopyFinalize();
 }
