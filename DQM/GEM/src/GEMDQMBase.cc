@@ -148,8 +148,9 @@ int GEMDQMBase::SortingLayers(std::vector<ME4IdsKey>& listLayers) {
 }
 
 int GEMDQMBase::getDisplayModuleNumber(int station, int layer, int module_number) {
-    if (station == 2 && layer == 1) return module_number + 4;
-    return module_number;
+  if (station == 2 && layer == 1)
+    return module_number + 4;
+  return module_number;
 }
 
 dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& ibooker, TString strName) {
