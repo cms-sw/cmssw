@@ -1,5 +1,5 @@
-#ifndef SimDataFormats_TrackingAnalysis_SimDoublets_h
-#define SimDataFormats_TrackingAnalysis_SimDoublets_h
+#ifndef SimDataFormats_TrackingAnalysis_SimPixelTrack_h
+#define SimDataFormats_TrackingAnalysis_SimPixelTrack_h
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -16,10 +16,10 @@
 
 /** @brief Semi-Monte Carlo truth information used for pixel-tracking opimization.
  *
- * SimDoublets hold references to all pixel RecHits of a simulated TrackingParticle.
+ * SimPixelTracks hold references to all pixel RecHits of a simulated TrackingParticle.
  * Ones those RecHits are sorted according to their position relative to the particle vertex
  * by the method sortRecHits(), you can create the true doublets of RecHits that the 
- * TrackingParticle left in the detector. These SimDoublets::Doublet objects can be used  
+ * TrackingParticle left in the detector. These SimPixelTrack::Doublet objects can be used  
  * to optimize the doublet creation in the reconstruction.
  *
  * The Doublets are generated as the RecHit pairs between two consecutively hit layers.
@@ -36,7 +36,7 @@
  * @author Jan Schulz (jan.gerrit.schulz@cern.ch)
  * @date January 2025
  */
-class SimDoublets {
+class SimPixelTrack {
 public:
   /**
     * Sub-class for true doublets of RecHits
@@ -81,7 +81,7 @@ public:
     Doublet() = default;
 
     // constructor
-    Doublet(SimDoublets const&, size_t const, size_t const, const TrackerTopology*, std::vector<size_t> const&);
+    Doublet(SimPixelTrack const&, size_t const, size_t const, const TrackerTopology*, std::vector<size_t> const&);
 
     // method to get the layer pair
     std::pair<uint8_t, uint8_t> layerIds() const { return layerIds_; }
@@ -271,14 +271,14 @@ public:
   };
 
   // default contructor
-  SimDoublets() = default;
+  SimPixelTrack() = default;
 
   // constructor
-  SimDoublets(TrackingParticleRef const trackingParticleRef, reco::BeamSpot const& beamSpot)
+  SimPixelTrack(TrackingParticleRef const trackingParticleRef, reco::BeamSpot const& beamSpot)
       : trackingParticleRef_(trackingParticleRef), beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
-  SimDoublets(reco::TrackBaseRef const trackRef, reco::BeamSpot const& beamSpot)
+  SimPixelTrack(reco::TrackBaseRef const trackRef, reco::BeamSpot const& beamSpot)
       : trackRef_(trackRef), beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
-  SimDoublets(reco::BeamSpot const& beamSpot) : beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
+  SimPixelTrack(reco::BeamSpot const& beamSpot) : beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
 
   // method to add a RecHit to the SimPixelTrack
   void addRecHit(TrackingRecHit const& recHit,
@@ -322,7 +322,7 @@ public:
 
   // method to get the number of layers
   int numLayers() const { return numLayers_; }
-  // method to get number of RecHits in the SimDoublets
+  // method to get number of RecHits in the SimPixelTrack
   int numRecHits() const { return layerIdVector_.size(); }
   // method to get the number of SimDoublets
   int numDoublets() const { return doublets_.size(); }
@@ -414,7 +414,7 @@ private:
   mutable int bestNtupletIndex_{-1};
 };
 
-// collection of SimDoublets
-typedef std::vector<SimDoublets> SimDoubletsCollection;
+// collection of SimPixelTrack
+typedef std::vector<SimPixelTrack> SimPixelTrackCollection;
 
 #endif

@@ -26,6 +26,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
+#include "SimTracker/TrackerHitAssociation/interface/SimPixelTrackTools.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -39,7 +40,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/SimDoublets.h"
+#include "SimDataFormats/TrackingAnalysis/interface/SimPixelTrack.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFastParamsHost.h"
 #include "RecoLocalTracker/Records/interface/PixelCPEFastParamsRecord.h"
@@ -87,78 +88,8 @@ private:
   const edm::EDGetTokenT<edm::View<reco::Track>> tracks_getToken_;
   const edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociator_getToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpot_getToken_;
-  const edm::EDPutTokenT<SimDoubletsCollection> simPixelTracks_putToken_;
+  const edm::EDPutTokenT<SimPixelTrackCollection> simPixelTracks_putToken_;
 };
-
-namespace simdoublets {
-  // function that determines the layerId from the detId for Phase 2
-  template <typename TrackerTraits>
-  unsigned int getLayerId(DetId const& detId, const TrackerTopology* trackerTopology) {
-    // number of barrel layers
-    constexpr unsigned int numBarrelLayers{4};
-    // number of disks per endcap
-    constexpr unsigned int numEndcapDisks = (TrackerTraits::numberOfLayers - numBarrelLayers) / 2;
-
-    // set default to 999 (invalid)
-    unsigned int layerId{99};
-
-    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
-      // subtract 1 in the barrel to get, e.g. for Phase 2, from (1,4) to (0,3)
-      layerId = trackerTopology->pxbLayer(detId) - 1;
-    } else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
-      if (trackerTopology->pxfSide(detId) == 1) {
-        // add offset in the backward endcap to get, e.g. for Phase 2, from (1,12) to (16,27)
-        layerId = trackerTopology->pxfDisk(detId) + numBarrelLayers + numEndcapDisks - 1;
-      } else {
-        // add offest in the forward endcap to get, e.g. for Phase 2, from (1,12) to (4,15)
-        layerId = trackerTopology->pxfDisk(detId) + numBarrelLayers - 1;
-      }
-    } else if (detId.subdetId() == StripSubdetector::TOB) {
-      layerId = trackerTopology->getOTLayerNumber(detId) + 27;
-    }
-    // return the determined Id
-    return layerId;
-  }
-
-  // function that determines the cluster size of a Pixel RecHit in local y direction
-  // according to the formula used in Patatrack reconstruction
-  int clusterYSize(OmniClusterRef::ClusterPixelRef const cluster, uint16_t const pixmx, int const maxCol) {
-    // check if the cluster lies at the y-edge of the module
-    if (cluster->minPixelCol() == 0 || cluster->maxPixelCol() == maxCol) {
-      // if so, return -1
-      return -1;
-    }
-
-    // column span (span of cluster in y direction)
-    int span = cluster->colSpan();
-
-    // total charge of the first and last column of digis respectively
-    int q_firstCol = 0;
-    int q_lastCol = 0;
-
-    // loop over the pixels/digis of the cluster and update the charges of first and last column
-    int offset;
-    for (int i{0}; i < cluster->size(); i++) {
-      offset = cluster->pixelOffset()[2 * i + 1];
-
-      // check if pixel is in first column and eventually update the charge
-      if (offset == 0) {
-        q_firstCol += std::min(cluster->pixelADC()[i], pixmx);
-      }
-      // check if pixel is in last column and eventually update the charge
-      if (offset == span) {
-        q_lastCol += std::min(cluster->pixelADC()[i], pixmx);
-      }
-    }
-
-    // calculate the unbalance term
-    int unbalance = 8. * std::abs(float(q_firstCol - q_lastCol)) / float(q_firstCol + q_lastCol);
-
-    // calculate the cluster size
-    int clusterYSize = 8 * (span + 1) - unbalance;
-    return clusterYSize;
-  }
-}  // namespace simdoublets
 
 // constructor
 template <typename TrackerTraits>
@@ -174,8 +105,8 @@ SimPixelTrackFromRecoTrackProducer<TrackerTraits>::SimPixelTrackFromRecoTrackPro
       trackAssociator_getToken_(consumes<reco::TrackToTrackingParticleAssociator>(
           pSet.getUntrackedParameter<edm::InputTag>("trackAssociator"))),
       beamSpot_getToken_(consumes(pSet.getParameter<edm::InputTag>("beamSpotSrc"))),
-      simPixelTracks_putToken_(produces<SimDoubletsCollection>()) {
-  // initialize the selector for TrackingParticles used to create SimDoublets
+      simPixelTracks_putToken_(produces<SimPixelTrackCollection>()) {
+  // initialize the selector for TrackingParticles used to create SimPixelTrack
   const edm::ParameterSet& pSetTPSel = pSet.getParameter<edm::ParameterSet>("TrackingParticleSelectionConfig");
   trackingParticleSelector = TrackingParticleSelector(pSetTPSel.getParameter<double>("ptMin"),
                                                       pSetTPSel.getParameter<double>("ptMax"),
@@ -273,7 +204,7 @@ void SimPixelTrackFromRecoTrackProducer<TrackerTraits>::produce(edm::Event& even
   auto TPCollectionH = event.getHandle(trackingParticles_getToken_);
 
   // get the pixel RecHit collection from the event
-  auto const& hits = event.get(pixelRecHits_getToken_); 
+  auto const& hits = event.get(pixelRecHits_getToken_);
 
   // get cluster parameter estimate
   auto& cpe = eventSetup.getData(cpe_getToken_);
@@ -308,12 +239,12 @@ void SimPixelTrackFromRecoTrackProducer<TrackerTraits>::produce(edm::Event& even
   // -------------------------------------------
   // create collection of SimPixelTracks
   // each element will correspond to one selected track
-  SimDoubletsCollection simPixelTrackCollection;
+  SimPixelTrackCollection simPixelTrackCollection;
 
   // initialize a couple of variables used in the following loop
   unsigned int detId, layerId, maxCol;
   uint16_t pixmx;
-  int moduleId, clusterYSize {-1};
+  int moduleId, clusterYSize{-1};
 
   // loop over Tracks
   for (auto const& track : trackRefs) {
@@ -330,7 +261,7 @@ void SimPixelTrackFromRecoTrackProducer<TrackerTraits>::produce(edm::Event& even
       continue;
 
     // create SimPixelTrack
-    simPixelTrackCollection.emplace_back(SimDoublets(track, *beamSpot));
+    simPixelTrackCollection.emplace_back(SimPixelTrack(track, *beamSpot));
 
     // loop over the RecHits of that Track
     for (auto const& recHit : track->recHits()) {
@@ -339,7 +270,7 @@ void SimPixelTrackFromRecoTrackProducer<TrackerTraits>::produce(edm::Event& even
       DetId detIdObject(detId);
 
       // determine layer Id from detector Id
-      layerId = simdoublets::getLayerId<TrackerTraits>(detId, trackerTopology_);
+      layerId = simpixeltracks::getLayerId<TrackerTraits>(detId, trackerTopology_);
 
       // determine the module Id
       // const GeomDetUnit* genericDet = geom_->idToDetUnit(detIdObject);
@@ -353,12 +284,13 @@ void SimPixelTrackFromRecoTrackProducer<TrackerTraits>::produce(edm::Event& even
         // 3. find the RecHit in the collection to get the cluster reference
         for (auto const& hit : hits[detId]) {
           auto const hitGlobalPos = hit.globalPosition();
-          if ((std::abs(hitGlobalPos.x() - globalPos.x()) < 1e-4) && (std::abs(hitGlobalPos.y() - globalPos.y()) < 1e-4) &&
-            (std::abs(hitGlobalPos.z() - globalPos.z()) < 1e-4)) {
-          // determine the cluster size of the RecHit
-          clusterYSize = simdoublets::clusterYSize(hit.cluster(), pixmx, maxCol);
-          break;
-        }
+          if ((std::abs(hitGlobalPos.x() - globalPos.x()) < 1e-4) &&
+              (std::abs(hitGlobalPos.y() - globalPos.y()) < 1e-4) &&
+              (std::abs(hitGlobalPos.z() - globalPos.z()) < 1e-4)) {
+            // determine the cluster size of the RecHit
+            clusterYSize = simpixeltracks::clusterYSize(hit.cluster(), pixmx, maxCol);
+            break;
+          }
         }
       } else {
         clusterYSize = -1;
@@ -372,7 +304,7 @@ void SimPixelTrackFromRecoTrackProducer<TrackerTraits>::produce(edm::Event& even
     simPixelTrackCollection.back().sortRecHits(track->vx(), track->vy(), track->vz());
   }  // end loop over Tracks
 
-  // put the produced SimDoublets collection in the event
+  // put the produced SimPixelTrack collection in the event
   event.emplace(simPixelTracks_putToken_, std::move(simPixelTrackCollection));
 }
 

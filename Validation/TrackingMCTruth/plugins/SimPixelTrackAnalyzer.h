@@ -1,15 +1,15 @@
-#ifndef Validation_TrackingMCTruth_SimDoubletsAnalyzer_h
-#define Validation_TrackingMCTruth_SimDoubletsAnalyzer_h
+#ifndef Validation_TrackingMCTruth_SimPixelTrackAnalyzer_h
+#define Validation_TrackingMCTruth_SimPixelTrackAnalyzer_h
 
 // Package:    Validation/TrackingMCTruth
-// Class:      SimDoubletsAnalyzer
+// Class:      SimPixelTrackAnalyzer
 //
-/**\class SimDoubletsAnalyzer SimDoubletsAnalyzer.cc Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.cc
+/**\class SimPixelTrackAnalyzer SimPixelTrackAnalyzer.cc Validation/TrackingMCTruth/plugins/SimPixelTrackAnalyzer.cc
 
  Description: DQM analyzer for true RecHit doublets (SimDoublets) of the inner tracker
 
  Implementation:
-    This analyzer takes as input collection SimDoublets produced by the SimDoubletsProducer. Like the producer,
+    This analyzer takes as input collection SimPixelTracks produced by the SimPixelTrackProducer. Like the producer,
     you have two versions, one for Phase 1 and one for Phase 2.
     The analyzer's main purpose is to study the goodness of the pixel RecHit doublet creation in the patatrack
     pixel track reconstruction. This depends on a bunch of cuts, meaning a doublet of two RecHits is only formed
@@ -47,7 +47,7 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "SimDataFormats/TrackingAnalysis/interface/SimDoublets.h"
+#include "SimDataFormats/TrackingAnalysis/interface/SimPixelTrack.h"
 
 #include <vector>
 #include <string>
@@ -77,10 +77,10 @@ namespace simdoublets {
 // -------------------------------------------------------------------------------------------------------------
 
 template <typename TrackerTraits>
-class SimDoubletsAnalyzer : public DQMEDAnalyzer {
+class SimPixelTrackAnalyzer : public DQMEDAnalyzer {
 public:
-  explicit SimDoubletsAnalyzer(const edm::ParameterSet&);
-  ~SimDoubletsAnalyzer() override;
+  explicit SimPixelTrackAnalyzer(const edm::ParameterSet&);
+  ~SimPixelTrackAnalyzer() override;
 
   void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -407,8 +407,8 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // function to apply cuts and set doublet to alive if it passes and to killed otherwise
-  void applyCuts(SimDoublets::Doublet&,
-                 SimDoublets const&,
+  void applyCuts(SimPixelTrack::Doublet&,
+                 SimPixelTrack const&,
                  bool const,
                  bool const,
                  int const,
@@ -416,7 +416,7 @@ private:
                  simdoublets::ClusterSizeCutManager<TrackerTraits> const&);
 
   // function that fills all histograms for cut variables (in folder CAParameters)
-  void fillCutHistograms(SimDoublets::Doublet const&,
+  void fillCutHistograms(SimPixelTrack::Doublet const&,
                          bool const,
                          bool const,
                          int const,
@@ -425,32 +425,32 @@ private:
                          simdoublets::TrackTruth const&);
 
   // function that fills all histograms of SimDoublets (in folder SimDoublets)
-  void fillSimDoubletHistograms(SimDoublets::Doublet const&, simdoublets::TrackTruth const&);
+  void fillSimDoubletHistograms(SimPixelTrack::Doublet const&, simdoublets::TrackTruth const&);
 
   // function that fills all histograms of SimNtuplets (in folder SimNtuplets)
-  void fillSimNtupletHistograms(SimDoublets const&, simdoublets::TrackTruth const&);
+  void fillSimNtupletHistograms(SimPixelTrack const&, simdoublets::TrackTruth const&);
 
   // function that fills all general histograms (in folder general)
-  void fillGeneralHistograms(SimDoublets const&, simdoublets::TrackTruth const&, int const, int const, int const);
+  void fillGeneralHistograms(SimPixelTrack const&, simdoublets::TrackTruth const&, int const, int const, int const);
 
-  // function that trys to find a valid Ntuplet for the given SimDoublets object using the given geometry configuration
+  // function that trys to find a valid Ntuplet for the given SimPixelTrack using the given geometry configuration
   // (layer pairs, starting pairs, minimum number of hits) ignoring all cuts on doublets/connections and returns if it was able to find one
-  bool configAllowsForValidNtuplet(SimDoublets const&) const;
+  bool configAllowsForValidNtuplet(SimPixelTrack const&) const;
 
   // ------------ member data ------------
 
   const TrackerTopology* trackerTopology_ = nullptr;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topology_getToken_;
-  const edm::EDGetTokenT<SimDoubletsCollection> simDoublets_getToken_;
+  const edm::EDGetTokenT<SimPixelTrackCollection> simPixelTracks_getToken_;
 
   // number of layers in total
   int numLayers_;
 
-  // map that takes the layerPairId as defined in the SimDoublets
+  // map that takes the layerPairId as defined in the SimPixelTrack
   // and gives the position of the histogram in the histogram vector
   std::map<int, int> layerPairId2Index_;
 
-  // set that contains all the layerPairId as defined in the SimDoublets
+  // set that contains all the layerPairId as defined in the SimPixelTrack
   // that are considered as a starting points for Ntuplets
   std::set<int> startingPairs_;
 
