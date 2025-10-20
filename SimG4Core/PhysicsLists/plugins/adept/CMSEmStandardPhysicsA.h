@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------
 //
-// 18.10.2025 S.Diederichs EM physics using AdePT based on 
+// 18.10.2025 S.Diederichs EM physics using AdePT based on
 //                         CMSEmStandardPhysicsof
 //
 //--------------------------------------------------------------------
@@ -30,7 +30,7 @@ private:
   G4double fSafetyFactor;
   G4double fLambdaLimit;
   G4MscStepLimitType fStepLimitType;
-  AdePTConfiguration *fAdePTConfiguration;
+  AdePTConfiguration* fAdePTConfiguration;
 };
 
 #endif

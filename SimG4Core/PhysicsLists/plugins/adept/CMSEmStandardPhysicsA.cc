@@ -112,10 +112,10 @@ void CMSEmStandardPhysicsA::ConstructProcess() {
   }
 
   // number of worker threads must be passed to AdePT
-  fAdePTConfiguration->SetNumThreads(CurrentG4Track::numberOfWorkers()); 
+  fAdePTConfiguration->SetNumThreads(CurrentG4Track::numberOfWorkers());
 
   // Construct the AdePT tracking manager
-  auto* hepEmTM = new AdePTTrackingManager( fAdePTConfiguration, verboseLevel);
+  auto* hepEmTM = new AdePTTrackingManager(fAdePTConfiguration, verboseLevel);
 
   // now configure the G4HepEm config in the AdePT TM, as it will be used to define the physics
   G4HepEmConfig* config = hepEmTM->GetG4HepEmConfig();
