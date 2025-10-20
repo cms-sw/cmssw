@@ -71,10 +71,10 @@ namespace simpixeltracks {
 
 // constructor
 SimPixelTrack::Doublet::Doublet(SimPixelTrack const& simPixelTrack,
-                              size_t const innerIndex,
-                              size_t const outerIndex,
-                              const TrackerTopology* trackerTopology,
-                              std::vector<size_t> const& innerNeighborsIndices)
+                                size_t const innerIndex,
+                                size_t const outerIndex,
+                                const TrackerTopology* trackerTopology,
+                                std::vector<size_t> const& innerNeighborsIndices)
     : moduleIds_(std::make_pair(simPixelTrack.moduleIds(innerIndex), simPixelTrack.moduleIds(outerIndex))),
       globalPositions_(
           std::make_pair(simPixelTrack.globalPositions(innerIndex), simPixelTrack.globalPositions(outerIndex))),
@@ -95,7 +95,7 @@ SimPixelTrack::Doublet::Doublet(SimPixelTrack const& simPixelTrack,
   }
 
   // if there are neighbors, get their inner layerId
-  if (innerNeighborsIndices.size() > 0) {
+  if (!innerNeighborsIndices.empty()) {
     size_t index = innerNeighborsIndices.at(0);
     innerNeighborsInnerLayerId_ = simPixelTrack.getSimDoublet(index).innerLayerId();
   }
@@ -107,10 +107,10 @@ SimPixelTrack::Doublet::Doublet(SimPixelTrack const& simPixelTrack,
 
 // method to add a RecHit to the SimPixelTrack
 void SimPixelTrack::addRecHit(TrackingRecHit const& recHit,
-                            uint8_t const layerId,
-                            int16_t const clusterYSize,
-                            unsigned int const detId,
-                            int const moduleId) {
+                              uint8_t const layerId,
+                              int16_t const clusterYSize,
+                              unsigned int const detId,
+                              int const moduleId) {
   recHitsAreSorted_ = false;  // set sorted-bool to false again
 
   // check if the layerId is not present in the layerIdVector yet
@@ -240,13 +240,13 @@ void SimPixelTrack::buildSimDoublets(const TrackerTopology* trackerTopology) con
 // (the building starts from the outside and ends inside)
 // at each addition of a SimDoublet, a new SimNtuplet is stored
 void SimPixelTrack::buildSimNtuplets(SimPixelTrack::Doublet const& doublet,
-                                   std::vector<bool> const& tripletConnections,
-                                   size_t numSimDoublets,
-                                   size_t const lastLayerId,
-                                   uint8_t const status,
-                                   uint8_t const numSkippedLayers,
-                                   std::set<int> const& startingPairs,
-                                   size_t const minNumDoubletsToPass) const {
+                                     std::vector<bool> const& tripletConnections,
+                                     size_t numSimDoublets,
+                                     size_t const lastLayerId,
+                                     uint8_t const status,
+                                     uint8_t const numSkippedLayers,
+                                     std::set<int> const& startingPairs,
+                                     size_t const minNumDoubletsToPass) const {
   // update the number of SimDoublets once before looping over the actual neighbors to be added
   numSimDoublets++;
 
@@ -271,11 +271,11 @@ void SimPixelTrack::buildSimNtuplets(SimPixelTrack::Doublet const& doublet,
 
     // add the current state as a new SimNtuplet to the collection
     ntuplets_.emplace_back(SimPixelTrack::Ntuplet(numSimDoublets,
-                                                updatedStatus,
-                                                neighborDoublet.innerLayerId(),
-                                                neighborDoublet.outerLayerId(),
-                                                lastLayerId,
-                                                updatedNumSkippedLayers));
+                                                  updatedStatus,
+                                                  neighborDoublet.innerLayerId(),
+                                                  neighborDoublet.outerLayerId(),
+                                                  lastLayerId,
+                                                  updatedNumSkippedLayers));
 
     // change the status "TooShort" of the newly created SimNtuplet if it is indeed to short
     if (numSimDoublets < minNumDoubletsToPass) {

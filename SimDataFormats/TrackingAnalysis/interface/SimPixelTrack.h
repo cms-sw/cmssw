@@ -180,7 +180,7 @@ public:
           firstLayerId_(firstLayerId),
           secondLayerId_(secondLayerId),
           lastLayerId_(lastLayerId),
-          numSkippedLayers_(numSkippedLayers){};
+          numSkippedLayers_(numSkippedLayers) {};
 
     // accessing the different members
     uint8_t numDoublets() const { return numDoublets_; }
