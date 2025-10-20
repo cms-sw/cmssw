@@ -67,6 +67,7 @@ namespace simdoublets {
     double phi;
     double dz;
     double dxy;
+    double vertpos;
     int pdgId{0};
   };
 }  // namespace simdoublets
@@ -328,6 +329,78 @@ public:
     MonitorElement* h_passThisCut_ = nullptr;
   };
 
+  // this is simply a little helper to allow us to book SimNtuplet histograms easier
+  // it automatically books all histograms and allows us to fill them easily
+  struct SimNtupletMonitorElement {
+  public:
+    struct histogramBlock {
+      void book(DQMStore::IBooker& ibook, const std::string& simNtupletName, const std::string& statusTag, const std::string& statusLabel) {
+        int pTNBins = 200;
+        double pTmin = log10(0.01);
+        double pTmax = log10(1000);
+        const auto name = ("num_pt_" + statusTag).c_str();
+        const auto title =
+            (simNtupletName + statusLabel + ";True transverse momentum p_{T} [GeV];Number of TrackingParticles").c_str();
+        auto h = std::make_unique<TH1F>(name, title, pTNBins, pTmin, pTmax);
+        simdoublets::BinLogX(h.get());
+        h_pt = ibook.book1D(name, h.release());
+
+        int etaNBins = 90;
+        double etamin = -4.5;
+        double etamax = 4.5;
+        const auto name2 = ("num_eta_" + statusTag).c_str();
+        const auto title2 = (simNtupletName + statusLabel + ";True pseudorapidity #eta;Number of TrackingParticles").c_str();
+        h_eta = ibook.book1D(
+            name2,
+            title2,
+            etaNBins,
+            etamin,
+            etamax);
+
+        int vertPosNBins = 40;
+        double vertPosmin = log10(0.01);
+        double vertPosmax = log10(100);
+        const auto name3 = ("num_vertpos_" + statusTag).c_str();
+        const auto title3 =
+            (simNtupletName + statusLabel + ";True radial vertex position r_{vertex} [cm];Number of "
+            "TrackingParticles").c_str();
+        auto h2 = std::make_unique<TH1F>(name3, title3, vertPosNBins, vertPosmin, vertPosmax);
+        simdoublets::BinLogX(h2.get());
+        h_vertpos = ibook.book1D(name3, h2.release());
+      }
+      void fill(simdoublets::TrackTruth const& trackTruth) {
+        h_pt->Fill(trackTruth.pt);
+        h_eta->Fill(trackTruth.eta);
+        h_vertpos->Fill(trackTruth.vertpos);
+      }
+      MonitorElement* h_pt{nullptr};
+      MonitorElement* h_eta{nullptr};
+      MonitorElement* h_vertpos{nullptr};
+    };
+    void bookHistograms(DQMStore::IBooker& ibook, const std::string& simNtupletName) {
+      alive_.book(ibook, simNtupletName, "Alive", " (alive)");
+      undefDoubletCuts_.book(ibook, simNtupletName ,"UndefDoubletCuts", " (with undef doublet cuts)");
+      undefConnectionCuts_.book(ibook, simNtupletName, "UndefConnectionCuts", " (with undef connection cuts)");
+      missingLayerPair_.book(ibook, simNtupletName, "MissingLayerPair", " (with missing layer pair)");
+      killedDoublets_.book(ibook, simNtupletName, "KilledDoublets", " (killed by doublet cuts)");
+      killedDoubletConnections_.book(ibook, simNtupletName, "KilledConnections", " (killed by doublet connection cuts)");
+      killedTripletConnections_.book(ibook, simNtupletName, "KilledTripletConnections", " (killed by triplet connection cuts)");
+      tooShort_.book(ibook, simNtupletName, "TooShort", " (3 RecHits but still shorter than the threshold)");
+      notStartingPair_.book(
+          ibook, simNtupletName, "NotStartingPair"," (has first doublet in layer pair not considered for starting Ntuplets)");
+    }
+
+    histogramBlock alive_;
+    histogramBlock undefDoubletCuts_;
+    histogramBlock undefConnectionCuts_;
+    histogramBlock missingLayerPair_;
+    histogramBlock killedDoublets_;
+    histogramBlock killedDoubletConnections_;
+    histogramBlock killedTripletConnections_;
+    histogramBlock tooShort_;
+    histogramBlock notStartingPair_;
+  };
+
 private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
@@ -372,8 +445,6 @@ private:
 
   // number of layers in total
   int numLayers_;
-  // number of OT layers considered for CA extension
-  int numLayersOT_;
 
   // map that takes the layerPairId as defined in the SimDoublets
   // and gives the position of the histogram in the histogram vector
@@ -414,6 +485,7 @@ private:
   CoupledMonitorElement h_numTOVsPhi_;
   CoupledMonitorElement h_numTOVsDxy_;
   CoupledMonitorElement h_numTOVsDz_;
+  CoupledMonitorElement h_numTOVsVertpos_;
   CoupledMonitorElement h_numTOVsChi2_;
   CoupledMonitorElement h_numRecHitsVsPt_;
   CoupledMonitorElement h_numRecHitsVsEta_;
@@ -440,6 +512,7 @@ private:
   CoupledMonitorElement h_numSkippedLayers_;
   CoupledMonitorElement h_num_vs_pt_;
   CoupledMonitorElement h_num_vs_eta_;
+  CoupledMonitorElement h_num_vs_vertpos_;
   CoupledCutMonitorElement h_z0_;
   CoupledCutMonitorElement h_curvatureR_;
   CoupledCutMonitorElement h_pTFromR_;
@@ -489,44 +562,9 @@ private:
   CoupledMonitorElement h_longNtuplet_firstLayerVsEta_;
   CoupledMonitorElement h_longNtuplet_lastLayerVsEta_;
   CoupledMonitorElement h_longNtuplet_numSkippedLayersVsNumLayers_;
-  // status of the most alive SimNtuplet per TP
-  MonitorElement* h_bestNtuplet_alive_eta_;
-  MonitorElement* h_bestNtuplet_undefDoubletCuts_eta_;
-  MonitorElement* h_bestNtuplet_undefConnectionCuts_eta_;
-  MonitorElement* h_bestNtuplet_missingLayerPair_eta_;
-  MonitorElement* h_bestNtuplet_killedDoublets_eta_;
-  MonitorElement* h_bestNtuplet_killedDoubletConnections_eta_;
-  MonitorElement* h_bestNtuplet_killedTripletConnections_eta_;
-  MonitorElement* h_bestNtuplet_tooShort_eta_;
-  MonitorElement* h_bestNtuplet_notStartingPair_eta_;
-  MonitorElement* h_bestNtuplet_alive_pt_;
-  MonitorElement* h_bestNtuplet_undefDoubletCuts_pt_;
-  MonitorElement* h_bestNtuplet_undefConnectionCuts_pt_;
-  MonitorElement* h_bestNtuplet_missingLayerPair_pt_;
-  MonitorElement* h_bestNtuplet_killedDoublets_pt_;
-  MonitorElement* h_bestNtuplet_killedDoubletConnections_pt_;
-  MonitorElement* h_bestNtuplet_killedTripletConnections_pt_;
-  MonitorElement* h_bestNtuplet_tooShort_pt_;
-  MonitorElement* h_bestNtuplet_notStartingPair_pt_;
-  // status of the longest SimNtuplet per TP
-  MonitorElement* h_longNtuplet_alive_eta_;
-  MonitorElement* h_longNtuplet_undefDoubletCuts_eta_;
-  MonitorElement* h_longNtuplet_undefConnectionCuts_eta_;
-  MonitorElement* h_longNtuplet_missingLayerPair_eta_;
-  MonitorElement* h_longNtuplet_killedDoublets_eta_;
-  MonitorElement* h_longNtuplet_killedDoubletConnections_eta_;
-  MonitorElement* h_longNtuplet_killedTripletConnections_eta_;
-  MonitorElement* h_longNtuplet_tooShort_eta_;
-  MonitorElement* h_longNtuplet_notStartingPair_eta_;
-  MonitorElement* h_longNtuplet_alive_pt_;
-  MonitorElement* h_longNtuplet_undefDoubletCuts_pt_;
-  MonitorElement* h_longNtuplet_undefConnectionCuts_pt_;
-  MonitorElement* h_longNtuplet_missingLayerPair_pt_;
-  MonitorElement* h_longNtuplet_killedDoublets_pt_;
-  MonitorElement* h_longNtuplet_killedDoubletConnections_pt_;
-  MonitorElement* h_longNtuplet_killedTripletConnections_pt_;
-  MonitorElement* h_longNtuplet_tooShort_pt_;
-  MonitorElement* h_longNtuplet_notStartingPair_pt_;
+  // status of the most alive and longest SimNtuplet per TP
+  SimNtupletMonitorElement h_bestNtuplet_;
+  SimNtupletMonitorElement h_longNtuplet_;
 };
 
 #endif

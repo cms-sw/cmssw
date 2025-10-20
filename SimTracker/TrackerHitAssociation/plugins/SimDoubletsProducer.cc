@@ -85,7 +85,8 @@ private:
   const TrackerTopology* trackerTopology_ = nullptr;
   const TrackerGeometry* trackerGeometry_ = nullptr;
 
-  unsigned int numLayersOT_;   // number of OT layers considered for CA extension
+  bool includeOTBarrel_;       // if true, OT barrel layers are considered for CA extension
+  bool includeOTDisks_;        // if true, OT disks layers are considered for CA extension
   bool dropEvenLayerRecHits_;  // if true, no RecHits from even layers are considered
   bool dropOddLayerRecHits_;   // if true, no RecHits from odd layers are considered
 
@@ -109,21 +110,43 @@ namespace simdoublets {
     constexpr unsigned int numBarrelLayers{4};
     // number of disks per endcap
     constexpr unsigned int numEndcapDisks = (TrackerTraits::numberOfLayers - numBarrelLayers) / 2;
+    // number of pixel layers in total
+    constexpr unsigned int numPixelLayers = (TrackerTraits::numberOfLayers);
+    // number of OT barrel layers
+    constexpr unsigned int numOTBarrelLayers{3};  // FIXME: hardcoded for now
+    // number of disks per OT endcap
+    constexpr unsigned int numOTEndcapDisks{5};  // FIXME: hardcoded for now
 
     // set default to 999 (invalid)
     unsigned int layerId{99};
 
-    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
-      // subtract 1 in the barrel to get, e.g. for Phase 2, from (1,4) to (0,3)
-      layerId = trackerTopology->pxbLayer(detId) - 1;
-    } else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
-      if (trackerTopology->pxfSide(detId) == 1) {
-        // add offset in the backward endcap to get, e.g. for Phase 2, from (1,12) to (16,27)
-        layerId = trackerTopology->pxfDisk(detId) + numBarrelLayers + numEndcapDisks - 1;
-      } else {
-        // add offest in the forward endcap to get, e.g. for Phase 2, from (1,12) to (4,15)
-        layerId = trackerTopology->pxfDisk(detId) + numBarrelLayers - 1;
-      }
+    switch (detId.subdetId()) {
+      case PixelSubdetector::PixelBarrel:
+        // subtract 1 in the barrel to get, e.g. for Phase 2, from (1,4) to (0,3)
+        layerId = trackerTopology->pxbLayer(detId) - 1;
+        break;
+      case PixelSubdetector::PixelEndcap:
+        if (trackerTopology->pxfSide(detId) == 1) {
+          // add offset in the backward endcap to get, e.g. for Phase 2, from (1,12) to (16,27)
+          layerId = trackerTopology->pxfDisk(detId) + numBarrelLayers + numEndcapDisks - 1;
+        } else {
+          // add offest in the forward endcap to get, e.g. for Phase 2, from (1,12) to (4,15)
+          layerId = trackerTopology->pxfDisk(detId) + numBarrelLayers - 1;
+        }
+        break;
+      case SiStripSubdetector::TOB:
+        // add offset in the OT barrel to get, e.g. for Phase 2, from (1,3) to (28, 30)
+        layerId = trackerTopology->tobLayer(detId) + numPixelLayers - 1;
+        break;
+      case SiStripSubdetector::TID:
+        if (trackerTopology->tidSide(detId) == 1) {
+          // add offset in the OT forward endcap to get, e.g. for Phase 2, from (1,5) to (31, 35)
+          layerId = trackerTopology->tidWheel(detId) + numPixelLayers + numOTBarrelLayers - 1;
+        } else {
+          // add offset in the OT backward endcap to get, e.g. for Phase 2, from (1,3) to (36, 40)
+          layerId = trackerTopology->tidWheel(detId) + numPixelLayers + numOTBarrelLayers + numOTEndcapDisks - 1;
+        }
+        break;
     }
     // return the determined Id
     return layerId;
@@ -172,7 +195,8 @@ namespace simdoublets {
 // constructor
 template <typename TrackerTraits>
 SimDoubletsProducer<TrackerTraits>::SimDoubletsProducer(const edm::ParameterSet& pSet)
-    : numLayersOT_(pSet.getParameter<int>("numLayersOT")),
+    : includeOTBarrel_(pSet.getParameter<bool>("includeOTBarrel")),
+      includeOTDisks_(pSet.getParameter<bool>("includeOTDisks")),
       dropEvenLayerRecHits_(pSet.getParameter<bool>("dropEvenLayerRecHits")),
       dropOddLayerRecHits_(pSet.getParameter<bool>("dropOddLayerRecHits")),
       cpe_getToken_(esConsumes(edm::ESInputTag("", pSet.getParameter<std::string>("CPE")))),
@@ -227,7 +251,8 @@ void SimDoubletsProducer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("hltOnlineBeamSpot"));
 
   // Extension settings
-  desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
+  desc.add<bool>("includeOTBarrel", false)->setComment("If true, add barrel layers from the OT extension.");
+  desc.add<bool>("includeOTDisks", false)->setComment("If true, add disk layers from the OT extension.");
   desc.add<bool>("dropEvenLayerRecHits", false)
       ->setComment("If true, the RecHits in layers with even index are dropped when building the SimNtuplets.");
   desc.add<bool>("dropOddLayerRecHits", false)
@@ -274,7 +299,8 @@ void SimDoubletsProducer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("hltOnlineBeamSpot"));
 
   // Extension settings
-  desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
+  desc.add<bool>("includeOTBarrel", false)->setComment("If true, add barrel layers from the OT extension.");
+  desc.add<bool>("includeOTDisks", false)->setComment("If true, add disk layers from the OT extension.");
   desc.add<bool>("dropEvenLayerRecHits", false)
       ->setComment("If true, the RecHits in layers with even index are dropped when building the SimNtuplets.");
   desc.add<bool>("dropOddLayerRecHits", false)
@@ -328,7 +354,7 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
   // get the Outer Tracker RecHit collection from the event
   edm::Handle<Phase2TrackerRecHit1DCollectionNew> hitsOT;
   event.getByToken(otRecHits_getToken_, hitsOT);
-  if ((numLayersOT_ > 0) && (!hitsOT.isValid())) {
+  if (((includeOTBarrel_) || (includeOTDisks_)) && (!hitsOT.isValid())) {
     return;
   }
 
@@ -372,7 +398,7 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
   int count_associatedRecHits{0}, count_RecHitsInSimDoublets{0};
 
   // initialize a couple of variables used in the following loop
-  unsigned int detId, layerId, layerIdOT, maxCol;
+  unsigned int detId, layerId, maxCol;
   uint16_t pixmx;
   int moduleId, clusterYSize;
 
@@ -438,62 +464,60 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
 
   // loop over Outer Tracker RecHit collections of the different modules
   // if OT layers should be considered
-  if (numLayersOT_ > 0) {
+  if ((includeOTBarrel_) || (includeOTDisks_)) {
     for (const auto& detSetOT : *hitsOT) {
       // get detector Id
       detId = detSetOT.detId();
       DetId detIdObject(detId);
 
-      // get layerId of the OT
-      layerIdOT = trackerTopology_->getOTLayerNumber(detId);
-
       // only use the RecHits if the module is in the accepted range of layers and one of the Phase 2 PS, p-sensor
-      if ((layerIdOT <= numLayersOT_) &&
-          (trackerGeometry_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP)) {
-        // determine layer Id from detector Id plus the offset from the pixel layers:
-        // layerId = layerId(OT) + N(pixelLayers) - 1
-        // the (-1) comes from the layerId(OT) starting from 1 instead of 0
-        layerId = layerIdOT + TrackerTraits::numberOfLayers - 1;
+      if (!(trackerGeometry_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP))
+        continue;
 
-        // check if we would like to skip
-        if (dropEvenLayerRecHits_ && (layerId % 2 == 0)) {
-          continue;
-        }
-        if (dropOddLayerRecHits_ && (layerId % 2 == 1)) {
-          continue;
-        }
+      if (!(detIdObject.subdetId() == SiStripSubdetector::TOB) && !(detIdObject.subdetId() == SiStripSubdetector::TID))
+        continue;
 
-        // determine the module Id
-        moduleId = trackerGeometry_->idToDetUnit(detIdObject)->index();
+      // determine layer Id from detector Id
+      layerId = simdoublets::getLayerId<TrackerTraits>(detId, trackerTopology_);
 
-        // loop over RecHits
-        for (auto const& hitOT : detSetOT) {
-          // std::cout << "OT RecHit in layer " << layerId << ": " << hitOT.globalPosition() << std::endl;
+      // check if we would like to skip
+      if (dropEvenLayerRecHits_ && (layerId % 2 == 0)) {
+        continue;
+      }
+      if (dropOddLayerRecHits_ && (layerId % 2 == 1)) {
+        continue;
+      }
 
-          // find associated TrackingParticles
-          auto range = clusterTPAssociation.equal_range(OmniClusterRef(hitOT.cluster()));
+      // determine the module Id
+      moduleId = trackerGeometry_->idToDetUnit(detIdObject)->index();
 
-          // if the RecHit has associated TrackingParticles
-          if (range.first != range.second) {
-            for (auto assocTrackingParticleIter = range.first; assocTrackingParticleIter != range.second;
-                 assocTrackingParticleIter++) {
-              const TrackingParticleRef assocTrackingParticle = (assocTrackingParticleIter->second);
+      // loop over RecHits
+      for (auto const& hitOT : detSetOT) {
+        // std::cout << "OT RecHit in layer " << layerId << ": " << hitOT.globalPosition() << std::endl;
 
-              // if the associated TrackingParticle is among the selected ones
-              if (selectedTrackingParticleKeys.has(assocTrackingParticle.key())) {
-                // loop over collection of SimDoublets and find the one of the associated TrackingParticle
-                for (auto& simDoublets : simDoubletsCollection) {
-                  TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
-                  if (assocTrackingParticle.key() == trackingParticleRef.key()) {
-                    // add the RecHit to the SimDoublet
-                    simDoublets.addRecHit(hitOT, layerId, clusterYSize, detId, moduleId);
-                  }
+        // find associated TrackingParticles
+        auto range = clusterTPAssociation.equal_range(OmniClusterRef(hitOT.cluster()));
+
+        // if the RecHit has associated TrackingParticles
+        if (range.first != range.second) {
+          for (auto assocTrackingParticleIter = range.first; assocTrackingParticleIter != range.second;
+               assocTrackingParticleIter++) {
+            const TrackingParticleRef assocTrackingParticle = (assocTrackingParticleIter->second);
+
+            // if the associated TrackingParticle is among the selected ones
+            if (selectedTrackingParticleKeys.has(assocTrackingParticle.key())) {
+              // loop over collection of SimDoublets and find the one of the associated TrackingParticle
+              for (auto& simDoublets : simDoubletsCollection) {
+                TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
+                if (assocTrackingParticle.key() == trackingParticleRef.key()) {
+                  // add the RecHit to the SimDoublet
+                  simDoublets.addRecHit(hitOT, layerId, clusterYSize, detId, moduleId);
                 }
               }
             }
           }
-        }  // end loop over RecHits
-      }
+        }
+      }  // end loop over RecHits
     }  // end loop over OT RecHit collections of the different modules
   }
 

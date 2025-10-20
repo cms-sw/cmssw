@@ -88,42 +88,29 @@ postProcessorSimDoublets2D = DQMEDHarvester("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
+def buildSimNtupletFractions(subfolder, simNtupletName):
+    output = []
+    for statusTag, statusLabel in [("Alive", "being alive"), 
+                                   ("UndefDoubletCuts", "having undef doublet cuts"),
+                                   ("UndefConnectionCuts", "having undef connection cuts"),
+                                   ("MissingLayerPair", "with missing layer pair"),
+                                   ("KilledDoublets", "with killed doublets"),
+                                   ("KilledConnections", "with killed connections"),
+                                   ("KilledTripletConnections", "with killed triplet connections"),
+                                   ("TooShort", "having 3 RecHits but yet being to short to pass the threshold"),
+                                   ("NotStartingPair", "starting in a layer pair not considered as a starting point for Ntuplets")]:
+        strings = (subfolder, statusTag, simNtupletName, statusLabel, subfolder, statusTag)
+        output.append("SimNtuplets/%s/frac%s_vs_pt 'Fraction of TPs with %s %s vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/%s/num_pt_%s general/num_vs_pt" % strings)
+        output.append("SimNtuplets/%s/frac%s_vs_eta 'Fraction of TPs with %s %s vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/%s/num_eta_%s general/num_vs_eta" % strings)
+        output.append("SimNtuplets/%s/frac%s_vs_vertpos 'Fraction of TPs with %s %s vs r_{vertex}; TP radial vertex position wrt beamspot r_{vertex} [cm]; Fraction' SimNtuplets/%s/num_vertpos_%s general/num_vs_vertpos" % strings)
+    return output
+
+SimNtupletHistograms = buildSimNtupletFractions("longest", "longest SimNtuplet") + buildSimNtupletFractions("mostAlive", "most alive SimNtuplet")
 
 postProcessorSimNtuplets = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(_defaultSubdirsTop),
     efficiency = cms.vstring(
-        "SimNtuplets/longest/fracAlive_vs_pt 'Fraction of TPs with longest SimNtuplet being alive vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/longest/num_pt_alive general/num_vs_pt",
-        "SimNtuplets/longest/fracAlive_vs_eta 'Fraction of TPs with longest SimNtuplet being alive vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/longest/num_eta_alive general/num_vs_eta",
-        "SimNtuplets/longest/fracUndefDoubletCuts_vs_pt 'Fraction of TPs with longest SimNtuplet having undef doublet cuts vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/longest/num_pt_undefDoubletCuts general/num_vs_pt",
-        "SimNtuplets/longest/fracUndefDoubletCuts_vs_eta 'Fraction of TPs with longest SimNtuplet having undef doublet cuts vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/longest/num_eta_undefDoubletCuts general/num_vs_eta",
-        "SimNtuplets/longest/fracUndefConnectionCuts_vs_pt 'Fraction of TPs with longest SimNtuplet having undef connection cuts vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/longest/num_pt_undefConnectionCuts general/num_vs_pt",
-        "SimNtuplets/longest/fracUndefConnectionCuts_vs_eta 'Fraction of TPs with longest SimNtuplet having undef connection cuts vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/longest/num_eta_undefConnectionCuts general/num_vs_eta",
-        "SimNtuplets/longest/fracMissingLayerPair_vs_pt 'Fraction of TPs with longest SimNtuplet with missing layer pair vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/longest/num_pt_missingLayerPair general/num_vs_pt",
-        "SimNtuplets/longest/fracMissingLayerPair_vs_eta 'Fraction of TPs with longest SimNtuplet with missing layer pair vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/longest/num_eta_missingLayerPair general/num_vs_eta",
-        "SimNtuplets/longest/fracKilledDoublets_vs_pt 'Fraction of TPs with longest SimNtuplet with killed doublets vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/longest/num_pt_killedDoublets general/num_vs_pt",
-        "SimNtuplets/longest/fracKilledDoublets_vs_eta 'Fraction of TPs with longest SimNtuplet with killed doublets vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/longest/num_eta_killedDoublets general/num_vs_eta",
-        "SimNtuplets/longest/fracKilledConnections_vs_pt 'Fraction of TPs with longest SimNtuplet with killed connections vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/longest/num_pt_killedConnections general/num_vs_pt",
-        "SimNtuplets/longest/fracKilledConnections_vs_eta 'Fraction of TPs with longest SimNtuplet with killed connections vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/longest/num_eta_killedConnections general/num_vs_eta",
-        "SimNtuplets/longest/fracTooShort_vs_pt 'Fraction of TPs with longest SimNtuplet having 3 RecHits but yet being to short to pass the threshold vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/longest/num_pt_tooShort general/num_vs_pt",
-        "SimNtuplets/longest/fracTooShort_vs_eta 'Fraction of TPs with longest SimNtuplet having 3 RecHits but yet being to short to pass the threshold vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/longest/num_eta_tooShort general/num_vs_eta",
-        "SimNtuplets/longest/fracNotStartingPair_vs_pt 'Fraction of TPs with longest SimNtuplet starting in a layer pair not considered as a starting point for Ntuplets vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/longest/num_pt_notStartingPair general/num_vs_pt",
-        "SimNtuplets/longest/fracNotStartingPair_vs_eta 'Fraction of TPs with longest SimNtuplet starting in a layer pair not considered as a starting point for Ntuplets vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/longest/num_eta_notStartingPair general/num_vs_eta",
-        "SimNtuplets/mostAlive/fracAlive_vs_pt 'Fraction of TPs with most alive SimNtuplet being alive vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/mostAlive/num_pt_alive general/num_vs_pt",
-        "SimNtuplets/mostAlive/fracAlive_vs_eta 'Fraction of TPs with most alive SimNtuplet being alive vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/mostAlive/num_eta_alive general/num_vs_eta",
-        "SimNtuplets/mostAlive/fracUndefDoubletCuts_vs_pt 'Fraction of TPs with most alive SimNtuplet having undef doublet cuts vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/mostAlive/num_pt_undefDoubletCuts general/num_vs_pt",
-        "SimNtuplets/mostAlive/fracUndefDoubletCuts_vs_eta 'Fraction of TPs with most alive SimNtuplet having undef doublet cuts vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/mostAlive/num_eta_undefDoubletCuts general/num_vs_eta",
-        "SimNtuplets/mostAlive/fracUndefConnectionCuts_vs_pt 'Fraction of TPs with most alive SimNtuplet having undef connection cuts vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/mostAlive/num_pt_undefConnectionCuts general/num_vs_pt",
-        "SimNtuplets/mostAlive/fracUndefConnectionCuts_vs_eta 'Fraction of TPs with most alive SimNtuplet having undef connection cuts vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/mostAlive/num_eta_undefConnectionCuts general/num_vs_eta",
-        "SimNtuplets/mostAlive/fracMissingLayerPair_vs_pt 'Fraction of TPs with most alive SimNtuplet with missing layer pair vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/mostAlive/num_pt_missingLayerPair general/num_vs_pt",
-        "SimNtuplets/mostAlive/fracMissingLayerPair_vs_eta 'Fraction of TPs with most alive SimNtuplet with missing layer pair vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/mostAlive/num_eta_missingLayerPair general/num_vs_eta",
-        "SimNtuplets/mostAlive/fracKilledDoublets_vs_pt 'Fraction of TPs with most alive SimNtuplet with killed doublets vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/mostAlive/num_pt_killedDoublets general/num_vs_pt",
-        "SimNtuplets/mostAlive/fracKilledDoublets_vs_eta 'Fraction of TPs with most alive SimNtuplet with killed doublets vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/mostAlive/num_eta_killedDoublets general/num_vs_eta",
-        "SimNtuplets/mostAlive/fracKilledConnections_vs_pt 'Fraction of TPs with most alive SimNtuplet with killed connections vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/mostAlive/num_pt_killedConnections general/num_vs_pt",
-        "SimNtuplets/mostAlive/fracKilledConnections_vs_eta 'Fraction of TPs with most alive SimNtuplet with killed connections vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/mostAlive/num_eta_killedConnections general/num_vs_eta",
-        "SimNtuplets/mostAlive/fracTooShort_vs_pt 'Fraction of TPs with most alive SimNtuplet having 3 RecHits but yet being to short to pass the threshold vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/mostAlive/num_pt_tooShort general/num_vs_pt",
-        "SimNtuplets/mostAlive/fracTooShort_vs_eta 'Fraction of TPs with most alive SimNtuplet having 3 RecHits but yet being to short to pass the threshold vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/mostAlive/num_eta_tooShort general/num_vs_eta",
-        "SimNtuplets/mostAlive/fracNotStartingPair_vs_pt 'Fraction of TPs with most alive SimNtuplet starting in a layer pair not considered as a starting point for Ntuplets vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' SimNtuplets/mostAlive/num_pt_notStartingPair general/num_vs_pt",
-        "SimNtuplets/mostAlive/fracNotStartingPair_vs_eta 'Fraction of TPs with most alive SimNtuplet starting in a layer pair not considered as a starting point for Ntuplets vs #eta; TP pseudorapidity #eta; Fraction' SimNtuplets/mostAlive/num_eta_notStartingPair general/num_vs_eta",
+        SimNtupletHistograms
     ),
     resolution = cms.vstring(),
     cumulativeDists = cms.untracked.vstring(),
