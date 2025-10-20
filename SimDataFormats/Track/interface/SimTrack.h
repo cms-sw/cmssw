@@ -78,7 +78,7 @@ private:
   math::XYZVectorD tkposition;
   math::XYZTLorentzVectorD tkmomentum;
 
-  int idAtBoundary_;
+  int idAtBoundary_{-1};
   math::XYZTLorentzVectorF positionAtBoundary_;
   math::XYZTLorentzVectorF momentumAtBoundary_;
   uint8_t trackInfo_;
