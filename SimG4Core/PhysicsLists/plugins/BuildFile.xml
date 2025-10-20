@@ -13,7 +13,6 @@
   <library file="adept/*.cc" name="SimG4CorePhysicsListsAdeptPlugins">
     <use name="SimG4Core/PhysicsLists"/>
     <use name="adept"/>
-    <flags CXXFLAGS="-DASYNC_MODE=ON -DADEPT_USE_EXT_BFIELD=ON"/>
     <flags EDM_PLUGIN="1"/>
   </library>
 </iftool>
