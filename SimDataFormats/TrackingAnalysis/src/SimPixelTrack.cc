@@ -1,4 +1,4 @@
-#include "SimDataFormats/TrackingAnalysis/interface/SimDoublets.h"
+#include "SimDataFormats/TrackingAnalysis/interface/SimPixelTrack.h"
 #include <cstddef>
 #include <cstdint>
 
@@ -9,7 +9,7 @@
 #include "DataFormats/SiStripDetId/interface/SiStripEnums.h"
 // #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
-namespace simdoublets {
+namespace simpixeltracks {
 
   // Function that determines the number of skipped layers for a given pair of RecHits.
   int getNumSkippedLayers(std::pair<uint8_t, uint8_t> const& layerIds,
@@ -63,50 +63,50 @@ namespace simdoublets {
     // calculate the unique layer pair Id as (innerLayerId * 100 + outerLayerId)
     return (layerIds.first * 100 + layerIds.second);
   }
-}  // end namespace simdoublets
+}  // end namespace simpixeltracks
 
 // ------------------------------------------------------------------------------------------------------
-// SimDoublets::Doublet class member functions
+// SimPixelTrack::Doublet class member functions
 // ------------------------------------------------------------------------------------------------------
 
 // constructor
-SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
+SimPixelTrack::Doublet::Doublet(SimPixelTrack const& simPixelTrack,
                               size_t const innerIndex,
                               size_t const outerIndex,
                               const TrackerTopology* trackerTopology,
                               std::vector<size_t> const& innerNeighborsIndices)
-    : moduleIds_(std::make_pair(simDoublets.moduleIds(innerIndex), simDoublets.moduleIds(outerIndex))),
+    : moduleIds_(std::make_pair(simPixelTrack.moduleIds(innerIndex), simPixelTrack.moduleIds(outerIndex))),
       globalPositions_(
-          std::make_pair(simDoublets.globalPositions(innerIndex), simDoublets.globalPositions(outerIndex))),
-      layerIds_(std::make_pair(simDoublets.layerIds(innerIndex), simDoublets.layerIds(outerIndex))),
-      clusterYSizes_(std::make_pair(simDoublets.clusterYSizes(innerIndex), simDoublets.clusterYSizes(outerIndex))),
-      status_(SimDoublets::Doublet::Status::undef) {
+          std::make_pair(simPixelTrack.globalPositions(innerIndex), simPixelTrack.globalPositions(outerIndex))),
+      layerIds_(std::make_pair(simPixelTrack.layerIds(innerIndex), simPixelTrack.layerIds(outerIndex))),
+      clusterYSizes_(std::make_pair(simPixelTrack.clusterYSizes(innerIndex), simPixelTrack.clusterYSizes(outerIndex))),
+      status_(SimPixelTrack::Doublet::Status::undef) {
   // determine number of skipped layers
-  numSkippedLayers_ = simdoublets::getNumSkippedLayers(
-      layerIds_, simDoublets.detIds(innerIndex), simDoublets.detIds(outerIndex), trackerTopology);
+  numSkippedLayers_ = simpixeltracks::getNumSkippedLayers(
+      layerIds_, simPixelTrack.detIds(innerIndex), simPixelTrack.detIds(outerIndex), trackerTopology);
 
   // determine Id of the layer pair
-  layerPairId_ = simdoublets::getLayerPairId(layerIds_);
+  layerPairId_ = simpixeltracks::getLayerPairId(layerIds_);
 
   // fill the inner neighbors
   for (size_t const index : innerNeighborsIndices) {
     innerNeighbors_.emplace_back(
-        SimDoublets::Doublet::Neighbor(index, simDoublets.getSimDoublet(index).numInnerNeighbors()));
+        SimPixelTrack::Doublet::Neighbor(index, simPixelTrack.getSimDoublet(index).numInnerNeighbors()));
   }
 
   // if there are neighbors, get their inner layerId
   if (innerNeighborsIndices.size() > 0) {
     size_t index = innerNeighborsIndices.at(0);
-    innerNeighborsInnerLayerId_ = simDoublets.getSimDoublet(index).innerLayerId();
+    innerNeighborsInnerLayerId_ = simPixelTrack.getSimDoublet(index).innerLayerId();
   }
 }
 
 // ------------------------------------------------------------------------------------------------------
-// SimDoublets class member functions
+// SimPixelTrack class member functions
 // ------------------------------------------------------------------------------------------------------
 
 // method to add a RecHit to the SimPixelTrack
-void SimDoublets::addRecHit(TrackingRecHit const& recHit,
+void SimPixelTrack::addRecHit(TrackingRecHit const& recHit,
                             uint8_t const layerId,
                             int16_t const clusterYSize,
                             unsigned int const detId,
@@ -128,12 +128,12 @@ void SimDoublets::addRecHit(TrackingRecHit const& recHit,
 }
 
 // method to sort the RecHits according to the position relative to the TP vertex
-void SimDoublets::sortRecHits() {
+void SimPixelTrack::sortRecHits() {
   auto vertex = trackingParticleRef_->vertex();
   sortRecHits(vertex.x(), vertex.y(), vertex.z());
 }
 // method to sort the RecHits according to the position relative to a given reference
-void SimDoublets::sortRecHits(float const x, float const y, float const z) {
+void SimPixelTrack::sortRecHits(float const x, float const y, float const z) {
   // get the production vertex of the TrackingParticle (corrected for beamspot)
   const GlobalVector vertex(x - beamSpotPosition_.x(), y - beamSpotPosition_.y(), z - beamSpotPosition_.z());
 
@@ -184,7 +184,7 @@ void SimDoublets::sortRecHits(float const x, float const y, float const z) {
 }
 
 // method to produce the true doublets
-void SimDoublets::buildSimDoublets(const TrackerTopology* trackerTopology) const {
+void SimPixelTrack::buildSimDoublets(const TrackerTopology* trackerTopology) const {
   // confirm that the RecHits are sorted
   assert(recHitsAreSorted_);
 
@@ -225,7 +225,7 @@ void SimDoublets::buildSimDoublets(const TrackerTopology* trackerTopology) const
       }
 
       // create and append new doublet
-      doublets_.emplace_back(SimDoublets::Doublet(*this, i, j, trackerTopology, innerDoubletsOfRecHit.at(i)));
+      doublets_.emplace_back(SimPixelTrack::Doublet(*this, i, j, trackerTopology, innerDoubletsOfRecHit.at(i)));
 
       // save the index of the new doublet in the outer RecHit's innerDoubletsOfRecHit
       innerDoubletsOfRecHit.at(j).push_back(nDoublets);
@@ -239,7 +239,7 @@ void SimDoublets::buildSimDoublets(const TrackerTopology* trackerTopology) const
 // function to recursively build the Ntuplets from a given starting doublet
 // (the building starts from the outside and ends inside)
 // at each addition of a SimDoublet, a new SimNtuplet is stored
-void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
+void SimPixelTrack::buildSimNtuplets(SimPixelTrack::Doublet const& doublet,
                                    std::vector<bool> const& tripletConnections,
                                    size_t numSimDoublets,
                                    size_t const lastLayerId,
@@ -256,7 +256,7 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
     auto const& neighborDoublet = doublets_.at(neighbor.index());
 
     // update the status of the current SimNtuplet by adding the information from the new doublet
-    uint8_t updatedStatus = SimDoublets::Ntuplet::updateStatus(
+    uint8_t updatedStatus = SimPixelTrack::Ntuplet::updateStatus(
         status,                                                  // current status
         neighborDoublet.isUndef(),                               // doublet has undefined cuts
         neighborDoublet.isKilledByMissingLayerPair(),            // doublet is not built due to missing layer pair
@@ -270,7 +270,7 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
     uint8_t updatedNumSkippedLayers = numSkippedLayers + doublet.numSkippedLayers();
 
     // add the current state as a new SimNtuplet to the collection
-    ntuplets_.emplace_back(SimDoublets::Ntuplet(numSimDoublets,
+    ntuplets_.emplace_back(SimPixelTrack::Ntuplet(numSimDoublets,
                                                 updatedStatus,
                                                 neighborDoublet.innerLayerId(),
                                                 neighborDoublet.outerLayerId(),
@@ -360,7 +360,7 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
 
 // method to produce the SimNtuplets
 // (collection of all possible Ntuplets you can build from the SimDoublets)
-void SimDoublets::buildSimNtuplets(std::set<int> const& startingPairs, size_t const minNumDoubletsToPass) const {
+void SimPixelTrack::buildSimNtuplets(std::set<int> const& startingPairs, size_t const minNumDoubletsToPass) const {
   // clear the Ntuplet collection and reset longest Ntuplet indices
   ntuplets_.clear();
   longestNtupletIndex_ = -1;
@@ -375,7 +375,7 @@ void SimDoublets::buildSimNtuplets(std::set<int> const& startingPairs, size_t co
   // loop over all SimDoublets, using them as starting points for building Ntuplets
   for (auto const& doublet : doublets_) {
     // intialize status according to the doublet properties
-    uint8_t status = SimDoublets::Ntuplet::updateStatus(
+    uint8_t status = SimPixelTrack::Ntuplet::updateStatus(
         0,                                     // current status to be updated
         doublet.isUndef(),                     // doublet has undefined cuts
         doublet.isKilledByMissingLayerPair(),  // doublet is not built due to missing layer pair

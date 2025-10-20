@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:    Validation/TrackingMCTruth
-// Class:      SimDoubletsAnalyzer
+// Class:      SimPixelTrackAnalyzer
 //
 
 // #define DOUBLETCUTS_PRINTOUTS
 // #define LOSTNTUPLETS_PRINTOUTS
 
 // user include files
-#include "Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.h"
+#include "Validation/TrackingMCTruth/plugins/SimPixelTrackAnalyzer.h"
 #include <sys/types.h>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
@@ -31,7 +31,7 @@
 namespace simdoublets {
   // class that calculate and stores all cut variables for a given doublet
   struct CellCutVariables {
-    void calculateCutVariables(SimDoublets::Doublet& doublet, SimDoublets const& simDoublets) {
+    void calculateCutVariables(SimPixelTrack::Doublet& doublet, SimPixelTrack const& simPixelTrack) {
       // inner RecHit properties
       GlobalPoint inner_globalPosition = doublet.innerGlobalPos();
       inner_z_ = inner_globalPosition.z();
@@ -80,7 +80,7 @@ namespace simdoublets {
       // then, refill
       for (auto& neighbor : doublet.innerNeighbors()) {
         // get the inner RecHit of the inner neighbor
-        GlobalPoint neighbor_globalPosition = simDoublets.getSimDoublet(neighbor.index()).innerGlobalPos();
+        GlobalPoint neighbor_globalPosition = simPixelTrack.getSimDoublet(neighbor.index()).innerGlobalPos();
         double neighbor_z = neighbor_globalPosition.z();
         double neighbor_r = neighbor_globalPosition.perp();
         double neighbor_x = neighbor_globalPosition.x();
@@ -184,7 +184,7 @@ namespace simdoublets {
     bool isSubjectToDYPred() const { return status_ & uint8_t(CutStatusBit::subjectToDYPred); }
 
     // function that determines for a given doublet which cuts should be applied
-    void setSubjectsToCuts(SimDoublets::Doublet const& doublet) {
+    void setSubjectsToCuts(SimPixelTrack::Doublet const& doublet) {
       // first check if the inner cluster size is even positive
       // because if not (cluster at module edge), no cut will be applied no matter what
       if (doublet.innerClusterYSize() < 0) {
@@ -361,9 +361,9 @@ namespace simdoublets {
 // -------------------------------------------------------------------------------------------------------------
 
 template <typename TrackerTraits>
-SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet& iConfig)
+SimPixelTrackAnalyzer<TrackerTraits>::SimPixelTrackAnalyzer(const edm::ParameterSet& iConfig)
     : topology_getToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
-      simDoublets_getToken_(consumes(iConfig.getParameter<edm::InputTag>("simDoubletsSrc"))),
+      simPixelTracks_getToken_(consumes(iConfig.getParameter<edm::InputTag>("simPixelTracksSrc"))),
       cellCuts_(
           CAGeometryParams(iConfig.getParameter<edm::ParameterSet>("geometry"), iConfig.getParameter<double>("ptmin"))),
       minYsizeB1_(iConfig.getParameter<int>("minYsizeB1")),
@@ -425,20 +425,20 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
 }
 
 template <typename TrackerTraits>
-SimDoubletsAnalyzer<TrackerTraits>::~SimDoubletsAnalyzer() {}
+SimPixelTrackAnalyzer<TrackerTraits>::~SimPixelTrackAnalyzer() {}
 
 // -------------------------------------------------------------------------------------------------------------
 // member functions
 // -------------------------------------------------------------------------------------------------------------
 
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
+void SimPixelTrackAnalyzer<TrackerTraits>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 
 // function to apply cuts and set doublet to alive if it passes and to killed otherwise
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
-    SimDoublets::Doublet& doublet,
-    SimDoublets const& simDoublets,
+void SimPixelTrackAnalyzer<TrackerTraits>::applyCuts(
+    SimPixelTrack::Doublet& doublet,
+    SimPixelTrack const& simPixelTrack,
     bool const hasValidNeighbors,
     bool const hasValidTripletNeighbors,
     int const layerPairIdIndex,
@@ -562,7 +562,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
 
       // loop over the neighbors of the neighbors to apply cuts on triplet connections
       if (hasValidTripletNeighbors) {
-        auto const& neighborDoublet = simDoublets.getSimDoublet(neighbor.index());
+        auto const& neighborDoublet = simPixelTrack.getSimDoublet(neighbor.index());
         for (int j{0}; auto const& tripletNeighbor : neighborDoublet.innerNeighborsView()) {
           /* DCurv cut*/
           double dCurv = std::abs(tripletNeighbor.curvature() - neighbor.curvature());
@@ -587,8 +587,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
 
 // function that fills all histograms for cut variables
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
-    SimDoublets::Doublet const& doublet,
+void SimPixelTrackAnalyzer<TrackerTraits>::fillCutHistograms(
+    SimPixelTrack::Doublet const& doublet,
     bool hasValidNeighbors,
     bool hasValidTripletNeighbors,
     int const layerPairIdIndex,
@@ -696,7 +696,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
 
 //  function that fills all histograms of SimDoublets (in folder SimDoublets)
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::fillSimDoubletHistograms(SimDoublets::Doublet const& doublet,
+void SimPixelTrackAnalyzer<TrackerTraits>::fillSimDoubletHistograms(SimPixelTrack::Doublet const& doublet,
                                                                   simdoublets::TrackTruth const& trackTruth) {
   // check if doublet passed all cuts
   bool passed = doublet.isAlive();
@@ -718,10 +718,10 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimDoubletHistograms(SimDoublets::D
 
 //  function that fills all histograms of SimNtuplets (in folder SimNtuplets)
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets const& simDoublets,
+void SimPixelTrackAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimPixelTrack const& simPixelTrack,
                                                                   simdoublets::TrackTruth const& trackTruth) {
   // get the longest SimNtuplet of the TrackingParticle (if it exists)
-  auto const& longNtuplet = simDoublets.longestSimNtuplet();
+  auto const& longNtuplet = simPixelTrack.longestSimNtuplet();
 
   // check if it is alive
   bool isAlive = longNtuplet.isAlive();
@@ -735,10 +735,10 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets co
   h_longNtuplet_numSkippedLayersVsNumLayers_.fill(isAlive, longNtuplet.numRecHits(), longNtuplet.numSkippedLayers());
 
   // fill first RecHit r histogram
-  if (simDoublets.numRecHits() > 0) {
-    auto firstHitR = simDoublets.globalPositions(0).perp();
-    auto firstHitLayerId = simDoublets.layerIds(0);
-    hVector_firstHitR_[firstHitLayerId].fill(simDoublets.hasAliveSimNtuplet(), firstHitR);
+  if (simPixelTrack.numRecHits() > 0) {
+    auto firstHitR = simPixelTrack.globalPositions(0).perp();
+    auto firstHitLayerId = simPixelTrack.layerIds(0);
+    hVector_firstHitR_[firstHitLayerId].fill(simPixelTrack.hasAliveSimNtuplet(), firstHitR);
   }
 
   // if input are RecoTracks break here and don't fill the other histograms
@@ -789,7 +789,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets co
 
   // -------------------------------------------------------------------------------------
   // fill the most alive (best) histograms
-  auto const& bestNtuplet = simDoublets.bestSimNtuplet();
+  auto const& bestNtuplet = simPixelTrack.bestSimNtuplet();
   // check if it is alive
   isAlive = bestNtuplet.isAlive();
 
@@ -842,8 +842,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets co
     h_bestNtuplet_.undefConnectionCuts_.fill(trackTruth);
   }
   // -------------------------------------------------------------------------------------
-  if (simDoublets.hasAliveSimNtuplet()) {
-    auto const& aliveNtuplet = simDoublets.longestAliveSimNtuplet();
+  if (simPixelTrack.hasAliveSimNtuplet()) {
+    auto const& aliveNtuplet = simPixelTrack.longestAliveSimNtuplet();
     // relative length of alive SimNtuplet vs longest SimNtuplet
     double relativeLength = (double)aliveNtuplet.numRecHits() / (double)longNtuplet.numRecHits();
     h_aliveNtuplet_fracNumRecHits_eta_->Fill(trackTruth.eta, relativeLength);
@@ -853,17 +853,17 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets co
 
 // function that fills all general histograms (in folder general)
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const& simDoublets,
+void SimPixelTrackAnalyzer<TrackerTraits>::fillGeneralHistograms(SimPixelTrack const& simPixelTrack,
                                                                simdoublets::TrackTruth const& trackTruth,
                                                                int const pass_numSimDoublets,
                                                                int const numSimDoublets,
                                                                int const numSkippedLayers) {
   // Now check if the TrackingParticle has a surviving SimNtuplet
-  bool passed = simDoublets.hasAliveSimNtuplet();
+  bool passed = simPixelTrack.hasAliveSimNtuplet();
 
   // count number of RecHits in layers
   std::vector<int> countsRecHitsPerLayer(numLayers_, 0);
-  for (auto const layerId : simDoublets.layerIds())
+  for (auto const layerId : simPixelTrack.layerIds())
     countsRecHitsPerLayer.at(layerId)++;
   for (int layerId{0}; auto countRecHits : countsRecHitsPerLayer) {
     h_numRecHitsPerLayer_.fill(passed, layerId, countRecHits);
@@ -871,9 +871,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const
   }
 
   if (inputIsRecoTracks_) {
-    auto nChi2 = simDoublets.track()->normalizedChi2();
+    auto nChi2 = simPixelTrack.track()->normalizedChi2();
     h_numTOVsChi2_.fill(passed, nChi2);
-    h_numRecHitsVsChi2_.fill(passed, nChi2, simDoublets.numRecHits());
+    h_numRecHitsVsChi2_.fill(passed, nChi2, simPixelTrack.numRecHits());
   } else {
     h_numTOVsPdgId_.fill(passed, trackTruth.pdgId);
     // Fill the efficiency profile per Tracking Particle only if the TP has at least one SimDoublet
@@ -885,18 +885,18 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const
 
   // fill histograms for number of SimDoublets
   h_numSimDoubletsPerTrackingObject_.fill(passed, numSimDoublets);
-  h_numRecHitsPerTrackingObject_.fill(passed, simDoublets.numRecHits());
-  h_numLayersPerTrackingObject_.fill(passed, simDoublets.numLayers());
+  h_numRecHitsPerTrackingObject_.fill(passed, simPixelTrack.numRecHits());
+  h_numLayersPerTrackingObject_.fill(passed, simPixelTrack.numLayers());
   h_numSkippedLayersPerTrackingObject_.fill(passed, numSkippedLayers);
-  h_numSkippedLayersVsNumLayers_.fill(passed, simDoublets.numLayers(), numSkippedLayers);
-  h_numSkippedLayersVsNumRecHits_.fill(passed, simDoublets.numRecHits(), numSkippedLayers);
-  h_numRecHitsVsEta_.fill(passed, trackTruth.eta, simDoublets.numRecHits());
-  h_numLayersVsEta_.fill(passed, trackTruth.eta, simDoublets.numLayers());
+  h_numSkippedLayersVsNumLayers_.fill(passed, simPixelTrack.numLayers(), numSkippedLayers);
+  h_numSkippedLayersVsNumRecHits_.fill(passed, simPixelTrack.numRecHits(), numSkippedLayers);
+  h_numRecHitsVsEta_.fill(passed, trackTruth.eta, simPixelTrack.numRecHits());
+  h_numLayersVsEta_.fill(passed, trackTruth.eta, simPixelTrack.numLayers());
   h_numSkippedLayersVsEta_.fill(passed, trackTruth.eta, numSkippedLayers);
-  h_numRecHitsVsPt_.fill(passed, trackTruth.pt, simDoublets.numRecHits());
-  h_numLayersVsPt_.fill(passed, trackTruth.pt, simDoublets.numLayers());
+  h_numRecHitsVsPt_.fill(passed, trackTruth.pt, simPixelTrack.numRecHits());
+  h_numLayersVsPt_.fill(passed, trackTruth.pt, simPixelTrack.numLayers());
   h_numSkippedLayersVsPt_.fill(passed, trackTruth.pt, numSkippedLayers);
-  h_numLayersVsEtaPt_->Fill(trackTruth.eta, trackTruth.pt, simDoublets.numLayers());
+  h_numLayersVsEtaPt_->Fill(trackTruth.eta, trackTruth.pt, simPixelTrack.numLayers());
   // fill histograms for number of TrackingParticles
   h_numTOVsPt_.fill(passed, trackTruth.pt);
   h_numTOVsEta_.fill(passed, trackTruth.eta);
@@ -904,19 +904,19 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const
   h_numTOVsDxy_.fill(passed, trackTruth.dxy);
   h_numTOVsDz_.fill(passed, trackTruth.dz);
   h_numTOVsVertpos_.fill(passed, trackTruth.vertpos);
-  h_numRecHitsVsDxy_.fill(passed, trackTruth.dxy, simDoublets.numRecHits());
-  h_numRecHitsVsDz_.fill(passed, trackTruth.dz, simDoublets.numRecHits());
+  h_numRecHitsVsDxy_.fill(passed, trackTruth.dxy, simPixelTrack.numRecHits());
+  h_numRecHitsVsDz_.fill(passed, trackTruth.dz, simPixelTrack.numRecHits());
   h_numTOVsEtaPhi_.fill(passed, trackTruth.eta, trackTruth.phi);
   h_numTOVsEtaPt_.fill(passed, trackTruth.eta, trackTruth.pt);
   h_numTOVsPhiPt_.fill(passed, trackTruth.phi, trackTruth.pt);
 }
 
-// function that trys to find a valid Ntuplet for the given SimDoublets object using the given geometry configuration
+// function that trys to find a valid Ntuplet for the given SimPixelTrack using the given geometry configuration
 // (layer pairs, starting pairs, minimum number of hits) ignoring all cuts on doublets/connections and returns if it was able to find one
 template <typename TrackerTraits>
-bool SimDoubletsAnalyzer<TrackerTraits>::configAllowsForValidNtuplet(SimDoublets const& simDoublets) const {
+bool SimPixelTrackAnalyzer<TrackerTraits>::configAllowsForValidNtuplet(SimPixelTrack const& simPixelTrack) const {
   // if the number of layers is less than the minimum requirement, don't even bother building anything...
-  if (simDoublets.numLayers() < minNumDoubletsPerNtuplet_ + 1)
+  if (simPixelTrack.numLayers() < minNumDoubletsPerNtuplet_ + 1)
     return false;
 
   // initialize counter for the number of layers in the built Ntuplet
@@ -926,10 +926,10 @@ bool SimDoubletsAnalyzer<TrackerTraits>::configAllowsForValidNtuplet(SimDoublets
   bool building{false};
 
   // get the layerId of the first RecHit of the TrackingParticle
-  auto currentLayer = simDoublets.layerIds(0);
+  auto currentLayer = simPixelTrack.layerIds(0);
 
   // loop over the RecHits in order and try building an Ntuplet starting from the first valid starting pair
-  for (int layerPairId{0}; auto nextLayer : simDoublets.layerIds()) {
+  for (int layerPairId{0}; auto nextLayer : simPixelTrack.layerIds()) {
     // get the layerPairId for the (currentLayer, nextLayer) pair
     layerPairId = simdoublets::getLayerPairId(currentLayer, nextLayer);
 
@@ -958,13 +958,13 @@ bool SimDoubletsAnalyzer<TrackerTraits>::configAllowsForValidNtuplet(SimDoublets
 
 // main function that fills the histograms
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SimPixelTrackAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   // get tracker topology
   trackerTopology_ = &iSetup.getData(topology_getToken_);
-  // get simDoublets
-  SimDoubletsCollection const& simDoubletsCollection = iEvent.get(simDoublets_getToken_);
+  // get SimPixelTracks
+  SimPixelTrackCollection const& simPixelTrackCollection = iEvent.get(simPixelTracks_getToken_);
 
   // initialize a bunch of variables that we will use in the coming for loops
   int numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex, numSkippedLayers;
@@ -978,10 +978,10 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   simdoublets::TrackTruth trackTruth{};
 
   // loop over SimDoublets (= loop over TrackingParticles/RecoTracks)
-  for (auto const& simDoublets : simDoubletsCollection) {
+  for (auto const& simPixelTrack : simPixelTrackCollection) {
     if (inputIsRecoTracks_) {
-      auto track = simDoublets.track();
-      auto bs = simDoublets.beamSpotPosition();
+      auto track = simPixelTrack.track();
+      auto bs = simPixelTrack.beamSpotPosition();
       reco::TrackBase::Point beamSpotPoint(bs.x(), bs.y(), bs.z());
       trackTruth.dxy = track->dxy(beamSpotPoint);
       trackTruth.dz = track->dz(beamSpotPoint);
@@ -989,10 +989,10 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       trackTruth.pt = track->pt();
       trackTruth.eta = track->eta();
     } else {
-      auto trackingParticle = simDoublets.trackingParticle();
+      auto trackingParticle = simPixelTrack.trackingParticle();
       auto momentum = trackingParticle->momentum();
       auto vertex = trackingParticle->vertex();
-      auto bs = simDoublets.beamSpotPosition();
+      auto bs = simPixelTrack.beamSpotPosition();
       const math::XYZPoint beamSpotPoint(bs.x(), bs.y(), bs.z());
       const auto vertexTPwrtBS = vertex - beamSpotPoint;
       trackTruth.dxy = TrackingParticleIP::dxy(vertex, momentum, bs);
@@ -1004,13 +1004,13 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       trackTruth.pdgId = trackingParticle->pdgId();
 
       // check if a valid Ntuplet is possible for the given TP and geometry ignoring any cuts and fill hists
-      bool reconstructable = configAllowsForValidNtuplet(simDoublets);
+      bool reconstructable = configAllowsForValidNtuplet(simPixelTrack);
       h_effConfigLimitVsEta_->Fill(trackTruth.eta, reconstructable);
       h_effConfigLimitVsPt_->Fill(trackTruth.pt, reconstructable);
     }
 
     // create the true RecHit doublets of the TrackingParticle
-    auto& doublets = simDoublets.buildAndGetSimDoublets(trackerTopology_);
+    auto& doublets = simPixelTrack.buildAndGetSimDoublets(trackerTopology_);
     // number of SimDoublets of the Tracking Particle
     numSimDoublets = doublets.size();
     // number of SimDoublets of the Tracking Particle passing all cuts
@@ -1022,7 +1022,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       clusterSizeCutManager.reset();
 
       // calculate the cut variables for the given doublet
-      cellCutVariables.calculateCutVariables(doublet, simDoublets);
+      cellCutVariables.calculateCutVariables(doublet, simPixelTrack);
 
       // first, get layer pair Id and exclude layer pairs that are not considered
       layerPairId = doublet.layerPairId();
@@ -1031,9 +1031,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
         layerPairIdIndex = layerPairId2Index_.at(layerPairId);
 
         // function to check if a doublet has inner neighbors from a considered layer pair
-        auto checkValidNeighbors = [&](SimDoublets::Doublet const& d) {
+        auto checkValidNeighbors = [&](SimPixelTrack::Doublet const& d) {
           return (d.numInnerNeighbors() > 0 &&
-                  !(simDoublets.getSimDoublet(d.innerNeighborIndex(0)).isKilledByMissingLayerPair()));
+                  !(simPixelTrack.getSimDoublet(d.innerNeighborIndex(0)).isKilledByMissingLayerPair()));
         };
 
         // check if the SimDoublet's inner neighbors also are from a considered layer pair
@@ -1041,14 +1041,14 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
 
         // check if the inner neighbors' neighbors also are from a considered layer pair
         hasValidTripletNeighbors =
-            hasValidNeighbors && checkValidNeighbors(simDoublets.getSimDoublet(doublet.innerNeighborIndex(0)));
+            hasValidNeighbors && checkValidNeighbors(simPixelTrack.getSimDoublet(doublet.innerNeighborIndex(0)));
 
         // determine which cluster size cuts the doublet is subject to
         clusterSizeCutManager.setSubjectsToCuts(doublet);
 
         // apply the cuts for doublet building according to the set cut values
         applyCuts(doublet,
-                  simDoublets,
+                  simPixelTrack,
                   hasValidNeighbors,
                   hasValidTripletNeighbors,
                   layerPairIdIndex,
@@ -1082,7 +1082,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     }  // end loop over those doublets
 
     // build the SimNtuplets based on the SimDoublets
-    simDoublets.buildSimNtuplets(startingPairs_, minNumDoubletsPerNtuplet_);
+    simPixelTrack.buildSimNtuplets(startingPairs_, minNumDoubletsPerNtuplet_);
 
     // -----------------------------------------------------------------------------
     //  plots related to SimNtuplets (SimNtuplets folder)
@@ -1090,14 +1090,14 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     // set the number of skipped layers by default to -1
     numSkippedLayers = -1;
 
-    if (simDoublets.hasSimNtuplet()) {
+    if (simPixelTrack.hasSimNtuplet()) {
       // get number of skipped layers from longest SimNtuplet and fill histos
-      numSkippedLayers = simDoublets.longestSimNtuplet().numSkippedLayers();
-      fillSimNtupletHistograms(simDoublets, trackTruth);
+      numSkippedLayers = simPixelTrack.longestSimNtuplet().numSkippedLayers();
+      fillSimNtupletHistograms(simPixelTrack, trackTruth);
     }
 
 #ifdef LOSTNTUPLETS_PRINTOUTS
-    if (!simDoublets.hasAliveSimNtuplet()) {
+    if (!simPixelTrack.hasAliveSimNtuplet()) {
       printf(
           "\n------------------------------------------\n Lost Particle: pdgId %d, eta %f, pT %f, dz %f, dxy "
           "%f\n------------------------------------------\n",
@@ -1121,16 +1121,16 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     // -----------------------------------------------------------------------------
     //  general plots related to TrackingParticles (general folder)
     // -----------------------------------------------------------------------------
-    fillGeneralHistograms(simDoublets, trackTruth, pass_numSimDoublets, numSimDoublets, numSkippedLayers);
+    fillGeneralHistograms(simPixelTrack, trackTruth, pass_numSimDoublets, numSimDoublets, numSkippedLayers);
 
     // clear SimDoublets and SimNtuplets of the TrackingParticle
-    simDoublets.clearMutables();
-  }  // end loop over SimDoublets (= loop over TrackingParticles/RecoTracks)
+    simPixelTrack.clearMutables();
+  }  // end loop over SimPixelTrack (= loop over TrackingParticles/RecoTracks)
 }
 
 // booking the histograms
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook,
+void SimPixelTrackAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook,
                                                         edm::Run const& run,
                                                         edm::EventSetup const& iSetup) {
   // set some common parameters
@@ -2053,21 +2053,21 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
 
 // dummy default fillDescription
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SimPixelTrackAnalyzer<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.addWithDefaultLabel(desc);
 }
 
 // fillDescription for Phase 1
 template <>
-void SimDoubletsAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SimPixelTrackAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   int nPairs = pixelTopology::Phase1::nPairsForQuadruplets;
 
   edm::ParameterSetDescription desc;
   simdoublets::fillDescriptionsCommon<pixelTopology::Phase1>(desc);
 
-  // input source for SimDoublets
-  desc.add<edm::InputTag>("simDoubletsSrc", edm::InputTag("simDoubletsProducerPhase1"));
+  // input source for SimPixelTrack
+  desc.add<edm::InputTag>("simPixelTrackSrc", edm::InputTag("simPixelTrackProducerPhase1"));
 
   // cutting parameters
   desc.add<int>("minYsizeB1", 36)->setComment("Minimum cluster size for inner RecHit from B1");
@@ -2142,14 +2142,14 @@ void SimDoubletsAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
 
 // fillDescription for Phase 2
 template <>
-void SimDoubletsAnalyzer<pixelTopology::Phase2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SimPixelTrackAnalyzer<pixelTopology::Phase2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   int nPairs = pixelTopology::Phase2::nPairs;
 
   edm::ParameterSetDescription desc;
   simdoublets::fillDescriptionsCommon<pixelTopology::Phase2>(desc);
 
-  // input source for SimDoublets
-  desc.add<edm::InputTag>("simDoubletsSrc", edm::InputTag("simDoubletsProducerPhase2"));
+  // input source for SimPixelTrack
+  desc.add<edm::InputTag>("simPixelTrackSrc", edm::InputTag("simPixelTrackProducerPhase2"));
 
   // cutting parameters for doublets
   desc.add<int>("minYsizeB1", 25)->setComment("Minimum cluster size for inner RecHit from B1");
@@ -2225,9 +2225,9 @@ void SimDoubletsAnalyzer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
 }
 
 // define two plugins for Phase 1 and 2
-using SimDoubletsAnalyzerPhase1 = SimDoubletsAnalyzer<pixelTopology::Phase1>;
-using SimDoubletsAnalyzerPhase2 = SimDoubletsAnalyzer<pixelTopology::Phase2>;
+using SimPixelTrackAnalyzerPhase1 = SimPixelTrackAnalyzer<pixelTopology::Phase1>;
+using SimPixelTrackAnalyzerPhase2 = SimPixelTrackAnalyzer<pixelTopology::Phase2>;
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(SimDoubletsAnalyzerPhase1);
-DEFINE_FWK_MODULE(SimDoubletsAnalyzerPhase2);
+DEFINE_FWK_MODULE(SimPixelTrackAnalyzerPhase1);
+DEFINE_FWK_MODULE(SimPixelTrackAnalyzerPhase2);

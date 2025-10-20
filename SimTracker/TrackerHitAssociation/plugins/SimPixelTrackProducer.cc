@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:    SimTracker/TrackerHitAssociation
-// Class:      SimDoubletsProducer
+// Class:      SimPixelTrackProducer
 //
 
 // user include files
@@ -26,18 +26,18 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
+#include "SimTracker/TrackerHitAssociation/interface/SimPixelTrackTools.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/SimDoublets.h"
+#include "SimDataFormats/TrackingAnalysis/interface/SimPixelTrack.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFastParamsHost.h"
 #include "RecoLocalTracker/Records/interface/PixelCPEFastParamsRecord.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
@@ -50,30 +50,30 @@
 #include <memory>
 #include <typeinfo>
 
-/** Class: SimDoubletsProducer
+/** Class: SimPixelTrackProducer
  * 
- * @brief Produces SimDoublets (MC-info based PixelRecHit doublets) for selected TrackingParticles.
+ * @brief Produces SimPixelTracks (MC-info based PixelRecHit doublets) for selected TrackingParticles.
  *
  * SimDoublets represent the true doublets of RecHits that a simulated particle (TrackingParticle) 
  * created in the pixel detector. They can be used to analyze cuts which are applied in the reconstruction
  * when producing doublets as the first part of patatrack pixel tracking.
  *
- * The SimDoublets are produced in the following way:
+ * The SimPixelTrack are produced in the following way:
  * 1. We select reasonable TrackingParticles according to the criteria given in the config file as 
  *    "TrackingParticleSelectionConfig".
- * 2. For each selected particle, we create and append a new SimDoublets object to the SimDoubletsCollection.
+ * 2. For each selected particle, we create and append a new SimPixelTrack object to the SimPixelTrackCollection.
  * 3. We loop over all RecHits in the pixel tracker and check if the given RecHit is associated to one of
  *    the selected particles (association via TP to cluster association). If it is, we add a RecHit reference
  *    to the respective SimDoublet.
- * 4. In the end, we sort the RecHits in each SimDoublets object according to their global position.
+ * 4. In the end, we sort the RecHits in each SimPixelTrack object according to their global position.
  *
  * @author Jan Schulz (jan.gerrit.schulz@cern.ch)
  * @date January 2025
  */
 template <typename TrackerTraits>
-class SimDoubletsProducer : public edm::stream::EDProducer<> {
+class SimPixelTrackProducer : public edm::stream::EDProducer<> {
 public:
-  explicit SimDoubletsProducer(const edm::ParameterSet&);
+  explicit SimPixelTrackProducer(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -99,102 +99,12 @@ private:
   const edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHits_getToken_;
   const edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> otRecHits_getToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpot_getToken_;
-  const edm::EDPutTokenT<SimDoubletsCollection> simDoublets_putToken_;
+  const edm::EDPutTokenT<SimPixelTrackCollection> simPixelTracks_putToken_;
 };
-
-namespace simdoublets {
-  // function that determines the layerId from the detId for Phase 1 and 2
-  template <typename TrackerTraits>
-  unsigned int getLayerId(DetId const& detId, const TrackerTopology* trackerTopology) {
-    // number of barrel layers
-    constexpr unsigned int numBarrelLayers{4};
-    // number of disks per endcap
-    constexpr unsigned int numEndcapDisks = (TrackerTraits::numberOfLayers - numBarrelLayers) / 2;
-    // number of pixel layers in total
-    constexpr unsigned int numPixelLayers = (TrackerTraits::numberOfLayers);
-    // number of OT barrel layers
-    constexpr unsigned int numOTBarrelLayers{3};  // FIXME: hardcoded for now
-    // number of disks per OT endcap
-    constexpr unsigned int numOTEndcapDisks{5};  // FIXME: hardcoded for now
-
-    // set default to 999 (invalid)
-    unsigned int layerId{99};
-
-    switch (detId.subdetId()) {
-      case PixelSubdetector::PixelBarrel:
-        // subtract 1 in the barrel to get, e.g. for Phase 2, from (1,4) to (0,3)
-        layerId = trackerTopology->pxbLayer(detId) - 1;
-        break;
-      case PixelSubdetector::PixelEndcap:
-        if (trackerTopology->pxfSide(detId) == 1) {
-          // add offset in the backward endcap to get, e.g. for Phase 2, from (1,12) to (16,27)
-          layerId = trackerTopology->pxfDisk(detId) + numBarrelLayers + numEndcapDisks - 1;
-        } else {
-          // add offest in the forward endcap to get, e.g. for Phase 2, from (1,12) to (4,15)
-          layerId = trackerTopology->pxfDisk(detId) + numBarrelLayers - 1;
-        }
-        break;
-      case SiStripSubdetector::TOB:
-        // add offset in the OT barrel to get, e.g. for Phase 2, from (1,3) to (28, 30)
-        layerId = trackerTopology->tobLayer(detId) + numPixelLayers - 1;
-        break;
-      case SiStripSubdetector::TID:
-        if (trackerTopology->tidSide(detId) == 1) {
-          // add offset in the OT forward endcap to get, e.g. for Phase 2, from (1,5) to (31, 35)
-          layerId = trackerTopology->tidWheel(detId) + numPixelLayers + numOTBarrelLayers - 1;
-        } else {
-          // add offset in the OT backward endcap to get, e.g. for Phase 2, from (1,3) to (36, 40)
-          layerId = trackerTopology->tidWheel(detId) + numPixelLayers + numOTBarrelLayers + numOTEndcapDisks - 1;
-        }
-        break;
-    }
-    // return the determined Id
-    return layerId;
-  }
-
-  // function that determines the cluster size of a Pixel RecHit in local y direction
-  // according to the formula used in Patatrack reconstruction
-  int clusterYSize(OmniClusterRef::ClusterPixelRef const cluster, uint16_t const pixmx, int const maxCol) {
-    // check if the cluster lies at the y-edge of the module
-    if (cluster->minPixelCol() == 0 || cluster->maxPixelCol() == maxCol) {
-      // if so, return -1
-      return -1;
-    }
-
-    // column span (span of cluster in y direction)
-    int span = cluster->colSpan();
-
-    // total charge of the first and last column of digis respectively
-    int q_firstCol = 0;
-    int q_lastCol = 0;
-
-    // loop over the pixels/digis of the cluster and update the charges of first and last column
-    int offset;
-    for (int i{0}; i < cluster->size(); i++) {
-      offset = cluster->pixelOffset()[2 * i + 1];
-
-      // check if pixel is in first column and eventually update the charge
-      if (offset == 0) {
-        q_firstCol += std::min(cluster->pixelADC()[i], pixmx);
-      }
-      // check if pixel is in last column and eventually update the charge
-      if (offset == span) {
-        q_lastCol += std::min(cluster->pixelADC()[i], pixmx);
-      }
-    }
-
-    // calculate the unbalance term
-    int unbalance = 8. * std::abs(float(q_firstCol - q_lastCol)) / float(q_firstCol + q_lastCol);
-
-    // calculate the cluster size
-    int clusterYSize = 8 * (span + 1) - unbalance;
-    return clusterYSize;
-  }
-}  // namespace simdoublets
 
 // constructor
 template <typename TrackerTraits>
-SimDoubletsProducer<TrackerTraits>::SimDoubletsProducer(const edm::ParameterSet& pSet)
+SimPixelTrackProducer<TrackerTraits>::SimPixelTrackProducer(const edm::ParameterSet& pSet)
     : includeOTBarrel_(pSet.getParameter<bool>("includeOTBarrel")),
       includeOTDisks_(pSet.getParameter<bool>("includeOTDisks")),
       dropEvenLayerRecHits_(pSet.getParameter<bool>("dropEvenLayerRecHits")),
@@ -208,8 +118,8 @@ SimDoubletsProducer<TrackerTraits>::SimDoubletsProducer(const edm::ParameterSet&
       pixelRecHits_getToken_(consumes(pSet.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       otRecHits_getToken_(consumes(pSet.getParameter<edm::InputTag>("outerTrackerRecHitSrc"))),
       beamSpot_getToken_(consumes(pSet.getParameter<edm::InputTag>("beamSpotSrc"))),
-      simDoublets_putToken_(produces<SimDoubletsCollection>()) {
-  // initialize the selector for TrackingParticles used to create SimDoublets
+      simPixelTracks_putToken_(produces<SimPixelTrackCollection>()) {
+  // initialize the selector for TrackingParticles used to create SimPixelTracks
   const edm::ParameterSet& pSetTPSel = pSet.getParameter<edm::ParameterSet>("TrackingParticleSelectionConfig");
   trackingParticleSelector = TrackingParticleSelector(pSetTPSel.getParameter<double>("ptMin"),
                                                       pSetTPSel.getParameter<double>("ptMax"),
@@ -230,11 +140,11 @@ SimDoubletsProducer<TrackerTraits>::SimDoubletsProducer(const edm::ParameterSet&
 
 // dummy fillDescription
 template <typename TrackerTraits>
-void SimDoubletsProducer<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {}
+void SimPixelTrackProducer<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {}
 
 // Phase 1 fillDescription
 template <>
-void SimDoubletsProducer<pixelTopology::Phase1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SimPixelTrackProducer<pixelTopology::Phase1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   // cluster parameter estimator
@@ -282,7 +192,7 @@ void SimDoubletsProducer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
 
 // Phase 2 fillDescription
 template <>
-void SimDoubletsProducer<pixelTopology::Phase2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SimPixelTrackProducer<pixelTopology::Phase2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   // cluster parameter estimator
@@ -329,10 +239,10 @@ void SimDoubletsProducer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
 }
 
 template <typename TrackerTraits>
-void SimDoubletsProducer<TrackerTraits>::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {}
+void SimPixelTrackProducer<TrackerTraits>::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {}
 
 template <typename TrackerTraits>
-void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
+void SimPixelTrackProducer<TrackerTraits>::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
   // get TrackerTopology and TrackerGeometry
   trackerTopology_ = &eventSetup.getData(topology_getToken_);
   trackerGeometry_ = &eventSetup.getData(geometry_getToken_);
@@ -372,9 +282,9 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
     return;
   }
 
-  // create collection of SimDoublets
+  // create collection of SimPixelTrack
   // each element will correspond to one selected TrackingParticle
-  SimDoubletsCollection simDoubletsCollection;
+  SimPixelTrackCollection simPixelTrackCollection;
 
   // loop over TrackingParticles
   for (size_t i = 0; i < trackingParticles->size(); ++i) {
@@ -382,20 +292,20 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
 
     // select reasonable TrackingParticles for the study (e.g., only signal)
     if (trackingParticleSelector(trackingParticle)) {
-      simDoubletsCollection.push_back(SimDoublets(TrackingParticleRef(trackingParticles, i), *beamSpot));
+      simPixelTrackCollection.push_back(SimPixelTrack(TrackingParticleRef(trackingParticles, i), *beamSpot));
     }
   }
 
   // create a set of the keys of the selected TrackingParticles
   edm::IndexSet selectedTrackingParticleKeys;
-  selectedTrackingParticleKeys.reserve(simDoubletsCollection.size());
-  for (const auto& simDoublets : simDoubletsCollection) {
-    TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
+  selectedTrackingParticleKeys.reserve(simPixelTrackCollection.size());
+  for (const auto& simPixelTrack : simPixelTrackCollection) {
+    TrackingParticleRef trackingParticleRef = simPixelTrack.trackingParticle();
     selectedTrackingParticleKeys.insert(trackingParticleRef.key());
   }
 
   // initialize a couple of counters
-  int count_associatedRecHits{0}, count_RecHitsInSimDoublets{0};
+  int count_associatedRecHits{0}, count_RecHitsInSimPixelTrack{0};
 
   // initialize a couple of variables used in the following loop
   unsigned int detId, layerId, maxCol;
@@ -409,7 +319,7 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
     DetId detIdObject(detId);
 
     // determine layer Id from detector Id
-    layerId = simdoublets::getLayerId<TrackerTraits>(detId, trackerTopology_);
+    layerId = simpixeltracks::getLayerId<TrackerTraits>(detId, trackerTopology_);
 
     // check if we would like to skip
     if (dropEvenLayerRecHits_ && (layerId % 2 == 0)) {
@@ -442,14 +352,14 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
           // if the associated TrackingParticle is among the selected ones
           if (selectedTrackingParticleKeys.has(assocTrackingParticle.key())) {
             // determine the cluster size of the RecHit
-            clusterYSize = simdoublets::clusterYSize(hit.cluster(), pixmx, maxCol);
+            clusterYSize = simpixeltracks::clusterYSize(hit.cluster(), pixmx, maxCol);
             count_associatedRecHits++;
-            // loop over collection of SimDoublets and find the one of the associated TrackingParticle
-            for (auto& simDoublets : simDoubletsCollection) {
-              TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
+            // loop over collection of SimPixelTrack and find the one of the associated TrackingParticle
+            for (auto& simPixelTrack : simPixelTrackCollection) {
+              TrackingParticleRef trackingParticleRef = simPixelTrack.trackingParticle();
               if (assocTrackingParticle.key() == trackingParticleRef.key()) {
-                simDoublets.addRecHit(hit, layerId, clusterYSize, detId, moduleId);
-                count_RecHitsInSimDoublets++;
+                simPixelTrack.addRecHit(hit, layerId, clusterYSize, detId, moduleId);
+                count_RecHitsInSimPixelTrack++;
               }
             }
           }
@@ -478,7 +388,7 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
         continue;
 
       // determine layer Id from detector Id
-      layerId = simdoublets::getLayerId<TrackerTraits>(detId, trackerTopology_);
+      layerId = simpixeltracks::getLayerId<TrackerTraits>(detId, trackerTopology_);
 
       // check if we would like to skip
       if (dropEvenLayerRecHits_ && (layerId % 2 == 0)) {
@@ -506,12 +416,12 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
 
             // if the associated TrackingParticle is among the selected ones
             if (selectedTrackingParticleKeys.has(assocTrackingParticle.key())) {
-              // loop over collection of SimDoublets and find the one of the associated TrackingParticle
-              for (auto& simDoublets : simDoubletsCollection) {
-                TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
+              // loop over collection of SimPixelTrack and find the one of the associated TrackingParticle
+              for (auto& simPixelTrack : simPixelTrackCollection) {
+                TrackingParticleRef trackingParticleRef = simPixelTrack.trackingParticle();
                 if (assocTrackingParticle.key() == trackingParticleRef.key()) {
                   // add the RecHit to the SimDoublet
-                  simDoublets.addRecHit(hitOT, layerId, clusterYSize, detId, moduleId);
+                  simPixelTrack.addRecHit(hitOT, layerId, clusterYSize, detId, moduleId);
                 }
               }
             }
@@ -521,28 +431,28 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
     }  // end loop over OT RecHit collections of the different modules
   }
 
-  // loop over collection of SimDoublets and sort the RecHits according to their position
-  for (auto& simDoublets : simDoubletsCollection) {
-    simDoublets.sortRecHits();
+  // loop over collection of SimPixelTrack and sort the RecHits according to their position
+  for (auto& simPixelTrack : simPixelTrackCollection) {
+    simPixelTrack.sortRecHits();
   }
 
-  LogDebug("SimDoubletsProducer") << "Size of SiPixelRecHitCollection : " << hits->size() << std::endl;
-  LogDebug("SimDoubletsProducer") << count_associatedRecHits << " of " << hits->size()
-                                  << " RecHits are associated to selected TrackingParticles ("
-                                  << count_RecHitsInSimDoublets - count_associatedRecHits
-                                  << " of them were associated multiple times)." << std::endl;
-  LogDebug("SimDoubletsProducer") << "Number of selected TrackingParticles : " << simDoubletsCollection.size()
-                                  << std::endl;
-  LogDebug("SimDoubletsProducer") << "Size of TrackingParticle Collection  : " << trackingParticles->size()
-                                  << std::endl;
+  LogDebug("SimPixelTrackProducer") << "Size of SiPixelRecHitCollection : " << hits->size() << std::endl;
+  LogDebug("SimPixelTrackProducer") << count_associatedRecHits << " of " << hits->size()
+                                    << " RecHits are associated to selected TrackingParticles ("
+                                    << count_RecHitsInSimPixelTrack - count_associatedRecHits
+                                    << " of them were associated multiple times)." << std::endl;
+  LogDebug("SimPixelTrackProducer") << "Number of selected TrackingParticles : " << simPixelTrackCollection.size()
+                                    << std::endl;
+  LogDebug("SimPixelTrackProducer") << "Size of TrackingParticle Collection  : " << trackingParticles->size()
+                                    << std::endl;
 
-  // put the produced SimDoublets collection in the event
-  event.emplace(simDoublets_putToken_, std::move(simDoubletsCollection));
+  // put the produced SimPixelTrack collection in the event
+  event.emplace(simPixelTracks_putToken_, std::move(simPixelTrackCollection));
 }
 
 // define two plugins for Phase 1 and 2
-using SimDoubletsProducerPhase1 = SimDoubletsProducer<pixelTopology::Phase1>;
-using SimDoubletsProducerPhase2 = SimDoubletsProducer<pixelTopology::Phase2>;
+using SimPixelTrackProducerPhase1 = SimPixelTrackProducer<pixelTopology::Phase1>;
+using SimPixelTrackProducerPhase2 = SimPixelTrackProducer<pixelTopology::Phase2>;
 
-DEFINE_FWK_MODULE(SimDoubletsProducerPhase1);
-DEFINE_FWK_MODULE(SimDoubletsProducerPhase2);
+DEFINE_FWK_MODULE(SimPixelTrackProducerPhase1);
+DEFINE_FWK_MODULE(SimPixelTrackProducerPhase2);

@@ -41,35 +41,34 @@
   <class name="SimTrackToTPMap" rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<SimTrackToTPMap>"/>
 
-  <class name="SimDoublets" ClassVersion="4">
-   <version ClassVersion="4" checksum="1196420771"/>
-   <version ClassVersion="3" checksum="2009082523"/>
+  <class name="SimPixelTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="3153507970"/>
     <field name="doublets_" transient="true" />
     <field name="ntuplets_" transient="true" />
     <field name="longestNtupletIndex_" transient="true" />
     <field name="longestAliveNtupletIndex_" transient="true" />
     <field name="bestNtupletIndex_" transient="true" />
   </class>
-  <class name="std::vector<SimDoublets>"/>
-  <class name="edm::Wrapper< std::vector<SimDoublets> >"/>
+  <class name="std::vector<SimPixelTrack>"/>
+  <class name="edm::Wrapper< std::vector<SimPixelTrack> >"/>
 
-  <ioread sourceClass = "SimDoublets" version="[1-]" targetClass="SimDoublets" source="" target="doublets_">
+  <ioread sourceClass = "SimPixelTrack" version="[1-]" targetClass="SimPixelTrack" source="" target="doublets_">
   <![CDATA[ doublets_={};
   ]]>
   </ioread>
-  <ioread sourceClass = "SimDoublets" version="[1-]" targetClass="SimDoublets" source="" target="ntuplets_">
+  <ioread sourceClass = "SimPixelTrack" version="[1-]" targetClass="SimPixelTrack" source="" target="ntuplets_">
   <![CDATA[ ntuplets_={};
   ]]>
   </ioread>
-  <ioread sourceClass = "SimDoublets" version="[1-]" targetClass="SimDoublets" source="" target="longestNtupletIndex_">
+  <ioread sourceClass = "SimPixelTrack" version="[1-]" targetClass="SimPixelTrack" source="" target="longestNtupletIndex_">
   <![CDATA[ longestNtupletIndex_=-1;
   ]]>
   </ioread>
-  <ioread sourceClass = "SimDoublets" version="[1-]" targetClass="SimDoublets" source="" target="longestAliveNtupletIndex_">
+  <ioread sourceClass = "SimPixelTrack" version="[1-]" targetClass="SimPixelTrack" source="" target="longestAliveNtupletIndex_">
   <![CDATA[ longestAliveNtupletIndex_=-1;
   ]]>
   </ioread>
-  <ioread sourceClass = "SimDoublets" version="[1-]" targetClass="SimDoublets" source="" target="bestNtupletIndex_">
+  <ioread sourceClass = "SimPixelTrack" version="[1-]" targetClass="SimPixelTrack" source="" target="bestNtupletIndex_">
   <![CDATA[ bestNtupletIndex_=-1;
   ]]>
   </ioread>
