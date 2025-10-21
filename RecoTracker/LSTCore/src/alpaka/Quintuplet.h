@@ -1801,7 +1801,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                 } else {
                   int quintupletModuleIndex = alpaka::atomicAdd(
                       acc, &quintupletsOccupancy.nQuintuplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
-                  //this if statement should never get executed!
                   if (ranges.quintupletModuleIndices()[lowerModule1] == -1) {
 #ifdef WARNINGS
                     printf("Quintuplets : no memory for module at module index = %d\n", lowerModule1);
