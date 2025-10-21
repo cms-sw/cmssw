@@ -171,7 +171,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto isPinPSinOTDisk = [&](DetId detId) {
         // Select only P-hits from the OT disks
         return (trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
-                detId.subdetId() != StripSubdetector::TOB);
+                detId.subdetId() == StripSubdetector::TID);
       };
       auto isPixel = [&](DetId detId) {
         auto subId = detId.subdetId();

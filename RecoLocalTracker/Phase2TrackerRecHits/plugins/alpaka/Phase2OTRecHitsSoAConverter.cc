@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <vector>
 
-#define HITS_DEBUG
+//#define HITS_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -104,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           << (int)detId.subdetId() << " " << (detId.subdetId() == StripSubdetector::TOB) << '\n';
       // Select only P-hits from the OT disk
       return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
-              detId.subdetId() != StripSubdetector::TOB);
+              detId.subdetId() == StripSubdetector::TID);
     };
     auto isPh2Pixel = [&](DetId detId) {
       auto subId = detId.subdetId();
