@@ -1674,6 +1674,12 @@ class ConfigBuilder(object):
             else:
                 self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(stepSpec.replace(',',':'),optionsForHLTConfig))
         else:
+            # case where HLT:something was provided (most of the cases)
+            if '+' in stepSpec:
+                # case where HLT:menu+customisation+customisation+... was provided
+                # the customiser allows to modify parts of the HLT menu
+                stepSpec, *hltcustomiser = stepSpec.rsplit('+')
+                self._options.customisation_file_unsch = hltcustomiser + self._options.customisation_file_unsch
             self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff' % stepSpec)
 
         if self._options.isMC:
