@@ -211,6 +211,8 @@ process.runPF = cms.Path(
         process.l1tLayer1HGCalNoTK +
         process.l1tLayer1HF +
         process.l1tLayer1 +
+        process.l1tLayer1BarrelExtended +
+        process.l1tLayer1HGCalExtended +
         process.l1tLayer2Deregionizer +
         process.l1tSC4PFL1PuppiEmulator +
         process.l1tSC4PFL1PuppiCorrectedEmulator +
@@ -243,6 +245,9 @@ if not args.dumpFilesOFF:
     for det in "Barrel", "BarrelTDR", "BarrelSerenity", "HGCal", "HGCalElliptic", "HGCalNoTK", "HF":
         l1pf = getattr(process, 'l1tLayer1'+det)
         l1pf.dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
+    for det in "Barrel", "HGCal":
+        l1pf = getattr(process, 'l1tLayer1'+det+'Extended')
+        l1pf.dumpFileName = cms.untracked.string("TTbar_PU200_"+det+"Extended.dump")
 
 
 if args.tm18:

@@ -55,7 +55,7 @@ l1ct::TrackInputEmulator::TrackInputEmulator(const edm::ParameterSet &iConfig)
             region_ == Region::Endcap);
   configPhi(iConfig.getParameter<uint32_t>("phiBits"));
   configZ0(iConfig.getParameter<uint32_t>("z0Bits"));
-  configDxy(iConfig.getParameter<uint32_t>("dxyBits"));
+  configDxy(iConfig.getParameter<uint32_t>("dxyLUTBits"));
   if (region_ == Region::Barrel) {
     configDEtaBarrel(iConfig.getParameter<uint32_t>("dEtaBarrelBits"),
                      iConfig.getParameter<uint32_t>("dEtaBarrelZ0PreShift"),
@@ -91,7 +91,7 @@ edm::ParameterSetDescription l1ct::TrackInputEmulator::getParameterSetDescriptio
   description.add<bool>("etaSigned", true);
   description.add<uint32_t>("phiBits", 10u);
   description.add<uint32_t>("z0Bits", 12u);
-  description.add<uint32_t>("dxyBits", 13u);
+  description.add<uint32_t>("dxyLUTBits", 10u);
   description.ifValue(edm::ParameterDescription<std::string>("trackWordEncoding", "biased", true),
                       edm::allowedValues<std::string>("biased", "unbised", "stepping"));
   description.add<bool>("bitwiseAccurate", true);
@@ -383,12 +383,22 @@ l1ct::z0_t l1ct::TrackInputEmulator::convZ0(ap_int<12> z0) const {
 }
 
 l1ct::dxy_t l1ct::TrackInputEmulator::convDxy(ap_int<13> dxy) const {
-  int offs = dxy >= 0 ? dxyOffsPos_ : dxyOffsNeg_;
-  float physcoord_ = ((dxy.to_int() * dxyMult_ + offs) >> dxyBitShift_) * l1ct::Scales::DXY_LSB;
-  physcoord_ = std::sqrt(std::abs(physcoord_));
-  physcoord_ = physcoord_ / l1ct::Scales::DXYSQRT_LSB;
-  l1ct::dxy_t ret = dxy_t(std::round(physcoord_));
-  return ret;
+  bool negative = dxy[12];
+  // use saturation in this cast to properly handle the most negative value (i.e. |-4096| -> +4095 )
+  ap_fixed<13,13,AP_TRN,AP_SAT> absDxy = negative ? ap_fixed<13,13,AP_TRN,AP_SAT>(-dxy) : ap_fixed<13,13,AP_TRN,AP_SAT>(dxy);
+  unsigned int index = absDxy >> dxyLUTShift_;
+
+  if (index >= dxyLUT_.size()) {
+    dbgPrintf("WARN: dxy %d, absDxy %d, index %d, size %lu, shift %d\n",
+              dxy.to_int(),
+              absDxy.to_int(),
+              index,
+              dxyLUT_.size(),
+              dxyLUTShift_);
+    index = dxyLUT_.size() - 1;
+  }
+  l1ct::dxy_t sqrtAbsDxy = dxyLUT_.at(index);
+  return sqrtAbsDxy;
 }
 
 void l1ct::TrackInputEmulator::configZ0(int bits) {
@@ -420,38 +430,16 @@ void l1ct::TrackInputEmulator::configZ0(int bits) {
               z0OffsNeg_);
 }
 
-void l1ct::TrackInputEmulator::configDxy(int bits) {
-  // Function for setting Dxy conversion factors from bits to physical floating point coordinates
-  // dxyScale_ = digitisation taken from track word (32/2**13)
-  // dxyBitShift_ = total number of bits from track word
-  // dxyMult_ = rescaling factor * 2**bits
-  // dxyOffsPos_ = offset for positive dxy at bin boundary
-  // dxyOffsNeg_ = offset for negative dxy at bin boundary
-  float scale = dxyScale_ / l1ct::Scales::DXY_LSB;
-  dxyBitShift_ = bits;
-  dxyMult_ = std::round(scale * (1 << bits));
-  switch (encoding_) {
-    case Encoding::Stepping:
-      dxyOffsPos_ = std::round(+scale * 0.5 * (1 << bits) + 0.5 * (1 << bits));
-      dxyOffsNeg_ = std::round(-scale * 0.5 * (1 << bits) + 0.5 * (1 << bits));
-      break;
-    case Encoding::Biased:
-      dxyOffsPos_ = std::round(+scale * 0.5 * (1 << bits) + 0.5 * (1 << bits));
-      dxyOffsNeg_ = std::round(+scale * 0.5 * (1 << bits) + 0.5 * (1 << bits));
-      break;
-    case Encoding::Unbiased:
-      dxyOffsPos_ = (1 << (bits - 1));
-      dxyOffsNeg_ = (1 << (bits - 1));
-      break;
+void l1ct::TrackInputEmulator::configDxy(int lutBits) {
+  dxyLUTShift_ = 12 - lutBits;
+  dxyLUT_.resize(1 << lutBits);
+  for (unsigned int u = 0, n = dxyLUT_.size(); u < n; ++u) {
+    float dxy = u * (1 << dxyLUTShift_) * l1ct::Scales::DXY_LSB;
+    float sqrtDxy = std::sqrt(dxy);
+    dxyLUT_[u] = l1ct::Scales::makeDxy(sqrtDxy);
   }
   if (debug_)
-    dbgPrintf("Configured dxy with scale %d [to_cmssw %.8f, to_l1ct %.8f, %d bits], offsets %+d (pos), %+d (neg)\n",
-              dxyMult_,
-              dxyScale_,
-              scale,
-              bits,
-              dxyOffsPos_,
-              dxyOffsNeg_);
+    dbgPrintf("Configured dxy\n");
 }
 
 float l1ct::TrackInputEmulator::floatDEtaBarrel(ap_int<12> z0, ap_int<15> Rinv, ap_int<16> tanl) const {
