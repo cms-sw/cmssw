@@ -97,6 +97,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
               detId.subdetId() == StripSubdetector::TOB);
     };
+    auto isPinPSinOTDisk = [&](DetId detId) {
+      LogDebug("Phase2OTRecHitsSoAConverter")
+          << (int)trackerGeometry->getDetectorType(detId) << " "
+          << (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP) << '\n'
+          << (int)detId.subdetId() << " " << (detId.subdetId() == StripSubdetector::TOB) << '\n';
+      // Select only P-hits from the OT disk
+      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
+              detId.subdetId() == StripSubdetector::TID);
+    };
     auto isPh2Pixel = [&](DetId detId) {
       auto subId = detId.subdetId();
       return (subId == PixelSubdetector::PixelBarrel || subId == PixelSubdetector::PixelEndcap);
@@ -106,15 +115,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     for (auto& detUnit : detUnits) {
       DetId detId(detUnit->geographicalId());
-      detIdIsP_[detId.rawId()] = isPinPSinOTBarrel(detId);
+      detIdIsP_[detId.rawId()] = isPinPSinOTBarrel(detId)||isPinPSinOTDisk(detId);
       if (isPh2Pixel(detId))
         modulesInPixel_++;
-      if (detIdIsP_[detId.rawId()]) {
+      if (isPinPSinOTBarrel(detId)) {
         detIdToIndex_[detUnit->geographicalId()] = detUnit->index();
         moduleIndexToOffset_[detUnit->index()] = orderedModules_.size();
         orderedModules_.push_back(detUnit->index());
-        LogDebug("Phase2OTRecHitsSoAConverter") << "Inserted " << detUnit->index() << " " << orderedModules_.size()
-                                                << " on layer " << int((detId.rawId() >> 20) & 0xF) << '\n';
+#ifdef HITS_DEBUG
+        std::cout << "Phase2OTRecHitsSoAConverter beginRun" << std::endl
+                  << "Inserted " << detUnit->index() << " " << orderedModules_.size()
+                  << " on layer " << int((detId.rawId() >> 20) & 0xF) << std::endl;
+#endif
+      }
+    }
+    for (auto& detUnit : detUnits) {
+      DetId detId(detUnit->geographicalId());  
+      if (isPinPSinOTDisk(detId)) {
+        detIdToIndex_[detUnit->geographicalId()] = detUnit->index();
+        moduleIndexToOffset_[detUnit->index()] = orderedModules_.size();
+        orderedModules_.push_back(detUnit->index());
+#ifdef HITS_DEBUG      
+        std::cout << "Inserted " << detUnit->index() << " " << orderedModules_.size()
+                  << " on layer " << int((detId.rawId() >> 20) & 0xF) << std::endl;
+#endif
+
       }
     }
   }
@@ -133,23 +158,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const int activeStripModules = stripHits.size();
 
     // Count the number of P hits in the OT to dimension the SoA
-    int PHitsInOTBarrel = 0;
+    int PHitsInOT = 0;
     for (const auto& detSet : stripHits) {
       for (const auto& recHit : detSet) {
         DetId detId(recHit.geographicalId());
         if (detIdIsP_[detId.rawId()])
-          PHitsInOTBarrel++;
+          PHitsInOT++;
       }
     }
-    LogDebug("Phase2OTRecHitsSoAConverter")
-        << "Tot number of modules in Pixels " << modulesInPixel_ << '\n'
-        << "Tot number of p_modulesInPSInOTBarrel: " << orderedModules_.size() << '\n'
-        << "Number of strip (active) modules:      " << activeStripModules << '\n'
-        << "Number of strip hits: " << nStripHits << '\n'
-        << "Total hits of PinOTBarrel:   " << PHitsInOTBarrel << '\n';
 
     Hits stripHitsSoA(queue, PHitsInOTBarrel, orderedModules_.size());
     auto& stripHitsModuleView = stripHitsSoA.view<::reco::HitModuleSoA>();
+
+#ifdef HITS_DEBUG
+    std::cout << "Phase2OTRecHitsSoAConverter producer" << std::endl
+              << "Tot number of modules in Pixels " << modulesInPixel_ << std::endl
+              << "Tot number of p_modulesInPSInOT: " << orderedModules_.size() << std::endl
+              << "Number of strip (active) modules:      " << activeStripModules << std::endl
+              << "Number of strip hits: " << nStripHits << std::endl
+              << "Total hits of PinOT:   " << PHitsInOT << std::endl;
+#endif
 
     std::vector<int> counterOfHitsPerModule(orderedModules_.size(), 0);
     assert(!orderedModules_.empty());
@@ -174,12 +202,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::vector<int> cumulativeHitPerModule(counterOfHitsPerModule.size());
     std::partial_sum(counterOfHitsPerModule.begin(), counterOfHitsPerModule.end(), cumulativeHitPerModule.begin());
     stripHitsModuleView[0].moduleStart() = nPixelHits;
-    LogDebug("Phase2OTRecHitsSoAConverter")
-        << "Module start: 0 with hits: " << stripHitsModuleView[0].moduleStart() << '\n';
+#ifdef HITS_DEBUG
+    std::cout << "Module start: 0 with hits: " << stripHitsModuleView[0].moduleStart() << std::endl;
+#endif
     for (size_t i = 1; i < cumulativeHitPerModule.size(); ++i) {
       stripHitsModuleView[i].moduleStart() = cumulativeHitPerModule[i - 1] + nPixelHits;
-      LogDebug("Phase2OTRecHitsSoAConverter")
-          << "Module start: " << i << " with hits: " << stripHitsModuleView[i].moduleStart() << '\n';
+#ifdef HITS_DEBUG
+      std::cout << "Module start: " << i << " with hits: " << stripHitsModuleView[i].moduleStart() << std::endl;
+#endif
     }
 
     for (const auto& detSet : stripHits) {
@@ -202,10 +232,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             hit.yLocal() = recHit.localPosition().y();
             hit.xerrLocal() = recHit.localPositionError().xx();
             hit.yerrLocal() = recHit.localPositionError().yy();
+
             auto globalPosition = det->toGlobal(recHit.localPosition());
             double gx = globalPosition.x() - bs.x0();
             double gy = globalPosition.y() - bs.y0();
             double gz = globalPosition.z() - bs.z0();
+
             hit.xGlobal() = gx;
             hit.yGlobal() = gy;
             hit.zGlobal() = gz;
