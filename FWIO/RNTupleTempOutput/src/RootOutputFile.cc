@@ -180,9 +180,8 @@ namespace edm::rntuple_temp {
         theRNTuple->addField(fixName(desc.branchName()),
                              desc.wrappedName(),
                              item.productPtr(),
-                             item.splitLevel(),
-                             item.basketSize(),
-                             item.productDescription()->produced());
+                             item.streamerProduct() or om_->allProductsUseStreamer(),
+                             om_->noSplitSubFields());
         //make sure we always store product registry info for all branches we create
         branchesWithStoredHistory_.insert(item.branchID());
       }

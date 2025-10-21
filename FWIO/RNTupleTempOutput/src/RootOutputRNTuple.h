@@ -62,9 +62,8 @@ namespace edm {
     void addField(std::string const& branchName,
                   std::string const& className,
                   void const** pProd,
-                  int splitLevel,
-                  int basketSize,
-                  bool produced);
+                  bool useStreamer,
+                  std::vector<std::string> const& iNoSplitFields);
 
     void fill();
 
