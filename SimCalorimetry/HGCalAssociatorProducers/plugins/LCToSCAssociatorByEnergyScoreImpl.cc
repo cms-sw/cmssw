@@ -73,9 +73,11 @@ ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
   for (const auto& scId : sCIndices) {
     std::vector<std::pair<uint32_t, float>> hits_and_fractions = simClusters[scId].hits_and_fractions();
     if constexpr (std::is_same_v<HIT, HGCRecHit>)
-      hits_and_fractions = simClusters[scId].endcap_hits_and_fractions();
+      hits_and_fractions = simClusters[scId].filtered_hits_and_fractions(
+          [this](const DetId& detid) { return !recHitTools_->isBarrel(detid); });
     else
-      hits_and_fractions = simClusters[scId].barrel_hits_and_fractions();
+      hits_and_fractions = simClusters[scId].filtered_hits_and_fractions(
+          [this](const DetId& detid) { return recHitTools_->isBarrel(detid); });
     for (const auto& it_haf : hits_and_fractions) {
       const auto hitid = (it_haf.first);
       unsigned int scLayerId = recHitTools_->getLayer(hitid);

@@ -12,12 +12,12 @@ hltPrefix = 'HLT/HGCAL/HGCalValidator/'
 hltTracksterLabels = _hltTiclIterLabels.copy()
 hltTracksterLabels.extend(['hltTiclSimTracksters', 'hltTiclSimTracksters_fromCPs'])
 
-hltLcToCP_linking = _hltHgcalValidator.label_LCToCPLinking._InputTag__moduleLabel
+hltLcToCP_linking = _hltHgcalValidator.label_LCToCPLinking.value()
 hltPostProcessorHGCALlayerclusters = _postProcessorHGCALlayerclusters.clone(
-    subDirs = cms.untracked.vstring(hltPrefix + _hltHgcalValidator.label_layerClusterPlots._InputTag__moduleLabel + '/' + hltLcToCP_linking),
+    subDirs = cms.untracked.vstring(hltPrefix + _hltHgcalValidator.label_layerClustersPlots.value() + '/' + hltLcToCP_linking),
 )
 
-hltSubdirsSim = [hltPrefix + _hltHgcalValidator.label_SimClusters._InputTag__moduleLabel + '/'+iteration+'/' for iteration in hltTracksterLabels]
+hltSubdirsSim = [hltPrefix + _hltHgcalValidator.label_SimClusters.value() + '/'+iteration+'/' for iteration in hltTracksterLabels]
 hltPostProcessorHGCALsimclusters = _postProcessorHGCALsimclusters.clone(
     subDirs = cms.untracked.vstring(hltSubdirsSim)
 )
