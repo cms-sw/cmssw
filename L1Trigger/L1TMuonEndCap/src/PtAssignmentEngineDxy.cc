@@ -13,7 +13,7 @@ PtAssignmentEngineDxy::~PtAssignmentEngineDxy() {}
 void PtAssignmentEngineDxy::configure(int verbose, const std::string nnModel) {
   nnModel_ = nnModel;
   verbose_ = verbose;
-  std::string nnModelDxy_ = "L1Trigger/L1TMuonEndCap/test/" + nnModel_ + "/" + nnModel_;
+  std::string nnModelDxy_ = nnModel_;
   loader = std::make_unique<hls4mlEmulator::ModelLoader>(nnModelDxy_);
   model = loader->load_model();
 }
