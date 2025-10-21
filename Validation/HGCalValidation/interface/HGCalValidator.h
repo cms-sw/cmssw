@@ -85,9 +85,9 @@ protected:
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
   const bool doSimClustersPlots_;
-  edm::InputTag label_SimClustersPlots_, label_SimClustersLevel_;
+  std::string label_SimClustersPlots_, label_SimClustersLevel_;
   const bool doLayerClustersPlots_;
-  edm::InputTag label_layerClustersPlots_, label_LCToCPLinking_;
+  std::string label_layerClustersPlots_, label_LCToCPLinking_;
   const bool doTrackstersPlots_;
   std::string label_TS_, label_TSbyHitsCP_, label_TSbyHits_, label_TSbyLCsCP_, label_TSbyLCs_;
   std::vector<edm::InputTag> label_clustersmask;
@@ -113,7 +113,7 @@ protected:
   edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapSimtR;
   edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
-  std::vector<edm::InputTag> hits_label_;
+  std::vector<edm::InputTag> hits_labels_;
   std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_tokens_;
   std::unique_ptr<TICLCandidateValidator> candidateVal_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
