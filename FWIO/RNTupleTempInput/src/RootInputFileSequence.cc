@@ -281,11 +281,11 @@ namespace edm::rntuple_temp {
             throw ex;
           } else {
             exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
-            additionalMessage.push_back(fmt::format(
+            additionalMessage.push_back(std::format(
                 "Input file {} could not be opened, and fallback was attempted.\nAdditional information:", *it));
             char c = 'a';
             for (auto const& ai : e.additionalInfo()) {
-              additionalMessage.push_back(fmt::format("  [{}] {}", c, ai));
+              additionalMessage.push_back(std::format("  [{}] {}", c, ai));
               ++c;
             }
           }
