@@ -84,7 +84,7 @@ namespace edm::rntuple_temp {
     AuxItemArray const& auxItems() const { return auxItems_; }
 
     struct OutputItem {
-      explicit OutputItem(ProductDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
+      explicit OutputItem(ProductDescription const* bd, EDGetToken const& token, bool streamerProduct);
 
       BranchID branchID() const { return productDescription_->branchID(); }
       std::string const& branchName() const { return productDescription_->branchName(); }
@@ -97,30 +97,17 @@ namespace edm::rntuple_temp {
       void const*& product() { return product_; }
       void const** productPtr() { return &product_; }
       void setProduct(void const* iProduct) { product_ = iProduct; }
-      int splitLevel() const { return splitLevel_; }
-      int basketSize() const { return basketSize_; }
+
+      bool streamerProduct() const { return streamerProduct_; }
 
     private:
       ProductDescription const* productDescription_;
       EDGetToken token_;
       void const* product_;
-      int splitLevel_;
-      int basketSize_;
+      bool streamerProduct_;
     };
 
     using OutputItemList = std::vector<OutputItem>;
-
-    struct SpecialSplitLevelForBranch {
-      SpecialSplitLevelForBranch(std::string const& iBranchName, int iSplitLevel)
-          : branch_(convert(iBranchName)),
-            splitLevel_(iSplitLevel < 1 ? 1 : iSplitLevel)  //minimum is 1
-      {}
-      bool match(std::string const& iBranchName) const;
-      std::regex convert(std::string const& iGlobBranchExpression) const;
-
-      std::regex branch_;
-      int splitLevel_;
-    };
 
     struct AliasForBranch {
       AliasForBranch(std::string const& iBranchName, std::string const& iAlias)
@@ -133,6 +120,16 @@ namespace edm::rntuple_temp {
       std::string alias_;
     };
 
+    struct SetStreamerForDataProduct {
+      SetStreamerForDataProduct(std::string const& iName, bool iUseStreamer)
+          : branch_(convert(iName)), useStreamer_(iUseStreamer) {}
+      bool match(std::string const& iName) const;
+      std::regex convert(std::string const& iGlobBranchExpression) const;
+
+      std::regex branch_;
+      bool useStreamer_;
+    };
+
     std::vector<OutputItemList> const& selectedOutputItemList() const { return selectedOutputItemList_; }
 
     std::vector<OutputItemList>& selectedOutputItemList() { return selectedOutputItemList_; }
@@ -140,6 +137,9 @@ namespace edm::rntuple_temp {
     ProductDependencies const& productDependencies() const { return productDependencies_; }
 
     std::vector<AliasForBranch> const& aliasForBranches() const { return aliasForBranches_; }
+
+    std::vector<std::string> const& noSplitSubFields() const { return noSplitSubFields_; }
+    bool allProductsUseStreamer() const { return allProductsUseStreamer_; }
 
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
@@ -186,7 +186,6 @@ namespace edm::rntuple_temp {
     RootServiceChecker rootServiceChecker_;
     AuxItemArray auxItems_;
     std::vector<OutputItemList> selectedOutputItemList_;
-    std::vector<SpecialSplitLevelForBranch> specialSplitLevelForBranches_;
     std::vector<AliasForBranch> aliasForBranches_;
     std::unique_ptr<edm::ProductRegistry const> reg_;
     std::string const fileName_;
@@ -210,6 +209,10 @@ namespace edm::rntuple_temp {
     std::string statusFileName_;
     std::string overrideGUID_;
     std::vector<std::string> processesWithSelectedMergeableRunProducts_;
+
+    std::vector<std::string> noSplitSubFields_;
+    std::vector<SetStreamerForDataProduct> overrideStreamer_;
+    bool allProductsUseStreamer_;
   };
 }  // namespace edm::rntuple_temp
 

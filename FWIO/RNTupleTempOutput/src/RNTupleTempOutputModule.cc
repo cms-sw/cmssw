@@ -29,19 +29,56 @@
 #include <sstream>
 #include "boost/algorithm/string.hpp"
 
-namespace {
-  edm::rntuple_temp::RNTupleTempOutputModule::Optimizations fromConfig(edm::ParameterSet const& iConfig) {
-    edm::rntuple_temp::RNTupleTempOutputModule::Optimizations opts;
-    opts.approxZippedClusterSize = iConfig.getUntrackedParameter<unsigned long long>("approxZippedClusterSize");
-    opts.maxUnzippedClusterSize = iConfig.getUntrackedParameter<unsigned long long>("maxUnzippedClusterSize");
-    opts.initialUnzippedPageSize = iConfig.getUntrackedParameter<unsigned long long>("initialUnzippedPageSize");
-    opts.maxUnzippedPageSize = iConfig.getUntrackedParameter<unsigned long long>("maxUnzippedPageSize");
-    opts.pageBufferBudget = iConfig.getUntrackedParameter<unsigned long long>("pageBufferBudget");
-    opts.useBufferedWrite = iConfig.getUntrackedParameter<bool>("useBufferedWrite");
-    opts.useDirectIO = iConfig.getUntrackedParameter<bool>("useDirectIO");
-    return opts;
+namespace edm::rntuple_temp {
+  inline bool RNTupleTempOutputModule::SetStreamerForDataProduct::match(std::string const& iBranchName) const {
+    return std::regex_match(iBranchName, branch_);
   }
-}  // namespace
+
+  std::regex RNTupleTempOutputModule::SetStreamerForDataProduct::convert(
+      std::string const& iGlobBranchExpression) const {
+    std::string tmp(iGlobBranchExpression);
+    boost::replace_all(tmp, "*", ".*");
+    boost::replace_all(tmp, "?", ".");
+    return std::regex(tmp);
+  }
+
+  namespace {
+    std::vector<RNTupleTempOutputModule::SetStreamerForDataProduct> fromConfig(
+        std::vector<edm::ParameterSet> const& iConfig) {
+      std::vector<RNTupleTempOutputModule::SetStreamerForDataProduct> returnValue;
+      returnValue.reserve(iConfig.size());
+
+      for (auto const& prod : iConfig) {
+        returnValue.emplace_back(prod.getUntrackedParameter<std::string>("product"),
+                                 prod.getUntrackedParameter<bool>("useStreamer"));
+      }
+      return returnValue;
+    }
+
+    std::optional<bool> useStreamer(std::string const& iName,
+                                    std::vector<RNTupleTempOutputModule::SetStreamerForDataProduct> const& iSpecial) {
+      auto nameNoDot = iName.substr(0, iName.size() - 1);
+      for (auto const& prod : iSpecial) {
+        if (prod.match(nameNoDot)) {
+          return prod.useStreamer_;
+        }
+      }
+      return {};
+    }
+
+    edm::rntuple_temp::RNTupleTempOutputModule::Optimizations fromConfig(edm::ParameterSet const& iConfig) {
+      edm::rntuple_temp::RNTupleTempOutputModule::Optimizations opts;
+      opts.approxZippedClusterSize = iConfig.getUntrackedParameter<unsigned long long>("approxZippedClusterSize");
+      opts.maxUnzippedClusterSize = iConfig.getUntrackedParameter<unsigned long long>("maxUnzippedClusterSize");
+      opts.initialUnzippedPageSize = iConfig.getUntrackedParameter<unsigned long long>("initialUnzippedPageSize");
+      opts.maxUnzippedPageSize = iConfig.getUntrackedParameter<unsigned long long>("maxUnzippedPageSize");
+      opts.pageBufferBudget = iConfig.getUntrackedParameter<unsigned long long>("pageBufferBudget");
+      opts.useBufferedWrite = iConfig.getUntrackedParameter<bool>("useBufferedWrite");
+      opts.useDirectIO = iConfig.getUntrackedParameter<bool>("useDirectIO");
+      return opts;
+    }
+  }  // namespace
+}  // namespace edm::rntuple_temp
 namespace edm::rntuple_temp {
   RNTupleTempOutputModule::RNTupleTempOutputModule(ParameterSet const& pset)
       : edm::one::OutputModuleBase::OutputModuleBase(pset),
@@ -65,7 +102,14 @@ namespace edm::rntuple_temp {
         productDependencies_(),
         rootOutputFile_(),
         statusFileName_(),
-        overrideGUID_(pset.getUntrackedParameter<std::string>("overrideGUID")) {
+        overrideGUID_(pset.getUntrackedParameter<std::string>("overrideGUID")),
+        noSplitSubFields_(pset.getUntrackedParameterSet("fieldLevelOptimizations")
+                              .getUntrackedParameter<std::vector<std::string>>("noSplitSubFields")),
+        overrideStreamer_(
+            fromConfig(pset.getUntrackedParameterSet("fieldLevelOptimizations")
+                           .getUntrackedParameter<std::vector<edm::ParameterSet>>("overrideDataProductStreamer"))),
+        allProductsUseStreamer_(
+            pset.getUntrackedParameterSet("fieldLevelOptimizations").getUntrackedParameter<bool>("useStreamer")) {
     if (pset.getUntrackedParameter<bool>("writeStatusFile")) {
       std::ostringstream statusfilename;
       statusfilename << moduleLabel_ << '_' << getpid();
@@ -107,9 +151,8 @@ namespace edm::rntuple_temp {
 
   RNTupleTempOutputModule::OutputItem::OutputItem(ProductDescription const* bd,
                                                   EDGetToken const& token,
-                                                  int splitLevel,
-                                                  int basketSize)
-      : productDescription_(bd), token_(token), product_(nullptr), splitLevel_(splitLevel), basketSize_(basketSize) {}
+                                                  bool streamerProduct)
+      : productDescription_(bd), token_(token), product_(nullptr), streamerProduct_(streamerProduct) {}
 
   namespace {
     std::regex convertBranchExpression(std::string const& iGlobBranchExpression) {
@@ -119,15 +162,6 @@ namespace edm::rntuple_temp {
       return std::regex(tmp);
     }
   }  // namespace
-
-  inline bool RNTupleTempOutputModule::SpecialSplitLevelForBranch::match(std::string const& iBranchName) const {
-    return std::regex_match(iBranchName, branch_);
-  }
-
-  std::regex RNTupleTempOutputModule::SpecialSplitLevelForBranch::convert(
-      std::string const& iGlobBranchExpression) const {
-    return convertBranchExpression(iGlobBranchExpression);
-  }
 
   bool RNTupleTempOutputModule::AliasForBranch::match(std::string const& iBranchName) const {
     return std::regex_match(iBranchName, branch_);
@@ -144,14 +178,12 @@ namespace edm::rntuple_temp {
 
     // Fill outputItemList with an entry for each branch.
     for (auto const& kept : keptVector) {
-      int splitLevel = ProductDescription::invalidSplitLevel;
-      int basketSize = ProductDescription::invalidBasketSize;
-
       ProductDescription const& prod = *kept.first;
       if (branchType == InProcess && processName != prod.processName()) {
         continue;
       }
-      outputItemList.emplace_back(&prod, kept.second, splitLevel, basketSize);
+      bool streamerProduct = allProductsUseStreamer_ or useStreamer(prod.branchName(), overrideStreamer_);
+      outputItemList.emplace_back(&prod, kept.second, streamerProduct);
     }
   }
 
@@ -462,6 +494,26 @@ namespace edm::rntuple_temp {
               "platforms");
       desc.addUntracked("rntupleWriteOptions", optimizations)
           ->setComment("Options to control RNTuple specific output features.");
+    }
+    {
+      ParameterSetDescription fieldLevel;
+      fieldLevel.addUntracked<std::vector<std::string>>("noSplitSubFields", {})
+          ->setComment(
+              "fully qualified subfield names for fields which should not be split. A single value of 'all' means all "
+              "possible subfields will be unsplit");
+      fieldLevel.addUntracked<bool>("useStreamer", false)
+          ->setComment("Use streamer storage for top level fields when storing data products");
+
+      {
+        ParameterSetDescription specialStreamer;
+        specialStreamer.addUntracked<std::string>("product")->setComment(
+            "Name of data product needing a special split setting. The name can contain wildcards '*' and '?'");
+        specialStreamer.addUntracked<bool>("useStreamer", true)
+            ->setComment("Explicitly set if should or should not use streamer (default is to use streamer)");
+        fieldLevel.addVPSetUntracked("overrideDataProductStreamer", specialStreamer, {});
+      }
+      desc.addUntracked("fieldLevelOptimizations", fieldLevel)
+          ->setComment("Options to control specializing how Fields are stored.");
     }
     OutputModule::fillDescription(desc);
   }

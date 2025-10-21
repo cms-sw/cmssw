@@ -129,17 +129,80 @@ namespace edm {
     options.SetPageBufferBudget(config.pageBufferBudget);
     options.SetUseBufferedWrite(config.useBufferedWrite);
     options.SetUseDirectIO(config.useDirectIO);
-    writer_ = ROOT::RNTupleWriter::Append(std::move(model_), name_, *filePtr_, ROOT::RNTupleWriteOptions());
+    writer_ = ROOT::RNTupleWriter::Append(std::move(model_), name_, *filePtr_, options);
   }
+
+  namespace {
+    /* By default RNTuple will take a multi-byte intrinsic data type and break
+it into multiple output fields to separate the high-bytes from the low-bytes (or mantessa from exponent).
+This typically allows for better compression. Empirically we have found that some important
+member data of some classes actually take more space on disk when this is done.
+This function allows one to override the default RNTuple behavior and instead store
+all bytes of a data type in one field. To do that one must find the storage type (typeName) and
+explicitly pass the correct variable to `SetColumnRepresentatives`).
+     */
+    void noSplitField(ROOT::RFieldBase& iField) {
+      auto const& typeName = iField.GetTypeName();
+      if (typeName == "std::uint16_t") {
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kUInt16}});
+      } else if (typeName == "std::uint32_t") {
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kUInt32}});
+      } else if (typeName == "std::uint64_t") {
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kUInt64}});
+      } else if (typeName == "std::int16_t") {
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kInt16}});
+      } else if (typeName == "std::int32_t") {
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kInt32}});
+      } else if (typeName == "std::int64_t") {
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kInt64}});
+      } else if (typeName == "float") {
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kReal32}});
+      } else if (typeName == "double") {
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kReal64}});
+      }
+    }
+
+    void findSubFieldsForNoSplitThenApply(ROOT::RFieldBase& iField, std::vector<std::string> const& iNoSplitFields) {
+      for (auto const& name : iNoSplitFields) {
+        if (name.starts_with(iField.GetFieldName())) {
+          bool found = false;
+          for (auto& subfield : iField) {
+            if (subfield.GetQualifiedFieldName() == name) {
+              found = true;
+              noSplitField(subfield);
+              break;
+            }
+          }
+          if (not found) {
+            throw edm::Exception(edm::errors::Configuration)
+                << "The data product was found but the requested subfield '" << name << "' is not part of the class";
+          }
+        }
+      }
+    }
+  }  // namespace
 
   void RootOutputRNTuple::addField(std::string const& branchName,
                                    std::string const& className,
                                    void const** pProd,
-                                   int splitLevel,
-                                   int basketSize,
-                                   bool produced) {
-    auto field = ROOT::RFieldBase::Create(branchName, className).Unwrap();
-    model_->AddField(std::move(field));
+                                   bool useStreamer,
+                                   std::vector<std::string> const& iNoSplitFields) {
+    const bool noSplitSubFields = (iNoSplitFields.size() == 1 and iNoSplitFields[0] == "all") ? true : false;
+    if (useStreamer) {
+      auto field = std::make_unique<ROOT::RStreamerField>(branchName, className);
+      model_->AddField(std::move(field));
+    } else {
+      auto field = ROOT::RFieldBase::Create(branchName, className).Unwrap();
+      if (noSplitSubFields) {
+        //use the 'conventional' way to store fields
+        for (auto& subfield : *field) {
+          noSplitField(subfield);
+        }
+      } else if (not iNoSplitFields.empty()) {
+        findSubFieldsForNoSplitThenApply(*field, iNoSplitFields);
+      }
+      model_->AddField(std::move(field));
+    }
     producedBranches_.push_back(model_->GetToken(branchName));
     producedBranchPointers_.push_back(const_cast<void**>(pProd));
   }
