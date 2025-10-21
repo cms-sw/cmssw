@@ -653,8 +653,7 @@ private:
   bool saveTICLCandidate_;
   bool saveSimTICLCandidate_;
   bool saveTracks_;
-  bool saveRecHits_;
-  bool saveSimHits_;
+  bool saveHits_;
 
   // Output tree
   TTree* tree_;
@@ -769,6 +768,7 @@ private:
   std::vector<float> rechit_y;
   std::vector<float> rechit_z;
   std::vector<float> rechit_time;
+  std::vector<float> rechit_radius;
 
   std::vector<uint32_t> simhit_ID;
   std::vector<float> simhit_energy;
@@ -897,6 +897,7 @@ void TICLDumper::clearVariables() {
   rechit_y.clear();
   rechit_z.clear();
   rechit_time.clear();
+  rechit_radius.clear();
 
   simhit_ID.clear();
   simhit_energy.clear();
@@ -965,8 +966,7 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       saveTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
       saveSimTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
       saveTracks_(ps.getParameter<bool>("saveTracks")),
-      saveRecHits_(ps.getParameter<bool>("saveRecHits")),
-      saveSimHits_(ps.getParameter<bool>("saveSimHits")) {
+      saveHits_(ps.getParameter<bool>("saveHits")) {
   if (saveSuperclustering_) {
     superclustering_linkedResultTracksters_token =
         consumes<std::vector<std::vector<unsigned int>>>(ps.getParameter<edm::InputTag>("superclustering"));
@@ -1020,7 +1020,7 @@ void TICLDumper::beginJob() {
     tracksters_trees.push_back(tree);
     tracksters_dumperHelpers_[i].initTree(tree, &eventId_);
   }
-  if (saveRecHits_) {
+  if (saveHits_) {
     rechits_tree_ = fs->make<TTree>("rechits", "HGCAL rechits");
     rechits_tree_->Branch("ID", &rechit_ID);
     rechits_tree_->Branch("energy", &rechit_energy);
@@ -1028,8 +1028,8 @@ void TICLDumper::beginJob() {
     rechits_tree_->Branch("position_y", &rechit_y);
     rechits_tree_->Branch("position_z", &rechit_z);
     rechits_tree_->Branch("time", &rechit_time);
-  }
-  if (saveSimHits_) {
+    rechits_tree_->Branch("radiusToSide", &rechit_radius);
+
     simhits_tree_ = fs->make<TTree>("simhits", "HGCAL simhits");
     simhits_tree_->Branch("ID", &simhit_ID);
     simhits_tree_->Branch("energy", &simhit_energy);
@@ -1277,42 +1277,37 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 
   nclusters_ = clusters.size();
 
-  std::vector<std::vector<PCaloHit>> simhits_collections;
-  for (auto const& sh_token : simhits_tokens_) {
-    edm::Handle<std::vector<PCaloHit>> simhit_handle;
-    event.getByToken(sh_token, simhit_handle);
-    simhits_collections.push_back(*simhit_handle);
-  }
-
-  for (auto const& rh_token : rechits_tokens_) {
-    edm::Handle<HGCRecHitCollection> rechit_handle;
-    event.getByToken(rh_token, rechit_handle);
-    const auto& rhColl = *rechit_handle;
-    for (auto const& rh : rhColl) {
-      rechit_energy.push_back(rh.energy());
-      auto const rhPosition = detectorTools_->rhtools.getPosition(rh.detid());
-      rechit_x.push_back(rhPosition.x());
-      rechit_y.push_back(rhPosition.y());
-      rechit_z.push_back(rhPosition.z());
-      rechit_ID.push_back(rh.detid());
-      rechit_time.push_back(rh.time());
+  if (saveHits_) {
+    for (auto const& sh_token : simhits_tokens_) {
+      edm::Handle<std::vector<PCaloHit>> simhit_handle;
+      event.getByToken(sh_token, simhit_handle);
+      const auto& shColl = *simhit_handle;
+      for (auto const& sh : shColl) {
+        simhit_energy.push_back(sh.energy());
+        simhit_energyEM.push_back(sh.energyEM());
+        simhit_energyHad.push_back(sh.energyHad());
+        auto const shPosition = detectorTools_->rhtools.getPosition(sh.id());
+        simhit_x.push_back(shPosition.x());
+        simhit_y.push_back(shPosition.y());
+        simhit_z.push_back(shPosition.z());
+        simhit_ID.push_back(sh.id());
+        simhit_time.push_back(sh.time());
     }
-  }
 
-  for (auto const& sh_token : simhits_tokens_) {
-    edm::Handle<std::vector<PCaloHit>> simhit_handle;
-    event.getByToken(sh_token, simhit_handle);
-    const auto& shColl = *simhit_handle;
-    for (auto const& sh : shColl) {
-      simhit_energy.push_back(sh.energy());
-      simhit_energyEM.push_back(sh.energyEM());
-      simhit_energyHad.push_back(sh.energyHad());
-      auto const shPosition = detectorTools_->rhtools.getPosition(sh.id());
-      simhit_x.push_back(shPosition.x());
-      simhit_y.push_back(shPosition.y());
-      simhit_z.push_back(shPosition.z());
-      simhit_ID.push_back(sh.id());
-      simhit_time.push_back(sh.time());
+    for (auto const& rh_token : rechits_tokens_) {
+      edm::Handle<HGCRecHitCollection> rechit_handle;
+      event.getByToken(rh_token, rechit_handle);
+      const auto& rhColl = *rechit_handle;
+      for (auto const& rh : rhColl) {
+        rechit_energy.push_back(rh.energy());
+        auto const rhPosition = detectorTools_->rhtools.getPosition(rh.detid());
+        rechit_x.push_back(rhPosition.x());
+        rechit_y.push_back(rhPosition.y());
+        rechit_z.push_back(rhPosition.z());
+        rechit_ID.push_back(rh.detid());
+        rechit_time.push_back(rh.time());
+        rechit_radius.push_back(detectorTools_->rhtools.getRadiusToSide(rh.detid()));
+      }
     }
   }
 
@@ -1526,10 +1521,10 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     tracks_tree_->Fill();
   if (saveSimTICLCandidate_)
     simTICLCandidate_tree->Fill();
-  if (saveRecHits_)
+  if (saveHits_) {
     rechits_tree_->Fill();
-  if (saveSimHits_)
     simhits_tree_->Fill();
+  }
 }
 
 void TICLDumper::endJob() {}
@@ -1610,8 +1605,7 @@ void TICLDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<bool>("saveSuperclustering", true);
   desc.add<bool>("saveRecoSuperclusters", true)
       ->setComment("Save superclustering Egamma collections (as reco::SuperCluster)");
-  desc.add<bool>("saveRecHits", false);
-  desc.add<bool>("saveSimHits", false);
+  desc.add<bool>("saveHits", false);
   descriptions.add("ticlDumper", desc);
 }
 
