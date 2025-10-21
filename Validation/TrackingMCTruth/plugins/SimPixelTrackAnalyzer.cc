@@ -363,7 +363,7 @@ namespace simdoublets {
 template <typename TrackerTraits>
 SimPixelTrackAnalyzer<TrackerTraits>::SimPixelTrackAnalyzer(const edm::ParameterSet& iConfig)
     : topology_getToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
-      simPixelTracks_getToken_(consumes(iConfig.getParameter<edm::InputTag>("simPixelTracksSrc"))),
+      simPixelTracks_getToken_(consumes(iConfig.getParameter<edm::InputTag>("simPixelTrackSrc"))),
       cellCuts_(
           CAGeometryParams(iConfig.getParameter<edm::ParameterSet>("geometry"), iConfig.getParameter<double>("ptmin"))),
       minYsizeB1_(iConfig.getParameter<int>("minYsizeB1")),
@@ -417,7 +417,7 @@ SimPixelTrackAnalyzer<TrackerTraits>::SimPixelTrackAnalyzer(const edm::Parameter
   // resize other vectors according to number of layers
   // set the number of layers of the extension
   int numLayersOTBarrel = (iConfig.getParameter<bool>("includeOTBarrel")) ? 3 : 0;
-  int numLayersOTDisks = (iConfig.getParameter<int>("includeOTDisks")) ? 5 : 0;
+  int numLayersOTDisks = (iConfig.getParameter<bool>("includeOTDisks")) ? 5 : 0;
   numLayers_ = TrackerTraits::numberOfLayers + 2 * numLayersOTDisks + numLayersOTBarrel;
   hVector_caThetaCut_.resize(numLayers_);
   hVector_caDCACut_.resize(numLayers_);
