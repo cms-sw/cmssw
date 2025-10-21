@@ -7,6 +7,7 @@ externalLHEProducer = cms.EDProducer("EmbeddingLHEProducer",
     particleToEmbed = cms.int32(15),
     rotate180 = cms.bool(False),
     mirror = cms.bool(False),
+    InitialRecoCorrection = cms.bool(True),
     studyFSRmode = cms.untracked.string("reco")
 )
 
