@@ -146,20 +146,36 @@ std::shared_ptr<DetIdMaps> PixelTrackProducerFromSoAAlpaka::globalBeginRun(const
       return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
               detId.subdetId() == StripSubdetector::TOB);
     };
+    auto isPinPSinOTDisk = [&](DetId detId) {
+      // Select only P-hits from the OT barrel
+      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
+              detId.subdetId() == StripSubdetector::TID);
+    };
 
+    uint32_t otModuleId = 0;
     // loop over all modules and fill the map detIdToOTModuleId_
     auto const &detUnits = trackerGeometry->detUnits();
-    for (uint32_t otModuleId{0}; auto &detUnit : detUnits) {
+    for (auto &detUnit : detUnits) {
       DetId detId(detUnit->geographicalId());
       // check if the module is used for OT extension
-      bool isUsedOTModule = isPinPSinOTBarrel(detId);
+      bool isUsedOTModule = isPinPSinOTBarrel(detId)||isPinPSinOTDisk(detId);
       detIdMaps->detIdIsUsedOTModule_[detUnit->geographicalId()] = isUsedOTModule;
-      if (isUsedOTModule) {
+      if (isPinPSinOTBarrel(detId)) {
         // save the module index among the extension modules
         detIdMaps->detIdToOTModuleId_[detUnit->geographicalId()] = otModuleId;
         otModuleId++;
       }
     }
+
+    for (auto &detUnit : detUnits) {
+      DetId detId(detUnit->geographicalId());
+      if (isPinPSinOTDisk(detId)) {
+        // save the module index among the extension modules
+        detIdMaps->detIdToOTModuleId_[detUnit->geographicalId()] = otModuleId;
+        otModuleId++;
+      }
+    }
+
   }
 
   return detIdMaps;
