@@ -9,3 +9,10 @@
   <use name="SimG4Core/PhysicsLists"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<iftool name="adept">
+  <library file="adept/*.cc" name="SimG4CorePhysicsListsAdeptPlugins">
+    <use name="SimG4Core/PhysicsLists"/>
+    <use name="adept"/>
+    <flags EDM_PLUGIN="1"/>
+  </library>
+</iftool>
