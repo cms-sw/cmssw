@@ -39,6 +39,16 @@ layers = [
     [    28,     True,  0.10,   0.003],
     [    29,     True,  0.10,   0.003],
     [    30,     True,  0.10,   0.003],
+    [    31,    False,  0.25,   0.003],
+    [    32,    False,  0.25,   0.003],
+    [    33,    False,  0.25,   0.003],
+    [    34,    False,  0.25,   0.003],
+    [    35,    False,  0.25,   0.003],
+    [    36,    False,  0.25,   0.003],
+    [    37,    False,  0.25,   0.003],
+    [    38,    False,  0.25,   0.003],
+    [    39,    False,  0.25,   0.003],
+    [    40,    False,  0.25,   0.003],
 ]
 
 # layerPairs for doublet building including pair-specific cut values
@@ -139,11 +149,12 @@ layerPairs = [
     [ 28, 29, False,   1100,  -1200,   1200,  -10000,   10000, 10000,  -50.0,   50.0,  0.85],
   # [ 28, 30, False,   2000,    -40,     40,  -10000,   10000, 10000, -10000,  10000,  0.85],
     [ 29, 30, False,   1250,  -1200,   1200,  -10000,   10000, 10000,  -40.0,   40.0,  0.85],
+  #  [ 29, 31, False,   1250,  -1200,   1200,  -10000,   10000, 10000,  -40.0,   40.0,  0.85],
 ]
 
 # find the layerPairs that contain a layer that is excluded
 excludeLayerPair = [any([(lp[0] == l) or (lp[1] == l) for l in layersToExclude]) for lp in layerPairs]
-excludeCAExtension = [any([(lp[0] == l) or (lp[1] == l) for l in [28, 29, 30]]) for lp in layerPairs]
+excludeCAExtension = [any([(lp[0] == l) or (lp[1] == l) for l in range(28,41)]) for lp in layerPairs]
 
 # exclude those layerPairs
 layerPairsAlpaka = []
@@ -284,7 +295,7 @@ _hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
 )
 
-def _exclude_OT_layers(hltPhase2PixelTracksSoA, layers_to_exclude = [28, 29, 30]):
+def _exclude_OT_layers(hltPhase2PixelTracksSoA, layers_to_exclude = range(28, 41)):
     keep_indices = []
     num_pairs = len(hltPhase2PixelTracksSoA.geometry.pairGraph) // 2
     for i in range(num_pairs):
