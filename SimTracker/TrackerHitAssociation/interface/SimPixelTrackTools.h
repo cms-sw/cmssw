@@ -37,7 +37,7 @@ namespace simpixeltracks {
         layerId = trackerTopology->tobLayer(detId) + numPixelLayers - 1;
         break;
       case SiStripSubdetector::TID:
-        if (trackerTopology->tidSide(detId) == 1) {
+        if (trackerTopology->tidSide(detId) == 2) {
           // add offset in the OT forward endcap to get, e.g. for Phase 2, from (1,5) to (31, 35)
           layerId = trackerTopology->tidWheel(detId) + numPixelLayers + numOTBarrelLayers - 1;
         } else {
