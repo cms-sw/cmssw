@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/PIon --cff --data --type PIon
 
-# /dev/CMSSW_15_0_0/PIon/V118 (CMSSW_15_0_15)
+# /dev/CMSSW_15_0_0/PIon/V119 (CMSSW_15_0_15_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/PIon/V118")
+  tableName = cms.string("/dev/CMSSW_15_0_0/PIon/V119")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -4327,8 +4327,15 @@ fragment.hltSiPixelClustersSoA = cms.EDProducer( "SiPixelRawToClusterPhase1@alpa
     VCaltoElectronGain_L1 = cms.double( 1.0 ),
     VCaltoElectronOffset = cms.double( 0.0 ),
     VCaltoElectronOffset_L1 = cms.double( 0.0 ),
+    DoDigiMorphing = cms.bool( False ),
+    MaxFakesInModule = cms.uint32( 2400 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
+    barrelRegions = cms.vstring( '1,1-12,1-2',
+      '1,1-12,7-8',
+      '2,1-28,1',
+      '2,1-28,8' ),
+    endcapRegions = cms.vstring(  ),
     CablingMapLabel = cms.string( "" ),
     alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
 )
@@ -4408,8 +4415,15 @@ fragment.hltSiPixelClustersSoASerialSync = cms.EDProducer( "alpaka_serial_sync::
     VCaltoElectronGain_L1 = cms.double( 1.0 ),
     VCaltoElectronOffset = cms.double( 0.0 ),
     VCaltoElectronOffset_L1 = cms.double( 0.0 ),
+    DoDigiMorphing = cms.bool( False ),
+    MaxFakesInModule = cms.uint32( 2400 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
+    barrelRegions = cms.vstring( '1,1-12,1-2',
+      '1,1-12,7-8',
+      '2,1-28,1',
+      '2,1-28,8' ),
+    endcapRegions = cms.vstring(  ),
     CablingMapLabel = cms.string( "" )
 )
 fragment.hltSiPixelClustersSerialSync = cms.EDProducer( "SiPixelDigisClustersFromSoAAlpakaPhase1",
