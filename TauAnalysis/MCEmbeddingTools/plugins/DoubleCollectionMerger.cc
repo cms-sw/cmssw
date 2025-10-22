@@ -6,7 +6,6 @@
 #include "DataFormats/EcalDigi/interface/EBSrFlag.h"
 #include "DataFormats/EcalDigi/interface/EESrFlag.h"
 #include "DataFormats/EcalDigi/interface/EcalSrFlag.h"
-#include "DataFormats/EcalDigi/src/EcalSrFlag.cc"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"

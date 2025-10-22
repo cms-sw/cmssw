@@ -223,7 +223,7 @@ tau_embedding_hbhereco_merger = cms.EDProducer("HBHERecHitColMerger",
         cms.InputTag("hbhereco", "", "LHEembeddingCLEAN"),
     )
 )
-tau_embedding_merging.toReplaceWith(hbhereco, tau_embedding_hbhereco_merger)
+tau_embedding_merging.toModify(hbhereco, cpu=tau_embedding_hbhereco_merger)
 
 # create a sequence which runs some of the merge producers, which were just created.
 merge_step = cms.Sequence(
