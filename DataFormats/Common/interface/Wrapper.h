@@ -17,7 +17,6 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include <algorithm>
 #include <cassert>
 #include <memory>
-#include <string>
 #include <typeinfo>
 
 namespace edm {
@@ -38,6 +37,9 @@ namespace edm {
     T const* operator->() const { return product(); }
 
     T& bareProduct() { return obj; }
+    T const& bareProduct() const { return obj; }
+
+    void markAsPresent() { present = true; }
 
     //these are used by FWLite
     static std::type_info const& productTypeInfo() { return typeid(T); }
@@ -176,6 +178,7 @@ namespace edm {
       }
     };
   }  // namespace soa
+
   template <typename T>
   inline std::shared_ptr<edm::soa::TableExaminerBase> Wrapper<T>::tableExaminer_() const {
     return soa::MakeTableExaminer<T>::make(&obj);
@@ -185,4 +188,4 @@ namespace edm {
 
 #include "DataFormats/Common/interface/WrapperView.icc"
 
-#endif
+#endif  // DataFormats_Common_Wrapper_h
