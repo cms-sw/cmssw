@@ -10,11 +10,8 @@
 namespace edmtest::catalog {
   class TestSiteLocalConfig : public edm::SiteLocalConfig {
   public:
-    //constructor using trivial data catalogs
-    TestSiteLocalConfig(std::vector<std::string> catalogs) : m_trivialCatalogs(std::move(catalogs)) {}
     //constructor using Rucio data catalogs
     TestSiteLocalConfig(std::vector<edm::CatalogAttributes> catalogs) : m_catalogs(std::move(catalogs)) {}
-    std::vector<std::string> const& trivialDataCatalogs() const final { return m_trivialCatalogs; }
     std::vector<edm::CatalogAttributes> const& dataCatalogs() const final { return m_catalogs; }
     std::filesystem::path const storageDescriptionPath(const edm::CatalogAttributes& aDataCatalog) const final {
       std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
@@ -47,7 +44,6 @@ namespace edmtest::catalog {
     std::string const& localConnectSuffix() const final { return m_emptyString; }
 
   private:
-    std::vector<std::string> m_trivialCatalogs;
     std::vector<edm::CatalogAttributes> m_catalogs;
     std::filesystem::path m_storageDescription_path;
     std::string m_emptyString;
