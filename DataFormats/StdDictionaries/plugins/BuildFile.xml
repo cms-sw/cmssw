@@ -1,0 +1,6 @@
+<library file="TrivialSerialisationPlugins.cc" name="DataFormatsStdDictionariesTrivialSerialisationPlugins">
+  <use name="DataFormats/Common"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="TrivialSerialisation/Common"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

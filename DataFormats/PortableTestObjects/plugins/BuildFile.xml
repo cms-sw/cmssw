@@ -1,0 +1,5 @@
+<library file="TrivialSerialisationPlugins.cc" name="DataFormatsPortableTestObjectsPlugins">
+  <use name="DataFormats/PortableTestObjects"/>
+  <use name="TrivialSerialisation/Common"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
