@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-# list of layers to exclude from the CA (empty list doesn't exclude; [28, 29, 30] excludes the OT)
+# list of layers to exclude from the CA (empty list doesn't exclude; [28, 29, 30] excludes the OT Barrel)
 layersToExclude = []
 
 # layers
@@ -39,16 +39,16 @@ layers = [
     [    28,     True,  0.10,   0.003],
     [    29,     True,  0.10,   0.003],
     [    30,     True,  0.10,   0.003],
-    [    31,    False,  0.25,   0.003],
-    [    32,    False,  0.25,   0.003],
-    [    33,    False,  0.25,   0.003],
-    [    34,    False,  0.25,   0.003],
-    [    35,    False,  0.25,   0.003],
-    [    36,    False,  0.25,   0.003],
-    [    37,    False,  0.25,   0.003],
-    [    38,    False,  0.25,   0.003],
-    [    39,    False,  0.25,   0.003],
-    [    40,    False,  0.25,   0.003],
+    [    31,    False,  0.10,   0.003],
+    [    32,    False,  0.10,   0.003],
+    [    33,    False,  0.10,   0.003],
+    [    34,    False,  0.10,   0.003],
+    [    35,    False,  0.10,   0.003],
+    [    36,    False,  0.10,   0.003],
+    [    37,    False,  0.10,   0.003],
+    [    38,    False,  0.10,   0.003],
+    [    39,    False,  0.10,   0.003],
+    [    40,    False,  0.10,   0.003],
 ]
 
 # layerPairs for doublet building including pair-specific cut values
@@ -149,7 +149,17 @@ layerPairs = [
     [ 28, 29, False,   1100,  -1200,   1200,  -10000,   10000, 10000,  -50.0,   50.0,  0.85],
   # [ 28, 30, False,   2000,    -40,     40,  -10000,   10000, 10000, -10000,  10000,  0.85],
     [ 29, 30, False,   1250,  -1200,   1200,  -10000,   10000, 10000,  -40.0,   40.0,  0.85],
-  #  [ 29, 31, False,   1250,  -1200,   1200,  -10000,   10000, 10000,  -40.0,   40.0,  0.85],
+    # OT Disks extension
+    #  i,  o, start, phiCut,  minIn,  maxIn,  minOut,  maxOut, maxDR,  minDZ,  maxDZ, ptCuts
+    [ 28, 31, False,   1100,   20.0,   28.0,    20.0,    41.0,  18.0,    5.0,   80.0,  0.85], 
+    [ 29, 31, False,   1100,   30.0,   45.0,    35.0,    60.0,  24.0,    5.0,   55.0,  0.85],
+    [ 30, 31, False,   1100,   48.0,   60.0,    55.0,    70.0,  14.0,   10.0,   30.0,  0.85],
+    [ 31, 32, False,   1100,   23.0,   60.0,    25.0,    70.0,  14.0,   15.0,   30.0,  0.85],
+    [ 32, 33, False,   1100,   25.0,   55.0,    30.0,    70.0,  14.0,   20.0,   40.0,  0.85],
+    [ 33, 34, False,   1100,   30.0,   55.0,    35.0,    70.0,  12.0,   30.0,   50.0,  0.85],
+    [ 34, 35, False,   1100,   30.0,   55.0,    35.0,    70.0,  12.0,   35.0,   60.0,  0.85],
+    [  9, 31, False,    750,   10.0,   18.0,    20.0,    28.0,  10.0,   40.0,   50.0,  0.85],
+    [  9, 32, False,   1000,   10.0,   18.0,    20.0,    30.0,  15.0,   65.0,   75.0,  0.85],
 ]
 
 # find the layerPairs that contain a layer that is excluded
@@ -237,8 +247,8 @@ _hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     lateFishbone = cms.bool(False),
     fillStatistics = cms.bool(False),
     minHitsPerNtuplet = cms.uint32(4),
-    maxNumberOfDoublets = cms.string(str(12*512*1024)),
-    maxNumberOfTuples = cms.string(str(2*60*1024)),
+    maxNumberOfDoublets = cms.string(str(15*512*1024)),
+    maxNumberOfTuples = cms.string(str(4*60*1024)),
     cellZ0Cut = cms.double(12.5), # it's half the BS width! It has nothing to do with the sample!!
     minYsizeB1 = cms.int32(20),
     minYsizeB2 = cms.int32(18),

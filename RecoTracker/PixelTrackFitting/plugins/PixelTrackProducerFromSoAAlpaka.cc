@@ -158,7 +158,7 @@ std::shared_ptr<DetIdMaps> PixelTrackProducerFromSoAAlpaka::globalBeginRun(const
     for (auto &detUnit : detUnits) {
       DetId detId(detUnit->geographicalId());
       // check if the module is used for OT extension
-      bool isUsedOTModule = isPinPSinOTBarrel(detId)||isPinPSinOTDisk(detId);
+      bool isUsedOTModule = isPinPSinOTBarrel(detId) || isPinPSinOTDisk(detId);
       detIdMaps->detIdIsUsedOTModule_[detUnit->geographicalId()] = isUsedOTModule;
       if (isPinPSinOTBarrel(detId)) {
         // save the module index among the extension modules
@@ -175,7 +175,6 @@ std::shared_ptr<DetIdMaps> PixelTrackProducerFromSoAAlpaka::globalBeginRun(const
         otModuleId++;
       }
     }
-
   }
 
   return detIdMaps;
@@ -345,7 +344,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   // function that returns the number of skipped layers for a given pair of RecHits
   // for the case where the inner RecHit is in the OT barrel.
   auto getNSkippedLayersInnerInOT = [&](const DetId &innerDetId, const DetId &outerDetId) {
-    assert(outerDetId.subdetId() == StripSubdetector::TOB);
+    assert(outerDetId.subdetId() == StripSubdetector::TOB || outerDetId.subdetId() == StripSubdetector::TID);
     int nSkippedLayers =
         trackerTopology.getOTLayerNumber(outerDetId) - trackerTopology.getOTLayerNumber(innerDetId) - 1;
     return nSkippedLayers;
