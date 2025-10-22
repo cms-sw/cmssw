@@ -32,6 +32,7 @@ private:
 
   edm::EDGetTokenT<edm::View<l1t::PFJet>> const jets_;
   const bool doJEC;
+  const bool returnRawPt_;
   double const fMinPt_;
   double const fMaxEta_;
   unsigned int const fMaxJets_;
@@ -48,6 +49,7 @@ private:
 L1TSC4NGJetProducer::L1TSC4NGJetProducer(const edm::ParameterSet& cfg)
     : jets_(consumes<edm::View<l1t::PFJet>>(cfg.getParameter<edm::InputTag>("jets"))),
       doJEC(cfg.getParameter<bool>("doJEC")),
+      returnRawPt_(cfg.getParameter<bool>("returnRawPt")),
       fMinPt_(cfg.getParameter<double>("minPt")),
       fMaxEta_(cfg.getParameter<double>("maxEta")),
       fMaxJets_(cfg.getParameter<int>("maxJets")),
@@ -95,20 +97,23 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // If ctHWTaggedJet within eta and pt range, then apply the correction
     l1ct::glbeta_t eta_abs = ctHWTaggedJet.hwEta < 0 ? l1ct::glbeta_t(-ctHWTaggedJet.hwEta) : ctHWTaggedJet.hwEta;
     l1ct::glbeta_t max_eta = fMaxEta_ / l1ct::Scales::ETAPHI_LSB;
-    if (eta_abs < max_eta && ctHWTaggedJet.hwPt > fMinPt_) {
-      tempPt = ctHWTaggedJet.hwPt * PtCorrection_;
-    }
-    else {
-      //If outside of the eta and pt range, clear out the tag scores
-      JetScore_float.clear();
-      for (unsigned i = 0; i < classes_.size(); i++) {
-        ctHWTaggedJet.hwTagScores[i] = 0;
-        JetScore_float.push_back(0);
-      }
+    // If we want to update the hwPt of the jet? 
+    if (!returnRawPt_){
+      if (eta_abs < max_eta && ctHWTaggedJet.hwPt > fMinPt_) {
+        tempPt = ctHWTaggedJet.hwPt * PtCorrection_;
+        }
+      else {
+          //If outside of the eta and pt range, clear out the tag scores
+        JetScore_float.clear();
+        for (unsigned i = 0; i < classes_.size(); i++) {
+          ctHWTaggedJet.hwTagScores[i] = 0;
+          JetScore_float.push_back(0);
+        }
 
-      if (doJEC) {
-      float correctedPt = corrector->correctedPt(ctHWTaggedJet.floatPt(), ctHWTaggedJet.floatEta());
-      tempPt = correctedPt;
+        if (doJEC) {
+          float correctedPt = corrector->correctedPt(ctHWTaggedJet.floatPt(), ctHWTaggedJet.floatEta());
+          tempPt = correctedPt;
+        }
       }
     }
 
@@ -142,6 +147,7 @@ void L1TSC4NGJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("l1tSC4PFL1PuppiExtendedEmulator"));
   desc.add<bool>("doJEC", true);
+  desc.add<bool>("returnRawPt", false);
   desc.add<std::string>("correctorFile", "");
   desc.add<std::string>("correctorDir", "");
   desc.add<std::string>("l1tSC4NGJetModelPath", std::string("L1TSC4NGJetModel_v0"));
