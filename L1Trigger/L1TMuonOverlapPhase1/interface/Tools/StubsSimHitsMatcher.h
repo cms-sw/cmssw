@@ -9,6 +9,7 @@
 #define L1T_OmtfP1_TOOLS_STUBSSIMHITSMATCHER_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/FinalMuon.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFinput.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -39,8 +40,7 @@ public:
   void endJob();
 
   void match(const edm::Event& iEvent,
-             const l1t::RegionalMuonCand* omtfCand,
-             const AlgoMuonPtr& procMuon,
+             const FinalMuonPtr& finalMuon,
              std::ostringstream& ostr);  //Processor gbCandidate);
 
   class MatchedTrackInfo {
