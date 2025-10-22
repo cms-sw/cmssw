@@ -62,6 +62,7 @@
   <test name="Miscellanea" command="testingScripts/test_unitMiscellanea.sh"/>
   <test name="ShortTrackValidation" command="testingScripts/test_unitShortTrackValidation.sh"/>
   <test name="SagittaBiasNtuplizer" command="testingScripts/test_unitSagittaBiasNtuplizer.sh"/>
+  <test name="BeamSpotPlotting" command="testingScripts/test_unitBeamSpotPlotting.sh"/>
   <bin file="testanalyzeDiMuonBiases.cpp" name="testDiMuonBiasesPlotting">
     <flags PRE_TEST="SagittaBiasNtuplizer"/>
     <use name="rootmath"/>
