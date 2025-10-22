@@ -20,12 +20,56 @@ int OmtfPhase2AngleConverter::getProcessorPhi(int phiZero, l1t::tftype part, int
   return config->foldPhi(phiConverted);
 }
 
-/* TODO implement the etat for the phase2 stubs
-int getGlobalEta(const DTChamberId dTChamberId, const L1Phase2MuDTThContainer *dtThDigis, int bxNum) const {
+int OmtfPhase2AngleConverter::getGlobalEta(DTChamberId dTChamberId,
+                                           const L1Phase2MuDTThContainer* dtThDigis,
+                                           int bxNum) const {
+  int dtThBins = 65536;  //65536. for [-6.3,6.3]
+  float kconv = 1 / (dtThBins / 2.);
 
-  //const DTChamberId dTChamberId(aDigi.whNum(),aDigi.stNum(),aDigi.scNum()+1);
-  DTTrigGeom trig_geom(_geodt->chamber(dTChamberId), false);
+  float eta = -999;
+  // get the theta digi
+  bool foundeta = false;
+  int thetaDigiCnt = 0;
+  for (const auto& thetaDigi : (*(dtThDigis->getContainer()))) {
+    if (thetaDigi.whNum() == dTChamberId.wheel() && thetaDigi.stNum() == dTChamberId.station() &&
+        thetaDigi.scNum() == (dTChamberId.sector() - 1) && (thetaDigi.bxNum() - 20) == bxNum) {
+      // get the theta digi
+      float k = thetaDigi.k() * kconv;  //-pow(-1.,z<0)*log(tan(atan(1/k)/2.));
+      eta = -1. * std::copysign( log(fabs(tan(atan(1 / k) / 2.))),  thetaDigi.z() );
+      LogTrace("OMTFReconstruction") << "OmtfPhase2AngleConverter::getGlobalEta(" << dTChamberId << ") eta: " << eta
+                                     << " k: " << k << " thetaDigi.k(): " << thetaDigi.k();
 
+      thetaDigiCnt++;
+      //checking if the obtained eta has reasonable range - temporary fix
+      if ((dTChamberId.station() == 1 && (std::abs(eta) < 0.85 || std::abs(eta) > 1.20)) ||
+          (dTChamberId.station() == 2 && (std::abs(eta) < 0.75 || std::abs(eta) > 1.04)) ||
+          (dTChamberId.station() == 3 && (std::abs(eta) < 0.63 || std::abs(eta) > 0.92))) {
+        foundeta = false;
+        /*edm::LogVerbatim("OMTFReconstruction")
+            << "OmtfPhase2AngleConverter::getGlobalEta(" << dTChamberId << ") wrong output eta: " << eta << " k: " << k
+            << " thetaDigi.k(): " << thetaDigi.k() << " quality " << thetaDigi.quality();*/
+      } else
+        foundeta = true;
+    }
+  }
 
+  //if more than 1 thetaDigi per given chamber - we don't use them, as they are ambiguous and we have no way to match them to the phi digis
+  if (thetaDigiCnt > 1)
+    foundeta = false;
+
+  if (foundeta) {
+    //return std::abs(config->etaToHwEta(eta)); TODO use this version
+    return std::abs(std::lround(eta * 92));
+  } else {
+    //Returning eta of the chamber middle
+    if (dTChamberId.station() == 1)
+      eta = config->mb1W2Eta();
+    else if (dTChamberId.station() == 2)
+      eta = config->mb2W2Eta();
+    else if (dTChamberId.station() == 3)
+      eta = config->mb3W2Eta();
+
+    return eta;
+  }
+  return 95;
 }
-*/

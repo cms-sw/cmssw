@@ -82,9 +82,8 @@ public:
   ///Reset contents of all data vectors, keeping the vectors size
   virtual void reset();
 
-  ///Propagate phi from given reference layer to MB2 or ME2
-  ///expressed in integer MicroGMT scale: 1.1/2.61*240 = 101
-  int propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer) override;
+  ///Propagates phi from a given reference layer (iRefLayer) to a selected iLayer
+  int propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer, unsigned int iLayer) override;
 
 protected:
   ///Distributions for all reference layers

@@ -37,8 +37,8 @@ EventCapture::EventCapture(const edm::ParameterSet& edmCfg,
         << "EventCapture::EventCapture: no InputTag simTracksTag found" << std::endl;
 
   //stubsSimHitsMatcher works only with the trackingParticle, because only them are stored in the pilup events
-  if (this->candidateSimMuonMatcher && edmCfg.exists("trackingParticleTag"))
-    stubsSimHitsMatcher = std::make_unique<StubsSimHitsMatcher>(edmCfg, omtfConfig, muonGeometryTokens);
+  //if (this->candidateSimMuonMatcher && edmCfg.exists("trackingParticleTag"))
+  //  stubsSimHitsMatcher = std::make_unique<StubsSimHitsMatcher>(edmCfg, omtfConfig, muonGeometryTokens);
 }
 
 EventCapture::~EventCapture() {
@@ -51,6 +51,8 @@ void EventCapture::beginRun(edm::EventSetup const& eventSetup) {
 }
 
 void EventCapture::observeEventBegin(const edm::Event& event) {
+  edm::LogImportant("l1tOmtfEventPrint") << "EventCapture::observeEventBegin event " << event.id()
+                                         << "*************************" << std::endl;
   simMuons.clear();
 
   if (!simTracksTag.label().empty()) {
@@ -78,7 +80,7 @@ void EventCapture::observeProcesorEmulation(unsigned int iProcessor,
                                             const std::shared_ptr<OMTFinput>& input,
                                             const AlgoMuons& algoCandidates,
                                             const AlgoMuons& gbCandidates,
-                                            const std::vector<l1t::RegionalMuonCand>& candMuons) {
+                                            const FinalMuons& finalMuons) {
   unsigned int procIndx = omtfConfig->getProcIndx(iProcessor, mtfType);
   edm::LogImportant("l1tOmtfEventPrint") << "EventCapture::observeProcesorEmulation : iProcessor" << iProcessor
                                          << " mtfType " << mtfType << " procIndx " << procIndx << " OmtfName(procIndx) "
@@ -90,8 +92,7 @@ void EventCapture::observeProcesorEmulation(unsigned int iProcessor,
   gbCandidatesInProcs[procIndx] = gbCandidates;
 }
 
-void EventCapture::observeEventEnd(const edm::Event& iEvent,
-                                   std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) {
+void EventCapture::observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMuons) {
   std::ostringstream ostr;
   //filtering
 
@@ -106,7 +107,6 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
       //TODO choose a condition, to print the desired candidates
       if (matchingResult.muonCand) {
         dump = true;
-
         bool runStubsSimHitsMatcher = false;
         if (matchingResult.trackingParticle) {
           auto trackingParticle = matchingResult.trackingParticle;
@@ -122,19 +122,32 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
                << matchingResult.simTrack->momentum().pt()  //<<" Beta "<<simMuon->momentum().Beta()
                << " eta " << std::setw(9) << matchingResult.simTrack->momentum().eta() << " phi " << std::setw(9)
                << matchingResult.simTrack->momentum().phi() << std::endl;
+          //TODO choose a condition, to print the desired candidates
+          if (matchingResult.simTrack->eventId().event() == 0 &&
+              std::abs(matchingResult.simTrack->momentum().eta()) > 0.82 &&
+              std::abs(matchingResult.simTrack->momentum().eta()) < 1.24) {
+            //&& matchingResult.simTrack->momentum().pt() >= 22. &&
+            //matchingResult.muonCand != nullptr && matchingResult.muonCand->hwPt() < 47) {
+            dump = true;
+          }
         } else {
           ostr << "no simMuon ";
           runStubsSimHitsMatcher = true;
         }
         ostr << "matched to: " << std::endl;
         auto finalCandidate = matchingResult.muonCand;
-        ostr << " hwPt " << finalCandidate->hwPt() << " hwUPt " << finalCandidate->hwPtUnconstrained() << " hwSign "
-             << finalCandidate->hwSign() << " hwQual " << finalCandidate->hwQual() << " hwEta " << std::setw(4)
-             << finalCandidate->hwEta() << std::setw(4) << " hwPhi " << finalCandidate->hwPhi() << "    eta "
-             << std::setw(9) << (finalCandidate->hwEta() * 0.010875) << " phi " << std::endl;
+        ostr << " hwPt " << matchingResult.muonCand->getAlgoMuon()->getPtConstr()
+             //<< " hwUPt " << matchingResult.muonCand->getAlgoMuon()->getPtUnconstr()
+             << " hwUPt " << matchingResult.muonCand->getPtUnconstrGmt()
+             //<< " hwSign " << matchingResult.muonCand->getAlgoMuon()->getChargeConstr()
+             << " hwSign " << matchingResult.muonCand->getSign()
+             << " hwQual " << matchingResult.muonCand->getQuality() << " hwEta " << std::setw(4)
+             //<< matchingResult.muonCand->getAlgoMuon()->getEtaHw() << std::setw(4) << " hwPhi " << matchingResult.muonCand->getAlgoMuon()->getPhi()
+             << matchingResult.muonCand->getEtaGmt() << std::setw(4) << " hwPhi " << matchingResult.muonCand->getPhiGmt()
+             << "    eta " << std::setw(9) << matchingResult.muonCand->getEtaRad() << " phi "<< std::endl;// << matchingResult.muonCand->getPhiRad() << std::endl;
 
         if (stubsSimHitsMatcher && runStubsSimHitsMatcher)
-          stubsSimHitsMatcher->match(iEvent, matchingResult.muonCand, matchingResult.procMuon, ostr);
+          stubsSimHitsMatcher->match(iEvent, matchingResult.muonCand, ostr);
       }
     }
   } else if (!simTracksTag.label().empty()) {
@@ -143,8 +156,9 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
     bool wasSimMuInOmtfNeg = false;
     for (auto& simMuon : simMuons) {
       //TODO choose a condition, to print the desired events
-      if (simMuon->eventId().event() == 0 && std::abs(simMuon->momentum().eta()) > 0.82 &&
-          std::abs(simMuon->momentum().eta()) < 1.24 && simMuon->momentum().pt() >= 3.) {
+      if (simMuon->eventId().event() == 0 && std::abs(simMuon->momentum().eta()) > 0.82)
+      //&& std::abs(simMuon->momentum().eta()) < 1.24 && simMuon->momentum().pt() >= 22.)
+      {
         ostr << "SimMuon: eventId " << simMuon->eventId().event() << " pdgId " << std::setw(3) << simMuon->type()
              << " pt " << std::setw(9) << simMuon->momentum().pt()  //<<" Beta "<<simMuon->momentum().Beta()
              << " eta " << std::setw(9) << simMuon->momentum().eta() << " phi " << std::setw(9)
@@ -160,14 +174,14 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
     bool wasCandInNeg = false;
     bool wasCandInPos = false;
 
-    for (auto& finalCandidate : *finalCandidates) {
+    for (auto& finalMuon : finalMuons) {
       //TODO choose a condition, to print the desired candidates
-      if (finalCandidate.trackFinderType() == l1t::tftype::omtf_neg && finalCandidate.hwQual() >= 12 &&
-          finalCandidate.hwPt() > 20)
+      if (  //finalCandidate.trackFinderType() == l1t::tftype::omtf_neg && finalCandidate.hwQual() >= 12 &&
+          finalMuon->getAlgoMuon()->getPtConstr() < 47)
         wasCandInNeg = true;
 
-      if (finalCandidate.trackFinderType() == l1t::tftype::omtf_pos && finalCandidate.hwQual() >= 12 &&
-          finalCandidate.hwPt() > 20)
+      if (  //finalCandidate.trackFinderType() == l1t::tftype::omtf_pos && finalCandidate.hwQual() >= 12 &&
+          finalMuon->getAlgoMuon()->getPtConstr() < 47)
         wasCandInPos = true;
     }
 
@@ -201,35 +215,25 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
   edm::LogVerbatim("l1tOmtfEventPrint") << ostr.str() << endl;  //printing sim muons
 
   edm::LogVerbatim("l1tOmtfEventPrint") << "finalCandidates " << std::endl;
-  for (int bx = finalCandidates->getFirstBX(); bx <= finalCandidates->getLastBX(); bx++) {
-    for (auto finalCandidateIt = finalCandidates->begin(bx); finalCandidateIt != finalCandidates->end(bx);
-         finalCandidateIt++) {
-      auto& finalCandidate = *finalCandidateIt;
-      int globHwPhi = (finalCandidate.processor()) * 96 + finalCandidate.hwPhi();
-      // first processor starts at CMS phi = 15 degrees (24 in int)... Handle wrap-around with %. Add 576 to make sure the number is positive
-      globHwPhi = (globHwPhi + 600) % 576;
-
-      double globalPhi = globHwPhi * 2. * M_PI / 576;
-      if (globalPhi > M_PI)
-        globalPhi = globalPhi - (2. * M_PI);
-
-      int layerHits = (int)finalCandidate.trackAddress().at(0);
+  //for (int bx = finalCandidates->getFirstBX(); bx <= finalCandidates->getLastBX(); bx++) 
+  {
+    for (auto& finalMuon : finalMuons) {
+      int layerHits = finalMuon->getAlgoMuon()->getFiredLayerBits();
       std::bitset<18> layerHitBits(layerHits);
 
       edm::LogVerbatim("l1tOmtfEventPrint")
-          << " bx " << bx << " hwPt " << finalCandidate.hwPt() << " hwUPt " << finalCandidate.hwPtUnconstrained()
-          << " hwSign " << finalCandidate.hwSign() << " hwQual " << finalCandidate.hwQual() << " hwEta " << std::setw(4)
-          << finalCandidate.hwEta() << std::setw(4) << " hwPhi " << finalCandidate.hwPhi() << "    eta " << std::setw(9)
-          << (finalCandidate.hwEta() * 0.010875) << " phi " << std::setw(9) << globalPhi << " " << layerHitBits
-          << " processor " << OmtfName(finalCandidate.processor(), finalCandidate.trackFinderType(), omtfConfig)
+          << " bx " << finalMuon->getBx() << " hwPt " << finalMuon->getAlgoMuon()->getPtConstr()
+          //<< " hwUPt " << finalMuon->getAlgoMuon()->getPtUnconstr()
+          << " hwUPt " << finalMuon->getPtUnconstrGmt()
+          << " hwSign " << finalMuon->getAlgoMuon()->getChargeConstr() << " hwQual " << finalMuon->getQuality()
+          //<< " hwEta " << std::setw(4) << finalMuon->getAlgoMuon()->getEtaHw()
+          << " hwEta " << std::setw(4) << finalMuon->getEtaGmt() //////////////////////////////////////////////
+          //<< std::setw(4) << " hwPhi " << finalMuon->getAlgoMuon()->getPhi()
+          << std::setw(4) << " hwPhi " << finalMuon->getPhiGmt() /////////////////////////////////////////////
+          << "    eta " << std::setw(9) << finalMuon->getEtaRad() ///////////////////////////////////////////
+          << " phi " << std::setw(9) << finalMuon->getPhiRad() << " " << layerHitBits
+          << " processor " << OmtfName(finalMuon->getProcessor(), finalMuon->trackFinderType(), omtfConfig)
           << std::endl;
-
-      for (auto& trackAddr : finalCandidate.trackAddress()) {
-        if (trackAddr.first >= 10)
-          edm::LogVerbatim("l1tOmtfEventPrint")
-              << "trackAddr first " << trackAddr.first << " second " << trackAddr.second << " ptGeV "
-              << omtfConfig->hwPtToGev(trackAddr.second);
-      }
     }
   }
   edm::LogVerbatim("l1tOmtfEventPrint") << std::endl;
@@ -247,8 +251,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
           if (stub && (stub->type != MuonStub::Type::EMPTY)) {
             layerFired = true;
 
-            auto globalPhiRad = omtfConfig->procHwPhiToGlobalPhi(
-                stub->phiHw, OMTFinputMaker::getProcessorPhiZero(omtfConfig, iProc % omtfConfig->nProcessors()));
+            auto globalPhiRad = omtfConfig->procPhiOmtfToPhiRad(iProc, stub->phiHw);
             ostrInput << (*stub) << " globalPhiRad " << globalPhiRad << std::endl;
           }
           if (layerFired)
@@ -348,7 +351,8 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
         for (auto& gbCandidate : gbCandidatesInProcs[iProc])
           edm::LogVerbatim("l1tOmtfEventPrint")
               << "     (" << std::setw(5) << gbCandidate->getPtConstr() << "," << std::setw(5)
-              << gbCandidate->getPtUnconstr() << ","
+              //<< ( (gbCandidate->getPtUnconstr() - 1) / 2 + 1 )<< "," //GMT scale
+              << ( gbCandidate->getPtUnconstr() == 0 ? 0 : ( (gbCandidate->getPtUnconstr() - 1) / 2 + 1 ) )<< "," //GMT scale
 
               << std::setw(5) << gbCandidate->getGpResultConstr().getFiredLayerCnt() << "," << std::setw(5)
               << gbCandidate->getGpResultUnconstr().getFiredLayerCnt()
@@ -379,30 +383,28 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
         edm::LogVerbatim("l1tOmtfEventPrint") << "finalCandidates " << std::endl;
 
         std::ostringstream ostr;
-        if (finalCandidates->size(0) > 0) {
+        //if (finalCandidates->size(0) > 0) 
+        {
           int iMu = 1;
-          for (auto finalCandidateIt = finalCandidates->begin(0); finalCandidateIt != finalCandidates->end(0);
-               finalCandidateIt++) {
-            auto& finalCandidate = *finalCandidateIt;
-
-            auto omtfName = OmtfName(finalCandidate.processor(), finalCandidate.trackFinderType(), omtfConfig);
+          for (auto& finalMuon : finalMuons) {
+            auto omtfName = OmtfName(finalMuon->getProcessor(), finalMuon->trackFinderType(), omtfConfig);
 
             if (omtfName == board.name()) {
-              int layerHits = (int)finalCandidate.trackAddress().at(0);
+              int layerHits = finalMuon->getAlgoMuon()->getFiredLayerBits();
               std::bitset<18> layerHitBits(layerHits);
 
-              unsigned int trackAddr = finalCandidate.trackAddress().at(0);
-              unsigned int uPt = finalCandidate.hwPtUnconstrained();
+              unsigned int trackAddr = finalMuon->getAlgoMuon()->getFiredLayerBits();
+              unsigned int uPt = finalMuon->getPtUnconstrGmt();
               //if(uPt == 0) uPt = 5; //TODO remove when fixed in the FW
               trackAddr = (uPt << 18) + trackAddr;
 
-              ostr << "M" << iMu << ":" << std::setw(4) << finalCandidate.hwPt() << "," << std::setw(4)
-                   << finalCandidate.hwQual() << "," << std::setw(4) << finalCandidate.hwPhi() << "," << std::setw(4)
-                   << std::abs(finalCandidate.hwEta())
+              ostr << "M" << iMu << ":" << std::setw(4) << finalMuon->getPtGmt() << "," << std::setw(4)
+                   << finalMuon->getQuality() << "," << std::setw(4) << finalMuon->getPhiGmt() << "," << std::setw(4)
+                   << std::abs(finalMuon->getEtaGmt())
                    << ","
                    //<<std::setw(10)<< finalCandidate.trackAddress().at(0)<<""
                    << std::setw(10) << trackAddr << "," << std::setw(4) << 0 << ","                 //Halo
-                   << std::setw(4) << finalCandidate.hwSign() << "," << std::setw(4) << 1 << "; ";  //ChValid
+                   << std::setw(4) << finalMuon->getSign() << "," << std::setw(4) << 1 << "; ";  //ChValid
               //<< " -- uPt " << std::setw(10) << uPt << " firedLayers " << finalCandidate.trackAddress().at(0);
 
               //<<std::setw(5)<< finalCandidate.hwPtUnconstrained()<<","

@@ -178,6 +178,18 @@ void RpcDigiToStubsConverterOmtf::addRPCstub(MuonStubPtrs2D& muonStubsInLayers,
 
   float r = 0;
   stub.etaHw = angleConverter->getGlobalEtaRpc(rawid, cluster.firstStrip, r);
+
+  if (iLayer == 10)
+    r = 413.675;  //RB1in
+  else if (iLayer == 11)
+    r = 448.675;  //RB1out
+  else if (iLayer == 12)
+    r = 494.975;  //RB2in
+  else if (iLayer == 13)
+    r = 529.975;  //RB2out
+  else if (iLayer == 14)
+    r = 602.150;  //RB3
+
   stub.r = round(r);
 
   stub.qualityHw = cluster.size();
