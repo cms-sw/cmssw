@@ -42,6 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   HOST_DEVICE_CONSTANT float kWidth2S = 0.009;
   HOST_DEVICE_CONSTANT float kWidthPS = 0.01;
   HOST_DEVICE_CONSTANT float kPt_betaMax = 7.0;
+  HOST_DEVICE_CONSTANT int kNTripletThreshold = 1000;
   // To be updated with std::numeric_limits<float>::infinity() in the code and data files
   HOST_DEVICE_CONSTANT float kVerticalModuleSlope = 123456789.0;
 
