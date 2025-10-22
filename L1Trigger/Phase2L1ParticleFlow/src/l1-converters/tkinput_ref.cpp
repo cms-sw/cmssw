@@ -91,7 +91,7 @@ edm::ParameterSetDescription l1ct::TrackInputEmulator::getParameterSetDescriptio
   description.add<bool>("etaSigned", true);
   description.add<uint32_t>("phiBits", 10u);
   description.add<uint32_t>("z0Bits", 12u);
-  description.add<uint32_t>("dxyLUTBits", 10u);
+  description.add<uint32_t>("dxyLUTBits", 11u);
   description.ifValue(edm::ParameterDescription<std::string>("trackWordEncoding", "biased", true),
                       edm::allowedValues<std::string>("biased", "unbised", "stepping"));
   description.add<bool>("bitwiseAccurate", true);
@@ -434,8 +434,11 @@ void l1ct::TrackInputEmulator::configDxy(int lutBits) {
   dxyLUTShift_ = 12 - lutBits;
   dxyLUT_.resize(1 << lutBits);
   for (unsigned int u = 0, n = dxyLUT_.size(); u < n; ++u) {
-    float dxy = u * (1 << dxyLUTShift_) * l1ct::Scales::DXY_LSB;
-    float sqrtDxy = std::sqrt(dxy);
+    float dxy_l = u * (1 << dxyLUTShift_) * l1ct::Scales::DXY_LSB;
+    float dxy_h = (u+1) * (1 << dxyLUTShift_) * l1ct::Scales::DXY_LSB;
+    float sqrtDxy_l = std::sqrt(dxy_l);
+    float sqrtDxy_h = std::sqrt(dxy_h);
+    float sqrtDxy = (sqrtDxy_l + sqrtDxy_h) / 2;
     dxyLUT_[u] = l1ct::Scales::makeDxy(sqrtDxy);
   }
   if (debug_)
