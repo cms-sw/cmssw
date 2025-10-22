@@ -2,3 +2,5 @@
   <use name="DataFormats/PortableTestObjects"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
 </bin>
+
+<test name="TestDataFormatsPortableTestObjectsGenericCloner" command="cmsRun ${LOCALTOP}/src/DataFormats/PortableTestObjects/test/testGenericCloner_cfg.py"/>
