@@ -40,7 +40,7 @@ AlgoMuons GhostBuster::select(AlgoMuons refHitCands, int charge) {
       //do not accept candidates with similar phi (any charge combination)
       //veto window 5deg(=half of logic cone)=5/360*5760=80"logic strips"
       //veto window 5 degree in GMT scale is 5/360*576=8 units
-      if (std::abs(omtfConfig->procPhiToGmtPhi((*it1)->getPhi()) - omtfConfig->procPhiToGmtPhi((*it2)->getPhi())) < 8) {
+      if (std::abs(omtfConfig->procPhiToGmtPhase1Phi((*it1)->getPhi()) - omtfConfig->procPhiToGmtPhase1Phi((*it2)->getPhi())) < 8) {
         //      if(std::abs(it1->getPhi() - it2->getPhi())<5/360.0*nPhiBins){
         isGhost = true;
         break;

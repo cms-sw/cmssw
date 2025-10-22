@@ -54,6 +54,8 @@ void CscDigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
                                         int bxFrom,
                                         int bxTo,
                                         std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
+  boost::property_tree::ptree procDataTree;
+
   auto chamber = cscDigis->begin();
   auto chend = cscDigis->end();
   for (; chamber != chend; ++chamber) {
@@ -65,14 +67,33 @@ void CscDigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
 
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
+
+    auto& cscChamber = procDataTree.add_child("cscChamber", boost::property_tree::ptree());
+    cscChamber.add("<xmlattr>.name", csc.chamberName());
+
     for (; digi != dend; ++digi) {
       ///Check if LCT trigger primitive has the right BX.
       int digiBx = digi->getBX() - config->cscLctCentralBx();
 
       if (digiBx >= bxFrom && digiBx <= bxTo)
         addCSCstubs(muonStubsInLayers, rawid, *digi, iProcessor, procTyp);
+
+      auto& cscDigi = cscChamber.add_child("cscDigi", boost::property_tree::ptree());
+      cscDigi.add("<xmlattr>.halfStrip", digi->getStrip() );
+      cscDigi.add("<xmlattr>.keyWG", digi->getKeyWG() );
+      cscDigi.add("<xmlattr>.pattern", digi->getPattern() );
+      cscDigi.add("<xmlattr>.slope", digi->getSlope() );
+      cscDigi.add("<xmlattr>.bend", digi->getBend() );
+      cscDigi.add("<xmlattr>.fractionalSlope", digi->getFractionalSlope() );
+      cscDigi.add("<xmlattr>.quality", digi->getQuality());
+      cscDigi.add("<xmlattr>.QuartStrip", (int)(digi->getQuartStripBit()));
+      cscDigi.add("<xmlattr>.eighthStrip", (int)(digi->getEighthStripBit()));
+
     }
   }
+
+  for (auto& obs : observers)
+    obs->addProcesorData("cscData", procDataTree);
 }
 
 void RpcDigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,

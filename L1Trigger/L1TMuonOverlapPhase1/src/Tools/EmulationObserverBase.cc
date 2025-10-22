@@ -24,7 +24,7 @@ void EmulationObserverBase::observeProcesorEmulation(unsigned int iProcessor,
                                                      const std::shared_ptr<OMTFinput>& input,
                                                      const AlgoMuons& algoCandidates,
                                                      const AlgoMuons& gbCandidates,
-                                                     const std::vector<l1t::RegionalMuonCand>& candMuons) {
+                                                     const FinalMuons& finalMuons) {
   unsigned int procIndx = omtfConfig->getProcIndx(iProcessor, mtfType);
 
   unsigned int i = 0;
@@ -37,7 +37,7 @@ void EmulationObserverBase::observeProcesorEmulation(unsigned int iProcessor,
       candProcIndx = procIndx;
 
       //should be good, as the regionalMuonCand is created for every  gbCandidate in OMTFProcessor<GoldenPatternType>::getFinalcandidates
-      regionalMuonCand = candMuons.at(i);
+      finalMuon = finalMuons.at(i);
 
       //this->algoCandidates = algoCandidates; //TODO uncomment if needed
     }
