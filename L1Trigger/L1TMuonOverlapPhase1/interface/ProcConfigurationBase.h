@@ -9,6 +9,8 @@
 #define L1T_OmtfP1_PROCCONFIGURATIONBASE_H_
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <cmath>
+
 class ProcConfigurationBase {
 public:
   ProcConfigurationBase();
@@ -25,8 +27,6 @@ public:
 
   virtual double hwPtToGev(int hwPt) const = 0;
 
-  virtual double hwUPtToGev(int hwPt) const = 0;
-
   ///uGMT pt scale conversion: [0GeV, 0.5GeV) = 1 [0.5GeV, 1 Gev) = 2
   virtual int ptGevToHw(double ptGev) const = 0;
 
@@ -34,6 +34,18 @@ public:
   virtual int getProcScalePhi(double phiRad, double procPhiZeroRad = 0) const = 0;
 
   virtual int etaToHwEta(double eta) const = 0;
+
+  //eta of the middle DT Wheel 2 MB1, in the OMTF scale
+  virtual int mb1W2Eta() const = 0;
+
+  //eta of the middle DT Wheel 2 MB2, in the OMTF scale
+  virtual int mb2W2Eta() const = 0;
+
+  //eta of the middle DT Wheel 2 MB3, in the OMTF scale
+  virtual int mb3W2Eta() const = 0;
+
+  //eta of the middle DT Wheel 2 MB4, in the OMTF scale
+  virtual int mb4W2Eta() const = 0;
 
   //returns address for the  pdf LUTs
   virtual unsigned int ptHwToPtBin(int ptHw) const { return 0; }
@@ -99,6 +111,12 @@ public:
   //[unit/rad] for DT segment phiB, as it is at the level of the algorithm
   //in the link data it can be different, and it is converted in the DtDigiToStubsConverterOmtf::addDTphiDigi
   double dtPhiBUnitsRad() const { return dtPhiBUnitsRad_; }
+
+  double etaUnit() const { return etaUnit_; }
+
+protected:
+
+  double etaUnit_ = 0.010875;  //=2.61/240 - value from the phase1 interface note
 
 private:
   int cscLctCentralBx_ = 8;  //CSCConstants::LCT_CENTRAL_BX;
