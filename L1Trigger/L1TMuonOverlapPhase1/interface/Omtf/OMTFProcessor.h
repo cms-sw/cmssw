@@ -2,6 +2,7 @@
 #define L1T_OmtfP1_OMTFProcessor_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/FinalMuon.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPattern.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternResult.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IGhostBuster.h"
@@ -61,6 +62,7 @@ public:
   int extrapolateDtPhiBFloatPoint(const int& refLogicLayer,
                                   const int& refPhi,
                                   const int& refPhiB,
+                                  const int& refHitSuperLayer,
                                   unsigned int targetLayer,
                                   const int& targetStubPhi,
                                   const int& targetStubQuality,
@@ -72,6 +74,7 @@ public:
   int extrapolateDtPhiBFixedPoint(const int& refLogicLayer,
                                   const int& refPhi,
                                   const int& refPhiB,
+                                  const int& refHitSuperLayer,
                                   unsigned int targetLayer,
                                   const int& targetStubPhi,
                                   const int& targetStubQuality,
@@ -97,10 +100,15 @@ public:
     return ghostBuster->select(refHitCands, charge);
   }
 
-  //convert algo muon to outgoing Candidates
-  std::vector<l1t::RegionalMuonCand> getFinalcandidates(unsigned int iProcessor,
-                                                        l1t::tftype mtfType,
-                                                        const AlgoMuons& algoCands) override;
+  void assignQualityPhase1(AlgoMuons::value_type& algoMuon);
+ 
+  FinalMuons getFinalMuons(unsigned int iProcessor, l1t::tftype mtfType, const AlgoMuons& gbCandidates);
+  
+  void convertToGmtScalesPhase1(unsigned int iProcessor, l1t::tftype mtfType, FinalMuonPtr& finalMuon);
+
+  std::vector<l1t::RegionalMuonCand> getRegionalMuonCands(unsigned int iProcessor,
+                                                          l1t::tftype mtfType,
+                                                          FinalMuons& finalMuons);
 
   ///allows to use other sorter implementation than the default one
   virtual void setSorter(SorterBase<GoldenPatternType>* sorter) { this->sorter.reset(sorter); }
@@ -110,11 +118,17 @@ public:
 
   virtual void setPtAssignment(PtAssignmentBase* ptAssignment) { this->ptAssignment = ptAssignment; }
 
-  std::vector<l1t::RegionalMuonCand> run(unsigned int iProcessor,
-                                         l1t::tftype mtfType,
-                                         int bx,
-                                         OMTFinputMaker* inputMaker,
-                                         std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) override;
+
+  void setAssignQualityFunction(
+      std::function<void(AlgoMuons::value_type& algoMuon)> assignQuality) override {
+    this->assignQuality = assignQuality;
+  }
+
+  FinalMuons run(unsigned int iProcessor,
+                 l1t::tftype mtfType,
+                 int bx,
+                 OMTFinputMaker* inputMaker,
+                 std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) override;
 
   void printInfo() const override;
 
@@ -130,11 +144,13 @@ private:
   ///Candidate with invalid hit patterns is assigned quality=0.
   ///Currently the list of invalid patterns is hardcoded.
   ///This has to be read from configuration.
-  bool checkHitPatternValidity(unsigned int hits) override;
+  static bool checkHitPatternValidity(unsigned int hits);
 
   std::unique_ptr<SorterBase<GoldenPatternType> > sorter;
 
   std::unique_ptr<IGhostBuster> ghostBuster;
+
+  std::function<void(AlgoMuons::value_type& algoMuon)> assignQuality;
 
   //ptAssignment should be destroyed where it is created, i.e. by OmtfEmulation or OMTFReconstruction
   PtAssignmentBase* ptAssignment = nullptr;

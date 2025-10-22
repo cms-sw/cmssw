@@ -105,12 +105,55 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
       return true;
   };
 
+  //this function is for the OMTF version with unconstrained pt, if the DT ref hits with quality 2 are allowed
+  auto customByRefLayerAndHitQual = [&](const AlgoMuons::value_type& a, const AlgoMuons::value_type& b) -> bool {
+    if (!a->isValid()) {
+      return true;
+    }
+    if (!b->isValid()) {
+      return false;
+    }
+
+    int aRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[a->getRefLayer()];
+    int aRefHitQual = 0;
+    //MB1 or MB2, i.e. the station for which extrapolation is done
+    if (aRefLayerLogicNum == 0 || aRefLayerLogicNum == 2) {
+      aRefHitQual = a->getStubResult(aRefLayerLogicNum).getMuonStub()->qualityHw;
+      aRefHitQual = aRefHitQual >= 4 ? 1 : 0;
+    }
+
+    int bRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[b->getRefLayer()];
+    int bRefHitQual = 0;
+    if (bRefLayerLogicNum == 0 || bRefLayerLogicNum == 2) {
+      bRefHitQual = b->getStubResult(bRefLayerLogicNum).getMuonStub()->qualityHw;
+      bRefHitQual = bRefHitQual >= 4 ? 1 : 0;
+    }
+
+    if (aRefHitQual > bRefHitQual)
+      return false;
+    else if (aRefHitQual == bRefHitQual && aRefLayerLogicNum < bRefLayerLogicNum)
+      return false;
+    else if (aRefHitQual == bRefHitQual && aRefLayerLogicNum == bRefLayerLogicNum && a->getPdfSum() > b->getPdfSum())
+      return false;
+    else if (aRefHitQual == bRefHitQual && aRefLayerLogicNum == bRefLayerLogicNum && a->getPdfSum() == b->getPdfSum() &&
+             a->getPatternNumConstr() > b->getPatternNumConstr())
+      //should be rather getPatternNum(), but for FW getPatternNumConstr() is easier
+      return false;
+    else if (aRefHitQual == bRefHitQual && aRefLayerLogicNum == bRefLayerLogicNum && a->getPdfSum() == b->getPdfSum() &&
+             a->getPatternNumConstr() == b->getPatternNumConstr())
+      return false;
+    else
+      return true;
+  };
+
   if (omtfConfig->getGhostBusterType() == "byLLH")
     std::sort(muonsIN.rbegin(), muonsIN.rend(), customLessByLLH);
   else if (omtfConfig->getGhostBusterType() == "byFPLLH")
     std::sort(muonsIN.rbegin(), muonsIN.rend(), customLessByFPLLH);
   else if (omtfConfig->getGhostBusterType() == "byRefLayer")
     std::sort(muonsIN.rbegin(), muonsIN.rend(), customByRefLayer);
+  else if (omtfConfig->getGhostBusterType() == "byRefLayerAndHitQual")
+    std::sort(muonsIN.rbegin(), muonsIN.rend(), customByRefLayerAndHitQual);
   else
     std::sort(muonsIN.rbegin(), muonsIN.rend(), customLess);
 
@@ -140,7 +183,7 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
     for (unsigned int iMu2 = refHitCleanCandsFixedEta.size() - 1; iMu2 >= iMu1 + 1; iMu2--) {
       auto& muIN2 = refHitCleanCandsFixedEta[iMu2];
       if (muIN2->isValid() &&
-          std::abs(omtfConfig->procPhiToGmtPhi(muIN1->getPhi()) - omtfConfig->procPhiToGmtPhi(muIN2->getPhi())) < 8) {
+          std::abs(omtfConfig->procPhiToGmtPhase1Phi(muIN1->getPhi()) - omtfConfig->procPhiToGmtPhase1Phi(muIN2->getPhi())) < 8) {
         //the candidates are sorted, so only the  muIN2 can be killed, as it is "worse" than the muIN1
         refHitCleanCandsFixedEta[iMu2]->kill();
         refHitCleanCandsFixedEta[iMu1]->getKilledMuons().emplace_back(muIN2);

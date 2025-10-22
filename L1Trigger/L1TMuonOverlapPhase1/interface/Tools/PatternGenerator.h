@@ -20,8 +20,7 @@ public:
 
   ~PatternGenerator() override;
 
-  void observeEventEnd(const edm::Event& iEvent,
-                       std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) override;
+  void observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMuons) override;
 
   void endJob() override;
 

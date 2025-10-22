@@ -6,7 +6,6 @@
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
