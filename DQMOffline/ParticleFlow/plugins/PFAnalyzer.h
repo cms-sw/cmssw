@@ -46,6 +46,10 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+// For jets
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 class PFAnalyzer;
 
 class PFAnalyzer : public DQMEDAnalyzer {
@@ -73,18 +77,23 @@ private:
   std::map<std::string, std::function<double(const reco::PFCandidate)>> m_funcMap;
   std::map<std::string, std::function<double(const reco::PFCandidateCollection, reco::PFCandidate::ParticleType pfType)>>
       m_eventFuncMap;
+
   std::map<std::string,
-           std::function<double(const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType)>>
+           std::function<double(const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType, const reco::PFJet)>>
       m_jetWideFuncMap;
+
   std::map<std::string, std::function<double(const reco::PFCandidate, const reco::PFJet)>> m_pfInJetFuncMap;
   std::map<std::string, std::function<double(const reco::PFJet)>> m_jetFuncMap;
 
+  std::map<std::string, std::function<bool(const edm::Handle<std::vector<reco::PFJet> >& pfJets)>> m_eventSelectionMap;
+
   binInfo getBinInfo(std::string);
+
+  //Jet calibration stuff
+  static bool jetSortingRule(reco::Jet x, reco::Jet y) { return x.pt() > y.pt(); }
 
   // Book MonitorElements
   void bookMESetSelection(std::string, DQMStore::IBooker&);
-
-  bool passesEventSelection(const edm::Event& iEvent);
 
   int getPFBin(const reco::PFCandidate pfCand, int i);
   int getJetBin(const reco::PFJet jetCand, int i);
@@ -118,7 +127,7 @@ private:
     return nPF;
   }
 
-  static double getNPFCinJet(const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType) {
+  static double getNPFCinJet(const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType, const reco::PFJet jet) {
     int nPF = 0;
     for (auto pfCand : pfCands) {
       if (!pfCand)
@@ -129,6 +138,30 @@ private:
     }
     return nPF;
   }
+
+  static double getMaxPt(const reco::PFCandidateCollection pfCands, reco::PFCandidate::ParticleType pfType) {
+    double maxPt = 0;
+    for (auto pfCand : pfCands) {
+      // We use X to indicate all
+      if (pfCand.particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X) {
+        if(pfCand.pt() > maxPt ) maxPt = pfCand.pt();
+      }
+    }
+    return maxPt;
+  }
+
+  static double getMaxPtFracJet(const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType, const reco::PFJet jet) {
+    double maxPt = 0;
+    for (auto pfCand : pfCands) {
+      if (!pfCand)
+        continue;
+      // We use X to indicate all
+      if (pfCand->particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X)
+        if(pfCand->pt() > maxPt ) maxPt = pfCand->pt();
+    }
+    return maxPt / jet.pt();
+  }
+
 
   // Various functions designed to get information from a PF canddidate
   static double getPt(const reco::PFCandidate pfCand) { return pfCand.pt(); }
@@ -176,11 +209,105 @@ private:
 
   static double getECalEFrac(const reco::PFCandidate pfCand) { return pfCand.ecalEnergy() / pfCand.energy(); }
   static double getHCalEFrac(const reco::PFCandidate pfCand) { return pfCand.hcalEnergy() / pfCand.energy(); }
+  static double getPS1Energy(const reco::PFCandidate pfCand) { return pfCand.pS1Energy();}
+  static double getPS2Energy(const reco::PFCandidate pfCand) { return pfCand.pS2Energy();}
+  static double getPSEnergy(const reco::PFCandidate pfCand) {
+      if(pfCand.particleId() == reco::PFCandidate::ParticleType::gamma){ 
+       double energy =0 ;
+        for (unsigned iele = 0; iele < pfCand.elementsInBlocks().size(); ++iele) {
+          // first get the block
+          reco::PFBlockRef blockRef = pfCand.elementsInBlocks()[iele].first;
+          //
+          unsigned elementIndex = pfCand.elementsInBlocks()[iele].second;
+          // check it actually exists
+          if (blockRef.isNull())
+            continue;
+  
+  
+          // then get the elements of the block
+          const edm::OwnVector<reco::PFBlockElement>& elements = (*blockRef).elements();
+    
+          const reco::PFBlockElement& pfbe(elements[elementIndex]);
+          if (pfbe.type() == reco::PFBlockElement::PS1) {
+                reco::PFClusterRef clusterref = pfbe.clusterRef();
+                if(!clusterref.isNull()){
+                reco::PFCluster cluster = *clusterref;
+                energy += cluster.energy();
+                }
+          }
+        }
+
+        std::cout << energy << "\t" <<  pfCand.pS1Energy() << std::endl;
+      } 
+      return pfCand.pS1Energy()+pfCand.pS2Energy();}
+
   static double getTrackPt(const reco::PFCandidate pfCand) {
     if (pfCand.trackRef().isNonnull())
       return (pfCand.trackRef())->pt();
     return 0;
   }
+
+  static double getTrackNStripHits(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->hitPattern().numberOfValidStripHits();
+    return -1;
+  }
+
+  static double getTrackNPixHits(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->hitPattern().numberOfValidPixelHits();
+
+    return -1;
+  }
+
+  static double getTrackChi2(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->chi2();
+    return -1;
+  }
+
+  static double getTrackPtError(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->ptError();
+    return -1;
+  }
+
+  static double getTrackRelPtError(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->ptError() / (pfCand.trackRef())->pt();
+    return -1;
+  }
+
+  static double getTrackD0(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->d0();
+    return -1;
+  }
+
+  static double getTrackZ0(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->d0();
+    return -1;
+  }
+
+  static double getTrackThetaError(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->thetaError();
+    return -1;
+  }
+
+  static double getTrackEtaError(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->etaError();
+    return -1;
+  }
+
+  static double getTrackPhiError(const reco::PFCandidate pfCand) {
+    if (pfCand.trackRef().isNonnull())
+      return (pfCand.trackRef())->phiError();
+    return -1;
+  }
+
 
   static double getEoverP(const reco::PFCandidate pfCand) {
     double energy = 0;
@@ -267,6 +394,86 @@ private:
   }
 
   static double getJetPt(const reco::PFJet jet) { return jet.pt(); }
+  static double getJetChargeFrac(const reco::PFJet jet) { 
+    double chargeFrac = 0;
+    std::vector<reco::PFCandidatePtr> pfConstits = jet.getPFConstituents();
+
+    for (auto recoPF : pfConstits) {
+      if(recoPF->particleId() == reco::PFCandidate::ParticleType::h || recoPF->particleId() == reco::PFCandidate::ParticleType::e || recoPF->particleId() == reco::PFCandidate::ParticleType::mu) chargeFrac += recoPF->pt();
+    }
+    return chargeFrac / jet.pt();
+  }
+
+  bool passesTriggerSelection(const edm::Handle<std::vector<reco::PFJet> >& pfJets, const edm::Handle<edm::TriggerResults>& triggerResults, const edm::TriggerNames& triggerNames, const std::vector<std::string> triggerOptions){
+
+    // Hack to make it pass the lowest unprescaled HLT?
+    Int_t JetHiPass = 0;
+
+    const unsigned int nTrig(triggerNames.size());
+    for (unsigned int i = 0; i < nTrig; ++i) {
+      for (unsigned int j = 0; j < triggerOptions.size(); ++j) {
+        if(triggerOptions[j] == "") {
+          JetHiPass=1;
+          break;
+        }
+        if (triggerNames.triggerName(i).find(triggerOptions[j]) != std::string::npos && triggerResults->accept(i)) {
+          JetHiPass = 1;
+          break;
+        }
+      }
+      if(JetHiPass) break;
+    }
+
+    if (!JetHiPass)
+      return false;
+    return true;
+  }
+
+
+  static bool passesEventSelection(const edm::Handle<std::vector<reco::PFJet> >& pfJets) {
+    if (pfJets->size() < 2)
+      return false;
+    if (pfJets->at(0).pt() < 450)
+      return false;
+    if (pfJets->at(0).pt() / pfJets->at(1).pt() > 2)
+      return false;
+
+    return true;
+  }
+
+  static bool passesNoCutSelection(const edm::Handle<std::vector<reco::PFJet> >& pfJets) {
+    //if (pfJets->size() < 2)
+    //  return false;
+    //if (pfJets->at(0).pt() < 450)
+    //  return false;
+    //if (pfJets->at(0).pt() / pfJets->at(1).pt() > 2)
+    //  return false;
+
+    return true;
+  }
+
+  static bool passesDijetSelection(const edm::Handle<std::vector<reco::PFJet> >& pfJets) {
+    if (pfJets->size() < 2)
+      return false;
+    if (pfJets->at(0).pt() < 450)
+      return false;
+    if (pfJets->at(0).pt() / pfJets->at(1).pt() > 2)
+      return false;
+    
+    return true;
+  } 
+
+  static bool passesAnomalousSelection(const edm::Handle<std::vector<reco::PFJet> >& pfJets) {
+    if (pfJets->size() < 2)
+      return false;
+    if (pfJets->at(0).pt() < 450)
+      return false;
+    if (pfJets->at(1).pt() / pfJets->at(0).pt() >0.5)
+      return false;
+    
+    return true;
+  } 
+
 
   edm::EDGetTokenT<reco::PFCandidateCollection> thePfCandidateCollection_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
@@ -280,8 +487,9 @@ private:
 
   edm::InputTag theTriggerResultsLabel_;
   edm::InputTag vertexTag_;
-  edm::InputTag highPtJetExpr_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  std::string m_selection;
+
 
   std::vector<std::vector<std::string>> m_allSuffixes;
   std::vector<std::vector<std::string>> m_allJetSuffixes;
@@ -292,11 +500,17 @@ private:
   // All of the histograms, stored as a map between the histogram name and the histogram
   std::map<std::string, MonitorElement*> map_of_MEs;
 
+  std::map<reco::PFCandidate::ParticleType, std::string> m_particleTypeName;
+
+
+
   //check later if we need only one set of parameters
   edm::ParameterSet parameters_;
 
   typedef std::vector<std::string> vstring;
   typedef std::vector<double> vDouble;
+
+  vstring m_triggerOptions;
   // Information on which observables to make histograms for.
   // In the config file, this should come as a comma-separated list of
   // the observable name, the number of bins for the histogram, and
@@ -311,6 +525,7 @@ private:
   vstring m_eventObservableNames;
   vstring m_pfInJetObservableNames;
 
+
   // Information on what cuts should be applied to PFCandidates that are
   // being monitored. In the config file, this should come as a comma-separated list of
   // the observable name, and the lowest and highest values for the histogram.
@@ -319,6 +534,13 @@ private:
   vstring m_cutList;
   std::vector<std::vector<std::string>> m_fullCutList;
   std::vector<std::vector<std::vector<double>>> m_binList;
+
+  // Binning information for 2D histograms
+  // Technically, these could be made using just the 1D cuts, 
+  // but this is useful for saving a bit of memory by creating fewer histograms.
+  vstring m_cutList2D;
+  std::vector<std::vector<std::string>> m_fullCutList2D;
+  std::vector<std::vector<std::vector<double>>> m_binList2D;
 
   // Information on what cuts should be applied to PFJets, in the case that we
   // match PFCs to jets.In the config file, this should come as a comma-separated list of
