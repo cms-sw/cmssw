@@ -36,6 +36,7 @@ namespace edmtest {
     auto const& hits = iEvent.get(getToken_);
     auto hitsView = hits.view();
 
+    std::cout << "hitsView.metadata().size() = " << hitsView.metadata().size() << std::endl;
     for (int i = 0; i < hitsView.metadata().size(); ++i) {
       if (hitsView[i].xGlobal() != float(i)) {
         throw cms::Exception("TestWriteHostHitSoA Failure") << "TestReadHostHitSoA::analyze, entry. i = " << i;

@@ -32,6 +32,7 @@ namespace edmtest {
     auto const& tracks = iEvent.get(getToken_);
     auto tracksView = tracks.view();
 
+    std::cout << "tracksView.metadata().size() = " << tracksView.metadata().size() << std::endl;
     for (int i = 0; i < tracksView.metadata().size(); ++i) {
       if (tracksView[i].eta() != float(i)) {
         throw cms::Exception("TestReadHostTrackSoA Failure") << "TestReadHostTrackSoA::analyze, entry. i = " << i;
