@@ -240,17 +240,22 @@ namespace phase2PixelTopology {
   //   - pixelTopology::Phase2    -> no OT extension
   //   - pixelTopology::Phase2OT  -> with OT extension
 
-  constexpr uint32_t nLayersPix = 28;                      // pixel layers
-  constexpr uint32_t nLayersOT = 3;                        // considered OT layers
-  constexpr uint32_t nLayersTot = nLayersPix + nLayersOT;  // total number of layers for extended CA
+  constexpr uint32_t nLayersPix = 28;      // pixel layers
+  constexpr uint32_t nLayersOTBarrel = 3;  // considered OT layers
+  constexpr uint32_t nLayersOTDisks = 10;  // no OT disks considered
+  constexpr uint32_t nLayersTot =
+      nLayersPix + nLayersOTBarrel + nLayersOTDisks;  // total number of layers for extended CA
 
-  constexpr int nPairsPix = 57;                    // pixel only layer pairs
-  constexpr int nPairsOT = 16;                     // layer pairs with OT layers
-  constexpr int nPairsTot = nPairsPix + nPairsOT;  // total number of layer pairs for extended CA
+  constexpr int nPairsPix = 57;                                          // pixel only layer pairs
+  constexpr int nPairsOTBarrel = 16;                                     // layer pairs with OT layers
+  constexpr int nPairsOTDisks = 30;                                      // no layer pairs with OT disks
+  constexpr int nPairsTot = nPairsPix + nPairsOTBarrel + nPairsOTDisks;  // total number of layer pairs for extended CA
 
-  constexpr uint16_t nModulesPix = 4000;                      // pixel modules
-  constexpr uint16_t nModulesOT = 2872;                       // considered OT modules
-  constexpr uint16_t nModulesTot = nModulesPix + nModulesOT;  // total number of modules for extended CA
+  constexpr uint16_t nModulesPix = 4000;       // pixel modules
+  constexpr uint16_t nModulesOTBarrel = 2872;  // OT modules in the barrel
+  constexpr uint16_t nModulesOTDisks = 2720;   // OT modules in the forwards disks
+  constexpr uint16_t nModulesTot =
+      nModulesPix + nModulesOTBarrel + nModulesOTDisks;  // total number of modules for extended CA
 
   constexpr int nStartingPairs = 24;  // number of layer pairs to start Ntuplet-building from
 
