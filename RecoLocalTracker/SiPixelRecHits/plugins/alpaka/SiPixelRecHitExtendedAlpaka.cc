@@ -52,7 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void SiPixelRecHitExtendedAlpaka::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
-    desc.add<edm::InputTag>("pixelRecHitsSoA", edm::InputTag("hltPhase2SiPixelRecHitsSoA"));
+    desc.add<edm::InputTag>("pixelRecHitsSoA", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
     desc.add<edm::InputTag>("trackerRecHitsSoA", edm::InputTag("phase2OTRecHitsSoAConverter"));
 
     descriptions.addWithDefaultLabel(desc);
