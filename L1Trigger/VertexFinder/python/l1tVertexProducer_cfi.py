@@ -27,7 +27,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Do track quality cuts in emulation algorithms
         EM_DoQualityCuts = cms.bool(False),
         # Track-stubs Pt compatibility cut
-        FH_DoPtComp = cms.bool(False),
+        FH_DoPtComp = cms.bool(True),
         # chi2dof < 5 for tracks with Pt > 10
         FH_DoTightChi2 = cms.bool(False),
         # PFA algorithm scan parameters (min,max,interval) [cm]
@@ -79,11 +79,11 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Option '0' was used for the TDR, but '1' is used for the firmware
         VxMaxTrackPtBehavior = cms.int32(1),
         # Maximum chi2 of tracks used to create vertex
-        VxMaxTrackChi2 = cms.double(99999999.),
+        VxMaxTrackChi2 = cms.double(100.),
         # Minimum number of stubs associated to a track
-        VxMinNStub = cms.uint32(0),
+        VxMinNStub = cms.uint32(4),
         # Minimum number of stubs in PS modules associated to a track
-        VxMinNStubPS = cms.uint32(0),
+        VxMinNStubPS = cms.uint32(3),
         # Track weight NN graph 
         TrackWeightGraph = cms.FileInPath("L1Trigger/VertexFinder/data/NNVtx_WeightModelGraph.pb"),
         # Pattern recognition NN graph
