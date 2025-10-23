@@ -5,17 +5,16 @@ process = cms.Process("READ")
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[1]))
 
-process.testReadHostTrackSoA = cms.EDAnalyzer("TestReadHostTrackSoA",
-    input = cms.InputTag("trackSoA", "", "WRITE"),
-    trackSize = cms.uint32(2708)
+process.testReadHostVertexSoA = cms.EDAnalyzer("TestReadHostVertexSoA",
+    input = cms.InputTag("vertexSoA", "", "WRITE")
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testTrackSoAReader.root'),
+    fileName = cms.untracked.string('testVertexSoAReader.root'),
     fastCloning = cms.untracked.bool(False)
 )
 
-process.path = cms.Path(process.testReadHostTrackSoA)
+process.path = cms.Path(process.testReadHostVertexSoA)
 
 process.endPath = cms.EndPath(process.out)
 
