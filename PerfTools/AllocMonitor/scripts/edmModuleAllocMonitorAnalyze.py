@@ -567,7 +567,7 @@ class SourceTransitionParser(object):
         return f'{self.textPrefix()} {self.textSpecial()}: {self.textPostfix()}'
 
 class PreSourceTransitionParser(SourceTransitionParser):
-    def __init__(self, payload, moduleInfos, sourceInfos, moduleCentric):
+    def __init__(self, payload, sourceInfos, moduleCentric):
         self._moduleCentric = moduleCentric
         super().__init__(payload, sourceInfos)
         self._sourceInfo = sourceInfos.get(self.index, {})
@@ -619,7 +619,7 @@ class PreSourceTransitionParser(SourceTransitionParser):
                 data.findOpenSlotInModGlobals(index,0).append(container[-1])
 
 class PostSourceTransitionParser(SourceTransitionParser):
-    def __init__(self, payload, moduleInfos, sourceInfos, moduleCentric):
+    def __init__(self, payload, sourceInfos, moduleCentric):
         super().__init__(payload, sourceInfos)
         if self.index == -1:
             self.allocInfo = AllocInfo(payload[2:])
@@ -920,9 +920,9 @@ def lineParserFactory (step, payload, moduleInfos, esModuleInfos, sourceInfos, r
     if step == 'f':
         return PostFrameworkTransitionParser(payload)
     if step == 'S':
-        return PreSourceTransitionParser(payload, moduleInfos, sourceInfos, moduleCentric)
+        return PreSourceTransitionParser(payload, sourceInfos, moduleCentric)
     if step == 's':
-        return PostSourceTransitionParser(payload, moduleInfos, sourceInfos, moduleCentric)
+        return PostSourceTransitionParser(payload, sourceInfos, moduleCentric)
     if step == 'M':
         return PreEDModuleTransitionParser(payload, moduleInfos, moduleCentric)
     if step == 'm':
@@ -1286,7 +1286,6 @@ def jsonVisualizationInfo(parser):
     if parser._moduleCentric:
         sourceSlot = data._modules[data._moduleID2Index(0)]
         modules = []
-        modules.append({"name": "source", "cpptype": parser._sourceInfos[1]._cpptype if 1 in parser._sourceInfos else "Source", "slots":[]})
         for i,m in parser._moduleInfos.items():
             modules.append({"name": f"{m._name}", "cpptype": f"{m._cpptype}", "slots":[]})
             slots = modules[-1]["slots"]
@@ -1310,7 +1309,7 @@ def jsonVisualizationInfo(parser):
                         time += t["finish"]-t["start"]
             modules[-1]['time']=time
         modules.sort(key= lambda x : x['time'], reverse=True)
-        final['transitions'].append({"name": "source", "slots":sourceSlot})
+        final['transitions'].append({"name": "source", "cpptype": parser._sourceInfos[1]._cpptype, "slots":sourceSlot})
         for m in modules:
             final['transitions'].append(m)
 
