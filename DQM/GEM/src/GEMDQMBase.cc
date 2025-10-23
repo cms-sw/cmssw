@@ -148,6 +148,7 @@ int GEMDQMBase::SortingLayers(std::vector<ME4IdsKey>& listLayers) {
 }
 
 int GEMDQMBase::getDisplayModuleNumber(int station, int layer, int module_number) {
+  // For GE2/1 Layer 1, labeling module numbers as 5–8 instead of 1–4
   if (station == 2 && layer == 1)
     return module_number + 4;
   return module_number;
