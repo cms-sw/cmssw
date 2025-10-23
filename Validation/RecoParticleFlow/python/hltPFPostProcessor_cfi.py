@@ -12,17 +12,17 @@ hltPFClusterPostProcessor = DQMEDHarvester(
            for thr in _thresholds
            for name, suf in zip(('', '_Reconstructable'), ('', 'Reconstructable'))
            for item in (
-                   f"'Score{thr}/Eff_vs_EnergyEta{name}' 'Efficiency vs Energy-#eta {suf}' Score{thr}/SimClustersMatchedRecoClustersEn_Eta SimClusters{suf}En_Eta",          
-                   f"'Score{thr}/Eff_vs_EnergyPhi{name}' 'Efficiency vs Energy-#phi {suf}' Score{thr}/SimClustersMatchedRecoClustersEn_Phi SimClusters{suf}En_Phi",          
-                   f"'Score{thr}/Eff_vs_EnergyMult{name}' 'Efficiency vs Energy-Mult {suf}' Score{thr}/SimClustersMatchedRecoClustersEn_Mult SimClusters{suf}En_Mult",       
+                   f"'Score{thr}/Eff_vs_EnEta{name}' 'Efficiency vs Energy-#eta {suf}' Score{thr}/SimClustersMatchedRecoClustersEn_Eta SimClusters{suf}En_Eta",          
+                   f"'Score{thr}/Eff_vs_EnPhi{name}' 'Efficiency vs Energy-#phi {suf}' Score{thr}/SimClustersMatchedRecoClustersEn_Phi SimClusters{suf}En_Phi",          
+                   f"'Score{thr}/Eff_vs_EnMult{name}' 'Efficiency vs Energy-Mult {suf}' Score{thr}/SimClustersMatchedRecoClustersEn_Mult SimClusters{suf}En_Mult",       
                    f"'Score{thr}/Eff_vs_PtEta{name}' 'Efficiency vs p_{{T}}-#eta {suf}' Score{thr}/SimClustersMatchedRecoClustersPt_Eta SimClusters{suf}Pt_Eta",             
                    f"'Score{thr}/Eff_vs_PtPhi{name}' 'Efficiency vs p_{{T}}-#phi {suf}' Score{thr}/SimClustersMatchedRecoClustersPt_Phi SimClusters{suf}Pt_Phi",             
                    f"'Score{thr}/Eff_vs_PtMult{name}' 'Efficiency vs p_{{T}}-Mult {suf}' Score{thr}/SimClustersMatchedRecoClustersPt_Mult SimClusters{suf}Pt_Mult",          
                    f"'Score{thr}/Eff_vs_MultEta{name}' 'Efficiency vs Mult-#eta {suf}' Score{thr}/SimClustersMatchedRecoClustersMult_Eta SimClusters{suf}Mult_Eta",          
                    f"'Score{thr}/Eff_vs_MultPhi{name}' 'Efficiency vs Mult-#phi {suf}' Score{thr}/SimClustersMatchedRecoClustersMult_Phi SimClusters{suf}Mult_Phi",          
-                   f"'Score{thr}/Fake_vs_EnergyEta{name}' 'Fake Rate vs Energy-#eta {suf}' Score{thr}/RecoClustersMatchedSimClustersEn_Eta RecoClusters{suf}Pt_Eta fake",    
-                   f"'Score{thr}/Fake_vs_EnergyPhi{name}' 'Fake Rate vs Energy-#phi {suf}' Score{thr}/RecoClustersMatchedSimClustersEn_Phi RecoClusters{suf}Pt_Phi fake",    
-                   f"'Score{thr}/Fake_vs_EnergyMult{name}' 'Fake Rate vs Energy-Mult {suf}' Score{thr}/RecoClustersMatchedSimClustersEn_Mult RecoClusters{suf}Pt_Mult fake", 
+                   f"'Score{thr}/Fake_vs_EnEta{name}' 'Fake Rate vs Energy-#eta {suf}' Score{thr}/RecoClustersMatchedSimClustersEn_Eta RecoClusters{suf}Pt_Eta fake",    
+                   f"'Score{thr}/Fake_vs_EnPhi{name}' 'Fake Rate vs Energy-#phi {suf}' Score{thr}/RecoClustersMatchedSimClustersEn_Phi RecoClusters{suf}Pt_Phi fake",    
+                   f"'Score{thr}/Fake_vs_EnMult{name}' 'Fake Rate vs Energy-Mult {suf}' Score{thr}/RecoClustersMatchedSimClustersEn_Mult RecoClusters{suf}Pt_Mult fake", 
                    f"'Score{thr}/Fake_vs_PtEta{name}' 'Fake Rate vs p_{{T}}-#eta {suf}' Score{thr}/RecoClustersMatchedSimClustersPt_Eta RecoClusters{suf}Pt_Eta fake",       
                    f"'Score{thr}/Fake_vs_PtPhi{name}' 'Fake Rate vs p_{{T}}-#phi {suf}' Score{thr}/RecoClustersMatchedSimClustersPt_Phi RecoClusters{suf}Pt_Phi fake",       
                    f"'Score{thr}/Fake_vs_PtMult{name}' 'Fake Rate vs p_{{T}}-Mult {suf}' Score{thr}/RecoClustersMatchedSimClustersPt_Mult RecoClusters{suf}Pt_Mult fake",    
@@ -37,7 +37,7 @@ hltPFClusterPostProcessor = DQMEDHarvester(
            for name, suf in zip(('', '_Reconstructable'), ('', 'Reconstructable'))
            for item in (
                    # Efficiency
-                   f"'Score{thr}/Eff_vs_Energy{name}' 'Efficiency vs Energy {suf}' Score{thr}/SimClustersMatchedRecoClustersEn SimClusters{suf}En",
+                   f"'Score{thr}/Eff_vs_En{name}' 'Efficiency vs Energy {suf}' Score{thr}/SimClustersMatchedRecoClustersEn SimClusters{suf}En",
                    f"'Score{thr}/Eff_vs_Pt{name}' 'Efficiency vs p_{{T}} {suf}' Score{thr}/SimClustersMatchedRecoClustersPt SimClusters{suf}Pt",
                    f"'Score{thr}/Eff_vs_Eta{name}' 'Efficiency vs #eta {suf}' Score{thr}/SimClustersMatchedRecoClustersEta SimClusters{suf}Eta",
                    f"'Score{thr}/Eff_vs_Phi{name}' 'Efficiency vs #phi {suf}' Score{thr}/SimClustersMatchedRecoClustersPhi SimClusters{suf}Phi",
