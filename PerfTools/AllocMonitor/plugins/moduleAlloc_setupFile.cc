@@ -498,7 +498,7 @@ namespace edm::service::moduleAlloc {
                                 esModuleTypesPtr,
                                 moduleCtrDtrPtr,
                                 sourceCtrPtr,
-                                sourceTypePtr=std::move(sourceTypePtr),
+                                sourceTypePtr = std::move(sourceTypePtr),
                                 beginTime,
                                 beginModuleAlloc,
                                 addDataInDtr](auto&) mutable {
