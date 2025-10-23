@@ -734,14 +734,11 @@ namespace l1tVertexFinder {
         float PFAWidth = computeTrackZ0Res(&track) * settings_->vx_pfa_resolutionSF();
         if (std::abs(z - track.z0()) > PFAWidth + 0.5 * settings_->vx_pfa_interval())
           continue;
-
-        if (settings_->vx_pfa_doqualitycuts() &
-            (track.pt() <
-             settings_->vx_TrackMinPt()))  // minimal additional quality cut as done in fastHistoEmulation()
-          continue;
-
+        if (settings_->vx_pfa_doqualitycuts() && (track.pt() < settings_->vx_TrackMinPt()))
+          continue;  // minimal additional quality cut as done in fastHistoEmulation()
         vertex.insert(&track);
       }  // end loop over tracks
+
       computeAndSetVertexParameters(vertex, {}, {});
       if (vertex.pt() > vxPt) {
         leading_vertex = vertex;
@@ -801,12 +798,8 @@ namespace l1tVertexFinder {
       for (const L1Track& track : fitTracks_) {
         if (std::abs(z - track.z0()) > settings_->vx_pfa_cutoff())
           continue;
-
-        if (settings_->vx_pfa_doqualitycuts() &
-            (track.pt() <
-             settings_->vx_TrackMinPt()))  // minimal additional quality cut as done in fastHistoEmulation()
-          continue;
-
+        if (settings_->vx_pfa_doqualitycuts() && (track.pt() < settings_->vx_TrackMinPt()))
+          continue;  // minimal additional quality cut as done in fastHistoEmulation()
         vertex.insert(&track);
       }  // end loop over tracks
 
