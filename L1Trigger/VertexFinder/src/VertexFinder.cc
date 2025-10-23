@@ -6,7 +6,7 @@ namespace l1tVertexFinder {
 
   // Returns the track resolution in cm (which can depend on track eta), to be used in PFA. Note in future this may not be necessary if the z0 uncertainty is included as a TTTrack property.
   float VertexFinder::computeTrackZ0Res(const L1Track* track) const {
-    float trackAbsEta = std::fabs(track->eta());
+    float trackAbsEta = std::abs(track->eta());
     // Hard-coded eta-dependent and constant parametrisations of the track resolution taken from the PFA section of Giovanna's thesis: https://cds.cern.ch/record/2909504
     return settings_->vx_pfa_etadependentresolution()
                ? 0.09867 + 0.0007 * trackAbsEta + 0.0587 * trackAbsEta * trackAbsEta
@@ -19,7 +19,7 @@ namespace l1tVertexFinder {
     float PFAWidth = computeTrackZ0Res(track) * settings_->vx_pfa_resolutionSF();
 
     // PFA weights. No need to include 1/sqrt(2pi) normalisation constant in weight function, as it cancels out in the weighted sum.
-    float deltaZ = std::fabs(track->z0() - vertexZ0);
+    float deltaZ = std::abs(track->z0() - vertexZ0);
     float GaussianWeight = std::exp(-0.5 * std::pow(deltaZ / PFAWidth, 2)) / PFAWidth;
 
     // Alternative definitions of PFA weights (added subsequent to Giovanna's thesis)
@@ -95,7 +95,7 @@ namespace l1tVertexFinder {
     float z0square = 0.;
     float trackPt = 0.;
 
-    bool isPFA = settings_->vx_algo() == Algorithm::PFA || settings_->vx_algo() == Algorithm::PFASimple;
+    const bool isPFA = settings_->vx_algo() == Algorithm::PFA || settings_->vx_algo() == Algorithm::PFASimple;
     float SumWeightPFA = 0.;
     float SumZWeightPFA = 0.;
 
