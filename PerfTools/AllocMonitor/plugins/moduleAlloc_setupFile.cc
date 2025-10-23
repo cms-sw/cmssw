@@ -451,12 +451,12 @@ namespace edm::service::moduleAlloc {
 
     auto sourceCtrPtr = std::make_shared<ModuleCtrDtr>();
     auto& sourceCtr = *sourceCtrPtr;
-    auto sourceTypesPtr = std::make_shared<std::string>();
-    iRegistry.watchPreSourceConstruction([&sourceCtr, sourceTypesPtr, beginTime, iFilter](auto const& md) {
+    auto sourceTypePtr = std::make_shared<std::string>("Unknown");
+    iRegistry.watchPreSourceConstruction([&sourceCtr, sourceTypePtr, beginTime, iFilter](auto const& md) {
       auto const t = duration_cast<duration_t>(now() - beginTime).count();
       sourceCtr.beginConstruction = t;
       // Capture source module type information
-      *sourceTypesPtr += md.moduleName();
+      *sourceTypePtr = md.moduleName();
       iFilter->startOnThread();
     });
     iRegistry.watchPostSourceConstruction([&sourceCtr, beginTime, iFilter](auto const&) {
@@ -498,7 +498,7 @@ namespace edm::service::moduleAlloc {
                                 esModuleTypesPtr,
                                 moduleCtrDtrPtr,
                                 sourceCtrPtr,
-                                sourceTypesPtr,
+                                sourceTypePtr=std::move(sourceTypePtr),
                                 beginTime,
                                 beginModuleAlloc,
                                 addDataInDtr](auto&) mutable {
@@ -521,13 +521,11 @@ namespace edm::service::moduleAlloc {
       }
       {
         std::ostringstream oss;
-        if (!sourceTypesPtr->empty()) {
-          std::vector<std::string> sourceTypeList{1, *sourceTypesPtr};
-          std::vector<std::string> sourceNames{1, "source"};
-          moduleIdToLabelAndType(oss, sourceNames, sourceTypeList, 'S', "Source ID", "Source label", "Source type");
-          logFile->write(oss.str());
-          sourceTypesPtr.reset();
-        }
+        std::vector<std::string> sourceTypeList{1, *sourceTypePtr};
+        std::vector<std::string> sourceNames{1, "source"};
+        moduleIdToLabelAndType(oss, sourceNames, sourceTypeList, 'S', "Source ID", "Source label", "Source type");
+        logFile->write(oss.str());
+        sourceTypePtr.reset();
       }
       {
         auto const moduleAllocStart = duration_cast<duration_t>(beginModuleAlloc - beginTime).count();
