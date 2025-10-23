@@ -23,7 +23,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    unsigned int trackSize_;
+    const unsigned int trackSize_;
     edm::EDPutTokenT<::reco::TracksHost> putToken_;
   };
 
@@ -36,6 +36,7 @@ namespace edmtest {
     for (unsigned int i = 0; i < trackSize_; ++i) {
       tracksView[i].eta() = float(i);
     }
+    tracksView.nTracks() = trackSize_;
     iEvent.emplace(putToken_, std::move(tracks));
   }
 
