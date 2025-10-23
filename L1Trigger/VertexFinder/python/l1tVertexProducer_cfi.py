@@ -21,7 +21,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         #   0 = unweighted
         #   1 = pT weighted
         #   2 = pT^2 weighted
-        WeightedMean = cms.uint32(2),
+        WeightedMean = cms.uint32(1),
         # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
         AVR_chi2cut = cms.double(5.),
         # Do track quality cuts in emulation algorithms
@@ -44,7 +44,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         PFA_WeightFunction = cms.uint32(3),
         # Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT^N-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT^N and association probability (2). Step function and pT^N-weighted average (3) is intended for use with PFA_WeightFunction=3 or PFASimple (to replicate fastHisto).
         # Additional options (4-11) have different uses of the track resolution (only relevant when eta-dependent) and different powers of trackPt in the weighted sum: see VertexFinder.cc for details.
-        PFA_WeightedZ0 = cms.uint32(10), # 10 seems best overall for PFA, but 7-11 all have similar performance (with the best one depending on the process)
+        PFA_WeightedZ0 = cms.uint32(10), # 10 seems best overall for PFA when using WeightedMean=2, but 7-11 all have similar performance (with the best one depending on the process)
         # Use VxMinTrackPt cut specified below (otherwise no additional track selection is applied)
         PFA_DoQualityCuts = cms.bool(False),
         # fastHisto algorithm histogram parameters (min,max,width) [cm]
