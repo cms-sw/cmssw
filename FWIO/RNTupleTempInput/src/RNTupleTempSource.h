@@ -1,0 +1,108 @@
+#ifndef FWIO_RNTupleTempInput_RNTupleTempSource_h
+#define FWIO_RNTupleTempInput_RNTupleTempSource_h
+
+/*----------------------------------------------------------------------
+
+RNTupleTempSource: This is an InputSource
+
+----------------------------------------------------------------------*/
+
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Catalog/interface/InputFileCatalog.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ProcessingController.h"
+#include "FWCore/Framework/interface/ProductSelectorRules.h"
+#include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
+#include "IOPool/Common/interface/RootServiceChecker.h"
+
+#include <array>
+#include <memory>
+#include <string>
+#include <vector>
+
+namespace edm {
+  class ConfigurationDescriptions;
+  class FileCatalogItem;
+  class InputSourceRunHelperBase;
+}  // namespace edm
+namespace edm::rntuple_temp {
+  class RootPrimaryFileSequence;
+  class RootSecondaryFileSequence;
+
+  class RNTupleTempSource : public InputSource {
+  public:
+    struct Optimizations {
+      bool useClusterCache = true;
+    };
+    explicit RNTupleTempSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    ~RNTupleTempSource() override;
+    using InputSource::processHistoryRegistryForUpdate;
+    using InputSource::productRegistryUpdate;
+
+    // const accessors
+    bool skipBadFiles() const { return skipBadFiles_; }
+    bool dropDescendants() const { return dropDescendants_; }
+    bool bypassVersionCheck() const { return bypassVersionCheck_; }
+    bool labelRawDataLikeMC() const { return labelRawDataLikeMC_; }
+    bool delayReadingEventProducts() const { return delayReadingEventProducts_; }
+    unsigned int nStreams() const { return nStreams_; }
+    int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
+    Optimizations const& optimizations() const { return optimizations_; }
+    ProductSelectorRules const& productSelectorRules() const { return productSelectorRules_; }
+    InputSourceRunHelperBase* runHelper() { return runHelper_.get(); }
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+
+  protected:
+    ItemTypeInfo getNextItemType() override;
+    void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
+    std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    void readEvent_(EventPrincipal& eventPrincipal) override;
+
+  private:
+    std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
+    void readRun_(RunPrincipal& runPrincipal) override;
+    void fillProcessBlockHelper_() override;
+    bool nextProcessBlock_(ProcessBlockPrincipal&) override;
+    void readProcessBlock_(ProcessBlockPrincipal&) override;
+    std::shared_ptr<FileBlock> readFile_() override;
+    void closeFile_() override;
+    void endJob() override;
+    bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext) override;
+    void skip(int offset) override;
+    bool goToEvent_(EventID const& eventID) override;
+    void rewind_() override;
+    bool randomAccess_() const override;
+    ProcessingController::ForwardState forwardState_() const override;
+    ProcessingController::ReverseState reverseState_() const override;
+
+    std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> resourceSharedWithDelayedReader_() override;
+
+    RootServiceChecker rootServiceChecker_;
+    InputFileCatalog catalog_;
+    InputFileCatalog secondaryCatalog_;
+    edm::propagate_const<std::shared_ptr<RunPrincipal>> secondaryRunPrincipal_;
+    edm::propagate_const<std::shared_ptr<LuminosityBlockPrincipal>> secondaryLumiPrincipal_;
+    std::vector<edm::propagate_const<std::unique_ptr<EventPrincipal>>> secondaryEventPrincipals_;
+    std::array<std::vector<BranchID>, NumBranchTypes> branchIDsToReplace_;
+
+    unsigned int nStreams_;
+    bool skipBadFiles_;
+    bool bypassVersionCheck_;
+    int const treeMaxVirtualSize_;
+    Optimizations optimizations_;
+    ProductSelectorRules productSelectorRules_;
+    bool dropDescendants_;
+    bool labelRawDataLikeMC_;
+    bool delayReadingEventProducts_;
+
+    edm::propagate_const<std::unique_ptr<InputSourceRunHelperBase>> runHelper_;
+    std::unique_ptr<SharedResourcesAcquirer>
+        resourceSharedWithDelayedReaderPtr_;  // We do not use propagate_const because the acquirer is itself mutable.
+    std::shared_ptr<std::recursive_mutex> mutexSharedWithDelayedReader_;
+    edm::propagate_const<std::unique_ptr<RootPrimaryFileSequence>> primaryFileSequence_;
+    edm::propagate_const<std::unique_ptr<RootSecondaryFileSequence>> secondaryFileSequence_;
+  };  // class RNTupleTempSource
+}  // namespace edm::rntuple_temp
+#endif

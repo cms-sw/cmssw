@@ -1,0 +1,18 @@
+[
+   {  "site": "DUMMY",
+      "volume": "DummyVolume1",
+      "protocols": [
+         {  "protocol": "protocolThatDoesNotExist1",
+            "prefix": "abc"
+         }
+      ]
+   },
+   {  "site": "DUMMY",
+      "volume": "DummyVolume2",
+      "protocols": [
+         {  "protocol": "protocolThatDoesNotExist2",
+            "prefix": "def"
+         }
+      ]
+   }
+]

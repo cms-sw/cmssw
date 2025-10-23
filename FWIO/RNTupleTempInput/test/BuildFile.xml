@@ -1,0 +1,15 @@
+<environment>
+  <test name="TestRNTupleTempInput" command="TestPoolInput.sh"/>
+  <test name="TestRNTupleTestInputRunPerLumi" command="TestPoolInputRunPerLumi.sh"/>
+
+  <!-- test merging of heterogeneous files with extra provenenace in subsequent files -->
+  <test name="TestRNTupleTempInputMergeHeterogeneousFiles" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempInput/test/preMerge_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempInput/test/preMerge2_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempInput/test/HeteroMerge_cfg.py"/>
+
+  <test name="TestRNTupleInputInputOverlappingLumis" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempInput/test/test_make_overlapping_lumis_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempInput/test/test_read_overlapping_lumis_cfg.py"/>
+
+  <test name="TestRNTupleTempFileOpenErrorExitCode" command="testFileOpenErrorExitCode.sh"/>
+  <test name="TestFWIORNTupleTempInputRefProductIDMetadataConsistency" command="testRefProductIDMetadataConsistencyRoot.sh"/>
+  <test name="TestFWIORNTupleTempInputReducedProcessHistoryVersion" command="testReducedProcessHistoryVersion.sh"/>
+  <test name="TestFWIORNTupleTempInputReducedProcessHistoryHardwareResources" command="testReducedProcessHistoryHardwareResources.sh"/>
+
+</environment>
