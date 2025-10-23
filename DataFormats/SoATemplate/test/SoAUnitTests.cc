@@ -143,17 +143,17 @@ TEST_CASE("SoATemplate") {
     REQUIRE(slv.metadata().size() == slSize);
     REQUIRE(slv.metadata().capacity() == slSize);
 
-    slv.setSize(slv.metadata().size() * 2); // should not change anything
+    slv.setSize(slv.metadata().size() * 2);  // should not change anything
     REQUIRE(slv.metadata().size() == slSize);
     REQUIRE(slv.metadata().capacity() == slSize);
 
-    slv.setSize(-10); // should set size to 0
+    slv.setSize(-10);  // should set size to 0
     REQUIRE(slv.metadata().size() == 0);
     REQUIRE(slv.metadata().capacity() == slSize);
 
     const SimpleLayout::size_type validDataRange = 6;
-  
-    slv.setSize(validDataRange); // should set size to validDataRange
+
+    slv.setSize(validDataRange);  // should set size to validDataRange
     REQUIRE(slv.metadata().size() == validDataRange);
     REQUIRE(slv.metadata().capacity() == slSize);
     REQUIRE_THROWS_AS(slv[validDataRange], std::out_of_range);
