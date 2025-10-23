@@ -72,7 +72,7 @@ and to build a generic `View` as described in [View](#view).
 ## Customized methods
 
 It is possible to generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS`
-and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. 
+and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. All the methods need to be declared as `constexpr` to work in a heterogenous environment and to avoid the dependency on alpaka for the data formats.
 [An example is showed below.](#examples)
 
 ## ROOT serialization and de-serialization
@@ -152,7 +152,7 @@ using SoA1Layout = SoA1LayoutTemplate<>;
 using SoA1LayoutAligned = SoA1LayoutTemplate<cms::soa::CacheLineSize::defaultSize, cms::soa::AlignmentEnforcement::enforced>;
 ```
 
-It is possible to declare methods that operate on the SoA elements:
+It is possible to declare `constexpr` methods that operate on the SoA elements:
 
 ```C++
 #include "DataFormats/SoALayout.h"
@@ -164,14 +164,14 @@ GENERATE_SOA_LAYOUT(SoATemplate,
   
   // methods operating on const_element
   SOA_CONST_ELEMENT_METHODS(
-    auto norm() const {
+    constexpr auto norm() const {
       return sqrt(x()*x() + y()+y() + z()*z());
     }
   ),
 
   // methods operating on element
   SOA_ELEMENT_METHODS(
-    void scale(float arg) {
+    constexpr void scale(float arg) {
       x() *= arg;
       y() *= arg;
       z() *= arg;
