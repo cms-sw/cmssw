@@ -570,7 +570,7 @@ class PreSourceTransitionParser(SourceTransitionParser):
     def __init__(self, payload, sourceInfos, moduleCentric):
         self._moduleCentric = moduleCentric
         super().__init__(payload, sourceInfos)
-        self._sourceInfo = sourceInfos.get(self.index, {})
+        self._sourceInfo = sourceInfos[0]
     def textSpecial(self):
         return "starting"
     def jsonInfo(self, syncs, temp, data):
@@ -626,16 +626,16 @@ class PostSourceTransitionParser(SourceTransitionParser):
         else:
             self.allocInfo = AllocInfo(payload[3:])
         self._moduleCentric = moduleCentric
-        self._sourceInfo = sourceInfos.get(self.index, {})
+        self._sourceInfo = sourceInfos[0]
     def textSpecial(self):
         return "finished"
     def jsonInfo(self, syncs, temp, data):
         start = temp.findTime("source", self.transition, self.index)
         #we do not know the sync yet so have to wait until the framework transition
         if self.transition in [ Phase.construction, Phase.getNextTransition, Phase.destruction, Phase.openFile]:
-            data.insert( "source" , self._sourceInfo._cpptype if self._sourceInfo else "Source", start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
+            data.insert( "source" , self._sourceInfo._cpptype, start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
         else:
-            data.insert( "source" , self._sourceInfo._cpptype if self._sourceInfo else "Source", start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
+            data.insert( "source" , self._sourceInfo._cpptype, start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
     def jsonVisInfo(self,  data):
         index = self.index
         if self.transition == Phase.Event:
@@ -994,7 +994,7 @@ class ModuleAllocCompactFileParser(object):
                 continue
             if len(l) > 5 and l[0:2] == "#S":
                 (id,name,sType)=tuple(l[2:].split())
-                sourceInfos[int(id)] = ModuleInfo(name,sType)
+                sourceInfos[0] = ModuleInfo(name,sType)
                 continue
             if len(l) > 5 and l[0:2] == "#R":
                 (id,name)=tuple(l[2:].split())
@@ -1309,7 +1309,7 @@ def jsonVisualizationInfo(parser):
                         time += t["finish"]-t["start"]
             modules[-1]['time']=time
         modules.sort(key= lambda x : x['time'], reverse=True)
-        final['transitions'].append({"name": "source", "cpptype": parser._sourceInfos[1]._cpptype, "slots":sourceSlot})
+        final['transitions'].append({"name": "source", "cpptype": parser._sourceInfos[0]._cpptype, "slots":sourceSlot})
         for m in modules:
             final['transitions'].append(m)
 
