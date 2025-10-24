@@ -27,10 +27,49 @@ hltPFClusterCaloParticleAssociationProducerECAL = cms.EDProducer("PCToCPAssociat
 hltPFTesterECAL = cms.EDProducer("PFTester",
     PFCand = cms.InputTag("hltParticleFlowTmp"),
     PFCluster = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
+    CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
     SimCluster = cms.InputTag("mix","MergedCaloTruth"),
     PFClusterSimClusterAssociator = cms.InputTag("hltPFClusterSimClusterAssociationProducerECAL"),
     PFClusterCaloParticleAssociator = cms.InputTag("hltPFClusterCaloParticleAssociationProducerECAL"),
-    assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.1)
+    assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.5, 0.1),
+    enFracCut = cms.double(0.),
+    ptCut = cms.double(0.)
+)
+
+hltPFTesterECALWithCut1 = cms.EDProducer("PFTester",
+    PFCand = cms.InputTag("hltParticleFlowTmp"),
+    PFCluster = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
+    CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
+    SimCluster = cms.InputTag("mix","MergedCaloTruth"),
+    PFClusterSimClusterAssociator = cms.InputTag("hltPFClusterSimClusterAssociationProducerECAL"),
+    PFClusterCaloParticleAssociator = cms.InputTag("hltPFClusterCaloParticleAssociationProducerECAL"),
+    assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.5, 0.1),
+    enFracCut = cms.double(0.01),
+    ptCut = cms.double(0.)
+)
+
+hltPFTesterECALWithCut2 = cms.EDProducer("PFTester",
+    PFCand = cms.InputTag("hltParticleFlowTmp"),
+    PFCluster = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
+    CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
+    SimCluster = cms.InputTag("mix","MergedCaloTruth"),
+    PFClusterSimClusterAssociator = cms.InputTag("hltPFClusterSimClusterAssociationProducerECAL"),
+    PFClusterCaloParticleAssociator = cms.InputTag("hltPFClusterCaloParticleAssociationProducerECAL"),
+    assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.5, 0.1),
+    enFracCut = cms.double(0.),
+    ptCut = cms.double(0.1)
+)
+
+hltPFTesterECALWithCut3 = cms.EDProducer("PFTester",
+    PFCand = cms.InputTag("hltParticleFlowTmp"),
+    PFCluster = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
+    CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
+    SimCluster = cms.InputTag("mix","MergedCaloTruth"),
+    PFClusterSimClusterAssociator = cms.InputTag("hltPFClusterSimClusterAssociationProducerECAL"),
+    PFClusterCaloParticleAssociator = cms.InputTag("hltPFClusterCaloParticleAssociationProducerECAL"),
+    assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.5, 0.1),
+    enFracCut = cms.double(0.01),
+    ptCut = cms.double(0.1)
 )
 
 PFValSeq = cms.Sequence(
@@ -39,4 +78,7 @@ PFValSeq = cms.Sequence(
     +hltPFCpAssocByEnergyScoreProducer
     +hltPFClusterCaloParticleAssociationProducerECAL
     +hltPFTesterECAL
+    +hltPFTesterECALWithCut1
+    +hltPFTesterECALWithCut2
+    +hltPFTesterECALWithCut3
 )
