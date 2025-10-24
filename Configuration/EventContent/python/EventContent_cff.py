@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import copy
 
 #
 # Event Content definition
@@ -951,7 +952,12 @@ MINIAODEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     eventAutoFlushCompressedSize=cms.untracked.int32(-900),
     compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(4)
+    compressionLevel=cms.untracked.int32(4),
+    overrideBranchesSplitLevel=copy.deepcopy(MiniAODOverrideBranchesSplitLevel),
+    splitLevel=cms.untracked.int32(0),
+    dropMetaData=cms.untracked.string('ALL'),
+    fastCloning=cms.untracked.bool(False),
+    overrideInputFileSplitLevels=cms.untracked.bool(True)
 )
 MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 MINIAODEventContent.outputCommands.extend(HLTriggerMINIAOD.outputCommands)
@@ -960,7 +966,12 @@ MINIAODSIMEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     eventAutoFlushCompressedSize=cms.untracked.int32(-900),
     compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(4)
+    compressionLevel=cms.untracked.int32(4),
+    overrideBranchesSplitLevel=copy.deepcopy(MiniAODOverrideBranchesSplitLevel),
+    splitLevel=cms.untracked.int32(0),
+    dropMetaData=cms.untracked.string('ALL'),
+    fastCloning=cms.untracked.bool(False),
+    overrideInputFileSplitLevels=cms.untracked.bool(True)
 )
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAODSIM.outputCommands)
@@ -979,7 +990,12 @@ RAWMINIAODEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(4)
+    compressionLevel=cms.untracked.int32(4),
+    overrideBranchesSplitLevel=copy.deepcopy(MiniAODOverrideBranchesSplitLevel),
+    splitLevel=cms.untracked.int32(0),
+    dropMetaData=cms.untracked.string('ALL'),
+    fastCloning=cms.untracked.bool(False),
+    overrideInputFileSplitLevels=cms.untracked.bool(True)
 )
 RAWMINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
@@ -992,7 +1008,12 @@ RAWMINIAODSIMEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(4)
+    compressionLevel=cms.untracked.int32(4),
+    overrideBranchesSplitLevel=copy.deepcopy(MiniAODOverrideBranchesSplitLevel),
+    splitLevel=cms.untracked.int32(0),
+    dropMetaData=cms.untracked.string('ALL'),
+    fastCloning=cms.untracked.bool(False),
+    overrideInputFileSplitLevels=cms.untracked.bool(True)
 )
 RAWMINIAODSIMEventContent.outputCommands.extend(RAWMINIAODEventContent.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
