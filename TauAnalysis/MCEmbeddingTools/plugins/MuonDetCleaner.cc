@@ -256,7 +256,8 @@ uint32_t MuonDetCleaner<RPCDetId, RPCRecHit>::getRawDetId(const RPCRecHit &recHi
 
 template <typename T1, typename T2>
 bool MuonDetCleaner<T1, T2>::checkrecHit(const TrackingRecHit &recHit) {
-  edm::LogError("TauEmbedding") << "!!!! Please add the checkrecHit for the individual class templates " assert(0);
+  edm::LogError("TauEmbedding") << "!!!! Please add the checkrecHit for the individual class templates ";
+  assert(0);
 }
 
 template <>
