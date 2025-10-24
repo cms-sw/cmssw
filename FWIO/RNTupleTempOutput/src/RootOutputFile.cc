@@ -379,6 +379,19 @@ namespace edm::rntuple_temp {
     treePointers_[ttreeIndex]->optimizeBaskets(10ULL * 1024 * 1024);
   }
 
+  namespace {
+    ROOT::RNTupleWriteOptions optionsFrom(RNTupleTempOutputModule const& iOM) {
+      auto writeOptions = ROOT::RNTupleWriteOptions();
+      auto compressionAlgo =
+          iOM.compressionAlgorithm() == std::string("LZMA")   ? ROOT::RCompressionSetting::EAlgorithm::kLZMA
+          : iOM.compressionAlgorithm() == std::string("ZSTD") ? ROOT::RCompressionSetting::EAlgorithm::kZSTD
+          : iOM.compressionAlgorithm() == std::string("LZ4")  ? ROOT::RCompressionSetting::EAlgorithm::kLZ4
+                                                              : ROOT::RCompressionSetting::EAlgorithm::kZLIB;
+      writeOptions.SetCompression(compressionAlgo, iOM.compressionLevel());
+      return writeOptions;
+    }
+  }  // namespace
+
   void RootOutputFile::writeMetaData(ProductRegistry const& iReg) {
     auto model = ROOT::RNTupleModel::CreateBare();
     {
@@ -396,10 +409,8 @@ namespace edm::rntuple_temp {
       }
     }
 
-    auto writeOptions = ROOT::RNTupleWriteOptions();
-    //writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
     auto metaData =
-        ROOT::RNTupleWriter::Append(std::move(model), poolNames::metaDataTreeName(), *filePtr_, writeOptions);
+        ROOT::RNTupleWriter::Append(std::move(model), poolNames::metaDataTreeName(), *filePtr_, optionsFrom(*om_));
 
     auto rentry = metaData->CreateEntry();
 
@@ -420,10 +431,8 @@ namespace edm::rntuple_temp {
     auto model = ROOT::RNTupleModel::CreateBare();
     model->AddField(ROOT::RFieldBase::Create(poolNames::parentageBranchName(), "edm::Parentage").Unwrap());
 
-    auto writeOptions = ROOT::RNTupleWriteOptions();
-    //writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
     auto parentageWriter =
-        ROOT::RNTupleWriter::Append(std::move(model), poolNames::parentageTreeName(), *filePtr_, writeOptions);
+        ROOT::RNTupleWriter::Append(std::move(model), poolNames::parentageTreeName(), *filePtr_, optionsFrom(*om_));
 
     ParentageRegistry& ptReg = *ParentageRegistry::instance();
 
@@ -569,10 +578,8 @@ namespace edm::rntuple_temp {
           ROOT::RFieldBase::Create("IdToParameterSetsBlobs", "std::pair<edm::Hash<1>,edm::ParameterSetBlob>").Unwrap();
       model->AddField(std::move(field));
     }
-    auto writeOptions = ROOT::RNTupleWriteOptions();
-    //writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
     auto parameterSets =
-        ROOT::RNTupleWriter::Append(std::move(model), poolNames::parameterSetsTreeName(), *filePtr_, writeOptions);
+        ROOT::RNTupleWriter::Append(std::move(model), poolNames::parameterSetsTreeName(), *filePtr_, optionsFrom(*om_));
 
     std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
 
