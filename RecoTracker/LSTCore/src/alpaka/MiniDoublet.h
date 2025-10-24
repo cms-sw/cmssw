@@ -51,7 +51,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
 
     mds.dphichanges()[idx] = dPhiChange;
-
     mds.dphis()[idx] = dPhi;
     mds.dzs()[idx] = dz;
     mds.shiftedXs()[idx] = shiftedX;
@@ -250,10 +249,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float absdzprime;  // The distance between the two points after shifting
     const float& drdz_ = modules.drdzs()[lowerModuleIndex];
     // Assign hit pointers based on their hit type
+    bool pHitInverted = false;
     if (modules.moduleType()[lowerModuleIndex] == PS) {
       // TODO: This is somewhat of an mystery.... somewhat confused why this is the case
-      if (modules.subdets()[lowerModuleIndex] == Barrel ? modules.moduleLayerType()[lowerModuleIndex] != Pixel
-                                                        : modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
+      if (modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
         xo = xUpper;
         yo = yUpper;
         xp = xLower;
@@ -267,6 +266,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         yp = yUpper;
         zp = zUpper;
         rtp = rtUpper;
+        pHitInverted = true;
       }
     } else {
       xo = xUpper;
@@ -293,7 +293,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     moduleSeparation = moduleGapSize(modules, lowerModuleIndex);
 
     // Sign flips if the pixel is later layer
-    if (modules.moduleType()[lowerModuleIndex] == PS and modules.moduleLayerType()[lowerModuleIndex] != Pixel) {
+    if (modules.isGloballyInner()[lowerModuleIndex] == pHitInverted) {
       moduleSeparation *= -1;
     }
 
@@ -456,7 +456,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3076
     if (modules.sides()[lowerModuleIndex] != Center) {
       // When it is tilted, use the new shifted positions
-      if (modules.moduleLayerType()[lowerModuleIndex] != Pixel) {
+      if (modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
         // dPhi Change should be calculated so that the upper hit has higher rt.
         // In principle, this kind of check rt_lower < rt_upper should not be necessary because the hit shifting should have taken care of this.
         // (i.e. the strip hit is shifted to be aligned in the line of sight from interaction point to pixel hit of PS module guaranteeing rt ordering)
