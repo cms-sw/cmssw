@@ -104,7 +104,7 @@ public:
   */
   DetIdSet getCells(const GlobalPoint& r, double dR) const override;
 
-  virtual void fillNamedParams(DDFilteredView fv);
+  void fillNamedParams(DDFilteredView fv);
   void initializeParms() override;
 
   static std::string producerTag() { return "HGCal"; }
