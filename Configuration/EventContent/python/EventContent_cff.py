@@ -947,6 +947,7 @@ REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
 # ROOT automatically determine when to flush is a surprisingly big overhead.
 #
 from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroEventContentMC,MicroEventContentGEN
+from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
 
 MINIAODEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
