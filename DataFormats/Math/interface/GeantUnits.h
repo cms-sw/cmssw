@@ -47,7 +47,7 @@ namespace geant_units {
     constexpr double operator""_GeV(long double energy) { return energy * 1000._MeV; }
 
     // Mass
-    constexpr double operator"" _kg(long double mass) {
+    constexpr double operator""_kg(long double mass) {
       return mass * (1._eV / 1.602176487e-19) * 1._s * 1._s / (1._m * 1._m);
     }
     constexpr double operator""_g(long double mass) { return mass * 1.e-3_kg; }
