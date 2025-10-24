@@ -248,7 +248,7 @@ namespace phase2PixelTopology {
 
   constexpr int nPairsPix = 57;                                          // pixel only layer pairs
   constexpr int nPairsOTBarrel = 16;                                     // layer pairs with OT layers
-  constexpr int nPairsOTDisks = 20;                                      // no layer pairs with OT disks
+  constexpr int nPairsOTDisks = 30;                                      // no layer pairs with OT disks
   constexpr int nPairsTot = nPairsPix + nPairsOTBarrel + nPairsOTDisks;  // total number of layer pairs for extended CA
 
   constexpr uint16_t nModulesPix = 4000;       // pixel modules

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-# list of layers to exclude from the CA (empty list doesn't exclude; [28, 29, 30] excludes the OT Barrel)
+# list of layers to exclude from the CA (empty list doesn't exclude; [28, 29, 30] excludes the OT)
 layersToExclude = []
 
 # layers
@@ -44,12 +44,11 @@ layers = [
     [    33,    False,  1.00,   0.009],
     [    34,    False,  1.00,   0.009],
     [    35,    False,  1.00,   0.009],
-    [    36,    False,  1.00,   0.003],
-    [    37,    False,  1.00,   0.003],
-    [    38,    False,  1.00,   0.003],
-    [    39,    False,  1.00,   0.003],
-    [    40,    False,  1.00,   0.003],
-    # index, isBarrel, caDCA, caTheta
+    [    36,    False,  1.00,   0.010],
+    [    37,    False,  1.00,   0.009],
+    [    38,    False,  1.00,   0.009],
+    [    39,    False,  1.00,   0.009],
+    [    40,    False,  1.00,   0.009],
 ]
 
 # layerPairs for doublet building including pair-specific cut values
@@ -149,9 +148,8 @@ layerPairs = [
     [ 26, 27, False,    250,      0,   22.5,     7.0,   10000,   3.5, -10000,  10000,  0.85],
     [ 28, 29, False,   1100,  -1200,   1200,  -10000,   10000, 10000,  -50.0,   50.0,  0.85],
   # [ 28, 30, False,   2000,    -40,     40,  -10000,   10000, 10000, -10000,  10000,  0.85],
+#forward TID
     [ 29, 30, False,   1250,  -1200,   1200,  -10000,   10000, 10000,  -40.0,   40.0,  0.85],
-    # OT Disks extension
-    #  i,  o, start, phiCut,  minIn,  maxIn,  minOut,  maxOut, maxDR,  minDZ,  maxDZ, ptCuts
     [ 28, 31, False,   1100,   70.0,   130.,    20.0,    41.0,  18.0,    5.0,   80.0,  0.85], 
     [ 29, 31, False,   1100,   70.0,   130.,    35.0,    60.0,  24.0,    5.0,   55.0,  0.85],
     [ 30, 31, False,   1100,   100.,   130.,    55.0,    70.0,  14.0,   10.0,   30.0,  0.85],
@@ -161,11 +159,23 @@ layerPairs = [
     [ 34, 35, False,   1100,   30.0,   55.0,    35.0,    70.0,  12.0,   35.0,   60.0,  0.85],
     [  9, 31, False,    750,   10.0,   18.0,    20.0,    28.0,  10.0,   40.0,   50.0,  0.85],
     [  9, 32, False,   1000,   10.0,   18.0,    20.0,    30.0,  15.0,   65.0,   75.0,  0.85],
+# backward TID
+    [ 28, 36, False,   1100,  -130.,  -70.0,    20.0,    41.0,  18.0,  -80.0,   -5.0,  0.85], 
+    [ 29, 36, False,   1100,  -130.,  -70.0,    35.0,    60.0,  24.0,  -55.0,   -5.0,  0.85],
+    [ 30, 36, False,   1100,  -130.,  -100.,    55.0,    70.0,  14.0,  -30.0,  -10.0,  0.85],
+    [ 36, 37, False,   1100,   23.0,   60.0,    25.0,    70.0,  14.0,  -30.0,  -15.0,  0.85],
+    [ 37, 38, False,   1100,   25.0,   55.0,    30.0,    70.0,  14.0,  -40.0,  -20.0,  0.85],
+    [ 38, 39, False,   1100,   30.0,   55.0,    35.0,    70.0,  12.0,  -50.0,  -30.0,  0.85],
+    [ 39, 40, False,   1100,   30.0,   55.0,    35.0,    70.0,  12.0,  -60.0,  -35.0,  0.85],
+    [ 21, 36, False,    750,   10.0,   18.0,    20.0,    28.0,  10.0,  -50.0,  -40.0,  0.85],
+    [ 21, 37, False,   1000,   10.0,   18.0,    20.0,    30.0,  15.0,  -75.0,  -65.0,  0.85],
+#      i,  o, start, phiCut,  minIn,  maxIn,  minOut,  maxOut, maxDR,  minDZ,  maxDZ, ptCuts
+
 ]
 
 # find the layerPairs that contain a layer that is excluded
 excludeLayerPair = [any([(lp[0] == l) or (lp[1] == l) for l in layersToExclude]) for lp in layerPairs]
-excludeCAExtension = [any([(lp[0] == l) or (lp[1] == l) for l in range(28,41)]) for lp in layerPairs]
+excludeCAExtension = [any([(lp[0] == l) or (lp[1] == l) for l in [28, 29, 30]]) for lp in layerPairs]
 
 # exclude those layerPairs
 layerPairsAlpaka = []
@@ -248,8 +258,8 @@ _hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     lateFishbone = cms.bool(False),
     fillStatistics = cms.bool(False),
     minHitsPerNtuplet = cms.uint32(4),
-    maxNumberOfDoublets = cms.string(str(15*512*1024)),
-    maxNumberOfTuples = cms.string(str(4*60*1024)),
+    maxNumberOfDoublets = cms.string(str(12*512*1024)),
+    maxNumberOfTuples = cms.string(str(2*60*1024)),
     cellZ0Cut = cms.double(12.5), # it's half the BS width! It has nothing to do with the sample!!
     minYsizeB1 = cms.int32(20),
     minYsizeB2 = cms.int32(18),
@@ -306,7 +316,7 @@ _hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
 )
 
-def _exclude_OT_layers(hltPhase2PixelTracksSoA, layers_to_exclude = range(28, 41)):
+def _exclude_OT_layers(hltPhase2PixelTracksSoA, layers_to_exclude = [28, 29, 30]):
     keep_indices = []
     num_pairs = len(hltPhase2PixelTracksSoA.geometry.pairGraph) // 2
     for i in range(num_pairs):
