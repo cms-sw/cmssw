@@ -23,19 +23,19 @@ namespace cms_units {
     using angle_units::operators::convertRadToDeg;
 
     // Length
-    constexpr double operator"" _mm(long double length) { return length * 0.1; }
-    constexpr double operator"" _cm(long double length) { return length * 1.; }
-    constexpr double operator"" _m(long double length) { return length * 100.; }
-    constexpr double operator"" _cm3(long double length) { return length * 1._cm * 1._cm * 1._cm; }
-    constexpr double operator"" _m3(long double length) { return length * 1._m * 1._m * 1._m; }
-    constexpr double operator"" _mm(unsigned long long int length) { return length * 0.1; }
-    constexpr double operator"" _cm(unsigned long long int length) { return length * 1; }
+    constexpr double operator""_mm(long double length) { return length * 0.1; }
+    constexpr double operator""_cm(long double length) { return length * 1.; }
+    constexpr double operator""_m(long double length) { return length * 100.; }
+    constexpr double operator""_cm3(long double length) { return length * 1._cm * 1._cm * 1._cm; }
+    constexpr double operator""_m3(long double length) { return length * 1._m * 1._m * 1._m; }
+    constexpr double operator""_mm(unsigned long long int length) { return length * 0.1; }
+    constexpr double operator""_cm(unsigned long long int length) { return length * 1; }
 
     // Energy
-    constexpr double operator"" _GeV(long double energy) { return energy * 1.; }
-    constexpr double operator"" _eV(long double energy) { return energy * 1.e-9_GeV; }
-    constexpr double operator"" _MeV(long double energy) { return energy * 1.e-3_GeV; }
-    constexpr double operator"" _TeV(long double energy) { return energy * 1.e3_GeV; }
+    constexpr double operator""_GeV(long double energy) { return energy * 1.; }
+    constexpr double operator""_eV(long double energy) { return energy * 1.e-9_GeV; }
+    constexpr double operator""_MeV(long double energy) { return energy * 1.e-3_GeV; }
+    constexpr double operator""_TeV(long double energy) { return energy * 1.e3_GeV; }
 
     // Add these conversion functions to this namespace for convenience
     using angle_units::operators::convertCm2ToMm2;
