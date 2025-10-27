@@ -1,4 +1,5 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
 namespace simpixeltracks {
   // function that determines the layerId from the detId for Phase 1 and 2
