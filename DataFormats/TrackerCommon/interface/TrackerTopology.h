@@ -184,7 +184,7 @@ public:
   }
 
   // Get enum indicating if tilted barrel module of P2 tracker.
-  P2Tracker::BarrelModuleTilt barrelTiltTypeP2( const DetId& detId ) const {
+  P2Tracker::BarrelModuleTilt barrelTiltTypeP2(const DetId &detId) const {
     return static_cast<P2Tracker::BarrelModuleTilt>(tobSide(detId));
   }
 
