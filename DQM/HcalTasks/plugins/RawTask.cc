@@ -265,8 +265,7 @@ RawTask::RawTask(edm::ParameterSet const& ps)
       continue;
     Nbadqevt = true;
 
-    std::cout << "   crate  :" << eid.crateId() << "   slot  :" << eid.slot() << "   fiberIndex  :" << eid.fiberIndex()
-              << "   fiberChanId  :" << eid.fiberChanId() << std::endl;
+   // std::cout << "   crate  :" << eid.crateId() << "   slot  :" << eid.slot() << "   fiberIndex  :" << eid.fiberIndex()  << "   fiberChanId  :" << eid.fiberChanId() << std::endl;
   }
   if (lumiCache->EvtCntLS == 1)
     _NBadQEvent = 0;  // Reset at the beginning of each new LS
