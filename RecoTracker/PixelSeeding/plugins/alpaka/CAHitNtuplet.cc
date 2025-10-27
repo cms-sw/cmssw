@@ -257,9 +257,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           DetId detid = det->geographicalId();
           if (isPixel(detid))
             continue;
-#ifdef GPU_DEBUG
           auto layer = trackerTopology.layer(detid);
           auto subId = detid.subdetId();
+#ifdef GPU_DEBUG
           if (subSystemName != trackerGeometry.geomDetSubDetector(subId)) {
             subSystemName = trackerGeometry.geomDetSubDetector(subId);
             std::cout << " ===================== Subsystem: " << subSystemName << std::endl;
