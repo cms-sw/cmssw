@@ -226,5 +226,3 @@ if __name__ == "__main__":
         for tag in tags:
             files.append(f"toPlot_{ylabel}_{tag}.txt")
         plot(files, labels, f"plot{ylabel}_{outputName}", args.setRangeYMin, args.setRangeYMax)
-
-
