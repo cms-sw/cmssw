@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include "SimFastTiming/FastTimingCommon/interface/ETLElectronicsSim.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -140,7 +142,7 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame& dataFrame,
     }
   }
   if (dumpInfo) {
-    LogTrace("ETLElectronicsSim") << "[runTrivialShaper]";
+    LogTrace("ETLElectronicsSim") << "[runTrivialShaper] DetId " << dataFrame.id().rawId() << std::endl;
   }
 #endif
 
@@ -178,7 +180,7 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame& dataFrame,
 }
 
 void ETLElectronicsSim::updateOutput(ETLDigiCollection& coll, const ETLDataFrame& rawDataFrame) const {
-  int itIdx(9);
+  int itIdx(mtd_digitizer::kInTimeBX);
   if (rawDataFrame.size() <= itIdx + 2)
     return;
 

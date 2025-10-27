@@ -17,12 +17,11 @@ BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector
       topoToken_(iC.esConsumes()),
       geom_(nullptr),
       topo_(nullptr),
-      bxTime_(pset.getParameter<double>("bxTime")),
-      LightYield_(pset.getParameter<double>("LightYield")),
-      LightCollEff_(pset.getParameter<double>("LightCollectionEff")),
-      LightCollSlope_(pset.getParameter<double>("LightCollectionSlope")),
-      PDE_(pset.getParameter<double>("PhotonDetectionEff")),
-      LCEpositionSlope_(pset.getParameter<double>("LCEpositionSlope")) {}
+      bxTime_(pset.getParameter<double>("BunchCrossingTime")),
+      lightOutput_(pset.getParameter<double>("LightOutput")),
+      lightCollSlope_(pset.getParameter<double>("LightCollectionSlope")),
+      sigmaLightCollSlope_(pset.getParameter<double>("SigmaLightCollectionSlope")),
+      lcepositionSlope_(pset.getParameter<double>("LCEpositionSlope")) {}
 
 void BTLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
   geom_ = &evs.getData(geomToken_);
@@ -83,37 +82,40 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
         simHitAccumulator->emplace(mtd_digitizer::MTDCellId(id, row, col), mtd_digitizer::MTDCellInfo()).first;
 
     // --- Get the simHit energy and convert it from MeV to photo-electrons
-    float Npe = convertGeVToMeV(hit.energyLoss()) * LightYield_ * LightCollEff_ * PDE_;
+    float Npe = convertGeVToMeV(hit.energyLoss()) * lightOutput_;
 
-    // --- Calculate the light propagation time to the crystal bases (labeled L and R)
+    // --- Calculate the light propagation time to the crystal sides (labeled L and R)
+    //     applying a Gaussian smearing to the light collection slope
     double distR = 0.5 * topo.pitch().first - convertMmToCm(hit.localPosition().x());
     double distL = 0.5 * topo.pitch().first + convertMmToCm(hit.localPosition().x());
 
-    double tR = std::get<2>(hitRef) + LightCollSlope_ * distR;
-    double tL = std::get<2>(hitRef) + LightCollSlope_ * distL;
+    double smearing_LCslope = CLHEP::RandGaussQ::shoot(hre, 0., sigmaLightCollSlope_);
+    double tR = std::get<2>(hitRef) + (lightCollSlope_ + smearing_LCslope) * distR;
+    smearing_LCslope = CLHEP::RandGaussQ::shoot(hre, 0., sigmaLightCollSlope_);
+    double tL = std::get<2>(hitRef) + (lightCollSlope_ + smearing_LCslope) * distL;
 
     // --- Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
     const int iBXR = std::floor(tR / bxTime_) + mtd_digitizer::kInTimeBX;
     const int iBXL = std::floor(tL / bxTime_) + mtd_digitizer::kInTimeBX;
 
     // --- Right side
-    if (iBXR > 0 && iBXR < mtd_digitizer::kNumberOfBX) {
+    if (iBXR >= 0 && iBXR < mtd_digitizer::kNumberOfBX) {
       // Accumulate the energy of simHits in the same crystal
-      (simHitIt->second).hit_info[0][iBXR] += Npe * (1. + LCEpositionSlope_ * convertMmToCm(hit.localPosition().x()));
+      (simHitIt->second).hit_info[0][iBXR] += Npe * (1. + lcepositionSlope_ * convertMmToCm(hit.localPosition().x()));
 
       // Store the time of the first SimHit in the i-th BX
       if ((simHitIt->second).hit_info[1][iBXR] == 0 || tR < (simHitIt->second).hit_info[1][iBXR])
-        (simHitIt->second).hit_info[1][iBXR] = tR - (iBXR - mtd_digitizer::kInTimeBX) * bxTime_;
+        (simHitIt->second).hit_info[1][iBXR] = tR;
     }
 
     // --- Left side
-    if (iBXL > 0 && iBXL < mtd_digitizer::kNumberOfBX) {
+    if (iBXL >= 0 && iBXL < mtd_digitizer::kNumberOfBX) {
       // Accumulate the energy of simHits in the same crystal
-      (simHitIt->second).hit_info[2][iBXL] += Npe * (1. - LCEpositionSlope_ * convertMmToCm(hit.localPosition().x()));
+      (simHitIt->second).hit_info[2][iBXL] += Npe * (1. - lcepositionSlope_ * convertMmToCm(hit.localPosition().x()));
 
       // Store the time of the first SimHit in the i-th BX
       if ((simHitIt->second).hit_info[3][iBXL] == 0 || tL < (simHitIt->second).hit_info[3][iBXL])
-        (simHitIt->second).hit_info[3][iBXL] = tL - (iBXL - mtd_digitizer::kInTimeBX) * bxTime_;
+        (simHitIt->second).hit_info[3][iBXL] = tL;
     }
 
   }  // hitRef loop
