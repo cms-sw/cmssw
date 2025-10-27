@@ -140,14 +140,13 @@ std::shared_ptr<DetIdMaps> PixelTrackProducerFromSoAAlpaka::globalBeginRun(const
     // get track geometry
     const auto &trackerGeometry = &iSetup.getData(trackerGeometryTokenRun_);
 
-    // function to check if given module is used as OT for CA
+    // function to check if a given module is a pixel in the TOB
     auto isPinPSinOTBarrel = [&](DetId detId) {
-      // Select only P-hits from the OT barrel
       return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
               detId.subdetId() == StripSubdetector::TOB);
     };
+    // function to check if a given module is a pixel in the TID
     auto isPinPSinOTDisk = [&](DetId detId) {
-      // Select only P-hits from the OT barrel
       return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
               detId.subdetId() == StripSubdetector::TID);
     };
@@ -166,7 +165,7 @@ std::shared_ptr<DetIdMaps> PixelTrackProducerFromSoAAlpaka::globalBeginRun(const
         otModuleId++;
       }
     }
-
+    // loop again to add the TID modules after the TOB ones
     for (auto &detUnit : detUnits) {
       DetId detId(detUnit->geographicalId());
       if (isPinPSinOTDisk(detId)) {
