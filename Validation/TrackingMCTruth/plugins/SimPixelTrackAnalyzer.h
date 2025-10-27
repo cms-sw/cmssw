@@ -341,32 +341,30 @@ public:
         int pTNBins = 200;
         double pTmin = log10(0.01);
         double pTmax = log10(1000);
-        const auto name = ("num_pt_" + statusTag).c_str();
+        const auto name = ("num_pt_" + statusTag);
         const auto title =
-            (simNtupletName + statusLabel + ";True transverse momentum p_{T} [GeV];Number of TrackingParticles").c_str();
-        auto h = std::make_unique<TH1F>(name, title, pTNBins, pTmin, pTmax);
+            (simNtupletName + statusLabel + ";True transverse momentum p_{T} [GeV];Number of TrackingParticles");
+        auto h = std::make_unique<TH1F>(name.c_str(), title.c_str(), pTNBins, pTmin, pTmax);
         simdoublets::BinLogX(h.get());
-        h_pt = ibook.book1D(name, h.release());
+        h_pt = ibook.book1D(name.c_str(), h.release());
 
         int etaNBins = 90;
         double etamin = -4.5;
         double etamax = 4.5;
-        const auto name2 = ("num_eta_" + statusTag).c_str();
-        const auto title2 =
-            (simNtupletName + statusLabel + ";True pseudorapidity #eta;Number of TrackingParticles").c_str();
-        h_eta = ibook.book1D(name2, title2, etaNBins, etamin, etamax);
+        const auto name2 = ("num_eta_" + statusTag);
+        const auto title2 = (simNtupletName + statusLabel + ";True pseudorapidity #eta;Number of TrackingParticles");
+        h_eta = ibook.book1D(name2.c_str(), title2.c_str(), etaNBins, etamin, etamax);
 
         int vertPosNBins = 40;
         double vertPosmin = log10(0.01);
         double vertPosmax = log10(100);
-        const auto name3 = ("num_vertpos_" + statusTag).c_str();
+        const auto name3 = ("num_vertpos_" + statusTag);
         const auto title3 = (simNtupletName + statusLabel +
                              ";True radial vertex position r_{vertex} [cm];Number of "
-                             "TrackingParticles")
-                                .c_str();
-        auto h2 = std::make_unique<TH1F>(name3, title3, vertPosNBins, vertPosmin, vertPosmax);
-        simdoublets::BinLogX(h2.get());
-        h_vertpos = ibook.book1D(name3, h2.release());
+                             "TrackingParticles");
+        auto h3 = std::make_unique<TH1F>(name3.c_str(), title3.c_str(), vertPosNBins, vertPosmin, vertPosmax);
+        simdoublets::BinLogX(h3.get());
+        h_vertpos = ibook.book1D(name3.c_str(), h3.release());
       }
       void fill(simdoublets::TrackTruth const& trackTruth) {
         h_pt->Fill(trackTruth.pt);
