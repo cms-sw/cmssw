@@ -2,9 +2,11 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
-    #pfJetCollection        = cms.InputTag("ak4PFJetsCHS"),
+    #pfJetCollection        = cms.InputTag("ak4PFJetsPuppiCorrected"),
+    # For Mini
     pfJetCollection        = cms.InputTag("slimmedJets"),
     #pfCandidates             = cms.InputTag("particleFlow"),
+    # For Mini
     pfCandidates             = cms.InputTag("packedPFCandidates"),
     PVCollection             = cms.InputTag("offlinePrimaryVertices"),
 
