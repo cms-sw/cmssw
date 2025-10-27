@@ -15,7 +15,7 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
+  void endJob();
 
   // ----------member data ---------------------------
 private:

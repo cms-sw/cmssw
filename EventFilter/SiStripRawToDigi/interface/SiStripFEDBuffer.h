@@ -84,7 +84,7 @@ namespace sistrip {
     //check FE unit APV addresses in FULL DEBUG header are equal to the APVe address if the majority was good
     bool checkFEUnitAPVAddresses() const;
     //do all corrupt buffer checks
-    virtual bool doCorruptBufferChecks() const;
+    bool doCorruptBufferChecks() const;
 
     //check that there are no errors in channel, APV or FEUnit status bits
     //these are done by channelGood(). Channels with bad status bits may be disabled so bad status bits do not usually indicate an error
