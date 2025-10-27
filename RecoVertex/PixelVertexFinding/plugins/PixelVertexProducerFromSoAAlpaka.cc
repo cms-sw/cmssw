@@ -3,6 +3,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexSoA/interface/ZVertexHost.h"
@@ -125,8 +126,13 @@ void PixelVertexProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       assert(it < int(indToEdm.size()));
       auto k = indToEdm[it];
       if (k > tracksSize) {
-        edm::LogWarning("PixelVertexProducer") << "oops track " << it << " does not exists on CPU " << k;
-        continue;
+        if (k == pixelTrack::skippedTrack) {
+          LogDebug("PixelVertexProducer") << "Track " << it << " conversion to legacy was skipped ";
+          continue;
+        } else {
+          edm::LogWarning("PixelVertexProducer") << "oops track " << it << " does not exists on CPU " << k;
+          continue;
+        }
       }
       auto tk = reco::TrackRef(tracksHandle, k);
       v.add(tk);

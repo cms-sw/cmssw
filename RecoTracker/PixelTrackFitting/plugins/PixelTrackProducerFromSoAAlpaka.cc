@@ -400,11 +400,6 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     if (nHits < minNumberOfHits_)  //move to nLayers?
       continue;
 
-    // store the index of the SoA:
-    // indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
-    indToEdm[it] = nt;
-    ++nt;
-
     hits.resize(nHits);
     auto start = (it == 0) ? 0 : hitOffs[it - 1];
     auto end = hitOffs[it];
@@ -434,8 +429,10 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
           break;
         }
       }
-      if (skipThisTrack)
+      if (skipThisTrack) {
+        indToEdm[it] = pixelTrack::skippedTrack;  // mark as skipped
         continue;
+      }
     }
 
 #ifdef CA_DEBUG
@@ -444,6 +441,11 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       std::cout << hitIdxs[iHit] << " - ";
     std::cout << std::endl;
 #endif
+
+    // store the index of the SoA:
+    // indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
+    indToEdm[it] = nt;
+    ++nt;
 
     // mind: this values are respect the beamspot!
     float chi2 = tsoa.view()[it].chi2();

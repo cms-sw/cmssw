@@ -45,7 +45,9 @@ namespace pixelTrack {
              (std::abs(reco::zip(tracks, it)) < region.maxZip);
     }
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool strictCut(const TrackSoAConstView &tracks, int nHits, int it) const {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool strictCut(const TrackSoAConstView &tracks,
+                                                  [[maybe_unused]] int nHits,
+                                                  int it) const {
       auto roughLog = [](float x) {
         // max diff [0.5,12] at 1.25 0.16143
         // average diff  0.0662998
@@ -105,6 +107,9 @@ namespace pixelTrack {
       return tracks.chi2(it) >= maxChi2;
     }
   };
+
+  // mark tracks that were skipped in the indToEdm map in SoA to legacy conversion
+  constexpr uint32_t skippedTrack = std::numeric_limits<uint32_t>::max();
 
 }  // namespace pixelTrack
 
