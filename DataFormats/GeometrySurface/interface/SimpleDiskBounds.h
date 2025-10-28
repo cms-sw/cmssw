@@ -8,7 +8,7 @@
  * Plane bounds that define a disk with a concentric hole in the middle.
  */
 
-class SimpleDiskBounds final : public Bounds {
+class SimpleDiskBounds : public Bounds {
 public:
   /// Construct the bounds from min and max R and Z in LOCAL coordinates.
   SimpleDiskBounds(float rmin, float rmax, float zmin, float zmax);
