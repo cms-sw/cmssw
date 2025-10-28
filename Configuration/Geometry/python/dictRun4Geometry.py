@@ -1885,6 +1885,62 @@ timingDict = {
            ],
        "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
     },
+    "I21" : {
+        1 : [
+           'Geometry/MTDCommonData/data/mtdMaterial/v4/mtdMaterial.xml',
+           'Geometry/MTDCommonData/data/btl/v4/btl.xml',
+           'Geometry/MTDCommonData/data/etl/v11/etl.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v9/mtdStructureTopology.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v9/mtdParameters.xml',
+           ],
+       3 : [
+           'Geometry/MTDSimData/data/v5/mtdsens.xml'
+           ],
+       4 : [
+           'Geometry/MTDSimData/data/v5/mtdProdCuts.xml'
+           ],
+       "sim" : [
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           ],
+       "reco" :[
+           'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdParameters_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+           'mtdGeometry.applyAlignment = False'
+           ],
+       "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
+    },
+       "I22" : {
+	1 : [
+           'Geometry/MTDCommonData/data/mtdMaterial/v4/mtdMaterial.xml',
+           'Geometry/MTDCommonData/data/btl/v4/btl.xml',
+           'Geometry/MTDCommonData/data/etl/v12/etl.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v10/mtdStructureTopology.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v10/mtdParameters.xml',
+           ],
+       3 : [
+           'Geometry/MTDSimData/data/v5/mtdsens.xml'
+           ],
+       4 : [
+           'Geometry/MTDSimData/data/v5/mtdProdCuts.xml'
+           ],
+       "sim" : [
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           ],
+       "reco" :[
+           'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdParameters_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+           'mtdGeometry.applyAlignment = False'
+           ],
+       "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
@@ -1918,6 +1974,8 @@ detectorVersionDict = {
     ("O10","T35","C25","M16","F9","I18") : "D121",
     ("O10","T35","C27","M16","F9","I18") : "D122",
     ("O10","T35","C28","M16","F9","I18") : "D123",
+    ("O10","T35","C25","M16","F9","I21") : "D124",
+    ("O10","T35","C25","M16","F9","I22") : "D125",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75", "D78", "D79", "D87", "D89", "D90", "D49", "D60", "D68", "D70", "D76", "D77", "D80", "D81", "D82", "D83", "D84", "D85","D86","D88","D91","D92","D93","D94","D97"])

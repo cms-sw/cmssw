@@ -71,4 +71,5 @@ process.prod2 = cms.EDAnalyzer("DD4hep_TestPixelTopology",
     ddTopNodeName = cms.untracked.string('EndcapTimingLayer')
 )
 
-process.p1 = cms.Path(cms.wait(process.prod)+cms.wait(process.prod1)+process.prod2)
+#process.p1 = cms.Path(cms.wait(process.prod)+cms.wait(process.prod1)+process.prod2)
+process.p1 = cms.Path(cms.wait(process.prod)+cms.wait(process.prod2))
