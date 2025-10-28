@@ -11,7 +11,7 @@ caloParticles = cms.PSet(
         produceLegacySimCluster = cms.bool(True),
         produceBoundaryAndMergedSimCluster = cms.bool(True),
         premixStage1 = cms.bool(False),
-        doHGCAL = cms.bool(True),
+        doHGCAL = cms.bool(False),
 	maximumPreviousBunchCrossing = cms.uint32(0),
 	maximumSubsequentBunchCrossing = cms.uint32(0),
 	simHitCollections = cms.PSet(
@@ -30,6 +30,9 @@ caloParticles = cms.PSet(
         jetClusteringRadius = cms.double(0.05)
     )
 )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(caloParticles, doHGCAL=True)
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(caloParticles, premixStage1 = True)

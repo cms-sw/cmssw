@@ -58,6 +58,7 @@ hltassociation = cms.Sequence(
     +ExoticaValidationProdSeq
     +hltMultiTrackValidationGsfTracks
     +hltJetPreValidSeq
+    +hltRecHitMapProducer
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
@@ -100,6 +101,7 @@ hltvalidationWithMC = cms.Sequence(
     +SMPValidationSequence
     +hltbtagValidationSequence #too noisy for now
     +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
+    +PFValSeq
 )
 
 # Exclude everything except Muon and JetMET for now. Add HGCAL Hit Calibration
@@ -107,7 +109,7 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   HLTTauVal,
   egammaValidationSequence,
   heavyFlavorValidationSequence,
-  #HLTJetMETValSeq,
+  HLTJetMETValSeq,
   HLTSusyExoValSeq,
   HiggsValidationSequence,
   ExoticaValidationSequence,
@@ -119,8 +121,8 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
-_hltvalidationWithMC_Phase2.insert(-1, hltGENValidation)
-_hltvalidationWithMC_Phase2.insert(-1, PFValSeq)
+_hltvalidationWithMC_Phase2.insert(-1, hltGENValidation) # must go before HLTJetMETValSeq
+_hltvalidationWithMC_Phase2.insert(-1, HLTJetMETValSeq)
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(

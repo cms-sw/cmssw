@@ -34,6 +34,9 @@ theDigitizers = cms.PSet(
   ),
   mergedtruth = cms.PSet(
     trackingParticles
+  ),
+  calotruth = cms.PSet(
+    caloParticles
   )
 )
 
