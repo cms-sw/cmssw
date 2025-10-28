@@ -690,6 +690,14 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_hltParticleFlowRecHitECALUnseeded_*_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_hltParticleFlowRecHitHBHE_*_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_hltParticleFlowClusterECALUnseeded_*_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_hltParticleFlowClusterHCAL_*_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_hltParticleFlowClusterHF_*_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_hltParticleFlow_*_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_hltParticleFlowBlock_*_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_hltLightPFTracks_*_*')
 
 from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
 hltClusterSplitting.toModify(FEVTDEBUGHLTEventContent,

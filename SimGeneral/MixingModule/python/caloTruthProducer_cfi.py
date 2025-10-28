@@ -9,7 +9,7 @@ caloParticles = cms.PSet(
         MinEnergy = cms.double(0.5),
         MaxPseudoRapidity = cms.double(5.0),
         premixStage1 = cms.bool(False),
-        doHGCAL = cms.bool(True),
+        doHGCAL = cms.bool(False),
 	maximumPreviousBunchCrossing = cms.uint32(0),
 	maximumSubsequentBunchCrossing = cms.uint32(0),
 	simHitCollections = cms.PSet(
@@ -25,6 +25,9 @@ caloParticles = cms.PSet(
 	allowDifferentSimHitProcesses = cms.bool(False), # should be True for FastSim, False for FullSim
 	HepMCProductLabel = cms.InputTag('generatorSmeared'),
 )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(caloParticles, doHGCAL=True)
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(caloParticles, premixStage1 = True)

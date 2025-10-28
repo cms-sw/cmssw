@@ -103,8 +103,10 @@ class Plotter:
         self._fig, self._ax = plt.subplots(figsize=(10, 10))
         self.fontsize = fontsize
         
-        hep.cms.text(' Phase-2 Simulation Preliminary', ax=self._ax, fontsize=fontsize)
-        hep.cms.lumitext(label + " | 14 TeV", ax=self._ax, fontsize=fontsize)
+        if args.era == 'Phase2': era='Phase-2'; en='14'
+        elif args.era == 'Run3': era='Run-3'; en='13.6'
+        hep.cms.text(f' {era} Simulation Preliminary', ax=self._ax, fontsize=fontsize)
+        hep.cms.lumitext(label + f" | {en} TeV", ax=self._ax, fontsize=fontsize)
         if grid_color:
             self._ax.grid(which='major', color=grid_color)
         
@@ -475,6 +477,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make HLT PF validation plots. \nExample command:\n' + full_command)
     parser.add_argument('-o', '--odir', default="HLTPFValidationPlots", help='Path to the output directory.')
     parser.add_argument('-l', '--sample_label', default="", help='Sample label for plotting.')
+    parser.add_argument('-e', '--era', default="Phase2", help="Chose between ['Phase2', 'Run3'].")
     parser.add_argument('--EnFracCut', default=0.01, help='Cut on the sim cluster energy fraction.')
     parser.add_argument('--PtCut', default=0.01, help='Cut on the sim cluster energy fraction.')
     parser.add_argument('--match_by_score', default=1, type=int, help='Use association based on score (if false, use shared energy fraction).')
