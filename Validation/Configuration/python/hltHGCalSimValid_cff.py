@@ -13,16 +13,26 @@ from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabels 
 
 from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer as _recHitMapProducer
 
-hits = ["hltHGCalRecHit:HGCEERecHits",
-        "hltHGCalRecHit:HGCHEFRecHits",
-        "hltHGCalRecHit:HGCHEBRecHits",
-        "hltParticleFlowRecHitECALUnseeded",
-        "hltParticleFlowRecHitHBHE"
-        ]
+run3_hits = [
+    "hltParticleFlowRecHitECALUnseeded",
+    "hltParticleFlowRecHitHBHE"
+]
 hltRecHitMapProducer = _recHitMapProducer.clone(
-    hits = hits,
+    hits = run3_hits,
     hgcalOnly = False,
+    barrelOnly = True,
 )
+
+ph2_hits = [
+    "hltHGCalRecHit:HGCEERecHits",
+    "hltHGCalRecHit:HGCHEFRecHits",
+    "hltHGCalRecHit:HGCHEBRecHits",
+    "hltParticleFlowRecHitECALUnseeded",
+    "hltParticleFlowRecHitHBHE"
+]
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(hltRecHitMapProducer, hits=ph2_hits, barrelOnly=False)
+
 
 hltLcAssocByEnergyScoreProducer = _lcAssocByEnergyScoreProducer.clone(
     hits = cms.InputTag("hltRecHitMapProducer", "RefProdVectorHGCRecHitCollection"),

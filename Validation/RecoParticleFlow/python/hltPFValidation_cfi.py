@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Validation.Configuration.hltHGCalSimValid_cff import hltRecHitMapProducer
 
 hltPFScAssocByEnergyScoreProducer = cms.EDProducer("BarrelPCToSCAssociatorByEnergyScoreProducer",
     hardScatterOnly = cms.bool(True),
@@ -25,7 +26,7 @@ hltPFClusterCaloParticleAssociationProducerECAL = cms.EDProducer("PCToCPAssociat
 )
 
 hltPFTesterECAL = cms.EDProducer("PFTester",
-    PFCand = cms.InputTag("hltParticleFlowTmp"),
+    PFCand = cms.InputTag("hltParticleFlow"),
     PFRechit = cms.InputTag("hltParticleFlowRecHitECALUnseeded"),
     PFCluster = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
     CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
@@ -72,6 +73,9 @@ hltPFTesterECALShEnFWithCut3 = hltPFTesterECALShEnF.clone(
     enFracCut = cms.double(0.01),
     ptCut = cms.double(0.1)
 )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(hltPFTesterECAL, PFCand = cms.InputTag("hltParticleFlowTmp"))
 
 PFValSeq = cms.Sequence(
     hltPFScAssocByEnergyScoreProducer
