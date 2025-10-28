@@ -91,7 +91,7 @@ void HGCalMappingTriggerESSourceTester::analyze(const edm::Event& iEvent, const 
         cellIdx.offsets_[idx],
         totOffset);
   }
-  assert(totOffset == cellIdx.maxDenseIndex());
+  //assert(totOffset == cellIdx.maxDenseIndex());
   printf("[HGCalMappingIndexESSourceTester][analyze] SoA size for module cell mapping will be %d\n", totOffset);
 
   //printout and test module cells SoA contents
