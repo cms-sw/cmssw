@@ -16,7 +16,7 @@
 #include <cmath>
 #include <algorithm>
 
-class SimpleCylinderBounds final : public Bounds {
+class SimpleCylinderBounds : public Bounds {
 public:
   SimpleCylinderBounds(float rmin, float rmax, float zmin, float zmax);
 

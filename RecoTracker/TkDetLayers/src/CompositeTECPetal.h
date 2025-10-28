@@ -27,9 +27,9 @@ public:
   ~CompositeTECPetal() override __attribute__((cold));
 
   // GeometricSearchDet interface
-  const BoundSurface& surface() const final { return *theDiskSector; }
+  const BoundSurface& surface() const override { return *theDiskSector; }
   //Extension of the interface
-  virtual const BoundDiskSector& specificSurface() const final { return *theDiskSector; }
+  const BoundDiskSector& specificSurface() const { return *theDiskSector; }
 
   // GeometricSearchDet interface
   const std::vector<const GeomDet*>& basicComponents() const override { return theBasicComps; }
