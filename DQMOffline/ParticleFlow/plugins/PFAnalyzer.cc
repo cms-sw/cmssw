@@ -28,8 +28,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel_));
   m_triggerOptions = pSet.getParameter<vstring>("TriggerNames");
 
-  //srcWeights = pSet.getParameter<edm::InputTag>("srcWeights");
-  //weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
+  //puppiWeightToken_ = consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("puppiWeight"));
 
   m_pfNames = {"allPFC", "neutralHadPFC", "chargedHadPFC", "electronPFC", "muonPFC", "gammaPFC", "hadHFPFC", "emHFPFC"};
   vertexTag_ = pSet.getParameter<edm::InputTag>("PVCollection");
@@ -61,6 +60,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_funcMap["eta"] = getEta;
   m_funcMap["abseta"] = getAbsEta;
   m_funcMap["phi"] = getPhi;
+  m_funcMap["puppi"] = getPuppiWeight;
 
   m_funcMap["HCalE_depth1"] = getHcalEnergy_depth1;
   m_funcMap["HCalE_depth2"] = getHcalEnergy_depth2;
@@ -705,7 +705,6 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       jets.push_back(patJets->at(i));
     }
 
-    std::cout << "Using mini and pat" << std::endl;
     iEvent.getByToken(patPfCandidateCollection_, patPfCollection);
     if (!patPfCollection.isValid()) {
       edm::LogError("PFAnalyzer") << "invalid collection: PF candidate \n";
@@ -717,17 +716,18 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     numPFCands = patPfCollection->size();
   }
 
-  std::cout << numPFCands << std::endl;
-  //if(!passesTriggerSelection(jets, triggerResults, triggerNames, m_triggerOptions)){
-  //  return;
+  //iEvent.getByToken(puppiWeightToken_, puppiWeight);
+  //if(!puppiWeight.isValid()){
+  //  edm::LogError("PFAnalyzer") << "invalid collection: Puppi weights \n";
   //}
-  //  
 
-  std::cout << "Passes trigger" << std::endl;
+  if(!passesTriggerSelection(jets, triggerResults, triggerNames, m_triggerOptions)){
+    return;
+  }
+
   if(!m_eventSelectionMap[m_selection](jets)){
     return;
   }
-  std::cout << "Passes event selection" << std::endl;
 
   for (unsigned int i_pfcand=0; i_pfcand < numPFCands; i_pfcand++){
     reco::PFCandidate recoPF;
@@ -736,6 +736,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     int partType = 0;
     if(m_isMiniAOD){
      packedCand = patPfCollection->at(i_pfcand);
+
      partType = 1;
     } else{
      recoPF = pfCollection[i_pfcand];

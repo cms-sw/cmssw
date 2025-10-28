@@ -45,6 +45,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -180,6 +181,7 @@ private:
       return -1;
     return pfCand.hcalEnergy() / pfCand.rawHcalEnergy();
   }
+  static double getPuppiWeight(const reco::PFCandidate pfCand, const pat::PackedCandidate packedPart, const reco::CandidatePtr cand, int partType) { if(partType){return packedPart.puppiWeight();} return 1; }
 
   static double getTime(const reco::PFCandidate pfCand, const pat::PackedCandidate packedPart, const reco::CandidatePtr cand, int partType) { if(partType){return packedPart.time();} return pfCand.time(); }
 
@@ -501,8 +503,8 @@ private:
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
   edm::InputTag srcWeights;
 
-  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
-  edm::ValueMap<float> const* weights_;
+  edm::EDGetTokenT<edm::ValueMap<float>> puppiWeightToken_;
+  edm::Handle<edm::ValueMap<float>> puppiWeight;
 
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
 
