@@ -184,8 +184,8 @@ public:
   }
 
   // Get enum indicating if tilted barrel module of P2 tracker.
-  P2Tracker::BarrelModuleTilt barrelTiltTypeP2(const DetId &detId) const {
-    return static_cast<P2Tracker::BarrelModuleTilt>(tobSide(detId));
+  Phase2Tracker::BarrelModuleTilt barrelTiltTypeP2(const DetId &detId) const {
+    return static_cast<Phase2Tracker::BarrelModuleTilt>(tobSide(detId));
   }
 
   unsigned int tecSide(const DetId &id) const { return ((id.rawId() >> tecVals_.sideStartBit_) & tecVals_.sideMask_); }
