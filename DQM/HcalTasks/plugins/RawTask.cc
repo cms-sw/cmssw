@@ -264,7 +264,6 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     if (eid.crateId() == 21 && eid.slot() == 11 && eid.fiberIndex() == 19)
       continue;
     Nbadqevt = true;
-   
   }
   if (lumiCache->EvtCntLS == 1)
     _NBadQEvent = 0;  // Reset at the beginning of each new LS
