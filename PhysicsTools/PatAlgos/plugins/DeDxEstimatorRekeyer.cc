@@ -5,6 +5,7 @@
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 
 //
 // class declaration
@@ -101,8 +102,13 @@ void DeDxEstimatorRekeyer::produce(edm::StreamID, edm::Event& iEvent, const edm:
     // Loop over packed candidates
     for (const auto& h : pcTrkMap) {
       std::vector<reco::DeDxData> dedxEstimate(h.first->size());
-      for (const auto& p : h.second)
-        dedxEstimate[p.first.key()] = dedxEstimators[p.second];
+      for (const auto& p : h.second) {
+        const auto& dedx = dedxEstimators[p.second];
+        const auto val = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(dedx.dEdx());
+        const auto err = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(dedx.dEdxError());
+        dedxEstimate[p.first.key()] =
+            reco::DeDxData(val, err, dedx.numberOfSaturatedMeasurements(), dedx.numberOfMeasurements());
+      }
       filler.insert(h.first, dedxEstimate.begin(), dedxEstimate.end());
     }
     // Fill the value map and put it into the event
