@@ -184,11 +184,11 @@ void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void c
 std::unique_ptr<TBufferFile> MPIChannel::receiveSerializedBuffer(int instance, int bufSize) {
   int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
   MPI_Status status;
-  auto buffer = std::make_unique<TBufferFile>(TBuffer::kRead,  bufSize);
+  auto buffer = std::make_unique<TBufferFile>(TBuffer::kRead, bufSize);
   MPI_Recv(buffer->Buffer(), bufSize, MPI_BYTE, dest_, tag, comm_, &status);
   int receivedCount = 0;
   MPI_Get_count(&status, MPI_BYTE, &receivedCount);
-  assert( receivedCount == bufSize && "received serialized buffer size mismatches the size expected from metadata");
+  assert(receivedCount == bufSize && "received serialized buffer size mismatches the size expected from metadata");
   return buffer;
 }
 

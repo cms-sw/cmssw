@@ -50,8 +50,6 @@ public:
         buffer_(std::make_unique<TBufferFile>(TBuffer::kWrite)),
         buffer_offset_(0),
         metadata_size_(0) {
-
-
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
     if (instance_ < 1 or instance_ > 255) {
@@ -105,7 +103,6 @@ public:
   }
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
-
     MPIToken token = event.get(upstream_);
     // we need 1 byte for type, 8 bytes for size and at least 8 bytes for trivial copy parameters buffer
     auto meta = std::make_shared<ProductMetadataBuilder>(products_.size() * 24);
@@ -116,7 +113,7 @@ public:
     buffer_offset_ = 0;
     meta->setProductCount(products_.size());
     has_serialized_ = false;
-    is_active_=true;
+    is_active_ = true;
 
     // estimate buffer size in the constructor
 
@@ -126,7 +123,7 @@ public:
       event.getByToken(entry.token, handle);
 
       // product count -1 indicates that the event was filtered out on given path
-      if (!handle.isValid() && entry.type.name() == "edm::PathStateToken"){
+      if (!handle.isValid() && entry.type.name() == "edm::PathStateToken") {
         meta->setProductCount(-1);
         is_active_ = false;
         break;

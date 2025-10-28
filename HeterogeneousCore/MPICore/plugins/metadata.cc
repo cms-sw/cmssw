@@ -48,9 +48,9 @@ void ProductMetadataBuilder::reserve(size_t bytes) {
 
 void ProductMetadataBuilder::setHeader() {
   assert(size_ >= headerSize_ && "Buffer must reserve space for header");
-  std::memcpy(buffer_, &productCount_, sizeof(int64_t));  // first 8 bytes
-  buffer_[8] = productFlags_;                              // indicate which products are present
-  std::memcpy(buffer_ + 9, &serializedBufferSize_, sizeof(int)); // size of serialized products
+  std::memcpy(buffer_, &productCount_, sizeof(int64_t));          // first 8 bytes
+  buffer_[8] = productFlags_;                                     // indicate which products are present
+  std::memcpy(buffer_ + 9, &serializedBufferSize_, sizeof(int));  // size of serialized products
 }
 
 void ProductMetadataBuilder::addMissing() {
@@ -78,7 +78,7 @@ size_t ProductMetadataBuilder::size() const { return size_; }
 std::span<const uint8_t> ProductMetadataBuilder::buffer() const { return {buffer_, size_}; }
 
 void ProductMetadataBuilder::receiveMetadata(int src, int tag, MPI_Comm comm) {
-  MPI_Status status; 
+  MPI_Status status;
   MPI_Recv(buffer_, maxMetadataSize_, MPI_BYTE, src, tag, comm, &status);
   //add error hadling if message too long
   int receivedBytes = 0;
@@ -172,11 +172,8 @@ void ProductMetadataBuilder::debugPrintMetadataSummary() const {
   std::cerr << "---- ProductMetadata Debug Summary ----\n";
   std::cerr << "Header:\n";
   std::cerr << "  Product count:  " << headerCount << "\n";
-  std::cerr << "  Flags: "
-            << ((flags & HasMissing) ? "Missing " : "")
-            << ((flags & HasSerialized) ? "Serialized " : "")
-            << ((flags & HasTrivialCopy) ? "TrivialCopy " : "")
-            << "\n\n";
+  std::cerr << "  Flags: " << ((flags & HasMissing) ? "Missing " : "") << ((flags & HasSerialized) ? "Serialized " : "")
+            << ((flags & HasTrivialCopy) ? "TrivialCopy " : "") << "\n\n";
 
   while (offset < size_) {
     uint8_t kindVal = buffer_[offset];

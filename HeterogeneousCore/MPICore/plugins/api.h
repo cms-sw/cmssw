@@ -21,7 +21,6 @@
 #include <utility>
 #include <bitset>
 
-
 class MPIChannel {
 public:
   MPIChannel() = default;

@@ -39,7 +39,6 @@ public:
         token_(produces<MPIToken>()),
         instance_(config.getParameter<int32_t>("instance"))  //
   {
-
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
     if (instance_ < 1 or instance_ > 255) {
@@ -73,9 +72,7 @@ public:
     edm::Service<edm::Async> as;
     as->runAsync(
         std::move(holder),
-        [this, token]() {
-          token.channel()->receiveMetadata(instance_, received_meta_);
-        },
+        [this, token]() { token.channel()->receiveMetadata(instance_, received_meta_); },
         []() { return "Calling MPIReceiver::acquire()"; });
   }
 
@@ -86,7 +83,7 @@ public:
     // received_meta_->debugPrintMetadataSummary();
 
     // if filter was false before the sender, receive nothing
-    if (received_meta_->productCount() == -1){
+    if (received_meta_->productCount() == -1) {
       event.emplace(token_, token);
       return;
     }
@@ -138,8 +135,9 @@ public:
       event.put(entry.token, std::move(wrapper));
     }
 
-    if (received_meta_->hasSerialized()){
-      assert(static_cast<int>(buffer_offset_) == received_meta_->serializedBufferSize() && "serialized data buffer is not equal to the expected length");
+    if (received_meta_->hasSerialized()) {
+      assert(static_cast<int>(buffer_offset_) == received_meta_->serializedBufferSize() &&
+             "serialized data buffer is not equal to the expected length");
     }
 
     // write a shallow copy of the channel to the output, so other modules can consume it
