@@ -1,0 +1,23 @@
+__init__.py
+*.pyc
+.*.swp
+.#*
+#*#
+*~
+*.pb
+
+# ignore partially applied patches and their backup
+*.rej
+*.orig
+
+
+# ignore files under the top level $CMSSW_BASE/src directory, but not its subdirectories
+/*
+!/*/
+
+# ignore some IDE related files
+*.xcodeproj
+.vscode
+
+#ignore mac specific file
+.DS_Store
