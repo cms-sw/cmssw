@@ -36,7 +36,7 @@ public:
   //--- Extension of the interface
 
   /// Return the ring surface as a
-  virtual const BoundCylinder& specificSurface() const { return *theCylinder; }
+  const BoundCylinder& specificSurface() const { return *theCylinder; }
 
 private:
   //general private methods
