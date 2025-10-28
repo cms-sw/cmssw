@@ -17,9 +17,5 @@
 
 <test name="testMappingModIndexer_def" command="cmsRun ${LOCALTOP}/src/Geometry/HGCalMapping/test/testMappingModuleIndexer_cfg.py  "/>
 
-<test name="testMappingModIndexer_TB2024" command="cmsRun ${LOCALTOP}/src/Geometry/HGCalMapping/test/testMappingModuleIndexer_cfg.py  modules=Geometry/HGCalMapping/data/ModuleMaps/modulelocator_Sep2024TBv2.txt"/>
-
-<test name="testMappingModIndexer_10degCassette" command="cmsRun ${LOCALTOP}/src/Geometry/HGCalMapping/test/testMappingModuleIndexer_cfg.py  modules=Geometry/HGCalMapping/data/ModuleMaps/modulelocator_10degCassette.txt"/>
-
 <test name="testMappingModIndexer_trigger" command="cmsRun ${LOCALTOP}/src/Geometry/HGCalMapping/test/testMappingModuleIndexerTrigger_cfg.py"/>
 

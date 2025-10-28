@@ -18,17 +18,6 @@ def setupLocalInputsForRelVal(local_daq : str = 'local_daq', local_cfg : str = '
     for f in files:
         os.system(f'xrdcp --silent -f root://cms-xrd-global.cern.ch//{inputdir}/{f} {localdir}')
 
-    #setup config files
-    cmssw_base = os.environ['CMSSW_BASE']
-    cfg_files = [
-        'config_feds_v1.json',
-        'config_econds_v1.json',
-    ]
-    cfg_dir = f'{cmssw_base}/src/{local_cfg}'
-    os.makedirs(cfg_dir, exist_ok=True)
-    for f in cfg_files:
-        os.system(f'xrdcp --silent -f root://cms-xrd-global.cern.ch//{inputdir}/{f} {cfg_dir}')
-
 
 def runRecoForSep2024TB(process):
 
@@ -79,9 +68,9 @@ def runRecoForSep2024TB(process):
         cbHeaderMarker=cms.int32(-1),
         charMode=cms.int32(-1),
         econdHeaderMarker=cms.int32(-1),
-        fedjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/data/testbeam/config_feds_v1.json'),
+        fedjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/testbeam/config_feds_v1.json'),
         indexSource=cms.ESInputTag("hgCalMappingESProducer", ""),
-        modjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/data/testbeam//config_econds_v1.json'),
+        modjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/testbeam//config_econds_v1.json'),
         slinkHeaderMarker=cms.int32(-1))
 
     # Setup HGCal unpacker
