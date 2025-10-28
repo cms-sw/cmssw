@@ -14,6 +14,6 @@ enum class SiStripModuleGeometry { UNKNOWNGEOMETRY, IB1, IB2, OB1, OB2, W1A, W2A
 namespace Phase2Tracker {
   enum Subdetector { UNKNOWN = 0, Endcap = 4, Barrel = 5 };
   enum BarrelModuleTilt { nonBarrel = 0, tiltedZminus = 1, tiltedZplus = 2, flat = 3 };
-}  // namespace P2Tracker
+}  // namespace Phase2Tracker
 
 #endif
