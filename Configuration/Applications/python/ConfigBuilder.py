@@ -716,11 +716,6 @@ class ConfigBuilder(object):
             if streamType=='ALCARECO':
                 output.dataset.filterName = cms.untracked.string('StreamALCACombined')
 
-            if "MINIAOD" in streamType:
-                ## we should definitely get rid of this customization by now
-                from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
-                miniAOD_customizeOutput(output)
-
             outputModuleName=streamType+streamQualifier+'output'
             setattr(self.process,outputModuleName,output)
             outputModule=getattr(self.process,outputModuleName)
