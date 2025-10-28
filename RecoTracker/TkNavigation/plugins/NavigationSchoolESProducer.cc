@@ -19,7 +19,7 @@ public:
 
   typedef std::unique_ptr<NavigationSchool> ReturnType;
 
-  virtual ReturnType produce(const NavigationSchoolRecord&);
+  ReturnType produce(const NavigationSchoolRecord&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
