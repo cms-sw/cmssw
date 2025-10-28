@@ -190,7 +190,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           edm::LogInfo("HGCalCalibrationESProducer")
               << "layer=" << layer << ", celltype=" << celltype << ", isSiPM=" << isSiPM << ", dEdx=" << dEdx
               << ", sf=" << sf << std::endl;
-          dEdx *= sf * 1e3;  // apply correction and convert from MeV to GeV
+          dEdx *= sf * 1e-3;  // apply correction and convert from MeV to GeV
           fill_SoA_column_single<float>(product.view().EM_scale().data(), dEdx, offset, nrows);
 
         }  // end of loop over modules
