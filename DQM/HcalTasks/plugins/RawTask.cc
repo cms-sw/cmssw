@@ -233,7 +233,6 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     if (nbadq >= _thresh_calib_nbadq)
       return;
   }
-
   if (_ptype == fOnline &&
       lumiCache->EvtCntLS == 1) {  // Reset the bin for  _cBadQ_FEDvsLSmod10 at the beginning of each new LS
     for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
@@ -248,12 +247,29 @@ RawTask::RawTask(edm::ParameterSet const& ps)
   //	a comment below is left on purpose!
   //_cBadQualityvsBX.fill(bx, creport->badQualityDigis());
 
-  int Nbadq = creport->badQualityDigis();
+  bool Nbadqevt = false;
+  for (std::vector<DetId>::const_iterator it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
+    //  skip non HCAL det ids
+    if (!HcalGenericDetId(*it).isHcalDetId())
+      continue;
+    //  skip those that are of bad quality from conditions
+    //  Masked or Dead
+    if (_xQuality.exists(HcalDetId(*it))) {
+      HcalChannelStatus cs(it->rawId(), _xQuality.get(HcalDetId(*it)));
+      if (cs.isBitSet(HcalChannelStatus::HcalCellMask) || cs.isBitSet(HcalChannelStatus::HcalCellDead))
+        continue;
+    }
+    HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(*it));
+    // Masked HEP07 sporadic bad data https://gitlab.cern.ch/cmshcal/docs/-/issues/242
+    if (eid.crateId() == 21 && eid.slot() == 11 && eid.fiberIndex() == 19)
+      continue;
+    Nbadqevt = true;
+  }
   if (lumiCache->EvtCntLS == 1)
     _NBadQEvent = 0;  // Reset at the beginning of each new LS
-  if (Nbadq > 0)
+  if (Nbadqevt)
     _NBadQEvent++;
-  //std::cout << " Nbadq  "<<  Nbadq   << " NBadQEvent  " <<_NBadQEvent<< std::endl;
+
   for (std::vector<DetId>::const_iterator it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
     //	skip non HCAL det ids
     if (!HcalGenericDetId(*it).isHcalDetId())
