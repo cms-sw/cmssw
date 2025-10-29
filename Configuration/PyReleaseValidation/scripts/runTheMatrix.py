@@ -158,6 +158,7 @@ if __name__ == '__main__':
         'ph2_hlt' : [29634.75,    # HLT phase-2 timing menu
                      29634.7501,  # HLT phase-2 tracking-only menu
                      29634.751,   # HLT phase-2 timing menu Alpaka variant
+                     29634.7511,  # HLT phase-2 timing menu Phase2CAExtension variant
                      29634.752,   # HLT phase-2 timing menu ticl_v5 variant
                      29634.753,   # HLT phase-2 timing menu Alpaka, single tracking iteration variant
                      29634.754,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
@@ -169,9 +170,11 @@ if __name__ == '__main__':
                      29634.758,   # HLT phase-2 timing menu ticl_barrel variant
                      29634.759,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
                      29634.77,    # HLT phase-2 NGT Scouting menu
-                     29634.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
+                     29634.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel, CA Extension
                      29634.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
-                     29634.773]   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+                     29634.773,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+                     29634.774,   # HLT phase-2 NGT Scouting menu, Phase2CAExtension as GeneralTracks
+                     29634.775],  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks
     }
 
     predefinedSet['limited'] = (
