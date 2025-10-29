@@ -58,6 +58,7 @@ class Eras (object):
                  'Run3_2025_UPC',
                  'Run3_2025_OXY',
                  'Run3_2025_UPC_OXY',
+                 'Run3_2025_NEON',
                  'Run3_2025_FastSim',
                  'Phase2',
                  'Phase2_noMkFit',
