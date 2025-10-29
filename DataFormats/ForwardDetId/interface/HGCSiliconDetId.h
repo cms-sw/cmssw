@@ -9,9 +9,10 @@
 /* \brief description of the bit assigment
    [0:4]   u-coordinate of the cell (measured from the lower left
    [5:9]   v-coordinate of the cell  corner of the wafer)
-   [10:13] abs(u) of the wafer (u-axis points along -x axis)
+   [10:13] abs(u) of the wafer (u-axis points along -x axis in +z endcap
+           and along +x in -z endcap))
    [14:14] sign of u (0:+u; 1:-u) (u=0 is at the center of beam line)
-   [15:18] abs(v) of the wafer (v-axis points 60-degree wrt x-axis)
+   [15:18] abs(v) of the wafer (v-axis points 120-degree wrt u-axis)
    [19:19] sign of v (0:+v; 1:-v) (v=0 is at the center of beam line)
    [20:24] layer number 
    [25:25] z-side (0 for +z; 1 for -z)
