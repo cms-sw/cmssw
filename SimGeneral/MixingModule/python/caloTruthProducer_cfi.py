@@ -13,17 +13,11 @@ caloParticles = cms.PSet(
 	maximumPreviousBunchCrossing = cms.uint32(0),
 	maximumSubsequentBunchCrossing = cms.uint32(0),
 	simHitCollections = cms.PSet(
-            hgc = cms.VInputTag(
-                cms.InputTag('g4SimHits','HGCHitsEE'),
-                cms.InputTag('g4SimHits','HGCHitsHEfront'),
-                cms.InputTag('g4SimHits','HGCHitsHEback')
-            ),
-#            hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
-#            ecal = cms.VInputTag(
-#                cms.InputTag('g4SimHits','EcalHitsEE'),
-#                cms.InputTag('g4SimHits','EcalHitsEB'),
-#                cms.InputTag('g4SimHits','EcalHitsES')
-#            )
+            hgc = cms.VInputTag(),
+#           hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
+            ecal = cms.VInputTag(
+                cms.InputTag('g4SimHits','EcalHitsEB'),
+            )
 	),
 	simTrackCollection = cms.InputTag('g4SimHits'),
 	simVertexCollection = cms.InputTag('g4SimHits'),
