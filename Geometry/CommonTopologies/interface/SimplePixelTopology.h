@@ -8,10 +8,6 @@
 
 namespace pixelTopology {
 
-  constexpr auto maxNumberOfLadders = 160;
-  constexpr uint8_t maxLayers = 28;
-  constexpr uint8_t maxPairs = 64;
-
   // TODO
   // Once CUDA is dropped this could be wrapped in #ifdef CA_TRIPLETS_HOLE
   // see DataFormats/TrackingRecHitSoa/interface/TrackingRecHitSoA.h
@@ -139,6 +135,7 @@ namespace phase1PixelTopology {
   constexpr uint32_t numberOfLayers = 10;
   constexpr int nPairs = 13 + 2 + 4;
   constexpr uint16_t numberOfModules = 1856;
+  constexpr int nStartingPairs = 3;  // number of layer pairs to start Ntuplet-building from
 
   constexpr uint32_t maxNumClustersPerModules = 1024;
 
@@ -165,6 +162,8 @@ namespace phase1PixelTopology {
       4, 6, 7, 9                     // Jumping Forward (19)
   };
 
+  HOST_DEVICE_CONSTANT uint8_t startingPairs[nStartingPairs] = {0, 1, 2};
+
   HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{phi0p05,
                                                phi0p07,
                                                phi0p07,
@@ -184,11 +183,21 @@ namespace phase1PixelTopology {
                                                phi0p05,
                                                phi0p05,
                                                phi0p05};
-  HOST_DEVICE_CONSTANT float minz[nPairs] = {
+  HOST_DEVICE_CONSTANT float minInner[nPairs] = {
       -20., 0., -30., -22., 10., -30., -70., -70., -22., 15., -30, -70., -70., -20., -22., 0, -30., -70., -70.};
-  HOST_DEVICE_CONSTANT float maxz[nPairs] = {
+  HOST_DEVICE_CONSTANT float maxInner[nPairs] = {
       20., 30., 0., 22., 30., -10., 70., 70., 22., 30., -15., 70., 70., 20., 22., 30., 0., 70., 70.};
-  HOST_DEVICE_CONSTANT float maxr[nPairs] = {
+  HOST_DEVICE_CONSTANT float minOuter[nPairs] = {
+      -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100};
+  HOST_DEVICE_CONSTANT float maxOuter[nPairs] = {
+      100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
+  HOST_DEVICE_CONSTANT float minDZ[nPairs] = {
+      -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100};
+  HOST_DEVICE_CONSTANT float maxDZ[nPairs] = {
+      100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
+  HOST_DEVICE_CONSTANT float ptCuts[nPairs] = {
+      0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+  HOST_DEVICE_CONSTANT float maxDR[nPairs] = {
       20., 9., 9., 20., 7., 7., 5., 5., 20., 6., 6., 5., 5., 20., 20., 9., 9., 9., 9.};
 
   HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
@@ -196,6 +205,12 @@ namespace phase1PixelTopology {
   HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {
       0.002, 0.002, 0.002, 0.002, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003};
 
+  // -------------------------------------------------------------------------------------------------------
+  // Deprecated arrays only used in the CUDA version (values have no meaning in alpaka):
+
+  // The layerStart array is only used in the CUDA version (which supports only the non-extended CA).
+  // In the alpaka version of the CA the array is built in globalBeginRun from the geometry directly
+  // and the values here become irrelevant.
   static constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
                                                               96,
                                                               320,
@@ -207,105 +222,255 @@ namespace phase1PixelTopology {
                                                               1632,
                                                               1744,  // negative endcap
                                                               numberOfModules};
+  HOST_DEVICE_CONSTANT float minz[nPairs] = {
+      -20., 0., -30., -22., 10., -30., -70., -70., -22., 15., -30, -70., -70., -20., -22., 0, -30., -70., -70.};
+  HOST_DEVICE_CONSTANT float maxz[nPairs] = {
+      20., 30., 0., 22., 30., -10., 70., 70., 22., 30., -15., 70., 70., 20., 22., 30., 0., 70., 70.};
+  HOST_DEVICE_CONSTANT float maxr[nPairs] = {
+      20., 9., 9., 20., 7., 7., 5., 5., 20., 6., 6., 5., 5., 20., 20., 9., 9., 9., 9.};
 }  // namespace phase1PixelTopology
 
 namespace phase2PixelTopology {
 
-  using pixelTopology::phi0p05;
-  using pixelTopology::phi0p06;
-  using pixelTopology::phi0p07;
-  using pixelTopology::phi0p09;
+  // The parameters set here include the extension of the CA to the first 3 barrel layers of the OT.
+  // This incorporates therefore the general set for Phase-2 and builds the basis for both CA configurations (with or without OT extension).
+  // The layer pairs are ordered in such a way that the OT extended pairs are at the end of the arrays. So one can get the non-extended config by
+  // chopping off the last elements.
+  // The actual implementation of the splitting in these two configs is done below by having two separate structs in the pixelTopology namespace:
+  //   - pixelTopology::Phase2    -> no OT extension
+  //   - pixelTopology::Phase2OT  -> with OT extension
 
-  constexpr uint32_t numberOfLayers = 28;
-  constexpr int nPairs = 23 + 6 + 14 + 8 + 4;  // include far forward layer pairs
-  constexpr uint16_t numberOfModules = 4000;
+  constexpr uint32_t nLayersPix = 28;                      // pixel layers
+  constexpr uint32_t nLayersOT = 3;                        // considered OT layers
+  constexpr uint32_t nLayersTot = nLayersPix + nLayersOT;  // total number of layers for extended CA
 
+  constexpr int nPairsPix = 57;                    // pixel only layer pairs
+  constexpr int nPairsOT = 16;                     // layer pairs with OT layers
+  constexpr int nPairsTot = nPairsPix + nPairsOT;  // total number of layer pairs for extended CA
+
+  constexpr uint16_t nModulesPix = 4000;                      // pixel modules
+  constexpr uint16_t nModulesOT = 2872;                       // considered OT modules
+  constexpr uint16_t nModulesTot = nModulesPix + nModulesOT;  // total number of modules for extended CA
+
+  constexpr int nStartingPairs = 24;  // number of layer pairs to start Ntuplet-building from
+
+  constexpr uint16_t numberOfModules = nModulesPix;
   constexpr uint32_t maxNumClustersPerModules = 1024;
 
-  HOST_DEVICE_CONSTANT uint8_t layerPairs[2 * nPairs] = {
+  HOST_DEVICE_CONSTANT uint8_t layerPairs[2 * nPairsTot] = {
+      0,  1,  0,  2,  0,  4,  0,  5,  0,  16, 0,  17,          // starting on BPIX1 (6)
+      1,  2,  1,  3,  1,  4,  1,  5,  1,  16, 1,  17,          // starting on BPIX2 (12)
+      2,  3,  2,  4,  2,  16,                                  // starting on BPIX3 (15)
+      4,  5,  4,  6,  5,  6,  5,  7,  6,  7,  6,  8,  7,  8,   // forward endcap (22)
+      7,  9,  8,  9,  8,  10, 9,  10, 9,  11, 10, 11, 10, 12,  // forward endcap (29)
+      11, 12, 11, 13, 11, 14, 11, 15, 12, 13, 13, 14, 14, 15,  // forward endcap (36)
+      16, 17, 16, 18, 17, 18, 17, 19, 18, 19, 18, 20, 19, 20,  // backward endcap (43)
+      19, 21, 20, 21, 20, 22, 21, 22, 21, 23, 22, 23, 22, 24,  // backward endcap (50)
+      23, 24, 23, 25, 23, 26, 23, 27, 24, 25, 25, 26, 26, 27,  // backward endcap (57)
 
-      0,  1,  0,  4,  0,  16,  // BPIX1 (3)
-      1,  2,  1,  4,  1,  16,  // BPIX2 (6)
-      2,  3,  2,  4,  2,  16,  // BPIX3 & Forward (9)
-
-      4,  5,  5,  6,  6,  7,  7,  8,  8,  9,  9,  10, 10, 11,  // POS (16)
-      16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23,  // NEG (23)
-
-      0,  2,  0,  5,  0,  17, 0,  6,  0,  18,  // BPIX1 Jump (28)
-      1,  3,  1,  5,  1,  17, 1,  6,  1,  18,  // BPIX2 Jump (33)
-
-      11, 12, 12, 13, 13, 14, 14, 15,  // Late POS (37)
-      23, 24, 24, 25, 25, 26, 26, 27,  // Late NEG (41)
-
-      4,  6,  5,  7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,  // POS Jump (48)
-      16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24,  // NEG Jump (55)
+      2,  28, 2,  28, 2,  28, 3,  28,          // barrel to OT (61)
+      4,  28, 5,  28, 6,  28, 7,  28, 8,  28,  // forward endcap to OT (66)
+      16, 28, 17, 28, 18, 28, 19, 28, 20, 28,  // backward endcap to OT (71)
+      28, 29, 29, 30                           // OT to OT (73)
   };
 
-  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {0,
-                                                                  216,
-                                                                  432,
-                                                                  612,  // Barrel
-                                                                  864,
-                                                                  972,
-                                                                  1080,
-                                                                  1188,
-                                                                  1296,
-                                                                  1404,
-                                                                  1512,
-                                                                  1620,
-                                                                  1728,
-                                                                  1904,
-                                                                  2080,
-                                                                  2256,  // Fp
-                                                                  2432,
-                                                                  2540,
-                                                                  2648,
-                                                                  2756,
-                                                                  2864,
-                                                                  2972,
-                                                                  3080,
-                                                                  3188,
-                                                                  3296,
-                                                                  3472,
-                                                                  3648,
-                                                                  3824,  // Np
-                                                                  numberOfModules};
+  HOST_DEVICE_CONSTANT uint8_t startingPairs[nStartingPairs] = {0,  1,  2,  3,  4,  5,  6,  8,  10, 12, 15, 17,
+                                                                19, 21, 23, 25, 27, 36, 38, 40, 42, 44, 46, 48};
 
-  HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{
-      phi0p05, phi0p05, phi0p05, phi0p06, phi0p07, phi0p07, phi0p06, phi0p07, phi0p07, phi0p05, phi0p05,
-      phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05,
-      phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p07, phi0p07, phi0p07, phi0p07,
-      phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07,
-      phi0p07, phi0p07, phi0p07, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05};
+  HOST_DEVICE_CONSTANT int16_t phicuts[nPairsTot]{
+      350,  600,  450,  522,  450,  522,       // BPIX1
+      400,  650,  500,  730,  500,  730,       // BPIX2
+      350,  400,  400,                         // BPIX3
+      300,  522,  300,  522,  250,  522, 250,  // forward endcap
+      522,  250,  522,  300,  522,  240, 650,  // forward endcap
+      300,  200,  220,  250,  250,  250, 250,  // forward endcap
+      300,  522,  300,  522,  250,  522, 250,  // backward endcap
+      522,  250,  522,  300,  522,  240, 650,  // backward endcap
+      300,  200,  220,  250,  250,  250, 250,  // backward endcap
 
-  HOST_DEVICE_CONSTANT float minz[nPairs] = {
+      1200, 1200, 1200, 1000,        // barrel to OT
+      1000, 1000, 1000, 1000, 850,   // forward endcap to OT
+      1000, 1000, 1000, 1000, 1000,  // backward endcap to OT
+      1100, 1250                     // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT float minInner[nPairsTot] = {
+      -17,   -14,  4,      7,   -10000, -10000,      // BPIX1
+      -17,   -15,  6,      9,   -10000, -10000,      // BPIX2
+      -18,   11,   -10000,                           // BPIX3
+      0,     0,    0,      0,   0,      0,      0,   // forward endcap
+      0,     0,    0,      0,   0,      0,      12,  // forward endcap
+      0,     0,    0,      0,   0,      0,      0,   // forward endcap
+      0,     0,    0,      0,   0,      0,      0,   // backward endcap
+      0,     0,    0,      0,   0,      0,      12,  // backward endcap
+      0,     0,    0,      0,   0,      0,      0,   // backward endcap
+
+      -10,   -20,  10,     -20,     // barrel to O
+      11,    11,   11,     11,  0,  // forward end
+      11,    11,   11,     11,  0,  // backward en
+      -1200, -1200                  // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT float maxInner[nPairsTot] = {
+      17,    14,    10000, 10000, -4,    -7,      // BPIX1
+      17,    15,    10000, 10000, -6,    -9,      // BPIX2
+      18,    10000, -11,                          // BPIX3
+      14,    14,    13,    13,    13,    13, 13,  // forward endcap
+      13,    13,    13,    13,    13,    13, 16,  // forward endcap
+      16,    6,     4,     6,     22,    22, 22,  // forward endcap
+      14,    14,    13,    13,    13,    13, 13,  // backward endcap
+      13,    13,    13,    13,    13,    13, 16,  // backward endcap
+      16,    6,     4,     6,     22,    22, 22,  // backward endcap
+
+      10,    -10,   20,    20,            // barrel to OT
+      10000, 10000, 10000, 10000, 10000,  // forward endcap to OT
+      10000, 10000, 10000, 10000, 10000,  // backward endcap to OT
+      1200,  1200                         // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT float minOuter[nPairsTot] = {
+      -10000, -10000, 0,   0,    0,      0,      // BPIX1
+      -10000, -10000, 6,   6,    6,      6,      // BPIX2
+      -10000, 11,     11,                        // BPIX3
+      3,      3,      3,   3,    3,      3, 3,   // forward endcap
+      3,      3,      3,   4,    4,      3, 20,  // forward endcap
+      6,      0,      0,   0,    7,      7, 7,   // forward endcap
+      3,      3,      3,   3,    3,      3, 3,   // backward endcap
+      3,      3,      3,   4,    4,      3, 20,  // backward endcap
+      6,      0,      0,   0,    7,      7, 7,   // backward endcap
+
+      -30,    -50,    25,  -45,           // barrel to OT
+      30,     40,     55,  70,   80,      // forward endcap to OT
+      -57,    -70,    -95, -110, -10000,  // backward endcap to OT
+      -10000, -10000                      // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT float maxOuter[nPairsTot] = {
+      10000, 10000, 10,    10000, 10,    10000,         // BPIX1
+      10000, 10000, 10000, 10000, 10000, 10000,         // BPIX2
+      10000, 10000, 10000,                              // BPIX3
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // forward endcap
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // forward endcap
+      21,    7,     7,     10000, 10000, 10000, 10000,  // forward endcap
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // backward endcap
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // backward endcap
+      21,    7,     7,     10000, 10000, 10000, 10000,  // backward endcap
+
+      30,    -25,   50,    45,            // barrel to OT
+      57,    80,    95,    110,   10000,  // forward endcap to OT
+      -30,   -40,   -55,   -70,   -80,    // backward endcap to OT
+      10000, 10000                        // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT float maxDR[nPairsTot] = {
+      5.0,     10.0,    8.0,     5.0,     8.0,  5.0,         // BPIX1
+      7.0,     10.0,    8.0,     10.0,    8.0,  10.0,        // BPIX2
+      7.0,     7.0,     7.0,                                 // BPIX3
+      4.5,     9.0,     4.5,     9.0,     4.5,  9.0,  4.5,   // forward endcap
+      8.0,     4.0,     8.0,     4.5,     8.0,  4.0,  10.0,  // forward endcap
+      5.0,     3.0,     3.0,     4.0,     4.0,  4.0,  3.5,   // forward endcap
+      4.5,     9.0,     4.5,     9.0,     4.5,  9.0,  4.5,   // backward endcap
+      8.0,     4.0,     8.0,     4.5,     8.0,  4.0,  10.0,  // backward endcap
+      5.0,     3.0,     3.0,     4.0,     4.0,  4.0,  3.5,   // backward endcap
+
+      10000.0, 10000.0, 10000.0, 10000.0,        // barrel to OT
+      16.0,    16.0,    16.0,    16.0,    14.0,  // forward endcap to OT
+      16.0,    16.0,    16.0,    16.0,    14.0,  // backward endcap to OT
+      10000.0, 10000.0                           // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT float minDZ[nPairsTot] = {
+      -16.0,  -16.0,  0.0,    0.0,    -25.0,  -25.0,           // BPIX1
+      -13.0,  -15.0,  0.0,    0.0,    -19.0,  -21.0,           // BPIX2
+      -9.0,   0.0,    -13.0,                                   // BPIX3
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // forward endcap
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // forward endcap
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // forward endcap
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // backward endcap
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // backward endcap
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // backward endcap
+
+      -15.0,  -35.0,  10.0,   -22.0,          // barrel to OT
+      5.0,    -10.0,  5.0,    15.0,   25.0,   // forward endcap to OT
+      -32.5,  -50.0,  -50.0,  -70.0,  -70.0,  // backward endcap to OT
+      -50.0,  -40.0                           // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT float maxDZ[nPairsTot] = {
+      16.0,  16.0,  25.0,  25.0,  0.0,   0.0,           // BPIX1
+      13.0,  15.0,  19.0,  21.0,  0.0,   0.0,           // BPIX2
+      9.0,   13.0,  0.0,                                // BPIX3
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // forward endcap
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // forward endcap
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // forward endcap
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // backward endcap
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // backward endcap
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,  // backward endcap
+
+      15.0,  -10.0, 35.0,  22.0,          // barrel to OT
+      32.5,  50.0,  50.0,  70.0,  70.0,   // forward endcap to OT
+      -5.0,  -10.0, -5.0,  -15.0, -25.0,  // backward endcap to OT
+      50.0,  40.0                         // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT float ptCuts[nPairsTot] = {
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85,        // BPIX1
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85,        // BPIX2
+      0.85, 0.85, 0.85,                          // BPIX3
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // forward endcap
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // forward endcap
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // forward endcap
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // backward endcap
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // backward endcap
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // backward endcap
+
+      2.00, 0.85, 0.85, 0.85,        // barrel to OT
+      0.85, 0.85, 0.85, 0.85, 0.85,  // forward endcap to OT
+      0.85, 0.85, 0.85, 0.85, 0.85,  // backward endcap to OT
+      0.85, 0.85                     // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT float dcaCuts[nLayersTot] = {
+      0.15,  //BPix1
+      0.25, 0.20, 0.20, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // Pixel layers
+      0.10, 0.10, 0.10                                                               // OT layers
+  };
+
+  HOST_DEVICE_CONSTANT float thetaCuts[nLayersTot] = {
+      0.002, 0.002, 0.002, 0.002,  // BPix
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // Pixel layers
+      0.003, 0.003, 0.003                                                                  // OT layers
+  };
+
+  // -------------------------------------------------------------------------------------------------------
+  // Deprecated arrays only used in the CUDA version (values have no meaning in alpaka or anywhere else):
+
+  // The layerStart array is only used in the CUDA version (which supports only the non-extended CA).
+  // In the alpaka version of the CA the array is built in globalBeginRun from the geometry directly
+  // and the values here become irrelevant.
+  HOST_DEVICE_CONSTANT uint32_t layerStart[nLayersPix + 1] = {
+      0,    216,  432,  612,                                                                 // Barrel
+      864,  972,  1080, 1188, 1296, 1404, 1512, 1620, 1728, 1904, 2080, 2256,                // Fp
+      2432, 2540, 2648, 2756, 2864, 2972, 3080, 3188, 3296, 3472, 3648, 3824, nModulesPix};  // Np
+  HOST_DEVICE_CONSTANT float minz[nPairsTot] = {
       -16.0, 4.0,   -22.0, -17.0, 6.0,   -22.0, -18.0, 11.0,  -22.0,  23.0,   30.0,   39.0,   50.0,   65.0,
       82.0,  109.0, -28.0, -35.0, -44.0, -55.0, -70.0, -87.0, -113.0, -16.,   7.0,    -22.0,  11.0,   -22.0,
       -17.0, 9.0,   -22.0, 13.0,  -22.0, 137.0, 173.0, 199.0, 229.0,  -142.0, -177.0, -203.0, -233.0, 23.0,
       30.0,  39.0,  50.0,  65.0,  82.0,  109.0, -28.0, -35.0, -44.0,  -55.0,  -70.0,  -87.0,  -113.0};
 
-  HOST_DEVICE_CONSTANT float maxz[nPairs] = {
+  HOST_DEVICE_CONSTANT float maxz[nPairsTot] = {
 
       17.0, 22.0,  -4.0,  17.0,  22.0,  -6.0,  18.0,  22.0,  -11.0,  28.0,   35.0,   44.0,   55.0,   70.0,
       87.0, 113.0, -23.0, -30.0, -39.0, -50.0, -65.0, -82.0, -109.0, 17.0,   22.0,   -7.0,   22.0,   -10.0,
       17.0, 22.0,  -9.0,  22.0,  -13.0, 142.0, 177.0, 203.0, 233.0,  -137.0, -173.0, -199.0, -229.0, 28.0,
       35.0, 44.0,  55.0,  70.0,  87.0,  113.0, -23.0, -30.0, -39.0,  -50.0,  -65.0,  -82.0,  -109.0};
 
-  HOST_DEVICE_CONSTANT float maxr[nPairs] = {5.0, 5.0, 5.0, 7.0, 8.0, 8.0,  7.0, 7.0, 7.0, 6.0, 6.0, 6.0, 6.0, 5.0,
-                                             6.0, 5.0, 6.0, 6.0, 6.0, 6.0,  5.0, 6.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0,
-                                             5.0, 8.0, 8.0, 8.0, 8.0, 6.0,  5.0, 5.0, 5.0, 6.0, 5.0, 5.0, 5.0, 9.0,
-                                             9.0, 9.0, 8.0, 8.0, 8.0, 11.0, 9.0, 9.0, 9.0, 8.0, 8.0, 8.0, 11.0};
-
-  HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {0.15,  //BPix1
-                                                        0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
-                                                        0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
-                                                        0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
-
-  HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {0.002, 0.002, 0.002, 0.002,  // BPix
-                                                          0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
-                                                          0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
-                                                          0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003};
-
+  HOST_DEVICE_CONSTANT float maxr[nPairsTot] = {5.0, 5.0, 5.0, 7.0, 8.0, 8.0,  7.0, 7.0, 7.0, 6.0, 6.0, 6.0, 6.0, 5.0,
+                                                6.0, 5.0, 6.0, 6.0, 6.0, 6.0,  5.0, 6.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0,
+                                                5.0, 8.0, 8.0, 8.0, 8.0, 6.0,  5.0, 5.0, 5.0, 6.0, 5.0, 5.0, 5.0, 9.0,
+                                                9.0, 9.0, 8.0, 8.0, 8.0, 11.0, 9.0, 9.0, 9.0, 8.0, 8.0, 8.0, 11.0};
 }  // namespace phase2PixelTopology
 
 namespace phase1HIonPixelTopology {
@@ -358,14 +523,17 @@ namespace pixelTopology {
     static constexpr uint32_t avgHitsPerTrack = 7;
     static constexpr uint32_t maxCellsPerHit = 256;
     static constexpr uint32_t avgTracksPerHit = 10;
-    static constexpr uint32_t maxNumberOfTuples = 256 * 1024;
+    static constexpr uint32_t maxNumberOfTuples = 60 * 1024;
     // this is well above thanks to maxNumberOfTuples
     static constexpr uint32_t maxHitsForContainers = avgHitsPerTrack * maxNumberOfTuples;
-    static constexpr uint32_t maxNumberOfDoublets = 5 * 512 * 1024;
+    static constexpr uint32_t maxNumberOfDoublets = 6 * 512 * 1024;
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
     static constexpr uint32_t maxDepth = 12;
-    static constexpr uint32_t numberOfLayers = 28;
+    static constexpr uint32_t numberOfLayers = phase2PixelTopology::nLayersPix;
+    static constexpr float avgCellsPerHit = 12.;
+    static constexpr float avgCellsPerCell = 0.151;
+    static constexpr float avgTracksPerCell = 0.04;
 
     static constexpr uint32_t maxSizeCluster = 2047;
 
@@ -399,14 +567,12 @@ namespace pixelTopology {
     static constexpr float dzdrFact = 8 * 0.0285 / 0.015;  // from dz/dr to "DY"
 
     static constexpr int nPairsMinimal = 33;
-    static constexpr int nPairsFarForwards = nPairsMinimal + 8;  // include barrel "jumping" layer pairs
-    static constexpr int nPairs = phase2PixelTopology::nPairs;   // include far forward layer pairs
+    static constexpr int nPairsFarForwards = nPairsMinimal + 8;    // include barrel "jumping" layer pairs
+    static constexpr int nPairs = phase2PixelTopology::nPairsPix;  // include far forward layer pairs
+    static constexpr int nPairsForQuadruplets = nPairs;
+    static constexpr int nStartingPairs = phase2PixelTopology::nStartingPairs;
 
-    static constexpr int maxDYsize12 = 12;
-    static constexpr int maxDYsize = 10;
-    static constexpr int maxDYPred = 20;
-
-    static constexpr uint16_t numberOfModules = phase2PixelTopology::numberOfModules;
+    static constexpr uint16_t numberOfModules = phase2PixelTopology::nModulesPix;
 
     // 1000 bins < 1024 bins (10 bits) must be:
     // - < 32*32 (warpSize*warpSize for block prefix scan for CUDA)
@@ -428,19 +594,65 @@ namespace pixelTopology {
 
     static constexpr char const *nameModifier = "Phase2";
 
-    static constexpr uint32_t const *layerStart = phase2PixelTopology::layerStart;
-    static constexpr float const *minz = phase2PixelTopology::minz;
-    static constexpr float const *maxz = phase2PixelTopology::maxz;
-    static constexpr float const *maxr = phase2PixelTopology::maxr;
-
-    static constexpr uint8_t const *layerPairs = phase2PixelTopology::layerPairs;
-    static constexpr int16_t const *phicuts = phase2PixelTopology::phicuts;
+    static constexpr uint32_t const *layerStart = phase2PixelTopology::layerStart;  // only for CUDA
 
     static constexpr inline bool isBigPixX(uint16_t px) { return false; }
     static constexpr inline bool isBigPixY(uint16_t py) { return false; }
 
     static constexpr inline uint16_t localX(uint16_t px) { return px; }
     static constexpr inline uint16_t localY(uint16_t py) { return py; }
+
+    // ----------------------------------------
+    //  CA cut / geometry parameters
+    // ----------------------------------------
+    static constexpr uint8_t const *layerPairs = phase2PixelTopology::layerPairs;
+    static constexpr uint8_t const *startingPairs = phase2PixelTopology::startingPairs;
+    // scalar parameters (doublet building)
+    static constexpr int minYsizeB1 = 20;
+    static constexpr int minYsizeB2 = 18;
+    static constexpr int maxDYsize12 = 12;
+    static constexpr int maxDYsize = 10;
+    static constexpr int maxDYPred = 24;
+    static constexpr float cellZ0Cut = 12.5;
+    // vector parameters (doublet building)
+    static constexpr float const *minInner = phase2PixelTopology::minInner;
+    static constexpr float const *maxInner = phase2PixelTopology::maxInner;
+    static constexpr float const *minOuter = phase2PixelTopology::minOuter;
+    static constexpr float const *maxOuter = phase2PixelTopology::maxOuter;
+    static constexpr float const *maxDR = phase2PixelTopology::maxDR;
+    static constexpr float const *minDZ = phase2PixelTopology::minDZ;
+    static constexpr float const *maxDZ = phase2PixelTopology::maxDZ;
+    static constexpr int16_t const *phicuts = phase2PixelTopology::phicuts;
+    static constexpr float const *ptCuts = phase2PixelTopology::ptCuts;
+    // scalar parameters (doublet linking)
+    // p [GeV/c] = B [T] * R [m] * 0.3 (factor from conversion from J to GeV and q = e = 1.6 * 10e-19 C)
+    // 87 cm/GeV = 1/(3.8T * 0.3)
+    static constexpr float hardCurvCut = 0.01425;  // corresponds to 800 MeV in 3.8T.
+    // vector parameters (doublet linking)
+    static constexpr float const *thetaCuts = phase2PixelTopology::thetaCuts;
+    static constexpr float const *dcaCuts = phase2PixelTopology::dcaCuts;
+    // Deprecated arrays only used in the CUDA version
+    static constexpr float const *minz = phase2PixelTopology::minz;
+    static constexpr float const *maxz = phase2PixelTopology::maxz;
+    static constexpr float const *maxr = phase2PixelTopology::maxr;
+    // ----------------------------------------
+  };
+
+  struct Phase2OT : public Phase2 {
+    static constexpr int nPairs = phase2PixelTopology::nPairsTot;
+    static constexpr int nPairsForQuadruplets = nPairs;
+    static constexpr uint32_t numberOfLayers = phase2PixelTopology::nLayersTot;    // pixel layers  + OT barrel layers
+    static constexpr uint16_t numberOfModules = phase2PixelTopology::nModulesTot;  // pixel modules + OT barrel modules
+
+    static constexpr uint32_t maxNumberOfTuples = 2 * 60 * 1024;
+    // this is well above thanks to maxNumberOfTuples
+    static constexpr uint32_t maxHitsForContainers = avgHitsPerTrack * maxNumberOfTuples;
+    static constexpr uint32_t maxNumberOfDoublets = 12 * 512 * 1024;
+    static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
+    static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
+    static constexpr float avgCellsPerHit = 17.;
+    static constexpr float avgCellsPerCell = 0.5;
+    static constexpr float avgTracksPerCell = 0.09;
   };
 
   struct Phase1 {
@@ -463,6 +675,9 @@ namespace pixelTopology {
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
     static constexpr uint32_t maxDepth = 6;
     static constexpr uint32_t numberOfLayers = 10;
+    static constexpr float avgCellsPerHit = 25.;
+    static constexpr float avgCellsPerCell = 2.;
+    static constexpr float avgTracksPerCell = 1.;
 
     static constexpr uint32_t maxSizeCluster = 1023;
 
@@ -498,10 +713,7 @@ namespace pixelTopology {
     static constexpr int nPairsForQuadruplets = 13;                     // quadruplets require hits in all layers
     static constexpr int nPairsForTriplets = nPairsForQuadruplets + 2;  // include barrel "jumping" layer pairs
     static constexpr int nPairs = nPairsForTriplets + 4;                // include forward "jumping" layer pairs
-
-    static constexpr int maxDYsize12 = 28;
-    static constexpr int maxDYsize = 20;
-    static constexpr int maxDYPred = 20;
+    static constexpr int nStartingPairs = phase1PixelTopology::nStartingPairs;
 
     static constexpr uint16_t numberOfModules = phase1PixelTopology::numberOfModules;
 
@@ -529,14 +741,6 @@ namespace pixelTopology {
     static constexpr int16_t xOffset = -81;
 
     static constexpr char const *nameModifier = "";
-
-    static constexpr uint32_t const *layerStart = phase1PixelTopology::layerStart;
-    static constexpr float const *minz = phase1PixelTopology::minz;
-    static constexpr float const *maxz = phase1PixelTopology::maxz;
-    static constexpr float const *maxr = phase1PixelTopology::maxr;
-
-    static constexpr uint8_t const *layerPairs = phase1PixelTopology::layerPairs;
-    static constexpr int16_t const *phicuts = phase1PixelTopology::phicuts;
 
     static constexpr inline bool isEdgeX(uint16_t px) { return (px == 0) | (px == lastRowInModule); }
 
@@ -572,6 +776,43 @@ namespace pixelTopology {
         shift += 1;
       return py + shift;
     }
+
+    static constexpr uint32_t const *layerStart = phase1PixelTopology::layerStart;
+
+    // ----------------------------------------
+    //  CA cut / geometry parameters
+    // ----------------------------------------
+    static constexpr uint8_t const *layerPairs = phase1PixelTopology::layerPairs;
+    static constexpr uint8_t const *startingPairs = phase1PixelTopology::startingPairs;
+    // scalar parameters (doublet building)
+    static constexpr int minYsizeB1 = 1;
+    static constexpr int minYsizeB2 = 1;
+    static constexpr int maxDYsize12 = 28;
+    static constexpr int maxDYsize = 20;
+    static constexpr int maxDYPred = 20;
+    static constexpr float cellZ0Cut = 12.5;
+    // vector parameters (doublet building)
+    static constexpr float const *minInner = phase1PixelTopology::minInner;
+    static constexpr float const *maxInner = phase1PixelTopology::maxInner;
+    static constexpr float const *minOuter = phase1PixelTopology::minOuter;
+    static constexpr float const *maxOuter = phase1PixelTopology::maxOuter;
+    static constexpr float const *maxDR = phase1PixelTopology::maxDR;
+    static constexpr float const *minDZ = phase1PixelTopology::minDZ;
+    static constexpr float const *maxDZ = phase1PixelTopology::maxDZ;
+    static constexpr int16_t const *phicuts = phase1PixelTopology::phicuts;
+    static constexpr float const *ptCuts = phase1PixelTopology::ptCuts;
+    // scalar parameters (doublet linking)
+    // p [GeV/c] = B [T] * R [m] * 0.3 (factor from conversion from J to GeV and q = e = 1.6 * 10e-19 C)
+    // 87 cm/GeV = 1/(3.8T * 0.3)
+    static constexpr float hardCurvCut = 1.f / (0.35 * 87.f);  // corresponds to 350 MeV in 3.8T.
+    // vector parameters (doublet linking)
+    static constexpr float const *thetaCuts = phase1PixelTopology::thetaCuts;
+    static constexpr float const *dcaCuts = phase1PixelTopology::dcaCuts;
+    // Deprecated arrays only used in the CUDA version
+    static constexpr float const *minz = phase1PixelTopology::minz;
+    static constexpr float const *maxz = phase1PixelTopology::maxz;
+    static constexpr float const *maxr = phase1PixelTopology::maxr;
+    // ----------------------------------------
   };
 
   struct HIonPhase1 : public Phase1 {
@@ -599,6 +840,11 @@ namespace pixelTopology {
     static constexpr uint32_t maxHitsInModule = phase1HIonPixelTopology::maxNumClustersPerModules;
 
     static constexpr char const *nameModifier = "HIonPhase1";
+
+    // specified vector cuts for HIon
+    static constexpr int16_t const *phicuts = phase1PixelTopology::phicuts;
+    static constexpr float const *thetaCuts = phase1PixelTopology::thetaCuts;
+    static constexpr float const *dcaCuts = phase1PixelTopology::dcaCuts;
   };
 
   template <typename T>
