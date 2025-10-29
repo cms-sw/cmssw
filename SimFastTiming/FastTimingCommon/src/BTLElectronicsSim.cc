@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include "SimFastTiming/FastTimingCommon/interface/BTLElectronicsSim.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
