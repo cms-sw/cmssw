@@ -712,11 +712,6 @@ class ConfigBuilder(object):
             output = self._createOutputModuleInAddOutput(tier=tier, streamType=streamType, eventContent=theEventContent, fileName = theFileName, filterName = theFilterName, ignoreNano = False)
             self._updateOutputSelectEvents(output, streamType)
 
-            if "MINIAOD" in streamType:
-                ## we should definitely get rid of this customization by now
-                from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
-                miniAOD_customizeOutput(output)
-
             outputModuleName=streamType+streamQualifier+'output'
             outputModule = self._addOutputModuleAndPathToProcess(output, outputModuleName)
 
