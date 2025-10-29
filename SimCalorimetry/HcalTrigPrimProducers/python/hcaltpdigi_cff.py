@@ -26,6 +26,8 @@ HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
     MaskBit = cms.int32(0x8000),
     overrideFGHF = cms.bool(False),
     FG_HF_thresholds = cms.vuint32(17, 255),
+    overrideHBLLP = cms.bool(False),
+    HB_LLP_thresholds = cms.vuint32(0, 0, 999, 999),
     inputLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/inputLUTcoder_physics.dat'),
     FGLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/HBHE_FG_LUT.dat'),
     RCalibFile = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat')
@@ -58,3 +60,6 @@ from Configuration.Eras.Modifier_run3_upc_2025_cff import run3_upc_2025
 #add NeNe configuration
 from Configuration.Eras.Modifier_run3_neon_cff import run3_neon
 (run3_neon).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [14, 12])
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(HcalTPGCoderULUT, HB_LLP_thresholds = [16, 80, 64, 64])
