@@ -64,7 +64,7 @@ VersionControl::VersionControl(const edm::ParameterSet& iConfig) : config_(iConf
   promoteMode7_ = spPAParams16.getParameter<bool>("PromoteMode7");
   modeQualVer_ = spPAParams16.getParameter<int>("ModeQualVer");
   promoteMode7Sectors_ = spPAParams16.getParameter<std::vector<int> >("PromoteMode7Sectors");
-  pbFileName_ = spPAParams16.getParameter<std::string>("ProtobufFileName");
+  nnModel_ = spPAParams16.getParameter<std::string>("NNModel");
 }
 
 VersionControl::~VersionControl() {}

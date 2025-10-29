@@ -24,7 +24,7 @@ public:
                  bool promoteMode7,
                  int modeQualVer,
                  std::vector<int> promoteMode7Sectors,
-                 std::string pbFileName);
+                 std::string nnModel);
 
   void process(EMTFTrackCollection& best_tracks);
 
