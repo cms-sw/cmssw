@@ -70,6 +70,7 @@ numWFIB.extend([prefixDet+234.703])  #LST tracking on CPU (initialStep+HighPtTri
 # Phase-2 HLT tests
 numWFIB.extend([prefixDet+34.7501])# HLTTrackingOnly75e33
 numWFIB.extend([prefixDet+34.751]) # HLTTiming75e33, alpaka
+numWFIB.extend([prefixDet+34.7511])# HLTTiming75e33, phase2CAExtension
 numWFIB.extend([prefixDet+34.752]) # HLTTiming75e33, ticl_v5
 numWFIB.extend([prefixDet+34.753]) # HLTTiming75e33, alpaka,singleIterPatatrack
 numWFIB.extend([prefixDet+34.754]) # HLTTiming75e33, alpaka,singleIterPatatrack,trackingLST
@@ -84,6 +85,8 @@ numWFIB.extend([prefixDet+34.77])  # NGTScouting
 numWFIB.extend([prefixDet+34.771]) # NGTScouting + alpaka + TICL-v5 + TICL-Barrel
 numWFIB.extend([prefixDet+34.772]) # NGTScouting + NANO
 numWFIB.extend([prefixDet+34.773]) # NGTScouting + NANO (including validation)
+numWFIB.extend([prefixDet+34.774])  # NGTScouting + Phase2CAExtension as GeneneralTracks
+numWFIB.extend([prefixDet+34.775])  # NGTScouting + Phase2CAExtension&LSTT5 as GeneralTracks
 
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]
