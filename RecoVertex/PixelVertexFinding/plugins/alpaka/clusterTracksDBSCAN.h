@@ -31,9 +31,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
                                   float errmax,  // max error to be "seed"
                                   float chi2max  // max normalized distance to cluster
     ) const {
-      // workaround for #47808
-      debug::do_not_optimise(ws);
-
       constexpr bool verbose = false;
 
       if constexpr (verbose) {
