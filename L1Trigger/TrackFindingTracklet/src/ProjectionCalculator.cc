@@ -180,8 +180,9 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
           std::string oname = outputpars_[k]->getName();
           int parPage = iname[9] - oname[9];
           for (unsigned int j = 0; j < inputpars_[i]->nTracklets(); j++) {
-            if (nPar1 >= settings_.maxStep("PC"))
+            if (nPar1 >= settings_.maxStep("PC")){
               continue;
+	    }
             nPar1++;
             outputpars_[k]->addTracklet(inputpars_[i]->getTracklet(j), parPage);
           }
@@ -412,6 +413,14 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
         }
       }
     }
+  }
+
+  //
+  // Done with processing - collect performance statistics
+  //
+
+  if (settings_.writeMonitorData("PC")) {
+    globals_->ofstream("projectioncalculator.txt") << getName() << " " << nPar1 << endl;
   }
 
   return;
