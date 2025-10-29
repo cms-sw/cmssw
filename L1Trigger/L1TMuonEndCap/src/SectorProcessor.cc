@@ -169,7 +169,7 @@ void SectorProcessor::process_single_bx(int bx,
                       cfg.promoteMode7_,
                       cfg.modeQualVer_,
                       cfg.promoteMode7Sectors_,
-                      cfg.pbFileName_);
+                      cfg.nnModel_);
 
   std::map<int, TriggerPrimitiveCollection> selected_dt_map;
   std::map<int, TriggerPrimitiveCollection> selected_csc_map;
