@@ -99,7 +99,7 @@ namespace edm {
       bool promptReading = false;
 
       Options usingDefaultNonEventOptions() const {
-        return {roottree::defaultNonEventCacheSize, treeMaxVirtualSize, enablePrefetching, true};
+        return {roottree::defaultNonEventCacheSize, treeMaxVirtualSize, enablePrefetching, false};
       }
     };
 

@@ -198,7 +198,6 @@ namespace edm {
             learningEntries_(learningEntries),
             enablePrefetching_(enablePrefetching),
             enableTriggerCache_(branchType_ == InEvent) {}
-      ~SparseReadCache() override { reset(); }
       void createPrimaryCache(unsigned int cacheSize) override;
       void resetTraining(bool promptRead) override;
       void reset() override;
