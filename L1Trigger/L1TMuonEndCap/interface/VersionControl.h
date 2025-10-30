@@ -58,7 +58,7 @@ private:
   bool bug9BitDPhi_, bugMode7CLCT_, bugNegPt_, bugGMTPhi_, promoteMode7_;
   int modeQualVer_;
   std::vector<int> promoteMode7Sectors_;  // Sectors to promote mode 7 tracks in Run 2 and Run 3, -1 for all sectors
-  std::string nnModel_;
+  std::string pbFileName_;
 };
 
 #endif
