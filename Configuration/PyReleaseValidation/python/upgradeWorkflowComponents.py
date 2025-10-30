@@ -3750,14 +3750,14 @@ upgradeProperties['Run4'] = {
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D124' : {
-        'Geom' : 'ExtendedRun4D200',
+        'Geom' : 'ExtendedRun4D124',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D125' : {
-        'Geom' : 'ExtendedRun4D201',
+        'Geom' : 'ExtendedRun4D125',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C22I13M9',
