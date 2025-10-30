@@ -239,7 +239,13 @@ class DQMPlotter:
         """Soft-wrap legend labels at natural break points to reduce horizontal size."""
         wrapped = []
         for lab in labels:
-            # Split using / or _
+            # Explicit new lines
+            if "\\n" in lab:
+                explicit_lines = lab.split("\\n")
+                wrapped.append("\n".join(explicit_lines))
+                continue
+            
+            # Automatic split using / or _
             parts = re.split(r'(/|_)+', lab)
             tokens = []
             buffer = ""
@@ -275,7 +281,7 @@ class DQMPlotter:
             wrapped.append(wrapped_label)
         return wrapped
 
-    def _configure_legend(self, ax, labels, legend_title, logy=False):
+    def _configure_legend(self, ax, labels, legend_title, logy=False, force_outside=False):
         """Configure legend; wrap long entries and move outside if needed."""
         if not labels:
             return
@@ -284,20 +290,21 @@ class DQMPlotter:
         max_label_length = max(len(l.replace("\n", "")) for l in wrapped_labels)
 
         place_outside = (
-            max_label_length > 30
+            force_outside
+            or max_label_length > 30
             or (len(wrapped_labels) > 8 and max_label_length > 20)
         )
 
         legend_columns = 1 if len(wrapped_labels) <= 2 else 2
-        legend_fontsize = "small"
+        legend_fontsize = "22"
         if len(wrapped_labels) > 6:
-            legend_fontsize = "x-small"
+            legend_fontsize = "20"
         if len(wrapped_labels) > 10:
-            legend_fontsize = "xx-small"
+            legend_fontsize = "18"
 
-        legend_title_fontsize = "small"
+        legend_title_fontsize = "24"
         if legend_title and len(legend_title) > 30:
-            legend_title_fontsize = "x-small"
+            legend_title_fontsize = "20"
 
         if place_outside:
             y_min, y_max = ax.get_ylim()
@@ -400,9 +407,11 @@ class DQMPlotter:
         xlabel = title
         ylabel = "Occurrences"
 
-        vs_regex = re.compile(r'[_\s]+vs[_\s]+', re.IGNORECASE)
+        # Match "vs", "vs.", and flexible spacing/periods between v and s; allow underscores or spaces as delimiters
+        vs_regex = re.compile(r'[_\s]+v\s*\.?\s*s\s*\.?[_\s]+', re.IGNORECASE)
         if vs_regex.search(title):
-            used_underscore_delim = "_vs_" in title.lower()
+            # Detect explicit underscore-delimited form even with optional dots/spaces
+            used_underscore_delim = bool(re.search(r'_v\s*\.?\s*s\s*\.?_', title.lower()))
             parts = vs_regex.split(title, maxsplit=1)
             left, right = parts[0].strip(), parts[1].strip()
 
@@ -564,7 +573,7 @@ class DQMPlotter:
         output_path,
         logy=False,
         normalize=False,
-        cms_text="Work in Progress",
+        cms_text="Preliminary",
         energy_text=None,
         show_energy=False,
         data=False,
@@ -572,6 +581,7 @@ class DQMPlotter:
         plot_histograms=False,
         do_ratio=True,
         save_as_pdf=False,
+        legend_outside=False,
     ):
         """
         Create comparison plot with ratio panel.
@@ -588,6 +598,7 @@ class DQMPlotter:
             grid: Whether to show grid on both main and ratio plots
             plot_histograms: Whether to plot histograms instead of individual bin points with errors
             pdf: Whether to save as PDF in addition to PNG
+            legend_outside: Force legend to be placed outside the plot area
         """
         if len(histograms) != len(labels):
             raise ValueError("Number of histograms must match number of labels")
@@ -665,7 +676,7 @@ class DQMPlotter:
         label_size = "medium" if len(visible_ylabel) < 20 else "small"
         if title:
             ax_main.set_title(title, pad=50)
-        has_negative_values = np.any(bin_contents <= 0)
+        has_negative_values = np.any(bin_contents < 0)
         xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, has_negative_values)
 
         # Set custom labels if available
@@ -684,7 +695,7 @@ class DQMPlotter:
 
         ax_main.set_ylabel(ylabel, fontsize=label_size)
 
-        self._configure_legend(ax_main, labels, legend_title, logy)
+        self._configure_legend(ax_main, labels, legend_title, logy, force_outside=legend_outside)
 
         if grid:
             ax_main.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)
@@ -800,7 +811,7 @@ class DQMPlotter:
             )
 
         all_matching_hists = set()
-        hist_to_pattern = {}  # remember which pattern matched each histogram
+        hist_to_pattern = {}
 
         print("Scanning all files for histograms matching the pattern(s)...")
         for i, file_path in enumerate(file_paths):
@@ -997,14 +1008,14 @@ if __name__ == "__main__":
              "Use multiple -s or space-separated values to provide several patterns.",
     )
     parser.add_argument(
-        "-l", "--legend", help="Comma-separated list of legend entries for each file"
+        "-l", "--legend", help="Comma-separated list of legend entries for each file. Use \\n for explicit line breaks."
     )
     parser.add_argument("-o", "--output-dir", default="plots", help="Output directory")
     parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis")
     parser.add_argument("--normalize", action="store_true", help="Normalize histograms")
     parser.add_argument(
         "--cms-text",
-        default="Work in progress",
+        default="Preliminary",
         help="CMS label text (e.g. Preliminary, Work in progress)",
     )
     parser.add_argument(
@@ -1047,6 +1058,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Create index.php files for web viewing (downloads from CernBox)",
     )
+    parser.add_argument(
+        "--legend-outside",
+        action="store_true",
+        help="Force legend to be placed outside the plot area",
+    )
 
     args = parser.parse_args()
 
@@ -1072,4 +1088,5 @@ if __name__ == "__main__":
         save_as_pdf=args.pdf,
         more_files=args.more_files,
         create_web_index=args.web,
+        legend_outside=args.legend_outside,
     )
