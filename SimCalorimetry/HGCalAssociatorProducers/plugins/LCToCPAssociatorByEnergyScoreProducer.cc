@@ -43,7 +43,16 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
     return;
   }
 
+  // Protection against missing HGCRecHitCollection
   const auto hits = iEvent.get(hits_token_);
+  for (std::size_t index = 0; const auto &hgcRecHitCollection : hits) {
+    if (hgcRecHitCollection->empty()) {
+      edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT")
+          << "HGCRecHitCollections #" << index << " is not valid.";
+    }
+    index++;
+  }
+
   const bool no_hits =
       std::none_of(hits.begin(), hits.end(), [](const auto &subCollection) { return !subCollection->empty(); });
 

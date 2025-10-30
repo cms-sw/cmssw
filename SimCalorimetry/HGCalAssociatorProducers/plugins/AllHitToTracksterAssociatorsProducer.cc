@@ -74,10 +74,11 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
 
   // Protection against missing HGCRecHitCollection
   const auto hits = iEvent.get(hitsToken_);
-  for (const auto& hgcRecHitCollection : hits) {
+  for (std::size_t index = 0; const auto& hgcRecHitCollection : hits) {
     if (hgcRecHitCollection->empty()) {
-      edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "One of the HGCRecHitCollections is not valid.";
+      edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "HGCRecHitCollections #" << index << " is not valid.";
     }
+    index++;
   }
 
   edm::MultiSpan<HGCRecHit> rechitSpan(hits);

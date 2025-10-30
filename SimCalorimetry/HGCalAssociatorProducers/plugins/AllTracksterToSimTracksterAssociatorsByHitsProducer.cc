@@ -122,7 +122,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
   for (std::size_t index = 0; const auto& hgcRecHitCollection : hits) {
     if (hgcRecHitCollection->empty()) {
       edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
-          << "HGCRecHitCollections # " << index << " is not valid.";
+          << "HGCRecHitCollections #" << index << " is not valid.";
     }
     index++;
   }
