@@ -116,7 +116,7 @@ void MTDTopologyEP::fillETLtopology(const PMTDParameters& ptp, int& mtdTopologyM
   }
 
   MTDTopology::ETLfaceLayout tmpFace;
-  std::vector<int> dummy(1,0);
+  std::vector<int> dummy(1, 0);
 
   if (static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(mtdTopologyMode)) <=
       static_cast<int>(MTDTopologyMode::EtlLayout::v8)) {
