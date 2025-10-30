@@ -18,7 +18,7 @@ void PtAssignment::configure(PtAssignmentEngine* pt_assign_engine,
                              bool promoteMode7,
                              int modeQualVer,
                              std::vector<int> promoteMode7Sectors,
-                             std::string nnModel) {
+                             std::string pbFileName) {
   emtf_assert(pt_assign_engine != nullptr);
   emtf_assert(pt_assign_engine_dxy != nullptr);
 
@@ -33,7 +33,7 @@ void PtAssignment::configure(PtAssignmentEngine* pt_assign_engine,
 
   pt_assign_engine_->configure(verbose_, readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt);
 
-  pt_assign_engine_dxy_->configure(verbose_, nnModel);
+  pt_assign_engine_dxy_->configure(verbose_, pbFileName);
 
   bugGMTPhi_ = bugGMTPhi;
   promoteMode7_ = promoteMode7;
