@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
-def setupLocalInputsForRelVal(local_daq : str = 'local_daq', local_cfg : str = 'RecoLocalCalo/HGCalRecProducers/data/testbeam'):
+def setupLocalInputsForRelVal(local_daq : str = 'local_daq'):
 
     # Setup DTH source
     inputdir = '/store/group/dpg_hgcal/comm_hgcal/relval'
