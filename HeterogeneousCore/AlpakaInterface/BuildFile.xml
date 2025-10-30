@@ -1,7 +1,9 @@
 <use name="alpaka"/>
 <use name="boost_header"/>
 <use name="fmt"/>
+<use name="tbb"/>
 <use name="FWCore/Utilities"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>
