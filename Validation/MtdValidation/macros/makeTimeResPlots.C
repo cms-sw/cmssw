@@ -8,7 +8,7 @@
 //     root -l makeTimeResPlot.C\(\"DQM_filename.root\"\)
 //
 //  NB: In order to have the UncalibratedRecHits histograms filled,
-//      the MTD validation has to be run the flags:
+//      the MTD validation has to be run with the flags:
 //
 //      process.btlLocalRecoValid.optionalPlots = cms.bool(True)
 //      process.btlLocalRecoValid.UncalibRecHitsPlots = cms.bool(True)
@@ -73,10 +73,11 @@ TH1F* h_TimeResEta_ETL[2][nBinsEta_ETL];
 TH1F* g_TimeResQ_ETL[2];
 TH1F* g_TimeResEta_ETL[2];
 
-// subDet = 0: make both BTL and ETL plots
-// subDet = 1: make only BTL plots
-// subDet = 2: make only ETL plots
-void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.root", const int subDet = 0) {
+constexpr int SUBDET_BOTH = 0;
+constexpr int SUBDET_BTL = 1;
+constexpr int SUBDET_ETL = 2;
+
+void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.root", const int subDet = SUBDET_BOTH) {
   gStyle->SetOptStat(kFALSE);
 
   // --- Histograms booking
@@ -120,7 +121,7 @@ void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.
   // BTL
   /////////////////////////////////////////////////////////////////////////////////
 
-  if (subDet == 0 || subDet == 1) {
+  if (subDet == SUBDET_BOTH || subDet == SUBDET_BTL) {
     // ---------------------------------------------------------------------------
     // BTL time resolution vs E
 
@@ -308,7 +309,7 @@ void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.
   // ETL
   /////////////////////////////////////////////////////////////////////////////////
 
-  if (subDet == 0 || subDet == 2) {
+  if (subDet == SUBDET_BOTH || subDet == SUBDET_ETL) {
     // ---------------------------------------------------------------------------
     // ETL time resolution vs amplitude and |eta|
 
