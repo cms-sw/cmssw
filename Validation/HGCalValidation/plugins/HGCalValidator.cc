@@ -97,7 +97,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_candidates_(pset.getParameter<std::string>("ticlCandidates")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")),
       isTICLv5_(pset.getUntrackedParameter<bool>("isticlv5")),
-      hitsToken_(consumes<MultiHGCRecHitCollection>(pset.getParameter<edm::InputTag>("hits"))),
+      hitsToken_(consumes<edm::MultiCollection<HGCRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))),
       scToCpMapToken_(
           consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))),
       cutTk_(pset.getParameter<std::string>("cutTk")) {
@@ -415,16 +415,17 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& hitMap = *hitMapHandle;
 
   if (!event.getHandle(hitsToken_).isValid()) {
-    edm::LogWarning("HGCalValidator") << "MultiHGCRecHitCollection token is not valid.";
+    edm::LogWarning("HGCalValidator") << "edm::MultiCollection<HGCRecHitCollection> token is not valid.";
     return;
   }
 
   // Protection against missing HGCRecHitCollection
   const auto& hits = event.get(hitsToken_);
-  for (const auto& hgcRecHitCollection : hits) {
+  for (std::size_t index = 0; const auto& hgcRecHitCollection : hits) {
     if (hgcRecHitCollection->empty()) {
-      edm::LogWarning("HGCalValidator") << "One of the HGCRecHitCollections is not valid.";
+      edm::LogWarning("HGCalValidator") << "HGCRecHitCollection #" << index << "is not valid.";
     }
+    index++;
   }
 
   edm::MultiSpan<HGCRecHit> rechitSpan(hits);

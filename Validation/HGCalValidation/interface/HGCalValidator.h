@@ -34,6 +34,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/Common/interface/MultiCollection.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
 class PileupSummaryInfo;
@@ -114,7 +115,7 @@ protected:
   edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapSimtR;
   edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
-  edm::EDGetTokenT<MultiHGCRecHitCollection> hitsToken_;
+  edm::EDGetTokenT<edm::MultiCollection<HGCRecHitCollection>> hitsToken_;
   std::unique_ptr<TICLCandidateValidator> candidateVal_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;

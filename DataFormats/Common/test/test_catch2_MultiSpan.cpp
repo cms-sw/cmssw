@@ -5,6 +5,7 @@
 #include <vector>
 #include <catch2/catch_all.hpp>
 
+#include "DataFormats/Common/interface/MultiCollection.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
@@ -38,7 +39,7 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
   ms3.add(a);
   ms3.add(c);
 
-  std::vector<edm::RefProd<std::vector<int>>> refProducts;
+  edm::MultiCollection<std::vector<int>> refProducts;
   refProducts.push_back(edm::RefProd<std::vector<int>>(&b));
   refProducts.push_back(edm::RefProd<std::vector<int>>(&c));
   refProducts.push_back(edm::RefProd<std::vector<int>>(&c));

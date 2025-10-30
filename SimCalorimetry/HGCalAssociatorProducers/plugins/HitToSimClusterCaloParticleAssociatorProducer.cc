@@ -11,6 +11,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/Common/interface/MultiCollection.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
@@ -20,7 +21,7 @@ HitToSimClusterCaloParticleAssociatorProducer::HitToSimClusterCaloParticleAssoci
     : simClusterToken_(consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("simClusters"))),
       caloParticleToken_(consumes<std::vector<CaloParticle>>(pset.getParameter<edm::InputTag>("caloParticles"))),
       hitMapToken_(consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMap"))),
-      hitsToken_(consumes<MultiHGCRecHitCollection>(pset.getParameter<edm::InputTag>("hits"))) {
+      hitsToken_(consumes<edm::MultiCollection<HGCRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))) {
   produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToSimClusterMap");
   produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToCaloParticleMap");
 }
@@ -50,11 +51,12 @@ void HitToSimClusterCaloParticleAssociatorProducer::produce(edm::StreamID,
 
   // Protection against missing HGCRecHitCollection
   const auto hits = iEvent.get(hitsToken_);
-  for (const auto &hgcRecHitCollection : hits) {
+  for (std::size_t index = 0; const auto &hgcRecHitCollection : hits) {
     if (hgcRecHitCollection->empty()) {
       edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
-          << "One of the HGCRecHitCollections is not valid.";
+          << "HGCRecHitCollection #" << index << " is empty or not valid.";
     }
+    index++;
   }
 
   edm::MultiSpan<HGCRecHit> rechitSpan(hits);

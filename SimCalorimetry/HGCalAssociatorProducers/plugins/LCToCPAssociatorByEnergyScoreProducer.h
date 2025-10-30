@@ -18,12 +18,13 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "LCToCPAssociatorByEnergyScoreImpl.h"
 
+#include "DataFormats/Common/interface/MultiCollection.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
 template <typename HIT, typename CLUSTER>
 class LCToCPAssociatorByEnergyScoreProducerT : public edm::global::EDProducer<> {
 public:
-  using multiCollectionT = std::vector<edm::RefProd<std::vector<HIT>>>;
+  using multiCollectionT = edm::MultiCollection<std::vector<HIT>>;
 
   explicit LCToCPAssociatorByEnergyScoreProducerT(const edm::ParameterSet &);
   ~LCToCPAssociatorByEnergyScoreProducerT() override;

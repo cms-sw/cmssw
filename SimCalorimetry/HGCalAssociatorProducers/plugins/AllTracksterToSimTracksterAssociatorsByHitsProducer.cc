@@ -10,6 +10,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/Common/interface/MultiCollection.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
@@ -37,7 +38,7 @@ private:
   std::vector<std::pair<std::string, edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>>>>
       simTracksterToHitMapTokens_;
 
-  edm::EDGetTokenT<MultiHGCRecHitCollection> hitsToken_;
+  edm::EDGetTokenT<edm::MultiCollection<HGCRecHitCollection>> hitsToken_;
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticleToken_;
   edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>> hitToSimClusterMapToken_;
   edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>> hitToCaloParticleMapToken_;
@@ -45,7 +46,7 @@ private:
 
 AllTracksterToSimTracksterAssociatorsByHitsProducer::AllTracksterToSimTracksterAssociatorsByHitsProducer(
     const edm::ParameterSet& pset)
-    : hitsToken_(consumes<MultiHGCRecHitCollection>(pset.getParameter<edm::InputTag>("hits"))),
+    : hitsToken_(consumes<edm::MultiCollection<HGCRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))),
       caloParticleToken_(consumes<std::vector<CaloParticle>>(pset.getParameter<edm::InputTag>("caloParticles"))),
       hitToSimClusterMapToken_(consumes<ticl::AssociationMap<ticl::mapWithFraction>>(
           pset.getParameter<edm::InputTag>("hitToSimClusterMap"))),
@@ -118,11 +119,12 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
 
   // Protection against missing HGCRecHitCollection
   const auto hits = iEvent.get(hitsToken_);
-  for (const auto& hgcRecHitCollection : hits) {
+  for (std::size_t index = 0; const auto& hgcRecHitCollection : hits) {
     if (hgcRecHitCollection->empty()) {
       edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
-          << "One of the HGCRecHitCollections is not valid.";
+          << "HGCRecHitCollections # " << index << " is not valid.";
     }
+    index++;
   }
 
   edm::MultiSpan<HGCRecHit> rechitSpan(hits);

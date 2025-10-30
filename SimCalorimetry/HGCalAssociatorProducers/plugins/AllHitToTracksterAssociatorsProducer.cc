@@ -10,6 +10,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/Common/interface/MultiCollection.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
 class AllHitToTracksterAssociatorsProducer : public edm::global::EDProducer<> {
@@ -25,14 +26,14 @@ private:
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<ticl::Trackster>>>> tracksterCollectionTokens_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClustersToken_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
-  edm::EDGetTokenT<MultiHGCRecHitCollection> hitsToken_;
+  edm::EDGetTokenT<edm::MultiCollection<HGCRecHitCollection>> hitsToken_;
 };
 
 AllHitToTracksterAssociatorsProducer::AllHitToTracksterAssociatorsProducer(const edm::ParameterSet& pset)
     : layerClustersToken_(consumes<std::vector<reco::CaloCluster>>(pset.getParameter<edm::InputTag>("layerClusters"))),
       hitMapToken_(
           consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMapTag"))),
-      hitsToken_(consumes<MultiHGCRecHitCollection>(pset.getParameter<edm::InputTag>("hits"))) {
+      hitsToken_(consumes<edm::MultiCollection<HGCRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))) {
   const auto& tracksterCollections = pset.getParameter<std::vector<edm::InputTag>>("tracksterCollections");
   for (const auto& tag : tracksterCollections) {
     tracksterCollectionTokens_.emplace_back(tag.label() + tag.instance(), consumes<std::vector<ticl::Trackster>>(tag));
@@ -63,7 +64,7 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
   iEvent.getByToken(hitMapToken_, hitMap);
 
   if (!iEvent.getHandle(hitsToken_)) {
-    edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "Missing MultiHGCRecHitCollection.";
+    edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "Missing edm::MultiCollection<HGCRecHitCollection>.";
     for (const auto& tracksterToken : tracksterCollectionTokens_) {
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");

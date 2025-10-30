@@ -21,8 +21,7 @@
   <class name="edm::Ref<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit> >"/>
   <class name="edm::RefVector<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> > >"/>
-  <class name="MultiHGCRecHitCollection"/>
-  <class name="edm::Wrapper<MultiHGCRecHitCollection>"/>
+  <class name="edm::Wrapper<std::vector<edm::RefProd<std::vector<HGCRecHit> > > >"/>
   <class name="edm::Wrapper<std::vector<HGCRecHit>>"/>
  
 

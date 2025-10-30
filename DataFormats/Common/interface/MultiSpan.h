@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/MultiCollection.h"
 
 namespace edm {
 
@@ -32,7 +33,7 @@ namespace edm {
   public:
     MultiSpan() = default;
 
-    MultiSpan(const std::vector<edm::RefProd<std::vector<T>>>& refProducts) {
+    MultiSpan(const MultiCollection<std::vector<T>>& refProducts) {
       std::ranges::for_each(refProducts, [&](auto const& rp) { add(*rp); });
     }
 
