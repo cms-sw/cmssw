@@ -157,19 +157,16 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
   const auto& mkFitIterConfig = iSetup.getData(mkFitIterConfigToken_);
 
-  //const std::vector<bool>* pixelMaskPtr = nullptr;
   std::vector<bool> pixelMask(pixelHits.hits().size(), false);
   std::vector<bool> stripMask(stripHits.hits().size(), false);
   if (not pixelMaskToken_.isUninitialized()) {
     if (not pixelHits.hits().empty()) {
       const auto& pixelContainerMask = iEvent.get(pixelMaskToken_);
-      //pixelMask.resize(pixelContainerMask.size(), false);
       if UNLIKELY (pixelContainerMask.refProd().id() != pixelHits.clustersID()) {
         throw cms::Exception("LogicError") << "MkFitHitWrapper has pixel cluster ID " << pixelHits.clustersID()
                                            << " but pixel cluster mask has " << pixelContainerMask.refProd().id();
       }
       pixelContainerMask.copyMaskTo(pixelMask);
-      //pixelMaskPtr = &pixelMask;
     }
 
     if (not stripHits.hits().empty()) {
@@ -204,7 +201,6 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
                             mkFitIterConfig,
                             eventOfHits.get(),
                             {&pixelMask, &stripMask},
-                            //{pixelMaskPtr, &stripMask},
                             streamCache(iID)->get(),
                             seeds_mutable,
                             tracks,
