@@ -168,7 +168,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       void makePhase2ClustersAsync(Queue& queue,
                                    const SiPixelClusterThresholds clusterThresholds,
                                    SiPixelDigisSoAView& digis_view,
-                                   const uint32_t numDigis);
+                                   const uint32_t numDigis,
+                                   const uint32_t offsetBPIX2);
 
       SiPixelDigisSoACollection getDigis() {
         digis_d->setNModules(nModules_Clusters_h[0]);
