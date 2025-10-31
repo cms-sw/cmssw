@@ -184,6 +184,7 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet &iJet
     fCharge_.get()[i0] = 0;
   }
   auto iParts = iJet.constituents();
+  // Use stable sort for deterministic ordering when equal pT to match FW
   std::stable_sort(iParts.begin(), iParts.end(), [](edm::Ptr<l1t::PFCandidate> i, edm::Ptr<l1t::PFCandidate> j) {
     return (i->pt() > j->pt());
   });
@@ -218,8 +219,6 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet &iJet
     fDPhi_.get()[i0] = dphiw;
 
     constexpr int LOG_LUT_SIZE = 256;
-    inputtype log_jet_pt = l1ct::log_with_shift<l1ct::pt_t, inputtype, LOG_LUT_SIZE>(puppicand.hwPt);
-
     inputtype log_pt = l1ct::log_with_shift<l1ct::pt_t, inputtype, LOG_LUT_SIZE>(puppicand.hwPt);
     fPt_log_.get()[i0] = log_pt;
 

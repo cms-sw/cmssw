@@ -102,7 +102,7 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     l1ct::glbeta_t max_eta = fMaxEta_ / l1ct::Scales::ETAPHI_LSB;
     // If we want to update the hwPt of the jet?
     if (!returnRawPt_) {
-      if (eta_abs < max_eta && ctHWTaggedJet.hwPt > fMinPt_) {
+      if (eta_abs < max_eta && ctHWTaggedJet.hwPt > l1ct::Scales::makePt(fMinPt_)) {
         tempPt = ctHWTaggedJet.hwPt * PtCorrection_;
       } else {
         //If outside of the eta and pt range, clear out the tag scores
