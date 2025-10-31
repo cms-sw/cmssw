@@ -19,7 +19,7 @@ namespace l1ct {
   void init_little_log_table(table_T table_out[N]) {
     // The template data_T is the data type used to address the table
     for (unsigned i = 0; i < N; i++) {
-      table_T log_pow_x = std::log(std::pow(2,(i)));
+      table_T log_pow_x = std::log(std::pow(2, (i)));
       table_out[i] = log_pow_x;
     }
   }

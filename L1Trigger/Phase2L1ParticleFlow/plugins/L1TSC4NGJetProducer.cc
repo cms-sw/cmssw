@@ -69,8 +69,11 @@ L1TSC4NGJetProducer::L1TSC4NGJetProducer(const edm::ParameterSet& cfg)
   fJetId_ = std::make_unique<L1TSC4NGJetID>(model, fNParticles_, isDebugEnabled);
   produces<l1t::PFJetCollection>("l1tSC4NGJets");
   if (doJEC) {
-    corrector = l1tpf::corrector(
-        cfg.getParameter<std::string>("correctorFile"), cfg.getParameter<std::string>("correctorDir"), -1., isDebugEnabled, true);
+    corrector = l1tpf::corrector(cfg.getParameter<std::string>("correctorFile"),
+                                 cfg.getParameter<std::string>("correctorDir"),
+                                 -1.,
+                                 isDebugEnabled,
+                                 true);
   }
 }
 
@@ -86,7 +89,7 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       continue;
     }
     L1TSC4NGJetID::outputpairtype JetModel_output = fJetId_->computeFixed(srcjet);
-    std::vector<float> JetScore_float;    
+    std::vector<float> JetScore_float;
     for (unsigned i = 0; i < classes_.size(); i++) {
       ctHWTaggedJet.hwTagScores[i] = JetModel_output.second[i];
       JetScore_float.push_back((float)JetModel_output.second[i]);
@@ -97,13 +100,12 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // If ctHWTaggedJet within eta and pt range, then apply the correction
     l1ct::glbeta_t eta_abs = ctHWTaggedJet.hwEta < 0 ? l1ct::glbeta_t(-ctHWTaggedJet.hwEta) : ctHWTaggedJet.hwEta;
     l1ct::glbeta_t max_eta = fMaxEta_ / l1ct::Scales::ETAPHI_LSB;
-    // If we want to update the hwPt of the jet? 
-    if (!returnRawPt_){
+    // If we want to update the hwPt of the jet?
+    if (!returnRawPt_) {
       if (eta_abs < max_eta && ctHWTaggedJet.hwPt > fMinPt_) {
         tempPt = ctHWTaggedJet.hwPt * PtCorrection_;
-        }
-      else {
-          //If outside of the eta and pt range, clear out the tag scores
+      } else {
+        //If outside of the eta and pt range, clear out the tag scores
         JetScore_float.clear();
         for (unsigned i = 0; i < classes_.size(); i++) {
           ctHWTaggedJet.hwTagScores[i] = 0;

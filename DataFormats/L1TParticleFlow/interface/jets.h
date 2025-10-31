@@ -120,7 +120,7 @@ namespace l1ct {
       pack_into_bits(ret, start, hwPhi);
       pack_into_bits(ret, start, hwMassSq);
       pack_into_bits(ret, start, hwZ0);
-      start = start + 10; //offset for LLP + unassigned
+      start = start + 10;  //offset for LLP + unassigned
       for (unsigned i = 0; i < NTagFields; i++) {
         pack_into_bits(ret, start, hwTagScores[i]);
       }
@@ -148,7 +148,7 @@ namespace l1ct {
       unpack_from_bits(src, start, hwPhi);
       unpack_from_bits(src, start, hwZ0);
       unpack_from_bits(src, start, hwMassSq);
-      start = start + 10; //offset for LLP + unassigned
+      start = start + 10;  //offset for LLP + unassigned
       for (unsigned i = 0; i < NTagFields; i++) {
         unpack_from_bits(src, start, hwTagScores[i]);
       }

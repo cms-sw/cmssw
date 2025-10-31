@@ -12,39 +12,34 @@
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
 
-namespace L1TSC4NGJet{
+namespace L1TSC4NGJet {
 
-template<class t>
-t candidate_mass(l1ct::PuppiObj puppicand) {
-  // Define lookup table
-  static const t PION_MASS = t(0.13);
-  static const t PHOTON_MASS = t(0.0);
-  static const t ELECTRON_MASS = t(0.005);
-  static const t MUON_MASS = t(0.105);
-  static const t K_MASS = t(0.5);
+  template <class t>
+  t candidate_mass(l1ct::PuppiObj puppicand) {
+    // Define lookup table
+    static const t PION_MASS = t(0.13);
+    static const t PHOTON_MASS = t(0.0);
+    static const t ELECTRON_MASS = t(0.005);
+    static const t MUON_MASS = t(0.105);
+    static const t K_MASS = t(0.5);
 
-  // Default to pion mass
-  t massCand = PION_MASS;
+    // Default to pion mass
+    t massCand = PION_MASS;
 
-  if (puppicand.hwId.bits == l1ct::ParticleID::PHOTON) {
-    massCand = PHOTON_MASS;
-  }
-  else if (puppicand.hwId.bits == l1ct::ParticleID::ELEPLUS || 
-           puppicand.hwId.bits == l1ct::ParticleID::ELEMINUS) {
-    massCand = ELECTRON_MASS;
-  }
-  else if (puppicand.hwId.bits == l1ct::ParticleID::MUMINUS || 
-           puppicand.hwId.bits == l1ct::ParticleID::MUPLUS) {
-    massCand = MUON_MASS;
-  }
-  else if (puppicand.hwId.bits == l1ct::ParticleID::HADZERO) {
-    massCand = K_MASS;
+    if (puppicand.hwId.bits == l1ct::ParticleID::PHOTON) {
+      massCand = PHOTON_MASS;
+    } else if (puppicand.hwId.bits == l1ct::ParticleID::ELEPLUS || puppicand.hwId.bits == l1ct::ParticleID::ELEMINUS) {
+      massCand = ELECTRON_MASS;
+    } else if (puppicand.hwId.bits == l1ct::ParticleID::MUMINUS || puppicand.hwId.bits == l1ct::ParticleID::MUPLUS) {
+      massCand = MUON_MASS;
+    } else if (puppicand.hwId.bits == l1ct::ParticleID::HADZERO) {
+      massCand = K_MASS;
+    }
+
+    return massCand;
   }
 
-  return massCand;
-}
-
-}
+}  // namespace L1TSC4NGJet
 class L1TSC4NGJetID {
 public:
   L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles, bool debug);
@@ -57,8 +52,8 @@ public:
   // Intermediate output type to allow full precision multiplication of jet pt by the ratio
   typedef ap_ufixed<22, 12, AP_TRN, AP_SAT> output_regression_type;
   // Intermediate output type for classification score to be loaded into jet word
-  typedef std::array<l1ct::jet_tag_score_t,8> output_class_type;
-  typedef std::pair<regressiontype,output_class_type> outputpairtype; 
+  typedef std::array<l1ct::jet_tag_score_t, 8> output_class_type;
+  typedef std::pair<regressiontype, output_class_type> outputpairtype;
   void setNNVectorVar();
   outputpairtype EvaluateNNFixed();
   outputpairtype computeFixed(const l1t::PFJet &iJet);
