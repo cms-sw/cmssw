@@ -27,6 +27,7 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
+#include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
 class PileupSummaryInfo;
@@ -94,8 +95,7 @@ protected:
   std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>>
       associatorMapRtSim;
   std::unique_ptr<BarrelVHistoProducerAlgo> histoProducerAlgo_;
-  std::vector<edm::InputTag> hits_labels_;
-  std::vector<edm::EDGetTokenT<std::vector<reco::PFRecHit>>> hits_tokens_;
+  edm::EDGetTokenT<edm::RefProdVector<reco::PFRecHitCollection>> hitsToken_;
   edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
 
 private:

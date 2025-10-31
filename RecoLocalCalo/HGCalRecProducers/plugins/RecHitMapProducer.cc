@@ -13,6 +13,7 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
 class RecHitMapProducer : public edm::global::EDProducer<> {
@@ -43,9 +44,13 @@ RecHitMapProducer::RecHitMapProducer(const edm::ParameterSet& ps) : hgcalOnly_(p
     }
   }
 
+  produces<edm::RefProdVector<HGCRecHitCollection>>("RefProdVectorHGCRecHitCollection");
   produces<DetIdRecHitMap>("hgcalRecHitMap");
-  if (!hgcalOnly_)
+
+  if (!hgcalOnly_) {
+    produces<edm::RefProdVector<reco::PFRecHitCollection>>("RefProdVectorPFRecHitCollection");
     produces<DetIdRecHitMap>("barrelRecHitMap");
+  }
 }
 
 void RecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -69,22 +74,24 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
 
   // Check validity of all handles
   if (!ee_hits.isValid() || !fh_hits.isValid() || !bh_hits.isValid()) {
-    edm::LogWarning("HGCalRecHitMapProducer")
-        << "One or more HGCal hit collections are unavailable. Returning an empty map.";
+    edm::LogWarning("HGCalRecHitMapProducer") << "One or more HGCal hit collections are unavailable. Returning an "
+                                                 "empty map and an empty RefProdVectorHGCRecHitCollection";
+    evt.put(std::make_unique<edm::RefProdVector<HGCRecHitCollection>>(), "RefProdVectorHGCRecHitCollection");
     evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
   } else {
-    // TODO may be worth to avoid dependency on the order
-    // of the collections, maybe using a map
-    edm::MultiSpan<HGCRecHit> rechitSpan;
-    rechitSpan.add(*ee_hits);
-    rechitSpan.add(*fh_hits);
-    rechitSpan.add(*bh_hits);
+    // Fix order by storing a edm::RefProdVector<HGCRecHitCollection>
+    auto mcHGCRecHit = std::make_unique<edm::RefProdVector<HGCRecHitCollection>>();
+    mcHGCRecHit->push_back(edm::RefProd<HGCRecHitCollection>(ee_hits));
+    mcHGCRecHit->push_back(edm::RefProd<HGCRecHitCollection>(fh_hits));
+    mcHGCRecHit->push_back(edm::RefProd<HGCRecHitCollection>(bh_hits));
 
+    edm::MultiSpan<HGCRecHit> rechitSpan(*mcHGCRecHit);
     for (unsigned int i = 0; i < rechitSpan.size(); ++i) {
       const auto recHitDetId = rechitSpan[i].detid();
       hitMapHGCal->emplace(recHitDetId, i);
     }
 
+    evt.put(std::move(mcHGCRecHit), "RefProdVectorHGCRecHitCollection");
     evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
   }
 
@@ -99,18 +106,22 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
   const auto& hbhe_hits = evt.getHandle(barrel_hits_token_[1]);
 
   if (!ecal_hits.isValid() || !hbhe_hits.isValid()) {
-    edm::LogWarning("HGCalRecHitMapProducer")
-        << "One or more barrel hit collections are unavailable. Returning an empty map.";
+    edm::LogWarning("HGCalRecHitMapProducer") << "One or more barrel hit collections are unavailable. Returning an "
+                                                 "empty map and an empty RefProdVectorPFRecHitCollection";
+    evt.put(std::make_unique<edm::RefProdVector<reco::PFRecHitCollection>>(), "RefProdVectorPFRecHitCollection");
     evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
   } else {
-    edm::MultiSpan<reco::PFRecHit> barrelRechitSpan;
-    barrelRechitSpan.add(evt.get(barrel_hits_token_[0]));
-    barrelRechitSpan.add(evt.get(barrel_hits_token_[1]));
+    auto mcPFRecHit = std::make_unique<edm::RefProdVector<reco::PFRecHitCollection>>();
+    mcPFRecHit->push_back(edm::RefProd<reco::PFRecHitCollection>(ecal_hits));
+    mcPFRecHit->push_back(edm::RefProd<reco::PFRecHitCollection>(hbhe_hits));
+
+    edm::MultiSpan<reco::PFRecHit> barrelRechitSpan(*mcPFRecHit);
     for (unsigned int i = 0; i < barrelRechitSpan.size(); ++i) {
       const auto recHitDetId = barrelRechitSpan[i].detId();
       hitMapBarrel->emplace(recHitDetId, i);
     }
 
+    evt.put(std::move(mcPFRecHit), "RefProdVectorPFRecHitCollection");
     evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
   }
 }

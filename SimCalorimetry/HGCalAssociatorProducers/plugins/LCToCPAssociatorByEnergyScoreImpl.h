@@ -68,11 +68,13 @@ namespace ticl {
 template <typename HIT, typename CLUSTER>
 class LCToCPAssociatorByEnergyScoreImplT : public ticl::LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER> {
 public:
+  using multiCollectionT = std::vector<edm::RefProd<std::vector<HIT>>>;
+
   explicit LCToCPAssociatorByEnergyScoreImplT(edm::EDProductGetter const &,
                                               bool,
                                               std::shared_ptr<hgcal::RecHitTools>,
                                               const std::unordered_map<DetId, const unsigned int> *,
-                                              const std::vector<const HIT *> &hits);
+                                              const multiCollectionT &hits);
 
   ticl::RecoToSimCollectionT<CLUSTER> associateRecoToSim(
       const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH) const override;
@@ -88,7 +90,7 @@ private:
   edm::EDProductGetter const *productGetter_;
   ticl::association makeConnections(const edm::Handle<CLUSTER> &cCH,
                                     const edm::Handle<CaloParticleCollection> &cPCH) const;
-  std::vector<const HIT *> hits_;
+  multiCollectionT hits_;
 };
 
 extern template class LCToCPAssociatorByEnergyScoreImplT<HGCRecHit, reco::CaloClusterCollection>;

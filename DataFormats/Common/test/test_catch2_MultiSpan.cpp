@@ -6,6 +6,8 @@
 #include <catch2/catch_all.hpp>
 
 #include "DataFormats/Common/interface/MultiSpan.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
 
 TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
   edm::MultiSpan<int> emptyMultiSpan;
@@ -36,6 +38,18 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
 
   ms3.add(a);
   ms3.add(c);
+
+  edm::RefProdVector<std::vector<int>> refProducts;
+  refProducts.push_back(edm::RefProd<std::vector<int>>(&b));
+  refProducts.push_back(edm::RefProd<std::vector<int>>(&c));
+  refProducts.push_back(edm::RefProd<std::vector<int>>(&c));
+  refProducts.push_back(edm::RefProd<std::vector<int>>(&c));
+  refProducts.push_back(edm::RefProd<std::vector<int>>(&b));
+  refProducts.push_back(edm::RefProd<std::vector<int>>(&a));
+  refProducts.push_back(edm::RefProd<std::vector<int>>(&c));
+  refProducts.push_back(
+      edm::RefProd<std::vector<int>>(nullptr));  // Adding a null RefProd. It should be ignored by MultiSpan
+  edm::MultiSpan<int> ms4(refProducts);          // MultiSpan from std::vector of RefProds<std::vector>
 
   using ElementType = decltype(ms[0]);
   // Check that the const-correctness of the MultiSpan
@@ -174,5 +188,27 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
       collected.push_back(val);
     }
     REQUIRE(collected == std::vector<int>{a[0], a[1], a[2]});
+  }
+
+  SECTION("Check MultiSpan constructed from std::vector of RefProds<std::vector>") {
+    REQUIRE(ms4.size() == 7);
+
+    REQUIRE(ms4[0] == b[0]);
+    REQUIRE(ms4[1] == b[1]);
+    REQUIRE(ms4[2] == b[0]);
+    REQUIRE(ms4[3] == b[1]);
+    REQUIRE(ms4[4] == a[0]);
+    REQUIRE(ms4[5] == a[1]);
+    REQUIRE(ms4[6] == a[2]);
+
+    REQUIRE(ms4.globalIndex(0, 0) == 0);
+    REQUIRE(ms4.globalIndex(1, 1) == 3);
+    REQUIRE(ms4.globalIndex(2, 1) == 5);
+
+    std::vector<int> collected;
+    for (auto val : ms4) {
+      collected.push_back(val);
+    }
+    REQUIRE(collected == std::vector<int>{b[0], b[1], b[0], b[1], a[0], a[1], a[2]});
   }
 }
