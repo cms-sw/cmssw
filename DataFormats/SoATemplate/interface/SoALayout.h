@@ -145,18 +145,18 @@ namespace cms::soa {
           parent_.BOOST_PP_CAT(NAME, Stride_));                                                                        \
       }                                                                                                                \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::eigen;     \
-  )																													   \
+  )																													                                                           \
   SOA_HOST_DEVICE SOA_INLINE                                                                                       	   \
-  auto* BOOST_PP_CAT(addressOf_, NAME)() {                                                                     		   \
-	return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           	   \
+  auto* BOOST_PP_CAT(addressOf_, NAME)() {                                                                     		     \
+	return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           	     \
   }                                                                                                               	   \
   SOA_HOST_DEVICE SOA_INLINE                                                                                       	   \
-  const auto* BOOST_PP_CAT(addressOf_, NAME)() const {                                                         		   \
-	return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           	   \
-  } 																												   \
+  const auto* BOOST_PP_CAT(addressOf_, NAME)() const {                                                         		     \
+	return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           	     \
+  } 																												                                                           \
   SOA_HOST_DEVICE SOA_INLINE byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                        \
-	return cms::soa::detail::computePitch(parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)(),					   \
-						ParentClass::alignment, parent_.elements_);													   \
+	return cms::soa::detail::computePitch(parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)(),					               \
+						ParentClass::alignment, parent_.elements_);													                                       \
   }
 // clang-format on
 
@@ -190,6 +190,264 @@ namespace cms::soa {
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_DESCRIPTOR_SPANS_IMPL TYPE_NAME))
+
+/**
+ * Declare the accessors for the AoS element 
+ */
+// clang-format off
+#define _DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                         \
+  _SWITCH_ON_TYPE(                                                                                      \
+      VALUE_TYPE,                                                                    /* Scalar */       \
+      ,                                                                              /* Column */       \
+      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME() { return BOOST_PP_CAT(NAME, _); }, /* Eigen column */ \
+      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME() { return BOOST_PP_CAT(NAME, _); })
+// clang-format on
+
+#define _DECLARE_VALUE_ELEMENT_ACCESSORS(R, DATA, TYPE_NAME)                                \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL TYPE_NAME))
+
+/**
+ * Declare the const accessors for the AoS element 
+ */
+// clang-format off
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _SWITCH_ON_TYPE(                                                                    \
+      VALUE_TYPE, /* Scalar */                                                        \
+      ,           /* Column */                                                        \
+      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME()                   \
+          const { return BOOST_PP_CAT(NAME, _); }, /* Eigen column */                 \
+      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME() const { return BOOST_PP_CAT(NAME, _); })
+// clang-format on
+
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS(R, DATA, TYPE_NAME)                          \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL TYPE_NAME))
+
+/**
+ * Operator to assign a SoA element to an AoS element 
+ */
+// clang-format off
+#define _DECLARE_ELEMENT_PARAMS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                             \
+                  ,           /* Column */                             \
+                  BOOST_PP_CAT(NAME, _) = elem.NAME();                 \
+                  , /* Eigen column */                                 \
+                  BOOST_PP_CAT(NAME, _) = elem.NAME();)
+// clang-format on
+
+#define _DECLARE_ELEMENT_PARAMS(R, DATA, TYPE_NAME)                                         \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_ELEMENT_PARAMS_IMPL TYPE_NAME))
+
+/**
+ * Declare the const accessors for the AoS scalars
+ */
+// clang-format off
+#define _DECLARE_AOS_CONSTVIEW_SCALAR_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _SWITCH_ON_TYPE(                                                                     \
+      VALUE_TYPE, /* Scalar */                                                         \
+      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME()                    \
+          const { return *BOOST_PP_CAT(NAME, _); }, /* Column */                       \
+      ,                                             /* Eigen column */                 \
+  )
+// clang-format on
+
+#define _DECLARE_AOS_CONSTVIEW_SCALAR_ACCESSORS(R, DATA, TYPE_NAME)                         \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_AOS_CONSTVIEW_SCALAR_ACCESSORS_IMPL TYPE_NAME))
+
+/**
+ * Declare the AoS scalars as data members
+ */
+// clang-format off
+#define _DECLARE_SCALAR_MEMBERS_AOS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                                 \
+                  CPP_TYPE* BOOST_PP_CAT(NAME, _);                         \
+                  , /* Column */                                           \
+                  , /* Eigen column */                                     \
+  )
+// clang-format on
+
+#define _DECLARE_SCALAR_MEMBERS_AOS(R, DATA, TYPE_NAME)                                     \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_SCALAR_MEMBERS_AOS_IMPL TYPE_NAME))
+
+/**
+ * Declare the const AoS scalars as data members
+ */
+// clang-format off
+#define _DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                                           \
+                  std::add_const_t<CPP_TYPE>* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(1);   \
+                  , /* Column */                                                     \
+                  , /* Eigen column */                                               \
+  )
+// clang-format on
+
+#define _DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW(R, DATA, TYPE_NAME)                           \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW_IMPL TYPE_NAME))
+
+/**
+ * Default construct AoSView scalars
+ */
+// clang-format off
+#define _DEFAULT_CONSTVIEW_AOS_SCALARS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)           \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                            /* Scalar */       \
+                  (BOOST_PP_CAT(NAME, _){nullptr}), /* Column */                            \
+                  ,                                                      /* Eigen column */ \
+  )
+// clang-format on
+
+#define _DEFAULT_CONSTVIEW_AOS_SCALARS(R, DATA, TYPE_NAME)                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DEFAULT_CONSTVIEW_AOS_SCALARS_IMPL TYPE_NAME))
+
+/**
+ * Construct AoSView scalars from AoS Layout
+ */
+// clang-format off
+#define _INSTANTIATE_CONSTVIEW_AOS_SCALARS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)           \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                            /* Scalar */       \
+                  (BOOST_PP_CAT(NAME, _){layout.BOOST_PP_CAT(NAME, _)}), /* Column */       \
+                  ,                                                      /* Eigen column */ \
+  )
+// clang-format on
+
+#define _INSTANTIATE_CONSTVIEW_AOS_SCALARS(R, DATA, TYPE_NAME)                              \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_INSTANTIATE_CONSTVIEW_AOS_SCALARS_IMPL TYPE_NAME))
+
+/**
+ * Computation of the scalar size for AoS size computation
+ */
+// clang-format off
+#define _ACCUMULATE_AOS_SCALARS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                 \
+  _soa_impl_ret += cms::soa::detail::AccumulateAoSByteSizes<BOOST_PP_CAT(typename Metadata::ParametersTypeOf_, NAME)>{}();
+// clang-format on
+
+#define _ACCUMULATE_AOS_SCALARS(R, DATA, TYPE_NAME)                                         \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_ACCUMULATE_AOS_SCALARS_IMPL TYPE_NAME))
+
+/**
+ * Assign the memory to the AoS scalars
+ */
+// clang-format off
+#define _ASSIGN_AOS_SCALAR_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)   \
+  _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                                  \
+                  BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(mem); \
+                  mem += sizeof(CPP_TYPE);                                  \
+                  , /* Column */                                            \
+                  , /* Eigen column */                                      \
+  )
+// clang-format on
+
+#define _ASSIGN_AOS_SCALAR_MEMBERS(R, DATA, TYPE_NAME)                                      \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_ASSIGN_AOS_SCALAR_MEMBERS_IMPL TYPE_NAME))
+
+/**
+ * Copy the AoS scalars from a SoA view
+ */
+// clang-format off
+#define _COPY_AOS_SCALAR_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                              \
+                  this->NAME() = view.NAME();                           \
+                  , /* Column */                                        \
+                  , /* Eigen column */                                  \
+  )
+
+#define _COPY_AOS_SCALAR_MEMBERS(R, DATA, TYPE_NAME)                                        \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_COPY_AOS_SCALAR_MEMBERS_IMPL TYPE_NAME))
+
+/**
+ * Declare the const accessors for the AoSView scalars
+ */
+// clang-format off
+#define _DECLARE_AOS_VIEW_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                               \
+  _SWITCH_ON_TYPE(                                                                                                    \
+      VALUE_TYPE,                                                                                                     \
+      /* Scalar */                                                                                                    \
+      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME() const { return *BOOST_PP_CAT(NAME, _); }          \
+      ,                                                                                                               \
+      /* Column */                                                                                                    \
+      SOA_HOST_DEVICE SOA_INLINE typename cms::soa::AoSConstMember<&value_element::BOOST_PP_CAT(NAME, _)>::template   \
+        AoSElement<value_element>::ConstColumn NAME() const                                                           \
+          { return typename cms::soa::AoSConstMember<&value_element::BOOST_PP_CAT(NAME, _)>::template                 \
+            AoSElement<value_element>::ConstColumn(aos_, elements_); }                                                \
+      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME(size_type aos_impl_index) const                     \
+        { return aos_[aos_impl_index].NAME(); }                                                                       \
+      ,                                                                                                               \
+      /* Eigen column */                                                                                              \
+      SOA_HOST_DEVICE SOA_INLINE typename cms::soa::AoSConstMember<&value_element::BOOST_PP_CAT(NAME, _)>::template   \
+        AoSElement<value_element>::ConstColumn NAME() const                                                           \
+          { return typename cms::soa::AoSConstMember<&value_element::BOOST_PP_CAT(NAME, _)>::template                 \
+              AoSElement<value_element>::ConstColumn(aos_, elements_); }                                              \
+      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME(size_type aos_impl_index) const                     \
+        { return aos_[aos_impl_index].NAME(); }                                                                       \
+  )
+
+#define _DECLARE_AOS_VIEW_CONST_ACCESSORS(R, DATA, TYPE_NAME)                        \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_AOS_VIEW_CONST_ACCESSORS_IMPL TYPE_NAME))
+
+/**
+ * Declare the mutable accessors for the AoSView scalars
+ */
+// clang-format off
+#define _DECLARE_AOS_VIEW_SCALAR_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                      \
+  _SWITCH_ON_TYPE(                                                                                                     \
+      VALUE_TYPE,                                                                                                      \
+      /* Scalar */                                                                                                     \
+      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME() { return const_cast<CPP_TYPE&>(*base_type::BOOST_PP_CAT(NAME, _)); } \
+      ,                                                                                                                \
+      /* Column */                                                                                                     \
+      SOA_HOST_DEVICE SOA_INLINE typename cms::soa::AoSMember<&value_element::BOOST_PP_CAT(NAME, _)>::template         \
+        AoSElement<value_element>::Column NAME()                                                                       \
+          { return typename cms::soa::AoSMember<&value_element::BOOST_PP_CAT(NAME, _)>::template                       \
+            AoSElement<value_element>::Column(cms::soa::non_const_ptr(base_type::aos_), base_type::elements_); }       \
+      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME(size_type aos_impl_index)                                              \
+        { return const_cast<CPP_TYPE&>(base_type::aos_[aos_impl_index].NAME()); }                                      \
+      ,                                                                                                                \
+      /* Eigen column */                                                                                               \
+      SOA_HOST_DEVICE SOA_INLINE typename cms::soa::AoSMember<&value_element::BOOST_PP_CAT(NAME, _)>::template         \
+        AoSElement<value_element>::Column NAME()                                                                       \
+          { return typename cms::soa::AoSMember<&value_element::BOOST_PP_CAT(NAME, _)>::template                       \
+            AoSElement<value_element>::Column(cms::soa::non_const_ptr(base_type::aos_), base_type::elements_); }       \
+      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME(size_type aos_impl_index)                                              \
+        { return const_cast<CPP_TYPE&>(base_type::aos_[aos_impl_index].NAME()); }                                      \
+  )
+
+#define _DECLARE_AOS_VIEW_SCALAR_ACCESSORS(R, DATA, TYPE_NAME)                              \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_AOS_VIEW_SCALAR_ACCESSORS_IMPL TYPE_NAME))
+
+/**
+ * Declare the aliases for the const accessors from the base class
+ */              
+#define _DECLARE_USING_AOS_VIEW_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)      \
+  using base_type::NAME;                                                                    \
+
+#define _DECLARE_USING_AOS_VIEW_CONST_ACCESSORS(R, DATA, TYPE_NAME)                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_USING_AOS_VIEW_CONST_ACCESSORS_IMPL TYPE_NAME))      \
 
 /**
  * Build the spans of the (const) descriptor from a (const) view 
@@ -280,10 +538,10 @@ namespace cms::soa {
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      CPP_TYPE NAME;                                                                                                   \
+      CPP_TYPE BOOST_PP_CAT(NAME, _);                                                                                  \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
-      CPP_TYPE NAME;                                                                                                   \
+      CPP_TYPE BOOST_PP_CAT(NAME, _);                                                                                  \
   )
 // clang-format on
 
@@ -322,10 +580,10 @@ namespace cms::soa {
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      (NAME{NAME})                                                                                                     \
+      (BOOST_PP_CAT(NAME, _){NAME})                                                                                    \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
-      (NAME{NAME})                                                                                                     \
+      (BOOST_PP_CAT(NAME, _){NAME})                                                                                    \
   )
 // clang-format on
 
@@ -466,6 +724,47 @@ namespace cms::soa {
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_STREAMER_READ_SOA_DATA_MEMBER_IMPL TYPE_NAME))
+
+/**
+ * AoS member ROOT streamer read (column pointers).
+ */
+// clang-format off
+#define _STREAMER_READ_AOS_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                          \
+    _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                        \
+      /* Scalar */                                                                                                     \
+      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                   \
+      ,                                                                                                                \
+      /* Column */                                                                                                     \
+      ,                                                                                                                \
+      /* Eigen column */                                                                                               \
+	)
+// clang-format on
+
+#define _STREAMER_READ_AOS_DATA_MEMBER(R, DATA, TYPE_NAME)                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_STREAMER_READ_AOS_DATA_MEMBER_IMPL TYPE_NAME))
+
+/**
+ * Freeing of the ROOT-allocated column or scalar buffer
+ */
+// clang-format off
+#define _ROOT_FREE_AOS_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                        \
+    /* Scalar */                                                                                                     \
+    delete[] BOOST_PP_CAT(NAME, _);                                                                                  \
+    BOOST_PP_CAT(NAME, _) = nullptr;                                                                                 \
+    ,                                                                                                                \
+    /* Column */                                                                                                     \
+    ,                                                                                                                \
+    /* Eigen column */                                                                                               \
+)
+// clang-format on
+
+#define _ROOT_FREE_AOS_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)                                 \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_ROOT_FREE_AOS_COLUMN_OR_SCALAR_IMPL TYPE_NAME))
 
 // clang-format off
 #define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
@@ -1086,10 +1385,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       /* Scalar (empty) */                                                                                           \
       ,                                                                                                              \
       /* Column */                                                                                                   \
-      NAME() = _soa_impl_value.NAME;                                                                                 \
+      NAME() = _soa_impl_value.NAME();                                                                                 \
       ,                                                                                                              \
       /* Eigen column */                                                                                             \
-      NAME() = _soa_impl_value.NAME;                                                                                 \
+      NAME() = _soa_impl_value.NAME();                                                                                 \
 )
 // clang-format on
 
@@ -1281,6 +1580,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
             bool RANGE_CHECKING = cms::soa::RangeChecking::Default>                                                    \
     struct ViewTemplateFreeParams;                                                                                     \
                                                                                                                        \
+    constexpr static bool isSoA = true;                                                                                \
+                                                                                                                       \
     /* dump the SoA internal structure */                                                                              \
     SOA_HOST_ONLY                                                                                                      \
     void soaToStreamInternal(std::ostream & _soa_impl_os) const {                                                      \
@@ -1332,6 +1633,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         )                                                                                                              \
         {}                                                                                                             \
                                                                                                                        \
+        /* Useful accessors for the AoS element */                                                                     \
+        _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_ACCESSORS, ~, __VA_ARGS__)                                              \
+        _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS, ~, __VA_ARGS__)                                        \
+                                                                                                                       \
+        template<class T>                                                                                              \
+        requires (!std::same_as<std::decay_t<T>, value_element>)                                                       \
+        SOA_HOST_DEVICE SOA_INLINE constexpr value_element& operator=(T const& elem) {                                 \
+          _ITERATE_ON_ALL(_DECLARE_ELEMENT_PARAMS, ~, __VA_ARGS__)                                                     \
+          return *this;                                                                                                \
+        }                                                                                                              \
+                                                                                                                       \
         _ITERATE_ON_ALL(_DEFINE_VALUE_ELEMENT_MEMBERS, ~, __VA_ARGS__)                                                 \
       };                                                                                                               \
                                                                                                                        \
@@ -1378,6 +1690,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
       constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
       constexpr static bool rangeChecking = RANGE_CHECKING;                                                            \
+      constexpr static bool isSoA = BOOST_PP_CAT(CLASS, _parametrized)::isSoA;                                         \
                                                                                                                        \
       /**                                                                                                              \
        * Helper/friend class allowing SoA introspection.                                                               \
@@ -1424,7 +1737,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* Constructor relying the layout */                                                                             \
       SOA_HOST_ONLY ConstViewTemplateFreeParams(const Metadata::TypeOf_Layout& layout)                                 \
-      : elements_(layout.metadata().size()),                                                                           \
+      : elements_(layout.elements_),                                                                                   \
         _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS, ~, __VA_ARGS__) {}                                    \
                                                                                                                        \
       /* Constructor relying on individually provided column structs */                                                \
@@ -1676,6 +1989,16 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       /* non-const accessors */                                                                                        \
       _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_ACCESSOR, ~, __VA_ARGS__)                                                      \
                                                                                                                        \
+      /* Helper method to transpose the AoS into an SoA */                                                             \
+      template <typename AoSConstView>                                                                                 \
+      requires (!AoSConstView::isSoA)                                                                                  \
+      SOA_HOST_DEVICE SOA_INLINE void transpose(AoSConstView const& view, size_type index) {                           \
+        if (index == 0) {                                                                                              \
+          _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                    \
+        }                                                                                                              \
+        (*this)[index] = view[index];                                                                                  \
+      }                                                                                                                \
+                                                                                                                       \
       /* dump the SoA internal structure */                                                                            \
       template <typename T>                                                                                            \
       SOA_HOST_ONLY friend void dump();                                                                                \
@@ -1685,6 +2008,222 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
                                                                                                                        \
     using View = ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::Default>;                   \
+                                                                                                                       \
+    /* AoS as subclass of the SoA. The main purpose should be to perform the heterogeneous tranposition  */            \
+    /* from SoA to AoS. This class is a suitable template parameter for the PortableCollections. */                    \
+    struct AoSWrapper {                                                                                                \
+    friend CLASS;                                                                                                      \
+    static constexpr bool isSoA = false;                                                                               \
+                                                                                                                       \
+    /* Helper function used by caller to externally allocate the storage */                                            \
+    static constexpr byte_size_type computeDataSize(size_type elements) {                                              \
+      byte_size_type _soa_impl_ret = elements * sizeof(typename CLASS::Metadata::value_element);                       \
+      _ITERATE_ON_ALL(_ACCUMULATE_AOS_SCALARS, ~, __VA_ARGS__)                                                         \
+      return _soa_impl_ret;                                                                                            \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* Default constructor */                                                                                          \
+    AoSWrapper()                                                                                                       \
+    : mem_{nullptr},                                                                                                   \
+      byteSize_{0},                                                                                                    \
+      elements_{0},                                                                                                    \
+      aos_{nullptr}                                                                                                    \
+      BOOST_PP_IF(BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_DEFAULT_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)),                  \
+        BOOST_PP_COMMA, BOOST_PP_EMPTY)()                                                                              \
+        BOOST_PP_TUPLE_ENUM(BOOST_PP_IF(                                                                               \
+          BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_DEFAULT_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__) ),                         \
+          (_ITERATE_ON_ALL_COMMA(_DEFAULT_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)),                                     \
+          ())) {}                                                                                                      \
+                                                                                                                       \
+    /* Standard constructor for the PortableCollections */                                                             \
+    AoSWrapper(std::byte* mem, size_type elements) : mem_{mem}, elements_{elements} {                                  \
+      aos_ = reinterpret_cast<typename CLASS::Metadata::value_element*>(mem);                                          \
+      mem += elements * sizeof(typename CLASS::Metadata::value_element);                                               \
+      _ITERATE_ON_ALL(_ASSIGN_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                      \
+      byteSize_ = computeDataSize(elements);                                                                           \
+    }                                                                                                                  \
+                                                                                                                       \
+   /**                                                                                                                 \
+    * Helper/friend class allowing AoS introspection.                                                                  \
+    */                                                                                                                 \
+    struct AoSMetadata {                                                                                               \
+      friend AoSWrapper;                                                                                               \
+      SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                  \
+      SOA_HOST_DEVICE SOA_INLINE byte_size_type byteSize() const { return parent_.byteSize_; }                         \
+      SOA_HOST_DEVICE SOA_INLINE std::byte* nextByte() const { return parent_.mem_ + parent_.byteSize_; }              \
+      SOA_HOST_DEVICE SOA_INLINE CLASS::AoSWrapper cloneToNewAddress(std::byte* _soa_impl_addr) const {                \
+        return CLASS::AoSWrapper(_soa_impl_addr, parent_.elements_);                                                   \
+      }                                                                                                                \
+                                                                                                                       \
+      AoSMetadata& operator=(const AoSMetadata&) = delete;                                                             \
+      AoSMetadata(const AoSMetadata&) = delete;                                                                        \
+                                                                                                                       \
+    private:                                                                                                           \
+      SOA_HOST_DEVICE SOA_INLINE AoSMetadata(const CLASS::AoSWrapper& _soa_impl_parent) : parent_(_soa_impl_parent) {} \
+      const CLASS::AoSWrapper& parent_;                                                                                \
+    };                                                                                                                 \
+                                                                                                                       \
+    friend AoSMetadata;                                                                                                \
+                                                                                                                       \
+    SOA_HOST_DEVICE SOA_INLINE const AoSMetadata metadata() const { return AoSMetadata(*this); }                       \
+    SOA_HOST_DEVICE SOA_INLINE AoSMetadata metadata() { return AoSMetadata(*this); }                                   \
+                                                                                                                       \
+    struct ConstView {                                                                                                 \
+      friend CLASS::AoSWrapper;                                                                                        \
+      using SoAMetadata = typename CLASS::Metadata;                                                                    \
+      using value_element = typename SoAMetadata::value_element;                                                       \
+      constexpr static bool isSoA = AoSWrapper::isSoA;                                                                 \
+                                                                                                                       \
+      /**                                                                                                              \
+       * Helper/friend class allowing AoS introspection.                                                               \
+       */                                                                                                              \
+       struct AoSMetadata {                                                                                            \
+        friend ConstView;                                                                                              \
+        SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                \
+                                                                                                                       \
+        /* Forbid copying to avoid const correctness evasion */                                                        \
+        AoSMetadata& operator=(const AoSMetadata&) = delete;                                                           \
+        AoSMetadata(const AoSMetadata&) = delete;                                                                      \
+                                                                                                                       \
+      private:                                                                                                         \
+        SOA_HOST_DEVICE SOA_INLINE AoSMetadata(const ConstView& _soa_impl_parent)                                      \
+        : parent_(_soa_impl_parent) {}                                                                                 \
+        const ConstView& parent_;                                                                                      \
+      };                                                                                                               \
+      SOA_HOST_DEVICE SOA_INLINE const AoSMetadata metadata() const { return AoSMetadata(*this); }                     \
+                                                                                                                       \
+      SOA_HOST_DEVICE SOA_INLINE const value_element& operator[] (size_type index) const {                             \
+        if (index < 0 || index >= elements_) {                                                                         \
+          SOA_THROW_OUT_OF_RANGE("Out of range index in AoSWrapper ::operator[]", index, elements_)                    \
+        }                                                                                                              \
+        return aos_[index];                                                                                            \
+      }                                                                                                                \
+                                                                                                                       \
+      /* Const accessors */                                                                                            \
+      _ITERATE_ON_ALL(_DECLARE_AOS_VIEW_CONST_ACCESSORS, ~, __VA_ARGS__)                                               \
+                                                                                                                       \
+      /* Trivial constuctor */                                                                                         \
+      ConstView() = default;                                                                                           \
+                                                                                                                       \
+      /* Copiable */                                                                                                   \
+      ConstView(ConstView const&) = default;                                                                           \
+      ConstView& operator=(ConstView const&) = default;                                                                \
+                                                                                                                       \
+      /* Movable */                                                                                                    \
+      ConstView(ConstView &&) = default;                                                                               \
+      ConstView& operator=(ConstView &&) = default;                                                                    \
+                                                                                                                       \
+      /* Trivial destuctor */                                                                                          \
+      ~ConstView() = default;                                                                                          \
+                                                                                                                       \
+      /* Constructor relying the layout */                                                                             \
+      SOA_HOST_ONLY ConstView(const CLASS::AoSWrapper& layout)                                                         \
+      : elements_{layout.elements_},                                                                                   \
+        aos_{layout.aos_}                                                                                              \
+        BOOST_PP_IF(BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_INSTANTIATE_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)),            \
+                    BOOST_PP_COMMA, BOOST_PP_EMPTY)()                                                                  \
+        BOOST_PP_TUPLE_ENUM(BOOST_PP_IF(                                                                               \
+          BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_INSTANTIATE_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__) ),                     \
+          (_ITERATE_ON_ALL_COMMA(_INSTANTIATE_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)),                                 \
+          ())) {}                                                                                                      \
+                                                                                                                       \
+      private:                                                                                                         \
+          size_type elements_ = 0;                                                                                     \
+          value_element const* aos_ EDM_REFLEX_SIZE(elements_) = nullptr;                                              \
+          _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW, ~, __VA_ARGS__)                                       \
+    };                                                                                                                 \
+                                                                                                                       \
+    struct View : public ConstView {                                                                                   \
+      friend CLASS::AoSWrapper;                                                                                        \
+      using base_type = ConstView;                                                                                     \
+      using SoAMetadata = typename CLASS::Metadata;                                                                    \
+      using value_element = typename SoAMetadata::value_element;                                                       \
+                                                                                                                       \
+      /**                                                                                                              \
+       * Helper/friend class allowing AoS introspection.                                                               \
+       */                                                                                                              \
+       struct AoSMetadata {                                                                                            \
+        friend View;                                                                                                   \
+        SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                \
+                                                                                                                       \
+        /* Forbid copying to avoid const correctness evasion */                                                        \
+        AoSMetadata& operator=(const AoSMetadata&) = delete;                                                           \
+        AoSMetadata(const AoSMetadata&) = delete;                                                                      \
+                                                                                                                       \
+      private:                                                                                                         \
+        SOA_HOST_DEVICE SOA_INLINE AoSMetadata(const View& _soa_impl_parent)                                           \
+        : parent_(_soa_impl_parent) {}                                                                                 \
+        const View& parent_;                                                                                           \
+      };                                                                                                               \
+      SOA_HOST_DEVICE SOA_INLINE const AoSMetadata metadata() const { return AoSMetadata(*this); }                     \
+      SOA_HOST_DEVICE SOA_INLINE AoSMetadata metadata() { return AoSMetadata(*this); }                                 \
+                                                                                                                       \
+      using base_type::operator[];                                                                                     \
+                                                                                                                       \
+      SOA_HOST_DEVICE SOA_INLINE value_element& operator[] (size_type index) {                                         \
+        return const_cast<value_element&>(ConstView::operator[](index));                                               \
+      }                                                                                                                \
+                                                                                                                       \
+      /* Using the const accessors of the View */                                                                      \
+      _ITERATE_ON_ALL(_DECLARE_USING_AOS_VIEW_CONST_ACCESSORS, ~, __VA_ARGS__)                                         \
+      /* Mutable accessors */                                                                                          \
+      _ITERATE_ON_ALL(_DECLARE_AOS_VIEW_SCALAR_ACCESSORS, ~, __VA_ARGS__)                                              \
+                                                                                                                       \
+      /* Trivial constuctor */                                                                                         \
+      View() = default;                                                                                                \
+                                                                                                                       \
+      /* Copiable */                                                                                                   \
+      View(View const&) = default;                                                                                     \
+      View& operator=(View const&) = default;                                                                          \
+                                                                                                                       \
+      /* Movable */                                                                                                    \
+      View(View &&) = default;                                                                                         \
+      View& operator=(View &&) = default;                                                                              \
+                                                                                                                       \
+      /* Trivial destuctor */                                                                                          \
+      ~View() = default;                                                                                               \
+                                                                                                                       \
+      /* Constructor relying the layout */                                                                             \
+      SOA_HOST_ONLY View(const CLASS::AoSWrapper& layout)                                                              \
+      : base_type{layout} {}                                                                                           \
+                                                                                                                       \
+      /* Helper method to transpose the SoA into an AoS */                                                             \
+      SOA_HOST_DEVICE SOA_INLINE void transpose(CLASS::ConstView const& view, size_type index) {                       \
+        if (index == 0) {                                                                                              \
+          _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                    \
+        }                                                                                                              \
+        (*this)[index] = view[index];                                                                                  \
+      }                                                                                                                \
+    };                                                                                                                 \
+                                                                                                                       \
+    /* Declarations to make compatible with PortableCollections */                                                     \
+    struct Descriptor;                                                                                                 \
+    struct ConstDescriptor;                                                                                            \
+    static constexpr byte_size_type alignment = CLASS::alignment;                                                      \
+                                                                                                                       \
+    /* ROOT read streamer */                                                                                           \
+    template <typename T>                                                                                              \
+    void ROOTReadStreamer(T & onfile) {                                                                                \
+      _ITERATE_ON_ALL(_STREAMER_READ_AOS_DATA_MEMBER, ~, __VA_ARGS__)                                                  \
+      memcpy(aos_, onfile.aos_, sizeof(typename CLASS::Metadata::value_element) * onfile.elements_);                   \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* ROOT allocation cleanup */                                                                                      \
+    void ROOTStreamerCleaner() {                                                                                       \
+      /* This function should only be called from the PortableCollection ROOT streamer */                              \
+      _ITERATE_ON_ALL(_ROOT_FREE_AOS_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                 \
+      delete[] aos_;                                                                                                   \
+      aos_ = nullptr;                                                                                                  \
+    }                                                                                                                  \
+                                                                                                                       \
+    private:                                                                                                           \
+        /* Data members */                                                                                             \
+        std::byte* mem_ = nullptr;                                                                                     \
+        size_type byteSize_;                                                                                           \
+        size_type elements_;                                                                                           \
+        CLASS::Metadata::value_element* aos_ = nullptr;                                                                \
+        _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS, ~, __VA_ARGS__)                                                   \
+  };                                                                                                                   \
                                                                                                                        \
     /* Helper struct to loop over the columns without using name for non-mutable data */                               \
     struct ConstDescriptor {                                                                                           \

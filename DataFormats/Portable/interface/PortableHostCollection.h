@@ -105,10 +105,32 @@ public:
 
   // Copy column by column heterogeneously for device to host data transfer.
   template <typename TQueue>
+    requires(Layout::isSoA)
   void deepCopy(ConstView const& view, TQueue& queue) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
     _deepCopy<0>(desc_, desc, queue);
+  }
+
+  // Transpose the data from a SoA view into an AoS collection.
+  // Requires that one of the two collections is SoA and the other is AoS,
+  // and that the AoS type is the AoSWrapper of the SoA type.
+  template <typename TAcc, typename SourceCollection, typename TQueue>
+  ALPAKA_FN_HOST ALPAKA_FN_INLINE void transpose(SourceCollection const& sourceCollection, TQueue& queue)
+    requires((!SourceCollection::Layout::isSoA && Layout::isSoA) ||
+             (SourceCollection::Layout::isSoA && !Layout::isSoA)) &&
+            ((std::is_same_v<typename SourceCollection::Layout, typename Layout::AoSWrapper>) ||
+             (std::is_same_v<typename SourceCollection::Layout::AoSWrapper, Layout>))
+  {
+    if (view_.metadata().size() != sourceCollection.const_view().metadata().size()) {
+      throw std::runtime_error("PortableHostCollection::transpose: size mismatch between SoA and AoS");
+    }
+    alpaka::exec<TAcc>(queue,
+                       cms::alpakatools::make_workdiv<TAcc>(
+                           cms::alpakatools::divide_up_by(sourceCollection.const_view().metadata().size(), 256), 256),
+                       portablecollection::kernels::Transpose{},
+                       view_,
+                       sourceCollection.const_view());
   }
 
 private:
