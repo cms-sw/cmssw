@@ -15,10 +15,10 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 # in the later cmsRun processes, they are more likely to be
 # caused by a failure in ROOT schema evolution.
 cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_create_test_file_cfg.py --splitLevel 0 || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 0' $?
-cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile SchemaEvolutionTest_splitLevel0.root || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 0' $?
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile SchemaEvolutionTest_splitLevel0.root --testAutoPtrToUniquePtr || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 0' $?
 
 cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_create_test_file_cfg.py --splitLevel 99 || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 99' $?
-cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile SchemaEvolutionTest_splitLevel99.root || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 99' $?
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile SchemaEvolutionTest_splitLevel99.root --testAutoPtrToUniquePtr || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 99' $?
 
 
 # For each StreamerInfo in the input file, test for existence of StreamerInfo for
@@ -94,11 +94,11 @@ done
 
 file=SchemaEvolutionTestOLD15_1_0_pre5_splitLevel0.root
 inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?
-cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfile" || die "Failed to read old file $file" $?
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfile" --testAutoPtrToUniquePtr || die "Failed to read old file $file" $?
 
 file=SchemaEvolutionTestOLD15_1_0_pre5_splitLevel99.root
 inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?
-cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfile" || die "Failed to read old file $file" $?
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfile" --testAutoPtrToUniquePtr || die "Failed to read old file $file" $?
 
 file=SchemaEvolutionTestOLD13_0_0.root
 inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?

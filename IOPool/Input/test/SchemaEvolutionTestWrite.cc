@@ -103,6 +103,9 @@ namespace edmtest {
         SchemaEvolutionPointerToUniquePtr pointerToUniquePtr(testIntegralValues_[8] + iOffset + j * 18,
                                                              testIntegralValues_[8] + iOffset + j * 108,
                                                              testIntegralValues_[8] + iOffset + j * 1008);
+        SchemaEvolutionAutoPtrToUniquePtr autoPtrToUniquePtr(testIntegralValues_[8] + iOffset + j * 23,
+                                                             testIntegralValues_[8] + iOffset + j * 123,
+                                                             testIntegralValues_[8] + iOffset + j * 1023);
         SchemaEvolutionCArrayToStdArray cArrayToStdArray(testIntegralValues_[9] + iOffset + j * 19,
                                                          testIntegralValues_[9] + iOffset + j * 109,
                                                          testIntegralValues_[9] + iOffset + j * 1009);
@@ -128,6 +131,7 @@ namespace edmtest {
                                                 addBase,
                                                 pointerToMember,
                                                 pointerToUniquePtr,
+                                                autoPtrToUniquePtr,
                                                 cArrayToStdArray,
                                                 // cArrayToStdVector,
                                                 vectorToList,
