@@ -294,8 +294,63 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   for (std::string& label : iPS.getUntrackedParameter<std::vector<std::string>>("dumpContextForLabels"))
     dumpContextForLabels_.insert(std::move(label));
 
-  iRegistry.watchPreallocate(this, &Tracer::preallocate);
+  iRegistry.watchPostServicesConstruction([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " finished: construction of Services";
+  });
+  iRegistry.watchPreEventSetupModulesConstruction([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " starting: construction of EventSetup modules";
+  });
+  iRegistry.watchPostEventSetupModulesConstruction([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " finished: construction of EventSetup modules";
+  });
+  iRegistry.watchPreFinishSchedule([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " starting: finalize Schedule";
+  });
+  iRegistry.watchPostFinishSchedule([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " finished: finalize Schedule";
+  });
+  iRegistry.watchPrePrincipalsCreation([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_
+        << " starting: creation of Run, LuminosityBlock, and Event Principals";
+  });
+  iRegistry.watchPostPrincipalsCreation([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_
+        << " finished: creation of Run, LuminosityBlock, and Event Principals";
+  });
+  iRegistry.watchPreScheduleConsistencyCheck([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " starting: schedule consistency check";
+  });
+  iRegistry.watchPostScheduleConsistencyCheck([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " finished: schedule consistency check";
+  });
 
+  iRegistry.watchPreallocate(this, &Tracer::preallocate);
+  iRegistry.watchPreEventSetupConfigurationFinalized([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " starting: finalize EventSetup configuration";
+  });
+  iRegistry.watchPostEventSetupConfigurationFinalized([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " finished: finalize EventSetup configuration";
+  });
+
+  iRegistry.watchPreModulesInitializationFinalized([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " starting: finalize EDModules' initialization";
+  });
+  iRegistry.watchPostModulesInitializationFinalized([this]() {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " finished: finalize EDModules' initialization";
+  });
   iRegistry.watchPreBeginJob(this, &Tracer::preBeginJob);
   iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
   iRegistry.watchPreEndJob(this, &Tracer::preEndJob);

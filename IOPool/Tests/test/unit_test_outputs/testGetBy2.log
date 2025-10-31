@@ -1,3 +1,6 @@
+++ finished: construction of Services
+++ starting: construction of EventSetup modules
+++ finished: construction of EventSetup modules
 ++ starting: constructing source: PoolSource
 Module type=PoolSource, Module label=source, Parameter Set ID=e26370152bd22c8709bd3472a376861b
 ++++ starting: open input file: lfn = file:testGetBy1.root
@@ -18,7 +21,17 @@ Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a301
 ++++ finished: constructing module with label 'intProducerU' id = 5
 ++++ starting: constructing module with label 'intVectorProducer' id = 6
 ++++ finished: constructing module with label 'intVectorProducer' id = 6
+++ starting: finalize Schedule
+++ finished: finalize Schedule
+++ starting: creation of Run, LuminosityBlock, and Event Principals
+++ finished: creation of Run, LuminosityBlock, and Event Principals
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
+++ starting: schedule consistency check
+++ finished: schedule consistency check
+++ starting: finalize EventSetup configuration
+++ finished: finalize EventSetup configuration
+++ starting: finalize EDModules' initialization
+++ finished: finalize EDModules' initialization
 ++ starting: begin job
 ++++ starting: begin job for module with label 'TriggerResults' id = 1
 ++++ finished: begin job for module with label 'TriggerResults' id = 1
