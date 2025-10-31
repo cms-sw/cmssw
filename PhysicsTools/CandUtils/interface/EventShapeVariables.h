@@ -20,7 +20,6 @@
 	   Christian Veelken, UC Davis
 */
 
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
