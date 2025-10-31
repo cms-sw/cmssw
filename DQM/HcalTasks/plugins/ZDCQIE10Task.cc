@@ -292,7 +292,7 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
 
   // adding 6 FSC channels on z- side (labeled as EM7_minus - EM12_minus)
   for (int channel = 7; channel < 13; channel++) {
-    // EM Minus
+    // FSC Minus
     HcalZDCDetId didm(HcalZDCDetId::EM, false, channel);
 
     std::vector<std::string> stationString = {
@@ -323,6 +323,38 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     _cTDC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150, 0, 150);
     _cTDC_EChannel[didm()]->setAxisTitle("TDC", 1);
     _cTDC_EChannel[didm()]->setAxisTitle("N", 2);
+
+    // FSC plus 
+    HcalZDCDetId didp(HcalZDCDetId::EM, true, channel);
+
+    std::vector<std::string> stationStringP = {
+        "2_P_Top", "2_P_Bottom", "3_P_BottomLeft", "3_P_BottomRight", "3_P_TopLeft", "3_P_TopRight"};
+
+    histoname = "FSC" + stationStringP.at(channel - 7);
+    ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
+    _cADC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
+    _cADC_EChannel[didp()]->setAxisTitle("ADC", 1);
+    _cADC_EChannel[didp()]->setAxisTitle("N", 2);
+    ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_vs_TS_perChannel");
+    _cADC_vs_TS_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 6, 0, 6);
+    _cADC_vs_TS_EChannel[didp()]->setAxisTitle("TS", 1);
+    _cADC_vs_TS_EChannel[didp()]->setAxisTitle("sum ADC", 2);
+
+    histoname = "FSC" + stationString.at(channel - 7);
+    ib.setCurrentFolder("Hcal/ZDCQIE10Task/fC_perChannel");
+    _cfC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 100, 0, 8000);
+    _cfC_EChannel[didp()]->setAxisTitle("fC", 1);
+    _cfC_EChannel[didp()]->setAxisTitle("N", 2);
+    ib.setCurrentFolder("Hcal/ZDCQIE10Task/fC_vs_TS_perChannel");
+    _cfC_vs_TS_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 6, 0, 6);
+    _cfC_vs_TS_EChannel[didp()]->setAxisTitle("TS", 1);
+    _cfC_vs_TS_EChannel[didp()]->setAxisTitle("sum fC", 2);
+
+    histoname = "FSC" + stationString.at(channel - 7);
+    ib.setCurrentFolder("Hcal/ZDCQIE10Task/TDC_perChannel");
+    _cTDC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150, 0, 150);
+    _cTDC_EChannel[didp()]->setAxisTitle("TDC", 1);
+    _cTDC_EChannel[didp()]->setAxisTitle("N", 2);
   }
 
   for (int channel = 1; channel < 5; channel++) {
