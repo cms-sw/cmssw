@@ -166,9 +166,10 @@ if __name__ == '__main__':
                      29634.756,   # HLT phase-2 timing menu trimmed tracking
                      29634.7561,  # HLT phase-2 timing menu Alpaka, trimmed tracking
                      29634.7562,  # HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
-                     29634.757,   # HLT phase-2 timing menu, with NANO:@Phase2HLT
+                     29634.757,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+                     29634.7571,  # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + mkFit building variant 
                      29634.758,   # HLT phase-2 timing menu ticl_barrel variant
-                     29634.759,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+                     29634.759,   # HLT phase-2 timing menu, with NANO:@Phase2HLT
                      29634.77,    # HLT phase-2 NGT Scouting menu
                      29634.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel, CA Extension
                      29634.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
