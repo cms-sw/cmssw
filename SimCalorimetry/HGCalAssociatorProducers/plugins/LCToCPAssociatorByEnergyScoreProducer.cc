@@ -31,7 +31,7 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
     }
     if (!iEvent.getHandle(hits_token_)) {
       edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT")
-          << "Hit MultiCollection not available. Producing empty associator.";
+          << "Hit RefProdVector not available. Producing empty associator.";
     }
 
     const std::unordered_map<DetId, const unsigned int> hitMap;  // empty map
@@ -73,10 +73,10 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::fillDescriptions(edm:
   desc.add<bool>("hardScatterOnly", true);
   if constexpr (std::is_same_v<HIT, HGCRecHit>) {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
-    desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiHGCRecHitCollectionProduct"));
+    desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorHGCRecHitCollection"));
   } else {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
-    desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiPFRecHitCollectionProduct"));
+    desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorPFRecHitCollection"));
   }
   cfg.addWithDefaultLabel(desc);
 }

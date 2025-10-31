@@ -10,7 +10,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/Common/interface/MultiCollection.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
@@ -38,7 +38,7 @@ private:
   std::vector<std::pair<std::string, edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>>>>
       simTracksterToHitMapTokens_;
 
-  edm::EDGetTokenT<edm::MultiCollection<HGCRecHitCollection>> hitsToken_;
+  edm::EDGetTokenT<edm::RefProdVector<HGCRecHitCollection>> hitsToken_;
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticleToken_;
   edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>> hitToSimClusterMapToken_;
   edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>> hitToCaloParticleMapToken_;
@@ -46,7 +46,7 @@ private:
 
 AllTracksterToSimTracksterAssociatorsByHitsProducer::AllTracksterToSimTracksterAssociatorsByHitsProducer(
     const edm::ParameterSet& pset)
-    : hitsToken_(consumes<edm::MultiCollection<HGCRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))),
+    : hitsToken_(consumes<edm::RefProdVector<HGCRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))),
       caloParticleToken_(consumes<std::vector<CaloParticle>>(pset.getParameter<edm::InputTag>("caloParticles"))),
       hitToSimClusterMapToken_(consumes<ticl::AssociationMap<ticl::mapWithFraction>>(
           pset.getParameter<edm::InputTag>("hitToSimClusterMap"))),
@@ -476,7 +476,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::fillDescriptions(
       "tracksterCollections", {edm::InputTag("ticlTrackstersCLUE3DHigh"), edm::InputTag("ticlTrackstersLinks")});
   desc.add<std::vector<edm::InputTag>>(
       "simTracksterCollections", {edm::InputTag("ticlSimTracksters"), edm::InputTag("ticlSimTracksters", "fromCPs")});
-  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiHGCRecHitCollectionProduct"));
+  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorHGCRecHitCollection"));
   desc.add<edm::InputTag>("hitToSimClusterMap",
                           edm::InputTag("hitToSimClusterCaloParticleAssociator", "hitToSimClusterMap"));
   desc.add<edm::InputTag>("hitToCaloParticleMap",

@@ -11,7 +11,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/Common/interface/MultiCollection.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
@@ -21,7 +21,7 @@ HitToSimClusterCaloParticleAssociatorProducer::HitToSimClusterCaloParticleAssoci
     : simClusterToken_(consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("simClusters"))),
       caloParticleToken_(consumes<std::vector<CaloParticle>>(pset.getParameter<edm::InputTag>("caloParticles"))),
       hitMapToken_(consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMap"))),
-      hitsToken_(consumes<edm::MultiCollection<HGCRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))) {
+      hitsToken_(consumes<edm::RefProdVector<HGCRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))) {
   produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToSimClusterMap");
   produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToCaloParticleMap");
 }
@@ -101,7 +101,7 @@ void HitToSimClusterCaloParticleAssociatorProducer::fillDescriptions(edm::Config
   desc.add<edm::InputTag>("simClusters", edm::InputTag("mix", "MergedCaloTruth"));
 
   desc.add<edm::InputTag>("hitMap", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
-  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiHGCRecHitCollectionProduct"));
+  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorHGCRecHitCollection"));
   descriptions.add("hitToSimClusterCaloParticleAssociator", desc);
 }
 

@@ -5,9 +5,9 @@
 #include <vector>
 #include <catch2/catch_all.hpp>
 
-#include "DataFormats/Common/interface/MultiCollection.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
 
 TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
   edm::MultiSpan<int> emptyMultiSpan;
@@ -39,7 +39,7 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
   ms3.add(a);
   ms3.add(c);
 
-  edm::MultiCollection<std::vector<int>> refProducts;
+  edm::RefProdVector<std::vector<int>> refProducts;
   refProducts.push_back(edm::RefProd<std::vector<int>>(&b));
   refProducts.push_back(edm::RefProd<std::vector<int>>(&c));
   refProducts.push_back(edm::RefProd<std::vector<int>>(&c));
@@ -47,7 +47,9 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
   refProducts.push_back(edm::RefProd<std::vector<int>>(&b));
   refProducts.push_back(edm::RefProd<std::vector<int>>(&a));
   refProducts.push_back(edm::RefProd<std::vector<int>>(&c));
-  edm::MultiSpan<int> ms4(refProducts);  // MultiSpan from std::vector of RefProds<std::vector>
+  refProducts.push_back(
+      edm::RefProd<std::vector<int>>(nullptr));  // Adding a null RefProd. It should be ignored by MultiSpan
+  edm::MultiSpan<int> ms4(refProducts);          // MultiSpan from std::vector of RefProds<std::vector>
 
   using ElementType = decltype(ms[0]);
   // Check that the const-correctness of the MultiSpan

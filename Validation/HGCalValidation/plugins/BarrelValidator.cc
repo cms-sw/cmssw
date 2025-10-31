@@ -76,7 +76,7 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
       label_layerClustersPlots_(pset.getParameter<std::string>("label_layerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<std::string>("label_LCToCPLinking")),
-      hitsToken_(consumes<edm::MultiCollection<reco::PFRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))),
+      hitsToken_(consumes<edm::RefProdVector<reco::PFRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))),
       scToCpMapToken_(
           consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))) {
   //In this way we can easily generalize to associations between other objects also.
@@ -277,11 +277,11 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& barrelHitMap = *barrelHitMapHandle;
 
   if (!event.getHandle(hitsToken_).isValid()) {
-    edm::LogWarning("BarrelValidator") << "edm::MultiCollection<reco::PFRecHitCollection> token is not valid.";
+    edm::LogWarning("BarrelValidator") << "edm::RefProdVector<reco::PFRecHitCollection> token is not valid.";
     return;
   }
 
-  // Protection against missing edm::MultiCollection<reco::PFRecHitCollection>
+  // Protection against missing edm::RefProdVector<reco::PFRecHitCollection>
   const auto& hits = event.get(hitsToken_);
   for (std::size_t index = 0; const auto& pfRecHitCollection : hits) {
     if (pfRecHitCollection->empty()) {
@@ -521,7 +521,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd1.add<int>("nintZ", 1100);
     desc.add<edm::ParameterSetDescription>("histoProducerAlgoBlock", psd1);
   }
-  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiPFRecHitCollectionProduct"));
+  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorPFRecHitCollection"));
   desc.add<edm::InputTag>("label_lcl", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<std::vector<edm::InputTag>>("label_tst",
                                        {
