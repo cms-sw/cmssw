@@ -285,7 +285,9 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
         }
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeomT") << "Fine: " << indx.first << ":" << hgpar_->scintFine(indx.first) << " Rad " << irad << " Size " << hgpar_->iradMaxBHFine_.size() << ":" << hgpar_->iradMinBH_.size();
+      edm::LogVerbatim("HGCalGeomT") << "Fine: " << indx.first << ":" << hgpar_->scintFine(indx.first) << " Rad "
+                                     << irad << " Size " << hgpar_->iradMaxBHFine_.size() << ":"
+                                     << hgpar_->iradMinBH_.size();
       std::ostringstream st1;
       st1 << "assignCellTrap: ring # in ring type " << hgpar_->scintFine(indx.first) << "modified to " << irad;
       if (hgpar_->scintFine(indx.first))
