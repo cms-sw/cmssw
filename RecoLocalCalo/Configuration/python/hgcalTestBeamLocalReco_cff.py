@@ -1,15 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
-
-def runRecoForSep2024TB(process):
-    process.load('Configuration.StandardSequences.Accelerators_cff')
-
-    process.load(f"Configuration.Geometry.GeometryExtendedRun4D104Reco_cff")
-    process.load(f"Configuration.Geometry.GeometryExtendedRun4D104_cff")
-    from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
-    process = customise_hgcalmapper(
-        process, modules='Geometry/HGCalMapping/data/ModuleMaps/modulelocator_P5v1.txt')
+def setupLocalInputsForRelVal(local_daq : str = 'local_daq'):
 
     # Setup DTH source
     inputdir = '/store/group/dpg_hgcal/comm_hgcal/relval'
@@ -20,14 +12,25 @@ def runRecoForSep2024TB(process):
         'run20000000_ls0001_EoLS_source2001.jsn',
         'run20000000_ls0001_index000000_source2000.raw',
         'run20000000_ls0001_index000000_source2001.raw',
-        'config_feds_v1.json',
-        'config_econds_v1.json',
     ]
-    localdir = 'local_daq/ramdisk/run20000000'
+    localdir = f'{local_daq}/ramdisk/run20000000'
     os.makedirs(localdir, exist_ok=True)
     for f in files:
         os.system(f'xrdcp --silent -f root://cms-xrd-global.cern.ch//{inputdir}/{f} {localdir}')
 
+
+def runRecoForSep2024TB(process):
+
+    local_daq = setupLocalInputsForRelVal()
+    
+    process.load('Configuration.StandardSequences.Accelerators_cff')
+
+    process.load(f"Configuration.Geometry.GeometryExtendedRun4D104Reco_cff")
+    process.load(f"Configuration.Geometry.GeometryExtendedRun4D104_cff")
+    from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
+    process = customise_hgcalmapper(
+        process, modules='Geometry/HGCalMapping/data/ModuleMaps/modulelocator_P5v1.txt')
+    
     process.EvFDaqDirector = cms.Service("EvFDaqDirector",
                                          baseDir=cms.untracked.string('local_daq/fu'),
                                          buBaseDir=cms.untracked.string('local_daq/ramdisk'),
@@ -65,9 +68,9 @@ def runRecoForSep2024TB(process):
         cbHeaderMarker=cms.int32(-1),
         charMode=cms.int32(-1),
         econdHeaderMarker=cms.int32(-1),
-        fedjson=cms.string(os.path.abspath('local_daq/ramdisk/run20000000/config_feds_v1.json')),
+        fedjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/data/testbeam/config_feds_v1.json'),
         indexSource=cms.ESInputTag("hgCalMappingESProducer", ""),
-        modjson=cms.string(os.path.abspath('local_daq/ramdisk/run20000000/config_econds_v1.json')),
+        modjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/data/testbeam//config_econds_v1.json'),
         slinkHeaderMarker=cms.int32(-1))
 
     # Setup HGCal unpacker
@@ -88,7 +91,8 @@ def runRecoForSep2024TB(process):
                                              calibSource=cms.ESInputTag('hgcalCalibParamESProducer', ''),
                                              n_hits_scale=cms.int32(1),
                                              n_blocks=cms.int32(1024),
-                                             n_threads=cms.int32(1024)
+                                             n_threads=cms.int32(1024),
+                                             k_noise=cms.double(5.)
                                              )
 
     from RecoLocalCalo.HGCalRecProducers.hgCalSoARecHitsLayerClustersProducer_cfi import hgCalSoARecHitsLayerClustersProducer

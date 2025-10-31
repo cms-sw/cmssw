@@ -48,7 +48,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto modIndexer = iRecord.get(moduleIndexTkn_);
 
         // load dense indexing
-        const uint32_t size = modIndexer.maxModulesIndex();
+        const uint32_t size = modIndexer.maxModulesCount();
         HGCalMappingModuleParamHost moduleParams(size, cms::alpakatools::host());
         for (size_t i = 0; i < size; i++)
           moduleParams.view()[i].valid() = false;
@@ -78,7 +78,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (!isSiPM) {
             int zp(zside > 0 ? 1 : -1);
             DetId::Detector det = plane <= 26 ? DetId::Detector::HGCalEE : DetId::Detector::HGCalHSi;
-            detid = HGCSiliconDetId(det, zp, celltype, plane, i1, i2, 0, 0).rawId();
+            auto detid_plane = plane - 26 * (plane > 26);
+            detid = HGCSiliconDetId(det, zp, celltype, detid_plane, i1, i2, 0, 0).rawId();
           }
 
           auto module = moduleParams.view()[idx];

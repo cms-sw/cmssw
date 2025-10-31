@@ -14,3 +14,8 @@
   <use name="FWCore/Utilities"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="testMappingModIndexer_def" command="cmsRun ${LOCALTOP}/src/Geometry/HGCalMapping/test/testMappingModuleIndexer_cfg.py  "/>
+
+<test name="testMappingModIndexer_trigger" command="cmsRun ${LOCALTOP}/src/Geometry/HGCalMapping/test/testMappingModuleIndexerTrigger_cfg.py"/>
+

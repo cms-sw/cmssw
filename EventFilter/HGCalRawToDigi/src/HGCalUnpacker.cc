@@ -341,7 +341,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
             digis.view()[denseIdx].tctp() = tctp_[code];
             digis.view()[denseIdx].adcm1() = (temp >> adcm1Shift_[code]) & adcm1Mask_[code];
             digis.view()[denseIdx].adc() = (temp >> adcShift_[code]) & adcMask_[code];
-            digis.view()[denseIdx].tot() = (temp >> totShift_[code]) & totMask_[code];
+            digis.view()[denseIdx].tot() = decompressToT((temp >> totShift_[code]) & totMask_[code]);
             digis.view()[denseIdx].toa() = (temp >> toaShift_[code] & toaMask_[code]);
             digis.view()[denseIdx].cm() = cmSum;
             digis.view()[denseIdx].flags() = 0;
@@ -407,7 +407,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
               digis.view()[denseIdx].tctp() = (econd_payload[iword] >> 30) & 0b11;
               digis.view()[denseIdx].adcm1() = 0;
               digis.view()[denseIdx].adc() = (econd_payload[iword] >> 20) & 0b1111111111;
-              digis.view()[denseIdx].tot() = (econd_payload[iword] >> 10) & 0b1111111111;
+              digis.view()[denseIdx].tot() = decompressToT((econd_payload[iword] >> 10) & 0b1111111111);
               digis.view()[denseIdx].toa() = econd_payload[iword] & 0b1111111111;
               digis.view()[denseIdx].cm() = cmSum;
               digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Characterization;
@@ -418,7 +418,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
               digis.view()[denseIdx].adcm1() = (econd_payload[iword] >> 20) & 0b1111111111;
               if (econd_payload[iword] >> 31 & 0b1) {
                 digis.view()[denseIdx].adc() = 0;
-                digis.view()[denseIdx].tot() = (econd_payload[iword] >> 10) & 0b1111111111;
+                digis.view()[denseIdx].tot() = decompressToT((econd_payload[iword] >> 10) & 0b1111111111);
               } else {
                 digis.view()[denseIdx].adc() = (econd_payload[iword] >> 10) & 0b1111111111;
                 digis.view()[denseIdx].tot() = 0;
