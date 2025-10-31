@@ -362,6 +362,130 @@ int main(int argc, char** argv) {
 
   bookDuplicateRateSets(list_DRSetDef);
 
+  // creating a set of fake-or-duplicate rate plots
+  std::vector<RecoTrackSetDefinition> list_FDRSetDef;
+  list_FDRSetDef.push_back(RecoTrackSetDefinition(/* name  */
+                                                  "TC",
+                                                  /* pass  */
+                                                  [&](unsigned int itc) {
+                                                    return (lstEff.getVI("tc_isDuplicate").at(itc) > 0) or
+                                                           (lstEff.getVI("tc_isFake").at(itc) > 0);
+                                                  },
+                                                  /* sel   */ [&](unsigned int itc) { return 1; },
+                                                  /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                                                  /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                                                  /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                                                  /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_FDRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "pT5",
+                             /* pass  */
+                             [&](unsigned int itc) {
+                               return (lstEff.getVI("tc_isDuplicate").at(itc) > 0) or
+                                      (lstEff.getVI("tc_isFake").at(itc) > 0);
+                             },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pT5; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_FDRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "pT3",
+                             /* pass  */
+                             [&](unsigned int itc) {
+                               return (lstEff.getVI("tc_isDuplicate").at(itc) > 0) or
+                                      (lstEff.getVI("tc_isFake").at(itc) > 0);
+                             },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pT3; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_FDRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "T5",
+                             /* pass  */
+                             [&](unsigned int itc) {
+                               return (lstEff.getVI("tc_isDuplicate").at(itc) > 0) or
+                                      (lstEff.getVI("tc_isFake").at(itc) > 0);
+                             },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == T5; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_FDRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "pLS",
+                             /* pass  */
+                             [&](unsigned int itc) {
+                               return (lstEff.getVI("tc_isDuplicate").at(itc) > 0) or
+                                      (lstEff.getVI("tc_isFake").at(itc) > 0);
+                             },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pLS; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+
+  if (ana.do_lower_level) {
+    list_FDRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */
+        "pT5_lower",
+        /* pass  */
+        [&](unsigned int ipT5) {
+          return (lstEff.getVI("pT5_isDuplicate").at(ipT5) > 0) or (lstEff.getVI("pT5_isFake").at(ipT5) > 0);
+        },
+        /* sel   */ [&](unsigned int ipT5) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pT5_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pT5_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pT5_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT5_pt").size(), 1); }));
+    list_FDRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */
+        "T5_lower",
+        /* pass  */
+        [&](unsigned int it5) {
+          return (lstEff.getVI("t5_isDuplicate").at(it5) > 0) or (lstEff.getVI("t5_isFake").at(it5) > 0);
+        },
+        /* sel   */ [&](unsigned int it5) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("t5_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("t5_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("t5_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("t5_pt").size(), 1); }));
+    list_FDRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */
+        "pT3_lower",
+        /* pass  */
+        [&](unsigned int ipT3) {
+          return (lstEff.getVI("pT3_isDuplicate").at(ipT3) > 0) or (lstEff.getVI("pT3_isFake").at(ipT3) > 0);
+        },
+        /* sel   */ [&](unsigned int ipT3) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pT3_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pT3_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pT3_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT3_pt").size(), 1); }));
+    list_FDRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */
+        "pLS_lower",
+        /* pass  */
+        [&](unsigned int ipLS) {
+          return (lstEff.getVI("pLS_isDuplicate").at(ipLS) > 0) or (lstEff.getVI("pLS_isFake").at(ipLS) > 0);
+        },
+        /* sel   */ [&](unsigned int ipLS) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pLS_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pLS_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pLS_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pLS_pt").size(), 1); }));
+  }
+
+  bookFakeOrDuplicateRateSets(list_FDRSetDef);
+
   // Book Histograms
   ana.cutflow.bookHistograms(ana.histograms);  // if just want to book everywhere
 
@@ -382,6 +506,7 @@ int main(int argc, char** argv) {
     fillEfficiencySets(list_effSetDef);
     fillFakeRateSets(list_FRSetDef);
     fillDuplicateRateSets(list_DRSetDef);
+    fillFakeOrDuplicateRateSets(list_FDRSetDef);
 
     // Reset all temporary variables necessary for histogramming
     ana.cutflow.fill();
@@ -682,6 +807,60 @@ void bookDuplicateRateSet(RecoTrackSetDefinition& DRset) {
   });
   ana.histograms.addVecHistogram(category_name + "_dr_numer_phi", 180, -M_PI, M_PI, [&, category_name]() {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_dr_numer_phi");
+  });
+}
+
+//__________________________________________________________________________________________________________________________________________________________________________
+void bookFakeOrDuplicateRateSets(std::vector<RecoTrackSetDefinition>& FDRsets) {
+  for (auto& FDRset : FDRsets) {
+    bookFakeOrDuplicateRateSet(FDRset);
+  }
+}
+
+//__________________________________________________________________________________________________________________________________________________________________________
+void bookFakeOrDuplicateRateSet(RecoTrackSetDefinition& FDRset) {
+  TString category_name = FDRset.set_name;
+
+  // Denominator tracks' quantities
+  ana.tx.createBranch<std::vector<float>>(category_name + "_fdr_denom_pt");
+  ana.tx.createBranch<std::vector<float>>(category_name + "_fdr_denom_eta");
+  ana.tx.createBranch<std::vector<float>>(category_name + "_fdr_denom_phi");
+
+  // Numerator tracks' quantities
+  ana.tx.createBranch<std::vector<float>>(category_name + "_fdr_numer_pt");
+  ana.tx.createBranch<std::vector<float>>(category_name + "_fdr_numer_eta");
+  ana.tx.createBranch<std::vector<float>>(category_name + "_fdr_numer_phi");
+
+  // Histogram utility object that is used to define the histograms
+  ana.histograms.addVecHistogram(category_name + "_fdr_denom_pt", getPtBounds(0), [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_denom_pt");
+  });
+  ana.histograms.addVecHistogram(category_name + "_fdr_denom_ptlow", getPtBounds(4), [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_denom_pt");
+  });
+  ana.histograms.addVecHistogram(category_name + "_fdr_denom_ptmtv", getPtBounds(9), [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_denom_pt");
+  });
+  ana.histograms.addVecHistogram(category_name + "_fdr_denom_eta", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_denom_eta");
+  });
+  ana.histograms.addVecHistogram(category_name + "_fdr_denom_phi", 180, -M_PI, M_PI, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_denom_phi");
+  });
+  ana.histograms.addVecHistogram(category_name + "_fdr_numer_pt", getPtBounds(0), [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_numer_pt");
+  });
+  ana.histograms.addVecHistogram(category_name + "_fdr_numer_ptlow", getPtBounds(4), [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_numer_pt");
+  });
+  ana.histograms.addVecHistogram(category_name + "_fdr_numer_ptmtv", getPtBounds(9), [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_numer_pt");
+  });
+  ana.histograms.addVecHistogram(category_name + "_fdr_numer_eta", 180, -4.5, 4.5, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_numer_eta");
+  });
+  ana.histograms.addVecHistogram(category_name + "_fdr_numer_phi", 180, -M_PI, M_PI, [&, category_name]() {
+    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_fdr_numer_phi");
   });
 }
 
@@ -1142,5 +1321,43 @@ void fillDuplicateRateSet(int itc, RecoTrackSetDefinition& DRset, float pt, floa
     ana.tx.pushbackToBranch<float>(category_name + "_dr_denom_phi", phi);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_dr_numer_phi", phi);
+  }
+}
+
+//__________________________________________________________________________________________________________________________________________________________________________
+void fillFakeOrDuplicateRateSets(std::vector<RecoTrackSetDefinition>& FDRsets) {
+  for (auto& FDRset : FDRsets) {
+    std::vector<float> const& pt = FDRset.pt();
+    std::vector<float> const& eta = FDRset.eta();
+    std::vector<float> const& phi = FDRset.phi();
+    for (unsigned int itc = 0; itc < FDRset.pt().size(); ++itc) {
+      fillFakeOrDuplicateRateSet(itc, FDRset, pt.at(itc), eta.at(itc), phi.at(itc));
+    }
+  }
+}
+
+//__________________________________________________________________________________________________________________________________________________________________________
+void fillFakeOrDuplicateRateSet(int itc, RecoTrackSetDefinition& FDRset, float pt, float eta, float phi) {
+  TString category_name = FDRset.set_name;
+  bool pass = FDRset.pass(itc);
+  bool sel = FDRset.sel(itc);
+
+  if (not sel)
+    return;
+
+  if (pt > ana.pt_cut) {
+    ana.tx.pushbackToBranch<float>(category_name + "_fdr_denom_eta", eta);
+    if (pass)
+      ana.tx.pushbackToBranch<float>(category_name + "_fdr_numer_eta", eta);
+  }
+  if (std::abs(eta) < ana.eta_cut) {
+    ana.tx.pushbackToBranch<float>(category_name + "_fdr_denom_pt", pt);
+    if (pass)
+      ana.tx.pushbackToBranch<float>(category_name + "_fdr_numer_pt", pt);
+  }
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut) {
+    ana.tx.pushbackToBranch<float>(category_name + "_fdr_denom_phi", phi);
+    if (pass)
+      ana.tx.pushbackToBranch<float>(category_name + "_fdr_numer_phi", phi);
   }
 }
