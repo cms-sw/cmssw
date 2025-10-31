@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace reco;
+using namespace edm;
 
 pair<bool, Measurement1D> SignedImpactParameter3D::apply(const TransientTrack& transientTrack,
                                                          const GlobalVector& direction,
@@ -188,4 +189,9 @@ pair<double, Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const T
   Measurement1D DTJA(theDistanceToJetAxis, theLDist_err);
 
   return pair<double, Measurement1D>(theDistanceAlongJetAxis, DTJA);
+}
+
+void SignedImpactParameter3D::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.addWithDefaultLabel(desc);
 }

@@ -17,11 +17,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 class BTagSkimLeptonJet : public edm::one::EDFilter<> {
 public:
   explicit BTagSkimLeptonJet(const edm::ParameterSet&);
   ~BTagSkimLeptonJet() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void endJob() override;
 
 private:

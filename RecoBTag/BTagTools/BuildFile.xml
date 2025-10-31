@@ -5,6 +5,7 @@
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/PatternTools"/>
 <use name="TrackingTools/TrajectoryState"/>
+<use name="FWCore/ParameterSet"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>

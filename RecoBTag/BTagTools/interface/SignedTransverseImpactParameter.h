@@ -6,6 +6,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include <utility>
 
 /** Transverse track impact parameter signed according to the jet 
@@ -23,6 +26,8 @@ public:
   std::pair<bool, Measurement1D> zImpactParameter(const reco::TransientTrack &,
                                                   const GlobalVector &,
                                                   const reco::Vertex &) const;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 };
 
 #endif

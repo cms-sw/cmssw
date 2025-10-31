@@ -5,6 +5,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <utility>
 
 /** Threedimensional track decay length (minimum distance of the closest 
@@ -23,6 +25,7 @@ public:
                                               const reco::Vertex &vertex);
 
   int id() const { return 3; }
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   static TrajectoryStateOnSurface closestApproachToJet(const FreeTrajectoryState &,

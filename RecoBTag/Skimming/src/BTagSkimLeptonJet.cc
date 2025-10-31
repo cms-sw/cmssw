@@ -33,24 +33,23 @@ using namespace reco;
 
 BTagSkimLeptonJet::BTagSkimLeptonJet(const edm::ParameterSet& iConfig) : nEvents_(0), nAccepted_(0) {
   CaloJetInput_ = iConfig.getParameter<InputTag>("CaloJet");
-  MinCaloJetPt_ = iConfig.getParameter<double>("MinimumCaloJetPt");
-  MaxCaloJetEta_ = iConfig.getParameter<double>("MaximumCaloJetEta");
+  MinCaloJetPt_ = iConfig.getUntrackedParameter<double>("MinimumCaloJetPt", 20.0);
+  MaxCaloJetEta_ = iConfig.getUntrackedParameter<double>("MaximumCaloJetEta", 3.0);
 
-  LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
+  LeptonType_ = iConfig.getUntrackedParameter<std::string>("LeptonType", "");
   if (LeptonType_ != "electron" && LeptonType_ != "muon")
     edm::LogError("BTagSkimLeptonJet") << "unknown lepton type !!";
   LeptonInput_ = iConfig.getParameter<InputTag>("Lepton");
-  MinLeptonPt_ = iConfig.getParameter<double>("MinimumLeptonPt");
-  MaxLeptonEta_ = iConfig.getParameter<double>("MaximumLeptonEta");
-  //MinNLepton_ = iConfig.getParameter<int>( "MinimumNLepton" );
+  MinLeptonPt_ = iConfig.getUntrackedParameter<double>("MinimumLeptonPt", 1.0);
+  MaxLeptonEta_ = iConfig.getUntrackedParameter<double>("MaximumLeptonEta", 2.5);
 
-  MaxDeltaR_ = iConfig.getParameter<double>("MaximumDeltaR");
+  MaxDeltaR_ = iConfig.getUntrackedParameter<double>("MaximumDeltaR", 0.4);
 
-  MinPtRel_ = iConfig.getParameter<double>("MinimumPtRel");
+  MinPtRel_ = iConfig.getUntrackedParameter<double>("MinimumPtRel", 0.0);
 
-  MinNLeptonJet_ = iConfig.getParameter<int>("MinimumNLeptonJet");
+  MinNLeptonJet_ = iConfig.getUntrackedParameter<int>("MinimumNLeptonJet", 0);
   if (MinNLeptonJet_ < 1)
-    edm::LogError("BTagSkimLeptonJet") << "MinimunNCaloJet < 1 !!";
+    edm::LogError("BTagSkimLeptonJet") << "MinimunNCaloJet containing muons < 1 !!";
 }
 
 /*------------------------------------------------------------------------*/
@@ -59,6 +58,10 @@ BTagSkimLeptonJet::~BTagSkimLeptonJet() {}
 
 /*------------------------------------------------------------------------*/
 
+void BTagSkimLeptonJet::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.addWithDefaultLabel(desc);
+}
 bool BTagSkimLeptonJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   nEvents_++;
 

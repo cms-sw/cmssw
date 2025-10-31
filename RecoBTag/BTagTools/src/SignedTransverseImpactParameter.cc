@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace reco;
+using namespace edm;
 
 pair<bool, Measurement1D> SignedTransverseImpactParameter::apply(const TransientTrack& track,
                                                                  const GlobalVector& direction,
@@ -116,4 +117,9 @@ pair<bool, Measurement1D> SignedTransverseImpactParameter::zImpactParameter(cons
   //CW
 
   return pair<bool, Measurement1D>(true, Measurement1D(deltaZ, errZ));
+}
+
+void SignedTransverseImpactParameter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.addWithDefaultLabel(desc);
 }

@@ -1,5 +1,7 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace BTagSkimMCCount {
   struct Counters {
@@ -20,6 +22,7 @@ public:
   bool filter(edm::Event& evt, const edm::EventSetup& es) override;
   void endStream() override;
   static void globalEndJob(const BTagSkimMCCount::Counters* counters);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   bool verbose;

@@ -5,6 +5,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <utility>
 /** Threedimensional track impact parameter signed according to the jet 
    *  direction
@@ -30,6 +32,8 @@ public:
   static std::pair<double, Measurement1D> distanceWithJetAxis(const reco::TransientTrack &transientTrack,
                                                               const GlobalVector &direction,
                                                               const reco::Vertex &vertex);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   static GlobalVector distance(const TrajectoryStateOnSurface &, const reco::Vertex &, const GlobalVector &);

@@ -15,6 +15,7 @@
 
 using namespace std;
 using namespace reco;
+using namespace edm;
 
 pair<bool, Measurement1D> SignedDecayLength3D::apply(const TransientTrack& transientTrack,
                                                      const GlobalVector& direction,
@@ -75,4 +76,9 @@ TrajectoryStateOnSurface SignedDecayLength3D::closestApproachToJet(const FreeTra
   AnalyticalTrajectoryExtrapolatorToLine TETL(field);
 
   return TETL.extrapolate(aFTS, Jet);
+}
+
+void SignedDecayLength3D::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.addWithDefaultLabel(desc);
 }
