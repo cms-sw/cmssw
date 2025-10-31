@@ -245,6 +245,89 @@ def ecal_complete_aging(process):
         process.ecal_digi_parameters.UseLCcorrection = cms.untracked.bool(False)
     return process
 
+def ageMTD(process,lumi):
+
+    mtd_lumis = [1000, 3000]
+    mtd_parameters = {
+        1000: {
+            "light_output": 1444.,
+            "dark_count_rate": 12.,
+            "pulse_t2_threshold": 7.199,
+            "pulse_e_threshold": 10.48,
+            "sipm_gain": 417840.,
+            "pulse_tbranch_a": [-2.2, 1.89e-8],
+            "pulse_ebranch_a": [-1.1, 1.9e-8],
+            "time_at_thr1rise": [3.1e5, -0.580],
+            "time_at_thr2rise": [1.11e6, -0.631],
+            "time_over_thr1": [1.3e9, 9.58676, -2.51351e-10, 5.98501e-18, -3.326821e-27, -7.61576e-10, 13.21],
+            "slew_rate": [1.3e9, -0.8, 8.7e-9, 11.1],
+            "pulse_q": [-43.5, 0.0793],
+            "hit_time_res": "0.143789*pow(x,-1.09324)+0.0166063"
+        },
+        3000: {
+            "light_output": 1004.,
+            "dark_count_rate": 20.,
+            "pulse_t2_threshold": 7.199,
+            "pulse_e_threshold": 4.95,
+            "sipm_gain": 330990.,
+            "pulse_tbranch_a": [-2.2, 1.89e-8],
+            "pulse_ebranch_a": [-1.1, 1.9e-8],
+            "time_at_thr1rise": [3.1e5, -0.580],
+            "time_at_thr2rise": [1.11e6, -0.631],
+            "time_over_thr1": [1.3e9, 9.58676, -2.51351e-10, 5.98501e-18, -3.326821e-27, -7.61576e-10, 13.21],
+            "slew_rate": [1.3e9, -0.8, 8.7e-9, 11.1],
+            "pulse_q": [-34.3, 0.085],
+            "hit_time_res": "0.2567*pow(x,-1.10973)+0.0165099"
+        },
+    }
+
+    if int(lumi) in mtd_lumis:
+        if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'fastTimingLayer'):
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.DeviceSimulation.LightOutput = cms.double(mtd_parameters[lumi]["light_output"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.LightOutput = cms.double(mtd_parameters[lumi]["light_output"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseT2Threshold = cms.double(mtd_parameters[lumi]["pulse_t2_threshold"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseEThrershold = cms.double(mtd_parameters[lumi]["pulse_e_threshold"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.DarkCountRate  = cms.double(mtd_parameters[lumi]["dark_count_rate"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.SiPMGain = cms.double(mtd_parameters[lumi]["sipm_gain"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseTbranchAParam = cms.vdouble(mtd_parameters[lumi]["pulse_tbranch_a"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseEbranchAParam = cms.vdouble(mtd_parameters[lumi]["pulse_ebranch_a"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.TimeAtThr1RiseParam = cms.vdouble(mtd_parameters[lumi]["time_at_thr1rise"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.TimeAtThr2RiseParam = cms.vdouble(mtd_parameters[lumi]["time_at_thr2rise"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.TimeOverThr1Param = cms.vdouble(mtd_parameters[lumi]["time_over_thr1"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.SlewRateParam = cms.vdouble(mtd_parameters[lumi]["slew_rate"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseQParam = cms.vdouble(mtd_parameters[lumi]["pulse_q"])
+        # --- This is for the workflows with premixing:
+        if hasattr(process,'mixData') and hasattr(process.mixData,'workers') and hasattr(process.mixData.workers,'mtdBarrel'):
+            process.mixData.workers.mtdBarrel.DeviceSimulation.LightOutput = cms.double(mtd_parameters[lumi]["light_output"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.LightOutput = cms.double(mtd_parameters[lumi]["light_output"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseT2Threshold = cms.double(mtd_parameters[lumi]["pulse_t2_threshold"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseEThrershold = cms.double(mtd_parameters[lumi]["pulse_e_threshold"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.DarkCountRate  = cms.double(mtd_parameters[lumi]["dark_count_rate"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.SiPMGain = cms.double(mtd_parameters[lumi]["sipm_gain"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseTbranchAParam = cms.vdouble(mtd_parameters[lumi]["pulse_tbranch_a"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseEbranchAParam = cms.vdouble(mtd_parameters[lumi]["pulse_ebranch_a"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.TimeAtThr1RiseParam = cms.vdouble(mtd_parameters[lumi]["time_at_thr1rise"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.TimeAtThr2RiseParam = cms.vdouble(mtd_parameters[lumi]["time_at_thr2rise"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.TimeOverThr1Param = cms.vdouble(mtd_parameters[lumi]["time_over_thr1"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.SlewRateParam = cms.vdouble(mtd_parameters[lumi]["slew_rate"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseQParam = cms.vdouble(mtd_parameters[lumi]["pulse_q"])
+        # --- This is for the uncalibrated RecHit reconstruction:
+        if hasattr(process,'mtdUncalibratedRecHits') and hasattr(process.mtdUncalibratedRecHits,'barrel'):
+            process.mtdUncalibratedRecHits.barrel.npePerMeV = cms.double(mtd_parameters[lumi]["light_output"])
+            process.mtdUncalibratedRecHits.barrel.npeToADC = cms.vdouble(mtd_parameters[lumi]["pulse_q"])
+            process.mtdUncalibratedRecHits.barrel.timeResolutionInNs = cms.string(mtd_parameters[lumi]["hit_time_res"])
+            process.mtdUncalibratedRecHits.barrel.timeWalkCorrection = cms.string(
+                "{}/{}*pow({}/{}*(x-{}),{})".format( mtd_parameters[lumi]["time_at_thr1rise"][0],
+                                                     0.020, # [ns], TDC LSB
+                                                     mtd_parameters[lumi]["sipm_gain"],
+                                                     mtd_parameters[lumi]["pulse_q"][1],
+                                                     mtd_parameters[lumi]["pulse_q"][0],
+                                                     mtd_parameters[lumi]["time_at_thr1rise"][1]
+                )
+            )
+
+    return process
+
 def customise_aging_300(process):
     process=ageHcal(process,300,5.0e34,"nominal")
     process=ageEcal(process,300,5.0e34)
@@ -254,12 +337,14 @@ def customise_aging_1000(process):
     process=ageHcal(process,1000,5.0e34,"nominal")
     process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,1000,5.0e34)
+    process=ageMTD(process,1000)
     return process
 
 def customise_aging_3000(process):
     process=ageHcal(process,3000,5.0e34,"nominal")
     process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,3000,5.0e34)
+    process=ageMTD(process,3000)
     process=agedHGCal(process)
     process=agedHFNose(process)
     return process
@@ -268,6 +353,7 @@ def customise_aging_3000_ultimate(process):
     process=ageHcal(process,3000,7.5e34,"ultimate")
     process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,3000,7.5e34)
+    process=ageMTD(process,3000)
     process=agedHGCal(process)
     process=agedHFNose(process)
     return process
