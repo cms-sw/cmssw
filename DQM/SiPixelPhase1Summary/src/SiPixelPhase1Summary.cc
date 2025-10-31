@@ -272,7 +272,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
   //Fill the dead ROC summary
   std::vector<trendPlots> trendOrder = {layer1, layer2, layer3, layer4, ring1, ring2};
   std::vector<int> nRocsPerTrend = {1536, 3584, 5632, 8192, 4224, 6528};
-  std::vector<int> nDisabledRocs = {12, 128, 240, 320, 96, 120};
+  std::vector<int> nDisabledRocs = {16, 152, 272, 320, 368, 256};
   for (unsigned int i = 0; i < trendOrder.size(); i++) {
     int xBin = i < 4 ? 1 : 2;
     int yBin = i % 4 + 1;
