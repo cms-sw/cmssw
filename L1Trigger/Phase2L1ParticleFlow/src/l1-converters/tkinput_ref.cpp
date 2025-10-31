@@ -385,7 +385,8 @@ l1ct::z0_t l1ct::TrackInputEmulator::convZ0(ap_int<12> z0) const {
 l1ct::dxy_t l1ct::TrackInputEmulator::convDxy(ap_int<13> dxy) const {
   bool negative = dxy[12];
   // use saturation in this cast to properly handle the most negative value (i.e. |-4096| -> +4095 )
-  ap_fixed<13,13,AP_TRN,AP_SAT> absDxy = negative ? ap_fixed<13,13,AP_TRN,AP_SAT>(-dxy) : ap_fixed<13,13,AP_TRN,AP_SAT>(dxy);
+  ap_fixed<13, 13, AP_TRN, AP_SAT> absDxy =
+      negative ? ap_fixed<13, 13, AP_TRN, AP_SAT>(-dxy) : ap_fixed<13, 13, AP_TRN, AP_SAT>(dxy);
   unsigned int index = absDxy >> dxyLUTShift_;
 
   if (index >= dxyLUT_.size()) {
@@ -435,7 +436,7 @@ void l1ct::TrackInputEmulator::configDxy(int lutBits) {
   dxyLUT_.resize(1 << lutBits);
   for (unsigned int u = 0, n = dxyLUT_.size(); u < n; ++u) {
     float dxy_l = u * (1 << dxyLUTShift_) * l1ct::Scales::DXY_LSB;
-    float dxy_h = (u+1) * (1 << dxyLUTShift_) * l1ct::Scales::DXY_LSB;
+    float dxy_h = (u + 1) * (1 << dxyLUTShift_) * l1ct::Scales::DXY_LSB;
     float sqrtDxy_l = std::sqrt(dxy_l);
     float sqrtDxy_h = std::sqrt(dxy_h);
     float sqrtDxy = (sqrtDxy_l + sqrtDxy_h) / 2;

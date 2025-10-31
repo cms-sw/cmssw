@@ -93,7 +93,7 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
   } else {
     jets = processEvent_SW(particles);
   }
-  
+
   if (sortJets) {
     std::sort(jets.begin(), jets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.pt() > j.pt()); });
   }
