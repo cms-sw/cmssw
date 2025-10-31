@@ -17,3 +17,80 @@
   <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="alpaka/WarpIntrinsicsTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer/plugins/alpaka"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
+
+<bin file="alpaka/ReductionTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
+
+<bin file="alpaka/ShowerShapeTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
+
+<bin file="alpaka/ConstructLinksTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
+
+<bin file="alpaka/PrologueTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
+
+<bin file="alpaka/ECLCCTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
+
+<bin file="alpaka/EpilogueTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
