@@ -95,8 +95,7 @@ private:
   std::unique_ptr<l1ct::TrackInputEmulator> trackInput_;
   std::unique_ptr<l1ct::GMTMuonDecoderEmulator> muonInput_;
   std::unique_ptr<l1ct::HgcalClusterDecoderEmulator> hgcalInput_;
-  std::unique_ptr<l1ct::GctHadClusterDecoderEmulator> gctHadInput_;
-  std::unique_ptr<l1ct::GctEmClusterDecoderEmulator> gctEmInput_;
+  std::unique_ptr<l1ct::GctHadClusterDecoderEmulator> gctInput_;  // This will chaged
   std::unique_ptr<l1ct::RegionizerEmulator> regionizer_;
   std::unique_ptr<l1ct::PFAlgoEmulatorBase> l1pfalgo_;
   std::unique_ptr<l1ct::LinPuppiEmulator> l1pualgo_;

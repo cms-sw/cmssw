@@ -65,6 +65,7 @@ void l1ct::TDRRegionizerEmulator::initSectorsAndRegions(const RegionizerDecodedI
                                                         const std::vector<PFInputRegion>& out) {
   if (debug_) {
     dbgCout() << "doing init, out_size = " << out.size() << std::endl;
+    dbgCout() << "nBigRegions_ = " << nBigRegions_ << std::endl;
   }
   assert(!init_);
   init_ = true;
@@ -73,9 +74,9 @@ void l1ct::TDRRegionizerEmulator::initSectorsAndRegions(const RegionizerDecodedI
     tkRegionizers_.emplace_back(
         netaInBR_, nphiInBR_, ntk_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_, 1, false);
     hadCaloRegionizers_.emplace_back(
-        netaInBR_, nphiInBR_, ncalo_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_ / 3, 1, false);  // TM6
+        netaInBR_, nphiInBR_, ncalo_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_, 1, false);  // TM6
     emCaloRegionizers_.emplace_back(
-        netaInBR_, nphiInBR_, nem_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_ / 3, 1, false);  // TM6
+        netaInBR_, nphiInBR_, nem_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_, 1, false);  // TM6
     muRegionizers_.emplace_back(
         netaInBR_, nphiInBR_, nmu_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_, 1, false);
   }
