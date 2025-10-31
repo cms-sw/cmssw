@@ -185,8 +185,8 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
         
     # Reco for cosmic data
     process.load('RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi')
-    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfStripClusters = 450
-    process.combinatorialcosmicseedfinderP5.MaxNumberOfStripClusters = 450
+    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfStripClusters = 1000
+    process.combinatorialcosmicseedfinderP5.MaxNumberOfStripClusters = 1000
 
     
 

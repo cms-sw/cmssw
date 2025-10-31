@@ -267,8 +267,13 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
 
     # Reco for cosmic data
     process.load('RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi')
-    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfStripClusters = 450
-    process.combinatorialcosmicseedfinderP5.MaxNumberOfStripClusters = 450
+    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfStripClusters = 1000
+    process.combinatorialcosmicseedfinderP5.MaxNumberOfStripClusters = 1000
+
+    process.load('RecoTracker.FinalTrackSelectors.CTFFinalTrackSelectorP5_cff')
+    process.ctfWithMaterialTracksP5.min_nHit = 8
+    process.load('RecoTracker.FinalTrackSelectors.CosmicTFFinalTrackSelectorP5_cff')
+    process.cosmictrackfinderP5.min_nHit = 8
 
     process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.ctftracksP5)
 
