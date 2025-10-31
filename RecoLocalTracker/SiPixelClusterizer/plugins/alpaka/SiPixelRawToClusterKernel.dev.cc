@@ -661,7 +661,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         Queue &queue,
         const SiPixelClusterThresholds clusterThresholds,
         SiPixelDigisSoAView &digis_view,
-        const uint32_t numDigis) {
+        const uint32_t numDigis,
+        const uint32_t offsetBPIX2) {
       using namespace pixelClustering;
       using pixelTopology::Phase2;
       nDigis = numDigis;
@@ -744,7 +745,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // last element holds the number of all clusters
       const auto clusModuleStartLastElement = cms::alpakatools::make_device_view(
           queue, clusters_d->const_view().clusModuleStart().data() + numberOfModules, 1u);
-      constexpr int startBPIX2 = pixelTopology::Phase2::layerStart[1];
+      const int startBPIX2 = offsetBPIX2;
       // element startBPIX2 hold the number of clusters until BPIX2
       const auto bpix2ClusterStart =
           cms::alpakatools::make_device_view(queue, clusters_d->const_view().clusModuleStart().data() + startBPIX2, 1u);
