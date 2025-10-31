@@ -145,6 +145,10 @@ void l1t::TriggerMenuParser::setVecAXOL1TLTemplate(const std::vector<std::vector
   m_vecAXOL1TLTemplate = vecAXOL1TLTempl;
 }
 
+void l1t::TriggerMenuParser::setVecTOPOTemplate(const std::vector<std::vector<TOPOTemplate> >& vecTOPOTempl) {
+  m_vecTOPOTemplate = vecTOPOTempl;
+}
+
 void l1t::TriggerMenuParser::setVecCICADATemplate(const std::vector<std::vector<CICADATemplate> >& vecCICADATempl) {
   m_vecCICADATemplate = vecCICADATempl;
 }
@@ -229,6 +233,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   m_vecEnergySumTemplate.resize(m_numberConditionChips);
   m_vecEnergySumZdcTemplate.resize(m_numberConditionChips);
   m_vecAXOL1TLTemplate.resize(m_numberConditionChips);
+  m_vecTOPOTemplate.resize(m_numberConditionChips);
   m_vecCICADATemplate.resize(m_numberConditionChips);
   m_vecExternalTemplate.resize(m_numberConditionChips);
 
@@ -329,6 +334,10 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
         } else if (condition.getType() == esConditionType::Axol1tlTrigger ||
                    condition.getType() == esConditionType::AnomalyDetectionTrigger) {
           parseAXOL1TL(condition, chipNr);
+
+          //parse TOPO
+        } else if (condition.getType() == esConditionType::TopologicalTrigger) {
+          parseTOPO(condition, chipNr);
 
           //parse CICADA
         } else if (condition.getType() == esConditionType::CicadaTrigger) {
@@ -2876,6 +2885,105 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
   }
 
   (m_vecAXOL1TLTemplate[chipNr]).push_back(axol1tlCond);
+
+  return true;
+}
+
+/**
+ * Parse conditions of Topological Trigger - dummy function so far
+ */
+
+bool l1t::TriggerMenuParser::parseTOPO(L1TUtmCondition condTOPO, unsigned int chipNr) {
+  using namespace tmeventsetup;
+
+  std::cout << "#### parse TOPO information ####" << std::endl;
+  // std::cout << l1t2string(condTOPO.getType()) << std::endl;
+  // std::cout << l1t2string(condTOPO.getName()) << std::endl;
+  // std::cout << l1t2string(condTOPO.getObjects().at(0).getType()) << std::endl;
+
+  // get condition, particle name and particle type
+  std::string condition = "axol1tl";
+  std::string type = l1t2string(condTOPO.getType());
+  std::string name = l1t2string(condTOPO.getName());
+
+  LogDebug("TriggerMenuParser") << " ****************************************** " << std::endl
+                                << "     (in parseTOPO) " << std::endl
+                                << " condition = " << condition << std::endl
+                                << " type      = " << type << std::endl
+                                << " name      = " << name << std::endl;
+
+  const int nrObj = 1;
+  GtConditionType cType = TypeTOPO;
+
+  std::vector<TOPOTemplate::ObjectParameter> objParameter(nrObj);
+
+  if (int(condTOPO.getObjects().size()) != nrObj) {
+    edm::LogError("TriggerMenuParser") << " condTOPO objects: nrObj = " << nrObj
+                                       << "condTOPO.getObjects().size() = " << condTOPO.getObjects().size()
+                                       << std::endl;
+    return false;
+  }
+
+  // Get the axol1tl object
+  L1TUtmObject object = condTOPO.getObjects().at(0);
+  int relativeBx = object.getBxOffset();
+  bool gEq = (object.getComparisonOperator() == esComparisonOperator::GE);
+
+  //Loop over cuts for this  object
+  int lowerThresholdInd = 0;
+  int upperThresholdInd = -1;
+
+  //save model and threshold
+  std::string model = "";
+
+  // for UTM v12+
+  const std::vector<L1TUtmCut>& cuts = object.getCuts();
+  for (size_t kk = 0; kk < cuts.size(); kk++) {
+    const L1TUtmCut& cut = cuts.at(kk);
+
+    //save model
+    if (cut.getCutType() == tmeventsetup::Model) {
+      model = cut.getData();
+    }
+    //save score
+    else if (cut.getCutType() == esCutType::Score) {
+      lowerThresholdInd = cut.getMinimum().value;
+      upperThresholdInd = cut.getMaximum().value;
+    }  //end else if
+  }  //end cut loop
+
+  // check model version is not empty
+  if (model.empty()) {
+    edm::LogError("TriggerMenuParser") << "    Error: TOPO movel version is empty" << std::endl;
+    return false;
+  }
+
+  //fill object params
+  objParameter[0].minTOPOThreshold = lowerThresholdInd;
+  objParameter[0].maxTOPOThreshold = upperThresholdInd;
+
+  // create a new TOPO  condition
+  TOPOTemplate topoCond(name);
+  topoCond.setCondType(cType);
+  topoCond.setCondGEq(gEq);
+  topoCond.setCondChipNr(chipNr);
+  topoCond.setCondRelativeBx(relativeBx);
+  topoCond.setConditionParameter(objParameter);
+  topoCond.setModelVersion(model);
+
+  if (edm::isDebugEnabled()) {
+    std::ostringstream myCoutStream;
+    topoCond.print(myCoutStream);
+    LogTrace("TriggerMenuParser") << myCoutStream.str() << "\n" << std::endl;
+  }
+
+  // check that the condition does not exist already in the map
+  if (!insertConditionIntoMap(topoCond, chipNr)) {
+    edm::LogError("TriggerMenuParser") << "    Error: duplicate TOPO condition (" << name << ")" << std::endl;
+    return false;
+  }
+
+  (m_vecTOPOTemplate[chipNr]).push_back(topoCond);
 
   return true;
 }
