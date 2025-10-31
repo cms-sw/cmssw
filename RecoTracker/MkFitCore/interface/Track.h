@@ -432,8 +432,6 @@ namespace mkfit {
     // Used by TrackCand::ExportTrack
     void setHitIdxAtPos(int pos, const HitOnTrack& hot) { hitsOnTrk_[pos] = hot; }
 
-    void resizeHitsForInput();
-
     void addHitIdx(int hitIdx, int hitLyr, float chi2) {
       hitsOnTrk_.push_back({hitIdx, hitLyr});
       ++lastHitIdx_;
@@ -489,6 +487,8 @@ namespace mkfit {
       }
       return mcHitID;
     }
+
+    const std::vector<HitOnTrack>& refHitsOnTrackVector() const { return hitsOnTrk_; }
 
     const HitOnTrack* getHitsOnTrackArray() const { return hitsOnTrk_.data(); }
     const HitOnTrack* beginHitsOnTrack() const { return hitsOnTrk_.data(); }
