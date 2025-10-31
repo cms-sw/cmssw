@@ -133,8 +133,8 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
         simHitAccumulator->emplace(mtd_digitizer::MTDCellId(id, row, col), mtd_digitizer::MTDCellInfo()).first;
 
     // Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-    const int itime = std::floor(toa / bxTime_) + 9;
-    if (itime < 0 || itime > 14)
+    const int itime = std::floor(toa / bxTime_) + mtd_digitizer::kInTimeBX;
+    if (itime < 0 || itime >= mtd_digitizer::kNumberOfBX)
       continue;
 
     // Check if time index is ok and store energy
