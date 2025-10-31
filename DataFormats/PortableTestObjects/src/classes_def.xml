@@ -42,4 +42,35 @@
 
   <class name="portabletest::TestProductWithPtr<alpaka_common::DevHost>"/>
   <class name="edm::Wrapper<portabletest::TestProductWithPtr<alpaka_common::DevHost>>" persistent="false"/>
+
+  <!-- Torch SoAs and Collections -->
+  <class name="torchportabletest::ParticleSoA"/>
+  <class name="torchportabletest::ParticleSoA::View"/>
+  <class name="torchportabletest::ParticleSoA::ConstView"/>
+  <class name="torchportabletest::ParticleHostCollection"/>
+  <class name="edm::Wrapper<torchportabletest::ParticleHostCollection>" splitLevel="0"/>
+
+  <class name="torchportabletest::SimpleNetSoA"/>
+  <class name="torchportabletest::SimpleNetSoA::View"/>
+  <class name="torchportabletest::SimpleNetSoA::ConstView"/>
+  <class name="torchportabletest::SimpleNetHostCollection"/>
+  <class name="edm::Wrapper<torchportabletest::SimpleNetHostCollection>" splitLevel="0"/>
+
+  <class name="torchportabletest::MultiHeadNetSoA"/>
+  <class name="torchportabletest::MultiHeadNetSoA::View"/>
+  <class name="torchportabletest::MultiHeadNetSoA::ConstView"/>
+  <class name="torchportabletest::MultiHeadNetHostCollection"/>
+  <class name="edm::Wrapper<torchportabletest::MultiHeadNetHostCollection>" splitLevel="0"/>
+
+  <class name="torchportabletest::Image"/>
+  <class name="torchportabletest::Image::View"/>
+  <class name="torchportabletest::Image::ConstView"/>
+  <class name="torchportabletest::ImageHostCollection"/>
+  <class name="edm::Wrapper<torchportabletest::ImageHostCollection>" splitLevel="0"/>
+
+  <class name="torchportabletest::Logits"/>
+  <class name="torchportabletest::Logits::View"/>
+  <class name="torchportabletest::Logits::ConstView"/>
+  <class name="torchportabletest::LogitsHostCollection"/>
+  <class name="edm::Wrapper<torchportabletest::LogitsHostCollection>" splitLevel="0"/>
 </lcgdict>

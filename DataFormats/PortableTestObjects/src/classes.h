@@ -8,3 +8,5 @@
 #include "DataFormats/PortableTestObjects/interface/TestProductWithPtr.h"
 #include "DataFormats/PortableTestObjects/interface/TestSoA.h"
 #include "DataFormats/PortableTestObjects/interface/TestStruct.h"
+#include "DataFormats/PortableTestObjects/interface/TorchTestSoA.h"
+#include "DataFormats/PortableTestObjects/interface/TorchTestHostCollection.h"

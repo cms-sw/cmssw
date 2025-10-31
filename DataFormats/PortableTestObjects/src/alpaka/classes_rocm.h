@@ -7,5 +7,7 @@
 #include "DataFormats/PortableTestObjects/interface/TestProductWithPtr.h"
 #include "DataFormats/PortableTestObjects/interface/TestSoA.h"
 #include "DataFormats/PortableTestObjects/interface/TestStruct.h"
+#include "DataFormats/PortableTestObjects/interface/TorchTestSoA.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceObject.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/TorchTestDeviceCollection.h"
