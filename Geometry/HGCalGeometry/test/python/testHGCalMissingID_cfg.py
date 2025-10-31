@@ -1,8 +1,9 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalMissingID_cfg.py geometry=D120
+#   cmsRun testHGCalMissingID_cfg.py geometry=D120 total=10
 #
 #   Options for geometry D120, D122, D123
+#               total    All, Ten
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,6 +18,11 @@ options.register('geometry',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D120, D122, D123")
+options.register('total',
+                 "Ten",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: All, Ten")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,6 +32,11 @@ print(options)
 ####################################################################
 # Use the options
 
+if (options.total == "All"):
+    total = -1
+else:
+    total = 10
+
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 fileName = "HGCMissingID" + options.geometry + ".root"
@@ -33,6 +44,7 @@ import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
 print("Output file:   ", fileName)
+print("Total:         ", total)    
 
 process = cms.Process('HGCMissingID',ERA)
 
@@ -79,6 +91,6 @@ process.TFileService = cms.Service("TFileService",
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
-#process.hgcalGeometryCheck.verbosity = True
+process.hgcalMissingID.total = total
 
 process.p1 = cms.Path(process.generator*process.hgcalMissingID)
