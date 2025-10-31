@@ -41,7 +41,7 @@ interface where scalar elements are accessed with an `operator()`: `soa.scalar()
 accessed via a array of structure (AoS) -like syntax: `soa[index].x()`. The "struct" object returned by `operator[]`
 can be used as a shortcut: `auto si = soa[index]; si.z() = si.x() + si.y();`
 
-A view can be instanciated by being passed the corresponding layout or passing from the [Metarecords subclass](#metarecords-subclass). 
+A view can be instanciated by being passed the corresponding layout or passing from the [Metarecords subclass](#metarecords-subclass).
 This view can point to data belonging to different SoAs and thus not contiguous in memory.
 
 ## Descriptor
@@ -75,6 +75,24 @@ and to build a generic `View` as described in [View](#view).
 It is possible to generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS`
 and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. 
 [An example is showed below.](#examples)
+
+## Blocks
+
+`SoABlocks` is a macro-generated templated class that enables structured composition of multiple `SoALayouts` into a single
+container, referred to as "blocks". Each block is a Layout, and the structure itself looks like multiple contigous memory 
+buffers of different sizes. The alignment is ensured to be the same for every block. 
+`SoABlocks` also supports `View` and `ConstView` classes, mirroring the structure of the underlying structs. The blocks 
+are built via composition and access to individual layouts and views is provided by name.
+
+It is also possible to generate methods inside `View` and `ConstView` using the `SOA_VIEW_METHODS` and 
+`SOA_CONST_VIEW_METHODS` in the same way as described in [Customized methods](#customized-methods).
+
+TODOs:
+- Add introspection utilities to print the structure and layout of a `SoABlocks` instance.
+- Extend support for fully templated `View`/`ConstView` classes beyond the default parameters.
+- Implement support for heterogeneous `deepCopy()` operations between different but compatible `SoABlocks` configurations.
+
+[An example of utilization is showed below.](#examples)
 
 ## ROOT serialization and de-serialization
 
@@ -226,6 +244,67 @@ template<size_t ALIGNMENT = cms::soa::CacheLineSize::defaultSize,
 struct SoA1Layout::ConstViewTemplateFreeParams;
 ```
 
+The SoA by blocks can be created in this way:
+
+```C++
+GENERATE_SOA_LAYOUT(SoAPositionTemplate,
+                    SOA_COLUMN(float, x),
+                    SOA_COLUMN(float, y),
+                    SOA_COLUMN(float, z),
+                    SOA_SCALAR(int, detectorType))
+
+GENERATE_SOA_LAYOUT(SoAPCATemplate,
+                    SOA_COLUMN(float, eigenvector_1),
+                    SOA_COLUMN(float, eigenvector_2),
+                    SOA_COLUMN(float, eigenvector_3),
+                    SOA_EIGEN_COLUMN(Eigen::Vector3d, candidateDirection))
+
+GENERATE_SOA_LAYOUT(SoATemplate,
+                    SOA_SCALAR(int, id),
+                    SOA_SCALAR(int, type),
+                    SOA_SCALAR(float, energy))
+
+GENERATE_SOA_BLOCKS(SoABlocksTemplate,
+                    SOA_BLOCK(position, SoAPositionTemplate),
+                    SOA_BLOCK(pca, SoAPCATemplate),
+                    SOA_BLOCK(scalars, SoATemplate))
+
+using SoABlocks = SoABlocksTemplate<>;
+using SoABlocksView = SoABlocks::View;
+using SoABlocksConstView = SoABlocks::ConstView;                      
+```                   
+
+and the corresponding Views/ConstViews can be accessed like this:
+
+```C++
+// Create a SoABlocks instance with three blocks of different sizes
+std::array<cms::soa::size_type, 3> sizes{{10, 20, 1}};
+const std::size_t blocksBufferSize = SoABlocks::computeDataSize(sizes);
+
+std::unique_ptr<std::byte, decltype(std::free) *> buffer{
+    reinterpret_cast<std::byte *>(aligned_alloc(SoABlocks::alignment, blocksBufferSize)), std::free};
+
+SoABlocks blocks(buffer.get(), sizes);    
+SoABlocksView blocksView{blocks};
+SoABlocksConstView blocksConstView{blocks};
+
+// Fill the blocks with some data
+blocksView.position().detectorType() = 1;
+for (int i = 0; i < blocksView.position().metadata().size(); ++i) {
+    blocksView.position()[i] = { 0.1f, 0.2f, 0.3f };
+}
+for (int i = 0; i < blocksView.metadata().size()[1]; ++i) {
+    blocksView.pca()[i].eigenvector_1() = 0.0f;
+    blocksView.pca()[i].eigenvector_2() = 0.0f;
+    blocksView.pca()[i].eigenvector_3() = 1.0f;
+    blocksView.pca()[i].candidateDirection() = Eigen::Vector3d(1.0, 0.0, 0.0);
+}
+blocksView.scalars().id() = 42;
+blocksView.scalars().type() = 1;
+blocksView.scalars().energy() = 100.0f;
+
+```
+                   
 ## Current status and further improvements
 
 ### Available features
