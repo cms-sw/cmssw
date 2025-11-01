@@ -37,7 +37,14 @@ const typeToColor = [
     "#007777", //sync enqueue
     kSourceColor, // getNextTransition
     "#DD00DD", //construction
-    "#FF0000", //startup
+    "#FF0000", //finalizeEDModules
+    "#FF0000", //finalizeEventSetupConfiguration
+    "#FF0000", //scheduleConsistencyCheck
+    "#FF0000", //createRunLumiEvents
+    "#FF0000", //finishSchedule
+    "#DD00DD", //constructESModules
+    "#FF0000", //startServices
+    "#FF0000", //processPython
 ]
 
 const overlappingTransitions =[15]
@@ -76,8 +83,16 @@ const typeToName = [
     "EventSetup sych enqueue", //sync enqueue
     "find next transition",
     "construction", //construction
-    "startup", //startup
+    "finalize ED Modules", //finalizeEDModules
+    "finalize EventSetup configuration", //finalizeEventSetupConfiguration
+    "schedule consistency check", //scheduleConsistencyCheck
+    "create run/lumi/events", //createRunLumiEvents
+    "finish schedule", //finishSchedule
+    "construct ES Modules", //constructESModules
+    "start Services", //startServices
+    "process python", //processPython
 ]
+
 
 const activityToName = [  "prefetch",
                           "acquire",

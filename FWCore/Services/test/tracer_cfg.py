@@ -6,7 +6,9 @@ process = cms.Process("TEST")
 
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-process.Tracer = cms.Service("Tracer")
+process.Tracer = cms.Service("Tracer",
+                         useMessageLogger=cms.untracked.bool(False),
+                         fileName=cms.untracked.string("tracer.log"))
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(20)

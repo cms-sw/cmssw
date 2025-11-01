@@ -79,7 +79,14 @@ class Phase (object):
   esSyncEnqueue = 14
   getNextTransition = 15
   construction = 16
-  startTracing = 17
+  finalizeEDModules = 17
+  finalizeEventSetupConfiguration = 18
+  scheduleConsistencyCheck = 19
+  createRunLumiEvents = 20
+  finishSchedule = 21
+  constructESModules = 22
+  startServices = 23
+  processPython = 24
 
 #used for json output
 class Activity (object):
@@ -90,8 +97,16 @@ class Activity (object):
   externalWork = 4
   temporary = 100
 
+
 transitionToNames_ = {
-    Phase.startTracing: 'start tracing',
+    Phase.processPython: 'process python',
+    Phase.startServices: 'start Services',
+    Phase.constructESModules: 'construct ESModules',
+    Phase.finishSchedule: 'finish schedule',
+    Phase.createRunLumiEvents: 'create run/lumi/events',
+    Phase.scheduleConsistencyCheck: 'schedule consistency check',
+    Phase.finalizeEventSetupConfiguration : 'finalize EventSetup configuration',
+    Phase.finalizeEDModules: 'finalize EDModules',
     Phase.construction: 'construction',
     Phase.destruction: 'destruction',
     Phase.beginJob: 'begin job',
@@ -123,7 +138,14 @@ def transitionName(transition):
     return transitionToNames_[transition]
 
 transitionToIndent_ = {
-    Phase.startTracing: 0,
+    Phase.processPython: 0,
+    Phase.startServices: 0,
+    Phase.constructESModules: 0,
+    Phase.finishSchedule: 0,
+    Phase.createRunLumiEvents: 0,
+    Phase.scheduleConsistencyCheck: 0,
+    Phase.finalizeEventSetupConfiguration : 0,
+    Phase.finalizeEDModules: 0,
     Phase.construction: 0,
     Phase.destruction: 0,
     Phase.endJob: 0,
@@ -154,7 +176,14 @@ def transitionIndentLevel(transition):
     return transitionToIndent_[transition]
 
 globalTransitions_ = {
-    Phase.startTracing,
+    Phase.processPython,
+    Phase.startServices,
+    Phase.constructESModules,
+    Phase.finishSchedule,
+    Phase.createRunLumiEvents,
+    Phase.scheduleConsistencyCheck,
+    Phase.finalizeEventSetupConfiguration,
+    Phase.finalizeEDModules,
     Phase.construction,
     Phase.destruction,
     Phase.endJob,
@@ -211,7 +240,7 @@ class FrameworkTransitionParser (object):
             return ''
         if self.transition == Phase.beginProcessBlock or self.transition == Phase.endProcessBlock or self.transition == Phase.writeProcessBlock or self.transition == Phase.accessInputProcessBlock:
             return ''
-        if self.transition == Phase.startTracing:
+        if self.transition in [Phase.finalizeEDModules, Phase.finalizeEventSetupConfiguration, Phase.scheduleConsistencyCheck, Phase.createRunLumiEvents, Phase.finishSchedule,  Phase.constructESModules, Phase.startServices, Phase.processPython]:
             return ''
         if self.transition == Phase.construction or self.transition == Phase.destruction:
             return ''
@@ -259,10 +288,7 @@ class PreFrameworkTransitionParser (FrameworkTransitionParser):
     def jsonInfo(self, counter, data):
         if transitionIsGlobal(self.transition):
             index = 0
-            if self.transition == Phase.startTracing:
-                data.indexedGlobal(0).append(jsonTransition(type=self.transition, id=index, sync=list(self.sync),start=0, finish=self.time ))
-                return
-            elif self.transition == Phase.esSync:
+            if self.transition == Phase.esSync:
                 if self.sync[1] == kLargestLumiNumber:
                     #at end run transition
                     index = findMatchingTransition(list(self.sync), data.allGlobals())
