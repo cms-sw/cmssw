@@ -69,7 +69,7 @@ namespace l1t {
   void RegionCorrection(const std::vector<l1t::CaloRegion> &regions,
                         std::vector<l1t::CaloRegion> *subRegions,
                         CaloParamsHelper const *params) {
-    std::string regionPUSType = params->regionPUSType();
+    const std::string& regionPUSType = params->regionPUSType();
 
     if (regionPUSType == "None") {
       for (std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();

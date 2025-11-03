@@ -43,7 +43,7 @@ namespace ticl {
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 
-    virtual void setEvent(edm::Event& iEvent, edm::EventSetup const& iEventSetup) override;
+    void setEvent(edm::Event& iEvent, edm::EventSetup const& iEventSetup) override;
 
   private:
     bool trackstersPassesPIDCut(const Trackster& ts) const;

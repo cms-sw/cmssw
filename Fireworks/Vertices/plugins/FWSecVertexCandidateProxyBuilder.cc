@@ -73,7 +73,7 @@ void FWSecVertexCandidateProxyBuilder::build(const reco::CandSecondaryVertexTagI
       for (int j = 0; j < 3; j++) {
         t(i + 1, j + 1) = mm(i, j);
       }
-    TVectorD vv(eig.GetEigenValuesRe());
+    const TVectorD& vv(eig.GetEigenValuesRe());
     t.Scale(sqrt(vv(0)) * 1000., sqrt(vv(1)) * 1000., sqrt(vv(2)) * 1000.);
     t.SetPos(v.vx(), v.vy(), v.vz());
 

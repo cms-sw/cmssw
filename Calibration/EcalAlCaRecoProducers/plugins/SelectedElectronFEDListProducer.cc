@@ -576,7 +576,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
                 if (R - sqrt(pow(regionDimension_.first / 2, 2) + pow(regionDimension_.second / 2, 2)) > dRStripRegion_)
                   continue;
                 //get vector of subdets within region
-                const SiStripRegionCabling::RegionCabling regSubdets = SiStripCabling[iCabling];
+                const SiStripRegionCabling::RegionCabling& regSubdets = SiStripCabling[iCabling];
                 //cycle on subdets
                 for (uint32_t idet = 0; idet < SiStripRegionCabling::ALLSUBDETS; idet++) {  //cicle between 1 and 4
                   //get vector of layers whin subdet of region

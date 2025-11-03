@@ -85,7 +85,7 @@ namespace lumi {
       std::string fillnum = record[0];
       if (fillnum == result.fillnumber) {
         result.fillscheme = record[1];
-        std::string ncollidingbunchesStr = record[2];
+        const std::string& ncollidingbunchesStr = record[2];
         result.ncollidingbunches = str2int(ncollidingbunchesStr);
         break;
       }

@@ -63,7 +63,7 @@ std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int& eta, const bo
     std::map<int, int> layers;
     hcons.ldMap()->getLayerDepth(eta + 1, layers);
     std::vector<int> depths;
-    for (unsigned int lay = 0; lay < layers.size(); ++lay)
+    depths.reserve(layers.size()); for (unsigned int lay = 0; lay < layers.size(); ++lay)
       depths.emplace_back(layers[lay + 1]);
     return depths;
   }
@@ -79,7 +79,7 @@ std::vector<int> HcalDDDRecConstants::getDepth(const int& det,
     return getDepth(eta, false);
   } else {
     std::vector<int> depths;
-    for (unsigned int lay = 0; lay < layers.size(); ++lay)
+    depths.reserve(layers.size()); for (unsigned int lay = 0; lay < layers.size(); ++lay)
       depths.emplace_back(layers[lay + 1]);
     return depths;
   }

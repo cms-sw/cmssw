@@ -116,7 +116,7 @@ namespace {  // anonymous
     LeaderLookup lookup(leaderIter.begin());
 
     std::vector<int> sort;
-    for (unsigned int i = 0; i < size; i++)
+    sort.reserve(size); for (unsigned int i = 0; i < size; i++)
       sort.push_back((int)i);
 
     boost::transform_iterator<LeaderLookup, std::vector<int>::const_iterator> begin(sort.begin(), lookup);

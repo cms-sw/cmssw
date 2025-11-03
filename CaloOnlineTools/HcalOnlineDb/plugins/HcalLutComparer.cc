@@ -186,7 +186,7 @@ void HcalLutComparer::dumpLutDiff(LutXml &xmls1, LutXml &xmls2, bool testFormat 
     std::cout << Form("%9s  %6s  %6s  %6s", "Det", "total", "zeroes", "extra") << std::endl;
     for (unsigned int i = 0; i < detCodes.size(); i++) {
       int detCode = detCodes.at(i);
-      std::string detName = detNames.at(i);
+      const std::string& detName = detNames.at(i);
       std::cout << Form("%9s  %6d  %6d  %6d", detName.c_str(), n[detCode][total], n[detCode][zeros], n[detCode][extra])
                 << std::endl;
       if (detCode < 0) {
@@ -211,7 +211,7 @@ void HcalLutComparer::dumpLutDiff(LutXml &xmls1, LutXml &xmls2, bool testFormat 
               << std::endl;
     for (unsigned int i = 0; i < detCodes.size(); i++) {
       int detCode = detCodes.at(i);
-      std::string detName = detNames.at(i);
+      const std::string& detName = detNames.at(i);
       std::cout << Form("%9s  %6d  %6d  %8d  %8d  %11d",
                         detName.c_str(),
                         n[detCode][total],

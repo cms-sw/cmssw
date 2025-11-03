@@ -80,7 +80,7 @@ void LowPtGsfElectronSeedValueMapsProducer::produce(edm::Event& event, const edm
 
     // Iterate through GsfTracks, extract BDT output, and store result in ValueMap for each model
     std::vector<std::vector<float> > output;
-    for (unsigned int iname = 0; iname < names_.size(); ++iname) {
+    output.reserve(names_.size()); for (unsigned int iname = 0; iname < names_.size(); ++iname) {
       output.push_back(std::vector<float>(gsfTracks->size(), -999.));
     }
     auto const& gsfTracksV = *gsfTracks;

@@ -125,7 +125,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPosition2D(AliDaqPosi
   meas.name_ = std::string(pos2D->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
-  for (size_t jj = 0; jj < 2; jj++) {
+  isSimu.reserve(2); for (size_t jj = 0; jj < 2; jj++) {
     isSimu.push_back(false);
   }
   meas.isSimulatedValue_ = isSimu;
@@ -155,7 +155,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPositionCOPS(AliDaqPo
   meas.name_ = std::string(posCOPS->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
-  for (size_t jj = 0; jj < 4; jj++) {
+  isSimu.reserve(4); for (size_t jj = 0; jj < 4; jj++) {
     isSimu.push_back(false);
   }
   meas.isSimulatedValue_ = isSimu;
@@ -198,7 +198,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromTilt(AliDaqTilt* tilt
   meas.name_ = std::string(tilt->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
-  for (size_t jj = 0; jj < 2; jj++) {
+  isSimu.reserve(2); for (size_t jj = 0; jj < 2; jj++) {
     isSimu.push_back(false);
   }
   meas.isSimulatedValue_ = isSimu;
@@ -222,7 +222,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromDist(AliDaqDistance* 
   meas.name_ = std::string(dist->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
-  for (size_t jj = 0; jj < 2; jj++) {
+  isSimu.reserve(2); for (size_t jj = 0; jj < 2; jj++) {
     isSimu.push_back(false);
   }
   meas.isSimulatedValue_ = isSimu;
@@ -265,7 +265,7 @@ void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign(std::vector<OpticalAlignM
     //---------- loop measurements read from ROOT
     ALIint ii;
     for (ii = 0; ii < nMeasRoot; ii++) {
-      OpticalAlignMeasurementInfo measInfo = measList[ii];
+      const OpticalAlignMeasurementInfo& measInfo = measList[ii];
       std::cout << " measurement name ROOT " << measInfo.name_ << " Model= " << (*vmcite)->name() << " short " << oname
                 << std::endl;
 

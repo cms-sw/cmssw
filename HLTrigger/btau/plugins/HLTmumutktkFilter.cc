@@ -103,7 +103,7 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent,
   // loop over vertex collection
   reco::VertexCollection::iterator it;
   for (it = displacedVertexColl.begin(); it != displacedVertexColl.end(); it++) {
-    reco::Vertex displacedVertex = *it;
+    const reco::Vertex& displacedVertex = *it;
 
     // check if the vertex actually consists of exactly two muon + 1 track, throw exception if not
     if (displacedVertex.tracksSize() != 4)

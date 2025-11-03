@@ -19,7 +19,7 @@ Looses::~Looses() { summary(); }
 void Looses::count(const std::string& name, unsigned cut) {
   if (theLosses.find(name) == theLosses.end()) {
     std::vector<unsigned> myCounts;
-    for (unsigned i = 0; i < 20; ++i)
+    myCounts.reserve(20); for (unsigned i = 0; i < 20; ++i)
       myCounts.push_back(0);
     theLosses[name] = myCounts;
   }

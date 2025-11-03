@@ -166,7 +166,7 @@ namespace tmtt {
     cellCenters_.clear();
     for (unsigned int m = 0; m < nBinsQoverPtAxis_; m++) {
       std::vector<std::pair<float, float> > binCenters;
-      for (unsigned int c = 0; c < nBinsPhiTrkAxis_; c++)
+      binCenters.reserve(nBinsPhiTrkAxis_); for (unsigned int c = 0; c < nBinsPhiTrkAxis_; c++)
         binCenters.push_back(this->helix2Dhough(m, c));
       cellCenters_.push_back(binCenters);
     }

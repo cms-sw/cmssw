@@ -255,7 +255,7 @@ public:
 
   static edm::ParameterSetDescription baseDescriptions() {
     edm::ParameterSetDescription desc;
-    std::string classname = ClassName<T>::name();
+    const std::string& classname = ClassName<T>::name();
     desc.add<std::string>("name")->setComment("name of the branch in the flat table output for " + classname);
     desc.add<std::string>("doc", "")->setComment("few words of self documentation");
     desc.add<bool>("extension", false)->setComment("whether or not to extend an existing same table");

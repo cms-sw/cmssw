@@ -28,7 +28,7 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::vector<std::vector<std::string> > &t
   std::string mthn = "[PixelMaskAllPixels::PixelMaskAllPixels()]\t\t    ";
   //std::cout << __LINE__ << "]\t" << mthn << "Table Size in const: " << tableMat.size() << std::endl;
 
-  std::vector<std::string> ins = tableMat[0];
+  const std::vector<std::string>& ins = tableMat[0];
   std::map<std::string, int> colM;
   std::vector<std::string> colNames;
 

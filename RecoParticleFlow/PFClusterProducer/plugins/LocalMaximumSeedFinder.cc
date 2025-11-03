@@ -78,7 +78,7 @@ LocalMaximumSeedFinder::LocalMaximumSeedFinder(const edm::ParameterSet& conf)
       thresh_pT.push_back(pset.getParameter<double>("seedingThresholdPt"));
     }
 
-    for (unsigned int i = 0; i < thresh_pT.size(); ++i) {
+    thresh_pT2.reserve(thresh_pT.size()); for (unsigned int i = 0; i < thresh_pT.size(); ++i) {
       thresh_pT2.push_back(thresh_pT[i] * thresh_pT[i]);
     }
 

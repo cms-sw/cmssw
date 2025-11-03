@@ -19,7 +19,7 @@ void SurveyAlignmentAlgorithm::initialize(
   //        - check this, when resurrecting this code in the future
   AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
 
-  for (unsigned int l = 0; l < theLevels.size(); ++l) {
+  levels.reserve(theLevels.size()); for (unsigned int l = 0; l < theLevels.size(); ++l) {
     levels.push_back(alignableObjectId.stringToId(theLevels[l].c_str()));
   }
 

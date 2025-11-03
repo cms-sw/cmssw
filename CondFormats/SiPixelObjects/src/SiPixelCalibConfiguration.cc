@@ -75,8 +75,8 @@ SiPixelCalibConfiguration::SiPixelCalibConfiguration(const pos::PixelCalibConfig
   }
   // copy row and column patterns
 
-  std::vector<std::vector<uint32_t> > cols = fancyConfig.columnList();
-  std::vector<std::vector<uint32_t> > rows = fancyConfig.rowList();
+  const std::vector<std::vector<uint32_t> >& cols = fancyConfig.columnList();
+  const std::vector<std::vector<uint32_t> >& rows = fancyConfig.rowList();
   for (uint32_t i = 0; i < cols.size(); ++i) {
     for (uint32_t j = 0; j < cols[i].size(); ++j) {
       short colval = cols[i][j];

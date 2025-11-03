@@ -139,7 +139,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   genEvent->read_data(*genEventData);
 
   std::vector<double> mergedWeights;
-  for (unsigned int i = 0; i < genEvent->weights().size(); i++) {
+  mergedWeights.reserve(genEvent->weights().size()); for (unsigned int i = 0; i < genEvent->weights().size(); i++) {
     mergedWeights.push_back(genEvent->weights()[i]);
   }
 

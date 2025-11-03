@@ -31,7 +31,7 @@ TriggerCondition::TriggerCondition(const std::string& name, bool accept)
 // Get the trigger object types
 std::vector<int> TriggerCondition::triggerObjectTypes() const {
   std::vector<int> triggerObjectTypes;
-  for (size_t iT = 0; iT < triggerObjectTypes_.size(); ++iT) {
+  triggerObjectTypes.reserve(triggerObjectTypes_.size()); for (size_t iT = 0; iT < triggerObjectTypes_.size(); ++iT) {
     triggerObjectTypes.push_back(int(triggerObjectTypes_.at(iT)));
   }
   return triggerObjectTypes;

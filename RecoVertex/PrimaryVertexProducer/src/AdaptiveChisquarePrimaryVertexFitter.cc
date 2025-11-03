@@ -515,7 +515,7 @@ TransientVertex AdaptiveChisquarePrimaryVertexFitter::refit(const TransientVerte
 
   // put the result into a transient vertex
   std::vector<std::pair<unsigned int, float>> vertex_track_weights;
-  for (unsigned int i = 0; i < nt; i++) {
+  vertex_track_weights.reserve(nt); for (unsigned int i = 0; i < nt; i++) {
     vertex_track_weights.emplace_back(i, tkweight_[i]);
   }
 

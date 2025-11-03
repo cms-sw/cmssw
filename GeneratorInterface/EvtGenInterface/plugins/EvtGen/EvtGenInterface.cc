@@ -464,7 +464,7 @@ HepMC::GenEvent* EvtGenInterface::decay(HepMC::GenEvent* evt) {
   // decay all request unforced particles and store the forced decays to later decay one per event
   unsigned int nisforced = 0;
   std::vector<std::vector<HepMC::GenParticle*> > forcedparticles;
-  for (unsigned int i = 0; i < forced_pdgids.size(); i++)
+  forcedparticles.reserve(forced_pdgids.size()); for (unsigned int i = 0; i < forced_pdgids.size(); i++)
     forcedparticles.push_back(std::vector<HepMC::GenParticle*>());
 
   // notice this is a dynamic loop

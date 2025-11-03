@@ -22,7 +22,7 @@ void HcalLaserUnpacker::unpack(const FEDRawData& raw, HcalLaserDigi& digi) const
 
   // first, we do the QADC
   std::vector<uint16_t> qadcvals;
-  for (unsigned int i = 0; i < qdctdc->n_qdc_hits; i++) {
+  qadcvals.reserve(qdctdc->n_qdc_hits); for (unsigned int i = 0; i < qdctdc->n_qdc_hits; i++) {
     qadcvals.push_back(qdctdc->qdc_values[i] & 0xFFF);
   }
   digi.setQADC(qadcvals);

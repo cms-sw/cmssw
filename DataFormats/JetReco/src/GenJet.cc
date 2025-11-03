@@ -50,7 +50,7 @@ const GenParticle* GenJet::getGenConstituent(unsigned fIndex) const {
 
 std::vector<const GenParticle*> GenJet::getGenConstituents() const {
   std::vector<const GenParticle*> result;
-  for (unsigned i = 0; i < numberOfDaughters(); i++)
+  result.reserve(numberOfDaughters()); for (unsigned i = 0; i < numberOfDaughters(); i++)
     result.push_back(getGenConstituent(i));
   return result;
 }

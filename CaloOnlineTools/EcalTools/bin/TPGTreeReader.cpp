@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
 
   std::vector<int> algobits;
   std::vector<std::string> algos = split(l1algo, ",");
-  for (unsigned int i = 0; i < algos.size(); i++)
+  algobits.reserve(algos.size()); for (unsigned int i = 0; i < algos.size(); i++)
     algobits.push_back(atoi(algos[i].c_str()));
 
   unsigned int ref = 2;

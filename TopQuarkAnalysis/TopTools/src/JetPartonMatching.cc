@@ -10,7 +10,7 @@ JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& 
                                      const double maxDist = 0.3)
     : partons(p), algorithm_(algorithm), useMaxDist_(useMaxDist), useDeltaR_(useDeltaR), maxDist_(maxDist) {
   std::vector<const reco::Candidate*> js;
-  for (unsigned int i = 0; i < j.size(); ++i)
+  js.reserve(j.size()); for (unsigned int i = 0; i < j.size(); ++i)
     js.push_back(&(j[i]));
   jets = js;
   calculate();
@@ -24,7 +24,7 @@ JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& 
                                      const double maxDist = 0.3)
     : partons(p), algorithm_(algorithm), useMaxDist_(useMaxDist), useDeltaR_(useDeltaR), maxDist_(maxDist) {
   std::vector<const reco::Candidate*> js;
-  for (unsigned int i = 0; i < j.size(); ++i)
+  js.reserve(j.size()); for (unsigned int i = 0; i < j.size(); ++i)
     js.push_back(&(j[i]));
   jets = js;
   calculate();
@@ -38,7 +38,7 @@ JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& 
                                      const double maxDist = 0.3)
     : partons(p), algorithm_(algorithm), useMaxDist_(useMaxDist), useDeltaR_(useDeltaR), maxDist_(maxDist) {
   std::vector<const reco::Candidate*> js;
-  for (unsigned int i = 0; i < j.size(); ++i)
+  js.reserve(j.size()); for (unsigned int i = 0; i < j.size(); ++i)
     js.push_back(&(j[i]));
   jets = js;
   calculate();
@@ -234,7 +234,7 @@ void JetPartonMatching::matchingMinSumDist() {
   std::vector<std::pair<double, MatchingCollection> > distMatchVec;
 
   std::vector<bool> usedJets;
-  for (unsigned int i = 0; i < jets.size(); ++i) {
+  usedJets.reserve(jets.size()); for (unsigned int i = 0; i < jets.size(); ++i) {
     usedJets.push_back(false);
   }
 
@@ -265,14 +265,14 @@ void JetPartonMatching::matchingPtOrderedMinDist() {
   // order partons in pt first
   std::vector<std::pair<double, unsigned int> > ptOrderedPartons;
 
-  for (unsigned int ip = 0; ip < partons.size(); ++ip)
+  ptOrderedPartons.reserve(partons.size()); for (unsigned int ip = 0; ip < partons.size(); ++ip)
     ptOrderedPartons.push_back(std::make_pair(partons[ip]->pt(), ip));
 
   std::sort(ptOrderedPartons.begin(), ptOrderedPartons.end());
   std::reverse(ptOrderedPartons.begin(), ptOrderedPartons.end());
 
   std::vector<unsigned int> jetIndices;
-  for (unsigned int ij = 0; ij < jets.size(); ++ij)
+  jetIndices.reserve(jets.size()); for (unsigned int ij = 0; ij < jets.size(); ++ij)
     jetIndices.push_back(ij);
 
   MatchingCollection match;
@@ -307,7 +307,7 @@ void JetPartonMatching::matchingUnambiguousOnly() {
   // match partons to jets, only accept event
   // if there are no ambiguities
   std::vector<bool> jetMatched;
-  for (unsigned int ij = 0; ij < jets.size(); ++ij)
+  jetMatched.reserve(jets.size()); for (unsigned int ij = 0; ij < jets.size(); ++ij)
     jetMatched.push_back(false);
 
   MatchingCollection match;
@@ -350,7 +350,7 @@ std::vector<int> JetPartonMatching::getMatchesForPartons(const unsigned int comb
   // return a vector with the indices of the matched jets
   // (ordered according to the vector of partons)
   std::vector<int> jetIndices;
-  for (unsigned int part = 0; part < partons.size(); ++part)
+  jetIndices.reserve(partons.size()); for (unsigned int part = 0; part < partons.size(); ++part)
     jetIndices.push_back(getMatchForParton(part, comb));
   return jetIndices;
 }

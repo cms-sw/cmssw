@@ -198,7 +198,7 @@ int DDG4Builder::getInt(const std::string &ss, const DDLogicalPart &part) {
       break;
   }
   if (foundIt) {
-    std::vector<double> temp = val.doubles();
+    const std::vector<double>& temp = val.doubles();
     if (temp.size() != 1) {
       throw cms::Exception("SimG4CoreGeometry",
                            " DDG4Builder::getInt() Problem with Region tags - "
@@ -220,7 +220,7 @@ double DDG4Builder::getDouble(const std::string &ss, const DDLogicalPart &part) 
       break;
   }
   if (foundIt) {
-    std::vector<std::string> temp = val.strings();
+    const std::vector<std::string>& temp = val.strings();
     if (temp.size() != 1) {
       throw cms::Exception("SimG4CoreGeometry",
                            " DDG4Builder::getDouble() Problem with Region tags "

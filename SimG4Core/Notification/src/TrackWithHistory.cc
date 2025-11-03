@@ -21,7 +21,7 @@ TrackWithHistory::TrackWithHistory(const G4Track* g4trk, int pID) {
   auto mom = g4trk->GetMomentum();
   momentum_ = math::XYZVectorD(mom.x(), mom.y(), mom.z());
   totalEnergy_ = g4trk->GetTotalEnergy();
-  auto pos = g4trk->GetPosition();
+  const auto& pos = g4trk->GetPosition();
   vertexPosition_ = math::XYZVectorD(pos.x(), pos.y(), pos.z());
   time_ = g4trk->GetGlobalTime();
   auto p = g4trk->GetCreatorProcess();

@@ -76,13 +76,13 @@ void L1HPSPFTauProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
 
   //adding collection
   std::vector<edm::Ptr<l1t::PFCandidate>> particles;
-  for (unsigned i = 0; i < (*l1PFCandidates).size(); i++) {
+  particles.reserve((*l1PFCandidates).size()); for (unsigned i = 0; i < (*l1PFCandidates).size(); i++) {
     particles.push_back(edm::Ptr<l1t::PFCandidate>(l1PFCandidates, i));
   }
 
   //get the jets
   std::vector<edm::Ptr<reco::CaloJet>> jets;
-  for (unsigned int i = 0; i < (*l1PFJets).size(); i++) {
+  jets.reserve((*l1PFJets).size()); for (unsigned int i = 0; i < (*l1PFJets).size(); i++) {
     jets.push_back(edm::Ptr<reco::CaloJet>(l1PFJets, i));
     //
   }

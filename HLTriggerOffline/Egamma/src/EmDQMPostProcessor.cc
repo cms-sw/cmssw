@@ -312,7 +312,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
 
           // Is this the last filter? Book efficiency vs gen (or reco, for data)
           // level
-          std::string temp = *postfix;
+          const std::string& temp = *postfix;
           if (filter == total->GetNbinsX() - 3 && temp.find("matched") != std::string::npos) {
             if (normalizeToReco)
               genName = ibooker.pwd() + "/reco_" + *var;

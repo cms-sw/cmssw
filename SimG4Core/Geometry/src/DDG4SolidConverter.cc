@@ -249,9 +249,9 @@ G4VSolid *DDG4SolidConverter::extrudedpolygon(const DDSolid &solid) {
 
   std::vector<G4TwoVector> polygon;
   std::vector<G4ExtrudedSolid::ZSection> zsections;
-  for (unsigned int it = 0; it < x.size(); ++it)
+  polygon.reserve(x.size()); for (unsigned int it = 0; it < x.size(); ++it)
     polygon.emplace_back(x[it], y[it]);
-  for (unsigned int it = 0; it < z.size(); ++it)
+  zsections.reserve(z.size()); for (unsigned int it = 0; it < z.size(); ++it)
     zsections.emplace_back(z[it], G4TwoVector(zx[it], zy[it]), zs[it]);
   return new G4ExtrudedSolid(solid.name().name(), polygon, zsections);
 }

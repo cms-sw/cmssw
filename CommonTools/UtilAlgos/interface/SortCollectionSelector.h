@@ -49,7 +49,7 @@ public:
   const_iterator end() const { return selected_.end(); }
   void select(const edm::Handle<InputCollection> &c, const edm::Event &, const edm::EventSetup &) {
     std::vector<pair> v;
-    for (size_t idx = 0; idx < c->size(); ++idx)
+    v.reserve(c->size()); for (size_t idx = 0; idx < c->size(); ++idx)
       v.push_back(std::make_pair(&(*c)[idx], idx));
     std::sort(v.begin(), v.end(), compare_);
     selected_.clear();

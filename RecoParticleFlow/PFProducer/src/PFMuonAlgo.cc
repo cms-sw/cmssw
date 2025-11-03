@@ -829,7 +829,7 @@ std::pair<double, double> PFMuonAlgo::getMinMaxMET2(const reco::PFCandidate& pfc
   double METXNO = METX_ - pfc.px();
   double METYNO = METY_ - pfc.py();
   std::vector<double> met2;
-  for (unsigned int i = 0; i < tracks.size(); ++i) {
+  met2.reserve(tracks.size()); for (unsigned int i = 0; i < tracks.size(); ++i) {
     met2.push_back(pow(METXNO + tracks.at(i).first->px(), 2) + pow(METYNO + tracks.at(i).first->py(), 2));
   }
 

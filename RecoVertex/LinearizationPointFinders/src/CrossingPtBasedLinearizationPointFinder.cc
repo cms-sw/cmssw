@@ -233,8 +233,8 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
   bool dir = false;
 
   while (vgp.size() < ((unsigned int)(theNPairs))) {
-    reco::TransientTrack rt1 = goodtracks[t_first];
-    reco::TransientTrack rt2 = goodtracks[t_first + t_interval];
+    const reco::TransientTrack& rt1 = goodtracks[t_first];
+    const reco::TransientTrack& rt2 = goodtracks[t_first + t_interval];
     // std::cout << "Considering now: " << t_first << ", " << t_first+t_interval << std::endl;
     if (useMatrix) {
       PointAndDistance v(theMatrix->crossingPoint(rt1, rt2), theMatrix->distance(rt1, rt2));

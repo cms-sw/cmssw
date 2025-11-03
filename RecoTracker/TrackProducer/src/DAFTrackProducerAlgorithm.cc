@@ -396,7 +396,7 @@ float DAFTrackProducerAlgorithm::calculateNdof(const Trajectory vtraj) const {
 //------------------------------------------------------------------------------------------------
 int DAFTrackProducerAlgorithm::checkHits(Trajectory iInitTraj, const Trajectory iFinalTraj) const {
   std::vector<TrajectoryMeasurement> initmeasurements = iInitTraj.measurements();
-  std::vector<TrajectoryMeasurement> finalmeasurements = iFinalTraj.measurements();
+  const std::vector<TrajectoryMeasurement>& finalmeasurements = iFinalTraj.measurements();
   std::vector<TrajectoryMeasurement>::iterator jmeas;
   int nSame = 0;
   int ihit = 0;
@@ -419,7 +419,7 @@ int DAFTrackProducerAlgorithm::checkHits(Trajectory iInitTraj, const Trajectory 
       continue;
 
     if (initHit->isValid()) {
-      TrajectoryMeasurement imeas = finalmeasurements.at(ihit);
+      const TrajectoryMeasurement& imeas = finalmeasurements.at(ihit);
       const TrackingRecHit* finalHit = imeas.recHit()->hit();
       const TrackingRecHit* MaxWeightHit = nullptr;
       float maxweight = 0;
@@ -458,7 +458,7 @@ int DAFTrackProducerAlgorithm::checkHits(Trajectory iInitTraj, const Trajectory 
         }
       }
     } else {
-      TrajectoryMeasurement imeas = finalmeasurements.at(ihit);
+      const TrajectoryMeasurement& imeas = finalmeasurements.at(ihit);
       const TrackingRecHit* finalHit = imeas.recHit()->hit();
       if (!finalHit->isValid()) {
         nSame++;

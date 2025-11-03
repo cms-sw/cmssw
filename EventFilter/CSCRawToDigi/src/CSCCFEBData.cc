@@ -80,7 +80,7 @@ CSCCFEBData::CSCCFEBData(unsigned number, bool sixteenSamples, uint16_t format_v
 }
 
 void CSCCFEBData::add(const CSCStripDigi &digi, int layer) {
-  std::vector<int> scaCounts = digi.getADCCounts();
+  const std::vector<int>& scaCounts = digi.getADCCounts();
   for (unsigned itime = 0; itime < theNumberOfSamples; ++itime) {
     unsigned channel = (digi.getStrip() - 1) % 16 + 1;
     unsigned value = scaCounts[itime] & 0xFFF;  // 12-bit

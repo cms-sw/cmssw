@@ -21,7 +21,7 @@ using namespace pos;
 PixelDetectorConfig::PixelDetectorConfig(std::vector<std::vector<std::string> > &tableMat)
     : PixelConfigBase("", "", "") {
   std::string mthn = "]\t[PixelDetectorConfig::PixelDetectorConfig()]\t\t    ";
-  std::vector<std::string> ins = tableMat[0];
+  const std::vector<std::string>& ins = tableMat[0];
   std::map<std::string, int> colM;
   std::vector<std::string> colNames;
   /*

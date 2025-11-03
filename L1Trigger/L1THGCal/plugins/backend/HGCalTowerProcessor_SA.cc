@@ -26,7 +26,7 @@ public:
 
     /* create a persistent vector of pointers to the towerMaps */
     std::vector<edm::Ptr<l1t::HGCalTowerMap>> towerMapsPtrs;
-    for (unsigned i = 0; i < towerMapCollHandle->size(); ++i) {
+    towerMapsPtrs.reserve(towerMapCollHandle->size()); for (unsigned i = 0; i < towerMapCollHandle->size(); ++i) {
       towerMapsPtrs.emplace_back(towerMapCollHandle, i);
     }
 

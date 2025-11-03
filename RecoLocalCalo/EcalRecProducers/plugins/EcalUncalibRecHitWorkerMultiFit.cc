@@ -608,7 +608,7 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
       } else if (timealgo_ == weightsMethod) {
         //  weights method on the PU subtracted pulse shape
         std::vector<double> amplitudes;
-        for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
+        amplitudes.reserve(activeBX.size()); for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
           amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
 
         EcalTBWeights::EcalTDCId tdcid(1);

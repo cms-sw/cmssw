@@ -27,7 +27,7 @@ EventShape::EventShape(reco::TrackCollection& tracks) : eigenvalues(3) {
   MomentumTensor *= 1 / (MomentumTensor[0][0] + MomentumTensor[1][1] + MomentumTensor[2][2]);
   // find the eigen values
   TMatrixDSymEigen eigen(MomentumTensor);
-  TVectorD eigenvals = eigen.GetEigenValues();
+  const TVectorD& eigenvals = eigen.GetEigenValues();
   eigenvalues[0] = eigenvals[0];
   eigenvalues[1] = eigenvals[1];
   eigenvalues[2] = eigenvals[2];
@@ -232,7 +232,7 @@ float EventShape::sphericity(const reco::TrackCollection& tracks) {
   MomentumTensor *= 1 / (MomentumTensor[0][0] + MomentumTensor[1][1] + MomentumTensor[2][2]);
   // find the eigen values
   TMatrixDSymEigen eigen(MomentumTensor);
-  TVectorD eigenvals = eigen.GetEigenValues();
+  const TVectorD& eigenvals = eigen.GetEigenValues();
   vector<float> eigenvaluess(3);
   eigenvaluess[0] = eigenvals[0];
   eigenvaluess[1] = eigenvals[1];
@@ -262,7 +262,7 @@ float EventShape::aplanarity(const reco::TrackCollection& tracks) {
   MomentumTensor *= 1 / (MomentumTensor[0][0] + MomentumTensor[1][1] + MomentumTensor[2][2]);
   // find the eigen values
   TMatrixDSymEigen eigen(MomentumTensor);
-  TVectorD eigenvals = eigen.GetEigenValues();
+  const TVectorD& eigenvals = eigen.GetEigenValues();
   vector<float> eigenvaluess(3);
   eigenvaluess[0] = eigenvals[0];
   eigenvaluess[1] = eigenvals[1];
@@ -291,7 +291,7 @@ float EventShape::planarity(const reco::TrackCollection& tracks) {
   MomentumTensor *= 1 / (MomentumTensor[0][0] + MomentumTensor[1][1] + MomentumTensor[2][2]);
   // find the eigen values
   TMatrixDSymEigen eigen(MomentumTensor);
-  TVectorD eigenvals = eigen.GetEigenValues();
+  const TVectorD& eigenvals = eigen.GetEigenValues();
   vector<float> eigenvaluess(3);
   eigenvaluess[0] = eigenvals[0];
   eigenvaluess[1] = eigenvals[1];

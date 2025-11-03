@@ -222,7 +222,7 @@ double TwoBowedSurfacesAlignmentParameters::ySplitFromAlignable(const Alignable 
   if (!ali)
     return 0.;
 
-  const align::PositionType pos(ali->globalPosition());
+  const align::PositionType& pos(ali->globalPosition());
   const double r = pos.perp();
 
   // The returned numbers for TEC are calculated as stated below from

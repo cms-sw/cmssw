@@ -101,7 +101,7 @@ pair<bool, TrajectoryStateOnSurface> MuonTrajectoryUpdator::update(const Traject
   const DetLayer* detLayer = measurement->layer();
 
   // these are the 4D segment for the CSC/DT and a point for the RPC
-  TransientTrackingRecHit::ConstRecHitPointer muonRecHit = measurement->recHit();
+  const TransientTrackingRecHit::ConstRecHitPointer& muonRecHit = measurement->recHit();
 
   // The KFUpdator takes TransientTrackingRecHits as arg.
   TransientTrackingRecHit::ConstRecHitContainer recHitsForFit =

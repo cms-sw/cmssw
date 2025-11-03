@@ -546,7 +546,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
           std::vector<double> dR2toSubjets;
 
-          for (size_t sj = 0; sj < subjetIndices.at(i).size(); ++sj)
+          dR2toSubjets.reserve(subjetIndices.at(i).size()); for (size_t sj = 0; sj < subjetIndices.at(i).size(); ++sj)
             dR2toSubjets.push_back(Geom::deltaR2(p.rapidity(),
                                                  p.phi_std(),
                                                  trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->rapidity(),
@@ -671,7 +671,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
         std::vector<double> dR2toSubjets;
 
-        for (size_t sj = 0; sj < subjetIndices.at(i).size(); ++sj)
+        dR2toSubjets.reserve(subjetIndices.at(i).size()); for (size_t sj = 0; sj < subjetIndices.at(i).size(); ++sj)
           dR2toSubjets.push_back(Geom::deltaR2(p.rapidity(),
                                                p.phi_std(),
                                                trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->rapidity(),

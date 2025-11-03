@@ -178,7 +178,7 @@ void VersionedIdProducer<PhysicsObjectPtr, SelectorType>::produce(edm::Event& iE
     //now add the value map of ptrs to user datas
     auto out_usrdptrs = std::make_unique<edm::ValueMap<edm::Ptr<pat::UserData>>>();
     std::vector<edm::Ptr<pat::UserData>> usrdptrs;
-    for (unsigned i = 0; i < usrd_handle->size(); ++i) {
+    usrdptrs.reserve(usrd_handle->size()); for (unsigned i = 0; i < usrd_handle->size(); ++i) {
       usrdptrs.push_back(edm::Ptr<pat::UserData>(usrd_handle, i));
     }
 

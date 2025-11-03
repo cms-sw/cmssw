@@ -38,7 +38,7 @@ namespace ticl {
                                                size_t N);
 
   inline unsigned getLayerFromLC(const reco::CaloCluster &LC, const hgcal::RecHitTools &rhtools) {
-    std::vector<std::pair<DetId, float>> thisclusterHits = LC.hitsAndFractions();
+    const std::vector<std::pair<DetId, float>>& thisclusterHits = LC.hitsAndFractions();
     auto layer = rhtools.getLayerWithOffset(thisclusterHits[0].first);
     return layer;
   }

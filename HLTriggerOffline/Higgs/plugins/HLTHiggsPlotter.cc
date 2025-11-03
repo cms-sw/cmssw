@@ -56,7 +56,7 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker, const bool &use
     const std::string objTypeStr = EVTColContainer::getTypeString(*it);
 
     for (size_t i = 0; i < sources.size(); i++) {
-      std::string source = sources[i];
+      const std::string& source = sources[i];
 
       if (useNminOneCuts && *it == EVTColContainer::PFJET) {
         if (source == "gen")

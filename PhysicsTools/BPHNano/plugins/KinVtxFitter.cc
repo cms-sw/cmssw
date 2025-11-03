@@ -12,7 +12,7 @@ KinVtxFitter::KinVtxFitter(const std::vector<reco::TransientTrack> tracks,
     : n_particles_{masses.size()} {
   KinematicParticleFactoryFromTransientTrack factory;
   std::vector<RefCountedKinematicParticle> particles;
-  for (size_t i = 0; i < tracks.size(); ++i) {
+  particles.reserve(tracks.size()); for (size_t i = 0; i < tracks.size(); ++i) {
     particles.emplace_back(factory.particle(tracks.at(i), masses.at(i), kin_chi2_, kin_ndof_, sigmas[i]));
   }
 
@@ -48,7 +48,7 @@ KinVtxFitter::KinVtxFitter(const std::vector<reco::TransientTrack> tracks,
     : n_particles_{masses.size()} {
   KinematicParticleFactoryFromTransientTrack factory;
   std::vector<RefCountedKinematicParticle> particles;
-  for (size_t i = 0; i < tracks.size(); ++i) {
+  particles.reserve(tracks.size()); for (size_t i = 0; i < tracks.size(); ++i) {
     particles.emplace_back(factory.particle(tracks.at(i), masses.at(i), kin_chi2_, kin_ndof_, sigmas[i]));
   }
 

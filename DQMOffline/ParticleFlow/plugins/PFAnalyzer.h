@@ -109,7 +109,7 @@ private:
 
   static double getNPFC(const reco::PFCandidateCollection pfCands, reco::PFCandidate::ParticleType pfType) {
     int nPF = 0;
-    for (auto pfCand : pfCands) {
+    for (const auto& pfCand : pfCands) {
       // We use X to indicate all
       if (pfCand.particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X) {
         nPF++;
@@ -120,7 +120,7 @@ private:
 
   static double getNPFCinJet(const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType) {
     int nPF = 0;
-    for (auto pfCand : pfCands) {
+    for (const auto& pfCand : pfCands) {
       if (!pfCand)
         continue;
       // We use X to indicate all
@@ -194,7 +194,7 @@ private:
           if (elements[iEle].type() == reco::PFBlockElement::HCAL ||
               elements[iEle].type() == reco::PFBlockElement::ECAL) {  // Element is HB or HE
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
-            reco::PFCluster cluster = *clusterref;
+            const reco::PFCluster& cluster = *clusterref;
             energy += cluster.energy();
           }
         }
@@ -215,7 +215,7 @@ private:
           if (elements[iEle].type() == reco::PFBlockElement::HCAL) {  // Element is HB or HE
             // Get cluster and hits
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
-            reco::PFCluster cluster = *clusterref;
+            const reco::PFCluster& cluster = *clusterref;
             //std::vector<std::pair<DetId, float>> hitsAndFracs = cluster.hitsAndFractions();
             energy += cluster.energy();
           }
@@ -238,7 +238,7 @@ private:
             // Get cluster and hits
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
             // When we don't have isolated tracks, this will be a bit useless, since the energy is shared across multiple tracks
-            reco::PFCluster cluster = *clusterref;
+            const reco::PFCluster& cluster = *clusterref;
             energy += cluster.energy();
           }
         }

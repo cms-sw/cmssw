@@ -41,7 +41,7 @@ edm::ParameterSetDescription EmulatorParameters::description() {
   {  // list the enabled eRxs in all ECON-Ds
     const unsigned int max_erxs_per_econd = 12;
     std::vector<unsigned int> default_enabled_erxs;
-    for (size_t i = 0; i < max_erxs_per_econd; ++i)
+    default_enabled_erxs.reserve(max_erxs_per_econd); for (size_t i = 0; i < max_erxs_per_econd; ++i)
       default_enabled_erxs.emplace_back(i);
     desc.add<std::vector<unsigned int> >("enabledERxs", default_enabled_erxs)
         ->setComment("list of channels to be enabled in readout");

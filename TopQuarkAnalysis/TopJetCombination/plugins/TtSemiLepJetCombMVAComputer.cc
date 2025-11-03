@@ -47,7 +47,7 @@ void TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup
   // empty METs vector or less jets than partons
   if (leptons->empty() || mets->empty() || jets->size() < nPartons) {
     std::vector<int> invalidCombi;
-    for (unsigned int i = 0; i < nPartons; ++i)
+    invalidCombi.reserve(nPartons); for (unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back(-1);
     pOut->push_back(invalidCombi);
     evt.put(std::move(pOut));
@@ -73,7 +73,7 @@ void TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup
   }
 
   std::vector<int> combi;
-  for (unsigned int i = 0; i < nPartons; ++i)
+  combi.reserve(nPartons); for (unsigned int i = 0; i < nPartons; ++i)
     combi.push_back(i);
 
   typedef std::pair<double, std::vector<int>> discCombPair;

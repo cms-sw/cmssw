@@ -18,7 +18,7 @@ using namespace std;
 
 PixelPortcardMap::PixelPortcardMap(std::vector<std::vector<std::string> > &tableMat) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    ";
-  std::vector<std::string> ins = tableMat[0];
+  const std::vector<std::string>& ins = tableMat[0];
   std::map<std::string, int> colM;
   std::vector<std::string> colNames;
   /*

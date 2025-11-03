@@ -249,7 +249,7 @@ std::vector<std::vector<short>> LateralityCoarsedProvider::convertString(std::st
 
   for (size_t i = 0; i < chain.size(); i += 4) {
     std::vector<short> group;
-    for (size_t j = 0; j < 4; j++) {
+    group.reserve(4); for (size_t j = 0; j < 4; j++) {
       group.push_back(chain[i + j] - '0');  // Convert the character to integer
     }
     result.push_back(group);

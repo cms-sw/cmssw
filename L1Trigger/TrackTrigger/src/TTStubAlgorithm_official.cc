@@ -169,7 +169,7 @@ float TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::degradeBend(bool psModul
     // Then you alternate large-small-large-small....large. In the middle, you
     // put either large or small, depending if group size is odd or not
 
-    for (unsigned int i = 0; i < numLargeGroups / 2; i++)
+    groups.reserve(numLargeGroups / 2); for (unsigned int i = 0; i < numLargeGroups / 2; i++)
       groups.push_back(inLargeGroup);
     for (unsigned int i = 0; i < numSmallGroups / 2; i++)
       groups.push_back(inSmallGroup);

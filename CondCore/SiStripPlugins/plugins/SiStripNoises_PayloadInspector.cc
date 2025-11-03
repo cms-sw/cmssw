@@ -385,7 +385,7 @@ namespace {
           canvas.cd(index)->Update();
 
           std::vector<int> boundaries;
-          for (size_t b = 0; b < v_nAPVs.at(index); b++) {
+          boundaries.reserve(v_nAPVs.at(index)); for (size_t b = 0; b < v_nAPVs.at(index); b++) {
             boundaries.push_back(b * sistrip::STRIPS_PER_APV);
           }
 

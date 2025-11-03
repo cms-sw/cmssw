@@ -172,7 +172,7 @@ void TEveEllipsoidProjectedGL::DrawRhoPhi() const {
     }
 
   TMatrixDEigen eig(xxx);
-  TVectorD xxxEig(eig.GetEigenValuesRe());
+  const TVectorD& xxxEig(eig.GetEigenValuesRe());
 
   // Projection supports only floats  :(
   TEveVector v0(fE->RefPos()[0], fE->RefPos()[1], 0);
@@ -231,7 +231,7 @@ void TEveEllipsoidProjectedGL::DrawRhoZ() const {
       xxx(i, j) = fE->RefEMtx()(i + 1, j + 1);
     }
   TMatrixDEigen eig(xxx);
-  TVectorD xxxEig(eig.GetEigenValuesRe());
+  const TVectorD& xxxEig(eig.GetEigenValuesRe());
 
   TEveVector v1(0, eig.GetEigenVectors()(1, 2), eig.GetEigenVectors()(2, 2));
   v1 *= fE->fEScale * sqrt(TMath::Abs(xxxEig[2]));

@@ -50,7 +50,7 @@ JetCorrectorParameters::Definitions::Definitions(const std::string& fLine) {
     for (unsigned i = 0; i < npar; i++)
       mParVar.push_back(tokens[nvar + 2 + i]);
     mFormula = tokens[npar + nvar + 2];
-    std::string ss = tokens[npar + nvar + 3];
+    const std::string& ss = tokens[npar + nvar + 3];
     if (ss == "Response")
       mIsResponse = true;
     else if (ss == "Correction")
@@ -268,7 +268,7 @@ unsigned JetCorrectorParameters::size(unsigned fVar) const {
 //------------------------------------------------------------------------
 std::vector<float> JetCorrectorParameters::binCenters(unsigned fVar) const {
   std::vector<float> result;
-  for (unsigned i = 0; i < size(); ++i)
+  result.reserve(size()); for (unsigned i = 0; i < size(); ++i)
     result.push_back(record(i).xMiddle(fVar));
   return result;
 }

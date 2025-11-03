@@ -112,7 +112,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
     edm::ParameterSetDescription desc;
-    std::string classname = ClassName<T>::name();
+    const std::string& classname = ClassName<T>::name();
     desc.add<std::string>("name")->setComment("name of the branch in the flat table output for " + classname);
     desc.add<std::string>("doc", "")->setComment("few words of self documentation");
     desc.ifValue(

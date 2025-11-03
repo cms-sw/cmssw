@@ -237,14 +237,14 @@ HGCalTBParameters::hgtrap HGCalTBDDDConstants::getModule(unsigned int indx, bool
 
 std::vector<HGCalTBParameters::hgtrap> HGCalTBDDDConstants::getModules() const {
   std::vector<HGCalTBParameters::hgtrap> mytrs;
-  for (unsigned int k = 0; k < hgpar_->moduleLayR_.size(); ++k)
+  mytrs.reserve(hgpar_->moduleLayR_.size()); for (unsigned int k = 0; k < hgpar_->moduleLayR_.size(); ++k)
     mytrs.emplace_back(hgpar_->getModule(k, true));
   return mytrs;
 }
 
 std::vector<HGCalTBParameters::hgtrform> HGCalTBDDDConstants::getTrForms() const {
   std::vector<HGCalTBParameters::hgtrform> mytrs;
-  for (unsigned int k = 0; k < hgpar_->trformIndex_.size(); ++k)
+  mytrs.reserve(hgpar_->trformIndex_.size()); for (unsigned int k = 0; k < hgpar_->trformIndex_.size(); ++k)
     mytrs.emplace_back(hgpar_->getTrForm(k));
   return mytrs;
 }

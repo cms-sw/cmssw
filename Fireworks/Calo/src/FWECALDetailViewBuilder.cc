@@ -146,7 +146,7 @@ void FWECALDetailViewBuilder::setColor(Color_t color, const std::vector<DetId> &
 void FWECALDetailViewBuilder::showSuperCluster(const reco::SuperCluster &cluster, Color_t color) {
   std::vector<DetId> clusterDetIds;
   const std::vector<std::pair<DetId, float> > &hitsAndFractions = cluster.hitsAndFractions();
-  for (size_t j = 0; j < hitsAndFractions.size(); ++j) {
+  clusterDetIds.reserve(hitsAndFractions.size()); for (size_t j = 0; j < hitsAndFractions.size(); ++j) {
     clusterDetIds.push_back(hitsAndFractions[j].first);
   }
 

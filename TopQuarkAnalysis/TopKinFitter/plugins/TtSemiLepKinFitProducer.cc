@@ -237,7 +237,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pNeutrinos->push_back(fitter->fittedNeutrino());
     // indices referring to the jet combination
     std::vector<int> invalidCombi;
-    for (unsigned int i = 0; i < nPartons; ++i)
+    invalidCombi.reserve(nPartons); for (unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back(-1);
     pCombi->push_back(invalidCombi);
     // chi2
@@ -346,7 +346,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pNeutrinos->push_back(fitter->fittedNeutrino());
     // indices referring to the jet combination
     std::vector<int> invalidCombi;
-    for (unsigned int i = 0; i < nPartons; ++i)
+    invalidCombi.reserve(nPartons); for (unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back(-1);
     pCombi->push_back(invalidCombi);
     // chi2
@@ -450,7 +450,7 @@ template <typename LeptonCollection>
 std::vector<TtSemiLepKinFitter::Constraint> TtSemiLepKinFitProducer<LeptonCollection>::constraints(
     std::vector<unsigned>& val) {
   std::vector<TtSemiLepKinFitter::Constraint> result;
-  for (unsigned i = 0; i < val.size(); ++i) {
+  result.reserve(val.size()); for (unsigned i = 0; i < val.size(); ++i) {
     result.push_back(constraint(val[i]));
   }
   return result;

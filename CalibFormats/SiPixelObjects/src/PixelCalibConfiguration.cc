@@ -543,7 +543,7 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
   for (std::vector<std::string>::iterator rocListInstructions_itr = rocListInstructions_.begin();
        rocListInstructions_itr != rocListInstructions_.end();
        ++rocListInstructions_itr) {
-    std::string instruction = *rocListInstructions_itr;
+    const std::string& instruction = *rocListInstructions_itr;
 
     if (instruction == "+") {
       addNext = true;

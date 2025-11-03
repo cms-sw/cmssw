@@ -413,7 +413,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
         if (abs((*iSimTk).type()) != 11)
           continue;
         int vertexId = (*iSimTk).vertIndex();
-        SimVertex vertex = theSimVertices[vertexId];
+        const SimVertex& vertex = theSimVertices[vertexId];
         int motherId = -1;
         if (vertex.parentIndex()) {
           unsigned motherGeantId = vertex.parentIndex();
@@ -435,7 +435,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
         nConv++;
         convInd[iPho] = nConv;
         int convVtxId = trkFromConversion[0]->vertIndex();
-        SimVertex convVtx = theSimVertices[convVtxId];
+        const SimVertex& convVtx = theSimVertices[convVtxId];
         const math::XYZTLorentzVectorD &vtxPosition = convVtx.position();
         // math::XYZTLorentzVectorD momentum = (*iPhoTk)->momentum(); // UNUSED
 

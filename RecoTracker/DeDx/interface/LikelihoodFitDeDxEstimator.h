@@ -37,7 +37,7 @@ private:
 };
 
 /*****************************************************************************/
-void LikelihoodFitDeDxEstimator::calculate_wrt_epsilon(const reco::DeDxHit& h,
+inline void LikelihoodFitDeDxEstimator::calculate_wrt_epsilon(const reco::DeDxHit& h,
                                                        const double& epsilon,
                                                        std::array<double, 3>& value) {
   const auto& ls = h.pathLength();
@@ -84,7 +84,7 @@ void LikelihoodFitDeDxEstimator::calculate_wrt_epsilon(const reco::DeDxHit& h,
 }
 
 /*****************************************************************************/
-void LikelihoodFitDeDxEstimator::functionEpsilon(const reco::DeDxHitCollection& Hits,
+inline void LikelihoodFitDeDxEstimator::functionEpsilon(const reco::DeDxHitCollection& Hits,
                                                  const double& epsilon,
                                                  std::array<double, 3>& val) {
   val = {{0, 0, 0}};
@@ -93,7 +93,7 @@ void LikelihoodFitDeDxEstimator::functionEpsilon(const reco::DeDxHitCollection& 
 }
 
 /*****************************************************************************/
-double LikelihoodFitDeDxEstimator::minimizeAllSaturated(const reco::DeDxHitCollection& Hits,
+inline double LikelihoodFitDeDxEstimator::minimizeAllSaturated(const reco::DeDxHitCollection& Hits,
                                                         std::array<double, 2>& value) {
   int nStep(0);
   double par(3.0);  // input MeV/cm
@@ -113,7 +113,7 @@ double LikelihoodFitDeDxEstimator::minimizeAllSaturated(const reco::DeDxHitColle
 }
 
 /*****************************************************************************/
-double LikelihoodFitDeDxEstimator::newtonMethodEpsilon(const reco::DeDxHitCollection& Hits,
+inline double LikelihoodFitDeDxEstimator::newtonMethodEpsilon(const reco::DeDxHitCollection& Hits,
                                                        std::array<double, 2>& value) {
   int nStep(0);
   double par(3.0);  // input MeV/cm
@@ -140,7 +140,7 @@ double LikelihoodFitDeDxEstimator::newtonMethodEpsilon(const reco::DeDxHitCollec
 }
 
 /*****************************************************************************/
-double LikelihoodFitDeDxEstimator::estimate(const reco::DeDxHitCollection& Hits, std::array<double, 2>& value) {
+inline double LikelihoodFitDeDxEstimator::estimate(const reco::DeDxHitCollection& Hits, std::array<double, 2>& value) {
   // use newton method if at least one hit is not saturated
   for (const auto& h : Hits)
     if (h.rawDetId() == 0)
