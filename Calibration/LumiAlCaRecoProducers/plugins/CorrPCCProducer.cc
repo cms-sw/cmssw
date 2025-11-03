@@ -208,7 +208,8 @@ float CorrPCCProducer::getMaximum(std::vector<float> lumi_vector) {
 // the follow non-active bunch crossing to estimate the spill over fraction (type 1 afterglow).
 void CorrPCCProducer::estimateType1Frac(std::vector<float> uncorrPCCPerBX, float& type1Frac) {
   std::vector<float> corrected_tmp_;
-  corrected_tmp_.reserve(uncorrPCCPerBX.size()); for (size_t i = 0; i < uncorrPCCPerBX.size(); i++) {
+  corrected_tmp_.reserve(uncorrPCCPerBX.size());
+  for (size_t i = 0; i < uncorrPCCPerBX.size(); i++) {
     corrected_tmp_.push_back(uncorrPCCPerBX.at(i));
   }
 
@@ -309,7 +310,8 @@ void CorrPCCProducer::calculateCorrections(std::vector<float> uncorrected,
   type1Frac = std::max(0.0, (double)type1Frac);
 
   std::vector<float> corrected_tmp_;
-  corrected_tmp_.reserve(uncorrected.size()); for (size_t i = 0; i < uncorrected.size(); i++) {
+  corrected_tmp_.reserve(uncorrected.size());
+  for (size_t i = 0; i < uncorrected.size(); i++) {
     corrected_tmp_.push_back(uncorrected.at(i));
   }
 

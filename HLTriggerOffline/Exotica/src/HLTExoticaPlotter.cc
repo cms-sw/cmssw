@@ -53,7 +53,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker &iBooker,
     const std::string objTypeStr = EVTColContainer::getTypeString(*it);
 
     for (size_t i = 0; i < sources.size(); i++) {
-      const std::string& source = sources[i];
+      const std::string &source = sources[i];
 
       if (source == "gen") {
         if (TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ||

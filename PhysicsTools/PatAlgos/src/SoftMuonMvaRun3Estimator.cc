@@ -90,7 +90,8 @@ void fillMatchInfo(pat::XGBooster& booster, const pat::Muon& muon) {
   // Initiate containter for results
   const int n_stations = 2;
   std::vector<MatchPair> matches;
-  matches.reserve(n_stations); for (unsigned int i = 0; i < n_stations; ++i)
+  matches.reserve(n_stations);
+  for (unsigned int i = 0; i < n_stations; ++i)
     matches.push_back(std::pair(nullptr, nullptr));
 
   // Find best matches

@@ -713,7 +713,8 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // build the reverse map tracks -> vertex
   std::vector<std::map<size_t, int> > trackVertices;
-  trackVertices.reserve(trackSize); for (size_t i = 0; i < trackSize; ++i) {
+  trackVertices.reserve(trackSize);
+  for (size_t i = 0; i < trackSize; ++i) {
     trackVertices.push_back(inVertex(trackCollection[0], vertexColl, globalvertexid_ + 1));
   }
 
@@ -775,11 +776,13 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // determine if each cluster is on a track or not, and record the trackid
   std::vector<std::vector<int> > stripClusterOntrackIndices;
-  stripClusterOntrackIndices.reserve(trackSize); for (size_t i = 0; i < trackSize; ++i) {
+  stripClusterOntrackIndices.reserve(trackSize);
+  for (size_t i = 0; i < trackSize; ++i) {
     stripClusterOntrackIndices.push_back(onTrack(clusters, trackCollection[i], globaltrackid_[i] + 1));
   }
   std::vector<std::vector<int> > pixelClusterOntrackIndices;
-  pixelClusterOntrackIndices.reserve(trackSize); for (size_t i = 0; i < trackSize; ++i) {
+  pixelClusterOntrackIndices.reserve(trackSize);
+  for (size_t i = 0; i < trackSize; ++i) {
     pixelClusterOntrackIndices.push_back(onTrack(pixelclusters, trackCollection[i], globaltrackid_[i] + 1));
   }
   nclustersOntrack_ = count_if(

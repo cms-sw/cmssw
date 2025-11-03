@@ -224,7 +224,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetosFract> L1TGlobalPrescalesVetosOnlin
             settings_prescale.at("prescales").getTableColumn<double>(col.first.c_str());
         for (unsigned int row = 0; row < prescalesForSet.size(); row++) {
           double prescale = prescalesForSet[row];
-          const std::string& algoName = algoNames[row];
+          const std::string &algoName = algoNames[row];
           unsigned int algoBit = algoName2bit[algoName];
           prescales[iSet][algoBit] = prescale;
         }
@@ -276,7 +276,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetosFract> L1TGlobalPrescalesVetosOnlin
       triggerMasks.push_back(default_finor_mask);
 
     for (unsigned int row = 0; row < algo_mask_finor.size(); row++) {
-      const std::string& algoName = algo_mask_finor[row];
+      const std::string &algoName = algo_mask_finor[row];
       if (strcasecmp("all", algoName.c_str()) == 0)
         continue;
       unsigned int algoBit = algoName2bit[algoName];
@@ -328,7 +328,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetosFract> L1TGlobalPrescalesVetosOnlin
       triggerVetoMasks.push_back(default_veto_mask);
 
     for (unsigned int row = 0; row < algo_mask_veto.size(); row++) {
-      const std::string& algoName = algo_mask_veto[row];
+      const std::string &algoName = algo_mask_veto[row];
       if (strcasecmp("all", algoName.c_str()) == 0)
         continue;
       unsigned int algoBit = algoName2bit[algoName];

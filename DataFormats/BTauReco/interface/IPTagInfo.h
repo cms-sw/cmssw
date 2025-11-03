@@ -201,7 +201,8 @@ namespace reco {
   template <class Container, class Base>
   Container IPTagInfo<Container, Base>::sorted(const std::vector<size_t>& indexes) const {
     Container tr;
-    tr.reserve(indexes.size()); for (size_t i = 0; i < indexes.size(); i++)
+    tr.reserve(indexes.size());
+    for (size_t i = 0; i < indexes.size(); i++)
       tr.push_back(m_selected[indexes[i]]);
     return tr;
   }

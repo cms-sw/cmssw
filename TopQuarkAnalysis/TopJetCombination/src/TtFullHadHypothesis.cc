@@ -28,7 +28,8 @@ void TtFullHadHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
     matchVec = *matchHandle;
   } else {
     std::vector<int> dummyMatch;
-    dummyMatch.reserve(4); for (unsigned int i = 0; i < 4; ++i)
+    dummyMatch.reserve(4);
+    for (unsigned int i = 0; i < 4; ++i)
       dummyMatch.push_back(-1);
     matchVec.push_back(dummyMatch);
   }

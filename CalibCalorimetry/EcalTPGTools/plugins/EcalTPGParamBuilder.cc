@@ -2882,7 +2882,8 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase& sha
   edm::LogInfo("TopInfo") << ss.str();
 
   std::vector<unsigned int> theWeights;
-  theWeights.reserve(nSample_); for (unsigned int sample = 0; sample < nSample_; sample++)
+  theWeights.reserve(nSample_);
+  for (unsigned int sample = 0; sample < nSample_; sample++)
     theWeights.push_back(iweight[sample]);
 
   delete[] weight;

@@ -84,7 +84,8 @@ const GBRForest* PFMETAlgorithmMVA::loadMVAfromFile(const edm::FileInPath& input
   }
 
   std::vector<std::string> variableNames;
-  variableNames.reserve(lVec->size()); for (unsigned int i = 0; i < lVec->size(); ++i) {
+  variableNames.reserve(lVec->size());
+  for (unsigned int i = 0; i < lVec->size(); ++i) {
     variableNames.push_back(updateVariableNames(lVec->at(i)));
   }
 

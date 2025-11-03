@@ -44,7 +44,8 @@ TriggerObject::TriggerObject(const reco::Particle::PolarLorentzVector& vec, int 
 // Get all trigger object type identifiers
 std::vector<int> TriggerObject::triggerObjectTypes() const {
   std::vector<int> triggerObjectTypes;
-  triggerObjectTypes.reserve(triggerObjectTypes_.size()); for (size_t iTo = 0; iTo < triggerObjectTypes_.size(); ++iTo) {
+  triggerObjectTypes.reserve(triggerObjectTypes_.size());
+  for (size_t iTo = 0; iTo < triggerObjectTypes_.size(); ++iTo) {
     triggerObjectTypes.push_back(triggerObjectTypes_.at(iTo));
   }
   return triggerObjectTypes;

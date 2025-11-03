@@ -85,7 +85,7 @@ namespace Phase2L1GMT {
     static std::atomic<int> nevto = 0;
     auto evto = nevto++;
     for (unsigned int i = 0; i < trkMus.size(); ++i) {
-      const auto& mu = trkMus.at(i);
+      const auto &mu = trkMus.at(i);
       if (mu.hwPt() != 0) {
         double convertphi = mu.hwPhi() * LSBphi;
         if (convertphi > M_PI) {

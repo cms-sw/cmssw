@@ -111,11 +111,13 @@ void ConversionTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   int i;
 
   std::vector<int> selected1;
-  selected1.reserve(tC1.size()); for (unsigned int i = 0; i < tC1.size(); ++i) {
+  selected1.reserve(tC1.size());
+  for (unsigned int i = 0; i < tC1.size(); ++i) {
     selected1.push_back(1);
   }
   std::vector<int> selected2;
-  selected2.reserve(tC2.size()); for (unsigned int i = 0; i < tC2.size(); ++i) {
+  selected2.reserve(tC2.size());
+  for (unsigned int i = 0; i < tC2.size(); ++i) {
     selected2.push_back(1);
   }
 

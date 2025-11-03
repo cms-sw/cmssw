@@ -104,7 +104,7 @@ void HLTMuonPlotter::beginRun(DQMStore::IBooker &iBooker, const edm::Run &iRun, 
   elements_["CutMaxEta"]->Fill(cutMaxEta_);
 
   for (size_t i = 0; i < sources.size(); i++) {
-    const std::string& source = sources[i];
+    const std::string &source = sources[i];
     for (size_t j = 0; j < stepLabels_.size(); j++) {
       bookHist(iBooker, hltPath_, stepLabels_[j], source, "Eta");
       bookHist(iBooker, hltPath_, stepLabels_[j], source, "Phi");

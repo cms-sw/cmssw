@@ -190,8 +190,8 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
   // logic: loop over z bins find tracks in this bin and arrange them in a 2D eta-phi matrix
   for (unsigned int zbin = 0; zbin < zmins.size(); ++zbin) {
     // initialize matrices for every z bin
-    const z0_intern& zmin = zmins[zbin];
-    const z0_intern& zmax = zmaxs[zbin];
+    const z0_intern &zmin = zmins[zbin];
+    const z0_intern &zmax = zmaxs[zbin];
 
     TrackJetEmulationEtaPhiBin epbins[phiBins_][etaBins_];
 

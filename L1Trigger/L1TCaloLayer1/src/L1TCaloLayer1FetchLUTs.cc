@@ -27,15 +27,15 @@
 using namespace l1tcalo;
 
 bool L1TCaloLayer1FetchLUTs(
-    const L1TCaloLayer1FetchLUTsTokens &iTokens,
-    const edm::EventSetup &iSetup,
-    std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &eLUT,
-    std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &hLUT,
-    std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> > &hfLUT,
-    std::vector<unsigned long long int> &hcalFBLUT,
-    std::vector<unsigned int> &ePhiMap,
-    std::vector<unsigned int> &hPhiMap,
-    std::vector<unsigned int> &hfPhiMap,
+    const L1TCaloLayer1FetchLUTsTokens& iTokens,
+    const edm::EventSetup& iSetup,
+    std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> >& eLUT,
+    std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> >& hLUT,
+    std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> >& hfLUT,
+    std::vector<unsigned long long int>& hcalFBLUT,
+    std::vector<unsigned int>& ePhiMap,
+    std::vector<unsigned int>& hPhiMap,
+    std::vector<unsigned int>& hfPhiMap,
     bool useLSB,
     bool useCalib,
     bool useECALLUT,
@@ -44,7 +44,7 @@ bool L1TCaloLayer1FetchLUTs(
     bool useHCALFBLUT,
     int fwVersion) {
   int hfValid = 1;
-  const HcalTrigTowerGeometry &pG = iSetup.getData(iTokens.geom_);
+  const HcalTrigTowerGeometry& pG = iSetup.getData(iTokens.geom_);
   if (!pG.use1x1()) {
     edm::LogError("L1TCaloLayer1FetchLUTs")
         << "Using Stage2-Layer1 but HCAL Geometry has use1x1 = 0! HF will be suppressed.  Check Global Tag, etc.";

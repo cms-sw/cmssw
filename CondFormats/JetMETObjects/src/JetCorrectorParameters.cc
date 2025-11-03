@@ -268,7 +268,8 @@ unsigned JetCorrectorParameters::size(unsigned fVar) const {
 //------------------------------------------------------------------------
 std::vector<float> JetCorrectorParameters::binCenters(unsigned fVar) const {
   std::vector<float> result;
-  result.reserve(size()); for (unsigned i = 0; i < size(); ++i)
+  result.reserve(size());
+  for (unsigned i = 0; i < size(); ++i)
     result.push_back(record(i).xMiddle(fVar));
   return result;
 }

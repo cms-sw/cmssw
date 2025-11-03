@@ -648,7 +648,7 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
                                                             CTPPSPixelDetId planeId,
                                                             GlobalPoint &planeLineIntercept) {
   double z0 = track->z0();
-  const CTPPSPixelLocalTrack::ParameterVector& parameters = track->parameterVector();
+  const CTPPSPixelLocalTrack::ParameterVector &parameters = track->parameterVector();
 
   math::Vector<3>::type pointOnLine(parameters[0], parameters[1], z0);
   GlobalVector tmpLineUnitVector = track->directionVector();

@@ -340,10 +340,12 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
                 std::vector<const Stub*> stubsTrk2 = inputstublists_[rejetrk];
                 std::vector<unsigned int> stubsTrk1indices;
                 std::vector<unsigned int> stubsTrk2indices;
-                stubsTrk1indices.reserve(stubsTrk1.size()); for (unsigned int stub1it = 0; stub1it < stubsTrk1.size(); stub1it++) {
+                stubsTrk1indices.reserve(stubsTrk1.size());
+                for (unsigned int stub1it = 0; stub1it < stubsTrk1.size(); stub1it++) {
                   stubsTrk1indices.push_back(stubsTrk1[stub1it]->l1tstub()->uniqueIndex());
                 }
-                stubsTrk2indices.reserve(stubsTrk2.size()); for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
+                stubsTrk2indices.reserve(stubsTrk2.size());
+                for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
                   stubsTrk2indices.push_back(stubsTrk2[stub2it]->l1tstub()->uniqueIndex());
                 }
                 newStubList = stubsTrk1;

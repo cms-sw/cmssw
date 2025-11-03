@@ -53,7 +53,8 @@ MCParticlePairFilter::MCParticlePairFilter(const edm::ParameterSet& iConfig)
   // if ptMin size smaller than 2, fill up further with defaults
   if (2 > ptMin.size()) {
     vector<double> defptmin2;
-    defptmin2.reserve(2); for (unsigned int i = 0; i < 2; i++) {
+    defptmin2.reserve(2);
+    for (unsigned int i = 0; i < 2; i++) {
       defptmin2.push_back(0.);
     }
     ptMin = defptmin2;
@@ -61,7 +62,8 @@ MCParticlePairFilter::MCParticlePairFilter(const edm::ParameterSet& iConfig)
   // if pMin size smaller than 2, fill up further with defaults
   if (2 > pMin.size()) {
     vector<double> defpmin2;
-    defpmin2.reserve(2); for (unsigned int i = 0; i < 2; i++) {
+    defpmin2.reserve(2);
+    for (unsigned int i = 0; i < 2; i++) {
       defpmin2.push_back(0.);
     }
     pMin = defpmin2;
@@ -69,7 +71,8 @@ MCParticlePairFilter::MCParticlePairFilter(const edm::ParameterSet& iConfig)
   // if etaMin size smaller than 2, fill up further with defaults
   if (2 > etaMin.size()) {
     vector<double> defetamin2;
-    defetamin2.reserve(2); for (unsigned int i = 0; i < 2; i++) {
+    defetamin2.reserve(2);
+    for (unsigned int i = 0; i < 2; i++) {
       defetamin2.push_back(-10.);
     }
     etaMin = defetamin2;
@@ -77,7 +80,8 @@ MCParticlePairFilter::MCParticlePairFilter(const edm::ParameterSet& iConfig)
   // if etaMax size smaller than 2, fill up further with defaults
   if (2 > etaMax.size()) {
     vector<double> defetamax2;
-    defetamax2.reserve(2); for (unsigned int i = 0; i < 2; i++) {
+    defetamax2.reserve(2);
+    for (unsigned int i = 0; i < 2; i++) {
       defetamax2.push_back(10.);
     }
     etaMax = defetamax2;
@@ -85,7 +89,8 @@ MCParticlePairFilter::MCParticlePairFilter(const edm::ParameterSet& iConfig)
   // if status size smaller than 2, fill up further with defaults
   if (2 > status.size()) {
     vector<int> defstat2;
-    defstat2.reserve(2); for (unsigned int i = 0; i < 2; i++) {
+    defstat2.reserve(2);
+    for (unsigned int i = 0; i < 2; i++) {
       defstat2.push_back(0);
     }
     status = defstat2;

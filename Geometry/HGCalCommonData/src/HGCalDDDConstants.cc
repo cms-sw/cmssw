@@ -565,7 +565,8 @@ HGCalParameters::hgtrap HGCalDDDConstants::getModule(unsigned int indx, bool hex
 
 std::vector<HGCalParameters::hgtrap> HGCalDDDConstants::getModules() const {
   std::vector<HGCalParameters::hgtrap> mytrs;
-  mytrs.reserve(hgpar_->moduleLayR_.size()); for (unsigned int k = 0; k < hgpar_->moduleLayR_.size(); ++k)
+  mytrs.reserve(hgpar_->moduleLayR_.size());
+  for (unsigned int k = 0; k < hgpar_->moduleLayR_.size(); ++k)
     mytrs.emplace_back(hgpar_->getModule(k, true));
   return mytrs;
 }
@@ -603,7 +604,8 @@ std::pair<int, int> HGCalDDDConstants::getREtaRange(int lay) const {
 
 std::vector<HGCalParameters::hgtrform> HGCalDDDConstants::getTrForms() const {
   std::vector<HGCalParameters::hgtrform> mytrs;
-  mytrs.reserve(hgpar_->trformIndex_.size()); for (unsigned int k = 0; k < hgpar_->trformIndex_.size(); ++k)
+  mytrs.reserve(hgpar_->trformIndex_.size());
+  for (unsigned int k = 0; k < hgpar_->trformIndex_.size(); ++k)
     mytrs.emplace_back(hgpar_->getTrForm(k));
   return mytrs;
 }

@@ -501,7 +501,8 @@ void HiPuRhoProducer::putRho(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   std::size_t size = etaEdgeLow_.size();
 
   std::vector<std::pair<std::size_t, double>> order;
-  order.reserve(size); for (std::size_t i = 0; i < size; ++i) {
+  order.reserve(size);
+  for (std::size_t i = 0; i < size; ++i) {
     order.emplace_back(i, etaEdgeLow_[i]);
   }
 

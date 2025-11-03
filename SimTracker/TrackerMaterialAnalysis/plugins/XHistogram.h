@@ -57,11 +57,13 @@ public:
         m_colormap() {
     // setup unnamed ROOT histograms
     for (size_t i = 0; i < m_size; ++i) {
-      m_histograms[i] = std::make_shared<Histogram>(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second);
+      m_histograms[i] =
+          std::make_shared<Histogram>(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second);
       m_histograms[i]->SetMinimum(0.);
       m_histograms[i]->SetMaximum(max[i]);
     }
-    m_normalization = std::make_shared<Histogram>(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second);
+    m_normalization =
+        std::make_shared<Histogram>(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second);
     m_colormap = std::make_shared<ColorMap>(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second);
     m_colormap->SetMinimum(0);
     m_colormap->SetMaximum(zones);

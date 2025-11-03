@@ -18,7 +18,7 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
   if (edm::moduleName(prov->stable(), iEvent.processHistory()) != "PrimaryVertexProducer") {
     std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
     for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
-      const edm::Provenance& parprov = iEvent.getProvenance(*it);
+      const edm::Provenance &parprov = iEvent.getProvenance(*it);
       if (parprov.friendlyClassName() == "recoVertexs") {  // for AOD actually this the parent we should look for
         parent_prov = &parprov;
         psetFromProvenance = edm::parameterSet(parprov.stable(), iEvent.processHistory());

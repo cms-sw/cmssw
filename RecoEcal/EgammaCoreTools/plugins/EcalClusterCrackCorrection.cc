@@ -95,7 +95,7 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster &seedbclus) c
 
   //search which crystal is closest to the cluster position and call it crystalseed:
   //std::vector<DetId> crystals_vector = seedbclus.getHitsByDetId();   //deprecated
-  const std::vector<std::pair<DetId, float> >& crystals_vector = seedbclus.hitsAndFractions();
+  const std::vector<std::pair<DetId, float> > &crystals_vector = seedbclus.hitsAndFractions();
   float dphimin = 999.;
   float detamin = 999.;
   int ietaclosest = 0;

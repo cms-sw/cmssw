@@ -40,7 +40,8 @@ reco::PFCandidatePtr PFJet::getPFConstituent(unsigned fIndex) const {
 
 std::vector<reco::PFCandidatePtr> PFJet::getPFConstituents() const {
   std::vector<PFCandidatePtr> result;
-  result.reserve(numberOfDaughters()); for (unsigned i = 0; i < numberOfDaughters(); i++)
+  result.reserve(numberOfDaughters());
+  for (unsigned i = 0; i < numberOfDaughters(); i++)
     result.push_back(getPFConstituent(i));
   return result;
 }

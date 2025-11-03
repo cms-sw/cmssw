@@ -45,7 +45,8 @@ namespace JetAssociationTemplate {
   template <typename Container>
   inline std::vector<reco::JetBaseRef> allJets(const Container& fContainer) {
     std::vector<reco::JetBaseRef> result;
-    result.reserve(fContainer.size()); for (unsigned i = 0; i < fContainer.size(); ++i) {
+    result.reserve(fContainer.size());
+    for (unsigned i = 0; i < fContainer.size(); ++i) {
       result.push_back(fContainer[i].first);
     }
     return result;

@@ -263,7 +263,7 @@ namespace gen {
       throw cms::Exception("Generator|PartonShowerVeto") << "Run not initialized in JetMatchingMadgraph" << std::endl;
 
     if (uppriv_.ickkw) {
-      const std::vector<std::string>& comments = event->getComments();
+      const std::vector<std::string> &comments = event->getComments();
       if (comments.size() == 1) {
         std::istringstream ss(comments[0].substr(1));
         for (int i = 0; i < 1000; i++) {

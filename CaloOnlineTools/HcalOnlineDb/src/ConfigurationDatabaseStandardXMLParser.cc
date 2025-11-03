@@ -252,7 +252,8 @@ std::vector<unsigned int> ConfigurationDatabaseStandardXMLParser::Item::convert(
     strtol_base = 10;
 
   // convert the data
-  values.reserve(items.size()); for (unsigned int j = 0; j < items.size(); j++)
+  values.reserve(items.size());
+  for (unsigned int j = 0; j < items.size(); j++)
     values.push_back(strtol(items[j].c_str(), nullptr, strtol_base));
   return values;
 }

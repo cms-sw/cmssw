@@ -206,16 +206,20 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
   // get TriggerResults object
   bool gotHLT = true;
   std::vector<bool> myTrigJ;
-  myTrigJ.reserve(hltTrgJet.size()); for (size_t it = 0; it < hltTrgJet.size(); it++)
+  myTrigJ.reserve(hltTrgJet.size());
+  for (size_t it = 0; it < hltTrgJet.size(); it++)
     myTrigJ.push_back(false);
   std::vector<bool> myTrigJLow;
-  myTrigJLow.reserve(hltTrgJetLow.size()); for (size_t it = 0; it < hltTrgJetLow.size(); it++)
+  myTrigJLow.reserve(hltTrgJetLow.size());
+  for (size_t it = 0; it < hltTrgJetLow.size(); it++)
     myTrigJLow.push_back(false);
   std::vector<bool> myTrigM;
-  myTrigM.reserve(hltTrgMet.size()); for (size_t it = 0; it < hltTrgMet.size(); it++)
+  myTrigM.reserve(hltTrgMet.size());
+  for (size_t it = 0; it < hltTrgMet.size(); it++)
     myTrigM.push_back(false);
   std::vector<bool> myTrigMLow;
-  myTrigMLow.reserve(hltTrgMetLow.size()); for (size_t it = 0; it < hltTrgMetLow.size(); it++)
+  myTrigMLow.reserve(hltTrgMetLow.size());
+  for (size_t it = 0; it < hltTrgMetLow.size(); it++)
     myTrigMLow.push_back(false);
 
   Handle<TriggerResults> hltresults;

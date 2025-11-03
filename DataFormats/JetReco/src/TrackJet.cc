@@ -41,7 +41,8 @@ edm::Ptr<reco::Track> reco::TrackJet::track(size_t i) const {
 
 std::vector<edm::Ptr<reco::Track> > reco::TrackJet::tracks() const {
   std::vector<edm::Ptr<reco::Track> > result;
-  result.reserve(numberOfDaughters()); for (unsigned i = 0; i < numberOfDaughters(); i++)
+  result.reserve(numberOfDaughters());
+  for (unsigned i = 0; i < numberOfDaughters(); i++)
     result.push_back(track(i));
   return result;
 }

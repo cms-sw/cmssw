@@ -253,7 +253,8 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pNeutrinos->push_back(pat::Particle());
     // indices referring to the jet combination
     std::vector<int> invalidCombi;
-    invalidCombi.reserve(nPartons); for (unsigned int i = 0; i < nPartons; ++i)
+    invalidCombi.reserve(nPartons);
+    for (unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back(-1);
     pCombi->push_back(invalidCombi);
     // chi2
@@ -420,7 +421,8 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pNeutrinos->push_back(pat::Particle());
     // indices referring to the jet combination
     std::vector<int> invalidCombi;
-    invalidCombi.reserve(nPartons); for (unsigned int i = 0; i < nPartons; ++i)
+    invalidCombi.reserve(nPartons);
+    for (unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back(-1);
     pCombi->push_back(invalidCombi);
     // chi2

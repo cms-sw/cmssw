@@ -388,7 +388,8 @@ public:
       }
 
       std::vector<float> id_probs;
-      id_probs.reserve(8); for (size_t i = 0; i < 8; i++)
+      id_probs.reserve(8);
+      for (size_t i = 0; i < 8; i++)
         id_probs.push_back(trackster_iterator->id_probabilities(i));
       trackster_id_probabilities.push_back(id_probs);
 

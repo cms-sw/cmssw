@@ -42,7 +42,8 @@ MCSingleParticleFilter::MCSingleParticleFilter(const edm::ParameterSet& iConfig)
   // if ptMin size smaller than particleID , fill up further with defaults
   if (particleID.size() > ptMin.size()) {
     vector<double> defptmin2;
-    defptmin2.reserve(particleID.size()); for (unsigned int i = 0; i < particleID.size(); i++) {
+    defptmin2.reserve(particleID.size());
+    for (unsigned int i = 0; i < particleID.size(); i++) {
       defptmin2.push_back(0.);
     }
     ptMin = defptmin2;
@@ -50,7 +51,8 @@ MCSingleParticleFilter::MCSingleParticleFilter(const edm::ParameterSet& iConfig)
   // if etaMin size smaller than particleID , fill up further with defaults
   if (particleID.size() > etaMin.size()) {
     vector<double> defetamin2;
-    defetamin2.reserve(particleID.size()); for (unsigned int i = 0; i < particleID.size(); i++) {
+    defetamin2.reserve(particleID.size());
+    for (unsigned int i = 0; i < particleID.size(); i++) {
       defetamin2.push_back(-10.);
     }
     etaMin = defetamin2;
@@ -58,7 +60,8 @@ MCSingleParticleFilter::MCSingleParticleFilter(const edm::ParameterSet& iConfig)
   // if etaMax size smaller than particleID , fill up further with defaults
   if (particleID.size() > etaMax.size()) {
     vector<double> defetamax2;
-    defetamax2.reserve(particleID.size()); for (unsigned int i = 0; i < particleID.size(); i++) {
+    defetamax2.reserve(particleID.size());
+    for (unsigned int i = 0; i < particleID.size(); i++) {
       defetamax2.push_back(10.);
     }
     etaMax = defetamax2;
@@ -66,7 +69,8 @@ MCSingleParticleFilter::MCSingleParticleFilter(const edm::ParameterSet& iConfig)
   // if status size smaller than particleID , fill up further with defaults
   if (particleID.size() > status.size()) {
     vector<int> defstat2;
-    defstat2.reserve(particleID.size()); for (unsigned int i = 0; i < particleID.size(); i++) {
+    defstat2.reserve(particleID.size());
+    for (unsigned int i = 0; i < particleID.size(); i++) {
       defstat2.push_back(0);
     }
     status = defstat2;

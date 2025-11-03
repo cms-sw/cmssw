@@ -18,7 +18,7 @@ using namespace std;
 PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> > &tableMat) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "[PixelFEDConfig::PixelFEDConfig()]\t\t\t    ";
 
-   std::map<std::string, int> colM;
+  std::map<std::string, int> colM;
   std::vector<std::string> colNames;
   /*
    EXTENSION_TABLE_NAME: FED_CRATE_CONFIG (VIEW: CONF_KEY_FED_CRATE_CONFIGV)

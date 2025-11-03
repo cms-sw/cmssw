@@ -591,7 +591,7 @@ void MillePedeMonitor::fillTrack(const reco::Track *track,
   if (!track)
     return;
 
-  const reco::TrackBase::Vector& p(track->momentum());
+  const reco::TrackBase::Vector &p(track->momentum());
 
   static const int iPtLog = this->GetIndex(trackHists1D, "ptTrackLogBins");
   trackHists1D[iPtLog]->Fill(track->pt());

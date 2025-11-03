@@ -237,7 +237,8 @@ L1TGlobalPrescalesVetosFractESProducer::L1TGlobalPrescalesVetosFractESProducer(c
 
   // veto mask
   // Setting veto mask to default 0 (no veto)
-  triggerVetoMasks.reserve(m_numberPhysTriggers); for (unsigned int iAlg = 0; iAlg < m_numberPhysTriggers; iAlg++)
+  triggerVetoMasks.reserve(m_numberPhysTriggers);
+  for (unsigned int iAlg = 0; iAlg < m_numberPhysTriggers; iAlg++)
     triggerVetoMasks.push_back(0);
 
   std::ifstream input_mask_veto;

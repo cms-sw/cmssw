@@ -95,7 +95,7 @@ int MuonGeometryNumbering::getInt(const std::string &s, const DDLogicalPart &par
       break;
   }
   if (foundIt) {
-    const std::vector<double>& temp = val.doubles();
+    const std::vector<double> &temp = val.doubles();
     if (temp.size() != 1) {
       edm::LogError("MuonGeom") << "MuonGeometryNumbering:: ERROR: I need only 1 " << s << " in DDLogicalPart "
                                 << part.name();

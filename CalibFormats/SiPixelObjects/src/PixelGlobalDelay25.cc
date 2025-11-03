@@ -19,7 +19,7 @@ using namespace std;
 
 PixelGlobalDelay25::PixelGlobalDelay25(vector<vector<string> > &tableMat) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "[PixelGlobalDelay25::PixelGlobalDelay25()]\t\t    ";
-  const vector<string>& ins = tableMat[0];
+  const vector<string> &ins = tableMat[0];
   map<string, int> colM;
   vector<string> colNames;
 

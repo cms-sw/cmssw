@@ -77,7 +77,8 @@ CaloTowerPtr CaloJet::getCaloConstituent(unsigned fIndex) const {
 
 std::vector<CaloTowerPtr> CaloJet::getCaloConstituents() const {
   std::vector<CaloTowerPtr> result;
-  result.reserve(numberOfDaughters()); for (unsigned i = 0; i < numberOfDaughters(); i++)
+  result.reserve(numberOfDaughters());
+  for (unsigned i = 0; i < numberOfDaughters(); i++)
     result.push_back(getCaloConstituent(i));
   return result;
 }
@@ -115,7 +116,8 @@ std::string CaloJet::print() const {
 std::vector<CaloTowerDetId> CaloJet::getTowerIndices() const {
   std::vector<CaloTowerDetId> result;
   std::vector<CaloTowerPtr> towers = getCaloConstituents();
-  result.reserve(towers.size()); for (unsigned i = 0; i < towers.size(); ++i) {
+  result.reserve(towers.size());
+  for (unsigned i = 0; i < towers.size(); ++i) {
     result.push_back(towers[i]->id());
   }
   return result;

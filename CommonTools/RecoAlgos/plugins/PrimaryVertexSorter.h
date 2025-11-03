@@ -243,7 +243,8 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(edm::Event& iEvent, const
   if (produceSortedVertices_) {
     std::vector<int> pfToSortedPVVector;
     //      std::vector<int> pfToSortedPVQualityVector;
-    pfToSortedPVVector.reserve(pfToPVVector.size()); for (size_t i = 0; i < pfToPVVector.size(); i++) {
+    pfToSortedPVVector.reserve(pfToPVVector.size());
+    for (size_t i = 0; i < pfToPVVector.size(); i++) {
       pfToSortedPVVector.push_back(oldToNew[pfToPVVector[i]]);
       //        pfToSortedPVQualityVector.push_back(pfToPVQualityVector[i]); //same as old!
     }

@@ -480,7 +480,8 @@ std::list<TtFullHadKinFitter::KinFitResult> TtFullHadKinFitter::KinFit::fit(cons
   if (jets.size() < nPartons || invalidMatch_) {
     // indices referring to the jet combination
     std::vector<int> invalidCombi;
-    invalidCombi.reserve(nPartons); for (unsigned int i = 0; i < nPartons; ++i)
+    invalidCombi.reserve(nPartons);
+    for (unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back(-1);
 
     KinFitResult result;
@@ -661,7 +662,8 @@ TtFullHadKinFitter::Constraint TtFullHadKinFitter::KinFit::constraint(unsigned c
 std::vector<TtFullHadKinFitter::Constraint> TtFullHadKinFitter::KinFit::constraints(
     const std::vector<unsigned>& configParameters) {
   std::vector<TtFullHadKinFitter::Constraint> result;
-  result.reserve(configParameters.size()); for (unsigned i = 0; i < configParameters.size(); ++i) {
+  result.reserve(configParameters.size());
+  for (unsigned i = 0; i < configParameters.size(); ++i) {
     result.push_back(constraint(configParameters[i]));
   }
   return result;

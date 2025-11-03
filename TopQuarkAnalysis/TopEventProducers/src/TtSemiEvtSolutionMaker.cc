@@ -376,7 +376,8 @@ TtSemiLepKinFitter::Constraint TtSemiEvtSolutionMaker::constraint(unsigned val) 
 
 std::vector<TtSemiLepKinFitter::Constraint> TtSemiEvtSolutionMaker::constraints(std::vector<unsigned>& val) {
   std::vector<TtSemiLepKinFitter::Constraint> result;
-  result.reserve(val.size()); for (unsigned i = 0; i < val.size(); ++i) {
+  result.reserve(val.size());
+  for (unsigned i = 0; i < val.size(); ++i) {
     result.push_back(constraint(val[i]));
   }
   return result;

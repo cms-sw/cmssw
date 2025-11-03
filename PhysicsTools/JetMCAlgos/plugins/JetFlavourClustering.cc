@@ -737,7 +737,8 @@ void JetFlavourClustering::assignToSubjets(const reco::GenParticleRefVector& clu
        ++it) {
     std::vector<double> dR2toSubjets;
 
-    dR2toSubjets.reserve(subjetIndices.size()); for (size_t sj = 0; sj < subjetIndices.size(); ++sj)
+    dR2toSubjets.reserve(subjetIndices.size());
+    for (size_t sj = 0; sj < subjetIndices.size(); ++sj)
       dR2toSubjets.push_back(reco::deltaR2((*it)->rapidity(),
                                            (*it)->phi(),
                                            subjets->at(subjetIndices.at(sj)).rapidity(),

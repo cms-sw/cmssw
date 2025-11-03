@@ -249,7 +249,8 @@ namespace lhef {
     std::vector<HepMC::GenVertex *> genVertices;
 
     // I. convert particles
-    genParticles.reserve(nup); for (unsigned int i = 0; i < nup; i++)
+    genParticles.reserve(nup);
+    for (unsigned int i = 0; i < nup; i++)
       genParticles.push_back(makeHepMCParticle(i));
 
     // II. loop again to build vertices

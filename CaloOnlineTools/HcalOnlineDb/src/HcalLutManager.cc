@@ -354,7 +354,8 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
 
   // setup "zero" LUT for channel masking
   std::vector<unsigned int> zeroLut;
-  zeroLut.reserve(128); for (size_t adc = 0; adc < 128; adc++)
+  zeroLut.reserve(128);
+  for (size_t adc = 0; adc < 128; adc++)
     zeroLut.push_back(0);
 
   RooGKCounter _counter;

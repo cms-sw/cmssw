@@ -531,7 +531,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
     // left
     if (!expTrajMeasurements.empty()) {
       for (size_t f = 0; f < expTrajMeasurements.size(); f++) {
-        const TrajectoryMeasurement& AddHit = expTrajMeasurements[f];
+        const TrajectoryMeasurement &AddHit = expTrajMeasurements[f];
         if (AddHit.recHit()->getType() == TrackingRecHit::missing) {
           tmeasColl.push_back(AddHit);
           isBpixtrack = true;

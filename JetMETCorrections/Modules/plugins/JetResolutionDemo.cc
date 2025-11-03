@@ -120,7 +120,8 @@ void JetResolutionDemo::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
 
       std::vector<float> res;
-      res.reserve(40); for (std::size_t i = 0; i < 40; i++) {
+      res.reserve(40);
+      for (std::size_t i = 0; i < 40; i++) {
         res.push_back(i * 0.005);
       }
 

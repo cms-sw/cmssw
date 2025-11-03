@@ -213,7 +213,8 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   // Pt ordered sct electron collection
 
   std::vector<std::pair<size_t, Run3ScoutingElectron>> indexed_sctElectrons;
-  indexed_sctElectrons.reserve(sctEls->size()); for (size_t i = 0; i < sctEls->size(); i++) {
+  indexed_sctElectrons.reserve(sctEls->size());
+  for (size_t i = 0; i < sctEls->size(); i++) {
     indexed_sctElectrons.emplace_back(i, (*sctEls)[i]);
   }
   std::sort(indexed_sctElectrons.begin(), indexed_sctElectrons.end(), [](const auto& a, const auto& b) {

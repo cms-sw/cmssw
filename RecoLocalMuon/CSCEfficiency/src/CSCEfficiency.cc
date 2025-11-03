@@ -1559,7 +1559,7 @@ TrajectoryStateOnSurface CSCEfficiency::propagate(FreeTrajectoryState &ftsStart,
 //
 bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR, const edm::TriggerNames &triggerNames) {
   bool triggerPassed = true;
-  const std::vector<std::string>& hlNames = triggerNames.triggerNames();
+  const std::vector<std::string> &hlNames = triggerNames.triggerNames();
   pointToTriggers.clear();
   for (size_t imyT = 0; imyT < myTriggers.size(); ++imyT) {
     for (size_t iT = 0; iT < hlNames.size(); ++iT) {

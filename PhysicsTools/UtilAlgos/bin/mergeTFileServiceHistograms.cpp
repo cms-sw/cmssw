@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 
   bool empty = true;
   for (size_t i = 0; i < fileNames.size(); ++i) {
-    const string& fileName = fileNames[i];
+    const string &fileName = fileNames[i];
     TFile file(fileName.c_str(), "read");
     if (!file.IsOpen()) {
       cerr << "can't open input file: " << fileName << endl;

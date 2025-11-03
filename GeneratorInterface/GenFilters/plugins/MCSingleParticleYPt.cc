@@ -86,7 +86,8 @@ MCSingleParticleYPt::MCSingleParticleYPt(const edm::ParameterSet& iConfig)
   // if ptMin size smaller than particleID , fill up further with defaults
   if (particleID.size() > ptMin.size()) {
     vector<double> defptmin2;
-    defptmin2.reserve(particleID.size()); for (unsigned int i = 0; i < particleID.size(); i++) {
+    defptmin2.reserve(particleID.size());
+    for (unsigned int i = 0; i < particleID.size(); i++) {
       defptmin2.push_back(0.);
     }
     ptMin = defptmin2;
@@ -94,7 +95,8 @@ MCSingleParticleYPt::MCSingleParticleYPt(const edm::ParameterSet& iConfig)
   // if etaMin size smaller than particleID , fill up further with defaults
   if (particleID.size() > rapMin.size()) {
     vector<double> defrapmin2;
-    defrapmin2.reserve(particleID.size()); for (unsigned int i = 0; i < particleID.size(); i++) {
+    defrapmin2.reserve(particleID.size());
+    for (unsigned int i = 0; i < particleID.size(); i++) {
       defrapmin2.push_back(-10.);
     }
     rapMin = defrapmin2;
@@ -102,7 +104,8 @@ MCSingleParticleYPt::MCSingleParticleYPt(const edm::ParameterSet& iConfig)
   // if etaMax size smaller than particleID , fill up further with defaults
   if (particleID.size() > rapMax.size()) {
     vector<double> defrapmax2;
-    defrapmax2.reserve(particleID.size()); for (unsigned int i = 0; i < particleID.size(); i++) {
+    defrapmax2.reserve(particleID.size());
+    for (unsigned int i = 0; i < particleID.size(); i++) {
       defrapmax2.push_back(10.);
     }
     rapMax = defrapmax2;
@@ -110,7 +113,8 @@ MCSingleParticleYPt::MCSingleParticleYPt(const edm::ParameterSet& iConfig)
   // if status size smaller than particleID , fill up further with defaults
   if (particleID.size() > status.size()) {
     vector<int> defstat2;
-    defstat2.reserve(particleID.size()); for (unsigned int i = 0; i < particleID.size(); i++) {
+    defstat2.reserve(particleID.size());
+    for (unsigned int i = 0; i < particleID.size(); i++) {
       defstat2.push_back(0);
     }
     status = defstat2;
