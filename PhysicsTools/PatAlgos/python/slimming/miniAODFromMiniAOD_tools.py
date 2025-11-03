@@ -254,6 +254,16 @@ def miniAODFromMiniAOD_customizeCommon(process):
         updatedTauName = ''
         addToProcessAndTask(noUpdatedTauName, getattr(process, tausToUpdate).clone(), process, task)
         delattr(process, tausToUpdate)
+        if addGenJet:
+            from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
+            addToProcessAndTask('tauGenJets',
+                                tauGenJets.clone(GenParticles =  'prunedGenParticles'),
+                                process, task)
+            from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import tauGenJetsSelectorAllHadrons
+            addToProcessAndTask('tauGenJetsSelectorAllHadrons',
+                                tauGenJetsSelectorAllHadrons,
+                                process, task)
+            from PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi import tauGenJetMatch
         from PhysicsTools.PatAlgos.patTauHybridProducer_cfi import patTauHybridProducer
         if storePNetCHSjets:
             jetCollection = jets_ak4chs_to_use
@@ -283,7 +293,7 @@ def miniAODFromMiniAOD_customizeCommon(process):
                     ))
             if addGenJet:
                 addToProcessAndTask('tauGenJetMatchCHSJet',
-                                    process.tauGenJetMatch.clone(src = jetCollection),
+                                    tauGenJetMatch.clone(src = jetCollection),
                                     process, task)
                 getattr(process,updatedTauName).genJetMatch = 'tauGenJetMatchCHSJet'
             if storeUParTPUPPIjets: task.add(getattr(process,updatedTauName))
@@ -315,7 +325,7 @@ def miniAODFromMiniAOD_customizeCommon(process):
                     ))
             if addGenJet:
                 addToProcessAndTask('tauGenJetMatchPUPPIJet',
-                                    process.tauGenJetMatch.clone(src = jetCollection),
+                                    tauGenJetMatch.clone(src = jetCollection),
                                     process, task)
                 getattr(process,updatedTauName).genJetMatch = 'tauGenJetMatchPUPPIJet'
         # Add "hybridTau" producer to pat-task
@@ -327,7 +337,7 @@ def miniAODFromMiniAOD_customizeCommon(process):
     m2m_uTagToTaus_switches = cms.PSet(
         storePNetCHSjets = cms.bool(True),
         storeUParTPUPPIjets = cms.bool(True),
-        addGenJet = cms.bool(False) #FIXME => True
+        addGenJet = cms.bool(True)
     )
     _m2m_addUTagToTaus(process, task,
                        taus_to_use,
@@ -336,6 +346,12 @@ def miniAODFromMiniAOD_customizeCommon(process):
                        addGenJet = m2m_uTagToTaus_switches.addGenJet.value()
     )
 
+    addToProcessAndTask("slimmedTaus", cms.EDProducer("PATTauCandidatesRekeyer",
+                                                      src = cms.InputTag(taus_to_use),
+                                                      packedPFCandidatesNew = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
+                                                      ),
+                        process, task
+                        )
     # fix circular module dependency in ParticleNetFromMiniAOD TagInfos when slimmedTaus is updated
     def _fixPNetInputCollection(process):
         if hasattr(process, 'slimmedTaus'):
@@ -343,13 +359,6 @@ def miniAODFromMiniAOD_customizeCommon(process):
                 if 'ParticleNetFromMiniAOD' in mod and 'TagInfos' in mod:
                     getattr(process, mod).taus = 'slimmedTaus::@skipCurrentProcess'
     _fixPNetInputCollection(process)
-
-    addToProcessAndTask("slimmedTaus", cms.EDProducer("PATTauCandidatesRekeyer",
-                                                      src = cms.InputTag(taus_to_use),
-                                                      packedPFCandidatesNew = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
-                                                      ),
-                        process, task
-                        )
 
     boosted_taus_to_use = 'slimmedTausBoosted::@skipCurrentProcess'
     idsToRun_for_boosted_taus = cms.PSet(idsToAdd=cms.vstring())
@@ -380,7 +389,6 @@ def miniAODFromMiniAOD_customizeCommon(process):
     for mod in process.producers.keys():
         if 'deeptau' in mod.lower():
             getattr(process, mod).pfcands = 'packedPFCandidates::@skipCurrentProcess'
-
 
     ###########################################################################
     # Rekey candidates in electrons, photons and muons
@@ -487,6 +495,24 @@ def miniAODFromMiniAOD_customizeCommon(process):
 
     return process
 
+def hybridTausOnData(process):
+    print('removing MC dependencies for hybrid taus')
+    modulesToDel = []
+    for moduleName in process.producers.keys():
+        if not 'slimmedTaus' in moduleName: continue
+        module = getattr(process, moduleName)
+        if module.__dict__['_TypedParameterizable__type'] != 'PATTauHybridProducer': continue
+        module.addGenJetMatch = False
+        genJetModule = module.genJetMatch.getModuleLabel()
+        if not genJetModule in modulesToDel:
+            modulesToDel.append(genJetModule)
+        module.genJetMatch = ''
+    if modulesToDel:
+        modulesToDel.extend(['tauGenJets','tauGenJetsSelectorAllHadrons'])
+    for moduleName in modulesToDel:
+        if hasattr(process,moduleName): delattr(process,moduleName)
+    return process
+
 def miniAODFromMiniAOD_customizeData(process):
     from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringFromMiniAOD_cff import puppiJetMETReclusterFromMiniAOD_Data
     process = puppiJetMETReclusterFromMiniAOD_Data(process)
@@ -500,6 +526,8 @@ def miniAODFromMiniAOD_customizeMC(process):
 def miniAODFromMiniAOD_customizeAllData(process):
     process = miniAODFromMiniAOD_customizeData(process)
     process = miniAODFromMiniAOD_customizeCommon(process)
+    # remove MC dependencies for hybrid taus
+    process = hybridTausOnData(process)
     return process
 
 def miniAODFromMiniAOD_customizeAllMC(process):
