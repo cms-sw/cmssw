@@ -225,8 +225,8 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet &iJet
     inputtype massCand = L1TSC4NGJet::candidate_mass<inputtype>(puppicand);
     fMass_.get()[i0] = inputtype(massCand);
 
-    fZ0_.get()[i0] = puppicand.hwId.charged() ? inputtype(puppicand.hwZ0() * l1ct::Scales::Z0_LSB) : inputtype(0);
-    fDxy_.get()[i0] = puppicand.hwId.charged() ? inputtype(puppicand.hwDxy() * l1ct::Scales::DXY_LSB) : inputtype(0);
+    fZ0_.get()[i0] = puppicand.hwId.charged() ? inputtype(puppicand.hwZ0()) : inputtype(0);
+    fDxy_.get()[i0] = puppicand.hwId.charged() ? inputtype(puppicand.hwDxy()) : inputtype(0);
     fIs_filled_.get()[i0] = inputtype(1);
     fPuppi_weight_.get()[i0] = puppicand.hwId.neutral() ? inputtype(puppicand.hwPuppiW()) : inputtype(0);
     fEmID_.get()[i0] = puppicand.hwId.neutral() ? inputtype(puppicand.hwEmID()) : inputtype(0);
