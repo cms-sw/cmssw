@@ -177,6 +177,7 @@ highBetaStar.toModify(pixelPairStepTrackingRegionsSeedLayersB,RegionPSet = dict(
      ptMin        = 0.05,
      originRadius = 0.2,
 ))
+(highBetaStar & run3_upc).toModify(pixelPairStepTrackingRegionsSeedLayersB,RegionPSet = dict(ptMin = 0.08, originRadius  = 0.015))
 #include commented lines from above in pp_on_XY eras; global seeds (A) are not used in this era b/c timing
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
