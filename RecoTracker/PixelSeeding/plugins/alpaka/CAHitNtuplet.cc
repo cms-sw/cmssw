@@ -361,26 +361,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     /// Don't bother if no hits on BPix1 and no good graph for that
     /// (so no staring pair without BPix1 as first layer).
-    /// TODO: this could be extended to a more general check for 
+    /// TODO: this could be extended to a more general check for
     /// no hits on any of the starting layers.
 
-    bool hitsOnBPix1  = hits.offsetBPIX2() > 0;
-    bool startNoBPix1  = hitsOnBPix1; // one would suffice, two for readability
-    if (not hitsOnBPix1)
-    {
+    bool hitsOnBPix1 = hits.offsetBPIX2() > 0;
+    bool startNoBPix1 = hitsOnBPix1;  // one would suffice, two for readability
+    if (not hitsOnBPix1) {
       startNoBPix1 = false;
-      for (const unsigned int& i : globalCache()->startingPairs_)
-      {
-         if(globalCache()->pairGraph_[2 * i] > 0) 
-        {
+      for (const unsigned int& i : globalCache()->startingPairs_) {
+        if (globalCache()->pairGraph_[2 * i] > 0) {
           startNoBPix1 = true;
           break;
         }
       }
     }
 
-    if(startNoBPix1)
-    {
+    if (startNoBPix1) {
       std::array<double, 1> nHitsV = {{double(hits.nHits())}};
       std::array<double, 1> emptyV;
 
@@ -388,21 +384,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t const maxDoublets = maxNumberOfDoublets_.evaluate(nHitsV, emptyV);
 
       iEvent.emplace(tokenTrack_,
-                    deviceAlgo_.makeTuplesAsync(hits, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
+                     deviceAlgo_.makeTuplesAsync(hits, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
 
-    }
-    else
-    { 
-      edm::LogWarning("CAHitNtupletAlpaka") << "No hit on BPix1 (" << hits.offsetBPIX2() << ") and all the starting pairs has BPix1 as inner layer.\nIt's useless to run the CA. Returning with 0 tracks!";
+    } else {
+      edm::LogWarning("CAHitNtupletAlpaka") << "No hit on BPix1 (" << hits.offsetBPIX2()
+                                            << ") and all the starting pairs has BPix1 as inner layer.\nIt's useless "
+                                               "to run the CA. Returning with 0 tracks!";
       auto& queue = iEvent.queue();
       const auto device = alpaka::getDev(queue);
-      reco::TracksSoACollection tracks({{0,0}}, queue);
+      reco::TracksSoACollection tracks({{0, 0}}, queue);
       auto ntracks_d = cms::alpakatools::make_device_view(device, tracks.view().nTracks());
       alpaka::memset(queue, ntracks_d, 0);
-      iEvent.emplace(tokenTrack_,std::move(tracks));
+      iEvent.emplace(tokenTrack_, std::move(tracks));
     }
-    
-  
   }
 
   using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;
