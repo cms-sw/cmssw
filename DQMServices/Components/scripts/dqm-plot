@@ -245,6 +245,19 @@ class DQMPlotter:
                 wrapped.append("\n".join(explicit_lines))
                 continue
             
+            # Preserve " - " separator (for overlay labels like "File - Collection")
+            if " - " in lab:
+                parts = lab.split(" - ", 1)  # Split only on first occurrence
+                file_part = parts[0]
+                collection_part = parts[1] if len(parts) > 1 else ""
+                
+                # If the combined length is too long, put on separate lines
+                if len(lab) > width:
+                    wrapped.append(f"{file_part}\n- {collection_part}")
+                else:
+                    wrapped.append(lab)
+                continue
+            
             # Automatic split using / or _
             parts = re.split(r'(/|_)+', lab)
             tokens = []
@@ -566,6 +579,111 @@ class DQMPlotter:
 
         return traverse_directory(root_file)
 
+    def _parse_overlay_groups(self, overlay_specs):
+        """
+        Parse overlay specifications into groups.
+
+        Args:
+            overlay_specs: List of colon-separated pattern strings
+
+        Returns:
+            List of lists, where each inner list contains patterns to overlay
+        """
+        if not overlay_specs:
+            return []
+        
+        groups = []
+        for spec in overlay_specs:
+            patterns = [p.strip() for p in spec.split(":")]
+            if len(patterns) > 1:
+                groups.append(patterns)
+        
+        return groups
+
+    def _normalize_path_for_overlay(self, hist_path, overlay_patterns):
+        """
+        Normalize histogram path by removing overlay pattern components.
+
+        Args:
+            hist_path: Full histogram path
+            overlay_patterns: List of patterns that should be removed for grouping
+
+        Returns:
+            Normalized path (or None if path doesn't match any pattern)
+        """
+        for pattern in overlay_patterns:
+            if re.search(pattern, hist_path):
+                # Remove the matching pattern part
+                normalized = re.sub(pattern, "OVERLAY_PLACEHOLDER", hist_path)
+                return normalized, pattern
+        
+        return None, None
+
+    def _group_histograms_by_overlay(self, all_hists, overlay_groups):
+        """
+        Group histograms that should be overlaid together.
+
+        Args:
+            all_hists: Set of all histogram paths
+            overlay_groups: List of overlay pattern groups
+
+        Returns:
+            Dictionary mapping normalized paths to lists of (hist_path, pattern) tuples
+        """
+        grouped = {}
+        used_hists = set()
+        
+        for overlay_patterns in overlay_groups:
+            # Find all histograms matching any pattern in this overlay group
+            for hist_path in all_hists:
+                normalized, matched_pattern = self._normalize_path_for_overlay(
+                    hist_path, overlay_patterns
+                )
+                
+                if normalized:
+                    if normalized not in grouped:
+                        grouped[normalized] = []
+                    grouped[normalized].append((hist_path, matched_pattern))
+                    used_hists.add(hist_path)
+        
+        # Filter groups to only include those with multiple histograms
+        filtered_groups = {
+            norm_path: hists 
+            for norm_path, hists in grouped.items() 
+            if len(hists) > 1
+        }
+        
+        return filtered_groups, used_hists
+
+    def _generate_overlay_output_path(self, normalized_path, matched_patterns, 
+                                     pattern, output_dir):
+        """
+        Generate output path for overlaid histograms.
+
+        Args:
+            normalized_path: Normalized path with placeholder
+            matched_patterns: List of patterns that were matched
+            pattern: Original search pattern
+            output_dir: Base output directory
+
+        Returns:
+            Output file path
+        """
+        # Create combined collection name from patterns
+        collection_names = []
+        for pat in matched_patterns:
+            # Extract meaningful name from pattern (remove regex special chars)
+            name = re.sub(r'[^a-zA-Z0-9_]', '', pat)
+            if name:
+                collection_names.append(name)
+        
+        combined_name = "+".join(sorted(set(collection_names)))
+        
+        # Replace placeholder with combined name
+        overlay_path = normalized_path.replace("OVERLAY_PLACEHOLDER", combined_name)
+        
+        return self._generate_output_path(overlay_path, pattern, output_dir)
+
     def plot_comparison(
         self,
         histograms,
@@ -582,6 +700,7 @@ class DQMPlotter:
         do_ratio=True,
         save_as_pdf=False,
         legend_outside=False,
+        overlay_groups=None,
     ):
         """
         Create comparison plot with ratio panel.
@@ -599,6 +718,7 @@ class DQMPlotter:
             plot_histograms: Whether to plot histograms instead of individual bin points with errors
             pdf: Whether to save as PDF in addition to PNG
             legend_outside: Force legend to be placed outside the plot area
+            overlay_groups: List of pattern groups to overlay
         """
         if len(histograms) != len(labels):
             raise ValueError("Number of histograms must match number of labels")
@@ -614,6 +734,9 @@ class DQMPlotter:
                 # Ignore legend name for summary plots
                 if "global" in output_parts[-1].lower() or "coll" in output_parts[-1].lower():
                     legend_title = None
+                # Split long overlay titles at + marker
+                elif legend_title and "+" in legend_title and len(legend_title) > 30:
+                    legend_title = legend_title.replace("+", "\n+")
 
         fig = plt.figure(figsize=self.figsize)
         gs = gridspec.GridSpec(
@@ -765,6 +888,8 @@ class DQMPlotter:
         output_dir="plots",
         more_files=False,
         create_web_index=False,
+        overlay_groups=None,
+        overlay_individual=True,
         **plot_kwargs,
     ):
         """
@@ -777,6 +902,8 @@ class DQMPlotter:
             output_dir: Output directory for plots
             more_files: Color palette will be extended to support more than 10 files if True
             create_web_index: Whether to create index.php files for web viewing
+            overlay_groups: List of pattern groups to overlay
+            overlay_individual: Whether to also create individual plots for overlaid collections
             **plot_kwargs: Additional arguments for plot_comparison
         """
         if more_files:
@@ -826,7 +953,6 @@ class DQMPlotter:
                     file_hists = self.find_histograms_in_file(root_file, pat)
                     total_for_file += len(file_hists)
                     all_matching_hists.update(file_hists)
-                    # Set first matching pattern for each hist if not already set
                     for hp in file_hists:
                         hist_to_pattern.setdefault(hp, pat)
 
@@ -844,26 +970,103 @@ class DQMPlotter:
         print(
             f"Total unique histograms found across all files: {len(all_matching_hists)}"
         )
-        matching_hists = sorted(list(all_matching_hists))
 
         plot_tasks = []
-        for hist_path in matching_hists:
-            # Use the specific pattern that matched this histogram for path generation
+        
+        # Handle overlay groups if specified
+        if overlay_groups:
+            grouped_hists, used_hists = self._group_histograms_by_overlay(
+                all_matching_hists, overlay_groups
+            )
+            
+            if grouped_hists:
+                print(f"Found {len(grouped_hists)} histogram groups to overlay")
+                
+                # Create tasks for overlaid histograms
+                for normalized_path, hist_pattern_pairs in grouped_hists.items():
+                    # Sort by pattern to ensure consistent ordering
+                    hist_pattern_pairs = sorted(hist_pattern_pairs, key=lambda x: x[1])
+                    hist_paths = [hp for hp, _ in hist_pattern_pairs]
+                    matched_patterns = [pat for _, pat in hist_pattern_pairs]
+                    
+                    # Use first pattern for output path generation
+                    base_pattern = hist_to_pattern.get(hist_paths[0], patterns[0])
+                    output_path = self._generate_overlay_output_path(
+                        normalized_path, matched_patterns, base_pattern, output_dir
+                    )
+                    
+                    # For single file: overlay collections within the file
+                    if len(file_paths) == 1:
+                        # Load all histograms from different collections
+                        overlay_labels = []
+                        for hist_path, pattern in hist_pattern_pairs:
+                            # Extract collection name from path
+                            collection = re.search(pattern, hist_path)
+                            collection_name = collection.group(0) if collection else pattern
+                            overlay_labels.append(f"{labels[0]} - {collection_name}")
+                        
+                        plot_tasks.append({
+                            "file_paths": file_paths * len(hist_paths),
+                            "hist_path": hist_paths,
+                            "labels": overlay_labels,
+                            "colors": self.colors,
+                            "output_path": output_path,
+                            "plot_kwargs": plot_kwargs,
+                            "is_overlay": True,
+                        })
+                    else:
+                        # For multiple files: overlay collections across files
+                        # Create consistent ordering: all collections for file1, then all for file2, etc.
+                        overlay_labels = []
+                        extended_file_paths = []
+                        extended_hist_paths = []
+                        
+                        for file_idx, (file_path, file_label) in enumerate(zip(file_paths, labels)):
+                            for hist_path, pattern in hist_pattern_pairs:
+                                collection = re.search(pattern, hist_path)
+                                collection_name = collection.group(0) if collection else pattern
+                                overlay_labels.append(f"{file_label} - {collection_name}")
+                                extended_file_paths.append(file_path)
+                                extended_hist_paths.append(hist_path)
+                        
+                        plot_tasks.append({
+                            "file_paths": extended_file_paths,
+                            "hist_path": extended_hist_paths,
+                            "labels": overlay_labels,
+                            "colors": self.colors,
+                            "output_path": output_path,
+                            "plot_kwargs": plot_kwargs,
+                            "is_overlay": True,
+                        })
+            
+            # Process non-overlaid histograms separately
+            if overlay_individual:
+                # Include individual plots for overlaid collections
+                remaining_hists = all_matching_hists
+                if remaining_hists:
+                    print(f"Processing {len(remaining_hists)} histograms (including individual overlay collections)")
+            else:
+                # Exclude overlaid histograms from individual processing
+                remaining_hists = all_matching_hists - used_hists
+                if remaining_hists:
+                    print(f"Processing {len(remaining_hists)} non-overlaid histograms separately")
+        else:
+            remaining_hists = all_matching_hists
+        
+        # Create tasks for non-overlaid histograms (standard behavior)
+        for hist_path in sorted(remaining_hists):
             matched_pat = hist_to_pattern.get(hist_path, patterns[0])
-            output_path = self._generate_output_path(
-                hist_path, matched_pat, output_dir
-            )
+            output_path = self._generate_output_path(hist_path, matched_pat, output_dir)
 
-            plot_tasks.append(
-                {
-                    "file_paths": file_paths,
-                    "hist_path": hist_path,
-                    "labels": labels,
-                    "colors": self.colors,
-                    "output_path": output_path,
-                    "plot_kwargs": plot_kwargs,
-                }
-            )
+            plot_tasks.append({
+                "file_paths": file_paths,
+                "hist_path": hist_path,
+                "labels": labels,
+                "colors": self.colors,
+                "output_path": output_path,
+                "plot_kwargs": plot_kwargs,
+                "is_overlay": False,
+            })
 
         self._process_files(plot_tasks)
 
@@ -978,12 +1181,32 @@ def process_histogram_task(task):
         labels = task["labels"]
         output_path = task["output_path"]
         plot_kwargs = task["plot_kwargs"]
+        is_overlay = task["is_overlay"]
 
         plotter = DQMPlotter()
         plotter._current_output_path = output_path
         plotter.colors = task["colors"]
 
-        histograms, valid_labels = plotter._load_histograms(file_paths, hist_path, labels)
+        if is_overlay:
+            # hist_path is a list of paths for overlay mode
+            histograms = []
+            valid_labels = []
+            
+            if isinstance(hist_path, list):
+                # Process in order to maintain consistent color/marker assignment
+                for fp, hp, lab in zip(file_paths, hist_path, labels):
+                    hists, vlabs = plotter._load_histograms([fp], hp, [lab])
+                    histograms.extend(hists)
+                    valid_labels.extend(vlabs)
+            else:
+                histograms, valid_labels = plotter._load_histograms(
+                    file_paths, hist_path, labels
+                )
+        else:
+            # Keep user-specified order for files
+            histograms, valid_labels = plotter._load_histograms(
+                file_paths, hist_path, labels
+            )
 
         if len(histograms) > 0:
             plotter.plot_comparison(histograms, valid_labels, output_path, **plot_kwargs)
@@ -1063,6 +1286,18 @@ if __name__ == "__main__":
         action="store_true",
         help="Force legend to be placed outside the plot area",
     )
+    parser.add_argument(
+        "--overlay",
+        action="append",
+        help="Overlay histograms from different collections. Specify colon-separated patterns "
+             "(e.g., 'hltPhase2PixelTracks:hltPhase2PixelTracksCAExtension'). "
+             "Can be used multiple times for different overlay groups.",
+    )
+    parser.add_argument(
+        "--no-overlay-individual",
+        action="store_true",
+        help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots)",
+    )
 
     args = parser.parse_args()
 
@@ -1070,6 +1305,9 @@ if __name__ == "__main__":
 
     # Flatten list of patterns
     source_patterns = [p for group in args.source for p in group] if isinstance(args.source, list) else [args.source]
+
+    # Parse overlay groups
+    overlay_groups = plotter._parse_overlay_groups(args.overlay) if args.overlay else None
 
     plotter.compare_files(
         file_paths=args.files,
@@ -1089,4 +1327,6 @@ if __name__ == "__main__":
         more_files=args.more_files,
         create_web_index=args.web,
         legend_outside=args.legend_outside,
+        overlay_groups=overlay_groups,
+        overlay_individual=not args.no_overlay_individual,
     )
