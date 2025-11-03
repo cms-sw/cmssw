@@ -33,6 +33,7 @@
  <class name="MEtoEDM<TProfile2D>"/>
  <class name="MEtoEDM<double>"/>
  <class name="MEtoEDM<int>"/>
+ <class name="MEtoEDM<long>"/>
  <class name="MEtoEDM<long long>"/>
  <class name="MEtoEDM<TString>"/>
  <class name="MEtoEDM<TH1F>::MEtoEDMObject" rntupleStreamerMode="true"/>
@@ -49,6 +50,8 @@
  <class name="MEtoEDM<TProfile2D>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<double>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<int>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <!--The following is a workaround for an RNTuple issue. Will be removed once ROOT fix exists. -->
+ <class name="MEtoEDM<long>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<long long>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TString>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="std::vector<MEtoEDM<TH1F>::MEtoEDMObject>"/>
@@ -81,6 +84,8 @@
  <class name="edm::Wrapper<MEtoEDM<TProfile2D> >"/>
  <class name="edm::Wrapper<MEtoEDM<double> >"/>
  <class name="edm::Wrapper<MEtoEDM<int> >"/>
+ <!--The following is a workaround for an RNTuple issue. Will be removed once ROOT fix exists. -->
+ <class name="edm::Wrapper<MEtoEDM<long> >"/>
  <class name="edm::Wrapper<MEtoEDM<long long> >"/>
  <class name="edm::Wrapper<MEtoEDM<TString> >"/>
 
