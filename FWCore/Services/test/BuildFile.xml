@@ -40,6 +40,8 @@
   <use name="FWCore/Services"/>
 </bin>
 
+<test name="TestFWCoreServicesTracerFile" command="test_tracer_file.sh"/>
+
 <test name="TestResourceInformationService" command="test_resourceInformationService.sh"/>
 <test name="TestSignalMessages" command="test_signal.sh"/>
 <test name="TestTimingFJR" command="test_Timing.sh"/>
