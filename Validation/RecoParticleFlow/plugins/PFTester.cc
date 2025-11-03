@@ -21,6 +21,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cmath>
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 class PFTester : public DQMEDAnalyzer {
 public:
   explicit PFTester(const edm::ParameterSet&);
@@ -30,6 +34,7 @@ protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   std::string doubleToString(double x) const;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   edm::EDGetTokenT<reco::PFCandidateCollection> PFCandToken_;
   edm::EDGetTokenT<reco::PFClusterCollection> PFClusterToken_;
   edm::EDGetTokenT<CaloParticleCollection> CaloParticleToken_;
@@ -165,7 +170,8 @@ protected:
 };
 
 PFTester::PFTester(const edm::ParameterSet& iConfig)
-    : PFCandToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCand"))),
+    : geometry_token_(esConsumes()),
+      PFCandToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCand"))),
       PFClusterToken_(consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFCluster"))),
       CaloParticleToken_(consumes<CaloParticleCollection>(iConfig.getParameter<edm::InputTag>("CaloParticle"))),
       SimClusterToken_(consumes<SimClusterCollection>(iConfig.getParameter<edm::InputTag>("SimCluster"))),
@@ -395,7 +401,7 @@ void PFTester::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::Ev
   }
 }
 
-void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
+void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // --------------------------------------------------------------------
   // ---------------- PF Candidates -------------------------------------
   // --------------------------------------------------------------------
@@ -582,6 +588,32 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     std::vector<bool> wasNotFilled(nAssocScoreThresholds_, true);
     for (const auto& recoPair : simToRecoMatched) {
       const auto recoPairIdx = recoPair.first.index();
+      
+      #ifdef debug
+      const CaloGeometry& caloGeom = iSetup.getData(geometry_token_);
+
+      auto ev = simClusters[simId].g4Tracks()[0].eventId().event();
+      auto bx = simClusters[simId].g4Tracks()[0].eventId().bunchCrossing();
+      edm::LogPrint("PFTester") << "  SimCluster[" << simId << "], ev=" << ev << ", bx=" << bx << ", en=" << energySumSimHits << ", hits=";
+      const auto& hits_fractions = simClusters[simId].hits_and_fractions();
+      const auto& hits_energies  = simClusters[simId].hits_and_energies();
+
+      auto itF = hits_fractions.begin();
+      auto itE = hits_energies.begin();
+      for (; itF != hits_fractions.end() && itE != hits_energies.end(); ++itF, ++itE) {
+        DetId id(itF->first);
+        const GlobalPoint pos = caloGeom.getPosition(id);
+        edm::LogPrint("PFTester") << "    DetId=" << itF->first << ", eta=" << pos.eta() << ", phi=" << pos.phi() 
+          << ", en=" << itE->second << ", fr=" << itF->second;
+      }
+      edm::LogPrint("PFTester") << "   Matched to RecoCluster[" << recoPair.first.index() << "], en=" << recoClusters[recoPair.first.index()].energy() << ", with shared energy: " << recoPair.second.first << ", score: " << recoPair.second.second << ", hits=";
+      for (auto const& hit_energy : recoClusters[recoPair.first.index()].recHitFractions()) {
+        DetId id(hit_energy.recHitRef()->detId());
+        const GlobalPoint pos = caloGeom.getPosition(id);
+        edm:: LogPrint("PFTester") << "     DetId=" << hit_energy.recHitRef()->detId() << ", eta=" << pos.eta() << ", phi=" << pos.phi() 
+          << ", en=" << hit_energy.recHitRef()->energy() << ", fr=" << hit_energy.fraction();
+      }
+      #endif
 
       for (unsigned ithr = 0; ithr < nAssocScoreThresholds_; ++ithr) {
         const double& thresh = assocScoreThresholds_[ithr];
@@ -604,6 +636,9 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
 
         if (score > thresh)
           continue;
+        // cut on shared energy fraction
+        // if (shared_energy_frac < thresh)
+        //   continue;
 
         // numerator histograms must be filled only once per sim cluster
         // they are filled inside the recoPair loop to enable a different denominator per threshold
