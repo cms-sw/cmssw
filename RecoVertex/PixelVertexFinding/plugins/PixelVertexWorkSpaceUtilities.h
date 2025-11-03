@@ -29,7 +29,7 @@ namespace gpuVertexFinder {
         workspace_view.nvIntermediate() = 0;
       }
     }  // namespace utilities
-  }    // namespace workSpace
+  }  // namespace workSpace
 }  // namespace gpuVertexFinder
 
 #endif

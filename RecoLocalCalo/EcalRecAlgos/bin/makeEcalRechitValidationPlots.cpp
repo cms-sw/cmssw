@@ -683,9 +683,13 @@ int main(int argc, char *argv[]) {
       stats->SetY1NDC(y1 - (y2 - y1));
     }
     cEnergies.cd(2);
-    { hEnergiesEBGPUvsCPU->Draw("COLZ"); }
+    {
+      hEnergiesEBGPUvsCPU->Draw("COLZ");
+    }
     cEnergies.cd(5);
-    { hEnergiesEEGPUvsCPU->Draw("COLZ"); }
+    {
+      hEnergiesEEGPUvsCPU->Draw("COLZ");
+    }
     cEnergies.cd(3);
     {
       gPad->SetLogy();
@@ -734,9 +738,13 @@ int main(int argc, char *argv[]) {
       stats->SetY1NDC(y1 - (y2 - y1));
     }
     cChi2.cd(2);
-    { hChi2EBGPUvsCPU->Draw("COLZ"); }
+    {
+      hChi2EBGPUvsCPU->Draw("COLZ");
+    }
     cChi2.cd(5);
-    { hChi2EEGPUvsCPU->Draw("COLZ"); }
+    {
+      hChi2EEGPUvsCPU->Draw("COLZ");
+    }
     cChi2.cd(3);
     {
       gPad->SetLogy();
@@ -785,9 +793,13 @@ int main(int argc, char *argv[]) {
       stats->SetY1NDC(y1 - (y2 - y1));
     }
     cFlags.cd(2);
-    { hFlagsEBGPUvsCPU->Draw("COLZ"); }
+    {
+      hFlagsEBGPUvsCPU->Draw("COLZ");
+    }
     cFlags.cd(5);
-    { hFlagsEEGPUvsCPU->Draw("COLZ"); }
+    {
+      hFlagsEEGPUvsCPU->Draw("COLZ");
+    }
     cFlags.cd(3);
     {
       gPad->SetLogy();
@@ -836,9 +848,13 @@ int main(int argc, char *argv[]) {
       stats->SetY1NDC(y1 - (y2 - y1));
     }
     cExtras.cd(2);
-    { hExtrasEBGPUvsCPU->Draw("COLZ"); }
+    {
+      hExtrasEBGPUvsCPU->Draw("COLZ");
+    }
     cExtras.cd(5);
-    { hExtrasEEGPUvsCPU->Draw("COLZ"); }
+    {
+      hExtrasEEGPUvsCPU->Draw("COLZ");
+    }
     cExtras.cd(3);
     {
       gPad->SetLogy();

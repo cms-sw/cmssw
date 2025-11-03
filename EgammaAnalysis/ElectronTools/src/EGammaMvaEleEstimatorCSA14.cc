@@ -487,7 +487,7 @@ void EGammaMvaEleEstimatorCSA14::bindVariables() {
   if (fMVAVar_kfchi2 > 10.)
     fMVAVar_kfchi2 = 10.;
 
-    // Needed for a bug in CMSSW_420, fixed in more recent CMSSW versions
+  // Needed for a bug in CMSSW_420, fixed in more recent CMSSW versions
 #ifndef STANDALONE
   if (edm::isNotFinite(fMVAVar_spp))
 #else

@@ -539,9 +539,13 @@ int main(int argc, char *argv[]) {
       stats->SetY1NDC(y1 - (y2 - y1));
     }
     cRechits.cd(2);
-    { hRechitsEBGPUvsCPU->Draw("COLZ"); }
+    {
+      hRechitsEBGPUvsCPU->Draw("COLZ");
+    }
     cRechits.cd(5);
-    { hRechitsEEGPUvsCPU->Draw("COLZ"); }
+    {
+      hRechitsEEGPUvsCPU->Draw("COLZ");
+    }
     cRechits.cd(3);
     {
       gPad->SetLogy();

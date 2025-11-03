@@ -332,7 +332,7 @@ namespace gpuClustering {
               }
               atomicMin_block(&clusterId[i], old);
             }  // nnloop
-          }    // pixel loop
+          }  // pixel loop
         }
         ++nloops;
       }  // end while
