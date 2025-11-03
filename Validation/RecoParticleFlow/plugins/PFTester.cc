@@ -36,6 +36,7 @@ protected:
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   edm::EDGetTokenT<reco::PFCandidateCollection> PFCandToken_;
+  edm::EDGetTokenT<reco::PFRecHitCollection> PFRechitToken_;
   edm::EDGetTokenT<reco::PFClusterCollection> PFClusterToken_;
   edm::EDGetTokenT<CaloParticleCollection> CaloParticleToken_;
   edm::EDGetTokenT<SimClusterCollection> SimClusterToken_;
@@ -67,6 +68,7 @@ protected:
 
   MonitorElement* h_CaloParticleToSimClusterEnergyFraction_;
   MonitorElement* h_CaloParticleToSimHitsEnergyFraction_;
+  MonitorElement* h2d_CPToPC_simToRecoShEnF_Score_;
 
   MonitorElement* h_PFClusterE_;
   MonitorElement* h_PFClusterEta_;
@@ -172,6 +174,7 @@ protected:
 PFTester::PFTester(const edm::ParameterSet& iConfig)
     : geometry_token_(esConsumes()),
       PFCandToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCand"))),
+      PFRechitToken_(consumes<reco::PFRecHitCollection>(iConfig.getParameter<edm::InputTag>("PFRechit"))),
       PFClusterToken_(consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFCluster"))),
       CaloParticleToken_(consumes<CaloParticleCollection>(iConfig.getParameter<edm::InputTag>("CaloParticle"))),
       SimClusterToken_(consumes<SimClusterCollection>(iConfig.getParameter<edm::InputTag>("SimCluster"))),
@@ -224,6 +227,7 @@ void PFTester::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::Ev
   ibook.setCurrentFolder("HLT/ParticleFlow/CaloParticles");
   h_CaloParticleToSimClusterEnergyFraction_ = ibook.book1D("CaloParticleToSimClusterEnergyFraction", "CaloParticleToSimClusterEnergyFraction;CaloParticle to SimCluster energy fraction", 100, 0, 2);
   h_CaloParticleToSimHitsEnergyFraction_ = ibook.book1D("CaloParticleToSimHitsEnergyFraction", "CaloParticleToSimHitsEnergyFraction;CaloParticle to SimHits energy fraction", 100, 0, 2);
+  h2d_CPToPC_simToRecoShEnF_Score_ = ibook.book2D("CPToPC_simToRecoShEnF_Score", "CaloParticle #rightarrow PFCluster simToRecoSharedEnergy_Score;Sim #rightarrow Reco shared energy fraction;Sim #rightarrow Reco score", 50, 0, 2, 50, 0, 1);
 
   ibook.setCurrentFolder("HLT/ParticleFlow/PFClusters");
   h_PFClusterE_ = ibook.book1D("PFClusterE", "PFCluster Energy;E [GeV]", 100, 0, 100);
@@ -402,39 +406,18 @@ void PFTester::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::Ev
 }
 
 void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // --------------------------------------------------------------------
-  // ---------------- PF Candidates -------------------------------------
-  // --------------------------------------------------------------------
-
-  const reco::PFCandidateCollection* pf_candidates;
-  edm::Handle<reco::PFCandidateCollection> PFCand;
-  iEvent.getByToken(PFCandToken_, PFCand);
-  if (!PFCand.isValid()) {
-    edm::LogInfo("PFTester") << "Input PFCand collection not found.";
-    return;
-  }
-
-  pf_candidates = PFCand.product();
-  if (!pf_candidates) {
-    edm::LogInfo("PFTester") << " Failed to retrieve data required by PFTester.cc";
-    return;
-  }
-
-  // --------------------------------------------------------------------
-  // ---------------- Calo Particles ------------------------------------
-  // --------------------------------------------------------------------
-
-  edm::Handle<CaloParticleCollection> CaloParticle;
-  iEvent.getByToken(CaloParticleToken_, CaloParticle);
-  if (!CaloParticle.isValid()) {
-    edm::LogInfo("PFTester") << "Input CaloParticle collection not found.";
-    return;
-  }
-  auto CaloParticles = *CaloParticle;
 
   // --------------------------------------------------------------------
   // ---------------- PF Clusters and associators -----------------------
   // --------------------------------------------------------------------
+
+  edm::Handle<reco::PFRecHitCollection> PFRechit;
+  iEvent.getByToken(PFRechitToken_, PFRechit);
+  if (!PFRechit.isValid()) {
+    edm::LogInfo("PFTester") << "Input PFRechit collection not found.";
+    return;
+  }
+  auto pfRechit = *PFRechit;
 
   edm::Handle<reco::PFClusterCollection> PFCluster;
   iEvent.getByToken(PFClusterToken_, PFCluster);
@@ -469,29 +452,98 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   auto recoToSimAssoc = *RecoToSimAssociatorCollection;
 
   // --------------------------------------------------------------------
-  // ----- Calo Particle plots ------------
+  // ---------------- Calo Particles and associators --------------------
   // --------------------------------------------------------------------
-  uint nSimClustersFromCPs = 0;
+
+  edm::Handle<CaloParticleCollection> CaloParticle;
+  iEvent.getByToken(CaloParticleToken_, CaloParticle);
+  if (!CaloParticle.isValid()) {
+    edm::LogInfo("PFTester") << "Input CaloParticle collection not found.";
+    return;
+  }
+  auto caloParticles = *CaloParticle;
+
+  edm::Handle<ticl::SimToRecoCollectionT<reco::PFClusterCollection>> CpToRecoAssociatorCollection;
+  iEvent.getByToken(CpToRecoAssociatorToken_, CpToRecoAssociatorCollection);
+  if (!CpToRecoAssociatorCollection.isValid()) {
+    edm::LogInfo("PFTester") << "Input PFClusterCaloParticleAssociator SimToReco collection not found.";
+    return;
+  }
+  auto cpToRecoAssoc = *CpToRecoAssociatorCollection;
+
+  edm::Handle<ticl::RecoToSimCollectionT<reco::PFClusterCollection>> RecoToCpAssociatorCollection;
+  iEvent.getByToken(RecoToCpAssociatorToken_, RecoToCpAssociatorCollection);
+  if (!RecoToCpAssociatorCollection.isValid()) {
+    edm::LogInfo("PFTester") << "Input PFClusterCaloParticleAssociator RecoToSim collection not found.";
+    return;
+  }
+  auto recoToCpAssoc = *RecoToCpAssociatorCollection;
+
+  // --------------------------------------------------------------------
+  // ----- Calo Particles plots -----------------------------------------
+  // --------------------------------------------------------------------
+
   std::unordered_map<uint, double> simClusterToCPEnergyMap;
-  for (unsigned int cpId = 0; cpId < CaloParticles.size(); ++cpId) {
+  for (unsigned int cpId = 0; cpId < caloParticles.size(); ++cpId) {
+
+    // Fill map: for each simCluster, the energy of the caloParticle computed as the sum of all simClusters arising from it
     double energySumSimClusters = 0;
     double energySumSimHits = 0;
-    nSimClustersFromCPs += CaloParticles[cpId].simClusters().size();
-    for (const auto& scRef : CaloParticles[cpId].simClusters()) {
+    double energyFracSumSimHits = 0;
+
+    for (const auto& scRef : caloParticles[cpId].simClusters()) {
       auto const& sc = *(scRef);
+      // Compute energy of caloParticle as sum of simClusters energies (from SimTrack energy)
       energySumSimClusters += sc.energy();
+      // Compute energy of caloParticle as sum of all hits from all simClusters
       for (auto hit_energy : sc.hits_and_energies()) {
         energySumSimHits += hit_energy.second;
+        // simClusterToCPEnergyMap[scRef.key()] += hit_energy.second;
       }
+      // Compute energy of caloParticle as sum of all rechits energy multiplied by sim fraction from all simClusters
+      for (auto hit_fraction : sc.hits_and_fractions()) {
+        DetId id(hit_fraction.first);
+        auto rechitIt = std::find_if(pfRechit.begin(), pfRechit.end(),
+          [id](const reco::PFRecHit& rh) { return rh.detId() == id; });
+        if (rechitIt == pfRechit.end()) {
+          continue;
+        } else {
+          energyFracSumSimHits += rechitIt->energy() * hit_fraction.second;
+        }
+      }
+    }
+    for (const auto& scRef : caloParticles[cpId].simClusters()) {
       simClusterToCPEnergyMap[scRef.key()] = energySumSimHits;
     }
     #ifdef debug
-    LogDebug("PFTester") << " CaloParticles[" << cpId << "].energy()=" << CaloParticles[cpId].energy() 
+    edm::LogPrint("PFTester") << " caloParticle [" << cpId << "]: energy=" << caloParticles[cpId].energy() 
       << ", energySumSimClusters=" << energySumSimClusters 
-      << ", energySumSimHits=" << energySumSimHits << std::endl;
+      << ", energySumSimHits=" << energySumSimHits 
+      << ", energyFracSumSimHits=" << energyFracSumSimHits << std::endl;
     #endif
-    h_CaloParticleToSimClusterEnergyFraction_->Fill(energySumSimClusters/CaloParticles[cpId].energy());
-    h_CaloParticleToSimHitsEnergyFraction_->Fill(energySumSimHits/CaloParticles[cpId].energy());
+
+    h_CaloParticleToSimClusterEnergyFraction_->Fill(energySumSimClusters/caloParticles[cpId].energy());
+    h_CaloParticleToSimHitsEnergyFraction_->Fill(energySumSimHits/caloParticles[cpId].energy());
+
+    // SimToReco association for caloParticles
+    const edm::Ref<CaloParticleCollection> caloParticleRef(CaloParticle, cpId);
+    const auto& cpToRecoIt = cpToRecoAssoc.find(caloParticleRef);
+    if (cpToRecoIt == cpToRecoAssoc.end())
+      continue;
+    const auto& cpToRecoMatched = cpToRecoIt->val;
+    if (cpToRecoMatched.empty())
+      continue;
+
+    for (const auto& recoPair : cpToRecoMatched) {
+      const auto recoPairIdx = recoPair.first.index();
+      #ifdef debug
+      edm::LogPrint("PFTester") << " caloParticle [" << cpId << "] matched to RecoCluster [" << recoPair.first.index()
+      << "] with shared energy: " << recoPair.second.first 
+      << ", shared energy fraction: " << recoPair.second.first / energyFracSumSimHits
+      << ", score: " << recoPair.second.second << std::endl;
+      #endif
+      // h2d_CPToPC_simToRecoShEnF_Score_->Fill(recoPair.second.first, recoPair.second.second / energyFracSumSimHits);
+    }
   }
 
   // --------------------------------------------------------------------
@@ -508,6 +560,18 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       energySumSimHits += hit_energy.second;
     }
     h_SimTrackToSimHitsEnergyFraction_->Fill(energySumSimHits / simClusters[simId].energy());
+
+    double energyFracSumSimHits = 0;
+    for (auto hit_energy : simClusters[simId].hits_and_fractions()) {
+      DetId id(hit_energy.first);
+      auto rechitIt = std::find_if(pfRechit.begin(), pfRechit.end(),
+        [id](const reco::PFRecHit& rh) { return rh.detId() == id; });
+      if (rechitIt == pfRechit.end()) {
+        continue;
+      } else {
+        energyFracSumSimHits += rechitIt->energy() * hit_energy.second;
+      }
+    }
 
     // apply cut on energy fraction (sim cluster energy wrt all sim clusters from same calo particle)
     double SimClusterToCPEnergyFraction = energySumSimHits / simClusterToCPEnergyMap[simId];
@@ -606,7 +670,10 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
         edm::LogPrint("PFTester") << "    DetId=" << itF->first << ", eta=" << pos.eta() << ", phi=" << pos.phi() 
           << ", en=" << itE->second << ", fr=" << itF->second;
       }
-      edm::LogPrint("PFTester") << "   Matched to RecoCluster[" << recoPair.first.index() << "], en=" << recoClusters[recoPair.first.index()].energy() << ", with shared energy: " << recoPair.second.first << ", score: " << recoPair.second.second << ", hits=";
+      edm::LogPrint("PFTester") << "   Matched to RecoCluster[" << recoPair.first.index() << "], en=" 
+      << recoClusters[recoPair.first.index()].energy() << ", with shared energy: " << recoPair.second.first 
+      << ", shared energy fraction: " << recoPair.second.first / energyFracSumSimHits
+      << ", score: " << recoPair.second.second << ", hits=";
       for (auto const& hit_energy : recoClusters[recoPair.first.index()].recHitFractions()) {
         DetId id(hit_energy.recHitRef()->detId());
         const GlobalPoint pos = caloGeom.getPosition(id);
@@ -620,7 +687,7 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
         auto score = recoPair.second.second;
         auto shared_energy = recoPair.second.first;
-        auto shared_energy_frac = shared_energy / energySumSimHits;
+        auto shared_energy_frac = shared_energy / energyFracSumSimHits;
 
         h_simToRecoScore_->Fill(score);
         h_simToRecoShEnF_->Fill(shared_energy_frac);
@@ -714,7 +781,7 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
         #ifdef debug
         for (const auto& recoPair : simToRecoMatched) {
-          LogDebug("PFTester") << " simToRecoAssoc simCluster id " << simId << " : matched recoCluster id = " << recoPair.first.index()
+          edm::LogPrint("PFTester") << " simToRecoAssoc simCluster id " << simId << " : matched recoCluster id = " << recoPair.first.index()
               << " shared energy = " << recoPair.second.first
               << " score = " << recoPair.second.second << std::endl;
         }
@@ -778,7 +845,7 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       const auto simPairIdx = simPair.first.index();
 
       #ifdef debug
-      LogDebug("PFTester") << " recoToSimAssoc recoCluster id " << recoId << " : matched simCluster id = " << simPairIdx
+      edm::LogPrint("PFTester") << " recoToSimAssoc recoCluster id " << recoId << " : matched simCluster id = " << simPairIdx
       			<< " score = " << simPair.second << std::endl;
       #endif
 
@@ -962,40 +1029,21 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   // --------------------------------------------------------------------
+  // ---------------- PF Candidates -------------------------------------
   // --------------------------------------------------------------------
 
-  edm::Handle<ticl::RecoToSimCollectionT<reco::PFClusterCollection>> RecoToCpAssociatorCollection;
-  iEvent.getByToken(RecoToCpAssociatorToken_, RecoToCpAssociatorCollection);
-  if (!RecoToCpAssociatorCollection.isValid()) {
-    std::cout << "Input PFClusterCpClusterAssociator RecoToSim collection not found." << std::endl;
-    edm::LogInfo("PFTester") << "Input PFClusterCpClusterAssociator RecoToSim collection not found.";
-  } else {
-    auto recCpColl = *RecoToCpAssociatorCollection;
-    // std::cout << "recCpColl size : " << recCpColl.size() << std::endl;
-
-    for (unsigned int cId = 0; cId < recoClusters.size(); ++cId) {
-      const edm::Ref<reco::PFClusterCollection> clusterRef(PFCluster, cId);
-      const auto& scsIt = recCpColl.find(clusterRef);
-      if (scsIt == recCpColl.end())
-        continue;
-      // const auto& scs = scsIt->val;
-      // if (!scs.empty()) {
-      //   for (const auto& scPair : scs) {
-      //     // std::cout << " recCpColl Cluster id " << cId << " : first=" << scPair.first.index()
-      //     //           << " second=" << scPair.second << std::endl;
-      //   }
-      // }
-    }
+  const reco::PFCandidateCollection* pf_candidates;
+  edm::Handle<reco::PFCandidateCollection> PFCand;
+  iEvent.getByToken(PFCandToken_, PFCand);
+  if (!PFCand.isValid()) {
+    edm::LogInfo("PFTester") << "Input PFCand collection not found.";
+    return;
   }
 
-  edm::Handle<ticl::SimToRecoCollectionT<reco::PFClusterCollection>> CpToRecoAssociatorCollection;
-  iEvent.getByToken(CpToRecoAssociatorToken_, CpToRecoAssociatorCollection);
-  if (!CpToRecoAssociatorCollection.isValid()) {
-    std::cout << "Input PFClusterCpClusterAssociator SimToReco collection not found." << std::endl;
-    edm::LogInfo("PFTester") << "Input PFClusterCpClusterAssociator SimToReco collection not found.";
-  } else {
-    auto CpRecColl = *CpToRecoAssociatorCollection;
-    // std::cout << "CpRecColl size : " << CpRecColl.size() << std::endl;
+  pf_candidates = PFCand.product();
+  if (!pf_candidates) {
+    edm::LogInfo("PFTester") << " Failed to retrieve data required by PFTester.cc";
+    return;
   }
 
   // --------------------------------------------------------------------
