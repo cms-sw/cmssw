@@ -10,8 +10,8 @@
 
 //knower of all things tracker geometry
 //flexible replacement for PXBDetId and friends
-//to implement
-// endcap pixel
+//to implement endcap pixel
+//Useful doc in Geometry/TrackerNumberingBuilder/README.md
 
 class TrackerTopology {
 public:
@@ -183,6 +183,11 @@ public:
     return ((id.rawId() >> tobVals_.rod_fw_bwStartBit_) & tobVals_.rod_fw_bwMask_);
   }
 
+  // Get enum indicating if tilted barrel module of P2 tracker.
+  Phase2Tracker::BarrelModuleTilt barrelTiltTypeP2(const DetId &detId) const {
+    return static_cast<Phase2Tracker::BarrelModuleTilt>(tobSide(detId));
+  }
+
   unsigned int tecSide(const DetId &id) const { return ((id.rawId() >> tecVals_.sideStartBit_) & tecVals_.sideMask_); }
 
   unsigned int tibSide(const DetId &id) const {
@@ -195,6 +200,8 @@ public:
 
   //rod
   unsigned int tobRod(const DetId &id) const { return ((id.rawId() >> tobVals_.rodStartBit_) & tobVals_.rodMask_); }
+  // P2 tracker (better name) -- related to phi.
+  unsigned int barrelRodP2(const DetId &id) const { return tobRod(id); }
 
   //wheel
   unsigned int tecWheel(const DetId &id) const {
@@ -203,6 +210,8 @@ public:
   unsigned int tidWheel(const DetId &id) const {
     return ((id.rawId() >> tidVals_.wheelStartBit_) & tidVals_.wheelMask_);
   }
+  // P2 tracker (better name)
+  unsigned int endcapWheelP2(const DetId &id) const { return tidWheel(id); }
 
   //order
   unsigned int tecOrder(const DetId &id) const {
@@ -218,6 +227,8 @@ public:
   /// ring id
   unsigned int tecRing(const DetId &id) const { return ((id.rawId() >> tecVals_.ringStartBit_) & tecVals_.ringMask_); }
   unsigned int tidRing(const DetId &id) const { return ((id.rawId() >> tidVals_.ringStartBit_) & tidVals_.ringMask_); }
+  // P2 tracker (better name)
+  unsigned int endcapRingP2(const DetId &id) const { return tidRing(id); }
 
   //petal
   unsigned int tecPetalNumber(const DetId &id) const {
