@@ -71,3 +71,9 @@ particleFlowClusterHCALOnly = particleFlowClusterHCAL.clone(
 from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
 hcalPfCutsFromDB.toModify( particleFlowClusterHCAL,
                            usePFThresholdsFromDB = True)
+
+# Consume Alpaka layer clusters
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+alpaka.toModify(particleFlowClusterHCAL, clustersSource = "legacyPFClusterProducer")
+
+alpaka.toModify(particleFlowClusterHCALOnly, clustersSource = "legacyPFClusterProducerHBHEOnly")

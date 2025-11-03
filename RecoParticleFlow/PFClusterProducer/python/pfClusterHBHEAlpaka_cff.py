@@ -79,8 +79,6 @@ _alpaka_pfClusteringHBHEHFTask.remove(particleFlowClusterHBHE)
 _alpaka_pfClusteringHBHEHFTask.remove(particleFlowClusterHCAL)
 _alpaka_pfClusteringHBHEHFTask.add(particleFlowClusterHCAL)
 
-alpaka.toModify(particleFlowClusterHCAL, clustersSource = "legacyPFClusterProducer")
-
 alpaka.toReplaceWith(pfClusteringHBHEHFTask, _alpaka_pfClusteringHBHEHFTask)
 
 #HCAL Only
@@ -126,7 +124,5 @@ _alpaka_pfClusteringHBHEHFOnlyTask.remove(particleFlowRecHitHBHEOnly)
 _alpaka_pfClusteringHBHEHFOnlyTask.remove(particleFlowClusterHBHEOnly)
 _alpaka_pfClusteringHBHEHFOnlyTask.remove(particleFlowClusterHCALOnly)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(particleFlowClusterHCALOnly)
-
-alpaka.toModify(particleFlowClusterHCALOnly, clustersSource = "legacyPFClusterProducerHBHEOnly")
 
 alpaka.toReplaceWith(pfClusteringHBHEHFOnlyTask, _alpaka_pfClusteringHBHEHFOnlyTask)
