@@ -21,6 +21,17 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load('Calibration.HcalCalibAlgos.hcalIsoTrackAnalyzer_cfi')
 process.hcalIsoTrackAnalyzer.useRaw = 0   # 1 for Raw
+process.hcalIsoTrackAnalyzer.unCorrect = 0 # 1 for uncorrecting RespCorr; 2 for removing Gain factors
+process.hcalIsoTrackAnalyzer.dataType = 1 # 1 for jets; 0 for Egamma
+process.hcalIsoTrackAnalyzer.momentumLow = 40
+process.hcalIsoTrackAnalyzer.momentumHigh = 60
+process.hcalIsoTrackAnalyzer.fillInRange = True
+
+# For AlCaRaw uncomment the following 2 lines ----------------
+#process.hcalIsoTrackAnalyzer.isoTrackVarLabel = ["alcaHcalIsotrkFromAlCaRawProducer", "HcalIsoTrack"]
+#process.hcalIsoTrackAnalyzer.isoTrackEvtLabel = ["alcaHcalIsotrkFromAlCaRawProducer", "HcalIsoTrackEvent"]
+# -----------------------------------------------------------------------------
+
 process.hcalIsoTrackAnalyzer.debugEvents = [640818633, 640797426, 641251898,
                                             641261804, 641172007, 641031809]
 
