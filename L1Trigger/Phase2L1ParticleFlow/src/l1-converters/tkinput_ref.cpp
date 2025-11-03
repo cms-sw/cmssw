@@ -443,10 +443,7 @@ void l1ct::TrackInputEmulator::configDxy(int lutBits) {
     dxyLUT_[u] = l1ct::Scales::makeDxy(sqrtDxy);
   }
   if (debug_)
-    dbgPrintf("Configured dxy with LSB %d in a %d bit LUT\n",
-              l1ct::Scales::DXY_LSB,
-              lutBits
-              );
+    dbgPrintf("Configured dxy with LSB %d in a %d bit LUT\n", l1ct::Scales::DXY_LSB, lutBits);
 }
 
 float l1ct::TrackInputEmulator::floatDEtaBarrel(ap_int<12> z0, ap_int<15> Rinv, ap_int<16> tanl) const {
