@@ -286,8 +286,8 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
       }
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeomT") << "Fine: " << indx.first << ":" << hgpar_->scintFine(indx.first) << " Rad "
-				     << irad << " Size " << hgpar_->iradMaxBHFine_.size() << ":"
-				     << hgpar_->iradMinBH_.size();
+                                     << irad << " Size " << hgpar_->iradMaxBHFine_.size() << ":"
+                                     << hgpar_->iradMinBH_.size();
       std::ostringstream st1;
       st1 << "assignCellTrap: ring # in ring type " << hgpar_->scintFine(indx.first) << "modified to " << irad;
       if (hgpar_->scintFine(indx.first))
@@ -1565,16 +1565,16 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
       ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
 #ifdef EDM_ML_DEBUG
       if (!ok) {
-	if (itr == hgpar_->tileInfoMap_.end())
-	  edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-					<< " Index " << index.first << ":" << (itr != hgpar_->tileInfoMap_.end())
-					<< " ok " << ok << " CHECK";
-	else
-	  edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-					<< " Index " << index.first << ":" << (itr != hgpar_->tileInfoMap_.end())
-					<< " hex " << std::hex << itr->second.hex[0] << ":" << itr->second.hex[1] << ":"
-					<< itr->second.hex[2] << ":" << itr->second.hex[3] << ":" << itr->second.hex[4]
-					<< ":" << itr->second.hex[5] << std::dec << " OK " << ok << " CHECK";
+        if (itr == hgpar_->tileInfoMap_.end())
+          edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+                                        << " Index " << index.first << ":" << (itr != hgpar_->tileInfoMap_.end())
+                                        << " ok " << ok << " CHECK";
+        else
+          edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+                                        << " Index " << index.first << ":" << (itr != hgpar_->tileInfoMap_.end())
+                                        << " hex " << std::hex << itr->second.hex[0] << ":" << itr->second.hex[1] << ":"
+                                        << itr->second.hex[2] << ":" << itr->second.hex[3] << ":" << itr->second.hex[4]
+                                        << ":" << itr->second.hex[5] << std::dec << " OK " << ok << " CHECK";
       }
 #endif
       return ok;
