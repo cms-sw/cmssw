@@ -97,16 +97,73 @@ uint32_t MTDTopology::etashiftBTL(const uint32_t detid, const int etaShift) cons
   }
 }
 
+size_t MTDTopology::servtomoduleETL(const uint32_t detid) const {
+  ETLDetId id(detid);
+  int sum = 0;
+  if (id.version() == 1) {
+    int servtyp = (id.servType() == 1) ? 3 : (id.servType() == 2 ? 6 : 7);
+    int servcop = id.servCopy();
+    uint32_t discface = id.discSide() + 2 * (id.nDisc() - 1);
+    int module = id.module();
+    uint32_t modtyp = id.modType();
+    size_t iHome = (modtyp == etlVals_[discface].idDetType1_) ? 0 : 1;
+    int count = 0;
+
+    for (size_t iloop = 0; iloop < etlVals_[discface].services_[iHome].size(); iloop++) {
+      if (etlVals_[discface].services_[iHome][iloop] == servtyp) {
+        ++count;
+      }
+      if (count < servcop) {
+        sum += etlVals_[discface].services_[iHome][iloop];
+      } else if (count == servcop) {
+        break;
+      }
+    }
+    sum += module;
+  } else {
+    sum = id.module();
+  }
+
+  return sum;
+}
+
 bool MTDTopology::orderETLSector(const GeomDet*& gd1, const GeomDet*& gd2) {
   ETLDetId det1(gd1->geographicalId().rawId());
   ETLDetId det2(gd2->geographicalId().rawId());
+
+  const Local2DPoint cen(0., 0.);
+  auto gpos = gd1->toGlobal(cen);
+  double x1 = gpos.x();
+  double y1 = gpos.y();
+  gpos = gd2->toGlobal(cen);
+  double x2 = gpos.x();
+  double y2 = gpos.y();
+  const double tol(1e-1);
+
+  // based on the x,y ordering for each sector and side in the geometry construction
+  // according to module, sensor and type assignment
 
   if (det1.mtdRR() != det2.mtdRR()) {
     return det1.mtdRR() < det2.mtdRR();
   } else if (det1.modType() != det2.modType()) {
     return det1.modType() < det2.modType();
-  } else if (det1.module() != det2.module()) {
-    return det1.module() < det2.module();
+  } else if (std::abs(x1 - x2) > tol && std::abs(y1 - y2) < tol) {
+    return std::abs(x1) < std::abs(x2);
+  } else if (std::abs(y1 - y2) > tol) {
+    // order has changed for back face from version 0 to version 1
+    if (det1.version() == 0 || (det1.version() == 1 && det1.discSide() == 0)) {
+      if (det1.discSide() + 1 == det1.sector()) {
+        return y1 < y2;
+      } else {
+        return y1 > y2;
+      }
+    } else {
+      if (det1.discSide() + 1 == det1.sector()) {
+        return y1 > y2;
+      } else {
+        return y1 < y2;
+      }
+    }
   } else {
     return det1.sensor() < det2.sensor();
   }
@@ -120,15 +177,20 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
     return failIndex_;
   }
   int hsh = horizontalShift > 0 ? 1 : -1;
-
+  // distinguish numbering in prev8 / v8 geometries
+  auto topoMode = getMTDTopologyMode();
   int sensor = start_mod.sensor();
+
+  //distingish the two DetId versions. Has to be updated with the correct versioning (>v10)
   int module = start_mod.module();
+  if (static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(topoMode)) >=
+      static_cast<int>(MTDTopologyMode::EtlLayout::v11)) {
+    module = servtomoduleETL(detid);
+  }
   uint32_t modtyp = start_mod.modType();
   uint32_t discface = start_mod.discSide() + 2 * (start_mod.nDisc() - 1);
   int geomDetIndex;
 
-  // distinguish numbering in prev8 / v8 geometries
-  auto topoMode = getMTDTopologyMode();
   if (static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(topoMode)) >=
       static_cast<int>(MTDTopologyMode::EtlLayout::v8)) {
     geomDetIndex = 2 * (module - 1) + sensor;
@@ -161,7 +223,6 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
 
 size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, size_t& closest) const {
   closest = failIndex_;
-
   ETLDetId start_mod(detid);
 
   if (verticalShift == 0) {
@@ -171,13 +232,18 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, siz
   int vsh = verticalShift > 0 ? 1 : -1;
 
   int sensor = start_mod.sensor();
+  auto topoMode = getMTDTopologyMode();
+  //distingish the two DetId versions. Has to be updated with the correct versioning (>v10)
   int module = start_mod.module();
+  if (static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(topoMode)) >=
+      static_cast<int>(MTDTopologyMode::EtlLayout::v11)) {
+    module = servtomoduleETL(detid);
+  }
   uint32_t modtyp = start_mod.modType();
   uint32_t discface = start_mod.discSide() + 2 * (start_mod.nDisc() - 1);
   int geomDetIndex;
 
   // distinguish numbering in prev8 / v8 geometries
-  auto topoMode = getMTDTopologyMode();
   if (static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(topoMode)) >=
       static_cast<int>(MTDTopologyMode::EtlLayout::v8)) {
     geomDetIndex = 2 * (module - 1) + sensor;
@@ -206,7 +272,7 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, siz
   }
 
   if (iBin == etlVals_[discface].start_copy_[iHome].size()) {
-    edm::LogWarning("MTDTopology") << "Module number not compatible with layout, abort";
+    edm::LogWarning("MTDTopology") << "Module number is not compatible with layout, abort";
     return failIndex_;
   }
 

@@ -32,3 +32,16 @@ std::ostream& operator<<(std::ostream& os, const BTLDetId& id) {
      << " Crystal in DB: " << id.crystalConsDB() << std::endl;
   return os;
 }
+
+std::stringstream printBTLSMDetId(uint32_t detId) {
+  std::stringstream ss;
+  BTLDetId thisId(detId);
+  if (thisId.det() != DetId::Forward || thisId.subdetId() != MTDDetId::FastTime ||
+      thisId.mtdSubDetector() != MTDDetId::BTL) {
+    ss << "DetId " << detId << " not an BTLDetId!";
+  }
+
+  ss << " BTLDetId " << thisId.rawId() << " side = " << std::setw(2) << thisId.mtdSide() << " tray = " << std::setw(4)
+     << thisId.mtdRR() << " RU = " << std::setw(4) << thisId.runit() << " mod = " << std::setw(4) << thisId.module();
+  return ss;
+}

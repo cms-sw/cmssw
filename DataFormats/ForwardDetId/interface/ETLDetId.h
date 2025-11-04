@@ -3,14 +3,27 @@
 
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include <ostream>
+#include <iostream>
 
 /** 
     @class ETLDetId
     @brief Detector identifier class for the Endcap Timing Layer.
-
+    
+    v8-v10
     bit 15-5 : module sequential number
     bit 4-3  : module type (unused so far)
     bit 2-1  : sensor
+    bit 0 : version
+
+    v11 onwards
+    bit 15 : used to identify the version
+    bits 14-13 : unused
+    bits 12-11 : Service Hybrid type (3(1)-6(2)-7(3))
+    bits 10-5 : Service Hybrid copy number of that type in a sect
+    bits 4-2 : Module copy number within the Service hybrid
+    bit 1 : top/bottom side of the module (1 or 2)
+    bit 0 : sensor within each side (1 or 2)
+
 */
 
 class ETLDetId : public MTDDetId {
@@ -51,6 +64,19 @@ public:
 
   static constexpr uint32_t kSoff = 4;
 
+  /// constants for new ETLDetId format (from v11 onwards)
+  static constexpr uint32_t kETLservicetypMask = 0x3;
+  static constexpr uint32_t kETLserviceCopyMask = 0x3F;
+  static constexpr uint32_t kETLmodCopyv11Mask = 0x7;
+  static constexpr uint32_t kETLmodTypev11Mask = 0x1;
+  static constexpr uint32_t kETLsensorv11Mask = 0x1;
+
+  static constexpr uint32_t kETLVersionOffset = 15;
+  static constexpr uint32_t kETLservicetypOffset = 11;
+  static constexpr uint32_t kETLserviceCopyOffset = 5;
+  static constexpr uint32_t kETLmodCopyv11Offset = 2;
+  static constexpr uint32_t kETLmodTypev11Offset = 1;
+
   // ---------- Constructors, enumerated types ----------
 
   /** Construct a null id */
@@ -59,19 +85,19 @@ public:
     id_ |= kETLformatV2;
   }
 
-  /** Construct from a raw value */
+  /** Construct from a raw value (applies a change in the Id if bit0 is 0 and bit15 is 0) */
   ETLDetId(const uint32_t& raw_id) {
     uint32_t tmpId = raw_id;
-    if ((tmpId & kETLformatV2) == 0) {
+    if (((tmpId >> kETLVersionOffset) & 0x1) == 0 && (tmpId & kETLformatV2) == 0) {
       tmpId = newForm(tmpId);
     }
     id_ = MTDDetId(tmpId).rawId();
   }
 
-  /** Construct from generic DetId */
+  /** Construct from generic DetId (applies a change in the Id if bit0 is 0 and bit15 is 0)*/
   ETLDetId(const DetId& det_id) {
     uint32_t tmpId = det_id.rawId();
-    if ((tmpId & kETLformatV2) == 0) {
+    if (((tmpId >> kETLVersionOffset) & 0x1) == 0 && (tmpId & kETLformatV2) == 0) {
       tmpId = newForm(tmpId);
     }
     id_ = MTDDetId(tmpId).rawId();
@@ -86,13 +112,30 @@ public:
            (modtyp & kETLmodTypeMask) << kETLmodTypeOffset;
     id_ |= kETLformatV2;
   }
-  // v8
+  // v8 - v10
   ETLDetId(uint32_t zside, uint32_t ring, uint32_t module, uint32_t modtyp, uint32_t sensor)
       : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
     id_ |= (MTDType::ETL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
            (ring & kRodRingMask) << kRodRingOffset | (module & kETLmoduleMask) << kETLmoduleOffset |
            (modtyp & kETLmodTypeMask) << kETLmodTypeOffset | (sensor & kETLsensorMask) << kETLsensorOffset;
     id_ |= kETLformatV2;
+  }
+  // from v11
+  ETLDetId(uint32_t zside,
+           uint32_t ring,
+           uint32_t version,
+           uint32_t servicetyp,
+           uint32_t serviceCopy,
+           uint32_t module,
+           uint32_t modtyp,
+           uint32_t sensor)
+      : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
+    id_ |= (MTDType::ETL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
+           (ring & kRodRingMask) << kRodRingOffset | version << kETLVersionOffset |
+           (servicetyp & kETLservicetypMask) << kETLservicetypOffset |
+           (serviceCopy & kETLserviceCopyMask) << kETLserviceCopyOffset |
+           (module & kETLmodCopyv11Mask) << kETLmodCopyv11Offset |
+           (modtyp & kETLmodTypev11Mask) << kETLmodTypev11Offset | (sensor & kETLsensorv11Mask);
   }
 
   /** ETL TDR Construct and fill only the det and sub-det fields. */
@@ -118,7 +161,7 @@ public:
            (module & kETLmoduleMask) << kETLmoduleOffset | (modtyp & kETLmodTypeMask) << kETLmodTypeOffset;
     id_ |= kETLformatV2;
   }
-  // v8
+  // v8 - v10
   ETLDetId(uint32_t zside,
            uint32_t disc,
            uint32_t discside,
@@ -133,17 +176,65 @@ public:
            (sensor & kETLsensorMask) << kETLsensorOffset;
     id_ |= kETLformatV2;
   }
+  // from v11
+  ETLDetId(uint32_t zside,
+           uint32_t disc,
+           uint32_t discside,
+           uint32_t sector,
+           uint32_t version,
+           uint32_t servicetyp,
+           uint32_t serviceCopy,
+           uint32_t module,
+           uint32_t modtyp,
+           uint32_t sensor)
+      : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
+    id_ |= (MTDType::ETL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
+           (encodeSector(disc, discside, sector) & kRodRingMask) << kRodRingOffset | version << kETLVersionOffset |
+           (servicetyp & kETLservicetypMask) << kETLservicetypOffset |
+           (serviceCopy & kETLserviceCopyMask) << kETLserviceCopyOffset |
+           (module & kETLmodCopyv11Mask) << kETLmodCopyv11Offset |
+           (modtyp & kETLmodTypev11Mask) << kETLmodTypev11Offset | (sensor & kETLsensorv11Mask);
+  }
 
   // ---------- Common methods ----------
 
-  /** Returns ETL module number. */
-  inline int module() const { return (id_ >> kETLmoduleOffset) & kETLmoduleMask; }
+  /** Returns 1 if bit15 is 1 (version 11 onwards) 0 if not. */
+  inline int version() const { return (id_ >> kETLVersionOffset) & 0x1; }
 
-  /** Returns ETL module type number. */
-  inline int modType() const { return (id_ >> kETLmodTypeOffset) & kETLmodTypeMask; }
+  /** Returns ETL service hybrid type from v11 onwards. */
+  inline int servType() const { return version() == 1 ? (id_ >> kETLservicetypOffset) & kETLservicetypMask : 0; }
 
-  /** Returns ETL module sensor number. */
-  inline int sensor() const { return (id_ >> kETLsensorOffset) & kETLsensorMask; }
+  /** Returns ETL service hybrid number from v11 onwards. */
+  inline int servCopy() const { return version() == 1 ? (id_ >> kETLserviceCopyOffset) & kETLserviceCopyMask : 0; }
+
+  /** Returns ETL module number. Uses version bit to decide between pre-v11 and v11+. */
+  inline int module() const {
+    if (version() == 1) {
+      return (id_ >> kETLmodCopyv11Offset) & kETLmodCopyv11Mask;
+    } else {
+      return (id_ >> kETLmoduleOffset) & kETLmoduleMask;
+    }
+  }
+
+  /** Returns ETL module type number. Uses version bit to decide between pre-v11 and v11+. */
+  inline int modType() const {
+    if (version() == 1) {
+      int mt = (id_ >> kETLmodTypev11Offset) & kETLmodTypev11Mask;
+      return (mt == 0 ? 2 : 1);
+    } else {
+      return (id_ >> kETLmodTypeOffset) & kETLmodTypeMask;
+    }
+  }
+
+  /** Returns ETL module sensor number. Uses version bit to decide between pre-v11 and v11+. */
+  inline int sensor() const {
+    if (version() == 1) {
+      int s = (id_ & kETLsensorv11Mask);
+      return (s == 0 ? 2 : 1);
+    } else {
+      return (id_ >> kETLsensorOffset) & kETLsensorMask;
+    }
+  }
 
   ETLDetId geographicalId() const { return id_; }
 
@@ -171,5 +262,7 @@ public:
 };
 
 std::ostream& operator<<(std::ostream&, const ETLDetId&);
+
+std::stringstream printETLDetId(uint32_t detId);
 
 #endif  // DataFormats_ETLDetId_ETLDetId_h
