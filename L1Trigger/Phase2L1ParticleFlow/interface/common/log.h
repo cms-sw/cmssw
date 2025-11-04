@@ -33,10 +33,10 @@ namespace l1ct {
     in_t in_shifted = in << (in.width - msb - 1);
     // lookup the log of the shifted input
     int idx = idx_from_real_val<in_t, N>(in_shifted);
-    table_t log_in = log_table<in_t,table_t,N>(idx);
+    table_t log_in = log_table<in_t, table_t, N>(idx);
     // lookup the shift needed to get back to original basis
     // log(A/B) = log(A) - log(B), A is pT shifted, B is the shift
-    table_t log_shift = log_power_table<in_t,table_t,N>(in.width - msb - 1);
+    table_t log_shift = log_power_table<in_t, table_t, N>(in.width - msb - 1);
     table_t out = log_in - log_shift;
     return out;
   }
