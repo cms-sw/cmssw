@@ -49,7 +49,7 @@ public:
   void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
   void testBTLLayers(const MTDDetLayerGeometry*, const MagneticField* field) const;
-  void testETLLayersNew(const MTDDetLayerGeometry*, const MagneticField* field) const;
+  void testETLLayers(const MTDDetLayerGeometry*, const MTDTopology*, const MagneticField* field) const;
 
   string dumpLayer(const DetLayer* layer) const;
 
@@ -141,7 +141,7 @@ void MTDRecoGeometryAnalyzer::analyze(edm::StreamID, edm::Event const&, edm::Eve
   }
 
   testBTLLayers(geo.product(), magfield.product());
-  testETLLayersNew(geo.product(), magfield.product());
+  testETLLayers(geo.product(), mtdtopo.product(), magfield.product());
 }
 
 void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, const MagneticField* field) const {
@@ -166,17 +166,11 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
                                   << "\n";
       for (const auto& imod : irod->basicComponents()) {
         BTLDetId modId(imod->geographicalId().rawId());
-        LogVerbatim("MTDLayerDumpFull") << std::fixed << "BTLDetId " << modId.rawId() << " side = " << std::setw(4)
-                                        << modId.mtdSide() << " rod = " << modId.mtdRR()
-                                        << " type/RU/mod = " << std::setw(1) << modId.modType() << "/" << std::setw(1)
-                                        << modId.runit() << "/" << std::setw(2) << modId.module()
+        LogVerbatim("MTDLayerDumpFull") << std::fixed << printBTLSMDetId(modId.rawId()).str()
                                         << " R = " << fround(imod->position().perp(), 4)
                                         << " phi = " << fround(imod->position().phi(), 4)
                                         << " Z = " << fround(imod->position().z(), 4);
-        LogVerbatim("MTDLayerDump") << std::fixed << "BTLDetId " << modId.rawId() << " side = " << std::setw(4)
-                                    << modId.mtdSide() << " rod = " << modId.mtdRR()
-                                    << " type/RU/mod = " << std::setw(1) << modId.modType() << "/" << std::setw(1)
-                                    << modId.runit() << "/" << std::setw(2) << modId.module()
+        LogVerbatim("MTDLayerDump") << std::fixed << printBTLSMDetId(modId.rawId()).str()
                                     << " R = " << fround(imod->position().perp(), 2)
                                     << " phi = " << fround(imod->position().phi(), 2)
                                     << " Z = " << fround(imod->position().z(), 2);
@@ -283,7 +277,9 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
   }
 }
 
-void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, const MagneticField* field) const {
+void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo,
+                                            const MTDTopology* mtdtopo,
+                                            const MagneticField* field) const {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
   // dump of ETL layers structure
@@ -312,17 +308,12 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
       LogVerbatim("MTDLayerDump") << std::fixed << "\nSector " << std::setw(4) << isectInd << "\n" << (*isector);
       for (const auto& imod : isector->basicComponents()) {
         ETLDetId modId(imod->geographicalId().rawId());
-        LogVerbatim("MTDLayerDumpFull") << std::fixed << "ETLDetId " << modId.rawId() << " side = " << std::setw(4)
-                                        << modId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc()
-                                        << " " << std::setw(4) << modId.discSide() << " " << std::setw(4)
-                                        << modId.sector() << " mod/type = " << std::setw(4) << modId.module() << " "
-                                        << std::setw(4) << modId.modType()
+        LogVerbatim("MTDLayerDumpFull") << std::fixed << printETLDetId(modId.rawId()).str()
+                                        << " glmod= " << std::setw(4) << mtdtopo->servtomoduleETL(modId.rawId())
                                         << " pos = " << fvecround(imod->position(), 4);
-        LogVerbatim("MTDLayerDump") << std::fixed << "ETLDetId " << modId.rawId() << " side = " << std::setw(4)
-                                    << modId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc() << " "
-                                    << std::setw(4) << modId.discSide() << " " << std::setw(4) << modId.sector()
-                                    << " mod/type = " << std::setw(4) << modId.module() << " " << std::setw(4)
-                                    << modId.modType() << " pos = " << fvecround(imod->position(), 2);
+        LogVerbatim("MTDLayerDump") << std::fixed << printETLDetId(modId.rawId()).str() << " glmod= " << std::setw(4)
+                                    << mtdtopo->servtomoduleETL(modId.rawId())
+                                    << " pos = " << fvecround(imod->position(), 2);
       }
     }
   }

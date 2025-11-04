@@ -144,6 +144,10 @@ GeometryConf={
     'DD4hepExtendedRun4D122' : 'DD4hepExtendedRun4D122,DD4hepExtendedRun4D122Reco',
     'ExtendedRun4D123' : 'ExtendedRun4D123,ExtendedRun4D123Reco',
     'DD4hepExtendedRun4D123' : 'DD4hepExtendedRun4D123,DD4hepExtendedRun4D123Reco',
+    'ExtendedRun4D124' : 'ExtendedRun4D124,ExtendedRun4D124Reco',
+    'DD4hepExtendedRun4D124' : 'DD4hepExtendedRun4D124,DD4hepExtendedRun4D124Reco',
+    'ExtendedRun4D125' : 'ExtendedRun4D125,ExtendedRun4D125Reco',
+    'DD4hepExtendedRun4D125' : 'DD4hepExtendedRun4D125,DD4hepExtendedRun4D125Reco',
     'ExtendedRun4D500' : 'ExtendedRun4D500,ExtendedRun4D500Reco',
     'DD4hepExtendedRun4D500' : 'DD4hepExtendedRun4D500,DD4hepExtendedRun4D500Reco',
 }

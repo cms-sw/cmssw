@@ -22,10 +22,12 @@ namespace MTDTopologyMode {
     btlv3etlv8 = 8,
     btlv4etlv8 = 9,
     btlv4etlv9 = 10,
-    btlv4etlv10 = 11
+    btlv4etlv10 = 11,
+    btlv4etlv11 = 12,
+    btlv4etlv12 = 13
   };
 
-  enum class EtlLayout { v5 = 3, v8 = 4, v9 = 5, v10 = 6 };
+  enum class EtlLayout { v5 = 3, v8 = 4, v9 = 5, v10 = 6, v11 = 7, v12 = 8 };
 
   Mode MTDStringToEnumParser(const std::string&);
 
@@ -33,6 +35,12 @@ namespace MTDTopologyMode {
 
   inline BTLDetId::CrysLayout crysLayoutFromTopoMode(const int& topoMode) {
     switch (topoMode) {
+      case static_cast<int>(Mode::btlv4etlv12):
+        return BTLDetId::CrysLayout::v4;
+        break;
+      case static_cast<int>(Mode::btlv4etlv11):
+        return BTLDetId::CrysLayout::v4;
+        break;
       case static_cast<int>(Mode::btlv4etlv10):
         return BTLDetId::CrysLayout::v4;
         break;
@@ -58,6 +66,12 @@ namespace MTDTopologyMode {
 
   inline EtlLayout etlLayoutFromTopoMode(const int& topoMode) {
     switch (topoMode) {
+      case static_cast<int>(Mode::btlv4etlv12):
+        return EtlLayout::v12;
+        break;
+      case static_cast<int>(Mode::btlv4etlv11):
+        return EtlLayout::v11;
+        break;
       case static_cast<int>(Mode::btlv4etlv10):
         return EtlLayout::v10;
         break;

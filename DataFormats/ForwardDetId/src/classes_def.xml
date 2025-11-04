@@ -29,12 +29,6 @@
   <class name="ETLDetId" ClassVersion="4">
    <version ClassVersion="4" checksum="1644731879"/>
    <version ClassVersion="3" checksum="1644731879"/>
-   <ioread sourceClass = "ETLDetId" version="[-3]" targetClass="ETLDetId" source="" target="">
-    <![CDATA[
-       ETLDetId tmp(newObj->newForm(newObj->rawId()));
-        *newObj=tmp;
-    ]]>
-   </ioread>
   </class>
   <class name="HFNoseDetId" ClassVersion="0">
    <version ClassVersion="0" checksum="1469396081"/>
