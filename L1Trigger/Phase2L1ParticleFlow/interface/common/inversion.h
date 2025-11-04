@@ -27,21 +27,16 @@ namespace l1ct {
     return (unsigned)y(NB - 1, 0);
   }
 
+  // LUT function for inverse x
   template <class data_T, class table_T, int N>
-  void init_invert_table(table_T table_out[N]) {
-    // The template data_T is the data type used to address the table
-    for (unsigned i = 0; i < N; i++) {
-      float x = real_val_from_idx<data_T, N>(i);
+  table_T inv_table(int idx) {
+      float x = real_val_from_idx<data_T, N>(idx);
       table_T inv_x = 1 / x;
-      table_out[i] = inv_x;
+      return inv_x;
     }
-  }
 
   template <class in_t, class table_t, int N>
   table_t invert_with_shift(in_t in) {
-    table_t inv_table[N];
-    init_invert_table<in_t, table_t, N>(inv_table);
-
     // find the first '1' in the denominator
     int msb = 0;
     for (int b = 0; b < in.width; b++) {
@@ -53,7 +48,7 @@ namespace l1ct {
     in_t in_shifted = in << (in.width - msb - 1);
     // lookup the inverse of the shifted input
     int idx = idx_from_real_val<in_t, N>(in_shifted);
-    table_t inv_in = inv_table[idx];
+    table_t inv_in = inv_table<in_t,table_t,N>(idx);
     // shift the output back
     table_t out = inv_in << (in.width - msb - 1);
     return out;
