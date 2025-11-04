@@ -43,18 +43,8 @@
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/disable_ubsan.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-
-// With gcc 13.4.0, some summary routines are failing with unreachable program point
-// UBSAN errors.  No UB has been identified, so for now this workaround suppresses
-// UBSAN checking for the routines that are failing.
-//
-// details at https://github.com/cms-sw/cmssw/issues/49151
-#ifdef CMS_UNDEFINED_SANITIZER
-#define NOUBSAN __attribute__((no_sanitize("undefined")))
-#else
-#define NOUBSAN
-#endif
 
 // forward declarations
 namespace edm {
@@ -175,7 +165,7 @@ namespace edm {
         C const* runCache(edm::RunIndex iID) const { return caches_[iID].get(); }
 
       private:
-        void doBeginRun_(Run const& rp, EventSetup const& c) final NOUBSAN {
+        void doBeginRun_(Run const& rp, EventSetup const& c) final DISABLE_UBSAN {
           caches_[rp.index()] = globalBeginRun(rp, c);
         }
         void doEndRun_(Run const& rp, EventSetup const& c) final {
@@ -202,7 +192,7 @@ namespace edm {
         C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
 
       private:
-        void doBeginLuminosityBlock_(LuminosityBlock const& lp, EventSetup const& c) final NOUBSAN {
+        void doBeginLuminosityBlock_(LuminosityBlock const& lp, EventSetup const& c) final DISABLE_UBSAN {
           caches_[lp.index()] = globalBeginLuminosityBlock(lp, c);
         }
         void doEndLuminosityBlock_(LuminosityBlock const& lp, EventSetup const& c) final {
@@ -232,7 +222,7 @@ namespace edm {
 
         friend class EndRunSummaryProducer<T, C>;
 
-        void doBeginRunSummary_(edm::Run const& rp, EventSetup const& c) final NOUBSAN {
+        void doBeginRunSummary_(edm::Run const& rp, EventSetup const& c) final DISABLE_UBSAN {
           caches_[rp.index()] = globalBeginRunSummary(rp, c);
         }
         void doStreamEndRunSummary_(StreamID id, Run const& rp, EventSetup const& c) final {
@@ -272,7 +262,7 @@ namespace edm {
 
         friend class EndLuminosityBlockSummaryProducer<T, C>;
 
-        void doBeginLuminosityBlockSummary_(edm::LuminosityBlock const& lb, EventSetup const& c) final NOUBSAN {
+        void doBeginLuminosityBlockSummary_(edm::LuminosityBlock const& lb, EventSetup const& c) final DISABLE_UBSAN {
           caches_[lb.index()] = globalBeginLuminosityBlockSummary(lb, c);
         }
 
