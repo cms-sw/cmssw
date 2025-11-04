@@ -532,7 +532,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       chunkIsFree_ = true;
     } else {
       //header was contiguous, but check if payload fits the chunk
-      if (eventChunkSize_ - currentFile_->chunkPosition_ < msgSize) {
+      if (eventChunkSize_ - (uint32_t)currentFile_->chunkPosition_ < msgSize) {
         //rewind to header start position
         currentFile_->rewindChunk(FRDHeaderVersionSize[detectedFRDversion_]);
         //copy event to a chunk start and move pointers
@@ -1528,12 +1528,12 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile* file) {
       }
     } else {
       //event didn't fit in last chunk, so leftover must be moved to the beginning and completed
-      uint32_t existingSizeLeft = eventChunkSize_ - file->chunkPosition_;
+      uint32_t existingSizeLeft = eventChunkSize_ - (uint32_t)file->chunkPosition_;
       memmove((void*)file->chunks_[0]->buf_, file->chunks_[0]->buf_ + file->chunkPosition_, existingSizeLeft);
 
       //calculate amount of data that can be added
-      const uint32_t blockcount = file->chunkPosition_ / eventChunkBlock_;
-      const uint32_t leftsize = file->chunkPosition_ % eventChunkBlock_;
+      const uint32_t blockcount = (uint32_t)file->chunkPosition_ / eventChunkBlock_;
+      const uint32_t leftsize = (uint32_t)file->chunkPosition_ % eventChunkBlock_;
 
       for (uint32_t i = 0; i < blockcount; i++) {
         const ssize_t last =
