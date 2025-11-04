@@ -344,9 +344,9 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
       l1ttripletemu::pxyz_t p3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * coshLUT_[coshIndex3];
 
       // Z-component track momenta
-      l1ttripletemu::pxyz_t pz1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * sinhLUT_[coshIndex1];
-      l1ttripletemu::pxyz_t pz2 = (l1ttripletemu::pxyz_t)trk2.f_Pt * sinhLUT_[coshIndex2];
-      l1ttripletemu::pxyz_t pz3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * sinhLUT_[coshIndex3];
+      l1ttripletemu::pxyz_t pz1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * sinhLUT_[sinhIndex1];
+      l1ttripletemu::pxyz_t pz2 = (l1ttripletemu::pxyz_t)trk2.f_Pt * sinhLUT_[sinhIndex2];
+      l1ttripletemu::pxyz_t pz3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * sinhLUT_[sinhIndex3];
 
       // Correct pz sign if eta is negative
       if (trk1.f_Eta < 0) {

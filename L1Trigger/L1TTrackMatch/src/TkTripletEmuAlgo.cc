@@ -9,7 +9,6 @@ namespace l1ttripletemu {
     for (unsigned int LUT_idx = 0; LUT_idx < l1ttripletemu::kCosLUTBins; LUT_idx++) {
       cosLUT.push_back((cos_lut_fixed_t)(cos(phi)));
       phi += stepPhi;
-      //std::cout << LUT_idx << "," << (cos_lut_fixed_t)(cos(phi)) << std::endl;
     }
     return cosLUT;
   }
@@ -21,7 +20,6 @@ namespace l1ttripletemu {
     for (unsigned int lut_idx = 0; lut_idx < l1ttripletemu::kCoshLUTBins; lut_idx++) {
       coshLUT.push_back((cosh_lut_fixed_t)(cosh(eta)));
       eta += stepEta;
-      //std::cout << LUT_idx << "," << (cosh_lut_fixed_t)(cosh(eta)) << std::endl;+= stepEta;
     }
     return coshLUT;
   }
@@ -33,7 +31,6 @@ namespace l1ttripletemu {
     for (unsigned int lut_idx = 0; lut_idx < l1ttripletemu::kSinhLUTBins; lut_idx++) {
       sinhLUT.push_back((sinh_lut_fixed_t)(sinh(eta)));
       eta += stepEta;
-      //std::cout << LUT_idx << "," << (sinh_lut_fixed_t)(sinh(eta)) << std::endl;+= stepEta;
     }
     return sinhLUT;
   }
