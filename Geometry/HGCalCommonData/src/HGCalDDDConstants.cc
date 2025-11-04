@@ -823,15 +823,15 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
 bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) const {
   // Check validity for a layer|eta|phi of scintillator
   const auto& indx = getIndex(layer, true);
-#ifdef EDM_ML_DEBUG
+  //#ifdef EDM_ML_DEBUG
   edm::LogWarning("HGCalGeomT") << "isValidTrap: Layer " << layer << " indx " << indx.first << ":"
                                 << hgpar_->firstLayer_ << ":" << hgpar_->firstMixedLayer_;
-#endif
+  //#endif
   if (indx.first < 0)
     return false;
   bool ok = ((hgpar_->scintValidRing(indx.first, irad)) && (iphi > 0) && (iphi <= hgpar_->scintCells(layer)));
   bool valid = ((ok && trapezoidFile()) ? tileExist(zside, layer, irad, iphi) : ok);
-#ifdef EDM_ML_DEBUG
+  //#ifdef EDM_ML_DEBUG
   bool tileEx = trapezoidFile() ? tileExist(zside, layer, irad, iphi) : true;
   if (!valid)
     edm::LogWarning("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":" << irad
@@ -844,7 +844,7 @@ bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) co
                                    << hgpar_->scintValidRing(indx.first, irad)
                                    << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
                                    << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
-#endif
+  //#endif
   return valid;
 }
 
@@ -1564,17 +1564,18 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
       auto itr = hgpar_->tileInfoMap_.find(indx);
       ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
 #ifdef EDM_ML_DEBUG
-      if (!ok)
-        edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-                                      << " Index " << index.first << ":" << (itr != hgpar_->tileInfoMap_.end())
-                                      << " ok " << ok;
-      if (HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi) !=
-          HGCalTileIndex::tileExist(itr->second.hex, zside, phi))
-        edm::LogVerbatim("HGCalGeom") << "Zside:Layer:Ring:Phi " << zside << ":" << layer << ":" << ring << ":" << phi
-                                      << " hex " << std::hex << itr->second.hex[0] << ":" << itr->second.hex[1] << ":"
-                                      << itr->second.hex[2] << ":" << itr->second.hex[3] << ":" << itr->second.hex[4]
-                                      << ":" << itr->second.hex[5] << std::dec << " OK " << ok << ":"
-                                      << HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi) << " CHECK";
+      if (!ok) {
+        if (itr == hgpar_->tileInfoMap_.end())
+          edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+                                        << " Index " << index.first << ":" << (itr != hgpar_->tileInfoMap_.end())
+                                        << " ok " << ok << " CHECK";
+        else
+          edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+                                        << " Index " << index.first << ":" << (itr != hgpar_->tileInfoMap_.end())
+                                        << " hex " << std::hex << itr->second.hex[0] << ":" << itr->second.hex[1] << ":"
+                                        << itr->second.hex[2] << ":" << itr->second.hex[3] << ":" << itr->second.hex[4]
+                                        << ":" << itr->second.hex[5] << std::dec << " OK " << ok << " CHECK";
+      }
 #endif
       return ok;
     }
