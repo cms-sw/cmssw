@@ -1,3 +1,6 @@
+++ finished: construction of Services
+++ starting: construction of EventSetup modules
+++ finished: construction of EventSetup modules
 ++ starting: constructing source: IntSource
 Module type=IntSource, Module label=source, Parameter Set ID=6f0b3d3a362a6270c801489bb066414a
 ++ finished: constructing source: IntSource
@@ -32,7 +35,17 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb0
 ++++ finished: constructing module with label 'intProducerU' id = 12
 ++++ starting: constructing module with label 'intVectorProducer' id = 13
 ++++ finished: constructing module with label 'intVectorProducer' id = 13
+++ starting: finalize Schedule
+++ finished: finalize Schedule
+++ starting: creation of Run, LuminosityBlock, and Event Principals
+++ finished: creation of Run, LuminosityBlock, and Event Principals
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
+++ starting: schedule consistency check
+++ finished: schedule consistency check
+++ starting: finalize EventSetup configuration
+++ finished: finalize EventSetup configuration
+++ starting: finalize EDModules' initialization
+++ finished: finalize EDModules' initialization
 ++ starting: begin job
 ++++ starting: begin job for module with label 'TriggerResults' id = 1
 ++++ finished: begin job for module with label 'TriggerResults' id = 1
