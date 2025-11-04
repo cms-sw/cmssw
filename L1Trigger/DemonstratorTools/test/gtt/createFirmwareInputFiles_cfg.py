@@ -168,6 +168,7 @@ process.l1tTrackTripletEmulation.pair1_massMin = -1
 process.l1tTrackTripletEmulation.pair1_massMax = 10e7
 process.l1tTrackTripletEmulation.pair2_massMin = -1
 process.l1tTrackTripletEmulation.pair2_massMax = 10e7
+# Turn off min and max delta Z cuts between triplet track pairs
 process.l1tTrackTripletEmulation.pair1_dzMin = -1
 process.l1tTrackTripletEmulation.pair1_dzMax = 10e7
 process.l1tTrackTripletEmulation.pair2_dzMin = -1
