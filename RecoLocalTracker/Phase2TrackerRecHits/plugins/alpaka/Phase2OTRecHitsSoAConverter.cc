@@ -226,9 +226,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // Select only P-hits from the OT barrel
           if (detIdIsP_[detId]) {
             int idx = moduleHitIndex++;
-            assert(idx < PHitsInOTBarrel);
+            assert(idx < PHitsInOT);
             auto hit = stripHitsSoA.view().trackingHits()[idx];
-            hit.xLocal() = recHit.localPosition().x();
+	    hit.xLocal() = recHit.localPosition().x();
             hit.yLocal() = recHit.localPosition().y();
             hit.xerrLocal() = recHit.localPositionError().xx();
             hit.yerrLocal() = recHit.localPositionError().yy();
