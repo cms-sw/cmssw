@@ -222,4 +222,6 @@ public:
 
 std::ostream& operator<<(std::ostream&, const BTLDetId&);
 
+std::stringstream printBTLSMDetId(uint32_t detId);
+
 #endif  // DataFormats_BTLDetId_BTLDetId_h
