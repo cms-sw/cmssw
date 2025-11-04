@@ -60,7 +60,6 @@ namespace reco {
     // Layers params
     const std::vector<double> caThetaCuts_;
     const std::vector<double> caDCACuts_;
-    const std::vector<int> isBarrel_;
 
     // Cells params
     const std::vector<unsigned int> pairGraph_;
@@ -274,7 +273,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef GPU_DEBUG
                 std::cout << "OT LayerStart: CA layer " << layerCount << " at subdetector layer " << layer
                           << " starts at module " << n_modules << " and is "
-                          << (isBarrel(detid) ? "barrel" : "not barrel") << std::endl;
+                          << (isBarrel(detid) ? "barrel" : "not barrel") << std::endl;                         
 #endif
                 layerIsBarrel[layerCount] = isBarrel(detid);
                 layerStarts[layerCount++] = n_modules;

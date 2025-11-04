@@ -343,9 +343,13 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   // function that returns the number of skipped layers for a given pair of RecHits
   // for the case where the inner RecHit is in the OT barrel.
   auto getNSkippedLayersInnerInOT = [&](const DetId &innerDetId, const DetId &outerDetId) {
+    int nSkippedLayers=0;
     assert(outerDetId.subdetId() == StripSubdetector::TOB || outerDetId.subdetId() == StripSubdetector::TID);
-    int nSkippedLayers =
-        trackerTopology.getOTLayerNumber(outerDetId) - trackerTopology.getOTLayerNumber(innerDetId) - 1;
+    switch (outerDetId.subdetId()) {
+      case StripSubdetector::TOB:
+        nSkippedLayers = trackerTopology.getOTLayerNumber(outerDetId) - trackerTopology.getOTLayerNumber(innerDetId) - 1;
+        break;
+    }
     return nSkippedLayers;
   };
 
@@ -369,6 +373,8 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       case StripSubdetector::TOB:
         nSkippedLayers = getNSkippedLayersInnerInOT(innerDetId, outerDetId);
         break;
+      // case StripSubdetector::TID not needed, to be implemented if necessary
+      // hint: use trackerTopology.tidWheel(detId)
     }
     return nSkippedLayers;
   };
@@ -431,17 +437,27 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     hits.resize(nHits - nRemovedHits);
     end = end - nRemovedHits;
 
-    // implement custome requirement for quadruplets coming from consecutive layers
+    // implement custom requirement for quadruplets coming from consecutive layers
+    // the requirement is not asked if at least one hit belongs to the TID 
     if (requireQuadsFromConsecutiveLayers_ && (nHits == 4)) {
       bool skipThisTrack{false};
       // loop over layer pairs and check if they skip
       for (auto iHit = start; iHit < end - 1; ++iHit) {
+        auto innerRecHit = hits[iHit - start];
+        auto outerRecHit = hits[iHit - start + 1];
+        auto innerDetId  = innerRecHit->geographicalId();
+        auto outerDetId  = outerRecHit->geographicalId();
         // if the inner (iHit-start) to outer (iHit-start+1) hit layer-change skips 1 or more
         // layers skipt the track
-        if (getNSkippedLayers(hits[iHit - start], hits[iHit - start + 1]) > 0) {
-          skipThisTrack = true;
+        bool skippedLayers = getNSkippedLayers(innerRecHit, outerRecHit) > 0;
+        bool isTID = (innerDetId.subdetId()==StripSubdetector::TID ||
+                      outerDetId.subdetId()==StripSubdetector::TID);
+        if(isTID){
+          skipThisTrack = false;
           break;
         }
+        if (skippedLayers) 
+          skipThisTrack = true;
       }
       if (skipThisTrack) {
         indToEdm[it] = pixelTrack::skippedTrack;  // mark as skipped
