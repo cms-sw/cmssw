@@ -30,10 +30,10 @@ namespace l1ct {
   // LUT function for inverse x
   template <class data_T, class table_T, int N>
   table_T inv_table(int idx) {
-      float x = real_val_from_idx<data_T, N>(idx);
-      table_T inv_x = 1 / x;
-      return inv_x;
-    }
+    float x = real_val_from_idx<data_T, N>(idx);
+    table_T inv_x = 1 / x;
+    return inv_x;
+  }
 
   template <class in_t, class table_t, int N>
   table_t invert_with_shift(in_t in) {
@@ -48,7 +48,7 @@ namespace l1ct {
     in_t in_shifted = in << (in.width - msb - 1);
     // lookup the inverse of the shifted input
     int idx = idx_from_real_val<in_t, N>(in_shifted);
-    table_t inv_in = inv_table<in_t,table_t,N>(idx);
+    table_t inv_in = inv_table<in_t, table_t, N>(idx);
     // shift the output back
     table_t out = inv_in << (in.width - msb - 1);
     return out;
