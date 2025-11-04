@@ -252,8 +252,12 @@ def miniAODFromMiniAOD_customizeCommon(process):
         if not (storePNetCHSjets or storeUParTPUPPIjets): return process
         noUpdatedTauName = f'{tausToUpdate}NoUTag'
         updatedTauName = ''
-        addToProcessAndTask(noUpdatedTauName, getattr(process, tausToUpdate).clone(), process, task)
-        delattr(process, tausToUpdate)
+        if '@skipCurrentProcess' in tausToUpdate or not hasattr(process, tausToUpdate):
+            noUpdatedTauName = tausToUpdate
+            tausToUpdate = noUpdatedTauName.partition(':')[0]+'Updated'
+        else:
+            addToProcessAndTask(noUpdatedTauName, getattr(process, tausToUpdate).clone(), process, task)
+            delattr(process, tausToUpdate)
         if addGenJet:
             from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
             addToProcessAndTask('tauGenJets',
@@ -345,6 +349,8 @@ def miniAODFromMiniAOD_customizeCommon(process):
                        storeUParTPUPPIjets = m2m_uTagToTaus_switches.storeUParTPUPPIjets.value(),
                        addGenJet = m2m_uTagToTaus_switches.addGenJet.value()
     )
+    if m2m_uTagToTaus_switches.storePNetCHSjets.value() or m2m_uTagToTaus_switches.storeUParTPUPPIjets.value():
+        taus_to_use = 'slimmedTausUpdated'
 
     addToProcessAndTask("slimmedTaus", cms.EDProducer("PATTauCandidatesRekeyer",
                                                       src = cms.InputTag(taus_to_use),
