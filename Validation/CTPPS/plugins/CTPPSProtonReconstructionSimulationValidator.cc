@@ -215,16 +215,16 @@ CTPPSProtonReconstructionSimulationValidator::CTPPSProtonReconstructionSimulatio
 
 void CTPPSProtonReconstructionSimulationValidator::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
   desc.add<std::string>("lhcInfoPerLSLabel", "")->setComment("label of the LHCInfoPerLS record");
   desc.add<std::string>("lhcInfoPerFillLabel", "")->setComment("label of the LHCInfoPerFill record");
   desc.add<bool>("useNewLHCInfo", false)->setComment("flag whether to use new LHCInfoPer* records or old LHCInfo");
-
+  desc.add<edm::InputTag>("tagHepMCBeforeSmearing", edm::InputTag("generator", "unsmeared"));
+  desc.add<edm::InputTag>("tagHepMCAfterSmearing", edm::InputTag("beamDivergenceVtxGenerator"));
+  desc.add<InputTag>("tagRecoProtonsSingleRP", edm::InputTag("ctppsProtons", "singleRP"));
+  desc.add<InputTag>("tagRecoProtonsMultiRP", edm::InputTag("ctppsProtons", "multiRP"));
   desc.add<std::string>("outputFile", "output.root")->setComment("output file name");
-
   desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
-
   descriptions.add("ctppsProtonReconstructionSimulationValidatorDefault", desc);
 }
 

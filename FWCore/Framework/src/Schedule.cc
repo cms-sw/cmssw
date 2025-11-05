@@ -902,10 +902,12 @@ namespace edm {
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           std::string const& iProcessName) {
-    preModulesInitializationFinalizedSignal_();
-    auto post = [this](void*) { postModulesInitializationFinalizedSignal_(); };
-    std::unique_ptr<void, decltype(post)> const postGuard(this, post);
-    finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+    {
+      preModulesInitializationFinalizedSignal_();
+      auto post = [this](void*) { postModulesInitializationFinalizedSignal_(); };
+      std::unique_ptr<void, decltype(post)> const postGuard(this, post);
+      finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+    }
     globalSchedule_->beginJob(*moduleRegistry_);
   }
 

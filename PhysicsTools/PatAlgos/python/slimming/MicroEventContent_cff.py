@@ -173,7 +173,7 @@ _upc_extraCommands = [
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 run3_upc.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _upc_extraCommands)
 
-_dedx_extraCommands = ["keep recoDeDxDataedmValueMap_dedxEstimator_*_*"]
+_dedx_extraCommands = ["keep recoDeDxDataedmValueMap_dedxEstimator_dedxAllLikelihood_*"]
 from Configuration.Eras.Modifier_dedx_lfit_cff import dedx_lfit
 dedx_lfit.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _dedx_extraCommands)
 

@@ -84,6 +84,11 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
         ieta28 = cms.int32(0)
     ),
 
+    overrideHBLLP = cms.bool(False), ## switch: False = read thresholds from TPParameters (default), True = override with HB_LLP_thresholds                                                         
+    ## defaults for energy requirement for bits 12-15 are high / low to avoid FG bit 0-4 being set when not intended                                                                                              
+    HB_LLP_thresholds = cms.vuint32(0, 0, 999, 999),  ## default energy thresholds for setting HB LLP bit                                                                                           
+                                                      ## depths 1,2 max energy, depths 3+ min energy, prompt min energy, delayed min energy                                            
+
     overrideDBvetoThresholdsHB = cms.bool(False),
     overrideDBvetoThresholdsHE = cms.bool(False),
     numberOfSamples = cms.int32(4),

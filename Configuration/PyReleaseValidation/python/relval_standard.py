@@ -579,6 +579,9 @@ workflows[143.911] = ['',['RunUPC2024','RECODR3_2025_OXY','HARVESTDPROMPTR3']]
 workflows[143.912] = ['',['RunUPC2024','RECODR3_2025_UPC_OXY','HARVESTDPROMPTR3']]
 workflows[143.921] = ['',['RunUPC2024','RECODR3_2025_OXY_SKIMIONPHYSICS0','HARVESTDPROMPTR3']]
 
+### run3-2025 skim (2025 HI MC temp)
+workflows[143.203] = ['',['HydjetQ_MinBias_5362GeV_2025','DIGIHI2024','RAWPRIMESIMHI18','SKIMHIPHYSICSRAWPRIMERUN3_2025','HARVESTHI2025S4']]
+
 ## special HLT scouting workflow (with hardcoded private input file from ScoutingPFMonitor skimmed to remove all events without scouting)
 workflows[145.415] = ['',['HLTDR3_ScoutingPFMonitor_2024','RECONANORUN3_ScoutingPFMonitor_reHLT_2024','HARVESTRUN3_ScoutingPFMonitor_2024']]
 

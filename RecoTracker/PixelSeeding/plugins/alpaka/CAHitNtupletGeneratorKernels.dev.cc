@@ -57,8 +57,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef GPU_DEBUG
     std::cout << "Allocation for tuple building with: " << std::endl;
     std::cout << "- nHits          = " << nHits << std::endl;
-    std::cout << "- maxDoublets    = " << maxTuples << std::endl;
-    std::cout << "- maxTracks      = " << maxDoublets << std::endl;
+    std::cout << "- maxDoublets    = " << maxDoublets << std::endl;
+    std::cout << "- maxTracks      = " << maxTuples << std::endl;
 
     std::cout << "- nCellsToCells  = " << nCellsToCells << std::endl;
     std::cout << "- nHitsToCells   = " << nHitsToCells << std::endl;
@@ -800,6 +800,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase1>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase2>;
+  template class CAHitNtupletGeneratorKernels<pixelTopology::Phase2OT>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::HIonPhase1>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

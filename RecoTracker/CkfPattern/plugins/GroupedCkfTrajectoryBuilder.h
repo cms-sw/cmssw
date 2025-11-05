@@ -30,7 +30,7 @@ public:
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   /// set Event for the internal MeasurementTracker data member
-  //  virtual void setEvent(const edm::Event& event) const;
+  //  void setEvent(const edm::Event& event) const;
 
   /// trajectories building starting from a seed
   TrajectoryContainer trajectories(const TrajectorySeed&) const override;
@@ -87,10 +87,10 @@ public:
 protected:
   void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  virtual void analyseSeed(const TrajectorySeed& seed) const {}
+  void analyseSeed(const TrajectorySeed& seed) const {}
 
-  virtual void analyseMeasurements(const std::vector<TM>& meas, const Trajectory& traj) const {}
-  virtual void analyseResult(const TrajectoryContainer& result) const {}
+  void analyseMeasurements(const std::vector<TM>& meas, const Trajectory& traj) const {}
+  void analyseResult(const TrajectoryContainer& result) const {}
 
 private:
   //  /// no copy constructor

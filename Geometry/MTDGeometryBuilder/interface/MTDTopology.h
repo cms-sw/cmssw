@@ -32,6 +32,7 @@ public:
 
     std::array<std::vector<int>, 2> start_copy_;  // start copy per row, first of type idDetType1_
     std::array<std::vector<int>, 2> offset_;      // offset per row, first of type idDetType1_
+    std::array<std::vector<int>, 2> services_;    // service hybrids disposition within each disk
   };
 
   using ETLValues = std::vector<ETLfaceLayout>;
@@ -54,15 +55,16 @@ public:
   uint32_t phishiftBTL(const uint32_t detid, const int phiShift) const;
   uint32_t etashiftBTL(const uint32_t detid, const int etaShift) const;
 
-  // ETL topology navigation is based on a predefined order of dets in sector
-
-  static bool orderETLSector(const GeomDet*& gd1, const GeomDet*& gd2);
-
   // navigation methods in ETL topology, provide the index of the det next to DetId for
   // horizontal and vertical shifts in both directions, assuming the predefined order in a sector
 
+  size_t servtomoduleETL(const uint32_t detid) const;
   size_t hshiftETL(const uint32_t detid, const int horizontalShift) const;
   size_t vshiftETL(const uint32_t detid, const int verticalShift, size_t& closest) const;
+
+  // ETL topology navigation is based on a predefined order of dets in sector
+
+  static bool orderETLSector(const GeomDet*& gd1, const GeomDet*& gd2);
 
 private:
   const int mtdTopologyMode_;

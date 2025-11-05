@@ -97,6 +97,8 @@ HLTriggerMINIAODSIM = cms.PSet(
 HLTDebugRAW = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *RecHit*_hltSiPixelRecHitsSoASerialSync_*_*',
+        'keep *RecHit*_hltSiPixelRecHitsSoA_*_*',
         'keep *_hltAK4CaloJetsCorrectedIDPassed_*_*',
         'keep *_hltAK4CaloJetsIDPassed_*_*',
         'keep *_hltAK4CaloJets_*_*',
@@ -215,8 +217,12 @@ HLTDebugRAW = cms.PSet(
         'keep *_hltParticleNetDiscriminatorsJetTags_*_*',
         'keep *_hltParticleNetJetTagInfos_*_*',
         'keep *_hltPixelTracksPPOnAA_*_*',
+        'keep *_hltPixelTracksSoASerialSync_*_*',
+        'keep *_hltPixelTracksSoA_*_*',
         'keep *_hltPixelTracks_*_*',
         'keep *_hltPixelVerticesPPOnAA_*_*',
+        'keep *_hltPixelVerticesSoASerialSync_*_*',
+        'keep *_hltPixelVerticesSoA_*_*',
         'keep *_hltPixelVertices_*_*',
         'keep *_hltRpcRecHits_*_*',
         'keep *_hltSelector4CentralJetsL1FastJet_*_*',
@@ -278,6 +284,8 @@ HLTDebugRAW = cms.PSet(
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *RecHit*_hltSiPixelRecHitsSoASerialSync_*_*',
+        'keep *RecHit*_hltSiPixelRecHitsSoA_*_*',
         'keep *_hltAK4CaloJetsCorrectedIDPassed_*_*',
         'keep *_hltAK4CaloJetsIDPassed_*_*',
         'keep *_hltAK4CaloJets_*_*',
@@ -396,8 +404,12 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltParticleNetDiscriminatorsJetTags_*_*',
         'keep *_hltParticleNetJetTagInfos_*_*',
         'keep *_hltPixelTracksPPOnAA_*_*',
+        'keep *_hltPixelTracksSoASerialSync_*_*',
+        'keep *_hltPixelTracksSoA_*_*',
         'keep *_hltPixelTracks_*_*',
         'keep *_hltPixelVerticesPPOnAA_*_*',
+        'keep *_hltPixelVerticesSoASerialSync_*_*',
+        'keep *_hltPixelVerticesSoA_*_*',
         'keep *_hltPixelVertices_*_*',
         'keep *_hltRpcRecHits_*_*',
         'keep *_hltSelector4CentralJetsL1FastJet_*_*',

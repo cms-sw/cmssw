@@ -24,7 +24,7 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'                   :    '131X_mcRun2_pA_v3',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'                    :    '141X_dataRun2_v3',
+    'run2_data'                    :    '150X_dataRun2_v1',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_HEfail'             :    '140X_dataRun2_HEfail_v1',
     # GlobalTag for Run2 HI data
@@ -108,7 +108,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2025, Strip tracker in DECO mode
     'phase1_2025_cosmics'          :    '150X_mcRun3_2025cosmics_realistic_deco_v4',
     # GlobalTag for MC production with realistic conditions for Phase1 2025 detector for Heavy Ion
-    'phase1_2025_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_v1',
+    'phase1_2025_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_v2',
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'             :    '150X_mcRun4_realistic_v1'
 }

@@ -29,24 +29,24 @@ public:
   ~MuonTransientTrackingRecHit() override {}
 
   /// Direction in 3D for segments, otherwise (0,0,0)
-  virtual LocalVector localDirection() const;
+  LocalVector localDirection() const;
 
   /// Direction in 3D for segments, otherwise (0,0,0)
-  virtual GlobalVector globalDirection() const;
+  GlobalVector globalDirection() const;
 
   /// Error on the local direction
-  virtual LocalError localDirectionError() const;
+  LocalError localDirectionError() const;
 
   /// Error on the global direction
-  virtual GlobalError globalDirectionError() const;
+  GlobalError globalDirectionError() const;
 
   AlgebraicSymMatrix parametersError() const override;
 
   /// Chi square of the fit for segments, else 0
-  virtual double chi2() const;
+  double chi2() const;
 
   /// Degrees of freedom for segments, else 0
-  virtual int degreesOfFreedom() const;
+  int degreesOfFreedom() const;
 
   /// if this rec hit is a DT rec hit
   bool isDT() const;
@@ -66,7 +66,7 @@ public:
   /// return the sub components of this transient rechit
   ConstRecHitContainer transientHits() const override;
 
-  /// FIXME virtual ConstMuonRecHitContainer specificTransientHits() const;
+  /// FIXME ConstMuonRecHitContainer specificTransientHits() const;
 
   static RecHitPointer build(const GeomDet* geom, const TrackingRecHit* rh) {
     return RecHitPointer(new MuonTransientTrackingRecHit(geom, rh));

@@ -61,7 +61,7 @@ public:
 
 private:
   /// common part for propagation to point and line
-  virtual std::pair<bool, double> pathLengthFromCoefficients(const double ceq[4]) const dso_internal;
+  std::pair<bool, double> pathLengthFromCoefficients(const double ceq[4]) const dso_internal;
   /// Solutions of 3rd order equation
   int solve3rdOrder(const double ceq[], double sol[]) const dso_internal;
   /// Solutions of 2nd order equation

@@ -7,7 +7,6 @@
 
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/debug.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h"
 
@@ -135,9 +134,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
 #ifdef BL_DUMP_HITS
-          bool dump = foundNtuplets->size(tkid) == 5;
+          bool dump = foundNtuplets->size(tkid) >= 4;
           if (dump) {
-            printf("Track id %d %d Hit %d on %d\nGlobal: hits.col(%d) << %f,%f,%f\n",
+            printf("Track local_id %d tkid: %d Hit %d on det: %d\nGlobal: hits.col(%d) << x: %f,y: %f, r(%f),z: %f\n",
                    local_idx,
                    tkid,
                    hit,
@@ -145,7 +144,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                    i,
                    hh[hit].xGlobal(),
                    hh[hit].yGlobal(),
+                   sqrt(hh[hit].xGlobal() * hh[hit].xGlobal() + hh[hit].yGlobal() * hh[hit].yGlobal()),
                    hh[hit].zGlobal());
+            printf("Local Error(%d): x2: %e, x[um]: %e, y2: %e, y[um]: %e\n",
+                   i,
+                   hh[hit].xerrLocal(),
+                   1.e4 * sqrt(hh[hit].xerrLocal()),
+                   hh[hit].yerrLocal(),
+                   1.e4 * sqrt(hh[hit].yerrLocal()));
+            printf("Error: hits_ge.col(%d) x[um]: %e, y[um]: %e, z[um]: %e\n",
+                   i,
+                   1.e4 * sqrt(ge[0]),
+                   1.e4 * sqrt(ge[2]),
+                   1.e4 * sqrt(ge[5]));
             printf("Error: hits_ge.col(%d) << %e,%e,%e,%e,%e,%e\n", i, ge[0], ge[1], ge[2], ge[3], ge[4], ge[5]);
           }
 #endif
@@ -154,6 +165,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
         }
         brokenline::fastFit(acc, hits, fast_fit);
+#if 0
+      printf("Fast Fit: %f, %f, %f, %f\n", fast_fit(0), fast_fit(1), fast_fit(2), fast_fit(3));
+#endif
 
 #ifdef BROKENLINE_DEBUG
         // any NaN value should cause the track to be rejected at a later stage
@@ -177,9 +191,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
                                   double *__restrict__ pfast_fit) const {
-      // workaround for #47808
-      debug::do_not_optimise(results_view);
-
       ALPAKA_ASSERT_ACC(results_view.pt().data());
       ALPAKA_ASSERT_ACC(results_view.eta().data());
       ALPAKA_ASSERT_ACC(results_view.chi2().data());
@@ -218,7 +229,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef BROKENLINE_DEBUG
         if (!(circle.chi2 >= 0) || !(line.chi2 >= 0))
           printf("kernelBLFit failed! %f/%f\n", circle.chi2, line.chi2);
-        printf("kernelBLFit size %d for %d hits circle.par(0,1,2): %d %f,%f,%f\n",
+        printf("kernelBLFit size %d for %d hits of tkid %d circle.par(0,1,2): %f,%f,%f\n",
                N,
                N,
                tkid,
@@ -226,7 +237,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                circle.par(1),
                circle.par(2));
         printf("kernelBLHits line.par(0,1): %d %f,%f\n", tkid, line.par(0), line.par(1));
-        printf("kernelBLHits chi2 cov %f/%f  %e,%e,%e,%e,%e\n",
+        printf("kernelBLHits chi2_circle: %f chi2_line: %f, cov(0-3)_circle: %e, %e, %e cov(1-2)_line %e,%e\n",
                circle.chi2,
                line.chi2,
                circle.cov(0, 0),
@@ -418,6 +429,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template class HelixFit<pixelTopology::Phase1>;
   template class HelixFit<pixelTopology::Phase2>;
+  template class HelixFit<pixelTopology::Phase2OT>;
   template class HelixFit<pixelTopology::HIonPhase1>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

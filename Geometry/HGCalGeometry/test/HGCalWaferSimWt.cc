@@ -62,7 +62,7 @@ void HGCalWaferSimWt::analyze(const edm::Event& /*iEvent*/, const edm::EventSetu
       HGCSiliconDetId hid(id);
       auto cell = geom->getPosition(hid, false);
       int type = hid.type();
-      int waferU = (hid.zside() > 0) ? -hid.waferU() : hid.waferU();
+      int waferU = hid.waferU();
       int part = geom->topology().dddConstants().partialWaferType(hid.layer(), waferU, hid.waferV());
       int idx = part * 10 + type;
       if (std::find(idxs.begin(), idxs.end(), idx) == idxs.end()) {
