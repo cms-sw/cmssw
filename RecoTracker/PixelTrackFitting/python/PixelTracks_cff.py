@@ -112,24 +112,8 @@ pixelTracksAlpaka = _pixelTracksAlpakaPhase1.clone(
     maxNumberOfDoublets = str(512*1024),    # could be lowered to 315k, keeping the same for a fair comparison with master
     maxNumberOfTuples   = str(32 * 1024),   # this couul be much lower (2.1k, these are quads)
 )
-phase2_tracker.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2.clone())
-def _modifyForPhase2(producer):
-    nPairs = int(len(producer.geometry.pairGraph) / 2)
-    producer.maxNumberOfDoublets = str(5*512*1024)
-    producer.maxNumberOfTuples = str(256 * 1024)
-    producer.avgHitsPerTrack = 7.0
-    producer.avgCellsPerHit = 6
-    producer.avgCellsPerCell = 0.151
-    producer.avgTracksPerCell = 0.040
-    producer.cellZ0Cut = 7.5
-    producer.minYsizeB1 = 25
-    producer.minYsizeB2 = 15
-    producer.maxDYsize12 = 12
-    producer.maxDYsize = 10
-    producer.maxDYPred = 20
-    producer.geometry.ptCuts = [0.85] * nPairs
 
-phase2_tracker.toModify(pixelTracksAlpaka, _modifyForPhase2)
+phase2_tracker.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2.clone())
 
 def _modifyForPPonAAandNotPhase2(producer):
     nPairs = int(len(producer.geometry.pairGraph) / 2)
@@ -143,7 +127,6 @@ def _modifyForPPonAAandNotPhase2(producer):
     producer.geometry.ptCuts = [0.5] * nPairs            # setup currenlty used @ HLT (was 0.0) 
 
 (pp_on_AA & ~phase2_tracker).toModify(pixelTracksAlpaka, _modifyForPPonAAandNotPhase2)
-
 
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
 phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2Extended.clone(
