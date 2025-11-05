@@ -154,6 +154,17 @@ void ThroughputService::postEndJob() {
   double throughput_avg = double(m_resolution) / time_avg;
   double throughput_dev = double(m_resolution) * time_dev / time_avg / time_avg;
 
+  const char* out_path = std::getenv("THROUGHPUT_LOG_FILE");
+  if (out_path != nullptr && std::strlen(out_path) > 0) {
+    std::ofstream out(out_path, std::ios::app);  // append mode
+    const char* exp_name = std::getenv("EXPERIMENT_NAME");
+    out << "[THROUGHPUT] "
+        << (exp_name ? exp_name : "unknown_experiment") << " | "
+        << "avg: " << throughput_avg
+        << " ± " << throughput_dev << " ev/s\n";
+    out.close();
+  }
+
   info << "Average throughput: " << throughput_avg << " ± " << throughput_dev << " ev/s";
 }
 
