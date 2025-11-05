@@ -16,6 +16,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineDxy.h"
+#include "hls4ml/emulator.h"
 
 class EMTFSetup {
 public:
@@ -72,6 +73,9 @@ private:
   unsigned fw_ver_;
   unsigned pt_lut_ver_;
   unsigned pc_lut_ver_;
+
+  hls4mlEmulator::ModelLoader loader;
+  std::shared_ptr<hls4mlEmulator::Model> model;
 };
 
 #endif
