@@ -107,8 +107,8 @@ public:
 
   tbb::concurrent_vector<InputChunk*> chunks_;
 
-  uint32_t bufferPosition_ = 0;
-  uint32_t chunkPosition_ = 0;
+  uint64_t bufferPosition_ = 0;
+  uint64_t chunkPosition_ = 0;
   unsigned int currentChunk_ = 0;
 
   InputFile(evf::EvFDaqDirector::FileStatus status,
