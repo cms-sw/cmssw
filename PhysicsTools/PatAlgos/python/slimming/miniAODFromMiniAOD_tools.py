@@ -176,7 +176,7 @@ def miniAODFromMiniAOD_customizeCommon(process):
 
     jets_ak4chs_to_use = 'slimmedJets::@skipCurrentProcess'
     for flag in m2m_addDeepInfoAK4CHS_switch._Parameterizable__parameterNames:
-        if flag:
+        if m2m_addDeepInfoAK4CHS_switch.getParameter(flag).value():
             jets_ak4chs_to_use = 'slimmedJetsWithDeepInfo'
             break
 
@@ -250,14 +250,6 @@ def miniAODFromMiniAOD_customizeCommon(process):
                            storeUParTPUPPIjets = False,
                            addGenJet = False):
         if not (storePNetCHSjets or storeUParTPUPPIjets): return process
-        noUpdatedTauName = f'{tausToUpdate}NoUTag'
-        updatedTauName = ''
-        if '@skipCurrentProcess' in tausToUpdate or not hasattr(process, tausToUpdate):
-            noUpdatedTauName = tausToUpdate
-            tausToUpdate = noUpdatedTauName.partition(':')[0]+'Updated'
-        else:
-            addToProcessAndTask(noUpdatedTauName, getattr(process, tausToUpdate).clone(), process, task)
-            delattr(process, tausToUpdate)
         if addGenJet:
             from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
             addToProcessAndTask('tauGenJets',
@@ -273,14 +265,14 @@ def miniAODFromMiniAOD_customizeCommon(process):
             jetCollection = jets_ak4chs_to_use
             TagName = 'pfParticleNetFromMiniAODAK4CHSCentralJetTags'
             tag_prefix = 'byUTagCHS'
-            updatedTauName = f'{tausToUpdate}WithUTagCHS'
+            updatedTauName = 'slimmedTausWithUTagCHS'
             # PNet tagger used for CHS jets
             from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralJetTags
             Discriminators = [TagName+":"+tag for tag in pfParticleNetFromMiniAODAK4CHSCentralJetTags.flav_names.value()]
             # Define "hybridTau" producer
             setattr(process, updatedTauName,
                     patTauHybridProducer.clone(
-                        src = noUpdatedTauName,
+                        src = tausToUpdate,
                         jetSource = jetCollection,
                         dRMax = 0.4,
                         jetPtMin = 15,
@@ -305,14 +297,14 @@ def miniAODFromMiniAOD_customizeCommon(process):
             jetCollection = 'slimmedJetsPuppiPreRekey'
             TagName = 'pfUnifiedParticleTransformerAK4JetTags'
             tag_prefix = 'byUTagPUPPI'
-            updatedTauName = f'{tausToUpdate}WithUTagPUPPI' if not storePNetCHSjets else f'{tausToUpdate}WithUTagCHSAndUTagPUPPI'
+            updatedTauName = 'slimmedTausWithUTagPUPPI' if not storePNetCHSjets else 'slimmedTausWithUTagCHSAndUTagPUPPI'
             # Unified ParT Tagger used for PUPPI jets
             from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4JetTags_cfi import pfUnifiedParticleTransformerAK4JetTags
             Discriminators = [TagName+":"+tag for tag in pfUnifiedParticleTransformerAK4JetTags.flav_names.value()]
             # Define "hybridTau" producer
             setattr(process, updatedTauName,
                     patTauHybridProducer.clone(
-                        src = noUpdatedTauName if not storePNetCHSjets else f'{tausToUpdate}WithUTagCHS',
+                        src = tausToUpdate if not storePNetCHSjets else 'slimmedTausWithUTagCHS',
                         jetSource = jetCollection,
                         dRMax = 0.4,
                         jetPtMin = 15,
@@ -333,7 +325,7 @@ def miniAODFromMiniAOD_customizeCommon(process):
                                     process, task)
                 getattr(process,updatedTauName).genJetMatch = 'tauGenJetMatchPUPPIJet'
         # Add "hybridTau" producer to pat-task
-        addToProcessAndTask(tausToUpdate,
+        addToProcessAndTask('slimmedTausUpdatedWithUTags',
                             getattr(process, updatedTauName).clone(),
                             process, task)
         return process
@@ -350,7 +342,7 @@ def miniAODFromMiniAOD_customizeCommon(process):
                        addGenJet = m2m_uTagToTaus_switches.addGenJet.value()
     )
     if m2m_uTagToTaus_switches.storePNetCHSjets.value() or m2m_uTagToTaus_switches.storeUParTPUPPIjets.value():
-        taus_to_use = 'slimmedTausUpdated'
+        taus_to_use = 'slimmedTausUpdatedWithUTags'
 
     addToProcessAndTask("slimmedTaus", cms.EDProducer("PATTauCandidatesRekeyer",
                                                       src = cms.InputTag(taus_to_use),
