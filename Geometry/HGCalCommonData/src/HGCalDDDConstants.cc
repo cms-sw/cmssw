@@ -823,15 +823,15 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
 bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) const {
   // Check validity for a layer|eta|phi of scintillator
   const auto& indx = getIndex(layer, true);
-  //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogWarning("HGCalGeomT") << "isValidTrap: Layer " << layer << " indx " << indx.first << ":"
                                 << hgpar_->firstLayer_ << ":" << hgpar_->firstMixedLayer_;
-  //#endif
+#endif
   if (indx.first < 0)
     return false;
   bool ok = ((hgpar_->scintValidRing(indx.first, irad)) && (iphi > 0) && (iphi <= hgpar_->scintCells(layer)));
   bool valid = ((ok && trapezoidFile()) ? tileExist(zside, layer, irad, iphi) : ok);
-  //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
   bool tileEx = trapezoidFile() ? tileExist(zside, layer, irad, iphi) : true;
   if (!valid)
     edm::LogWarning("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":" << irad
@@ -844,7 +844,7 @@ bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) co
                                    << hgpar_->scintValidRing(indx.first, irad)
                                    << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
                                    << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
-  //#endif
+#endif
   return valid;
 }
 
@@ -1757,7 +1757,6 @@ void HGCalDDDConstants::waferFromPosition(const double x,
     edm::LogVerbatim("HGCalGeom") << "waferFromPosition:: Layer " << layer << ":" << ll << " Rot " << rotx << " X " << x
                                   << ":" << xx << " Y " << y << ":" << yy << " side " << zside << " extend " << extend
                                   << " initial wafer index " << waferU << ":" << waferV;
-  ;
   double rmax = extend ? rmaxT_ : rmax_;
   double hexside = extend ? hexsideT_ : hexside_;
   if (waferin) {
@@ -1913,8 +1912,9 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                     << hexside;
     }
   }
-  edm::LogVerbatim("HGCalGeom") << "Input x:y:layer " << x << ":" << y << ":" << layer << " Wafer " << waferU << ":"
-                                << waferV << " Cell " << cellU << ":" << cellV << ":" << celltype << " wt " << wt;
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "Input x:y:layer " << x << ":" << y << ":" << layer << " Wafer " << waferU << ":"
+				  << waferV << " Cell " << cellU << ":" << cellV << ":" << celltype << " wt " << wt;
 }
 
 bool HGCalDDDConstants::waferInLayer(int wafer, int lay, bool reco) const {
