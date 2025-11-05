@@ -38,7 +38,7 @@ process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
     #fileNames = cms.untracked.vstring('file:Geometry/TrackerCommonData/data/CRack_PhaseII/step1.root'),
     #replace this file with the file in your local directory.
-    fileNames = cms.untracked.vstring('file:step1_5M.root'),
+    fileNames = cms.untracked.vstring('file:step1.root'),
     inputCommands = cms.untracked.vstring(
         'keep *',
         'drop *_genParticles_*_*',
@@ -160,7 +160,7 @@ process.digitisation_step = cms.Path( cms.SequencePlaceholder("randomEngineState
 process.clusterization_step = cms.Path(process.siPhase2Clusters)
 process.L1TrackTrigger_step = cms.Path(process.L1TrackTrigger)
 process.L1TrackTrigger.remove(process.TrackTriggerAssociatorClustersStubs)
-process.L1TrackTrigger.remove(process.TrackerDTCProducer)
+process.L1TrackTrigger.remove(process.ProducerDTC)
 process.L1TrackTrigger.remove(process.L1TExtendedHybridTracks)
 process.L1TrackTrigger.remove(process.L1THybridTracksWithAssociators)
 process.L1TrackTrigger.remove(process.L1TPromptExtendedHybridTracksWithAssociators)
