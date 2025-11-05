@@ -469,9 +469,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                          ? kMaxSeedStrips
                                          : clusterDataObj.prefixSeedStripsNCMask(nStrips - 1);
 
-      const uint16_t* chanArr = stripDataObj.channel();
-      const uint16_t* stripIdArr = stripDataObj.stripId();
-      const uint8_t* adcArr = stripDataObj.adc();
+      const auto& chanArr = stripDataObj.channel();
+      const auto& stripIdArr = stripDataObj.stripId();
+      const auto& adcArr = stripDataObj.adc();
 
       const float channelThreshold = clusterDataObj.channelThreshold();
       const float clusterThresholdSquared = clusterDataObj.clusterThresholdSquared();
@@ -618,7 +618,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       constexpr int charge_low_saturation = 253;
       constexpr int charge_high_saturation = 1022;
       //
-      uint32_t* clusterIndexArr = clusters.clusterIndex();
+      const auto& clusterIndexArr = clusters.clusterIndex();
 
       for (auto i : uniform_elements(acc, clusters.nClusterCandidates())) {
         if (clusters.candidateAccepted(i)) {
@@ -710,17 +710,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
       // Use N single-block prefix scan, then update all blocks after the first one.
       auto& ws = alpaka::declareSharedVar<uint32_t[warpSize], __COUNTER__>(acc);
-      uint32_t* clusModuleStart = clusterDataObj.seedStripsNCMask();
-      uint32_t* prefix = clusterDataObj.prefixSeedStripsNCMask();
+      auto clusModuleStart = clusterDataObj.seedStripsNCMask();
+      auto prefix = clusterDataObj.prefixSeedStripsNCMask();
       int leftModules = numberOfModules;
       // First pass
+      uint32_t offset = 0;
       while (leftModules > blockSize) {
         // if (thIdx == 0){
         //   printf("[%i] | numberOfModules %i | leftModules %i\n", thIdx, numberOfModules, leftModules);
         // }
-        cms::alpakatools::blockPrefixScan(acc, clusModuleStart, prefix, blockSize, ws);
-        clusModuleStart += blockSize;
-        prefix += blockSize;
+        auto clusModuleStart_chunk = clusModuleStart.subspan(offset, blockSize);
+        auto prefix_chunk = prefix.subspan(offset, blockSize);
+        cms::alpakatools::blockPrefixScan(acc, clusModuleStart_chunk.data(), prefix_chunk.data(), blockSize, ws);
         leftModules -= blockSize;
       }
       cms::alpakatools::blockPrefixScan(acc, clusModuleStart, prefix, leftModules, ws);
@@ -803,8 +804,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     alpaka::exec<Acc1D>(queue,
                         workDivMultiBlock,
                         multiBlockPrefixScan<uint32_t>(),
-                        stripMapping_d_->const_view().fedChStripsN(),
-                        stripMapping_d_->view().fedChStripsN(),
+                        stripMapping_d_->const_view().fedChStripsN().data(),
+                        stripMapping_d_->view().fedChStripsN().data(),
                         (uint32_t)stripMapping_d_->view().metadata().size(),
                         (int32_t)nBlocks,
                         blockCounter_d.data(),
@@ -885,8 +886,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     alpaka::enqueue(queue,
                     alpaka::createTaskKernel<Acc1D>(make_workdiv<Acc1D>(nBlocks, nThreads),
                                                     multiBlockPrefixScan<uint32_t>(),
-                                                    sClustersAux_d_->const_view().seedStripsNCMask(),
-                                                    sClustersAux_d_->view().prefixSeedStripsNCMask(),
+                                                    sClustersAux_d_->const_view().seedStripsNCMask().data(),
+                                                    sClustersAux_d_->view().prefixSeedStripsNCMask().data(),
                                                     nStrips,
                                                     nBlocks,
                                                     blockCounter_d.data(),
@@ -951,8 +952,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     alpaka::enqueue(queue,
                     alpaka::createTaskKernel<Acc1D>(make_workdiv<Acc1D>(nBlocks, nThreads),
                                                     multiBlockPrefixScan<uint32_t>(),
-                                                    clusters_d->const_view().candidateAcceptedPrefix(),
-                                                    clusters_d->view().candidateAcceptedPrefix(),
+                                                    clusters_d->const_view().candidateAcceptedPrefix().data(),
+                                                    clusters_d->view().candidateAcceptedPrefix().data(),
                                                     kMaxSeedStrips_,
                                                     nBlocks,
                                                     blockCounter_d.data(),

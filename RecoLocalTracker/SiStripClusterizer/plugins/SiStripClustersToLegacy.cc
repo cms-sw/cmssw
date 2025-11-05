@@ -35,15 +35,15 @@ namespace sistrip {
       auto const& amplitudes_onHost = iEvent.get(siStripDigiToken_);
 
       const uint32_t clustersArrSize = clusters_onHost->metadata().size();
-      const auto clusterSizeArr = clusters_onHost->clusterSize();
-      const auto detIdArr = clusters_onHost->clusterDetId();
-      const auto firstStripArr = clusters_onHost->firstStrip();
-      const auto candidateAcceptedArr = clusters_onHost->candidateAccepted();
-      const uint32_t* clusterIndexArr = clusters_onHost->clusterIndex();
-      const float* barycenterArr = clusters_onHost->barycenter();
-      const float* chargeArr = clusters_onHost->charge();
+      const auto& clusterSizeArr = clusters_onHost->clusterSize();
+      const auto& detIdArr = clusters_onHost->clusterDetId();
+      const auto& firstStripArr = clusters_onHost->firstStrip();
+      const auto& candidateAcceptedArr = clusters_onHost->candidateAccepted();
+      const auto& clusterIndexArr = clusters_onHost->clusterIndex();
+      const auto& barycenterArr = clusters_onHost->barycenter();
+      const auto& chargeArr = clusters_onHost->charge();
 
-      const auto clusterAmplArr = amplitudes_onHost->adc();
+      const auto& clusterAmplArr = amplitudes_onHost->adc();
 
       // Educated guess for the total number of detector IDs,
       // based on Run: 386593 Event: 536278171 with 13883 detectors.
@@ -89,7 +89,8 @@ namespace sistrip {
             // }
 
             const auto index = clusterIndexArr[i];
-            std::vector<uint8_t> adcs(clusterAmplArr + index, clusterAmplArr + index + size);
+            auto clusterAdc = clusterAmplArr.subspan(index, size);
+            std::vector<uint8_t> adcs(clusterAdc.begin(), clusterAdc.end());
 
             // SiStripCluster(uint16_t firstStrip, std::vector<uint8_t>&& data, float barycenter, float charge)
             record.push_back(SiStripCluster(firstStrip, std::move(adcs), barycenter, charge));
