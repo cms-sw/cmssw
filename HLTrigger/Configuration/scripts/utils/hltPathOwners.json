@@ -2548,6 +2548,12 @@
       "HIN"
     ]
   },
+  "HLT_HIDatasetRawPrime0_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIDmesonPPOnAATrackingGlobal_Dpt30_v": {
     "online?": true,
     "owners": [
@@ -2572,7 +2578,19 @@
       "HIN"
     ]
   },
+  "HLT_HIDoubleEle10Gsf_bkp_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIDoubleEle10Gsf_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIDoubleEle15GsfMass50_bkp_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -2584,7 +2602,19 @@
       "HIN"
     ]
   },
+  "HLT_HIDoubleEle15Gsf_bkp_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIDoubleEle15Gsf_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIDoubleGEDPhoton20_bkp_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -2596,7 +2626,19 @@
       "HIN"
     ]
   },
+  "HLT_HIEle10Gsf_bkp_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIEle10Gsf_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIEle15Ele10GsfMass50_bkp_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -2608,7 +2650,19 @@
       "HIN"
     ]
   },
+  "HLT_HIEle15Ele10Gsf_bkp_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIEle15Ele10Gsf_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIEle15Gsf_bkp_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -2620,7 +2674,19 @@
       "HIN"
     ]
   },
+  "HLT_HIEle20Gsf_bkp_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIEle20Gsf_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIEle30Gsf_bkp_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -2662,6 +2728,12 @@
       "HIN"
     ]
   },
+  "HLT_HIGEDPhoton10_bkp_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIGEDPhoton10_v": {
     "online?": true,
     "owners": [
@@ -2674,6 +2746,12 @@
       "HIN"
     ]
   },
+  "HLT_HIGEDPhoton20_bkp_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIGEDPhoton20_v": {
     "online?": true,
     "owners": [
@@ -2681,6 +2759,12 @@
     ]
   },
   "HLT_HIGEDPhoton30_EB_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIGEDPhoton30_bkp_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -2854,6 +2938,12 @@
     ]
   },
   "HLT_HIL1SingleMuOpen_Centrality30to100_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL1SingleMuOpen_Centrality40to100_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3282,6 +3372,30 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_DoubleEG2er1p5_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG2er1p5_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG2er2p1_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG2er2p1_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_DoubleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v": {
     "online?": true,
     "owners": [
@@ -3330,6 +3444,12 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_DoubleJet12_DeltaPhi2p0_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
@@ -3348,6 +3468,12 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_DoubleJet16_DeltaPhi2p0_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
@@ -3361,6 +3487,12 @@
     ]
   },
   "HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleJet8_DeltaPhi2p0_ZDC1nXOR_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3571,6 +3703,36 @@
     ]
   },
   "HLT_HIUPC_SingleEG5_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleEG5er1p5_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleEG5er2p1_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleEG6er2p5_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleEG7er2p5_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleEG8er2p5_NotMBHF2AND_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -4212,6 +4374,42 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_ZDC1nXOR_MBHF1AsymXOR_SameSide_PixelTrackMultiplicity20_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF1AsymXOR_SameSide_PixelTrackMultiplicity30_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF1AsymXOR_SameSide_PixelTrackMultiplicity40_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF1OR_SameSide_PixelTrackMultiplicity20_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF1OR_SameSide_PixelTrackMultiplicity30_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF1OR_SameSide_PixelTrackMultiplicity40_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity20_v": {
     "online?": true,
     "owners": [
@@ -4225,6 +4423,42 @@
     ]
   },
   "HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity40_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF2OR_SameSide_PixelTrackMultiplicity20_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF2OR_SameSide_PixelTrackMultiplicity30_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF2OR_SameSide_PixelTrackMultiplicity40_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF2XOR_SameSide_PixelTrackMultiplicity20_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF2XOR_SameSide_PixelTrackMultiplicity30_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nXOR_MBHF2XOR_SameSide_PixelTrackMultiplicity40_v": {
     "online?": true,
     "owners": [
       "HIN"
