@@ -225,6 +225,7 @@ def plotOverlay(subdirs, cached_histos, name, props, outdir):
 
         nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
         values, errors = histo_values_errors(root_hist)
+        if 'Fake' in name: values = np.array([1-i if i != 0 else np.nan for i in values])
         errors /= 2
     
         line = plotter.ax.stairs(values, bin_edges, linewidth=2,
@@ -232,14 +233,20 @@ def plotOverlay(subdirs, cached_histos, name, props, outdir):
 
         sublabel = re.sub(pattern, replacement, sub)
         if sublabel == 'score = 1.1': sublabel = 'score = 1.0'
-        eff_filt, (err_filt_lo, err_filt_hi), up_error, transform = rate_errorbar_declutter(plotter, values, errors, 0)
-        plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=[err_filt_lo,err_filt_hi],
+        if any(x in name for x in ('Eff', 'Fake', 'Dup', 'Merge')):
+            eff_filt, (err_filt_lo, err_filt_hi), up_error, transform = rate_errorbar_declutter(plotter, values, errors, 0)
+            plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=[err_filt_lo,err_filt_hi],
                             color=line.get_edgecolor(),
                             fmt='s', label=sublabel, **errorbar_kwargs)
+            plotter.limits(y=(0,1.1), x=(bin_edges[0], bin_edges[-1]))
+        else:
+            plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                            color=line.get_edgecolor(),
+                            fmt='s', label=sublabel, **errorbar_kwargs)
+            plotter.limits(x=(bin_edges[0], bin_edges[-1]))
 
-    plotter.limits(y=(0,1.1))
     plotter.labels(x=props['xtitle'], y=props['ytitle'], legend_title='')    
-    plotter.ax.grid(color='grey', axis='x')    
+    plotter.ax.grid(color='grey')    
     plt.tight_layout()
     plotter.save( os.path.join(outdir, name) )
 
@@ -290,6 +297,7 @@ def plotOverlayRatio(subdirs, cached_histos, num, den, props, outdir):
                             fmt='s', label=sublabel, **errorbar_kwargs)
 
     # plotter.limits_with_margin(valuesList, errorsList, logY=props['logy'])
+    plotter.limits(x=(bin_edges[0], bin_edges[-1]))
     plotter.labels(x=props['xtitle'], y=props['ytitle'], legend_title='')    
     plotter.ax.grid(color='grey', axis='x')    
     plt.tight_layout()
@@ -337,11 +345,13 @@ def plotEffComp1D(cached_histos, title, vars1d, outdir, text, top_text=False, su
         # normalization
         if doNormalize:
             ylabel = '[a.u.]'
-        if 'Eff' not in name and doNormalize:
+        if 'Eff' not in name and doNormalize and sum(values) > 0:
             errors /= sum(values)
             values /= sum(values)
+        if 'Fake' in name:
+            values = np.array([1-i if i != 0 else np.nan for i in values])
             
-        if any(x in name for x in ('Eff', 'Fake', 'Duplicate', 'Merge')):
+        if any(x in name for x in ('Eff', 'Fake', 'Dup', 'Merge')):
             if 'Eff' in name:
                 axis_name = 'Efficiency'
             elif 'Fake' in name:
@@ -400,35 +410,26 @@ def plot2D(h, props, outname):
                                 cmap='viridis', shading='auto')
 
     plotter.labels(x=props['xtitle'], y=props['ytitle'])
-    plotter.fig.colorbar(pcm, ax=plotter.ax, label='# Clusters')
+    plotter.fig.colorbar(pcm, ax=plotter.ax, label=props['var'])
     plt.tight_layout()
     plotter.save(outname)
         
-# def plot1D(afile, adir, avars, outdir, text, top_text=False):
-#     for var, (xlabel, ylabel, rebin, logy, _) in avars.items():
-#         plotter = Plotter(args.sample_label)
-#         root_hist = checkRootFile(afile, f"{adir}/{var}", rebin=rebin)
-#         nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
-#         values, errors = histo_values_errors(root_hist)
-#         errors /= 2
+def plot1D(h, props, outname):
 
-#         plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
-#                             fmt='s', color='black', label=var, **errorbar_kwargs)
-#         plotter.ax.stairs(values, bin_edges, color='black', linewidth=2, baseline=None)
+    plotter = Plotter(args.sample_label, fontsize=15)
+    nbins, bin_edges, bin_centers, bin_widths = define_bins(h)
+    values, errors = histo_values_errors(h)
+    errors /= 2
 
-#         plotter.ax.text(0.03, 0.97, text, transform=plotter.ax.transAxes, fontsize=fontsize,
-#                         verticalalignment='top', horizontalalignment='left')
+    plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                        fmt='s', color='black', label=props['var'], **errorbar_kwargs)
+    plotter.ax.stairs(values, bin_edges, color='black', linewidth=2, baseline=None)
 
-#         plotter.limits_with_margin(values, errors, logY=logy)
-#         plotter.labels(x=xlabel, y=ylabel)
+    plotter.limits_with_margin(values, errors, logY=props['logy'])
+    plotter.labels(x=props['xtitle'], y=props['ytitle'])
 
-#         if top_text:
-#             plotter.ax.text(0.97, 0.97, root_hist.GetTitle().replace('ET', r'$E_T$'),
-#                             transform=plotter.ax.transAxes, fontsize=fontsize,
-#                             verticalalignment='top', horizontalalignment='right')
-
-#         plt.tight_layout()
-#         plotter.save( os.path.join(outdir, var) )
+    plt.tight_layout()
+    plotter.save( os.path.join(outname) )
 
 
 if __name__ == '__main__':
@@ -475,13 +476,20 @@ if __name__ == '__main__':
 
     nSimClustersLabel = '# SimClusters'
     nPFClustersLabel = '# PFClusters'
-    effLabel = 'Efficiency'
+
+    titles = {'response': r"$p_{T}^{Reco}/p_{T}^{Sim}$", 
+              'av_response': r"$<p_{T}^{Reco}/p_{T}^{Sim}>$", 
+              'resolution': r"$\sigma(p_{T}^{Reco}/p_{T}^{Sim}) / <p_{T}^{Reco}/p_{T}^{Sim}>$", 
+              'eff': 'Efficiency',
+              'fake': 'Fake Rate',
+              'dup': 'Duplicate Rate',
+              'merge': 'Merge Rate'}
 
     dqm_dir = f"DQMData/Run 1/HLT/Run summary/ParticleFlow/PFClusterValidation_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
     afile = ROOT.TFile.Open(args.file)
     checkRootDir(afile, dqm_dir)
 
-    debug('Start caching histograms...')
+    debug('Start caching PFCluster histograms...')
     subdirs = []
     cached_histos = {}
     directory = afile.GetDirectory(dqm_dir)
@@ -530,88 +538,231 @@ if __name__ == '__main__':
                     den=f'SimClusters{suf}Phi', legden='SimClusters',
                     num=f'{subdir}/SimClustersMatchedRecoClustersPhi', legnum='Matched SimClusters', 
                     xtitle=r'$\phi$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
-                # Cluster fake rate
-                f'{subdir}/Fake_vs_En{name}': dict(ratio=f'{subdir}/Fake_vs_En{name}', 
-                    den=f'RecoClusters{suf}En', legden='RecoClusters',
-                    num=f'{subdir}/RecoClustersMatchedSimClustersEn', legnum='Matched RecoClusters', 
-                    xtitle='Energy from SimTrack [GeV]', ytitle=nPFClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Fake_vs_Pt{name}': dict(ratio=f'{subdir}/Fake_vs_Pt{name}', 
-                    den=f'RecoClusters{suf}Pt', legden='RecoClusters',
-                    num=f'{subdir}/RecoClustersMatchedSimClustersPt', legnum='Matched RecoClusters', 
-                    xtitle=r'$p_{T}$ [GeV]', ytitle=nPFClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Fake_vs_Eta{name}': dict(ratio=f'{subdir}/Fake_vs_Eta{name}', 
-                    den=f'RecoClusters{suf}Eta', legden='RecoClusters',
-                    num=f'{subdir}/RecoClustersMatchedSimClustersEta', legnum='Matched RecoClusters', 
-                    xtitle=r'$\eta$', ytitle=nPFClustersLabel, rebin=None, logy=False, normalize=False),
-                f'{subdir}/Fake_vs_Phi{name}': dict(ratio=f'{subdir}/Fake_vs_Phi{name}', 
-                    den=f'RecoClusters{suf}Phi', legden='RecoClusters',
-                    num=f'{subdir}/RecoClustersMatchedSimClustersPhi', legnum='Matched RecoClusters', 
-                    xtitle=r'$\phi$', ytitle=nPFClustersLabel, rebin=None, logy=False, normalize=False),
-                f'{subdir}/Fake_vs_Mult{name}': dict(ratio=f'{subdir}/Fake_vs_Mult{name}', 
-                    den=f'RecoClusters{suf}Mult', legden='RecoClusters',
-                    num=f'{subdir}/RecoClustersMatchedSimClustersMult', legnum='Matched RecoClusters', 
-                    xtitle='Multiplicity', ytitle=nPFClustersLabel, rebin=4, logy=False, normalize=False),
+                f'{subdir}/Eff_vs_Mult{name}': dict(ratio=f'{subdir}/Eff_vs_Mult{name}', 
+                    den=f'SimClusters{suf}Mult', legden='SimClusters',
+                    num=f'{subdir}/SimClustersMatchedRecoClustersMult', legnum='Matched SimClusters', 
+                    xtitle='Multiplicity', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+                # Cluster merge rate (WIP)
+                f'{subdir}/Merge_vs_En{name}': dict(ratio=f'{subdir}/Merge_vs_En{name}', 
+                    den=f'SimClusters{suf}En', legden='SimClusters',
+                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersEn', legnum='Multi Matched SimClusters',
+                    xtitle='Energy from SimTrack [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+                f'{subdir}/Merge_vs_EnHits{name}': dict(ratio=f'{subdir}/Merge_vs_EnHits{name}', 
+                    den=f'SimClusters{suf}EnHits', legden='SimClusters',
+                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersEnHits', legnum='Multi Matched SimClusters', 
+                    xtitle='Energy from hits [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+                f'{subdir}/Merge_vs_EnFrac{name}': dict(ratio=f'{subdir}/Merge_vs_EnFrac{name}', 
+                    den=f'SimClusters{suf}EnFrac', legden='SimClusters',
+                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersEnFrac', legnum='Multi Matched SimClusters', 
+                    xtitle='Energy Fraction', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+                f'{subdir}/Merge_vs_Pt{name}': dict(ratio=f'{subdir}/Merge_vs_Pt{name}', 
+                    den=f'SimClusters{suf}Pt', legden='SimClusters',
+                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersPt', legnum='Multi Matched SimClusters', 
+                    xtitle=r'$p_{T}$ [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+                f'{subdir}/Merge_vs_Eta{name}': dict(ratio=f'{subdir}/Merge_vs_Eta{name}', 
+                    den=f'SimClusters{suf}Eta', legden='SimClusters',
+                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersEta', legnum='Multi Matched SimClusters', 
+                    xtitle=r'$\eta$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
+                f'{subdir}/Merge_vs_Phi{name}': dict(ratio=f'{subdir}/Merge_vs_Phi{name}', 
+                    den=f'SimClusters{suf}Phi', legden='SimClusters',
+                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersPhi', legnum='Multi Matched SimClusters', 
+                    xtitle=r'$\phi$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
+                f'{subdir}/Merge_vs_Mult{name}': dict(ratio=f'{subdir}/Merge_vs_Mult{name}', 
+                    den=f'SimClusters{suf}Mult', legden='SimClusters',
+                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersMult', legnum='Multi Matched SimClusters', 
+                    xtitle='Multiplicity', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
             }
 
             # Compare pairs of variables
             for title, props in varsDict.items():
                 plotEffComp1D(cached_histos, title, vars1d=props, outdir=args.odir, text='', suffix=f'')
-                
-    titles = {'response': r"$p_{T}^{Reco}/p_{T}^{Sim}$", 
-              'av_response': r"$<p_{T}^{Reco}/p_{T}^{Sim}>$", 
-              'resolution': r"$\sigma(p_{T}^{Reco}/p_{T}^{Sim}) / <p_{T}^{Reco}/p_{T}^{Sim}>$", 
-              'eff': 'Efficiency'}
+
+        varsDict = {
+            # Cluster fake rate
+            f'{subdir}/Fake_vs_En': dict(ratio=f'{subdir}/Fake_vs_En', 
+                den=f'RecoClustersEn', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMatchedSimClustersEn', legnum='Matched RecoClusters', 
+                xtitle='Energy [GeV]', ytitle=nPFClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Fake_vs_Pt': dict(ratio=f'{subdir}/Fake_vs_Pt', 
+                den=f'RecoClustersPt', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMatchedSimClustersPt', legnum='Matched RecoClusters', 
+                xtitle=r'$p_{T}$ [GeV]', ytitle=nPFClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Fake_vs_Eta': dict(ratio=f'{subdir}/Fake_vs_Eta', 
+                den=f'RecoClustersEta', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMatchedSimClustersEta', legnum='Matched RecoClusters', 
+                xtitle=r'$\eta$', ytitle=nPFClustersLabel, rebin=None, logy=False, normalize=False),
+            f'{subdir}/Fake_vs_Phi': dict(ratio=f'{subdir}/Fake_vs_Phi', 
+                den=f'RecoClustersPhi', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMatchedSimClustersPhi', legnum='Matched RecoClusters', 
+                xtitle=r'$\phi$', ytitle=nPFClustersLabel, rebin=None, logy=False, normalize=False),
+            f'{subdir}/Fake_vs_Mult': dict(ratio=f'{subdir}/Fake_vs_Mult', 
+                den=f'RecoClustersMult', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMatchedSimClustersMult', legnum='Matched RecoClusters', 
+                xtitle='Multiplicity', ytitle=nPFClustersLabel, rebin=4, logy=False, normalize=False),
+            # Cluster duplicate rate (WIP)
+            f'{subdir}/Dup_vs_En': dict(ratio=f'{subdir}/Dup_vs_En', 
+                den=f'RecoClustersEn', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMultiMatchedSimClustersEn', legnum='Multi Matched RecoClusters', 
+                xtitle='Energy [GeV]', ytitle=nPFClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Dup_vs_Pt': dict(ratio=f'{subdir}/Dup_vs_Pt', 
+                den=f'RecoClustersPt', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMultiMatchedSimClustersPt', legnum='Multi Matched RecoClusters', 
+                xtitle=r'$p_{T}$ [GeV]', ytitle=nPFClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Dup_vs_Eta': dict(ratio=f'{subdir}/Dup_vs_Eta', 
+                den=f'RecoClustersEta', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMultiMatchedSimClustersEta', legnum='Multi Matched RecoClusters', 
+                xtitle=r'$\eta$', ytitle=nPFClustersLabel, rebin=None, logy=False, normalize=False),
+            f'{subdir}/Dup_vs_Phi': dict(ratio=f'{subdir}/Dup_vs_Phi', 
+                den=f'RecoClustersPhi', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMultiMatchedSimClustersPhi', legnum='Multi Matched RecoClusters', 
+                xtitle=r'$\phi$', ytitle=nPFClustersLabel, rebin=None, logy=False, normalize=False),
+            f'{subdir}/Dup_vs_Mult': dict(ratio=f'{subdir}/Dup_vs_Mult', 
+                den=f'RecoClustersMult', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMultiMatchedSimClustersMult', legnum='Multi Matched RecoClusters', 
+                xtitle='Multiplicity', ytitle=nPFClustersLabel, rebin=4, logy=False, normalize=False),
+        }
+
+        # Compare pairs of variables
+        for title, props in varsDict.items():
+            plotEffComp1D(cached_histos, title, vars1d=props, outdir=args.odir, text='', suffix=f'')
 
     varsOverlay = {
-        "ResponseEn_Mean"               : dict(ytitle=titles['response'], rebin=None, xtitle='Energy from SimTrack [GeV]', logy=False),
-        "ResponseEnHits_Mean"           : dict(ytitle=titles['response'], rebin=None, xtitle='Energy from hits [GeV]', logy=False),
-        "ResponseEnFrac_Mean"           : dict(ytitle=titles['response'], rebin=None, xtitle='Energy Fraction', logy=False),
-        "ResponsePt_Mean"               : dict(ytitle=titles['response'], rebin=None, xtitle=r'$p_{T} [GeV]$', logy=False),
-        "ResponseEta_Mean"              : dict(ytitle=titles['response'], rebin=None, xtitle=r'$\eta$', logy=False),
-        "ResponsePhi_Mean"              : dict(ytitle=titles['response'], rebin=None, xtitle=r'$\phi$', logy=False),
-        "ResponseMult_Mean"             : dict(ytitle=titles['response'], rebin=None, xtitle='Multiplicity', logy=False),
+        "ResponseE_En_Mean"             : dict(ytitle=titles['response'], rebin=(0., 5., 10., 20., 40., 60., 100.), xtitle='Energy from SimTrack [GeV]', logy=False),
+        "ResponseE_EnHits_Mean"         : dict(ytitle=titles['response'], rebin=(0., 5., 10., 20., 40., 60., 100.), xtitle='Energy from hits [GeV]', logy=False),
+        "ResponseE_EnFrac_Mean"         : dict(ytitle=titles['response'], rebin=(0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.), xtitle='Energy Fraction', logy=False),
+        "ResponseE_Pt_Mean"             : dict(ytitle=titles['response'], rebin=(0., 5., 10., 20., 40., 60., 100.), xtitle=r'$p_{T} [GeV]$', logy=False),
+        "ResponseE_Eta_Mean"            : dict(ytitle=titles['response'], rebin=None, xtitle=r'$\eta$', logy=False),
+        "ResponseE_Phi_Mean"            : dict(ytitle=titles['response'], rebin=None, xtitle=r'$\phi$', logy=False),
+        "ResponseE_Mult_Mean"           : dict(ytitle=titles['response'], rebin=4, xtitle='Multiplicity', logy=False),
+        "Eff_vs_En"                     : dict(ytitle=titles['eff'], rebin=4, xtitle='Energy from SimTrack [GeV]', logy=False),
         "Eff_vs_En_Reconstructable"     : dict(ytitle=titles['eff'], rebin=4, xtitle='Energy from SimTrack [GeV]', logy=False),
+        "Eff_vs_EnHits"                 : dict(ytitle=titles['eff'], rebin=4, xtitle='Energy from hits [GeV]', logy=False),
         "Eff_vs_EnHits_Reconstructable" : dict(ytitle=titles['eff'], rebin=4, xtitle='Energy from hits [GeV]', logy=False),
+        "Eff_vs_EnFrac"                 : dict(ytitle=titles['eff'], rebin=6, xtitle='Energy Fraction', logy=False),
         "Eff_vs_EnFrac_Reconstructable" : dict(ytitle=titles['eff'], rebin=6, xtitle='Energy Fraction', logy=False),
+        "Eff_vs_Pt"                     : dict(ytitle=titles['eff'], rebin=4, xtitle='$p_{T} [GeV]$', logy=False),
         "Eff_vs_Pt_Reconstructable"     : dict(ytitle=titles['eff'], rebin=4, xtitle='$p_{T} [GeV]$', logy=False),
         "Eff_vs_Eta"                    : dict(ytitle=titles['eff'], rebin=None, xtitle=r'$\eta$', logy=False),
         "Eff_vs_Eta_Reconstructable"    : dict(ytitle=titles['eff'], rebin=None, xtitle=r'$\eta$', logy=False),
+        "Eff_vs_Phi"                    : dict(ytitle=titles['eff'], rebin=None, xtitle=r'$\phi$', logy=False),
         "Eff_vs_Phi_Reconstructable"    : dict(ytitle=titles['eff'], rebin=None, xtitle=r'$\phi$', logy=False),
+        "Eff_vs_Mult"                   : dict(ytitle=titles['eff'], rebin=4, xtitle='Multiplicity', logy=False),
         "Eff_vs_Mult_Reconstructable"   : dict(ytitle=titles['eff'], rebin=4, xtitle='Multiplicity', logy=False),
+        "Merge_vs_En"                   : dict(ytitle=titles['merge'], rebin=4, xtitle='Energy from SimTrack [GeV]', logy=False),
+        "Merge_vs_EnHits"               : dict(ytitle=titles['merge'], rebin=4, xtitle='Energy from hits [GeV]', logy=False),
+        "Merge_vs_EnFrac"               : dict(ytitle=titles['merge'], rebin=6, xtitle='Energy Fraction', logy=False),
+        "Merge_vs_Pt"                   : dict(ytitle=titles['merge'], rebin=4, xtitle='$p_{T} [GeV]$', logy=False),
+        "Merge_vs_Eta"                  : dict(ytitle=titles['merge'], rebin=None, xtitle=r'$\eta$', logy=False),
+        "Merge_vs_Phi"                  : dict(ytitle=titles['merge'], rebin=None, xtitle=r'$\phi$', logy=False),
+        "Merge_vs_Mult"                 : dict(ytitle=titles['merge'], rebin=4, xtitle='Multiplicity', logy=False),
+        "Fake_vs_En"                    : dict(ytitle=titles['fake'], rebin=4, xtitle='Energy [GeV]', logy=False),
+        "Fake_vs_Pt"                    : dict(ytitle=titles['fake'], rebin=4, xtitle='$p_{T} [GeV]$', logy=False),
+        "Fake_vs_Eta"                   : dict(ytitle=titles['fake'], rebin=None, xtitle=r'$\eta$', logy=False),
+        "Fake_vs_Phi"                   : dict(ytitle=titles['fake'], rebin=None, xtitle=r'$\phi$', logy=False),
+        "Fake_vs_Mult"                  : dict(ytitle=titles['fake'], rebin=4, xtitle='Multiplicity', logy=False),
+        "Dup_vs_En"                     : dict(ytitle=titles['dup'], rebin=4, xtitle='Energy [GeV]', logy=False),
+        "Dup_vs_Pt"                     : dict(ytitle=titles['dup'], rebin=4, xtitle='$p_{T} [GeV]$', logy=False),
+        "Dup_vs_Eta"                    : dict(ytitle=titles['dup'], rebin=None, xtitle=r'$\eta$', logy=False),
+        "Dup_vs_Phi"                    : dict(ytitle=titles['dup'], rebin=None, xtitle=r'$\phi$', logy=False),
+        "Dup_vs_Mult"                   : dict(ytitle=titles['dup'], rebin=4, xtitle='Multiplicity', logy=False),
         }
     for name, props in varsOverlay.items():
         plotOverlay(subdirs, cached_histos, name, props, outdir=args.odir)
 
     varsResponse = {
-        ("ResponseEn_Sigma", "ResponseEn_Mean")     : dict(name='ResolutionEn', ytitle=titles['resolution'], xtitle=r'$E [GeV]$', rebin=4, logy=False),
-        ("ResponseEnHits_Sigma", "ResponseEnHits_Mean") : dict(name='ResolutionEnHits', ytitle=titles['resolution'], xtitle=r'$E_{hits} [GeV]$', rebin=4, logy=False),
-        ("ResponseEnFrac_Sigma", "ResponseEnFrac_Mean") : dict(name='ResolutionEnFrac', ytitle=titles['resolution'], xtitle=r'Energy Fraction', rebin=4, logy=False),
-        ("ResponsePt_Sigma", "ResponsePt_Mean")     : dict(name='ResolutionPt', ytitle=titles['resolution'], xtitle=r'$p_{T} [GeV]$', rebin=4, logy=False),
-        ("ResponseEta_Sigma", "ResponseEta_Mean")   : dict(name='ResolutionEta', ytitle=titles['resolution'], xtitle=r'$\eta$', rebin=4, logy=False),
-        ("ResponsePhi_Sigma", "ResponsePhi_Mean")   : dict(name='ResolutionPhi',ytitle=titles['resolution'], xtitle=r'$\phi$', rebin=None, logy=False),
-        ("ResponseMult_Sigma", "ResponseMult_Mean") : dict(name='ResolutionMult',ytitle=titles['resolution'], xtitle='Multiplicity', rebin=None, logy=False),
+        ("ResponseE_En_Sigma", "ResponseE_En_Mean")     : dict(name='ResolutionEn', ytitle=titles['resolution'], xtitle=r'$E [GeV]$', rebin=(0., 5., 10., 20., 40., 60., 100.), logy=False),
+        ("ResponseE_EnHits_Sigma", "ResponseE_EnHits_Mean") : dict(name='ResolutionEnHits', ytitle=titles['resolution'], xtitle=r'$E_{hits} [GeV]$', rebin=(0., 5., 10., 20., 40., 60., 100.), logy=False),
+        ("ResponseE_EnFrac_Sigma", "ResponseE_EnFrac_Mean") : dict(name='ResolutionEnFrac', ytitle=titles['resolution'], xtitle=r'Energy Fraction', rebin=(0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.), logy=False),
+        ("ResponseE_Pt_Sigma", "ResponseE_Pt_Mean")     : dict(name='ResolutionPt', ytitle=titles['resolution'], xtitle=r'$p_{T} [GeV]$', rebin=(0., 5., 10., 20., 40., 60., 100.), logy=False),
+        ("ResponseE_Eta_Sigma", "ResponseE_Eta_Mean")   : dict(name='ResolutionEta', ytitle=titles['resolution'], xtitle=r'$\eta$', rebin=None, logy=False),
+        ("ResponseE_Phi_Sigma", "ResponseE_Phi_Mean")   : dict(name='ResolutionPhi',ytitle=titles['resolution'], xtitle=r'$\phi$', rebin=None, logy=False),
+        ("ResponseE_Mult_Sigma", "ResponseE_Mult_Mean") : dict(name='ResolutionMult',ytitle=titles['resolution'], xtitle='Multiplicity', rebin=4, logy=False),
     }
     for (num, den), props in varsResponse.items():
         plotOverlayRatio(subdirs, cached_histos, num, den, props, outdir=args.odir)
 
-    vars2D = {
-        **{f'{subdir}/ResponseEn': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'E', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
-        **{f'{subdir}/ResponseEn': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'E_{hist}', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
-        **{f'{subdir}/ResponseEn': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'Energy Fraction', unit='', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
-        **{f'{subdir}/ResponseEn': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$p_{T}$', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
-        **{f'{subdir}/ResponseEn': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$\eta$', unit='', logy=False, rebin=(-1.5, -0.75, 0., 0.75, 1.5)) for subdir in subdirs},
-        **{f'{subdir}/ResponseEn': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$\phi$', unit='', logy=False, rebin=(-3.15, -2., -1., 0., 1., 2., 3.15)) for subdir in subdirs},
-        **{f'{subdir}/ResponseEn': dict(xtitle=titles['response'], ytitle='# Clusters', var='Multiplicity', unit='', logy=False, rebin=(0., 20., 45., 100., 200.)) for subdir in subdirs},
+    vars2DProjection = {
+        **{f'{subdir}/ResponseE_En': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'E', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
+        **{f'{subdir}/ResponseE_EnHits': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$E_{hits}$', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
+        **{f'{subdir}/ResponseE_EnFrac': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'Energy Fraction', unit='', logy=False, rebin=(0., 0.1, 0.5, 0.9, 1.)) for subdir in subdirs},
+        **{f'{subdir}/ResponseE_Pt': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$p_{T}$', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
+        **{f'{subdir}/ResponseE_Eta': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$\eta$', unit='', logy=False, rebin=(-1.5, -0.75, 0., 0.75, 1.5)) for subdir in subdirs},
+        **{f'{subdir}/ResponseE_Phi': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$\phi$', unit='', logy=False, rebin=(-3.15, -1.5, 0., 1.5, 3.15)) for subdir in subdirs},
+        **{f'{subdir}/ResponseE_Mult': dict(xtitle=titles['response'], ytitle='# Clusters', var='Multiplicity', unit='', logy=False, rebin=(0., 20., 50., 100., 200.)) for subdir in subdirs},
         'SimClustersReconstructableEnFrac_Mult': dict(xtitle='Multiplicity', ytitle='# Clusters', var='Energy Fraction', unit='', logy=True, rebin=(0., 0.005, 0.01, 0.02, 0.03, 1.)),
     }
 
-    for name, props in vars2D.items():
+    for name, props in vars2DProjection.items():
         plotter = Plotter(args.sample_label, fontsize=15)
         root_hist = cached_histos[f"{name}"]
         plotProject(root_hist, props, rebin_edges=props['rebin'], outname=os.path.join(args.odir, name + '_Projected'))
 
-        xtitle, ytitle, var = props['xtitle'], props['ytitle'], props['var']
-        props['xtitle'] = var
-        props['ytitle'] = xtitle
-        # props['var'] = ytitle
+    vars2D = {
+        'SimClustersReconstructableEnFrac_Mult': dict(ytitle='Multiplicity', var='# Clusters', xtitle='Energy Fraction'),
+        'simToRecoScore_En': dict(ytitle='Energy from SimTrack [GeV]', var='# Clusters', xtitle='SimToReco Score'),
+        'simToRecoScore_EnHits': dict(ytitle='Energy from hits [GeV]', var='# Clusters', xtitle='SimToReco Score'),
+        'simToRecoScore_EnFrac': dict(ytitle='Energy Fraction', var='# Clusters', xtitle='SimToReco Score'),
+        'simToRecoScore_Mult': dict(ytitle='Multiplicity', var='# Clusters', xtitle='SimToReco Score'),
+        'simToRecoShEnF_En': dict(ytitle='Energy from SimTrack [GeV]', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
+        'simToRecoShEnF_EnHits': dict(ytitle='Energy from hits [GeV]', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
+        'simToRecoShEnF_EnFrac': dict(ytitle='Energy Fraction', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
+        'simToRecoShEnF_Mult': dict(ytitle='Multiplicity', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
+        'simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
+    }
+
+    for name, props in vars2D.items():
+        root_hist = cached_histos[f"{name}"]
+        plot2D(root_hist, props, outname=os.path.join(args.odir, name))
+
+    vars1D = {
+        'simToRecoShEnF': dict(xtitle='SimToReco Shared Energy Fraction', ytitle='# SimClusters', var='SimClusters', logy=False),
+        'simToRecoScore': dict(xtitle='SimToReco Score', ytitle='# SimClusters', var='SimClusters', logy=False),
+        'recoToSimScore': dict(xtitle='RecoToSim Score', ytitle='# SimClusters', var='SimClusters', logy=False),
+    }
+
+    for name, props in vars1D.items():
+        root_hist = cached_histos[f"{name}"]
+        plot1D(root_hist, props, outname=os.path.join(args.odir, name))
+
+    ##################################################################################
+    # Temporary hack to access CaloParticle histrograms
+    ##################################################################################
+
+    dqm_dir = f"DQMData/Run 1/HLT/Run summary/ParticleFlow/CaloParticles_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
+    afile = ROOT.TFile.Open(args.file)
+    checkRootDir(afile, dqm_dir)
+
+    debug('Start caching PFCluster histograms...')
+    subdirs = []
+    cached_histos = {}
+    directory = afile.GetDirectory(dqm_dir)
+    for key in directory.GetListOfKeys():
+        obj = key.ReadObj()
+        if isinstance(obj, ROOT.TDirectory):
+            subdirs.append(obj.GetName())
+            subdir = afile.GetDirectory(f"{dqm_dir}/{obj.GetName()}")
+            for subkey in subdir.GetListOfKeys():
+                name = subkey.GetName()
+                cached_histos[f"{obj.GetName()}/{name}"] = subkey.ReadObj()
+        else:
+            name = key.GetName()
+            cached_histos[name] = key.ReadObj()
+    debug(' ...done.')
+
+    vars1D = {
+        'CP_simToRecoShEnF': dict(xtitle='SimToReco Shared Energy Fraction', ytitle='# CaloParticles', var='CaloParticles', logy=False),
+        'CP_simToRecoScore': dict(xtitle='SimToReco Score', ytitle='# CaloParticles', var='CaloParticles', logy=False),
+        'CP_recoToSimScore': dict(xtitle='RecoToSim Score', ytitle='# CaloParticles', var='CaloParticles', logy=False),
+    }
+
+    for name, props in vars1D.items():
+        root_hist = cached_histos[f"{name}"]
+        plot1D(root_hist, props, outname=os.path.join(args.odir, name))
+    
+    vars2D = {
+        'CP_simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# CaloParticles', xtitle='SimToReco Shared Energy Fraction'),
+    }
+
+    for name, props in vars2D.items():
+        root_hist = cached_histos[f"{name}"]
         plot2D(root_hist, props, outname=os.path.join(args.odir, name))
