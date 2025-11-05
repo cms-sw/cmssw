@@ -1914,7 +1914,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   }
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "Input x:y:layer " << x << ":" << y << ":" << layer << " Wafer " << waferU << ":"
-				  << waferV << " Cell " << cellU << ":" << cellV << ":" << celltype << " wt " << wt;
+                                  << waferV << " Cell " << cellU << ":" << cellV << ":" << celltype << " wt " << wt;
 }
 
 bool HGCalDDDConstants::waferInLayer(int wafer, int lay, bool reco) const {
