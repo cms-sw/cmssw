@@ -97,11 +97,12 @@ public:
 
   enum class StubEtaEncoding {
     //in the firmware the eta is encoded as fired bits in the 9bit word, this is DT phase-1 encoding.
-    //In the emulator in most of the places eta value is used, but with the DT-like binning, i.e. only certain values are valid, see OMTFConfiguration::eta2Bits()
+    //In the emulator in most of the places eta value is used, but with the DT-like bining, i.e. only certain values are valid, see OMTFConfiguration::eta2Bits()
     //this is the OMTF run2 option
     bits = 0,
-    //the phase1 eta scale is used, but all hw values are valid, i.e. the DT-phase one binnig is NOT used
+    //the phase1 eta scale is used, but all hw values are valid, i.e. the DT-phase-1 bining is NOT used
     valueP1Scale = 1,
+    valueP2Scale = 2,
   };
 
   StubEtaEncoding getStubEtaEncoding() const { return stubEtaEncoding; }

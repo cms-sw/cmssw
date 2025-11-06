@@ -18,7 +18,7 @@ versionIn = "ExtraplMB1andMB2RFixedP_ValueP1Scale_DT_2_2_2_t35_mcWaw2023_OneOver
 
 #versionOut =  versionIn + "_classProb17_recalib2" #_classProb17_recalib2_minDP0
 
-versionOut =  "ExtraplMB1andMB2RFixedP_ValueP1Scale_DT_2_2_2_t35_" + "_classProb17_recalib2"
+versionOut =  "ExtraplMB1andMB2RFixedP_ValueP1Scale_DT_2_2_2_t35_" + "_classProb17"
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",

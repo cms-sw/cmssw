@@ -423,7 +423,7 @@ void PatternGenerator::endJob() {
 
     //groupPatterns(); IMPORTANT don't call grouping here, just set the groups above!!!!
 
-    reCalibratePt();
+    //reCalibratePt();
     this->writeLayerStat = true;
   }
 

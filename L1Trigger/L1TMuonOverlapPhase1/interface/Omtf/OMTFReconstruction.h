@@ -43,7 +43,7 @@ public:
 
   void endJob();
 
-  void beginRun(edm::Run const& run,
+  virtual void beginRun(edm::Run const& run,
                 edm::EventSetup const& iSetup,
                 edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd>& omtfParamsEsToken,
                 const MuonGeometryTokens& muonGeometryTokens,
