@@ -7,17 +7,20 @@ using namespace hcaldqm::filter;
 ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
 
     : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
-  //tags
+  //tags data for digis and TPs
   _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagQIE10", edm::InputTag("hcalDigis", "ZDC"));
   _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
+  _tagData = ps.getUntrackedParameter<edm::InputTag>("tagData", edm::InputTag("hcalDigis"));
+  sumTokenData_ = consumes<HcalTrigPrimDigiCollection>(_tagData);
 
   // emulated sums
   sumTag = ps.getUntrackedParameter<edm::InputTag>("etSumTag", edm::InputTag("etSumZdcProducer", ""));
   sumToken_ = consumes<l1t::EtSumBxCollection>(sumTag);
 
   // unpacked sums
-  sumTagUnpacked = ps.getUntrackedParameter<edm::InputTag>("etSumTag", edm::InputTag("gtStage2Digis", "EtSumZDC"));
-  sumTokenUnpacked_ = consumes<l1t::EtSumBxCollection>(sumTag);
+  sumTagUnpacked =
+      ps.getUntrackedParameter<edm::InputTag>("etSumTagUnpacked", edm::InputTag("gtStage2Digis", "EtSumZDC"));
+  sumTokenUnpacked_ = consumes<l1t::EtSumBxCollection>(sumTagUnpacked);
 
   htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
   paramsToken_ = esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd>();
@@ -148,11 +151,13 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
   varbins.push_back(1023);
   varbins.push_back(1024);
 
-  histoname = "ZDCM_EmuSumTP_DataSum";
+  // Emu Sum TP vs. Data Sum TP
+  histoname = "ZDCM_EmuSumTP_DataSumTP";
   ib.setCurrentFolder("Hcal/ZDCQIE10Task/TPs");
 
   TH2D* varBinningTH2D = new TH2D(
       histoname.c_str(), histoname.c_str(), varbins.size() - 1, varbins.data(), varbins.size() - 1, varbins.data());
+
   _cZDC_EmuSumTP_DataSum[0] = ib.book2DD(histoname.c_str(), varBinningTH2D);
   _cZDC_EmuSumTP_DataSum[0]->setAxisTitle("Emulated TP Sum (Online Counts)", 2);
 
@@ -161,6 +166,38 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
   _cZDC_EmuSumTP_DataSum[1] = ib.book2DD(histoname.c_str(), varBinningTH2D);
   _cZDC_EmuSumTP_DataSum[1]->setAxisTitle("Data TP Sum (Online Counts)", 1);
   _cZDC_EmuSumTP_DataSum[1]->setAxisTitle("Emulated TP Sum (Online Counts)", 2);
+
+  // Emu Sum TP vs. L1rcvd Sum TP
+  histoname = "ZDCM_EmuSumTP_L1rcvdSumTP";
+  ib.setCurrentFolder("Hcal/ZDCQIE10Task/TPs");
+
+  TH2D* varBinningTH2D_EmuL1rcvd = new TH2D(
+      histoname.c_str(), histoname.c_str(), varbins.size() - 1, varbins.data(), varbins.size() - 1, varbins.data());
+
+  _cZDC_EmuSumTP_L1rcvdSum[0] = ib.book2DD(histoname.c_str(), varBinningTH2D_EmuL1rcvd);
+  _cZDC_EmuSumTP_L1rcvdSum[0]->setAxisTitle("Emulated TP Sum (Online Counts)", 2);
+
+  histoname = "ZDCP_EmuSumTP_L1rcvdSumTP";
+  ib.setCurrentFolder("Hcal/ZDCQIE10Task/TPs");
+  _cZDC_EmuSumTP_L1rcvdSum[1] = ib.book2DD(histoname.c_str(), varBinningTH2D_EmuL1rcvd);
+  _cZDC_EmuSumTP_L1rcvdSum[1]->setAxisTitle("L1 rcvd TP Sum (Online Counts)", 1);
+  _cZDC_EmuSumTP_L1rcvdSum[1]->setAxisTitle("Emulated TP Sum (Online Counts)", 2);
+
+  // L1rcvd Sum TP vs. Data Sum TP
+  histoname = "ZDCM_L1rcvdSumTP_DataSumTP";
+  ib.setCurrentFolder("Hcal/ZDCQIE10Task/TPs");
+
+  TH2D* varBinningTH2D_L1rcvdData = new TH2D(
+      histoname.c_str(), histoname.c_str(), varbins.size() - 1, varbins.data(), varbins.size() - 1, varbins.data());
+
+  _cZDC_L1rcvdSumTP_DataSum[0] = ib.book2DD(histoname.c_str(), varBinningTH2D_L1rcvdData);
+  _cZDC_L1rcvdSumTP_DataSum[0]->setAxisTitle("L1 rcvd TP Sum (Online Counts)", 2);
+
+  histoname = "ZDCP_L1rcvdSumTP_DataSumTP";
+  ib.setCurrentFolder("Hcal/ZDCQIE10Task/TPs");
+  _cZDC_L1rcvdSumTP_DataSum[1] = ib.book2DD(histoname.c_str(), varBinningTH2D_L1rcvdData);
+  _cZDC_L1rcvdSumTP_DataSum[1]->setAxisTitle("Data TP Sum (Online Counts)", 1);
+  _cZDC_L1rcvdSumTP_DataSum[1]->setAxisTitle("L1 rcvd TP Sum (Online Counts)", 2);
 
   histoname = "CapIDs";
   ib.setCurrentFolder("Hcal/ZDCQIE10Task");
@@ -324,7 +361,7 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     _cTDC_EChannel[didm()]->setAxisTitle("TDC", 1);
     _cTDC_EChannel[didm()]->setAxisTitle("N", 2);
 
-    // FSC plus 
+    // FSC plus
     HcalZDCDetId didp(HcalZDCDetId::EM, true, channel);
 
     std::vector<std::string> stationStringP = {
@@ -340,7 +377,7 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     _cADC_vs_TS_EChannel[didp()]->setAxisTitle("TS", 1);
     _cADC_vs_TS_EChannel[didp()]->setAxisTitle("sum ADC", 2);
 
-    histoname = "FSC" + stationString.at(channel - 7);
+    histoname = "FSC" + stationStringP.at(channel - 7);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/fC_perChannel");
     _cfC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 100, 0, 8000);
     _cfC_EChannel[didp()]->setAxisTitle("fC", 1);
@@ -350,7 +387,7 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     _cfC_vs_TS_EChannel[didp()]->setAxisTitle("TS", 1);
     _cfC_vs_TS_EChannel[didp()]->setAxisTitle("sum fC", 2);
 
-    histoname = "FSC" + stationString.at(channel - 7);
+    histoname = "FSC" + stationStringP.at(channel - 7);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/TDC_perChannel");
     _cTDC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150, 0, 150);
     _cTDC_EChannel[didp()]->setAxisTitle("TDC", 1);
@@ -534,9 +571,33 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
     }
   }
 
+  edm::Handle<HcalTrigPrimDigiCollection> data_sums;
+  e.getByToken(sumTokenData_, data_sums);
+  double dataSumP = -1.0;
+  double dataSumM = -1.0;
+  for (HcalTrigPrimDigiCollection::const_iterator it = data_sums->begin(); it != data_sums->end(); ++it) {
+    //	Explicit check on the DetIds present in the Collection
+    HcalTrigTowerDetId tid = it->id();
+
+    // ZDCp TP
+    if (tid.ieta() >= 42 && tid.iphi() == 99) {
+      // need to convert to the actual dynamic range of the ZDC sums
+      dataSumP = it->t0().raw() & 1023;
+    }
+    // ZDCm TP
+    if (tid.ieta() <= -42 && tid.iphi() == 99) {
+      // need to convert to the actual dynamic range of the ZDC sums
+      dataSumM = it->t0().raw() & 1023;
+    }
+  }
+
   // now fill the unpacked and emulator comparison histogram
-  _cZDC_EmuSumTP_DataSum[0]->Fill(unpackedSumM, emulatedSumM);
-  _cZDC_EmuSumTP_DataSum[1]->Fill(unpackedSumP, emulatedSumP);
+  _cZDC_EmuSumTP_DataSum[0]->Fill(dataSumM, emulatedSumM);
+  _cZDC_EmuSumTP_DataSum[1]->Fill(dataSumP, emulatedSumP);
+  _cZDC_EmuSumTP_L1rcvdSum[0]->Fill(unpackedSumM, emulatedSumM);
+  _cZDC_EmuSumTP_L1rcvdSum[1]->Fill(unpackedSumP, emulatedSumP);
+  _cZDC_L1rcvdSumTP_DataSum[0]->Fill(dataSumM, unpackedSumM);
+  _cZDC_L1rcvdSumTP_DataSum[1]->Fill(dataSumP, unpackedSumP);
 
   edm::Handle<QIE10DigiCollection> digis;
   if (!e.getByToken(_tokQIE10, digis))
