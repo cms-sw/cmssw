@@ -504,39 +504,39 @@
 <PosPart copyNumber="1">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="-172.0*mm" y="0.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="0.0*mm" z="0*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="-86.0*mm" y="0.0*mm" z="0.0*mm"/>
-</PosPart>
-
-
-<PosPart copyNumber="3">
-<rParent name="tob:TOB"/>
-<rChild name="tob:LAYER1"/>
-<Translation x="0.0*mm" y="0.0*mm" z="0*mm"/>
-</PosPart>
-
-<PosPart copyNumber="4">
-<rParent name="tob:TOB"/>
-<rChild name="tob:LAYER1"/>
 <Translation x="86.0*mm" y="0.0*mm" z="0.0*mm"/>
 </PosPart>
 
-<PosPart copyNumber="5">
+<PosPart copyNumber="3">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
 <Translation x="172.0*mm" y="0.0*mm" z="0.0*mm"/>
 </PosPart>
 
 
-<PosPart copyNumber="6">
+<PosPart copyNumber="4">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
 <Translation x="258.0*mm" y="0.0*mm" z="0.0*mm"/>
+</PosPart>
+
+
+<PosPart copyNumber="5">
+<rParent name="tob:TOB"/>
+<rChild name="tob:LAYER1"/>
+<Translation x="344.0*mm" y="0.0*mm" z="0.0*mm"/>
+</PosPart>
+
+<PosPart copyNumber="6">
+<rParent name="tob:TOB"/>
+<rChild name="tob:LAYER1"/>
+<Translation x="430.0*mm" y="0.0*mm" z="0.0*mm"/>
 </PosPart>
 
 
