@@ -233,7 +233,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 
             'hltGPUvsCPU' : ['DQMOfflineHLTGPUvsCPU',
                              'PostDQMOffline',
-                             'dqmHarvesting'],
+                             'DQMHarvestHLTGPUvsCPU'],
 
             'standardDQMExpress': ['DQMOfflineExpress',
                                    'PostDQMOffline',
