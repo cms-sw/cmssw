@@ -139,7 +139,7 @@ ak4PFScoutingL1FastL2L3ResidualCorrectorTask = cms.Task(
 ak4PFScoutingL1FastL2L3ResidualCorrectorChain = cms.Sequence(ak4PFScoutingL1FastL2L3ResidualCorrectorTask)
     
 dqmAk4PFScoutingL1FastL2L3ResidualCorrector = ak4PFScoutingL1FastL2L3ResidualCorrector.clone()
-dqmAk4PFScoutingL1FastL2L3ResidualCorrectorChain = cms.Sequence(
+dqmAk4PFScoutingL1FastL2L3ResidualCorrectorTask = cms.Task(
     dqmAk4PFScoutingL1FastL2L3ResidualCorrector
 )
 
@@ -220,9 +220,10 @@ _jetMETDQMOfflineSourceWithPUPPI = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       *METDQMAnalyzerSequence
                                       *pfCandidateDQMAnalyzer)
 
-jetMETDQMOfflineSourceScouting = cms.Sequence(jetPreDQMSeqScouting*
-                                      dqmAk4PFScoutingL1FastL2L3ResidualCorrectorChain*
-                                      jetDQMAnalyzerSequenceScouting)
+# We must keep correctors in Task to skip their execution when in events without scouting objects
+jetMETDQMOfflineSourceScouting = cms.Sequence(jetDQMAnalyzerSequenceScouting,
+                                              jetPreDQMTaskScouting,
+                                              dqmAk4PFScoutingL1FastL2L3ResidualCorrectorTask)
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (~pp_on_AA).toReplaceWith(jetMETDQMOfflineSource, _jetMETDQMOfflineSourceWithPUPPI)
