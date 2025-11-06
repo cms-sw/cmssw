@@ -28,15 +28,15 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v15')
+streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v16')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHcalNZS_selector
 streamPhysicsCommissioning_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetHcalNZS_selector.triggerConditions = cms.vstring(
-    'HLT_HcalNZS_v22',
-    'HLT_HcalPhiSym_v24'
+    'HLT_HcalNZS_v23',
+    'HLT_HcalPhiSym_v25'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMinimumBias_selector
@@ -315,7 +315,7 @@ streamPhysicsSpecialMinimumBias0_datasetSpecialMinimumBias0_selector.l1tResults 
 streamPhysicsSpecialMinimumBias0_datasetSpecialMinimumBias0_selector.throw      = cms.bool(False)
 streamPhysicsSpecialMinimumBias0_datasetSpecialMinimumBias0_selector.triggerConditions = cms.vstring(
     'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
-    'HLT_PixelClusters_WP2_HighRate_v1'
+    'HLT_PixelClusters_WP2_HighRate_v2'
 )
 
 
@@ -327,7 +327,7 @@ streamPhysicsSpecialMinimumBias1_datasetSpecialMinimumBias1_selector.l1tResults 
 streamPhysicsSpecialMinimumBias1_datasetSpecialMinimumBias1_selector.throw      = cms.bool(False)
 streamPhysicsSpecialMinimumBias1_datasetSpecialMinimumBias1_selector.triggerConditions = cms.vstring(
     'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
-    'HLT_PixelClusters_WP2_HighRate_v1'
+    'HLT_PixelClusters_WP2_HighRate_v2'
 )
 
 
@@ -339,7 +339,7 @@ streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.l1tResults 
 streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.throw      = cms.bool(False)
 streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.triggerConditions = cms.vstring(
     'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
-    'HLT_PixelClusters_WP2_HighRate_v1'
+    'HLT_PixelClusters_WP2_HighRate_v2'
 )
 
 
@@ -351,7 +351,7 @@ streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.l1tResults 
 streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.throw      = cms.bool(False)
 streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.triggerConditions = cms.vstring(
     'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
-    'HLT_PixelClusters_WP2_HighRate_v1'
+    'HLT_PixelClusters_WP2_HighRate_v2'
 )
 
 
