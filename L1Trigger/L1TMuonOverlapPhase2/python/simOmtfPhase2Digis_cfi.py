@@ -11,10 +11,12 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
   srcDTThPhase2 = cms.InputTag('dtTriggerPhase2PrimitiveDigis'),
 
   ##  XML / PATTERNS file:
-  configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0209.xml"),
+  #configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0209.xml"),
+  configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0210.xml"),
   extrapolFactorsFilename = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/ExtrapolationFactors_ExtraplMB1nadMB2_R_EtaValueP1Scale_t35.xml"),
-  patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_ExtraplMB1andMB2RFixedP_ValueP1Scale_DT_2_2_2_t35__classProb17_recalib2.xml"),
-
+  #patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_ExtraplMB1andMB2RFixedP_ValueP1Scale_DT_2_2_2_t35__classProb17_recalib2.xml"), #pt defined at approx 80% of the efficiency curve
+  patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_ExtraplMB1andMB2RFixedP_ValueP1Scale_DT_2_2_2_t35__classProb17.xml"), #pt defined at approx 50% of the efficiency curve
+  
   dumpResultToXML = cms.bool(False),
   dumpDetailedResultToXML = cms.bool(False),
   XMLDumpFileName = cms.string("TestEvents.xml"),                                     
@@ -44,7 +46,7 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
   
   dtPhiBUnitsRad = cms.int32(1024), #2048 is the orginal phase2 scale, 512 is the phase1 scale
     
-  stubEtaEncoding = cms.string("valueP1Scale"), #TODO change to valueP1Scale when InputMakerPhase2 is modifiwed
+  stubEtaEncoding = cms.string("valueP2Scale"), #TODO change to valueP1Scale when InputMakerPhase2 is modifiwed
   
   rpcMaxClusterSize = cms.int32(3),
   rpcMaxClusterCnt = cms.int32(2),

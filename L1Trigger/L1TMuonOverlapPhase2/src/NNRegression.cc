@@ -11,7 +11,6 @@
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-#include "L1Trigger/L1TMuonOverlapPhase2/interface/PtAssignmentNNRegression.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/LutNetworkFixedPointRegressionMultipleOutputs.h"
 #include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
@@ -19,6 +18,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <L1Trigger/L1TMuonOverlapPhase2/interface/NNRegression.h>
 
 #include <sstream>
 #include <fstream>
@@ -89,10 +89,10 @@ namespace lutNN {
       LutNetworkFP;
 }  // namespace lutNN
 
-PtAssignmentNNRegression::PtAssignmentNNRegression(const edm::ParameterSet& edmCfg,
+NNRegression::NNRegression(const edm::ParameterSet& edmCfg,
                                                    const OMTFConfiguration* omtfConfig,
                                                    std::string networkFile)
-    : PtAssignmentBase(omtfConfig), lutNetworkFP(make_unique<lutNN::LutNetworkFP>()) {
+    : MlModelBase(omtfConfig), lutNetworkFP(make_unique<lutNN::LutNetworkFP>()) {
   std::ifstream ifs(networkFile);
 
   edm::LogImportant("OMTFReconstruction")
@@ -354,7 +354,7 @@ bool omtfHitToEventInput(OmtfHit& hit, std::vector<float>& inputs, unsigned int 
   return false;
 }
 
-void PtAssignmentNNRegression::run(AlgoMuons::value_type& algoMuon,
+void NNRegression::run(AlgoMuons::value_type& algoMuon,
                                    std::vector<std::unique_ptr<IOMTFEmulationObserver>>& observers) {
   LogTrace("l1tOmtfEventPrint") << " " << __FUNCTION__ << ":" << __LINE__ << std::endl;
   auto& gpResult = algoMuon->getGpResultConstr();
@@ -437,10 +437,9 @@ void PtAssignmentNNRegression::run(AlgoMuons::value_type& algoMuon,
   LogTrace("l1tOmtfEventPrint") << " " << __FUNCTION__ << ":" << __LINE__ << std::endl;
 
   int charge = nnResult[2] >= 0 ? 1 : -1;
-  double pt = std::copysign(nnResult.at(0), charge);
 
   LogTrace("l1tOmtfEventPrint") << " " << __FUNCTION__ << ":" << __LINE__ << " nnResult.at(0) " << nnResult.at(0)
-                                << " nnResult.at(1) " << nnResult.at(1) << " pt " << pt << std::endl;
+                                << " nnResult.at(1) " << nnResult.at(1) << std::endl;
 
   //algoMuon->setPtNN(omtfConfig->ptGevToHw(nnResult.at(0)));
   //auto calibratedHwPt = lutNetworkFP->getCalibratedHwPt();
@@ -451,8 +450,9 @@ void PtAssignmentNNRegression::run(AlgoMuons::value_type& algoMuon,
 
   //here the pts are GeV
   double omtfPt = omtfConfig->hwPtToGev(algoMuon->getPtConstr());
-  double combinedPt = nnResult.at(0);
-  if( (nnResult.at(0) - omtfPt)  > 0.75 * omtfPt)
+  double nnPt = nnResult.at(0);
+  double combinedPt = nnPt;
+  if( nnPt < 2.5 || (nnResult[0] - omtfPt)  > 0.75 * omtfPt)
     combinedPt = omtfPt;
 
   algoMuon->setPtNNConstr(combinedPt);
@@ -465,31 +465,31 @@ void PtAssignmentNNRegression::run(AlgoMuons::value_type& algoMuon,
 
   algoMuon->setNnOutputs(nnResult);
 
-  //TODO add some if here, such that the property_tree is filled only when needed
-  boost::property_tree::ptree procDataTree;
-  for (unsigned int i = 0; i < inputs.size(); i++) {
-    auto& inputTree = procDataTree.add("input", "");
-    inputTree.add("<xmlattr>.num", i);
-    inputTree.add("<xmlattr>.val", inputs[i]);
+  if (omtfConfig->getDumpResultToXML()) {
+    boost::property_tree::ptree procDataTree;
+    for (unsigned int i = 0; i < inputs.size(); i++) {
+      auto& inputTree = procDataTree.add("input", "");
+      inputTree.add("<xmlattr>.num", i);
+      inputTree.add("<xmlattr>.val", inputs[i]);
+    }
+
+    std::ostringstream ostr;
+
+    for (unsigned int i = 0; i < nnResult.size(); i++) {
+      auto& inputTree = procDataTree.add("output", "");
+      ostr.str("");
+      ostr << std::fixed << std::setprecision(19) << nnResult.at(i);
+
+      inputTree.add("<xmlattr>.num", i);
+      inputTree.add("<xmlattr>.val", ostr.str());
+    }
+    //procDataTree.add("calibratedHwPt.<xmlattr>.val", calibratedHwPt);
+
+    procDataTree.add("hwSign.<xmlattr>.val", algoMuon->getChargeNNConstr() < 0 ? 1 : 0);
+
+    for (auto& obs : observers)
+      obs->addProcesorData("regressionNN", procDataTree);
   }
-
-  std::ostringstream ostr;
-
-  for (unsigned int i = 0; i < nnResult.size(); i++) {
-    auto& inputTree = procDataTree.add("output", "");
-    ostr.str("");
-    ostr << std::fixed << std::setprecision(19) << nnResult.at(i);
-
-    inputTree.add("<xmlattr>.num", i);
-    inputTree.add("<xmlattr>.val", ostr.str());
-  }
-
-  //procDataTree.add("calibratedHwPt.<xmlattr>.val", calibratedHwPt);
-
-  procDataTree.add("hwSign.<xmlattr>.val", algoMuon->getChargeNNConstr() < 0 ? 1 : 0);
-
-  for (auto& obs : observers)
-    obs->addProcesorData("regressionNN", procDataTree);
 
   //event.print();
   /*
