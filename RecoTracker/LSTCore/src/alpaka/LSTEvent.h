@@ -40,6 +40,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   private:
     Queue& queue_;
     const float ptCut_;
+    const uint16_t clustSizeCut_;
 
     std::array<unsigned int, 6> n_minidoublets_by_layer_barrel_{};
     std::array<unsigned int, 5> n_minidoublets_by_layer_endcap_{};
@@ -93,9 +94,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   public:
     // Constructor used for CMSSW integration. Uses an external queue.
-    LSTEvent(bool verbose, const float pt_cut, Queue& q, const LSTESData<Device>* deviceESData)
+    LSTEvent(
+        bool verbose, const float ptCut, const uint16_t clustSizeCut, Queue& q, const LSTESData<Device>* deviceESData)
         : queue_(q),
-          ptCut_(pt_cut),
+          ptCut_(ptCut),
+          clustSizeCut_(clustSizeCut),
           nModules_(deviceESData->nModules),
           nLowerModules_(deviceESData->nLowerModules),
           nPixels_(deviceESData->nPixels),
@@ -104,9 +107,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           pixelMapping_(*deviceESData->pixelMapping),
           endcapGeometry_(*deviceESData->endcapGeometry),
           addObjects_(verbose) {
-      if (pt_cut < 0.6f) {
+      if (ptCut < 0.6f) {
         throw std::invalid_argument("Minimum pT cut must be at least 0.6 GeV. Provided value: " +
-                                    std::to_string(pt_cut));
+                                    std::to_string(ptCut));
       }
     }
     void initSync();        // synchronizes, for standalone usage

@@ -81,6 +81,16 @@ void TreeUtil::loadAllBranches() {
   }
 }
 
+bool TreeUtil::contains(const std::string& name) const {
+  if (data.find(name) != data.end()) {
+    return true;
+  }
+  if (tree->GetBranch(name.c_str())) {
+    return true;
+  }
+  return false;
+}
+
 template <typename T>
 const T& TreeUtil::get(const std::string& name) {
   auto it = data.find(name);

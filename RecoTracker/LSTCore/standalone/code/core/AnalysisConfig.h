@@ -49,6 +49,9 @@ public:
   // pt cut
   float ptCut;
 
+  // cluster size cut
+  uint16_t clustSizeCut;
+
   // pdg id of the particles to compute efficincies on
   int pdg_id;
 

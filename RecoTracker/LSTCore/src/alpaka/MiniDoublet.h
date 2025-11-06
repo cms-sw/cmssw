@@ -622,7 +622,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                float yUpper,
                                                float zUpper,
                                                float rtUpper,
-                                               const float ptCut) {
+                                               const float ptCut,
+                                               uint16_t clustSizeLower,
+                                               uint16_t clustSizeUpper,
+                                               const uint16_t clustSizeCut) {
+    if (clustSizeLower > clustSizeCut or clustSizeUpper > clustSizeCut) {
+      return false;
+    }
     if (modules.subdets()[lowerModuleIndex] == Barrel) {
       return runMiniDoubletDefaultAlgoBarrel(acc,
                                              modules,
@@ -683,7 +689,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   MiniDoublets mds,
                                   MiniDoubletsOccupancy mdsOccupancy,
                                   ObjectRangesConst ranges,
-                                  const float ptCut) const {
+                                  const float ptCut,
+                                  const uint16_t clustSizeCut) const {
       for (uint16_t lowerModuleIndex : cms::alpakatools::uniform_elements_y(acc, modules.nLowerModules())) {
         uint16_t upperModuleIndex = modules.partnerModuleIndices()[lowerModuleIndex];
         int nLowerHits = hitsRanges.hitRangesnLower()[lowerModuleIndex];
@@ -711,6 +718,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           float yUpper = hitsBase.ys()[upperHitArrayIndex];
           float zUpper = hitsBase.zs()[upperHitArrayIndex];
           float rtUpper = hitsExtended.rts()[upperHitArrayIndex];
+          uint16_t clustSizeLower = hitsBase.clustsize()[lowerHitArrayIndex];
+          uint16_t clustSizeUpper = hitsBase.clustsize()[upperHitArrayIndex];
 
           float dz, dphi, dphichange, shiftedX, shiftedY, shiftedZ, noShiftedDphi, noShiftedDphiChange;
           bool success = runMiniDoubletDefaultAlgo(acc,
@@ -735,7 +744,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                    yUpper,
                                                    zUpper,
                                                    rtUpper,
-                                                   ptCut);
+                                                   ptCut,
+                                                   clustSizeLower,
+                                                   clustSizeUpper,
+                                                   clustSizeCut);
           if (success) {
             int totOccupancyMDs = alpaka::atomicAdd(
                 acc, &mdsOccupancy.totOccupancyMDs()[lowerModuleIndex], 1u, alpaka::hierarchy::Threads{});
