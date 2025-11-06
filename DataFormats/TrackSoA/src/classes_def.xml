@@ -3,7 +3,7 @@
   <class name="reco::TrackLayout<128, false>"/>
   <class name="reco::TrackHitsLayout<128, false>"/>
 
-  <class name="reco::TracksHost"/>
+  <class name="reco::TracksHost" rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<reco::TracksHost>" splitLevel="0"/>
 
   <!-- Recursive templates (with no data) ensuring we have one CollectionLeaf<index, type> for each layout in the collection -->
