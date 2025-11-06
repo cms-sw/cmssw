@@ -638,6 +638,7 @@ private:
   const std::vector<edm::EDGetTokenT<HGCRecHitCollection>> rechits_tokens_;
   const std::vector<edm::InputTag> label_simhits;
   const std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> simhits_tokens_;
+  const edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
 
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   const std::string detector_;
@@ -769,6 +770,9 @@ private:
   std::vector<float> rechit_z;
   std::vector<float> rechit_time;
   std::vector<float> rechit_radius;
+  std::vector<float> rechit_simEnergy;
+  std::vector<float> rechit_simEnergyEM;
+  std::vector<float> rechit_simEnergyHad;
 
   std::vector<uint32_t> simhit_ID;
   std::vector<float> simhit_energy;
@@ -898,6 +902,9 @@ void TICLDumper::clearVariables() {
   rechit_z.clear();
   rechit_time.clear();
   rechit_radius.clear();
+  rechit_simEnergy.clear();
+  rechit_simEnergyEM.clear();
+  rechit_simEnergyHad.clear();
 
   simhit_ID.clear();
   simhit_energy.clear();
@@ -953,6 +960,8 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       label_simhits(ps.getParameter<std::vector<edm::InputTag>>("label_simhits")),
       simhits_tokens_{edm::vector_transform(
           label_simhits, [this](const edm::InputTag& lab) { return consumes<std::vector<PCaloHit>>(lab); })},
+      hitMapToken_(
+          consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
       detector_(ps.getParameter<std::string>("detector")),
       propName_(ps.getParameter<std::string>("propagator")),
@@ -1029,6 +1038,9 @@ void TICLDumper::beginJob() {
     rechits_tree_->Branch("position_z", &rechit_z);
     rechits_tree_->Branch("time", &rechit_time);
     rechits_tree_->Branch("radiusToSide", &rechit_radius);
+    rechits_tree_->Branch("simEnergy", &rechit_simEnergy);
+    rechits_tree_->Branch("simEnergyEM", &rechit_simEnergyEM);
+    rechits_tree_->Branch("simEnergyHad", &rechit_simEnergyHad);
 
     simhits_tree_ = fs->make<TTree>("simhits", "HGCAL simhits");
     simhits_tree_->Branch("ID", &simhit_ID);
@@ -1278,6 +1290,28 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
   nclusters_ = clusters.size();
 
   if (saveHits_) {
+    edm::Handle<std::unordered_map<DetId, const unsigned int>> hitMap;
+    event.getByToken(hitMapToken_, hitMap);
+
+    struct ThreeFloat {
+      ThreeFloat() : energy(0.f), energyEM(0.f), energyHad(0.f) {};
+      ThreeFloat(double e, double eEM, double eHad) : energy((float)e), energyEM((float)eEM), energyHad((float)eHad) {};
+      ThreeFloat(float e, float eEM, float eHad) : energy(e), energyEM(eEM), energyHad(eHad) {};
+
+      ThreeFloat& operator+=(const ThreeFloat& other) {
+        energy += other.energy;
+        energyEM += other.energyEM;
+        energyHad += other.energyHad;
+        return *this;
+      }
+
+      float energy;
+      float energyEM;
+      float energyHad;
+    };
+
+    std::vector<ThreeFloat> hitIdToEnergies(hitMap->size());
+
     for (auto const& sh_token : simhits_tokens_) {
       edm::Handle<std::vector<PCaloHit>> simhit_handle;
       event.getByToken(sh_token, simhit_handle);
@@ -1292,6 +1326,11 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
         simhit_z.push_back(shPosition.z());
         simhit_ID.push_back(sh.id());
         simhit_time.push_back(sh.time());
+        const auto hitId = hitMap->find(DetId(sh.id()));
+        if (hitId != hitMap->end()) {
+          hitIdToEnergies[hitId->second] += {sh.energy(), sh.energyEM(), sh.energyHad()};
+        }
+      }
     }
 
     for (auto const& rh_token : rechits_tokens_) {
@@ -1307,6 +1346,12 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
         rechit_ID.push_back(rh.detid());
         rechit_time.push_back(rh.time());
         rechit_radius.push_back(detectorTools_->rhtools.getRadiusToSide(rh.detid()));
+        const auto hitId = hitMap->find(DetId(rh.detid()));
+        if (hitId != hitMap->end()) {
+          rechit_simEnergy.push_back(hitIdToEnergies[hitId->second].energy);
+          rechit_simEnergyEM.push_back(hitIdToEnergies[hitId->second].energyEM);
+          rechit_simEnergyHad.push_back(hitIdToEnergies[hitId->second].energyHad);
+        }
       }
     }
   }
@@ -1582,6 +1627,7 @@ void TICLDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
                                        {edm::InputTag("g4SimHits", "HGCHitsEE"),
                                         edm::InputTag("g4SimHits", "HGCHitsHEfront"),
                                         edm::InputTag("g4SimHits", "HGCHitsHEback")});
+  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
 
   // Settings for dumping trackster associators (recoToSim & simToReco)
   edm::ParameterSetDescription associatorDescValidator;
