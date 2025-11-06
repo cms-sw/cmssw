@@ -33,6 +33,8 @@ public:
 
   virtual AlgoMuons ghostBust(AlgoMuons refHitCands, int charge = 0) = 0;
 
+  virtual FinalMuons getFinalMuons(unsigned int iProcessor, l1t::tftype mtfType, const AlgoMuons& gbCandidates) = 0;
+
   virtual std::vector<l1t::RegionalMuonCand> getRegionalMuonCands(unsigned int iProcessor,
                                                                   l1t::tftype mtfType,
                                                                   FinalMuons& finalMuons) = 0;
@@ -42,10 +44,6 @@ public:
                          int bx,
                          OMTFinputMaker* inputMaker,
                          std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) = 0;
-
-
-  virtual void setAssignQualityFunction(
-      std::function<void(AlgoMuons::value_type& algoMuon)> asignQuality) = 0;
 
   virtual void printInfo() const = 0;
 };

@@ -149,7 +149,7 @@ int OmtfAngleConverter::getGlobalEta(const DTChamberId dTChamberId,
 
   if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::bits)
     return OMTFConfiguration::eta2Bits(abs(iEta));
-  else if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::valueP1Scale)
+  else if (config->getStubEtaEncoding() >= ProcConfigurationBase::StubEtaEncoding::valueP1Scale)
     return abs(iEta);
 
   return 0;
@@ -213,7 +213,7 @@ int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTD
 
   if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::bits)
     return OMTFConfiguration::eta2Bits(abs(etaKeyWG2Code(id, keyWG)));
-  else if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::valueP1Scale) {
+  else if (config->getStubEtaEncoding() >= ProcConfigurationBase::StubEtaEncoding::valueP1Scale) {
     return config->etaToHwEta(abs(gpWg.eta()));
   } else {
     return 0;
@@ -233,7 +233,7 @@ int OmtfAngleConverter::getGlobalEtaRpc(unsigned int rawid, const unsigned int &
 
   if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::bits)
     return OMTFConfiguration::eta2Bits(abs(etaVal2Code(gp.eta())));
-  else if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::valueP1Scale)
+  else if (config->getStubEtaEncoding() >= ProcConfigurationBase::StubEtaEncoding::valueP1Scale)
     return abs(config->etaToHwEta((gp.eta())));
 
   return 0;
