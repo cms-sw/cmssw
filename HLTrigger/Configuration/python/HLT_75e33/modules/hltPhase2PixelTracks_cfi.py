@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpakaPhase2",
+hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
     beamSpot = cms.InputTag("hltOnlineBeamSpot"),
     minNumberOfHits = cms.int32(0),
     minQuality = cms.string('tight'),
