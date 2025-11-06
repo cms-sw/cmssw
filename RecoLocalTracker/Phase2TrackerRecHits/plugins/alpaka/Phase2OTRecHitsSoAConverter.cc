@@ -167,7 +167,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
-    Hits stripHitsSoA(queue, PHitsInOTBarrel, orderedModules_.size());
+    Hits stripHitsSoA(queue, PHitsInOT, orderedModules_.size());
     auto& stripHitsModuleView = stripHitsSoA.view<::reco::HitModuleSoA>();
 
 #ifdef HITS_DEBUG
@@ -226,7 +226,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // Select only P-hits from the OT barrel
           if (detIdIsP_[detId]) {
             int idx = moduleHitIndex++;
-            assert(idx < PHitsInOTBarrel);
+            assert(idx < PHitsInOT);
             auto hit = stripHitsSoA.view()[idx];
             hit.xLocal() = recHit.localPosition().x();
             hit.yLocal() = recHit.localPosition().y();
