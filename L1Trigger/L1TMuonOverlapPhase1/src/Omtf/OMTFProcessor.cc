@@ -72,10 +72,6 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
     edm::LogVerbatim("OMTFReconstruction") << "setting GhostBuster" << std::endl;
   }
 
-  assignQuality = [&](AlgoMuons::value_type& algoMuon) {
-    return this->assignQualityPhase1(algoMuon);
-  };
-
   edm::LogVerbatim("OMTFReconstruction") << "fwVersion 0x" << hex << this->myOmtfConfig->fwVersion() << std::endl;
 
   useStubQualInExtr = this->myOmtfConfig->useStubQualInExtr();
@@ -104,7 +100,7 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
 }
 
 template <class GoldenPatternType>
-void OMTFProcessor<GoldenPatternType>::assignQualityPhase1(AlgoMuons::value_type& algoMuon) {
+void OMTFProcessor<GoldenPatternType>::assignQuality(AlgoMuons::value_type& algoMuon) {
   unsigned int quality = 12;
   if (this->myOmtfConfig->fwVersion() <= 6)
     quality = checkHitPatternValidity(algoMuon->getFiredLayerBits()) ? 0 | (1 << 2) | (1 << 3) : 0 | (1 << 2);  //12 : 4
@@ -761,7 +757,7 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
               LogTrace("l1tOmtfEventPrint")
                   << "\n"
                   << __FUNCTION__ << ":" << __LINE__ << " extrapolating from layer " << refLayerLogicNum
-                  << " - iRefLayer " << aRefHitDef.iRefLayer << " to layer " << iLayer << " stub " << targetStub
+                  << " - iRefLayer " << aRefHitDef.iRefLayer << " to layer " << iLayer << " stub " << *targetStub
                   << " value " << extrapolatedPhi[iStub] << std::endl;
 
               if (this->myOmtfConfig->getDumpResultToXML()) {
@@ -899,22 +895,15 @@ FinalMuons OMTFProcessor<GoldenPatternType>::run(unsigned int iProcessor,
   //LogTrace("l1tOmtfEventPrint")<<"processInput       "; t.report();
   AlgoMuons algoCandidates = sortResults(iProcessor, mtfType);
 
-  for (auto& algoMuon : algoCandidates) {
-    assignQuality(algoMuon);
-  }
-
-  if (ptAssignment) {
-    for (auto& algoMuon : algoCandidates) {
-      if (algoMuon->isValid()) {
-        ptAssignment->run(algoMuon, observers);
-      }
-    }
-  }
-
   //LogTrace("l1tOmtfEventPrint")<<"sortResults        "; t.report();
   // perform GB
   //watch out: etaBits2HwEta is used in the ghostBust to convert the AlgoMuons eta, it affect algoCandidates as they are pointers
   AlgoMuons gbCandidates = ghostBust(algoCandidates);
+  
+  //assignQuality must be called after ghostBust, because eta is set there
+  for (auto& gbCandidate : gbCandidates) {
+    assignQuality(gbCandidate);
+  }
 
   //LogTrace("l1tOmtfEventPrint")<<"ghostBust"; t.report();
 
@@ -923,9 +912,6 @@ FinalMuons OMTFProcessor<GoldenPatternType>::run(unsigned int iProcessor,
   for(auto& finalMuon : finalMuons) {
     finalMuon->setBx(bx);
   }
-
-  // fill RegionalMuonCand colleciton
-  //std::vector<l1t::RegionalMuonCand> candMuons = getFinalcandidates(iProcessor, mtfType, gbCandidates);
 
   for (auto& obs : observers) {
     obs->observeProcesorEmulation(iProcessor, mtfType, input, algoCandidates, gbCandidates, finalMuons);

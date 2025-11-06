@@ -8,15 +8,15 @@
 #ifndef L1Trigger_L1TMuonOverlapPhase2_PtAssigmentNNRegression_h
 #define L1Trigger_L1TMuonOverlapPhase2_PtAssigmentNNRegression_h
 
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/PtAssignmentBase.h"
+#include "L1Trigger/L1TMuonOverlapPhase2/interface/MlModelBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/LutNetworkFixedPointCommon.h"
 
-class PtAssignmentNNRegression : public PtAssignmentBase {
+class NNRegression : public MlModelBase {
 public:
-  PtAssignmentNNRegression(const edm::ParameterSet& edmCfg,
+  NNRegression(const edm::ParameterSet& edmCfg,
                            const OMTFConfiguration* omtfConfig,
                            std::string networkFile);
-  ~PtAssignmentNNRegression() override = default;
+  ~NNRegression() override = default;
 
   void run(AlgoMuons::value_type& algoMuon, std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) override;
 

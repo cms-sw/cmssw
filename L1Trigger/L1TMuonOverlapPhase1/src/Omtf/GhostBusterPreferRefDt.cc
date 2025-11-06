@@ -195,8 +195,8 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
         //The condition  abs(muIN2->getEtaHw()) != 121 was added in the FW in 2024
         //TODO add 95 meaning no DT segment was found, or don't use 95 in OmtfAngleConverter::getGlobalEta
         if (omtfConfig->getRefToLogicNumber()[muIN1->getRefLayer()] <= 5 && (omtfConfig->fwVersion() >= 6) &&
-            (abs(muIN1->getEtaHw()) == 75 || abs(muIN1->getEtaHw()) == 79 || abs(muIN1->getEtaHw()) == 92) &&
-            (abs(muIN2->getEtaHw()) != 75 && abs(muIN2->getEtaHw()) != 79 && abs(muIN2->getEtaHw()) != 92 &&
+            (abs(muIN1->getEtaHw()) == omtfConfig->mb1W2Eta() || abs(muIN1->getEtaHw()) == omtfConfig->mb2W2Eta() || abs(muIN1->getEtaHw()) == omtfConfig->mb3W2Eta()) &&
+            (abs(muIN2->getEtaHw()) != omtfConfig->mb1W2Eta() && abs(muIN2->getEtaHw()) != omtfConfig->mb2W2Eta() && abs(muIN2->getEtaHw()) != omtfConfig->mb3W2Eta() &&
              abs(muIN2->getEtaHw()) != 121)) {
           muIN1->setEta(muIN2->getEtaHw());
         }

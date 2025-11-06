@@ -103,6 +103,7 @@ void OMTFReconstruction::beginRun(edm::Run const& run,
 
       //patterns from the edm::EventSetup are reloaded every beginRun
       //therefore OMTFProcessor is re-created here
+      //TODO would be better to just update the patterns in the existing OMTFProcessor
       edm::LogVerbatim("OMTFReconstruction") << "getting patterns from EventSetup" << std::endl;
       if (processorType == "OMTFProcessor") {
         omtfProc = std::make_unique<OMTFProcessor<GoldenPattern> >(

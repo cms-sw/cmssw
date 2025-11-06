@@ -141,7 +141,7 @@ public:
   double ptUnit = 0.5;  // GeV/unit
   ///uGMT pt scale conversion
   //TODO refactor to omtfPtToGev
-  double hwPtToGev(int hwPt) const override { return (hwPt - 1.) * ptUnit; }
+  double hwPtToGev(int hwPt) const override { return (hwPt == 0 ? 0 : (hwPt - 1.) * ptUnit);}
 
   ///uGMT pt scale conversion: [0GeV, 0.5GeV) = 1 [0.5GeV, 1 Gev) = 2
   int ptGevToHw(double ptGev) const override { return (ptGev / ptUnit + 1); }

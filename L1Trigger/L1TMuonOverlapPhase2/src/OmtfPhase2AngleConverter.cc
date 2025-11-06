@@ -58,8 +58,7 @@ int OmtfPhase2AngleConverter::getGlobalEta(DTChamberId dTChamberId,
     foundeta = false;
 
   if (foundeta) {
-    //return std::abs(config->etaToHwEta(eta)); TODO use this version
-    return std::abs(std::lround(eta * 92));
+    return std::abs(config->etaToHwEta(eta));
   } else {
     //Returning eta of the chamber middle
     if (dTChamberId.station() == 1)
@@ -71,5 +70,5 @@ int OmtfPhase2AngleConverter::getGlobalEta(DTChamberId dTChamberId,
 
     return eta;
   }
-  return 95;
+  return 0; //should not be reached
 }
