@@ -214,14 +214,6 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams) {
 
     setGhostBusterType("byRefLayer");
   }
-
-  //phase-2
-  if (fwVersion() >= 0x0210) {
-    //like in DataFormats/L1TMuonPhase2/interface/Constants.h
-    const int BITSETA = 13;
-    const float LSBeta = 2. * M_PI / pow(2, BITSETA);
-    etaUnit_ = LSBeta;
-  }
 }
 
 void OMTFConfiguration::configureFromEdmParameterSet(const edm::ParameterSet &edmParameterSet) {
@@ -310,6 +302,15 @@ void OMTFConfiguration::configureFromEdmParameterSet(const edm::ParameterSet &ed
 
   if (edmParameterSet.exists("usePhase2DTPrimitives")) {
     usePhase2DTPrimitives_ = edmParameterSet.getParameter<bool>("usePhase2DTPrimitives");
+  }
+
+  //phase-2
+  if (getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::valueP2Scale) {
+    //in DataFormats/L1TMuonPhase2/interface/Constants.h BITSETA = 13
+    //for OMTF we reduce the precision
+    const int BITSETA = 13 - 2;
+    const float LSBeta = 2. * M_PI / pow(2, BITSETA);
+    etaUnit_ = LSBeta;
   }
 }
 
@@ -602,6 +603,8 @@ void OMTFConfiguration::printConfig() const {
   edm::LogVerbatim("OMTFReconstruction") << "useStubQualInExtr " << useStubQualInExtr_ << std::endl;
   edm::LogVerbatim("OMTFReconstruction") << "useEndcapStubsRInExtr " << useEndcapStubsRInExtr_ << std::endl;
   edm::LogVerbatim("OMTFReconstruction") << "dtRefHitMinQuality " << dtRefHitMinQuality << std::endl;
+
+  edm::LogVerbatim("OMTFReconstruction") << "etaUnit_ " << etaUnit_ << std::endl;
 
   edm::LogVerbatim("OMTFReconstruction") << "cleanStubs " << cleanStubs_ << std::endl;
 }

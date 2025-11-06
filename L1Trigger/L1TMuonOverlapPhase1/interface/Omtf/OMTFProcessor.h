@@ -100,9 +100,9 @@ public:
     return ghostBuster->select(refHitCands, charge);
   }
 
-  void assignQualityPhase1(AlgoMuons::value_type& algoMuon);
+  void assignQuality(AlgoMuons::value_type& algoMuon);
  
-  FinalMuons getFinalMuons(unsigned int iProcessor, l1t::tftype mtfType, const AlgoMuons& gbCandidates);
+  FinalMuons getFinalMuons(unsigned int iProcessor, l1t::tftype mtfType, const AlgoMuons& gbCandidates) override;
   
   void convertToGmtScalesPhase1(unsigned int iProcessor, l1t::tftype mtfType, FinalMuonPtr& finalMuon);
 
@@ -115,14 +115,6 @@ public:
 
   ///allows to use other IGhostBuster implementation than the default one
   void setGhostBuster(IGhostBuster* ghostBuster) override { this->ghostBuster.reset(ghostBuster); }
-
-  virtual void setPtAssignment(PtAssignmentBase* ptAssignment) { this->ptAssignment = ptAssignment; }
-
-
-  void setAssignQualityFunction(
-      std::function<void(AlgoMuons::value_type& algoMuon)> assignQuality) override {
-    this->assignQuality = assignQuality;
-  }
 
   FinalMuons run(unsigned int iProcessor,
                  l1t::tftype mtfType,
@@ -149,11 +141,6 @@ private:
   std::unique_ptr<SorterBase<GoldenPatternType> > sorter;
 
   std::unique_ptr<IGhostBuster> ghostBuster;
-
-  std::function<void(AlgoMuons::value_type& algoMuon)> assignQuality;
-
-  //ptAssignment should be destroyed where it is created, i.e. by OmtfEmulation or OMTFReconstruction
-  PtAssignmentBase* ptAssignment = nullptr;
 
   bool useStubQualInExtr = false;
   bool useEndcapStubsRInExtr = false;

@@ -68,6 +68,8 @@ void ProcConfigurationBase::configureFromEdmParameterSet(const edm::ParameterSet
       stubEtaEncoding = StubEtaEncoding::bits;
     else if (stubEtaEncodingStr == "valueP1Scale")
       stubEtaEncoding = StubEtaEncoding::valueP1Scale;
+    else if (stubEtaEncodingStr == "valueP2Scale")
+      stubEtaEncoding = StubEtaEncoding::valueP2Scale;
     else
       throw cms::Exception(std::string("ProcConfigurationBase::configureFromEdmParameterSet: stubEtaEncoding ") +
                            stubEtaEncodingStr + "is not correct");
