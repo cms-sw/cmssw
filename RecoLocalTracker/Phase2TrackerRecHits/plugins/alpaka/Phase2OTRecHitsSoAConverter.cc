@@ -115,7 +115,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     for (auto& detUnit : detUnits) {
       DetId detId(detUnit->geographicalId());
-      detIdIsP_[detId.rawId()] = isPinPSinOTBarrel(detId)||isPinPSinOTDisk(detId);
+      detIdIsP_[detId.rawId()] = isPinPSinOTBarrel(detId) || isPinPSinOTDisk(detId);
       if (isPh2Pixel(detId))
         modulesInPixel_++;
       if (isPinPSinOTBarrel(detId)) {
@@ -124,22 +124,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         orderedModules_.push_back(detUnit->index());
 #ifdef HITS_DEBUG
         std::cout << "Phase2OTRecHitsSoAConverter beginRun" << std::endl
-                  << "Inserted " << detUnit->index() << " " << orderedModules_.size()
-                  << " on layer " << int((detId.rawId() >> 20) & 0xF) << std::endl;
+                  << "Inserted " << detUnit->index() << " " << orderedModules_.size() << " on layer "
+                  << int((detId.rawId() >> 20) & 0xF) << std::endl;
 #endif
       }
     }
     for (auto& detUnit : detUnits) {
-      DetId detId(detUnit->geographicalId());  
+      DetId detId(detUnit->geographicalId());
       if (isPinPSinOTDisk(detId)) {
         detIdToIndex_[detUnit->geographicalId()] = detUnit->index();
         moduleIndexToOffset_[detUnit->index()] = orderedModules_.size();
         orderedModules_.push_back(detUnit->index());
-#ifdef HITS_DEBUG      
-        std::cout << "Inserted " << detUnit->index() << " " << orderedModules_.size()
-                  << " on layer " << int((detId.rawId() >> 20) & 0xF) << std::endl;
+#ifdef HITS_DEBUG
+        std::cout << "Inserted " << detUnit->index() << " " << orderedModules_.size() << " on layer "
+                  << int((detId.rawId() >> 20) & 0xF) << std::endl;
 #endif
-
       }
     }
   }
@@ -152,10 +151,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const auto& pixelHitsSoA = iEvent.get(pixelHitsSoA_);
     int nPixelHits = pixelHitsSoA.view().metadata().size();
-
-    // Count strip hits and active strip modules
-    const int nStripHits = stripHits.data().size();
-    const int activeStripModules = stripHits.size();
 
     // Count the number of P hits in the OT to dimension the SoA
     int PHitsInOT = 0;
@@ -171,6 +166,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto& stripHitsModuleView = stripHitsSoA.view<::reco::HitModuleSoA>();
 
 #ifdef HITS_DEBUG
+    // Count strip hits and active strip modules
+    const int nStripHits = stripHits.data().size();
+    const int activeStripModules = stripHits.size();
     std::cout << "Phase2OTRecHitsSoAConverter producer" << std::endl
               << "Tot number of modules in Pixels " << modulesInPixel_ << std::endl
               << "Tot number of p_modulesInPSInOT: " << orderedModules_.size() << std::endl

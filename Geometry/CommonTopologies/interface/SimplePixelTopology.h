@@ -281,7 +281,7 @@ namespace phase2PixelTopology {
       28, 36, 29, 36, 30, 36,                  // TOB to backward TID (79)
       31, 32, 32, 33, 33, 34, 34, 35,          // forward TID to forward TID (83)
       36, 37, 37, 38, 38, 39, 39, 40,          // backward TID to backward TID (87)
-      9,  31,  9, 32,                          // forward endcap to forward TID (89)
+      9,  31, 9,  32,                          // forward endcap to forward TID (89)
       21, 36, 21, 37                           // backward endcap to backward TID (91)
   };
 
@@ -303,36 +303,36 @@ namespace phase2PixelTopology {
       1000, 1000, 1000, 1000, 850,   // forward endcap to TOB
       1000, 1000, 1000, 1000, 1000,  // backward endcap to TOB
       1100, 1250,                    // TOB to TOB
-      1100, 1100, 1100,              // TOB to forward TID 
+      1100, 1100, 1100,              // TOB to forward TID
       1100, 1100, 1100,              // TOB to backward TID
       1100, 1100, 1100, 1100,        // forward TID to forward TID
-      1100, 1100, 1100, 1100,        // backward TID to backward TID 
+      1100, 1100, 1100, 1100,        // backward TID to backward TID
       750,  1000,                    // forward endcap to forward TID
       750,  1000                     // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float minInner[nPairsTot] = {
-      -17,   -14,  4,      7,   -10000, -10000,      // BPIX1
-      -17,   -15,  6,      9,   -10000, -10000,      // BPIX2
-      -18,   11,   -10000,                           // BPIX3
-      0,     0,    0,      0,   0,      0,      0,   // forward endcap
-      0,     0,    0,      0,   0,      0,      12,  // forward endcap
-      0,     0,    0,      0,   0,      0,      0,   // forward endcap
-      0,     0,    0,      0,   0,      0,      0,   // backward endcap
-      0,     0,    0,      0,   0,      0,      12,  // backward endcap
-      0,     0,    0,      0,   0,      0,      0,   // backward endcap
+      -17,   -14,   4,      7,   -10000, -10000,      // BPIX1
+      -17,   -15,   6,      9,   -10000, -10000,      // BPIX2
+      -18,   11,    -10000,                           // BPIX3
+      0,     0,     0,      0,   0,      0,      0,   // forward endcap
+      0,     0,     0,      0,   0,      0,      12,  // forward endcap
+      0,     0,     0,      0,   0,      0,      0,   // forward endcap
+      0,     0,     0,      0,   0,      0,      0,   // backward endcap
+      0,     0,     0,      0,   0,      0,      12,  // backward endcap
+      0,     0,     0,      0,   0,      0,      0,   // backward endcap
 
-      -10,   -20,  10,     -20,     // barrel to TOB
-      11,    11,   11,     11,  0,  // forward end
-      11,    11,   11,     11,  0,  // backward en
-      -1200, -1200,                 // TOB to TOB
+      -10,   -20,   10,     -20,     // barrel to TOB
+      11,    11,    11,     11,  0,  // forward end
+      11,    11,    11,     11,  0,  // backward en
+      -1200, -1200,                  // TOB to TOB
 
-       70,   70,   100,             // TOB to forward TID 
-      -130, -130, -130,             // TOB to backward TID
-       23,   25,   30,  30,         // forward TID to forward TID
-       23,   25,   30,  30,         // backward TID to backward TID 
-       10,   10,                   // forward endcap to forward TID
-       10,   10                    // backward endcap to backward TID
+      70,    70,    100,         // TOB to forward TID
+      -130,  -130,  -130,        // TOB to backward TID
+      23,    25,    30,     30,  // forward TID to forward TID
+      23,    25,    30,     30,  // backward TID to backward TID
+      10,    10,                 // forward endcap to forward TID
+      10,    10                  // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float maxInner[nPairsTot] = {
@@ -351,14 +351,14 @@ namespace phase2PixelTopology {
       10000, 10000, 10000, 10000, 10000,  // backward endcap to TOB
       1200,  1200,                        // TOB to TOB
 
-       130,  130,  130,             // TOB to forward TID 
-      -70,  -70,  -100,             // TOB to backward TID
-       60,   55,   55,  55,         // forward TID to forward TID
-       60,   55,   55,  55,         // backward TID to backward TID 
-       18,    18,                   // forward endcap to forward TID
-       18,    18                    // backward endcap to backward TID
+      130,   130,   130,        // TOB to forward TID
+      -70,   -70,   -100,       // TOB to backward TID
+      60,    55,    55,    55,  // forward TID to forward TID
+      60,    55,    55,    55,  // backward TID to backward TID
+      18,    18,                // forward endcap to forward TID
+      18,    18                 // backward endcap to backward TID
   };
-  
+
   HOST_DEVICE_CONSTANT float minOuter[nPairsTot] = {
       -10000, -10000, 0,   0,    0,      0,      // BPIX1
       -10000, -10000, 6,   6,    6,      6,      // BPIX2
@@ -375,12 +375,12 @@ namespace phase2PixelTopology {
       -57,    -70,    -95, -110, -10000,  // backward endcap to TOB
       -10000, -10000,                     // TOB to TOB
 
-       20,   35,   55,              // TOB to forward TID 
-       20,   35,   55,              // TOB to backward TID
-       25,   30,   35,  35,         // forward TID to forward TID
-       25,   30,   35,  35,         // backward TID to backward TID 
-       20,   20,                   // forward endcap to forward TID
-       20,   20                    // backward endcap to backward TID
+      20,     35,     55,       // TOB to forward TID
+      20,     35,     55,       // TOB to backward TID
+      25,     30,     35,  35,  // forward TID to forward TID
+      25,     30,     35,  35,  // backward TID to backward TID
+      20,     20,               // forward endcap to forward TID
+      20,     20                // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float maxOuter[nPairsTot] = {
@@ -399,12 +399,12 @@ namespace phase2PixelTopology {
       -30,   -40,   -55,   -70,   -80,    // backward endcap to TOB
       10000, 10000,                       // TOB to TOB
 
-       41,   60,   70,              // TOB to forward TID 
-       41,   60,   70,              // TOB to backward TID
-       70,   70,   70,  70,         // forward TID to forward TID
-       70,   70,   70,  70,         // backward TID to backward TID 
-       28,   30,                   // forward endcap to forward TID
-       28,   30                    // backward endcap to backward TID
+      41,    60,    70,         // TOB to forward TID
+      41,    60,    70,         // TOB to backward TID
+      70,    70,    70,    70,  // forward TID to forward TID
+      70,    70,    70,    70,  // backward TID to backward TID
+      28,    30,                // forward endcap to forward TID
+      28,    30                 // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float maxDR[nPairsTot] = {
@@ -423,12 +423,12 @@ namespace phase2PixelTopology {
       16.0,    16.0,    16.0,    16.0,    14.0,  // backward endcap to TOB
       10000.0, 10000.0,                          // TOB to TOB
 
-       18,   24,   14,              // TOB to forward TID 
-       18,   24,   14,              // TOB to backward TID
-       14,   14,   12,  12,         // forward TID to forward TID
-       14,   14,   12,  12,         // backward TID to backward TID 
-       10,   15,                   // forward endcap to forward TID
-       10,   15                    // backward endcap to backward TID
+      18,      24,      14,           // TOB to forward TID
+      18,      24,      14,           // TOB to backward TID
+      14,      14,      12,      12,  // forward TID to forward TID
+      14,      14,      12,      12,  // backward TID to backward TID
+      10,      15,                    // forward endcap to forward TID
+      10,      15                     // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float minDZ[nPairsTot] = {
@@ -447,12 +447,12 @@ namespace phase2PixelTopology {
       -32.5,  -50.0,  -50.0,  -70.0,  -70.0,  // backward endcap to TOB
       -50.0,  -40.0,                          // TOB to TOB
 
-        5,   5,    10,              // TOB to forward TID 
-      -80,  -55,  -30,              // TOB to backward TID
-       15,   20,   30,  35,         // forward TID to forward TID
-      -30,  -40,  -50, -60,         // backward TID to backward TID 
-       40,   65,                   // forward endcap to forward TID
-      -50,  -75                    // backward endcap to backward TID
+      5,      5,      10,           // TOB to forward TID
+      -80,    -55,    -30,          // TOB to backward TID
+      15,     20,     30,     35,   // forward TID to forward TID
+      -30,    -40,    -50,    -60,  // backward TID to backward TID
+      40,     65,                   // forward endcap to forward TID
+      -50,    -75                   // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float maxDZ[nPairsTot] = {
@@ -471,12 +471,12 @@ namespace phase2PixelTopology {
       -5.0,  -10.0, -5.0,  -15.0, -25.0,  // backward endcap to TOB
       50.0,  40.0,                        // TOB to TOB
 
-       80,   55,   30,              // TOB to forward TID 
-      -5,   -5,   -10,              // TOB to backward TID
-       30,   40,   50,  60,         // forward TID to forward TID
-      -15,  -20,  -30, -35,         // backward TID to backward TID 
-       50,   75,                   // forward endcap to forward TID
-      -40,  -65                    // backward endcap to backward TID
+      80,    55,    30,          // TOB to forward TID
+      -5,    -5,    -10,         // TOB to backward TID
+      30,    40,    50,    60,   // forward TID to forward TID
+      -15,   -20,   -30,   -35,  // backward TID to backward TID
+      50,    75,                 // forward endcap to forward TID
+      -40,   -65                 // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float ptCuts[nPairsTot] = {
@@ -495,12 +495,12 @@ namespace phase2PixelTopology {
       0.85, 0.85, 0.85, 0.85, 0.85,  // backward endcap to TOB
       0.85, 0.85,                    // TOB to TOB
 
-      0.85, 0.85, 0.85,              // TOB to forward TID 
-      0.85, 0.85, 0.85,              // TOB to backward TID
-      0.85, 0.85, 0.85, 0.85,        // forward TID to forward TID
-      0.85, 0.85, 0.85, 0.85,        // backward TID to backward TID 
-      0.85, 0.85,                    // forward endcap to forward TID
-      0.85, 0.85                     // backward endcap to backward TID
+      0.85, 0.85, 0.85,        // TOB to forward TID
+      0.85, 0.85, 0.85,        // TOB to backward TID
+      0.85, 0.85, 0.85, 0.85,  // forward TID to forward TID
+      0.85, 0.85, 0.85, 0.85,  // backward TID to backward TID
+      0.85, 0.85,              // forward endcap to forward TID
+      0.85, 0.85               // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float dcaCuts[nLayersTot] = {

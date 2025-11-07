@@ -168,7 +168,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       };
       // function that given a module check if it is a pixel in the TID
       auto isPinPSinOTDisk = [&](DetId detId) {
-       return (trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
+        return (trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
                 detId.subdetId() == StripSubdetector::TID);
       };
       auto isPixel = [&](DetId detId) {
@@ -189,7 +189,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // Logic:
         // - if we are not inside pixels, we need to ignore anything **but** the OT.
         // - we use two for loops to enforce the following ordering of the layers:
-	//   1) TIB
+        //   1) TIB
         //   2) PXF
         //   3) TOB
         //   4) TID
@@ -257,8 +257,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (isPixel(detid))
             continue;
           auto layer = trackerTopology.layer(detid);
-          auto subId = detid.subdetId();
 #ifdef GPU_DEBUG
+          auto subId = detid.subdetId();
           if (subSystemName != trackerGeometry.geomDetSubDetector(subId)) {
             subSystemName = trackerGeometry.geomDetSubDetector(subId);
             std::cout << " ===================== Subsystem: " << subSystemName << std::endl;
@@ -273,7 +273,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef GPU_DEBUG
                 std::cout << "OT LayerStart: CA layer " << layerCount << " at subdetector layer " << layer
                           << " starts at module " << n_modules << " and is "
-                          << (isBarrel(detid) ? "barrel" : "not barrel") << std::endl;                         
+                          << (isBarrel(detid) ? "barrel" : "not barrel") << std::endl;
 #endif
                 layerIsBarrel[layerCount] = isBarrel(detid);
                 layerStarts[layerCount++] = n_modules;
@@ -283,8 +283,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               }
               moduleToindexInDets.push_back(counter);
               n_modules++;
-            }
-            else if(isPinPSinOTBarrel(unitDetId))
+            } else if (isPinPSinOTBarrel(unitDetId))
               break;
           }
         }
