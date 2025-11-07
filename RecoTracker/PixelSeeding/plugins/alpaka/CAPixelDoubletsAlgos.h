@@ -343,8 +343,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           auto oi = p[pIndex];
 #ifdef DOUBLETS_DEBUG
           printf("Exploring couple i: %d o: %d\n", i, oi);
-          printf("	- offsets[outer]: %d   offsets[outer+1]: %d\n", offsets[outer], offsets[outer+1]);
-#endif          
+          printf("	- offsets[outer]: %d   offsets[outer+1]: %d\n", offsets[outer], offsets[outer + 1]);
+#endif
           ALPAKA_ASSERT_ACC(oi >= offsets[outer]);
           ALPAKA_ASSERT_ACC(oi < offsets[outer + 1]);
           auto mo = hh[oi].detectorIndex();
