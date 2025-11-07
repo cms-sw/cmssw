@@ -1,0 +1,84 @@
+<!-- Original Author: Felice Pantaleo, CERN, felice.pantaleo@cern.ch -->
+# pyTICL
+
+A validated, type-safe configuration framework for TICL (the Phase-2 CMS HGCAL
+reconstruction).  Instead of editing large hand-written `_cff.py` fragments,
+declare a configuration with a concise fluent builder; pyTICL builds the `cms`
+modules, **checks the plumbing with type-aware rules**, lets you pick CPU/GPU per
+module, and **exports a standalone cff** (useful for HLT).
+
+## Quick start
+
+```python
+from RecoTICL.Configuration import presets
+
+cfg = presets.v5()           # the default iterTICLTask, as a TICLConfig
+cfg.validate()               # type-aware plumbing checks (raises on problems)
+cfg.to_cff('myTICL_cff.py')  # write a self-contained, loadable cff fragment
+```
+
+Building one by hand with the fluent API:
+
+```python
+from RecoTICL.Configuration.model import TICLConfig, Global
+from RecoTICL.Configuration import presets
+
+cfg = (TICLConfig('v5')
+       .iteration('CLUE3DHigh')
+           .seeding(Global)
+           .filter_by_algo_and_size(min_size=2)
+           .pattern_clue3d(criticalDensity=[0.6, 0.6, 0.6],
+                           criticalEtaPhiDistance=[0.025, 0.025, 0.025])
+       .iteration('Recovery').preset()        # standard Recovery fragment
+           .masks_from('CLUE3DHigh')
+       .links(['CLUE3DHigh', 'Recovery'], **presets.links_defaults())
+       .superclustering_dnn(source='CLUE3DHigh', **presets.supercluster_dnn_defaults())
+       .candidate(**presets.candidate_defaults())
+       .pf(**presets.pf_defaults()))
+
+cfg.validate()
+```
+
+`assemble()` returns the built modules + tasks; `add_to_process(process)`
+registers them on a `cms.Process`.
+
+## How it works
+
+| Module | Responsibility |
+| --- | --- |
+| `catalog.py` | type-aware registry: each producer's `consumes`/`produces` C++ types, instance-label rules, backends, and the valid plugin-type strings |
+| `model.py` | the fluent builder (`TICLConfig`); records intent only |
+| `presets.py` | the standard v5 iterations & singletons (algorithm PSets transcribed from the baseline; plumbing left to pyTICL) |
+| `assembler.py` | clones the real `_cfi` defaults + applies algorithm overrides and the **computed** plumbing `InputTag`s; builds the `Task` hierarchy |
+| `validator.py` | builds the product graph and rejects type-incompatible / missing / GPU-unsupported connections |
+| `exporter.py` | `to_cff(path)` -- a self-contained, loadable cff fragment |
+| `compare.py` | per-module comparison of an assembled config vs a baseline `Task` |
+
+Byte-for-byte reproduction is achievable because the assembler clones the *same*
+`_cfi` defaults the baseline uses and re-applies the same overrides; the
+framework's own contribution is the wiring, validation, backend selection, and
+export.
+
+## Validation & drift detection (`test/`)
+
+* `test_reproduce_v5.py` -- **acceptance gate**: the generated v5 config equals
+  the live `iterTICLTask` byte-for-byte.  Also the primary drift detector: if a
+  baseline cff changes in a way pyTICL doesn't mirror, this fails with a diff.
+* `test_catalog_schema.py` -- locks the catalog against the live `_cfi` defaults;
+  fails if a producer gains/loses/retypes an `InputTag` parameter (new plumbing
+  pyTICL must learn about).
+* `test_plumbing.py` -- positive + negative validator tests (e.g. GPU on a
+  CPU-only module is rejected).
+* `test_export_cff.py` -- the exported cff reloads and reproduces the baseline.
+
+Run them with `scram b runtests` (from the package) or directly with `python3`.
+
+## Status / roadmap
+
+Implemented: the v5 TICL core (iterations, links, superclustering, candidate,
+pf), type-aware validation, cff export, and drift tests.
+
+Planned (see the package design notes): auto-derived & scheduled
+labels/validation/dumper/associators; the TICL barrel path; local reconstruction
++ layer clustering (HGCAL/ECAL/HCAL) with real CPU/GPU (alpaka) backend
+selection; a Phase-2 HLT target.

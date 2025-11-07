@@ -1,0 +1,9 @@
+<!-- Original Author: Felice Pantaleo, CERN, felice.pantaleo@cern.ch -->
+<test name="testPyTICLReproduceV5"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_reproduce_v5.py"/>
+<test name="testPyTICLCatalogSchema"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_catalog_schema.py"/>
+<test name="testPyTICLPlumbing"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_plumbing.py"/>
+<test name="testPyTICLExportCff"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_export_cff.py"/>
