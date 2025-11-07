@@ -1378,7 +1378,7 @@ upgradeWFs['PatatrackECALOnlyAlpaka'] = PatatrackWorkflow(
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     harvest = {
-        '-s': 'HARVESTING:@ecalOnlyValidation+@ecal'
+        '-s': 'HARVESTING:@ecalOnlyValidation+@ecal+@hltGPUvsCPU'
     },
     suffix = 'Patatrack_ECALOnlyAlpaka',
     offset = 0.412,
@@ -1400,7 +1400,7 @@ upgradeWFs['PatatrackECALOnlyAlpakaValidation'] = PatatrackWorkflow(
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     harvest = {
-        '-s': 'HARVESTING:@ecalOnlyValidation+@ecal'
+        '-s': 'HARVESTING:@ecalOnlyValidation+@ecal+@hltGPUvsCPU'
     },
     suffix = 'Patatrack_ECALOnlyAlpakaValidation',
     offset = 0.413,
@@ -1419,7 +1419,7 @@ upgradeWFs['PatatrackHCALOnlyAlpakaValidation'] = PatatrackWorkflow(
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     harvest = {
-        '-s': 'HARVESTING:@hcalOnlyValidation'
+        '-s': 'HARVESTING:@hcalOnlyValidation+@hltGPUvsCPU'
     },
     suffix = 'Patatrack_HCALOnlyAlpaka_Validation',
     offset = 0.422,
@@ -1438,7 +1438,7 @@ upgradeWFs['PatatrackHCALOnlyGPUandAlpakaValidation'] = PatatrackWorkflow(
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     harvest = {
-        '-s': 'HARVESTING:@hcalOnlyValidation'
+        '-s': 'HARVESTING:@hcalOnlyValidation+@hltGPUvsCPU'
     },
     suffix = 'Patatrack_HCALOnlyGPUandAlpaka_Validation',
     offset = 0.423,
@@ -1517,7 +1517,7 @@ upgradeWFs['PatatrackPixelOnlyAlpaka'] = PatatrackWorkflow(
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU'
     },
     suffix = 'Patatrack_PixelOnlyAlpaka',
     offset = 0.402,
@@ -1560,7 +1560,7 @@ upgradeWFs['PatatrackPixelOnlyAlpakaValidation'] = PatatrackWorkflow(
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM',
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU',
         '--procModifiers': 'alpakaValidation',
     },
     suffix = 'Patatrack_PixelOnlyAlpaka_Validation',
@@ -1599,7 +1599,7 @@ upgradeWFs['PatatrackPixelOnlyTripletsAlpaka'] = PatatrackWorkflow(
         '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU'
     },
     suffix = 'Patatrack_PixelOnlyTripletsAlpaka',
     offset = 0.406,
@@ -1620,7 +1620,7 @@ upgradeWFs['PatatrackPixelOnlyTripletsAlpakaValidation'] = PatatrackWorkflow(
         '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU'
     },
     suffix = 'Patatrack_PixelOnlyTripletsAlpaka_Validation',
     offset = 0.407,
