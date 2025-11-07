@@ -115,7 +115,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     for (auto& detUnit : detUnits) {
       DetId detId(detUnit->geographicalId());
-      detIdIsP_[detId.rawId()] = isPinPSinOTBarrel(detId)||isPinPSinOTDisk(detId);
+      detIdIsP_[detId.rawId()] = isPinPSinOTBarrel(detId) || isPinPSinOTDisk(detId);
       if (isPh2Pixel(detId))
         modulesInPixel_++;
       if (isPinPSinOTBarrel(detId)) {
@@ -124,22 +124,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         orderedModules_.push_back(detUnit->index());
 #ifdef HITS_DEBUG
         std::cout << "Phase2OTRecHitsSoAConverter beginRun" << std::endl
-                  << "Inserted " << detUnit->index() << " " << orderedModules_.size()
-                  << " on layer " << int((detId.rawId() >> 20) & 0xF) << std::endl;
+                  << "Inserted " << detUnit->index() << " " << orderedModules_.size() << " on layer "
+                  << int((detId.rawId() >> 20) & 0xF) << std::endl;
 #endif
       }
     }
     for (auto& detUnit : detUnits) {
-      DetId detId(detUnit->geographicalId());  
+      DetId detId(detUnit->geographicalId());
       if (isPinPSinOTDisk(detId)) {
         detIdToIndex_[detUnit->geographicalId()] = detUnit->index();
         moduleIndexToOffset_[detUnit->index()] = orderedModules_.size();
         orderedModules_.push_back(detUnit->index());
-#ifdef HITS_DEBUG      
-        std::cout << "Inserted " << detUnit->index() << " " << orderedModules_.size()
-                  << " on layer " << int((detId.rawId() >> 20) & 0xF) << std::endl;
+#ifdef HITS_DEBUG
+        std::cout << "Inserted " << detUnit->index() << " " << orderedModules_.size() << " on layer "
+                  << int((detId.rawId() >> 20) & 0xF) << std::endl;
 #endif
-
       }
     }
   }
