@@ -107,10 +107,10 @@ ticlTracksterLinks = _tracksterLinksProducer.clone(
         inputNames  = cms.vstring('input','input_tr_features'),
         output_en   = cms.vstring('enreg_output'),
         output_id   = cms.vstring('pid_output'),
-	eid_min_cluster_energy = cms.double(1),
+	eid_min_cluster_energy = cms.double(2.5),
         eid_n_clusters = cms.int32(10),
 	eid_n_layers = cms.int32(50),
-        onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v0.onnx'),
+        onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
         onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
         type = cms.string('TracksterInferenceByPFN')
     )
@@ -124,14 +124,14 @@ ticlCandidate = _ticlCandidateProducer.clone(
         onnxPIDModelPath=cms.FileInPath(
             'RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
         onnxEnergyModelPath=cms.FileInPath(
-            'RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v0.onnx'),
+            'RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
         inputNames=cms.vstring(
             'input',
             'input_tr_features'
         ),
         output_en=cms.vstring('enreg_output'),
         output_id=cms.vstring('pid_output'),
-        eid_min_cluster_energy=cms.double(1),
+        eid_min_cluster_energy=cms.double(2.5),
         eid_n_layers=cms.int32(50),
         eid_n_clusters=cms.int32(10),
         doPID=cms.int32(1),

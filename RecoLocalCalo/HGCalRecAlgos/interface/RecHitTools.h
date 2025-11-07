@@ -112,6 +112,7 @@ namespace hgcal {
 
   private:
     const CaloGeometry* geom_;
+    void checkGeometry() const;
     unsigned int eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
     unsigned int hcalBarrelFirstLayer_, hcalBarrelLastLayer_, ecalBarrelFirstLayer_, ecalBarrelLastLayer_;
     unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
