@@ -22,21 +22,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
 
   /**
- * @brief Returns the position of the least significant set bit in a mask.
+ * @brief Compute lane mask
  *
- * @tparam TAcc Alpaka accelerator type.
+ * @param mask Input lane index in the warp
  * 
- * @param acc   Alpaka accelerator instance.
- * @param mask  Input mask.
- * 
- * @return Index of least significant 1 bit (0-based). (or -1 if x == 0).
+ * @return compute lane mask:
  */
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned int get_ls1b_idx(TAcc const& acc, const int mask) {
-    if (mask == 0)
-      return 0;
-    const int pos = alpaka::ffs(acc, mask);
-    return static_cast<unsigned int>(pos - 1);
+  constexpr inline warp::warp_mask_t get_lane_mask(const unsigned int lane_idx) {
+#if defined(__HIP_DEVICE_COMPILE__) && defined(ALPAKA_ACC_GPU_HIP_ENABLED)
+    return (1ULL << lane_idx);
+#else
+    return (1 << lane_idx);
+#endif
   }
 
   /**
@@ -48,20 +45,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * 
  * @return True if active, otherwise false.
  */
-  constexpr inline bool is_work_lane(const unsigned int work_mask, const unsigned int lane_id, const unsigned extent) {
-    if (lane_id >= extent)
+  constexpr inline bool is_work_lane(const warp::warp_mask_t work_mask,
+                                     const unsigned int lane_idx,
+                                     const unsigned extent) {
+    if (lane_idx >= extent)
       return false;
-    return ((work_mask >> lane_id) & 1);
+    return ((work_mask >> lane_idx) & 1);
   }
 
   /**
- * @brief Performs warp-level exclusive prefix sum under a custom lane mask.
+ * @brief Returns the position of the least significant set bit in a mask.
+ *
+ * @tparam TAcc Alpaka accelerator type.
+ * 
+ * @param acc   Alpaka accelerator instance.
+ * @param mask  Input mask.
+ * 
+ * @return Index of least significant 1 bit (0-based). (or -1 if x == 0).
+ */
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t get_ls1b_idx(TAcc const& acc, const warp::warp_mask_t mask) {
+    if (mask == 0)
+      return 0;
+
+    using signed_warp_mask_t = std::conditional_t<sizeof(warp::warp_mask_t) == 8, std::int64_t, std::int32_t>;
+
+    const auto pos = alpaka::ffs(acc, static_cast<signed_warp_mask_t>(mask));
+    return static_cast<warp::warp_mask_t>(pos - 1);
+  }
+
+  /**
+ * @brief Performs warp-level exclusive prefix sum
  *
  * @tparam TAcc Alpaka accelerator type.
  * @tparam accum If true, broadcast total accumulated value to lowest active lane.
  * 
  * @param acc   Alpaka accelerator instance.
- * @param mask  Active lane mask.
  * @param val   Value to include in the prefix sum.
  * @param lane_idx Current thread's lane index.
  * 
@@ -81,7 +100,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Do inclusive sum first:
     //CMS_UNROLL_LOOP
     for (unsigned int step = 1; step < w_extent; step *= 2) {
-      const unsigned int res = alpaka::warp::shfl_up(acc, local_offset, step, w_extent);
+      const auto res = alpaka::warp::shfl_up(acc, local_offset, step, w_extent);
       if (lane_idx >= step)
         local_offset += res;
     }
@@ -92,7 +111,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int high_lane_idx = w_extent - 1;
 
       // send last lane value (total tile offset) to lane idx = low_lane_idx:
-      const unsigned int active_mask = 1 | (1 << high_lane_idx);
+      const warp::warp_mask_t active_mask = 1 | get_lane_mask(high_lane_idx);
       const unsigned int tmp = warp::shfl_mask(acc, active_mask, local_offset, high_lane_idx, w_extent);
 
       if (lane_idx == 0)
@@ -115,12 +134,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned int get_logical_lane_idx(TAcc const& acc,
-                                                                        const unsigned int mask,
+                                                                        const warp::warp_mask_t mask,
                                                                         const unsigned int lane_idx) {
     if (lane_idx == 0)
       return lane_idx;  // nothing to do, phys idx coincide with the logical one.
-
-    const auto lane_mask = mask & ((1 << lane_idx) - 1);
+    const warp::warp_mask_t lane_mask = mask & (get_lane_mask(lane_idx) - 1);
     return alpaka::popcount(acc, lane_mask);  // Count 1s below current lane
   }
 
@@ -138,14 +156,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int get_physical_lane_idx(TAcc const& acc,
-                                                                    const unsigned int mask,
+                                                                    const warp::warp_mask_t mask,
                                                                     int logical_lane_idx) {
-    int m = mask;
+    using signed_warp_mask_t = std::conditional_t<sizeof(warp::warp_mask_t) == 8, std::int64_t, std::int32_t>;
+
+    signed_warp_mask_t m = mask;
 
     while (logical_lane_idx--)
       m &= (m - 1);
 
-    const int pos = alpaka::ffs(acc, m);
+    const auto pos = alpaka::ffs(acc, m);
 
     return static_cast<unsigned int>(pos - 1);
   }
@@ -202,8 +222,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             bool all = true,
             typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     requires std::is_arithmetic_v<reduce_t>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE reduce_t warp_sparse_reduce(
-      TAcc const& acc, const unsigned int mask, const unsigned int lane_idx, reduce_t const in, const reducer_t f) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE reduce_t warp_sparse_reduce(TAcc const& acc,
+                                                             const warp::warp_mask_t mask,
+                                                             const unsigned int lane_idx,
+                                                             reduce_t const in,
+                                                             const reducer_t f) {
     unsigned int const w_extent = alpaka::warp::getSize(acc);
 
     // Non-active lanes should skip the reduction:
@@ -217,8 +240,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return in;
 
     //Compute the next power of two:
-    const unsigned int msb_idx = (w_extent - 1) - cms::alpakatools::clz(acc, mask);
-    const unsigned int pow2_boundary = 1 << msb_idx;
+    const unsigned int pow2 = w_extent - cms::alpakatools::clz(acc, nActiveLanes - 1);
+    const unsigned int pow2_boundary = 1 << pow2;
 
     const unsigned int logical_lane_idx = get_logical_lane_idx(acc, mask, lane_idx);
 
@@ -260,7 +283,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TAcc, bool all = true, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int warp_sparse_exclusive_sum(TAcc const& acc,
-                                                                        const unsigned int mask,
+                                                                        const warp::warp_mask_t mask,
                                                                         const unsigned int val,
                                                                         const unsigned int lane_idx) {
     unsigned int const w_extent = alpaka::warp::getSize(acc);
@@ -269,14 +292,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (is_work_lane(mask, lane_idx, w_extent) == false)
       return 0;
 
-    const unsigned int nActiveLanes = alpaka::popcount(acc, mask);  // count number of active lanes
+    // count number of active lanes
+    const unsigned int nActiveLanes = alpaka::popcount(acc, mask);
     // First check if this is just a single active lane in the warp:
     if (nActiveLanes == 1)
       return val;  //nothing to do, note that this is the inclusive "sum": low lane always keeps the whole sum
 
     //Compute the next power of two:
-    const unsigned int msb_idx = (w_extent - 1) - cms::alpakatools::clz(acc, mask);
-    const unsigned int pow2_boundary = 1 << msb_idx;
+    const unsigned int pow2 = w_extent - cms::alpakatools::clz(acc, nActiveLanes - 1);
+    const unsigned int pow2_boundary = 1 << pow2;
 
     const unsigned int logical_lane_idx = get_logical_lane_idx(acc, mask, lane_idx);
 
@@ -298,7 +322,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int low_lane_idx = get_physical_lane_idx(acc, mask, 0);
 
       // send last lane value (total tile offset) to lane idx = low_lane_idx:
-      const unsigned int active_mask = (1 << low_lane_idx) | (1 << high_lane_idx);
+      const warp::warp_mask_t active_mask = get_lane_mask(low_lane_idx) | get_lane_mask(high_lane_idx);
       const unsigned int tmp = warp::shfl_mask(acc, active_mask, local_offset, high_lane_idx, w_extent);
 
       if (logical_lane_idx == 0)
