@@ -76,6 +76,11 @@ protected:
   std::map<uint32_t, MonitorElement *> _cZDC_EM_TM;
 
   std::unique_ptr<HcalLongRecoParams> longRecoParams_;
+
+  // ZDC params 
+  static constexpr int kZDCAbsIEta = 42;
+  static constexpr int kZDCiEtSumsIPhi = 99;
+  static constexpr int kZDCiEtSumMaxValue = 1023;
 };
 
 #endif

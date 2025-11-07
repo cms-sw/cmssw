@@ -580,14 +580,14 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
     HcalTrigTowerDetId tid = it->id();
 
     // ZDCp TP
-    if (tid.ieta() >= 42 && tid.iphi() == 99) {
+    if (tid.ieta() >= kZDCAbsIEta && tid.iphi() == kZDCiEtSumsIPhi) {
       // need to convert to the actual dynamic range of the ZDC sums
-      dataSumP = it->t0().raw() & 1023;
+      dataSumP = it->t0().raw() & kZDCiEtSumMaxValue;
     }
     // ZDCm TP
-    if (tid.ieta() <= -42 && tid.iphi() == 99) {
+    if (tid.ieta() <= -kZDCAbsIEta && tid.iphi() == kZDCiEtSumsIPhi) {
       // need to convert to the actual dynamic range of the ZDC sums
-      dataSumM = it->t0().raw() & 1023;
+      dataSumM = it->t0().raw() & kZDCiEtSumMaxValue;
     }
   }
 
