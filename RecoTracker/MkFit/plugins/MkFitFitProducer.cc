@@ -118,8 +118,6 @@ void MkFitFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
   const PixelClusterParameterEstimator* pixelCPE = &iSetup.getData(pixelCPEToken_);
   const auto& hits = iEvent.get(pixelClusterIndexToHitToken_).hits();  //const MkFitClusterIndexToHit&
 
-  const auto& pixelHits = iEvent.get(pixelHitsToken_);
-  const auto& stripHits = iEvent.get(stripHitsToken_);
   const auto& eventOfHits = iEvent.get(eventOfHitsToken_);
 
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
