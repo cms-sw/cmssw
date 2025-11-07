@@ -177,8 +177,10 @@ namespace ecaldqm {
                 specs[iSpec]->edges = std::vector<float>(specs[iSpec]->nbins + 1);
                 int nbins(specs[iSpec]->nbins);
                 double low(specs[iSpec]->low), high(specs[iSpec]->high);
-                for (int i(0); i < nbins + 1; i++)
-                  specs[iSpec]->edges[i] = low + (high - low) / nbins * i;
+                double binSize = (high - low) / nbins;
+                specs[iSpec]->edges[0] = low;
+                for (int i(1); i < nbins + 1; i++)
+                  specs[iSpec]->edges[i] = specs[iSpec]->edges[i - 1] + binSize;
               }
             }
             me = _ibooker.book2D(name, name, xaxis.nbins, &(xaxis.edges[0]), yaxis.nbins, &(yaxis.edges[0]));
