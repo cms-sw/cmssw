@@ -1,7 +1,9 @@
 #include <sstream>
 #include <cmath>
 
-#include "TGLIncludes.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include "TGLCamera.h"
 #include "TGLRnrCtx.h"
 #include "TGLSelectRecord.h"
