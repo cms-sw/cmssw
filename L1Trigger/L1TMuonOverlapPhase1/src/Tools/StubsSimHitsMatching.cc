@@ -9,7 +9,6 @@
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/StubsSimHitsMatcher.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OmtfName.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFinputMaker.h"
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/AngleConverterBase.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

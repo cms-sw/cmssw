@@ -20,7 +20,7 @@ int OmtfPhase2AngleConverter::getProcessorPhi(int phiZero, l1t::tftype part, int
   return config->foldPhi(phiConverted);
 }
 
-int OmtfPhase2AngleConverter::getGlobalEta(DTChamberId dTChamberId,
+int OmtfPhase2AngleConverter::getGlobalEtaPhase2(DTChamberId dTChamberId,
                                            const L1Phase2MuDTThContainer* dtThDigis,
                                            int bxNum) const {
   int dtThBins = 65536;  //65536. for [-6.3,6.3]

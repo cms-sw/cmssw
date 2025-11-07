@@ -127,7 +127,7 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
   stub.phiHw = angleConverter.getProcessorPhi(
       OMTFinputMaker::getProcessorPhiZero(&config, iProcessor), procTyp, digi.scNum(), digi.phi());
 
-  stub.etaHw = angleConverter.getGlobalEta(detid, dtThDigis, digi.bxNum() - 20);
+  stub.etaHw = angleConverter.getGlobalEtaPhase2(detid, dtThDigis, digi.bxNum() - 20);
 
   if (iLayer == 0)
     stub.r = 431.175;  //MB1
