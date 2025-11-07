@@ -87,6 +87,7 @@ from DQMOffline.Muon.muonQualityTests_cff import *
 from DQMOffline.EGamma.egammaPostProcessing_cff import *
 from DQMOffline.HLTScouting.HLTScoutingPostProcessing_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
+from DQMOffline.Trigger.HeterogeneousMonitoringClient_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
@@ -100,6 +101,9 @@ DQMOffline_SecondStepEGamma = cms.Sequence( egammaPostProcessing )
 
 DQMOffline_SecondStepTrigger = cms.Sequence( triggerOfflineDQMClient *
 						hltOfflineDQMClient )
+
+# HLT Heterogeneous monitoring sequence
+DQMHarvestHLTGPUvsCPU = cms.Sequence( HLTHeterogeneousMonitoringHarvesting )
 
 DQMOffline_SecondStepBTag = cms.Sequence( bTagCollectorSequenceDATA )
 

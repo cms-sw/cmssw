@@ -222,8 +222,8 @@ void SiPixelCompareRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
     }
   }
   //1D differences
-  hBchargeDiff_ = iBook.book1D("rechitChargeDiffBpix","Charge differnce of rechits in BPix; rechit charge difference (CPU - GPU)", 101, -50.5, 50.5);
-  hFchargeDiff_ = iBook.book1D("rechitChargeDiffFpix","Charge differnce of rechits in FPix; rechit charge difference (CPU - GPU)", 101, -50.5, 50.5);
+  hBchargeDiff_ = iBook.book1D("rechitChargeDiffBpix","Charge difference of rechits in BPix; rechit charge difference (CPU - GPU)", 101, -50.5, 50.5);
+  hFchargeDiff_ = iBook.book1D("rechitChargeDiffFpix","Charge difference of rechits in FPix; rechit charge difference (CPU - GPU)", 101, -50.5, 50.5);
   hBsizeXDiff_ = iBook.book1D("rechitsizeXDiffBpix","SizeX difference of rechits in BPix; rechit sizex difference (CPU - GPU)", 21, -10.5, 10.5);
   hFsizeXDiff_ = iBook.book1D("rechitsizeXDiffFpix","SizeX difference of rechits in FPix; rechit sizex difference (CPU - GPU)", 21, -10.5, 10.5);
   hBsizeYDiff_ = iBook.book1D("rechitsizeYDiffBpix","SizeY difference of rechits in BPix; rechit sizey difference (CPU - GPU)", 21, -10.5, 10.5);

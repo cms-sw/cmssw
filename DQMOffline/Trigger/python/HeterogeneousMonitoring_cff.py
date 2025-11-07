@@ -28,9 +28,28 @@ hltPfHcalGPUComparisonTask = pfHcalGPUComparisonTask.clone(
 from DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQM_FirstStep_cff import *
 
 hltSiPixelPhase1CompareDigiErrors = siPixelPhase1RawDataErrorComparator.clone(
-    topFolderName = cms.string('HLT/HeterogeneousComparisons/PixelErrors'),
-    pixelErrorSrcGPU = cms.InputTag("hltSiPixelDigiErrors"),
-    pixelErrorSrcCPU = cms.InputTag("hltSiPixelDigiErrorsSerialSync")
+    pixelErrorSrcGPU = 'hltSiPixelDigiErrors',
+    pixelErrorSrcCPU = 'hltSiPixelDigiErrorsSerialSync',
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelErrors'
+)
+
+hltSiPixelPhase1CompareRecHits = siPixelPhase1CompareRecHits.clone(
+    pixelHitsReferenceSoA = 'hltSiPixelRecHitsSoASerialSync',
+    pixelHitsTargetSoA  = 'hltSiPixelRecHitsSoA',
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelRecHits'
+)
+
+hltSiPixelPhase1CompareTracks = siPixelPhase1CompareTracks.clone(
+    pixelTrackReferenceSoA = 'hltPixelTracksSoASerialSync',
+    pixelTrackTargetSoA = 'hltPixelTracksSoA',
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelTracks'
+)
+
+hltSiPixelCompareVertices = siPixelCompareVertices.clone(
+    pixelVertexReferenceSoA = 'hltPixelVerticesSoASerialSync',
+    pixelVertexTargetSoA = 'hltPixelVerticesSoA',
+    beamSpotSrc = 'hltOnlineBeamSpot',
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelVertices'
 )
 
 # Ecal
@@ -76,9 +95,12 @@ hltHcalGPUComparisonTask = hcalGPUComparisonTask.clone(
 )
 
 HLTHeterogeneousMonitoringSequence = cms.Sequence(
-    hltPfHcalGPUComparisonTask+
-    hltSiPixelPhase1CompareDigiErrors+
-    hltEcalMonitorTask+
+    hltPfHcalGPUComparisonTask +
+    hltSiPixelPhase1CompareDigiErrors +
+    hltSiPixelPhase1CompareRecHits +
+    hltSiPixelPhase1CompareTracks +
+    hltSiPixelCompareVertices +
+    hltEcalMonitorTask +
     hltHcalGPUComparisonTask    
 )
 
