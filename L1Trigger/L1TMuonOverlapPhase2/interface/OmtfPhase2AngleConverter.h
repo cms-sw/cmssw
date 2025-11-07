@@ -13,7 +13,8 @@ public:
   // Convert DT phi to OMTF coordinate system.
   int getProcessorPhi(int phiZero, l1t::tftype part, int dtScNum, int dtPhi) const override;
 
-  int getGlobalEta(DTChamberId dTChamberId, const L1Phase2MuDTThContainer *dtThDigis, int bxNum) const;
+  //using different name of the method to avoid hiding OmtfAngleConverter methods getGlobalEta
+  int getGlobalEtaPhase2(DTChamberId dTChamberId, const L1Phase2MuDTThContainer *dtThDigis, int bxNum) const;
 };
 
 #endif
