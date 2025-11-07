@@ -61,12 +61,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::EDPutToken<reco::PFClusterDeviceCollection> outputPFClusterSoA_Token_;
     const device::EDPutToken<reco::PFRecHitFractionDeviceCollection> outputPFRHFractionsSoA_Token_;
 
-    std::optional<eclcc::PFMultiDepthClusterizer_Alpaka> clusterizer_;
+    // data members used to communicate between acquire() and produce()
+    cms::alpakatools::host_buffer<int> pfrhfrac_size_;
+    cms::alpakatools::host_buffer<int> pfcl_size_;
   };
 
   void PFMultiDepthClusterSoAProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("clustersSource", {});
+    desc.add<edm::InputTag>("clustersSrc", {});
+    desc.add<edm::InputTag>("rhfracSrc", {});
+    desc.add<edm::InputTag>("rechitSrc", {});
+    desc.add<double>("nSigmaEta", 2.0);
+    desc.add<double>("nSigmaPhi", 2.0);
     desc.add<edm::ParameterSetDescription>("energyCorrector", {});
     {
       edm::ParameterSetDescription pset0;
@@ -112,17 +118,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   PFMultiDepthClusterSoAProducer::PFMultiDepthClusterSoAProducer(const edm::ParameterSet& config,
                                                                  PFMultiDepthClusterParamsCache const*)
       : SynchronizingEDProducer(config),
-        inputPFClusterSoA_Token_{consumes(config.getParameter<edm::InputTag>("pfClusters"))},
-        inputPFRecHitFractionSoA_Token_{consumes(config.getParameter<edm::InputTag>("pfRecHits"))},
-        inputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("pfRecHits"))},
+        inputPFClusterSoA_Token_{consumes(config.getParameter<edm::InputTag>("clustersSrc"))},
+        inputPFRecHitFractionSoA_Token_{consumes(config.getParameter<edm::InputTag>("rhfracSrc"))},
+        inputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("rechitSrc"))},
+        inputPFClustersNum_Token_{consumes(config.getParameter<edm::InputTag>("rechitSrc"))},
+        inputPFRecHitNum_Token_{consumes(config.getParameter<edm::InputTag>("rechitSrc"))},
         outputPFClusterSoA_Token_{produces()},
-        outputPFRHFractionsSoA_Token_{produces()} {}
+        outputPFRHFractionsSoA_Token_{produces()},
+        pfrhfrac_size_{cms::alpakatools::make_host_buffer<int, Platform>()},
+        pfcl_size_{cms::alpakatools::make_host_buffer<int, Platform>()} {}
 
   void PFMultiDepthClusterSoAProducer::acquire(device::Event const& event, device::EventSetup const&) {
-    if (!clusterizer_) {
-      // Initialize clusterizer at first event
-      clusterizer_.emplace();
-    }
+    *pfrhfrac_size_ = 0;
+    *pfcl_size_ = 0;
+
+    auto const& pfClusters_ = event.get(inputPFClusterSoA_Token_);
+
+    auto pfrhfrac_size_d =
+        cms::alpakatools::make_device_view<const int>(event.queue(), pfClusters_.const_view().nRHFracs());
+    alpaka::memcpy(event.queue(), pfrhfrac_size_, pfrhfrac_size_d);
+
+    auto pfcl_size_d = cms::alpakatools::make_device_view<const int>(event.queue(), pfClusters_.const_view().nSeeds());
+    alpaka::memcpy(event.queue(), pfcl_size_, pfcl_size_d);
   }
 
   void PFMultiDepthClusterSoAProducer::produce(device::Event& event, const device::EventSetup& eventSetup) {
@@ -136,22 +153,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::unique_ptr<reco::PFRecHitFractionDeviceCollection> outPFRHFractions;
     std::unique_ptr<reco::PFClusterDeviceCollection> outPFClusters;
 
-    int nClusters_ = event.get(inputPFClustersNum_Token_);
+    std::cout << "nClusters is: " << *pfcl_size_ << std::endl;
 
-    if (nClusters_ > 0) {
-      int nRH_ = event.get(inputPFRecHitNum_Token_);
+    if (*pfcl_size_ > 0) {
+      outPFClusters = std::make_unique<reco::PFClusterDeviceCollection>(*pfcl_size_, event.queue());
+      outPFRHFractions = std::make_unique<reco::PFRecHitFractionDeviceCollection>(*pfrhfrac_size_, event.queue());
 
-      outPFClusters = std::make_unique<reco::PFClusterDeviceCollection>(nClusters_, event.queue());
-      outPFRHFractions = std::make_unique<reco::PFRecHitFractionDeviceCollection>(nRH_, event.queue());
-
-      clusterizer_->apply(event.queue(),
-                          *outPFClusters,
-                          *outPFRHFractions,
-                          pfClusters,
-                          pfRecHitFractions,
-                          pfRecHits,
-                          paramsDev,
-                          nClusters_);
+      eclcc::clusterize(event.queue(),
+                        *outPFClusters,
+                        *outPFRHFractions,
+                        pfClusters,
+                        pfRecHitFractions,
+                        pfRecHits,
+                        paramsDev,
+                        *pfcl_size_);
     } else {
       outPFClusters = std::make_unique<reco::PFClusterDeviceCollection>(0, event.queue());
       outPFRHFractions = std::make_unique<reco::PFRecHitFractionDeviceCollection>(0, event.queue());
