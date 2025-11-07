@@ -166,7 +166,7 @@ protected:
   const RpcClusterization* rpcClusterization;
 };
 
-//forward declaration - MuonGeometryTokens is defined and used in the AngleConverterBase
+//forward declaration - MuonGeometryTokens is defined and used in the OmtfAngleConverter
 struct MuonGeometryTokens;
 
 class MuonStubMakerBase {
