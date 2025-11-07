@@ -153,10 +153,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const auto& pixelHitsSoA = iEvent.get(pixelHitsSoA_);
     int nPixelHits = pixelHitsSoA.view().metadata().size();
 
-    // Count strip hits and active strip modules
-    const int nStripHits = stripHits.data().size();
-    const int activeStripModules = stripHits.size();
-
     // Count the number of P hits in the OT to dimension the SoA
     int PHitsInOT = 0;
     for (const auto& detSet : stripHits) {
@@ -171,6 +167,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto& stripHitsModuleView = stripHitsSoA.view<::reco::HitModuleSoA>();
 
 #ifdef HITS_DEBUG
+    // Count strip hits and active strip modules
+    const int nStripHits = stripHits.data().size();
+    const int activeStripModules = stripHits.size();
     std::cout << "Phase2OTRecHitsSoAConverter producer" << std::endl
               << "Tot number of modules in Pixels " << modulesInPixel_ << std::endl
               << "Tot number of p_modulesInPSInOT: " << orderedModules_.size() << std::endl

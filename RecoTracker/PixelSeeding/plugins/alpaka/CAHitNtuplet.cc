@@ -189,7 +189,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // Logic:
         // - if we are not inside pixels, we need to ignore anything **but** the OT.
         // - we use two for loops to enforce the following ordering of the layers:
-	//   1) TIB
+	      //   1) TIB
         //   2) PXF
         //   3) TOB
         //   4) TID
@@ -257,8 +257,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (isPixel(detid))
             continue;
           auto layer = trackerTopology.layer(detid);
-          auto subId = detid.subdetId();
 #ifdef GPU_DEBUG
+          auto subId = detid.subdetId();
           if (subSystemName != trackerGeometry.geomDetSubDetector(subId)) {
             subSystemName = trackerGeometry.geomDetSubDetector(subId);
             std::cout << " ===================== Subsystem: " << subSystemName << std::endl;
