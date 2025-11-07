@@ -14,6 +14,6 @@ generator = cms.EDProducer("FlatRandomPtGunProducer",
     Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
 
     psethack = cms.string('single gamma pt 25'),
-    AddAntiParticle = cms.bool(True),
+AddAntiParticle = cms.bool(False),
     firstRun = cms.untracked.uint32(1)
 )

@@ -14,6 +14,6 @@ generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
 
     psethack = cms.string('single electron E 1000'),
-    AddAntiParticle = cms.bool(True),
+AddAntiParticle = cms.bool(False),
     firstRun = cms.untracked.uint32(1)
 )
