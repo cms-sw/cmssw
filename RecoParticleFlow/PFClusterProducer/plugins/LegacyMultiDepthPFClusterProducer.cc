@@ -88,12 +88,26 @@ public:
         edm::ParameterSetDescription pset1;
         pset1.add<std::string>("algoName", "Basic2DGenericPFlowPositionCalc");
         {
+          edm::ParameterSetDescription validator;
+          validator.add<std::string>("detector", "");
+          validator.add<std::vector<int>>("depths", {});
+          validator.add<std::vector<double>>("logWeightDenominator", {});
+          std::vector<edm::ParameterSet> vDefaults(2);
+          vDefaults[0].addParameter<std::string>("detector", "HCAL_BARREL1");
+          vDefaults[0].addParameter<std::vector<int>>("depths", {1, 2, 3, 4});
+          vDefaults[0].addParameter<std::vector<double>>("logWeightDenominator", {0.1, 0.2, 0.3, 0.3});
+          vDefaults[1].addParameter<std::string>("detector", "HCAL_ENDCAP");
+          vDefaults[1].addParameter<std::vector<int>>("depths", {1, 2, 3, 4, 5, 6, 7});
+          vDefaults[1].addParameter<std::vector<double>>("logWeightDenominator", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
+          pset1.addVPSet("logWeightDenominatorByDetector", validator, vDefaults);
+        }
+        /*{
           edm::ParameterSetDescription psd;
           psd.add<std::vector<int>>("depths", {});
           psd.add<std::string>("detector", "");
           psd.add<std::vector<double>>("logWeightDenominator", {});
           pset1.addVPSet("logWeightDenominatorByDetector", psd, {});
-        }
+        }*/
         pset1.add<double>("minAllowedNormalization", 1e-09);
         pset1.add<double>("minFractionInCalc", 1e-09);
         pset1.add<int>("posCalcNCrystals", -1);
@@ -107,7 +121,6 @@ public:
     }
 
     desc.add<edm::ParameterSetDescription>("positionReCalc", {});
-    //desc.add<bool>("usePFThresholdsFromDB", false);
     descriptions.addWithDefaultLabel(desc);
   }
 
