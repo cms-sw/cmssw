@@ -262,55 +262,15 @@ jetPuppiTablesTask = cms.Task(jetPuppiTable)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from PhysicsTools.NanoAOD.common_cff import ExtVar
 
+import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+from PhysicsTools.NanoAOD.common_cff import Var
+
+from PhysicsTools.NanoAOD.common_cff import Var, ExtVar
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+
 def nanoAOD_refineFastSim_puppiJet(process):
-    process.puppiJetRefineNN = cms.EDProducer(
-        "JetBaseMVAValueMapProducer",
-        backend             = cms.string("ONNX"),
-        batch_eval          = cms.bool(True),
-        disableONNXGraphOpt = cms.bool(True),
-        src                 = cms.InputTag("updatedJetsPuppi"),  # <<< HERE
-        weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/fastSimPuppiJetRefineNN_31July2025.onnx"),
-        name                = cms.string("puppiJetRefineNN"),
-        variables = cms.VPSet(
-            cms.PSet(name=cms.string("GenJet_pt"),            expr=cms.string("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().pt():pt")),
-            cms.PSet(name=cms.string("GenJet_eta"),           expr=cms.string("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().eta():eta")),
-            cms.PSet(name=cms.string("Jet_hadronFlavour"),    expr=cms.string("hadronFlavour()")),
-            cms.PSet(name=cms.string("Jet_pt"),               expr=cms.string("pt()")),
-            cms.PSet(name=cms.string("Jet_btagDeepFlavB"),    expr=cms.string("bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')")),
-            cms.PSet(name=cms.string("Jet_btagDeepFlavCvB"),  expr=cms.string("?(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')):-1")),
-            cms.PSet(name=cms.string("Jet_btagDeepFlavCvL"),  expr=cms.string("?(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg')):-1")),
-            cms.PSet(name=cms.string("Jet_btagDeepFlavQG"),   expr=cms.string("?(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds'))>0?bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds')):-1")),
-            cms.PSet(name=cms.string("Jet_btagUParTAK4B"),    expr=cms.string("bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')")),
-            cms.PSet(name=cms.string("Jet_btagUParTAK4CvB"),  expr=cms.string("?(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB')>0)?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB'):-1")),
-            cms.PSet(name=cms.string("Jet_btagUParTAK4CvL"),  expr=cms.string("?(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL')>0)?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL'):-1")),
-            cms.PSet(name=cms.string("Jet_btagUParTAK4QvG"),  expr=cms.string("?(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')>0)?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'):-1")),
-        ),
-        inputTensorName  = cms.string("input"),
-        outputTensorName = cms.string("output"),
-        outputNames      = cms.vstring([
-            "ptrefined","btagDeepFlavBrefined","btagDeepFlavCvBrefined","btagDeepFlavCvLrefined",
-            "btagDeepFlavQGrefined","btagUParTAK4Brefined","btagUParTAK4CvBrefined",
-            "btagUParTAK4CvLrefined","btagUParTAK4QvGrefined"
-        ]),
-        outputFormulas   = cms.vstring([f"at({i})" for i in range(9)]),
-    )
 
-    fastSim.toModify(process.jetPuppiTask, process.jetPuppiTask.add(process.puppiJetRefineNN))
-
-    # 1) now stuff the 9 refined scalars into the existing PATJetUserDataEmbedder
-    fastSim.toModify(process.updatedJetsPuppiWithUserData.userFloats,
-        ptRefined              = cms.InputTag("puppiJetRefineNN","ptrefined"),
-        btagDeepFlavBrefined   = cms.InputTag("puppiJetRefineNN","btagDeepFlavBrefined"),
-        btagDeepFlavCvBrefined = cms.InputTag("puppiJetRefineNN","btagDeepFlavCvBrefined"),
-        btagDeepFlavCvLrefined = cms.InputTag("puppiJetRefineNN","btagDeepFlavCvLrefined"),
-        btagDeepFlavQGrefined  = cms.InputTag("puppiJetRefineNN","btagDeepFlavQGrefined"),
-        btagUParTAK4Brefined   = cms.InputTag("puppiJetRefineNN","btagUParTAK4Brefined"),
-        btagUParTAK4CvBrefined = cms.InputTag("puppiJetRefineNN","btagUParTAK4CvBrefined"),
-        btagUParTAK4CvLrefined = cms.InputTag("puppiJetRefineNN","btagUParTAK4CvLrefined"),
-        btagUParTAK4QvGrefined = cms.InputTag("puppiJetRefineNN","btagUParTAK4QvGrefined"),
-    )
-
-    # 2) backup all 9 originals in the NanoAOD table as *_unrefined
     fastSim.toModify(process.jetPuppiTable.variables,
         pt_unrefined               = process.jetPuppiTable.variables.pt.clone(),
         btagDeepFlavB_unrefined    = process.jetPuppiTable.variables.btagDeepFlavB.clone(),
@@ -322,28 +282,59 @@ def nanoAOD_refineFastSim_puppiJet(process):
         btagUParTAK4CvL_unrefined  = process.jetPuppiTable.variables.btagUParTAK4CvL.clone(),
         btagUParTAK4QvG_unrefined  = process.jetPuppiTable.variables.btagUParTAK4QvG.clone(),
     )
-    # drop them so we can redefine
-    fastSim.toModify(process.jetPuppiTable.variables,
-        pt=None, btagDeepFlavB=None, btagDeepFlavCvB=None,
-        btagDeepFlavCvL=None, btagDeepFlavQG=None,
-        btagUParTAK4B=None, btagUParTAK4CvB=None,
-        btagUParTAK4CvL=None, btagUParTAK4QvG=None,
-    )
-
-    # 3) re‑define each branch with a FastSim‑only mask ternary
-    mask = "(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')>0)"
 
     fastSim.toModify(process.jetPuppiTable.variables,
-        pt              = Var(f"?{mask}?userFloat('ptRefined'):pt()",              float, precision=10, doc="refined pT or original"),
-        btagDeepFlavB   = Var(f"?{mask}?userFloat('btagDeepFlavBrefined'):(bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))", float, precision=10),
-        btagDeepFlavCvB = Var(f"?{mask}?userFloat('btagDeepFlavCvBrefined'):(?(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')):-1)", float, precision=10),
-        btagDeepFlavCvL = Var(f"?{mask}?userFloat('btagDeepFlavCvLrefined'):(?(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg')):-1)", float, precision=10),
-        btagDeepFlavQG  = Var(f"?{mask}?userFloat('btagDeepFlavQGrefined'):(?(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds'))>0?bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds')):-1)", float, precision=10),
-        btagUParTAK4B   = Var(f"?{mask}?userFloat('btagUParTAK4Brefined'):(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'))", float, precision=10),
-        btagUParTAK4CvB = Var(f"?{mask}?userFloat('btagUParTAK4CvBrefined'):(?(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB')>0)?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB'):-1)", float, precision=10),
-        btagUParTAK4CvL = Var(f"?{mask}?userFloat('btagUParTAK4CvLrefined'):(?(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL')>0)?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL'):-1)", float, precision=10),
-        btagUParTAK4QvG = Var(f"?{mask}?userFloat('btagUParTAK4QvGrefined'):(?(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')>0)?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'):-1)", float, precision=10),
+        pt=None, btagDeepFlavB=None, btagDeepFlavCvB=None, btagDeepFlavCvL=None, btagDeepFlavQG=None,
+        btagUParTAK4B=None, btagUParTAK4CvB=None, btagUParTAK4CvL=None, btagUParTAK4QvG=None,
     )
+
+    process.puppiJetRefineNN = cms.EDProducer(
+        "JetBaseMVAValueMapProducer",
+        backend             = cms.string("ONNX"),
+        batch_eval          = cms.bool(True),
+        disableONNXGraphOpt = cms.bool(True),
+        src                 = cms.InputTag("linkedObjects","jets"),
+        weightFile          = cms.FileInPath("PhysicsTools/NanoAOD/data/fastSimPuppiJetRefineNN_31July2025.onnx"),
+        name                = cms.string("puppiJetRefineNN"),
+        variables = cms.VPSet(
+            cms.PSet(name=cms.string("GenJet_pt"),           expr=cms.string("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().pt():pt")),
+            cms.PSet(name=cms.string("GenJet_eta"),          expr=cms.string("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().eta():eta")),
+            cms.PSet(name=cms.string("Jet_hadronFlavour"),   expr=cms.string("hadronFlavour()")),
+            cms.PSet(name=cms.string("Jet_pt"),              expr=cms.string("pt()")),
+            cms.PSet(name=cms.string("Jet_btagDeepFlavB"),   expr=cms.string("bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')")),
+            cms.PSet(name=cms.string("Jet_btagDeepFlavCvB"), expr=cms.string("?(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')):-1")),
+            cms.PSet(name=cms.string("Jet_btagDeepFlavCvL"), expr=cms.string("?(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg')):-1")),
+            cms.PSet(name=cms.string("Jet_btagDeepFlavQG"),  expr=cms.string("?(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds'))>0?bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds')):-1")),
+            cms.PSet(name=cms.string("Jet_btagUParTAK4B"),   expr=cms.string("bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')")),
+            cms.PSet(name=cms.string("Jet_btagUParTAK4CvB"), expr=cms.string("?(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB')>0)?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB'):-1")),
+            cms.PSet(name=cms.string("Jet_btagUParTAK4CvL"), expr=cms.string("?(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL')>0)?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL'):-1")),
+            cms.PSet(name=cms.string("Jet_btagUParTAK4QvG"), expr=cms.string("?(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')>0)?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'):-1")),
+        ),
+        inputTensorName  = cms.string("input"),
+        outputTensorName = cms.string("output"),
+        outputNames      = cms.vstring(
+            "ptrefined",
+            "btagDeepFlavBrefined","btagDeepFlavCvBrefined","btagDeepFlavCvLrefined","btagDeepFlavQGrefined",
+            "btagUParTAK4Brefined","btagUParTAK4CvBrefined","btagUParTAK4CvLrefined","btagUParTAK4QvGrefined",
+        ),
+        outputFormulas   = cms.vstring("at(0)","at(1)","at(2)","at(3)","at(4)","at(5)","at(6)","at(7)","at(8)"),
+    )
+
+    #publish refined values directly under the plain names (FastSim only) via externalVariables
+    #originals still available as *_unrefined 
+    fastSim.toModify(process.jetPuppiTable.externalVariables,
+        pt              = ExtVar(cms.InputTag("puppiJetRefineNN","ptrefined"),                 float, precision=10, doc="Refined pT (FastSim only)"),
+        btagDeepFlavB   = ExtVar(cms.InputTag("puppiJetRefineNN","btagDeepFlavBrefined"),      float, precision=10, doc="DeepJet b+bb+lepb (refined)"),
+        btagDeepFlavCvB = ExtVar(cms.InputTag("puppiJetRefineNN","btagDeepFlavCvBrefined"),    float, precision=10, doc="DeepJet c vs b+bb+lepb (refined)"),
+        btagDeepFlavCvL = ExtVar(cms.InputTag("puppiJetRefineNN","btagDeepFlavCvLrefined"),    float, precision=10, doc="DeepJet c vs udsg (refined)"),
+        btagDeepFlavQG  = ExtVar(cms.InputTag("puppiJetRefineNN","btagDeepFlavQGrefined"),     float, precision=10, doc="DeepJet g vs uds (refined)"),
+        btagUParTAK4B   = ExtVar(cms.InputTag("puppiJetRefineNN","btagUParTAK4Brefined"),      float, precision=10, doc="UParT BvsAll (refined)"),
+        btagUParTAK4CvB = ExtVar(cms.InputTag("puppiJetRefineNN","btagUParTAK4CvBrefined"),    float, precision=10, doc="UParT CvsB (refined)"),
+        btagUParTAK4CvL = ExtVar(cms.InputTag("puppiJetRefineNN","btagUParTAK4CvLrefined"),    float, precision=10, doc="UParT CvsL (refined)"),
+        btagUParTAK4QvG = ExtVar(cms.InputTag("puppiJetRefineNN","btagUParTAK4QvGrefined"),    float, precision=10, doc="UParT QvsG (refined)"),
+    )
+
+    fastSim.toModify(process.jetPuppiTablesTask, process.jetPuppiTablesTask.add(process.puppiJetRefineNN))
 
     return process
 
