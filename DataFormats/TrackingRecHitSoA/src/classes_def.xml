@@ -4,7 +4,7 @@
   <class name="reco::HitModulesLayout<128, false>"/>
 
   <class name="reco::HitPortableCollectionHost"/>
-  <class name="reco::TrackingRecHitHost"/>
+  <class name="reco::TrackingRecHitHost"  rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<reco::TrackingRecHitHost>" splitLevel="0"/>
 
   <class name="SiPixelHitStatus"/>
