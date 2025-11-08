@@ -17,6 +17,7 @@ autoHLT = {
   'relvalRun4'          : '75e33',
   'relvalRun4_timing'   : '75e33_timing',
   'relvalRun4_trk'      : '75e33_trackingOnly',
-  'relvalRun4_scouting' : 'NGTScouting',    
+  'relvalRun4_scouting' : 'NGTScouting',
+  'relvalRun4_offload'  : 'HeterogeneousOnly',
   'test'                : 'GRun',
 }
