@@ -17,7 +17,8 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC
       pt_assign_engine_dxy_(nullptr),
       fw_ver_(0),
       pt_lut_ver_(0),
-      pc_lut_ver_(0) {
+      pc_lut_ver_(0),
+      loader(version_control_.nnModelDxy()) {
   // Set pt assignment engine according to Era
   if (era() == "Run2_2016") {
     pt_assign_engine_ = std::make_unique<PtAssignmentEngine2016>();
@@ -29,7 +30,8 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC
   }
 
   // No era setup for displaced pT assignment engine
-  pt_assign_engine_dxy_ = std::make_unique<PtAssignmentEngineDxy>();
+  model = loader.load_model();
+  pt_assign_engine_dxy_ = std::make_unique<PtAssignmentEngineDxy>(model);
 
   emtf_assert(pt_assign_engine_ != nullptr);
   emtf_assert(pt_assign_engine_dxy_ != nullptr);
