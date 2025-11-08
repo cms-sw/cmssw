@@ -362,7 +362,9 @@ std::vector<double> scaleGraphByLuminosity(TGraphErrors *runGraph,
   }  // Loop over all runs in original histogram
 
   // Delete remaining old content and replace it with new one calculated from luminosities
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 38, 0)
   runGraph->GetHistogram()->Delete();
+#endif
   runGraph->SetHistogram(nullptr);
   for (int iRun = 0; iRun < nRuns; iRun++) {
     runGraph->SetPoint(iRun, xAxisValues.at(iRun), yAxisValues.at(iRun));
