@@ -315,13 +315,13 @@ def nanoAOD_refineFastSim_puppiJet(process):
     fastSim.toModify(process.jetPuppiTable.variables,
         pt = Var(f"?{_mask}?userFloat('ptrefined'):pt()", float, precision=10),
         btagDeepFlavB = Var(f"?{_mask}?userFloat('btagDeepFlavBrefined'):(bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))", float, precision=10),
-        btagDeepFlavCvB = Var(f"?{_mask}?userFloat('btagDeepFlavCvBrefined'):bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))", float, precision=10),
-        btagDeepFlavCvL = Var(f"?{_mask}?userFloat('btagDeepFlavCvLrefined'):bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg'))", float, precision=10),
-        btagDeepFlavQG = Var(f"?{_mask}?userFloat('btagDeepFlavQGrefined'):bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds'))", float, precision=10),
-        btagUParTAK4B = Var(f"?{_mask}?userFloat('btagUParTAK4Brefined'):bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')", float, precision=12),
-        btagUParTAK4CvB = Var(f"?{_mask}?userFloat('btagUParTAK4CvBrefined'):bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB')", float, precision=12),
-        btagUParTAK4CvL = Var(f"?{_mask}?userFloat('btagUParTAK4CvLrefined'):bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL')", float, precision=12),
-        btagUParTAK4QvG = Var(f"?{_mask}?userFloat('btagUParTAK4QvGrefined'):bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')", float, precision=12),        
+        btagDeepFlavCvB = Var(f"?{_mask}?userFloat('btagDeepFlavCvBrefined'):max(bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')),-1)", float, precision=10),#max(x,-1) safety because double-ternary not allowed 
+        btagDeepFlavCvL = Var(f"?{_mask}?userFloat('btagDeepFlavCvLrefined'):max(bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg')),-1)", float, precision=10),#max(x,-1) safety because double-ternary not allowed 
+        btagDeepFlavQG = Var(f"?{_mask}?userFloat('btagDeepFlavQGrefined'):max(bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds')),-1)", float, precision=10),#max(x,-1) safety because double-ternary not allowed 
+        btagUParTAK4B = Var(f"?{_mask}?userFloat('btagUParTAK4Brefined'):max(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'),-1)", float, precision=12),
+        btagUParTAK4CvB = Var(f"?{_mask}?userFloat('btagUParTAK4CvBrefined'):max(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB'),-1)", float, precision=12),
+        btagUParTAK4CvL = Var(f"?{_mask}?userFloat('btagUParTAK4CvLrefined'):max(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL'),-1)", float, precision=12),
+        btagUParTAK4QvG = Var(f"?{_mask}?userFloat('btagUParTAK4QvGrefined'):max(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'),-1)", float, precision=12),        
     )
     return process
 
