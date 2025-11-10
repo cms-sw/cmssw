@@ -73,6 +73,13 @@ request_cpus          = {cpus:d}
 
 +JobFlavour           = "{flavour:s}"
 """
+    # if we are running inside sigularity, add extra flags
+    if "SINGULARITY_NAME" in os.environ:
+        job_submit_template += f"""\
++SingularityImage = "/cvmfs/unpacked.cern.ch/gitlab-registry.cern.ch/tkello/automation:dev"
++Requirements = HasSingularity
++environment = "CMSSW_BASE={os.environ["CMSSW_BASE"]}"
+"""
     if "bigmem" in resources:
         job_submit_template += """\
 +BigMemJob            = True
