@@ -11,11 +11,12 @@ using XYZVector = ROOT::Math::XYZVector;
 void LST::run(Queue& queue,
               bool verbose,
               float const ptCut,
+              uint16_t const clustSizeCut,
               LSTESData<Device> const* deviceESData,
               LSTInputDeviceCollection const* lstInputDC,
               bool no_pls_dupclean,
               bool tc_pls_triplets) {
-  auto event = LSTEvent(verbose, ptCut, queue, deviceESData);
+  auto event = LSTEvent(verbose, ptCut, clustSizeCut, queue, deviceESData);
 
   event.addInputToEvent(lstInputDC);
   event.addHitToEvent();

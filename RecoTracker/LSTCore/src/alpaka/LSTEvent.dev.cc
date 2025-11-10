@@ -239,7 +239,8 @@ void LSTEvent::createMiniDoublets() {
                       miniDoubletsDC_->view<MiniDoubletsSoA>(),
                       miniDoubletsDC_->view<MiniDoubletsOccupancySoA>(),
                       rangesDC_->const_view(),
-                      ptCut_);
+                      ptCut_,
+                      clustSizeCut_);
 
   auto const addMiniDoubletRangesToEventExplicit_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
 
