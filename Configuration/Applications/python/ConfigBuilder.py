@@ -458,7 +458,7 @@ class ConfigBuilder(object):
                                                secondaryFileNames= cms.untracked.vstring())
                 filesFromOption(self)
             if self._options.filetype == "EDM_RNTUPLE":
-                self.process.source=cms.Source("RNTupleSource",
+                self.process.source=cms.Source("RNTupleTempSource",
                                                fileNames = cms.untracked.vstring())#, 2ndary not supported yet
                                                #secondaryFileNames= cms.untracked.vstring())
                 filesFromOption(self)
@@ -733,7 +733,7 @@ class ConfigBuilder(object):
         elif not ignoreNano and "NANOAOD" in streamType:
             CppType='NanoAODRNTupleOutputModule' if self._options.rntuple_out else 'NanoAODOutputModule'
         elif self._options.rntuple_out:
-            CppType='RNTupleOutputModule'
+            CppType='RNTupleTempOutputModule'
         if 'RNTuple' in CppType:
             fileName = fileName.replace('.root', '.rntpl')
         else:
@@ -1241,7 +1241,7 @@ class ConfigBuilder(object):
             # define output module and go from there
         if self._options.rntuple_out:
             extension = '.rntpl'
-            output = cms.OutputModule('RNTupleOutputModule')
+            output = cms.OutputModule('RNTupleTempOutputModule')
         else:
             extension = '.root'
             output = cms.OutputModule("PoolOutputModule")

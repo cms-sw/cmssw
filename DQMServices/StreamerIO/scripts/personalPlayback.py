@@ -124,7 +124,7 @@ class Playback(Applet):
 
     def do_create_lumi(self):
         orig_lumi = self.lumi_order[(self.next_lumi_index - 1) % len(self.lumi_order)]
-        play_lumi = self.next_lumi_index;
+        play_lumi = self.next_lumi_index
         self.next_lumi_index += 1
 
         self.log.info("Start copying lumi (original) %06d -> %06d (playback)", orig_lumi, play_lumi)
@@ -161,14 +161,15 @@ class Playback(Applet):
 
                 written_files.add(dat_play_fn)
             else:
-                log.warning("Dat file is missing: %s", dat_orig_fn)
+                self.log.warning("Dat file is missing: %s", dat_orig_fn)
 
             # write a new json file point to a different data file
             # this has to be atomic!
             jsn_data["data"][3] = dat_play_fn
 
-            f = tempfile.NamedTemporaryFile(prefix=jsn_play_fn+ ".", suffix=".tmp", dir = self.output, delete=False)
+            f = tempfile.NamedTemporaryFile(prefix=jsn_play_fn+ ".", suffix=".tmp", dir = self.output, delete=False, mode='w+')
             tmp_fp = f.name
+            self.log.info(jsn_data)
             json.dump(jsn_data, f)
             f.close()
 
@@ -287,7 +288,7 @@ class FrameworkJob(Applet):
         f.close()
         os.chmod(self.exec_file, 0o755)
 
-        cmsset_globs = ["/afs/cern.ch/cms/cmsset_default.sh", "/home/dqm*local/base/cmsset_default.sh"]
+        cmsset_globs = ["/cvmfs/cms.cern.ch/cmsset_default.sh", "/afs/cern.ch/cms/cmsset_default.sh", "/home/dqm*local/base/cmsset_default.sh"]
         cmsset_target = None
         for t in cmsset_globs:
             files =  glob.glob(t)
@@ -322,6 +323,7 @@ class FrameworkJob(Applet):
         target = os.path.relpath(output_target, self.home_path)
         self.log.info("Linking : %s -> %s", output_link, target)
         os.symlink(target, output_link)
+        os.makedirs(os.path.join(output_link, "upload"), exist_ok=True)
         self.output_path = output_link
 
         cfg_link = os.path.join(self.home_path, os.path.basename(self.cfg_file))
@@ -352,12 +354,12 @@ class FrameworkJob(Applet):
         args.append("bash")                 # arg 0
         args.append(self.exec_file)         # arg 0
         args.append(self.home_path)         # home path
-        args.append("slc6_amd64_gcc491")    # release
+        args.append(self.opts.arch)    # release
         args.append(self.output_path)       # cwd/output path
         args.append(str(run))               # run
         args.append(self.ramdisk_fp)        # ramdisk
         args.append(self.cfg_link)          # cmsRun arg 1
-        args.append("runkey=pp_run")        # cmsRun arg 2
+        args.append(f"runkey={self.opts.run_key}")        # cmsRun arg 2
 
         return args
 
@@ -454,6 +456,7 @@ if __name__ == "__main__":
     parser.add_argument("--work", "-w", type=str, help="Working directory (used for inputs,outputs,monitoring and logs).", default="/tmp/pplay." + username)
     parser.add_argument("--clean", "-c", action="store_true", help="Clean work directories (if they are not set).", default=False)
     parser.add_argument("--dry", "-n", action="store_true", help="Do not execute, just init.", default=False)
+    parser.add_argument("--arch", "-a", type=str, help="scram architecture to use", default=os.environ.get("SCRAM_ARCH"))
 
     work_group = parser.add_argument_group('Paths', 'Path options for cmssw jobs, auto generated if not specified.')
     for subdirectory in subdirectories:
@@ -467,6 +470,8 @@ if __name__ == "__main__":
     run_group = parser.add_argument_group('Run', 'Run configuration/parameters.')
     run_group.add_argument("--run", type=int, help="Run number, -1 for autodiscovery.", default=-1)
     run_group.add_argument("--cmsRun", type=str, help="cmsRun command to run, for igprof and so on.", default="cmsRun")
+    run_group.add_argument("--run_key", type=str, help="Run key to use (pp_run, cosmic_run or hi_run)", default="pp_run")
+
 
     parser.add_argument('cmssw_configs', metavar='cmssw_cfg.py', type=str, nargs='*', help='List of cmssw jobs (clients).')
 

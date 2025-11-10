@@ -508,12 +508,3 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PixelTrackProducerFromSoAAlpaka);
-
-// (also) for HLT migration, could be removed once done
-using PixelTrackProducerFromSoAAlpakaPhase1 = PixelTrackProducerFromSoAAlpaka;
-using PixelTrackProducerFromSoAAlpakaPhase2 = PixelTrackProducerFromSoAAlpaka;
-using PixelTrackProducerFromSoAAlpakaHIonPhase1 = PixelTrackProducerFromSoAAlpaka;
-
-DEFINE_FWK_MODULE(PixelTrackProducerFromSoAAlpakaPhase1);
-DEFINE_FWK_MODULE(PixelTrackProducerFromSoAAlpakaPhase2);
-DEFINE_FWK_MODULE(PixelTrackProducerFromSoAAlpakaHIonPhase1);

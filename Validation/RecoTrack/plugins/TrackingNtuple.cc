@@ -1295,7 +1295,7 @@ private:
       ph2_radL;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> ph2_bbxi;
   std::vector<uint64_t> ph2_usedMask;
-  std::vector<size_t> ph2_clustSize;
+  std::vector<uint16_t> ph2_clustSize;
 
   ////////////////////
   // invalid (missing/inactive/etc) hits

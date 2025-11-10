@@ -177,13 +177,5 @@ void SiPixelRecHitFromSoAAlpaka::produce(edm::StreamID streamID,
   iEvent.emplace(rechitsPutToken_, std::move(output));
 }
 
-using SiPixelRecHitFromSoAAlpakaPhase1 = SiPixelRecHitFromSoAAlpaka;
-using SiPixelRecHitFromSoAAlpakaPhase2 = SiPixelRecHitFromSoAAlpaka;
-using SiPixelRecHitFromSoAAlpakaHIonPhase1 = SiPixelRecHitFromSoAAlpaka;
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelRecHitFromSoAAlpaka);
-// Keeping these to ease the migration of the HLT menu
-DEFINE_FWK_MODULE(SiPixelRecHitFromSoAAlpakaPhase1);
-DEFINE_FWK_MODULE(SiPixelRecHitFromSoAAlpakaPhase2);
-DEFINE_FWK_MODULE(SiPixelRecHitFromSoAAlpakaHIonPhase1);

@@ -223,30 +223,30 @@ void SiPixelCompareRecHits::bookHistograms(DQMStore::IBooker& iBook,
 
   // clang-format off
   //Global
-  hnHits_ = iBook.book2I("nHits", "ReferencevsTarget RecHits per event;#Reference RecHits;#Target RecHits", 200, 0, 5000,200, 0, 5000);
+  hnHits_ = iBook.book2I("nHits", "RecHits per event;#Reference RecHits;#Target RecHits", 200, 0, 5000,200, 0, 5000);
   //Barrel Layer
   for(unsigned int il=0;il<tkGeom_->numberOfLayers(PixelSubdetector::PixelBarrel);il++){
-    hBchargeL_[il] = iBook.book2I(Form("recHitsBLay%dCharge",il+1), Form("ReferencevsTarget RecHits Charge Barrel Layer%d;Reference Charge;Target Charge",il+1), 250, 0, 100000, 250, 0, 100000);
-    hBsizexL_[il] = iBook.book2I(Form("recHitsBLay%dSizex",il+1), Form("ReferencevsTarget RecHits SizeX Barrel Layer%d;Reference SizeX;Target SizeX",il+1), 30, 0, 30, 30, 0, 30);
-    hBsizeyL_[il] = iBook.book2I(Form("recHitsBLay%dSizey",il+1), Form("ReferencevsTarget RecHits SizeY Barrel Layer%d;Reference SizeY;Target SizeY",il+1), 30, 0, 30, 30, 0, 30);
-    hBposxL_[il] = iBook.book2D(Form("recHitsBLay%dPosx",il+1), Form("ReferencevsTarget RecHits x-pos in Barrel Layer%d;Reference pos x;Target pos x",il+1), 200, -5, 5, 200,-5,5);
-    hBposyL_[il] = iBook.book2D(Form("recHitsBLay%dPosy",il+1), Form("ReferencevsTarget RecHits y-pos in Barrel Layer%d;Reference pos y;Target pos y",il+1), 200, -5, 5, 200,-5,5);
+    hBchargeL_[il] = iBook.book2I(Form("recHitsBLay%dCharge",il+1), Form("RecHits Charge Barrel Layer%d;Reference Charge;Target Charge",il+1), 250, 0, 100000, 250, 0, 100000);
+    hBsizexL_[il] = iBook.book2I(Form("recHitsBLay%dSizex",il+1), Form("RecHits SizeX Barrel Layer%d;Reference SizeX;Target SizeX",il+1), 30, 0, 30, 30, 0, 30);
+    hBsizeyL_[il] = iBook.book2I(Form("recHitsBLay%dSizey",il+1), Form("RecHits SizeY Barrel Layer%d;Reference SizeY;Target SizeY",il+1), 30, 0, 30, 30, 0, 30);
+    hBposxL_[il] = iBook.book2D(Form("recHitsBLay%dPosx",il+1), Form("RecHits x-pos in Barrel Layer%d;Reference pos x;Target pos x",il+1), 200, -5, 5, 200,-5,5);
+    hBposyL_[il] = iBook.book2D(Form("recHitsBLay%dPosy",il+1), Form("RecHits y-pos in Barrel Layer%d;Reference pos y;Target pos y",il+1), 200, -5, 5, 200,-5,5);
   }
   //Endcaps
   //Endcaps Disk
   for(int is=0;is<2;is++){
     int sign=is==0? -1:1;
     for(unsigned int id=0;id<tkGeom_->numberOfLayers(PixelSubdetector::PixelEndcap);id++){
-      hFchargeD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("ReferencevsTarget RecHits Charge Endcaps Disk%+d;Reference Charge;Target Charge",id*sign+sign), 250, 0, 100000, 250, 0, 100000);
-      hFsizexD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("ReferencevsTarget RecHits SizeX Endcaps Disk%+d;Reference SizeX;Target SizeX",id*sign+sign), 30, 0, 30, 30, 0, 30);
-      hFsizeyD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("ReferencevsTarget RecHits SizeY Endcaps Disk%+d;Reference SizeY;Target SizeY",id*sign+sign), 30, 0, 30, 30, 0, 30);
-      hFposxD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosx",id*sign+sign), Form("ReferencevsTarget RecHits x-pos Endcaps Disk%+d;Reference pos x;Target pos x",id*sign+sign), 200, -5, 5, 200, -5, 5);
-      hFposyD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosy",id*sign+sign), Form("ReferencevsTarget RecHits y-pos Endcaps Disk%+d;Reference pos y;Target pos y",id*sign+sign), 200, -5, 5, 200, -5, 5);
+      hFchargeD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("RecHits Charge Endcaps Disk%+d;Reference Charge;Target Charge",id*sign+sign), 250, 0, 100000, 250, 0, 100000);
+      hFsizexD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("RecHits SizeX Endcaps Disk%+d;Reference SizeX;Target SizeX",id*sign+sign), 30, 0, 30, 30, 0, 30);
+      hFsizeyD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("RecHits SizeY Endcaps Disk%+d;Reference SizeY;Target SizeY",id*sign+sign), 30, 0, 30, 30, 0, 30);
+      hFposxD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosx",id*sign+sign), Form("RecHits x-pos Endcaps Disk%+d;Reference pos x;Target pos x",id*sign+sign), 200, -5, 5, 200, -5, 5);
+      hFposyD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosy",id*sign+sign), Form("RecHits y-pos Endcaps Disk%+d;Reference pos y;Target pos y",id*sign+sign), 200, -5, 5, 200, -5, 5);
     }
   }
   //1D differences
-  hBchargeDiff_ = iBook.book1D("rechitChargeDiffBpix","Charge differnce of rechits in BPix; rechit charge difference (Reference - Target)", 101, -50.5, 50.5);
-  hFchargeDiff_ = iBook.book1D("rechitChargeDiffFpix","Charge differnce of rechits in FPix; rechit charge difference (Reference - Target)", 101, -50.5, 50.5);
+  hBchargeDiff_ = iBook.book1D("rechitChargeDiffBpix","Charge difference of rechits in BPix; rechit charge difference (Reference - Target)", 101, -50.5, 50.5);
+  hFchargeDiff_ = iBook.book1D("rechitChargeDiffFpix","Charge difference of rechits in FPix; rechit charge difference (Reference - Target)", 101, -50.5, 50.5);
   hBsizeXDiff_ = iBook.book1D("rechitsizeXDiffBpix","SizeX difference of rechits in BPix; rechit sizex difference (Reference - Target)", 21, -10.5, 10.5);
   hFsizeXDiff_ = iBook.book1D("rechitsizeXDiffFpix","SizeX difference of rechits in FPix; rechit sizex difference (Reference - Target)", 21, -10.5, 10.5);
   hBsizeYDiff_ = iBook.book1D("rechitsizeYDiffBpix","SizeY difference of rechits in BPix; rechit sizey difference (Reference - Target)", 21, -10.5, 10.5);
