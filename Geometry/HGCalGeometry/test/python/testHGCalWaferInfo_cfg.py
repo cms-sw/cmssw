@@ -3,7 +3,7 @@
 #   cmsRun testHGCalWaferInfo_cfg.py geometry=D110
 #
 #   Options for geometry D103, D104, D106, D107, D108, D109, D110, D115, D119,
-#                        D120
+#                        D120, D122, D123
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,7 +17,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D103, D104, D106, D107, D108, D109, D110, D115, D119, D120")
+                  "geometry of operations: D103, D104, D106, D107, D108, D109, D110, D115, D119, D120, D122, D123")
 
 ### get and parse the command line arguments
 options.parseArguments()
