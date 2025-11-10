@@ -4,5 +4,6 @@
   <use name="DataFormats/GeometryVector"/>
   <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="MagneticField/Portable"/>
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
