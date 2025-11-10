@@ -52,7 +52,6 @@
 // details at https://github.com/cms-sw/cmssw/issues/49151
 #include "FWCore/Utilities/interface/disable_ubsan.h"
 
-
 // forward declarations
 namespace edm {
 
