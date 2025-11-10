@@ -15,7 +15,8 @@ def customiseEarlyDelete(process):
     products = collections.defaultdict(list)
 
     (products, references) = customiseEarlyDeleteForSeeding(process, products)
-    products = customiseEarlyDeleteForMkFit(process, products)
+    (products, newReferences) = customiseEarlyDeleteForMkFit(process, products)
+    references.update(newReferences)
     (products, newReferences) = customiseEarlyDeleteForCKF(process, products)
     references.update(newReferences)
 

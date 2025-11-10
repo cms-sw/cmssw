@@ -48,8 +48,6 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-  const edm::EDGetTokenT<MkFitHitWrapper> pixelHitsToken_;
-  const edm::EDGetTokenT<MkFitHitWrapper> stripHitsToken_;
   const edm::EDGetTokenT<MkFitEventOfHits> eventOfHitsToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   const edm::ESGetToken<mkfit::IterationConfig, TrackerRecoGeometryRecord> mkFitIterConfigToken_;
@@ -65,9 +63,7 @@ private:
 };
 
 MkFitFitProducer::MkFitFitProducer(edm::ParameterSet const& iConfig)
-    : pixelHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
-      stripHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
-      eventOfHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("eventOfHits"))},
+    : eventOfHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("eventOfHits"))},
       mkFitGeomToken_{esConsumes()},
       mkFitIterConfigToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("config"))},
       pixelCPEToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelCPE")))),
@@ -88,8 +84,6 @@ MkFitFitProducer::~MkFitFitProducer() { mkfit::MkBuilderWrapper::clear(); }
 void MkFitFitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add("pixelHits", edm::InputTag("mkFitSiPixelHits"));
-  desc.add("stripHits", edm::InputTag("mkFitSiStripHits"));
   desc.add("eventOfHits", edm::InputTag("mkFitEventOfHits"));
   desc.add<edm::ESInputTag>("config", edm::ESInputTag(""))
       ->setComment("ESProduct that has the mkFit configuration parameters for this iteration");
