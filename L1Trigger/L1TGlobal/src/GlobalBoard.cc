@@ -661,10 +661,6 @@ void l1t::GlobalBoard::initTriggerConditions(const edm::EventSetup& evSetup,
           theCondition = std::make_unique<TOPOCondition>(itCond.second, this);
           theCondition->setVerbosity(m_verbosity);
 
-          if (m_saveAXOScore and not m_axoScoreConditionName.empty()) {
-            m_axoScoreConditionName = itCond.first;
-          }
-
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
             theCondition->print(myCout);
