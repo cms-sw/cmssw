@@ -17,7 +17,8 @@
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 #include "L1Trigger/VertexFinder/interface/VertexFinder.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "ap_fixed.h"
+#include "hls4ml/emulator.h"
 
 #include <iostream>
 #include <map>
@@ -47,12 +48,12 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
   const std::string outputCollectionName_;
 
-  tensorflow::GraphDef* TrkWGraph_;
-  tensorflow::Session* TrkWSesh_;
-  tensorflow::GraphDef* PattRecGraph_;
-  tensorflow::Session* PattRecSesh_;
-
   l1tVertexFinder::AlgoSettings settings_;
+
+  std::unique_ptr<hls4mlEmulator::ModelLoader> trk_loader;
+  std::shared_ptr<hls4mlEmulator::Model> trk_model;
+  std::unique_ptr<hls4mlEmulator::ModelLoader> pat_loader;
+  std::shared_ptr<hls4mlEmulator::Model> pat_model;
 };
 
 #endif
