@@ -1,5 +1,6 @@
 from builtins import range, object
 import inspect
+import sys
 from typing import Union
 
 class _ConfigureComponent(object):
@@ -731,10 +732,9 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return (converter(x).value() for x in strings)
 
 def saveOrigin(obj, level):
-    import sys
-    fInfo = inspect.getframeinfo(sys._getframe(level+1))
-    obj._filename = fInfo.filename
-    obj._lineNumber =fInfo.lineno
+    frame = sys._getframe(level+1)
+    obj._filename = frame.f_code.co_filename
+    obj._lineNumber = frame.f_lineno
 
 def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
     if len(newParams):
