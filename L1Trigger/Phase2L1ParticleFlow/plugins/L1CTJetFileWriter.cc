@@ -78,17 +78,7 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
 
     // Parse encoding string and convert to enum
     std::string encodingStr = pset.getParameter<std::string>("jetEncoding");
-    l1t::PFJet::HWEncoding encoding;
-    if (encodingStr == "CT") {
-      encoding = l1t::PFJet::HWEncoding::CT;
-    } else if (encodingStr == "GT") {
-      encoding = l1t::PFJet::HWEncoding::GT;
-    } else if (encodingStr == "GTWide") {
-      encoding = l1t::PFJet::HWEncoding::GTWide;
-    } else {
-      throw cms::Exception("Configuration")
-          << "Invalid jetEncoding value: '" << encodingStr << "'. Valid options are: 'CT', 'GT', 'GTWide'";
-    }
+    l1t::PFJet::HWEncoding encoding = l1t::PFJet::encodingFromString(encodingStr);
     jetEncodings_.push_back(encoding);
 
     bool writeJetToken(false), writeMhtToken(false);

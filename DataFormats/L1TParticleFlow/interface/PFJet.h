@@ -68,6 +68,9 @@ namespace l1t {
     // Get and set the encodedJet_ bits. The Jet is encoded in 128 bits as a 2-element array of uint64_t
     // We store encodings both for Correlator internal usage and for Global Trigger
     enum class HWEncoding { CT, GT, GTWide };
+    static const std::unordered_map<std::string, HWEncoding> encodingMapping;
+    static HWEncoding encodingFromString(const std::string& name);
+
     typedef std::array<uint64_t, 2> PackedJet;
     const PackedJet& encodedJet(const HWEncoding encoding = HWEncoding::GT) const {
       return encodedJet_[static_cast<int>(encoding)];
