@@ -7,6 +7,7 @@ import hist
 import re
 import matplotlib.pyplot as plt
 from matplotlib.transforms import blended_transform_factory
+from matplotlib.colors import LogNorm
 plt.style.use('tableau-colorblind10')
 import array
 import ROOT
@@ -205,7 +206,8 @@ def plotOverlay(subdirs, cached_histos, name, props, outdir):
     colors_iter = iter(('#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628',
                         '#984ea3', '#999999', '#e41a1c', '#dede00')) #colour-blind friendly
     pattern = r"Score(\d+)p(\d+)"
-    replacement = lambda m: f"score = {m.group(1)}.{m.group(2)}"
+    matching = "score" if args.match_by_score else "shared energy fraction"
+    replacement = lambda m: f"{matching} = {m.group(1)}.{m.group(2)}"
     
     plotter = Plotter(args.sample_label, grid_color=None)
     for sub in subdirs:
@@ -232,7 +234,7 @@ def plotOverlay(subdirs, cached_histos, name, props, outdir):
                                  baseline=None, color=next(colors_iter))
 
         sublabel = re.sub(pattern, replacement, sub)
-        if sublabel == 'score = 1.1': sublabel = 'score = 1.0'
+        if sublabel == f'{matching} = 1.1': sublabel = f'{matching} = 1.0'
         if any(x in name for x in ('Eff', 'Fake', 'Split', 'Merge')):
             eff_filt, (err_filt_lo, err_filt_hi), up_error, transform = rate_errorbar_declutter(plotter, values, errors, 0)
             plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=[err_filt_lo,err_filt_hi],
@@ -259,7 +261,8 @@ def plotOverlayRatio(subdirs, cached_histos, num, den, props, outdir):
     colors_iter = iter(('#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628',
                         '#984ea3', '#999999', '#e41a1c', '#dede00')) #colour-blind friendly
     pattern = r"Score(\d+)p(\d+)"
-    replacement = lambda m: f"score = {m.group(1)}.{m.group(2)}"
+    matching = "score" if args.match_by_score else "shared energy fraction"
+    replacement = lambda m: f"{matching} = {m.group(1)}.{m.group(2)}"
     
     plotter = Plotter(args.sample_label, grid_color=None)
     for sub in subdirs:
@@ -409,9 +412,22 @@ def plot2D(h, props, outname):
 
     nbins_x, nbins_y, x_edges, y_edges = define_bins_2D(h)
     values = histo_values_2D(h)
-    
-    pcm = plotter.ax.pcolormesh(x_edges, y_edges, np.where(values==0, np.nan, values),
-                                cmap='viridis', shading='auto')
+
+    values = np.where(values == 0., np.nan, values)
+    if 'logz' in props and props['logz']:
+        values_log = values[~np.isnan(values)] # avoid log(0) errors
+        pcm = plotter.ax.pcolormesh(
+            x_edges, y_edges, values,
+            cmap='viridis',
+            shading='auto',
+            norm=LogNorm(vmin=values_log.min(), vmax=values_log.max())
+        )
+    else:
+        pcm = plotter.ax.pcolormesh(
+            x_edges, y_edges, values,
+            cmap='viridis',
+            shading='auto'
+        )
 
     plotter.labels(x=props['xtitle'], y=props['ytitle'])
     plotter.fig.colorbar(pcm, ax=plotter.ax, label=props['var'])
@@ -461,6 +477,7 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--sample_label', default="", help='Sample label for plotting.')
     parser.add_argument('--EnFracCut', default=0.01, help='Cut on the sim cluster energy fraction.')
     parser.add_argument('--PtCut', default=0.01, help='Cut on the sim cluster energy fraction.')
+    parser.add_argument('--match_by_score', default=1, type=int, help='Use association based on score (if false, use shared energy fraction).')
 
     mutual_excl2 = parser.add_mutually_exclusive_group(required=True)
     mutual_excl2.add_argument('-f', '--file', help='Paths to the DQM ROOT file.')
@@ -472,6 +489,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     createDir(args.odir)
+    parentDir = os.path.dirname(args.odir)
+    if args.odir[-1] == '/':
+        parentDir = os.path.dirname(parentDir)
+    createIndexPHP(src=parentDir, dest=args.odir)
     
     fontsize = 16    
     colors = hep.style.CMS['axes.prop_cycle'].by_key()['color']
@@ -489,7 +510,12 @@ if __name__ == '__main__':
               'split': 'Split Rate',
               'merge': 'Merge Rate'}
 
-    dqm_dir = f"DQMData/Run 1/HLT/Run summary/ParticleFlow/PFClusterValidation_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
+    if args.match_by_score == 1:
+        matching = '_MatchByScore'
+    else:
+        matching = '_MatchByShEnF'
+        print("### INFO: Using association by shared energy fraction.")
+    dqm_dir = f"DQMData/Run 1/HLT/Run summary/ParticleFlow/PFClusterValidation{matching}_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
     afile = ROOT.TFile.Open(args.file)
     checkRootDir(afile, dqm_dir)
 
@@ -711,7 +737,7 @@ if __name__ == '__main__':
         'simToRecoShEnF_EnHits': dict(ytitle='Energy from hits [GeV]', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
         'simToRecoShEnF_EnFrac': dict(ytitle='Energy Fraction', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
         'simToRecoShEnF_Mult': dict(ytitle='Multiplicity', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
-        'simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
+        'simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# Clusters', xtitle='SimToReco Shared Energy Fraction', logz=True),
     }
 
     for name, props in vars2D.items():
@@ -764,7 +790,7 @@ if __name__ == '__main__':
         plot1D(root_hist, props, outname=os.path.join(args.odir, name))
     
     vars2D = {
-        'CP_simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# CaloParticles', xtitle='SimToReco Shared Energy Fraction'),
+        'CP_simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# CaloParticles', xtitle='SimToReco Shared Energy Fraction', logz=True),
     }
 
     for name, props in vars2D.items():

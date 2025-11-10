@@ -1,6 +1,3 @@
-// author: Mike Schmitt, University of Florida
-// first version 11/7/2007
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -103,6 +100,7 @@ protected:
   uint nAssocScoreThresholds_;
   double enFracCut_;
   double ptCut_;
+  bool doMatchByScore_;
 
   const std::unordered_map<std::string, std::tuple<unsigned, float, float>> histoVarsReco = {
       {"En", std::make_tuple(100, 0., 100.)},
@@ -194,7 +192,8 @@ PFTester::PFTester(const edm::ParameterSet& iConfig)
           iConfig.getParameter<edm::InputTag>("PFClusterCaloParticleAssociator"))),
       assocScoreThresholds_(iConfig.getParameter<std::vector<double>>("assocScoreThresholds")),
       enFracCut_(iConfig.getParameter<double>("enFracCut")),
-      ptCut_(iConfig.getParameter<double>("ptCut")) {
+      ptCut_(iConfig.getParameter<double>("ptCut")),
+      doMatchByScore_(iConfig.getParameter<bool>("doMatchByScore")) {
   nAssocScoreThresholds_ = assocScoreThresholds_.size();
   h_simClustersMatchedRecoClusters_.resize(nAssocScoreThresholds_);
   h_simClustersMultiMatchedRecoClusters_.resize(nAssocScoreThresholds_);
@@ -218,7 +217,8 @@ void PFTester::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::Ev
   h_CP_simToRecoShEnF_ = ibook.book1D("CP_simToRecoShEnF", "simToRecoSharedEnergy;CaloParticle Sim #rightarrow Reco shared energy fraction", 51, 0, 1.02);
   h_CP_simToRecoShEnF_Score_ = ibook.book2D("CP_simToRecoShEnF_Score", "CaloParticle #rightarrow PFCluster simToRecoSharedEnergy_Score;Sim #rightarrow Reco shared energy fraction;Sim #rightarrow Reco score", 51, 0, 1.02, 51, 0, 1.02);
   
-  std::string pfValidFolder = "HLT/ParticleFlow/PFClusterValidation_EnFracCut"+doubleToString(enFracCut_)+"_PtCut"+doubleToString(ptCut_);
+  std::string matching = doMatchByScore_ ? "_MatchByScore" : "_MatchByShEnF";
+  std::string pfValidFolder = "HLT/ParticleFlow/PFClusterValidation"+matching+"_EnFracCut"+doubleToString(enFracCut_)+"_PtCut"+doubleToString(ptCut_);
   ibook.setCurrentFolder(pfValidFolder);
   h_nSimClusters_ = ibook.book1D("nSimClusters", "Number of SimClusters;Number of SimClusters per event", 100, 0, 100);
   h_nSimClustersPrimary_ = ibook.book1D("nSimClustersPrimary", "Number of Primary SimClusters;Number of Primary SimClusters per event", 100, 0, 100);
@@ -728,15 +728,18 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
         h_simToRecoScore_EnFrac_->Fill(score, SimClusterToCPEnergyFraction);
         h_simToRecoScore_Mult_->Fill(score, simClusters[simId].numberOfRecHits());
 
-        // cut on shared energy fraction
-        // if (shared_energy_frac > thresh) {
-        //   nRecoMatchedToOneSim++;
-        // }
-
-        // cut on score
-        if (score < thresh) {
-          nRecoMatchedToOneSim++;
+        if (doMatchByScore_) {
+          // cut on score
+          if (score < thresh) {
+            nRecoMatchedToOneSim++;
+          }
+        } else {
+          // cut on shared energy fraction
+          if (shared_energy_frac > thresh) {
+            nRecoMatchedToOneSim++;
+          }
         }
+
       }
 
       // efficiency numerator
@@ -939,7 +942,18 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       for (const auto& recoPair : simToRecoMatchedSorted) {
         auto recoId = recoPair.first.index();
 
-        if (recoPair.second.second < thresh) {
+        bool passMatch = false;
+        if (doMatchByScore_) {
+          // cut on score
+          passMatch = (recoPair.second.second < thresh);
+        } else {
+          // cut on shared energy fraction
+          double shared_energy = recoPair.second.first;
+          double shared_energy_frac = shared_energy / energySumSimHits;
+          passMatch = (shared_energy_frac > thresh);
+        }
+
+        if (passMatch) {
           h2d_responsePt_[ithr]["En"]->Fill(simClusters[simId].energy(), recoClusters[recoId].pt() / simClusters[simId].pt());
           h2d_responsePt_[ithr]["EnHits"]->Fill(energySumSimHits, recoClusters[recoId].pt() / simClusters[simId].pt());
           h2d_responsePt_[ithr]["EnFrac"]->Fill(SimClusterToCPEnergyFraction, recoClusters[recoId].pt() / simClusters[simId].pt());
