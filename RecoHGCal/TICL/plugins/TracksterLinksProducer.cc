@@ -239,7 +239,7 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
 
   if (regressionAndPid_) {
     // Run inference algorithm
-    inferenceAlgo_->inputData(layerClusters, *resultTracksters);
+    inferenceAlgo_->inputData(layerClusters, *resultTracksters, rhtools_);
     inferenceAlgo_->runInference(
         *resultTracksters);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
   }
