@@ -42,8 +42,14 @@
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
-#include "FWCore/Utilities/interface/disable_ubsan.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+
+// With gcc 13.4.0, some summary routines are failing with unreachable program point
+// UBSAN errors.  No UB has been identified, so for now this workaround suppresses
+// UBSAN checking for the routines that are failing.
+//
+// details at https://github.com/cms-sw/cmssw/issues/49151
+#include "FWCore/Utilities/interface/disable_ubsan.h"
 
 // forward declarations
 
