@@ -1,7 +1,7 @@
 #ifndef MagneticField_Portable_interface_ParabolicMagneticField_h
 #define MagneticField_Portable_interface_ParabolicMagneticField_h
 
-#include <FWCore/Utilities/interface/abs.h>
+#include <xtd/stdlib/abs.h>
 
 namespace portableParabolicMagneticField {
 
@@ -28,7 +28,7 @@ namespace portableParabolicMagneticField {
 
   template <typename Vec3>
   constexpr inline bool isValid(Vec3 const& vec) {
-    return ((vec[0] * vec[0] + vec[1] * vec[1]) < Parameters::max_radius2 && edm::abs(acc, vec[2]) < Parameters::max_z);
+    return ((vec[0] * vec[0] + vec[1] * vec[1]) < Parameters::max_radius2 && xtd::abs(vec[2]) < Parameters::max_z);
   }
 
   template <typename Vec3>
