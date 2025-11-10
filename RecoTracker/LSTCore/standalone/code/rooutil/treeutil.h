@@ -62,6 +62,7 @@ public:
   void GetEntry(unsigned int idx);
   static void progress(int nEventsTotal, int nEventsChain);
   void loadAllBranches();
+  bool contains(std::string const& name) const;
   template <typename T>
   T const& get(std::string const& name);
   short const& getS(std::string const& name);
