@@ -9,7 +9,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "ap_fixed.h"
+#include "hls4ml/emulator.h"
+
 
 #include <algorithm>
 #include <cmath>
@@ -102,9 +104,7 @@ namespace l1tVertexFinder {
     /// Histogramming algorithm (emulation)
     void fastHistoEmulation();
     /// NNVtx algorithm
-    void NNVtxEmulation(tensorflow::Session* TrackWeightSesh = nullptr,
-                        tensorflow::Session* PatternRecSesh = nullptr,
-                        tensorflow::Session* AssociationSesh = nullptr);
+    void NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> trk_model, std::shared_ptr<hls4mlEmulator::Model> pat_model);
 
     /// Sort vertices in pT
     void sortVerticesInPt();
@@ -152,6 +152,8 @@ namespace l1tVertexFinder {
     FitTrackCollection fitTracks_;
     unsigned int pv_index_;
     unsigned int iterations_;
+
+
   };
 
 }  // end namespace l1tVertexFinder

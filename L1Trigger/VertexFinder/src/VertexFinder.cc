@@ -1078,13 +1078,12 @@ namespace l1tVertexFinder {
     pv_index_ = 0;
   }  // end of fastHistoEmulation
 
-  void VertexFinder::NNVtxEmulation(tensorflow::Session* TrackWeightSesh,
-                                    tensorflow::Session* PatternRecSesh,
-                                    tensorflow::Session* AssociationSesh) {
+  void VertexFinder::NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> trk_model, std::shared_ptr<hls4mlEmulator::Model> pat_model){
     // #### Weight Tracks: ####
     // Loop over tracks -> weight the network -> set track weights
-    tensorflow::Tensor inputTrkWeight(tensorflow::DT_FLOAT, {1, 3});  //Single batch of 3 values
     uint counter = 0;
+    ap_ufixed<22,9> trk_input[3];
+    ap_ufixed<8,1,AP_RND_CONV,AP_SAT,0> trk_output;   	
 
     for (auto& track : fitTracks_) {
       // Quantised Network: Use values from L1GTTInputProducer pT, MVA1, eta
@@ -1108,33 +1107,33 @@ namespace l1tVertexFinder {
       ap_ufixed<22, 9> MVAEmulation_rescale;
       MVAEmulation_rescale = gttTrack.getTTTrackPtr()->getMVAQualityBits();
 
-      inputTrkWeight.tensor<float, 2>()(0, 0) = ptEmulation_rescale.to_double();
-      inputTrkWeight.tensor<float, 2>()(0, 1) = MVAEmulation_rescale.to_double();
-      inputTrkWeight.tensor<float, 2>()(0, 2) = etaEmulation_rescale.to_double();
+
+
+      trk_input[0] = ptEmulation_rescale.to_double();
+      trk_input[1] = MVAEmulation_rescale.to_double();
+      trk_input[2] = etaEmulation_rescale.to_double();
 
       // CNN output: track weight
-      std::vector<tensorflow::Tensor> outputTrkWeight;
-      tensorflow::run(
-          TrackWeightSesh, {{"NNvtx_input_track_weight:0", inputTrkWeight}}, {"Identity:0"}, &outputTrkWeight);
+      
+      trk_model->prepare_input(trk_input);
+      trk_model->predict();
+      trk_model->read_result(trk_output);
       // Set track weight pack into tracks:
 
-      ap_ufixed<16, 5> NNOutput;
-      NNOutput = (double)outputTrkWeight[0].tensor<float, 2>()(0, 0);
-
-      //std::cout<<"NNOutput_weight_network = "<< NNOutput <<std::endl;
-
-      track.setWeight(NNOutput.to_double());
+      track.setWeight(trk_output);
 
       ++counter;
     }
+
+
     // #### Find Vertices: ####
-    tensorflow::Tensor inputPV(tensorflow::DT_FLOAT,
-                               {1, settings_->vx_histogram_numbins(), 1});  //Single batch with 256 bins and 1 weight
-    std::vector<tensorflow::Tensor> outputPV;
     RecoVertexCollection vertices(settings_->vx_histogram_numbins());
     std::map<float, int> vertexMap;
     std::map<int, float> histogram;
     std::map<int, float> nnOutput;
+
+    ap_ufixed<16,5> vx_input[256]; //using vx_histogram_numbins throws conversion error
+    ap_fixed<10,1> vx_output[256];
 
     float binWidth = settings_->vx_histogram_binwidth();
 
@@ -1160,18 +1159,24 @@ namespace l1tVertexFinder {
       vertices.at(z).setZ0(((z + 0.5) * binWidth) - settings_->vx_histogram_max());
 
       vertexMap[vxWeight] = z;
-      inputPV.tensor<float, 3>()(0, z, 0) = vxWeight;
+      vx_input[z] = vxWeight;
+      //inputPV.tensor<float, 3>()(0, z, 0) = vxWeight;
       //Fill histogram for 3 bin sliding window:
       histogram[z] = vxWeight;
     }
 
     // Run PV Network:
-    tensorflow::run(PatternRecSesh, {{"NNvtx_histogram:0", inputPV}}, {"Identity:0"}, &outputPV);
+    pat_model->prepare_input(vx_input);
+    pat_model->predict();
+    pat_model->read_result(vx_output);
+
+
+    
     // Threshold needed due to rounding differences in internal CNN layer emulation versus firmware
     const float histogrammingThreshold_ = 0.0;
     for (int i(0); i < settings_->vx_histogram_numbins(); ++i) {
-      if (outputPV[0].tensor<float, 3>()(0, i, 0) >= histogrammingThreshold_) {
-        nnOutput[i] = outputPV[0].tensor<float, 3>()(0, i, 0);
+      if (vx_output[i] >= histogrammingThreshold_) {
+        nnOutput[i] = vx_output[i];
       }
     }
 

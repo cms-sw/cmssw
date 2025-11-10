@@ -8,7 +8,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
   # === Vertex Reconstruction configuration
   VertexReconstruction = cms.PSet(
         # Vertex Reconstruction Algorithm
-        Algorithm = cms.string("fastHisto"),
+        Algorithm = cms.string("NNEmulation"),
         # Vertex distance [cm]
         VertexDistance = cms.double(.15),
         # Assumed Vertex Resolution [cm]
@@ -68,9 +68,9 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Minimum number of stubs in PS modules associated to a track
         VxMinNStubPS = cms.uint32(3),
         # Track weight NN graph 
-        TrackWeightGraph = cms.FileInPath("L1Trigger/VertexFinder/data/NNVtx_WeightModelGraph.pb"),
+        TrackNNVtx = cms.string("L1TNNVtx_Weight_Model_v0"),
         # Pattern recognition NN graph
-        PatternRecGraph = cms.FileInPath("L1Trigger/VertexFinder/data/NNVtx_PatternModelGraph.pb"),
+        PatternNNVtx = cms.string("L1TNNVtx_Pattern_Model_v0"),
     ),
   # Debug printout
   debug  = cms.uint32(0)

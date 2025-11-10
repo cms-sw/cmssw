@@ -79,8 +79,8 @@ namespace l1tVertexFinder {
     unsigned int vx_NStubPSMin() const { return vx_NStubPSMin_; }
 
     // Functions for NN:
-    std::string vx_trkw_graph() const { return vx_trkw_graph_.fullPath(); }
-    std::string vx_pattrec_graph() const { return vx_pattrec_graph_.fullPath(); }
+    std::string vx_tracknn() const { return vx_tracknn_; }
+    std::string vx_patnn() const { return vx_patnn_; }
 
     //=== Debug printout
     unsigned int debug() const { return debug_; }
@@ -128,8 +128,9 @@ namespace l1tVertexFinder {
     float vx_dbscan_mintracks_;
     unsigned int vx_kmeans_iterations_;
     unsigned int vx_kmeans_nclusters_;
-    edm::FileInPath vx_trkw_graph_;     //For NNVtx (TrackWeight)
-    edm::FileInPath vx_pattrec_graph_;  //For NNVtx (PatternRec)
+    std::string vx_tracknn_;  //For NNVtx (Track)
+    std::string vx_patnn_;  //For NNVtx (Pattern)
+
     // Debug printout
     unsigned int debug_;
   };

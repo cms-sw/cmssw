@@ -62,7 +62,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "ap_fixed.h"
+#include "hls4ml/emulator.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/tracks.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -153,20 +154,21 @@ private:
   };
 
   struct NNTrackWordSelector {
-    NNTrackWordSelector(tensorflow::Session* AssociationSesh,
-                        const double AssociationThreshold,
+    NNTrackWordSelector(std::shared_ptr<hls4mlEmulator::Model> AssociationModel,
+		        const double AssociationThreshold,
                         const std::vector<double>& AssociationNetworkZ0binning,
                         const std::vector<double>& AssociationNetworkEtaBounds,
                         const std::vector<double>& AssociationNetworkZ0ResBins)
-        : AssociationSesh_(AssociationSesh),
+        : AssociationModel_(AssociationModel),
           AssociationThreshold_(AssociationThreshold),
           z0_binning_(AssociationNetworkZ0binning),
           eta_bins_(AssociationNetworkEtaBounds),
           res_bins_(AssociationNetworkZ0ResBins) {}
 
     bool operator()(const TTTrackType& t, const l1t::VertexWord& v) const {
-      tensorflow::Tensor inputAssoc(tensorflow::DT_FLOAT, {1, 4});
-      std::vector<tensorflow::Tensor> outputAssoc;
+
+      ap_ufixed<22,9> assoc_input[4];
+      ap_fixed<22,9> assoc_output;
 
       TTTrack_TrackWord::tanl_t etaEmulationBits = t.getTanlWord();
       ap_fixed<16, 3> etaEmulation;
@@ -198,23 +200,23 @@ private:
       ap_ufixed<22, 9> dZEmulation_rescale;
       dZEmulation_rescale = dZ;
 
-      inputAssoc.tensor<float, 2>()(0, 0) = ptEmulation_rescale.to_double();
-      inputAssoc.tensor<float, 2>()(0, 1) = MVAEmulation_rescale.to_double();
-      inputAssoc.tensor<float, 2>()(0, 2) = resBinEmulation_rescale.to_double() / 16.0;
-      inputAssoc.tensor<float, 2>()(0, 3) = dZEmulation_rescale.to_double();
+      assoc_input[0] = ptEmulation_rescale.to_double();
+      assoc_input[1] = MVAEmulation_rescale.to_double();
+      assoc_input[2] = resBinEmulation_rescale.to_double() / 16.0;
+      assoc_input[3] = dZEmulation_rescale.to_double();
 
       // Run Association Network:
-      tensorflow::run(AssociationSesh_, {{"NNvtx_track_association:0", inputAssoc}}, {"Identity:0"}, &outputAssoc);
+      AssociationModel_->prepare_input(assoc_input);
+      AssociationModel_->predict();
+      AssociationModel_->read_result(assoc_output);
 
-      double NNOutput = (double)outputAssoc[0].tensor<float, 2>()(0, 0);
-
+      double NNOutput = (double)assoc_output;
       double NNOutput_exp = 1.0 / (1.0 + exp(-1.0 * (NNOutput)));
-
       return NNOutput_exp >= AssociationThreshold_;
     }
 
   private:
-    tensorflow::Session* AssociationSesh_;
+    std::shared_ptr<hls4mlEmulator::Model> AssociationModel_;
     double AssociationThreshold_;
     std::vector<double> z0_binning_;
     std::vector<double> eta_bins_;
@@ -283,11 +285,12 @@ private:
   const unsigned int fwNTrackSetsTVA_;
 
   //NNVtx:
-  edm::FileInPath associationGraphPath_;
+  std::string associationModelPath_;
   const double associationThreshold_;
   bool useAssociationNetwork_;
-  tensorflow::GraphDef* associationGraph_;
-  tensorflow::Session* associationSesh_;
+  std::unique_ptr<hls4mlEmulator::ModelLoader> associationLoader_;
+  std::shared_ptr<hls4mlEmulator::Model> associationModel_;
+
   std::vector<double> associationNetworkZ0binning_, associationNetworkEtaBounds_, associationNetworkZ0ResBins_;
 
   int debug_;
@@ -329,9 +332,11 @@ L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::Pa
       associationNetworkZ0ResBins_(iConfig.getParameter<std::vector<double>>("associationNetworkZ0ResBins")),
       debug_(iConfig.getParameter<int>("debug")) {
   if (useAssociationNetwork_) {
-    associationGraphPath_ = iConfig.getParameter<edm::FileInPath>("associationGraph");
-    associationGraph_ = tensorflow::loadGraphDef(associationGraphPath_.fullPath());
-    associationSesh_ = tensorflow::createSession(associationGraph_);
+    associationModelPath_ = iConfig.getParameter<std::string>("associationModel");
+    associationLoader_ = std::make_unique<hls4mlEmulator::ModelLoader>(associationModelPath_);
+    associationModel_ = associationLoader_->load_model();
+
+
   }
   // Confirm the the configuration makes sense
   if (!processSimulatedTracks_ && !processEmulatedTracks_) {
@@ -499,7 +504,7 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
   TTTrackDeltaZMaxSelector deltaZSel(deltaZMaxEtaBounds_, deltaZMax_);
   TTTrackWordDeltaZMaxSelector deltaZSelEmu(deltaZMaxEtaBounds_, deltaZMax_);
 
-  NNTrackWordSelector TTTrackNetworkSelector(associationSesh_,
+  NNTrackWordSelector TTTrackNetworkSelector(associationModel_,
                                              associationThreshold_,
                                              associationNetworkZ0binning_,
                                              associationNetworkEtaBounds_,
@@ -612,7 +617,7 @@ void L1TrackVertexAssociationProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<unsigned int>("fwNTrackSetsTVA", 94)->setComment("firmware limit on processed tracks per GTT input link");
   desc.add<bool>("useAssociationNetwork", false)->setComment("Enable Association Network");
   desc.add<double>("associationThreshold", 0)->setComment("Association Network threshold for PV tracks");
-  desc.addOptional<edm::FileInPath>("associationGraph")->setComment("Location of Association Network model file");
+  desc.addOptional<std::string>("associationModel")->setComment("Location of Association Network model file");
   desc.add<std::vector<double>>("associationNetworkZ0binning", {})
       ->setComment("z0 binning used for setting the input feature digitisation");
   desc.add<std::vector<double>>("associationNetworkEtaBounds", {})
