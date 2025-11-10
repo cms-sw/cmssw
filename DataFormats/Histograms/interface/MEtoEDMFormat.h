@@ -263,6 +263,56 @@ inline bool MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM) {
   return true;
 }
 
+/*NOTE: this is a temporary workaround for a ROOT RNTuple dictionary issue.
+        Once ROOT has been updated with a fix this method will be removed*/
+template <>
+inline bool MEtoEDM<long>::mergeProduct(const MEtoEDM<long> &newMEtoEDM) {
+  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
+  const size_t nObjects = newMEtoEDMObject.size();
+  //  NOTE: we remember the present size since we will only add content
+  //        from newMEtoEDMObject after this point
+  const size_t nOldObjects = MEtoEdmObject.size();
+
+  // if the old and new are not the same size, we want to report a problem
+  if (nObjects != nOldObjects) {
+    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new="
+              << nObjects << ", old=" << nOldObjects << std::endl;
+  }
+
+  for (unsigned int i = 0; i < nObjects; ++i) {
+    unsigned int j = 0;
+    // see if the name is already in the old container up to the point where
+    // we may have added new entries in the container
+    const std::string &name = newMEtoEDMObject[i].name;
+    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
+      j = i;
+    } else {
+      j = 0;
+      while (j < nOldObjects && (MEtoEdmObject[j].name != name))
+        ++j;
+    }
+    if (j >= nOldObjects) {
+      // this value is only in the new container, not the old one
+#if METOEDMFORMAT_DEBUG
+      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
+#endif
+      MEtoEdmObject.push_back(newMEtoEDMObject[i]);
+    } else {
+      // this value is also in the new container: add the two
+      if (MEtoEdmObject[j].name.find("EventInfo/processedEvents") != std::string::npos) {
+        MEtoEdmObject[j].object += (newMEtoEDMObject[i].object);
+      }
+      if (MEtoEdmObject[j].name.find("EventInfo/iEvent") != std::string::npos ||
+          MEtoEdmObject[j].name.find("EventInfo/iLumiSection") != std::string::npos) {
+        if (MEtoEdmObject[j].object < newMEtoEDMObject[i].object) {
+          MEtoEdmObject[j].object = (newMEtoEDMObject[i].object);
+        }
+      }
+    }
+  }
+  return true;
+}
+
 template <>
 inline bool MEtoEDM<long long>::mergeProduct(const MEtoEDM<long long> &newMEtoEDM) {
   const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
