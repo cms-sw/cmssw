@@ -42,7 +42,9 @@ private:
   // ----------member functions ----------------------
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet> jets, unsigned nJets);
+  std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet> jets,
+                                      unsigned nJets,
+                                      l1t::PFJet::HWEncoding encoding);
   std::vector<ap_uint<64>> encodeSums(const std::vector<l1t::EtSum> sums, unsigned nSums);
 
   l1t::demo::BoardDataWriter fileWriterOutputToGT_;
@@ -73,6 +75,22 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
     unsigned nSums = pset.getParameter<unsigned>("nSums");
     nJets_.push_back(nJets);
     nSums_.push_back(nSums);
+
+    // Parse encoding string and convert to enum
+    std::string encodingStr = pset.getParameter<std::string>("jetEncoding");
+    l1t::PFJet::HWEncoding encoding;
+    if (encodingStr == "CT") {
+      encoding = l1t::PFJet::HWEncoding::CT;
+    } else if (encodingStr == "GT") {
+      encoding = l1t::PFJet::HWEncoding::GT;
+    } else if (encodingStr == "GTWide") {
+      encoding = l1t::PFJet::HWEncoding::GTWide;
+    } else {
+      throw cms::Exception("Configuration")
+          << "Invalid jetEncoding value: '" << encodingStr << "'. Valid options are: 'CT', 'GT', 'GTWide'";
+    }
+    jetEncodings_.push_back(encoding);
+
     bool writeJetToken(false), writeMhtToken(false);
     if (nJets > 0) {
       jetToken = consumes<edm::View<l1t::PFJet>>(pset.getParameter<edm::InputTag>("jets"));
@@ -129,7 +147,9 @@ void L1CTJetFileWriter::endJob() {
   fileWriterOutputToGT_.flush();
 }
 
-std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PFJet> jets, const unsigned nJets) {
+std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PFJet> jets,
+                                                       const unsigned nJets,
+                                                       l1t::PFJet::HWEncoding encoding) {
   // Encode up to nJets jets, padded with 0s
   std::vector<ap_uint<64>> jet_words(2 * nJets, 0);  // allocate 2 words per jet
   for (unsigned i = 0; i < std::min(nJets, (uint)jets.size()); i++) {
