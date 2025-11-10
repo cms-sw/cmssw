@@ -236,9 +236,11 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     }  // iside loop
 
     // --- skip if both sides are empty
-    if (charge_adc[0] == 0 && charge_adc[1] == 0) continue;
-    if (toa1[0] == 0 && toa1[1] == 0) continue;
-    
+    if (charge_adc[0] == 0 && charge_adc[1] == 0)
+      continue;
+    if (toa1[0] == 0 && toa1[1] == 0)
+      continue;
+
     // --- Run the shaper to create a new data frame
     BTLDataFrame rawDataFrame(it->first.detid_);
     runTrivialShaper(rawDataFrame, charge_adc, toa1, toa2, it->first.row_, it->first.column_);
