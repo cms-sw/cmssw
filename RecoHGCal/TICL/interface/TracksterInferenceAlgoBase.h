@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace ticl {
   class TracksterInferenceAlgoBase {
@@ -26,7 +27,9 @@ namespace ticl {
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
     virtual ~TracksterInferenceAlgoBase() {}
 
-    virtual void inputData(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& tracksters) = 0;
+    virtual void inputData(const std::vector<reco::CaloCluster>& layerClusters,
+                           std::vector<Trackster>& tracksters,
+                           const hgcal::RecHitTools& rhtools) = 0;
     virtual void runInference(std::vector<Trackster>& tracksters) = 0;
     static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); };
 

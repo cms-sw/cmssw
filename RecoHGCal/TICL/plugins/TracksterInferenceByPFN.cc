@@ -29,24 +29,19 @@ namespace ticl {
     onnxPIDSession_ = onnxPIDRuntimeInstance_.get();
     onnxEnergySession_ = onnxEnergyRuntimeInstance_.get();
   }
-
   // Method to process input data and prepare it for inference
   void TracksterInferenceByPFN::inputData(const std::vector<reco::CaloCluster>& layerClusters,
-                                          std::vector<Trackster>& tracksters) {
+                                          std::vector<Trackster>& tracksters,
+                                          const hgcal::RecHitTools& rhtools) {
     tracksterIndices_.clear();  // Clear previous indices
     for (int i = 0; i < static_cast<int>(tracksters.size()); i++) {
-      float sumClusterEnergy = 0.;
       for (const unsigned int& vertex : tracksters[i].vertices()) {
-        if (rhtools_.isBarrel(layerClusters[vertex].seed()))
+        if (rhtools.isBarrel(layerClusters[vertex].seed()))
           continue;
-        sumClusterEnergy += static_cast<float>(layerClusters[vertex].energy());
-        if (sumClusterEnergy >= eidMinClusterEnergy_) {
-          tracksters[i].setRegressedEnergy(0.f);  // Set regressed energy to 0
-          tracksters[i].zeroProbabilities();      // Zero out probabilities
-          tracksterIndices_.push_back(i);         // Add index to the list
-          break;
-        }
       }
+      tracksters[i].setRegressedEnergy(0.f);  // Initialize regressed energy to 0
+      tracksters[i].zeroProbabilities();      // Zero out probabilities
+      tracksterIndices_.push_back(i);         // Only tracksters above threshold go to inference
     }
 
     // Prepare input shapes and data for inference
@@ -88,7 +83,7 @@ namespace ticl {
       // Fill input data with cluster information
       for (const int& k : clusterIndices) {
         const reco::CaloCluster& cluster = layerClusters[trackster.vertices(k)];
-        int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
+        int j = rhtools.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
         if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
           auto index_lc = (i * eidNLayers_ + j) * eidNFeatures_ * eidNClusters_ + seenClusters[j] * eidNFeatures_;
           // Adding more features regarding LC, such as E, eta, phi, x, y, z, and nhits.
@@ -114,11 +109,12 @@ namespace ticl {
     if (doPID_ and doRegression_) {
       // Run energy model inference
       auto result = onnxEnergySession_->run(inputNames_, input_Data_, input_shapes_, output_en_, batchSize_);
-      auto& energyOutputTensor = result[0];
+      auto& energyOutput = result[0];
       if (!output_en_.empty()) {
         for (int i = 0; i < static_cast<int>(batchSize_); i++) {
-          const float energy = energyOutputTensor[i];
-          tracksters[tracksterIndices_[i]].setRegressedEnergy(energy);  // Update energy
+          auto& ts = tracksters[tracksterIndices_[i]];
+          float energy = ts.raw_energy() > eidMinClusterEnergy_ ? energyOutput[i] : ts.raw_energy();
+          ts.setRegressedEnergy(energy);
         }
       }
     }
