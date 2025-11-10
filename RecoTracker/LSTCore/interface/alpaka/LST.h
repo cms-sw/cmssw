@@ -20,6 +20,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     void run(Queue& queue,
              bool verbose,
              const float ptCut,
+             const uint16_t clustSizeCut,
              LSTESData<Device> const* deviceESData,
              LSTInputDeviceCollection const* lstInputDC,
              bool no_pls_dupclean,
