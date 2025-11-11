@@ -31,6 +31,8 @@ protected:
 
   void setHitClassID(const G4Step *) override;
 
+  bool isMTD() const override { return true; }
+
 private:
   double energyCut;
   double energyHistoryCut;

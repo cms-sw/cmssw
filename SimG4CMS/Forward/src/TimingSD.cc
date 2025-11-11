@@ -115,8 +115,8 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
   const G4Track* newTrack = aStep->GetTrack();
   // exclude ECAL gflash spots inside MTD detectors,
   // which not possible correctly handle
-  primaryID = getTrackID(newTrack);
-  if (primaryID < -1) {
+  const G4String& rname = newTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName();
+  if (isMTD() && rname == "EcalRegion") {
     return;
   }
 
@@ -189,6 +189,7 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
 
   setHitClassID(aStep);
   unitID = setDetUnitId(aStep);
+  primaryID = getTrackID(theTrack);
 }
 
 bool TimingSD::hitExists(const G4Step* aStep) {
