@@ -83,9 +83,11 @@ from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJet
 l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4NGJetProducer","l1tSC4NGJets"),
                                                nJets = cms.uint32(12),
                                                mht = cms.InputTag("l1tMHTPFProducer"),
-                                               nSums = cms.uint32(2)),
+                                               nSums = cms.uint32(2),
+                                               jetEncoding = cms.string("GT")),
                                       cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
-                                               nJets = cms.uint32(12))
+                                               nJets = cms.uint32(12),
+                                               jetEncoding = cms.string("GTWide"))
                                       ])
 process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(collections = l1ctLayer2SCJetsProducts)
 
