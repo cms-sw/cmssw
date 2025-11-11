@@ -11,7 +11,7 @@ from L1Trigger.CSCTriggerPrimitives.params.clctParams import clctPSets
 from L1Trigger.CSCTriggerPrimitives.params.tmbParams import tmbPSets
 from L1Trigger.CSCTriggerPrimitives.params.auxiliaryParams import auxPSets
 from L1Trigger.CSCTriggerPrimitives.params.gemcscParams import gemcscPSets
-from L1Trigger.CSCTriggerPrimitives.params.showerParams import showerPSet,showerPSet_2025
+from L1Trigger.CSCTriggerPrimitives.params.showerParams import showerPSet,showerPSet_2025_AtoE, showerPSet_2025_FtoG
 
 cscTriggerPrimitiveDigis = cms.EDProducer(
     "CSCTriggerPrimitivesProducer",
