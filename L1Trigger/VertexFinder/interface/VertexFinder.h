@@ -104,7 +104,7 @@ namespace l1tVertexFinder {
     /// Histogramming algorithm (emulation)
     void fastHistoEmulation();
     /// NNVtx algorithm
-    void NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> trk_model, std::shared_ptr<hls4mlEmulator::Model> pat_model);
+    void NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> wt_model, std::shared_ptr<hls4mlEmulator::Model> pat_model);
 
     /// Sort vertices in pT
     void sortVerticesInPt();

@@ -68,7 +68,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Minimum number of stubs in PS modules associated to a track
         VxMinNStubPS = cms.uint32(3),
         # Track weight NN graph 
-        TrackNNVtx = cms.string("L1TNNVtx_Weight_Model_v0"),
+        WeightNNVtx = cms.string("L1TNNVtx_Weight_Model_v0"),
         # Pattern recognition NN graph
         PatternNNVtx = cms.string("L1TNNVtx_Pattern_Model_v0"),
     ),

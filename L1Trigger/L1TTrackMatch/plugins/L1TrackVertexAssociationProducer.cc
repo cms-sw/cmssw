@@ -188,22 +188,19 @@ private:
       ap_ufixed<14, 9> ptEmulation;
       ptEmulation.V = (ptEmulationBits.range());
 
-      ap_ufixed<22, 9> ptEmulation_rescale;
-      ptEmulation_rescale = ptEmulation.to_double();
+      ap_ufixed<22, 9> resBinEmulation;
+      resBinEmulation = res_bins_[resbin];
 
-      ap_ufixed<22, 9> resBinEmulation_rescale;
-      resBinEmulation_rescale = res_bins_[resbin];
+      ap_ufixed<22, 9> MVAEmulation;
+      MVAEmulation = t.getMVAQualityBits();
 
-      ap_ufixed<22, 9> MVAEmulation_rescale;
-      MVAEmulation_rescale = t.getMVAQualityBits();
+      ap_ufixed<22, 9> dZEmulation;
+      dZEmulation = dZ;
 
-      ap_ufixed<22, 9> dZEmulation_rescale;
-      dZEmulation_rescale = dZ;
-
-      assoc_input[0] = ptEmulation_rescale.to_double();
-      assoc_input[1] = MVAEmulation_rescale.to_double();
-      assoc_input[2] = resBinEmulation_rescale.to_double() / 16.0;
-      assoc_input[3] = dZEmulation_rescale.to_double();
+      assoc_input[0] = ptEmulation;
+      assoc_input[1] = MVAEmulation;
+      assoc_input[2] = resBinEmulation / 16;
+      assoc_input[3] = dZEmulation;
 
       // Run Association Network:
       AssociationModel_->prepare_input(assoc_input);

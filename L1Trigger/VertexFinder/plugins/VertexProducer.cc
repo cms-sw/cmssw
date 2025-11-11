@@ -71,11 +71,11 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
   if (settings_.vx_algo() == Algorithm::NNEmulation) {
     // loads weight and pattern NN, creates models
     if (settings_.debug() > 1) {
-      edm::LogInfo("VertexProducer") << "loading Track NN from " << settings_.vx_tracknn() << std::endl;
+      edm::LogInfo("VertexProducer") << "loading Weight NN from " << settings_.vx_wtnn() << std::endl;
       edm::LogInfo("VertexProducer") << "loading Pattern NN from " << settings_.vx_patnn() << std::endl;
     }
-    trk_loader = std::make_unique<hls4mlEmulator::ModelLoader>(settings_.vx_tracknn());
-    trk_model = trk_loader->load_model();
+    wt_loader = std::make_unique<hls4mlEmulator::ModelLoader>(settings_.vx_wtnn());
+    wt_model = wt_loader->load_model();
     pat_loader = std::make_unique<hls4mlEmulator::ModelLoader>(settings_.vx_patnn());
     pat_model = pat_loader->load_model();
   }
@@ -143,7 +143,7 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
       vf.Kmeans();
       break;
     case Algorithm::NNEmulation:
-      vf.NNVtxEmulation(trk_model,pat_model);
+      vf.NNVtxEmulation(wt_model,pat_model);
       break;
   }
 

@@ -1078,7 +1078,7 @@ namespace l1tVertexFinder {
     pv_index_ = 0;
   }  // end of fastHistoEmulation
 
-  void VertexFinder::NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> trk_model, std::shared_ptr<hls4mlEmulator::Model> pat_model){
+  void VertexFinder::NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> wt_model, std::shared_ptr<hls4mlEmulator::Model> pat_model){
     // #### Weight Tracks: ####
     // Loop over tracks -> weight the network -> set track weights
     uint counter = 0;
@@ -1090,34 +1090,29 @@ namespace l1tVertexFinder {
       auto& gttTrack = fitTracks_.at(counter);
 
       TTTrack_TrackWord::tanl_t etaEmulationBits = gttTrack.getTTTrackPtr()->getTanlWord();
-      ap_fixed<16, 3> etaEmulation;
+      ap_fixed<16, 3, AP_TRN, AP_SAT> etaEmulation;
       etaEmulation.V = (etaEmulationBits.range());
+
 
       ap_uint<14> ptEmulationBits = gttTrack.getTTTrackPtr()->getTrackWord()(
           TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1, TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
       ap_ufixed<14, 9> ptEmulation;
       ptEmulation.V = (ptEmulationBits.range());
 
-      ap_ufixed<22, 9> ptEmulation_rescale;
-      ptEmulation_rescale = ptEmulation.to_double();
+      ap_ufixed<22, 9> MVAEmulation;
+      MVAEmulation = gttTrack.getTTTrackPtr()->getMVAQualityBits();
 
-      ap_ufixed<22, 9> etaEmulation_rescale;
-      etaEmulation_rescale = abs(etaEmulation.to_double());
-
-      ap_ufixed<22, 9> MVAEmulation_rescale;
-      MVAEmulation_rescale = gttTrack.getTTTrackPtr()->getMVAQualityBits();
-
-
-
-      trk_input[0] = ptEmulation_rescale.to_double();
-      trk_input[1] = MVAEmulation_rescale.to_double();
-      trk_input[2] = etaEmulation_rescale.to_double();
+      trk_input[0] = ptEmulation;
+      trk_input[1] = MVAEmulation;
+      trk_input[2] = (etaEmulation < 0)
+             ? ap_fixed<16,3,AP_TRN,AP_SAT>(-etaEmulation)
+             : ap_fixed<16,3,AP_TRN,AP_SAT>( etaEmulation);
 
       // CNN output: track weight
       
-      trk_model->prepare_input(trk_input);
-      trk_model->predict();
-      trk_model->read_result(trk_output);
+      wt_model->prepare_input(trk_input);
+      wt_model->predict();
+      wt_model->read_result(trk_output);
       // Set track weight pack into tracks:
 
       track.setWeight(trk_output);

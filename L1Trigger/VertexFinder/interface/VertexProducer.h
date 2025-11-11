@@ -50,8 +50,8 @@ private:
 
   l1tVertexFinder::AlgoSettings settings_;
 
-  std::unique_ptr<hls4mlEmulator::ModelLoader> trk_loader;
-  std::shared_ptr<hls4mlEmulator::Model> trk_model;
+  std::unique_ptr<hls4mlEmulator::ModelLoader> wt_loader;
+  std::shared_ptr<hls4mlEmulator::Model> wt_model;
   std::unique_ptr<hls4mlEmulator::ModelLoader> pat_loader;
   std::shared_ptr<hls4mlEmulator::Model> pat_model;
 };

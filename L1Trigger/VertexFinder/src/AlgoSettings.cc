@@ -29,7 +29,7 @@ namespace l1tVertexFinder {
         vx_dbscan_mintracks_(vertex_.getParameter<unsigned int>("DBSCANMinDensityTracks")),
         vx_kmeans_iterations_(vertex_.getParameter<unsigned int>("KmeansIterations")),
         vx_kmeans_nclusters_(vertex_.getParameter<unsigned int>("KmeansNumClusters")),
-        vx_tracknn_(vertex_.getParameter<std::string>("TrackNNVtx")),
+        vx_wtnn_(vertex_.getParameter<std::string>("WeightNNVtx")),
         vx_patnn_(vertex_.getParameter<std::string>("PatternNNVtx")),
         // Debug printout
         debug_(iConfig.getParameter<unsigned int>("debug")) {
