@@ -79,16 +79,15 @@ void CscDigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
         addCSCstubs(muonStubsInLayers, rawid, *digi, iProcessor, procTyp);
 
       auto& cscDigi = cscChamber.add_child("cscDigi", boost::property_tree::ptree());
-      cscDigi.add("<xmlattr>.halfStrip", digi->getStrip() );
-      cscDigi.add("<xmlattr>.keyWG", digi->getKeyWG() );
-      cscDigi.add("<xmlattr>.pattern", digi->getPattern() );
-      cscDigi.add("<xmlattr>.slope", digi->getSlope() );
-      cscDigi.add("<xmlattr>.bend", digi->getBend() );
-      cscDigi.add("<xmlattr>.fractionalSlope", digi->getFractionalSlope() );
+      cscDigi.add("<xmlattr>.halfStrip", digi->getStrip());
+      cscDigi.add("<xmlattr>.keyWG", digi->getKeyWG());
+      cscDigi.add("<xmlattr>.pattern", digi->getPattern());
+      cscDigi.add("<xmlattr>.slope", digi->getSlope());
+      cscDigi.add("<xmlattr>.bend", digi->getBend());
+      cscDigi.add("<xmlattr>.fractionalSlope", digi->getFractionalSlope());
       cscDigi.add("<xmlattr>.quality", digi->getQuality());
       cscDigi.add("<xmlattr>.QuartStrip", (int)(digi->getQuartStripBit()));
       cscDigi.add("<xmlattr>.eighthStrip", (int)(digi->getEighthStripBit()));
-
     }
   }
 

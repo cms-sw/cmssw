@@ -43,9 +43,7 @@ public:
   int getPtConstr() const { return goldenPaternConstr == nullptr ? 0 : goldenPaternConstr->key().thePt; }
 
   //hardware upt, in the pattens scale, not in the GMT scale
-  int getPtUnconstr() const {
-    return goldenPaternUnconstr == nullptr ? 0 : goldenPaternUnconstr->key().thePt;
-  }
+  int getPtUnconstr() const { return goldenPaternUnconstr == nullptr ? 0 : goldenPaternUnconstr->key().thePt; }
 
   int getChargeConstr() const { return goldenPaternConstr == nullptr ? -1 : goldenPaternConstr->key().theCharge; }
 

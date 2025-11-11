@@ -13,9 +13,7 @@
 
 class NNRegression : public MlModelBase {
 public:
-  NNRegression(const edm::ParameterSet& edmCfg,
-                           const OMTFConfiguration* omtfConfig,
-                           std::string networkFile);
+  NNRegression(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig, std::string networkFile);
   ~NNRegression() override = default;
 
   void run(AlgoMuons::value_type& algoMuon, std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) override;
