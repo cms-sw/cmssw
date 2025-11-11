@@ -86,6 +86,8 @@ public:
   const SimVertex* simVertex = nullptr;
 
   const TrackingParticle* trackingParticle = nullptr;
+
+  friend std::ostream& operator<<(std::ostream& out, const MatchingResult& matchingResult);
 };
 
 /*
@@ -177,8 +179,6 @@ public:
   MatchingType getMatchingType() const { return matchingType; }
 
 private:
-  //const OMTFConfiguration* omtfConfig;
-
   int nProcessors = 6;
 
   const edm::ParameterSet& edmCfg;
