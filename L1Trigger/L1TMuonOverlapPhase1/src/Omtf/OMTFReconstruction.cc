@@ -31,7 +31,7 @@ OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& parameterSet, Mu
       omtfConfig(new OMTFConfiguration()),
       omtfProc(nullptr),
       m_OMTFConfigMaker(nullptr) {
-  edmParameterSet.copyForModify(parameterSet); //why edmParameterSet is not reference?
+  edmParameterSet.copyForModify(parameterSet);  //why edmParameterSet is not reference?
 
   bxMin = edmParameterSet.exists("bxMin") ? edmParameterSet.getParameter<int>("bxMin") : 0;
   bxMax = edmParameterSet.exists("bxMax") ? edmParameterSet.getParameter<int>("bxMax") : 0;

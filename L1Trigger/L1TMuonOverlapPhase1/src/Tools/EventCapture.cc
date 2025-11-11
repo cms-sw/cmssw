@@ -136,15 +136,20 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMu
         }
         ostr << "matched to: " << std::endl;
         auto finalCandidate = matchingResult.muonCand;
-        ostr << " hwPt " << matchingResult.muonCand->getAlgoMuon()->getPtConstr()
+        ostr << " hwPt "
+             << matchingResult.muonCand->getAlgoMuon()->getPtConstr()
              //<< " hwUPt " << matchingResult.muonCand->getAlgoMuon()->getPtUnconstr()
-             << " hwUPt " << matchingResult.muonCand->getPtUnconstrGmt()
+             << " hwUPt "
+             << matchingResult.muonCand->getPtUnconstrGmt()
              //<< " hwSign " << matchingResult.muonCand->getAlgoMuon()->getChargeConstr()
-             << " hwSign " << matchingResult.muonCand->getSign()
-             << " hwQual " << matchingResult.muonCand->getQuality() << " hwEta " << std::setw(4)
+             << " hwSign " << matchingResult.muonCand->getSign() << " hwQual " << matchingResult.muonCand->getQuality()
+             << " hwEta "
+             << std::setw(4)
              //<< matchingResult.muonCand->getAlgoMuon()->getEtaHw() << std::setw(4) << " hwPhi " << matchingResult.muonCand->getAlgoMuon()->getPhi()
-             << matchingResult.muonCand->getEtaGmt() << std::setw(4) << " hwPhi " << matchingResult.muonCand->getPhiGmt()
-             << "    eta " << std::setw(9) << matchingResult.muonCand->getEtaRad() << " phi "<< std::endl;// << matchingResult.muonCand->getPhiRad() << std::endl;
+             << matchingResult.muonCand->getEtaGmt() << std::setw(4) << " hwPhi "
+             << matchingResult.muonCand->getPhiGmt() << "    eta " << std::setw(9)
+             << matchingResult.muonCand->getEtaRad() << " phi "
+             << std::endl;  // << matchingResult.muonCand->getPhiRad() << std::endl;
 
         if (stubsSimHitsMatcher && runStubsSimHitsMatcher)
           stubsSimHitsMatcher->match(iEvent, matchingResult.muonCand, ostr);
@@ -215,25 +220,27 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMu
   edm::LogVerbatim("l1tOmtfEventPrint") << ostr.str() << endl;  //printing sim muons
 
   edm::LogVerbatim("l1tOmtfEventPrint") << "finalCandidates " << std::endl;
-  //for (int bx = finalCandidates->getFirstBX(); bx <= finalCandidates->getLastBX(); bx++) 
+  //for (int bx = finalCandidates->getFirstBX(); bx <= finalCandidates->getLastBX(); bx++)
   {
     for (auto& finalMuon : finalMuons) {
       int layerHits = finalMuon->getAlgoMuon()->getFiredLayerBits();
       std::bitset<18> layerHitBits(layerHits);
 
       edm::LogVerbatim("l1tOmtfEventPrint")
-          << " bx " << finalMuon->getBx() << " hwPt " << finalMuon->getAlgoMuon()->getPtConstr()
+          << " bx " << finalMuon->getBx() << " hwPt "
+          << finalMuon->getAlgoMuon()->getPtConstr()
           //<< " hwUPt " << finalMuon->getAlgoMuon()->getPtUnconstr()
-          << " hwUPt " << finalMuon->getPtUnconstrGmt()
-          << " hwSign " << finalMuon->getAlgoMuon()->getChargeConstr() << " hwQual " << finalMuon->getQuality()
+          << " hwUPt " << finalMuon->getPtUnconstrGmt() << " hwSign " << finalMuon->getAlgoMuon()->getChargeConstr()
+          << " hwQual "
+          << finalMuon->getQuality()
           //<< " hwEta " << std::setw(4) << finalMuon->getAlgoMuon()->getEtaHw()
-          << " hwEta " << std::setw(4) << finalMuon->getEtaGmt() //////////////////////////////////////////////
+          << " hwEta " << std::setw(4)
+          << finalMuon->getEtaGmt()  //////////////////////////////////////////////
           //<< std::setw(4) << " hwPhi " << finalMuon->getAlgoMuon()->getPhi()
-          << std::setw(4) << " hwPhi " << finalMuon->getPhiGmt() /////////////////////////////////////////////
-          << "    eta " << std::setw(9) << finalMuon->getEtaRad() ///////////////////////////////////////////
-          << " phi " << std::setw(9) << finalMuon->getPhiRad() << " " << layerHitBits
-          << " processor " << OmtfName(finalMuon->getProcessor(), finalMuon->trackFinderType(), omtfConfig)
-          << std::endl;
+          << std::setw(4) << " hwPhi " << finalMuon->getPhiGmt()   /////////////////////////////////////////////
+          << "    eta " << std::setw(9) << finalMuon->getEtaRad()  ///////////////////////////////////////////
+          << " phi " << std::setw(9) << finalMuon->getPhiRad() << " " << layerHitBits << " processor "
+          << OmtfName(finalMuon->getProcessor(), finalMuon->trackFinderType(), omtfConfig) << std::endl;
     }
   }
   edm::LogVerbatim("l1tOmtfEventPrint") << std::endl;
@@ -350,9 +357,11 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMu
         edm::LogVerbatim("l1tOmtfEventPrint") << "\ngbCandidates" << std::endl;
         for (auto& gbCandidate : gbCandidatesInProcs[iProc])
           edm::LogVerbatim("l1tOmtfEventPrint")
-              << "     (" << std::setw(5) << gbCandidate->getPtConstr() << "," << std::setw(5)
+              << "     (" << std::setw(5) << gbCandidate->getPtConstr() << ","
+              << std::setw(5)
               //<< ( (gbCandidate->getPtUnconstr() - 1) / 2 + 1 )<< "," //GMT scale
-              << ( gbCandidate->getPtUnconstr() == 0 ? 0 : ( (gbCandidate->getPtUnconstr() - 1) / 2 + 1 ) )<< "," //GMT scale
+              << (gbCandidate->getPtUnconstr() == 0 ? 0 : ((gbCandidate->getPtUnconstr() - 1) / 2 + 1))
+              << ","  //GMT scale
 
               << std::setw(5) << gbCandidate->getGpResultConstr().getFiredLayerCnt() << "," << std::setw(5)
               << gbCandidate->getGpResultUnconstr().getFiredLayerCnt()
@@ -383,7 +392,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMu
         edm::LogVerbatim("l1tOmtfEventPrint") << "finalCandidates " << std::endl;
 
         std::ostringstream ostr;
-        //if (finalCandidates->size(0) > 0) 
+        //if (finalCandidates->size(0) > 0)
         {
           int iMu = 1;
           for (auto& finalMuon : finalMuons) {
@@ -403,7 +412,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMu
                    << std::abs(finalMuon->getEtaGmt())
                    << ","
                    //<<std::setw(10)<< finalCandidate.trackAddress().at(0)<<""
-                   << std::setw(10) << trackAddr << "," << std::setw(4) << 0 << ","                 //Halo
+                   << std::setw(10) << trackAddr << "," << std::setw(4) << 0 << ","              //Halo
                    << std::setw(4) << finalMuon->getSign() << "," << std::setw(4) << 1 << "; ";  //ChValid
               //<< " -- uPt " << std::setw(10) << uPt << " firedLayers " << finalCandidate.trackAddress().at(0);
 
