@@ -263,7 +263,7 @@ FinalMuons OMTFProcessor<GoldenPatternType>::getFinalMuons(unsigned int iProcess
       finalMuon->setPtGev(0.0);
     }
     else {
-      finalMuon->setPtGev(0);
+      //empty candidates are not added to the finalMuons
       continue;
     }
 
@@ -303,7 +303,7 @@ void OMTFProcessor<GoldenPatternType>::convertToGmtScalesPhase1(unsigned int iPr
     else
       finalMuon->setPtGmt(0);
 
-    //N.B. the pahse-1 GMT upt has different hardware scale than the pt, the upt unit is 1 GeV
+    //N.B. the phase-1 GMT upt has different hardware scale than the pt, the upt unit is 1 GeV
     if(finalMuon->getAlgoMuon()->getPtUnconstr() == 0)
       finalMuon->setPtUnconstrGmt(0);
     else
