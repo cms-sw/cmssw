@@ -46,8 +46,7 @@ Alternatively, use a ROOT macro to visualize the geometry. This method works on 
 
 ## Gen-Sim step 
 
-To run the cosmic rays Gen-Sim step for the CRACK:
-
+To run the cosmic-ray generation and simulation for the CRACK geometry, execute:
 ```
 cmsRun step1_cosmics_for_crack.py
 ```
@@ -55,8 +54,7 @@ cmsRun step1_cosmics_for_crack.py
 This will create a step1.root file. To analyse the hits in the root file, you can use the [SimHitAnalyzer](https://github.com/hayfasfar/SimHitAnalyzer/tree/master/SimHitAnalyzer).
 
 
-To run DIGI steps: digi - ttclusters - ttstubs and cluster1D obj: 
-
+To perform the digitization, clustering, stub formation, and 1D cluster object creation, run:
 ```
 
 cmsRun step2_digi_ttclusters_ttstubs_cluster1Dobj.py
