@@ -296,7 +296,8 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent, FinalMuons& fina
 
       //TODO choose, which gpResult should be dumped
       //auto& gpResult = procMuon->getGpResultConstr();
-      auto& gpResult = (muonCand->getAlgoMuon()->getGpResultUnconstr().getPdfSumUnconstr() > muonCand->getAlgoMuon()->getGpResultConstr().getPdfSum())
+      auto& gpResult = (muonCand->getAlgoMuon()->getGpResultUnconstr().getPdfSumUnconstr() >
+                        muonCand->getAlgoMuon()->getGpResultConstr().getPdfSum())
                            ? muonCand->getAlgoMuon()->getGpResultUnconstr()
                            : muonCand->getAlgoMuon()->getGpResultConstr();
 
@@ -381,13 +382,16 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent, FinalMuons& fina
       }
 
       LogTrace("l1tOmtfEventPrint") << "DataROOTDumper2::observeEventEnd adding omtfCand : " << std::endl;
-  
-      LogTrace("l1tOmtfEventPrint") << " hwPt " <<  matchingResult.muonCand->getAlgoMuon()->getPtConstr() << " hwSign " << matchingResult.muonCand->getAlgoMuon()->getChargeConstr()
-                                    << " hwQual " << matchingResult.muonCand->getQuality() << " hwEta " << std::setw(4)
-                                    << matchingResult.muonCand->getAlgoMuon()->getEtaHw() << std::setw(4) << " hwPhi " << matchingResult.muonCand->getAlgoMuon()->getPhi()
-                                    << "    eta " << std::setw(9) << matchingResult.muonCand->getEtaRad()
-                                    << " isKilled " << matchingResult.muonCand->getAlgoMuon()->isKilled() << " tRefLayer " << matchingResult.muonCand->getAlgoMuon()->getRefLayer()
-                                    << " RefHitNumber " << matchingResult.muonCand->getAlgoMuon()->getRefHitNumber() << std::endl;
+
+      LogTrace("l1tOmtfEventPrint") << " hwPt " << matchingResult.muonCand->getAlgoMuon()->getPtConstr() << " hwSign "
+                                    << matchingResult.muonCand->getAlgoMuon()->getChargeConstr() << " hwQual "
+                                    << matchingResult.muonCand->getQuality() << " hwEta " << std::setw(4)
+                                    << matchingResult.muonCand->getAlgoMuon()->getEtaHw() << std::setw(4) << " hwPhi "
+                                    << matchingResult.muonCand->getAlgoMuon()->getPhi() << "    eta " << std::setw(9)
+                                    << matchingResult.muonCand->getEtaRad() << " isKilled "
+                                    << matchingResult.muonCand->getAlgoMuon()->isKilled() << " tRefLayer "
+                                    << matchingResult.muonCand->getAlgoMuon()->getRefLayer() << " RefHitNumber "
+                                    << matchingResult.muonCand->getAlgoMuon()->getRefHitNumber() << std::endl;
     };
 
     if (matchingResult.muonCand && matchingResult.muonCand->getAlgoMuon()->getPtConstr() > 0 &&
@@ -446,6 +450,4 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent, FinalMuons& fina
   evntCnt++;
 }
 
-void DataROOTDumper2::endJob() {
-  edm::LogVerbatim("l1tOmtfEventPrint") << " evntCnt " << evntCnt << endl;
-}
+void DataROOTDumper2::endJob() { edm::LogVerbatim("l1tOmtfEventPrint") << " evntCnt " << evntCnt << endl; }

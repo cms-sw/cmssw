@@ -37,7 +37,6 @@ L1TMuonOverlapPhase2TrackProducer::L1TMuonOverlapPhase2TrackProducer(const edm::
       propagatorEsToken(esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", "SteppingHelixPropagatorAlong"))),
       omtfEmulation(edmParameterSet, muStubsInputTokens, muStubsPhase2InputTokens) {
-
   produces<l1t::RegionalMuonCandBxCollection>("OMTF");  //phase-1 collection
   produces<l1t::SAMuonCollection>("OMTFconstr");
   produces<l1t::SAMuonCollection>("OMTFunconstr");

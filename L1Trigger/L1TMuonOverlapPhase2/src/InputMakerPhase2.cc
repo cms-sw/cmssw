@@ -41,7 +41,7 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
 
       std::ostringstream chamberName;
       //chamberName<<detid;
-      chamberName<<"DT_Wh" << digiIt.whNum() <<"_St_" << digiIt.stNum() << "_Se_" << digiIt.scNum() + 1;
+      chamberName << "DT_Wh" << digiIt.whNum() << "_St_" << digiIt.stNum() << "_Se_" << digiIt.scNum() + 1;
       auto& dtChamberTree = chamberTrees[chamberName.str()];
       auto& dtP2PhiDigi = dtChamberTree.add_child("dtP2PhiDigi", boost::property_tree::ptree());
       dtP2PhiDigi.add("<xmlattr>.whNum", digiIt.whNum());
@@ -63,7 +63,7 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
 
       std::ostringstream chamberName;
       //chamberName<<detid;
-      chamberName<<"DT_Wh" << thetaDigi.whNum() <<"_St_" << thetaDigi.stNum() << "_Se_" << thetaDigi.scNum() + 1;
+      chamberName << "DT_Wh" << thetaDigi.whNum() << "_St_" << thetaDigi.stNum() << "_Se_" << thetaDigi.scNum() + 1;
       auto& dtChamberTree = chamberTrees[chamberName.str()];
       auto& dtP2ThDigi = dtChamberTree.add_child("dtP2ThDigi", boost::property_tree::ptree());
       dtP2ThDigi.add("<xmlattr>.whNum", thetaDigi.whNum());
@@ -76,7 +76,7 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
     }
   }
 
-  for(auto& chamberTree : chamberTrees) {
+  for (auto& chamberTree : chamberTrees) {
     chamberTree.second.add("<xmlattr>.name", chamberTree.first);
     procDataTree.add_child("dtChamber", chamberTree.second);
   }

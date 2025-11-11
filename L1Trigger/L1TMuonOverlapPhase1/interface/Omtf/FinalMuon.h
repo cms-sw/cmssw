@@ -13,10 +13,8 @@
 class FinalMuon {
 public:
   FinalMuon() {};
-  FinalMuon(const AlgoMuonPtr& algoMuon) :
-    algoMuon(algoMuon),
-    quality(algoMuon->getQuality()),
-    firedLayerCnt(algoMuon->getFiredLayerCnt()) {};
+  FinalMuon(const AlgoMuonPtr& algoMuon)
+      : algoMuon(algoMuon), quality(algoMuon->getQuality()), firedLayerCnt(algoMuon->getFiredLayerCnt()) {};
 
   virtual ~FinalMuon() {};
 
@@ -26,107 +24,63 @@ public:
 
   void setSign(int sign = 0) { this->sign = sign; }
 
-  void setBx(int bx = 0) {
-    this->bx = bx;
-  }
+  void setBx(int bx = 0) { this->bx = bx; }
 
-  int getBx() const {
-    return bx;
-  }
+  int getBx() const { return bx; }
 
-  int getProcessor() const {
-    return processor;
-  }
+  int getProcessor() const { return processor; }
 
-  void setProcessor(int processor = -1) {
-    this->processor = processor;
-  }
+  void setProcessor(int processor = -1) { this->processor = processor; }
 
-  void setTrackFinderType(l1t::tftype mtfType) {
-    this->mtfType = mtfType;
-  }
-  l1t::tftype trackFinderType() const {
-    return mtfType;
-  }
+  void setTrackFinderType(l1t::tftype mtfType) { this->mtfType = mtfType; }
+  l1t::tftype trackFinderType() const { return mtfType; }
 
   int getQuality() const { return quality; }
 
   void setQuality(int quality = 0) { this->quality = quality; }
 
-  float getPtGev() const {
-    return ptGev;
-  }
+  float getPtGev() const { return ptGev; }
 
-  void setPtGev(float ptGev = -1) {
-    this->ptGev = ptGev;
-  }
+  void setPtGev(float ptGev = -1) { this->ptGev = ptGev; }
 
-  float getPtUnconstrGev() const {
-    return ptUnconstrGev;
-  }
-  
-  void setPtUnconstrGev(float ptUnconstrGev = -1) {
-    this->ptUnconstrGev = ptUnconstrGev;
-  }
+  float getPtUnconstrGev() const { return ptUnconstrGev; }
 
-  float getEtaRad() const {
-    return etaRad;
-  }
+  void setPtUnconstrGev(float ptUnconstrGev = -1) { this->ptUnconstrGev = ptUnconstrGev; }
 
-  void setEtaRad(float etaRad = -10) {
-    this->etaRad = etaRad;
-  }
+  float getEtaRad() const { return etaRad; }
 
-  float getPhiRad() const {
-    return phiRad;
-  }
+  void setEtaRad(float etaRad = -10) { this->etaRad = etaRad; }
 
-  void setPhiRad(float phiRad = -10) {
-    this->phiRad = phiRad;
-  }
+  float getPhiRad() const { return phiRad; }
 
-  int getPtGmt() const {
-    return ptGmt;
-  }
-  void setPtGmt(int ptGmt = 0) {
-    this->ptGmt = ptGmt;
-  }
-  int getPtUnconstrGmt() const {
-    return ptUnconstrGmt;
-  }
-  void setPtUnconstrGmt(int ptUnconstrGmt = 0) {
-    this->ptUnconstrGmt = ptUnconstrGmt;
-  }
-  int getPhiGmt() const {
-    return phiGmt;
-  }
-  void setPhiGmt(int phiGmt = 0) {
-    this->phiGmt = phiGmt;
-  }
-  int getEtaGmt() const {
-    return etaGmt;
-  }
-  void setEtaGmt(int etaGmt = 0) {
-    this->etaGmt = etaGmt;
-  }
+  void setPhiRad(float phiRad = -10) { this->phiRad = phiRad; }
 
-  int getFiredLayerCnt() const {
-    return firedLayerCnt;
-  }
+  int getPtGmt() const { return ptGmt; }
 
-  void setFiredLayerCnt(int firedLayerCnt = 0) {
-    this->firedLayerCnt = firedLayerCnt;
-  }
+  void setPtGmt(int ptGmt = 0) { this->ptGmt = ptGmt; }
 
-  int getFiredLayerBits() const {
-    return firedLayerBits;
-  }
+  int getPtUnconstrGmt() const { return ptUnconstrGmt; }
 
-  void setFiredLayerBits(int firedLayerBits = 0) {
-    this->firedLayerBits = firedLayerBits;
-  }
+  void setPtUnconstrGmt(int ptUnconstrGmt = 0) { this->ptUnconstrGmt = ptUnconstrGmt; }
+
+  int getPhiGmt() const { return phiGmt; }
+
+  void setPhiGmt(int phiGmt = 0) { this->phiGmt = phiGmt; }
+
+  int getEtaGmt() const { return etaGmt; }
+
+  void setEtaGmt(int etaGmt = 0) { this->etaGmt = etaGmt; }
+
+  int getFiredLayerCnt() const { return firedLayerCnt; }
+
+  void setFiredLayerCnt(int firedLayerCnt = 0) { this->firedLayerCnt = firedLayerCnt; }
+
+  int getFiredLayerBits() const { return firedLayerBits; }
+
+  void setFiredLayerBits(int firedLayerBits = 0) { this->firedLayerBits = firedLayerBits; }
 
   friend std::ostream& operator<<(std::ostream& out, const FinalMuon& finalMuon);
+
 private:
   AlgoMuonPtr algoMuon;
 
@@ -137,7 +91,7 @@ private:
   int quality = 0;
 
   int sign = 0;
-  
+
   float ptGev = -1;
   float ptUnconstrGev = -1;
   float phiRad = -10;

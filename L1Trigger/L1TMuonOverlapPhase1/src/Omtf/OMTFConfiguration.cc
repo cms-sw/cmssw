@@ -543,7 +543,6 @@ int OMTFConfiguration::getProcScalePhi(unsigned int iProcessor, double phiRad) c
   return lround((phiRad - phi15deg) / phiUnit);  //FIXME lround or floor ???
 }
 
-
 //returns the global phi in the OMTF scale
 int OMTFConfiguration::procPhiOmtfToGlobalPhiOmtf(unsigned int iProcessor, int procHwPhi) const {
   //24 is 360 deg / 15 deg, 15 deg is the offset of the processor internal scale versus CMS phi = 0 rad

@@ -66,14 +66,13 @@ public:
 
   ///Convert local eta coordinate to global digital microGMT scale.
   ///theta is  returned only if in the dtThDigis is only one hit, otherwise eta = 95 or middle of the chamber
-  virtual int getGlobalEta(const DTChamberId dTChamberId, const L1MuDTChambThContainer *dtThDigis, int bxNum) const;
+  virtual int getGlobalEta(const DTChamberId dTChamberId, const L1MuDTChambThContainer* dtThDigis, int bxNum) const;
 
   ///Convert local eta coordinate to global digital microGMT scale.
-  virtual int getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi, float &r) const;
+  virtual int getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi& aDigi, float& r) const;
 
   ///Convert local eta coordinate to global digital microGMT scale.
-  virtual int getGlobalEtaRpc(unsigned int rawid, const unsigned int &aDigi, float &r) const;
-
+  virtual int getGlobalEtaRpc(unsigned int rawid, const unsigned int& aDigi, float& r) const;
 
 protected:
   ///Check orientation of strips in given CSC chamber

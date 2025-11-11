@@ -141,7 +141,7 @@ public:
   double ptUnit = 0.5;  // GeV/unit
   ///uGMT pt scale conversion
   //TODO refactor to omtfPtToGev
-  double hwPtToGev(int hwPt) const override { return (hwPt == 0 ? 0 : (hwPt - 1.) * ptUnit);}
+  double hwPtToGev(int hwPt) const override { return (hwPt == 0 ? 0 : (hwPt - 1.) * ptUnit); }
 
   ///uGMT pt scale conversion: [0GeV, 0.5GeV) = 1 [0.5GeV, 1 Gev) = 2
   int ptGevToHw(double ptGev) const override { return (ptGev / ptUnit + 1); }
@@ -149,7 +149,7 @@ public:
   ///center of eta bin
   virtual double hwEtaToEta(int hwEta) const { return (hwEta * etaUnit_); }
 
-	//TODO use version with round
+  //TODO use version with round
   int etaToHwEta(double eta) const override { return (eta / etaUnit_); }
   //int etaToHwEta(double eta) const override { return std::lround(eta / etaUnit_); }
 
@@ -173,9 +173,7 @@ public:
   }
 
   //eta of the middle DT Wheel 2 MB4, in the OMTF scale
-  int mb4W2Eta() const override {
-    return etaToHwEta(0.67);
-  }
+  int mb4W2Eta() const override { return etaToHwEta(0.67); }
 
   static unsigned int eta2Bits(unsigned int eta);
 

@@ -8,7 +8,6 @@
 #ifndef L1Trigger_L1TMuonOverlapPhase2_OMTFPROCESSORPHASE2_H_
 #define L1Trigger_L1TMuonOverlapPhase2_OMTFPROCESSORPHASE2_H_
 
-
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFProcessor.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/MlModelBase.h"
 
