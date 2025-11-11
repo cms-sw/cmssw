@@ -1,4 +1,6 @@
-#include "TGLIncludes.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
 
 void FWEveDigitSetScalableMarkerGL::DirectDraw(TGLRnrCtx& rnrCtx) const {
