@@ -132,6 +132,13 @@ void OmtfProcessorPhase2::assignQualityPhase2(AlgoMuons::value_type& algoMuon) {
   if (!algoMuon->isValid())
     return;
 
+  //better not to assume anything about quality for pt=0 candidates
+  /*if (algoMuon->getPtConstr() == 0) {
+    algoMuon->setQuality(0);  //default value
+    return;
+  }*/
+
+  //TODO agree on meaning of quality = 0
   if (abs(algoMuon->getEtaHw()) >= omtfConfig->etaToHwEta(1.3)) {
     algoMuon->setQuality(0);
     return;
@@ -154,11 +161,6 @@ void OmtfProcessorPhase2::assignQualityPhase2(AlgoMuons::value_type& algoMuon) {
   }
 
   auto it = firedLayersToQuality.find(algoMuon->getFiredLayerBits());
-  if (algoMuon->getPtConstr() == 0) {
-    algoMuon->setQuality(0);  //default value
-    return;
-  }
-
   if (it != firedLayersToQuality.end()) {
     algoMuon->setQuality(it->second);
   } else {
@@ -184,7 +186,7 @@ void OmtfProcessorPhase2::convertToGmtScalesPhase2(unsigned int iProcessor, l1t:
   }
 
   //in getFinalMuons the PtGeV is set to 0 in this case, as it is like that for the phase-1.
-  //but it is better to set non-0 pt in this case, so we set 1 GeV
+  //but for the phase-2 pt = 0 means empty candidate, so we set 1 GeV in this case
   if (finalMuon->getAlgoMuon()->getPdfSumConstr() == 0 && finalMuon->getAlgoMuon()->getPtUnconstr() > 0)
     finalMuon->setPtGev(1.0); //set to 1 GeV to be able to distinguish from pt=0, which means no candidate
 

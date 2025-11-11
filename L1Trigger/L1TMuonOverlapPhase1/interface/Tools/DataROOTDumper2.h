@@ -22,6 +22,8 @@
 #include "TH2.h"
 
 #include <functional>
+#include <vector>
+#include <cstdint>
 
 class TTree;
 
@@ -76,6 +78,9 @@ public:
 
     ~Hit() {}
   };
+
+  // ensure the packed Hit view fits in the unsigned long rawData storage
+  static_assert(sizeof(Hit) <= sizeof(unsigned long), "OmtfEvent::Hit must fit into unsigned long rawData");
 
   std::vector<unsigned long> hits;
 };

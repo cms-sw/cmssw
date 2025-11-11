@@ -264,7 +264,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent, FinalMuons& fina
     }
 
     auto addOmtfCand = [&](FinalMuonPtr muonCand) {
-      //the charge is only for the constrained measurement. The constrained measurement is always defined for a valid candidate
+      //The constrained measurement is always defined for a valid candidate. In principle here only valid candidates should be, so this check is redundant.
       if (muonCand->getAlgoMuon()->getPdfSumConstr() > 0 && muonCand->getAlgoMuon()->getFiredLayerCntConstr() >= 3)
         omtfEvent.omtfPt = muonCand->getPtGev();
       else if (muonCand->getAlgoMuon()->getPtUnconstr() > 0)
@@ -448,5 +448,4 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent, FinalMuons& fina
 
 void DataROOTDumper2::endJob() {
   edm::LogVerbatim("l1tOmtfEventPrint") << " evntCnt " << evntCnt << endl;
-  rootTree->Write();
 }
