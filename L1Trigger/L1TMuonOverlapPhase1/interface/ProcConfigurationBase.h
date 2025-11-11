@@ -116,7 +116,6 @@ public:
   double etaUnit() const { return etaUnit_; }
 
 protected:
-
   double etaUnit_ = 0.010875;  //=2.61/240 - value from the phase1 interface note
 
 private:
