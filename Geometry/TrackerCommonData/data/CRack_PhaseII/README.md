@@ -62,7 +62,7 @@ cmsRun step2_digi_ttclusters_ttstubs_cluster1Dobj.py
 ```
 
 
-## Run the workflow (Coming soon.)
+## Run the workflow (Coming soon)
 500 is the new detector version for the standelone CRACK. The following step creates available workflows for D500 sush as a simple the GEN-SIM step
 
 The new Geometry is integrated in the full matrix, and several new workflow made available. a workflow is a set of GEN-SIM-RECO etc steps with different configurations. For further details on this step please refer to this presentation [here](https://indico.cern.ch/event/1296370/contributions/5449497/attachments/2664526/4616810/TkGeom_handover_AdeWit.pdf)
