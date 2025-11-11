@@ -73,10 +73,17 @@ run3_common.toModify( cscTriggerPrimitiveDigis,
                                          runME31Up = True,
                                          runME41Up = True)
 )
-## update shower thresholds for 2025 runs
-from Configuration.Eras.Modifier_run3_CSC_2025_cff import run3_CSC_2025
-run3_CSC_2025.toModify( cscTriggerPrimitiveDigis,
-                      showerParams = showerPSet_2025.clone()
+
+## update shower thresholds for 2025 runs Eras A-E
+from Configuration.Eras.Modifier_run3_CSC_2025_cff import run3_CSC_2025_AtoE
+run3_CSC_2025_AtoE.toModify( cscTriggerPrimitiveDigis,
+                      showerParams = showerPSet_2025_AtoE.clone()
+)
+
+## update shower thresholds for 2025 runs Eras F-G
+from Configuration.Eras.Modifier_run3_CSC_2025_cff import run3_CSC_2025_FtoG
+run3_CSC_2025_FtoG.toModify( cscTriggerPrimitiveDigis,
+                      showerParams = showerPSet_2025_FtoG.clone()
 )
 
 
