@@ -310,7 +310,7 @@ def nanoAOD_refineFastSim_puppiJet(process):
 
     process.jetPuppiTable.src = cms.InputTag("finalJetsPuppiWithRefined")
 
-    #mask jets we shouldn't be refining - WARNING: the -1 safety in the definitions of the original flavor taggers cannot be implemented in the following. Multiple nested ternaries either crash the parser or confuse the logic and mess up the default values. 
+    #mask jets we shouldn't be refining - Note: the -1 safety in the definitions of the original flavor taggers cannot be implemented in the following, because nested ternaries either crash the parser or confuse the logic and mess up the default values. The max(x,-1) is used as an alternative. 
     _mask = "bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')>0"
     fastSim.toModify(process.jetPuppiTable.variables,
         pt = Var(f"?{_mask}?userFloat('ptrefined'):pt()", float, precision=10),
