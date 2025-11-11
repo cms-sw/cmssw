@@ -137,14 +137,11 @@ public:
 
   void propagate(MatchingResult& result);
 
-  void match(const FinalMuons& finalMuons,
-             MatchingResult& result,
-             std::vector<MatchingResult>& matchingResults);
+  void match(const FinalMuons& finalMuons, MatchingResult& result, std::vector<MatchingResult>& matchingResults);
 
   void match(const FinalMuonPtr& finalMuon3, MatchingResult& result);
 
-  std::vector<MatchingResult> cleanMatching(std::vector<MatchingResult> matchingResults,
-                                            const FinalMuons& finalMuons);
+  std::vector<MatchingResult> cleanMatching(std::vector<MatchingResult> matchingResults, const FinalMuons& finalMuons);
 
   std::vector<MatchingResult> match(const FinalMuons& finalMuons,
                                     const edm::SimTrackContainer* simTracks,

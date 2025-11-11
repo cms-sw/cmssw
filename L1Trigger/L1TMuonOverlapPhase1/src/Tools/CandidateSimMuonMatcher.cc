@@ -90,35 +90,33 @@ MatchingResult::MatchingResult(const TrackingParticle& trackingParticle) : track
   }
 }
 
-
-std::ostream &operator<<(std::ostream &out, const MatchingResult& matchingResult) {
+std::ostream& operator<<(std::ostream& out, const MatchingResult& matchingResult) {
   out << "matchingResult:\n";
-  if(matchingResult.simTrack || matchingResult.trackingParticle) {
-    out << " simTrack type " << std::setw(5) << matchingResult.pdgId
-      << " pt " << std::setw(8) << matchingResult.genPt <<" GeV"
-      << " eta " << std::setw(8) << matchingResult.genEta
-      << " phi " << std::setw(8) << matchingResult.genPhi
-      << " charge " << std::setw(2) << matchingResult.genCharge
-      << " vertexEta " << std::setw(8) << matchingResult.vertexEta
-      << " vertexPhi " << std::setw(8) << matchingResult.vertexPhi
-      << " muonDxy " << std::setw(8) << matchingResult.muonDxy
-      << " muonRho " << std::setw(8) << matchingResult.muonRho
-      << " parentPdgId " << std::setw(5) << matchingResult.parentPdgId;
+  if (matchingResult.simTrack || matchingResult.trackingParticle) {
+    out << " simTrack type " << std::setw(5) << matchingResult.pdgId;
+    out << " pt " << std::setw(8) << matchingResult.genPt << " GeV";
+    out << " eta " << std::setw(8) << matchingResult.genEta;
+    out << " phi " << std::setw(8) << matchingResult.genPhi;
+    out << " charge " << std::setw(2) << matchingResult.genCharge;
+    out << " vertexEta " << std::setw(8) << matchingResult.vertexEta;
+    out << " vertexPhi " << std::setw(8) << matchingResult.vertexPhi;
+    out << " muonDxy " << std::setw(8) << matchingResult.muonDxy;
+    out << " muonRho " << std::setw(8) << matchingResult.muonRho;
+    out << " parentPdgId " << std::setw(5) << matchingResult.parentPdgId;
   } else {
     out << " no matched simTrack/trackingParticle";
   }
-  out << "\n muonCand: " ;
-  if(matchingResult.muonCand)
+  out << "\n muonCand: ";
+  if (matchingResult.muonCand)
     out << *(matchingResult.muonCand);
   else
     out << " no matched muonCand ";
 
-  out << "\n deltaEta " << std::setw(8) << matchingResult.deltaEta << " deltaPhi " << std::setw(8) << matchingResult.deltaPhi
-                                    << " Likelihood " << std::setw(8) << matchingResult.matchingLikelihood << " result "
-                                    << (short)matchingResult.result << std::endl;
+  out << "\n deltaEta " << std::setw(8) << matchingResult.deltaEta << " deltaPhi " << std::setw(8)
+      << matchingResult.deltaPhi << " Likelihood " << std::setw(8) << matchingResult.matchingLikelihood << " result "
+      << (short)matchingResult.result << std::endl;
   return out;
 }
-
 
 int CandidateSimMuonMatcher::calcGlobalPhi(int locPhi, int proc) {
   int globPhi = 0;
@@ -167,11 +165,11 @@ CandidateSimMuonMatcher::CandidateSimMuonMatcher(
 
   edm::LogImportant("l1tOmtfEventPrint") << " CandidateSimMuonMatcher: matchingType "
                                          << static_cast<short>(matchingType) << std::endl;
-                                         
+
   // Try to read histograms from the file; be defensive if file/histograms are missing
   if (muonMatcherFile.IsZombie()) {
     edm::LogWarning("l1tOmtfEventPrint") << "CandidateSimMuonMatcher: muon matcher file could not be opened: "
-                                          << muonMatcherFileName << std::endl;
+                                         << muonMatcherFileName << std::endl;
     throw cms::Exception("MissingFile") << "CandidateSimMuonMatcher: muon matcher file could not be opened: "
                                         << muonMatcherFileName << std::endl;
   } else {
@@ -187,11 +185,13 @@ CandidateSimMuonMatcher::CandidateSimMuonMatcher(
     medianDelta_neg = dynamic_cast<TH1*>(muonMatcherFile.Get("medianDelta_neg"));
 
     LogTrace("l1tOmtfEventPrint") << " CandidateSimMuonMatcher: " << __LINE__ << std::endl;
-    if(!minDelta_pos || !maxDelta_pos || !medianDelta_pos || !minDelta_neg || !maxDelta_neg || !medianDelta_neg) {
-      edm::LogWarning("l1tOmtfEventPrint") << "CandidateSimMuonMatcher: one or more histograms are missing in the file: "
-                                            << muonMatcherFileName << std::endl;
-      throw cms::Exception("MissingHistogram") << "CandidateSimMuonMatcher: one or more histograms are missing in the file: "
-                                              << muonMatcherFileName << std::endl;
+    if (!minDelta_pos || !maxDelta_pos || !medianDelta_pos || !minDelta_neg || !maxDelta_neg || !medianDelta_neg) {
+      edm::LogWarning("l1tOmtfEventPrint")
+          << "CandidateSimMuonMatcher: one or more histograms are missing in the file: " << muonMatcherFileName
+          << std::endl;
+      throw cms::Exception("MissingHistogram")
+          << "CandidateSimMuonMatcher: one or more histograms are missing in the file: " << muonMatcherFileName
+          << std::endl;
     }
 
     // Detach histograms from the file so they survive file close
@@ -207,12 +207,18 @@ CandidateSimMuonMatcher::CandidateSimMuonMatcher(
 }
 
 CandidateSimMuonMatcher::~CandidateSimMuonMatcher() {
-  if(minDelta_pos) delete minDelta_pos;
-  if(maxDelta_pos) delete maxDelta_pos;
-  if(medianDelta_pos) delete medianDelta_pos;
-  if(minDelta_neg) delete minDelta_neg;
-  if(maxDelta_neg) delete maxDelta_neg;
-  if(medianDelta_neg) delete medianDelta_neg;
+  if (minDelta_pos)
+    delete minDelta_pos;
+  if (maxDelta_pos)
+    delete maxDelta_pos;
+  if (medianDelta_pos)
+    delete medianDelta_pos;
+  if (minDelta_neg)
+    delete minDelta_neg;
+  if (maxDelta_neg)
+    delete maxDelta_neg;
+  if (medianDelta_neg)
+    delete medianDelta_neg;
 }
 
 void CandidateSimMuonMatcher::beginRun(const edm::EventSetup& eventSetup) {
@@ -305,8 +311,7 @@ bool trackingParticleIsMuonInBx0(const TrackingParticle& trackingParticle) {
 }
 
 bool trackingParticleIsMuonInBx0Displ(const TrackingParticle& trackingParticle) {
-  if (std::abs(trackingParticle.pdgId()) == 13 ||
-      std::abs(trackingParticle.pdgId()) == 1000015) {  // 1000015 is stau
+  if (std::abs(trackingParticle.pdgId()) == 13 || std::abs(trackingParticle.pdgId()) == 1000015) {  // 1000015 is stau
 
     //in the overlap, the propagation of muons with pt less then ~3.2 fails - the actual threshold depends slightly on eta,
     if (trackingParticle.pt() < 2.)
@@ -321,9 +326,9 @@ bool trackingParticleIsMuonInBx0Displ(const TrackingParticle& trackingParticle) 
             (std::abs(trackingParticle.parentVertex()->position().eta()) > 1.4))
           return false;
       }
-    }
-    else
-      throw cms::Exception("CandidateSimMuonMatcher", "trackingParticleIsMuonInBx0Displ: trackingParticle has no parent vertex");
+    } else
+      throw cms::Exception("CandidateSimMuonMatcher",
+                           "trackingParticleIsMuonInBx0Displ: trackingParticle has no parent vertex");
 
     //only muons
     if (trackingParticle.eventId().bunchCrossing() == 0)
@@ -399,10 +404,8 @@ void CandidateSimMuonMatcher::observeEventEnd(const edm::Event& event, FinalMuon
       std::function<bool(const SimTrack&)> const& simTrackFilter = simTrackIsMuonInOmtfBx0;
       //simTrackIsMuonInOmtfBx0 provides appropriate eta cut
 
-      matchingResults = matchSimple(ghostBustedFinalMuons,
-                                    simTraksHandle.product(),
-                                    simVertices.product(),
-                                    simTrackFilter);
+      matchingResults =
+          matchSimple(ghostBustedFinalMuons, simTraksHandle.product(), simVertices.product(), simTrackFilter);
     } else if (matchingType == MatchingType::withPropagator || matchingType == MatchingType::simplePropagation) {
       //TODO  use other simTrackFilter if needed  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       //withPropagator, we dont want to check the eta of the generated muon, as it is on the vertex,
@@ -411,10 +414,7 @@ void CandidateSimMuonMatcher::observeEventEnd(const edm::Event& event, FinalMuon
           (matchingType == MatchingType::withPropagator) ? simTrackIsMuonInBx0 : simTrackIsMuonInOmtfBx0;
       //withPropagator : simplePropagation
 
-      matchingResults = match(ghostBustedFinalMuons,
-                              simTraksHandle.product(),
-                              simVertices.product(),
-                              simTrackFilter);
+      matchingResults = match(ghostBustedFinalMuons, simTraksHandle.product(), simVertices.product(), simTrackFilter);
     }
     //todo something when noMatcher
 
@@ -428,8 +428,7 @@ void CandidateSimMuonMatcher::observeEventEnd(const edm::Event& event, FinalMuon
     //TrackingParticle is used for minBias sample. There we should do propagation to match pions and kaons
     std::function<bool(const TrackingParticle&)> trackParticleFilter = trackingParticleIsMuonInBx0Displ;
     //trackingParticleIsMuonInBx0; if propagation is used, use trackingParticleIsMuonInOmtfBx0
-    matchingResults =
-        match(finalMuons, trackingParticleHandle.product(), trackParticleFilter);
+    matchingResults = match(finalMuons, trackingParticleHandle.product(), trackParticleFilter);
   } else if (matchingType == MatchingType::collectMuonCands) {
     matchingResults = collectMuonCands(finalMuons);
   }
@@ -456,19 +455,20 @@ FinalMuons CandidateSimMuonMatcher::ghostBust(const FinalMuons& finalMuons) {
 
       if (std::abs(mtfCand1->getEtaRad() - mtfCand2->getEtaRad()) < 0.3) {
         //folding phi
-        double deltaPhi = std::abs(mtfCand1->getPhiRad() - mtfCand2->getPhiRad() );
+        double deltaPhi = std::abs(mtfCand1->getPhiRad() - mtfCand2->getPhiRad());
         if (deltaPhi > M_PI)
           deltaPhi = std::abs(deltaPhi - 2 * M_PI);
 
         //0.116355283466 is 10 units of the phase1
         if (deltaPhi < 10 * 2 * M_PI / 576) {
-          if (mtfCand1->getFiredLayerCnt() > mtfCand2->getFiredLayerCnt()) { //
+          if (mtfCand1->getFiredLayerCnt() > mtfCand2->getFiredLayerCnt()) {
             isKilled[i2] = true;
           } else
             isKilled[i1] = true;
         }
-        LogTrace("l1tOmtfEventPrint") <<" mtfCand2 PhiRad " << mtfCand2->getPhiRad() << " etaRad " << mtfCand2->getEtaRad() << " deltaPhi "<< deltaPhi
-            << " isKilled[i2] " << isKilled[i2] << " isKilled[i1] " << isKilled[i1];
+        LogTrace("l1tOmtfEventPrint") << " mtfCand2 PhiRad " << mtfCand2->getPhiRad() << " etaRad "
+                                      << mtfCand2->getEtaRad() << " deltaPhi " << deltaPhi << " isKilled[i2] "
+                                      << isKilled[i2] << " isKilled[i1] " << isKilled[i1];
       }
     }
   }
@@ -478,14 +478,14 @@ FinalMuons CandidateSimMuonMatcher::ghostBust(const FinalMuons& finalMuons) {
   LogTrace("l1tOmtfEventPrint") << "\nCandidateSimMuonMatcher::ghostBust - after ghostBusting:" << std::endl;
   for (unsigned int i1 = 0; i1 < finalMuons.size(); ++i1) {
     //not dropping candidates with quality 0 and 1
-    if (!isKilled[i1]) { //&& finalMuons[i1]->getQuality() > 1
+    if (!isKilled[i1]) {  //&& finalMuons[i1]->getQuality() > 1
       resultCands.push_back(finalMuons[i1]);
     }
 
     //if (finalMuons[i1]->getPtGmt() > 0) checked earlier, so it is not needed here
-    { //PtGmt > 0 marks valid candidate both for phase1 and phase2. But it should not matter here, as all finalMuons are not empty
+    {  //PtGmt > 0 marks valid candidate both for phase1 and phase2. But it should not matter here, as all finalMuons are not empty
 
-      LogTrace("l1tOmtfEventPrint")<< *(finalMuons[i1]) << " gb isKilled " << isKilled.test(i1) << std::endl;
+      LogTrace("l1tOmtfEventPrint") << *(finalMuons[i1]) << " gb isKilled " << isKilled.test(i1) << std::endl;
       //LogTrace("l1tOmtfEventPrint") << *(gbCandidates.at(i1)) << std::endl;
       if (finalMuons[i1]->getAlgoMuon())
         LogTrace("l1tOmtfEventPrint") << *(finalMuons[i1]->getAlgoMuon()) << std::endl;
@@ -553,7 +553,7 @@ TrajectoryStateOnSurface CandidateSimMuonMatcher::propagate(const SimTrack& simT
       edm::LogImportant("l1tOmtfEventPrint") << "simVertex.vertexId() != vtxInd. simVertex.vertexId() "
                                              << simVertex.vertexId() << " vtxInd " << vtxInd << " !!!!!!!!!!!!!!!!!";
       throw cms::Exception("CandidateSimMuonMatcher",
-                              "CandidateSimMuonMatcher::propagate: simVertex.vertexId() != vtxInd");
+                           "CandidateSimMuonMatcher::propagate: simVertex.vertexId() != vtxInd");
     }
   }
 
@@ -696,7 +696,7 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::cleanMatching(std::vector<M
   LogTrace("l1tOmtfEventPrint") << "\nCandidateSimMuonMatcher::cleanMatching:" << __LINE__
                                 << " cleanedMatchingResults:" << std::endl;
   for (auto& result : cleanedMatchingResults) {
-    LogTrace("l1tOmtfEventPrint") << result<< std::endl<< std::endl;
+    LogTrace("l1tOmtfEventPrint") << result << std::endl << std::endl;
   }
   LogTrace("l1tOmtfEventPrint") << " " << std::endl;
 
@@ -706,8 +706,8 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::cleanMatching(std::vector<M
 void CandidateSimMuonMatcher::propagate(MatchingResult& result) {
   auto doSimplePropagation = [&]() {
     TH1* medianDelta = result.genCharge == 1 ? medianDelta_pos : medianDelta_neg;
-      auto ptBin = medianDelta->FindBin(result.genPt);
-      result.propagatedPhi = foldPhi(result.genPhi + medianDelta->GetBinContent(ptBin));
+    auto ptBin = medianDelta->FindBin(result.genPt);
+    result.propagatedPhi = foldPhi(result.genPhi + medianDelta->GetBinContent(ptBin));
     result.propagatedEta = result.genEta;
   };
 
@@ -724,13 +724,15 @@ void CandidateSimMuonMatcher::propagate(MatchingResult& result) {
         // fall back to a default vertex at (0,0,0). Or doSimplePropagation().
         SimVertex defVtx;  // default constructed vertex at origin
         ftsTrack = simTrackToFts(*(result.simTrack), defVtx);
-        edm::LogImportant("l1tOmtfEventPrint") << "CandidateSimMuonMatcher::propagate - simTrack has no simVertex, using default vertex" << std::endl;
+        edm::LogImportant("l1tOmtfEventPrint")
+            << "CandidateSimMuonMatcher::propagate - simTrack has no simVertex, using default vertex" << std::endl;
       }
     } else if (result.trackingParticle) {
-      if(result.trackingParticle->parentVertex().isNonnull())
+      if (result.trackingParticle->parentVertex().isNonnull())
         ftsTrack = simTrackToFts(*result.trackingParticle);
       else {
-        edm::LogImportant("l1tOmtfEventPrint") << "CandidateSimMuonMatcher::propagate - trackingParticle has no parentVertex!!!" << std::endl;
+        edm::LogImportant("l1tOmtfEventPrint")
+            << "CandidateSimMuonMatcher::propagate - trackingParticle has no parentVertex!!!" << std::endl;
         throw cms::Exception("CandidateSimMuonMatcher")
             << "CandidateSimMuonMatcher::propagate - trackingParticle has no parentVertex!!!";
       }
@@ -744,7 +746,7 @@ void CandidateSimMuonMatcher::propagate(MatchingResult& result) {
 
     if (!tsof.isValid()) {
       if (result.genPt > 2.5 && result.trackingParticle && result.trackingParticle->parentVertex().isNonnull()) {
-        if (result.muonRho < 40) { //TODO why it is done only for trackingParticle and not for simTrack?
+        if (result.muonRho < 40) {  //TODO why it is done only for trackingParticle and not for simTrack?
           doSimplePropagation();
         }
       } else {
@@ -803,7 +805,7 @@ void CandidateSimMuonMatcher::match(const FinalMuons& finalMuons,
     for (auto& muonCand : finalMuons) {
       //dropping very low quality candidates, as they are fakes usually - but it has no sense, then the results are not conclusive
       //if (muonCand->getQuality() > 1)
-      { //TOOD uncomment, if this condition is needed
+      {  //TOOD uncomment, if this condition is needed
         MatchingResult resultCopy = result;
 
         match(muonCand, resultCopy);
@@ -834,8 +836,8 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::match(const FinalMuons& fin
       continue;
 
     LogTrace("l1tOmtfEventPrint") << "\nCandidateSimMuonMatcher::match, simTrack type " << std::setw(3)
-                                  << simTrack.type() << " pt " << std::setw(9) << simTrack.momentum().pt() << " GeV eta "
-                                  << std::setw(9) << simTrack.momentum().eta() << " phi " << std::setw(9)
+                                  << simTrack.type() << " pt " << std::setw(9) << simTrack.momentum().pt()
+                                  << " GeV eta " << std::setw(9) << simTrack.momentum().eta() << " phi " << std::setw(9)
                                   << simTrack.momentum().phi() << " rho "
                                   << (simTrack.vertIndex() >= 0 ? simVertices->at(simTrack.vertIndex()).position().Rho()
                                                                 : -99)
@@ -900,8 +902,8 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::matchSimple(
       continue;
 
     LogTrace("l1tOmtfEventPrint") << "CandidateSimMuonMatcher::matchSimple: simTrack type " << std::setw(3)
-                                  << simTrack.type() << " pt " << std::setw(9) << simTrack.momentum().pt() << " GeV eta "
-                                  << std::setw(9) << simTrack.momentum().eta() << " phi " << std::setw(9)
+                                  << simTrack.type() << " pt " << std::setw(9) << simTrack.momentum().pt()
+                                  << " GeV eta " << std::setw(9) << simTrack.momentum().eta() << " phi " << std::setw(9)
                                   << simTrack.momentum().phi() << std::endl;
 
     bool matched = false;

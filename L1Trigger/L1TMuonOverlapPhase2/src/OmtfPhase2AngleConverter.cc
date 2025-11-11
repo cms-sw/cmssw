@@ -21,8 +21,8 @@ int OmtfPhase2AngleConverter::getProcessorPhi(int phiZero, l1t::tftype part, int
 }
 
 int OmtfPhase2AngleConverter::getGlobalEtaPhase2(DTChamberId dTChamberId,
-                                           const L1Phase2MuDTThContainer* dtThDigis,
-                                           int bxNum) const {
+                                                 const L1Phase2MuDTThContainer* dtThDigis,
+                                                 int bxNum) const {
   int dtThBins = 65536;  //65536. for [-6.3,6.3]
   float kconv = 1 / (dtThBins / 2.);
 
@@ -35,7 +35,7 @@ int OmtfPhase2AngleConverter::getGlobalEtaPhase2(DTChamberId dTChamberId,
         thetaDigi.scNum() == (dTChamberId.sector() - 1) && (thetaDigi.bxNum() - 20) == bxNum) {
       // get the theta digi
       float k = thetaDigi.k() * kconv;  //-pow(-1.,z<0)*log(tan(atan(1/k)/2.));
-      eta = -1. * std::copysign( log(fabs(tan(atan(1 / k) / 2.))),  thetaDigi.z() );
+      eta = -1. * std::copysign(log(fabs(tan(atan(1 / k) / 2.))), thetaDigi.z());
       LogTrace("OMTFReconstruction") << "OmtfPhase2AngleConverter::getGlobalEta(" << dTChamberId << ") eta: " << eta
                                      << " k: " << k << " thetaDigi.k(): " << thetaDigi.k();
 
@@ -70,5 +70,5 @@ int OmtfPhase2AngleConverter::getGlobalEtaPhase2(DTChamberId dTChamberId,
 
     return eta;
   }
-  return 0; //should not be reached
+  return 0;  //should not be reached
 }

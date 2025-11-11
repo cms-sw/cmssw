@@ -19,7 +19,9 @@
 OmtfEmulation::OmtfEmulation(const edm::ParameterSet& edmParameterSet,
                              MuStubsInputTokens& muStubsInputTokens,
                              MuStubsPhase2InputTokens& muStubsPhase2InputTokens)
-    : OMTFReconstruction(edmParameterSet, muStubsInputTokens), muStubsPhase2InputTokens(muStubsPhase2InputTokens), omtfProcPhase2(omtfConfig.get(), omtfProc) {}
+    : OMTFReconstruction(edmParameterSet, muStubsInputTokens),
+      muStubsPhase2InputTokens(muStubsPhase2InputTokens),
+      omtfProcPhase2(omtfConfig.get(), omtfProc) {}
 
 void OmtfEmulation::beginJob() {
   if (edmParameterSet.exists("usePhase2DTPrimitives") && edmParameterSet.getParameter<bool>("usePhase2DTPrimitives")) {
@@ -35,20 +37,18 @@ void OmtfEmulation::beginJob() {
 }
 
 void OmtfEmulation::beginRun(edm::Run const& run,
-                                  edm::EventSetup const& eventSetup,
-                                  edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd>& omtfParamsEsToken,
-                                  const MuonGeometryTokens& muonGeometryTokens,
-                                  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& magneticFieldEsToken,
-                                  const edm::ESGetToken<Propagator, TrackingComponentsRecord>& propagatorEsToken) {
-
-  OMTFReconstruction::beginRun(run, eventSetup, omtfParamsEsToken, muonGeometryTokens, magneticFieldEsToken, propagatorEsToken);
+                             edm::EventSetup const& eventSetup,
+                             edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd>& omtfParamsEsToken,
+                             const MuonGeometryTokens& muonGeometryTokens,
+                             const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& magneticFieldEsToken,
+                             const edm::ESGetToken<Propagator, TrackingComponentsRecord>& propagatorEsToken) {
+  OMTFReconstruction::beginRun(
+      run, eventSetup, omtfParamsEsToken, muonGeometryTokens, magneticFieldEsToken, propagatorEsToken);
 
   omtfProcPhase2.beginRun(edmParameterSet, eventSetup);
 }
 
-OmtfEmulation::OmtfOutptuCollections OmtfEmulation::run(
-    const edm::Event& iEvent,
-    const edm::EventSetup& evSetup) {
+OmtfEmulation::OmtfOutptuCollections OmtfEmulation::run(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   LogTrace("l1tOmtfEventPrint") << "\n" << __FUNCTION__ << ":" << __LINE__ << " iEvent " << iEvent.id().event() << endl;
   inputMaker->loadAndFilterDigis(iEvent);
 
@@ -66,7 +66,7 @@ OmtfEmulation::OmtfOutptuCollections OmtfEmulation::run(
 
   ///The order is important: first put omtf_pos candidates, then omtf_neg.
   for (int bx = bxMin; bx <= bxMax; bx++) {
-    for(unsigned int iSide = 0; iSide < 2; ++iSide) {
+    for (unsigned int iSide = 0; iSide < 2; ++iSide) {
       l1t::tftype mtfType = (iSide == 0) ? l1t::tftype::omtf_pos : l1t::tftype::omtf_neg;
       for (unsigned int iProcessor = 0; iProcessor < omtfConfig->nProcessors(); ++iProcessor) {
         FinalMuons finalMuons = omtfProcPhase2.run(iProcessor, mtfType, bx, inputMaker.get(), observers);

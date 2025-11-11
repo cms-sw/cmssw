@@ -90,8 +90,8 @@ namespace lutNN {
 }  // namespace lutNN
 
 NNRegression::NNRegression(const edm::ParameterSet& edmCfg,
-                                                   const OMTFConfiguration* omtfConfig,
-                                                   std::string networkFile)
+                           const OMTFConfiguration* omtfConfig,
+                           std::string networkFile)
     : MlModelBase(omtfConfig), lutNetworkFP(make_unique<lutNN::LutNetworkFP>()) {
   std::ifstream ifs(networkFile);
 
@@ -355,7 +355,7 @@ bool omtfHitToEventInput(OmtfHit& hit, std::vector<float>& inputs, unsigned int 
 }
 
 void NNRegression::run(AlgoMuons::value_type& algoMuon,
-                                   std::vector<std::unique_ptr<IOMTFEmulationObserver>>& observers) {
+                       std::vector<std::unique_ptr<IOMTFEmulationObserver>>& observers) {
   LogTrace("l1tOmtfEventPrint") << " " << __FUNCTION__ << ":" << __LINE__ << std::endl;
   auto& gpResult = algoMuon->getGpResultConstr();
   //int pdfMiddle = 1<<(omtfConfig->nPdfAddrBits()-1);
@@ -447,12 +447,11 @@ void NNRegression::run(AlgoMuons::value_type& algoMuon,
 
   //algoMuon->setPtNNConstr(omtfConfig->ptGevToHw(calibratedHwPt));
 
-
   //here the pts are GeV
   double omtfPt = omtfConfig->hwPtToGev(algoMuon->getPtConstr());
   double nnPt = nnResult.at(0);
   double combinedPt = nnPt;
-  if( nnPt < 2.5 || (nnResult[0] - omtfPt)  > 0.75 * omtfPt)
+  if (nnPt < 2.5 || (nnResult[0] - omtfPt) > 0.75 * omtfPt)
     combinedPt = omtfPt;
 
   algoMuon->setPtNNConstr(combinedPt);

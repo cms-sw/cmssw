@@ -91,9 +91,7 @@ void StubsSimHitsMatcher::beginRun(edm::EventSetup const& eventSetup) {
   }
 }
 
-void StubsSimHitsMatcher::match(const edm::Event& iEvent,
-                                const FinalMuonPtr& finalMuon,
-                                std::ostringstream& ostr) {
+void StubsSimHitsMatcher::match(const edm::Event& iEvent, const FinalMuonPtr& finalMuon, std::ostringstream& ostr) {
   ostr << "stubsSimHitsMatching ---------------" << std::endl;
 
   edm::Handle<edm::PSimHitContainer> rpcSimHitsHandle;

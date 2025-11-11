@@ -69,7 +69,7 @@ namespace {
     return sign * code;
   }
 
-  int etaKeyWG2Code(const CSCDetId &detId, uint16_t keyWG) {
+  int etaKeyWG2Code(const CSCDetId& detId, uint16_t keyWG) {
     signed int etaCode = 121;
     if (detId.station() == 1 && detId.ring() == 2) {
       if (keyWG < 49)
@@ -268,7 +268,7 @@ int OmtfAngleConverter::getProcessorPhi(
 ///////////////////////////////////////
 ///////////////////////////////////////
 int OmtfAngleConverter::getGlobalEta(const DTChamberId dTChamberId,
-                                     const L1MuDTChambThContainer *dtThDigis,
+                                     const L1MuDTChambThContainer* dtThDigis,
                                      int bxNum) const {
   //const DTChamberId dTChamberId(aDigi.whNum(),aDigi.stNum(),aDigi.scNum()+1);
   DTTrigGeom trig_geom(_geodt->chamber(dTChamberId), false);
@@ -281,7 +281,7 @@ int OmtfAngleConverter::getGlobalEta(const DTChamberId dTChamberId,
   // TODO:::::>>> need to make sure this ordering doesn't flip under wheel sign
   const int NBTI_theta = ((dTChamberId.station() != 4) ? trig_geom.nCell(2) : trig_geom.nCell(3));
 
-  const L1MuDTChambThDigi *theta_segm =
+  const L1MuDTChambThDigi* theta_segm =
       dtThDigis->chThetaSegm(dTChamberId.wheel(), dTChamberId.station(), dTChamberId.sector() - 1, bxNum);
 
   int bti_group = -1;
@@ -322,7 +322,7 @@ int OmtfAngleConverter::getGlobalEta(const DTChamberId dTChamberId,
 
 ///////////////////////////////////////
 ///////////////////////////////////////
-int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi, float &r) const {
+int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi& aDigi, float& r) const {
   ///Code taken from GeometryTranslator.
   ///Will be replaced by direct CSC phi local to global scale
   ///transformation as used in FPGA implementation
@@ -386,7 +386,7 @@ int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTD
 }
 ///////////////////////////////////////
 ///////////////////////////////////////
-int OmtfAngleConverter::getGlobalEtaRpc(unsigned int rawid, const unsigned int &strip, float &r) const {
+int OmtfAngleConverter::getGlobalEtaRpc(unsigned int rawid, const unsigned int& strip, float& r) const {
   const RPCDetId id(rawid);
   auto roll = _georpc->roll(id);
   const LocalPoint lp = roll->centreOfStrip((int)strip);

@@ -34,13 +34,12 @@ public:
                 const edm::ESGetToken<Propagator, TrackingComponentsRecord>& propagatorEsToken) override;
 
   struct OmtfOutptuCollections {
-    std::unique_ptr<l1t::SAMuonCollection> constrSaMuons; //ip constrained candidates
-    std::unique_ptr<l1t::SAMuonCollection> unConstrSaMuons; //ip unconstrained candidates
-    std::unique_ptr<l1t::RegionalMuonCandBxCollection> regionalCandidates; //for backward compatibility of analyzers etc.
+    std::unique_ptr<l1t::SAMuonCollection> constrSaMuons;                   //ip constrained candidates
+    std::unique_ptr<l1t::SAMuonCollection> unConstrSaMuons;                 //ip unconstrained candidates
+    std::unique_ptr<l1t::RegionalMuonCandBxCollection> regionalCandidates;  //for backward compatibility of analyzers etc.
   };
 
-  OmtfOutptuCollections run(const edm::Event& iEvent,
-                                             const edm::EventSetup& evSetup);
+  OmtfOutptuCollections run(const edm::Event& iEvent, const edm::EventSetup& evSetup);
 
 private:
   MuStubsPhase2InputTokens& muStubsPhase2InputTokens;

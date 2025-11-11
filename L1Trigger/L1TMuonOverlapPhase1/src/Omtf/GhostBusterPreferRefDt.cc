@@ -182,8 +182,8 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
 
     for (unsigned int iMu2 = refHitCleanCandsFixedEta.size() - 1; iMu2 >= iMu1 + 1; iMu2--) {
       auto& muIN2 = refHitCleanCandsFixedEta[iMu2];
-      if (muIN2->isValid() &&
-          std::abs(omtfConfig->procPhiToGmtPhase1Phi(muIN1->getPhi()) - omtfConfig->procPhiToGmtPhase1Phi(muIN2->getPhi())) < 8) {
+      if (muIN2->isValid() && std::abs(omtfConfig->procPhiToGmtPhase1Phi(muIN1->getPhi()) -
+                                       omtfConfig->procPhiToGmtPhase1Phi(muIN2->getPhi())) < 8) {
         //the candidates are sorted, so only the  muIN2 can be killed, as it is "worse" than the muIN1
         refHitCleanCandsFixedEta[iMu2]->kill();
         refHitCleanCandsFixedEta[iMu1]->getKilledMuons().emplace_back(muIN2);
@@ -195,9 +195,10 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
         //The condition  abs(muIN2->getEtaHw()) != 121 was added in the FW in 2024
         //TODO add 95 meaning no DT segment was found, or don't use 95 in OmtfAngleConverter::getGlobalEta
         if (omtfConfig->getRefToLogicNumber()[muIN1->getRefLayer()] <= 5 && (omtfConfig->fwVersion() >= 6) &&
-            (abs(muIN1->getEtaHw()) == omtfConfig->mb1W2Eta() || abs(muIN1->getEtaHw()) == omtfConfig->mb2W2Eta() || abs(muIN1->getEtaHw()) == omtfConfig->mb3W2Eta()) &&
-            (abs(muIN2->getEtaHw()) != omtfConfig->mb1W2Eta() && abs(muIN2->getEtaHw()) != omtfConfig->mb2W2Eta() && abs(muIN2->getEtaHw()) != omtfConfig->mb3W2Eta() &&
-             abs(muIN2->getEtaHw()) != 121)) {
+            (abs(muIN1->getEtaHw()) == omtfConfig->mb1W2Eta() || abs(muIN1->getEtaHw()) == omtfConfig->mb2W2Eta() ||
+             abs(muIN1->getEtaHw()) == omtfConfig->mb3W2Eta()) &&
+            (abs(muIN2->getEtaHw()) != omtfConfig->mb1W2Eta() && abs(muIN2->getEtaHw()) != omtfConfig->mb2W2Eta() &&
+             abs(muIN2->getEtaHw()) != omtfConfig->mb3W2Eta() && abs(muIN2->getEtaHw()) != 121)) {
           muIN1->setEta(muIN2->getEtaHw());
         }
       }

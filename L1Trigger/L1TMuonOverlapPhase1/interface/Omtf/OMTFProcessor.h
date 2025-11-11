@@ -101,14 +101,14 @@ public:
   }
 
   void assignQuality(AlgoMuons::value_type& algoMuon);
- 
+
   FinalMuons getFinalMuons(unsigned int iProcessor, l1t::tftype mtfType, const AlgoMuons& gbCandidates) override;
-  
+
   void convertToGmtScalesPhase1(unsigned int iProcessor, l1t::tftype mtfType, FinalMuonPtr& finalMuon);
 
   std::vector<l1t::RegionalMuonCand> getRegionalMuonCands(unsigned int iProcessor,
                                                           l1t::tftype mtfType,
-                                                          FinalMuons& finalMuons);
+                                                          FinalMuons& finalMuons) override;
 
   ///allows to use other sorter implementation than the default one
   virtual void setSorter(SorterBase<GoldenPatternType>* sorter) { this->sorter.reset(sorter); }
