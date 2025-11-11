@@ -14,7 +14,9 @@
 #include "TMatrixDSym.h"
 
 #include "TDecompSVD.h"
-#include "TGLIncludes.h"
+
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 //==============================================================================
 // TEveEllipsoidGL
