@@ -126,6 +126,7 @@ public:
     this->firedLayerBits = firedLayerBits;
   }
 
+  friend std::ostream& operator<<(std::ostream& out, const FinalMuon& finalMuon);
 private:
   AlgoMuonPtr algoMuon;
 
