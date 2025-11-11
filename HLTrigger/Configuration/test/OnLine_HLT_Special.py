@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_1_0/Special --full --data --type Special --unprescale --process HLTSpecial --globaltag auto:run3_hlt_Special --input file:RelVal_Raw_Special_DATA.root
 
-# /dev/CMSSW_15_1_0/Special/V20 (CMSSW_15_1_0)
+# /dev/CMSSW_15_1_0/Special/V26 (CMSSW_15_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTSpecial" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_1_0/Special/V20")
+  tableName = cms.string("/dev/CMSSW_15_1_0/Special/V26")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -4935,7 +4935,7 @@ process.hltSiPixelClustersSoA = cms.EDProducer( "SiPixelRawToClusterPhase1@alpak
     VCaltoElectronGain_L1 = cms.double( 1.0 ),
     VCaltoElectronOffset = cms.double( 0.0 ),
     VCaltoElectronOffset_L1 = cms.double( 0.0 ),
-    DoDigiMorphing = cms.bool( False ),
+    DoDigiMorphing = cms.bool( True ),
     MaxFakesInModule = cms.uint32( 2400 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
@@ -7875,7 +7875,7 @@ process.hltSiPixelClustersSoASerialSync = cms.EDProducer( "alpaka_serial_sync::S
     VCaltoElectronGain_L1 = cms.double( 1.0 ),
     VCaltoElectronOffset = cms.double( 0.0 ),
     VCaltoElectronOffset_L1 = cms.double( 0.0 ),
-    DoDigiMorphing = cms.bool( False ),
+    DoDigiMorphing = cms.bool( True ),
     MaxFakesInModule = cms.uint32( 2400 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
@@ -7994,6 +7994,20 @@ process.hltTrimmedPixelVerticesSerialSync = cms.EDProducer( "PixelVertexCollecti
     fractionSumPt2 = cms.double( 0.3 ),
     minSumPt2 = cms.double( 0.0 ),
     PVcomparer = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPvClusterComparerForIT" ) )
+)
+process.hltSiPixelRecHitsSoAMonitorCPU = cms.EDProducer( "SiPixelPhase1MonitorRecHitsSoAAlpaka",
+    pixelHitsSrc = cms.InputTag( "hltSiPixelRecHitsSoASerialSync" ),
+    TopFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsCPU" )
+)
+process.hltSiPixelRecHitsSoAMonitorGPU = cms.EDProducer( "SiPixelPhase1MonitorRecHitsSoAAlpaka",
+    pixelHitsSrc = cms.InputTag( "hltSiPixelRecHitsSoA" ),
+    TopFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsGPU" )
+)
+process.hltSiPixelRecHitsSoACompareGPUvsCPU = cms.EDProducer( "SiPixelPhase1CompareRecHits",
+    pixelHitsReferenceSoA = cms.InputTag( "hltSiPixelRecHitsSoASerialSync" ),
+    pixelHitsTargetSoA = cms.InputTag( "hltSiPixelRecHitsSoA" ),
+    topFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU" ),
+    minD2cut = cms.double( 1.0E-4 )
 )
 process.hltL1sDQMEcalReconstruction = cms.EDFilter( "HLTL1TSeed",
     saveTags = cms.bool( True ),
@@ -16408,8 +16422,6 @@ process.hltOutputDQMGPUvsCPU = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_DQMGPUvsCPU' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *RecHit*_hltSiPixelRecHitsSoASerialSync_*_*',
-      'keep *RecHit*_hltSiPixelRecHitsSoA_*_*',
       'keep *_hltEcalDigisSerialSync_*_*',
       'keep *_hltEcalDigis_*_*',
       'keep *_hltEcalUncalibRecHitSerialSync_*_*',
@@ -17995,6 +18007,7 @@ process.HLTBeginSequenceRandom = cms.Sequence( process.hltRandomEventsFilter + p
 process.HLTDoLocalPixelSequenceSerialSync = cms.Sequence( process.hltOnlineBeamSpotDeviceSerialSync + process.hltSiPixelClustersSoASerialSync + process.hltSiPixelClustersSerialSync + process.hltSiPixelDigiErrorsSerialSync + process.hltSiPixelRecHitsSoASerialSync + process.hltSiPixelRecHitsSerialSync )
 process.HLTRecoPixelTracksSequenceSerialSync = cms.Sequence( process.hltPixelTracksSoASerialSync + process.hltPixelTracksSerialSync )
 process.HLTRecopixelvertexingSequenceSerialSync = cms.Sequence( process.HLTRecoPixelTracksSequenceSerialSync + process.hltPixelVerticesSoASerialSync + process.hltPixelVerticesSerialSync + process.hltTrimmedPixelVerticesSerialSync )
+process.HLTDQMPixelReconstruction = cms.Sequence( process.hltSiPixelRecHitsSoAMonitorCPU + process.hltSiPixelRecHitsSoAMonitorGPU + process.hltSiPixelRecHitsSoACompareGPUvsCPU )
 process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequenceSerialSync = cms.Sequence( process.hltEcalDigisLegacy + process.hltEcalDigisSoASerialSync + process.hltEcalDigisSerialSync + process.hltEcalUncalibRecHitSoASerialSync + process.hltEcalUncalibRecHitSerialSync + process.hltEcalDetIdToBeRecovered + process.hltEcalRecHitSerialSync )
 process.HLTDoLocalHcalSequenceSerialSync = cms.Sequence( process.hltHcalDigis + process.hltHcalDigisSoASerialSync + process.hltHbheRecoSoASerialSync + process.hltHbherecoSerialSync + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
 process.HLTPFHcalClustering = cms.Sequence( process.hltParticleFlowRecHitHBHESoA + process.hltParticleFlowRecHitHBHE + process.hltParticleFlowClusterHBHESoA + process.hltParticleFlowClusterHBHE + process.hltParticleFlowClusterHCAL )
@@ -18070,7 +18083,7 @@ process.AlCa_IsoTrackHBHE_v4 = cms.Path( process.HLTBeginSequence + process.hltL
 process.AlCa_RPCMuonNormalisation_v26 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleMu5IorSingleMu14erIorSingleMu16er + process.hltPreAlCaRPCMuonNormalisation + process.hltRPCMuonNormaL1Filtered0 + process.HLTFEDSelectorsForRPCMonitor + process.HLTEndSequence )
 process.AlCa_LumiPixelsCounts_Random_v13 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreAlCaLumiPixelsCountsRandom + process.HLTBeamSpot + process.hltPixelTrackerHVOn + process.HLTDoLocalPixelSequence + process.hltAlcaPixelClusterCounts + process.HLTEndSequence )
 process.AlCa_LumiPixelsCounts_ZeroBias_v16 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBiasOrAlwaysTrue + process.hltPreAlCaLumiPixelsCountsZeroBias + process.hltPixelTrackerHVOn + process.HLTDoLocalPixelSequence + process.hltAlcaPixelClusterCounts + process.HLTEndSequence )
-process.DQM_PixelReconstruction_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMPixelReconstruction + process.hltPreDQMPixelReconstruction + process.hltBackend + process.hltStatusOnGPUFilter + process.HLTDoLocalPixelSequence + process.HLTDoLocalPixelSequenceSerialSync + process.HLTRecopixelvertexingSequence + process.HLTRecopixelvertexingSequenceSerialSync + process.HLTEndSequence )
+process.DQM_PixelReconstruction_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMPixelReconstruction + process.hltPreDQMPixelReconstruction + process.hltBackend + process.hltStatusOnGPUFilter + process.HLTDoLocalPixelSequence + process.HLTDoLocalPixelSequenceSerialSync + process.HLTRecopixelvertexingSequence + process.HLTRecopixelvertexingSequenceSerialSync + process.HLTDQMPixelReconstruction + process.HLTEndSequence )
 process.DQM_EcalReconstruction_v13 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMEcalReconstruction + process.hltPreDQMEcalReconstruction + process.hltBackend + process.hltStatusOnGPUFilter + process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequenceSerialSync + process.HLTEndSequence )
 process.DQM_HcalReconstruction_v11 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMHcalReconstruction + process.hltPreDQMHcalReconstruction + process.hltBackend + process.hltStatusOnGPUFilter + process.HLTDoLocalHcalSequence + process.HLTDoLocalHcalSequenceSerialSync + process.HLTPFHcalClustering + process.HLTPFHcalClusteringSerialSync + process.HLTEndSequence )
 process.DQM_Random_v1 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreDQMRandom + process.HLTEndSequence )
