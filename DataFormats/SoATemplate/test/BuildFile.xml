@@ -37,6 +37,13 @@
   <use name="DataFormats/SoATemplate"/>
 </bin>
 
+<bin file="AoSUnitTests.cc" name="AoSUnitTests">
+  <use name="boost"/>
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/SoATemplate"/>
+</bin>
+
 <!-- This test triggers a bug in ROOT, so it's kept disabled
 <bin file="SoAStreamer_t.cpp" name="SoAStreamer_t">
   <use name="root"/>

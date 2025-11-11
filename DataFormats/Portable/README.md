@@ -108,6 +108,10 @@ from a `View` or `ConstView` (pointing to data in host/device memory and potenti
 a `ConstDescriptor` object, into the `PortableHostCollection` contigous buffer. This method should be used for device to
 host data transfer.
 
+`PortableHostCollection<T>` can also wraps an AoS type, in the same way as for SoA. The member function 
+`void transpose<TAcc>(SourceCollection const& sourceCollection, TQueue& queue)` performs the transposition from SoA to
+AoS and viceversa. Any attempt to perform transpositions other than between compatible structures will fail.
+
 ### `PortableDeviceCollection<T, TDev>`
 
 `PortableDeviceCollection<T, TDev>` is a class template that wraps a SoA type `T` and an alpaka device buffer, which
@@ -120,6 +124,10 @@ The member function `void deepCopy(ConstView const& src, TQueue& queue)` copies 
 from a `View` or `ConstView` (pointing to data in host/device memory and potentially to multiple buffers), passing through
 a `ConstDescriptor` object into the `PortableDeviceCollection` contigous buffer. This method should be used for 
 host to device or device to device data transfer.
+
+`PortableDeviceCollection<T, TDev>` can also wraps an AoS type, in the same way as for SoA. The member function 
+`void transpose<TAcc>(SourceCollection const& sourceCollection, TQueue& queue)` performs the transposition from SoA to
+AoS and viceversa. Any attempt to perform transpositions other than between compatible structures will fail.
 
 ### `ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T>`
 
@@ -140,6 +148,9 @@ should explicitly use the `PortableHostObject<T>` and `PortableHostCollection<T>
 Modules that implement portable interfaces (_e.g._ producers) should use the generic types based on
 `ALPAKA_ACCELERATOR_NAMESPACE::PortableObject<T>` or `PortableObject<T, TDev>`, and
 `ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T>` or `PortableCollection<T, TDev>`.
+
+`portablecollection::kernels` contains the only kernel in `Portable`, used to perform heterogeneous transposition from
+AoS/SoA to SoA/AoS.
 
 ## Multi layout collections
 
