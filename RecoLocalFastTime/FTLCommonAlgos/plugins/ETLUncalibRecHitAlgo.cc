@@ -12,7 +12,6 @@ public:
         adcSaturation_(conf.getParameter<double>("adcSaturation")),
         adcLSB_(adcSaturation_ / (1 << adcNBits_)),
         toaLSBToNS_(conf.getParameter<double>("toaLSB_ns")),
-        tofDelay_(conf.getParameter<double>("tofDelay")),
         timeError_(conf.getParameter<std::string>("timeResolutionInNs")),
         timeCorr_p0_(conf.getParameter<double>("timeCorr_p0")),
         timeCorr_p1_(conf.getParameter<double>("timeCorr_p1")),
@@ -33,7 +32,6 @@ private:
   const double adcSaturation_;
   const double adcLSB_;
   const double toaLSBToNS_;
-  const double tofDelay_;
   const reco::FormulaEvaluator timeError_;
   const double timeCorr_p0_;
   const double timeCorr_p1_;
@@ -45,7 +43,7 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
   constexpr int iSample = 2;  //only in-time sample
   const auto& sample = dataFrame.sample(iSample);
 
-  double time = double(sample.toa()) * toaLSBToNS_ - tofDelay_;
+  double time = double(sample.toa()) * toaLSBToNS_;
   double time_over_threshold = double(sample.tot()) * toaLSBToNS_;
   const std::array<double, 1> time_over_threshold_V = {{time_over_threshold}};
 

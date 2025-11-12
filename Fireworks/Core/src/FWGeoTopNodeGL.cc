@@ -1,7 +1,9 @@
 #include "Fireworks/Core/src/FWGeoTopNodeGL.h"
 #include "Fireworks/Core/interface/FWGeoTopNode.h"
 
-#include "TGLIncludes.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include "TGLRnrCtx.h"
 #include "TGLViewer.h"
 

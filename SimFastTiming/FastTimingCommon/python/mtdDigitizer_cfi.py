@@ -71,13 +71,14 @@ _endcap_MTDDigitizer = cms.PSet(
         LGADGainVsFluence    = cms.string("TMath::Min(15.,30.-x)"),
         LGADGainDegradation  = cms.string("TMath::Max(1.0, TMath::Min(x, x + 0.05/0.01 * (x - 1) + y * (1 - x)/0.01))"),
         applyDegradation     = cms.bool(False),
-        tofDelay             = cms.double(1),
         meVPerMIP            = cms.double(0.085), #from HGCAL
         MPVMuon             = cms.string("1.21561e-05 + 8.89462e-07 / (x * x)"),
         MPVPion             = cms.string("1.24531e-05 + 7.16578e-07 / (x * x)"),
         MPVKaon             = cms.string("1.20998e-05 + 2.47192e-06 / (x * x * x)"),
         MPVElectron         = cms.string("1.30030e-05 + 1.55166e-07 / (x * x)"),
-        MPVProton           = cms.string("1.13666e-05 + 1.20093e-05 / (x * x)")
+        MPVProton           = cms.string("1.13666e-05 + 1.20093e-05 / (x * x)"),
+        tdcWindowStart      = cms.double(9.375), # 3 x ETROC_clock
+        tdcWindowEnd        = cms.double(21.875) # 3 x ETROC_clock + 12.5 ns
         ),
     ElectronicsSimulation = cms.PSet(
         bxTime               = cms.double(25),

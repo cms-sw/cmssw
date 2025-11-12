@@ -17,10 +17,12 @@
 #include <thread>
 #include <future>
 
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include "TGButton.h"
 #include "TGLabel.h"
 #include "TSystem.h"
-#include "TGLIncludes.h"
 #include "TGLViewer.h"
 #include "TEveBrowser.h"
 #include "TEveManager.h"
@@ -849,16 +851,14 @@ void FWGUIManager::exportAllViews(const std::string& format, int height) {
       TString file;
       file.Form(format.c_str(), event->id().run(), event->id().event(), event->luminosityBlock(), view_name.Data());
 
-      if (GLEW_EXT_framebuffer_object) {
-        // Multi-threaded save
-        futures.push_back((*j)->CaptureAndSaveImage(file, height));
-      } else {
-        // Single-threaded save
-        if (height == -1)
-          (*j)->GetGLViewer()->SavePicture(file);
-        else
-          (*j)->GetGLViewer()->SavePictureHeight(file, height);
-      }
+      // Multi-threaded save
+      futures.push_back((*j)->CaptureAndSaveImage(file, height));
+
+      // Single-threaded save
+      // if (height == -1)
+      //   (*j)->GetGLViewer()->SavePicture(file);
+      // else
+      //   (*j)->GetGLViewer()->SavePictureHeight(file, height);
     }
   }
 
