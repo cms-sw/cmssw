@@ -17,5 +17,16 @@ def _addProcesshltInitialStepMkFitConfig(process):
         minPt = cms.double(0.8)
     )
 
+def _addProcesshltLSTStepMkFitConfig(process):
+    process.hltInitialStepTrackCandidatesMkFitConfig = cms.ESProducer("MkFitIterationConfigESProducer",
+        ComponentName = cms.string('hltInitialStepTrackCandidatesMkFitConfig'),
+        appendToDataLabel = cms.string(''),
+        config = cms.FileInPath('RecoTracker/MkFit/data/mkfit-phase2-lstStep.json'),
+        maxClusterSize = cms.uint32(8),
+        minPt = cms.double(0.9)
+    )
+
 from Configuration.ProcessModifiers.hltTrackingMkFitInitialStep_cff import hltTrackingMkFitInitialStep
-modifyConfigurationForTrackingMkFithltInitialStepMkFitConfig_ = hltTrackingMkFitInitialStep.makeProcessModifier(_addProcesshltInitialStepMkFitConfig)
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+modifyConfigurationForTrackingMkFithltInitialStepMkFitConfig_ = (~seedingLST & hltTrackingMkFitInitialStep).makeProcessModifier(_addProcesshltInitialStepMkFitConfig)
+modifyConfigurationForTrackingMkFithltLSTStepMkFitConfig_ = (seedingLST & hltTrackingMkFitInitialStep).makeProcessModifier(_addProcesshltLSTStepMkFitConfig)
