@@ -4,9 +4,13 @@
 
 #include <algorithm>
 #include <cassert>
+#include <ranges>
 #include <span>
 #include <stdexcept>
 #include <vector>
+
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
 
 namespace edm {
 
@@ -28,6 +32,13 @@ namespace edm {
   class MultiSpan {
   public:
     MultiSpan() = default;
+
+    MultiSpan(const RefProdVector<std::vector<T>>& refProducts) {
+      std::ranges::for_each(refProducts, [&](auto const& rp) {
+        if (rp.isNonnull())
+          add(*rp);
+      });
+    }
 
     void add(std::span<const T> sp) {
       // Empty spans are not added to reduce the number of spans and speed up the binary search

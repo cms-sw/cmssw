@@ -76,16 +76,12 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
       label_layerClustersPlots_(pset.getParameter<std::string>("label_layerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<std::string>("label_LCToCPLinking")),
-      hits_labels_(pset.getParameter<std::vector<edm::InputTag>>("hits")),
+      hitsToken_(consumes<edm::RefProdVector<reco::PFRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))),
       scToCpMapToken_(
           consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))) {
   //In this way we can easily generalize to associations between other objects also.
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
   const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
-
-  for (auto& label : hits_labels_) {
-    hits_tokens_.push_back(consumes<std::vector<reco::PFRecHit>>(label));
-  }
 
   label_cp_effic = consumes<std::vector<CaloParticle>>(label_cp_effic_tag);
   label_cp_fake = consumes<std::vector<CaloParticle>>(label_cp_fake_tag);
@@ -280,17 +276,23 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(barrelHitMap_, barrelHitMapHandle);
   const std::unordered_map<DetId, const unsigned int>& barrelHitMap = *barrelHitMapHandle;
 
-  edm::MultiSpan<reco::PFRecHit> barrelRechitSpan;
-  for (unsigned int i = 0; i < hits_tokens_.size(); ++i) {
-    Handle<std::vector<reco::PFRecHit>> hitsHandle;
-    event.getByToken(hits_tokens_[i], hitsHandle);
+  if (!event.getHandle(hitsToken_).isValid()) {
+    edm::LogWarning("BarrelValidator") << "edm::RefProdVector<reco::PFRecHitCollection> token is not valid.";
+    return;
+  }
 
-    if (!hitsHandle.isValid()) {
-      edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
-      continue;
+  // Protection against missing edm::RefProdVector<reco::PFRecHitCollection>
+  const auto& hits = event.get(hitsToken_);
+  for (std::size_t index = 0; const auto& pfRecHitCollection : hits) {
+    if (pfRecHitCollection->empty()) {
+      edm::LogWarning("BarrelValidator") << "PFRecHitCollections #" << index << " is not valid.";
     }
+    index++;
+  }
 
-    barrelRechitSpan.add(*hitsHandle);
+  edm::MultiSpan<reco::PFRecHit> barrelRechitSpan(hits);
+  if (barrelRechitSpan.size() == 0) {
+    edm::LogWarning("BarrelValidator") << "The PFRecHitCollection MultiSpan is empty.";
   }
 
   //Some general info on layers etc.
@@ -519,12 +521,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd1.add<int>("nintZ", 1100);
     desc.add<edm::ParameterSetDescription>("histoProducerAlgoBlock", psd1);
   }
-  desc.add<std::vector<edm::InputTag>>("hits",
-                                       {
-                                           edm::InputTag("particleFlowRecHitECAL"),
-                                           edm::InputTag("particleFlowRecHitHBHE"),
-                                       });
-
+  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorPFRecHitCollection"));
   desc.add<edm::InputTag>("label_lcl", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<std::vector<edm::InputTag>>("label_tst",
                                        {

@@ -17,7 +17,6 @@ _endcapAlgo = cms.PSet(
     adcNbits      = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcNbits,
     adcSaturation = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcSaturation_MIP,
     toaLSB_ns     = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns,
-    tofDelay      = mtdDigitizer.endcapDigitizer.DeviceSimulation.tofDelay,
     timeResolutionInNs = cms.string("0.0370"), # [ns]
     timeCorr_p0 = cms.double(0.967683), # 0.974683 - 0.007, ad hoc correction for bias from global delay removal
     timeCorr_p1 = cms.double(-0.237274),
