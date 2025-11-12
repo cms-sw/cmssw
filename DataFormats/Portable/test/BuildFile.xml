@@ -1,15 +1,24 @@
 <bin name="TestDataFormatsPortableOnHost" file="test_catch2_*.cc">
-  <use name="DataFormats/Portable"/>
-  <use name="DataFormats/SoATemplate"/>
   <use name="catch2"/>
   <use name="eigen"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/SoATemplate"/>
 </bin>
 
 <bin name="TestDataFormatsPortableHeterogenous" file="alpaka/test_catch2_heterogeneousDeepCopy.dev.cc">
-  <use name="DataFormats/Portable"/>
-  <use name="DataFormats/SoATemplate"/>
   <use name="catch2"/>
   <use name="eigen"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin name="TestDataFormatsPortableSoABlocks" file="alpaka/test_catch2_heterogeneousSoABlocks.dev.cc">
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/SoATemplate"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
