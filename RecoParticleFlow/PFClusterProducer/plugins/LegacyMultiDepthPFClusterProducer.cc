@@ -39,7 +39,7 @@ public:
   LegacyMultiDepthPFClusterProducer(edm::ParameterSet const& config)
       : pfClusterSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
         pfRecHitFractionSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
-        InputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
+        inputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
         legacyPfClustersToken_(produces()),
         recHitsLabel_(consumes(config.getParameter<edm::InputTag>("recHitsSource"))),
         hcalCutsToken_(esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"))),
@@ -67,7 +67,7 @@ public:
       if (!cConf.empty()) {
         const std::string& cName = cConf.getParameter<std::string>("algoName");
         if (!cName.empty())
-          _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
+          energyCorrector_ = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
       }
     }
   }
@@ -128,7 +128,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   const edm::EDGetTokenT<reco::PFClusterHostCollection> pfClusterSoAToken_;
   const edm::EDGetTokenT<reco::PFRecHitFractionHostCollection> pfRecHitFractionSoAToken_;
-  const edm::EDGetTokenT<reco::PFRecHitHostCollection> InputPFRecHitSoA_Token_;
+  const edm::EDGetTokenT<reco::PFRecHitHostCollection> inputPFRecHitSoA_Token_;
   const edm::EDPutTokenT<reco::PFClusterCollection> legacyPfClustersToken_;
   const edm::EDGetTokenT<reco::PFRecHitCollection> recHitsLabel_;
   const edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
@@ -136,11 +136,11 @@ private:
   // the actual algorithm
   std::unique_ptr<PFCPositionCalculatorBase> positionCalc_;
   std::unique_ptr<PFCPositionCalculatorBase> allCellsPositionCalc_;
-  std::unique_ptr<PFClusterEnergyCorrectorBase> _energyCorrector;
+  std::unique_ptr<PFClusterEnergyCorrectorBase> energyCorrector_;
 };
 
 void LegacyMultiDepthPFClusterProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
-  const reco::PFRecHitHostCollection& pfRecHits = event.get(InputPFRecHitSoA_Token_);
+  const reco::PFRecHitHostCollection& pfRecHits = event.get(inputPFRecHitSoA_Token_);
 
   HcalPFCuts const* paramPF = cutsFromDB_ ? &setup.getData(hcalCutsToken_) : nullptr;
 
@@ -179,7 +179,7 @@ void LegacyMultiDepthPFClusterProducer::produce(edm::Event& event, const edm::Ev
     int const offset = pfClusterSoA[i].rhfracOffset();
     int const size = pfClusterSoA[i].rhfracSize();
 
-    for (int k = offset; k < (offset + size) && k >= 0; k++) {  // Looping over PFRecHits in the same topo cluster
+    for (int k = offset; k < (offset + size); k++) {  // Looping over PFRecHits in the same topo cluster
       if (pfRecHitFractionSoA[k].pfrhIdx() < nRH && pfRecHitFractionSoA[k].pfrhIdx() > -1 &&
           pfRecHitFractionSoA[k].frac() > 0.0f) {
         const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechitsHandle, pfRecHitFractionSoA[k].pfrhIdx());
