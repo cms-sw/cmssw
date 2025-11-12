@@ -98,6 +98,10 @@ namespace portablecollection {
   template <typename T, typename... Args>
   inline constexpr std::size_t typeIndex = TypeIndex<T, Args...>::value;
 
+  // concept to check if a Layout has a static member blocksNumber
+  template <class L>
+  concept hasBlocksNumber = requires { L::blocksNumber; };
+
 }  // namespace portablecollection
 
 #endif  // DataFormats_Portable_interface_PortableCollectionCommon_h
