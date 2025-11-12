@@ -38,7 +38,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Reflection/interface/DictionaryTools.h"
 
 namespace edm {
