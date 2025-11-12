@@ -29,7 +29,7 @@ digiTask = DQMEDAnalyzer(
 
 	#	ratio thresholds
 	thresh_unifh = cms.untracked.double(0.2),
-	thresh_led = cms.untracked.double(20),
+	thresh_led = cms.untracked.double(60),
     thresh_laser = cms.untracked.double(60),
 	thresh_raddam = cms.untracked.double(20),
 
