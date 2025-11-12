@@ -629,7 +629,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       0.,
       256.,
       0.,
-      1024.);
+      2048.);
   meHitTvsQ_[1] =
       ibook.bookProfile("EtlHitTvsQZnegD2",
                         "ETL DIGI ToA vs charge (-Z, Second Disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
@@ -637,7 +637,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         0.,
                         256.,
                         0.,
-                        1024.);
+                        2048.);
   meHitTvsQ_[2] = ibook.bookProfile(
       "EtlHitTvsQZposD1",
       "ETL DIGI ToA vs charge (+Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
@@ -645,7 +645,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       0.,
       256.,
       0.,
-      1024.);
+      2048.);
   meHitTvsQ_[3] =
       ibook.bookProfile("EtlHitTvsQZposD2",
                         "ETL DIGI ToA vs charge (+Z, Second disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
@@ -653,7 +653,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         0.,
                         256.,
                         0.,
-                        1024.);
+                        2048.);
   meHitToTvsQ_[0] = ibook.bookProfile(
       "EtlHitToTvsQZnegD1",
       "ETL DIGI ToT vs charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts];ToT_{DIGI} [TDC counts]",
@@ -661,7 +661,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       0.,
       256.,
       0.,
-      1024.);
+      2048.);
   meHitToTvsQ_[1] =
       ibook.bookProfile("EtlHitToTvsQZnegD2",
                         "ETL DIGI ToT vs charge (-Z, Second Disk);Q_{DIGI} [ADC counts];ToT_{DIGI} [TDC counts]",
@@ -669,7 +669,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         0.,
                         256.,
                         0.,
-                        1024.);
+                        2048.);
   meHitToTvsQ_[2] = ibook.bookProfile(
       "EtlHitToTvsQZposD1",
       "ETL DIGI ToT vs charge (+Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts];ToT_{DIGI} [TDC counts]",
@@ -677,7 +677,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       0.,
       256.,
       0.,
-      1024.);
+      2048.);
   meHitToTvsQ_[3] =
       ibook.bookProfile("EtlHitToTvsQZposD2",
                         "ETL DIGI ToT vs charge (+Z, Second disk);Q_{DIGI} [ADC counts];ToT_{DIGI} [TDC counts]",
@@ -685,7 +685,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         0.,
                         256.,
                         0.,
-                        1024.);
+                        2048.);
   meHitQvsPhi_[0] = ibook.bookProfile(
       "EtlHitQvsPhiZnegD1",
       "ETL DIGI charge vs #phi (-Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
@@ -755,7 +755,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       -3.15,
       3.15,
       0.,
-      1024.);
+      2048.);
   meHitTvsPhi_[1] =
       ibook.bookProfile("EtlHitTvsPhiZnegD2",
                         "ETL DIGI ToA vs #phi (-Z, Second disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
@@ -763,7 +763,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         -3.15,
                         3.15,
                         0.,
-                        1024.);
+                        2048.);
   meHitTvsPhi_[2] = ibook.bookProfile(
       "EtlHitTvsPhiZposD1",
       "ETL DIGI ToA vs #phi (+Z, Single(topo1D)/First(topo2D) disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
@@ -771,7 +771,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       -3.15,
       3.15,
       0.,
-      1024.);
+      2048.);
   meHitTvsPhi_[3] =
       ibook.bookProfile("EtlHitTvsPhiZposD2",
                         "ETL DIGI ToA vs #phi (+Z, Second disk);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
@@ -779,7 +779,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         -3.15,
                         3.15,
                         0.,
-                        1024.);
+                        2048.);
   meHitTvsEta_[0] = ibook.bookProfile(
       "EtlHitTvsEtaZnegD1",
       "ETL DIGI ToA vs #eta (-Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
@@ -787,14 +787,14 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       -3.2,
       -1.56,
       0.,
-      1024.);
+      2048.);
   meHitTvsEta_[1] = ibook.bookProfile("EtlHitTvsEtaZnegD2",
                                       "ETL DIGI ToA vs #eta (-Z, Second disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
                                       50,
                                       -3.2,
                                       -1.56,
                                       0.,
-                                      1024.);
+                                      2048.);
   meHitTvsEta_[2] = ibook.bookProfile(
       "EtlHitTvsEtaZposD1",
       "ETL DIGI ToA vs #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
@@ -802,14 +802,14 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
       1.56,
       3.2,
       0.,
-      1024.);
+      2048.);
   meHitTvsEta_[3] = ibook.bookProfile("EtlHitTvsEtaZposD2",
                                       "ETL DIGI ToA vs #eta (+Z, Second disk);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
                                       50,
                                       1.56,
                                       3.2,
                                       0.,
-                                      1024.);
+                                      2048.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
