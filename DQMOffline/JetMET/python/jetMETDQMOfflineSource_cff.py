@@ -224,6 +224,7 @@ _jetMETDQMOfflineSourceWithPUPPI = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
 jetMETDQMOfflineSourceScouting = cms.Sequence(jetDQMAnalyzerSequenceScouting,
                                               jetPreDQMTaskScouting,
                                               dqmAk4PFScoutingL1FastL2L3ResidualCorrectorTask)
+jetMETDQMOfflineSourceScoutingNoCorrection = cms.Sequence(jetDQMAnalyzerSequenceScoutingNoCorrection)
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (~pp_on_AA).toReplaceWith(jetMETDQMOfflineSource, _jetMETDQMOfflineSourceWithPUPPI)

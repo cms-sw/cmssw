@@ -32,6 +32,11 @@ DQMOfflineDCS = cms.Sequence( dqmProvInfo )
 
 # HLT Scouting trigger sequence
 DQMOfflineScouting = cms.Sequence( hltScoutingDqmOffline ) 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+## Remove Scouting DQM in run1/2 eras and phase2
+(~run3_common | phase2_common).toReplaceWith(DQMOfflineScouting, cms.Sequence( ))
+DQMOfflineScoutingForRelVals.replace(hltScoutingDqmOffline, hltScoutingJetDqmOfflineForRelVals)
 
 # HLT Heterogeneous monitoring sequence
 DQMOfflineHLTGPUvsCPU =  cms.Sequence( HLTHeterogeneousMonitoringSequence )
@@ -147,11 +152,6 @@ DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineTrigger = cms.Sequence( triggerOfflineDQMSource )
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-## Remove Scouting DQM in run1/2 eras and phase2
-(~run3_common | phase2_common).toReplaceWith(DQMOfflineScouting, cms.Sequence( ))
-
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 
@@ -166,7 +166,7 @@ DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
                                  DQMOfflineJetMET *
                                  DQMOfflineEGamma *
                                  DQMOfflineTrigger *
-                                 DQMOfflineScouting *
+                                 DQMOfflineScoutingForRelVals *
                                  DQMOfflineBTag *
                                  DQMOfflineBeam *
                                  DQMOfflinePhysics )
@@ -210,7 +210,7 @@ DQMOfflineExtraHLT = cms.Sequence( offlineValidationHLTSource )
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
 DQMOfflineFakeHLT.remove( DQMOfflineTrigger )
-DQMOfflineFakeHLT.remove( DQMOfflineScouting )
+DQMOfflineFakeHLT.remove( DQMOfflineScoutingForRelVals )
 #MC
 DQMOfflinePrePOGMC = cms.Sequence( DQMOfflineVertex *
                                    DQMOfflineBTag *
@@ -249,7 +249,7 @@ DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
 				 DQMOfflineTrackerPixel *
                                  DQMOfflineTracking *
                                  DQMOfflineTrigger *
-                                 DQMOfflineScouting *
+                                 DQMOfflineScoutingForRelVals *
                                  DQMOfflineBeam *
                                  DQMOfflineCASTOR *
                                  DQMOfflinePhysics *
@@ -258,7 +258,7 @@ DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
 
 DQMOfflineCommonFakeHLT = cms.Sequence( DQMOfflineCommon )
 DQMOfflineCommonFakeHLT.remove( DQMOfflineTrigger )
-DQMOfflineCommonFakeHLT.remove( DQMOfflineScouting )
+DQMOfflineCommonFakeHLT.remove( DQMOfflineScoutingForRelVals )
 
 #MinBias/ZeroBias
 DQMOfflineTrackerStripMinBias = cms.Sequence( SiStripDQMTier0MinBias )
