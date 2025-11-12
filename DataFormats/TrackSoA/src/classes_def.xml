@@ -4,6 +4,9 @@
   <class name="reco::TrackHitsLayout<128, false>"/>
 
   <class name="reco::TracksHost" rntupleStreamerMode="true"/>
+  <!-- In principle this should not be necessary, but it looks like it is triggering a bug (?) in ROOT/cling. -->
+  <!-- For more details see the discussion in #49333 and #49360. -->
+  <class name="reco::TracksHost::Implementation"/>
   <class name="edm::Wrapper<reco::TracksHost>" splitLevel="0"/>
 
   <!-- Recursive templates (with no data) ensuring we have one CollectionLeaf<index, type> for each layout in the collection -->
