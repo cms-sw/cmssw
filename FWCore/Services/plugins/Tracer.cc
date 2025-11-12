@@ -302,6 +302,19 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
     LogAbsolute out("Tracer");
     out << TimeStamper(printTimestamps_) << indention_ << " starting: construction of EventSetup modules";
   });
+  iRegistry.watchPreESModuleConstruction([this](eventsetup::ComponentDescription const& iDesc) {
+    LogAbsolute out("Tracer");
+    auto label = iDesc.label_.empty() ? iDesc.type_ : iDesc.label_;
+    out << TimeStamper(printTimestamps_) << indention_ << indention_ << " starting: constructing esmodule with label '"
+        << label << "' id = " << iDesc.id_;
+  });
+  iRegistry.watchPostESModuleConstruction([this](eventsetup::ComponentDescription const& iDesc) {
+    LogAbsolute out("Tracer");
+    auto label = iDesc.label_.empty() ? iDesc.type_ : iDesc.label_;
+    out << TimeStamper(printTimestamps_) << indention_ << indention_ << " finished: constructing esmodule with label '"
+        << label << "' id = " << iDesc.id_;
+  });
+
   iRegistry.watchPostEventSetupModulesConstruction([this]() {
     LogAbsolute out("Tracer");
     out << TimeStamper(printTimestamps_) << indention_ << " finished: construction of EventSetup modules";
