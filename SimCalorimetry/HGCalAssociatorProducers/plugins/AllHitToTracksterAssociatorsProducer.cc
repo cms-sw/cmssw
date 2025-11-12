@@ -10,6 +10,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
 class AllHitToTracksterAssociatorsProducer : public edm::global::EDProducer<> {
@@ -25,20 +26,17 @@ private:
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<ticl::Trackster>>>> tracksterCollectionTokens_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClustersToken_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hitsTokens_;
+  edm::EDGetTokenT<edm::RefProdVector<HGCRecHitCollection>> hitsToken_;
 };
 
 AllHitToTracksterAssociatorsProducer::AllHitToTracksterAssociatorsProducer(const edm::ParameterSet& pset)
     : layerClustersToken_(consumes<std::vector<reco::CaloCluster>>(pset.getParameter<edm::InputTag>("layerClusters"))),
       hitMapToken_(
-          consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMapTag"))) {
+          consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMapTag"))),
+      hitsToken_(consumes<edm::RefProdVector<HGCRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))) {
   const auto& tracksterCollections = pset.getParameter<std::vector<edm::InputTag>>("tracksterCollections");
   for (const auto& tag : tracksterCollections) {
     tracksterCollectionTokens_.emplace_back(tag.label() + tag.instance(), consumes<std::vector<ticl::Trackster>>(tag));
-  }
-
-  for (const auto& tag : pset.getParameter<std::vector<edm::InputTag>>("hits")) {
-    hitsTokens_.emplace_back(consumes<HGCRecHitCollection>(tag));
   }
 
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
@@ -65,20 +63,25 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
   Handle<std::unordered_map<DetId, const unsigned int>> hitMap;
   iEvent.getByToken(hitMapToken_, hitMap);
 
-  edm::MultiSpan<HGCRecHit> rechitSpan;
-  for (const auto& token : hitsTokens_) {
-    Handle<HGCRecHitCollection> hitsHandle;
-    iEvent.getByToken(token, hitsHandle);
-
-    // Protection against missing HGCRecHitCollection
-    if (!hitsHandle.isValid()) {
-      edm::LogWarning("AllHitToTracksterAssociatorsProducer")
-          << "Missing HGCRecHitCollection for one of the hitsTokens.";
-      continue;
+  if (!iEvent.getHandle(hitsToken_)) {
+    edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "Missing edm::RefProdVector<HGCRecHitCollection>.";
+    for (const auto& tracksterToken : tracksterCollectionTokens_) {
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");
     }
-    rechitSpan.add(*hitsHandle);
+    return;
   }
 
+  // Protection against missing HGCRecHitCollection
+  const auto hits = iEvent.get(hitsToken_);
+  for (std::size_t index = 0; const auto& hgcRecHitCollection : hits) {
+    if (hgcRecHitCollection->empty()) {
+      edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "HGCRecHitCollections #" << index << " is not valid.";
+    }
+    index++;
+  }
+
+  edm::MultiSpan<HGCRecHit> rechitSpan(hits);
   // Check if rechitSpan is empty
   if (rechitSpan.size() == 0) {
     edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
@@ -135,10 +138,7 @@ void AllHitToTracksterAssociatorsProducer::fillDescriptions(edm::ConfigurationDe
                                         edm::InputTag("ticlCandidate")});
   desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
-  desc.add<std::vector<edm::InputTag>>("hits",
-                                       {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                        edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                        edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
+  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorHGCRecHitCollection"));
   descriptions.add("AllHitToTracksterAssociatorsProducer", desc);
 }
 
