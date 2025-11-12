@@ -30,6 +30,24 @@ ecalOnly_dqm_source_offline = cms.Sequence(
     ecalzmasstask
 )
 
+# Phase 2
+ecal_dqm_source_offline_phase2 = cms.Sequence(
+    dqmInfoEcal +
+    ecalMonitorTaskPhase2 +
+    ecalzmasstask +
+    ecalPileUpDepMonitor
+)
+
+ecalOnly_dqm_source_offline_phase2 = cms.Sequence(
+    dqmInfoEcal +
+    ecalMonitorTaskEcalOnlyPhase2 +
+    ecalzmasstask
+)
+
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(ecal_dqm_source_offline, ecal_dqm_source_offline_phase2)
+phase2_ecal_devel.toReplaceWith(ecalOnly_dqm_source_offline, ecalOnly_dqm_source_offline_phase2)
+
 ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = False
 ecalMonitorTaskEcalOnly.workerParameters.TrigPrimTask.params.runOnEmul = False
 ecalMonitorTaskEcalOnly.workerParameters.RecoSummaryTask.params.fillRecoFlagReduced = False

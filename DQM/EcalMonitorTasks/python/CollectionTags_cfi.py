@@ -58,3 +58,11 @@ ecalDQMCollectionTags = cms.PSet(
     EBGpuRecHit = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB"),
     EEGpuRecHit = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
 )
+
+ecalDQMCollectionTagsPhase2 = cms.PSet(
+    EBUncalibRecHit = cms.untracked.InputTag("ecalUncalibRecHitPhase2", "EcalUncalibRecHitsEB"),
+    EEUncalibRecHit = cms.untracked.InputTag("None"),
+    EBRecHit = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    EERecHit = cms.untracked.InputTag("None"),
+    EBReducedRecHit = cms.untracked.InputTag("reducedEcalRecHitsEB"),
+)
