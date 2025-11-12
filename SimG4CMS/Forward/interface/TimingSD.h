@@ -68,9 +68,6 @@ protected:
   // general method to determine classification of hit based on its properties
   virtual void setHitClassID(const G4Step*);
 
-  // testing whether the current timing detector is MTD
-  virtual bool isMTD() const { return false; }
-
 private:
   void getStepInfo(const G4Step*);
   bool hitExists(const G4Step*);
