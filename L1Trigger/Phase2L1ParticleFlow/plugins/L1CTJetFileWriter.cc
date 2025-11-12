@@ -52,6 +52,7 @@ private:
   std::vector<std::pair<bool, bool>> tokensToWrite_;
   std::vector<unsigned> nJets_;
   std::vector<unsigned> nSums_;
+  std::vector<l1t::PFJet::HWEncoding> jetEncodings_;
 };
 
 L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
@@ -111,7 +112,7 @@ void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
       std::stable_sort(
           sortedJets.begin(), sortedJets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.hwPt() > j.hwPt()); });
-      const auto outputJets(encodeJets(sortedJets, nJets_.at(iCollection)));
+      const auto outputJets(encodeJets(sortedJets, nJets_.at(iCollection), jetEncodings_.at(iCollection)));
       link_words.insert(link_words.end(), outputJets.begin(), outputJets.end());
     }
 
@@ -144,8 +145,8 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PF
   std::vector<ap_uint<64>> jet_words(2 * nJets, 0);  // allocate 2 words per jet
   for (unsigned i = 0; i < std::min(nJets, (uint)jets.size()); i++) {
     const l1t::PFJet& j = jets.at(i);
-    jet_words[2 * i] = j.encodedJet()[0];
-    jet_words[2 * i + 1] = j.encodedJet()[1];
+    jet_words[2 * i] = j.encodedJet(encoding)[0];
+    jet_words[2 * i + 1] = j.encodedJet(encoding)[1];
   }
   return jet_words;
 }
@@ -178,6 +179,7 @@ void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descrip
     vpsd1.addOptional<edm::InputTag>("mht");
     vpsd1.add<uint>("nJets", 0);
     vpsd1.add<uint>("nSums", 0);
+    vpsd1.add<std::string>("jetEncoding", "GT");
     desc.addVPSet("collections", vpsd1);
   }
   desc.add<std::string>("outputFilename");

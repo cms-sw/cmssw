@@ -80,7 +80,7 @@ process.L1TInputTask = cms.Task(
 
 
 from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
-l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4NGJetProducer","l1tSC4NGJets"),
+l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
                                                nJets = cms.uint32(12),
                                                mht = cms.InputTag("l1tMHTPFProducer"),
                                                nSums = cms.uint32(2),
@@ -90,6 +90,19 @@ l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4NGJetP
                                                jetEncoding = cms.string("GTWide"))
                                       ])
 process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(collections = l1ctLayer2SCJetsProducts)
+
+l1ctLayer2SC4NGJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4NGJetProducer","l1tSC4NGJets"),
+                                               nJets = cms.uint32(12),
+                                               mht = cms.InputTag("l1tNGMHTPFProducer"),
+                                               nSums = cms.uint32(2),
+                                               jetEncoding = cms.string("GT")),
+                                      cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
+                                               nJets = cms.uint32(12),
+                                               jetEncoding = cms.string("GTWide"))
+                                      ])
+process.l1tLayer2SeedConeNGJetWriter = l1tSeededConeJetFileWriter.clone(collections = l1ctLayer2SC4NGJetsProducts,
+                                                                        outputFilename = 'L1CTSCNGJetsPatterns')
+
 
 process.l1tLayer1BarrelTDR = process.l1tLayer1Barrel.clone()
 process.l1tLayer1BarrelTDR.regionizerAlgo = cms.string("TDR")
@@ -195,7 +208,7 @@ process.l1tSC4NGJetProducer.correctorFile = cms.string("L1Trigger/Phase2L1Partic
 process.l1tSC4NGJetProducer.correctorDir = cms.string("L1PuppiSC4EmuJets")
 
 from L1Trigger.Phase2L1ParticleFlow.l1tMHTPFProducer_cfi import l1tMHTPFProducer
-process.l1tMHTPFProducer.jets = cms.InputTag("l1tSC4NGJetProducer","l1tSC4NGJets")
+process.l1tNGMHTPFProducer = l1tMHTPFProducer.clone(jets = cms.InputTag("l1tSC4NGJetProducer","l1tSC4NGJets"))
 
 process.l1tLayer1HGCal.hgcalInputConversionParameters.emulateCorrections = True
 process.l1tLayer1HGCalElliptic.hgcalInputConversionParameters.emulateCorrections = True
@@ -220,6 +233,7 @@ process.runPF = cms.Path(
         process.l1tSC4PFL1PuppiCorrectedEmulator +
         process.l1tSC4NGJetProducer +
         process.l1tMHTPFProducer +
+        process.l1tNGMHTPFProducer +
         process.l1tSC4PFL1PuppiCorrectedEmulatorMHT +
         process.l1tSC8PFL1PuppiCorrectedEmulator +
         # process.l1tLayer2SeedConeJetWriter +
@@ -242,7 +256,8 @@ if not args.patternFilesOFF:
 if not args.patternFilesOFF:
     process.runPF.insert(process.runPF.index(process.l1tSC8PFL1PuppiCorrectedEmulator)+1, process.l1tLayer2SeedConeJetWriter)
     process.l1tLayer2SeedConeJetWriter.maxLinesPerFile = _eventsPerFile*54
-
+    process.runPF.insert(process.runPF.index(process.l1tLayer2SeedConeJetWriter)+1, process.l1tLayer2SeedConeNGJetWriter)
+    process.l1tLayer2SeedConeNGJetWriter.maxLinesPerFile = _eventsPerFile*54
 if not args.dumpFilesOFF:
     for det in "Barrel", "BarrelTDR", "BarrelSerenity", "HGCal", "HGCalElliptic", "HGCalNoTK", "HF":
         l1pf = getattr(process, 'l1tLayer1'+det)
