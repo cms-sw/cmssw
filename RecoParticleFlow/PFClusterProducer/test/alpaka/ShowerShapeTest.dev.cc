@@ -149,14 +149,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t items = 1024;
 
     auto n = static_cast<uint32_t>(pfClusters->metadata().size());
-    uint32_t groups = cms::alpakatools::divide_up_by(n, items);
+    uint32_t groups = ::cms::alpakatools::divide_up_by(n, items);
 
     if (groups < 1) {
       printf("Skip kernel launch...\n");
       return;
     }
 
-    auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
+    auto workDiv = ::cms::alpakatools::make_workdiv<Acc1D>(groups, items);
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
@@ -479,7 +479,7 @@ using namespace std;
 
 int main() {
   // get the list of devices on the current platform
-  auto const& devices = cms::alpakatools::devices<Platform>();
+  auto const& devices = ::cms::alpakatools::devices<Platform>();
   if (devices.empty()) {
     std::cerr << "No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
       "the test will be skipped.\n";

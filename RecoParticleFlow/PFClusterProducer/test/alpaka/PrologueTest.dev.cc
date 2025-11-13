@@ -35,7 +35,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringVarsHostCollection.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringCCLabelsHostCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringEdgeVarsHostCollection.h"
 
 using namespace reco;
@@ -46,12 +46,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     void apply(Queue &queue,
                reco::PFMultiDepthClusteringEdgeVarsDeviceCollection &pfClusteringEdgeVars,
-               const reco::PFMultiDepthClusteringVarsDeviceCollection &mdpfClusteringVars) const;
+               const reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars) const;
   };
 
   void PrologueTest::apply(Queue &queue,
                            reco::PFMultiDepthClusteringEdgeVarsDeviceCollection &pfClusteringEdgeVars,
-                           const reco::PFMultiDepthClusteringVarsDeviceCollection &mdpfClusteringVars) const {
+                           const reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars) const {
     uint32_t items = 128;
 
     auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
@@ -73,19 +73,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void launch_prologue_test(Queue &queue,
                             ::reco::PFMultiDepthClusteringEdgeVarsHostCollection &hostClusteringEdgeVars,
-                            const ::reco::PFMultiDepthClusteringVarsHostCollection &hostClusteringVars) {
+                            const ::reco::PFMultiDepthClusteringCCLabelsHostCollection &hostClusteringCCLabels) {
     PrologueTest prologue_test{};
 
-    auto hClusteringVars = hostClusteringVars.view();
+    auto hClusteringCCLabels = hostClusteringCCLabels.view();
 
-    const int nClusters = hClusteringVars.size();
+    const int nClusters = hClusteringCCLabels.size();
 
-    reco::PFMultiDepthClusteringVarsDeviceCollection devClusteringVars{nClusters, queue};
+    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringCCLabels{nClusters, queue};
     reco::PFMultiDepthClusteringEdgeVarsDeviceCollection devClusteringEdgeVars{2 * nClusters, queue};
 
-    alpaka::memcpy(queue, devClusteringVars.buffer(), hostClusteringVars.buffer());
+    alpaka::memcpy(queue, devClusteringCCLabels.buffer(), hostClusteringCCLabels.buffer());
 
-    prologue_test.apply(queue, devClusteringEdgeVars, devClusteringVars);
+    prologue_test.apply(queue, devClusteringEdgeVars, devClusteringCCLabels);
 
     alpaka::wait(queue);
 
@@ -95,7 +95,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::wait(queue);
 
-    for (int i = 0; i < 2 * nClusters; i++) {
+    for (int i = 0; i < nClusters; i++) {
       const int begin = hClusteringEdgeVars[i].mdpf_adjacencyIndex();
       const int end = hClusteringEdgeVars[i + 1].mdpf_adjacencyIndex();
 
@@ -129,10 +129,10 @@ std::vector<std::vector<int>> buildAdj(const std::vector<int> &v) {
   return adj;
 }
 
-void create(::reco::PFMultiDepthClusteringVarsHostCollection &hostClusteringVars,
+void create(::reco::PFMultiDepthClusteringCCLabelsHostCollection &hostClusteringCCLabels,
             const std::vector<int> &roots,
             const int nClusters) {
-  auto hClusteringVars = hostClusteringVars.view();
+  auto hClusteringCCLabels = hostClusteringCCLabels.view();
 
   std::mt19937 rng(12345);
 
@@ -148,16 +148,7 @@ void create(::reco::PFMultiDepthClusteringVarsHostCollection &hostClusteringVars
   }
 
   for (int i = 0; i < nClusters; ++i) {
-    hClusteringVars[i].depth() = 1.f;
-    hClusteringVars[i].energy() = 0.f;
-
-    hClusteringVars[i].eta() = 0.;
-    hClusteringVars[i].phi() = 0.;
-
-    hClusteringVars[i].etaRMS2() = 0.;
-    hClusteringVars[i].phiRMS2() = 0.;
-
-    hClusteringVars[i].mdpf_topoId() = vx[i];
+    hClusteringCCLabels[i].mdpf_topoId() = vx[i];
   }
 
   auto adj = buildAdj(vx);
@@ -193,15 +184,15 @@ int main() {
   for (auto const &device : devices) {
     auto queue = Queue(device);
 
-    ::reco::PFMultiDepthClusteringVarsHostCollection hostClusteringVars{nClusters, queue};
+    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringCCLabels{nClusters, queue};
     ::reco::PFMultiDepthClusteringEdgeVarsHostCollection hostClusteringEdgeVars{2 * nClusters, queue};
 
-    auto hClusteringVars = hostClusteringVars.view();
-    hClusteringVars.size() = nClusters;
+    auto hClusteringCCLabels = hostClusteringCCLabels.view();
+    hClusteringCCLabels.size() = nClusters;
 
-    create(hostClusteringVars, roots, nClusters);
+    create(hostClusteringCCLabels, roots, nClusters);
 
-    launch_prologue_test(queue, hostClusteringEdgeVars, hostClusteringVars);
+    launch_prologue_test(queue, hostClusteringEdgeVars, hostClusteringCCLabels);
   }
 
   return 0;
