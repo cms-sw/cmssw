@@ -65,11 +65,13 @@ namespace ticl {
 template <typename HIT, typename CLUSTER>
 class LCToSCAssociatorByEnergyScoreImplT : public ticl::LayerClusterToSimClusterAssociatorBaseImplT<CLUSTER> {
 public:
+  using multiCollectionT = std::vector<edm::RefProd<std::vector<HIT>>>;
+
   explicit LCToSCAssociatorByEnergyScoreImplT(edm::EDProductGetter const &,
                                               bool,
                                               std::shared_ptr<hgcal::RecHitTools>,
                                               const std::unordered_map<DetId, const unsigned int> *,
-                                              std::vector<const HIT *> &hits);
+                                              const multiCollectionT &hits);
 
   ticl::RecoToSimCollectionWithSimClustersT<CLUSTER> associateRecoToSim(
       const edm::Handle<CLUSTER> &cCH, const edm::Handle<SimClusterCollection> &sCCH) const override;
@@ -85,7 +87,7 @@ private:
   edm::EDProductGetter const *productGetter_;
   ticl::association makeConnections(const edm::Handle<CLUSTER> &cCH,
                                     const edm::Handle<SimClusterCollection> &sCCH) const;
-  std::vector<const HIT *> hits_;
+  multiCollectionT hits_;
 };
 
 extern template class LCToSCAssociatorByEnergyScoreImplT<HGCRecHit, reco::CaloClusterCollection>;

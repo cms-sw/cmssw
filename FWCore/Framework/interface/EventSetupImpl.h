@@ -38,6 +38,8 @@ namespace edm {
   class Schedule;
   class ServiceToken;
   class WaitingTaskHolder;
+  class EventSetupImpl;
+  EventSetupImpl makeEmptyEventSetupImplForTest();
 
   namespace eventsetup {
     class EventSetupProvider;
@@ -49,7 +51,9 @@ namespace edm {
   public:
     ~EventSetupImpl();
     EventSetupImpl(EventSetupImpl const&) = delete;
+    EventSetupImpl(EventSetupImpl&&) = default;
     EventSetupImpl& operator=(EventSetupImpl const&) = delete;
+    EventSetupImpl& operator=(EventSetupImpl&&) = default;
 
     // ---------- const member functions ---------------------
     eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
@@ -75,6 +79,7 @@ namespace edm {
     friend class ::testEventsetup;
     friend class ::testEventsetupRecord;
     friend class ProcessBlockTransitionInfo;
+    friend EventSetupImpl makeEmptyEventSetupImplForTest();
 
   protected:
     void addRecordImpl(const eventsetup::EventSetupRecordImpl& iRecord);

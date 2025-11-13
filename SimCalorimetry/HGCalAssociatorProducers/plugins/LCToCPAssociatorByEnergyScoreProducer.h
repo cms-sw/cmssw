@@ -18,11 +18,14 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "LCToCPAssociatorByEnergyScoreImpl.h"
 
+#include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
 template <typename HIT, typename CLUSTER>
 class LCToCPAssociatorByEnergyScoreProducerT : public edm::global::EDProducer<> {
 public:
+  using multiCollectionT = edm::RefProdVector<std::vector<HIT>>;
+
   explicit LCToCPAssociatorByEnergyScoreProducerT(const edm::ParameterSet &);
   ~LCToCPAssociatorByEnergyScoreProducerT() override;
 
@@ -34,8 +37,7 @@ private:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
-  std::vector<edm::InputTag> hits_label_;
-  std::vector<edm::EDGetTokenT<std::vector<HIT>>> hits_token_;
+  edm::EDGetTokenT<multiCollectionT> hits_token_;
 };
 
 template class LCToCPAssociatorByEnergyScoreProducerT<HGCRecHit, reco::CaloClusterCollection>;
