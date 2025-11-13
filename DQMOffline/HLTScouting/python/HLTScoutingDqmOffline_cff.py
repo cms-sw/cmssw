@@ -34,3 +34,5 @@ hltScoutingJetDqmOfflineForRelVals = cms.Sequence(jetMETDQMOfflineSourceScouting
 hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
 
 hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline + hltScoutingEGammaDqmOffline + hltScoutingJetDqmOffline + hltScoutingCollectionMonitor)
+hltScoutingDqmOfflineForRelVals = hltScoutingDqmOffline.copy()
+hltScoutingDqmOfflineForRelVals.replace(hltScoutingJetDqmOffline, hltScoutingJetDqmOfflineForRelVals)
