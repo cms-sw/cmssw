@@ -20,7 +20,7 @@
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterECLCC.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringVarsHostCollection.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringCCLabelsHostCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringEdgeVarsHostCollection.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringVarsDeviceCollection.h"
@@ -35,13 +35,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class ECLCCTest {
   public:
     void apply(Queue& queue,
-               reco::PFMultiDepthClusteringVarsDeviceCollection&,
+               reco::PFMultiDepthClusteringCCLabelsDeviceCollection&,
                const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection&,
                const int) const;
   };
 
   void ECLCCTest::apply(Queue& queue,
-                        reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars,
+                        reco::PFMultiDepthClusteringCCLabelsDeviceCollection& mdpfClusteringCCLabels,
                         const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection& mdpfClusteringEdgeVars,
                         const int nClusters) const {
     uint32_t items = 224;
@@ -50,53 +50,57 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
 
-    auto workl = ::cms::alpakatools::make_device_buffer<int[]>(queue, nClusters);
-    auto tp = ::cms::alpakatools::make_device_buffer<int[]>(queue, 4);
-    // Create algorithm internal resources:
-    auto cc_args = eclcc::CCGAlgorithmArgs<decltype(workl)>(
-        queue, mdpfClusteringVars, mdpfClusteringEdgeVars, workl, tp, nClusters);
-
-    auto cc_args_ptr = &cc_args;
     // ECL-CC init stage:
-    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCInitKernel{}, cc_args_ptr);
-
+    alpaka::exec<Acc1D>(
+        queue, workDiv, eclcc::ECLCCInitKernel{}, mdpfClusteringCCLabels.view(), mdpfClusteringEdgeVars.view());
     // ECL-CC run low-degree hooking:
-    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCLowDegreeComputeKernel{}, cc_args_ptr);
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        eclcc::ECLCCLowDegreeComputeKernel{},
+                        mdpfClusteringCCLabels.view(),
+                        mdpfClusteringEdgeVars.view());
     // ECL-CC run mid-degree hooking:
-    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCMidDegreeComputeKernel{}, cc_args_ptr);
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        eclcc::ECLCCMidDegreeComputeKernel{},
+                        mdpfClusteringCCLabels.view(),
+                        mdpfClusteringEdgeVars.view());
     // ECL-CC run high-degree hooking:
-    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCHighDegreeComputeKernel{}, cc_args_ptr);
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        eclcc::ECLCCHighDegreeComputeKernel{},
+                        mdpfClusteringCCLabels.view(),
+                        mdpfClusteringEdgeVars.view());
     // ECL-CC run finalizing stage:
-    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCFlattenKernel{}, cc_args_ptr);
-
+    alpaka::exec<Acc1D>(queue, workDiv, eclcc::ECLCCFlattenKernel{}, mdpfClusteringCCLabels.view());
     alpaka::wait(queue);
   }
 
   void launch_eclcc_test(Queue& queue,
-                         ::reco::PFMultiDepthClusteringVarsHostCollection& hostClusteringVars,
+                         ::reco::PFMultiDepthClusteringCCLabelsHostCollection& hostClusteringCCLabels,
                          const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection& hostClusteringEdgeVars) {
     ECLCCTest eclcc_test{};
 
-    auto hClusteringVars = hostClusteringVars.view();
+    auto hClusteringCCLabels = hostClusteringCCLabels.view();
 
-    const int nClusters = hClusteringVars.size();
+    const int nClusters = hClusteringCCLabels.size();
 
-    reco::PFMultiDepthClusteringVarsDeviceCollection devClusteringVars{nClusters, queue};
+    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringCCLabels{nClusters, queue};
     reco::PFMultiDepthClusteringEdgeVarsDeviceCollection devClusteringEdgeVars{2 * nClusters, queue};
 
-    alpaka::memcpy(queue, devClusteringVars.buffer(), hostClusteringVars.buffer());
+    alpaka::memcpy(queue, devClusteringCCLabels.buffer(), hostClusteringCCLabels.buffer());
     alpaka::memcpy(queue, devClusteringEdgeVars.buffer(), hostClusteringEdgeVars.buffer());
 
-    eclcc_test.apply(queue, devClusteringVars, devClusteringEdgeVars, nClusters);
+    eclcc_test.apply(queue, devClusteringCCLabels, devClusteringEdgeVars, nClusters);
 
     alpaka::wait(queue);
 
-    alpaka::memcpy(queue, hostClusteringVars.buffer(), devClusteringVars.buffer());
+    alpaka::memcpy(queue, hostClusteringCCLabels.buffer(), devClusteringCCLabels.buffer());
 
     alpaka::wait(queue);
 
     for (int i = 0; i < nClusters; i++) {
-      printf("TOPO  %d \t (%d) \n", hClusteringVars[i].mdpf_topoId(), i);
+      printf("TOPO  %d \t (%d) \n", hClusteringCCLabels[i].mdpf_topoId(), i);
     }
   }
 
@@ -297,15 +301,15 @@ int main() {
   for (auto const& device : devices) {
     auto queue = Queue(device);
 
-    ::reco::PFMultiDepthClusteringVarsHostCollection hostClusteringVars{nClusters, queue};
+    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringCCLabels{nClusters, queue};
     ::reco::PFMultiDepthClusteringEdgeVarsHostCollection hostClusteringEdgeVars{2 * nClusters, queue};
 
-    auto hClusteringVars = hostClusteringVars.view();
-    hClusteringVars.size() = nClusters;
+    auto hClusteringCCLabels = hostClusteringCCLabels.view();
+    hClusteringCCLabels.size() = nClusters;
 
     create(hostClusteringEdgeVars, roots, nClusters);
 
-    launch_eclcc_test(queue, hostClusteringVars, hostClusteringEdgeVars);
+    launch_eclcc_test(queue, hostClusteringCCLabels, hostClusteringEdgeVars);
 
     check(hostClusteringEdgeVars, nClusters);
   }

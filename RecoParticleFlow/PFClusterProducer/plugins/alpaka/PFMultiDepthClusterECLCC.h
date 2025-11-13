@@ -116,7 +116,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         int low_rep = is_low ? rep_v : rep_neigh_v;
         int high_rep = !is_low ? rep_v : rep_neigh_v;
 
-        int tmp = alpaka::atomicCas(acc, &pfClusteringCCLabels[high_rep].mdpf_topoId(), high_rep, low_rep);
+        int tmp = alpaka::atomicCas(acc, &pfClusteringCCLabels[high_rep].mdpf_topoId(), high_rep, low_rep, alpaka::hierarchy::Blocks{});
 
         if (tmp == high_rep)
           break;  // merge successful, exit.
@@ -218,8 +218,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         const auto x =
             lane_idx == 0 ? alpaka::atomicAdd(acc, &pfClusteringCCLabels.posL(), 1, alpaka::hierarchy::Blocks{}) : 0;
 
-        warp::syncWarpThreads_mask(acc, active_lanes_mask);
-
         int i = warp::shfl_mask(acc, active_lanes_mask, x, 0, w_extent);
 
         const int N = pfClusteringCCLabels.topL(); /*topL*/
@@ -234,8 +232,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
           // Assign the next vertex in the worklist
           const auto y =
               lane_idx == 0 ? alpaka::atomicAdd(acc, &pfClusteringCCLabels.posL(), 1, alpaka::hierarchy::Blocks{}) : 0;
-
-          warp::syncWarpThreads_mask(acc, active_lanes_mask);
 
           i = warp::shfl_mask(acc, active_lanes_mask, y, 0, w_extent);
         }
