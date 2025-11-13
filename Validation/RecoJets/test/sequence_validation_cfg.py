@@ -56,7 +56,7 @@ process.p = cms.Path(#process.dump*
                      #process.JetValidation*
                      #for MiniAOD
                      process.JetValidationMiniAOD*
-                     process.JetPostProcessor
+                     process.JetPostProcessorHarvesting
                      *process.dqmSaver
 )
 
