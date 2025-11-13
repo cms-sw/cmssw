@@ -32,7 +32,7 @@ namespace portableParabolicMagneticField {
   }
 
   template <typename Vec3>
-  constexpr inline float parabolicMagneticFieldAtPoint(Vec3 const& vec) {
+  constexpr inline float magneticFieldAtPoint(Vec3 const& vec) {
     if (isValid(vec)) {
       return B0Z(vec) * Kr(vec);
     } else {

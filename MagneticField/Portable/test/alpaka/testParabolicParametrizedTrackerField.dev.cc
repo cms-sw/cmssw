@@ -25,7 +25,7 @@ struct TrackerMagneticFieldKernel {
     for (auto index : cms::alpakatools::uniform_elements(acc, size)) {
       out[index](0) = 0;
       out[index](1) = 0;
-      out[index](2) = parabolicMagneticFieldAtPoint(in[index]);
+      out[index](2) = magneticFieldAtPoint(in[index]);
     }
   }
 };
