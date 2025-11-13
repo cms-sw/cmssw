@@ -13,10 +13,13 @@ hltMetPostProcessor = _metTesterPostProcessor.clone(
 from Validation.RecoMET.metTester_cfi import metTester as _metTester
 _hltMetTester = _metTester.clone(
     runDir = "HLT/JetMET/METValidation/",
-    primaryVertices = 'hltPhase2PixelVertices',
+    primaryVertices = 'hltPixelVertices',
     genMetTrue = 'genMetTrue',
     genMetCalo = 'genMetCalo',
 )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(_hltMetTester, primaryVertices = 'hltPhase2PixelVertices')
 
 hltMetAnalyzerPF = _hltMetTester.clone(
     inputMETLabel = 'hltPFMET', 

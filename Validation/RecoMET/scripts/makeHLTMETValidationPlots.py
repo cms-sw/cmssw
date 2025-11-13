@@ -26,6 +26,11 @@ def createDir(adir):
         os.makedirs(adir)
     return adir
 
+def createIndexPHP(src, dest):
+    php_file = os.path.join(src, 'index.php')
+    if os.path.exists(php_file):
+        os.system(f'cp {php_file} {dest}')
+
 def checkRootDir(afile, adir):
     if not afile.Get(adir):
         raise RuntimeError(f"Directory '{adir}' not found in {afile}")
@@ -357,4 +362,5 @@ if __name__ == '__main__':
         checkRootDir(afile, turnon_dir)
         vars1Dtrigger = ('TurnOngMET', 'TurnOngMETLow', 'TurnOnhMET', 'TurnOnhMETLow')
         outdir = createDir(os.path.join(args.odir, trigger))
+        createIndexPHP(src=args.odir, dest=trigger)
         plot1Dtrigger(afile, turnon_dir, vars1Dtrigger, outdir=outdir, metType=METType[metType])
