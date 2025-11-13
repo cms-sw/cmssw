@@ -110,7 +110,7 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
 
       // looping over all reference triggers
       for (auto iTrigger = hltTriggers_.begin(); iTrigger != hltTriggers_.end(); ++iTrigger) {
-        string trig = *iTrigger;
+        const string& trig = *iTrigger;
         MonitorElement* trigEff = igetter.get(subDir + "/" + trig + "/" + eff);
         if (!trigEff)
           continue;

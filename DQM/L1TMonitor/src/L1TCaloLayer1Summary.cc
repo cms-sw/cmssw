@@ -33,8 +33,8 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
 
-  L1CaloRegionCollection caloLayer1Regions = iEvent.get(caloLayer1RegionsToken_);
-  L1CaloRegionCollection simRegions = iEvent.get(simRegionsToken_);
+  const L1CaloRegionCollection& caloLayer1Regions = iEvent.get(caloLayer1RegionsToken_);
+  const L1CaloRegionCollection& simRegions = iEvent.get(simRegionsToken_);
   int nRegions = caloLayer1Regions.size();
 
   unsigned int maxEtaIdx = 0;
@@ -57,8 +57,8 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   for (int iRegion = 0; iRegion < nRegions; iRegion++) {
-    L1CaloRegion cRegion = caloLayer1Regions[iRegion];
-    L1CaloRegion sRegion = simRegions[iRegion];
+    const L1CaloRegion& cRegion = caloLayer1Regions[iRegion];
+    const L1CaloRegion& sRegion = simRegions[iRegion];
 
     foundMatrix[0][cRegion.gctEta()][cRegion.gctPhi()] = true;
     etMatrix[0][cRegion.gctEta()][cRegion.gctPhi()] = cRegion.et();
@@ -77,9 +77,9 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
 
-  auto caloCICADAScores = iEvent.get(caloLayer1CICADAScoreToken_);
+  const auto& caloCICADAScores = iEvent.get(caloLayer1CICADAScoreToken_);
   const auto& gtCICADAScores = iEvent.get(gtCICADAScoreToken_);
-  auto simCICADAScores = iEvent.get(simCICADAScoreToken_);
+  const auto& simCICADAScores = iEvent.get(simCICADAScoreToken_);
 
   if (caloCICADAScores.size() > 0) {
     histoCaloLayer1CICADAScore->Fill(caloCICADAScores[0]);

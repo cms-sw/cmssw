@@ -390,7 +390,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       int nhits = 0;
       for (int j = 0; j < int(dominoEnergy.size()); ++j) {
         if (OwnerShip[j] == i) {
-          std::vector<EcalRecHit> temp = dominoCells[j];
+          const std::vector<EcalRecHit>& temp = dominoCells[j];
           for (int k = 0; k < int(temp.size()); ++k) {
             dets.push_back(std::pair<DetId, float>(temp[k].id(), 1.));  // by default energy fractions are 1
             if (temp[k].id() == itID)
@@ -471,7 +471,7 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ca
     //supercluster.  This could be somehow more efficient.
 
     for (int i = 0; i < int(thiscoll.size()); ++i) {
-      reco::BasicCluster thisclus = thiscoll[i];  //The Cluster in question.
+      const reco::BasicCluster& thisclus = thiscoll[i];  //The Cluster in question.
       for (int j = 0; j < int(clustersCollection.size()); ++j) {
         //Find the appropriate cluster from the list of references
         reco::BasicCluster cluster_p = *clustersCollection[j];

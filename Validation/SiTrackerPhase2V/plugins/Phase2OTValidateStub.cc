@@ -584,7 +584,7 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
 
     // Loop through associated clusters
     for (std::size_t k = 0; k < associatedClusters.size(); ++k) {
-      auto clusA = associatedClusters[k];
+      const auto& clusA = associatedClusters[k];
 
       // Get cluster details
       DetId clusdetid = clusA->getDetId();

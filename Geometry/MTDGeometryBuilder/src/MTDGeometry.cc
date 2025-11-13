@@ -44,7 +44,7 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd) : theTrackerDet(gd) {
     theSubDetTypeMap[i] = GeomDetEnumerators::invalidDet;
     theNumberOfLayers[i] = 0;
   }
-  GeometricTimingDet::ConstGeometricTimingDetContainer subdetgd = gd->components();
+  const GeometricTimingDet::ConstGeometricTimingDetContainer& subdetgd = gd->components();
 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("BuildingSubDetTypeMap")

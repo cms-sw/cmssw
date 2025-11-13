@@ -33,7 +33,7 @@ namespace l1t {
     namespace emtf {
 
       int RPCBlockUnpacker::checkFormat(const Block& block) {
-        auto payload = block.payload();
+        const auto& payload = block.payload();
         int errors = 0;
 
         // Check the number of 16-bit words
@@ -119,7 +119,7 @@ namespace l1t {
         // Get the payload for this block, made up of 16-bit words (0xffff)
         // Format defined in MTF7Payload::getBlock() in src/Block.cc
         // payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
-        auto payload = block.payload();
+        const auto& payload = block.payload();
 
         // Run 3 has a different EMTF DAQ output format since August 26th
         // Computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)

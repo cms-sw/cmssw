@@ -869,8 +869,8 @@ bool PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>& GsfPF
 float PFElecTkProducer::minTangDist(const reco::GsfPFRecTrack& primGsf, const reco::GsfPFRecTrack& secGsf) {
   float minDphi = 1000.;
 
-  std::vector<reco::PFBrem> primPFBrem = primGsf.PFRecBrem();
-  std::vector<reco::PFBrem> secPFBrem = secGsf.PFRecBrem();
+  const std::vector<reco::PFBrem>& primPFBrem = primGsf.PFRecBrem();
+  const std::vector<reco::PFBrem>& secPFBrem = secGsf.PFRecBrem();
 
   unsigned int cbrem = 0;
   for (unsigned isbrem = 0; isbrem < secPFBrem.size(); isbrem++) {
@@ -994,7 +994,7 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
         }
         // check if it touch the Brem-tangents
         else {
-          vector<PFBrem> primPFBrem = gsfPfTrack.PFRecBrem();
+          const vector<PFBrem>& primPFBrem = gsfPfTrack.PFRecBrem();
           for (unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
             if (primPFBrem[ipbrem].indTrajPoint() == 99)
               continue;
@@ -1081,7 +1081,7 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
           iPFCluster.push_back(clust);
           iEnergy += clust.energy();
         } else {
-          vector<PFBrem> primPFBrem = iGsfPFRecTrack.PFRecBrem();
+          const vector<PFBrem>& primPFBrem = iGsfPFRecTrack.PFRecBrem();
           for (unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
             if (primPFBrem[ipbrem].indTrajPoint() == 99)
               continue;

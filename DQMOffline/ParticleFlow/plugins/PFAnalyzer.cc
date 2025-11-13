@@ -510,6 +510,7 @@ int PFAnalyzer::getBinNumbers(std::vector<double> binVal, std::vector<std::vecto
 
 int PFAnalyzer::getPFBin(const reco::PFCandidate pfCand, int i) {
   std::vector<double> binVals;
+  binVals.reserve(m_fullCutList[i].size());
   for (unsigned int j = 0; j < m_fullCutList[i].size(); j++) {
     binVals.push_back(m_funcMap[m_fullCutList[i][j]](pfCand));
   }
@@ -519,6 +520,7 @@ int PFAnalyzer::getPFBin(const reco::PFCandidate pfCand, int i) {
 
 int PFAnalyzer::getJetBin(const reco::PFJet jetCand, int i) {
   std::vector<double> binVals;
+  binVals.reserve(m_fullJetCutList[i].size());
   for (unsigned int j = 0; j < m_fullJetCutList[i].size(); j++) {
     binVals.push_back(m_jetFuncMap[m_fullJetCutList[i][j]](jetCand));
   }

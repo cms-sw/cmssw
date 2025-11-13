@@ -198,7 +198,7 @@ void LheWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::sort(leptons.begin(), leptons.end(), HepMCValidationHelper::sortByPtRef<reco::GenParticleRef>);
 
   if (!leptons.empty()) {
-    reco::GenParticleRef leadLep = leptons.at(0);
+    const reco::GenParticleRef& leadLep = leptons.at(0);
     fillTemplates(leadLepPtScaleVar_, leadLepPtPdfVar_, leadLepPtTemp_, leadLep->pt());
     fillTemplates(leadLepEtaScaleVar_, leadLepEtaPdfVar_, leadLepEtaTemp_, leadLep->eta());
   }

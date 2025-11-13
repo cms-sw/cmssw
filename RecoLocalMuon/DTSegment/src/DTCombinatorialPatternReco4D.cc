@@ -297,7 +297,7 @@ DTRecSegment4D* DTCombinatorialPatternReco4D::segmentSpecialZed(const DTRecSegme
 
   // pick up a hit "in the middle", where the single hit will be put.
   int nHits = hits.size();
-  DTRecHit1D middle = hits[static_cast<int>(nHits / 2.)];
+  const DTRecHit1D& middle = hits[static_cast<int>(nHits / 2.)];
 
   // Need to extrapolate pos to the middle layer z
   LocalPoint posInSL = zedSeg->localPosition();

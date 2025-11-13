@@ -80,8 +80,8 @@ public:
 
     int pos = ((PerformancePayloadFromTFormulaExposed*)payload.get())->resultPos(T);
     auto formula = payload->formulaPayload();
-    auto formula_vec = formula.formulas();
-    auto limits_vec = formula.limits();
+    const auto& formula_vec = formula.formulas();
+    const auto& limits_vec = formula.limits();
     if (pos < 0 || pos > (int)formula_vec.size()) {
       edm::LogError("PfCalibration") << "Will not display image for " << functType[T]
                                      << " as it's not contained in the payload!";
@@ -89,7 +89,7 @@ public:
     }
     TCanvas canvas("PfCalibration", "PfCalibration", 1500, 800);
     canvas.cd();
-    auto formula_string = formula_vec[pos];
+    const auto& formula_string = formula_vec[pos];
     auto limits = limits_vec[pos];
 
     auto function_plot = new TF1("f1", formula_string.c_str(), limits.first, limits.second);

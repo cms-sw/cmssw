@@ -227,7 +227,7 @@ vector<Trajectory> TrackTransformerForGlobalCosmicMuons::transform(const reco::T
     return vector<Trajectory>();
   }
 
-  Trajectory trajectoryBW = trajectories.front();
+  const Trajectory& trajectoryBW = trajectories.front();
 
   vector<Trajectory> trajectoriesSM = smoother(up)->trajectories(trajectoryBW);
 

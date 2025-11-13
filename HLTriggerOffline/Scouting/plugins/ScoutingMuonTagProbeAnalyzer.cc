@@ -169,7 +169,7 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     if (foundTag)
       continue;
     math::PtEtaPhiMLorentzVector tag_sct_mu(sct_mu.pt(), sct_mu.eta(), sct_mu.phi(), sct_mu.m());
-    const std::vector<int> vtxIndx_tag = sct_mu.vtxIndx();
+    const std::vector<int>& vtxIndx_tag = sct_mu.vtxIndx();
 
     // Then pair the tag with the probe
     for (const auto& sct_mu_second : *sctMuons) {
@@ -179,7 +179,7 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
           sct_mu_second.pt(), sct_mu_second.eta(), sct_mu_second.phi(), sct_mu_second.m());
       if (sct_mu_second.pt() < 1)
         continue;
-      const std::vector<int> vtxIndx_probe = sct_mu_second.vtxIndx();
+      const std::vector<int>& vtxIndx_probe = sct_mu_second.vtxIndx();
 
       float invMass = (tag_sct_mu + probe_sct_mu).mass();
       edm::LogInfo("ScoutingMonitoring") << "Inv Mass: " << invMass;

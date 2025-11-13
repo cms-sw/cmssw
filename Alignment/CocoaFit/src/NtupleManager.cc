@@ -291,7 +291,7 @@ void NtupleManager::FillMeasurements() {
   for (vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); ++vmcite) {
     std::vector<ALIstring> optonamelist = (*vmcite)->OptONameList();
     int last = optonamelist.size() - 1;
-    ALIstring LastOptOName = optonamelist[last];
+    const ALIstring& LastOptOName = optonamelist[last];
     int optoind = -999;
     for (int no = 0; no < NOptObjects; no++) {
       OptObject* optobj = (OptObject*)CloneOptObject->At(no);

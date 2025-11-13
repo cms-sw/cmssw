@@ -47,7 +47,7 @@ std::pair<int, double> ElectronTkIsolation::getIso(const reco::Track* tmpTrack) 
   int counter = 0;
   double ptSum = 0.;
   //Take the electron track
-  math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum();
+  const math::XYZVector& tmpElectronMomentumAtVtx = (*tmpTrack).momentum();
   double tmpElectronEtaAtVertex = (*tmpTrack).eta();
 
   for (reco::TrackCollection::const_iterator itrTr = (*trackCollection_).begin(); itrTr != (*trackCollection_).end();

@@ -575,8 +575,8 @@ void EgammaObjects::analyzePhotons(const edm::Event& evt, const edm::EventSetup&
   }
 
   if (photonsMCMatched.size() == 2) {
-    reco::Photon pOne = photonsMCMatched[0];
-    reco::Photon pTwo = photonsMCMatched[1];
+    const reco::Photon& pOne = photonsMCMatched[0];
+    const reco::Photon& pTwo = photonsMCMatched[1];
 
     double recoMass = findRecoMass(pOne, pTwo);
 
@@ -732,8 +732,8 @@ void EgammaObjects::analyzeElectrons(const edm::Event& evt, const edm::EventSetu
   }
 
   if (electronsMCMatched.size() == 2) {
-    reco::GsfElectron eOne = electronsMCMatched[0];
-    reco::GsfElectron eTwo = electronsMCMatched[1];
+    const reco::GsfElectron& eOne = electronsMCMatched[0];
+    const reco::GsfElectron& eTwo = electronsMCMatched[1];
 
     double recoMass = findRecoMass(eOne, eTwo);
 

@@ -167,7 +167,7 @@ bool HLTMuonL1TFilter::hltFilter(edm::Event& iEvent,
     vector<MuonRef> firedMuons;
     filterproduct.getObjects(TriggerL1Mu, firedMuons);
     for (size_t i = 0; i < firedMuons.size(); i++) {
-      l1t::MuonRef mu = firedMuons[i];
+      const l1t::MuonRef& mu = firedMuons[i];
       bool isPrev = find(prevMuons.begin(), prevMuons.end(), mu) != prevMuons.end();
       LogTrace("HLTMuonL1TFilter") << i << '\t' << setprecision(2) << scientific << mu->charge() << '\t' << mu->pt()
                                    << '\t' << fixed << mu->eta() << '\t' << mu->phi() << '\t' << mu->hwQual() << '\t'

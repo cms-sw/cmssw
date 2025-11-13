@@ -116,6 +116,7 @@ namespace {  // anonymous
     LeaderLookup lookup(leaderIter.begin());
 
     std::vector<int> sort;
+    sort.reserve(size);
     for (unsigned int i = 0; i < size; i++)
       sort.push_back((int)i);
 

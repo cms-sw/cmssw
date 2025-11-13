@@ -108,7 +108,7 @@ namespace cms {
       std::cout << "================    jetEta   =  " << (*jet).eta() << std::endl;
     }
 
-    const edm::RefToBase<reco::Jet> jptjetRef = jet->getCaloJetRef();
+    const edm::RefToBase<reco::Jet>& jptjetRef = jet->getCaloJetRef();
     reco::CaloJet const* rawcalojet = dynamic_cast<reco::CaloJet const*>(&*jptjetRef);
 
     int ncalotowers = 0.;
@@ -196,7 +196,7 @@ namespace cms {
     double detatr1 = 0.;
     double dphidetatr = 0.;
 
-    const reco::TrackRefVector pioninin = (*jet).getPionsInVertexInCalo();
+    const reco::TrackRefVector& pioninin = (*jet).getPionsInVertexInCalo();
 
     for (reco::TrackRefVector::const_iterator it = pioninin.begin(); it != pioninin.end(); it++) {
       if ((*it)->pt() > 0.5 && ((*it)->ptError() / (*it)->pt()) < 0.05) {
@@ -221,7 +221,7 @@ namespace cms {
       }
     }  // pioninin
 
-    const reco::TrackRefVector pioninout = (*jet).getPionsInVertexOutCalo();
+    const reco::TrackRefVector& pioninout = (*jet).getPionsInVertexOutCalo();
 
     for (reco::TrackRefVector::const_iterator it = pioninout.begin(); it != pioninout.end(); it++) {
       if ((*it)->pt() > 0.5 && ((*it)->ptError() / (*it)->pt()) < 0.05) {

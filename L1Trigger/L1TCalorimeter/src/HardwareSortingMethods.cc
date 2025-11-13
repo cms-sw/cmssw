@@ -544,8 +544,8 @@ namespace l1t {
         super_sort_matrix_rows(non_iso_stage2_row_sorted_matrix_sig, N_EGAMMA_SECOND_GROUP_SIZE, N_KEEP_EGAMMA);
 
     //Prepare output
-    std::vector<l1t::L1Candidate> sorted_iso_egammas = iso_stage2_super_sorted_matrix_sig[0];
-    std::vector<l1t::L1Candidate> sorted_noniso_egammas = non_iso_stage2_super_sorted_matrix_sig[0];
+    const std::vector<l1t::L1Candidate>& sorted_iso_egammas = iso_stage2_super_sorted_matrix_sig[0];
+    const std::vector<l1t::L1Candidate>& sorted_noniso_egammas = non_iso_stage2_super_sorted_matrix_sig[0];
 
     //verbose = false;
 

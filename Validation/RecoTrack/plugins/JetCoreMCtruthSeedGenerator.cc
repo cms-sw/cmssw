@@ -214,7 +214,7 @@ void JetCoreMCtruthSeedGenerator::produce(edm::Event& iEvent, const edm::EventSe
       splitClustDirSet.emplace_back(GlobalVector(jet.px(), jet.py(), jet.pz()));
 
       for (int cc = 0; cc < (int)splitClustDirSet.size(); cc++) {
-        GlobalVector bigClustDir = splitClustDirSet[cc];
+        const GlobalVector& bigClustDir = splitClustDirSet[cc];
 
         jetEta_ = jet.eta();
         jetPt_ = jet.pt();
@@ -466,8 +466,8 @@ std::vector<std::array<double, 5>> JetCoreMCtruthSeedGenerator::seedParFilling(
 
   edm::LogInfo("PerfectSeeder") << "goodSimTrk size" << goodSimTrk.size();
   for (uint j = 0; j < goodSimTrk.size(); j++) {
-    SimTrack st = goodSimTrk[j];
-    SimVertex sv = goodSimVtx[j];
+    const SimTrack& st = goodSimTrk[j];
+    const SimVertex& sv = goodSimVtx[j];
     GlobalVector trkMom(st.momentum().x(), st.momentum().y(), st.momentum().z());
     GlobalPoint trkPos(sv.position().x(), sv.position().y(), sv.position().z());
     edm::LogInfo("PerfectSeeder") << "seed " << j << ", very int pt" << st.momentum().Pt()

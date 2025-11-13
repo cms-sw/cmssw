@@ -54,7 +54,7 @@ float EcalBasicClusterLocalContCorrection::operator()(const reco::BasicCluster &
 
   //search which crystal is closest to the cluster position and call it crystalseed:
   //std::vector<DetId> crystals_vector = *scRef.getHitsByDetId();   //deprecated
-  std::vector<std::pair<DetId, float> > crystals_vector = basicCluster.hitsAndFractions();
+  const std::vector<std::pair<DetId, float> > &crystals_vector = basicCluster.hitsAndFractions();
   float dphimin = 999.;
   float detamin = 999.;
   int ietaclosest = 0;

@@ -1419,7 +1419,7 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track& trac
 
   //    if (track.pt() > 1.0 && track.dxy() < 0.1 and monitoring > 0) {
   if (track.pt() > 1.0 && track.dxy() < 0.1 and monitoring > -9.) {
-    auto hp = track.hitPattern();
+    const auto& hp = track.hitPattern();
     // Here hit_category is meant to iterate over
     // reco::HitPattern::HitCategory, defined here:
     // http://cmslxr.fnal.gov/dxr/CMSSW/source/DataFormats/TrackReco/interface/HitPattern.h

@@ -268,7 +268,7 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker& ibooker) {
     TString maxPt;
 
     for (size_t i = 0; i < sources.size(); i++) {
-      std::string source = sources[i];
+      const std::string& source = sources[i];
       if (_useNminOneCuts && it->first == EVTColContainer::PFJET) {
         if (source == "gen")
           continue;

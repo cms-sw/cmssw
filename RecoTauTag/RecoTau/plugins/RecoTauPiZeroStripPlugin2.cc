@@ -148,7 +148,7 @@ namespace reco {
       for (size_t candId = 0; candId < numCands; ++candId) {
         if ((!candFlags[candId]) &&
             candIdsCurrentStrip.find(candId) == candIdsCurrentStrip.end()) {  // do not include same cand twice
-          reco::CandidatePtr cand = cands[candId];
+          const reco::CandidatePtr& cand = cands[candId];
           if (fabs(strip.eta() - cand->eta()) <
                   etaAssociationDistance_ &&  // check if cand is within eta-phi window centered on strip
               fabs(strip.phi() - cand->phi()) < phiAssociationDistance_) {

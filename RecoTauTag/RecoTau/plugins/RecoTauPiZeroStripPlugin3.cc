@@ -169,7 +169,7 @@ namespace reco {
       for (size_t candId = 0; candId < numCands; ++candId) {
         if ((!candFlags[candId]) &&
             candIdsCurrentStrip.find(candId) == candIdsCurrentStrip.end()) {  // do not include same cand twice
-          reco::CandidatePtr cand = cands[candId];
+          const reco::CandidatePtr& cand = cands[candId];
           double etaAssociationDistance_value =
               etaAssociationDistance_->Eval(strip.pt()) + etaAssociationDistance_->Eval(cand->pt());
           double phiAssociationDistance_value =

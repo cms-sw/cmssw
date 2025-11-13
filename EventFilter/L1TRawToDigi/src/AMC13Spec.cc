@@ -141,6 +141,7 @@ namespace amc13 {
       Header block_h(data++);
       std::vector<amc::BlockHeader> headers;
 
+      headers.reserve(block_h.getNumberOfAMCs());
       for (unsigned int i = 0; i < block_h.getNumberOfAMCs(); ++i)
         headers.push_back(amc::BlockHeader(data++));
 

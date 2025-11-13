@@ -432,7 +432,7 @@ namespace deDxTools {
     LocalPoint HitLocalPos = trajState.localPosition();
     LocalError HitLocalError = trajState.localError().positionError();
 
-    const BoundPlane plane = it->surface();
+    const BoundPlane& plane = it->surface();
     const TrapezoidalPlaneBounds* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
     const RectangularPlaneBounds* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
 

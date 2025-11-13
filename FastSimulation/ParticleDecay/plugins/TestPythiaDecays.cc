@@ -325,6 +325,7 @@ void TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     // fill br hist
     std::vector<int> prod;
+    prod.reserve(childIndices.size());
     for (size_t d = 0; d < childIndices.size(); ++d) {
       prod.push_back(abs(simtracks->at(childIndices[d]).type()));
     }

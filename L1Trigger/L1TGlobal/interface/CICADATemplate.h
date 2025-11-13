@@ -12,7 +12,7 @@ public:
   CICADATemplate(const std::string&);
   CICADATemplate(const std::string&, const l1t::GtConditionType&);
   CICADATemplate(const CICADATemplate&);
-  ~CICADATemplate() = default;
+  ~CICADATemplate() override = default;
 
   CICADATemplate& operator=(const CICADATemplate&);
 

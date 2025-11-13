@@ -448,6 +448,7 @@ void TracksterLinkingbySkeletons::linkTracksters(
   std::vector<int> isRootTracksters(tracksters.size(), 1);
 
   std::vector<ticl::Node> allNodes;
+  allNodes.reserve(tracksters.size());
   for (size_t it = 0; it < tracksters.size(); ++it) {
     allNodes.emplace_back(it);
   }

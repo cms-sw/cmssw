@@ -205,7 +205,7 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion& in, OutputRegion& out) c
   for (unsigned int ic = 0; ic < nCALO; ++ic) {
     if (calo_sumtk[ic] > 0) {
       pt_t ptdiff = in.hadcalo[ic].hwPt - calo_sumtk[ic];
-      pt2_t sigmamult =
+      const pt2_t& sigmamult =
           calo_sumtkErr2[ic];  //  + (calo_sumtkErr2[ic] >> 1)); // this multiplies by 1.5 = sqrt(1.5)^2 ~ (1.2)^2
       if (debug_ && (in.hadcalo[ic].hwPt > 0)) {
         dbgPrintf(

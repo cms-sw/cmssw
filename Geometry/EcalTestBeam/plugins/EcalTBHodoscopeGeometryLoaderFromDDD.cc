@@ -98,7 +98,7 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
 unsigned int EcalTBHodoscopeGeometryLoaderFromDDD::getDetIdForDDDNode(const DDFilteredView& fv) {
   // perform some consistency checks
   // get the parents and grandparents of this node
-  DDGeoHistory parents = fv.geoHistory();
+  const DDGeoHistory& parents = fv.geoHistory();
 
   assert(parents.size() >= 3);
 

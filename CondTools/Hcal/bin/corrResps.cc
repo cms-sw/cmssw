@@ -36,7 +36,7 @@ corrResps::corrResps(const edm::ParameterSet& iConfig) {
 corrResps::~corrResps() {}
 
 void corrResps::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  HcalTopology topo = iSetup.getData(tok_htopo_);
+  const HcalTopology& topo = iSetup.getData(tok_htopo_);
 
   HcalRespCorrs respIn(&topo);
   std::ifstream inStream(fileIn.c_str());

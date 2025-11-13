@@ -44,7 +44,7 @@ MTDGeometry* MTDGeomBuilderFromGeometricTimingDet::build(const GeometricTimingDe
 
   std::vector<GeometricTimingDet::GTDEnumType> gdsubdetmap(
       2, GeometricTimingDet::unknown);  // hardcoded "2" should not be a surprise...
-  GeometricTimingDet::ConstGeometricTimingDetContainer subdetgd = gd->components();
+  const GeometricTimingDet::ConstGeometricTimingDetContainer& subdetgd = gd->components();
 
   LogDebug("SubDetectorGeometricTimingDetType") << "MTD GeometricTimingDet enumerator values of the subdetectors";
   for (unsigned int i = 0; i < subdetgd.size(); ++i) {

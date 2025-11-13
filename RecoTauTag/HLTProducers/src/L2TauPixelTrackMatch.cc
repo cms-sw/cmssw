@@ -75,7 +75,7 @@ void L2TauPixelTrackMatch::produce(edm::StreamID, edm::Event& ev, const edm::Eve
   std::unique_ptr<CaloJetCollection> new_tau_jets(new CaloJetCollection);
   if (!good_tracks.empty())
     for (size_t i = 0; i < n_jets; ++i) {
-      reco::CaloJetRef jet = tau_jets[i];
+      const reco::CaloJetRef& jet = tau_jets[i];
       if (jet->pt() < m_jetMinPt || std::abs(jet->eta()) > m_jetMaxEta)
         continue;
 

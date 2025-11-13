@@ -214,13 +214,13 @@ reco::PFDisplacedVertex::VertexType PFDisplacedVertexHelper::identifyVertex(cons
 int PFDisplacedVertexHelper::lambdaCP(const PFDisplacedVertex& v) const {
   int lambdaCP = 0;
 
-  vector<Track> refittedTracks = v.refittedTracks();
+  const vector<Track>& refittedTracks = v.refittedTracks();
 
   math::XYZTLorentzVector totalMomentumDcaRefit_lambda;
   math::XYZTLorentzVector totalMomentumDcaRefit_lambdabar;
 
-  reco::Track tMomentumDcaRefit_0 = refittedTracks[0];
-  reco::Track tMomentumDcaRefit_1 = refittedTracks[1];
+  const reco::Track& tMomentumDcaRefit_0 = refittedTracks[0];
+  const reco::Track& tMomentumDcaRefit_1 = refittedTracks[1];
 
   double mass2_0 = 0, mass2_1 = 0;
 

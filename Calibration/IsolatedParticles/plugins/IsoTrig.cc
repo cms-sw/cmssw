@@ -1837,6 +1837,7 @@ void IsoTrig::chgIsolation(double &etaTriggered,
   spr::propagateCALO(trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
   if (verbosity_ % 10 > 0)
     edm::LogVerbatim("IsoTrack") << "Propagated TrkCollection";
+  maxP.reserve(pixelIsolationConeSizeAtEC_.size());
   for (unsigned int k = 0; k < pixelIsolationConeSizeAtEC_.size(); ++k)
     maxP.push_back(0);
   unsigned i = pixelTrackRefsHE_.size();

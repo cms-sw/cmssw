@@ -133,7 +133,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp) {
   const std::vector<std::string>& urlList = dp.getURLList();
 
   for (; fileIndex < fileList.size(); ++fileIndex) {
-    std::string ts = urlList[fileIndex];
+    const std::string& ts = urlList[fileIndex];
     std::string tf = fileList[fileIndex];
     if (!ts.empty()) {
       if (ts[ts.size() - 1] == '/') {

@@ -112,7 +112,7 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   DecisionWord dWord = gtRecord->decisionWord();  // this will get the decision word *before* masking disabled bits
 
   const auto& l1GtTmAlgo = iSetup.getData(l1GtMaskToken_);
-  std::vector<unsigned int> triggerMaskAlgoTrig = l1GtTmAlgo.gtTriggerMask();
+  const std::vector<unsigned int>& triggerMaskAlgoTrig = l1GtTmAlgo.gtTriggerMask();
 
   // apply masks on algo
   int iDaq = 0;

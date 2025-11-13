@@ -417,7 +417,7 @@ namespace {
         bool valid = false;
         bool missing = false;
         bool passcuts_hit = true;
-        TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
+        const TrajectoryMeasurement& pxb1TM(expTrajMeasurements[p]);
         const auto& pxb1Hit = pxb1TM.recHit();
         bool inactive = (pxb1Hit->getType() == TrackingRecHit::inactive);
         int detidHit = pxb1Hit->geographicalId();

@@ -793,7 +793,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       // All connections for a detid have same FED Id therefore one FEDID is
       // associated with a given detID. Vector of constant FedChannelConnection
       // objects to variable pointers.
-      std::vector<const FedChannelConnection*> fedConnections = siStripDetCabling.getConnections(detid);
+      const std::vector<const FedChannelConnection*>& fedConnections = siStripDetCabling.getConnections(detid);
 
       // Filling FED Id associated clusters map.
 

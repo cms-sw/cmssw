@@ -14,7 +14,7 @@ public:
   virtual GlobalPoint operator()(std::vector<GlobalPoint>& values) const;
 
 private:
-  virtual GlobalPoint operator()(const std::vector<PointAndDistance>&) const = 0;
+  GlobalPoint operator()(const std::vector<PointAndDistance>&) const override = 0;
 };
 
 #endif
