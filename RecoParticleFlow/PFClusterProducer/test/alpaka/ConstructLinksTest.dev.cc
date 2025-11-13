@@ -32,6 +32,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringVarsHostCollection.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringCCLabelsHostCollection.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -49,12 +50,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class ConstructLinksTest {
   public:
     void apply(Queue& queue,
-               reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars,
+               reco::PFMultiDepthClusteringCCLabelsDeviceCollection& mdpfCCLabels,
+               const reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars,
                const PFMultiDepthClusterParams* nSigma) const;
   };
 
   void ConstructLinksTest::apply(Queue& queue,
-                                 reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars,
+                                 reco::PFMultiDepthClusteringCCLabelsDeviceCollection& mdpfCCLabels,
+                                 const reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars,
                                  const PFMultiDepthClusterParams* nSigma) const {
     uint32_t items = 128;
 
@@ -70,12 +73,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
 
-    alpaka::exec<Acc1D>(queue, workDiv, ConstructLinksKernel{}, mdpfClusteringVars.view(), nSigma);
+    alpaka::exec<Acc1D>(queue, workDiv, ConstructLinksKernel{}, mdpfCCLabels.view(), mdpfClusteringVars.view(), nSigma);
 
     alpaka::wait(queue);
   }
 
-  void launch_construct_links_test(Queue& queue, ::reco::PFMultiDepthClusteringVarsHostCollection& hostClusteringVars) {
+  void launch_construct_links_test(Queue& queue,
+                                   ::reco::PFMultiDepthClusteringCCLabelsHostCollection& hostClusteringCCLabels,
+                                   const ::reco::PFMultiDepthClusteringVarsHostCollection& hostClusteringVars) {
     ConstructLinksTest construct_links_test{};
 
     auto hClusteringVars = hostClusteringVars.view();
@@ -86,6 +91,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::memcpy(queue, devClusteringVars.buffer(), hostClusteringVars.buffer());
 
+    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringCCLabels{nClusters + 1, queue};
+
     auto params_h = cms::alpakatools::make_host_buffer<PFMultiDepthClusterParams, Platform>();
 
     params_h->nSigmaEta = nSigmaEta_;
@@ -95,9 +102,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::memcpy(queue, params_d, params_h);
 
-    construct_links_test.apply(queue, devClusteringVars, params_d.data());
+    construct_links_test.apply(queue, devClusteringCCLabels, devClusteringVars, params_d.data());
 
-    alpaka::memcpy(queue, hostClusteringVars.buffer(), devClusteringVars.buffer());
+    alpaka::memcpy(queue, hostClusteringCCLabels.buffer(), devClusteringCCLabels.buffer());
 
     alpaka::wait(queue);
   }
@@ -272,6 +279,7 @@ std::vector<ClusterLink> prune(std::vector<ClusterLink>& links, std::vector<bool
 }
 
 void checkConstructLinks(const ::reco::PFClusterCollection& clusters,
+                         const ::reco::PFMultiDepthClusteringCCLabelsHostCollection& hostClusteringCCLabels,
                          const ::reco::PFMultiDepthClusteringVarsHostCollection& hostClusteringVars) {
   const int nClusters = clusters.size();
 
@@ -291,8 +299,10 @@ void checkConstructLinks(const ::reco::PFClusterCollection& clusters,
   //prune
   auto&& prunedLinks = prune(links, linked);
 
+  auto hClusteringCCLabels = hostClusteringCCLabels.view();
+
   for (int i = 0; i < nClusters; i++) {
-    printf(" %d (vertex id %d  linked %d)\n", hClusteringVars[i].mdpf_topoId(), i, linked[i] ? 1 : 0);
+    printf(" %d (vertex id %d  linked %d)\n", hClusteringCCLabels[i].mdpf_topoId(), i, linked[i] ? 1 : 0);
   }
 }
 
@@ -319,14 +329,16 @@ int main() {
 
     ::reco::PFMultiDepthClusteringVarsHostCollection hostClusteringVars{nClusters, queue};
 
+    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringCCLabels{nClusters + 1, queue};
+
     auto hClusteringVars = hostClusteringVars.view();
     hClusteringVars.size() = nClusters;
 
     create(clusters, hostClusteringVars, nClusters);
 
-    launch_construct_links_test(queue, hostClusteringVars);
+    launch_construct_links_test(queue, hostClusteringCCLabels, hostClusteringVars);
 
-    checkConstructLinks(clusters, hostClusteringVars);
+    checkConstructLinks(clusters, hostClusteringCCLabels, hostClusteringVars);
   }
 
   return 0;
