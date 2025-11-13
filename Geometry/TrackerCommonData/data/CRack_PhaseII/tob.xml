@@ -5,7 +5,8 @@
 <!-- I need to add the hybrid between components  --> 
 
   <ConstantsSection label="tob.xml" eval="true">
-    <Constant name="RodDx" value="4.1*mm"/>
+    <!--Constant name="RodDx" value="4.1*mm"/-->
+    <Constant name="RodDx" value="100.0*mm"/>
     <Constant name="RodDy" value="62.51*mm"/>
     <Constant name="RodDz" value="1195.95*mm"/>
 
@@ -17,9 +18,11 @@
   </ConstantsSection>
 
 
-<RotationSection label="tob.xml">
-	<!--<Rotation name="90XD" thetaX="90*deg" phiX="90*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="0*deg"/-->
-        <Rotation name="90XD" thetaX="90*deg" phiX="0*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="270*deg"/>
+  <RotationSection label="tob.xml">
+	<!-- In case you want to flip Y' instead of X' --> 
+	<!--Rotation name="faceupmodule" thetaX="90*deg" phiX="0*deg" thetaY="180*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/-->
+        <Rotation name="facedownmodule" thetaX="90*deg" phiX="0*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="270*deg"/>
+        <Rotation name="faceupmodule" thetaX="90*deg" phiX="180*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/>
 </RotationSection>
 
 <MaterialSection label="tob.xml">
@@ -537,14 +540,14 @@
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M1"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:faceupmodule"/>
 <Translation x="0.0*mm" y="2.9*mm" z="55.4912*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M1"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:facedownmodule"/>
 <Translation x="0.0*mm" y="-2.9*mm" z="-44.3082*mm"/>
 </PosPart>
 
@@ -552,28 +555,28 @@
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M2"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:facedownmodule"/>
 <Translation x="0.0*mm" y="-2.9*mm" z="154.09*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M2"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:faceupmodule"/>
 <Translation x="0.0*mm" y="2.9*mm" z="-144.891*mm"/>
 </PosPart>
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M3"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:faceupmodule"/>
 <Translation x="0.0*mm" y="2.9*mm" z="255.043*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M3"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:facedownmodule"/>
 <Translation x="0.0*mm" y="-2.9*mm" z="-242.523*mm"/>
 </PosPart>
 
@@ -581,14 +584,14 @@
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M4"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:facedownmodule"/>
 <Translation x="0.0*mm" y="-2.9*mm" z="351.484*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M4"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:faceupmodule"/>
 <Translation x="0.0*mm" y="2.9*mm" z="-343.774*mm"/>
 </PosPart>
 
@@ -596,14 +599,14 @@
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M5"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:faceupmodule"/>
 <Translation x="0.0*mm" y="2.9*mm" z="453.103*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M5"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:facedownmodule"/>
 <Translation x="0.0*mm" y="-2.9*mm" z="-439.255*mm"/>
 </PosPart>
 
@@ -612,14 +615,14 @@
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M6"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:facedownmodule"/>
 <Translation x="0.0*mm" y="-2.9*mm" z="546.103*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M6"/>
-<rRotation name="tob:90XD"/>
+<rRotation name="tob:faceupmodule"/>
 <Translation x="0.0*mm" y="2.9*mm" z="-541.17*mm"/>
 </PosPart>
 
