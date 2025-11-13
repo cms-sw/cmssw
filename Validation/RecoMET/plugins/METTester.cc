@@ -224,7 +224,8 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
   edm::Handle<reco::VertexCollection> pvHandle;
   iEvent.getByToken(pvToken_, pvHandle);
   if (!pvHandle.isValid()) {
-    edm::LogWarning("MissingInput") << __FUNCTION__ << ":" << __LINE__ << ": pvHandle handle with tag " << pvTokenTag_ << " not found!";
+    edm::LogWarning("MissingInput") << __FUNCTION__ << ":" << __LINE__ << ": pvHandle handle with tag " << pvTokenTag_
+                                    << " not found!";
     return;
   }
   const int nvtx = pvHandle->size();

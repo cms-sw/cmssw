@@ -22,22 +22,25 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(_hltMetTester, primaryVertices = 'hltPhase2PixelVertices')
 
 hltMetAnalyzerPF = _hltMetTester.clone(
-    inputMETLabel = 'hltPFMET', 
-    METType = 'pf', 
+    inputMETLabel = 'hltPFMETProducer', 
+    METType = 'pf',
 )
+phase2_common.toModify(hltMetAnalyzerPF, inputMETLabel = 'hltPFMET')
 
 hltMetAnalyzerPFPuppi = _hltMetTester.clone(
-    inputMETLabel = 'hltPFPuppiMET',
+    inputMETLabel = 'dummy (phase2-only)',
     METType = 'pf',
 )
+phase2_common.toModify(hltMetAnalyzerPFPuppi, inputMETLabel = 'hltPFPuppiMET')
 
 hltMetTypeOneAnalyzerPFPuppi = _hltMetTester.clone(
-    inputMETLabel = 'hltPFPuppiMETTypeOne',
+    inputMETLabel = 'dummy (phase2-only)',
     METType = 'pf',
 )
+phase2_common.toModify(hltMetTypeOneAnalyzerPFPuppi, inputMETLabel = 'hltPFPuppiMETTypeOne')
 
 hltMetAnalyzerPFCalo = _hltMetTester.clone(
-    inputMETLabel = 'hltCaloMET',
+    inputMETLabel = 'hltMet',
     METType = 'calo',
 )
-
+phase2_common.toModify(hltMetAnalyzerPFCalo, inputMETLabel = 'hltCaloMET')
