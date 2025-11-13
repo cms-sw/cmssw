@@ -27,6 +27,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Validation.SiTrackerPhase2V.Phase2OTEffClient_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(8000),
@@ -81,11 +82,18 @@ process.configurationMetadata = cms.untracked.PSet(
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
+# Load your sidecar client
+process.load('Validation.SiTrackerPhase2V.Phase2OTEffClient_cff')
+
+# Add the client into the standalone harvesting sequence
+process.trackerphase2ValidationHarvesting_standalone += process.phase2OTEffClientSeq
+
 # Path and EndPath definitions
 process.trackerphase2ValidationHarvesting_step = cms.Path(process.trackerphase2ValidationHarvesting_standalone)
-##default path in production
-#process.trackerphase2ValidationHarvesting_step = cms.Path(process.trackerphase2ValidationHarvesting)
+## default path in production
+# process.trackerphase2ValidationHarvesting_step = cms.Path(process.trackerphase2ValidationHarvesting)
+
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.trackerphase2ValidationHarvesting_step,process.dqmsave_step)
+process.schedule = cms.Schedule(process.trackerphase2ValidationHarvesting_step, process.dqmsave_step)
