@@ -116,7 +116,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         int low_rep = is_low ? rep_v : rep_neigh_v;
         int high_rep = !is_low ? rep_v : rep_neigh_v;
 
-        int tmp = alpaka::atomicCas(acc, &pfClusteringCCLabels[high_rep].mdpf_topoId(), high_rep, low_rep, alpaka::hierarchy::Blocks{});
+        int tmp = alpaka::atomicCas(
+            acc, &pfClusteringCCLabels[high_rep].mdpf_topoId(), high_rep, low_rep, alpaka::hierarchy::Blocks{});
 
         if (tmp == high_rep)
           break;  // merge successful, exit.
