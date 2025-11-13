@@ -106,9 +106,9 @@ namespace edm {
       const ComponentDescription description = this->createComponentDescription(iConfiguration);
       std::shared_ptr<TComponent> component;
       {
-        //here would be where the construction signal would go
         ComponentConstructionSentry sentry(iProvider, description);
         component = std::make_shared<TComponent>(iConfiguration);
+        sentry.succeeded();
       }
 
       this->setDescription(component.get(), description);
