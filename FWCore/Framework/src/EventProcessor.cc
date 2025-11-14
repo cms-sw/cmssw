@@ -66,7 +66,6 @@
 #include "FWCore/Concurrency/interface/chain_first.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -543,8 +542,6 @@ namespace edm {
         }
       }
 
-      FDEBUG(2) << parameterSet << std::endl;
-
       {
         actReg_->prePrincipalsCreationSignal_();
         auto guard = makeGuard([this]() { actReg_->postPrincipalsCreationSignal_(); });
@@ -992,7 +989,6 @@ namespace edm {
   }
 
   void EventProcessor::readFile() {
-    FDEBUG(1) << " \treadFile\n";
     SendSourceTerminationSignalIfException sentry(actReg_.get());
 
     if (streamRunActive_ > 0) {
@@ -1022,34 +1018,29 @@ namespace edm {
       input_->closeFile(fb_.get(), cleaningUpAfterException);
       sentry.completedSuccessfully();
     }
-    FDEBUG(1) << "\tcloseInputFile\n";
   }
 
   void EventProcessor::openOutputFiles() {
     if (fileBlockValid()) {
       schedule_->openOutputFiles(*fb_);
     }
-    FDEBUG(1) << "\topenOutputFiles\n";
   }
 
   void EventProcessor::closeOutputFiles() {
     schedule_->closeOutputFiles();
     processBlockHelper_->clearAfterOutputFilesClose();
-    FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
   void EventProcessor::respondToOpenInputFile() {
     if (fileBlockValid()) {
       schedule_->respondToOpenInputFile(*fb_);
     }
-    FDEBUG(1) << "\trespondToOpenInputFile\n";
   }
 
   void EventProcessor::respondToCloseInputFile() {
     if (fileBlockValid()) {
       schedule_->respondToCloseInputFile(*fb_);
     }
-    FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
 
   void EventProcessor::startingNewLoop() {
@@ -1059,7 +1050,6 @@ namespace edm {
     if (looper_ && looperBeginJobRun_) {
       looper_->doStartingNewLoop();
     }
-    FDEBUG(1) << "\tstartingNewLoop\n";
   }
 
   bool EventProcessor::endOfLoop() {
@@ -1074,28 +1064,19 @@ namespace edm {
       else
         return false;
     }
-    FDEBUG(1) << "\tendOfLoop\n";
     return true;
   }
 
   void EventProcessor::rewindInput() {
     input_->repeat();
     input_->rewind();
-    FDEBUG(1) << "\trewind\n";
   }
 
-  void EventProcessor::prepareForNextLoop() {
-    looper_->prepareForNextLoop(esp_.get());
-    FDEBUG(1) << "\tprepareForNextLoop\n";
-  }
+  void EventProcessor::prepareForNextLoop() { looper_->prepareForNextLoop(esp_.get()); }
 
-  bool EventProcessor::shouldWeCloseOutput() const {
-    FDEBUG(1) << "\tshouldWeCloseOutput\n";
-    return schedule_->shouldWeCloseOutput();
-  }
+  bool EventProcessor::shouldWeCloseOutput() const { return schedule_->shouldWeCloseOutput(); }
 
   void EventProcessor::doErrorStuff() {
-    FDEBUG(1) << "\tdoErrorStuff\n";
     LogError("StateMachine") << "The EventProcessor state machine encountered an unexpected event\n"
                              << "and went to the error state\n"
                              << "Will attempt to terminate processing normally\n"
@@ -2338,8 +2319,6 @@ namespace edm {
     streamRunStatus_[iStreamIndex]->updateLastTimestamp(input_->timestamp());
     streamLumiStatus_[iStreamIndex]->updateLastTimestamp(input_->timestamp());
     sentry.completedSuccessfully();
-
-    FDEBUG(1) << "\treadEvent\n";
   }
 
   void EventProcessor::processEventAsync(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
@@ -2392,7 +2371,6 @@ namespace edm {
       ServiceRegistry::Operate operateLooper(serviceToken_);
       processEventWithLooper(*pep, iStreamIndex);
     }) | then([this, pep](auto nextTask) {
-      FDEBUG(1) << "\tprocessEvent\n";
       StreamContext streamContext(pep->streamID(),
                                   StreamContext::Transition::kEvent,
                                   pep->id(),
@@ -2433,7 +2411,6 @@ namespace edm {
   }
 
   bool EventProcessor::shouldWeStop() const {
-    FDEBUG(1) << "\tshouldWeStop\n";
     if (shouldWeStop_)
       return true;
     return schedule_->terminate();
