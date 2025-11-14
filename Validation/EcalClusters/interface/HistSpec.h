@@ -8,6 +8,12 @@ struct HistSpec {
   double max;
   int bins;
 
+  HistSpec() {
+    min = 0.;
+    max = 0.;
+    bins = 0;
+  }
+
   HistSpec(edm::ParameterSet const &_ps, std::string const &_suffix) {
     min = _ps.getParameter<double>("hist_min_" + _suffix);
     max = _ps.getParameter<double>("hist_max_" + _suffix);
