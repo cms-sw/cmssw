@@ -6,6 +6,7 @@
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CustomProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
+#include "SimG4Core/CustomPhysics/interface/RHadronPythiaDecayer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -26,6 +27,7 @@
 #include "G4ProcessManager.hh"
 #include "G4HadronicProcess.hh"
 #include "G4AutoDelete.hh"
+#include "G4Decay.hh"
 
 using namespace CLHEP;
 
@@ -61,6 +63,12 @@ void CustomPhysicsList::ConstructProcess() {
                                              << "for the list of particles";
 
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+
+  // Set the pythia decayer for Rhadrons
+  G4Decay* decay = new G4Decay(); // Used to check if decay is applicable for particles
+  G4Decay* pythiaDecayProcess = new RHadronPythiaDecayer(myConfig);
+  G4VExtDecayer* extDecayer = dynamic_cast<G4VExtDecayer*>(pythiaDecayProcess);
+  pythiaDecayProcess->SetExtDecayer(extDecayer); // Set the external decayer to itself. Seems redundant but is necessary as far as I can tell. Without doing this, RHadronPythiaDecayer::ImportDecayProducts() will not be called.
 
   for (auto particle : fParticleFactory.get()->getCustomParticles()) {
     if (particle->GetParticleType() == "simp") {
@@ -100,6 +108,20 @@ void CustomPhysicsList::ConstructProcess() {
           }
           pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper));
         }
+        if (particle->GetParticleType() == "rhadron" || particle->GetParticleType() == "mesonino" || particle->GetParticleType() == "sbaryon") {
+          // Remove native G4 decay process in favor of RHadronPythiaDecayer
+          G4ProcessVector *fullProcessList = pmanager->GetProcessList();
+          for (unsigned int i=0; i<fullProcessList->size(); ++i) {
+            G4VProcess* process = (*fullProcessList)[i];
+            if (process->GetProcessType() == fDecay) {
+              pmanager->RemoveProcess(process);
+            }
+          }
+          if (decay->IsApplicable(*particle)) {
+            pmanager->AddProcess(pythiaDecayProcess);
+            pmanager->SetProcessOrdering(pythiaDecayProcess, idxPostStep);
+          }
+        }
         if (particle->GetParticleType() == "darkpho") {
           CMSDarkPairProductionProcess* darkGamma = new CMSDarkPairProductionProcess(dfactor);
           pmanager->AddDiscreteProcess(darkGamma);
@@ -119,6 +141,21 @@ void CustomPhysicsList::ConstructProcess() {
           pmanager->AddDiscreteProcess(sqLoopPrDiscr);
         } else if (particle->GetParticleName() == "sexaq") {
           edm::LogVerbatim("CustomPhysics") << "   No pmanager implemented for sexaq, only for anti_sexaq";
+        }
+
+        //Set the multiple scattering process second to last, transportation to last in the AlongStep order. Last is 9999
+        G4ProcessVector* pv = pmanager->GetProcessList();
+        for (size_t i = 0; i < pv->size(); ++i) {
+          if ((*pv)[i]->GetProcessName() == "msc") {
+            pmanager->SetProcessOrdering((*pv)[i], idxAlongStep, 9998);
+            break;
+          }
+        }
+        for (size_t i = 0; i < pv->size(); ++i) {
+          if ((*pv)[i]->GetProcessName() == "Transportation") {
+            pmanager->SetProcessOrderingToLast((*pv)[i], idxAlongStep);
+            break;
+          }
         }
       }
     }
