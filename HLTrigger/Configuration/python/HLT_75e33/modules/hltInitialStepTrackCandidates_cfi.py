@@ -72,8 +72,12 @@ _hltInitialStepTrackCandidatesMkFit = cms.EDProducer('MkFitOutputConverter',
     ttrhBuilder = cms.ESInputTag("","WithTrackAngle")
 )
 
-_hltInitialStepTrackCandidatesMkFitLSTSeeds = _hltInitialStepTrackCandidatesMkFit.clone(seeds = "hltInitialStepTrajectorySeedsLST")
-                                                     
+_hltInitialStepTrackCandidatesMkFitLSTSeeds = _hltInitialStepTrackCandidatesMkFit.clone(
+    seeds = "hltInitialStepTrajectorySeedsLST",
+    candMinNHitsCut = 4,
+    candMinPtCut = 0.9
+)
+
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
