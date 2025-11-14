@@ -2174,7 +2174,7 @@ class ConfigBuilder(object):
             if 'HLT' in self.stepMap.keys() or self._options.hltProcess:
                 self.renameHLTprocessInSequence(_sequence)
 
-            setattr(self.process,pathName, cms.EndPath( getattr(self.process,_sequence ) ) )
+            setattr(self.process,pathName, cms.Path( getattr(self.process,_sequence ) ) )
             self.schedule.append(getattr(self.process,pathName))
 
             if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
