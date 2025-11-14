@@ -64,6 +64,10 @@ private:
 
   SectorProcessorLUT sector_processor_lut_;
 
+  // Declare before pt_assign_engine_dxy_ to avoid library deletion
+  hls4mlEmulator::ModelLoader loader;
+  std::shared_ptr<hls4mlEmulator::Model> model;
+
   // Polymorphic class
   std::unique_ptr<PtAssignmentEngine> pt_assign_engine_;
   // Displaced muon pT assignment
@@ -73,9 +77,6 @@ private:
   unsigned fw_ver_;
   unsigned pt_lut_ver_;
   unsigned pc_lut_ver_;
-
-  hls4mlEmulator::ModelLoader loader;
-  std::shared_ptr<hls4mlEmulator::Model> model;
 };
 
 #endif
