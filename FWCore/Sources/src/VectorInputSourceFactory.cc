@@ -2,7 +2,6 @@
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>
@@ -28,7 +27,6 @@ namespace edm {
   std::unique_ptr<VectorInputSource> VectorInputSourceFactory::makeVectorInputSource(
       ParameterSet const& conf, VectorInputSourceDescription const& desc) const {
     std::string modtype = conf.getParameter<std::string>("@module_type");
-    FDEBUG(1) << "VectorInputSourceFactory: module_type = " << modtype << std::endl;
     std::unique_ptr<VectorInputSource> wm(VectorInputSourcePluginFactory::get()->create(modtype, conf, desc));
 
     if (wm.get() == nullptr) {
@@ -38,9 +36,6 @@ namespace edm {
           << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
           << "Try running EdmPluginDump to obtain a list of available Plugins.";
     }
-
-    FDEBUG(1) << "VectorInputSourceFactory: created input source " << modtype << std::endl;
-
     return wm;
   }
 
