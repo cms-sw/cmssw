@@ -1,6 +1,9 @@
 <use name="SimTracker/TrackerHitAssociation"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="Geometry/Records"/>
+<use name="RecoTracker/PixelSeeding"/>
+<use name="RecoLocalTracker/SiPixelRecHits"/>
+<use name="RecoLocalTracker/Records"/>
 <library file="*.cc" name="SimTrackerTrackerHitAssociationPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
