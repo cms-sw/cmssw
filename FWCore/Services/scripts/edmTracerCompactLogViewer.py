@@ -657,15 +657,20 @@ class ESModuleTransitionParser(object):
         self.moduleID = int(payload[2])
         self.moduleName = esModuleNames[self.moduleID]
         self.recordID = int(payload[3])
-        self.recordName = recordNames[self.recordID]
+        if self.transition != Phase.constructESModules:
+            self.recordName = recordNames[self.recordID]
+        else:
+            self.recordName = '<N/A>'
         self.callID = int(payload[4])
         self.requestingModuleID = int(payload[5])
         self.requestingCallID = int(payload[6])
         self.requestingModuleName = None
         if self.requestingModuleID < 0 :
             self.requestingModuleName = esModuleNames[-1*self.requestingModuleID]
-        else:
+        elif self.requestingModuleID != 0:
             self.requestingModuleName = moduleNames[self.requestingModuleID]
+        else:
+            self.requestingModuleName = '<N/A>'
         self.time = int(payload[7])
     def baseIndentLevel(self):
         return transitionIndentLevel(self.transition)

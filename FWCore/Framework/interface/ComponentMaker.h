@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/ComponentConstructionSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
@@ -102,8 +103,13 @@ namespace edm {
           throw;
         }
       }
-      std::shared_ptr<TComponent> component = std::make_shared<TComponent>(iConfiguration);
-      ComponentDescription description = this->createComponentDescription(iConfiguration);
+      const ComponentDescription description = this->createComponentDescription(iConfiguration);
+      std::shared_ptr<TComponent> component;
+      {
+        ComponentConstructionSentry sentry(iProvider, description);
+        component = std::make_shared<TComponent>(iConfiguration);
+        sentry.succeeded();
+      }
 
       this->setDescription(component.get(), description);
       this->setDescriptionForFinder(component.get(), description);

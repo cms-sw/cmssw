@@ -57,6 +57,8 @@ namespace edm {
     postServicesConstructionSignal_.connect(std::cref(iOther.postServicesConstructionSignal_));
     preEventSetupModulesConstructionSignal_.connect(std::cref(iOther.preEventSetupModulesConstructionSignal_));
     postEventSetupModulesConstructionSignal_.connect(std::cref(iOther.postEventSetupModulesConstructionSignal_));
+    preESModuleConstructionSignal_.connect(std::cref(iOther.preESModuleConstructionSignal_));
+    postESModuleConstructionSignal_.connect(std::cref(iOther.postESModuleConstructionSignal_));
     preFinishScheduleSignal_.connect(std::cref(iOther.preFinishScheduleSignal_));
     postFinishScheduleSignal_.connect(std::cref(iOther.postFinishScheduleSignal_));
     prePrincipalsCreationSignal_.connect(std::cref(iOther.prePrincipalsCreationSignal_));
@@ -275,6 +277,8 @@ namespace edm {
     copySlotsToFrom(postServicesConstructionSignal_, iOther.postServicesConstructionSignal_);
     copySlotsToFrom(preEventSetupModulesConstructionSignal_, iOther.preEventSetupModulesConstructionSignal_);
     copySlotsToFromReverse(postEventSetupModulesConstructionSignal_, iOther.postEventSetupModulesConstructionSignal_);
+    copySlotsToFrom(preESModuleConstructionSignal_, iOther.preESModuleConstructionSignal_);
+    copySlotsToFromReverse(postESModuleConstructionSignal_, iOther.postESModuleConstructionSignal_);
     copySlotsToFrom(preFinishScheduleSignal_, iOther.preFinishScheduleSignal_);
     copySlotsToFromReverse(postFinishScheduleSignal_, iOther.postFinishScheduleSignal_);
     copySlotsToFrom(prePrincipalsCreationSignal_, iOther.prePrincipalsCreationSignal_);
