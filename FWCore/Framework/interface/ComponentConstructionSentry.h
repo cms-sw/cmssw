@@ -20,7 +20,7 @@
 namespace edm {
   namespace eventsetup {
     class EventSetupProvider;
-    class ComponentDescription;
+    struct ComponentDescription;
 
     struct ComponentConstructionSentry {
       ComponentConstructionSentry(EventSetupProvider const& iProvider, ComponentDescription const& iDescription);
