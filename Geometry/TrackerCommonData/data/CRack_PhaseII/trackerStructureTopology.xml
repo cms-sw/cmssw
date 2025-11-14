@@ -37,29 +37,29 @@
     </SpecPar>
 
     <SpecPar name="CRACKL1_LowerDetectorsPar">
-      <PartSelector path="//CRACKL1M1Lower2Sactive"/>
-      <PartSelector path="//CRACKL1M2Lower2Sactive"/>
-      <PartSelector path="//CRACKL1M3Lower2Sactive"/>
-      <PartSelector path="//CRACKL1M4Lower2Sactive"/>
-      <PartSelector path="//CRACKL1M5Lower2Sactive"/>
-      <PartSelector path="//CRACKL1M6Lower2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M1Lower2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M2Lower2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M3Lower2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M4Lower2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M5Lower2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M6Lower2Sactive"/>
 
       <Parameter name="TrackerLowerDetectors" value="true"/>
     </SpecPar>
 
     <SpecPar name="CRACKL1_UpperDetectors">
-      <PartSelector path="//CRACKL1M1Upper2Sactive"/>
-      <PartSelector path="//CRACKL1M2Upper2Sactive"/>
-      <PartSelector path="//CRACKL1M3Upper2Sactive"/>
-      <PartSelector path="//CRACKL1M4Upper2Sactive"/>
-      <PartSelector path="//CRACKL1M5Upper2Sactive"/>
-      <PartSelector path="//CRACKL1M6Upper2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M1Upper2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M2Upper2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M3Upper2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M4Upper2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M5Upper2Sactive"/>
+      <PartSelector path="//BModuleCRACKL1M6Upper2Sactive"/>
       <Parameter name="TrackerUpperDetectors" value="true"/>
     </SpecPar>
 
 
 <SpecPar name="CRACKL1M1Upper2SactiveReadoutPar"> 
-    <PartSelector path="//CRACKL1M1Upper2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M1Upper2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -69,7 +69,7 @@
 
 
 <SpecPar name="CRACKL1M2Upper2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M2Upper2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M2Upper2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -79,7 +79,7 @@
 
 
 <SpecPar name="CRACKL1M3Upper2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M3Upper2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M3Upper2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -88,7 +88,7 @@
 </SpecPar>
 
 <SpecPar name="CRACKL1M4Upper2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M4Upper2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M4Upper2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -97,7 +97,7 @@
 </SpecPar>
 
 <SpecPar name="CRACKL1M5Upper2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M5Upper2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M5Upper2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -107,7 +107,7 @@
 
 
 <SpecPar name="CRACKL1M6Upper2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M6Upper2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M6Upper2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -118,7 +118,7 @@
 
 
 <SpecPar name="CRACKL1M1Lower2SactiveReadoutPar"> 
-    <PartSelector path="//CRACKL1M1Lower2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M1Lower2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -128,7 +128,7 @@
 
 
 <SpecPar name="CRACKL1M2Lower2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M2Lower2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M2Lower2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -138,7 +138,7 @@
 
 
 <SpecPar name="CRACKL1M3Lower2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M3Lower2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M3Lower2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -147,7 +147,7 @@
 </SpecPar>
 
 <SpecPar name="CRACKL1M4Lower2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M4Lower2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M4Lower2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -156,7 +156,7 @@
 </SpecPar>
 
 <SpecPar name="CRACKL1M5Lower2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M5Lower2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M5Lower2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>
@@ -166,7 +166,7 @@
 
 
 <SpecPar name="CRACKL1M6Lower2SactiveReadoutPar">
-    <PartSelector path="//CRACKL1M6Lower2Sactive"/>
+    <PartSelector path="//BModuleCRACKL1M6Lower2Sactive"/>
     <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     <Parameter name="PixelROCRows" eval="true" value="127"/>
     <Parameter name="PixelROCCols" eval="true" value="1"/>

@@ -18,29 +18,30 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtendedRun4D500Reco_cff')
 process.load('Configuration.Geometry.GeometryExtendedRun4D500_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealisticHLLHC_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-'''
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),  # or 'INFO'
-        DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),  # 0 = unlimited
-        #INFO = cms.untracked.PSet(limit = cms.untracked.int32(100000)),
-        #default = cms.untracked.PSet(limit = cms.untracked.int32(100000))
+
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(13579)
     ),
-    debugModules = cms.untracked.vstring('*')  # Enable debug for all modules
+    VtxSmeared = cms.PSet(
+    initialSeed = cms.untracked.uint32(13579)
+    ),
+    g4SimHits = cms.PSet(
+    initialSeed = cms.untracked.uint32(13579),
+    )
+
+
 )
-'''
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100000),
+    input = cms.untracked.int32(5000),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -110,7 +111,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_0T', '')
 
 process.generator = cms.EDProducer("CosMuoGenProducer",
     MaxP = cms.double(3000.0),            # Max momentum [GeV]
-    MinP = cms.double(5.0),               # Min momentum [GeV]
+    MinP = cms.double(3.0),               # Min momentum [GeV]
     MinEnu = cms.double(5.0),
     MaxEnu = cms.double(10000.0),
 
@@ -145,6 +146,7 @@ process.generator = cms.EDProducer("CosMuoGenProducer",
     MultiMuonFileFirstEvent = cms.int32(1),
     MultiMuonFileName = cms.string("CORSIKAmultiMuon.root"),
     MultiMuonNmin = cms.int32(2),
+    SurfaceDepth = cms.double(0.0),
     MTCCHalf = cms.bool(False),
     RhoClay = cms.double(0.0),
     RhoPlug = cms.double(0.0),
@@ -155,59 +157,28 @@ process.generator = cms.EDProducer("CosMuoGenProducer",
 
 )
 
-'''
-process.cosmicInPixelLoose = cms.EDFilter("CosmicGenFilterHelix",
-    charges = cms.vint32(1, -1),
-    doMonitor = cms.untracked.bool(False),
-    maxZ = cms.double(100.0),
-    minP = cms.double(0.0),
-    minPt = cms.double(0.0),
-    minZ = cms.double(-100.0),
-    pdgIds = cms.vint32(-13, 13),
-    propagator = cms.string('SteppingHelixPropagatorAlong'),
-    radius = cms.double(20.0),
-    src = cms.InputTag("generator","unsmeared")
+process.trackerGeometry.applyAlignment = False
+
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('TrackerGeometryBuilder'),
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO'),  # or 'INFO'
+        DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),  # 0 = unlimited
+        INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    ),
+    debugModules = cms.untracked.vstring('*')  # Enable debug for all modules
 )
 
 
-process.cosmicInTracker = cms.EDFilter("CosmicGenFilterHelix",
-    charges = cms.vint32(1, -1),
-    doMonitor = cms.untracked.bool(False),
-    maxZ = cms.double(212.0),
-    minP = cms.double(0.0),
-    minPt = cms.double(0.0),
-    minZ = cms.double(-212.0),
-    pdgIds = cms.vint32(-13, 13),
-    propagator = cms.string('SteppingHelixPropagatorAlong'),
-    radius = cms.double(100.0),
-    src = cms.InputTag("generator","unsmeared")
-)
-
-
-process.SteppingHelixPropagatorAlong = cms.ESProducer("SteppingHelixPropagatorESProducer",
-    ApplyRadX0Correction = cms.bool(True),
-    AssumeNoMaterial = cms.bool(False),
-    ComponentName = cms.string('SteppingHelixPropagatorAlong'),
-    NoErrorPropagation = cms.bool(False),
-    PropagationDirection = cms.string('alongMomentum'),
-    SetVBFPointer = cms.bool(False),
-    VBFName = cms.string('VolumeBasedMagneticField'),
-    debug = cms.bool(False),
-    endcapShiftInZNeg = cms.double(0.0),
-    endcapShiftInZPos = cms.double(0.0),
-    returnTangentPlane = cms.bool(True),
-    sendLogWarning = cms.bool(False),
-    useEndcapShiftsInZ = cms.bool(False),
-    useInTeslaFromMagField = cms.bool(False),
-    useIsYokeFlag = cms.bool(True),
-    useMagVolumes = cms.bool(True),
-    useMatVolumes = cms.bool(True),
-    useTuningForL2Speed = cms.bool(False)
-)
-'''
-
-#process.ProductionFilterSequence = cms.Sequence(process.generator+process.cosmicInPixelLoose)
 process.ProductionFilterSequence = cms.Sequence(process.generator)
+
+
+process.g4SimHits.OnlySDs = [
+    'TkAccumulatingSensitiveDetector'
+]
+
+print(process.g4SimHits.OnlySDs)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -234,8 +205,6 @@ for path in process.paths:
 process.g4SimHits.TrackingCut = cms.PSet(
     EkinMin = cms.double(1.0)  # in MeV
 )
-from SimG4Core.Configuration.customise_trackerOnlySim import customise
-process = customise(process)
 
 
 # Customisation from command line

@@ -5,10 +5,8 @@
 <!-- I need to add the hybrid between components  --> 
 
   <ConstantsSection label="tob.xml" eval="true">
-    <!--Constant name="RodDx" value="2.0*cm"/>
-    <Constant name="RodDy" value="5.0*cm"/>
-    <Constant name="RodDz" value="60.0*cm"/-->
-    <Constant name="RodDx" value="4.1*mm"/>
+    <!--Constant name="RodDx" value="4.1*mm"/-->
+    <Constant name="RodDx" value="100.0*mm"/>
     <Constant name="RodDy" value="62.51*mm"/>
     <Constant name="RodDz" value="1195.95*mm"/>
 
@@ -20,29 +18,20 @@
   </ConstantsSection>
 
 
-<RotationSection label="tob.xml">
-	<!--Rotation name="90XD" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg" phiZ="0*deg"/-->
-	<Rotation name="180D" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>
-	<Rotation name="180X" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="180*deg" phiZ="0*deg"/>
-	<Rotation name="90XD" thetaX="90*deg" phiX="90*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="0*deg"/>
-        <Rotation name="180Z" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="270*deg" thetaZ="0*deg" phiZ="0*deg"/>
-        <Rotation name="R180" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="0*deg" phiZ="0*deg"/>
-        <Rotation name="SKEW" thetaX="90*deg" phiX="-8.5*deg" thetaY="90*deg" phiY="81.5*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <RotationSection label="tob.xml">
+	<!-- In case you want to flip Y' instead of X' --> 
+	<!--Rotation name="faceupmodule" thetaX="90*deg" phiX="0*deg" thetaY="180*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/-->
+        <Rotation name="facedownmodule" thetaX="90*deg" phiX="0*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="270*deg"/>
+        <Rotation name="faceupmodule" thetaX="90*deg" phiX="180*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/>
 </RotationSection>
 
 <MaterialSection label="tob.xml">
-
-<ElementaryMaterial name="tkLayout_SenSi" symbol="SenSi" atomicNumber="14" atomicWeight="28.085*g/mole" density="2.3296*g/cm3"/>
-<ElementaryMaterial name="tkLayout_C" symbol="C" atomicNumber="6" atomicWeight="12.011*g/mole" density="2.267*g/cm3"/>
+    <ElementaryMaterial name="tkLayout_SenSi" symbol="SenSi" atomicNumber="14" atomicWeight="28.085*g/mole" density="2.3296*g/cm3"/>
+    <ElementaryMaterial name="tkLayout_C" symbol="C" atomicNumber="6" atomicWeight="12.011*g/mole" density="2.267*g/cm3"/>
 </MaterialSection>
 
-
-
-
-
-
-       <!-- volume design -->
-  <SolidSection label="tob.xml">
+ <!-- volume design -->
+ <SolidSection label="tob.xml">
 
     <!-- Ladder volume  -->
 
@@ -59,7 +48,6 @@
     <Box name="CRACKL1M4" dx="[SensorDx]" dy="[SensorDy]" dz="0.6*cm"/>
     <Box name="CRACKL1M5" dx="[SensorDx]" dy="[SensorDy]" dz="0.6*cm"/>
     <Box name="CRACKL1M6" dx="[SensorDx]" dy="[SensorDy]" dz="0.6*cm"/>
-
 
 
     <!-- Wafer Volumes (holders) -->
@@ -87,24 +75,24 @@
    
    <!--sensors -->
    
-   <Box name="CRACKL1M1Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
-   <Box name="CRACKL1M2Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
-   <Box name="CRACKL1M3Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M1Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M2Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M3Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
 
 
-   <Box name="CRACKL1M4Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
-   <Box name="CRACKL1M5Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
-   <Box name="CRACKL1M6Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M4Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M5Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M6Upper2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
 
 
-   <Box name="CRACKL1M1Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
-   <Box name="CRACKL1M2Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
-   <Box name="CRACKL1M3Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M1Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M2Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M3Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
 
    
-   <Box name="CRACKL1M4Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
-   <Box name="CRACKL1M5Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
-   <Box name="CRACKL1M6Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M4Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M5Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
+   <Box name="BModuleCRACKL1M6Lower2Sactive" dx="[SensorDx]" dy="[SensorDy]" dz="[SensorDz]"/>
 
    <!-- hybrid volume  -->
    
@@ -277,77 +265,77 @@
 </LogicalPart>
 
 
-<LogicalPart name="CRACKL1M1Upper2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M1Upper2Sactive"/>
+<LogicalPart name="BModuleCRACKL1M1Upper2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M1Upper2Sactive"/>
   <rMaterial name="tob:tkLayout_SenSi"/>
 </LogicalPart>
 
 
-<LogicalPart name="CRACKL1M1Lower2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M1Lower2Sactive"/>
+<LogicalPart name="BModuleCRACKL1M1Lower2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M1Lower2Sactive"/>
   <rMaterial name="tob:tkLayout_SenSi"/>
 </LogicalPart>
 
 
-<LogicalPart name="CRACKL1M2Upper2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M2Upper2Sactive"/>
+<LogicalPart name="BModuleCRACKL1M2Upper2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M2Upper2Sactive"/>
   <rMaterial name="tob:tkLayout_SenSi"/>
 </LogicalPart>
 
 
-<LogicalPart name="CRACKL1M2Lower2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M2Lower2Sactive"/>
+<LogicalPart name="BModuleCRACKL1M2Lower2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M2Lower2Sactive"/>
   <rMaterial name="tob:tkLayout_SenSi"/>
 </LogicalPart>
 
 
-<LogicalPart name="CRACKL1M3Upper2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M3Upper2Sactive"/>
+<LogicalPart name="BModuleCRACKL1M3Upper2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M3Upper2Sactive"/>
   <rMaterial name="tob:tkLayout_SenSi"/>
 </LogicalPart>
 
 
-<LogicalPart name="CRACKL1M3Lower2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M3Lower2Sactive"/>
-  <rMaterial name="tob:tkLayout_SenSi"/>
-</LogicalPart>
-
-
-
-
-<LogicalPart name="CRACKL1M4Upper2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M4Upper2Sactive"/>
-  <rMaterial name="tob:tkLayout_SenSi"/>
-</LogicalPart>
-
-
-<LogicalPart name="CRACKL1M4Lower2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M4Lower2Sactive"/>
-  <rMaterial name="tob:tkLayout_SenSi"/>
-</LogicalPart>
-
-
-<LogicalPart name="CRACKL1M5Upper2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M5Upper2Sactive"/>
-  <rMaterial name="tob:tkLayout_SenSi"/>
-</LogicalPart>
-
-
-<LogicalPart name="CRACKL1M5Lower2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M5Lower2Sactive"/>
+<LogicalPart name="BModuleCRACKL1M3Lower2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M3Lower2Sactive"/>
   <rMaterial name="tob:tkLayout_SenSi"/>
 </LogicalPart>
 
 
 
-<LogicalPart name="CRACKL1M6Upper2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M6Upper2Sactive"/>
+
+<LogicalPart name="BModuleCRACKL1M4Upper2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M4Upper2Sactive"/>
   <rMaterial name="tob:tkLayout_SenSi"/>
 </LogicalPart>
 
 
-<LogicalPart name="CRACKL1M6Lower2Sactive" category="unspecified">
-  <rSolid name="CRACKL1M6Lower2Sactive"/>
+<LogicalPart name="BModuleCRACKL1M4Lower2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M4Lower2Sactive"/>
+  <rMaterial name="tob:tkLayout_SenSi"/>
+</LogicalPart>
+
+
+<LogicalPart name="BModuleCRACKL1M5Upper2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M5Upper2Sactive"/>
+  <rMaterial name="tob:tkLayout_SenSi"/>
+</LogicalPart>
+
+
+<LogicalPart name="BModuleCRACKL1M5Lower2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M5Lower2Sactive"/>
+  <rMaterial name="tob:tkLayout_SenSi"/>
+</LogicalPart>
+
+
+
+<LogicalPart name="BModuleCRACKL1M6Upper2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M6Upper2Sactive"/>
+  <rMaterial name="tob:tkLayout_SenSi"/>
+</LogicalPart>
+
+
+<LogicalPart name="BModuleCRACKL1M6Lower2Sactive" category="unspecified">
+  <rSolid name="BModuleCRACKL1M6Lower2Sactive"/>
   <rMaterial name="tob:tkLayout_SenSi"/>
 </LogicalPart>
 
@@ -504,39 +492,39 @@
 <PosPart copyNumber="1">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="-172.0*mm" y="0.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="0.0*mm" z="0*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="-86.0*mm" y="0.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="86.0*mm" z="0.0*mm"/>
 </PosPart>
-
 
 <PosPart copyNumber="3">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="0.0*mm" y="0.0*mm" z="0*mm"/>
+<Translation x="0.0*mm" y="172.0*mm" z="0.0*mm"/>
 </PosPart>
+
 
 <PosPart copyNumber="4">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="86.0*mm" y="0.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="258.0*mm" z="0.0*mm"/>
 </PosPart>
+
 
 <PosPart copyNumber="5">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="172.0*mm" y="0.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="344.0*mm" z="0.0*mm"/>
 </PosPart>
-
 
 <PosPart copyNumber="6">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="258.0*mm" y="0.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="430.0*mm" z="0.0*mm"/>
 </PosPart>
 
 
@@ -552,74 +540,74 @@
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M1"/>
-<rRotation name="tob:90XD"/>
-<Translation x="2.9*mm" y="0*mm" z="55.4912*mm"/>
+<rRotation name="tob:faceupmodule"/>
+<Translation x="0.0*mm" y="2.9*mm" z="55.4912*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M1"/>
-<rRotation name="tob:90XD"/>
-<Translation x="-2.9*mm" y="0*mm" z="-44.3082*mm"/>
+<rRotation name="tob:facedownmodule"/>
+<Translation x="0.0*mm" y="-2.9*mm" z="-44.3082*mm"/>
 </PosPart>
 
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M2"/>
-<rRotation name="tob:90XD"/>
-<Translation x="-2.9*mm" y="0*mm" z="154.09*mm"/>
+<rRotation name="tob:facedownmodule"/>
+<Translation x="0.0*mm" y="-2.9*mm" z="154.09*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M2"/>
-<rRotation name="tob:90XD"/>
-<Translation x="2.9*mm" y="0*mm" z="-144.891*mm"/>
+<rRotation name="tob:faceupmodule"/>
+<Translation x="0.0*mm" y="2.9*mm" z="-144.891*mm"/>
 </PosPart>
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M3"/>
-<rRotation name="tob:90XD"/>
-<Translation x="2.9*mm" y="0*mm" z="255.043*mm"/>
+<rRotation name="tob:faceupmodule"/>
+<Translation x="0.0*mm" y="2.9*mm" z="255.043*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M3"/>
-<rRotation name="tob:90XD"/>
-<Translation x="-2.9*mm" y="0*mm" z="-242.523*mm"/>
+<rRotation name="tob:facedownmodule"/>
+<Translation x="0.0*mm" y="-2.9*mm" z="-242.523*mm"/>
 </PosPart>
 
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M4"/>
-<rRotation name="tob:90XD"/>
-<Translation x="-2.9*mm" y="0*mm" z="351.484*mm"/>
+<rRotation name="tob:facedownmodule"/>
+<Translation x="0.0*mm" y="-2.9*mm" z="351.484*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M4"/>
-<rRotation name="tob:90XD"/>
-<Translation x="2.9*mm" y="0*mm" z="-343.774*mm"/>
+<rRotation name="tob:faceupmodule"/>
+<Translation x="0.0*mm" y="2.9*mm" z="-343.774*mm"/>
 </PosPart>
 
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M5"/>
-<rRotation name="tob:90XD"/>
-<Translation x="2.9*mm" y="0*mm" z="453.103*mm"/>
+<rRotation name="tob:faceupmodule"/>
+<Translation x="0.0*mm" y="2.9*mm" z="453.103*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M5"/>
-<rRotation name="tob:90XD"/>
-<Translation x="-2.9*mm" y="0*mm" z="-439.255*mm"/>
+<rRotation name="tob:facedownmodule"/>
+<Translation x="0.0*mm" y="-2.9*mm" z="-439.255*mm"/>
 </PosPart>
 
 
@@ -627,15 +615,15 @@
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M6"/>
-<rRotation name="tob:90XD"/>
-<Translation x="-2.9*mm" y="0*mm" z="546.103*mm"/>
+<rRotation name="tob:facedownmodule"/>
+<Translation x="0.0*mm" y="-2.9*mm" z="546.103*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M6"/>
-<rRotation name="tob:90XD"/>
-<Translation x="2.9*mm" y="0*mm" z="-541.17*mm"/>
+<rRotation name="tob:faceupmodule"/>
+<Translation x="0.0*mm" y="2.9*mm" z="-541.17*mm"/>
 </PosPart>
 
 <!-- Module composition-->
@@ -655,12 +643,12 @@
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M1LowerWafer"/>
-<rChild name="tob:CRACKL1M1Lower2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M1Lower2Sactive"/>
 </PosPart>
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M1UpperWafer"/>
-<rChild name="tob:CRACKL1M1Upper2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M1Upper2Sactive"/>
 </PosPart>
 
 <PosPart copyNumber="1">
@@ -707,11 +695,11 @@
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M2LowerWafer"/>
-<rChild name="tob:CRACKL1M2Lower2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M2Lower2Sactive"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M2UpperWafer"/>
-<rChild name="tob:CRACKL1M2Upper2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M2Upper2Sactive"/>
 </PosPart>
 
 <PosPart copyNumber="1">
@@ -755,11 +743,11 @@
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M3LowerWafer"/>
-<rChild name="tob:CRACKL1M3Lower2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M3Lower2Sactive"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M3UpperWafer"/>
-<rChild name="tob:CRACKL1M3Upper2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M3Upper2Sactive"/>
 </PosPart>
 
 <PosPart copyNumber="1">
@@ -808,13 +796,13 @@
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M4LowerWafer"/>
-<rChild name="tob:CRACKL1M4Lower2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M4Lower2Sactive"/>
 </PosPart>
 
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M4UpperWafer"/>
-<rChild name="tob:CRACKL1M4Upper2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M4Upper2Sactive"/>
 </PosPart>
 
 <PosPart copyNumber="1">
@@ -860,13 +848,13 @@
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M5LowerWafer"/>
-<rChild name="tob:CRACKL1M5Lower2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M5Lower2Sactive"/>
 </PosPart>
 
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M5UpperWafer"/>
-<rChild name="tob:CRACKL1M5Upper2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M5Upper2Sactive"/>
 </PosPart>
 
 <PosPart copyNumber="1">
@@ -911,13 +899,13 @@
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M6LowerWafer"/>
-<rChild name="tob:CRACKL1M6Lower2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M6Lower2Sactive"/>
 </PosPart>
 
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1M6UpperWafer"/>
-<rChild name="tob:CRACKL1M6Upper2Sactive"/>
+<rChild name="tob:BModuleCRACKL1M6Upper2Sactive"/>
 </PosPart>
 
 <PosPart copyNumber="1">
