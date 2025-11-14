@@ -232,7 +232,7 @@ namespace phase1PixelTopology {
 
 namespace phase2PixelTopology {
 
-  // The parameters set here include the extension of the CA to the first 3 barrel layers of the OT.
+  // The parameters set here include the extension of the CA to the first 3 barrel layers of the OT, and the first 10 layers on the OT disks (TID).
   // This incorporates therefore the general set for Phase-2 and builds the basis for both CA configurations (with or without OT extension).
   // The layer pairs are ordered in such a way that the OT extended pairs are at the end of the arrays. So one can get the non-extended config by
   // chopping off the last elements.
@@ -240,17 +240,22 @@ namespace phase2PixelTopology {
   //   - pixelTopology::Phase2    -> no OT extension
   //   - pixelTopology::Phase2OT  -> with OT extension
 
-  constexpr uint32_t nLayersPix = 28;                      // pixel layers
-  constexpr uint32_t nLayersOT = 3;                        // considered OT layers
-  constexpr uint32_t nLayersTot = nLayersPix + nLayersOT;  // total number of layers for extended CA
+  constexpr uint32_t nLayersPix = 28;      // pixel layers
+  constexpr uint32_t nLayersOTBarrel = 3;  // layers in the OT barrel (TOB)
+  constexpr uint32_t nLayersOTDisks = 10;  // considered layers in the OT disks (TID)
+  constexpr uint32_t nLayersTot =
+      nLayersPix + nLayersOTBarrel + nLayersOTDisks;  // total number of layers for extended CA
 
-  constexpr int nPairsPix = 57;                    // pixel only layer pairs
-  constexpr int nPairsOT = 16;                     // layer pairs with OT layers
-  constexpr int nPairsTot = nPairsPix + nPairsOT;  // total number of layer pairs for extended CA
+  constexpr int nPairsPix = 57;                                          // pixel only layer pairs
+  constexpr int nPairsOTBarrel = 16;                                     // layer pairs with OT layers
+  constexpr int nPairsOTDisks = 18;                                      // layer pairs with OT disks
+  constexpr int nPairsTot = nPairsPix + nPairsOTBarrel + nPairsOTDisks;  // total number of layer pairs for extended CA
 
-  constexpr uint16_t nModulesPix = 4000;                      // pixel modules
-  constexpr uint16_t nModulesOT = 2872;                       // considered OT modules
-  constexpr uint16_t nModulesTot = nModulesPix + nModulesOT;  // total number of modules for extended CA
+  constexpr uint16_t nModulesPix = 4000;       // pixel modules
+  constexpr uint16_t nModulesOTBarrel = 2872;  // OT modules in the barrel
+  constexpr uint16_t nModulesOTDisks = 2720;   // OT modules in the disks
+  constexpr uint16_t nModulesTot =
+      nModulesPix + nModulesOTBarrel + nModulesOTDisks;  // total number of modules for extended CA
 
   constexpr int nStartingPairs = 24;  // number of layer pairs to start Ntuplet-building from
 
@@ -268,10 +273,16 @@ namespace phase2PixelTopology {
       19, 21, 20, 21, 20, 22, 21, 22, 21, 23, 22, 23, 22, 24,  // backward endcap (50)
       23, 24, 23, 25, 23, 26, 23, 27, 24, 25, 25, 26, 26, 27,  // backward endcap (57)
 
-      2,  28, 2,  28, 2,  28, 3,  28,          // barrel to OT (61)
-      4,  28, 5,  28, 6,  28, 7,  28, 8,  28,  // forward endcap to OT (66)
-      16, 28, 17, 28, 18, 28, 19, 28, 20, 28,  // backward endcap to OT (71)
-      28, 29, 29, 30                           // OT to OT (73)
+      2,  28, 2,  28, 2,  28, 3,  28,          // barrel to TOB (61)
+      4,  28, 5,  28, 6,  28, 7,  28, 8,  28,  // forward endcap to TOB (66)
+      16, 28, 17, 28, 18, 28, 19, 28, 20, 28,  // backward endcap to TOB (71)
+      28, 29, 29, 30,                          // TOB to TOB (73)
+      28, 31, 29, 31, 30, 31,                  // TOB to forward TID  (76)
+      28, 36, 29, 36, 30, 36,                  // TOB to backward TID (79)
+      31, 32, 32, 33, 33, 34, 34, 35,          // forward TID to forward TID (83)
+      36, 37, 37, 38, 38, 39, 39, 40,          // backward TID to backward TID (87)
+      9,  31, 9,  32,                          // forward endcap to forward TID (89)
+      21, 36, 21, 37                           // backward endcap to backward TID (91)
   };
 
   HOST_DEVICE_CONSTANT uint8_t startingPairs[nStartingPairs] = {0,  1,  2,  3,  4,  5,  6,  8,  10, 12, 15, 17,
@@ -288,27 +299,40 @@ namespace phase2PixelTopology {
       522,  250,  522,  300,  522,  240, 650,  // backward endcap
       300,  200,  220,  250,  250,  250, 250,  // backward endcap
 
-      1200, 1200, 1200, 1000,        // barrel to OT
-      1000, 1000, 1000, 1000, 850,   // forward endcap to OT
-      1000, 1000, 1000, 1000, 1000,  // backward endcap to OT
-      1100, 1250                     // OT to OT
+      1200, 1200, 1200, 1000,        // barrel to TOB
+      1000, 1000, 1000, 1000, 850,   // forward endcap to TOB
+      1000, 1000, 1000, 1000, 1000,  // backward endcap to TOB
+      1100, 1250,                    // TOB to TOB
+      1100, 1100, 1100,              // TOB to forward TID
+      1100, 1100, 1100,              // TOB to backward TID
+      1100, 1100, 1100, 1100,        // forward TID to forward TID
+      1100, 1100, 1100, 1100,        // backward TID to backward TID
+      750,  1000,                    // forward endcap to forward TID
+      750,  1000                     // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float minInner[nPairsTot] = {
-      -17,   -14,  4,      7,   -10000, -10000,      // BPIX1
-      -17,   -15,  6,      9,   -10000, -10000,      // BPIX2
-      -18,   11,   -10000,                           // BPIX3
-      0,     0,    0,      0,   0,      0,      0,   // forward endcap
-      0,     0,    0,      0,   0,      0,      12,  // forward endcap
-      0,     0,    0,      0,   0,      0,      0,   // forward endcap
-      0,     0,    0,      0,   0,      0,      0,   // backward endcap
-      0,     0,    0,      0,   0,      0,      12,  // backward endcap
-      0,     0,    0,      0,   0,      0,      0,   // backward endcap
+      -17,   -14,   4,      7,   -10000, -10000,      // BPIX1
+      -17,   -15,   6,      9,   -10000, -10000,      // BPIX2
+      -18,   11,    -10000,                           // BPIX3
+      0,     0,     0,      0,   0,      0,      0,   // forward endcap
+      0,     0,     0,      0,   0,      0,      12,  // forward endcap
+      0,     0,     0,      0,   0,      0,      0,   // forward endcap
+      0,     0,     0,      0,   0,      0,      0,   // backward endcap
+      0,     0,     0,      0,   0,      0,      12,  // backward endcap
+      0,     0,     0,      0,   0,      0,      0,   // backward endcap
 
-      -10,   -20,  10,     -20,     // barrel to O
-      11,    11,   11,     11,  0,  // forward end
-      11,    11,   11,     11,  0,  // backward en
-      -1200, -1200                  // OT to OT
+      -10,   -20,   10,     -20,     // barrel to TOB
+      11,    11,    11,     11,  0,  // forward end
+      11,    11,    11,     11,  0,  // backward en
+      -1200, -1200,                  // TOB to TOB
+
+      70,    70,    100,         // TOB to forward TID
+      -130,  -130,  -130,        // TOB to backward TID
+      23,    25,    30,     30,  // forward TID to forward TID
+      23,    25,    30,     30,  // backward TID to backward TID
+      10,    10,                 // forward endcap to forward TID
+      10,    10                  // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float maxInner[nPairsTot] = {
@@ -322,10 +346,17 @@ namespace phase2PixelTopology {
       13,    13,    13,    13,    13,    13, 16,  // backward endcap
       16,    6,     4,     6,     22,    22, 22,  // backward endcap
 
-      10,    -10,   20,    20,            // barrel to OT
-      10000, 10000, 10000, 10000, 10000,  // forward endcap to OT
-      10000, 10000, 10000, 10000, 10000,  // backward endcap to OT
-      1200,  1200                         // OT to OT
+      10,    -10,   20,    20,            // barrel to TOB
+      10000, 10000, 10000, 10000, 10000,  // forward endcap to TOB
+      10000, 10000, 10000, 10000, 10000,  // backward endcap to TOB
+      1200,  1200,                        // TOB to TOB
+
+      130,   130,   130,        // TOB to forward TID
+      -70,   -70,   -100,       // TOB to backward TID
+      60,    55,    55,    55,  // forward TID to forward TID
+      60,    55,    55,    55,  // backward TID to backward TID
+      18,    18,                // forward endcap to forward TID
+      18,    18                 // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float minOuter[nPairsTot] = {
@@ -339,10 +370,17 @@ namespace phase2PixelTopology {
       3,      3,      3,   4,    4,      3, 20,  // backward endcap
       6,      0,      0,   0,    7,      7, 7,   // backward endcap
 
-      -30,    -50,    25,  -45,           // barrel to OT
-      30,     40,     55,  70,   80,      // forward endcap to OT
-      -57,    -70,    -95, -110, -10000,  // backward endcap to OT
-      -10000, -10000                      // OT to OT
+      -30,    -50,    25,  -45,           // barrel to TOB
+      30,     40,     55,  70,   80,      // forward endcap to TOB
+      -57,    -70,    -95, -110, -10000,  // backward endcap to TOB
+      -10000, -10000,                     // TOB to TOB
+
+      20,     35,     55,       // TOB to forward TID
+      20,     35,     55,       // TOB to backward TID
+      25,     30,     35,  35,  // forward TID to forward TID
+      25,     30,     35,  35,  // backward TID to backward TID
+      20,     20,               // forward endcap to forward TID
+      20,     20                // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float maxOuter[nPairsTot] = {
@@ -356,10 +394,17 @@ namespace phase2PixelTopology {
       10000, 10000, 10000, 10000, 10000, 10000, 10000,  // backward endcap
       21,    7,     7,     10000, 10000, 10000, 10000,  // backward endcap
 
-      30,    -25,   50,    45,            // barrel to OT
-      57,    80,    95,    110,   10000,  // forward endcap to OT
-      -30,   -40,   -55,   -70,   -80,    // backward endcap to OT
-      10000, 10000                        // OT to OT
+      30,    -25,   50,    45,            // barrel to TOB
+      57,    80,    95,    110,   10000,  // forward endcap to TOB
+      -30,   -40,   -55,   -70,   -80,    // backward endcap to TOB
+      10000, 10000,                       // TOB to TOB
+
+      41,    60,    70,         // TOB to forward TID
+      41,    60,    70,         // TOB to backward TID
+      70,    70,    70,    70,  // forward TID to forward TID
+      70,    70,    70,    70,  // backward TID to backward TID
+      28,    30,                // forward endcap to forward TID
+      28,    30                 // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float maxDR[nPairsTot] = {
@@ -373,10 +418,17 @@ namespace phase2PixelTopology {
       8.0,     4.0,     8.0,     4.5,     8.0,  4.0,  10.0,  // backward endcap
       5.0,     3.0,     3.0,     4.0,     4.0,  4.0,  3.5,   // backward endcap
 
-      10000.0, 10000.0, 10000.0, 10000.0,        // barrel to OT
-      16.0,    16.0,    16.0,    16.0,    14.0,  // forward endcap to OT
-      16.0,    16.0,    16.0,    16.0,    14.0,  // backward endcap to OT
-      10000.0, 10000.0                           // OT to OT
+      10000.0, 10000.0, 10000.0, 10000.0,        // barrel to TOB
+      16.0,    16.0,    16.0,    16.0,    14.0,  // forward endcap to TOB
+      16.0,    16.0,    16.0,    16.0,    14.0,  // backward endcap to TOB
+      10000.0, 10000.0,                          // TOB to TOB
+
+      18,      24,      14,           // TOB to forward TID
+      18,      24,      14,           // TOB to backward TID
+      14,      14,      12,      12,  // forward TID to forward TID
+      14,      14,      12,      12,  // backward TID to backward TID
+      10,      15,                    // forward endcap to forward TID
+      10,      15                     // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float minDZ[nPairsTot] = {
@@ -390,10 +442,17 @@ namespace phase2PixelTopology {
       -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // backward endcap
       -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // backward endcap
 
-      -15.0,  -35.0,  10.0,   -22.0,          // barrel to OT
-      5.0,    -10.0,  5.0,    15.0,   25.0,   // forward endcap to OT
-      -32.5,  -50.0,  -50.0,  -70.0,  -70.0,  // backward endcap to OT
-      -50.0,  -40.0                           // OT to OT
+      -15.0,  -35.0,  10.0,   -22.0,          // barrel to TOB
+      5.0,    -10.0,  5.0,    15.0,   25.0,   // forward endcap to TOB
+      -32.5,  -50.0,  -50.0,  -70.0,  -70.0,  // backward endcap to TOB
+      -50.0,  -40.0,                          // TOB to TOB
+
+      5,      5,      10,           // TOB to forward TID
+      -80,    -55,    -30,          // TOB to backward TID
+      15,     20,     30,     35,   // forward TID to forward TID
+      -30,    -40,    -50,    -60,  // backward TID to backward TID
+      40,     65,                   // forward endcap to forward TID
+      -50,    -75                   // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float maxDZ[nPairsTot] = {
@@ -407,10 +466,17 @@ namespace phase2PixelTopology {
       10000, 10000, 10000, 10000, 10000, 10000, 10000,  // backward endcap
       10000, 10000, 10000, 10000, 10000, 10000, 10000,  // backward endcap
 
-      15.0,  -10.0, 35.0,  22.0,          // barrel to OT
-      32.5,  50.0,  50.0,  70.0,  70.0,   // forward endcap to OT
-      -5.0,  -10.0, -5.0,  -15.0, -25.0,  // backward endcap to OT
-      50.0,  40.0                         // OT to OT
+      15.0,  -10.0, 35.0,  22.0,          // barrel to TOB
+      32.5,  50.0,  50.0,  70.0,  70.0,   // forward endcap to TOB
+      -5.0,  -10.0, -5.0,  -15.0, -25.0,  // backward endcap to TOB
+      50.0,  40.0,                        // TOB to TOB
+
+      80,    55,    30,          // TOB to forward TID
+      -5,    -5,    -10,         // TOB to backward TID
+      30,    40,    50,    60,   // forward TID to forward TID
+      -15,   -20,   -30,   -35,  // backward TID to backward TID
+      50,    75,                 // forward endcap to forward TID
+      -40,   -65                 // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float ptCuts[nPairsTot] = {
@@ -424,24 +490,33 @@ namespace phase2PixelTopology {
       0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // backward endcap
       0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // backward endcap
 
-      2.00, 0.85, 0.85, 0.85,        // barrel to OT
-      0.85, 0.85, 0.85, 0.85, 0.85,  // forward endcap to OT
-      0.85, 0.85, 0.85, 0.85, 0.85,  // backward endcap to OT
-      0.85, 0.85                     // OT to OT
+      2.00, 0.85, 0.85, 0.85,        // barrel to TOB
+      0.85, 0.85, 0.85, 0.85, 0.85,  // forward endcap to TOB
+      0.85, 0.85, 0.85, 0.85, 0.85,  // backward endcap to TOB
+      0.85, 0.85,                    // TOB to TOB
+
+      0.85, 0.85, 0.85,        // TOB to forward TID
+      0.85, 0.85, 0.85,        // TOB to backward TID
+      0.85, 0.85, 0.85, 0.85,  // forward TID to forward TID
+      0.85, 0.85, 0.85, 0.85,  // backward TID to backward TID
+      0.85, 0.85,              // forward endcap to forward TID
+      0.85, 0.85               // backward endcap to backward TID
   };
 
   HOST_DEVICE_CONSTANT float dcaCuts[nLayersTot] = {
       0.15,  //BPix1
       0.25, 0.20, 0.20, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
       0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // Pixel layers
-      0.10, 0.10, 0.10                                                               // OT layers
+      1.00, 1.00, 1.00,                                                              // TOB layers
+      1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00                     // TID layers
   };
 
   HOST_DEVICE_CONSTANT float thetaCuts[nLayersTot] = {
       0.002, 0.002, 0.002, 0.002,  // BPix
       0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
       0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // Pixel layers
-      0.003, 0.003, 0.003                                                                  // OT layers
+      0.003, 0.003, 0.004,                                                                 // TOB layers
+      0.010, 0.009, 0.009, 0.009, 0.009, 0.010, 0.009, 0.009, 0.009, 0.009                 // TID layers
   };
 
   // -------------------------------------------------------------------------------------------------------
