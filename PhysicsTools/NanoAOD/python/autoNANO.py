@@ -57,5 +57,8 @@ autoNANO = {
                       'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTrackVarsToTimeLifeInfo'},
     # Custom BTV Nano for SF measurements or tagger training
     'BTV' : {'sequence': '@PHYS',
-             'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
+            'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'},
+    # Tau embedding NanoAOD (includes Data as well as MC tables with an addition tau embedding table)
+    'TauEmbedding': {'sequence': '@PHYS+PhysicsTools/NanoAOD/nano_cff.nanoSequenceFS+TauAnalysis/MCEmbeddingTools/Nano_cff.embeddingTable_seq',
+                     'customize': '@PHYS'},
 }

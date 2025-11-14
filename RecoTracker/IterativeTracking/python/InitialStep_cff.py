@@ -476,3 +476,10 @@ _InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions
                            ,initialStep
                            )
 fastSim.toReplaceWith(InitialStepTask, _InitialStepTask_fastSim)
+
+##
+## Modify for the tau embedding methods reco sim step
+##
+from Configuration.ProcessModifiers.tau_embedding_sim_cff import tau_embedding_sim
+from TauAnalysis.MCEmbeddingTools.Simulation_RECO_cff import tau_embedding_correct_hlt_vertices
+tau_embedding_sim.toReplaceWith(firstStepPrimaryVerticesUnsorted, tau_embedding_correct_hlt_vertices)
