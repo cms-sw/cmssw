@@ -99,6 +99,8 @@ namespace edm {
 
       void fillAllESProductResolverProviders(std::vector<ESProductResolverProvider const*>&) const;
 
+      ActivityRegistry const* activityRegistry() const { return activityRegistry_; }
+
     private:
       std::shared_ptr<EventSetupRecordProvider>& recordProvider(const EventSetupRecordKey& iKey);
       void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);

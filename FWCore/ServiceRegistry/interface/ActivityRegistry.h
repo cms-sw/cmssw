@@ -707,6 +707,22 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_1(watchPreSourceEarlyTermination)
 
+    /// signal is emitted before the ESModule is constructed
+    using PreESModuleConstruction = signalslot::Signal<void(eventsetup::ComponentDescription const&)>;
+    PreESModuleConstruction preESModuleConstructionSignal_;
+    void watchPreESModuleConstruction(PreESModuleConstruction::slot_type const& iSlot) {
+      preESModuleConstructionSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPreESModuleConstruction)
+
+    /// signal is emitted after the ESModule is constructed
+    using PostESModuleConstruction = signalslot::Signal<void(eventsetup::ComponentDescription const&)>;
+    PostESModuleConstruction postESModuleConstructionSignal_;
+    void watchPostESModuleConstruction(PostESModuleConstruction::slot_type const& iSlot) {
+      postESModuleConstructionSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPostESModuleConstruction)
+
     /// signal is emitted after the ESModule is registered with EventSetupProvider
     using PostESModuleRegistration = signalslot::Signal<void(eventsetup::ComponentDescription const&)>;
     PostESModuleRegistration postESModuleRegistrationSignal_;
