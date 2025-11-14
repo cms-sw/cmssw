@@ -646,8 +646,10 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   edm::ParameterSet psRes_displaced_d0 = conf_.getParameter<edm::ParameterSet>("TH1Resdisplaced_d0");
 
   static const std::string ranges[6] = {"eta0to0p7", "eta0p7to1", "eta1to1p2", "eta1p2to1p6", "eta1p6to2", "eta2to2p4"};
-  using namespace phase2tkutil;
-  
+  using phase2tkutil::book1DFromPS;
+  using phase2tkutil::bookIntoVec;
+  using phase2tkutil::bookDenNum;
+    
   // Histogram setup and definitions
   // ================== trackParticles (sample) ==================
   iBooker.setCurrentFolder(topFolderName_ + "/trackParticles");
@@ -702,7 +704,6 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   for (int i = 0; i < 6; ++i) {
     bookIntoVec(iBooker, reseta_displaced_vect, i, "reseta_displaced_" + ranges[i], psRes_eta, "#eta_{trk} - #eta_{tp}");
     bookIntoVec(iBooker, resphi_displaced_vect, i, "resphi_displaced_" + ranges[i], psRes_phi, "#phi_{trk} - #phi_{tp}");
-    // displaced d0 uses displaced-d0 PSet
     bookIntoVec(iBooker, resd0_displaced_vect,  i, "resd0_displaced_"  + ranges[i], psRes_displaced_d0, "d0_{trk} - d0_{tp} [cm]");
     bookIntoVec(iBooker, resz0_displaced_vect,  i, "resz0_displaced_"  + ranges[i], psRes_z0,           "z0_{trk} - z0_{tp} [cm]");
 

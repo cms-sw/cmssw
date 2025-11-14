@@ -14,8 +14,9 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TH1.h"
 
 namespace phase2tkutil {
@@ -33,13 +34,12 @@ namespace phase2tkutil {
     efficiency->GetYaxis()->SetTitle("Efficiency");
   }
 
-  using ME = dqm::legacy::MonitorElement;
-
-  inline ME* book1DFromPS(DQMStore::IBooker& iBooker,
-                          const std::string& name,
-                          const edm::ParameterSet& ps,
-                          const char* xaxis,
-                          const char* yaxis) {
+  inline dqm::legacy::MonitorElement* book1DFromPS(
+      dqm::legacy::DQMStore::IBooker& iBooker,
+      const std::string& name,
+      const edm::ParameterSet& ps,
+      const char* xaxis,
+      const char* yaxis) {
     auto h = iBooker.book1D(name, name,
                             ps.getParameter<int32_t>("Nbinsx"),
                             ps.getParameter<double>("xmin"),
@@ -49,28 +49,35 @@ namespace phase2tkutil {
     return h;
   }
 
-  inline void bookDenNum(DQMStore::IBooker& iBooker,
+  template <typename Ptr>
+  inline void bookDenNum(dqm::legacy::DQMStore::IBooker& iBooker,
                          const std::string& base,
-                         ME*& den, ME*& num,
+                         Ptr& den, Ptr& num,
                          const edm::ParameterSet& ps,
                          const char* xaxis,
                          const char* denY = "# tracking particles",
                          const char* numY = "# matched tracking particles",
                          const std::string& denPrefix = "tp_",
                          const std::string& numPrefix = "match_tp_") {
-    den = book1DFromPS(iBooker, denPrefix + base, ps, xaxis, denY);
-    num = book1DFromPS(iBooker, numPrefix + base, ps, xaxis, numY);
+    auto* denME = book1DFromPS(iBooker, denPrefix + base, ps, xaxis, denY);
+    auto* numME = book1DFromPS(iBooker, numPrefix + base, ps, xaxis, numY);
+    den = denME;  
+    num = numME;
   }
 
-  inline void bookIntoVec(DQMStore::IBooker& iBooker,
-                          std::vector<ME*>& vec,
+  template <typename Vec>
+  inline void bookIntoVec(dqm::legacy::DQMStore::IBooker& iBooker,
+                          Vec& vec,
                           int i,
                           const std::string& name,
                           const edm::ParameterSet& ps,
                           const char* xaxis,
                           const char* yaxis = "# tracking particles") {
-    if ((int)vec.size() <= i) vec.resize(i + 1, nullptr);
-    vec[i] = book1DFromPS(iBooker, name, ps, xaxis, yaxis);
+    if ((int)vec.size() <= i)
+      vec.resize(i + 1, nullptr);
+
+    auto* me = book1DFromPS(iBooker, name, ps, xaxis, yaxis);
+    vec[i] = me;  
   }
 }  // namespace phase2tkutil
 #endif
