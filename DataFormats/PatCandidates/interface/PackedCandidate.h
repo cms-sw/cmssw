@@ -951,15 +951,15 @@ namespace pat {
                                        /// energy for isolated charged hadrons
     float rawCaloFraction() const {
       return (rawCaloFraction_ / 100.);
-    }                                  /// Raw ECAL+HCAL energy over candidate energy for isolated charged hadrons
+    }  /// Raw ECAL+HCAL energy over candidate energy for isolated charged hadrons
     void setRawHcalFraction(float p);  /// Set the fraction of Hcal needed isolated charged hadrons
     float rawHcalFraction() const {
       return (rawHcalFraction_ / 100.);
-    }                               /// Fraction of Hcal for isolated charged hadrons
+    }  /// Fraction of Hcal for isolated charged hadrons
     void setCaloFraction(float p);  /// Set the fraction of ECAL+HCAL energy over candidate energy
     float caloFraction() const {
       return (caloFraction_ / 100.);
-    }                               /// Fraction of ECAL+HCAL energy over candidate energy
+    }  /// Fraction of ECAL+HCAL energy over candidate energy
     void setHcalFraction(float p);  /// Set the fraction of Hcal needed for HF,
                                     /// neutral hadrons, and charged particles
     float hcalFraction() const {
@@ -1111,8 +1111,7 @@ namespace pat {
                              "Trying to access covariance matrix for a "
                              "PackedCandidate for which it's not available. "
                              "Check hasTrackDetails() before!\n");
-      std::call_once(
-          covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covarianceVersion_);
+      std::call_once(covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covarianceVersion_);
       if (covarianceParameterization_.loadedVersion() != covarianceVersion_) {
         throw edm::Exception(edm::errors::UnimplementedFeature)
             << "Attempting to load multiple covariance version in same process. "

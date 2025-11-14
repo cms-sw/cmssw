@@ -111,8 +111,7 @@ namespace pixelTopology {
 #ifdef __CUDA_ARCH__
   __device__
 #endif
-      constexpr inline uint32_t
-      layerStart(uint32_t i) {
+      constexpr inline uint32_t layerStart(uint32_t i) {
     return TrackerTraits::layerStart[i];
   }
 

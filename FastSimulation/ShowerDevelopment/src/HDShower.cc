@@ -215,7 +215,7 @@ void HDShower::init(const RandomEngineAndDistribution* engine,
   depthGAPx0 = 0.;
   if (onECAL) {
     depthECAL = theGrid->ecalTotalL0();  // ECAL depth segment
-        //depthECAL  = theGrid->ecalTotalL0() + theGrid->ps1TotalL0() + theGrid->ps2TotalL0() + theGrid->ps2eeTotalL0(); //TEST: include preshower
+    //depthECAL  = theGrid->ecalTotalL0() + theGrid->ps1TotalL0() + theGrid->ps2TotalL0() + theGrid->ps2eeTotalL0(); //TEST: include preshower
     depthGAP = theGrid->ecalHcalGapTotalL0();    // GAP  depth segment
     depthGAPx0 = theGrid->ecalHcalGapTotalX0();  // GAP  depth x0
   }

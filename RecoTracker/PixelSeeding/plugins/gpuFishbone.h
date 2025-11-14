@@ -110,8 +110,8 @@ namespace gpuPixelDoublets {
             }
           }
         }  // cj
-      }    // ci
-    }      // hits
+      }  // ci
+    }  // hits
   }
 
 }  // namespace gpuPixelDoublets

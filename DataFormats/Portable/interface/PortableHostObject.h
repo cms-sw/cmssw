@@ -38,7 +38,7 @@ public:
   PortableHostObject(alpaka_common::DevHost const& host, Args&&... args)
       // allocate pageable host memory
       : buffer_{cms::alpakatools::make_host_buffer<Product>()},
-        product_{new(buffer_->data()) Product(std::forward<Args>(args)...)} {
+        product_{new (buffer_->data()) Product(std::forward<Args>(args)...)} {
     assert(reinterpret_cast<uintptr_t>(product_) % alignof(Product) == 0);
   }
 
@@ -55,7 +55,7 @@ public:
   PortableHostObject(TQueue const& queue, Args&&... args)
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
       : buffer_{cms::alpakatools::make_host_buffer<Product>(queue)},
-        product_{new(buffer_->data()) Product(std::forward<Args>(args)...)} {
+        product_{new (buffer_->data()) Product(std::forward<Args>(args)...)} {
     assert(reinterpret_cast<uintptr_t>(product_) % alignof(Product) == 0);
   }
 

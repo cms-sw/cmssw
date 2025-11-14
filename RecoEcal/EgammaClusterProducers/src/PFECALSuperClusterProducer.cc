@@ -57,7 +57,7 @@ public:
     return std::make_unique<reco::SCProducerCache>(config);
   }
 
-  static void globalEndJob(const reco::SCProducerCache*){};
+  static void globalEndJob(const reco::SCProducerCache*) {};
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

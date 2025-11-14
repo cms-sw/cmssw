@@ -26,9 +26,8 @@ namespace cms::alpakatools {
     template <typename TElem, typename TDim, typename TIdx, typename TQueue>
     struct CachedBufAlloc<TElem, TDim, TIdx, alpaka::DevCpu, TQueue, void> {
       template <typename TExtent>
-      ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevCpu const& dev,
-                                                TQueue queue,
-                                                TExtent const& extent) -> alpaka::BufCpu<TElem, TDim, TIdx> {
+      ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevCpu const& dev, TQueue queue, TExtent const& extent)
+          -> alpaka::BufCpu<TElem, TDim, TIdx> {
         // non-cached, queue-ordered asynchronous host-only memory
         return alpaka::allocAsyncBuf<TElem, TIdx>(queue, extent);
       }
@@ -86,9 +85,8 @@ namespace cms::alpakatools {
     template <typename TElem, typename TDim, typename TIdx, typename TQueue>
     struct CachedBufAlloc<TElem, TDim, TIdx, alpaka::DevCudaRt, TQueue, void> {
       template <typename TExtent>
-      ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevCudaRt const& dev,
-                                                TQueue queue,
-                                                TExtent const& extent) -> alpaka::BufCudaRt<TElem, TDim, TIdx> {
+      ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevCudaRt const& dev, TQueue queue, TExtent const& extent)
+          -> alpaka::BufCudaRt<TElem, TDim, TIdx> {
         ALPAKA_DEBUG_MINIMAL_LOG_SCOPE;
 
         auto& allocator = getDeviceCachingAllocator<alpaka::DevCudaRt, TQueue>(dev);
@@ -163,9 +161,8 @@ namespace cms::alpakatools {
     template <typename TElem, typename TDim, typename TIdx, typename TQueue>
     struct CachedBufAlloc<TElem, TDim, TIdx, alpaka::DevHipRt, TQueue, void> {
       template <typename TExtent>
-      ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevHipRt const& dev,
-                                                TQueue queue,
-                                                TExtent const& extent) -> alpaka::BufHipRt<TElem, TDim, TIdx> {
+      ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevHipRt const& dev, TQueue queue, TExtent const& extent)
+          -> alpaka::BufHipRt<TElem, TDim, TIdx> {
         ALPAKA_DEBUG_MINIMAL_LOG_SCOPE;
 
         auto& allocator = getDeviceCachingAllocator<alpaka::DevHipRt, TQueue>(dev);

@@ -622,7 +622,7 @@ float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) const {
   }
 
   // Get pT from XML (forest)
-  const int(*mode_variables)[6] = aux().getModeVariables();
+  const int (*mode_variables)[6] = aux().getModeVariables();
 
   std::vector<int> variables = {dPhi12,   dPhi13,   dPhi14,   dPhi23,   dPhi24, dPhi34, dTheta12, dTheta13,
                                 dTheta14, dTheta23, dTheta24, dTheta34, CLCT1,  CLCT2,  CLCT3,    CLCT4,
