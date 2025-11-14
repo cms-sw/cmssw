@@ -17,3 +17,9 @@ hltInitialStepTracks = cms.EDProducer("TrackProducer",
     useHitsSplitting = cms.bool(False),
     useSimpleMF = cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+
+(~singleIterPatatrack & trackingLST & seedingLST).toModify(hltInitialStepTracks, src = "hltInitialStepTrackCandidates:nopLSTCsLST")
