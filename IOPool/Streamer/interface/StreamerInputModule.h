@@ -4,7 +4,6 @@
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
@@ -92,7 +91,6 @@ namespace edm::streamer {
 
     if (eview == nullptr) {
       if (pr_->newHeader()) {
-        FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
         return Next::kFile;
       }
       return Next::kStop;
