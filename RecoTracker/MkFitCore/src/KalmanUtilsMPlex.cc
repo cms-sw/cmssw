@@ -1295,6 +1295,73 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
+  void kalmanPropagateAndUpdateAndChi2Plane(
+      const MPlexLS& psErr,
+      const MPlexLV& psPar,
+      MPlexQI& Chg,
+      const MPlexHS& msErr,
+      const MPlexHV& msPar,
+      const MPlexHV& plNrm,
+      const MPlexHV& plDir,
+      const MPlexHV& plPnt,
+      MPlexLS& outErr,
+      MPlexLV& outPar,
+      MPlexQI& outFailFlag,
+      MPlexQF& outChi2,
+      const int N_proc,
+      const PropagationFlags& propFlags,
+      const bool propToHit,
+      const MPlexQI* noMatEffPtr,
+      const MPlexQI* doCPE,
+      cpe_func cpe_corr_func) {  //last args are const MkJob*,  const MPlexQI* noMatEffPtr, const MPlexQI* doCPE (?)
+    if (propToHit) {
+      MPlexLS propErr;
+      MPlexLV propPar;
+
+      propagateHelixToPlaneMPlex(
+          psErr, psPar, Chg, plPnt, plNrm, propErr, propPar, outFailFlag, N_proc, propFlags, noMatEffPtr);
+
+      kalmanOperationPlaneLocal(KFO_Calculate_Chi2 | KFO_Update_Params | KFO_Local_Cov,
+                                propErr,
+                                propPar,
+                                Chg,
+                                msErr,
+                                msPar,
+                                plNrm,
+                                plDir,
+                                plPnt,
+                                outErr,
+                                outPar,
+                                outChi2,
+                                N_proc,
+                                doCPE,
+                                cpe_corr_func);
+
+    } else {
+      kalmanOperationPlaneLocal(KFO_Calculate_Chi2 | KFO_Update_Params | KFO_Local_Cov,
+                                psErr,
+                                psPar,
+                                Chg,
+                                msErr,
+                                msPar,
+                                plNrm,
+                                plDir,
+                                plPnt,
+                                outErr,
+                                outPar,
+                                outChi2,
+                                N_proc);
+    }
+    for (int n = 0; n < NN; ++n) {
+      if (outPar.At(n, 3, 0) < 0) {
+        Chg.At(n, 0, 0) = -Chg.At(n, 0, 0);
+        outPar.At(n, 3, 0) = -outPar.At(n, 3, 0);
+      }
+    }
+  }
+
+  //------------------------------------------------------------------------------
+
   void kalmanComputeChi2Plane(const MPlexLS& psErr,
                               const MPlexLV& psPar,
                               const MPlexQI& inChg,
@@ -1383,7 +1450,9 @@ namespace mkfit {
                                  MPlexLS& outErr,
                                  MPlexLV& outPar,
                                  MPlexQF& outChi2,
-                                 const int N_proc) {
+                                 const int N_proc,
+                                 const MPlexQI* doCPE,
+                                 cpe_func cpe_corr_func) {
 #ifdef DEBUG
     {
       dmutex_guard;
@@ -1474,6 +1543,27 @@ namespace mkfit {
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
       pzSign(n, 0, 0) = plo(n, 0, 2) > 0.f ? 1 : -1;
+    }
+
+    MPlex2V msPar_local;
+    MPlex2S msErr_local;
+
+    for (int n = 0; n < NN; ++n) {
+      if (doCPE && doCPE->constAt(n, 0, 0) >= 0 && cpe_corr_func) {
+        float ltp[6] = {lp(n, 0, 0), lp(n, 0, 1), lp(n, 0, 2), lp(n, 0, 3), lp(n, 0, 4), (float)pzSign(n, 0, 0)};
+        float lh[5] = {0, 0, 0, 0, 0};
+        int hit_idx = doCPE->constAt(n, 0, 0);
+        bool check = cpe_corr_func(hit_idx, ltp, lh);  //it's a boolean but need to introduce a safeguard if needed
+
+        if (!check)
+          continue;
+
+        msPar_local(n, 0, 0) = lh[0];
+        msPar_local(n, 0, 1) = lh[1];
+        msErr_local(n, 0, 0) = lh[2];
+        msErr_local(n, 0, 1) = lh[3];
+        msErr_local(n, 1, 1) = lh[4];
+      }
     }
 
     /*
@@ -1592,6 +1682,15 @@ namespace mkfit {
     }
     MPlex2V mslo;
     RotateResidualsOnPlane(rot, md, mslo);
+#pragma omp simd
+    //copy CPE pos for pixel hits if all ok
+    //need to add a CPE bool check
+    for (int n = 0; n < NN; ++n) {
+      if (doCPE && doCPE->constAt(n, 0, 0) >= 0 && cpe_corr_func) {
+        mslo(n, 0, 0) = msPar_local(n, 0, 0);
+        mslo(n, 0, 1) = msPar_local(n, 0, 1);
+      }
+    }
 
     MPlex2V res_loc;  //position residual in local coordinates
 #pragma omp simd
@@ -1604,6 +1703,15 @@ namespace mkfit {
     MPlex2H temp2Hmsl;
     ProjectResErr(rot, msErr, temp2Hmsl);
     ProjectResErrTransp(rot, temp2Hmsl, msErr_loc);
+#pragma omp simd
+    //copy CPE error for pixel hits if all ok
+    for (int n = 0; n < NN; ++n) {
+      if (doCPE && doCPE->constAt(n, 0, 0) >= 0 && cpe_corr_func) {
+        msErr_loc(n, 0, 0) = msErr_local(n, 0, 0);
+        msErr_loc(n, 0, 1) = msErr_local(n, 0, 1);
+        msErr_loc(n, 1, 1) = msErr_local(n, 1, 1);
+      }
+    }
 
     MPlex2S resErr_loc;  //covariance sum in local position coordinates
 #pragma omp simd

@@ -113,3 +113,35 @@ _HLTInitialStepSequenceSingleIterPatatrackLSTSeedingMkFitTracking = cms.Sequence
 )
 
 (singleIterPatatrack & trackingLST & seedingLST & hltTrackingMkFitInitialStep).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceSingleIterPatatrackLSTSeedingMkFitTracking)
+
+from ..modules.hltInitialStepTrackCandidatesMkFitFit_cfi import *
+
+_HLTInitialStepSequenceMkFitFitTracking = cms.Sequence(
+    hltInitialStepSeeds
+    +hltSiPhase2RecHits
+    +HLTMkFitInputSequence
+    +hltInitialStepMkFitSeeds
+    +hltInitialStepTrackCandidatesMkFit
+    +hltInitialStepTrackCandidatesMkFitFit
+    +hltInitialStepTracks
+    +hltInitialStepTrackCutClassifier
+    +hltInitialStepTrackSelectionHighPurity
+)
+
+_HLTInitialStepSequenceSingleIterPatatrackLSTSeedingMkFitFitTracking = cms.Sequence(
+     hltInitialStepSeeds
+    +hltInitialStepSeedTracksLST
+    +hltSiPhase2RecHits # Probably need to move elsewhere in the final setup
+    +hltInputLST
+    +hltLST
+    +hltInitialStepTrajectorySeedsLST
+    +HLTMkFitInputSequence
+    +hltInitialStepMkFitSeeds
+    +hltInitialStepTrackCandidatesMkFit
+    +hltInitialStepTrackCandidatesMkFitFit
+    +hltInitialStepTracks
+)
+
+from Configuration.ProcessModifiers.trackingMkFitFit_cff import trackingMkFitFit
+(~seedingLST & ~trackingLST & hltTrackingMkFitInitialStep & trackingMkFitFit).toReplaceWith(HLTInitialStepSequence,_HLTInitialStepSequenceMkFitFitTracking)
+(singleIterPatatrack & trackingLST & seedingLST & hltTrackingMkFitInitialStep & trackingMkFitFit).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceSingleIterPatatrackLSTSeedingMkFitFitTracking)
