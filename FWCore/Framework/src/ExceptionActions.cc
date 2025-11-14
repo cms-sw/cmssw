@@ -1,6 +1,5 @@
 
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 #include <vector>
@@ -58,13 +57,6 @@ namespace edm {
     // populate defaults that are not 'Rethrow'
     // (There are none as of CMSSW_3_4_X.)
     // 'Rethrow' is the default default.
-    if (2 <= debugit()) {
-      ActionMap::const_iterator ib(map_.begin()), ie(map_.end());
-      for (; ib != ie; ++ib) {
-        std::cerr << ib->first << ',' << ib->second << '\n';
-      }
-      std::cerr << std::endl;
-    }
   }
 
   ExceptionToActionTable::~ExceptionToActionTable() {}

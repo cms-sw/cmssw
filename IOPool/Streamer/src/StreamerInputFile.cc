@@ -2,7 +2,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
@@ -232,15 +231,12 @@ namespace edm::streamer {
 
   bool StreamerInputFile::openNextFile() {
     if (currentFile_ <= streamerNames_.size() - 1) {
-      FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).fileNames()[0].c_str() << std::endl;
-
       openStreamerFile(streamerNames_.at(currentFile_).fileNames()[0],
                        streamerNames_.at(currentFile_).logicalFileName());
 
       // If start message was already there, then compare the
       // previous and new headers
       if (startMsg_) {
-        FDEBUG(10) << "Comparing Header" << std::endl;
         compareHeader();
       }
       ++currentFile_;

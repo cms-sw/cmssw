@@ -31,7 +31,6 @@
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include <string>
 #include <iostream>
@@ -57,8 +56,6 @@ namespace edm::streamer {
   // ---------------------------------------
   void StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header, ProductRegistry& reg, bool subsequent) {
     SendDescs const& descs = header.descs();
-
-    FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
 
     std::set<std::string> processNames;
     for (auto const& item : descs) {
@@ -111,7 +108,6 @@ namespace edm::streamer {
     for (auto const& item : descs) {
       //pi->init();
       std::string const real_name = wrappedClassName(item.className());
-      FDEBUG(6) << "declare: " << real_name << std::endl;
       if (!loadCap(real_name, missingDictionaries)) {
         branchNamesForMissing.emplace_back(item.branchName());
         producedTypes.emplace_back(item.className() + std::string(" (read from input)"));
@@ -127,7 +123,6 @@ namespace edm::streamer {
     for (auto const& item : descs) {
       //pi->init();
       std::string const real_name = wrappedClassName(item.className());
-      FDEBUG(6) << "BuildReadData: " << real_name << std::endl;
       doBuildRealData(real_name);
     }
   }
@@ -145,9 +140,6 @@ namespace edm::streamer {
     if (initView.protocolVersion() > 3) {
       processName_ = initView.processName();
       protocolVersion_ = initView.protocolVersion();
-
-      FDEBUG(10) << "StreamerInputSource::deserializeRegistry processName = " << processName_ << std::endl;
-      FDEBUG(10) << "StreamerInputSource::deserializeRegistry protocolVersion_= " << protocolVersion_ << std::endl;
     }
 
     // calculate the adler32 checksum
@@ -166,7 +158,6 @@ namespace edm::streamer {
 
     TBufferFile xbuf(
         TBuffer::kRead, initView.descLength(), const_cast<char*>((char const*)initView.descData()), kFALSE);
-    RootDebug tracer(10, 10);
     std::unique_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 
     if (sd.get() == nullptr) {
@@ -217,9 +208,6 @@ namespace edm::streamer {
     if (eventView.code() != Header::EVENT)
       throw cms::Exception("StreamTranslation", "Event deserialization error")
           << "received wrong message type: expected EVENT, got " << eventView.code() << "\n";
-    FDEBUG(9) << "Decode event: " << eventView.event() << " " << eventView.run() << " " << eventView.size() << " "
-              << eventView.adler32_chksum() << " " << eventView.eventLength() << " " << eventView.eventData()
-              << std::endl;
     // uncompress if we need to
     // 78 was a dummy value (for no uncompressed) - should be 0 for uncompressed
     // need to get rid of this when 090 MTCC streamers are gotten rid of
@@ -267,7 +255,6 @@ namespace edm::streamer {
     //             (char const*) eventView.eventData(),kFALSE);
     xbuf_.Reset();
     xbuf_.SetBuffer(&dest_[0], dest_size, kFALSE);
-    RootDebug tracer(10, 10);
 
     //We do not yet know which EventPrincipal we will use, therefore
     // we are using a new EventPrincipalHolder as a proxy. We need to
@@ -297,7 +284,6 @@ namespace edm::streamer {
 
     processHistoryRegistryForUpdate().registerProcessHistory(sendEvent_->processHistory());
 
-    FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
     if (runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run() ||
         runAuxiliary()->processHistoryID() != sendEvent_->processHistory().id()) {
       RunAuxiliary* runAuxiliary =
@@ -334,44 +320,30 @@ namespace edm::streamer {
 
     SendProds& sps = sendEvent_->products();
     for (auto& spitem : sps) {
-      FDEBUG(10) << "check prodpair" << std::endl;
       if (spitem.desc() == nullptr)
         throw cms::Exception("StreamTranslation", "Empty Provenance");
-      FDEBUG(5) << "Prov:"
-                << " " << spitem.desc()->className() << " " << spitem.desc()->productInstanceName() << " "
-                << spitem.desc()->branchID() << std::endl;
 
       ProductDescription const branchDesc(*spitem.desc());
       // This ProductProvenance constructor inserts into the entry description registry
       if (spitem.parents()) {
         std::optional<ProductProvenance> productProvenance{std::in_place, spitem.branchID(), *spitem.parents()};
         if (spitem.prod() != nullptr) {
-          FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
           eventPrincipal.putOnRead(
               branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), productProvenance);
-          FDEBUG(10) << "addproduct done" << std::endl;
         } else {
-          FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
           eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), productProvenance);
-          FDEBUG(10) << "addproduct empty done" << std::endl;
         }
       } else {
         std::optional<ProductProvenance> productProvenance;
         if (spitem.prod() != nullptr) {
-          FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
           eventPrincipal.putOnRead(
               branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), productProvenance);
-          FDEBUG(10) << "addproduct done" << std::endl;
         } else {
-          FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
           eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), productProvenance);
-          FDEBUG(10) << "addproduct empty done" << std::endl;
         }
       }
       spitem.clear();
     }
-
-    FDEBUG(10) << "Size = " << eventPrincipal.size() << std::endl;
   }
 
   /**
@@ -388,13 +360,11 @@ namespace edm::streamer {
                                                      unsigned int expectedFullSize) {
     unsigned long origSize = expectedFullSize;
     unsigned long uncompressedSize = expectedFullSize * 1.1;
-    FDEBUG(1) << "Uncompress: original size = " << origSize << ", compressed size = " << inputSize << std::endl;
     outputBuffer.resize(uncompressedSize);
     int ret = uncompress(&outputBuffer[0], &uncompressedSize, inputBuffer, inputSize);  // do not need compression level
     //std::cout << "unCompress Return value: " << ret << " Okay = " << Z_OK << std::endl;
     if (ret == Z_OK) {
       // check the length against original uncompressed length
-      FDEBUG(10) << " original size = " << origSize << " final size = " << uncompressedSize << std::endl;
       if (origSize != uncompressedSize) {
         // we throw an error and return without event! null pointer
         throw cms::Exception("StreamDeserialization", "Uncompression error")
@@ -421,7 +391,6 @@ namespace edm::streamer {
                                                          bool hasHeader) {
     unsigned long origSize = expectedFullSize;
     unsigned long uncompressedSize = expectedFullSize * 1.1;
-    FDEBUG(1) << "Uncompress: original size = " << origSize << ", compressed size = " << inputSize << std::endl;
     outputBuffer.resize(uncompressedSize);
 
     lzma_stream stream = LZMA_STREAM_INIT;
@@ -449,7 +418,6 @@ namespace edm::streamer {
 
     uncompressedSize = (unsigned int)stream.total_out;
 
-    FDEBUG(10) << " original size = " << origSize << " final size = " << uncompressedSize << std::endl;
     if (origSize != uncompressedSize) {
       // we throw an error and return without event! null pointer
       throw cms::Exception("StreamDeserialization", "LZMA uncompression error")
@@ -472,7 +440,6 @@ namespace edm::streamer {
                                                          unsigned int expectedFullSize,
                                                          bool hasHeader) {
     unsigned long uncompressedSize = expectedFullSize * 1.1;
-    FDEBUG(1) << "Uncompress: original size = " << expectedFullSize << ", compressed size = " << inputSize << std::endl;
     outputBuffer.resize(uncompressedSize);
 
     size_t hdrSize = hasHeader ? 4 : 0;

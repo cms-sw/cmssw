@@ -1,6 +1,5 @@
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <iostream>
@@ -28,8 +27,6 @@ namespace edm {
           << "Perhaps the name is misspelled or is not a Plugin?\n"
           << "Try running EdmPluginDump to obtain a list of available Plugins.";
     }
-
-    FDEBUG(1) << "PresenceFactory: created presence " << presence_type << std::endl;
 
     return sp;
   }
