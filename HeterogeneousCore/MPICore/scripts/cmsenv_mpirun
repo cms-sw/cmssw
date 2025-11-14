@@ -51,20 +51,20 @@ if [[ -z "$SSH_WRAPPER_OPTION" ]]; then
 fi
 
 # full path to cmsenv_ssh
-# RELEASE_BASE=
-# for VAR in CMSSW_BASE CMSSW_RELEASE_BASE CMSSW_FULL_RELEASE_BASE; do
-#   TEST_PATH=${!VAR}
-#   if [ -x $TEST_PATH/bin/$SCRAM_ARCH/cmsenv_ssh ]; then
-#     RELEASE_BASE=$TEST_PATH
-#     break
-#   fi
-# done
-# if [ -z "$RELEASE_BASE" ]; then
-#   echo "Error: cannot find cmsenv_ssh in the \$PATH."
-#   exit 1
-# fi
+RELEASE_BASE=
+for VAR in CMSSW_BASE CMSSW_RELEASE_BASE CMSSW_FULL_RELEASE_BASE; do
+  TEST_PATH=${!VAR}
+  if [ -x $TEST_PATH/bin/$SCRAM_ARCH/cmsenv_ssh ]; then
+    RELEASE_BASE=$TEST_PATH
+    break
+  fi
+done
+if [ -z "$RELEASE_BASE" ]; then
+  echo "Error: cannot find cmsenv_ssh in the \$PATH."
+  exit 1
+fi
 
-MPI_CMD="mpirun $SSH_WRAPPER_OPTION /data/user/apolova/dev1/CMSSW_15_1_0_pre4/src/HeterogeneousCore/MPICore/scripts/cmsenv_ssh $MPIRUN_PREDICATE"
+MPI_CMD="mpirun $SSH_WRAPPER_OPTION $RELEASE_BASE/bin/$SCRAM_ARCH/cmsenv_ssh $MPIRUN_PREDICATE"
 
 if [[ "$VERBOSE" == true ]]; then
     echo "--------------------------------------------------------------------------------"
@@ -73,3 +73,4 @@ if [[ "$VERBOSE" == true ]]; then
 fi
 
 exec $MPI_CMD
+

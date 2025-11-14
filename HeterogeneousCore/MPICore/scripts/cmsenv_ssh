@@ -16,13 +16,13 @@ function set_remote_cmsenv() {
     # The paths needed to set cmsenv obtained in the local node and passed to this function
     # This function is evaluated in the remote node
 
-    local LOCAL_VO_CMS_SW_DIR="$1"
+    local LOCAL_CMS_PATH="$1"
     local LOCAL_CMSSW_BASE="$2"
 
-    if [ -f "$LOCAL_VO_CMS_SW_DIR/cmsset_default.sh" ]; then
-        source "$LOCAL_VO_CMS_SW_DIR/cmsset_default.sh"
+    if [ -f "$LOCAL_CMS_PATH/cmsset_default.sh" ]; then
+        source "$LOCAL_CMS_PATH/cmsset_default.sh"
     else
-        echo "error: invalid CMS installation at $LOCAL_VO_CMS_SW_DIR/ in host $(hostname)"
+        echo "error: invalid CMS installation at $LOCAL_CMS_PATH/ in host $(hostname)"
         exit 1
     fi
 
@@ -36,4 +36,4 @@ function set_remote_cmsenv() {
 }
 
 # set cmssw env in remote before executing cmd
-ssh $SSH_OPTS $host "$(declare -f set_remote_cmsenv) && set_remote_cmsenv $VO_CMS_SW_DIR $CMSSW_BASE; $cmd"
+ssh $SSH_OPTS $host "$(declare -f set_remote_cmsenv) && set_remote_cmsenv $CMS_PATH $CMSSW_BASE; $cmd"
