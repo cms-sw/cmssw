@@ -28,7 +28,11 @@ hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
                                          ScoutingMuonPropertiesMonitor )
 
 hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting)
+## remove corrector to not schedule the run of the corrector modules which crash if scouting objects are missing
+hltScoutingJetDqmOfflineForRelVals = cms.Sequence(jetMETDQMOfflineSourceScoutingNoCorrection)
 
 hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
 
 hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline + hltScoutingEGammaDqmOffline + hltScoutingJetDqmOffline + hltScoutingCollectionMonitor)
+hltScoutingDqmOfflineForRelVals = hltScoutingDqmOffline.copy()
+hltScoutingDqmOfflineForRelVals.replace(hltScoutingJetDqmOffline, hltScoutingJetDqmOfflineForRelVals)
