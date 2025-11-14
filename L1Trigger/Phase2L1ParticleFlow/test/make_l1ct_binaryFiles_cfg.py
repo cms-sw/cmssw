@@ -82,7 +82,7 @@ process.L1TInputTask = cms.Task(
 from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
 l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
                                                nJets = cms.uint32(12),
-                                               mht = cms.InputTag("l1tMHTPFProducer"),
+                                               mht = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
                                                nSums = cms.uint32(2),
                                                jetEncoding = cms.string("GT")),
                                       cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
