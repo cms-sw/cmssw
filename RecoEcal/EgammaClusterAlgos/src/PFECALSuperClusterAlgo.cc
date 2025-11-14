@@ -316,6 +316,7 @@ void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedPFClusterVect
   ecalClusterGraph_.selectClusters();
   // Extract the final SuperCluster collection
   reco::EcalClustersGraph::EcalGraphOutput windows = ecalClusterGraph_.getGraphOutput();
+  LogDebug("PFEcalSuperClusterAlgo") << "End of EcalClusterGraph evaluation";
   for (auto& [seed, clustered] : windows) {
     bool isEE = false;
     if (seed.ptr()->layer() == PFLayer::ECAL_ENDCAP)
