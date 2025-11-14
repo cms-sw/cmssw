@@ -103,8 +103,7 @@ bool TimingSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   edeposit = aStep->GetTotalEnergyDeposit();
   if (edeposit > 0.f) {
     getStepInfo(aStep);
-    // (primaryID = -2) means ECAL GFlash spot inside MTD
-    if (-1 <= primaryID && !hitExists(aStep)) {
+    if (!hitExists(aStep)) {
       createNewHit(aStep);
     }
   }
@@ -113,12 +112,6 @@ bool TimingSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 
 void TimingSD::getStepInfo(const G4Step* aStep) {
   const G4Track* newTrack = aStep->GetTrack();
-  // exclude ECAL gflash spots inside MTD detectors,
-  // which not possible correctly handle
-  primaryID = getTrackID(newTrack);
-  if (primaryID < -1) {
-    return;
-  }
 
   preStepPoint = aStep->GetPreStepPoint();
   postStepPoint = aStep->GetPostStepPoint();
@@ -189,6 +182,7 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
 
   setHitClassID(aStep);
   unitID = setDetUnitId(aStep);
+  primaryID = getTrackID(theTrack);
 }
 
 bool TimingSD::hitExists(const G4Step* aStep) {
