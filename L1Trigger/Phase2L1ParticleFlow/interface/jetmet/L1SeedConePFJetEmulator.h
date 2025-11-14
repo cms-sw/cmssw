@@ -43,7 +43,7 @@ public:
     Particle seed;
   };
 
-  L1SCJetEmu(bool debug, float coneSize, unsigned nJets);
+  L1SCJetEmu(bool debug, float coneSize, unsigned nJets, bool doMass = false);
 
   std::vector<Jet> emulateEvent(std::vector<Particle>& parts) const;
 
@@ -53,6 +53,7 @@ private:
   float coneSize_;
   unsigned nJets_;
   detaphi2_t rCone2_;
+  bool doMass_;
 
   // constants for the axis update
   typedef ap_ufixed<18, -2> inv_pt_t;

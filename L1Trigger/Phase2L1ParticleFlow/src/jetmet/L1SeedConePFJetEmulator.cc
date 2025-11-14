@@ -1,10 +1,11 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1SeedConePFJetEmulator.h"
 
-L1SCJetEmu::L1SCJetEmu(bool debug, float coneSize, unsigned nJets)
+L1SCJetEmu::L1SCJetEmu(bool debug, float coneSize, unsigned nJets, bool doMass)
     : debug_(debug),
       coneSize_(coneSize),
       nJets_(nJets),
-      rCone2_(coneSize * coneSize / l1ct::Scales::ETAPHI_LSB / l1ct::Scales::ETAPHI_LSB) {
+      rCone2_(coneSize * coneSize / l1ct::Scales::ETAPHI_LSB / l1ct::Scales::ETAPHI_LSB),
+      doMass_(doMass) {
   init_invert_table<pt_t, inv_pt_t, N_table_inv_pt>(inv_pt_table_);
 }
 
@@ -133,7 +134,7 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const
 
   std::vector<Particle> truncated =
       sortConstituents(parts, seed);  // sort the constituents by pt and truncate to NCONSTITS
-  mass2_t massSq = L1SCJetEmu::jetMass_HW(truncated);
+  mass2_t massSq = (doMass_) ? L1SCJetEmu::jetMass_HW(truncated) : mass2_t(0);
 
   Jet jet;
   jet.hwPt = pt;
