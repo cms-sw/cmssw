@@ -9,3 +9,17 @@
 #include "DataFormats/PortableTestObjects/interface/TestStruct.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceObject.h"
+
+#include "DataFormats/PortableTestObjects/interface/ParticleSoA.h"
+#include "DataFormats/PortableTestObjects/interface/ImageSoA.h"
+#include "DataFormats/PortableTestObjects/interface/LogitsSoA.h"
+#include "DataFormats/PortableTestObjects/interface/SimpleNetSoA.h"
+#include "DataFormats/PortableTestObjects/interface/MultiHeadNetSoA.h"
+#include "DataFormats/PortableTestObjects/interface/MaskSoA.h"
+
+#include "DataFormats/PortableTestObjects/interface/alpaka/ParticleDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/ImageDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/LogitsDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/SimpleNetDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/MultiHeadNetDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/MaskDeviceCollection.h"
