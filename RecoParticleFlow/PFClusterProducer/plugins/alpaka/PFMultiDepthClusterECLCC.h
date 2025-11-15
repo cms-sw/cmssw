@@ -139,6 +139,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::ConstView pfClusteringEdgeVars) const {
       const unsigned int nClusters = pfClusteringCCLabels.size();
 
+      if (::cms::alpakatools::once_per_grid(acc)) {
+        pfClusteringCCLabels.topH() = nClusters - 1;
+        pfClusteringCCLabels.posH() = nClusters - 1;
+        pfClusteringCCLabels.topL() = 0;
+        pfClusteringCCLabels.posL() = 0;
+      }
+
       for (int v : ::cms::alpakatools::uniform_elements(acc, nClusters)) {
         const int begin_v = pfClusteringEdgeVars[v].mdpf_adjacencyIndex();
         const int end_v = pfClusteringEdgeVars[v + 1].mdpf_adjacencyIndex();
@@ -149,13 +156,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
           i++;
         }
         pfClusteringCCLabels[v].mdpf_topoId() = m;
-
-        if (v == 0) {
-          pfClusteringCCLabels.topH() = nClusters - 1;
-          pfClusteringCCLabels.posH() = nClusters - 1;
-          pfClusteringCCLabels.topL() = 0;
-          pfClusteringCCLabels.posL() = 0;
-        }
       }
     }
   };

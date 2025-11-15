@@ -19,22 +19,22 @@ namespace cms::alpakatools {
     using warp_mask_t = unsigned;  // for host (no-op)
 #endif
 
+#ifdef __HIP_DEVICE_COMPILE__
+
+#if HIP_VERSION_MAJOR < 7
+#warning "HIP Version < 7.0 is not supported."
+#endif
+
+#endif
+
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void syncWarpThreads_mask(TAcc const& acc, warp::warp_mask_t mask) {
       if (mask == 0)
         return;  //early return for the trivial mask
 
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
-
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-      // Alpaka CUDA backend
+      // Alpaka CUDA/HIP backend
       __syncwarp(mask);  // Synchronize all threads within a subset of lanes in the warp
-#endif
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      // Alpaka HIP backend
-      __builtin_amdgcn_wave_barrier();
-#endif
-
 #endif
       // No-op for CPU accelerators
     }
@@ -45,19 +45,7 @@ namespace cms::alpakatools {
                                                                       int pred) {
       warp::warp_mask_t res{0};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
-
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-      // Alpaka CUDA backend
       res = __ballot_sync(mask, pred);
-#endif  //ALPAKA_ACC_GPU_CUDA_ENABLED
-
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      // Alpaka HIP backend
-#if HIP_VERSION_MAJOR >= 7
-      res = __ballot_sync(mask, pred);
-#endif
-#endif  //ALPAKA_ACC_GPU_HIP_ENABLED
-
 #else
       res = pred == 1 ? mask : 0;
 #endif
@@ -69,18 +57,7 @@ namespace cms::alpakatools {
     shfl_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
       T res{};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
-
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-      // Alpaka CUDA backend
       res = __shfl_sync(mask, var, srcLane, width);  // Synchronize all threads within a warp
-#endif                                               //ALPAKA_ACC_GPU_CUDA_ENABLED
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      // Alpaka HIP backend
-#if HIP_VERSION_MAJOR >= 7
-      res = __shfl_sync(mask, var, srcLane, width);
-#endif
-#endif  //ALPAKA_ACC_GPU_HIP_ENABLED
-
 #else
       res = var;
 #endif
@@ -93,18 +70,7 @@ namespace cms::alpakatools {
     shfl_down_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
       T res{};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
-
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-      // Alpaka CUDA backend
       res = __shfl_down_sync(mask, var, srcLane, width);
-#endif
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      // Alpaka HIP backend
-#if HIP_VERSION_MAJOR >= 7
-      res = __shfl_down_sync(mask, var, srcLane, width);
-#endif
-#endif
-
 #else
       res = var;
 #endif
@@ -116,18 +82,7 @@ namespace cms::alpakatools {
     shfl_up_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
       T res{};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
-
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-      // Alpaka CUDA backend
       res = __shfl_up_sync(mask, var, srcLane, width);
-#endif
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      // Alpaka HIP backend
-#if HIP_VERSION_MAJOR >= 7
-      res = __shfl_up_sync(mask, var, srcLane, width);
-#endif
-#endif
-
 #else
       res = var;
 #endif
@@ -141,9 +96,7 @@ namespace cms::alpakatools {
       warp::warp_mask_t res{};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
 
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-      // Alpaka CUDA backend
-#if __CUDA_ARCH__ >= 700
+#if __CUDA_ARCH__ >= 700 || ALPAKA_ACC_GPU_HIP_ENABLED
       res = __match_any_sync(mask, val);
 #else
       const unsigned int w_extent = alpaka::warp::getSize(acc);
@@ -156,15 +109,6 @@ namespace cms::alpakatools {
       }
       res = match & mask;
 #endif
-#endif
-
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      // Alpaka HIP backend
-#if HIP_VERSION_MAJOR >= 7
-      res = __match_any_sync(mask, val);
-#endif
-#endif
-
 #else
       res = mask;
 #endif
@@ -184,9 +128,7 @@ namespace cms::alpakatools {
 #endif
 #ifdef ALPAKA_ACC_GPU_HIP_ENABLED
     // Alpaka HIP backend
-#if HIP_VERSION_MAJOR >= 7
     res = __brevll(mask);
-#endif
 #endif
 #else
     res = mask;
@@ -205,9 +147,7 @@ namespace cms::alpakatools {
 #endif
 #ifdef ALPAKA_ACC_GPU_HIP_ENABLED
     // Alpaka HIP backend
-#if HIP_VERSION_MAJOR >= 7
     res = __clzll(mask);
-#endif
 #endif
 #else
     res = mask == 0 ? 1 : 0;
