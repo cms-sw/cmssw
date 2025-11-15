@@ -8,9 +8,16 @@
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/HGCalObjects"/>
   <use name="Geometry/HGCalMapping"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/Records"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="testMappingModIndexer_def" command="cmsRun ${LOCALTOP}/src/Geometry/HGCalMapping/test/testMappingModuleIndexer_cfg.py  "/>
+
+<test name="testMappingModIndexer_trigger" command="cmsRun ${LOCALTOP}/src/Geometry/HGCalMapping/test/testMappingModuleIndexerTrigger_cfg.py"/>
+

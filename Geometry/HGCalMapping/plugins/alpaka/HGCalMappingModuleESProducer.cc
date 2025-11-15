@@ -29,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       //
       HGCalMappingModuleESProducer(const edm::ParameterSet& iConfig)
-          : ESProducer(iConfig), filename_(iConfig.getParameter<edm::FileInPath>("filename")) {
+          : ESProducer(iConfig), filename_(iConfig.getParameter<edm::FileInPath>("filename")), nCEELayers_(26) {
         auto cc = setWhatProduced(this);
         moduleIndexTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("moduleindexer"));
       }
@@ -48,7 +48,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto modIndexer = iRecord.get(moduleIndexTkn_);
 
         // load dense indexing
-        const uint32_t size = modIndexer.maxModulesIndex();
+        const uint32_t size = modIndexer.maxModulesCount();
         HGCalMappingModuleParamHost moduleParams(size, cms::alpakatools::host());
         for (size_t i = 0; i < size; i++)
           moduleParams.view()[i].valid() = false;
@@ -77,8 +77,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           uint32_t detid(0);
           if (!isSiPM) {
             int zp(zside > 0 ? 1 : -1);
-            DetId::Detector det = plane <= 26 ? DetId::Detector::HGCalEE : DetId::Detector::HGCalHSi;
-            detid = HGCSiliconDetId(det, zp, celltype, plane, i1, i2, 0, 0).rawId();
+            DetId::Detector det = plane <= nCEELayers_ ? DetId::Detector::HGCalEE : DetId::Detector::HGCalHSi;
+            auto detid_plane = plane - nCEELayers_ * (plane > nCEELayers_);
+            detid = HGCSiliconDetId(det, zp, celltype, detid_plane, i1, i2, 0, 0).rawId();
           }
 
           auto module = moduleParams.view()[idx];
@@ -108,6 +109,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     private:
       edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
       const edm::FileInPath filename_;
+      const int nCEELayers_;
     };
 
   }  // namespace hgcal

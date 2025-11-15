@@ -36,7 +36,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                               HGCalCalibParamDevice const& device_calib,
                                               HGCalMappingModuleParamDevice const& device_mapmod,
                                               HGCalMappingCellParamDevice const& device_mapping,
-                                              HGCalDenseIndexInfoDevice const& device_index) const;
+                                              HGCalDenseIndexInfoDevice const& device_index,
+                                              double k_noise) const;
 
     HGCalSoARecHitsDeviceCollection select(Queue& queue,
                                            int const ndigis,
