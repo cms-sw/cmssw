@@ -268,7 +268,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       HGCalMappingModuleParamDevice const& device_mapmod,
       HGCalMappingCellParamDevice const& device_mapping,
       HGCalDenseIndexInfoDevice const& device_index,
-      double const& k_noise) const {
+      double k_noise) const {
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Start of calibrate\n\n" << std::endl;
 
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Copying the digis to the device\n\n" << std::endl;
