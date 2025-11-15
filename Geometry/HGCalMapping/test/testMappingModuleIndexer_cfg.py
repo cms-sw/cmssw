@@ -32,6 +32,6 @@ process.load('Configuration.Geometry.GeometryExtendedRun4D104Reco_cff')
 
 # tester
 process.tester = cms.EDAnalyzer('HGCalMappingESSourceTester')
-process.tester.verbosity = cms.int32(options.verbosity)
+process.tester.verbosity = cms.untracked.int32(options.verbosity)
 
 process.p = cms.Path(process.tester)
