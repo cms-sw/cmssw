@@ -61,4 +61,11 @@
   <class name="hgcaldigi::HGCalFEDPacketInfoHost"/>
   <class name="edm::Wrapper<hgcaldigi::HGCalFEDPacketInfoHost>" splitLevel="0"/>
 
+  <class name="hgcaldigi::HGCalDigiTriggerSoA"/>
+  <class name="hgcaldigi::HGCalDigiTriggerSoA::View"/>
+  <class name="hgcaldigi::HGCalDigiTriggerHost"/>
+  <class name="hgcaldigi::HGCalDigiTriggerSoALayout<128,false>"/>
+  <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalDigiTriggerSoALayout<128,false> > >" splitLevel="0"/>
+  <class name="portablecollection::CollectionLeaf<0, hgcaldigi::HGCalDigiTriggerSoALayout<128, false>>"/>
+  
 </lcgdict>
