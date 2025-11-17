@@ -59,6 +59,7 @@ namespace L1JUMPEmu {
         throw cms::Exception("FileNotFound") << f.fullPath();
       }
 #else
+      path = "l1jump_jer_v1.json"; // For HLS Emulator
       std::ifstream in(path);
       if (!in) {
         throw std::runtime_error(std::string("File not found: ") + path);

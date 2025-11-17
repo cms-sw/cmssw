@@ -73,7 +73,7 @@ namespace L1METEmu {
         throw cms::Exception("FileNotFound") << f.fullPath();
       }
 #else
-      path = "l1met_ptphi2pxpy_poly2_v1.json";
+      path = "l1met_ptphi2pxpy_poly2_v1.json"; // For HLS Emulator
       std::ifstream in(path);
       if (!in) {
         throw std::runtime_error(std::string("File not found: ") + path);
