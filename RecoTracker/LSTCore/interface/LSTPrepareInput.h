@@ -36,6 +36,7 @@ namespace lst {
                                              std::vector<float> const& see_stateTrajGlbPz,
                                              std::vector<int> const& see_q,
                                              std::vector<std::vector<int>> const& see_hitIdx,
+                                             std::vector<std::vector<int>> const& see_hitType,
                                              std::vector<unsigned int> const& see_algo,
                                              std::vector<unsigned int> const& ph2_detId,
                                              std::vector<uint16_t> const& ph2_clustSize,
@@ -156,18 +157,19 @@ namespace lst {
         trkX.push_back(r3LH.x());
         trkY.push_back(r3LH.y());
         trkZ.push_back(r3LH.z());
-        hitId.push_back(1);
-        hitId.push_back(1);
-        hitId.push_back(1);
-        hitClustSize.push_back(1);
-        hitClustSize.push_back(1);
-        hitClustSize.push_back(1);
+        auto const& hTypes = see_hitType[iSeed];
+        auto constexpr intPixel = static_cast<int>(HitType::Pixel);
+        auto const& hIdxs = see_hitIdx[iSeed];
+        for (int iSH = 0; iSH < 3; iSH++) {
+          hitId.push_back(hTypes[iSH] == intPixel ? kPixelModuleId : ph2_detId[hIdxs[iSH]]);
+          hitClustSize.push_back(hTypes[iSH] == intPixel ? 1 : ph2_clustSize[hIdxs[iSH]]);
+        }
         if (see_hitIdx[iSeed].size() > 3) {
           trkX.push_back(r3LH.x());
           trkY.push_back(see_dxy[iSeed]);
           trkZ.push_back(see_dz[iSeed]);
-          hitId.push_back(1);
-          hitClustSize.push_back(1);
+          hitId.push_back(hTypes[3] == intPixel ? kPixelModuleId : ph2_detId[hIdxs[3]]);
+          hitClustSize.push_back(hTypes[3] == intPixel ? 1 : ph2_clustSize[hIdxs[3]]);
         }
         px_vec.push_back(px);
         py_vec.push_back(py);
@@ -216,6 +218,7 @@ namespace lst {
     LSTInputHostCollection lstInputHC(queue, nHitsIT + nHitsOT, nPixelSeeds);
 
     auto hits = lstInputHC.view().hits();
+    hits.nHitsOT() = nHitsOT;
     std::memcpy(hits.xs().data(), ph2_x.data(), nHitsOT * sizeof(float));
     std::memcpy(hits.ys().data(), ph2_y.data(), nHitsOT * sizeof(float));
     std::memcpy(hits.zs().data(), ph2_z.data(), nHitsOT * sizeof(float));

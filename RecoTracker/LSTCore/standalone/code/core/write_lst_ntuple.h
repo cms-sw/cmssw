@@ -104,23 +104,23 @@ std::tuple<int, float, float, float, int, std::vector<int>, std::vector<float>> 
     std::vector<std::vector<int>> const& trk_pix_simHitIdx,
     float& percent_matched,
     float matchfrac = 0.75);
-std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepT5(LSTEvent* event,
+std::tuple<float, float, float, std::vector<unsigned int>, std::vector<lst::HitType>> parsepT5(LSTEvent* event,
                                                                                                unsigned int);
-std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepT3(LSTEvent* event,
+std::tuple<float, float, float, std::vector<unsigned int>, std::vector<lst::HitType>> parsepT3(LSTEvent* event,
                                                                                                unsigned int);
-std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parseT5(
+std::tuple<float, float, float, std::vector<unsigned int>, std::vector<lst::HitType>> parseT5(
     LSTEvent* event,
     unsigned int,
     std::vector<float> const& trk_ph2_x,
     std::vector<float> const& trk_ph2_y,
     std::vector<float> const& trk_ph2_z);
-std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parseT4(
+std::tuple<float, float, float, std::vector<unsigned int>, std::vector<lst::HitType>> parseT4(
     LSTEvent* event,
     unsigned int,
     std::vector<float> const& trk_ph2_x,
     std::vector<float> const& trk_ph2_y,
     std::vector<float> const& trk_ph2_z);
-std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepLS(LSTEvent* event,
+std::tuple<float, float, float, std::vector<unsigned int>, std::vector<lst::HitType>> parsepLS(LSTEvent* event,
                                                                                                unsigned int);
 
 // Print multiplicities
