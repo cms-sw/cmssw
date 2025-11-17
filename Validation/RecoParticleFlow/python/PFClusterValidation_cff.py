@@ -7,7 +7,7 @@ pfClusterValidationSequence = cms.Sequence( pfClusterValidation )
 pfClusterAlpakaComparisonSequence = cms.Sequence( pfClusterHBHEAlpakaComparison )
 
 pfClusterCaloOnlyValidation = pfClusterValidation.clone(
-    pflowClusterHCAL = 'particleFlowClusterHCALOnly'
+    pflowClusterHCAL = 'particleFlowClusterHCALOnlyLegacy'
 )
 
 pfClusterCaloOnlyValidationSequence = cms.Sequence( pfClusterCaloOnlyValidation )

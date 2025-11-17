@@ -169,3 +169,25 @@ particleFlowClusterHBHEOnly = particleFlowClusterHBHE.clone(
 from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
 hcalPfCutsFromDB.toModify( particleFlowClusterHBHE,
                            usePFThresholdsFromDB = True)
+
+# Alpaka and legacy
+particleFlowClusterHBHEOnlyLegacy = particleFlowClusterHBHEOnly.clone()
+
+from RecoParticleFlow.PFClusterProducer.legacyPFClusterProducer_cfi import legacyPFClusterProducer as _legacyPFClusterProducer
+legacyPFClusterProducer = _legacyPFClusterProducer.clone(
+        src = 'pfClusterSoAProducer',
+        pfClusterBuilder = particleFlowClusterHBHE.pfClusterBuilder,
+        recHitsSource = 'legacyPFRecHitProducer',
+        PFRecHitsLabelIn = 'pfRecHitSoAProducerHCAL'
+    )
+
+legacyPFClusterProducerHBHEOnly = _legacyPFClusterProducer.clone(
+        src = 'pfClusterSoAProducerHBHEOnly',
+        pfClusterBuilder = particleFlowClusterHBHE.pfClusterBuilder,
+        recHitsSource = 'particleFlowRecHitHBHEOnly',
+        PFRecHitsLabelIn = 'pfRecHitSoAProducerHBHEOnly'
+    )
+
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+alpaka.toReplaceWith(particleFlowClusterHBHE, legacyPFClusterProducer)
+alpaka.toReplaceWith(particleFlowClusterHBHEOnly, legacyPFClusterProducerHBHEOnly)
