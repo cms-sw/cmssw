@@ -34,7 +34,7 @@ if [ -f ${IBEOS_CACHE} ] ; then
           IBEOS_FILES="$IBEOS_FILES $LFN"
           ;;
       /store/* )
-        if [ $(grep "${LFN}" ${IBEOS_CACHE} | wc -l) -gt 0 ] ; then
+        if [ $(grep "^${LFN}$" ${IBEOS_CACHE} | wc -l) -gt 0 ] ; then
           IBEOS_FILES="$IBEOS_FILES root://eoscms.cern.ch//store/user/cmsbuild${LFN}"
         else
           NON_IBEOS_FILES="$NON_IBEOS_FILES $LFN"
