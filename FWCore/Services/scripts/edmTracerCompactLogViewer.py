@@ -523,7 +523,7 @@ class EDModuleTransitionParser(object):
                 slot = data.findOpenSlotInModGlobals(index, self.moduleID)
             else:
                 slot = data.findOpenSlotInModStreams(index, self.moduleID)
-        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=activity, start=self.time))
+        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, requestingMod=self.requestingModuleID, requestingCall=self.requestingCallID, activity=activity, start=self.time))
         return slot[-1]
     def _postJson(self, data, injectAfter = None, isSrc = False):
         compare = lambda x: x.id == self.index and x.mod == self.moduleID and x.call == self.callID and x.type == self.transition and ((getattr(x,'isSrc',None) != None) == isSrc )
@@ -580,7 +580,7 @@ class PostEDModulePrefetchingParser(EDModuleTransitionParser):
     def jsonInfo(self, data):
         if self._moduleCentric:
             #inject a dummy at end of the same slot to guarantee module run is in that slot
-            return self._postJson(data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.temporary, start=self.time))
+            return self._postJson(data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, requestingMod=self.requestingModuleID, requestingCall=self.requestingCallID, activity=Activity.temporary, start=self.time))
         pass
 
 class PreEDModuleAcquireParser(EDModuleTransitionParser):
@@ -601,7 +601,7 @@ class PostEDModuleAcquireParser(EDModuleTransitionParser):
     def jsonInfo(self, data):
         if self._moduleCentric:
             #inject an external work at end of the same slot to guarantee module run is in that slot
-            return self._postJson(data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.externalWork, start=self.time))
+            return self._postJson(data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, requestingMod=self.requestingModuleID, requestingCall=self.requestingCallID, activity=Activity.externalWork, start=self.time))
         return self._postJson(data)
 
 class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
@@ -686,7 +686,7 @@ class ESModuleTransitionParser(object):
             slot = data.findOpenSlotInModGlobals(index, -1*self.moduleID)
         else:
             slot = data.findOpenSlotInModStreams(index, -1*self.moduleID)
-        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=-1*self.moduleID, callID=self.callID, activity=activity, start=self.time))
+        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=-1*self.moduleID, callID=self.callID, requestingMod=self.requestingModuleID, requestingCall=self.requestingCallID, activity=activity, start=self.time))
         return slot[-1]
     def _postJson(self, data):
         compare = lambda x: x.id == self.index and x.mod == -1*self.moduleID and x.call == self.callID
@@ -1017,11 +1017,13 @@ def jsonTransition(type, id, sync, start, finish, isSrc=False):
     return JsonTransition(type, id, sync, start, finish, isSrc)
 
 class JsonModuleTransition(object):
-    def __init__(self, type, id, modID, callID, activity, start, finish=0):
+    def __init__(self, type, id, modID, callID, activity, requestingMod, requestingCall, start, finish=0):
         self.type = type
         self.id = id
         self.mod = modID
         self.call = callID
+        self.requestingMod = requestingMod
+        self.requestingCall = requestingCall
         self.act = activity
         self.start = start
         self.finish = finish
@@ -1030,8 +1032,8 @@ class JsonModuleTransition(object):
     def setFinish(self, finish):
         self.finish = finish
 
-def jsonModuleTransition(type, id, modID, callID, activity, start, finish=0):
-    return JsonModuleTransition(type, id, modID, callID, activity, start, finish)
+def jsonModuleTransition(type, id, modID, callID, activity, requestingMod, requestingCall, start, finish=0):
+    return JsonModuleTransition(type, id, modID, callID, activity, requestingMod, requestingCall, start, finish)
 
 def startTime(x):
     return x.start
