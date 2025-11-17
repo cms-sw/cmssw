@@ -1341,7 +1341,7 @@ if __name__=="__main__":
     else :
         parser = TracerCompactFileParser(args.filename, args.frameworkOnly, args.module_centric)
         if args.json or args.web:
-            j = json.dumps(jsonInfo(parser))
+            j = json.dumps(jsonInfo(parser),indent=2)
             if args.json:
                 print(j)
             if args.web:
