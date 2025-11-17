@@ -44,7 +44,6 @@ To Use: Add the Tracer Service to the cmsRun job use something like this
 #};
 
 
-kMicroToSec = 0.000001
 #Special names
 kSourceFindEvent = "sourceFindEvent"
 kSourceDelayedRead ="sourceDelayedRead"
@@ -293,9 +292,9 @@ class PreFrameworkTransitionParser (FrameworkTransitionParser):
                     #at end run transition
                     index = findMatchingTransition(list(self.sync), data.allGlobals())
                     container = data.indexedGlobal(index)
-                    container[-1].finish = self.time*kMicroToSec
+                    container[-1].setFinish(self.time)
                 else:
-                    data._queued[-1].finish = self.time*kMicroToSec
+                    data._queued[-1].setFinish(self.time)
                     data._queued.append( jsonTransition(type=self.transition, id = index, sync=list(self.sync), start=self.time , finish=0))
                     return
             elif self.transition==Phase.globalBeginRun:
@@ -344,13 +343,13 @@ class PostFrameworkTransitionParser (FrameworkTransitionParser):
     def jsonInfo(self, data):
         if transitionIsGlobal(self.transition):
             if self.transition == Phase.esSync and self.sync[1] != kLargestLumiNumber:
-                data._queued[-1].finish=self.time*kMicroToSec
+                data._queued[-1].setFinish(self.time)
                 return
             index = findMatchingTransition(list(self.sync), data.allGlobals())
             container = data.indexedGlobal(index)
         else:
             container = data.indexedStream(self.index)
-        container[-1].finish=self.time*kMicroToSec
+        container[-1].setFinish(self.time)
 
 
 class QueuingFrameworkTransitionParser (FrameworkTransitionParser):
@@ -455,7 +454,7 @@ class PostSourceTransitionParser(SourceTransitionParser):
         if self.transition == Phase.Event:
             container = data.indexedStream(index)
         elif self.transition == Phase.getNextTransition:
-            data._nextTrans[-1].finish = self.time*kMicroToSec
+            data._nextTrans[-1].setFinish(self.time)
             return
         elif self.transition == Phase.construction:
             pre = None
@@ -467,13 +466,13 @@ class PostSourceTransitionParser(SourceTransitionParser):
                         pre = t
                         break
                 if pre:
-                    pre.finish=self.time*kMicroToSec
+                    pre.setFinish(self.time)
                     break
             return
         else:
             container = data.indexedGlobal(index)
 
-        container[-1].finish=self.time*kMicroToSec
+        container[-1].setFinish(self.time)
 
 class EDModuleTransitionParser(object):
     def __init__(self, payload, moduleNames):
@@ -517,7 +516,7 @@ class EDModuleTransitionParser(object):
                 if item.act == Activity.temporary:
                     slot.pop()
                 else:
-                    item.finish=self.time*kMicroToSec
+                    item.setFinish(self.time)
                 found = True
         if not found:
             if transitionIsGlobal(self.transition):
@@ -536,7 +535,7 @@ class EDModuleTransitionParser(object):
         if item is None:
             print(f"failed to find {self.moduleID} for {self.transition} in {self.index}")
         else:
-            item.finish=self.time*kMicroToSec
+            item.setFinish(self.time)
             if injectAfter:
                 slot.append(injectAfter)
 
@@ -568,8 +567,7 @@ class PreEDModulePrefetchingParser(EDModuleTransitionParser):
         entry = self._preJson(Activity.prefetch, data)
         if self._moduleCentric:
             return entry
-        kPrefetchLength = 2*kMicroToSec
-        entry.finish=entry.start+kPrefetchLength
+        entry.setFinish(-1)
         return entry
 
 
@@ -700,7 +698,7 @@ class ESModuleTransitionParser(object):
         if item is None:
             print(f"failed to find {-1*self.moduleID} for {self.transition} in {self.index}")
             return
-        item.finish=self.time*kMicroToSec
+        item.setFinish(self.time)
 
 
 class PreESModuleTransitionParser(ESModuleTransitionParser):
@@ -728,7 +726,7 @@ class PreESModulePrefetchingParser(ESModuleTransitionParser):
     def jsonInfo(self, data):
         entry = self._preJson(Activity.prefetch, data)
         if not self._moduleCentric:
-            entry.finish = entry.start+2*kMicroToSec;
+            entry.setFinish(-1)
         return entry
 
 class PostESModulePrefetchingParser(ESModuleTransitionParser):
@@ -1009,9 +1007,11 @@ class JsonTransition(object):
         self.type = type
         self.id = id
         self.sync = sync
-        self.start = start*kMicroToSec
-        self.finish = finish*kMicroToSec
+        self.start = start
+        self.finish = finish
         self.isSrc = isSrc
+    def setFinish(self, finish):
+        self.finish = finish
 
 def jsonTransition(type, id, sync, start, finish, isSrc=False):
     return JsonTransition(type, id, sync, start, finish, isSrc)
@@ -1023,10 +1023,12 @@ class JsonModuleTransition(object):
         self.mod = modID
         self.call = callID
         self.act = activity
-        self.start = start*kMicroToSec
-        self.finish = finish*kMicroToSec
+        self.start = start
+        self.finish = finish
     def addSrc(self):
         self.isSrc = True
+    def setFinish(self, finish):
+        self.finish = finish
 
 def jsonModuleTransition(type, id, modID, callID, activity, start, finish=0):
     return JsonModuleTransition(type, id, modID, callID, activity, start, finish)
