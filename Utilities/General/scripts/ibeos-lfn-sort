@@ -12,6 +12,7 @@ if [ "$CMSSW_USE_IBEOS" != "true" ]; then
   exit 1
 fi
 
+IBEOS_PFN="root://eoscms.cern.ch//store/user/cmsbuild"
 IBEOS_FILES=""
 NON_IBEOS_FILES=""
 # try to download cache
@@ -32,10 +33,14 @@ if [ -f ${IBEOS_CACHE} ] ; then
     case $LFN in
       /store/* )
         if [ $(grep "^${LFN}$" ${IBEOS_CACHE} | wc -l) -gt 0 ] ; then
-          IBEOS_FILES="$IBEOS_FILES root://eoscms.cern.ch//store/user/cmsbuild${LFN}"
+          IBEOS_FILES="$IBEOS_FILES ${IBEOS_PFN}${LFN}"
         else
           NON_IBEOS_FILES="$NON_IBEOS_FILES $LFN"
         fi
+        ;;
+      ${IBEOS_PFN}* )
+        # line from a repeated call: just keep the previous result
+        IBEOS_FILES="$IBEOS_FILES ${LFN}"
         ;;
     esac
   done
