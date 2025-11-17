@@ -1524,7 +1524,11 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.generation_step)
 
         #register to the genstepfilter the name of the path (static right now, but might evolve)
-        self.executeAndRemember('process.genstepfilter.triggerConditions=cms.vstring("generation_step")')
+        self.executeAndRemember(
+'''process.genstepfilter.triggerConditions=cms.vstring("generation_step")
+process.genstepfilter.usePathStatus = True
+process.genstepfilter.hltResults = ""
+''')
 
         if 'reGEN' in self.stepMap or stepSpec == 'pgen_smear':
             #stop here
