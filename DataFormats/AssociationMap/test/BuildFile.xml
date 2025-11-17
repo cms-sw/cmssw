@@ -1,0 +1,7 @@
+<bin name="TestAssociationMap" file="alpaka/*.dev.cc">
+  <use name="catch2"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/AssociationMap"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
