@@ -312,9 +312,6 @@ def nanoAOD_customizeCommon(process):
     from PhysicsTools.NanoAOD.leptonTimeLifeInfo_common_cff import addTimeLifeInfoBase
     process = addTimeLifeInfoBase(process)
     
-    process = nanoAOD_refineFastSim_puppiJet(process)
-    process = nanoAOD_refineFastSim_bTagDeepFlav(process)
-
     return process
 
 ###increasing the precision of selected GenParticles.
