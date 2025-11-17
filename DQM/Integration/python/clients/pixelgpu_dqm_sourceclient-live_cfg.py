@@ -93,8 +93,8 @@ process.siPixelTrackComparisonHarvesterAlpaka.topFolderName = cms.string('SiPixe
 #-------------------------------------
 #  User switches for what to monitor
 #-------------------------------------
-doRecHits = False
-doTracks = False
+doRecHits  = False
+doTracks   = True
 doVertices = True
 
 #-------------------------------------
