@@ -53,6 +53,6 @@ else
   done
 fi
 if [ -z "$CMSSW_LIMIT_RESULTS" ]; then
-  CMSSW_LIMIT_RESULTS=20
+  CMSSW_LIMIT_RESULTS=-0
 fi
 echo $(echo $IBEOS_FILES | tr ' ' '\n' | sort -u) $(echo $NON_IBEOS_FILES | tr ' ' '\n' | sort -u) | tr ' ' '\n' | grep '/store' | head -n $CMSSW_LIMIT_RESULTS
