@@ -7,9 +7,12 @@
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
+#include "nlohmann/json.hpp"
+
+#ifdef CMSSW_GIT_HASH
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "nlohmann/json.hpp"
+#endif
 
 #ifndef CMSSW_GIT_HASH
 #include "hls_math.h"
@@ -70,6 +73,7 @@ namespace L1METEmu {
         throw cms::Exception("FileNotFound") << f.fullPath();
       }
 #else
+      path = "l1met_ptphi2pxpy_poly2_v1.json";
       std::ifstream in(path);
       if (!in) {
         throw std::runtime_error(std::string("File not found: ") + path);
