@@ -36,8 +36,8 @@ HGCalGeomLocaterTester::HGCalGeomLocaterTester(const edm::ParameterSet& iC)
       stepSi_{iC.getParameter<uint32_t>("stepSilicon")},
       stepSc_{iC.getParameter<uint32_t>("stepScintillator")},
       geomToken_{esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})} {
-	edm::LogVerbatim("HGCalGeomX") << "Detector " << name_ << " Steps " << stepSi_ << ":" << stepSc_;
-      }
+  edm::LogVerbatim("HGCalGeomX") << "Detector " << name_ << " Steps " << stepSi_ << ":" << stepSc_;
+}
 
 void HGCalGeomLocaterTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -85,11 +85,12 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Det
     if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
       DetId id2 = geom->getClosestCell(global);
       if (id.rawId() != id2.rawId()) {
-	st1 << " ***** ERROR *****" << " New " << HGCSiliconDetId(id2);
-	++bad;
-	geom->topology().dddConstants().locateCell(id, false, true);
+        st1 << " ***** ERROR *****"
+            << " New " << HGCSiliconDetId(id2);
+        ++bad;
+        geom->topology().dddConstants().locateCell(id, false, true);
       } else {
-	++good;
+        ++good;
       }
     } else {
       ++good;
