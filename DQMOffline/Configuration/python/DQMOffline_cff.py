@@ -35,7 +35,7 @@ DQMOfflineScouting = cms.Sequence( hltScoutingDqmOffline )
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 ## Remove Scouting DQM in run1/2 eras and phase2
-(~run3_common | phase2_common).toReplaceWith(DQMOfflineScouting, cms.Sequence( ))
+(~run3_common | phase2_common | pp_on_AA).toReplaceWith(DQMOfflineScouting, cms.Sequence( ))
 DQMOfflineScoutingForRelVals = DQMOfflineScouting.copy()
 DQMOfflineScoutingForRelVals.replace(hltScoutingDqmOffline, hltScoutingDqmOfflineForRelVals)
 
