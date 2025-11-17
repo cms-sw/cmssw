@@ -1126,11 +1126,28 @@ class TestModuleCommand(unittest.TestCase):
             '#R 1 Record',
             '#M 1 Module',
             '#N 1 ESModule',
-             f'F {Phase.startTracing} 0 0 0 0 {incr(t)}',
+             f'F {Phase.processPython} 0 0 0 0 {incr(t)}',
+             f'f {Phase.processPython} 0 0 0 0 {incr(t)}',
+             f'F {Phase.startServices} 0 0 0 0 {incr(t)}',
+             f'f {Phase.startServices} 0 0 0 0 {incr(t)}',
+             f'F {Phase.constructESModules} 0 0 0 0 {incr(t)}',
+             f'N {Phase.constructESModules} 0 1 0 0 0 0 {incr(t)}',
+             f'n {Phase.constructESModules} 0 1 0 0 0 0 {incr(t)}',
+             f'f {Phase.constructESModules} 0 0 0 0 {incr(t)}',
              f'S {Phase.construction} 0 {incr(t)}',
-             f's {Phase.construction} 0 {incr(t)}3',
+             f's {Phase.construction} 0 {incr(t)}',
              f'M {Phase.construction} 0 1 0 0 0 {incr(t)}',
              f'm {Phase.construction} 0 1 0 0 0 {incr(t)}',
+             f'F {Phase.finishSchedule} 0 0 0 0 {incr(t)}',
+             f'f {Phase.finishSchedule} 0 0 0 0 {incr(t)}',
+             f'F {Phase.createRunLumiEvents} 0 0 0 0 {incr(t)}',
+             f'f {Phase.createRunLumiEvents} 0 0 0 0 {incr(t)}',
+             f'F {Phase.scheduleConsistencyCheck} 0 0 0 0 {incr(t)}',
+             f'f {Phase.scheduleConsistencyCheck} 0 0 0 0 {incr(t)}',
+             f'F {Phase.finalizeEventSetupConfiguration} 0 0 0 0 {incr(t)}',
+             f'f {Phase.finalizeEventSetupConfiguration} 0 0 0 0 {incr(t)}',
+             f'F {Phase.finalizeEDModules} 0 0 0 0 {incr(t)}',
+             f'f {Phase.finalizeEDModules} 0 0 0 0 {incr(t)}',
              f'F {Phase.beginJob} 0 0 0 0 {incr(t)}',
              f'M {Phase.beginJob} 0 1 0 0 0 {incr(t)}',
              f'm {Phase.beginJob} 0 1 0 0 0 {incr(t)}',
@@ -1236,7 +1253,7 @@ class TestModuleCommand(unittest.TestCase):
         self.assertEqual(j['transitions'][1]['name'], "Stream 0")
         self.assertEqual(j['transitions'][2]['name'], "Stream 1")
         self.assertEqual(len(j["transitions"][0]["slots"]), 1)
-        self.assertEqual(len(j["transitions"][0]["slots"][0]), 15)
+        self.assertEqual(len(j["transitions"][0]["slots"][0]), 22)
         self.assertEqual(len(j["transitions"][1]["slots"]), 1)
         self.assertEqual(len(j["transitions"][1]["slots"][0]), 5)
         self.assertEqual(len(j["transitions"][2]["slots"]), 1)
@@ -1252,8 +1269,8 @@ class TestModuleCommand(unittest.TestCase):
         self.assertEqual(j['transitions'][1]['name'], "Stream 0")
         self.assertEqual(j['transitions'][2]['name'], "Stream 1")
         self.assertEqual(len(j["transitions"][0]["slots"]), 2)
-        self.assertEqual(len(j["transitions"][0]["slots"][0]), 15)
-        self.assertEqual(len(j["transitions"][0]["slots"][1]), 6)
+        self.assertEqual(len(j["transitions"][0]["slots"][0]), 22)
+        self.assertEqual(len(j["transitions"][0]["slots"][1]), 7)
         self.assertEqual(len(j["transitions"][1]["slots"]), 2)
         self.assertEqual(len(j["transitions"][1]["slots"][0]), 5)
         self.assertEqual(len(j["transitions"][1]["slots"][1]), 5)
@@ -1274,7 +1291,7 @@ class TestModuleCommand(unittest.TestCase):
         self.assertEqual(j['transitions'][4]['name'], "Module")
         self.assertEqual(j['transitions'][5]['name'], "ESModule")
         self.assertEqual(len(j["transitions"][0]["slots"]), 1)
-        self.assertEqual(len(j["transitions"][0]["slots"][0]), 15)
+        self.assertEqual(len(j["transitions"][0]["slots"][0]), 22)
         self.assertEqual(len(j["transitions"][1]["slots"]), 1)
         self.assertEqual(len(j["transitions"][1]["slots"][0]), 5)
         self.assertEqual(len(j["transitions"][2]["slots"]), 1)
@@ -1284,7 +1301,7 @@ class TestModuleCommand(unittest.TestCase):
         self.assertEqual(len(j["transitions"][4]["slots"][1]), 2)
         self.assertTrue(j["transitions"][4]["slots"][1][-1]['finish'] != 0.0)
         self.assertEqual(len(j["transitions"][5]["slots"]), 1)
-        self.assertEqual(len(j["transitions"][5]["slots"][0]), 2)
+        self.assertEqual(len(j["transitions"][5]["slots"][0]), 3)
 
 def runTests():
     return unittest.main(argv=sys.argv[:1])
