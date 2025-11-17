@@ -240,7 +240,7 @@ RawTask::RawTask(edm::ParameterSet const& ps)
       _cBadQ_FEDvsLSmod10.setBinContent(eid, _currentLS % 10, 0);
     }
   }
-  
+
   //	loop thru and fill the detIds with bad quality
   //	NOTE: Calibration Channels are skipped!
   //	TODO: Include for Online Calibration Channels marked as bad
@@ -266,10 +266,10 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     Nbadqevt = true;
   }
   if (lumiCache->EvtCntLS == 1)
-      _NBadQEvent = 0;  // Reset at the beginning of each new LS
+    _NBadQEvent = 0;  // Reset at the beginning of each new LS
   if (Nbadqevt)
-      _NBadQEvent++;
-  
+    _NBadQEvent++;
+
   int nn = 0;
   for (std::vector<DetId>::const_iterator it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
     //	skip non HCAL det ids
@@ -286,7 +286,7 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     // Masked HEP07 sporadic bad data https://gitlab.cern.ch/cmshcal/docs/-/issues/242
     HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(*it));
     if (eid.crateId() == 21 && eid.slot() == 11 && eid.fiberIndex() == 19)
-    	continue;
+      continue;
     nn++;
     //HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(*it));
     _cBadQuality_depth.fill(HcalDetId(*it));
@@ -294,7 +294,7 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     if (_ptype == fOnline)
       //Number of BadQualityDigis
       _xBadQLS.get(eid)++;
-    
+
     if (_ptype != fOffline) {  // hidefed2crate
       if (!eid.isVMEid()) {
         if (_filter_FEDsuTCA.filter(eid))
