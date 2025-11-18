@@ -22,6 +22,8 @@ DQMNone = cms.Sequence()
 
 DQMOffline_SecondStepEcal = cms.Sequence( ecal_dqm_client_offline *
 					  es_dqm_client_offline )
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(DQMOffline_SecondStepEcal, DQMOffline_SecondStepEcal.copyAndExclude([es_dqm_client_offline]))
 
 DQMOffline_SecondStepTrackerStrip = cms.Sequence( SiStripOfflineDQMClient )
 
@@ -257,6 +259,7 @@ run3_GEM.toReplaceWith(DQMHarvestMuon, _run3_GEM_DQMHarvestMuon)
 DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
                                 es_dqm_client_offline
                               )
+phase2_ecal_devel.toReplaceWith(DQMHarvestEcal, DQMHarvestEcal.copyAndExclude([es_dqm_client_offline]))
 
 DQMHarvestHcal = cms.Sequence( hcalOfflineHarvesting )
 

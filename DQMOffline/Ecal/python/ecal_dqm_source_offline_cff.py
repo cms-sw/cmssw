@@ -33,15 +33,12 @@ ecalOnly_dqm_source_offline = cms.Sequence(
 # Phase 2
 ecal_dqm_source_offline_phase2 = cms.Sequence(
     dqmInfoEcal +
-    ecalMonitorTaskPhase2 +
-    ecalzmasstask +
-    ecalPileUpDepMonitor
+    ecalMonitorTaskPhase2
 )
 
 ecalOnly_dqm_source_offline_phase2 = cms.Sequence(
     dqmInfoEcal +
-    ecalMonitorTaskEcalOnlyPhase2 +
-    ecalzmasstask
+    ecalMonitorTaskEcalOnlyPhase2
 )
 
 from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel

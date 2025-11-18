@@ -64,5 +64,8 @@ ecalDQMCollectionTagsPhase2 = cms.PSet(
     EEUncalibRecHit = cms.untracked.InputTag("None"),
     EBRecHit = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB"),
     EERecHit = cms.untracked.InputTag("None"),
-    EBReducedRecHit = cms.untracked.InputTag("reducedEcalRecHitsEB"),
+    EBBasicCluster = cms.untracked.InputTag("hybridSuperClusters", "hybridBarrelBasicClusters"),
+    EEBasicCluster = cms.untracked.InputTag("None"),
+    EBSuperCluster = cms.untracked.InputTag("hybridSuperClusters"),
+    EESuperCluster = cms.untracked.InputTag("None")
 )
