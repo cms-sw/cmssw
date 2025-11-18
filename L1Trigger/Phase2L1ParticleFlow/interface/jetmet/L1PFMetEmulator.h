@@ -73,7 +73,7 @@ namespace L1METEmu {
         throw cms::Exception("FileNotFound") << f.fullPath();
       }
 #else
-      path = "l1met_ptphi2pxpy_poly2_v1.json"; // For HLS Emulator
+      path = "l1met_ptphi2pxpy_poly2_v1.json";  // For HLS Emulator
       std::ifstream in(path);
       if (!in) {
         throw std::runtime_error(std::string("File not found: ") + path);
@@ -157,7 +157,8 @@ namespace L1METEmu {
 
 #ifdef CMSSW_GIT_HASH
     hls_met.hwPt = hypot(met_xy.hwPx.to_float(), met_xy.hwPy.to_float());
-    hls_met.hwPhi = phi_t(ap_fixed<26, 11>(atan2(met_xy.hwPy.to_float(), met_xy.hwPx.to_float())) * ap_fixed<26, 11>(229.29936)); // Scale for L1 phi value (720 / M_PI)
+    hls_met.hwPhi = phi_t(ap_fixed<26, 11>(atan2(met_xy.hwPy.to_float(), met_xy.hwPx.to_float())) *
+                          ap_fixed<26, 11>(229.29936));  // Scale for L1 phi value (720 / M_PI)
 #else
     hls_met.hwPt = hls::hypot(met_xy.hwPx, met_xy.hwPy);
     hls_met.hwPhi = phi_t(ap_fixed<26, 11>(hls::atan2(met_xy.hwPy, met_xy.hwPx)) * ap_fixed<26, 11>(229.29936));
