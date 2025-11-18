@@ -15,6 +15,8 @@ namespace mkfit {
 
     const IterationMaskIfcBase *m_iter_mask_ifc = nullptr;
 
+    cpe_func m_cpe_corr_func = nullptr;
+
     bool m_in_fwd = true;
     void switch_to_backward() { m_in_fwd = false; }
 
