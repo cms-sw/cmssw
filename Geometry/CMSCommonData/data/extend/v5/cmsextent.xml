@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <ConstantsSection label="cmsextent.xml" eval="true">
+    <Constant name="Rmin"          value="0*fm"/>
+    <Constant name="Zmin"          value="0*fm"/>
+    <Constant name="HallZ"         value="27.5*m"/>
+    <Constant name="HallR"         value="14.3*m"/>
+    <Constant name="HallRMax"      value="17.5*m"/>
+    <Constant name="CMSR1"         value="8.30*m"/>
+    <Constant name="CMSR2"         value="1.00*m"/>
+    <Constant name="CMSZ1"         value="450.0*m"/>
+    <Constant name="CMSZ2"         value="26.0*m"/>
+    <Constant name="CMSZ3"         value="27.0*m"/>
+    <Constant name="CMSZSt1"       value="59.0*m"/>
+    <Constant name="CMSZSt2"       value="85.0*m"/>
+    <Constant name="CMSZSt3"       value="114.0*m"/>
+    <Constant name="CMSZDCFront"   value="139.0*m"/>
+    <Constant name="CMSdzSt"       value="0.5*cm"/>
+    <Constant name="CMSdzSt1"      value="0.5 * ([CMSZSt1] - [CMSZ3] - [CMSdzSt])"/>
+    <Constant name="CMSdzSt2"      value="(0.5 * ([CMSZSt2] - [CMSZSt1]) - [CMSdzSt])"/>
+    <Constant name="CMSdzSt3"      value="(0.5 * ([CMSZSt3] - [CMSZSt2]) - [CMSdzSt])"/>
+    <Constant name="CMSdzZDC"      value="([CMSZDCFront] - [CMSZSt3] - [CMSdzSt])"/>
+    <Constant name="CMSzSt1"       value="([CMSZSt1] - [CMSdzSt1])"/>
+    <Constant name="CMSzSt2"       value="([CMSZSt2] - [CMSdzSt2])"/>
+    <Constant name="CMSzSt3"       value="([CMSZSt3] - [CMSdzSt3])"/>
+    <Constant name="CMSzZDC"       value="([CMSZDCFront] - [CMSdzZDC])"/>
+    <Constant name="ZDCtoFP420Z1L" value="150.0*m"/>
+    <Constant name="ZDCtoFP420Z1R" value="202.769*m"/>
+    <Constant name="ZDCtoFP420Z2L" value="279.90*m"/>
+    <Constant name="ZDCtoFP420Z2R" value="390.0*m"/>
+  </ConstantsSection>
+
+  <SolidSection label="cmsextent.xml">
+    <Tubs name="CMStoSt1" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzSt1]" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="CMSFSCSt" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzSt]" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="St1toSt2" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzSt2]" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="St2toSt3" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzSt3]" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="CMStoZDC" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzZDC]" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="ZDCtoFP4201" rMin="[Rmin]" rMax="[CMSR2]" dz="0.5*([ZDCtoFP420Z1R]-[ZDCtoFP420Z1L])" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="ZDCtoFP4202" rMin="[Rmin]" rMax="[CMSR2]" dz="0.5*([ZDCtoFP420Z2R]-[ZDCtoFP420Z2L])" startPhi="0*deg" deltaPhi="360*deg"/>
+  </SolidSection>
+
+  <LogicalPartSection label="cmsextent.xml">
+    <LogicalPart name="CMStoSt1" category="unspecified">
+      <rSolid name="CMStoSt1"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="CMSFSCSt1" category="unspecified">
+      <rSolid name="CMSFSCSt"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="St1toSt2" category="unspecified">
+      <rSolid name="St1toSt2"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="CMSFSCSt2" category="unspecified">
+      <rSolid name="CMSFSCSt"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="St2toSt3" category="unspecified">
+      <rSolid name="St2toSt3"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="CMSFSCSt3" category="unspecified">
+      <rSolid name="CMSFSCSt"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="CMStoZDC" category="unspecified">
+      <rSolid name="CMStoZDC"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="ZDCtoFP4201" category="unspecified">
+      <rSolid name="ZDCtoFP4201"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="ZDCtoFP4202" category="unspecified">
+      <rSolid name="ZDCtoFP4202"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+  <PosPartSection label="cmsextent.xml">
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMStoSt1"/>
+      <Translation x="0*fm" y="0*fm" z="[CMSzSt1]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMSFSCSt1"/>
+      <Translation x="0*fm" y="0*fm" z="[CMSZSt1]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:St1toSt2"/>
+      <Translation x="0*fm" y="0*fm" z="[CMSzSt2]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMSFSCSt2"/>
+      <Translation x="0*fm" y="0*fm" z="[CMSZSt2]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:St2toSt3"/>
+      <Translation x="0*fm" y="0*fm" z="[CMSzSt3]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMSFSCSt3"/>
+      <Translation x="0*fm" y="0*fm" z="[CMSZSt3]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMStoZDC"/>
+      <Translation x="0*fm" y="0*fm" z="[CMSzZDC]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMStoSt1"/>
+      <Translation x="0*fm" y="0*fm" z="-[CMSzSt1]"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMSFSCSt1"/>
+      <Translation x="0*fm" y="0*fm" z="-[CMSZSt1]"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:St1toSt2"/>
+      <Translation x="0*fm" y="0*fm" z="-[CMSzSt2]"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMSFSCSt2"/>
+      <Translation x="0*fm" y="0*fm" z="-[CMSZSt2]"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:St2toSt3"/>
+      <Translation x="0*fm" y="0*fm" z="-[CMSzSt3]"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMSFSCSt3"/>
+      <Translation x="0*fm" y="0*fm" z="-[CMSZSt3]"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:CMStoZDC"/>
+      <Translation x="0*fm" y="0*fm" z="-[CMSzZDC]"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:ZDCtoFP4201"/>
+      <Translation x="0*fm" y="0*fm" z="0.5*([ZDCtoFP420Z1R]+[ZDCtoFP420Z1L])"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:ZDCtoFP4201"/>
+      <Translation x="0*fm" y="0*fm" z="-0.5*([ZDCtoFP420Z1R]+[ZDCtoFP420Z1L])"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:ZDCtoFP4202"/>
+      <Translation x="0*fm" y="0*fm" z="0.5*([ZDCtoFP420Z2R]+[ZDCtoFP420Z2L])"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cmsextent:ZDCtoFP4202"/>
+      <Translation x="0*fm" y="0*fm" z="-0.5*([ZDCtoFP420Z2R]+[ZDCtoFP420Z2L])"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+  </PosPartSection>
+	
+  <SpecParSection label="cmsextent.xml" eval="true">
+    <SpecPar name="cmsextent">
+      <PartSelector path="//CMStoSt1"/>
+      <PartSelector path="//St1toSt2"/>
+      <PartSelector path="//St2toSt3"/>
+      <PartSelector path="//CMSFSCSt.*"/>
+      <PartSelector path="//CMStoZDC"/>
+      <PartSelector path="//ZDCtoFP.*"/>
+      <Parameter name="CMSCutsRegion" value="InterimRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="1*mm"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

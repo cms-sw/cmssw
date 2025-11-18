@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<SpecParSection label="fsc.xml" eval="true">
+  <SpecPar name="fsc">
+    <PartSelector path="//FSC.*"/>
+    <Parameter name="CMSCutsRegion" value="FSCRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+    <Parameter name="ProdCutsForGamma" value="1*mm"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>
