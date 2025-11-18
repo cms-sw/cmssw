@@ -92,7 +92,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   const auto& config = iSetup.getData(configToken_);
 
   hgcaldigi::HGCalDigiHost digis(moduleIndexer.maxDataSize(), cms::alpakatools::host());
-  hgcaldigi::HGCalECONDPacketInfoHost econdPacketInfo(moduleIndexer.maxModuleSize(), cms::alpakatools::host());
+  hgcaldigi::HGCalECONDPacketInfoHost econdPacketInfo(moduleIndexer.maxModulesCount(), cms::alpakatools::host());
   hgcaldigi::HGCalFEDPacketInfoHost fedPacketInfo(moduleIndexer.fedCount(), cms::alpakatools::host());
 
   // retrieve the FED raw data
