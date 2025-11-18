@@ -2,6 +2,7 @@
 #include "monitor_file_utilities.h"
 
 #include <chrono>
+#include <numeric>
 
 #include <sstream>
 #include <type_traits>
@@ -562,11 +563,13 @@ namespace edm::service::moduleAlloc {
             }
           };
       {
-        std::sort(moduleCtrDtrPtr->begin(), moduleCtrDtrPtr->end(), [](auto const& l, auto const& r) {
-          return l.beginConstruction < r.beginConstruction;
+        std::vector<int> indices(moduleCtrDtrPtr->size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(indices.begin(), indices.end(), [&moduleCtrDtrPtr](auto const& l, auto const& r) {
+          return (*moduleCtrDtrPtr)[l].beginConstruction < (*moduleCtrDtrPtr)[r].beginConstruction;
         });
-        int id = 0;
-        for (auto const& ctr : *moduleCtrDtrPtr) {
+        for (auto const id : indices) {
+          auto const& ctr = (*moduleCtrDtrPtr)[id];
           if (ctr.beginConstruction != 0) {
             handleSource(ctr.beginConstruction);
             if (iFilter->keepModuleInfo(id)) {
@@ -587,13 +590,13 @@ namespace edm::service::moduleAlloc {
               logFile->write(std::move(emsg));
             }
           }
-          ++id;
         }
-        id = 0;
-        std::sort(moduleCtrDtrPtr->begin(), moduleCtrDtrPtr->end(), [](auto const& l, auto const& r) {
-          return l.beginDestruction < r.beginDestruction;
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(indices.begin(), indices.end(), [&moduleCtrDtrPtr](auto const& l, auto const& r) {
+          return (*moduleCtrDtrPtr)[l].beginDestruction < (*moduleCtrDtrPtr)[r].beginDestruction;
         });
-        for (auto const& dtr : *moduleCtrDtrPtr) {
+        for (auto const id : indices) {
+          auto const& dtr = (*moduleCtrDtrPtr)[id];
           if (dtr.beginDestruction != 0) {
             handleSource(dtr.beginDestruction);
             if (iFilter->keepModuleInfo(id)) {
@@ -615,7 +618,6 @@ namespace edm::service::moduleAlloc {
               logFile->write(std::move(emsg));
             }
           }
-          ++id;
         }
         moduleCtrDtrPtr.reset();
       }
