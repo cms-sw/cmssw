@@ -503,11 +503,11 @@ class EDModuleTransitionParser(object):
         return ''
     def text(self, context):
         return f'{self.textPrefix(context)} {self.textSpecial()}{self.textIfTransform()}: {self.textPostfix()}'
-    def _preJson(self, activity, data, mayUseTemp = False, isSrc = False):
+    def _preJson(self, activity, data, mayUseTemp = False):
         index = self.index
         found = False
         if mayUseTemp:
-            compare = lambda x: x.type == self.transition and x.id == self.index and x.mod == self.moduleID and x.call == self.callID and ((getattr(x,'isSrc',None) != None) == isSrc ) and (x.act == Activity.temporary or x.act == Activity.externalWork)
+            compare = lambda x: x.type == self.transition and x.id == self.index and x.mod == self.moduleID and x.call == self.callID and x.requestingMod == self.requestingModuleID and x.requestingCall == self.requestingCallID and (x.act == Activity.temporary or x.act == Activity.externalWork)
             if transitionIsGlobal(self.transition):
                 item,slot = data.findLastInModGlobals(index, self.moduleID, compare)
             else:
@@ -525,8 +525,8 @@ class EDModuleTransitionParser(object):
                 slot = data.findOpenSlotInModStreams(index, self.moduleID)
         slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, requestingMod=self.requestingModuleID, requestingCall=self.requestingCallID, activity=activity, start=self.time))
         return slot[-1]
-    def _postJson(self, data, injectAfter = None, isSrc = False):
-        compare = lambda x: x.id == self.index and x.mod == self.moduleID and x.call == self.callID and x.type == self.transition and ((getattr(x,'isSrc',None) != None) == isSrc )
+    def _postJson(self, data, injectAfter = None):
+        compare = lambda x: x.id == self.index and x.mod == self.moduleID and x.call == self.callID and x.type == self.transition and x.requestingMod == self.requestingModuleID and x.requestingCall == self.requestingCallID
         index = self.index
         if transitionIsGlobal(self.transition):
             item,slot = data.findLastInModGlobals(index, self.moduleID, compare)
@@ -631,21 +631,30 @@ class PostEDModuleEventDelayedGetParser(EDModuleTransitionParser):
 class PreEventReadFromSourceParser(EDModuleTransitionParser):
     def __init__(self, payload, names, moduleCentric):
         super().__init__(payload, names)
+        #shift the module id to be the request
+        self.requestingModuleID = self.moduleID
+        self.requestingCallID = self.callID
+        self.moduleID = 0 #this is the source
+        self.callID = 0
         self._moduleCentric = moduleCentric
     def textSpecial(self):
         return "starting read from source"
     def jsonInfo(self, data):
-        slot = self._preJson(Activity.process, data, mayUseTemp=self._moduleCentric, isSrc=True)
-        slot.addSrc()
+        slot = self._preJson(Activity.process, data, mayUseTemp=self._moduleCentric)
         return slot
 
 class PostEventReadFromSourceParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
+        #shift the module id to be the request
+        self.requestingModuleID = self.moduleID
+        self.requestingCallID = self.callID
+        self.moduleID = 0 #this is the source
+        self.callID = 0
     def textSpecial(self):
         return "finished read from source"
     def jsonInfo(self, data):
-        return self._postJson(data, isSrc=True)
+        return self._postJson(data)
 
 class ESModuleTransitionParser(object):
     def __init__(self, payload, moduleNames, esModuleNames, recordNames):
@@ -1027,8 +1036,6 @@ class JsonModuleTransition(object):
         self.act = activity
         self.start = start
         self.finish = finish
-    def addSrc(self):
-        self.isSrc = True
     def setFinish(self, finish):
         self.finish = finish
 
@@ -1113,7 +1120,157 @@ def jsonInfo(parser):
         for k,v in parser._esModuleNames.items():
             final["esModules"][k] = v
     return final
-    
+
+# ============   
+transitionToName = {
+    -16: "destructor",
+    -15: 0, #unused -15
+    -14: 0, #unused -14
+    -13: 0, #unused -13
+    -12: "end_job",
+    -11: "end_stream",
+    -10: "write_process_block",
+    -9: "end_process_block",
+    -8: 0, #unused -8
+    -7: "write_end_run",
+    -6: "global_end_run",
+    -5: "stream_end_run",
+    -4: "write_end_lumi",
+    -3: "global_end_lumi",
+    -2: "stream_end_lumi",
+    -1: "clear_event",
+    0: "event",
+    1: 0, #unused 1
+    2: "stream_begin_lumi",
+    3: "global_begin_lumi",
+    4: 0, #unused 4
+    5: "stream_begin_run", 
+    6: "global_begin_run",
+    7: 0, #unused 7
+    8: "access_input_process_block",
+    9: "begin_process_block",
+    10: "open_file",
+    11: "begin_stream", 
+    12: "begin_job",
+    13: "eventsetup_synch",
+    14: "eventsetup_sych_enqueue",
+    15: "find_next_transition",
+    16: "construction",
+    17: "finalize_edmodules",
+    18: "finalize_eventsetup_configuration",
+    19: "schedule_consistency_check",
+    20: "create_run/lumi/events",
+    21: "finish_schedule",
+    22: "construct_esmodules",
+    23: "start_services",
+    24: "process_python"
+}
+
+def typeValueToName(id:int) -> str:
+    return transitionToName[id]
+
+class ComponentToName:
+    def __init__(self, edmodules,esmodules):
+        self._edmodules = edmodules
+        self._esmodules = esmodules
+    def modToName(self, mod):
+        if 0 > mod:
+            return self._esmodules[-1*mod]
+        return self._edmodules[mod]
+
+def globalName(isSource:bool) -> str:
+    if isSource:
+        return 'source'
+    return 'framework'
+
+activityToName = {
+    0:"prefetch",
+    1:"acquire",
+    2:"process",
+    3:"delayedGet",
+    4:"externalWork"
+}
+
+def moduleCategories(namer, mod:int, type:int, act:int):
+    return namer.modToName(mod)+","+typeValueToName(type)+","+activityToName[act]
+
+def moduleTransition(componentNamer:ComponentToName, event:JsonModuleTransition, pid:int, tid:int):
+    if event.finish == 0:
+        return dict(name=componentNamer.modToName(event.mod), cat=moduleCategories(componentNamer,event.mod, event.type,event.act), ph="i", ts=event.start, pid=pid, tid=tid)
+    duration = (event.finish-event.start)
+    if duration < 0.1:
+        duration = 1.0
+    return dict(name=componentNamer.modToName(event.mod), cat=moduleCategories(componentNamer,event.mod, event.type,event.act), ph="X", ts=event.start, dur=duration, pid=pid, tid=tid)
+def globalHeaderTransition(e:JsonTransition, pid=1):
+    if e.isSrc:
+        name = 'source'
+        cat = "source,"+typeValueToName(e.type)
+    else:
+        name = typeValueToName(e.type)
+        cat = "framework"
+    if e.finish == 0:
+        return dict(name=name, cat=cat, ph="i", ts=e.start, pid=pid, tid=1, args={"sync":e.sync})
+    return dict(name=name, cat=cat, ph="X", ts=e.start, dur=(e.finish-e.start), pid=pid, tid=1, args={"sync":e.sync})
+def streamHeaderTransition(e, streamID:int):
+    if e.isSrc:
+        name = 'source'
+        cat = "source,"+typeValueToName(e.type)
+    else:
+        name = typeValueToName(e.type)
+        cat = "framework"
+    if e.finish == 0:
+        return dict(name=name, cat=cat, ph="i", ts=e.start, pid=streamID+2, tid=1, args={"sync":e.sync})
+    return dict(name=name, cat=cat, ph="X", ts=e.start, dur=(e.finish-e.start), pid=streamID+2, tid=1, args={"sync":e.sync})
+
+
+def convertToChromeTraceFormat(parsed, moduleCentric:bool):
+    componentNamer = ComponentToName(edmodules=parsed['modules'], esmodules=parsed['esModules'])
+    name = "Global"
+    if moduleCentric:
+        name = ". Global"
+    traceEvents = [{"name": "process_name", "ph": "M", "pid":1, "tid":0,"args": { "name":name}},
+                    {"name":"program start", "ph":"i", "ts":0, "pid":1,"tid":1}]
+    #global is first transition
+    globalTransitions = parsed["transitions"][0]
+    #the first slot holds the framework and source transition information
+    for e in globalTransitions["slots"][0]:
+            traceEvents.append(globalHeaderTransition(e))
+    for index,slot in enumerate(globalTransitions["slots"][1:]):
+        for e in slot:
+            traceEvents.append(moduleTransition(componentNamer, e, 1, index+2))
+    if moduleCentric:
+        for pid,stream in enumerate(parsed["transitions"][1:]):
+            name = stream["name"]
+            if name[:6] == "Stream":
+                name = f". {name}"
+            traceEvents.append(dict(name="process_name", ph="M", pid=pid+2, tid=1, args={"name": name}))
+            #the first slot holds the framework and source transition information
+            if stream["name"][:6] == "Stream":
+                for e in stream["slots"][0]:
+                    traceEvents.append(streamHeaderTransition(e,pid))
+            elif stream["name"] == "source":
+                for index,slot in enumerate(stream["slots"]):
+                    for e in slot:
+                        if hasattr(e, 'isSrc'):
+                            traceEvents.append(globalHeaderTransition(e, pid+2))
+                        else:
+                            traceEvents.append(moduleTransition(componentNamer, e, pid+2, index+1))
+            else:
+                for index,slot in enumerate(stream["slots"]):
+                    for e in slot:
+                        traceEvents.append(moduleTransition(componentNamer, e, pid+2, index+1))
+    else:
+        for streamid,stream in enumerate(parsed["transitions"][1:]):
+            traceEvents.append(dict(name="process_name", ph="M", pid=streamid+2, tid=streamid, args={"name": f"Stream{streamid}"}))
+            #the first slot holds the framework and source transition information
+            for e in stream["slots"][0]:
+                traceEvents.append(streamHeaderTransition(e,streamid))
+            for index,slot in enumerate(stream["slots"][1:]):
+                for e in slot:
+                    traceEvents.append(moduleTransition(componentNamer, e, streamid+2, index+2))
+    trace = dict(traceEvents=traceEvents)
+
+    return trace
 #=======================================
 import unittest
 
@@ -1309,7 +1466,7 @@ class TestModuleCommand(unittest.TestCase):
         self.assertEqual(len(j["transitions"][2]["slots"][0]), 5)
         self.assertEqual(len(j["transitions"][4]["slots"]), 2)
         self.assertEqual(len(j["transitions"][4]["slots"][0]), 10)
-        self.assertEqual(len(j["transitions"][4]["slots"][1]), 3) #isSrc is one entry
+        self.assertEqual(len(j["transitions"][4]["slots"][1]), 2)
         self.assertTrue(j["transitions"][4]["slots"][1][-1].finish != 0.0)
         self.assertEqual(len(j["transitions"][5]["slots"]), 1)
         self.assertEqual(len(j["transitions"][5]["slots"][0]), 3)
@@ -1338,7 +1495,7 @@ if __name__=="__main__":
                         help='''Write output in json format.''' )
     parser.add_argument('-w', '--web',
                         action='store_true',
-                        help='''Writes data.js file that can be used with the web based inspector. To use, copy directory ${CMSSW_RELEASE_BASE}/src/FWCore/Services/template/web to a web accessible area and move data.js into that directory.''')
+                        help='''Writes data.json file that can be used with the web based inspector. To use, copy directory ${CMSSW_RELEASE_BASE}/src/FWCore/Services/template/web to a web accessible area and move data.js into that directory.''')
     parser.add_argument('-m', '--module_centric',
                         action = 'store_true',
                         help='''For --json or --web, organize data by module instead of by global/stream.''' )
@@ -1352,10 +1509,15 @@ if __name__=="__main__":
     else :
         parser = TracerCompactFileParser(args.filename, args.frameworkOnly, args.module_centric)
         if args.json or args.web:
-            j = jsonpickle.encode(jsonInfo(parser), unpicklable=False, indent=2)
+            parsed = jsonInfo(parser)
             if args.json:
+                import jsonpickle
+                j = jsonpickle.encode(parsed, unpicklable=False, indent=2)
                 print(j)
             if args.web:
+                import json
+                web = convertToChromeTraceFormat(parsed, args.module_centric)
+                j = json.dumps(web, indent=2)
                 f=open('data.json', 'w')
                 f.write(j)
                 f.close()
