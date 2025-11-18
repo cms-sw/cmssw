@@ -45,5 +45,27 @@ phase2OTEffClient = cms.EDProducer(
     verbose=cms.untracked.uint32(0)
 )
 
+_topFolderStubs = "TrackerPhase2OTStubV"
+
+phase2OTStubEffClient = cms.EDProducer(
+    "DQMGenericClient",
+    subDirs=cms.untracked.vstring(
+        f"{_topFolderStubs}/FinalEfficiency",
+    ),
+    # "<outputMEName> '<Title;x-axis;y-axis>' <numeratorME> <denominatorME>"
+    efficiency=cms.vstring(
+        "StubEfficiencyBarrel      'Stub Efficiency Barrel;tracking particle p_{T} [GeV];Efficiency'        ../EfficiencyIngredients/gen_clusters_if_stub_barrel         ../EfficiencyIngredients/gen_clusters_barrel",
+        "StubEfficiencyZoomBarrel  'Stub Efficiency Zoom Barrel;tracking particle p_{T} [GeV];Efficiency'   ../EfficiencyIngredients/gen_clusters_if_stub_zoom_barrel    ../EfficiencyIngredients/gen_clusters_zoom_barrel",
+        "StubEfficiencyEndcaps     'Stub Efficiency Endcaps;tracking particle p_{T} [GeV];Efficiency'       ../EfficiencyIngredients/gen_clusters_if_stub_endcaps        ../EfficiencyIngredients/gen_clusters_endcaps",
+        "StubEfficiencyZoomEndcaps 'Stub Efficiency Zoom Endcaps;tracking particle p_{T} [GeV];Efficiency'  ../EfficiencyIngredients/gen_clusters_if_stub_zoom_endcaps   ../EfficiencyIngredients/gen_clusters_zoom_endcaps",
+    ),
+    resolution=cms.vstring(),
+    efficiencyProfile=cms.untracked.vstring(),
+    verbose=cms.untracked.uint32(0)
+)
+
 # Expose as a Sequence so you can append with one line
-phase2OTEffClientSeq = cms.Sequence(phase2OTEffClient)
+phase2OTEffClientSeq = cms.Sequence(
+    phase2OTEffClient      # tracks
+    + phase2OTStubEffClient  # stubs
+)
