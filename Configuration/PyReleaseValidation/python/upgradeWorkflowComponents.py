@@ -2040,6 +2040,19 @@ upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeedingMkFitBuilding'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
 
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeedingMkFitBuildingFitting'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeedingMkFitBuildingFitting'].suffix = '_HLT75e33TimingAlpakaSingleIterLSTSeedingMkFitBuildingFitting'
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeedingMkFitBuildingFitting'].offset = 0.7572
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeedingMkFitBuildingFitting'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'alpaka,singleIterPatatrack,trackingLST,seedingLST,trackingMkFitCommon,hltTrackingMkFitInitialStep,trackingMkFitFit',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeedingMkFitBuilding'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
+
 upgradeWFs['HLTTiming75e33TiclBarrel'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33TiclBarrel'].suffix = '_HLT75e33TimingTiclBarrel'
 upgradeWFs['HLTTiming75e33TiclBarrel'].offset = 0.758
