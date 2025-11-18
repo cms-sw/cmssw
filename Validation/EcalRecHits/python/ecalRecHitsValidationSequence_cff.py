@@ -13,6 +13,6 @@ ecalRecHitsValidationSequence = cms.Sequence(
 )
 
 ecalRecHitsValidationSequencePhase2 = cms.Sequence(
-    ecalRecHitsValidation*
+    ecalRecHitsValidationPhase2*
     ecalBarrelRecHitsValidation
 )
