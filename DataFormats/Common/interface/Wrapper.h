@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_Wrapper_h
-#define DataFormats_Common_Wrapper_h
+#ifndef DataFormats_Common_interface_Wrapper_h
+#define DataFormats_Common_interface_Wrapper_h
 
 /*----------------------------------------------------------------------
 
@@ -17,7 +17,6 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include <algorithm>
 #include <cassert>
 #include <memory>
-#include <string>
 #include <typeinfo>
 
 namespace edm {
@@ -38,6 +37,7 @@ namespace edm {
     T const* operator->() const { return product(); }
 
     T& bareProduct() { return obj; }
+    T const& bareProduct() const { return obj; }
 
     //these are used by FWLite
     static std::type_info const& productTypeInfo() { return typeid(T); }
@@ -185,4 +185,4 @@ namespace edm {
 
 #include "DataFormats/Common/interface/WrapperView.icc"
 
-#endif
+#endif  // DataFormats_Common_interface_Wrapper_h
