@@ -21,11 +21,13 @@ class RHDecayTracer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   RHDecayTracer(edm::ParameterSet const& p);
   ~RHDecayTracer() override = default;
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   const SimTrack* findSimTrack(int trackID, const edm::SimTrackContainer& simTracks);
-  void addSecondariesToGenVertex(std::map<int, std::vector<RHadronPythiaDecayDataManager::TrackData>> decayDaughters, const int decayID, HepMC::GenVertex* decayVertex);
+  void addSecondariesToGenVertex(std::map<int, std::vector<RHadronPythiaDecayDataManager::TrackData>> decayDaughters,
+                                 const int decayID,
+                                 HepMC::GenVertex* decayVertex);
 
   edm::EDGetTokenT<edm::HepMCProduct> genToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
