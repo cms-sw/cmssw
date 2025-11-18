@@ -24,7 +24,19 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
                                            const std::string& fileName)
     : hgcons_(hgc), mode_(hgc.geomMode()), det_(det), name_(name) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_ << " Mode " << mode_ << " Hexagon8Full:" << HGCalGeometryMode::Hexagon8Full << " Hexagon8:" << HGCalGeometryMode::Hexagon8 << " Hexagon8File:" << HGCalGeometryMode::Hexagon8File << " Hexagon8Module:" << HGCalGeometryMode::Hexagon8Module << ":" << " Hexagon8Cassette:" << HGCalGeometryMode::Hexagon8Cassette << " Hexagon8CalibCell:" << HGCalGeometryMode::Hexagon8CalibCell << " Hexagon8FineCell:" << HGCalGeometryMode::Hexagon8FineCell  << " Trapezoid:" << HGCalGeometryMode::Trapezoid << " TrapezoidFile:" << HGCalGeometryMode::TrapezoidFile << " TrapezoidModule:" << HGCalGeometryMode::TrapezoidModule << " TrapezoidCassette:" << HGCalGeometryMode::TrapezoidCassette << " TrapezoidFineCell:" << HGCalGeometryMode::TrapezoidFineCell;
+  edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_ << " Mode " << mode_
+                             << " Hexagon8Full:" << HGCalGeometryMode::Hexagon8Full
+                             << " Hexagon8:" << HGCalGeometryMode::Hexagon8
+                             << " Hexagon8File:" << HGCalGeometryMode::Hexagon8File
+                             << " Hexagon8Module:" << HGCalGeometryMode::Hexagon8Module << ":"
+                             << " Hexagon8Cassette:" << HGCalGeometryMode::Hexagon8Cassette
+                             << " Hexagon8CalibCell:" << HGCalGeometryMode::Hexagon8CalibCell
+                             << " Hexagon8FineCell:" << HGCalGeometryMode::Hexagon8FineCell
+                             << " Trapezoid:" << HGCalGeometryMode::Trapezoid
+                             << " TrapezoidFile:" << HGCalGeometryMode::TrapezoidFile
+                             << " TrapezoidModule:" << HGCalGeometryMode::TrapezoidModule
+                             << " TrapezoidCassette:" << HGCalGeometryMode::TrapezoidCassette
+                             << " TrapezoidFineCell:" << HGCalGeometryMode::TrapezoidFineCell;
 #endif
   firstLayer_ = hgcons_.getLayerOffset();
   if (!fileName.empty()) {
