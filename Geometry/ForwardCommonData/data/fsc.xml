@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+
+<DDDefinition>
+  <ConstantsSection label="fsc.xml" eval="true">
+    <Constant name="CMSdzSt"       value="[cmsextent:CMSdzSt]"/>
+    <Constant name="FSCdxby2"      value="125*mm"/>
+    <Constant name="FSCdyby2"      value="125*mm"/>
+    <Constant name="ShiftDxBy2"    value="80.0*mm"/>
+    <Constant name="ShiftDyBy2"    value="32.5*mm"/>
+    <Constant name="ShiftDR"       value="130.0*mm"/>
+  </ConstantsSection>
+
+  <SolidSection label="fsc.xml">
+    <Box name="FSCBox" dx="[FSCdxby2]" dy="[FSCdyby2]" dz="[CMSdzSt]"/>
+    <EllipticalTube name="CutOut1"  xSemiAxis="[ShiftDxBy2]" ySemiAxis="[ShiftDyBy2]" zHeight="[CMSdzSt]"/>
+    <Tubs name="CutOut2" rMin="0*fm" rMax="[ShiftDR]" dz="[CMSdzSt]" startPhi="270*deg" deltaPhi="90*deg"/>
+    <SubtractionSolid name="FSC1">
+      <rSolid name="fsc:FSCBox"/>
+      <rSolid name="fsc:CutOut1"/>
+      <Translation x="0.*fm" y="[FSCdyby2]" z="0.*fm"/> 
+    </SubtractionSolid> 
+    <SubtractionSolid name="FSC2">
+      <rSolid name="fsc:FSCBox"/>
+      <rSolid name="fsc:CutOut2"/>
+      <Translation x="[FSCdxby2]" y="[FSCdyby2]" z="0.*fm"/> 
+    </SubtractionSolid> 
+  </SolidSection>
+
+  <LogicalPartSection label="fsc.xml">
+    <LogicalPart name="FSC1" category="unspecified">
+      <rSolid name="FSC1"/>
+      <rMaterial name="materials:Scintillator"/>
+    </LogicalPart>
+    <LogicalPart name="FSC2" category="unspecified">
+      <rSolid name="FSC21"/>
+      <rMaterial name="materials:Scintillator"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+  <PosPartSection label="fsc.xml">
+    <PosPart copyNumber="1">
+      <rParent name="cmsextent:CMStoSt1"/>
+      <rChild name="fsc:FSC1"/>    
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="-[FSCdyby2]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cmsextent:CMStoSt1"/>
+      <rChild name="fsc:FSC1"/>    
+      <rRotation name="rotations:R180"/>
+      <Translation x="0*fm" y="[FSCdyby2]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cmsextent:CMStoSt2"/>
+      <rChild name="fsc:FSC1"/>    
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="-[FSCdyby2]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cmsextent:CMStoSt2"/>
+      <rChild name="fsc:FSC1"/>    
+      <rRotation name="rotations:R180"/>
+      <Translation x="0*fm" y="[FSCdyby2]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cmsextent:CMStoSt3"/>
+      <rChild name="fsc:FSC2"/>    
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[FSCdxby2]" y="-[FSCdyby2]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cmsextent:CMStoSt2"/>
+      <rChild name="fsc:FSC2"/>    
+      <rRotation name="rotations:180D"/>
+      <Translation x="-[FSCdxby2]" y="[FSCdyby2]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="cmsextent:CMStoSt2"/>
+      <rChild name="fsc:FSC2"/>    
+      <rRotation name="rotations:R180"/>
+      <Translation x="[FSCdxby2]" y="[FSCdyby2]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="cmsextent:CMStoSt2"/>
+      <rChild name="fsc:FSC2"/>    
+      <rRotation name="rotations:RPCD"/>
+      <Translation x="-[FSCdxby2]" y="[FSCdyby2]" z="0*fm"/>
+    </PosPart>
+  </PosPartSection>
+
+</DDDefinition>
+
+
