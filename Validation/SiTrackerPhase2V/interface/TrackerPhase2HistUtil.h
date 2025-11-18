@@ -48,36 +48,5 @@ namespace phase2tkutil {
     h->setAxisTitle(yaxis, 2);
     return h;
   }
-
-  template <typename Ptr>
-  inline void bookDenNum(dqm::legacy::DQMStore::IBooker& iBooker,
-                         const std::string& base,
-                         Ptr& den, Ptr& num,
-                         const edm::ParameterSet& ps,
-                         const char* xaxis,
-                         const char* denY = "# tracking particles",
-                         const char* numY = "# matched tracking particles",
-                         const std::string& denPrefix = "tp_",
-                         const std::string& numPrefix = "match_tp_") {
-    auto* denME = book1DFromPS(iBooker, denPrefix + base, ps, xaxis, denY);
-    auto* numME = book1DFromPS(iBooker, numPrefix + base, ps, xaxis, numY);
-    den = denME;  
-    num = numME;
-  }
-
-  template <typename Vec>
-  inline void bookIntoVec(dqm::legacy::DQMStore::IBooker& iBooker,
-                          Vec& vec,
-                          int i,
-                          const std::string& name,
-                          const edm::ParameterSet& ps,
-                          const char* xaxis,
-                          const char* yaxis = "# tracking particles") {
-    if ((int)vec.size() <= i)
-      vec.resize(i + 1, nullptr);
-
-    auto* me = book1DFromPS(iBooker, name, ps, xaxis, yaxis);
-    vec[i] = me;  
-  }
 }  // namespace phase2tkutil
 #endif
