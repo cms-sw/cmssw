@@ -87,20 +87,20 @@ HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
       char buffer[80];
       while (fInput.getline(buffer, 80)) {
         std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
-	DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
-	int32_t zp = std::atoi(items[2].c_str());
-	int32_t type = std::atoi(items[1].c_str());
-	int32_t layer = std::atoi(items[3].c_str());
-	int32_t waferU = std::atoi(items[4].c_str());
-	int32_t waferV = std::atoi(items[5].c_str());
-	int32_t cellU = std::atoi(items[6].c_str());
-	int32_t cellV = std::atoi(items[7].c_str());
-	HGCSiliconDetId detId(det, zp, type, layer, waferU, waferV, cellU, cellV);
+        DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
+        int32_t zp = std::atoi(items[2].c_str());
+        int32_t type = std::atoi(items[1].c_str());
+        int32_t layer = std::atoi(items[3].c_str());
+        int32_t waferU = std::atoi(items[4].c_str());
+        int32_t waferV = std::atoi(items[5].c_str());
+        int32_t cellU = std::atoi(items[6].c_str());
+        int32_t cellV = std::atoi(items[7].c_str());
+        HGCSiliconDetId detId(det, zp, type, layer, waferU, waferV, cellU, cellV);
         auto itr = std::find(dets.begin(), dets.end(), det);
         if (itr != dets.end()) {
           uint32_t pos = static_cast<uint32_t>(itr - dets.begin());
-	  detIds_.emplace_back(std::pair<HGCSiliconDetId, int>(detId, pos));
-	}
+          detIds_.emplace_back(std::pair<HGCSiliconDetId, int>(detId, pos));
+        }
       }
       fInput.close();
     }
