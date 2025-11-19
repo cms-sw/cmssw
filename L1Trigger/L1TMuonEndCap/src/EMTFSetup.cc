@@ -13,12 +13,12 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC
       condition_helper_(iCollector),
       version_control_(iConfig),
       sector_processor_lut_(),
+      loader(version_control_.nnModelDxy()),
       pt_assign_engine_(nullptr),
       pt_assign_engine_dxy_(nullptr),
       fw_ver_(0),
       pt_lut_ver_(0),
-      pc_lut_ver_(0),
-      loader(version_control_.nnModelDxy()) {
+      pc_lut_ver_(0) {
   // Set pt assignment engine according to Era
   if (era() == "Run2_2016") {
     pt_assign_engine_ = std::make_unique<PtAssignmentEngine2016>();
