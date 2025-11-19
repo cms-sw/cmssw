@@ -193,7 +193,7 @@ tau_embedding_ecalRecHit_merger = cms.EDProducer(
         cms.InputTag("ecalRecHit", "EcalRecHitsEE", "LHEembeddingCLEAN"),
     ),
 )
-tau_embedding_merging.toReplaceWith(ecalRecHit, tau_embedding_ecalRecHit_merger)
+tau_embedding_merging.toModify(ecalRecHit, cpu=tau_embedding_ecalRecHit_merger)
 
 # defined in EventFilter/EcalRawToDigi/python/ecalDigis_cfi.py
 
@@ -204,7 +204,7 @@ tau_embedding_ecalDigis_merger = cms.EDProducer(
         cms.InputTag("ecalDigis", "", "LHEembeddingCLEAN"),
     ),
 )
-tau_embedding_merging.toReplaceWith(ecalDigis, tau_embedding_ecalDigis_merger)
+tau_embedding_merging.toModify(ecalDigis, cpu=tau_embedding_ecalDigis_merger)
 
 # defined in EventFilter/HcalRawToDigi/python/HcalRawToDigi_cfi.py
 tau_embedding_hcalDigis_merger = cms.EDProducer(
@@ -223,7 +223,7 @@ tau_embedding_hbhereco_merger = cms.EDProducer("HBHERecHitColMerger",
         cms.InputTag("hbhereco", "", "LHEembeddingCLEAN"),
     )
 )
-tau_embedding_merging.toReplaceWith(hbhereco, tau_embedding_hbhereco_merger)
+tau_embedding_merging.toModify(hbhereco, cpu=tau_embedding_hbhereco_merger)
 
 # create a sequence which runs some of the merge producers, which were just created.
 merge_step = cms.Sequence(
