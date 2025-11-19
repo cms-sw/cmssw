@@ -141,11 +141,11 @@ public:
 
   constexpr uint32_t denseIndex() const {
     const int32_t se(section());
-    uint32_t di =
-        (channel() - 1 +
-	 (se == FSC ? 2 * kDepTot1 + (zside() < 0 ? 0 : kDepFSC) :
-	  (se == RPD ? 2 * kDepRun1 + (zside() < 0 ? 0 : kDepRPD) :
-	   ((zside() < 0 ? 0 : kDepRun1) + (se == HAD ? kDepEM : (se == LUM ? kDepEM + kDepHAD : 0))))));
+    uint32_t di = (channel() - 1 +
+                   (se == FSC ? 2 * kDepTot1 + (zside() < 0 ? 0 : kDepFSC)
+                              : (se == RPD ? 2 * kDepRun1 + (zside() < 0 ? 0 : kDepRPD)
+                                           : ((zside() < 0 ? 0 : kDepRun1) +
+                                              (se == HAD ? kDepEM : (se == LUM ? kDepEM + kDepHAD : 0))))));
     return di;
   }
 
@@ -178,7 +178,8 @@ public:
 
   constexpr static bool validDetId(Section se, int32_t dp) {
     bool flag = (dp >= 1 && (((se == EM) && (dp <= kDepEM)) || ((se == HAD) && (dp <= kDepHAD)) ||
-                             ((se == LUM) && (dp <= kDepLUM)) || ((se == RPD) && (dp <= kDepRPD)) || ((se == FSC) && (dp <= kDepFSC))));
+                             ((se == LUM) && (dp <= kDepLUM)) || ((se == RPD) && (dp <= kDepRPD)) ||
+                             ((se == FSC) && (dp <= kDepFSC))));
     return flag;
   }
 

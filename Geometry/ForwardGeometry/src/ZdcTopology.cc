@@ -28,7 +28,7 @@ ZdcTopology::ZdcTopology(const HcalDDDRecConstants* hcons)
   excludeRPD_ = ((mode_ != HcalTopologyMode::Mode::Run3) && (mode_ != HcalTopologyMode::Mode::Run4));
   excludeFSC_ = ((mode_ != HcalTopologyMode::Mode::Run3) && (mode_ != HcalTopologyMode::Mode::Run4));
   edm::LogVerbatim("ForwardGeom") << "ZdcTopology : Mode " << mode_ << ":" << HcalTopologyMode::Mode::Run3
-                                  << " ExcludeRPD " << excludeFSC_<< " ExcludeRPD " << excludeFSC_;
+                                  << " ExcludeRPD " << excludeFSC_ << " ExcludeRPD " << excludeFSC_;
 }
 
 bool ZdcTopology::valid(const HcalZDCDetId& id) const {
@@ -179,7 +179,7 @@ bool ZdcTopology::validRaw(const HcalZDCDetId& id) const {
     ok = false;
   else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD ||
              id.section() == HcalZDCDetId::LUM || id.section() == HcalZDCDetId::RPD ||
-	     id.section() == HcalZDCDetId::FSC))
+             id.section() == HcalZDCDetId::FSC))
     ok = false;
   else if (id.section() == HcalZDCDetId::EM && id.channel() > HcalZDCDetId::kDepEM)
     ok = false;
@@ -274,7 +274,7 @@ std::vector<DetId> ZdcTopology::longitudinal(const DetId& id) const {
       vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-  } else  if (validRaw(zdcId) && zdcId.section() == HcalZDCDetId::FSC) {
+  } else if (validRaw(zdcId) && zdcId.section() == HcalZDCDetId::FSC) {
     bool isPositive = false;
     if (zdcId.zside() == 1)
       isPositive = true;
@@ -436,13 +436,15 @@ DetId ZdcTopology::denseId2detId(uint32_t di) const {
 uint32_t ZdcTopology::detId2DenseIndex(const DetId& id) const {
   HcalZDCDetId detId(id);
   const int32_t se(detId.section());
-  uint32_t di = (detId.channel() - 1 +
-                 (se == HcalZDCDetId::FSC ?
-		  2 * HcalZDCDetId::kDepTot1 + (detId.zside() < 0 ? 0 : HcalZDCDetId::kDepFSC) :
-		  (se == HcalZDCDetId::RPD ?
-		   2 * HcalZDCDetId::kDepRun1 + (detId.zside() < 0 ? 0 : HcalZDCDetId::kDepRPD) :
-		   ((detId.zside() < 0 ? 0 : HcalZDCDetId::kDepRun1) +
-		    (se == HcalZDCDetId::HAD ? HcalZDCDetId::kDepEM :
-		     (se == HcalZDCDetId::LUM ? HcalZDCDetId::kDepEM + HcalZDCDetId::kDepHAD : 0))))));
+  uint32_t di =
+      (detId.channel() - 1 +
+       (se == HcalZDCDetId::FSC
+            ? 2 * HcalZDCDetId::kDepTot1 + (detId.zside() < 0 ? 0 : HcalZDCDetId::kDepFSC)
+            : (se == HcalZDCDetId::RPD
+                   ? 2 * HcalZDCDetId::kDepRun1 + (detId.zside() < 0 ? 0 : HcalZDCDetId::kDepRPD)
+                   : ((detId.zside() < 0 ? 0 : HcalZDCDetId::kDepRun1) +
+                      (se == HcalZDCDetId::HAD
+                           ? HcalZDCDetId::kDepEM
+                           : (se == HcalZDCDetId::LUM ? HcalZDCDetId::kDepEM + HcalZDCDetId::kDepHAD : 0))))));
   return di;
 }

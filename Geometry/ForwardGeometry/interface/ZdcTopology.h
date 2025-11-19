@@ -83,7 +83,7 @@ private:
   bool excludeEM_, excludeHAD_, excludeLUM_, excludeRPD_, excludeFSC_, excludeZP_, excludeZN_;
 
   int firstEMModule_, lastEMModule_, firstHADModule_, lastHADModule_, firstLUMModule_, lastLUMModule_, firstRPDModule_,
-    lastRPDModule_, firstFSCModule_, lastFSCModule_;
+      lastRPDModule_, firstFSCModule_, lastFSCModule_;
 };
 
 #endif
