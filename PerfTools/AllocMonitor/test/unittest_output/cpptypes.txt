@@ -1,0 +1,10 @@
+  "cpptypes": {
+    "source": "EmptySource",
+    "out": "AsciiOutputModule",
+    "get": "WhatsItAnalyzer",
+    "OtherThing": "OtherThingProducer",
+    "Thing": "ThingProducer",
+    "thingProducer": "ThingProducer",
+    "DoodadESSource": "DoodadESSource",
+    "WhatsItESProducer": "WhatsItESProducer"
+  }
