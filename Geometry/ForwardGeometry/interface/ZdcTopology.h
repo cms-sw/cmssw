@@ -68,20 +68,22 @@ private:
   int firstHADModule() const { return firstHADModule_; }
   int firstLUMModule() const { return firstLUMModule_; }
   int firstRPDModule() const { return firstRPDModule_; }
+  int firstFSCModule() const { return firstFSCModule_; }
   int lastEMModule() const { return lastEMModule_; }
   int lastHADModule() const { return lastHADModule_; }
   int lastLUMModule() const { return lastLUMModule_; }
   int lastRPDModule() const { return lastRPDModule_; }
+  int lastFSCModule() const { return lastFSCModule_; }
 
   const HcalDDDRecConstants* hcons_;
   HcalTopologyMode::Mode mode_;
 
   std::vector<HcalZDCDetId> exclusionList_;
 
-  bool excludeEM_, excludeHAD_, excludeLUM_, excludeRPD_, excludeZP_, excludeZN_;
+  bool excludeEM_, excludeHAD_, excludeLUM_, excludeRPD_, excludeFSC_, excludeZP_, excludeZN_;
 
   int firstEMModule_, lastEMModule_, firstHADModule_, lastHADModule_, firstLUMModule_, lastLUMModule_, firstRPDModule_,
-      lastRPDModule_;
+    lastRPDModule_, firstFSCModule_, lastFSCModule_;
 };
 
 #endif
