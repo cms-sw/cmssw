@@ -1,3 +1,4 @@
+
 ###############################################################################
 # Way to use this:
 #   cmsRun testHGCalGeomLocatorSc_cfg.py geometry=D110
@@ -73,8 +74,11 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prodHEB = cms.EDAnalyzer("HGCalGeomLocaterTester",
-                                 Detector   = cms.string("HGCalHEScintillatorSensitive"),
-                                )
+process.load("Geometry.HGCalGeometry.hgcalGeomLocatorTesterEE_cfi")
+process.hgcalGeomLocatorTesterEE.stepScintillator = 2
+
+process.hgcalGeomLocatorTesterHEB = process.hgcalGeomLocatorTesterEE.clone(
+    detector   = cms.string("HGCalHEScintillatorSensitive")
+)
 
 process.p1 = cms.Path(process.generator*process.prodHEB)
