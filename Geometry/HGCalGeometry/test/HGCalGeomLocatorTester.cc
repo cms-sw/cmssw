@@ -14,11 +14,11 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
-#include "CoralBase/Exception.h"
 
 class HGCalGeomLocaterTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalGeomLocaterTester(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
 
@@ -27,12 +27,25 @@ private:
   void doTestScintillator(const HGCalGeometry* geom, DetId::Detector det);
 
   std::string name_;
+  const unsigned int stepSi_, stepSc_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
 };
 
 HGCalGeomLocaterTester::HGCalGeomLocaterTester(const edm::ParameterSet& iC)
-    : name_{iC.getParameter<std::string>("Detector")},
-      geomToken_{esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})} {}
+    : name_{iC.getParameter<std::string>("detector")},
+      stepSi_{iC.getParameter<uint32_t>("stepSilicon")},
+      stepSc_{iC.getParameter<uint32_t>("stepScintillator")},
+      geomToken_{esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})} {
+  edm::LogVerbatim("HGCalGeomX") << "Detector " << name_ << " Steps " << stepSi_ << ":" << stepSc_;
+}
+
+void HGCalGeomLocaterTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("detector", "HGCalEESensitive");
+  desc.add<uint32_t>("stepSilicon", 10);
+  desc.add<uint32_t>("stepScintillator", 10);
+  descriptions.add("hgcalGeomLocatorTesterEE", desc);
+}
 
 void HGCalGeomLocaterTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   const HGCalGeometry* geom = &iSetup.getData(geomToken_);
@@ -57,23 +70,28 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Det
   const std::vector<DetId>& ids = geom->getValidDetIds();
   edm::LogVerbatim("HGCalGeomX") << "doTest:: " << ids.size() << " valid ids for " << geom->cellElement();
   const double tol = 0.001;
-  const unsigned int step = 10;
   int all(0), good(0), bad(0);
-  for (unsigned int k = 0; k < ids.size(); k += step) {
+  for (unsigned int k = 0; k < ids.size(); k += stepSi_) {
     ++all;
     HGCSiliconDetId id(ids[k]);
     std::ostringstream st1;
     st1 << "ID[" << k << "] " << id;
-    GlobalPoint global = geom->getPosition(id);
-    auto waferxy = geom->topology().dddConstants().locateCell(id, false);
+    GlobalPoint global = geom->getPosition(id, false, false);
+    auto waferxy = geom->topology().dddConstants().locateCell(id, false, false);
     double dx = global.x() - waferxy.first;
     double dy = global.y() - waferxy.second;
     st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") waferXY (" << waferxy.first
         << ", " << waferxy.second << ") Delta (" << dx << ", " << dy << ")";
     if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
-      st1 << " ***** ERROR *****";
-      ++bad;
-      geom->topology().dddConstants().locateCell(id, true);
+      DetId id2 = geom->getClosestCell(global);
+      if (id.rawId() != id2.rawId()) {
+        st1 << " ***** ERROR *****"
+            << " New " << HGCSiliconDetId(id2);
+        ++bad;
+        geom->topology().dddConstants().locateCell(id, false, true);
+      } else {
+        ++good;
+      }
     } else {
       ++good;
     }
@@ -87,9 +105,8 @@ void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom, DetId
   const std::vector<DetId>& ids = geom->getValidDetIds();
   edm::LogVerbatim("HGCalGeomX") << "doTest:: " << ids.size() << " valid ids for " << geom->cellElement();
   const double tol = 0.01;
-  const unsigned int step = 10;
   int all(0), good(0), bad(0);
-  for (unsigned int k = 0; k < ids.size(); k += step) {
+  for (unsigned int k = 0; k < ids.size(); k += stepSc_) {
     ++all;
     HGCScintillatorDetId id(ids[k]);
     std::ostringstream st1;

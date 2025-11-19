@@ -1,12 +1,8 @@
-
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalGeomLocatorSc_cfg.py geometry=D110
+#   cmsRun testHGCalIdCheck_cfg.py geometry=D120
 #
-#   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
-#                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
-#                        D114, D115, D116, D117, D118, D119, D120, D121, D122,
-#                        D123, D124, D125,
+#   Options for geometry D120, D122
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,38 +13,43 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D120",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120, D121, D122, D123, D124, D125")
+                  "geometry of operations: D120, D122")
 
 ### get and parse the command line arguments
 options.parseArguments()
-print(options)
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+print(options)
 
 ####################################################################
 # Use the options
 
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+fileName = options.geometry + "E.txt"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry file: ", geomFile)
+print("Output file:   ", fileName)
 
-print("Geometry Name:   ", geomName)
-print("Geom file Name:  ", geomFile)
-print("Global Tag Name: ", GLOBAL_TAG)
-print("Era Name:        ", ERA)
-
-process = cms.Process("HGCalGeomLocatorSc",ERA)
+process = cms.Process('HGCIdCheck',ERA)
 
 process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('Geometry.HGCalGeometry.hgcalIdCheck_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.HGCalGeom = dict()
+    process.MessageLogger.HGCGeom=dict()
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -74,11 +75,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.load("Geometry.HGCalGeometry.hgcalGeomLocatorTesterEE_cfi")
-process.hgcalGeomLocatorTesterEE.stepScintillator = 2
+process.hgcalIdCheck.fileName = fileName
 
-process.hgcalGeomLocatorTesterHEB = process.hgcalGeomLocatorTesterEE.clone(
-    detector   = cms.string("HGCalHEScintillatorSensitive")
-)
-
-process.p1 = cms.Path(process.generator*process.prodHEB)
+process.p1 = cms.Path(process.generator*process.hgcalIdCheck)
