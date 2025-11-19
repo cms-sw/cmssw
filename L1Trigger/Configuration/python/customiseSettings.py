@@ -17,6 +17,10 @@ def L1TSettingsToCaloParamsOO_2025_v0_0(process):
     process.load("L1Trigger.L1TCalorimeter.caloParamsOO_2025_v0_0_cfi")
     return process
 
+def L1TSettingsToCaloParamsHI_2025_v0_0(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParamsHI_2025_v0_0_cfi")
+    return process
+
 def L1TSettingsToCaloParamsHI_2024_v0_1(process):
     process.load("L1Trigger.L1TCalorimeter.caloParamsHI_2024_v0_1_cfi")
     return process
