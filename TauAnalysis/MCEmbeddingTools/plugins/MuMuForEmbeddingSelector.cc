@@ -58,8 +58,6 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpotLabel_;
   edm::EDGetTokenT<edm::View<pat::MET>> theMETLabel_;
   edm::EDGetTokenT<edm::View<pat::MET>> thePuppiMETLabel_;
-  bool use_zmass = false;
-  static constexpr double zmass = 91.1876;
 };
 
 //
@@ -76,11 +74,25 @@ private:
 MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet &iConfig)
     : ZmumuCandidates_(consumes<edm::View<reco::CompositeCandidate>>(
           iConfig.getParameter<edm::InputTag>("ZmumuCandidatesCollection"))) {
-  use_zmass = iConfig.getParameter<bool>("use_zmass");
   produces<edm::RefVector<pat::MuonCollection>>();
-  produces<float>("oldMass");
-  produces<float>("newMass");
-  produces<float>("nPairCandidates");
+  produces<float>("ptLeadingMuon");
+  produces<float>("ptTrailingMuon");
+  produces<float>("etaLeadingMuon");
+  produces<float>("etaTrailingMuon");
+  produces<float>("phiLeadingMuon");
+  produces<float>("phiTrailingMuon");
+  produces<float>("chargeLeadingMuon");
+  produces<float>("chargeTrailingMuon");
+  produces<float>("dbLeadingMuon");
+  produces<float>("dbTrailingMuon");
+  produces<float>("massLeadingMuon");
+  produces<float>("massTrailingMuon");
+  produces<float>("vtxxLeadingMuon");
+  produces<float>("vtxyLeadingMuon");
+  produces<float>("vtxzLeadingMuon");
+  produces<float>("vtxxTrailingMuon");
+  produces<float>("vtxyTrailingMuon");
+  produces<float>("vtxzTrailingMuon");
   produces<bool>("isMediumLeadingMuon");
   produces<bool>("isTightLeadingMuon");
   produces<bool>("isMediumTrailingMuon");
@@ -107,9 +119,6 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   iEvent.getByToken(ZmumuCandidates_, ZmumuCandidatesHandle);
   edm::View<reco::CompositeCandidate> ZmumuCandidates = *ZmumuCandidatesHandle;
   const reco::CompositeCandidate *chosenZCand = nullptr;
-  const reco::CompositeCandidate *chosenZCand_zmass = nullptr;
-  const reco::CompositeCandidate *chosenZCand_largest = nullptr;
-  double massDifference = 9999;
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(theBeamSpotLabel_, beamSpot);
   edm::Handle<reco::VertexCollection> vertex;
@@ -133,46 +142,46 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
        iZCand != ZmumuCandidates.end();
        ++iZCand) {
-    if (std::abs(zmass - iZCand->mass()) < massDifference) {
-      massDifference = std::abs(zmass - iZCand->mass());
-      chosenZCand_zmass = &(*iZCand);
-    }
-  }
-  for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
-       iZCand != ZmumuCandidates.end();
-       ++iZCand) {
-    if (chosenZCand_largest == nullptr) {
-      chosenZCand_largest = &(*iZCand);
+    if (chosenZCand == nullptr) {
+      chosenZCand = &(*iZCand);
     } else {
-      if (iZCand->mass() > chosenZCand_largest->mass()) {
-        chosenZCand_largest = &(*iZCand);
+      if (iZCand->mass() > chosenZCand->mass()) {
+        chosenZCand = &(*iZCand);
       }
     }
   }
-  if (use_zmass) {
-    chosenZCand = chosenZCand_zmass;
-  } else {
-    chosenZCand = chosenZCand_largest;
-  }
+
+  const auto &daughter0 = chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>();
+  const auto &daughter1 = chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>();
 
   std::unique_ptr<edm::RefVector<pat::MuonCollection>> prod(new edm::RefVector<pat::MuonCollection>());
   prod->reserve(2);
-  prod->push_back(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>());
-  prod->push_back(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>());
+  prod->push_back(daughter0);
+  prod->push_back(daughter1);
   iEvent.put(std::move(prod));
-  iEvent.put(std::make_unique<float>(chosenZCand_zmass->mass()), "oldMass");
-  iEvent.put(std::make_unique<float>(chosenZCand_largest->mass()), "newMass");
-  iEvent.put(std::make_unique<float>(ZmumuCandidates.size()), "nPairCandidates");
-  iEvent.put(std::make_unique<bool>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->isMediumMuon()),
-             "isMediumLeadingMuon");
-  iEvent.put(std::make_unique<bool>(
-                 chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->isTightMuon(primaryVertex)),
-             "isTightLeadingMuon");
-  iEvent.put(std::make_unique<bool>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->isMediumMuon()),
-             "isMediumTrailingMuon");
-  iEvent.put(std::make_unique<bool>(
-                 chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->isTightMuon(primaryVertex)),
-             "isTightTrailingMuon");
+
+  iEvent.put(std::make_unique<float>(daughter0->pt()), "ptLeadingMuon");
+  iEvent.put(std::make_unique<float>(daughter1->pt()), "ptTrailingMuon");
+  iEvent.put(std::make_unique<float>(daughter0->eta()), "etaLeadingMuon");
+  iEvent.put(std::make_unique<float>(daughter1->eta()), "etaTrailingMuon");
+  iEvent.put(std::make_unique<float>(daughter0->phi()), "phiLeadingMuon");
+  iEvent.put(std::make_unique<float>(daughter1->phi()), "phiTrailingMuon");
+  iEvent.put(std::make_unique<float>(daughter0->charge()), "chargeLeadingMuon");
+  iEvent.put(std::make_unique<float>(daughter1->charge()), "chargeTrailingMuon");
+  iEvent.put(std::make_unique<float>(daughter0->dB()), "dbLeadingMuon");
+  iEvent.put(std::make_unique<float>(daughter1->dB()), "dbTrailingMuon");
+  iEvent.put(std::make_unique<float>(daughter0->mass()), "massLeadingMuon");
+  iEvent.put(std::make_unique<float>(daughter1->mass()), "massTrailingMuon");
+  iEvent.put(std::make_unique<float>(daughter0->vertex().x()), "vtxxLeadingMuon");
+  iEvent.put(std::make_unique<float>(daughter0->vertex().y()), "vtxyLeadingMuon");
+  iEvent.put(std::make_unique<float>(daughter0->vertex().z()), "vtxzLeadingMuon");
+  iEvent.put(std::make_unique<float>(daughter1->vertex().x()), "vtxxTrailingMuon");
+  iEvent.put(std::make_unique<float>(daughter1->vertex().y()), "vtxyTrailingMuon");
+  iEvent.put(std::make_unique<float>(daughter1->vertex().z()), "vtxzTrailingMuon");
+  iEvent.put(std::make_unique<bool>(daughter0->isMediumMuon()), "isMediumLeadingMuon");
+  iEvent.put(std::make_unique<bool>(daughter0->isTightMuon(primaryVertex)), "isTightLeadingMuon");
+  iEvent.put(std::make_unique<bool>(daughter1->isMediumMuon()), "isMediumTrailingMuon");
+  iEvent.put(std::make_unique<bool>(daughter1->isTightMuon(primaryVertex)), "isTightTrailingMuon");
   iEvent.put(std::make_unique<float>(met->at(0).et()), "initialMETEt");
   iEvent.put(std::make_unique<float>(met->at(0).phi()), "initialMETphi");
   iEvent.put(std::make_unique<float>(puppimet->at(0).et()), "initialPuppiMETEt");
