@@ -308,7 +308,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     for (unsigned int step = 1; step < pow2_boundary; step *= 2) {
       const unsigned int src_lane_idx =
-          (logical_lane_idx >= step) ? get_physical_lane_idx(acc, mask, logical_lane_idx - step) : logical_lane_idx;
+          (logical_lane_idx >= step) ? get_physical_lane_idx(acc, mask, logical_lane_idx - step) : lane_idx;
       const unsigned int tmp_val = warp::shfl_mask(acc, mask, local_offset, src_lane_idx, w_extent);
 
       if (logical_lane_idx >= step)
