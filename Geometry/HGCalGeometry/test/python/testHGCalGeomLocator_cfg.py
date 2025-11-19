@@ -46,6 +46,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -71,12 +72,11 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prodEE = cms.EDAnalyzer("HGCalGeomLocaterTester",
-                                Detector   = cms.string("HGCalEESensitive"),
-                                )
+process.load("Geometry.HGCalGeometry.hgcalGeomLocatorTesterEE_cfi")
+process.hgcalGeomLocatorTesterEE.stepSilicon = 2
 
-process.prodHEF = process.prodEE.clone(
-    Detector   = "HGCalHESiliconSensitive",
+process.hgcalGeomLocatorTesterHEF = process.hgcalGeomLocatorTesterEE.clone(
+    detector   = "HGCalHESiliconSensitive",
 )
 
-process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
+process.p1 = cms.Path(process.generator*process.hgcalGeomLocatorTesterEE*process.hgcalGeomLocatorTesterHEF)
