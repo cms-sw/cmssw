@@ -3,6 +3,7 @@ from collections import OrderedDict
 from .MatrixUtil import merge, Kby, Mby, check_dups
 import re
 
+run3_years = ['2022','2023','2024','2025','2026']
 undefInput = "UNDEF"
 
 U2000by1={'--relval': '2000,1'}
@@ -44,6 +45,7 @@ upgradeKeys[2017] = [
     '2024SimOnGen',
     '2024FS',
     '2024FSPU',
+    ### 2025
     '2025',
     '2025PU',
     '2025HLTOnDigi',
@@ -52,6 +54,15 @@ upgradeKeys[2017] = [
     '2025GenOnly',
     '2025FS',
     '2025FSPU',
+    ### 2026
+    '2026',
+    '2026PU',
+    '2026HLTOnDigi',
+    '2026HLTOnDigiPU',
+    '2026SimOnGen',
+    '2026GenOnly',
+    '2026FS',
+    '2026FSPU',
 ]
 
 upgradeKeys['Run4'] = [
@@ -478,7 +489,7 @@ class UpgradeWorkflow_trackingMkFit(UpgradeWorkflowTracking):
         if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step): stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):     
-        return any(y in key for y in ['2017','2022','2023','2024','2025']) and ('FS' not in key)
+        return any(y in key for y in ['2017'] + run3_years) and ('FS' not in key)
 upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     steps = [
         'Digi',
@@ -629,7 +640,7 @@ class UpgradeWorkflow_siPixelDigiMorphing(UpgradeWorkflow):
         if 'Reco' in step:
             stepDict[stepName][k] = merge([{'--procModifiers': 'siPixelDigiMorphing'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        result = (fragment=="QCD_Pt_1800_2400_14" or fragment=="TTbar_14TeV" ) and any(y in key for y in ['2022','2023','2024','2025'])
+        result = (fragment=="QCD_Pt_1800_2400_14" or fragment=="TTbar_14TeV" ) and any(y in key for y in run3_years)
         return result
 upgradeWFs['siPixelDigiMorphing'] = UpgradeWorkflow_siPixelDigiMorphing(
     steps = [
@@ -658,7 +669,7 @@ class UpgradeWorkflow_siPixelGoodEdgeAlgo(UpgradeWorkflow):
         if 'Reco' in step:
             stepDict[stepName][k] = merge([{'--procModifiers': 'siPixelGoodEdgeAlgo'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        result = (fragment=="QCD_Pt_1800_2400_14" or fragment=="TTbar_14TeV" ) and any(y in key for y in ['2025'])
+        result = (fragment=="QCD_Pt_1800_2400_14" or fragment=="TTbar_14TeV" ) and any(y in key for y in ['2025','2026'])
         return result
 upgradeWFs['siPixelGoodEdgeAlgo'] = UpgradeWorkflow_siPixelGoodEdgeAlgo(
     steps = [
@@ -686,7 +697,7 @@ class UpgradeWorkflow_displacedRegional(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return any(y in key for y in ['2022','2023','2024','2025'])
+        return any(y in key for y in run3_years)
 upgradeWFs['displacedRegional'] = UpgradeWorkflow_displacedRegional(
     steps = [
         'Reco',
@@ -772,7 +783,7 @@ class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
     def condition(self, fragment, stepList, key, hasHarvest):
         # select only a subset of the workflows
         selected = (fragment == "TTbar_14TeV") and ('FS' not in key) and hasHarvest
-        result =  selected and any(y in key for y in ['2022','2024','2025','Run4'])
+        result =  selected and any(y in key for y in run3_years + ['Run4'])
 
         return result
 
@@ -1214,7 +1225,7 @@ upgradeWFs['photonDRN'].step3 = {
 
 # Patatrack workflows (NoPU and PU):
 #   - TTbar_14, ZMM_14", ZEE_14, ZTT_14, NuGun, SingleMu, QCD_Pt15To7000_Flat for
-#       > 2022, 2023, 2024, 2025 and Run4 conditions, TTbar
+#       > 2022, 2023, 2024, 2025, 2026 and Run4 conditions, TTbar
 #   - Hydjet for HI conditions
 class PatatrackWorkflow(UpgradeWorkflow):
     def __init__(self, digi = {}, reco = {}, mini = {}, harvest = {}, **kwargs):
@@ -1275,7 +1286,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
 
     def condition(self, fragment, stepList, key, hasHarvest):
         # select only a subset of the workflows
-        years = ['2022','2023','2024','2025','Run4']
+        years = run3_years + ['Run4']
         fragments = ["TTbar_14","ZMM_14","ZEE_14","ZTT_14","NuGun","SingleMu","QCD_Pt15To7000_Flat"]
         selected = [
             (any(y in key for y in years) and ('FS' not in key) and any( f in fragment for f in fragments)),
@@ -1668,7 +1679,7 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
             stepDict[stepName][k].pop('--pileup', None)
             stepDict[stepName][k].pop('--pileup_input', None)
     def condition(self, fragment, stepList, key, hasHarvest):
-        years = ['2022','2023','2024','2025','Run4']
+        years = run3_years + ['Run4']
         return fragment=="TTbar_14TeV" and any(y in key for y in years)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     steps = [
@@ -2518,7 +2529,7 @@ class UpgradeWorkflow_0T(UpgradeWorkflow):
         # override '-n' setting from PUDataSets in relval_steps.py
         stepDict[stepName][k] = merge([{'-n':'1'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2022' in key or '2024' in key or '2025' in key) and ('FS' not in key)
+        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and any(y in key for y in ['2017','2018'] + run3_years) and ('FS' not in key)
 upgradeWFs['0T'] = UpgradeWorkflow_0T(
     steps = [
         'GenSim',
@@ -2697,7 +2708,7 @@ class UpgradeWorkflow_SplittingFromHLT(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--procModifiers': 'hltClusterSplitting'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2025' in key and fragment=="TTbar_14TeV"
+        return any(y in key for y in run3_years) and fragment=="TTbar_14TeV"
 
 upgradeWFs['SplittingFromHLT'] = UpgradeWorkflow_SplittingFromHLT(
     steps = [
@@ -2731,7 +2742,7 @@ class UpgradeWorkflow_SplittingProdLike(UpgradeWorkflow_ProdLike):
         stepDict[stepName][k] = merge([{'--procModifiers': 'hltClusterSplitting'}, stepDict[step][k]])
 
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2025' in key and fragment=="TTbar_14TeV"
+        return any(y in key for y in run3_years) and fragment=="TTbar_14TeV"
 
 upgradeWFs['SplittingFromHLTProdLike'] = UpgradeWorkflow_SplittingProdLike(
     steps = [
@@ -2942,7 +2953,7 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
     def condition(self, fragment, stepList, key, hasHarvest):
         if not 'PU' in key:
             return False
-        if not any(y in key for y in ['2022', '2023', '2024', '2025', 'Run4']):
+        if not any(y in key for y in run3_years + ['Run4']):
             return False
         if self.suffix.endswith("S1"):
             return "NuGun" in fragment
@@ -3242,7 +3253,7 @@ upgradeWFs['DD4hepDB'].allowReuse = False
 class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         the_era = stepDict[step][k]['--era']
-        exclude = ['2025','2024','2023','Fast','Pb']
+        exclude = ['2026','2025','2024','2023','Fast','Pb']
         if 'Run3' in the_era and not any(e in the_era for e in exclude):
             # retain any other eras
             tmp_eras = the_era.split(',')
@@ -3557,6 +3568,47 @@ upgradeProperties[2017] = {
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
+    #### 2026
+    '2026' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2026_realistic',
+        'HLTmenu': '@relval2026',
+        'Era' : 'Run3_2026',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
+    },
+    '2026HLTOnDigi' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2026_realistic',
+        'HLTmenu': '@relval2026',
+        'Era' : 'Run3_2026',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['GenSim','DigiNoHLT','HLTOnly','RecoNano','HARVESTNano','ALCA'],
+    },
+    '2026GenOnly' : {   
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2026_realistic',
+        'HLTmenu': '@relval2026',
+        'Era' : 'Run3_2026',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['Gen'],
+    },
+    '2026SimOnGen' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2026_realistic',
+        'HLTmenu': '@relval2026',
+        'Era' : 'Run3_2026',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['Gen','Sim','Digi','RecoNano','HARVESTNano','ALCA'],
+    },
+    '2026FS' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2026_realistic',
+        'HLTmenu': '@relval2026',
+        'Era' : 'Run3_2026_FastSim',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
+    }
 }
 
 # standard PU sequences
