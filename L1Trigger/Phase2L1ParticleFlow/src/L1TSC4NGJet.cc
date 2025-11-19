@@ -200,8 +200,8 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet &iJet
     l1ct::PuppiObj puppicand = l1ct::PuppiObj::unpack(iParts[i0]->encodedPuppi64());
     fPt_.get()[i0] = inputtype(puppicand.hwPt);
 
-    constexpr int INV_LUT_SIZE = 256;
-    inputtype inv_jet_pt = l1ct::invert_with_shift<inputtype, inputtype, INV_LUT_SIZE>(jet_pt_);
+    constexpr int INV_LUT_SIZE = 1024;
+    inputtype inv_jet_pt = l1ct::invert_with_shift<pt_t, inputtype, INV_LUT_SIZE>(jet_pt_);
 
     fPt_rel_.get()[i0] = inputtype(puppicand.hwPt) * inv_jet_pt;
 
