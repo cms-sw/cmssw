@@ -165,3 +165,13 @@ The message will print
 | `nDealloc` | Number of memory deallocations |
 
 This service is multi-thread safe, and concurrent measurements can be done in different threads. Nested measurements are not supported (i.e. one thread can be doing only one measurement at a time), and neither are measurements started in one thread and ended in different thread.
+
+### ThresholdAbortAllocMonitor
+
+This service registers a monitor when the service is created and will abort the job (which will normally trigger a stack trace) if a memory request falling within a certain memory range is seen for a specified number of times. The service accepts the following parameters
+
+- `minThreshold` : the minimum number of bytes an allocation request must reach before an abort might be triggered.
+- `maxThreshold` : the maximum number of bytes an allocation request must stay below (or equal) before an abort might be triggered. A value of `0` means there is no such limit.
+- `skipCount` : the number of times allocations have satisfied the `minThreshold` to `maxThreshold` range before the next time will trigger an abort. A value of `0` will trigger the first time the range is met.
+
+This service is multi-thread safe although it may not yeild consistent results if multiple thread reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.
