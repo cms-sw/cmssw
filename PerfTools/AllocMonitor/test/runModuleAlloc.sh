@@ -6,6 +6,14 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAlloc_cfg.py || die 'Failure using moduleAlloc_cfg.py' $?
 
+edmModuleAllocMonitorAnalyze.py -j moduleAlloc.log  > moduleAlloc.json
+grep -A9 'cpptypes' moduleAlloc.json > cpptypes.txt
+diff cpptypes.txt ${LOCAL_TEST_DIR}/unittest_output/cpptypes.txt || die 'differences in edmModuleAllocMonitorAnalyzer.py output' $?
+
+edmModuleAllocJsonToCircles.py moduleAlloc.json > moduleAlloc.circles.json
+grep '"\(record\|type\|label\)": ".*",' moduleAlloc.circles.json > circles.txt
+diff circles.txt ${LOCAL_TEST_DIR}/unittest_output/circles.txt || die 'differences in edmModuleAllocJsonToCircles.py output' $?
+
 grep '^[fF]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > allTransitions.log
 diff allTransitions.log ${LOCAL_TEST_DIR}/unittest_output/allTransitions.log || die 'differences in allTransitions' $?
 
