@@ -56,7 +56,6 @@ namespace edm {
     static bool isPhysical(std::string const& name) { return (name.empty() || name.find(':') != std::string::npos); }
 
   private:
-    void init(std::vector<std::string> logicalFileNames, std::string const& override, bool useLFNasPFNifLFNnotFound);
     void findFile(std::string const& lfn, std::vector<std::string>& pfns, bool useLFNasPFNifLFNnotFound);
 
     std::vector<FileCatalogItem> fileCatalogItems_;
