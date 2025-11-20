@@ -65,8 +65,8 @@ The offsets currently in use are:
 * 0.7561 HLT phase-2 timing menu Alpaka, trimmed tracking
 * 0.7562 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
 * 0.757: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
-* 0.7571: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + mkFit building variant
-* 0.7572: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + mkFit building and fitting variant
+* 0.7571: HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building variant
+* 0.7572: HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building and fitting variant
 * 0.758 HLT phase-2 timing menu ticl_barrel variant
 * 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
 * 0.76: HLT phase-2 reduced menu, with DIGI step
