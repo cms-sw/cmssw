@@ -28,6 +28,8 @@ DQMCertMuon = cms.Sequence(dtDAQInfo * rpcDaqInfo * cscDaqInfo *
 DQMCertEcal = cms.Sequence(ecalDaqInfoTask * ecalPreshowerDaqInfoTask *
                            ecalDcsInfoTask * ecalPreshowerDcsInfoTask *
                            ecalCertification * ecalPreshowerDataCertificationTask)
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(DQMCertEcal, DQMCertEcal.copyAndExclude([ecalPreshowerDaqInfoTask, ecalPreshowerDcsInfoTask, ecalPreshowerDataCertificationTask]))
 
 DQMCertJetMET = cms.Sequence(dataCertificationJetMETSequence)
 

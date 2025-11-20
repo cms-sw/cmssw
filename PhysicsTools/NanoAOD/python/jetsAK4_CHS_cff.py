@@ -396,7 +396,11 @@ nanoAOD_addDeepInfoAK4CHS_switch = cms.PSet(
 # ML-based FastSim refinement
 #
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-def nanoAOD_refineFastSim_bTagDeepFlav(process):
+def nanoAOD_refineFastSim_bTagDeepFlav(process, addDeepFlavour):
+
+    # for CHS, only DeepFlav refinement is implemented
+    if not addDeepFlavour:
+        return process
 
     fastSim.toModify( process.jetTable.variables,
       btagDeepFlavBunrefined = process.jetTable.variables.btagDeepFlavB.clone(),
