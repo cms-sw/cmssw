@@ -37,7 +37,7 @@
 
 <test name="pytorch-create_simple_dnn" command="create_simple_dnn.py ."/>
 <test name="pytorch-test_simple_dnn"   command="test_simple_dnn.py .">
-  <flags PRE_TEST="pytorch-create_simple_dnn ."/>
+  <flags PRE_TEST="pytorch-create_simple_dnn"/>
 </test>
 <test name="test-torch-tensor-cpu"     command="torch-tensor.py cpu"/>
 <test name="test-torch-tensor"         command="torch-tensor.py"/>
