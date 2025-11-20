@@ -14,6 +14,8 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 # mc WFs to run in IB:
 
 # no PU     Alpaka pixel-only                                   TTbar: quadruplets any backend and profiling; ECAL-only any backend; HCAL-only any backend and profiling
+# mc 2025 
+#           (Alpaka wfs to be removed, kept here to be used by the bot in the transition)
 # mc 2026
 # no PU  
 #           Alpaka pixel-only quadruplets:                      TTbar: any backend, any backend vs cpu validation, profiling
@@ -46,7 +48,8 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           Alpaka LST-only:                                    TTbar: TRK-only w/ 2 iterations and LST building on any backend
 #           Alpaka HLTTiming75e33:                              TTbar: any backend
 numWFIB = [
-
+           # 2025, Alpaka-based (to be removed, used by the bot)
+           17034.422, 17034.403, 17034.406, 17034.412, 17034.402, 17034.423,
            # 2026, Alpaka-based noPU
            18434.402, 18434.403, 18434.404,
            18434.406, 18434.407, 18434.408,
