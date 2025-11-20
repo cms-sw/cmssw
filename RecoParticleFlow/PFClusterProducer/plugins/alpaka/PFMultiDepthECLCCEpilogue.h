@@ -105,7 +105,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto& subcc_offsets = tmp_buf3;
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
-        // Skip inactive groups:
+        if (::cms::alpakatools::once_per_block(acc)) {
+	  component_map[nVertices] = 0;	
+        }
+
         for (auto idx : ::cms::alpakatools::uniform_group_elements(
                  acc, group, ::cms::alpakatools::round_up_by(nVertices, w_extent))) {
           vertex_seeds[idx.local] = 0;
@@ -115,9 +118,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           if (idx.local < max_w_items)
             subcc_offsets[idx.local] = 0;
-          // also need for atomic operations
-          if (idx.local == 0)
-            component_map[nVertices] = 0;
         }
 
         alpaka::syncBlockThreads(acc);

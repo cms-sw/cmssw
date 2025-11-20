@@ -315,20 +315,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         local_offset += tmp_val;
     }
 
-    warp::syncWarpThreads_mask(acc, mask);
-
     if constexpr (all) {
       const unsigned int high_lane_idx = get_physical_lane_idx(acc, mask, nActiveLanes - 1);
-      const unsigned int low_lane_idx = get_physical_lane_idx(acc, mask, 0);
-
       // send last lane value (total tile offset) to lane idx = low_lane_idx:
-      const warp::warp_mask_t active_mask = get_lane_mask(low_lane_idx) | get_lane_mask(high_lane_idx);
-      const unsigned int tmp = warp::shfl_mask(acc, active_mask, local_offset, high_lane_idx, w_extent);
+      const unsigned int tmp = warp::shfl_mask(acc, mask, local_offset, high_lane_idx, w_extent);
 
       if (logical_lane_idx == 0)
         local_offset = tmp;  //lane 0 keeps full (inclusive for the last lane) sum
-
-      warp::syncWarpThreads_mask(acc, mask);
     }
     return logical_lane_idx == 0
                ? local_offset
