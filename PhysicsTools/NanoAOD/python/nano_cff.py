@@ -313,7 +313,7 @@ def nanoAOD_customizeCommon(process):
     process = addTimeLifeInfoBase(process)
     
     process = nanoAOD_refineFastSim_puppiJet(process)
-    process = nanoAOD_refineFastSim_bTagDeepFlav(process)
+    process = nanoAOD_refineFastSim_bTagDeepFlav(process, nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepFlavourTag_switch)
 
     return process
 

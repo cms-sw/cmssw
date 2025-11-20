@@ -22,8 +22,8 @@ ecalDQMSequencePhase2 = cms.Sequence(
 )
 
 validationECALPhase2 = cms.Sequence(
-    ecalSimHitsValidationSequence*
-    ecalDigisValidationSequence*
+    ecalSimHitsValidationSequencePhase2*
+    ecalDigisValidationSequencePhase2*
     ecalRecHitsValidationSequencePhase2*
     ecalClustersValidationSequence*
     ecalDQMSequencePhase2
