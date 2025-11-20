@@ -62,6 +62,7 @@ DQMOfflineEcal = cms.Sequence(
 
 from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 phase2_ecal_devel.toReplaceWith(DQMOfflineEcalOnly, DQMOfflineEcalOnly.copyAndExclude([es_dqm_source_offline]))
+phase2_ecal_devel.toReplaceWith(DQMOfflineEcal, DQMOfflineEcal.copyAndExclude([es_dqm_source_offline]))
 
 #offline version of the online DQM: used in validation/certification
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
