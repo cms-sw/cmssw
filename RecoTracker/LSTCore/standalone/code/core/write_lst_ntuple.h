@@ -64,7 +64,8 @@ std::map<unsigned int, unsigned int> setQuintupletBranches(LSTEvent* event,
                                                            std::map<unsigned int, unsigned int> const& t3_idx_map);
 std::map<unsigned int, unsigned int> setPixelLineSegmentBranches(LSTEvent* event,
                                                                  unsigned int n_accepted_simtrk,
-                                                                 float matchfrac);
+                                                                 float matchfrac,
+                                                                 std::map<unsigned int, unsigned int> const& ls_idx_map);
 std::map<unsigned int, unsigned int> setPixelTripletBranches(LSTEvent* event,
                                                              unsigned int n_accepted_simtrk,
                                                              float matchfrac,
