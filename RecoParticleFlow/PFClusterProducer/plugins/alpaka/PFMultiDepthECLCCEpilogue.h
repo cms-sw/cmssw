@@ -106,7 +106,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (::cms::alpakatools::once_per_block(acc)) {
-	  component_map[nVertices] = 0;	
+          component_map[nVertices] = 0;
         }
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(
