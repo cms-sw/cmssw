@@ -194,8 +194,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (((leftover_mask & (leftover_mask - 1)) == 0)) {
       // 4.0 Compute the active lane index:
       const unsigned int res_lane_idx = get_ls1b_idx(acc, leftover_mask);
-
+#if __CUDA_ARCH__ >= 800 
       const warp::warp_mask_t aggr_mask = leftover_mask | dst_lane_mask;
+#else
+      const warp::warp_mask_t aggr_mask = mask;
+#endif      
       // 4.1 Fetch new values from source link:
       const float new_dz =
           warp::shfl_mask(acc, aggr_mask, src_link_params.Get(PFMDLinkParamKind::DZ), res_lane_idx, w_extent);
@@ -251,7 +254,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (idx.global < nClusters) {
             mdpfClusteringCCLabels[idx.global].workl() = 0;
           }
+#if __CUDA_ARCH__ >= 800 	  
           const warp::warp_mask_t init_active_lanes_mask = alpaka::warp::ballot(acc, idx.global < nClusters);
+#else
+	  const warp::warp_mask_t init_active_lanes_mask = alpaka::warp::ballot(acc, true);
+#endif	  
           // From this point all warp-level collectives must be accompanied with init_active_lanes_mask (or any derived from it) mask:
           // for example new_mask = warp::ballot_mask(acc, old_mask, predicate) will generate a new mask that selects a subset of lanes from old_mask
           // Link parameters (by default store its own global index):
