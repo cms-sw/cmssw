@@ -24,7 +24,7 @@ namespace pixelClustering {
 
   constexpr uint32_t maxNumDigis = 3 * 256 * 1024;  // @PU=200 µ=530k σ=50k this is >4σ away
   // This is an upper limit taking into account D110 has 4000 modules
-  // plus 3 layers of TOB and 10 layers of TID for CA Extension
+  // plus 3 layers of TOB and 10 disks (5 per side) of TID for CA Extension
   constexpr uint16_t maxNumModules = 4000 + 2872 + 2720;
 
   constexpr int32_t maxNumClustersPerModules = maxHitsInModule();
