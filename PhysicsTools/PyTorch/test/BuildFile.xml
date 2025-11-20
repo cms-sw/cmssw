@@ -34,3 +34,26 @@
   <use name="pytorch"/>
   <use name="pytorch-cuda"/>
 </bin>
+
+<test name="pytorch-create_simple_dnn" command="create_simple_dnn.py ."/>
+<test name="pytorch-test_simple_dnn"   command="test_simple_dnn.py .">
+  <flags PRE_TEST="pytorch-create_simple_dnn ."/>
+</test>
+<test name="test-torch-tensor-cpu"     command="torch-tensor.py cpu"/>
+<test name="test-torch-tensor"         command="torch-tensor.py"/>
+<test name="test-torch-control-flow"   command="torch-control-flow.py"/>
+ <test name="test-torch-mini-nn-cpu"   command="torch-mini-nn.py cpu"/>
+<iftool name="cuda-gcc-support">
+  <test name="test-torch-cuda"         command="torch-cuda.py">
+    <use name="cuda"/>
+  </test>
+  <test name="test-torch-cpu-cuda"     command="torch-cpu-cuda.py">
+    <use name="cuda"/>
+  </test>
+  <test name="test-torch-mini-nn-gpu"  command="torch-mini-nn.py gpu">
+    <use name="cuda"/>
+  </test>
+  <test name="test-torch-tensor-gpu"   command="torch-tensor.py cuda">
+    <use name="cuda"/>
+  </test>
+</iftool>
