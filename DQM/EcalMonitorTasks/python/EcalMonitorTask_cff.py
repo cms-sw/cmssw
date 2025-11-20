@@ -22,3 +22,22 @@ gpu.toModify(ecalMonitorTask.skipCollections, func = lambda skipCollections: ski
 
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 alpaka.toModify(ecalMonitorTask.skipCollections, func = lambda skipCollections: skipCollections.append("EcalRawData"))
+
+# Changes for Phase 2
+from DQM.EcalMonitorTasks.CollectionTags_cfi import ecalDQMCollectionTagsPhase2
+ecalMonitorTaskPhase2 = ecalMonitorTask.clone(
+    workers = cms.untracked.vstring(
+        "ClusterTask",
+        "EnergyTask",
+        "TimingTask",
+        "PiZeroTask"
+    ),
+    workerParameters = cms.untracked.PSet(
+        ClusterTask = ecalClusterTask,
+        EnergyTask = ecalEnergyTask,
+        TimingTask = ecalTimingTask,
+        PiZeroTask = ecalPiZeroTask
+    ),
+    collectionTags = ecalDQMCollectionTagsPhase2,
+    skipCollections = cms.untracked.vstring('EcalRawData')
+)
