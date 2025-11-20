@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include <boost/algorithm/string.hpp>
 
 #include "FWCore/Catalog/interface/FileLocator.h"
@@ -12,28 +14,11 @@ namespace edm {
   InputFileCatalog::InputFileCatalog(std::vector<std::string> logicalFileNames,
                                      std::string const& override,
                                      bool useLFNasPFNifLFNnotFound) {
-    init(std::move(logicalFileNames), override, useLFNasPFNifLFNnotFound);
-  }
-
-  InputFileCatalog::~InputFileCatalog() {}
-
-  std::vector<std::string> InputFileCatalog::fileNames(unsigned iCatalog) const {
-    std::vector<std::string> tmp;
-    tmp.reserve(fileCatalogItems_.size());
-    for (auto const& item : fileCatalogItems_) {
-      tmp.push_back(item.fileName(iCatalog));
-    }
-    return tmp;
-  }
-
-  void InputFileCatalog::init(std::vector<std::string> logicalFileNames,
-                              std::string const& override,
-                              bool useLFNasPFNifLFNnotFound) {
     Service<SiteLocalConfig> localconfservice;
     if (!localconfservice.isAvailable()) {
       cms::Exception ex("FileCatalog");
       ex << "edm::SiteLocalConfigService is not available";
-      ex.addContext("Calling edm::InputFileCatalog::init()");
+      ex.addContext("Calling edm::InputFileCatalog constructor");
       throw ex;
     }
 
@@ -45,7 +30,7 @@ namespace edm {
         cms::Exception ex("FileCatalog");
         ex << "Trying to override input file catalog but invalid input override string " << override
            << " (Should be site,subSite,storageSite,volume,protocol)";
-        ex.addContext("Calling edm::InputFileCatalog::init()");
+        ex.addContext("Calling edm::InputFileCatalog constructor");
         throw ex;
       }
 
@@ -54,30 +39,42 @@ namespace edm {
                                         tmps[2],   //desired-data-access-site
                                         tmps[3],   //desired-data-access-volume
                                         tmps[4]);  //desired-data-access-protocol
-
-      overrideFileLocator_ =
-          std::make_unique<FileLocator>(override_struct);  // propagate_const<T> has no reset() function
-    }
-
-    std::vector<CatalogAttributes> const& tmp_dataCatalogs = localconfservice->dataCatalogs();
-    fileLocators_.clear();
-    // Construct all file locators from data catalogs. If a data catalog is
-    // invalid (wrong protocol for example), it is skipped and no file locator
-    // is constructed (an exception is thrown out from FileLocator::init).
-    for (const auto& catalog : tmp_dataCatalogs) {
-      try {
-        fileLocators_.push_back(std::make_unique<FileLocator>(catalog));
-      } catch (cms::Exception const& e) {
-        edm::LogWarning("InputFileCatalog")
-            << "Caught an exception while constructing a file locator in InputFileCatalog::init: " << e.what()
-            << "Skip this catalog";
+      if (override_struct.empty()) {
+        cms::Exception ex("FileCatalog");
+        ex << "Trying to override input file catalog but invalid input override string " << override
+           << "\nResulting CatalogAttributes is empty (should be site,subSite,storageSite,volume,protocol)";
+        ex.addContext("Calling edm::InputFileCatalog constructor");
+        throw ex;
       }
-    }
-    if (fileLocators_.empty()) {
-      cms::Exception ex("FileCatalog");
-      ex << "Unable to construct any file locator in InputFileCatalog::init";
-      ex.addContext("Calling edm::InputFileCatalog::init()");
-      throw ex;
+      std::filesystem::path filename_storage = localconfservice->storageDescriptionPath(override_struct);
+      overrideFileLocator_ = std::make_unique<FileLocator>(override_struct, filename_storage);
+    } else {
+      std::vector<CatalogAttributes> const& tmp_dataCatalogs = localconfservice->dataCatalogs();
+      fileLocators_.clear();
+      // Construct all file locators from data catalogs. If a data catalog is
+      // invalid (wrong protocol for example), it is skipped and no file locator
+      // is constructed (an exception is thrown out from the FileLocator constructor).
+      for (const auto& catalogAttributes : tmp_dataCatalogs) {
+        if (catalogAttributes.empty()) {
+          edm::LogWarning("InputFileCatalog")
+              << "Empty CatalogAttributes object in InputFileCatalog constructor. This catalog will be skipped.";
+          continue;
+        }
+        try {
+          std::filesystem::path filename_storage = localconfservice->storageDescriptionPath(catalogAttributes);
+          fileLocators_.push_back(std::make_unique<FileLocator>(catalogAttributes, filename_storage));
+        } catch (cms::Exception const& e) {
+          edm::LogWarning("InputFileCatalog")
+              << "Caught an exception while constructing a file locator in InputFileCatalog constructor: " << e.what()
+              << "Skip this catalog";
+        }
+      }
+      if (fileLocators_.empty()) {
+        cms::Exception ex("FileCatalog");
+        ex << "Unable to construct any file locator in InputFileCatalog constructor";
+        ex.addContext("Calling edm::InputFileCatalog constructor");
+        throw ex;
+      }
     }
 
     fileCatalogItems_.reserve(logicalFileNames.size());
@@ -87,14 +84,14 @@ namespace edm {
       if (lfn.empty()) {
         cms::Exception ex("FileCatalog");
         ex << "An empty string specified in the fileNames parameter for input source";
-        ex.addContext("Calling edm::InputFileCatalog::init()");
+        ex.addContext("Calling edm::InputFileCatalog constructor");
         throw ex;
       }
       if (isPhysical(lfn)) {
         if (lfn.back() == ':') {
           cms::Exception ex("FileCatalog");
           ex << "An empty physical file name specified in the fileNames parameter for input source";
-          ex.addContext("Calling edm::InputFileCatalog::init()");
+          ex.addContext("Calling edm::InputFileCatalog constructor");
           throw ex;
         }
         pfns.push_back(lfn);
@@ -107,6 +104,17 @@ namespace edm {
 
       fileCatalogItems_.emplace_back(std::move(pfns), std::move(lfn));
     }
+  }
+
+  InputFileCatalog::~InputFileCatalog() = default;
+
+  std::vector<std::string> InputFileCatalog::fileNames(unsigned iCatalog) const {
+    std::vector<std::string> tmp;
+    tmp.reserve(fileCatalogItems_.size());
+    for (auto const& item : fileCatalogItems_) {
+      tmp.push_back(item.fileName(iCatalog));
+    }
+    return tmp;
   }
 
   void InputFileCatalog::findFile(std::string const& lfn,
