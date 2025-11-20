@@ -16,6 +16,9 @@ std::ostream& operator<<(std::ostream& s, const HcalZDCDetId& id) {
     case (HcalZDCDetId::RPD):
       s << " RPD ";
       break;
+    case (HcalZDCDetId::FSC):
+      s << " FSC ";
+      break;
     default:
       s << " UNKNOWN ";
   }
