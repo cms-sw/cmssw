@@ -4,6 +4,9 @@
   <class name="reco::HitModulesLayout<128, false>"/>
 
   <class name="reco::HitPortableCollectionHost"/>
+  <!-- needed to avoid auto parsing by ROOT. Order in the file matters -->
+  <class name="reco::HitPortableCollectionHost::Implementation"/>
+
   <class name="reco::TrackingRecHitHost"  rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<reco::TrackingRecHitHost>" splitLevel="0"/>
 
