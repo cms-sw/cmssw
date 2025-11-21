@@ -23,7 +23,8 @@ namespace {
 SeedFitter::SeedFitter(const edm::ParameterSet& cfg) : SeedFitter::SeedFitter(cfg, consumesCollector()) {}
 
 SeedFitter::SeedFitter(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
-    : eleSeedCollectionToken_(consumes<reco::ElectronSeedCollection>(cfg.getParameter<edm::InputTag>("eleSeedCollection"))),
+    : eleSeedCollectionToken_(
+          consumes<reco::ElectronSeedCollection>(cfg.getParameter<edm::InputTag>("eleSeedCollection"))),
       thePropagatorLabel_(cfg.getParameter<std::string>("propagator")),
       theBOFFMomentum_(cfg.getParameter<double>("SeedMomentumForBOFF")),
       theOriginTransverseErrorMultiplier_(cfg.getParameter<double>("OriginTransverseErrorMultiplier")),
@@ -34,7 +35,6 @@ SeedFitter::SeedFitter(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC
       propagatorESToken_(iC.esConsumes(edm::ESInputTag("", thePropagatorLabel_))),
       magneticFieldESToken_(iC.esConsumes(edm::ESInputTag("", mfName_))),
       transientTrackingRecHitBuilderESToken_(iC.esConsumes(edm::ESInputTag("", TTRHBuilder_))) {
-
   produces<reco::ElectronSeedCollection>();
 }
 
@@ -42,7 +42,7 @@ SeedFitter::~SeedFitter() {}
 
 void SeedFitter::fillDescription(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  
+
   desc.add<edm::InputTag>("eleSeedCollection", edm::InputTag("hltEgammaFittedElectronPixelSeeds"));
   desc.add<std::string>("propagator", "PropagatorWithMaterialParabolicMf");
   desc.add<double>("SeedMomentumForBOFF", 5.0);
@@ -69,7 +69,6 @@ void SeedFitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   iEvent.put(std::move(electronSeedsOut));
-
 }
 
 void SeedFitter::init(const edm::EventSetup& es) {
@@ -132,10 +131,14 @@ CurvilinearTrajectoryError SeedFitter::initialError(float sin2Theta) const {
   // Probably OK based on quick study: KS 22/11/12.
   auto sin2th = sin2Theta;
   auto minC00 = sqr(theMinOneOverPtError_);
-  C[0][0] = std::max(sin2th / sqr(/*region->ptMin()*/ 1.5f), minC00); // hardcocde region->ptMin() as 1.5 for now, as provided in hlt menu
-  auto zErr = sqr(/*region->originZBound()*/ 12.5); // hardcocde region->ptMin() as 12.5 for now, as provided in hlt menu
-  auto transverseErr = sqr(theOriginTransverseErrorMultiplier_ * /*region->originRBound()*/ 0.2); // hardcode region->originRBound() as 0.2 for now, as provided in the hlt menu
-  C[1][1] = C[2][2] = 1.;  // no good reason. no bad reason....
+  C[0][0] = std::max(sin2th / sqr(/*region->ptMin()*/ 1.5f),
+                     minC00);  // hardcocde region->ptMin() as 1.5 for now, as provided in hlt menu
+  auto zErr =
+      sqr(/*region->originZBound()*/ 12.5);  // hardcocde region->ptMin() as 12.5 for now, as provided in hlt menu
+  auto transverseErr = sqr(
+      theOriginTransverseErrorMultiplier_ *
+      /*region->originRBound()*/ 0.2);  // hardcode region->originRBound() as 0.2 for now, as provided in the hlt menu
+  C[1][1] = C[2][2] = 1.;               // no good reason. no bad reason....
   C[3][3] = transverseErr;
   C[4][4] = zErr * sin2th + transverseErr * (1.f - sin2th);
 
@@ -160,24 +163,24 @@ void SeedFitter::buildSeed(reco::ElectronSeedCollection& seedCollection,
     TrajectoryStateOnSurface state =
         (iHit == 0) ? propagator_->propagate(fts, trackerGeometry_->idToDet(hit.geographicalId())->surface())
                     : propagator_->propagate(updatedState, trackerGeometry_->idToDet(hit.geographicalId())->surface());
-    if (!state.isValid())  {
+    if (!state.isValid()) {
       return;
     }
 
-    BaseTrackerRecHit const * tth = static_cast<BaseTrackerRecHit const*>(&hit);
+    BaseTrackerRecHit const* tth = static_cast<BaseTrackerRecHit const*>(&hit);
 
     if (not tth) {
       return;
     }
 
     std::unique_ptr<BaseTrackerRecHit> newtth(refitHit(tth, state));
-    
+
     if (not newtth) {
       return;
     }
 
     updatedState = updator.update(state, *newtth);
-    if (!updatedState.isValid())  {
+    if (!updatedState.isValid()) {
       return;
     }
 
@@ -185,8 +188,7 @@ void SeedFitter::buildSeed(reco::ElectronSeedCollection& seedCollection,
     seedHits.push_back(newtth.release());
   }
 
-  PTrajectoryStateOnDet const& PTraj =
-      trajectoryStateTransform::persistentState(updatedState, lastHitId);
+  PTrajectoryStateOnDet const& PTraj = trajectoryStateTransform::persistentState(updatedState, lastHitId);
 
   reco::ElectronSeed eleSeed(TrajectorySeed(PTraj, std::move(seedHits), alongMomentum));
   reco::ElectronSeed::CaloClusterRef caloClusRef(seed.caloCluster());

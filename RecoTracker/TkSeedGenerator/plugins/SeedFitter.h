@@ -39,8 +39,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
-
-
 class FreeTrajectoryState;
 
 class dso_hidden SeedFitter : public edm::stream::EDProducer<> {
@@ -49,9 +47,9 @@ public:
 
   ~SeedFitter() override;
 
-  static void fillDescription(edm::ConfigurationDescriptions& description);
+  static void fillDescription(edm::ConfigurationDescriptions &description);
 
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
   // initialize the "event dependent state"
   void init(const edm::EventSetup &es);
@@ -61,10 +59,9 @@ public:
   void makeSeed(reco::ElectronSeedCollection &seedCollection, const reco::ElectronSeed &seed);
 
 private:
-
   SeedFitter(const edm::ParameterSet &, edm::ConsumesCollector &&);
 
-  void initialKinematic(GlobalTrajectoryParameters &kine, const reco::ElectronSeed& seed) const;
+  void initialKinematic(GlobalTrajectoryParameters &kine, const reco::ElectronSeed &seed) const;
 
   CurvilinearTrajectoryError initialError(float sin2Theta) const dso_hidden;
 

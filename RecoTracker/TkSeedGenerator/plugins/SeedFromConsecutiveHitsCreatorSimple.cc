@@ -25,8 +25,7 @@ SeedFromConsecutiveHitsCreatorSimple::SeedFromConsecutiveHitsCreatorSimple(const
 
 SeedFromConsecutiveHitsCreatorSimple::~SeedFromConsecutiveHitsCreatorSimple() {}
 
-void SeedFromConsecutiveHitsCreatorSimple::fillDescriptions(edm::ParameterSetDescription& desc) {
-}
+void SeedFromConsecutiveHitsCreatorSimple::fillDescriptions(edm::ParameterSetDescription& desc) {}
 
 void SeedFromConsecutiveHitsCreatorSimple::init(const TrackingRegion& iregion,
                                                 const edm::EventSetup& es,
@@ -35,7 +34,8 @@ void SeedFromConsecutiveHitsCreatorSimple::init(const TrackingRegion& iregion,
   filter = ifilter;
 }
 
-void SeedFromConsecutiveHitsCreatorSimple::makeSeed(TrajectorySeedCollection& seedCollection, const SeedingHitSet& hits) {
+void SeedFromConsecutiveHitsCreatorSimple::makeSeed(TrajectorySeedCollection& seedCollection,
+                                                    const SeedingHitSet& hits) {
   if (hits.size() < 2)
     return;
 
@@ -51,7 +51,6 @@ void SeedFromConsecutiveHitsCreatorSimple::makeSeed(TrajectorySeedCollection& se
     seedHits.push_back(*hit);
   }
 
-  PTrajectoryStateOnDet const& PTraj =
-      trajectoryStateTransform::persistentState(state, hit->geographicalId().rawId());
+  PTrajectoryStateOnDet const& PTraj = trajectoryStateTransform::persistentState(state, hit->geographicalId().rawId());
   seedCollection.emplace_back(PTraj, std::move(seedHits), alongMomentum);
 }
