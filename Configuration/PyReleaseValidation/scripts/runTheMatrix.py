@@ -7,6 +7,7 @@ from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
 from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector,performInjectionOptionTest
 from Configuration.PyReleaseValidation.MatrixUtil import cleanComputeCapabilities
+from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 # ================================================================================
 
 def showRaw(opt):
@@ -133,13 +134,13 @@ if __name__ == '__main__':
         'phase2' : [
             ###### MC (generated from scratch or from RelVals)
             # Phase2
-            29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline)
-            29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D110   DD4Hep (HLLHC14TeV BeamSpot)
-            29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D110         AVE_50_BX_25ns_m3p3
-            29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D110
-            29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D110
+            prefixDet+34.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D121         (Phase-2 baseline)
+            prefixDet+34.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D121   DD4Hep (HLLHC14TeV BeamSpot)
+            prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D121         AVE_50_BX_25ns_m3p3
+            prefixDet+96.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D121
+            prefixDet+100.0,   # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D121
             #23234.0,   # Need new workflow with HFNose
-            29634.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline -  but using timing menu, and only up to step 2)
+            prefixDet+34.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D121         (Phase-2 baseline -  but using timing menu, and only up to step 2)
         ],
 
         'heavyIons' : [
@@ -155,28 +156,28 @@ if __name__ == '__main__':
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
 
-        'ph2_hlt' : [29634.75,    # HLT phase-2 timing menu
-                     29634.7501,  # HLT phase-2 tracking-only menu
-                     29634.751,   # HLT phase-2 timing menu Alpaka variant
-                     29634.7511,  # HLT phase-2 timing menu Phase2CAExtension variant
-                     29634.752,   # HLT phase-2 timing menu ticl_v5 variant
-                     29634.753,   # HLT phase-2 timing menu Alpaka, single tracking iteration variant
-                     29634.754,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
-                     29634.755,   # HLT phase-2 timing menu Alpaka, LST building variant
-                     29634.756,   # HLT phase-2 timing menu trimmed tracking
-                     29634.7561,  # HLT phase-2 timing menu Alpaka, trimmed tracking
-                     29634.7562,  # HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
-                     29634.757,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
-                     29634.7571,  # HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building variant
-                     29634.7572,  # HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building and fitting variant
-                     29634.758,   # HLT phase-2 timing menu ticl_barrel variant
-                     29634.759,   # HLT phase-2 timing menu, with NANO:@Phase2HLT
-                     29634.77,    # HLT phase-2 NGT Scouting menu
-                     29634.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel, CA Extension
-                     29634.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
-                     29634.773,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
-                     29634.774,   # HLT phase-2 NGT Scouting menu, Phase2CAExtension as GeneralTracks
-                     29634.775],  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks
+        'ph2_hlt' : [prefixDet+34.75,    # HLT phase-2 timing menu
+                     prefixDet+34.7501,  # HLT phase-2 tracking-only menu
+                     prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
+                     prefixDet+34.7511,  # HLT phase-2 timing menu Phase2CAExtension variant
+                     prefixDet+34.752,   # HLT phase-2 timing menu ticl_v5 variant
+                     prefixDet+34.753,   # HLT phase-2 timing menu Alpaka, single tracking iteration variant
+                     prefixDet+34.754,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
+                     prefixDet+34.755,   # HLT phase-2 timing menu Alpaka, LST building variant
+                     prefixDet+34.756,   # HLT phase-2 timing menu trimmed tracking
+                     prefixDet+34.7561,  # HLT phase-2 timing menu Alpaka, trimmed tracking
+                     prefixDet+34.7562,  # HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
+                     prefixDet+34.757,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+                     prefixDet+34.7571,  # HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building variant
+                     prefixDet+34.7572,  # HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building and fitting variant
+                     prefixDet+34.758,   # HLT phase-2 timing menu ticl_barrel variant
+                     prefixDet+34.759,   # HLT phase-2 timing menu, with NANO:@Phase2HLT
+                     prefixDet+34.77,    # HLT phase-2 NGT Scouting menu
+                     prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel, CA Extension
+                     prefixDet+34.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+                     prefixDet+34.773,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+                     prefixDet+34.774,   # HLT phase-2 NGT Scouting menu, Phase2CAExtension as GeneralTracks
+                     prefixDet+34.775],  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks
     }
 
     predefinedSet['limited'] = (
