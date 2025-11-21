@@ -507,7 +507,7 @@ class EDModuleTransitionParser(object):
         index = self.index
         found = False
         if mayUseTemp:
-            compare = lambda x: x.type == self.transition and x.id == self.index and x.mod == self.moduleID and x.call == self.callID and x.requestingMod == self.requestingModuleID and x.requestingCall == self.requestingCallID and (x.act == Activity.temporary or x.act == Activity.externalWork)
+            compare = lambda x: x.type == self.transition and x.id == self.index and hasattr(x, 'mod') and x.mod == self.moduleID and x.call == self.callID and x.requestingMod == self.requestingModuleID and x.requestingCall == self.requestingCallID and (x.act == Activity.temporary or x.act == Activity.externalWork)
             if transitionIsGlobal(self.transition):
                 item,slot = data.findLastInModGlobals(index, self.moduleID, compare)
             else:
