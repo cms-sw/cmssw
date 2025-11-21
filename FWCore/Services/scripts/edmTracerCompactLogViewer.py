@@ -479,13 +479,14 @@ class EDModuleTransitionParser(object):
         self.transition = int(payload[0])
         self.index = int(payload[1])
         self.moduleID = int(payload[2])
-        self.moduleName = moduleNames[self.moduleID]
+        self.moduleName = moduleNames[self.moduleID][0]
+        self.moduleType = moduleNames[self.moduleID][1]
         self.callID = int(payload[3])
         self.requestingModuleID = int(payload[4])
         self.requestingCallID = int(payload[5])
         self.requestingModuleName = None
         if self.requestingModuleID != 0:
-            self.requestingModuleName = moduleNames[self.requestingModuleID]
+            self.requestingModuleName = moduleNames[self.requestingModuleID][0]
         self.time = int(payload[6])
     def baseIndentLevel(self):
         return transitionIndentLevel(self.transition)
@@ -661,7 +662,8 @@ class ESModuleTransitionParser(object):
         self.transition = int(payload[0])
         self.index = int(payload[1])
         self.moduleID = int(payload[2])
-        self.moduleName = esModuleNames[self.moduleID]
+        self.moduleName = esModuleNames[self.moduleID][0]
+        self.moduleType = esModuleNames[self.moduleID][1]
         self.recordID = int(payload[3])
         if self.transition != Phase.constructESModules:
             self.recordName = recordNames[self.recordID]
@@ -672,9 +674,9 @@ class ESModuleTransitionParser(object):
         self.requestingCallID = int(payload[6])
         self.requestingModuleName = None
         if self.requestingModuleID < 0 :
-            self.requestingModuleName = esModuleNames[-1*self.requestingModuleID]
+            self.requestingModuleName = esModuleNames[-1*self.requestingModuleID][0]
         elif self.requestingModuleID != 0:
-            self.requestingModuleName = moduleNames[self.requestingModuleID]
+            self.requestingModuleName = moduleNames[self.requestingModuleID][0]
         else:
             self.requestingModuleName = '<N/A>'
         self.time = int(payload[7])
@@ -849,12 +851,12 @@ class TracerCompactFileParser(object):
                 if s > numStreamsFromSource:
                   numStreamsFromSource = s
             if len(l) > 5 and l[0:2] == "#M":
-                (id,name)=tuple(l[2:].split())
-                moduleNames[int(id)] = name
+                (id,name,mtype)=tuple(l[2:].split())
+                moduleNames[int(id)] = (name,mtype)
                 continue
             if len(l) > 5 and l[0:2] == "#N":
-                (id,name)=tuple(l[2:].split())
-                esModuleNames[int(id)] = name
+                (id,name,mtype)=tuple(l[2:].split())
+                esModuleNames[int(id)] = (name,mtype)
                 continue
             if len(l) > 5 and l[0:2] == "#R":
                 (id,name)=tuple(l[2:].split())
@@ -871,10 +873,13 @@ class TracerCompactFileParser(object):
         self._esModuleNames = esModuleNames
         self._recordNames = recordNames
         self.maxNameSize =0
-        for n in moduleNames.items():
-            self.maxNameSize = max(self.maxNameSize,len(n))
-        for n in esModuleNames.items():
-            self.maxNameSize = max(self.maxNameSize,len(n))
+        self.maxTypeSize =0
+        for k,v in moduleNames.items():
+            self.maxNameSize = max(self.maxNameSize,len(v[0]))
+            self.maxTypeSize = max(self.maxTypeSize,len(v[1]))
+        for k,v in esModuleNames.items():
+            self.maxNameSize = max(self.maxNameSize,len(v[0]))
+            self.maxTypeSize = max(self.maxTypeSize,len(v[1]))
         self.maxNameSize = max(self.maxNameSize,len(kSourceDelayedRead))
         self.maxNameSize = max(self.maxNameSize, len('streamBeginLumi'))
 
@@ -1075,7 +1080,7 @@ def jsonInfo(parser):
         sourceSlot = data._modules[data._moduleID2Index(0)]
         modules = []
         for i,m in parser._moduleNames.items():
-            modules.append({"name": f"{m}", "slots":[]})
+            modules.append({"name": f"{m[0]}", "slots":[]})
             slots = modules[-1]["slots"]
             foundSlots = data._modules[data._moduleID2Index(i)]
             time = 0
@@ -1086,7 +1091,7 @@ def jsonInfo(parser):
                         time += t.finish-t.start
             modules[-1]['time']=time
         for i,m in parser._esModuleNames.items():
-            modules.append({"name": f"{m}", "slots":[]})
+            modules.append({"name": f"{m[0]}", "slots":[]})
             slots = modules[-1]["slots"]
             foundSlots = data._modules[data._moduleID2Index(-1*i)]
             time = 0
@@ -1110,7 +1115,7 @@ def jsonInfo(parser):
         final["modules"] =['']*(max+1)
         final["modules"][0] = 'source'
         for k,v in parser._moduleNames.items():
-            final["modules"][k]=v
+            final["modules"][k]=[v[0],v[1]]
         
         max = 0
         for k in parser._esModuleNames.keys():
@@ -1118,7 +1123,7 @@ def jsonInfo(parser):
                 max = k
         final["esModules"] = ['']*(max+1)
         for k,v in parser._esModuleNames.items():
-            final["esModules"][k] = v
+            final["esModules"][k] = [v[0],v[1]]
     return final
 
 # ============   
@@ -1175,8 +1180,12 @@ class ComponentToName:
         self._esmodules = esmodules
     def modToName(self, mod):
         if 0 > mod:
-            return self._esmodules[-1*mod]
-        return self._edmodules[mod]
+            return self._esmodules[-1*mod][0]
+        return self._edmodules[mod][0]
+    def modToType(self,mod):
+        if 0 > mod:
+            return self._esmodules[-1*mod][1]
+        return self._edmodules[mod][1]
 
 def globalName(isSource:bool) -> str:
     if isSource:
@@ -1192,7 +1201,7 @@ activityToName = {
 }
 
 def moduleCategories(namer, mod:int, type:int, act:int):
-    return namer.modToName(mod)+","+typeValueToName(type)+","+activityToName[act]
+    return namer.modToName(mod)+","+namer.modToType(mod)+','+typeValueToName(type)+","+activityToName[act]
 
 def moduleTransition(componentNamer:ComponentToName, event:JsonModuleTransition, pid:int, tid:int, moduleCentric:bool):
     if moduleCentric:
@@ -1294,8 +1303,8 @@ class TestModuleCommand(unittest.TestCase):
         
         self.tracerFile.extend([
             '#R 1 Record',
-            '#M 1 Module',
-            '#N 1 ESModule',
+            '#M 1 Module ModuleType',
+            '#N 1 ESModule ESModuleType',
              f'F {Phase.processPython} 0 0 0 0 {incr(t)}',
              f'f {Phase.processPython} 0 0 0 0 {incr(t)}',
              f'F {Phase.startServices} 0 0 0 0 {incr(t)}',
