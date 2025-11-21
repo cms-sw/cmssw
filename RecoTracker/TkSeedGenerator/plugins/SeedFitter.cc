@@ -191,7 +191,7 @@ void SeedFitter::buildSeed(reco::ElectronSeedCollection& seedCollection,
   PTrajectoryStateOnDet const& PTraj = trajectoryStateTransform::persistentState(updatedState, lastHitId);
 
   reco::ElectronSeed eleSeed(TrajectorySeed(PTraj, std::move(seedHits), alongMomentum));
-  reco::ElectronSeed::CaloClusterRef caloClusRef(seed.caloCluster());
+  const reco::ElectronSeed::CaloClusterRef& caloClusRef(seed.caloCluster());
   eleSeed.setCaloCluster(caloClusRef);
   eleSeed.setNrLayersAlongTraj(seed.nrLayersAlongTraj());
   for (auto const& hitInfo : seed.hitInfo()) {
