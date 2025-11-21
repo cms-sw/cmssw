@@ -350,7 +350,7 @@ namespace edm::service::tracer {
     auto esmoduleCtrDtrPtr = std::make_shared<std::vector<ModuleCtrDtr>>();
     auto& esmoduleCtrDtr = *esmoduleCtrDtrPtr;
 
-    iRegistry.watchPreESModuleConstruction([&esmoduleCtrDtr, beginTime](auto const& md) {
+    iRegistry.watchPreESModuleConstruction([&esmoduleCtrDtr, &esModuleLabels, beginTime](auto const& md) {
       auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
 
       auto const mid = md.id_ + 1;  //NOTE: we want the id to start at 1 not 0
@@ -360,6 +360,13 @@ namespace edm::service::tracer {
         esmoduleCtrDtr.resize(mid + 1);
         esmoduleCtrDtr.back().beginConstruction = t;
       }
+      auto const* label = md.label_.empty() ? (&md.type_) : (&md.label_);
+      if (mid < esModuleLabels.size()) {
+        esModuleLabels[mid] = *label;
+      } else {
+        esModuleLabels.resize(mid + 1);
+        esModuleLabels.back() = *label;
+      }
     });
     iRegistry.watchPostESModuleConstruction([&esmoduleCtrDtr, beginTime](auto const& md) {
       auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
@@ -367,17 +374,6 @@ namespace edm::service::tracer {
     });
 
     //acquire names for all the ED and ES modules
-    iRegistry.watchPostESModuleRegistration([&esModuleLabels](auto const& iDescription) {
-      if (esModuleLabels.size() <= iDescription.id_ + 1) {
-        esModuleLabels.resize(iDescription.id_ + 2);
-      }
-      //NOTE: we want the id to start at 1 not 0
-      if (not iDescription.label_.empty()) {
-        esModuleLabels[iDescription.id_ + 1] = iDescription.label_;
-      } else {
-        esModuleLabels[iDescription.id_ + 1] = iDescription.type_;
-      }
-    });
     auto moduleCtrDtrPtr = std::make_shared<std::vector<ModuleCtrDtr>>();
     auto& moduleCtrDtr = *moduleCtrDtrPtr;
     auto moduleLabelsPtr = std::make_shared<std::vector<std::string>>();
@@ -579,7 +575,6 @@ namespace edm::service::tracer {
                 0,
                 ctr.endConstruction);
             logFile->write(std::move(emsg));
-            ++index;
           }
         }
       }
