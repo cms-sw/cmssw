@@ -56,7 +56,7 @@ if "goodlumi" in config["validation"]:
         goodLumiSecs = cms.untracked.VLuminosityBlockRange(LumiList.LumiList(filename = config["validation"]["goodlumi"]).getCMSSWString().split(','))
         
     else:
-        print("Does not exist: {}. Continue without good lumi section file.")
+        print("Does not exist: {}. Continue without good lumi section file.".format(config["validation"]["goodlumi"]))
         goodLumiSecs = cms.untracked.VLuminosityBlockRange()
 
 else:
