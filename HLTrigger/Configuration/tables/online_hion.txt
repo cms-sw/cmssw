@@ -88,6 +88,9 @@ HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMS
 HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
 HLT_HIUPC_DoubleEG5_NotMBHF2AND_v*                                         # CMSHLT-2471
 
+HLT_HIUPC_DoubleEG4_NotMBHF2AND_v*                                         # CMSHLT-3686
+HLT_HIUPC_DoubleEG4_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-3686
+
 HLT_HIUPC_DoubleEG2er1p5_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v*        # CMSHLT-3658
 HLT_HIUPC_DoubleEG2er2p1_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v*        # CMSHLT-3658
 HLT_HIUPC_DoubleEG2er1p5_NotMBHF2AND_MaxPixelCluster10000_v*    # CMSHLT-3658
