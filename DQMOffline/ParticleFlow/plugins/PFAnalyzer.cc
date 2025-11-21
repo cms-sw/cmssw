@@ -406,7 +406,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   }
 
   std::string histName = Form("NPV");
-  MonitorElement* mHist = ibooker.book1D(histName, Form(";%s;", "N_PV"), 100, 0, 100);
+  MonitorElement* mHist = ibooker.book1D(histName, Form(";%s;", "N_PV"), 180, 0, 180);
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHist));
 }
 
