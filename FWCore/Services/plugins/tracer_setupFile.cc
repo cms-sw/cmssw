@@ -345,7 +345,7 @@ namespace edm::service::tracer {
 
     const auto beginTime = TimingServiceBase::jobStartTime();
 
-    auto esModuleLabelsPtr = std::make_shared<std::vector<std::string>>();
+    auto esModuleLabelsPtr = std::make_shared<std::vector<std::pair<std::string, std::string>>>();
     auto& esModuleLabels = *esModuleLabelsPtr;
     auto esmoduleCtrDtrPtr = std::make_shared<std::vector<ModuleCtrDtr>>();
     auto& esmoduleCtrDtr = *esmoduleCtrDtrPtr;
@@ -362,10 +362,10 @@ namespace edm::service::tracer {
       }
       auto const* label = md.label_.empty() ? (&md.type_) : (&md.label_);
       if (mid < esModuleLabels.size()) {
-        esModuleLabels[mid] = *label;
+        esModuleLabels[mid] = std::make_pair(*label, md.type_);
       } else {
         esModuleLabels.resize(mid + 1);
-        esModuleLabels.back() = *label;
+        esModuleLabels.back() = std::make_pair(*label, md.type_);
       }
     });
     iRegistry.watchPostESModuleConstruction([&esmoduleCtrDtr, beginTime](auto const& md) {
@@ -376,18 +376,18 @@ namespace edm::service::tracer {
     //acquire names for all the ED and ES modules
     auto moduleCtrDtrPtr = std::make_shared<std::vector<ModuleCtrDtr>>();
     auto& moduleCtrDtr = *moduleCtrDtrPtr;
-    auto moduleLabelsPtr = std::make_shared<std::vector<std::string>>();
+    auto moduleLabelsPtr = std::make_shared<std::vector<std::pair<std::string, std::string>>>();
     auto& moduleLabels = *moduleLabelsPtr;
     iRegistry.watchPreModuleConstruction([&moduleLabels, &moduleCtrDtr, beginTime](ModuleDescription const& md) {
       auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
 
       auto const mid = md.id();
       if (mid < moduleLabels.size()) {
-        moduleLabels[mid] = md.moduleLabel();
+        moduleLabels[mid] = std::make_pair(md.moduleLabel(), md.moduleName());
         moduleCtrDtr[mid].beginConstruction = t;
       } else {
         moduleLabels.resize(mid + 1);
-        moduleLabels.back() = md.moduleLabel();
+        moduleLabels.back() = std::make_pair(md.moduleLabel(), md.moduleName());
         moduleCtrDtr.resize(mid + 1);
         moduleCtrDtr.back().beginConstruction = t;
       }
@@ -500,13 +500,13 @@ namespace edm::service::tracer {
                                 startupTimes](auto&) mutable {
       {
         std::ostringstream oss;
-        moduleIdToLabel(oss, *moduleLabelsPtr, 'M', "EDModule ID", "Module label");
+        moduleIdToLabel(oss, *moduleLabelsPtr, 'M', "EDModule ID", "Module label", "Module type");
         logFile->write(oss.str());
         moduleLabelsPtr.reset();
       }
       {
         std::ostringstream oss;
-        moduleIdToLabel(oss, *esModuleLabelsPtr, 'N', "ESModule ID", "ESModule label");
+        moduleIdToLabel(oss, *esModuleLabelsPtr, 'N', "ESModule ID", "ESModule label", "Module type");
         logFile->write(oss.str());
         esModuleLabelsPtr.reset();
       }
