@@ -698,7 +698,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       }
 
       // Save HCAL hits
-      if (myTrack.onVFcal() && useShowerLibrary) {
+      if (!myTrack.onEcal() && !myTrack.onHcal() && useShowerLibrary) {
         myHDResponse_->correctHF(eGen, abs(myTrack.type()));
         updateHCAL(theHFShowerLibrary->getHitsMap(), myTrack.id());
         theHFShowerLibrary->clear();
