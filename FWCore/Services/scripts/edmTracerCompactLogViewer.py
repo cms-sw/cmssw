@@ -1498,8 +1498,9 @@ if __name__=="__main__":
                         action='store_true',
                         help='''Write output in json format.''' )
     parser.add_argument('-w', '--web',
-                        action='store_true',
-                        help='''Writes data.json file that can be used with the web based inspector. To use, copy directory ${CMSSW_RELEASE_BASE}/src/FWCore/Services/template/web to a web accessible area and move data.js into that directory.''')
+                        type=str,
+                        default='',
+                        help='''If specified, writes chrome trace json formatted output to the specified file. The file can be used with a compatible viewer (Chrome has one built in).''')
     parser.add_argument('-m', '--module_centric',
                         action = 'store_true',
                         help='''For --json or --web, organize data by module instead of by global/stream.''' )
@@ -1522,7 +1523,7 @@ if __name__=="__main__":
                 import json
                 web = convertToChromeTraceFormat(parsed, args.module_centric)
                 j = json.dumps(web, indent=2)
-                f=open('data.json', 'w')
+                f=open(args.web, 'w')
                 f.write(j)
                 f.close()
         else:
