@@ -1194,13 +1194,17 @@ activityToName = {
 def moduleCategories(namer, mod:int, type:int, act:int):
     return namer.modToName(mod)+","+typeValueToName(type)+","+activityToName[act]
 
-def moduleTransition(componentNamer:ComponentToName, event:JsonModuleTransition, pid:int, tid:int):
+def moduleTransition(componentNamer:ComponentToName, event:JsonModuleTransition, pid:int, tid:int, moduleCentric:bool):
+    if moduleCentric:
+        name = activityToName[event.act]
+    else:
+        name = componentNamer.modToName(event.mod)
     if event.finish == 0:
-        return dict(name=componentNamer.modToName(event.mod), cat=moduleCategories(componentNamer,event.mod, event.type,event.act), ph="i", ts=event.start, pid=pid, tid=tid)
+        return dict(name=name, cat=moduleCategories(componentNamer,event.mod, event.type,event.act), ph="i", ts=event.start, pid=pid, tid=tid)
     duration = (event.finish-event.start)
     if duration < 0.1:
         duration = 1.0
-    return dict(name=componentNamer.modToName(event.mod), cat=moduleCategories(componentNamer,event.mod, event.type,event.act), ph="X", ts=event.start, dur=duration, pid=pid, tid=tid)
+    return dict(name=name, cat=moduleCategories(componentNamer,event.mod, event.type,event.act), ph="X", ts=event.start, dur=duration, pid=pid, tid=tid)
 def globalHeaderTransition(e:JsonTransition, pid=1):
     if e.isSrc:
         name = 'source'
@@ -1237,7 +1241,7 @@ def convertToChromeTraceFormat(parsed, moduleCentric:bool):
             traceEvents.append(globalHeaderTransition(e))
     for index,slot in enumerate(globalTransitions["slots"][1:]):
         for e in slot:
-            traceEvents.append(moduleTransition(componentNamer, e, 1, index+2))
+            traceEvents.append(moduleTransition(componentNamer, e, 1, index+2, moduleCentric))
     if moduleCentric:
         for pid,stream in enumerate(parsed["transitions"][1:]):
             name = stream["name"]
@@ -1254,11 +1258,11 @@ def convertToChromeTraceFormat(parsed, moduleCentric:bool):
                         if hasattr(e, 'isSrc'):
                             traceEvents.append(globalHeaderTransition(e, pid+2))
                         else:
-                            traceEvents.append(moduleTransition(componentNamer, e, pid+2, index+1))
+                            traceEvents.append(moduleTransition(componentNamer, e, pid+2, index+1, moduleCentric))
             else:
                 for index,slot in enumerate(stream["slots"]):
                     for e in slot:
-                        traceEvents.append(moduleTransition(componentNamer, e, pid+2, index+1))
+                        traceEvents.append(moduleTransition(componentNamer, e, pid+2, index+1, moduleCentric))
     else:
         for streamid,stream in enumerate(parsed["transitions"][1:]):
             traceEvents.append(dict(name="process_name", ph="M", pid=streamid+2, tid=streamid, args={"name": f"Stream{streamid}"}))
@@ -1267,7 +1271,7 @@ def convertToChromeTraceFormat(parsed, moduleCentric:bool):
                 traceEvents.append(streamHeaderTransition(e,streamid))
             for index,slot in enumerate(stream["slots"][1:]):
                 for e in slot:
-                    traceEvents.append(moduleTransition(componentNamer, e, streamid+2, index+2))
+                    traceEvents.append(moduleTransition(componentNamer, e, streamid+2, index+2, moduleCentric))
     trace = dict(traceEvents=traceEvents)
 
     return trace
