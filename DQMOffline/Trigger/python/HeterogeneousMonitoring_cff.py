@@ -97,7 +97,7 @@ hltHcalGPUComparisonTask = hcalGPUComparisonTask.clone(
 HLTHeterogeneousMonitoringSequence = cms.Sequence(
     hltPfHcalGPUComparisonTask +
     hltSiPixelPhase1CompareDigiErrors +
-    hltSiPixelPhase1CompareRecHits +
+    #hltSiPixelPhase1CompareRecHits +   # waiting a resolution of #49349
     hltSiPixelPhase1CompareTracks +
     hltSiPixelCompareVertices +
     hltEcalMonitorTask +

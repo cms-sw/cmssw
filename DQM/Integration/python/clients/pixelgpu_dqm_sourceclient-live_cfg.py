@@ -91,6 +91,13 @@ process.load('DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQMHarvesting_cff')
 process.siPixelTrackComparisonHarvesterAlpaka.topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU')
 
 #-------------------------------------
+#  User switches for what to monitor
+#-------------------------------------
+doRecHits  = False
+doTracks   = True
+doVertices = True
+
+#-------------------------------------
 #	Some Settings before Finishing up
 #-------------------------------------
 if process.runType.getRunType() == process.runType.hi_run:
@@ -180,11 +187,50 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpPath = cms.Path(process.dump)
 
 #-------------------------------------
+#  Build the monitoring sequence based on flags
+#-------------------------------------
+monitoring_modules = []
+
+# Mandatory pixel digi error modules
+monitoring_modules.append(process.siPixelPhase1MonitorRawDataASerial)
+monitoring_modules.append(process.siPixelPhase1MonitorRawDataADevice)
+monitoring_modules.append(process.siPixelPhase1CompareDigiErrorsSoAAlpaka)
+
+if doRecHits:
+    monitoring_modules.append(process.siPixelRecHitsSoAMonitorDevice)
+    monitoring_modules.append(process.siPixelRecHitsSoAMonitorSerial)
+    monitoring_modules.append(process.siPixelPhase1CompareRecHits)
+
+if doTracks:
+    monitoring_modules.append(process.siPixelTrackSoAMonitorDevice)
+    monitoring_modules.append(process.siPixelTrackSoAMonitorSerial)
+    monitoring_modules.append(process.siPixelPhase1CompareTracks)
+
+if doVertices:
+    monitoring_modules.append(process.siPixelVertexSoAMonitorDevice)
+    monitoring_modules.append(process.siPixelVertexSoAMonitorSerial)
+    monitoring_modules.append(process.siPixelCompareVertices)
+
+# Always add the comparison harvesting sequence as before
+monitoring_modules.append(process.siPixelPhase1RawDataHarvesterSerial)
+monitoring_modules.append(process.siPixelPhase1RawDataHarvesterDevice)
+
+if doTracks:
+    monitoring_modules.append(process.siPixelTrackComparisonHarvesterAlpaka)
+
+# Now create the path with those modules
+process.tasksPath = cms.Path()
+for mod in monitoring_modules:
+    process.tasksPath *= mod
+
+print(process.tasksPath)
+    
+#-------------------------------------
 #	Pixel DQM Tasks/Clients Sequences Definition
 #-------------------------------------
 
-process.tasksPath = cms.Path(process.monitorpixelSoACompareSourceAlpaka *
-                             process.siPixelHeterogeneousDQMComparisonHarvestingAlpaka)
+#process.tasksPath = cms.Path(process.monitorpixelSoACompareSourceAlpaka *
+#                             process.siPixelHeterogeneousDQMComparisonHarvestingAlpaka)
 
 #-------------------------------------
 #	Paths/Sequences Definitions
