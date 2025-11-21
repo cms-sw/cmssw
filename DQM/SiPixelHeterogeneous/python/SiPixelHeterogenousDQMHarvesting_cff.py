@@ -28,7 +28,6 @@ _siPixelHeterogeneousDQMComparisonHarvestingAlpakaPhase2 = cms.Sequence(siPixelT
 
 phase2_tracker.toReplaceWith(siPixelHeterogeneousDQMComparisonHarvestingAlpaka,_siPixelHeterogeneousDQMComparisonHarvestingAlpakaPhase2)
 
-
 # add the harvester in case of the validation modifier is active
 from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationPixel
 gpuValidationPixel.toReplaceWith(siPixelHeterogeneousDQMHarvesting,siPixelHeterogeneousDQMComparisonHarvesting)
