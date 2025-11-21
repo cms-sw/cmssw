@@ -122,7 +122,6 @@ public:
   // data-members
   const DTGeometry* dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
-  std::vector<std::pair<int, MuonPath>> primitives_;
 
 private:
   // Trigger Configuration Manager CCB validity flag
