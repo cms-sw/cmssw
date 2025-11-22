@@ -18,6 +18,11 @@ hltInitialStepTracks = cms.EDProducer("TrackProducer",
     useSimpleMF = cms.bool(False)
 )
 
+from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+
+(~singleIterPatatrack & trackingLST & seedingLST).toModify(hltInitialStepTracks, src = "hltInitialStepTrackCandidates:nopLSTCsLST")
 
 _hltInitialStepTracksMkFitFit = cms.EDProducer("MkFitOutputTrackConverter",
     measurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
@@ -43,9 +48,7 @@ _hltInitialStepTracksMkFitFitLSTSeeds = _hltInitialStepTracksMkFitFit.clone(seed
 
 from Configuration.ProcessModifiers.hltTrackingMkFitInitialStep_cff import hltTrackingMkFitInitialStep
 from Configuration.ProcessModifiers.trackingMkFitFit_cff import trackingMkFitFit
+
 (hltTrackingMkFitInitialStep & trackingMkFitFit).toReplaceWith(hltInitialStepTracks, _hltInitialStepTracksMkFitFit)
 
-from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
-from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
 (singleIterPatatrack & trackingLST & seedingLST & hltTrackingMkFitInitialStep & trackingMkFitFit).toReplaceWith(hltInitialStepTracks, _hltInitialStepTracksMkFitFitLSTSeeds)

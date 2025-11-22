@@ -29,50 +29,18 @@ from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPat
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
 
+(~singleIterPatatrack & trackingLST).toModify(hltGeneralTracks, indivShareFrac = [0.1,0.1])
+
 _hltGeneralTracksSingleIterPatatrack = hltGeneralTracks.clone(
     TrackProducers = ["hltInitialStepTrackSelectionHighPurity"],
     hasSelector = [0],
     indivShareFrac = [1.0],
     selectedTrackQuals = ["hltInitialStepTrackSelectionHighPurity"],
-    setsToMerge = {0: dict(pQual=True, tLists=[0,1])}
+    setsToMerge = {0: dict(pQual=True, tLists=[0])}
 )
 
-(singleIterPatatrack & ~trackingLST & ~seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)
-
-_hltGeneralTracksLST = hltGeneralTracks.clone(
-    TrackProducers = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPurity"],
-    hasSelector = [0,0,0,0],
-    indivShareFrac = [0.1,0.1,0.1,0.1],
-    selectedTrackQuals = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPurity"],
-    setsToMerge = {0: dict(pQual=True, tLists=[0,1,2,3])}
-)
-
-(~singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksLST)
-
-_hltGeneralTracksSingleIterPatatrackLST = hltGeneralTracks.clone(
-    TrackProducers = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST"],
-    hasSelector = [0,0,0],
-    indivShareFrac = [0.1,0.1,0.1],
-    selectedTrackQuals = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST"],
-   setsToMerge = {0: dict(pQual=True, tLists=[0,1,2])}
-)
-
-(singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrackLST)
-
-_hltGeneralTracksLSTSeeding = hltGeneralTracks.clone(
-            TrackProducers = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST"],
-            hasSelector = [0,0,0],
-            indivShareFrac = [0.1,0.1,0.1],
-            selectedTrackQuals = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST"],
-            setsToMerge = {0: dict(pQual=True, tLists=[0,1,2])}
-)
-
-(~singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksLSTSeeding)
-
-(singleIterPatatrack & trackingLST & seedingLST).toModify(_hltGeneralTracksSingleIterPatatrack,
-                                                          TrackProducers = ["hltInitialStepTracks"],
-                                                          selectedTrackQuals = ["hltInitialStepTracks"])
-(singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)
+(singleIterPatatrack & trackingLST).toModify(_hltGeneralTracksSingleIterPatatrack, indivShareFrac = [0.1])
+(singleIterPatatrack).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)
 
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 from ..modules.hltPhase2PixelTracks_cfi import *
