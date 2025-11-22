@@ -15,6 +15,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
@@ -55,7 +56,15 @@ namespace reco {
           maxOuter_(iConfig.getParameter<std::vector<double>>("maxOuter")),
           maxDZ_(iConfig.getParameter<std::vector<double>>("maxDZ")),
           minDZ_(iConfig.getParameter<std::vector<double>>("minDZ")),
-          maxDR_(iConfig.getParameter<std::vector<double>>("maxDR")) {}
+          maxDR_(iConfig.getParameter<std::vector<double>>("maxDR")) {
+      startNoBPix1_ = false;
+      for (const unsigned int& i : startingPairs_) {
+        if (pairGraph_[2 * i] > 0) {
+          startNoBPix1_ = true;
+          break;
+        }
+      }
+    }
 
     // Layers params
     const std::vector<double> caThetaCuts_;
@@ -74,6 +83,8 @@ namespace reco {
     const std::vector<double> maxDZ_;
     const std::vector<double> minDZ_;
     const std::vector<double> maxDR_;
+
+    bool startNoBPix1_;
 
     mutable edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokenGeometry_;
     mutable edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tokenTopology_;
@@ -358,14 +369,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const& geometry = runCache()->get(iEvent.queue());
     auto const& hits = iEvent.get(tokenHit_);
 
-    std::array<double, 1> nHitsV = {{double(hits.nHits())}};
-    std::array<double, 1> emptyV;
+    /// Don't bother if no hits on BPix1 and no good graph for that
+    /// (so no staring pair without BPix1 as first layer).
+    /// TODO: this could be extended to a more general check for
+    /// no hits on any of the starting layers.
 
-    uint32_t const maxTuples = maxNumberOfTuples_.evaluate(nHitsV, emptyV);
-    uint32_t const maxDoublets = maxNumberOfDoublets_.evaluate(nHitsV, emptyV);
+    if (globalCache()->startNoBPix1_ or hits.offsetBPIX2() > 0) {
+      std::array<double, 1> nHitsV = {{double(hits.nHits())}};
+      std::array<double, 1> emptyV;
 
-    iEvent.emplace(tokenTrack_,
-                   deviceAlgo_.makeTuplesAsync(hits, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
+      uint32_t const maxTuples = maxNumberOfTuples_.evaluate(nHitsV, emptyV);
+      uint32_t const maxDoublets = maxNumberOfDoublets_.evaluate(nHitsV, emptyV);
+
+      iEvent.emplace(tokenTrack_,
+                     deviceAlgo_.makeTuplesAsync(hits, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
+
+    } else {
+      edm::LogWarning("CAHitNtupletAlpaka") << "No hit on BPix1 (" << hits.offsetBPIX2()
+                                            << ") and all the starting pairs has BPix1 as inner layer.\nIt's useless "
+                                            << "to run the CA. Returning with 0 tracks!";
+      auto& queue = iEvent.queue();
+      reco::TracksSoACollection tracks({{0, 0}}, queue);
+      auto ntracks_d = cms::alpakatools::make_device_view(queue, tracks.view().nTracks());
+      alpaka::memset(queue, ntracks_d, 0);
+      iEvent.emplace(tokenTrack_, std::move(tracks));
+    }
   }
 
   using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;
