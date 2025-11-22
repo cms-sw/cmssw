@@ -261,17 +261,10 @@ jetPuppiTablesTask = cms.Task(jetPuppiTable)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from PhysicsTools.NanoAOD.common_cff import Var, ExtVar
-<<<<<<< HEAD
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 def nanoAOD_refineFastSim_puppiJet(process):
 
-=======
-
-def nanoAOD_refineFastSim_puppiJet(process):
-
-    # 0. Save originals and clear so we can republish refined versions
->>>>>>> 882bbc46eb0 (implemented refined pT-based sorting of jets in NANO, Type-1 MET correction of the refined jets)
     fastSim.toModify(process.jetPuppiTable.variables,
         pt_unrefined               = process.jetPuppiTable.variables.pt.clone(),
         btagDeepFlavB_unrefined    = process.jetPuppiTable.variables.btagDeepFlavB.clone(),
@@ -289,20 +282,12 @@ def nanoAOD_refineFastSim_puppiJet(process):
         btagUParTAK4B=None, btagUParTAK4CvB=None, btagUParTAK4CvL=None, btagUParTAK4QvG=None,
     )
 
-<<<<<<< HEAD
-=======
-    # 1. Run refinement model and return features
->>>>>>> 882bbc46eb0 (implemented refined pT-based sorting of jets in NANO, Type-1 MET correction of the refined jets)
     process.puppiJetRefineNN = cms.EDProducer(
         "JetBaseMVAValueMapProducer",
         backend             = cms.string("ONNX"),
         batch_eval          = cms.bool(True),
         disableONNXGraphOpt = cms.bool(True),
-<<<<<<< HEAD
         src                 = cms.InputTag("linkedObjects","jets"),
-=======
-        src                 = cms.InputTag("linkedObjects","jets"),  # matches table
->>>>>>> 882bbc46eb0 (implemented refined pT-based sorting of jets in NANO, Type-1 MET correction of the refined jets)
         weightFile          = cms.FileInPath("PhysicsTools/NanoAOD/data/fastSimPuppiJetRefineNN_31July2025.onnx"),
         name                = cms.string("puppiJetRefineNN"),
         variables = cms.VPSet(
