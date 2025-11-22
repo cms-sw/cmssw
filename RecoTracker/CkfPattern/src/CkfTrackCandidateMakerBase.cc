@@ -374,7 +374,7 @@ namespace cms {
       if (theSeedCleaner)
         theSeedCleaner->done();
 
-        // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << " in " << ntseed << " seeds " << collseed_size << std::endl;
+      // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << " in " << ntseed << " seeds " << collseed_size << std::endl;
 
 #ifdef VI_REPRODUCIBLE
       // sort trajectory

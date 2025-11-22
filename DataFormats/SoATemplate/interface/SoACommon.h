@@ -48,8 +48,10 @@
     abort();                                                 \
   }
 #else
-#define SOA_THROW_OUT_OF_RANGE(A, I, R) \
-  { throw std::out_of_range(std::format("{}: index {} out of range {}", (A), (I), (R))); }
+#define SOA_THROW_OUT_OF_RANGE(A, I, R)                                                  \
+  {                                                                                      \
+    throw std::out_of_range(std::format("{}: index {} out of range {}", (A), (I), (R))); \
+  }
 #endif
 
 /* declare "scalars" (one value shared across the whole SoA) and "columns" (one value per element) */

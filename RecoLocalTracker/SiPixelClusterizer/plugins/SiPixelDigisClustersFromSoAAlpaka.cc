@@ -211,7 +211,7 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
 
     if (storeDigis_)
       (*detDigis).data.emplace_back(dig);
-      // fill clusters
+    // fill clusters
 #ifdef EDM_ML_DEBUG
     assert(digisView[i].clus() >= 0);
     assert(digisView[i].clus() < static_cast<int>(TrackerTraits::maxNumClustersPerModules));

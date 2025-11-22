@@ -41,14 +41,18 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testreferencecounted::Test);
 
 namespace testreferencecounted {
   void Test::deleteTest() {
-    { RefPtr pointer(new RefTest); }
+    {
+      RefPtr pointer(new RefTest);
+    }
     assert(0 == s_construct);
   }
 
   void Test::multiRefTest() {
     {
       RefPtr pointer(new RefTest);
-      { RefPtr pointer2(pointer); }
+      {
+        RefPtr pointer2(pointer);
+      }
     }
     assert(0 == s_construct);
   }
@@ -80,7 +84,9 @@ namespace testreferencecounted {
     {
       RefTest* ptr = new RefTest;
       RefPtr pointer(ptr);
-      { RefPtr pointer2(ptr); }
+      {
+        RefPtr pointer2(ptr);
+      }
     }
     assert(0 == s_construct);
   }

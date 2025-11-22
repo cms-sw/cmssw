@@ -400,12 +400,12 @@ namespace {
 #ifdef DEBUG
     for (int n = 0; n < N_proc; ++n) {
       dprint_np(n,
-                "input parameters"
-                    << " inPar(n, 0, 0)=" << std::setprecision(9) << inPar(n, 0, 0) << " inPar(n, 1, 0)="
-                    << std::setprecision(9) << inPar(n, 1, 0) << " inPar(n, 2, 0)=" << std::setprecision(9)
-                    << inPar(n, 2, 0) << " inPar(n, 3, 0)=" << std::setprecision(9) << inPar(n, 3, 0)
-                    << " inPar(n, 4, 0)=" << std::setprecision(9) << inPar(n, 4, 0)
-                    << " inPar(n, 5, 0)=" << std::setprecision(9) << inPar(n, 5, 0));
+                "input parameters" << " inPar(n, 0, 0)=" << std::setprecision(9) << inPar(n, 0, 0)
+                                   << " inPar(n, 1, 0)=" << std::setprecision(9) << inPar(n, 1, 0)
+                                   << " inPar(n, 2, 0)=" << std::setprecision(9) << inPar(n, 2, 0)
+                                   << " inPar(n, 3, 0)=" << std::setprecision(9) << inPar(n, 3, 0)
+                                   << " inPar(n, 4, 0)=" << std::setprecision(9) << inPar(n, 4, 0)
+                                   << " inPar(n, 5, 0)=" << std::setprecision(9) << inPar(n, 5, 0));
     }
 #endif
 

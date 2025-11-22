@@ -125,7 +125,7 @@ namespace HepMCValidationHelper {
         if (isChargedLepton(status1[i]))
           findFSRPhotons(leptons, status1, deltaRcut, removedForIsolation);
 #ifdef DEBUG_HepMCValidationHelper
-          //std::cout << removedForIsolation.size() << " particles to be removed for isolation calculation " << std::endl;
+        //std::cout << removedForIsolation.size() << " particles to be removed for isolation calculation " << std::endl;
 #endif
         //create vector of particles to compute isolation (removing removedForIsolation);
         std::vector<const HepMC::GenParticle*> forIsolation;

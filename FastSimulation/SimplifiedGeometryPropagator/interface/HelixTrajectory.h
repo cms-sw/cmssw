@@ -56,7 +56,7 @@ namespace fastsim {
   private:
     const double radius_;  //!< The radius of the helix
     const double phi_;     //!< The angle of the particle alone the helix.
-        //!< Ranges from 0 to 2PI: 0 corresponds to the positive X direction, phi increases counterclockwise
+    //!< Ranges from 0 to 2PI: 0 corresponds to the positive X direction, phi increases counterclockwise
     const double centerX_;   //!< X-coordinate of the center of the helix
     const double centerY_;   //!< Y-coordinate of the center of the helix
     const double centerR_;   //!< Distance of the center of the helix from the center of the tracker

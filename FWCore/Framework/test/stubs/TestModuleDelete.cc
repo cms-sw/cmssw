@@ -179,7 +179,7 @@ namespace edmtest {
 
   class TestModuleDeleteAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    explicit TestModuleDeleteAnalyzer(edm::ParameterSet const& /*p*/){};
+    explicit TestModuleDeleteAnalyzer(edm::ParameterSet const& /*p*/) {};
 
     void beginJob() override {
       if (g_constructed.size() == 0) {
