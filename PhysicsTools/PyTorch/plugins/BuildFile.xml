@@ -1,0 +1,8 @@
+<library file="PyTorchService.cc" name="PhysicsToolsPyTorchService">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/Utilities"/>
+  <use name="PhysicsTools/PyTorch"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -1,0 +1,38 @@
+<bin file="alpaka/testSoADataTypes.dev.cc testRunner.cc" name="testSoADataTypes">
+  <use name="alpaka"/>
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="eigen"/>
+  <use name="pytorch"/>
+  <use name="pytorch-cuda" for="alpaka/cuda"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="PhysicsTools/PyTorchAlpaka"/>
+  <!-- Omit ROCM because of copy workaround -> copy private to TensorRegistry -->
+  <flags ALPAKA_BACKENDS="cuda serial"/>
+</bin>
+
+<bin file="alpaka/testSoAToTorch.dev.cc testRunner.cc" name="testSoAToTorch">
+  <use name="alpaka"/>
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="eigen"/>
+  <use name="pytorch"/>
+  <use name="pytorch-cuda" for="alpaka/cuda"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="PhysicsTools/PyTorch"/>
+  <use name="PhysicsTools/PyTorchAlpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin file="alpaka/testAlpakaModel.cc testRunner.cc" name="testAlpakaModel">
+  <use name="alpaka"/>
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="eigen"/>
+  <use name="pytorch"/>
+  <use name="pytorch-cuda" for="alpaka/cuda"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="PhysicsTools/PyTorch"/>
+  <use name="PhysicsTools/PyTorchAlpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
