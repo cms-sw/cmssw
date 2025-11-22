@@ -352,7 +352,10 @@ def nanoAOD_refineFastSim_puppiJet(process):
         process.jetPuppiTablesTask,
         process.jetPuppiTablesTask.add(process.finalJetsPuppiSorted)
     )
-    process.jetPuppiTable.src = cms.InputTag("finalJetsPuppiSorted")
+    fastSim.toModify(
+        process.jetPuppiTable,
+        src = cms.InputTag("finalJetsPuppiSorted")
+    )
 
     return process
 
