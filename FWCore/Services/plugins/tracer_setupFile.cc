@@ -408,9 +408,12 @@ namespace edm::service::tracer {
 
     auto sourceCtrPtr = std::make_shared<ModuleCtrDtr>();
     auto& sourceCtr = *sourceCtrPtr;
-    iRegistry.watchPreSourceConstruction([&sourceCtr, beginTime](auto const&) {
+    auto sourceTypePtr = std::make_shared<std::string>();
+    auto& sourceType = *sourceTypePtr;
+    iRegistry.watchPreSourceConstruction([&sourceCtr, &sourceType, beginTime](auto const& md) {
       auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       sourceCtr.beginConstruction = t;
+      sourceType = md.moduleName();
     });
     iRegistry.watchPostSourceConstruction([&sourceCtr, beginTime](auto const&) {
       auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
@@ -493,11 +496,22 @@ namespace edm::service::tracer {
                                 moduleCtrDtrPtr,
                                 esmoduleCtrDtrPtr,
                                 sourceCtrPtr,
+                                sourceTypePtr,
                                 beginTime,
                                 pythonBegin,
                                 pythonEnd,
                                 servicesBegin,
                                 startupTimes](auto&) mutable {
+      if (!moduleLabelsPtr->empty()) {
+        (*moduleLabelsPtr)[0] = std::make_pair("source", *sourceTypePtr);
+      }
+      {
+        std::ostringstream oss;
+        std::vector<std::pair<std::string, std::string>> nameType{{"source", *sourceTypePtr}};
+        moduleIdToLabel(oss, nameType, 'S', "Source ID", "Source label", "Source type");
+        logFile->write(oss.str());
+        sourceTypePtr.reset();
+      }
       {
         std::ostringstream oss;
         moduleIdToLabel(oss, *moduleLabelsPtr, 'M', "EDModule ID", "Module label", "Module type");
