@@ -6,6 +6,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
+#include "DataFormats/L1CaloTrigger/interface/CICADA.h"
 
 namespace l1t {
   namespace stage2 {
@@ -16,11 +17,13 @@ namespace l1t {
       inline const edm::EDGetTokenT<EcalTrigPrimDigiCollection>& getEcalDigiToken() const { return ecalDigiToken_; };
       inline const edm::EDGetTokenT<HcalTrigPrimDigiCollection>& getHcalDigiToken() const { return hcalDigiToken_; };
       inline const edm::EDGetTokenT<L1CaloRegionCollection>& getCaloRegionToken() const { return caloRegionToken_; };
+      inline const edm::EDGetTokenT<CICADABxCollection>& getCICADAToken() const { return cicadaToken_; };
 
     private:
       edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalDigiToken_;
       edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalDigiToken_;
       edm::EDGetTokenT<L1CaloRegionCollection> caloRegionToken_;
+      edm::EDGetTokenT<CICADABxCollection> cicadaToken_;
     };
   }  // namespace stage2
 }  // namespace l1t
