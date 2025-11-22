@@ -10,6 +10,7 @@ DEFINE_FWK_MODULE(SeedCombiner);
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 #include "SeedFromConsecutiveHitsCreator.h"
+#include "SeedFromConsecutiveHitsCreatorSimple.h"
 #include "SeedFromConsecutiveHitsStraightLineCreator.h"
 #include "SeedFromConsecutiveHitsTripletOnlyCreator.h"
 
@@ -35,6 +36,10 @@ DEFINE_EDM_PLUGIN(MultiHitGeneratorFromPairAndLayersFactory, MultiHitGeneratorFr
 using SeedCreatorFromRegionConsecutiveHitsEDProducer =
     SeedCreatorFromRegionHitsEDProducerT<SeedFromConsecutiveHitsCreator>;
 DEFINE_FWK_MODULE(SeedCreatorFromRegionConsecutiveHitsEDProducer);
+
+using SimpleSeedCreatorFromRegionConsecutiveHitsEDProducer =
+    SeedCreatorFromRegionHitsEDProducerT<SeedFromConsecutiveHitsCreatorSimple>;
+DEFINE_FWK_MODULE(SimpleSeedCreatorFromRegionConsecutiveHitsEDProducer);
 
 using SeedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer =
     SeedCreatorFromRegionHitsEDProducerT<SeedFromConsecutiveHitsTripletOnlyCreator>;
