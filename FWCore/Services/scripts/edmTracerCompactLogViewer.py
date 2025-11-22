@@ -1077,7 +1077,6 @@ def jsonInfo(parser):
             for mod in data._modStreams[i]:
                 stream.append(mod)
     if parser._moduleCentric:
-        sourceSlot = data._modules[data._moduleID2Index(0)]
         modules = []
         for i,m in parser._moduleNames.items():
             modules.append({"name": f"{m[0]}", "slots":[]})
@@ -1087,7 +1086,8 @@ def jsonInfo(parser):
             for s in foundSlots:
                 slots.append(s)
                 for t in s:
-                    if t.act !=Activity.prefetch:
+                    #protect against source having framework transitions
+                    if not hasattr(t,'act') or t.act !=Activity.prefetch:
                         time += t.finish-t.start
             modules[-1]['time']=time
         for i,m in parser._esModuleNames.items():
@@ -1102,7 +1102,6 @@ def jsonInfo(parser):
                         time += t.finish-t.start
             modules[-1]['time']=time
         modules.sort(key= lambda x : x['time'], reverse=True)
-        final['transitions'].append({"name": "source", "slots":sourceSlot})
         for m in modules:
             final['transitions'].append(m)
 
@@ -1112,8 +1111,8 @@ def jsonInfo(parser):
             if k > max:
                 max = k
         
-        final["modules"] =['']*(max+1)
-        final["modules"][0] = 'source'
+        final["modules"] =[['',]]*(max+1)
+        final["modules"][0] = ['source','unknown']
         for k,v in parser._moduleNames.items():
             final["modules"][k]=[v[0],v[1]]
         
@@ -1121,7 +1120,7 @@ def jsonInfo(parser):
         for k in parser._esModuleNames.keys():
             if k > max:
                 max = k
-        final["esModules"] = ['']*(max+1)
+        final["esModules"] = [['','']]*(max+1)
         for k,v in parser._esModuleNames.items():
             final["esModules"][k] = [v[0],v[1]]
     return final
@@ -1214,20 +1213,20 @@ def moduleTransition(componentNamer:ComponentToName, event:JsonModuleTransition,
     if duration < 0.1:
         duration = 1.0
     return dict(name=name, cat=moduleCategories(componentNamer,event.mod, event.type,event.act), ph="X", ts=event.start, dur=duration, pid=pid, tid=tid)
-def globalHeaderTransition(e:JsonTransition, pid=1):
+def globalHeaderTransition(e:JsonTransition, sourceType, pid=1):
     if e.isSrc:
         name = 'source'
-        cat = "source,"+typeValueToName(e.type)
+        cat = "source,"+sourceType+','+typeValueToName(e.type)
     else:
         name = typeValueToName(e.type)
         cat = "framework"
     if e.finish == 0:
         return dict(name=name, cat=cat, ph="i", ts=e.start, pid=pid, tid=1, args={"sync":e.sync})
     return dict(name=name, cat=cat, ph="X", ts=e.start, dur=(e.finish-e.start), pid=pid, tid=1, args={"sync":e.sync})
-def streamHeaderTransition(e, streamID:int):
+def streamHeaderTransition(e, streamID:int, sourceType:str):
     if e.isSrc:
         name = 'source'
-        cat = "source,"+typeValueToName(e.type)
+        cat = "source,"+sourceType+','+typeValueToName(e.type)
     else:
         name = typeValueToName(e.type)
         cat = "framework"
@@ -1238,6 +1237,7 @@ def streamHeaderTransition(e, streamID:int):
 
 def convertToChromeTraceFormat(parsed, moduleCentric:bool):
     componentNamer = ComponentToName(edmodules=parsed['modules'], esmodules=parsed['esModules'])
+    sourceType = parsed['modules'][0][1]
     name = "Global"
     if moduleCentric:
         name = ". Global"
@@ -1247,7 +1247,7 @@ def convertToChromeTraceFormat(parsed, moduleCentric:bool):
     globalTransitions = parsed["transitions"][0]
     #the first slot holds the framework and source transition information
     for e in globalTransitions["slots"][0]:
-            traceEvents.append(globalHeaderTransition(e))
+            traceEvents.append(globalHeaderTransition(e, sourceType))
     for index,slot in enumerate(globalTransitions["slots"][1:]):
         for e in slot:
             traceEvents.append(moduleTransition(componentNamer, e, 1, index+2, moduleCentric))
@@ -1260,12 +1260,12 @@ def convertToChromeTraceFormat(parsed, moduleCentric:bool):
             #the first slot holds the framework and source transition information
             if stream["name"][:6] == "Stream":
                 for e in stream["slots"][0]:
-                    traceEvents.append(streamHeaderTransition(e,pid))
+                    traceEvents.append(streamHeaderTransition(e,pid,sourceType))
             elif stream["name"] == "source":
                 for index,slot in enumerate(stream["slots"]):
                     for e in slot:
                         if hasattr(e, 'isSrc'):
-                            traceEvents.append(globalHeaderTransition(e, pid+2))
+                            traceEvents.append(globalHeaderTransition(e, sourceType, pid+2))
                         else:
                             traceEvents.append(moduleTransition(componentNamer, e, pid+2, index+1, moduleCentric))
             else:
@@ -1277,7 +1277,7 @@ def convertToChromeTraceFormat(parsed, moduleCentric:bool):
             traceEvents.append(dict(name="process_name", ph="M", pid=streamid+2, tid=streamid, args={"name": f"Stream{streamid}"}))
             #the first slot holds the framework and source transition information
             for e in stream["slots"][0]:
-                traceEvents.append(streamHeaderTransition(e,streamid))
+                traceEvents.append(streamHeaderTransition(e,streamid, sourceType))
             for index,slot in enumerate(stream["slots"][1:]):
                 for e in slot:
                     traceEvents.append(moduleTransition(componentNamer, e, streamid+2, index+2, moduleCentric))
@@ -1303,6 +1303,8 @@ class TestModuleCommand(unittest.TestCase):
         
         self.tracerFile.extend([
             '#R 1 Record',
+            '#S 0 source SourceType',
+            '#M 0 source SourceType',
             '#M 1 Module ModuleType',
             '#N 1 ESModule ESModuleType',
              f'F {Phase.processPython} 0 0 0 0 {incr(t)}',
