@@ -108,15 +108,16 @@
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#define LOGDEBUG(x) LogDebug(x)
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
-#define LOGWARNING(x) LogWarning(x)
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
 using namespace edm;
 #else
 #include "SiPixelTemplate.h"
 #include "SimplePixel.h"
+#define LOGDEBUG(x) std::cout << x << ": "
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGINFO(x) std::cout << x << ": "
 #define ENDL std::endl
@@ -2187,7 +2188,7 @@ void SiPixelTemplate::ysigma2(int fypix, int lypix, float sythr, float ysum[25],
         ysig2[i] = 1.e8;
       }
       if (ysig2[i] <= 0.f) {
-        LOGERROR("SiPixelTemplate") << "neg y-error-squared, id = " << id_current_ << ", index = " << index_id_
+        LOGDEBUG("SiPixelTemplate") << "neg y-error-squared, id = " << id_current_ << ", index = " << index_id_
                                     << ", cot(alpha) = " << cota_current_ << ", cot(beta) = " << cotb_current_
                                     << ", sigi = " << sigi << ENDL;
       }
@@ -2260,7 +2261,7 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
   }
   ysig2 = qscale * err2;
   if (ysig2 <= 0.f) {
-    LOGERROR("SiPixelTemplate") << "neg y-error-squared, id = " << id_current_ << ", index = " << index_id_
+    LOGDEBUG("SiPixelTemplate") << "neg y-error-squared, id = " << id_current_ << ", index = " << index_id_
                                 << ", cot(alpha) = " << cota_current_ << ", cot(beta) = " << cotb_current_
                                 << ", sigi = " << sigi << ENDL;
   }
@@ -2380,7 +2381,7 @@ void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[BXSI
         xsig2[i] = 1.e8;
       }
       if (xsig2[i] <= 0.f) {
-        LOGERROR("SiPixelTemplate") << "neg x-error-squared, id = " << id_current_ << ", index = " << index_id_
+        LOGDEBUG("SiPixelTemplate") << "neg x-error-squared, id = " << id_current_ << ", index = " << index_id_
                                     << ", cot(alpha) = " << cota_current_ << ", cot(beta) = " << cotb_current_
                                     << ", sigi = " << sigi << ENDL;
       }
@@ -4072,7 +4073,7 @@ void SiPixelTemplate::vavilov_pars(double& mpv, double& sigma, double& kappa)
 
   //Avoid rounding difference between floats and doubles causing issues later
   if (kappavav_ <= 0.01f) {
-    LOGERROR("SiPixelTemplate") << "Vavilov kappa value is " << kappavav_ << " changing it to be above 0.01" << ENDL;
+    LOGDEBUG("SiPixelTemplate") << "Vavilov kappa value is " << kappavav_ << " changing it to be above 0.01" << ENDL;
     kappavav_ = 0.01f + 0.0000001f;
   }
 
