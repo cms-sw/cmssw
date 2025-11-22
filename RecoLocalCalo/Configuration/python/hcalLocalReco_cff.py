@@ -47,11 +47,6 @@ _collapse_hcalLocalRecoTask.add(hbhecollapse)
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 run2_HECollapse_2018.toReplaceWith(hcalLocalRecoTask, _collapse_hcalLocalRecoTask)
 
-#--- Legacy HCAL Only Task
-hbheprerecoLegacy = hbheprereco.clone()
-hcalOnlyLegacyLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco,hbheprereco])
-hcalOnlyLegacyLocalRecoTask.add(hbheprerecoLegacy)
-
 #--- for Run 3 and later
 _run3_hcalLocalRecoTask = _phase1_hcalLocalRecoTask.copy()
 _run3_hcalLocalRecoTask.remove(hbheprereco)
@@ -81,3 +76,8 @@ from RecoLocalCalo.HcalRecProducers.hcalRecHitSoAToLegacy_cfi import hcalRecHitS
 _fastSim_hcalLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco,zdcrecoRun3])
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(hcalLocalRecoTask, _fastSim_hcalLocalRecoTask)
+
+#--- Legacy HCAL Only Task
+hbheprerecoLegacy = hbheprereco.clone()
+hcalOnlyLegacyLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco,hbheprereco])
+hcalOnlyLegacyLocalRecoTask.add(hbheprerecoLegacy)

@@ -12,7 +12,7 @@ hcalOnlyGlobalRecoTask = cms.Task()
 hcalOnlyGlobalRecoSequence = cms.Sequence(hcalOnlyGlobalRecoTask)
 
 #-- Legacy HCAL Only Task
-hcalOnlyLegacyGlobalRecoTask = cms.Task() 
+hcalOnlyLegacyGlobalRecoTask = cms.Task()
 
 #--- for Run 3 and later
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
@@ -26,7 +26,7 @@ run3_HB.toReplaceWith(hcalOnlyLegacyGlobalRecoTask, cms.Task(hbherecoLegacy))
 #--- for Run 3 on GPU
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
-from RecoLocalCalo.HcalRecProducers.hcalRecHitSoAToLegacy_cfi import  hcalRecHitSoAToLegacy 
+from RecoLocalCalo.HcalRecProducers.hcalRecHitSoAToLegacy_cfi import  hcalRecHitSoAToLegacy
 (alpaka & run3_HB).toReplaceWith(hbhereco,
     hcalRecHitSoAToLegacy.clone(
         src = ("hbheRecHitProducerPortable","")
@@ -38,6 +38,8 @@ hbherecoSerial = hcalRecHitSoAToLegacy.clone(
 )
 alpaka.toReplaceWith(hcalGlobalRecoTask, hcalGlobalRecoTask.copyAndAdd(hbherecoSerial))
 alpaka.toReplaceWith(hcalOnlyGlobalRecoTask, hcalOnlyGlobalRecoTask.copyAndAdd(hbherecoSerial))
+
+alpaka.toReplaceWith(hcalOnlyLegacyGlobalRecoTask, hcalOnlyLegacyGlobalRecoTask.copyAndAdd(hbhereco))
 
 ##
 ## Modify for the tau embedding methods cleaning step

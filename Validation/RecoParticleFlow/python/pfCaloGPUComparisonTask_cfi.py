@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 pfClusterHBHEOnlyAlpakaComparison = DQMEDAnalyzer("PFCaloGPUComparisonTask",
-                                                    pfClusterToken_ref = cms.untracked.InputTag('particleFlowClusterHBHEOnly'),
-                                                    pfClusterToken_target = cms.untracked.InputTag('legacyPFClusterProducerHBHEOnly'),
+                                                    pfClusterToken_ref = cms.untracked.InputTag('particleFlowClusterHBHEOnlyLegacy'),
+                                                    pfClusterToken_target = cms.untracked.InputTag('particleFlowClusterHBHEOnly'),
                                                     pfCaloGPUCompDir = cms.untracked.string("pfClusterHBHEAlpakaV")
 )
 
