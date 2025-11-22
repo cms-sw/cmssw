@@ -1,1 +1,1 @@
-<test name="testWriteReadAlCaRecoTriggerBits" command="testWriteReadAlCaRecoTriggerBits.sh -p 1"/>
+<test name="testWriteReadAlCaRecoTriggerBits" command="testWriteReadAlCaRecoTriggerBits.sh -p 2"/>
