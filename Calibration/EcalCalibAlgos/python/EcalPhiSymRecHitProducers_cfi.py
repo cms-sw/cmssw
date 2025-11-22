@@ -33,6 +33,7 @@ phisym_params = {
     "nMisCalib" : cms.int32(10), # <= 10; even; central value does not count
     "misCalibRangeEB" : cms.vdouble(0.95, 1.05),
     "misCalibRangeEE" : cms.vdouble(0.90, 1.10),
+    "useNewLHCInfo" : cms.bool(False),
 }
 
 EcalPhiSymRecHitProducerLumi = cms.EDProducer("EcalPhiSymRecHitProducerLumi")
@@ -42,3 +43,7 @@ for par, value in phisym_params.items():
 EcalPhiSymRecHitProducerRun = cms.EDProducer("EcalPhiSymRecHitProducerRun")
 for par, value in phisym_params.items():
     setattr(EcalPhiSymRecHitProducerRun, par, value)
+
+from Configuration.Eras.Modifier_run3_ecal_cff import run3_ecal
+run3_ecal.toModify(EcalPhiSymRecHitProducerLumi, useNewLHCInfo = True)
+run3_ecal.toModify(EcalPhiSymRecHitProducerRun, useNewLHCInfo = True)
