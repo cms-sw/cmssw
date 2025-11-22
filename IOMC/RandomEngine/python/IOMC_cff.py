@@ -53,6 +53,14 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(1234567),
         engineName = FullSimEngine
     ),
+    simMuonIRPCDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = FullSimEngine
+    ),
+    simMuonRPCDigisPhase2 = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = FullSimEngine
+    ),
 #
 # HI generation & simulation is a special processing/chain,
 # integrated since 330 cycle
