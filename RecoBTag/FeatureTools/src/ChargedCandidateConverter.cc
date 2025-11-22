@@ -42,7 +42,8 @@ namespace btagbtvdeep {
     c_pf_features.dxy = catch_infs(c_pf->dxy());
     c_pf_features.dz = catch_infs(c_pf->dz());
     c_pf_features.dxysig = c_pf->bestTrack() ? catch_infs(c_pf->dxy() / c_pf->dxyError()) : 0;
-    c_pf_features.dzsig = c_pf->bestTrack() ? catch_infs(c_pf->dz() / c_pf->dzError()) : 0;
+    // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+    c_pf_features.dzsig = c_pf->bestTrack() ? catch_infs(c_pf->dz() / c_pf->dszError()) : 0;
 
     float pdgid_;
     if (abs(c_pf->pdgId()) == 11 and c_pf->charge() != 0) {
