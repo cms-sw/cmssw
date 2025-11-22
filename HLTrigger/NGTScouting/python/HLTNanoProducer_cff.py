@@ -27,7 +27,12 @@ from HLTrigger.NGTScouting.hltLayerClusters_cfi import *
 from HLTrigger.NGTScouting.hltSums_cfi import *
 from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter,dstTriggerAcceptFilter
 
-NanoGenTable = cms.Sequence(
+######################################
+# Tables 
+######################################
+
+# Produce and store gen particles and gen jets
+NanoGenTables = cms.Sequence(
     prunedGenParticlesWithStatusOne
     + prunedGenParticles
     + finalGenParticles
@@ -43,13 +48,12 @@ NanoGenTable = cms.Sequence(
     + genJetFlavourTable
 )
 
-hltNanoProducer = cms.Sequence(
-    NanoGenTable
-    #+ hltTriggerAcceptFilter
-    + hltVertexTable
-    + hltPixelTrackTable
+# Store hlt objects for NGT scouting
+NanoHltTables = cms.Sequence(
+    hltVertexTable
     + hltPixelVertexTable
     + hltGeneralTrackTable
+    + hltGeneralTrackExtTable
     + hltEgammaPacker
     + hltPhotonTable
     + hltElectronTable
@@ -57,44 +61,72 @@ hltNanoProducer = cms.Sequence(
     + hltMuonTable
     + hltPFCandidateTable
     + hltJetTable
-    + hltTrackstersTableSequence
-    + hltTiclCandidateTable
-    + hltTiclCandidateExtraTable
-    + hltTiclSuperClustersTable
     + hltTauTable
     + hltTauExtTable
     + METTable
     + HTTable
 )
 
-dstNanoProducer = cms.Sequence(
-    NanoGenTable
+# Store HGCal lower-level objects
+NanoHGCalTables = cms.Sequence(
+    hltTrackstersTableSequence
+    + hltTiclCandidateTable
+    + hltTiclCandidateExtraTable
+    + hltTiclSuperClustersTable
+)
+
+# Store PixelTracks objects
+NanoPixelTables = cms.Sequence(
+    hltPixelTrackTable
+    + hltPixelTrackExtTable
+)
+
+# Store variables and associators for validation purposes
+NanoValTables = cms.Sequence(
+    hltTiclAssociationsTableSequence
+    + hltSimTracksterSequence
+    + hltSimTiclCandidateTable
+    + hltSimTiclCandidateExtraTable
+    + hltLayerClustersTableSequence
+)
+
+######################################
+# Sequences for Nano flavours
+######################################
+
+# NGT Scouting Nano flavour (NANO:@NGTScouting)
+dstNanoFlavour = cms.Sequence(
+    dstTriggerAcceptFilter
+    + NanoHltTables
+)
+
+# NGT Scouting Nano flavour with MC/HGCal info (NANO:@NGTScoutingVal)
+dstValidationNanoFlavour = cms.Sequence(
+    NanoGenTables
     + dstTriggerAcceptFilter
-    + hltVertexTable
-    + hltPixelTrackTable
-    + hltPixelVertexTable
-    + hltGeneralTrackTable
-    + hltEgammaPacker
-    + hltPhotonTable
-    + hltElectronTable
-    + hltPhase2L3MuonIdTracks
-    + hltMuonTable
-    + hltPFCandidateTable
-    + hltJetTable
-    + hltTauTable
-    + hltTrackstersTableSequence
-    + hltTiclCandidateTable
-    + hltTiclCandidateExtraTable
-    + hltTiclSuperClustersTable
-    + hltTauExtTable
-    + METTable
-    + HTTable
+    + NanoHltTables
+    + NanoPixelTables
+    + NanoHGCalTables
+    + NanoValTables
 )
 
-trackingExtraNanoProducer = cms.Sequence(
-    hltPixelTrackExtTable+
-    hltGeneralTrackExtTable
+# Phase-2 HLT Nano flavour (NANO:@Phase2HLT)
+hltNanoFlavour = cms.Sequence(
+    NanoHltTables
 )
+
+# Phase-2 HLT Nano flavour with MC/HGCal info (NANO:@Phase2HLTVal)
+hltValidationNanoFlavour = cms.Sequence(
+    NanoGenTables
+    + NanoHltTables
+    + NanoPixelTables
+    + NanoHGCalTables
+    + NanoValTables
+)
+
+######################################
+# Customization
+######################################
 
 def hltNanoCustomize(process):
 
@@ -110,17 +142,5 @@ def hltNanoCustomize(process):
                 [p for p in process.paths if p.startswith('HLT_') or p.startswith('MC_') or p.startswith('DST_')]
             )
         )
-
-    return process
-
-def hltNanoValCustomize(process):
-    if hasattr(process, "dstNanoProducer"):
-
-        process.dstNanoProducer += (process.hltTiclAssociationsTableSequence +
-                                    process.hltSimTracksterSequence +
-                                    process.hltSimTiclCandidateTable +
-                                    process.hltSimTiclCandidateExtraTable +
-                                    process.hltLayerClustersTableSequence  +
-                                    process.trackingExtraNanoProducer)
 
     return process
