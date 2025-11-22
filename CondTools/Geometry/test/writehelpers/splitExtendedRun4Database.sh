@@ -1,6 +1,6 @@
 #!/bin/sh
 
-conddb -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtendedRun4D110.db -t XMLFILE_Geometry_TagXX_ExtendedRun4D110_mc -i XMLFILE_Geometry_TagXX_ExtendedRun4D110_mc
+conddb -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtendedRun4D121.db -t XMLFILE_Geometry_TagXX_ExtendedRun4D121_mc -i XMLFILE_Geometry_TagXX_ExtendedRun4D121_mc
 conddb -f sqlite_file:myfile.db -c sqlite_file:TKRECO_Geometry.db -t TKRECO_Geometry_TagXX -i TKRECO_Geometry_TagXX
 conddb -f sqlite_file:myfile.db -c sqlite_file:TKParameters_Geometry.db -t TKParameters_Geometry_TagXX -i TKParameters_Geometry_TagXX
 conddb -f sqlite_file:myfile.db -c sqlite_file:EBRECO_Geometry.db -t EBRECO_Geometry_TagXX -i EBRECO_Geometry_TagXX

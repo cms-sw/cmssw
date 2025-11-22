@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryXMLWriter")
 
-process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121_cff')
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -13,7 +13,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.BigXMLWriter = cms.EDAnalyzer("OutputDDToDDL",
                               rotNumSeed = cms.int32(0),
-                              fileName = cms.untracked.string("./geD110SingleBigFile.xml")
+                              fileName = cms.untracked.string("./geD121SingleBigFile.xml")
                               )
 
 
