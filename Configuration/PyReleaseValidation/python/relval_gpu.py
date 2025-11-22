@@ -14,7 +14,9 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 # mc WFs to run in IB:
 
 # no PU     Alpaka pixel-only                                   TTbar: quadruplets any backend and profiling; ECAL-only any backend; HCAL-only any backend and profiling
-# mc 2025
+# mc 2025 
+#           (Alpaka wfs to be removed, kept here to be used by the bot in the transition)
+# mc 2026
 # no PU  
 #           Alpaka pixel-only quadruplets:                      TTbar: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only triplets:                         TTbar: any backend, any backend vs cpu validation, profiling
@@ -46,30 +48,31 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           Alpaka LST-only:                                    TTbar: TRK-only w/ 2 iterations and LST building on any backend
 #           Alpaka HLTTiming75e33:                              TTbar: any backend
 numWFIB = [
+           # 2025, Alpaka-based (to be removed, used by the bot)
+           17034.422, 17034.403, 17034.406, 17034.412, 17034.402, 17034.423,
+           # 2026, Alpaka-based noPU
+           18434.402, 18434.403, 18434.404,
+           18434.406, 18434.407, 18434.408,
+           18434.412, 18434.413,#18434.414,
+           18434.422, 18434.423, 18434.424,
+           #18434.482, 18434.483, 18434.484
+           #18434.486, 18434.487, 18434.488
+           18434.492, 18434.493,
+           18450.402, 18450.403, 18450.404,
+           18450.406, 18450.407, 18450.408,
+           18461.402,
 
-           # 2025, Alpaka-based noPU
-           16834.402, 16834.403, 16834.404,
-           16834.406, 16834.407, 16834.408,
-           16834.412, 16834.413,#16834.414,
-           16834.422, 16834.423, 16834.424,
-           #16834.482, 16834.483, 16834.484
-           #16834.486, 16834.487, 16834.488
-           16834.492, 16834.493,
-           16850.402, 16850.403, 16850.404,
-           16850.406, 16850.407, 16850.408,
-           16861.402,
-
-           # 2025 with PU, Alpaka-based
-           17034.402, 17034.403, 17034.404,
-           17034.406, 17034.407, 17034.408,
-           17034.412, 17034.413, #17034.414
-           17034.422, 17034.423, 17034.424,
-           #17034.482, 17034.483, 17034.484
-           #17034.486, 17034.487, 17034.488
-           17034.492, 17034.493,
-           17050.402, 17050.403, 17050.404,
-           17050.406, 17050.407, 17050.408,
-           17061.402,
+           # 2026 with PU, Alpaka-based
+           18634.402, 18634.403, 18634.404,
+           18634.406, 18634.407, 18634.408,
+           18634.412, 18634.413, #18634.414
+           18634.422, 18634.423, 18634.424,
+           #18634.482, 18634.483, 18634.484
+           #18634.486, 18634.487, 18634.488
+           18634.492, 18634.493,
+           18650.402, 18650.403, 18650.404,
+           18650.406, 18650.407, 18650.408,
+           18661.402,
 
            # Run4, Alpaka-based noPU
            29634.402, 29634.4021, 29634.403, 29634.404, 29634.406,

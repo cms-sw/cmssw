@@ -14,6 +14,7 @@ autoHLT = {
   'relval2023'          : 'Fake2',
   'relval2024'          : 'Fake2',
   'relval2025'          : '2025v13',
+  'relval2026'          : 'GRun',
   'relvalRun4'          : '75e33',
   'relvalRun4_timing'   : '75e33_timing',
   'relvalRun4_trk'      : '75e33_trackingOnly',
