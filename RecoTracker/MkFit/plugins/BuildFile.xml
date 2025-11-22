@@ -25,6 +25,7 @@
   <use name="RecoTracker/MkFit"/>
   <use name="RecoTracker/TkDetLayers"/>
   <use name="RecoTracker/TransientTrackingRecHit"/>
+  <use name="RecoTracker/MeasurementDet"/>
   <use name="TrackingTools/GeomPropagators"/>
   <use name="TrackingTools/KalmanUpdators"/>
   <use name="TrackingTools/MaterialEffects"/>

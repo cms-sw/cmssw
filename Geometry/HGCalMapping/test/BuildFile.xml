@@ -8,6 +8,8 @@
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/HGCalObjects"/>
   <use name="Geometry/HGCalMapping"/>
+  <use name="Geometry/CaloTopology"/>
+  <use name="Geometry/HGCalGeometry"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/Records"/>
   <use name="FWCore/Framework"/>
