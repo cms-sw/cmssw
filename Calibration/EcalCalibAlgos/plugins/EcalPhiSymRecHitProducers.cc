@@ -36,7 +36,9 @@
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
+#include "CondFormats/RunInfo/interface/LHCInfoPerFill.h"
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondFormats/DataRecord/interface/LHCInfoPerFillRcd.h"
 
 #include "Calibration/EcalCalibAlgos/interface/EcalPhiSymRecHit.h"
 #include "Calibration/EcalCalibAlgos/interface/EcalPhiSymInfo.h"
@@ -109,6 +111,7 @@ protected:
   std::vector<float> misCalibStepsEB_;
   std::vector<double> misCalibRangeEE_;
   std::vector<float> misCalibStepsEE_;
+  bool useNewLHCInfo_;
   //---geometry
   EcalRingCalibrationTools calibRing_;
   static const short kNRingsEB = EcalRingCalibrationTools::N_RING_BARREL;
@@ -132,7 +135,8 @@ EcalPhiSymRecHitProducerBase::EcalPhiSymRecHitProducerBase(const edm::ParameterS
       nMisCalib_(pSet.getParameter<int>("nMisCalib") / 2),
       nSumEtValues_(nMisCalib_ * 2 + 1),
       misCalibRangeEB_(pSet.getParameter<std::vector<double> >("misCalibRangeEB")),
-      misCalibRangeEE_(pSet.getParameter<std::vector<double> >("misCalibRangeEE")) {}
+      misCalibRangeEE_(pSet.getParameter<std::vector<double> >("misCalibRangeEE")),
+      useNewLHCInfo_(pSet.getParameter<bool>("useNewLHCInfo")) {}
 
 void EcalPhiSymRecHitProducerBase::initializeJob() {
   //---Compute the endcap thresholds using the provived parametric formula
@@ -405,6 +409,7 @@ private:
 
   // data members
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoTokenLumi_;
+  edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillTokenLumi_;
   edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> chStatusTokenLumi_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoTokenLumi_;
 };
@@ -412,7 +417,11 @@ private:
 //----------IMPLEMENTATION----------------------------------------------------------------
 EcalPhiSymRecHitProducerLumi::EcalPhiSymRecHitProducerLumi(const edm::ParameterSet& pSet)
     : EcalPhiSymRecHitProducerBase(pSet, consumesCollector()),
-      lhcInfoTokenLumi_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
+      lhcInfoTokenLumi_(!useNewLHCInfo_ ? esConsumes<LHCInfo, LHCInfoRcd, edm::Transition::BeginLuminosityBlock>()
+                                        : edm::ESGetToken<LHCInfo, LHCInfoRcd>()),
+      lhcInfoPerFillTokenLumi_(
+          useNewLHCInfo_ ? esConsumes<LHCInfoPerFill, LHCInfoPerFillRcd, edm::Transition::BeginLuminosityBlock>()
+                         : edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd>()),
       chStatusTokenLumi_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       geoTokenLumi_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
   produces<EcalPhiSymInfo, edm::Transition::EndLuminosityBlock>();
@@ -435,8 +444,13 @@ std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerLumi::globalBeginLuminosity
   auto cache = std::make_shared<PhiSymCache>();
 
   //---Get LHC info
-  const auto& lhcinfo = setup.getData(lhcInfoTokenLumi_);
-  EcalPhiSymInfo thisLumi(0, 0, 0, 1, lhcinfo.fillNumber(), lhcinfo.delivLumi(), lhcinfo.recLumi());
+  const auto fillNumber = useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).fillNumber()
+                                         : setup.getData(lhcInfoTokenLumi_).fillNumber();
+  const auto delivLumi = useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).delivLumi()
+                                        : setup.getData(lhcInfoTokenLumi_).delivLumi();
+  const auto recLumi =
+      useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).recLumi() : setup.getData(lhcInfoTokenLumi_).recLumi();
+  EcalPhiSymInfo thisLumi(0, 0, 0, 1, fillNumber, delivLumi, recLumi);
 
   //---Reset global cache
   initializePhiSymCache(setup, chStatusTokenLumi_, luminosityBlockCache(lumi.index()), cache);
@@ -531,6 +545,7 @@ private:
 
   // data members
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoTokenLumi_;
+  edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillTokenLumi_;
   edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> chStatusTokenRun_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoTokenRun_;
 };
@@ -538,7 +553,11 @@ private:
 //----------IMPLEMENTATION----------------------------------------------------------------
 EcalPhiSymRecHitProducerRun::EcalPhiSymRecHitProducerRun(const edm::ParameterSet& pSet)
     : EcalPhiSymRecHitProducerBase(pSet, consumesCollector()),
-      lhcInfoTokenLumi_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
+      lhcInfoTokenLumi_(!useNewLHCInfo_ ? esConsumes<LHCInfo, LHCInfoRcd, edm::Transition::BeginLuminosityBlock>()
+                                        : edm::ESGetToken<LHCInfo, LHCInfoRcd>()),
+      lhcInfoPerFillTokenLumi_(
+          useNewLHCInfo_ ? esConsumes<LHCInfoPerFill, LHCInfoPerFillRcd, edm::Transition::BeginLuminosityBlock>()
+                         : edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd>()),
       chStatusTokenRun_(esConsumes<edm::Transition::BeginRun>()),
       geoTokenRun_(esConsumes<edm::Transition::BeginRun>()) {
   produces<EcalPhiSymInfo, edm::Transition::EndRun>();
@@ -602,9 +621,16 @@ void EcalPhiSymRecHitProducerRun::streamBeginLuminosityBlock(edm::StreamID strea
   //   first LS.
   //   Therefore the LHCInfo is accessed only by the first stream
   //   each time a new LS is processed
+  //   Since LHCInfo is not updated after May 2024 the information
+  //   is taken from LHCInfoPerFill instead if useNewLHCInfo_ is true.
   if (stream.value() == 0) {
-    const auto& lhcinfo = setup.getData(lhcInfoTokenLumi_);
-    EcalPhiSymInfo thisLumi(0, 0, 0, 1, lhcinfo.fillNumber(), lhcinfo.delivLumi(), lhcinfo.recLumi());
+    const auto fillNumber = useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).fillNumber()
+                                           : setup.getData(lhcInfoTokenLumi_).fillNumber();
+    const auto delivLumi = useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).delivLumi()
+                                          : setup.getData(lhcInfoTokenLumi_).delivLumi();
+    const auto recLumi =
+        useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).recLumi() : setup.getData(lhcInfoTokenLumi_).recLumi();
+    EcalPhiSymInfo thisLumi(0, 0, 0, 1, fillNumber, delivLumi, recLumi);
 
     streamCache(stream)->ecalLumiInfo += thisLumi;
   }
