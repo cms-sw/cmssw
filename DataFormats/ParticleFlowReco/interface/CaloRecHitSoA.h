@@ -1,9 +1,6 @@
 #ifndef DataFormats_ParticleFlowReco_interface_CaloRecHitSoA_h
 #define DataFormats_ParticleFlowReco_interface_CaloRecHitSoA_h
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
