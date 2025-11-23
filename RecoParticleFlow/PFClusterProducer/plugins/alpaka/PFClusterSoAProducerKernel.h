@@ -1,6 +1,9 @@
 #ifndef RecoParticleFlow_PFClusterProducer_PFClusterProducerAlpakaKernel_h
 #define RecoParticleFlow_PFClusterProducer_PFClusterProducerAlpakaKernel_h
 
+// Include Eigen core library before include the SoA definitions
+#include <Eigen/Core>
+
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFClusterDeviceCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitFractionDeviceCollection.h"
