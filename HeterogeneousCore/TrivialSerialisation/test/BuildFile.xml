@@ -1,0 +1,7 @@
+<bin name="TestHeterogeneousCoreTrivialSerialisation" file="test_catch2_*.cc">
+  <use name="catch2"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/TrivialSerialisation"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+</bin>
