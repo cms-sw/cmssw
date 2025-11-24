@@ -7,6 +7,9 @@
 #include <utility>
 #include <variant>
 
+// Include Eigen core library before include the SoA definitions
+#include <Eigen/Core>
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
