@@ -7,7 +7,7 @@ from DQM.EcalMonitorTasks.LaserTask_cfi import ecalLaserTask
 forwardFactor = 0.5
 minChannelEntries = 3
 expectedAmplitude = [1700.0, 1300.0, 1700.0, 1700.0]
-toleranceAmplitudeLo = 0.1
+toleranceAmplitudeLo = 0.06
 toleranceAmplitudeFwdLo = 0.01
 toleranceAmplitudeHi = 2.06
 toleranceAmpRMSRatio = 0.3
