@@ -14,7 +14,7 @@ check_for_success run_AlCaRecoTriggerBitsUpdateWorkflow.py --help
 ########################################
 # Test update AlCaRecoTriggerBits
 ########################################
-run_AlCaRecoTriggerBitsUpdateWorkflow.py -f frontier://PromptProd/CMS_CONDITIONS -i AlCaRecoHLTpaths8e29_1e31_v24_offline -d AlCaRecoHLTpaths_TEST || die 'failed running run_AlCaRecoTriggerBitsUpdateWorkflow.py' $?
+run_AlCaRecoTriggerBitsUpdateWorkflow.py -f frontier://PromptProd/CMS_CONDITIONS -i AlCaRecoHLTpaths8e29_1e31_v24_offline -d AlCaRecoHLTpaths_TEST "$@" || die 'failed running run_AlCaRecoTriggerBitsUpdateWorkflow.py' $?
 
 ########################################
 # Test read AlCaRecoTriggerBits
