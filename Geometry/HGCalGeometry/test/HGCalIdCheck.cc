@@ -147,14 +147,18 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
     std::ostringstream st1;
     const HGCalGeometry *geom = hgcGeom_[detMap[(detIds_[k].first).det()]];
     HGCSiliconDetId id(detIds_[k].first);
-    GlobalPoint xy = geom->getPosition(id, false, false);
+    GlobalPoint xy = geom->getPosition(id, true);
     bool valid = geom->topology().valid(id);
     DetId idx = geom->getClosestCell(xy);
-    GlobalPoint cell = geom->getPosition(idx, false, false);
+    GlobalPoint cell = geom->getPosition(idx, true);
     std::string ok = (id.rawId() == idx.rawId()) ? "OK" : "ERROR";
     st1 << "Old: " << id << " Valid " << valid << " New: " << HGCSiliconDetId(idx) << " === " << ok << " at " << xy;
+    HGCSiliconDetId idn(idx);
+    std::string c1 = (id.layer() == idn.layer()) ? "" : "Layer MisMatch";
+    std::string c2 = ((id.waferU() == idn.waferU()) && (id.waferV() == idn.waferV())) ? "" : "Wafer Mismatch";
+    std::string c3 = ((id.cellU() == idn.cellU()) && (id.cellV() == idn.cellV())) ? "" : "Cell Mismatch";
     edm::LogVerbatim("HGCGeom") << "Hit[" << k << "] " << st1.str() << " Position (" << cell.x() << ", " << cell.y()
-                                << ", " << cell.z() << ")";
+                                << ", " << cell.z() << ") " << c1 << " " << c2 << " " << c3;
   }
 }
 

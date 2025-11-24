@@ -109,6 +109,17 @@ autoCond = {
     'phase1_2025_cosmics'          :    '150X_mcRun3_2025cosmics_realistic_deco_v4',
     # GlobalTag for MC production with realistic conditions for Phase1 2025 detector for Heavy Ion
     'phase1_2025_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_v2',
+    
+    ###########################################################################################
+    ###### The following are just copies of 2025 for the moment. To be updated.
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2026
+    'phase1_2026_design'           :    '150X_mcRun3_2025_design_v4',
+    # GlobalTag for MC production with realistic conditions for Phase1 2026
+    'phase1_2026_realistic'        :    '151X_mcRun3_2025_realistic_v4',
+    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2026, Strip tracker in DECO mode
+    'phase1_2026_cosmics'          :    '150X_mcRun3_2025cosmics_realistic_deco_v4',
+    # GlobalTag for MC production with realistic conditions for Phase1 2026 detector for Heavy Ion
+    'phase1_2026_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_v2',
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'             :    '150X_mcRun4_realistic_v1'
 }
