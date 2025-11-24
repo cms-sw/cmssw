@@ -85,8 +85,12 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Det
     if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
       DetId id2 = geom->getClosestCell(global);
       if (id.rawId() != id2.rawId()) {
+        HGCSiliconDetId idn(id2);
+        std::string c1 = (id.layer() == idn.layer()) ? "" : " Layer MisMatch";
+        std::string c2 = ((id.waferU() == idn.waferU()) && (id.waferV() == idn.waferV())) ? "" : " Wafer Mismatch";
+        std::string c3 = ((id.cellU() == idn.cellU()) && (id.cellV() == idn.cellV())) ? "" : " Cell Mismatch";
         st1 << " ***** ERROR *****"
-            << " New " << HGCSiliconDetId(id2);
+            << " New " << idn << c1 << c2 << c3;
         ++bad;
         geom->topology().dddConstants().locateCell(id, false, true);
       } else {
