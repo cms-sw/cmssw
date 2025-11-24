@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
@@ -16,6 +17,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "RecoHGCal/TICL/interface/alpaka/PatternRecognitionAlgoBase.h"
 #include "RecoHGCal/TICL/plugins/alpaka/PatternRecognitionByCLUEstering.h"
+#include "RecoHGCal/TICL/plugins/alpaka/PatternRecognitionPluginFactory.h"
 #include "CLUEstering/CLUEstering.hpp"
 
 #include <Eigen/Core>
@@ -28,19 +30,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     HeterogeneousTracksterProducer(edm::ParameterSet const& config)
         : EDProducer(config),
+          // detector_(config.getParameter<std::string>("detector")),
+          // doNose_(detector_ == "HFNose"),
           deviceTokenSoAClusters_{consumes(config.getParameter<edm::InputTag>("layerClusters"))},
-          legacyTrackstersToken_{produces()},
-          algo_{std::make_unique<PatternRecognitionByCLUEstering>(config)} {}
+          legacyTrackstersToken_{produces()} {
+      auto plugin = config.getParameter<std::string>("patternRecognitionBy");
+      auto pluginPSet = config.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
+      algo_ = PatternRecognitionFactoryAlpaka::get()->create(config.getParameter<std::string>("patternRecognitionBy"),
+                                                             pluginPSet);
+    }
     ~HeterogeneousTracksterProducer() override = default;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalRecHitsLayerClustersSoA"));
-	  // Still needed? I guess I still need to save them here and then copy to algo
+      // Still needed? I guess I still need to save them here and then copy to algo
       desc.add<double>("rho_c", 0.6);
       desc.add<std::vector<double>>("dc", {2., 2., 2});
       desc.add<std::vector<double>>("dm", {1.8, 1.8, 2});
-      desc.add<bool>("verbose", false);
+      desc.add<std::string>("patternRecognitionBy", "CLUEstering");
+
+      edm::ParameterSetDescription pluginDesc;
+      pluginDesc.addNode(edm::PluginDescription<PatternRecognitionFactoryAlpaka>("type", "CLUEstering", true));
+      desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByCLUEstering", pluginDesc);
+
       descriptions.addWithDefaultLabel(desc);
     }
 
@@ -54,12 +67,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
+    // std::string detector_;
+    // bool doNose_;
     device::EDGetToken<HGCalSoAClustersDeviceCollection> const deviceTokenSoAClusters_;
     edm::EDPutTokenT<std::vector<ticl::Trackster>> const legacyTrackstersToken_;
     std::unique_ptr<PatternRecognitionAlgoBase> algo_;
+    std::unique_ptr<PatternRecognitionAlgoBase> myAlgoHFNose_;
   };
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ticl
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(HeterogeneousTracksterProducer);

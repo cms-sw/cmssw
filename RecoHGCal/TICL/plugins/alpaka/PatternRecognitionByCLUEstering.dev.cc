@@ -6,6 +6,8 @@
 #include "RecoHGCal/TICL/interface/alpaka/PatternRecognitionAlgoBase.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "CLUEstering/CLUEstering.hpp"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoHGCal/TICL/plugins/alpaka/PatternRecognitionByCLUEstering.h"
 
@@ -35,11 +37,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto d_clIndex = cms::alpakatools::make_device_buffer<int[]>(queue, n);  // temporary buffer needed by CLUEstering
       auto dp_clIndex = const_cast<int*>(d_clIndex.data());
       clue::PointsDevice<3> d_points(queue, n, x, y, z, E, dp_clIndex);
-      if (m_verbosity) {
-        for (int iLC = 0; iLC < n; ++iLC) {
-          std::cout << "( " << x[iLC] << ", " << y[iLC] << ", " << z[iLC] << ", " << E[iLC] << " )" << std::endl;
-        }
-      }
+      // if (m_verbosity) {
+      //   for (int iLC = 0; iLC < n; ++iLC) {
+      //     std::cout << "( " << x[iLC] << ", " << y[iLC] << ", " << z[iLC] << ", " << E[iLC] << " )" << std::endl;
+      //   }
+      // }
 
       clue::Clusterer<3> clusterer(queue, m_dc, m_rhoc, m_dm);
       clusterer.make_clusters(queue, d_points);
@@ -141,17 +143,60 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         trackster.calculateRawPt();
         trackster.calculateRawEmPt();
-        if (m_verbosity) {
-          std::cout << "  LC in TS: ";
-          for (const auto& lc : trackster.vertices())
-            std::cout << lc << " ";
-          std::cout << std::endl;
-          std::cout << "  energy raw: " << trackster.raw_energy() << std::endl;
-          std::cout << "  barycenter: " << trackster.barycenter().x() << ", " << trackster.barycenter().y() << ", "
-                    << trackster.barycenter().z() << std::endl;
-        }
+        // if (m_verbosity) {
+        //   std::cout << "  LC in TS: ";
+        //   for (const auto& lc : trackster.vertices())
+        //     std::cout << lc << " ";
+        //   std::cout << std::endl;
+        //   std::cout << "  energy raw: " << trackster.raw_energy() << std::endl;
+        //   std::cout << "  barycenter: " << trackster.barycenter().x() << ", " << trackster.barycenter().y() << ", "
+        //             << trackster.barycenter().z() << std::endl;
+        // }
       }
     }
+  }
+
+  void PatternRecognitionByCLUEstering::fillPSetDescription(::edm::ParameterSetDescription& iDesc) {
+    // iDesc.add<int>("algo_verbosity", 0);
+    // iDesc.add<std::vector<double>>("criticalDensity", {4, 4, 4})->setComment("in GeV");
+    // iDesc.add<std::vector<double>>("criticalSelfDensity", {0.15, 0.15, 0.15} /* roughly 1/(densitySiblingLayers+1) */)
+    //     ->setComment("Minimum ratio of self_energy/local_density to become a seed.");
+    // iDesc.add<std::vector<int>>("densitySiblingLayers", {3, 3, 3})
+    //     ->setComment(
+    //         "inclusive, layers to consider while computing local density and searching for nearestHigher higher");
+    // iDesc.add<std::vector<double>>("densityEtaPhiDistanceSqr", {0.0008, 0.0008, 0.0008})
+    //     ->setComment("in eta,phi space, distance to consider for local density");
+    // iDesc.add<std::vector<double>>("densityXYDistanceSqr", {3.24, 3.24, 3.24})
+    //     ->setComment("in cm, distance on the transverse plane to consider for local density");
+    // iDesc.add<std::vector<double>>("kernelDensityFactor", {0.2, 0.2, 0.2})
+    //     ->setComment("Kernel factor to be applied to other LC while computing the local density");
+    // iDesc.add<bool>("densityOnSameLayer", false);
+    // iDesc.add<bool>("nearestHigherOnSameLayer", false)
+    //     ->setComment("Allow the nearestHigher to be located on the same layer");
+    // iDesc.add<bool>("useAbsoluteProjectiveScale", true)
+    //     ->setComment("Express all cuts in terms of r/z*z_0{,phi} projective variables");
+    // iDesc.add<bool>("useClusterDimensionXY", false)
+    //     ->setComment(
+    //         "Boolean. If true use the estimated cluster radius to determine the cluster compatibility while computing "
+    //         "the local density");
+    // iDesc.add<bool>("rescaleDensityByZ", false)
+    //     ->setComment(
+    //         "Rescale local density by the extension of the Z 'volume' explored. The transvere dimension is, at "
+    //         "present, "
+    //         "fixed and factored out.");
+    // iDesc.add<std::vector<double>>("criticalEtaPhiDistance", {0.025, 0.025, 0.025})
+    //     ->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
+    // iDesc.add<std::vector<double>>("criticalXYDistance", {1.8, 1.8, 1.8})
+    //     ->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
+    // iDesc.add<std::vector<int>>("criticalZDistanceLyr", {5, 5, 5})
+    //     ->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
+    // iDesc.add<std::vector<double>>("outlierMultiplier", {2, 2, 2})
+    //     ->setComment("Minimal distance in transverse space from nearestHigher to become an outlier");
+    // iDesc.add<std::vector<int>>("minNumLayerCluster", {2, 2, 2})->setComment("Not Inclusive");
+    // iDesc.add<bool>("doPidCut", false);
+    // iDesc.add<double>("cutHadProb", 0.5);
+    // iDesc.add<bool>("computeLocalTime", false);
+    // iDesc.add<bool>("usePCACleaning", false)->setComment("Enable PCA cleaning alorithm");
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

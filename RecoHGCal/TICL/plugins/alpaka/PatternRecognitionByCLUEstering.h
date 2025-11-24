@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoHGCal/TICL/interface/alpaka/PatternRecognitionAlgoBase.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <algorithm>
 #include <array>
@@ -43,6 +44,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void makeTracksters(Queue& queue,
                         const HGCalSoAClustersDeviceCollection& lc,
                         std::vector<ticl::Trackster>& tracksters) override;
+
+    static void fillPSetDescription(::edm::ParameterSetDescription& iDesc);
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
