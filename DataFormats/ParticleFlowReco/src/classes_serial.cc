@@ -1,3 +1,6 @@
+// Include Eigen core library before include the SoA definitions
+#include <Eigen/Core>
+
 #include "DataFormats/ParticleFlowReco/interface/CaloRecHitHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFractionHostCollection.h"

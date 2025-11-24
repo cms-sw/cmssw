@@ -1,3 +1,6 @@
+// Include Eigen core library before include the SoA definitions
+#include <Eigen/Core>
+
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/ParticleFlowReco/interface/CaloRecHitHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/CaloRecHitSoA.h"
