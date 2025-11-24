@@ -205,6 +205,8 @@ bool HGCalGeometry::present(const DetId& detId) const {
 
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool debug) const {
   bool cog = m_topology.dddConstants().waferHexagon8Fine() ? true : false;
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeometry::getPosition:ID " << std::hex << detid.rawId() << std::dec << " COG " << cog;
   return getPosition(detid, cog, debug);
 }
 
