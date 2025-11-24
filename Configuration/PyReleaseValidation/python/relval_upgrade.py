@@ -50,9 +50,7 @@ for year in upgradeKeys:
                     stepMaker = makeStepNameSim
                 
                 if 'HARVEST' in step: hasHarvest = True
-
                 for specialType,specialWF in upgradeWFs.items():
-
                     if notForGenOnly(key,specialType): ## we don't need all the flavors for the GEN
                         continue 
 
@@ -81,7 +79,6 @@ for year in upgradeKeys:
                                     else: stepList[specialType][-1] = stepMade
                     else:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
-
             for specialType,specialWF in upgradeWFs.items():
                 # remove other steps for premixS1
                 if notForGenOnly(key,specialType):
@@ -89,5 +86,4 @@ for year in upgradeKeys:
                 if specialType=="PMXS1":
                     stepList[specialType] = stepList[specialType][:1]
                 specialWF.workflow(workflows, numWF, info.dataset, stepList[specialType], key, hasHarvest)
-
             numWF+=1
