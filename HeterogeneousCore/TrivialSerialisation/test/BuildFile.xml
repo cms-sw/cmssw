@@ -7,3 +7,4 @@
 </bin>
 
 <test name="TestHeterogeneousCoreTrivialSerialisationGenericCloner" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/TrivialSerialisation/test/testGenericCloner_cfg.py"/>
+<test name="TestHeterogeneousCoreTrivialSerialisationGenericClonerHost" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/TrivialSerialisation/test/testGenericClonerHost_cfg.py"/>
