@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import shutil
 import argparse
 import numpy as np
 import hist
@@ -29,7 +30,7 @@ def createDir(adir):
 def createIndexPHP(src, dest):
     php_file = os.path.join(src, 'index.php')
     if os.path.exists(php_file):
-        os.system(f'cp {php_file} {dest}')
+        shutil.copy(php_file, dest)
 
 def checkRootDir(afile, adir):
     if not afile.Get(adir):
