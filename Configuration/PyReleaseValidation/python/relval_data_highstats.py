@@ -59,7 +59,7 @@ def addFixedEventsWfs(years, pds, eras, offset = 0, suffreco = None, suffhlt = N
                     hlt  = suffhlt(pd) if suffhlt is not None else ''
                     name = namemod(pd) if namemod is not None else ''
 
-                    recosetup = 'RECONANORUN3_' + reco + 'reHLT_2025' 
+                    recosetup = 'RECONANORUN3_' + reco + 'reHLT_' + y 
                     harvsetup = 'HARVESTRUN3_'  + harv + y
                     hltsetup  = 'HLTDR3_' + hlt + y
 
