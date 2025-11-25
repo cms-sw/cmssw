@@ -59,6 +59,7 @@ private:
   edm::InputTag inputCaloMETLabel_;
 
   // Tokens
+  edm::InputTag pvTokenTag_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> pvToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> caloMETsToken_;
   edm::EDGetTokenT<reco::PFMETCollection> pfMETsToken_;

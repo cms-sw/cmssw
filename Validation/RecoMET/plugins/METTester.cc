@@ -29,7 +29,8 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
     genMETsCaloToken_ = consumes<reco::GenMETCollection>(edm::InputTag("genMetCalo"));
   }
 
-  pvToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("primaryVertices"));
+  pvTokenTag_ = iConfig.getParameter<edm::InputTag>("primaryVertices");
+  pvToken_ = consumes<std::vector<reco::Vertex>>(pvTokenTag_);
 
   // Events variables
   mNvertex = nullptr;
@@ -223,7 +224,8 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
   edm::Handle<reco::VertexCollection> pvHandle;
   iEvent.getByToken(pvToken_, pvHandle);
   if (!pvHandle.isValid()) {
-    edm::LogWarning("MissingInput") << __FUNCTION__ << ":" << __LINE__ << ":pvHandle handle not found!";
+    edm::LogWarning("MissingInput") << __FUNCTION__ << ":" << __LINE__ << ": pvHandle handle with tag " << pvTokenTag_
+                                    << " not found!";
     return;
   }
   const int nvtx = pvHandle->size();
