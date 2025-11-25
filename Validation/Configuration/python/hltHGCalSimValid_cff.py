@@ -5,6 +5,11 @@ from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import scAssocByEner
 from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociation as _layerClusterSimClusterAssociationProducer
 from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociation as _layerClusterCaloParticleAssociationProducer
 
+from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import barrelLcAssocByEnergyScoreProducer as _barrelLcAssocByEnergyScoreProducer
+from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import barrelScAssocByEnergyScoreProducer as _barrelScAssocByEnergyScoreProducer
+from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import barrelLayerClusterSimClusterAssociation as _barrelLayerClusterSimClusterAssociation
+from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import barrelLayerClusterCaloParticleAssociation as _barrelLayerClusterCaloParticleAssociation
+
 from SimCalorimetry.HGCalAssociatorProducers.SimClusterToCaloParticleAssociation_cfi import SimClusterToCaloParticleAssociation
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import  allTrackstersToSimTrackstersAssociationsByLCs as _allTrackstersToSimTrackstersAssociationsByLCs
 from SimCalorimetry.HGCalAssociatorProducers.hitToSimClusterCaloParticleAssociator_cfi import hitToSimClusterCaloParticleAssociator as _hitToSimClusterCaloParticleAssociator
@@ -29,6 +34,76 @@ from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 (phase2_common & ticl_barrel).toModify(hltRecHitMapProducer,
                                        hits = [*hgcal_hits, *barrel_hits],
                                        )
+
+# LC to CP and LC to SC associators TICL-based for HGCal region
+
+hltLcAssocByEnergyScoreProducer = _lcAssocByEnergyScoreProducer.clone(
+    hits = cms.InputTag("hltRecHitMapProducer", "RefProdVectorHGCRecHitCollection"),
+    hitMapTag = cms.InputTag("hltRecHitMapProducer","hgcalRecHitMap"),
+)
+
+hltScAssocByEnergyScoreProducer = _scAssocByEnergyScoreProducer.clone(
+    hits = cms.InputTag("hltRecHitMapProducer", "RefProdVectorHGCRecHitCollection"),
+    hitMapTag = cms.InputTag("hltRecHitMapProducer","hgcalRecHitMap"),
+)
+
+hltLayerClusterCaloParticleAssociationProducer = _layerClusterCaloParticleAssociationProducer.clone(
+    associator = cms.InputTag("hltLcAssocByEnergyScoreProducer"),
+    label_lc = cms.InputTag("hltMergeLayerClusters")
+)
+
+hltLayerClusterSimClusterAssociationProducer = _layerClusterSimClusterAssociationProducer.clone(
+    associator = cms.InputTag("hltScAssocByEnergyScoreProducer"),
+    label_lcl = cms.InputTag("hltMergeLayerClusters")
+)
+
+hltHgcalLayerClustersAssociatorsTask = cms.Task(
+    hltLcAssocByEnergyScoreProducer,
+    hltScAssocByEnergyScoreProducer,
+    hltLayerClusterCaloParticleAssociationProducer,
+    hltLayerClusterSimClusterAssociationProducer,
+)
+
+# LC to CP and LC to SC associators TICL-based for barrel region (ticl_barrel)
+
+hltBarrelLcAssocByEnergyScoreProducer = _barrelLcAssocByEnergyScoreProducer.clone(
+    hits = cms.VInputTag("hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"),
+    hitMapTag = cms.InputTag("hltRecHitMapProducer","barrelRecHitMap"),
+)
+
+hltBarrelScAssocByEnergyScoreProducer = _barrelScAssocByEnergyScoreProducer.clone(
+    hits = cms.VInputTag("hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"),
+    hitMapTag = cms.InputTag("hltRecHitMapProducer","barrelRecHitMap"),
+)
+
+hltBarrelLayerClusterCaloParticleAssociationProducer = _barrelLayerClusterCaloParticleAssociation.clone(
+    associator = cms.InputTag("hltBarrelLcAssocByEnergyScoreProducer"),
+    label_lc = cms.InputTag("hltBarrelLayerClustersEB")
+)
+
+hltBarrelLayerClusterSimClusterAssociationProducer = _barrelLayerClusterSimClusterAssociation.clone(
+    associator = cms.InputTag("hltBarrelScAssocByEnergyScoreProducer"),
+    label_lcl = cms.InputTag("hltBarrelLayerClustersEB")
+)
+
+hltHgcalAndBarrelLayerClustersAssociatorsTask = cms.Task(
+    hltLcAssocByEnergyScoreProducer,
+    hltScAssocByEnergyScoreProducer,
+    hltLayerClusterCaloParticleAssociationProducer,
+    hltLayerClusterSimClusterAssociationProducer,
+    hltBarrelLcAssocByEnergyScoreProducer,
+    hltBarrelScAssocByEnergyScoreProducer,
+    hltBarrelLayerClusterCaloParticleAssociationProducer,
+    hltBarrelLayerClusterSimClusterAssociationProducer,
+)
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(
+    hltHgcalLayerClustersAssociatorsTask,
+    hltHgcalAndBarrelLayerClustersAssociatorsTask
+)
+
+# LC to Tracksters and Tracksters to SimTracksters associators TICL-based for HGCal region
 
 from SimCalorimetry.HGCalAssociatorProducers.AllLayerClusterToTracksterAssociatorsProducer_cfi import AllLayerClusterToTracksterAssociatorsProducer as _AllLayerClusterToTracksterAssociatorsProducer
 
@@ -78,6 +153,7 @@ hltHgcalAssociatorsTask = cms.Task(hltHGCalRecHitMapProducer,
                                    hltHGCalLCToCPAssociatorByEnergyScoreProducer,
                                    hltHGCalLCToSCAssociatorByEnergyScoreProducer,
                                    SimClusterToCaloParticleAssociation,
+                                   hltHgcalLayerClustersAssociatorsTask,
                                    hltHGCalLayerClusterCaloParticleAssociation,
                                    hltHGCalLayerClusterSimClusterAssociation,
                                    hltAllLayerClusterToTracksterAssociations,

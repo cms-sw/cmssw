@@ -245,7 +245,7 @@ def plotOverlay(subdirs, cached_histos, name, props, outdir):
             plotter.limits(y=(0,1.1), x=(bin_edges[0], bin_edges[-1]))
         else:
             if "Response" in name:
-                plotter.limits(y=(0, 1.5))
+                plotter.limits(y=(0, 2.0))
             plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
                             color=line.get_edgecolor(),
                             fmt='s', label=sublabel, **errorbar_kwargs)
@@ -481,6 +481,7 @@ if __name__ == '__main__':
     parser.add_argument('--EnFracCut', default=0.01, help='Cut on the sim cluster energy fraction.')
     parser.add_argument('--PtCut', default=0.01, help='Cut on the sim cluster energy fraction.')
     parser.add_argument('--match_by_score', default=1, type=int, help='Use association based on score (if false, use shared energy fraction).')
+    parser.add_argument('--ticl', default=False, action='store_true', help='Use TiclBarrel folder.')
 
     mutual_excl2 = parser.add_mutually_exclusive_group(required=True)
     mutual_excl2.add_argument('-f', '--file', help='Paths to the DQM ROOT file.')
@@ -505,9 +506,12 @@ if __name__ == '__main__':
     nSimClustersLabel = '# SimClusters'
     nPFClustersLabel = '# PFClusters'
 
-    titles = {'response': r"$p_{T}^{Reco}/p_{T}^{Sim}$", 
-              'av_response': r"$<p_{T}^{Reco}/p_{T}^{Sim}>$", 
-              'resolution': r"$\sigma(p_{T}^{Reco}/p_{T}^{Sim}) / <p_{T}^{Reco}/p_{T}^{Sim}>$", 
+    titles = {'responsePt': r"$p_{T}^{Reco}/p_{T}^{Sim}$", 
+              'response': r"$E^{Reco}/E^{Sim}$", 
+              'av_responsePt': r"$<p_{T}^{Reco}/p_{T}^{Sim}>$", 
+              'av_response': r"$<E^{Reco}/E^{Sim}>$", 
+              'resolutionPt': r"$\sigma(p_{T}^{Reco}/p_{T}^{Sim}) / <p_{T}^{Reco}/p_{T}^{Sim}>$", 
+              'resolution': r"$\sigma(E^{Reco}/E^{Sim}) / <E^{Reco}/E^{Sim}>$", 
               'eff': 'Efficiency',
               'fake': 'Fake Rate',
               'split': 'Split Rate',
@@ -518,7 +522,9 @@ if __name__ == '__main__':
     else:
         matching = '_MatchByShEnF'
         print("### INFO: Using association by shared energy fraction.")
-    dqm_dir = f"DQMData/Run 1/HLT/Run summary/ParticleFlow/PFClusterValidation{matching}_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
+    if args.ticl:   sub_folder = 'TiclBarrel'
+    else:           sub_folder = 'ParticleFlow'
+    dqm_dir = f"DQMData/Run 1/HLT/Run summary/{sub_folder}/PFClusterValidation{matching}_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
     afile = ROOT.TFile.Open(args.file)
     checkRootDir(afile, dqm_dir)
 
@@ -761,7 +767,9 @@ if __name__ == '__main__':
     # Temporary hack to access CaloParticle histrograms
     ##################################################################################
 
-    dqm_dir = f"DQMData/Run 1/HLT/Run summary/ParticleFlow/CaloParticles_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
+    if args.ticl:   sub_folder = 'TiclBarrel'
+    else:           sub_folder = 'ParticleFlow'
+    dqm_dir = f"DQMData/Run 1/HLT/Run summary/{sub_folder}/CaloParticles_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
     afile = ROOT.TFile.Open(args.file)
     checkRootDir(afile, dqm_dir)
 
