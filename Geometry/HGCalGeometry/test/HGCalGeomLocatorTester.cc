@@ -25,7 +25,7 @@ public:
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
 
 private:
-  void doTestSilicon(const HGCalGeometry* geom, DetId::Detector det, const char* file1, const  char* file2);
+  void doTestSilicon(const HGCalGeometry* geom, DetId::Detector det, const char* file1, const char* file2);
   void doTestScintillator(const HGCalGeometry* geom, DetId::Detector det);
 
   std::string name_, tag_;
@@ -39,7 +39,7 @@ HGCalGeomLocaterTester::HGCalGeomLocaterTester(const edm::ParameterSet& iC)
       stepSi_{iC.getParameter<uint32_t>("stepSilicon")},
       stepSc_{iC.getParameter<uint32_t>("stepScintillator")},
       geomToken_{esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})} {
-	edm::LogVerbatim("HGCalGeomX") << "Detector " << name_ << " Steps " << stepSi_ << ":" << stepSc_ << " Tag " << tag_;
+  edm::LogVerbatim("HGCalGeomX") << "Detector " << name_ << " Steps " << stepSi_ << ":" << stepSc_ << " Tag " << tag_;
 }
 
 void HGCalGeomLocaterTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -72,7 +72,10 @@ void HGCalGeomLocaterTester::analyze(const edm::Event&, const edm::EventSetup& i
   }
 }
 
-void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Detector det, const char* file1, const char* file2) {
+void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom,
+                                           DetId::Detector det,
+                                           const char* file1,
+                                           const char* file2) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
   edm::LogVerbatim("HGCalGeomX") << "doTest:: " << ids.size() << " valid ids for " << geom->cellElement();
   const double tol = 0.001;
@@ -101,11 +104,13 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Det
             << " New " << idn << c1 << c2 << c3;
         ++bad;
         geom->topology().dddConstants().locateCell(id, false, true);
-	fout1 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.waferU() << " " << id.waferV() << " " << id.cellU() << " " << id.cellV() << std::endl;
-	if ((id.waferU() != idn.waferU()) || (id.waferV() != idn.waferV())) {
-	  fout2 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.waferU() << " " << id.waferV() << " " << id.cellU() << " " << id.cellV() << std::endl;
-	  ++badw;
-	}
+        fout1 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.waferU()
+              << " " << id.waferV() << " " << id.cellU() << " " << id.cellV() << std::endl;
+        if ((id.waferU() != idn.waferU()) || (id.waferV() != idn.waferV())) {
+          fout2 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.waferU()
+                << " " << id.waferV() << " " << id.cellU() << " " << id.cellV() << std::endl;
+          ++badw;
+        }
       } else {
         ++good;
       }
@@ -116,7 +121,8 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Det
   }
   edm::LogVerbatim("HGCalGeomX") << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good
                                  << " are good and " << bad << " are bad\n\n\n";
-  fout1.close(); fout2.close();
+  fout1.close();
+  fout2.close();
   edm::LogVerbatim("HGCalGeomX") << "Enters " << bad << " IDs in " << file1 << " and " << badw << " IDs in " << file2;
 }
 

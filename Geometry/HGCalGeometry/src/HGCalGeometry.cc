@@ -203,9 +203,7 @@ bool HGCalGeometry::present(const DetId& detId) const {
   return (nullptr != getGeometryRawPtr(index));
 }
 
-GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const {
-  return getPosition(detid, false);
-}
+GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const { return getPosition(detid, false); }
 
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool debug) const {
   bool cog = m_topology.dddConstants().waferHexagon8Fine() ? true : false;
@@ -540,9 +538,7 @@ DetId HGCalGeometry::neighborZ(const DetId& idin,
   return idnew;
 }
 
-DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
-  return getClosestCell(r,false);
-}
+DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const { return getClosestCell(r, false); }
 
 DetId HGCalGeometry::getClosestCell(const GlobalPoint& r, bool debug) const {
   unsigned int cellIndex = getClosestCellIndex(r);
@@ -576,8 +572,8 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r, bool debug) const {
       id.iLay = m_topology.dddConstants().getLayer(r.z(), true);
       int zside = (r.z() > 0) ? 1 : -1;
       if (debug)
-	edm::LogVerbatim("HGCalGeom") << "ZZ " << r.z() << ":" << zside << " Layer " << id.iLay << " Global " << r
-				      << "  Local " << local;
+        edm::LogVerbatim("HGCalGeom") << "ZZ " << r.z() << ":" << zside << " Layer " << id.iLay << " Global " << r
+                                      << "  Local " << local;
       const auto& kxy =
           m_topology.dddConstants().assignCellHex(local.x(), local.y(), zside, id.iLay, true, false, debug);
       id.iSec1 = kxy[0];
@@ -588,8 +584,8 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r, bool debug) const {
     }
     if (debug)
       edm::LogVerbatim("HGCalGeom") << "getClosestCell: local " << local << " Id " << id.det << ":" << id.zSide << ":"
-				    << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":" << id.iType << ":"
-				    << id.iCell1 << ":" << id.iCell2;
+                                    << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":" << id.iType << ":"
+                                    << id.iCell1 << ":" << id.iCell2;
 
     //check if returned cell is valid
     if (id.iCell1 >= 0)
@@ -618,8 +614,8 @@ DetId HGCalGeometry::getClosestCellHex(const GlobalPoint& r, bool extend, bool d
       id.iLay = m_topology.dddConstants().getLayer(r.z(), true);
       int zside = (r.z() > 0) ? 1 : -1;
       if (debug)
-	edm::LogVerbatim("HGCalGeom") << "ZZ " << r.z() << ":" << zside << " Layer " << id.iLay << " Global " << r
-				      << "  Local " << local;
+        edm::LogVerbatim("HGCalGeom") << "ZZ " << r.z() << ":" << zside << " Layer " << id.iLay << " Global " << r
+                                      << "  Local " << local;
       const auto& kxy =
           m_topology.dddConstants().assignCellHex(local.x(), local.y(), zside, id.iLay, true, extend, debug);
       id.iSec1 = kxy[0];
@@ -630,8 +626,8 @@ DetId HGCalGeometry::getClosestCellHex(const GlobalPoint& r, bool extend, bool d
     }
     if (debug)
       edm::LogVerbatim("HGCalGeom") << "getClosestCell: local " << local << " Id " << id.det << ":" << id.zSide << ":"
-				    << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":" << id.iType << ":"
-				    << id.iCell1 << ":" << id.iCell2;
+                                    << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":" << id.iType << ":"
+                                    << id.iCell1 << ":" << id.iCell2;
 
     //check if returned cell is valid
     if (id.iCell1 >= 0)
