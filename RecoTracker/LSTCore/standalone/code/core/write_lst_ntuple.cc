@@ -354,6 +354,9 @@ void createMiniDoubletBranches() {
   //
   //  The container will hold per entry a mini-doublet built by LST in the event.
   //
+#ifdef CUT_VALUE_DEBUG
+  ana.tx->createBranch<std::vector<int>>("md_rawIdx");  // raw index in the SoA
+#endif
   ana.tx->createBranch<std::vector<bool>>("md_isPLS");
   ana.tx->createBranch<std::vector<float>>("md_pt");   // pt (computed based on delta phi change)
   ana.tx->createBranch<std::vector<float>>("md_eta");  // eta (computed based on anchor hit's eta)
@@ -389,6 +392,9 @@ void createLineSegmentBranches() {
   //
   //  The container will hold per entry a line-segment built by LST in the event.
   //
+#ifdef CUT_VALUE_DEBUG
+  ana.tx->createBranch<std::vector<int>>("ls_rawIdx");  // raw index in the SoA
+#endif
   ana.tx->createBranch<std::vector<bool>>("ls_isPLS");
   // pt (computed based on radius of the circle formed by three points: (origin), (anchor hit 1), (anchor hit 2))
   ana.tx->createBranch<std::vector<float>>("ls_pt");
@@ -425,6 +431,9 @@ void createTripletBranches() {
   //
   //  The container will hold per entry a triplets built by LST in the event.
   //
+#ifdef CUT_VALUE_DEBUG
+  ana.tx->createBranch<std::vector<int>>("t3_rawIdx");  // raw index in the SoA
+#endif
   // pt (computed based on radius of the circle formed by three points: anchor hit 1, 2, 3
   ana.tx->createBranch<std::vector<float>>("t3_pt");
   ana.tx->createBranch<std::vector<float>>("t3_eta");        // eta (computed based on last anchor hit's eta)
@@ -484,6 +493,9 @@ void createQuintupletBranches() {
   //
   //  The container will hold per entry a quintuplet built by LST in the event.
   //
+#ifdef CUT_VALUE_DEBUG
+  ana.tx->createBranch<std::vector<int>>("t5_rawIdx");  // raw index in the SoA
+#endif
   // pt (computed based on average of the 4 circles formed by, (1, 2, 3), (2, 3, 4), (3, 4, 5), (1, 3, 5)
   ana.tx->createBranch<std::vector<std::vector<float>>>("t5_embed");
   ana.tx->createBranch<std::vector<float>>("t5_dnnScore");
@@ -513,6 +525,9 @@ void createPixelLineSegmentBranches() {
   //
   //  The container will hold per entry a pixel line segment (built by an external algo, e.g. patatrack) accepted by LST in the event.
   //
+#ifdef CUT_VALUE_DEBUG
+  ana.tx->createBranch<std::vector<int>>("pLS_rawIdx");  // raw index in the SoA
+#endif
   ana.tx->createBranch<std::vector<int>>("pLS_lsIdx");  // LS-format part
   // pt (taken from pt of the 3-vector from see_stateTrajGlbPx/Py/Pz)
   ana.tx->createBranch<std::vector<float>>("pLS_pt");
@@ -559,6 +574,9 @@ void createPixelTripletBranches() {
   //
   //  The container will hold per entry a pT3 built by LST in the event.
   //
+#ifdef CUT_VALUE_DEBUG
+  ana.tx->createBranch<std::vector<int>>("pT3_rawIdx");  // raw index in the SoA
+#endif
   ana.tx->createBranch<std::vector<int>>("sim_pT3_matched");
   ana.tx->createBranch<std::vector<float>>("pT3_score");
   ana.tx->createBranch<std::vector<float>>("pT3_pt");         // pt (taken from the pLS)
@@ -597,6 +615,9 @@ void createPixelQuintupletBranches() {
   //
   //  The container will hold per entry a pT5 built by LST in the event.
   //
+#ifdef CUT_VALUE_DEBUG
+  ana.tx->createBranch<std::vector<int>>("pT5_rawIdx");  // raw index in the SoA
+#endif
   ana.tx->createBranch<std::vector<float>>("pT5_pt");         // pt (taken from the pLS)
   ana.tx->createBranch<std::vector<float>>("pT5_eta");        // eta (taken from the pLS)
   ana.tx->createBranch<std::vector<float>>("pT5_phi");        // phi (taken from the pLS)
@@ -986,6 +1007,9 @@ std::map<unsigned int, unsigned int> setMiniDoubletBranches(LSTEvent* event,
       int isPS = isPLS ? 0 : (is_endcap ? (layer <= 2 ? ring <= 10 : ring <= 7) : layer <= 3);
 
       // Write out the ntuple
+#ifdef CUT_VALUE_DEBUG
+      ana.tx->pushbackToBranch<int>("md_rawIdx", mdIdx);
+#endif
       ana.tx->pushbackToBranch<bool>("md_isPLS", isPLS);
       ana.tx->pushbackToBranch<float>("md_pt", pt);
       ana.tx->pushbackToBranch<float>("md_eta", eta);
@@ -1160,6 +1184,9 @@ std::map<unsigned int, unsigned int> setLineSegmentBranches(LSTEvent* event,
 #endif
 
       // Write out the ntuple
+#ifdef CUT_VALUE_DEBUG
+      ana.tx->pushbackToBranch<int>("ls_rawIdx", lsIdx);
+#endif
       ana.tx->pushbackToBranch<bool>("ls_isPLS", isPLS);
       ana.tx->pushbackToBranch<float>("ls_pt", pt);
       ana.tx->pushbackToBranch<float>("ls_eta", eta);
@@ -1290,6 +1317,9 @@ std::map<unsigned int, unsigned int> setTripletBranches(LSTEvent* event,
   for (unsigned int idx = 0; idx < nRanges; ++idx) {
     for (unsigned int iT3 = 0; iT3 < tripletOccupancies.nTriplets()[idx]; iT3++) {
       unsigned int t3Idx = ranges.tripletModuleIndices()[idx] + iT3;
+#ifdef CUT_VALUE_DEBUG
+      ana.tx->pushbackToBranch<int>("t3_rawIdx", t3Idx);
+#endif
       t3_idx_map[t3Idx] = t3_idx;
       auto [hit_idx, hit_type] = getHitIdxsAndHitTypesFromT3(event, t3Idx);
       auto [simidx, simidxfrac] =
@@ -1582,6 +1612,9 @@ std::map<unsigned int, unsigned int> setQuintupletBranches(LSTEvent* event,
   for (unsigned int idx = 0; idx < nRanges; ++idx) {
     for (unsigned int iT5 = 0; iT5 < quintupletOccupancies.nQuintuplets()[idx]; iT5++) {
       unsigned int t5Idx = ranges.quintupletModuleIndices()[idx] + iT5;
+#ifdef CUT_VALUE_DEBUG
+      ana.tx->pushbackToBranch<int>("t5_rawIdx", t5Idx);
+#endif
       t5_idx_map[t5Idx] = t5_idx;
       auto [hit_idx, hit_type] = getHitIdxsAndHitTypesFromT5(event, t5Idx);
       float percent_matched;
@@ -1744,6 +1777,9 @@ std::map<unsigned int, unsigned int> setPixelLineSegmentBranches(
   unsigned int n_pls = segmentsOccupancy.nSegments()[pixelModule];
   unsigned int pls_range_start = ranges.segmentModuleIndices()[pixelModule];
   for (unsigned int ipLS = 0; ipLS < n_pls; ipLS++) {
+#ifdef CUT_VALUE_DEBUG
+    ana.tx->pushbackToBranch<int>("pLS_rawIdx", ipLS);
+#endif
     unsigned int plsIdx = pls_range_start + ipLS;
     pls_idx_map[plsIdx] = pls_idx;
     auto [hit_idx, hit_type] = getHitIdxsAndHitTypesFrompLS(event, ipLS);
@@ -1881,6 +1917,9 @@ std::map<unsigned int, unsigned int> setPixelTripletBranches(LSTEvent* event,
   unsigned int nPixelTriplets = pixelTriplets.nPixelTriplets();
   for (unsigned int ipT3 = 0; ipT3 < nPixelTriplets; ipT3++) {
     unsigned int pt3Idx = ipT3;
+#ifdef CUT_VALUE_DEBUG
+    ana.tx->pushbackToBranch<int>("pT3_rawIdx", ipT3);
+#endif
     pt3_idx_map[pt3Idx] = pt3_idx;
     auto [hit_idx, hit_type] = getHitIdxsAndHitTypesFrompT3(event, ipT3);
     auto [simidx, simidxfrac] =
@@ -2087,6 +2126,9 @@ std::map<unsigned int, unsigned int> setPixelQuintupletBranches(LSTEvent* event,
   unsigned int nPixelQuintuplets = pixelQuintuplets.nPixelQuintuplets();
   for (unsigned int ipT5 = 0; ipT5 < nPixelQuintuplets; ipT5++) {
     unsigned int pt5Idx = ipT5;
+#ifdef CUT_VALUE_DEBUG
+    ana.tx->pushbackToBranch<int>("pT5_rawIdx", ipT5);
+#endif
     pt5_idx_map[pt5Idx] = pt5_idx;
     auto [hit_idx, hit_type] = getHitIdxsAndHitTypesFrompT5(event, ipT5);
     auto [simidx, simidxfrac] =
