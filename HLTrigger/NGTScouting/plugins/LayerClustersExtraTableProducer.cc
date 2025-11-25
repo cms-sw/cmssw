@@ -1,5 +1,5 @@
-#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
 
 class LayerClustersExtraTableProducer : public edm::stream::EDProducer<> {
 public:

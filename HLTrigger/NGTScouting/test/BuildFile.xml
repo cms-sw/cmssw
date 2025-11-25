@@ -1,0 +1,4 @@
+<environment>
+  <test name="testProduceNanoHLT" command="testNanohltDQM.sh unitTest"/>
+</environment>
+
