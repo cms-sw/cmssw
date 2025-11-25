@@ -37,6 +37,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/TOPOTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CICADATemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
@@ -62,6 +63,7 @@ public:
               const std::vector<std::vector<EnergySumTemplate> >&,
               const std::vector<std::vector<EnergySumZdcTemplate> >&,
               const std::vector<std::vector<AXOL1TLTemplate> >&,
+              const std::vector<std::vector<TOPOTemplate> >&,
               const std::vector<std::vector<CICADATemplate> >&,
               const std::vector<std::vector<ExternalTemplate> >&,
               const std::vector<std::vector<CorrelationTemplate> >&,
@@ -147,6 +149,11 @@ public:
   inline const std::vector<std::vector<AXOL1TLTemplate> >& vecAXOL1TLTemplate() const { return m_vecAXOL1TLTemplate; }
 
   void setVecAXOL1TLTemplate(const std::vector<std::vector<AXOL1TLTemplate> >&);
+
+  //
+  inline const std::vector<std::vector<TOPOTemplate> >& vecTOPOTemplate() const { return m_vecTOPOTemplate; }
+
+  void setVecTOPOTemplate(const std::vector<std::vector<TOPOTemplate> >&);
 
   //
   inline const std::vector<std::vector<CICADATemplate> >& vecCICADATemplate() const { return m_vecCICADATemplate; }
@@ -256,6 +263,7 @@ private:
   std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
   std::vector<std::vector<EnergySumZdcTemplate> > m_vecEnergySumZdcTemplate;
   std::vector<std::vector<AXOL1TLTemplate> > m_vecAXOL1TLTemplate;
+  std::vector<std::vector<TOPOTemplate> > m_vecTOPOTemplate;
   std::vector<std::vector<CICADATemplate> > m_vecCICADATemplate;
 
   std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;

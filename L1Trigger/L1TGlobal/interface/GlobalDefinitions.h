@@ -83,6 +83,7 @@ namespace l1t {
     TypeZDCP,
     TypeZDCM,
     TypeAXOL1TL,
+    TypeTOPO,
     TypeCICADA,
     GtConditionTypeInvalid = -1
   };
@@ -108,6 +109,7 @@ namespace l1t {
     CondMuonShower,
     CondEnergySumZdc,
     CondAXOL1TL,
+    CondTOPO,
     CondCICADA,
     GtConditionCategoryInvalid = -1
   };
