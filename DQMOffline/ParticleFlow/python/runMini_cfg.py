@@ -16,7 +16,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 # my analyzer
-process.load('DQMOffline.ParticleFlow.runBasic_cfi')
+process.load('DQMOffline.ParticleFlow.runMini_cfi')
 
 
 with open('fileList.log') as f:
