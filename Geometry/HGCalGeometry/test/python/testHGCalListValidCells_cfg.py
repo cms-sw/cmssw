@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalListValidCells_cfg.py geometry=D110
+#   cmsRun testHGCalListValidCells_cfg.py geometry=D120
 #
-#   Options for geometry D110, D120
+#   Options for geometry D110, D120, D121
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +13,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D110, D120")
+                  "geometry of operations: D110, D120, D121")
 
 ### get and parse the command line arguments
 options.parseArguments()

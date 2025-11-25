@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-geomName = "Run4D110"
+geomName = "Run4D121"
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
