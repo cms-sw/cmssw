@@ -878,23 +878,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float etaErr = pixelData.etaErr;
     ptSLo = alpaka::math::max(acc, ptCut, ptSLo - 10.0f * alpaka::math::max(acc, ptErr, 0.005f * ptSLo));
     ptSLo = alpaka::math::min(acc, 10.0f, ptSLo);
-
     float alpha1GeV_OutLo =
         alpaka::math::asin(acc, alpaka::math::min(acc, rt_OutLo * k2Rinv1GeVf / ptCut, kSinAlphaMax));
-    const float rtRatio_OutLoInOut =
-        rt_OutLo / rt_InOut;  // Outer segment beginning rt divided by inner segment beginning rt;
+    // Outer segment beginning rt divided by inner segment beginning rt;
+    const float rtRelDiff = rt_OutLo / rt_InOut - 1.f;
 
-    float dzDrtScale =
-        alpaka::math::tan(acc, alpha1GeV_OutLo) / alpha1GeV_OutLo;  // The track can bend in r-z plane slightly
+    // The track can bend in r-z plane slightly
+    float dzDrtScale = alpaka::math::tan(acc, alpha1GeV_OutLo) / alpha1GeV_OutLo;
     const float zpitch_InLo = 0.05f;
     const float zpitch_InOut = 0.05f;
     float zpitch_OutLo = (isPS_OutLo ? kPixelPSZpitch : kStrip2SZpitch);
     float zGeom = zpitch_InLo + zpitch_OutLo;
-    zHi = z_InUp + (z_InUp + kDeltaZLum) * (rtRatio_OutLoInOut - 1.f) * (z_InUp < 0.f ? 1.f : dzDrtScale) +
-          (zpitch_InOut + zpitch_OutLo);
-    zLo = z_InUp + (z_InUp - kDeltaZLum) * (rtRatio_OutLoInOut - 1.f) * (z_InUp > 0.f ? 1.f : dzDrtScale) -
-          (zpitch_InOut + zpitch_OutLo);  //slope-correction only on outer end
-
+    const float dLum = alpaka::math::copysign(acc, kDeltaZLum, rtRelDiff);
+    // dzDrtScale correction is only on outer end
+    zHi = z_InUp + (z_InUp + dLum) * rtRelDiff * (z_InUp < 0.f ? 1.f : dzDrtScale) + (zpitch_InOut + zpitch_OutLo);
+    zLo = z_InUp + (z_InUp - dLum) * rtRelDiff * (z_InUp > 0.f ? 1.f : dzDrtScale) - (zpitch_InOut + zpitch_OutLo);
     if ((z_OutLo < zLo) || (z_OutLo > zHi))
       return false;
 
