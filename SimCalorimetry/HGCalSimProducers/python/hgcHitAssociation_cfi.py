@@ -1,11 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HGCalAssociatorProducers.hgCalLCToCPAssociatorByEnergyScoreProducer_cfi import hgCalLCToCPAssociatorByEnergyScoreProducer as _lcAssocByEnergyScoreProducer
 from SimCalorimetry.HGCalAssociatorProducers.hgCalLCToSCAssociatorByEnergyScoreProducer_cfi import hgCalLCToSCAssociatorByEnergyScoreProducer as _scAssocByEnergyScoreProducer
+from SimCalorimetry.HGCalAssociatorProducers.barrelLCToCPAssociatorByEnergyScoreProducer_cfi import barrelLCToCPAssociatorByEnergyScoreProducer as _barrelLcAssocByEnergyScoreProducer
+from SimCalorimetry.HGCalAssociatorProducers.barrelLCToSCAssociatorByEnergyScoreProducer_cfi import barrelLCToSCAssociatorByEnergyScoreProducer as _barrelScAssocByEnergyScoreProducer
 
 lcAssocByEnergyScoreProducer = _lcAssocByEnergyScoreProducer.clone(hardScatterOnly = cms.bool(True))
 scAssocByEnergyScoreProducer = _scAssocByEnergyScoreProducer.clone(hardScatterOnly = cms.bool(True))
+barrelLcAssocByEnergyScoreProducer = _barrelLcAssocByEnergyScoreProducer.clone(hardScatterOnly = cms.bool(True))
+barrelScAssocByEnergyScoreProducer = _barrelScAssocByEnergyScoreProducer.clone(hardScatterOnly = cms.bool(True))
 
 from Configuration.ProcessModifiers.enableCPfromPU_cff import enableCPfromPU
 
 enableCPfromPU.toModify(lcAssocByEnergyScoreProducer, hardScatterOnly = cms.bool(False))
 enableCPfromPU.toModify(scAssocByEnergyScoreProducer, hardScatterOnly = cms.bool(False))
+enableCPfromPU.toModify(barrelLcAssocByEnergyScoreProducer, hardScatterOnly = cms.bool(False))
+enableCPfromPU.toModify(barrelScAssocByEnergyScoreProducer, hardScatterOnly = cms.bool(False))

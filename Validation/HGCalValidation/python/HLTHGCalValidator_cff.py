@@ -47,3 +47,70 @@ ticl_v5.toModify(hltHgcalValidator,
                  mergeRecoToSimAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs:hltTiclCandidateTohltTiclSimTrackstersfromCPs"),
                  )
 
+hltLayerClusterTesterECAL = cms.EDProducer("CaloClusterTester",
+    PFCand = cms.InputTag("hltParticleFlowTmp"),
+    Rechit = cms.InputTag("hltParticleFlowRecHitECALUnseeded"),
+    RecoCluster = cms.InputTag("hltBarrelLayerClustersEB"),
+    SimCluster = cms.InputTag("mix","MergedCaloTruth"),
+    CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
+    ClusterSimClusterAssociator = cms.InputTag("hltBarrelLayerClusterSimClusterAssociationProducer"),
+    ClusterCaloParticleAssociator = cms.InputTag("hltBarrelLayerClusterCaloParticleAssociationProducer"),
+    outFolder = cms.string('HLT/TiclBarrel'),
+    assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.5, 0.1),
+    doMatchByScore = cms.bool(True),
+    enFracCut = cms.double(0.),
+    ptCut = cms.double(0.)
+)
+
+hltLayerClusterTesterECALWithCut1 = hltLayerClusterTesterECAL.clone(
+    enFracCut =  cms.double(0.01),
+    ptCut = cms.double(0.)
+)
+
+hltLayerClusterTesterECALWithCut2 = hltLayerClusterTesterECAL.clone(
+    enFracCut = cms.double(0.),
+    ptCut = cms.double(0.1)
+)
+
+hltLayerClusterTesterECALWithCut3 = hltLayerClusterTesterECAL.clone(
+    enFracCut = cms.double(0.01),
+    ptCut = cms.double(0.1)
+)
+
+# SimToReco match based on shared energy fraction
+hltLayerClusterTesterECALShEnF = hltLayerClusterTesterECAL.clone(
+    doMatchByScore = cms.bool(False)
+)
+
+hltLayerClusterTesterECALShEnFWithCut1 = hltLayerClusterTesterECALShEnF.clone(
+    enFracCut =  cms.double(0.01),
+    ptCut = cms.double(0.)
+)
+
+hltLayerClusterTesterECALShEnFWithCut2 = hltLayerClusterTesterECALShEnF.clone(
+    enFracCut = cms.double(0.),
+    ptCut = cms.double(0.1)
+)
+
+hltLayerClusterTesterECALShEnFWithCut3 = hltLayerClusterTesterECALShEnF.clone(
+    enFracCut = cms.double(0.01),
+    ptCut = cms.double(0.1)
+)
+
+hltHgcalValSeq = cms.Sequence(
+    hltHgcalValidator)
+
+hltHgcalAndBarrelValSeq = cms.Sequence(
+    hltHgcalValidator
+    +hltLayerClusterTesterECAL
+    +hltLayerClusterTesterECALWithCut1
+    +hltLayerClusterTesterECALWithCut2
+    +hltLayerClusterTesterECALWithCut3
+    +hltLayerClusterTesterECALShEnF
+    +hltLayerClusterTesterECALShEnFWithCut1
+    +hltLayerClusterTesterECALShEnFWithCut2
+    +hltLayerClusterTesterECALShEnFWithCut3
+)
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(hltHgcalValSeq, hltHgcalAndBarrelValSeq)

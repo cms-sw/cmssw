@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Validation.Configuration.hltHGCalSimValid_cff import hltRecHitMapProducer
 
 hltPFScAssocByEnergyScoreProducer = cms.EDProducer("BarrelPCToSCAssociatorByEnergyScoreProducer",
     hardScatterOnly = cms.bool(True),
@@ -25,69 +24,70 @@ hltPFClusterCaloParticleAssociationProducerECAL = cms.EDProducer("PCToCPAssociat
     label_cp = cms.InputTag("mix","MergedCaloTruth")
 )
 
-hltPFTesterECAL = cms.EDProducer("PFTester",
+hltPFClusterTesterECAL = cms.EDProducer("PFClusterTester",
     PFCand = cms.InputTag("hltParticleFlow"),
-    PFRechit = cms.InputTag("hltParticleFlowRecHitECALUnseeded"),
-    PFCluster = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
-    CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
+    Rechit = cms.InputTag("hltParticleFlowRecHitECALUnseeded"),
+    RecoCluster = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
     SimCluster = cms.InputTag("mix","MergedCaloTruth"),
-    PFClusterSimClusterAssociator = cms.InputTag("hltPFClusterSimClusterAssociationProducerECAL"),
-    PFClusterCaloParticleAssociator = cms.InputTag("hltPFClusterCaloParticleAssociationProducerECAL"),
+    CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
+    ClusterSimClusterAssociator = cms.InputTag("hltPFClusterSimClusterAssociationProducerECAL"),
+    ClusterCaloParticleAssociator = cms.InputTag("hltPFClusterCaloParticleAssociationProducerECAL"),
+    outFolder = cms.string('HLT/ParticleFlow'),
     assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.5, 0.1),
     doMatchByScore = cms.bool(True),
     enFracCut = cms.double(0.),
     ptCut = cms.double(0.)
 )
 
-hltPFTesterECALWithCut1 = hltPFTesterECAL.clone(
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(hltPFClusterTesterECAL, PFCand = cms.InputTag("hltParticleFlowTmp"))
+
+hltPFClusterTesterECALWithCut1 = hltPFClusterTesterECAL.clone(
     enFracCut =  cms.double(0.01),
     ptCut = cms.double(0.)
 )
 
-hltPFTesterECALWithCut2 = hltPFTesterECAL.clone(
+hltPFClusterTesterECALWithCut2 = hltPFClusterTesterECAL.clone(
     enFracCut = cms.double(0.),
     ptCut = cms.double(0.1)
 )
 
-hltPFTesterECALWithCut3 = hltPFTesterECAL.clone(
+hltPFClusterTesterECALWithCut3 = hltPFClusterTesterECAL.clone(
     enFracCut = cms.double(0.01),
     ptCut = cms.double(0.1)
 )
 
 # SimToReco match based on shared energy fraction
-hltPFTesterECALShEnF = hltPFTesterECAL.clone(
+hltPFClusterTesterECALShEnF = hltPFClusterTesterECAL.clone(
     doMatchByScore = cms.bool(False)
 )
 
-hltPFTesterECALShEnFWithCut1 = hltPFTesterECALShEnF.clone(
+hltPFClusterTesterECALShEnFWithCut1 = hltPFClusterTesterECALShEnF.clone(
     enFracCut =  cms.double(0.01),
     ptCut = cms.double(0.)
 )
 
-hltPFTesterECALShEnFWithCut2 = hltPFTesterECALShEnF.clone(
+hltPFClusterTesterECALShEnFWithCut2 = hltPFClusterTesterECALShEnF.clone(
     enFracCut = cms.double(0.),
     ptCut = cms.double(0.1)
 )
 
-hltPFTesterECALShEnFWithCut3 = hltPFTesterECALShEnF.clone(
+hltPFClusterTesterECALShEnFWithCut3 = hltPFClusterTesterECALShEnF.clone(
     enFracCut = cms.double(0.01),
     ptCut = cms.double(0.1)
 )
-
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(hltPFTesterECAL, PFCand = cms.InputTag("hltParticleFlowTmp"))
 
 PFValSeq = cms.Sequence(
     hltPFScAssocByEnergyScoreProducer
     +hltPFClusterSimClusterAssociationProducerECAL
     +hltPFCpAssocByEnergyScoreProducer
     +hltPFClusterCaloParticleAssociationProducerECAL
-    +hltPFTesterECAL
-    +hltPFTesterECALWithCut1
-    +hltPFTesterECALWithCut2
-    +hltPFTesterECALWithCut3
-    +hltPFTesterECALShEnF
-    +hltPFTesterECALShEnFWithCut1
-    +hltPFTesterECALShEnFWithCut2
-    +hltPFTesterECALShEnFWithCut3
+    +hltPFClusterTesterECAL
+    +hltPFClusterTesterECALWithCut1
+    +hltPFClusterTesterECALWithCut2
+    +hltPFClusterTesterECALWithCut3
+    +hltPFClusterTesterECALShEnF
+    +hltPFClusterTesterECALShEnFWithCut1
+    +hltPFClusterTesterECALShEnFWithCut2
+    +hltPFClusterTesterECALShEnFWithCut3
 )
