@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-from Validation.RecoParticleFlow.hltPFValidation_cfi import hltPFTesterECAL
-_thresholds = [str(x).replace('.', 'p') for x in hltPFTesterECAL.assocScoreThresholds]
+from Validation.RecoParticleFlow.hltPFValidation_cfi import hltPFClusterTesterECAL
+_thresholds = [str(x).replace('.', 'p') for x in hltPFClusterTesterECAL.assocScoreThresholds]
 
 hltPFClusterPostProcessor = DQMEDHarvester(
     "DQMGenericClient",
-    subDirs=cms.untracked.vstring("HLT/ParticleFlow/PFClusterValidation*"),
+    subDirs=cms.untracked.vstring("HLT/*"),
     efficiency = cms.vstring(
         *[ item
             for thr in _thresholds
@@ -31,9 +31,9 @@ hltPFClusterPostProcessor = DQMEDHarvester(
         *[ item
             for thr in _thresholds
             for item in (    
-                    f"'Score{thr}/Fake_vs_EnEta' 'Fake Rate vs Energy-#eta' Score{thr}/RecoClustersMatchedSimClustersEn_Eta RecoClustersPt_Eta fake",    
-                    f"'Score{thr}/Fake_vs_EnPhi' 'Fake Rate vs Energy-#phi' Score{thr}/RecoClustersMatchedSimClustersEn_Phi RecoClustersPt_Phi fake",    
-                    f"'Score{thr}/Fake_vs_EnMult' 'Fake Rate vs Energy-Mult' Score{thr}/RecoClustersMatchedSimClustersEn_Mult RecoClustersPt_Mult fake", 
+                    f"'Score{thr}/Fake_vs_EnEta' 'Fake Rate vs Energy-#eta' Score{thr}/RecoClustersMatchedSimClustersEn_Eta RecoClustersEn_Eta fake",    
+                    f"'Score{thr}/Fake_vs_EnPhi' 'Fake Rate vs Energy-#phi' Score{thr}/RecoClustersMatchedSimClustersEn_Phi RecoClustersEn_Phi fake",    
+                    f"'Score{thr}/Fake_vs_EnMult' 'Fake Rate vs Energy-Mult' Score{thr}/RecoClustersMatchedSimClustersEn_Mult RecoClustersEn_Mult fake", 
                     f"'Score{thr}/Fake_vs_PtEta' 'Fake Rate vs p_{{T}}-#eta' Score{thr}/RecoClustersMatchedSimClustersPt_Eta RecoClustersPt_Eta fake",       
                     f"'Score{thr}/Fake_vs_PtPhi' 'Fake Rate vs p_{{T}}-#phi' Score{thr}/RecoClustersMatchedSimClustersPt_Phi RecoClustersPt_Phi fake",       
                     f"'Score{thr}/Fake_vs_PtMult' 'Fake Rate vs p_{{T}}-Mult' Score{thr}/RecoClustersMatchedSimClustersPt_Mult RecoClustersPt_Mult fake",    

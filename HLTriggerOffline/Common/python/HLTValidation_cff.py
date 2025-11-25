@@ -120,7 +120,7 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   hltHCALRecoAnalyzer,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
-_hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
+_hltvalidationWithMC_Phase2.insert(-1, hltHgcalValSeq)
 _hltvalidationWithMC_Phase2.insert(-1, hltGENValidation) # must go before HLTJetMETValSeq
 _hltvalidationWithMC_Phase2.insert(-1, HLTJetMETValSeq)
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
