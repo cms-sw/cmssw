@@ -9,7 +9,7 @@ process.load('CondCore.CondDB.CondDB_cfi')
 # 2) GEM, if Configuration.Geometry.GeometryExtendedRun4D77_cff is used (ScenarioRun4D77 has to be set in DD4hep_GeometrySimPhase2_cff)  
 # Please add the right Scenario (D110 or ..) also in geometryExtendedRun4_xmlwriter.py and in splitExtendedRun4Database.sh 
 #
-process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('Configuration.StandardSequences.DD4hep_GeometrySimPhase2_cff')
@@ -51,7 +51,7 @@ process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'), tag = cms.string('XMLFILE_Geometry_TagXX_ExtendedRun4D110_mc')),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'), tag = cms.string('XMLFILE_Geometry_TagXX_ExtendedRun4D121_mc')),
                                                             cms.PSet(record = cms.string('IdealGeometryRecord'), tag = cms.string('TKRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PTrackerParametersRcd'), tag = cms.string('TKParameters_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PTrackerAdditionalParametersPerDetRcd'), tag = cms.string('TKAdditionalParametersPerDet_Geometry_TagXX')),
