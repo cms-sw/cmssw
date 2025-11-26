@@ -230,7 +230,7 @@ ME0Chamber* ME0GeometryBuilder::buildChamber(DDFilteredView& fv, ME0DetId detId)
   LogTrace("ME0Geometry") << "buildChamber " << fv.logicalPart().name().name() << " " << detId << std::endl;
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
 
-  std::vector<double> dpar = solid.parameters();
+  const std::vector<double>& dpar = solid.parameters();
 
   double L = convertMmToCm(dpar[0]);  // length is along local Y
   double T = convertMmToCm(dpar[3]);  // thickness is long local Z
@@ -258,7 +258,7 @@ ME0Layer* ME0GeometryBuilder::buildLayer(DDFilteredView& fv, ME0DetId detId) con
 
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
 
-  std::vector<double> dpar = solid.parameters();
+  const std::vector<double>& dpar = solid.parameters();
   double L = convertMmToCm(dpar[0]);  // length is along local Y
   double t = convertMmToCm(dpar[3]);  // thickness is long local Z
   double b = convertMmToCm(dpar[4]);  // bottom width is along local X
