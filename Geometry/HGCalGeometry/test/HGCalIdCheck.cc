@@ -149,7 +149,7 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
     HGCSiliconDetId id(detIds_[k].first);
     GlobalPoint xy = geom->getPosition(id, true);
     bool valid = geom->topology().valid(id);
-    DetId idx = geom->getClosestCell(xy);
+    DetId idx = geom->getClosestCell(xy, true);
     GlobalPoint cell = geom->getPosition(idx, true);
     std::string ok = (id.rawId() == idx.rawId()) ? "OK" : "ERROR";
     st1 << "Old: " << id << " Valid " << valid << " New: " << HGCSiliconDetId(idx) << " === " << ok << " at " << xy;
