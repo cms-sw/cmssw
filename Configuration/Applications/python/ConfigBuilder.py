@@ -21,6 +21,7 @@ class Options:
 
 # the canonical defaults
 defaultOptions = Options()
+defaultOptions.rawSecond = False
 defaultOptions.datamix = 'DataOnSim'
 defaultOptions.isMC=False
 defaultOptions.isData=True
@@ -2489,7 +2490,10 @@ class ConfigBuilder(object):
             self.pythonCfgCode +="from Configuration.Applications.ConfigBuilder import MassReplaceInputTag\n"
             self.pythonCfgCode +="MassReplaceInputTag(process, new=\"rawDataMapperByLabel\", old=\"rawDataCollector\")\n"
             MassReplaceInputTag(self.process, new="rawDataMapperByLabel", old="rawDataCollector")
-
+            if self._options.rawSecond:
+                    self.pythonCfgCode +="\n"
+                    self.pythonCfgCode +="MassReplaceInputTag(process, new=\"hltSiStripClusters2ApproxClustersv1\", old=\"hltSiStripClusters2ApproxClusters\")\n"
+                    MassReplaceInputTag(self.process, new="hltSiStripClusters2ApproxClustersv1", old="hltSiStripClusters2ApproxClusters")
         # special treatment in case of production filter sequence 2/2
         if self.productionFilterSequence and not (self._options.pileup=='HiMixEmbGEN'):
             self.pythonCfgCode +='# filter all path with the production filter sequence\n'
@@ -2507,6 +2511,8 @@ class ConfigBuilder(object):
 
 
         # dump customise fragment
+        if self._options.rawSecond:
+                self._options.customisation_file.append("Configuration/DataProcessing/rawSecond.customise_rawSecond")
         self.pythonCfgCode += self.addCustomise()
 
         if self._options.runUnscheduled:
