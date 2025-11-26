@@ -51,7 +51,8 @@ void EventCapture::beginRun(edm::EventSetup const& eventSetup) {
 }
 
 void EventCapture::observeEventBegin(const edm::Event& event) {
-  edm::LogImportant("l1tOmtfEventPrint") << "EventCapture::observeEventBegin event " << event.id()
+  edm::LogImportant("l1tOmtfEventPrint") << "EventCapture::observeEventBegin event " << event.id() << " auxBx "
+                                         << event.eventAuxiliary().bunchCrossing() << " auxBx " << event.bunchCrossing()
                                          << "*************************" << std::endl;
   simMuons.clear();
 
@@ -214,8 +215,8 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMu
   ///printing
 
   edm::LogVerbatim("l1tOmtfEventPrint") << "##################### EventCapture::observeEventEnd - dump of event "
-                                        << iEvent.id() << " #####################################################"
-                                        << std::endl;
+                                        << iEvent.id() << " bx " << iEvent.bunchCrossing()
+                                        << " #####################################################" << std::endl;
 
   edm::LogVerbatim("l1tOmtfEventPrint") << ostr.str() << endl;  //printing sim muons
 

@@ -451,7 +451,7 @@ void NNRegression::run(AlgoMuons::value_type& algoMuon,
   double omtfPt = omtfConfig->hwPtToGev(algoMuon->getPtConstr());
   double nnPt = nnResult.at(0);
   double combinedPt = nnPt;
-  if (nnPt < 2.5 || (nnResult[0] - omtfPt) > 0.75 * omtfPt)
+  if (nnPt < 2.5 || (omtfPt < 0.75 * nnResult[0]))
     combinedPt = omtfPt;
 
   algoMuon->setPtNNConstr(combinedPt);
