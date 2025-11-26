@@ -23,9 +23,9 @@ options.parseArguments()
 print(options)
 
 if (options.geometry == "Phase2"):
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process("HcalSimNumberingTest",Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("HcalSimNumberingTest",Phase2C22I13M9)
+    process.load('Configuration.Geometry.GeometryExtendedRun4D121_cff')
 else:
     from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
     process = cms.Process("HcalSimNumberingTest",Run3_DDD)
