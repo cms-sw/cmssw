@@ -23,7 +23,7 @@ namespace pTFrom2Stubs {
     //loop over L1Track's stubs
     int rsize = vecStubRefs.size();
     for (int j = 0; j < rsize; ++j) {
-      edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > stubRef =
+      const edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> >& stubRef =
           vecStubRefs.at(j);
       const TTStub<Ref_Phase2TrackerDigi_>* stub = &(*stubRef);
       MeasurementPoint localPos = stub->clusterRef(0)->findAverageLocalCoordinates();

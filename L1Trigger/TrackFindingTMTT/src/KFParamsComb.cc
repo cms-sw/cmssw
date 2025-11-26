@@ -185,7 +185,7 @@ namespace tmtt {
   /* Get physical helix params */
 
   TVectorD KFParamsComb::trackParams(const KalmanState* state) const {
-    TVectorD vecX = state->vectorX();
+    const TVectorD& vecX = state->vectorX();
     TVectorD vecY(nHelixPar_);
     vecY[QOVERPT] = 2. * vecX[INV2R] / settings_->invPtToInvR();
     vecY[PHI0] = reco::deltaPhi(vecX[PHI0] + sectorPhi(), 0.);
