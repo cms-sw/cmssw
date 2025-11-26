@@ -1,0 +1,7 @@
+<test name="testPyTorchAlpakaTestSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/PyTorchAlpakaTest/test/runPyTorchAlpakaTest.py -b serial_sync -ne 8 -ns 2 -nt 2"/>
+<test name="testPyTorchAlpakaTestCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/PyTorchAlpakaTest/test/runPyTorchAlpakaTest.py -b cuda_async -ne 8 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testPyTorchAlpakaTestROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/PyTorchAlpakaTest/test/runPyTorchAlpakaTest.py -b rocm_async -ne 8 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
