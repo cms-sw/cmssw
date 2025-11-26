@@ -71,7 +71,8 @@ public:
                   CaloSubdetectorGeometry::IVec& dinsVector) const override;
 
   GlobalPoint getPosition(const DetId& id, bool cog, bool debug) const;
-  GlobalPoint getPosition(const DetId& id, bool debug = false) const;
+  GlobalPoint getPosition(const DetId& id, bool debug) const;
+  GlobalPoint getPosition(const DetId& id) const;
   GlobalPoint getWaferPosition(const DetId& id) const;
 
   /// Returns area of a cell
@@ -94,7 +95,8 @@ public:
 
   // Get closest cell, etc...
   DetId getClosestCell(const GlobalPoint& r) const override;
-  DetId getClosestCellHex(const GlobalPoint& r, bool extend) const;
+  DetId getClosestCell(const GlobalPoint& r, bool debug) const;
+  DetId getClosestCellHex(const GlobalPoint& r, bool extend, bool debug) const;
 
   /** \brief Get a list of all cells within a dR of the given cell
       
