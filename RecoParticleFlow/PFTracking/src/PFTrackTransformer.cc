@@ -95,7 +95,7 @@ bool PFTrackTransformer::addPoints(reco::PFRecTrack& pftrack,
 
   if (!onlyprop_) {
     bool direction = (traj.direction() == alongMomentum);
-    vector<TrajectoryMeasurement> measurements = traj.measurements();
+    const vector<TrajectoryMeasurement>& measurements = traj.measurements();
     int iTrajFirst = (direction) ? 0 : measurements.size() - 1;
     int increment = (direction) ? +1 : -1;
     int iTrajLast = (direction) ? int(measurements.size()) : -1;
@@ -239,7 +239,7 @@ bool PFTrackTransformer::addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
   // Trajectory for each trajectory point
 
   bool direction = (traj.direction() == alongMomentum);
-  vector<TrajectoryMeasurement> measurements = traj.measurements();
+  const vector<TrajectoryMeasurement>& measurements = traj.measurements();
   int iTrajFirst = (direction) ? 0 : measurements.size() - 1;
   int increment = (direction) ? +1 : -1;
   int iTrajLast = (direction) ? int(measurements.size()) : -1;

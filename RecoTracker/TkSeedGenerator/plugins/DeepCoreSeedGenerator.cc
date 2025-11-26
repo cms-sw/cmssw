@@ -250,7 +250,7 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
           }
         }  //end of TensorFlow tensors init
 
-        GlobalVector bigClustDir = splitClustDirSet[cc];
+        const GlobalVector& bigClustDir = splitClustDirSet[cc];
 
         jetEta_ = jet.eta();
         jetPt_ = jet.pt();

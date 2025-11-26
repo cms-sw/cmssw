@@ -141,6 +141,7 @@ MagBLayer* bLayer::buildMagBLayer() const {
 
     // If we have several sectors, create the MagBSector
     std::vector<MagBSector*> mSectors;
+    mSectors.reserve(sectors.size());
     for (unsigned int i = 0; i < sectors.size(); ++i) {
       mSectors.push_back(sectors[i].buildMagBSector());
     }
