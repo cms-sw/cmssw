@@ -176,7 +176,7 @@ bool HLTGenericFilter<T1>::hltFilter(edm::Event& iEvent,
   int n = 0;
   for (unsigned int i = 0; i < recoCands.size(); i++) {
     // Ref to Candidate object to be recorded in filter object
-    T1Ref ref = recoCands[i];
+    const T1Ref& ref = recoCands[i];
     typename T1IsolationMap::const_iterator mapi = (*depMap).find(ref);
 
     //should we do the abs before or after the rho corr?

@@ -69,8 +69,8 @@ bool HLTEgammaEtFilterPairs::hltFilter(edm::Event& iEvent,
   int n(0);
 
   for (unsigned int i = 0; i < recoecalcands.size(); i = i + 2) {
-    edm::Ref<reco::RecoEcalCandidateCollection> r1 = recoecalcands[i];
-    edm::Ref<reco::RecoEcalCandidateCollection> r2 = recoecalcands[i + 1];
+    const edm::Ref<reco::RecoEcalCandidateCollection>& r1 = recoecalcands[i];
+    const edm::Ref<reco::RecoEcalCandidateCollection>& r2 = recoecalcands[i + 1];
     //  std::cout<<"EtFilter: 1) Et Eta phi: "<<r1->et()<<" "<<r1->eta()<<" "<<r1->phi()<<" 2) Et eta phi: "<<r2->et()<<" "<<r2->eta()<<" "<<r2->phi()<<std::endl;
     bool first =
         (fabs(r1->eta()) < 1.479 && r1->et() >= etcutEB1_) || (fabs(r1->eta()) >= 1.479 && r1->et() >= etcutEE1_);
