@@ -231,7 +231,7 @@ bool HLTMuonL1TRegionalFilter::hltFilter(edm::Event& iEvent,
     vector<MuonRef> firedMuons;
     filterproduct.getObjects(TriggerL1Mu, firedMuons);
     for (size_t i = 0; i < firedMuons.size(); i++) {
-      l1t::MuonRef mu = firedMuons[i];
+      const l1t::MuonRef& mu = firedMuons[i];
       bool isPrev = find(prevMuons.begin(), prevMuons.end(), mu) != prevMuons.end();
       LogTrace("HLTMuonL1TRegionalFilter")
           << i << '\t' << setprecision(2) << scientific << mu->charge() * mu->pt() << '\t' << fixed << mu->eta() << '\t'

@@ -101,8 +101,8 @@ bool HLTEgammaCaloIsolFilterPairs::hltFilter(edm::Event& iEvent,
 
   // Should I check that the size of recoecalcands is even ?
   for (unsigned int i = 0; i < recoecalcands.size(); i = i + 2) {
-    edm::Ref<reco::RecoEcalCandidateCollection> r1 = recoecalcands[i];
-    edm::Ref<reco::RecoEcalCandidateCollection> r2 = recoecalcands[i + 1];
+    const edm::Ref<reco::RecoEcalCandidateCollection>& r1 = recoecalcands[i];
+    const edm::Ref<reco::RecoEcalCandidateCollection>& r2 = recoecalcands[i + 1];
     // std::cout<<"CaloIsol 1) Et Eta phi: "<<r1->et()<<" "<<r1->eta()<<" "<<r1->phi()<<" 2) Et eta phi: "<<r2->et()<<" "<<r2->eta()<<" "<<r2->phi()<<std::endl;
 
     if (PassCaloIsolation(r1, *depMap, *depNonIsoMap, 1, AlsoNonIso_1) &&
