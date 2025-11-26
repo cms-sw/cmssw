@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalValidityCheck_cfg.py geometry=D110
+#   cmsRun testHGCalValidityCheck_cfg.py geometry=D121
 #
 #   Options for geometry D88, D92
 #
@@ -13,10 +13,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D110")
+                  "geometry of operations: D88, D92, D110, D121")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -24,10 +24,12 @@ print(options)
 
 ####################################################################
 # Use the options
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('GeomCheck',Phase2C17I13M9)
+geomName = "Run4" + options.geometry
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+process = cms.Process('HGCalValidity',ERA)
 
-geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 inFile = "miss" + options.geometry + ".txt"
 
 print("Geometry file: ", geomFile)

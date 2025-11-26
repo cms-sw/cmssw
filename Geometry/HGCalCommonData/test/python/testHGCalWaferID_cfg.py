@@ -43,7 +43,7 @@ elif (options.type == "V16"):
 elif (options.type == "V19"):
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D120_cff"
 else:
-    geomFile = "Configuration.Geometry.GeometryExtendedRun4D110_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D121_cff"
 
 print("Geometry file: ", geomFile)
 
