@@ -996,7 +996,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int SLBch = (towerInTCC - 1) % 8 + 1;
     int cmsswId = id.rawId();
     int ixtal = (id.ism() - 1) * 1700 + (id.ic() - 1);
-    EcalLogicID logicId = my_EcalLogicId[ixtal];
+    const EcalLogicID& logicId = my_EcalLogicId[ixtal];
     int dbId = logicId.getLogicID();
     int val[] = {dccNb + 600,
                  tccNb,
@@ -1272,7 +1272,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     if (writeToDB_) {
       // 1700 crystals/SM in the ECAL barrel
       int ixtal = (id.ism() - 1) * 1700 + (id.ic() - 1);
-      EcalLogicID logicId = my_EcalLogicId[ixtal];
+      const EcalLogicID& logicId = my_EcalLogicId[ixtal];
       pedset[logicId] = pedDB;
       linset[logicId] = linDB;
     }
@@ -2141,7 +2141,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (int ich = 0; ich < (int)my_StripEcalLogicId.size(); ich++) {
       // EB
       FEConfigFgrEEStripDat zut;
-      EcalLogicID thestrip = my_StripEcalLogicId[ich];
+      const EcalLogicID& thestrip = my_StripEcalLogicId[ich];
       uint32_t elStripId = stripMapEB[ich];
       map<uint32_t, uint32_t>::const_iterator it = stripMapEBsintheta.find(elStripId);
       if (it != stripMapEBsintheta.end())
@@ -2191,7 +2191,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (int ich = 0; ich < (int)my_TTEcalLogicId_EB_by_TCC.size(); ich++) {
       FEConfigTimingDat delay;
 
-      EcalLogicID logiciddelay = my_TTEcalLogicId_EB_by_TCC[ich];
+      const EcalLogicID& logiciddelay = my_TTEcalLogicId_EB_by_TCC[ich];
       int id1_tcc = logiciddelay.getID1();  // the TCC
       int id2_tt = logiciddelay.getID2();   // the tower
       std::map<int, vector<int>>::const_iterator ittEB = delays_EB_.find(id1_tcc);
@@ -2244,7 +2244,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (int ich = 0; ich < (int)my_StripEcalLogicId_EE_strips_by_TCC.size(); ich++) {
       FEConfigTimingDat delay;
 
-      EcalLogicID logiciddelay = my_StripEcalLogicId_EE_strips_by_TCC[ich];
+      const EcalLogicID& logiciddelay = my_StripEcalLogicId_EE_strips_by_TCC[ich];
       int id1_tcc = logiciddelay.getID1();  // the TCC
       int id2_tt = logiciddelay.getID2();   // the tower
       int id3_st = logiciddelay.getID3();   // the strip
@@ -2882,6 +2882,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase& sha
   edm::LogInfo("TopInfo") << ss.str();
 
   std::vector<unsigned int> theWeights;
+  theWeights.reserve(nSample_);
   for (unsigned int sample = 0; sample < nSample_; sample++)
     theWeights.push_back(iweight[sample]);
 
