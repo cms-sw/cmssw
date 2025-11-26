@@ -196,7 +196,6 @@ void Phase1PixelSummaryMap::addNamedBins(
 
       auto detInfo = Ph1PMapSummaryHelper::tokenize(tokens[0], ' ');
       unsigned int detId = stoi(detInfo[0]);
-      std::string detIdName = detInfo[1];
       auto xy = Ph1PMapSummaryHelper::tokenize(tokens[1], ' ');
       unsigned int verNum = 1;
       std::vector<float> xP, yP;
