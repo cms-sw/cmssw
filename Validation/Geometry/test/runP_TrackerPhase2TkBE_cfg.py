@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2_cff import Phase2
+from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
 
-process = cms.Process("PROD",Phase2)
+process = cms.Process("PROD",Phase2C22I13M9)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
-process.load("Configuration.Geometry.GeometryExtendedRun4D110Reco_cff")
+process.load("Configuration.Geometry.GeometryExtendedRun4D121Reco_cff")
 
 #Magnetic Field
 #
