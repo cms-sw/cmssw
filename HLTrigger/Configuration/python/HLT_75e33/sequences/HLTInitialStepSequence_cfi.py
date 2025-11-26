@@ -132,6 +132,8 @@ _HLTInitialStepSequenceSingleIterPatatrackLSTSeedingMkFitFitTracking = cms.Seque
     +hltInitialStepTrackCandidatesMkFit
     +hltInitialStepTrackCandidatesMkFitFit
     +hltInitialStepTracks
+    +hltInitialStepTrackCutClassifier
+    +hltInitialStepTrackSelectionHighPurity
 )
 
 from Configuration.ProcessModifiers.trackingMkFitFit_cff import trackingMkFitFit
