@@ -16,6 +16,7 @@
 void DtPhase2DigiToStubsConverter::loadDigis(const edm::Event& event) {
   event.getByToken(inputTokenDtPh, dtPhDigis);
   event.getByToken(inputTokenDtTh, dtThDigis);
+  bunchCrossing = event.bunchCrossing();
 }
 
 void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
@@ -31,12 +32,19 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
   for (const auto& digiIt : *dtPhDigis->getContainer()) {
     DTChamberId detid(digiIt.whNum(), digiIt.stNum(), digiIt.scNum() + 1);
 
+    LogTrace("l1tOmtfEventPrint") << " L1Phase2MuDTPhDigi:35: detid " << detid << " digi "
+                                  << " whNum " << digiIt.whNum() << " scNum " << digiIt.scNum() << " stNum "
+                                  << digiIt.stNum() << " slNum " << digiIt.slNum() << " quality " << digiIt.quality()
+                                  << " rpcFlag " << digiIt.rpcFlag() << " phi " << digiIt.phi() << " phiBend "
+                                  << digiIt.phiBend() << " digBx " << digiIt.bxNum() << " correctedBx "
+                                  << digiIt.bxNum() - bunchCrossing << std::endl;
+
     ///Check it the data fits into given processor input range
     if (!acceptDigi(detid, iProcessor, procTyp))
       continue;
 
-    // HACK for Phase-2  (DT TPs are centered in bX=20)
-    if (digiIt.bxNum() - 20 >= bxFrom && digiIt.bxNum() - 20 <= bxTo) {
+    // HACK for Phase-2  (DT TPs are centered in bX=20 in MC, and 13(?) in data)
+    if (digiIt.bxNum() - config->dtBxShift() >= bxFrom && digiIt.bxNum() - config->dtBxShift() <= bxTo) {
       addDTphiDigi(muonStubsInLayers, digiIt, dtThDigis.product(), iProcessor, procTyp);
 
       std::ostringstream chamberName;
@@ -56,7 +64,7 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
   }
 
   for (auto& thetaDigi : (*(dtThDigis->getContainer()))) {
-    if (thetaDigi.bxNum() - 20 >= bxFrom && thetaDigi.bxNum() - 20 <= bxTo) {
+    if (thetaDigi.bxNum() - config->dtBxShift() >= bxFrom && thetaDigi.bxNum() - config->dtBxShift() <= bxTo) {
       if (!mergePhiAndTheta) {
         addDTetaStubs(muonStubsInLayers, thetaDigi, iProcessor, procTyp);
       }
@@ -110,24 +118,25 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
       stub.qualityHw = 0;
   }
 
-  if (stub.qualityHw < config.getMinDtPhiQuality())
+  if (stub.qualityHw < config->getMinDtPhiQuality())
     return;
 
-  unsigned int hwNumber = config.getLayerNumber(detid.rawId());
-  if (config.getHwToLogicLayer().find(hwNumber) == config.getHwToLogicLayer().end())
+  unsigned int hwNumber = config->getLayerNumber(detid.rawId());
+  if (config->getHwToLogicLayer().find(hwNumber) == config->getHwToLogicLayer().end())
     return;
 
-  auto iter = config.getHwToLogicLayer().find(hwNumber);
+  auto iter = config->getHwToLogicLayer().find(hwNumber);
   unsigned int iLayer = iter->second;
-  unsigned int iInput = OMTFinputMaker::getInputNumber(&config, detid.rawId(), iProcessor, procTyp);
+  unsigned int iInput = OMTFinputMaker::getInputNumber(config, detid.rawId(), iProcessor, procTyp);
   //MuonStub& stub = muonStubsInLayers[iLayer][iInput];
 
   stub.type = MuonStub::DT_PHI_ETA;
 
   stub.phiHw = angleConverter.getProcessorPhi(
-      OMTFinputMaker::getProcessorPhiZero(&config, iProcessor), procTyp, digi.scNum(), digi.phi());
+      OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, digi.scNum(), digi.phi());
 
-  stub.etaHw = angleConverter.getGlobalEtaPhase2(detid, dtThDigis, digi.bxNum() - 20);
+  //no config->dtBxShift() here, and also no shift inside getGlobalEtaPhase2
+  stub.etaHw = angleConverter.getGlobalEtaPhase2(detid, dtThDigis, digi.bxNum());
 
   if (iLayer == 0)
     stub.r = 431.175;  //MB1
@@ -140,27 +149,27 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
 
   //in phase2, the phiB is 13 bits, and range is [-2, 2 rad] so 4 rad, 2^13 units/(4 rad) =  1^11/rad.
   //need to convert them to 512units==1rad (to use OLD PATTERNS...)
-  stub.phiBHw = digi.phiBend() * config.dtPhiBUnitsRad() / 2048;
+  stub.phiBHw = digi.phiBend() * config->dtPhiBUnitsRad() / 2048;
   //the cut if (stub.qualityHw >= config.getMinDtPhiBQuality()) is done in the ProcessorBase<GoldenPatternType>::restrictInput
   //as is is done like that in the firmware
 
   // need to shift 20-BX to roll-back the shift introduced by the DT TPs
-  stub.bx = digi.bxNum() - 20;
+  stub.bx = digi.bxNum() - config->dtBxShift();
   //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
 
   stub.logicLayer = iLayer;
   stub.detId = detid;
 
-  OmtfName board(iProcessor, &config);
+  OmtfName board(iProcessor, config);
   LogTrace("l1tOmtfEventPrint") << board.name() << " L1Phase2MuDTPhDigi: detid " << detid << " digi "
                                 << " whNum " << digi.whNum() << " scNum " << digi.scNum() << " stNum " << digi.stNum()
                                 << " slNum " << digi.slNum() << " quality " << digi.quality() << " rpcFlag "
-                                << digi.rpcFlag() << " phi " << digi.phi() << " phiBend " << digi.phiBend()
-                                << std::endl;
+                                << digi.rpcFlag() << " phi " << digi.phi() << " phiBend " << digi.phiBend() << " bx "
+                                << digi.bxNum() << std::endl;
   LogTrace("l1tOmtfEventPrint") << board.name() << " stub: detid " << detid << " phi " << stub.phiHw << " eta "
                                 << stub.etaHw << " phiB " << stub.phiBHw << " bx " << stub.bx << " quality "
                                 << stub.qualityHw << " logicLayer " << stub.logicLayer << std::endl;
-  OMTFinputMaker::addStub(&config, muonStubsInLayers, iLayer, iInput, stub);
+  OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
 }
 
 void DtPhase2DigiToStubsConverterOmtf::addDTetaStubs(MuonStubPtrs2D& muonStubsInLayers,
@@ -174,7 +183,7 @@ void DtPhase2DigiToStubsConverterOmtf::addDTetaStubs(MuonStubPtrs2D& muonStubsIn
 bool DtPhase2DigiToStubsConverterOmtf::acceptDigi(const DTChamberId& dTChamberId,
                                                   unsigned int iProcessor,
                                                   l1t::tftype procType) {
-  return OMTFinputMaker::acceptDtDigi(&config, dTChamberId, iProcessor, procType);
+  return OMTFinputMaker::acceptDtDigi(config, dTChamberId, iProcessor, procType);
 }
 
 InputMakerPhase2::InputMakerPhase2(const edm::ParameterSet& edmParameterSet,

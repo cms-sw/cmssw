@@ -32,7 +32,7 @@ int OmtfPhase2AngleConverter::getGlobalEtaPhase2(DTChamberId dTChamberId,
   int thetaDigiCnt = 0;
   for (const auto& thetaDigi : (*(dtThDigis->getContainer()))) {
     if (thetaDigi.whNum() == dTChamberId.wheel() && thetaDigi.stNum() == dTChamberId.station() &&
-        thetaDigi.scNum() == (dTChamberId.sector() - 1) && (thetaDigi.bxNum() - 20) == bxNum) {
+        thetaDigi.scNum() == (dTChamberId.sector() - 1) && (thetaDigi.bxNum()) == bxNum) {
       // get the theta digi
       float k = thetaDigi.k() * kconv;  //-pow(-1.,z<0)*log(tan(atan(1/k)/2.));
       eta = -1. * std::copysign(log(fabs(tan(atan(1 / k) / 2.))), thetaDigi.z());
