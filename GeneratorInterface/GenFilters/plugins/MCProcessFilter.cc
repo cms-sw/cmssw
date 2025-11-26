@@ -66,6 +66,7 @@ MCProcessFilter::MCProcessFilter(const edm::ParameterSet& iConfig)
   // if pthatMin size smaller than processID , fill up further with defaults
   if (processID.size() > pthatMin.size()) {
     vector<double> defpthatmin2;
+    defpthatmin2.reserve(processID.size());
     for (unsigned int i = 0; i < processID.size(); i++) {
       defpthatmin2.push_back(0.);
     }
@@ -74,6 +75,7 @@ MCProcessFilter::MCProcessFilter(const edm::ParameterSet& iConfig)
   // if pthatMax size smaller than processID , fill up further with defaults
   if (processID.size() > pthatMax.size()) {
     vector<double> defpthatmax2;
+    defpthatmax2.reserve(processID.size());
     for (unsigned int i = 0; i < processID.size(); i++) {
       defpthatmax2.push_back(10000.);
     }
