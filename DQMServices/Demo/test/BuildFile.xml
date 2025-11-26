@@ -9,3 +9,6 @@
 <test name="TestDQMGUIUpload" command="test_dqmgui_upload.sh">
   <flags PRE_TEST="TestDQMServicesDemo"/>  
 </test>
+<test name="TestDQMCompareHistogram" command="test_dqm_compare_histogram.sh">
+  <flags PRE_TEST="TestDQMServicesDemo"/>
+</test>
