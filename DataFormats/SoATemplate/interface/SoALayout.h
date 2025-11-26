@@ -1451,6 +1451,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       */                                                                                                               \
       struct Metarecords {                                                                                             \
         friend ConstViewTemplateFreeParams;                                                                            \
+		SOA_HOST_DEVICE SOA_INLINE\
         Metarecords(const ConstViewTemplateFreeParams& _soa_impl_parent) :                                             \
                     parent_(_soa_impl_parent), _ITERATE_ON_ALL_COMMA(_STRUCT_ELEMENT_INITIALIZERS, ~, __VA_ARGS__) {}  \
         _ITERATE_ON_ALL(_CONST_ACCESSORS_STRUCT_MEMBERS, ~, __VA_ARGS__)                                               \
@@ -1618,6 +1619,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
        */                                                                                                              \
       struct Metarecords {                                                                                             \
         friend ViewTemplateFreeParams;                                                                                 \
+		SOA_HOST_DEVICE SOA_INLINE\
         Metarecords(const ViewTemplateFreeParams& _soa_impl_parent) :                                                  \
                     parent_(_soa_impl_parent), _ITERATE_ON_ALL_COMMA(_STRUCT_ELEMENT_INITIALIZERS, ~, __VA_ARGS__) {}  \
         _ITERATE_ON_ALL(_ACCESSORS_STRUCT_MEMBERS, ~, __VA_ARGS__)                                                     \
