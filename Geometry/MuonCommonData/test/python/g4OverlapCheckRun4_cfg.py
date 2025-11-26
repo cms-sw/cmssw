@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheck2021_cfg.py type=D110 tol=0.1
+#   cmsRun g4OverlapCheck2021_cfg.py type=D121 tol=0.1
 #
-#   Options for type     D110, D116
+#   Options for type     D116, D120, D121
 #           for tol      0.0,0.01, 0.1, 1.0
 #
 ###############################################################################
@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('type',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D110, D116")
+                  "geometry of operations: D116, D120, D121")
 options.register('tol',
                  0.0,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -32,25 +32,18 @@ print(options)
 
 ####################################################################
 # Use the options
-geomName = "Geometry.MuonCommonData.testExtendedGeometryRun4" + options.type + "XML_cfi"
+geomName = "Run4" + options.type
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 baseName = "GeometryExtendedRun4" + options.type + str(options.tol)
 
-print("Geometry file: ", geomName)
+print("Geometry file: ", geomFile)
 print("Base name:     ", baseName)
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('OverlapCheck',Phase2C17I13M9)
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+process = cms.Process('OverlapCheck',ERA)
 
-process.load(geomName)
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
-process.load("SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
-process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
-process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
+process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *

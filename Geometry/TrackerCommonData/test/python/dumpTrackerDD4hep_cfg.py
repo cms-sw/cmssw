@@ -19,13 +19,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometryRun4D110.xml'),
-                                            appendToDataLabel = cms.string('DDCMSRun4D110')
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometryRun4D121.xml'),
+                                            appendToDataLabel = cms.string('DDCMSRun4D121')
                                             )
 
 process.dump = cms.EDAnalyzer("DDTestDumpFile",
-                              outputFileName = cms.untracked.string('cmsRun4D110.root'),
-                              DDDetector = cms.ESInputTag('','DDCMSRun4D110')
+                              outputFileName = cms.untracked.string('cmsRun4D121.root'),
+                              DDDetector = cms.ESInputTag('','DDCMSRun4D121')
                               )
 
 process.p = cms.Path(process.dump)
