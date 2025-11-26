@@ -899,7 +899,7 @@ int GenHFHadronMatcher::findInMothers(int idx,
   if (std::abs(hadMothers.at(idx).pdgId()) > 10 && std::abs(hadMothers.at(idx).pdgId()) < 19)
     printf("Lepton: %d\n", hadMothers.at(idx).pdgId());
 
-  std::vector<int> mothers = hadMothersIndices.at(idx);
+  const std::vector<int> &mothers = hadMothersIndices.at(idx);
   unsigned int nMothers = mothers.size();
   bool isCorrect = false;  // Whether current particle is what is being searched
   if (verbose) {
