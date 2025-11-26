@@ -27,9 +27,10 @@ struct MuStubsPhase2InputTokens {
 
 class DtPhase2DigiToStubsConverter : public DigiToStubsConverterBase {
 public:
-  DtPhase2DigiToStubsConverter(edm::EDGetTokenT<L1Phase2MuDTPhContainer> inputTokenDtPh,
+  DtPhase2DigiToStubsConverter(const OMTFConfiguration* config,
+                               edm::EDGetTokenT<L1Phase2MuDTPhContainer> inputTokenDtPh,
                                edm::EDGetTokenT<L1Phase2MuDTThContainer> inputTokenDtTh)
-      : inputTokenDtPh(inputTokenDtPh), inputTokenDtTh(inputTokenDtTh) {}
+      : config(config), inputTokenDtPh(inputTokenDtPh), inputTokenDtTh(inputTokenDtTh) {}
 
   ~DtPhase2DigiToStubsConverter() override {}
 
@@ -59,6 +60,7 @@ public:
   }
 
 protected:
+  const OMTFConfiguration* config = nullptr;
   bool mergePhiAndTheta = true;
 
   edm::EDGetTokenT<L1Phase2MuDTPhContainer> inputTokenDtPh;
@@ -66,6 +68,8 @@ protected:
 
   edm::Handle<L1Phase2MuDTPhContainer> dtPhDigis;
   edm::Handle<L1Phase2MuDTThContainer> dtThDigis;
+
+  int bunchCrossing = 0;
 };
 
 class DtPhase2DigiToStubsConverterOmtf : public DtPhase2DigiToStubsConverter {
@@ -74,9 +78,7 @@ public:
                                    const OmtfPhase2AngleConverter* angleConverter,
                                    edm::EDGetTokenT<L1Phase2MuDTPhContainer> inputTokenDtPh,
                                    edm::EDGetTokenT<L1Phase2MuDTThContainer> inputTokenDtTh)
-      : DtPhase2DigiToStubsConverter(inputTokenDtPh, inputTokenDtTh),
-        config(*config),
-        angleConverter(*angleConverter) {}
+      : DtPhase2DigiToStubsConverter(config, inputTokenDtPh, inputTokenDtTh), angleConverter(*angleConverter) {}
 
   ~DtPhase2DigiToStubsConverterOmtf() override = default;
 
@@ -95,7 +97,6 @@ public:
   bool acceptDigi(const DTChamberId& dTChamberId, unsigned int iProcessor, l1t::tftype procType) override;
 
 private:
-  const OMTFConfiguration& config;
   const OmtfPhase2AngleConverter& angleConverter;
 };
 

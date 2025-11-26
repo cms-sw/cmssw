@@ -67,6 +67,10 @@ public:
 
   virtual void setCscLctCentralBx(int lctCentralBx) { this->cscLctCentralBx_ = lctCentralBx; }
 
+  virtual int dtBxShift() const { return dtBxShift_; }
+
+  virtual void setDtBxShift(int dtBxShift) { this->dtBxShift_ = dtBxShift; }
+
   virtual bool getRpcDropAllClustersIfMoreThanMax() const { return rpcDropAllClustersIfMoreThanMax; }
 
   virtual void setRpcDropAllClustersIfMoreThanMax(bool rpcDropAllClustersIfMoreThanMax = true) {
@@ -120,6 +124,8 @@ protected:
 
 private:
   int cscLctCentralBx_ = 8;  //CSCConstants::LCT_CENTRAL_BX;
+
+  int dtBxShift_ = 20;  //phase-2 DT segment BX shift, different for MC and data
 
   //parameters of the RpcClusterization
   unsigned int rpcMaxClusterSize = 3;
