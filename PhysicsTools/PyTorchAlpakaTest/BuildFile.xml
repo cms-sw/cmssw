@@ -1,0 +1,12 @@
+<use name="eigen"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="DataFormats/PortableTestObjects"/>
+<use name="FWCore/Framework"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="PhysicsTools/PyTorchAlpaka"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>

@@ -42,4 +42,41 @@
 
   <class name="portabletest::TestProductWithPtr<alpaka_common::DevHost>"/>
   <class name="edm::Wrapper<portabletest::TestProductWithPtr<alpaka_common::DevHost>>" persistent="false"/>
+
+  <!-- Torch SoAs and Collections -->
+  <class name="portabletest::ParticleSoA"/>
+  <class name="portabletest::ParticleSoA::View"/>
+  <class name="portabletest::ParticleSoA::ConstView"/>
+  <class name="portabletest::ParticleHostCollection"/>
+  <class name="edm::Wrapper<portabletest::ParticleHostCollection>" splitLevel="0"/>
+
+  <class name="portabletest::SimpleNetSoA"/>
+  <class name="portabletest::SimpleNetSoA::View"/>
+  <class name="portabletest::SimpleNetSoA::ConstView"/>
+  <class name="portabletest::SimpleNetHostCollection"/>
+  <class name="edm::Wrapper<portabletest::SimpleNetHostCollection>" splitLevel="0"/>
+
+  <class name="portabletest::MultiHeadNetSoA"/>
+  <class name="portabletest::MultiHeadNetSoA::View"/>
+  <class name="portabletest::MultiHeadNetSoA::ConstView"/>
+  <class name="portabletest::MultiHeadNetHostCollection"/>
+  <class name="edm::Wrapper<portabletest::MultiHeadNetHostCollection>" splitLevel="0"/>
+
+  <class name="portabletest::ImageSoA"/>
+  <class name="portabletest::ImageSoA::View"/>
+  <class name="portabletest::ImageSoA::ConstView"/>
+  <class name="portabletest::ImageHostCollection"/>
+  <class name="edm::Wrapper<portabletest::ImageHostCollection>" splitLevel="0"/>
+
+  <class name="portabletest::LogitsSoA"/>
+  <class name="portabletest::LogitsSoA::View"/>
+  <class name="portabletest::LogitsSoA::ConstView"/>
+  <class name="portabletest::LogitsHostCollection"/>
+  <class name="edm::Wrapper<portabletest::LogitsHostCollection>" splitLevel="0"/>
+
+  <class name="portabletest::MaskSoA"/>
+  <class name="portabletest::MaskSoA::View"/>
+  <class name="portabletest::MaskSoA::ConstView"/>
+  <class name="portabletest::MaskHostCollection"/>
+  <class name="edm::Wrapper<portabletest::MaskHostCollection>" splitLevel="0"/>
 </lcgdict>
