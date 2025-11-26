@@ -139,6 +139,7 @@ std::vector<std::pair<int, int> > HGCalTriggerDetId::cellUV() const {
   std::vector<int> uc = cellU();
   std::vector<int> vc = cellV();
   std::vector<std::pair<int, int> > uv;
+  uv.reserve(uc.size());
   for (unsigned int k = 0; k < uc.size(); ++k) {
     uv.emplace_back(std::pair<int, int>(uc[k], vc[k]));
   }
