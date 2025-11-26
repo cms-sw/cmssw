@@ -97,6 +97,10 @@ def customisePostEra_Run3_2024(process):
 def customisePostEra_Run3_2025(process):
     #start with a repeat of 2024
     customisePostEra_Run3_2024(process)
+    process.source.cacheSize = cms.untracked.uint32(0)
+    process.add_(cms.Service("SiteLocalConfigService",
+                             overrideSourceCacheHintDir = cms.untracked.string("lazy-download")
+                             ))
     return process
 
 def customisePostEra_Run3_express_trackingOnly(process):
@@ -143,18 +147,10 @@ def customisePostEra_Run3_2024_ppRef(process):
 
 def customisePostEra_Run3_pp_on_PbPb_2025(process):
     customisePostEra_Run3_2025(process)
-    process.source.cacheSize = cms.untracked.uint32(0)
-    process.add_(cms.Service("SiteLocalConfigService",
-                             overrideSourceCacheHintDir = cms.untracked.string("lazy-download")
-                             ))
     return process
 
 def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2025(process):
     customisePostEra_Run3_pp_on_PbPb_2025(process)
-    process.source.cacheSize = cms.untracked.uint32(0)
-    process.add_(cms.Service("SiteLocalConfigService",
-                             overrideSourceCacheHintDir = cms.untracked.string("lazy-download")
-                             ))
     return process
 
 def customisePostEra_Run3_2025_UPC(process):
