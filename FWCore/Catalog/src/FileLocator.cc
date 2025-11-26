@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <filesystem>
 #include <sstream>
 #include <utility>
 
@@ -8,7 +7,6 @@
 
 #include "FWCore/Catalog/interface/FileLocator.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace {
@@ -36,43 +34,7 @@ namespace pt = boost::property_tree;
 
 namespace edm {
 
-  FileLocator::FileLocator(CatalogAttributes const& catalogAttributes,
-                           unsigned iCatalog,
-                           std::string const& storageDescriptionPath) {
-    init(catalogAttributes, iCatalog, storageDescriptionPath);
-  }
-
-  std::string FileLocator::pfn(std::string const& ilfn) const {
-    //check if ilfn is an authentic LFN
-    if (ilfn.compare(0, 7, kLFNPrefix) != 0) {
-      return "";
-    }
-    return applyRules(m_directRules, m_protocol, ilfn);
-  }
-
-  void FileLocator::init(CatalogAttributes const& catalogAttributes,
-                         unsigned iCatalog,
-                         std::string const& storageDescriptionPath) {
-    Service<SiteLocalConfig> localconfservice;
-
-    CatalogAttributes aCatalog = catalogAttributes;
-    if (catalogAttributes.empty()) {
-      if (iCatalog >= localconfservice->dataCatalogs().size()) {
-        cms::Exception ex("FileCatalog");
-        ex << "Request nonexistent data catalog";
-        ex.addContext("Calling edm::FileLocator::init()");
-        throw ex;
-      }
-      aCatalog = localconfservice->dataCatalogs()[iCatalog];
-    }
-
-    std::filesystem::path filename_storage;
-    if (!storageDescriptionPath.empty()) {
-      filename_storage = storageDescriptionPath;
-    } else {
-      filename_storage = localconfservice->storageDescriptionPath(aCatalog);
-    }
-
+  FileLocator::FileLocator(CatalogAttributes const& catalogAttributes, std::filesystem::path const& filename_storage) {
     //now read json
     pt::ptree json;
     try {
@@ -89,13 +51,14 @@ namespace edm {
       std::string siteName = site.second.get("site", kEmptyString);
       //get volume name
       std::string volName = site.second.get("volume", kEmptyString);
-      return aCatalog.storageSite == siteName && aCatalog.volume == volName;
+      return catalogAttributes.storageSite == siteName && catalogAttributes.volume == volName;
     });
 
     //let enforce that site-local-config.xml and storage.json contains valid catalogs in <data-access>, in which site defined in site-local-config.xml <data-access> should be found in storage.json
     if (found_site == json.end()) {
       cms::Exception ex("FileCatalog");
-      ex << "Can not find storage site \"" << aCatalog.storageSite << "\" and volume \"" << aCatalog.volume
+      ex << "Can not find storage site \"" << catalogAttributes.storageSite << "\" and volume \""
+         << catalogAttributes.volume
          << "\" in storage.json. Check site-local-config.xml <data-access> and storage.json";
       ex.addContext("edm::FileLocator:init()");
       throw ex;
@@ -104,14 +67,14 @@ namespace edm {
     const pt::ptree& protocols = found_site->second.find("protocols")->second;
     auto found_protocol = std::find_if(protocols.begin(), protocols.end(), [&](pt::ptree::value_type const& protocol) {
       std::string protName = protocol.second.get("protocol", kEmptyString);
-      return aCatalog.protocol == protName;
+      return catalogAttributes.protocol == protName;
     });
 
     //let enforce that site-local-config.xml and storage.json contains valid catalogs, in which protocol defined in site-local-config.xml <data-access> should be found in storage.json
     if (found_protocol == protocols.end()) {
       cms::Exception ex("FileCatalog");
-      ex << "Can not find protocol \"" << aCatalog.protocol << "\" for the storage site \"" << aCatalog.storageSite
-         << "\" and volume \"" << aCatalog.volume
+      ex << "Can not find protocol \"" << catalogAttributes.protocol << "\" for the storage site \""
+         << catalogAttributes.storageSite << "\" and volume \"" << catalogAttributes.volume
          << "\" in storage.json. Check site-local-config.xml <data-access> and storage.json";
       ex.addContext("edm::FileLocator:init()");
       throw ex;
@@ -140,6 +103,14 @@ namespace edm {
         m_directRules[protName].emplace_back(std::move(rule));
       }
     }
+  }
+
+  std::string FileLocator::pfn(std::string const& ilfn) const {
+    //check if ilfn is an authentic LFN
+    if (ilfn.compare(0, 7, kLFNPrefix) != 0) {
+      return "";
+    }
+    return applyRules(m_directRules, m_protocol, ilfn);
   }
 
   void FileLocator::parseRule(pt::ptree::value_type const& storageRule,
