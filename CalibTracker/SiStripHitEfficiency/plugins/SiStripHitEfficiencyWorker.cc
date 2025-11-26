@@ -791,7 +791,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             }
           }
           if (!tmpTmeas.empty() && !foundConsMissingHits) {
-            TrajectoryMeasurement TM_tmp(tmpTmeas.back());
+            const TrajectoryMeasurement& TM_tmp(tmpTmeas.back());
             unsigned int iidd_tmp = TM_tmp.recHit()->geographicalId().rawId();
             if (iidd_tmp != 0) {
               LogDebug("SiStripHitEfficiency:HitEff") << " hit actually being added to TM vector";

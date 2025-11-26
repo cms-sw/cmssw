@@ -40,7 +40,7 @@ namespace {
       if (payload.get()) {
         NbRows = 1;
         align = new TH2F("ADC To GeV [GeV/ADC count]", "EB          EE", 2, 0, 2, NbRows, 0, NbRows);
-        EcalADCToGeVConstant it = (*payload);
+        const EcalADCToGeVConstant& it = (*payload);
 
         double row = NbRows - 0.5;
 

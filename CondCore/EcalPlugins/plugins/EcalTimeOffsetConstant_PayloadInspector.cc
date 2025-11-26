@@ -40,7 +40,7 @@ namespace {
       if (payload.get()) {
         NbRows = 1;
         align = new TH2F("Time Offset Constant [ns]", "EB          EE", 2, 0, 2, NbRows, 0, NbRows);
-        EcalTimeOffsetConstant it = (*payload);
+        const EcalTimeOffsetConstant& it = (*payload);
 
         double row = NbRows - 0.5;
 
@@ -121,7 +121,7 @@ namespace {
           if (irun == 1)
             align = new TH2F("Ecal Time Offset Constant [ns]", "EB          EE", 2, 0, 2, NbRows, 0, NbRows);
 
-          EcalTimeOffsetConstant it = (*payload);
+          const EcalTimeOffsetConstant& it = (*payload);
 
           if (irun == 0) {
             val[0] = it.getEBValue();

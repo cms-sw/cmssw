@@ -124,6 +124,7 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
         vector<float> runs = geom.Run();
         size_t n = runs.size();
         vector<float> emptyvec;
+        emptyvec.reserve(runs.size());
         for (size_t i = 0; i < runs.size(); i++)
           emptyvec.push_back(0.);
         for (size_t iVar = 0; iVar < variables.size(); iVar++) {
