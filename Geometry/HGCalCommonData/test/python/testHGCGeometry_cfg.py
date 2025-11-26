@@ -1,10 +1,10 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCGeometry_cfg.py geometry=D110
+#   cmsRun testHGCGeometry_cfg.py geometry=D121
 #
 #   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
 #                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
-#                        D114, D115, D116, D120
+#                        D114, D115, D116, D120, D121, D122, D123, D124, D125
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -15,10 +15,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D120")
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D120, D121, D122, D123, D124, D125")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -27,21 +27,21 @@ print(options)
 
 ####################################################################
 # Use the options
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('TestHGCalGeometry',Phase2C17I13M9)
+geomName = "Run4" + options.geometry
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 
-geomFile = "Geometry.CMSCommonData.cmsExtendedGeometryRun4" + options.geometry + "XML_cfi"
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 
-print("Geometry file: ", geomFile)
+print("Geometry Name:   ", geomName)
+print("Geometry file:   ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+
+process = cms.Process('TestHGCalGeometry',ERA)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load(geomFile)
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("Geometry.HGCalCommonData.hgcGeometryTester_cfi")
 
