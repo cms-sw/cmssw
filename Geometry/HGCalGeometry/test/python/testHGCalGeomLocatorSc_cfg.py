@@ -1,7 +1,7 @@
 
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalGeomLocatorSc_cfg.py geometry=D110
+#   cmsRun testHGCalGeomLocatorSc_cfg.py geometry=D120
 #
 #   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
 #                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
@@ -17,7 +17,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120, D121, D122, D123, D124, D125")
@@ -77,7 +77,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Geometry.HGCalGeometry.hgcalGeomLocatorTesterEE_cfi")
 process.hgcalGeomLocatorTesterEE.stepScintillator = 2
 
-process.hgcalGeomLocatorTesterHEB = process.hgcalGeomLocatorTesterEE.clone(
+process.prodHEB = process.hgcalGeomLocatorTesterEE.clone(
     detector   = cms.string("HGCalHEScintillatorSensitive")
 )
 
