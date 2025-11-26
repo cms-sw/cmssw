@@ -50,6 +50,12 @@ void ProcConfigurationBase::configureFromEdmParameterSet(const edm::ParameterSet
         << "lctCentralBx: " << edmParameterSet.getParameter<int>("lctCentralBx") << std::endl;
   }
 
+  if (edmParameterSet.exists("dtBxShift")) {
+    dtBxShift_ = edmParameterSet.getParameter<int>("dtBxShift");
+    edm::LogVerbatim("OMTFReconstruction")
+        << "dtBxShift: " << edmParameterSet.getParameter<int>("dtBxShift") << std::endl;
+  }
+
   if (edmParameterSet.exists("minDtPhiQuality")) {
     minDtPhiQuality = edmParameterSet.getParameter<int>("minDtPhiQuality");
     edm::LogVerbatim("OMTFReconstruction")
