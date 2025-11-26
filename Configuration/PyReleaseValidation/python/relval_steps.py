@@ -4485,7 +4485,7 @@ steps['REMININANO_data2022'] = merge([{'-s' : 'PAT,NANO,DQM:@nanoAODDQM',
                                        '--datatier' : 'MINIAOD,NANOAOD,DQMIO'
                                        }])
 # reMINI 2024
-steps['REMINIAOD_data2024'] = merge([{'--era' : 'Run3_2024', '--conditions' : 'auto:run3_data'}, steps['REMINIAOD_data2018UL']])
+steps['REMINIAOD_data2024'] = merge([{'--era' : 'Run3_2024', '--conditions' : 'auto:run3_data'}, remove(steps['REMINIAOD_data2018UL'], '--procModifiers')])
 
 
 # Not sure whether the customisations are in the dict as "--customise" or "--era" so try to
@@ -4518,7 +4518,7 @@ steps['REMINIAOD_mc2016UL_postVFP']=merge([{'--conditions':'auto:run2_mc','--era
 steps['REMINIAOD_mc2017UL']=merge([{'--era':'Run2_2017','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_mc2017']])
 steps['REMINIAOD_mc2018UL']=merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_mc2017']])
 # reMINI 2024
-steps['REMINIAOD_mc2024'] = merge([{'--conditions': 'auto:phase1_2024_realistic', '--era': 'Run3'}, steps['REMINIAOD_mc2018UL']])
+steps['REMINIAOD_mc2024'] = merge([{'--conditions': 'auto:phase1_2024_realistic', '--era': 'Run3'}, remove(steps['REMINIAOD_mc2018UL'], '--procModifiers')])
 
 #steps['MINIAODDATA']       =merge([stepMiniAODData])
 #steps['MINIAODDreHLT']     =merge([{'--conditions':'auto:run1_data_%s'%menu},stepMiniAODData])
