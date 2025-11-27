@@ -15,8 +15,8 @@ applyExtraConditions = True
 theRefitter = RefitType.COMMON
 _theTrackCollection = "generalTracks" #"ALCARECOTkAlMinBias" unfortunately not yet
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process("Demo",Phase2C17I13M9) 
+from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+process = cms.Process("Demo",Phase2C22I13M9) 
 
 ###################################################################
 # Set the process to run multi-threaded
@@ -81,7 +81,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 # Standard loads
 ###################################################################
 #process.load("Configuration.Geometry.GeometryRecoDB_cff")
-process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
 
 ####################################################################
 # Get the BeamSpot
