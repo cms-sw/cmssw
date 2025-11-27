@@ -1468,5 +1468,11 @@ def PrepJMECustomNanoAOD(process):
   if runOnMC:
     process.genWeightsTable.keepAllPSWeights = True
 
-  return process
+  ###########################################################################
+  # Make sure that the Puppi weights are recomputed with the latest version
+  ###########################################################################
+  (run2_nanoAOD_106Xv2 | run3_nanoAOD_pre142X | nanoAOD_rePuppi).toModify(
+    process, lambda p: RecomputePuppiWeights(p)
+  )
 
+  return process
