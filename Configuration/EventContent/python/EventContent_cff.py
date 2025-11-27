@@ -95,6 +95,15 @@ from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 #
 #
 from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
+from Configuration.ProcessModifiers.rawSecond_cff import rawSecond
+rawSecond.toModify(HLTDebugFEVT,
+                              outputCommands = [x for x in HLTDebugFEVT.outputCommands if '_hltSiStripClusters2ApproxClusters_' not in x]+[
+                                  'keep *_hltSiStripClusters2ApproxClustersv1_*_*'
+                              ])
+rawSecond.toModify(HLTDebugRAW,
+                outputCommands = [x for x in HLTDebugRAW.outputCommands if '_hltSiStripClusters2ApproxClusters_' not in x]+[
+                                  'keep *_hltSiStripClusters2ApproxClustersv1_*_*'
+                              ])
 from HLTrigger.Configuration.HLTScouting_EventContent_cff import HLTScoutingExtra
 # Extend HLT dataformats to the previous scouting objects, to keep them when running on old data/MC
 HLTriggerMINIAODSIM.outputCommands.extend(HLTScoutingExtra.outputCommands)
@@ -189,7 +198,10 @@ approxSiStripClusters.toModify(RAWEventContent,
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',
                                   'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
-
+rawSecond.toModify(RAWEventContent,
+                              outputCommands = [x for x in RAWEventContent.outputCommands if '_hltSiStripClusters2ApproxClusters_' not in x]+[
+                                  'keep *_hltSiStripClusters2ApproxClustersv1_*_*'
+                              ])
 #
 # HLTSCOUT Data Tier definition
 #
@@ -659,7 +671,10 @@ approxSiStripClusters.toModify(FEVTDEBUGEventContent,
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',
                                   'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
-
+rawSecond.toModify(FEVTDEBUGEventContent,
+                              outputCommands = [x for x in FEVTDEBUGEventContent.outputCommands if '_hltSiStripClusters2ApproxClusters_' not in x] + [
+                                  'keep *_hltSiStripClusters2ApproxClustersv1_*_*'
+                              ])
 ticl_v5.toModify(FEVTDEBUGEventContent, outputCommands=FEVTDEBUGEventContent.outputCommands+TICLv5_FEVT.outputCommands)
 #
 #
@@ -686,6 +701,10 @@ approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',
                                   'keep DetIds_hltSiStripRawToDigi_*_*'
+                              ])
+rawSecond.toModify(FEVTDEBUGHLTEventContent,
+                              outputCommands = [x for x in FEVTDEBUGHLTEventContent.outputCommands if '_hltSiStripClusters2ApproxClusters_' not in x] + [
+                                  'keep *_hltSiStripClusters2ApproxClustersv1_*_*'
                               ])
 phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
                         outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
@@ -874,7 +893,10 @@ approxSiStripClusters.toModify(REPACKRAWEventContent,
                                    'drop FEDRawDataCollection_rawDataRepacker_*_*',
                                    'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*'
                                ])
-
+rawSecond.toModify(REPACKRAWEventContent,
+                               outputCommands = [x for x in REPACKRAWEventContent.outputCommands if '_hltSiStripClusters2ApproxClusters_' not in x] + [
+                                   'keep *_hltSiStripClusters2ApproxClustersv1_*_*'
+                               ])
 REPACKRAWSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(),
     splitLevel = cms.untracked.int32(0),
