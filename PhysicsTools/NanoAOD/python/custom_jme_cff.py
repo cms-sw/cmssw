@@ -1179,6 +1179,7 @@ def ConfigureAK4GenJets(proc, genJA):
       filter = cms.bool(False)
     )
     proc.jetMCTask.add(proc.AK4GenJetsNoNu)
+    proc.genJetTable.src = "AK4GenJetsNoNu"
     proc.genJetTable.cut = ""
     proc.genJetTable.doc = "AK4 Gen jets (made with visible genparticles) with pt > 5 GeV. Sourced from slimmedGenJets"
     proc.genJetFlavourTable.cut = proc.genJetTable.cut
