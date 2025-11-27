@@ -303,6 +303,7 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
 
       ibooker.setCurrentFolder(monitorDir_ + "/L1TEGamma/timing/Isolated_bunch/ptmin_" + egammaPtCutStrAlpha + "_gev");
       std::vector<MonitorElement*> vHelper;
+      vHelper.reserve(bxrange_);
       for (unsigned int i = 0; i < bxrange_; ++i) {
         vHelper.push_back(ibooker.book2D("egamma_eta_phi_bx_isolated_" + bx_obj[i],
                                          "L1T EGamma p_{T}#geq" + egammaPtCutStr +
@@ -482,6 +483,7 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
 
       ibooker.setCurrentFolder(monitorDir_ + "/L1TEGamma/timing/First_bunch/ptmin_" + egammaPtCutStrAlpha + "_gev");
       std::vector<MonitorElement*> vHelper;
+      vHelper.reserve(bxrange_ - 2);
       for (unsigned int i = 0; i < bxrange_ - 2; ++i) {
         vHelper.push_back(ibooker.book2D("egamma_eta_phi_bx_firstbunch_" + bx_obj[i],
                                          "L1T EGamma p_{T}#geq" + egammaPtCutStr +
@@ -661,6 +663,7 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
 
       ibooker.setCurrentFolder(monitorDir_ + "/L1TEGamma/timing/Last_bunch/ptmin_" + egammaPtCutStrAlpha + "_gev");
       std::vector<MonitorElement*> vHelper;
+      vHelper.reserve(bxrange_ - 2);
       for (unsigned int i = 0; i < bxrange_ - 2; ++i) {
         vHelper.push_back(ibooker.book2D("egamma_eta_phi_bx_lastbunch_" + bx_obj[i + 2],
                                          "L1T EGamma p_{T}#geq" + egammaPtCutStr +

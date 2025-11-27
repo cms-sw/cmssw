@@ -921,7 +921,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                   if (optionalPlots_ && isTPmtdDirectBTL) {
                     // simCluster matched to TP
                     // NB we are taking the position and id of the first hit in the cluster.
-                    auto directSimClus = *directSimClusIt;
+                    const auto& directSimClus = *directSimClusIt;
                     MTDDetId mtddetid = directSimClus->detIds_and_rows().front().first;
                     BTLDetId detid(mtddetid.rawId());
                     LocalPoint simClusLocalPos = directSimClus->hits_and_positions().front().second;
