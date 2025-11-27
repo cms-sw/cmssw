@@ -40,6 +40,7 @@ bool TriggerFilter::setStatus(int status) {
 // Get all trigger object type identifiers
 std::vector<int> TriggerFilter::triggerObjectTypes() const {
   std::vector<int> triggerObjectTypes;
+  triggerObjectTypes.reserve(triggerObjectTypes_.size());
   for (size_t iTo = 0; iTo < triggerObjectTypes_.size(); ++iTo) {
     triggerObjectTypes.push_back(triggerObjectTypes_.at(iTo));
   }
