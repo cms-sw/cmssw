@@ -25,6 +25,12 @@ public:
                             const L1Phase2MuDTExtThDigi& theta,
                             int quality);
 
+    // Explicitly allow copy/move
+    L1Phase2MuDTExtPhiThetaPair(const L1Phase2MuDTExtPhiThetaPair&) = default;
+    L1Phase2MuDTExtPhiThetaPair& operator=(const L1Phase2MuDTExtPhiThetaPair&) = default;
+    L1Phase2MuDTExtPhiThetaPair(L1Phase2MuDTExtPhiThetaPair&&) = default;
+    L1Phase2MuDTExtPhiThetaPair& operator=(L1Phase2MuDTExtPhiThetaPair&&) = default;
+
   /// Accessors
   const L1Phase2MuDTExtPhDigi& phiDigi() const { return phi_; }
   const L1Phase2MuDTExtThDigi& thetaDigi() const { return theta_; }

@@ -247,7 +247,7 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
      std::sort(phiDigis.begin(), phiDigis.end(), comparePhiDigis);
      std::sort(thetaDigis.begin(), thetaDigis.end(), compareThetaDigis);
      auto [wheel, sector, station] = key; // unpack tuple
-     chamberPairs = bestPairsPerChamber(phiDigis,thetaDigis,max_index_,wheel,sector,station);
+     chamberPairs = std::move(bestPairsPerChamber(phiDigis,thetaDigis,max_index_,wheel,sector,station));
 
     for (const auto& pair : chamberPairs) 
           allPairs.emplace_back(pair);
