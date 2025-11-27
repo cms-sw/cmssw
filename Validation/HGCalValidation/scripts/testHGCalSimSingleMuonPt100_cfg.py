@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalSingleMuonPt100_cfg.py geometry=D110 type=DDD
 #
-#   Options for geometry: D105, D110, D114, V17Shift, D104
+#   Options for geometry: D105, D121, D114, V17Shift, D104
 #               type: DDD, DD4hep
 #
 ###############################################################################
@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D105, D110, D114, V17Shift, D104")
+                  "geometry of operations: D105, D121, D114, V17Shift, D104")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,

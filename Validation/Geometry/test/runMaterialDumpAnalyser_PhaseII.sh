@@ -8,7 +8,7 @@ set -x
 # DEFAULTS
 
 events=5000
-geometry=ExtendedRun4D110
+geometry=ExtendedRun4D121
 
 # ARGUMENT PARSING
 
