@@ -60,7 +60,7 @@ TrackerGeometry::TrackerGeometry(GeometricDet const* gd) : theTrackerDet(gd) {
     theSubDetTypeMap[i] = GeomDetEnumerators::invalidDet;
     theNumberOfLayers[i] = 0;
   }
-  GeometricDet::ConstGeometricDetContainer subdetgd = gd->components();
+  const GeometricDet::ConstGeometricDetContainer& subdetgd = gd->components();
 
   LogDebug("BuildingSubDetTypeMap") << "GeometriDet and GeomDetEnumerators enumerator values of the subdetectors";
   for (unsigned int i = 0; i < subdetgd.size(); ++i) {

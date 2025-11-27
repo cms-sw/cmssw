@@ -45,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //
       std::optional<HGCalMappingModuleParamHost> produce(const HGCalElectronicsMappingRcd& iRecord) {
         //get cell and module indexer
-        auto modIndexer = iRecord.get(moduleIndexTkn_);
+        const auto& modIndexer = iRecord.get(moduleIndexTkn_);
 
         // load dense indexing
         const uint32_t size = modIndexer.maxModulesCount();
