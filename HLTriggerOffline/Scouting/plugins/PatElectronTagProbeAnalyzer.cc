@@ -306,6 +306,7 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   // Pt ordered pat electron and sct electron collection
 
   std::vector<std::pair<size_t, pat::Electron>> indexed_patElectrons;
+  indexed_patElectrons.reserve(patEls->size());
   for (size_t i = 0; i < patEls->size(); i++) {
     indexed_patElectrons.emplace_back(i, (*patEls)[i]);
   }
@@ -315,6 +316,7 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   });
 
   std::vector<std::pair<size_t, Run3ScoutingElectron>> indexed_sctElectrons;
+  indexed_sctElectrons.reserve(sctEls->size());
   for (size_t i = 0; i < sctEls->size(); i++) {
     indexed_sctElectrons.emplace_back(i, (*sctEls)[i]);
   }

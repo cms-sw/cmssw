@@ -2108,7 +2108,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
       unsigned int iv = NOT_MATCHED;  // select a rec vertex index
       for (unsigned int k = 0; k < simpv.at(iev).wos_dominated_recv.size(); k++) {
         unsigned int rec = simpv.at(iev).wos_dominated_recv.at(k);  //candidate rec vertex index
-        auto vrec = recopv.at(rec);
+        const auto& vrec = recopv.at(rec);
         if (vrec.sim != NOT_MATCHED) {
           continue;  // already matched
         }
