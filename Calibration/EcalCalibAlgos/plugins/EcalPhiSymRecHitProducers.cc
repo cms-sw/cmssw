@@ -35,10 +35,7 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/RunInfo/interface/LHCInfoPerFill.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
-#include "CondFormats/DataRecord/interface/LHCInfoPerFillRcd.h"
+#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
 
 #include "Calibration/EcalCalibAlgos/interface/EcalPhiSymRecHit.h"
 #include "Calibration/EcalCalibAlgos/interface/EcalPhiSymInfo.h"
@@ -408,8 +405,9 @@ private:
   void accumulate(edm::StreamID stream, edm::Event const& event, edm::EventSetup const& setup) const override;
 
   // data members
-  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoTokenLumi_;
-  edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillTokenLumi_;
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
   edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> chStatusTokenLumi_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoTokenLumi_;
 };
@@ -417,11 +415,14 @@ private:
 //----------IMPLEMENTATION----------------------------------------------------------------
 EcalPhiSymRecHitProducerLumi::EcalPhiSymRecHitProducerLumi(const edm::ParameterSet& pSet)
     : EcalPhiSymRecHitProducerBase(pSet, consumesCollector()),
-      lhcInfoTokenLumi_(!useNewLHCInfo_ ? esConsumes<LHCInfo, LHCInfoRcd, edm::Transition::BeginLuminosityBlock>()
-                                        : edm::ESGetToken<LHCInfo, LHCInfoRcd>()),
-      lhcInfoPerFillTokenLumi_(
-          useNewLHCInfo_ ? esConsumes<LHCInfoPerFill, LHCInfoPerFillRcd, edm::Transition::BeginLuminosityBlock>()
-                         : edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd>()),
+      lhcInfoToken_(!useNewLHCInfo_ ? esConsumes<LHCInfo, LHCInfoRcd, edm::Transition::BeginLuminosityBlock>()
+                                    : edm::ESGetToken<LHCInfo, LHCInfoRcd>()),
+      lhcInfoPerLSToken_(useNewLHCInfo_
+                             ? esConsumes<LHCInfoPerLS, LHCInfoPerLSRcd, edm::Transition::BeginLuminosityBlock>()
+                             : edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd>()),
+      lhcInfoPerFillToken_(useNewLHCInfo_
+                               ? esConsumes<LHCInfoPerFill, LHCInfoPerFillRcd, edm::Transition::BeginLuminosityBlock>()
+                               : edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd>()),
       chStatusTokenLumi_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       geoTokenLumi_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
   produces<EcalPhiSymInfo, edm::Transition::EndLuminosityBlock>();
@@ -444,13 +445,8 @@ std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerLumi::globalBeginLuminosity
   auto cache = std::make_shared<PhiSymCache>();
 
   //---Get LHC info
-  const auto fillNumber = useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).fillNumber()
-                                         : setup.getData(lhcInfoTokenLumi_).fillNumber();
-  const auto delivLumi = useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).delivLumi()
-                                        : setup.getData(lhcInfoTokenLumi_).delivLumi();
-  const auto recLumi =
-      useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).recLumi() : setup.getData(lhcInfoTokenLumi_).recLumi();
-  EcalPhiSymInfo thisLumi(0, 0, 0, 1, fillNumber, delivLumi, recLumi);
+  const LHCInfoCombined lhcInfoCombined(setup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
+  EcalPhiSymInfo thisLumi(0, 0, 0, 1, lhcInfoCombined.fillNumber, lhcInfoCombined.delivLumi, lhcInfoCombined.recLumi);
 
   //---Reset global cache
   initializePhiSymCache(setup, chStatusTokenLumi_, luminosityBlockCache(lumi.index()), cache);
@@ -544,8 +540,9 @@ private:
   void accumulate(edm::StreamID stream, edm::Event const& event, edm::EventSetup const& setup) const override;
 
   // data members
-  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoTokenLumi_;
-  edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillTokenLumi_;
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
   edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> chStatusTokenRun_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoTokenRun_;
 };
@@ -553,11 +550,14 @@ private:
 //----------IMPLEMENTATION----------------------------------------------------------------
 EcalPhiSymRecHitProducerRun::EcalPhiSymRecHitProducerRun(const edm::ParameterSet& pSet)
     : EcalPhiSymRecHitProducerBase(pSet, consumesCollector()),
-      lhcInfoTokenLumi_(!useNewLHCInfo_ ? esConsumes<LHCInfo, LHCInfoRcd, edm::Transition::BeginLuminosityBlock>()
-                                        : edm::ESGetToken<LHCInfo, LHCInfoRcd>()),
-      lhcInfoPerFillTokenLumi_(
-          useNewLHCInfo_ ? esConsumes<LHCInfoPerFill, LHCInfoPerFillRcd, edm::Transition::BeginLuminosityBlock>()
-                         : edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd>()),
+      lhcInfoToken_(!useNewLHCInfo_ ? esConsumes<LHCInfo, LHCInfoRcd, edm::Transition::BeginLuminosityBlock>()
+                                    : edm::ESGetToken<LHCInfo, LHCInfoRcd>()),
+      lhcInfoPerLSToken_(useNewLHCInfo_
+                             ? esConsumes<LHCInfoPerLS, LHCInfoPerLSRcd, edm::Transition::BeginLuminosityBlock>()
+                             : edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd>()),
+      lhcInfoPerFillToken_(useNewLHCInfo_
+                               ? esConsumes<LHCInfoPerFill, LHCInfoPerFillRcd, edm::Transition::BeginLuminosityBlock>()
+                               : edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd>()),
       chStatusTokenRun_(esConsumes<edm::Transition::BeginRun>()),
       geoTokenRun_(esConsumes<edm::Transition::BeginRun>()) {
   produces<EcalPhiSymInfo, edm::Transition::EndRun>();
@@ -622,15 +622,13 @@ void EcalPhiSymRecHitProducerRun::streamBeginLuminosityBlock(edm::StreamID strea
   //   Therefore the LHCInfo is accessed only by the first stream
   //   each time a new LS is processed
   //   Since LHCInfo is not updated after May 2024 the information
-  //   is taken from LHCInfoPerFill instead if useNewLHCInfo_ is true.
+  //   is taken from LHCInfoCombined, which automatically picks the
+  //   record containing the information depending if useNewLHCInfo_
+  //   is true.
   if (stream.value() == 0) {
-    const auto fillNumber = useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).fillNumber()
-                                           : setup.getData(lhcInfoTokenLumi_).fillNumber();
-    const auto delivLumi = useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).delivLumi()
-                                          : setup.getData(lhcInfoTokenLumi_).delivLumi();
-    const auto recLumi =
-        useNewLHCInfo_ ? setup.getData(lhcInfoPerFillTokenLumi_).recLumi() : setup.getData(lhcInfoTokenLumi_).recLumi();
-    EcalPhiSymInfo thisLumi(0, 0, 0, 1, fillNumber, delivLumi, recLumi);
+    const LHCInfoCombined lhcInfoCombined(
+        setup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
+    EcalPhiSymInfo thisLumi(0, 0, 0, 1, lhcInfoCombined.fillNumber, lhcInfoCombined.delivLumi, lhcInfoCombined.recLumi);
 
     streamCache(stream)->ecalLumiInfo += thisLumi;
   }
