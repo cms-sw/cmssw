@@ -32,10 +32,6 @@ bTagDiscriminatorsForAK4 = cms.PSet(foo = cms.vstring(
   _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll+_pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll+
   _pfUnifiedParticleTransformerAK4JetTagsAll+_pfUnifiedParticleTransformerAK4V1JetTagsAll
 ))
-run2_nanoAOD_ANY.toModify(
-  bTagDiscriminatorsForAK4,
-  foo = bTagCSVV2+bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll
-)
 bTagDiscriminatorsForAK4 = bTagDiscriminatorsForAK4.foo.value()
 
 
@@ -352,14 +348,6 @@ def AddBTaggingScores(proc, jetTableName=""):
   getattr(proc, jetTableName).variables.btagDeepFlavCvL = DEEPJETVARS.btagDeepFlavCvL
   getattr(proc, jetTableName).variables.btagDeepFlavCvB = DEEPJETVARS.btagDeepFlavCvB
 
-  run2_nanoAOD_ANY.toModify(
-    getattr(proc, jetTableName).variables,
-    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
-    btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
-    btagDeepCvL = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probudsg')):-1", float,doc="DeepCSV c vs udsg discriminator",precision=10),
-    btagDeepCvB = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10)
-  )
-
   return proc
 
 def AddDeepJetGluonLQuarkScores(proc, jetTableName=""):
@@ -641,19 +629,6 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.corrT1METJetPuppiTable.cut = "pt>=8 && pt<15 && abs(eta)<9.9"
 
   #
-  # Jet table
-  #
-  # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
-  run2_nanoAOD_ANY.toModify(
-    proc.jetTable, name = "Jet"
-  ).toModify(
-    # So need to change the table name for AK4 puppi here
-    proc.jetPuppiTable,
-    name = "JetPuppi",
-    src = cms.InputTag("finalJetsPuppi")
-  )
-
-  #
   # Jet table documentation
   #
   jetPuppiTableDoc = "AK4 PF Puppi jets with JECs applied. Jets with pt >= 8 GeV are stored."
@@ -791,14 +766,6 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.jetPuppiTable.variables.UParTAK4V1RegPtRawRes = UNIFIEDPARTAK4VARS.UParTAK4V1RegPtRawRes
 
   #
-  # For Run-2 eras, don't need to save the low pt AK4 Puppi jet table for MET
-  #
-  run2_nanoAOD_ANY.toReplaceWith(
-    proc.jetPuppiForMETTask,
-    proc.jetPuppiForMETTask.copyAndExclude([proc.corrT1METJetPuppiTable])
-  )
-
-  #
   # Save MC-only jet variables in jet table
   #
   if runOnMC:
@@ -881,15 +848,6 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.name  = "JetCHS"
 
   #
-  # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
-  #
-  run2_nanoAOD_ANY.toModify(
-    proc.jetTable,
-    src = cms.InputTag("linkedObjects","jets"),
-    name = "Jet"
-  )
-
-  #
   # Jet table documentation
   #
   jetTableDoc = "AK4 PF CHS jets with JECs applied. Jets with pt >= 10 GeV are stored."
@@ -960,38 +918,24 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.variables.hfadjacentEtaStripsSize = Var("userInt('hfadjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable) ")
 
   #
-  # Since AK4 Puppi jet is the main AK4 jet collection for Run-3, disable
+  # Since AK4 Puppi jet is the main AK4 jet collection for NanoV15 (Run2+Run3), disable
   # b-jets/c-jets NN-based mass regression for AK4 CHS.
   #
-  (~run2_nanoAOD_ANY).toReplaceWith(
-    proc.jetUserDataTask,
-    proc.jetUserDataTask.copyAndExclude([proc.bJetVars])
-  ).toReplaceWith(
-    proc.jetTablesTask,
-    proc.jetTablesTask.copyAndExclude([proc.bjetNN, proc.cjetNN])
-  ).toModify(proc.updatedJetsWithUserData.userFloats,
-    leadTrackPt = None,
-    leptonPtRelv0 = None,
-    leptonPtRelInvv0 = None,
-    leptonDeltaR = None,
-    vtxPt = None,
-    vtxMass = None,
-    vtx3dL = None,
-    vtx3deL = None,
-    ptD = None,
-  ).toModify(
-    proc.updatedJetsWithUserData.userInts,
-    vtxNtrk = None,
-    leptonPdgId = None
-  ).toModify(
-    proc.jetTable, externalVariables = cms.PSet()
-  ).toReplaceWith(
-  #
-  # For Run-3, don't need to save the low pt AK4 CHS jet table for MET
-  #
-    proc.jetForMETTask,
-    proc.jetForMETTask.copyAndExclude([proc.corrT1METJetTable])
-  )
+  proc.jetUserDataTask = proc.jetUserDataTask.copyAndExclude([proc.bJetVars])
+  proc.jetTablesTask = proc.jetTablesTask.copyAndExclude([proc.bjetNN, proc.cjetNN])
+  del proc.updatedJetsWithUserData.userFloats.leadTrackPt
+  del proc.updatedJetsWithUserData.userFloats.leptonPtRelv0
+  del proc.updatedJetsWithUserData.userFloats.leptonPtRelInvv0
+  del proc.updatedJetsWithUserData.userFloats.leptonDeltaR
+  del proc.updatedJetsWithUserData.userFloats.vtxPt
+  del proc.updatedJetsWithUserData.userFloats.vtxMass
+  del proc.updatedJetsWithUserData.userFloats.vtx3dL
+  del proc.updatedJetsWithUserData.userFloats.vtx3deL
+  del proc.updatedJetsWithUserData.userFloats.ptD
+  del proc.updatedJetsWithUserData.userInts.vtxNtrk
+  del proc.updatedJetsWithUserData.userInts.leptonPdgId
+  proc.jetTable.externalVariables = cms.PSet()
+  proc.jetForMETTask = proc.jetForMETTask.copyAndExclude([proc.corrT1METJetTable])
 
   #
   # Save MC-only jet variables in jet table
@@ -1191,7 +1135,7 @@ def ConfigureAK4GenJets(proc, genJA):
   jmeNano_genjetRecluster_switch = cms.PSet(
     doAK4 = cms.untracked.bool(False),
   )
-  run3_nanoAOD_pre142X.toModify(jmeNano_genjetRecluster_switch,
+  (run2_nanoAOD_106Xv2| run3_nanoAOD_pre142X).toModify(jmeNano_genjetRecluster_switch,
     doAK4 = True
   )
 
@@ -1482,8 +1426,7 @@ def PrepJMECustomNanoAOD(process):
 
   ###########################################################################
   # Add jet tasks
-  # By default for Run-3, add AK4 CHS jet tasks.
-  # For Run-2 eras, add AK4 Puppi jet tasks
+  # By default for NanoV15 (Run2+Run3), add AK4 CHS jet tasks.
   ###########################################################################
   def addAK4JetTasks(proc, addAK4CHSJetTasks, addAK4PuppiJetTasks):
     if addAK4CHSJetTasks:
@@ -1499,10 +1442,6 @@ def PrepJMECustomNanoAOD(process):
   jmeNano_addAK4JetTasks_switch = cms.PSet(
     addAK4CHS_switch = cms.untracked.bool(True),
     addAK4Puppi_switch = cms.untracked.bool(False)
-  )
-  run2_nanoAOD_ANY.toModify(jmeNano_addAK4JetTasks_switch,
-    addAK4CHS_switch = False,
-    addAK4Puppi_switch = True
   )
   process = addAK4JetTasks(process,
     addAK4CHSJetTasks = jmeNano_addAK4JetTasks_switch.addAK4CHS_switch,
