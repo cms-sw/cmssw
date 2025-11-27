@@ -219,7 +219,7 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker& ibooker, const DTCham
     for (size_t iLabel = 0; iLabel < plotLabels.size(); ++iLabel) {
       // Book Phi View Related Plots
 
-      auto plotLabel = plotLabels.at(iLabel);
+      const auto& plotLabel = plotLabels.at(iLabel);
       ibooker.setCurrentFolder(topFolder(type) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" +
                                station.str() + folderLabels.at(iLabel));
 

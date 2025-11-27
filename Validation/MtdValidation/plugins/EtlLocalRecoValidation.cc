@@ -523,7 +523,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         std::vector<MtdSimLayerClusterRef> simClustersRefs =
             (*itp.first).second;  // the range of itp.first, itp.second should be always 1
         for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
-          auto simClusterRef = simClustersRefs[i];
+          const auto& simClusterRef = simClustersRefs[i];
           unsigned int idOffset = (*simClusterRef).trackIdOffset();
 
           meCluTrackIdOffset_[idet]->Fill(float(idOffset));
