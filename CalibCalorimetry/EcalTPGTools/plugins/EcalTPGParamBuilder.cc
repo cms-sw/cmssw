@@ -2148,7 +2148,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
         zut.setThreshold(it->second);
       else {
         edm::LogError("TopInfo") << "ERROR: strip SFGVB threshold parameter not found for that strip:"
-                                 << thestrip.getID1() << " " << thestrip.getID3() << " " << thestrip.getID3() << "\n";
+                                 << thestrip.getID1() << " " << thestrip.getID2() << " " << thestrip.getID3() << "\n";
         edm::LogError("TopInfo") << " using value = " << SFGVB_Threshold_ + pedestal_offset_ << "\n";
         zut.setThreshold(SFGVB_Threshold_ + pedestal_offset_);
       }
