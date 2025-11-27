@@ -70,7 +70,7 @@ CustomProcessHelper::CustomProcessHelper(const edm::ParameterSet& p, CustomParti
     // Making a ReactionProduct
     ReactionProduct prod;
     for (std::size_t i = 2; i != tokens.size(); i++) {
-      G4String part = tokens[i];
+      const G4String& part = tokens[i];
       if (particleTable->contains(part)) {
         prod.push_back(particleTable->FindParticle(part)->GetPDGEncoding());
       } else {
