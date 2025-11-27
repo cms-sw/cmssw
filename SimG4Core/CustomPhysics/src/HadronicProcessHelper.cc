@@ -40,7 +40,7 @@ HadronicProcessHelper::HadronicProcessHelper(const std::string& fileName) {
     // Making a ReactionProduct
     ReactionProduct prod;
     for (size_t i = 2; i != tokens.size(); i++) {
-      G4String part = tokens[i];
+      const G4String& part = tokens[i];
       if (m_particleTable->contains(part)) {
         prod.push_back(m_particleTable->FindParticle(part)->GetPDGEncoding());
       } else {

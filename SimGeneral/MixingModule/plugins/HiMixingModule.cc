@@ -187,7 +187,7 @@ namespace edm {
 
       std::string signal;
       for (size_t itag = 0; itag < tags.size(); ++itag) {
-        InputTag tag = tags[itag];
+        const InputTag& tag = tags[itag];
         std::vector<InputTag> inputs;
 
         for (size_t input = 0; input < simtags.size(); ++input) {
