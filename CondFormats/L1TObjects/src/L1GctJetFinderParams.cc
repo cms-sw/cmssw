@@ -353,8 +353,8 @@ std::ostream& operator<<(std::ostream& os, const L1GctJetFinderParams& fn) {
         os << "Unrecognised" << std::endl;
         break;
     }
-    std::vector<std::vector<double> > jetCoeffs = fn.getJetCorrCoeffs();
-    std::vector<std::vector<double> > tauCoeffs = fn.getTauCorrCoeffs();
+    const std::vector<std::vector<double> >& jetCoeffs = fn.getJetCorrCoeffs();
+    const std::vector<std::vector<double> >& tauCoeffs = fn.getTauCorrCoeffs();
 
     os << "Non-tau jet correction coefficients" << std::endl;
     for (unsigned i = 0; i < jetCoeffs.size(); i++) {
