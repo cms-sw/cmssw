@@ -2489,6 +2489,7 @@ class ConfigBuilder(object):
             self.pythonCfgCode +="from Configuration.Applications.ConfigBuilder import MassReplaceInputTag\n"
             self.pythonCfgCode +="MassReplaceInputTag(process, new=\"rawDataMapperByLabel\", old=\"rawDataCollector\")\n"
             MassReplaceInputTag(self.process, new="rawDataMapperByLabel", old="rawDataCollector")
+
         # special treatment in case of production filter sequence 2/2
         if self.productionFilterSequence and not (self._options.pileup=='HiMixEmbGEN'):
             self.pythonCfgCode +='# filter all path with the production filter sequence\n'
