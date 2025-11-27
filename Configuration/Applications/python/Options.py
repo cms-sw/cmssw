@@ -215,12 +215,6 @@ expertSettings.add_argument("--suffix",
                             type=str,
                             dest="suffix")
 
-parser.add_argument("--rawSecond",
-                    help="want to use rawSecond format",
-                    action="store_true",
-                    default=defaultOptions.rawSecond,
-                    dest="rawSecond")
-
 expertSettings.add_argument("--relval",
                             help="Set total number of events and events per job.", #this does not get used but get parsed in the command by DataOps
                             default="",
