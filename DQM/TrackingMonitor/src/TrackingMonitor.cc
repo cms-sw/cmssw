@@ -214,9 +214,9 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     if (primaryVertexInputTags.size() == pvLabels.size() and
         primaryVertexInputTags.size() == selPrimaryVertexInputTags.size()) {
       for (size_t i = 0; i < primaryVertexInputTags.size(); i++) {
-        edm::InputTag iPVinputTag = primaryVertexInputTags[i];
-        edm::InputTag iSelPVinputTag = selPrimaryVertexInputTags[i];
-        std::string iPVlabel = pvLabels[i];
+        const edm::InputTag& iPVinputTag = primaryVertexInputTags[i];
+        const edm::InputTag& iSelPVinputTag = selPrimaryVertexInputTags[i];
+        const std::string& iPVlabel = pvLabels[i];
 
         theVertexMonitor.push_back(new VertexMonitor(iConfig, iPVinputTag, iSelPVinputTag, iPVlabel, c));
       }

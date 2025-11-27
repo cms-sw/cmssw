@@ -152,7 +152,7 @@ void TrackingActionExecutor::printShiftHistoParameters(DQMStore::IBooker& ibooke
     str_val << std::setprecision(2);
     str_val << setiosflags(std::ios::fixed);
     for (std::vector<std::string>::iterator im = it->second.begin(); im != it->second.end(); im++) {
-      std::string path_name = (*im);
+      const std::string& path_name = (*im);
       if (path_name.empty())
         continue;
       MonitorElement* me = igetter.get(path_name);
