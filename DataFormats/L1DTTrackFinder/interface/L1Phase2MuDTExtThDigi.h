@@ -55,6 +55,8 @@ public:
                         int lat[4] = nullptr);
 
   L1Phase2MuDTExtThDigi(const L1Phase2MuDTExtThDigi &digi);
+  L1Phase2MuDTExtThDigi& operator=(const L1Phase2MuDTExtThDigi&) = default;
+  L1Phase2MuDTExtThDigi& operator=(L1Phase2MuDTExtThDigi&&) = default;
 
   ~L1Phase2MuDTExtThDigi() override {}
 
