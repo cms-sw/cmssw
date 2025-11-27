@@ -1,4 +1,4 @@
 #!/bin/bash
-geom=D121
+geom=D110
 cmsRun testHGCalSingleMuonPt100_cfg.py geometry=$geom
 cmsRun testHGCalCellHitSum_cfg.py geometry=$geom
