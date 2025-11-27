@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('mtdValidation',Phase2C17I13M9)
+from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+process = cms.Process('mtdValidation',Phase2C22I13M9)
 
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -10,7 +10,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi') # No pileup
 
-process.load("Configuration.Geometry.GeometryExtendedRun4D110Reco_cff")
+process.load("Configuration.Geometry.GeometryExtendedRun4D121Reco_cff")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
