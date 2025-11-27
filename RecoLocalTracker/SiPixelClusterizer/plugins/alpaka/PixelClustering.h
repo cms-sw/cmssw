@@ -16,6 +16,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/debug.h"
 
 //#define GPU_DEBUG
 
@@ -579,6 +580,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
         [[maybe_unused]] const uint32_t blockDimension = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
         // assume that we can cover the whole module with up to maxIterClustering blockDimension-wide iterations
+        ALPAKA_ACCELERATOR_NAMESPACE::debug::do_not_optimise(hist.size());
         ALPAKA_ASSERT_ACC((hist.size() / blockDimension) < TrackerTraits::maxIterClustering);
 
         // number of elements per thread
