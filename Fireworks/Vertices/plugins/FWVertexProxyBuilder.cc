@@ -106,7 +106,7 @@ void FWVertexProxyBuilder::build(const reco::Vertex& iData,
 
     // cache 3D extend used in eval bbox and render 3D
     TMatrixDEigen eig(m);
-    TVectorD vv(eig.GetEigenValuesRe());
+    const TVectorD& vv(eig.GetEigenValuesRe());
     eveEllipsoid->RefExtent3D().Set(sqrt(vv(0)) * ellipseScale, sqrt(vv(1)) * ellipseScale, sqrt(vv(2)) * ellipseScale);
 
     eveEllipsoid->SetLineWidth(2);
