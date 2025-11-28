@@ -67,9 +67,11 @@ private:
 HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
       fileName_(iC.getParameter<std::string>("fileName")),
-      tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})},
-      dets_ ((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
-     edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetector_.size() << " with inputs from " << fileName_;
+      tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})},
+      dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
+  edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetector_.size() << " with inputs from "
+                              << fileName_;
 
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("Geometry/HGCalGeometry/data/" + fileName_);
@@ -82,15 +84,15 @@ HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
       while (fInput.getline(buffer, 80)) {
         std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
         DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
-	if (det == dets_) {
-	  int32_t zp = std::atoi(items[2].c_str());
-	  int32_t type = std::atoi(items[1].c_str());
-	  int32_t layer = std::atoi(items[3].c_str());
-	  int32_t waferU = std::atoi(items[4].c_str());
-	  int32_t waferV = std::atoi(items[5].c_str());
-	  int32_t cellU = std::atoi(items[6].c_str());
-	  int32_t cellV = std::atoi(items[7].c_str());
-	  HGCSiliconDetId detId(det, zp, type, layer, waferU, waferV, cellU, cellV);
+        if (det == dets_) {
+          int32_t zp = std::atoi(items[2].c_str());
+          int32_t type = std::atoi(items[1].c_str());
+          int32_t layer = std::atoi(items[3].c_str());
+          int32_t waferU = std::atoi(items[4].c_str());
+          int32_t waferV = std::atoi(items[5].c_str());
+          int32_t cellU = std::atoi(items[6].c_str());
+          int32_t cellV = std::atoi(items[7].c_str());
+          HGCSiliconDetId detId(det, zp, type, layer, waferU, waferV, cellU, cellV);
           detIds_.emplace_back(detId);
         }
       }
@@ -113,7 +115,7 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
   edm::LogVerbatim("HGCGeom") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << nameDetector_;
   const edm::ESHandle<HGCalGeometry> &hgcGeom = iSetup.getHandle(tok_hgcal_);
   if (hgcGeom.isValid()) {
-    const HGCalGeometry* geom = hgcGeom.product();
+    const HGCalGeometry *geom = hgcGeom.product();
     edm::LogVerbatim("HGCGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
 
     for (unsigned int k = 0; k < detIds_.size(); ++k) {
@@ -129,7 +131,8 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       std::string c1 = (id.layer() == idn.layer()) ? "" : "Layer MisMatch";
       std::string c2 = ((id.waferU() == idn.waferU()) && (id.waferV() == idn.waferV())) ? "" : "Wafer Mismatch";
       std::string c3 = ((id.cellU() == idn.cellU()) && (id.cellV() == idn.cellV())) ? "" : "Cell Mismatch";
-      edm::LogVerbatim("HGCGeom") << "Hit[" << k << "] " << st1.str() << " Position (" << cell.x() << ", " << cell.y() << ", " << cell.z() << ") " << c1 << " " << c2 << " " << c3;
+      edm::LogVerbatim("HGCGeom") << "Hit[" << k << "] " << st1.str() << " Position (" << cell.x() << ", " << cell.y()
+                                  << ", " << cell.z() << ") " << c1 << " " << c2 << " " << c3;
     }
   } else {
     edm::LogWarning("HGCGeom") << "Cannot initiate HGCalGeometry for " << nameDetector_ << std::endl;

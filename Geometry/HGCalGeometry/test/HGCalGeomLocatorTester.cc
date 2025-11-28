@@ -90,28 +90,31 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom,
       auto waferxy = geom->topology().dddConstants().locateCell(id, false, false);
       double dx = global.x() - waferxy.first;
       double dy = global.y() - waferxy.second;
-      st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") waferXY (" << waferxy.first << ", " << waferxy.second << ") Delta (" << dx << ", " << dy << ")";
+      st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") waferXY (" << waferxy.first
+          << ", " << waferxy.second << ") Delta (" << dx << ", " << dy << ")";
       if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
-	DetId id2 = geom->getClosestCell(global, false);
-	if (id.rawId() != id2.rawId()) {
-	  HGCSiliconDetId idn(id2);
-	  std::string c1 = (id.layer() == idn.layer()) ? "" : " Layer MisMatch";
-	  std::string c2 = ((id.waferU() == idn.waferU()) && (id.waferV() == idn.waferV())) ? "" : " Wafer Mismatch";
-	  std::string c3 = ((id.cellU() == idn.cellU()) && (id.cellV() == idn.cellV())) ? "" : " Cell Mismatch";
-	  st1 << " ***** ERROR *****"
-	      << " New " << idn << c1 << c2 << c3;
-	  ++bad;
-	  geom->topology().dddConstants().locateCell(id, false, true);
-	  fout1 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.waferU() << " " << id.waferV() << " " << id.cellU() << " " << id.cellV() << std::endl;
-	  if ((id.waferU() != idn.waferU()) || (id.waferV() != idn.waferV())) {
-	    fout2 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.waferU() << " " << id.waferV() << " " << id.cellU() << " " << id.cellV() << std::endl;
-	    ++badw;
-	  }
-	} else {
-	  ++good;
-	}
+        DetId id2 = geom->getClosestCell(global, false);
+        if (id.rawId() != id2.rawId()) {
+          HGCSiliconDetId idn(id2);
+          std::string c1 = (id.layer() == idn.layer()) ? "" : " Layer MisMatch";
+          std::string c2 = ((id.waferU() == idn.waferU()) && (id.waferV() == idn.waferV())) ? "" : " Wafer Mismatch";
+          std::string c3 = ((id.cellU() == idn.cellU()) && (id.cellV() == idn.cellV())) ? "" : " Cell Mismatch";
+          st1 << " ***** ERROR *****"
+              << " New " << idn << c1 << c2 << c3;
+          ++bad;
+          geom->topology().dddConstants().locateCell(id, false, true);
+          fout1 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.waferU()
+                << " " << id.waferV() << " " << id.cellU() << " " << id.cellV() << std::endl;
+          if ((id.waferU() != idn.waferU()) || (id.waferV() != idn.waferV())) {
+            fout2 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.waferU()
+                  << " " << id.waferV() << " " << id.cellU() << " " << id.cellV() << std::endl;
+            ++badw;
+          }
+        } else {
+          ++good;
+        }
       } else {
-	++good;
+        ++good;
       }
       edm::LogVerbatim("HGCalGeomX") << st1.str();
     }
@@ -123,7 +126,10 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom,
   edm::LogVerbatim("HGCalGeomX") << "Enters " << bad << " IDs in " << file1 << " and " << badw << " IDs in " << file2;
 }
 
-void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom, DetId::Detector det, const char* file1, const char* file2) {
+void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom,
+                                                DetId::Detector det,
+                                                const char* file1,
+                                                const char* file2) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
   edm::LogVerbatim("HGCalGeomX") << "doTest:: " << ids.size() << " valid ids for " << geom->cellElement();
   std::ofstream fout1(file1);
@@ -140,30 +146,33 @@ void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom, DetId
       auto tilexy = geom->topology().dddConstants().locateCell(id, false);
       double dx = global.x() - tilexy.first;
       double dy = global.y() - tilexy.second;
-      st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") tileXY (" << tilexy.first << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
+      st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") tileXY (" << tilexy.first
+          << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
       if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
-	double r1 = sqrt(global.x() * global.x() + global.y() * global.y());
-	double r2 = sqrt(tilexy.first * tilexy.first + tilexy.second * tilexy.second);
-	DetId id2 = geom->getClosestCell(global, false);
-	if (id.rawId() != id2.rawId()) {
-	  HGCScintillatorDetId idn(id2);
-	  std::string c1 = (id.layer() == idn.layer()) ? "" : " Layer MisMatch";
-	  std::string c2 = (id.ring() == idn.ring()) ? "" : " Ring Mismatch";
-	  std::string c3 = (id.iphi() == idn.iphi()) ? "" : " Phi Mismatch";
-	  st1 << " R " << r1 << ":" << r2 << " ***** ERROR *****"
-	      << " New " << idn << c1 << c2 << c3;
-	  ++bad;
-	  geom->topology().dddConstants().locateCell(id, true);
-	  fout1 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.ring() << " " << id.iphi() << " " << id.sipm() << " " << id.granularity() << std::endl;
-	  if (id.ring() != idn.ring()) {
-	    fout2 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.ring() << " " << id.iphi() << " " << id.sipm() << " " << id.granularity() << std::endl;
-	    ++badw;
-	  }
-	} else {
-	  ++good;
-	}
+        double r1 = sqrt(global.x() * global.x() + global.y() * global.y());
+        double r2 = sqrt(tilexy.first * tilexy.first + tilexy.second * tilexy.second);
+        DetId id2 = geom->getClosestCell(global, false);
+        if (id.rawId() != id2.rawId()) {
+          HGCScintillatorDetId idn(id2);
+          std::string c1 = (id.layer() == idn.layer()) ? "" : " Layer MisMatch";
+          std::string c2 = (id.ring() == idn.ring()) ? "" : " Ring Mismatch";
+          std::string c3 = (id.iphi() == idn.iphi()) ? "" : " Phi Mismatch";
+          st1 << " R " << r1 << ":" << r2 << " ***** ERROR *****"
+              << " New " << idn << c1 << c2 << c3;
+          ++bad;
+          geom->topology().dddConstants().locateCell(id, true);
+          fout1 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.ring()
+                << " " << id.iphi() << " " << id.sipm() << " " << id.granularity() << std::endl;
+          if (id.ring() != idn.ring()) {
+            fout2 << " " << id.det() << " " << id.zside() << " " << id.type() << " " << id.layer() << " " << id.ring()
+                  << " " << id.iphi() << " " << id.sipm() << " " << id.granularity() << std::endl;
+            ++badw;
+          }
+        } else {
+          ++good;
+        }
       } else {
-	++good;
+        ++good;
       }
       edm::LogVerbatim("HGCalGeomX") << st1.str();
     }
