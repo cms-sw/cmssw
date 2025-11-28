@@ -177,6 +177,8 @@ void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom,
       edm::LogVerbatim("HGCalGeomX") << st1.str();
     }
   }
+  edm::LogVerbatim("HGCalGeomX") << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good
+                                 << " are good and " << bad << " are bad\n\n\n";
   fout1.close();
   fout2.close();
   edm::LogVerbatim("HGCalGeomX") << "Enters " << bad << " IDs in " << file1 << " and " << badw << " IDs in " << file2;
