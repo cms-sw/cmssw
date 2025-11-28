@@ -353,10 +353,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
   edm::LogInfo("HcalLutManager") << "  ==> " << lut_set_size << " sets of different LUTs read from the master file";
 
   // setup "zero" LUT for channel masking
-  std::vector<unsigned int> zeroLut;
-  zeroLut.reserve(128);
-  for (size_t adc = 0; adc < 128; adc++)
-    zeroLut.push_back(0);
+  std::vector<unsigned int> zeroLut(128, 0);
 
   RooGKCounter _counter;
   //loop over all EMap channels
