@@ -72,7 +72,7 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
     std::set<unsigned> tkIds;
     tkSeeds.reserve(seed_size);
     for (unsigned iseed = 0; iseed < seedCollections; ++iseed) {
-      edm::Handle<edm::View<TrajectorySeed> > aSeedCollection = theSeeds[iseed];
+      const edm::Handle<edm::View<TrajectorySeed> >& aSeedCollection = theSeeds[iseed];
       unsigned nSeeds = aSeedCollection->size();
       for (unsigned seednr = 0; seednr < nSeeds; ++seednr) {
         // The seed
