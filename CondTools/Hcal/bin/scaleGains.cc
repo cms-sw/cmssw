@@ -37,7 +37,7 @@ scaleGains::scaleGains(const edm::ParameterSet& iConfig) {
 scaleGains::~scaleGains() {}
 
 void scaleGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  HcalTopology topo = iSetup.getData(tok_htopo_);
+  const HcalTopology& topo = iSetup.getData(tok_htopo_);
 
   HcalGains gainsIn(&topo);
   ;

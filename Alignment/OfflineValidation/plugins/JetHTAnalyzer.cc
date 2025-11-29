@@ -186,7 +186,7 @@ void JetHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     h_ntrks->Fill(ntrks);
 
     for (uint tracksIt = 0; tracksIt < ntrks; tracksIt++) {
-      auto tk = allTracks.at(tracksIt);
+      const auto& tk = allTracks.at(tracksIt);
 
       double dxyRes = tk.dxy(pos_) * cmToum;
       double dzRes = tk.dz(pos_) * cmToum;
