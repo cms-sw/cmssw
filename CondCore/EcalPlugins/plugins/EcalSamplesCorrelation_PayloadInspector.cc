@@ -40,7 +40,7 @@ namespace {
       int NbRows;
 
       if (payload.get()) {
-        EcalSamplesCorrelation it = (*payload);
+        const EcalSamplesCorrelation& it = (*payload);
         NbRows = it.EBG12SamplesCorrelation.size();
         if (NbRows == 0)
           return false;
@@ -143,7 +143,7 @@ namespace {
         }
 
         if (payload.get()) {
-          EcalSamplesCorrelation it = (*payload);
+          const EcalSamplesCorrelation& it = (*payload);
           NbRows = it.EBG12SamplesCorrelation.size();
 
           if (irun == 1) {

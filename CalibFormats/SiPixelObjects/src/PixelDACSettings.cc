@@ -178,7 +178,7 @@ PixelDACSettings::PixelDACSettings(std::vector<std::vector<std::string> >& table
 */
   //   std::multimap<std::string,std::pair<std::string,int > > pDSM;
   //  std::stringstream currentRocName;
-  std::vector<std::string> ins = tableMat[0];
+  const std::vector<std::string>& ins = tableMat[0];
   std::string mthn("[PixelDACSettings::PixelDACSettings()] ");
   std::string dacName;
   std::istringstream dbin;
