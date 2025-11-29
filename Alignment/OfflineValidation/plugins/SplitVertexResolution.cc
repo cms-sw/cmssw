@@ -458,8 +458,8 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
 
     // split into two sets equally populated
     for (uint tracksIt = 0; tracksIt < even_ntrks; tracksIt = tracksIt + 2) {
-      reco::Track firstTrk = allTracks.at(tracksIt);
-      reco::Track secondTrk = allTracks.at(tracksIt + 1);
+      const reco::Track& firstTrk = allTracks.at(tracksIt);
+      const reco::Track& secondTrk = allTracks.at(tracksIt + 1);
       auto dis = std::uniform_int_distribution<>(0, 1);  // [0, 1]
 
       if (dis(engine_) > 0.5) {
