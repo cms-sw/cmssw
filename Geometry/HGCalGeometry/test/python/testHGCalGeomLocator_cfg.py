@@ -34,7 +34,7 @@ print(options)
 # Use the options
 
 geomName = "Run4" + options.geometry
-stepSilicon = options.step
+step = options.step
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
@@ -43,7 +43,7 @@ print("Geometry Name:   ", geomName)
 print("Geom file Name:  ", geomFile)
 print("Global Tag Name: ", GLOBAL_TAG)
 print("Era Name:        ", ERA)
-print("StepSilicon      ", stepSilicon)
+print("Step             ", step)
 
 process = cms.Process("HGCalGeomLocator",ERA)
 
@@ -80,11 +80,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("Geometry.HGCalGeometry.hgcalGeomLocatorTesterEE_cfi")
-process.hgcalGeomLocatorTesterEE.stepSilicon = stepSilicon
+process.hgcalGeomLocatorTesterEE.step = step
 
-process.hgcalGeomLocatorTesterHEF = process.hgcalGeomLocatorTesterEE.clone(
-    detector   = "HGCalHESiliconSensitive",
-    tag        = "HE",
-)
-
-process.p1 = cms.Path(process.generator*process.hgcalGeomLocatorTesterEE*process.hgcalGeomLocatorTesterHEF)
+process.p1 = cms.Path(process.generator*process.hgcalGeomLocatorTesterEE)
