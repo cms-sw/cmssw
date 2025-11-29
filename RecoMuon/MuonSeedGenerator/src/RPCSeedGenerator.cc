@@ -190,14 +190,14 @@ void RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   MuonDetLayerGeometry const& muonLayers = iSetup.getData(muonLayersToken);
 
   // Get the RPC layers
-  vector<const DetLayer*> RPCBarrelLayers = muonLayers.barrelRPCLayers();
+  const vector<const DetLayer*>& RPCBarrelLayers = muonLayers.barrelRPCLayers();
   const DetLayer* RB4L = RPCBarrelLayers[5];
   const DetLayer* RB3L = RPCBarrelLayers[4];
   const DetLayer* RB22L = RPCBarrelLayers[3];
   const DetLayer* RB21L = RPCBarrelLayers[2];
   const DetLayer* RB12L = RPCBarrelLayers[1];
   const DetLayer* RB11L = RPCBarrelLayers[0];
-  vector<const DetLayer*> RPCEndcapLayers = muonLayers.endcapRPCLayers();
+  const vector<const DetLayer*>& RPCEndcapLayers = muonLayers.endcapRPCLayers();
   const DetLayer* REM3L = RPCEndcapLayers[0];
   const DetLayer* REM2L = RPCEndcapLayers[1];
   const DetLayer* REM1L = RPCEndcapLayers[2];

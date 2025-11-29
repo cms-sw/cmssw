@@ -45,6 +45,7 @@ namespace reco {
   std::vector<const Candidate*> PFTauDecayMode::chargedPionCandidates() const {
     size_type numberOfChargedPions = chargedPions_.numberOfDaughters();
     std::vector<const Candidate*> output;
+    output.reserve(numberOfChargedPions);
     for (size_type iterCand = 0; iterCand < numberOfChargedPions; ++iterCand)
       output.push_back(chargedPions_.daughter(iterCand));
     return output;
@@ -53,6 +54,7 @@ namespace reco {
   std::vector<const Candidate*> PFTauDecayMode::neutralPionCandidates() const {
     size_type numberOfChargedPions = piZeroes_.numberOfDaughters();
     std::vector<const Candidate*> output;
+    output.reserve(numberOfChargedPions);
     for (size_type iterCand = 0; iterCand < numberOfChargedPions; ++iterCand)
       output.push_back(piZeroes_.daughter(iterCand));
     return output;
