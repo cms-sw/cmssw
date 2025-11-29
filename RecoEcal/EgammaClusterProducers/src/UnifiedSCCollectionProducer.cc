@@ -432,7 +432,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt, const edm::EventSetup
   }
   LogTrace("UnifiedSC") << "The new SC unclean only collection with size " << superClustersUncleanOnly.size();
   for (int i = 0; i < (int)superClustersUncleanOnly.size(); ++i) {
-    const reco::SuperCluster nsc = superClustersUncleanOnly[i];
+    const reco::SuperCluster& nsc = superClustersUncleanOnly[i];
     LogTrace("UnifiedSC") << " >>> newSC    #" << i << "; Energy: " << nsc.energy() << " eta: " << nsc.eta()
                           << " isClean=" << nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
                           << " sc seed detid: " << nsc.seed()->seed().rawId();

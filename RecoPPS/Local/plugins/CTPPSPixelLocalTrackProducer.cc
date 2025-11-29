@@ -100,6 +100,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
   }
 
   std::vector<uint32_t> listOfAllPlanes;
+  listOfAllPlanes.reserve(numberOfPlanesPerPot_);
   for (uint32_t i = 0; i < numberOfPlanesPerPot_; ++i) {
     listOfAllPlanes.push_back(i);
   }
