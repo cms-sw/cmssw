@@ -963,17 +963,19 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
   int fineCoarse = (type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200) ? 0 : 1;
   int layertype = layerType(lay);
   bool rotx = (norot) ? false : (layertype == HGCalTypes::WaferCenterR);
-  if (debug) {
+  if (debug)
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << layertype
                                   << ":" << rotx << ":" << waferU << ":" << waferV << ":" << indx << ":"
                                   << (itr == hgpar_->typesInLayers_.end()) << ":" << type << " Flags " << reco << ":"
                                   << all;
-  }
   auto ktr = hgpar_->waferInfoMap_.end();
   int place(HGCalCell::cellPlacementOld);
   if (waferHexagon8File()) {
     if (cassetteMode()) {
       ktr = hgpar_->waferInfoMap_.find(indx);
+      if (debug)
+        edm::LogVerbatim("HGCalGeom") << "Cassette Index " << lay << ":" << waferU << ":" << waferV << ":" << indx
+                                      << " found? " << (ktr != hgpar_->waferInfoMap_.end());
       if (ktr != hgpar_->waferInfoMap_.end())
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
     }
@@ -1023,8 +1025,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
       auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette, false);
       std::ostringstream st1;
       if (debug)
-        st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second
-            << " Original " << x << ":" << y;
+        st1 << "Cassette " << (ktr->second).cassette << " Shift " << -cshift.first << ":" << cshift.second
+            << " Original " << x << ":" << y << " Index " << indx;
       if (!reco) {
         x -= ((HGCalParameters::k_ScaleToDDD)*cshift.first);
         y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
@@ -1770,21 +1772,24 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       if (cassetteMode()) {
         int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
         auto ktr = hgpar_->waferInfoMap_.find(indx);
+        if (debug)
+          edm::LogVerbatim("HGCalGeom") << "Layer|WaferU|WaferV " << layer << ", " << waferU << ", " << waferV
+                                        << " Index " << indx << ":" << (ktr != hgpar_->waferInfoMap_.end());
         if (ktr != hgpar_->waferInfoMap_.end()) {
           auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette, false);
-          if (debug)
-            edm::LogVerbatim("HGCalGeom")
-                << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second;
           dx0 = -cshift.first;
           dy0 = cshift.second;
+          if (debug)
+            edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << dx0 << ":" << dy0;
         }
       }
       double dx = std::abs(xx - dx0 - hgpar_->waferPosX_[k]);
       double dy = std::abs(yy - dy0 - hgpar_->waferPosY_[k]);
       constexpr double tolc = 0.01;
       if (debug) {
-        edm::LogVerbatim("HGCalGeom") << "Wafer " << waferU << ":" << waferV << " position " << xx << ":" << yy
-                                      << " Distance " << dx << ":" << dy << " diff0 " << (dx - rmax) << ":"
+        edm::LogVerbatim("HGCalGeom") << "Wafer " << waferU << ":" << waferV << " position (" << xx << ":" << yy
+                                      << ") CassetteMode " << cassetteMode() << " (" << (xx - dx0) << ":" << (yy - dy0)
+                                      << ") Distance " << dx << ":" << dy << " diff0 " << (dx - rmax) << ":"
                                       << (dy - hexside) << " diff1 " << (dy - 0.5 * hexside) << ":"
                                       << (dx * tan30deg_ - (hexside - dy));
         if ((dx - rmax) <= tolc && (dy - hexside) <= tolc) {
