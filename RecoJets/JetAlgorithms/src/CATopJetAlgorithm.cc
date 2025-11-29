@@ -116,7 +116,7 @@ void CATopJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles,
     if (verbose_)
       cout << "\nJet " << i << endl;
     i++;
-    fastjet::PseudoJet localJet = *jetIt;
+    const fastjet::PseudoJet& localJet = *jetIt;
 
     // Get the 4-vector for this jet
     p4_hardJets.push_back(math::XYZTLorentzVector(localJet.px(), localJet.py(), localJet.pz(), localJet.e()));

@@ -9,7 +9,7 @@ PixelBarrelLayer* PixelBarrelLayerBuilder::build(const GeometricDet* aPixelBarre
   // This builder is very similar to TOBLayer one. Most of the code should be put in a
   // common place.
 
-  vector<const GeometricDet*> theGeometricDetRods = aPixelBarrelLayer->components();
+  const vector<const GeometricDet*>& theGeometricDetRods = aPixelBarrelLayer->components();
   //edm::LogInfo(TkDetLayers) << "theGeometricDetRods has size: " << theGeometricDetRods.size() ;
 
   PixelRodBuilder myPixelRodBuilder;

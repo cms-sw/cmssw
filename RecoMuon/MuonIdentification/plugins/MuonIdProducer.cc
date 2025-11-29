@@ -1410,9 +1410,9 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent,
     return;
   }
 
-  reco::IsoDeposit depEcal = caloDeps.at(0);
-  reco::IsoDeposit depHcal = caloDeps.at(1);
-  reco::IsoDeposit depHo = caloDeps.at(2);
+  const reco::IsoDeposit& depEcal = caloDeps.at(0);
+  const reco::IsoDeposit& depHcal = caloDeps.at(1);
+  const reco::IsoDeposit& depHo = caloDeps.at(2);
 
   //no need to copy outside if we don't write them
   if (writeIsoDeposits_) {
