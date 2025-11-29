@@ -58,7 +58,7 @@ modGains::modGains(const edm::ParameterSet& iConfig) : vectorop(false) {
 modGains::~modGains() {}
 
 void modGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  HcalTopology topo = iSetup.getData(tok_htopo_);
+  const HcalTopology& topo = iSetup.getData(tok_htopo_);
 
   // get base conditions
   std::cerr << fileIn << std::endl;

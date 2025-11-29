@@ -463,7 +463,7 @@ double PedeSteererWeakModeConstraints::getX0(const std::pair<Alignable*, std::li
   double x0 = 0.0;
 
   for (const auto& ali : iHLS.second) {
-    align::PositionType pos = ali->globalPosition();
+    const align::PositionType& pos = ali->globalPosition();
     bool alignableIsFloating = false;  //means: true=alignable is able to move in at least one direction
 
     //test whether at least one variable has been selected in the configuration

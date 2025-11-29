@@ -331,7 +331,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
     double chi2prob = 0.;
 
     if (!vsorted.at(0).isFake()) {
-      Vertex pv = vsorted.at(0);
+      const Vertex& pv = vsorted.at(0);
 
       ntracks = pv.tracksSize();
       chi2ndf = pv.normalizedChi2();

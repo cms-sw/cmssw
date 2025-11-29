@@ -124,10 +124,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPosition2D(AliDaqPosi
   meas.type_ = "SENSOR2D";
   meas.name_ = std::string(pos2D->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
-  std::vector<bool> isSimu;
-  for (size_t jj = 0; jj < 2; jj++) {
-    isSimu.push_back(false);
-  }
+  std::vector<bool> isSimu(2, false);
   meas.isSimulatedValue_ = isSimu;
   std::vector<OpticalAlignParam> paramList;
   OpticalAlignParam oaParam1;
@@ -154,10 +151,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPositionCOPS(AliDaqPo
   meas.type_ = "COPS";
   meas.name_ = std::string(posCOPS->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
-  std::vector<bool> isSimu;
-  for (size_t jj = 0; jj < 4; jj++) {
-    isSimu.push_back(false);
-  }
+  std::vector<bool> isSimu(4, false);
   meas.isSimulatedValue_ = isSimu;
 
   std::vector<OpticalAlignParam> paramList;
@@ -197,10 +191,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromTilt(AliDaqTilt* tilt
   meas.type_ = "TILTMETER";
   meas.name_ = std::string(tilt->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
-  std::vector<bool> isSimu;
-  for (size_t jj = 0; jj < 2; jj++) {
-    isSimu.push_back(false);
-  }
+  std::vector<bool> isSimu(2, false);
   meas.isSimulatedValue_ = isSimu;
   std::vector<OpticalAlignParam> paramList;
   OpticalAlignParam oaParam;
@@ -221,10 +212,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromDist(AliDaqDistance* 
   meas.type_ = "DISTANCEMETER";
   meas.name_ = std::string(dist->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
-  std::vector<bool> isSimu;
-  for (size_t jj = 0; jj < 2; jj++) {
-    isSimu.push_back(false);
-  }
+  std::vector<bool> isSimu(2, false);
   meas.isSimulatedValue_ = isSimu;
   std::vector<OpticalAlignParam> paramList;
   OpticalAlignParam oaParam;
@@ -265,7 +253,7 @@ void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign(std::vector<OpticalAlignM
     //---------- loop measurements read from ROOT
     ALIint ii;
     for (ii = 0; ii < nMeasRoot; ii++) {
-      OpticalAlignMeasurementInfo measInfo = measList[ii];
+      const OpticalAlignMeasurementInfo& measInfo = measList[ii];
       std::cout << " measurement name ROOT " << measInfo.name_ << " Model= " << (*vmcite)->name() << " short " << oname
                 << std::endl;
 

@@ -392,7 +392,7 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat) : PixelConfigBase(
 
 void PixelFEDCard::readDBTBMLevels(std::vector<std::vector<std::string> > &tableMat, int firstRow, int lastRow) {
   string mthn = "[PixelFEDCard::readDBTBMLevels()] ";
-  vector<string> ins = tableMat[firstRow];
+  const vector<string> &ins = tableMat[firstRow];
   map<string, int> colM;
   vector<string> colNames;
 
