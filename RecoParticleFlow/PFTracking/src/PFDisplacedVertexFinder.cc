@@ -659,8 +659,8 @@ reco::PFDisplacedVertex::VertexTrackType PFDisplacedVertexFinder::getVertexTrack
 }
 
 unsigned PFDisplacedVertexFinder::commonTracks(const PFDisplacedVertex& v1, const PFDisplacedVertex& v2) const {
-  vector<Track> vt1 = v1.refittedTracks();
-  vector<Track> vt2 = v2.refittedTracks();
+  const vector<Track>& vt1 = v1.refittedTracks();
+  const vector<Track>& vt2 = v2.refittedTracks();
 
   unsigned commonTracks = 0;
 

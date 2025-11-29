@@ -155,7 +155,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es) {
         std::vector<DetId> saveTheseDetIds;
         //pick out the detids for the 3x3 in each of the selected superclusters
         for (int loop = 0; loop < int(saveBarrelSuperClusters.size()); loop++) {
-          SuperCluster clus1 = saveBarrelSuperClusters[loop];
+          const SuperCluster& clus1 = saveBarrelSuperClusters[loop];
           const CaloClusterPtr& bcref = clus1.seed();
           const BasicCluster* bc = bcref.get();
           //Get the maximum detid
@@ -206,7 +206,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es) {
         std::set<DetId> saveTheseDetIds;
         //pick out the digis for the 3x3 in each of the selected superclusters
         for (int loop = 0; loop < int(saveEndcapSuperClusters.size()); loop++) {
-          SuperCluster clus1 = saveEndcapSuperClusters[loop];
+          const SuperCluster& clus1 = saveEndcapSuperClusters[loop];
           const CaloClusterPtr& bcref = clus1.seed();
           const BasicCluster* bc = bcref.get();
           //Get the maximum detid

@@ -155,6 +155,7 @@ const reco::CandidateCollection* JetMatchingTools::getGenParticlesCollection() {
 std::vector<const CaloTower*> JetMatchingTools::getConstituents(const reco::CaloJet& fJet) {
   std::vector<const CaloTower*> result;
   std::vector<CaloTowerPtr> constituents = fJet.getCaloConstituents();
+  result.reserve(constituents.size());
   for (unsigned i = 0; i < constituents.size(); ++i)
     result.push_back(&*(constituents[i]));
   return result;

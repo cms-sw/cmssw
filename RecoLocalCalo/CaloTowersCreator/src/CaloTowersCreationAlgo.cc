@@ -526,6 +526,7 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
                                 theTowerTopology->lastHORing());
 
     std::vector<DetId> contains;
+    contains.reserve(ctcItr->constituentsSize());
     for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
       contains.push_back(ctcItr->constituent(iConst));
     }
