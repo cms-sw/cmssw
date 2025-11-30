@@ -4,9 +4,24 @@ import FWCore.ParameterSet.Config as cms
 
 from HLTriggerOffline.Scouting.ScoutingRecHitAnalyzers_cff import *
 
-ScoutingEBRechitAnalyzerOnline = ScoutingEBRechitAnalyzer.clone()
-ScoutingHBHERechitAnalyzerOnline = ScoutingHBHERechitAnalyzer.clone()
+################################################
+# unpack and pack back the L1T results
+################################################
+from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis as _gtStage2Digis
+# Take L1T Raw data from HLT Scouting event content
+gtStage2DigisScouting = _gtStage2Digis.clone(InputLabel="hltFEDSelectorL1")
+from PhysicsTools.NanoAOD.triggerObjects_cff import l1bits as _l1bits
+L1BitsScoutingOnline = _l1bits.clone(src="gtStage2DigisScouting")
+L1BitsSequence = cms.Sequence(gtStage2DigisScouting + L1BitsScoutingOnline)
 
-ScoutingRecHitsMonitoring = cms.Sequence(ScoutingEBRechitAnalyzerOnline +
+ScoutingEBRechitAnalyzerOnline = ScoutingEBRechitAnalyzer.clone(
+    L1TriggerResults = cms.InputTag('L1BitsScoutingOnline')
+)
+ScoutingHBHERechitAnalyzerOnline = ScoutingHBHERechitAnalyzer.clone(
+    L1TriggerResults = cms.InputTag('L1BitsScoutingOnline')
+)
+
+ScoutingRecHitsMonitoring = cms.Sequence(L1BitsSequence +
+                                         ScoutingEBRechitAnalyzerOnline +
                                          ScoutingHBHERechitAnalyzerOnline)
                                          
