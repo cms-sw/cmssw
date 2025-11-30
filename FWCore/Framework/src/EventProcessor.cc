@@ -1088,7 +1088,7 @@ namespace edm {
     ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
     processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName());
 
-    using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
+    using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin>;
     FinalWaitingTask globalWaitTask{taskGroup_};
 
     ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
@@ -1105,7 +1105,7 @@ namespace edm {
     while (input_->nextProcessBlock(processBlockPrincipal)) {
       readProcessBlock(processBlockPrincipal);
 
-      using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>;
+      using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       FinalWaitingTask globalWaitTask{taskGroup_};
 
       ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
@@ -1125,7 +1125,7 @@ namespace edm {
   void EventProcessor::endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded) {
     ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
 
-    using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
+    using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd>;
     FinalWaitingTask globalWaitTask{taskGroup_};
 
     ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
@@ -1274,7 +1274,7 @@ namespace edm {
                             return;
                           }
                           RunTransitionInfo transitionInfo(*status->runPrincipal(), es);
-                          using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
+                          using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>;
                           schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
                         }) | ifThen(looper_, [this, status, &es](auto nextTask) {
                           if (status->stopBeforeProcessingRun()) {
@@ -1393,7 +1393,7 @@ namespace edm {
         RunProcessingStatus& rs = *streamRunStatus_[iStream];
         if (rs.didGlobalBeginSucceed()) {
           RunTransitionInfo transitionInfo(*rs.runPrincipal(), rs.eventSetupImpl());
-          using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
+          using Traits = OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>;
           schedule_->processOneStreamAsync<Traits>(std::move(nextTask), iStream, transitionInfo, serviceToken_);
         }
       }) | then([this, iStream](std::exception_ptr const* exceptionFromBeginStreamRun, auto nextTask) {
@@ -1488,7 +1488,7 @@ namespace edm {
     chain::first([this, &runPrincipal, &es, cleaningUpAfterException, endingEventSetupSucceeded](auto nextTask) {
       if (endingEventSetupSucceeded) {
         RunTransitionInfo transitionInfo(runPrincipal, es);
-        using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
+        using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>;
         schedule_->processOneGlobalAsync<Traits>(
             std::move(nextTask), transitionInfo, serviceToken_, cleaningUpAfterException);
       }
@@ -1590,7 +1590,7 @@ namespace edm {
         bool cleaningUpAfterException = runStatus->cleaningUpAfterException() || iTask.taskHasFailed();
 
         auto& runPrincipal = *runStatus->runPrincipal();
-        using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
+        using Traits = OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd>;
         RunTransitionInfo transitionInfo(runPrincipal, es);
         schedule_->processOneStreamAsync<Traits>(
             std::move(runDoneTaskHolder), iStreamIndex, transitionInfo, serviceToken_, cleaningUpAfterException);
@@ -1726,7 +1726,7 @@ namespace edm {
                             }) |
                             then([this, status, &es, &lumiPrincipal](auto nextTask) {
                               LumiTransitionInfo transitionInfo(lumiPrincipal, es);
-                              using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
+                              using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
                               schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
                             }) |
                             ifThen(looper_,
@@ -1754,7 +1754,7 @@ namespace edm {
                                 status->globalBeginDidSucceed();
 
                                 EventSetupImpl const& es = status->eventSetupImpl();
-                                using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
+                                using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
 
                                 streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
                                   for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
@@ -1861,7 +1861,7 @@ namespace edm {
       IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()), lp.beginTime());
 
       LumiTransitionInfo transitionInfo(lp, es);
-      using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
+      using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
       schedule_->processOneGlobalAsync<Traits>(
           std::move(nextTask), transitionInfo, serviceToken_, cleaningUpAfterException);
     }) | then([this, didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
@@ -1944,7 +1944,7 @@ namespace edm {
     bool cleaningUpAfterException = lumiStatus->cleaningUpAfterException() || iTask.taskHasFailed();
 
     auto& lumiPrincipal = *lumiStatus->lumiPrincipal();
-    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
+    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>;
     LumiTransitionInfo transitionInfo(lumiPrincipal, es);
     schedule_->processOneStreamAsync<Traits>(
         std::move(lumiDoneTask), iStreamIndex, transitionInfo, serviceToken_, cleaningUpAfterException);

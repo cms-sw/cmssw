@@ -106,9 +106,9 @@ namespace edm {
                                         ModuleCallingContext const* mcc,
                                         StreamContext& sContext) {
     RunTransitionInfo info(run, setup);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>>(
+    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>>(
         workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>>(
+    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>>(
         workerManager_, info, sContext.streamID(), &sContext, mcc);
   }
 
@@ -117,9 +117,9 @@ namespace edm {
                                                     ModuleCallingContext const* mcc,
                                                     StreamContext& sContext) {
     LumiTransitionInfo info(lumi, setup);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>>(
+    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>>(
         workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>>(
+    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>>(
         workerManager_, info, sContext.streamID(), &sContext, mcc);
   }
 
@@ -128,9 +128,9 @@ namespace edm {
                                       ModuleCallingContext const* mcc,
                                       StreamContext& sContext) {
     RunTransitionInfo info(run, setup);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>>(
+    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd>>(
         workerManager_, info, sContext.streamID(), &sContext, mcc);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>>(
+    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>>(
         workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
@@ -139,9 +139,9 @@ namespace edm {
                                                   ModuleCallingContext const* mcc,
                                                   StreamContext& sContext) {
     LumiTransitionInfo info(lumi, setup);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>>(
+    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>>(
         workerManager_, info, sContext.streamID(), &sContext, mcc);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>>(
+    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>>(
         workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
@@ -162,7 +162,7 @@ namespace edm {
     std::exception_ptr exceptPtr = tbb::this_task_arena::isolate([&]() {
       return edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
         for (auto& worker : workerManager_.unscheduledWorkers()) {
-          worker->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+          worker->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
               iHolder, info, token, sContext.streamID(), pc, &sContext);
         }
       });
