@@ -21,6 +21,9 @@ from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 ### Miscellaneous monitoring
 from DQM.HLTEvF.ScoutingCollectionMonitor_cfi import *
 
+### RecHits monitoring
+from DQMOffline.Scouting.ScoutingRecHitAnalyzers_cff import *
+
 hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
                                          scoutingMonitoringTagProbeMuonVtx *
                                          scoutingMonitoringTriggerMuon_DoubleMu *
@@ -33,6 +36,6 @@ hltScoutingJetDqmOfflineForRelVals = cms.Sequence(jetMETDQMOfflineSourceScouting
 
 hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
 
-hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline + hltScoutingEGammaDqmOffline + hltScoutingJetDqmOffline + hltScoutingCollectionMonitor)
+hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline + hltScoutingEGammaDqmOffline + hltScoutingJetDqmOffline + hltScoutingCollectionMonitor + hltScoutingMonitoringRecHits)
 hltScoutingDqmOfflineForRelVals = hltScoutingDqmOffline.copy()
 hltScoutingDqmOfflineForRelVals.replace(hltScoutingJetDqmOffline, hltScoutingJetDqmOfflineForRelVals)
