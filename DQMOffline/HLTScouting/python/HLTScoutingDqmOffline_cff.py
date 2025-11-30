@@ -22,7 +22,7 @@ from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 from DQM.HLTEvF.ScoutingCollectionMonitor_cfi import *
 
 ### RecHits monitoring
-from DQMOffline.Scouting.ScoutingRecHitAnalyzers_cff import *
+from HLTriggerOffline.Scouting.ScoutingRecHitAnalyzers_cff import *
 
 hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
                                          scoutingMonitoringTagProbeMuonVtx *
