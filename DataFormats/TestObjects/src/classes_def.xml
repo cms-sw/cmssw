@@ -410,7 +410,6 @@ exception when running testMissingDictionaryChecking_cfg.py.
   <version ClassVersion="4" checksum="3437951039"/>
   <version ClassVersion="3" checksum="1545257825"/>
  </class>
- <class name="std::auto_ptr<edmtest::SchemaEvolutionContained>"/>
  <class name="edmtest::compat::deprecated_auto_ptr<edmtest::SchemaEvolutionContained>"/>
  <class name="edmtest::SchemaEvolutionAutoPtrToUniquePtr" ClassVersion="4">
   <version ClassVersion="4" checksum="2908944573"/>
