@@ -244,8 +244,6 @@ def add_exonanoTables(process):
     process = add_electronVertexTables(process)
     process = add_dispJetTables(process)
 
-    process = update_genParticleTable(process)
-
     if hasattr(process, "nanoSequenceMC") and process.schedule.contains(process.nanoSequenceMC):
         process = update_genParticleTable(process)
 
