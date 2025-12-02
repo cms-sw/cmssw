@@ -1780,8 +1780,14 @@ void HGCalDDDConstants::waferFromPosition(const double x,
           dx0 = -cshift.first;
           dy0 = cshift.second;
           if (debug)
-            edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << dx0 << ":" << dy0;
-        }
+            edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << dx0 << ":" << dy0 << " Type " << (ktr->second).type << ":" << (ktr->second).part << ":" << (ktr->second).orient << ":" << (ktr->second).cassette;
+        } else {
+	  if (mode_ == HGCalGeometryMode::Hexagon8FineCell) {
+	    if (debug)
+	      edm::LogVerbatim("HGCalGeom") << "Cannot find waferinformation --> Skip this " << layer << ":" << waferU << ":" << waferV << " wafer assignment";
+	    continue;
+	  }
+	}
       }
       double dx = std::abs(xx - dx0 - hgpar_->waferPosX_[k]);
       double dy = std::abs(yy - dy0 - hgpar_->waferPosY_[k]);
