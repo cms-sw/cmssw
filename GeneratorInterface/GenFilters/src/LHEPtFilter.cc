@@ -122,7 +122,11 @@ bool LHEPtFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
 
 void LHEPtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::vector<int>>("selectedPdgIds", {});
+  desc.add<double>("ptMin", 0);
+  desc.add<double>("ptMax", -1);  // default is -1, meaning no max
   desc.add<bool>("isScalar", false);  // default is false
+  desc.add<edm::InputTag>("src", edm::InputTag("externalLHEProducer"));
   descriptions.addDefault(desc);
 }
 
