@@ -58,7 +58,7 @@ void test_vector(std::vector<float>& values) {
 class DisTauTag : public edm::global::EDProducer<> {
 public:
   explicit DisTauTag(const edm::ParameterSet&);
-  ~DisTauTag() override {}
+  ~DisTauTag() override { cleanupTensorFlow(); }
 
   template <typename Scalar>
   static Scalar getDeltaPhi(Scalar phi1, Scalar phi2);
@@ -101,8 +101,6 @@ DisTauTag::DisTauTag(const edm::ParameterSet& config)
   produces<edm::ValueMap<float>>("score0");
   produces<edm::ValueMap<float>>("score1");
 }
-
-DisTauTag::~DisTauTag() { cleanupTensorFlow(); }
 
 void DisTauTag::initializeTensorFlow() const {
   std::lock_guard<std::mutex> lock(session_mutex_);
