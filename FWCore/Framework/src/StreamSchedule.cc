@@ -566,7 +566,7 @@ namespace edm {
     CMS_SA_ALLOW try {
       this->resetAll();
 
-      using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
+      using Traits = OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>;
 
       Traits::setStreamContext(streamContext_, ep);
       //a service may want to communicate with another service
@@ -583,9 +583,10 @@ namespace edm {
       for (int empty_trig_path : empty_trig_paths_) {
         results_->at(empty_trig_path) = hltPathStatus;
         pathStatusInserters[empty_trig_path]->setPathStatus(streamID_, hltPathStatus);
-        std::exception_ptr except = pathStatusInserterWorkers_[empty_trig_path]
-                                        ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-                                            info, streamID_, ParentContext(&streamContext_), &streamContext_);
+        std::exception_ptr except =
+            pathStatusInserterWorkers_[empty_trig_path]
+                ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+                    info, streamID_, ParentContext(&streamContext_), &streamContext_);
         if (except) {
           iTask.doneWaiting(except);
           return;
@@ -595,7 +596,7 @@ namespace edm {
         for (int empty_end_path : empty_end_paths_) {
           std::exception_ptr except =
               endPathStatusInserterWorkers_[empty_end_path]
-                  ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+                  ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
                       info, streamID_, ParentContext(&streamContext_), &streamContext_);
           if (except) {
             iTask.doneWaiting(except);
@@ -658,8 +659,9 @@ namespace edm {
       }
 
       ParentContext parentContext(&streamContext_);
-      workerManagerLumisAndEvents_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          hAllPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
+      workerManagerLumisAndEvents_
+          .processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+              hAllPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
     } catch (...) {
       iTask.doneWaiting(std::current_exception());
     }
@@ -694,7 +696,7 @@ namespace edm {
         //Even if there was an exception, we need to allow results inserter
         // to run since some module may be waiting on its results.
         ParentContext parentContext(&streamContext_);
-        using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
+        using Traits = OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>;
 
         auto expt = results_inserter_->runModuleDirectly<Traits>(info, streamID_, parentContext, &streamContext_);
         if (expt) {
@@ -723,7 +725,7 @@ namespace edm {
   }
 
   std::exception_ptr StreamSchedule::finishProcessOneEvent(std::exception_ptr iExcept) {
-    using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
+    using Traits = OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>;
 
     if (iExcept) {
       //add context information to the exception and print message
