@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
+# displaced tau
+from PhysicsTools.NanoAOD.custom_displacedtau_cff import *
+
 unpackedTracksAndVertices = cms.EDProducer('PATTrackAndVertexUnpacker',
                                            slimmedVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                            slimmedSecondaryVertices = cms.InputTag("slimmedSecondaryVertices"),
@@ -244,7 +247,11 @@ def add_exonanoTables(process):
     process = add_electronVertexTables(process)
     process = add_dispJetTables(process)
 
-    if hasattr(process, "nanoSequenceMC") and process.schedule.contains(process.nanoSequenceMC):
+    isMC = hasattr(process, "nanoSequenceMC") and process.schedule.contains(process.nanoSequenceMC)
+
+    process = add_displacedtauCHSTables(process, isMC)
+
+    if isMC:
         process = update_genParticleTable(process)
 
     return process
