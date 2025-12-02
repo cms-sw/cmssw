@@ -28,6 +28,7 @@ public:
         maxChi2_(cfg.getParameter<double>("maxChi2")),
         minHit_(cfg.getParameter<int>("minHit")),
         minPixelHit_(cfg.getParameter<int>("minPixelHit")),
+        maxPixelHit_(cfg.getParameter<int>("maxPixelHit")),
         minLayer_(cfg.getParameter<int>("minLayer")),
         min3DLayer_(cfg.getParameter<int>("min3DLayer")),
         usePV_(false),
@@ -97,6 +98,7 @@ public:
     desc.add<int>("minHit", 0);
     desc.add<int>("minLayer", 3);
     desc.add<int>("minPixelHit", 0);
+    desc.add<int>("maxPixelHit", 99);
     desc.add<std::vector<std::string> >("algorithm", {});
     desc.add<std::vector<std::string> >("algorithmMaskContains", {});
     desc.add<std::vector<std::string> >("originalAlgorithm", {});
@@ -149,6 +151,7 @@ public:
 
     return ((algo_ok & quality_ok) && t.hitPattern().numberOfValidHits() >= minHit_ &&
             t.hitPattern().numberOfValidPixelHits() >= minPixelHit_ &&
+            t.hitPattern().numberOfValidPixelHits() <= maxPixelHit_ &&
             t.hitPattern().trackerLayersWithMeasurement() >= minLayer_ &&
             t.hitPattern().pixelLayersWithMeasurement() + t.hitPattern().numberOfValidStripLayersWithMonoAndStereo() >=
                 min3DLayer_ &&
@@ -167,6 +170,7 @@ private:
   double maxChi2_;
   int minHit_;
   int minPixelHit_;
+  int maxPixelHit_;
   int minLayer_;
   int min3DLayer_;
   bool usePV_;

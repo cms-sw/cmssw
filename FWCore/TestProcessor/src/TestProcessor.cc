@@ -449,7 +449,7 @@ namespace edm {
       processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName());
 
       ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-      using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
+      using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin>;
       processGlobalTransition<Traits>(transitionInfo);
 
       beginProcessBlockCalled_ = true;
@@ -510,11 +510,11 @@ namespace edm {
 
       RunTransitionInfo transitionInfo(*runPrincipal_, es);
       {
-        using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
+        using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>;
         processGlobalTransition<Traits>(transitionInfo);
       }
       {
-        using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
+        using Traits = OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>;
         processTransitionForAllStreams<Traits>(transitionInfo);
       }
       beginRunCalled_ = true;
@@ -539,11 +539,11 @@ namespace edm {
       LumiTransitionInfo transitionInfo(*lumiPrincipal_, es);
 
       {
-        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
+        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
         processGlobalTransition<Traits>(transitionInfo);
       }
       {
-        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
+        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
         processTransitionForAllStreams<Traits>(transitionInfo);
       }
       beginLumiCalled_ = true;
@@ -599,11 +599,11 @@ namespace edm {
         LumiTransitionInfo transitionInfo(*lumiPrincipal, es);
 
         {
-          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
+          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>;
           processTransitionForAllStreams<Traits>(transitionInfo);
         }
         {
-          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
+          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
           processGlobalTransition<Traits>(transitionInfo);
         }
         {
@@ -636,11 +636,11 @@ namespace edm {
         RunTransitionInfo transitionInfo(*runPrincipal, es);
 
         {
-          using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
+          using Traits = OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd>;
           processTransitionForAllStreams<Traits>(transitionInfo);
         }
         {
-          using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
+          using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>;
           processGlobalTransition<Traits>(transitionInfo);
         }
         {
@@ -662,7 +662,7 @@ namespace edm {
         beginProcessBlockCalled_ = false;
 
         ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-        using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
+        using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd>;
         processGlobalTransition<Traits>(transitionInfo);
       }
       return &processBlockPrincipal;

@@ -486,7 +486,7 @@ namespace edm {
     };
 
     template <typename DUMMY>
-    class AcquireTask<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>, DUMMY> : public WaitingTask {
+    class AcquireTask<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>, DUMMY> : public WaitingTask {
     public:
       AcquireTask(Worker* worker,
                   EventTransitionInfo const& eventTransitionInfo,
@@ -593,9 +593,9 @@ namespace edm {
   };
   namespace workerhelper {
     template <>
-    class CallImpl<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>> {
+    class CallImpl<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>> {
     public:
-      typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Arg;
+      typedef OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> Arg;
       static bool call(Worker* iWorker,
                        StreamID,
                        EventTransitionInfo const& info,
@@ -620,9 +620,9 @@ namespace edm {
     };
 
     template <>
-    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>> {
+    class CallImpl<OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Arg;
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin> Arg;
       static bool call(Worker* iWorker,
                        StreamID,
                        RunTransitionInfo const& info,
@@ -654,9 +654,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>> {
+    class CallImpl<OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Arg;
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin> Arg;
       static bool call(Worker* iWorker,
                        StreamID id,
                        RunTransitionInfo const& info,
@@ -683,9 +683,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>> {
+    class CallImpl<OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Arg;
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd> Arg;
       static bool call(Worker* iWorker,
                        StreamID,
                        RunTransitionInfo const& info,
@@ -716,9 +716,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept { return iWorker->globalRunsQueue(); }
     };
     template <>
-    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>> {
+    class CallImpl<OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd>> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Arg;
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd> Arg;
       static bool call(Worker* iWorker,
                        StreamID id,
                        RunTransitionInfo const& info,
@@ -750,9 +750,9 @@ namespace edm {
     };
 
     template <>
-    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>> {
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
       static bool call(Worker* iWorker,
                        StreamID,
                        LumiTransitionInfo const& info,
@@ -781,9 +781,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>> {
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
       static bool call(Worker* iWorker,
                        StreamID id,
                        LumiTransitionInfo const& info,
@@ -811,9 +811,9 @@ namespace edm {
     };
 
     template <>
-    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>> {
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
       static bool call(Worker* iWorker,
                        StreamID,
                        LumiTransitionInfo const& info,
@@ -846,9 +846,9 @@ namespace edm {
       }
     };
     template <>
-    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>> {
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>;
       static bool call(Worker* iWorker,
                        StreamID id,
                        LumiTransitionInfo const& info,
@@ -879,9 +879,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>> {
+    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin>> {
     public:
-      using Arg = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
+      using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin>;
       static bool call(Worker* iWorker,
                        StreamID,
                        ProcessBlockTransitionInfo const& info,
@@ -903,9 +903,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>> {
+    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>> {
     public:
-      using Arg = OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>;
+      using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       static bool call(Worker* iWorker,
                        StreamID,
                        ProcessBlockTransitionInfo const& info,
@@ -926,9 +926,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>> {
+    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd>> {
     public:
-      using Arg = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
+      using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd>;
       static bool call(Worker* iWorker,
                        StreamID,
                        ProcessBlockTransitionInfo const& info,
