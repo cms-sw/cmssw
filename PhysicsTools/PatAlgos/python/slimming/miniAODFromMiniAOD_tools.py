@@ -109,8 +109,79 @@ def miniAODFromMiniAOD_customizeCommon(process):
     ###########################################################################
     # Rekey jet constituents
     ###########################################################################
+
+    # Add deep flavour info to AK4CHS jets
+    # (based on function from jetsAK4_CHS_cff in Nano)
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    def _m2m_addDeepInfoAK4CHS(process,
+                               addDeepBTag,
+                               addDeepFlavour,
+                               addParticleNet,
+                               addRobustParTAK4=False,
+                               addUnifiedParTAK4=False):
+        _btagDiscriminators=[]
+        if addDeepBTag:
+            print("Updating process to run DeepCSV btag")
+            _btagDiscriminators += ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc']
+        if addDeepFlavour:
+            print("Updating process to run DeepFlavour btag")
+            _btagDiscriminators += ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb','pfDeepFlavourJetTags:probc']
+        if addParticleNet:
+            print("Updating process to run ParticleNetAK4")
+            from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll as pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
+            from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll as pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+            _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
+            _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+        if addRobustParTAK4:
+            print("Updating process to run RobustParTAK4")
+            from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
+            _btagDiscriminators += pfParticleTransformerAK4JetTagsAll
+        if addUnifiedParTAK4:
+            print("Updating process to run UnifiedParTAK4")
+            from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsAll as pfUnifiedParticleTransformerAK4JetTagsAll
+            _btagDiscriminators += pfUnifiedParticleTransformerAK4JetTagsAll
+
+        if len(_btagDiscriminators)==0: return process
+        print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
+        updateJetCollection(
+            process,
+            jetSource = cms.InputTag('slimmedJets', processName=cms.InputTag.skipCurrentProcess()),
+            jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
+            btagDiscriminators = _btagDiscriminators,
+            postfix = 'AK4CHSWithDeepInfo',
+        )
+        process.load("Configuration.StandardSequences.MagneticField_cff")
+
+        from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+        task = getPatAlgosToolsTask(process)
+        addToProcessAndTask("slimmedJetsWithDeepInfo", process.selectedUpdatedPatJetsAK4CHSWithDeepInfo.clone(), process, task)
+        del process.selectedUpdatedPatJetsAK4CHSWithDeepInfo
+
+        return process
+
+    # FIXME: this probably needs to be era dependent, but all enabled for now
+    m2m_addDeepInfoAK4CHS_switch = cms.PSet(
+        m2m_addDeepBTag_switch = cms.untracked.bool(True),
+        m2m_addDeepFlavourTag_switch = cms.untracked.bool(True),
+        m2m_addParticleNet_switch = cms.untracked.bool(True),
+        m2m_addRobustParTAK4Tag_switch = cms.untracked.bool(True),
+        m2m_addUnifiedParTAK4Tag_switch = cms.untracked.bool(True)
+    )
+    _m2m_addDeepInfoAK4CHS(process,
+                           addDeepBTag = m2m_addDeepInfoAK4CHS_switch.m2m_addDeepBTag_switch,
+                           addDeepFlavour = m2m_addDeepInfoAK4CHS_switch.m2m_addDeepFlavourTag_switch,
+                           addParticleNet = m2m_addDeepInfoAK4CHS_switch.m2m_addParticleNet_switch,
+                           addRobustParTAK4 = m2m_addDeepInfoAK4CHS_switch.m2m_addRobustParTAK4Tag_switch,
+                           addUnifiedParTAK4 = m2m_addDeepInfoAK4CHS_switch.m2m_addUnifiedParTAK4Tag_switch)
+
+    jets_ak4chs_to_use = 'slimmedJets::@skipCurrentProcess'
+    for flag in m2m_addDeepInfoAK4CHS_switch._Parameterizable__parameterNames:
+        if m2m_addDeepInfoAK4CHS_switch.getParameter(flag).value():
+            jets_ak4chs_to_use = 'slimmedJetsWithDeepInfo'
+            break
+
     addToProcessAndTask("slimmedJets", cms.EDProducer("PATJetCandidatesRekeyer",
-        src = cms.InputTag("slimmedJets", processName=cms.InputTag.skipCurrentProcess()),
+        src = cms.InputTag(jets_ak4chs_to_use),
         packedPFCandidatesNew = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
       ),
       process, task
@@ -172,12 +243,120 @@ def miniAODFromMiniAOD_customizeCommon(process):
         tauIdEmbedder.runTauID()
         task.add(process.rerunMvaIsolationTaskM2M, getattr(process, taus_to_use))
 
+    # Produce a "hybrid" tau collection combining HPS-reconstructed taus with tau-tagged jets
+    def _m2m_addUTagToTaus(process, task,
+                           tausToUpdate = 'slimmedTaus',
+                           storePNetCHSjets = False,
+                           storeUParTPUPPIjets = False,
+                           addGenJet = False):
+        if not (storePNetCHSjets or storeUParTPUPPIjets): return process
+        if addGenJet:
+            from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
+            addToProcessAndTask('tauGenJets',
+                                tauGenJets.clone(GenParticles =  'prunedGenParticles'),
+                                process, task)
+            from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import tauGenJetsSelectorAllHadrons
+            addToProcessAndTask('tauGenJetsSelectorAllHadrons',
+                                tauGenJetsSelectorAllHadrons,
+                                process, task)
+            from PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi import tauGenJetMatch
+        from PhysicsTools.PatAlgos.patTauHybridProducer_cfi import patTauHybridProducer
+        if storePNetCHSjets:
+            jetCollection = jets_ak4chs_to_use
+            TagName = 'pfParticleNetFromMiniAODAK4CHSCentralJetTags'
+            tag_prefix = 'byUTagCHS'
+            updatedTauName = 'slimmedTausWithUTagCHS'
+            # PNet tagger used for CHS jets
+            from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralJetTags
+            Discriminators = [TagName+":"+tag for tag in pfParticleNetFromMiniAODAK4CHSCentralJetTags.flav_names.value()]
+            # Define "hybridTau" producer
+            setattr(process, updatedTauName,
+                    patTauHybridProducer.clone(
+                        src = tausToUpdate,
+                        jetSource = jetCollection,
+                        dRMax = 0.4,
+                        jetPtMin = 15,
+                        jetEtaMax = 2.5,
+                        UTagLabel = TagName,
+                        UTagScoreNames = Discriminators,
+                        tagPrefix = tag_prefix,
+                        tauScoreMin = -1,
+                        vsJetMin = 0.05,
+                        checkTauScoreIsBest = False,
+                        chargeAssignmentProbMin = 0.2,
+                        addGenJetMatch = addGenJet,
+                        genJetMatch = ''
+                    ))
+            if addGenJet:
+                addToProcessAndTask('tauGenJetMatchCHSJet',
+                                    tauGenJetMatch.clone(src = jetCollection),
+                                    process, task)
+                getattr(process,updatedTauName).genJetMatch = 'tauGenJetMatchCHSJet'
+            if storeUParTPUPPIjets: task.add(getattr(process,updatedTauName))
+        if storeUParTPUPPIjets:
+            jetCollection = 'slimmedJetsPuppiPreRekey'
+            TagName = 'pfUnifiedParticleTransformerAK4JetTags'
+            tag_prefix = 'byUTagPUPPI'
+            updatedTauName = 'slimmedTausWithUTagPUPPI' if not storePNetCHSjets else 'slimmedTausWithUTagCHSAndUTagPUPPI'
+            # Unified ParT Tagger used for PUPPI jets
+            from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4JetTags_cfi import pfUnifiedParticleTransformerAK4JetTags
+            Discriminators = [TagName+":"+tag for tag in pfUnifiedParticleTransformerAK4JetTags.flav_names.value()]
+            # Define "hybridTau" producer
+            setattr(process, updatedTauName,
+                    patTauHybridProducer.clone(
+                        src = tausToUpdate if not storePNetCHSjets else 'slimmedTausWithUTagCHS',
+                        jetSource = jetCollection,
+                        dRMax = 0.4,
+                        jetPtMin = 15,
+                        jetEtaMax = 2.5,
+                        UTagLabel = TagName,
+                        UTagScoreNames = Discriminators,
+                        tagPrefix = tag_prefix,
+                        tauScoreMin = -1,
+                        vsJetMin = 0.05,
+                        checkTauScoreIsBest = False,
+                        chargeAssignmentProbMin = 0.2,
+                        addGenJetMatch = addGenJet,
+                        genJetMatch = ''
+                    ))
+            if addGenJet:
+                addToProcessAndTask('tauGenJetMatchPUPPIJet',
+                                    tauGenJetMatch.clone(src = jetCollection),
+                                    process, task)
+                getattr(process,updatedTauName).genJetMatch = 'tauGenJetMatchPUPPIJet'
+        # Add "hybridTau" producer to pat-task
+        addToProcessAndTask('slimmedTausUpdatedWithUTags',
+                            getattr(process, updatedTauName).clone(),
+                            process, task)
+        return process
+
+    m2m_uTagToTaus_switches = cms.PSet(
+        storePNetCHSjets = cms.bool(True),
+        storeUParTPUPPIjets = cms.bool(True),
+        addGenJet = cms.bool(True)
+    )
+    _m2m_addUTagToTaus(process, task,
+                       taus_to_use,
+                       storePNetCHSjets = m2m_uTagToTaus_switches.storePNetCHSjets.value(),
+                       storeUParTPUPPIjets = m2m_uTagToTaus_switches.storeUParTPUPPIjets.value(),
+                       addGenJet = m2m_uTagToTaus_switches.addGenJet.value()
+    )
+    if m2m_uTagToTaus_switches.storePNetCHSjets.value() or m2m_uTagToTaus_switches.storeUParTPUPPIjets.value():
+        taus_to_use = 'slimmedTausUpdatedWithUTags'
+
     addToProcessAndTask("slimmedTaus", cms.EDProducer("PATTauCandidatesRekeyer",
                                                       src = cms.InputTag(taus_to_use),
                                                       packedPFCandidatesNew = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
                                                       ),
                         process, task
                         )
+    # fix circular module dependency in ParticleNetFromMiniAOD TagInfos when slimmedTaus is updated
+    def _fixPNetInputCollection(process):
+        if hasattr(process, 'slimmedTaus'):
+            for mod in process.producers.keys():
+                if 'ParticleNetFromMiniAOD' in mod and 'TagInfos' in mod:
+                    getattr(process, mod).taus = 'slimmedTaus::@skipCurrentProcess'
+    _fixPNetInputCollection(process)
 
     boosted_taus_to_use = 'slimmedTausBoosted::@skipCurrentProcess'
     idsToRun_for_boosted_taus = cms.PSet(idsToAdd=cms.vstring())
@@ -203,6 +382,11 @@ def miniAODFromMiniAOD_customizeCommon(process):
                                                              ),
                         process, task
                         )
+
+    # Use original pf-particles w/o recalculated puppi to be coherent with on-the-fly deepTau calculations
+    for mod in process.producers.keys():
+        if 'deeptau' in mod.lower():
+            getattr(process, mod).pfcands = 'packedPFCandidates::@skipCurrentProcess'
 
     ###########################################################################
     # Rekey candidates in electrons, photons and muons
@@ -309,6 +493,24 @@ def miniAODFromMiniAOD_customizeCommon(process):
 
     return process
 
+def hybridTausOnData(process):
+    print('removing MC dependencies for hybrid taus')
+    modulesToDel = []
+    for moduleName in process.producers.keys():
+        if not 'slimmedTaus' in moduleName: continue
+        module = getattr(process, moduleName)
+        if module.__dict__['_TypedParameterizable__type'] != 'PATTauHybridProducer': continue
+        module.addGenJetMatch = False
+        genJetModule = module.genJetMatch.getModuleLabel()
+        if not genJetModule in modulesToDel:
+            modulesToDel.append(genJetModule)
+        module.genJetMatch = ''
+    if modulesToDel:
+        modulesToDel.extend(['tauGenJets','tauGenJetsSelectorAllHadrons'])
+    for moduleName in modulesToDel:
+        if hasattr(process,moduleName): delattr(process,moduleName)
+    return process
+
 def miniAODFromMiniAOD_customizeData(process):
     from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringFromMiniAOD_cff import puppiJetMETReclusterFromMiniAOD_Data
     process = puppiJetMETReclusterFromMiniAOD_Data(process)
@@ -322,6 +524,8 @@ def miniAODFromMiniAOD_customizeMC(process):
 def miniAODFromMiniAOD_customizeAllData(process):
     process = miniAODFromMiniAOD_customizeData(process)
     process = miniAODFromMiniAOD_customizeCommon(process)
+    # remove MC dependencies for hybrid taus
+    process = hybridTausOnData(process)
     return process
 
 def miniAODFromMiniAOD_customizeAllMC(process):
