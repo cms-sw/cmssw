@@ -516,30 +516,6 @@ private:
     if (partType) {
       return 0;
     }
-    if (pfCand.particleId() == reco::PFCandidate::ParticleType::gamma) {
-      double energy = 0;
-      for (unsigned iele = 0; iele < pfCand.elementsInBlocks().size(); ++iele) {
-        // first get the block
-        reco::PFBlockRef blockRef = pfCand.elementsInBlocks()[iele].first;
-        //
-        unsigned elementIndex = pfCand.elementsInBlocks()[iele].second;
-        // check it actually exists
-        if (blockRef.isNull())
-          continue;
-
-        // then get the elements of the block
-        const edm::OwnVector<reco::PFBlockElement>& elements = (*blockRef).elements();
-
-        const reco::PFBlockElement& pfbe(elements[elementIndex]);
-        if (pfbe.type() == reco::PFBlockElement::PS1) {
-          reco::PFClusterRef clusterref = pfbe.clusterRef();
-          if (!clusterref.isNull()) {
-            const reco::PFCluster& cluster = *clusterref;
-            energy += cluster.energy();
-          }
-        }
-      }
-    }
     return pfCand.pS1Energy() + pfCand.pS2Energy();
   }
 
