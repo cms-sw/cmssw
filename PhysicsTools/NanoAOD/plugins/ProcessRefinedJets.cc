@@ -55,13 +55,15 @@ public:
       pat::Jet j(jIn);
 
       const double pt_orig = j.pt();
-      const double phi = j.phi();
+      const double phi     = j.phi();
 
       // mask: BvsAll > 0
       const float bvsAll = j.bDiscriminator(maskBtagName_);
-      const bool refine = (bvsAll > 0.f);
+      const bool refine  = (bvsAll > 0.f);
 
-      const double pt_ref = j.hasUserFloat(refinedPtName_) ? static_cast<double>(j.userFloat(refinedPtName_)) : pt_orig;
+      const double pt_ref = j.hasUserFloat(refinedPtName_)
+                                ? static_cast<double>(j.userFloat(refinedPtName_))
+                                : pt_orig;
 
       const double pt_final = refine ? pt_ref : pt_orig;
 
@@ -109,7 +111,7 @@ public:
         m.addUserFloat("phi_unrefined", static_cast<float>(phiOrig));
 
         // stash final values, needed for sorting.
-        m.addUserFloat("pt_final", static_cast<float>(ptFinal));
+        m.addUserFloat("pt_final",  static_cast<float>(ptFinal));
         m.addUserFloat("phi_final", static_cast<float>(phiFinal));
 
         // push back into pat::MET with reco::Candidate::LorentzVector ---
