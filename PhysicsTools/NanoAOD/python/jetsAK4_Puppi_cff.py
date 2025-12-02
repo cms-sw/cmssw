@@ -289,7 +289,8 @@ def nanoAOD_refineFastSim_puppiJet(process):
             btagUParTAK4Brefined   = cms.InputTag("puppiJetRefineNN","btagUParTAK4Brefined"),
             btagUParTAK4CvBrefined = cms.InputTag("puppiJetRefineNN","btagUParTAK4CvBrefined"),
             btagUParTAK4CvLrefined = cms.InputTag("puppiJetRefineNN","btagUParTAK4CvLrefined"),
-            btagUParTAK4QvGrefined = cms.InputTag("puppiJetRefineNN","btagUParTAK4QvGrefined"),)
+            btagUParTAK4QvGrefined = cms.InputTag("puppiJetRefineNN","btagUParTAK4QvGrefined"),
+        )
     )
     fastSim.toModify(process.jetPuppiTablesTask, process.jetPuppiTablesTask.add(process.finalJetsPuppiWithRefined))
 
