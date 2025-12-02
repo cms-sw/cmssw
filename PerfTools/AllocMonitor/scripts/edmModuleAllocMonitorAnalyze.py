@@ -834,7 +834,10 @@ class ESModuleTransitionParser(object):
         self.moduleID = int(payload[2])
         self.moduleInfo = esModuleInfos[self.moduleID]
         self.recordID = int(payload[3])
-        self.recordName = recordNames[self.recordID]
+        if not self.recordID:
+            self.recordName = ''
+        else:
+            self.recordName = recordNames[self.recordID]
         self.callID = int(payload[4])
         self.time = int(payload[5])
     def baseIndentLevel(self):
