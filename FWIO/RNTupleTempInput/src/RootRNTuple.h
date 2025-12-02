@@ -39,10 +39,10 @@ namespace edm::rntuple_temp {
     using EntryNumber = IndexIntoFile::EntryNumber_t;
     struct ProductInfo {
       ProductInfo(ProductDescription const& prod) : productDescription_(prod) {}
-      ProductInfo(ProductInfo const&) = default;
-      ProductInfo& operator=(ProductInfo const&) = default;
+      ProductInfo(ProductInfo const&) = delete;
+      ProductInfo& operator=(ProductInfo const&) = delete;
       ProductInfo(ProductInfo&&) = default;
-      ProductInfo& operator=(ProductInfo&&) = default;
+      ProductInfo& operator=(ProductInfo&&) = delete;
       void setField(ROOT::RFieldToken token, ROOT::RNTupleView<void> view, TClass const* wrapperBaseTClass);
       std::unique_ptr<WrapperBase> newWrapper() const;
       bool valid() const { return view_.has_value(); }
