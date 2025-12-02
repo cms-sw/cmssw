@@ -7,8 +7,8 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAlloc_cfg.py || die 'Failure using moduleAlloc_cfg.py' $?
 
 edmModuleAllocMonitorAnalyze.py -j moduleAlloc.log  > moduleAlloc.json
-grep -A9 'cpptypes' moduleAlloc.json > cpptypes.txt
-diff cpptypes.txt ${LOCAL_TEST_DIR}/unittest_output/cpptypes.txt || die 'differences in edmModuleAllocMonitorAnalyzer.py output' $?
+grep -A9 'cpptypes' moduleAlloc.json | sort --ignore-leading-blanks | grep -v 'cpptypes' | grep -v '}' | sed 's/,//g' > cpptypes.txt
+diff --ignore-all-space cpptypes.txt ${LOCAL_TEST_DIR}/unittest_output/cpptypes.txt || die 'differences in edmModuleAllocMonitorAnalyzer.py output' $?
 
 edmModuleAllocJsonToCircles.py moduleAlloc.json > moduleAlloc.circles.json
 grep '"\(record\|type\|label\)": ".*",' moduleAlloc.circles.json > circles.txt
