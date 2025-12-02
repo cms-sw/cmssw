@@ -9,7 +9,7 @@ OccurrenceTraits:
 
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/BranchActionType.h"
+#include "FWCore/Framework/interface/TransitionActionType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
@@ -31,11 +31,11 @@ namespace edm {
 
   class ProcessContext;
 
-  template <typename T, BranchActionType B>
+  template <typename T, TransitionActionType B>
   class OccurrenceTraits;
 
   template <>
-  class OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> {
+  class OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> {
   public:
     using MyPrincipal = EventPrincipal;
     using TransitionInfoType = EventTransitionInfo;
@@ -68,7 +68,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> {
+  class OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin> {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
@@ -109,7 +109,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> {
+  class OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin> {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
@@ -149,7 +149,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> {
+  class OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd> {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
@@ -189,7 +189,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> {
+  class OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd> {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
@@ -230,7 +230,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> {
+  class OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin> {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
@@ -271,7 +271,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> {
+  class OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin> {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
@@ -311,7 +311,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> {
+  class OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd> {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
@@ -353,7 +353,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> {
+  class OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd> {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
@@ -394,7 +394,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin> {
+  class OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
@@ -432,7 +432,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput> {
+  class OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
@@ -470,7 +470,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd> {
+  class OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
