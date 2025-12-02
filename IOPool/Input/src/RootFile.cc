@@ -5,6 +5,7 @@
 #include "DuplicateChecker.h"
 #include "InputFile.h"
 #include "ProvenanceAdaptor.h"
+#include "RootDelayedReader.h"
 #include "FWCore/Sources/interface/InputSourceRunHelper.h"
 
 #include "DataFormats/Common/interface/setIsMergeable.h"
