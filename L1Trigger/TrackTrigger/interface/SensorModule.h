@@ -71,10 +71,10 @@ namespace tt {
     int windowSize() const { return windowSize_; }
     //
     double tiltCorrection(double cot) const { return std::abs(tiltCorrectionSlope_ * cot) + tiltCorrectionIntercept_; }
-    //
+    // stub phi uncertainty for given inv2R
     double dPhi(double inv2R) const { return dPhi_ + (dR_ + scattering_) * std::abs(inv2R); }
-    //
-    double dZ() const { return dZ_; }
+    // stub z uncertainty for given track cot
+    double dZ(double cot) const { return dZ_ + dR_ * std::abs(cot); }
 
     unsigned int ringId(const Setup* setup) const;
 

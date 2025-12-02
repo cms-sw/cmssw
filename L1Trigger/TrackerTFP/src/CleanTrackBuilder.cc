@@ -181,10 +181,8 @@ namespace trackerTFP {
         const double inv2RMin = (binInv2R - numBinsInv2R_ / 2.) * baseInv2R_;
         const double inv2RMax = inv2RMin + baseInv2R_;
         const auto phiTs = {phiT(inv2RMin, -dPhi), phiT(inv2RMax, -dPhi), phiT(inv2RMin, dPhi), phiT(inv2RMax, dPhi)};
-        const int binPhiTMin =
-            std::floor(*std::min_element(phiTs.begin(), phiTs.end()) / basePhiT_ + 1.e-11) + numBinsPhiT_ / 2;
-        const int binPhiTMax =
-            std::floor(*std::max_element(phiTs.begin(), phiTs.end()) / basePhiT_ + 1.e-11) + numBinsPhiT_ / 2;
+        const int binPhiTMin = tt::floor(*std::min_element(phiTs.begin(), phiTs.end()) / basePhiT_) + numBinsPhiT_ / 2;
+        const int binPhiTMax = tt::floor(*std::max_element(phiTs.begin(), phiTs.end()) / basePhiT_) + numBinsPhiT_ / 2;
         for (int binPhiT = 0; binPhiT < numBinsPhiT_; binPhiT++)
           if (binPhiT >= binPhiTMin && binPhiT <= binPhiTMax)
             hitsPhi.set(offset + binPhiT);
@@ -206,8 +204,8 @@ namespace trackerTFP {
         const double cotMin = (binCot - numBinsCot_ / 2.) * baseCot_;
         const double cotMax = cotMin + baseCot_;
         const auto zTs = {zT(cotMin, -dZ), zT(cotMax, -dZ), zT(cotMin, dZ), zT(cotMax, dZ)};
-        const int binZTMin = std::floor(*std::min_element(zTs.begin(), zTs.end()) / baseZT_ + 1.e-11) + numBinsZT_ / 2;
-        const int binZTMax = std::floor(*std::max_element(zTs.begin(), zTs.end()) / baseZT_ + 1.e-11) + numBinsZT_ / 2;
+        const int binZTMin = tt::floor(*std::min_element(zTs.begin(), zTs.end()) / baseZT_) + numBinsZT_ / 2;
+        const int binZTMax = tt::floor(*std::max_element(zTs.begin(), zTs.end()) / baseZT_) + numBinsZT_ / 2;
         for (int binZT = 0; binZT < numBinsZT_; binZT++)
           if (binZT >= binZTMin && binZT <= binZTMax)
             hitsZ.set(offset + binZT);

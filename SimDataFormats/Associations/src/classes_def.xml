@@ -290,4 +290,9 @@
   
   <class name="std::pair<const edm::Ptr<TrackingParticle>, std::vector<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, std::allocator<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > > > >" />
 
+  <class name="std::map<TTStubRef, std::vector<TPPtr>>"/>
+  <class name="std::map<TPPtr, std::vector<TTStubRef>>"/>
+  <class name="tt::StubAssociation"/>
+  <class name="edm::Wrapper<tt::StubAssociation>"/>
+
 </lcgdict>

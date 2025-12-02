@@ -5,5 +5,6 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.TrackerDTC.Analyzer_cfi import TrackerDTCAnalyzer_params
 from L1Trigger.TrackerDTC.DTC_cfi import TrackerDTC_params
 from L1Trigger.TrackTrigger.Setup_cff import TrackTriggerSetup
+from SimTracker.TrackTriggerAssociation.StubAssociator_cfi import StubAssociator_params
 
-AnalyzerDTC = cms.EDAnalyzer('trackerDTC::Analyzer', TrackerDTCAnalyzer_params, TrackerDTC_params)
+AnalyzerDTC = cms.EDAnalyzer('trackerDTC::Analyzer', TrackerDTCAnalyzer_params, TrackerDTC_params, StubAssociator_params )

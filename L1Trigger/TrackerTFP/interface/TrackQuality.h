@@ -32,7 +32,7 @@ namespace trackerTFP {
   static constexpr int numBinschi2rz_ = 1 << TTTrack_TrackWord::TrackBitWidths::kChi2RZSize;
 
   // track quality variables
-  enum class VariableTQ { begin, m20 = begin, m21, invV0, invV1, chi2rphi, chi2rz, end, x };
+  enum class VariableTQ { begin, m20 = begin, m21, invV0, invV1, chi20, chi21, end, x };
   // conversion: Variable to int
   inline constexpr int operator+(VariableTQ v) { return static_cast<int>(v); }
   // increment of Variable
@@ -41,7 +41,6 @@ namespace trackerTFP {
   // configuration
   struct ConfigTQ {
     edm::FileInPath model_;
-    std::vector<std::string> featureNames_;
     double baseShiftCot_;
     double baseShiftZ0_;
     double baseShiftAPfixed_;
@@ -52,10 +51,10 @@ namespace trackerTFP {
     int dphiTruncation_;
     int widthInvV0_;
     int widthInvV1_;
-    int widthchi2rphi_;
-    int widthchi2rz_;
-    int baseShiftchi2rphi_;
-    int baseShiftchi2rz_;
+    int widthChi20_;
+    int widthChi21_;
+    int baseShiftChi20_;
+    int baseShiftChi21_;
   };
 
   // function template for DataFormat generation
@@ -73,9 +72,9 @@ namespace trackerTFP {
   template <>
   DataFormat makeDataFormat<VariableTQ::invV1>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  DataFormat makeDataFormat<VariableTQ::chi2rphi>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
+  DataFormat makeDataFormat<VariableTQ::chi20>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  DataFormat makeDataFormat<VariableTQ::chi2rz>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
+  DataFormat makeDataFormat<VariableTQ::chi21>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
 
   /*! \class  trackerTFP::TrackQuality
    *  \brief  Bit accurate emulation of the track quality BDT including calculation of chi2s.
@@ -106,11 +105,6 @@ namespace trackerTFP {
 
     // provides dataformats
     const DataFormats* dataFormats() const { return dataFormats_; }
-    // Controls the conversion between TTTrack features and ML model training features
-    std::vector<float> featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
-                                        const std::vector<std::string>& featureNames) const;
-    // Calculate the floating point BDT (used by HYBRID)
-    void setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) const;
     // Helper function to convert mvaPreSig to bin
     int toBinMVA(double mva) const;
     // Helper function to convert chi2B to bin
@@ -131,10 +125,7 @@ namespace trackerTFP {
     double range(VariableTQ v) const { return dataFormatsTQ_[+v].range(); }
     //
     // Floating point and digitized TQ BDT calculators.
-    const conifer::BDT<float, float>& bdt_float() const { return bdt_float_; }
     const conifer::BDT<AP_FIXED_BDT, AP_FIXED_BDT>& bdt_digi() const { return bdt_digi_; }
-
-    const edm::FileInPath& model() const { return model_; }
 
   private:
     // constructs TQ data formats
@@ -155,13 +146,8 @@ namespace trackerTFP {
     const DataFormats* dataFormats_;
     //
     ConfigTQ iConfig_;
-    //
-    edm::FileInPath model_;
     // Floating point and digitized TQ BDT calculators.
-    conifer::BDT<float, float> bdt_float_;
     conifer::BDT<AP_FIXED_BDT, AP_FIXED_BDT> bdt_digi_;
-    //
-    std::vector<std::string> featureNames_;
     //
     double baseShiftCot_;
     //

@@ -27,8 +27,9 @@
 namespace trklet {
 
   /*! \class  trklet::ProducerTM
-   *  \brief  Transforms format of Track Builder into that expected by DR input and muxes all channels to 1.
-              Since DR keeps first tracks the mux ordering (currently from low seed id to high seed id) is important.
+   *  \brief  Transforms format of Track Builder into that expected by DR input (using only inv2R, phiT and zT)
+   *          and muxes all channels to 1. Since DR keeps first tracks the mux ordering (currently from low
+   *          seed id to high seed id) is important.
    *  \author Thomas Schuh
    *  \date   2023, Jan
    */
@@ -55,7 +56,7 @@ namespace trklet {
     // ChannelAssignment token
     edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // helper class to store tracklet configurations
-    trklet::Settings settings_;
+    Settings settings_;
   };
 
   ProducerTM::ProducerTM(const edm::ParameterSet& iConfig) {
@@ -63,10 +64,10 @@ namespace trklet {
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     // book in- and output ED products
-    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
-    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
-    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
+    edGetTokenTracks_ = consumes(edm::InputTag(label, branchTracks));
+    edGetTokenStubs_ = consumes(edm::InputTag(label, branchStubs));
+    edPutTokenStubs_ = produces(branchStubs);
+    edPutTokenTracks_ = produces(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();

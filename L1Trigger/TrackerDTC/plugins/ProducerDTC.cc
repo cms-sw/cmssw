@@ -54,12 +54,12 @@ namespace trackerDTC {
 
   ProducerDTC::ProducerDTC(const edm::ParameterSet& iConfig) {
     // book in- and output ED products
-    const auto& inputTag = iConfig.getParameter<edm::InputTag>("InputTag");
+    const auto& inputTag = iConfig.getParameter<edm::InputTag>("InputTagTTStubs");
     const auto& branchAccepted = iConfig.getParameter<std::string>("BranchAccepted");
     const auto& branchLost = iConfig.getParameter<std::string>("BranchLost");
-    edGetToken_ = consumes<TTStubDetSetVec>(inputTag);
-    edPutTokenAccepted_ = produces<TTDTC>(branchAccepted);
-    edPutTokenLost_ = produces<TTDTC>(branchLost);
+    edGetToken_ = consumes(inputTag);
+    edPutTokenAccepted_ = produces(branchAccepted);
+    edPutTokenLost_ = produces(branchLost);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();

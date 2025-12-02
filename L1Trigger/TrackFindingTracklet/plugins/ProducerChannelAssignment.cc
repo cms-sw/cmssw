@@ -39,10 +39,20 @@ namespace trklet {
     const edm::ParameterSet& pSetDR = iConfig.getParameter<edm::ParameterSet>("DR");
     iConfig_.numComparisonModules_ = pSetDR.getParameter<int>("NumComparisonModules");
     iConfig_.minIdenticalStubs_ = pSetDR.getParameter<int>("MinIdenticalStubs");
+    const edm::ParameterSet& pSetTQ = iConfig.getParameter<edm::ParameterSet>("TQ");
+    iConfig_.tqNumLinks_ = pSetTQ.getParameter<int>("NumLinks");
+    iConfig_.tqWidthChi20_ = pSetTQ.getParameter<int>("WidthChi20");
+    iConfig_.tqWidthChi21_ = pSetTQ.getParameter<int>("WidthChi21");
+    iConfig_.tqBaseShiftChi20_ = pSetTQ.getParameter<int>("BaseShiftChi20");
+    iConfig_.tqBaseShiftChi21_ = pSetTQ.getParameter<int>("BaseShiftChi21");
+    iConfig_.tqWidthInvV0_ = pSetTQ.getParameter<int>("WidthInvV0"),
+    iConfig_.tqWidthInvV1_ = pSetTQ.getParameter<int>("WidthInvV1"),
+    iConfig_.tqWidthMVA_ = pSetTQ.getParameter<int>("WidthMVA"),
+    iConfig_.tqBinEdges_ = pSetTQ.getParameter<std::vector<int>>("BinEdges"),
     iConfig_.tmMuxOrderInt_.reserve(iConfig_.tmMuxOrder_.size());
     for (const std::string& s : iConfig_.tmMuxOrder_)
       iConfig_.tmMuxOrderInt_.push_back(std::distance(
-          iConfig_.tmMuxOrder_.begin(), find(iConfig_.tmMuxOrder_.begin(), iConfig_.tmMuxOrder_.end(), s)));
+          iConfig_.seedTypeNames_.begin(), find(iConfig_.seedTypeNames_.begin(), iConfig_.seedTypeNames_.end(), s)));
     const edm::ParameterSet& pSetSeedTypesSeedLayers = iConfig.getParameter<edm::ParameterSet>("SeedTypesSeedLayers");
     const edm::ParameterSet& pSetSeedTypesProjectionLayers =
         iConfig.getParameter<edm::ParameterSet>("SeedTypesProjectionLayers");

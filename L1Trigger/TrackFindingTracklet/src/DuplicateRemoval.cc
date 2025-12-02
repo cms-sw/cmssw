@@ -20,7 +20,7 @@ namespace trklet {
     const int width = setup_->widthAddrBRAM18() - 1;
     const double base = r.base() * pow(2., r.width() - width);
     const double range = r.range();
-    r_ = DataFormat(true, width, base, range);
+    r_ = DataFormat(true, base, range);
     tmNumLayers_ = channelAssignment_->tmNumLayers();
     phi_ = dataFormats_->format(Variable::phi, Process::dr);
   }
@@ -66,8 +66,10 @@ namespace trklet {
             layer + setup_->offsetLayerId() +
             (layer < setup_->numBarrelLayer() ? 0 : setup_->offsetLayerDisks() - setup_->numBarrelLayer());
         const auto it = std::find(layerEncoding.begin(), layerEncoding.end(), decodedLayerId);
-        const int encodedLayerId =
-            std::min(static_cast<int>(std::distance(layerEncoding.begin(), it)), setup_->numLayers() - 1);
+        const int encodedLayerId = static_cast<int>(std::distance(layerEncoding.begin(), it));
+        // kill stub if not encodable
+        if (encodedLayerId == setup_->numLayers())
+          continue;
         // kill stub on already occupied layer
         if (hitPattern.test(encodedLayerId))
           continue;

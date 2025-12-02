@@ -41,7 +41,8 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
       fullmatches_(fmMemOffset_ + N_SEED_DISPLACED),
       rinvbendlut_(settings),
       luttable_(settings),
-      inputProjBuffer_(3) {
+      inputProjBuffer_(3),
+      maxStep_(settings.maxStep("MP")) {
   phiregion_ = name[8] - 'A';
 
   layerdisk_ = initLayerDisk(3);
@@ -194,7 +195,7 @@ void MatchProcessor::read_input_mems(bool& read_is_valid,
     if (mem_hasdata[i]) {
       any_mem_hasdata = true;
     }
-  };
+  }
 
   int read_addr_next = read_addr + 1;
 
@@ -244,8 +245,8 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     
   */
 
-  bool print = getName() == "MP_L3PHIB_E" && iSector == 3;
-  print = false;
+  //constexpr bool print = getName() == "MP_L3PHIB_E" && iSector == 3;
+  constexpr bool print = false;
 
   phimin_ = phimin;
 
@@ -258,10 +259,9 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
   unsigned int countinputproj = 0;
 
   if (print) {
-    for (unsigned int i = 0; i < inputprojs_.size(); i++) {
-      for (unsigned int p = 0; p < inputprojs_[i]->nPage(); p++) {
-        edm::LogVerbatim("Tracklet") << "ProjOcc: " << inputprojs_[i]->getName() << " " << p << " "
-                                     << inputprojs_[i]->nTracklets(p);
+    for (const auto* proj : inputprojs_) {
+      for (unsigned int p = 0; p < proj->nPage(); p++) {
+        edm::LogVerbatim("Tracklet") << "ProjOcc: " << proj->getName() << " " << p << " " << proj->nTracklets(p);
       }
     }
   }
@@ -292,7 +292,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
 
   inputProjBuffer_.reset();
 
-  for (const auto& inputproj : inputprojs_) {
+  for (const auto* inputproj : inputprojs_) {
     countinputproj += inputproj->nTracklets();
   }
 
@@ -310,7 +310,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
   curr_tracklet = nullptr;
   next_tracklet = nullptr;
 
-  for (unsigned int istep = 0; istep < settings_.maxStep("MP"); istep++) {
+  for (unsigned int istep = 0; istep < maxStep_; istep++) {
     //bool projdone = false;
 
     bool projBufferNearFull = inputProjBuffer_.nearfull4();
@@ -318,8 +318,8 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     // This print statement is useful for detailed comparison with the HLS code
     // It prints out detailed status information for each clock step
 
-    std::stringstream mess;
     if (print) {
+      std::stringstream mess;
       mess << "istep = " << istep << " projBuff: " << inputProjBuffer_.rptr() << " " << inputProjBuffer_.wptr() << " "
            << projBufferNearFull;
       mess << " " << validin << " " << validin_ << " " << validmem;
@@ -611,7 +611,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
 
     /*
     if ((iprojmem!=0 && projdone && !meactive && inputProjBuffer_.rptr() == inputProjBuffer_.wptr()) ||
-        (istep == settings_.maxStep("MP") - 1)) {
+        (istep == maxStep_ - 1)) {
       if (settings_.writeMonitorData("MP")) {
         globals_->ofstream("matchprocessor.txt") << getName() << " " << istep << " " << countall << " " << countsel
                                                  << " " << countme << " " << countinputproj << endl;

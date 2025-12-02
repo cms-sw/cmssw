@@ -18,12 +18,11 @@ namespace trklet {
   }
 
   // proto state constructor
-  State::State(KalmanFilterFormats* kff, TrackDR* track, const std::vector<Stub*>& stubs, int trackId)
+  State::State(KalmanFilterFormats* kff, TrackDR* track, const std::vector<Stub*>& stubs)
       : kff_(kff),
         setup_(kff->setup()),
         track_(track),
         stubs_(stubs),
-        trackId_(trackId),
         parent_(nullptr),
         stub_(nullptr),
         hitPattern_(0, setup_->numLayers()),

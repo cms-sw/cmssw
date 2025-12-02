@@ -41,6 +41,13 @@ namespace trklet {
         kalmanFilterFormats_.endJob(ss);
       edm::LogPrint(moduleDescription().moduleName()) << ss.str();
     }
+    // merge woker output
+    void merge(const tt::StreamsStub&,
+               const tt::StreamsTrack&,
+               tt::StreamsStub&,
+               tt::StreamsTrack&,
+               int,
+               const tt::Setup*) const;
     // ED input token of sf stubs and tracks
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
@@ -48,9 +55,6 @@ namespace trklet {
     edm::EDPutTokenT<tt::TTTracks> edPutTokenTTTracks_;
     edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
     edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
-    // ED output token for number of accepted and lost States
-    edm::EDPutTokenT<int> edPutTokenNumStatesAccepted_;
-    edm::EDPutTokenT<int> edPutTokenNumStatesTruncated_;
     // Setup token
     edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
@@ -119,19 +123,22 @@ namespace trklet {
     iConfig_.baseShiftC22_ = iConfig.getParameter<int>("BaseShiftC22");
     iConfig_.baseShiftC23_ = iConfig.getParameter<int>("BaseShiftC23");
     iConfig_.baseShiftC33_ = iConfig.getParameter<int>("BaseShiftC33");
+    iConfig_.baseShiftInvDH_ = iConfig.getParameter<int>("BaseShiftInvDH");
+    iConfig_.baseShiftInvDH2_ = iConfig.getParameter<int>("BaseShiftInvDH2");
+    iConfig_.baseShiftHv0_ = iConfig.getParameter<int>("BaseShiftHv0");
+    iConfig_.baseShiftHv1_ = iConfig.getParameter<int>("BaseShiftHv1");
+    iConfig_.baseShiftH2v0_ = iConfig.getParameter<int>("BaseShiftH2v0");
+    iConfig_.baseShiftH2v1_ = iConfig.getParameter<int>("BaseShiftH2v1");
     printDebug_ = iConfig.getParameter<bool>("PrintKFDebug");
     const std::string& label = iConfig.getParameter<std::string>("InputLabelKF");
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
-    const std::string& branchTruncated = iConfig.getParameter<std::string>("BranchTruncated");
     // book in- and output ED products
-    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
-    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
-    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
-    edPutTokenTTTracks_ = produces<tt::TTTracks>(branchTracks);
-    edPutTokenNumStatesAccepted_ = produces<int>(branchTracks);
-    edPutTokenNumStatesTruncated_ = produces<int>(branchTruncated);
+    edGetTokenStubs_ = consumes(edm::InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes(edm::InputTag(label, branchTracks));
+    edPutTokenStubs_ = produces(branchStubs);
+    edPutTokenTracks_ = produces(branchTracks);
+    edPutTokenTTTracks_ = produces(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
@@ -147,13 +154,10 @@ namespace trklet {
     // helper class to store configurations
     const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     settings_.setMagneticField(setup->bField());
-    // helper class to extract structured data from tt::Frames
     auto valid = [](int sum, const tt::FrameTrack& f) { return sum + (f.first.isNull() ? 0 : 1); };
     // empty KF products
     tt::StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
     tt::StreamsTrack streamsTrack(setup->numRegions());
-    int numStatesAccepted(0);
-    int numStatesTruncated(0);
     // read in DR Product and produce KF product
     const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
     const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
@@ -178,7 +182,7 @@ namespace trklet {
       // read in and organize input tracks and stubs
       kf.consume(tracks, stubs);
       // fill output products
-      kf.produce(streamsStub, streamsTrack, numStatesAccepted, numStatesTruncated);
+      kf.produce(streamsStub, streamsTrack);
     }
     if (setup->kfUse5ParameterFit()) {
       // store ttTracks
@@ -193,8 +197,6 @@ namespace trklet {
     // store products
     iEvent.emplace(edPutTokenStubs_, std::move(streamsStub));
     iEvent.emplace(edPutTokenTracks_, std::move(streamsTrack));
-    iEvent.emplace(edPutTokenNumStatesAccepted_, numStatesAccepted);
-    iEvent.emplace(edPutTokenNumStatesTruncated_, numStatesTruncated);
   }
 
 }  // namespace trklet

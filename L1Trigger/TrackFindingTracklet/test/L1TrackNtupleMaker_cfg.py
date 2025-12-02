@@ -142,9 +142,10 @@ process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 #process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
 #process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs)
 
-
 # load code that associates stubs with mctruth
 process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
+# load code that analyzes mc truth
+process.load( 'L1Trigger.TrackTrigger.AnalyzerMC_cff' )
 # DTC emulation
 process.load('L1Trigger.TrackerDTC.DTC_cff')
 
@@ -155,7 +156,7 @@ process.load('L1Trigger.TrackerDTC.Analyzer_cff')
 #process.TrackTriggerSetup.FrontEnd.BendCut = 5.0
 #process.TrackTriggerSetup.Hybrid.MinPt = 1.0
 
-process.dtc = cms.Path(process.StubAssociator + process.ProducerDTC + process.AnalyzerDTC)
+process.dtc = cms.Path(process.StubAssociator + process.AnalyzerMC + process.ProducerDTC + process.AnalyzerDTC)
 
 ############################################################
 # L1 tracking
@@ -197,11 +198,13 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
     process.TTTracksEmulation = cms.Path(process.HybridNewKF)
     #process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks)
     # Optionally include code producing performance plots & end-of-job summary.
-    process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
-    process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks + process.StubAssociator +  process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTQ + process.AnalyzerTFP )
+    process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks +  process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTFP )
     from L1Trigger.TrackFindingTracklet.Customize_cff import *
     if (L1TRKALGO == 'HYBRID_NEWKF'):
         fwConfig( process )
+        # cheats to get good performance
+        process.TrackTriggerSetup.KalmanFilter.UseTTStubResiduals = True
+        process.TrackTriggerSetup.KalmanFilter.UseTTStubParameters = True
     if (L1TRKALGO == 'HYBRID_REDUCED'):
         reducedConfig( process )
     # Needed by L1TrackNtupleMaker
@@ -221,14 +224,18 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED_NEWKF_KILL' or L1TRKALGO == 'HYBRID_DISPLAC
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisExtended"
     process.TTTrackAssociatorFromPixelDigisExtended.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
     process.AnalyzerTracklet.InputTag = cms.InputTag(TRACKLET_NAME, TRACKLET_LABEL)
+    process.StubAssociator.MaxZ0 = 30.
+    process.StubAssociator.MaxD0 = 10.
+    process.StubAssociator.MaxVertR = 10.
+    process.StubAssociator.MaxVertZ = 60.
     if (L1TRKALGO == 'HYBRID_DISPLACED_NEWKF_MERGE'):
         displacedNewKFMergeConfig( process )
         process.HybridNewKF = cms.Sequence(process.L1TExtendedHybridTracks + process.ProducerFakeDR + process.ProducerKF + process.ProducerTQ + process.ProducerTFP)
-        process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.L1TExtendedHybridTracksWithAssociators + process.StubAssociator +  process.AnalyzerTracklet + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTQ + process.AnalyzerTFP)
+        process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.L1TExtendedHybridTracksWithAssociators + process.StubAssociator +  process.AnalyzerTracklet + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTFP)
     elif(L1TRKALGO == 'HYBRID_DISPLACED_NEWKF_KILL'):
         displacedNewKFKillConfig( process )
         process.HybridNewKF = cms.Sequence(process.L1TExtendedHybridTracks + process.ProducerFakeTM + process.ProducerDR + process.ProducerKF + process.ProducerTQ + process.ProducerTFP)
-        process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.L1TExtendedHybridTracksWithAssociators + process.StubAssociator +  process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTQ + process.AnalyzerTFP)
+        process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.L1TExtendedHybridTracksWithAssociators + process.StubAssociator +  process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTFP)
     process.TTTracksEmulation = cms.Path(process.HybridNewKF)
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET

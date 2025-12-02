@@ -27,7 +27,7 @@ HybridKalmanFilterFormats_params = cms.PSet (
   BaseShiftr0           = cms.int32(  -8 ), # precision difference in powers of 2 between phi residual and phiT
   BaseShiftr1           = cms.int32(   0 ), # precision difference in powers of 2 between z residual and zT
 
-  BaseShiftS00          = cms.int32(  -4 ), # precision difference in powers of 2 between S00 and inv2R x phiT
+  BaseShiftS00          = cms.int32(  -3 ), # precision difference in powers of 2 between S00 and inv2R x phiT
   BaseShiftS01          = cms.int32( -12 ), # precision difference in powers of 2 between S01 and phiT x phiT
   BaseShiftS12          = cms.int32(   0 ), # precision difference in powers of 2 between S12 and cotTheta x zT
   BaseShiftS13          = cms.int32(  -1 ), # precision difference in powers of 2 between S13 and zT x zT
@@ -42,21 +42,28 @@ HybridKalmanFilterFormats_params = cms.PSet (
   BaseShiftInvR00       = cms.int32( -30 ), # precision difference in powers of 2 between 1 / R00 and  1 / ( phiT x phiT )
   BaseShiftInvR11       = cms.int32( -41 ), # precision difference in powers of 2 between 1 / R11 and  1 / ( zT x zT )
 
-  BaseShiftS00Shifted   = cms.int32(  -1 ),
+  BaseShiftS00Shifted   = cms.int32(   0 ),
   BaseShiftS01Shifted   = cms.int32(  -7 ),
   BaseShiftS12Shifted   = cms.int32(   4 ),
   BaseShiftS13Shifted   = cms.int32(   4 ),
 
-  BaseShiftK00          = cms.int32(  -7 ), # precision difference in powers of 2 between K00 and inv2R / phiT
+  BaseShiftK00          = cms.int32(  -6 ), # precision difference in powers of 2 between K00 and inv2R / phiT
   BaseShiftK10          = cms.int32( -13 ), # precision difference in powers of 2 between K10 and 1
   BaseShiftK21          = cms.int32( -13 ), # precision difference in powers of 2 between K21 and cotTheta / zT
   BaseShiftK31          = cms.int32( -13 ), # precision difference in powers of 2 between K31 and 1
   
-  BaseShiftC00         = cms.int32(   6 ), # precision difference in powers of 2 between C00 and inv2R * inv2R
-  BaseShiftC01         = cms.int32(   1 ), # precision difference in powers of 2 between C01 and inv2R * phiT
+  BaseShiftC00         = cms.int32(   8 ), # precision difference in powers of 2 between C00 and inv2R * inv2R
+  BaseShiftC01         = cms.int32(   2 ), # precision difference in powers of 2 between C01 and inv2R * phiT
   BaseShiftC11         = cms.int32(  -6 ), # precision difference in powers of 2 between C11 and phiT * phiT
   BaseShiftC22         = cms.int32(   5 ), # precision difference in powers of 2 between C22 and cotTheta * cotTheta
-  BaseShiftC23         = cms.int32(   6 ), # precision difference in powers of 2 between C23 and cotTheta * zT
-  BaseShiftC33         = cms.int32(   5 )  # precision difference in powers of 2 between C33 and zT * zT
+  BaseShiftC23         = cms.int32(   5 ), # precision difference in powers of 2 between C23 and cotTheta * zT
+  BaseShiftC33         = cms.int32(   5 ), # precision difference in powers of 2 between C33 and zT * zT
+
+  BaseShiftInvDH       = cms.int32( -20 ),
+  BaseShiftInvDH2      = cms.int32( -25 ),
+  BaseShiftHv0         = cms.int32(   8 ),
+  BaseShiftHv1         = cms.int32(   9 ),
+  BaseShiftH2v0        = cms.int32(  17 ),
+  BaseShiftH2v1        = cms.int32(  18 ),
 
 )

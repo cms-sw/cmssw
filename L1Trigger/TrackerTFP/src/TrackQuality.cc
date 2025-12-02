@@ -15,10 +15,7 @@ namespace trackerTFP {
 
   TrackQuality::TrackQuality(const ConfigTQ& iConfig, const DataFormats* dataFormats)
       : dataFormats_(dataFormats),
-        model_(iConfig.model_),
-        bdt_float_(model_.fullPath()),  // load floating point BDT calculator
-        bdt_digi_(model_.fullPath()),   // load digitized BDT calculator
-        featureNames_(iConfig.featureNames_),
+        bdt_digi_(iConfig.model_.fullPath()),  // load digitized BDT calculator
         baseShiftCot_(iConfig.baseShiftCot_),
         baseShiftZ0_(iConfig.baseShiftZ0_),
         baseShiftAPfixed_(iConfig.baseShiftAPfixed_),
@@ -107,15 +104,15 @@ namespace trackerTFP {
       const double m21 = tq->format(VariableTQ::m21).digi(std::pow(stub.z(), 2));
       const double invV0 = tq->format(VariableTQ::invV0).digi(1. / std::pow(2. * stub.dPhi(), 2));
       const double invV1 = tq->format(VariableTQ::invV1).digi(1. / std::pow(2. * stub.dZ(), 2));
-      const double stubchi2rphi = tq->format(VariableTQ::chi2rphi).digi(m20 * invV0);
-      const double stubchi2rz = tq->format(VariableTQ::chi2rz).digi(m21 * invV1);
+      const double stubchi2rphi = tq->format(VariableTQ::chi20).digi(m20 * invV0);
+      const double stubchi2rz = tq->format(VariableTQ::chi21).digi(m21 * invV1);
       trackchi2rphi += stubchi2rphi;
       trackchi2rz += stubchi2rz;
     }
-    if (trackchi2rphi > tq->range(VariableTQ::chi2rphi))
-      trackchi2rphi = tq->range(VariableTQ::chi2rphi) - tq->base(VariableTQ::chi2rphi) / 2.;
-    if (trackchi2rz > tq->range(VariableTQ::chi2rz))
-      trackchi2rz = tq->range(VariableTQ::chi2rz) - tq->base(VariableTQ::chi2rz) / 2.;
+    if (trackchi2rphi > tq->range(VariableTQ::chi20))
+      trackchi2rphi = tq->range(VariableTQ::chi20) - tq->base(VariableTQ::chi20) / 2.;
+    if (trackchi2rz > tq->range(VariableTQ::chi21))
+      trackchi2rz = tq->range(VariableTQ::chi21) - tq->base(VariableTQ::chi21) / 2.;
     // calc bdt inputs
     const double cot = tq->scaleCot(df->format(Variable::cot, Process::dr).integer(track.cot()));
     const double z0 =
@@ -158,8 +155,8 @@ namespace trackerTFP {
     std::reverse(hits.begin(), hits.end());
     TTBV ttBV(hits);
     ttBV += TTBV(tq->toBinMVA(mva), widthMVA_);
-    tq->format(VariableTQ::chi2rphi).attach(trackchi2rphi, ttBV);
-    tq->format(VariableTQ::chi2rz).attach(trackchi2rz, ttBV);
+    tq->format(VariableTQ::chi20).attach(trackchi2rphi, ttBV);
+    tq->format(VariableTQ::chi21).attach(trackchi2rz, ttBV);
     frame_ = ttBV.bs();
   }
 
@@ -200,85 +197,20 @@ namespace trackerTFP {
     return DataFormat(false, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<VariableTQ::chi2rphi>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
-    const int shift = iConfig.baseShiftchi2rphi_;
-    const int width = iConfig.widthchi2rphi_;
+  DataFormat makeDataFormat<VariableTQ::chi20>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
+    const int shift = iConfig.baseShiftChi20_;
+    const int width = iConfig.widthChi20_;
     const double base = std::pow(2., shift);
     const double range = base * std::pow(2, width);
     return DataFormat(false, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<VariableTQ::chi2rz>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
-    const int shift = iConfig.baseShiftchi2rz_;
-    const int width = iConfig.widthchi2rz_;
+  DataFormat makeDataFormat<VariableTQ::chi21>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
+    const int shift = iConfig.baseShiftChi21_;
+    const int width = iConfig.widthChi21_;
     const double base = std::pow(2., shift);
     const double range = base * std::pow(2, width);
     return DataFormat(false, width, base, range);
-  }
-
-  // Controls the conversion between TTTrack features and ML model training features
-  std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
-                                                    std::vector<std::string> const& featureNames) const {
-    // List input features for MVA in proper order below, the current features options are
-    // {"phi", "eta", "z0", "bendchi2_bin", "nstub", "nlaymiss_interior", "chi2rphi_bin",
-    // "chi2rz_bin"}
-    //
-    // To use more features, they must be created here and added to feature_map below
-    std::vector<float> transformedFeatures;
-    // Define feature map, filled as features are generated
-    std::map<std::string, float> feature_map;
-    // -------- calculate feature variables --------
-    // calculate number of missed interior layers from hitpattern
-    int tmp_trk_hitpattern = aTrack.hitPattern();
-    int nbits = std::floor(std::log2(tmp_trk_hitpattern)) + 1;
-    int lay_i = 0;
-    int tmp_trk_nlaymiss_interior = 0;
-    bool seq = false;
-    for (int i = 0; i < nbits; i++) {
-      lay_i = ((1 << i) & tmp_trk_hitpattern) >> i;  //0 or 1 in ith bit (right to left)
-
-      if (lay_i && !seq)
-        seq = true;  //sequence starts when first 1 found
-      if (!lay_i && seq)
-        tmp_trk_nlaymiss_interior++;
-    }
-    // binned chi2 variables
-    int tmp_trk_bendchi2_bin = aTrack.getBendChi2Bits();
-    int tmp_trk_chi2rphi_bin = aTrack.getChi2RPhiBits();
-    int tmp_trk_chi2rz_bin = aTrack.getChi2RZBits();
-    // get the nstub
-    std::vector<TTStubRef> stubRefs = aTrack.getStubRefs();
-    int tmp_trk_nstub = stubRefs.size();
-    // get other variables directly from TTTrack
-    float tmp_trk_z0 = aTrack.z0();
-    float tmp_trk_z0_scaled = tmp_trk_z0 / abs(aTrack.minZ0);
-    float tmp_trk_phi = aTrack.phi();
-    float tmp_trk_eta = aTrack.eta();
-    float tmp_trk_tanl = aTrack.tanL();
-    // -------- fill the feature map ---------
-    feature_map["nstub"] = float(tmp_trk_nstub);
-    feature_map["z0"] = tmp_trk_z0;
-    feature_map["z0_scaled"] = tmp_trk_z0_scaled;
-    feature_map["phi"] = tmp_trk_phi;
-    feature_map["eta"] = tmp_trk_eta;
-    feature_map["nlaymiss_interior"] = float(tmp_trk_nlaymiss_interior);
-    feature_map["bendchi2_bin"] = tmp_trk_bendchi2_bin;
-    feature_map["chi2rphi_bin"] = tmp_trk_chi2rphi_bin;
-    feature_map["chi2rz_bin"] = tmp_trk_chi2rz_bin;
-    feature_map["tanl"] = tmp_trk_tanl;
-    // fill tensor with track params
-    transformedFeatures.reserve(featureNames.size());
-    for (const std::string& feature : featureNames)
-      transformedFeatures.push_back(feature_map[feature]);
-    return transformedFeatures;
-  }
-
-  // Calculate the floating point BDT (used by HYBRID)
-  void TrackQuality::setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) const {
-    // collect features and classify using bdt
-    std::vector<float> inputs = featureTransform(aTrack, this->featureNames_);
-    std::vector<float> output = this->bdt_float().decision_function(inputs);
-    aTrack.settrkMVA1(1. / (1. + exp(-output.at(0))));
   }
 
 }  // namespace trackerTFP

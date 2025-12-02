@@ -36,20 +36,20 @@ namespace trklet {
     baseLz_ = dataFormats->base(Variable::z, Process::tm);
     baseLcot_ = baseLz_ / baseLr_;
     // Finer granularity (by powers of 2) than the TMTT one. Used to transform from Tracklet to TMTT base.
-    baseHinv2R_ = baseLinv2R_ * pow(2, floor(log2(baseUinv2R_ / baseLinv2R_)));
-    baseHphiT_ = baseLphiT_ * pow(2, floor(log2(baseUphiT_ / baseLphiT_)));
-    baseHzT_ = baseLzT_ * pow(2, floor(log2(baseUzT_ / baseLzT_)));
-    baseHr_ = baseLr_ * pow(2, floor(log2(baseUr_ / baseLr_)));
-    baseHphi_ = baseLphi_ * pow(2, floor(log2(baseUphi_ / baseLphi_)));
-    baseHz_ = baseLz_ * pow(2, floor(log2(baseUz_ / baseLz_)));
-    baseHcot_ = baseLcot_ * pow(2, floor(log2(baseUcot_ / baseLcot_)));
+    baseHinv2R_ = baseLinv2R_ * std::pow(2, std::floor(std::log2(baseUinv2R_ / baseLinv2R_)));
+    baseHphiT_ = baseLphiT_ * std::pow(2, std::floor(std::log2(baseUphiT_ / baseLphiT_)));
+    baseHzT_ = baseLzT_ * std::pow(2, std::floor(std::log2(baseUzT_ / baseLzT_)));
+    baseHr_ = baseLr_ * std::pow(2, std::floor(std::log2(baseUr_ / baseLr_)));
+    baseHphi_ = baseLphi_ * std::pow(2, std::floor(std::log2(baseUphi_ / baseLphi_)));
+    baseHz_ = baseLz_ * std::pow(2, std::floor(std::log2(baseUz_ / baseLz_)));
+    baseHcot_ = baseLcot_ * std::pow(2, std::floor(std::log2(baseUcot_ / baseLcot_)));
     // calculate digitisation granularity used for inverted cot(theta)
-    const int baseShiftInvCot = ceil(log2(setup_->outerRadius() / setup_->hybridRangeR())) - setup_->widthDSPbu();
-    baseInvCot_ = pow(2, baseShiftInvCot);
+    const int baseShiftInvCot = tt::ceil(std::log2(setup_->tbMaxR() / setup_->tbMinZ())) - setup_->widthDSPbu();
+    baseInvCot_ = std::pow(2, baseShiftInvCot);
     const int unusedMSBScot =
-        floor(log2(baseUcot_ * pow(2.0, channelAssignment_->tmWidthCot()) / 2. / setup_->maxCot()));
+        tt::floor(std::log2(baseUcot_ * std::pow(2.0, channelAssignment_->tmWidthCot()) / 2. / setup_->maxCot()));
     const int baseShiftScot = channelAssignment_->tmWidthCot() - unusedMSBScot - 1 - setup_->widthAddrBRAM18();
-    baseScot_ = baseUcot_ * pow(2.0, baseShiftScot);
+    baseScot_ = baseUcot_ * std::pow(2.0, baseShiftScot);
   }
 
   // read in and organize input tracks and stubs
@@ -134,11 +134,11 @@ namespace trklet {
           double z = digi(hwRZ.val(baseRZ) * (barrel ? 1. : -cot), baseUz_);
           // determine module type
           bool psTilt = setup_->psModule(ttStubRef);
-          if (barrel) {
+          if (barrel && psTilt) {
             const double posZ = (r + digi(setup_->chosenRofPhi(), baseUr_)) * cot + z0 + z;
             const int indexLayerId = setup_->indexLayerId(ttStubRef);
             const double limit = setup_->tiltedLayerLimitZ(indexLayerId);
-            psTilt = std::abs(posZ) < limit;
+            psTilt = std::abs(posZ) > limit;
           }
           stubs_.emplace_back(ttStubRef, layerIdTracklet, stubId, r, phi, z, psTilt);
           stubs.push_back(&stubs_.back());
@@ -169,11 +169,8 @@ namespace trklet {
           z0 = zT - cot * setup_->chosenRofZ();
           // adjust stub residuals by track parameter shifts
           for (Stub* stub : stubs) {
-            const double dphi = digi(dphiT + stub->r_ * dinv2R, baseUphi_);
-            const double r = stub->r_ + digi(setup_->chosenRofPhi() - setup_->chosenRofZ(), baseUr_);
-            const double dz = digi(dzT + r * dcot, baseUz_);
-            stub->phi_ = digi(stub->phi_ + dphi, baseUphi_);
-            stub->z_ = digi(stub->z_ + dz, baseUz_);
+            stub->phi_ += dphiT + stub->r_ * dinv2R;
+            stub->z_ += dzT + (stub->r_ + setup_->chosenRofPhi() - setup_->chosenRofZ()) * dcot;
           }
         }
         // create fake seed stubs, since TrackBuilder doesn't output these stubs, required by the KF.
@@ -190,7 +187,7 @@ namespace trklet {
             const int index = layerId - setup_->offsetLayerId();
             const double layer = digi(setup_->hybridLayerR(index), baseUr_);
             const double z = digi(z0 + layer * cot, baseUz_);
-            if (std::abs(z) < digi(setup_->tbBarrelHalfLength(), baseUz_) || index > 0)
+            if (std::abs(z) < digi(setup_->tbMinZ(), baseUz_) || index > 0)
               r = digi(setup_->hybridLayerR(index) - setup_->chosenRofPhi(), baseUr_);
             else {
               r = digi(setup_->innerRadius() - setup_->chosenRofPhi(), baseUr_);
@@ -206,15 +203,14 @@ namespace trklet {
           double phi = 0.;
           double z = 0.;
           // determine module type
-          bool psTilt;
-          if (barrel) {
+          bool psTilt = setup_->psModule(ttStubRef);
+          if (barrel && psTilt) {
             const int indexLayerId = setup_->indexLayerId(ttStubRef);
             const double limit = digi(setup_->tiltedLayerLimitZ(indexLayerId), baseUz_);
             const double posR = digi(setup_->hybridLayerR(layerId - setup_->offsetLayerId()), baseUr_);
             const double posZ = digi(posR * cot + z0, baseUz_);
-            psTilt = std::abs(posZ) < limit;
-          } else
-            psTilt = true;
+            psTilt = std::abs(posZ) > limit;
+          }
           stubs_.emplace_back(ttStubRef, trackletLayerId, stubId, r, phi, z, psTilt);
           stubs.push_back(&stubs_.back());
         }
@@ -222,52 +218,14 @@ namespace trklet {
           for (Stub* stub : stubs) {
             const GlobalPoint gp = setup_->stubPos(stub->ttStubRef_);
             stub->r_ = gp.perp() - setup_->chosenRofPhi();
-            stub->phi_ = tt::deltaPhi(gp.phi() - region_ * setup_->baseRegion());
-            stub->phi_ -= phiT + stub->r_ * inv2R;
-            stub->z_ = gp.z() - (z0 + gp.perp() * cot);
+            stub->phi_ = tt::deltaPhi(gp.phi() - offset);
+            stub->z_ = gp.z();
+            stub->phi_ -= phiT + std::asin(stub->r_ * inv2R);
+            stub->z_ -= z0 + std::asin(gp.perp() * inv2R) / inv2R * cot;
           }
         }
-        // non linear corrections
-        if (setup_->kfApplyNonLinearCorrection()) {
-          for (Stub* stub : stubs) {
-            const double d = inv2R * (stub->r_ + setup_->chosenRofPhi());
-            const double dPhi = std::asin(d) - d;
-            stub->phi_ -= dPhi;
-            stub->z_ -= dPhi / inv2R * cot;
-          }
-        }
-        // check track validity
-        bool valid = true;
-        // kill truncated rtacks
-        if (setup_->enableTruncation() && frame >= setup_->numFramesHigh())
-          valid = false;
-        // kill tracks outside of fiducial range
-        if (!dataFormats_->format(Variable::phiT, Process::tm).inRange(phiT, true))
-          valid = false;
-        if (!dataFormats_->format(Variable::zT, Process::tm).inRange(zT, true))
-          valid = false;
-        // stub range checks
-        for (Stub* stub : stubs) {
-          if (!dataFormats_->format(Variable::phi, Process::tm).inRange(stub->phi_, true))
-            stub->valid_ = false;
-          if (!dataFormats_->format(Variable::z, Process::tm).inRange(stub->z_, true))
-            stub->valid_ = false;
-        }
-        // layer check
-        std::set<int> layers, layersPS;
-        for (Stub* stub : stubs) {
-          if (!stub->valid_)
-            continue;
-          const int layerId = setup_->layerId(stub->ttStubRef_);
-          layers.insert(layerId);
-          if (setup_->psModule(stub->ttStubRef_))
-            layersPS.insert(layerId);
-        }
-        if (static_cast<int>(layers.size()) < setup_->kfMinLayers() ||
-            static_cast<int>(layersPS.size()) < setup_->kfMinLayersPS())
-          valid = false;
         // create track
-        tracks_.emplace_back(ttTrackRef, valid, channel, inv2R, phiT, cot, zT, stubs);
+        tracks_.emplace_back(ttTrackRef, channel, inv2R, phiT, cot, zT, stubs);
         input.push_back(&tracks_.back());
       }
     }
@@ -300,11 +258,11 @@ namespace trklet {
       track.cot_ -= dcot;
       track.zT_ -= dzT;
       // range checks
-      if (!dataFormats_->format(Variable::inv2R, Process::tm).inRange(track.inv2R_, true))
+      if (!dataFormats_->format(Variable::inv2R, Process::tm).isCovered(track.inv2R_))
         track.valid_ = false;
-      if (!dataFormats_->format(Variable::phiT, Process::tm).inRange(track.phiT_, true))
+      if (!dataFormats_->format(Variable::phiT, Process::tm).isCovered(track.phiT_))
         track.valid_ = false;
-      if (!dataFormats_->format(Variable::zT, Process::tm).inRange(track.zT_, true))
+      if (!dataFormats_->format(Variable::zT, Process::tm).isCovered(track.zT_))
         track.valid_ = false;
       // adjust stub residuals by track parameter shifts
       for (Stub* stub : track.stubs_) {
@@ -314,9 +272,9 @@ namespace trklet {
         stub->phi_ = digi(stub->phi_ + dphi, baseLphi_);
         stub->z_ = digi(stub->z_ + dz, baseLz_);
         // range checks
-        if (!dataFormats_->format(Variable::phi, Process::tm).inRange(stub->phi_, true))
+        if (!dataFormats_->format(Variable::phi, Process::tm).isCovered(stub->phi_))
           stub->valid_ = false;
-        if (!dataFormats_->format(Variable::z, Process::tm).inRange(stub->z_, true))
+        if (!dataFormats_->format(Variable::z, Process::tm).isCovered(stub->z_))
           stub->valid_ = false;
       }
     }
@@ -341,9 +299,8 @@ namespace trklet {
     std::deque<Track*> accepted;
     std::vector<std::deque<Track*>> stacks(channelAssignment_->numChannelsTrack());
     // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
-    while (!std::all_of(streams.begin(), streams.end(), [](const std::deque<Track*>& tracks) {
-      return tracks.empty();
-    }) || !std::all_of(stacks.begin(), stacks.end(), [](const std::deque<Track*>& tracks) { return tracks.empty(); })) {
+    auto empty = [](const std::deque<Track*>& tracks) { return tracks.empty(); };
+    while (!std::all_of(streams.begin(), streams.end(), empty) || !std::all_of(stacks.begin(), stacks.end(), empty)) {
       // fill input fifos
       for (int channel = 0; channel < channelAssignment_->numChannelsTrack(); channel++) {
         Track* track = pop_front(streams[channel]);
@@ -412,7 +369,7 @@ namespace trklet {
   double TrackMultiplexer::redigi(double val, double baseLow, double baseHigh, int widthMultiplier) const {
     const double base = std::pow(2, 1 - widthMultiplier);
     const double transform = digi(baseLow / baseHigh, base);
-    return (std::floor(val * transform / baseLow) + .5) * baseHigh;
+    return (tt::floor(val * transform / baseLow) + .5) * baseHigh;
   }
 
 }  // namespace trklet

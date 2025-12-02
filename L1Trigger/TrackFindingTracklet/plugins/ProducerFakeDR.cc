@@ -57,9 +57,9 @@ namespace trklet {
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     // book in- and output ED products
-    edGetTokenTracks_ = consumes<tt::TTTracks>(inputTag);
-    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
+    edGetTokenTracks_ = consumes(inputTag);
+    edPutTokenStubs_ = produces(branchStubs);
+    edPutTokenTracks_ = produces(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
@@ -93,23 +93,36 @@ namespace trklet {
     for (int iTrack = 0; iTrack < static_cast<int>(handle->size()); iTrack++) {
       const TTTrackRef ttTrackRef(handle, iTrack);
       const int iRegion = ttTrackRef->phiSector();
+      const double phiR = iRegion * setup->baseRegion();
       // track parameter
-      const double inv2R = -.5 * ttTrackRef->rInv();
-      const double phiT =
-          tt::deltaPhi(ttTrackRef->phi() + inv2R * setup->chosenRofPhi() - iRegion * setup->baseRegion());
-      const double cot = ttTrackRef->tanL();
-      const double zT = ttTrackRef->z0() + cot * setup->chosenRofZ();
+      const double d0 = -ttTrackRef->d0();
+      double inv2R = -.5 * ttTrackRef->rInv();
+      double phi0 = tt::deltaPhi(ttTrackRef->phi() - phiR);
+      double cot = ttTrackRef->tanL();
+      double z0 = ttTrackRef->z0();
+      double R = .5 / inv2R;
+      double R0 = R + d0;
+      double phiT = phi0 + std::asin((setup->chosenRofPhi() * setup->chosenRofPhi() + R0 * R0 - R * R) / 2. /
+                                     setup->chosenRofPhi() / R0);
+      double zT = z0 + std::abs(R) * cot *
+                           std::acos((R * R + R0 * R0 - setup->chosenRofZ() * setup->chosenRofZ()) / 2. / R / R0);
       // range checks
-      const bool validInv2R = dataFormats->format(Variable::inv2R, Process::dr).inRange(inv2R);
-      const bool validPhiT = dataFormats->format(Variable::phiT, Process::dr).inRange(phiT);
-      const bool validZT = dataFormats->format(Variable::zT, Process::dr).inRange(zT);
+      const bool validInv2R = dataFormats->format(Variable::inv2R, Process::dr).isCovered(inv2R);
+      const bool validPhiT = dataFormats->format(Variable::phiT, Process::dr).isCovered(phiT);
+      const bool validZT = dataFormats->format(Variable::zT, Process::dr).isCovered(zT);
       if (!validInv2R || !validPhiT || !validZT)
         continue;
-      // track parameter shifts to adjust stubs
-      const double dinv2R = inv2R - dataFormats->format(Variable::inv2R, Process::dr).digi(inv2R);
-      const double dphiT = phiT - dataFormats->format(Variable::phiT, Process::dr).digi(phiT);
-      const double dcot = cot - dataFormats->format(Variable::zT, Process::dr).digi(zT) / setup->chosenRofZ();
-      const double dzT = zT - dataFormats->format(Variable::zT, Process::dr).digi(zT);
+      // digitised track parameter
+      inv2R = dataFormats->format(Variable::inv2R, Process::tm).digi(inv2R);
+      phiT = dataFormats->format(Variable::phiT, Process::tm).digi(phiT);
+      cot = dataFormats->format(Variable::zT, Process::tm).digi(zT) / setup->chosenRofZ();
+      zT = dataFormats->format(Variable::zT, Process::tm).digi(zT);
+      R = .5 / inv2R;
+      R0 = R + d0;
+      phi0 = phiT - std::asin((setup->chosenRofPhi() * setup->chosenRofPhi() + R0 * R0 - R * R) / 2. /
+                              setup->chosenRofPhi() / R0);
+      z0 = zT -
+           std::abs(R) * cot * std::acos((R * R + R0 * R0 - setup->chosenRofZ() * setup->chosenRofZ()) / 2. / R / R0);
       // process stubs
       const int offset = iRegion * setup->numLayers();
       const std::vector<int>& le = layerEncoding->layerEncoding(zT);
@@ -123,31 +136,25 @@ namespace trklet {
         // stub parameter
         tt::SensorModule* sm = setup->sensorModule(ttStubRef);
         const GlobalPoint gp = setup->stubPos(ttStubRef);
-        const double r = gp.perp() - setup->chosenRofPhi();
-        const double rZ = gp.perp() - setup->chosenRofZ();
-        double phi = tt::deltaPhi(gp.phi() - iRegion * setup->baseRegion() - phiT - r * inv2R);
-        double z = gp.z() - zT - rZ * cot;
-        const double dZ = .5 * sm->dZ();
+        const double r = gp.perp();
+        const double rPhi = gp.perp() - setup->chosenRofPhi();
+        const double trackPhi = phi0 + std::asin((r * r + R0 * R0 - R * R) / 2. / r / R0);
+        const double trackZ = z0 + std::abs(R) * cot * std::acos((R * R + R0 * R0 - r * r) / 2. / R / R0);
+        double phi = tt::deltaPhi(gp.phi() - phiR - trackPhi);
+        double z = gp.z() - trackZ;
+        const double dZ = .5 * sm->dZ(cot);
         const double dPhi = .5 * sm->dPhi(inv2R);
-        // linear correction
-        const double d = inv2R * gp.perp();
-        const double cor = std::asin(d) - d;
-        phi -= cor;
-        z -= cor / inv2R * cot;
-        // shift stubs accoring to track shifts
-        phi += dphiT + r * dinv2R;
-        z += dzT + rZ * dcot;
         // range checks
-        const bool validR = dataFormats->format(Variable::r, Process::dr).inRange(r);
-        const bool validPhi = dataFormats->format(Variable::phi, Process::dr).inRange(phi);
-        const bool validZ = dataFormats->format(Variable::z, Process::dr).inRange(z);
-        const bool validDPhi = dataFormats->format(Variable::dPhi, Process::dr).inRange(dPhi);
-        const bool validDZ = dataFormats->format(Variable::dZ, Process::dr).inRange(dZ);
+        const bool validR = dataFormats->format(Variable::r, Process::dr).isCovered(rPhi);
+        const bool validPhi = dataFormats->format(Variable::phi, Process::dr).isCovered(phi);
+        const bool validZ = dataFormats->format(Variable::z, Process::dr).isCovered(z);
+        const bool validDPhi = dataFormats->format(Variable::dPhi, Process::dr).isCovered(dPhi);
+        const bool validDZ = dataFormats->format(Variable::dZ, Process::dr).isCovered(dZ);
         if (!validR || !validPhi || !validZ || !validDPhi || !validDZ)
           continue;
         // store stub
         hitPattern.set(iLayer);
-        const StubDR stubDR(ttStubRef, dataFormats, r, phi, z, dPhi, dZ);
+        const StubDR stubDR(ttStubRef, dataFormats, rPhi, phi, z, dPhi, dZ);
         streamsStub[offset + iLayer].push_back(stubDR.frame());
       }
       // check enough stubs

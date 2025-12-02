@@ -47,8 +47,8 @@ namespace trackerTFP {
     zT_ = trackDR.zT();
     const double d0 = std::max(std::min(ttTrackRef_->d0(), -TTTrack_TrackWord::minD0), TTTrack_TrackWord::minD0);
     TTBV ttBV = TTBV(frameTQ);
-    tq->format(VariableTQ::chi2rz).extract(ttBV, chi2rz_);
-    tq->format(VariableTQ::chi2rphi).extract(ttBV, chi2rphi_);
+    tq->format(VariableTQ::chi21).extract(ttBV, chi2rz_);
+    tq->format(VariableTQ::chi20).extract(ttBV, chi2rphi_);
     mva_ = TTBV(ttBV, numBinsMVA_).val();
     ttBV >>= numBinsMVA_;
     hitPattern_ = ttBV;

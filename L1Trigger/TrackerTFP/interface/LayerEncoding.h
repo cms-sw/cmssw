@@ -28,6 +28,10 @@ namespace trackerTFP {
     const TTBV& maybePattern(int zT) const;
     // pattern of maybe layers for given zT in cm
     const TTBV& maybePattern(double zT) const;
+    // encoded layer id which may be PS or 2S for given zT
+    int maybePS(int zT) const;
+    // encoded layer id which may be PS or 2S for given zT in cm
+    int maybePS(double zT) const;
     // fills numPS, num2S, numMissingPS and numMissingPS for given hitPattern and trajectory
     void analyze(
         int hitpattern, double cot, double z0, int& numPS, int& num2S, int& numMissingPS, int& numMissing2S) const;
@@ -43,6 +47,8 @@ namespace trackerTFP {
     std::vector<std::vector<int>> layerEncoding_;
     // outer to inner indices: bin in zT, maybe patterns
     std::vector<TTBV> maybePattern_;
+    // kf layerId where PS/2S assigment is ambigoius (only happens in disks) for each zT
+    std::vector<int> maybePS_;
     std::vector<int> nullLE_;
     TTBV nullMP_;
   };

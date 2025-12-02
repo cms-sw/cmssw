@@ -12,7 +12,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
+#include "SimDataFormats/Associations/interface/StubAssociation.h"
+#include "L1Trigger/TrackTrigger/interface/Associator.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
@@ -48,6 +49,8 @@ namespace trackerTFP {
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenAss_;
     // Setup token
     edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    // Associator token
+    edm::ESGetToken<tt::Associator, tt::SetupRcd> esGetTokenAssociator_;
     // DataFormats token
     edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
@@ -94,6 +97,7 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenAssociator_ = esConsumes();
     // log config
     log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
@@ -148,16 +152,13 @@ namespace trackerTFP {
       hisPT->Fill(tpPtr->pt());
     };
     // read in gp products
-    edm::Handle<tt::StreamsStub> handleStubs;
-    iEvent.getByToken<tt::StreamsStub>(edGetToken_, handleStubs);
+    const tt::StreamsStub& streamsStub = iEvent.get(edGetToken_);
     // read in MCTruth
-    const tt::StubAssociation* stubAssociation = nullptr;
+    tt::Associator associator = iSetup.getData(esGetTokenAssociator_);
     if (useMCTruth_) {
-      edm::Handle<tt::StubAssociation> handleAss;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenAss_, handleAss);
-      stubAssociation = handleAss.product();
-      prof_->Fill(4, stubAssociation->numTPs());
-      for (const auto& p : stubAssociation->getTrackingParticleToTTStubsMap())
+      associator.consume(iEvent.get(edGetTokenAss_));
+      prof_->Fill(4, associator.numTPs());
+      for (const auto& p : associator.getTrackingParticleToTTStubsMap())
         fill(p.first, hisEffEtaTotal_, hisEffZTTotal_, hisEffInv2RTotal_, hisEffPTTotal_);
     }
     // analyze gp products and find still reconstrucable TrackingParticles
@@ -167,7 +168,7 @@ namespace trackerTFP {
       std::map<TPPtr, std::vector<TTStubRef>> mapTPsTTStubs;
       for (int channel = 0; channel < setup_->numSectors(); channel++) {
         const int index = region * setup_->numSectors() + channel;
-        const tt::StreamStub& accepted = handleStubs->at(index);
+        const tt::StreamStub& accepted = streamsStub.at(index);
         hisChannel_->Fill(accepted.size());
         profChannel_->Fill(channel, accepted.size());
         for (const tt::FrameStub& frame : accepted) {
@@ -176,19 +177,19 @@ namespace trackerTFP {
           nStubs++;
           if (!useMCTruth_)
             continue;
-          const std::vector<TPPtr>& tpPtrs = stubAssociation->findTrackingParticlePtrs(frame.first);
+          const std::vector<TPPtr>& tpPtrs = associator.findTrackingParticlePtrs(frame.first);
           for (const TPPtr& tpPtr : tpPtrs) {
             auto it = mapTPsTTStubs.find(tpPtr);
             if (it == mapTPsTTStubs.end()) {
               it = mapTPsTTStubs.emplace(tpPtr, std::vector<TTStubRef>()).first;
-              it->second.reserve(stubAssociation->findTTStubRefs(tpPtr).size());
+              it->second.reserve(associator.findTTStubRefs(tpPtr).size());
             }
             it->second.push_back(frame.first);
           }
         }
       }
       for (const auto& p : mapTPsTTStubs)
-        if (setup_->reconstructable(p.second))
+        if (associator.reconstructable(p.second))
           setTPPtr.insert(p.first);
       prof_->Fill(1, nStubs);
     }

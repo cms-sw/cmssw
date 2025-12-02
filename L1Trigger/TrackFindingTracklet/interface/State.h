@@ -25,12 +25,14 @@ namespace trklet {
     // copy constructor
     State(State* state);
     // proto state constructor
-    State(KalmanFilterFormats* kff, TrackDR* track, const std::vector<Stub*>& stubs, int trackId);
+    State(KalmanFilterFormats* kff, TrackDR* track, const std::vector<Stub*>& stubs);
     // updated state constructor
     State(State* state, const std::vector<double>& doubles);
     // combinatoric and seed building state constructor
     State(State* state, State* parent, int layer);
     ~State() = default;
+    //
+    void setTrackId(int trackId) { trackId_ = trackId; }
     //
     State* comb(std::deque<State>& states, int layer);
     //
@@ -107,7 +109,7 @@ namespace trklet {
     // input track stubs
     std::vector<Stub*> stubs_;
     // track id
-    int trackId_;
+    int trackId_ = -1;
     // previous state, nullptr for first states
     State* parent_;
     // stub to add

@@ -8,6 +8,8 @@ def fwConfig(process):
   process.l1tTTTracksFromTrackletEmulation.RemovalType = ""
   process.l1tTTTracksFromTrackletEmulation.DoMultipleMatches = False
   process.l1tTTTracksFromTrackletEmulation.StoreTrackBuilderOutput = True
+  process.TrackTriggerSetup.KalmanFilter.UseTTStubResiduals = False
+  process.TrackTriggerSetup.KalmanFilter.UseTTStubParameters = False
 
 # configures track finding s/w to behave as a subchain of processing steps
 def reducedConfig(process):
@@ -30,6 +32,7 @@ def reducedConfig(process):
 # configures displaced tracking using duplicate removal sim followed by 5 param fit sim
 def displacedNewKFMergeConfig(process):
   process.TrackTriggerSetup.KalmanFilter.Use5ParameterFit = True
+  process.TrackTriggerSetup.Firmware.EnableTruncation = False
   process.l1tTTTracksFromTrackletEmulation.Fakefit = True
   process.l1tTTTracksFromTrackletEmulation.DoMultipleMatches = False
   process.l1tTTTracksFromTrackletEmulation.RemovalType = "merge"
@@ -39,6 +42,7 @@ def displacedNewKFMergeConfig(process):
 # configures displaced tracking using duplicate removal emulation followed by 5 param fit sim
 def displacedNewKFKillConfig(process):
   process.TrackTriggerSetup.KalmanFilter.Use5ParameterFit = True
+  process.TrackTriggerSetup.Firmware.EnableTruncation = False
   process.l1tTTTracksFromTrackletEmulation.Fakefit = True
   process.l1tTTTracksFromTrackletEmulation.DoMultipleMatches = False
   process.ChannelAssignment.SeedTypes = ( "L1L2", "L2L3", "L3L4", "L5L6", "D1D2", "D3D4", "L1D1", "L2D1", "L2L3L4", "L4L5L6", "L2L3D1", "D1D2L2" )

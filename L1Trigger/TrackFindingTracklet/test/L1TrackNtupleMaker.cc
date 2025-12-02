@@ -164,6 +164,8 @@ private:
   std::vector<float>* m_trk_phi;
   std::vector<float>* m_trk_d0;  // (filled if L1Tk_nPar==5, else 999)
   std::vector<float>* m_trk_z0;
+  std::vector<float>* m_trk_tanL;
+  std::vector<float>* m_trk_zT;
   std::vector<float>* m_trk_chi2;
   std::vector<float>* m_trk_chi2_dof;
   std::vector<float>* m_trk_chi2rphi;
@@ -352,6 +354,8 @@ void L1TrackNtupleMaker::endJob() {
   delete m_trk_phi;
   delete m_trk_z0;
   delete m_trk_d0;
+  delete m_trk_tanL;
+  delete m_trk_zT;
   delete m_trk_chi2;
   delete m_trk_chi2_dof;
   delete m_trk_chi2rphi;
@@ -477,6 +481,8 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_phi = new std::vector<float>;
   m_trk_d0 = new std::vector<float>;
   m_trk_z0 = new std::vector<float>;
+  m_trk_tanL = new std::vector<float>;
+  m_trk_zT = new std::vector<float>;
   m_trk_chi2 = new std::vector<float>;
   m_trk_chi2_dof = new std::vector<float>;
   m_trk_chi2rphi = new std::vector<float>;
@@ -594,6 +600,8 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("trk_phi", &m_trk_phi);
     eventTree->Branch("trk_d0", &m_trk_d0);
     eventTree->Branch("trk_z0", &m_trk_z0);
+    eventTree->Branch("trk_tanL", &m_trk_tanL);
+    eventTree->Branch("trk_zT", &m_trk_zT);
     eventTree->Branch("trk_chi2", &m_trk_chi2);
     eventTree->Branch("trk_chi2_dof", &m_trk_chi2_dof);
     eventTree->Branch("trk_chi2rphi", &m_trk_chi2rphi);
@@ -740,6 +748,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_phi->clear();
     m_trk_d0->clear();
     m_trk_z0->clear();
+    m_trk_tanL->clear();
+    m_trk_zT->clear();
     m_trk_chi2->clear();
     m_trk_chi2_dof->clear();
     m_trk_chi2rphi->clear();
@@ -1086,6 +1096,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_trk_phi = iterL1Track->momentum().phi();
       float tmp_trk_z0 = iterL1Track->z0();  //cm
       float tmp_trk_tanL = iterL1Track->tanL();
+      float tmp_trk_zT = iterL1Track->z0() + setup->chosenRofZ() * iterL1Track->tanL();
       int tmp_trk_charge = (int)TMath::Sign(1, iterL1Track->rInv());
 
       int tmp_trk_hitpattern = 0;
@@ -1139,7 +1150,16 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       unsigned int tmp_trk_phiSector = iterL1Track->phiSector();
       int tmp_trk_etaSector = hph.etaSector();
 
-      // ----------------------------------------------------------------------------------------------
+      // layer encoding
+      const TTBV hitPattern((int)iterL1Track->hitPattern(), setup->numLayers());
+      const vector<int>& le = layerEncoding->layerEncoding(tmp_trk_zT);
+      vector<int> layers;
+      layers.reserve(hitPattern.size());
+      for (int layer : hitPattern.ids())
+        layers.push_back(le[layer]);
+      m_trk_layers->push_back(layers);
+
+      // ----------------------------------------------------------------------------------------
       // loop over stubs on tracks
 
       //float tmp_trk_bend_chi2 = 0;
@@ -1210,10 +1230,9 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_eta->push_back(tmp_trk_eta);
       m_trk_phi->push_back(tmp_trk_phi);
       m_trk_z0->push_back(tmp_trk_z0);
-      if (L1Tk_nPar == 5)
-        m_trk_d0->push_back(tmp_trk_d0);
-      else
-        m_trk_d0->push_back(999.);
+      m_trk_d0->push_back(tmp_trk_d0);
+      m_trk_tanL->push_back(tmp_trk_tanL);
+      m_trk_zT->push_back(tmp_trk_zT);
       m_trk_chi2->push_back(tmp_trk_chi2);
       m_trk_chi2_dof->push_back(tmp_trk_chi2_dof);
       m_trk_chi2rphi->push_back(tmp_trk_chi2rphi);
@@ -1353,16 +1372,6 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         m_trk_injet_vhighpt->push_back(InJetVeryHighpt);
 
       }  //end tracking in jets
-
-      // layer encoding
-      const TTBV hitPattern((int)iterL1Track->hitPattern(), setup->numLayers());
-      const double zT = iterL1Track->z0() + setup->chosenRofZ() * iterL1Track->tanL();
-      const vector<int>& le = layerEncoding->layerEncoding(zT);
-      vector<int> layers;
-      layers.reserve(hitPattern.size());
-      for (int layer : hitPattern.ids())
-        layers.push_back(le[layer]);
-      m_trk_layers->push_back(layers);
 
     }  //end track loop
 

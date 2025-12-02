@@ -31,8 +31,8 @@ namespace trklet {
     void produce(tt::StreamsTrack& streamsTrack, tt::StreamsStub& streamsStub);
 
   private:
-    // truncates double precision of val into base precision, +1.e-12 restores robustness of addition of 2 digitised values
-    double digi(double val, double base) const { return (floor(val / base + 1.e-12) + .5) * base; }
+    // truncates double precision of val into base precision
+    double digi(double val, double base) const { return (tt::floor(val / base) + .5) * base; }
     // basetransformation of val from baseLow into baseHigh using widthMultiplier bit multiplication
     double redigi(double val, double baseLow, double baseHigh, int widthMultiplier) const;
     struct Stub {
@@ -58,7 +58,6 @@ namespace trklet {
       static constexpr int max_ = 11;
       Track() { stubs_.reserve(max_); }
       Track(const TTTrackRef& ttTrackRef,
-            bool valid,
             int seedType,
             double inv2R,
             double phiT,
@@ -66,7 +65,7 @@ namespace trklet {
             double zT,
             const std::vector<Stub*>& stubs)
           : ttTrackRef_(ttTrackRef),
-            valid_(valid),
+            valid_(true),
             seedType_(seedType),
             inv2R_(inv2R),
             phiT_(phiT),

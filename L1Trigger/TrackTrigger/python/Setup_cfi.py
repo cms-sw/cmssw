@@ -16,7 +16,7 @@ TrackTrigger_params = cms.PSet (
     NumLayers    = cms.int32 (  8       ), # TMTT: number of detector layers a reconstructbale particle may cross, reduced to 7, 8th layer almost never corssed
     MinLayers    = cms.int32 (  4       ), # required number of stub layers to form a track
     MinPt        = cms.double(  2.0     ), # min track pt in GeV, also defines region overlap shape
-    MinPtCand    = cms.double(  1.34    ), # min candiate pt in GeV
+    MinPtCand    = cms.double(  1.7     ), # min candiate pt in GeV
     MaxEta       = cms.double(  2.5     ), # cut on stub eta
     MaxD0        = cms.double(  5.0     ), # in cm, constraints track reconstruction phase space
     ChosenRofPhi = cms.double( 55.      ), # critical radius defining region overlap shape in cm
@@ -52,9 +52,10 @@ TrackTrigger_params = cms.PSet (
       cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) ), # disk 4
       cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) )  # disk 5
     ),
-    OffsetRDiskPS    = cms.double(   7.5 ), # radial offset in cm applied to disk PS stubs
-    BarrelHalfLength = cms.double( 120.0 ), # biggest barrel stub z position after TrackBuilder in cm
-    InnerRadius      = cms.double(  19.6 ), # smallest stub radius after TrackBuilder in cm
+    OffsetRDiskPS = cms.double(   7.5 ), # radial offset in cm applied to disk PS stubs
+    MinZ          = cms.double( 120.0 ), # smallest disk stub z position after TrackBuilder in cm
+    MaxR          = cms.double( 120.0 ), # biggest disk stub r position after TrackBuilder in cm
+    InnerRadius   = cms.double(  19.6 ), # smallest stub radius after TrackBuilder in cm
   ),
 
   # Fimrware specific Parameter
@@ -180,7 +181,6 @@ TrackTrigger_params = cms.PSet (
     UseSimmulation           = cms.bool  ( False ), # simulate KF instead of emulate
     UseTTStubResiduals       = cms.bool  ( True  ), # stub residuals and radius are recalculated from seed parameter and TTStub position
     UseTTStubParameters      = cms.bool  ( True  ), # track parameter are recalculated from seed TTStub positions
-    ApplyNonLinearCorrection = cms.bool  ( True  ), # aplly correction to stub position making trajectory appear linear
     NumWorker                = cms.int32 (   1   ), # number of kf worker
     MaxTracks                = cms.int32 (  63   ), # max number of tracks a kf worker can process
     RangeFactor              = cms.double(   3.0 ), # search window of each track parameter in initial uncertainties
@@ -190,7 +190,6 @@ TrackTrigger_params = cms.PSet (
     MaxGaps                  = cms.int32 (   4   ), # maximum number of layer gaps allowed during cominatorical track building
     MaxSeedingLayer          = cms.int32 (   4   ), # perform seeding in layers 0 to this
     NumSeedStubs             = cms.int32 (   2   ), # number of stubs forming a seed
-    MinSeedDeltaR            = cms.double(   1.6 ), # don't build seeds with smaller radial difference as this in cm
     ShiftInitialC00          = cms.int32 (   0   ), # initial C00 is given by inv2R uncertainty squared times this power of 2
     ShiftInitialC11          = cms.int32 (   0   ), # initial C11 is given by phiT uncertainty squared times this power of 2
     ShiftInitialC22          = cms.int32 (   0   ), # initial C22 is given by cot uncertainty squared times this power of 2

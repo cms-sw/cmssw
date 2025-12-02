@@ -50,7 +50,6 @@ namespace trklet {
     }
     tracks_.reserve(numTracks);
     stubs_.reserve(numStubs);
-    int trackId(0);
     for (int frame = 0; frame < static_cast<int>(streamTrack.size()); frame++) {
       const tt::FrameTrack& frameTrack = streamTrack[frame];
       if (frameTrack.first.isNull()) {
@@ -60,23 +59,15 @@ namespace trklet {
       tracks_.emplace_back(frameTrack, dataFormats_);
       TrackDR* track = &tracks_.back();
       std::vector<Stub*> stubs(setup_->numLayers(), nullptr);
-      TTBV hitPattern(0, setup_->numLayers());
       for (int layer = 0; layer < setup_->numLayers(); layer++) {
         const tt::FrameStub& frameStub = streamsStub[offset + layer][frame];
         if (frameStub.first.isNull())
           continue;
         stubs_.emplace_back(kalmanFilterFormats_, frameStub);
         stubs[layer] = &stubs_.back();
-        hitPattern.set(layer);
       }
-      if (hitPattern.count(0, setup_->kfMaxSeedingLayer()) < setup_->kfNumSeedStubs()) {
-        stream_.push_back(nullptr);
-        continue;
-      }
-      states_.emplace_back(kalmanFilterFormats_, track, stubs, trackId++);
+      states_.emplace_back(kalmanFilterFormats_, track, stubs);
       stream_.push_back(&states_.back());
-      if (setup_->enableTruncation() && trackId == setup_->kfMaxTracks())
-        break;
     }
   }
 
@@ -165,13 +156,13 @@ namespace trklet {
       const double cot = trackFitted.tanLambda();
       const double zT = trackFitted.z0() + cot * setup_->chosenRofZ();
       // check for bit overflows
-      if (!dataFormats_->format(Variable::inv2R, Process::kf).inRange(inv2R, true))
+      if (!dataFormats_->format(Variable::inv2R, Process::kf).isCovered(inv2R))
         continue;
-      if (!dataFormats_->format(Variable::phiT, Process::kf).inRange(phiT, true))
+      if (!dataFormats_->format(Variable::phiT, Process::kf).isCovered(phiT))
         continue;
-      if (!dataFormats_->format(Variable::cot, Process::kf).inRange(cot, true))
+      if (!dataFormats_->format(Variable::cot, Process::kf).isCovered(cot))
         continue;
-      if (!dataFormats_->format(Variable::zT, Process::kf).inRange(zT, true))
+      if (!dataFormats_->format(Variable::zT, Process::kf).isCovered(zT))
         continue;
       const double d0 = trackFitted.d0();
       const double x0 = inv2R - trackFound->inv2R();
@@ -200,9 +191,9 @@ namespace trklet {
         const double dZ = s.dZ();
         const int layer = std::distance(stubsState.begin(), it);
         // check for bit overflows
-        if (!dataFormats_->format(Variable::phi, Process::kf).inRange(phi, true))
+        if (!dataFormats_->format(Variable::phi, Process::kf).isCovered(phi))
           continue;
-        if (!dataFormats_->format(Variable::z, Process::kf).inRange(z, true))
+        if (!dataFormats_->format(Variable::z, Process::kf).isCovered(z))
           continue;
         hitPattern.set(layer);
         stubsKF.emplace_back(s, r, phi, z, dPhi, dZ);
@@ -218,12 +209,26 @@ namespace trklet {
   }
 
   // fill output products
-  void KalmanFilter::produce(tt::StreamsStub& streamsStub,
-                             tt::StreamsTrack& streamsTrack,
-                             int& numAcceptedStates,
-                             int& numLostStates) {
+  void KalmanFilter::produce(tt::StreamsStub& streamsStub, tt::StreamsTrack& streamsTrack) {
     if (setup_->kfUseSimmulation())
       return simulate(streamsStub, streamsTrack);
+    // eleminate tracks with insufficient stubs
+    int trackId(0);
+    for (State*& state : stream_) {
+      if (!state)
+        continue;
+      const TTBV& hitPattern = state->trackPattern();
+      const bool validSeed = hitPattern.count(0, setup_->kfMaxSeedingLayer()) >= setup_->kfNumSeedStubs();
+      const bool validtrack = hitPattern.count() >= setup_->kfMinLayers();
+      const bool validTrunc = trackId < setup_->kfMaxTracks() || !setup_->enableTruncation();
+      if (validSeed && validtrack && validTrunc)
+        state->setTrackId(trackId++);
+      else
+        state = nullptr;
+    }
+    // remove all gaps between end and last track
+    for (auto it = stream_.end(); it != stream_.begin();)
+      it = (*--it) ? stream_.begin() : stream_.erase(it);
     // 5 parameter fit simulation
     if (setup_->kfUse5ParameterFit()) {
       // Propagate state to each layer in turn, updating it with all viable stub combinations there, using KF maths
@@ -239,18 +244,11 @@ namespace trklet {
       for (layer_ = setup_->kfNumSeedStubs(); layer_ < setup_->numLayers(); layer_++)
         addLayer();
     }
-    // count total number of final states
-    const int nStates =
-        std::accumulate(stream_.begin(), stream_.end(), 0, [](int sum, State* state) { return sum + (state ? 1 : 0); });
     // apply truncation
     if (setup_->enableTruncation() && static_cast<int>(stream_.size()) > setup_->numFramesHigh())
       stream_.resize(setup_->numFramesHigh());
     // cycle event, remove gaps
     stream_.erase(std::remove(stream_.begin(), stream_.end(), nullptr), stream_.end());
-    // store number of states which got taken into account
-    numAcceptedStates += stream_.size();
-    // store number of states which got not taken into account due to truncation
-    numLostStates += nStates - stream_.size();
     // apply final cuts
     finalize();
     // best track per candidate selection
@@ -275,8 +273,8 @@ namespace trklet {
         const double dZ = state->x3() + s->H12() * state->x2();
         const double phi = digi(VariableKF::m0, s->m0() - dPhi);
         const double z = digi(VariableKF::m1, s->m1() - dZ);
-        const bool validPhi = dataFormats_->format(Variable::phi, Process::kf).inRange(phi);
-        const bool validZ = dataFormats_->format(Variable::z, Process::kf).inRange(z);
+        const bool validPhi = dataFormats_->format(Variable::phi, Process::kf).isCovered(phi);
+        const bool validZ = dataFormats_->format(Variable::z, Process::kf).isCovered(z);
         if (validPhi && validZ) {
           const double r = s->H00();
           const double dPhi = s->d0();
@@ -301,15 +299,15 @@ namespace trklet {
       const double phiT = state->x1() + state->track()->phiT();
       const double cot = state->x2() + cotTrack;
       const double zT = state->x3() + state->track()->zT();
-      const double d0 = state->x4();
+      const double d0 = state->track()->frame().first->d0() - state->x4();
       // pt cut
-      const bool validX0 = dataFormats_->format(Variable::inv2R, Process::kf).inRange(inv2R);
+      const bool validX0 = dataFormats_->format(Variable::inv2R, Process::kf).isCovered(inv2R);
       // cut on phi sector boundaries
       const bool validX1 = abs(phiT) < setup_->baseRegion() / 2.;
       // cot cut
-      const bool validX2 = dataFormats_->format(Variable::cot, Process::kf).inRange(cot);
+      const bool validX2 = dataFormats_->format(Variable::cot, Process::kf).isCovered(cot);
       // zT cut
-      const bool validX3 = dataFormats_->format(Variable::zT, Process::kf).inRange(zT);
+      const bool validX3 = dataFormats_->format(Variable::zT, Process::kf).isCovered(zT);
       if (!validLayers || !validX0 || !validX1 || !validX2 || !validX3)
         continue;
       const int trackId = state->trackId();
@@ -346,9 +344,8 @@ namespace trklet {
     };
     std::stable_sort(finals.begin(), finals.end(), order);
     // keep first state (best due to previous sorts) per track id
-    const auto it = std::unique(
-        finals.begin(), finals.end(), [](Track* lhs, Track* rhs) { return lhs->trackId_ == rhs->trackId_; });
-    finals.erase(it, finals.end());
+    auto sameTrack = [](Track* lhs, Track* rhs) { return lhs->trackId_ == rhs->trackId_; };
+    finals.erase(std::unique(finals.begin(), finals.end(), sameTrack), finals.end());
     // apply to actual track container
     int i(0);
     for (Track* track : finals)
@@ -444,6 +441,16 @@ namespace trklet {
       // create updated state
       states_.emplace_back(State(s1, {x0, x1, x2, x3, 0., C00, C11, C22, C33, C01, C23, 0., 0., 0.}));
       state = &states_.back();
+      updateRangeActual(VariableKF::invdH, invdH);
+      updateRangeActual(VariableKF::invdH2, invdH2);
+      updateRangeActual(VariableKF::Hv0, H1v0);
+      updateRangeActual(VariableKF::Hv0, H0v1);
+      updateRangeActual(VariableKF::Hv1, H3v2);
+      updateRangeActual(VariableKF::Hv1, H2v3);
+      updateRangeActual(VariableKF::H2v0, H12v0);
+      updateRangeActual(VariableKF::H2v0, H02v1);
+      updateRangeActual(VariableKF::H2v1, H32v2);
+      updateRangeActual(VariableKF::H2v1, H22v3);
       updateRangeActual(VariableKF::x0, x0);
       updateRangeActual(VariableKF::x1, x1);
       updateRangeActual(VariableKF::x2, x2);
@@ -568,7 +575,7 @@ namespace trklet {
     const double invR00 = digi(VariableKF::invR00, invR00Approx * invR00Cor);
     const double invR11 = digi(VariableKF::invR11, invR11Approx * invR11Cor);
     // shift S to "undo" shifting of R
-    auto digiShifted = [](double val, double base) { return std::floor(val / base * 2. + 1.e-11) * base / 2.; };
+    auto digiShifted = [](double val, double base) { return std::floor(val / base + 1.e-9) * base; };
     const double S00Shifted = digiShifted(S00 * std::pow(2., shift0), base(VariableKF::S00Shifted));
     const double S01Shifted = digiShifted(S01 * std::pow(2., shift0), base(VariableKF::S01Shifted));
     const double S12Shifted = digiShifted(S12 * std::pow(2., shift1), base(VariableKF::S12Shifted));

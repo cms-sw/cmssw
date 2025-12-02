@@ -120,7 +120,7 @@ namespace tt {
     scattering_ = setup->scattering();
     dR_ = std::abs(sinTilt_) * pitchCol_;
     dPhi_ = pitchRow_ / r_;
-    dZ_ = std::abs(cosTilt_) * pitchCol_ + dR_ * std::abs(z_) / r_;
+    dZ_ = std::abs(cosTilt_) * pitchCol_;
   }
 
   unsigned int SensorModule::ringId(const Setup* setup) const {

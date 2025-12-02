@@ -169,7 +169,7 @@ namespace trackerTFP {
     const DataFormatKF S01 = makeDataFormat<VariableKF::S01>(dataFormats, iConfig);
     const double range = dPhi.range() * dPhi.range() * 4.;
     const double base = S01.base();
-    const int width = std::ceil(std::log2(range / base) - 1.e-11);
+    const int width = tt::ceil(std::log2(range / base));
     return DataFormatKF(VariableKF::v0, false, iConfig.enableIntegerEmulation_, width, base, range);
   }
 
@@ -179,7 +179,7 @@ namespace trackerTFP {
     const DataFormatKF S13 = makeDataFormat<VariableKF::S13>(dataFormats, iConfig);
     const double range = dZ.range() * dZ.range() * 4.;
     const double base = S13.base();
-    const int width = std::ceil(std::log2(range / base) - 1.e-11);
+    const int width = tt::ceil(std::log2(range / base));
     return DataFormatKF(VariableKF::v1, false, iConfig.enableIntegerEmulation_, width, base, range);
   }
 
@@ -566,21 +566,20 @@ namespace trackerTFP {
   template <>
   DataFormatKF makeDataFormat<VariableKF::invdH>(const DataFormats* dataFormats, const ConfigKF& iConfig) {
     const DataFormatKF H00 = makeDataFormat<VariableKF::H00>(dataFormats, iConfig);
+    const int baseShift = iConfig.baseShiftInvDH_;
     const int width = dataFormats->setup()->widthDSPbu();
-    const double range = 1. / dataFormats->setup()->kfMinSeedDeltaR();
-    const int baseShift = std::ceil(std::log2(range * std::pow(2., -width) * H00.base()));
     const double base = std::pow(2., baseShift) / H00.base();
+    const double range = base * std::pow(2, width);
     return DataFormatKF(VariableKF::end, false, iConfig.enableIntegerEmulation_, width, base, range);
   }
 
   template <>
   DataFormatKF makeDataFormat<VariableKF::invdH2>(const DataFormats* dataFormats, const ConfigKF& iConfig) {
     const DataFormatKF H00 = makeDataFormat<VariableKF::H00>(dataFormats, iConfig);
+    const int baseShift = iConfig.baseShiftInvDH2_;
     const int width = dataFormats->setup()->widthDSPbu();
-    const double range = 1. / std::pow(dataFormats->setup()->kfMinSeedDeltaR(), 2);
-    const double baseH2 = H00.base() * H00.base();
-    const int baseShift = std::ceil(std::log2(range * std::pow(2., -width) * baseH2));
-    const double base = std::pow(2., baseShift) / baseH2;
+    const double base = std::pow(2., baseShift) / (H00.base() * H00.base());
+    const double range = base * std::pow(2, width);
     return DataFormatKF(VariableKF::end, false, iConfig.enableIntegerEmulation_, width, base, range);
   }
 

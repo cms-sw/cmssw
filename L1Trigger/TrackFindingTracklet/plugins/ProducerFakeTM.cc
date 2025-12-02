@@ -27,7 +27,7 @@
 namespace trklet {
 
   /*! \class  trklet::ProducerFakeTM
-   *  \brief  tranforms tracklet TTTracks into KF emulator input format
+   *  \brief  tranforms tracklet TTTracks into DR emulator input format  (using only inv2R, phiT and zT)
    *  \author Thomas Schuh
    *  \date   2025, July
    */
@@ -58,9 +58,9 @@ namespace trklet {
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     // book in- and output ED products
-    edGetTokenTracks_ = consumes<tt::TTTracks>(inputTag);
-    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
+    edGetTokenTracks_ = consumes(inputTag);
+    edPutTokenStubs_ = produces(branchStubs);
+    edPutTokenTracks_ = produces(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
@@ -102,12 +102,19 @@ namespace trklet {
     for (int iTrack = 0; iTrack < static_cast<int>(handle->size()); iTrack++) {
       const TTTrackRef ttTrackRef(handle, iTrack);
       const int iRegion = ttTrackRef->phiSector();
+      const double phiR = iRegion * setup->baseRegion();
       // track parameter
-      const double inv2R = -.5 * ttTrackRef->rInv();
-      const double phiT =
-          tt::deltaPhi(ttTrackRef->phi() + inv2R * setup->chosenRofPhi() - iRegion * setup->baseRegion());
-      const double cot = ttTrackRef->tanL();
-      const double zT = ttTrackRef->z0() + cot * setup->chosenRofZ();
+      const double d0 = -ttTrackRef->d0();
+      double inv2R = -.5 * ttTrackRef->rInv();
+      double phi0 = tt::deltaPhi(ttTrackRef->phi() - phiR);
+      double cot = ttTrackRef->tanL();
+      double z0 = ttTrackRef->z0();
+      double R = .5 / inv2R;
+      double R0 = R + d0;
+      double phiT = phi0 + std::asin((setup->chosenRofPhi() * setup->chosenRofPhi() + R0 * R0 - R * R) / 2. /
+                                     setup->chosenRofPhi() / R0);
+      double zT = z0 + std::abs(R) * cot *
+                           std::acos((R * R + R0 * R0 - setup->chosenRofZ() * setup->chosenRofZ()) / 2. / R / R0);
       // range checks
       const bool validInv2R = dataFormats->format(Variable::inv2R, Process::tm).inRange(inv2R);
       const bool validPhiT = dataFormats->format(Variable::phiT, Process::tm).inRange(phiT);
@@ -116,11 +123,17 @@ namespace trklet {
         continue;
       const TrackTM trackTM(ttTrackRef, dataFormats, inv2R, phiT, zT);
       std::vector<StubTM*> stubs(channelAssignment->tmNumLayers(), nullptr);
-      // track parameter shifts to adjust stubs
-      const double dinv2R = inv2R - dataFormats->format(Variable::inv2R, Process::tm).digi(inv2R);
-      const double dphiT = phiT - dataFormats->format(Variable::phiT, Process::tm).digi(phiT);
-      const double dcot = cot - dataFormats->format(Variable::zT, Process::tm).digi(zT) / setup->chosenRofZ();
-      const double dzT = zT - dataFormats->format(Variable::zT, Process::tm).digi(zT);
+      // digitised track parameter
+      inv2R = dataFormats->format(Variable::inv2R, Process::tm).digi(inv2R);
+      phiT = dataFormats->format(Variable::phiT, Process::tm).digi(phiT);
+      cot = dataFormats->format(Variable::zT, Process::tm).digi(zT) / setup->chosenRofZ();
+      zT = dataFormats->format(Variable::zT, Process::tm).digi(zT);
+      R = .5 / inv2R;
+      R0 = R + d0;
+      phi0 = phiT - std::asin((setup->chosenRofPhi() * setup->chosenRofPhi() + R0 * R0 - R * R) / 2. /
+                              setup->chosenRofPhi() / R0);
+      z0 = zT -
+           std::abs(R) * cot * std::acos((R * R + R0 * R0 - setup->chosenRofZ() * setup->chosenRofZ()) / 2. / R / R0);
       // process stubs
       const int offset = iRegion * channelAssignment->tmNumLayers();
       TTBV hitPattern(0, channelAssignment->tmNumLayers());
@@ -134,27 +147,21 @@ namespace trklet {
         const GlobalPoint gp = setup->stubPos(ttStubRef);
         const int stubId = std::distance(stubIds.begin(), stubIds.find(ttStubRef));
         const bool pst = (sm->barrel() && sm->tilt()) || (!sm->barrel() && sm->psModule());
-        const double r = gp.perp() - setup->chosenRofPhi();
-        const double rZ = gp.perp() - setup->chosenRofZ();
-        double phi = tt::deltaPhi(gp.phi() - iRegion * setup->baseRegion() - phiT - r * inv2R);
-        double z = gp.z() - zT - rZ * cot;
-        // linear correction
-        const double d = inv2R * gp.perp();
-        const double cor = std::asin(d) - d;
-        phi -= cor;
-        z -= cor / inv2R * cot;
-        // shift stubs accoring to track shifts
-        phi += dphiT + r * dinv2R;
-        z += dzT + rZ * dcot;
+        const double r = gp.perp();
+        const double rPhi = gp.perp() - setup->chosenRofPhi();
+        const double trackPhi = phi0 + std::asin((r * r + R0 * R0 - R * R) / 2. / r / R0);
+        const double trackZ = z0 + std::abs(R) * cot * std::acos((R * R + R0 * R0 - r * r) / 2. / R / R0);
+        double phi = tt::deltaPhi(gp.phi() - phiR - trackPhi);
+        double z = gp.z() - trackZ;
         // range checks
-        const bool validR = dataFormats->format(Variable::r, Process::tm).inRange(r);
+        const bool validR = dataFormats->format(Variable::r, Process::tm).inRange(rPhi);
         const bool validPhi = dataFormats->format(Variable::phi, Process::tm).inRange(phi);
         const bool validZ = dataFormats->format(Variable::z, Process::tm).inRange(z);
         if (!validR || !validPhi || !validZ)
           continue;
         // store stub
         hitPattern.set(iLayer);
-        stubsTM.emplace_back(ttStubRef, dataFormats, 2 * stubId + (pst ? 1 : 0), r, phi, z);
+        stubsTM.emplace_back(ttStubRef, dataFormats, 2 * stubId + (pst ? 1 : 0), rPhi, phi, z);
         stubs[iLayer] = &stubsTM.back();
       }
       // check enough stubs

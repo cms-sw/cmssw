@@ -470,7 +470,7 @@ namespace trackerTFP {
     const double invR00 = digi(VariableKF::invR00, invR00Approx * invR00Cor);
     const double invR11 = digi(VariableKF::invR11, invR11Approx * invR11Cor);
     // shift S to "undo" shifting of R
-    auto digiShifted = [](double val, double base) { return floor(val / base * 2. + 1.e-11) * base / 2.; };
+    auto digiShifted = [](double val, double base) { return tt::floor(val / base * 2.) * base / 2.; };
     const double S00Shifted = digiShifted(S00 * std::pow(2., shift0), base(VariableKF::S00Shifted));
     const double S01Shifted = digiShifted(S01 * std::pow(2., shift0), base(VariableKF::S01Shifted));
     const double S12Shifted = digiShifted(S12 * std::pow(2., shift1), base(VariableKF::S12Shifted));

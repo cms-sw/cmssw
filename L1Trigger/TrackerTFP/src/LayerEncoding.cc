@@ -1,4 +1,5 @@
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <vector>
 #include <set>
@@ -13,8 +14,10 @@ namespace trackerTFP {
       : setup_(dataFormats->setup()),
         dataFormats_(dataFormats),
         zT_(&dataFormats->format(Variable::zT, Process::gp)),
-        layerEncoding_(std::vector<std::vector<int>>(pow(2, zT_->width()))),
-        maybePattern_(std::vector<TTBV>(pow(2, zT_->width()), TTBV(0, setup_->numLayers()))),
+        layerEncoding_(
+            std::vector<std::vector<int>>(std::pow(2, zT_->width()), std::vector<int>(setup_->numLayers(), -1))),
+        maybePattern_(std::vector<TTBV>(std::pow(2, zT_->width()), TTBV(0, setup_->numLayers()))),
+        maybePS_(std::pow(2, zT_->width()), -1),
         nullLE_(setup_->numLayers(), 0),
         nullMP_(0, setup_->numLayers()) {
     // number of boundaries of fiducial area in r-z plane for a given set of rough r-z track parameter
@@ -49,8 +52,8 @@ namespace trackerTFP {
       for (int i = 0; i < boundaries; i++)
         for (double z0 : z0s)
           cots[i].push_back((zTs[i] - z0) / setup_->chosenRofZ());
-      // layer ids crossed by left and right rough r-z parameter shape boundaries
-      std::vector<std::set<int>> layers(boundaries);
+      // Sensormodules crossed by left and right rough r-z parameter shape boundaries
+      std::vector<std::deque<const tt::SensorModule*>> sms(boundaries);
       // loop over all unique modules
       for (const tt::SensorModule* sm : sensorModules) {
         // check if module is crossed by left and right rough r-z parameter shape boundaries
@@ -62,8 +65,15 @@ namespace trackerTFP {
               (zTi - sm->z() + (sm->r() - setup_->chosenRofZ()) * coti) / (sm->cosTilt() - sm->sinTilt() * coti);
           // compare distance with module size and add module layer id to layers if module is crossed
           if (std::abs(d) < sm->numColumns() * sm->pitchCol() / 2.)
-            layers[i].insert(sm->layerId());
+            sms[i].push_back(sm);
         }
+      }
+      // crossed layer ids
+      std::vector<std::set<int>> layers(boundaries);
+      for (int i = 0; i < boundaries; i++) {
+        std::set<int>& layer = layers[i];
+        for (const tt::SensorModule* sm : sms[i])
+          layer.insert(sm->layerId());
       }
       // mayber layers are given by layer ids crossed by only one boundary
       std::set<int> maybeLayer;
@@ -80,14 +90,36 @@ namespace trackerTFP {
                      layers[1].end(),
                      std::inserter(layerEncoding, layerEncoding.end()));
       // fill layerEncoding_
+      int layerIdKF(0);
       std::vector<int>& le = layerEncoding_[binZT];
-      le = std::vector<int>(layerEncoding.begin(), layerEncoding.end());
-      le.resize(setup_->numLayers(), -1);
+      for (int layerId : layerEncoding)
+        le[layerIdKF++] = layerId;
       // fill maybePattern_
       TTBV& mp = maybePattern_[binZT];
       for (int m : maybeLayer)
         mp.set(std::min(static_cast<int>(std::distance(le.begin(), std::find(le.begin(), le.end(), m))),
                         setup_->numLayers() - 1));
+      // maybe PS
+      TTBV hitPattern2S(0, setup_->numLayers());
+      TTBV hitPatternPS(0, setup_->numLayers());
+      std::stringstream ss;
+      for (int i = 0; i < boundaries; i++) {
+        for (const tt::SensorModule* sm : sms[i]) {
+          ss << sm->layerId() << " " << sm->psModule() << " ";
+          const int layerId = std::distance(le.begin(), std::find(le.begin(), le.end(), sm->layerId()));
+          ss << layerId << std::endl;
+          sm->psModule() ? hitPatternPS.set(layerId) : hitPattern2S.set(layerId);
+        }
+      }
+      int& maybePS = maybePS_[binZT];
+      const TTBV hitPatternAnd = hitPattern2S && hitPatternPS;
+      if (hitPatternAnd.ids().size() > 1) {
+        cms::Exception exception("LogicError");
+        exception << "Found more then one layer with ambigous PS/2S assignment.";
+        throw exception;
+      }
+      if (hitPatternAnd.any())
+        maybePS = hitPatternAnd.ids().front();
     }
   }
 
@@ -113,6 +145,18 @@ namespace trackerTFP {
   const TTBV& LayerEncoding::maybePattern(double zT) const {
     const int binZT = zT_->integer(zT);
     return maybePattern(binZT);
+  }
+
+  // encoded layer id which may be PS or 2S for given zT
+  int LayerEncoding::maybePS(int zT) const {
+    const int binZT = zT_->toUnsigned(zT);
+    return maybePS_.at(binZT);
+  }
+
+  // encoded layer id which may be PS or 2S for given zT in cm
+  int LayerEncoding::maybePS(double zT) const {
+    const int binZT = zT_->integer(zT);
+    return maybePS(binZT);
   }
 
   // fills numPS, num2S, numMissingPS and numMissingPS for given hitPattern and trajectory

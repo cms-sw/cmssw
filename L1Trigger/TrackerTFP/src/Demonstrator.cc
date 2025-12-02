@@ -137,7 +137,7 @@ namespace trackerTFP {
   std::string Demonstrator::header(const std::vector<int>& links) const {
     std::stringstream ss;
     // file header
-    ss << "Id: CMSSW" << std::endl
+    ss << "ID: CMSSW" << std::endl
        << "Metadata: (strobe,) start of orbit, start of packet, end of packet, valid" << std::endl
        << std::endl;
     // link header

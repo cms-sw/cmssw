@@ -117,6 +117,8 @@ namespace trklet {
     Tracklet* next_tracklet;
 
     CircularBuffer<ProjectionTemp> inputProjBuffer_;
+
+    unsigned int maxStep_;
   };
 
 };  // namespace trklet

@@ -24,11 +24,30 @@ and in undigitized format in an std::tuple. (This saves CPU)
 namespace trklet {
 
   // hybrid processes
-  enum class Process { begin, tm = begin, dr, kf, tfp, end, x };
+  enum class Process { begin, tm = begin, dr, kf, tq, tfp, end, x };
   // hybrid variables
-  enum class Variable { begin, stubId = begin, r, phi, z, dPhi, dZ, inv2R, phiT, cot, zT, end, x };
+  enum class Variable {
+    begin,
+    stubId = begin,
+    r,
+    phi,
+    z,
+    dPhi,
+    dZ,
+    inv2R,
+    phiT,
+    cot,
+    zT,
+    chi20,
+    chi21,
+    mva,
+    hitPattern,
+    end,
+    x
+  };
   // hybrid process order
-  constexpr std::initializer_list<Process> Processes = {Process::tm, Process::dr, Process::kf, Process::tfp};
+  constexpr std::initializer_list<Process> Processes = {
+      Process::tm, Process::dr, Process::kf, Process::tq, Process::tfp};
   // conversion: Process to int
   inline constexpr int operator+(Process p) { return static_cast<int>(p); }
   // conversion: Variable to int
@@ -41,9 +60,18 @@ namespace trklet {
   //Base class representing format of a variable
   class DataFormat {
   public:
-    DataFormat(bool twos, bool biased = true) : twos_(twos), width_(0), base_(1.), range_(0.) {}
+    DataFormat(bool twos, int width)
+        : twos_(twos), width_(width), base_(1.), range_(std::pow(2, width)), coverage_(range_) {}
     DataFormat(bool twos, int width, double base, double range)
-        : twos_(twos), width_(width), base_(base), range_(range) {}
+        : twos_(twos), width_(width), base_(base), range_(range), coverage_(base * std::pow(2, width)) {}
+    DataFormat(bool twos, int width, double range)
+        : twos_(twos), width_(width), base_(range * std::pow(2, -width)), range_(range), coverage_(range_) {}
+    DataFormat(bool twos, double base, double range)
+        : twos_(twos),
+          width_(std::ceil(std::log2(range / base))),
+          base_(base),
+          range_(range),
+          coverage_(base * std::pow(2, width_)) {}
     DataFormat() {}
     ~DataFormat() = default;
     // converts int to bitvector
@@ -67,7 +95,7 @@ namespace trklet {
     // converts int to double
     double floating(int i) const { return (i + .5) * base_; }
     // converts double to int
-    int integer(double d) const { return std::floor(d / base_ + 1.e-12); }
+    int integer(double d) const { return tt::floor(d / base_); }
     // converts double to int and back to double
     double digi(double d) const { return floating(integer(d)); }
     // converts binary integer value to twos complement integer value
@@ -76,23 +104,47 @@ namespace trklet {
     int toUnsigned(int i) const { return i + std::pow(2, width_) / 2; }
     // converts floating point value to binary integer value
     int toUnsigned(double d) const { return this->integer(d) + std::pow(2, width_) / 2; }
-    // biggest representable floating point value
-    double limit() const { return (range_ - base_) / (twos_ ? 2. : 1.); }
-    // returns false if data format would oferflow for this double value
-    bool inRange(double d, bool digi = true) const {
-      const double range = digi ? base_ * pow(2, width_) : range_;
-      return twos_ ? d >= -range / 2. && d < range / 2. : d <= range_;
+    // limit to biggest representable floating point value
+    double limit(double d) const {
+      if (this->isCovered(d))
+        return d;
+      if (twos_) {
+        if (d < 0.)
+          return (base_ - range_) / 2.;
+        return (range_ - base_) / 2.;
+      }
+      return range_ - base_ / 2.;
     }
-    // returns false if data format would oferflow for this int value
-    bool inRange(int i) const { return inRange(floating(i)); }
+    // scales value from 0 to 1 (unsigned) or from -1 to 1 (signed)
+    double scale(double d) const { return d / coverage_; }
+    // scales absolute values from 0 to 1
+    double scaleABS(double d) const {
+      if (twos_)
+        return 2. * std::abs(d) / coverage_;
+      return this->scale(d);
+    }
+    // returns false if data outside expected range
+    bool inRange(double d) const {
+      if (twos_)
+        return d >= -range_ / 2. && d < range_ / 2.;
+      return d < range_;
+    }
+    // returns false if data outside representable range
+    bool isCovered(double d) const {
+      if (twos_)
+        return d >= -coverage_ / 2. && d < coverage_ / 2.;
+      return d < coverage_;
+    }
     // true if twos'complement or false if binary representation is chosen
     bool twos() const { return twos_; }
     // number of used bits
     int width() const { return width_; }
     // precision
     double base() const { return base_; }
-    // covered range
+    // needed range
     double range() const { return range_; }
+    // covered range
+    double coverage() const { return coverage_; }
 
   protected:
     // true if twos'complement or false if binary representation is chosen
@@ -101,8 +153,10 @@ namespace trklet {
     int width_;
     // precision
     double base_;
-    // covered range
+    // needed range
     double range_;
+    // covered range
+    double coverage_;
   };
 
   // function template for DataFormat generation
@@ -135,11 +189,10 @@ namespace trklet {
   DataFormat makeDataFormat<Variable::phi, Process::tm>(const ChannelAssignment* ca);
   template <>
   DataFormat makeDataFormat<Variable::z, Process::tm>(const ChannelAssignment* ca);
-
   template <>
-  DataFormat makeDataFormat<Variable::dPhi, Process::dr>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::dPhi, Process::tm>(const ChannelAssignment* ca);
   template <>
-  DataFormat makeDataFormat<Variable::dZ, Process::dr>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::dZ, Process::tm>(const ChannelAssignment* ca);
 
   template <>
   DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const ChannelAssignment* ca);
@@ -150,6 +203,15 @@ namespace trklet {
   template <>
   DataFormat makeDataFormat<Variable::zT, Process::kf>(const ChannelAssignment* ca);
 
+  template <>
+  DataFormat makeDataFormat<Variable::chi20, Process::tq>(const ChannelAssignment* ca);
+  template <>
+  DataFormat makeDataFormat<Variable::chi21, Process::tq>(const ChannelAssignment* ca);
+  template <>
+  DataFormat makeDataFormat<Variable::mva, Process::tq>(const ChannelAssignment* ca);
+  template <>
+  DataFormat makeDataFormat<Variable::hitPattern, Process::tq>(const ChannelAssignment* ca);
+
   /*! \class  trklet::DataFormats
    *  \brief  Class to calculate and provide dataformats used by Hybrid emulator
    *  \author Thomas Schuh
@@ -159,31 +221,37 @@ namespace trklet {
   private:
     // variable flavour mapping, Each row below declares which processing steps use the variable named in the comment at the end of the row
     static constexpr std::array<std::array<Process, +Process::end>, +Variable::end> config_ = {{
-        //  Process::tm  Process::dr   Process::kf   Process::tfp
-        {{Process::tm, Process::x, Process::x, Process::x}},      // Variable::stubId
-        {{Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::r
-        {{Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::phi
-        {{Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::z
-        {{Process::x, Process::dr, Process::dr, Process::x}},     // Variable::dPhi
-        {{Process::x, Process::dr, Process::dr, Process::x}},     // Variable::dZ
-        {{Process::tm, Process::tm, Process::kf, Process::tfp}},  // Variable::inv2R
-        {{Process::tm, Process::tm, Process::kf, Process::tfp}},  // Variable::phiT
-        {{Process::tm, Process::tm, Process::kf, Process::tfp}},  // Variable::cot
-        {{Process::tm, Process::tm, Process::kf, Process::tfp}}   // Variable::zT
+        //  Process::tm Process::dr Process::kf Process::tq Process::tfp
+        {{Process::tm, Process::x, Process::x, Process::x, Process::x}},       // Variable::stubId
+        {{Process::tm, Process::tm, Process::tm, Process::x, Process::x}},     // Variable::r
+        {{Process::tm, Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::phi
+        {{Process::tm, Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::z
+        {{Process::tm, Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::dPhi
+        {{Process::tm, Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::dZ
+        {{Process::tm, Process::tm, Process::kf, Process::kf, Process::tfp}},  // Variable::inv2R
+        {{Process::tm, Process::tm, Process::kf, Process::kf, Process::tfp}},  // Variable::phiT
+        {{Process::tm, Process::tm, Process::kf, Process::kf, Process::tfp}},  // Variable::cot
+        {{Process::tm, Process::tm, Process::kf, Process::kf, Process::tfp}},  // Variable::zT
+        {{Process::x, Process::x, Process::x, Process::tq, Process::x}},       // Variable::chi20
+        {{Process::x, Process::x, Process::x, Process::tq, Process::x}},       // Variable::chi21
+        {{Process::x, Process::x, Process::x, Process::tq, Process::x}},       // Variable::mva
+        {{Process::x, Process::x, Process::x, Process::tq, Process::x}}        // Variable::hitPattern
     }};
     // stub word assembly, shows which stub variables are used by each process
     static constexpr std::array<std::initializer_list<Variable>, +Process::end> stubs_ = {{
         {Variable::stubId, Variable::r, Variable::phi, Variable::z},              // Process::tm
         {Variable::r, Variable::phi, Variable::z, Variable::dPhi, Variable::dZ},  // Process::dr
         {Variable::r, Variable::phi, Variable::z, Variable::dPhi, Variable::dZ},  // Process::kf
+        {},                                                                       // Process::tq
         {}                                                                        // Process::tfp
     }};
     // track word assembly, shows which track variables are used by each process
     static constexpr std::array<std::initializer_list<Variable>, +Process::end> tracks_ = {{
-        {Variable::inv2R, Variable::phiT, Variable::zT},                 // Process::tm
-        {Variable::inv2R, Variable::phiT, Variable::zT},                 // Process::dr
-        {Variable::inv2R, Variable::phiT, Variable::cot, Variable::zT},  // Process::kf
-        {}                                                               // Process::tfp
+        {Variable::inv2R, Variable::phiT, Variable::zT},                          // Process::tm
+        {Variable::inv2R, Variable::phiT, Variable::zT},                          // Process::dr
+        {Variable::inv2R, Variable::phiT, Variable::cot, Variable::zT},           // Process::kf
+        {Variable::hitPattern, Variable::mva, Variable::chi20, Variable::chi21},  // Process::tq
+        {}                                                                        // Process::tfp
     }};
 
   public:
@@ -218,6 +286,8 @@ namespace trklet {
     }
     // access to run-time constants
     const tt::Setup* setup() const { return channelAssignment_->setup(); }
+    // access to run-time constants
+    const ChannelAssignment* channelAssignment() const { return channelAssignment_; }
     // number of bits being used for specific variable flavour
     int width(Variable v, Process p) const { return formats_[+v][+p]->width(); }
     // precision being used for specific variable flavour
@@ -483,6 +553,26 @@ namespace trklet {
     double cot() const { return std::get<2>(data_); }
     // track z at radius 0
     double zT() const { return std::get<3>(data_); }
+  };
+
+  // class to represent tracks generated by process TrackQuality
+  class TrackTQ : public Track<TTBV, int, double, double> {
+  public:
+    // construct TrackTQ from Frame
+    TrackTQ(const tt::FrameTrack& ft, const DataFormats* df) : Track(ft, df, Process::tq) {}
+    // construct TrackTQ from TrackKF
+    TrackTQ(const TrackKF& track, const TTBV& hitPattern, int mva, double chi20, double chi21)
+        : Track(track, hitPattern, mva, chi20, chi21) {}
+    TrackTQ() {}
+    ~TrackTQ() override = default;
+    // mva
+    const TTBV& hitPattern() const { return std::get<0>(data_); }
+    // mva
+    int mva() const { return std::get<1>(data_); }
+    // track r-phi chi2
+    double chi20() const { return std::get<2>(data_); }
+    // track r-z chi2
+    double chi21() const { return std::get<3>(data_); }
   };
 
 }  // namespace trklet

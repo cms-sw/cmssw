@@ -1,6 +1,7 @@
 <environment>
   <library file="*.cc" name="L1TriggerTrackTriggerTests">
     <flags EDM_PLUGIN="1"/>
+    <use name="L1Trigger/TrackTrigger"/>
     <use name="CommonTools/UtilAlgos"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/PluginManager"/>

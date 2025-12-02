@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.TrackFindingTracklet.Producer_cfi import TrackFindingTrackletProducer_params
 from L1Trigger.TrackFindingTracklet.ChannelAssignment_cff import ChannelAssignment
-from L1Trigger.TrackerTFP.TrackQuality_cff import *
 from L1Trigger.TrackerTFP.LayerEncoding_cff import TrackTriggerLayerEncoding
 
 l1tTTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
@@ -29,7 +28,19 @@ l1tTTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                Fakefit = cms.bool(False), # True causes Tracklet reco to output TTTracks before DR & KF
                                                StoreTrackBuilderOutput = cms.bool(False), # if True EDProducts for TrackBuilder tracks and stubs will be filled
                                                RemovalType = cms.string("merge"), # Duplicate track removal
-                                               DoMultipleMatches = cms.bool(True) # Allow tracklet tracks multiple stubs per layer
+                                               DoMultipleMatches = cms.bool(True), # Allow tracklet tracks multiple stubs per layer
+                                               # TQ
+                                               # It is compatible with the HYBRID simulation and will give equivilant performance with this workflow
+                                               Model = cms.FileInPath( "L1Trigger/TrackTrigger/data/L1_TrackQuality_GBDT_emulation_digitized.json" ),
+                                               #Vector of strings of training features, in the order that the model was trained with
+                                               FeatureNames = cms.vstring( ["tanl",
+                                                                           "z0_scaled",
+                                                                           "bendchi2_bin",
+                                                                           "nstub",
+                                                                           "nlaymiss_interior",
+                                                                           "chi2rphi_bin",
+                                                                           "chi2rz_bin"
+                                                                           ] )
     )
 
 l1tTTTracksFromExtendedTrackletEmulation = l1tTTTracksFromTrackletEmulation.clone(

@@ -76,15 +76,15 @@ namespace trklet {
     std::string const& tableTEDFile() const { return tableTEDFile_; }
     std::string const& tableTREFile() const { return tableTREFile_; }
 
-    void setFitPatternFile(std::string fitPatternFileName) { fitPatternFile_ = fitPatternFileName; }
-    void setProcessingModulesFile(std::string processingModulesFileName) {
+    void setFitPatternFile(const std::string& fitPatternFileName) { fitPatternFile_ = fitPatternFileName; }
+    void setProcessingModulesFile(const std::string& processingModulesFileName) {
       processingModulesFile_ = processingModulesFileName;
     }
-    void setMemoryModulesFile(std::string memoryModulesFileName) { memoryModulesFile_ = memoryModulesFileName; }
-    void setWiresFile(std::string wiresFileName) { wiresFile_ = wiresFileName; }
-    void setWiresJSONFile(std::string wiresJSONFileName) { wiresJSONFile_ = wiresJSONFileName; }
-    void setTableTEDFile(std::string tableTEDFileName) { tableTEDFile_ = tableTEDFileName; }
-    void setTableTREFile(std::string tableTREFileName) { tableTREFile_ = tableTREFileName; }
+    void setMemoryModulesFile(const std::string& memoryModulesFileName) { memoryModulesFile_ = memoryModulesFileName; }
+    void setWiresFile(const std::string& wiresFileName) { wiresFile_ = wiresFileName; }
+    void setWiresJSONFile(const std::string& wiresJSONFileName) { wiresJSONFile_ = wiresJSONFileName; }
+    void setTableTEDFile(const std::string& tableTEDFileName) { tableTEDFile_ = tableTEDFileName; }
+    void setTableTREFile(const std::string& tableTREFileName) { tableTREFile_ = tableTREFileName; }
 
     unsigned int nndbitsstub(unsigned int layerdisk) const { return nndbitsstub_[layerdisk]; }
     unsigned int nzbitsstub(unsigned int layerdisk) const { return nzbitsstub_[layerdisk]; }
@@ -109,14 +109,14 @@ namespace trklet {
     unsigned int nbitsallstubs(unsigned int layerdisk) const { return nbitsallstubs_[layerdisk]; }
     unsigned int nallstubs(unsigned int layerdisk) const { return (1 << nbitsallstubs_[layerdisk]); }
 
-    bool writeMonitorData(std::string module) const {
+    bool writeMonitorData(const std::string& module) const {
       if (writeMonitorData_.find(module) == writeMonitorData_.end()) {
         throw cms::Exception("BadConfig") << "Settings::writeMonitorData module = " << module << " not known";
       }
       return writeMonitorData_.at(module);
     }
 
-    unsigned int maxStep(std::string module) const {
+    unsigned int maxStep(const std::string& module) const {
       if (maxstep_.find(module) == maxstep_.end()) {
         throw cms::Exception("BadConfig")
             << __FILE__ << " " << __LINE__ << " maxStep module = " << module << " not known";
@@ -193,8 +193,8 @@ namespace trklet {
     bool writeTable() const { return writeTable_; }
     bool writeConfig() const { return writeConfig_; }
 
-    std::string memPath() const { return memPath_; }
-    std::string tablePath() const { return tablePath_; }
+    const std::string& memPath() const { return memPath_; }
+    const std::string& tablePath() const { return tablePath_; }
 
     unsigned int writememsect() const { return writememsect_; }
 
@@ -234,8 +234,8 @@ namespace trklet {
     bool usephicritapprox() const { return usephicritapprox_; }
 
     unsigned int minIndStubs() const { return minIndStubs_; }
-    std::string removalType() const { return removalType_; }
-    std::string mergeComparison() const { return mergeComparison_; }
+    const std::string& removalType() const { return removalType_; }
+    const std::string& mergeComparison() const { return mergeComparison_; }
     bool doKF() const { return doKF_; }
     bool doMultipleMatches() const { return doMultipleMatches_; }
     bool fakefit() const { return fakefit_; }
@@ -244,7 +244,7 @@ namespace trklet {
     void setStoreTrackBuilderOutput(bool storeTrackBuilderOutput) {
       storeTrackBuilderOutput_ = storeTrackBuilderOutput;
     }
-    void setRemovalType(std::string removalType) { removalType_ = removalType; }
+    void setRemovalType(const std::string& removalType) { removalType_ = removalType; }
     void setDoMultipleMatches(bool doMultipleMatches) { doMultipleMatches_ = doMultipleMatches; }
 
     // configurable
@@ -296,8 +296,8 @@ namespace trklet {
     //Returns the phi bin edges you need for duplicate removal bins
     const std::vector<double>& phiBins() const { return phiBins_; }
 
-    std::string skimfile() const { return skimfile_; }
-    void setSkimfile(std::string skimfile) { skimfile_ = skimfile; }
+    const std::string& skimfile() const { return skimfile_; }
+    void setSkimfile(const std::string& skimfile) { skimfile_ = skimfile; }
 
     unsigned int nbitstrackletindex() const { return nbitstrackletindex_; }
     void setNbitstrackletindex(unsigned int nbitstrackletindex) { nbitstrackletindex_ = nbitstrackletindex; }

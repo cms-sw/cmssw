@@ -20,6 +20,7 @@
 #include "SimDataFormats/Associations/interface/MtdRecoClusterToSimLayerClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/MtdSimLayerClusterToTPAssociator.h"
 #include "SimDataFormats/Associations/interface/TTTypes.h"
+#include "SimDataFormats/Associations/interface/StubAssociation.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"

@@ -16,6 +16,7 @@
 <use name="MagneticField/Records"/>
 <use name="PhysicsTools/ONNXRuntime"/>
 <use name="SimTracker/Common"/>
+<use name="SimDataFormats/Associations"/>
 <use name="clhep"/>
 <use name="xerces-c"/>
 <use name="boost"/>

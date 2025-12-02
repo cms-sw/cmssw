@@ -12,7 +12,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
+#include "SimDataFormats/Associations/interface/StubAssociation.h"
+#include "L1Trigger/TrackTrigger/interface/Associator.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 
 #include <TProfile.h>
@@ -45,7 +46,7 @@ namespace trackerTFP {
   private:
     // gets all TPs associated too any of the tracks & number of tracks matching at least one TP
     void associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                   const tt::StubAssociation* ass,
+                   const tt::Associator& ass,
                    std::set<TPPtr>& tps,
                    int& nMatchTrk,
                    bool perfect = false) const;
@@ -58,6 +59,8 @@ namespace trackerTFP {
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
     edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    // Associator token
+    edm::ESGetToken<tt::Associator, tt::SetupRcd> esGetTokenAssociator_;
     // stores, calculates and provides run-time constants
     const tt::Setup* setup_ = nullptr;
     // enables analyze of TPs
@@ -94,6 +97,7 @@ namespace trackerTFP {
     }
     // book ES products
     esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenAssociator_ = esConsumes();
     // log config
     log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
@@ -133,22 +137,18 @@ namespace trackerTFP {
     // read in tracklet products
     edm::Handle<tt::TTTracks> handle;
     iEvent.getByToken<tt::TTTracks>(edGetToken_, handle);
+    const tt::TTTracks& ttTracks = *handle;
     // read in MCTruth
-    const tt::StubAssociation* selection = nullptr;
-    const tt::StubAssociation* reconstructable = nullptr;
+    tt::Associator selection = iSetup.getData(esGetTokenAssociator_);
+    tt::Associator reconstructable = iSetup.getData(esGetTokenAssociator_);
     if (useMCTruth_) {
-      edm::Handle<tt::StubAssociation> handleSelection;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenSelection_, handleSelection);
-      selection = handleSelection.product();
-      prof_->Fill(9, selection->numTPs());
-      edm::Handle<tt::StubAssociation> handleReconstructable;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
-      reconstructable = handleReconstructable.product();
-      for (const auto& p : selection->getTrackingParticleToTTStubsMap())
+      selection.consume(iEvent.get(edGetTokenSelection_));
+      reconstructable.consume(iEvent.get(edGetTokenReconstructable_));
+      prof_->Fill(9, selection.numTPs());
+      for (const auto& p : selection.getTrackingParticleToTTStubsMap())
         fill(p.first, hisEffTotal_);
     }
     //
-    const tt::TTTracks& ttTracks = *handle.product();
     std::vector<std::vector<TTTrackRef>> ttTrackRefsRegions(setup_->numRegions());
     std::vector<int> nTTTracksRegions(setup_->numRegions(), 0);
     for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks)
@@ -247,12 +247,12 @@ namespace trackerTFP {
 
   // gets all TPs associated too any of the tracks & number of tracks matching at least one TP
   void AnalyzerTFP::associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                              const tt::StubAssociation* ass,
+                              const tt::Associator& ass,
                               std::set<TPPtr>& tps,
                               int& nMatchTrk,
                               bool perfect) const {
     for (const std::vector<TTStubRef>& ttStubRefs : tracks) {
-      const std::vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
+      const std::vector<TPPtr>& tpPtrs = perfect ? ass.associateFinal(ttStubRefs) : ass.associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       nMatchTrk++;

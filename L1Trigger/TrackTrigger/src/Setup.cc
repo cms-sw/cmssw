@@ -51,7 +51,8 @@ namespace tt {
         hybridDiskZs_(iConfig.hybridDiskZs_),
         hybridDisk2SRsSet_(iConfig.hybridDisk2SRsSet_),
         hybridOffsetRDiskPS_(iConfig.hybridOffsetRDiskPS_),
-        tbBarrelHalfLength_(iConfig.tbBarrelHalfLength_),
+        tbMinZ_(iConfig.tbMinZ_),
+        tbMaxR_(iConfig.tbMaxR_),
         tbInnerRadius_(iConfig.tbInnerRadius_),
         tbWidthsR_(iConfig.tbWidthsR_),
         // Fimrware specific Parameter
@@ -151,7 +152,6 @@ namespace tt {
         kfUseSimmulation_(iConfig.kfUseSimmulation_),
         kfUseTTStubResiduals_(iConfig.kfUseTTStubResiduals_),
         kfUseTTStubParameters_(iConfig.kfUseTTStubParameters_),
-        kfApplyNonLinearCorrection_(iConfig.kfApplyNonLinearCorrection_),
         kfNumWorker_(iConfig.kfNumWorker_),
         kfMaxTracks_(iConfig.kfMaxTracks_),
         kfMinLayers_(iConfig.kfMinLayers_),
@@ -160,7 +160,6 @@ namespace tt {
         kfMaxGaps_(iConfig.kfMaxGaps_),
         kfMaxSeedingLayer_(iConfig.kfMaxSeedingLayer_),
         kfNumSeedStubs_(iConfig.kfNumSeedStubs_),
-        kfMinSeedDeltaR_(iConfig.kfMinSeedDeltaR_),
         kfRangeFactor_(iConfig.kfRangeFactor_),
         kfShiftInitialC00_(iConfig.kfShiftInitialC00_),
         kfShiftInitialC11_(iConfig.kfShiftInitialC11_),
@@ -389,90 +388,6 @@ namespace tt {
   }
 
   //
-  TTBV Setup::layerMap(const std::vector<int>& ints) const {
-    TTBV ttBV;
-    for (int layer = numLayers_ - 1; layer >= 0; layer--) {
-      const int i = ints[layer];
-      ttBV += TTBV(i, ctbWidthLayerCount_);
-    }
-    return ttBV;
-  }
-
-  //
-  TTBV Setup::layerMap(const TTBV& hitPattern, const std::vector<int>& ints) const {
-    TTBV ttBV;
-    for (int layer = numLayers_ - 1; layer >= 0; layer--) {
-      const int i = ints[layer];
-      ttBV += TTBV((hitPattern[layer] ? i - 1 : 0), ctbWidthLayerCount_);
-    }
-    return ttBV;
-  }
-
-  //
-  std::vector<int> Setup::layerMap(const TTBV& hitPattern, const TTBV& ttBV) const {
-    TTBV bv(ttBV);
-    std::vector<int> ints(numLayers_, 0);
-    for (int layer = 0; layer < numLayers_; layer++) {
-      const int i = bv.extract(ctbWidthLayerCount_);
-      ints[layer] = i + (hitPattern[layer] ? 1 : 0);
-    }
-    return ints;
-  }
-
-  //
-  std::vector<int> Setup::layerMap(const TTBV& ttBV) const {
-    TTBV bv(ttBV);
-    std::vector<int> ints(numLayers_, 0);
-    for (int layer = 0; layer < numLayers_; layer++)
-      ints[layer] = bv.extract(ctbWidthLayerCount_);
-    return ints;
-  }
-
-  // stub projected phi uncertainty
-  double Setup::dPhi(const TTStubRef& ttStubRef, double inv2R) const {
-    const DetId& detId = ttStubRef->getDetId();
-    SensorModule* sm = sensorModule(detId + 1);
-    return sm->dPhi(inv2R);
-  }
-
-  // stub projected z uncertainty
-  double Setup::dZ(const TTStubRef& ttStubRef) const {
-    const DetId& detId = ttStubRef->getDetId();
-    SensorModule* sm = sensorModule(detId + 1);
-    const double dZ = sm->dZ();
-    return dZ;
-  }
-
-  // stub projected chi2phi wheight
-  double Setup::v0(const TTStubRef& ttStubRef, double inv2R) const {
-    const DetId& detId = ttStubRef->getDetId();
-    SensorModule* sm = sensorModule(detId + 1);
-    const double r = stubPos(ttStubRef).perp();
-    const double sigma = std::pow(sm->pitchRow() / r, 2) / 12.;
-    const double scat = std::pow(scattering_ * inv2R, 2);
-    const double extra = sm->barrel() ? 0. : std::pow(sm->pitchCol() * inv2R, 2);
-    const double digi = std::pow(tmttBasePhi_ / 12., 2);
-    return sigma + scat + extra + digi;
-  }
-
-  // stub projected chi2z wheight
-  double Setup::v1(const TTStubRef& ttStubRef, double cot) const {
-    const DetId& detId = ttStubRef->getDetId();
-    SensorModule* sm = sensorModule(detId + 1);
-    const double sigma = std::pow(sm->pitchCol() * sm->tiltCorrection(cot), 2) / 12.;
-    const double digi = std::pow(tmttBaseZ_ / 12., 2);
-    return sigma + digi;
-  }
-
-  // checks if stub collection is considered forming a reconstructable track
-  bool Setup::reconstructable(const std::vector<TTStubRef>& ttStubRefs) const {
-    std::set<int> hitPattern;
-    for (const TTStubRef& ttStubRef : ttStubRefs)
-      hitPattern.insert(layerId(ttStubRef));
-    return (int)hitPattern.size() >= minLayers_;
-  }
-
-  //
   TTBV Setup::module(double r, double z) const {
     static constexpr int layer1 = 0;
     static constexpr int layer2 = 1;
@@ -513,15 +428,6 @@ namespace tt {
     if (tilted)
       module.set(gpPosTilted_);
     return module;
-  }
-
-  // stub projected phi uncertainty for given module type, stub radius and track curvature
-  double Setup::dPhi(const TTBV& module, double r, double inv2R) const {
-    const double sigma = (ps(module) ? pitchRowPS_ : pitchRow2S_) / r;
-    const double dR = scattering_ + (barrel(module) ? (tilted(module) ? tiltUncertaintyR_ : 0.0)
-                                                    : (ps(module) ? pitchColPS_ : pitchCol2S_));
-    const double dPhi = sigma + dR * abs(inv2R) + tmttBasePhi_;
-    return dPhi;
   }
 
   // derive constants

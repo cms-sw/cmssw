@@ -19,6 +19,7 @@ process.load( 'L1Trigger.TrackerDTC.DTC_cff' )
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 # load code that fits hybrid tracks
 process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
+process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
 #--- Load code that compares s/w with f/w
 process.load( 'L1Trigger.TrackFindingTracklet.Demonstrator_cff' )
 from L1Trigger.TrackFindingTracklet.Customize_cff import *
@@ -26,22 +27,24 @@ from L1Trigger.TrackFindingTracklet.Customize_cff import *
 fwConfig( process )
 
 # build schedule
-process.tt = cms.Sequence (  process.ProducerDTC
-                           #+ process.ProducerIRin
-                           + process.L1THybridTracks
-                           + process.ProducerTM
-                           + process.ProducerDR
-                           + process.ProducerKF
-                           + process.ProducerTQ
-                          )
-process.demo = cms.Path( process.tt + process.TrackerTFPDemonstrator )
+process.emu = cms.Sequence (  process.ProducerDTC
+                            + process.L1THybridTracks
+                            + process.ProducerTM
+                            + process.ProducerDR
+                            + process.ProducerKF
+                            + process.ProducerTQ
+                            + process.ProducerTFP
+                           )
+process.demo = cms.Path( process.emu + process.TrackerTFPDemonstrator )
 process.schedule = cms.Schedule( process.demo )
 
 # create options
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing( 'analysis' )
 # specify input MC
-Samples = [""]
+Samples = [
+  "/store/relval/CMSSW_15_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/2590000/00c675dc-1517-4af7-8dd4-841e0668fefe.root"
+]
 
 options.register( 'inputMC', Samples, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )
 # specify number of events to process.
@@ -53,7 +56,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Even
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring( options.inputMC ),
-  #skipEvents = cms.untracked.uint32( 301 ),
+  #skipEvents = cms.untracked.uint32( 2 ),
   secondaryFileNames = cms.untracked.vstring(),
   duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )

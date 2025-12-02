@@ -54,7 +54,6 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackerTFP/interface/TrackQuality.h"
 //
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -91,6 +90,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/StubKiller.h"
 #include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
 #include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
+#include "L1Trigger/TrackFindingTracklet/interface/FeatureTransform.h"
 
 ////////////////
 // PHYSICS TOOLS
@@ -101,6 +101,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 #include "L1Trigger/TrackTrigger/interface/StubPtConsistency.h"
+#include "conifer.h"
 
 //////////////
 // STD HEADERS
@@ -161,6 +162,11 @@ private:
   std::string asciiEventOutName_;
   std::ofstream asciiEventOut_;
 
+  // tq feature names_
+  std::vector<std::string> featureNames_;
+  // Floating point TQ BDT calculators.
+  conifer::BDT<float, float> bdt_;
+
   // settings containing various constants for the tracklet processing
   trklet::Settings settings_;
 
@@ -197,8 +203,6 @@ private:
   const tt::Setup* setup_ = nullptr;
   // helper class to store Tracklet specific configuration
   const trklet::ChannelAssignment* channelAssignment_ = nullptr;
-  // helper class to determine track quality
-  const trackerTFP::TrackQuality* trackQuality_ = nullptr;
   // helper class to store configuration needed by HitPatternHelper
   const hph::Setup* setupHPH_ = nullptr;
 
@@ -208,7 +212,6 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esGetTokenTTopo_;
   const edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
   const edm::ESGetToken<trklet::ChannelAssignment, trklet::ChannelAssignmentRcd> esGetTokenChannelAssignment_;
-  const edm::ESGetToken<trackerTFP::TrackQuality, trackerTFP::DataFormatsRcd> esGetTokenTrackQuality_;
   const edm::ESGetToken<hph::Setup, hph::SetupRcd> esGetTokenHPH_;
 
   /// ///////////////// ///
@@ -223,6 +226,8 @@ private:
 L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
     : config(iConfig),
       readMoreMcTruth_(iConfig.getParameter<bool>("readMoreMcTruth")),
+      featureNames_(iConfig.getParameter<std::vector<std::string>>("FeatureNames")),
+      bdt_(iConfig.getParameter<edm::FileInPath>("Model").fullPath()),
       MCTruthClusterInputTag(readMoreMcTruth_ ? config.getParameter<edm::InputTag>("MCTruthClusterInputTag")
                                               : edm::InputTag()),
       MCTruthStubInputTag(readMoreMcTruth_ ? config.getParameter<edm::InputTag>("MCTruthStubInputTag")
@@ -240,7 +245,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
       esGetTokenTTopo_(esConsumes()),
       esGetTokenSetup_(esConsumes<edm::Transition::BeginRun>()),
       esGetTokenChannelAssignment_(esConsumes<edm::Transition::BeginRun>()),
-      esGetTokenTrackQuality_(esConsumes<edm::Transition::BeginRun>()),
       esGetTokenHPH_(esConsumes<edm::Transition::BeginRun>()) {
   if (readMoreMcTruth_) {
     getTokenTTClusterMCTruth_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthClusterInputTag);
@@ -358,9 +362,6 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
   setup_ = &iSetup.getData(esGetTokenSetup_);
   // helper class to store Tracklet spezific configuration
   channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
-  // helper class to determine track quality. (TQ only meaningful if track fit is run)
-  if (not settings_.fakefit())
-    trackQuality_ = &iSetup.getData(esGetTokenTrackQuality_);
 
   settings_.passSetup(setup_);
 
@@ -745,8 +746,12 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // set track word before TQ MVA calculated which uses track word variables
     aTrack.setTrackWordBits();
 
-    if (trackQuality_) {
-      trackQuality_->setL1TrackQuality(aTrack);
+    // tq
+    if (!settings_.fakefit()) {
+      // collect features and classify using bdt
+      std::vector<float> inputs = trklet::featureTransform(aTrack, featureNames_);
+      std::vector<float> output = bdt_.decision_function(inputs);
+      aTrack.settrkMVA1(1. / (1. + exp(-output.at(0))));
     }
 
     //    hph::HitPatternHelper hph(setupHPH_, tmp_hit, tmp_tanL, tmp_z0);

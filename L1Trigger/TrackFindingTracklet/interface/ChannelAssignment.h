@@ -26,6 +26,15 @@ namespace trklet {
       int tmWidthCot_;
       int numComparisonModules_;
       int minIdenticalStubs_;
+      int tqNumLinks_;
+      int tqWidthChi20_;
+      int tqWidthChi21_;
+      int tqBaseShiftChi20_;
+      int tqBaseShiftChi21_;
+      int tqWidthInvV0_;
+      int tqWidthInvV1_;
+      int tqWidthMVA_;
+      std::vector<int> tqBinEdges_;
       std::vector<std::string> seedTypeNames_;
       int numChannelsStub_;
       std::vector<std::vector<int>> seedTypesSeedLayers_;
@@ -59,6 +68,24 @@ namespace trklet {
     int numComparisonModules() const { return numComparisonModules_; }
     // min number of shared stubs to identify duplicates
     int minIdenticalStubs() const { return minIdenticalStubs_; }
+    //
+    int tqNumLinks() const { return tqNumLinks_; }
+    // number of bits used to represent track quality output chi2 in r-phi plane
+    int tqWidthChi20() const { return tqWidthChi20_; }
+    // number of bits used to represent track quality output chi2 in r-z plane
+    int tqWidthChi21() const { return tqWidthChi21_; }
+    // power of 2 determing granularity of track quality output chi2 in r-phi plane
+    int tqBaseShiftChi20() const { return tqBaseShiftChi20_; }
+    // power of 2 determing granularity of track quality output chi2 in r-z plane
+    int tqBaseShiftChi21() const { return tqBaseShiftChi21_; }
+    // Number of bits used for looked up inverse phi uncertainty squared
+    int tqWidthInvV0() const { return tqWidthInvV0_; }
+    // Number of bits used for looked up inverse z uncertainty squared
+    int tqWidthInvV1() const { return tqWidthInvV1_; }
+    // number of bits used for mva
+    int tqWidthMVA() const { return tqWidthMVA_; }
+    // f/w bin edge integer values to bin mva
+    const std::vector<int>& tqBinEdges() const { return tqBinEdges_; }
     // number of used seed types in tracklet algorithm
     int numSeedTypes() const { return numSeedTypes_; }
     // sets layerId (0-7 in sequence the seed type projects to) of given TTStubRef and seedType, returns false if seeed stub
@@ -97,6 +124,24 @@ namespace trklet {
     int numComparisonModules_;
     // min number of shared stubs to identify duplicates [default: 3]
     int minIdenticalStubs_;
+    //
+    int tqNumLinks_;
+    // number of bits used to represent track quality output chi2 in r-phi plane
+    int tqWidthChi20_;
+    // number of bits used to represent track quality output chi2 in r-z plane
+    int tqWidthChi21_;
+    // power of 2 determing granularity of track quality output chi2 in r-phi plane
+    int tqBaseShiftChi20_;
+    // power of 2 determing granularity of track quality output chi2 in r-z plane
+    int tqBaseShiftChi21_;
+    // Number of bits used for looked up inverse phi uncertainty squared
+    int tqWidthInvV0_;
+    // Number of bits used for looked up inverse z uncertainty squared
+    int tqWidthInvV1_;
+    // number of bits used for mva
+    int tqWidthMVA_;
+    // f/w bin edge integer values to bin mva
+    std::vector<int> tqBinEdges_;
     // seed type names
     std::vector<std::string> seedTypeNames_;
     // number of used seed types in tracklet algorithm

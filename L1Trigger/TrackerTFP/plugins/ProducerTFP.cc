@@ -63,10 +63,10 @@ namespace trackerTFP {
     const std::string& branchTTTracks = iConfig.getParameter<std::string>("BranchTTTracks");
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     // book in- and output ED products
-    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(labelTracks, branchTracks));
-    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(labelStubs, branchStubs));
-    edPutTokenTTTracks_ = produces<tt::TTTracks>(branchTTTracks);
-    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
+    edGetTokenTracks_ = consumes(edm::InputTag(labelTracks, branchTracks));
+    edGetTokenStubs_ = consumes(edm::InputTag(labelStubs, branchStubs));
+    edPutTokenTTTracks_ = produces(branchTTTracks);
+    edPutTokenTracks_ = produces(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();

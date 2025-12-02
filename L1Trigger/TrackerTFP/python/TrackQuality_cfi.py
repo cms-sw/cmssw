@@ -26,9 +26,9 @@ TrackQuality_params = cms.PSet(
 
   WidthInvV0        = cms.int32(     16 ), # Number of bits used for looked up inverse phi uncertainty squared
   WidthInvV1        = cms.int32(     16 ), # Number of bits used for looked up inverse z uncertainty squared
-  Widthchi2rphi     = cms.int32(     20 ), # Number of bits used to represent chi2rphi
-  Widthchi2rz       = cms.int32(     20 ), # Number of bits used to represent chi2rz
-  BaseShiftchi2rphi = cms.int32(    -10 ), # Base of chi2rphi gets shifted by that power of 2 w.r.t 1
-  BaseShiftchi2rz   = cms.int32(    -10 )  # Base of chi2rz gets shifted by that power of 2 w.r.t 1
+  WidthChi20        = cms.int32(     20 ), # Number of bits used to represent chi2rphi
+  WidthChi21        = cms.int32(     20 ), # Number of bits used to represent chi2rz
+  BaseShiftChi20    = cms.int32(    -10 ), # Base of chi2rphi gets shifted by that power of 2 w.r.t 1
+  BaseShiftChi21    = cms.int32(    -10 ), # Base of chi2rz gets shifted by that power of 2 w.r.t 1
 
 )

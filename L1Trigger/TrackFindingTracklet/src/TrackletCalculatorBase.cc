@@ -35,7 +35,7 @@ void TrackletCalculatorBase::init(int iSeed) {
   n_delta2_ = 13;
   n_delta12_ = 13;
   n_a_ = 15;
-  n_r6_ = 4;
+  n_r6_ = 8;
   n_delta02_ = 14;
   n_x6_ = 15;
   n_HG_ = 15;
@@ -245,16 +245,20 @@ void TrackletCalculatorBase::calcPars(unsigned int idr,
   int ix6 = (-(1 << n_x6_) + ((ir6 * idelta02) >>
                               (n_r6_ + 2 * n_Deltar_ + 2 * n_phi_ - n_x6_ - n_delta2_ - n_delta02_ - 2 * n_delta0_)));
 
-  int it1 = (ir1 * ideltaz) >> (n_Deltar_ - n_deltaz_);
+  //Temporary hack here
+  int it1 = (ir1 * ideltaz) >> (n_Deltar_ - n_deltaz_ - 3);
+
+  //std::cout << "ifact it1 ix6: " << ifact << " " << it1 << " " << ix6 << std::endl;
 
   irinv_new = ((-idelta0 * ia) >> (n_phi_ + n_a_ - n_rinv_ + n_Deltar_ - n_delta0_ - n_r_ - 1));
 
   iphi0_new = (iphi1 >> (n_phi_ - n_phi0_)) +
               ((idelta1 * ix6) >> (n_Deltar_ + n_x6_ + n_phi_ - n_delta0_ - n_delta1_ - n_phi0_));
 
-  it_new = ((ideltaz * ia) >> (n_Deltar_ + n_a_ + n_z_ - n_t_ - n_deltaz_ - n_r_));
+  int shift_tmp = n_Deltar_ + n_a_ + n_z_ - n_t_ - n_deltaz_ - n_r_;
+  it_new = (((ideltaz * ia) >> (shift_tmp - 1)) + 1) >> 1;
 
-  iz0_new = iz1 + ((it1 * ix6) >> n_x6_);
+  iz0_new = iz1 + ((((it1 * ix6) >> (n_x6_ + 3 - 1)) + 1) >> 1);
 }
 
 bool TrackletCalculatorBase::goodTrackPars(bool goodrinv, bool goodz0) {
@@ -389,6 +393,39 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
   int ir2abs = ir2 + ir2mean;
 
   calcPars(idr, iphi1, ir1abs, iz1, iphi2, ir2abs, iz2, irinv_new, iphi0_new, iz0_new, it_new);
+
+  /*
+  double r1i = ir1abs * settings_.kr();
+  double r2i = ir2abs * settings_.kr();
+  double z1i = iz1 * settings_.kz();
+  double z2i = iz2 * settings_.kz();
+
+  double dphi = (iphi2 - iphi1) * settings_.kphi()/8.0;
+
+  std::cout << "r1: " << r1 << " " << r1i << std::endl;
+  std::cout << "r2: " << r2 << " " << r2i << std::endl;
+  std::cout << "z1: " << z1 << " " << z1i << std::endl;
+  std::cout << "z2: " << z2 << " " << z2i << std::endl;
+  std::cout << "dphi: " << phi2-phi1 << " " << dphi << std::endl;
+
+  double dist = sqrt(r2i * r2i + r1i * r1i - 2 * r1i * r2i * cos(dphi));
+
+  double rinvi = 2 * sin(dphi) / dist;
+
+  double rhopsi1 = 2 * asin(0.5 * r1i * rinvi) / rinvi;
+  double rhopsi2 = 2 * asin(0.5 * r2i * rinvi) / rinvi;
+
+  double ti = (z1i - z2i) / (rhopsi1 - rhopsi2);
+
+  double z0i = z1i - ti * rhopsi1;
+
+
+  if (abs(rinv)<0.001) {
+    std::cout << "z0 t : "
+	      << iz0_new << " " << iz0_new*settings_.kz0pars() << " " << z0i << "    "
+	      << it_new << " " << it_new*settings_.ktpars() << " " << ti << std::endl;
+  }
+  */
 
   bool rinvcut = abs(irinv_new) < settings_.rinvcut() * (120.0 * (1 << n_rinv_)) / phiHG_;
   bool z0cut = abs(iz0_new) < settings_.z0cut() * (1 << n_z_) / 120.0;

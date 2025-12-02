@@ -938,7 +938,7 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
 
 #ifdef USEHYBRID
       if (settings_.fakefit()) {
-        trackFitFake(bestTracklet, trackstublist, stubidslist);
+        trackFitKF(bestTracklet, trackstublist, stubidslist);
       } else {
         trackFitKF(bestTracklet, trackstublist, stubidslist);
       }

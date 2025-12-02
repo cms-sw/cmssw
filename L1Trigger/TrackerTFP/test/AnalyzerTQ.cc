@@ -12,7 +12,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
+#include "SimDataFormats/Associations/interface/StubAssociation.h"
+#include "L1Trigger/TrackTrigger/interface/Associator.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
@@ -50,20 +51,24 @@ namespace trackerTFP {
                     int channel) const;
     //
     void associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                   const tt::StubAssociation* ass,
+                   const tt::Associator& ass,
                    std::set<TPPtr>& tps,
                    int& sum,
                    bool perfect = false) const;
     // ED input token of stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
-    // ED input token of tracks
-    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
+    // ED input token of KF tracks
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracksKF_;
+    // ED input token of TQ additional track info
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracksTQ_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenSelection_;
     // ED input token of TTStubRef to recontructable TPPtr association
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
     edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    // Associator token
+    edm::ESGetToken<tt::Associator, tt::SetupRcd> esGetTokenAssociator_;
     // DataFormats token
     edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
@@ -90,11 +95,13 @@ namespace trackerTFP {
   AnalyzerTQ::AnalyzerTQ(const edm::ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
-    const std::string& label = iConfig.getParameter<std::string>("OutputLabelTQ");
+    const std::string& labelKF = iConfig.getParameter<std::string>("OutputLabelKF");
+    const std::string& labelTQ = iConfig.getParameter<std::string>("OutputLabelTQ");
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
-    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
-    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
+    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(labelKF, branchStubs));
+    edGetTokenTracksKF_ = consumes<tt::StreamsTrack>(edm::InputTag(labelKF, branchTracks));
+    edGetTokenTracksTQ_ = consumes<tt::StreamsTrack>(edm::InputTag(labelTQ, branchTracks));
     if (useMCTruth_) {
       const auto& inputTagSelecttion = iConfig.getParameter<edm::InputTag>("InputTagSelection");
       const auto& inputTagReconstructable = iConfig.getParameter<edm::InputTag>("InputTagReconstructable");
@@ -104,6 +111,7 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenAssociator_ = esConsumes();
     // log config
     log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
@@ -140,23 +148,15 @@ namespace trackerTFP {
 
   void AnalyzerTQ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // read in ht products
-    edm::Handle<tt::StreamsStub> handleStubs;
-    iEvent.getByToken<tt::StreamsStub>(edGetTokenStubs_, handleStubs);
-    const tt::StreamsStub& acceptedStubs = *handleStubs;
-    edm::Handle<tt::StreamsTrack> handleTracks;
-    iEvent.getByToken<tt::StreamsTrack>(edGetTokenTracks_, handleTracks);
-    const tt::StreamsTrack& acceptedTracks = *handleTracks;
+    const tt::StreamsStub& acceptedStubs = iEvent.get(edGetTokenStubs_);
+    const tt::StreamsTrack& acceptedTracks = iEvent.get(edGetTokenTracksKF_);
     // read in MCTruth
-    const tt::StubAssociation* selection = nullptr;
-    const tt::StubAssociation* reconstructable = nullptr;
+    tt::Associator selection = iSetup.getData(esGetTokenAssociator_);
+    tt::Associator reconstructable = iSetup.getData(esGetTokenAssociator_);
     if (useMCTruth_) {
-      edm::Handle<tt::StubAssociation> handleSelection;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenSelection_, handleSelection);
-      selection = handleSelection.product();
-      prof_->Fill(9, selection->numTPs());
-      edm::Handle<tt::StubAssociation> handleReconstructable;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
-      reconstructable = handleReconstructable.product();
+      selection.consume(iEvent.get(edGetTokenReconstructable_));
+      reconstructable.consume(iEvent.get(edGetTokenSelection_));
+      prof_->Fill(9, selection.numTPs());
     }
     // analyze ht products and associate found tracks with reconstrucable TrackingParticles
     std::set<TPPtr> tpPtrs;
@@ -262,12 +262,12 @@ namespace trackerTFP {
 
   //
   void AnalyzerTQ::associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                             const tt::StubAssociation* ass,
+                             const tt::Associator& ass,
                              std::set<TPPtr>& tps,
                              int& sum,
                              bool perfect) const {
     for (const std::vector<TTStubRef>& ttStubRefs : tracks) {
-      const std::vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
+      const std::vector<TPPtr>& tpPtrs = perfect ? ass.associateFinal(ttStubRefs) : ass.associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       sum++;

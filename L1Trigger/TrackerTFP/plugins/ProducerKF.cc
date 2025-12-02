@@ -119,6 +119,8 @@ namespace trackerTFP {
     iConfig_.baseShiftchi20_ = iConfig.getParameter<int>("BaseShiftchi20");
     iConfig_.baseShiftchi21_ = iConfig.getParameter<int>("BaseShiftchi21");
     iConfig_.baseShiftchi2_ = iConfig.getParameter<int>("BaseShiftchi2");
+    iConfig_.baseShiftInvDH_ = iConfig.getParameter<int>("BaseShiftInvDH");
+    iConfig_.baseShiftInvDH2_ = iConfig.getParameter<int>("BaseShiftInvDH2");
     iConfig_.baseShiftHv0_ = iConfig.getParameter<int>("BaseShiftHv0");
     iConfig_.baseShiftHv1_ = iConfig.getParameter<int>("BaseShiftHv1");
     iConfig_.baseShiftH2v0_ = iConfig.getParameter<int>("BaseShiftH2v0");
@@ -129,13 +131,13 @@ namespace trackerTFP {
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     const std::string& branchTruncated = iConfig.getParameter<std::string>("BranchTruncated");
     // book in- and output ED products
-    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
-    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
-    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
-    edPutTokenNumStatesAccepted_ = produces<int>(branchTracks);
-    edPutTokenNumStatesTruncated_ = produces<int>(branchTruncated);
-    edPutTokenChi2s_ = produces<std::vector<std::pair<double, double>>>(branchTracks);
+    edGetTokenStubs_ = consumes(edm::InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes(edm::InputTag(label, branchTracks));
+    edPutTokenStubs_ = produces(branchStubs);
+    edPutTokenTracks_ = produces(branchTracks);
+    edPutTokenNumStatesAccepted_ = produces(branchTracks);
+    edPutTokenNumStatesTruncated_ = produces(branchTruncated);
+    edPutTokenChi2s_ = produces(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();

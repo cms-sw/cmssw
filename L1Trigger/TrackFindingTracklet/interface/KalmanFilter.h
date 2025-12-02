@@ -36,27 +36,29 @@ namespace trklet {
    *          r = m - H*x
    *          x' = x + K*r
    *          C' = C - K*H*C (KF paper) = C - K*S (used here as simpler)
+   *          can run 4 parameter emulation with seeding stage or 5 parameter simulation
+   *          without seeding stage or old KF. To run 5 parameter simulation set
+   *          TrackTriggerSetup.KalmanFilter.Use5ParameterFit = True
+   *          to run olfKF set
+   *          TrackTriggerSetup.KalmanFilter.UseSimmulation = True
    *  \author Thomas Schuh
    *  \date   2024, Sep
    */
   class KalmanFilter {
   public:
     typedef State::Stub Stub;
-    KalmanFilter(const tt::Setup* setup,
-                 const DataFormats* dataFormats,
-                 KalmanFilterFormats* kalmanFilterFormats,
-                 tmtt::Settings* settings,
-                 tmtt::KFParamsComb* tmtt,
-                 int region,
-                 tt::TTTracks& ttTracks);
+    KalmanFilter(const tt::Setup*,
+                 const DataFormats*,
+                 KalmanFilterFormats*,
+                 tmtt::Settings*,
+                 tmtt::KFParamsComb*,
+                 int,
+                 tt::TTTracks&);
     ~KalmanFilter() = default;
     // read in and organize input tracks and stubs
-    void consume(const tt::StreamsTrack& streamsTrack, const tt::StreamsStub& streamsStub);
+    void consume(const tt::StreamsTrack&, const tt::StreamsStub&);
     // fill output products
-    void produce(tt::StreamsStub& streamsStub,
-                 tt::StreamsTrack& streamsTrack,
-                 int& numAcceptedStates,
-                 int& numLostStates);
+    void produce(tt::StreamsStub&, tt::StreamsTrack&);
 
   private:
     //

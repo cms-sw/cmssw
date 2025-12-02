@@ -8,4 +8,4 @@ from L1Trigger.TrackFindingTracklet.Producer_cfi import TrackFindingTrackletProd
 
 TrackTriggerDemonstrator = cms.ESProducer("trackerTFP::ProducerDemonstrator", TrackTriggerDemonstrator_params)
 
-TrackerTFPDemonstrator = cms.EDAnalyzer("trklet::AnalyzerDemonstrator", TrackTriggerDemonstrator_params, TrackFindingTrackletProducer_params)
+TrackerTFPDemonstrator = cms.EDAnalyzer("trklet::Demonstrator", TrackTriggerDemonstrator_params, TrackFindingTrackletProducer_params)
