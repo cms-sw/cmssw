@@ -94,8 +94,10 @@ HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
           int32_t cellV = std::atoi(items[7].c_str());
           HGCSiliconDetId detId(det, zp, type, layer, waferU, waferV, cellU, cellV);
           detIds_.emplace_back(detId);
-	  edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << det << ":" << zp << ":" << type << ":" << layer << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV << " ==> " << detId;
-    }
+          edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << det << ":" << zp << ":" << type << ":"
+                                      << layer << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV
+                                      << " ==> " << detId;
+        }
       }
       fInput.close();
     }
