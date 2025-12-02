@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -6,14 +6,15 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "TLorentzVector.h"
 
 #include <cmath>
+#include <memory>
+#include <string>
 
-//This producer was written to embed the final refined FastSim jet pT values
+//This producer embeds the final refined FastSim jet pT values
 //so that they can be used as input to the pT-based sorting routine, as well
 //as to implement the Type-1 MET correction based on the refined jets.
-class ProcessRefinedJets : public edm::stream::EDProducer<> {
+class ProcessRefinedJets : public edm::global::EDProducer<> {
 public:
   explicit ProcessRefinedJets(const edm::ParameterSet &iConfig)
       : jetsToken_(consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
@@ -39,7 +40,7 @@ public:
 
   ~ProcessRefinedJets() override = default;
 
-  void produce(edm::Event &iEvent, const edm::EventSetup &) override {
+  void produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &) const override {
     edm::Handle<edm::View<pat::Jet>> hJets;
     iEvent.getByToken(jetsToken_, hJets);
 
@@ -54,13 +55,15 @@ public:
       pat::Jet j(jIn);
 
       const double pt_orig = j.pt();
-      const double phi = j.phi();
+      const double phi     = j.phi();
 
       // mask: BvsAll > 0
       const float bvsAll = j.bDiscriminator(maskBtagName_);
-      const bool refine = (bvsAll > 0.f);
+      const bool refine  = (bvsAll > 0.f);
 
-      const double pt_ref = j.hasUserFloat(refinedPtName_) ? static_cast<double>(j.userFloat(refinedPtName_)) : pt_orig;
+      const double pt_ref = j.hasUserFloat(refinedPtName_)
+                                ? static_cast<double>(j.userFloat(refinedPtName_))
+                                : pt_orig;
 
       const double pt_final = refine ? pt_ref : pt_orig;
 
@@ -94,35 +97,25 @@ public:
       for (auto const &mIn : *hMET) {
         pat::MET m(mIn);
 
-        // --- original MET as TLorentzVector ---
         const double pxOrig = m.px();
         const double pyOrig = m.py();
-        const double ptOrig = std::sqrt(pxOrig * pxOrig + pyOrig * pyOrig);
-        const double phiOrig = std::atan2(pyOrig, pxOrig);
+        const double ptOrig = m.pt();
+        const double phiOrig = m.phi();
 
-        TLorentzVector metOrig;
-        metOrig.SetPxPyPzE(pxOrig, pyOrig, 0.0, ptOrig);  // pz=0, E ~ pt (E not really used for MET)
+        const double pxFinal = pxOrig + sumDeltaPx;
+        const double pyFinal = pyOrig + sumDeltaPy;
+        const double ptFinal = std::sqrt(pxFinal * pxFinal + pyFinal * pyFinal);
+        const double phiFinal = std::atan2(pyFinal, pxFinal);
 
-        // Type-1 MET correction for PUPPI MET with refined jets:
-        TLorentzVector delta;
-        const double ptDelta = std::sqrt(sumDeltaPx * sumDeltaPx + sumDeltaPy * sumDeltaPy);
-        delta.SetPxPyPzE(sumDeltaPx, sumDeltaPy, 0.0, ptDelta);
-
-        TLorentzVector metFinal = metOrig + delta;
-
-        const double ptFinal = metFinal.Pt();
-        const double phiFinal = metFinal.Phi();
-
-        // stash unrefined values
-        m.addUserFloat("pt_unrefined", static_cast<float>(ptOrig));
+        m.addUserFloat("pt_unrefined",  static_cast<float>(ptOrig));
         m.addUserFloat("phi_unrefined", static_cast<float>(phiOrig));
 
         // stash final values, needed for sorting.
-        m.addUserFloat("pt_final", static_cast<float>(ptFinal));
+        m.addUserFloat("pt_final",  static_cast<float>(ptFinal));
         m.addUserFloat("phi_final", static_cast<float>(phiFinal));
 
         // push back into pat::MET with reco::Candidate::LorentzVector ---
-        reco::Candidate::LorentzVector p4(metFinal.Px(), metFinal.Py(), 0.0, ptFinal);
+        reco::Candidate::LorentzVector p4(pxFinal, pyFinal, 0.0, ptFinal);
         m.setP4(p4);
 
         outMET->push_back(std::move(m));
@@ -134,7 +127,7 @@ public:
 private:
   edm::EDGetTokenT<edm::View<pat::Jet>> jetsToken_;
   edm::EDGetTokenT<edm::View<pat::MET>> metToken_;
-  bool doMET_;
+  bool doMET_ = false;
 
   std::string refinedPtName_;
   std::string maskBtagName_;
