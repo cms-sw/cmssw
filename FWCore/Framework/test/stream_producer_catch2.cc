@@ -446,7 +446,7 @@ namespace {
       };
 
       m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
+        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::TransitionActionGlobalBegin> Traits;
         edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
         edm::ParentContext parentContext(&gc);
         iBase->setActivityRegistry(m_actReg);
@@ -454,7 +454,7 @@ namespace {
         doWork<Traits>(iBase, info, parentContext);
       };
       m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamBegin> Traits;
+        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::TransitionActionStreamBegin> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
         iBase->setActivityRegistry(m_actReg);
@@ -463,7 +463,7 @@ namespace {
       };
 
       m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
+        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::TransitionActionGlobalBegin> Traits;
         edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
         edm::ParentContext parentContext(&gc);
         iBase->setActivityRegistry(m_actReg);
@@ -471,7 +471,7 @@ namespace {
         doWork<Traits>(iBase, info, parentContext);
       };
       m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamBegin> Traits;
+        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::TransitionActionStreamBegin> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
         iBase->setActivityRegistry(m_actReg);
@@ -480,7 +480,7 @@ namespace {
       };
 
       m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
+        typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::TransitionActionStreamBegin> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
         iBase->setActivityRegistry(m_actReg);
@@ -489,7 +489,7 @@ namespace {
       };
 
       m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamEnd> Traits;
+        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::TransitionActionStreamEnd> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
         iBase->setActivityRegistry(m_actReg);
@@ -497,7 +497,7 @@ namespace {
         doWork<Traits>(iBase, info, parentContext);
       };
       m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
+        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::TransitionActionGlobalEnd> Traits;
         edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
         edm::ParentContext parentContext(&gc);
         iBase->setActivityRegistry(m_actReg);
@@ -506,7 +506,7 @@ namespace {
       };
 
       m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamEnd> Traits;
+        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::TransitionActionStreamEnd> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
         iBase->setActivityRegistry(m_actReg);
@@ -514,7 +514,7 @@ namespace {
         doWork<Traits>(iBase, info, parentContext);
       };
       m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
+        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::TransitionActionGlobalEnd> Traits;
         edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
         edm::ParentContext parentContext(&gc);
         iBase->setActivityRegistry(m_actReg);
