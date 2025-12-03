@@ -1,24 +1,14 @@
 #ifndef PFClusterProducer_plugins_alpaka_PFMultiDepthClusterizer_Alpaka_h
 #define PFClusterProducer_plugins_alpaka_PFMultiDepthClusterizer_Alpaka_h
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-
 // Alpaka includes
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-#include "HeterogeneousCore/AlpakaCore/interface/MoveToDeviceCache.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFClusterSoAProducerKernel.h"
-#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitTopologyRecord.h"
+
+#include "DataFormats/ParticleFlowReco/interface/alpaka/PFClusterDeviceCollection.h"
+#include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
+#include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitFractionDeviceCollection.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringCCLabelsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringVarsDeviceCollection.h"
