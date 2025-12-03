@@ -240,7 +240,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   }
 
   // Finalize HepMC event record
-  auto hepmc_product = std::make_unique<edm::HepMC3Product>(&hepmc_event);
+  auto hepmc_product = std::make_unique<edm::HepMC3Product>(hepmc_event);
   event.put(std::move(hepmc_product), "unsmeared");
 }
 
