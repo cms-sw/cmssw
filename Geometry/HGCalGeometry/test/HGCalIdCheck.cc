@@ -85,8 +85,8 @@ HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
         std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
         DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
         if (det == dets_) {
-          int32_t zp = std::atoi(items[2].c_str());
-          int32_t type = std::atoi(items[1].c_str());
+          int32_t zp = std::atoi(items[1].c_str());
+          int32_t type = std::atoi(items[2].c_str());
           int32_t layer = std::atoi(items[3].c_str());
           int32_t waferU = std::atoi(items[4].c_str());
           int32_t waferV = std::atoi(items[5].c_str());
