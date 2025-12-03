@@ -103,7 +103,7 @@ void JetImpactParameters::produce(edm::Event& event, const edm::EventSetup& setu
   vector_test(v_jetDxy);
   vector_test(v_jetDz);
   vector_test(v_jetDxyError);
-  vector_test(v_jetDxyError);
+  vector_test(v_jetDzError);
   vector_test(v_jetCharge);
 
   auto vm_jetDxy = std::make_unique<edm::ValueMap<Float_t>>();
