@@ -186,7 +186,8 @@ public:
   static inline int32_t fscChannel(int32_t stn, int32_t phi) {
     // stn goes from 0..2 and phi 1..2 for stations 0,1 and 1...4 for station 2
     const int32_t channels[8] = {6, 7, 0, 1, 2, 3, 4, 5};
-    int32_t chn = ((stn < 0 || stn > 2 || phi < 1 || phi > 4) ? -1 : ((stn < 2 && phi  > 2) ? -1 : channels[stn * 2 + phi - 1]));
+    int32_t chn =
+        ((stn < 0 || stn > 2 || phi < 1 || phi > 4) ? -1 : ((stn < 2 && phi > 2) ? -1 : channels[stn * 2 + phi - 1]));
     return chn;
   }
 
