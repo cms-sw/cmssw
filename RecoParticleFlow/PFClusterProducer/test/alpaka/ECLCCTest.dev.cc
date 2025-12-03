@@ -242,16 +242,18 @@ void create(::reco::PFMultiDepthClusteringEdgeVarsHostCollection& hostClustering
     int vx_;
 
     if (is_root) {
-      vx_ = i;	    
+      vx_ = i;
     } else {
       vx_ = topo_distr(rng);
-      if( vx_ == 0 ) {
-	if (root0_max_degree > 0) root0_max_degree -= 1;
-        else vx_ += (topo_distr(rng)+1);	
-      }	    
+      if (vx_ == 0) {
+        if (root0_max_degree > 0)
+          root0_max_degree -= 1;
+        else
+          vx_ += (topo_distr(rng) + 1);
+      }
     }
-    vx[i] = vx_;    
-    //printf("CHECK %d\n", vx[i] );    
+    vx[i] = vx_;
+    //printf("CHECK %d\n", vx[i] );
   }
 
   auto adj = buildAdj(vx);
@@ -262,21 +264,23 @@ void create(::reco::PFMultiDepthClusteringEdgeVarsHostCollection& hostClustering
   for (int i = 0; i < (int)adj.size(); ++i) {
     hClusteringEdgeVars[i].mdpf_adjacencyIndex() = idx;
 
-    if (mx_degree < (int)adj[i].size()) mx_degree = (int)adj[i].size();
-    if (mn_degree > (int)adj[i].size() && (int)adj[i].size() > 1) mn_degree = (int)adj[i].size();
+    if (mx_degree < (int)adj[i].size())
+      mx_degree = (int)adj[i].size();
+    if (mn_degree > (int)adj[i].size() && (int)adj[i].size() > 1)
+      mn_degree = (int)adj[i].size();
 
     for (int j = 0; j < (int)adj[i].size(); ++j) {
       hClusteringEdgeVars[idx++].mdpf_adjacencyList() = adj[i][j];
     }
   }
-  hClusteringEdgeVars[nClusters].mdpf_adjacencyIndex() = idx;  
+  hClusteringEdgeVars[nClusters].mdpf_adjacencyIndex() = idx;
   printf("Max degree : %d;  Min degree %d\n", mx_degree, mn_degree);
 }
 
-void check(const ::reco::PFMultiDepthClusteringCCLabelsHostCollection& hostClusteringCCLabels, 
-	   const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection& hostClusteringEdgeVars, 
-	   const int nClusters) {
-  auto hClusteringCCLabels = hostClusteringCCLabels.view();	
+void check(const ::reco::PFMultiDepthClusteringCCLabelsHostCollection& hostClusteringCCLabels,
+           const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection& hostClusteringEdgeVars,
+           const int nClusters) {
+  auto hClusteringCCLabels = hostClusteringCCLabels.view();
   auto hClusteringEdgeVars = hostClusteringEdgeVars.view();
 
   const auto neigh = hClusteringEdgeVars[nClusters].mdpf_adjacencyIndex();
@@ -300,10 +304,10 @@ void check(const ::reco::PFMultiDepthClusteringCCLabelsHostCollection& hostClust
 
   int vidx = 0;
   for (auto& i : status) {
-    const bool is_same = i == hClusteringCCLabels[vidx].mdpf_topoId();	  
+    const bool is_same = i == hClusteringCCLabels[vidx].mdpf_topoId();
 
-    if(is_same == false) 
-      printf("Error for TOPO %d != %d \t (%d) \n", hClusteringCCLabels[vidx].mdpf_topoId(), i, vidx);	  
+    if (is_same == false)
+      printf("Error for TOPO %d != %d \t (%d) \n", hClusteringCCLabels[vidx].mdpf_topoId(), i, vidx);
     vidx += 1;
   }
 }
