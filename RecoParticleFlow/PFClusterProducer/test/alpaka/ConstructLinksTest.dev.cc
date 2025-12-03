@@ -230,7 +230,7 @@ std::vector<ClusterLink> prune(std::vector<ClusterLink>& links, std::vector<bool
   if (links.empty())
     return goodLinks;
 
-  printf("Total number of links : %lu\n", links.size());  
+  printf("Total number of links : %lu\n", links.size());
 
   for (unsigned int i = 0; i < links.size() - 1; ++i) {
     if (mask[i])
@@ -265,11 +265,11 @@ std::vector<ClusterLink> prune(std::vector<ClusterLink>& links, std::vector<bool
     }
   }
 
-  unsigned int pruned_links  = 0;
+  unsigned int pruned_links = 0;
 
   for (unsigned int i = 0; i < links.size(); ++i) {
     if (mask[i]) {
-      pruned_links += 1;	    
+      pruned_links += 1;
       continue;
     }
     goodLinks.push_back(links[i]);
@@ -279,8 +279,8 @@ std::vector<ClusterLink> prune(std::vector<ClusterLink>& links, std::vector<bool
   }
 
   printf("Total pruned links %u\n", pruned_links);
-  
-  printf("Total number of selected links : %lu\n", goodLinks.size());  
+
+  printf("Total number of selected links : %lu\n", goodLinks.size());
 
   return goodLinks;
 }
@@ -309,18 +309,24 @@ void checkConstructLinks(const ::reco::PFClusterCollection& clusters,
   auto hClusteringCCLabels = hostClusteringCCLabels.view();
 
   for (int i = 0; i < nClusters; i++) {
-    if ( i == hClusteringCCLabels[i].mdpf_topoId())
-      printf("Check self connection: vertex id %d is linked to itself (linked to others : %s)\n", hClusteringCCLabels[i].mdpf_topoId(),  linked[i] ? "Y" : "N");	    
-    if ( i != hClusteringCCLabels[i].mdpf_topoId() && (linked[i] == false ) )
+    if (i == hClusteringCCLabels[i].mdpf_topoId())
+      printf("Check self connection: vertex id %d is linked to itself (linked to others : %s)\n",
+             hClusteringCCLabels[i].mdpf_topoId(),
+             linked[i] ? "Y" : "N");
+    if (i != hClusteringCCLabels[i].mdpf_topoId() && (linked[i] == false))
       printf("Error: vertex id %d must not be linked to %d.\n", hClusteringCCLabels[i].mdpf_topoId(), i);
   }
 
-  for (auto &link_ : prunedLinks) {
+  for (auto& link_ : prunedLinks) {
     const int from_link_id = link_.from();
     const int to_link_id = link_.to();
     //
-    if (from_link_id != hClusteringCCLabels[to_link_id].mdpf_topoId() )
-      printf("Error: src ver %d linked to dest ver %d, while on Alpaka device dest ver %d linked to src ver id %d...\n", from_link_id, to_link_id, to_link_id, hClusteringCCLabels[to_link_id].mdpf_topoId());     
+    if (from_link_id != hClusteringCCLabels[to_link_id].mdpf_topoId())
+      printf("Error: src ver %d linked to dest ver %d, while on Alpaka device dest ver %d linked to src ver id %d...\n",
+             from_link_id,
+             to_link_id,
+             to_link_id,
+             hClusteringCCLabels[to_link_id].mdpf_topoId());
   }
 }
 

@@ -136,14 +136,14 @@ void create(::reco::PFMultiDepthClusteringCCLabelsHostCollection &hostClustering
   }
 
   for (int i = 0; i < nClusters; ++i) {
-    const int j = vx[i];	  
-    hClusteringCCLabels[i].mdpf_topoId() = (vx[j] == i && j < i ) ? i : vx[i];
+    const int j = vx[i];
+    hClusteringCCLabels[i].mdpf_topoId() = (vx[j] == i && j < i) ? i : vx[i];
   }
 }
 
-void check( const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection &hostClusteringEdgeVars,
-	    const ::reco::PFMultiDepthClusteringCCLabelsHostCollection &hostClusteringCCLabels,
-            const int nClusters) {	
+void check(const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection &hostClusteringEdgeVars,
+           const ::reco::PFMultiDepthClusteringCCLabelsHostCollection &hostClusteringCCLabels,
+           const int nClusters) {
   auto hClusteringCCLabels = hostClusteringCCLabels.view();
 
   std::vector<int> vx(nClusters, 0);
@@ -157,13 +157,12 @@ void check( const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection &hostClus
   auto hClusteringEdgeVars = hostClusteringEdgeVars.view();
 
   for (int i = 0; i < nClusters; ++i) {
-
     const int begin = hClusteringEdgeVars[i].mdpf_adjacencyIndex();
-    const int end = hClusteringEdgeVars[i + 1].mdpf_adjacencyIndex();  	  
+    const int end = hClusteringEdgeVars[i + 1].mdpf_adjacencyIndex();
 
-    if ((end - begin) != static_cast<int>(adj[i].size())) 
-      std::cout << "Vertex degree mismatch " << i << " Legacy size " << static_cast<int>(adj[i].size()) 
-	                                          << " Alpaka size " << (end - begin) << std::endl;	    
+    if ((end - begin) != static_cast<int>(adj[i].size()))
+      std::cout << "Vertex degree mismatch " << i << " Legacy size " << static_cast<int>(adj[i].size())
+                << " Alpaka size " << (end - begin) << std::endl;
 
     std::cout << i << ": Legacy [";
     for (int j = 0; j < (int)adj[i].size(); ++j) {
@@ -175,16 +174,16 @@ void check( const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection &hostClus
 
     std::cout << "\t\t Alpaka [";
     for (int j = begin; j < end; j++) {
-
-      const int idx = hClusteringEdgeVars[j].mdpf_adjacencyList();    
+      const int idx = hClusteringEdgeVars[j].mdpf_adjacencyList();
       const bool is_found = std::binary_search(adj[i].begin(), adj[i].end(), idx);
 
-      if ( is_found == false ) printf("mismatch detected for vertex %d (%d)\n", i, idx);	
+      if (is_found == false)
+        printf("mismatch detected for vertex %d (%d)\n", i, idx);
 
       std::cout << hClusteringEdgeVars[j].mdpf_adjacencyList() << " ";
     }
-    std::cout << "]\n";    
-  }  
+    std::cout << "]\n";
+  }
 }
 
 using namespace edm;

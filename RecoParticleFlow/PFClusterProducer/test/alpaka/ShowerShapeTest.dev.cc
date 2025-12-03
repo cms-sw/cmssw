@@ -99,7 +99,7 @@ namespace {
 
   static thread_local CaloCellGeometry::CornersMgr s_cornersMgr(65536,
                                                                 CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
- 
+
   static thread_local CaloCellGeometry::ParMgr s_parMgr(65536, /*subSize=*/BoxCell::kNPar);
 
   static thread_local CaloCellGeometry::ParVecVec s_parBlocks;
@@ -165,7 +165,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         mdpfClusteringVars.view(),
                         pfClusters.view(),
                         pfRecHitFracs.view(),
-                        pfRecHit.view(), thrsh);
+                        pfRecHit.view(),
+                        thrsh);
 
     alpaka::wait(queue);
   }
@@ -286,7 +287,7 @@ std::pair<int, int> create(::reco::PFClusterCollection& clusters,
 
       const HcalDetId detId = makeDetId(ieta, ((iphi + j) % 72) + 1, depth);
       const int hIdx = tot_offset + j;
-      constexpr float extra_scale = 10000.0f;//for testing only
+      constexpr float extra_scale = 10000.0f;  //for testing only
       auto hit = makePFRecHit(layer, detId, extra_scale * eH, hx, hy, hz);
       hitOwners.push_back(i);
 
@@ -466,12 +467,12 @@ void checkShowerShapes(const ::reco::PFClusterCollection& clusters,
     const ::reco::PFCluster& cluster = clusters[i];
     auto const& crep = cluster.positionREP();
 
-    const auto x = std::abs(hClusteringVars[i].etaRMS2()-etaRMS2[i]) / etaRMS2[i];
-    if(x > tol) {
-      printf("Result for cluster id %d : etaRMS2 %f (%f), %f\n", i, hClusteringVars[i].etaRMS2(), etaRMS2[i], x); 
+    const auto x = std::abs(hClusteringVars[i].etaRMS2() - etaRMS2[i]) / etaRMS2[i];
+    if (x > tol) {
+      printf("Result for cluster id %d : etaRMS2 %f (%f), %f\n", i, hClusteringVars[i].etaRMS2(), etaRMS2[i], x);
     }
-    const auto y = std::abs(hClusteringVars[i].phiRMS2()-phiRMS2[i]) / phiRMS2[i];
-    if(y > tol) {
+    const auto y = std::abs(hClusteringVars[i].phiRMS2() - phiRMS2[i]) / phiRMS2[i];
+    if (y > tol) {
       printf("Result for cluster id %d : phiRMS2 %f (%f), %f\n", i, hClusteringVars[i].phiRMS2(), phiRMS2[i], y);
     }
   }
