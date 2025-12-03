@@ -44,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         reco::PFMultiDepthClusteringCCLabelsDeviceCollection& mdpfClusteringCCLabels,
                         const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection& mdpfClusteringEdgeVars,
                         const int nClusters) const {
-    uint32_t items = 224;
+    uint32_t items = 960;
 
     uint32_t groups = cms::alpakatools::divide_up_by(nClusters, items);
 
@@ -98,10 +98,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memcpy(queue, hostClusteringCCLabels.buffer(), devClusteringCCLabels.buffer());
 
     alpaka::wait(queue);
-
-    for (int i = 0; i < nClusters; i++) {
-      printf("TOPO  %d \t (%d) \n", hClusteringCCLabels[i].mdpf_topoId(), i);
-    }
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
@@ -233,29 +229,54 @@ void create(::reco::PFMultiDepthClusteringEdgeVarsHostCollection& hostClustering
 
   std::mt19937 rng(12345);
 
-  std::uniform_int_distribution<int> topo_distr(0, nClusters / 2 - 1);
+  std::uniform_int_distribution<int> root0_degree_distr(1, 14);
+  std::uniform_int_distribution<int> topo_distr(0, 8);
 
   std::vector<int> vx(nClusters, 0);
+
+  int root0_max_degree = root0_degree_distr(rng);
 
   for (int i = 0; i < nClusters; ++i) {
     bool is_root = std::binary_search(roots.begin(), roots.end(), i);
 
-    vx[i] = is_root ? i : topo_distr(rng);
+    int vx_;
+
+    if (is_root) {
+      vx_ = i;	    
+    } else {
+      vx_ = topo_distr(rng);
+      if( vx_ == 0 ) {
+	if (root0_max_degree > 0) root0_max_degree -= 1;
+        else vx_ += (topo_distr(rng)+1);	
+      }	    
+    }
+    vx[i] = vx_;    
+    //printf("CHECK %d\n", vx[i] );    
   }
 
   auto adj = buildAdj(vx);
 
   int idx = 0;
+  int mx_degree = 0;
+  int mn_degree = 1024;
   for (int i = 0; i < (int)adj.size(); ++i) {
     hClusteringEdgeVars[i].mdpf_adjacencyIndex() = idx;
+
+    if (mx_degree < (int)adj[i].size()) mx_degree = (int)adj[i].size();
+    if (mn_degree > (int)adj[i].size() && (int)adj[i].size() > 1) mn_degree = (int)adj[i].size();
+
     for (int j = 0; j < (int)adj[i].size(); ++j) {
       hClusteringEdgeVars[idx++].mdpf_adjacencyList() = adj[i][j];
     }
   }
-  hClusteringEdgeVars[nClusters].mdpf_adjacencyIndex() = idx;  //
+  hClusteringEdgeVars[nClusters].mdpf_adjacencyIndex() = idx;  
+  printf("Max degree : %d;  Min degree %d\n", mx_degree, mn_degree);
 }
 
-void check(const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection& hostClusteringEdgeVars, const int nClusters) {
+void check(const ::reco::PFMultiDepthClusteringCCLabelsHostCollection& hostClusteringCCLabels, 
+	   const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection& hostClusteringEdgeVars, 
+	   const int nClusters) {
+  auto hClusteringCCLabels = hostClusteringCCLabels.view();	
   auto hClusteringEdgeVars = hostClusteringEdgeVars.view();
 
   const auto neigh = hClusteringEdgeVars[nClusters].mdpf_adjacencyIndex();
@@ -271,14 +292,20 @@ void check(const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection& hostClust
   // Run CC algo on the host:
   std::vector<int> status(nClusters);
 
-  std::cout << "ECL : " << std::endl;
+  std::cout << "Run CPU ECL : " << std::endl;
 
   init(nClusters, idx.data(), adj.data(), status.data());
   compute(nClusters, idx.data(), adj.data(), status.data());
   flatten(nClusters, status.data());
 
-  for (auto& i : status)
-    std::cout << i << std::endl;
+  int vidx = 0;
+  for (auto& i : status) {
+    const bool is_same = i == hClusteringCCLabels[vidx].mdpf_topoId();	  
+
+    if(is_same == false) 
+      printf("Error for TOPO %d != %d \t (%d) \n", hClusteringCCLabels[vidx].mdpf_topoId(), i, vidx);	  
+    vidx += 1;
+  }
 }
 
 using namespace edm;
@@ -293,9 +320,9 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = 200;
+  const int nClusters = 950;
 
-  std::vector<int> roots = {0, 3, 7, 11, 19, 29, 37, 41, 71, 83, 97};
+  std::vector<int> roots = {0, 2, 3, 5, 7};
 
   // run the test on each device
   for (auto const& device : devices) {
@@ -311,7 +338,7 @@ int main() {
 
     launch_eclcc_test(queue, hostClusteringCCLabels, hostClusteringEdgeVars);
 
-    check(hostClusteringEdgeVars, nClusters);
+    check(hostClusteringCCLabels, hostClusteringEdgeVars, nClusters);
   }
 
   return 0;

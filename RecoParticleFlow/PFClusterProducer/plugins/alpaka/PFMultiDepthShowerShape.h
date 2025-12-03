@@ -86,7 +86,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   reco::PFMultiDepthClusteringVarsDeviceCollection::View mdpfClusteringVars,
                                   const reco::PFClusterDeviceCollection::ConstView pfClusters,
                                   const reco::PFRecHitFractionDeviceCollection::ConstView pfRecHitFracs,
-                                  const reco::PFRecHitDeviceCollection::ConstView pfRecHit) const {
+                                  const reco::PFRecHitDeviceCollection::ConstView pfRecHit,
+				  const float rms2_threshold = 0.1) const {
       //const unsigned int nClusters = pfClusters.size();
       const unsigned int nClusters = pfClusters.nSeeds();
 
@@ -190,10 +191,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
             if (iter_leftover_pfrhf_size < eff_w_extent) {
               if (lane_idx == iter_lane_idx) {
-                const double etaRMS2_ = alpaka::math::max(acc, iter_accum_etaSum / pfc_energy, 0.1);
+                const double etaRMS2_ = alpaka::math::max(acc, iter_accum_etaSum / pfc_energy, rms2_threshold);
                 mdpfClusteringVars[i].etaRMS2() = etaRMS2_ * etaRMS2_;
 
-                const double phiRMS2_ = alpaka::math::max(acc, iter_accum_phiSum / pfc_energy, 0.1);
+                const double phiRMS2_ = alpaka::math::max(acc, iter_accum_phiSum / pfc_energy, rms2_threshold);
                 mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;
               }
 

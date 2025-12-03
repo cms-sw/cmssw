@@ -97,11 +97,9 @@ namespace {
   };
 
   // Thread-local pools: REQUIRED so EZArrayFL/EZMgrFL have backing storage
-  //!
   static thread_local CaloCellGeometry::CornersMgr s_cornersMgr(65536,
                                                                 CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
 
-  //!
   static thread_local CaloCellGeometry::ParMgr s_parMgr(65536, /*subSize=*/BoxCell::kNPar);
 
   static thread_local CaloCellGeometry::ParVecVec s_parBlocks;
@@ -519,7 +517,7 @@ void checkEpilogue(const ::reco::PFClusterHostCollection &outHostClusters,
   const int inClustersNum = inHostClustersView.size();
 
   for (auto &cc_root : cc_roots) {
-    printf("Process cc root %d\n", cc_root);
+    printf("\n\n>>>>> Process cc root %d\n", cc_root);
     int tot_recFracSize = 0;
     bool is_valid_seed = false;
     int cc_seed = inHostClustersView[cc_root].seedRHIdx();
@@ -535,14 +533,11 @@ void checkEpilogue(const ::reco::PFClusterHostCollection &outHostClusters,
 
         auto seed_energy = recHitsView[seed].energy();
 
-        printf("RHFracs offset %d RHSFrac size %d (seed %d)\n", recFracOffset, recFracSize, seed);
-
         tot_recFracSize += recFracSize;
         for (int j = 0; j < recFracSize; j++) {
           auto recHitidx = inHostRecHitsFracsView[recFracOffset + j].pfrhIdx();
           if (seed == recHitidx)
             is_valid_seed = true;
-          //printf("RH index %d\n", recHitidx);
         }
 
         if (is_valid_seed == false) {
@@ -553,12 +548,11 @@ void checkEpilogue(const ::reco::PFClusterHostCollection &outHostClusters,
             cc_energy = seed_energy;
             printf("updated seed for cluster %d\n", rep);
           }
-          //printf("CC seed energy %d\t %f.\n", cc_seed, cc_energy);
           is_valid_seed = false;
         }
       }
     }
-    printf("TOT rh size = %d , seed = %d\n", tot_recFracSize, cc_seed);
+    printf("TOT rh size = %d , seed = %d (energy %f)\n", tot_recFracSize, cc_seed, cc_energy);
   }
 
   const int outClustersNum = outHostClustersView.size();
@@ -578,7 +572,6 @@ void checkEpilogue(const ::reco::PFClusterHostCollection &outHostClusters,
 
     for (int j = 0; j < recFracSize; j++) {
       auto recHitidx = outHostRecHitsFracsView[recFracOffset + j].pfrhIdx();
-      //printf("OUT RH index %d\n", recHitidx);
     }
   }
 }
@@ -595,9 +588,9 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = 165;         // default 100
-  const int maxHitsPerCluster = 67;  // default 67
-  const int minHitsPerCluster = 23;  // default 23
+  const int nClusters = 165;         
+  const int maxHitsPerCluster = 67;  
+  const int minHitsPerCluster = 23;  
 
   ::reco::PFClusterCollection clusters;
   clusters.reserve(nClusters);
