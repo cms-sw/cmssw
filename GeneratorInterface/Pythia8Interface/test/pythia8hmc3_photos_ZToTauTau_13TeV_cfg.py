@@ -46,7 +46,8 @@ process.generator = cms.EDFilter("Pythia8HepMC3GeneratorFilter",
             'PhaseSpace:mHatMin = 50.',
             '23:onMode = off',
             '23:onIfAny = 15',
-            'ParticleDecays:allowPhotonRadiation = on',
+            #'ParticleDecays:allowPhotonRadiation = on', # allow photons from hadron decays (OBSOLETE in pythia8316)
+            'HadronLevel:QED = on', # allow photons from hadron decays
             'TimeShower:QEDshowerByL = off',
             ),
 		parameterSets = cms.vstring('pythia8CommonSettings',
