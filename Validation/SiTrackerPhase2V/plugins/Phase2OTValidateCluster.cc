@@ -69,7 +69,14 @@ private:
     MonitorElement* deltaY_P_primary = nullptr;
     MonitorElement* deltaX_S_primary = nullptr;
     MonitorElement* deltaY_S_primary = nullptr;
+    MonitorElement* deltaPhi_S = nullptr;
+    MonitorElement* deltaPhi_P = nullptr;
   };
+
+  MonitorElement* deltaPhi_S_Barrel = nullptr;
+  MonitorElement* deltaPhi_P_Barrel = nullptr;
+  MonitorElement* deltaPhi_S_Endcap = nullptr;
+  MonitorElement* deltaPhi_P_Endcap = nullptr;
 
   void fillOTHistos(const edm::Event& iEvent,
                     const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
@@ -233,6 +240,9 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
       const float deltaX = localPosCluster.x() - localPosSimHit.x();
       const float deltaY = localPosCluster.y() - localPosSimHit.y();
 
+      const float deltaPhi = geomDetUnit->surface().toGlobal(localPosCluster).phi() -
+                             geomDetUnit->surface().toGlobal(localPosSimHit).phi();
+
       auto layerMEit = layerMEs_.find(folderkey);
       if (layerMEit == layerMEs_.end())
         continue;
@@ -241,9 +251,24 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
         local_mes.deltaX_P->Fill(phase2tkutil::cmtomicron * deltaX);
         local_mes.deltaY_P->Fill(phase2tkutil::cmtomicron * deltaY);
+        local_mes.deltaPhi_P->Fill(deltaPhi);
+        if (tTopo_->getOTLayerNumber(rawid) < 100) {
+          // Barrel
+          deltaPhi_P_Barrel->Fill(deltaPhi);
+        } else {
+          deltaPhi_P_Endcap->Fill(deltaPhi);
+        }
+
       } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
         local_mes.deltaX_S->Fill(phase2tkutil::cmtomicron * deltaX);
         local_mes.deltaY_S->Fill(deltaY);
+        local_mes.deltaPhi_S->Fill(deltaPhi);
+        if (tTopo_->getOTLayerNumber(rawid) < 100) {
+          // Barrel
+          deltaPhi_S_Barrel->Fill(deltaPhi);
+        } else {
+          deltaPhi_S_Endcap->Fill(deltaPhi);
+        }
       }
       // Primary particles only
       if (phase2tkutil::isPrimary(simTrackIt->second, closestSimHit)) {
@@ -276,6 +301,7 @@ void Phase2OTValidateCluster::bookHistograms(DQMStore::IBooker& ibooker,
            det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC))
         continue;  //continue if Pixel
       uint32_t detId_raw = det_u->geographicalId().rawId();
+
       bookLayerHistos(ibooker, detId_raw, top_folder);
     }
   }
@@ -294,6 +320,13 @@ void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
     edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in: " << subdir + '/' + folderName;
     ClusterMEs local_mes;
     if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
+      ibooker.setCurrentFolder(subdir);
+
+      deltaPhi_P_Barrel =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Pixel_Barrel"), ibooker);
+      deltaPhi_P_Endcap =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Pixel_Endcap"), ibooker);
+
       ibooker.setCurrentFolder(subdir + '/' + folderName);
 
       local_mes.deltaX_P =
@@ -301,6 +334,9 @@ void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
 
       local_mes.deltaY_P =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel"), ibooker);
+
+      local_mes.deltaPhi_P =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Pixel"), ibooker);
 
       // Puting primary digis in a subfolder
       ibooker.setCurrentFolder(subdir + '/' + folderName + "/PrimarySimHits");
@@ -311,6 +347,13 @@ void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
       local_mes.deltaY_P_primary =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), ibooker);
     }
+    ibooker.setCurrentFolder(subdir);
+
+    deltaPhi_S_Barrel =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Strip_Barrel"), ibooker);
+    deltaPhi_S_Endcap =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Strip_Endcap"), ibooker);
+
     ibooker.setCurrentFolder(subdir + '/' + folderName);
 
     local_mes.deltaX_S =
@@ -318,6 +361,9 @@ void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
 
     local_mes.deltaY_S =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Strip"), ibooker);
+
+    local_mes.deltaPhi_S =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Strip"), ibooker);
 
     // Puting primary digis in a subfolder
     ibooker.setCurrentFolder(subdir + '/' + folderName + "/PrimarySimHits");
@@ -391,6 +437,36 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Pixel_Primary", psd0);
   }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Pixel");
+    psd0.add<std::string>("title", "#Delta Phi " + mptag + ";phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Pixel_Barrel");
+    psd0.add<std::string>("title", "#Delta Phi " + mptag + " Barrel;phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Barrel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Pixel_Endcap");
+    psd0.add<std::string>("title", "#Delta Phi " + mptag + " Endcaps;phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Endcap", psd0);
+  }
 
   //strip sensors
   {
@@ -433,6 +509,37 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Strip_Primary", psd0);
   }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Strip");
+    psd0.add<std::string>("title", "#Delta Phi " + striptag + ";phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Strip", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Strip_Barrel");
+    psd0.add<std::string>("title", "#Delta Phi " + striptag + " Barrel;phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Strip_Barrel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Strip_Endcap");
+    psd0.add<std::string>("title", "#Delta Phi " + striptag + " Endcaps;phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Strip_Endcap", psd0);
+  }
+
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTClusterV");
   desc.add<edm::InputTag>("ClusterSource", edm::InputTag("siPhase2Clusters"));
   desc.add<edm::InputTag>("OuterTrackerDigiSimLinkSource", edm::InputTag("simSiPixelDigis", "Tracker"));
