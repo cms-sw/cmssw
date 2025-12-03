@@ -204,6 +204,7 @@ void CalorimetryManager::reconstructTrack(FSimTrack& myTrack, RandomEngineAndDis
           myHDResponse_->correctHF(myTrack.hcalEntrance().e(), abs(myTrack.type()));
           updateHCAL(theHFShowerLibrary->getHitsMap(), true, myTrack.id());
           theHFShowerLibrary->clear();
+          myHDResponse_->clearHF();
         } else
           reconstructHCAL(myTrack, random);
       }
@@ -702,6 +703,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
         myHDResponse_->correctHF(eGen, abs(myTrack.type()));
         updateHCAL(theHFShowerLibrary->getHitsMap(), true, myTrack.id());
         theHFShowerLibrary->clear();
+        myHDResponse_->clearHF();
       } else
         updateHCAL(myHcalHitMaker.getHits(), false, myTrack.id(), correction * hcorr);
 
