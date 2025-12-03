@@ -145,7 +145,7 @@ public:
 private:
 
   // Debug Flag
-  int debug_;
+  bool debug_;
   int scenario_;
   int max_index_;
 
@@ -158,11 +158,9 @@ private:
 
 DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const ParameterSet& pset){
   produces<L1Phase2MuDTExtPhiThetaPairContainer>();
-//  produces<L1Phase2MuDTExtPhiThetaPairContainer>();
 
   debug_    = pset.getUntrackedParameter<bool>("debug");
   scenario_ = pset.getParameter<int>("scenario");
-//  df_extended_ = pset.getParameter<int>("df_extended"); //it must be at least 1 to have x local position from Phi
 //  max_index_ = pset.getParameter<int>("max_primitives") - 1;
   max_index_ = 4;
 
@@ -212,6 +210,9 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
   std::map<ChamberKey, std::vector<L1Phase2MuDTExtPhDigi>> phiByChamber;
   std::map<ChamberKey, std::vector<L1Phase2MuDTExtThDigi>> thetaByChamber;
 
+  if (debug_)
+    LogDebug("DTTrigPhase2PairsProd") << "Variables declaration";
+
   // Group phi digis
   for (auto phiIte = thePhiDigis->getContainer()->begin();
      phiIte != thePhiDigis->getContainer()->end(); ++phiIte) {
@@ -225,6 +226,9 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
     ChamberKey key(thetaIte->whNum(), thetaIte->scNum(), thetaIte->stNum());
     thetaByChamber[key].push_back(*thetaIte);
   }
+
+  if (debug_)
+    LogDebug("DTTrigPhase2PairsProd") << "Grouping per chamber";
 
   std::vector<L1Phase2MuDTExtPhiThetaPair> allPairs;
 
@@ -243,21 +247,35 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
    
      for (const auto& theta : thetaListIt->second) 
             thetaDigis.emplace_back(theta);     
-           
+
+     if (debug_)
+         LogDebug("DTTrigPhase2PairsProd") << "Working on chamber:";
+      
      std::sort(phiDigis.begin(), phiDigis.end(), comparePhiDigis);
      std::sort(thetaDigis.begin(), thetaDigis.end(), compareThetaDigis);
+ 
+     if (debug_)
+       LogDebug("DTTrigPhase2PairsProd") << "Sorting";
+
      auto [wheel, sector, station] = key; // unpack tuple
      chamberPairs = std::move(bestPairsPerChamber(phiDigis,thetaDigis,max_index_,wheel,sector,station));
+     if (debug_)
+         LogDebug("DTTrigPhase2PairsProd") << "Saving top 4";
 
     for (const auto& pair : chamberPairs) 
           allPairs.emplace_back(pair);
         }
+     if (debug_)
+       LogDebug("DTTrigPhase2PairsProd") << "Saved";
      
 
   // Storing results in the event
     std::unique_ptr<L1Phase2MuDTExtPhiThetaPairContainer> resultPhiThetaPair(new L1Phase2MuDTExtPhiThetaPairContainer);
     resultPhiThetaPair->setContainer(allPairs);
   iEvent.put(std::move(resultPhiThetaPair));
+    if (debug_)
+    LogDebug("DTTrigPhase2PairsProd") << "Saved in the event";
+
   allPairs.clear();
   allPairs.erase(allPairs.begin(), allPairs.end());
 }
@@ -268,9 +286,9 @@ void DTTrigPhase2PairsProd::endRun(edm::Run const& iRun, const edm::EventSetup& 
 void DTTrigPhase2PairsProd::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // dtTriggerPhase2PrimitivePairDigis
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("digiTag", edm::InputTag("CalibratedDigis"));
+  desc.add<edm::InputTag>("digiPhTag", edm::InputTag("dtTriggerPhase2PrimitiveDigis"));
+  desc.add<edm::InputTag>("digiThTag", edm::InputTag("dtTriggerPhase2PrimitiveDigis"));
   desc.add<int>("scenario", 0);
-  desc.add<int>("df_extended", 0);
   desc.addUntracked<bool>("debug", false);
   descriptions.add("dtTriggerPhase2PrimitivePairDigis", desc);
 }
