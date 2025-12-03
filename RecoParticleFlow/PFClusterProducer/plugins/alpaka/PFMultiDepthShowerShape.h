@@ -87,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const reco::PFClusterDeviceCollection::ConstView pfClusters,
                                   const reco::PFRecHitFractionDeviceCollection::ConstView pfRecHitFracs,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHit,
-				  const float rms2_threshold = 0.1) const {
+                                  const float rms2_threshold = 0.1) const {
       //const unsigned int nClusters = pfClusters.size();
       const unsigned int nClusters = pfClusters.nSeeds();
 

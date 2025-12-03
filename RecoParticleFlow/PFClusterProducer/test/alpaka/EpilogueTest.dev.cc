@@ -588,9 +588,9 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = 165;         
-  const int maxHitsPerCluster = 67;  
-  const int minHitsPerCluster = 23;  
+  const int nClusters = 165;
+  const int maxHitsPerCluster = 67;
+  const int minHitsPerCluster = 23;
 
   ::reco::PFClusterCollection clusters;
   clusters.reserve(nClusters);
