@@ -1605,7 +1605,11 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
                                   << HGCalWaferIndex::waferU(waferIndex[k]) << ":"
                                   << HGCalWaferIndex::waferV(waferIndex[k]) << "]  Thickness type "
                                   << HGCalProperty::waferThick(waferProperties[k]) << " Partial type " << partial
-                                  << " Orientation " << HGCalProperty::waferOrient(waferProperties[k]) << ":" << orient;
+                                  << " Orientation " << HGCalProperty::waferOrient(waferProperties[k]) << ":" << orient
+                                  << " Info " << php.waferInfoMap_[waferIndex[k]].type << ":"
+                                  << php.waferInfoMap_[waferIndex[k]].part << ":"
+                                  << php.waferInfoMap_[waferIndex[k]].orient << ":"
+                                  << php.waferInfoMap_[waferIndex[k]].cassette;
 #endif
   }
 }
