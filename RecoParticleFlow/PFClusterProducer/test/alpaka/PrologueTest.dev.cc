@@ -52,7 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void PrologueTest::apply(Queue &queue,
                            reco::PFMultiDepthClusteringEdgeVarsDeviceCollection &pfClusteringEdgeVars,
                            const reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars) const {
-    uint32_t items = 128;
+    uint32_t items = 160;
 
     auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
     uint32_t groups = cms::alpakatools::divide_up_by(n, items);
@@ -94,17 +94,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto hClusteringEdgeVars = hostClusteringEdgeVars.view();
 
     alpaka::wait(queue);
-
-    for (int i = 0; i < nClusters; i++) {
-      const int begin = hClusteringEdgeVars[i].mdpf_adjacencyIndex();
-      const int end = hClusteringEdgeVars[i + 1].mdpf_adjacencyIndex();
-
-      std::cout << i << ": [";
-      for (int j = begin; j < end; j++) {
-        std::cout << hClusteringEdgeVars[j].mdpf_adjacencyList() << " ";
-      }
-      std::cout << "]\n";
-    }
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
@@ -144,24 +133,58 @@ void create(::reco::PFMultiDepthClusteringCCLabelsHostCollection &hostClustering
     bool is_root = std::binary_search(roots.begin(), roots.end(), i);
 
     vx[i] = is_root ? i : topo_distr(rng);
-    printf("FROM = %d \t: TO = %d\n", vx[i], i);
   }
 
   for (int i = 0; i < nClusters; ++i) {
-    hClusteringCCLabels[i].mdpf_topoId() = vx[i];
+    const int j = vx[i];	  
+    hClusteringCCLabels[i].mdpf_topoId() = (vx[j] == i && j < i ) ? i : vx[i];
+  }
+}
+
+void check( const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection &hostClusteringEdgeVars,
+	    const ::reco::PFMultiDepthClusteringCCLabelsHostCollection &hostClusteringCCLabels,
+            const int nClusters) {	
+  auto hClusteringCCLabels = hostClusteringCCLabels.view();
+
+  std::vector<int> vx(nClusters, 0);
+
+  for (int i = 0; i < nClusters; ++i) {
+    vx[i] = hClusteringCCLabels[i].mdpf_topoId();
   }
 
   auto adj = buildAdj(vx);
 
-  for (int i = 0; i < (int)adj.size(); ++i) {
-    std::cout << i << ": [";
+  auto hClusteringEdgeVars = hostClusteringEdgeVars.view();
+
+  for (int i = 0; i < nClusters; ++i) {
+
+    const int begin = hClusteringEdgeVars[i].mdpf_adjacencyIndex();
+    const int end = hClusteringEdgeVars[i + 1].mdpf_adjacencyIndex();  	  
+
+    if ((end - begin) != static_cast<int>(adj[i].size())) 
+      std::cout << "Vertex degree mismatch " << i << " Legacy size " << static_cast<int>(adj[i].size()) 
+	                                          << " Alpaka size " << (end - begin) << std::endl;	    
+
+    std::cout << i << ": Legacy [";
     for (int j = 0; j < (int)adj[i].size(); ++j) {
       if (j)
         std::cout << ", ";
       std::cout << adj[i][j];
     }
-    std::cout << "]\n";
-  }
+    std::cout << "]   ";
+
+    std::cout << "\t\t Alpaka [";
+    for (int j = begin; j < end; j++) {
+
+      const int idx = hClusteringEdgeVars[j].mdpf_adjacencyList();    
+      const bool is_found = std::binary_search(adj[i].begin(), adj[i].end(), idx);
+
+      if ( is_found == false ) printf("mismatch detected for vertex %d (%d)\n", i, idx);	
+
+      std::cout << hClusteringEdgeVars[j].mdpf_adjacencyList() << " ";
+    }
+    std::cout << "]\n";    
+  }  
 }
 
 using namespace edm;
@@ -176,9 +199,9 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = 100;
+  const int nClusters = 145;
 
-  std::vector<int> roots = {0, 3, 7, 11, 19, 29, 37, 41, 71, 83, 97};
+  std::vector<int> roots = {0, 3, 7, 11, 19, 29, 37, 41, 71, 83, 97, 101, 137};
 
   // run the test on each device
   for (auto const &device : devices) {
@@ -193,6 +216,8 @@ int main() {
     create(hostClusteringCCLabels, roots, nClusters);
 
     launch_prologue_test(queue, hostClusteringEdgeVars, hostClusteringCCLabels);
+
+    check(hostClusteringEdgeVars, hostClusteringCCLabels, nClusters);
   }
 
   return 0;

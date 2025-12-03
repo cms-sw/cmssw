@@ -57,6 +57,7 @@ using PFRecHitsNeighbours = Eigen::Matrix<int32_t, 8, 1>;
 using namespace reco;
 
 static bool verbose = true;
+constexpr float thrsh = 0.0000001f;
 
 // Simple axis-aligned test cell:
 namespace {
@@ -98,7 +99,7 @@ namespace {
 
   static thread_local CaloCellGeometry::CornersMgr s_cornersMgr(65536,
                                                                 CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
-
+ 
   static thread_local CaloCellGeometry::ParMgr s_parMgr(65536, /*subSize=*/BoxCell::kNPar);
 
   static thread_local CaloCellGeometry::ParVecVec s_parBlocks;
@@ -146,7 +147,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               const reco::PFClusterDeviceCollection& pfClusters,
                               const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs,
                               const reco::PFRecHitDeviceCollection& pfRecHit) const {
-    uint32_t items = 1024;
+    uint32_t items = 160;
 
     auto n = static_cast<uint32_t>(pfClusters->metadata().size());
     uint32_t groups = ::cms::alpakatools::divide_up_by(n, items);
@@ -164,7 +165,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         mdpfClusteringVars.view(),
                         pfClusters.view(),
                         pfRecHitFracs.view(),
-                        pfRecHit.view());
+                        pfRecHit.view(), thrsh);
 
     alpaka::wait(queue);
   }
@@ -221,10 +222,10 @@ std::pair<int, int> create(::reco::PFClusterCollection& clusters,
   std::mt19937 rng(12345);
 
   // E in [0.5, 120], r in [174, 180], phi in [0, 0.25], z = 0
-  std::uniform_real_distribution<double> energies_dist(0.5, 120.0);
-  std::uniform_real_distribution<double> r_dist(174.0, 180.0);
-  std::uniform_real_distribution<double> phi_dist(0.0, 0.25);
-  std::uniform_real_distribution<double> z_dist(0.0, 0.5);
+  std::uniform_real_distribution<float> energies_dist(0.5f, 120.0f);
+  std::uniform_real_distribution<float> r_dist(174.0f, 180.0f);
+  std::uniform_real_distribution<float> phi_dist(0.f, 0.25f);
+  std::uniform_real_distribution<float> z_dist(0.f, 0.5f);
 
   // hits / fractions
   std::uniform_int_distribution<int> nRH_distr(minHitsPerCluster, maxHitsPerCluster);
@@ -241,16 +242,16 @@ std::pair<int, int> create(::reco::PFClusterCollection& clusters,
   for (int i = 0; i < nClusters; ++i) {
     const bool is_depth1 = (i % 2 == 0);
     const PFLayer::Layer layer = is_depth1 ? PFLayer::Layer::HCAL_BARREL1 : PFLayer::Layer::HCAL_BARREL2;
-    const double depth = is_depth1 ? 1. : 2.;
+    const float depth = is_depth1 ? 1.f : 2.f;
 
-    const double energy = energies_dist(rng);
+    const float energy = energies_dist(rng);
 
-    const double r = r_dist(rng);
-    const double phi = phi_dist(rng);
+    const float r = r_dist(rng);
+    const float phi = phi_dist(rng);
 
-    const double x = r * std::cos(phi);
-    const double y = r * std::sin(phi);
-    const double z = z_dist(rng);
+    const float x = r * std::cos(phi);
+    const float y = r * std::sin(phi);
+    const float z = z_dist(rng);
 
     ::reco::PFCluster cluster(layer, energy, x, y, z);
     cluster.setDepth(depth);
@@ -269,7 +270,7 @@ std::pair<int, int> create(::reco::PFClusterCollection& clusters,
       w[j] /= sumW;
     }
 
-    const double phc = std::atan2(y, x);
+    const float phc = std::atan2(y, x);
     int iphi = 1 + int((phc < 0 ? phc + 2 * M_PI : phc) / (2 * M_PI) * 72.0);
     int ieta_mag = std::max(1, std::min(16, int(std::hypot(y, x) / 11.0)));
     int ieta = (std::uniform_int_distribution<int>(0, 1)(rng) ? +ieta_mag : -ieta_mag);
@@ -285,14 +286,16 @@ std::pair<int, int> create(::reco::PFClusterCollection& clusters,
 
       const HcalDetId detId = makeDetId(ieta, ((iphi + j) % 72) + 1, depth);
       const int hIdx = tot_offset + j;
-      auto hit = makePFRecHit(layer, detId, eH, hx, hy, hz);
+      constexpr float extra_scale = 10000.0f;//for testing only
+      auto hit = makePFRecHit(layer, detId, extra_scale * eH, hx, hy, hz);
       hitOwners.push_back(i);
 
       // primary fraction entry: this hit contributes to its owner cluster:
       const float frac_value = (cluster.energy() > 0.0) ? (eH / float(cluster.energy())) : 0.f;
       rhfracs.push_back(Fraction{hIdx, i, frac_value});
 
-      float current_energy = frac_value * /*hit.energy()*/ eH;
+      //float current_energy = frac_value * /*hit.energy()*/ eH;
+      float current_energy = frac_value * hit.energy();
 
       if (current_energy > best_energy) {
         best_energy = current_energy;
@@ -447,30 +450,30 @@ void checkShowerShapes(const ::reco::PFClusterCollection& clusters,
         continue;
       auto const& h = recHits[frac.pfrhIdx];
       auto const& rep = h.positionREP();
-
       etaSum += (frac.frac * h.energy()) * std::abs(rep.eta() - crep.eta());
       phiSum += (frac.frac * h.energy()) * std::abs(deltaPhi(rep.phi(), crep.phi()));
     }
     //protection for single line : assign ~ tower
-    etaRMS2[i] = std::max(etaSum / cluster.energy(), 0.1);
+    etaRMS2[i] = std::max(etaSum / cluster.energy(), static_cast<double>(thrsh));
     etaRMS2[i] *= etaRMS2[i];
-    phiRMS2[i] = std::max(phiSum / cluster.energy(), 0.1);
+    phiRMS2[i] = std::max(phiSum / cluster.energy(), static_cast<double>(thrsh));
     phiRMS2[i] *= phiRMS2[i];
   }
 
   auto hClusteringVars = hostClusteringVars.view();
-
+  double tol = 5e-6;
   for (int i = 0; i < nClusters; i++) {
     const ::reco::PFCluster& cluster = clusters[i];
     auto const& crep = cluster.positionREP();
 
-    printf("Result depth %f (cluster %f)\n", hClusteringVars[i].depth(), cluster.depth());
-    printf("Result energy %f (%f)\n", hClusteringVars[i].energy(), cluster.energy());
-    printf("Result eta %f (%f)\n", hClusteringVars[i].eta(), crep.eta());
-    printf("Result phi %f (%f)\n", hClusteringVars[i].phi(), crep.phi());
-    printf("Result etaRMS2 %f (%f)\n", hClusteringVars[i].etaRMS2(), etaRMS2[i]);
-    printf("Result phiRMS2 %f (%f)\n", hClusteringVars[i].phiRMS2(), phiRMS2[i]);
-    printf("=====================================================================\n");
+    const auto x = std::abs(hClusteringVars[i].etaRMS2()-etaRMS2[i]) / etaRMS2[i];
+    if(x > tol) {
+      printf("Result for cluster id %d : etaRMS2 %f (%f), %f\n", i, hClusteringVars[i].etaRMS2(), etaRMS2[i], x); 
+    }
+    const auto y = std::abs(hClusteringVars[i].phiRMS2()-phiRMS2[i]) / phiRMS2[i];
+    if(y > tol) {
+      printf("Result for cluster id %d : phiRMS2 %f (%f), %f\n", i, hClusteringVars[i].phiRMS2(), phiRMS2[i], y);
+    }
   }
 }
 
@@ -486,7 +489,7 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = 100;
+  const int nClusters = 145;
   const int maxHitsPerCluster = 67;
   const int minHitsPerCluster = 23;
 
