@@ -23,7 +23,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                allow_confirmation = cms.bool(True),
                                                minx_match_2digis = cms.double(1.),
                                                scenario = cms.int32(0), #0 for mc, 1 for data, 2 for slice test
-                                               df_extended = cms.int32(0), # DF: 0 for standard, 1 for extended, 2 for both 
+                                               df_extended = cms.int32(2), # DF: 0 for standard, 1 for extended, 2 for both 
                                                co_option = cms.int32(1), # coincidence w.r.t. : -1 = off, 0 = co all, 1 = co phi, 2 = co theta
                                                co_quality = cms.int32(1), # quality cut (>X) for coincidence TP: request TPs to be above this cut
                                                co_wh2option = cms.int32(1),#0 (filter all stations in Wh2), 1(pass Wh2 St1), 2(pass Wh2 St1+2)
