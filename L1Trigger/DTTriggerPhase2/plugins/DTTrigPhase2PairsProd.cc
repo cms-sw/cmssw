@@ -200,16 +200,11 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
   iEvent.getByToken(digiThToken_, theThetaDigis);
 
   if (!thePhiDigis || !theThetaDigis) {
-    throw cms::Exception("NullPointer") << "Phi or Theta container is null!";
+    throw cms::Exception("DTTrigPhase2PairsProd") << "Phi or Theta container is null!";
   }
 
-  cout<<"DTTrigPhase2PairsProd" << " produced"<<endl;
-
-  //Order Theta Digis by quality in the same chamber
-  //sortThetaDigis(theThetaDigis);
-  //Order Phi Digis by quality in the same chamber
-  //sortPhiDigis(thePhiDigis);
-  //Not needed, we sort later based on quality once we have keys (chambers)
+  if (debug_)
+    LogDebug("DTTrigPhase2PairsProd") <<" Containers read";
 
   using ChamberKey = std::tuple<int, int, int>; // (wheel, sector, station)
 
@@ -217,7 +212,7 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
   std::map<ChamberKey, std::vector<L1Phase2MuDTExtThDigi>> thetaByChamber;
 
   if (debug_)
-    LogDebug("DTTrigPhase2PairsProd") << "Variables declaration";
+    LogDebug("DTTrigPhase2PairsProd") << "Variables declared";
 
   // Group phi digis
   for (auto phiIte = thePhiDigis->getContainer()->begin();
@@ -236,7 +231,6 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
   if (debug_)
     LogDebug("DTTrigPhase2PairsProd") << "Grouping per chamber";
   
-   cout<<"DTTrigPhase2PairsProd: Grouping per chamber"<<endl;
   std::vector<L1Phase2MuDTExtPhiThetaPair> allPairs;
 
   // Process each chamber key from phi digis
@@ -246,35 +240,36 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
     std::vector<L1Phase2MuDTExtThDigi> thetaDigis;
 
     auto thetaListIt = thetaByChamber.find(key);
-//    if (thetaListIt != thetaByChamber.end()) {
-//    Both phi and theta exist
-//
+
      for (const auto& phi : phiList) 
             phiDigis.emplace_back(phi);
-   
+
+     if (thetaListIt != thetaByChamber.end()) { //    Both phi and theta exist 
      for (const auto& theta : thetaListIt->second) 
             thetaDigis.emplace_back(theta);     
+     }
 
      if (debug_)
          LogDebug("DTTrigPhase2PairsProd") << "Working on chamber:";
-      cout<<"DTTrigPhase2PairsProd: Working on chamber"<<endl;
+
      std::sort(phiDigis.begin(), phiDigis.end(), comparePhiDigis);
      std::sort(thetaDigis.begin(), thetaDigis.end(), compareThetaDigis);
  
      if (debug_)
        LogDebug("DTTrigPhase2PairsProd") << "Sorting";
-      cout<<"DTTrigPhase2PairsProd: Sorting"<<endl;
+
      auto [wheel, sector, station] = key; // unpack tuple
      chamberPairs = std::move(bestPairsPerChamber(phiDigis,thetaDigis,max_index_,wheel,sector,station));
+
      if (debug_)
          LogDebug("DTTrigPhase2PairsProd") << "Saving top 4";
-       cout<<"DTTrigPhase2PairsProd: Saving top 4"<<endl;
+
     for (const auto& pair : chamberPairs) 
           allPairs.emplace_back(pair);
         }
+
      if (debug_)
-       LogDebug("DTTrigPhase2PairsProd") << "Saved";
-        cout<<"DTTrigPhase2PairsProd: Saved"<<endl;
+       LogDebug("DTTrigPhase2PairsProd") << "Saving products";
 
   // Storing results in the event
     std::unique_ptr<L1Phase2MuDTExtPhiThetaPairContainer> resultPhiThetaPair(new L1Phase2MuDTExtPhiThetaPairContainer);
@@ -282,7 +277,7 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
   iEvent.put(std::move(resultPhiThetaPair));
     if (debug_)
     LogDebug("DTTrigPhase2PairsProd") << "Saved in the event";
-    cout<<"DTTrigPhase2PairsProd: Saved in the event"<<endl;
+
   allPairs.clear();
   allPairs.erase(allPairs.begin(), allPairs.end());
 }
@@ -334,7 +329,7 @@ std::vector<L1Phase2MuDTExtPhiThetaPair> DTTrigPhase2PairsProd::bestPairsPerCham
   else{  // phi and theta digis in chamber
 
   for (const auto& phi : phiDigis) {
-    float closestDistance = 9999.;
+    float closestDistance = numeric_limits<float>::infinity();
     const L1Phase2MuDTExtThDigi *closestTheta=nullptr;
 
     for (const auto& theta : thetaDigis) {
@@ -344,11 +339,6 @@ std::vector<L1Phase2MuDTExtPhiThetaPair> DTTrigPhase2PairsProd::bestPairsPerCham
           closestTheta = &theta;
         }             
       
-	if (!closestTheta) {
-         cout << "[ERROR] closestTheta is null for phi digi with quality " << phi.quality() << " Current distance is:" << currentDistance<< "and closest distance is: "<< closestDistance<<endl;
-          continue; // or throw an exception
-         }
-           
       int phiQuality = phi.quality();
       if(closestTheta)
       pairs.emplace_back(phi, *closestTheta, phiQuality);
