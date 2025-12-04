@@ -6,11 +6,11 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace detail {
     EDMetadataSentry::EDMetadataSentry(edm::StreamID streamID, bool synchronize) : synchronize_(synchronize) {
-      auto const& device = detail::chooseDevice(streamID);
 #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-      metadata_ = std::make_shared<EDMetadata>(cms::alpakatools::getQueueCache<Queue>().get(device));
+      metadata_ = std::make_shared<EDMetadata>(cms::alpakatools::getQueueCache<Queue>().get(streamID));
 #else
-      metadata_ = std::make_shared<EDMetadata>(cms::alpakatools::getQueueCache<Queue>().get(device),
+      auto const& device = detail::chooseDevice(streamID);
+      metadata_ = std::make_shared<EDMetadata>(cms::alpakatools::getQueueCache<Queue>().get(streamID),
                                                cms::alpakatools::getEventCache<Event>().get(device));
 #endif
     }

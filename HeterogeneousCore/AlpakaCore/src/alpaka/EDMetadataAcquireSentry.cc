@@ -8,8 +8,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     EDMetadataAcquireSentry::EDMetadataAcquireSentry(edm::StreamID streamID,
                                                      edm::WaitingTaskWithArenaHolder holder,
                                                      bool synchronize)
-        : EDMetadataAcquireSentry(detail::chooseDevice(streamID), std::move(holder), synchronize) {}
+        : waitingTaskHolder_(std::move(holder)), synchronize_(synchronize) {
+#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+      // all synchronous backends
+      metadata_ = std::make_shared<EDMetadata>(cms::alpakatools::getQueueCache<Queue>().get(streamID));
+#else
+      // all asynchronous backends
+      auto const& device = detail::chooseDevice(streamID);
+      metadata_ = std::make_shared<EDMetadata>(cms::alpakatools::getQueueCache<Queue>().get(streamID),
+                                               cms::alpakatools::getEventCache<Event>().get(device));
+#endif
+    }
 
+    /*
     EDMetadataAcquireSentry::EDMetadataAcquireSentry(Device const& device,
                                                      edm::WaitingTaskWithArenaHolder holder,
                                                      bool synchronize)
@@ -23,6 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                cms::alpakatools::getEventCache<Event>().get(device));
 #endif
     }
+    */
 
 #ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
     // all asynchronous backends
