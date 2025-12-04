@@ -4,7 +4,6 @@
 #include "InputFile.h"
 #include "RootPrimaryFileSequence.h"
 #include "RootSecondaryFileSequence.h"
-#include "RunHelper.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
@@ -19,6 +18,7 @@
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Sources/interface/InputSourceRunHelper.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -83,7 +83,7 @@ namespace edm {
         dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches")),
         labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC")),
         delayReadingEventProducts_(pset.getUntrackedParameter<bool>("delayReadingEventProducts")),
-        runHelper_(makeRunHelper(pset)),
+        runHelper_(makeInputSourceRunHelper(pset)),
         resourceSharedWithDelayedReaderPtr_(),
         // Note: primaryFileSequence_ and secondaryFileSequence_ need to be initialized last, because they use data members
         // initialized previously in their own initialization.
@@ -329,7 +329,7 @@ namespace edm {
     ProductSelectorRules::fillDescription(desc, "inputCommands");
     InputSource::fillDescription(desc);
     RootPrimaryFileSequence::fillDescription(desc);
-    RunHelperBase::fillDescription(desc);
+    InputSourceRunHelperBase::fillDescription(desc);
 
     descriptions.add("source", desc);
   }
