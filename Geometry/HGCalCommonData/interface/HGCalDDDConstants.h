@@ -234,8 +234,12 @@ public:
   inline int waferMax() const { return waferMax_[1]; }
   inline int waferMin() const { return waferMax_[0]; }
   std::pair<double, double> waferParameters(bool reco) const;
-  inline bool waferPartial(int layer, int waferU, int waferV) const { return hgpar_->waferPartial(layer, waferU, waferV); }
-  inline int waferPlacementIndex(int zside, int layer, int waferU, int waferV) const { return hgpar_->waferPlacementIndex(zside, layer, waferU, waferV); }
+  inline bool waferPartial(int layer, int waferU, int waferV) const {
+    return hgpar_->waferPartial(layer, waferU, waferV);
+  }
+  inline int waferPlacementIndex(int zside, int layer, int waferU, int waferV) const {
+    return hgpar_->waferPlacementIndex(zside, layer, waferU, waferV);
+  }
   std::pair<double, double> waferPosition(int wafer, bool reco) const;
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug) const;
   std::pair<double, double> waferPositionWithCshift(

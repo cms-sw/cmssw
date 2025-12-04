@@ -42,9 +42,9 @@
 
 class HGCalWaferParameters : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  explicit HGCalWaferParameters(const edm::ParameterSet&);
+  explicit HGCalWaferParameters(const edm::ParameterSet &);
   ~HGCalWaferParameters() override = default;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void beginJob() override {}
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
@@ -58,14 +58,14 @@ private:
   std::vector<HGCSiliconDetId> detIds_;
 };
 
-HGCalWaferParameters::HGCalWaferParameters(const edm::ParameterSet& iC)
+HGCalWaferParameters::HGCalWaferParameters(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
-      tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})} {
+      tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})} {
   edm::LogVerbatim("HGCGeom") << "Test HGCSilicon DetID for " << nameDetector_;
-
 }
 
-void HGCalWaferParameters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HGCalWaferParameters::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("nameDetector", "HGCalHESiliconSensitive");
   descriptions.add("hgcalWaferParameters", desc);
@@ -79,7 +79,7 @@ void HGCalWaferParameters::beginRun(edm::Run const &iRun, edm::EventSetup const 
     const HGCalGeometry *geom = hgcGeom.product();
     edm::LogVerbatim("HGCGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
 
-    const std::vector<DetId>& ids = geom->getValidDetIds();
+    const std::vector<DetId> &ids = geom->getValidDetIds();
     for (unsigned int k = 0; k < ids.size(); ++k) {
       std::ostringstream st1;
       HGCSiliconDetId detId(ids[k]);
@@ -88,7 +88,10 @@ void HGCalWaferParameters::beginRun(edm::Run const &iRun, edm::EventSetup const 
       int layer = detId.layer();
       int waferU = detId.waferU();
       int waferV = detId.waferV();
-      st1 << " Exist:HD?:Patial?:Placement " << geom->topology().dddConstants().waferExist(layer, waferU, waferV) << ":" << geom->topology().dddConstants().waferIsHD(layer, waferU, waferV) << ":" << geom->topology().dddConstants().waferPartial(layer, waferU, waferV) << ":" << geom->topology().dddConstants().waferPlacementIndex(zside, layer, waferU, waferV);
+      st1 << " Exist:HD?:Patial?:Placement " << geom->topology().dddConstants().waferExist(layer, waferU, waferV) << ":"
+          << geom->topology().dddConstants().waferIsHD(layer, waferU, waferV) << ":"
+          << geom->topology().dddConstants().waferPartial(layer, waferU, waferV) << ":"
+          << geom->topology().dddConstants().waferPlacementIndex(zside, layer, waferU, waferV);
       edm::LogVerbatim("HGCGeom") << st1.str();
     }
   }

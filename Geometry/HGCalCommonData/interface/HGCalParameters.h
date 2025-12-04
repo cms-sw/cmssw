@@ -89,7 +89,7 @@ public:
   bool waferIsHD(int layer, int waferU, int waferV) const;
   bool waferPartial(int layer, int waferU, int waferV) const;
   int waferPlacementIndex(int zside, int layer, int waferU, int waferV) const;
-  
+
   std::string name_;
   int detectorType_ = 0;
   int useSimWt_ = 0;

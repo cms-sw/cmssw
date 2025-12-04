@@ -67,7 +67,8 @@ private:
 HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
       fileName_(iC.getParameter<std::string>("fileName")),
-      tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})},
+      tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})},
       dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
   edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetector_ << " with inputs from " << fileName_;
 
