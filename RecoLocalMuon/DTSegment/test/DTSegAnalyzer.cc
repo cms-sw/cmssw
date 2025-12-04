@@ -84,7 +84,7 @@ DTSegAnalyzer::DTSegAnalyzer(const ParameterSet& pset)
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   bool dirStat = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(kTRUE);
+  TH1::AddDirectory(kFALSE);
 
   /// DT histos
   // 1d hits

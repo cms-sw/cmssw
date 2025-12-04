@@ -940,7 +940,7 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 // ------------ method called once each job just before starting event loop  ------------
 void TestOutliers::beginRun(edm::Run const &run, const edm::EventSetup &es) {
   const bool oldAddDir = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(true);
+  TH1::AddDirectory(false);
   file = new TFile(out.c_str(), "recreate");
   histoPtOut = new TH1F("histoPtOut", "histoPtOut", 100, -10, 10);
   histoPtOld = new TH1F("histoPtOld", "histoPtOld", 100, -10, 10);

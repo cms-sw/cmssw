@@ -73,7 +73,7 @@ void DTEffAnalyzer::beginJob() {
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   bool dirStat = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(kTRUE);
+  TH1::AddDirectory(kFALSE);
 
   // trigger Histos
   new TH1F("hTrigBits", "All trigger bits", 10, 0., 10.);
