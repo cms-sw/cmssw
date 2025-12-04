@@ -49,10 +49,10 @@ elif (options.geometry == "2021"):
     geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
     globalTag = "auto:phase1_2022_realistic"
 elif (options.geometry == "Run4"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('Sim',Phase2C11M9)
-    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "D110Reco_cff"
-    globalTag = "auto:phase2_realistic"
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('Sim',Phase2C22I13M9)
+    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "D121Reco_cff"
+    globalTag = "auto:phase2_realistic_T33"
 else:
     process = cms.Process('Sim')
     geomFile = "Configuration.Geometry.GeometryExtendedReco_cff"
