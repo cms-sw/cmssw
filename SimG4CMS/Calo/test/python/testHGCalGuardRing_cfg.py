@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalGuardRing_cfg.py geometry=D110 type=DDD
+#   cmsRun testHGCalGuardRing_cfg.py geometry=D121 type=DDD
 #
-#   Options for geometry: D104, D110, D116, D120
+#   Options for geometry: D104, D116, D120, D121
 #               type: DDD, DD4hep
 #
 ###############################################################################
@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D104, D110, D116, D120")
+                  "geometry of operations: D104, D116, D120, D121")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,

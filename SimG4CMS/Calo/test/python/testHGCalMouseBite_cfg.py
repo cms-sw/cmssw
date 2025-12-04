@@ -35,9 +35,9 @@ elif (options.type == "V16"):
     process = cms.Process("HGCalMouseBiteTest",Phase2C17I13M9)
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D100_cff"
 else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process("HGCalMouseBiteTest",Phase2C17I13M9)
-    geomFile = "Configuration.Geometry.GeometryExtendedRun4D110_cff"
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("HGCalMouseBiteTest",Phase2C22I13M9)
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D121_cff"
 
 print("Geometry file: ", geomFile)
 
