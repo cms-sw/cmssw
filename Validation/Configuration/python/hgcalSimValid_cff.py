@@ -32,6 +32,9 @@ from Validation.RecoParticleFlow.PFJetValidation_cff import pfJetValidation1 as 
 from Validation.HGCalValidation.ticlPFValidation_cfi import ticlPFValidation
 hgcalTiclPFValidation = cms.Sequence(ticlPFValidation)
 
+from Validation.RecoTau.ticlTauValidation_cfi import recoTiclTauValidator as _ticlTauValidation
+ticlTauValidation = cms.Sequence(_ticlTauValidation)
+
 from Validation.HGCalValidation.ticlTrackstersEdgesValidation_cfi import ticlTrackstersEdgesValidation
 hgcalTiclTrackstersEdgesValidationSequence = cms.Sequence(ticlTrackstersEdgesValidation)
 
@@ -73,7 +76,9 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + ticlSuperclusterValidation
                                #Currently commented out until trackster edges are saved
 #                               + hgcalTiclTrackstersEdgesValidationSequence
-                               + hgcalPFJetValidation)
+                               + hgcalPFJetValidation
+                               #+ ticlTauValidation
+                               )
 
 _hfnose_hgcalAssociatorsTask = hgcalAssociators.copy()
 _hfnose_hgcalAssociatorsTask.add(layerClusterCaloParticleAssociationProducerHFNose, layerClusterSimClusterAssociationProducerHFNose)

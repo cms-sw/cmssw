@@ -8,6 +8,7 @@ from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerC
 from SimCalorimetry.HGCalAssociatorProducers.SimClusterToCaloParticleAssociation_cfi import SimClusterToCaloParticleAssociation
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import  allTrackstersToSimTrackstersAssociationsByLCs as _allTrackstersToSimTrackstersAssociationsByLCs
 from SimCalorimetry.HGCalAssociatorProducers.hitToSimClusterCaloParticleAssociator_cfi import hitToSimClusterCaloParticleAssociator as _hitToSimClusterCaloParticleAssociator
+from SimCalorimetry.HGCalAssociatorProducers.SimTauProducer_cfi import *
 
 from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabelsPSet as _hltTiclIterLabelsPSet
 
@@ -99,7 +100,8 @@ hltHgcalAssociatorsTask = cms.Task(hltHGCalRecHitMapProducer,
                                    hltAllTrackstersToSimTrackstersAssociationsByLCs,
                                    hltAllHitToTracksterAssociations,
                                    hltHitToSimClusterCaloParticleAssociator,
-                                   hltAllTrackstersToSimTrackstersAssociationsByHits
+                                   hltAllTrackstersToSimTrackstersAssociationsByHits,
+                                   SimTauProducer
                                    )
 
 hltHgcalPrevalidation = cms.Sequence(
