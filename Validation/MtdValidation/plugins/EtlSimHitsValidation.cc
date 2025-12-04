@@ -40,6 +40,8 @@
 
 #include "MTDHit.h"
 
+#include "DataFormats/Math/interface/angle_units.h"
+
 class EtlSimHitsValidation : public DQMEDAnalyzer {
 public:
   explicit EtlSimHitsValidation(const edm::ParameterSet&);
@@ -87,6 +89,14 @@ private:
   MonitorElement* meHitEvsEta_[4];
   MonitorElement* meHitTvsPhi_[4];
   MonitorElement* meHitTvsEta_[4];
+
+  // folding positive and negative z
+  MonitorElement* meHitThetaEntryD1_[3];
+  MonitorElement* meHitThetaEntryD2_[3];
+
+  // Eta bins for hit properties studies
+  static constexpr int n_bin_Eta = 3;
+  static constexpr double eta_bins_edges[n_bin_Eta + 1] = {1.5, 2.1, 2.5, 3.0};
 };
 
 // ------------ constructor and destructor --------------
@@ -169,6 +179,13 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       (simHitIt->second).x = hit_pos.x();
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();
+
+      if (simHit.offsetTrackId() == 0) {
+        (simHitIt->second).thetaAtEntry =
+            angle_units::operators::convertRadToDeg((simHit.exitPoint() - simHit.entryPoint()).bareTheta());
+      } else {
+        (simHitIt->second).thetaAtEntry = -90.;
+      }
     }
     LogDebug("EtlSimHitsValidation") << "Registered in idet " << idet;
 
@@ -225,6 +242,22 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       meHitEvsEta_[idet]->Fill(global_point.eta(), (hit.second).energy);
       meHitTvsPhi_[idet]->Fill(global_point.phi(), (hit.second).time);
       meHitTvsEta_[idet]->Fill(global_point.eta(), (hit.second).time);
+
+      if ((hit.second).thetaAtEntry > 0.) {
+        std::size_t ibin(0);
+        for (size_t i = 0; i < n_bin_Eta; i++) {
+          if (std::abs(global_point.eta()) >= eta_bins_edges[i] &&
+              std::abs(global_point.eta()) < eta_bins_edges[i + 1]) {
+            ibin = i;
+            break;
+          }
+        }
+        if (idet == 0 || idet == 2) {
+          meHitThetaEntryD1_[ibin]->Fill((hit.second).thetaAtEntry);
+        } else {
+          meHitThetaEntryD2_[ibin]->Fill((hit.second).thetaAtEntry);
+        }
+      }
 
     }  // hit loop
 
@@ -525,6 +558,20 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                         100.);
   meHitTvsEta_[3] = ibook.bookProfile(
       "EtlHitTvsEtaZposD2", "ETL SIM time vs #eta (+Z, Second disk);#eta_{SIM};T_{SIM} [ns]", 50, 1.56, 3.2, 0., 100.);
+
+  meHitThetaEntryD1_[0] =
+      ibook.book1D("HitThetaEntryD1_eta1", "ETL SIM hits D1 theta at entry, 1.5 < |eta| <= 2.1", 60, 0., 180.);
+  meHitThetaEntryD1_[1] =
+      ibook.book1D("HitThetaEntryD1_eta2", "ETL SIM hits D1 theta at entry, 2.1 < |eta| <= 2.5", 60, 0., 180.);
+  meHitThetaEntryD1_[2] =
+      ibook.book1D("HitThetaEntryD1_eta3", "ETL SIM hits D1 theta at entry, 2.5 < |eta| <= 3.0", 60, 0., 180.);
+
+  meHitThetaEntryD2_[0] =
+      ibook.book1D("HitThetaEntryD2_eta1", "ETL SIM hits D2 theta at entry, 1.5 < |eta| <= 2.1", 60, 0., 180.);
+  meHitThetaEntryD2_[1] =
+      ibook.book1D("HitThetaEntryD2_eta2", "ETL SIM hits D2 theta at entry, 2.1 < |eta| <= 2.5", 60, 0., 180.);
+  meHitThetaEntryD2_[2] =
+      ibook.book1D("HitThetaEntryD2_eta3", "ETL SIM hits D2 theta at entry, 2.5 < |eta| <= 3.0", 60, 0., 180.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
