@@ -3,10 +3,11 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
 options.register('outFilename', 'particleLevel.root',  VarParsing.multiplicity.singleton, VarParsing.varType.string, "Output file name")
-#options.register('photos', 'off', VarParsing.multiplicity.singleton, VarParsing.varType.string, "ME corrections")
+options.register('photos', 'off', VarParsing.multiplicity.singleton, VarParsing.varType.string, "ME corrections")
 options.register('lepton', 13, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Lepton ID for Z decays")
 options.register('cutoff', 0.00011, VarParsing.multiplicity.singleton, VarParsing.varType.float, "IR cutoff")
 options.register('taufilter', 'off', VarParsing.multiplicity.singleton, VarParsing.varType.string, "Filter tau -> leptons")
+options.setDefault('maxEvents', 100)
 options.parseArguments()
 print(options)
 
@@ -18,21 +19,19 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = int(options.maxEvents/100)
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    generator = cms.PSet(
-        initialSeed = cms.untracked.uint32(123456789),
-    )
-)
+from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
+randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
+randSvc.populate()
 
 # set input to process
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("EmptySource")
 
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 
-process.generator = cms.EDFilter("Pythia8GeneratorFilter",
+process.generator = cms.EDFilter("Pythia8HepMC3GeneratorFilter",
     maxEventsToPrint = cms.untracked.int32(1),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
@@ -46,45 +45,46 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
             'PhaseSpace:mHatMin = 50.',
             '23:onMode = off',
             '23:onIfAny = 15',
-            'TimeShower:mMaxGamma = 4.0',
-            'TauDecays:externalMode = 0',
-            #'ParticleDecays:allowPhotonRadiation = on', # allow photons from hadron decays (OBSOLETE in pythia8316)
-            'HadronLevel:QED = on',  # allow photons from hadron decays
-            'TimeShower:QEDshowerByL = off', # no photons from leptons
-            'TimeShower:QEDshowerByOther = off', # no photons from W bosons
+            'HadronLevel:QED = on',
+            'TimeShower:QEDshowerByL = off',
             ),
 		parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
                                     'processParameters')
     ),
-      	ExternalDecays = cms.PSet(
+	ExternalDecays = cms.PSet(
         Photospp = cms.untracked.PSet(
-            parameterSets = cms.vstring("setExponentiation", "setInfraredCutOff", "setCorrectionWtForW", "setMeCorrectionWtForW",
-                                        "setMeCorrectionWtForZ", "setMomentumConservationThreshold", "setPairEmission", "setPhotonEmission",
-                                        "setStopAtCriticalError", "suppressAll", "forceBremForDecay"),
+            parameterSets = cms.vstring("setExponentiation", "setInfraredCutOff", "setMeCorrectionWtForW", "setMeCorrectionWtForZ", "setMomentumConservationThreshold", "setPairEmission", "setPhotonEmission", "setStopAtCriticalError", "suppressAll", "forceBremForDecay"),
             setExponentiation = cms.bool(True),
-            setCorrectionWtForW = cms.bool(False),
-            setMeCorrectionWtForW = cms.bool(False),
-            setMeCorrectionWtForZ = cms.bool(False),
-            setInfraredCutOff = cms.double(0.0000001),
+            setMeCorrectionWtForW = cms.bool(True),
+            setMeCorrectionWtForZ = cms.bool(True),
+            setInfraredCutOff = cms.double(0.00011),
             setMomentumConservationThreshold = cms.double(0.1),
-            setPairEmission = cms.bool(False), # retain pair emission in MiNNLO x NLOEW / this
+            setPairEmission = cms.bool(False),
             setPhotonEmission = cms.bool(True),
             setStopAtCriticalError = cms.bool(False),
-            # Use Photos only for W/Z and tau decays
+            # Use Photos only for W/Z decays
             suppressAll = cms.bool(True),
             forceBremForDecay = cms.PSet(
-                parameterSets = cms.vstring("Z", "Wp", "Wm", "tau", "atau"),
+                parameterSets = cms.vstring("Z", "Wp", "Wm"),
                 Z = cms.vint32(0, 23),
                 Wp = cms.vint32(0, 24),
                 Wm = cms.vint32(0, -24),
-                tau = cms.vint32(0, 15),
-                atau = cms.vint32(0, -15)
             ),
-	),
-	parameterSets = cms.vstring("Photospp")
+        ),
+        parameterSets = cms.vstring("Photospp")
     )
 )
+
+if options.taufilter != 'off':
+    process.generator.PythiaParameters.processParameters.append('BiasedTauDecayer:filter = on')
+    if options.taufilter == 'el':
+        process.generator.PythiaParameters.processParameters.append('BiasedTauDecayer:eDecays = on')
+        process.generator.PythiaParameters.processParameters.append('BiasedTauDecayer:muDecays = off')
+    if options.taufilter == 'mu':
+        process.generator.PythiaParameters.processParameters.append('BiasedTauDecayer:eDecays = off')
+        process.generator.PythiaParameters.processParameters.append('BiasedTauDecayer:muDecays = on')
+
 
 ## configure process options
 process.options = cms.untracked.PSet(
@@ -102,5 +102,12 @@ process.printTree1 = cms.EDAnalyzer("ParticleListDrawer",
     maxEventsToPrint  = cms.untracked.int32(10)
 )
 
-process.path = cms.Path(process.generator)
+process.load("GeneratorInterface.RivetInterface.rivetAnalyzer_cfi")
+process.rivetAnalyzer.AnalysisNames = cms.vstring('PDG_TAUS', 'MC_ELECTRONS', 'MC_MUONS', 'MC_TAUS')
+process.rivetAnalyzer.useLHEweights = False
+# process.rivetAnalyzer.OutputFile = 'out.yoda'
+process.rivetAnalyzer.OutputFile = 'z-taufilter-%s.yoda' % options.taufilter
+
+# process.path = cms.Path(process.externalLHEProducer*process.generator*process.rivetAnalyzer)
+process.path = cms.Path(process.generator*process.rivetAnalyzer)
 
