@@ -41,7 +41,7 @@ namespace tmtt {
         bend_(bend),
         iphi_(iphi),
         alpha_(alpha),
-        assocTP_(nullptr),  // Initialize in case job is using no MC truth info,        
+        assocTP_(nullptr),  // Initialize in case job is using no MC truth info,
         digitalStub_(std::make_unique<DigitalStub>(settings, r, phi, z, iPhiSec)),
         layerId_(layerId),
         layerIdReduced_(TrackerModule::calcLayerIdReduced(layerId)),
