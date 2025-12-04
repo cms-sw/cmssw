@@ -1041,12 +1041,11 @@ bool Pythia8HepMC3Hadronizer::residualDecay() {
                                p->production_vertex()->position().t()));
         prod_vtx0->add_particle_in(p);
         (event3().get())->add_vertex(prod_vtx0);
-        HepMC3::GenParticle *pnew;
         Pythia8::Event pyev = fDecayer->event;
         double momFac = 1.;
         for (int i = 2; i < pyev.size(); ++i) {
           // Fill the particle.
-          pnew = new HepMC3::GenParticle(
+          HepMC3::GenParticlePtr pnew = make_shared<HepMC3::GenParticle>(
               HepMC3::FourVector(
                   momFac * pyev[i].px(), momFac * pyev[i].py(), momFac * pyev[i].pz(), momFac * pyev[i].e()),
               pyev[i].id(),
