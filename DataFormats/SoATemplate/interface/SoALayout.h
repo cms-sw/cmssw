@@ -1531,7 +1531,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         const_element operator[](size_type _soa_impl_index) const {                                                    \
           if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                           \
             if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                   \
-              SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams ::operator[]",                 \
+              SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",       \
                 _soa_impl_index, elements_)                                                                            \
           }                                                                                                            \
           return const_element{                                                                                        \
@@ -1718,7 +1718,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       element operator[](size_type _soa_impl_index) {                                                                  \
         if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                             \
           if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                          \
-            SOA_THROW_OUT_OF_RANGE("Out of range index in ViewTemplateFreeParams ::operator[]",                        \
+            SOA_THROW_OUT_OF_RANGE("Out of range index in ViewTemplateFreeParams" #CLASS "::operator[]",               \
               _soa_impl_index, base_type::elements_)                                                                   \
         }                                                                                                              \
         return element{_soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)};     \
