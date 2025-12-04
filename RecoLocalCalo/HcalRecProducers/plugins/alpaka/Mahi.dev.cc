@@ -742,7 +742,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
               }  // loop for sample
             }  // loop for channels
-          }  // loop for channgel groups
+
+            // make sure one iteration over the channel does not spill into the next
+            alpaka::syncBlockThreads(acc);
+
+          }  // loop for channel groups
         }
       };  //Kernel_prep1d_sameNumberOfSamples
 
