@@ -431,6 +431,7 @@ void L1TrackNtupleMaker::endJob() {
   delete m_allstub_isBarrel;
   delete m_allstub_layer;
   delete m_allstub_isPSmodule;
+  delete m_allstub_isTiltedBarrel;
   delete m_allstub_trigDisplace;
   delete m_allstub_trigOffset;
   delete m_allstub_trigPos;
