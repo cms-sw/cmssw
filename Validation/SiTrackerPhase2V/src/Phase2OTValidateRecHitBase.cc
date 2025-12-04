@@ -83,6 +83,7 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
     pully = (dx) / std::sqrt(lperr.yy());
   float eta = geomDetunit->surface().toGlobal(lp).eta();
   float phi = geomDetunit->surface().toGlobal(lp).phi();
+  float dphi = phi - geomDetunit->surface().toGlobal(simlp).phi();
 
   //scale for plotting
   dx *= phase2tkutil::cmtomicron;  //this is always the case
@@ -104,6 +105,13 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
     layerMEs_[key].deltaY_eta_P->Fill(std::abs(eta), dy);
     layerMEs_[key].deltaX_phi_P->Fill(phi, dx);
     layerMEs_[key].deltaY_phi_P->Fill(phi, dy);
+
+    layerMEs_[key].delta_phi_P->Fill(dphi);
+    if (tTopo_->getOTLayerNumber(detId) < 100) {
+      layerMEs_[key].delta_phi_P_barrel->Fill(dphi);
+    } else {
+      layerMEs_[key].delta_phi_P_endcaps->Fill(dphi);
+    }
 
     /*
       constant error, not needed for now
@@ -138,6 +146,13 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
     layerMEs_[key].deltaY_eta_S->Fill(std::abs(eta), dy);
     layerMEs_[key].deltaX_phi_S->Fill(phi, dx);
     layerMEs_[key].deltaY_phi_S->Fill(phi, dy);
+
+    layerMEs_[key].delta_phi_S->Fill(dphi);
+    if (tTopo_->getOTLayerNumber(detId) < 100) {
+      layerMEs_[key].delta_phi_S_barrel->Fill(dphi);
+    } else {
+      layerMEs_[key].delta_phi_S_endcaps->Fill(dphi);
+    }
 
     /*
       contant error for now, not needed
@@ -188,6 +203,16 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
   if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     RecHitME local_histos;
+    ibooker.setCurrentFolder(subdir);
+    local_histos.delta_phi_P_barrel =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Pixel_Barrel"), ibooker);
+    local_histos.delta_phi_P_endcaps =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Pixel_Endcaps"), ibooker);
+    local_histos.delta_phi_S_barrel =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Strip_Barrel"), ibooker);
+    local_histos.delta_phi_S_endcaps =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Strip_Endcaps"), ibooker);
+
     ibooker.setCurrentFolder(subdir + "/" + key);
     edm::LogInfo("Phase2OTValidateRecHitBase") << " Booking Histograms in : " << key;
 
@@ -207,6 +232,8 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
       local_histos.pullY_P =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_Y_Pixel"), ibooker);
 
+      local_histos.delta_phi_P =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Pixel"), ibooker);
       /* residuals */
 
       local_histos.deltaX_eta_P =
@@ -267,6 +294,9 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_Strip"), ibooker);
     local_histos.pullY_S =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_Y_Strip"), ibooker);
+
+    local_histos.delta_phi_S =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Strip"), ibooker);
 
     /* delta */
 
@@ -559,6 +589,37 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     psd0.add<double>("ymin", -4.0);
     desc.add<edm::ParameterSetDescription>("Pull_Y_vs_eta_Pixel", psd0);
   }
+  // Delta phi pixels
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Pixel");
+    psd0.add<std::string>("title", "#Delta Phi " + mptag + ";phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Pixel_Barrel");
+    psd0.add<std::string>("title", "#Delta Phi " + mptag + " Barrel;phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Barrel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Pixel_Endcap");
+    psd0.add<std::string>("title", "#Delta Phi " + mptag + " Endcaps;phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Endcaps", psd0);
+  }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Number_RecHits_matched_PrimarySimTrack");
@@ -806,6 +867,38 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     psd0.add<double>("ymin", -4.0);
     desc.add<edm::ParameterSetDescription>("Pull_Y_vs_eta_Strip", psd0);
   }
+  // Delta phi strips
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Strip");
+    psd0.add<std::string>("title", "#Delta Phi " + striptag + ";phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Strip", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Strip_Barrel");
+    psd0.add<std::string>("title", "#Delta Phi " + striptag + " Barrel;phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Strip_Barrel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Strip_Endcap");
+    psd0.add<std::string>("title", "#Delta Phi " + striptag + " Endcaps;phi");
+    psd0.add<double>("xmin", -3.14159);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 3.14159);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Strip_Endcaps", psd0);
+  }
+  // N matched rechits
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Number_RecHits_matched_PrimarySimTrack");
