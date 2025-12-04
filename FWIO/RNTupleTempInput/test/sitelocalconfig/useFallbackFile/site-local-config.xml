@@ -1,0 +1,8 @@
+<site-local-config>
+<site name="DUMMY">
+  <data-access>
+    <catalog volume="DummyVolume1" protocol="protocolThatDoesNotExist1"/>
+    <catalog volume="DummyVolume2" protocol="protocolThatDoesNotExist2"/>
+  </data-access>
+</site>
+</site-local-config>
