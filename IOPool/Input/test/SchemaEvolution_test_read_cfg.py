@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test ROOT Schema
 parser.add_argument("--inputFile", type=str, help="Input file name (default: SchemaEvolutionTest.root)", default="SchemaEvolutionTest.root")
 parser.add_argument("--outputFileName", type=str, help="Output file name (default: SchemaEvolutionTest2.root)", default="SchemaEvolutionTest2.root")
 parser.add_argument("--enableStreamerInfosFix", action="store_true", help="Enable service that fixes missing streamer infos")
+parser.add_argument("--testAutoPtrToUniquePtr", action="store_true", help="Test AutoPtrToUniquePtr evolution")
 args = parser.parse_args()
 
 process = cms.Process("READ")
@@ -82,7 +83,8 @@ process.schemaEvolutionTestRead = cms.EDAnalyzer("SchemaEvolutionTestRead",
     expectedVectorVectorIntegralValues = cms.vint32(
         11, 21, 31, 41, 51, 61, 71, 81, 91, 101, 111, 121, 131, 141, 151
     ),
-    vectorVectorTag = cms.InputTag("writeSchemaEvolutionTest", "", "PROD")
+    vectorVectorTag = cms.InputTag("writeSchemaEvolutionTest", "", "PROD"),
+    testAutoPtrToUniquePtr = cms.bool(args.testAutoPtrToUniquePtr)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

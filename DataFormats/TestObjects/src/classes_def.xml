@@ -295,6 +295,20 @@ exception when running testMissingDictionaryChecking_cfg.py.
  </class>
  <class name="edm::Wrapper<edmtest::VectorVectorTop>"/>
 
+ <!-- about VectorVectorElement versioning below
+
+  * v3 is with DataFormats_TestObjects_USE_OLD defined in
+    SchemaEvolutionTestObjects.h, but without
+    SchemaEvolutionAutoPtrToUniquePtr member. It was used for the 13_0_0
+    test file that did not include ROOT StreamerInfo in some cases.
+  * v4 is with DataFormats_TestObjects_USE_OLD defined in
+    SchemaEvolutionTestObjects.h and with
+    SchemaEvolutionAutoPtrToUniquePtr member
+  * v5 is with DataFormats_TestObjects_USE_OLD undefined in
+    SchemaEvolutionTestObjects.h and with
+    SchemaEvolutionAutoPtrToUniquePtr member
+ -->
+
 <!--
  <class name="edmtest::SchemaEvolutionChangeOrder" ClassVersion="3">
   <version ClassVersion="3" checksum="3343384061"/>
@@ -329,6 +343,10 @@ exception when running testMissingDictionaryChecking_cfg.py.
  <class name="edmtest::SchemaEvolutionPointerToUniquePtr" ClassVersion="3">
   <version ClassVersion="3" checksum="1545257825"/>
  </class>
+ <class name="std::auto_ptr<edmtest::SchemaEvolutionContained>"/>
+ <class name="edmtest::SchemaEvolutionAutoPtrToUniquePtr" ClassVersion="3">
+  <version ClassVersion="3" checksum="1427898213"/>
+ </class>
  <class name="edmtest::SchemaEvolutionCArrayToStdArray" ClassVersion="3">
   <version ClassVersion="3" checksum="2848265407"/>
  </class>
@@ -341,7 +359,8 @@ exception when running testMissingDictionaryChecking_cfg.py.
  <class name="edmtest::SchemaEvolutionMapToUnorderedMap" ClassVersion="3">
   <version ClassVersion="3" checksum="4049010227"/>
  </class>
- <class name="edmtest::VectorVectorElement" ClassVersion="3">
+ <class name="edmtest::VectorVectorElement" ClassVersion="4">
+  <version ClassVersion="4" checksum="1382603781"/>
   <version ClassVersion="3" checksum="62209940"/>
  </class>
  <class name="edmtest::VectorVectorElementNonSplit" ClassVersion="3">
@@ -350,70 +369,82 @@ exception when running testMissingDictionaryChecking_cfg.py.
 -->
 
  <class name="edmtest::SchemaEvolutionChangeOrder" ClassVersion="4">
-  <version ClassVersion="3" checksum="3343384061"/>
   <version ClassVersion="4" checksum="3343403663"/>
+  <version ClassVersion="3" checksum="3343384061"/>
  </class>
  <class name="edmtest::SchemaEvolutionAddMember" ClassVersion="4">
-  <version ClassVersion="3" checksum="1610659294"/>
   <version ClassVersion="4" checksum="548196481"/>
+  <version ClassVersion="3" checksum="1610659294"/>
  </class>
  <class name="edmtest::SchemaEvolutionRemoveMember" ClassVersion="4">
-  <version ClassVersion="3" checksum="868607665"/>
   <version ClassVersion="4" checksum="2937585049"/>
+  <version ClassVersion="3" checksum="868607665"/>
  </class>
  <class name="edmtest::SchemaEvolutionMoveToBase" ClassVersion="4">
-  <version ClassVersion="3" checksum="765817207"/>
   <version ClassVersion="4" checksum="288892591"/>
+  <version ClassVersion="3" checksum="765817207"/>
  </class>
  <class name="edmtest::SchemaEvolutionBase" ClassVersion="4">
-  <version ClassVersion="3" checksum="3149060785"/>
   <version ClassVersion="4" checksum="717584440"/>
+  <version ClassVersion="3" checksum="3149060785"/>
  </class>
  <class name="edmtest::SchemaEvolutionChangeType" ClassVersion="4">
-  <version ClassVersion="3" checksum="1127956593"/>
   <version ClassVersion="4" checksum="231165691"/>
+  <version ClassVersion="3" checksum="1127956593"/>
  </class>
  <class name="edmtest::SchemaEvolutionBaseA" ClassVersion="3">
   <version ClassVersion="3" checksum="857239365"/>
  </class>
  <class name="edmtest::SchemaEvolutionAddBase" ClassVersion="4">
-  <version ClassVersion="3" checksum="2069239453"/>
   <version ClassVersion="4" checksum="1505648056"/>
+  <version ClassVersion="3" checksum="2069239453"/>
  </class>
  <class name="edmtest::SchemaEvolutionContained" ClassVersion="3">
   <version ClassVersion="3" checksum="726645586"/>
  </class>
  <class name="edmtest::SchemaEvolutionPointerToMember" ClassVersion="4">
-  <version ClassVersion="3" checksum="113169654"/>
   <version ClassVersion="4" checksum="37723204"/>
+  <version ClassVersion="3" checksum="113169654"/>
  </class>
  <class name="edmtest::SchemaEvolutionPointerToUniquePtr" ClassVersion="4">
-  <version ClassVersion="3" checksum="1545257825"/>
   <version ClassVersion="4" checksum="3437951039"/>
+  <version ClassVersion="3" checksum="1545257825"/>
  </class>
+ <class name="edmtest::compat::deprecated_auto_ptr<edmtest::SchemaEvolutionContained>"/>
+ <class name="edmtest::SchemaEvolutionAutoPtrToUniquePtr" ClassVersion="4">
+  <version ClassVersion="4" checksum="2908944573"/>
+  <version ClassVersion="3" checksum="1427898213"/>
+ </class>
+ <ioread sourceClass="std::auto_ptr<edmtest::SchemaEvolutionContained>" targetClass="edmtest::compat::deprecated_auto_ptr<edmtest::SchemaEvolutionContained>"/>
+ <ioread sourceClass="edmtest::SchemaEvolutionAutoPtrToUniquePtr" version="[3]" targetClass="edmtest::SchemaEvolutionAutoPtrToUniquePtr" source="edmtest::compat::deprecated_auto_ptr<edmtest::SchemaEvolutionContained> contained_" target="contained_">
+  <![CDATA[
+   contained_.release(); contained_.reset(onfile.contained_._M_ptr);
+  ]]>
+ </ioread>
  <class name="edmtest::SchemaEvolutionCArrayToStdArray" ClassVersion="4">
-  <version ClassVersion="3" checksum="2848265407"/>
   <version ClassVersion="4" checksum="66373354"/>
+  <version ClassVersion="3" checksum="2848265407"/>
  </class>
  <class name="edmtest::SchemaEvolutionCArrayToStdVector" ClassVersion="4">
-  <version ClassVersion="3" checksum="3834066865"/>
   <version ClassVersion="4" checksum="1835343327"/>
+  <version ClassVersion="3" checksum="3834066865"/>
  </class>
  <class name="edmtest::SchemaEvolutionVectorToList" ClassVersion="4">
-  <version ClassVersion="3" checksum="354293136"/>
   <version ClassVersion="4" checksum="3857065429"/>
+  <version ClassVersion="3" checksum="354293136"/>
  </class>
  <class name="edmtest::SchemaEvolutionMapToUnorderedMap" ClassVersion="4">
-  <version ClassVersion="3" checksum="4049010227"/>
   <version ClassVersion="4" checksum="3999644942"/>
+  <version ClassVersion="3" checksum="4049010227"/>
  </class>
- <class name="edmtest::VectorVectorElement" ClassVersion="4">
+ <class name="edmtest::VectorVectorElement" ClassVersion="5">
+  <version ClassVersion="5" checksum="4210670970"/>
+  <version ClassVersion="4" checksum="1382603781"/>
   <version ClassVersion="3" checksum="62209940"/>
-  <version ClassVersion="4" checksum="4237216747"/>
  </class>
  <class name="edmtest::VectorVectorElementNonSplit" ClassVersion="4">
-  <version ClassVersion="3" checksum="15875282"/>
   <version ClassVersion="4" checksum="3857705420"/>
+  <version ClassVersion="3" checksum="15875282"/>
  </class>
 
 </lcgdict>
