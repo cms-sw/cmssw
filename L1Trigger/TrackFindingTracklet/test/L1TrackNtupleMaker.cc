@@ -374,6 +374,7 @@ void L1TrackNtupleMaker::endJob() {
   delete m_trk_combinatoric;
   delete m_trk_fake;
   delete m_trk_MVA1;
+  delete m_trk_layers;  
   delete m_trk_matchtp_pdgid;
   delete m_trk_matchtp_pt;
   delete m_trk_matchtp_eta;
