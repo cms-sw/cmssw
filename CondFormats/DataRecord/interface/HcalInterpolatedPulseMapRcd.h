@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class HcalInterpolatedPulseMapRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalInterpolatedPulseMapRcd> {
-};
+class HcalInterpolatedPulseMapRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<HcalInterpolatedPulseMapRcd> {};
 
 #endif  // CondFormats_HcalInterpolatedPulseMapRcd_h

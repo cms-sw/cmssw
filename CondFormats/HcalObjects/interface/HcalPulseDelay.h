@@ -10,13 +10,12 @@ class HcalPulseDelay {
 public:
   inline HcalPulseDelay() : mId_(0), label_(), delay_(0.f) {}
 
-  inline HcalPulseDelay(const unsigned long fId, const std::string& l,
-                        const float t)
+  inline HcalPulseDelay(const unsigned long fId, const std::string& l, const float t)
       : mId_(fId), label_(l), delay_(t) {}
 
   inline uint32_t rawId() const { return mId_; }
   inline const std::string& label() const { return label_; }
-  inline float delay() const { return delay_;}
+  inline float delay() const { return delay_; }
 
   // Methods for HcalDbASCIIIO
   inline const std::string& getValue0() const { return label_; }
@@ -32,4 +31,4 @@ private:
   COND_SERIALIZABLE;
 };
 
-#endif // CondFormats_HcalObjects_HcalPulseDelay_h
+#endif  // CondFormats_HcalObjects_HcalPulseDelay_h

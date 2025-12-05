@@ -29,12 +29,12 @@ static void print_usage(const char *progname) {
        << endl;
 }
 
-static bool is_text_file(const std::string& filename) {
-    bool usingTxt = false;
-    const unsigned outlen = strlen(filename.c_str());
-    if (outlen >= 4)
-        usingTxt = strcmp(".txt", filename.c_str() + outlen - 4) == 0;
-    return usingTxt;
+static bool is_text_file(const std::string &filename) {
+  bool usingTxt = false;
+  const unsigned outlen = strlen(filename.c_str());
+  if (outlen >= 4)
+    usingTxt = strcmp(".txt", filename.c_str() + outlen - 4) == 0;
+  return usingTxt;
 }
 
 int main(int argc, char *argv[]) {
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
   try {
     inputIsArchive = cmdline.has("-a");
     cmdline.option("-p") >> precision;
-  
+
     cmdline.optend();
     if (cmdline.argc() != 2)
       throw CmdLineError("wrong number of command line arguments");
@@ -63,38 +63,35 @@ int main(int argc, char *argv[]) {
   }
 
   HcalInterpolatedPulseMap pulseMap;
-  if (inputIsArchive)
-  {
-      std::ios_base::openmode mode;
-      const bool usingTxt = is_text_file(inputfile);
-      if (!usingTxt)
-          mode = std::ios::binary;
-      {
-          std::ifstream is(inputfile, mode);
-          if (usingTxt) {
-              boost::archive::text_iarchive ar(is);
-              ar & pulseMap;
-          } else {
-              eos::portable_iarchive ar(is);
-              ar & pulseMap;
-          }
+  if (inputIsArchive) {
+    std::ios_base::openmode mode;
+    const bool usingTxt = is_text_file(inputfile);
+    if (!usingTxt)
+      mode = std::ios::binary;
+    {
+      std::ifstream is(inputfile, mode);
+      if (usingTxt) {
+        boost::archive::text_iarchive ar(is);
+        ar & pulseMap;
+      } else {
+        eos::portable_iarchive ar(is);
+        ar & pulseMap;
       }
-  }
-  else
-      pulseMap.readFromTxt(inputfile);
+    }
+  } else
+    pulseMap.readFromTxt(inputfile);
 
   // Are we performing a simple text dump?
-  if (precision >= 0)
-  {
-      pulseMap.dumpToTxt(outputfile, precision);
-      return 0;
+  if (precision >= 0) {
+    pulseMap.dumpToTxt(outputfile, precision);
+    return 0;
   }
 
   // Are we using a text archive as output?
   std::ios_base::openmode mode;
   const bool usingTxt = is_text_file(outputfile);
   if (!usingTxt)
-      mode = std::ios::binary;
+    mode = std::ios::binary;
 
   // Write the object out
   {

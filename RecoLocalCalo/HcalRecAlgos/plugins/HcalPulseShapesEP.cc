@@ -43,15 +43,15 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-static HcalPulseShapeLookup::Shape makeShiftedPulse(
-    const HcalInterpolatedPulse& pulse, const double dt, const unsigned len)
-{
-    std::vector<double> values(len);
-    for (unsigned i=0; i<len; ++i)
-        values[i] = pulse(i - dt);
+static HcalPulseShapeLookup::Shape makeShiftedPulse(const HcalInterpolatedPulse& pulse,
+                                                    const double dt,
+                                                    const unsigned len) {
+  std::vector<double> values(len);
+  for (unsigned i = 0; i < len; ++i)
+    values[i] = pulse(i - dt);
 
-    // Do we need to normalize this shape in some way?
-    return HcalPulseShapeLookup::Shape(values, len);
+  // Do we need to normalize this shape in some way?
+  return HcalPulseShapeLookup::Shape(values, len);
 }
 
 //
@@ -70,9 +70,9 @@ public:
 
 private:
   typedef HcalPulseShapeLookup::LabeledShape LabeledShape;
-  
+
   // ----------member data ---------------------------
-  std::string pulseDumpFile_;  
+  std::string pulseDumpFile_;
   double globalTimeShift_;
   unsigned pulseShapeLength_;
   unsigned dumpPrecision_;
@@ -93,8 +93,7 @@ HcalPulseShapesEP::HcalPulseShapesEP(const edm::ParameterSet& iConfig)
       globalTimeShift_(iConfig.getParameter<double>("globalTimeShift")),
       pulseShapeLength_(iConfig.getParameter<unsigned>("pulseShapeLength")),
       dumpPrecision_(iConfig.getUntrackedParameter<unsigned>("dumpPrecision", 0U)),
-      callCount_(0U)
-{
+      callCount_(0U) {
   //the following line is needed to tell the framework what
   // data is being produced
   auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("productLabel"));
@@ -145,22 +144,20 @@ HcalPulseShapesEP::ReturnType HcalPulseShapesEP::produce(const HcalPulseShapeLoo
 
     // Cycle over channels for this subdetector
     for (const DetId& id : ids) {
-        const unsigned denseId = htopo.detId2denseId(id);
-        const HcalPulseDelay* delay = delays.getValues(id, true);
-        const float dt = globalTimeShift_ + delay->delay();
-        const UniqueKey pulseKey(delay->label(), dt);
-        const std::map<UniqueKey, int>::const_iterator it = shapeNumberLookup.find(pulseKey);
-        if (it == shapeNumberLookup.end())
-        {
-            // Construct the pulse shape for this delay value
-            const HcalInterpolatedPulse& pulse = pulses.get(pulseKey.first);
-            const int newShapeNumber = shapes.size();
-            shapes.emplace_back(pulseKey.first, dt, makeShiftedPulse(pulse, dt, pulseShapeLength_));
-            shapeNumberLookup[pulseKey] = newShapeNumber;
-            shapeTypes.at(denseId) = newShapeNumber;
-        }
-        else
-            shapeTypes.at(denseId) = it->second;
+      const unsigned denseId = htopo.detId2denseId(id);
+      const HcalPulseDelay* delay = delays.getValues(id, true);
+      const float dt = globalTimeShift_ + delay->delay();
+      const UniqueKey pulseKey(delay->label(), dt);
+      const std::map<UniqueKey, int>::const_iterator it = shapeNumberLookup.find(pulseKey);
+      if (it == shapeNumberLookup.end()) {
+        // Construct the pulse shape for this delay value
+        const HcalInterpolatedPulse& pulse = pulses.get(pulseKey.first);
+        const int newShapeNumber = shapes.size();
+        shapes.emplace_back(pulseKey.first, dt, makeShiftedPulse(pulse, dt, pulseShapeLength_));
+        shapeNumberLookup[pulseKey] = newShapeNumber;
+        shapeTypes.at(denseId) = newShapeNumber;
+      } else
+        shapeTypes.at(denseId) = it->second;
     }
   }
 
@@ -168,11 +165,10 @@ HcalPulseShapesEP::ReturnType HcalPulseShapesEP::produce(const HcalPulseShapeLoo
   auto product = std::make_unique<HcalPulseShapeLookup>(shapes, shapeTypes, &htopo);
 
   // Dump the pulse shapes if requested
-  if (!pulseDumpFile_.empty())
-  {
-      std::ostringstream os;
-      os << pulseDumpFile_ << '.' << callCount_;
-      product->dumpToTxt(os.str(), dumpPrecision_);
+  if (!pulseDumpFile_.empty()) {
+    std::ostringstream os;
+    os << pulseDumpFile_ << '.' << callCount_;
+    product->dumpToTxt(os.str(), dumpPrecision_);
   }
 
   ++callCount_;

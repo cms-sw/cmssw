@@ -7,11 +7,10 @@
 #include "CondFormats/DataRecord/interface/HcalInterpolatedPulseMapRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPulseDelaysRcd.h"
 
-class HcalPulseShapeLookupRcd : public edm::eventsetup::DependentRecordImplementation<
-                                    HcalPulseShapeLookupRcd,
-                                    edm::mpl::Vector<HcalRecNumberingRecord,
-						     CaloGeometryRecord,
-						     HcalInterpolatedPulseMapRcd,
-						     HcalPulseDelaysRcd> > {};
+class HcalPulseShapeLookupRcd
+    : public edm::eventsetup::DependentRecordImplementation<
+          HcalPulseShapeLookupRcd,
+          edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord, HcalInterpolatedPulseMapRcd, HcalPulseDelaysRcd> > {
+};
 
 #endif  // RecoLocalCalo_HcalRecAlgos_HcalPulseShapeLookupRcd_h
