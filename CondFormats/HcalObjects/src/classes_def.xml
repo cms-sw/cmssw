@@ -85,6 +85,22 @@
  </class>
  <class name="HcalPFCuts"/>
 
+ <class name="HcalPulseDelay"/>
+ <class name="std::vector<HcalPulseDelay>"/>
+ <class name="std::pair<std::string, std::vector<HcalPulseDelay> >"/>
+ <class name="std::vector<std::pair<std::string, std::vector<HcalPulseDelay> > >"/>
+ <class name="HcalCondObjectContainer<HcalPulseDelay>">
+  <field name="HBcontainer" mapping="blob" />
+  <field name="HEcontainer" mapping="blob" />
+  <field name="HFcontainer" mapping="blob" />
+  <field name="HOcontainer" mapping="blob" />
+  <field name="HTcontainer" mapping="blob" />
+  <field name="ZDCcontainer" mapping="blob" />
+  <field name="CALIBcontainer" mapping="blob" />
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="HcalPulseDelays"/>
+
  <class name="HcalQIECoder">
    <field name="mQIEIndex" transient="true"/>
  </class>

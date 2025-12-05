@@ -50,6 +50,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         noiseCorrelation  = cms.vdouble(0.0),
         noiseThreshold = cms.double(0.0),
         seedThreshold  = cms.double(0.1),
+        pulseDelay = cms.double(0.0),
         doRadiationDamage = cms.bool(False)
     ),
     he = cms.PSet(
@@ -68,6 +69,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         noiseCorrelation  = cms.vdouble(0.0),
         noiseThreshold = cms.double(0.0),
         seedThreshold  = cms.double(0.1),
+        pulseDelay = cms.double(0.0),
         doRadiationDamage = cms.bool(False)
     ),
     hf = cms.PSet(
@@ -86,6 +88,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         noiseCorrelation  = cms.vdouble(0.0),
         noiseThreshold   = cms.double(0.0),
         seedThreshold    = cms.double(0.1),
+        pulseDelay = cms.double(0.0),
         doRadiationDamage = cms.bool(False)
     ),
     ho = cms.PSet(
@@ -104,6 +107,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         noiseCorrelation  = cms.vdouble(0.0),
         noiseThreshold = cms.double(0.0),
         seedThreshold  = cms.double(0.1),
+        pulseDelay = cms.double(0.0),
         doRadiationDamage = cms.bool(False)
     ),
     hbUpgrade = cms.PSet(
@@ -122,6 +126,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         noiseCorrelation  = cms.vdouble(0.26,0.254),
         noiseThreshold = cms.double(0.0),
         seedThreshold  = cms.double(0.1),
+        pulseDelay = cms.double(0.0),
         doRadiationDamage = cms.bool(True),
         radiationDamage = cms.PSet(
             temperatureBase = cms.double(20),
@@ -151,6 +156,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         noiseCorrelation  = cms.vdouble(0.26,0.254),
         noiseThreshold = cms.double(0.0),
         seedThreshold  = cms.double(0.1),
+        pulseDelay = cms.double(0.0),
         doRadiationDamage = cms.bool(True),
         radiationDamage = cms.PSet(
             temperatureBase = cms.double(20),
@@ -180,6 +186,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         noiseCorrelation  = cms.vdouble(0.0),
         noiseThreshold = cms.double(0.0),
         seedThreshold  = cms.double(0.1),
+        pulseDelay = cms.double(0.0),
         doRadiationDamage = cms.bool(False)
     ),
     # types (in order): HcalHOZecotek, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1, HcalHBHamamatsu2, HcalHPD
