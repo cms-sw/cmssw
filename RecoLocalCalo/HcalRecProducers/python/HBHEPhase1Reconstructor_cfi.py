@@ -9,6 +9,11 @@ import RecoLocalCalo.HcalRecProducers.HBHEStatusBitSetter_cfi as hbheStatusFlag
 hbheprereco = cms.EDProducer(
     "HBHEPhase1Reconstructor",
 
+    # Label for the HcalPulseShapeLookup object and flag
+    # indicating whether we are using it
+    channelShapesLabel = cms.string("HcalDataShapes"),
+    useChannelShapes = cms.bool(False),
+
     # Label for the input HBHEDigiCollection, and flag indicating
     # whether we should process this collection
     digiLabelQIE8 = cms.InputTag("hcalDigis"),
