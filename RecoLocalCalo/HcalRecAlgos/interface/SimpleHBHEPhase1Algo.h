@@ -46,6 +46,7 @@ public:
                        bool correctForPhaseContainment,
                        bool applyLegacyHBMCorrection,
                        bool applyFixPCC,
+                       bool useChannelPulseShapesForMC,
                        std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                        std::unique_ptr<HcalDeterministicFit> detFit,
                        std::unique_ptr<MahiFit> mahi,
@@ -100,6 +101,7 @@ private:
   int runnum_;
   bool corrFPC_;
   bool applyLegacyHBMCorrection_;
+  bool useChannelPulseShapesForMC_;
 
   // "Metod 2" algorithm
   std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;

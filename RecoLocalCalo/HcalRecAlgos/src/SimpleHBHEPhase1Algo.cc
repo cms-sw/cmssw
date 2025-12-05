@@ -26,6 +26,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
                                            const bool correctForPhaseContainment,
                                            const bool applyLegacyHBMCorrection,
                                            const bool applyFixPCC,
+                                           const bool useChannelPulseShapesForMC,
                                            std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                                            std::unique_ptr<HcalDeterministicFit> detFit,
                                            std::unique_ptr<MahiFit> mahi,
@@ -39,6 +40,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
       runnum_(0),
       corrFPC_(correctForPhaseContainment),
       applyLegacyHBMCorrection_(applyLegacyHBMCorrection),
+      useChannelPulseShapesForMC_(useChannelPulseShapesForMC),
       psFitOOTpuCorr_(std::move(m2)),
       hltOOTpuCorr_(std::move(detFit)),
       mahiOOTpuCorr_(std::move(mahi)) {
@@ -80,7 +82,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
   bool useTriple = false;
   const PulseShapeFitOOTPileupCorrection* method2 = psFitOOTpuCorr_.get();
   if (method2) {
-    if (channelPulseShapes_ && isData) {
+    if (channelPulseShapes_ && (isData || useChannelPulseShapesForMC_)) {
       psFitOOTpuCorr_->setPulseShapeTemplate(
           channelPulseShapes_->getChannelShape(info.id()), !info.hasTimeInfo(), info.nSamples(), hcalTimeSlew_delay_);
     } else {
@@ -110,7 +112,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
   const MahiFit* mahi = mahiOOTpuCorr_.get();
 
   if (mahi) {
-    if (channelPulseShapes_ && isData) {
+    if (channelPulseShapes_ && (isData || useChannelPulseShapesForMC_)) {
       const int recoShape = channelPulseShapes_->getShapeType(info.id());
       mahiOOTpuCorr_->setPulseShapeTemplate(
           recoShape, *channelPulseShapes_, info.hasTimeInfo(), hcalTimeSlew_delay_, info.nSamples(), info.tsGain(0));
