@@ -10,10 +10,10 @@ HcalPulseDelaysHandler::~HcalPulseDelaysHandler() {}
 
 void HcalPulseDelaysHandler::getNewObjects() {
   edm::LogInfo("HcalPulseDelaysHandler") << "------- " << m_name << " - > getNewObjects\n"
-                                    <<
+                                         <<
       //check whats already inside of database
       "got offlineInfo" << tagInfo().name << ", size " << tagInfo().size << ", last object valid since "
-                                    << tagInfo().lastInterval.since;
+                                         << tagInfo().lastInterval.since;
 
   if (!myDBObject)
     throw cms::Exception("Empty DB object") << m_name << " has received empty object - nothing to write to DB";
