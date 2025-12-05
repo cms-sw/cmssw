@@ -75,7 +75,7 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("useMuonShowers", false);
 
   //switch for saving AXO score
-  desc.add<bool>("produceAXOL1TLScore", false);
+  desc.add<bool>("produceAXOL1TLScore", true);
 
   // disables resetting the prescale counters each lumisection (needed for offline)
   //  originally, the L1T firmware applied the reset of prescale counters at the end of every LS;
