@@ -83,7 +83,10 @@ hbheprereco = cms.EDProducer(
         useMahi = cms.bool(True),
 
         # Apply legacy HB- energy correction?
-        applyLegacyHBMCorrection = cms.bool(True)
+        applyLegacyHBMCorrection = cms.bool(True),
+
+        # If channel-by-channel pulse shapes are enabled, use them for MC?
+        useChannelPulseShapesForMC = cms.bool(False)
     ),
 
     # Reconstruction algorithm configuration data to fetch from DB, if any
