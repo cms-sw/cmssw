@@ -10,11 +10,11 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FastSimulation/CalorimeterProperties/interface/CalorimetryConsumer.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
+#include "FastSimulation/CaloHitMakers/interface/CaloHitMap.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
-#include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
@@ -29,21 +29,11 @@
 
 #include <string>
 #include <memory>
-#include <map>
 
 class FSimEvent;
 class FSimTrack;
 class HFShowerLibrary;
 class RandomEngineAndDistribution;
-
-class HFHitMaker {
-public:
-  const std::map<CaloHitID, float>& hitMap() const { return hitMap_; }
-  std::map<CaloHitID, float>& hitMap() { return hitMap_; }
-
-private:
-  std::map<CaloHitID, float> hitMap_;
-};
 
 class FastHFShowerLibrary {
 public:
@@ -53,7 +43,7 @@ public:
 
 public:
   std::unique_ptr<HFShowerLibrary> initHFShowerLibrary() const;
-  void recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMaker* hitMaker, HFShowerLibrary* hfshower) const;
+  void recoHFShowerLibrary(const FSimTrack& myTrack, CaloHitMap& hitMap, HFShowerLibrary* hfshower) const;
   void modifyDepth(HcalNumberingFromDDD::HcalID& id) const;
 
   static void setRandom(const RandomEngineAndDistribution*);

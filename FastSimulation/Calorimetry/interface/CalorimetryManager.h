@@ -103,15 +103,15 @@ private:
   // Read the parameters
   void readParameters(const edm::ParameterSet& fastCalo);
 
-  void updateECAL(const std::map<CaloHitID, float>& hitMap, int onEcal, int trackID, CaloProductContainer& container, float corr = 1.0) const;
-  void updateHCAL(const std::map<CaloHitID, float>& hitMap,
+  void updateECAL(const CaloHitMap& hitMap, int onEcal, int trackID, CaloProductContainer& container, float corr = 1.0) const;
+  void updateHCAL(const CaloHitMap& hitMap,
                   bool usedShowerLibrary,
                   int trackID,
                   CaloProductContainer& container,
                   float corr = 1.0,
                   const std::vector<double>& hfcorrEm = {},
                   const std::vector<double>& hfcorrHad = {}) const;
-  void updatePreshower(const std::map<CaloHitID, float>& hitMap, int trackID, CaloProductContainer& container, float corr = 1.0) const;
+  void updatePreshower(const CaloHitMap& hitMap, int trackID, CaloProductContainer& container, float corr = 1.0) const;
   void updateMuon(const FSimTrack& track, CaloProductContainer& container) const;
 
   std::pair<double, double> respCorr(double) const;

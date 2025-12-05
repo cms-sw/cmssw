@@ -69,7 +69,7 @@ std::unique_ptr<HFShowerLibrary> FastHFShowerLibrary::initHFShowerLibrary() cons
   return std::make_unique<HFShowerLibrary>("HcalHits", hcalConstants, hsps->hcalsimpar(), fast);
 }
 
-void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMaker* hitMaker, HFShowerLibrary* hfshower) const {
+void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack, CaloHitMap& hitMap, HFShowerLibrary* hfshower) const {
 #ifdef DebugLog
   edm::LogInfo("FastCalorimetry") << "FastHFShowerLibrary: recoHFShowerLibrary ";
 #endif
@@ -80,7 +80,6 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMak
 #endif
   }
 
-  auto& hitMap = hitMaker->hitMap();
   double eGen = 1000. * myTrack.vfcalEntrance().e();  // energy in [MeV]
   double delZv = (myTrack.vfcalEntrance().vertex().Z() > 0.0) ? 50.0 : -50.0;
   G4ThreeVector vertex(10. * myTrack.vfcalEntrance().vertex().X(),
@@ -112,7 +111,7 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMak
       id = numberingScheme.getUnitID(tmp);
 
       CaloHitID current_id(id, time, myTrack.id());
-      std::map<CaloHitID, float>::iterator cellitr;
+      CaloHitMap::iterator cellitr;
       cellitr = hitMap.find(current_id);
       if (cellitr == hitMap.end()) {
         hitMap.emplace(current_id, 1.0);

@@ -187,8 +187,8 @@ void testEcalHitMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   theShower.compute();
 
   // print the result
-  std::map<CaloHitID, float>::const_iterator mapitr;
-  std::map<CaloHitID, float>::const_iterator endmapitr = myGrid.getHits().end();
+  CaloHitMap::const_iterator mapitr;
+  CaloHitMap::const_iterator endmapitr = myGrid.getHits().end();
   for (mapitr = myGrid.getHits().begin(); mapitr != endmapitr; ++mapitr) {
     if (mapitr->second != 0)
       std::cout << "DetId " << EBDetId(mapitr->first.unitID()) << " " << std::setw(8) << std::setprecision(4)

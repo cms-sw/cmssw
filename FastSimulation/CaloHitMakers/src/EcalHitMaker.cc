@@ -1095,7 +1095,7 @@ void EcalHitMaker::convertIntegerCoordinates(double x, double y, unsigned& ix, u
     iy = (unsigned)tiy;
 }
 
-const std::map<CaloHitID, float>& EcalHitMaker::getHits() {
+const CaloHitMap& EcalHitMaker::getHits() {
   if (hitmaphasbeencalculated_)
     return hitMap_;
   for (unsigned ic = 0; ic < ncrystals_; ++ic) {

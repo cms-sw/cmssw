@@ -151,10 +151,10 @@ void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngine
         EMShowerSimulation(myTrack, random, container, state);
       else if (myTrack.onVFcal()) {
         if (useShowerLibrary_) {
-          HFHitMaker myHits;
-          theHFShowerLibrary_->recoHFShowerLibrary(myTrack, &myHits, state.theHFShower.get());
+          CaloHitMap myHits;
+          theHFShowerLibrary_->recoHFShowerLibrary(myTrack, myHits, state.theHFShower.get());
           const auto& hfcorr = myHDResponse_->correctHF(myTrack.hcalEntrance().e(), abs(myTrack.type()));
-          updateHCAL(myHits.hitMap(), true, myTrack.id(), container, 1., hfcorr.first, hfcorr.second);
+          updateHCAL(myHits, true, myTrack.id(), container, 1., hfcorr.first, hfcorr.second);
         } else
           reconstructHCAL(myTrack, random, container);
       }
@@ -408,7 +408,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineA
     double tof =
         (((HcalGeometry*)(myCalorimeter_->getHcalGeometry()))->getPosition(cell).mag()) / 29.98;  //speed of light
     CaloHitID current_id(cell.rawId(), tof, myTrack.id());
-    std::map<CaloHitID, float> hitMap;
+    CaloHitMap hitMap;
     hitMap[current_id] = emeas;
     updateHCAL(hitMap, false, myTrack.id(), container);
   }
@@ -497,7 +497,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
     myGrid.setTrackParameters(direction, 0, myTrack);
     // Build the FAMOS HCAL
     HcalHitMaker myHcalHitMaker(myGrid, (unsigned)1);
-    HFHitMaker myHFHitMaker;
+    CaloHitMap myHFHits;
 
     // Shower simulation
     bool status = false;
@@ -509,7 +509,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       //           For HF, the resolution is due to the PE statistic
 
       if (useShowerLibrary_) {
-        theHFShowerLibrary_->recoHFShowerLibrary(myTrack, &myHFHitMaker, state.theHFShower.get());
+        theHFShowerLibrary_->recoHFShowerLibrary(myTrack, myHFHits, state.theHFShower.get());
         status = true;
       } else {
         HFShower theShower(random, &theHDShowerparam, &myGrid, &myHcalHitMaker, onECAL, eGen);
@@ -614,7 +614,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       // Save HCAL hits
       if (!myTrack.onEcal() && !myTrack.onHcal() && useShowerLibrary_) {
         const auto& hfcorr = myHDResponse_->correctHF(eGen, abs(myTrack.type()));
-        updateHCAL(myHFHitMaker.hitMap(), true, myTrack.id(), container, 1., hfcorr.first, hfcorr.second);
+        updateHCAL(myHFHits, true, myTrack.id(), container, 1., hfcorr.first, hfcorr.second);
       } else
         updateHCAL(myHcalHitMaker.getHits(), false, myTrack.id(), container, correction * hcorr);
 
@@ -624,7 +624,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
         double tof =
             (((HcalGeometry*)(myCalorimeter_->getHcalGeometry()))->getPosition(cell).mag()) / 29.98;  //speed of light
         CaloHitID current_id(cell.rawId(), tof, myTrack.id());
-        std::map<CaloHitID, float> hitMap;
+        CaloHitMap hitMap;
         hitMap[current_id] = emeas;
         updateHCAL(hitMap, false, myTrack.id(), container);
         if (debug_)
@@ -958,7 +958,7 @@ std::pair<double, double> CalorimetryManager::respCorr(double p) const {
   return std::make_pair(ecorr, hcorr);
 }
 
-void CalorimetryManager::updateECAL(const std::map<CaloHitID, float>& hitMap, int onEcal, int trackID, CaloProductContainer& container, float corr) const {
+void CalorimetryManager::updateECAL(const CaloHitMap& hitMap, int onEcal, int trackID, CaloProductContainer& container, float corr) const {
   edm::PCaloHitContainer* hitsContainer = nullptr;
   if (onEcal == 1)
     hitsContainer = container.hitsEB.get();
@@ -980,7 +980,7 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID, float>& hitMap, in
   }
 }
 
-void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap,
+void CalorimetryManager::updateHCAL(const CaloHitMap& hitMap,
                                     bool usedShowerLibrary,
                                     int trackID,
                                     CaloProductContainer& container,
@@ -1031,7 +1031,7 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap,
   }
 }
 
-void CalorimetryManager::updatePreshower(const std::map<CaloHitID, float>& hitMap, int trackID, CaloProductContainer& container, float corr) const {
+void CalorimetryManager::updatePreshower(const CaloHitMap& hitMap, int trackID, CaloProductContainer& container, float corr) const {
   container.hitsES->reserve(container.hitsES->size() + hitMap.size());
   for (const auto& hit : hitMap) {
     //correct energy
