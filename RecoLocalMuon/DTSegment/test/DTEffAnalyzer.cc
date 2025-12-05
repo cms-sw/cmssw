@@ -77,6 +77,7 @@ void DTEffAnalyzer::beginJob() {
 
   // trigger Histos
   new TH1F("hTrigBits", "All trigger bits", 10, 0., 10.);
+  histo("hTrigBits")->SetDirectory(theFile);
 
   for (int w = -2; w <= 2; ++w) {
     stringstream nameWheel;
@@ -93,12 +94,17 @@ void DTEffAnalyzer::beginJob() {
 
         //cout << nameChamber << endl;
         createTH1F("hDistSegFromExtrap", "Distance segments from extrap position ", nameChamber.str(), 200, 0., 200.);
+        histo("hDistSegFromExtrap")->SetDirectory(theFile);
         createTH1F("hNaiveEffSeg", "Naive eff ", nameChamber.str(), 10, 0., 10.);
+        histo("hNaiveEffSeg")->SetDirectory(theFile);
         createTH2F(
             "hEffSegVsPosDen", "Eff vs local position (all) ", nameChamber.str(), 25, -250., 250., 25, -250., 250.);
+        histo("hEffSegVsPosDen")->SetDirectory(theFile);
         createTH2F(
             "hEffGoodSegVsPosDen", "Eff vs local position (good) ", nameChamber.str(), 25, -250., 250., 25, -250., 250.);
+        histo("hEffGoodSegVsPosDen")->SetDirectory(theFile);
         createTH2F("hEffSegVsPosNum", "Eff vs local position ", nameChamber.str(), 25, -250., 250., 25, -250., 250.);
+        histo("hEffSegVsPosNum")->SetDirectory(theFile);
         createTH2F("hEffGoodSegVsPosNum",
                    "Eff vs local position (good segs) ",
                    nameChamber.str(),
@@ -108,6 +114,7 @@ void DTEffAnalyzer::beginJob() {
                    25,
                    -250.,
                    250.);
+        histo("hEffGoodSegVsPosNum")->SetDirectory(theFile);
         createTH2F("hEffGoodCloseSegVsPosNum",
                    "Eff vs local position (good aand close segs) ",
                    nameChamber.str(),
@@ -117,6 +124,7 @@ void DTEffAnalyzer::beginJob() {
                    25,
                    -250.,
                    250.);
+        histo("hEffGoodCloseSegVsPosNum")->SetDirectory(theFile);
       }
     }
   }

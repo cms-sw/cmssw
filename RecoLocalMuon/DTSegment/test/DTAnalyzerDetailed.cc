@@ -89,7 +89,9 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
   /// DT histos
   // 1d hits
   new TH1F("hnHitDT", "Num 1d hits DT", 200, 0., 200.);
+  histo("hnHitDT")->SetDirectory(theFile);
   new TH1F("hDigiTime", "Digi time (ns)", 700, -100., 600.);
+  histo("hDigiTime")->SetDirectory(theFile);
 
   for (int w = -2; w <= 2; ++w) {
     stringstream nameWheel;
@@ -114,18 +116,28 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
             nameLayer << nameSL.str() << "_Lay" << l;
             //cout << "Lay " << nameLayer.str() << endl;
 
-            // Create hist for each Layer
+            // Create hist for each Layer            
             createTH1F("hDigiTime", "Digi Time (ns) ", nameLayer.str(), 100, -100., 600.);
+            histo("hDigiTime")->SetDirectory(theFile);
 
             createTH1F("hPosLeft", "Pos of Left hit (cm) in local frame", nameLayer.str(), 100, -220., 220.);
+            histo("hPosLeft")->SetDirectory(theFile);
+
             createTH1F("hPosRight", "Pos of Right hit (cm) in local frame", nameLayer.str(), 100, -220., 220.);
+            histo("hPosRight")->SetDirectory(theFile);
+
           }
           // Create hist for each SuperLayer
           createTH1F("hDigiTime", "Digi Time (ns) ", nameSL.str(), 100, -100., 600.);
+          histo("hDigiTime")->SetDirectory(theFile);
           createTH1F("hPosLeft", "Pos of Left hit (cm) in local frame", nameSL.str(), 100, -220., 220.);
+          histo("hPosLeft")->SetDirectory(theFile);
           createTH1F("hPosRight", "Pos of Right hit (cm) in local frame", nameSL.str(), 100, -220., 220.);
+          histo("hPosRight")->SetDirectory(theFile);
           createTH1F("hMeanTimer", "Tmax ", nameSL.str(), 100, 200., 600.);
+          histo("hMeanTimer")->SetDirectory(theFile);
           createTH1F("hMeanTimerSeg", "Tmax from segments hits ", nameSL.str(), 100, 200., 600.);
+          histo("hMeanTimerSeg")->SetDirectory(theFile);
           createTH2F("hMeanTimerSegAlongWire",
                      "Tmax from segments hits vs pos along wire ",
                      nameSL.str(),
@@ -135,8 +147,10 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                      100,
                      200.,
                      600.);
+          histo("hMeanTimerSegAlongWire")->SetDirectory(theFile);
           createTH2F(
               "hMeanTimerSegVsAngle", "Tmax from segments hits vs angle ", nameSL.str(), 40, -0., 1.0, 100, 200., 600.);
+          histo("hMeanTimerSegVsAngle")->SetDirectory(theFile);
           createTH2F("hMeanTimerSegVsNHits",
                      "Tmax from segments hits vs n hits segment ",
                      nameSL.str(),
@@ -146,9 +160,13 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                      100,
                      200.,
                      600.);
+          histo("hMeanTimerSegVsNHits")->SetDirectory(theFile);
           createTH1F("hHitResidualSeg", "Hits residual wrt segments ", nameSL.str(), 100, -.2, +.2);
+          histo("hHitResidualSeg")->SetDirectory(theFile);
           createTH1F("hHitResidualSegCellDX", "Hits residual wrt segments semicell DX ", nameSL.str(), 100, -.2, +.2);
+          histo("hHitResidualSegCellDX")->SetDirectory(theFile);
           createTH1F("hHitResidualSegCellSX", "Hits residual wrt segments semicell SX", nameSL.str(), 100, -.2, +.2);
+          histo("hHitResidualSegCellSX")->SetDirectory(theFile);
           createTH2F("hHitResidualSegAlongWire",
                      "Hits residual wrt segments vs pos along wire ",
                      nameSL.str(),
@@ -158,6 +176,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                      100,
                      -.2,
                      +.2);
+          histo("hHitResidualSegAlongWire")->SetDirectory(theFile);
           createTH2F("hHitResidualSegVsWireDis",
                      "Hits residual wrt segments vs wire distance ",
                      nameSL.str(),
@@ -167,6 +186,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                      100,
                      -.2,
                      +.2);
+          histo("hHitResidualSegVsWireDis")->SetDirectory(theFile);
           createTH2F("hHitResidualSegVsAngle",
                      "Hits residual wrt segments vs impact angle ",
                      nameSL.str(),
@@ -176,6 +196,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                      100,
                      -.2,
                      +.2);
+          histo("hHitResidualSegVsAngle")->SetDirectory(theFile);
           createTH2F("hHitResidualSegVsNHits",
                      "Hits residual wrt segments vs num hits ",
                      nameSL.str(),
@@ -185,24 +206,36 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                      100,
                      -.2,
                      +.2);
+          histo("hHitResidualSegVsNHits")->SetDirectory(theFile);
           createTH2F(
               "hHitResidualSegVsChi2", "Hits residual wrt segments vs chi2 ", nameSL.str(), 25, .0, 25.0, 100, -.2, +.2);
-
+          histo("hHitResidualSegVsChi2")->SetDirectory(theFile);
           createTH2F("hNsegs2dVsNhits", "N segs 2d vs n Hits ", nameSL.str(), 20, -0.5, 19.5, 5, -0.5, 4.5);
+          histo("hNsegs2dVsNhits")->SetDirectory(theFile);
         }
         // Create hist for each Chamber
         createTH1F("hDigiTime", "Digi Time (ns) ", nameChamber.str(), 100, -100., 600.);
+        histo("hDigiTime")->SetDirectory(theFile);
         createTH1F("hPosLeft", "Pos of Left hit (cm) in local frame", nameChamber.str(), 100, -220., 220.);
+        histo("hPosLeft")->SetDirectory(theFile);
         createTH1F("hPosRight", "Pos of Right hit (cm) in local frame", nameChamber.str(), 100, -220., 220.);
+        histo("hPosRight")->SetDirectory(theFile);
         //segments
         createTH1F("hNSegs", "N segments ", nameChamber.str(), 20, 0., 20.);
+        histo("hNSegs")->SetDirectory(theFile);
         createTH1F("hChi2Seg", "Chi2 segments ", nameChamber.str(), 25, 0., 25.);
+        histo("hChi2Seg")->SetDirectory(theFile);
         createTH1F("hChi2SegPhi", "Chi2 segments phi ", nameChamber.str(), 25, 0., 25.);
+        histo("hChi2SegPhi")->SetDirectory(theFile);
         createTH1F("hChi2SegZed", "Chi2 segments zed ", nameChamber.str(), 25, 0., 25.);
+        histo("hChi2SegZed")->SetDirectory(theFile);
         createTH1F("hNHitsSeg", "N hits segment ", nameChamber.str(), 15, -0.5, 14.5);
+        histo("hNHitsSeg")->SetDirectory(theFile);
         createTH1F("hNHitsSegPhi", "N hits segment phi ", nameChamber.str(), 12, -0.5, 11.5);
+        histo("hNHitsSegPhi")->SetDirectory(theFile);
         createTH2F(
             "hNHitsSegPhiVsAngle", "N hits segment phi vs angle ", nameChamber.str(), 40, .0, 1.0, 12, -0.5, 11.5);
+        histo("hNHitsSegPhiVsAngle")->SetDirectory(theFile);
         createTH2F("hNHitsSegPhiVsOtherHits",
                    "N hits segment phi vs hits in SLs ",
                    nameChamber.str(),
@@ -212,6 +245,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                    12,
                    -0.5,
                    11.5);
+        histo("hNHitsSegPhiVsOtherHits")->SetDirectory(theFile);
         createTH2F("hNHitsSegPhiVsNumSegs",
                    "N hits segment zed vs num segs in ch ",
                    nameChamber.str(),
@@ -221,11 +255,15 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                    12,
                    -0.5,
                    11.5);
+        histo("hNHitsSegPhiVsNumSegs")->SetDirectory(theFile);
         createTH2F(
             "hNHitsSegPhiVsChi2", "N hits segment zed vs chi2/NDoF ", nameChamber.str(), 25, 0., 25., 12, -0.5, 11.5);
+        histo("hNHitsSegPhiVsChi2")->SetDirectory(theFile);
         createTH1F("hNHitsSegZed", "N hits segment zed ", nameChamber.str(), 10, -0.5, 9.5);
+        histo("hNHitsSegZed")->SetDirectory(theFile);
         createTH2F(
             "hNHitsSegZedVsAngle", "N hits segment zed vs angle ", nameChamber.str(), 40, .0, 1.0, 12, -0.5, 11.5);
+        histo("hNHitsSegZedVsAngle")->SetDirectory(theFile);
         createTH2F("hNHitsSegZedVsOtherHits",
                    "N hits segment zed vs hits in SLs ",
                    nameChamber.str(),
@@ -235,6 +273,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                    12,
                    -0.5,
                    11.5);
+        histo("hNHitsSegZedVsOtherHits")->SetDirectory(theFile);
         createTH2F("hNHitsSegZedVsNumSegs",
                    "N hits segment zed vs num segs in ch ",
                    nameChamber.str(),
@@ -244,13 +283,17 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                    12,
                    -0.5,
                    11.5);
+        histo("hNHitsSegZedVsNumSegs")->SetDirectory(theFile);
         createTH2F(
             "hNHitsSegZedVsChi2", "N hits segment zed vs chi2/NDoF ", nameChamber.str(), 25, 0., 25., 12, -0.5, 11.5);
-
+        histo("hNHitsSegZedVsChi2")->SetDirectory(theFile);
         createTH1F("hHitResidualSeg", "Hits residual wrt segments ", nameChamber.str(), 100, -.2, +.2);
+        histo("hHitResidualSeg")->SetDirectory(theFile);
         createTH1F(
             "hHitResidualSegCellDX", "Hits residual wrt segments semicell DX ", nameChamber.str(), 100, -.2, +.2);
+        histo("hHitResidualSegCellDX")->SetDirectory(theFile);
         createTH1F("hHitResidualSegCellSX", "Hits residual wrt segments semicell SX", nameChamber.str(), 100, -.2, +.2);
+        histo("hHitResidualSegCellSX")->SetDirectory(theFile);
         createTH2F("hHitResidualSegAlongWire",
                    "Hits residual wrt segments vs pos along wire ",
                    nameChamber.str(),
@@ -260,6 +303,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                    100,
                    -.2,
                    +.2);
+        histo("hHitResidualSegAlongWire")->SetDirectory(theFile);
         createTH2F("hHitResidualSegVsWireDis",
                    "Hits residual wrt segments vs wire distance ",
                    nameChamber.str(),
@@ -269,6 +313,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                    100,
                    -.2,
                    +.2);
+        histo("hHitResidualSegVsWireDis")->SetDirectory(theFile);
         createTH2F("hHitResidualSegVsAngle",
                    "Hits residual wrt segments vs impact angle ",
                    nameChamber.str(),
@@ -278,6 +323,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                    100,
                    -.2,
                    +.2);
+        histo("hHitResidualSegVsAngle")->SetDirectory(theFile);
         createTH2F("hHitResidualSegVsNHits",
                    "Hits residual wrt segments vs num hits ",
                    nameChamber.str(),
@@ -287,6 +333,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                    100,
                    -.2,
                    +.2);
+        histo("hHitResidualSegVsNHits")->SetDirectory(theFile);
         createTH2F("hHitResidualSegVsChi2",
                    "Hits residual wrt segments vs chi2 ",
                    nameChamber.str(),
@@ -296,28 +343,40 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
                    100,
                    -.2,
                    +.2);
+        histo("hHitResidualSegVsChi2")->SetDirectory(theFile);
 
         // eff
         createTH2F("hNsegs4dVsNhits", "N segs 4d vs n Hits ", nameChamber.str(), 20, 0.5, 20.5, 5, -0.5, 4.5);
+        histo("hNsegs4dVsNhits")->SetDirectory(theFile);
         createTH2F("hNsegs4dVsNhitsPhi", "N segs 4d vs n HitsPhi ", nameChamber.str(), 20, 0.5, 20.5, 5, -0.5, 4.5);
+        histo("hNsegs4dVsNhitsPhi")->SetDirectory(theFile);
         createTH2F("hNsegs4dVsNhitsZed", "N segs 4d vs n HitsZed ", nameChamber.str(), 20, 0.5, 20.5, 5, -0.5, 4.5);
+        histo("hNsegs4dVsNhitsZed")->SetDirectory(theFile);
 
         createTH2F("hNsegs4dVsNsegs2d", "N segs 4d vs n segs2d ", nameChamber.str(), 4, 0.5, 4.5, 5, -0.5, 4.5);
+        histo("hNsegs4dVsNsegs2d")->SetDirectory(theFile);
         createTH2F("hNsegs4dVsNsegs2dPhi", "N segs 4d vs n segs2d Phi ", nameChamber.str(), 4, 0.5, 4.5, 5, -0.5, 4.5);
+        histo("hNsegs4dVsNsegs2dPhi")->SetDirectory(theFile);
         createTH2F("hNsegs4dVsNsegs2dZed", "N segs 4d vs n segs2d Zed ", nameChamber.str(), 4, 0.5, 4.5, 5, -0.5, 4.5);
+        histo("hNsegs4dVsNsegs2dZed")->SetDirectory(theFile);
 
         createTH2F("hNsegs2dSL1VsNsegs2dSL3", "N segs 2d SL1 vs SL3 ", nameChamber.str(), 5, -0.5, 4.5, 5, -0.5, 4.5);
+        histo("hNsegs2dSL1VsNsegs2dSL3")->SetDirectory(theFile);
         createTH2F("hNsegs2dSL1VsNsegs2dSL2", "N segs 2d SL1 vs SL2 ", nameChamber.str(), 5, -0.5, 4.5, 5, -0.5, 4.5);
+        histo("hNsegs2dSL1VsNsegs2dSL2")->SetDirectory(theFile);
         createTH2F("hNsegs2dSL2VsNsegs2dSL3", "N segs 2d SL2 vs SL3 ", nameChamber.str(), 5, -0.5, 4.5, 5, -0.5, 4.5);
+        histo("hNsegs2dSL2VsNsegs2dSL3")->SetDirectory(theFile);
 
         // trigger eff
         createTH1F("hSegEff", "Eff LocaTrig if Seg", nameChamber.str(), 5, 0., 5.);
+        histo("hSegEff")->SetDirectory(theFile);
       }
     }
   }
 
   // segs
   new TH1F("hnSegDT", "Num seg DT", 50, 0., 50.);
+  histo("hnSegDT")->SetDirectory(theFile);
   TH1::AddDirectory(dirStat);
 }
 
