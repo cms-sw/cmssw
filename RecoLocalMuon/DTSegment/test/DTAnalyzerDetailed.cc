@@ -116,7 +116,7 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
             nameLayer << nameSL.str() << "_Lay" << l;
             //cout << "Lay " << nameLayer.str() << endl;
 
-            // Create hist for each Layer            
+            // Create hist for each Layer
             createTH1F("hDigiTime", "Digi Time (ns) ", nameLayer.str(), 100, -100., 600.);
             histo("hDigiTime")->SetDirectory(theFile);
 
@@ -125,7 +125,6 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
 
             createTH1F("hPosRight", "Pos of Right hit (cm) in local frame", nameLayer.str(), 100, -220., 220.);
             histo("hPosRight")->SetDirectory(theFile);
-
           }
           // Create hist for each SuperLayer
           createTH1F("hDigiTime", "Digi Time (ns) ", nameSL.str(), 100, -100., 600.);
