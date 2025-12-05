@@ -71,7 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       auto product = std::make_unique<SiStripClusterizerConditionsDetToFedsHostObject>(cms::alpakatools::host());
       product->zeroInitialise();
 
-      auto& detToFeds_qualityFlags = (*product).data()->qualityOk_;
+      auto& detToFeds_qualityFlags = (*product).data()->qualityOk;
 
       // connected: map<DetID, std::vector<int>>
       // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module :
@@ -111,19 +111,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
       // Prepare the conditions on the host
       auto product = std::make_unique<SiStripClusterizerConditionsDataHostObject>(cms::alpakatools::host());
-      const int Data_fedch_size = (*product)->invthick_.size();  // 42240
-      const int Data_strip_size = (*product)->noise_.size();     // 10813440
-      const int Data_apv_size = (*product)->gain_.size();        // 84480
+      const int Data_fedch_size = (*product)->invthick.size();  // 42240
+      const int Data_strip_size = (*product)->noise.size();     // 10813440
+      const int Data_apv_size = (*product)->gain.size();        // 84480
 
       // Fill the collections
       fillSiStripClusterizerConditions(quality,
                                        gains.product(),
                                        noises,
-                                       std::span((*product)->invthick_.data(), Data_fedch_size),
-                                       std::span((*product)->detID_.data(), Data_fedch_size),
-                                       std::span((*product)->iPair_.data(), Data_fedch_size),
-                                       std::span((*product)->noise_.data(), Data_strip_size),
-                                       std::span((*product)->gain_.data(), Data_apv_size));
+                                       std::span((*product)->invthick.data(), Data_fedch_size),
+                                       std::span((*product)->detID.data(), Data_fedch_size),
+                                       std::span((*product)->iPair.data(), Data_fedch_size),
+                                       std::span((*product)->noise.data(), Data_strip_size),
+                                       std::span((*product)->gain.data(), Data_apv_size));
       //
       return product;
     }

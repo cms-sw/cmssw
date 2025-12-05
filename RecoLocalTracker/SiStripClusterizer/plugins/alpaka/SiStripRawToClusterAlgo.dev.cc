@@ -261,7 +261,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
         uint32_t index = channelIndex(fedId, fedCh);
 
-        if (qualityConditions->qualityOk_[index]) {
+        if (qualityConditions->qualityOk[index]) {
           const uint32_t fedChOfs = mapping.fedChOfs(chan);
           const uint32_t fedChDataOfsBuf = mapping.fedChDataOfsBuf(chan);
 
@@ -351,7 +351,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
           continue;
         }
 
-        const auto ipair = data->iPair_[channelIndex(fedId, fedCh)];
+        const auto ipair = data->iPair[channelIndex(fedId, fedCh)];
         int ipoff = STRIPS_PER_FEDCH * ipair;
 
         const uint32_t fedChDataOfsBuf = mapping.fedChDataOfsBuf(chan);
@@ -405,7 +405,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         const auto stripID = stripDigi.stripId(i);
 
         const uint32_t idx = stripIndex(fedId, fedCh, stripID);
-        const uint16_t noise_tmp = data->noise_[idx];
+        const uint16_t noise_tmp = data->noise[idx];
         const bool isBad = (noise_tmp & badBit) > 0;
 
         if (!isBad) {
@@ -495,7 +495,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         const auto stripId = stripIdArr[chan_];
         //
         const uint32_t idx = stripIndex(fedId, fedCh, stripId);
-        const uint16_t noise_tmp = conditionsData->noise_[idx];
+        const uint16_t noise_tmp = conditionsData->noise[idx];
         const float noise_i = 0.1f * (noise_tmp & ~badBit);
 
         // Calculate the accumulated noise2 and ADC
@@ -511,7 +511,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
           const auto test_stripId = stripIdArr[testIndex];
 
           const uint32_t test_idx = stripIndex(test_fedId, test_fedCh, test_stripId);
-          const uint16_t test_noise_tmp = conditionsData->noise_[test_idx];
+          const uint16_t test_noise_tmp = conditionsData->noise[test_idx];
           const bool test_isBad = (test_noise_tmp & badBit) > 0;
 
           const float test_noise_i = 0.1f * (test_noise_tmp & ~badBit);
@@ -642,7 +642,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
               const auto stripId = stripDataObj.stripId(index);
 
               // ThreeThresholdAlgorithm::applyGains
-              const float gain_j = conditionsData->gain_[apvIndex(fedId, fedCh, stripId)];
+              const float gain_j = conditionsData->gain[apvIndex(fedId, fedCh, stripId)];
               uint8_t amplitudes_j = stripDataObj.adc(index);
               const uint16_t charge = static_cast<uint16_t>(static_cast<float>(amplitudes_j) / gain_j + 0.5f);
 
@@ -671,7 +671,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
             // Flags for siStripClusterTools::chargePerCM in current candidate
             clusters.candidateAccepted(i) = (clusterDataObj.minGoodCharge() <= 0 ||
-                                             ((chargeSum * conditionsData->invthick_[channelIndex(fedIdL, fedChL)]) >
+                                             ((chargeSum * conditionsData->invthick[channelIndex(fedIdL, fedChL)]) >
                                               clusterDataObj.minGoodCharge()));
 
             // SiStripCluster::initQB() -> barycenter_
