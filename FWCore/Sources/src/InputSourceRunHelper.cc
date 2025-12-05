@@ -79,7 +79,7 @@ namespace edm {
   void SetInputSourceRunHelper::overrideRunNumber(EventID& id, bool isRealData) {
     if (isRealData) {
       throw Exception(errors::Configuration, "SetInputSourceRunHelper::overrideRunNumber()")
-          << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
+          << "The 'setRunNumber' parameter of the source cannot be used with real data.\n";
     }
     id = EventID(id.run() + forcedRunOffset_, id.luminosityBlock(), id.event());
     if (RunID(id.run()) < RunID::firstValidRun()) {
@@ -115,14 +115,13 @@ namespace edm {
         ++indexOfNextRunNumber_;
       }
       if (indexOfNextRunNumber_ == setRunNumberForEachLumi_.size()) {
-        throw Exception(errors::MismatchedInputFiles, "PoolSource::getNextItemType")
+        throw Exception(errors::MismatchedInputFiles)
             << " Parameter 'setRunNumberForEachLumi' has " << setRunNumberForEachLumi_.size() << " entries\n"
             << "but this job is processing more luminosity blocks than this.\n";
       }
       RunNumber_t run = setRunNumberForEachLumi_[indexOfNextRunNumber_];
       if (run == 0) {
-        throw Exception(errors::Configuration, "PoolSource")
-            << "'setRunNumberForEachLumi' contains an illegal run number of '0'.\n";
+        throw Exception(errors::Configuration) << "'setRunNumberForEachLumi' contains an illegal run number of '0'.\n";
       }
       bool sameRunNumber = (indexOfNextRunNumber_ != 0U && run == setRunNumberForEachLumi_[indexOfNextRunNumber_ - 1]);
       if (!sameRunNumber) {
@@ -139,7 +138,7 @@ namespace edm {
 
   void SetRunForEachLumiHelper::checkForNewRun(RunNumber_t run, LuminosityBlockNumber_t) {
     if (realRunNumber_ != 0 && run != realRunNumber_) {
-      throw Exception(errors::MismatchedInputFiles, "PoolSource::checkForNewRun")
+      throw Exception(errors::MismatchedInputFiles)
           << " Parameter 'setRunNumberForEachLumi' can only process a single run.\n"
           << "but this job is processing more than one run.\n";
     }
@@ -155,7 +154,7 @@ namespace edm {
   void SetRunForEachLumiHelper::overrideRunNumber(EventID& id, bool isRealData) {
     if (isRealData) {
       throw Exception(errors::Configuration, "SetRunForEachLumiHelper::overrideRunNumber()")
-          << "The 'setRunNumberForEachLumi' parameter of PoolSource cannot be used with real data.\n";
+          << "The 'setRunNumberForEachLumi' parameter of the source cannot be used with real data.\n";
     }
     id = EventID(runNumberToUseForThisLumi(), id.luminosityBlock(), id.event());
   }
@@ -180,7 +179,7 @@ namespace edm {
     if (newItemType == InputSource::ItemType::IsLumi && previousItemType != InputSource::ItemType::IsRun) {
       auto run = findRunFromLumi(iLumi);
       if (run == 0) {
-        throw Exception(errors::Configuration, "PoolSource")
+        throw Exception(errors::Configuration)
             << "'firstLuminosityBlockForEachRun' contains an illegal run number of '0'.\n";
       }
       if (lastUsedRunNumber_ != run) {
@@ -198,7 +197,7 @@ namespace edm {
 
   void FirstLuminosityBlockForEachInputSourceRunHelper::checkForNewRun(RunNumber_t run, LuminosityBlockNumber_t iLumi) {
     if (realRunNumber_ != 0 && run != realRunNumber_) {
-      throw Exception(errors::MismatchedInputFiles, "PoolSource::checkForNewRun")
+      throw Exception(errors::MismatchedInputFiles)
           << " Parameter 'firstLuminosityBlockForEachRun' can only process a single run.\n"
           << "but this job is processing more than one run.\n";
     }
@@ -218,7 +217,7 @@ namespace edm {
   void FirstLuminosityBlockForEachInputSourceRunHelper::overrideRunNumber(EventID& id, bool isRealData) {
     if (isRealData) {
       throw Exception(errors::Configuration, "FirstLuminosityBlockForEachInputSourceRunHelper::overrideRunNumber()")
-          << "The 'firstLuminosityBlockForEachRun' parameter of PoolSource cannot be used with real data.\n";
+          << "The 'firstLuminosityBlockForEachRun' parameter of the source cannot be used with real data.\n";
     }
     id = EventID(runNumberToUseForThisLumi(), id.luminosityBlock(), id.event());
   }
