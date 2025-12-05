@@ -74,7 +74,13 @@ void InputRouter::execute() {
         iadd++;
       }
     }
-    if (!(settings_.reduced()))
-      assert(iadd == 1);
+    if (not settings_.reduced()) {
+      // Verbose error message to debug crash.
+      if (iadd != 1) {
+        edm::LogError("Tracklet") << "Executing " << name_ << " : region (layer,phi) = (" << layerdisk << ", " << iphipos << ") has "<< iadd <<" matching InputLinkMemories.";
+        assert(false);
+      }
+      //assert(iadd == 1);
+    }
   }
 }
