@@ -36,11 +36,7 @@
 
 <test name="HcalPFCuts_unittest" command="pfcuts_db_io_test.sh"/>
 
-<!--
-  The following test will be enabled when the file hcalpulsedelays.txt
-  is placed in the proper directory
 <test name="HcalPulseDelays_unittest" command="pulsedelays_db_io_test.sh"/>
--->
 
 <library file="HcalConditionsTest.cc" name="testCondToolsConTHcal">
  <flags EDM_PLUGIN="1"/>
