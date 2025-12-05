@@ -25,7 +25,7 @@ public:
 
   explicit SiStripCluster(const SiStripDigiRange& range);
 
-  SiStripCluster(uint16_t firstStrip, std::vector<uint8_t> data)
+  SiStripCluster(uint16_t firstStrip, std::vector<uint8_t>&& data)
       : amplitudes_(std::move(data)), firstStrip_(firstStrip) {
     initQB();
   }
