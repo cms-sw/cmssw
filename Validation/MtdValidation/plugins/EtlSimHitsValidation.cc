@@ -183,6 +183,9 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       if (simHit.offsetTrackId() == 0) {
         (simHitIt->second).thetaAtEntry =
             angle_units::operators::convertRadToDeg((simHit.exitPoint() - simHit.entryPoint()).bareTheta());
+        if (id.discSide() == 1) {
+          (simHitIt->second).thetaAtEntry = 180. - (simHitIt->second).thetaAtEntry;
+        }
       } else {
         (simHitIt->second).thetaAtEntry = -90.;
       }
