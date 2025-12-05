@@ -1103,7 +1103,10 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID, float>& hitMap, in
   }
 }
 
-void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap, bool usedShowerLibrary, int trackID, float corr) {
+void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap,
+                                    bool usedShowerLibrary,
+                                    int trackID,
+                                    float corr) {
   std::vector<double> hfcorrEm = myHDResponse_->getCorrHFem();
   std::vector<double> hfcorrHad = myHDResponse_->getCorrHFhad();
   std::map<CaloHitID, float>::const_iterator mapitr;

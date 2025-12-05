@@ -89,7 +89,10 @@ private:
   void readParameters(const edm::ParameterSet& fastCalo);
 
   void updateECAL(const std::map<CaloHitID, float>& hitMap, int onEcal, int trackID = 0, float corr = 1.0);
-  void updateHCAL(const std::map<CaloHitID, float>& hitMap, bool usedShowerLibrary = false, int trackID = 0, float corr = 1.0);
+  void updateHCAL(const std::map<CaloHitID, float>& hitMap,
+                  bool usedShowerLibrary = false,
+                  int trackID = 0,
+                  float corr = 1.0);
   void updatePreshower(const std::map<CaloHitID, float>& hitMap, int trackID = 0, float corr = 1.0);
 
   void respCorr(double);
