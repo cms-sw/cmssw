@@ -55,7 +55,6 @@ public:
       : electronTag_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
         bsTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot"))),
         pvTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertex"))),
-        generalTrackTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
         magneticFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
         tkerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
         tkerTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
@@ -71,7 +70,6 @@ public:
     desc.add<edm::InputTag>("electrons")->setComment("input pat electrons collection");
     desc.add<edm::InputTag>("beamspot")->setComment("input beamspot collection");
     desc.add<edm::InputTag>("primaryVertex")->setComment("input primaryVertex collection");
-    desc.add<edm::InputTag>("generalTracks")->setComment("input generalTracks collection");
     descriptions.add("electronVertexTables", desc);
   }
 
@@ -87,7 +85,6 @@ private:
   const edm::EDGetTokenT<std::vector<pat::Electron>> electronTag_;
   const edm::EDGetTokenT<reco::BeamSpot> bsTag_;
   const edm::EDGetTokenT<reco::VertexCollection> pvTag_;
-  const edm::EDGetTokenT<std::vector<reco::Track>> generalTrackTag_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkerGeomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkerTopoToken_;
@@ -108,9 +105,6 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
   iEvent.getByToken(pvTag_, primaryVertexHandle);
   const auto& pv = primaryVertexHandle->at(0);
   GlobalPoint primaryVertex(pv.x(), pv.y(), pv.z());
-
-  edm::Handle<std::vector<reco::Track>> generalTracks;
-  iEvent.getByToken(generalTrackTag_, generalTracks);
 
   auto const& magneticField = &iSetup.getData(magneticFieldToken_);
 
@@ -206,7 +200,6 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
 
       CheckHitPattern checkHitPattern;
       checkHitPattern.init(tkerTopo, *tkerGeom, *builder);
-      // checkHitPattern.init(iSetup);
       CheckHitPattern::Result hitPattern_i = checkHitPattern(*electronTrack_i, transientElectronVertex.vertexState());
       hitsInFrontOfVert1.push_back(hitPattern_i.hitsInFrontOfVert);
       missHitsAfterVert1.push_back(hitPattern_i.missHitsAfterVert);

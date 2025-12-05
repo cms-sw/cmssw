@@ -274,7 +274,6 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
 
       CheckHitPattern checkHitPattern;
       checkHitPattern.init(tkerTopo, *tkerGeom, *builder);
-      // checkHitPattern.init(iSetup);
       if (muon_i.isTrackerMuon()) {
         CheckHitPattern::Result hitPattern_i = checkHitPattern(*muonTrack_i, transientMuonVertex.vertexState());
         hitsInFrontOfVert1["PATPAT"].push_back(hitPattern_i.hitsInFrontOfVert);
@@ -453,7 +452,6 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
 
       CheckHitPattern checkHitPattern;
       checkHitPattern.init(tkerTopo, *tkerGeom, *builder);
-      // checkHitPattern.init(iSetup);
       if (muon_i.isTrackerMuon()) {
         CheckHitPattern::Result hitPattern_i = checkHitPattern(*muonTrack_i, transientMuonVertex.vertexState());
         hitsInFrontOfVert1["PATDSA"].push_back(hitPattern_i.hitsInFrontOfVert);

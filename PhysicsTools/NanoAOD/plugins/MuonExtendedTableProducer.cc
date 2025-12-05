@@ -32,7 +32,6 @@ public:
         muonTag_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
         vtxTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertex"))),
         bsTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot"))),
-        generalTrackTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
         jetTag_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
         jetFatTag_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetsFat"))),
         jetSubTag_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetsSub"))),
@@ -48,7 +47,6 @@ public:
     desc.add<edm::InputTag>("muons")->setComment("input muon collection");
     desc.add<edm::InputTag>("primaryVertex")->setComment("input primary vertex collection");
     desc.add<edm::InputTag>("beamspot")->setComment("input beamspot collection");
-    desc.add<edm::InputTag>("generalTracks")->setComment("input generalTracks collection");
     desc.add<edm::InputTag>("jets")->setComment("input jet collection");
     desc.add<edm::InputTag>("jetsFat")->setComment("input fat jet collection");
     desc.add<edm::InputTag>("jetsSub")->setComment("input sub jet collection");
@@ -92,8 +90,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   iEvent.getByToken(vtxTag_, primaryVertices);
   edm::Handle<reco::BeamSpot> beamspots;
   iEvent.getByToken(bsTag_, beamspots);
-  edm::Handle<std::vector<reco::Track>> generalTracks;
-  iEvent.getByToken(generalTrackTag_, generalTracks);
   edm::Handle<std::vector<pat::Jet>> jetHandle;
   iEvent.getByToken(jetTag_, jetHandle);
   edm::Handle<std::vector<pat::Jet>> jetFatHandle;
