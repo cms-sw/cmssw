@@ -77,7 +77,8 @@ void InputRouter::execute() {
     if (not settings_.reduced()) {
       // Verbose error message to debug crash.
       if (iadd != 1) {
-        edm::LogError("Tracklet") << "Executing " << name_ << " : region (layer,phi) = (" << layerdisk << ", " << iphipos << ") has "<< iadd <<" matching InputLinkMemories.";
+        edm::LogError("Tracklet") << "Executing " << name_ << " : region (layer,phi) = (" << layerdisk << ", "
+                                  << iphipos << ") has " << iadd << " matching InputLinkMemories.";
         assert(false);
       }
       //assert(iadd == 1);
