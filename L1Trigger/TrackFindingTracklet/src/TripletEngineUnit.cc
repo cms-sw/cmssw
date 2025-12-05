@@ -18,7 +18,28 @@ TripletEngineUnit::TripletEngineUnit(const Settings* const settings,
                                      unsigned int iSeed,
                                      std::vector<VMStubsTEMemory*> innervmstubs,
                                      std::vector<VMStubsTEMemory*> outervmstubs)
-  : innervmstubs_(std::move(innervmstubs)), outervmstubs_(std::move(outervmstubs)), settings_(settings), layerdisk1_(layerdisk1), layerdisk2_(layerdisk2), layerdisk3_(layerdisk3), iSeed_(iSeed), nearfull_(false), nmem_out_(0), nmem_in_(0), istub_out_(0), istub_in_(0), next_out_(0), next_in_(0), nstub_out_(0), nstub_in_(0), outmem_(0), inmem_(0), nproj_out_(0), nproj_in_(0), idle_(true), candtriplets_(3) {}
+  : innervmstubs_(std::move(innervmstubs)),
+    outervmstubs_(std::move(outervmstubs)),
+      settings_(settings),
+      layerdisk1_(layerdisk1),
+      layerdisk2_(layerdisk2),
+      layerdisk3_(layerdisk3),
+      iSeed_(iSeed),
+      nearfull_(false),
+      nmem_out_(0),
+      nmem_in_(0),
+      istub_out_(0),
+      istub_in_(0),
+      next_out_(0),
+      next_in_(0),
+      nstub_out_(0),
+      nstub_in_(0),
+      outmem_(0),
+      inmem_(0),
+      nproj_out_(0),
+      nproj_in_(0),
+      idle_(true),
+      candtriplets_(3) {}
 
 void TripletEngineUnit::init(const TrpEData& trpdata) {
   trpdata_ = trpdata;
