@@ -9,9 +9,9 @@
 
 fastsim::Decayer::~Decayer() { ; }
 
-fastsim::Decayer::Decayer(bool verbose) :
-    pythia_(std::make_unique<Pythia8::Pythia>("../share/Pythia8/xmldoc", verbose)),
-    pythiaRandomEngine_(std::make_unique<gen::P8RndmEngine>()) {
+fastsim::Decayer::Decayer(bool verbose)
+    : pythia_(std::make_unique<Pythia8::Pythia>("../share/Pythia8/xmldoc", verbose)),
+      pythiaRandomEngine_(std::make_unique<gen::P8RndmEngine>()) {
   pythia_->setRndmEnginePtr(pythiaRandomEngine_);
   pythia_->settings.flag("ProcessLevel:all", false);
   pythia_->settings.flag("PartonLevel:FSRinResonances", false);

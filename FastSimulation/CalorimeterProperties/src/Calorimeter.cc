@@ -20,11 +20,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 
 Calorimeter::Calorimeter()
-    : EcalBarrelGeometry_(nullptr),
-      EcalEndcapGeometry_(nullptr),
-      HcalGeometry_(nullptr),
-      PreshowerGeometry_(nullptr) {
-}
+    : EcalBarrelGeometry_(nullptr), EcalEndcapGeometry_(nullptr), HcalGeometry_(nullptr), PreshowerGeometry_(nullptr) {}
 
 Calorimeter::Calorimeter(const edm::ParameterSet& fastCalo, const CaloGeometry& pG, const CaloTopology& theTopology) {
   setupProperties(fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties"),
@@ -47,13 +43,14 @@ void Calorimeter::setupGeomTopo(const CaloGeometry& pG, const CaloTopology& theT
   EcalEndcapGeometry_ = dynamic_cast<const EcalEndcapGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
   HcalGeometry_ = pG.getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
   // Takes a lot of time
-  PreshowerGeometry_ = dynamic_cast<const EcalPreshowerGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
+  PreshowerGeometry_ =
+      dynamic_cast<const EcalPreshowerGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
 
   EcalBarrelTopology_ = theTopology.getSubdetectorTopology(DetId::Ecal, EcalBarrel);
   EcalEndcapTopology_ = theTopology.getSubdetectorTopology(DetId::Ecal, EcalEndcap);
 }
 
-Calorimeter::~Calorimeter() { }
+Calorimeter::~Calorimeter() {}
 
 const ECALProperties* Calorimeter::ecalProperties(int onEcal) const {
   if (onEcal) {

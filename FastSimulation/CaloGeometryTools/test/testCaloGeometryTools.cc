@@ -61,7 +61,11 @@ public:
 
 private:
   // ----------member data ---------------------------
-  void testpoint(const XYZPoint&, std::string name, bool barrel, RandomEngineAndDistribution const*, const CaloGeometryHelper& myGeometry);
+  void testpoint(const XYZPoint&,
+                 std::string name,
+                 bool barrel,
+                 RandomEngineAndDistribution const*,
+                 const CaloGeometryHelper& myGeometry);
   void checkSM(const CaloGeometryHelper& myGeometry);
   void checkSC(const CaloGeometryHelper& myGeometry);
   void testBorderCrossing(const CaloGeometryHelper& myGeometry);

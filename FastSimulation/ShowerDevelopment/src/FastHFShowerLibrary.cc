@@ -38,7 +38,9 @@
 
 static std::once_flag initializeOnce;
 
-FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p, const edm::EventSetup& iSetup, const CalorimetryConsumer& iConsumer)
+FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p,
+                                         const edm::EventSetup& iSetup,
+                                         const CalorimetryConsumer& iConsumer)
     : fast(p) {
   applyFidCut = p.getParameter<edm::ParameterSet>("HFShowerLibrary").getParameter<bool>("ApplyFiducialCut");
 
@@ -69,7 +71,9 @@ std::unique_ptr<HFShowerLibrary> FastHFShowerLibrary::initHFShowerLibrary() cons
   return std::make_unique<HFShowerLibrary>("HcalHits", hcalConstants, hsps->hcalsimpar(), fast);
 }
 
-void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack, CaloHitMap& hitMap, HFShowerLibrary* hfshower) const {
+void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack,
+                                              CaloHitMap& hitMap,
+                                              HFShowerLibrary* hfshower) const {
 #ifdef DebugLog
   edm::LogInfo("FastCalorimetry") << "FastHFShowerLibrary: recoHFShowerLibrary ";
 #endif

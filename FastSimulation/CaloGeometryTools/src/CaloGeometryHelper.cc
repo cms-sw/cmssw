@@ -29,7 +29,10 @@ CaloGeometryHelper::CaloGeometryHelper() : Calorimeter() {
   psLayer2Z_ = 307;
 }
 
-CaloGeometryHelper::CaloGeometryHelper(const edm::ParameterSet& fastCalo, const CaloGeometry& pG, const CaloTopology& theTopology, double bField)
+CaloGeometryHelper::CaloGeometryHelper(const edm::ParameterSet& fastCalo,
+                                       const CaloGeometry& pG,
+                                       const CaloTopology& theTopology,
+                                       double bField)
     : Calorimeter(fastCalo, pG, theTopology) {
   setupHelper(bField);
 }

@@ -92,8 +92,7 @@ testEcalHitMaker::testEcalHitMaker(const edm::ParameterSet& iConfig)
       tokPdt_(esConsumes<edm::Transition::BeginRun>()),
       calorimetryPset_(iConfig.getParameter<edm::ParameterSet>("Calorimetry")),
       aGammaGenerator_(std::make_unique<GammaFunctionGenerator>()),
-      mySimEvent_(std::make_unique<FSimEvent>(iConfig.getParameter<edm::ParameterSet>("TestParticleFilter"))) {
-}
+      mySimEvent_(std::make_unique<FSimEvent>(iConfig.getParameter<edm::ParameterSet>("TestParticleFilter"))) {}
 
 void testEcalHitMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
   // init Particle data table (from Pythia)

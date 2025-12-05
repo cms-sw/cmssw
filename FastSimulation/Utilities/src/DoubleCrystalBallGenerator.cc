@@ -8,8 +8,13 @@
 
 using namespace TMath;
 
-double DoubleCrystalBallGenerator::shoot(
-    double mu, double sigma, double aL, double nL, double aR, double nR, RandomEngineAndDistribution const* random) const {
+double DoubleCrystalBallGenerator::shoot(double mu,
+                                         double sigma,
+                                         double aL,
+                                         double nL,
+                                         double aR,
+                                         double nR,
+                                         RandomEngineAndDistribution const* random) const {
   if (nL <= 1 || nR <= 1)
     return 0;  //n>1 required
 

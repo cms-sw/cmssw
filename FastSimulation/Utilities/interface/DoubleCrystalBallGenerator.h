@@ -17,7 +17,12 @@ public:
   virtual ~DoubleCrystalBallGenerator() {}
 
   //functions
-  double shoot(
-      double mu, double sigma, double aL, double nL, double aR, double nR, RandomEngineAndDistribution const* random) const;
+  double shoot(double mu,
+               double sigma,
+               double aL,
+               double nL,
+               double aR,
+               double nR,
+               RandomEngineAndDistribution const* random) const;
 };
 #endif

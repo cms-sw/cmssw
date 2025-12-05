@@ -90,8 +90,9 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(std::vector<double>& ha
   // Read the information from a previous run (to keep reproducibility)
   currentValuesWereSet = this->read(inputFile);
   if (currentValuesWereSet)
-    edm::LogWarning("FastSimulation/MaterialEffects") << "You are reading nuclear-interaction information from the file " << inputFile
-                                                      << " created in an earlier run." << std::endl;
+    edm::LogWarning("FastSimulation/MaterialEffects")
+        << "You are reading nuclear-interaction information from the file " << inputFile
+        << " created in an earlier run." << std::endl;
 
   // Open the file for saving the information of the current run
   if (mySaveOutput) {

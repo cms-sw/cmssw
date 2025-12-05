@@ -17,12 +17,12 @@
 
 using namespace fastsim;
 
-GeometryConsumer::GeometryConsumer(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) :
-  useFixedMagneticFieldZ(cfg.exists("magneticFieldZ")),
-  useTrackerRecoGeometryRecord(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord", true))
-{
+GeometryConsumer::GeometryConsumer(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+    : useFixedMagneticFieldZ(cfg.exists("magneticFieldZ")),
+      useTrackerRecoGeometryRecord(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord", true)) {
   if (useTrackerRecoGeometryRecord) {
-    geometricSearchTrackerESToken = iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", cfg.getUntrackedParameter<std::string>("trackerAlignmentLabel", "")));
+    geometricSearchTrackerESToken = iC.esConsumes<edm::Transition::BeginRun>(
+        edm::ESInputTag("", cfg.getUntrackedParameter<std::string>("trackerAlignmentLabel", "")));
   }
   if (!useFixedMagneticFieldZ) {
     magneticFieldESToken = iC.esConsumes<edm::Transition::BeginRun>();

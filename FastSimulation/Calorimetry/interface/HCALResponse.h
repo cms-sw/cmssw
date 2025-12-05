@@ -44,7 +44,7 @@ public:
   double getHCALEnergyResponse(double e, int hit, RandomEngineAndDistribution const*) const;
 
   // correct HF response for SL
-  std::pair<vec1,vec1> correctHF(double e, int type) const;
+  std::pair<vec1, vec1> correctHF(double e, int type) const;
 
 private:
   // calculates interpolated-extrapolated response smearing factors

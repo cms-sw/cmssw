@@ -43,7 +43,10 @@ namespace fastsim {
             \param interactionModelNames Names of all interaction models considered (for any layer)
             \sa SimplifiedGeometryFactory
         */
-    Geometry(const edm::ParameterSet&, const std::vector<std::string>& interactionModelNames, const edm::EventSetup& iSetup, const GeometryConsumer&);
+    Geometry(const edm::ParameterSet&,
+             const std::vector<std::string>& interactionModelNames,
+             const edm::EventSetup& iSetup,
+             const GeometryConsumer&);
 
     //! Default destructor.
     ~Geometry();
@@ -151,7 +154,7 @@ namespace fastsim {
 
     const GeometricSearchTracker* geometricSearchTracker_;  //! The tracker geometry
     const MagneticField* magneticField_;                    //!< The magnetic field
-    const double fixedMagneticFieldZ_;   //!< Use a uniform magnetic field or non-uniform from MagneticFieldRecord
+    const double fixedMagneticFieldZ_;  //!< Use a uniform magnetic field or non-uniform from MagneticFieldRecord
     const std::vector<edm::ParameterSet>
         barrelLayerCfg_;  //!< The config in which all parameters of the barrel layers are defined
     const std::vector<edm::ParameterSet>

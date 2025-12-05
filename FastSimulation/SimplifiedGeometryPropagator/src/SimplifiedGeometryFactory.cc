@@ -13,12 +13,11 @@
 #include <algorithm>
 #include <iterator>
 
-fastsim::SimplifiedGeometryFactory::SimplifiedGeometryFactory(
-    const GeometricSearchTracker *geometricSearchTracker,
-    const MagneticField &magneticField,
-    const std::vector<std::string> &interactionModelNames,
-    double magneticFieldHistMaxR,
-    double magneticFieldHistMaxZ)
+fastsim::SimplifiedGeometryFactory::SimplifiedGeometryFactory(const GeometricSearchTracker *geometricSearchTracker,
+                                                              const MagneticField &magneticField,
+                                                              const std::vector<std::string> &interactionModelNames,
+                                                              double magneticFieldHistMaxR,
+                                                              double magneticFieldHistMaxZ)
     : geometricSearchTracker_(geometricSearchTracker),
       magneticField_(&magneticField),
       interactionModelNames_(&interactionModelNames),
@@ -180,7 +179,7 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
   // list of interaction models
   // -----------------------------
 
-  const std::vector<std::string>& interactionModelLabels =
+  const std::vector<std::string> &interactionModelLabels =
       cfg.getUntrackedParameter<std::vector<std::string> >("interactionModels");
   layer->interactionModelIndices_.reserve(interactionModelLabels.size());
   for (const auto &label : interactionModelLabels) {

@@ -82,7 +82,7 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
   std::string fraction = "f";
   //setup parameters (5D vector)
   parameters_ = vec5(nPar_, vec4(3, vec3(3)));
-  for (int p = 0; p < nPar_; p++) {   //loop over parameters
+  for (int p = 0; p < nPar_; p++) {  //loop over parameters
     for (int m = 0; m < 3; m++) {    //loop over mip, nomip, total
       for (int d = 0; d < 3; d++) {  //loop over dets: HB, HE, HF
         //get from python
@@ -264,7 +264,7 @@ double HCALResponse::getMIPfraction(double energy, double eta) const {
   }
   if (ie == -1)
     return mipfraction_[det][maxHDe_[det] - 1]
-                      [deta];  // more than maximal - the last value is used instead of extrapolating
+                       [deta];  // more than maximal - the last value is used instead of extrapolating
   double y1, y2;
   double x1 = eGridHD_[det][ie];
   double x2 = eGridHD_[det][ie + 1];
@@ -444,7 +444,8 @@ double HCALResponse::interMU(double e, int ie, int ieta, RandomEngineAndDistribu
   return mean;
 }
 
-double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det, RandomEngineAndDistribution const* random) const {
+double HCALResponse::interHD(
+    int mip, double e, int ie, int ieta, int det, RandomEngineAndDistribution const* random) const {
   double x1, x2;
   double y1, y2;
   if (det == 2)
@@ -576,8 +577,8 @@ double HCALResponse::getHCALEnergyResponse(double e, int hit, RandomEngineAndDis
     resolution =
         e * sqrt(respPar_[VFCAL][1][0] * respPar_[VFCAL][1][0] / e + respPar_[VFCAL][1][1] * respPar_[VFCAL][1][1]);
   else
-    resolution =
-        e * sqrt(respPar_[HCAL][hit][0] * respPar_[HCAL][hit][0] / (e) + respPar_[HCAL][hit][1] * respPar_[HCAL][hit][1]);
+    resolution = e * sqrt(respPar_[HCAL][hit][0] * respPar_[HCAL][hit][0] / (e) +
+                          respPar_[HCAL][hit][1] * respPar_[HCAL][hit][1]);
 
   //random smearing
   double rndm = gaussShootNoNegative(response, resolution, random);
@@ -609,8 +610,13 @@ double HCALResponse::gaussShootNoNegative(double e, double sigma, RandomEngineAn
 }
 
 // Remove (most) hits with negative energies
-double HCALResponse::cballShootNoNegative(
-    double mu, double sigma, double aL, double nL, double aR, double nR, RandomEngineAndDistribution const* random) const {
+double HCALResponse::cballShootNoNegative(double mu,
+                                          double sigma,
+                                          double aL,
+                                          double nL,
+                                          double aR,
+                                          double nR,
+                                          RandomEngineAndDistribution const* random) const {
   double out = cball_.shoot(mu, sigma, aL, nL, aR, nR, random);
   if (mu >= 0.) {
     while (out < 0.)
@@ -629,7 +635,7 @@ double HCALResponse::PoissonShootNoNegative(double e, double sigma, RandomEngine
   return out;
 }
 
-std::pair<vec1,vec1> HCALResponse::correctHF(double ee, int type) const {
+std::pair<vec1, vec1> HCALResponse::correctHF(double ee, int type) const {
   int jmin = 0;
   for (int i = 0; i < maxEne_; i++) {
     if (ee >= energyHF_[i])

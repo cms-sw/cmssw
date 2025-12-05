@@ -92,11 +92,11 @@ namespace fastsim {
     const DetLayer *getDetLayer(const std::string &detLayerName,
                                 const GeometricSearchTracker &geometricSearchTracker) const;
 
-    const GeometricSearchTracker *const geometricSearchTracker_;                     //!< The full tracker geometry.
-    const MagneticField *const magneticField_;                                       //!< The full magnetic field.
-    const std::vector<std::string> *interactionModelNames_;  //!< Map of interaction models.
-    const double magneticFieldHistMaxR_;  //!< Limit in R for histogram of magnetic field.
-    const double magneticFieldHistMaxZ_;  //!< Limit in +-Z for histogram of magnetic field.
+    const GeometricSearchTracker *const geometricSearchTracker_;  //!< The full tracker geometry.
+    const MagneticField *const magneticField_;                    //!< The full magnetic field.
+    const std::vector<std::string> *interactionModelNames_;       //!< Map of interaction models.
+    const double magneticFieldHistMaxR_;                          //!< Limit in R for histogram of magnetic field.
+    const double magneticFieldHistMaxZ_;                          //!< Limit in +-Z for histogram of magnetic field.
     std::map<std::string, const std::vector<BarrelDetLayer const *> *>
         barrelDetLayersMap_;  //!< A map of strings and pointers to detLayers.
     std::map<std::string, const std::vector<ForwardDetLayer const *> *>

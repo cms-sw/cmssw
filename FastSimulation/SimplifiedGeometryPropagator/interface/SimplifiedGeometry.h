@@ -160,7 +160,7 @@ namespace fastsim {
     double nuclearInteractionThicknessFactor_;  //!< Some layers have a different thickness for nuclear interactions.
     std::vector<size_t>
         interactionModelIndices_;  //!< Vector of all interaction models that are assigned with a layer (index into the central vector of models).
-    CaloType caloType_;      //!< Hack to interface "old" Calorimetry with "new" Tracker
+    CaloType caloType_;  //!< Hack to interface "old" Calorimetry with "new" Tracker
   };
 
   std::ostream& operator<<(std::ostream& os, const SimplifiedGeometry& layer);

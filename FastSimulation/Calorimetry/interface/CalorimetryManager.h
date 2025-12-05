@@ -43,13 +43,12 @@ class RandomEngineAndDistribution;
 class FastHFShowerLibrary;
 
 struct CaloProductContainer {
-  CaloProductContainer() :
-    hitsEB(std::make_unique<edm::PCaloHitContainer>()),
-    hitsEE(std::make_unique<edm::PCaloHitContainer>()),
-    hitsES(std::make_unique<edm::PCaloHitContainer>()),
-    hitsHCAL(std::make_unique<edm::PCaloHitContainer>()),
-    tracksMuon(std::make_unique<edm::SimTrackContainer>())
-  {}
+  CaloProductContainer()
+      : hitsEB(std::make_unique<edm::PCaloHitContainer>()),
+        hitsEE(std::make_unique<edm::PCaloHitContainer>()),
+        hitsES(std::make_unique<edm::PCaloHitContainer>()),
+        hitsHCAL(std::make_unique<edm::PCaloHitContainer>()),
+        tracksMuon(std::make_unique<edm::SimTrackContainer>()) {}
 
   std::unique_ptr<edm::PCaloHitContainer> hitsEB;
   std::unique_ptr<edm::PCaloHitContainer> hitsEE;
@@ -71,7 +70,7 @@ struct CalorimetryState {
   std::unique_ptr<GflashPiKShowerProfile> thePiKProfile;
   std::unique_ptr<GflashProtonShowerProfile> theProtonProfile;
   std::unique_ptr<GflashAntiProtonShowerProfile> theAntiProtonProfile;
-  std::unique_ptr<HFShowerLibrary> theHFShower; // delayed initialization because of EventSetup dependence
+  std::unique_ptr<HFShowerLibrary> theHFShower;  // delayed initialization because of EventSetup dependence
 };
 
 class CalorimetryManager {
@@ -84,26 +83,41 @@ public:
   ~CalorimetryManager();
 
   // Does the real job
-  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, CalorimetryState& state) const;
+  void reconstructTrack(const FSimTrack& myTrack,
+                        RandomEngineAndDistribution const*,
+                        CaloProductContainer& container,
+                        CalorimetryState& state) const;
 
   // Return the address of the Calorimeter
   CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_.get(); }
 
 private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
-  void EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, CalorimetryState& state) const;
+  void EMShowerSimulation(const FSimTrack& myTrack,
+                          RandomEngineAndDistribution const*,
+                          CaloProductContainer& container,
+                          CalorimetryState& state) const;
 
-  void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container) const;
+  void reconstructHCAL(const FSimTrack& myTrack,
+                       RandomEngineAndDistribution const*,
+                       CaloProductContainer& container) const;
 
-  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, CalorimetryState& state) const;
+  void MuonMipSimulation(const FSimTrack& myTrack,
+                         RandomEngineAndDistribution const*,
+                         CaloProductContainer& container,
+                         CalorimetryState& state) const;
 
   /// Hadronic Shower Simulation
-  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, CalorimetryState& state) const;
+  void HDShowerSimulation(const FSimTrack& myTrack,
+                          RandomEngineAndDistribution const*,
+                          CaloProductContainer& container,
+                          CalorimetryState& state) const;
 
   // Read the parameters
   void readParameters(const edm::ParameterSet& fastCalo);
 
-  void updateECAL(const CaloHitMap& hitMap, int onEcal, int trackID, CaloProductContainer& container, float corr = 1.0) const;
+  void updateECAL(
+      const CaloHitMap& hitMap, int onEcal, int trackID, CaloProductContainer& container, float corr = 1.0) const;
   void updateHCAL(const CaloHitMap& hitMap,
                   bool usedShowerLibrary,
                   int trackID,
