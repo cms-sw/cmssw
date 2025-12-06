@@ -184,7 +184,7 @@ void HTXSRivetProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& es
            iter++) {
         std::vector<std::string> lines = iter->lines();
         for (unsigned int iLine = 0; iLine < lines.size(); iLine++) {
-          std::string line = lines.at(iLine);
+          const std::string& line = lines.at(iLine);
           // POWHEG
           if (line.find("gg_H_quark-mass-effects") != std::string::npos) {
             edm::LogInfo("HTXSRivetProducer") << iLine << " " << line << std::endl;
