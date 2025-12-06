@@ -684,7 +684,7 @@ namespace l1tVertexFinder {
       float chi2dof = track.getTTTrackPtr()->chi2() / (2 * trk_nstub - 4);
 
       if (settings_->vx_DoPtComp()) {
-        float trk_consistency = track.getTTTrackPtr()->stubPtConsistency();
+        float trk_consistency = track.getTTTrackPtr()->chi2BendRed();
         if (trk_nstub == 4) {
           if (std::abs(track.eta()) < 2.2 && trk_consistency > 10)
             continue;

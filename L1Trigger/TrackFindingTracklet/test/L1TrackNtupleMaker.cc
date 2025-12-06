@@ -1118,7 +1118,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_trk_chi2 = iterL1Track->chi2();
       float tmp_trk_chi2rphi = iterL1Track->chi2XY();
       float tmp_trk_chi2rz = iterL1Track->chi2Z();
-      float tmp_trk_bendchi2 = iterL1Track->stubPtConsistency();
+      float tmp_trk_bendchi2 = iterL1Track->chi2BendRed();
       float tmp_trk_MVA1 = iterL1Track->trkMVA1();
 
       std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
@@ -1567,7 +1567,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
                                        << " eta = " << matchedTracks.at(it)->momentum().eta()
                                        << " phi = " << matchedTracks.at(it)->momentum().phi()
                                        << " chi2 = " << matchedTracks.at(it)->chi2()
-                                       << " consistency = " << matchedTracks.at(it)->stubPtConsistency()
+                                       << " consistency = " << matchedTracks.at(it)->chi2BendRed()
                                        << " z0 = " << matchedTracks.at(it)->z0()
                                        << " nstub = " << matchedTracks.at(it)->getStubRefs().size();
           if (tmp_trk_genuine)
@@ -1665,7 +1665,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       tmp_matchtrk_chi2 = matchedTracks.at(i_track)->chi2();
       tmp_matchtrk_chi2rphi = matchedTracks.at(i_track)->chi2XY();
       tmp_matchtrk_chi2rz = matchedTracks.at(i_track)->chi2Z();
-      tmp_matchtrk_bendchi2 = matchedTracks.at(i_track)->stubPtConsistency();
+      tmp_matchtrk_bendchi2 = matchedTracks.at(i_track)->chi2BendRed();
       tmp_matchtrk_MVA1 = matchedTracks.at(i_track)->trkMVA1();
       tmp_matchtrk_nstub = (int)matchedTracks.at(i_track)->getStubRefs().size();
       tmp_matchtrk_seed = (int)matchedTracks.at(i_track)->trackSeedType();
