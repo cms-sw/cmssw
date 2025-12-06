@@ -1,10 +1,12 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCell.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 
 #include <array>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 HGCalParameters::HGCalParameters(const std::string& nam) : name_(nam), nCells_(0), waferMaskMode_(0) {
 #ifdef EDM_ML_DEBUG
@@ -172,6 +174,59 @@ double HGCalParameters::scintRing(int indx, int irad) const {
     r = 0.5 * (radiusLayer_[scintType(indx + 1)][irad - 1] + radiusLayer_[scintType(indx + 1)][irad]);
   }
   return r;
+}
+
+bool HGCalParameters::waferExist(int layer, int waferU, int waferV) const {
+  int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+  auto ktr = waferInfoMap_.find(indx);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "waferExist:: I/P " << layer << ":" << waferU << ":" << waferV << " Exist "
+                                << (ktr != waferInfoMap_.end());
+#endif
+  return (ktr != waferInfoMap_.end());
+}
+
+bool HGCalParameters::waferIsHD(int layer, int waferU, int waferV) const {
+  int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+  auto ktr = waferInfoMap_.find(indx);
+  bool hd = (ktr != waferInfoMap_.end())
+                ? (((ktr->second).type == HGCalTypes::WaferHD120) || ((ktr->second).type == HGCalTypes::WaferHD200))
+                : false;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "waferIsHD:: I/P " << layer << ":" << waferU << ":" << waferV << " Exist "
+                                << (ktr != waferInfoMap_.end()) << " HD? " << (ktr->second).type << " : " << hd;
+#endif
+  return hd;
+}
+
+bool HGCalParameters::waferPartial(int layer, int waferU, int waferV) const {
+  int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+  auto ktr = waferInfoMap_.find(indx);
+  bool part = (ktr != waferInfoMap_.end()) ? ((ktr->second).part != HGCalTypes::WaferFull) : false;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "waferPartial:: I/P " << layer << ":" << waferU << ":" << waferV << " Exist "
+                                << (ktr != waferInfoMap_.end()) << " Partial " << (ktr->second).part << " : " << part;
+#endif
+  return part;
+}
+
+int HGCalParameters::waferPlacementIndex(int zside, int layer, int waferU, int waferV) const {
+  int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+  auto ktr = waferInfoMap_.find(indx);
+  int place(-1);
+  if (ktr != waferInfoMap_.end()) {
+    int layerType = (layerType_.empty()) ? HGCalTypes::WaferCenter : layerType_[layer - firstLayer_];
+    place = HGCalCell::cellPlacementIndex(zside, layerType, (ktr->second).orient);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "waferPlacementIndex:: I/P " << zside << ":" << layer << ":" << waferU << ":"
+                                  << waferV << " Exist " << (ktr != waferInfoMap_.end()) << " LayerType " << layerType
+                                  << " orient " << (ktr->second).orient << " Placement " << place;
+  } else {
+    edm::LogVerbatim("HGCalGeom") << "waferPlacementIndex:: I/P " << zside << ":" << layer << ":" << waferU << ":"
+                                  << waferV << " Exist " << (ktr != waferInfoMap_.end()) << " Placement " << place;
+#endif
+  }
+  return place;
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

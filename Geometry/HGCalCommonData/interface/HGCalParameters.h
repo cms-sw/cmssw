@@ -74,6 +74,7 @@ public:
   void fillTrForm(const hgtrform& mytr);
   hgtrform getTrForm(unsigned int k) const;
   void addTrForm(const CLHEP::Hep3Vector& h3v);
+  std::array<int, 4> getID(unsigned int k) const;
   void scaleTrForm(double);
   int scintCells(const int layer) const { return nPhiBinBH_[scintType(layer)]; }
   double scintCellSize(const int layer) const { return cellSize_[scintType(layer)]; }
@@ -84,7 +85,10 @@ public:
     return (scintFine(indx) ? ((irad >= iradMinBHFine_[indx]) && (irad <= (iradMaxBHFine_[indx] + 1)))
                             : ((irad >= iradMinBH_[indx]) && (irad <= (iradMaxBH_[indx] + 1))));
   }
-  std::array<int, 4> getID(unsigned int k) const;
+  bool waferExist(int layer, int waferU, int waferV) const;
+  bool waferIsHD(int layer, int waferU, int waferV) const;
+  bool waferPartial(int layer, int waferU, int waferV) const;
+  int waferPlacementIndex(int zside, int layer, int waferU, int waferV) const;
 
   std::string name_;
   int detectorType_ = 0;
