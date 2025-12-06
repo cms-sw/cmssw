@@ -168,6 +168,93 @@ def customizeHLTfor48921(process):
 
     return process
 
+def customizeHLTfor49436(process):
+
+    # Replace Ele Pixel Seeds Doublets/Triplets
+    replacements = {
+        "hltElePixelSeedsDoublets": ("hltElePixelHitDoublets"),
+        "hltElePixelSeedsDoubletsUnseeded": ("hltElePixelHitDoubletsUnseeded"),
+        "hltElePixelSeedsTriplets": ("hltElePixelHitTriplets"),
+        "hltElePixelSeedsTripletsUnseeded": ("hltElePixelHitTripletsUnseeded"),
+    }
+
+    for module_name, hitset in replacements.items():
+        if hasattr(process, module_name):
+            setattr(
+                process,
+                module_name,
+                cms.EDProducer(
+                    "FakeStateSeedCreatorFromRegionConsecutiveHitsEDProducer",
+                    seedingHitSets=cms.InputTag(hitset),
+                    SeedComparitorPSet=cms.PSet(
+                        ComponentName=cms.string("none")
+                    )
+                )
+            )
+
+    # Add new ElectronSeedFitter modules
+    fitter_configs = {
+        "hltEgammaFittedElectronPixelSeeds": "hltEgammaElectronPixelSeeds",
+        "hltEgammaFittedElectronPixelSeedsUnseeded": "hltEgammaElectronPixelSeedsUnseeded",
+        "hltEgammaFittedElectronPixelSeedsForBParkingUnseeded": "hltEgammaElectronPixelSeedsForBParkingUnseeded",
+    }
+
+    for mod_name, input_collection in fitter_configs.items():
+        setattr(
+            process,
+            mod_name,
+            cms.EDProducer(
+                "ElectronSeedFitter",
+                eleSeedCollection=cms.InputTag(input_collection),
+                propagator=cms.string("PropagatorWithMaterialParabolicMf"),
+                SeedMomentumForBOFF=cms.double(5.0),
+                OriginTransverseErrorMultiplier=cms.double(1.0),
+                MinOneOverPtError=cms.double(1.0),
+                TTRHBuilder=cms.string("hltESPTTRHBWithTrackAngle"),
+                magneticField=cms.string("ParabolicMf"),
+            )
+        )
+
+    # Update pixelSeedsProducer in 3 modules
+    pixel_match_updates = {
+        "hltEgammaPixelMatchVars": "hltEgammaFittedElectronPixelSeeds",
+        "hltEgammaPixelMatchVarsUnseeded": "hltEgammaFittedElectronPixelSeedsUnseeded",
+        "hltEgammaPixelMatchVarsForBParkingUnseeded": "hltEgammaFittedElectronPixelSeedsForBParkingUnseeded",
+    }
+
+    for module_name, new_seeds in pixel_match_updates.items():
+        if hasattr(process, module_name):
+            module = getattr(process, module_name)
+            if hasattr(module, "pixelSeedsProducer"):
+                module.pixelSeedsProducer = new_seeds
+
+    # Insert new modules into the 3 sequences
+    # Mapping of sequences -> (new module, pixelMatchVars module)
+    seq_updates = [
+        ("HLTElePixelMatchSequence",
+         "hltEgammaFittedElectronPixelSeeds",
+         "hltEgammaPixelMatchVars"),
+
+        ("HLTElePixelMatchUnseededSequence",
+         "hltEgammaFittedElectronPixelSeedsUnseeded",
+         "hltEgammaPixelMatchVarsUnseeded"),
+
+        ("HLTElePixelMatchUnseededSequenceForBParking",
+         "hltEgammaFittedElectronPixelSeedsForBParkingUnseeded",
+         "hltEgammaPixelMatchVarsForBParkingUnseeded"),
+    ]
+
+    for seq_name, new_mod, match_mod in seq_updates:
+        if hasattr(process, seq_name) and hasattr(process, new_mod) and hasattr(process, match_mod):
+            seq = getattr(process, seq_name)
+            new_module = getattr(process, new_mod)
+            match_module = getattr(process, match_mod)
+            # Insert the new module immediately before pixelMatchVars
+            seq.replace(match_module, new_module + match_module)
+
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -176,5 +263,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = customizeHLTfor48921(process)
+    process = customizeHLTfor49436(process)
 
     return process
