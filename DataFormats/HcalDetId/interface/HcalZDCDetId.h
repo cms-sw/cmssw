@@ -40,7 +40,7 @@ public:
   static constexpr int32_t kDepHAD = 4;
   static constexpr int32_t kDepLUM = 2;
   static constexpr int32_t kDepRPD = 16;
-  static constexpr int32_t kDepFSC = 16;
+  static constexpr int32_t kDepFSC = 6;
   static constexpr int32_t kDepRun1 = (kDepEM + kDepHAD + kDepLUM);
   static constexpr int32_t kDepTot1 = (kDepRun1 + kDepRPD);
   static constexpr int32_t kDepTot = (kDepTot1 + kDepFSC);
@@ -181,6 +181,26 @@ public:
                              ((se == LUM) && (dp <= kDepLUM)) || ((se == RPD) && (dp <= kDepRPD)) ||
                              ((se == FSC) && (dp <= kDepFSC))));
     return flag;
+  }
+
+  static inline int32_t fscChannel(int32_t stn, int32_t phi) {
+    // stn goes from 0..2 and phi 1..2 for stations 0,1 and 1...4 for station 2
+    const int32_t channels[8] = {6, 7, 0, 1, 2, 3, 4, 5};
+    int32_t chn =
+        ((stn < 0 || stn > 2 || phi < 1 || phi > 4) ? -1 : ((stn < 2 && phi > 2) ? -1 : channels[stn * 2 + phi - 1]));
+    return chn;
+  }
+
+  static inline int32_t fscStationFromChannel(int32_t chn) {
+    const int32_t stns[8] = {1, 1, 2, 2, 2, 2, 0, 0};
+    int stn = (chn < 0 || chn > 7) ? -1 : stns[chn];
+    return stn;
+  }
+
+  static inline int32_t fscPhiFromChannel(int32_t chn) {
+    const int32_t phis[8] = {1, 2, 1, 2, 3, 4, 1, 2};
+    int32_t phi = (chn < 0 || chn > 7) ? -1 : phis[chn];
+    return phi;
   }
 
 private:
