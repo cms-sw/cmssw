@@ -133,9 +133,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         using CopyT = cms::alpakatools::CopyToHost<TProduct>;
         this->registerTransformAsync(
             token,
-            [](edm::StreamID, TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
-              auto const& device = alpaka::getDev(deviceProduct.template metadata<EDMetadata>().queue());
-              detail::EDMetadataAcquireSentry sentry(device, std::move(holder));
+            [](edm::StreamID streamID, TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
+              //auto const& device = alpaka::getDev(deviceProduct.template metadata<EDMetadata>().queue());
+              detail::EDMetadataAcquireSentry sentry(streamID, std::move(holder));
               auto metadataPtr = sentry.metadata();
               constexpr bool tryReuseQueue = true;
               TProduct const& productOnDevice =
