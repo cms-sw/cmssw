@@ -9,8 +9,8 @@
  <class name="edm::Wrapper<long long>"/>
  <class name="edm::Wrapper<short>"/>
  <class name="edm::Wrapper<std::basic_string<char> >"/>
- <class name="edm::Wrapper<std::deque<int> >"/>
- <class name="edm::Wrapper<std::list<int> >"/>
+ <class name="edm::Wrapper<std::deque<int> >" rntupleStreamerMode="true"/>
+ <class name="edm::Wrapper<std::list<int> >" rntupleStreamerMode="true"/>
  <class name="edm::Wrapper<std::map<int,int> >"/>
  <class name="edm::Wrapper<std::map<std::basic_string<char>,bool> >"/>
  <class name="edm::Wrapper<std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > >"/>
