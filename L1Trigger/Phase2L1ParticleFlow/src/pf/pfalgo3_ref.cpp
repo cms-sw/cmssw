@@ -461,7 +461,7 @@ void l1ct::PFAlgo3Emulator::run(const PFInputRegion& in, OutputRegion& out) cons
   for (unsigned int ic = 0; ic < nCALO; ++ic) {
     if (calo_sumtk[ic] > 0) {
       dpt_t ptdiff = dpt_t(hadcalo_subem[ic].hwPt) - dpt_t(calo_sumtk[ic]);
-      pt2_t sigmamult = calo_sumtkErr2
+      const pt2_t& sigmamult = calo_sumtkErr2
           [ic];  // before we did (calo_sumtkErr2[ic] + (calo_sumtkErr2[ic] >> 1)); to multiply by 1.5 = sqrt(1.5)^2 ~ (1.2)^2
       if (debug_ && (hadcalo_subem[ic].hwPt > 0)) {
         dbgPrintf(

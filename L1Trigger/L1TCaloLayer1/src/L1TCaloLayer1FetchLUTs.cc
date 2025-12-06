@@ -27,15 +27,15 @@
 using namespace l1tcalo;
 
 bool L1TCaloLayer1FetchLUTs(
-    const L1TCaloLayer1FetchLUTsTokens &iTokens,
-    const edm::EventSetup &iSetup,
-    std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &eLUT,
-    std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &hLUT,
-    std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> > &hfLUT,
-    std::vector<unsigned long long int> &hcalFBLUT,
-    std::vector<unsigned int> &ePhiMap,
-    std::vector<unsigned int> &hPhiMap,
-    std::vector<unsigned int> &hfPhiMap,
+    const L1TCaloLayer1FetchLUTsTokens& iTokens,
+    const edm::EventSetup& iSetup,
+    std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> >& eLUT,
+    std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> >& hLUT,
+    std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> >& hfLUT,
+    std::vector<unsigned long long int>& hcalFBLUT,
+    std::vector<unsigned int>& ePhiMap,
+    std::vector<unsigned int>& hPhiMap,
+    std::vector<unsigned int>& hfPhiMap,
     bool useLSB,
     bool useCalib,
     bool useECALLUT,
@@ -44,7 +44,7 @@ bool L1TCaloLayer1FetchLUTs(
     bool useHCALFBLUT,
     int fwVersion) {
   int hfValid = 1;
-  const HcalTrigTowerGeometry &pG = iSetup.getData(iTokens.geom_);
+  const HcalTrigTowerGeometry& pG = iSetup.getData(iTokens.geom_);
   if (!pG.use1x1()) {
     edm::LogError("L1TCaloLayer1FetchLUTs")
         << "Using Stage2-Layer1 but HCAL Geometry has use1x1 = 0! HF will be suppressed.  Check Global Tag, etc.";
@@ -71,7 +71,7 @@ bool L1TCaloLayer1FetchLUTs(
   //   etBin = size of Real ET Bins vector
   //   phiBin = max(Real Phi Bins vector)
   //   So, index = phiBin*etBin*28+etBin*28+ieta
-  auto ecalScaleETBins = caloParams.layer1ECalScaleETBins();
+  const auto& ecalScaleETBins = caloParams.layer1ECalScaleETBins();
   auto ecalScalePhiBins = caloParams.layer1ECalScalePhiBins();
   if (ecalScalePhiBins.empty()) {
     // Backwards-compatibility (no phi binning)
@@ -81,14 +81,14 @@ bool L1TCaloLayer1FetchLUTs(
     return false;
   }
   size_t numEcalPhiBins = (*std::max_element(ecalScalePhiBins.begin(), ecalScalePhiBins.end())) + 1;
-  auto ecalSF = caloParams.layer1ECalScaleFactors();
-  auto ecalZSF = caloParams.layer1ECalZSFactors();
+  const auto& ecalSF = caloParams.layer1ECalScaleFactors();
+  const auto& ecalZSF = caloParams.layer1ECalZSFactors();
   if (ecalSF.size() != ecalScaleETBins.size() * numEcalPhiBins * 28) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1ECalScaleFactors().size() != "
                                                "caloParams.layer1ECalScaleETBins().size()*numEcalPhiBins*28 !!";
     return false;
   }
-  auto hcalScaleETBins = caloParams.layer1HCalScaleETBins();
+  const auto& hcalScaleETBins = caloParams.layer1HCalScaleETBins();
   auto hcalScalePhiBins = caloParams.layer1HCalScalePhiBins();
   if (hcalScalePhiBins.empty()) {
     hcalScalePhiBins.resize(36, 0);
@@ -97,8 +97,8 @@ bool L1TCaloLayer1FetchLUTs(
     return false;
   }
   size_t numHcalPhiBins = (*std::max_element(hcalScalePhiBins.begin(), hcalScalePhiBins.end())) + 1;
-  auto hcalSF = caloParams.layer1HCalScaleFactors();
-  auto hcalZSF = caloParams.layer1HCalZSFactors();
+  const auto& hcalSF = caloParams.layer1HCalScaleFactors();
+  const auto& hcalZSF = caloParams.layer1HCalZSFactors();
   if (hcalSF.size() != hcalScaleETBins.size() * numHcalPhiBins * 28) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalScaleFactors().size() != "
                                                "caloParams.layer1HCalScaleETBins().size()*numHcalPhiBins*28 !!";
@@ -110,7 +110,7 @@ bool L1TCaloLayer1FetchLUTs(
   //   etBin = size of Real ET Bins vector
   //   phiBin = max(Real Phi Bins vector)
   //   So, index = phiBin*etBin*12+etBin*12+ieta
-  auto hfScaleETBins = caloParams.layer1HFScaleETBins();
+  const auto& hfScaleETBins = caloParams.layer1HFScaleETBins();
   auto hfScalePhiBins = caloParams.layer1HFScalePhiBins();
   if (hfScalePhiBins.empty()) {
     hfScalePhiBins.resize(36, 0);
@@ -119,7 +119,7 @@ bool L1TCaloLayer1FetchLUTs(
     return false;
   }
   size_t numHFPhiBins = (*std::max_element(hfScalePhiBins.begin(), hfScalePhiBins.end())) + 1;
-  auto hfSF = caloParams.layer1HFScaleFactors();
+  const auto& hfSF = caloParams.layer1HFScaleFactors();
   if (hfSF.size() != hfScaleETBins.size() * numHFPhiBins * 12) {
     edm::LogError("L1TCaloLayer1FetchLUTs")
         << "caloParams.layer1HFScaleFactors().size() != caloParams.layer1HFScaleETBins().size()*numHFPhiBins*12 !!";
@@ -136,8 +136,8 @@ bool L1TCaloLayer1FetchLUTs(
   // HCAL FB LUT will be a 1*28 array:
   //   ieta = 28 eta scale factors (1 .. 28)
   //   So, index = ieta
-  auto fbLUTUpper = caloParams.layer1HCalFBLUTUpper();
-  auto fbLUTLower = caloParams.layer1HCalFBLUTLower();
+  const auto& fbLUTUpper = caloParams.layer1HCalFBLUTUpper();
+  const auto& fbLUTLower = caloParams.layer1HCalFBLUTLower();
   // Only check for HCAL FB LUT if useHCALFBLUT = true
   if (useHCALFBLUT) {
     if (fbLUTUpper.size() != nCalEtaBins) {

@@ -32,7 +32,7 @@ namespace l1t {
     namespace emtf {
 
       int MEBlockUnpacker::checkFormat(const Block& block) {
-        auto payload = block.payload();
+        const auto& payload = block.payload();
         int errors = 0;
 
         // Check the number of 16-bit words
@@ -151,7 +151,7 @@ namespace l1t {
         // Get the payload for this block, made up of 16-bit words (0xffff)
         // Format defined in MTF7Payload::getBlock() in src/Block.cc
         // payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
-        auto payload = block.payload();
+        const auto& payload = block.payload();
 
         // Assign payload to 16-bit words
         uint16_t MEa = payload[0];

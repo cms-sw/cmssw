@@ -73,7 +73,7 @@ L1GtfeExtWord::~L1GtfeExtWord() {
 bool L1GtfeExtWord::operator==(const L1GtfeExtWord& result) const {
   // base class
 
-  const L1GtfeWord gtfeResult = result;
+  const L1GtfeWord& gtfeResult = result;
   const L1GtfeWord gtfeThis = *this;
 
   if (gtfeThis != gtfeResult) {

@@ -789,7 +789,7 @@ void L1NNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eSe
 
   for (int clNxMIdx = 0; clNxMIdx < Nclusters_CE; clNxMIdx++) {
     // Indexing of cl3ds is the same as the one of clNxMs
-    InputHGCluster HGClu = HGClusters[clNxMIdx];
+    const InputHGCluster& HGClu = HGClusters[clNxMIdx];
 
     // Fill inputs for Tensorflow inference
     for (int eta = 0; eta < IEta_dim; ++eta) {
