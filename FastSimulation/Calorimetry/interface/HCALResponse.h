@@ -44,6 +44,7 @@ public:
 
   // correct HF response for SL
   void correctHF(double e, int type);
+  void clearHF();
   vec1& getCorrHFem() { return corrHFem; }
   vec1& getCorrHFhad() { return corrHFhad; }
 

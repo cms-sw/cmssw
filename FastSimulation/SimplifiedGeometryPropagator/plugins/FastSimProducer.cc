@@ -466,31 +466,31 @@ FSimTrack FastSimProducer::createFSimTrack(fastsim::Particle* particle,
     // Save the hit
     if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::PRESHOWER1) {
       if (!myFSimTrack.onLayer1()) {
-        myFSimTrack.setLayer1(PP, success);
+        myFSimTrack.setLayer1(PP, abs(success));
       }
     }
 
     if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::PRESHOWER2) {
       if (!myFSimTrack.onLayer2()) {
-        myFSimTrack.setLayer2(PP, success);
+        myFSimTrack.setLayer2(PP, abs(success));
       }
     }
 
     if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::ECAL) {
       if (!myFSimTrack.onEcal()) {
-        myFSimTrack.setEcal(PP, success);
+        myFSimTrack.setEcal(PP, abs(success));
       }
     }
 
     if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::HCAL) {
       if (!myFSimTrack.onHcal()) {
-        myFSimTrack.setHcal(PP, success);
+        myFSimTrack.setHcal(PP, abs(success));
       }
     }
 
     if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL) {
       if (!myFSimTrack.onVFcal()) {
-        myFSimTrack.setVFcal(PP, success);
+        myFSimTrack.setVFcal(PP, abs(success));
       }
     }
 
