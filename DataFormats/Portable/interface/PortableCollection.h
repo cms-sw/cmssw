@@ -1,13 +1,15 @@
 #ifndef DataFormats_Portable_interface_PortableCollection_h
 #define DataFormats_Portable_interface_PortableCollection_h
 
+#include <type_traits>
+
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
 
 namespace traits {
 

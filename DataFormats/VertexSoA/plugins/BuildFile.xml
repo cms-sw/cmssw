@@ -1,0 +1,5 @@
+<library file="serialisation.cc" name="DataFormatsVertexSoASerialisation">
+  <use name="DataFormats/VertexSoA"/>
+  <use name="HeterogeneousCore/SerialisationCore"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

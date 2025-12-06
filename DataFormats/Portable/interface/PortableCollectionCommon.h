@@ -1,9 +1,9 @@
 #ifndef DataFormats_Portable_interface_PortableCollectionCommon_h
 #define DataFormats_Portable_interface_PortableCollectionCommon_h
 
+#include <array>
 #include <cstddef>
 #include <type_traits>
-#include <array>
 
 namespace portablecollection {
 

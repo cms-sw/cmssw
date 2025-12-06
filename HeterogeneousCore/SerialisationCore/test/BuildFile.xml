@@ -1,0 +1,10 @@
+<bin name="TestHeterogeneousCoreSerialisationCore" file="test_catch2_*.cc">
+  <use name="catch2"/>
+  <use name="DataFormats/Common"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="HeterogeneousCore/SerialisationCore"/>
+</bin>
+
+<test name="TestHeterogeneousCoreSerialisationCoreGenericCloner" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/SerialisationCore/test/testGenericCloner_cfg.py"/>
+<test name="TestHeterogeneousCoreSerialisationCoreGenericClonerHost" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/SerialisationCore/test/testGenericClonerHost_cfg.py"/>
