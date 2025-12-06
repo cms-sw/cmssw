@@ -26,7 +26,7 @@ ExternalDecayDriver::ExternalDecayDriver(const ParameterSet& pset, edm::Consumes
   std::vector<std::string> extGenNames = pset.getParameter<std::vector<std::string> >("parameterSets");
 
   for (unsigned int ip = 0; ip < extGenNames.size(); ++ip) {
-    std::string curSet = extGenNames[ip];
+    const std::string& curSet = extGenNames[ip];
     if (curSet == "EvtGen") {
       fEvtGenInterface = std::unique_ptr<EvtGenInterfaceBase>(
           EvtGenFactory::get()->create("EvtGen", pset.getUntrackedParameter<ParameterSet>(curSet)));
