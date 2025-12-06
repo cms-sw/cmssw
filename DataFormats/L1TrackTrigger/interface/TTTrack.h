@@ -235,7 +235,7 @@ TTTrack<T>::TTTrack(double aRinv,
   theTrkMVA1_ = trkMVA1;
   theTrkMVA2_ = trkMVA2;
   theTrkMVA3_ = trkMVA3;
-  theStubPtConsistency_ = 0.0;  // must be set externally = bend chi2/dof
+  theStubPtConsistency_ = 0.0;  // must be set externally
   theNumFitPars_ = nPar;
   theHitPattern_ = aHitPattern;
   theBField_ = aBfield;
