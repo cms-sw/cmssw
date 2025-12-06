@@ -151,7 +151,10 @@ template class TritonCpuShmResource<tc::InferRequestedOutput>;
 #ifdef TRITON_ENABLE_GPU
 template <typename IO>
 TritonGpuShmResource<IO>::TritonGpuShmResource(TritonData<IO>* data, const std::string& name, size_t size)
-    : TritonMemResource<IO>(data, name, size), sizeOrig_(size), deviceId_(0), handle_(std::make_shared<cudaIpcMemHandle_t>()) {
+    : TritonMemResource<IO>(data, name, size),
+      sizeOrig_(size),
+      deviceId_(0),
+      handle_(std::make_shared<cudaIpcMemHandle_t>()) {
   //cudaMalloc of size zero succeeds, but leaves addr as nullptr -> IPC failure
   this->size_ = std::max<size_t>(this->size_, 1);
   //todo: get server device id somehow?
@@ -183,8 +186,8 @@ template <>
 void TritonInputGpuShmResource::copyInput(const void* values, size_t offset, unsigned entry) {
   if (sizeOrig_ > 0)
     cudaCheck(cudaMemcpy(addr_ + offset, values, data_->entries_[entry].byteSizePerBatch_, cudaMemcpyHostToDevice),
-              data_->name_ + " toServer(): unable to memcpy " + std::to_string(data_->entries_[entry].byteSizePerBatch_) +
-                  " bytes to GPU");
+              data_->name_ + " toServer(): unable to memcpy " +
+                  std::to_string(data_->entries_[entry].byteSizePerBatch_) + " bytes to GPU");
 }
 
 template <>
