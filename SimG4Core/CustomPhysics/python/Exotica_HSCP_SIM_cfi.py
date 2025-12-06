@@ -4,12 +4,18 @@ def customise(process):
 
     FLAVOR = process.generator.hscpFlavor.value()
     PROCESS_FILE = process.generator.processFile.value()
-    PARTICLE_FILE = process.generator.particleFile.value()
     USE_REGGE = process.generator.useregge.value()
 
     process.load("SimG4Core.CustomPhysics.CustomPhysics_cfi")
-    process.customPhysicsSetup.particlesDef = PARTICLE_FILE
     process.customPhysicsSetup.reggeModel = USE_REGGE
+
+    # Read in the SLHA file to get the particles definition
+    if hasattr(process.generator, 'SLHAFile'):
+        process.customPhysicsSetup.particlesDef = process.generator.SLHAFile.value()
+
+    # Passing pythia settings to the Rhadron decayer is optional
+    if hasattr(process.generator, 'RhadronPythiaDecayerCommandFile'):
+        process.customPhysicsSetup.RhadronPythiaDecayerCommandFile = process.generator.RhadronPythiaDecayerCommandFile.value()
 
     if hasattr(process,'g4SimHits'):
         # defined watches
@@ -42,5 +48,8 @@ def customise(process):
             process.customPhysicsSetup
         )	
 
-        return (process)
+        # Add Rhadron decay tracking
+        process.RHDecayTracer = cms.EDProducer("RHDecayTracer")
+        process.simulation_step *= process.RHDecayTracer
 
+        return (process)
