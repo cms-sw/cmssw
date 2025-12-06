@@ -70,8 +70,7 @@ HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
       tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})},
       dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
-  edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetector_.size() << " with inputs from "
-                              << fileName_;
+  edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetector_ << " with inputs from " << fileName_;
 
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("Geometry/HGCalGeometry/data/" + fileName_);
