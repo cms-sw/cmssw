@@ -22,7 +22,7 @@ namespace hcal {
           : recoParamView_{recoView}, pulseShapeView_{psView} {};
 
       ALPAKA_FN_ACC PulseShapeConstElement getPulseShape(uint32_t const hashedId) const {
-        auto const recoPulseShapeId = recoParamView_.ids()[hashedId];
+        auto const recoPulseShapeId = recoParamView_[hashedId].ids();
         return pulseShapeView_[recoPulseShapeId];
       }
 
