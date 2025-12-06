@@ -2,6 +2,10 @@
 
 using namespace std;
 
+// TO FIX: Constructor both initializes cfg params & does random number generation to determine
+// which modules are killed. The former should be done once per run, whereas the latter needs
+// doing every event. Currently this entire code is called every event. Restructure!
+
 StubKiller::StubKiller()
     : killScenario_(0),
       trackerTopology_(nullptr),
