@@ -5,7 +5,6 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/CopyToDeviceCache.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 
