@@ -185,6 +185,7 @@ public:
   inline bool v17OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8CalibCell); }
   inline bool v18OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8FineCell); }
   inline unsigned int volumes() const { return hgpar_->moduleLayR_.size(); }
+  inline bool waferExist(int layer, int waferU, int waferV) const { return hgpar_->waferExist(layer, waferU, waferV); }
   int waferFromCopy(int copy) const;
   void waferFromPosition(const double x, const double y, int& wafer, int& icell, int& celltyp) const;
   void waferFromPosition(const double x,
@@ -229,9 +230,16 @@ public:
   bool waferFullInLayer(int wafer, int lay, bool reco) const;
   inline int waferCount(const int type) const { return ((type == 0) ? waferMax_[2] : waferMax_[3]); }
   HGCalParameters::waferInfo waferInfo(int lay, int waferU, int waferV) const;
+  inline bool waferIsHD(int layer, int waferU, int waferV) const { return hgpar_->waferIsHD(layer, waferU, waferV); }
   inline int waferMax() const { return waferMax_[1]; }
   inline int waferMin() const { return waferMax_[0]; }
   std::pair<double, double> waferParameters(bool reco) const;
+  inline bool waferPartial(int layer, int waferU, int waferV) const {
+    return hgpar_->waferPartial(layer, waferU, waferV);
+  }
+  inline int waferPlacementIndex(int zside, int layer, int waferU, int waferV) const {
+    return hgpar_->waferPlacementIndex(zside, layer, waferU, waferV);
+  }
   std::pair<double, double> waferPosition(int wafer, bool reco) const;
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug) const;
   std::pair<double, double> waferPositionWithCshift(
