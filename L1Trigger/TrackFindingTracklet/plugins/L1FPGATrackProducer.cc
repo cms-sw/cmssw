@@ -732,9 +732,10 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
 
-    // pt consistency
-    aTrack.setStubPtConsistency(
-        StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo, settings_.bfield(), settings_.nHelixPar()));
+    // stub bend pt consistency chi2/ndf
+    float chi2BendRed =
+        StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo, settings_.bfield(), settings_.nHelixPar());
+    aTrack.setChi2BendRed(chi2BendRed);
 
     // set track word before TQ MVA calculated which uses track word variables
     aTrack.setTrackWordBits();
