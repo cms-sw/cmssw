@@ -14,7 +14,7 @@
 
 #include "DataFormats/Math/interface/Point3D.h"
 
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -38,7 +38,7 @@ namespace reco {
      \date   February 2007
   */
 
-  class PFCandidate : public CompositeCandidate {
+  class PFCandidate : public LeafCandidate {
   public:
     /// particle types
     enum ParticleType {
