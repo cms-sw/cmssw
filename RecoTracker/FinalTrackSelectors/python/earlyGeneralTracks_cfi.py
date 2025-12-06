@@ -136,11 +136,11 @@ def _extend_pixelLess(x):
 
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 (trackingPhase2PU140 & trackingLST).toModify(earlyGeneralTracks,
-                         TrackProducers = ['highPtTripletStepLSTpTracks', 'highPtTripletStepLSTT5Tracks'],
+                         TrackProducers = ['highPtTripletStepLSTpTracks', 'highPtTripletStepLSTT4T5Tracks'],
                          hasSelector = [1,0],
                          indivShareFrac = [0.1,0.1],
                          selectedTrackQuals = ['highPtTripletStepSelector:highPtTripletStep',
-                                               'highPtTripletStepSelectorLSTT5:highPtTripletStepLSTT5'
+                                               'highPtTripletStepSelectorLSTT4T5:highPtTripletStepLSTT4T5'
                          ],
                          setsToMerge = {0: dict(tLists = [0,1])}
 )

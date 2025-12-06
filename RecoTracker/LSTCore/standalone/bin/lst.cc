@@ -77,6 +77,7 @@ int main(int argc, char **argv) {
       "pls", "Write pLS branches in output ntuple.")("pt3", "Write pT3 branches in output ntuple.")(
       "pt5", "Write pT5 branches in output ntuple.")("occ", "Write occupancy branches in output ntuple.")(
       "t5dnn", "Write T5 DNN branches in output ntuple.")("t3dnn", "Write T3 DNN branches in output ntuple.")(
+      "t4", "Write T4 branches in output ntuple.")("t4dnn", "Write T4 DNN branches in output ntuple.")(
       "allobj", "Write all object branches in output ntuple.")(
       "J,jet", "Accounts for specific jet branches in input root file for testing")(
       "sim", "Write extra sim branches in output ntuple");
@@ -290,6 +291,10 @@ int main(int argc, char **argv) {
   ana.pt5_branches = result["pt5"].as<bool>() || result["allobj"].as<bool>();
 
   //_______________________________________________________________________________
+  // --t4
+  ana.t4_branches = result["t4"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
   // --occ
   ana.occ_branches = result["occ"].as<bool>() || result["allobj"].as<bool>();
 
@@ -300,6 +305,10 @@ int main(int argc, char **argv) {
   //_______________________________________________________________________________
   // --t3dnn
   ana.t3dnn_branches = result["t3dnn"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t4dnn
+  ana.t4dnn_branches = result["t4dnn"].as<bool>() || result["allobj"].as<bool>();
 
   //_______________________________________________________________________________
   // --jet
@@ -455,6 +464,7 @@ void run_lst() {
     float timing_T3;
     float timing_T5;
     float timing_pLS;
+    float timing_T4;
     float timing_pT5;
     float timing_pT3;
     float timing_TC;
@@ -479,7 +489,7 @@ void run_lst() {
       timing_T5 = runQuintuplet(events.at(omp_get_thread_num()));
 
       timing_pLS = runPixelLineSegment(events.at(omp_get_thread_num()), ana.no_pls_dupclean);
-
+      timing_T4 = runQuadruplet(events.at(omp_get_thread_num()));
       timing_pT5 = runPixelQuintuplet(events.at(omp_get_thread_num()));
       timing_pT3 = runpT3(events.at(omp_get_thread_num()));
       timing_TC = runTrackCandidate(events.at(omp_get_thread_num()), ana.no_pls_dupclean, ana.tc_pls_triplets);
@@ -525,6 +535,7 @@ void run_lst() {
                                     timing_T3,
                                     timing_T5,
                                     timing_pLS,
+                                    timing_T4,
                                     timing_pT5,
                                     timing_pT3,
                                     timing_TC,

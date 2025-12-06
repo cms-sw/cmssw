@@ -18,7 +18,7 @@ namespace lst {
   enum PixelType : int8_t { kInvalid = -1, kHighPt = 0, kLowPtPosCurv = 1, kLowPtNegCurv = 2 };
 
   // Named types for LST objects
-  enum LSTObjType : int8_t { T5 = 4, pT3 = 5, pT5 = 7, pLS = 8 };
+  enum LSTObjType : int8_t { T5 = 4, pT3 = 5, pT5 = 7, pLS = 8, T4 = 9 };
 
   constexpr unsigned int max_blocks = 80;
   constexpr unsigned int max_connected_modules = 40;
@@ -69,6 +69,12 @@ namespace lst {
   };
   struct Params_pT3 {
     static constexpr int kLayers = 5, kHits = 10;
+    using ArrayU8xLayers = edm::StdArray<uint8_t, kLayers>;
+    using ArrayU16xLayers = edm::StdArray<uint16_t, kLayers>;
+    using ArrayUxHits = edm::StdArray<unsigned int, kHits>;
+  };
+  struct Params_T4 {
+    static constexpr int kLayers = 4, kHits = 8;
     using ArrayU8xLayers = edm::StdArray<uint8_t, kLayers>;
     using ArrayU16xLayers = edm::StdArray<uint16_t, kLayers>;
     using ArrayUxHits = edm::StdArray<unsigned int, kHits>;

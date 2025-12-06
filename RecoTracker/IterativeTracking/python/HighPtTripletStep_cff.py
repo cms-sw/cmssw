@@ -287,16 +287,16 @@ phase2_timing_layer.toModify(highPtTripletStepTracks, TrajectoryInEvent = True)
 highPtTripletStepLSTpTracks = highPtTripletStepTracks.clone(
      src           = 'highPtTripletStepTrackCandidates:pTCsLST'
 )
-highPtTripletStepLSTT5Tracks = highPtTripletStepTracks.clone(
-     src           = 'highPtTripletStepTrackCandidates:t5TCsLST'
+highPtTripletStepLSTT4T5Tracks = highPtTripletStepTracks.clone(
+     src           = 'highPtTripletStepTrackCandidates:t4t5TCsLST'
 )
 _highPtTripletStepTracks_LST = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers     = ['highPtTripletStepLSTpTracks',
-                          'highPtTripletStepLSTT5Tracks'],
+                          'highPtTripletStepLSTT4T5Tracks'],
     hasSelector        = [1,0],
     indivShareFrac     = [0.1,0.1],
     selectedTrackQuals = ['highPtTripletStepSelector:highPtTripletStep',
-                          'highPtTripletStepSelectorLSTT5:highPtTripletStepLSTT5'],
+                          'highPtTripletStepSelectorLSTT4T5:highPtTripletStepLSTT4T5'],
     copyExtras         = True,
     copyMVA            = False,
     setsToMerge        = [cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )]
@@ -382,21 +382,21 @@ vectorHits.toModify(highPtTripletStepSelector.trackSelectors[2], minNumberLayers
 
 (trackingPhase2PU140 & trackingLST).toModify(highPtTripletStepSelector, src = 'highPtTripletStepLSTpTracks')
 # Passthrough selector to satisfy the TrackListMerger requirement for selector values
-highPtTripletStepSelectorLSTT5 = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src = 'highPtTripletStepLSTT5Tracks',
+highPtTripletStepSelectorLSTT4T5 = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src = 'highPtTripletStepLSTT4T5Tracks',
     trackSelectors = [
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'highPtTripletStepLSTT5Loose',
+            name = 'highPtTripletStepLSTT4T5Loose',
             minHitsToBypassChecks = 0
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'highPtTripletStepLSTT5Tight',
-            preFilterName = 'highPtTripletStepLSTT5Loose',
+            name = 'highPtTripletStepLSTT4T5Tight',
+            preFilterName = 'highPtTripletStepLSTT4T5Loose',
             minHitsToBypassChecks = 0
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'highPtTripletStepLSTT5',
-            preFilterName = 'highPtTripletStepLSTT5Tight',
+            name = 'highPtTripletStepLSTT4T5',
+            preFilterName = 'highPtTripletStepLSTT4T5Tight',
             minHitsToBypassChecks = 0
             ),
     ] #end of vpset
@@ -430,7 +430,7 @@ from RecoTracker.LST.lstInputProducer_cfi import lstInputProducer
 from RecoTracker.LST.lstProducerTask_cff import *
 
 _HighPtTripletStepTask_LST.add(siPhase2RecHits, lstInitialStepSeedTracks, lstHighPtTripletStepSeedTracks, lstInputProducer,
-                               lstProducerTask, highPtTripletStepLSTpTracks, highPtTripletStepLSTT5Tracks, highPtTripletStepSelectorLSTT5)
+                               lstProducerTask, highPtTripletStepLSTpTracks, highPtTripletStepLSTT4T5Tracks, highPtTripletStepSelectorLSTT4T5)
 (trackingPhase2PU140 & trackingLST).toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_LST)
 
 from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
@@ -445,23 +445,23 @@ highPtTripletStepTrackCandidatesSerialSync = highPtTripletStepTrackCandidates.cl
 )
 highPtTripletStepLSTpTracksSerialSync = highPtTripletStepLSTpTracks.clone(
     src    = 'highPtTripletStepTrackCandidatesSerialSync:pTCsLST')
-highPtTripletStepLSTT5TracksSerialSync = highPtTripletStepLSTT5Tracks.clone(
-    src    = 'highPtTripletStepTrackCandidatesSerialSync:t5TCsLST')
+highPtTripletStepLSTT4T5TracksSerialSync = highPtTripletStepLSTT4T5Tracks.clone(
+    src    = 'highPtTripletStepTrackCandidatesSerialSync:t4t5TCsLST')
 highPtTripletStepSelectorSerialSync = highPtTripletStepSelector.clone()
 (trackingPhase2PU140 & trackingLST).toModify(highPtTripletStepSelectorSerialSync, src = "highPtTripletStepLSTpTracksSerialSync" )
-highPtTripletStepSelectorLSTT5SerialSync = highPtTripletStepSelectorLSTT5.clone(src = "highPtTripletStepLSTT5TracksSerialSync")
+highPtTripletStepSelectorLSTT4T5SerialSync = highPtTripletStepSelectorLSTT4T5.clone(src = "highPtTripletStepLSTT4T5TracksSerialSync")
 highPtTripletStepTracksSerialSync = highPtTripletStepTracks.clone()
 (trackingPhase2PU140 & trackingLST).toModify(highPtTripletStepTracksSerialSync,
     TrackProducers     = ['highPtTripletStepLSTpTracksSerialSync',
-                          'highPtTripletStepLSTT5TracksSerialSync'],
+                          'highPtTripletStepLSTT4T5TracksSerialSync'],
     selectedTrackQuals = ['highPtTripletStepSelectorSerialSync:highPtTripletStep',
-                          'highPtTripletStepSelectorLSTT5SerialSync:highPtTripletStepLSTT5'],
+                          'highPtTripletStepSelectorLSTT4T5SerialSync:highPtTripletStepLSTT4T5'],
 )
 _HighPtTripletStepTask_LSTSerialSync = HighPtTripletStepTask.copy()
 _HighPtTripletStepTask_LSTSerialSync.add(siPhase2RecHits, lstInitialStepSeedTracks, lstHighPtTripletStepSeedTracks, lstInputProducerSerialSync,
                                          lstProducerSerialSync, highPtTripletStepTrackCandidatesSerialSync,
-                                         highPtTripletStepLSTpTracksSerialSync, highPtTripletStepLSTT5TracksSerialSync,
-                                         highPtTripletStepSelectorSerialSync, highPtTripletStepSelectorLSTT5SerialSync,
+                                         highPtTripletStepLSTpTracksSerialSync, highPtTripletStepLSTT4T5TracksSerialSync,
+                                         highPtTripletStepSelectorSerialSync, highPtTripletStepSelectorLSTT4T5SerialSync,
                                          highPtTripletStepTracksSerialSync
 )
 HighPtTripletStepTaskSerialSync = cms.Task()

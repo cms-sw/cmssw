@@ -56,7 +56,7 @@ _HLTInitialStepSequenceSingleIterPatatrackLSTSeeding = cms.Sequence(
 
 (singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceSingleIterPatatrackLSTSeeding)
 
-from ..modules.hltInitialStepTracksT5TCLST_cfi import *
+from ..modules.hltInitialStepTracksT4T5TCLST_cfi import *
 _HLTInitialStepSequenceNGTScouting = cms.Sequence(
     hltInitialStepSeeds
     +hltInitialStepSeedTracksLST
@@ -64,7 +64,7 @@ _HLTInitialStepSequenceNGTScouting = cms.Sequence(
     +hltInputLST
     +hltLST
     +hltInitialStepTrackCandidates
-    +hltInitialStepTracksT5TCLST
+    +hltInitialStepTracksT4T5TCLST
 )
 
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting

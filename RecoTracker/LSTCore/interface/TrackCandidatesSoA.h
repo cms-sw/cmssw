@@ -26,7 +26,8 @@ namespace lst {
                       SOA_SCALAR(unsigned int, nTrackCandidatespT3),
                       SOA_SCALAR(unsigned int, nTrackCandidatespT5),
                       SOA_SCALAR(unsigned int, nTrackCandidatespLS),
-                      SOA_SCALAR(unsigned int, nTrackCandidatesT5))
+                      SOA_SCALAR(unsigned int, nTrackCandidatesT5),
+                      SOA_SCALAR(unsigned int, nTrackCandidatesT4))
 
   using TrackCandidatesBaseSoA = TrackCandidatesBaseSoALayout<>;
   using TrackCandidatesExtendedSoA = TrackCandidatesExtendedSoALayout<>;

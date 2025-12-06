@@ -19,6 +19,8 @@ void createOutputBranches() {
     createLineSegmentBranches();
   if (ana.t3_branches)
     createTripletBranches();
+  if (ana.t4_branches)
+    createQuadrupletBranches();
   if (ana.t5_branches)
     createQuintupletBranches();
   if (ana.pls_branches)
@@ -36,6 +38,8 @@ void createOutputBranches() {
     createT5DNNBranches();
   if (ana.t3dnn_branches)
     createT3DNNBranches();
+  if (ana.t4dnn_branches)
+    createT4DNNBranches();
 }
 
 //________________________________________________________________________________________________________________________________
@@ -51,12 +55,16 @@ void fillOutputBranches(LSTEvent* event) {
     setT3DNNBranches(event, matchfrac);
   if (ana.t5dnn_branches)
     setT5DNNBranches(event);
+  if (ana.t4dnn_branches)
+    setT4DNNBranches(event);
 
   auto const md_idx_map = (ana.md_branches ? setMiniDoubletBranches(event, n_accepted_simtrk, matchfrac)
                                            : std::map<unsigned int, unsigned int>());
   auto const ls_idx_map = (ana.ls_branches ? setLineSegmentBranches(event, n_accepted_simtrk, matchfrac, md_idx_map)
                                            : std::map<unsigned int, unsigned int>());
   auto const t3_idx_map = (ana.t3_branches ? setTripletBranches(event, n_accepted_simtrk, matchfrac, ls_idx_map)
+                                           : std::map<unsigned int, unsigned int>());
+  auto const t4_idx_map = (ana.t4_branches ? setQuadrupletBranches(event, n_accepted_simtrk, matchfrac, t3_idx_map)
                                            : std::map<unsigned int, unsigned int>());
   auto const t5_idx_map = (ana.t5_branches ? setQuintupletBranches(event, n_accepted_simtrk, matchfrac, t3_idx_map)
                                            : std::map<unsigned int, unsigned int>());
@@ -69,7 +77,8 @@ void fillOutputBranches(LSTEvent* event) {
       (ana.pt5_branches ? setPixelQuintupletBranches(event, n_accepted_simtrk, matchfrac, pls_idx_map, t5_idx_map)
                         : std::map<unsigned int, unsigned int>());
 
-  setTrackCandidateBranches(event, n_accepted_simtrk, t5_idx_map, pls_idx_map, pt3_idx_map, pt5_idx_map, matchfrac);
+  setTrackCandidateBranches(
+      event, n_accepted_simtrk, t5_idx_map, pls_idx_map, pt3_idx_map, pt5_idx_map, t4_idx_map, matchfrac);
 
   // Now actually fill the ttree
   ana.tx->fill();
@@ -143,6 +152,42 @@ void createT3DNNBranches() {
   // Additional metadata branches
   ana.tx->createBranch<std::vector<int>>("t3_layer_binary");
   ana.tx->createBranch<std::vector<std::vector<int>>>("t3_matched_simIdx");
+}
+
+//________________________________________________________________________________________________________________________________
+void createT4DNNBranches() {
+  // Common branches
+  ana.tx->createBranch<std::vector<int>>("t4_t3_idx0");
+  ana.tx->createBranch<std::vector<int>>("t4_t3_idx1");
+  ana.tx->createBranch<std::vector<int>>("t4_tc_idx");
+  ana.tx->createBranch<std::vector<int>>("t4_partOfTC");
+  ana.tx->createBranch<std::vector<float>>("t4_t3_pt");
+  ana.tx->createBranch<std::vector<float>>("t4_t3_eta");
+  ana.tx->createBranch<std::vector<float>>("t4_t3_phi");
+  ana.tx->createBranch<std::vector<float>>("t4_t3_fakeScore1");
+  ana.tx->createBranch<std::vector<float>>("t4_t3_promptScore1");
+  ana.tx->createBranch<std::vector<float>>("t4_t3_displacedScore1");
+  ana.tx->createBranch<std::vector<float>>("t4_t3_fakeScore2");
+  ana.tx->createBranch<std::vector<float>>("t4_t3_promptScore2");
+  ana.tx->createBranch<std::vector<float>>("t4_t3_displacedScore2");
+  ana.tx->createBranch<std::vector<float>>("t4_regressionRadius");
+  ana.tx->createBranch<std::vector<float>>("t4_nonAnchorRegressionRadius");
+
+  // Hit-specific branches
+  std::vector<std::string> hitIndices = {"0", "1", "2", "3", "4", "5"};
+  std::vector<std::string> hitProperties = {
+      "r", "x", "y", "z", "eta", "phi", "detId", "layer", "moduleType", "moduleIdx"};
+
+  for (const auto& idx : hitIndices) {
+    for (const auto& prop : hitProperties) {
+      std::string branchName = "t4_t3_" + idx + "_" + prop;
+      if (prop == "detId" || prop == "layer" || prop == "moduleType" || prop == "moduleIdx") {
+        ana.tx->createBranch<std::vector<int>>(branchName);
+      } else {
+        ana.tx->createBranch<std::vector<float>>(branchName);
+      }
+    }
+  }
 }
 
 //________________________________________________________________________________________________________________________________
@@ -251,6 +296,12 @@ void createSimTrackContainerBranches() {
     // list of match fraction for each match (> 0%) to pt5_* container
     ana.tx->createBranch<std::vector<std::vector<float>>>("sim_pt5IdxAllFrac");
   }
+  if (ana.t4_branches) {
+    // list of idx to matches (> 0%) to t4_* container
+    ana.tx->createBranch<std::vector<std::vector<int>>>("sim_t4IdxAll");
+    // list of match fraction for each match (> 0%) to t4_* container
+    ana.tx->createBranch<std::vector<std::vector<float>>>("sim_t4IdxAllFrac");
+  }
 }
 
 //________________________________________________________________________________________________________________________________
@@ -262,7 +313,7 @@ void createTrackCandidateBranches() {
   ana.tx->createBranch<std::vector<float>>("tc_pt");         // pt
   ana.tx->createBranch<std::vector<float>>("tc_eta");        // eta
   ana.tx->createBranch<std::vector<float>>("tc_phi");        // phi
-  ana.tx->createBranch<std::vector<int>>("tc_type");         // type = 7 (pT5), 5 (pT3), 4 (T5), 8 (pLS)
+  ana.tx->createBranch<std::vector<int>>("tc_type");         // type = 7 (pT5), 5 (pT3), 4 (T5), 8 (pLS), 9 (T4)
   ana.tx->createBranch<std::vector<int>>("tc_isFake");       // 1 if tc is fake 0 other if not
   ana.tx->createBranch<std::vector<int>>("tc_isDuplicate");  // 1 if tc is duplicate 0 other if not
   ana.tx->createBranch<std::vector<int>>("tc_simIdx");  // idx of best matched (highest nhit and > 75%) simulated track
@@ -282,6 +333,9 @@ void createTrackCandidateBranches() {
   if (ana.pls_branches)
     ana.tx->createBranch<std::vector<int>>(
         "tc_plsIdx");  // index to the pls_* if it is the said type, if not set to -999
+  if (ana.t4_branches)
+    ana.tx->createBranch<std::vector<int>>(
+        "tc_t4Idx");  // index to the t4_*  if it is the said type, if not set to -999
 }
 
 //________________________________________________________________________________________________________________________________
@@ -372,6 +426,40 @@ void createTripletBranches() {
   ana.tx->createBranch<std::vector<std::vector<int>>>("t3_simIdxAll");
   // list of idx of all matched (> 0%) simulated track
   ana.tx->createBranch<std::vector<std::vector<float>>>("t3_simIdxAllFrac");
+}
+
+//________________________________________________________________________________________________________________________________
+void createQuadrupletBranches() {
+  // Quadruplets (i.e. Four mini-doublets, a.k.a. T4)
+  //
+  //  The container will hold per entry a quadruplet built by LST in the event.
+  //
+  ana.tx->createBranch<std::vector<int>>("sim_T4_matched");
+  ana.tx->createBranch<std::vector<int>>("t4_isFake");
+  ana.tx->createBranch<std::vector<int>>("t4_isDuplicate");
+  ana.tx->createBranch<std::vector<int>>("t4_moduleType_binary");
+  ana.tx->createBranch<std::vector<int>>("t4_layer_binary");
+  ana.tx->createBranch<std::vector<float>>("t4_innerRadius");
+  ana.tx->createBranch<std::vector<float>>("t4_outerRadius");
+  ana.tx->createBranch<std::vector<float>>("t4_pt");
+  ana.tx->createBranch<std::vector<float>>("t4_eta");
+  ana.tx->createBranch<std::vector<float>>("t4_phi");
+  ana.tx->createBranch<std::vector<int>>("t4_isDup");
+  ana.tx->createBranch<std::vector<float>>("t4_rzChiSquared");
+  ana.tx->createBranch<std::vector<float>>("t4_pMatched");
+  ana.tx->createBranch<std::vector<float>>("t4_sim_vxy");
+  ana.tx->createBranch<std::vector<float>>("t4_sim_vz");
+  ana.tx->createBranch<std::vector<std::vector<int>>>("t4_matched_simIdx");
+  ana.tx->createBranch<std::vector<float>>("t4_score_rphisum");
+  ana.tx->createBranch<std::vector<float>>("t4_promptScore");
+  ana.tx->createBranch<std::vector<float>>("t4_displacedScore");
+  ana.tx->createBranch<std::vector<float>>("t4_fakeScore");
+
+  ana.tx->createBranch<std::vector<int>>("t4_simIdx");  // idx of best matched (highest nhit and > 75%) simulated track
+  // list of idx of all matched (> 0%) simulated track
+  ana.tx->createBranch<std::vector<std::vector<int>>>("t4_simIdxAll");
+  // list of idx of all matched (> 0%) simulated track
+  ana.tx->createBranch<std::vector<std::vector<float>>>("t4_simIdxAllFrac");
 }
 
 //________________________________________________________________________________________________________________________________
@@ -517,6 +605,7 @@ void createOccupancyBranches() {
   ana.tx->createBranch<std::vector<int>>("t3_occupancies");
   ana.tx->createBranch<int>("tc_occupancies");
   ana.tx->createBranch<std::vector<int>>("t5_occupancies");
+  ana.tx->createBranch<std::vector<int>>("t4_occupancies");
   ana.tx->createBranch<int>("pT3_occupancies");
   ana.tx->createBranch<int>("pT5_occupancies");
 }
@@ -1254,6 +1343,173 @@ std::map<unsigned int, unsigned int> setTripletBranches(LSTEvent* event,
 }
 
 //________________________________________________________________________________________________________________________________
+std::map<unsigned int, unsigned int> setQuadrupletBranches(LSTEvent* event,
+                                                           unsigned int n_accepted_simtrk,
+                                                           float matchfrac,
+                                                           std::map<unsigned int, unsigned int> const& t3_idx_map) {
+  //--------------------------------------------
+  //
+  //
+  // Quadruplet
+  //
+  //
+  //--------------------------------------------
+
+  auto const& trk_sim_pt = trk.getVF("sim_pt");
+  auto const& trk_sim_parentVtxIdx = trk.getVI("sim_parentVtxIdx");
+  auto const& trk_simvtx_x = trk.getVF("simvtx_x");
+  auto const& trk_simvtx_y = trk.getVF("simvtx_y");
+  auto const& trk_simvtx_z = trk.getVF("simvtx_z");
+  auto const& trk_simhit_simTrkIdx = trk.getVI("simhit_simTrkIdx");
+  auto const& trk_ph2_simHitIdx = trk.getVVI("ph2_simHitIdx");
+  auto const& trk_pix_simHitIdx = trk.getVVI("pix_simHitIdx");
+
+  auto const& hitsBase = event->getInput<HitsBaseSoA>();
+  auto const& ranges = event->getRanges();
+  auto const& modules = event->getModules<ModulesSoA>();
+  auto const& quadruplets = event->getQuadruplets<QuadrupletsSoA>();
+  auto const& quadrupletOccupancies = event->getQuadruplets<QuadrupletsOccupancySoA>();
+
+  int n_total_simtrk = trk_sim_pt.size();
+  std::vector<int> sim_t4_matched(n_accepted_simtrk);
+  std::vector<std::vector<int>> sim_t4IdxAll(n_total_simtrk);
+  std::vector<std::vector<float>> sim_t4IdxAllFrac(n_total_simtrk);
+  std::vector<std::vector<int>> t4_simIdxAll;
+  std::vector<std::vector<float>> t4_simIdxAllFrac;
+  // Then obtain the lower module index
+  unsigned int t4_idx = 0;  // global t4 index that will be used to keep track of t4 being outputted to the ntuple
+  // map to keep track of (GPU t4Idx) -> (t4_idx in ntuple output)
+  std::map<unsigned int, unsigned int> t4_idx_map;
+
+  for (unsigned int idx = 0; idx < modules.nLowerModules(); ++idx) {
+    unsigned int nmods = modules.nLowerModules();
+    for (unsigned int iT4 = 0; iT4 < quadrupletOccupancies.nQuadruplets()[idx]; iT4++) {
+      unsigned int t4Idx = ranges.quadrupletModuleIndices()[idx] + iT4;
+      t4_idx_map[t4Idx] = t4_idx;
+      std::vector<unsigned int> hit_idx, hit_type;
+      std::tie(hit_idx, hit_type) = getHitIdxsAndHitTypesFromT4(event, t4Idx);
+      std::vector<int> simidx;
+      std::vector<float> simidxfrac;
+      float percent_matched;
+      std::tie(simidx, simidxfrac) = matchedSimTrkIdxsAndFracs(hit_idx,
+                                                               hit_type,
+                                                               trk_simhit_simTrkIdx,
+                                                               trk_ph2_simHitIdx,
+                                                               trk_pix_simHitIdx,
+                                                               false,
+                                                               matchfrac,
+                                                               &percent_matched);
+      std::vector<unsigned int> t3Idxs = getT3sFromT4(event, t4Idx);
+
+      float pt = __H2F(quadruplets.pt()[t4Idx]);
+      float eta = __H2F(quadruplets.eta()[t4Idx]);
+      float phi = __H2F(quadruplets.phi()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4_pt", pt);
+      ana.tx->pushbackToBranch<float>("t4_eta", eta);
+      ana.tx->pushbackToBranch<float>("t4_phi", phi);
+      ana.tx->pushbackToBranch<float>("t4_innerRadius", __H2F(quadruplets.innerRadius()[t4Idx]));
+      ana.tx->pushbackToBranch<float>("t4_outerRadius", __H2F(quadruplets.outerRadius()[t4Idx]));
+      ana.tx->pushbackToBranch<float>("t4_pMatched", percent_matched);
+      ana.tx->pushbackToBranch<float>("t4_score_rphisum", __H2F(quadruplets.score_rphisum()[t4Idx]));
+      ana.tx->pushbackToBranch<float>("t4_rzChiSquared", quadruplets.rzChiSquared()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4_promptScore", quadruplets.promptScore()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4_displacedScore", quadruplets.displacedScore()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4_fakeScore", quadruplets.fakeScore()[t4Idx]);
+
+      int layer_binary = 0;
+      int moduleType_binary = 0;
+      std::vector<int> layers;
+      std::vector<unsigned int> module_idx = getModuleIdxsFromT4(event, t4Idx);
+
+      for (size_t i = 0; i < module_idx.size(); i += 2) {
+        layer_binary |= (1 << (modules.layers()[module_idx[i]] + 6 * (modules.subdets()[module_idx[i]] == 4)));
+        moduleType_binary |= (modules.moduleType()[module_idx[i]] << i);
+        layers.push_back(modules.layers()[module_idx[i]] + 6 * (modules.subdets()[module_idx[i]] == 4) +
+                         5 * (modules.subdets()[module_idx[i]] == 4 && modules.moduleType()[module_idx[i]] == 1));
+      }
+      ana.tx->pushbackToBranch<int>("t4_layer_binary", layer_binary);
+      ana.tx->pushbackToBranch<int>("t4_moduleType_binary", moduleType_binary);
+
+      bool isfake = true;
+      for (size_t isim = 0; isim < simidx.size(); ++isim) {
+        if (simidxfrac[isim] > matchfrac) {
+          isfake = false;
+          break;
+        }
+      }
+      ana.tx->pushbackToBranch<int>("t4_isFake", isfake);
+      t4_simIdxAll.push_back(simidx);
+      t4_simIdxAllFrac.push_back(simidxfrac);
+      for (size_t is = 0; is < simidx.size(); ++is) {
+        int sim_idx = simidx.at(is);
+        if (sim_idx < n_accepted_simtrk) {
+          sim_t4_matched.at(sim_idx) += 1;
+        }
+        float sim_idx_frac = simidxfrac.at(is);
+        if (sim_idx < n_total_simtrk) {
+          sim_t4IdxAll.at(sim_idx).push_back(t4_idx);
+          sim_t4IdxAllFrac.at(sim_idx).push_back(sim_idx_frac);
+        }
+      }
+      int t4_simIdx = -999;
+      float t4_simIdxBestFrac = 0;
+      for (size_t isim = 0; isim < simidx.size(); ++isim) {
+        int thisidx = simidx[isim];
+        float thisfrac = simidxfrac[isim];
+        if (thisfrac > t4_simIdxBestFrac and thisfrac > matchfrac) {
+          t4_simIdxBestFrac = thisfrac;
+          t4_simIdx = thisidx;
+        }
+      }
+      ana.tx->pushbackToBranch<int>("t4_simIdx", t4_simIdx);
+      // count global
+      t4_idx++;
+
+      // Avoid fakes when calculating the vertex distance, set default to 0.0.
+      if (simidx.size() == 0) {
+        ana.tx->pushbackToBranch<float>("t4_sim_vxy", 0.0);
+        ana.tx->pushbackToBranch<float>("t4_sim_vz", 0.0);
+      } else {
+        int vtxidx = trk_sim_parentVtxIdx[simidx[0]];
+        float vtx_x = trk_simvtx_x[vtxidx];
+        float vtx_y = trk_simvtx_y[vtxidx];
+        float vtx_z = trk_simvtx_z[vtxidx];
+
+        ana.tx->pushbackToBranch<float>("t4_sim_vxy", sqrt(vtx_x * vtx_x + vtx_y * vtx_y));
+        ana.tx->pushbackToBranch<float>("t4_sim_vz", vtx_z);
+      }
+    }
+  }
+  ana.tx->setBranch<std::vector<std::vector<int>>>("t4_simIdxAll", t4_simIdxAll);
+  ana.tx->setBranch<std::vector<std::vector<float>>>("t4_simIdxAllFrac", t4_simIdxAllFrac);
+  std::vector<std::vector<int>> sim_t4IdxAll_to_write;
+  std::vector<std::vector<float>> sim_t4IdxAllFrac_to_write;
+  std::copy(sim_t4IdxAll.begin(), sim_t4IdxAll.begin() + n_accepted_simtrk, std::back_inserter(sim_t4IdxAll_to_write));
+  std::copy(sim_t4IdxAllFrac.begin(),
+            sim_t4IdxAllFrac.begin() + n_accepted_simtrk,
+            std::back_inserter(sim_t4IdxAllFrac_to_write));
+  ana.tx->setBranch<std::vector<std::vector<int>>>("sim_t4IdxAll", sim_t4IdxAll_to_write);
+  ana.tx->setBranch<std::vector<std::vector<float>>>("sim_t4IdxAllFrac", sim_t4IdxAllFrac_to_write);
+
+  std::vector<int> t4_isDuplicate(t4_simIdxAll.size());
+  for (unsigned int i = 0; i < t4_simIdxAll.size(); i++) {
+    bool isDuplicate = false;
+    for (unsigned int isim = 0; isim < t4_simIdxAll[i].size(); isim++) {
+      int simidx = t4_simIdxAll[i][isim];
+      if (simidx < n_accepted_simtrk) {
+        if (sim_t4_matched[simidx] > 1) {
+          isDuplicate = true;
+        }
+      }
+    }
+    t4_isDuplicate[i] = isDuplicate;
+  }
+  ana.tx->setBranch<std::vector<int>>("t4_isDuplicate", t4_isDuplicate);
+
+  return t4_idx_map;
+}
+
+//________________________________________________________________________________________________________________________________
 std::map<unsigned int, unsigned int> setQuintupletBranches(LSTEvent* event,
                                                            unsigned int n_accepted_simtrk,
                                                            float matchfrac,
@@ -1893,6 +2149,7 @@ void setTrackCandidateBranches(LSTEvent* event,
                                std::map<unsigned int, unsigned int> pls_idx_map,
                                std::map<unsigned int, unsigned int> pt3_idx_map,
                                std::map<unsigned int, unsigned int> pt5_idx_map,
+                               std::map<unsigned int, unsigned int> t4_idx_map,
                                float matchfrac) {
   //--------------------------------------------
   //
@@ -1964,6 +2221,8 @@ void setTrackCandidateBranches(LSTEvent* event,
         ana.tx->pushbackToBranch<int>("tc_t5Idx", -999);
       if (ana.pls_branches)
         ana.tx->pushbackToBranch<int>("tc_plsIdx", -999);
+      if (ana.t4_branches)
+        ana.tx->pushbackToBranch<int>("tc_t4Idx", -999);
     } else if (type == LSTObjType::pT3) {
       if (ana.pt5_branches)
         ana.tx->pushbackToBranch<int>("tc_pt5Idx", -999);
@@ -1975,6 +2234,8 @@ void setTrackCandidateBranches(LSTEvent* event,
         ana.tx->pushbackToBranch<int>("tc_t5Idx", -999);
       if (ana.pls_branches)
         ana.tx->pushbackToBranch<int>("tc_plsIdx", -999);
+      if (ana.t4_branches)
+        ana.tx->pushbackToBranch<int>("tc_t4Idx", -999);
     } else if (type == LSTObjType::T5) {
       if (ana.pt5_branches)
         ana.tx->pushbackToBranch<int>("tc_pt5Idx", -999);
@@ -1985,6 +2246,8 @@ void setTrackCandidateBranches(LSTEvent* event,
             "tc_t5Idx", (ana.t5_branches ? t5_idx_map[trackCandidatesExtended.directObjectIndices()[tc_idx]] : -999));
       if (ana.pls_branches)
         ana.tx->pushbackToBranch<int>("tc_plsIdx", -999);
+      if (ana.t4_branches)
+        ana.tx->pushbackToBranch<int>("tc_t4Idx", -999);
     } else if (type == LSTObjType::pLS) {
       if (ana.pt5_branches)
         ana.tx->pushbackToBranch<int>("tc_pt5Idx", -999);
@@ -1998,6 +2261,20 @@ void setTrackCandidateBranches(LSTEvent* event,
             (ana.pls_branches ? pls_idx_map[ranges.segmentModuleIndices()[modules.nLowerModules()] +
                                             trackCandidatesExtended.directObjectIndices()[tc_idx]]
                               : -999));
+      if (ana.t4_branches)
+        ana.tx->pushbackToBranch<int>("tc_t4Idx", -999);
+    } else if (type == LSTObjType::T4) {
+      if (ana.pt5_branches)
+        ana.tx->pushbackToBranch<int>("tc_pt5Idx", -999);
+      if (ana.pt3_branches)
+        ana.tx->pushbackToBranch<int>("tc_pt3Idx", -999);
+      if (ana.t5_branches)
+        ana.tx->pushbackToBranch<int>("tc_t5Idx", -999);
+      if (ana.pls_branches)
+        ana.tx->pushbackToBranch<int>("tc_plsIdx", -999);
+      if (ana.t4_branches)
+        ana.tx->pushbackToBranch<int>(
+            "tc_t4Idx", (ana.t4_branches ? t4_idx_map[trackCandidatesExtended.directObjectIndices()[tc_idx]] : -999));
     }
 
     ana.tx->pushbackToBranch<int>("tc_isFake", isFake);
@@ -2110,6 +2387,7 @@ void setOccupancyBranches(LSTEvent* event) {
   auto segments = event->getSegments<SegmentsOccupancySoA>();
   auto triplets = event->getTriplets<TripletsOccupancySoA>();
   auto quintuplets = event->getQuintuplets<QuintupletsOccupancySoA>();
+  auto quadruplets = event->getQuadruplets<QuadrupletsOccupancySoA>();
   auto pixelQuintuplets = event->getPixelQuintuplets();
   auto pixelTriplets = event->getPixelTriplets();
   auto trackCandidatesBase = event->getTrackCandidatesBase();
@@ -2127,6 +2405,7 @@ void setOccupancyBranches(LSTEvent* event) {
   std::vector<int> segmentOccupancy;
   std::vector<int> mdOccupancy;
   std::vector<int> quintupletOccupancy;
+  std::vector<int> quadrupletOccupancy;
 
   for (unsigned int lowerIdx = 0; lowerIdx <= modules.nLowerModules(); lowerIdx++) {
     //layer = 0, subdet = 0 => pixel module
@@ -2144,6 +2423,7 @@ void setOccupancyBranches(LSTEvent* event) {
 
     if (lowerIdx < modules.nLowerModules()) {
       quintupletOccupancy.push_back(quintuplets.totOccupancyQuintuplets()[lowerIdx]);
+      quadrupletOccupancy.push_back(quadruplets.totOccupancyQuadruplets()[lowerIdx]);
       tripletOccupancy.push_back(triplets.totOccupancyTriplets()[lowerIdx]);
     }
   }
@@ -2162,6 +2442,7 @@ void setOccupancyBranches(LSTEvent* event) {
   ana.tx->setBranch<int>("tc_occupancies", trackCandidatesBase.nTrackCandidates());
   ana.tx->setBranch<int>("pT3_occupancies", pixelTriplets.totOccupancyPixelTriplets());
   ana.tx->setBranch<std::vector<int>>("t5_occupancies", quintupletOccupancy);
+  ana.tx->setBranch<std::vector<int>>("t4_occupancies", quadrupletOccupancy);
   ana.tx->setBranch<int>("pT5_occupancies", pixelQuintuplets.totOccupancyPixelQuintuplets());
 }
 
@@ -2259,6 +2540,63 @@ void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
   // Angles
   ana.tx->pushbackToBranch<float>("t5_t3_eta", hitObjects[2].eta());
   ana.tx->pushbackToBranch<float>("t5_t3_phi", hitObjects[0].phi());
+}
+
+//________________________________________________________________________________________________________________________________
+void fillT4DNNBranches(LSTEvent* event, unsigned int iT3) {
+  auto hitsBase = event->getInput<HitsBaseSoA>();
+  auto hitsExtended = event->getHits<HitsExtendedSoA>();
+  auto modules = event->getModules<ModulesSoA>();
+
+  std::vector<unsigned int> hitIdx = getHitsFromT3(event, iT3);
+  std::vector<lst_math::Hit> hitObjects(hitIdx.size());
+
+  auto const& trk_ph2_subdet = trk.getVUS("ph2_subdet");
+  auto const& trk_ph2_layer = trk.getVUS("ph2_layer");
+  auto const& trk_ph2_detId = trk.getVU("ph2_detId");
+
+  for (int i = 0; i < hitIdx.size(); ++i) {
+    unsigned int hit = hitIdx[i];
+    float x = hitsBase.xs()[hit];
+    float y = hitsBase.ys()[hit];
+    float z = hitsBase.zs()[hit];
+    hitObjects[i] = lst_math::Hit(x, y, z);
+
+    std::string idx = std::to_string(i);
+    ana.tx->pushbackToBranch<float>("t4_t3_" + idx + "_r", sqrt(x * x + y * y));
+    ana.tx->pushbackToBranch<float>("t4_t3_" + idx + "_x", x);
+    ana.tx->pushbackToBranch<float>("t4_t3_" + idx + "_y", y);
+    ana.tx->pushbackToBranch<float>("t4_t3_" + idx + "_z", z);
+    ana.tx->pushbackToBranch<float>("t4_t3_" + idx + "_eta", hitObjects[i].eta());
+    ana.tx->pushbackToBranch<float>("t4_t3_" + idx + "_phi", hitObjects[i].phi());
+
+    int subdet = trk_ph2_subdet[hitsBase.idxs()[hit]];
+    int is_endcap = subdet == 4;
+    int layer = trk_ph2_layer[hitsBase.idxs()[hit]] + 6 * is_endcap;
+    int detId = trk_ph2_detId[hitsBase.idxs()[hit]];
+    unsigned int module = hitsExtended.moduleIndices()[hit];
+
+    ana.tx->pushbackToBranch<int>("t4_t3_" + idx + "_detId", detId);
+    ana.tx->pushbackToBranch<int>("t4_t3_" + idx + "_layer", layer);
+    ana.tx->pushbackToBranch<int>("t4_t3_" + idx + "_moduleType", modules.moduleType()[module]);
+    ana.tx->pushbackToBranch<int>("t4_t3_" + idx + "_moduleIdx", module);
+  }
+
+  float radius;
+  auto const& devHost = cms::alpakatools::host();
+  std::tie(radius, std::ignore, std::ignore) = computeRadiusFromThreeAnchorHits(devHost,
+                                                                                hitObjects[0].x(),
+                                                                                hitObjects[0].y(),
+                                                                                hitObjects[1].x(),
+                                                                                hitObjects[1].y(),
+                                                                                hitObjects[2].x(),
+                                                                                hitObjects[2].y());
+
+  ana.tx->pushbackToBranch<float>("t4_t3_pt", k2Rinv1GeVf * 2 * radius);
+
+  // Angles
+  ana.tx->pushbackToBranch<float>("t4_t3_eta", hitObjects[2].eta());
+  ana.tx->pushbackToBranch<float>("t4_t3_phi", hitObjects[0].phi());
 }
 
 //________________________________________________________________________________________________________________________________
@@ -2401,6 +2739,70 @@ void setT5DNNBranches(LSTEvent* event) {
 }
 
 //________________________________________________________________________________________________________________________________
+void setT4DNNBranches(LSTEvent* event) {
+  auto tripletsOcc = event->getTriplets<TripletsOccupancySoA>();
+  auto tripletsSoA = event->getTriplets<TripletsSoA>();
+  auto modules = event->getModules<ModulesSoA>();
+  auto ranges = event->getRanges();
+  auto const quadrupletsOcc = event->getQuadruplets<QuadrupletsOccupancySoA>();
+  auto const quadruplets = event->getQuadruplets<QuadrupletsSoA>();
+  auto trackCandidatesBase = event->getTrackCandidatesBase();
+  auto trackCandidatesExtended = event->getTrackCandidatesExtended();
+
+  std::unordered_set<unsigned int> allT3s;
+  std::unordered_map<unsigned int, unsigned int> t3_index_map;
+
+  for (unsigned int idx = 0; idx < modules.nLowerModules(); ++idx) {
+    for (unsigned int jdx = 0; jdx < tripletsOcc.nTriplets()[idx]; ++jdx) {
+      unsigned int t3Idx = ranges.tripletModuleIndices()[idx] + jdx;
+      if (allT3s.insert(t3Idx).second) {
+        t3_index_map[t3Idx] = allT3s.size() - 1;
+        fillT4DNNBranches(event, t3Idx);
+      }
+    }
+  }
+
+  std::unordered_map<unsigned int, unsigned int> t4_tc_index_map;
+  std::unordered_set<unsigned int> t4s_used_in_tc;
+
+  for (unsigned int idx = 0; idx < trackCandidatesBase.nTrackCandidates(); idx++) {
+    if (trackCandidatesBase.trackCandidateType()[idx] == LSTObjType::T4) {
+      unsigned int objIdx = trackCandidatesExtended.directObjectIndices()[idx];
+      t4s_used_in_tc.insert(objIdx);
+      t4_tc_index_map[objIdx] = idx;
+    }
+  }
+
+  for (unsigned int idx = 0; idx < modules.nLowerModules(); ++idx) {
+    for (unsigned int jdx = 0; jdx < quadrupletsOcc.nQuadruplets()[idx]; ++jdx) {
+      unsigned int t4Idx = ranges.quadrupletModuleIndices()[idx] + jdx;
+      std::vector<unsigned int> t3sIdx = getT3sFromT4(event, t4Idx);
+
+      ana.tx->pushbackToBranch<int>("t4_t3_idx0", t3_index_map[t3sIdx[0]]);
+      ana.tx->pushbackToBranch<int>("t4_t3_idx1", t3_index_map[t3sIdx[1]]);
+
+      ana.tx->pushbackToBranch<float>("t4_t3_fakeScore1", tripletsSoA.fakeScore()[t3sIdx[0]]);
+      ana.tx->pushbackToBranch<float>("t4_t3_promptScore1", tripletsSoA.promptScore()[t3sIdx[0]]);
+      ana.tx->pushbackToBranch<float>("t4_t3_displacedScore1", tripletsSoA.displacedScore()[t3sIdx[0]]);
+      ana.tx->pushbackToBranch<float>("t4_t3_fakeScore2", tripletsSoA.fakeScore()[t3sIdx[1]]);
+      ana.tx->pushbackToBranch<float>("t4_t3_promptScore2", tripletsSoA.promptScore()[t3sIdx[1]]);
+      ana.tx->pushbackToBranch<float>("t4_t3_displacedScore2", tripletsSoA.displacedScore()[t3sIdx[1]]);
+
+      ana.tx->pushbackToBranch<float>("t4_regressionRadius", quadruplets.regressionRadius()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4_nonAnchorRegressionRadius", quadruplets.nonAnchorRegressionRadius()[t4Idx]);
+
+      if (t4s_used_in_tc.find(t4Idx) != t4s_used_in_tc.end()) {
+        ana.tx->pushbackToBranch<int>("t4_partOfTC", 1);
+        ana.tx->pushbackToBranch<int>("t4_tc_idx", t4_tc_index_map[t4Idx]);
+      } else {
+        ana.tx->pushbackToBranch<int>("t4_partOfTC", 0);
+        ana.tx->pushbackToBranch<int>("t4_tc_idx", -999);
+      }
+    }
+  }
+}
+
+//________________________________________________________________________________________________________________________________
 std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(
     LSTEvent* event,
     unsigned int idx,
@@ -2427,6 +2829,9 @@ std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(
       break;
     case LSTObjType::T5:
       std::tie(pt, eta, phi, hit_idx, hit_type) = parseT5(event, idx, trk_ph2_x, trk_ph2_y, trk_ph2_z);
+      break;
+    case LSTObjType::T4:
+      std::tie(pt, eta, phi, hit_idx, hit_type) = parseT4(event, idx, trk_ph2_x, trk_ph2_y, trk_ph2_z);
       break;
     case LSTObjType::pLS:
       std::tie(pt, eta, phi, hit_idx, hit_type) = parsepLS(event, idx);
@@ -2468,6 +2873,9 @@ std::tuple<int, float, float, float, int, std::vector<int>, std::vector<float>> 
       break;
     case LSTObjType::T5:
       std::tie(pt, eta, phi, hit_idx, hit_type) = parseT5(event, idx, trk_ph2_x, trk_ph2_y, trk_ph2_z);
+      break;
+    case LSTObjType::T4:
+      std::tie(pt, eta, phi, hit_idx, hit_type) = parseT4(event, idx, trk_ph2_x, trk_ph2_y, trk_ph2_z);
       break;
     case LSTObjType::pLS:
       std::tie(pt, eta, phi, hit_idx, hit_type) = parsepLS(event, idx);
@@ -2665,6 +3073,44 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
 
   std::vector<unsigned int> hit_idx = getHitIdxsFromT5(event, T5);
   std::vector<unsigned int> hit_type = getHitTypesFromT5(event, T5);
+
+  return {pt, eta, phi, hit_idx, hit_type};
+}
+
+//________________________________________________________________________________________________________________________________
+std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parseT4(
+    LSTEvent* event,
+    unsigned int idx,
+    std::vector<float> const& trk_ph2_x,
+    std::vector<float> const& trk_ph2_y,
+    std::vector<float> const& trk_ph2_z) {
+  auto const trackCandidatesExtended = event->getTrackCandidatesExtended();
+  auto const quadruplets = event->getQuadruplets<QuadrupletsSoA>();
+  unsigned int t4 = trackCandidatesExtended.directObjectIndices()[idx];
+  std::vector<unsigned int> hits = getHitsFromT4(event, t4);
+
+  //
+  // pictorial representation of a T4
+  //
+  // inner tracker        outer tracker
+  // -------------  --------------------------
+  //                01    23    45    67    (anchor hit of a minidoublet is always the first of the pair)
+  //  (none)        oo -- oo -- oo -- oo    T4
+  unsigned int Hit_0 = hits[0];
+  unsigned int Hit_2 = hits[2];
+  unsigned int Hit_6 = hits[6];
+
+  // T4 radius is average of the inner and outer radius
+  const float pt = (quadruplets.innerRadius()[t4] + quadruplets.outerRadius()[t4]) * k2Rinv1GeVf;
+
+  // T4 eta and phi are computed using outer and innermost hits
+  lst_math::Hit hitA(trk_ph2_x[Hit_0], trk_ph2_y[Hit_0], trk_ph2_z[Hit_0]);
+  lst_math::Hit hitB(trk_ph2_x[Hit_6], trk_ph2_y[Hit_6], trk_ph2_z[Hit_6]);
+  const float phi = hitA.phi();
+  const float eta = hitB.eta();
+
+  std::vector<unsigned int> hit_idx = getHitIdxsFromT4(event, t4);
+  std::vector<unsigned int> hit_type = getHitTypesFromT4(event, t4);
 
   return {pt, eta, phi, hit_idx, hit_type};
 }

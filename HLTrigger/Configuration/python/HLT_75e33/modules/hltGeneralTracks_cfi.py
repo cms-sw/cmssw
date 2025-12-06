@@ -45,10 +45,10 @@ _hltGeneralTracksSingleIterPatatrack = hltGeneralTracks.clone(
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 from ..modules.hltPhase2PixelTracks_cfi import *
 _hltGeneralTracksNGTScoutingLST = hltGeneralTracks.clone(
-            TrackProducers = ["hltPhase2PixelTracks", "hltInitialStepTracksT5TCLST"],
+            TrackProducers = ["hltPhase2PixelTracks", "hltInitialStepTracksT4T5TCLST"],
             hasSelector = [0,0],
             indivShareFrac = [0.1,0.1],
-            selectedTrackQuals = ["hltPhase2PixelTracks", "hltInitialStepTracksT5TCLST"],
+            selectedTrackQuals = ["hltPhase2PixelTracks", "hltInitialStepTracksT4T5TCLST"],
             setsToMerge = {0: dict(pQual=True, tLists=[0,1])}
 )
 
