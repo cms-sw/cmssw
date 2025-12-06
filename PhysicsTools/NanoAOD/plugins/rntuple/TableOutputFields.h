@@ -2,8 +2,9 @@
 #define PhysicsTools_NanoAOD_TableOutputFields_h
 
 #include "RNTupleFieldPtr.h"
+#include "RNTupleCollection.h"
 
-#include "FWCore/Framework/interface/EventForOutput.h"
+#include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -11,14 +12,8 @@
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
-using ROOT::Experimental::RCollectionNTupleWriter;
-#else
-#include <ROOT/RNTupleCollectionWriter.hxx>
-using ROOT::Experimental::RNTupleCollectionWriter;
-#endif
-using ROOT::Experimental::RNTupleModel;
-using ROOT::Experimental::RNTupleWriter;
+using ROOT::RNTupleModel;
+using ROOT::RNTupleWriter;
 
 template <typename T>
 class FlatTableField {
@@ -70,9 +65,10 @@ public:
   TableOutputFields() = default;
   explicit TableOutputFields(const edm::EDGetToken& token) : m_token(token) {}
   void print() const;
-  void createFields(const edm::EventForOutput& event, RNTupleModel& model);
+  void createFields(const edm::OccurrenceForOutput& event, RNTupleModel& model);
   void fillEntry(const nanoaod::FlatTable& table, std::size_t i);
   const edm::EDGetToken& getToken() const;
+  const edm::Handle<nanoaod::FlatTable> getTable(const edm::OccurrenceForOutput& event) const;
 
 private:
   edm::EDGetToken m_token;
@@ -86,8 +82,8 @@ class TableOutputVectorFields {
 public:
   TableOutputVectorFields() = default;
   explicit TableOutputVectorFields(const edm::EDGetToken& token) : m_token(token) {}
-  void createFields(const edm::EventForOutput& event, RNTupleModel& model);
-  void fill(const edm::EventForOutput& event);
+  void createFields(const edm::OccurrenceForOutput& event, RNTupleModel& model);
+  void fill(const edm::OccurrenceForOutput& event);
 
 private:
   edm::EDGetToken m_token;
@@ -107,19 +103,16 @@ public:
   // Invariants:
   // * m_main not null
   // * m_collectionName not empty
-  void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
-  void fill(const edm::EventForOutput& event);
+  void createFields(const edm::OccurrenceForOutput& event, RNTupleModel& eventModel);
+  void bindBuffer(RNTupleModel& eventModel);
+  void fill(const edm::OccurrenceForOutput& event);
   void print() const;
   bool hasMainTable();
   const std::string& getCollectionName() const;
 
 private:
   std::string m_collectionName;
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
-  std::shared_ptr<RCollectionNTupleWriter> m_collection;
-#else
-  std::shared_ptr<RNTupleCollectionWriter> m_collection;
-#endif
+  std::unique_ptr<RNTupleCollection> m_collection;
   TableOutputFields m_main;
   std::vector<TableOutputFields> m_extensions;
 };
@@ -127,8 +120,9 @@ private:
 class TableCollectionSet {
 public:
   void add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table);
-  void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
-  void fill(const edm::EventForOutput& event);
+  void createFields(const edm::OccurrenceForOutput& event, RNTupleModel& eventModel);
+  void bindBuffers(RNTupleModel& eventModel);
+  void fill(const edm::OccurrenceForOutput& event);
   void print() const;
 
 private:
