@@ -52,16 +52,16 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->preEventSignal_(*streamContext);
+      a->preEventSignal_.emit(*streamContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->postEventSignal_(*streamContext);
+      a->postEventSignal_.emit(*streamContext);
     }
     static void prePathSignal(ActivityRegistry* a, PathContext const* pathContext) {
-      a->prePathEventSignal_(*pathContext->streamContext(), *pathContext);
+      a->prePathEventSignal_.emit(*pathContext->streamContext(), *pathContext);
     }
     static void postPathSignal(ActivityRegistry* a, HLTPathStatus const& status, PathContext const* pathContext) {
-      a->postPathEventSignal_(*pathContext->streamContext(), *pathContext, status);
+      a->postPathEventSignal_.emit(*pathContext->streamContext(), *pathContext, status);
     }
 
     static const char* transitionName() { return "Event"; }
@@ -88,22 +88,22 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->preGlobalBeginRunSignal_(*globalContext);
+      a->preGlobalBeginRunSignal_.emit(*globalContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->postGlobalBeginRunSignal_(*globalContext);
+      a->postGlobalBeginRunSignal_.emit(*globalContext);
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
     static void preModuleSignal(ActivityRegistry* a,
                                 GlobalContext const* globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleGlobalBeginRunSignal_(*globalContext, *moduleCallingContext);
+      a->preModuleGlobalBeginRunSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  GlobalContext const* globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleGlobalBeginRunSignal_(*globalContext, *moduleCallingContext);
+      a->postModuleGlobalBeginRunSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "global begin Run"; }
   };
@@ -128,22 +128,22 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->preStreamBeginRunSignal_(*streamContext);
+      a->preStreamBeginRunSignal_.emit(*streamContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->postStreamBeginRunSignal_(*streamContext);
+      a->postStreamBeginRunSignal_.emit(*streamContext);
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
     static void preModuleSignal(ActivityRegistry* a,
                                 StreamContext const* streamContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleStreamBeginRunSignal_(*streamContext, *moduleCallingContext);
+      a->preModuleStreamBeginRunSignal_.emit(*streamContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  StreamContext const* streamContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleStreamBeginRunSignal_(*streamContext, *moduleCallingContext);
+      a->postModuleStreamBeginRunSignal_.emit(*streamContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "stream begin Run"; }
   };
@@ -168,22 +168,22 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->preStreamEndRunSignal_(*streamContext);
+      a->preStreamEndRunSignal_.emit(*streamContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->postStreamEndRunSignal_(*streamContext);
+      a->postStreamEndRunSignal_.emit(*streamContext);
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
     static void preModuleSignal(ActivityRegistry* a,
                                 StreamContext const* streamContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleStreamEndRunSignal_(*streamContext, *moduleCallingContext);
+      a->preModuleStreamEndRunSignal_.emit(*streamContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  StreamContext const* streamContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleStreamEndRunSignal_(*streamContext, *moduleCallingContext);
+      a->postModuleStreamEndRunSignal_.emit(*streamContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "stream end Run"; }
   };
@@ -209,22 +209,22 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->preGlobalEndRunSignal_(*globalContext);
+      a->preGlobalEndRunSignal_.emit(*globalContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->postGlobalEndRunSignal_(*globalContext);
+      a->postGlobalEndRunSignal_.emit(*globalContext);
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
     static void preModuleSignal(ActivityRegistry* a,
                                 GlobalContext const* globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
+      a->preModuleGlobalEndRunSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  GlobalContext const* globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
+      a->postModuleGlobalEndRunSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "global end Run"; }
   };
@@ -250,22 +250,22 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->preGlobalBeginLumiSignal_(*globalContext);
+      a->preGlobalBeginLumiSignal_.emit(*globalContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->postGlobalBeginLumiSignal_(*globalContext);
+      a->postGlobalBeginLumiSignal_.emit(*globalContext);
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
     static void preModuleSignal(ActivityRegistry* a,
                                 GlobalContext const* globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
+      a->preModuleGlobalBeginLumiSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  GlobalContext const* globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
+      a->postModuleGlobalBeginLumiSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "global begin LuminosityBlock"; }
   };
@@ -290,22 +290,22 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->preStreamBeginLumiSignal_(*streamContext);
+      a->preStreamBeginLumiSignal_.emit(*streamContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->postStreamBeginLumiSignal_(*streamContext);
+      a->postStreamBeginLumiSignal_.emit(*streamContext);
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
     static void preModuleSignal(ActivityRegistry* a,
                                 StreamContext const* streamContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleStreamBeginLumiSignal_(*streamContext, *moduleCallingContext);
+      a->preModuleStreamBeginLumiSignal_.emit(*streamContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  StreamContext const* streamContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleStreamBeginLumiSignal_(*streamContext, *moduleCallingContext);
+      a->postModuleStreamBeginLumiSignal_.emit(*streamContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "stream begin LuminosityBlock"; }
   };
@@ -332,22 +332,22 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->preStreamEndLumiSignal_(*streamContext);
+      a->preStreamEndLumiSignal_.emit(*streamContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, StreamContext const* streamContext) {
-      a->postStreamEndLumiSignal_(*streamContext);
+      a->postStreamEndLumiSignal_.emit(*streamContext);
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
     static void preModuleSignal(ActivityRegistry* a,
                                 StreamContext const* streamContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleStreamEndLumiSignal_(*streamContext, *moduleCallingContext);
+      a->preModuleStreamEndLumiSignal_.emit(*streamContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  StreamContext const* streamContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleStreamEndLumiSignal_(*streamContext, *moduleCallingContext);
+      a->postModuleStreamEndLumiSignal_.emit(*streamContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "end stream LuminosityBlock"; }
   };
@@ -373,22 +373,22 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->preGlobalEndLumiSignal_(*globalContext);
+      a->preGlobalEndLumiSignal_.emit(*globalContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->postGlobalEndLumiSignal_(*globalContext);
+      a->postGlobalEndLumiSignal_.emit(*globalContext);
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
     static void preModuleSignal(ActivityRegistry* a,
                                 GlobalContext const* globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleGlobalEndLumiSignal_(*globalContext, *moduleCallingContext);
+      a->preModuleGlobalEndLumiSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  GlobalContext const* globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleGlobalEndLumiSignal_(*globalContext, *moduleCallingContext);
+      a->postModuleGlobalEndLumiSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "end global LuminosityBlock"; }
   };
@@ -413,20 +413,20 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->preBeginProcessBlockSignal_(*globalContext);
+      a->preBeginProcessBlockSignal_.emit(*globalContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->postBeginProcessBlockSignal_(*globalContext);
+      a->postBeginProcessBlockSignal_.emit(*globalContext);
     }
     static void preModuleSignal(ActivityRegistry* a,
                                 GlobalContext const* globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleBeginProcessBlockSignal_(*globalContext, *moduleCallingContext);
+      a->preModuleBeginProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  GlobalContext const* globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleBeginProcessBlockSignal_(*globalContext, *moduleCallingContext);
+      a->postModuleBeginProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "begin ProcessBlock"; }
   };
@@ -451,20 +451,20 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->preAccessInputProcessBlockSignal_(*globalContext);
+      a->preAccessInputProcessBlockSignal_.emit(*globalContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->postAccessInputProcessBlockSignal_(*globalContext);
+      a->postAccessInputProcessBlockSignal_.emit(*globalContext);
     }
     static void preModuleSignal(ActivityRegistry* a,
                                 GlobalContext const* globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleAccessInputProcessBlockSignal_(*globalContext, *moduleCallingContext);
+      a->preModuleAccessInputProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  GlobalContext const* globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleAccessInputProcessBlockSignal_(*globalContext, *moduleCallingContext);
+      a->postModuleAccessInputProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "access input ProcessBlock"; }
   };
@@ -489,20 +489,20 @@ namespace edm {
     }
 
     static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->preEndProcessBlockSignal_(*globalContext);
+      a->preEndProcessBlockSignal_.emit(*globalContext);
     }
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
-      a->postEndProcessBlockSignal_(*globalContext);
+      a->postEndProcessBlockSignal_.emit(*globalContext);
     }
     static void preModuleSignal(ActivityRegistry* a,
                                 GlobalContext const* globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleEndProcessBlockSignal_(*globalContext, *moduleCallingContext);
+      a->preModuleEndProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static void postModuleSignal(ActivityRegistry* a,
                                  GlobalContext const* globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleEndProcessBlockSignal_(*globalContext, *moduleCallingContext);
+      a->postModuleEndProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "end ProcessBlock"; }
   };

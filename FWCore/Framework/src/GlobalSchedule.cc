@@ -81,7 +81,7 @@ namespace edm {
     GlobalContext gc(GlobalContext::Transition::kBeginJob, processContext_);
     std::exception_ptr exceptionPtr;
     try {
-      convertException::wrap([this]() { actReg_->preBeginJobSignal_(*processContext_); });
+      convertException::wrap([this]() { actReg_->preBeginJobSignal_.emit(*processContext_); });
     } catch (cms::Exception& ex) {
       ex.addContext("Handling pre signal, likely in a service function");
       ex.addContext(globalContext);
@@ -96,7 +96,7 @@ namespace edm {
       }
     }
     try {
-      convertException::wrap([this]() { actReg_->postBeginJobSignal_(); });
+      convertException::wrap([this]() { actReg_->postBeginJobSignal_.emit(); });
     } catch (cms::Exception& ex) {
       if (!exceptionPtr) {
         ex.addContext("Handling post signal, likely in a service function");
@@ -114,7 +114,7 @@ namespace edm {
     GlobalContext gc(GlobalContext::Transition::kEndJob, processContext_);
     std::exception_ptr exceptionPtr;
     try {
-      convertException::wrap([this]() { actReg_->preEndJobSignal_(); });
+      convertException::wrap([this]() { actReg_->preEndJobSignal_.emit(); });
     } catch (cms::Exception& ex) {
       ex.addContext("Handling pre signal, likely in a service function");
       ex.addContext(context);
@@ -125,7 +125,7 @@ namespace edm {
     }
 
     try {
-      convertException::wrap([this]() { actReg_->postEndJobSignal_(); });
+      convertException::wrap([this]() { actReg_->postEndJobSignal_.emit(); });
     } catch (cms::Exception& ex) {
       if (!exceptionPtr) {
         ex.addContext("Handling post signal, likely in a service function");
@@ -198,7 +198,7 @@ namespace edm {
     CMS_SA_ALLOW try {
       if (actReg_) {
         ServiceRegistry::Operate op(weakToken.lock());
-        actReg_->preGlobalEarlyTerminationSignal_(*globalContext, TerminationOrigin::ExceptionFromThisContext);
+        actReg_->preGlobalEarlyTerminationSignal_.emit(*globalContext, TerminationOrigin::ExceptionFromThisContext);
       }
     } catch (...) {
     }
