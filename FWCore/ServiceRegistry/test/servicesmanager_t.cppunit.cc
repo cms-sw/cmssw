@@ -201,7 +201,7 @@ void testServicesManager::legacyTest() {
       CPPUNIT_ASSERT(!sm.get<TestService>().beginJobCalled());
       edm::ActivityRegistry ar;
       sm.connectTo(ar);
-      ar.postBeginJobSignal_();
+      ar.postBeginJobSignal_.emit();
 
       CPPUNIT_ASSERT(sm.get<TestService>().beginJobCalled());
     } catch (const edm::Exception& iException) {

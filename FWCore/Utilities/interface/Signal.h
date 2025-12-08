@@ -30,6 +30,9 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
+namespace edm {
+  class ActivityRegistry;
+}
 
 namespace edm {
   namespace signalslot {
@@ -61,15 +64,30 @@ namespace edm {
         }
       }
 
+    private:
       template <typename... Args>
       void operator()(Args&&... args) const {
         emit(std::forward<Args>(args)...);
       }
 
+    public:
       slot_list_type const& slots() const { return m_slots; }
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+
+      // Allow connecting another Signal<T> via std::reference_wrapper<const Signal<T>>
+      // std::function cannot be constructed from std::reference_wrapper<const Signal>
+      // because Signal::operator() is private, so wrap with a lambda that calls emit().
+      void connect(std::reference_wrapper<const Signal> iFunc) {
+        m_slots.emplace_back([iFunc](auto&&... args) { iFunc.get().emit(std::forward<decltype(args)>(args)...); });
+      }
+
+      void connect_front(std::reference_wrapper<const Signal> iFunc) {
+        m_slots.insert(m_slots.begin(),
+                       slot_type([iFunc](auto&&... args) { iFunc.get().emit(std::forward<decltype(args)>(args)...); }));
+      }
+
       template <typename U>
       void connect(U iFunc) {
         m_slots.push_back(std::function<T>(iFunc));

@@ -72,7 +72,7 @@ namespace edm {
       try {
         std::shared_ptr<T> module;
         convertException::wrap([&]() {
-          iPre(md);
+          iPre.emit(md);
           module = std::make_shared<T>(std::forward<Args>(args)...);
 
           auto holder = std::make_shared<maker::ModuleHolderT<typename T::ModuleType>>(module);
@@ -84,12 +84,12 @@ namespace edm {
           }
           // if exception then post will be called in the catch block
           postCalled = true;
-          iPost(md);
+          iPost.emit(md);
         });
         return module;
       } catch (cms::Exception& iException) {
         if (!postCalled) {
-          CMS_SA_ALLOW try { iPost(md); } catch (...) {
+          CMS_SA_ALLOW try { iPost.emit(md); } catch (...) {
             // If post throws an exception ignore it because we are already handling another exception
           }
         }

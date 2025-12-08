@@ -73,20 +73,20 @@ namespace edm {
     class BeginStreamTraits {
     public:
       static void preScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
-        activityRegistry->preBeginStreamSignal_(*streamContext);
+        activityRegistry->preBeginStreamSignal_.emit(*streamContext);
       }
       static void postScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
-        activityRegistry->postBeginStreamSignal_(*streamContext);
+        activityRegistry->postBeginStreamSignal_.emit(*streamContext);
       }
     };
 
     class EndStreamTraits {
     public:
       static void preScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
-        activityRegistry->preEndStreamSignal_(*streamContext);
+        activityRegistry->preEndStreamSignal_.emit(*streamContext);
       }
       static void postScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
-        activityRegistry->postEndStreamSignal_(*streamContext);
+        activityRegistry->postEndStreamSignal_.emit(*streamContext);
       }
     };
 
@@ -739,7 +739,7 @@ namespace edm {
         iExcept = std::current_exception();
       }
 
-      actReg_->preStreamEarlyTerminationSignal_(streamContext_, TerminationOrigin::ExceptionFromThisContext);
+      actReg_->preStreamEarlyTerminationSignal_.emit(streamContext_, TerminationOrigin::ExceptionFromThisContext);
     }
     // Caught exception is propagated to the caller
     CMS_SA_ALLOW try { Traits::postScheduleSignal(actReg_.get(), &streamContext_); } catch (...) {
@@ -929,7 +929,7 @@ namespace edm {
     // We are already handling an earlier exception, so ignore it
     // if this signal results in another exception being thrown.
     CMS_SA_ALLOW try {
-      actReg_->preStreamEarlyTerminationSignal_(streamContext, TerminationOrigin::ExceptionFromThisContext);
+      actReg_->preStreamEarlyTerminationSignal_.emit(streamContext, TerminationOrigin::ExceptionFromThisContext);
     } catch (...) {
     }
   }

@@ -19,11 +19,11 @@ namespace {
     TransformSignalSentry(edm::ActivityRegistry* a, edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
         : a_(a), sc_(sc), mcc_(mcc) {
       if (a_)
-        a_->preModuleTransformSignal_(sc_, mcc_);
+        a_->preModuleTransformSignal_.emit(sc_, mcc_);
     }
     ~TransformSignalSentry() {
       if (a_)
-        a_->postModuleTransformSignal_(sc_, mcc_);
+        a_->postModuleTransformSignal_.emit(sc_, mcc_);
     }
 
   private:
@@ -39,11 +39,11 @@ namespace {
                                    edm::ModuleCallingContext const& mcc)
         : a_(a), sc_(sc), mcc_(mcc) {
       if (a_)
-        a_->preModuleTransformAcquiringSignal_(sc_, mcc_);
+        a_->preModuleTransformAcquiringSignal_.emit(sc_, mcc_);
     }
     ~TransformAcquiringSignalSentry() {
       if (a_)
-        a_->postModuleTransformAcquiringSignal_(sc_, mcc_);
+        a_->postModuleTransformAcquiringSignal_.emit(sc_, mcc_);
     }
 
   private:

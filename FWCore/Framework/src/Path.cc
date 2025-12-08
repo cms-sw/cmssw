@@ -213,7 +213,7 @@ namespace edm {
     printedException_ = false;
     if (actReg_) {
       ServiceRegistry::Operate guard(iToken);
-      actReg_->prePathEventSignal_(*iStreamContext, pathContext_);
+      actReg_->prePathEventSignal_.emit(*iStreamContext, pathContext_);
     }
     //If the Path succeeds, these are the values we have at the end
     state_ = hlt::Pass;
@@ -318,7 +318,7 @@ namespace edm {
           iException = jException;
         }
       }
-      actReg_->postPathEventSignal_(*iContext, pathContext_, status);
+      actReg_->postPathEventSignal_.emit(*iContext, pathContext_, status);
     } catch (...) {
       if (not iException) {
         iException = std::current_exception();
