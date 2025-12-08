@@ -196,6 +196,16 @@ namespace cms::soa {
   };
 
   // Matryoshka template to avoid commas inside macros
+  template <CMS_SOA_BYTE_SIZE_TYPE ALIGNMENT>
+  struct LayoutParameters {
+    template <bool ALIGNMENT_ENFORCEMENT>
+    struct AlignmentEnforcement {
+      template <template <CMS_SOA_BYTE_SIZE_TYPE, bool> typename T>
+      using Layout = T<ALIGNMENT, ALIGNMENT_ENFORCEMENT>;
+    };
+  };
+
+  // Matryoshka template to avoid commas inside macros
   template <SoAColumnType COLUMN_TYPE>
   struct SoAConstParameters_ColumnType {
     template <typename T>

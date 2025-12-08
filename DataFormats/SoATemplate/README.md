@@ -80,16 +80,14 @@ and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only 
 
 `SoABlocks` is a macro-generated templated class that enables structured composition of multiple `SoALayouts` into a single
 container, referred to as "blocks". Each block is a Layout, and the structure itself looks like multiple contigous memory 
-buffers of different sizes. The alignment is ensured to be the same for every block. 
-`SoABlocks` also supports `View` and `ConstView` classes, mirroring the structure of the underlying structs. The blocks 
-are built via composition and access to individual layouts and views is provided by name.
-
-It is also possible to generate methods inside `View` and `ConstView` using the `SOA_VIEW_METHODS` and 
-`SOA_CONST_VIEW_METHODS` in the same way as described in [Customized methods](#customized-methods).
+buffers of different sizes. The alignment is ensured to be the same for every block. `SoABlocks` also supports 
+`View` and `ConstView` classes. In addition to those fully parametrized templates, two further levels of parametrization are provided:
+`ViewTemplate`, `ViewTemplateFreeParams` and respectively `ConstViewTemplate`, `ConstViewTemplateFreeParams`, 
+mirroring the structure of the underlying structs. The blocks are built via composition and access to individual layouts 
+and views is provided by name.
 
 TODOs:
 - Add introspection utilities to print the structure and layout of a `SoABlocks` instance.
-- Extend support for fully templated `View`/`ConstView` classes beyond the default parameters.
 - Implement support for heterogeneous `deepCopy()` operations between different but compatible `SoABlocks` configurations.
 
 [An example of utilization is showed below.](#examples)
