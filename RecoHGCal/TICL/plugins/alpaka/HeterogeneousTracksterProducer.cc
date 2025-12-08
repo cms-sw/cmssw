@@ -43,11 +43,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalRecHitsLayerClustersSoA"));
+      desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalSoALayerClusters"));
       // Still needed? I guess I still need to save them here and then copy to algo
-      desc.add<double>("rho_c", 0.6);
-      desc.add<std::vector<double>>("dc", {2., 2., 2});
-      desc.add<std::vector<double>>("dm", {1.8, 1.8, 2});
+      // desc.add<double>("rho_c", 0.6);
+      // desc.add<std::vector<double>>("dc", {2., 2., 2});
+      // desc.add<std::vector<double>>("dm", {1.8, 1.8, 2});
       desc.add<std::string>("patternRecognitionBy", "CLUEstering");
 
       edm::ParameterSetDescription pluginDesc;

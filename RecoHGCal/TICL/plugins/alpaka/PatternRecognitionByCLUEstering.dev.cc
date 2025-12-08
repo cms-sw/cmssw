@@ -158,45 +158,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void PatternRecognitionByCLUEstering::fillPSetDescription(::edm::ParameterSetDescription& iDesc) {
     // iDesc.add<int>("algo_verbosity", 0);
-    // iDesc.add<std::vector<double>>("criticalDensity", {4, 4, 4})->setComment("in GeV");
-    // iDesc.add<std::vector<double>>("criticalSelfDensity", {0.15, 0.15, 0.15} /* roughly 1/(densitySiblingLayers+1) */)
-    //     ->setComment("Minimum ratio of self_energy/local_density to become a seed.");
-    // iDesc.add<std::vector<int>>("densitySiblingLayers", {3, 3, 3})
-    //     ->setComment(
-    //         "inclusive, layers to consider while computing local density and searching for nearestHigher higher");
-    // iDesc.add<std::vector<double>>("densityEtaPhiDistanceSqr", {0.0008, 0.0008, 0.0008})
-    //     ->setComment("in eta,phi space, distance to consider for local density");
-    // iDesc.add<std::vector<double>>("densityXYDistanceSqr", {3.24, 3.24, 3.24})
-    //     ->setComment("in cm, distance on the transverse plane to consider for local density");
-    // iDesc.add<std::vector<double>>("kernelDensityFactor", {0.2, 0.2, 0.2})
-    //     ->setComment("Kernel factor to be applied to other LC while computing the local density");
-    // iDesc.add<bool>("densityOnSameLayer", false);
-    // iDesc.add<bool>("nearestHigherOnSameLayer", false)
-    //     ->setComment("Allow the nearestHigher to be located on the same layer");
-    // iDesc.add<bool>("useAbsoluteProjectiveScale", true)
-    //     ->setComment("Express all cuts in terms of r/z*z_0{,phi} projective variables");
-    // iDesc.add<bool>("useClusterDimensionXY", false)
-    //     ->setComment(
-    //         "Boolean. If true use the estimated cluster radius to determine the cluster compatibility while computing "
-    //         "the local density");
-    // iDesc.add<bool>("rescaleDensityByZ", false)
-    //     ->setComment(
-    //         "Rescale local density by the extension of the Z 'volume' explored. The transvere dimension is, at "
-    //         "present, "
-    //         "fixed and factored out.");
-    // iDesc.add<std::vector<double>>("criticalEtaPhiDistance", {0.025, 0.025, 0.025})
-    //     ->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
-    // iDesc.add<std::vector<double>>("criticalXYDistance", {1.8, 1.8, 1.8})
-    //     ->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
-    // iDesc.add<std::vector<int>>("criticalZDistanceLyr", {5, 5, 5})
-    //     ->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
-    // iDesc.add<std::vector<double>>("outlierMultiplier", {2, 2, 2})
-    //     ->setComment("Minimal distance in transverse space from nearestHigher to become an outlier");
-    // iDesc.add<std::vector<int>>("minNumLayerCluster", {2, 2, 2})->setComment("Not Inclusive");
-    // iDesc.add<bool>("doPidCut", false);
-    // iDesc.add<double>("cutHadProb", 0.5);
-    // iDesc.add<bool>("computeLocalTime", false);
-    // iDesc.add<bool>("usePCACleaning", false)->setComment("Enable PCA cleaning alorithm");
+    iDesc.add<double>("rho_c", 6.);
+    iDesc.add<std::vector<double>>("dc", {2., 2., 2.});
+    iDesc.add<std::vector<double>>("dm", {1.8, 1.8, 2.});
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
