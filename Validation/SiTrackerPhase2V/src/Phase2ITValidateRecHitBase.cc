@@ -56,6 +56,11 @@ void Phase2ITValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
   if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     RecHitME local_histos;
+    ibooker.setCurrentFolder(subdir);
+    local_histos.deltaPhi_barrel =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_barrel"), ibooker);
+    local_histos.deltaPhi_endcaps =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_endcaps"), ibooker);
     ibooker.setCurrentFolder(subdir + "/" + key);
     edm::LogInfo("Phase2ITValidateRecHit") << " Booking Histograms in : " << (subdir + "/" + key);
 
@@ -66,6 +71,8 @@ void Phase2ITValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
     local_histos.pullX = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullX"), ibooker);
 
     local_histos.pullY = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullY"), ibooker);
+
+    local_histos.deltaPhi = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi"), ibooker);
 
     local_histos.deltaX_eta =
         phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX_eta"), ibooker);
@@ -149,10 +156,17 @@ void Phase2ITValidateRecHitBase::fillRechitHistos(const PSimHit* simhitClosest,
     pully = (lp.y() - simlp.y()) / std::sqrt(lperr.yy());
   float eta = geomDetunit->surface().toGlobal(lp).eta();
   float phi = geomDetunit->surface().toGlobal(lp).phi();
+  float dphi = phi - geomDetunit->surface().toGlobal(simlp).phi();
   layerMEs_[key].deltaX->Fill(dx);
   layerMEs_[key].deltaY->Fill(dy);
   layerMEs_[key].pullX->Fill(pullx);
   layerMEs_[key].pullY->Fill(pully);
+  layerMEs_[key].deltaPhi->Fill(dphi);
+  if (tTopo_->getITPixelLayerNumber(id) < 100) {
+    layerMEs_[key].deltaPhi_barrel->Fill(dphi);
+  } else {
+    layerMEs_[key].deltaPhi_endcaps->Fill(dphi);
+  }
 
   layerMEs_[key].deltaX_eta->Fill(std::abs(eta), dx);
   layerMEs_[key].deltaY_eta->Fill(std::abs(eta), dy);
@@ -390,4 +404,31 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   psd17.add<double>("xmin", -4.1);
   psd17.add<double>("ymin", -4.0);
   desc.add<edm::ParameterSetDescription>("PullY_primary", psd17);
+
+  edm::ParameterSetDescription psd18;
+  psd18.add<std::string>("name", "Delta_phi");
+  psd18.add<std::string>("title", "Delta Phi macro pixel sensor;phi;");
+  psd18.add<int>("NxBins", 100);
+  psd18.add<bool>("switch", true);
+  psd18.add<double>("xmax", 3.14159);
+  psd18.add<double>("xmin", -3.14159);
+  desc.add<edm::ParameterSetDescription>("Delta_Phi", psd18);
+
+  edm::ParameterSetDescription psd18b;
+  psd18b.add<std::string>("name", "Delta_phi_barrel");
+  psd18b.add<std::string>("title", "Delta Phi macro pixel sensor barrel;phi;");
+  psd18b.add<int>("NxBins", 100);
+  psd18b.add<bool>("switch", true);
+  psd18b.add<double>("xmax", 3.14159);
+  psd18b.add<double>("xmin", -3.14159);
+  desc.add<edm::ParameterSetDescription>("Delta_Phi_barrel", psd18b);
+
+  edm::ParameterSetDescription psd18e;
+  psd18e.add<std::string>("name", "Delta_phi_endcaps");
+  psd18e.add<std::string>("title", "Delta Phi macro pixel sensor endcaps;phi;");
+  psd18e.add<int>("NxBins", 100);
+  psd18e.add<bool>("switch", true);
+  psd18e.add<double>("xmax", 3.14159);
+  psd18e.add<double>("xmin", -3.14159);
+  desc.add<edm::ParameterSetDescription>("Delta_Phi_endcaps", psd18e);
 }
