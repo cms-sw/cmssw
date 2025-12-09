@@ -202,7 +202,9 @@ void CalorimetryManager::reconstructTrack(FSimTrack& myTrack, RandomEngineAndDis
         if (useShowerLibrary) {
           theHFShowerLibrary->recoHFShowerLibrary(myTrack);
           myHDResponse_->correctHF(myTrack.hcalEntrance().e(), abs(myTrack.type()));
-          updateHCAL(theHFShowerLibrary->getHitsMap(), myTrack.id());
+          updateHCAL(theHFShowerLibrary->getHitsMap(), true, myTrack.id());
+          theHFShowerLibrary->clear();
+          myHDResponse_->clearHF();
         } else
           reconstructHCAL(myTrack, random);
       }
@@ -426,7 +428,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
   updateECAL(myGrid.getHits(), onEcal, myTrack.id(), scale);
 
   // Now fill the HCAL hits
-  updateHCAL(myHcalHitMaker.getHits(), myTrack.id());
+  updateHCAL(myHcalHitMaker.getHits(), false, myTrack.id());
 
   // delete the preshower
   if (myPreshower != nullptr) {
@@ -482,7 +484,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineA
     CaloHitID current_id(cell.rawId(), tof, myTrack.id());
     std::map<CaloHitID, float> hitMap;
     hitMap[current_id] = emeas;
-    updateHCAL(hitMap, myTrack.id());
+    updateHCAL(hitMap, false, myTrack.id());
   }
 }
 
@@ -697,11 +699,13 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       }
 
       // Save HCAL hits
-      if (myTrack.onVFcal() && useShowerLibrary) {
+      if (!myTrack.onEcal() && !myTrack.onHcal() && useShowerLibrary) {
         myHDResponse_->correctHF(eGen, abs(myTrack.type()));
-        updateHCAL(theHFShowerLibrary->getHitsMap(), myTrack.id());
+        updateHCAL(theHFShowerLibrary->getHitsMap(), true, myTrack.id());
+        theHFShowerLibrary->clear();
+        myHDResponse_->clearHF();
       } else
-        updateHCAL(myHcalHitMaker.getHits(), myTrack.id(), correction * hcorr);
+        updateHCAL(myHcalHitMaker.getHits(), false, myTrack.id(), correction * hcorr);
 
     } else {  // shower simulation failed
       if (myTrack.onHcal() || myTrack.onVFcal()) {
@@ -711,7 +715,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
         CaloHitID current_id(cell.rawId(), tof, myTrack.id());
         std::map<CaloHitID, float> hitMap;
         hitMap[current_id] = emeas;
-        updateHCAL(hitMap, myTrack.id());
+        updateHCAL(hitMap, false, myTrack.id());
         if (debug_)
           LogInfo("FastCalorimetry") << " HCAL simple cell " << cell.rawId() << " added    E = " << emeas << std::endl;
       }
@@ -899,7 +903,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   }
 
   // Save HCAL hits
-  updateHCAL(myHcalHitMaker.getHits(), myTrack.id());
+  updateHCAL(myHcalHitMaker.getHits(), false, myTrack.id());
 
   if (debug_)
     LogInfo("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::MipShowerSimulation  finished " << std::endl;
@@ -1099,7 +1103,10 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID, float>& hitMap, in
   }
 }
 
-void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap, int trackID, float corr) {
+void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap,
+                                    bool usedShowerLibrary,
+                                    int trackID,
+                                    float corr) {
   std::vector<double> hfcorrEm = myHDResponse_->getCorrHFem();
   std::vector<double> hfcorrHad = myHDResponse_->getCorrHFhad();
   std::map<CaloHitID, float>::const_iterator mapitr;
@@ -1121,7 +1128,7 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap, in
         energy /= samplingHBHE_[hdetid.ietaAbs() - 1];  //re-convert to GeV
         time = timeShiftHE_[hdetid.ietaAbs() - ietaShiftHE_];
       } else if (hdetid.subdetId() == HcalForward) {
-        if (useShowerLibrary) {
+        if (usedShowerLibrary) {
           if (useCorrectionSL) {
             if (hdetid.depth() == 1 or hdetid.depth() == 3)
               energy *= hfcorrEm[hdetid.ietaAbs() - ietaShiftHF_];

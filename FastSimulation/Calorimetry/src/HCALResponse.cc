@@ -677,3 +677,8 @@ void HCALResponse::correctHF(double ee, int type) {
     }
   }
 }
+
+void HCALResponse::clearHF() {
+  corrHFem = vec1(maxEta, 0);
+  corrHFhad = vec1(maxEta, 0);
+}
