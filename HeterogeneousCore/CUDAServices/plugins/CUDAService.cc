@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <cstring>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
