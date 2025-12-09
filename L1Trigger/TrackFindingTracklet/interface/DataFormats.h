@@ -405,11 +405,11 @@ namespace trklet {
     ~StubTM() override = default;
     // stub Id
     int stubId() const { return std::get<0>(data_); }
-    // stub radius wrt chosenRofPhi
+    // stub radius in cm wrt chosenRofPhi
     double r() const { return std::get<1>(data_); }
-    // stub phi wrt processing nonant centre
+    // stub phi residual in rad
     double phi() const { return std::get<2>(data_); }
-    // stub z
+    // stub z residual in cm
     double z() const { return std::get<3>(data_); }
   };
 
@@ -425,15 +425,15 @@ namespace trklet {
     StubDR(const TTStubRef& ttStubRef, const DataFormats* df, double r, double phi, double z, double dPhi, double dZ)
         : Stub(ttStubRef, df, Process::dr, r, phi, z, dPhi, dZ) {}
     ~StubDR() override = default;
-    // stub radius wrt chosenRofPhi
+    // stub radius in cm wrt chosenRofPhi
     double r() const { return std::get<0>(data_); }
-    // stub phi wrt phi sector centre
+    // stub phi residual in rad
     double phi() const { return std::get<1>(data_); }
-    // stub z residual wrt eta sector
+    // stub z residual in cm
     double z() const { return std::get<2>(data_); }
-    // stub phi uncertainty
+    // stub phi uncertainty in rad
     double dPhi() const { return std::get<3>(data_); }
-    // stub z uncertainty
+    // stub z uncertainty in cm
     double dZ() const { return std::get<4>(data_); }
   };
 
@@ -446,15 +446,15 @@ namespace trklet {
     StubKF(const StubDR& stub, double r, double phi, double z, double dPhi, double dZ)
         : Stub(stub, r, phi, z, dPhi, dZ) {}
     ~StubKF() override = default;
-    // stub radius wrt chosenRofPhi
+    // stub radius in cm wrt chosenRofPhi
     double r() const { return std::get<0>(data_); };
-    // stub phi residual wrt track parameter
+    // stub phi residual in rad
     double phi() const { return std::get<1>(data_); };
-    // stub z residual wrt eta sector
+    // stub z residual in cm
     double z() const { return std::get<2>(data_); };
-    // stub phi uncertainty
+    // stub phi uncertainty in rad
     double dPhi() const { return std::get<3>(data_); }
-    // stub z uncertainty
+    // stub z uncertainty in cm
     double dZ() const { return std::get<4>(data_); }
   };
 
@@ -508,11 +508,11 @@ namespace trklet {
     TrackTM(const TTTrackRef& tTTrackRef, const DataFormats* df, double inv2R, double phiT, double zT)
         : Track(tTTrackRef, df, Process::tm, inv2R, phiT, zT) {}
     ~TrackTM() override = default;
-    // track inv2R
+    // track inv2R in 1/cm
     double inv2R() const { return std::get<0>(data_); }
-    // track phi at radius chosenRofPhi wrt pprocessing centre
+    // track phi at radius chosenRofPhi wrt pprocessing centre in rad
     double phiT() const { return std::get<1>(data_); }
-    // track z at radius chosenRofZ
+    // track z at radius chosenRofZ in cm
     double zT() const { return std::get<2>(data_); }
   };
 
@@ -527,11 +527,11 @@ namespace trklet {
     TrackDR(const TTTrackRef& tTTrackRef, const DataFormats* df, double inv2R, double phiT, double zT)
         : Track(tTTrackRef, df, Process::dr, inv2R, phiT, zT) {}
     ~TrackDR() override = default;
-    // track qOver pt
+    // track inv2R in 1/cm
     double inv2R() const { return std::get<0>(data_); }
-    // track phi at radius chosenRofPhi wrt processing nonant centre
+    // track phi at radius chosenRofPhi wrt pprocessing centre in rad
     double phiT() const { return std::get<1>(data_); }
-    // track z at radius chosenRofZ
+    // track z at radius chosenRofZ in cm
     double zT() const { return std::get<2>(data_); }
   };
 
@@ -545,13 +545,13 @@ namespace trklet {
         : Track(track, inv2R, phiT, cot, zT) {}
     TrackKF() {}
     ~TrackKF() override = default;
-    // track inv2R
+    // track inv2R in 1/cm
     double inv2R() const { return std::get<0>(data_); }
-    // track phi at radius 0 wrt processing nonant centre
+    // track phi at radius chosenRofPhi wrt pprocessing centre in rad
     double phiT() const { return std::get<1>(data_); }
     // track cotThea
     double cot() const { return std::get<2>(data_); }
-    // track z at radius 0
+    // track z at radius chosenRofZ in cm
     double zT() const { return std::get<3>(data_); }
   };
 
