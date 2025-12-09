@@ -158,18 +158,16 @@ class FitSlicesYTool {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   FitSlicesYTool(MonitorElement* me) {
-    const bool oldAddDir = TH1::AddDirectoryStatus();
-    TH1::AddDirectory(true);
     // ... create your hists
+    TObjArray aSlices;
     TH2F* h = me->getTH2F();
     TF1 fgaus("fgaus", "gaus", h->GetYaxis()->GetXmin(), h->GetYaxis()->GetXmax(), TF1::EAddToList::kNo);
-    h->FitSlicesY(&fgaus, 0, -1, 0, "QNR SERIAL");
+    h->FitSlicesY(&fgaus, 0, -1, 0, "QNR SERIAL", &aSlices);
     string name(h->GetName());
-    h0 = (TH1*)gDirectory->Get((name + "_0").c_str());
-    h1 = (TH1*)gDirectory->Get((name + "_1").c_str());
-    h2 = (TH1*)gDirectory->Get((name + "_2").c_str());
-    h3 = (TH1*)gDirectory->Get((name + "_chi2").c_str());
-    TH1::AddDirectory(oldAddDir);
+    h0 = (TH1*)aSlices.FindObject((name + "_0").c_str());
+    h1 = (TH1*)aSlices.FindObject((name + "_1").c_str());
+    h2 = (TH1*)aSlices.FindObject((name + "_2").c_str());
+    h3 = (TH1*)aSlices.FindObject((name + "_chi2").c_str());
   }
 
   /// Destructor
