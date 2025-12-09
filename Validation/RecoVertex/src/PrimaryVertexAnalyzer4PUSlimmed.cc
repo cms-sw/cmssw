@@ -59,7 +59,8 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(const edm::Para
           iConfig.getUntrackedParameter<edm::InputTag>("vertexAssociator"))),
       nPUbins_(iConfig.getParameter<unsigned int>("nPUbins")),
       maxEta_(iConfig.getParameter<double>("maxEta")),
-      reco_tracks_for_reconstructable_simvertices_(iConfig.getUntrackedParameter<int>("reco_tracks_for_reconstructable_simvertices")) {
+      reco_tracks_for_reconstructable_simvertices_(
+          iConfig.getUntrackedParameter<int>("reco_tracks_for_reconstructable_simvertices")) {
   reco_vertex_collections_ = iConfig.getParameter<std::vector<edm::InputTag>>("vertexRecoCollections");
   for (auto const& l : reco_vertex_collections_) {
     reco_vertex_collection_tokens_.push_back(
@@ -289,10 +290,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     book1d("GenPVAssoc2RecoPVMatched_X", 120, -0.6, 0.6);
     book1d("GenPVAssoc2RecoPVMatched_Y", 120, -0.6, 0.6);
     book1d("GenPVAssoc2RecoPVMatched_Z", 120, -60, 60);
-	book1d("GenPVAssoc2RecoPVMatched_R", 120, -60, 60);
-	book1dlogx("GenPVAssoc2RecoPVMatched_Pt2", 15, &log_pt2_bins[0]);
-	book1dlogx("GenPVAssoc2RecoPVMatched_NumTracks", 24, &log_ntrk_bins[0]);
-	book1dlogx("GenPVAssoc2RecoPVMatched_ClosestDistanceZ", 30, &log_bins[0]);
+    book1d("GenPVAssoc2RecoPVMatched_R", 120, -60, 60);
+    book1dlogx("GenPVAssoc2RecoPVMatched_Pt2", 15, &log_pt2_bins[0]);
+    book1dlogx("GenPVAssoc2RecoPVMatched_NumTracks", 24, &log_ntrk_bins[0]);
+    book1dlogx("GenPVAssoc2RecoPVMatched_ClosestDistanceZ", 30, &log_bins[0]);
 
     // All Generated Vertices Multi-Matched to a Reconstructed vertex. Used
     // for Duplicate rate plots
@@ -605,12 +606,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillRecoAssociatedGenPVHistograms(
     mes_[label]["GenPVAssoc2RecoPVMatched_X"]->Fill(v.x);
     mes_[label]["GenPVAssoc2RecoPVMatched_Y"]->Fill(v.y);
     mes_[label]["GenPVAssoc2RecoPVMatched_Z"]->Fill(v.z);
-	mes_[label]["GenPVAssoc2RecoPVMatched_R"]->Fill(v.r);
-	mes_[label]["GenPVAssoc2RecoPVMatched_Pt2"]->Fill(v.ptsq);
-	mes_[label]["GenPVAssoc2RecoPVMatched_NumTracks"]->Fill(v.nGenTrk);
-	mes_[label]["GenPVAssoc2RecoPVMatched_ClosestDistanceZ"]->Fill(v.closest_vertex_distance_z);
+    mes_[label]["GenPVAssoc2RecoPVMatched_R"]->Fill(v.r);
+    mes_[label]["GenPVAssoc2RecoPVMatched_Pt2"]->Fill(v.ptsq);
+    mes_[label]["GenPVAssoc2RecoPVMatched_NumTracks"]->Fill(v.nGenTrk);
+    mes_[label]["GenPVAssoc2RecoPVMatched_ClosestDistanceZ"]->Fill(v.closest_vertex_distance_z);
   }
-
 }
 
 void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
@@ -622,7 +622,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
   mes_[label]["RecoAllAssoc2Gen_Pt2"]->Fill(v.ptsq);
   mes_[label]["RecoAllAssoc2Gen_Chi2"]->Fill(v.recVtx->chi2());
   mes_[label]["RecoAllAssoc2Gen_Ndof"]->Fill(v.recVtx->ndof());
-  mes_[label]["RecoAllAssoc2Gen_Chi2Ndof"]->Fill(v.recVtx->chi2()/v.recVtx->ndof());
+  mes_[label]["RecoAllAssoc2Gen_Chi2Ndof"]->Fill(v.recVtx->chi2() / v.recVtx->ndof());
   mes_[label]["RecoAllAssoc2Gen_NumTracks"]->Fill(v.nRecoTrk);
   mes_[label]["RecoAllAssoc2Gen_PU"]->Fill(num_pileup_vertices);
   mes_[label]["RecoAllAssoc2Gen_Purity"]->Fill(v.purity);
@@ -637,7 +637,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
     mes_[label]["RecoAllAssoc2GenMatched_Pt2"]->Fill(v.ptsq);
     mes_[label]["RecoAllAssoc2GenMatched_Chi2"]->Fill(v.recVtx->chi2());
     mes_[label]["RecoAllAssoc2GenMatched_Ndof"]->Fill(v.recVtx->ndof());
-    mes_[label]["RecoAllAssoc2GenMatched_Chi2Ndof"]->Fill(v.recVtx->chi2()/v.recVtx->ndof());
+    mes_[label]["RecoAllAssoc2GenMatched_Chi2Ndof"]->Fill(v.recVtx->chi2() / v.recVtx->ndof());
     mes_[label]["RecoAllAssoc2GenMatched_NumTracks"]->Fill(v.nRecoTrk);
     mes_[label]["RecoAllAssoc2GenMatched_PU"]->Fill(num_pileup_vertices);
     mes_[label]["RecoAllAssoc2GenMatched_Purity"]->Fill(v.purity);
@@ -970,7 +970,8 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> PrimaryVertexAnal
     }  // End of for loop on daughters sim-particles
 
     // Remove the SimVertex if I cannot reconstruct it 'cause I miss at the very least reco_tracks_for_reconstructable_simvertices_ tracks
-    if (use_reconstructable_simvertices_ && vp->num_matched_reco_tracks <= reco_tracks_for_reconstructable_simvertices_) {
+    if (use_reconstructable_simvertices_ &&
+        vp->num_matched_reco_tracks <= reco_tracks_for_reconstructable_simvertices_) {
       simpv.pop_back();
       continue;
     }

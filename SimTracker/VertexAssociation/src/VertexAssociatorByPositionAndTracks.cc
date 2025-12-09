@@ -133,8 +133,7 @@ reco::VertexRecoToSimCollection VertexAssociatorByPositionAndTracks::associateRe
                                         << recoVertex.tracksSize() << " TrackingParticles "
                                         << simVertex.nDaughterTracks();
 
-          ret.insert(reco::VertexBaseRef(vCH, iReco),
-                     std::make_pair(TrackingVertexRef(tVCH, iSim), fraction));
+          ret.insert(reco::VertexBaseRef(vCH, iReco), std::make_pair(TrackingVertexRef(tVCH, iSim), fraction));
         }
       }
     }
@@ -207,8 +206,7 @@ reco::VertexSimToRecoCollection VertexAssociatorByPositionAndTracks::associateSi
                                         << recoVertex.tracksSize() << " TrackingParticles "
                                         << simVertex.nDaughterTracks();
 
-          ret.insert(TrackingVertexRef(tVCH, iSim),
-                     std::make_pair(reco::VertexBaseRef(vCH, iReco), fraction));
+          ret.insert(TrackingVertexRef(tVCH, iSim), std::make_pair(reco::VertexBaseRef(vCH, iReco), fraction));
         }
       }
     }
