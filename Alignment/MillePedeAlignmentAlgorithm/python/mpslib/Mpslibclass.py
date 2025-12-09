@@ -19,8 +19,8 @@
 #       elapsedTime     - seconds since last update
 #       mssDirPool      - pool for $mssDir (e.g. cmscaf/cmscafuser)
 #       pedeMem         - Memory allocated for pede
-#       spare1
-#       spare2
+#       rootIO
+#       mp2loc
 #       spare3
 
 # (2) Job-level variables/lists
@@ -53,7 +53,7 @@ class jobdatabase:
     JOBREMARK, JOBSP1, JOBSP2, JOBSP3 = ([] for i in range(13))
 
     header, batchScript, cfgTemplate, infiList, classInf, addFiles, driver, mergeScript, \
-    mssDir, updateTimeHuman, mssDirPool, spare1, spare2, spare3 = ('' for i in range(14))
+    mssDir, updateTimeHuman, mssDirPool, rootIO, mp2loc, spare3 = ('' for i in range(14))
 
     updateTime, elapsedTime, pedeMem , nJobs = -1, -1, -1, -1
 
@@ -90,8 +90,8 @@ class jobdatabase:
         self.elapsedTime     = int(DBFILE.readline())
         self.mssDirPool      = DBFILE.readline().rstrip('\n')
         self.pedeMem         = int(DBFILE.readline())
-        self.spare1          = DBFILE.readline().rstrip('\n')
-        self.spare2          = DBFILE.readline().rstrip('\n')
+        self.rootIO          = DBFILE.readline().rstrip('\n')
+        self.mp2loc          = DBFILE.readline().rstrip('\n')
         self.spare3          = DBFILE.readline().rstrip('\n')
 
         #read actual jobinfo into arrays
@@ -145,6 +145,8 @@ class jobdatabase:
         print('elapsed:\t',     self.elapsedTime)
         print('mssDirPool:\t',  self.mssDirPool)
         print('pedeMem:\t',             self.pedeMem, '\n')
+        print('rootIO:\t',             bool(self.rootIO), '\n')
+        print('mp2loc:\t',             self.mp2loc, '\n')
 
         #print interesting Job-level lists ---- to add: t/evt, fix remarks
         headFmt = '###     dir      jobid    stat  try  rtime      nevt  remark   weight  name'
@@ -218,8 +220,6 @@ class jobdatabase:
             self.elapsedTime = self.currentTime - self.updateTime
         self.updateTime = self.currentTime
         self.updateTimeHuman = str(datetime.datetime.today())   #no timezone :(
-        self.spare1 = "-- unused --"
-        self.spare2 = "-- unused --"
         self.spare3 = "-- unused --"
 
         #if mps.db already exists, backup as mps.db~ (in case of interupt during write)
@@ -231,7 +231,7 @@ class jobdatabase:
                      self.classInf, self.addFiles, self.driver, self.mergeScript,
                      self.mssDir, self.updateTime, self.updateTimeHuman,
                      self.elapsedTime, self.mssDirPool, self.pedeMem,
-                     self.spare1, self.spare2, self.spare3 ]
+                     self.rootIO, self.mp2loc, self.spare3 ]
         for item in headData:
             DBFILE.write("%s\n" % item)
 

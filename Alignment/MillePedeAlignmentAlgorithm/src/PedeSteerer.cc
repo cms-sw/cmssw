@@ -768,12 +768,25 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
   }
 
   // add binary files to master steering file
+  std::vector<std::string> rootFiles = {}; 
   mainSteerRef << "\nCfiles\n";
   for (unsigned int iFile = 0; iFile < binaryFiles.size(); ++iFile) {
+    // if we find a ROOT file, we remember it for later (separate config block)
+    if (binaryFiles[iFile].find(".root") != std::string::npos){
+      rootFiles.push_back(binaryFiles[iFile]);
+      continue; 
+    }
     if (myRunDirectory.empty())
       mainSteerRef << binaryFiles[iFile] << "\n";
     else
       mainSteerRef << "../" + binaryFiles[iFile] << "\n";
+  }
+  // now add ROOT binaries if we have any (safe to mix with C-binaries)
+  if (!rootFiles.empty()){
+    mainSteerRef << "\nrootfiles\n";
+    for (const std::string & rootFile : rootFiles ) {
+        mainSteerRef << rootFile << "\n";
+    }
   }
 
   // add method
@@ -819,8 +832,22 @@ int PedeSteerer::runPede(const std::string &masterSteer) const {
 
   edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede"
                             << "Start running " << command;
-  // FIXME: Recommended interface to system commands?
-  int shellReturn = gSystem->Exec(command.c_str());
+  // FIXME: Recommended interface to system commands?  
+  int shellReturn = 99; 
+  (void)gSystem->Exec(command.c_str());
+  // Pede as a fortran binary does not return an exit code. 
+  // Instead, we get a millepede.end file with a single 
+  // integer entry denoting the exit status. Pick this up here. 
+  std::ifstream mpend ("millepede.end"); 
+  // catch catastrophic failures where we do not get a status. 
+  if (!mpend.is_open()) {
+      edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" 
+                                << "Failed to read Pede command return"; 
+  }
+  else {
+    mpend >> shellReturn; 
+    mpend.close(); 
+  }
   edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede"
                             << "Command returns " << shellReturn;
 

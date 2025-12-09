@@ -63,6 +63,8 @@ class SetupAlignment(object):
         self._general_options = {} # general options extracted from ini file
         self._external_datasets = collections.OrderedDict() # external dataset configs
         self._first_pede_config = True # does a pede job exist already?
+        self._rootIO            = False # flag to enable ROOT I/O
+        self._millepede_loc = "" # location of a custom millepede install?
 
         self._create_config()
         self._fill_general_options()
@@ -70,6 +72,8 @@ class SetupAlignment(object):
         self._construct_paths()
         self._create_mass_storage_directory()
         self._fetch_pede_settings()
+        self._fetch_IO_settings()
+        self._fetch_millepede_settings()
         self._create_weight_configs()
 
 
@@ -246,6 +250,19 @@ class SetupAlignment(object):
             = ([x.strip()
                 for x in self._config.get("general", "pedesettings").split(",")]
                if self._config.has_option("general", "pedesettings") else [None])
+        
+    def _fetch_IO_settings(self):
+        """Fetch IO settings from general section in `self._config`."""
+
+        self._rootIO \
+            = self._config.has_option("general", "useRootIO") 
+
+
+    def _fetch_millepede_settings(self):
+        """Fetch Millepede installation settings from general section in `self._config`."""
+        self._millepede_loc \
+            = self._config.get("general","millepedeLocation") if self._config.has_option("general","millepedeLocation") else "" 
+
 
 
     def _create_mille_jobs(self):
@@ -345,6 +362,10 @@ class SetupAlignment(object):
                        "cmscafuser:"+self._mss_dir]
             if dataset["numberOfEvents"] > 0:
                 command.extend(["--max-events", str(dataset["numberOfEvents"])])
+            if self._rootIO:
+                command.extend(["-r"]) 
+            if self._millepede_loc != "":
+                command.extend(["--mp2loc",self._millepede_loc]) 
             command = [x for x in command if len(x.strip()) > 0]
 
             # Some output:
@@ -363,6 +384,10 @@ class SetupAlignment(object):
                 print("Jsonfile:          ", dataset["json"])
             if self._args.verbose:
                 print("Pass to mps_setup: ", " ".join(command))
+            if self._rootIO:
+                print("Use ROOT-based xrootd I/O")
+            if self._millepede_loc != "":
+                print("Using Millepede installation from ",self._millepede_loc)
 
             # call the command and toggle verbose output
             self._handle_process_call(command, self._args.verbose)

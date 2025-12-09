@@ -10,6 +10,8 @@
 RUNDIR=$HOME/scratch0/some/path
 MSSDIR=/castor/cern.ch/user/u/username/another/path
 MSSDIRPOOL=
+# Custom MP-II install - will be potentially overwritten by steering 
+MP2LOC=""
 
 clean_up () {
 #try to recover log files and root files
@@ -106,6 +108,21 @@ echo The running directory is $(pwd).
 # Execute. The cfg file name will be overwritten by MPS
 time cmsRun the.cfg
 
+# setup custom MP-II installation if specified
+# For now, do it *after* cmsRun, as we would otherwise
+# override the CMSSW custom Mille version.
+# FIXME: Unify Mille implementations and use external one
+# in CMSSW
+if [[ ! -z "${MP2LOC}" ]] 
+then 
+    echo -e "Using custom Millepede-II installation from\n        ${MP2LOC}"
+    source ${MP2LOC}/mp2setup.sh
+fi 
+
+# convert to ROOT 
+cToRoot milleBinaryISN.root milleBinaryISN.dat 
+
+
 gzip -f *.log
 gzip milleBinaryISN.dat
 echo "\nDirectory content after running cmsRun and zipping log+dat files:"
@@ -160,6 +177,7 @@ else
   # copy the files
   echo "xrdcp -f milleBinaryISN.dat.gz ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz > /dev/null"
   untilSuccess xrdcp milleBinaryISN.dat.gz    ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz  1
+  untilSuccess xrdcp milleBinaryISN.root      ${MSSCAFDIR}/binaries/milleBinaryISN.root  1
   untilSuccess xrdcp treeFile.root            ${MSSCAFDIR}/tree_files/treeFileISN.root 1
   untilSuccess xrdcp millePedeMonitorISN.root ${MSSCAFDIR}/monitors/millePedeMonitorISN.root 1
 fi

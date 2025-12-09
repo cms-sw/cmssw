@@ -80,9 +80,7 @@ if ($cfgName eq "undefined") {
   exit 1;
 }
 
-if ($checkok == 1) {
-  read_db();
-}
+read_db();
 
 # open the input file
 open INFILE,"$inScript";
@@ -122,22 +120,28 @@ if ($castorPool ne "undefined") {
 #... or empty the field.
   $nn = ($body =~ s/MSSDIRPOOL=(.*)$/MSSDIRPOOL=/m);
 }
-
+#replace MP2LOC setting 
+if ($mp2loc ne "") {
+  $nn = ($body =~ s/MP2LOC=(.+)$/MP2LOC=$mp2loc/m);
+} 
 # now we have to expand lines that contain the ISN directive
 @LINES = split "\n",$body;
 
 foreach $theLine (@LINES) {
   if ($theLine =~ m/ISN/) {
-    $newBlock = "";
-    for ($i = 1; $i <= $nJobs; ++$i) {
+    $newBlock = "";    
+    # only duplicate these lines if not directly loading files with xrootd
+    if (not $rootIO){
+      for ($i = 1; $i <= $nJobs; ++$i) {
 
-      if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
+        if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
 
-      $newLine = $theLine;
-      $isnRep = sprintf "%03d",$i;
-      $newLine =~ s/ISN/$isnRep/g;
-      if ($i != 1) { $newBlock = $newBlock . "\n"; }
-      $newBlock = $newBlock . $newLine;
+        $newLine = $theLine;
+        $isnRep = sprintf "%03d",$i;
+        $newLine =~ s/ISN/$isnRep/g;
+        if ($i != 1) { $newBlock = $newBlock . "\n"; }
+        $newBlock = $newBlock . $newLine;
+      }
     }
     $theLine = $newBlock;
   } 

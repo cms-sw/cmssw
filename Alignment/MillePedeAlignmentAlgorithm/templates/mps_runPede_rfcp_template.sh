@@ -8,6 +8,9 @@
 BATCH_DIR=$(pwd)
 echo -e "Running at $(date) \n        on ${HOSTNAME} \n        in directory ${BATCH_DIR}."
 
+# Custom MP-II install - will be potentially overwritten by steering 
+MP2LOC=""   
+
 # in singularity containers, source baseline setup script
 if [[ ! -z "${SINGULARITY_NAME}" ]] 
 then 
@@ -18,6 +21,14 @@ fi
 cd CMSSW_RELEASE_AREA
 eval `scram runtime -sh`
 hash -r
+
+# setup custom MP-II installation if specified
+if [[ ! -z "${MP2LOC}" ]] 
+then 
+    echo -e "Using custom Millepede-II installation from\n        ${MP2LOC}"
+    source ${MP2LOC}/mp2setup.sh
+fi 
+
 
 cd ${BATCH_DIR}
 echo Running directory changed to $(pwd).

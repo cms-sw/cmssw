@@ -125,8 +125,8 @@ my $tmpc = "";
 $tmpc = " -c" if($onlyactivejobs == 1);
 
 # create merge job script
-print "mps_scriptm.pl${tmpc} $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool\n";
-system "mps_scriptm.pl${tmpc} $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool";
+print "mps_scriptm.pl${tmpc} $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool $mp2loc\n";
+system "mps_scriptm.pl${tmpc} $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool $mp2loc";
 
 # Write to DB
 write_db();

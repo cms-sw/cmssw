@@ -27,6 +27,7 @@ $isn = "undefined";
 $mssDirLocal = "undefined"; # not to confuse with mssDir from 'mpslib'.
 $castorPool = "undefined";
 $cmsCafPool = 0;
+$mp2dir = "undefined";
 
 # parse the arguments
 while (@ARGV) {
@@ -69,6 +70,9 @@ while (@ARGV) {
     elsif ($i eq 8) {
       $castorPool = $arg;
     }
+    elsif ($i eq 9) {
+      $mp2dir = $arg;
+    }
   }
 }
 
@@ -101,6 +105,11 @@ if ($nn != 1) {
   print "mps_script.pl: no (unambiguous) MSSDIR directive found in runscript\n";
 }
 $nn = ($body =~ s/MSSDIR=(.+)$/MSSDIR=$mssDirLocal/m);
+
+#replace MP2LOC setting 
+if ($mp2dir ne "undefined") {
+  $nn = ($body =~ s/MP2LOC=(.+)$/MP2LOC=$mp2dir/m);
+} 
 
 if ($castorPool ne "undefined") {
 # replace MSSDIRPOOL setting...
