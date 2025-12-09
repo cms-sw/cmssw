@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -24,15 +23,10 @@
 //inputs
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtThDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtThDigi.h"
 
 //outputs
-#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPair.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPair.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPairContainer.h"
 
@@ -41,14 +35,22 @@
 #include <queue>
 #include <cmath>
 
+// Plugin which takes Phi and Theta DT Phase2 digi Extended collections(*) and
+// creates a new class container of the 4 best closest Phi-Theta digi pairs per DT chamber
+// based on the time-position phase-space distance and ordered by Phi quality.
+
+// For those cases where there is no Phi/Theta partner, 4 best quality single Phi/Theta digis are saved
+// and counterpart in pair is set to default values of the constructor digi class
+//
+// (*) Requires df_extended>0 in L1Trigger/DTTriggerPhase2/plugins/DTTrigPhase2Prod.cc
+
 using namespace edm;
 using namespace std;
 using namespace cmsdt;
 
 namespace {
   struct {
-    bool operator()(const L1Phase2MuDTExtPhDigi &mp1, const L1Phase2MuDTExtPhDigi &mp2) const {
-
+    bool operator()(const L1Phase2MuDTExtPhDigi& mp1, const L1Phase2MuDTExtPhDigi& mp2) const {
       int sector1 = mp1.scNum();
       int wheel1 = mp1.whNum();
       int station1 = mp1.stNum();
@@ -65,14 +67,13 @@ namespace {
       if (station1 != station2)
         return station1 < station2;
 
-      // If they are in the same category, sort by the value (4th index)
+      // If they are in the same chamber, sort by quality
       return mp1.quality() > mp2.quality();
     }
   } const comparePhiDigis;
 
   struct {
-    bool operator()(const L1Phase2MuDTThDigi &mp1, const L1Phase2MuDTThDigi &mp2) const {
-
+    bool operator()(const L1Phase2MuDTThDigi& mp1, const L1Phase2MuDTThDigi& mp2) const {
       int sector1 = mp1.scNum();
       int wheel1 = mp1.whNum();
       int station1 = mp1.stNum();
@@ -89,22 +90,20 @@ namespace {
       if (station1 != station2)
         return station1 < station2;
 
-      // If they are in the same category, sort by the value (4th index)
+      // If they are in the same chamber, sort by quality
       return mp1.quality() > mp2.quality();
     }
   } const compareThetaDigis;
 
   struct {
-    bool operator()(const L1Phase2MuDTExtPhiThetaPair &mp1, const L1Phase2MuDTExtPhiThetaPair &mp2) const {
+    bool operator()(const L1Phase2MuDTExtPhiThetaPair& mp1, const L1Phase2MuDTExtPhiThetaPair& mp2) const {
       return mp1.quality() > mp2.quality();
     }
   } const comparePairs;
 
 }  //namespace
 
-
 class DTTrigPhase2PairsProd : public edm::stream::EDProducer<> {
-
 public:
   //! Constructor
   DTTrigPhase2PairsProd(const edm::ParameterSet& pset);
@@ -122,17 +121,16 @@ public:
   void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
 
   // Methods
-  void sortPhiDigis(const edm::Handle<L1Phase2MuDTExtPhContainer> &thePhiDigis);
-  void sortThetaDigis(const edm::Handle<L1Phase2MuDTExtThContainer> &theThetaDigis);
-  std::vector<L1Phase2MuDTExtPhiThetaPair> bestPairsPerChamber(
-    const std::vector<L1Phase2MuDTExtPhDigi>& phiDigis,
-    const std::vector<L1Phase2MuDTExtThDigi>& thetaDigis,
-    unsigned int maxPairs, int wheel, int sector, int station);
+  void sortPhiDigis(const edm::Handle<L1Phase2MuDTExtPhContainer>& thePhiDigis);
+  void sortThetaDigis(const edm::Handle<L1Phase2MuDTExtThContainer>& theThetaDigis);
+  std::vector<L1Phase2MuDTExtPhiThetaPair> bestPairsPerChamber(const std::vector<L1Phase2MuDTExtPhDigi>& phiDigis,
+                                                               const std::vector<L1Phase2MuDTExtThDigi>& thetaDigis,
+                                                               unsigned int maxPairs,
+                                                               int wheel,
+                                                               int sector,
+                                                               int station);
   float computeTimePosDistance(
-   const L1Phase2MuDTExtPhDigi phiDigi,
-   const L1Phase2MuDTExtThDigi thetaDigi,
-   int sector, int wheel, int station);
-  // Getter-methods
+      const L1Phase2MuDTExtPhDigi phiDigi, const L1Phase2MuDTExtThDigi thetaDigi, int sector, int wheel, int station);
 
   // Setter-methods
 
@@ -143,7 +141,6 @@ public:
   double shift_back;
 
 private:
-
   // Debug Flag
   bool debug_;
   int scenario_;
@@ -152,17 +149,14 @@ private:
   // ParameterSet
   edm::EDGetTokenT<L1Phase2MuDTExtPhContainer> digiPhToken_;
   edm::EDGetTokenT<L1Phase2MuDTExtThContainer> digiThToken_;
-
 };
 
-
-DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const ParameterSet& pset){
+DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const ParameterSet& pset) {
   produces<L1Phase2MuDTExtPhiThetaPairContainer>();
 
-  debug_    = pset.getUntrackedParameter<bool>("debug");
+  debug_ = pset.getUntrackedParameter<bool>("debug");
   scenario_ = pset.getParameter<int>("scenario");
-//  max_index_ = pset.getParameter<int>("max_primitives") - 1;
-  max_index_ = 4;
+  max_index_ = 4; //Not configurable due to hardware capacities
 
   digiPhToken_ = consumes<L1Phase2MuDTExtPhContainer>(pset.getParameter<edm::InputTag>("digiPhTag"));
   digiThToken_ = consumes<L1Phase2MuDTExtThContainer>(pset.getParameter<edm::InputTag>("digiThTag"));
@@ -175,8 +169,7 @@ DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const ParameterSet& pset){
   else if (scenario_ == SLICE_TEST)
     temp_shift = 400;  // slice test mimics simulation
 
-  shift_back = temp_shift; 
-
+  shift_back = temp_shift;
 }
 
 DTTrigPhase2PairsProd::~DTTrigPhase2PairsProd() {
@@ -204,9 +197,9 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
   }
 
   if (debug_)
-    LogDebug("DTTrigPhase2PairsProd") <<" Containers read";
+    LogDebug("DTTrigPhase2PairsProd") << " Containers read";
 
-  using ChamberKey = std::tuple<int, int, int>; // (wheel, sector, station)
+  using ChamberKey = std::tuple<int, int, int>;  // (wheel, sector, station)
 
   std::map<ChamberKey, std::vector<L1Phase2MuDTExtPhDigi>> phiByChamber;
   std::map<ChamberKey, std::vector<L1Phase2MuDTExtThDigi>> thetaByChamber;
@@ -215,22 +208,21 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
     LogDebug("DTTrigPhase2PairsProd") << "Variables declared";
 
   // Group phi digis
-  for (auto phiIte = thePhiDigis->getContainer()->begin();
-     phiIte != thePhiDigis->getContainer()->end(); ++phiIte) {
+  for (auto phiIte = thePhiDigis->getContainer()->begin(); phiIte != thePhiDigis->getContainer()->end(); ++phiIte) {
     ChamberKey key(phiIte->whNum(), phiIte->scNum(), phiIte->stNum());
     phiByChamber[key].push_back(*phiIte);
   }
 
   // Group theta digis
-  for (auto thetaIte = theThetaDigis->getContainer()->begin();
-     thetaIte != theThetaDigis->getContainer()->end(); ++thetaIte) {
+  for (auto thetaIte = theThetaDigis->getContainer()->begin(); thetaIte != theThetaDigis->getContainer()->end();
+       ++thetaIte) {
     ChamberKey key(thetaIte->whNum(), thetaIte->scNum(), thetaIte->stNum());
     thetaByChamber[key].push_back(*thetaIte);
   }
 
   if (debug_)
     LogDebug("DTTrigPhase2PairsProd") << "Grouping per chamber";
-  
+
   std::vector<L1Phase2MuDTExtPhiThetaPair> allPairs;
 
   // Process each chamber key from phi digis
@@ -241,49 +233,48 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
 
     auto thetaListIt = thetaByChamber.find(key);
 
-     for (const auto& phi : phiList) 
-            phiDigis.emplace_back(phi);
+    for (const auto& phi : phiList)
+      phiDigis.emplace_back(phi);
 
-     if (thetaListIt != thetaByChamber.end()) { //    Both phi and theta exist 
-     for (const auto& theta : thetaListIt->second) 
-            thetaDigis.emplace_back(theta);     
-     }
+    if (thetaListIt != thetaByChamber.end()) {  //    Both phi and theta exist
+      for (const auto& theta : thetaListIt->second)
+        thetaDigis.emplace_back(theta);
+    }
 
-     if (debug_)
-         LogDebug("DTTrigPhase2PairsProd") << "Working on chamber:";
+    if (debug_)
+      LogDebug("DTTrigPhase2PairsProd") << "Working on chamber:";
 
-     std::sort(phiDigis.begin(), phiDigis.end(), comparePhiDigis);
-     std::sort(thetaDigis.begin(), thetaDigis.end(), compareThetaDigis);
- 
-     if (debug_)
-       LogDebug("DTTrigPhase2PairsProd") << "Sorting";
+    std::sort(phiDigis.begin(), phiDigis.end(), comparePhiDigis);
+    std::sort(thetaDigis.begin(), thetaDigis.end(), compareThetaDigis);
 
-     auto [wheel, sector, station] = key; // unpack tuple
-     chamberPairs = std::move(bestPairsPerChamber(phiDigis,thetaDigis,max_index_,wheel,sector,station));
+    if (debug_)
+      LogDebug("DTTrigPhase2PairsProd") << "Sorting";
 
-     if (debug_)
-         LogDebug("DTTrigPhase2PairsProd") << "Saving top 4";
+    auto [wheel, sector, station] = key;  // unpack tuple
+    chamberPairs = std::move(bestPairsPerChamber(phiDigis, thetaDigis, max_index_, wheel, sector, station));
 
-    for (const auto& pair : chamberPairs) 
-          allPairs.emplace_back(pair);
-        }
+    if (debug_)
+      LogDebug("DTTrigPhase2PairsProd") << "Saving top 4";
 
-     if (debug_)
-       LogDebug("DTTrigPhase2PairsProd") << "Saving products";
+    for (const auto& pair : chamberPairs)
+      allPairs.emplace_back(pair);
+  }
+
+  if (debug_)
+    LogDebug("DTTrigPhase2PairsProd") << "Saving products";
 
   // Storing results in the event
-    std::unique_ptr<L1Phase2MuDTExtPhiThetaPairContainer> resultPhiThetaPair(new L1Phase2MuDTExtPhiThetaPairContainer);
-    resultPhiThetaPair->setContainer(allPairs);
+  std::unique_ptr<L1Phase2MuDTExtPhiThetaPairContainer> resultPhiThetaPair(new L1Phase2MuDTExtPhiThetaPairContainer);
+  resultPhiThetaPair->setContainer(allPairs);
   iEvent.put(std::move(resultPhiThetaPair));
-    if (debug_)
+  if (debug_)
     LogDebug("DTTrigPhase2PairsProd") << "Saved in the event";
 
   allPairs.clear();
   allPairs.erase(allPairs.begin(), allPairs.end());
 }
 
-void DTTrigPhase2PairsProd::endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
-};
+void DTTrigPhase2PairsProd::endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {};
 
 void DTTrigPhase2PairsProd::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // dtTriggerPhase2PrimitivePairDigis
@@ -297,56 +288,56 @@ void DTTrigPhase2PairsProd::fillDescriptions(edm::ConfigurationDescriptions& des
 
 DEFINE_FWK_MODULE(DTTrigPhase2PairsProd);
 
-
 std::vector<L1Phase2MuDTExtPhiThetaPair> DTTrigPhase2PairsProd::bestPairsPerChamber(
     const std::vector<L1Phase2MuDTExtPhDigi>& phiDigis,
     const std::vector<L1Phase2MuDTExtThDigi>& thetaDigis,
-    unsigned int maxPairs, int wheel, int sector, int station) {
-
+    unsigned int maxPairs,
+    int wheel,
+    int sector,
+    int station) {
   std::vector<L1Phase2MuDTExtPhiThetaPair> pairs;
 
-  if (station == 4 || thetaDigis.empty()) { // no theta digis in chamber
+  if (station == 4 || thetaDigis.empty()) {  // no theta digis in chamber
 
-  L1Phase2MuDTExtThDigi emptyTheta; 
-  for (const auto& phi : phiDigis){
-    int phiQuality = phi.quality();
-    pairs.emplace_back(phi, emptyTheta, phiQuality);
+    L1Phase2MuDTExtThDigi emptyTheta;
+    for (const auto& phi : phiDigis) {
+      int phiQuality = phi.quality();
+      pairs.emplace_back(phi, emptyTheta, phiQuality);
+    }
+
   }
- 
-  }
 
-  else if ( phiDigis.empty() && !(thetaDigis.empty())){ // no phi digis in chamber
+  else if (phiDigis.empty() && !(thetaDigis.empty())) {  // no phi digis in chamber
 
-  L1Phase2MuDTExtPhDigi emptyPhi;
-  for (const auto& theta : thetaDigis){
-    int thetaQuality = theta.quality();
-    pairs.emplace_back(emptyPhi, theta, thetaQuality);
-
-  } 
-
-}
-
-  else{  // phi and theta digis in chamber
-
-  for (const auto& phi : phiDigis) {
-    float closestDistance = numeric_limits<float>::infinity();
-    const L1Phase2MuDTExtThDigi *closestTheta=nullptr;
-
+    L1Phase2MuDTExtPhDigi emptyPhi;
     for (const auto& theta : thetaDigis) {
-        float currentDistance = computeTimePosDistance(phi,theta,sector,wheel,station);
-        if(closestDistance > currentDistance){
+      int thetaQuality = theta.quality();
+      pairs.emplace_back(emptyPhi, theta, thetaQuality);
+    }
+
+  }
+
+  else {  // phi and theta digis in chamber
+
+    for (const auto& phi : phiDigis) {
+      float closestDistance = numeric_limits<float>::infinity();
+      const L1Phase2MuDTExtThDigi* closestTheta = nullptr;
+
+      for (const auto& theta : thetaDigis) {
+        float currentDistance = computeTimePosDistance(phi, theta, sector, wheel, station);
+        if (closestDistance > currentDistance) {
           closestDistance = currentDistance;
           closestTheta = &theta;
-        }             
-      
-      int phiQuality = phi.quality();
-      if(closestTheta)
-      pairs.emplace_back(phi, *closestTheta, phiQuality);
+        }
+
+        int phiQuality = phi.quality();
+        if (closestTheta)
+          pairs.emplace_back(phi, *closestTheta, phiQuality);
+      }
     }
   }
-}
   // Sort by quality descending
-  std::sort(pairs.begin(), pairs.end(),comparePairs);
+  std::sort(pairs.begin(), pairs.end(), comparePairs);
 
   // Keep only top-N
   if (pairs.size() > maxPairs)
@@ -355,63 +346,30 @@ std::vector<L1Phase2MuDTExtPhiThetaPair> DTTrigPhase2PairsProd::bestPairsPerCham
   return pairs;
 }
 
-
 float DTTrigPhase2PairsProd::computeTimePosDistance(
-   const L1Phase2MuDTExtPhDigi phiDigi,
-   const L1Phase2MuDTExtThDigi thetaDigi,
-   int sector, int wheel, int station) {
+    const L1Phase2MuDTExtPhDigi phiDigi, const L1Phase2MuDTExtThDigi thetaDigi, int sector, int wheel, int station) {
+  float t01 = ((int)round(thetaDigi.t0() / (float)LHC_CLK_FREQ)) - shift_back;
+  float posRefZ = zFE[wheel + 2];
 
-   float t01 = ((int)round(thetaDigi.t0() / (float)LHC_CLK_FREQ)) - shift_back;
-   float posRefZ = zFE[wheel + 2];
- 
-   if (wheel == 0 && (sector == 1 || sector == 4 || sector == 5 || sector == 8 || sector == 9 || sector == 12))
-      posRefZ = -posRefZ;
+  if (wheel == 0 && (sector == 1 || sector == 4 || sector == 5 || sector == 8 || sector == 9 || sector == 12))
+    posRefZ = -posRefZ;
 
-   float posZ = abs(thetaDigi.z());
+  float posZ = abs(thetaDigi.z());
 
-   float t02 = ((int)round(phiDigi.t0() / (float)LHC_CLK_FREQ)) - shift_back;
+  float t02 = ((int)round(phiDigi.t0() / (float)LHC_CLK_FREQ)) - shift_back;
 
-   float tphi = t02 - abs(posZ / ZRES_CONV - posRefZ) / vwire;
+  float tphi = t02 - abs(posZ / ZRES_CONV - posRefZ) / vwire;
 
-   int LR = -1;
-   if (wheel == 0 && (sector == 3 || sector == 4 || sector == 7 || sector == 8 || sector == 11 || sector == 12))
-        LR = +1;
-   else if (wheel > 0)
-        LR = pow(-1, wheel + sector + 1);
-   else if (wheel < 0)
-        LR = pow(-1, -wheel + sector);
+  int LR = -1;
+  if (wheel == 0 && (sector == 3 || sector == 4 || sector == 7 || sector == 8 || sector == 11 || sector == 12))
+    LR = +1;
+  else if (wheel > 0)
+    LR = pow(-1, wheel + sector + 1);
+  else if (wheel < 0)
+    LR = pow(-1, -wheel + sector);
 
-   float posRefX = LR * xFE[station - 1];
-   float ttheta = t01 - (phiDigi.xLocal() / 1000 - posRefX) / vwire;
+  float posRefX = LR * xFE[station - 1];
+  float ttheta = t01 - (phiDigi.xLocal() / 1000 - posRefX) / vwire;
 
-   return abs(tphi - ttheta);
+  return abs(tphi - ttheta);
 }
-   
-/*void DTTrigPhase2PairsProd::sortThetaDigis(const edm::Handle<L1Phase2MuDTExtThContainer> &theThetaDigis) {
-  // Copy to a vector for sorting
-  std::vector<L1Phase2MuDTThDigi> sortedThetaDigis(theThetaDigis->begin(), theThetaDigis->end());
-
-  // Sort using comparator
-  std::sort(sortedThetaDigis.begin(), sortedThetaDigis.end(), compareThetaDigis);
-
-  for (const auto &theta : sortedThetaDigis) {
-    edm::LogInfo("ThetaSorting") << "Wheel=" << theta.whNum()
-                                 << " Sector=" << theta.scNum()
-                                 << " Station=" << theta.stNum();
-  }
-}
-
-void DTTrigPhase2PairsProd::sortPhiDigis(const edm::Handle<L1Phase2MuDTExtPhContainer> &thePhiDigis) {
-  // Copy to a vector for sorting
-  std::vector<L1Phase2MuDTExtPhDigi> sortedThetaDigis(thePhiDigis->begin(), thePhiDigis->end());
-
-  // Sort using comparator
-  std::sort(sortedPhiDigis.begin(), sortedPhiDigis.end(), comparePhiDigis());
-
-  for (const auto &theta : sortedPhiDigis) {
-    edm::LogInfo("PhiSorting") << "Wheel=" << theta.whNum()
-                                 << " Sector=" << theta.scNum()
-                                 << " Station=" << theta.stNum();
-  }
-}
-*/
