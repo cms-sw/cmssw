@@ -172,24 +172,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             fill_SoA_eigen_row<float>(vi.TOA_TW(), calib_data_["TOA_TW"], n);
           }
 
-          // average energy loss of absorption layers that sandwich the sensors (do not average last layer)
+          // energy loss of absorption layers that sandwich the sensors is provided already averaged
           // https://twiki.cern.ch/twiki/pub/CMS/HGCALSimulationAndPerformance/CalibratedRecHits.pdf
           const int layer = moduleMapper.view().plane()[imod];  // counts from 1
-          float dEdx =
-              (layer < nlayers ? (energylosses[layer - 1] + energylosses[layer]) / 2 : energylosses[nlayers - 1]);
+          float dEdx = energylosses[layer - 1];
 
           // compute thickness correction
-          float sf;
+          float sf_from_config;
           const bool isSiPM = moduleMapper.view().isSiPM()[imod];
           const int celltype = moduleMapper.view().celltype()[imod];
           const uint32_t detid = moduleMapper.view().detid()[imod];
           if (isSiPM)  // scintillator
-            sf = energy_data["SF_thickness_SiPM"][0];
+            sf_from_config = energy_data["SF_thickness_SiPM"][0];
           else  // Si module
-            sf = getThicknessCorrection(energy_data["SF_thickness_Si"], detid, celltype, filenameEnergy_.fullPath());
+            sf_from_config = getThicknessCorrection(energy_data["SF_thickness_Si"], detid, celltype, filenameEnergy_.fullPath());
           edm::LogInfo("HGCalCalibrationESProducer")
-              << "layer=" << layer << ", celltype=" << celltype << ", isSiPM=" << isSiPM << ", dEdx=" << dEdx
-              << ", sf=" << sf << std::endl;
+              << "layer = " << layer << ", celltype = " << celltype << ", isSiPM = " << isSiPM << ", dEdx = " << dEdx
+              << ", sf_from_config = " << sf_from_config << std::endl;
+	  float sf = (sf_from_config > 0 ? 1./sf_from_config : 1.);
+	  edm::LogWarning("HGCalCalibrationESProducer")
+	    << "EM reconstruction scale factor (SF_thickness_Si) is not positive\n"
+	    << "SF_thickness_Si = " << sf_from_config << std::endl; 
+  
           dEdx *= sf * 1e-3;  // apply correction and convert from MeV to GeV
           fill_SoA_column_single<float>(product.view().EM_scale().data(), dEdx, offset, nrows);
 
