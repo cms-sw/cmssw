@@ -939,8 +939,6 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void TestOutliers::beginRun(edm::Run const &run, const edm::EventSetup &es) {
-  const bool oldAddDir = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(false);
   file = new TFile(out.c_str(), "recreate");
   histoPtOut = new TH1F("histoPtOut", "histoPtOut", 100, -10, 10);
   histoPtOut->SetDirectory(file);
@@ -1122,7 +1120,6 @@ void TestOutliers::beginRun(edm::Run const &run, const edm::EventSetup &es) {
   probYshared->SetDirectory(file);
   probYnoshare = new TH1F("probYnoshare", "probYnoshare", 110, 0, 1.1);
   probYnoshare->SetDirectory(file);
-  TH1::AddDirectory(oldAddDir);
 }
 // ------------ method called once each job just after ending the event loop  ------------
 void TestOutliers::endJob() {

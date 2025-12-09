@@ -83,8 +83,6 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  bool dirStat = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(kFALSE);
 
   /// DT histos
   // 1d hits
@@ -376,7 +374,6 @@ DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
   // segs
   new TH1F("hnSegDT", "Num seg DT", 50, 0., 50.);
   histo("hnSegDT")->SetDirectory(theFile);
-  TH1::AddDirectory(dirStat);
 }
 
 /* Destructor */

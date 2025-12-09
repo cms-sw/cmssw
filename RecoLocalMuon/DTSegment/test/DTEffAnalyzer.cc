@@ -72,8 +72,6 @@ void DTEffAnalyzer::beginJob() {
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  bool dirStat = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(kFALSE);
 
   // trigger Histos
   new TH1F("hTrigBits", "All trigger bits", 10, 0., 10.);
@@ -130,7 +128,6 @@ void DTEffAnalyzer::beginJob() {
   }
   // cout << "List of created histograms " << endl;
   // theFile->ls();
-  TH1::AddDirectory(dirStat);
 }
 
 /* Destructor */

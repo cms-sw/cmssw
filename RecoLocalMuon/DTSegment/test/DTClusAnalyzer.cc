@@ -61,8 +61,6 @@ DTClusAnalyzer::DTClusAnalyzer(const ParameterSet& pset) : _ev(0) {
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  bool dirStat = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(kFALSE);
 
   /// DT histos
   new TH1F("hnClus", "Num 1d clus ", 50, 0., 50.);
@@ -111,7 +109,6 @@ DTClusAnalyzer::DTClusAnalyzer(const ParameterSet& pset) : _ev(0) {
 
   new TH2F("hClusVsSegHitSL", "#hits (clus vs segs) per SL", 20, 0, 20, 20, 0, 20);
   histo("hClusVsSegHitSL")->SetDirectory(theFile);
-  TH1::AddDirectory(dirStat);
 }
 
 /* Destructor */

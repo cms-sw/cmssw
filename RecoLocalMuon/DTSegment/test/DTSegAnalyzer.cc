@@ -83,8 +83,6 @@ DTSegAnalyzer::DTSegAnalyzer(const ParameterSet& pset)
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  bool dirStat = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(kFALSE);
 
   /// DT histos
   // 1d hits
@@ -187,7 +185,6 @@ DTSegAnalyzer::DTSegAnalyzer(const ParameterSet& pset)
   new TH2F("hNsegs2dSL2VsNsegs2dSL3", "N segs 2d SL2 vs SL3 ", 5, -0.5, 4.5, 5, -0.5, 4.5);
   histo("hNsegs2dSL2VsNsegs2dSL3")->SetDirectory(theFile);
 
-  TH1::AddDirectory(dirStat);
 }
 
 /* Destructor */
