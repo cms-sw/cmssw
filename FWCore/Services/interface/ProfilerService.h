@@ -23,7 +23,7 @@
     auto const& label = esmcc.componentDescription()->label_;                                   \
     auto const& type = esmcc.componentDescription()->type_;                                     \
     std::string msg;                                                                            \
-    if (label.size() == 0) {                                                                    \
+    if (label.empty()) {                                                                        \
       /*Fallback on the type */                                                                 \
       msg = type + "(type) " + #signal "";                                                      \
     } else {                                                                                    \
@@ -38,7 +38,7 @@
     auto const& label = esmcc.componentDescription()->label_;                                   \
     auto const& type = esmcc.componentDescription()->type_;                                     \
     std::string msg;                                                                            \
-    if (label.size() == 0) {                                                                    \
+    if (label.empty()) {                                                                        \
       /* Fallback on the type */                                                                \
       msg = type + "(type) " + #signal "";                                                      \
     } else {                                                                                    \
@@ -553,7 +553,7 @@ void ProfilerService<Backend>::preallocate(edm::service::SystemBounds const& bou
   // create the NVTX domains for per-EDM-stream transitions
   stream_domain_.resize(concurrentStreams);
   for (unsigned int sid = 0; sid < concurrentStreams; ++sid) {
-    stream_domain_[sid].create(fmt::sprintf("EDM Stream %d", sid).c_str());
+    stream_domain_[sid].create(fmt::sprintf("EDM Stream %d", sid));
   }
 
   event_.resize(concurrentStreams);
@@ -596,7 +596,7 @@ void ProfilerService<Backend>::lookupInitializationComplete(edm::PathsAndConsume
                                                             edm::ProcessContext const&) {
   Backend::mark(global_domain_, "lookupInitializationComplete", Color::Amber);
   // We could potentially get all we want from pathsAndConsumes...
-  assert(path_.size() > 0 and endPath_.size() > 0);
+  assert(!path_.empty() and !endPath_.empty());
   for (auto& streamPaths : path_) {
     streamPaths.resize(pathsAndConsumes.paths().size());
   }
@@ -1115,7 +1115,7 @@ void ProfilerService<Backend>::preESModulePrefetching(edm::eventsetup::EventSetu
   auto const& label = esmcc.componentDescription()->label_;
   auto const& type = esmcc.componentDescription()->type_;
   std::string msg;
-  if (label.size() == 0) {
+  if (label.empty()) {
     // Fallback on the type
     msg = type + "(type) " +
           "ES prefetch"
@@ -1135,7 +1135,7 @@ void ProfilerService<Backend>::postESModulePrefetching(edm::eventsetup::EventSet
   auto const& label = esmcc.componentDescription()->label_;
   auto const& type = esmcc.componentDescription()->type_;
   std::string msg;
-  if (label.size() == 0) {
+  if (label.empty()) {
     // Fallback on the type
     msg = type + "(type) " +
           "ES prefetch"
