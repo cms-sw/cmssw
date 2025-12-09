@@ -455,7 +455,7 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
       const auto strippedInputFileName = theCompleteInputFileName.substr(0, endOfStrippedFileName);
       // Check if the file exists
       struct stat buffer;
-      // skip stat if we are using xrootd paths. 
+      // skip stat if we are using xrootd paths.
       if (plainFile.find("root://") == 0 || stat(strippedInputFileName.c_str(), &buffer) == 0) {
         // If the file exists, add it to the list
         files.push_back(theCompleteInputFileName);
