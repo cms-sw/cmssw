@@ -13,6 +13,7 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
@@ -27,15 +28,15 @@ private:
   std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcal_hits_token_;
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> barrel_hits_token_;
 
-  bool hgcalOnly_;
-  bool barrelOnly_;
+  bool doHgcal_;
+  bool doBarrel_;
 };
 
 DEFINE_FWK_MODULE(RecHitMapProducer);
 
 using DetIdRecHitMap = std::unordered_map<DetId, const unsigned int>;
 
-RecHitMapProducer::RecHitMapProducer(const edm::ParameterSet& ps) : hgcalOnly_(ps.getParameter<bool>("hgcalOnly")), barrelOnly_(ps.getParameter<bool>("barrelOnly")) {
+RecHitMapProducer::RecHitMapProducer(const edm::ParameterSet& ps) : doHgcal_(ps.getParameter<bool>("doHgcal")), doBarrel_(ps.getParameter<bool>("doBarrel")) {
   std::vector<edm::InputTag> tags = ps.getParameter<std::vector<edm::InputTag>>("hits");
   for (auto& tag : tags) {
     if (tag.label().find("HGCalRecHit") != std::string::npos) {
@@ -44,16 +45,10 @@ RecHitMapProducer::RecHitMapProducer(const edm::ParameterSet& ps) : hgcalOnly_(p
       barrel_hits_token_.push_back(consumes<reco::PFRecHitCollection>(tag));
     }
   }
-
-  if (!barrelOnly_) {
-    produces<edm::RefProdVector<HGCRecHitCollection>>("RefProdVectorHGCRecHitCollection");
-    produces<DetIdRecHitMap>("hgcalRecHitMap");
-  }
-
-  if (!hgcalOnly_) {
-    produces<edm::RefProdVector<reco::PFRecHitCollection>>("RefProdVectorPFRecHitCollection");
-    produces<DetIdRecHitMap>("barrelRecHitMap");
-  }
+  produces<edm::RefProdVector<HGCRecHitCollection>>("RefProdVectorHGCRecHitCollection");
+  produces<DetIdRecHitMap>("hgcalRecHitMap");
+  produces<edm::RefProdVector<reco::PFRecHitCollection>>("RefProdVectorPFRecHitCollection");
+  produces<DetIdRecHitMap>("barrelRecHitMap");
 }
 
 void RecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -62,13 +57,14 @@ void RecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
                                        {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
                                         edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
                                         edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
-  desc.add<bool>("hgcalOnly", true);
-  desc.add<bool>("barrelOnly", false);
+  desc.add<bool>("doHgcal", true);
+  desc.add<bool>("doBarrel", false);
   descriptions.add("recHitMapProducer", desc);
 }
 
 void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
-  if (!barrelOnly_) {
+
+  if (doHgcal_) {
     auto hitMapHGCal = std::make_unique<DetIdRecHitMap>();
 
     // Retrieve collections
@@ -99,9 +95,12 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
       evt.put(std::move(mcHGCRecHit), "RefProdVectorHGCRecHitCollection");
       evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
     }
+  } else {
+    evt.put(std::make_unique<edm::RefProdVector<HGCRecHitCollection>>(), "RefProdVectorHGCRecHitCollection");
+    evt.put(std::make_unique<DetIdRecHitMap>(), "hgcalRecHitMap");
   }
 
-  if (!hgcalOnly_) {
+  if (doBarrel_) {
     auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
 
     assert(barrel_hits_token_.size() == 2);
@@ -111,7 +110,7 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
     if (!ecal_hits.isValid() || !hbhe_hits.isValid()) {
       edm::LogWarning("HGCalRecHitMapProducer")
           << "One or more barrel hit collections are unavailable. Returning an empty map.";
-      evt.put(std::make_unique<edm::RefProdVector<PFRecHitCollection>>(), "RefProdVectorPFRecHitCollection");
+      evt.put(std::make_unique<edm::RefProdVector<reco::PFRecHitCollection>>(), "RefProdVectorPFRecHitCollection");
       evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
     } else {
       // Fix order by storing a edm::RefProdVector<PFRecHitCollection>
@@ -128,5 +127,8 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
       evt.put(std::move(mcPFRecHit), "RefProdVectorPFRecHitCollection");
       evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
     }
+  } else {
+    evt.put(std::make_unique<edm::RefProdVector<reco::PFRecHitCollection>>(), "RefProdVectorPFRecHitCollection");
+    evt.put(std::make_unique<DetIdRecHitMap>(), "barrelRecHitMap");
   }
 }

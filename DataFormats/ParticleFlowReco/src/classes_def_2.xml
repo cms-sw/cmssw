@@ -69,6 +69,9 @@
 
   <class name="std::vector<reco::PFRecHit>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecHit> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFRecHit> >"/>
+  <class name="std::vector<edm::RefProd<std::vector<reco::PFRecHit> > >"/>
+  <class name="edm::Wrapper<std::vector<edm::RefProd<std::vector<reco::PFRecHit> > > >"/>
   <class name="edm::Ref< std::vector<reco::PFRecHit>, reco::PFRecHit, edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecHit>,reco::PFRecHit>  >"/>
 
   <class name="edm::RefVector<std::vector<reco::PFRecHit>,reco::PFRecHit,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecHit>,reco::PFRecHit> >"/>
