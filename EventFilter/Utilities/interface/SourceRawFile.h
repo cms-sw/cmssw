@@ -158,7 +158,7 @@ public:
   void appendFile(std::string const& name, uint64_t size) {
     size_t prevOffset = bufferOffsets_.back();
     size_t prevSize = diskFileSizes_.back();
-    size_t prevAccumSize = diskFileSizes_.back();
+    size_t prevAccumSize = bufferEnds_.back();
     numFiles_++;
     fileNames_.push_back(name);
     fileOrder_.push_back(fileOrder_.size());
@@ -205,8 +205,16 @@ public:
       if ((int64_t)bufferEnds_[fidx] - (int64_t)bufferOffsets_[fidx] == 0)
         complete++;
     }
-    if (complete && complete < bufferOffsets_.size())
-      throw cms::Exception("InputFile") << "buffers are inconsistent for input files with primary " << fileName_;
+    if (complete && complete < bufferOffsets_.size()) {
+      std::string completeFiles;
+      for (size_t fidx = 0; fidx < bufferOffsets_.size(); fidx++) {
+        if ((int64_t)bufferEnds_[fidx] - (int64_t)bufferOffsets_[fidx] == 0)
+          completeFiles += "\n" + fileNames_[fidx];
+      }
+      throw cms::Exception("InputFile")
+          << "EOF was not reached for all source files at the same time, files where end was reached early are:"
+          << completeFiles;
+    }
     return complete > 0;
   }
   void setFileDataType(unsigned int j, uint16_t dataType) { fileDataType_[j] = dataType; }
