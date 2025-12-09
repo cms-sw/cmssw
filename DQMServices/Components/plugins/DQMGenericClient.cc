@@ -164,10 +164,10 @@ public:
     TF1 fgaus("fgaus", "gaus", h->GetYaxis()->GetXmin(), h->GetYaxis()->GetXmax(), TF1::EAddToList::kNo);
     h->FitSlicesY(&fgaus, 0, -1, 0, "QNR SERIAL", &aSlices);
     string name(h->GetName());
-    h0 = (TH1*)aSlices.FindObject((name + "_0").c_str());
-    h1 = (TH1*)aSlices.FindObject((name + "_1").c_str());
-    h2 = (TH1*)aSlices.FindObject((name + "_2").c_str());
-    h3 = (TH1*)aSlices.FindObject((name + "_chi2").c_str());
+    h0 = fetchSlice(aSlices, name + "_0");
+    h1 = fetchSlice(aSlices, name + "_1");
+    h2 = fetchSlice(aSlices, name + "_2");
+    h3 = fetchSlice(aSlices, name + "_chi2");
   }
 
   /// Destructor
@@ -241,6 +241,16 @@ private:
   TH1* h1;
   TH1* h2;
   TH1* h3;
+
+  TH1* fetchSlice(TObjArray& arr, const std::string& name) {
+    auto* obj = (TH1*)arr.FindObject(name.c_str());
+    if (!obj) {
+      throw cms::Exception("FitSlicesYTool") << "Cannot find slice histogram: " << name;
+    }
+    TH1* hnew = (TH1*)obj->Clone();
+    hnew->SetDirectory(nullptr);
+    return hnew;
+  }
 };
 
 typedef DQMGenericClient::MonitorElement ME;
