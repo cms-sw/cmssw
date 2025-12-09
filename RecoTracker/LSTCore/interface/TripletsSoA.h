@@ -23,6 +23,8 @@ namespace lst {
                       SOA_COLUMN(float, promptScore),          // DNN confidence score for real (prompt) t3
                       SOA_COLUMN(float, displacedScore),       // DNN confidence score for real (displaced) t3
                       SOA_COLUMN(unsigned int, connectedMax),  // number of outer-triplets that pass the MD-equality cut
+                      SOA_COLUMN(unsigned int, connectedLSMax),  // n of outer-triplets that pass the LS-equality cut
+                      SOA_COLUMN(short, charge),
 #ifdef CUT_VALUE_DEBUG
                       SOA_COLUMN(float, betaInCut),
 #endif
