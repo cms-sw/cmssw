@@ -18,11 +18,13 @@ void createOutputBranches();
 void createJetBranches();
 void createT5DNNBranches();
 void createT3DNNBranches();
+void createT4DNNBranches();
 void createSimTrackContainerBranches();
 void createTrackCandidateBranches();
 void createMiniDoubletBranches();
 void createLineSegmentBranches();
 void createTripletBranches();
+void createQuadrupletBranches();
 void createQuintupletBranches();
 void createPixelLineSegmentBranches();
 void createPixelTripletBranches();
@@ -38,6 +40,7 @@ void setTrackCandidateBranches(LSTEvent* event,
                                std::map<unsigned int, unsigned int> pls_idx_map,
                                std::map<unsigned int, unsigned int> pt3_idx_map,
                                std::map<unsigned int, unsigned int> pt5_idx_map,
+                               std::map<unsigned int, unsigned int> t4_idx_map,
                                float matchfrac);
 std::map<unsigned int, unsigned int> setMiniDoubletBranches(LSTEvent* event,
                                                             unsigned int n_accepted_simtrk,
@@ -50,6 +53,10 @@ std::map<unsigned int, unsigned int> setTripletBranches(LSTEvent* event,
                                                         unsigned int n_accepted_simtrk,
                                                         float matchfrac,
                                                         std::map<unsigned int, unsigned int> const& ls_idx_map);
+std::map<unsigned int, unsigned int> setQuadrupletBranches(LSTEvent* event,
+                                                           unsigned int n_accepted_simtrk,
+                                                           float matchfrac,
+                                                           std::map<unsigned int, unsigned int> const& t3_idx_map);
 std::map<unsigned int, unsigned int> setQuintupletBranches(LSTEvent* event,
                                                            unsigned int n_accepted_simtrk,
                                                            float matchfrac,
@@ -70,8 +77,10 @@ std::map<unsigned int, unsigned int> setPixelQuintupletBranches(LSTEvent* event,
 
 void fillT5DNNBranches(LSTEvent* event, unsigned int T3);
 void fillT3DNNBranches(LSTEvent* event, unsigned int iT3);
+void fillT4DNNBranches(LSTEvent* event, unsigned int T4);
 void setT5DNNBranches(LSTEvent* event);
 void setT3DNNBranches(LSTEvent* event, float matchfrac = 0.75);
+void setT4DNNBranches(LSTEvent* event);
 
 std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(
     LSTEvent* event,
@@ -103,6 +112,12 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
     std::vector<float> const& trk_ph2_x,
     std::vector<float> const& trk_ph2_y,
     std::vector<float> const& trk_ph2_z);
+std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parseT4(
+    LSTEvent* event,
+    unsigned int,
+    std::vector<float> const& trk_ph2_x,
+    std::vector<float> const& trk_ph2_y,
+    std::vector<float> const& trk_ph2_z);
 std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepLS(LSTEvent* event,
                                                                                                unsigned int);
 
@@ -112,12 +127,9 @@ void printHitMultiplicities(LSTEvent* event);
 
 // Print objects (GPU)
 void printAllObjects(LSTEvent* event);
-void printpT4s(LSTEvent* event);
 void printMDs(LSTEvent* event);
 void printLSs(LSTEvent* event);
 void printpLSs(LSTEvent* event);
 void printT3s(LSTEvent* event);
-void printT4s(LSTEvent* event);
-void printTCs(LSTEvent* event);
 
 #endif

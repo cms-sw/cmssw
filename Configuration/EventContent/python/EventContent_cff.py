@@ -715,7 +715,7 @@ phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
                             'keep *_hltGeneralTracks_*_*',
                             'keep *_hltInitialStepTrackSelectionHighPurity_*_*',
                             'keep *_hltHighPtTripletStepTrackSelectionHighPurity_*_*',
-                            'keep *_hltInitialStepTracksT5TCLST_*_*',
+                            'keep *_hltInitialStepTracksT4T5TCLST_*_*',
                             'keep *_hltOfflinePrimaryVertices_*_*',
                         ])
 

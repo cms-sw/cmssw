@@ -30,6 +30,7 @@ class WorkFlowRunner(Thread):
         self.recoOutput = ''
         self.startFrom = opt.startFrom
         self.recycle = opt.recycle
+        self.useRNTuple = opt.useRNTuple
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
         if jobNumber is not None:
@@ -58,6 +59,33 @@ class WorkFlowRunner(Thread):
 
         return ret
     
+    @staticmethod
+    def replace_filein_extensions(command_line, extension):
+        # Pattern to match --filein followed by file:file.ext entries (comma-separated)
+        filein_pattern = re.compile(
+            r'(--filein\s+)((?:file:[a-zA-Z0-9_]+\.[a-z]+(?:,\s*)?)*)'
+        )
+
+        # Inner pattern to match individual file entries
+        file_pattern = re.compile(r'file:([a-zA-Z0-9_]+)\.[a-z]+')
+
+        def replace_filein_match(filein_match):
+            filein_prefix = filein_match.group(1)
+            file_list_str = filein_match.group(2)
+
+            # Replace extensions in the file list
+            new_file_list = file_pattern.sub(
+                lambda m: 'file:{0}{1}'.format(m.group(1), extension),
+                file_list_str
+            )
+
+            return filein_prefix + new_file_list
+
+        # Replace the whole --filein section with updated extensions
+        new_command_line = filein_pattern.sub(replace_filein_match, command_line)
+
+        return new_command_line 
+
     def run(self):
 
         startDir = os.getcwd()
@@ -164,6 +192,8 @@ class WorkFlowRunner(Thread):
 
                 cmd += com
 
+                if self.useRNTuple:
+                    cmd+=' --rntuple_out'
                 if self.startFrom:
                     steps = cmd.split("-s ")[1].split(" ")[0]
                     if self.startFrom not in steps:
@@ -207,18 +237,8 @@ class WorkFlowRunner(Thread):
                         else:
                             cmd+=' --filein  file:step%s%s '%(istep-1,extension)
                     elif istep!=1 and '--filein' in cmd and '--filetype' not in cmd:
-                        #make sure correct extension is being used
-                        #find the previous state index
-                        expression = '--filein\s+file:step([1-9])(_[a-zA-Z]+)*\.[a-z]+'
-                        m = re.search(expression, cmd)
-                        if m:
-                            cmd = re.sub(expression,r'--filein file:step\1\2'+outputExtensionForStep[int(m.group(1))],cmd)
-                        elif extension == '.rntpl':
-                            #some ALCA steps use special file names without step_ prefix and these are also force to use RNTuple
-                            expression = '--filein\s+file:([a-zA-Z0-9_]+)*\.[a-z]+'
-                            m = re.search(expression, cmd)
-                            if m:
-                                cmd = re.sub(expression,r'--filein file:\1.rntpl',cmd)
+                        # make sure correct extension is being used
+                        cmd = self.replace_filein_extensions(cmd, extension)
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s%s '%(istep,extension)
                         if "RECO" in cmd:
