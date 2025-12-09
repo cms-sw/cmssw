@@ -30,6 +30,7 @@ class WorkFlowRunner(Thread):
         self.recoOutput = ''
         self.startFrom = opt.startFrom
         self.recycle = opt.recycle
+        self.useRNTuple = opt.useRNTuple
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
         if jobNumber is not None:
@@ -191,6 +192,8 @@ class WorkFlowRunner(Thread):
 
                 cmd += com
 
+                if self.useRNTuple:
+                    cmd+=' --rntuple_out'
                 if self.startFrom:
                     steps = cmd.split("-s ")[1].split(" ")[0]
                     if self.startFrom not in steps:

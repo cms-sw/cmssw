@@ -437,6 +437,12 @@ if __name__ == '__main__':
                         default=None,
                         action='store')
 
+    parser.add_argument('--use-rntuple',
+                        help='Use RNTuple format for IO',
+                        dest='useRNTuple',
+                        default=False,
+                        action='store_true')
+
     gpugroup = parser.add_argument_group('GPU-related options','These options are only meaningful when --gpu is used, and is not set to forbidden.')
 
     gpugroup.add_argument('--gpu','--requires-gpu',
