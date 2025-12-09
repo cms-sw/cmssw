@@ -105,8 +105,8 @@ int AlignmentIORootBase::closeRoot(void) {
 // returns highest existing iteration in file
 // if file does not exist: return -1
 
-int AlignmentIORootBase::testFile(const char* filename, const TString& tname) {  
-  std::unique_ptr<TFile> aFile ( TFile::Open(filename, "read"));
+int AlignmentIORootBase::testFile(const char* filename, const TString& tname) {
+  std::unique_ptr<TFile> aFile(TFile::Open(filename, "read"));
   if (!aFile || !aFile->IsOpen()) {
     return -1;
   } else {
