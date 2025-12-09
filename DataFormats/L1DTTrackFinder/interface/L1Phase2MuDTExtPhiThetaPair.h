@@ -21,28 +21,19 @@ public:
   L1Phase2MuDTExtPhiThetaPair() = default;
 
   /// Constructor with digis and quality
-  L1Phase2MuDTExtPhiThetaPair(const L1Phase2MuDTExtPhDigi& phi,
-                            const L1Phase2MuDTExtThDigi& theta,
-                            int quality);
+  L1Phase2MuDTExtPhiThetaPair(const L1Phase2MuDTExtPhDigi& phi, const L1Phase2MuDTExtThDigi& theta, int quality);
 
-    // Explicitly allow copy/move
-    L1Phase2MuDTExtPhiThetaPair(const L1Phase2MuDTExtPhiThetaPair&) = default;
-    L1Phase2MuDTExtPhiThetaPair& operator=(const L1Phase2MuDTExtPhiThetaPair&) = default;
-    L1Phase2MuDTExtPhiThetaPair(L1Phase2MuDTExtPhiThetaPair&&) = default;
-    L1Phase2MuDTExtPhiThetaPair& operator=(L1Phase2MuDTExtPhiThetaPair&&) = default;
+  // Explicitly allow copy/move
+  L1Phase2MuDTExtPhiThetaPair(const L1Phase2MuDTExtPhiThetaPair&) = default;
+  L1Phase2MuDTExtPhiThetaPair& operator=(const L1Phase2MuDTExtPhiThetaPair&) = default;
+  L1Phase2MuDTExtPhiThetaPair(L1Phase2MuDTExtPhiThetaPair&&) = default;
+  L1Phase2MuDTExtPhiThetaPair& operator=(L1Phase2MuDTExtPhiThetaPair&&) = default;
 
   /// Accessors
   const L1Phase2MuDTExtPhDigi& phiDigi() const { return phi_; }
   const L1Phase2MuDTExtThDigi& thetaDigi() const { return theta_; }
   int quality() const { return quality_; }
 
-/*  /// Static utility: retrieve closest-N time-position pairs per chamber ordered by Phi quality
-  static std::vector<L1Phase2MuDTExtPhiThetaPair> topPairsPerChamber(
-      const std::vector<L1Phase2MuDTExtPhDigi>& phiDigis,
-      const std::vector<L1Phase2MuDTExtThDigi>& thetaDigis,
-      unsigned int chamberId,
-      unsigned int maxPairs = 4);
-*/
 private:
   L1Phase2MuDTExtPhDigi phi_;
   L1Phase2MuDTExtThDigi theta_;
@@ -50,4 +41,3 @@ private:
 };
 
 #endif
-

@@ -36,8 +36,11 @@ L1Phase2MuDTExtPhiThetaPairContainer::L1Phase2MuDTExtPhiThetaPairContainer() {}
 //--------------
 // Operations --
 //--------------
-void L1Phase2MuDTExtPhiThetaPairContainer::setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; }
+void L1Phase2MuDTExtPhiThetaPairContainer::setContainer(const Segment_Container& inputSegments) {
+  m_segments = inputSegments;
+}
 
-L1Phase2MuDTExtPhiThetaPairContainer::Segment_Container const* L1Phase2MuDTExtPhiThetaPairContainer::getContainer() const {
+L1Phase2MuDTExtPhiThetaPairContainer::Segment_Container const* L1Phase2MuDTExtPhiThetaPairContainer::getContainer()
+    const {
   return &m_segments;
 }
