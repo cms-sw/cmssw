@@ -47,6 +47,7 @@ public:
   void recoHFShowerLibrary(const FSimTrack& myTrack);
   void modifyDepth(HcalNumberingFromDDD::HcalID& id);
   const std::map<CaloHitID, float>& getHitsMap() { return hitMap; };
+  void clear() { hitMap.clear(); }
 
   void SetRandom(const RandomEngineAndDistribution*);
 
