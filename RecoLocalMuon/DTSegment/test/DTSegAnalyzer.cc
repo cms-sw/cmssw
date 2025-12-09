@@ -184,7 +184,6 @@ DTSegAnalyzer::DTSegAnalyzer(const ParameterSet& pset)
   histo("hNsegs2dSL1VsNsegs2dSL2")->SetDirectory(theFile);
   new TH2F("hNsegs2dSL2VsNsegs2dSL3", "N segs 2d SL2 vs SL3 ", 5, -0.5, 4.5, 5, -0.5, 4.5);
   histo("hNsegs2dSL2VsNsegs2dSL3")->SetDirectory(theFile);
-
 }
 
 /* Destructor */
