@@ -8,10 +8,12 @@ namespace {
   struct {
     bool operator()(const metaPrimitive &mp1, const metaPrimitive &mp2) const {
       DTChamberId chId1(mp1.rawId);
+      DTSuperLayerId slId1(mp1.rawId);
 
       int sector1 = chId1.sector();
       int wheel1 = chId1.wheel();
       int station1 = chId1.station();
+      int sl1 = slId1.superLayer();
 
       DTChamberId chId2(mp2.rawId);
       DTSuperLayerId slId2(mp2.rawId);
@@ -19,6 +21,7 @@ namespace {
       int sector2 = chId2.sector();
       int wheel2 = chId2.wheel();
       int station2 = chId2.station();
+      int sl2 = slId2.superLayer();
 
       // First, compare by chamber
       if (sector1 != sector2)
@@ -27,11 +30,47 @@ namespace {
         return wheel1 < wheel2;
       if (station1 != station2)
         return station1 < station2;
+      if (sl1 != sl2)
+        return sl1 < sl2;
 
-      // If they are in the same category, sort by the value (4th index)
+      // If they are in the same chamber and SL, sort by the quality
       return mp1.quality > mp2.quality;
     }
   } const compareMPs;
+
+  struct {
+    bool operator()(const metaPrimitive &mp1, const metaPrimitive &mp2) const {
+      // Use main characteristics to know if it is the same metaPrimitive
+      if (mp1.rawId != mp2.rawId)
+        return mp1.rawId < mp2.rawId;
+
+      if (mp1.quality != mp2.quality)
+        return mp1.quality > mp2.quality;
+
+      if (mp1.x != mp2.x)
+        return mp1.x < mp2.x;
+
+      if (mp1.tanPhi != mp2.tanPhi)
+        return mp1.tanPhi < mp2.tanPhi;
+
+      if (mp1.chi2 != mp2.chi2)
+        return mp1.chi2 < mp2.chi2;
+
+      return mp1.t0 < mp2.t0;
+    }
+  } const deepCompareMPs;
+
+  struct {
+    bool operator()(const metaPrimitive &mp1, const metaPrimitive &mp2) const {
+      // Use main characteristics to know if it is the same metaPrimitive
+      if (mp1.rawId != mp2.rawId || mp1.quality != mp2.quality || mp1.x != mp2.x || mp1.tanPhi != mp2.tanPhi ||
+          mp1.chi2 != mp2.chi2 || mp1.t0 != mp2.t0)
+        return false;
+      else
+        return true;
+    }
+  } const sameMPs;
+
 }  //namespace
 
 // ============================================================================
@@ -80,6 +119,13 @@ void MPThetaMatching::run(edm::Event &iEvent,
           << std::endl;
     outMPaths = inMPaths;  //no filter at all
   }
+
+  ///////////////////////////
+  // Filter out duplicates
+  // Sort by key so equal keys become adjacent
+  std::sort(outMPaths.begin(), outMPaths.end(), deepCompareMPs);
+  // Unique-erase adjacent duplicates
+  outMPaths.erase(std::unique(outMPaths.begin(), outMPaths.end(), sameMPs), outMPaths.end());
 }
 
 void MPThetaMatching::finish() {};
