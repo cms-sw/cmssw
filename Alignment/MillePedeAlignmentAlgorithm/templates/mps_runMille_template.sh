@@ -119,8 +119,10 @@ then
     source ${MP2LOC}/mp2setup.sh
 fi 
 
-# convert to ROOT 
-cToRoot milleBinaryISN.root milleBinaryISN.dat 
+# convert to ROOT if we have cToROOT
+if which cToRoot 2>/dev/null
+then cToRoot milleBinaryISN.root milleBinaryISN.dat  
+fi 
 
 
 gzip -f *.log
@@ -177,7 +179,11 @@ else
   # copy the files
   echo "xrdcp -f milleBinaryISN.dat.gz ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz > /dev/null"
   untilSuccess xrdcp milleBinaryISN.dat.gz    ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz  1
-  untilSuccess xrdcp milleBinaryISN.root      ${MSSCAFDIR}/binaries/milleBinaryISN.root  1
+  # copy over ROOT binary if present
+  if [[ -e milleBinaryISN.root ]] 
+  then 
+    untilSuccess xrdcp milleBinaryISN.root      ${MSSCAFDIR}/binaries/milleBinaryISN.root  1
+  fi 
   untilSuccess xrdcp treeFile.root            ${MSSCAFDIR}/tree_files/treeFileISN.root 1
   untilSuccess xrdcp millePedeMonitorISN.root ${MSSCAFDIR}/monitors/millePedeMonitorISN.root 1
 fi
