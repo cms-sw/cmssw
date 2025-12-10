@@ -328,25 +328,122 @@ namespace simdoublets {
             "Set to true if SimPixelTracks are built from reconstructed tracks instead of TrackingParticles. "
             "This will disable most plots (those relying on truth information) but still produce CAParameters");
 
-    // cut for minimum number of RecHits required for an Ntuplet
-    desc.add<uint>("minHitsPerNtuplet", 4)->setComment("Cut on minimum number of RecHits required for an Ntuplet");
-
     // Extension settings
     desc.add<bool>("includeOTBarrel", false)->setComment("If true, add barrel layers from the OT extension.");
     desc.add<bool>("includeOTDisks", false)->setComment("If true, add disk layers from the OT extension.");
 
-    // cut parameters with scalar values
-    desc.add<double>("ptmin", 0.9)
+    // cut for minimum number of RecHits required for an Ntuplet
+    desc.add<uint>("minHitsPerNtuplet", 4)->setComment("Cut on minimum number of RecHits required for an Ntuplet");
+
+    //// Impact parameter cut (@cell level)
+    desc.add<double>("cellZ0Cut", TrackerTraits::cellZ0Cut)->setComment("Maximum longitudinal impact parameter");
+
+    //// Pixel Cluster Cuts (@cell level)
+    desc.add<double>("dzdrFact", TrackerTraits::dzdrFact);
+    desc.add<int>("minYsizeB1", TrackerTraits::minYsizeB1)
+        ->setComment("Cut on inner hit cluster size (in global z / local y) for barrel-forward cells. Barrel 1 cut.");
+    desc.add<int>("minYsizeB2", TrackerTraits::minYsizeB2)
+        ->setComment(
+            "Cut on inner hit cluster size (in global z / local y) for barrel-forward cells. Anything but Barrel 1 "
+            "cut.");
+    desc.add<int>("maxDYsize12", TrackerTraits::maxDYsize12)
+        ->setComment(
+            "Cut on cluster size differences (in global z / local y) for barrel-forward cells. Barrel 1-2 cells.");
+    desc.add<int>("maxDYsize", TrackerTraits::maxDYsize)
+        ->setComment(
+            "Cut on cluster size differences (in global z / local y) for barrel-forward cells. Other barrel cells.");
+    desc.add<int>("maxDYPred", TrackerTraits::maxDYPred)
+        ->setComment(
+            "Maximum difference between actual and expected cluster size of inner RecHit. Barrel-forward cells.");
+
+    edm::ParameterSetDescription geometryParams;
+    // layers params
+    geometryParams
+        .add<std::vector<double>>(
+            "caDCACuts",
+            std::vector<double>(TrackerTraits::dcaCuts, TrackerTraits::dcaCuts + TrackerTraits::numberOfLayers))
+        ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
+    geometryParams
+        .add<std::vector<double>>(
+            "caThetaCuts",
+            std::vector<double>(TrackerTraits::thetaCuts, TrackerTraits::thetaCuts + TrackerTraits::numberOfLayers))
+        ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
+    geometryParams
+        .add<std::vector<unsigned int>>(
+            "startingPairs",
+            std::vector<unsigned int>(TrackerTraits::startingPairs,
+                                      TrackerTraits::startingPairs + TrackerTraits::nStartingPairs))
+        ->setComment("The list of the ids of pairs from which the CA ntuplets building may start.");
+    geometryParams.add<std::vector<int>>("isBarrel", std::vector<int>(TrackerTraits::numberOfLayers, 1))
+        ->setComment(
+            "Bool vector with one element per layer that defines if the min/max cut for doublet building is applied in "
+            "z (isBarrel->true) or r (isBarrel->false).");
+    // cells params
+    geometryParams
+        .add<std::vector<unsigned int>>(
+            "pairGraph",
+            std::vector<unsigned int>(TrackerTraits::layerPairs,
+                                      TrackerTraits::layerPairs + (TrackerTraits::nPairsForQuadruplets * 2)))
+        ->setComment("CA graph (layer pairs used for building doublets/cells)");
+    geometryParams
+        .add<std::vector<int>>(
+            "phiCuts",
+            std::vector<int>(TrackerTraits::phicuts, TrackerTraits::phicuts + TrackerTraits::nPairsForQuadruplets))
+        ->setComment("Cuts in dphi for cells");
+    geometryParams
+        .add<std::vector<double>>(
+            "ptCuts",
+            std::vector<double>(TrackerTraits::ptCuts, TrackerTraits::ptCuts + TrackerTraits::nPairsForQuadruplets))
+        ->setComment("Cuts in pt for cells");
+    geometryParams
+        .add<std::vector<double>>(
+            "minInner",
+            std::vector<double>(TrackerTraits::minInner, TrackerTraits::minInner + TrackerTraits::nPairsForQuadruplets))
+        ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (min value)");
+    geometryParams
+        .add<std::vector<double>>(
+            "maxInner",
+            std::vector<double>(TrackerTraits::maxInner, TrackerTraits::maxInner + TrackerTraits::nPairsForQuadruplets))
+        ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (max value)");
+    geometryParams
+        .add<std::vector<double>>(
+            "minOuter",
+            std::vector<double>(TrackerTraits::minOuter, TrackerTraits::minOuter + TrackerTraits::nPairsForQuadruplets))
+        ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (min value)");
+    geometryParams
+        .add<std::vector<double>>(
+            "maxOuter",
+            std::vector<double>(TrackerTraits::maxOuter, TrackerTraits::maxOuter + TrackerTraits::nPairsForQuadruplets))
+        ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (max value)");
+    geometryParams
+        .add<std::vector<double>>(
+            "maxDR",
+            std::vector<double>(TrackerTraits::maxDR, TrackerTraits::maxDR + TrackerTraits::nPairsForQuadruplets))
+        ->setComment("Cuts in max dr for cells");
+    geometryParams
+        .add<std::vector<double>>(
+            "minDZ",
+            std::vector<double>(TrackerTraits::minDZ, TrackerTraits::minDZ + TrackerTraits::nPairsForQuadruplets))
+        ->setComment("Cuts in minimum dz between hits for cells");
+    geometryParams
+        .add<std::vector<double>>(
+            "maxDZ",
+            std::vector<double>(TrackerTraits::maxDZ, TrackerTraits::maxDZ + TrackerTraits::nPairsForQuadruplets))
+        ->setComment("Cuts in maximum dz between hits for cells");
+
+    desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
+        ->setComment("Layer-dependent cuts and settings of the CA");
+
+    // nTuplet Cuts and Params
+    //// p [GeV/c] = B [T] * R [m] * 0.3 (factor from conversion from J to GeV and q = e = 1.6 * 10e-19 C)
+    //// 87 cm/GeV = 1/(3.8T * 0.3)
+    //// take less than radius given by the hardPtCut and reject everything below
+    desc.add<double>("hardCurvCut", TrackerTraits::hardCurvCut)
+        ->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
+    desc.add<double>("ptmin", 0.9f)
         ->setComment(
             "Minimum tranverse momentum considered for the multiple scattering expectation when checking alignement in "
             "R-z plane of two doublets in GeV");
-    desc.add<double>("hardCurvCut", 1. / (0.35 * 87.))
-        ->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
-    desc.add<int>("maxDYsize12", TrackerTraits::maxDYsize12)
-        ->setComment("Maximum difference in cluster size for B1/B2");
-    desc.add<int>("maxDYsize", TrackerTraits::maxDYsize)->setComment("Maximum difference in cluster size");
-    desc.add<int>("maxDYPred", TrackerTraits::maxDYPred)
-        ->setComment("Maximum difference between actual and expected cluster size of inner RecHit");
   }
 
   // Function that, for a pair of two layers, gives a unique pair Id (innerLayerId * 100 + outerLayerId).
@@ -911,7 +1008,7 @@ void SimPixelTrackAnalyzer<TrackerTraits>::fillGeneralHistograms(SimPixelTrack c
   h_numTOVsPhiPt_.fill(passed, trackTruth.phi, trackTruth.pt);
 }
 
-// function that trys to find a valid Ntuplet for the given SimPixelTrack using the given geometry configuration
+// function that tries to find a valid Ntuplet for the given SimPixelTrack using the given geometry configuration
 // (layer pairs, starting pairs, minimum number of hits) ignoring all cuts on doublets/connections and returns if it was able to find one
 template <typename TrackerTraits>
 bool SimPixelTrackAnalyzer<TrackerTraits>::configAllowsForValidNtuplet(SimPixelTrack const& simPixelTrack) const {
@@ -2061,81 +2158,11 @@ void SimPixelTrackAnalyzer<TrackerTraits>::fillDescriptions(edm::ConfigurationDe
 // fillDescription for Phase 1
 template <>
 void SimPixelTrackAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  int nPairs = pixelTopology::Phase1::nPairsForQuadruplets;
-
   edm::ParameterSetDescription desc;
   simdoublets::fillDescriptionsCommon<pixelTopology::Phase1>(desc);
 
   // input source for SimPixelTrack
   desc.add<edm::InputTag>("simPixelTrackSrc", edm::InputTag("simPixelTrackProducerPhase1"));
-
-  // cutting parameters
-  desc.add<int>("minYsizeB1", 36)->setComment("Minimum cluster size for inner RecHit from B1");
-  desc.add<int>("minYsizeB2", 28)->setComment("Minimum cluster size for inner RecHit not from B1");
-  desc.add<double>("cellZ0Cut", 12.0)->setComment("Maximum longitudinal impact parameter");
-  desc.add<double>("cellPtCut", 0.5)->setComment("Minimum tranverse momentum");
-
-  // layer-dependent parameters + layer pairs
-  edm::ParameterSetDescription geometryParams;
-  // layers params
-  geometryParams
-      .add<std::vector<double>>(
-          "caDCACuts",
-          std::vector<double>(std::begin(phase1PixelTopology::dcaCuts), std::end(phase1PixelTopology::dcaCuts)))
-      ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
-  geometryParams
-      .add<std::vector<double>>(
-          "caThetaCuts",
-          std::vector<double>(std::begin(phase1PixelTopology::thetaCuts), std::end(phase1PixelTopology::thetaCuts)))
-      ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
-  geometryParams.add<std::vector<unsigned int>>("startingPairs", {0u, 1u, 2u})
-      ->setComment(
-          "Array of variable length with the indices of the starting pairs for Ntuplet building");  //TODO could be parsed via an expression
-                                                                                                    // cells params
-  geometryParams.add<std::vector<int>>("isBarrel", std::vector<int>(phase1PixelTopology::numberOfLayers, 1))
-      ->setComment(
-          "Bool vector with one element per layer that defines if the min/max cut for doublet building is applied in "
-          "z (isBarrel->true) or r (isBarrel->false).");
-  // cells params
-  geometryParams
-      .add<std::vector<unsigned int>>(
-          "pairGraph",
-          std::vector<unsigned int>(std::begin(phase1PixelTopology::layerPairs),
-                                    std::begin(phase1PixelTopology::layerPairs) + (nPairs * 2)))
-      ->setComment("CA graph");
-  geometryParams
-      .add<std::vector<int>>(
-          "phiCuts",
-          std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::begin(phase1PixelTopology::phicuts) + nPairs))
-      ->setComment("Cuts in phi for cells");
-  geometryParams.add<std::vector<double>>("ptCuts", std::vector<double>(nPairs, 0.5))
-      ->setComment("Minimum tranverse momentum");
-  geometryParams
-      .add<std::vector<double>>(
-          "minInner",
-          std::vector<double>(std::begin(phase1PixelTopology::minz), std::begin(phase1PixelTopology::minz) + nPairs))
-      ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (min value)");
-  geometryParams
-      .add<std::vector<double>>(
-          "maxInner",
-          std::vector<double>(std::begin(phase1PixelTopology::maxz), std::begin(phase1PixelTopology::maxz) + nPairs))
-      ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (max value)");
-  geometryParams.add<std::vector<double>>("minOuter", std::vector<double>(nPairs, -10000))
-      ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (min value)");
-  geometryParams.add<std::vector<double>>("maxOuter", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (max value)");
-  geometryParams
-      .add<std::vector<double>>(
-          "maxDR",
-          std::vector<double>(std::begin(phase1PixelTopology::maxr), std::begin(phase1PixelTopology::maxr) + nPairs))
-      ->setComment("Cuts in max dr for cells");
-  geometryParams.add<std::vector<double>>("minDZ", std::vector<double>(nPairs, -10000))
-      ->setComment("Cuts in max dz for cells");
-  geometryParams.add<std::vector<double>>("maxDZ", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts in min dz for cells");
-
-  desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
-      ->setComment("Layer pair graph, layer-dependent cut values.");
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -2143,83 +2170,11 @@ void SimPixelTrackAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::Configu
 // fillDescription for Phase 2
 template <>
 void SimPixelTrackAnalyzer<pixelTopology::Phase2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  int nPairs = pixelTopology::Phase2::nPairs;
-
   edm::ParameterSetDescription desc;
   simdoublets::fillDescriptionsCommon<pixelTopology::Phase2>(desc);
 
   // input source for SimPixelTrack
   desc.add<edm::InputTag>("simPixelTrackSrc", edm::InputTag("simPixelTrackProducerPhase2"));
-
-  // cutting parameters for doublets
-  desc.add<int>("minYsizeB1", 25)->setComment("Minimum cluster size for inner RecHit from B1");
-  desc.add<int>("minYsizeB2", 15)->setComment("Minimum cluster size for inner RecHit not from B1");
-  desc.add<double>("cellZ0Cut", 7.5)->setComment("Maximum longitudinal impact parameter");
-  desc.add<double>("cellPtCut", 0.85)->setComment("Minimum tranverse momentum in GeV");
-
-  // layer-dependent parameters + layer pairs
-  edm::ParameterSetDescription geometryParams;
-  // layers params
-  geometryParams
-      .add<std::vector<double>>(
-          "caDCACuts",
-          std::vector<double>(std::begin(phase2PixelTopology::dcaCuts), std::end(phase2PixelTopology::dcaCuts)))
-      ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
-  geometryParams
-      .add<std::vector<double>>(
-          "caThetaCuts",
-          std::vector<double>(std::begin(phase2PixelTopology::thetaCuts), std::end(phase2PixelTopology::thetaCuts)))
-      ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
-  geometryParams.add<std::vector<int>>("isBarrel", std::vector<int>(phase2PixelTopology::numberOfLayers, 1))
-      ->setComment(
-          "Bool vector with one element per layer that defines if the min/max cut for doublet building is applied in "
-          "z (isBarrel->true) or r (isBarrel->false).");
-  geometryParams
-      .add<std::vector<unsigned int>>("startingPairs",
-                                      {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16,
-                                       17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32})
-      ->setComment(
-          "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
-  // cells params
-  geometryParams
-      .add<std::vector<unsigned int>>(
-          "pairGraph",
-          std::vector<unsigned int>(std::begin(phase2PixelTopology::layerPairs),
-                                    std::begin(phase2PixelTopology::layerPairs) + (nPairs * 2)))
-      ->setComment("CA graph");
-  geometryParams
-      .add<std::vector<int>>(
-          "phiCuts",
-          std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::begin(phase2PixelTopology::phicuts) + nPairs))
-      ->setComment("Cuts in phi for cells");
-  geometryParams.add<std::vector<double>>("ptCuts", std::vector<double>(nPairs, 0.85))
-      ->setComment("Minimum tranverse momentum");
-  geometryParams
-      .add<std::vector<double>>(
-          "minInner",
-          std::vector<double>(std::begin(phase2PixelTopology::minz), std::begin(phase2PixelTopology::minz) + nPairs))
-      ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (min value)");
-  geometryParams
-      .add<std::vector<double>>(
-          "maxInner",
-          std::vector<double>(std::begin(phase2PixelTopology::maxz), std::begin(phase2PixelTopology::maxz) + nPairs))
-      ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (max value)");
-  geometryParams.add<std::vector<double>>("minOuter", std::vector<double>(nPairs, -10000))
-      ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (min value)");
-  geometryParams.add<std::vector<double>>("maxOuter", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (max value)");
-  geometryParams
-      .add<std::vector<double>>(
-          "maxDR",
-          std::vector<double>(std::begin(phase2PixelTopology::maxr), std::begin(phase2PixelTopology::maxr) + nPairs))
-      ->setComment("Cuts in max dr for cells");
-  geometryParams.add<std::vector<double>>("minDZ", std::vector<double>(nPairs, -10000))
-      ->setComment("Cuts in max dz for cells");
-  geometryParams.add<std::vector<double>>("maxDZ", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts in min dz for cells");
-
-  desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
-      ->setComment("Layer pair graph, layer-dependent cut values.");
 
   descriptions.addWithDefaultLabel(desc);
 }
