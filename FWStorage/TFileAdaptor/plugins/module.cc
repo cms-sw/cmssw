@@ -1,4 +1,4 @@
-#include "IOPool/TFileAdaptor/src/TFileAdaptor.h"
+#include "FWStorage/TFileAdaptor/src/TFileAdaptor.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 typedef TFileAdaptor AdaptorConfig;

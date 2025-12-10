@@ -77,7 +77,7 @@ Inherits from `TFile` but uses `edm::storage::Storage` instances when doing the 
 
 ### `TFileAdaptor`
 
-`TFileAdaptor` is a cmsRun Service (with a plugin name of `AdaptorConfig`, see [IOPool/TFileAdaptor/README.md](../../IOPool/TFileAdaptor/README.md)). It explicitly registers the use of `TStorageFactoryFile` with ROOT's `TFile::Open` system. The parameters passed to `TFileAdaptor` are relayed to `edm::storage::StorageFactory` to setup the defaults for the job.
+`TFileAdaptor` is a cmsRun Service (with a plugin name of `AdaptorConfig`, see [FWStorage/TFileAdaptor/README.md](../../FWStorage/TFileAdaptor/README.md)). It explicitly registers the use of `TStorageFactoryFile` with ROOT's `TFile::Open` system. The parameters passed to `TFileAdaptor` are relayed to `edm::storage::StorageFactory` to setup the defaults for the job.
 
 ### `CondorStatusService`
 Sends condor _Chirp_ messages periodically from cmsRun. These include the most recent aggregated `edm::storage::StorageAccount` information for all protocols being used except for the `"tstoragefile"` protocol.

@@ -1,4 +1,4 @@
-#include "IOPool/TFileAdaptor/interface/TStorageFactorySystem.h"
+#include "FWStorage/TFileAdaptor/interface/TStorageFactorySystem.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 ClassImp(TStorageFactorySystem);

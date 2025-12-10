@@ -1,4 +1,4 @@
-#include "IOPool/TFileAdaptor/interface/TStorageFactoryFile.h"
+#include "FWStorage/TFileAdaptor/interface/TStorageFactoryFile.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
