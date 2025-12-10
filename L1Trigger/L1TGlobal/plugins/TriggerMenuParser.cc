@@ -2895,12 +2895,7 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
 
 bool l1t::TriggerMenuParser::parseTOPO(L1TUtmCondition condTOPO, unsigned int chipNr) {
   using namespace tmeventsetup;
-
-  std::cout << "#### parse TOPO information ####" << std::endl;
-  // std::cout << l1t2string(condTOPO.getType()) << std::endl;
-  // std::cout << l1t2string(condTOPO.getName()) << std::endl;
-  // std::cout << l1t2string(condTOPO.getObjects().at(0).getType()) << std::endl;
-
+  
   // get condition, particle name and particle type
   std::string condition = "topo";
   std::string type = l1t2string(condTOPO.getType());
