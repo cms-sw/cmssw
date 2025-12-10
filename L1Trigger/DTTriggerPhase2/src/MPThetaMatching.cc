@@ -47,11 +47,11 @@ namespace {
       if (mp1.quality != mp2.quality)
         return mp1.quality > mp2.quality;
 
-      if (mp1.x != mp2.x)
-        return mp1.x < mp2.x;
+      if (mp1.phi != mp2.phi)
+        return mp1.phi < mp2.phi;
 
-      if (mp1.tanPhi != mp2.tanPhi)
-        return mp1.tanPhi < mp2.tanPhi;
+      if (mp1.phiB != mp2.phiB)
+        return mp1.phiB < mp2.phiB;
 
       if (mp1.chi2 != mp2.chi2)
         return mp1.chi2 < mp2.chi2;
@@ -63,7 +63,7 @@ namespace {
   struct {
     bool operator()(const metaPrimitive &mp1, const metaPrimitive &mp2) const {
       // Use main characteristics to know if it is the same metaPrimitive
-      if (mp1.rawId != mp2.rawId || mp1.quality != mp2.quality || mp1.x != mp2.x || mp1.tanPhi != mp2.tanPhi ||
+      if (mp1.rawId != mp2.rawId || mp1.quality != mp2.quality || mp1.phi != mp2.phi || mp1.phiB != mp2.phiB ||
           mp1.chi2 != mp2.chi2 || mp1.t0 != mp2.t0)
         return false;
       else
@@ -122,7 +122,7 @@ void MPThetaMatching::run(edm::Event &iEvent,
 
   ///////////////////////////
   // Filter out duplicates
-  // Sort by key so equal keys become adjacent
+  // Sort by features so that equal keys become adjacent
   std::sort(outMPaths.begin(), outMPaths.end(), deepCompareMPs);
   // Unique-erase adjacent duplicates
   outMPaths.erase(std::unique(outMPaths.begin(), outMPaths.end(), sameMPs), outMPaths.end());
@@ -344,7 +344,7 @@ void MPThetaMatching::orderAndSave(std::vector<std::tuple<metaPrimitive, metaPri
 
     if ((abs(chId.wheel()) == 2 && chId.station() < 3 && count < th_option_ + 1) ||  //save an extra pair for WH+-2MB1/2
         count < th_option_) {
-      std::get<0>(p).t0 = std::get<1>(p).t0;     //replace t0 by associated phi t0
+      //std::get<0>(p).t0 = std::get<1>(p).t0;     //replace t0 by associated phi t0
       outMPs->push_back(std::get<1>(p));         //add PhiMP
       outMPs->push_back(std::get<0>(p));         //add ThetaMP
       savedThetaMPs->push_back(std::get<0>(p));  //for accounting
@@ -358,8 +358,7 @@ void MPThetaMatching::orderAndSave(std::vector<std::tuple<metaPrimitive, metaPri
     DTChamberId chId(std::get<1>(p).rawId);
     if (count < th_option_ || (abs(chId.wheel()) == 2 && chId.station() < 3 && count < (th_option_ + 1))) {
       if (std::get<1>(p).quality > th_quality_) {
-        //if (abs(chId.wheel())!=0)
-        std::get<0>(p).t0 = std::get<1>(p).t0;  //replace t0 by associated phi t0
+        //std::get<0>(p).t0 = std::get<1>(p).t0;  //replace t0 by associated phi t0
         outMPs->push_back(std::get<0>(p));      //add ThetaMP
         savedThetaMPs->push_back(std::get<0>(p));
         count++;
