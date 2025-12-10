@@ -1,7 +1,7 @@
 #ifndef __XRD_STATISTICS_SERVICE_H_
 #define __XRD_STATISTICS_SERVICE_H_
 
-#include "Utilities/StorageFactory/interface/IOTypes.h"
+#include "FWStorage/StorageFactory/interface/IOTypes.h"
 #include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 

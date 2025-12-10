@@ -1,4 +1,4 @@
-<use name="Utilities/StorageFactory"/>
+<use name="FWStorage/StorageFactory"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/ParameterSet"/>

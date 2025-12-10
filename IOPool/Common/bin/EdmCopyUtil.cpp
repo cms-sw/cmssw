@@ -11,8 +11,8 @@
 #include "TFile.h"
 #include "TError.h"
 
-#include "Utilities/StorageFactory/interface/Storage.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

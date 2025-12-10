@@ -28,7 +28,7 @@ process.add_(cms.Service("AdaptorConfig",
     )
 ))
 ```
-The `StorageAddLatencyProxy` is described in [`Utilities/StorageFactory/README.md`](../../Utilities/StorageFactory/README.md). Another useful component in this context is `StorageTracerProxy` (e.g. to find out the other-than-`PoolSource`-accessed files mentioned above)
+The `StorageAddLatencyProxy` is described in [`FWStorage/StorageFactory/README.md`](../../FWStorage/StorageFactory/README.md). Another useful component in this context is `StorageTracerProxy` (e.g. to find out the other-than-`PoolSource`-accessed files mentioned above)
 
 
 ## Short description of components
@@ -68,7 +68,7 @@ The `SyncHostResponseHandler` implements XRootD's `XrdCl::ResponseHandler` in a 
 
 ### `XrdFile`
 
-The `XrdFile` implements `edm::storage::Storage` (see [Utilities/StorageFactory/README.md](../../Utilities/StorageFactory/README.md). In CMS' terminology it represents one Physical File Name (PFN), and acts as a glue between the `edm::storage::Storage` API and `RequestManager`.
+The `XrdFile` implements `edm::storage::Storage` (see [FWStorage/StorageFactory/README.md](../../FWStorage/StorageFactory/README.md). In CMS' terminology it represents one Physical File Name (PFN), and acts as a glue between the `edm::storage::Storage` API and `RequestManager`.
 
 ### `XrdStatistics`
 
@@ -80,4 +80,4 @@ The `XrdStatisticsService` is a Service to report XrootD-related statistics cent
 
 ### `XrdStorageMaker`
 
-The `XrdStorageMaker` is a plugin in the `StorageMaker` hierarchy. See [Utilities/StorageFactory/README.md](../../Utilities/StorageFactory/README.md) for more information. Among other things it creates `XrdFile` objects.
+The `XrdStorageMaker` is a plugin in the `StorageMaker` hierarchy. See [FWStorage/StorageFactory/README.md](../../FWStorage/StorageFactory/README.md) for more information. Among other things it creates `XrdFile` objects.

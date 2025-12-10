@@ -1,8 +1,8 @@
 #ifndef DCACHE_ADAPTOR_DCACHE_FILE_H
 #define DCACHE_ADAPTOR_DCACHE_FILE_H
 
-#include "Utilities/StorageFactory/interface/Storage.h"
-#include "Utilities/StorageFactory/interface/IOFlags.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/IOFlags.h"
 #include <string>
 
 namespace edm::storage {

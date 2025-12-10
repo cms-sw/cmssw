@@ -9,10 +9,10 @@
 #include "FWCore/Reflection/interface/SetClassParsing.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StorageProxyMaker.h"
-#include "Utilities/StorageFactory/interface/StorageProxyMakerFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageAccount.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageProxyMaker.h"
+#include "FWStorage/StorageFactory/interface/StorageProxyMakerFactory.h"
 
 #include <TROOT.h>
 #include <TFile.h>

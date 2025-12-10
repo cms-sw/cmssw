@@ -4,9 +4,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
-#include "Utilities/StorageFactory/interface/StorageMaker.h"
-#include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageMaker.h"
+#include "FWStorage/StorageFactory/interface/StorageMakerFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/XrdAdaptor/src/XrdStatistics.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 

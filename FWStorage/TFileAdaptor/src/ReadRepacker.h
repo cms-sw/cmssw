@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include "Utilities/StorageFactory/interface/IOPosBuffer.h"
+#include "FWStorage/StorageFactory/interface/IOPosBuffer.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 class ReadRepacker {

@@ -1,6 +1,6 @@
-#include "Utilities/StorageFactory/interface/StorageMaker.h"
-#include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageMaker.h"
+#include "FWStorage/StorageFactory/interface/StorageMakerFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <unistd.h>

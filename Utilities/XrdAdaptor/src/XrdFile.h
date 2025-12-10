@@ -1,8 +1,8 @@
 #ifndef Utilities_XrdAdaptor_XrdFile_h
 #define Utilities_XrdAdaptor_XrdFile_h
 
-#include "Utilities/StorageFactory/interface/Storage.h"
-#include "Utilities/StorageFactory/interface/IOFlags.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/IOFlags.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "XrdCl/XrdClFile.hh"

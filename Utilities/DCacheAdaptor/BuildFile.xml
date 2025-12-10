@@ -2,7 +2,7 @@
   <lib name="1"/>
   <flags CPPDEFINES="_FILE_OFFSET_BITS=32"/>
 </export>
-<use name="Utilities/StorageFactory"/>
+<use name="FWStorage/StorageFactory"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
 <use name="dcap"/>

@@ -26,7 +26,7 @@
 <bin name="edmCopyUtil" file="EdmCopyUtil.cpp">
   <use name="boost"/>
   <use name="boost_program_options"/>
-  <use name="Utilities/StorageFactory"/>
+  <use name="FWStorage/StorageFactory"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Services"/>
   <use name="FWCore/Catalog"/>

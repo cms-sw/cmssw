@@ -6,7 +6,7 @@
 
 #include <XrdCl/XrdClXRootDResponses.hh>
 
-#include "Utilities/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include "QualityMetric.h"

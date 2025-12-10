@@ -9,7 +9,7 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Reflection"/>
 <use name="FWCore/Services"/>
-<use name="Utilities/StorageFactory"/>
+<use name="FWStorage/StorageFactory"/>
 <use name="Utilities/XrdAdaptor"/>
 <library file="*.cc" name="FWCoreServicesPlugins">
   <flags EDM_PLUGIN="1"/>
