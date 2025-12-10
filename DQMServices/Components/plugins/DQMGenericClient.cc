@@ -170,13 +170,6 @@ public:
     h3_ = fetchSlice(aSlices, name + "_chi2");
   }
 
-  /// Destructor
-  ~FitSlicesYTool() {
-    delete h0_;
-    delete h1_;
-    delete h2_;
-    delete h3_;
-  }
   /// Fill the ME with the mean value of the gaussian fit in each slice
   void getFittedMean(MonitorElement* me) {
     if (!(h1_ && me))
@@ -237,19 +230,19 @@ public:
   }
 
 private:
-  TH1* h0_;
-  TH1* h1_;
-  TH1* h2_;
-  TH1* h3_;
+  std::unique_ptr<TH1> h0_;
+  std::unique_ptr<TH1> h1_;
+  std::unique_ptr<TH1> h2_;
+  std::unique_ptr<TH1> h3_;
 
-  TH1* fetchSlice(TObjArray& arr, const std::string& name) {
+  std::unique_ptr<TH1> fetchSlice(TObjArray& arr, const std::string& name) {
     auto* obj = (TH1*)arr.FindObject(name.c_str());
     if (!obj) {
       throw cms::Exception("FitSlicesYTool") << "Cannot find slice histogram: " << name;
     }
     TH1* hnew = (TH1*)obj->Clone();
     hnew->SetDirectory(nullptr);
-    return hnew;
+    return std::unique_ptr<TH1>(hnew);
   }
 };
 
