@@ -1795,8 +1795,11 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     }                                                                                                                  \
                                                                                                                        \
     /* Helper to implement View as derived from ConstView in SoABlocks implementation */                               \
-    SOA_HOST_DEVICE SOA_INLINE static View const_cast_View(ConstView const& view)  {                                   \
-      return View{view.metadata().size(), _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_CAST_COLUMNS, ~, __VA_ARGS__)};         \
+    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    SOA_HOST_DEVICE SOA_INLINE static ViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING> const_cast_View(                  \
+      ConstViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING> const& view)  {                                              \
+      return ViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING>{                                                           \
+        view.metadata().size(), _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_CAST_COLUMNS, ~, __VA_ARGS__)};                   \
     }                                                                                                                  \
                                                                                                                        \
     /*                                                                                                                 \
