@@ -121,7 +121,8 @@
         <class name="gen::PdfInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="876888052"/>
  </class>
-        <class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/>
+        <class name="pdfinfo_autoptr_rootio::deprecated_auto_ptr<gen::PdfInfo>"/>
+        <ioread sourceClass="std::auto_ptr<gen::PdfInfo>" targetClass="pdfinfo_autoptr_rootio::deprecated_auto_ptr<gen::PdfInfo>"/>
 
 	<!-- GenRunInfoProduct -->
 
@@ -193,8 +194,8 @@
   <version ClassVersion="11" checksum="4154339631"/>
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
- <ioread sourceClass = "GenEventInfoProduct" version="[-11]" targetClass="GenEventInfoProduct" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
-   <![CDATA[pdf_.reset(onfile.pdf_.get()); onfile.pdf_.release();]]>
+ <ioread sourceClass = "GenEventInfoProduct" version="[-11]" targetClass="GenEventInfoProduct" source = "pdfinfo_autoptr_rootio::deprecated_auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
+   <![CDATA[pdf_.reset(onfile.pdf_._M_ptr); onfile.pdf_._M_ptr = nullptr;]]>
  </ioread>
  <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartons_">
     <![CDATA[nMEPartons_ = -1;]]>
@@ -241,8 +242,8 @@
   <version ClassVersion="14" checksum="905719452"/>
   <version ClassVersion="15" checksum="898288635"/>
  </class>
- <ioread sourceClass = "LHEEventProduct" version="[-13]" targetClass="LHEEventProduct" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
-   <![CDATA[pdf_.reset(onfile.pdf_.get()); onfile.pdf_.release();]]>
+ <ioread sourceClass = "LHEEventProduct" version="[-13]" targetClass="LHEEventProduct" source = "pdfinfo_autoptr_rootio::deprecated_auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
+   <![CDATA[pdf_.reset(onfile.pdf_._M_ptr); onfile.pdf_._M_ptr = nullptr;]]>
  </ioread> 
  <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npLO_">
     <![CDATA[npLO_ = -99;]]>
