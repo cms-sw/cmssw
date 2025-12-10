@@ -33,7 +33,7 @@ Disclaimer: Most of the code here is randomly written during
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/Services/interface/setupSiteLocalConfig.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 #include <iostream>

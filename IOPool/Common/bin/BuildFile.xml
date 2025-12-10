@@ -6,7 +6,7 @@
   <use name="FWCore/Catalog"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Services"/>
+  <use name="FWStorage/Services"/>
   <use name="FWCore/Utilities"/>
 </bin>
 
@@ -20,7 +20,7 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Services"/>
+  <use name="FWStorage/Services"/>
 </bin>
 
 <bin name="edmCopyUtil" file="EdmCopyUtil.cpp">
@@ -28,7 +28,7 @@
   <use name="boost_program_options"/>
   <use name="FWStorage/StorageFactory"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Services"/>
+  <use name="FWStorage/Services"/>
   <use name="FWCore/Catalog"/>
   <use name="FWCore/ParameterSet"/>
   <use name="stdcxx-fs"/>

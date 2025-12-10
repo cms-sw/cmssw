@@ -14,7 +14,7 @@
 #include "FWStorage/StorageFactory/interface/Storage.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Services/interface/setupSiteLocalConfig.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"

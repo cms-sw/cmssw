@@ -3,5 +3,5 @@
   <use name="FWCore/Catalog"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Services"/>
+  <use name="FWStorage/Services"/>
 </bin>

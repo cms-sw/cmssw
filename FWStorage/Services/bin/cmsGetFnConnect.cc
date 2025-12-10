@@ -13,7 +13,7 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/interface/setupSiteLocalConfig.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <cstring>

@@ -6,7 +6,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "FWCore/Services/src/SiteLocalConfigService.h"
+#include "FWStorage/Services/src/SiteLocalConfigService.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

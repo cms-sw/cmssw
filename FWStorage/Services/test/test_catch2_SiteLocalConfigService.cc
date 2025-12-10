@@ -1,5 +1,5 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/Services/src/SiteLocalConfigService.h"
+#include "FWStorage/Services/src/SiteLocalConfigService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -15,7 +15,7 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     auto base_dir = std::getenv("CMSSW_BASE");
     if (base_dir) {
       dirString = base_dir;
-      dirString += "/src/FWCore/Services/test";
+      dirString += "/src/FWStorage/Services/test";
     }
   }
   REQUIRE(not dirString.empty());

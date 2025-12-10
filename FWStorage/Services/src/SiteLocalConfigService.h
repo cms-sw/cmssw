@@ -1,5 +1,5 @@
-#ifndef FWStorage_Services_SiteLocalConfigService_H
-#define FWStorage_Services_SiteLocalConfigService_H
+#ifndef FWCore_Services_SiteLocalConfigService_H
+#define FWCore_Services_SiteLocalConfigService_H
 
 ///////////////////////////////////////////////////////////////////////
 //

@@ -6,8 +6,8 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "FWCore/Services/src/SiteLocalConfigService.h"
-#include "FWCore/Services/interface/setupSiteLocalConfig.h"
+#include "FWStorage/Services/src/SiteLocalConfigService.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 
 #include <memory>
 

@@ -6,6 +6,7 @@
 <use name="FWCore/Utilities"/>
 <use name="FWStorage/StorageFactory"/>
 <use name="FWStorage/XrdAdaptor"/>
+<use name="FWStorage/Services"/>
 <library file="*.cc" name="FWStorageServicesPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
