@@ -7,8 +7,8 @@
 #include "FWStorage/StorageFactory/interface/StorageMaker.h"
 #include "FWStorage/StorageFactory/interface/StorageMakerFactory.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/XrdAdaptor/src/XrdStatistics.h"
-#include "Utilities/XrdAdaptor/src/XrdFile.h"
+#include "FWStorage/XrdAdaptor/src/XrdStatistics.h"
+#include "FWStorage/XrdAdaptor/src/XrdFile.h"
 
 #include "XrdCl/XrdClDefaultEnv.hh"
 #include "XrdNet/XrdNetUtils.hh"

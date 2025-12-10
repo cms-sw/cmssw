@@ -1,5 +1,5 @@
-#include "Utilities/XrdAdaptor/src/XrdFile.h"
-#include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
+#include "FWStorage/XrdAdaptor/src/XrdFile.h"
+#include "FWStorage/XrdAdaptor/src/XrdRequestManager.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Likely.h"

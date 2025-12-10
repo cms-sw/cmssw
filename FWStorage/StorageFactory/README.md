@@ -87,4 +87,4 @@ A cmsRun Service which sends out UDP packets about the state of the system. The 
 
 ### `XrdAdaptor`
 
-A `edm::storage::Storage` implementation for xrootd (see [Utilities/XrdAdaptor/README.md](../../Utilities/XrdAdaptor/README.md)).
+A `edm::storage::Storage` implementation for xrootd (see [FWStorage/XrdAdaptor/README.md](../../FWStorage/XrdAdaptor/README.md)).

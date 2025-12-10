@@ -25,8 +25,8 @@
 #include "FWStorage/StorageFactory/interface/StatisticsSenderService.h"
 
 #include "XrdStatistics.h"
-#include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
-#include "Utilities/XrdAdaptor/src/XrdHostHandler.hh"
+#include "FWStorage/XrdAdaptor/src/XrdRequestManager.h"
+#include "FWStorage/XrdAdaptor/src/XrdHostHandler.hh"
 
 static constexpr int XRD_CL_MAX_CHUNK = 512 * 1024;
 
