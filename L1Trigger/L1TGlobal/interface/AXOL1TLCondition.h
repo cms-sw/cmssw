@@ -12,7 +12,6 @@
 #include <utility>
 #include <array>
 
-
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
@@ -30,9 +29,9 @@ namespace l1t {
   // class declaration
   class AXOL1TLCondition : public ConditionEvaluation {
   private:
-    //total # inputs in vector is (4+10+4+1)*3 = 57    
+    //total # inputs in vector is (4+10+4+1)*3 = 57
     static constexpr unsigned int NInputs = 57;
-    
+
   public:
     /// constructors
     ///     default
@@ -92,8 +91,7 @@ namespace l1t {
     std::shared_ptr<hls4mlEmulator::Model> m_model;
 
     mutable std::array<float, NInputs> m_lastInputs_{};
-    
-    
+
     ///axo score for possible score saving
     mutable float m_savedscore;
   };

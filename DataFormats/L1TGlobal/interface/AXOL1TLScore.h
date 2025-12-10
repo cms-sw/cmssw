@@ -17,7 +17,7 @@
 #include <vector>
 #include <iostream>
 #include <iomanip>
-#include <array> 
+#include <array>
 
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
@@ -39,8 +39,8 @@ typedef l1t::ObjectRefBxCollection<AXOL1TLScore> AXOL1TLScoreRefBxCollection;
 // class interface
 class AXOL1TLScore {
 public:
- static constexpr unsigned int kNInputs = 57; 
-  
+  static constexpr unsigned int kNInputs = 57;
+
   /// constructors
   AXOL1TLScore();  //empty constructor
 
@@ -72,7 +72,7 @@ private:
 
   // preprocessed inputs given to the NN
   std::array<float, kNInputs> inputs_{{0.f}};
-  
+
   //store version or type of network?
   // std::string nnversion;
 };

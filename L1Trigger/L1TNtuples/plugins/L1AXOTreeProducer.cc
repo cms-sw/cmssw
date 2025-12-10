@@ -41,7 +41,7 @@ private:
 
   // pointers to the objects that will be stored as branches within the tree
   float anomaly_score;
-  float anomaly_inputs[AXOL1TLScore::kNInputs]; 
+  float anomaly_inputs[AXOL1TLScore::kNInputs];
 
   // tree
   TTree *tree_;
@@ -59,9 +59,7 @@ L1AXOTreeProducer::L1AXOTreeProducer(edm::ParameterSet const &config)
   tree_ = fs_->make<TTree>("L1AXOTree", "L1AXOTree");
   tree_->Branch("axo_score", &anomaly_score, "axo_score/F");
 
-  tree_->Branch("axo_inputs",
-                anomaly_inputs,
-                fmt::sprintf("axo_inputs[%d]/F", AXOL1TLScore::kNInputs).c_str());
+  tree_->Branch("axo_inputs", anomaly_inputs, fmt::sprintf("axo_inputs[%d]/F", AXOL1TLScore::kNInputs).c_str());
 }
 
 //
@@ -88,8 +86,7 @@ void L1AXOTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
     }
 
   } else {
-    edm::LogWarning("MissingProduct")
-        << "AXOL1TLScoreBxCollection not found. Branches will not be filled";
+    edm::LogWarning("MissingProduct") << "AXOL1TLScoreBxCollection not found. Branches will not be filled";
 
     anomaly_score = 0.f;
     for (unsigned int i = 0; i < AXOL1TLScore::kNInputs; ++i) {
