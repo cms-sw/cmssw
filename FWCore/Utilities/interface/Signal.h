@@ -81,7 +81,7 @@ namespace edm {
       // Check is done at compile time by calling scram b with
       // -DFWCORE_SIGNAL_OPERATOR_PARENTHESIS_PRIVATE=1:
       //
-      // USER_CXXFLAGS="-DFWCORE_SIGNAL_OPERATOR_PARENTHESIS_PRIVATE=1" scram b 
+      // USER_CXXFLAGS="-DFWCORE_SIGNAL_OPERATOR_PARENTHESIS_PRIVATE=1" scram b
       //
       // Allow connecting another Signal<T> via std::reference_wrapper<const Signal<T>>
       // std::function cannot be constructed from std::reference_wrapper<const Signal>
