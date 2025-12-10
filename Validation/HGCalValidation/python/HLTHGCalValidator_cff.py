@@ -62,18 +62,8 @@ hltLayerClusterTesterECAL = cms.EDProducer("CaloClusterTester",
     ptCut = cms.double(0.)
 )
 
-hltLayerClusterTesterECALWithCut1 = hltLayerClusterTesterECAL.clone(
+hltLayerClusterTesterECALWithCut = hltLayerClusterTesterECAL.clone(
     enFracCut =  cms.double(0.01),
-    ptCut = cms.double(0.)
-)
-
-hltLayerClusterTesterECALWithCut2 = hltLayerClusterTesterECAL.clone(
-    enFracCut = cms.double(0.),
-    ptCut = cms.double(0.1)
-)
-
-hltLayerClusterTesterECALWithCut3 = hltLayerClusterTesterECAL.clone(
-    enFracCut = cms.double(0.01),
     ptCut = cms.double(0.1)
 )
 
@@ -82,34 +72,19 @@ hltLayerClusterTesterECALShEnF = hltLayerClusterTesterECAL.clone(
     doMatchByScore = cms.bool(False)
 )
 
-hltLayerClusterTesterECALShEnFWithCut1 = hltLayerClusterTesterECALShEnF.clone(
+hltLayerClusterTesterECALShEnFWithCut = hltLayerClusterTesterECALShEnF.clone(
     enFracCut =  cms.double(0.01),
-    ptCut = cms.double(0.)
-)
-
-hltLayerClusterTesterECALShEnFWithCut2 = hltLayerClusterTesterECALShEnF.clone(
-    enFracCut = cms.double(0.),
     ptCut = cms.double(0.1)
 )
 
-hltLayerClusterTesterECALShEnFWithCut3 = hltLayerClusterTesterECALShEnF.clone(
-    enFracCut = cms.double(0.01),
-    ptCut = cms.double(0.1)
-)
 
 hltHgcalValSeq = cms.Sequence(
     hltHgcalValidator)
 
 hltHgcalAndBarrelValSeq = cms.Sequence(
     hltHgcalValidator
-    +hltLayerClusterTesterECAL
-    +hltLayerClusterTesterECALWithCut1
-    +hltLayerClusterTesterECALWithCut2
-    +hltLayerClusterTesterECALWithCut3
-    +hltLayerClusterTesterECALShEnF
-    +hltLayerClusterTesterECALShEnFWithCut1
-    +hltLayerClusterTesterECALShEnFWithCut2
-    +hltLayerClusterTesterECALShEnFWithCut3
+    +hltLayerClusterTesterECALWithCut
+    +hltLayerClusterTesterECALShEnFWithCut
 )
 
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
