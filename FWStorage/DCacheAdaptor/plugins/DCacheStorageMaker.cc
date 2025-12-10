@@ -1,7 +1,7 @@
 #include "FWStorage/StorageFactory/interface/StorageMaker.h"
 #include "FWStorage/StorageFactory/interface/StorageMakerFactory.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
+#include "FWStorage/DCacheAdaptor/interface/DCacheFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <unistd.h>
 #include <dcap.h>
