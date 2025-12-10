@@ -57,9 +57,9 @@ class testEcalHitMaker : public edm::stream::EDAnalyzer<> {
 public:
   explicit testEcalHitMaker(const edm::ParameterSet&);
   ~testEcalHitMaker();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
@@ -70,9 +70,9 @@ private:
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokCaloGeom_;
   const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tokPdt_;
 
-  CaloGeometryHelper* myGeometry;
-  GammaFunctionGenerator* aGammaGenerator;
-  FSimEvent* mySimEvent;
+  edm::ParameterSet calorimetryPset_;
+  std::unique_ptr<GammaFunctionGenerator> aGammaGenerator_;
+  std::unique_ptr<FSimEvent> mySimEvent_;
 };
 
 //
@@ -87,29 +87,17 @@ private:
 // constructors and destructor
 //
 testEcalHitMaker::testEcalHitMaker(const edm::ParameterSet& iConfig)
-    : tokCaloTopo_(esConsumes<edm::Transition::BeginRun>()),
-      tokCaloGeom_(esConsumes<edm::Transition::BeginRun>()),
-      tokPdt_(esConsumes<edm::Transition::BeginRun>()) {
-  aGammaGenerator = new GammaFunctionGenerator();
-
-  mySimEvent = new FSimEvent(iConfig.getParameter<edm::ParameterSet>("TestParticleFilter"));
-
-  myGeometry = new CaloGeometryHelper(iConfig.getParameter<edm::ParameterSet>("Calorimetry"));
-}
+    : tokCaloTopo_(esConsumes()),
+      tokCaloGeom_(esConsumes()),
+      tokPdt_(esConsumes<edm::Transition::BeginRun>()),
+      calorimetryPset_(iConfig.getParameter<edm::ParameterSet>("Calorimetry")),
+      aGammaGenerator_(std::make_unique<GammaFunctionGenerator>()),
+      mySimEvent_(std::make_unique<FSimEvent>(iConfig.getParameter<edm::ParameterSet>("TestParticleFilter"))) {}
 
 void testEcalHitMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  const edm::ESHandle<CaloTopology>& theCaloTopology = iSetup.getHandle(tokCaloTopo_);
-  const edm::ESHandle<CaloGeometry>& pG = iSetup.getHandle(tokCaloGeom_);
-
-  // Setup the tools
-  double bField000 = 4.;
-  myGeometry->setupGeometry(*(pG.product()));
-  myGeometry->setupTopology(*(theCaloTopology.product()));
-  myGeometry->initialize(bField000);
-
   // init Particle data table (from Pythia)
   const edm::ESHandle<HepPDT::ParticleDataTable>& pdt = iSetup.getHandle(tokPdt_);
-  mySimEvent->initializePdt(pdt.product());
+  mySimEvent_->initializePdt(pdt.product());
   std::cout << " done with beginRun " << std::endl;
 }
 
@@ -122,13 +110,20 @@ testEcalHitMaker::~testEcalHitMaker() {
 void testEcalHitMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
+  const auto& theCaloTopology = iSetup.getData(tokCaloTopo_);
+  const auto& pG = iSetup.getData(tokCaloGeom_);
+
+  // Setup the tools
+  double bField000 = 3.8;
+  CaloGeometryHelper myGeometry(calorimetryPset_, pG, theCaloTopology, bField000);
+
   RandomEngineAndDistribution random(iEvent.streamID());
 
   math::XYZTLorentzVectorD theMomentum(10., 0., 5., sqrt(125));
 
   // no need actually define it at the ECAL entrance: the fill of FSimEvent will do the
   // propagation
-  math::XYZVectorD thePositionatEcalEntrance(129., 0., 60);
+  math::XYZVectorD thePositionatEcalEntrance(128.9, 0., 60);
 
   std::vector<SimTrack> mySimTracks;
   SimTrack myTrack(11, theMomentum, 0, -1, thePositionatEcalEntrance, theMomentum);
@@ -136,22 +131,9 @@ void testEcalHitMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   std::vector<SimVertex> mySimVertices;
   mySimVertices.push_back(SimVertex(thePositionatEcalEntrance, 0.));
 
-  mySimEvent->fill(mySimTracks, mySimVertices);
+  mySimEvent_->fill(mySimTracks, mySimVertices);
 
-  //   RawParticle myPart(11,theMomentum);
-  //   myPart.setVertex(thePositionatEcalEntrance.X(),
-  //		    thePositionatEcalEntrance.Y(),
-  //		    thePositionatEcalEntrance.Z(),
-  //		    0.);
-  //   FSimTrack mySimTrack(&myPart,-1,-1,11,mySimEvent);
-  //   mySimTrack.setTkPosition(thePositionatEcalEntrance);
-  //   mySimTrack.setTkMomentum(theMomentum);
-  //   mySimTrack.setEcal(myPart,1);
-  //   // put dummy quantities
-  //   mySimTrack.setLayer1(RawParticle(),0);
-  //   mySimTrack.setLayer2(RawParticle(),0);
-
-  FSimTrack& mySimTrack(mySimEvent->track(0));
+  FSimTrack& mySimTrack(mySimEvent_->track(0));
   std::cout << mySimTrack << std::endl;
   std::cout << " done " << std::endl;
   RawParticle myPart = mySimTrack.ecalEntrance();
@@ -176,21 +158,21 @@ void testEcalHitMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   tailParams.push_back(1);
 
   // define the calorimeter properties
-  EMECALShowerParametrization showerparam(myGeometry->ecalProperties(mySimTrack.onEcal()),
-                                          myGeometry->hcalProperties(mySimTrack.onHcal()),
-                                          myGeometry->layer1Properties(mySimTrack.onLayer1()),
-                                          myGeometry->layer2Properties(mySimTrack.onLayer2()),
+  EMECALShowerParametrization showerparam(myGeometry.ecalProperties(mySimTrack.onEcal()),
+                                          myGeometry.hcalProperties(mySimTrack.onHcal()),
+                                          myGeometry.layer1Properties(mySimTrack.onLayer1()),
+                                          myGeometry.layer2Properties(mySimTrack.onLayer2()),
                                           coreParams,
                                           tailParams);
 
   //define the shower parameters
-  EMShower theShower(&random, aGammaGenerator, &showerparam, &thePart);
+  EMShower theShower(&random, aGammaGenerator_.get(), &showerparam, &thePart);
 
   // you might want to replace this with something elese
-  DetId pivot(myGeometry->getClosestCell(ecalentrance, true, mySimTrack.onEcal() == 1));
+  DetId pivot(myGeometry.getClosestCell(ecalentrance, true, mySimTrack.onEcal() == 1));
 
   // define the 7x7 grid
-  EcalHitMaker myGrid(myGeometry, ecalentrance, pivot, mySimTrack.onEcal(), 7, 0, &random);
+  EcalHitMaker myGrid(&myGeometry, ecalentrance, pivot, mySimTrack.onEcal(), 7, 0, &random);
   myGrid.setCrackPadSurvivalProbability(0.9);  // current parameters  in the Fast Sim
   myGrid.setRadiusFactor(1.096);               // current parameters
 
@@ -204,8 +186,8 @@ void testEcalHitMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   theShower.compute();
 
   // print the result
-  std::map<CaloHitID, float>::const_iterator mapitr;
-  std::map<CaloHitID, float>::const_iterator endmapitr = myGrid.getHits().end();
+  CaloHitMap::const_iterator mapitr;
+  CaloHitMap::const_iterator endmapitr = myGrid.getHits().end();
   for (mapitr = myGrid.getHits().begin(); mapitr != endmapitr; ++mapitr) {
     if (mapitr->second != 0)
       std::cout << "DetId " << EBDetId(mapitr->first.unitID()) << " " << std::setw(8) << std::setprecision(4)
@@ -214,6 +196,4 @@ void testEcalHitMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 }
 
 //define this as a plug-in
-//DEFINE_SEAL_MODULE();
-//DEFINE_ANOTHER_FWK_MODULE(testEcalHitMaker);
 DEFINE_FWK_MODULE(testEcalHitMaker);

@@ -109,7 +109,7 @@ bool PreshowerHitMaker::addHit(double r, double phi, unsigned layer) {
     double tof =
         (myCalorimeter->getEcalPreshowerGeometry()->getGeometry(strip)->getPosition().mag()) / 29.98;  //speed of light
     CaloHitID current_id(strip.rawId(), tof, 0);                                                       //no track yet
-    std::map<CaloHitID, float>::iterator cellitr;
+    CaloHitMap::iterator cellitr;
     cellitr = hitMap_.find(current_id);
     if (cellitr == hitMap_.end()) {
       hitMap_.insert(std::pair<CaloHitID, float>(current_id, spote));
