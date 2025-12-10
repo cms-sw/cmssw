@@ -187,8 +187,8 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     for (int iMu = 0; iMu < NCandMu; iMu++) {
       if (iMu < NMuons) {                                               //stop if fill the Nobjects we need
         MuInput[0 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwPt();   //index 0,4,8,12
-        MuInput[1 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwEta();  //index 1,5,9,13
-        MuInput[2 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhi();  //index 2,6,10,14
+        MuInput[1 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwEtaAtVtx();  //index 1,5,9,13
+        MuInput[2 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhiAtVtx();  //index 2,6,10,14
         MuInput[3 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwQual(); //index 3,7,11,15
       }
     }
