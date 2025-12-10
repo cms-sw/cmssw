@@ -12,8 +12,8 @@
  * Declare accessors for the View of each block
  */
 #define _DECLARE_ACCESSORS_VIEW_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)                \
-  SOA_HOST_DEVICE SOA_INLINE LAYOUT_NAME<ALIGNMENT>::View NAME() {                        \
-    return LAYOUT_NAME<ALIGNMENT>::const_cast_View(base_type::BOOST_PP_CAT(NAME, View_)); \
+  SOA_HOST_DEVICE SOA_INLINE ViewFor<LayoutFor<LAYOUT_NAME>> NAME() {                     \
+    return LayoutFor<LAYOUT_NAME>::const_cast_View(base_type::BOOST_PP_CAT(NAME, View_)); \
   }
 
 #define _DECLARE_ACCESSORS_VIEW_BLOCKS(R, DATA, NAME)                            \
@@ -25,7 +25,7 @@
  * Declare parameters for contructing the View of an SoA by blocks
  * using different views for each block
  */
-#define _DECLARE_VIEW_CONSTRUCTOR_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) (LAYOUT_NAME<ALIGNMENT>::View NAME)
+#define _DECLARE_VIEW_CONSTRUCTOR_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) (ViewFor<LayoutFor<LAYOUT_NAME>> NAME)
 
 #define _DECLARE_VIEW_CONSTRUCTOR_BLOCKS(R, DATA, NAME)                          \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -61,8 +61,10 @@
 /*
  * Declare accessors for the ConstView of each block
  */
-#define _DECLARE_ACCESSORS_CONST_VIEW_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  SOA_HOST_DEVICE SOA_INLINE const LAYOUT_NAME<ALIGNMENT>::ConstView NAME() const { return BOOST_PP_CAT(NAME, View_); }
+#define _DECLARE_ACCESSORS_CONST_VIEW_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)       \
+  SOA_HOST_DEVICE SOA_INLINE const ConstViewFor<LayoutFor<LAYOUT_NAME>> NAME() const { \
+    return BOOST_PP_CAT(NAME, View_);                                                  \
+  }
 
 #define _DECLARE_ACCESSORS_CONST_VIEW_BLOCKS(R, DATA, NAME)                      \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -85,7 +87,7 @@
  * using different const views for each block
  */
 #define _DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  (LAYOUT_NAME<ALIGNMENT>::ConstView NAME)
+  (ConstViewFor<LayoutFor<LAYOUT_NAME>> NAME)
 
 #define _DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS(R, DATA, NAME)                    \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -116,7 +118,7 @@
  * Declare the data members for the ConstView of the SoA by blocks
  */
 #define _DECLARE_MEMBERS_CONST_VIEW_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  LAYOUT_NAME<ALIGNMENT>::ConstView BOOST_PP_CAT(NAME, View_);
+  ConstViewFor<LayoutFor<LAYOUT_NAME>> BOOST_PP_CAT(NAME, View_);
 
 #define _DECLARE_MEMBERS_CONST_VIEW_BLOCKS(R, DATA, NAME)                        \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -127,7 +129,7 @@
  * Declare accessors for the Layout of each block
  */
 #define _DECLARE_LAYOUTS_ACCESSORS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  LAYOUT_NAME<ALIGNMENT> NAME() { return BOOST_PP_CAT(NAME, _); }
+  LayoutFor<LAYOUT_NAME> NAME() { return BOOST_PP_CAT(NAME, _); }
 
 #define _DECLARE_LAYOUTS_ACCESSORS(R, DATA, NAME)                                \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -138,7 +140,7 @@
  * Computation of the size for each block
  */
 #define _ACCUMULATE_SOA_BLOCKS_SIZE_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)   \
-  _soa_impl_ret += LAYOUT_NAME<ALIGNMENT>::computeDataSize(sizes[index]); \
+  _soa_impl_ret += LayoutFor<LAYOUT_NAME>::computeDataSize(sizes[index]); \
   index++;
 
 #define _ACCUMULATE_SOA_BLOCKS_SIZE(R, DATA, NAME)                               \
@@ -150,8 +152,8 @@
  * Computation of the block location in the memory layout (at SoA by blocks construction time)
  */
 #define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  BOOST_PP_CAT(NAME, _) = LAYOUT_NAME<ALIGNMENT>(mem + offset, sizes_[index]);  \
-  offset += LAYOUT_NAME<ALIGNMENT>::computeDataSize(sizes_[index]);             \
+  BOOST_PP_CAT(NAME, _) = LayoutFor<LAYOUT_NAME>(mem + offset, sizes_[index]);  \
+  offset += LayoutFor<LAYOUT_NAME>::computeDataSize(sizes_[index]);             \
   index++;
 
 #define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS(R, DATA, NAME)                       \
@@ -247,7 +249,7 @@
               BOOST_PP_EMPTY(),                                                  \
               BOOST_PP_EXPAND(_ROOT_FREE_SOA_BLOCK_COLUMN_OR_SCALAR_IMPL NAME))
 
-#define _DECLARE_MEMBERS_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) LAYOUT_NAME<ALIGNMENT> BOOST_PP_CAT(NAME, _);
+#define _DECLARE_MEMBERS_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) LayoutFor<LAYOUT_NAME> BOOST_PP_CAT(NAME, _);
 
 /*
  * Declare the data members for the SoA by blocks
@@ -265,12 +267,19 @@
   template <CMS_SOA_BYTE_SIZE_TYPE ALIGNMENT = cms::soa::CacheLineSize::defaultSize,                                   \
             bool ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed>                                      \
   struct CLASS {                                                                                                       \
+    template <template <CMS_SOA_BYTE_SIZE_TYPE, bool> class LAYOUT>                                                    \
+    using LayoutFor = typename cms::soa::LayoutParameters<ALIGNMENT>::template                                         \
+                                AlignmentEnforcement<ALIGNMENT_ENFORCEMENT>::template Layout<LAYOUT>;                  \
     using size_type = cms::soa::size_type;                                                                             \
     using byte_size_type = cms::soa::byte_size_type;                                                                   \
     constexpr static byte_size_type alignment = ALIGNMENT;                                                             \
+    constexpr static bool alignmentEnforcement = ALIGNMENT_ENFORCEMENT;                                                \
                                                                                                                        \
-    struct ConstView;                                                                                                  \
-    struct View;                                                                                                       \
+    template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT = cms::soa::CacheLineSize::defaultSize,                            \
+            bool VIEW_ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,                                 \
+            bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,                                                \
+            bool RANGE_CHECKING = cms::soa::RangeChecking::Default>                                                    \
+    struct ViewTemplateFreeParams;                                                                                     \
                                                                                                                        \
     /* Helper function to compute the total number of blocks */                                                        \
     static constexpr size_type computeBlocksNumber() {                                                                 \
@@ -319,11 +328,34 @@
                                                                                                                        \
     _ITERATE_ON_ALL(_DECLARE_LAYOUTS_ACCESSORS, ~, __VA_ARGS__)                                                        \
                                                                                                                        \
-    struct ConstView {                                                                                                 \
-      friend struct View;                                                                                              \
+    template <std::size_t VIEW_ALIGNMENT, bool VIEW_ALIGNMENT_ENFORCEMENT, bool RESTRICT_QUALIFY, bool RANGE_CHECKING> \
+    struct ConstViewTemplateFreeParams {                                                                               \
+      using BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                    \
+                                                                                                                       \
+      template <typename LayoutT>                                                                                      \
+      using ConstViewFor = typename LayoutT::template ConstViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING>;             \
+                                                                                                                       \
+      using size_type = cms::soa::size_type;                                                                           \
+      using byte_size_type = cms::soa::byte_size_type;                                                                 \
+      using AlignmentEnforcement = cms::soa::AlignmentEnforcement;                                                     \
+                                                                                                                       \
+      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                              \
+      friend struct ViewTemplateFreeParams;                                                                            \
+                                                                                                                       \
+      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                              \
+      friend struct ConstViewTemplateFreeParams;                                                                       \
+                                                                                                                       \
+      constexpr static byte_size_type defaultAlignment = cms::soa::CacheLineSize::defaultSize;                         \
+      constexpr static byte_size_type alignment = VIEW_ALIGNMENT;                                                      \
+      constexpr static bool alignmentEnforcement = VIEW_ALIGNMENT_ENFORCEMENT;                                         \
+      constexpr static byte_size_type conditionalAlignment =                                                           \
+          alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
+      constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
+      constexpr static bool rangeChecking = RANGE_CHECKING;                                                            \
       /* Helper/friend class allowing SoA by blocks ConstView introspection. */                                        \
       struct Metadata {                                                                                                \
-        friend ConstView;                                                                                              \
+        friend ConstViewTemplateFreeParams;                                                                            \
+        using TypeOf_Layout = BOOST_PP_CAT(CLASS, _parametrized);                                                      \
         SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumber> size() const { return parent_.sizes_; }         \
                                                                                                                        \
         /* Forbid copying to avoid const correctness evasion */                                                        \
@@ -331,35 +363,36 @@
         Metadata(const Metadata&) = delete;                                                                            \
                                                                                                                        \
       private:                                                                                                         \
-        SOA_HOST_DEVICE SOA_INLINE Metadata(const ConstView& _soa_impl_parent)                                         \
+        SOA_HOST_DEVICE SOA_INLINE Metadata(const ConstViewTemplateFreeParams& _soa_impl_parent)                       \
           : parent_(_soa_impl_parent) {}                                                                               \
-        const ConstView& parent_;                                                                                      \
+        const ConstViewTemplateFreeParams& parent_;                                                                    \
       };                                                                                                               \
                                                                                                                        \
       friend Metadata;                                                                                                 \
       SOA_HOST_DEVICE SOA_INLINE const Metadata metadata() const { return Metadata(*this); }                           \
                                                                                                                        \
       /* Trivial constuctor */                                                                                         \
-      ConstView() = default;                                                                                           \
+      ConstViewTemplateFreeParams() = default;                                                                         \
                                                                                                                        \
       /* Copiable */                                                                                                   \
-      ConstView(ConstView const&) = default;                                                                           \
-      ConstView& operator=(ConstView const&) = default;                                                                \
+      ConstViewTemplateFreeParams(ConstViewTemplateFreeParams const&) = default;                                       \
+      ConstViewTemplateFreeParams& operator=(ConstViewTemplateFreeParams const&) = default;                            \
                                                                                                                        \
       /* Movable */                                                                                                    \
-      ConstView(ConstView &&) = default;                                                                               \
-      ConstView& operator=(ConstView &&) = default;                                                                    \
+      ConstViewTemplateFreeParams(ConstViewTemplateFreeParams&&) = default;                                            \
+      ConstViewTemplateFreeParams& operator=(ConstViewTemplateFreeParams&&) = default;                                 \
                                                                                                                        \
       /* Trivial destuctor */                                                                                          \
-      ~ConstView() = default;                                                                                          \
+      ~ConstViewTemplateFreeParams() = default;                                                                        \
                                                                                                                        \
       /* Constructor relying on user provided Layout by blocks */                                                      \
-      SOA_HOST_ONLY ConstView(CLASS& blocks)                                                                           \
+      SOA_HOST_ONLY ConstViewTemplateFreeParams(const Metadata::TypeOf_Layout& blocks)                                 \
           : _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_CONST_VIEW_CONSTRUCTION_BLOCKS, ~, __VA_ARGS__),                     \
             sizes_{blocks.sizes_} {}                                                                                   \
                                                                                                                        \
       /* Constructor relying on user provided const views for each block */                                            \
-      SOA_HOST_ONLY ConstView(_ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS, ~, __VA_ARGS__))           \
+      SOA_HOST_ONLY ConstViewTemplateFreeParams(                                                                       \
+            _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS, ~, __VA_ARGS__))                             \
           : _ITERATE_ON_ALL_COMMA(_INITIALIZE_MEMBER_CONST_VIEW_BLOCKS, ~, __VA_ARGS__),                               \
             sizes_{{_ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_SIZES, ~, __VA_ARGS__)}} {}                              \
                                                                                                                        \
@@ -371,11 +404,42 @@
         std::array<size_type, blocksNumber> sizes_;                                                                    \
     };                                                                                                                 \
                                                                                                                        \
-    struct View : ConstView {                                                                                          \
-      using base_type = ConstView;                                                                                     \
+    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    using ConstViewTemplate = ConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY,          \
+      RANGE_CHECKING>;                                                                                                 \
+                                                                                                                       \
+    using ConstView = ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::Default>;         \
+                                                                                                                       \
+    template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT,                                                                   \
+              bool VIEW_ALIGNMENT_ENFORCEMENT,                                                                         \
+              bool RESTRICT_QUALIFY,                                                                                   \
+              bool RANGE_CHECKING>                                                                                     \
+      struct ViewTemplateFreeParams                                                                                    \
+      : public ConstViewTemplateFreeParams<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT,                                 \
+                                           RESTRICT_QUALIFY, RANGE_CHECKING> {                                         \
+      using BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                    \
+      template <typename LayoutT>                                                                                      \
+      using ViewFor = typename LayoutT::template ViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING>;                       \
+      using base_type =                                                                                                \
+        ConstViewTemplateFreeParams<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;     \
+      using size_type = cms::soa::size_type;                                                                           \
+      using byte_size_type = cms::soa::byte_size_type;                                                                 \
+      using AlignmentEnforcement = cms::soa::AlignmentEnforcement;                                                     \
+                                                                                                                       \
+      constexpr static byte_size_type defaultAlignment = cms::soa::CacheLineSize::defaultSize;                         \
+      constexpr static byte_size_type alignment = VIEW_ALIGNMENT;                                                      \
+      constexpr static bool alignmentEnforcement = VIEW_ALIGNMENT_ENFORCEMENT;                                         \
+      constexpr static byte_size_type conditionalAlignment =                                                           \
+          alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
+      constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
+      constexpr static bool rangeChecking = RANGE_CHECKING;                                                            \
+                                                                                                                       \
+      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                              \
+      friend struct ViewTemplateFreeParams;                                                                            \
       /* Helper/friend class allowing SoA by blocks View introspection. */                                             \
       struct Metadata {                                                                                                \
-        friend View;                                                                                                   \
+        friend ViewTemplateFreeParams;                                                                                 \
+        using TypeOf_Layout = BOOST_PP_CAT(CLASS, _parametrized);                                                      \
         SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumber> size() const { return parent_.sizes_; }         \
                                                                                                                        \
         /* Forbid copying to avoid const correctness evasion */                                                        \
@@ -383,9 +447,9 @@
         Metadata(const Metadata&) = delete;                                                                            \
                                                                                                                        \
       private:                                                                                                         \
-        SOA_HOST_DEVICE SOA_INLINE Metadata(const View& _soa_impl_parent)                                              \
+        SOA_HOST_DEVICE SOA_INLINE Metadata(const ViewTemplateFreeParams& _soa_impl_parent)                            \
           : parent_(_soa_impl_parent) {}                                                                               \
-        const View& parent_;                                                                                           \
+        const ViewTemplateFreeParams& parent_;                                                                         \
       };                                                                                                               \
                                                                                                                        \
       friend Metadata;                                                                                                 \
@@ -393,25 +457,25 @@
       SOA_HOST_DEVICE SOA_INLINE Metadata metadata() { return Metadata(*this); }                                       \
                                                                                                                        \
       /* Trivial constuctor */                                                                                         \
-      View() = default;                                                                                                \
+      ViewTemplateFreeParams() = default;                                                                              \
                                                                                                                        \
       /* Copiable */                                                                                                   \
-      View(View const&) = default;                                                                                     \
-      View& operator=(View const&) = default;                                                                          \
+      ViewTemplateFreeParams(ViewTemplateFreeParams const&) = default;                                                 \
+      ViewTemplateFreeParams& operator=(ViewTemplateFreeParams const&) = default;                                      \
                                                                                                                        \
       /* Movable */                                                                                                    \
-      View(View &&) = default;                                                                                         \
-      View& operator=(View &&) = default;                                                                              \
+      ViewTemplateFreeParams(ViewTemplateFreeParams&&) = default;                                                      \
+      ViewTemplateFreeParams& operator=(ViewTemplateFreeParams&&) = default;                                           \
                                                                                                                        \
       /* Trivial destuctor */                                                                                          \
-      ~View() = default;                                                                                               \
+      ~ViewTemplateFreeParams() = default;                                                                             \
                                                                                                                        \
       /* Constructor relying on user provided Layout by blocks */                                                      \
-      SOA_HOST_ONLY View(CLASS& blocks)                                                                                \
+      SOA_HOST_ONLY ViewTemplateFreeParams(Metadata::TypeOf_Layout& blocks)                                            \
           : base_type{blocks} {}                                                                                       \
                                                                                                                        \
       /* Constructor relying on user provided views for each block */                                                  \
-      SOA_HOST_ONLY View(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTOR_BLOCKS, ~, __VA_ARGS__)) :                    \
+      SOA_HOST_ONLY ViewTemplateFreeParams(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTOR_BLOCKS, ~, __VA_ARGS__)) :  \
         base_type{_ITERATE_ON_ALL_COMMA(_INITIALIZE_MEMBER_VIEW_BLOCKS, ~, __VA_ARGS__)} {}                            \
                                                                                                                        \
       /* Accessors for the views for each block */                                                                     \
@@ -419,6 +483,9 @@
                                                                                                                        \
        /* Data members inherited from the ConstView */                                                                 \
     };                                                                                                                 \
+    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
+    using View = ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::Default>;                   \
                                                                                                                        \
     /* TODO: implement Descriptor and ConstDescriptor for Blocks to enable heterogeneous deepCopy */                   \
     struct Descriptor;                                                                                                 \
