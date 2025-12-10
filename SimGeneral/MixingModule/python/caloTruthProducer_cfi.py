@@ -17,6 +17,7 @@ caloParticles = cms.PSet(
 #           hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
             ecal = cms.VInputTag(
                 cms.InputTag('g4SimHits','EcalHitsEB'),
+                cms.InputTag('g4SimHits','EcalHitsEE'),
             )
 	),
 	simTrackCollection = cms.InputTag('g4SimHits'),

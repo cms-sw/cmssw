@@ -59,7 +59,8 @@ hltLayerClusterTesterECAL = cms.EDProducer("CaloClusterTester",
     assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.5, 0.1),
     doMatchByScore = cms.bool(True),
     enFracCut = cms.double(0.),
-    ptCut = cms.double(0.)
+    ptCut = cms.double(0.),
+    etaCut = cms.double(1.48)
 )
 
 hltLayerClusterTesterECALWithCut = hltLayerClusterTesterECAL.clone(
