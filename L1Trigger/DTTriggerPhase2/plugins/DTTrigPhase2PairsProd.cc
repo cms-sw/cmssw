@@ -251,7 +251,7 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
       LogDebug("DTTrigPhase2PairsProd") << "Sorting";
 
     auto [wheel, sector, station] = key;
-    chamberPairs = std::move(bestPairsPerChamber(phiDigis, thetaDigis, max_index_, wheel, sector, station));
+    chamberPairs = bestPairsPerChamber(phiDigis, thetaDigis, max_index_, wheel, sector, station);
 
     if (debug_)
       LogDebug("DTTrigPhase2PairsProd") << "Saving top 4";
