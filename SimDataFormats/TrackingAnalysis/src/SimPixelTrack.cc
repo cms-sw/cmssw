@@ -200,7 +200,7 @@ void SimPixelTrack::buildSimDoublets(const TrackerTopology* trackerTopology) con
   innerDoubletsOfRecHit.resize(numRecHits());
 
   // updatable current number of doublets
-  uint nDoublets{0};
+  size_t nDoublets{0};
 
   // loop over the RecHits/layer Ids
   for (size_t i = 0; i < layerIdVector_.size(); i++) {
@@ -299,22 +299,22 @@ void SimPixelTrack::buildSimNtuplets(SimPixelTrack::Doublet const& doublet,
     //        4. all doublet connections survive
     //        5. all triplet connections survive
     //        6. first doublet from starting layer pair
-    if ((longestNtupletIndex_ == -1) || (numSimDoublets > ntuplets_.at(longestNtupletIndex_).numDoublets())) {
+    if ((!longestNtupletIndex_) || (numSimDoublets > ntuplets_.at(*longestNtupletIndex_).numDoublets())) {
       // case A)
       longestNtupletIndex_ = ntuplets_.size() - 1;
-    } else if ((numSimDoublets == ntuplets_.at(longestNtupletIndex_).numDoublets()) &&  // is at least as long
+    } else if ((numSimDoublets == ntuplets_.at(*longestNtupletIndex_).numDoublets()) &&  // is at least as long
                ntuplets_.back().getsFartherInRecoChainThanReference(
-                   ntuplets_.at(longestNtupletIndex_))) {  // get farther in reconstruction
+                   ntuplets_.at(*longestNtupletIndex_))) {  // get farther in reconstruction
       // case B)
       longestNtupletIndex_ = ntuplets_.size() - 1;
     }
 
     // check if the new SimNtuplet qualifies as longest SimNtuplet alive
-    if (ntuplets_.back().isAlive()) {           // obviously, it has to be alive
-      if ((longestAliveNtupletIndex_ == -1) ||  // it's the first SimNtuplet alive or
-          ((numSimDoublets >= ntuplets_.at(longestAliveNtupletIndex_).numDoublets()) &&  // is at least as long and
+    if (ntuplets_.back().isAlive()) {      // obviously, it has to be alive
+      if ((!longestAliveNtupletIndex_) ||  // it's the first SimNtuplet alive or
+          ((numSimDoublets >= ntuplets_.at(*longestAliveNtupletIndex_).numDoublets()) &&  // is at least as long and
            (ntuplets_.back().firstLayerId() <=
-            ntuplets_.at(longestAliveNtupletIndex_).firstLayerId()))  // is at least as inside
+            ntuplets_.at(*longestAliveNtupletIndex_).firstLayerId()))  // is at least as inside
       ) {
         longestAliveNtupletIndex_ = ntuplets_.size() - 1;
       }
@@ -332,13 +332,13 @@ void SimPixelTrack::buildSimNtuplets(SimPixelTrack::Doublet const& doublet,
     //        4. all doublet connections survive
     //        5. all triplet connections survive
     //        6. first doublet from starting layer pair
-    if ((bestNtupletIndex_ == -1) ||
-        ntuplets_.back().getsFartherInRecoChainThanReference(ntuplets_.at(bestNtupletIndex_))) {
+    if ((!bestNtupletIndex_) ||
+        ntuplets_.back().getsFartherInRecoChainThanReference(ntuplets_.at(*bestNtupletIndex_))) {
       // case A)
       bestNtupletIndex_ = ntuplets_.size() - 1;
-    } else if ((numSimDoublets >= ntuplets_.at(bestNtupletIndex_).numDoublets()) &&  // is at least as long
+    } else if ((numSimDoublets >= ntuplets_.at(*bestNtupletIndex_).numDoublets()) &&  // is at least as long
                ntuplets_.back().getsAsFarInRecoChainAsReference(
-                   ntuplets_.at(bestNtupletIndex_))) {  // get as far in reconstruction
+                   ntuplets_.at(*bestNtupletIndex_))) {  // get as far in reconstruction
       // case B)
       bestNtupletIndex_ = ntuplets_.size() - 1;
     }
@@ -363,9 +363,9 @@ void SimPixelTrack::buildSimNtuplets(SimPixelTrack::Doublet const& doublet,
 void SimPixelTrack::buildSimNtuplets(std::set<int> const& startingPairs, size_t const minNumDoubletsToPass) const {
   // clear the Ntuplet collection and reset longest Ntuplet indices
   ntuplets_.clear();
-  longestNtupletIndex_ = -1;
-  longestAliveNtupletIndex_ = -1;
-  bestNtupletIndex_ = -1;
+  longestNtupletIndex_.reset();
+  longestAliveNtupletIndex_.reset();
+  bestNtupletIndex_.reset();
 
   // check if there are at least two doublets
   if (numDoublets() < 2) {

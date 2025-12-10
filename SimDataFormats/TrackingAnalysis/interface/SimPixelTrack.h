@@ -180,7 +180,7 @@ public:
           firstLayerId_(firstLayerId),
           secondLayerId_(secondLayerId),
           lastLayerId_(lastLayerId),
-          numSkippedLayers_(numSkippedLayers) {};
+          numSkippedLayers_(numSkippedLayers){};
 
     // accessing the different members
     uint8_t numDoublets() const { return numDoublets_; }
@@ -357,24 +357,24 @@ public:
   };
 
   // method to check if there are SimNtuplets
-  bool hasSimNtuplet() const { return longestNtupletIndex_ != -1; }
+  bool hasSimNtuplet() const { return longestNtupletIndex_.has_value(); }
   // method to check if there are alive SimNtuplet
-  bool hasAliveSimNtuplet() const { return longestAliveNtupletIndex_ != -1; }
+  bool hasAliveSimNtuplet() const { return longestAliveNtupletIndex_.has_value(); }
 
   // method to access the longest SimNtuplet
-  Ntuplet const& longestSimNtuplet() const { return ntuplets_.at(longestNtupletIndex_); }
+  Ntuplet const& longestSimNtuplet() const { return ntuplets_.at(*longestNtupletIndex_); }
   // method to access the longest alive SimNtuplet
-  Ntuplet const& longestAliveSimNtuplet() const { return ntuplets_.at(longestAliveNtupletIndex_); }
+  Ntuplet const& longestAliveSimNtuplet() const { return ntuplets_.at(*longestAliveNtupletIndex_); }
   // method to access the best SimNtuplet
-  Ntuplet const& bestSimNtuplet() const { return ntuplets_.at(bestNtupletIndex_); }
+  Ntuplet const& bestSimNtuplet() const { return ntuplets_.at(*bestNtupletIndex_); }
 
   // method to clear the mutable vectors once you finished using them
   void clearMutables() const {
     doublets_.clear();
     ntuplets_.clear();
-    longestNtupletIndex_ = -1;
-    longestAliveNtupletIndex_ = -1;
-    bestNtupletIndex_ = -1;
+    longestNtupletIndex_.reset();
+    longestAliveNtupletIndex_.reset();
+    bestNtupletIndex_.reset();
   }
 
 private:
@@ -407,11 +407,11 @@ private:
   // vector of true Ntuplets
   mutable std::vector<Ntuplet> ntuplets_{};
   // index of the longest SimNtuplet
-  mutable int longestNtupletIndex_{-1};
+  mutable std::optional<size_t> longestNtupletIndex_{-1};
   // index of the longest SimNtuplet that survives
-  mutable int longestAliveNtupletIndex_{-1};
+  mutable std::optional<size_t> longestAliveNtupletIndex_{-1};
   // index of the SimNtuplet that gets the farthest in the reco chain
-  mutable int bestNtupletIndex_{-1};
+  mutable std::optional<size_t> bestNtupletIndex_{-1};
 };
 
 // collection of SimPixelTrack
