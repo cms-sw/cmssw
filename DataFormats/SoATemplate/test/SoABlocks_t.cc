@@ -28,7 +28,6 @@ GENERATE_SOA_BLOCKS(SoABlocksTemplate,
                     SOA_BLOCK(scalars, SoATemplate))
 
 using SoABlocks = SoABlocksTemplate<>;
-// TODO: Implement template version of View and ConstView (ViewTemplate and ConstViewTemplate)
 using SoABlocksView = SoABlocks::View;
 using SoABlocksConstView = SoABlocks::ConstView;
 
@@ -43,6 +42,18 @@ TEST_CASE("SoABlocks") {
   SoABlocks blocks(buffer.get(), sizes);
   SoABlocksView blocksView{blocks};
   SoABlocksConstView blocksConstView{blocks};
+
+  REQUIRE(SoABlocks::alignment == cms::soa::CacheLineSize::defaultSize);
+  REQUIRE(SoABlocks::alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
+
+  REQUIRE(blocks.position().alignment == cms::soa::CacheLineSize::defaultSize);
+  REQUIRE(blocks.position().alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
+
+  REQUIRE(blocks.pca().alignment == cms::soa::CacheLineSize::defaultSize);
+  REQUIRE(blocks.pca().alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
+
+  REQUIRE(blocks.scalars().alignment == cms::soa::CacheLineSize::defaultSize);
+  REQUIRE(blocks.scalars().alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
 
   // Verify position data
   REQUIRE(blocks.position().metadata().nextByte() == blocks.metadata().addressOf_pca());
@@ -141,5 +152,86 @@ TEST_CASE("SoABlocks") {
     // Check for under-and overflow in the element accessors
     REQUIRE_THROWS_AS(blocksConstView.pca().vector_1(underflow), std::out_of_range);
     REQUIRE_THROWS_AS(blocksConstView.pca().vector_1(overflow), std::out_of_range);
+  }
+
+  SECTION("Check template parameters") {
+    static constexpr cms::soa::byte_size_type testAlignment = 256;
+    static constexpr bool alignmentEnforcement = cms::soa::AlignmentEnforcement::enforced;
+
+    using SoABlocksTemplated = SoABlocksTemplate<testAlignment, alignmentEnforcement>;
+
+    std::array<cms::soa::size_type, 3> sizes{{10, 20, 1}};
+    const std::size_t blocksBufferSize = SoABlocksTemplated::computeDataSize(sizes);
+
+    std::unique_ptr<std::byte, decltype(std::free) *> buffer{
+        reinterpret_cast<std::byte *>(aligned_alloc(SoABlocksTemplated::alignment, blocksBufferSize)), std::free};
+
+    SoABlocksTemplated blocksTemplated(buffer.get(), sizes);
+
+    REQUIRE(SoABlocksTemplated::alignment == testAlignment);
+    REQUIRE(SoABlocksTemplated::alignmentEnforcement == alignmentEnforcement);
+
+    REQUIRE(blocksTemplated.position().alignment == testAlignment);
+    REQUIRE(blocksTemplated.position().alignmentEnforcement == alignmentEnforcement);
+
+    REQUIRE(blocksTemplated.pca().alignment == testAlignment);
+    REQUIRE(blocksTemplated.pca().alignmentEnforcement == alignmentEnforcement);
+
+    REQUIRE(blocksTemplated.scalars().alignment == testAlignment);
+    REQUIRE(blocksTemplated.scalars().alignmentEnforcement == alignmentEnforcement);
+  }
+
+  SECTION("Check view template parameters") {
+    using NoRangeCheckBlockView =
+        SoABlocks::ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::disabled>;
+    NoRangeCheckBlockView noRangeCheckBlockView{blocks};
+
+    REQUIRE(noRangeCheckBlockView.restrictQualify == cms::soa::RestrictQualify::Default);
+    REQUIRE(noRangeCheckBlockView.rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockView.position().restrictQualify == cms::soa::RestrictQualify::Default);
+    REQUIRE(noRangeCheckBlockView.position().rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockView.pca().restrictQualify == cms::soa::RestrictQualify::Default);
+    REQUIRE(noRangeCheckBlockView.pca().rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockView.scalars().restrictQualify == cms::soa::RestrictQualify::Default);
+    REQUIRE(noRangeCheckBlockView.scalars().rangeChecking == cms::soa::RangeChecking::disabled);
+
+    using NoRestrictBlockView =
+        SoABlocks::ViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::Default>;
+    NoRestrictBlockView noRestrictBlockView{blocks};
+
+    REQUIRE(noRestrictBlockView.restrictQualify == cms::soa::RestrictQualify::disabled);
+    REQUIRE(noRestrictBlockView.rangeChecking == cms::soa::RangeChecking::Default);
+    REQUIRE(noRestrictBlockView.position().restrictQualify == cms::soa::RestrictQualify::disabled);
+    REQUIRE(noRestrictBlockView.position().rangeChecking == cms::soa::RangeChecking::Default);
+    REQUIRE(noRestrictBlockView.pca().restrictQualify == cms::soa::RestrictQualify::disabled);
+    REQUIRE(noRestrictBlockView.pca().rangeChecking == cms::soa::RangeChecking::Default);
+    REQUIRE(noRestrictBlockView.scalars().restrictQualify == cms::soa::RestrictQualify::disabled);
+    REQUIRE(noRestrictBlockView.scalars().rangeChecking == cms::soa::RangeChecking::Default);
+
+    using NoRangeCheckBlockConstView =
+        SoABlocks::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::disabled>;
+    NoRangeCheckBlockConstView noRangeCheckBlockConstView{blocks};
+
+    REQUIRE(noRangeCheckBlockConstView.restrictQualify == cms::soa::RestrictQualify::Default);
+    REQUIRE(noRangeCheckBlockConstView.rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockConstView.position().restrictQualify == cms::soa::RestrictQualify::Default);
+    REQUIRE(noRangeCheckBlockConstView.position().rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockConstView.pca().restrictQualify == cms::soa::RestrictQualify::Default);
+    REQUIRE(noRangeCheckBlockConstView.pca().rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockConstView.scalars().restrictQualify == cms::soa::RestrictQualify::Default);
+    REQUIRE(noRangeCheckBlockConstView.scalars().rangeChecking == cms::soa::RangeChecking::disabled);
+
+    using NoRestrictBlockConstView =
+        SoABlocks::ConstViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::Default>;
+    NoRestrictBlockConstView noRestrictBlockConstView{blocks};
+
+    REQUIRE(noRestrictBlockConstView.restrictQualify == cms::soa::RestrictQualify::disabled);
+    REQUIRE(noRestrictBlockConstView.rangeChecking == cms::soa::RangeChecking::Default);
+    REQUIRE(noRestrictBlockConstView.position().restrictQualify == cms::soa::RestrictQualify::disabled);
+    REQUIRE(noRestrictBlockConstView.position().rangeChecking == cms::soa::RangeChecking::Default);
+    REQUIRE(noRestrictBlockConstView.pca().restrictQualify == cms::soa::RestrictQualify::disabled);
+    REQUIRE(noRestrictBlockConstView.pca().rangeChecking == cms::soa::RangeChecking::Default);
+    REQUIRE(noRestrictBlockConstView.scalars().restrictQualify == cms::soa::RestrictQualify::disabled);
+    REQUIRE(noRestrictBlockConstView.scalars().rangeChecking == cms::soa::RangeChecking::Default);
   }
 }
