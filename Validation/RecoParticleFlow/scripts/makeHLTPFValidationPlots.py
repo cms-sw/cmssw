@@ -236,7 +236,7 @@ def plotOverlay(subdirs, cached_histos, name, props, outdir):
                                  baseline=None, color=next(colors_iter))
 
         sublabel = re.sub(pattern, replacement, sub)
-        if sublabel == f'{matching} = 1.1': sublabel = f'{matching} = 1.0'
+        if sublabel == f'{matching} = 1.1': sublabel = f'{matching} = 1.0' # Temporary fix 
         if any(x in name for x in ('Eff', 'Fake', 'Split', 'Merge')):
             eff_filt, (err_filt_lo, err_filt_hi), up_error, transform = rate_errorbar_declutter(plotter, values, errors, 0)
             plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=[err_filt_lo,err_filt_hi],
@@ -298,7 +298,8 @@ def plotOverlayRatio(subdirs, cached_histos, num, den, props, outdir):
         line = plotter.ax.stairs(ratio_vals, bin_edges, linewidth=2,
                                  baseline=None, color=next(colors_iter))
 
-        sublabel = re.sub(pattern, replacement, sub)        
+        sublabel = re.sub(pattern, replacement, sub)
+        if sublabel == f'{matching} = 1.1': sublabel = f'{matching} = 1.0' # Temporary fix
         plotter.ax.errorbar(bin_centers, ratio_vals, xerr=None, yerr=ratio_errors,
                             color=line.get_edgecolor(),
                             fmt='s', label=sublabel, **errorbar_kwargs)
@@ -478,8 +479,6 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--odir', default="HLTPFValidationPlots", help='Path to the output directory.')
     parser.add_argument('-l', '--sample_label', default="", help='Sample label for plotting.')
     parser.add_argument('-e', '--era', default="Phase2", help="Chose between ['Phase2', 'Run3'].")
-    parser.add_argument('--EnFracCut', default=0.01, help='Cut on the sim cluster energy fraction.')
-    parser.add_argument('--PtCut', default=0.01, help='Cut on the sim cluster energy fraction.')
     parser.add_argument('--match_by_score', default=1, type=int, help='Use association based on score (if false, use shared energy fraction).')
     parser.add_argument('--ticl', default=False, action='store_true', help='Use TiclBarrel folder.')
 
@@ -518,13 +517,13 @@ if __name__ == '__main__':
               'merge': 'Merge Rate'}
 
     if args.match_by_score == 1:
-        matching = '_MatchByScore'
+        matching = 'MatchByScore'
     else:
-        matching = '_MatchByShEnF'
+        matching = 'MatchByShEnF'
         print("### INFO: Using association by shared energy fraction.")
     if args.ticl:   sub_folder = 'TiclBarrel'
     else:           sub_folder = 'ParticleFlow'
-    dqm_dir = f"DQMData/Run 1/HLT/Run summary/{sub_folder}/PFClusterValidation{matching}_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
+    dqm_dir = f"DQMData/Run 1/HLT/Run summary/{sub_folder}/{matching}/PFClusterValidation"
     afile = ROOT.TFile.Open(args.file)
     checkRootDir(afile, dqm_dir)
 
@@ -550,71 +549,70 @@ if __name__ == '__main__':
         createDir(f'{args.odir}/{subdir}')
         createIndexPHP(src=args.odir, dest=f'{args.odir}/{subdir}')
         
-        for name, suf in zip(('', '_Reconstructable'), ('', 'Reconstructable')):
-            varsDict = {
-                # Cluster efficiency
-                f'{subdir}/Eff_vs_En{name}': dict(ratio=f'{subdir}/Eff_vs_En{name}', 
-                    den=f'SimClusters{suf}En', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMatchedRecoClustersEn', legnum='Matched SimClusters',
-                    xtitle='Energy from SimTrack [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Eff_vs_EnHits{name}': dict(ratio=f'{subdir}/Eff_vs_EnHits{name}', 
-                    den=f'SimClusters{suf}EnHits', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMatchedRecoClustersEnHits', legnum='Matched SimClusters', 
-                    xtitle='Energy from hits [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Eff_vs_EnFrac{name}': dict(ratio=f'{subdir}/Eff_vs_EnFrac{name}', 
-                    den=f'SimClusters{suf}EnFrac', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMatchedRecoClustersEnFrac', legnum='Matched SimClusters', 
-                    xtitle='Energy Fraction', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Eff_vs_Pt{name}': dict(ratio=f'{subdir}/Eff_vs_Pt{name}', 
-                    den=f'SimClusters{suf}Pt', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMatchedRecoClustersPt', legnum='Matched SimClusters', 
-                    xtitle=r'$p_{T}$ [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Eff_vs_Eta{name}': dict(ratio=f'{subdir}/Eff_vs_Eta{name}', 
-                    den=f'SimClusters{suf}Eta', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMatchedRecoClustersEta', legnum='Matched SimClusters', 
-                    xtitle=r'$\eta$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
-                f'{subdir}/Eff_vs_Phi{name}': dict(ratio=f'{subdir}/Eff_vs_Phi{name}', 
-                    den=f'SimClusters{suf}Phi', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMatchedRecoClustersPhi', legnum='Matched SimClusters', 
-                    xtitle=r'$\phi$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
-                f'{subdir}/Eff_vs_Mult{name}': dict(ratio=f'{subdir}/Eff_vs_Mult{name}', 
-                    den=f'SimClusters{suf}Mult', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMatchedRecoClustersMult', legnum='Matched SimClusters', 
-                    xtitle='Multiplicity', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-                # Cluster split rate
-                f'{subdir}/Split_vs_En{name}': dict(ratio=f'{subdir}/Split_vs_En{name}', 
-                    den=f'SimClusters{suf}En', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersEn', legnum='Multi Matched SimClusters',
-                    xtitle='Energy from SimTrack [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Split_vs_EnHits{name}': dict(ratio=f'{subdir}/Split_vs_EnHits{name}', 
-                    den=f'SimClusters{suf}EnHits', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersEnHits', legnum='Multi Matched SimClusters', 
-                    xtitle='Energy from hits [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Split_vs_EnFrac{name}': dict(ratio=f'{subdir}/Split_vs_EnFrac{name}', 
-                    den=f'SimClusters{suf}EnFrac', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersEnFrac', legnum='Multi Matched SimClusters', 
-                    xtitle='Energy Fraction', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Split_vs_Pt{name}': dict(ratio=f'{subdir}/Split_vs_Pt{name}', 
-                    den=f'SimClusters{suf}Pt', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersPt', legnum='Multi Matched SimClusters', 
-                    xtitle=r'$p_{T}$ [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-                f'{subdir}/Split_vs_Eta{name}': dict(ratio=f'{subdir}/Split_vs_Eta{name}', 
-                    den=f'SimClusters{suf}Eta', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersEta', legnum='Multi Matched SimClusters', 
-                    xtitle=r'$\eta$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
-                f'{subdir}/Split_vs_Phi{name}': dict(ratio=f'{subdir}/Split_vs_Phi{name}', 
-                    den=f'SimClusters{suf}Phi', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersPhi', legnum='Multi Matched SimClusters', 
-                    xtitle=r'$\phi$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
-                f'{subdir}/Split_vs_Mult{name}': dict(ratio=f'{subdir}/Split_vs_Mult{name}', 
-                    den=f'SimClusters{suf}Mult', legden='SimClusters',
-                    num=f'{subdir}/SimClustersMultiMatchedRecoClustersMult', legnum='Multi Matched SimClusters', 
-                    xtitle='Multiplicity', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
-            }
+        varsDict = {
+            # Cluster efficiency
+            f'{subdir}/Eff_vs_En': dict(ratio=f'{subdir}/Eff_vs_En', 
+                den=f'SimClustersEn', legden='SimClusters',
+                num=f'{subdir}/SimClustersMatchedRecoClustersEn', legnum='Matched SimClusters',
+                xtitle='SimCluster Energy [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Eff_vs_EnFrac': dict(ratio=f'{subdir}/Eff_vs_EnFrac', 
+                den=f'SimClustersEnFrac', legden='SimClusters',
+                num=f'{subdir}/SimClustersMatchedRecoClustersEnFrac', legnum='Matched SimClusters', 
+                xtitle='Energy Fraction', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Eff_vs_EnSimTrack': dict(ratio=f'{subdir}/Eff_vs_EnSimTrack', 
+                den=f'SimClustersEnSimTrack', legden='SimClusters',
+                num=f'{subdir}/SimClustersMatchedRecoClustersEnSimTrack', legnum='Matched SimClusters', 
+                xtitle='SimTrack Energy [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Eff_vs_Pt': dict(ratio=f'{subdir}/Eff_vs_Pt', 
+                den=f'SimClustersPt', legden='SimClusters',
+                num=f'{subdir}/SimClustersMatchedRecoClustersPt', legnum='Matched SimClusters', 
+                xtitle=r'$p_{T}$ [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Eff_vs_Eta': dict(ratio=f'{subdir}/Eff_vs_Eta', 
+                den=f'SimClustersEta', legden='SimClusters',
+                num=f'{subdir}/SimClustersMatchedRecoClustersEta', legnum='Matched SimClusters', 
+                xtitle=r'$\eta$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
+            f'{subdir}/Eff_vs_Phi': dict(ratio=f'{subdir}/Eff_vs_Phi', 
+                den=f'SimClustersPhi', legden='SimClusters',
+                num=f'{subdir}/SimClustersMatchedRecoClustersPhi', legnum='Matched SimClusters', 
+                xtitle=r'$\phi$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
+            f'{subdir}/Eff_vs_Mult': dict(ratio=f'{subdir}/Eff_vs_Mult', 
+                den=f'SimClustersMult', legden='SimClusters',
+                num=f'{subdir}/SimClustersMatchedRecoClustersMult', legnum='Matched SimClusters', 
+                xtitle='Multiplicity', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+            # Cluster split rate
+            f'{subdir}/Split_vs_En': dict(ratio=f'{subdir}/Split_vs_En', 
+                den=f'SimClustersEn', legden='SimClusters',
+                num=f'{subdir}/SimClustersMultiMatchedRecoClustersEn', legnum='Multi Matched SimClusters',
+                xtitle='SimCluster Energy [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Split_vs_EnFrac': dict(ratio=f'{subdir}/Split_vs_EnFrac', 
+                den=f'SimClustersEnFrac', legden='SimClusters',
+                num=f'{subdir}/SimClustersMultiMatchedRecoClustersEnFrac', legnum='Multi Matched SimClusters', 
+                xtitle='Energy Fraction', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Split_vs_EnSimTrack': dict(ratio=f'{subdir}/Split_vs_EnSimTrack', 
+                den=f'SimClustersEnSimTrack', legden='SimClusters',
+                num=f'{subdir}/SimClustersMultiMatchedRecoClustersEnSimTrack', legnum='Multi Matched SimClusters', 
+                xtitle='SimCluster Energy [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Split_vs_Pt': dict(ratio=f'{subdir}/Split_vs_Pt', 
+                den=f'SimClustersPt', legden='SimClusters',
+                num=f'{subdir}/SimClustersMultiMatchedRecoClustersPt', legnum='Multi Matched SimClusters', 
+                xtitle=r'$p_{T}$ [GeV]', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+            f'{subdir}/Split_vs_Eta': dict(ratio=f'{subdir}/Split_vs_Eta', 
+                den=f'SimClustersEta', legden='SimClusters',
+                num=f'{subdir}/SimClustersMultiMatchedRecoClustersEta', legnum='Multi Matched SimClusters', 
+                xtitle=r'$\eta$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
+            f'{subdir}/Split_vs_Phi': dict(ratio=f'{subdir}/Split_vs_Phi', 
+                den=f'SimClustersPhi', legden='SimClusters',
+                num=f'{subdir}/SimClustersMultiMatchedRecoClustersPhi', legnum='Multi Matched SimClusters', 
+                xtitle=r'$\phi$', ytitle=nSimClustersLabel, rebin=None, logy=False, normalize=False),
+            f'{subdir}/Split_vs_Mult': dict(ratio=f'{subdir}/Split_vs_Mult', 
+                den=f'SimClustersMult', legden='SimClusters',
+                num=f'{subdir}/SimClustersMultiMatchedRecoClustersMult', legnum='Multi Matched SimClusters', 
+                xtitle='Multiplicity', ytitle=nSimClustersLabel, rebin=4, logy=False, normalize=False),
+        }
 
-            # Compare pairs of variables
-            for title, props in varsDict.items():
-                plotEffComp1D(cached_histos, title, vars1d=props, outdir=args.odir, text='', suffix=f'')
+        # Compare pairs of variables
+        for title, props in varsDict.items():
+            plotEffComp1D(cached_histos, title, vars1d=props, outdir=args.odir, text='', suffix=f'')
 
         varsDict = {
             # Cluster fake rate
@@ -666,30 +664,23 @@ if __name__ == '__main__':
             plotEffComp1D(cached_histos, title, vars1d=props, outdir=args.odir, text='', suffix=f'')
 
     varsOverlay = {
-        "ResponseE_En_Mean"             : dict(ytitle=titles['response'], rebin=(0., 5., 10., 20., 40., 60., 100.), xtitle='Energy from SimTrack [GeV]', logy=False),
-        "ResponseE_EnHits_Mean"         : dict(ytitle=titles['response'], rebin=(0., 5., 10., 20., 40., 60., 100.), xtitle='Energy from hits [GeV]', logy=False),
+        "ResponseE_En_Mean"             : dict(ytitle=titles['response'], rebin=(0., 5., 10., 20., 40., 60., 100.), xtitle='SimCluster Energy [GeV]', logy=False),
         "ResponseE_EnFrac_Mean"         : dict(ytitle=titles['response'], rebin=(0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.), xtitle='Energy Fraction', logy=False),
+        "ResponseE_EnSimTrack_Mean"     : dict(ytitle=titles['response'], rebin=(0., 5., 10., 20., 40., 60., 100.), xtitle='SimTrack Energy [GeV]', logy=False),
         "ResponseE_Pt_Mean"             : dict(ytitle=titles['response'], rebin=(0., 5., 10., 20., 40., 60., 100.), xtitle=r'$p_{T} [GeV]$', logy=False),
         "ResponseE_Eta_Mean"            : dict(ytitle=titles['response'], rebin=None, xtitle=r'$\eta$', logy=False),
         "ResponseE_Phi_Mean"            : dict(ytitle=titles['response'], rebin=None, xtitle=r'$\phi$', logy=False),
         "ResponseE_Mult_Mean"           : dict(ytitle=titles['response'], rebin=4, xtitle='Multiplicity', logy=False),
-        "Eff_vs_En"                     : dict(ytitle=titles['eff'], rebin=4, xtitle='Energy from SimTrack [GeV]', logy=False),
-        "Eff_vs_En_Reconstructable"     : dict(ytitle=titles['eff'], rebin=4, xtitle='Energy from SimTrack [GeV]', logy=False),
-        "Eff_vs_EnHits"                 : dict(ytitle=titles['eff'], rebin=4, xtitle='Energy from hits [GeV]', logy=False),
-        "Eff_vs_EnHits_Reconstructable" : dict(ytitle=titles['eff'], rebin=4, xtitle='Energy from hits [GeV]', logy=False),
+        "Eff_vs_En"                     : dict(ytitle=titles['eff'], rebin=4, xtitle='SimCluster Energy [GeV]', logy=False),
         "Eff_vs_EnFrac"                 : dict(ytitle=titles['eff'], rebin=6, xtitle='Energy Fraction', logy=False),
-        "Eff_vs_EnFrac_Reconstructable" : dict(ytitle=titles['eff'], rebin=6, xtitle='Energy Fraction', logy=False),
+        "Eff_vs_EnSimTrack"             : dict(ytitle=titles['eff'], rebin=4, xtitle='SimTrack Energy [GeV]', logy=False),
         "Eff_vs_Pt"                     : dict(ytitle=titles['eff'], rebin=4, xtitle='$p_{T} [GeV]$', logy=False),
-        "Eff_vs_Pt_Reconstructable"     : dict(ytitle=titles['eff'], rebin=4, xtitle='$p_{T} [GeV]$', logy=False),
         "Eff_vs_Eta"                    : dict(ytitle=titles['eff'], rebin=None, xtitle=r'$\eta$', logy=False),
-        "Eff_vs_Eta_Reconstructable"    : dict(ytitle=titles['eff'], rebin=None, xtitle=r'$\eta$', logy=False),
         "Eff_vs_Phi"                    : dict(ytitle=titles['eff'], rebin=None, xtitle=r'$\phi$', logy=False),
-        "Eff_vs_Phi_Reconstructable"    : dict(ytitle=titles['eff'], rebin=None, xtitle=r'$\phi$', logy=False),
         "Eff_vs_Mult"                   : dict(ytitle=titles['eff'], rebin=4, xtitle='Multiplicity', logy=False),
-        "Eff_vs_Mult_Reconstructable"   : dict(ytitle=titles['eff'], rebin=4, xtitle='Multiplicity', logy=False),
-        "Split_vs_En"                   : dict(ytitle=titles['split'], rebin=4, xtitle='Energy from SimTrack [GeV]', logy=False),
-        "Split_vs_EnHits"               : dict(ytitle=titles['split'], rebin=4, xtitle='Energy from hits [GeV]', logy=False),
+        "Split_vs_En"                   : dict(ytitle=titles['split'], rebin=4, xtitle='SimCluster Energy [GeV]', logy=False),
         "Split_vs_EnFrac"               : dict(ytitle=titles['split'], rebin=6, xtitle='Energy Fraction', logy=False),
+        "Split_vs_EnSimTrack"           : dict(ytitle=titles['split'], rebin=4, xtitle='SimTrack Energy [GeV]', logy=False),
         "Split_vs_Pt"                   : dict(ytitle=titles['split'], rebin=4, xtitle='$p_{T} [GeV]$', logy=False),
         "Split_vs_Eta"                  : dict(ytitle=titles['split'], rebin=None, xtitle=r'$\eta$', logy=False),
         "Split_vs_Phi"                  : dict(ytitle=titles['split'], rebin=None, xtitle=r'$\phi$', logy=False),
@@ -709,9 +700,9 @@ if __name__ == '__main__':
         plotOverlay(subdirs, cached_histos, name, props, outdir=args.odir)
 
     varsResponse = {
-        ("ResponseE_En_Sigma", "ResponseE_En_Mean")     : dict(name='ResolutionEn', ytitle=titles['resolution'], xtitle=r'$E [GeV]$', rebin=(0., 5., 10., 20., 40., 60., 100.), logy=False),
-        ("ResponseE_EnHits_Sigma", "ResponseE_EnHits_Mean") : dict(name='ResolutionEnHits', ytitle=titles['resolution'], xtitle=r'$E_{hits} [GeV]$', rebin=(0., 5., 10., 20., 40., 60., 100.), logy=False),
-        ("ResponseE_EnFrac_Sigma", "ResponseE_EnFrac_Mean") : dict(name='ResolutionEnFrac', ytitle=titles['resolution'], xtitle=r'Energy Fraction', rebin=(0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.), logy=False),
+        ("ResponseE_En_Sigma", "ResponseE_En_Mean")     : dict(name='ResolutionEn', ytitle=titles['resolution'], xtitle='SimCluster Energy [GeV]', rebin=(0., 5., 10., 20., 40., 60., 100.), logy=False),
+        ("ResponseE_EnFrac_Sigma", "ResponseE_EnFrac_Mean") : dict(name='ResolutionEnFrac', ytitle=titles['resolution'], xtitle='Energy Fraction', rebin=(0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.), logy=False),
+        ("ResponseE_EnSimTrack_Sigma", "ResponseE_EnSimTrack_Mean") : dict(name='ResolutionEnSimTrack', ytitle=titles['resolution'], xtitle='SimTrack Energy [GeV]', rebin=(0., 5., 10., 20., 40., 60., 100.), logy=False),
         ("ResponseE_Pt_Sigma", "ResponseE_Pt_Mean")     : dict(name='ResolutionPt', ytitle=titles['resolution'], xtitle=r'$p_{T} [GeV]$', rebin=(0., 5., 10., 20., 40., 60., 100.), logy=False),
         ("ResponseE_Eta_Sigma", "ResponseE_Eta_Mean")   : dict(name='ResolutionEta', ytitle=titles['resolution'], xtitle=r'$\eta$', rebin=None, logy=False),
         ("ResponseE_Phi_Sigma", "ResponseE_Phi_Mean")   : dict(name='ResolutionPhi',ytitle=titles['resolution'], xtitle=r'$\phi$', rebin=None, logy=False),
@@ -722,13 +713,13 @@ if __name__ == '__main__':
 
     vars2DProjection = {
         **{f'{subdir}/ResponseE_En': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'E', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
-        **{f'{subdir}/ResponseE_EnHits': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$E_{hits}$', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
         **{f'{subdir}/ResponseE_EnFrac': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'Energy Fraction', unit='', logy=False, rebin=(0., 0.1, 0.5, 0.9, 1.)) for subdir in subdirs},
+        **{f'{subdir}/ResponseE_EnSimTrack': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$E_{SimTrack}$', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
         **{f'{subdir}/ResponseE_Pt': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$p_{T}$', unit='[GeV]', logy=False, rebin=(0., 1., 3., 10., 100.)) for subdir in subdirs},
         **{f'{subdir}/ResponseE_Eta': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$\eta$', unit='', logy=False, rebin=(-1.5, -0.75, 0., 0.75, 1.5)) for subdir in subdirs},
         **{f'{subdir}/ResponseE_Phi': dict(xtitle=titles['response'], ytitle='# Clusters', var=r'$\phi$', unit='', logy=False, rebin=(-3.15, -1.5, 0., 1.5, 3.15)) for subdir in subdirs},
         **{f'{subdir}/ResponseE_Mult': dict(xtitle=titles['response'], ytitle='# Clusters', var='Multiplicity', unit='', logy=False, rebin=(0., 20., 50., 100., 200.)) for subdir in subdirs},
-        'SimClustersReconstructableEnFrac_Mult': dict(xtitle='Multiplicity', ytitle='# Clusters', var='Energy Fraction', unit='', logy=True, rebin=(0., 0.005, 0.01, 0.02, 0.03, 1.)),
+        'SimClustersEnFrac_Mult': dict(xtitle='Multiplicity', ytitle='# Clusters', var='Energy Fraction', unit='', logy=True, rebin=(0., 0.005, 0.01, 0.02, 0.03, 1.)),
     }
 
     for name, props in vars2DProjection.items():
@@ -737,14 +728,14 @@ if __name__ == '__main__':
         plotProject(root_hist, props, rebin_edges=props['rebin'], outname=os.path.join(args.odir, name + '_Projected'))
 
     vars2D = {
-        'SimClustersReconstructableEnFrac_Mult': dict(ytitle='Multiplicity', var='# Clusters', xtitle='Energy Fraction'),
-        'simToRecoScore_En': dict(ytitle='Energy from SimTrack [GeV]', var='# Clusters', xtitle='SimToReco Score'),
-        'simToRecoScore_EnHits': dict(ytitle='Energy from hits [GeV]', var='# Clusters', xtitle='SimToReco Score'),
+        'SimClustersEnFrac_Mult': dict(ytitle='Multiplicity', var='# Clusters', xtitle='Energy Fraction'),
+        'simToRecoScore_En': dict(ytitle='SimCluster Energy [GeV]', var='# Clusters', xtitle='SimToReco Score'),
         'simToRecoScore_EnFrac': dict(ytitle='Energy Fraction', var='# Clusters', xtitle='SimToReco Score'),
+        'simToRecoScore_EnSimTrack': dict(ytitle='SimTrack Energy [GeV]', var='# Clusters', xtitle='SimToReco Score'),
         'simToRecoScore_Mult': dict(ytitle='Multiplicity', var='# Clusters', xtitle='SimToReco Score'),
-        'simToRecoShEnF_En': dict(ytitle='Energy from SimTrack [GeV]', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
-        'simToRecoShEnF_EnHits': dict(ytitle='Energy from hits [GeV]', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
+        'simToRecoShEnF_En': dict(ytitle='SimCluster Energy [GeV]', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
         'simToRecoShEnF_EnFrac': dict(ytitle='Energy Fraction', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
+        'simToRecoShEnF_EnSimTrack': dict(ytitle='SimTrack Energy [GeV]', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
         'simToRecoShEnF_Mult': dict(ytitle='Multiplicity', var='# Clusters', xtitle='SimToReco Shared Energy Fraction'),
         'simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# Clusters', xtitle='SimToReco Shared Energy Fraction', logz=True),
     }
@@ -769,7 +760,7 @@ if __name__ == '__main__':
 
     if args.ticl:   sub_folder = 'TiclBarrel'
     else:           sub_folder = 'ParticleFlow'
-    dqm_dir = f"DQMData/Run 1/HLT/Run summary/{sub_folder}/CaloParticles_EnFracCut{str(args.EnFracCut).replace('.', 'p')}_PtCut{str(args.PtCut).replace('.', 'p')}"
+    dqm_dir = f"DQMData/Run 1/HLT/Run summary/{sub_folder}/{matching}/CaloParticles"
     afile = ROOT.TFile.Open(args.file)
     checkRootDir(afile, dqm_dir)
 
