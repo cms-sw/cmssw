@@ -387,6 +387,12 @@ void SimPixelTrackProducer<TrackerTraits>::produce(edm::Event& event, const edm:
       if (!(detIdObject.subdetId() == SiStripSubdetector::TOB) && !(detIdObject.subdetId() == SiStripSubdetector::TID))
         continue;
 
+      if (!includeOTDisks_ && (detIdObject.subdetId() == SiStripSubdetector::TID))
+        continue;
+
+      if (!includeOTBarrel_ && (detIdObject.subdetId() == SiStripSubdetector::TOB))
+        continue;
+
       // determine layer Id from detector Id
       layerId = simpixeltracks::getLayerId<TrackerTraits>(detId, trackerTopology_);
 
