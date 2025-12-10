@@ -1,0 +1,11 @@
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/AbstractServices"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="FWStorage/StorageFactory"/>
+<use name="FWStorage/XrdAdaptor"/>
+<library file="*.cc" name="FWStorageServicesPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
