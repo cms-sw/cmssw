@@ -6,7 +6,7 @@
 
 #include <array>
 
-#define EDM_ML_DEBUG
+// #define EDM_ML_DEBUG
 
 HGCalParameters::HGCalParameters(const std::string& nam) : name_(nam), nCells_(0), waferMaskMode_(0) {
 #ifdef EDM_ML_DEBUG
