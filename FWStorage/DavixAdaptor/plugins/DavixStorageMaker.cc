@@ -1,5 +1,5 @@
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Utilities/DavixAdaptor/interface/DavixFile.h"
+#include "FWStorage/DavixAdaptor/interface/DavixFile.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include "FWStorage/StorageFactory/interface/StorageMaker.h"
 #include "FWStorage/StorageFactory/interface/StorageMakerFactory.h"
