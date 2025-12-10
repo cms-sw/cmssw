@@ -156,7 +156,7 @@ DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const ParameterSet& pset) {
 
   debug_ = pset.getUntrackedParameter<bool>("debug");
   scenario_ = pset.getParameter<int>("scenario");
-  max_index_ = 4; //Not configurable due to hardware capacities
+  max_index_ = 4;  //Not configurable due to hardware capacities
 
   digiPhToken_ = consumes<L1Phase2MuDTExtPhContainer>(pset.getParameter<edm::InputTag>("digiPhTag"));
   digiThToken_ = consumes<L1Phase2MuDTExtThContainer>(pset.getParameter<edm::InputTag>("digiThTag"));
@@ -250,7 +250,7 @@ void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup
     if (debug_)
       LogDebug("DTTrigPhase2PairsProd") << "Sorting";
 
-    auto [wheel, sector, station] = key;  // unpack tuple
+    auto [wheel, sector, station] = key;
     chamberPairs = std::move(bestPairsPerChamber(phiDigis, thetaDigis, max_index_, wheel, sector, station));
 
     if (debug_)
@@ -329,11 +329,10 @@ std::vector<L1Phase2MuDTExtPhiThetaPair> DTTrigPhase2PairsProd::bestPairsPerCham
           closestDistance = currentDistance;
           closestTheta = &theta;
         }
-
-        int phiQuality = phi.quality();
-        if (closestTheta)
-          pairs.emplace_back(phi, *closestTheta, phiQuality);
       }
+      int phiQuality = phi.quality();
+      if (closestTheta)
+        pairs.emplace_back(phi, *closestTheta, phiQuality);
     }
   }
   // Sort by quality descending
