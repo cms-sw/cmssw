@@ -74,23 +74,23 @@ namespace gen {
 
     bool result = true;
 
-    for (const auto &p : (event3().get())->particles()) {
+    for (const auto& p : (event3().get())->particles()) {
       if (p->id() > NPartsBeforeDecays) {
         if (p->status() == 1 && (fDecayer->particleData).canDecay(p->pid())) {
           fDecayer->event.reset();
           Particle py8part(p->pid(),
-                         93,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         p->momentum().x(),
-                         p->momentum().y(),
-                         p->momentum().z(),
-                         p->momentum().t(),
-                         p->generated_mass());
+                           93,
+                           0,
+                           0,
+                           0,
+                           0,
+                           0,
+                           0,
+                           p->momentum().x(),
+                           p->momentum().y(),
+                           p->momentum().z(),
+                           p->momentum().t(),
+                           p->generated_mass());
 
           py8part.vProd(p->production_vertex()->position().x(),
                         p->production_vertex()->position().y(),
@@ -153,7 +153,7 @@ namespace gen {
       if (pythiaHepMCVerbosityParticles) {
         std::cout << "Event process = " << fMasterGen->info.code() << "\n"
                   << "----------------------" << std::endl;
-        for (const auto &p : (event3().get())->particles()) {
+        for (const auto& p : (event3().get())->particles()) {
           HepMC3::Print::line(p, true);
         }
       }
