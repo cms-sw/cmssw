@@ -21,7 +21,13 @@ public:
   typedef math::XYZVector XYZPoint;
 
   CaloGeometryHelper();
-  CaloGeometryHelper(const edm::ParameterSet& fastCalo);
+  CaloGeometryHelper(const edm::ParameterSet& caloParameters,
+                     const CaloGeometry& pG,
+                     const CaloTopology& theTopology,
+                     double bField);
+  CaloGeometryHelper(const CaloGeometry& pG, const CaloTopology& theTopology, double bField);
+  CaloGeometryHelper(const CaloGeometryHelper&) = delete;
+  CaloGeometryHelper& operator=(const CaloGeometryHelper&) = delete;
   ~CaloGeometryHelper();
 
   // more user friendly getClosestCell
@@ -35,8 +41,6 @@ public:
   // the Crystal constructor
   void buildCrystal(const DetId& id, Crystal&) const;
 
-  void initialize(double bField);
-
   // get the <=8 neighbours
   typedef std::array<DetId, 8> NeiVect;
   const NeiVect& getNeighbours(const DetId& det) const;
@@ -49,6 +53,9 @@ public:
   bool move(DetId& cell, const CaloDirection& dir, bool fast = true) const;
 
   inline bool preshowerPresent() const { return preshowerPresent_; };
+
+protected:
+  void setupHelper(double bField);
 
 private:
   void buildNeighbourArray();

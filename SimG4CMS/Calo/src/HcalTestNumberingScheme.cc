@@ -18,7 +18,7 @@ HcalTestNumberingScheme::~HcalTestNumberingScheme() {
   edm::LogVerbatim("HcalSim") << "Deleting HcalTestNumberingScheme";
 }
 
-uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& id) {
+uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& id) const {
   //pack it into an integer
   uint32_t index = 0;
   if (forTBH2) {
