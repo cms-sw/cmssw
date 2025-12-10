@@ -42,18 +42,8 @@ hltPFClusterTesterECAL = cms.EDProducer("PFClusterTester",
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(hltPFClusterTesterECAL, PFCand = cms.InputTag("hltParticleFlowTmp"))
 
-hltPFClusterTesterECALWithCut1 = hltPFClusterTesterECAL.clone(
+hltPFClusterTesterECALWithCut = hltPFClusterTesterECAL.clone(
     enFracCut =  cms.double(0.01),
-    ptCut = cms.double(0.)
-)
-
-hltPFClusterTesterECALWithCut2 = hltPFClusterTesterECAL.clone(
-    enFracCut = cms.double(0.),
-    ptCut = cms.double(0.1)
-)
-
-hltPFClusterTesterECALWithCut3 = hltPFClusterTesterECAL.clone(
-    enFracCut = cms.double(0.01),
     ptCut = cms.double(0.1)
 )
 
@@ -62,18 +52,8 @@ hltPFClusterTesterECALShEnF = hltPFClusterTesterECAL.clone(
     doMatchByScore = cms.bool(False)
 )
 
-hltPFClusterTesterECALShEnFWithCut1 = hltPFClusterTesterECALShEnF.clone(
+hltPFClusterTesterECALShEnFWithCut = hltPFClusterTesterECALShEnF.clone(
     enFracCut =  cms.double(0.01),
-    ptCut = cms.double(0.)
-)
-
-hltPFClusterTesterECALShEnFWithCut2 = hltPFClusterTesterECALShEnF.clone(
-    enFracCut = cms.double(0.),
-    ptCut = cms.double(0.1)
-)
-
-hltPFClusterTesterECALShEnFWithCut3 = hltPFClusterTesterECALShEnF.clone(
-    enFracCut = cms.double(0.01),
     ptCut = cms.double(0.1)
 )
 
@@ -82,12 +62,6 @@ PFValSeq = cms.Sequence(
     +hltPFClusterSimClusterAssociationProducerECAL
     +hltPFCpAssocByEnergyScoreProducer
     +hltPFClusterCaloParticleAssociationProducerECAL
-    +hltPFClusterTesterECAL
-    +hltPFClusterTesterECALWithCut1
-    +hltPFClusterTesterECALWithCut2
-    +hltPFClusterTesterECALWithCut3
-    +hltPFClusterTesterECALShEnF
-    +hltPFClusterTesterECALShEnFWithCut1
-    +hltPFClusterTesterECALShEnFWithCut2
-    +hltPFClusterTesterECALShEnFWithCut3
+    +hltPFClusterTesterECALWithCut
+    +hltPFClusterTesterECALShEnFWithCut
 )
