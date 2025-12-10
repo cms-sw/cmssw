@@ -1,8 +1,8 @@
 #ifndef DAVIX_ADAPTOR_DAVIX_FILE_H
 #define DAVIX_ADAPTOR_DAVIX_FILE_H
 
-#include "Utilities/StorageFactory/interface/IOFlags.h"
-#include "Utilities/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/IOFlags.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
 #include <davix.hpp>
 
 namespace edm::storage {

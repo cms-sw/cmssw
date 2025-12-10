@@ -1,5 +1,5 @@
-#include "Utilities/StorageFactory/test/Test.h"
-#include "Utilities/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/test/Test.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
 

@@ -1,8 +1,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Utilities/DavixAdaptor/interface/DavixFile.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StorageMaker.h"
-#include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageMaker.h"
+#include "FWStorage/StorageFactory/interface/StorageMakerFactory.h"
 #include <davix.hpp>
 #include <unistd.h>
 
