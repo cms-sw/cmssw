@@ -102,6 +102,7 @@ protected:
   uint nAssocScoreThresholds_;
   double enFracCut_;
   double ptCut_;
+  double etaCut_;
   bool doMatchByScore_;
   std::string outFolder_;
 
@@ -193,6 +194,7 @@ PFTesterT<RecoClusterCollection>::PFTesterT(const edm::ParameterSet& iConfig)
       assocScoreThresholds_(iConfig.getParameter<std::vector<double>>("assocScoreThresholds")),
       enFracCut_(iConfig.getParameter<double>("enFracCut")),
       ptCut_(iConfig.getParameter<double>("ptCut")),
+      etaCut_(iConfig.getParameter<double>("etaCut")),
       doMatchByScore_(iConfig.getParameter<bool>("doMatchByScore")),
       outFolder_(iConfig.getParameter<std::string>("outFolder")) {
   nAssocScoreThresholds_ = assocScoreThresholds_.size();
@@ -670,7 +672,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
     auto const scTrack = simClusters[simId].g4Tracks()[0];
     const math::XYZTLorentzVectorF pos = scTrack.getPositionAtBoundary();
     auto const simTrackEtaAtBoundary = pos.Eta();
-    if (abs(simTrackEtaAtBoundary) > 1.48)  // simTrack does not cross the barrel
+    if (abs(simTrackEtaAtBoundary) > etaCut_)  // simTrack does not cross the barrel
       continue;
 
     ++nSimClusters;
@@ -893,7 +895,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
         // tracker/calorimeter boundary outside the barrel
         auto const scTrack = simClusters[simPairIdx].g4Tracks()[0];
         const math::XYZTLorentzVectorF pos = scTrack.getPositionAtBoundary();
-        if (abs(pos.Eta()) > 1.48)  // simTrack does not cross the barrel
+        if (abs(pos.Eta()) > etaCut_)  // simTrack does not cross the barrel
           continue;
 
         h_recoToSimScore_->Fill(simPair.second);
@@ -967,7 +969,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
     auto const scTrack = simClusters[simId].g4Tracks()[0];
     const math::XYZTLorentzVectorF pos = scTrack.getPositionAtBoundary();
     auto const simTrackEtaAtBoundary = pos.Eta();
-    if (abs(simTrackEtaAtBoundary) > 1.48)  // simTrack does not cross the barrel
+    if (abs(simTrackEtaAtBoundary) > etaCut_)  // simTrack does not cross the barrel
       continue;
 
     const edm::Ref<SimClusterCollection> simClusterRef(SimCluster, simId);

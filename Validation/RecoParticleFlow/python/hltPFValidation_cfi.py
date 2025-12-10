@@ -36,11 +36,12 @@ hltPFClusterTesterECAL = cms.EDProducer("PFClusterTester",
     assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.5, 0.1),
     doMatchByScore = cms.bool(True),
     enFracCut = cms.double(0.),
-    ptCut = cms.double(0.)
+    ptCut = cms.double(0.),
+    etaCut = cms.double(3.0)
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(hltPFClusterTesterECAL, PFCand = cms.InputTag("hltParticleFlowTmp"))
+phase2_common.toModify(hltPFClusterTesterECAL, PFCand = cms.InputTag("hltParticleFlowTmp"), etaCut = cms.double(1.48))
 
 hltPFClusterTesterECALWithCut = hltPFClusterTesterECAL.clone(
     enFracCut =  cms.double(0.01),
