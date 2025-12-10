@@ -27,7 +27,7 @@ public:
   inline void setSpotEnergy(double e) override { spotEnergy = e; }
   bool addHit(double r, double phi, unsigned layer = 0) override;
 
-  const std::map<CaloHitID, float>& getHits() override { return hitMap_; };
+  const CaloHitMap& getHits() override { return hitMap_; }
   // for tuning
   inline void setMipEnergy(double e1, double e2) {
     mip1_ = e1;

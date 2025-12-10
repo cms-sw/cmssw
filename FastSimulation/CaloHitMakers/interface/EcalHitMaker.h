@@ -28,7 +28,7 @@ public:
   typedef math::XYZVector XYZNormal;
   typedef ROOT::Math::Plane3D Plane3D;
 
-  EcalHitMaker(CaloGeometryHelper* calo,
+  EcalHitMaker(const CaloGeometryHelper* calo,
                const XYZPoint& ecalentrance,
                const DetId& cell,
                int onEcal,
@@ -114,7 +114,7 @@ public:
   /// get the map of the stored hits. Triggers the calculation of the grid if it has
   /// not been done.
 
-  const std::map<CaloHitID, float>& getHits() override;
+  const CaloHitMap& getHits() override;
 
   /// To retrieve the track
   const FSimTrack* getFSimTrack() const { return myTrack_; }

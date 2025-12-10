@@ -32,7 +32,7 @@ public:
   bool addHit(const XYZPoint& point, unsigned layer = 0);
 
   // get the hits
-  const std::map<CaloHitID, float>& getHits() override { return hitMap_; };
+  const CaloHitMap& getHits() override { return hitMap_; }
 
   /// set the depth in X0 or Lambda0 units depending on showerType
   bool setDepth(double, bool inCm = false);
