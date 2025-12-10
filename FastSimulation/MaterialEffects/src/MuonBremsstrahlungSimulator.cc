@@ -14,8 +14,6 @@
 #include <string>
 #include <iostream>
 
-#include "TF1.h"
-
 //////////////////////////////////////////////////////////////////////////////////////
 MuonBremsstrahlungSimulator::MuonBremsstrahlungSimulator(
     double A, double Z, double density, double radLen, double photonEnergyCut, double photonFractECut)
@@ -52,7 +50,7 @@ void MuonBremsstrahlungSimulator::compute(ParticlePropagator& Particle, RandomEn
   npar = 3;  //Number of parameters
 
   // create TF1 using a free C function
-  f1 = new TF1("f1", PetrukhinFunc, xmin, xmax, npar);
+  f1 = std::make_unique<TF1>("f1", PetrukhinFunc, xmin, xmax, npar);
   //Setting parameters
   f1->SetParameters(EMuon, A, Z);
   /////////////////////////////////////////////////////////////////////////

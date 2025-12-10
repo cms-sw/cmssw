@@ -20,29 +20,36 @@
 #include <vector>
 
 namespace fastsim {
-  class InteractionModel;
+  struct GeometryConsumer {
+    GeometryConsumer(const edm::ParameterSet&, edm::ConsumesCollector&&);
 
-  //! Definition the tracker geometry (vectors of forward/barrel layers).
+    const bool useFixedMagneticFieldZ;
+    const bool useTrackerRecoGeometryRecord;
+    edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerESToken;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken;
+  };
+
+  //! Definition of the tracker geometry (vectors of forward/barrel layers).
   /*!
         This class models the material budget of the tracker. Those are reflected by 2 vectors of forward (disks, ordered by increasing Z-position) and barrel layers respectively (cylinders, ordered by increasing radius).
         Furthermore, initiatilizes the magnetic field used for propagation of particles inside the tracker.
     */
   class Geometry {
   public:
-    //! Constructor.
-    Geometry(const edm::ParameterSet&, edm::ConsumesCollector&&);
-
-    //! Default destructor.
-    ~Geometry();
-
-    //! Initializes the tracker geometry.
+    //! Constructor; initializes the tracker geometry.
     /*!
             Calls SimplifiedGeometryFactory to initialize the vectors of barrel/forward layers and provides magnetic field and interaction models for those.
             \param iSetup The Event Setup.
-            \param interactionModelMap Map of all interaction models considered (for any layer)
+            \param interactionModelNames Names of all interaction models considered (for any layer)
             \sa SimplifiedGeometryFactory
         */
-    void update(const edm::EventSetup& iSetup, const std::map<std::string, InteractionModel*>& interactionModelMap);
+    Geometry(const edm::ParameterSet&,
+             const std::vector<std::string>& interactionModelNames,
+             const edm::EventSetup& iSetup,
+             const GeometryConsumer&);
+
+    //! Default destructor.
+    ~Geometry();
 
     //! Initializes the tracker geometry.
     /*!
@@ -145,16 +152,9 @@ namespace fastsim {
     std::unique_ptr<MagneticField>
         ownedMagneticField_;  //!< Needed to create a uniform magnetic field if speciefied in config
 
-    unsigned long long cacheIdentifierTrackerRecoGeometry_;  //!< Check interval of validity of the tracker geometry
-    unsigned long long cacheIdentifierIdealMagneticField_;   //!< Check interval of validity of the magnetic field
-
     const GeometricSearchTracker* geometricSearchTracker_;  //! The tracker geometry
     const MagneticField* magneticField_;                    //!< The magnetic field
-    const bool useFixedMagneticFieldZ_;  //!< Needed to create a uniform magnetic field if speciefied in config
-    const double fixedMagneticFieldZ_;   //!< Use a uniform magnetic field or non-uniform from MagneticFieldRecord
-    const bool
-        useTrackerRecoGeometryRecord_;  //!< Use GeometricSearchTracker (active layers/reco geometry). Can be used to get position/radius of tracker material that reflects active layers
-    const std::string trackerAlignmentLabel_;  //!< The tracker alignment label
+    const double fixedMagneticFieldZ_;  //!< Use a uniform magnetic field or non-uniform from MagneticFieldRecord
     const std::vector<edm::ParameterSet>
         barrelLayerCfg_;  //!< The config in which all parameters of the barrel layers are defined
     const std::vector<edm::ParameterSet>
@@ -166,9 +166,6 @@ namespace fastsim {
     const bool forwardBoundary_;                         //!< Hack to interface "old" calo to "new" tracking
     const edm::ParameterSet trackerBarrelBoundaryCfg_;   //!< Hack to interface "old" calo to "new" tracking
     const edm::ParameterSet trackerForwardBoundaryCfg_;  //!< Hack to interface "old" calo to "new" tracking
-
-    edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerESToken_;
-    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken_;
   };
   std::ostream& operator<<(std::ostream& os, const fastsim::Geometry& geometry);
 }  // namespace fastsim
