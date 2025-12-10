@@ -2902,7 +2902,7 @@ bool l1t::TriggerMenuParser::parseTOPO(L1TUtmCondition condTOPO, unsigned int ch
   // std::cout << l1t2string(condTOPO.getObjects().at(0).getType()) << std::endl;
 
   // get condition, particle name and particle type
-  std::string condition = "axol1tl";
+  std::string condition = "topo";
   std::string type = l1t2string(condTOPO.getType());
   std::string name = l1t2string(condTOPO.getName());
 
