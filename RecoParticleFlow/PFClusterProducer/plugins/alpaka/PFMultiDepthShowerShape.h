@@ -79,7 +79,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return eta_val;
     }
   }  // namespace cms::alpakamath
-  template <unsigned int max_w_items = 32>
+  template <unsigned int max_w_items = 32, bool is_cooperative = false>
   class ShowerShapeKernel {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
@@ -131,43 +131,85 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           auto addFn = [] ALPAKA_FN_ACC(double a, double b) -> double { return a + b; };
 
-          bool update_params = true;
-          // Declare iteration parameters:
-          unsigned int iter_lane_idx = 0;
+          if constexpr (is_cooperative) {
+            bool update_params = true;
+            // Declare iteration parameters:
+            unsigned int iter_lane_idx = 0;
 
-          double iter_accum_etaSum, iter_accum_phiSum;
+            double iter_accum_etaSum, iter_accum_phiSum;
 
-          unsigned int iter_pfrhf_offset, iter_pfrhf_size, iter_consumed_pfrhf_size;
+            unsigned int iter_pfrhf_offset, iter_pfrhf_size, iter_consumed_pfrhf_size;
 
-          float iter_eta_c, iter_phi_c;
+            float iter_eta_c, iter_phi_c;
 
-          while (iter_lane_idx < eff_w_extent) {
-            if (update_params) {
-              iter_eta_c = warp::shfl_mask(acc, active_lanes_mask, eta_c, iter_lane_idx, w_extent);
-              iter_phi_c = warp::shfl_mask(acc, active_lanes_mask, phi_c, iter_lane_idx, w_extent);
+            while (iter_lane_idx < eff_w_extent) {
+              if (update_params) {
+                iter_eta_c = warp::shfl_mask(acc, active_lanes_mask, eta_c, iter_lane_idx, w_extent);
+                iter_phi_c = warp::shfl_mask(acc, active_lanes_mask, phi_c, iter_lane_idx, w_extent);
 
-              iter_pfrhf_offset = warp::shfl_mask(acc, active_lanes_mask, pfrhf_offset, iter_lane_idx, w_extent);
-              iter_pfrhf_size = warp::shfl_mask(acc, active_lanes_mask, pfrhf_size, iter_lane_idx, w_extent);
+                iter_pfrhf_offset = warp::shfl_mask(acc, active_lanes_mask, pfrhf_offset, iter_lane_idx, w_extent);
+                iter_pfrhf_size = warp::shfl_mask(acc, active_lanes_mask, pfrhf_size, iter_lane_idx, w_extent);
 
-              iter_consumed_pfrhf_size = 0;
+                iter_consumed_pfrhf_size = 0;
 
-              iter_accum_etaSum = 0.;
-              iter_accum_phiSum = 0.;
+                iter_accum_etaSum = 0.;
+                iter_accum_phiSum = 0.;
 
-              update_params = false;
-            }
-            const int pfrhfrac_idx = iter_consumed_pfrhf_size + lane_idx + iter_pfrhf_offset;
+                update_params = false;
+              }
+              const int pfrhfrac_idx = iter_consumed_pfrhf_size + lane_idx + iter_pfrhf_offset;
 
-            double etaSum_ = 0.;
-            double phiSum_ = 0.;
+              double etaSum_ = 0.;
+              double phiSum_ = 0.;
 
-            const unsigned int iter_leftover_pfrhf_size = iter_pfrhf_size - iter_consumed_pfrhf_size;  // check
+              const unsigned int iter_leftover_pfrhf_size = iter_pfrhf_size - iter_consumed_pfrhf_size;  // check
 
-            if (lane_idx < iter_leftover_pfrhf_size) {
+              if (lane_idx < iter_leftover_pfrhf_size) {
+                const int pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
+                const float frac = pfRecHitFracs[pfrhfrac_idx].frac();
+                const float energy = pfRecHit[pfrh_idx].energy();
+
+                const double x_rh = pfRecHit[pfrh_idx].x();
+                const double y_rh = pfRecHit[pfrh_idx].y();
+                const double z_rh = pfRecHit[pfrh_idx].z();
+
+                const float eta_rh = static_cast<float>(cms::alpakamath::eta(acc, x_rh, y_rh, z_rh));
+                const float phi_rh = static_cast<float>(cms::alpakamath::phi(acc, x_rh, y_rh));
+
+                etaSum_ = (frac * energy) * alpaka::math::abs(acc, eta_rh - iter_eta_c);
+                phiSum_ = (frac * energy) * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, iter_phi_c));
+              }
+
+              if (eff_w_extent == w_extent) {  // NOTE that active mask is teken into account
+                iter_accum_etaSum += warp_reduce(acc, etaSum_, addFn);
+                iter_accum_phiSum += warp_reduce(acc, phiSum_, addFn);
+              } else {
+                iter_accum_etaSum += warp_sparse_reduce(acc, active_lanes_mask, lane_idx, etaSum_, addFn);
+                iter_accum_phiSum += warp_sparse_reduce(acc, active_lanes_mask, lane_idx, phiSum_, addFn);
+              }
+
+              if (iter_leftover_pfrhf_size < eff_w_extent) {
+                if (lane_idx == iter_lane_idx) {
+                  const double etaRMS2_ = alpaka::math::max(acc, iter_accum_etaSum / pfc_energy, rms2_threshold);
+                  mdpfClusteringVars[i].etaRMS2() = etaRMS2_ * etaRMS2_;
+
+                  const double phiRMS2_ = alpaka::math::max(acc, iter_accum_phiSum / pfc_energy, rms2_threshold);
+                  mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;
+                }
+
+                iter_lane_idx += 1;
+
+                update_params = true;
+              } else {
+                iter_consumed_pfrhf_size += eff_w_extent;
+              }
+            }  // end while
+          } else { //non cooperative work
+            double accum_etaSum = 0.;
+            double accum_phiSum = 0.;
+            for (int pfrhfrac_idx = pfrhf_offset; pfrhfrac_idx < pfrhf_size; pfrhfrac_idx++ ){
               const int pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
-
               const float frac = pfRecHitFracs[pfrhfrac_idx].frac();
-
               const float energy = pfRecHit[pfrh_idx].energy();
 
               const double x_rh = pfRecHit[pfrh_idx].x();
@@ -177,34 +219,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               const float eta_rh = static_cast<float>(cms::alpakamath::eta(acc, x_rh, y_rh, z_rh));
               const float phi_rh = static_cast<float>(cms::alpakamath::phi(acc, x_rh, y_rh));
 
-              etaSum_ = (frac * energy) * alpaka::math::abs(acc, eta_rh - iter_eta_c);
-              phiSum_ = (frac * energy) * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, iter_phi_c));
+              auto etaSum_tmp = (frac * energy) * alpaka::math::abs(acc, eta_rh - eta_c);
+              auto phiSum_tmp = (frac * energy) * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, phi_c)); 
+              
+              accum_etaSum += etaSum_tmp;
+              accum_phiSum += phiSum_tmp;
             }
 
-            if (eff_w_extent == w_extent) {  // NOTE that active mask is teken into account
-              iter_accum_etaSum += warp_reduce(acc, etaSum_, addFn);
-              iter_accum_phiSum += warp_reduce(acc, phiSum_, addFn);
-            } else {
-              iter_accum_etaSum += warp_sparse_reduce(acc, active_lanes_mask, lane_idx, etaSum_, addFn);
-              iter_accum_phiSum += warp_sparse_reduce(acc, active_lanes_mask, lane_idx, phiSum_, addFn);
-            }
+            const double etaRMS2_ = alpaka::math::max(acc, accum_etaSum / pfc_energy, rms2_threshold);
+            mdpfClusteringVars[i].etaRMS2() = etaRMS2 * etaRMS2;
 
-            if (iter_leftover_pfrhf_size < eff_w_extent) {
-              if (lane_idx == iter_lane_idx) {
-                const double etaRMS2_ = alpaka::math::max(acc, iter_accum_etaSum / pfc_energy, rms2_threshold);
-                mdpfClusteringVars[i].etaRMS2() = etaRMS2_ * etaRMS2_;
-
-                const double phiRMS2_ = alpaka::math::max(acc, iter_accum_phiSum / pfc_energy, rms2_threshold);
-                mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;
-              }
-
-              iter_lane_idx += 1;
-
-              update_params = true;
-            } else {
-              iter_consumed_pfrhf_size += eff_w_extent;
-            }
-          }  // end while
+            const double phiRMS2_ = alpaka::math::max(acc, accum_phiSum / pfc_energy, rms2_threshold);
+            mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;  
+          }
         }  //end uniform_groups
       }
     }
