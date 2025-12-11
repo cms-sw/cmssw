@@ -29,6 +29,7 @@
 //#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //              ---------------------
@@ -139,6 +140,10 @@ namespace l1t {
     bool operator!=(const MuonStub&) const;
 
     void print() const;
+
+    const Phase2L1GMT::wordtype hybridStubWord() const;
+    void printHybridStub(std::string module, uint spaces, bool label) const;
+    void printHybridStubWord(std::string module, uint spaces, bool label) const;
 
   private:
     int etaRegion_;    //In the barrel this is wheel. In the endcap it is 6-ring

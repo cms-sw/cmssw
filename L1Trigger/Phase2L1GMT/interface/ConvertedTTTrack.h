@@ -17,8 +17,7 @@ namespace Phase2L1GMT {
                      const ap_int<BITSPHI>& phi,
                      const ap_int<BITSZ0>& z0,
                      const ap_int<BITSD0>& d0,
-                     const ap_uint<1>& quality,
-                     const ap_uint<96>& word)
+                     const ap_uint<1>& quality)
         : charge_(charge),
           curvature_(curvature),
           abseta_(abseta),
@@ -27,8 +26,7 @@ namespace Phase2L1GMT {
           phi_(phi),
           z0_(z0),
           d0_(d0),
-          quality_(quality),
-          word_(word) {}
+          quality_(quality) {}
 
     const ap_uint<1> charge() const { return charge_; }
 
@@ -49,25 +47,55 @@ namespace Phase2L1GMT {
     const float offline_eta() const { return offline_eta_; }
     const float offline_phi() const { return offline_phi_; }
 
-    const ap_uint<96>& word() const { return word_; }
+    const ap_uint<67> word() const {
+      ap_uint<67> w = 0;
+      int bstart = 0;
+      bstart = wordconcat<ap_uint<67>>(w, bstart, 1, 1); //valid bit is always on in emulator because invalid tracks are never created
+      bstart = wordconcat<ap_uint<67>>(w, bstart, charge_, 1);
+      bstart = wordconcat<ap_uint<67>>(w, bstart, pt_, BITSPT);
+      bstart = wordconcat<ap_uint<67>>(w, bstart, phi_, BITSPHI);
+      bstart = wordconcat<ap_uint<67>>(w, bstart, eta_, BITSETA);
+      bstart = wordconcat<ap_uint<67>>(w, bstart, z0_, BITSZ0);
+      bstart = wordconcat<ap_uint<67>>(w, bstart, d0_, BITSD0);
+      bstart = wordconcat<ap_uint<67>>(w, bstart, quality_, 1);
+      return w;
+    }
+
     void setOfflineQuantities(float pt, float eta, float phi) {
       offline_pt_ = pt;
       offline_eta_ = eta;
       offline_phi_ = phi;
     }
 
-    void print() const {
-      LogDebug("ConvertedTTTrack") << "converted track : charge=" << charge_ << " curvature=" << curvature_
-                                   << " pt=" << offline_pt_ << "," << pt_ << " eta=" << offline_eta_ << "," << eta_
-                                   << " phi=" << offline_phi_ << "," << phi_ << " z0=" << z0_ << " d0=" << d0_
-                                   << " quality=" << quality_;
+    void print(std::string module="ConvertedTTTrack", uint spaces=0, bool label=true) const {
+      std::string lab = "";
+      lab.append(spaces, ' ');
+      if (label)
+        lab.append("converted track:    ");
+      std::string chargeSign = (charge_ == 0) ? "+1" : "-1";
+      edm::LogInfo(module) << lab
+      	                   << "charge = " << chargeSign << " (" << charge_ << ")" << ",    "
+                           << "pt = " << offline_pt_ << " (" << pt_ << ")" << ",    "
+                           << "phi = " << offline_phi_ << " (" << phi_ << ")" << ",    "
+		           << "eta = " << offline_eta_ << " (" << eta_ << ")" << ","
+			   << "\n" << std::setfill(' ') << std::setw(lab.length()) << " "
+			   << "z0 = " << z0_ << ",    " 
+			   << "d0 = " << d0_ << ",    "
+                           << "quality = " << quality_ << ",    "
+			   << "(curvature = " << curvature_ << ")"
+			   << std::flush;
     }
-
-    void printWord() const {
-      LogDebug("ConvertedTTTrack") << "converted track : word=" << std::setfill('0') << std::setw(8) << std::hex
-                                   << (long long unsigned int)((word_ >> 64).to_uint64()) << std::setfill('0')
-                                   << std::setw(16) << std::hex
-                                   << (long long unsigned int)((word_ & 0xffffffffffffffff).to_uint64());
+                           
+    void printWord(std::string module="ConvertedTTTrack", uint spaces=0, bool label=true) const {
+      std::string lab = "";
+      lab.append(spaces, ' ');
+      if (label)
+        lab.append("converted track word = ");
+      ap_uint<67> w = word();
+      edm::LogInfo(module) << lab
+	                   << std::setfill('0') << std::setw(1)  << std::hex << (long long unsigned int)((w >> 64).to_uint64()) 
+			   << std::setfill('0') << std::setw(16) << std::hex << (long long unsigned int)((w & 0xffffffffffffffff).to_uint64())
+			   << std::flush;
     }
 
     void setTrkPtr(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& trkPtr) { trkPtr_ = trkPtr; }
@@ -87,7 +115,6 @@ namespace Phase2L1GMT {
     float offline_pt_;
     float offline_eta_;
     float offline_phi_;
-    ap_uint<96> word_;
 
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr_;
   };

@@ -31,11 +31,11 @@ namespace Phase2L1GMT {
   const int BITSSTUBCOORD = 10;
   const int BITSSTUBETA = 8;
   const int BITSSTUBID = 12;
-  const int BITSSTUBPHIQUALITY = 4;
-  const int BITSSTUBETAQUALITY = 4;
-  const int BITSSTUBTIME = 8;
+  const int BITSSTUBPHIQUALITY = 2;
+  const int BITSSTUBETAQUALITY = 2;
+  const int BITSSTUBTIME = 5;
   const int BITSSTAMUONQUALITY = 6;
-  const int BITSMUONBX = 4;
+  const int BITSMUONBX = 3;
 
   //PreTrackMatherdMuon
   const int BITSMATCHQUALITY = 9;
