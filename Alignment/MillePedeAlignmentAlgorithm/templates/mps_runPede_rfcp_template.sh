@@ -10,6 +10,8 @@ echo -e "Running at $(date) \n        on ${HOSTNAME} \n        in directory ${BA
 
 # Custom MP-II install - will be potentially overwritten by steering 
 MP2LOC=""   
+# Extra setup script - will be potentially overwritten by steering 
+EXTRASETUP=""   
 
 # in singularity containers, source baseline setup script
 if [[ ! -z "${SINGULARITY_NAME}" ]] 
@@ -27,6 +29,13 @@ if [[ ! -z "${MP2LOC}" ]]
 then 
     echo -e "Using custom Millepede-II installation from\n        ${MP2LOC}"
     source ${MP2LOC}/mp2setup.sh
+fi 
+
+# extra setup if required
+if [[ ! -z "${EXTRASETUP}" ]]
+then 
+    echo -e "Running extra environment setup:\n        ${EXTRASETUP}"
+    eval ${EXTRASETUP}
 fi 
 
 

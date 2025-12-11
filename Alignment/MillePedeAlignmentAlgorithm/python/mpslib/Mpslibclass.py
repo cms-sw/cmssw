@@ -19,9 +19,9 @@
 #       elapsedTime     - seconds since last update
 #       mssDirPool      - pool for $mssDir (e.g. cmscaf/cmscafuser)
 #       pedeMem         - Memory allocated for pede
-#       rootIO
-#       mp2loc
-#       spare3
+#       rootIO          - flag to enable xrootd-based I/O with ROOT binaries 
+#       mp2loc          - specify local MP2 installation to use 
+#       extraSetup      - additional commands to run for setting up runtime environment
 
 # (2) Job-level variables/lists
 #       JOBNUMBER   - ADDED, selfexplanatory
@@ -53,7 +53,7 @@ class jobdatabase:
     JOBREMARK, JOBSP1, JOBSP2, JOBSP3 = ([] for i in range(13))
 
     header, batchScript, cfgTemplate, infiList, classInf, addFiles, driver, mergeScript, \
-    mssDir, updateTimeHuman, mssDirPool, rootIO, mp2loc, spare3 = ('' for i in range(14))
+    mssDir, updateTimeHuman, mssDirPool, rootIO, mp2loc, extraSetup = ('' for i in range(14))
 
     updateTime, elapsedTime, pedeMem , nJobs = -1, -1, -1, -1
 
@@ -92,7 +92,7 @@ class jobdatabase:
         self.pedeMem         = int(DBFILE.readline())
         self.rootIO          = DBFILE.readline().rstrip('\n')
         self.mp2loc          = DBFILE.readline().rstrip('\n')
-        self.spare3          = DBFILE.readline().rstrip('\n')
+        self.extraSetup          = DBFILE.readline().rstrip('\n')
 
         #read actual jobinfo into arrays
         self.nJobs = 0
@@ -147,6 +147,7 @@ class jobdatabase:
         print('pedeMem:\t',             self.pedeMem, '\n')
         print('rootIO:\t',             bool(self.rootIO), '\n')
         print('mp2loc:\t',             self.mp2loc, '\n')
+        print('extraSetup:\t',             self.extraSetup, '\n')
 
         #print interesting Job-level lists ---- to add: t/evt, fix remarks
         headFmt = '###     dir      jobid    stat  try  rtime      nevt  remark   weight  name'
@@ -220,7 +221,6 @@ class jobdatabase:
             self.elapsedTime = self.currentTime - self.updateTime
         self.updateTime = self.currentTime
         self.updateTimeHuman = str(datetime.datetime.today())   #no timezone :(
-        self.spare3 = "-- unused --"
 
         #if mps.db already exists, backup as mps.db~ (in case of interupt during write)
         os.system('[[ -a mps.db ]] && cp -p mps.db mps.db~')
@@ -231,7 +231,7 @@ class jobdatabase:
                      self.classInf, self.addFiles, self.driver, self.mergeScript,
                      self.mssDir, self.updateTime, self.updateTimeHuman,
                      self.elapsedTime, self.mssDirPool, self.pedeMem,
-                     self.rootIO, self.mp2loc, self.spare3 ]
+                     self.rootIO, self.mp2loc, self.extraSetup ]
         for item in headData:
             DBFILE.write("%s\n" % item)
 

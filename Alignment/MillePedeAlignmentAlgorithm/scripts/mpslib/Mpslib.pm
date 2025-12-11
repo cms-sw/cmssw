@@ -23,7 +23,7 @@ package Mpslib;  # assumes Some/Module.pm
 #  $pedeMem - Memory allocated for pede
 #  $rootIO  - use ROOT I/O
 #  $mp2loc  - custom location of Millepede-II installation
-#  $spare3
+#  $extraSetup      - additional commands to run for setting up runtime environment
 #
 # (2) Job-level variables
 #  
@@ -54,7 +54,7 @@ package Mpslib;  # assumes Some/Module.pm
 		    @JOBID
 		    $header 
 		    $batchScript $cfgTemplate $infiList $class $addFiles $driver $nJobs
-                    $mergeScript $mssDir $updateTime $updateTimeHuman $elapsedTime $mssDirPool $pedeMem $rootIO $mp2loc $spare3
+                    $mergeScript $mssDir $updateTime $updateTimeHuman $elapsedTime $mssDirPool $pedeMem $rootIO $mp2loc $extraSetup
 		    @JOBDIR 
 		    @JOBSTATUS @JOBNTRY @JOBRUNTIME @JOBNEVT @JOBHOST @JOBINCR @JOBREMARK @JOBSP1 @JOBSP2 @JOBSP3
                    );
@@ -70,7 +70,6 @@ sub write_db() {
   $updateTime = $currentTime;
   $updateTimeHuman = `date`;
   chomp $updateTimeHuman;
-  $spare3 = "-- unused --";
 
   system "[[ -a mps.db ]] && cp -p mps.db mps.db~"; # GF: backup if exists (in case of interupt during write)
   open DBFILE,">mps.db";
@@ -90,7 +89,7 @@ sub write_db() {
   printf DBFILE "%d\n",$pedeMem;
   printf DBFILE "%s\n",$rootIO;
   printf DBFILE "%s\n",$mp2loc;
-  printf DBFILE "%s\n",$spare3;
+  printf DBFILE "%s\n",$extraSetup;
   my $i;
   for ($i = 0; $i < @JOBID; ++$i) {
     printf DBFILE "%03d:%s:%s:%s:%d:%d:%d:%s:%d:%s:%s:%s:%s\n",
@@ -131,7 +130,7 @@ sub read_db() {
   $pedeMem = <DBFILE>;
   $rootIO = <DBFILE>;
   $mp2loc = <DBFILE>;
-  $spare3 = <DBFILE>;
+  $extraSetup = <DBFILE>;
   chomp $header;
   chomp $batchScript;
   chomp $cfgTemplate;
@@ -148,7 +147,7 @@ sub read_db() {
   chomp $pedeMem;
   chomp $rootIO;
   chomp $mp2loc;
-  chomp $spare3;
+  chomp $extraSetup;
 
   my $nMilleJobs = 0;
   $nJobs = 0; 
@@ -172,8 +171,8 @@ sub read_db() {
 sub print_memdb() {
   print "=== mps database printout ===\n";
   print "$header\n";
-  printf "Script: %s\ncfg: %s\nfiles: %s\nclass: %s\nname: %s\ndriver: %s\nmergeScript: %s\nmssDir: %s\nupdateTime: %s\nelapsed: %d\nmssDirPool: %s\npedeMem: %d\nrootIO: %s\nmp2loc: %ds\n",$batchScript,
-  $cfgTemplate,$infiList,$class,$addFiles,$driver,$mergeScript,$mssDir,$updateTimeHuman,$elapsedTime,$mssDirPool,$pedeMem,$rootIO,$mp2loc;
+  printf "Script: %s\ncfg: %s\nfiles: %s\nclass: %s\nname: %s\ndriver: %s\nmergeScript: %s\nmssDir: %s\nupdateTime: %s\nelapsed: %d\nmssDirPool: %s\npedeMem: %d\nrootIO: %s\nmp2loc: %s\nextraSetup: %s\n",$batchScript,
+  $cfgTemplate,$infiList,$class,$addFiles,$driver,$mergeScript,$mssDir,$updateTimeHuman,$elapsedTime,$mssDirPool,$pedeMem,$rootIO,$mp2loc,$extraSetup;
   printf "%3s %6s %9s %6s %3s %5s %8s %6s %8s %s\n",
   '###',"dir","jobid","stat","try","rtime","nevt","t/evt","remark","name";
   my $i;

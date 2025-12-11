@@ -28,6 +28,7 @@ $mssDirLocal = "undefined"; # not to confuse with mssDir from 'mpslib'.
 $castorPool = "undefined";
 $cmsCafPool = 0;
 $mp2dir = "undefined";
+$extraSetup = "undefined";
 
 # parse the arguments
 while (@ARGV) {
@@ -73,6 +74,9 @@ while (@ARGV) {
     elsif ($i eq 9) {
       $mp2dir = $arg;
     }
+    elsif ($i eq 10) {
+      $extraSetup = $arg;
+    }
   }
 }
 
@@ -109,6 +113,12 @@ $nn = ($body =~ s/MSSDIR=(.+)$/MSSDIR=$mssDirLocal/m);
 #replace MP2LOC setting 
 if ($mp2dir ne "undefined") {
   $nn = ($body =~ s/MP2LOC=(.+)$/MP2LOC=$mp2dir/m);
+} 
+
+#replace EXTRASETUP setting 
+if ($extraSetup ne "undefined") {
+  print "mps_script.pl: extraSetup is: '$extraSetup'\n";
+  $nn = ($body =~ s/EXTRASETUP=(.+)$/EXTRASETUP=$extraSetup/m);
 } 
 
 if ($castorPool ne "undefined") {

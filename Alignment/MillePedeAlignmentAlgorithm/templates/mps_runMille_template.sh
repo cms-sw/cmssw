@@ -12,6 +12,8 @@ MSSDIR=/castor/cern.ch/user/u/username/another/path
 MSSDIRPOOL=
 # Custom MP-II install - will be potentially overwritten by steering 
 MP2LOC=""
+# Extra setup script - will be potentially overwritten by steering 
+EXTRASETUP=""   
 
 clean_up () {
 #try to recover log files and root files
@@ -117,6 +119,13 @@ if [[ ! -z "${MP2LOC}" ]]
 then 
     echo -e "Using custom Millepede-II installation from\n        ${MP2LOC}"
     source ${MP2LOC}/mp2setup.sh
+fi 
+
+# extra setup if required
+if [[ ! -z "${EXTRASETUP}" ]]
+then 
+    echo -e "Running extra environment setup:\n        ${EXTRASETUP}"
+    eval ${EXTRASETUP}
 fi 
 
 # convert to ROOT if we have cToROOT

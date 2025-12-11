@@ -64,7 +64,8 @@ class SetupAlignment(object):
         self._external_datasets = collections.OrderedDict() # external dataset configs
         self._first_pede_config = True # does a pede job exist already?
         self._rootIO            = False # flag to enable ROOT I/O
-        self._millepede_loc = "" # location of a custom millepede install?
+        self._millepede_loc = ""        # location of a custom millepede install
+        self._extraSetup = ""           # optinal extra setup command/script
 
         self._create_config()
         self._fill_general_options()
@@ -73,6 +74,7 @@ class SetupAlignment(object):
         self._create_mass_storage_directory()
         self._fetch_pede_settings()
         self._fetch_IO_settings()
+        self._fetch_extra_setup()
         self._fetch_millepede_settings()
         self._create_weight_configs()
 
@@ -256,6 +258,12 @@ class SetupAlignment(object):
 
         self._rootIO \
             = self._config.has_option("general", "useRootIO") 
+        
+    def _fetch_extra_setup(self):
+        """Fetch IO settings from general section in `self._config`."""
+
+        self._extraSetup \
+            = self._config.get("general", "extraSetup") if self._config.has_option("general","extraSetup") else "" 
 
 
     def _fetch_millepede_settings(self):
@@ -366,6 +374,12 @@ class SetupAlignment(object):
                 command.extend(["-r"]) 
             if self._millepede_loc != "":
                 command.extend(["--mp2loc",self._millepede_loc]) 
+            if self._extraSetup != "":
+                if not self._extraSetup.startswith("\""):
+                    # make sure extra setup is quoted. 
+                    print (f"wrapping extra setup '{self._extraSetup}' in quotes!")
+                    self._extraSetup = f"\"{self._extraSetup}\""
+                command.extend(["--extraSetup",self._extraSetup]) 
             command = [x for x in command if len(x.strip()) > 0]
 
             # Some output:
@@ -388,6 +402,8 @@ class SetupAlignment(object):
                 print("Use ROOT-based xrootd I/O")
             if self._millepede_loc != "":
                 print("Using Millepede installation from ",self._millepede_loc)
+            if self._extraSetup != "":
+                print("Running additional setup script/command: ",self._extraSetup)
 
             # call the command and toggle verbose output
             self._handle_process_call(command, self._args.verbose)

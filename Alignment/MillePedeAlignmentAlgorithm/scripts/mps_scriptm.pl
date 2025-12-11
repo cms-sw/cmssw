@@ -124,6 +124,10 @@ if ($castorPool ne "undefined") {
 if ($mp2loc ne "") {
   $nn = ($body =~ s/MP2LOC=(.+)$/MP2LOC=$mp2loc/m);
 } 
+#replace EXTRASETUP setting
+if ($extraSetup ne "") {
+  $nn = ($body =~ s/EXTRASETUP=(.+)$/EXTRASETUP=$extraSetup/m);
+} 
 # now we have to expand lines that contain the ISN directive
 @LINES = split "\n",$body;
 
