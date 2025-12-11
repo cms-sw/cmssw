@@ -24,6 +24,7 @@
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="PhysicsTools/TensorFlow"/>
+<use name="PhysicsTools/PyTorch"/>
 <use name="RecoLocalTracker/SiStripClusterizer"/>
 <use name="RecoTracker/FinalTrackSelectors"/>
 <use name="RecoTracker/Record"/>
@@ -36,5 +37,18 @@
 <use name="roottmva"/>
 <use name="lwtnn"/>
 <library file="*.cc" name="RecoTrackerFinalTrackSelectorsPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="alpaka/*.cc" name="RecoTrackerFinalTrackSelectorsAlpakaPlugins">
+  <use name="alpaka"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="PhysicsTools/PyTorchAlpaka"/>
+  <use name="pytorch-cuda" for="alpaka/cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

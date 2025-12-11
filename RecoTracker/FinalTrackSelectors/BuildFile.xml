@@ -1,4 +1,8 @@
 <use name="ofast-flag"/>
+<use name="alpaka"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Framework"/>
@@ -6,8 +10,11 @@
 <use name="FWCore/ParameterSet"/>
 <use name="CondFormats/GBRForest"/>
 <use name="TrackingTools/PatternTools"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
 <use name="roottmva"/>
 <use name="lwtnn"/>
+<use name="clhep"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>
