@@ -7,7 +7,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.source = cms.Source("EmptySource")
 
-process.generator = cms.EDFilter("Pythia8EGun",
+process.generator = cms.EDFilter("Pythia8HepMC3EGun",
 
     maxEventsToPrint = cms.untracked.int32(1),
     pythiaPylistVerbosity = cms.untracked.int32(1),
