@@ -227,7 +227,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             }
 
             const double etaRMS2_ = alpaka::math::max(acc, accum_etaSum / pfc_energy, rms2_threshold);
-            mdpfClusteringVars[i].etaRMS2() = etaRMS2 * etaRMS2;
+            mdpfClusteringVars[i].etaRMS2() = etaRMS2_ * etaRMS2_;
 
             const double phiRMS2_ = alpaka::math::max(acc, accum_phiSum / pfc_energy, rms2_threshold);
             mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;  
