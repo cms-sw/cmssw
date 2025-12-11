@@ -534,13 +534,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     // Shared tracks
     book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionAssociationScore", 50, 0, 1);
     book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionAssociationScore", 50, 0, 1);
-    // book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
-    // book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
-
-    // book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSim", 50, 0, 1);
-    // book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSim", 50, 0, 1);
-    // book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSimMatched", 50, 0, 1);
-    // book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSimMatched", 50, 0, 1);
   }
 }
 
@@ -696,12 +689,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
   }
 
   for (size_t i = 0; i < v.sim_vertices.size(); ++i) {
-    const float sharedFraction = v.sim_vertices_num_shared_tracks[i];
-    // const simPrimaryVertex* simV = v.sim_vertices_internal[i];
+    const float sharedFraction = v.sim_vertices_shared_fraction[i];
     mes_[label][prefix + "AssociationScore"]->Fill(sharedFraction);
-    // mes_[label][prefix + "RecoMatched"]->Fill(sharedFraction);
-    // mes_[label][prefix + "Sim"]->Fill(sharedFraction);
-    // mes_[label][prefix + "SimMatched"]->Fill(sharedFraction);
   }
 }
 
@@ -1154,7 +1143,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(std::vector<recoPrim
         for (const auto& vv : simpv) {
           if (&(*(vv.sim_vertex)) == tvPtr) {
             vrec->sim_vertices.push_back(tvPtr);
-            vrec->sim_vertices_num_shared_tracks.push_back(vertexRefQuality.second);
+            vrec->sim_vertices_shared_fraction.push_back(vertexRefQuality.second);
             vrec->sim_vertices_internal.push_back(&vv);
             continue;
           }

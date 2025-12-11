@@ -1,3 +1,5 @@
+#include <limits>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -62,7 +64,7 @@ void VertexAssociatorByPositionAndTracksProducer::fillDescriptions(edm::Configur
 
   // Matching conditions
   desc.add<double>("absZ", 0.1);
-  desc.add<double>("sigmaZ", 3.0);
+  desc.add<double>("sigmaZ", std::numeric_limits<double>::max());
   desc.add<double>("maxRecoZ", 1000.0);
   desc.add<double>("absT", -1.0);
   desc.add<double>("sigmaT", -1.0);
