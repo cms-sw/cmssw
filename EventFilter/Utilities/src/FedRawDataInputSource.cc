@@ -443,8 +443,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
   //file is finished
   if (currentFile_->bufferPosition_ == currentFile_->fileSize_) {
     readingFilesCount_--;
-    if (fileListMode_)
-      heldFilesCount_--;
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
@@ -462,6 +460,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     } else {
       //in single-thread and stream jobs, events are already processed
       currentFile_.reset();
+      heldFilesCount_--;
     }
     setMonState(inProcessingFile);
     return evf::EvFDaqDirector::noFile;
