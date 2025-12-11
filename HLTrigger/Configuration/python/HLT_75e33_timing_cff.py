@@ -252,6 +252,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTTiclTrackstersCLUE
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTVertexRecoSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/FastTimerService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/services/PyTorchService_cfi")
 
 fragment.schedule = cms.Schedule(*[
 
