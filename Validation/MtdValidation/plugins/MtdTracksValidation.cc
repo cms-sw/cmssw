@@ -554,10 +554,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   auto btlRecCluHandle = makeValid(iEvent.getHandle(btlRecCluToken_));
   auto etlRecCluHandle = makeValid(iEvent.getHandle(etlRecCluToken_));
 
-  std::unordered_map<uint32_t, MTDHit> m_btlHits;
-  std::unordered_map<uint32_t, MTDHit> m_etlHits;
-  std::unordered_map<uint32_t, std::set<unsigned long int>> m_btlTrkPerCell;
-  std::unordered_map<uint32_t, std::set<unsigned long int>> m_etlTrkPerCell;
   const auto& tp2SimAssociationMap = iEvent.get(tp2SimAssociationMapToken_);
   const auto& Sim2tpAssociationMap = iEvent.get(Sim2tpAssociationMapToken_);
   const auto& r2sAssociationMap = iEvent.get(r2sAssociationMapToken_);
