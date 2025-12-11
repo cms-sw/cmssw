@@ -205,13 +205,18 @@ void PFClusterConverter::produce(edm::Event& event, const edm::EventSetup& setup
   int nRH = 0;
   if (pfRecHits->metadata().size() != 0) nRH = pfRecHits.view().size();
 
-  if (pfClusterSoA.nSeeds() == 0 || nRH == 0) event.emplace(outPFClusterSoAToken_, PFClusterHostCollection{});
+  std::unique_ptr<reco::PFClusterHostCollection> outPFClusterSoAPtr;
 
+  if (pfClusterSoA.nSeeds() == 0 || nRH == 0) {
+    outPFClusterSoAPtr = std::make_unique<reco::PFClusterHostCollection>(0, cms::alpakatools::host());	  
+    event.emplace(outPFClusterSoAToken_, std::move(*outPFClusterSoAPtr));
+    return;
+  }
   auto const& pfRecHitFractionSoA = event.get(pfRecHitFractionSoAToken_).const_view();
 
   auto const rechitsHandle = event.getHandle(recHitsLabel_);
 
-  auto outPFClusterSoAPtr = std::make_unique<reco::PFClusterHostCollection>(pfClusterSoA.nSeeds(), cms::alpakatools::host());
+  outPFClusterSoAPtr = std::make_unique<reco::PFClusterHostCollection>(pfClusterSoA.nSeeds(), cms::alpakatools::host());
 
   auto& outPFClusterSoA = outPFClusterSoAPtr->view(); 
 
@@ -257,8 +262,6 @@ void PFClusterConverter::produce(edm::Event& event, const edm::EventSetup& setup
     outPFClusterSoA[i].z() = temp.z();
     outPFClusterSoA[i].topoRHCount() = pfClusterSoA[i].topoRHCount();
   }
-  }
-
   event.emplace(outPFClusterSoAToken_, std::move(*outPFClusterSoAPtr));
 }
 
