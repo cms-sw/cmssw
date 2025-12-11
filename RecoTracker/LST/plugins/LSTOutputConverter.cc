@@ -165,28 +165,15 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         recHits.push_back(hit.clone());
     }
 
-    // pixel-seeded TCs from LST always have 4 pixel hits
-    unsigned int const nPixelHits = (iType == lst::LSTObjType::T5 || iType == lst::LSTObjType::T4) ? 0 : 4;
-    unsigned int nHits = 0;
-    switch (iType) {
-      case lst::LSTObjType::T5:
-        nHits = lst::Params_T5::kHits;
-        break;
-      case lst::LSTObjType::pT3:
-        nHits = lst::Params_pT3::kHits;
-        break;
-      case lst::LSTObjType::pT5:
-        nHits = lst::Params_pT5::kHits;
-        break;
-      case lst::LSTObjType::pLS:
-        nHits = lst::Params_pLS::kHits;
-        break;
-      case lst::LSTObjType::T4:
-        nHits = lst::Params_T4::kHits;
-        break;
+    // The pixel hits are packed into first kPixelLayerSlots layer slots.
+    for (unsigned int layerSlot = lst::Params_TC::kPixelLayerSlots; layerSlot < lst::Params_TC::kLayers; ++layerSlot) {
+      for (unsigned int hitSlot = 0; hitSlot < lst::Params_TC::kHitsPerLayer; ++hitSlot) {
+        unsigned int hitIdx = lstOutput_view.hitIndices()[i][layerSlot][hitSlot];
+        if (hitIdx == lst::kTCEmptyHitIdx)
+          continue;
+        recHits.push_back(OTHits[hitIdx]->clone());
+      }
     }
-    for (unsigned int j = nPixelHits; j < nHits; j++)
-      recHits.push_back(OTHits[lstOutput_view.hitIndices()[i][j]]->clone());
 
     recHits.sort([](const auto& a, const auto& b) {
       const auto asub = a.det()->subDetector();
@@ -215,7 +202,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       if (includeNonpLSTSs_ || (iType == lst::LSTObjType::T5 || iType == lst::LSTObjType::T4)) {
         using Hit = SeedingHitSet::ConstRecHitPointer;
         std::vector<Hit> hitsForSeed;
-        hitsForSeed.reserve(nHits);
+        hitsForSeed.reserve(recHits.size());
         int n = 0;
         unsigned int firstLayer;
         for (auto const& hit : recHits) {
