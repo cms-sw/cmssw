@@ -15,13 +15,15 @@ L1BitsScoutingOnline = _l1bits.clone(src="gtStage2DigisScouting")
 L1BitsSequence = cms.Sequence(gtStage2DigisScouting + L1BitsScoutingOnline)
 
 ScoutingEBRechitAnalyzerOnline = ScoutingEBRechitAnalyzer.clone(
-    L1TriggerResults = cms.InputTag('L1BitsScoutingOnline')
+    L1TriggerResults = cms.InputTag('L1BitsScoutingOnline'),
+    topFolderName = cms.string('HLT/ScoutingOnline/EBRechits')
 )
+
 ScoutingHBHERechitAnalyzerOnline = ScoutingHBHERechitAnalyzer.clone(
-    L1TriggerResults = cms.InputTag('L1BitsScoutingOnline')
+    L1TriggerResults = cms.InputTag('L1BitsScoutingOnline'),
+    topFolderName = cms.string('HLT/ScoutingOnline/HBHERechits')
 )
 
 ScoutingRecHitsMonitoring = cms.Sequence(L1BitsSequence +
                                          ScoutingEBRechitAnalyzerOnline +
                                          ScoutingHBHERechitAnalyzerOnline)
-                                         
