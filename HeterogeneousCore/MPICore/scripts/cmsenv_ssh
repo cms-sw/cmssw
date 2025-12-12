@@ -1,0 +1,89 @@
+#! /bin/bash
+
+
+function usage() {
+    echo "Usage: $0 [-v, --verbose] [-h, --help] [-b, --release-base <path>] <remote-host> <command>"
+    echo
+    echo "Options:"
+    echo "  -v, --verbose            Make this script verbose"
+    echo "  -h, --help               Show this help message"
+    echo "  -b, --release-base <path>  CMSSW release base path to use on remote (default: local CMSSW_BASE)"
+    echo
+    echo "ssh-specific options that take arguments are not supported."
+    exit 0
+}
+
+VERBOSE=false
+
+# REMOTE_RELEASE_BASE is required to contain $REMOTE_RELEASE_BASE/config/scram_basedir.
+# Default to local CMSSW_BASE
+REMOTE_RELEASE_BASE="$CMSSW_BASE"
+
+# Parse options
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            ;;
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -b|--release-base)
+            REMOTE_RELEASE_BASE="$2"
+            shift 2
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+
+# check that REMOTE_RELEASE_BASE is set
+if [[ -z "$REMOTE_RELEASE_BASE" ]]; then
+    echo "Error: Could not set the remote CMSSW release path to local CMSSW_BASE."
+    echo "Please make sure that CMSSW_BASE is set locally, or provide it via the --release-base option."
+    exit 1
+fi
+
+# Consider any remaining "-*" options as ssh flags.
+SSH_OPTS=""
+while [[ "$1" == -* ]]; do
+    SSH_OPTS="$SSH_OPTS $1"
+    shift
+done
+
+host="$1"
+cmd="${@:2}"
+
+if [[ -z "$host" || -z "$cmd" ]]; then
+    echo "Error: remote host and command must be provided."
+    usage
+fi
+
+function set_remote_cmsenv() {
+    # $RELEASE_BASE is set by the local node and passed to this function.
+    # This function is evaluated in the remote node
+
+    local RELEASE_BASE="$1"
+    local SCRAM_BASEDIR="$(cat $RELEASE_BASE/config/scram_basedir)"
+
+    if [ ! -d "$RELEASE_BASE" ]; then
+        echo "error: Local \$RELEASE_BASE \"$RELEASE_BASE\" could not be found in host $(hostname)"
+        exit 1
+    fi
+
+    if [ -f "$SCRAM_BASEDIR/cmsset_default.sh" ]; then
+        source "$SCRAM_BASEDIR/cmsset_default.sh"
+    else
+        echo "error: invalid CMS installation at $SCRAM_BASEDIR/ in host $(hostname)"
+        exit 1
+    fi
+
+    cd $RELEASE_BASE
+    eval $(scram runtime -sh)
+}
+
+# set cmssw env in remote before executing cmd
+ssh $SSH_OPTS "$host" "$(declare -f set_remote_cmsenv) && set_remote_cmsenv $REMOTE_RELEASE_BASE; $cmd"
