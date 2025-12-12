@@ -21,6 +21,9 @@ from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 ### Miscellaneous monitoring
 from DQM.HLTEvF.ScoutingCollectionMonitor_cfi import *
 
+### RecHits monitoring
+from HLTriggerOffline.Scouting.ScoutingRecHitAnalyzers_cff import *
+
 hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
                                          scoutingMonitoringTagProbeMuonVtx *
                                          scoutingMonitoringTriggerMuon_DoubleMu *
@@ -33,6 +36,19 @@ hltScoutingJetDqmOfflineForRelVals = cms.Sequence(jetMETDQMOfflineSourceScouting
 
 hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
 
-hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline + hltScoutingEGammaDqmOffline + hltScoutingJetDqmOffline + hltScoutingCollectionMonitor)
+hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline +
+                                     hltScoutingEGammaDqmOffline +
+                                     hltScoutingJetDqmOffline +
+                                     hltScoutingCollectionMonitor)
+
+## Add the scouting rechits monitoring (only for 2025, integrated in menu GRun 2025 V1.3)
+## See https://its.cern.ch/jira/browse/CMSHLT-3607
+_hltScoutingDqmOffline = hltScoutingDqmOffline.copy()
+_hltScoutingDqmOffline += hltScoutingMonitoringRecHits
+
+# Append the RecHits monitoring only in the 2025 scouting era
+from Configuration.Eras.Modifier_run3_scouting_2025_cff import run3_scouting_2025
+run3_scouting_2025.toReplaceWith(hltScoutingDqmOffline, _hltScoutingDqmOffline)
+
 hltScoutingDqmOfflineForRelVals = hltScoutingDqmOffline.copy()
 hltScoutingDqmOfflineForRelVals.replace(hltScoutingJetDqmOffline, hltScoutingJetDqmOfflineForRelVals)
