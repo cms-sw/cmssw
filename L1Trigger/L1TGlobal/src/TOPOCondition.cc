@@ -92,10 +92,7 @@ void l1t::TOPOCondition::setScore(const float scoreval) const { m_savedscore = s
 
 void l1t::TOPOCondition::loadModel() {
   try {
-    // m_model = m_model_loader.load_model();
-    std::string TOPOmodelversion = "/data/dust/user/ebelingl/foo/TOPO/topo_HHbbWW_1mu_v2";
-    hls4mlEmulator::ModelLoader loader(TOPOmodelversion);
-    m_model = loader.load_model(); 
+    m_model = m_model_loader.load_model();
   } catch (std::runtime_error& e) {
     throw cms::Exception("ModelError") << " ERROR: failed to load TOPO model version \"" << m_model_loader.model_name()
                                        << "\". Model version not found in cms-hls4ml externals.";
@@ -220,23 +217,12 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     ModelInput[index++] = JetInput[idJ];
   }
 
-  ofstream infile("features.txt", ios::app);
-  for (int i = 0; i < NInputs; i++) {
-    infile << ModelInput[i] << ",";
-  }
-  infile << std::endl;
-  infile.close();
-
   //now run the inference
   m_model->prepare_input(ModelInput);  //scaling internal here
   m_model->predict();
   m_model->read_result(&loss);  //store result as loss variable
   score = ((loss).to_float() * 1023);
   setScore(score);
-  
-  ofstream outfile("score.txt", ios::app);
-  outfile << score << std::endl;
-  outfile.close();
 
   //number of objects/thrsholds to check
   int iCondition = 0;  // number of conditions: there is only one
