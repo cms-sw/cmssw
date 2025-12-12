@@ -418,7 +418,7 @@ exception when running testMissingDictionaryChecking_cfg.py.
  <ioread sourceClass="std::auto_ptr<edmtest::SchemaEvolutionContained>" targetClass="edmtest::compat::deprecated_auto_ptr<edmtest::SchemaEvolutionContained>"/>
  <ioread sourceClass="edmtest::SchemaEvolutionAutoPtrToUniquePtr" version="[3]" targetClass="edmtest::SchemaEvolutionAutoPtrToUniquePtr" source="edmtest::compat::deprecated_auto_ptr<edmtest::SchemaEvolutionContained> contained_" target="contained_">
   <![CDATA[
-   contained_.release(); contained_.reset(onfile.contained_._M_ptr);
+   contained_.reset(onfile.contained_._M_ptr); onfile.contained_._M_ptr = nullptr;
   ]]>
  </ioread>
  <class name="edmtest::SchemaEvolutionCArrayToStdArray" ClassVersion="4">
