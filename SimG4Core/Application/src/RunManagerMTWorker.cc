@@ -62,6 +62,7 @@
 #include "G4WorkerThread.hh"
 #include "G4WorkerRunManagerKernel.hh"
 #include "G4StateManager.hh"
+#include "G4GeometryManager.hh"
 #include "G4TransportationManager.hh"
 #include "G4LossTableManager.hh"
 #include "G4PhysListUtil.hh"
@@ -204,6 +205,10 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
         << "', valid are MessageLogger, MessageLoggerThreadPrefix, FilePerThread";
   }
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
+
+#if G4VERSION_NUMBER >= 1130
+  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
+#endif
 
   // sensitive detectors
   std::vector<std::string> onlySDs = p.getParameter<std::vector<std::string>>("OnlySDs");
