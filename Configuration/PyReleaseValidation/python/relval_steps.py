@@ -4867,10 +4867,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry' : geom
                                        }
 
-    upgradeStepDict['GenSimHLBeamSpotHGCALCloseBy'][k]= {'-s' : 'GEN,SIM',
+    upgradeStepDict['GenSimHLBeamSpotCloseBy'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
-                                       '--beamspot' : 'HGCALCloseBy',
+                                       '--beamspot' : 'CloseBy',
                                        '--datatier' : 'GEN-SIM',
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
