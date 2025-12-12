@@ -185,22 +185,10 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
   // mixMod.produces<EBDigiCollection>(m_EBdigiCollection);
   // mixMod.produces<EEDigiCollection>(m_EEdigiCollection);
   // mixMod.produces<ESDigiCollection>(m_ESdigiCollection);
-  const std::set<std::string> producers = {m_hitsProducerTag, m_hitsProducerTagPU};
-  std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> eb_list, ee_list, es_list;
-  for (const auto &prod : producers) {
-    if (m_doEB)
-      eb_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "EcalHitsEB")));
-    if (m_doEE)
-      ee_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "EcalHitsEE")));
-    if (m_doES)
-      es_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "EcalHitsES")));
-  }
-  if (m_doEB)
-    m_HitsEBToken_ = eb_list[0];
-  if (m_doEE)
-    m_HitsEEToken_ = ee_list[0];
-  if (m_doES)
-    m_HitsESToken_ = es_list[0];
+
+  if (m_doEB) m_HitsEBToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"));
+  if (m_doEE) m_HitsEEToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEE"));
+  if (m_doES) m_HitsESToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsES"));
 
   if (m_doES) {
     m_esGainToken = iC.esConsumes();
