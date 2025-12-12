@@ -1,0 +1,7 @@
+<bin name="cmsGetFnConnect" file="cmsGetFnConnect.cc">
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/Catalog"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWStorage/Services"/>
+</bin>

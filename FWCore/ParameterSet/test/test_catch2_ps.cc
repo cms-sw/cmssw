@@ -715,7 +715,7 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
     REQUIRE(vpset1[2].getParameter<int>("int3") == 3);
 
     SECTION("deprecated pset encoding") {
-      //Used in Utilities/StorageFactory
+      //Used in FWStorage/StorageFactory
       char const* const psetChar =
           "<destinations=-s({63657272})"                                  // cerr
           ";cerr=-P(<noTimeStamps=-B(true);threshold=-S(5741524e494e47)"  // WARNING

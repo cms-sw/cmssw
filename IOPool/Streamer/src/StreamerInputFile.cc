@@ -7,8 +7,8 @@
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 
-#include "Utilities/StorageFactory/interface/IOFlags.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/IOFlags.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 #include <iomanip>
 #include <iostream>

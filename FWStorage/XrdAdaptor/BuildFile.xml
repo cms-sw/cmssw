@@ -1,0 +1,9 @@
+<use name="tbb"/>
+<use name="xrootd"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="FWStorage/StorageFactory"/>
+<flags CPPDEFINES="_FILE_OFFSET_BITS=64"/>
+<export>
+  <lib name="1"/>
+</export>

@@ -15,7 +15,7 @@
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/Services/interface/setupSiteLocalConfig.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"

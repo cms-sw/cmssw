@@ -1,0 +1,5 @@
+<library file="DavixStorageMaker.cc" name="FWStorageDavixAdaptorPlugin">
+  <use name="FWStorage/StorageFactory"/>
+  <use name="FWStorage/DavixAdaptor"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
