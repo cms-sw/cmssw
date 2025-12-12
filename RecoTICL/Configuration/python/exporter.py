@@ -18,8 +18,12 @@ def render_cff(assembled):
     for label in sorted(assembled.modules):
         blocks.append("%s = %s" % (label, assembled.modules[label].dumpPython()))
     blocks.append("")
+    is_sequence = assembled.target.grouping == "Sequence"
     for name, children in assembled.task_children.items():
-        blocks.append("%s = cms.Task(%s)" % (name, ", ".join(children)))
+        if is_sequence:
+            blocks.append("%s = cms.Sequence(%s)" % (name, " + ".join(children)))
+        else:
+            blocks.append("%s = cms.Task(%s)" % (name, ", ".join(children)))
     return "\n".join(blocks) + "\n"
 
 

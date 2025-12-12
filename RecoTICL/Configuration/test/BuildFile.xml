@@ -7,3 +7,5 @@
       command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_plumbing.py"/>
 <test name="testPyTICLExportCff"
       command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_export_cff.py"/>
+<test name="testPyTICLReproduceHLT"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_reproduce_hlt.py"/>

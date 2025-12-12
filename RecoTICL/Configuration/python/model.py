@@ -25,6 +25,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 from RecoTICL.Configuration.catalog import SEEDING_TYPES, CPU, GPU
+from RecoTICL.Configuration.target import OFFLINE, TARGETS
 
 
 class PyTICLError(Exception):
@@ -78,8 +79,9 @@ class SuperclusterSpec:
 # --------------------------------------------------------------------------- #
 
 class TICLConfig:
-    def __init__(self, name="pyticl"):
+    def __init__(self, name="pyticl", target=OFFLINE):
         self.name = name
+        self.target = TARGETS[target] if isinstance(target, str) else target
         self.iterations: List[IterationSpec] = []
         self._by_name: Dict[str, IterationSpec] = {}
         self._current: Optional[IterationSpec] = None

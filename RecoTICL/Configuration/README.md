@@ -42,6 +42,27 @@ cfg.validate()
 `assemble()` returns the built modules + tasks; `add_to_process(process)`
 registers them on a `cms.Process`.
 
+### Targets (offline / HLT)
+
+The same declaration can be emitted for a different **target**.  A `Target`
+(see `target.py`) captures what differs between offline reco and the Phase-2
+HLT: the module label scheme (`ticlTracksters…` vs `hltTiclTracksters…`), the
+merged layer-cluster source (`hgcalMergeLayerClusters` vs `hltMergeLayerClusters`)
+and the inputs derived from it, and whether stages are grouped into `cms.Task`
+(offline) or `cms.Sequence` (HLT).
+
+```python
+from RecoTICL.Configuration import hlt_presets
+cfg = hlt_presets.v5_hlt()    # reproduces HLTIterTICLSequence (9 modules)
+cfg.to_cff('hltTICL_cff.py')  # emits hlt-prefixed cms.Sequences
+```
+
+Note: the `HLT_75e33` menu is a frozen confdb-style dump that can lag the live
+producers.  pyTICL clones the *live* `_cfi` defaults, so it reproduces the HLT
+**structure and plumbing exactly** and *reports* the residual parameter deltas as
+"frozen-menu drift" (parameters the producers gained after the menu was frozen) --
+a signal that the menu should be regenerated.
+
 ## How it works
 
 | Module | Responsibility |
@@ -76,9 +97,10 @@ Run them with `scram b runtests` (from the package) or directly with `python3`.
 ## Status / roadmap
 
 Implemented: the v5 TICL core (iterations, links, superclustering, candidate,
-pf), type-aware validation, cff export, and drift tests.
+pf), type-aware validation, cff export, drift tests, and the **Phase-2 HLT
+target** (reproduces `HLTIterTICLSequence`).
 
 Planned (see the package design notes): auto-derived & scheduled
-labels/validation/dumper/associators; the TICL barrel path; local reconstruction
-+ layer clustering (HGCAL/ECAL/HCAL) with real CPU/GPU (alpaka) backend
-selection; a Phase-2 HLT target.
+labels/validation/dumper/associators; local reconstruction + layer clustering
+(HGCAL/ECAL/HCAL) with real CPU/GPU (alpaka) backend selection; the TICL barrel
+path.
