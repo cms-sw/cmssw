@@ -68,7 +68,7 @@ void MuonPathSLFitter::run(edm::Event &iEvent,
   // fit per SL (need to allow for multiple outputs for a single mpath)
   // for (auto &muonpath : muonpaths) {
   if (!muonpaths.empty()) {
-    auto muonpath = muonpaths[0];
+    const auto &muonpath = muonpaths[0];
     int rawId = muonpath->primitive(0)->cameraId();
     if (muonpath->primitive(0)->cameraId() == -1) {
       rawId = muonpath->primitive(1)->cameraId();
@@ -79,7 +79,7 @@ void MuonPathSLFitter::run(edm::Event &iEvent,
 
   for (size_t i = 0; i < muonpaths.size(); i++) {
     auto muonpath = muonpaths[i];
-    auto lats = lateralities[i];
+    const auto &lats = lateralities[i];
     analyze(muonpath, lats, metaPrimitives);
   }
 }
@@ -448,6 +448,7 @@ void MuonPathSLFitter::fillLuts() {
     ifinsl1 >> line;
 
     std::vector<int> myNumbers;
+    myNumbers.reserve(line.size());
     for (size_t i = 0; i < line.size(); i++) {
       // This converts the char into an int and pushes it into vec
       myNumbers.push_back(line[i] - '0');  // The digits will be in the same order as before
@@ -461,6 +462,7 @@ void MuonPathSLFitter::fillLuts() {
     ifinsl2 >> line;
 
     std::vector<int> myNumbers;
+    myNumbers.reserve(line.size());
     for (size_t i = 0; i < line.size(); i++) {
       // This converts the char into an int and pushes it into vec
       myNumbers.push_back(line[i] - '0');  // The digits will be in the same order as before
@@ -474,6 +476,7 @@ void MuonPathSLFitter::fillLuts() {
     ifinsl3 >> line;
 
     std::vector<int> myNumbers;
+    myNumbers.reserve(line.size());
     for (size_t i = 0; i < line.size(); i++) {
       // This converts the char into an int and pushes it into vec
       myNumbers.push_back(line[i] - '0');  // The digits will be in the same order as before

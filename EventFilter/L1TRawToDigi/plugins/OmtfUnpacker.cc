@@ -281,7 +281,7 @@ namespace omtf {
       // loop over AMC's
       //
       unsigned int blockNum = 0;
-      for (auto amc : packetAmc13.payload()) {
+      for (const auto& amc : packetAmc13.payload()) {
         amc::BlockHeader bh = amc.blockHeader();
         if (debug) {
           std::ostringstream str;

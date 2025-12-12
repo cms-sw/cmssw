@@ -12,12 +12,12 @@
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 AlgoMuon OMTFSorter::sortSingleResult(const OMTFResult& aResult) {
-  OMTFResult::vector1D pdfValsVec = aResult.getSummaryVals();
+  const OMTFResult::vector1D& pdfValsVec = aResult.getSummaryVals();
   OMTFResult::vector1D nHitsVec = aResult.getSummaryHits();
-  OMTFResult::vector1D refPhiVec = aResult.getRefPhis();
-  OMTFResult::vector1D refEtaVec = aResult.getRefEtas();
-  OMTFResult::vector1D hitsVec = aResult.getHitsWord();
-  OMTFResult::vector1D refPhiRHitVec = aResult.getRefPhiRHits();
+  const OMTFResult::vector1D& refPhiVec = aResult.getRefPhis();
+  const OMTFResult::vector1D& refEtaVec = aResult.getRefEtas();
+  const OMTFResult::vector1D& hitsVec = aResult.getHitsWord();
+  const OMTFResult::vector1D& refPhiRHitVec = aResult.getRefPhiRHits();
 
   assert(pdfValsVec.size() == nHitsVec.size());
 
