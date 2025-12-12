@@ -697,14 +697,14 @@ void CaloTruthAccumulator::accumulate(PileUpEventPrincipal const &event,
 }
 
 namespace {
-  /** Normalize the energies in the SimCluster/CaloParticle collection, from absolute SimHit energies to fraction of total simHits energies */
+  /** Normalize the energies in the SimCluster/CaloParticle collection, from absolute SimHit energies to fraction of total simHits energies */  
   template <typename SimCaloCollection>
   void normalizeCollection(SimCaloCollection &simClusters,
                            std::unordered_map<Index_t, float> const &detIdToTotalSimEnergy) {
     for (auto &sc : simClusters) {
       auto hitsAndEnergies = sc.hits_and_fractions();
       sc.clearHitsAndFractions();
-      // Note : addHitEnergy is actually never used, so we do not clear and refill for it
+	  sc.clearHitsEnergy();
       for (auto &hAndE : hitsAndEnergies) {
         const float totalenergy = detIdToTotalSimEnergy.at(hAndE.first);
         float fraction = 0.;
@@ -714,7 +714,9 @@ namespace {
           edm::LogWarning("CaloTruthAccumulator")
               << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
         sc.addRecHitAndFraction(hAndE.first, fraction);
+		sc.addHitEnergy(hAndE.second);
       }
+	  sc.finalizeHits();
     }
   }
 };  // namespace
@@ -735,6 +737,10 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     std::copy(m_detIdToTotalSimEnergy.begin(), m_detIdToTotalSimEnergy.end(), std::back_inserter(*totalEnergies));
     std::sort(totalEnergies->begin(), totalEnergies->end());
     event.put(std::move(totalEnergies), "MergedCaloTruth");
+    // make sure persisted SimClusters have sorted hits and built ranges
+    for (auto &sc : *(output_.pSimClusters)) {
+      sc.finalizeHits();
+    }
   } else {
     applyToSimClusterConfig(
         [this](auto &config) { normalizeCollection(config.outputClusters, m_detIdToTotalSimEnergy); });
