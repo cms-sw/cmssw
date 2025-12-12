@@ -120,7 +120,7 @@
     <Include ref="Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml"/>
     <Include ref="Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml"/>
     <Include ref="Geometry/MTDSimData/data/v5/mtdProdCuts.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/FieldParameters.xml'"/>
+    <Include ref="Geometry/CMSCommonData/data/FieldParameters.xml"/>
   </IncludeSection>
   
 </DDDefinition>
