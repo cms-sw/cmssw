@@ -186,9 +186,12 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
   // mixMod.produces<EEDigiCollection>(m_EEdigiCollection);
   // mixMod.produces<ESDigiCollection>(m_ESdigiCollection);
 
-  if (m_doEB) m_HitsEBToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"));
-  if (m_doEE) m_HitsEEToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEE"));
-  if (m_doES) m_HitsESToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsES"));
+  if (m_doEB)
+    m_HitsEBToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"));
+  if (m_doEE)
+    m_HitsEEToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEE"));
+  if (m_doES)
+    m_HitsESToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsES"));
 
   if (m_doES) {
     m_esGainToken = iC.esConsumes();
