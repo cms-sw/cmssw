@@ -8,26 +8,6 @@
 
 const unsigned int SimCluster::longLivedTag = 65536;
 
-SimCluster::SimCluster() {
-  // No operation
-}
-
-SimCluster::SimCluster(const SimTrack &simtrk) {
-  addG4Track(simtrk);
-  event_ = simtrk.eventId();
-  particleId_ = simtrk.trackId();
-
-  theMomentum_.SetPxPyPzE(
-      simtrk.momentum().px(), simtrk.momentum().py(), simtrk.momentum().pz(), simtrk.momentum().E());
-}
-
-SimCluster::SimCluster(EncodedEventId eventID, uint32_t particleID) {
-  event_ = eventID;
-  particleId_ = particleID;
-}
-
-SimCluster::~SimCluster() {}
-
 std::ostream &operator<<(std::ostream &s, SimCluster const &tp) {
   s << "CP momentum, q, ID, & Event #: " << tp.p4() << " " << tp.charge() << " " << tp.pdgId() << " "
     << tp.eventId().bunchCrossing() << "." << tp.eventId().event() << std::endl;

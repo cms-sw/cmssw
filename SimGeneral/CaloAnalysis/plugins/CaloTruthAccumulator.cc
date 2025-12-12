@@ -362,6 +362,10 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     std::copy(m_detIdToTotalSimEnergy.begin(), m_detIdToTotalSimEnergy.end(), std::back_inserter(*totalEnergies));
     std::sort(totalEnergies->begin(), totalEnergies->end());
     event.put(std::move(totalEnergies), "MergedCaloTruth");
+    // make sure persisted SimClusters have sorted hits and built ranges
+    for (auto &sc : *(output_.pSimClusters)) {
+      sc.finalizeHits();
+    }
   } else {
     for (auto &sc : *(output_.pSimClusters)) {
       auto hitsAndEnergies = sc.hits_and_fractions();
@@ -378,6 +382,7 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
         sc.addRecHitAndFraction(hAndE.first, fraction);
         sc.addHitEnergy(hAndE.second);
       }
+      sc.finalizeHits();
     }
   }
 
