@@ -21,7 +21,7 @@ namespace edm {
     SendSourceTerminationSignalIfException(ActivityRegistry* iReg) : reg_(iReg) {}
     ~SendSourceTerminationSignalIfException() {
       if (reg_) {
-        reg_->preSourceEarlyTerminationSignal_(TerminationOrigin::ExceptionFromThisContext);
+        reg_->preSourceEarlyTerminationSignal_.emit(TerminationOrigin::ExceptionFromThisContext);
       }
     }
     void completedSuccessfully() { reg_ = nullptr; }

@@ -77,18 +77,18 @@ namespace edm {
     // If deletion throws an exception, capture it and call iPost before throwing an exception
     // If iPost throws an exception, let it propagate
     auto md = modItr->second->moduleDescription();
-    iPre(modItr->second->moduleDescription());
+    iPre.emit(modItr->second->moduleDescription());
     bool postCalled = false;
     // exception is rethrown
     CMS_SA_ALLOW try {
       labelToModule_.erase(modItr);
       // if exception then post will be called in the catch block
       postCalled = true;
-      iPost(md);
+      iPost.emit(md);
     } catch (...) {
       if (not postCalled) {
         // we're already handling exception, nothing we can do if iPost throws
-        CMS_SA_ALLOW try { iPost(md); } catch (...) {
+        CMS_SA_ALLOW try { iPost.emit(md); } catch (...) {
         }
       }
       throw;

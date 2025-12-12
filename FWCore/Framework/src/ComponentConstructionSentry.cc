@@ -8,13 +8,13 @@ namespace edm {
     ComponentConstructionSentry::ComponentConstructionSentry(EventSetupProvider const& iProvider,
                                                              ComponentDescription const& iDescription)
         : provider_(iProvider), description_(iDescription) {
-      provider_.activityRegistry()->preESModuleConstructionSignal_(description_);
+      provider_.activityRegistry()->preESModuleConstructionSignal_.emit(description_);
       // Here would be where the construction signal would go
     }
 
     ComponentConstructionSentry::~ComponentConstructionSentry() noexcept(false) {
       try {
-        provider_.activityRegistry()->postESModuleConstructionSignal_(description_);
+        provider_.activityRegistry()->postESModuleConstructionSignal_.emit(description_);
       } catch (...) {
         if (succeeded_) {
           // no exception happened during construction so can rethrow the exception from the post construction signal

@@ -466,46 +466,46 @@ namespace edm {
 
   InputSource::EventSourceSentry::EventSourceSentry(InputSource const& source, StreamContext& sc)
       : source_(source), sc_(sc) {
-    source.actReg()->preSourceSignal_(sc_.streamID());
+    source.actReg()->preSourceSignal_.emit(sc_.streamID());
   }
 
-  InputSource::EventSourceSentry::~EventSourceSentry() { source_.actReg()->postSourceSignal_(sc_.streamID()); }
+  InputSource::EventSourceSentry::~EventSourceSentry() { source_.actReg()->postSourceSignal_.emit(sc_.streamID()); }
 
   InputSource::LumiSourceSentry::LumiSourceSentry(InputSource const& source, LuminosityBlockIndex index)
       : source_(source), index_(index) {
-    source_.actReg()->preSourceLumiSignal_(index_);
+    source_.actReg()->preSourceLumiSignal_.emit(index_);
   }
 
-  InputSource::LumiSourceSentry::~LumiSourceSentry() { source_.actReg()->postSourceLumiSignal_(index_); }
+  InputSource::LumiSourceSentry::~LumiSourceSentry() { source_.actReg()->postSourceLumiSignal_.emit(index_); }
 
   InputSource::RunSourceSentry::RunSourceSentry(InputSource const& source, RunIndex index)
       : source_(source), index_(index) {
-    source_.actReg()->preSourceRunSignal_(index_);
+    source_.actReg()->preSourceRunSignal_.emit(index_);
   }
 
-  InputSource::RunSourceSentry::~RunSourceSentry() { source_.actReg()->postSourceRunSignal_(index_); }
+  InputSource::RunSourceSentry::~RunSourceSentry() { source_.actReg()->postSourceRunSignal_.emit(index_); }
 
   InputSource::ProcessBlockSourceSentry::ProcessBlockSourceSentry(InputSource const& source,
                                                                   std::string const& processName)
       : source_(source), processName_(processName) {
-    source_.actReg()->preSourceProcessBlockSignal_();
+    source_.actReg()->preSourceProcessBlockSignal_.emit();
   }
 
   InputSource::ProcessBlockSourceSentry::~ProcessBlockSourceSentry() {
-    source_.actReg()->postSourceProcessBlockSignal_(processName_);
+    source_.actReg()->postSourceProcessBlockSignal_.emit(processName_);
   }
 
   InputSource::FileOpenSentry::FileOpenSentry(InputSource const& source, std::string const& lfn)
       : post_(source.actReg()->postOpenFileSignal_), lfn_(lfn) {
-    source.actReg()->preOpenFileSignal_(lfn);
+    source.actReg()->preOpenFileSignal_.emit(lfn);
   }
 
-  InputSource::FileOpenSentry::~FileOpenSentry() { post_(lfn_); }
+  InputSource::FileOpenSentry::~FileOpenSentry() { post_.emit(lfn_); }
 
   InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source, std::string const& lfn)
       : post_(source.actReg()->postCloseFileSignal_), lfn_(lfn) {
-    source.actReg()->preCloseFileSignal_(lfn);
+    source.actReg()->preCloseFileSignal_.emit(lfn);
   }
 
-  InputSource::FileCloseSentry::~FileCloseSentry() { post_(lfn_); }
+  InputSource::FileCloseSentry::~FileCloseSentry() { post_.emit(lfn_); }
 }  // namespace edm

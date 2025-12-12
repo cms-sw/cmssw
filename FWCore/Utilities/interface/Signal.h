@@ -61,15 +61,42 @@ namespace edm {
         }
       }
 
+#ifdef FWCORE_SIGNAL_OPERATOR_PARENTHESIS_PRIVATE
+    private:
+#endif
       template <typename... Args>
       void operator()(Args&&... args) const {
         emit(std::forward<Args>(args)...);
       }
 
+#ifdef FWCORE_SIGNAL_OPERATOR_PARENTHESIS_PRIVATE
+    public:
+#endif
       slot_list_type const& slots() const { return m_slots; }
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+
+      // Utility helpers to connect slots when cheking that emission of signals is done via emit().
+      // Check is done at compile time by calling scram b with
+      // -DFWCORE_SIGNAL_OPERATOR_PARENTHESIS_PRIVATE=1:
+      //
+      // USER_CXXFLAGS="-DFWCORE_SIGNAL_OPERATOR_PARENTHESIS_PRIVATE=1" scram b
+      //
+      // Allow connecting another Signal<T> via std::reference_wrapper<const Signal<T>>
+      // std::function cannot be constructed from std::reference_wrapper<const Signal>
+      // when we make the Signal::operator() private, so wrap with a lambda that calls emit().
+#ifdef FWCORE_SIGNAL_OPERATOR_PARENTHESIS_PRIVATE
+      void connect(std::reference_wrapper<const Signal> iFunc) {
+        m_slots.emplace_back([iFunc](auto&&... args) { iFunc.get().emit(std::forward<decltype(args)>(args)...); });
+      }
+
+      void connect_front(std::reference_wrapper<const Signal> iFunc) {
+        m_slots.insert(m_slots.begin(),
+                       slot_type([iFunc](auto&&... args) { iFunc.get().emit(std::forward<decltype(args)>(args)...); }));
+      }
+#endif
+
       template <typename U>
       void connect(U iFunc) {
         m_slots.push_back(std::function<T>(iFunc));
