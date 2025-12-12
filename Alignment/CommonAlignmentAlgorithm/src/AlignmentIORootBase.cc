@@ -106,19 +106,15 @@ int AlignmentIORootBase::closeRoot(void) {
 // if file does not exist: return -1
 
 int AlignmentIORootBase::testFile(const char* filename, const TString& tname) {
-  FILE* testFILE;
-  testFILE = fopen(filename, "r");
-  if (testFILE == nullptr) {
+  std::unique_ptr<TFile> aFile(TFile::Open(filename, "read"));
+  if (!aFile || !aFile->IsOpen()) {
     return -1;
   } else {
-    fclose(testFILE);
     int ihighest = -2;
-    TFile* aFile = TFile::Open(filename, "read");
     for (int iter = 0; iter < itermax; iter++) {
       if ((nullptr != (TTree*)aFile->Get(treeName(iter, tname))) && (iter > ihighest))
         ihighest = iter;
     }
-    delete aFile;
     return ihighest;
   }
 }
