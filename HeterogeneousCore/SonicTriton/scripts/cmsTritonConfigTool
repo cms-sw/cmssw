@@ -55,6 +55,7 @@ kind_to_int = {v.name:v.number for v in grpc.model_config_pb2._MODELINSTANCEGROU
 thread_control_parameters = {
     "onnx": ["intra_op_thread_count", "inter_op_thread_count"],
     "tensorflow": ["TF_NUM_INTRA_THREADS", "TF_NUM_INTER_THREADS", "TF_USE_PER_SESSION_THREADS"],
+    "pytorch": ["INTRA_OP_THREAD_COUNT", "INTER_OP_THREAD_COUNT"],
 }
 
 def get_type(obj):
