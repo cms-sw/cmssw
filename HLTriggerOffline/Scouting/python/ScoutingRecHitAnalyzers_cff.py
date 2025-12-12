@@ -5,26 +5,28 @@ ScoutingEBRechitAnalyzer = DQMEDAnalyzer('ScoutingEBRecHitAnalyzer',
                                          src = cms.InputTag ("hltScoutingRecHitPacker", "EB"),
                                          L1TriggerResults = cms.InputTag('L1BitsScouting'),
                                          HLTTriggerResults = cms.InputTag('TriggerResults', '', 'HLT'),
+                                         topFolderName = cms.string('HLT/ScoutingOffline/EBRechits'),
                                          lazy_eval = cms.untracked.bool(False),
                                          cut = cms.string(''),
                                          triggers = cms.VPSet(
                                              cms.PSet(
                                                  expr = cms.vstring('DST_PFScouting_JetHT'),
                                                  name = cms.string('')
-                                             )                                             
+                                             )
                                          ))
 
 ScoutingHBHERechitAnalyzer = DQMEDAnalyzer('ScoutingHBHERecHitAnalyzer',
                                            src = cms.InputTag("hltScoutingRecHitPacker", "HBHE"),
                                            L1TriggerResults = cms.InputTag('L1BitsScouting'),
                                            HLTTriggerResults = cms.InputTag('TriggerResults', '', 'HLT'),
+                                           topFolderName = cms.string('HLT/ScoutingOffline/HBHERechits'),
                                            lazy_eval = cms.untracked.bool(False),
                                            cut = cms.string(''),
                                            triggers = cms.VPSet(
                                                cms.PSet(
                                                    expr = cms.vstring('DST_PFScouting_JetHT'),
                                                    name = cms.string('')
-                                               )                                             
+                                               )
                                            ))
 
 ################################################

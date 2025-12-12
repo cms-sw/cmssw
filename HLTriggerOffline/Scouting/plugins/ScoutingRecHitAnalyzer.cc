@@ -83,19 +83,20 @@ protected:
   void decodeDetId(const RecHitType& rechit, int& ieta, float& eta, int& iphi, float& phi);
 
   // input tokens
-  edm::EDGetTokenT<RecHitCollection> rechit_collection_token_;
+  const edm::EDGetTokenT<RecHitCollection> rechit_collection_token_;
 
   // trigger tokens
-  edm::EDGetTokenT<edm::TriggerResults> l1TriggerResults_token_;
-  edm::EDGetTokenT<edm::TriggerResults> hltTriggerResults_token_;
+  const edm::EDGetTokenT<edm::TriggerResults> l1TriggerResults_token_;
+  const edm::EDGetTokenT<edm::TriggerResults> hltTriggerResults_token_;
 
   // functor
-  StringCutObjectSelector<RecHitType> cut_;  // general cut applied to all object
+  const StringCutObjectSelector<RecHitType> cut_;  // general cut applied to all object
+
+  // other parameters
+  const std::string topFolderName_;  // top folder name where to book histograms
 
   // triggers
   std::vector<std::vector<std::string>> triggers_;  // trigger expressions
-
-  // other parameters
 
   // histograms
   std::vector<MonitorElement*> number_histograms_;
@@ -114,7 +115,8 @@ ScoutingRecHitAnalyzer<RecHitType>::ScoutingRecHitAnalyzer(const edm::ParameterS
     : rechit_collection_token_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
       l1TriggerResults_token_(consumes(iConfig.getParameter<edm::InputTag>("L1TriggerResults"))),
       hltTriggerResults_token_(consumes(iConfig.getParameter<edm::InputTag>("HLTTriggerResults"))),
-      cut_(iConfig.getParameter<std::string>("cut"), iConfig.getUntrackedParameter<bool>("lazy_eval")) {
+      cut_(iConfig.getParameter<std::string>("cut"), iConfig.getUntrackedParameter<bool>("lazy_eval")),
+      topFolderName_(iConfig.getParameter<std::string>("topFolderName")) {
   static_assert(
       std::is_same<RecHitType, Run3ScoutingEBRecHit>::value || std::is_same<RecHitType, Run3ScoutingHBHERecHit>::value,
       "Unsupported Type of RecHit");
@@ -137,6 +139,7 @@ template <typename RecHitType>
 void ScoutingRecHitAnalyzer<RecHitType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src");
+  desc.add<std::string>("topFolderName", "HLT/ScoutingOffline/CaloRecHits");
   desc.add<edm::InputTag>("L1TriggerResults", edm::InputTag("l1bits"));
   desc.add<edm::InputTag>("HLTTriggerResults", edm::InputTag("TriggerResults", "", "HLT"));
   desc.addUntracked<bool>("lazy_eval", false);
@@ -159,8 +162,9 @@ template <typename RecHitType>
 void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibooker,
                                                         edm::Run const&,
                                                         edm::EventSetup const&) {
+  ibooker.setCurrentFolder(topFolderName_);
   for (auto const& trigger_name : trigger_names_) {
-    ibooker.setCurrentFolder(trigger_name);
+    ibooker.setCurrentFolder(topFolderName_ + "/" + trigger_name);
     if constexpr (std::is_same<RecHitType, Run3ScoutingEBRecHit>()) {
       number_histograms_.push_back(ibooker.book1D("number", "Number;Events", 100, 0., 1000.));
       energy_histograms_.push_back(ibooker.book1D("energy", "Energy (GeV);Events", 100, 0., 20.));
