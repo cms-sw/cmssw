@@ -186,6 +186,7 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
   // mixMod.produces<EEDigiCollection>(m_EEdigiCollection);
   // mixMod.produces<ESDigiCollection>(m_ESdigiCollection);
 
+  // Get the tokens for signal
   if (m_doEB)
     m_HitsEBToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"));
   if (m_doEE)
