@@ -1,0 +1,5 @@
+<library file="serialisation.cc" name="DataFormatsTrackSoASerialisation">
+  <use name="DataFormats/TrackSoA"/>
+  <use name="HeterogeneousCore/SerialisationCore"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
