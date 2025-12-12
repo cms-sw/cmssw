@@ -95,7 +95,7 @@ namespace {
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  AlpakaService::AlpakaService(edm::ParameterSet const& config, edm::ActivityRegistry&)
+  AlpakaService::AlpakaService(edm::ParameterSet const& config, edm::ActivityRegistry& registry)
       : enabled_(config.getUntrackedParameter<bool>("enabled")),
         verbose_(config.getUntrackedParameter<bool>("verbose")) {
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
@@ -151,10 +151,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
-    // initialise the queue and event caches
-    cms::alpakatools::getQueueCache<Queue>().clear();
-    cms::alpakatools::getEventCache<Event>().clear();
-
     // initialise the caching memory allocators
     cms::alpakatools::AllocatorConfig hostAllocatorConfig =
         parseAllocatorConfig(config.getUntrackedParameter<edm::ParameterSet>("hostAllocator"));
@@ -163,6 +159,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         parseAllocatorConfig(config.getUntrackedParameter<edm::ParameterSet>("deviceAllocator"));
     for (auto const& device : devices)
       cms::alpakatools::getDeviceCachingAllocator<Device, Queue>(device, deviceAllocatorConfig, verbose_);
+
+    registry.watchPreallocate(this, &AlpakaService::preallocate);
+  }
+
+  void AlpakaService::preallocate(edm::service::SystemBounds const& bounds) {
+    // initialise the queue and event caches
+    cms::alpakatools::getQueueCache<Queue>().init(bounds.maxNumberOfStreams());
+    cms::alpakatools::getEventCache<Event>().clear();
   }
 
   AlpakaService::~AlpakaService() {
@@ -172,8 +176,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       cms::alpakatools::getDeviceCachingAllocator<Device, Queue>(device).freeAllCached();
 
     // clean up the queue and event caches
-    cms::alpakatools::getQueueCache<Queue>().clear();
-    cms::alpakatools::getEventCache<Event>().clear();
+    //FIXME this crashes :(
+    //cms::alpakatools::getQueueCache<Queue>().clear();
+    //cms::alpakatools::getEventCache<Event>().clear();
   }
 
   void AlpakaService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
