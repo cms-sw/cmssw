@@ -246,7 +246,7 @@ namespace trackerTFP {
       ttTrack.setEtaSector(dfZT.toUnsigned(dfZT.integer(it->zT_)));
       ttTrack.setTrackSeedType(ttTrackRef->trackSeedType());
       ttTrack.setStubRefs(it->ttStubRefs_);
-      ttTrack.setStubPtConsistency(StubPtConsistency::getConsistency(
+      ttTrack.setChi2BendRed(StubPtConsistency::getConsistency(
           ttTrack, setup_->trackerGeometry(), setup_->trackerTopology(), bfield_, nPar));
     }
   }
