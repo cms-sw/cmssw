@@ -11,7 +11,9 @@
 #include <utility>
 #include <vector>
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+//#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -32,13 +34,16 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFractionHostCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
-class PFClusterConverter : public edm::stream::EDProducer<> {
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+
+class PFClusterSoAPositionUpdater : public stream::EDProducer<> {
 public:
-  PFClusterConverter(edm::ParameterSet const& config)
-      : pfClusterSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
+  PFClusterSoAPositionUpdater(edm::ParameterSet const& config)
+      : EDProducer(config),
+	pfClusterSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
         pfRecHitFractionSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
         InputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
-        outPFClusterSoAToken_(produces<reco::PFClusterHostCollection>()),
+        outPFClusterSoAToken_(produces()),
         recHitsLabel_(consumes(config.getParameter<edm::InputTag>("recHitsSource"))),
         hcalCutsToken_(esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"))),
         cutsFromDB_(config.getParameter<bool>("usePFThresholdsFromDB")) {
@@ -182,7 +187,7 @@ public:
   }
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(device::Event&, const device::EventSetup&) override;
   const edm::EDGetTokenT<reco::PFClusterHostCollection> pfClusterSoAToken_;
   const edm::EDGetTokenT<reco::PFRecHitFractionHostCollection> pfRecHitFractionSoAToken_;
   const edm::EDGetTokenT<reco::PFRecHitHostCollection> InputPFRecHitSoA_Token_;
@@ -195,7 +200,7 @@ private:
   std::unique_ptr<PFCPositionCalculatorBase> allCellsPositionCalc_;
 };
 
-void PFClusterConverter::produce(edm::Event& event, const edm::EventSetup& setup) {
+void PFClusterSoAPositionUpdater::produce(device::Event& event, const device::EventSetup& setup) {
   const reco::PFRecHitHostCollection& pfRecHits = event.get(InputPFRecHitSoA_Token_);
 
   HcalPFCuts const* paramPF = cutsFromDB_ ? &setup.getData(hcalCutsToken_) : nullptr;
@@ -265,5 +270,9 @@ void PFClusterConverter::produce(edm::Event& event, const edm::EventSetup& setup
   event.emplace(outPFClusterSoAToken_, std::move(*outPFClusterSoAPtr));
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(PFClusterConverter);
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
+DEFINE_FWK_ALPAKA_MODULE(PFClusterSoAPositionUpdater);
+
