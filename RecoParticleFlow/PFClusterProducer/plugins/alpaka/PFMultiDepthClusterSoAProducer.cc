@@ -176,7 +176,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     event.emplace(outputPFRHFractionsSoA_Token_, std::move(*outPFRHFractions));
   }
 
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
   DEFINE_FWK_ALPAKA_MODULE(PFMultiDepthClusterSoAProducer);
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
