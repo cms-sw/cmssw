@@ -111,7 +111,7 @@ void HGCalMappingESProducer::prepareModuleMapperIndexer() {
     if (matched) {
       wtypecode = typecode_match[1].str();  // wafer type following MM-T pattern, e.g. "MH-F"
     } else {
-      const std::regex sipm_typecode_regex(R"(T[LH]-L\d{2}S\d)");
+      const std::regex sipm_typecode_regex(R"(^T(.*)-L([0-9]+)S([0-9]+)(?:-(.*))?$)");
       std::smatch sipm_typecode_match;  // match object for string objects
       matched = std::regex_match(typecode, sipm_typecode_match, sipm_typecode_regex);
       if (matched) {
