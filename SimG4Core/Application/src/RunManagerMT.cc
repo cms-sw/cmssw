@@ -91,6 +91,9 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   G4UImanager::GetUIpointer()->SetMasterUIManager(true);
   G4PhysListUtil::InitialiseParameters();
   G4LossTableManager::Instance();
+#if G4VERSION_NUMBER >= 1130
+  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
+#endif
 }
 
 RunManagerMT::~RunManagerMT() { delete m_UIsession; }
@@ -128,10 +131,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   unsigned int nn = regStore->size();
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: " << numPV << " physical volumes; " << numLV << " logical volumes; " << nn << " regions.";
-
-#if G4VERSION_NUMBER >= 1130
-  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
-#endif
 
   if (m_check) {
     m_kernel->SetVerboseLevel(2);

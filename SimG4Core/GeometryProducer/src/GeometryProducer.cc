@@ -77,15 +77,15 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
   G4EmParameters::Instance()->SetVerbose(m_verbose);
   G4HadronicParameters::Instance()->SetVerboseLevel(m_verbose);
 
+#if G4VERSION_NUMBER >= 1130
+  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
+#endif
+
   m_kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (m_kernel == nullptr)
     m_kernel = new G4RunManagerKernel();
 
   m_kernel->SetVerboseLevel(m_verbose);
-
-#if G4VERSION_NUMBER >= 1130
-  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
-#endif
 
   tokMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   if (m_pGeoFromDD4hep) {
