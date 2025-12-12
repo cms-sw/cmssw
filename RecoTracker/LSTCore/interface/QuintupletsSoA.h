@@ -32,6 +32,7 @@ namespace lst {
                       SOA_COLUMN(float, rzChiSquared),  // r-z only chi2
                       SOA_COLUMN(float, chiSquared),
                       SOA_COLUMN(float, nonAnchorChiSquared),
+                      SOA_COLUMN(float, dnnScore),
                       SOA_COLUMN(float, dBeta1),
                       SOA_COLUMN(float, dBeta2));
 

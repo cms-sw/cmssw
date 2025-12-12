@@ -310,13 +310,17 @@ void createTrackCandidateBranches() {
   //
   //  The container will hold per entry a track candidate built by LST in the event.
   //
-  ana.tx->createBranch<std::vector<float>>("tc_pt");         // pt
-  ana.tx->createBranch<std::vector<float>>("tc_eta");        // eta
-  ana.tx->createBranch<std::vector<float>>("tc_phi");        // phi
+  ana.tx->createBranch<std::vector<float>>("tc_pt");   // pt
+  ana.tx->createBranch<std::vector<float>>("tc_eta");  // eta
+  ana.tx->createBranch<std::vector<float>>("tc_phi");  // phi
+  ana.tx->createBranch<std::vector<float>>("tc_pMatched");
   ana.tx->createBranch<std::vector<int>>("tc_type");         // type = 7 (pT5), 5 (pT3), 4 (T5), 8 (pLS), 9 (T4)
   ana.tx->createBranch<std::vector<int>>("tc_isFake");       // 1 if tc is fake 0 other if not
   ana.tx->createBranch<std::vector<int>>("tc_isDuplicate");  // 1 if tc is duplicate 0 other if not
   ana.tx->createBranch<std::vector<int>>("tc_simIdx");  // idx of best matched (highest nhit and > 75%) simulated track
+  ana.tx->createBranch<std::vector<int>>("tc_nhitOT");
+  ana.tx->createBranch<std::vector<int>>("tc_nhits");
+  ana.tx->createBranch<std::vector<int>>("tc_nlayers");
   // list of idx of all matched (> 0%) simulated track
   ana.tx->createBranch<std::vector<std::vector<int>>>("tc_simIdxAll");
   // list of idx of all matched (> 0%) simulated track
@@ -469,6 +473,8 @@ void createQuintupletBranches() {
   //  The container will hold per entry a quintuplet built by LST in the event.
   //
   // pt (computed based on average of the 4 circles formed by, (1, 2, 3), (2, 3, 4), (3, 4, 5), (1, 3, 5)
+  ana.tx->createBranch<std::vector<std::vector<float>>>("t5_embed");
+  ana.tx->createBranch<std::vector<float>>("t5_dnnScore");
   ana.tx->createBranch<std::vector<float>>("t5_pt");
   ana.tx->createBranch<std::vector<float>>("t5_eta");        // eta (computed based on last anchor hit's eta)
   ana.tx->createBranch<std::vector<float>>("t5_phi");        // phi (computed based on first anchor hit's phi)
@@ -1581,6 +1587,14 @@ std::map<unsigned int, unsigned int> setQuintupletBranches(LSTEvent* event,
       ana.tx->pushbackToBranch<float>("t5_bridgeRadius", __H2F(quintuplets.bridgeRadius()[t5Idx]));
       ana.tx->pushbackToBranch<float>("t5_outerRadius", __H2F(quintuplets.outerRadius()[t5Idx]));
       ana.tx->pushbackToBranch<float>("t5_pMatched", percent_matched);
+
+      std::vector<float> current_t5_embed;
+      for (unsigned int i_embed = 0; i_embed < Params_T5::kEmbed; ++i_embed) {
+        current_t5_embed.push_back(quintuplets.t5Embed()[t5Idx][i_embed]);
+      }
+      ana.tx->pushbackToBranch<std::vector<float>>("t5_embed", current_t5_embed);
+      ana.tx->pushbackToBranch<float>("t5_dnnScore", quintuplets.dnnScore()[t5Idx]);
+
       bool isfake = true;
       for (size_t isim = 0; isim < simidx.size(); ++isim) {
         if (simidxfrac[isim] > matchfrac) {
@@ -2195,6 +2209,7 @@ void setTrackCandidateBranches(LSTEvent* event,
     std::vector<float> simidxfrac;  // list of match fraction for each matched sim idx
 
     // The following function reads off and computes the matched sim track indices
+    float percent_matched;
     std::tie(type, pt, eta, phi, isFake, simidx, simidxfrac) = parseTrackCandidateAllMatch(event,
                                                                                            tc_idx,
                                                                                            trk_ph2_x,
@@ -2203,7 +2218,31 @@ void setTrackCandidateBranches(LSTEvent* event,
                                                                                            trk_simhit_simTrkIdx,
                                                                                            trk_ph2_simHitIdx,
                                                                                            trk_pix_simHitIdx,
+                                                                                           percent_matched,
                                                                                            matchfrac);
+
+    int nPixHits = 0, nOtHits = 0, nLayers = 0;
+    for (int layerSlot = 0; layerSlot < Params_TC::kLayers; ++layerSlot) {
+      if (trackCandidatesExtended.lowerModuleIndices()[tc_idx][layerSlot] == lst::kTCEmptyLowerModule)
+        continue;
+
+      ++nLayers;
+      const bool isPixel = (trackCandidatesExtended.logicalLayers()[tc_idx][layerSlot] == 0);
+
+      for (unsigned int hitSlot = 0; hitSlot < Params_TC::kHitsPerLayer; ++hitSlot) {
+        if (trackCandidatesBase.hitIndices()[tc_idx][layerSlot][hitSlot] == lst::kTCEmptyHitIdx)
+          continue;
+
+        if (isPixel)
+          nPixHits++;
+        else
+          nOtHits++;
+      }
+    }
+
+    ana.tx->pushbackToBranch<int>("tc_nhitOT", nOtHits);
+    ana.tx->pushbackToBranch<int>("tc_nhits", nPixHits + nOtHits);
+    ana.tx->pushbackToBranch<int>("tc_nlayers", nLayers);
 
     // Fill some branches for this track candidate
     ana.tx->pushbackToBranch<float>("tc_pt", pt);
@@ -2278,6 +2317,7 @@ void setTrackCandidateBranches(LSTEvent* event,
     }
 
     ana.tx->pushbackToBranch<int>("tc_isFake", isFake);
+    ana.tx->pushbackToBranch<float>("tc_pMatched", percent_matched);
 
     // For this tc, keep track of all the simidx that are matched
     tc_simIdxAll.push_back(simidx);
@@ -2838,6 +2878,10 @@ std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(
       break;
   }
 
+  if (type == LSTObjType::T5 || type == LSTObjType::pT5) {
+    std::tie(hit_idx, hit_type) = getHitIdxsAndTypesFromTC(event, idx);
+  }
+
   // Perform matching
   std::vector<int> simidx = matchedSimTrkIdxs(
       hit_idx, hit_type, trk_simhit_simTrkIdx, trk_ph2_simHitIdx, trk_pix_simHitIdx, false, matchfrac);
@@ -2856,6 +2900,7 @@ std::tuple<int, float, float, float, int, std::vector<int>, std::vector<float>> 
     std::vector<int> const& trk_simhit_simTrkIdx,
     std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
     std::vector<std::vector<int>> const& trk_pix_simHitIdx,
+    float& percent_matched,
     float matchfrac) {
   // Get the type of the track candidate
   auto const& trackCandidatesBase = event->getTrackCandidatesBase();
@@ -2882,11 +2927,15 @@ std::tuple<int, float, float, float, int, std::vector<int>, std::vector<float>> 
       break;
   }
 
+  if (type == LSTObjType::T5 || type == LSTObjType::pT5) {
+    std::tie(hit_idx, hit_type) = getHitIdxsAndTypesFromTC(event, idx);
+  }
+
   // Perform matching
   std::vector<int> simidx;
   std::vector<float> simidxfrac;
   std::tie(simidx, simidxfrac) = matchedSimTrkIdxsAndFracs(
-      hit_idx, hit_type, trk_simhit_simTrkIdx, trk_ph2_simHitIdx, trk_pix_simHitIdx, false, matchfrac);
+      hit_idx, hit_type, trk_simhit_simTrkIdx, trk_ph2_simHitIdx, trk_pix_simHitIdx, false, matchfrac, &percent_matched);
   int isFake = simidx.size() == 0;
 
   return {type, pt, eta, phi, isFake, simidx, simidxfrac};

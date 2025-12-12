@@ -205,10 +205,18 @@
  </class>
  <class name="edm::Wrapper<std::map<edm::ParameterSetID,edm::ParameterSetBlob>>"/>
 
+ <class name="edm::StdArray<uint8_t, 13>"/>
+
  <class name="edm::StdArray<short, 4>"/>
- <class name="edm::StdArray<unsigned short, 11>"/>
+
+ <class name="edm::StdArray<uint16_t, 11>"/>
+ <class name="edm::StdArray<uint16_t, 13>"/>
+
+ <class name="edm::StdArray<unsigned int, 2>"/>
  <class name="edm::StdArray<unsigned int, 4>"/>
  <class name="edm::StdArray<unsigned int, 14>"/>
+
+ <class name="edm::StdArray<edm::StdArray<unsigned int, 2>, 13>"/>
 
  <class name="edm::PathStateToken" ClassVersion="3">
    <version ClassVersion="3" checksum="2219165191"/>

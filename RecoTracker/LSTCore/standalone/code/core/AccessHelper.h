@@ -94,5 +94,7 @@ std::vector<unsigned int> getLSsFromTC(LSTEvent* event, unsigned int TC);
 std::vector<unsigned int> getHitsFromTC(LSTEvent* event, unsigned int TC);
 std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHitTypesFromTC(LSTEvent* event,
                                                                                              unsigned int TC);
+std::pair<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndTypesFromTC(LSTEvent* event,
+                                                                                         unsigned int tc_idx);
 
 #endif
