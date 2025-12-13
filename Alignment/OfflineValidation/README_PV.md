@@ -29,6 +29,7 @@ dataset | See defaultInputFiles_cff.py | Path to txt file containing list of dat
 goodlumi | cms.untracked.VLuminosityBlockRange() | Path to json file containing lumi information about selected IoV - must contain list of runs under particular IoV with lumiblock info. Format: `IOV_Vali_{}.json`
 maxevents | 1 | Maximum number of events before cmsRun terminates.
 maxtracks | 1 | Maximum number of tracks per event before next event is processed.
+maxclusters | None | Maximum number of pixel clusters per event at HLT. Events with more clusters are skipped.
 trackcollection | "generalTracks" | Track collection to be specified here, e.g. "ALCARECOTkAlMuonIsolated" or "ALCARECOTkAlMinBias" ... 
 tthrbuilder | "WithAngleAndTemplate" | Specify TTRH Builder
 usePixelQualityFlag | True | Use pixel quality flag?
