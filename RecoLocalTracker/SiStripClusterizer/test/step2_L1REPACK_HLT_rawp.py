@@ -89,7 +89,6 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
       'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_reHLT',
       'keep edmTriggerResults_*_*_reHLT'),
     #splitLevel = cms.untracked.int32(0)
-
 )
 process.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 1945.0 ) )
 process.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
@@ -120,6 +119,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '141X_dataRun3_Prompt_v3', '')
 process.L1RePack_step = cms.Path(process.SimL1Emulator)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
+process.HLT_HIZeroBias_HighRate_v7 = cms.Path(process.HLTBeginSequence+process.hltL1sZeroBiasCopy+process.hltPreHIZeroBiasHighRate+process.HLTPuAK4CaloJetsSequence + process.HLTCsAK4PFJetsSequence+process.HLTDoHIStripZeroSuppressionAndRawPrime+process.HLTEndSequence)
 process.schedule = cms.Schedule(*[ process.L1RePack_step, process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU,process.HLT_HIZeroBias_HighRate_v7,process.Dataset_HIPhysicsRawPrime4,process.FEVTDEBUGHLToutput_step])
 # Schedule definition
 # process.schedule imported from cff in HLTrigger.Configuration
