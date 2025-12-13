@@ -5,6 +5,12 @@
   <use name="HeterogeneousCore/CUDACore"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="CUDADataFormats/SiStripCluster"/>
+  <use name="MagneticField/Records"/>
+  <use name="MagneticField/Engine"/>
+  <use name="TrackingTools/TransientTrackingRecHit"/>
+  <use name="TrackingTools/Records"/>
+  <use name="TrackingTools/TransientTrack"/>
+  <use name="PhysicsTools/ONNXRuntime"/>
   <use name="cuda"/>
   <use name="RecoTracker/PixelLowPtUtilities"/>
   <use name="CalibFormats/SiStripObjects"/>
