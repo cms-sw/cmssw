@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(500),
+    input = cms.untracked.int32(5),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -89,6 +89,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
       'keep *_hltPixelVerticesPPOnAA_*_*',
       'keep DetIds_hltSiStripRawToDigi_*_reHLT',
       'keep FEDRawDataCollection_rawPrimeDataRepacker*_*_reHLT',
+      'keep *_rawDataCollector_*_*',
       'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_reHLT',
       'keep edmTriggerResults_*_*_reHLT'),
     #splitLevel = cms.untracked.int32(0)

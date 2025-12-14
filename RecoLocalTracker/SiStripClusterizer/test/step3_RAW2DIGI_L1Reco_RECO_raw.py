@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/scratch/nandan/inputfile_for_prehlt/HIEphemeralHLTPhysics_RAW/e1f7f325-4ca8-4fea-8d27-06b33862cf11.root'),
+    fileNames = cms.untracked.vstring('file:step2_L1REPACK_HLT.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -80,6 +80,8 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('step3_RAW2DIGI_L1Reco_RECO_raw.root'),
     outputCommands = cms.untracked.vstring( 'drop *',
 'keep *_*offlinePrimaryVertices_*_*',
+'keep *_hltMergedTracksPPOnAA_*_*',
+'keep *_hltPixelVerticesPPOnAA_*_*',
 'keep *_*siStripClusters*_*_*',
 'keep *_*generalTracks*_*_*',
 'keep *_hltSiStripClusters2ApproxClusters_*_*',

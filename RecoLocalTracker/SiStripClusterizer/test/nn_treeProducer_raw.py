@@ -98,8 +98,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '141X_dataRun3_Prompt_v3', '')
 process.sep19_2_2_dump_raw = cms.EDAnalyzer("nn_tupleProducer_raw",
     siStripClustersTag = cms.InputTag("siStripClusters"),
     tracks = cms.InputTag('generalTracks',"", 'reRECO'),
-    hlttracks = cms.InputTag('hltMergedTracksPPOnAA',"", 'HLTX'),
-    vertex = cms.InputTag("hltPixelVerticesPPOnAA","","HLTX")
+    hlttracks = cms.InputTag('hltMergedTracksPPOnAA',"", 'reHLT'),
+    vertex = cms.InputTag("hltPixelVerticesPPOnAA","","reHLT")
 )
 
 # dead strip
