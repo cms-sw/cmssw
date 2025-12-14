@@ -69,5 +69,5 @@ phase2_hgcal.toModify(hcalSimBlock,
 )
 
 # enable ZDC digitization
-from Configuration.Eras.Modifier_zdcDigi_cff import zdcDigi
+from Configuration.ProcessModifiers.zdcDigi_cff import zdcDigi
 zdcDigi.toModify(hcalSimBlock, doZDCDigi = True )
