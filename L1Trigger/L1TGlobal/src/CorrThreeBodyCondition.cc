@@ -678,7 +678,6 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
                                 << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy_12)) << std::endl;
 
           LogDebug("L1TGlobal") << "\n ########### THREE-BODY INVARIANT MASS #########################\n";
-          long long massSq = 0;
 
           if (preShift_01 == preShift_02 && preShift_01 == preShift_12 && preShift_02 == preShift_12) {
             LogDebug("L1TGlobal") << "Check the preshift value: " << preShift_01 << " = " << preShift_02 << " = "
@@ -689,15 +688,15 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
                 << "Preshift values considered for the sum of the dimuon invariant masses are different!" << std::endl;
           }
 
-          if ((massSq_01 != massSq_02) && (massSq_01 != massSq_12) && (massSq_02 != massSq_12)) {
-            massSq = massSq_01 + massSq_02 + massSq_12;
-            LogDebug("L1TGlobal") << "massSq = " << massSq << std::endl;
-          } else {
-            LogDebug("L1TGlobal") << "Same pair of muons considered, three-body invariant mass do not computed"
-                                  << std::endl;
+          long long const massSq{massSq_01 + massSq_02 + massSq_12};
+
+          LogDebug("L1TGlobal") << "massSq = " << massSq;
+
+          if (massSq_01 == massSq_02 or massSq_01 == massSq_12 or massSq_02 == massSq_12) {
+            LogDebug("L1TGlobal") << "At least two dimuon masses have identical values";
           }
 
-          if (massSq >= 0 && massSq >= (long long)(corrPar.minMassCutValue * pow(10, preShift)) &&
+          if (massSq >= (long long)(corrPar.minMassCutValue * pow(10, preShift)) &&
               massSq <= (long long)(corrPar.maxMassCutValue * pow(10, preShift))) {
             LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut ["
                                   << (long long)(corrPar.minMassCutValue * pow(10, preShift)) << ","
