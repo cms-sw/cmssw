@@ -84,6 +84,9 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime4' ) ),
     outputCommands =  cms.untracked.vstring('drop *',
       'keep *_hltSiStripClusters*_*_*',
+      'keep *_hltSiStripClusterizerForRawPrime_*_*',
+      'keep *_*TracksPPOnAA_*_*',
+      'keep *_hltPixelVerticesPPOnAA_*_*',
       'keep DetIds_hltSiStripRawToDigi_*_reHLT',
       'keep FEDRawDataCollection_rawPrimeDataRepacker*_*_reHLT',
       'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_reHLT',
@@ -113,7 +116,7 @@ from HLTrigger.Configuration.CustomConfigs import ProcessName
 process = ProcessName(process)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '141X_dataRun3_Prompt_v3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '141X_dataRun3_HLT_v1', '')
 
 # Path and EndPath definitions
 process.L1RePack_step = cms.Path(process.SimL1Emulator)

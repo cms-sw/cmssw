@@ -183,7 +183,7 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
       const std::vector<std::string> inputname {"input"};
       std::vector<std::vector<float>> dnn_output = ort_mSession->run(inputname, dnn_input_values);
       //std::cout << "dnn value: " << dnn_output[0][0] << std::endl;
-      if (dnn_output[0][0] < cutvalue) continue;
+      //if (dnn_output[0][0] < cutvalue) continue;
       const LocalPoint& lp = LocalPoint(((cluster.barycenter() * 10 / (sistrip::STRIPS_PER_APV * nApvs)) -
                                          ((stripDet->surface().bounds().width()) * 0.5f)),
                                         barycenter_ypos - (0.5f * stripLength),

@@ -4,6 +4,17 @@
   <use name="RecoLocalTracker/SiStripClusterizer"/>
   <use name="SimTracker/TrackerHitAssociation"/>
   <use name="CalibTracker/SiStripCommon"/>
+  <use name="RecoLocalTracker/ClusterParameterEstimator"/>
+  <use name="MagneticField/Records"/>
+  <use name="MagneticField/Engine"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="TrackingTools/TransientTrackingRecHit"/>
+  <use name="TrackingTools/Records"/>
+  <use name="TrackingTools/TransientTrack"/>
   <use name="root"/>
+  <use name="onnxruntime"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
