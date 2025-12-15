@@ -3,5 +3,5 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Sources"/>
 <use name="DataFormats/FEDRawData"/>
-<use name="Utilities/StorageFactory"/>
+<use name="FWStorage/StorageFactory"/>
 <flags EDM_PLUGIN="1"/>
