@@ -28,6 +28,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/b20.h"
 
 // hls-fpga-machine-learning insert layer-config
+namespace hls4ml_nnpuppitau_v0 {
 // Dense_1
 struct config2 : nnet::dense_config {
   static const unsigned n_in = 80;
@@ -214,5 +215,7 @@ struct config20 : nnet::dense_config {
   template <class x_T, class y_T>
   using product = nnet::product::mult<x_T, y_T>;
 };
+
+}
 
 #endif
