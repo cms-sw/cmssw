@@ -1,8 +1,8 @@
 //#define USE_STORAGE_MANAGER
 
 #ifdef USE_STORAGE_MANAGER
-#include "Utilities/StorageFactory/interface/Storage.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #else  //USE_STORAGE_MANAGER not defined
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE

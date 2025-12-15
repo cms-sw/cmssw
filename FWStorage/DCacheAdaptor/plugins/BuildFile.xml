@@ -1,0 +1,6 @@
+<library file="DCacheStorageMaker.cc" name="FWStorageDCacheAdaptorPlugin">
+  <use name="FWStorage/StorageFactory"/>
+  <use name="FWStorage/DCacheAdaptor"/>
+  <flags EDM_PLUGIN="1"/>
+  <flags cppflags="-D_FILE_OFFSET_BITS=32"/>
+</library>

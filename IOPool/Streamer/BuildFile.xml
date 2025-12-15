@@ -9,7 +9,7 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Reflection"/>
 <use name="FWCore/Version"/>
-<use name="Utilities/StorageFactory"/>
+<use name="FWStorage/StorageFactory"/>
 <use name="rootcore"/>
 <use name="zlib"/>
 <use name="xz"/>
