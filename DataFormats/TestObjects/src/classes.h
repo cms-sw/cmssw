@@ -48,16 +48,17 @@
 // related to SchemaEvolutionTestObjects.h
 #ifndef DataFormats_TestObjects_USE_OLD
 
-// The following is from an example by Jakob Blomer from the ROOT team
+// The following is from an example from ROOT team
+// roottest/root/io/autoptr/TestAutoPtr_v3.hxx
 namespace edmtest::compat {
   template <typename T>
   struct deprecated_auto_ptr {
-    // We use compat_auto_ptr only to assign the wrapped raw pointer
+    // We use deprecated_auto_ptr only to assign the wrapped raw pointer
     // to a unique pointer in an I/O customization rule.
-    // Therefore, we don't delete on destruction (because ownership
-    // gets transferred to the unique pointer).
+    // However, since the deprecated_auto_ptr object can be reused, it is essential to always reset the
+    // value after using it, so we can safely delete it (it should always be nullptr)
 
-    // ~deprecated_auto_ptr() { delete _M_ptr; }
+    ~deprecated_auto_ptr() { delete _M_ptr; }
 
     T *_M_ptr = nullptr;
   };
