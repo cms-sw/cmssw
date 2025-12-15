@@ -8,7 +8,7 @@
 <use name="FWCore/Sources"/>
 <use name="FWCore/Utilities"/>
 <use name="IOPool/Common"/>
-<use name="Utilities/StorageFactory"/>
+<use name="FWStorage/StorageFactory"/>
 <use name="clhep"/>
 <use name="rootcore"/>
 <flags EDM_PLUGIN="1"/>

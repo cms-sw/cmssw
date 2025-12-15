@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 namespace edm::rntuple_temp {
   RootSecondaryFileSequence::RootSecondaryFileSequence(ParameterSet const& pset,

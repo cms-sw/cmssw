@@ -6,7 +6,7 @@
 <use name="EventFilter/EcalRawToDigi"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
-<use name="Utilities/StorageFactory"/>
+<use name="FWStorage/StorageFactory"/>
 <iftool name="cuda-gcc-support">
   <use name="cuda"/>
   <set name="cuda_src" value="*.cu"/>
