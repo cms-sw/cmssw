@@ -207,7 +207,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           } else { //non cooperative work
             double accum_etaSum = 0.;
             double accum_phiSum = 0.;
-            for (int pfrhfrac_idx = pfrhf_offset; pfrhfrac_idx < pfrhf_size; pfrhfrac_idx++ ){
+
+            for (int pfrhfrac_idx = pfrhf_offset; pfrhfrac_idx < (pfrhf_offset + pfrhf_size); pfrhfrac_idx++ ){
               const int pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
               const float frac = pfRecHitFracs[pfrhfrac_idx].frac();
               const float energy = pfRecHit[pfrh_idx].energy();
