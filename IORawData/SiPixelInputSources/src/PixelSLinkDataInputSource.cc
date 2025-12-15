@@ -22,9 +22,9 @@ Implementation:
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "IORawData/SiPixelInputSources/interface/PixelSLinkDataInputSource.h"
-#include "Utilities/StorageFactory/interface/IOTypes.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/IOTypes.h"
+#include "FWStorage/StorageFactory/interface/StorageAccount.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include <iostream>
 #include <memory>
 

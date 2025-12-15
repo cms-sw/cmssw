@@ -1,0 +1,15 @@
+<library file="HttpStorageMaker.cc LocalStorageMaker.cc StatisticsSenderServiceMaker.cc" name="FWStorageStorageFactoryPlugins">
+  <use name="FWStorage/StorageFactory"/>
+  <flags EDM_PLUGIN="1"/>
+  <flags cppflags="-D_FILE_OFFSET_BITS=64"/>
+</library>
+
+<library file="StorageTracerProxy.cc StorageAddLatencyProxy.cc" name="FWStorageStorageFactoryProxyPlugins">
+  <use name="FWCore/Concurrency"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWStorage/StorageFactory"/>
+  <use name="boost"/>
+  <flags EDM_PLUGIN="1"/>
+  <flags cppflags="-D_FILE_OFFSET_BITS=64"/>
+</library>

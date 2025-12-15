@@ -1,0 +1,3 @@
+<use name="FWStorage/StorageFactory"/>
+<bin file="anycp.cpp" name="cms_anycp">
+</bin>
