@@ -117,14 +117,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
     mcParamsToken_ = iC.esConsumes();
   }
 
-  const std::set<std::string> producers = {hitsProducer_, hitsProducerPU_};
-  std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> zdc_list, hcal_list;
-  for (const auto &prod : producers) {
-    zdc_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "ZDCHITS")));
-    hcal_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "HcalHits")));
-  }
-  zdcToken_ = zdc_list[0];
-  hcalToken_ = hcal_list[0];
+  // Get the tokens for signal
+  zdcToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, "ZDCHITS"));
+  hcalToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, "HcalHits"));
   bool doNoise = ps.getParameter<bool>("doNoise");
 
   bool PreMix1 = ps.getParameter<bool>("HcalPreMixStage1");  // special threshold/pedestal treatment
