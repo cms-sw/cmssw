@@ -158,34 +158,25 @@ class FitSlicesYTool {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   FitSlicesYTool(MonitorElement* me) {
-    const bool oldAddDir = TH1::AddDirectoryStatus();
-    TH1::AddDirectory(true);
     // ... create your hists
+    TObjArray aSlices;
     TH2F* h = me->getTH2F();
     TF1 fgaus("fgaus", "gaus", h->GetYaxis()->GetXmin(), h->GetYaxis()->GetXmax(), TF1::EAddToList::kNo);
-    h->FitSlicesY(&fgaus, 0, -1, 0, "QNR SERIAL");
+    h->FitSlicesY(&fgaus, 0, -1, 0, "QNR SERIAL", &aSlices);
     string name(h->GetName());
-    h0 = (TH1*)gDirectory->Get((name + "_0").c_str());
-    h1 = (TH1*)gDirectory->Get((name + "_1").c_str());
-    h2 = (TH1*)gDirectory->Get((name + "_2").c_str());
-    h3 = (TH1*)gDirectory->Get((name + "_chi2").c_str());
-    TH1::AddDirectory(oldAddDir);
+    h0_ = fetchSlice(aSlices, name + "_0");
+    h1_ = fetchSlice(aSlices, name + "_1");
+    h2_ = fetchSlice(aSlices, name + "_2");
+    h3_ = fetchSlice(aSlices, name + "_chi2");
   }
 
-  /// Destructor
-  ~FitSlicesYTool() {
-    delete h0;
-    delete h1;
-    delete h2;
-    delete h3;
-  }
   /// Fill the ME with the mean value of the gaussian fit in each slice
   void getFittedMean(MonitorElement* me) {
-    if (!(h1 && me))
-      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
-    if (h1->GetNbinsX() == me->getNbinsX()) {
-      for (int bin = 0; bin != h1->GetNbinsX(); bin++) {
-        me->setBinContent(bin + 1, h1->GetBinContent(bin + 1));
+    if (!(h1_ && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1_=" << h1_ << " me=" << me;
+    if (h1_->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h1_->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h1_->GetBinContent(bin + 1));
         //       me->setBinEntries(bin+1, 1.);
       }
     } else {
@@ -194,11 +185,11 @@ public:
   }
   /// Fill the ME with the sigma value of the gaussian fit in each slice
   void getFittedSigma(MonitorElement* me) {
-    if (!(h2 && me))
-      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
-    if (h2->GetNbinsX() == me->getNbinsX()) {
-      for (int bin = 0; bin != h2->GetNbinsX(); bin++) {
-        me->setBinContent(bin + 1, h2->GetBinContent(bin + 1));
+    if (!(h2_ && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1_=" << h1_ << " me=" << me;
+    if (h2_->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h2_->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h2_->GetBinContent(bin + 1));
         //       me->setBinEntries(bin+1, 1.);
       }
     } else {
@@ -207,12 +198,12 @@ public:
   }
   /// Fill the ME with the mean value (with error) of the gaussian fit in each slice
   void getFittedMeanWithError(MonitorElement* me) {
-    if (!(h1 && me))
-      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
-    if (h1->GetNbinsX() == me->getNbinsX()) {
-      for (int bin = 0; bin != h1->GetNbinsX(); bin++) {
-        me->setBinContent(bin + 1, h1->GetBinContent(bin + 1));
-        me->setBinError(bin + 1, h1->GetBinError(bin + 1));
+    if (!(h1_ && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1_=" << h1_ << " me=" << me;
+    if (h1_->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h1_->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h1_->GetBinContent(bin + 1));
+        me->setBinError(bin + 1, h1_->GetBinError(bin + 1));
         if (me->kind() == MonitorElement::Kind::TPROFILE) {
           me->setBinEntries(bin + 1, 1);
         }
@@ -223,12 +214,12 @@ public:
   }
   /// Fill the ME with the sigma value (with error) of the gaussian fit in each slice
   void getFittedSigmaWithError(MonitorElement* me) {
-    if (!(h2 && me))
-      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
-    if (h2->GetNbinsX() == me->getNbinsX()) {
-      for (int bin = 0; bin != h2->GetNbinsX(); bin++) {
-        me->setBinContent(bin + 1, h2->GetBinContent(bin + 1));
-        me->setBinError(bin + 1, h2->GetBinError(bin + 1));
+    if (!(h2_ && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1_=" << h1_ << " me=" << me;
+    if (h2_->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h2_->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h2_->GetBinContent(bin + 1));
+        me->setBinError(bin + 1, h2_->GetBinError(bin + 1));
         if (me->kind() == MonitorElement::Kind::TPROFILE) {
           me->setBinEntries(bin + 1, 1);
         }
@@ -239,10 +230,20 @@ public:
   }
 
 private:
-  TH1* h0;
-  TH1* h1;
-  TH1* h2;
-  TH1* h3;
+  std::unique_ptr<TH1> h0_;
+  std::unique_ptr<TH1> h1_;
+  std::unique_ptr<TH1> h2_;
+  std::unique_ptr<TH1> h3_;
+
+  std::unique_ptr<TH1> fetchSlice(TObjArray& arr, const std::string& name) {
+    auto* obj = (TH1*)arr.FindObject(name.c_str());
+    if (!obj) {
+      throw cms::Exception("FitSlicesYTool") << "Cannot find slice histogram: " << name;
+    }
+    TH1* hnew = (TH1*)obj->Clone();
+    hnew->SetDirectory(nullptr);
+    return std::unique_ptr<TH1>(hnew);
+  }
 };
 
 typedef DQMGenericClient::MonitorElement ME;
