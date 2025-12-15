@@ -88,7 +88,7 @@ public:
   // small struct keeping all cut parameters
   struct CAGeometryParams {
     //Constructor from ParameterSet
-    CAGeometryParams(edm::ParameterSet const& iConfig, double const ptmin)
+    CAGeometryParams(edm::ParameterSet const& iConfig, double const ptmin, std::vector<int> const& isBarrel)
         : caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
           ptCuts_(iConfig.getParameter<std::vector<double>>("ptCuts")),
@@ -102,7 +102,7 @@ public:
       for (double const caThetaCut : iConfig.getParameter<std::vector<double>>("caThetaCuts")) {
         caThetaCuts_over_ptmin_.push_back(caThetaCut / ptmin);
       }
-      for (double const isBar : iConfig.getParameter<std::vector<int>>("isBarrel")) {
+      for (double const isBar : isBarrel) {
         isBarrel_.push_back((bool)isBar);
       }
     }
@@ -464,7 +464,6 @@ private:
   const int maxDYsize_;
   const int maxDYPred_;
   const double cellZ0Cut_;
-  const double cellPtCut_;
   const double hardCurvCut_;
   const int minNumDoubletsPerNtuplet_;
 

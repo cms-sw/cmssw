@@ -356,6 +356,11 @@ namespace simdoublets {
         ->setComment(
             "Maximum difference between actual and expected cluster size of inner RecHit. Barrel-forward cells.");
 
+    desc.add<std::vector<int>>("isBarrel", {1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0})
+        ->setComment(
+            "Bool vector with one element per layer that defines if the min/max cut for doublet building is applied in "
+            "z (isBarrel->true) or r (isBarrel->false).");
+
     edm::ParameterSetDescription geometryParams;
     // layers params
     geometryParams
@@ -374,10 +379,6 @@ namespace simdoublets {
             std::vector<unsigned int>(TrackerTraits::startingPairs,
                                       TrackerTraits::startingPairs + TrackerTraits::nStartingPairs))
         ->setComment("The list of the ids of pairs from which the CA ntuplets building may start.");
-    geometryParams.add<std::vector<int>>("isBarrel", std::vector<int>(TrackerTraits::numberOfLayers, 1))
-        ->setComment(
-            "Bool vector with one element per layer that defines if the min/max cut for doublet building is applied in "
-            "z (isBarrel->true) or r (isBarrel->false).");
     // cells params
     geometryParams
         .add<std::vector<unsigned int>>(
@@ -461,15 +462,15 @@ template <typename TrackerTraits>
 SimPixelTrackAnalyzer<TrackerTraits>::SimPixelTrackAnalyzer(const edm::ParameterSet& iConfig)
     : topology_getToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       simPixelTracks_getToken_(consumes(iConfig.getParameter<edm::InputTag>("simPixelTrackSrc"))),
-      cellCuts_(
-          CAGeometryParams(iConfig.getParameter<edm::ParameterSet>("geometry"), iConfig.getParameter<double>("ptmin"))),
+      cellCuts_(CAGeometryParams(iConfig.getParameter<edm::ParameterSet>("geometry"),
+                                 iConfig.getParameter<double>("ptmin"),
+                                 iConfig.getParameter<std::vector<int>>("isBarrel"))),
       minYsizeB1_(iConfig.getParameter<int>("minYsizeB1")),
       minYsizeB2_(iConfig.getParameter<int>("minYsizeB2")),
       maxDYsize12_(iConfig.getParameter<int>("maxDYsize12")),
       maxDYsize_(iConfig.getParameter<int>("maxDYsize")),
       maxDYPred_(iConfig.getParameter<int>("maxDYPred")),
       cellZ0Cut_(iConfig.getParameter<double>("cellZ0Cut")),
-      cellPtCut_(iConfig.getParameter<double>("cellPtCut")),
       hardCurvCut_(iConfig.getParameter<double>("hardCurvCut")),
       minNumDoubletsPerNtuplet_(iConfig.getParameter<uint>("minHitsPerNtuplet") - 1),
       folder_(iConfig.getParameter<std::string>("folder")),
