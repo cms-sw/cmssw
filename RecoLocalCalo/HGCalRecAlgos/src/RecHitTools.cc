@@ -527,9 +527,7 @@ bool RecHitTools::isScintillatorFine(const DetId& id) const {
   }
 }
 bool RecHitTools::isBarrel(const DetId& id) const {
-  return (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) ||
-         (id.det() == DetId::Hcal && id.subdetId() == HcalBarrel) ||
-         (id.det() == DetId::Hcal && id.subdetId() == HcalOuter);
+  return (id.det() == DetId::Ecal) || (id.det() == DetId::Hcal);
 }
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO

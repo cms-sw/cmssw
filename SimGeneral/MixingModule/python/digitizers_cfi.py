@@ -37,6 +37,9 @@ theDigitizers = cms.PSet(
   ),
   calotruth = cms.PSet(
     caloParticles
+  ),
+  calotruthECAL = cms.PSet(
+    caloParticlesECAL
   )
 )
 
@@ -61,8 +64,7 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theDigitizers,
                        hgceeDigitizer = cms.PSet(hgceeDigitizer),
                        hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
-                       hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
-                       calotruth = cms.PSet(caloParticles), #HGCAL still needs calotruth for production mode
+                       hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer)
 )
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hfnoseDigitizer
