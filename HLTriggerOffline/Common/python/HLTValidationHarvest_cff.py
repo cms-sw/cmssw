@@ -21,6 +21,7 @@ from Validation.HLTrigger.HLTGenValidationHarvesting_cff import *
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
+    +postProcessorHLTvertexingReconstructableSim
     +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
