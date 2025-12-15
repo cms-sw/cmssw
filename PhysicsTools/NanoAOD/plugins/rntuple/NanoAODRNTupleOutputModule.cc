@@ -15,19 +15,9 @@
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
-#include <ROOT/RPageStorageFile.hxx>
-using ROOT::Experimental::RNTupleModel;
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
-using ROOT::Experimental::RNTupleWriter;
-using ROOT::Experimental::Detail::RPageSinkFile;
-#define MakeRNTupleWriter std::make_unique<RNTupleWriter>
-#include <ROOT/RNTupleOptions.hxx>
-#else
-using ROOT::Experimental::Internal::RPageSinkFile;
-#define MakeRNTupleWriter ROOT::Experimental::Internal::CreateRNTupleWriter
+using ROOT::RNTupleModel;
 #include <ROOT/RNTupleWriteOptions.hxx>
-#endif
-using ROOT::Experimental::RNTupleWriteOptions;
+using ROOT::RNTupleWriteOptions;
 
 #include "TObjString.h"
 
@@ -173,13 +163,15 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InRun]) {
     if (keep.first->className() == "nanoaod::MergeableCounterTable") {
-      m_run.registerToken(keep.second);
+      m_run.registerCounterTableToken(keep.second);
     } else if (keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata") {
       m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
+    } else if (keep.first->className() == "nanoaod::FlatTable") {
+      m_run.registerFlatTableToken(keep.second);
     } else {
       throw cms::Exception(
           "Configuration",
-          "NanoAODRNTupleOutputModule cannot handle class " + keep.first->className() + " in Run branch");
+          "NanoAODRNTupleOutputModule cannot handle class " + keep.first->className() + " in Run RNTuple");
     }
   }
 }
@@ -210,10 +202,15 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
     trigger.createFields(iEvent, *model);
   }
   m_evstrings.createFields(*model);
-  // TODO use Append
+
+  // Model needs to be frozen before we bind buffers
+  model->Freeze();
+
+  m_tables.bindBuffers(*model);
+
   RNTupleWriteOptions options;
   options.SetCompression(m_file->GetCompressionSettings());
-  m_ntuple = MakeRNTupleWriter(std::move(model), std::make_unique<RPageSinkFile>("Events", *m_file, options));
+  m_ntuple = RNTupleWriter::Append(std::move(model), "Events", *m_file, options);
 }
 
 void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
