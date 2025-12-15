@@ -5,3 +5,7 @@ from Validation.RecoVertex.PrimaryVertexAnalyzer4PUSlimmed_Client_cfi import *
 postProcessorHLTvertexing = postProcessorVertex.clone(
     subDirs = ("HLT/Vertexing/ValidationWRTsim/*",)
 )
+
+postProcessorHLTvertexingReconstructableSim = postProcessorVertex.clone(
+    subDirs = ("HLT/Vertexing/ValidationWRTReconstructableSim/*",)
+)
