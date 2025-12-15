@@ -15,11 +15,11 @@ namespace trklet {
   class L1TStub;
 
   struct TrpEData {
-    const Stub* stub_;
-    int start_out_;
-    int start_in_;
-    int rzbinfirst_out_;
-    int rzdiffmax_out_;
+    const Stub* stub_ = nullptr;
+    int start_out_ = 0;
+    int start_in_ = 0;
+    int rzbinfirst_out_ = 0;
+    int rzdiffmax_out_ = 0;
     std::vector<std::tuple<int, int, int> > projbin_out_;  // next z/r bin; outer stub mem; nstub
     std::vector<std::tuple<int, int, int> > projbin_in_;   // next z/r bin; inner stub mem; nstub
   };
@@ -68,23 +68,24 @@ namespace trklet {
     bool nearfull_;  //initialized at start of each processing step
 
     //unsigned int memory slot
-    unsigned int nmem_out_;
-    unsigned int nmem_in_;
-    unsigned int istub_out_;
-    unsigned int istub_in_;
-    unsigned int next_out_;
-    unsigned int next_in_;
-    unsigned int nstub_out_;
-    unsigned int nstub_in_;
-    unsigned int outmem_;
-    unsigned int inmem_;
-    unsigned int nproj_out_;
-    unsigned int nproj_in_;
+    unsigned int nmem_out_ = 0;
+    unsigned int nmem_in_ = 0;
+    unsigned int istub_out_ = 0;
+    unsigned int istub_in_ = 0;
+    unsigned int next_out_ = 0;
+    unsigned int next_in_ = 0;
+    unsigned int nstub_out_ = 0;
+    unsigned int nstub_in_ = 0;
+    unsigned int outmem_ = 0;
+    unsigned int inmem_ = 0;
+    unsigned int nproj_out_ = 0;
+    unsigned int nproj_in_ = 0;
 
-    bool idle_;
+    bool idle_ = true;
 
     std::tuple<const Stub*, const Stub*, const Stub*> candtriplet_, candtriplet__;
-    bool goodtriplet_, goodtriplet__;
+    bool goodtriplet_ = false;
+    bool goodtriplet__ = false;
 
     //save the candidate matches
     CircularBuffer<std::tuple<const Stub*, const Stub*, const Stub*> > candtriplets_;
