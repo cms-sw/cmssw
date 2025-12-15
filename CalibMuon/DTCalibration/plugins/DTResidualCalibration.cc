@@ -21,7 +21,6 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
-#include "CommonTools/Utils/interface/TH1AddDirectorySentry.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
 #include "CalibMuon/DTCalibration/interface/DTRecHitSegmentResidual.h"
 
@@ -195,7 +194,6 @@ void DTResidualCalibration::endJob() {
 }
 
 void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
-  TH1AddDirectorySentry addDir;
   rootFile_->cd();
 
   LogDebug("Calibration") << "[DTResidualCalibration] Booking histos for SL: " << slId;
@@ -249,7 +247,6 @@ void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
 }
 
 void DTResidualCalibration::bookHistos(DTLayerId layerId) {
-  TH1AddDirectorySentry addDir;
   rootFile_->cd();
 
   LogDebug("Calibration") << "[DTResidualCalibration] Booking histos for layer: " << layerId;
