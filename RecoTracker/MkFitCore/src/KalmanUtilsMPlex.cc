@@ -1887,6 +1887,10 @@ namespace mkfit {
         jacCurv2CCS(n, 3, 1) = outPar(n, 3, 0) * cosT(n, 0, 0) / sinT(n, 0, 0);
         jacCurv2CCS(n, 4, 2) = 1.f;
         jacCurv2CCS(n, 5, 1) = -1.f;
+        if (std::signbit(lp_upd(n, 0, 0)) != std::signbit(lp(n, 0, 0))) {
+          outPar(n, 0, 3) = -outPar(n, 0, 3);
+          jacCurv2CCS(n, 3, 0) = -jacCurv2CCS(n, 3, 0);
+        }
       }
 
       //now we need the jacobian from local to curv
