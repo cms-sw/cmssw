@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include <ROOT/RNTupleModel.hxx>
-using ROOT::Experimental::RNTupleModel;
+using ROOT::RNTupleModel;
 
 #include "RNTupleFieldPtr.h"
 
