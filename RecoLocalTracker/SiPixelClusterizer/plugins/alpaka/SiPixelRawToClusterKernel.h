@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <optional>
 #include <utility>
+#include <cassert>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
@@ -128,6 +129,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             fedId_{cms::alpakatools::make_host_buffer<unsigned char[]>(queue, words)} {};
 
       void initializeWordFed(int fedId, unsigned int wordCounterGPU, const uint32_t* src, unsigned int length) {
+        if (src == nullptr)
+          return;
         std::memcpy(word_.data() + wordCounterGPU, src, sizeof(uint32_t) * length);
         std::memset(fedId_.data() + wordCounterGPU / 2, fedId - 1200, length / 2);
       }
