@@ -7,10 +7,11 @@
 #include <alpaka/alpaka.hpp>
 
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
 namespace cms::alpakatools {
 
@@ -35,28 +36,36 @@ namespace cms::alpakatools {
   public:
     // QueueCache should be constructed by the first call to
     // getQueueCache() only if we have any devices present
-    QueueCache() : cache_(devices<Platform>().size()) {}
+    QueueCache() : cache_() {
+      // FIXME do not hardcode
+      init(32);
+    }
 
     // Gets a (cached) queue for the current device. The queue
     // will be returned to the cache by the shared_ptr destructor.
     // This function is thread safe
-    std::shared_ptr<Queue> get(Device const& dev) {
-      return cache_[alpaka::getNativeHandle(dev)].makeOrGet([dev]() { return std::make_unique<Queue>(dev); });
-    }
+    std::shared_ptr<Queue> get(Device const& dev) { return cache_[alpaka::getNativeHandle(dev)]; }
+
+    std::shared_ptr<Queue> get(edm::StreamID sid) { return cache_[sid.value()]; }
 
   private:
     // not thread safe, intended to be called only from AlpakaService
-    void clear() {
-      // Reset the contents of the caches, but leave an
-      // edm::ReusableObjectHolder alive for each device. This is needed
-      // mostly for the unit tests, where the function-static
-      // QueueCache lives through multiple tests (and go through
-      // multiple shutdowns of the framework).
+    void clear() { cache_.clear(); }
+
+    void init(int streams) {
+      int size = std::max<int>(streams, devices<Platform>().size());
       cache_.clear();
-      cache_.resize(devices<Platform>().size());
+      cache_.reserve(size);
+      for (int i = 0; i < size; ++i) {
+        // Copied from HeterogeneousCore/AlpakaCore/src/alpaka/chooseDevice.cc
+        // to get a consistent behaviour.
+        int id = i % devices<Platform>().size();
+        const Device& device = devices<Platform>()[id];
+        cache_.emplace_back(std::make_shared<Queue>(device));
+      }
     }
 
-    std::vector<edm::ReusableObjectHolder<Queue>> cache_;
+    std::vector<std::shared_ptr<Queue>> cache_;
   };
 
   // Gets the global instance of a QueueCache

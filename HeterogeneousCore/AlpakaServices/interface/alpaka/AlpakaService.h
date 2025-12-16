@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
@@ -16,8 +18,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class AlpakaService {
   public:
-    AlpakaService(edm::ParameterSet const& config, edm::ActivityRegistry&);
+    AlpakaService(edm::ParameterSet const& config, edm::ActivityRegistry& registry);
     ~AlpakaService();
+
+    void preallocate(edm::service::SystemBounds const& bounds);
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
