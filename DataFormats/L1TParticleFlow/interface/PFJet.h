@@ -64,6 +64,9 @@ namespace l1t {
     const reco::Candidate* daughter(size_type i) const override { return constituents_[i].get(); }
     using reco::LeafCandidate::daughter;  // avoid hiding the base
     edm::Ptr<l1t::PFCandidate> daughterPtr(size_type i) const { return constituents_[i]; }
+    // more candidate interface
+    size_t numberOfSourceCandidatePtrs() const override { return constituents_.size(); }
+    virtual reco::CandidatePtr sourceCandidatePtr(size_type i) const override { return daughterPtr(i); }
 
     // Get and set the encodedJet_ bits. The Jet is encoded in 128 bits as a 2-element array of uint64_t
     // We store encodings both for Correlator internal usage and for Global Trigger
