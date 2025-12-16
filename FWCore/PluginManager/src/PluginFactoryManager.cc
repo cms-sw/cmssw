@@ -54,7 +54,7 @@ namespace edmplugin {
   //
   void PluginFactoryManager::addFactory(const PluginFactoryBase* iFactory) {
     factories_.push_back(iFactory);
-    newFactory_(iFactory);
+    newFactory_.emit(iFactory);
   }
 
   //

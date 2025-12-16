@@ -38,7 +38,7 @@ namespace {
     void operator()() {
       //std::cout <<"see signal"<<std::endl;
       ++seen_;
-      (*signal_)();
+      (*signal_).emit();
     }
   };
 }  // namespace
@@ -55,7 +55,7 @@ void testConnectButBlockSelf::test() {
   ReSignaller two(theSignal, iTwo);
   connect_but_block_self(theSignal, two);
 
-  theSignal();
+  theSignal.emit();
 
   //std::cout <<"one "<<iOne <<std::endl;
   //std::cout <<"two "<<iTwo <<std::endl;

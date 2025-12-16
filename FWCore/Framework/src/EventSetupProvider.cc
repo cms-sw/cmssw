@@ -98,7 +98,7 @@ namespace edm {
       assert(iProvider.get() != nullptr);
       dataProviders_->push_back(iProvider);
       if (activityRegistry_) {
-        activityRegistry_->postESModuleRegistrationSignal_(iProvider->description());
+        activityRegistry_->postESModuleRegistrationSignal_.emit(iProvider->description());
       }
     }
 

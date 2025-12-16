@@ -808,7 +808,7 @@ namespace edm {
       ServiceRegistry::Operate op(token);
 
       // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_(globalContext); } catch (...) {
+      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_.emit(globalContext); } catch (...) {
       }
       for (auto& c : all_output_communicators_) {
         c->writeRunAsync(nextTask, rp, processContext, activityRegistry, mergeableRunProductMetadata);
@@ -817,7 +817,7 @@ namespace edm {
       //services can depend on other services
       ServiceRegistry::Operate op(token);
 
-      activityRegistry->postGlobalWriteRunSignal_(globalContext);
+      activityRegistry->postGlobalWriteRunSignal_.emit(globalContext);
     })) |
         chain::runLast(task);
   }
@@ -838,7 +838,7 @@ namespace edm {
     chain::first([&](auto nextTask) {
       // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
       ServiceRegistry::Operate op(token);
-      CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_(globalContext); } catch (...) {
+      CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_.emit(globalContext); } catch (...) {
       }
       for (auto& c : all_output_communicators_) {
         c->writeProcessBlockAsync(nextTask, pbp, processContext, activityRegistry);
@@ -847,7 +847,7 @@ namespace edm {
       //services can depend on other services
       ServiceRegistry::Operate op(token);
 
-      activityRegistry->postWriteProcessBlockSignal_(globalContext);
+      activityRegistry->postWriteProcessBlockSignal_.emit(globalContext);
     })) |
         chain::runLast(std::move(task));
   }
@@ -867,7 +867,7 @@ namespace edm {
     using namespace edm::waiting_task;
     chain::first([&](auto nextTask) {
       ServiceRegistry::Operate op(token);
-      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_(globalContext); } catch (...) {
+      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_.emit(globalContext); } catch (...) {
       }
       for (auto& c : all_output_communicators_) {
         c->writeLumiAsync(nextTask, lbp, processContext, activityRegistry);
@@ -876,7 +876,7 @@ namespace edm {
       //services can depend on other services
       ServiceRegistry::Operate op(token);
 
-      activityRegistry->postGlobalWriteLumiSignal_(globalContext);
+      activityRegistry->postGlobalWriteLumiSignal_.emit(globalContext);
     })) |
         chain::runLast(task);
   }
@@ -903,8 +903,8 @@ namespace edm {
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           std::string const& iProcessName) {
     {
-      preModulesInitializationFinalizedSignal_();
-      auto post = [this](void*) { postModulesInitializationFinalizedSignal_(); };
+      preModulesInitializationFinalizedSignal_.emit();
+      auto post = [this](void*) { postModulesInitializationFinalizedSignal_.emit(); };
       std::unique_ptr<void, decltype(post)> const postGuard(this, post);
       finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
     }
