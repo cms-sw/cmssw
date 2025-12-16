@@ -88,9 +88,9 @@ namespace edm {
         ParentContext parentContext(&globalContext);
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
-        activityRegistry->preModuleWriteProcessBlockSignal_(globalContext, mcc);
+        activityRegistry->preModuleWriteProcessBlockSignal_.emit(globalContext, mcc);
         auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
-          ar->postModuleWriteProcessBlockSignal_(globalContext, mcc);
+          ar->postModuleWriteProcessBlockSignal_.emit(globalContext, mcc);
         }));
         mod.doWriteProcessBlock(processBlockPrincipal, &mcc);
       } catch (...) {
@@ -130,9 +130,9 @@ namespace edm {
         ParentContext parentContext(&globalContext);
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
-        activityRegistry->preModuleWriteRunSignal_(globalContext, mcc);
+        activityRegistry->preModuleWriteRunSignal_.emit(globalContext, mcc);
         auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
-          ar->postModuleWriteRunSignal_(globalContext, mcc);
+          ar->postModuleWriteRunSignal_.emit(globalContext, mcc);
         }));
         mod.doWriteRun(rp, &mcc, mergeableRunProductMetadata);
       } catch (...) {
@@ -164,9 +164,9 @@ namespace edm {
         ParentContext parentContext(&globalContext);
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
-        activityRegistry->preModuleWriteLumiSignal_(globalContext, mcc);
+        activityRegistry->preModuleWriteLumiSignal_.emit(globalContext, mcc);
         auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
-          ar->postModuleWriteLumiSignal_(globalContext, mcc);
+          ar->postModuleWriteLumiSignal_.emit(globalContext, mcc);
         }));
         mod.doWriteLuminosityBlock(lbp, &mcc);
       } catch (...) {

@@ -56,5 +56,5 @@ void SignallingProductRegistryFiller::addCalled(ProductDescription const& iProd,
         << "This can lead to circular Event::get* calls.\n"
         << "Please reconfigure job so it does not contain both of the modules.";
   }
-  productAddedSignal_(iProd);
+  productAddedSignal_.emit(iProd);
 }

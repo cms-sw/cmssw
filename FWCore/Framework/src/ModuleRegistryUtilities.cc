@@ -79,12 +79,12 @@ namespace edm {
       static void preModuleSignal(ActivityRegistry* activityRegistry,
                                   GlobalContext const*,
                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleBeginJobSignal_(*moduleCallingContext->moduleDescription());
+        activityRegistry->preModuleBeginJobSignal_.emit(*moduleCallingContext->moduleDescription());
       }
       static void postModuleSignal(ActivityRegistry* activityRegistry,
                                    GlobalContext const*,
                                    ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleBeginJobSignal_(*moduleCallingContext->moduleDescription());
+        activityRegistry->postModuleBeginJobSignal_.emit(*moduleCallingContext->moduleDescription());
       }
     };
 
@@ -94,12 +94,12 @@ namespace edm {
       static void preModuleSignal(ActivityRegistry* activityRegistry,
                                   GlobalContext const*,
                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleEndJobSignal_(*moduleCallingContext->moduleDescription());
+        activityRegistry->preModuleEndJobSignal_.emit(*moduleCallingContext->moduleDescription());
       }
       static void postModuleSignal(ActivityRegistry* activityRegistry,
                                    GlobalContext const*,
                                    ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleEndJobSignal_(*moduleCallingContext->moduleDescription());
+        activityRegistry->postModuleEndJobSignal_.emit(*moduleCallingContext->moduleDescription());
       }
     };
 
@@ -109,12 +109,12 @@ namespace edm {
       static void preModuleSignal(ActivityRegistry* activityRegistry,
                                   StreamContext const* streamContext,
                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleBeginStreamSignal_(*streamContext, *moduleCallingContext);
+        activityRegistry->preModuleBeginStreamSignal_.emit(*streamContext, *moduleCallingContext);
       }
       static void postModuleSignal(ActivityRegistry* activityRegistry,
                                    StreamContext const* streamContext,
                                    ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleBeginStreamSignal_(*streamContext, *moduleCallingContext);
+        activityRegistry->postModuleBeginStreamSignal_.emit(*streamContext, *moduleCallingContext);
       }
     };
 
@@ -124,12 +124,12 @@ namespace edm {
       static void preModuleSignal(ActivityRegistry* activityRegistry,
                                   StreamContext const* streamContext,
                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleEndStreamSignal_(*streamContext, *moduleCallingContext);
+        activityRegistry->preModuleEndStreamSignal_.emit(*streamContext, *moduleCallingContext);
       }
       static void postModuleSignal(ActivityRegistry* activityRegistry,
                                    StreamContext const* streamContext,
                                    ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleEndStreamSignal_(*streamContext, *moduleCallingContext);
+        activityRegistry->postModuleEndStreamSignal_.emit(*streamContext, *moduleCallingContext);
       }
     };
 

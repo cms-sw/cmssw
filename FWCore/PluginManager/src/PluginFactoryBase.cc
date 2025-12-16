@@ -60,7 +60,7 @@ namespace edmplugin {
     PluginInfo info;
     info.loadable_ = std::filesystem::path(PluginManager::loadingFile());
     info.name_ = iName;
-    newPluginAdded_(category(), info);
+    newPluginAdded_.emit(category(), info);
   }
 
   void* PluginFactoryBase::findPMaker(const std::string& iName) const {
