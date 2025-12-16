@@ -190,11 +190,11 @@ public:
 
 private:
   void produce(device::Event&, const device::EventSetup&) override;
-  const edm::EDGetTokenT<reco::PFClusterHostCollection> pfClusterSoAToken_;
-  const edm::EDGetTokenT<reco::PFRecHitFractionHostCollection> pfRecHitFractionSoAToken_;
-  const edm::EDGetTokenT<reco::PFRecHitHostCollection> InputPFRecHitSoA_Token_;
-  const edm::EDPutTokenT<reco::PFClusterHostCollection> outPFClusterSoAToken_;
-  const edm::EDGetTokenT<reco::PFRecHitCollection> recHitsLabel_;
+  const edm::EDGetTokenT<::reco::PFClusterHostCollection> pfClusterSoAToken_;
+  const edm::EDGetTokenT<::reco::PFRecHitFractionHostCollection> pfRecHitFractionSoAToken_;
+  const edm::EDGetTokenT<::reco::PFRecHitHostCollection> InputPFRecHitSoA_Token_;
+  const edm::EDPutTokenT<::reco::PFClusterHostCollection> outPFClusterSoAToken_;
+  const edm::EDGetTokenT<::reco::PFRecHitCollection> recHitsLabel_;
   const edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   const bool cutsFromDB_;
   // the actual algorithm
@@ -203,7 +203,7 @@ private:
 };
 
 void PFClusterSoAPositionUpdater::produce(device::Event& event, const device::EventSetup& setup) {
-  const reco::PFRecHitHostCollection& pfRecHits = event.get(InputPFRecHitSoA_Token_);
+  const ::reco::PFRecHitHostCollection& pfRecHits = event.get(InputPFRecHitSoA_Token_);
 
   HcalPFCuts const* paramPF = cutsFromDB_ ? &setup.getData(hcalCutsToken_) : nullptr;
 
@@ -212,10 +212,10 @@ void PFClusterSoAPositionUpdater::produce(device::Event& event, const device::Ev
   int nRH = 0;
   if (pfRecHits->metadata().size() != 0) nRH = pfRecHits.view().size();
 
-  std::unique_ptr<reco::PFClusterHostCollection> outPFClusterSoAPtr;
+  std::unique_ptr<::reco::PFClusterHostCollection> outPFClusterSoAPtr;
 
   if (pfClusterSoA.nSeeds() == 0 || nRH == 0) {
-    outPFClusterSoAPtr = std::make_unique<reco::PFClusterHostCollection>(0, cms::alpakatools::host());	  
+    outPFClusterSoAPtr = std::make_unique<::reco::PFClusterHostCollection>(0, cms::alpakatools::host());	  
     event.emplace(outPFClusterSoAToken_, std::move(*outPFClusterSoAPtr));
     return;
   }
@@ -223,7 +223,7 @@ void PFClusterSoAPositionUpdater::produce(device::Event& event, const device::Ev
 
   auto const rechitsHandle = event.getHandle(recHitsLabel_);
 
-  outPFClusterSoAPtr = std::make_unique<reco::PFClusterHostCollection>(pfClusterSoA.nSeeds(), cms::alpakatools::host());
+  outPFClusterSoAPtr = std::make_unique<::reco::PFClusterHostCollection>(pfClusterSoA.nSeeds(), cms::alpakatools::host());
 
   auto& outPFClusterSoA = outPFClusterSoAPtr->view(); 
 
@@ -240,15 +240,15 @@ void PFClusterSoAPositionUpdater::produce(device::Event& event, const device::Ev
 
   for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
     unsigned int n = pfClusterSoA[i].seedRHIdx();
-    reco::PFCluster temp;
+    ::reco::PFCluster temp;
     temp.setSeed((*rechitsHandle)[n].detId());  // Pulling the detId of this PFRecHit from the legacy format input
     int offset = pfClusterSoA[i].rhfracOffset();
     for (int k = offset; k < (offset + pfClusterSoA[i].rhfracSize()) && k >= 0;
            k++) {  // Looping over PFRecHits in the same topo cluster
       if (pfRecHitFractionSoA[k].pfrhIdx() < nRH && pfRecHitFractionSoA[k].pfrhIdx() > -1 &&
             pfRecHitFractionSoA[k].frac() > 0.0) {
-        const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechitsHandle, pfRecHitFractionSoA[k].pfrhIdx());
-        temp.addRecHitFraction(reco::PFRecHitFraction(refhit, pfRecHitFractionSoA[k].frac()));
+        const ::reco::PFRecHitRef& refhit = ::reco::PFRecHitRef(rechitsHandle, pfRecHitFractionSoA[k].pfrhIdx());
+        temp.addRecHitFraction(::reco::PFRecHitFraction(refhit, pfRecHitFractionSoA[k].frac()));
       }
     }
 
