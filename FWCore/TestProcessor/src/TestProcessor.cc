@@ -429,11 +429,11 @@ namespace edm {
                                    preallocations_.numberOfLuminosityBlocks(),
                                    preallocations_.numberOfRuns(),
                                    preallocations_.numberOfThreads());
-      actReg_->preallocateSignal_(bounds);
+      actReg_->preallocateSignal_.emit(bounds);
       schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
 
       espController_->finishConfiguration();
-      actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
+      actReg_->eventSetupConfigurationSignal_.emit(esp_->recordsToResolverIndices(), processContext_);
 
       schedule_->beginJob(
           *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, processContext_.processName());
@@ -687,9 +687,9 @@ namespace edm {
         schedule_->endStream(i, c, collectorMutex);
       }
       auto actReg = actReg_.get();
-      c.call([actReg]() { actReg->preEndJobSignal_(); });
+      c.call([actReg]() { actReg->preEndJobSignal_.emit(); });
       schedule_->endJob(c);
-      c.call([actReg]() { actReg->postEndJobSignal_(); });
+      c.call([actReg]() { actReg->postEndJobSignal_.emit(); });
       if (c.hasThrown()) {
         c.rethrow();
       }
