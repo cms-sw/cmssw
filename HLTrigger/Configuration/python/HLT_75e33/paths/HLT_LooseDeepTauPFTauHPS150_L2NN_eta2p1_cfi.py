@@ -12,7 +12,6 @@ from ..sequences.HLTPFTauHPS_cfi import *
 from ..sequences.HLTHPSDeepTauPFTauSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..modules.hltL1SingleNNTau150_cfi import *
-from ..modules.hltPreLooseDeepTauPFTauHPS150L2NNeta2p1_cfi import *
 from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterECALUncorrectedUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterECALUnseeded_cfi import *
@@ -22,8 +21,7 @@ from ..modules.hltHpsPFTau150LooseTauWPDeepTau_cfi import *
 
 HLT_LooseDeepTauPFTauHPS150_L2NN_eta2p1 = cms.Path(
     HLTBeginSequence 
-    + hltL1SingleNNTau150
-    + hltPreLooseDeepTauPFTauHPS150L2NNeta2p1                               
+    + hltL1SingleNNTau150                              
     + HLTRawToDigiSequence 
     + HLTTICLLocalRecoSequence 
     + HLTLocalrecoSequence 
