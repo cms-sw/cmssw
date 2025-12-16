@@ -12,10 +12,10 @@
 namespace {
 
   template <typename T>
-  T& operator<<(T& out, std::vector<double> const& values) {
+  decltype(auto) operator<<(T&& out, std::vector<double> const& values) {
     if (values.empty()) {
       out << "{}";
-      return out;
+      return std::forward<T>(out);
     }
 
     auto it = values.begin();
@@ -26,7 +26,7 @@ namespace {
       ++it;
     }
     out << " }";
-    return out;
+    return std::forward<T>(out);
   }
 
 }  // namespace
