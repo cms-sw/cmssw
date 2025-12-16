@@ -80,8 +80,6 @@ private:
  * thread to timeout).
  */
 class QueryAttrHandler : public XrdCl::ResponseHandler {
-  friend std::unique_ptr<QueryAttrHandler> std::make_unique<QueryAttrHandler>();
-
 public:
   QueryAttrHandler() = delete;
   ~QueryAttrHandler() override = default;
