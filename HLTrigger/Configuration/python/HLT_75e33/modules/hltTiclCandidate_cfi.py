@@ -47,3 +47,17 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     useTimingAverage = cms.bool(False)
 )
 
+from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticlv5TrackLinkingGNN
+ticlv5TrackLinkingGNN.toModify(
+    hltTiclCandidate, interpretationDescPSet = cms.PSet(
+        algo_verbosity = cms.int32(0),
+    cutTk = cms.string('1.48 < abs(eta) < 3.0 && pt > 1. && quality("highPurity") && hitPattern().numberOfLostHits("MISSING_OUTER_HITS") < 5'),
+        onnxTrkLinkingModelFirstDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/FirstDiskPropGNN_v0.onnx'),
+        onnxTrkLinkingModelInterfaceDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/InterfaceDiskPropGNN_v0.onnx'),
+        inputNames = cms.vstring('x', 'edge_index', 'edge_attr'),
+        output = cms.vstring('output'),
+        delta_tk_ts = cms.double(0.1),
+        thr_gnn = cms.double(0.5),
+        type = cms.string('GNNLink')
+    )
+)
