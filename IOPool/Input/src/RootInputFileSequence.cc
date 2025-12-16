@@ -9,8 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/StatisticsSenderService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TSystem.h"

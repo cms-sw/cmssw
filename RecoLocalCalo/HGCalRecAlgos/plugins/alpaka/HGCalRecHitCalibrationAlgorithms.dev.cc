@@ -177,8 +177,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         bool is_negative_surr_energy(recHits[idx + offset].energy() < 0);
         auto negative_energy_correction = (-1.0 * recHits[idx + offset].energy()) * is_negative_surr_energy;
+        auto negative_mipEnergy_correction = (-1.0 * recHits[idx + offset].mipEnergy()) * is_negative_surr_energy;
 
         recHits[idx + offset].energy() += (negative_energy_correction + recHits[idx].energy());
+        recHits[idx + offset].mipEnergy() += (negative_mipEnergy_correction + recHits[idx].mipEnergy());
+        float quadratic_noise_sum = sqrt(recHits[idx].sigmaNoise() * recHits[idx].sigmaNoise() +
+                                         recHits[idx + offset].sigmaNoise() * recHits[idx + offset].sigmaNoise());
+        recHits[idx + offset].sigmaNoise() = quadratic_noise_sum;
       }
     }
   };

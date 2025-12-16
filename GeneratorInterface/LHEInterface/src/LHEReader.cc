@@ -22,9 +22,9 @@
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
-#include "Utilities/StorageFactory/interface/IOTypes.h"
-#include "Utilities/StorageFactory/interface/Storage.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/IOTypes.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 #include "XMLUtils.h"
 

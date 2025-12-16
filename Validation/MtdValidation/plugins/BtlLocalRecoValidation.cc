@@ -372,6 +372,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       (simHitIt->second).x = hit_pos.x();
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();
+
+      (simHitIt->second).thetaAtEntry = simHit.thetaAtEntry();
     }
 
   }  // simHit loop

@@ -61,38 +61,54 @@ DTClusAnalyzer::DTClusAnalyzer(const ParameterSet& pset) : _ev(0) {
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  bool dirStat = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(kTRUE);
 
   /// DT histos
   new TH1F("hnClus", "Num 1d clus ", 50, 0., 50.);
+  histo("hnClus")->SetDirectory(theFile);
   new TH1F("hClusPosX", "Local Pos Cluster :x(cm)", 100, -300., 300.);
+  histo("hClusPosX")->SetDirectory(theFile);
   new TH1F("hClusRms", "Width clus ", 100, 0., 20.);
+  histo("hClusRms")->SetDirectory(theFile);
   new TH1F("hClusNHits", "# Hits clus ", 30, 0., 30.);
+  histo("hClusNHits")->SetDirectory(theFile);
 
   new TH1F("hnHit", "Num 1d Hits ", 100, 0., 100.);
+  histo("hnHit")->SetDirectory(theFile);
 
   new TH1F("hnSeg", "Num 1d seg ", 50, 0., 50.);
+  histo("hnSeg")->SetDirectory(theFile);
   new TH1F("hSegPosX", "Local Pos seg :x(cm)", 100, -300., 300.);
+  histo("hSegPosX")->SetDirectory(theFile);
   new TH1F("hSegRms", "Width seg ", 100, 0., 1.);
+  histo("hSegRms")->SetDirectory(theFile);
   new TH1F("hSegNHits", "# Hits seg ", 10, 0., 10.);
+  histo("hSegNHits")->SetDirectory(theFile);
 
   new TH2F("hnClusVsSegs", "# clus vs # segs", 30, 0, 30, 30, 0, 30);
+  histo("hnClusVsSegs")->SetDirectory(theFile);
   new TH2F("hnClusVsHits", "# clus vs # hits", 100, 0, 100, 30, 0, 30);
+  histo("hnClusVsHits")->SetDirectory(theFile);
 
   // per SL
   new TH1F("hnHitSL", "Num 1d hits per SL", 100, 0., 100.);
+  histo("hnHitSL")->SetDirectory(theFile);
   new TH1F("hnClusSL", "Num 1d clus per SL", 10, 0., 10.);
+  histo("hnClusSL")->SetDirectory(theFile);
   new TH1F("hnSegSL", "Num 2d seg per SL", 10, 0., 10.);
+  histo("hnSegSL")->SetDirectory(theFile);
 
   new TH2F("hnClusVsSegsSL", "# clus vs # segs per SL", 30, 0, 30, 30, 0, 30);
+  histo("hnClusVsSegsSL")->SetDirectory(theFile);
   new TH2F("hnClusVsHitsSL", "# clus vs # hits per SL", 100, 0, 100, 30, 0, 30);
+  histo("hnClusVsHitsSL")->SetDirectory(theFile);
 
   new TH1F("hClusSegDistSL", "#Delta x (clus segs) per SL", 100, -20, 20);
+  histo("hClusSegDistSL")->SetDirectory(theFile);
   new TH2F("hClusVsSegPosSL", "X (clus vs segs) per SL", 100, -300, 300, 100, -300, 300);
+  histo("hClusVsSegPosSL")->SetDirectory(theFile);
 
   new TH2F("hClusVsSegHitSL", "#hits (clus vs segs) per SL", 20, 0, 20, 20, 0, 20);
-  TH1::AddDirectory(dirStat);
+  histo("hClusVsSegHitSL")->SetDirectory(theFile);
 }
 
 /* Destructor */

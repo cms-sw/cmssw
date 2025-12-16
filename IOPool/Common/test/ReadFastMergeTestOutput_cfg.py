@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("READTESTMERGE")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-from IOPool.TFileAdaptor.modules import AdaptorConfig
+from FWStorage.TFileAdaptor.modules import AdaptorConfig
 process.add_(AdaptorConfig(stats = False))
 
 process.maxEvents.input = -1

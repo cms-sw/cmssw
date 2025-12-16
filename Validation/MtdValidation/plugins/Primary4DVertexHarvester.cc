@@ -305,18 +305,25 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   meEndcapTrueKAsP_Eta[1] = igetter.get(folder_ + "EndcapTrueKAsP_highEta");
   meEndcapTruePAsP_Eta[1] = igetter.get(folder_ + "EndcapTruePAsP_highEta");
 
-  if (!meBarrelPIDp || !meEndcapPIDp || !meBarrelTruePiNoPID || !meBarrelTrueKNoPID || !meBarrelTruePNoPID ||
-      !meEndcapTruePiNoPID || !meEndcapTrueKNoPID || !meEndcapTruePNoPID || !meBarrelTruePiAsPi || !meBarrelTrueKAsPi ||
-      !meBarrelTruePAsPi || !meEndcapTruePiAsPi || !meEndcapTrueKAsPi || !meEndcapTruePAsPi || !meBarrelTruePiAsK ||
-      !meBarrelTrueKAsK || !meBarrelTruePAsK || !meEndcapTruePiAsK || !meEndcapTrueKAsK || !meEndcapTruePAsK ||
-      !meBarrelTruePiAsP || !meBarrelTrueKAsP || !meBarrelTruePAsP || !meEndcapTruePiAsP || !meEndcapTrueKAsP ||
-      !meEndcapTruePAsP || !meEndcapTruePiNoPID_Eta[0] || !meEndcapTrueKNoPID_Eta[0] || !meEndcapTruePNoPID_Eta[0] ||
+  bool optionalPidPlots = true;
+  if (!meEndcapTruePiNoPID_Eta[0] || !meEndcapTrueKNoPID_Eta[0] || !meEndcapTruePNoPID_Eta[0] ||
       !meEndcapTruePiNoPID_Eta[1] || !meEndcapTrueKNoPID_Eta[1] || !meEndcapTruePNoPID_Eta[1] ||
       !meEndcapTruePiAsPi_Eta[0] || !meEndcapTrueKAsPi_Eta[0] || !meEndcapTruePAsPi_Eta[0] ||
       !meEndcapTruePiAsPi_Eta[1] || !meEndcapTrueKAsPi_Eta[1] || !meEndcapTruePAsPi_Eta[1] ||
       !meEndcapTruePiAsK_Eta[0] || !meEndcapTrueKAsK_Eta[0] || !meEndcapTruePAsK_Eta[0] || !meEndcapTruePiAsK_Eta[1] ||
       !meEndcapTrueKAsK_Eta[1] || !meEndcapTruePAsK_Eta[1] || !meEndcapTruePiAsP_Eta[0] || !meEndcapTrueKAsP_Eta[0] ||
       !meEndcapTruePAsP_Eta[0] || !meEndcapTruePiAsP_Eta[1] || !meEndcapTrueKAsP_Eta[1] || !meEndcapTruePAsP_Eta[1]) {
+    optionalPidPlots = false;
+    edm::LogInfo("Primary4DVertexHarvester")
+        << "Monitoring histograms for ETL PID vs Eta in optional plots!" << std::endl;
+  }
+
+  if (!meBarrelPIDp || !meEndcapPIDp || !meBarrelTruePiNoPID || !meBarrelTrueKNoPID || !meBarrelTruePNoPID ||
+      !meEndcapTruePiNoPID || !meEndcapTrueKNoPID || !meEndcapTruePNoPID || !meBarrelTruePiAsPi || !meBarrelTrueKAsPi ||
+      !meBarrelTruePAsPi || !meEndcapTruePiAsPi || !meEndcapTrueKAsPi || !meEndcapTruePAsPi || !meBarrelTruePiAsK ||
+      !meBarrelTrueKAsK || !meBarrelTruePAsK || !meEndcapTruePiAsK || !meEndcapTrueKAsK || !meEndcapTruePAsK ||
+      !meBarrelTruePiAsP || !meBarrelTrueKAsP || !meBarrelTruePAsP || !meEndcapTruePiAsP || !meEndcapTrueKAsP ||
+      !meEndcapTruePAsP) {
     edm::LogWarning("Primary4DVertexHarvester") << "PID Monitoring histograms not found!" << std::endl;
     return;
   }
@@ -694,190 +701,192 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   computeEfficiency1D(meEndcapTruePAsP, meEndcapAsP_, meEndcapPPurity_);
 
   // additional plots to study PID in regions of ETL
-  for (int i = 0; i < 2; i++) {
-    std::string suffix = "lowEta";
-    if (i == 1)
-      suffix = "highEta";
+  if (optionalPidPlots) {
+    for (int i = 0; i < 2; i++) {
+      std::string suffix = "lowEta";
+      if (i == 1)
+        suffix = "highEta";
 
-    meEndcapTruePi_Eta_[i] = ibook.book1D(Form("EndcapTruePi_%s", suffix.c_str()),
-                                          "Endcap True Pi P;P [GeV]",
-                                          meEndcapPIDp->getNbinsX(),
-                                          meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                          meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    incrementME(meEndcapTruePi_Eta_[i], meEndcapTruePiAsPi_Eta[i]);
-    incrementME(meEndcapTruePi_Eta_[i], meEndcapTruePiAsK_Eta[i]);
-    incrementME(meEndcapTruePi_Eta_[i], meEndcapTruePiAsP_Eta[i]);
-    incrementME(meEndcapTruePi_Eta_[i], meEndcapTruePiNoPID_Eta[i]);
-
-    meEndcapTrueK_Eta_[i] = ibook.book1D(Form("EndcapTrueK_%s", suffix.c_str()),
-                                         "Endcap True K P;P [GeV]",
-                                         meEndcapPIDp->getNbinsX(),
-                                         meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                         meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    incrementME(meEndcapTrueK_Eta_[i], meEndcapTrueKAsPi_Eta[i]);
-    incrementME(meEndcapTrueK_Eta_[i], meEndcapTrueKAsK_Eta[i]);
-    incrementME(meEndcapTrueK_Eta_[i], meEndcapTrueKAsP_Eta[i]);
-    incrementME(meEndcapTrueK_Eta_[i], meEndcapTrueKNoPID_Eta[i]);
-
-    meEndcapTrueP_Eta_[i] = ibook.book1D(Form("EndcapTrueP_%s", suffix.c_str()),
-                                         "Endcap True P P;P [GeV]",
-                                         meEndcapPIDp->getNbinsX(),
-                                         meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                         meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    incrementME(meEndcapTrueP_Eta_[i], meEndcapTruePAsPi_Eta[i]);
-    incrementME(meEndcapTrueP_Eta_[i], meEndcapTruePAsK_Eta[i]);
-    incrementME(meEndcapTrueP_Eta_[i], meEndcapTruePAsP_Eta[i]);
-    incrementME(meEndcapTrueP_Eta_[i], meEndcapTruePNoPID_Eta[i]);
-
-    meEndcapPIDPiAsPiEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPiAsPiEff_%s", suffix.c_str()),
-                                                "Endcap True pi as pi id. fraction VS P;P [GeV]",
-                                                meEndcapPIDp->getNbinsX(),
-                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDPiAsPiEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePiAsPi_Eta[i], meEndcapTruePi_Eta_[i], meEndcapPIDPiAsPiEff_Eta_[i]);
-
-    meEndcapPIDPiAsKEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPiAsKEff_%s", suffix.c_str()),
-                                               "Endcap True pi as k id. fraction VS P;P [GeV]",
-                                               meEndcapPIDp->getNbinsX(),
-                                               meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                               meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDPiAsKEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePiAsK_Eta[i], meEndcapTruePi_Eta_[i], meEndcapPIDPiAsKEff_Eta_[i]);
-
-    meEndcapPIDPiAsPEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPiAsPEff_%s", suffix.c_str()),
-                                               "Endcap True pi as p id. fraction VS P;P [GeV]",
-                                               meEndcapPIDp->getNbinsX(),
-                                               meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                               meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDPiAsPEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePiAsP_Eta[i], meEndcapTruePi_Eta_[i], meEndcapPIDPiAsPEff_Eta_[i]);
-
-    meEndcapPIDPiNoPIDEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPiNoPIDEff_%s", suffix.c_str()),
-                                                 "Endcap True pi no PID id. fraction VS P;P [GeV]",
-                                                 meEndcapPIDp->getNbinsX(),
-                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDPiNoPIDEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePiNoPID_Eta[i], meEndcapTruePi_Eta_[i], meEndcapPIDPiNoPIDEff_Eta_[i]);
-
-    //
-    meEndcapPIDKAsPiEff_Eta_[i] = ibook.book1D(Form("EndcapPIDKAsPiEff_%s", suffix.c_str()),
-                                               "Endcap True k as pi id. fraction VS P;P [GeV]",
-                                               meEndcapPIDp->getNbinsX(),
-                                               meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                               meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDKAsPiEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTrueKAsPi_Eta[i], meEndcapTrueK_Eta_[i], meEndcapPIDKAsPiEff_Eta_[i]);
-
-    meEndcapPIDKAsKEff_Eta_[i] = ibook.book1D(Form("EndcapPIDKAsKEff_%s", suffix.c_str()),
-                                              "Endcap True k as k id. fraction VS P;P [GeV]",
-                                              meEndcapPIDp->getNbinsX(),
-                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDKAsKEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTrueKAsK_Eta[i], meEndcapTrueK_Eta_[i], meEndcapPIDKAsKEff_Eta_[i]);
-
-    meEndcapPIDKAsPEff_Eta_[i] = ibook.book1D(Form("EndcapPIDKAsPEff_%s", suffix.c_str()),
-                                              "Endcap True k as p id. fraction VS P;P [GeV]",
-                                              meEndcapPIDp->getNbinsX(),
-                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDKAsPEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTrueKAsP_Eta[i], meEndcapTrueK_Eta_[i], meEndcapPIDKAsPEff_Eta_[i]);
-
-    meEndcapPIDKNoPIDEff_Eta_[i] = ibook.book1D(Form("EndcapPIDKNoPIDEff_%s", suffix.c_str()),
-                                                "Endcap True k no PID id. fraction VS P;P [GeV]",
-                                                meEndcapPIDp->getNbinsX(),
-                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDKNoPIDEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTrueKNoPID_Eta[i], meEndcapTrueK_Eta_[i], meEndcapPIDKNoPIDEff_Eta_[i]);
-
-    //
-    meEndcapPIDPAsPiEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPAsPiEff_%s", suffix.c_str()),
-                                               "Endcap True p as pi id. fraction VS P;P [GeV]",
-                                               meEndcapPIDp->getNbinsX(),
-                                               meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                               meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDPAsPiEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePAsPi_Eta[i], meEndcapTrueP_Eta_[i], meEndcapPIDPAsPiEff_Eta_[i]);
-
-    meEndcapPIDPAsKEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPAsKEff_%s", suffix.c_str()),
-                                              "Endcap True p as k id. fraction VS P;P [GeV]",
-                                              meEndcapPIDp->getNbinsX(),
-                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDPAsKEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePAsK_Eta[i], meEndcapTrueP_Eta_[i], meEndcapPIDPAsKEff_Eta_[i]);
-
-    meEndcapPIDPAsPEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPAsPEff_%s", suffix.c_str()),
-                                              "Endcap True p as p id. fraction VS P;P [GeV]",
-                                              meEndcapPIDp->getNbinsX(),
-                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDPAsPEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePAsP_Eta[i], meEndcapTrueP_Eta_[i], meEndcapPIDPAsPEff_Eta_[i]);
-
-    meEndcapPIDPNoPIDEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPNoPIDEff_%s", suffix.c_str()),
-                                                "Endcap True p no PID id. fraction VS P;P [GeV]",
-                                                meEndcapPIDp->getNbinsX(),
-                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPIDPNoPIDEff_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePNoPID_Eta[i], meEndcapTrueP_Eta_[i], meEndcapPIDPNoPIDEff_Eta_[i]);
-
-    // purity
-    meEndcapAsPi_Eta_[i] = ibook.book1D(Form("EndcapAsPi_%s", suffix.c_str()),
-                                        "Endcap Identified Pi P;P [GeV]",
-                                        meEndcapPIDp->getNbinsX(),
-                                        meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                        meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    incrementME(meEndcapAsPi_Eta_[i], meEndcapTruePiAsPi_Eta[i]);
-    incrementME(meEndcapAsPi_Eta_[i], meEndcapTrueKAsPi_Eta[i]);
-    incrementME(meEndcapAsPi_Eta_[i], meEndcapTruePAsPi_Eta[i]);
-
-    meEndcapAsK_Eta_[i] = ibook.book1D(Form("EndcapAsK_%s", suffix.c_str()),
-                                       "Endcap Identified k P;P [GeV]",
-                                       meEndcapPIDp->getNbinsX(),
-                                       meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                       meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    incrementME(meEndcapAsK_Eta_[i], meEndcapTruePiAsK_Eta[i]);
-    incrementME(meEndcapAsK_Eta_[i], meEndcapTrueKAsK_Eta[i]);
-    incrementME(meEndcapAsK_Eta_[i], meEndcapTruePAsK_Eta[i]);
-
-    meEndcapAsP_Eta_[i] = ibook.book1D(Form("EndcapAsP_%s", suffix.c_str()),
-                                       "Endcap Identified p P;P [GeV]",
-                                       meEndcapPIDp->getNbinsX(),
-                                       meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
-                                       meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    incrementME(meEndcapAsP_Eta_[i], meEndcapTruePiAsP_Eta[i]);
-    incrementME(meEndcapAsP_Eta_[i], meEndcapTrueKAsP_Eta[i]);
-    incrementME(meEndcapAsP_Eta_[i], meEndcapTruePAsP_Eta[i]);
-
-    meEndcapPiPurity_Eta_[i] = ibook.book1D(Form("EndcapPiPurity_%s", suffix.c_str()),
-                                            "Endcap pi id. fraction true pi VS P;P [GeV]",
+      meEndcapTruePi_Eta_[i] = ibook.book1D(Form("EndcapTruePi_%s", suffix.c_str()),
+                                            "Endcap True Pi P;P [GeV]",
                                             meEndcapPIDp->getNbinsX(),
                                             meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
                                             meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPiPurity_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePiAsPi_Eta[i], meEndcapAsPi_Eta_[i], meEndcapPiPurity_Eta_[i]);
+      incrementME(meEndcapTruePi_Eta_[i], meEndcapTruePiAsPi_Eta[i]);
+      incrementME(meEndcapTruePi_Eta_[i], meEndcapTruePiAsK_Eta[i]);
+      incrementME(meEndcapTruePi_Eta_[i], meEndcapTruePiAsP_Eta[i]);
+      incrementME(meEndcapTruePi_Eta_[i], meEndcapTruePiNoPID_Eta[i]);
 
-    meEndcapKPurity_Eta_[i] = ibook.book1D(Form("EndcapKPurity_%s", suffix.c_str()),
-                                           "Endcap k id. fraction true k VS P;P [GeV]",
+      meEndcapTrueK_Eta_[i] = ibook.book1D(Form("EndcapTrueK_%s", suffix.c_str()),
+                                           "Endcap True K P;P [GeV]",
                                            meEndcapPIDp->getNbinsX(),
                                            meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
                                            meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapKPurity_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTrueKAsK_Eta[i], meEndcapAsK_Eta_[i], meEndcapKPurity_Eta_[i]);
+      incrementME(meEndcapTrueK_Eta_[i], meEndcapTrueKAsPi_Eta[i]);
+      incrementME(meEndcapTrueK_Eta_[i], meEndcapTrueKAsK_Eta[i]);
+      incrementME(meEndcapTrueK_Eta_[i], meEndcapTrueKAsP_Eta[i]);
+      incrementME(meEndcapTrueK_Eta_[i], meEndcapTrueKNoPID_Eta[i]);
 
-    meEndcapPPurity_Eta_[i] = ibook.book1D(Form("EndcapPPurity_%s", suffix.c_str()),
-                                           "Endcap p id. fraction true p VS P;P [GeV]",
+      meEndcapTrueP_Eta_[i] = ibook.book1D(Form("EndcapTrueP_%s", suffix.c_str()),
+                                           "Endcap True P P;P [GeV]",
                                            meEndcapPIDp->getNbinsX(),
                                            meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
                                            meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
-    meEndcapPPurity_Eta_[i]->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meEndcapTruePAsP_Eta[i], meEndcapAsP_Eta_[i], meEndcapPPurity_Eta_[i]);
+      incrementME(meEndcapTrueP_Eta_[i], meEndcapTruePAsPi_Eta[i]);
+      incrementME(meEndcapTrueP_Eta_[i], meEndcapTruePAsK_Eta[i]);
+      incrementME(meEndcapTrueP_Eta_[i], meEndcapTruePAsP_Eta[i]);
+      incrementME(meEndcapTrueP_Eta_[i], meEndcapTruePNoPID_Eta[i]);
+
+      meEndcapPIDPiAsPiEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPiAsPiEff_%s", suffix.c_str()),
+                                                  "Endcap True pi as pi id. fraction VS P;P [GeV]",
+                                                  meEndcapPIDp->getNbinsX(),
+                                                  meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                  meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDPiAsPiEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePiAsPi_Eta[i], meEndcapTruePi_Eta_[i], meEndcapPIDPiAsPiEff_Eta_[i]);
+
+      meEndcapPIDPiAsKEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPiAsKEff_%s", suffix.c_str()),
+                                                 "Endcap True pi as k id. fraction VS P;P [GeV]",
+                                                 meEndcapPIDp->getNbinsX(),
+                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDPiAsKEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePiAsK_Eta[i], meEndcapTruePi_Eta_[i], meEndcapPIDPiAsKEff_Eta_[i]);
+
+      meEndcapPIDPiAsPEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPiAsPEff_%s", suffix.c_str()),
+                                                 "Endcap True pi as p id. fraction VS P;P [GeV]",
+                                                 meEndcapPIDp->getNbinsX(),
+                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDPiAsPEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePiAsP_Eta[i], meEndcapTruePi_Eta_[i], meEndcapPIDPiAsPEff_Eta_[i]);
+
+      meEndcapPIDPiNoPIDEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPiNoPIDEff_%s", suffix.c_str()),
+                                                   "Endcap True pi no PID id. fraction VS P;P [GeV]",
+                                                   meEndcapPIDp->getNbinsX(),
+                                                   meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                   meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDPiNoPIDEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePiNoPID_Eta[i], meEndcapTruePi_Eta_[i], meEndcapPIDPiNoPIDEff_Eta_[i]);
+
+      //
+      meEndcapPIDKAsPiEff_Eta_[i] = ibook.book1D(Form("EndcapPIDKAsPiEff_%s", suffix.c_str()),
+                                                 "Endcap True k as pi id. fraction VS P;P [GeV]",
+                                                 meEndcapPIDp->getNbinsX(),
+                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDKAsPiEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTrueKAsPi_Eta[i], meEndcapTrueK_Eta_[i], meEndcapPIDKAsPiEff_Eta_[i]);
+
+      meEndcapPIDKAsKEff_Eta_[i] = ibook.book1D(Form("EndcapPIDKAsKEff_%s", suffix.c_str()),
+                                                "Endcap True k as k id. fraction VS P;P [GeV]",
+                                                meEndcapPIDp->getNbinsX(),
+                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDKAsKEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTrueKAsK_Eta[i], meEndcapTrueK_Eta_[i], meEndcapPIDKAsKEff_Eta_[i]);
+
+      meEndcapPIDKAsPEff_Eta_[i] = ibook.book1D(Form("EndcapPIDKAsPEff_%s", suffix.c_str()),
+                                                "Endcap True k as p id. fraction VS P;P [GeV]",
+                                                meEndcapPIDp->getNbinsX(),
+                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDKAsPEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTrueKAsP_Eta[i], meEndcapTrueK_Eta_[i], meEndcapPIDKAsPEff_Eta_[i]);
+
+      meEndcapPIDKNoPIDEff_Eta_[i] = ibook.book1D(Form("EndcapPIDKNoPIDEff_%s", suffix.c_str()),
+                                                  "Endcap True k no PID id. fraction VS P;P [GeV]",
+                                                  meEndcapPIDp->getNbinsX(),
+                                                  meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                  meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDKNoPIDEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTrueKNoPID_Eta[i], meEndcapTrueK_Eta_[i], meEndcapPIDKNoPIDEff_Eta_[i]);
+
+      //
+      meEndcapPIDPAsPiEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPAsPiEff_%s", suffix.c_str()),
+                                                 "Endcap True p as pi id. fraction VS P;P [GeV]",
+                                                 meEndcapPIDp->getNbinsX(),
+                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                 meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDPAsPiEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePAsPi_Eta[i], meEndcapTrueP_Eta_[i], meEndcapPIDPAsPiEff_Eta_[i]);
+
+      meEndcapPIDPAsKEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPAsKEff_%s", suffix.c_str()),
+                                                "Endcap True p as k id. fraction VS P;P [GeV]",
+                                                meEndcapPIDp->getNbinsX(),
+                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDPAsKEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePAsK_Eta[i], meEndcapTrueP_Eta_[i], meEndcapPIDPAsKEff_Eta_[i]);
+
+      meEndcapPIDPAsPEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPAsPEff_%s", suffix.c_str()),
+                                                "Endcap True p as p id. fraction VS P;P [GeV]",
+                                                meEndcapPIDp->getNbinsX(),
+                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDPAsPEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePAsP_Eta[i], meEndcapTrueP_Eta_[i], meEndcapPIDPAsPEff_Eta_[i]);
+
+      meEndcapPIDPNoPIDEff_Eta_[i] = ibook.book1D(Form("EndcapPIDPNoPIDEff_%s", suffix.c_str()),
+                                                  "Endcap True p no PID id. fraction VS P;P [GeV]",
+                                                  meEndcapPIDp->getNbinsX(),
+                                                  meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                                  meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPIDPNoPIDEff_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePNoPID_Eta[i], meEndcapTrueP_Eta_[i], meEndcapPIDPNoPIDEff_Eta_[i]);
+
+      // purity
+      meEndcapAsPi_Eta_[i] = ibook.book1D(Form("EndcapAsPi_%s", suffix.c_str()),
+                                          "Endcap Identified Pi P;P [GeV]",
+                                          meEndcapPIDp->getNbinsX(),
+                                          meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                          meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      incrementME(meEndcapAsPi_Eta_[i], meEndcapTruePiAsPi_Eta[i]);
+      incrementME(meEndcapAsPi_Eta_[i], meEndcapTrueKAsPi_Eta[i]);
+      incrementME(meEndcapAsPi_Eta_[i], meEndcapTruePAsPi_Eta[i]);
+
+      meEndcapAsK_Eta_[i] = ibook.book1D(Form("EndcapAsK_%s", suffix.c_str()),
+                                         "Endcap Identified k P;P [GeV]",
+                                         meEndcapPIDp->getNbinsX(),
+                                         meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                         meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      incrementME(meEndcapAsK_Eta_[i], meEndcapTruePiAsK_Eta[i]);
+      incrementME(meEndcapAsK_Eta_[i], meEndcapTrueKAsK_Eta[i]);
+      incrementME(meEndcapAsK_Eta_[i], meEndcapTruePAsK_Eta[i]);
+
+      meEndcapAsP_Eta_[i] = ibook.book1D(Form("EndcapAsP_%s", suffix.c_str()),
+                                         "Endcap Identified p P;P [GeV]",
+                                         meEndcapPIDp->getNbinsX(),
+                                         meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                         meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      incrementME(meEndcapAsP_Eta_[i], meEndcapTruePiAsP_Eta[i]);
+      incrementME(meEndcapAsP_Eta_[i], meEndcapTrueKAsP_Eta[i]);
+      incrementME(meEndcapAsP_Eta_[i], meEndcapTruePAsP_Eta[i]);
+
+      meEndcapPiPurity_Eta_[i] = ibook.book1D(Form("EndcapPiPurity_%s", suffix.c_str()),
+                                              "Endcap pi id. fraction true pi VS P;P [GeV]",
+                                              meEndcapPIDp->getNbinsX(),
+                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                              meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPiPurity_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePiAsPi_Eta[i], meEndcapAsPi_Eta_[i], meEndcapPiPurity_Eta_[i]);
+
+      meEndcapKPurity_Eta_[i] = ibook.book1D(Form("EndcapKPurity_%s", suffix.c_str()),
+                                             "Endcap k id. fraction true k VS P;P [GeV]",
+                                             meEndcapPIDp->getNbinsX(),
+                                             meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                             meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapKPurity_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTrueKAsK_Eta[i], meEndcapAsK_Eta_[i], meEndcapKPurity_Eta_[i]);
+
+      meEndcapPPurity_Eta_[i] = ibook.book1D(Form("EndcapPPurity_%s", suffix.c_str()),
+                                             "Endcap p id. fraction true p VS P;P [GeV]",
+                                             meEndcapPIDp->getNbinsX(),
+                                             meEndcapPIDp->getTH1()->GetXaxis()->GetXmin(),
+                                             meEndcapPIDp->getTH1()->GetXaxis()->GetXmax());
+      meEndcapPPurity_Eta_[i]->getTH1()->SetMinimum(0.);
+      computeEfficiency1D(meEndcapTruePAsP_Eta[i], meEndcapAsP_Eta_[i], meEndcapPPurity_Eta_[i]);
+    }
   }
 }
 

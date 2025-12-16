@@ -83,66 +83,107 @@ DTSegAnalyzer::DTSegAnalyzer(const ParameterSet& pset)
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  bool dirStat = TH1::AddDirectoryStatus();
-  TH1::AddDirectory(kTRUE);
 
   /// DT histos
   // 1d hits
   new TH1F("hnHitDT", "Num 1d hits DT", 200, 0., 200.);
+  histo("hnHitDT")->SetDirectory(theFile);
   new TH1F("hDigiTime", "Digi time (ns)", 700, -100., 600.);
+  histo("hDigiTime")->SetDirectory(theFile);
   // new TH1F("hMeanTimerSL","Mean timer per SL (ns)",100,200.,600.);
+  // histo("hMeanTimerSL")->SetDirectory(theFile);
   // new TH1F("hDigiTimeSL", "Digi Time (ns) ",100,-100.,600.);
+  // histo("hDigiTimeSL")->SetDirectory(theFile);
 
   new TH1F("hPosLeft", "Pos of Left hit (cm) in local frame", 100, -220., 220.);
+  histo("hPosLeft")->SetDirectory(theFile);
   new TH1F("hPosRight", "Pos of Right hit (cm) in local frame", 100, -220., 220.);
+  histo("hPosRight")->SetDirectory(theFile);
   new TH1F("hMeanTimer", "Tmax ", 100, 200., 600.);
+  histo("hMeanTimer")->SetDirectory(theFile);
   new TH1F("hMeanTimerSeg", "Tmax from segments hits ", 100, 200., 600.);
+  histo("hMeanTimerSeg")->SetDirectory(theFile);
   new TH2F("hMeanTimerSegAlongWire", "Tmax from segments hits vs pos along wire ", 40, -150., 150, 100, 200., 600.);
+  histo("hMeanTimerSegAlongWire")->SetDirectory(theFile);
   new TH2F("hMeanTimerSegVsAngle", "Tmax from segments hits vs angle ", 40, -0., 1.0, 100, 200., 600.);
+  histo("hMeanTimerSegVsAngle")->SetDirectory(theFile);
   new TH2F("hMeanTimerSegVsNHits", "Tmax from segments hits vs n hits segment ", 10, 0.5, 10.5, 100, 200., 600.);
+  histo("hMeanTimerSegVsNHits")->SetDirectory(theFile);
 
   // segs
   new TH1F("hnSegDT", "Num seg DT", 50, 0., 50.);
+  histo("hnSegDT")->SetDirectory(theFile);
   new TH1F("hNSegs", "N segments ", 20, 0., 20.);
+  histo("hNSegs")->SetDirectory(theFile);
   new TH1F("hChi2Seg", "Chi2 segments ", 25, 0., 25.);
+  histo("hChi2Seg")->SetDirectory(theFile);
   new TH1F("hChi2SegPhi", "Chi2 segments phi ", 25, 0., 25.);
+  histo("hChi2SegPhi")->SetDirectory(theFile);
   new TH1F("hChi2SegZed", "Chi2 segments zed ", 25, 0., 25.);
+  histo("hChi2SegZed")->SetDirectory(theFile);
   new TH1F("hNHitsSeg", "N hits segment ", 15, -0.5, 14.5);
+  histo("hNHitsSeg")->SetDirectory(theFile);
   new TH1F("hNHitsSegPhi", "N hits segment phi ", 12, -0.5, 11.5);
+  histo("hNHitsSegPhi")->SetDirectory(theFile);
   new TH2F("hNHitsSegPhiVsAngle", "N hits segment phi vs angle ", 40, .0, 1.0, 12, -0.5, 11.5);
+  histo("hNHitsSegPhiVsAngle")->SetDirectory(theFile);
   new TH2F("hNHitsSegPhiVsOtherHits", "N hits segment phi vs hits in SLs ", 20, -0.5, 19.5, 12, -0.5, 11.5);
+  histo("hNHitsSegPhiVsOtherHits")->SetDirectory(theFile);
   new TH2F("hNHitsSegPhiVsNumSegs", "N hits segment zed vs num segs in ch ", 6, -0.5, 5.5, 12, -0.5, 11.5);
+  histo("hNHitsSegPhiVsNumSegs")->SetDirectory(theFile);
   new TH2F("hNHitsSegPhiVsChi2", "N hits segment zed vs chi2/NDoF ", 25, 0., 25., 12, -0.5, 11.5);
+  histo("hNHitsSegPhiVsChi2")->SetDirectory(theFile);
   new TH1F("hNHitsSegZed", "N hits segment zed ", 10, -0.5, 9.5);
+  histo("hNHitsSegZed")->SetDirectory(theFile);
   new TH2F("hNHitsSegZedVsAngle", "N hits segment zed vs angle ", 40, .0, 1.0, 12, -0.5, 11.5);
+  histo("hNHitsSegZedVsAngle")->SetDirectory(theFile);
   new TH2F("hNHitsSegZedVsOtherHits", "N hits segment zed vs hits in SLs ", 20, -0.5, 19.5, 12, -0.5, 11.5);
+  histo("hNHitsSegZedVsOtherHits")->SetDirectory(theFile);
   new TH2F("hNHitsSegZedVsNumSegs", "N hits segment zed vs num segs in ch ", 6, -0.5, 5.5, 12, -0.5, 11.5);
+  histo("hNHitsSegZedVsNumSegs")->SetDirectory(theFile);
   new TH2F("hNHitsSegZedVsChi2", "N hits segment zed vs chi2/NDoF ", 25, 0., 25., 12, -0.5, 11.5);
+  histo("hNHitsSegZedVsChi2")->SetDirectory(theFile);
 
   new TH1F("hHitResidualSeg", "Hits residual wrt segments ", 100, -.2, +.2);
+  histo("hHitResidualSeg")->SetDirectory(theFile);
   new TH1F("hHitResidualSegCellDX", "Hits residual wrt segments semicell DX ", 100, -.2, +.2);
+  histo("hHitResidualSegCellDX")->SetDirectory(theFile);
   new TH1F("hHitResidualSegCellSX", "Hits residual wrt segments semicell SX", 100, -.2, +.2);
+  histo("hHitResidualSegCellSX")->SetDirectory(theFile);
   new TH2F("hHitResidualSegAlongWire", "Hits residual wrt segments vs pos along wire ", 40, -150., 150, 100, -.2, +.2);
+  histo("hHitResidualSegAlongWire")->SetDirectory(theFile);
   new TH2F("hHitResidualSegVsWireDis", "Hits residual wrt segments vs wire distance ", 40, 0., 2.1, 100, -.2, +.2);
+  histo("hHitResidualSegVsWireDis")->SetDirectory(theFile);
   new TH2F("hHitResidualSegVsAngle", "Hits residual wrt segments vs impact angle ", 40, .0, 1.0, 100, -.2, +.2);
+  histo("hHitResidualSegVsAngle")->SetDirectory(theFile);
   new TH2F("hHitResidualSegVsNHits", "Hits residual wrt segments vs num hits ", 10, -0.5, 9.5, 100, -.2, +.2);
+  histo("hHitResidualSegVsNHits")->SetDirectory(theFile);
   new TH2F("hHitResidualSegVsChi2", "Hits residual wrt segments vs chi2 ", 25, .0, 25.0, 100, -.2, +.2);
+  histo("hHitResidualSegVsChi2")->SetDirectory(theFile);
   new TH2F("hNsegs2dVsNhits", "N segs 2d vs n Hits ", 20, -0.5, 19.5, 5, -0.5, 4.5);
+  histo("hNsegs2dVsNhits")->SetDirectory(theFile);
 
   // eff
   new TH2F("hNsegs4dVsNhits", "N segs 4d vs n Hits ", 20, 0.5, 20.5, 5, -0.5, 4.5);
+  histo("hNsegs4dVsNhits")->SetDirectory(theFile);
   new TH2F("hNsegs4dVsNhitsPhi", "N segs 4d vs n HitsPhi ", 20, 0.5, 20.5, 5, -0.5, 4.5);
+  histo("hNsegs4dVsNhitsPhi")->SetDirectory(theFile);
   new TH2F("hNsegs4dVsNhitsZed", "N segs 4d vs n HitsZed ", 20, 0.5, 20.5, 5, -0.5, 4.5);
+  histo("hNsegs4dVsNhitsZed")->SetDirectory(theFile);
 
   new TH2F("hNsegs4dVsNsegs2d", "N segs 4d vs n segs2d ", 4, 0.5, 4.5, 5, -0.5, 4.5);
+  histo("hNsegs4dVsNsegs2d")->SetDirectory(theFile);
   new TH2F("hNsegs4dVsNsegs2dPhi", "N segs 4d vs n segs2d Phi ", 4, 0.5, 4.5, 5, -0.5, 4.5);
+  histo("hNsegs4dVsNsegs2dPhi")->SetDirectory(theFile);
   new TH2F("hNsegs4dVsNsegs2dZed", "N segs 4d vs n segs2d Zed ", 4, 0.5, 4.5, 5, -0.5, 4.5);
+  histo("hNsegs4dVsNsegs2dZed")->SetDirectory(theFile);
 
   new TH2F("hNsegs2dSL1VsNsegs2dSL3", "N segs 2d SL1 vs SL3 ", 5, -0.5, 4.5, 5, -0.5, 4.5);
+  histo("hNsegs2dSL1VsNsegs2dSL3")->SetDirectory(theFile);
   new TH2F("hNsegs2dSL1VsNsegs2dSL2", "N segs 2d SL1 vs SL2 ", 5, -0.5, 4.5, 5, -0.5, 4.5);
+  histo("hNsegs2dSL1VsNsegs2dSL2")->SetDirectory(theFile);
   new TH2F("hNsegs2dSL2VsNsegs2dSL3", "N segs 2d SL2 vs SL3 ", 5, -0.5, 4.5, 5, -0.5, 4.5);
-
-  TH1::AddDirectory(dirStat);
+  histo("hNsegs2dSL2VsNsegs2dSL3")->SetDirectory(theFile);
 }
 
 /* Destructor */

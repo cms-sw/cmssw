@@ -84,13 +84,13 @@ public:
                              edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd>){};
 
   //max number of layers
-  unsigned int maxlayer_;
+  unsigned int maxlayer_ = 0;
   // last layer per subdetector
-  unsigned int lastLayerEE_;
-  unsigned int lastLayerFH_;
-  unsigned int firstLayerBH_;
-  int scintMaxIphi_;
-  bool isNose_;
+  unsigned int lastLayerEE_ = 0;
+  unsigned int lastLayerFH_ = 0;
+  unsigned int firstLayerBH_ = 0;
+  int scintMaxIphi_ = 0;
+  bool isNose_ = false;
 
 protected:
   // The verbosity level

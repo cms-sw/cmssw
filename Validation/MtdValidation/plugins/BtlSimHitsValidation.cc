@@ -199,6 +199,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].x = hit_pos.x();
       m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].y = hit_pos.y();
       m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].z = hit_pos.z();
+
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].thetaAtEntry = simHit.thetaAtEntry();
     }
 
   }  // simHit loop

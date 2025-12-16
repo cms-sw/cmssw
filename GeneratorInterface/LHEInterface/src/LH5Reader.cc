@@ -21,9 +21,9 @@
 //#include "GeneratorInterface/LHEInterface/code/HighFive/include/highfive/H5File.hpp"
 #include "GeneratorInterface/LHEInterface/interface/lheh5.h"
 
-#include "Utilities/StorageFactory/interface/IOTypes.h"
-#include "Utilities/StorageFactory/interface/Storage.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/IOTypes.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 namespace lhef {
   using namespace lheh5;

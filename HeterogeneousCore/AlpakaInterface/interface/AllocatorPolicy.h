@@ -12,12 +12,23 @@ namespace cms::alpakatools {
   enum class AllocatorPolicy { Synchronous = 0, Asynchronous = 1, Caching = 2 };
 
   template <typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
-  constexpr inline AllocatorPolicy allocator_policy = AllocatorPolicy::Synchronous;
+  constexpr inline AllocatorPolicy host_allocator_policy = AllocatorPolicy::Synchronous;
+
+  template <typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+  constexpr inline AllocatorPolicy device_allocator_policy = AllocatorPolicy::Synchronous;
 
 #if defined ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED || defined ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
   template <>
-  constexpr inline AllocatorPolicy allocator_policy<alpaka::DevCpu> =
-#if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR
+  constexpr inline AllocatorPolicy host_allocator_policy<alpaka::DevCpu> =
+#if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR and not defined ALPAKA_DISABLE_HOST_CACHING_ALLOCATOR
+      AllocatorPolicy::Caching;
+#else
+      AllocatorPolicy::Synchronous;
+#endif
+
+  template <>
+  constexpr inline AllocatorPolicy device_allocator_policy<alpaka::DevCpu> =
+#if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR and not defined ALPAKA_DISABLE_DEVICE_CACHING_ALLOCATOR
       AllocatorPolicy::Caching;
 #else
       AllocatorPolicy::Synchronous;
@@ -26,25 +37,41 @@ namespace cms::alpakatools {
 
 #if defined ALPAKA_ACC_GPU_CUDA_ENABLED
   template <>
-  constexpr inline AllocatorPolicy allocator_policy<alpaka::DevCudaRt> =
-#if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR
+  constexpr inline AllocatorPolicy host_allocator_policy<alpaka::DevCudaRt> =
+#if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR and not defined ALPAKA_DISABLE_HOST_CACHING_ALLOCATOR
       AllocatorPolicy::Caching;
-#elif not defined ALPAKA_DISABLE_ASYNC_ALLOCATOR
+#else
+      AllocatorPolicy::Synchronous;
+#endif
+
+  template <>
+  constexpr inline AllocatorPolicy device_allocator_policy<alpaka::DevCudaRt> =
+#if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR and not defined ALPAKA_DISABLE_DEVICE_CACHING_ALLOCATOR
+      AllocatorPolicy::Caching;
+#elif not defined ALPAKA_DISABLE_ASYNC_ALLOCATOR and not defined ALPAKA_DISABLE_DEVICE_ASYNC_ALLOCATOR
       AllocatorPolicy::Asynchronous;
 #else
-          AllocatorPolicy::Synchronous;
+                  AllocatorPolicy::Synchronous;
 #endif
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
 
 #if defined ALPAKA_ACC_GPU_HIP_ENABLED
   template <>
-  constexpr inline AllocatorPolicy allocator_policy<alpaka::DevHipRt> =
-#if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR
+  constexpr inline AllocatorPolicy host_allocator_policy<alpaka::DevHipRt> =
+#if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR and not defined ALPAKA_DISABLE_HOST_CACHING_ALLOCATOR
       AllocatorPolicy::Caching;
-#elif not defined ALPAKA_DISABLE_ASYNC_ALLOCATOR
-      AllocatorPolicy::Asynchronous;
 #else
       AllocatorPolicy::Synchronous;
+#endif
+
+  template <>
+  constexpr inline AllocatorPolicy device_allocator_policy<alpaka::DevHipRt> =
+#if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR and not defined ALPAKA_DISABLE_DEVICE_CACHING_ALLOCATOR
+      AllocatorPolicy::Caching;
+#elif not defined ALPAKA_DISABLE_ASYNC_ALLOCATOR and not defined ALPAKA_DISABLE_DEVICE_ASYNC_ALLOCATOR
+      AllocatorPolicy::Asynchronous;
+#else
+          AllocatorPolicy::Synchronous;
 #endif
 #endif  // ALPAKA_ACC_GPU_HIP_ENABLED
 

@@ -120,7 +120,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     int kind_of_vertex;
     std::vector<const TrackingVertex *> sim_vertices;
     std::vector<const simPrimaryVertex *> sim_vertices_internal;
-    std::vector<unsigned int> sim_vertices_num_shared_tracks;
+    std::vector<float> sim_vertices_shared_fraction;
     const reco::Vertex *recVtx;
     reco::VertexBaseRef recVtxRef;
   };
@@ -161,8 +161,9 @@ private:
   void computePairDistance(const T &collection, MonitorElement *me);
 
   // ----------member data ---------------------------
-  bool verbose_;
-  bool use_only_charged_tracks_;
+  const bool verbose_;
+  const bool use_only_charged_tracks_;
+  const bool use_reconstructable_simvertices_;
   const bool do_generic_sim_plots_;
   std::string root_folder_;
 
@@ -182,6 +183,8 @@ private:
   std::vector<bool> errorPrintedForColl_;
 
   unsigned int nPUbins_;
+  const float maxEta_;
+  const int reco_tracks_for_reconstructable_simvertices_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_

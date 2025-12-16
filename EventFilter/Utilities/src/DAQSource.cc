@@ -460,8 +460,6 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   //file is finished
   if (currentFile_->complete() || (dataMode_->isMultiDir() && currentFile_->buffersComplete())) {
     readingFilesCount_--;
-    if (fileListMode_)
-      heldFilesCount_--;
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
 
@@ -511,6 +509,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     } else {
       //in single-thread and stream jobs, events are already processed
       currentFile_.reset();
+      heldFilesCount_--;
     }
     setMonState(inProcessingFile);
     if (retRunEnd)

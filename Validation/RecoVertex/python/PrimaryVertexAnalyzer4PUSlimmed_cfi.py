@@ -15,6 +15,7 @@ selectedPixelVertices = selectedOfflinePrimaryVertices.clone(
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                 use_only_charged_tracks = cms.untracked.bool(True),
+                                use_reconstructable_simvertices = cms.untracked.bool(False),
                                 do_generic_sim_plots = cms.untracked.bool(True),
                                 verbose = cms.untracked.bool(False),
                                 root_folder = cms.untracked.string("Vertexing/PrimaryVertexV"),
@@ -27,12 +28,15 @@ vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                                                       "selectedOfflinePrimaryVertices",
                                                                       "selectedOfflinePrimaryVerticesWithBS"
                                                                       ),
-                               nPUbins = cms.uint32(130)
+                               nPUbins = cms.uint32(130),
+                               maxEta = cms.double(2.5),
+                               reco_tracks_for_reconstructable_simvertices = cms.untracked.int32(1),
 )
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify( vertexAnalysis,
-                         nPUbins = 250 )
+                         nPUbins = 250,
+                         maxEta = 4.0,)
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(vertexAnalysis,
