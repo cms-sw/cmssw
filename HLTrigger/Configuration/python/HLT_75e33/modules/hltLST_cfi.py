@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
 
 hltLST = cms.EDProducer('LSTProducer@alpaka',
     lstInput = cms.InputTag('hltInputLST'),
@@ -16,3 +17,7 @@ from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
 (seedingLST & trackingLST).toModify(hltLST, nopLSDupClean = True,
                                             tcpLSTriplets = True )
+
+hltLSTSerialSync = makeSerialClone(hltLST,
+    lstInput = "hltInputLSTSerialSync"
+)

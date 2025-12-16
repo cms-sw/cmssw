@@ -18,6 +18,10 @@ hltInitialStepTracks = cms.EDProducer("TrackProducer",
     useSimpleMF = cms.bool(False)
 )
 
+hltInitialStepTracksSerialSync = hltInitialStepTracks.clone(
+    src = "hltInitialStepTrackCandidatesSerialSync",
+)
+
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 from Configuration.ProcessModifiers.seedingLST_cff import seedingLST

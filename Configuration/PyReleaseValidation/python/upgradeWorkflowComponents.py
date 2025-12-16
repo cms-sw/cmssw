@@ -525,7 +525,7 @@ upgradeWFs['lstOnCPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnCPUIters01Track
         'HARVESTGlobal',
     ],
     suffix = '_lstOnCPUIters01TrackingOnly',
-    offset = 0.703,
+    offset = 0.711,
 )
 upgradeWFs['lstOnCPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
     '--procModifiers': 'trackingIters01,trackingLST',
@@ -554,10 +554,20 @@ upgradeWFs['lstOnGPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnGPUIters01Track
         'HARVESTGlobal',
     ],
     suffix = '_lstOnGPUIters01TrackingOnly',
-    offset = 0.704,
+    offset = 0.712,
 )
 upgradeWFs['lstOnGPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
     '--procModifiers': 'trackingIters01,trackingLST',
+}
+
+# LST on GPU (if available), initialStep+highPtTripletStep-only tracking-only, CPU vs. GPU comparison
+class UpgradeWorkflow_lstOnGPUIters01TrackingOnlyAlpakaValidationLST(UpgradeWorkflow_lstOnGPUIters01TrackingOnly):
+    pass
+upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'] = deepcopy(upgradeWFs['lstOnGPUIters01TrackingOnly'])
+upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'].suffix = '_lstOnGPUIters01TrackingOnlyAlpakaValidationLST'
+upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'].offset = 0.713
+upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'].step3 = upgradeWFs['trackingOnly'].step3 | {
+    '--procModifiers': 'alpakaValidationLST,trackingIters01,trackingLST',
 }
 
 #DeepCore seeding for JetCore iteration workflow
@@ -1996,6 +2006,20 @@ upgradeWFs['HLTTiming75e33AlpakaSingleIterLST'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
 
+upgradeWFs['HLTTiming75e33SingleIterLSTAlpakaValidationLST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33SingleIterLSTAlpakaValidationLST'].suffix = '_HLT75e33TimingSingleIterLSTAlpakaValidationLST'
+upgradeWFs['HLTTiming75e33SingleIterLSTAlpakaValidationLST'].offset = 0.7541
+upgradeWFs['HLTTiming75e33SingleIterLSTAlpakaValidationLST'].step2 = {
+    # This workflow is meant to and only works for the tracking validation
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:hltMultiTrackValidation',
+    '--procModifiers': 'alpakaValidationLST,singleIterPatatrack,trackingLST',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33SingleIterLSTAlpakaValidationLST'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
+
 upgradeWFs['HLTTiming75e33AlpakaLST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33AlpakaLST'].suffix = '_HLT75e33TimingAlpakaLST'
 upgradeWFs['HLTTiming75e33AlpakaLST'].offset = 0.755
@@ -2075,6 +2099,20 @@ upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeedingMkFitBuildingFitting'].step2
     '--eventcontent':'FEVTDEBUGHLT,DQMIO'
 }
 upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeedingMkFitBuilding'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
+
+upgradeWFs['HLTTiming75e33SingleIterCAExtLSTSeedingMkFitBuildingAlpakaValidationLST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33SingleIterCAExtLSTSeedingMkFitBuildingAlpakaValidationLST'].suffix = '_HLT75e33TimingSingleIterCAExtLSTSeedingMkFitBuildingAlpakaValidationLST'
+upgradeWFs['HLTTiming75e33SingleIterCAExtLSTSeedingMkFitBuildingAlpakaValidationLST'].offset = 0.7573
+upgradeWFs['HLTTiming75e33SingleIterCAExtLSTSeedingMkFitBuildingAlpakaValidationLST'].step2 = {
+    # This workflow is meant to and only works for the tracking validation
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:hltMultiTrackValidation',
+    '--procModifiers': 'alpakaValidationLST,singleIterPatatrack,phase2CAExtension,trackingLST,seedingLST,trackingMkFitCommon,hltTrackingMkFitInitialStep',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33SingleIterCAExtLSTSeedingMkFitBuildingAlpakaValidationLST'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
 
