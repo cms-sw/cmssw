@@ -440,7 +440,7 @@ class ConfigBuilder(object):
                     self.process.source.fileNames.append(self._options.dirin+entry)
             if self._options.secondfilein:
                 if not hasattr(self.process.source,"secondaryFileNames"):
-                    raise Exception("--secondfilein not compatible with "+self._options.filetype+"input type")
+                    raise Exception("--secondfilein not compatible with "+self._options.filetype+" input type")
                 for entry in self._options.secondfilein.split(','):
                     print("entry",entry)
                     if entry.startswith("filelist:"):
@@ -459,8 +459,8 @@ class ConfigBuilder(object):
                 filesFromOption(self)
             if self._options.filetype == "EDM_RNTUPLE":
                 self.process.source=cms.Source("RNTupleTempSource",
-                                               fileNames = cms.untracked.vstring())#, 2ndary not supported yet
-                                               #secondaryFileNames= cms.untracked.vstring())
+                                               fileNames = cms.untracked.vstring(),
+                                               secondaryFileNames= cms.untracked.vstring())
                 filesFromOption(self)
             elif self._options.filetype == "DAT":
                 self.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
