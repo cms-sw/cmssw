@@ -49,6 +49,8 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
 #include "assert.h"
 //ROOT inclusion
@@ -88,6 +90,9 @@ private:
 
   // Event Data
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> clusterToken;
+
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> stripNoiseToken_;
+  edm::ESHandle<SiStripNoises> theNoise_;
 
   // Event Setup Data
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
@@ -186,6 +191,13 @@ private:
   int         diff_adc_pone;
   int         diff_adc_ptwo;
   int         diff_adc_pthree;
+  float       noise_max_adc;
+  float       noise_adc_mone;
+  float       noise_adc_mtwo;
+  float       noise_adc_mthree;
+  float       noise_adc_pone;
+  float       noise_adc_ptwo;
+  float       noise_adc_pthree;
   int         n_saturated;
   int         n_consecutive_saturated;
 
@@ -216,6 +228,8 @@ nn_tupleProducer_raw::nn_tupleProducer_raw(const edm::ParameterSet& conf):
 
   beamSpot_ = conf.getParameter<edm::InputTag>("beamSpot");
   beamSpotToken_ = consumes<reco::BeamSpot>(beamSpot_);
+
+  stripNoiseToken_ = esConsumes();
 
   fileInPath_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
   detInfo_ = SiStripDetInfoFileReader::read(fileInPath_.fullPath());
@@ -277,6 +291,13 @@ nn_tupleProducer_raw::nn_tupleProducer_raw(const edm::ParameterSet& conf):
   signalTree->Branch("diff_adc_mone", &diff_adc_mone, "diff_adc_mone/I");
   signalTree->Branch("diff_adc_mtwo", &diff_adc_mtwo, "diff_adc_mtwo/I");
   signalTree->Branch("diff_adc_mthree", &diff_adc_mthree, "diff_adc_mthree/I");
+  signalTree->Branch("noise_adc_pone", &noise_adc_pone, "noise_adc_pone/F");
+  signalTree->Branch("noise_max_adc", &noise_max_adc, "noise_max_adc/F");
+  signalTree->Branch("noise_adc_ptwo", &noise_adc_ptwo, "noise_adc_ptwo/F");
+  signalTree->Branch("noise_adc_pthree", &noise_adc_pthree, "noise_adc_pthree/F");
+  signalTree->Branch("noise_adc_mone", &noise_adc_mone, "noise_adc_mone/F");
+  signalTree->Branch("noise_adc_mtwo", &noise_adc_mtwo, "noise_adc_mtwo/F");
+  signalTree->Branch("noise_adc_mthree", &noise_adc_mthree, "noise_adc_mthree/F");
   signalTree->Branch("adc_std", &adc_std, "adc_std/F");
   signalTree->Branch("adc_zero", &adc_zero, "adc_zero/I");
   signalTree->Branch("adc_one", &adc_one, "adc_one/I");
@@ -312,6 +333,13 @@ nn_tupleProducer_raw::nn_tupleProducer_raw(const edm::ParameterSet& conf):
   bkgTree->Branch("diff_adc_mone", &diff_adc_mone, "diff_adc_mone/I");
   bkgTree->Branch("diff_adc_mtwo", &diff_adc_mtwo, "diff_adc_mtwo/I");
   bkgTree->Branch("diff_adc_mthree", &diff_adc_mthree, "diff_adc_mthree/I");
+  bkgTree->Branch("noise_max_adc", &noise_max_adc, "noise_max_adc/F");
+  bkgTree->Branch("noise_adc_pone", &noise_adc_pone, "noise_adc_pone/F");
+  bkgTree->Branch("noise_adc_ptwo", &noise_adc_ptwo, "noise_adc_ptwo/F");
+  bkgTree->Branch("noise_adc_pthree", &noise_adc_pthree, "noise_adc_pthree/F");
+  bkgTree->Branch("noise_adc_mone", &noise_adc_mone, "noise_adc_mone/F");
+  bkgTree->Branch("noise_adc_mtwo", &noise_adc_mtwo, "noise_adc_mtwo/F");
+  bkgTree->Branch("noise_adc_mthree", &noise_adc_mthree, "noise_adc_mthree/F");
   bkgTree->Branch("adc_none", &adc_mone, "adc_mone/I");
   bkgTree->Branch("adc_ntwo", &adc_mtwo, "adc_mtwo/I");
   bkgTree->Branch("adc_nthree", &adc_mthree, "adc_mthree/I");
@@ -356,12 +384,14 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
   const auto* stripCPE    = &es.getData(stripCPEToken_);
   const auto* magField    = &es.getData(magFieldToken_);
 
+  const auto& theNoise_ = &es.getData(stripNoiseToken_);
+
   const Propagator* thePropagator = &es.getData(propagatorToken_);
 
   theTTrackBuilder = &es.getData(ttbToken_);
   using namespace edm;
 
-  //const auto& vertexHandle = event.getHandle(vertexToken_);
+  const auto& vertexHandle = event.getHandle(vertexToken_);
 
   if (!tracksHandle.isValid()) {
     edm::LogError("flatNtuple_producer") << "No valid track collection found";
@@ -372,15 +402,15 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
 	      edm::LogError("flatNtuple_producer") << "No valid track collection found";
 	          return;
   }
-  /*
+  
   if (!vertexHandle.isValid()) {
 	      edm::LogError("flatNtuple_producer") << "No valid vertex collection found";
 	   return;
-  }*/
+  }
 
   const reco::TrackCollection& tracks = *tracksHandle;
   const reco::TrackCollection& hlttracks = *hlttracksHandle;
-  //const reco::VertexCollection vertices = *vertexHandle;
+  const reco::VertexCollection vertices = *vertexHandle;
   //if ( tracks.size() != 1 || event.id().event() !=33) return;
   //std::cout << "event " << event.id().event() << std::endl;
   std::map<uint32_t, std::vector<cluster_property>> matched_cluster;
@@ -435,6 +465,7 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
     runN   = (int) event.id().run();
     lumi   = (int) event.id().luminosityBlock();
     detId  = detSiStripClusters.id();
+    SiStripNoises::Range detNoiseRange = theNoise_->getRange(detId);
     uint32_t subdet = DetId(detId).subdetId();
     //std::cout << "2nd subdet " << subdet << std::endl;
     if (subdet == SiStripSubdetector::TIB) isTIB = 1;
@@ -473,13 +504,14 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
       adc_ptwo = 0;
       adc_pthree = 0;
       adc_pfour = 0;
-      diff_adc_mone = diff_adc_mtwo = diff_adc_mthree = diff_adc_pone = diff_adc_ptwo = diff_adc_pthree = n_saturated = n_consecutive_saturated = adc_zero = adc_one = adc_two = adc_three = adc_four= 0;
+      diff_adc_mone = diff_adc_mtwo = diff_adc_mthree = diff_adc_pone = diff_adc_ptwo = diff_adc_pthree = n_saturated = n_consecutive_saturated = adc_zero = adc_one = adc_two = adc_three = adc_four = noise_adc_mone = noise_adc_mtwo = noise_adc_mthree = noise_adc_pone = noise_adc_ptwo = noise_adc_pthree = 0;
       vrtx_xy = 99;
       vrtx_z = 99;
       trk_pt = 1000;
       std::vector<int>adcs;
+      std::vector<float>noises;
       //uint16_t thisSat = maxSat = 0;
-      for (int strip = firstStrip; strip < endStrip+1; ++strip)
+      for (int strip = firstStrip; strip < endStrip; ++strip)
       {
         GlobalPoint gp = (tkGeom->idToDet(detId))->surface().toGlobal(p.localPosition((float) strip));
 
@@ -494,6 +526,9 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
 	else if ((strip - firstStrip) == 3 ) adc_three = stripCluster[strip - firstStrip];
 	else if ((strip - firstStrip) == 4 ) adc_four = stripCluster[strip - firstStrip];
 	adcs.push_back(stripCluster[strip - firstStrip]);
+	noises.push_back(theNoise_->getNoise(strip, detNoiseRange));
+	//if ( int(stripCluster[strip - firstStrip]) - theNoise_->getNoise(strip, detNoiseRange) < 0) 
+	//std::cout << "noise " << strip << "\t" << firstStrip << "\t" << endStrip << "\t" << int(stripCluster[strip - firstStrip]) << "\t" << theNoise_->getNoise(strip, detNoiseRange) << std::endl; 
 	if (adc    [strip - firstStrip] >= 254) n_saturated += 1;
         if (adc [strip - firstStrip] > max_adc) {
                 max_adc = adc[strip - firstStrip];
@@ -507,28 +542,47 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
       adc_std = std::sqrt(std::accumulate(adc, adc+size,0.0, [mean](double acc, double x) {
 			      return acc + (x - mean) * (x - mean);
 			      }) / size );
+      noise_max_adc = adc[max_adc_idx] - noises[max_adc_idx];
       if (max_adc_idx >=1) {
 	      diff_adc_mone = adc[max_adc_idx] - adc[max_adc_idx-1];
+	      //noise_diff_adc_mone = abs(adc[max_adc_idx-1] - noises[max_adc_idx-1]);
+	      noise_adc_mone = noises[max_adc_idx-1];
+	      //if (noise_diff_adc_mone <0) std::cout << "negetive " << max_adc_idx << "\t" << firstStrip << "\t" << endStrip << "\t" << size << std::endl;
 	      adc_mone = adc[max_adc_idx-1];
       }
       if (max_adc_idx >=2) {
 	      diff_adc_mtwo = adc[max_adc_idx] - adc[max_adc_idx-2];
+	      //noise_diff_adc_mtwo = abs(adc[max_adc_idx-2] - noises[max_adc_idx-2]);
+              noise_adc_mtwo = noises[max_adc_idx-2];
+	      //if (noise_diff_adc_mtwo <0) std::cout << "negetive mone " << max_adc_idx << "\t" << firstStrip << "\t" << endStrip << "\t" << size << std::endl;
 	      adc_mtwo = adc[max_adc_idx-2];
       }
       if (max_adc_idx >=3) {
               diff_adc_mthree = adc[max_adc_idx] - adc[max_adc_idx-3];
+	      //noise_diff_adc_mthree = abs(adc[max_adc_idx-3] - noises[max_adc_idx-3]);
+	      noise_adc_mthree = noises[max_adc_idx-3];
+	      //if (noise_diff_adc_mthree <0) std::cout << "negetive three " << max_adc_idx << "\t" << firstStrip << "\t" << endStrip << "\t" << size << std::endl;
               adc_mthree = adc[max_adc_idx-3];
       }
-      if ((size-max_adc_idx) >=1) {
+      if (((size-1)-max_adc_idx) >=1) {
 	      diff_adc_pone = adc[max_adc_idx] - adc[max_adc_idx+1];
+	      //noise_diff_adc_pone = abs(adc[max_adc_idx+1] - noises[max_adc_idx+1]);
+	      noise_adc_pone = noises[max_adc_idx+1];
+	      //if (noise_diff_adc_pone <0) std::cout << "negetive pone " << max_adc_idx << "\t" << firstStrip << "\t" << endStrip << "\t" << size << std::endl;
 	      adc_pone = adc[max_adc_idx+1];
       }
-      if ((size-max_adc_idx) >=2) {
+      if (((size-1)-max_adc_idx) >=2) {
 	      diff_adc_ptwo = adc[max_adc_idx] - adc[max_adc_idx+2];
+	      //noise_diff_adc_ptwo = abs(adc[max_adc_idx+2] - noises[max_adc_idx+2]);
+	      noise_adc_ptwo = noises[max_adc_idx+2];
+	      //if (noise_diff_adc_ptwo <0) std::cout << "negetive ptwo " << max_adc_idx << "\t" << firstStrip << "\t" << endStrip << "\t" << size << std::endl;
 	      adc_ptwo = adc[max_adc_idx+2];
       }
-      if ((size-max_adc_idx) >=3) {
+      if (((size-1)-max_adc_idx) >=3) {
               diff_adc_pthree = adc[max_adc_idx] - adc[max_adc_idx+3];
+	      //noise_diff_adc_pthree = abs(adc[max_adc_idx+3] - noises[max_adc_idx+3]);
+	      noise_adc_pthree = noises[max_adc_idx+3];
+	      //if (noise_diff_adc_pthree <0) std::cout << "negetive pthree " << max_adc_idx << "\t" << firstStrip << "\t" << endStrip << "\t" << size << std::endl;
               adc_pthree = adc[max_adc_idx+3];
       }
       
@@ -568,7 +622,7 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
       dr_min_pixelTrk = 99.;
       const GeomDetUnit* geomDet = tkGeom->idToDetUnit(detId);
       const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(geomDet);
-      /*const reco::Track* recotrk = NULL;
+      const reco::Track* recotrk = NULL;
       for ( const auto & trk : tracks) {
               if (!stripDet) continue;
               for (auto const& hit : trk.recHits()) {
@@ -594,8 +648,10 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
               }
       }
 
-      const reco::Track* hlttrk = NULL;*/
+      const reco::Track* hlttrk = NULL;
       for ( const auto & trk : hlttracks) {
+	      vrtx_xy = trk.dxy(vertices.at(0).position());
+	      vrtx_z = trk.dz(vertices.at(0).position());
 	      if (!stripDet) continue;
 	      for (auto const& hit : trk.recHits()) {
                 if (!hit->isValid()) continue;
@@ -614,15 +670,19 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
                 float dr = abs(trackLocal.x() - clusterLocal.x()); //std::sqrt( pow( (trackLocal.x() - clusterLocal.x()), 2 ) +
                 if (dr < dr_min_pixelTrk) {
                   dr_min_pixelTrk = dr;
-		  //hlttrk = &trk;
+		  hlttrk = &trk;
 		  trk_pt = trk.pt();
                 }
 	      }
       }
       if (signal) {
-	   //   if (hlttrk && recotrk)std::cout << "sig pt " << hlttrk->pt() << "\t" << recotrk->pt() << std::endl;
-	     // else if (!hlttrk) { std::cout << "sig not found hlt" << std::endl;}
-	      //else if (!recotrk) { std::cout << "sig not found reco" << std::endl;}
+	   if (hlttrk && recotrk) {
+		   std::cout << "sig pt " << hlttrk->pt() << "\t" << recotrk->pt() << std::endl;
+	           std::cout << "sig pt " << vrtx_xy << "\t" << recotrk->dxy(vertices.at(0).position()) << "\t" << vrtx_z << "\t" << recotrk->dz(vertices.at(0).position()) << std::endl;
+	   }
+
+	      else if (!hlttrk) { std::cout << "sig not found hlt" << std::endl;}
+	      else if (!recotrk) { std::cout << "sig not found reco" << std::endl;}
 	      signalTree->Fill();
 	      for (unsigned int i = 0; i < adcs.size()-1; ++i) hist_sig->Fill(i, adcs[i]); // Fill 2D histogram
       }
