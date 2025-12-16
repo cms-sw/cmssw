@@ -1,8 +1,10 @@
 #ifndef DataFormats_Portable_interface_PortableDeviceCollection_h
 #define DataFormats_Portable_interface_PortableDeviceCollection_h
 
+#include <array>
 #include <cassert>
 #include <concepts>
+#include <cstddef>
 #include <optional>
 #include <type_traits>
 
@@ -217,7 +219,7 @@ private:
 public:
   PortableDeviceMultiCollection() = delete;
 
-  explicit PortableDeviceMultiCollection(edm::Uninitialized) noexcept {};
+  explicit PortableDeviceMultiCollection(edm::Uninitialized) noexcept {}
 
   PortableDeviceMultiCollection(int32_t elements, TDev const& device)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout<>::computeDataSize(elements))},

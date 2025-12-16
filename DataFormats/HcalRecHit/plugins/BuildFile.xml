@@ -1,0 +1,5 @@
+<library file="serialisation.cc" name="DataFormatsHcalRecHitSerialisation">
+  <use name="DataFormats/HcalRecHit"/>
+  <use name="HeterogeneousCore/SerialisationCore"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

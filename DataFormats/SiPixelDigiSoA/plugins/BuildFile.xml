@@ -1,0 +1,5 @@
+<library file="serialisation.cc" name="DataFormatsSiPixelDigiSoASerialisation">
+  <use name="DataFormats/SiPixelDigiSoA"/>
+  <use name="HeterogeneousCore/SerialisationCore"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

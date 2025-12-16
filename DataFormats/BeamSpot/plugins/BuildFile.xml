@@ -1,0 +1,5 @@
+<library file="serialisation.cc" name="DataFormatsBeamSpotSerialisation">
+  <use name="DataFormats/BeamSpot"/>
+  <use name="HeterogeneousCore/SerialisationCore"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
