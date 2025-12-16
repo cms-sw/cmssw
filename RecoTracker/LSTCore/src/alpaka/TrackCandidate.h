@@ -1,6 +1,8 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_TrackCandidate_h
 #define RecoTracker_LSTCore_src_alpaka_TrackCandidate_h
 
+#include <bit>
+
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 #include "HeterogeneousCore/AlpakaMath/interface/deltaPhi.h"
@@ -35,11 +37,40 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     candsExtended.objectIndices()[trackCandidateIndex][0] = trackletIndex;
     candsExtended.objectIndices()[trackCandidateIndex][1] = trackletIndex;
 
+    // Initialize all slots to empty
+    auto& tcHits = candsBase.hitIndices()[trackCandidateIndex];
+    auto& tcModules = candsExtended.lowerModuleIndices()[trackCandidateIndex];
+    auto& tcLayers = candsExtended.logicalLayers()[trackCandidateIndex];
+    CMS_UNROLL_LOOP for (int layerSlot = 0; layerSlot < Params_TC::kLayers; ++layerSlot) {
+      tcLayers[layerSlot] = 0;
+      tcModules[layerSlot] = lst::kTCEmptyLowerModule;
+      tcHits[layerSlot][0] = lst::kTCEmptyHitIdx;
+      tcHits[layerSlot][1] = lst::kTCEmptyHitIdx;
+    }
+
     // Order explanation in https://github.com/SegmentLinking/TrackLooper/issues/267
-    candsBase.hitIndices()[trackCandidateIndex][0] = hitIndices[0];
-    candsBase.hitIndices()[trackCandidateIndex][1] = hitIndices[2];
-    candsBase.hitIndices()[trackCandidateIndex][2] = hitIndices[1];
-    candsBase.hitIndices()[trackCandidateIndex][3] = hitIndices[3];
+    tcHits[0][0] = hitIndices[0];
+    tcHits[0][1] = hitIndices[2];
+    tcHits[1][0] = hitIndices[1];
+    tcHits[1][1] = hitIndices[3];
+  }
+
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTrackCandidateLayerHits(
+      TrackCandidatesBase& candsBase,
+      TrackCandidatesExtended& candsExtended,
+      unsigned int trackCandidateIndex,
+      int layerSlot,         // 0..12 (0/1 = pixel, 2..12 = OT logical layers 1..11)
+      uint8_t logicalLayer,  // 0 for pixel, 1..11 for OT
+      uint16_t lowerModule,
+      unsigned int hitIndex0,
+      unsigned int hitIndex1) {
+    auto& tcModules = candsExtended.lowerModuleIndices()[trackCandidateIndex];
+    auto& tcLayers = candsExtended.logicalLayers()[trackCandidateIndex];
+    auto& tcHits = candsBase.hitIndices()[trackCandidateIndex];
+    tcLayers[layerSlot] = logicalLayer;
+    tcModules[layerSlot] = lowerModule;
+    tcHits[layerSlot][0] = hitIndex0;
+    tcHits[layerSlot][1] = hitIndex1;
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTrackCandidateToMemory(TrackCandidatesBase& candsBase,
@@ -63,50 +94,58 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     candsExtended.objectIndices()[trackCandidateIndex][0] = innerTrackletIndex;
     candsExtended.objectIndices()[trackCandidateIndex][1] = outerTrackletIndex;
 
-    size_t limits = trackCandidateType == LSTObjType::pT5 ? Params_pT5::kLayers : Params_pT3::kLayers;
-
-    //send the starting pointer to the logicalLayer and hitIndices
-    for (size_t i = 0; i < limits; i++) {
-      candsExtended.logicalLayers()[trackCandidateIndex][i] = logicalLayerIndices[i];
-      candsExtended.lowerModuleIndices()[trackCandidateIndex][i] = lowerModuleIndices[i];
+    // Initialize all slots to empty
+    auto& tcHits = candsBase.hitIndices()[trackCandidateIndex];
+    auto& tcModules = candsExtended.lowerModuleIndices()[trackCandidateIndex];
+    auto& tcLayers = candsExtended.logicalLayers()[trackCandidateIndex];
+    CMS_UNROLL_LOOP for (int layerSlot = 0; layerSlot < Params_TC::kLayers; ++layerSlot) {
+      tcLayers[layerSlot] = 0;  // 0 is "pixel" when filled
+      tcModules[layerSlot] = lst::kTCEmptyLowerModule;
+      tcHits[layerSlot][0] = lst::kTCEmptyHitIdx;
+      tcHits[layerSlot][1] = lst::kTCEmptyHitIdx;
     }
-    for (size_t i = 0; i < 2 * limits; i++) {
-      candsBase.hitIndices()[trackCandidateIndex][i] = hitIndices[i];
-    }
-    candsExtended.centerX()[trackCandidateIndex] = __F2H(centerX);
-    candsExtended.centerY()[trackCandidateIndex] = __F2H(centerY);
-    candsExtended.radius()[trackCandidateIndex] = __F2H(radius);
-  }
 
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addT4TrackCandidateToMemory(TrackCandidatesBase& candsBase,
-                                                                  TrackCandidatesExtended& candsExtended,
-                                                                  LSTObjType trackCandidateType,
-                                                                  unsigned int innerTrackletIndex,
-                                                                  unsigned int outerTrackletIndex,
-                                                                  uint8_t* logicalLayerIndices,
-                                                                  uint16_t* lowerModuleIndices,
-                                                                  unsigned int* hitIndices,
-                                                                  int pixelSeedIndex,
-                                                                  float centerX,
-                                                                  float centerY,
-                                                                  float radius,
-                                                                  unsigned int trackCandidateIndex,
-                                                                  unsigned int directObjectIndex) {
-    candsBase.trackCandidateType()[trackCandidateIndex] = trackCandidateType;
-    candsExtended.directObjectIndices()[trackCandidateIndex] = directObjectIndex;
-    candsBase.pixelSeedIndex()[trackCandidateIndex] = pixelSeedIndex;
+    // Configuration based on Type
+    int nLayersToProcess = 0;
+    int nPixelLayers = 0;
 
-    candsExtended.objectIndices()[trackCandidateIndex][0] = innerTrackletIndex;
-    candsExtended.objectIndices()[trackCandidateIndex][1] = outerTrackletIndex;
+    if (trackCandidateType == LSTObjType::T5) {
+      nLayersToProcess = Params_T5::kLayers;
+    } else if (trackCandidateType == LSTObjType::pT5) {
+      nLayersToProcess = Params_pT5::kLayers;
+      nPixelLayers = Params_TC::kPixelLayerSlots;
+    } else if (trackCandidateType == LSTObjType::T4) {
+      nLayersToProcess = Params_T4::kLayers;
+    } else if (trackCandidateType == LSTObjType::pT3) {
+      nLayersToProcess = Params_pT3::kLayers;
+      nPixelLayers = Params_TC::kPixelLayerSlots;
+    }
 
-    //send the starting pointer to the logicalLayer and hitIndices
-    for (int i = 0; i < Params_T4::kLayers; i++) {
-      candsExtended.logicalLayers()[trackCandidateIndex][i] = logicalLayerIndices[i];
-      candsExtended.lowerModuleIndices()[trackCandidateIndex][i] = lowerModuleIndices[i];
+    CMS_UNROLL_LOOP
+    for (int i = 0; i < Params_TC::kLayers; ++i) {
+      if (i >= nLayersToProcess)
+        break;
+
+      uint8_t logicalLayer = logicalLayerIndices[i];
+      uint16_t lowerModule = lowerModuleIndices[i];
+      unsigned int hit0 = hitIndices[2 * i];
+      unsigned int hit1 = hitIndices[2 * i + 1];
+
+      int layerSlot;
+
+      if (i < nPixelLayers) {
+        // Pixel layers occupy slots 0 and 1 strictly
+        layerSlot = i;
+        logicalLayer = 0;
+      } else {
+        // OT layers are mapped: (LogicalLayer - 1) + kPixelLayerSlots
+        layerSlot = (logicalLayer - 1) + Params_TC::kPixelLayerSlots;
+      }
+
+      addTrackCandidateLayerHits(
+          candsBase, candsExtended, trackCandidateIndex, layerSlot, logicalLayer, lowerModule, hit0, hit1);
     }
-    for (int i = 0; i < 2 * Params_T4::kLayers; i++) {
-      candsBase.hitIndices()[trackCandidateIndex][i] = hitIndices[i];
-    }
+
     candsExtended.centerX()[trackCandidateIndex] = __F2H(centerX);
     candsExtended.centerY()[trackCandidateIndex] = __F2H(centerY);
     candsExtended.radius()[trackCandidateIndex] = __F2H(radius);
@@ -609,6 +648,227 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void countSharedT5HitsAndFindUnmatched(QuintupletsConst quintuplets,
+                                                                        unsigned int testT5Index,
+                                                                        unsigned int refT5Index,
+                                                                        int& sharedHitCount,
+                                                                        int& unmatchedLayerSlot) {
+    sharedHitCount = 0;
+    unmatchedLayerSlot = -1;
+
+    CMS_UNROLL_LOOP
+    for (int layerIndex = 0; layerIndex < Params_T5::kLayers; ++layerIndex) {
+      const unsigned int candidateHit0 = quintuplets.hitIndices()[testT5Index][2 * layerIndex + 0];
+      const unsigned int candidateHit1 = quintuplets.hitIndices()[testT5Index][2 * layerIndex + 1];
+
+      bool hit0InBase = false;
+      bool hit1InBase = false;
+
+      CMS_UNROLL_LOOP
+      for (int baseHitIndex = 0; baseHitIndex < Params_T5::kHits; ++baseHitIndex) {
+        const unsigned int baseHit = quintuplets.hitIndices()[refT5Index][baseHitIndex];
+        if (candidateHit0 == baseHit)
+          hit0InBase = true;
+        if (candidateHit1 == baseHit)
+          hit1InBase = true;
+        if (hit0InBase && hit1InBase)
+          break;
+      }
+
+      if (hit0InBase)
+        ++sharedHitCount;
+      if (hit1InBase)
+        ++sharedHitCount;
+
+      if (!hit0InBase && !hit1InBase) {
+        unmatchedLayerSlot = layerIndex;
+      }
+    }
+  }
+
+  struct ExtendTrackCandidatesFromDupT5 {
+    static constexpr int kPackedScoreShift = 32;                 // Bit shift for packing the score (upper 32 bits).
+    static constexpr int kPackedIndexShift = 4;                  // Bit shift for packing the T5 index.
+    static constexpr unsigned int kPackedIndexMask = 0xFFFFFFF;  // Mask for the 28-bit T5 index.
+    static constexpr unsigned int kPackedSlotMask = 0xF;         // Mask for the 4-bit layer slot.
+    static constexpr int kT5DuplicateMinSharedHits = 8;  // Minimum shared hits required to consider a T5 for merging.
+
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  ModulesConst modules,
+                                  ObjectRangesConst ranges,
+                                  QuintupletsConst quintuplets,
+                                  QuintupletsOccupancyConst quintupletsOccupancy,
+                                  TrackCandidatesBase candsBase,
+                                  TrackCandidatesExtended candsExtended) const {
+      // Assert that the number of blocks equals nTC
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u] == candsBase.nTrackCandidates()));
+
+      // Shared memory: Packed best candidate info per logical OT layer (1..11)
+      // Format: [Score (32 bits) | Quintuplet Index (28 bits) | Layer Slot (4 bits)]
+      uint64_t* sharedBestPacked = alpaka::declareSharedVar<uint64_t[lst::kLogicalOTLayers], __COUNTER__>(acc);
+
+      // In 1D, the Grid index [0] is the Block index (which is our TC index)
+      const unsigned int trackCandidateIndex = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
+
+      // Initialize shared memory once per block
+      if (cms::alpakatools::once_per_block(acc)) {
+        for (int logicalLayerBin = 0; logicalLayerBin < lst::kLogicalOTLayers; ++logicalLayerBin) {
+          sharedBestPacked[logicalLayerBin] = 0;  // 0.0f score, 0 index, 0 slot
+        }
+      }
+      alpaka::syncBlockThreads(acc);
+
+      // Only consider merging T5s onto T5/pT5 TCs for now
+      const LSTObjType trackCandidateType = candsBase.trackCandidateType()[trackCandidateIndex];
+      if (!(trackCandidateType == LSTObjType::T5 || trackCandidateType == LSTObjType::pT5))
+        return;
+
+      // Base quintuplet (for T5: objectIndices[0], for pT5: objectIndices[1])
+      const unsigned int refT5Index = (trackCandidateType == LSTObjType::T5)
+                                          ? candsExtended.objectIndices()[trackCandidateIndex][0]
+                                          : candsExtended.objectIndices()[trackCandidateIndex][1];
+
+      const float baseEta = __H2F(quintuplets.eta()[refT5Index]);
+      const float basePhi = __H2F(quintuplets.phi()[refT5Index]);
+      const uint8_t baseStartLogicalLayer = quintuplets.logicalLayers()[refT5Index][0];
+
+      // Module range to scan
+      int lowerModuleBegin = 0;
+      int lowerModuleEnd = static_cast<int>(modules.nLowerModules());
+
+      // If starting at layer 1, restrict to the module of the second hit
+      if (baseStartLogicalLayer == 1) {
+        lowerModuleBegin = quintuplets.lowerModuleIndices()[refT5Index][1];
+        lowerModuleEnd = lowerModuleBegin + 1;
+      }
+
+      // Linear thread index and block dimension in 1D
+      const int threadIndexFlat = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
+      const int blockDimFlat = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
+
+      // Scan over lower modules
+      for (int lowerModuleIndex = lowerModuleBegin + threadIndexFlat; lowerModuleIndex < lowerModuleEnd;
+           lowerModuleIndex += blockDimFlat) {
+        const int firstQuintupletInModule = ranges.quintupletModuleIndices()[lowerModuleIndex];
+        if (firstQuintupletInModule == -1)
+          continue;
+
+        const unsigned int nQuintupletsInModule = quintupletsOccupancy.nQuintuplets()[lowerModuleIndex];
+
+        // Scan over quintuplets in this module
+        for (unsigned int quintupletOffset = 0; quintupletOffset < nQuintupletsInModule; ++quintupletOffset) {
+          const unsigned int testT5Index = firstQuintupletInModule + quintupletOffset;
+          if (testT5Index == refT5Index)
+            continue;
+
+          // Require different starting layer for now
+          if (quintuplets.logicalLayers()[testT5Index][0] == baseStartLogicalLayer)
+            continue;
+
+          // Quick eta / phi window selection
+          const float candidateEta = __H2F(quintuplets.eta()[testT5Index]);
+          if (alpaka::math::abs(acc, baseEta - candidateEta) > 0.1f)
+            continue;
+
+          const float candidatePhi = __H2F(quintuplets.phi()[testT5Index]);
+          if (alpaka::math::abs(acc, cms::alpakatools::deltaPhi(acc, basePhi, candidatePhi)) > 0.1f)
+            continue;
+
+          // Embedding distance
+          float embedDistance2 = 0.f;
+          CMS_UNROLL_LOOP
+          for (unsigned int embedIndex = 0; embedIndex < Params_T5::kEmbed; ++embedIndex) {
+            const float diff =
+                quintuplets.t5Embed()[refT5Index][embedIndex] - quintuplets.t5Embed()[testT5Index][embedIndex];
+            embedDistance2 += diff * diff;
+          }
+          if (embedDistance2 > 1.0f)
+            continue;
+
+          // Hit matching against base T5 hits
+          int sharedHitCount = 0;
+          int unmatchedLayerSlot = -1;
+
+          countSharedT5HitsAndFindUnmatched(quintuplets, testT5Index, refT5Index, sharedHitCount, unmatchedLayerSlot);
+
+          if (sharedHitCount < kT5DuplicateMinSharedHits)
+            continue;
+          if (unmatchedLayerSlot < 0)
+            continue;
+
+          // Candidate score is the T5 DNN output
+          const float candidateScore = quintuplets.dnnScore()[testT5Index];
+
+          // New OT logical layer from the candidate
+          const uint8_t newLogicalLayer = quintuplets.logicalLayers()[testT5Index][unmatchedLayerSlot];
+          const int logicalLayerBin = static_cast<int>(newLogicalLayer) - 1;  // 0..kLogicalOTLayers-1
+
+          // Pack the Score, Index, and Slot into 64 bits for atomic update
+          uint64_t scoreBits = (uint64_t)std::bit_cast<int>(candidateScore);
+          uint64_t newPacked = (scoreBits << kPackedScoreShift) |
+                               ((uint64_t)(testT5Index & kPackedIndexMask) << kPackedIndexShift) |
+                               (unmatchedLayerSlot & kPackedSlotMask);
+
+          // Atomic CAS loop
+          uint64_t oldPacked = sharedBestPacked[logicalLayerBin];
+          while (true) {
+            const float oldScore = std::bit_cast<float>((int)(oldPacked >> kPackedScoreShift));
+
+            // If we aren't strictly better, stop trying
+            if (candidateScore <= oldScore) {
+              break;
+            }
+
+            // Try to swap. atomicCas returns the value that was previously there
+            uint64_t assumedOld = alpaka::atomicCas(
+                acc, &sharedBestPacked[logicalLayerBin], oldPacked, newPacked, alpaka::hierarchy::Threads{});
+
+            if (assumedOld == oldPacked) {
+              break;  // Success
+            } else {
+              oldPacked = assumedOld;  // Failed, update view and retry
+            }
+          }
+        }
+      }
+
+      // One thread per block finalizes by actually extending the TC
+      alpaka::syncBlockThreads(acc);
+
+      if (cms::alpakatools::once_per_block(acc)) {
+        CMS_UNROLL_LOOP
+        for (int logicalLayerBin = 0; logicalLayerBin < lst::kLogicalOTLayers; ++logicalLayerBin) {
+          uint64_t bestPacked = sharedBestPacked[logicalLayerBin];
+
+          // Check if valid update occurred (non-zero score)
+          int bestScoreInt = (int)(bestPacked >> kPackedScoreShift);
+          if (bestScoreInt == 0)
+            continue;
+
+          // Unpack Index (bits 4-31) and Slot (bits 0-3)
+          const int bestT5Index = (int)((bestPacked >> kPackedIndexShift) & kPackedIndexMask);
+          const int bestT5LayerSlot = (int)(bestPacked & kPackedSlotMask);
+
+          const uint8_t logicalLayer = static_cast<uint8_t>(logicalLayerBin + 1);  // 1..11
+          const int layerSlot = (logicalLayer - 1) + Params_TC::kPixelLayerSlots;  // OT slots for TC
+
+          const uint16_t lowerModuleIndex = quintuplets.lowerModuleIndices()[bestT5Index][bestT5LayerSlot];
+          const unsigned int hitIndex0 = quintuplets.hitIndices()[bestT5Index][2 * bestT5LayerSlot + 0];
+          const unsigned int hitIndex1 = quintuplets.hitIndices()[bestT5Index][2 * bestT5LayerSlot + 1];
+
+          addTrackCandidateLayerHits(candsBase,
+                                     candsExtended,
+                                     trackCandidateIndex,
+                                     layerSlot,
+                                     logicalLayer,
+                                     lowerModuleIndex,
+                                     hitIndex0,
+                                     hitIndex1);
+        }
+      }
+    }
+  };
+
   struct AddpT5asTrackCandidate {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   uint16_t nLowerModules,
@@ -694,20 +954,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             break;
           } else {
             alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatesT4(), 1u, alpaka::hierarchy::Threads{});
-            addT4TrackCandidateToMemory(candsBase,
-                                        candsExtended,
-                                        LSTObjType::T4,
-                                        quadrupletIndex,
-                                        quadrupletIndex,
-                                        quadruplets.logicalLayers()[quadrupletIndex].data(),
-                                        quadruplets.lowerModuleIndices()[quadrupletIndex].data(),
-                                        quadruplets.hitIndices()[quadrupletIndex].data(),
-                                        -1 /*no pixel seed index for T4s*/,
-                                        quadruplets.regressionCenterX()[quadrupletIndex],
-                                        quadruplets.regressionCenterY()[quadrupletIndex],
-                                        quadruplets.regressionRadius()[quadrupletIndex],
-                                        trackCandidateIdx,
-                                        quadrupletIndex);
+            addTrackCandidateToMemory(candsBase,
+                                      candsExtended,
+                                      LSTObjType::T4,
+                                      quadrupletIndex,
+                                      quadrupletIndex,
+                                      quadruplets.logicalLayers()[quadrupletIndex].data(),
+                                      quadruplets.lowerModuleIndices()[quadrupletIndex].data(),
+                                      quadruplets.hitIndices()[quadrupletIndex].data(),
+                                      -1 /*no pixel seed index for T4s*/,
+                                      quadruplets.regressionCenterX()[quadrupletIndex],
+                                      quadruplets.regressionCenterY()[quadrupletIndex],
+                                      quadruplets.regressionRadius()[quadrupletIndex],
+                                      trackCandidateIdx,
+                                      quadrupletIndex);
             quadruplets.partOfTC()[quadrupletIndex] = true;
           }
         }
