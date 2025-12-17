@@ -63,3 +63,16 @@ SKIMStreamPbPbZMu = cms.FilteredStream(
     )
 
 #####################      
+
+from Configuration.Skimming.PbPb_EWSkim_cff import *
+EWSkimPathPbPb = cms.Path( EWSkimSequence )
+SKIMStreamPbPbEW = cms.FilteredStream(
+    responsible = 'HI PAG',
+    name = 'PbPbEW',
+    paths = (EWSkimPathPbPb),
+    content = EWSkimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('MINIAOD')
+    )
+
+#####################
