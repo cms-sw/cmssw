@@ -37,8 +37,8 @@ namespace riemannFit {
 template <int N>
 __global__ void kernelPrintSizes(double* __restrict__ phits, float* __restrict__ phits_ge) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
-  riemannFit::Map3xNd<N> hits(phits + i, 3, 4);
-  riemannFit::Map6xNf<N> hits_ge(phits_ge + i, 6, 4);
+  riemannFit::Map3xNd<N> hits(phits + i);
+  riemannFit::Map6xNf<N> hits_ge(phits_ge + i);
   if (i != 0)
     return;
   printf("GPU sizes %lu %lu %lu %lu %lu\n",
@@ -52,8 +52,8 @@ __global__ void kernelPrintSizes(double* __restrict__ phits, float* __restrict__
 template <int N>
 __global__ void kernelFastFit(double* __restrict__ phits, double* __restrict__ presults) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
-  riemannFit::Map3xNd<N> hits(phits + i, 3, N);
-  riemannFit::Map4d result(presults + i, 4);
+  riemannFit::Map3xNd<N> hits(phits + i);
+  riemannFit::Map4d result(presults + i);
 #ifdef USE_BL
   brokenline::fastFit(hits, result);
 #else
@@ -71,9 +71,9 @@ __global__ void kernelBrokenLineFit(double* __restrict__ phits,
                                     riemannFit::CircleFit* circle_fit,
                                     riemannFit::LineFit* line_fit) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
-  riemannFit::Map3xNd<N> hits(phits + i, 3, N);
-  riemannFit::Map4d fast_fit_input(pfast_fit_input + i, 4);
-  riemannFit::Map6xNf<N> hits_ge(phits_ge + i, 6, N);
+  riemannFit::Map3xNd<N> hits(phits + i);
+  riemannFit::Map4d fast_fit_input(pfast_fit_input + i);
+  riemannFit::Map6xNf<N> hits_ge(phits_ge + i);
 
   brokenline::PreparedBrokenLineData<N> data;
   riemannFit::Matrix3d Jacob;
@@ -105,9 +105,9 @@ __global__ void kernel_CircleFit(double* __restrict__ phits,
                                  double B,
                                  riemannFit::CircleFit* circle_fit_resultsGPU) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
-  riemannFit::Map3xNd<N> hits(phits + i, 3, N);
-  riemannFit::Map4d fast_fit_input(pfast_fit_input + i, 4);
-  riemannFit::Map6xNf<N> hits_ge(phits_ge + i, 6, N);
+  riemannFit::Map3xNd<N> hits(phits + i);
+  riemannFit::Map4d fast_fit_input(pfast_fit_input + i);
+  riemannFit::Map6xNf<N> hits_ge(phits_ge + i);
 
   constexpr auto n = N;
 
@@ -152,9 +152,9 @@ __global__ void kernelLineFit(double* __restrict__ phits,
                               double* __restrict__ pfast_fit_input,
                               riemannFit::LineFit* line_fit) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
-  riemannFit::Map3xNd<N> hits(phits + i, 3, N);
-  riemannFit::Map4d fast_fit_input(pfast_fit_input + i, 4);
-  riemannFit::Map6xNf<N> hits_ge(phits_ge + i, 6, N);
+  riemannFit::Map3xNd<N> hits(phits + i);
+  riemannFit::Map4d fast_fit_input(pfast_fit_input + i);
+  riemannFit::Map6xNf<N> hits_ge(phits_ge + i);
   line_fit[i] = riemannFit::lineFit(hits, hits_ge, circle_fit[i], fast_fit_input, B, true);
 }
 #endif

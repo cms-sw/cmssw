@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
+#include "DataFormats/Math/interface/choleskyInversion.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "test_common.h"
@@ -31,7 +32,9 @@ __global__ void kernelInverse3x3(Matrix3d *in, Matrix3d *out) { (*out) = in->inv
 
 __global__ void kernelInverse4x4(Matrix4d *in, Matrix4d *out) { (*out) = in->inverse(); }
 
-__global__ void kernelInverse5x5(Matrix5d *in, Matrix5d *out) { (*out) = in->inverse(); }
+__global__ void kernelInverse5x5(Matrix5d *in, Matrix5d *out) {
+  math::cholesky::invertNN(*in, *out);
+}
 
 template <typename M1, typename M2, typename M3>
 __global__ void kernelMultiply(M1 *J, M2 *C, M3 *result) {
