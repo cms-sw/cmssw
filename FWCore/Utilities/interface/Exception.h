@@ -40,6 +40,7 @@
 #include <type_traits>
 #include <string_view>
 #include <concepts>
+#include <utility>
 
 #include <format>
 
@@ -112,15 +113,15 @@ namespace cms {
 
     template <typename E, typename T>
       requires std::derived_from<std::remove_reference_t<E>, Exception>
-    friend E& operator<<(E&& e, T const& stuff);
+    friend decltype(auto) operator<<(E&& e, T const& stuff);
 
     template <typename E>
       requires std::derived_from<std::remove_reference_t<E>, Exception>
-    friend E& operator<<(E&& e, std::ostream& (*f)(std::ostream&));
+    friend decltype(auto) operator<<(E&& e, std::ostream& (*f)(std::ostream&));
 
     template <typename E>
       requires std::derived_from<std::remove_reference_t<E>, Exception>
-    friend E& operator<<(E&& e, std::ios_base& (*f)(std::ios_base&));
+    friend decltype(auto) operator<<(E&& e, std::ios_base& (*f)(std::ios_base&));
 
     template <typename... Args>
     inline void format(std::format_string<Args...> format, Args&&... args);
@@ -161,23 +162,23 @@ namespace cms {
 
   template <typename E, typename T>
     requires std::derived_from<std::remove_reference_t<E>, Exception>
-  inline E& operator<<(E&& e, T const& stuff) {
+  inline decltype(auto) operator<<(E&& e, T const& stuff) {
     e.ost_ << stuff;
-    return e;
+    return std::forward<E>(e);
   }
 
   template <typename E>
     requires std::derived_from<std::remove_reference_t<E>, Exception>
-  inline E& operator<<(E&& e, std::ostream& (*f)(std::ostream&)) {
+  inline decltype(auto) operator<<(E&& e, std::ostream& (*f)(std::ostream&)) {
     f(e.ost_);
-    return e;
+    return std::forward<E>(e);
   }
 
   template <typename E>
     requires std::derived_from<std::remove_reference_t<E>, Exception>
-  inline E& operator<<(E&& e, std::ios_base& (*f)(std::ios_base&)) {
+  inline decltype(auto) operator<<(E&& e, std::ios_base& (*f)(std::ios_base&)) {
     f(e.ost_);
-    return e;
+    return std::forward<E>(e);
   }
 
 }  // namespace cms
