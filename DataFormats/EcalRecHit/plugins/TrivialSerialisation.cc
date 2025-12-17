@@ -1,0 +1,6 @@
+#include "DataFormats/EcalRecHit/interface/EcalRecHitHostCollection.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHitHostCollection.h"
+#include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserFactory.h"
+
+DEFINE_TRIVIAL_SERIALISER_PLUGIN(EcalRecHitHostCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN(EcalUncalibratedRecHitHostCollection);

@@ -134,14 +134,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         this->registerTransformAsync(
             token,
             [](edm::StreamID, TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
-              auto const& device = alpaka::getDev(deviceProduct.template metadata<EDMetadata>().queue());
-              detail::EDMetadataAcquireSentry sentry(device, std::move(holder));
+              auto queue = deviceProduct.template metadata<EDMetadata>().shared_queue();
+              detail::EDMetadataAcquireSentry sentry(queue, std::move(holder));
               auto metadataPtr = sentry.metadata();
               constexpr bool tryReuseQueue = true;
               TProduct const& productOnDevice =
                   deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr, tryReuseQueue);
 
-              auto productOnHost = CopyT::copyAsync(metadataPtr->queue(), productOnDevice);
+              auto productOnHost = CopyT::copyAsync(*queue, productOnDevice);
 
               // Need to keep the EDMetadata object from sentry.finish()
               // alive until the synchronization

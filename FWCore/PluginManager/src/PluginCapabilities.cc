@@ -75,7 +75,7 @@ namespace edmplugin {
       //  we haven't yet returned from PluginManager::load method
       info.name_ = name;
       info.loadable_ = iLoadable.path();
-      this->newPluginAdded_(category(), info);
+      this->newPluginAdded_.emit(category(), info);
     }
     return true;
   }
