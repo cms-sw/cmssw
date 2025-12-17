@@ -362,6 +362,25 @@ public:
                                std::span<const float>(fractions_.data() + bb, ee - bb)};
   }
 
+  // min, max detids
+  HitsAndFractionsView hits_and_fractions_view(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
+    assertFinalized_();
+
+    // Find the first and last indices using the same ranges used
+    // for the per-detector lookup.
+    const auto idxMin = detIndex_(detIdMin);
+    const auto idxMax = detIndex_(detIdMax);
+
+    const auto [bMin, eMin] = detRanges_[idxMin];
+    const auto [bMax, eMax] = detRanges_[idxMax];
+
+    const uint32_t begin = bMin;  // inclusive
+    const uint32_t end = eMax;    // exclusive
+
+    return HitsAndFractionsView{std::span<const uint32_t>(hits_.data() + begin, end - begin),
+                                std::span<const float>(fractions_.data() + begin, end - begin)};
+  }
+
 protected:
   uint64_t nsimhits_{0};
   EncodedEventId event_;
