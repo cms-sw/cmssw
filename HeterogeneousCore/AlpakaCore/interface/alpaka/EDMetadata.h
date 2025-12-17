@@ -46,6 +46,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // TODO: Returning non-const reference here is BAD
     Queue& queue() const { return *queue_; }
 
+    // Used by ProducerBase to reuse the product's queue for enqueueing
+    // the host copy.
+    std::shared_ptr<Queue> shared_queue() const { return queue_; }
+
     void recordEvent() {}
     void discardEvent() {}
 
@@ -69,6 +73,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Alpaka operations do not accept a temporary as an argument
     // TODO: Returning non-const reference here is BAD
     Queue& queue() const { return *queue_; }
+
+    // Used by ProducerBase to reuse the product's queue for enqueueing
+    // the host copy.
+    std::shared_ptr<Queue> shared_queue() const { return queue_; }
 
     void enqueueCallback(edm::WaitingTaskWithArenaHolder holder);
 

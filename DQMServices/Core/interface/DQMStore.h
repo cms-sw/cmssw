@@ -547,6 +547,21 @@ namespace dqm {
         });
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
+      MonitorElement* bookProfile2D(TString const& name,
+                                    TString const& title,
+                                    int nchX,
+                                    double const* xbinsize,
+                                    int nchY,
+                                    double const* ybinsize,
+                                    char const* option = "s",
+                                    FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TPROFILE2D, [=]() {
+          auto tprofile = new TProfile2D(name, title, nchX, xbinsize, nchY, ybinsize, option);
+          onbooking(tprofile);
+          return tprofile;
+        });
+      }
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookProfile2D(TString const& name, TProfile2D* object, FUNC onbooking = NOOP()) {
         return bookME(
             name,
