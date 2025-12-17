@@ -26,6 +26,19 @@ echo "%MSG-MG5 random seed used for the run = $rnum"
 ncpu=${4}
 echo "%MSG-MG5 thread count requested = $ncpu"
 
+use_singularity=0
+
+for arg in "${@:5}"; do
+  if [ "$arg" = "use_singularity" ]; then
+      use_singularity=1
+  else
+      extra_args+=("$arg")
+  fi
+done
+
+# Rebuild all positional parameters excluding the use_singularity keyword
+set -- "$path" "$nevt" "$rnum" "$ncpu" "${extra_args[@]}"
+
 echo "%MSG-MG5 residual/optional arguments = ${@:5}"
 
 if [ -n "${5}" ]; then
@@ -82,7 +95,12 @@ if [ "$use_gridpack_env" != false ]; then
 fi
 
 #generate events
-${sing} ./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
+if [ "$use_singularity" -eq 1 ]; then
+    echo "Using singularity for running events"
+    ${sing} ./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
+else
+    ./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
+fi
 
 mv cmsgrid_final.lhe $LHEWORKDIR/
 
