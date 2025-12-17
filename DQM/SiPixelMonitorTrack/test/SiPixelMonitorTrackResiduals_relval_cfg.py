@@ -54,7 +54,7 @@ process.DQMStore = cms.Service("DQMStore",
 )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.AdaptorConfig = cms.Service("AdaptorConfig") 
+ 
 
 process.siPixelLocalReco = cms.Sequence(process.siPixelDigis*process.siPixelClusters*process.siPixelRecHits)
 process.siStripLocalReco = cms.Sequence(process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters*process.siStripMatchedRecHits)

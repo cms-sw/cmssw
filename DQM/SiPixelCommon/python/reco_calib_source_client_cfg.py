@@ -46,7 +46,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 process.sipixelEDAClient = DQMEDHarvester("SiPixelEDAClient",
     StaticUpdateFrequency = cms.untracked.int32(10),

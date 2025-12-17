@@ -57,7 +57,7 @@ process.p = cms.Path(process.RecoModulesForSimData*process.SiStripDQMOffSimData)
 process.outP = cms.OutputModule("AsciiOutputModule")
 process.ep = cms.EndPath(process.outP)
 
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/relval/2008/7/21/RelVal-RelValQCD_Pt_80_120-1216579576-STARTUP_V4-2nd/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre9-RelVal-1216579576-STARTUP_V4-2nd-unmerged/0000/0A81C8A7-6E57-DD11-8B07-00161757BF42.root', 
