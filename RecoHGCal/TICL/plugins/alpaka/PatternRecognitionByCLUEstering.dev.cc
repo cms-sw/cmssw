@@ -44,7 +44,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // }
 
       clue::Clusterer<3> clusterer(queue, m_dc, m_rhoc, m_dm);
-      clusterer.make_clusters(queue, d_points);
+      std::array<float, 3> weights{{1.f, 1., 2.f}};
+      clusterer.make_clusters(queue, d_points, clue::metrics::WeightedChebyshev<3>(weights));
       // create hosts points and do the copy
       clue::PointsHost<3> h_points(queue, n);
       clue::copyToHost(queue, h_points, d_points);
