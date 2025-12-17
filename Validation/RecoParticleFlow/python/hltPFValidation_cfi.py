@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltPFScAssocByEnergyScoreProducer = cms.EDProducer("BarrelPCToSCAssociatorByEnergyScoreProducer",
     hardScatterOnly = cms.bool(True),
-    hitMapTag = cms.InputTag("hltRecHitMapProducer:barrelRecHitMap"),
+    hitMapTag = cms.InputTag("hltRecHitMapProducer:pfRecHitMap"),
     hits = cms.InputTag("hltRecHitMapProducer", "RefProdVectorPFRecHitCollection"),
 )
 
@@ -14,7 +14,7 @@ hltPFClusterSimClusterAssociationProducerECAL = cms.EDProducer("PCToSCAssociator
 
 hltPFCpAssocByEnergyScoreProducer = cms.EDProducer("BarrelPCToCPAssociatorByEnergyScoreProducer",
     hardScatterOnly = cms.bool(True),
-    hitMapTag = cms.InputTag("hltRecHitMapProducer:barrelRecHitMap"),
+    hitMapTag = cms.InputTag("hltRecHitMapProducer:pfRecHitMap"),
     hits = cms.InputTag("hltRecHitMapProducer", "RefProdVectorPFRecHitCollection"),
 )
 
