@@ -227,13 +227,13 @@ namespace edm {
           << "Illegal parameter found in configuration.  The parameter is named:\n"
           << ss.str() << "You could be trying to use a parameter name that is not\n"
           << "allowed for this plugin, or it could be misspelled, or this parameter\n"
-          << "needs to be defined in the fillDescription() method of the plugin.\n";
+          << "needs to be defined in the fillDescriptions() method of the plugin.\n";
     } else {
       throw edm::Exception(errors::Configuration)
           << "Illegal parameters found in configuration.  The parameters are named:\n"
           << ss.str() << "You could be trying to use parameter names that are not\n"
           << "allowed for this plugin, or they could be misspelled, or these parameters\n"
-          << "need to be defined in the fillDescription() method of the plugin.\n";
+          << "need to be defined in the fillDescriptions() method of the plugin.\n";
     }
   }
 
