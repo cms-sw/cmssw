@@ -17,7 +17,7 @@ process.add_(cms.Service("SiteLocalConfigService",
 # Add e.g. 10-millisecond latency to singular and vector reads
 # If the job reads local files via TFile::Open() in addition to PoolSource,
 # you want to exclude those from the latency addition
-process.add_(cms.Service("AdaptorConfig",
+process.add_(cms.Service("TFileAdaptor",
     storageProxies = cms.untracked.VPSet(
         cms.PSet(
             type = cms.untracked.string("StorageAddLatencyProxy"),

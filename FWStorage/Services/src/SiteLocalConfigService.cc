@@ -546,11 +546,11 @@ namespace edm {
       desc.addOptionalUntracked<std::string>("overrideSourceCacheTempDir");
       desc.addOptionalUntracked<double>("overrideSourceCacheMinFree");
       desc.addOptionalUntracked<std::string>("overrideSourceCacheHintDir")
-          ->setComment("Set cache hint. See AdaptorConfig plugin for valid values.");
+          ->setComment("Set cache hint. See TFileAdaptor plugin for valid values.");
       desc.addOptionalUntracked<std::string>("overrideSourceCloneCacheHintDir")
           ->setComment("Provide an alternate cache hint for fast cloning.");
       desc.addOptionalUntracked<std::string>("overrideSourceReadHint")
-          ->setComment("Set read hint. See AdaptorConfig plugin for valid values.");
+          ->setComment("Set read hint. See TFileAdaptor plugin for valid values.");
       desc.addOptionalUntracked<std::vector<std::string> >("overrideSourceNativeProtocols");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTTreeCacheSize");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTimeout");
