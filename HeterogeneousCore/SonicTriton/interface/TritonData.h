@@ -148,7 +148,8 @@ private:
   IO* data(unsigned entry = 0) { return entries_[entry].data_.get(); }
   void updateMem(size_t size);
   void computeSizes();
-  triton::client::InferenceServerGrpcClient* client();
+  TritonClient* client();
+  triton::client::InferenceServerGrpcClient* grpcClient();
   template <typename DT>
   void checkType() const {
     if (!triton_utils::checkType<DT>(dtype_))
