@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/chooseDevice.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
@@ -8,19 +10,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     EDMetadataAcquireSentry::EDMetadataAcquireSentry(edm::StreamID streamID,
                                                      edm::WaitingTaskWithArenaHolder holder,
                                                      bool synchronize)
-        : EDMetadataAcquireSentry(detail::chooseDevice(streamID), std::move(holder), synchronize) {}
+        : EDMetadataAcquireSentry(cms::alpakatools::getQueueCache<Queue>().get(detail::chooseDevice(streamID)),
+                                  std::move(holder),
+                                  synchronize) {}
 
-    EDMetadataAcquireSentry::EDMetadataAcquireSentry(Device const& device,
+    EDMetadataAcquireSentry::EDMetadataAcquireSentry(std::shared_ptr<Queue> queue,
                                                      edm::WaitingTaskWithArenaHolder holder,
                                                      bool synchronize)
         : waitingTaskHolder_(std::move(holder)), synchronize_(synchronize) {
 #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
       // all synchronous backends
-      metadata_ = std::make_shared<EDMetadata>(cms::alpakatools::getQueueCache<Queue>().get(device));
+      metadata_ = std::make_shared<EDMetadata>(std::move(queue));
 #else
       // all asynchronous backends
-      metadata_ = std::make_shared<EDMetadata>(cms::alpakatools::getQueueCache<Queue>().get(device),
-                                               cms::alpakatools::getEventCache<Event>().get(device));
+      const Device& device = alpaka::getDev(*queue);
+      metadata_ = std::make_shared<EDMetadata>(std::move(queue), cms::alpakatools::getEventCache<Event>().get(device));
 #endif
     }
 

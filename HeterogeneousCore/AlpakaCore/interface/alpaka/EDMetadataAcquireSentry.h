@@ -1,6 +1,8 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadataAcquireSentry_h
 #define HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadataAcquireSentry_h
 
+#include <memory>
+
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadata.h"
@@ -19,7 +21,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       EDMetadataAcquireSentry(edm::StreamID stream, edm::WaitingTaskWithArenaHolder holder, bool synchronize);
 
       // Constructor overload to be called from registerTransformAsync()
-      EDMetadataAcquireSentry(Device const& device, edm::WaitingTaskWithArenaHolder holder, bool synchronize = false);
+      EDMetadataAcquireSentry(std::shared_ptr<Queue> queue,
+                              edm::WaitingTaskWithArenaHolder holder,
+                              bool synchronize = false);
 
       EDMetadataAcquireSentry(EDMetadataAcquireSentry const&) = delete;
       EDMetadataAcquireSentry& operator=(EDMetadataAcquireSentry const&) = delete;
