@@ -60,10 +60,10 @@ class WorkFlowRunner(Thread):
         return ret
     
     @staticmethod
-    def replace_filein_extensions(command_line, outputExtensionForStep, defaultExtension):
+    def replace_filein_extensions(command_line, outputExtensionForStep, defaultExtension, fileOption='--filein'):
         # Pattern to match --filein followed by file:file.ext entries (comma-separated)
         filein_pattern = re.compile(
-            r'(--filein\s+)((?:file:[a-zA-Z0-9_]+\.[a-z]+(?:,\s*)?)*)'
+            r'('+fileOption+r'\s+)((?:file:[a-zA-Z0-9_]+\.[a-z]+(?:,\s*)?)*)'
         )
 
         # Inner patterns to match individual file entries
@@ -264,6 +264,9 @@ class WorkFlowRunner(Thread):
                     elif istep!=1 and '--filein' in cmd and '--filetype' not in cmd:
                         # make sure correct extension is being used
                         cmd = self.replace_filein_extensions(cmd, outputExtensionForStep, extension)
+                    if '--pileup_input' in cmd and '--filetype' not in cmd:
+                        # make sure correct extension is being used
+                        cmd = self.replace_filein_extensions(cmd, outputExtensionForStep, extension, fileOption='--pileup_input')
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s%s '%(istep,extension)
                         if "RECO" in cmd:
