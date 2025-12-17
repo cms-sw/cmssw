@@ -1,206 +1,349 @@
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+// -*- C++ -*-
+//
+// Package:    FourVectorHLT
+// Class:      FourVectorHLT
+//
+/**\class FourVectorHLT FourVectorHLT.cc DQM/FourVectorHLT/src/FourVectorHLT.cc
+
+ Description: This is a DQM source meant to plot high-level HLT trigger
+ quantities as stored in the HLT results object TriggerResults
+
+*/
+//
+// Original Author:  Peter Wittich
+//         Created:  May 2008
+//
+// Modernized by:    Marco Musich
+//                   Dec 2025
+//
+
+// user include files
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-// see header file for information.
-#include "FourVectorHLT.h"
+// system include files
+#include <set>
 
-using namespace edm;
+class FourVectorHLT : public DQMEDAnalyzer {
+public:
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  explicit FourVectorHLT(const edm::ParameterSet&);
+  ~FourVectorHLT() override = default;
 
-FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig) {
-  LogDebug("FourVectorHLT") << "constructor....";
+private:
+  // DQM hooks
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  usesResource("DQMStore");
-  dbe_ = Service<DQMStore>().operator->();
-  if (!dbe_) {
-    LogWarning("Status") << "unable to get DQMStore service?";
+  // helper class to store the data
+  class PathInfo {
+    PathInfo() : pathIndex_(-1), pathName_("unset"), objectType_(-1) {}
+
+  public:
+    void setHistos(MonitorElement* const et,
+                   MonitorElement* const eta,
+                   MonitorElement* const phi,
+                   MonitorElement* const etavsphi) {
+      et_ = et;
+      eta_ = eta;
+      phi_ = phi;
+      etavsphi_ = etavsphi;
+    }
+    MonitorElement* getEtHisto() { return et_; }
+    MonitorElement* getEtaHisto() { return eta_; }
+    MonitorElement* getPhiHisto() { return phi_; }
+    MonitorElement* getEtaVsPhiHisto() { return etavsphi_; }
+    const std::string getName(void) const { return pathName_; }
+    ~PathInfo() {}
+    PathInfo(std::string pathName, size_t type, float ptmin, float ptmax)
+        : pathName_(pathName),
+          objectType_(type),
+          et_(nullptr),
+          eta_(nullptr),
+          phi_(nullptr),
+          etavsphi_(nullptr),
+          ptmin_(ptmin),
+          ptmax_(ptmax) {}
+    PathInfo(std::string pathName,
+             size_t type,
+             MonitorElement* et,
+             MonitorElement* eta,
+             MonitorElement* phi,
+             MonitorElement* etavsphi,
+             float ptmin,
+             float ptmax)
+        : pathName_(pathName),
+          objectType_(type),
+          et_(et),
+          eta_(eta),
+          phi_(phi),
+          etavsphi_(etavsphi),
+          ptmin_(ptmin),
+          ptmax_(ptmax) {}
+    bool operator==(const std::string v) { return v == pathName_; }
+
+  private:
+    int pathIndex_;
+    std::string pathName_;
+    int objectType_;
+
+    // we don't own this data
+    MonitorElement *et_, *eta_, *phi_, *etavsphi_;
+
+    float ptmin_, ptmax_;
+
+    const int index() { return pathIndex_; }
+
+  public:
+    const int type() { return objectType_; }
+    float getPtMin() const { return ptmin_; }
+    float getPtMax() const { return ptmax_; }
+  };
+
+  // simple collection - just
+  class PathInfoCollection : public std::vector<PathInfo> {
+  public:
+    PathInfoCollection() : std::vector<PathInfo>() {}
+    std::vector<PathInfo>::iterator find(std::string pathName) { return std::find(begin(), end(), pathName); }
+  };
+
+  // configuration
+
+  const bool debug_;
+  const bool plotAll_;
+  const unsigned int nBins_;
+  const double ptMin_, ptMax_;
+  const std::string dirname_;
+  const edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryToken_;
+
+  // state
+  PathInfoCollection hltPaths_;
+  bool needRebook_{false};
+
+  // For plotAll mode:
+  std::set<std::string> pendingNewFilters_;
+};
+
+FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
+    : debug_(iConfig.getUntrackedParameter<bool>("debug", false)),
+      plotAll_(iConfig.getUntrackedParameter<bool>("plotAll", false)),
+      nBins_(iConfig.getUntrackedParameter<unsigned int>("Nbins", 50)),
+      ptMin_(iConfig.getUntrackedParameter<double>("ptMin", 0.)),
+      ptMax_(iConfig.getUntrackedParameter<double>("ptMax", 200.)),
+      dirname_(iConfig.getUntrackedParameter<std::string>("topFolderName", "HLT/FourVectorHLT")),
+      triggerSummaryToken_(
+          consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("triggerSummaryLabel"))) {
+  // Predefined filters (static mode)
+  auto filters = iConfig.getParameter<std::vector<edm::ParameterSet>>("filters");
+  for (auto const& pset : filters) {
+    hltPaths_.push_back(PathInfo(pset.getParameter<std::string>("name"),
+                                 pset.getParameter<int>("type"),
+                                 static_cast<float>(pset.getUntrackedParameter<double>("ptMin")),
+                                 static_cast<float>(pset.getUntrackedParameter<double>("ptMax"))));
   }
-
-  dirname_ = "HLT/FourVectorHLT";
-
-  if (dbe_ != nullptr) {
-    LogDebug("Status") << "Setting current directory to " << dirname_;
-    dbe_->setCurrentFolder(dirname_);
-  }
-
-  // plotting paramters
-  ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0.);
-  ptMax_ = iConfig.getUntrackedParameter<double>("ptMax", 200.);
-  nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins", 50);
-
-  plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
-
-  // this is the list of paths to look at.
-  std::vector<edm::ParameterSet> filters = iConfig.getParameter<std::vector<edm::ParameterSet> >("filters");
-  for (std::vector<edm::ParameterSet>::iterator filterconf = filters.begin(); filterconf != filters.end();
-       filterconf++) {
-    std::string me = filterconf->getParameter<std::string>("name");
-    int objectType = filterconf->getParameter<unsigned int>("type");
-    float ptMin = filterconf->getUntrackedParameter<double>("ptMin");
-    float ptMax = filterconf->getUntrackedParameter<double>("ptMax");
-    hltPaths_.push_back(PathInfo(me, objectType, ptMin, ptMax));
-  }
-  if (!hltPaths_.empty() && plotAll_) {
-    // these two ought to be mutually exclusive....
-    LogWarning("Configuration") << "Using both plotAll and a list. "
-                                   "list will be ignored.";
-    hltPaths_.clear();
-  }
-  triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
-
-  //set Token(-s)
-  triggerSummaryToken_ = consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("triggerSummaryLabel"));
 }
 
-FourVectorHLT::~FourVectorHLT() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+void FourVectorHLT::dqmBeginRun(const edm::Run& theRun, const edm::EventSetup& theSetup) {
+  if (!plotAll_)
+    return;
+
+  // Get TriggerEvent from first event **of this run**
+  // We can't get an event here, so we mark that we will fill when receiving first event
+  // In bookHistograms(), we don't know filter names yet. So:
+  // Strategy:
+  //   - in analyze(): if plotAll_, and beginRun found nothing yet, check filters once
+  //   - add any missing filters to pendingNewFilters_
+  //   - ask framework to call bookHistograms again (needRebook_ = true)
+
+  pendingNewFilters_.clear();
+  needRebook_ = false;  // will be set true in analyze() when we detect new filters
 }
 
-//
-// member functions
-//
+void FourVectorHLT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
+  ibooker.setCurrentFolder(dirname_);
 
-// ------------ method called to for each event  ------------
-void FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-  using namespace trigger;
-  ++nev_;
-  LogDebug("Status") << "analyze";
+  // Book static mode:
+  for (auto& p : hltPaths_) {
+    if (!p.getEtHisto()) {
+      std::string folder = dirname_ + "/" + p.getName();
+      if (p.type() != 0) {
+        folder += "/" + std::to_string(p.type());
+      }
+      ibooker.setCurrentFolder(folder);
 
-  edm::Handle<TriggerEvent> triggerObj;
-  iEvent.getByToken(triggerSummaryToken_, triggerObj);
-  if (!triggerObj.isValid()) {
-    edm::LogInfo("Status") << "Summary HLT object (TriggerEvent) not found, "
-                              "skipping event";
+      p.setHistos(ibooker.book1D(p.getName() + "_et", p.getName() + " E_{T}", nBins_, p.getPtMin(), p.getPtMax()),
+                  ibooker.book1D(p.getName() + "_eta", p.getName() + " #eta", nBins_, -2.7, 2.7),
+                  ibooker.book1D(p.getName() + "_phi", p.getName() + " #phi", nBins_, -3.14, 3.14),
+                  ibooker.book2D(
+                      p.getName() + "_etaphi", p.getName() + " #eta vs #phi", nBins_, -2.7, 2.7, nBins_, -3.14, 3.14));
+    }
+  }
+
+  // Book filters discovered in this run
+  for (auto const& name : pendingNewFilters_) {
+    PathInfo p(name, 0, ptMin_, ptMax_);
+
+    std::string folder = dirname_ + "/" + p.getName();
+    if (p.type() != 0) {
+      folder += "/" + std::to_string(p.type());
+    }
+    ibooker.setCurrentFolder(folder);
+
+    p.setHistos(ibooker.book1D(name + "_et", name + " E_{T}", nBins_, 0, 100),
+                ibooker.book1D(name + "_eta", name + " #eta", nBins_, -2.7, 2.7),
+                ibooker.book1D(name + "_phi", name + " #phi", nBins_, -3.14, 3.14),
+                ibooker.book2D(name + "_etaphi", name + " #eta vs #phi", nBins_, -2.7, 2.7, nBins_, -3.14, 3.14));
+
+    hltPaths_.push_back(p);
+  }
+
+  pendingNewFilters_.clear();
+  needRebook_ = false;
+}
+
+void FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
+  edm::Handle<trigger::TriggerEvent> trig;
+  iEvent.getByToken(triggerSummaryToken_, trig);
+  if (!trig.isValid()) {
+    edm::LogWarning("FourVectorHLT") << "TriggerEvent token is not valid, skipping event!";
     return;
   }
 
-  const trigger::TriggerObjectCollection& toc(triggerObj->getObjects());
+  const auto& toc = trig->getObjects();
+  const auto& tags = trig->collectionTags();
 
+  if (debug_) {
+    edm::LogVerbatim("FourVectorHLT") << "process name: " << trig->usedProcessName();
+    edm::LogVerbatim("FourVectorHLT") << "collection tags: ";
+    for (const auto& tag : tags) {
+      edm::LogVerbatim("FourVectorHLT") << "tag: " << tag;
+    }
+
+    edm::LogVerbatim("FourVectorHLT") << "toc size: " << toc.size();
+    edm::LogVerbatim("FourVectorHLT") << "size filters: " << trig->sizeFilters();
+
+    for (unsigned int i = 0; i < toc.size(); ++i) {
+      trigger::TriggerObject const& triggerObject = toc[i];
+      edm::LogVerbatim("FourVectorHLT") << "id:   " << triggerObject.id() << " pT :  " << triggerObject.pt()
+                                        << " eta:  " << triggerObject.eta() << " phi:  " << triggerObject.phi()
+                                        << " mass: " << triggerObject.mass();
+    }
+
+    for (size_t ia = 0; ia < trig->sizeFilters(); ++ia) {
+      const auto& filterTagEncoded = trig->filterTagEncoded(ia);
+      const auto& filterLabel = trig->filterLabel(ia);
+      const auto& filterIndex = trig->filterIndex(trig->filterTag(ia));
+
+      edm::LogVerbatim("FourVectorHLT") << "filter index:" << filterIndex << " filteTagEncoded: " << filterTagEncoded
+                                        << " filterLabel: " << filterLabel;
+      const auto& keys = trig->filterKeys(filterIndex);
+      for (auto const& k : keys) {
+        const auto& obj = toc[k];
+        edm::LogVerbatim("FourVectorHLT") << "     name: " << filterLabel << " key: " << k << " id:" << obj.id()
+                                          << "  pt: " << obj.pt() << " eta:" << obj.eta() << " phi:" << obj.phi();
+      }
+    }
+  }
+
+  // In plotAll_ mode, discover missing filters exactly once per run
   if (plotAll_) {
-    for (size_t ia = 0; ia < triggerObj->sizeFilters(); ++ia) {
-      std::string fullname = triggerObj->filterTag(ia).encode();
-      // the name can have in it the module label as well as the process and
-      // other labels - strip 'em
-      std::string name;
-      size_t p = fullname.find_first_of(':');
-      if (p != std::string::npos) {
-        name = fullname.substr(0, p);
+    if (!needRebook_) {
+      for (size_t ia = 0; ia < trig->sizeFilters(); ++ia) {
+        std::string fullname = trig->filterTag(ia).encode();
+        std::string name = fullname.substr(0, fullname.find(':'));
+
+        edm::LogInfo("FourVectorHLT") << "fullname: " << fullname << " name: " << name;
+
+        bool known = false;
+        for (auto const& p : hltPaths_) {
+          if (p.getName() == name) {
+            known = true;
+            break;
+          }
+        }
+        if (!known) {
+          pendingNewFilters_.insert(name);
+          needRebook_ = true;
+        }
+      }
+    }
+
+    // If new filters discovered, request rebooking now
+    if (needRebook_) {
+      // The framework will call bookHistograms() on next run transition
+      return;  // skip filling until histos exist
+    }
+  }
+
+  // Fill histograms
+  for (auto& p : hltPaths_) {
+    const auto& tagName = edm::InputTag(p.getName(), "", trig->usedProcessName());
+    int index = trig->filterIndex(tagName);
+
+    if (index >= trig->sizeFilters()) {
+      if (debug_) {
+        edm::LogWarning("FourVectorHLT") << "name: " << p.getName() << " index: " << index
+                                         << " trig->sizeFilters(): " << trig->sizeFilters();
+      }
+      continue;
+    }
+
+    const auto& keys = trig->filterKeys(index);
+    for (auto const& k : keys) {
+      const auto& obj = toc[k];
+
+      if (debug_) {
+        edm::LogVerbatim("FourVectorHLT") << "name: " << p.getName() << " key: " << k << "  pt: " << obj.pt()
+                                          << " eta:" << obj.eta() << " phi:" << obj.phi();
+      }
+
+      if (obj.id() == p.type()) {
+        p.getEtHisto()->Fill(obj.pt());
+        p.getEtaHisto()->Fill(obj.eta());
+        p.getPhiHisto()->Fill(obj.phi());
+        p.getEtaVsPhiHisto()->Fill(obj.eta(), obj.phi());
       } else {
-        name = fullname;
-      }
-
-      LogDebug("Parameter") << "filter " << ia << ", full name = " << fullname << ", p = " << p
-                            << ", abbreviated = " << name;
-
-      PathInfoCollection::iterator pic = hltPaths_.find(name);
-      if (pic == hltPaths_.end()) {
-        // doesn't exist - add it
-        MonitorElement *et(nullptr), *eta(nullptr), *phi(nullptr), *etavsphi(nullptr);
-
-        std::string histoname(name + "_et");
-        LogDebug("Status") << "new histo with name " << histoname;
-        dbe_->setCurrentFolder(dirname_);
-        std::string title(name + " E_{T}");
-        et = dbe_->book1D(histoname.c_str(), title.c_str(), nBins_, 0, 100);
-
-        histoname = name + "_eta";
-        title = name + " #eta";
-        eta = dbe_->book1D(histoname.c_str(), title.c_str(), nBins_, -2.7, 2.7);
-
-        histoname = name + "_phi";
-        title = name + " #phi";
-        phi = dbe_->book1D(histoname.c_str(), title.c_str(), nBins_, -3.14, 3.14);
-
-        histoname = name + "_etaphi";
-        title = name + " #eta vs #phi";
-        etavsphi = dbe_->book2D(histoname.c_str(), title.c_str(), nBins_, -2.7, 2.7, nBins_, -3.14, 3.14);
-
-        // no idea how to get the bin boundries in this mode
-        PathInfo e(name, 0, et, eta, phi, etavsphi, ptMin_, ptMax_);
-        hltPaths_.push_back(e);
-        pic = hltPaths_.begin() + hltPaths_.size() - 1;
-      }
-      const trigger::Keys& k = triggerObj->filterKeys(ia);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
-        LogDebug("Parameters") << "pt, eta, phi = " << toc[*ki].pt() << ", " << toc[*ki].eta() << ", "
-                               << toc[*ki].phi();
-        pic->getEtHisto()->Fill(toc[*ki].pt());
-        pic->getEtaHisto()->Fill(toc[*ki].eta());
-        pic->getPhiHisto()->Fill(toc[*ki].phi());
-        pic->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
-      }
-    }
-
-  } else {  // not plotAll_
-    for (PathInfoCollection::iterator v = hltPaths_.begin(); v != hltPaths_.end(); ++v) {
-      const int index = triggerObj->filterIndex(v->getName());
-      if (index >= triggerObj->sizeFilters()) {
-        continue;  // not in this event
-      }
-      LogDebug("Status") << "filling ... ";
-      const trigger::Keys& k = triggerObj->filterKeys(index);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
-        v->getEtHisto()->Fill(toc[*ki].pt());
-        v->getEtaHisto()->Fill(toc[*ki].eta());
-        v->getPhiHisto()->Fill(toc[*ki].phi());
-        v->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+        if ((std::abs(obj.id()) != std::abs(p.type())) && debug_)
+          std::cout << "FourVectorHLT: "
+                    << " name: " << p.getName() << " expected: " << obj.id() << " got: " << p.type() << std::endl;
       }
     }
   }
 }
 
-// -- method called once each job just before starting event loop  --------
-void FourVectorHLT::beginJob() {
-  nev_ = 0;
-  DQMStore* dbe = nullptr;
-  dbe = Service<DQMStore>().operator->();
+void FourVectorHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("plotAll", false);
+  desc.addUntracked<unsigned int>("Nbins", 50);
+  desc.addUntracked<double>("ptMin", 0.);
+  desc.addUntracked<double>("ptMax", 200.);
 
-  if (dbe) {
-    dbe->setCurrentFolder(dirname_);
+  edm::ParameterSetDescription filterDesc;
+  filterDesc.add<std::string>("name", {});
+  filterDesc.add<int>("type", 0);
+  filterDesc.addUntracked<double>("ptMin", 0.);
+  filterDesc.addUntracked<double>("ptMax", 200.);
 
-    if (!plotAll_) {
-      for (PathInfoCollection::iterator v = hltPaths_.begin(); v != hltPaths_.end(); ++v) {
-        MonitorElement *et, *eta, *phi, *etavsphi = nullptr;
-        std::string histoname(v->getName() + "_et");
-        std::string title(v->getName() + " E_t");
-        et = dbe->book1D(histoname.c_str(), title.c_str(), nBins_, v->getPtMin(), v->getPtMax());
+  std::vector<edm::ParameterSet> default_toGet;
+  desc.addVPSet("filters", filterDesc, default_toGet);
 
-        histoname = v->getName() + "_eta";
-        title = v->getName() + " #eta";
-        eta = dbe->book1D(histoname.c_str(), title.c_str(), nBins_, -2.7, 2.7);
+  desc.add<edm::InputTag>("triggerSummaryLabel", edm::InputTag("hltTriggerSummaryAOD", "", "HLT"));
 
-        histoname = v->getName() + "_phi";
-        title = v->getName() + " #phi";
-        phi = dbe->book1D(histoname.c_str(), histoname.c_str(), nBins_, -3.14, 3.14);
-
-        histoname = v->getName() + "_etaphi";
-        title = v->getName() + " #eta vs #phi";
-        etavsphi = dbe->book2D(histoname.c_str(), title.c_str(), nBins_, -2.7, 2.7, nBins_, -3.14, 3.14);
-
-        v->setHistos(et, eta, phi, etavsphi);
-      }
-    }  // ! plotAll_ - for plotAll we discover it during the event
-  }
+  desc.addUntracked<std::string>("topFolderName", "HLT/FourVectorHLT");
+  descriptions.addWithDefaultLabel(desc);
 }
 
-// - method called once each job just after ending the event loop  ------------
-void FourVectorHLT::endJob() {
-  LogInfo("Status") << "endJob: analyzed " << nev_ << " events";
-  return;
-}
-
-// BeginRun
-void FourVectorHLT::beginRun(const edm::Run& run, const edm::EventSetup& c) {
-  LogDebug("Status") << "beginRun, run " << run.id();
-}
-
-/// EndRun
-void FourVectorHLT::endRun(const edm::Run& run, const edm::EventSetup& c) {
-  LogDebug("Status") << "endRun, run " << run.id();
-}
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(FourVectorHLT);
