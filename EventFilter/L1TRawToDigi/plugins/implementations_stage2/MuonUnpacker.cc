@@ -18,7 +18,7 @@ namespace l1t {
         return true;
       }
 
-      auto payload = block.payload();
+      const auto& payload = block.payload();
 
       int nBX, firstBX, lastBX;
       // Check if per BX zero suppression was enabled
