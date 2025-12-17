@@ -33,12 +33,12 @@ ph2_hits = [
 
 hltRecHitMapProducer = _recHitMapProducer.clone(
     hits = run3_hits,
-    doHgcal = False,
-    doBarrel = True,
+    doHgcalHits = False,
+    doPFHits = True,
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(hltRecHitMapProducer, hits=ph2_hits, doHgcal=True)
+phase2_common.toModify(hltRecHitMapProducer, hits=ph2_hits, doHgcalHits=True)
 
 # LC to CP and LC to SC associators TICL-based for HGCal region
 
@@ -73,12 +73,12 @@ hltHgcalLayerClustersAssociatorsTask = cms.Task(
 
 hltBarrelLcAssocByEnergyScoreProducer = _barrelLcAssocByEnergyScoreProducer.clone(
     hits = cms.InputTag("hltRecHitMapProducer", "RefProdVectorPFRecHitCollection"),
-    hitMapTag = cms.InputTag("hltRecHitMapProducer","barrelRecHitMap"),
+    hitMapTag = cms.InputTag("hltRecHitMapProducer","pfRecHitMap"),
 )
 
 hltBarrelScAssocByEnergyScoreProducer = _barrelScAssocByEnergyScoreProducer.clone(
     hits = cms.InputTag("hltRecHitMapProducer", "RefProdVectorPFRecHitCollection"),
-    hitMapTag = cms.InputTag("hltRecHitMapProducer","barrelRecHitMap"),
+    hitMapTag = cms.InputTag("hltRecHitMapProducer","pfRecHitMap"),
 )
 
 hltBarrelLayerClusterCaloParticleAssociationProducer = _barrelLayerClusterCaloParticleAssociation.clone(

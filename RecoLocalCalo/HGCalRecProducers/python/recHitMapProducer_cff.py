@@ -11,4 +11,4 @@ hits = ["HGCalRecHit:HGCEERecHits",
         "particleFlowRecHitHBHE"]
 
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
-ticl_barrel.toModify(recHitMapProducer, hits = hits, doHgcal = True, doBarrel = True)
+ticl_barrel.toModify(recHitMapProducer, hits = hits, doHgcalHits = True, doPFHits = True)
