@@ -5,11 +5,11 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/Portable/interface/PortableHostObject.h"
 #include "DataFormats/Portable/interface/PortableDeviceObject.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
+#include "DataFormats/Portable/interface/PortableHostObject.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
 
 namespace traits {
 
