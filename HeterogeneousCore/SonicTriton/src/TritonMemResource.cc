@@ -20,7 +20,7 @@ void TritonMemResource<IO>::set() {
   for (auto& entry : data_->entries_) {
     TRITON_THROW_IF_ERROR(entry.data_->SetSharedMemory(name_, entry.totalByteSize_, entry.offset_),
                           "unable to set shared memory (" + name_ + ")",
-                          this->data_->client()->token());
+                          this->data_->client()->service());
   }
 }
 
@@ -177,7 +177,7 @@ void TritonGpuShmResource<IO>::close() {
     return;
   TRITON_THROW_IF_ERROR(this->data_->grpcClient()->UnregisterCudaSharedMemory(this->name_),
                         "unable to unregister CUDA shared memory region: " + this->name_,
-                        this->data_->client()->token());
+                        this->data_->client()->service());
   cudaCheck(cudaFree(this->addr_), "unable to free GPU memory for key: " + this->name_);
   this->closed_ = true;
 }
