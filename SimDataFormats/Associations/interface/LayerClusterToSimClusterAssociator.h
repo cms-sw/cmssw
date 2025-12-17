@@ -31,14 +31,14 @@ namespace ticl {
     // ---------- const member functions ---------------------
     /// Associate a LayerCluster to SimClusters
     RecoToSimCollectionWithSimClustersT<CLUSTER> associateRecoToSim(
-        const edm::Handle<CLUSTER> &cCCH, const edm::Handle<SimClusterCollection> &sCCH) const {
-      return m_impl->associateRecoToSim(cCCH, sCCH);
+        const edm::Handle<CLUSTER> &cCCH, const edm::Handle<SimClusterCollection> &sCCH, const std::vector<DetId::Detector> &detIds) const {
+      return m_impl->associateRecoToSim(cCCH, sCCH, detIds);
     };
 
     /// Associate a SimCluster to LayerClusters
     SimToRecoCollectionWithSimClustersT<CLUSTER> associateSimToReco(
-        const edm::Handle<CLUSTER> &cCCH, const edm::Handle<SimClusterCollection> &sCCH) const {
-      return m_impl->associateSimToReco(cCCH, sCCH);
+        const edm::Handle<CLUSTER> &cCCH, const edm::Handle<SimClusterCollection> &sCCH, const std::vector<DetId::Detector> &detIds) const {
+      return m_impl->associateSimToReco(cCCH, sCCH, detIds);
     }
 
   private:
