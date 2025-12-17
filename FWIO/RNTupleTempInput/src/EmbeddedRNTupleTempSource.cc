@@ -17,7 +17,7 @@ namespace edm::rntuple_temp {
   namespace {
     EmbeddedRNTupleTempSource::Optimizations fromConfig(edm::ParameterSet const& iConfig) {
       EmbeddedRNTupleTempSource::Optimizations opts;
-      opts.useClusterCache = iConfig.getUntrackedParameter<bool>("useClusterCache");
+      opts.useClusterCache = iConfig.getUntrackedParameter<bool>("useClusterCache", true);
       return opts;
     }
 
@@ -39,7 +39,7 @@ namespace edm::rntuple_temp {
         skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
         bypassVersionCheck_(pset.getUntrackedParameter<bool>("bypassVersionCheck", false)),
         treeMaxVirtualSize_(0),
-        optimizations_(fromConfig(pset.getUntrackedParameterSet("rntupleReadOptions"))),
+        optimizations_(fromConfig(pset.getUntrackedParameterSet("rntupleReadOptions", edm::ParameterSet()))),
         productSelectorRules_(pset, "inputCommands", "InputSource"),
         runHelper_(new DefaultInputSourceRunHelper()),
         catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
