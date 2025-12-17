@@ -1,4 +1,4 @@
-// Include Eigen core library before include the SoA definitions
+// Include the Eigen core library before including the SoA definitions
 #include <Eigen/Core>
 
 #include "DataFormats/Common/interface/DeviceProduct.h"

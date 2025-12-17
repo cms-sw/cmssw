@@ -1,0 +1,5 @@
+<library file="TrivialSerialisation.cc" name="DataFormatsTrackSoATrivialSerialisation">
+  <use name="DataFormats/TrackSoA"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
