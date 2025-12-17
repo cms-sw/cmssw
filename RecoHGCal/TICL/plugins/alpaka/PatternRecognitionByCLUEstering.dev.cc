@@ -159,8 +159,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void PatternRecognitionByCLUEstering::fillPSetDescription(::edm::ParameterSetDescription& iDesc) {
     // iDesc.add<int>("algo_verbosity", 0);
     iDesc.add<double>("rho_c", 6.);
-    iDesc.add<std::vector<double>>("dc", {2., 2., 2.});
-    iDesc.add<std::vector<double>>("dm", {1.8, 1.8, 2.});
+    iDesc.add<double>("dc", 2.);
+    iDesc.add<double>("dm", 1.8);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

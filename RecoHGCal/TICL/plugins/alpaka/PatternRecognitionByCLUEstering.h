@@ -22,22 +22,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class PatternRecognitionByCLUEstering final : public PatternRecognitionAlgoBase {
   private:
     float m_rhoc;
-    std::array<float, 3> m_dc;
-    std::array<float, 3> m_dm;
+    float m_dc;
+    float m_dm;
 
   public:
     PatternRecognitionByCLUEstering(const edm::ParameterSet& config)
-        : PatternRecognitionAlgoBase(config), m_rhoc(config.getParameter<double>("rho_c")) {
-      auto dc = config.getParameter<std::vector<double>>("dc");
-      auto dm = config.getParameter<std::vector<double>>("dm");
-
-      if (dc.size() != 3 || dm.size() != 3) {
-        throw cms::Exception("Configuration") << "Parameters 'dc' and 'dm' must each have exactly 3 elements.";
-      }
-
-      auto to_float = [](auto x) -> float { return static_cast<float>(x); };
-      std::ranges::copy(dc | std::views::transform(to_float), m_dc.begin());
-      std::ranges::copy(dm | std::views::transform(to_float), m_dm.begin());
+        : PatternRecognitionAlgoBase(config),
+          m_rhoc(config.getParameter<double>("rho_c")),
+          m_dc(config.getParameter<double>("dc")),
+          m_dm(config.getParameter<double>("dm")) {
     }
     ~PatternRecognitionByCLUEstering() override = default;
 
