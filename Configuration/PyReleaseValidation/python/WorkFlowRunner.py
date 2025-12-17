@@ -117,6 +117,21 @@ class WorkFlowRunner(Thread):
         def closeCmd(i,ID):
             return ' > %s 2>&1; ' % ('step%d_'%(i,)+ID+'.log ',)
 
+        # For --secondfilein the primary and secondary files must have
+        # the same format (TTree or RNTuple). For now find the last
+        # step that uses --secondfilein, and use TTree for all steps
+        # up to that step. Theoretically we could identify the exact
+        # steps that need TTree output in this case, but given the way
+        # --secondfilein is being used now, and the deployment plan
+        # for RNTuple for HL-LHC, that complexity does not seem worth it.
+        lastStepWithSecondFileIn = None
+        if self.useRNTuple:
+            for (istepmone,com) in enumerate(self.wf.cmds):
+                # I don't know what to do in case com is something else
+                if isinstance(com, str):
+                    if "--secondfilein" in com:
+                        lastStepWithSecondFileIn = istepmone+1
+
         inFile=None
         lumiRangeFile=None
         aborted=False
@@ -192,7 +207,8 @@ class WorkFlowRunner(Thread):
 
                 cmd += com
 
-                if self.useRNTuple:
+                if self.useRNTuple and not \
+                   (lastStepWithSecondFileIn is not None and istep < lastStepWithSecondFileIn):
                     cmd+=' --rntuple_out'
                 if self.startFrom:
                     steps = cmd.split("-s ")[1].split(" ")[0]
