@@ -407,8 +407,8 @@ namespace tmtt {
     numUpdateCalls_++;  // For monitoring, count calls to updator per track.
 
     // Helix params & their covariance.
-    TVectorD vecX = state->vectorX();
-    TMatrixD matC = state->matrixC();
+    const TVectorD &vecX = state->vectorX();
+    const TMatrixD &matC = state->matrixC();
     if (state->barrel() && !stub->barrel()) {
       if (settings_->kalmanDebugLevel() >= 4) {
         PrintL1trk() << "STATE BARREL TO ENDCAP BEFORE ";

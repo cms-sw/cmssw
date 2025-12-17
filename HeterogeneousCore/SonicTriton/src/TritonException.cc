@@ -3,10 +3,10 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonException.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 
-TritonException::TritonException(std::string const& aCategory, bool signal) : cms::Exception(aCategory) {
-  if (signal) {
-    edm::Service<TritonService> ts;
-    ts->notifyCallStatus(false);
+TritonException::TritonException(std::string const& aCategory, const TritonService* service)
+    : cms::Exception(aCategory) {
+  if (service) {
+    service->notifyCallStatus(false);
   }
 }
 

@@ -407,6 +407,7 @@ void MuonPathCorFitter::fillLuts() {
     ifin2sl >> line;
 
     std::vector<int> myNumbers;
+    myNumbers.reserve(line.size());
     for (size_t i = 0; i < line.size(); i++) {
       // This converts the char into an int and pushes it into vec
       myNumbers.push_back(line[i] - '0');  // The digits will be in the same order as before

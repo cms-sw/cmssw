@@ -32,7 +32,7 @@ namespace l1t {
     namespace emtf {
 
       int SPBlockUnpacker::checkFormat(const Block& block) {
-        auto payload = block.payload();
+        const auto& payload = block.payload();
         int errors = 0;
 
         // Check the number of 16-bit words
@@ -174,7 +174,7 @@ namespace l1t {
         // Get the payload for this block, made up of 16-bit words (0xffff)
         // Format defined in MTF7Payload::getBlock() in src/Block.cc
         // payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
-        auto payload = block.payload();
+        const auto& payload = block.payload();
 
         // FW version is computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
         bool useNNBits_ = getAlgoVersion() >= 11098;   // FW versions >= 26.10.2021

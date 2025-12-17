@@ -311,7 +311,7 @@ void XMLConfigWriter::writeResultsData(xercesc::DOMElement* aTopElement,
                                        unsigned int iRegion,
                                        const Key& aKey,
                                        const OMTFResult& aResult) {
-  OMTFResult::vector2D results = aResult.getResults();
+  const OMTFResult::vector2D& results = aResult.getResults();
 
   std::ostringstream stringStr;
   ///Write GP key parameters

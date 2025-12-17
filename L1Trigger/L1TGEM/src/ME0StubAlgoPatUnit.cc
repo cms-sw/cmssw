@@ -17,7 +17,7 @@ std::pair<std::vector<double>, double> l1t::me0::calculateCentroids(
   std::vector<int> bxs;
   for (int ly = 0; ly < static_cast<int>(maskedData.size()); ++ly) {
     auto data = maskedData[ly];
-    auto bxData = partitionBxData[ly];
+    const auto& bxData = partitionBxData[ly];
     const auto temp = findCentroid(data);
     double curCentroid = temp.first;
     std::vector<int> hitsIndices = temp.second;
