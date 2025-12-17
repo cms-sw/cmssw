@@ -10,6 +10,7 @@
  *  \author Marco Rovere
  */
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
@@ -35,11 +36,11 @@ namespace ticl {
 
     /// Associate a LayerCluster to CaloParticles
     virtual ticl::RecoToSimCollectionT<CLUSTER> associateRecoToSim(
-        const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH) const;
+        const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH, const std::vector<DetId::Detector> &detIds) const;
 
     /// Associate a CaloParticle to LayerClusters
     virtual ticl::SimToRecoCollectionT<CLUSTER> associateSimToReco(
-        const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH) const;
+        const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH, const std::vector<DetId::Detector> &detIds) const;
   };
 }  // namespace ticl
 

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <memory>  // shared_ptr
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
@@ -77,10 +78,10 @@ public:
                                               const multiCollectionT &hits);
 
   ticl::RecoToSimCollectionT<CLUSTER> associateRecoToSim(
-      const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH) const override;
+      const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH, const std::vector<DetId::Detector> &detIds) const override;
 
   ticl::SimToRecoCollectionT<CLUSTER> associateSimToReco(
-      const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH) const override;
+      const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH, const std::vector<DetId::Detector> &detIds) const override;
 
 private:
   const bool hardScatterOnly_;
@@ -89,7 +90,8 @@ private:
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
   ticl::association makeConnections(const edm::Handle<CLUSTER> &cCH,
-                                    const edm::Handle<CaloParticleCollection> &cPCH) const;
+                                    const edm::Handle<CaloParticleCollection> &cPCH,
+                                    const std::vector<DetId::Detector> &detIds) const;
   multiCollectionT hits_;
 };
 

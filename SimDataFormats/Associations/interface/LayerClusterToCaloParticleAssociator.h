@@ -33,14 +33,16 @@ namespace ticl {
     // ---------- const member functions ---------------------
     /// Associate a LayerCluster to CaloParticles
     ticl::RecoToSimCollectionT<CLUSTER> associateRecoToSim(const edm::Handle<CLUSTER> &cCCH,
-                                                           const edm::Handle<CaloParticleCollection> &cPCH) const {
-      return m_impl->associateRecoToSim(cCCH, cPCH);
+                                                           const edm::Handle<CaloParticleCollection> &cPCH,
+                                                           const std::vector<DetId::Detector> &detIds) const {
+      return m_impl->associateRecoToSim(cCCH, cPCH, detIds);
     };
 
     /// Associate a CaloParticle to LayerClusters
     ticl::SimToRecoCollectionT<CLUSTER> associateSimToReco(const edm::Handle<CLUSTER> &cCCH,
-                                                           const edm::Handle<CaloParticleCollection> &cPCH) const {
-      return m_impl->associateSimToReco(cCCH, cPCH);
+                                                           const edm::Handle<CaloParticleCollection> &cPCH,
+                                                           const std::vector<DetId::Detector> &detIds) const {
+      return m_impl->associateSimToReco(cCCH, cPCH, detIds);
     }
 
   private:

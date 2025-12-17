@@ -1,26 +1,48 @@
 import FWCore.ParameterSet.Config as cms
 
+run3_simHits = {
+    "ECAL": [
+        cms.InputTag('g4SimHits', 'EcalHitsEB'),
+        cms.InputTag('g4SimHits', 'EcalHitsEE'),
+    ],
+    "HCAL": [
+        cms.InputTag('g4SimHits', 'HcalHits'),
+    ],
+}
+
+ph2_simHits = {
+    "ECAL": [
+        cms.InputTag('g4SimHits', 'EcalHitsEB'),
+    ],
+    "HCAL": [
+        cms.InputTag('g4SimHits', 'HcalHits'),
+    ],
+    "HGCAL": [
+        cms.InputTag('g4SimHits', 'HGCHitsEE'),
+        cms.InputTag('g4SimHits', 'HGCHitsHEfront'),
+        cms.InputTag('g4SimHits', 'HGCHitsHEback'),
+    ]
+}
+
+# Default run-3 configuration
 caloParticles = cms.PSet(
 	accumulatorType = cms.string('CaloTruthAccumulator'),
-#	createUnmergedCollection = cms.bool(True),
-#	createMergedBremsstrahlung = cms.bool(True),
-#	createInitialVertexCollection = cms.bool(False),
-#	alwaysAddAncestors = cms.bool(True),
-        MinEnergy = cms.double(0.5),
-        MaxPseudoRapidity = cms.double(5.0),
-        produceLegacySimCluster = cms.bool(True),
-        produceBoundaryAndMergedSimCluster = cms.bool(True),
-        premixStage1 = cms.bool(False),
-        doHGCAL = cms.bool(False),
+    #	createUnmergedCollection = cms.bool(True),
+    #	createMergedBremsstrahlung = cms.bool(True),
+    #	createInitialVertexCollection = cms.bool(False),
+    #	alwaysAddAncestors = cms.bool(True),
+    MinEnergy = cms.double(0.5),
+    MaxPseudoRapidity = cms.double(5.0),
+    produceLegacySimCluster = cms.bool(True),
+    produceBoundaryAndMergedSimCluster = cms.bool(True),
+    premixStage1 = cms.bool(False),
+    doHGCAL = cms.bool(False),
 	maximumPreviousBunchCrossing = cms.uint32(0),
 	maximumSubsequentBunchCrossing = cms.uint32(0),
 	simHitCollections = cms.PSet(
-            hgc = cms.VInputTag(),
-#           hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
-            ecal = cms.VInputTag(
-                cms.InputTag('g4SimHits','EcalHitsEB'),
-                cms.InputTag('g4SimHits','EcalHitsEE'),
-            )
+        hgc = cms.VInputTag(),
+        hcal = cms.VInputTag(*run3_simHits["HCAL"]),
+        ecal = cms.VInputTag(*run3_simHits["ECAL"]),
 	),
 	simTrackCollection = cms.InputTag('g4SimHits'),
 	simVertexCollection = cms.InputTag('g4SimHits'),
@@ -32,11 +54,16 @@ caloParticles = cms.PSet(
     )
 )
 
+# Phase-2 configuration (HGCAL only) # [FIXME: with the isBarrel check in associators it could contain all hits]
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(caloParticles, doHGCAL=True)
-
-from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-premix_stage1.toModify(caloParticles, premixStage1 = True)
+phase2_common.toModify(caloParticles, 
+    doHGCAL=True,
+    simHitCollections = cms.PSet(
+        hgc = cms.VInputTag(*ph2_simHits["HGCAL"]),
+        hcal = cms.VInputTag(*ph2_simHits["HCAL"]),
+        ecal = cms.VInputTag(*ph2_simHits["ECAL"]),
+    ),
+)
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toModify(
@@ -59,23 +86,18 @@ run3_ecalclustering.toModify(
 	)
 )
 
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(caloParticles, cms.PSet()) # don't allow this to run in fastsim
-
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toModify(
     caloParticles, 
     simHitCollections = cms.PSet(
-        # hgc = cms.VInputTag(
-        #     cms.InputTag('g4SimHits', 'HGCHitsEE'),
-        #     cms.InputTag('g4SimHits', 'HGCHitsHEfront'),
-        #     cms.InputTag('g4SimHits', 'HGCHitsHEback'),
-        # ),
-        # hcal = cms.VInputTag(cms.InputTag('g4SimHits', 'HcalHits')),
-        ecal = cms.VInputTag(
-            cms.InputTag('g4SimHits', 'EcalHitsEB')
-        )
+        hgc = cms.VInputTag(*ph2_simHits["HGCAL"]),
+        hcal = cms.VInputTag(*ph2_simHits["HCAL"]),
+        ecal = cms.VInputTag(*ph2_simHits["ECAL"]),
     )
 )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(caloParticles, cms.PSet()) # don't allow this to run in fastsim
 
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(caloParticles, premixStage1 = True)

@@ -33,7 +33,7 @@ LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::LCToCPAssociatorByEnergyScoreI
 
 template <typename HIT, typename CLUSTER>
 ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnections(
-    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
+    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH, const std::vector<DetId::Detector>& detIds) const {
   // Get collections
   const auto& clusters = *cCCH.product();
   const auto& caloParticles = *cPCH.product();
@@ -75,15 +75,16 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
     const SimClusterRefVector& simClusterRefVector = caloParticles[cpId].simClusters();
     for (const auto& it_sc : simClusterRefVector) {
       const SimCluster& simCluster = (*(it_sc));
-      std::vector<std::pair<uint32_t, float>> hits_and_fractions;
-      if constexpr (std::is_same_v<HIT, HGCRecHit>)
-        hits_and_fractions = simCluster.filtered_hits_and_fractions(
-            [this](const DetId& detid) { return !recHitTools_->isBarrel(detid); });
-      else
-        hits_and_fractions = simCluster.filtered_hits_and_fractions(
-            [this](const DetId& detid) { return recHitTools_->isBarrel(detid); });
-      for (const auto& it_haf : hits_and_fractions) {
-        const auto hitid = (it_haf.first);
+
+      SimCluster::HitsAndFractionsView hafView = 
+        detIds.empty() ? simCluster.hits_and_fractions_view() :
+        (detIds.size() == 1 ? simCluster.hits_and_fractions_view(detIds[0]) :
+                              simCluster.hits_and_fractions_view(*detIds.begin(), *(detIds.rbegin())));
+
+      for (size_t i = 0; i < hafView.hits.size(); ++i) {
+        const uint32_t hitid = hafView.hits[i];
+        const float fraction = hafView.fractions[i];
+
         unsigned int cpLayerId = recHitTools_->getLayerWithOffset(hitid);
         if constexpr (std::is_same_v<HIT, HGCRecHit>)
           cpLayerId += layers_ * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
@@ -94,19 +95,19 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
           auto hit_find_it = detIdToCaloParticleId_Map.find(hitid);
           if (hit_find_it == detIdToCaloParticleId_Map.end()) {
             detIdToCaloParticleId_Map[hitid] = std::vector<ticl::detIdInfoInCluster>();
-            detIdToCaloParticleId_Map[hitid].emplace_back(cpId, it_haf.second);
+            detIdToCaloParticleId_Map[hitid].emplace_back(cpId, fraction);
           } else {
             auto findHitIt = std::find(detIdToCaloParticleId_Map[hitid].begin(),
                                        detIdToCaloParticleId_Map[hitid].end(),
-                                       ticl::detIdInfoInCluster{cpId, it_haf.second});
+                                       ticl::detIdInfoInCluster{cpId, fraction});
             if (findHitIt != detIdToCaloParticleId_Map[hitid].end()) {
-              findHitIt->fraction += it_haf.second;
+              findHitIt->fraction += fraction;
             } else {
-              detIdToCaloParticleId_Map[hitid].emplace_back(cpId, it_haf.second);
+              detIdToCaloParticleId_Map[hitid].emplace_back(cpId, fraction);
             }
           }
           const HIT* hit = &hitsMS[itcheck->second];
-          cPOnLayer[cpId][cpLayerId].energy += it_haf.second * hit->energy();
+          cPOnLayer[cpId][cpLayerId].energy += fraction * hit->energy();
           // We need to compress the hits and fractions in order to have a
           // reasonable score between CP and LC. Imagine, for example, that a
           // CP has detID X used by 2 SimClusters with different fractions. If
@@ -117,9 +118,9 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
           auto found = std::find_if(
               std::begin(haf), std::end(haf), [&hitid](const std::pair<DetId, float>& v) { return v.first == hitid; });
           if (found != haf.end()) {
-            found->second += it_haf.second;
+            found->second += fraction;
           } else {
-            cPOnLayer[cpId][cpLayerId].hits_and_fractions.emplace_back(hitid, it_haf.second);
+            cPOnLayer[cpId][cpLayerId].hits_and_fractions.emplace_back(hitid, fraction);
           }
         }
       }
@@ -542,14 +543,14 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
 
 template <typename HIT, typename CLUSTER>
 ticl::RecoToSimCollectionT<CLUSTER> LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::associateRecoToSim(
-    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
+    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH, const std::vector<DetId::Detector>& detIds) const {
   ticl::RecoToSimCollectionT<CLUSTER> returnValue(productGetter_);
 
   if (!hitMap_ || hitMap_->empty()) {
     edm::LogWarning("LCToCPAssociatorByEnergyScoreImplT") << "hitMap_ is null or empty, skipping association.";
     return returnValue;  // return empty collection
   }
-  const auto& links = makeConnections(cCCH, cPCH);
+  const auto& links = makeConnections(cCCH, cPCH, detIds);
 
   const auto& cpsInLayerCluster = std::get<0>(links);
   for (size_t lcId = 0; lcId < cpsInLayerCluster.size(); ++lcId) {
@@ -568,7 +569,7 @@ ticl::RecoToSimCollectionT<CLUSTER> LCToCPAssociatorByEnergyScoreImplT<HIT, CLUS
 
 template <typename HIT, typename CLUSTER>
 ticl::SimToRecoCollectionT<CLUSTER> LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::associateSimToReco(
-    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
+    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH, const std::vector<DetId::Detector>& detIds) const {
   ticl::SimToRecoCollectionT<CLUSTER> returnValue(productGetter_);
 
   if (!hitMap_ || hitMap_->empty()) {
@@ -576,7 +577,7 @@ ticl::SimToRecoCollectionT<CLUSTER> LCToCPAssociatorByEnergyScoreImplT<HIT, CLUS
     return returnValue;  // return empty collection
   }
 
-  const auto& links = makeConnections(cCCH, cPCH);
+  const auto& links = makeConnections(cCCH, cPCH, detIds);
   const auto& cPOnLayer = std::get<1>(links);
   for (size_t cpId = 0; cpId < cPOnLayer.size(); ++cpId) {
     for (size_t layerId = 0; layerId < cPOnLayer[cpId].size(); ++layerId) {
