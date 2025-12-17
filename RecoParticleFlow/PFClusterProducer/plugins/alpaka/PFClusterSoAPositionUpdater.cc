@@ -46,6 +46,7 @@ public:
         pfRecHitFractionSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
         InputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
         outPFClusterSoAToken_(produces()),
+	outPFRecHitFractionSoAToken_(produces()),
         recHitsLabel_(consumes(config.getParameter<edm::InputTag>("recHitsSource"))),
         hcalCutsToken_(esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"))),
         cutsFromDB_(config.getParameter<bool>("usePFThresholdsFromDB")) {
@@ -74,7 +75,7 @@ public:
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src", edm::InputTag("pfClusterSoAProducer"));
     desc.add<edm::InputTag>("PFRecHitsLabelIn", edm::InputTag("pfRecHitSoAProducerHCAL"));
-    //desc.add<edm::InputTag>("recHitsSource", edm::InputTag("legacyPFRecHitProducer"));
+    desc.add<edm::InputTag>("recHitsSource", edm::InputTag("legacyPFRecHitProducer"));
     desc.add<bool>("usePFThresholdsFromDB", true);
     {
       edm::ParameterSetDescription pfClusterBuilder;
@@ -194,6 +195,7 @@ private:
   const edm::EDGetTokenT<::reco::PFRecHitFractionHostCollection> pfRecHitFractionSoAToken_;
   const edm::EDGetTokenT<::reco::PFRecHitHostCollection> InputPFRecHitSoA_Token_;
   const edm::EDPutTokenT<::reco::PFClusterHostCollection> outPFClusterSoAToken_;
+  const edm::EDPutTokenT<::reco::PFRecHitFractionHostCollection> outPFRecHitFractionSoAToken_;
   const edm::EDGetTokenT<::reco::PFRecHitCollection> recHitsLabel_;
   const edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   const bool cutsFromDB_;
@@ -214,9 +216,13 @@ void PFClusterSoAPositionUpdater::produce(device::Event& event, const device::Ev
 
   std::unique_ptr<::reco::PFClusterHostCollection> outPFClusterSoAPtr;
 
+  std::unique_ptr<::reco::PFRecHitFractionHostCollection> outPFRecHitFractionSoAPtr;
+
   if (pfClusterSoA.nSeeds() == 0 || nRH == 0) {
-    outPFClusterSoAPtr = std::make_unique<::reco::PFClusterHostCollection>(0, cms::alpakatools::host());	  
+    outPFClusterSoAPtr = std::make_unique<::reco::PFClusterHostCollection>(0, cms::alpakatools::host());	
+    outPFRecHitFractionSoAPtr = std::make_unique<::reco::PFRecHitFractionHostCollection>(0, cms::alpakatools::host());  
     event.emplace(outPFClusterSoAToken_, std::move(*outPFClusterSoAPtr));
+    event.emplace(outPFRecHitFractionSoAToken_, std::move(*outPFRecHitFractionSoAPtr));
     return;
   }
   auto const& pfRecHitFractionSoA = event.get(pfRecHitFractionSoAToken_).const_view();
@@ -238,17 +244,34 @@ void PFClusterSoAPositionUpdater::produce(device::Event& event, const device::Ev
   outPFClusterSoA.nRHFracs() = pfClusterSoA.nRHFracs();
   outPFClusterSoA.size() = pfClusterSoA.size();
 
+  struct Fraction {  // content is same as for SoA
+    int pfrhIdx;     // index into hits[]
+    int pfcIdx;      // index into clusters[]
+    float frac;      // contribution of that hit to that cluster
+  };
+
+  std::vector<Fraction> rhfracs;
+  rhfracs.reserve(pfClusterSoA.nRHFracs());
+
+  int rhfTotSize = 0;
+
   for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
     unsigned int n = pfClusterSoA[i].seedRHIdx();
     ::reco::PFCluster temp;
     temp.setSeed((*rechitsHandle)[n].detId());  // Pulling the detId of this PFRecHit from the legacy format input
     int offset = pfClusterSoA[i].rhfracOffset();
+
+    int rhfSize = 0;
+
     for (int k = offset; k < (offset + pfClusterSoA[i].rhfracSize()) && k >= 0;
            k++) {  // Looping over PFRecHits in the same topo cluster
       if (pfRecHitFractionSoA[k].pfrhIdx() < nRH && pfRecHitFractionSoA[k].pfrhIdx() > -1 &&
             pfRecHitFractionSoA[k].frac() > 0.0) {
         const ::reco::PFRecHitRef& refhit = ::reco::PFRecHitRef(rechitsHandle, pfRecHitFractionSoA[k].pfrhIdx());
         temp.addRecHitFraction(::reco::PFRecHitFraction(refhit, pfRecHitFractionSoA[k].frac()));
+	rhfSize += 1;
+
+	rhfracs.push_back(Fraction{pfRecHitFractionSoA[k].pfrhIdx(), i, pfRecHitFractionSoA[k].frac()});
       }
     }
 
@@ -261,15 +284,26 @@ void PFClusterSoAPositionUpdater::produce(device::Event& event, const device::Ev
     outPFClusterSoA[i].depth() = pfClusterSoA[i].depth();
     outPFClusterSoA[i].seedRHIdx() = n;
     outPFClusterSoA[i].topoId() = pfClusterSoA[i].topoId();
-    outPFClusterSoA[i].rhfracSize() = pfClusterSoA[i].rhfracSize();
-    outPFClusterSoA[i].rhfracOffset() = pfClusterSoA[i].rhfracOffset();
+    outPFClusterSoA[i].rhfracSize() = rhfSize;//pfClusterSoA[i].rhfracSize();
+    outPFClusterSoA[i].rhfracOffset() = rhfTotSize; //pfClusterSoA[i].rhfracOffset();
     outPFClusterSoA[i].energy() = temp.energy();
     outPFClusterSoA[i].x() = temp.x();
     outPFClusterSoA[i].y() = temp.y();
     outPFClusterSoA[i].z() = temp.z();
     outPFClusterSoA[i].topoRHCount() = pfClusterSoA[i].topoRHCount();
+    rhfTotSize += rhfSize;
+  }
+
+  outPFRecHitFractionSoAPtr = std::make_unique<::reco::PFRecHitFractionHostCollection>(rhfTotSize, cms::alpakatools::host());
+  auto& outPFRecHitFractionSoA = outPFRecHitFractionSoAPtr->view();
+
+  for (int i = 0; i < rhfTotSize; i++) {
+    outPFRecHitFractionSoA[i].pfrhIdx() = rhfracs[i].pfrhIdx; 
+    outPFRecHitFractionSoA[i].pfcIdx() = rhfracs[i].pfcIdx;
+    outPFRecHitFractionSoA[i].frac() = rhfracs[i].frac;   
   }
   event.emplace(outPFClusterSoAToken_, std::move(*outPFClusterSoAPtr));
+  event.emplace(outPFRecHitFractionSoAToken_, std::move(*outPFRecHitFractionSoAPtr));
 }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
