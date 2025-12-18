@@ -1988,6 +1988,20 @@ upgradeWFs['HLTTiming75e33TiclV5'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
 
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].suffix = '_HLT75e33TimingTiclV5TrackLinkGNN'
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].offset = 0.7521
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'ticlv5_TrackLinkingGNN',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
+
+
 upgradeWFs['HLTTiming75e33AlpakaSingleIter'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33AlpakaSingleIter'].suffix = '_HLT75e33TimingAlpakaSingleIter'
 upgradeWFs['HLTTiming75e33AlpakaSingleIter'].offset = 0.753
