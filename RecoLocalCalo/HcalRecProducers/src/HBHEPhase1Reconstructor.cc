@@ -861,6 +861,7 @@ void HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& d
     psd0.add<bool>("useM3", true);
     psd0.add<bool>("useMahi", true);
     psd0.add<bool>("applyLegacyHBMCorrection", true);
+    psd0.add<bool>("useChannelPulseShapesForMC", false);
     desc.add<edm::ParameterSetDescription>("algorithm", psd0);
   }
   desc.add<std::string>("algoConfigClass", "");
