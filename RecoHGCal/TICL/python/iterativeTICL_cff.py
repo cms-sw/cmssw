@@ -153,7 +153,7 @@ ticlv5TrackLinkingGNN.toModify(ticlCandidate,
             inputNames = cms.vstring('x', 'edge_index', 'edge_attr'),
             output = cms.vstring('output'),
             delta_tk_ts = cms.double(0.1),
-	    thr_gnn = cms.double(0.5),
+            thr_gnn = cms.double(0.5),
             type = cms.string('GNNLink')
         )
     )
