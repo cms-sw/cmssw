@@ -103,36 +103,36 @@ Vector GNNInterpretationAlgo::propagateTrackster(const Trackster& t,
   return propPoint;
 }
 
-std::pair<float, float> GNNInterpretationAlgo::CalculateTrackstersError(const Trackster& trackster) {
+std::pair<float, float> GNNInterpretationAlgo::calculateTrackstersError(const Trackster& trackster) {
   const auto& barycenter = trackster.barycenter();
-  const double x = barycenter.x(), y = barycenter.y(), z = barycenter.z();
+  const float x = barycenter.x(), y = barycenter.y(), z = barycenter.z();
 
   const auto& s = trackster.sigmasPCA();
-  const double s1 = s[0] * s[0], s2 = s[1] * s[1], s3 = s[2] * s[2];
+  const float s1 = s[0] * s[0], s2 = s[1] * s[1], s3 = s[2] * s[2];
 
   const auto& v1 = trackster.eigenvectors()[0];
   const auto& v2 = trackster.eigenvectors()[1];
   const auto& v3 = trackster.eigenvectors()[2];
 
   // Covariance in XY from 3D
-  const double cxx = s1 * v1.x() * v1.x() + s2 * v2.x() * v2.x() + s3 * v3.x() * v3.x();
-  const double cxy = s1 * v1.x() * v1.y() + s2 * v2.x() * v2.y() + s3 * v3.x() * v3.y();
-  const double cyy = s1 * v1.y() * v1.y() + s2 * v2.y() * v2.y() + s3 * v3.y() * v3.y();
+  const float cxx = s1 * v1.x() * v1.x() + s2 * v2.x() * v2.x() + s3 * v3.x() * v3.x();
+  const float cxy = s1 * v1.x() * v1.y() + s2 * v2.x() * v2.y() + s3 * v3.x() * v3.y();
+  const float cyy = s1 * v1.y() * v1.y() + s2 * v2.y() * v2.y() + s3 * v3.y() * v3.y();
 
   // Geometry helpers
-  const double r2 = x * x + y * y;
-  const double denom_eta = r2 * (r2 + z * z);
-  const double sqrt_term = std::sqrt(r2 / (z * z) + 1);
+  const float r2 = x * x + y * y;
+  const float denom_eta = r2 * (r2 + z * z);
+  const float sqrt_term = std::sqrt(r2 / (z * z) + 1);
 
   // Jacobian elements
-  const double J00 = -(x * z * z * sqrt_term) / denom_eta;
-  const double J01 = -(y * z * z * sqrt_term) / denom_eta;
-  const double J10 = -y / r2;
-  const double J11 = x / r2;
+  const float J00 = -(x * z * z * sqrt_term) / denom_eta;
+  const float J01 = -(y * z * z * sqrt_term) / denom_eta;
+  const float J10 = -y / r2;
+  const float J11 = x / r2;
 
   // CovEtaPhi = J * CovXY * J^T
-  const double cee = J00 * (J00 * cxx + J01 * cxy) + J01 * (J00 * cxy + J01 * cyy);
-  const double cpp = J10 * (J10 * cxx + J11 * cxy) + J11 * (J10 * cxy + J11 * cyy);
+  const float cee = J00 * (J00 * cxx + J01 * cxy) + J01 * (J00 * cxy + J01 * cyy);
+  const float cpp = J10 * (J10 * cxx + J11 * cxy) + J11 * (J10 * cxy + J11 * cyy);
 
   return {std::sqrt(std::abs(cee)), std::sqrt(std::abs(cpp))};
 }
@@ -144,7 +144,7 @@ void GNNInterpretationAlgo::constructNodeFromWindow(
     const std::vector<Vector>& tracksterPropPoints,
     float delta2,
     unsigned trackstersSize,
-    std::vector<GraphNode>& graph) {
+    std::vector<ticl::Node>& graph) {
   const float delta = 0.5f * delta2;
 
   for (const auto& [seedPos, seedIdx, _] : seeding) {
@@ -159,9 +159,7 @@ void GNNInterpretationAlgo::constructNodeFromWindow(
 
     const auto searchBox = tile.searchBoxEtaPhi(etaMin, etaMax, seedPhi - delta, seedPhi + delta);
 
-    GraphNode node;
-    node.index = seedIdx;
-    node.isTrackster = false;  // this node represents a track
+    ticl::Node node(seedIdx, false);
 
     for (int iEta = searchBox[0]; iEta <= searchBox[1]; ++iEta) {
       for (int iPhi = searchBox[2]; iPhi <= searchBox[3]; ++iPhi) {
@@ -173,14 +171,10 @@ void GNNInterpretationAlgo::constructNodeFromWindow(
           if (tsIdx >= trackstersSize)
             continue;
 
-          const float dEta = tracksterPropPoints[tsIdx].Eta() - seedEta;
-          const float dPhi = tracksterPropPoints[tsIdx].Phi() - seedPhi;
-
-          const float deltaR2 = dEta * dEta + dPhi * dPhi;
-          if (deltaR2 < delta2) {
-            GraphEdge edge;
-            edge.target_index = tsIdx;
-            node.neighbours.push_back(edge);
+          const float sep2 =
+              reco::deltaR2(tracksterPropPoints[tsIdx].Eta(), tracksterPropPoints[tsIdx].Phi(), seedEta, seedPhi);
+          if (sep2 < delta2) {
+            node.addOuterNeighbour(tsIdx);
           }
         }
       }
@@ -210,7 +204,7 @@ void GNNInterpretationAlgo::buildGraphFromNodes(const std::tuple<Vector, Algebra
                                                 const reco::Track& track,
                                                 const edm::MultiSpan<Trackster>& tracksters,
                                                 const std::vector<reco::CaloCluster>& clusters,
-                                                const std::vector<GraphNode>& nodeVec,
+                                                const std::vector<ticl::Node>& nodeVec,
                                                 GraphData& outGraphData) {
   outGraphData = {};  // clear previous data
 
@@ -229,9 +223,9 @@ void GNNInterpretationAlgo::buildGraphFromNodes(const std::tuple<Vector, Algebra
   covMatrixXY(1, 0) = localErrMatrix(3, 4);
   covMatrixXY(1, 1) = localErrMatrix(4, 4);
 
-  const double sqrt_term = std::sqrt((x * x + y * y) / (z * z) + 1);
-  const double denom_eta = (x * x + y * y) * (x * x + y * y + z * z);
-  const double denom_phi = x * x + y * y;
+  const float sqrt_term = std::sqrt((x * x + y * y) / (z * z) + 1);
+  const float denom_eta = (x * x + y * y) * (x * x + y * y + z * z);
+  const float denom_phi = x * x + y * y;
 
   AlgebraicMatrix22 jacobian;
   jacobian(0, 0) = -(x * z * z * sqrt_term) / denom_eta;
@@ -251,28 +245,18 @@ void GNNInterpretationAlgo::buildGraphFromNodes(const std::tuple<Vector, Algebra
       std::abs(eta), phi, track_etaErr, track_phiErr, x, y, std::abs(z), track_p, track_pt, trackHits};
   trk_feats.resize(track_block_size);
 
-  // Lambda to wrap deltaPhi
-  auto wrapPhi = [](float dphi) -> float {
-    const float pi = M_PI, two_pi = 2.0f * M_PI;
-    dphi = std::fmod(dphi + pi, two_pi);
-    if (dphi < 0)
-      dphi += two_pi;
-    return dphi - pi;
-  };
-
   // Fill node features
   for (const auto& node : nodeVec) {
-    if (!node.isTrackster && static_cast<int>(node.index) == track_idx) {
-      track_node_features[node.index] = padFeatures(trk_feats, track_block_size, trackster_block_size, true);
+    if (!node.isTrackster() && static_cast<int>(node.getId()) == track_idx) {
+      track_node_features[node.getId()] = padFeatures(trk_feats, track_block_size, trackster_block_size, true);
 
-      for (const auto& edge : node.neighbours) {
-        const unsigned ts_idx = edge.target_index;
+      for (unsigned ts_idx : node.getOuterNeighbours()) {
         if (ts_idx >= tracksters.size())
           continue;
 
         if (!trackster_node_features.count(ts_idx)) {
           const auto& ts = tracksters[ts_idx];
-          auto [errEta, errPhi] = CalculateTrackstersError(ts);
+          auto [errEta, errPhi] = calculateTrackstersError(ts);
 
           std::vector<float> ts_feats = {std::abs(ts.barycenter().eta()),
                                          ts.barycenter().phi(),
@@ -290,7 +274,7 @@ void GNNInterpretationAlgo::buildGraphFromNodes(const std::tuple<Vector, Algebra
           ts_feats.resize(trackster_block_size);
           trackster_node_features[ts_idx] = padFeatures(ts_feats, track_block_size, trackster_block_size, false);
         }
-        outGraphData.edge_index.emplace_back(node.index, ts_idx);
+        outGraphData.edge_index.emplace_back(node.getId(), ts_idx);
       }
     }
   }
@@ -324,7 +308,7 @@ void GNNInterpretationAlgo::buildGraphFromNodes(const std::tuple<Vector, Algebra
     const float ts_eta = dst_feats[trkster_offset], ts_phi = dst_feats[trkster_offset + 1];
 
     const float delta_eta = trk_eta - ts_eta;
-    const float delta_phi = wrapPhi(trk_phi - ts_phi);
+    const float delta_phi = reco::deltaPhi(trk_phi, ts_phi);
     const float deta_sig = delta_eta / std::sqrt(dst_feats[trkster_offset + 2] * dst_feats[trkster_offset + 2] +
                                                  src_feats[2] * src_feats[2] + 1e-8f);
     const float dphi_sig = delta_phi / std::sqrt(dst_feats[trkster_offset + 3] * dst_feats[trkster_offset + 3] +
@@ -440,7 +424,7 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
   }
 
   // Step 1: Construct nodes from tracksters and tracks
-  std::vector<GraphNode> nodesFront, nodesInt;
+  std::vector<ticl::Node> nodesFront, nodesInt;
 
   constructNodeFromWindow(
       tracksters, tkPropFront, tsTilesFront, tsPropFront, del_tk_ts_, tracksters.size(), nodesFront);
@@ -453,7 +437,7 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
 
   auto runInferenceForTrack = [&](unsigned trkId,
                                   const std::vector<TrackPropInfo>& tkProps,
-                                  const std::vector<GraphNode>& nodes,
+                                  std::vector<ticl::Node>& nodes,
                                   bool useInterfaceModel) {
     auto it =
         std::find_if(tkProps.begin(), tkProps.end(), [&](const auto& info) { return std::get<1>(info) == trkId; });
@@ -571,9 +555,6 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
 }
 
 void GNNInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription& desc) {
-  desc.add<std::string>("cutTk",
-                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
-                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   desc.add<edm::FileInPath>(
           "onnxTrkLinkingModelFirstDisk",
           edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/FirstDiskPropGNN_v0.onnx"))
@@ -582,7 +563,6 @@ void GNNInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription& de
           "onnxTrkLinkingModelInterfaceDisk",
           edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/InterfaceDiskPropGNN_v0.onnx"))
       ->setComment("Path to ONNX tracks tracksters linking model at interface disk ");
-
   desc.add<std::vector<std::string>>("inputNames", {"x", "edge_index", "edge_attr"});
   desc.add<std::vector<std::string>>("output", {"output"});
   desc.add<double>("delta_tk_ts", 0.1);

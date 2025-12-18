@@ -8,21 +8,12 @@
 #include "RecoHGCal/TICL/interface/TICLInterpretationAlgoBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "RecoHGCal/TICL/plugins/TICLGraph.h"
 #include "TMatrixDSym.h"
 #include "TMatrixD.h"
 
 namespace ticl {
-
-  struct GraphEdge {
-    unsigned target_index;  // Index of the neighbor (trackster)
-    float weight;
-  };
-
-  struct GraphNode {
-    unsigned index;                     // Index of the seed (track or trackster)
-    bool isTrackster;                   // True if it's from seedingCollection
-    std::vector<GraphEdge> neighbours;  // Edges to nearby tracksters
-  };
 
   using NodeKey = std::pair<bool, int>;
 
@@ -75,7 +66,7 @@ namespace ticl {
                               float zVal,
                               std::array<TICLLayerTile, 2> &tracksterTiles);
 
-    std::pair<float, float> CalculateTrackstersError(const Trackster &trackster);
+    std::pair<float, float> calculateTrackstersError(const Trackster &trackster);
     std::vector<float> padFeatures(const std::vector<float> &core_feats,
                                    size_t track_block_size,
                                    size_t trackster_block_size,
@@ -86,13 +77,13 @@ namespace ticl {
                                  const std::vector<Vector> &tracksterPropPoints,
                                  float delta,
                                  unsigned trackstersSize,
-                                 std::vector<GraphNode> &graph);
+                                 std::vector<ticl::Node> &graph);
     void printGraphSummary(const GraphData &graphData);
     void buildGraphFromNodes(const std::tuple<Vector, AlgebraicMatrix55, int> &TrackInfo,
                              const reco::Track &track,
                              const edm::MultiSpan<Trackster> &tracksters,
                              const std::vector<reco::CaloCluster> &clusters,
-                             const std::vector<GraphNode> &nodeVec,
+                             const std::vector<ticl::Node> &nodeVec,
                              GraphData &outGraphData);
 
     const float del_tk_ts_;

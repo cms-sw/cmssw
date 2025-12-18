@@ -893,7 +893,7 @@ upgradeWFs['ticl_v5'] = UpgradeWorkflow_ticl_v5(
 upgradeWFs['ticl_v5'].step2 = {'--procModifiers': 'ticl_v5'}
 upgradeWFs['ticl_v5'].step3 = {'--procModifiers': 'ticl_v5'}
 upgradeWFs['ticl_v5'].step4 = {'--procModifiers': 'ticl_v5'}
-    
+
 class UpgradeWorkflow_ticl_v5_superclustering(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):

@@ -25,6 +25,7 @@ namespace ticl {
       return findInner != innerNeighboursId_.end();
     }
     inline bool alreadyVisited() const { return alreadyVisited_; }
+    inline bool isTrackster() const { return isTrackster_; }
 
     ~Node() = default;
 
