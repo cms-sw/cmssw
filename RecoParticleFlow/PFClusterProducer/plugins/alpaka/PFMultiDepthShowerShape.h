@@ -177,7 +177,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 const float phi_rh = static_cast<float>(cms::alpakamath::phi(acc, x_rh, y_rh));
 
                 etaSum_ = (frac * energy) * alpaka::math::abs(acc, eta_rh - iter_eta_c);
-                phiSum_ = (frac * energy) * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, iter_phi_c));
+                phiSum_ =
+                    (frac * energy) * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, iter_phi_c));
               }
 
               if (eff_w_extent == w_extent) {  // NOTE that active mask is teken into account
@@ -204,11 +205,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 iter_consumed_pfrhf_size += eff_w_extent;
               }
             }  // end while
-          } else { //non cooperative work
+          } else {  //non cooperative work
             double accum_etaSum = 0.;
             double accum_phiSum = 0.;
 
-            for (int pfrhfrac_idx = pfrhf_offset; pfrhfrac_idx < (pfrhf_offset + pfrhf_size); pfrhfrac_idx++ ){
+            for (int pfrhfrac_idx = pfrhf_offset; pfrhfrac_idx < (pfrhf_offset + pfrhf_size); pfrhfrac_idx++) {
               const int pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
               const float frac = pfRecHitFracs[pfrhfrac_idx].frac();
               const float energy = pfRecHit[pfrh_idx].energy();
@@ -221,8 +222,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               const float phi_rh = static_cast<float>(cms::alpakamath::phi(acc, x_rh, y_rh));
 
               auto etaSum_tmp = (frac * energy) * alpaka::math::abs(acc, eta_rh - eta_c);
-              auto phiSum_tmp = (frac * energy) * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, phi_c)); 
-              
+              auto phiSum_tmp =
+                  (frac * energy) * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, phi_c));
+
               accum_etaSum += etaSum_tmp;
               accum_phiSum += phiSum_tmp;
             }
@@ -231,7 +233,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             mdpfClusteringVars[i].etaRMS2() = etaRMS2_ * etaRMS2_;
 
             const double phiRMS2_ = alpaka::math::max(acc, accum_phiSum / pfc_energy, rms2_threshold);
-            mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;  
+            mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;
           }
         }  //end uniform_groups
       }
