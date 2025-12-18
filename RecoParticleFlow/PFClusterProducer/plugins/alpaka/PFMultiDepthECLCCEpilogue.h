@@ -116,6 +116,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           connected_comp_sizes[idx.local] = 0;
           connected_comp_rhf_sizes[idx.local] = 0;
 
+	  cc_energies[idx.local] = 0;
+          cc_seeds[idx.local] = 0;
+
           if (idx.local < max_w_items)
             subcc_offsets[idx.local] = 0;
         }
@@ -187,7 +190,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           outPFCluster[topo_idx].x() = pfCluster[root_idx].x();
           outPFCluster[topo_idx].y() = pfCluster[root_idx].y();
           outPFCluster[topo_idx].z() = pfCluster[root_idx].z();
-          outPFCluster[topo_idx].topoRHCount() = pfCluster[root_idx].topoRHCount();  //??
+          outPFCluster[topo_idx].topoRHCount() = pfCluster[root_idx].topoRHCount(); 
         }
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(
