@@ -13,7 +13,7 @@ GENERATE_SOA_LAYOUT(SoATemplate,
 
                     SOA_ELEMENT_METHODS(
 
-                        void normalise() {
+                        SOA_HOST_DEVICE void normalise() {
                           float norm_position = square_norm_position();
                           if (norm_position > 0.0f) {
                             x() /= norm_position;
@@ -29,13 +29,14 @@ GENERATE_SOA_LAYOUT(SoATemplate,
                         }),
 
                     SOA_CONST_ELEMENT_METHODS(
-                        float square_norm_position() const { return sqrt(x() * x() + y() * y() + z() * z()); };
+                        SOA_HOST_DEVICE float square_norm_position()
+                            const { return sqrt(x() * x() + y() * y() + z() * z()); };
 
-                        double square_norm_velocity()
+                        SOA_HOST_DEVICE double square_norm_velocity()
                             const { return sqrt(v_x() * v_x() + v_y() * v_y() + v_z() * v_z()); };
 
                         template <typename T1, typename T2>
-                        static auto time(T1 pos, T2 vel) {
+                        SOA_HOST_DEVICE static auto time(T1 pos, T2 vel) {
                           if (not(vel == 0))
                             return pos / vel;
                           return 0.;
