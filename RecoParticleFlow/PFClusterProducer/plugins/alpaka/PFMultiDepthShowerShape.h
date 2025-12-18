@@ -79,7 +79,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return eta_val;
     }
   }  // namespace cms::alpakamath
-  template <unsigned int max_w_items = 32, bool is_cooperative = true>
+  template <unsigned int max_w_items = 32, bool is_cooperative = false>
   class ShowerShapeKernel {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
