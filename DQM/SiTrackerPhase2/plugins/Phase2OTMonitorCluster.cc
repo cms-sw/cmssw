@@ -273,75 +273,28 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
     }
     if (mType == TrackerGeometry::ModuleType::Ph2SS) {
       //Book the right number of histograms per layer
-      int nModules = 0;
-      int nLadders = 0;
+      unsigned int nModules = 0;
+      unsigned int nLadders = 0;
 
-      if (tTopo_->getOTLayerNumber(det_id) > 100) {
-        if (tTopo_->tidWheel(det_id) < 3) {
-          //TEDD 1
-          switch (tTopo_->tidRing(det_id)) {
-            case 11:
-              nModules = 52;
-              break;
-            case 12:
-              nModules = 60;
-              break;
-            case 13:
-              nModules = 64;
-              break;
-            case 14:
-              nModules = 72;
-              break;
-            case 15:
-              nModules = 76;
-              break;
-            default:
-              nModules = 76;
-          }
-        } else {
-          //TEDD 2
-          switch (tTopo_->tidRing(det_id)) {
-            case 8:
-              nModules = 52;
-              break;
-            case 9:
-              nModules = 56;
-              break;
-            case 10:
-              nModules = 64;
-              break;
-            case 11:
-              nModules = 68;
-              break;
-            case 12:
-              nModules = 76;
-              break;
-            default:
-              nModules = 76;
+      TrackerGeometry::DetIdContainer theDetIds = tkGeom_->detIds();
+      for (auto detid : theDetIds) {
+        if (tkGeom_->getDetectorType(detid) == TrackerGeometry::ModuleType::Ph2SS &&
+            tTopo_->getOTLayerNumber(det_id) == tTopo_->getOTLayerNumber(detid)) {
+          if ((tTopo_->getOTLayerNumber(detid) < 100) ||
+              (tTopo_->getOTLayerNumber(detid) > 100 && tTopo_->tidRing(det_id) == tTopo_->tidRing(detid))) {
+            nModules = (tTopo_->module(detid) > nModules) ? tTopo_->module(detid) : nModules;
+            nLadders = ((tTopo_->getOTLayerNumber(detid) < 100) && (tTopo_->tobRod(detid) > nLadders))
+                           ? tTopo_->tobRod(detid)
+                           : nLadders;
           }
         }
-      } else {
-        nModules = 24;
-      }
-      switch (tTopo_->getOTLayerNumber(det_id)) {
-        case 4:
-          nLadders = 48;
-          break;
-        case 5:
-          nLadders = 60;
-          break;
-        case 6:
-          nLadders = 76;
-          break;
-        default:
-          nLadders = 0;
       }
 
       //Book the histograms
       std::ostringstream HistoName;
       std::ostringstream HistoTitle;
 
-      for (int moduleNum = 1; moduleNum <= nModules; moduleNum++) {
+      for (unsigned int moduleNum = 1; moduleNum <= nModules; moduleNum++) {
         HistoName.str("PositionOfClusters_2S_" + std::to_string(moduleNum));
         HistoTitle.str("PositionOfClusters_2S_" + std::to_string(moduleNum) + ";strip ;half-module ;");
         local_mes.PositionOfClusters_2S[moduleNum] = ibooker.book2D(
@@ -357,7 +310,7 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
             false);  //Remove stats box so you can see the whole module
         local_mes.PositionOfClusters_2S[moduleNum]->setOption("z");
       }
-      for (int ladderNum = 1; ladderNum <= nLadders; ladderNum++) {
+      for (unsigned int ladderNum = 1; ladderNum <= nLadders; ladderNum++) {
         HistoName.str("PositionOfClusters_2SLadder_" + std::to_string(ladderNum));
         HistoTitle.str("PositionOfClusters_2SLadder_" + std::to_string(ladderNum) + ";module ;half-module ;");
         local_mes.PositionOfClusters_2SLadder[ladderNum] = ibooker.book2D(
