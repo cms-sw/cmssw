@@ -11,8 +11,9 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 class NanoAODDirectSimProducer(Module):
     beam_energy: float = 0.
 
-    def __init__(self, profile):
+    def __init__(self, profile, verbosity=0):
         self.worker = ROOT.NanoAODDirectSimulator()
+        self.worker.setVerbosity(verbosity)
         # feed the worker with configuration retrieved from conditions
         if not hasattr(profile, 'ctppsLHCInfo'):
             raise AttributeError('Failed to retrieve the LHC info from the profile.')
@@ -94,7 +95,6 @@ class NanoAODDirectSimProducer(Module):
             xi = 1. - proton_mom.Pz() / self.beam_energy  #FIXME
             for track in self.worker.computeProton(ROOT.TLorentzVector(), proton_mom):
                 detid = ROOT.CTPPSDetId(track.rpId())
-                print(track.x())
                 nProton_singleRP += 1
                 Proton_singleRP_arm.append(detid.arm())
                 Proton_singleRP_decRPId.append(100 * detid.arm() + 10 * detid.station() + detid.rp())
@@ -122,4 +122,4 @@ class NanoAODDirectSimProducer(Module):
 
 
 # define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed
-directSimModuleConstr = lambda profile: NanoAODDirectSimProducer(profile)
+directSimModuleConstr = lambda profile, verbosity=0: NanoAODDirectSimProducer(profile, verbosity)

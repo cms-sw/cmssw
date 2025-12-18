@@ -47,41 +47,36 @@ bool DirectSimulator::operator()(const std::array<double, 4>& vtx_cms /*mm*/,
     throw cms::Exception("DirectSimulator")
         << "Optical functions collection was not provided to the direct simulator algorithm.";
 
-  std::stringstream ssLog;
   // transformation to LHC/TOTEM convention
   const auto vtx_lhc = HepMC::FourVector(-vtx_cms.at(0), vtx_cms.at(1), -vtx_cms.at(2), vtx_cms.at(3)),
              mom_lhc = HepMC::FourVector(-mom_cms.at(0), mom_cms.at(1), -mom_cms.at(2), mom_cms.at(3));
 
-  // determine the LHC arm and related parameters
-  unsigned int arm = 3;
-  const std::unique_ptr<TF2>* empiricalAperture{nullptr};
-  if (mom_lhc.z() < 0) {  // sector 45
-    arm = 0;
-    empiricalAperture = &empiricalAperture45_;
-  } else {  // sector 56
-    arm = 1;
-    empiricalAperture = &empiricalAperture56_;
-  }
+  // determine the LHC arm
+  const auto arm = mom_lhc.z() < 0 ? 0u   // sector 45
+                                   : 1u;  // sector 56
 
   // calculate kinematics for optics parametrisation
   const double p = mom_lhc.rho(),  /// horizontal component of proton momentum: p_x = th_x * (1-xi) * p_nom
-      xi = 1. -
-           p / beamline_parameters_.at(arm)
-                   .beam_momentum;  /// xi is positive for diffractive protons, thus proton momentum p = (1-xi) * p_nom
+      xi = 1. - p / beamline_parameters_.at(arm).beam_momentum;  /// xi is positive for diffractive protons,
+                                                                 /// thus proton momentum p = (1-xi) * p_nom
   const double th_x_phys = mom_lhc.x() / p, th_y_phys = mom_lhc.y() / p;
   const double vtx_lhc_eff_x = vtx_lhc.x() - vtx_lhc.z() * (mom_lhc.x() / mom_lhc.z() +
                                                             beamline_parameters_.at(arm).half_crossing_angle_x),
                vtx_lhc_eff_y = vtx_lhc.y() - vtx_lhc.z() * (mom_lhc.y() / mom_lhc.z());
 
+  std::stringstream ssLog;
   if (verbosity_)
-    ssLog << "simu: xi = " << xi << ", th_x_phys = " << th_x_phys << ", th_y_phys = " << th_y_phys
-          << ", vtx_lhc_eff_x = " << vtx_lhc_eff_x << ", vtx_lhc_eff_y = " << vtx_lhc_eff_y << std::endl;
+    ssLog << "simu: xi = " << xi << ", "
+          << "th_x_phys = " << th_x_phys << ", "
+          << "th_y_phys = " << th_y_phys << ", "
+          << "vtx_lhc_eff_x = " << vtx_lhc_eff_x << ", "
+          << "vtx_lhc_eff_y = " << vtx_lhc_eff_y << std::endl;
 
-  // check empirical aperture
-  if (empiricalAperture && useEmpiricalApertures_) {
-    (*empiricalAperture)->SetParameter("xi", xi);
-    (*empiricalAperture)->SetParameter("xangle", crossing_angle_);
-    if (const double th_x_th = (*empiricalAperture)->EvalPar(nullptr); th_x_th > th_x_phys) {
+  if (useEmpiricalApertures_) {  // check empirical aperture
+    auto& empirical_aperture = arm == 0 ? empiricalAperture45_ : empiricalAperture56_;
+    empirical_aperture->SetParameter("xi", xi);
+    empirical_aperture->SetParameter("xangle", crossing_angle_);
+    if (const double th_x_th = empirical_aperture->EvalPar(nullptr); th_x_th > th_x_phys) {
       if (verbosity_) {
         ssLog << "stop because of empirical apertures";
         edm::LogInfo("DirectSimulator") << ssLog.str();

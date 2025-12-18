@@ -5,6 +5,7 @@
 
 #ifndef SimPPS_DirectSimProducer_NanoAODDirectSimulator_h
 
+#include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "SimPPS/DirectSimProducer/interface/DirectSimulator.h"
@@ -18,9 +19,11 @@ public:
   void addCrossingAngleOpticalFunctions(double crossing_angle,
                                         const std::string& filename);  ///< Add a new crossing angle value
   void addScoringPlane(unsigned int, double, const std::string&);      ///< Add a RP position with its optical functions
-  void setBeamEnergy(double);                                          ///< Set the current beam energy, in GeV
-  void setBetaStar(double);                                            ///< Set the current beta*, in m
-  void setCrossingAngle(double);                                       ///< Set the current crossing angle, in urad
+
+  void setVerbosity(int verbosity) { verbosity_ = verbosity; }  ///< Set the algorithm verbosity level
+  void setBeamEnergy(double);                                   ///< Set the current beam energy, in GeV
+  void setBetaStar(double);                                     ///< Set the current beta*, in m
+  void setCrossingAngle(double);                                ///< Set the current crossing angle, in urad
   void initialise();
 
   /// Compute the per-pot parameters for a given particle with a given vertex
@@ -44,6 +47,9 @@ private:
   std::vector<ScoringPlaneInfo> scoring_planes_;  ///< list of RP stations to be simulated
   LHCInterpolatedOpticalFunctionsSetCollection interpolated_optical_functions_;  ///< optical functions
   LHCInfo lhc_info_;                                                             ///< LHC optics metadata
+  CTPPSBeamParameters beam_parameters_;                                          ///< PPS-specific beam parameters
+
+  int verbosity_{0};  ///< algorithm verbosity level
 };
 
 #endif

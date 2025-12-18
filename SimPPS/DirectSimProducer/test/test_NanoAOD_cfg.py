@@ -22,7 +22,7 @@ p = PostProcessor(outputDir=".",
                   inputFiles=fnames,
                   cut="",
                   #modules=[directSimModuleConstr(profile_2018_postTS2)],
-                  modules=[directSimModuleConstr(profile_2022_default)],
+                  modules=[directSimModuleConstr(profile_2022_default, verbosity=1)],
                   provenance=True,
                   maxEntries=5000, #just read the first maxEntries events
                   )
