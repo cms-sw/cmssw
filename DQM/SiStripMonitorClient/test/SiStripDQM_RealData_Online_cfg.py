@@ -137,7 +137,7 @@ process.p = cms.Path(
 	process.SiStripClients
 )
 
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 #-------------------------
 # Input Events

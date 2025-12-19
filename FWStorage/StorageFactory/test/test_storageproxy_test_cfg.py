@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 
 process.out = cms.OutputModule("PoolOutputModule", fileName = cms.untracked.string("output.root"))
 
-adaptor = cms.Service("AdaptorConfig", storageProxies = cms.untracked.VPSet())
+adaptor = cms.Service("TFileAdaptor", storageProxies = cms.untracked.VPSet())
 if args.latencyRead:
     adaptor.storageProxies.append(cms.PSet(
         type = cms.untracked.string("StorageAddLatencyProxy"),

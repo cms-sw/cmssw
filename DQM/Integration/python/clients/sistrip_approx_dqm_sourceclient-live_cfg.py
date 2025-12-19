@@ -118,7 +118,7 @@ rawDataCollectorLabel = 'rawDataCollector'
 #--------------------------
 # Service
 #--------------------------
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 # Simple filter for event
 process.eventFilter = cms.EDFilter("SimpleEventFilter",
