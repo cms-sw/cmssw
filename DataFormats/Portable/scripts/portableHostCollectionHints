@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-
+# TODO: do we need to change something here becuase of the removal of PortableMultiCollection?
 # Get collectionand SoAs names
 if len(sys.argv) < 3:
   raise RuntimeError("Expecting at least one portable collection name and one layout name.")
