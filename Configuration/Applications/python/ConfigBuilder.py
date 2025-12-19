@@ -382,13 +382,13 @@ class ConfigBuilder(object):
         self.addedObjects.append(("","options"))
 
         if self._options.lazy_download:
-            self.process.AdaptorConfig = cms.Service("AdaptorConfig",
+            self.process.TFileAdaptor = cms.Service("TFileAdaptor",
                                                      stats = cms.untracked.bool(True),
                                                      enable = cms.untracked.bool(True),
                                                      cacheHint = cms.untracked.string("lazy-download"),
                                                      readHint = cms.untracked.string("read-ahead-buffered")
                                                      )
-            self.addedObjects.append(("Setup lazy download","AdaptorConfig"))
+            self.addedObjects.append(("Setup lazy download","TFileAdaptor"))
 
         #self.process.cmsDriverCommand = cms.untracked.PSet( command=cms.untracked.string('cmsDriver.py '+self._options.arguments) )
         #self.addedObjects.append(("what cmsDriver command was used","cmsDriverCommand"))
