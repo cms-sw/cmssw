@@ -276,17 +276,27 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
       unsigned int nModules = 0;
       unsigned int nLadders = 0;
 
+      const auto theLayer = tTopo_->getOTLayerNumber(det_id);
+      const bool refIsBarrel = (static_cast<DetId>(det_id).subdetId() == SiStripSubdetector::TOB);
+      const unsigned int theRing = refIsBarrel ? -1 : tTopo_->tidRing(det_id);
+
       TrackerGeometry::DetIdContainer theDetIds = tkGeom_->detIds();
       for (auto detid : theDetIds) {
-        if (tkGeom_->getDetectorType(detid) == TrackerGeometry::ModuleType::Ph2SS &&
-            tTopo_->getOTLayerNumber(det_id) == tTopo_->getOTLayerNumber(detid)) {
-          if ((tTopo_->getOTLayerNumber(detid) < 100) ||
-              (tTopo_->getOTLayerNumber(detid) > 100 && tTopo_->tidRing(det_id) == tTopo_->tidRing(detid))) {
-            nModules = (tTopo_->module(detid) > nModules) ? tTopo_->module(detid) : nModules;
-            nLadders = ((tTopo_->getOTLayerNumber(detid) < 100) && (tTopo_->tobRod(detid) > nLadders))
-                           ? tTopo_->tobRod(detid)
-                           : nLadders;
-          }
+        // Only count 2S modules in the same layer as ref
+        if (tkGeom_->getDetectorType(detid) != TrackerGeometry::ModuleType::Ph2SS)
+          continue;
+        if (tTopo_->getOTLayerNumber(detid) != theLayer)
+          continue;
+
+        const bool isBarrel = (detid.subdetId() == SiStripSubdetector::TOB);
+        // Endcaps: make sure we are looking at modules in the same ring
+        // Barrel: ring doesn't matter. Count ladders as well
+        if (!isBarrel && tTopo_->tidRing(detid) != theRing)
+          continue;
+
+        nModules = std::max(nModules, tTopo_->module(detid));
+        if (isBarrel) {
+          nLadders = std::max(nLadders, tTopo_->tobRod(detid));
         }
       }
 
