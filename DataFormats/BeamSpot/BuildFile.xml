@@ -6,6 +6,7 @@
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/Portable"/>
+<use name="DataFormats/TrivialSerialisation"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <flags ALPAKA_BACKENDS="!serial"/>
 <export>
