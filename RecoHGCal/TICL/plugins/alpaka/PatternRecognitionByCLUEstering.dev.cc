@@ -61,15 +61,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       alpaka::memcpy(queue,
-                     cms::alpakatools::make_host_view(h_points.view().coords[0], n),
+                     cms::alpakatools::make_host_view(h_points.view().coords()[0], n),
                      cms::alpakatools::make_device_view(alpaka::getDev(queue), x, n),
                      static_cast<uint32_t>(n));
       alpaka::memcpy(queue,
-                     cms::alpakatools::make_host_view(h_points.view().coords[1], n),
+                     cms::alpakatools::make_host_view(h_points.view().coords()[1], n),
                      cms::alpakatools::make_device_view(alpaka::getDev(queue), y, n),
                      static_cast<uint32_t>(n));
       alpaka::memcpy(queue,
-                     cms::alpakatools::make_host_view(h_points.view().coords[2], n),
+                     cms::alpakatools::make_host_view(h_points.view().coords()[2], n),
                      cms::alpakatools::make_device_view(alpaka::getDev(queue), z, n),
                      static_cast<uint32_t>(n));
       alpaka::memcpy(queue,
