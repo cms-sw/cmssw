@@ -23,8 +23,8 @@ HLT_LooseDeepTauPFTauHPS150_L2NN_eta2p1 = cms.Path(
     HLTBeginSequence 
     + hltL1SingleNNTau150                              
     + HLTRawToDigiSequence 
-    + HLTTICLLocalRecoSequence 
     + HLTLocalrecoSequence 
+    + HLTTICLLocalRecoSequence   
     + HLTTrackingSequence 
     + HLTMuonsSequence 
     + HLTParticleFlowSequence 
