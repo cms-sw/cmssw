@@ -88,13 +88,13 @@ int main(int argc, char *argv[]) {
   }
 
   // Are we using a text archive as output?
-  std::ios_base::openmode mode = std::ios::out;
   const bool usingTxt = is_text_file(outputfile);
-  if (!usingTxt)
-    mode |= std::ios::binary;
 
   // Write the object out
   {
+    std::ios_base::openmode mode = std::ios::out;
+    if (!usingTxt)
+      mode |= std::ios::binary;
     std::ofstream of(outputfile, mode);
     if (!of.is_open()) {
       cerr << "Failed to open file " << outputfile << endl;
@@ -112,6 +112,9 @@ int main(int argc, char *argv[]) {
   // Read it back in
   HcalInterpolatedPulseMap map2;
   {
+    std::ios_base::openmode mode = std::ios::in;
+    if (!usingTxt)
+      mode |= std::ios::binary;
     std::ifstream is(outputfile, mode);
     if (usingTxt) {
       boost::archive::text_iarchive ar(is);
