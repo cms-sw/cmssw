@@ -524,9 +524,9 @@ def test():
 ####################
 def printHelp():
     return """The storage traces can be obtained by adding StorageTracerProxy to
-the storage proxies of the AdaptorConfig Service, for example as
+the storage proxies of the TFileAdaptor Service, for example as
 ----
-process.add_(cms.Service("AdaptorConfig",
+process.add_(cms.Service("TFileAdaptor",
     storageProxies = cms.untracked.VPSet(
         cms.PSet(type = cms.untracked.string("StorageTracerProxy"))
 ))

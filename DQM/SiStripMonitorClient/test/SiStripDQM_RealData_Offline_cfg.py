@@ -50,7 +50,7 @@ process.load("DQM.SiStripMonitorClient.SiStripDQMOffline_cff")
 
 process.p = cms.Path(process.RecoForDQMCosmic*process.SiStripDQMOffRealData)
 
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 #-------------------------
 # Input Events
