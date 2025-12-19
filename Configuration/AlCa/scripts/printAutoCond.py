@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 #
 # Usage examples:
-#   python printAutoCond.py --list
-#   python printAutoCond.py --key run2_design
-#   python printAutoCond.py --pattern run2 --json
+#   python3 printAutoCond.py --list
+#   python3 printAutoCond.py --key run2_design
+#   python3 printAutoCond.py --pattern run2 --json
 #
 from __future__ import print_function
 
