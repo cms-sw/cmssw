@@ -379,6 +379,20 @@
       "HLT-Scouting"
     ]
   },
+  "DST_PFScouting_SingleMuonMonitorJPsi_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting",
+      "MUO"
+    ]
+  },
+  "DST_PFScouting_SingleMuonMonitorZ_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting",
+      "MUO"
+    ]
+  },
   "DST_PFScouting_SingleMuon_v": {
     "online?": true,
     "owners": [
@@ -1359,6 +1373,12 @@
       "BPH"
     ]
   },
+  "HLT_Dimuon0_LowMass_Inclusive_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
   "HLT_Dimuon0_LowMass_L1_0er1p5_v": {
     "online?": true,
     "owners": [
@@ -2101,6 +2121,13 @@
     ]
   },
   "HLT_DoublePNetTauhPFJet26_L2NN_eta2p3_PFJet75_v": {
+    "online?": true,
+    "owners": [
+      "HIG",
+      "TAU"
+    ]
+  },
+  "HLT_DoublePNetTauhPFJet30_Flat_L2NN_eta2p3_v": {
     "online?": true,
     "owners": [
       "HIG",
@@ -3403,6 +3430,18 @@
     ]
   },
   "HLT_HIUPC_DoubleEG3_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG4_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG4_NotMBHF2AND_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -5083,6 +5122,13 @@
     "online?": true,
     "owners": [
       "B2G",
+      "HIG",
+      "TAU"
+    ]
+  },
+  "HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Flat_L2NN_eta2p3_CrossL1_v": {
+    "online?": true,
+    "owners": [
       "HIG",
       "TAU"
     ]
