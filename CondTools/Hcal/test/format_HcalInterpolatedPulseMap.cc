@@ -64,10 +64,10 @@ int main(int argc, char *argv[]) {
 
   HcalInterpolatedPulseMap pulseMap;
   if (inputIsArchive) {
-    std::ios_base::openmode mode;
+    std::ios_base::openmode mode = std::ios::in;
     const bool usingTxt = is_text_file(inputfile);
     if (!usingTxt)
-      mode = std::ios::binary;
+      mode |= std::ios::binary;
     {
       std::ifstream is(inputfile, mode);
       if (usingTxt) {
@@ -88,10 +88,10 @@ int main(int argc, char *argv[]) {
   }
 
   // Are we using a text archive as output?
-  std::ios_base::openmode mode;
+  std::ios_base::openmode mode = std::ios::out;
   const bool usingTxt = is_text_file(outputfile);
   if (!usingTxt)
-    mode = std::ios::binary;
+    mode |= std::ios::binary;
 
   // Write the object out
   {
