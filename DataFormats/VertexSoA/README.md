@@ -4,10 +4,8 @@
 information about reconstructed pixel vertices in Structure of Array (SoA)
 format.
 
-The host collection is an instantiation of `PortableHostMultiCollection`, while
-the device collection is an instantiation of `PortableDeviceMultiCollection`.
 
-Both collections use two SoA layouts (`ZVertexLayout` and `ZVertexTracksLayout`)
+The ZVertexBlocks composed of the layouts (`ZVertexLayout` and `ZVertexTracksLayout`)
 with different number of elements, defined at run-time.
 The layouts are defined by the `GENERATE_SOA_LAYOUT` macro in
 `DataFormats/VertexSoA/interface/ZVertexSoA.h`.

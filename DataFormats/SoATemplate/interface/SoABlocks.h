@@ -304,6 +304,7 @@
     struct Metadata {                                                                                                  \
       friend CLASS;                                                                                                    \
       SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumber> size() const { return parent_.sizes_; }           \
+      SOA_HOST_DEVICE SOA_INLINE size_type maxSize() const { return parent_.maxSize_; }                                \
       SOA_HOST_DEVICE SOA_INLINE byte_size_type byteSize() const { return CLASS::computeDataSize(parent_.sizes_); }    \
       SOA_HOST_DEVICE SOA_INLINE byte_size_type alignment() const { return CLASS::alignment; }                         \
       SOA_HOST_DEVICE SOA_INLINE CLASS cloneToNewAddress(std::byte* _soa_impl_addr) const {                            \
@@ -357,6 +358,7 @@
         friend ConstViewTemplateFreeParams;                                                                            \
         using TypeOf_Layout = BOOST_PP_CAT(CLASS, _parametrized);                                                      \
         SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumber> size() const { return parent_.sizes_; }         \
+        SOA_HOST_DEVICE SOA_INLINE size_type maxSize() const { return parent_.maxSize_; }                              \
                                                                                                                        \
         /* Forbid copying to avoid const correctness evasion */                                                        \
         Metadata& operator=(const Metadata&) = delete;                                                                 \
@@ -388,13 +390,15 @@
       /* Constructor relying on user provided Layout by blocks */                                                      \
       SOA_HOST_ONLY ConstViewTemplateFreeParams(const Metadata::TypeOf_Layout& blocks)                                 \
           : _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_CONST_VIEW_CONSTRUCTION_BLOCKS, ~, __VA_ARGS__),                     \
-            sizes_{blocks.sizes_} {}                                                                                   \
+            sizes_{blocks.sizes_}, maxSize_{blocks.maxSize_} {}                                                        \
                                                                                                                        \
       /* Constructor relying on user provided const views for each block */                                            \
       SOA_HOST_ONLY ConstViewTemplateFreeParams(                                                                       \
             _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS, ~, __VA_ARGS__))                             \
           : _ITERATE_ON_ALL_COMMA(_INITIALIZE_MEMBER_CONST_VIEW_BLOCKS, ~, __VA_ARGS__),                               \
-            sizes_{{_ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_SIZES, ~, __VA_ARGS__)}} {}                              \
+            sizes_{{_ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_SIZES, ~, __VA_ARGS__)}} {                               \
+              maxSize_ = std::ranges::max(sizes_);                                                                     \
+            }                                                                                                          \
                                                                                                                        \
       /* Accessors for the const views for each block */                                                               \
       _ITERATE_ON_ALL(_DECLARE_ACCESSORS_CONST_VIEW_BLOCKS, ~, __VA_ARGS__)                                            \
@@ -402,6 +406,7 @@
       private:                                                                                                         \
         _ITERATE_ON_ALL(_DECLARE_MEMBERS_CONST_VIEW_BLOCKS, ~, __VA_ARGS__)                                            \
         std::array<size_type, blocksNumber> sizes_;                                                                    \
+        size_type maxSize_;                                                                                            \
     };                                                                                                                 \
                                                                                                                        \
     template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
@@ -441,6 +446,7 @@
         friend ViewTemplateFreeParams;                                                                                 \
         using TypeOf_Layout = BOOST_PP_CAT(CLASS, _parametrized);                                                      \
         SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumber> size() const { return parent_.sizes_; }         \
+        SOA_HOST_DEVICE SOA_INLINE size_type maxSize() const { return parent_.maxSize_; }                              \
                                                                                                                        \
         /* Forbid copying to avoid const correctness evasion */                                                        \
         Metadata& operator=(const Metadata&) = delete;                                                                 \
@@ -493,11 +499,12 @@
                                                                                                                        \
     /* Trivial constuctor */                                                                                           \
     CLASS()                                                                                                            \
-        : sizes_{},                                                                                                    \
+        : sizes_{}, maxSize_{},                                                                                        \
           _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_BLOCKS, ~, __VA_ARGS__) {}                        \
                                                                                                                        \
     /* Constructor relying on user provided storage and array of sizes */                                              \
-    SOA_HOST_ONLY CLASS(std::byte* mem, std::array<size_type, blocksNumber> elements) : sizes_(elements) {             \
+    SOA_HOST_ONLY CLASS(std::byte* mem, std::array<size_type, blocksNumber> elements)                                  \
+        : sizes_(elements), maxSize_(std::ranges::max(elements)) {                                                     \
       byte_size_type offset = 0;                                                                                       \
       size_type index = 0;                                                                                             \
       _ITERATE_ON_ALL(_DECLARE_MEMBER_CONSTRUCTION_BLOCKS, ~, __VA_ARGS__)                                             \
@@ -505,11 +512,12 @@
                                                                                                                        \
     /* Explicit copy constructor and assignment operator */                                                            \
     SOA_HOST_ONLY CLASS(CLASS const& _soa_impl_other)                                                                  \
-        : sizes_(_soa_impl_other.sizes_),                                                                              \
+        : sizes_(_soa_impl_other.sizes_), maxSize_(_soa_impl_other.maxSize_),                                          \
           _ITERATE_ON_ALL_COMMA(_DECLARE_BLOCK_MEMBER_COPY_CONSTRUCTION, ~, __VA_ARGS__) {}                            \
                                                                                                                        \
     SOA_HOST_ONLY CLASS& operator=(CLASS const& _soa_impl_other) {                                                     \
       sizes_ = _soa_impl_other.sizes_;                                                                                 \
+      maxSize_ = _soa_impl_other.maxSize_;                                                                             \
       _ITERATE_ON_ALL(_DECLARE_BLOCKS_MEMBER_ASSIGNMENT, ~, __VA_ARGS__)                                               \
       return *this;                                                                                                    \
     }                                                                                                                  \
@@ -539,6 +547,7 @@
     private:                                                                                                           \
       /* Data members */                                                                                               \
       std::array<size_type, blocksNumber> sizes_;                                                                      \
+      size_type maxSize_;                                                                                              \
       _ITERATE_ON_ALL(_DECLARE_MEMBERS_BLOCKS, ~, __VA_ARGS__)                                                         \
   }; \
   // clang-format on
