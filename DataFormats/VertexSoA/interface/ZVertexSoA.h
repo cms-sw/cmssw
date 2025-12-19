@@ -6,6 +6,7 @@
 #include <Eigen/Core>
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 
 namespace reco {
 
@@ -23,6 +24,10 @@ namespace reco {
                       SOA_COLUMN(int32_t, ndof))  // vertices number of dof
                                                   // FIXME: reused as workspace for the number of nearest neighbours
 
+  GENERATE_SOA_BLOCKS(ZVertexBlocksLayout,
+                      SOA_BLOCK(zvertex, ZVertexLayout),
+                      SOA_BLOCK(zvertexTracks, ZVertexTracksLayout))
+
   // Common types for both Host and Device code
   using ZVertexSoA = ZVertexLayout<>;
   using ZVertexSoAView = ZVertexSoA::View;
@@ -32,6 +37,11 @@ namespace reco {
   using ZVertexTracksSoA = ZVertexTracksLayout<>;
   using ZVertexTracksSoAView = ZVertexTracksSoA::View;
   using ZVertexTracksSoAConstView = ZVertexTracksSoA::ConstView;
+
+  // SoABlocks Layout that combines zvertex and associated tracks
+  using ZVertexBlocks = ZVertexBlocksLayout<>;
+  using ZVertexBlocksView = ZVertexBlocks::View;
+  using ZVertexBlocksConstView = ZVertexBlocks::ConstView;
 
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void init(ZVertexSoAView &vertices) { vertices.nvFinal() = 0; }
 
