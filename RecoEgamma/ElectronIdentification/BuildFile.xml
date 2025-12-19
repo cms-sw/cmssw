@@ -7,7 +7,7 @@
 <use name="DataFormats/GsfTrackReco"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/VertexReco"/>
-<use name="PhysicsTools/TensorFlow" />
+<use name="PhysicsTools/ONNXRuntime" />
 <export>
   <lib name="1"/>
 </export>

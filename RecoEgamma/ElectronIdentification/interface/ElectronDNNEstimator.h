@@ -2,7 +2,6 @@
 #define RecoEgamma_ElectronIdentification_ElectronDNNEstimator_h
 
 #include "RecoEgamma/EgammaTools/interface/EgammaDNNHelper.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include <vector>
