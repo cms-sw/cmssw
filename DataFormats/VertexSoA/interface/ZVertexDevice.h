@@ -10,6 +10,6 @@
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 
 template <typename TDev>
-using ZVertexDevice = PortableDeviceMultiCollection<TDev, reco::ZVertexSoA, reco::ZVertexTracksSoA>;
+using ZVertexDevice = PortableDeviceCollection<reco::ZVertexBlocks, TDev>;
 
 #endif  // DataFormats_VertexSoA_interface_ZVertexDevice_h

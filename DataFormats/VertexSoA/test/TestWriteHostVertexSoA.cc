@@ -31,10 +31,10 @@ namespace edmtest {
       : vertexSize_(iPSet.getParameter<unsigned int>("vertexSize")), putToken_(produces()) {}
 
   void TestWriteHostVertexSoA::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
-    ZVertexHost ZVertexs({{int(vertexSize_), int(4 * vertexSize_)}}, cms::alpakatools::host());
+    ZVertexHost ZVertexs(cms::alpakatools::host(), int(vertexSize_), int(4 * vertexSize_));
     auto ZVertexsView = ZVertexs.view();
     for (unsigned int i = 0; i < vertexSize_; ++i) {
-      ZVertexsView[i].chi2() = float(i);
+      ZVertexsView.zvertex()[i].chi2() = float(i);
     }
     iEvent.emplace(putToken_, std::move(ZVertexs));
   }

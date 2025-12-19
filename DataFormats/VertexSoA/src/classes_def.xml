@@ -3,16 +3,7 @@
   <!-- FIXME using the ZVertexSoA and ZVertexTracksSoA type aliases here and below does not work -->
   <class name="reco::ZVertexLayout<128, false>"/>
   <class name="reco::ZVertexTracksLayout<128, false>"/>
-  <!-- needed to avoid auto parsing by ROOT. Order in the file matters -->
-  <class name="ZVertexHost::Implementation"/>
-  
-  <!-- Recursive templates (with no data) ensuring we have one CollectionLeaf<index, type> for each layout in the collection -->
-  <class name="portablecollection::CollectionImpl<0, reco::ZVertexLayout<128, false>, reco::ZVertexTracksLayout<128, false>>"/>
-  <class name="portablecollection::CollectionImpl<1, reco::ZVertexTracksLayout<128, false>>"/>
-
-  <!-- Recursive templates implementing the association of indices and layouts, and containing the data -->
-  <class name="portablecollection::CollectionLeaf<0, reco::ZVertexLayout<128, false>>"/>
-  <class name="portablecollection::CollectionLeaf<1, reco::ZVertexTracksLayout<128, false>>"/>
+  <class name="reco::ZVertexBlocksLayout<128, false>"/>
 
   <!-- Collection declaration for dictionary -->
   <class name="ZVertexHost" rntupleStreamerMode="true"/>

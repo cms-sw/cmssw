@@ -51,8 +51,8 @@ int main() {
     {
       // Instantiate vertices on device. PortableCollection allocates
       // SoA on device automatically.
-      ZVertexSoACollection zvertex_d({{maxTracks, maxVertices}}, queue);
-      testZVertexSoAT::runKernels(zvertex_d.view(), zvertex_d.view<reco::ZVertexTracksSoA>(), queue);
+      ZVertexSoACollection zvertex_d(queue, maxTracks, maxVertices);
+      testZVertexSoAT::runKernels(zvertex_d.view(), queue);
 
       // If the device is actually the host, use the collection as-is.
       // Otherwise, copy the data from the device to the host.
@@ -62,7 +62,7 @@ int main() {
       ZVertexHost zvertex_h = cms::alpakatools::CopyToHost<ZVertexSoACollection>::copyAsync(queue, zvertex_d);
 #endif
       alpaka::wait(queue);
-      std::cout << zvertex_h.view().metadata().size() << std::endl;
+      std::cout << zvertex_h.view().metadata().maxSize() << std::endl;
 
       // Print results
       std::cout << "idv\t"
@@ -74,8 +74,8 @@ int main() {
                 << "sortInd\t"
                 << "nvFinal\n";
 
-      auto vtx_v = zvertex_h.view<reco::ZVertexSoA>();
-      auto trk_v = zvertex_h.view<reco::ZVertexTracksSoA>();
+      auto vtx_v = zvertex_h.view().zvertex();
+      auto trk_v = zvertex_h.view().zvertexTracks();
       for (int i = 0; i < 10; ++i) {
         auto vi = vtx_v[i];
         auto ti = trk_v[i];

@@ -37,9 +37,17 @@ namespace cms::alpakatools {
     requires alpaka::isDevice<TDevice>
   struct CopyToHost<PortableDeviceCollection<TLayout, TDevice>> {
     template <typename TQueue>
-      requires alpaka::isQueue<TQueue>
+      requires alpaka::isQueue<TQueue> && (!portablecollection::hasBlocksNumber<TLayout>)
     static auto copyAsync(TQueue& queue, PortableDeviceCollection<TLayout, TDevice> const& srcData) {
       PortableHostCollection<TLayout> dstData(srcData->metadata().size(), queue);
+      alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
+      return dstData;
+    }
+
+    template <typename TQueue>
+      requires alpaka::isQueue<TQueue> && portablecollection::hasBlocksNumber<TLayout>
+    static auto copyAsync(TQueue& queue, PortableDeviceCollection<TLayout, TDevice> const& srcData) {
+      PortableHostCollection<TLayout> dstData(queue, srcData->metadata().size());
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
     }
@@ -48,9 +56,19 @@ namespace cms::alpakatools {
   template <typename TLayout>
   struct CopyToDevice<PortableHostCollection<TLayout>> {
     template <cms::alpakatools::NonCPUQueue TQueue>
+      requires(!portablecollection::hasBlocksNumber<TLayout>)
     static auto copyAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
       PortableDeviceCollection<TLayout, TDevice> dstData(srcData->metadata().size(), queue);
+      alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
+      return dstData;
+    }
+
+    template <cms::alpakatools::NonCPUQueue TQueue>
+      requires portablecollection::hasBlocksNumber<TLayout>
+    static auto copyAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
+      using TDevice = typename alpaka::trait::DevType<TQueue>::type;
+      PortableDeviceCollection<TLayout, TDevice> dstData(queue, srcData->metadata().size());
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
     }
