@@ -78,7 +78,7 @@ process.SiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
 ##
 process.outP = cms.OutputModule("AsciiOutputModule")
 
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 process.RecoForDQM = cms.Sequence(process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters)
 process.p = cms.Path(process.RecoForDQM*process.SiStripMonitorCluster)

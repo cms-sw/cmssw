@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TESTMERGE")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-process.AdaptorConfig = cms.Service("AdaptorConfig",
+process.TFileAdaptor = cms.Service("TFileAdaptor",
     stats = cms.untracked.bool(False)
 )
 

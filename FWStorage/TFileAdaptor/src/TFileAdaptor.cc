@@ -247,9 +247,9 @@ void TFileAdaptor::fillDescriptions(edm::ConfigurationDescriptions& descriptions
           "Only after this wrapping are the LocalCacheFile (lazy-download) and statistics accounting ('stats' "
           "parameter) proxies applied.");
 
-  descriptions.add("AdaptorConfig", desc);
+  descriptions.add("TFileAdaptor", desc);
   descriptions.setComment(
-      "AdaptorConfig Service is used to configure the TFileAdaptor. If enabled, the TFileAdaptor registers "
+      "TFileAdaptor Service is used to configure the TFileAdaptor. If enabled, the TFileAdaptor registers "
       "TStorageFactoryFile as a handler for various protocols. The StorageFactory facility provides custom storage "
       "access implementations for these protocols, as well as statistics accounting.");
 }

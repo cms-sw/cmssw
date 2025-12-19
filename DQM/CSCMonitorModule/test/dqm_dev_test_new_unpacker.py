@@ -123,7 +123,7 @@ del cscConditions
 #--------------------------
 
 #process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-#process.AdaptorConfig = cms.Service("AdaptorConfig")
+#
 
 #--------------------------
 # Message Logger

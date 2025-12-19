@@ -145,7 +145,7 @@ process.IsOffline.enabled=False
 #--------------------------
 # Service
 #--------------------------
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 #--------------------------
 # Filters

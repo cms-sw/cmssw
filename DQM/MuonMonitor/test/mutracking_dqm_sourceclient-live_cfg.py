@@ -210,4 +210,4 @@ process = customise(process)
 #--------------------------
 # Service
 #--------------------------
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
