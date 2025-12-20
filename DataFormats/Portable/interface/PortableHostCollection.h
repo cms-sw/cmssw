@@ -20,6 +20,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 // generic SoA-based product in host memory
+// TODO: Should we define a size alias for the number of elements? Also should be switch to unsigned and/or 64 bit?
+// Exeeding the size of int32_t fails without clear error messages.
 template <typename T>
 class PortableHostCollection {
 public:
