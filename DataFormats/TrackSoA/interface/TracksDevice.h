@@ -12,7 +12,7 @@
 
 namespace reco {
   template <typename TDev>
-  using TracksDevice = PortableDeviceMultiCollection<TDev, TrackSoA, TrackHitSoA>;
+  using TracksDevice = PortableDeviceCollection<TrackBlocks, TDev>;
 }
 
 #endif  // DataFormats_Track_TracksDevice_H
