@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/TrackingRecHitSoA/interface/SiPixelHitStatus.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
@@ -28,6 +29,10 @@ namespace reco {
 
   GENERATE_SOA_LAYOUT(HitModulesLayout, SOA_COLUMN(uint32_t, moduleStart));
 
+  GENERATE_SOA_BLOCKS(TrackingBlocksLayout,
+                      SOA_BLOCK(trackingHits, TrackingHitsLayout),
+                      SOA_BLOCK(hitModules, HitModulesLayout))
+
   // N.B. this layout is not really included by default in the hits SoA
   // This holds the needed parameters to activate (via ONLY_TRIPLETS_IN_HOLE) the
   // calculations to check if a triplet points to the disk hole
@@ -51,6 +56,10 @@ namespace reco {
   using HitModuleSoA = HitModulesLayout<>;
   using HitModuleSoAView = HitModuleSoA::View;
   using HitModuleSoAConstView = HitModuleSoA::ConstView;
+
+  using TrackingBlocksSoA = TrackingBlocksLayout<>;
+  using TrackingBlocksSoAView = TrackingBlocksSoA::View;
+  using TrackingBlocksSoAConstView = TrackingBlocksSoA::ConstView;
 
   using AverageGeometrySoA = AverageGeometryLayout<>;
   using AverageGeometryView = AverageGeometrySoA::View;
