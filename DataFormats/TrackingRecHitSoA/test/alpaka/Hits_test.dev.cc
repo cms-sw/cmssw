@@ -19,46 +19,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace testTrackingRecHitSoA {
 
     struct TestFillKernel {
-      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                    ::reco::TrackingRecHitView soa,
-                                    ::reco::HitModuleSoAView mods) const {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::TrackingBlocksSoAView soa) const {
         const uint32_t i(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
         const uint32_t j(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
 
         if (cms::alpakatools::once_per_grid(acc)) {
-          soa.offsetBPIX2() = 22;
-          soa[10].xLocal() = 1.11;
+          soa.trackingHits().offsetBPIX2() = 22;
+          soa.trackingHits()[10].xLocal() = 1.11;
         }
 
-        soa[i].iphi() = i % 10;
-        mods[j].moduleStart() = j;
+        soa.trackingHits()[i].iphi() = i % 10;
+        soa.hitModules()[j].moduleStart() = j;
       }
     };
 
     struct ShowKernel {
-      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                    ::reco::TrackingRecHitConstView soa,
-                                    ::reco::HitModuleSoAView mods) const {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::TrackingBlocksSoAConstView soa) const {
         if (cms::alpakatools::once_per_grid(acc)) {
-          printf("offsetBPIX = %d\n", soa.offsetBPIX2());
-          printf("nHits = %d\n", soa.metadata().size());
-          printf("hitsModuleStart[28] = %d\n", mods[28].moduleStart());
+          printf("offsetBPIX = %d\n", soa.trackingHits().offsetBPIX2());
+          printf("nHits = %d\n", soa.trackingHits().metadata().size());
+          printf("hitsModuleStart[28] = %d\n", soa.hitModules()[28].moduleStart());
         }
 
         // can be increased to soa.nHits() for debugging
-        for (uint32_t i : cms::alpakatools::uniform_elements(acc, soa.metadata().size())) {
-          printf("iPhi %d -> %d\n", i, soa[i].iphi());
-          printf("x %d -> %.2f \n", i, soa[i].xLocal());
+        for (uint32_t i : cms::alpakatools::uniform_elements(acc, soa.trackingHits().metadata().size())) {
+          printf("iPhi %d -> %d\n", i, soa.trackingHits()[i].iphi());
+          printf("x %d -> %.2f \n", i, soa.trackingHits()[i].xLocal());
         }
       }
     };
 
-    void runKernels(::reco::TrackingRecHitView& view, ::reco::HitModuleSoAView& mods, Queue& queue) {
+    void runKernels(::reco::TrackingBlocksSoAView& view, Queue& queue) {
       uint32_t items = 64;
-      uint32_t groups = divide_up_by(view.metadata().size(), items);
+      uint32_t groups = divide_up_by(view.trackingHits().metadata().size(), items);
       auto workDiv = make_workdiv<Acc1D>(groups, items);
-      alpaka::exec<Acc1D>(queue, workDiv, TestFillKernel{}, view, mods);
-      alpaka::exec<Acc1D>(queue, workDiv, ShowKernel{}, view, mods);
+      alpaka::exec<Acc1D>(queue, workDiv, TestFillKernel{}, view);
+      alpaka::exec<Acc1D>(queue, workDiv, ShowKernel{}, view);
     }
 
   }  // namespace testTrackingRecHitSoA

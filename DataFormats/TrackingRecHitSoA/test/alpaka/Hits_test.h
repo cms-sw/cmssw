@@ -6,7 +6,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::testTrackingRecHitSoA {
 
-  void runKernels(::reco::TrackingRecHitView& hits, ::reco::HitModuleSoAView& mods, Queue& queue);
+  void runKernels(::reco::TrackingBlocksSoAView& trackingBlocks, Queue& queue);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::testTrackingRecHitSoA
 

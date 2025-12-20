@@ -38,7 +38,7 @@ namespace edmtest {
 
   void TestReadHostHitSoA::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
     auto const& hits = iEvent.get(getToken_);
-    auto hitsView = hits.view();
+    auto hitsView = hits.view().trackingHits();
 
     std::cout << "hitsView.metadata().size() = " << hitsView.metadata().size() << std::endl;
     assert(hitsView.metadata().size() == int(hitSize_));
