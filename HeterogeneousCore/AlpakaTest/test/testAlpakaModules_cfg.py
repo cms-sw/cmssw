@@ -61,16 +61,16 @@ process.alpakaESProducerNull = cms.ESProducer("TestAlpakaESProducerNull@alpaka",
     appendToDataLabel = cms.string("null"),
 )
 
-# PortableMultiCollection
-from HeterogeneousCore.AlpakaTest.testAlpakaESProducerAMulti_cfi import testAlpakaESProducerAMulti 
+# PortableCollection with SoABlocks
+from HeterogeneousCore.AlpakaTest.testAlpakaESProducerBlocks_cfi import testAlpakaESProducerBlocks 
 
 process.intProduct = cms.EDProducer("IntProducer", ivalue = cms.int32(42))
-process.alpakaESProducerAMulti = testAlpakaESProducerAMulti.clone(appendToDataLabel = cms.string("appendedLabel"))
+process.alpakaESProducerBlocks = testAlpakaESProducerBlocks.clone(appendToDataLabel = cms.string("appendedLabel"))
 
 from HeterogeneousCore.AlpakaTest.testAlpakaGlobalProducer_cfi import testAlpakaGlobalProducer
 process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
     eventSetupSource = cms.ESInputTag("alpakaESProducerA", "appendedLabel"),
-    eventSetupSourceMulti = cms.ESInputTag("alpakaESProducerAMulti", "appendedLabel"),
+    eventSetupSourceMulti = cms.ESInputTag("alpakaESProducerBlocks", "appendedLabel"),
     size = dict(
         alpaka_serial_sync = 10,
         alpaka_cuda_async = 20,
@@ -178,7 +178,7 @@ process.alpakaNullESConsumer = cms.EDProducer("TestAlpakaGlobalProducerNullES@al
     eventSetupSource = cms.ESInputTag("", "null")
 )
 
-_postfixes = ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESProducerE", "ESProducerAMulti",
+_postfixes = ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESProducerE", "ESProducerBlocks",
               "ESProducerNull",
               "GlobalProducer", "GlobalProducerE",
               "GlobalProducerCopyToDeviceCache", "GlobalProducerMoveToDeviceCache",

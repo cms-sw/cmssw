@@ -16,13 +16,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     [[maybe_unused]] auto esDataHostHandle = iSetup.getHandle(esTokenHost_);
     [[maybe_unused]] auto const& esDataDevice = iSetup.getData(esTokenDevice_);
     portabletest::TestDeviceCollection const& deviceProduct = iEvent.get(getToken_);
-    portabletest::TestDeviceMultiCollection2 const& deviceProductMulti2 = iEvent.get(getTokenMulti2_);
-    portabletest::TestDeviceMultiCollection3 const& deviceProductMulti3 = iEvent.get(getTokenMulti3_);
+    portabletest::TestDeviceCollection2 const& deviceProductMulti2 = iEvent.get(getTokenMulti2_);
+    portabletest::TestDeviceCollection3 const& deviceProductMulti3 = iEvent.get(getTokenMulti3_);
 
-    hostProduct_ = portabletest::TestHostCollection{deviceProduct->metadata().size(), iEvent.queue()};
-    hostProductMulti2_ = portabletest::TestHostMultiCollection2{deviceProductMulti2.sizes(), iEvent.queue()};
-    hostProductMulti3_ = portabletest::TestHostMultiCollection3{deviceProductMulti3.sizes(), iEvent.queue()};
-
+    hostProduct_ = portabletest::TestHostCollection{deviceProduct.size(), iEvent.queue()};
+    hostProductMulti2_ = portabletest::TestHostCollection2{iEvent.queue(), deviceProductMulti2.size()};
+    hostProductMulti3_ = portabletest::TestHostCollection3{iEvent.queue(), deviceProductMulti3.size()};
     alpaka::memcpy(iEvent.queue(), hostProduct_->buffer(), deviceProduct.const_buffer());
     alpaka::memcpy(iEvent.queue(), hostProductMulti2_->buffer(), deviceProductMulti2.const_buffer());
     alpaka::memcpy(iEvent.queue(), hostProductMulti3_->buffer(), deviceProductMulti3.const_buffer());
