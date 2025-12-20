@@ -32,13 +32,13 @@ namespace edmtest {
 
   void TestReadHostTrackSoA::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
     auto const& tracks = iEvent.get(getToken_);
-    auto tracksView = tracks.view();
+    auto tracksBlocksView = tracks.view();
 
-    assert(tracksView.metadata().size() == int(trackSize_));
-    assert(tracksView.nTracks() == int(trackSize_));
+    assert(tracksBlocksView.tracks().metadata().size() == int(trackSize_));
+    assert(tracksBlocksView.tracks().nTracks() == int(trackSize_));
 
-    for (int i = 0; i < tracksView.metadata().size(); ++i) {
-      if (tracksView[i].eta() != float(i)) {
+    for (int i = 0; i < tracksBlocksView.tracks().metadata().size(); ++i) {
+      if (tracksBlocksView.tracks()[i].eta() != float(i)) {
         throw cms::Exception("TestReadHostTrackSoA Failure") << "TestReadHostTrackSoA::analyze, entry. i = " << i;
       }
     }
