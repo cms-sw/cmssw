@@ -8,6 +8,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/OneToManyAssoc.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 
 namespace reco {
@@ -32,6 +33,8 @@ namespace reco {
 
   GENERATE_SOA_LAYOUT(TrackHitsLayout, SOA_COLUMN(uint32_t, id), SOA_COLUMN(uint32_t, detId))
 
+  GENERATE_SOA_BLOCKS(TrackBlocksLayout, SOA_BLOCK(tracks, TrackLayout), SOA_BLOCK(trackHits, TrackHitsLayout))
+
   using TrackSoA = TrackLayout<>;
   using TrackSoAView = TrackSoA::View;
   using TrackSoAConstView = TrackSoA::ConstView;
@@ -40,26 +43,30 @@ namespace reco {
   using TrackHitSoAView = TrackHitSoA::View;
   using TrackHitSoAConstView = TrackHitSoA::ConstView;
 
+  // SoABlocks Layout that combines tracks and associated trackHits
+  using TrackBlocks = TrackBlocksLayout<>;
+  using TrackBlocksView = TrackBlocks::View;
+  using TrackBlocksConstView = TrackBlocks::ConstView;
+
   // All these below were constexpr. Now I get this:
   // note: non-literal type 'reco::TrackLayout<128, false>::ConstViewTemplateFreeParams<128, false, true, true>::const_element'
   // cannot be used in a constant expression
 
   // TODO: move to use the layer gaps defined in CAGeometry
-  ALPAKA_FN_HOST_ACC inline int nLayers(const TrackSoAConstView &tracks,
-                                        const TrackHitSoAConstView &hits,
+  ALPAKA_FN_HOST_ACC inline int nLayers(const TrackBlocksConstView &tracksBlocks,
                                         uint16_t maxLayers,
                                         uint32_t const *__restrict__ layerStarts,
                                         int32_t i) {
-    auto start = (i == 0) ? 0 : tracks[i - 1].hitOffsets();
-    auto end = tracks[i].hitOffsets();
-    auto hitId = hits[start].id();
+    auto start = (i == 0) ? 0 : tracksBlocks.tracks()[i - 1].hitOffsets();
+    auto end = tracksBlocks.tracks()[i].hitOffsets();
+    auto hitId = tracksBlocks.trackHits()[start].id();
     int nl = 1;
     int ol = 0;
     while (hitId >= layerStarts[ol + 1] and ol < maxLayers)
       ++ol;
     ++start;
     for (; start < end; ++start) {
-      hitId = hits[start].id();
+      hitId = tracksBlocks.trackHits()[start].id();
       int il = 0;
       while (hitId >= layerStarts[il + 1] and il < maxLayers)
         ++il;

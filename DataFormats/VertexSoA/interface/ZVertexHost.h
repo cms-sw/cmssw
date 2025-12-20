@@ -9,6 +9,7 @@
 #include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
+// TODO: why are the Collections not in the reco namespace like for Tracks?
 using ZVertexHost = PortableHostCollection<reco::ZVertexBlocks>;
 
 #endif  // DataFormats_VertexSoA_ZVertexHost_H
