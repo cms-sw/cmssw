@@ -17,9 +17,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernel {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  portabletest::TestDeviceCollection::View view,
-                                  double xvalue) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestSoA::View view, double xvalue) const {
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
       const portabletest::Array flags = {{6, 4, 2, 0}};
 
@@ -37,9 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoMultiKernel2 {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  portabletest::TestDeviceMultiCollection2::View<1> view,
-                                  double xvalue) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestSoA2::View view, double xvalue) const {
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
 
       // set this only once in the whole kernel grid
@@ -56,9 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoMultiKernel3 {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  portabletest::TestDeviceMultiCollection3::View<2> view,
-                                  double xvalue) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestSoA3::View view, double xvalue) const {
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
 
       // set this only once in the whole kernel grid
@@ -88,13 +82,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, collection.view(), xvalue);
   }
 
-  void TestAlgo::fillMulti2(Queue& queue, portabletest::TestDeviceMultiCollection2& collection, double xvalue) const {
+  void TestAlgo::fillMulti2(Queue& queue, portabletest::TestDeviceCollection2& collection, double xvalue) const {
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(collection->metadata().size(), items);
-    uint32_t groups2 = divide_up_by(collection.view<1>().metadata().size(), items);
+    uint32_t groups = divide_up_by(collection.view().firstLayout().metadata().size(), items);
+    uint32_t groups2 = divide_up_by(collection.view().secondLayout().metadata().size(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
@@ -102,8 +96,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto workDiv = make_workdiv<Acc1D>(groups, items);
     auto workDiv2 = make_workdiv<Acc1D>(groups2, items);
 
-    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, collection.view<portabletest::TestSoA>(), xvalue);
-    alpaka::exec<Acc1D>(queue, workDiv2, TestAlgoMultiKernel2{}, collection.view<portabletest::TestSoA2>(), xvalue);
+    auto view1 = collection.view().firstLayout();
+    auto view2 = collection.view().secondLayout();
+
+    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, view1, xvalue);
+    alpaka::exec<Acc1D>(queue, workDiv2, TestAlgoMultiKernel2{}, view2, xvalue);
   }
 
   class TestAlgoStructKernel {
@@ -132,14 +129,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue, workDiv, TestAlgoStructKernel{}, object.data(), x, y, z, id);
   }
 
-  void TestAlgo::fillMulti3(Queue& queue, portabletest::TestDeviceMultiCollection3& collection, double xvalue) const {
+  void TestAlgo::fillMulti3(Queue& queue, portabletest::TestDeviceCollection3& collection, double xvalue) const {
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(collection.view<portabletest::TestSoA>().metadata().size(), items);
-    uint32_t groups2 = divide_up_by(collection.view<portabletest::TestSoA2>().metadata().size(), items);
-    uint32_t groups3 = divide_up_by(collection.view<portabletest::TestSoA3>().metadata().size(), items);
+    uint32_t groups = divide_up_by(collection.view().firstLayout().metadata().size(), items);
+    uint32_t groups2 = divide_up_by(collection.view().secondLayout().metadata().size(), items);
+    uint32_t groups3 = divide_up_by(collection.view().thirdLayout().metadata().size(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
@@ -148,9 +145,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto workDiv2 = make_workdiv<Acc1D>(groups2, items);
     auto workDiv3 = make_workdiv<Acc1D>(groups3, items);
 
-    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, collection.view<portabletest::TestSoA>(), xvalue);
-    alpaka::exec<Acc1D>(queue, workDiv2, TestAlgoMultiKernel2{}, collection.view<portabletest::TestSoA2>(), xvalue);
-    alpaka::exec<Acc1D>(queue, workDiv3, TestAlgoMultiKernel3{}, collection.view<portabletest::TestSoA3>(), xvalue);
+    auto view1 = collection.view().firstLayout();
+    auto view2 = collection.view().secondLayout();
+    auto view3 = collection.view().thirdLayout();
+
+    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, view1, xvalue);
+    alpaka::exec<Acc1D>(queue, workDiv2, TestAlgoMultiKernel2{}, view2, xvalue);
+    alpaka::exec<Acc1D>(queue, workDiv3, TestAlgoMultiKernel3{}, view3, xvalue);
   }
 
   class TestAlgoKernelUpdate {
@@ -331,13 +332,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   portabletest::TestDeviceCollection TestAlgo::update(Queue& queue,
                                                       portabletest::TestDeviceCollection const& input,
                                                       AlpakaESTestDataEDevice const& esData) const {
-    portabletest::TestDeviceCollection collection{input->metadata().size(), queue};
+    portabletest::TestDeviceCollection collection{input.size(), queue};
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(collection->metadata().size(), items);
+    uint32_t groups = divide_up_by(collection.size(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
@@ -349,62 +350,65 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     return collection;
   }
 
-  portabletest::TestDeviceMultiCollection2 TestAlgo::updateMulti2(Queue& queue,
-                                                                  portabletest::TestDeviceMultiCollection2 const& input,
-                                                                  AlpakaESTestDataEDevice const& esData) const {
-    portabletest::TestDeviceMultiCollection2 collection{input.sizes(), queue};
+  portabletest::TestDeviceCollection2 TestAlgo::updateMulti2(Queue& queue,
+                                                             portabletest::TestDeviceCollection2 const& input,
+                                                             AlpakaESTestDataEDevice const& esData) const {
+    portabletest::TestDeviceCollection2 collection{queue, input.size()};
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    auto sizes = collection.sizes();
-    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
+    uint32_t groups = divide_up_by(collection->metadata().maxSize(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
 
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        TestAlgoKernelUpdateMulti2{},
-                        input.view<portabletest::TestSoA>(),
-                        input.view<portabletest::TestSoA2>(),
-                        esData.view(),
-                        collection.view<portabletest::TestSoA>(),
-                        collection.view<portabletest::TestSoA2>());
+    auto inputView1 = input.view().firstLayout();
+    auto inputView2 = input.view().secondLayout();
+    auto outputView1 = collection.view().firstLayout();
+    auto outputView2 = collection.view().secondLayout();
 
+    alpaka::exec<Acc1D>(
+        queue, workDiv, TestAlgoKernelUpdateMulti2{}, inputView1, inputView2, esData.view(), outputView1, outputView2);
     return collection;
   }
 
-  portabletest::TestDeviceMultiCollection3 TestAlgo::updateMulti3(Queue& queue,
-                                                                  portabletest::TestDeviceMultiCollection3 const& input,
-                                                                  AlpakaESTestDataEDevice const& esData) const {
-    portabletest::TestDeviceMultiCollection3 collection{input.sizes(), queue};
+  portabletest::TestDeviceCollection3 TestAlgo::updateMulti3(Queue& queue,
+                                                             portabletest::TestDeviceCollection3 const& input,
+                                                             AlpakaESTestDataEDevice const& esData) const {
+    portabletest::TestDeviceCollection3 collection{queue, input.size()};
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    auto sizes = collection.sizes();
-    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
+    uint32_t groups = divide_up_by(input->metadata().maxSize(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
+
+    auto inputView1 = input.view().firstLayout();
+    auto inputView2 = input.view().secondLayout();
+    auto inputView3 = input.view().thirdLayout();
+    auto outputView1 = collection.view().firstLayout();
+    auto outputView2 = collection.view().secondLayout();
+    auto outputView3 = collection.view().thirdLayout();
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
                         TestAlgoKernelUpdateMulti3{},
-                        input.view<portabletest::TestSoA>(),
-                        input.view<portabletest::TestSoA2>(),
-                        input.view<portabletest::TestSoA3>(),
+                        inputView1,
+                        inputView2,
+                        inputView3,
                         esData.view(),
-                        collection.view<portabletest::TestSoA>(),
-                        collection.view<portabletest::TestSoA2>(),
-                        collection.view<portabletest::TestSoA3>());
+                        outputView1,
+                        outputView2,
+                        outputView3);
 
     return collection;
   }
@@ -412,13 +416,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   portabletest::TestDeviceCollection TestAlgo::update(Queue& queue,
                                                       portabletest::TestDeviceCollection const& input,
                                                       UpdateInfo const* d_updateInfo) const {
-    portabletest::TestDeviceCollection collection{input->metadata().size(), queue};
+    portabletest::TestDeviceCollection collection{input.size(), queue};
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(collection->metadata().size(), items);
+    uint32_t groups = divide_up_by(collection.size(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
@@ -430,62 +434,65 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     return collection;
   }
 
-  portabletest::TestDeviceMultiCollection2 TestAlgo::updateMulti2(Queue& queue,
-                                                                  portabletest::TestDeviceMultiCollection2 const& input,
-                                                                  UpdateInfo const* d_updateInfo) const {
-    portabletest::TestDeviceMultiCollection2 collection{input.sizes(), queue};
+  portabletest::TestDeviceCollection2 TestAlgo::updateMulti2(Queue& queue,
+                                                             portabletest::TestDeviceCollection2 const& input,
+                                                             UpdateInfo const* d_updateInfo) const {
+    portabletest::TestDeviceCollection2 collection{queue, input.size()};
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    auto sizes = collection.sizes();
-    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
+    uint32_t groups = divide_up_by(input->metadata().maxSize(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
 
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        TestAlgoKernelUpdateMulti2{},
-                        input.view<portabletest::TestSoA>(),
-                        input.view<portabletest::TestSoA2>(),
-                        d_updateInfo,
-                        collection.view<portabletest::TestSoA>(),
-                        collection.view<portabletest::TestSoA2>());
+    auto inputView1 = input.view().firstLayout();
+    auto inputView2 = input.view().secondLayout();
+    auto outputView1 = collection.view().firstLayout();
+    auto outputView2 = collection.view().secondLayout();
 
+    alpaka::exec<Acc1D>(
+        queue, workDiv, TestAlgoKernelUpdateMulti2{}, inputView1, inputView2, d_updateInfo, outputView1, outputView2);
     return collection;
   }
 
-  portabletest::TestDeviceMultiCollection3 TestAlgo::updateMulti3(Queue& queue,
-                                                                  portabletest::TestDeviceMultiCollection3 const& input,
-                                                                  UpdateInfo const* d_updateInfo) const {
-    portabletest::TestDeviceMultiCollection3 collection{input.sizes(), queue};
+  portabletest::TestDeviceCollection3 TestAlgo::updateMulti3(Queue& queue,
+                                                             portabletest::TestDeviceCollection3 const& input,
+                                                             UpdateInfo const* d_updateInfo) const {
+    portabletest::TestDeviceCollection3 collection{queue, input.size()};
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    auto sizes = collection.sizes();
-    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
+    uint32_t groups = divide_up_by(input->metadata().maxSize(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
+
+    auto inputView1 = input.view().firstLayout();
+    auto inputView2 = input.view().secondLayout();
+    auto inputView3 = input.view().thirdLayout();
+    auto outputView1 = collection.view().firstLayout();
+    auto outputView2 = collection.view().secondLayout();
+    auto outputView3 = collection.view().thirdLayout();
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
                         TestAlgoKernelUpdateMulti3{},
-                        input.view<portabletest::TestSoA>(),
-                        input.view<portabletest::TestSoA2>(),
-                        input.view<portabletest::TestSoA3>(),
+                        inputView1,
+                        inputView2,
+                        inputView3,
                         d_updateInfo,
-                        collection.view<portabletest::TestSoA>(),
-                        collection.view<portabletest::TestSoA2>(),
-                        collection.view<portabletest::TestSoA3>());
+                        outputView1,
+                        outputView2,
+                        outputView3);
 
     return collection;
   }
@@ -516,7 +523,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestZeroMultiCollectionKernel2 {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceMultiCollection2::ConstView<1> view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestSoA2::ConstView view) const {
       const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
 
       // check this only once in the whole kernel grid
@@ -538,7 +545,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestZeroMultiCollectionKernel3 {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceMultiCollection3::ConstView<2> view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestSoA3::ConstView view) const {
       const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
 
       // check this only once in the whole kernel grid
@@ -583,31 +590,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   // Check that the collection has been filled with zeroes.
-  void TestAlgo::checkZero(Queue& queue, portabletest::TestDeviceMultiCollection2 const& collection) const {
+  void TestAlgo::checkZero(Queue& queue, portabletest::TestDeviceCollection2 const& collection) const {
     // create a work division with a single block and
     //   - 32 threads with a single element per thread on a GPU backend
     //   - 32 elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(1, 32);
 
+    auto constView1 = collection.const_view().firstLayout();
+    auto constView2 = collection.const_view().secondLayout();
+
     // the kernels will make a strided loop over the launch grid to cover all elements in the collection
-    alpaka::exec<Acc1D>(queue, workDiv, TestZeroCollectionKernel{}, collection.const_view<portabletest::TestSoA>());
-    alpaka::exec<Acc1D>(
-        queue, workDiv, TestZeroMultiCollectionKernel2{}, collection.const_view<portabletest::TestSoA2>());
+    alpaka::exec<Acc1D>(queue, workDiv, TestZeroCollectionKernel{}, constView1);
+    alpaka::exec<Acc1D>(queue, workDiv, TestZeroMultiCollectionKernel2{}, constView2);
   }
 
   // Check that the collection has been filled with zeroes.
-  void TestAlgo::checkZero(Queue& queue, portabletest::TestDeviceMultiCollection3 const& collection) const {
+  void TestAlgo::checkZero(Queue& queue, portabletest::TestDeviceCollection3 const& collection) const {
     // create a work division with a single block and
     //   - 32 threads with a single element per thread on a GPU backend
     //   - 32 elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(1, 32);
 
+    auto constView1 = collection.const_view().firstLayout();
+    auto constView2 = collection.const_view().secondLayout();
+    auto constView3 = collection.const_view().thirdLayout();
+
     // the kernels will make a strided loop over the launch grid to cover all elements in the collection
-    alpaka::exec<Acc1D>(queue, workDiv, TestZeroCollectionKernel{}, collection.const_view<portabletest::TestSoA>());
-    alpaka::exec<Acc1D>(
-        queue, workDiv, TestZeroMultiCollectionKernel2{}, collection.const_view<portabletest::TestSoA2>());
-    alpaka::exec<Acc1D>(
-        queue, workDiv, TestZeroMultiCollectionKernel3{}, collection.const_view<portabletest::TestSoA3>());
+    alpaka::exec<Acc1D>(queue, workDiv, TestZeroCollectionKernel{}, constView1);
+    alpaka::exec<Acc1D>(queue, workDiv, TestZeroMultiCollectionKernel2{}, constView2);
+    alpaka::exec<Acc1D>(queue, workDiv, TestZeroMultiCollectionKernel3{}, constView3);
   }
 
   // Check that the object has been filled with zeroes.

@@ -31,13 +31,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return product;
     }
 
-    portabletest::TestHostMultiCollection2 moveFromMulti2() {
+    portabletest::TestHostCollection2 moveFromMulti2() {
       auto product = std::move(*hostProductMulti2_);
       hostProductMulti2_.reset();
       return product;
     }
 
-    portabletest::TestHostMultiCollection3 moveFromMulti3() {
+    portabletest::TestHostCollection3 moveFromMulti3() {
       auto product = std::move(*hostProductMulti3_);
       hostProductMulti3_.reset();
       return product;
@@ -45,15 +45,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const device::EDGetToken<portabletest::TestDeviceCollection> getToken_;
-    const device::EDGetToken<portabletest::TestDeviceMultiCollection2> getTokenMulti2_;
-    const device::EDGetToken<portabletest::TestDeviceMultiCollection3> getTokenMulti3_;
+    const device::EDGetToken<portabletest::TestDeviceCollection2> getTokenMulti2_;
+    const device::EDGetToken<portabletest::TestDeviceCollection3> getTokenMulti3_;
     const edm::ESGetToken<cms::alpakatest::ESTestDataA, AlpakaESTestRecordA> esTokenHost_;
     const device::ESGetToken<AlpakaESTestDataCDevice, AlpakaESTestRecordC> esTokenDevice_;
 
     // hold the output product between acquire() and produce()
     std::optional<portabletest::TestHostCollection> hostProduct_;
-    std::optional<portabletest::TestHostMultiCollection2> hostProductMulti2_;
-    std::optional<portabletest::TestHostMultiCollection3> hostProductMulti3_;
+    std::optional<portabletest::TestHostCollection2> hostProductMulti2_;
+    std::optional<portabletest::TestHostCollection3> hostProductMulti3_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

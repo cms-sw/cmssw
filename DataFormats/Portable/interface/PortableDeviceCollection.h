@@ -135,6 +135,12 @@ public:
     _deepCopy<0>(desc_, desc, queue);
   }
 
+  // Either int32_t for normal layouts or std::array<int32_t, N> for SoABlocks layouts
+  auto size() const {
+    return layout_.metadata().size();
+    ;
+  }
+
 private:
   // Helper function implementing the recursive deep copy
   template <int I, typename TQueue>

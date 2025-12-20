@@ -39,8 +39,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       [[maybe_unused]] auto const& esMultiData = iSetup.getData(esMultiToken_);
 
       portabletest::TestDeviceCollection deviceProduct{size_, iEvent.queue()};
-      portabletest::TestDeviceMultiCollection2 deviceProductMulti2{{{size_, size2_}}, iEvent.queue()};
-      portabletest::TestDeviceMultiCollection3 deviceProductMulti3{{{size_, size2_, size3_}}, iEvent.queue()};
+      portabletest::TestDeviceCollection2 deviceProductMulti2{iEvent.queue(), size_, size2_};
+      portabletest::TestDeviceCollection3 deviceProductMulti3{iEvent.queue(), size_, size2_, size3_};
 
       // run the algorithm, potentially asynchronously
       algo_.fill(iEvent.queue(), deviceProduct);
@@ -68,10 +68,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const device::ESGetToken<AlpakaESTestDataADevice, AlpakaESTestRecordA> esToken_;
-    const device::ESGetToken<AlpakaESTestDataACMultiDevice, AlpakaESTestRecordA> esMultiToken_;
+    const device::ESGetToken<AlpakaESTestDataACBlocksDevice, AlpakaESTestRecordA> esMultiToken_;
     const device::EDPutToken<portabletest::TestDeviceCollection> deviceToken_;
-    const device::EDPutToken<portabletest::TestDeviceMultiCollection2> deviceTokenMulti2_;
-    const device::EDPutToken<portabletest::TestDeviceMultiCollection3> deviceTokenMulti3_;
+    const device::EDPutToken<portabletest::TestDeviceCollection2> deviceTokenMulti2_;
+    const device::EDPutToken<portabletest::TestDeviceCollection3> deviceTokenMulti3_;
     const int32_t size_;
     const int32_t size2_;
     const int32_t size3_;

@@ -3,6 +3,7 @@
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 
 namespace cms::alpakatest {
   // PortableCollection-based model
@@ -12,11 +13,16 @@ namespace cms::alpakatest {
   GENERATE_SOA_LAYOUT(AlpakaESTestSoALayoutE, SOA_COLUMN(float, val), SOA_COLUMN(int, ind))
   GENERATE_SOA_LAYOUT(AlpakaESTestSoALayoutEData, SOA_COLUMN(float, val2))
 
+  GENERATE_SOA_BLOCKS(AlpakaESTestSoABlocksLayoutAC,
+                      SOA_BLOCK(testSoAA, AlpakaESTestSoALayoutA),
+                      SOA_BLOCK(testSoAC, AlpakaESTestSoALayoutC))
+
   using AlpakaESTestSoAA = AlpakaESTestSoALayoutA<>;
   using AlpakaESTestSoAC = AlpakaESTestSoALayoutC<>;
   using AlpakaESTestSoAD = AlpakaESTestSoALayoutD<>;
   using AlpakaESTestSoAE = AlpakaESTestSoALayoutE<>;
   using AlpakaESTestSoAEData = AlpakaESTestSoALayoutEData<>;
+  using AlpakaESTestSoABlocksAC = AlpakaESTestSoABlocksLayoutAC<>;
 }  // namespace cms::alpakatest
 
 #endif
