@@ -42,10 +42,10 @@ from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 pp_on_PbPb_run3.toModify(HcalTPGCoderULUT, FG_HF_thresholds = [14, 19])
 
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_2023_cff import pp_on_PbPb_run3_2023
-from Configuration.Eras.Era_Run3_2023_UPC_cff import Run3_2023_UPC
-(pp_on_PbPb_run3_2023 | Run3_2023_UPC).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [16, 19])
+from Configuration.Eras.Modifier_run3_upc_2023_cff import run3_upc_2023
+(pp_on_PbPb_run3_2023 | run3_upc_2023).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [16, 19])
 
 #placedholder values for 2024, copied from 2023
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_2024_cff import pp_on_PbPb_run3_2024
-from Configuration.Eras.Era_Run3_2024_UPC_cff import Run3_2024_UPC
-(pp_on_PbPb_run3_2024 | Run3_2024_UPC).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [16, 19])
+from Configuration.Eras.Modifier_run3_upc_2024_cff import run3_upc_2024
+(pp_on_PbPb_run3_2024 | run3_upc_2024).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [16, 19])
