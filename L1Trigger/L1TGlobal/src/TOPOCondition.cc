@@ -93,9 +93,6 @@ void l1t::TOPOCondition::setScore(const float scoreval) const { m_savedscore = s
 void l1t::TOPOCondition::loadModel() {
   try {
     m_model = m_model_loader.load_model();
-    // std::string TOPOmodelversion = "/afs/desy.de/user/e/ebelingl/topo/compile/topo_v1";
-    // hls4mlEmulator::ModelLoader loader(TOPOmodelversion);
-    // m_model = loader.load_model();
   } catch (std::runtime_error& e) {
     throw cms::Exception("ModelError") << " ERROR: failed to load TOPO model version \"" << m_model_loader.model_name()
                                        << "\". Model version not found in cms-hls4ml externals.";
@@ -123,13 +120,13 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   const int NEtSums = 1;
 
   //number of indices in vector is #objects * 3 for et, eta, phi
-  const int MuVecSize = NMuons * 3;      //so 6
+  const int MuVecSize = NMuons * 4;      //with hwquality
   const int JVecSize = NJets * 3;        //so 12
   const int EGVecSize = NEgammas * 3;    //so 0
-  const int EtSumVecSize = NEtSums * 2;  //no eta
+  const int EtSumVecSize = NEtSums * 1;  //no eta/phi
 
   //total # inputs in vector
-  const int NInputs = MuVecSize + JVecSize + EGVecSize + EtSumVecSize;  //so 20
+  const int NInputs = MuVecSize + JVecSize + EGVecSize + EtSumVecSize;  //so 21
 
   //types of inputs and outputs modified for topo
   typedef ap_fixed<23, 23> inputtype;
@@ -167,7 +164,6 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     for (int iEtSum = 0; iEtSum < NCandEtSum; iEtSum++) {
       if ((candEtSumVec->at(useBx, iEtSum))->getType() == 1) {
         EtSumInput[0] = (candEtSumVec->at(useBx, iEtSum))->hwPt();
-        EtSumInput[1] = 0.0;  //no phi for ht
       }
     }
   }
@@ -186,10 +182,11 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   //next muons
   if (NCandMu > 0) {  //check if not empty
     for (int iMu = 0; iMu < NCandMu; iMu++) {
-      if (iMu < NMuons) {                                               //stop if fill the Nobjects we need
-        MuInput[0 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPt();   //index 0,3,6,9
-        MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEta();  //index 1,4,7,10
-        MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhi();  //index 2,5,8,11
+      if (iMu < NMuons) {                                                    //stop if fill the Nobjects we need
+        MuInput[0 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwPt();        //index 0,4,8,12
+        MuInput[1 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwEtaAtVtx();  //index 1,5,9,13
+        MuInput[2 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhiAtVtx();  //index 2,6,10,14
+        MuInput[3 + (4 * iMu)] = (candMuVec->at(useBx, iMu))->hwQual();      //index 3,7,11,15
       }
     }
   }
