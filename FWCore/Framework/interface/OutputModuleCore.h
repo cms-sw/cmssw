@@ -249,6 +249,8 @@ namespace edm {
 
       virtual void setProcessesWithSelectedMergeableRunProducts(std::set<std::string> const&) {}
 
+      virtual bool finalSelection(ProductDescription const& desc) const;
+
       bool hasAccumulator() const noexcept { return false; }
 
       void keepThisBranch(ProductDescription const& desc,

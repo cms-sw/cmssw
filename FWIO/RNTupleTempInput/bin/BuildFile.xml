@@ -25,3 +25,8 @@
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWStorage/Services"/>
 </bin>
+
+<bin name="edmRNTupleTempStorage" file="edmRNTupleTempStorage.cc">
+  <use name="rootntuple"/>
+  <use name="boost_program_options"/>
+</bin>
