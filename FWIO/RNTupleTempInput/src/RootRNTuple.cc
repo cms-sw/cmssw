@@ -78,8 +78,8 @@ namespace edm::rntuple_temp {
     }
     if (not reader_) {
       throw cms::Exception("WrongFileFormat")
-          << "The ROOT file does not contain a TTree named " << productTreeName
-          << "\n This is either not an edm ROOT file or is one that has been corrupted.";
+          << "The ROOT file does not contain a RNTuple named " << productTreeName
+          << "\n This is either not an edm RNTuple ROOT file or is one that has been corrupted.";
     }
     entries_ = reader_->GetNEntries();
   }
