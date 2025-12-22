@@ -268,6 +268,8 @@ DST_PFScouting_DoubleMuonNoVtx_v*   # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMS
 DST_PFScouting_DoubleMuonVtx_v*  # CMSHLT-3411
 DST_PFScouting_DoubleMuonVtxMonitorJPsi_v* # CMSHLT-3423
 DST_PFScouting_DoubleMuonVtxMonitorZ_v*    # CMSHLT-3423
+DST_PFScouting_SingleMuonMonitorJPsi_v*    # CMSHLT-3675
+DST_PFScouting_SingleMuonMonitorZ_v*       # CMSHLT-3675
 DST_PFScouting_DoubleEG_v*       # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMSHLT-2746, CMSHLT-2836, CMSHLT-3066
 DST_PFScouting_DoubleEGMonitorJPsi_v*		# CMSHLT-3600
 DST_PFScouting_DoubleEGMonitorZ_v*		# CMSHLT-3600
@@ -762,10 +764,12 @@ HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_eta2p3_CrossL1_ETau_Monitoring_v* # CM
 HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Loose_eta2p3_CrossL1_ETau_Monitoring_v*  # CMSHLT-3037
 HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1_v*	# CMSHLT-2974
 HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Tight_L2NN_eta2p3_CrossL1_v*		# CMSHLT-2974
+HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Flat_L2NN_eta2p3_CrossL1_v*		# CMSHLT-3708
 HLT_DoublePNetTauhPFJet30_Medium_L2NN_eta2p3_v*				# CMSHLT-2974
 HLT_DoublePNetTauhPFJet30_Tight_L2NN_eta2p3_v*                          # CMSHLT-2974
 HLT_DoublePNetTauhPFJet26_L2NN_eta2p3_PFJet60_v*                        # CMSHLT-3029
 HLT_DoublePNetTauhPFJet26_L2NN_eta2p3_PFJet75_v*                        # CMSHLT-3029
+HLT_DoublePNetTauhPFJet30_Flat_L2NN_eta2p3_v*				# CMSHLT-3708
 HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Loose_L2NN_eta2p3_CrossL1_v*	# CMSHLT-2974
 HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Medium_L2NN_eta2p3_CrossL1_v*	# CMSHLT-2974
 HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Tight_L2NN_eta2p3_CrossL1_v*        # CMSHLT-2974
