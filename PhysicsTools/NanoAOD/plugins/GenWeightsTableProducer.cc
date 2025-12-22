@@ -1060,7 +1060,7 @@ public:
               << "  - This includes internal Sherpa weights (Weight, MEWeight, WeightNormalisation, NTrials)\n"
               << "    as well as all additional variation weights.\n"
               << "  - No splitting into scale/PDF containers is performed for Sherpa samples.\n"
-              << "  Stored indices: [0 .. " << (weightNames.size() ? weightNames.size() - 1 : 0) << "]\n";
+              << "  Stored indices: [0 .. " << (!weightNames.empty() ? weightNames.size() - 1 : 0) << "]\n";
         weightChoice->psWeightsDoc = psdoc.str();
 
         weightChoice->scaleWeightsDoc = "[Sherpa detected] scale weights not split (stored in PS container).";
