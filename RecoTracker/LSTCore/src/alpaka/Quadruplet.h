@@ -464,6 +464,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              dBeta,
                                              ptCut))
         return false;
+    } else {
+      dBeta = 0;
     }
 
     if (not passT4RZConstraint(acc,
