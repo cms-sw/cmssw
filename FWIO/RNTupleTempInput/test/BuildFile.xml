@@ -12,4 +12,5 @@
   <test name="TestFWIORNTupleTempInputReducedProcessHistoryVersion" command="testReducedProcessHistoryVersion.sh"/>
   <test name="TestFWIORNTupleTempInputReducedProcessHistoryHardwareResources" command="testReducedProcessHistoryHardwareResources.sh"/>
 
+  <test name="TestFWIORntupleTempInputSecondary" command="TestSecondaryInput.sh"/>
 </environment>

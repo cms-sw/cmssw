@@ -1,7 +1,9 @@
 <use name="DataFormats/Provenance"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
+<use name="FWCore/Sources"/>
 <use name="FWCore/Utilities"/>
 <library file="*.cc" name="FWCoreTestModulesPlugins">
   <flags EDM_PLUGIN="1"/>
