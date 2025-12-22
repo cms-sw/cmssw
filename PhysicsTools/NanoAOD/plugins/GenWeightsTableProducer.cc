@@ -190,7 +190,7 @@ namespace {
     std::vector<unsigned int> psWeightIDs;
     unsigned int psBaselineID = 1;
     std::string psWeightsDoc;
-    bool isSherpa = false; 
+    bool isSherpa = false;
 
     void setMissingWeight(int idx) { psWeightIDs[idx] = (matchPS_alt) ? defPSWeightIDs_alt[idx] : defPSWeightIDs[idx]; }
 
@@ -497,9 +497,9 @@ public:
   }
 
   void setPSWeightInfo(const std::vector<double>& genWeights,
-                      const DynamicWeightChoiceGenInfo* genWeightChoice,
-                      std::vector<double>& wPS,
-                      std::string& psWeightDocStr) const {
+                       const DynamicWeightChoiceGenInfo* genWeightChoice,
+                       std::vector<double>& wPS,
+                       std::string& psWeightDocStr) const {
     wPS.clear();
 
     const bool isSherpa = (genWeightChoice && genWeightChoice->isSherpa);
@@ -513,7 +513,8 @@ public:
 
       wPS.reserve(genWeights.size());
       for (std::size_t i = 0; i < genWeights.size(); ++i) {
-        if (i == genWeightChoice->psBaselineID) continue;
+        if (i == genWeightChoice->psBaselineID)
+          continue;
         wPS.push_back(genWeights.at(i) / nominal);
       }
 
@@ -522,7 +523,7 @@ public:
     }
 
     // ============================================================
-    // NON-SHERPA: 
+    // NON-SHERPA:
     // ============================================================
 
     // isRegularPSSet = keeping all weights and the weights are a usual size, ie
@@ -537,25 +538,24 @@ public:
       }
     } else {
       int vectorSize =
-          keepAllPSWeights_ ? (genWeights.size() - 2)
-                            : ((genWeights.size() == 14 || genWeights.size() == 46) ? 4 : 1);
+          keepAllPSWeights_ ? (genWeights.size() - 2) : ((genWeights.size() == 14 || genWeights.size() == 46) ? 4 : 1);
 
       if (vectorSize > 1) {
-        double nominal = genWeights.at(genWeightChoice->psBaselineID); // Called 'Baseline' in GenLumiInfoHeader
+        double nominal = genWeights.at(genWeightChoice->psBaselineID);  // Called 'Baseline' in GenLumiInfoHeader
 
         if (keepAllPSWeights_) {
           for (int i = 0; i < vectorSize; i++) {
             wPS.push_back(genWeights.at(i + 2) / nominal);
           }
           psWeightDocStr = ((int)genWeightChoice->psWeightIDs.size() == vectorSize)
-                              ? genWeightChoice->psWeightsDoc
-                              : "All PS weights (w_var / w_nominal)";
+                               ? genWeightChoice->psWeightsDoc
+                               : "All PS weights (w_var / w_nominal)";
         } else {
           if (!psWeightWarning_.exchange(true))
             edm::LogWarning("LHETablesProducer")
                 << "GenLumiInfoHeader not found: Central PartonShower weights will fill with the 6-10th entries \n"
                 << "    This may incorrect for some mcs (madgraph 2.6.1 with its `isr:murfact=0.5` have a differnt "
-                  "order )";
+                   "order )";
           for (std::size_t i = 6; i < 10; i++) {
             wPS.push_back(genWeights.at(i) / nominal);
           }
@@ -1026,25 +1026,22 @@ public:
 
       // --- Detect Sherpa from the first 4 weights ---
       auto contains = [&](const std::string& key) {
-        return std::any_of(weightNames.begin(), weightNames.end(),
-                          [&](const std::string& s) { return s.find(key) != std::string::npos; });
+        return std::any_of(weightNames.begin(), weightNames.end(), [&](const std::string& s) {
+          return s.find(key) != std::string::npos;
+        });
       };
 
-      bool Sherpa = weightNames.size() >= 4 &&
-                    contains("Weight") &&
-                    contains("MEWeight") &&
-                    contains("WeightNormalisation") &&
-                    contains("NTrials");
+      bool Sherpa = weightNames.size() >= 4 && contains("Weight") && contains("MEWeight") &&
+                    contains("WeightNormalisation") && contains("NTrials");
 
       if (Sherpa) {
-        edm::LogInfo("SherpaDetection")
-            << "Detected Sherpa structure in GenLumiInfoHeader with " << weightNames.size()
-            << " weights (matched Weight/MEWeight/WeightNormalisation/NTrials).";
+        edm::LogInfo("SherpaDetection") << "Detected Sherpa structure in GenLumiInfoHeader with " << weightNames.size()
+                                        << " weights (matched Weight/MEWeight/WeightNormalisation/NTrials).";
 
         weightChoice->isSherpa = true;
         weightChoice->psBaselineID = 0;  // Nominal weight is always the first one
-        edm::LogInfo("SherpaDetection") << "Detected Sherpa structure in GenLumiInfoHeader with "
-                                        << weightNames.size() << " weights.";
+        edm::LogInfo("SherpaDetection") << "Detected Sherpa structure in GenLumiInfoHeader with " << weightNames.size()
+                                        << " weights.";
 
         weightChoice->psWeightIDs.clear();
         weightChoice->scaleWeightIDs.clear();
@@ -1067,9 +1064,9 @@ public:
         weightChoice->psWeightsDoc = psdoc.str();
 
         weightChoice->scaleWeightsDoc = "[Sherpa detected] scale weights not split (stored in PS container).";
-        weightChoice->pdfWeightsDoc   = "[Sherpa detected] pdf weights not split (stored in PS container).";
-      
-      // --- Non-Sherpa processing ---
+        weightChoice->pdfWeightsDoc = "[Sherpa detected] pdf weights not split (stored in PS container).";
+
+        // --- Non-Sherpa processing ---
       } else {
         unsigned int weightIter = 0;
         for (const auto& line : weightNames) {
