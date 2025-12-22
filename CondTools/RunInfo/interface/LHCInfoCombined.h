@@ -52,6 +52,8 @@ public:
   float betaStarX;
   float betaStarY;
   float energy;
+  float delivLumi;
+  float recLumi;
   unsigned short fillNumber;
 
   void print(std::ostream& os) const;
