@@ -79,16 +79,10 @@ run3_HB.toModify(particleFlowRecHitHBHEOnly,
 # Alpaka and Legacy
 particleFlowRecHitHBHEOnlyLegacy = particleFlowRecHitHBHEOnly.clone()
 from RecoParticleFlow.PFRecHitProducer.legacyPFRecHitProducer_cfi import legacyPFRecHitProducer as _legacyPFRecHitProducer
-
-legacyPFRecHitProducer = _legacyPFRecHitProducer.clone(
-        src = "pfRecHitSoAProducerHCAL"
-    )
-
-legacyPFRecHitProducerHBHEOnly = _legacyPFRecHitProducer.clone(
-        src = "pfRecHitSoAProducerHBHEOnly"
-    )
-
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
-alpaka.toReplaceWith(particleFlowRecHitHBHE, legacyPFRecHitProducer)
-alpaka.toReplaceWith(particleFlowRecHitHBHEOnly, legacyPFRecHitProducerHBHEOnly)
-
+alpaka.toReplaceWith(particleFlowRecHitHBHE, _legacyPFRecHitProducer.clone(
+    src = "pfRecHitSoAProducerHCAL"
+))
+alpaka.toReplaceWith(particleFlowRecHitHBHEOnly, _legacyPFRecHitProducer.clone(
+    src = "pfRecHitSoAProducerHBHEOnly"
+))
