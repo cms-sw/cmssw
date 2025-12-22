@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_1_0/Special --cff --data --type Special
 
-# /dev/CMSSW_15_1_0/Special/V26 (CMSSW_15_1_0)
+# /dev/CMSSW_15_1_0/Special/V31 (CMSSW_15_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_1_0/Special/V26")
+  tableName = cms.string("/dev/CMSSW_15_1_0/Special/V31")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -12289,7 +12289,7 @@ fragment.hltPreTriggersForScoutingPFMonitorSingleMuon = cms.EDFilter( "HLTPresca
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
-fragment.hltTriggersForScoutigPFMonitorSingleMuonFilter = cms.EDFilter( "TriggerResultsFilter",
+fragment.hltTriggersForScoutingPFMonitorSingleMuonFilter = cms.EDFilter( "TriggerResultsFilter",
     usePathStatus = cms.bool( True ),
     hltResults = cms.InputTag( "" ),
     l1tResults = cms.InputTag( "" ),
@@ -15954,7 +15954,7 @@ fragment.DST_ZeroBias_v13 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1
 fragment.DST_Physics_v18 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreDSTPhysics + fragment.hltFEDSelectorL1 + fragment.hltFEDSelectorL1uGTTest + fragment.hltFEDSelectorTCDS + fragment.HLTEndSequence )
 fragment.DST_PFScouting_SingleMuon_v11 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMuScouting + fragment.hltPreDSTPFScoutingSingleMuon + fragment.hltL1fL1sMuScoutingL1Filtered0 + fragment.HLTL2muonrecoSequence + cms.ignore(fragment.hltL2fL1sMuScoutingL2Filtered0) + fragment.HLTL3muonrecoSequence + cms.ignore(fragment.hltL1fForIterL3L1fL1sMuScoutingL1Filtered0) + fragment.hltL3fL1sMuScoutingL3Filtered0 + fragment.HLTPFScoutingTrackingSequence + fragment.HLTEndSequence )
 fragment.DST_PFScouting_ZeroBiasVdM_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sScoutingZeroBiasVdM + fragment.hltPreDSTPFScoutingZeroBiasVdM + fragment.HLTPFScoutingTrackingSequence + fragment.HLTEndSequence )
-fragment.HLT_TriggersForScoutingPFMonitor_SingleMuon_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreTriggersForScoutingPFMonitorSingleMuon + fragment.hltTriggersForScoutigPFMonitorSingleMuonFilter )
+fragment.HLT_TriggersForScoutingPFMonitor_SingleMuon_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreTriggersForScoutingPFMonitorSingleMuon + fragment.hltTriggersForScoutingPFMonitorSingleMuonFilter )
 fragment.HLT_EcalCalibration_v5 = cms.Path( fragment.HLTBeginSequenceCalibration + fragment.hltPreEcalCalibration + fragment.hltEcalCalibrationRaw + fragment.HLTEndSequence )
 fragment.HLT_HcalCalibration_v7 = cms.Path( fragment.HLTBeginSequenceCalibration + fragment.hltPreHcalCalibration + fragment.hltHcalCalibrationRaw + fragment.HLTEndSequence )
 fragment.HLT_HcalNZS_v23 = cms.Path( fragment.HLTBeginSequenceNZS + fragment.hltL1sHcalNZS + fragment.hltPreHcalNZS + fragment.HLTEndSequence )
