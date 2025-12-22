@@ -11,6 +11,9 @@ workflows = Matrix()
 
 from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgrade_workflows
 
+# to get the default upgrade geometry
+from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
+
 # mc WFs to run in IB:
 
 # no PU     Alpaka pixel-only                                   TTbar: quadruplets any backend and profiling; ECAL-only any backend; HCAL-only any backend and profiling
@@ -75,17 +78,17 @@ numWFIB = [
            18661.402,
 
            # Run4, Alpaka-based noPU
-           29634.402, 29634.4021, 29634.403, 29634.404, 29634.406,
-           29634.612,
-           29661.402,
-           29634.704, 
-           29634.751,
-           29661.751,
+           prefixDet+34.402, prefixDet+34.4021, prefixDet+34.403, prefixDet+34.404, prefixDet+34.406,
+           prefixDet+34.612,
+           prefixDet+61.402,
+           prefixDet+34.704,
+           prefixDet+34.751,
+           prefixDet+61.751,
 
            # Run4, Alpaka-based PU
-           29834.402, 29834.4021, 29834.403, 29834.404,
-           29834.704,
-           29834.751,
+           prefixDet+234.402, prefixDet+234.4021, prefixDet+234.403, prefixDet+234.404,
+           prefixDet+234.704,
+           prefixDet+234.751,
         ]
 
 for numWF in numWFIB:
