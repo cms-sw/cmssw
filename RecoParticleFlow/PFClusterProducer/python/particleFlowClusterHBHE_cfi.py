@@ -178,7 +178,7 @@ from Configuration.ProcessModifiers.alpaka_cff import alpaka
 alpaka.toReplaceWith(particleFlowClusterHBHE, _legacyPFClusterProducer.clone(
         src = 'pfClusterSoAProducer',
         pfClusterBuilder = particleFlowClusterHBHE.pfClusterBuilder.clone(),
-        recHitsSource = 'legacyPFRecHitProducer',
+        recHitsSource = 'particleFlowRecHitHBHE',
         PFRecHitsLabelIn = 'pfRecHitSoAProducerHCAL'
     )
 )
