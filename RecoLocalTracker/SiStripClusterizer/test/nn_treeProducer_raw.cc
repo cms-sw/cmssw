@@ -86,7 +86,8 @@ private:
   edm::InputTag inputTagClusters;
 
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
-  edm::EDGetTokenT<reco::TrackCollection> hlttracksToken_; 
+  edm::EDGetTokenT<reco::TrackCollection> hlttracksToken_;
+  edm::EDGetTokenT<reco::TrackCollection> hltPixeltracksToken_;
 
   // Event Data
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> clusterToken;
@@ -103,8 +104,8 @@ private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
  //edm::typelookup::classTypeInfo<MagneticField const> magFieldToken_;
 
-  TTree* signalTree;
-  TTree* bkgTree;
+  TTree* tree;
+  TTree* regression;
   edm::Service<TFileService> fs;
 
   edm::EventNumber_t eventN;
@@ -144,7 +145,8 @@ private:
   float       max_adc_x;
   float       max_adc_y;
   float       max_adc_z;
-  float       dr_min_pixelTrk;
+  float       pixeltrk_dr_min;
+  float       hlttrk_dr_min;
   int         adc_mone;
   int         adc_mtwo;
   int         adc_mthree;
@@ -202,11 +204,54 @@ private:
   int         n_consecutive_saturated;
 
   float       ref_hitX[nMax];
-  float       trk_pt;
   float       ref_hitY[nMax];
   uint16_t    ref_channel[nMax];
   uint16_t    ref_adc[nMax];
+  float cluster_x;
+  float cluster_y;
+  float cluster_z;
+  float recotrk_dr_min;
+  float dr;
+  float pixeltrk_pt;
+  float pixeltrk_pterr;
+  float pixeltrk_eta;
+  float pixeltrk_phi;
+  float pixeltrk_dz;
+  float pixeltrk_dxy;
+  int pixeltrk_validhits;
+  float pixeltrk_chi2;
+  float pixeltrk_d0sigma;
+  float pixeltrk_dzsigma;
+  float pixeltrk_qoverp;
+  float pixeltrk_qoverperror;
 
+  float hlttrk_pt;
+  float hlttrk_pterr;
+  float hlttrk_eta;
+  float hlttrk_phi;
+  float hlttrk_dz;
+  float hlttrk_dxy;
+  int   hlttrk_validhits;
+  float hlttrk_chi2;
+  float hlttrk_d0sigma;
+  float hlttrk_dzsigma;
+  float hlttrk_qoverp;
+  float hlttrk_qoverperror;
+
+  float recotrk_pt;
+  float recotrk_pterr;
+  float recotrk_eta;
+  float recotrk_phi;
+  float recotrk_dz;
+  float recotrk_dxy;
+  int   recotrk_validhits;
+  float recotrk_chi2;
+  float recotrk_d0sigma;
+  float recotrk_dzsigma;
+  float recotrk_qoverp;
+  float recotrk_qoverperror;
+
+  bool target;
   TH2F* hist_sig;
   TH2F* hist_bkg;
 };
@@ -221,6 +266,7 @@ nn_tupleProducer_raw::nn_tupleProducer_raw(const edm::ParameterSet& conf):
   clusterToken           = consumes<edmNew::DetSetVector<SiStripCluster>>(inputTagClusters);
   tracksToken_           = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"));
   hlttracksToken_           = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("hlttracks"));
+  hltPixeltracksToken_           = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("hltPixeltracks"));
   stripCPEToken_         = esConsumes<StripClusterParameterEstimator, TkStripCPERecord>(edm::ESInputTag("", "StripCPEfromTrackAngle"));
   tTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   tkGeomToken_ = esConsumes();
@@ -235,143 +281,143 @@ nn_tupleProducer_raw::nn_tupleProducer_raw(const edm::ParameterSet& conf):
   detInfo_ = SiStripDetInfoFileReader::read(fileInPath_.fullPath());
   hist_sig = fs->make<TH2F>("adc_idx_sig","", 50,0,50,260,0,260);
   hist_bkg = fs->make<TH2F>("adc_idx_bkg","", 50,0,50,260,0,260);
-  signalTree = fs->make<TTree>("signalTree", "signalTree");
-  signalTree->Branch("event", &eventN, "event/i");
-  signalTree->Branch("run",   &runN, "run/I");
-  signalTree->Branch("lumi",  &lumi, "lumi/I");
+  tree = fs->make<TTree>("tree", "tree");
+  regression = fs->make<TTree>("regression", "regression");
 
-  signalTree->Branch("detId", &detId, "detId/i");
-  signalTree->Branch("firstStrip", &firstStrip, "firstStrip/s");
-  signalTree->Branch("endStrip", &endStrip, "endStrip/s");
-  signalTree->Branch("barycenter", &barycenter, "barycenter/F");
-  signalTree->Branch("vrtx_xy", &vrtx_xy, "vrtx_xy/F");
-  signalTree->Branch("vrtx_z", &vrtx_z, "vrtx_z/F");
-  signalTree->Branch("trk_pt", &trk_pt, "trk_pt/F");
-  signalTree->Branch("falling_barycenter", &falling_barycenter, "falling_barycenter/s");
-  signalTree->Branch("size", &size, "size/s");
-  signalTree->Branch("maxSat", &maxSat, "maxSat/s");
-  signalTree->Branch("charge", &charge, "charge/I");
-  signalTree->Branch("max_adc", &max_adc, "max_adc/I");
-  signalTree->Branch("max_adc_idx", &max_adc_idx, "max_adc_idx/I");
-  signalTree->Branch("max_adc_x", &max_adc_x, "max_adc_x/F");
-  signalTree->Branch("max_adc_y", &max_adc_y, "max_adc_y/F");
-  signalTree->Branch("max_adc_z", &max_adc_z, "max_adc_z/F");
-  signalTree->Branch("dr_min_pixelTrk", &dr_min_pixelTrk, "dr_min_pixelTrk/F");
-  signalTree->Branch("adc_none", &adc_mone, "adc_mone/I");
-  signalTree->Branch("adc_ntwo", &adc_mtwo, "adc_mtwo/I");
-  signalTree->Branch("adc_nthree", &adc_mthree, "adc_mthree/I");
-  signalTree->Branch("adc_nfour", &adc_mfour, "adc_mfour/I");
-  signalTree->Branch("adc_pone", &adc_pone, "adc_pone/I");
-  signalTree->Branch("adc_ptwo", &adc_ptwo, "adc_ptwo/I");
-  signalTree->Branch("adc_pthree", &adc_pthree, "adc_pthree/I");
-  signalTree->Branch("adc_pfour", &adc_pfour, "adc_pfour/I");
-  signalTree->Branch("low_pt_trk_cluster", &low_pt_trk_cluster, "low_pt_trk_cluster/b");
-  signalTree->Branch("high_pt_trk_cluster", &high_pt_trk_cluster, "high_pt_trk_cluster/b");
-  signalTree->Branch("trk_algo", &trk_algo, "trk_algo/I");
-  signalTree->Branch("n_saturated", &n_saturated, "n_saturated/I");
-  signalTree->Branch("n_consecutive_saturated", &n_consecutive_saturated, "n_consecutive_saturated/I");
-  signalTree->Branch("isTIB", &isTIB, "isTIB/O");
-  signalTree->Branch("isTOB", &isTOB, "isTOB/O");
-  signalTree->Branch("isTID", &isTID, "isTID/O");
-  signalTree->Branch("isTEC", &isTEC, "isTEC/O");
-  signalTree->Branch("isStereo", &isStereo, "isStereo/O");
-  signalTree->Branch("isglued", &isglued, "isglued/O");
-  signalTree->Branch("isstacked", &isstacked, "isstacked/O");
-  signalTree->Branch("layer", &layer, "layer/i");
+  regression->Branch("event", &eventN, "event/i");
+  regression->Branch("run",   &runN, "run/I");
+  regression->Branch("lumi",  &lumi, "lumi/I");
+  regression->Branch("pixeltrk_pt", &pixeltrk_pt, "pixeltrk_pt/F");
+  regression->Branch("pixeltrk_pterr", &pixeltrk_pterr, "pixeltrk_pterr/F");
+  regression->Branch("pixeltrk_eta", &pixeltrk_eta, "pixeltrk_eta/F");
+  regression->Branch("pixeltrk_phi", &pixeltrk_phi, "pixeltrk_phi/F");
+  regression->Branch("pixeltrk_dz", &pixeltrk_dz, "pixeltrk_dz/F");
+  regression->Branch("pixeltrk_dxy", &pixeltrk_dxy, "pixeltrk_dxy/F");
+  regression->Branch("cluster_x", &cluster_x, "cluster_x/F");
+  regression->Branch("cluster_y", &cluster_y, "cluster_y/F");
+  regression->Branch("cluster_z", &cluster_z, "cluster_z/F");
+  regression->Branch("target", &target, "target/O");
+  regression->Branch("recotrk_dr_min", &recotrk_dr_min, "recotrk_dr_min/F");
+  regression->Branch("dr", &dr, "dr/F");
+  regression->Branch("pixeltrk_dr_min", &pixeltrk_dr_min, "pixeltrk_dr_min/F");
+  regression->Branch("pixeltrk_validhits", &pixeltrk_validhits, "pixeltrk_validhits/I");
+  regression->Branch("pixeltrk_chi2", &pixeltrk_chi2, "pixeltrk_chi2/F");
+  regression->Branch("pixeltrk_d0sigma", &pixeltrk_d0sigma, "pixeltrk_d0sigma/F");
+  regression->Branch("pixeltrk_dzsigma", &pixeltrk_dzsigma, "pixeltrk_dzsigma/F");
+  regression->Branch("pixeltrk_qoverp", &pixeltrk_qoverp, "pixeltrk_qoverp/F");
+  regression->Branch("pixeltrk_qoverperror", &pixeltrk_qoverperror, "pixeltrk_qoverperror/F");
+
+  tree->Branch("cluster_x", &cluster_x, "cluster_x/F");
+  tree->Branch("cluster_y", &cluster_y, "cluster_y/F");
+  tree->Branch("cluster_z", &cluster_z, "cluster_z/F");
+  tree->Branch("hlttrk_pt", &hlttrk_pt, "hlttrk_pt/F");
+  tree->Branch("hlttrk_pterr", &hlttrk_pterr, "hlttrk_pterr/F");
+  tree->Branch("hlttrk_eta", &hlttrk_eta, "hlttrk_eta/F");
+  tree->Branch("hlttrk_phi", &hlttrk_phi, "hlttrk_phi/F");
+  tree->Branch("hlttrk_dz", &hlttrk_dz, "hlttrk_dz/F");
+  tree->Branch("hlttrk_dxy", &hlttrk_dxy, "hlttrk_dxy/F");
+  tree->Branch("hlttrk_validhits", &hlttrk_validhits, "hlttrk_validhits/I");
+  tree->Branch("hlttrk_chi2", &hlttrk_chi2, "hlttrk_chi2/F");
+  tree->Branch("hlttrk_d0sigma", &hlttrk_d0sigma, "hlttrk_d0sigma/F");
+  tree->Branch("hlttrk_dzsigma", &hlttrk_dzsigma, "hlttrk_dzsigma/F");
+  tree->Branch("hlttrk_qoverp", &hlttrk_qoverp, "hlttrk_qoverp/F");
+  tree->Branch("hlttrk_qoverperror", &hlttrk_qoverperror, "hlttrk_qoverperror/F");
+  tree->Branch("recotrk_pt", &recotrk_pt, "recotrk_pt/F");
+  tree->Branch("recotrk_pterr", &recotrk_pterr, "recotrk_pterr/F");
+  tree->Branch("recotrk_eta", &recotrk_eta, "recotrk_eta/F");
+  tree->Branch("recotrk_phi", &recotrk_phi, "recotrk_phi/F");
+  tree->Branch("recotrk_dz", &recotrk_dz, "recotrk_dz/F");
+  tree->Branch("recotrk_dxy", &recotrk_dxy, "recotrk_dxy/F");
+  tree->Branch("recotrk_validhits", &recotrk_validhits, "recotrk_validhits/I");
+  tree->Branch("recotrk_chi2", &recotrk_chi2, "recotrk_chi2/F");
+  tree->Branch("recotrk_d0sigma", &recotrk_d0sigma, "recotrk_d0sigma/F");
+  tree->Branch("recotrk_dzsigma", &recotrk_dzsigma, "recotrk_dzsigma/F");
+  tree->Branch("recotrk_qoverp", &recotrk_qoverp, "recotrk_qoverp/F");
+  tree->Branch("recotrk_qoverperror", &recotrk_qoverperror, "recotrk_qoverperror/F");
+  tree->Branch("target", &target, "target/O");
+  tree->Branch("recotrk_dr_min", &recotrk_dr_min, "recotrk_dr_min/F");
+  tree->Branch("dr", &dr, "dr/F");
+  tree->Branch("pixeltrk_dr_min", &pixeltrk_dr_min, "pixeltrk_dr_min/F");
+  tree->Branch("pixeltrk_validhits", &pixeltrk_validhits, "pixeltrk_validhits/I");
+  tree->Branch("pixeltrk_chi2", &pixeltrk_chi2, "pixeltrk_chi2/F");
+  tree->Branch("pixeltrk_d0sigma", &pixeltrk_d0sigma, "pixeltrk_d0sigma/F");
+  tree->Branch("pixeltrk_dzsigma", &pixeltrk_dzsigma, "pixeltrk_dzsigma/F");
+  tree->Branch("pixeltrk_qoverp", &pixeltrk_qoverp, "pixeltrk_qoverp/F");
+  tree->Branch("pixeltrk_qoverperror", &pixeltrk_qoverperror, "pixeltrk_qoverperror/F");
+  tree->Branch("pixeltrk_pt", &pixeltrk_pt, "pixeltrk_pt/F");
+  tree->Branch("pixeltrk_pterr", &pixeltrk_pterr, "pixeltrk_pterr/F");
+  tree->Branch("pixeltrk_eta", &pixeltrk_eta, "pixeltrk_eta/F");
+  tree->Branch("pixeltrk_phi", &pixeltrk_phi, "pixeltrk_phi/F");
+  tree->Branch("pixeltrk_dz", &pixeltrk_dz, "pixeltrk_dz/F");
+  tree->Branch("pixeltrk_dxy", &pixeltrk_dxy, "pixeltrk_dxy/F");
+  tree->Branch("event", &eventN, "event/i");
+  tree->Branch("run",   &runN, "run/I");
+  tree->Branch("lumi",  &lumi, "lumi/I");
+
+  tree->Branch("detId", &detId, "detId/i");
+  tree->Branch("firstStrip", &firstStrip, "firstStrip/s");
+  tree->Branch("endStrip", &endStrip, "endStrip/s");
+  tree->Branch("barycenter", &barycenter, "barycenter/F");
+  tree->Branch("vrtx_xy", &vrtx_xy, "vrtx_xy/F");
+  tree->Branch("vrtx_z", &vrtx_z, "vrtx_z/F");
+  tree->Branch("falling_barycenter", &falling_barycenter, "falling_barycenter/s");
+  tree->Branch("size", &size, "size/s");
+  tree->Branch("maxSat", &maxSat, "maxSat/s");
+  tree->Branch("charge", &charge, "charge/I");
+  tree->Branch("max_adc", &max_adc, "max_adc/I");
+  tree->Branch("max_adc_idx", &max_adc_idx, "max_adc_idx/I");
+  tree->Branch("max_adc_x", &max_adc_x, "max_adc_x/F");
+  tree->Branch("max_adc_y", &max_adc_y, "max_adc_y/F");
+  tree->Branch("max_adc_z", &max_adc_z, "max_adc_z/F");
+  tree->Branch("pixeltrk_dr_min", &pixeltrk_dr_min, "pixeltrk_dr_min/F");
+  tree->Branch("hlttrk_dr_min", &hlttrk_dr_min, "hlttrk_dr_min/F");
+  tree->Branch("adc_none", &adc_mone, "adc_mone/I");
+  tree->Branch("adc_ntwo", &adc_mtwo, "adc_mtwo/I");
+  tree->Branch("adc_nthree", &adc_mthree, "adc_mthree/I");
+  tree->Branch("adc_nfour", &adc_mfour, "adc_mfour/I");
+  tree->Branch("adc_pone", &adc_pone, "adc_pone/I");
+  tree->Branch("adc_ptwo", &adc_ptwo, "adc_ptwo/I");
+  tree->Branch("adc_pthree", &adc_pthree, "adc_pthree/I");
+  tree->Branch("adc_pfour", &adc_pfour, "adc_pfour/I");
+  tree->Branch("low_pt_trk_cluster", &low_pt_trk_cluster, "low_pt_trk_cluster/b");
+  tree->Branch("high_pt_trk_cluster", &high_pt_trk_cluster, "high_pt_trk_cluster/b");
+  tree->Branch("trk_algo", &trk_algo, "trk_algo/I");
+  tree->Branch("n_saturated", &n_saturated, "n_saturated/I");
+  tree->Branch("n_consecutive_saturated", &n_consecutive_saturated, "n_consecutive_saturated/I");
+  tree->Branch("isTIB", &isTIB, "isTIB/O");
+  tree->Branch("isTOB", &isTOB, "isTOB/O");
+  tree->Branch("isTID", &isTID, "isTID/O");
+  tree->Branch("isTEC", &isTEC, "isTEC/O");
+  tree->Branch("isStereo", &isStereo, "isStereo/O");
+  tree->Branch("isglued", &isglued, "isglued/O");
+  tree->Branch("isstacked", &isstacked, "isstacked/O");
+  tree->Branch("layer", &layer, "layer/i");
   
-  signalTree->Branch("x", hitX, "x[size]/F");
-  signalTree->Branch("y", hitY, "y[size]/F");
-  signalTree->Branch("z", hitZ, "z[size]/F");
-  signalTree->Branch("channel", channel, "channel[size]/s");
-  signalTree->Branch("adc", adc, "adc[size]/s");
-  signalTree->Branch("saturated", &saturated, "saturated/O");
-  signalTree->Branch("diff_adc_pone", &diff_adc_pone, "diff_adc_pone/I");
-  signalTree->Branch("diff_adc_ptwo", &diff_adc_ptwo, "diff_adc_ptwo/I");
-  signalTree->Branch("diff_adc_pthree", &diff_adc_pthree, "diff_adc_pthree/I");
-  signalTree->Branch("diff_adc_mone", &diff_adc_mone, "diff_adc_mone/I");
-  signalTree->Branch("diff_adc_mtwo", &diff_adc_mtwo, "diff_adc_mtwo/I");
-  signalTree->Branch("diff_adc_mthree", &diff_adc_mthree, "diff_adc_mthree/I");
-  signalTree->Branch("noise_adc_pone", &noise_adc_pone, "noise_adc_pone/F");
-  signalTree->Branch("noise_max_adc", &noise_max_adc, "noise_max_adc/F");
-  signalTree->Branch("noise_adc_ptwo", &noise_adc_ptwo, "noise_adc_ptwo/F");
-  signalTree->Branch("noise_adc_pthree", &noise_adc_pthree, "noise_adc_pthree/F");
-  signalTree->Branch("noise_adc_mone", &noise_adc_mone, "noise_adc_mone/F");
-  signalTree->Branch("noise_adc_mtwo", &noise_adc_mtwo, "noise_adc_mtwo/F");
-  signalTree->Branch("noise_adc_mthree", &noise_adc_mthree, "noise_adc_mthree/F");
-  signalTree->Branch("adc_std", &adc_std, "adc_std/F");
-  signalTree->Branch("adc_zero", &adc_zero, "adc_zero/I");
-  signalTree->Branch("adc_one", &adc_one, "adc_one/I");
-  signalTree->Branch("adc_two", &adc_two, "adc_two/I");
-  signalTree->Branch("adc_three", &adc_three, "adc_three/I");
-  signalTree->Branch("adc_four", &adc_four, "adc_four/I");
-
-  bkgTree = fs->make<TTree>("bkgTree", "bkgTree");
-  bkgTree->Branch("event", &eventN, "event/i");
-  bkgTree->Branch("run",   &runN, "run/I");
-  bkgTree->Branch("lumi",  &lumi, "lumi/I");
-  bkgTree->Branch("trk_pt", &trk_pt, "trk_pt/F");
-
-  bkgTree->Branch("detId", &detId, "detId/i");
-  bkgTree->Branch("firstStrip", &firstStrip, "firstStrip/s");
-  bkgTree->Branch("endStrip", &endStrip, "endStrip/s");
-  bkgTree->Branch("barycenter", &barycenter, "barycenter/F");
-  bkgTree->Branch("vrtx_xy", &vrtx_xy, "vrtx_xy/F");
-  bkgTree->Branch("vrtx_z", &vrtx_z, "vrtx_z/F");
-  bkgTree->Branch("falling_barycenter", &falling_barycenter, "falling_barycenter/s");
-  bkgTree->Branch("size", &size, "size/s");
-  bkgTree->Branch("maxSat", &maxSat, "maxSat/s");
-  bkgTree->Branch("charge", &charge, "charge/I");
-  bkgTree->Branch("max_adc", &max_adc, "max_adc/I");
-  bkgTree->Branch("max_adc_idx", &max_adc_idx, "max_adc_idx/I");
-  bkgTree->Branch("max_adc_x", &max_adc_x, "max_adc_x/F");
-  bkgTree->Branch("max_adc_y", &max_adc_y, "max_adc_y/F");
-  bkgTree->Branch("max_adc_z", &max_adc_z, "max_adc_z/F");
-  bkgTree->Branch("dr_min_pixelTrk", &dr_min_pixelTrk, "dr_min_pixelTrk/F");
-  bkgTree->Branch("diff_adc_pone", &diff_adc_pone, "diff_adc_pone/I");
-  bkgTree->Branch("diff_adc_ptwo", &diff_adc_ptwo, "diff_adc_ptwo/I");
-  bkgTree->Branch("diff_adc_pthree", &diff_adc_pthree, "diff_adc_pthree/I");
-  bkgTree->Branch("diff_adc_mone", &diff_adc_mone, "diff_adc_mone/I");
-  bkgTree->Branch("diff_adc_mtwo", &diff_adc_mtwo, "diff_adc_mtwo/I");
-  bkgTree->Branch("diff_adc_mthree", &diff_adc_mthree, "diff_adc_mthree/I");
-  bkgTree->Branch("noise_max_adc", &noise_max_adc, "noise_max_adc/F");
-  bkgTree->Branch("noise_adc_pone", &noise_adc_pone, "noise_adc_pone/F");
-  bkgTree->Branch("noise_adc_ptwo", &noise_adc_ptwo, "noise_adc_ptwo/F");
-  bkgTree->Branch("noise_adc_pthree", &noise_adc_pthree, "noise_adc_pthree/F");
-  bkgTree->Branch("noise_adc_mone", &noise_adc_mone, "noise_adc_mone/F");
-  bkgTree->Branch("noise_adc_mtwo", &noise_adc_mtwo, "noise_adc_mtwo/F");
-  bkgTree->Branch("noise_adc_mthree", &noise_adc_mthree, "noise_adc_mthree/F");
-  bkgTree->Branch("adc_none", &adc_mone, "adc_mone/I");
-  bkgTree->Branch("adc_ntwo", &adc_mtwo, "adc_mtwo/I");
-  bkgTree->Branch("adc_nthree", &adc_mthree, "adc_mthree/I");
-  bkgTree->Branch("adc_nfour", &adc_mfour, "adc_mfour/I");
-  bkgTree->Branch("adc_pone", &adc_pone, "adc_pone/I");
-  bkgTree->Branch("adc_ptwo", &adc_ptwo, "adc_ptwo/I");
-  bkgTree->Branch("adc_pthree", &adc_pthree, "adc_pthree/I");
-  bkgTree->Branch("adc_pfour", &adc_pfour, "adc_pfour/I");
-  bkgTree->Branch("adc_pfour", &adc_pfour, "adc_pfour/I");
-  bkgTree->Branch("saturated", &saturated, "saturated/O");
-  bkgTree->Branch("n_saturated", &n_saturated, "n_saturated/I");
-  bkgTree->Branch("n_consecutive_saturated", &n_consecutive_saturated, "n_consecutive_saturated/I");
-  bkgTree->Branch("adc_std", &adc_std, "adc_std/F");
-  bkgTree->Branch("adc_zero", &adc_zero, "adc_zero/I");
-  bkgTree->Branch("adc_one", &adc_one, "adc_one/I");
-  bkgTree->Branch("adc_two", &adc_two, "adc_two/I");
-  bkgTree->Branch("adc_three", &adc_three, "adc_three/I");
-  bkgTree->Branch("adc_four", &adc_four, "adc_four/I");
-  bkgTree->Branch("isTIB", &isTIB, "isTIB/O");
-  bkgTree->Branch("isTOB", &isTOB, "isTOB/O");
-  bkgTree->Branch("isTID", &isTID, "isTID/O");
-  bkgTree->Branch("isTEC", &isTEC, "isTEC/O");
-  bkgTree->Branch("isStereo", &isStereo, "isStereo/O");
-  bkgTree->Branch("isglued", &isglued, "isglued/O");
-  bkgTree->Branch("isstacked", &isstacked, "isstacked/O");
-  bkgTree->Branch("layer", &layer, "layer/i");
-
-  bkgTree->Branch("x", hitX, "x[size]/F");
-  bkgTree->Branch("y", hitY, "y[size]/F");
-  bkgTree->Branch("z", hitZ, "z[size]/F");
-  bkgTree->Branch("channel", channel, "channel[size]/s");
-  bkgTree->Branch("adc", adc, "adc[size]/s");
+  tree->Branch("x", hitX, "x[size]/F");
+  tree->Branch("y", hitY, "y[size]/F");
+  tree->Branch("z", hitZ, "z[size]/F");
+  tree->Branch("channel", channel, "channel[size]/s");
+  tree->Branch("adc", adc, "adc[size]/s");
+  tree->Branch("saturated", &saturated, "saturated/O");
+  tree->Branch("diff_adc_pone", &diff_adc_pone, "diff_adc_pone/I");
+  tree->Branch("diff_adc_ptwo", &diff_adc_ptwo, "diff_adc_ptwo/I");
+  tree->Branch("diff_adc_pthree", &diff_adc_pthree, "diff_adc_pthree/I");
+  tree->Branch("diff_adc_mone", &diff_adc_mone, "diff_adc_mone/I");
+  tree->Branch("diff_adc_mtwo", &diff_adc_mtwo, "diff_adc_mtwo/I");
+  tree->Branch("diff_adc_mthree", &diff_adc_mthree, "diff_adc_mthree/I");
+  tree->Branch("noise_adc_pone", &noise_adc_pone, "noise_adc_pone/F");
+  tree->Branch("noise_max_adc", &noise_max_adc, "noise_max_adc/F");
+  tree->Branch("noise_adc_ptwo", &noise_adc_ptwo, "noise_adc_ptwo/F");
+  tree->Branch("noise_adc_pthree", &noise_adc_pthree, "noise_adc_pthree/F");
+  tree->Branch("noise_adc_mone", &noise_adc_mone, "noise_adc_mone/F");
+  tree->Branch("noise_adc_mtwo", &noise_adc_mtwo, "noise_adc_mtwo/F");
+  tree->Branch("noise_adc_mthree", &noise_adc_mthree, "noise_adc_mthree/F");
+  tree->Branch("adc_std", &adc_std, "adc_std/F");
+  tree->Branch("adc_zero", &adc_zero, "adc_zero/I");
+  tree->Branch("adc_one", &adc_one, "adc_one/I");
+  tree->Branch("adc_two", &adc_two, "adc_two/I");
+  tree->Branch("adc_three", &adc_three, "adc_three/I");
+  tree->Branch("adc_four", &adc_four, "adc_four/I");
 
 }
 
@@ -381,6 +427,7 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> clusterCollection = event.getHandle(clusterToken);
   const auto& tracksHandle = event.getHandle(tracksToken_);
   const auto& hlttracksHandle = event.getHandle(hlttracksToken_);
+  const auto& hltPixeltracksHandle = event.getHandle(hltPixeltracksToken_);
   const auto* stripCPE    = &es.getData(stripCPEToken_);
   const auto* magField    = &es.getData(magFieldToken_);
 
@@ -402,6 +449,10 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
 	      edm::LogError("flatNtuple_producer") << "No valid track collection found";
 	          return;
   }
+  if (!hltPixeltracksHandle.isValid()) {
+	edm::LogError("flatNtuple_producer") << "No valid track collection found";
+	return;
+  }
   
   if (!vertexHandle.isValid()) {
 	      edm::LogError("flatNtuple_producer") << "No valid vertex collection found";
@@ -410,6 +461,7 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
 
   const reco::TrackCollection& tracks = *tracksHandle;
   const reco::TrackCollection& hlttracks = *hlttracksHandle;
+  const reco::TrackCollection& hltPixeltracks = *hltPixeltracksHandle;
   const reco::VertexCollection vertices = *vertexHandle;
   //if ( tracks.size() != 1 || event.id().event() !=33) return;
   //std::cout << "event " << event.id().event() << std::endl;
@@ -486,7 +538,7 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
 
     for (const auto& stripCluster : detSiStripClusters) {
     //  cluster += 1;
-      bool signal = 0;
+      target = 0;
       firstStrip = stripCluster.firstStrip();
       endStrip   = stripCluster.endStrip();
       barycenter = stripCluster.barycenter();
@@ -505,9 +557,44 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
       adc_pthree = 0;
       adc_pfour = 0;
       diff_adc_mone = diff_adc_mtwo = diff_adc_mthree = diff_adc_pone = diff_adc_ptwo = diff_adc_pthree = n_saturated = n_consecutive_saturated = adc_zero = adc_one = adc_two = adc_three = adc_four = noise_adc_mone = noise_adc_mtwo = noise_adc_mthree = noise_adc_pone = noise_adc_ptwo = noise_adc_pthree = 0;
+      pixeltrk_pt = 0;
+      pixeltrk_eta = 5;
+      pixeltrk_phi = 5;
+      pixeltrk_qoverperror = 2;
+      pixeltrk_validhits = pixeltrk_qoverp = 0;
+      pixeltrk_pterr = 2;
+      pixeltrk_chi2 = 1000;
+      pixeltrk_dz = 50;
+      pixeltrk_dzsigma = 50;
+      pixeltrk_dxy = 2;
+      pixeltrk_d0sigma = 50;
+
+      hlttrk_pt = 0;
+      hlttrk_eta = 5;
+      hlttrk_phi = 5;
+      hlttrk_qoverperror = 2;
+      hlttrk_validhits = hlttrk_qoverp = 0;
+      hlttrk_pterr = 2;
+      hlttrk_chi2 = 1000;
+      hlttrk_dz = 50;
+      hlttrk_dzsigma = 50;
+      hlttrk_dxy = 2;
+      hlttrk_d0sigma = 50;
+
+      recotrk_pt = 0;
+      recotrk_eta = 5;
+      recotrk_phi = 5;
+      recotrk_qoverperror = 2;
+      recotrk_validhits = recotrk_qoverp = 0;
+      recotrk_pterr = 2;
+      recotrk_chi2 = 1000;
+      recotrk_dz = 50;
+      recotrk_dzsigma = 50;
+      recotrk_dxy = 2;
+      recotrk_d0sigma = 50;
+
       vrtx_xy = 99;
       vrtx_z = 99;
-      trk_pt = 1000;
       std::vector<int>adcs;
       std::vector<float>noises;
       //uint16_t thisSat = maxSat = 0;
@@ -614,17 +701,41 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
                low_pt_trk_cluster = trk_cluster_property.low_pt_trk_cluster;
                high_pt_trk_cluster = trk_cluster_property.high_pt_trk_cluster;
                trk_algo           = trk_cluster_property.trk_algo;
-	       signal = 1;
+	       target = 1;
 	       break;
            }
         }
 
-      dr_min_pixelTrk = 99.;
+      pixeltrk_dr_min = 99.;
       const GeomDetUnit* geomDet = tkGeom->idToDetUnit(detId);
       const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(geomDet);
+      
       const reco::Track* recotrk = NULL;
+      auto clusterpositions = (tkGeom->idToDet(detId))->surface().toGlobal(stripCPE->localParameters(stripCluster, *stripDet).first);
+      cluster_x = clusterpositions.x();
+      cluster_y = clusterpositions.y();
+      cluster_z = clusterpositions.z();
+      hlttrk_dr_min = 99;
+      recotrk_dr_min = 99;
+      TrajectoryStateOnSurface tsos_pixel, tsos_reco;
+      const reco::Track* pixeltrk = NULL;
+      for ( const auto & trk : hltPixeltracks) {
+            reco::TransientTrack tkTT = theTTrackBuilder->build(trk);
+	    if(!tkTT.impactPointState().isValid()) continue;
+            TrajectoryStateOnSurface tsos = thePropagator->propagate(tkTT.impactPointState(), geomDet->surface());
+             if (!tsos.isValid()) continue;
+             auto localValues = stripCPE->localParameters(stripCluster, *stripDet, tsos);
+             LocalPoint clusterLocal = localValues.first;
+             LocalPoint trackLocal = geomDet->surface().toLocal(tsos.globalPosition());
+             float dr = abs(trackLocal.x() - clusterLocal.x());
+             if (dr < pixeltrk_dr_min) {
+                  pixeltrk_dr_min = dr;
+		  tsos_pixel = tsos;
+		  pixeltrk = &trk;
+             }
+      }
+     
       for ( const auto & trk : tracks) {
-              if (!stripDet) continue;
               for (auto const& hit : trk.recHits()) {
                 if (!hit->isValid()) continue;
                 if (hit->geographicalId() != detId) continue;
@@ -640,54 +751,102 @@ void nn_tupleProducer_raw::analyze(const edm::Event& event, const edm::EventSetu
                 //LocalPoint trackLocal = hit->localPosition();
                 //LocalPoint clusterLocal = p.localPosition(stripCluster.barycenter());
                 float dr = abs(trackLocal.x() - clusterLocal.x()); //std::sqrt( pow( (trackLocal.x() - clusterLocal.x()), 2 ) +
-                if (dr < dr_min_pixelTrk) {
-                  dr_min_pixelTrk = dr;
+                if (dr < recotrk_dr_min) {
+                  recotrk_dr_min = dr;
 		  recotrk = &trk;
-                  trk_pt = trk.pt();
+		  tsos_reco = tsos;
                 }
               }
       }
 
+      if (tsos_reco.isValid()) {
+        recotrk_pt = recotrk->pt();
+        recotrk_pterr = recotrk->ptError();
+        recotrk_eta = recotrk->eta();
+        recotrk_phi = recotrk->phi();
+        recotrk_dz = recotrk->dz(vertices.at(0).position());
+        recotrk_dxy = recotrk->dxy(vertices.at(0).position());
+        recotrk_validhits = recotrk->numberOfValidHits();
+        recotrk_chi2 = recotrk->normalizedChi2();
+        recotrk_d0sigma = sqrt(recotrk->d0Error() * recotrk->d0Error() + vertices.at(0).xError() * vertices.at(0).yError());
+        recotrk_dzsigma = sqrt(recotrk->dzError() * recotrk->dzError() + vertices.at(0).zError() * vertices.at(0).zError());
+        recotrk_qoverp = recotrk->qoverp();
+        recotrk_qoverperror = recotrk->qoverpError();
+      }
+      /*dr = 99;
+      if (tsos_pixel.isValid() && tsos_reco.isValid()) {
+	      float deta = tsos_pixel.globalPosition().eta() - tsos_reco.globalPosition().eta();
+	      float dphi = tsos_pixel.globalPosition().phi() - tsos_reco.globalPosition().phi();
+              dr = std::sqrt( pow(deta,2) + pow(dphi,2) );
+      }*/
+      if (tsos_pixel.isValid()) {
+        pixeltrk_pt = pixeltrk->pt();
+	pixeltrk_pterr = pixeltrk->ptError();
+        pixeltrk_eta = pixeltrk->eta();
+        pixeltrk_phi = pixeltrk->phi();
+	pixeltrk_dz = pixeltrk->dz(vertices.at(0).position());
+	pixeltrk_dxy = pixeltrk->dxy(vertices.at(0).position());
+	pixeltrk_validhits = pixeltrk->numberOfValidHits();
+	pixeltrk_chi2 = pixeltrk->normalizedChi2();
+	pixeltrk_d0sigma = sqrt(pixeltrk->d0Error() * pixeltrk->d0Error() + vertices.at(0).xError() * vertices.at(0).yError());
+	pixeltrk_dzsigma = sqrt(pixeltrk->dzError() * pixeltrk->dzError() + vertices.at(0).zError() * vertices.at(0).zError());
+	pixeltrk_qoverp = pixeltrk->qoverp();
+	pixeltrk_qoverperror = pixeltrk->qoverpError();
+      }
+      //regression->Fill();
+      //continue;
       const reco::Track* hlttrk = NULL;
       for ( const auto & trk : hlttracks) {
 	      vrtx_xy = trk.dxy(vertices.at(0).position());
 	      vrtx_z = trk.dz(vertices.at(0).position());
-	      if (!stripDet) continue;
 	      for (auto const& hit : trk.recHits()) {
                 if (!hit->isValid()) continue;
                 if (hit->geographicalId() != detId) continue;
 		reco::TransientTrack tkTT = theTTrackBuilder->build(trk);
-		// Propagate track to the cluster surface
                 TrajectoryStateOnSurface tsos = thePropagator->propagate(tkTT.innermostMeasurementState(), geomDet->surface());
                 if (!tsos.isValid()) continue;
                 auto localValues = stripCPE->localParameters(stripCluster, *stripDet, tsos);
                 LocalPoint clusterLocal = localValues.first;
 
-                // Track position at same surface
                 LocalPoint trackLocal = geomDet->surface().toLocal(tsos.globalPosition());
-	        //LocalPoint trackLocal = hit->localPosition();
-                //LocalPoint clusterLocal = p.localPosition(stripCluster.barycenter());
                 float dr = abs(trackLocal.x() - clusterLocal.x()); //std::sqrt( pow( (trackLocal.x() - clusterLocal.x()), 2 ) +
-                if (dr < dr_min_pixelTrk) {
-                  dr_min_pixelTrk = dr;
+                if (dr < hlttrk_dr_min) {
+                  hlttrk_dr_min = dr;
 		  hlttrk = &trk;
-		  trk_pt = trk.pt();
                 }
 	      }
       }
-      if (signal) {
-	   if (hlttrk && recotrk) {
-		   std::cout << "sig pt " << hlttrk->pt() << "\t" << recotrk->pt() << std::endl;
-	           std::cout << "sig pt " << vrtx_xy << "\t" << recotrk->dxy(vertices.at(0).position()) << "\t" << vrtx_z << "\t" << recotrk->dz(vertices.at(0).position()) << std::endl;
-	   }
 
-	      else if (!hlttrk) { std::cout << "sig not found hlt" << std::endl;}
-	      else if (!recotrk) { std::cout << "sig not found reco" << std::endl;}
-	      signalTree->Fill();
+      if (hlttrk) {
+        hlttrk_pt = hlttrk->pt();
+        hlttrk_pterr = hlttrk->ptError();
+        hlttrk_eta = hlttrk->eta();
+        hlttrk_phi = hlttrk->phi();
+        hlttrk_dz = hlttrk->dz(vertices.at(0).position());
+        hlttrk_dxy = hlttrk->dxy(vertices.at(0).position());
+        hlttrk_validhits = hlttrk->numberOfValidHits();
+        hlttrk_chi2 = hlttrk->normalizedChi2();
+        hlttrk_d0sigma = sqrt(hlttrk->d0Error() * hlttrk->d0Error() + vertices.at(0).xError() * vertices.at(0).yError());
+        hlttrk_dzsigma = sqrt(hlttrk->dzError() * hlttrk->dzError() + vertices.at(0).zError() * vertices.at(0).zError());
+        hlttrk_qoverp = hlttrk->qoverp();
+        hlttrk_qoverperror = hlttrk->qoverpError();
+      }
+
+      tree->Fill();
+      if (target) {
+	     //std::cout << "dr_pixel:hlttrk_dr_min:recotrk_dr_min " << pixeltrk_dr_min << ":" << hlttrk_dr_min << ":" << recotrk_dr_min << std::endl;
+	     /*if (tsos_pixel.isValid() && tsos_reco.isValid()) {
+	      std::cout << "eta: " << tsos_pixel.globalPosition().eta() << "\t" << tsos_reco.globalPosition().eta() << std::endl;
+	      std::cout << "phi: " << tsos_pixel.globalPosition().phi() << "\t" << tsos_reco.globalPosition().phi() << std::endl;
+	     }*/
 	      for (unsigned int i = 0; i < adcs.size()-1; ++i) hist_sig->Fill(i, adcs[i]); // Fill 2D histogram
       }
       else {
-	      bkgTree->Fill();
+	      /*if (tsos_pixel.isValid() && tsos_reco.isValid()) {
+		  std::cout << "bkg eta: " << tsos_pixel.globalPosition().eta() << "\t" << tsos_reco.globalPosition().eta() << std::endl;
+		  std::cout << "phi: " << tsos_pixel.globalPosition().phi() << "\t" << tsos_reco.globalPosition().phi() << std::endl;
+						               }
+//	      std::cout << "dr_pixel:hlttrk_dr_min:recotrk_dr_min " << pixeltrk_dr_min << ":" << hlttrk_dr_min << ":" << recotrk_dr_min << std::endl;*/
 	      for (unsigned int i = 0; i < adcs.size()-1; ++i) hist_bkg->Fill(i, adcs[i]); // Fill 2D histogram
       }
     }
@@ -699,6 +858,7 @@ void nn_tupleProducer_raw::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("siStripClustersTag", edm::InputTag("siStripClusters"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks","","reRECO"));
   desc.add<edm::InputTag>("hlttracks", edm::InputTag("hltTracks","","HLTX"));
+  desc.add<edm::InputTag>("hltPixeltracks", edm::InputTag("hltPixelTracks","","HLTX"));
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("vertex", edm::InputTag("vertex"));
   descriptions.add("nn_tupleProducer_raw", desc);
