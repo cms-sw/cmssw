@@ -2532,7 +2532,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       float tmp_trk_chi2dof = iterL1Track->chi2Red();
       float tmp_trk_chi2rphi = iterL1Track->chi2XYRed();
       float tmp_trk_chi2rz = iterL1Track->chi2ZRed();
-      float tmp_trk_bendchi2 = iterL1Track->stubPtConsistency();
+      float tmp_trk_bendchi2 = iterL1Track->chi2BendRed();
       float tmp_trk_MVA1 = iterL1Track->trkMVA1();
 
       std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
@@ -2755,7 +2755,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       float tmp_trk_chi2dof = iterL1Track->chi2Red();
       float tmp_trk_chi2rphi = iterL1Track->chi2XYRed();
       float tmp_trk_chi2rz = iterL1Track->chi2ZRed();
-      float tmp_trk_bendchi2 = iterL1Track->stubPtConsistency();
+      float tmp_trk_bendchi2 = iterL1Track->chi2BendRed();
       float tmp_trk_MVA1 = iterL1Track->trkMVA1();
 
       std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
@@ -3210,7 +3210,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
                                          << " eta = " << matchedTracks.at(it)->momentum().eta()
                                          << " phi = " << matchedTracks.at(it)->momentum().phi()
                                          << " chi2 = " << matchedTracks.at(it)->chi2()
-                                         << " consistency = " << matchedTracks.at(it)->stubPtConsistency()
+                                         << " consistency = " << matchedTracks.at(it)->chi2BendRed()
                                          << " z0 = " << matchedTracks.at(it)->z0()
                                          << " nstub = " << matchedTracks.at(it)->getStubRefs().size();
             if (tmp_trk_genuine)
@@ -3291,7 +3291,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         tmp_matchtrk_chi2dof = matchedTracks.at(i_track)->chi2Red();
         tmp_matchtrk_chi2rphi = matchedTracks.at(i_track)->chi2XYRed();
         tmp_matchtrk_chi2rz = matchedTracks.at(i_track)->chi2ZRed();
-        tmp_matchtrk_bendchi2 = matchedTracks.at(i_track)->stubPtConsistency();
+        tmp_matchtrk_bendchi2 = matchedTracks.at(i_track)->chi2BendRed();
         tmp_matchtrk_MVA1 = matchedTracks.at(i_track)->trkMVA1();
         tmp_matchtrk_nstub = (int)matchedTracks.at(i_track)->getStubRefs().size();
         tmp_matchtrk_seed = (int)matchedTracks.at(i_track)->trackSeedType();
@@ -3382,7 +3382,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
                                          << " eta = " << matchedTracks.at(it)->momentum().eta()
                                          << " phi = " << matchedTracks.at(it)->momentum().phi()
                                          << " chi2 = " << matchedTracks.at(it)->chi2()
-                                         << " consistency = " << matchedTracks.at(it)->stubPtConsistency()
+                                         << " consistency = " << matchedTracks.at(it)->chi2BendRed()
                                          << " z0 = " << matchedTracks.at(it)->z0()
                                          << " nstub = " << matchedTracks.at(it)->getStubRefs().size();
             if (tmp_trk_genuine)
@@ -3492,7 +3492,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         tmp_matchtrkExt_chi2dof = matchedTracks.at(i_track)->chi2Red();
         tmp_matchtrkExt_chi2rphi = matchedTracks.at(i_track)->chi2XYRed();
         tmp_matchtrkExt_chi2rz = matchedTracks.at(i_track)->chi2ZRed();
-        tmp_matchtrkExt_bendchi2 = matchedTracks.at(i_track)->stubPtConsistency();
+        tmp_matchtrkExt_bendchi2 = matchedTracks.at(i_track)->chi2BendRed();
         tmp_matchtrkExt_MVA = matchedTracks.at(i_track)->trkMVA1();
         tmp_matchtrkExt_nstub = (int)matchedTracks.at(i_track)->getStubRefs().size();
         tmp_matchtrkExt_seed = (int)matchedTracks.at(i_track)->trackSeedType();

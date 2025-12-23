@@ -39,7 +39,7 @@ private:
   double theZ0_;
   unsigned int thePhiSector_;
   unsigned int theEtaSector_;
-  double theStubPtConsistency_;
+  double theStubPtConsistency_;  // stub bend chi2/dof
   double theChi2_;
   double theChi2_XY_;
   double theChi2_Z_;
@@ -152,13 +152,10 @@ public:
   double chi2XYRed() const;
 
   /// Stub Pt consistency (i.e. stub bend chi2/dof)
-  /// Note: The "stubPtConsistency" names are historic and people are encouraged
-  ///       to adopt the "chi2Bend" names.
-  double stubPtConsistency() const;
-  void setStubPtConsistency(double aPtConsistency);
-  double chi2BendRed() { return stubPtConsistency(); }
-  void setChi2BendRed(double aChi2BendRed) { setStubPtConsistency(aChi2BendRed); }
-  double chi2Bend() { return chi2BendRed() * theStubRefs.size(); }
+  /// N.B. Function chi2BendRed() was previously known as stubPtConsistency().
+  double chi2BendRed() const { return theStubPtConsistency_; }
+  double chi2Bend() const { return chi2BendRed() * theStubRefs.size(); }
+  void setChi2BendRed(double aChi2BendRed) { theStubPtConsistency_ = aChi2BendRed; }
 
   void setFitParNo(unsigned int aFitParNo);
   int nFitPars() const { return theNumFitPars_; }
@@ -404,19 +401,6 @@ template <typename T>
 void TTTrack<T>::settrkMVA3(double atrkMVA3) {
   theTrkMVA3_ = atrkMVA3;
   return;
-}
-
-/// StubPtConsistency
-template <typename T>
-void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency) {
-  theStubPtConsistency_ = aStubPtConsistency;
-  return;
-}
-
-/// StubPtConsistency
-template <typename T>
-double TTTrack<T>::stubPtConsistency() const {
-  return theStubPtConsistency_;
 }
 
 /// Hit Pattern
