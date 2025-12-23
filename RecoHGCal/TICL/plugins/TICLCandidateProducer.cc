@@ -31,6 +31,7 @@
 #include "RecoHGCal/TICL/interface/TICLInterpretationAlgoBase.h"
 #include "RecoHGCal/TICL/plugins/TICLInterpretationPluginFactory.h"
 #include "RecoHGCal/TICL/plugins/GeneralInterpretationAlgo.h"
+#include "RecoHGCal/TICL/plugins/GNNInterpretationAlgo.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 

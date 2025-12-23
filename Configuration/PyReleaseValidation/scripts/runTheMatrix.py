@@ -163,6 +163,7 @@ if __name__ == '__main__':
                      prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
                      prefixDet+34.7511,  # HLT phase-2 timing menu Phase2CAExtension variant
                      prefixDet+34.752,   # HLT phase-2 timing menu ticl_v5 variant
+                     prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant   
                      prefixDet+34.753,   # HLT phase-2 timing menu Alpaka, single tracking iteration variant
                      prefixDet+34.754,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
                      prefixDet+34.755,   # HLT phase-2 timing menu Alpaka, LST building variant
