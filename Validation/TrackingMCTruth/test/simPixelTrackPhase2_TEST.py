@@ -1,22 +1,22 @@
 """
-This script runs the SimDoubletsProducer and SimDoubletsAnalyzer for Run3.
+This script runs the SimPixelTrackProducer and SimPixelTrackAnalyzer for Phase2.
 
 To run it, you first have to produce or get the output root file from a step 2 that runs the HLT.
 The input file is expected to be named `step2.root` by default, but you can also rename it below.
 Then you can simply run the config using:
 
-cmsRun simDoubletsPhase1_TEST.py
+cmsRun simPixelTrackPhase2_TEST.py
 
-It will produce one DQMIO output file named `simDoublets_DQMIO.root`. 
-This can be further processed in the harvesting step by running the simDoubletsPhase1_HARVESTING.py script.
+It will produce one DQMIO output file named `simPixelTrack_DQMIO.root`. 
+This can be further processed in the harvesting step by running the simPixelTrackPhase2_HARVESTING.py script.
 """
 inputFile = "step2.root"
 
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
 
-process = cms.Process("SIMDOUBLETS",Run3_2025)
+process = cms.Process("SIMDOUBLETS",Phase2C22I13M9)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1),
@@ -37,31 +37,32 @@ process.source = cms.Source("PoolSource",
 ### conditions
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '142X_mcRun3_2025_realistic_v4', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
 
 ### standard includes
 process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-### load HLTDoLocalPixelSequence
-process.load('HLTrigger.Configuration.HLT_GRun_cff')
+### load hltSiPixelRecHits
+process.load("HLTrigger.Configuration.HLT_75e33.modules.hltSiPixelRecHits_cfi")
 ### load hltTPClusterProducer
 process.load("Validation.RecoTrack.associators_cff")
-### load the new EDProducer "SimDoubletsProducerPhase1"
-process.load("SimTracker.TrackerHitAssociation.simDoubletsProducerPhase1_cfi")
-### load the new DQM EDAnalyzer "SimDoubletsAnalyzerPhase1"
-process.load("Validation.TrackingMCTruth.simDoubletsAnalyzerPhase1_cfi")
+### load the new EDProducer "SimPixelTrackProducerPhase2"
+process.load("SimTracker.TrackerHitAssociation.simPixelTrackProducerPhase2_cfi")
+### load the new DQM EDAnalyzer "SimPixelTrackAnalyzerPhase2"
+process.load("Validation.TrackingMCTruth.simPixelTrackAnalyzerPhase2_cfi")
 
-####  set up the path
+####  set up the paths
 process.simDoubletPath = cms.Path(
-    process.HLTDoLocalPixelSequence *   # reproduce the SiPixelRecHits
+    process.hltSiPixelRecHits *         # reproduce the SiPixelRecHits
     process.hltTPClusterProducer *      # run the cluster to TrackingParticle association
-    process.simDoubletsProducerPhase1 * # produce the SimDoublets
-    process.simDoubletsAnalyzerPhase1   # analyze the SimDoublets
+    process.simPixelTrackProducerPhase2 * # produce the SimPixelTracks
+    process.simPixelTrackAnalyzerPhase2   # analyze the SimPixelTracks
 )
 
 # Output definition
@@ -70,7 +71,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:simDoublets_DQMIO.root'),
+    fileName = cms.untracked.string('file:simPixelTrack_DQMIO.root'),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
