@@ -197,55 +197,59 @@ for i in range(len(lib.JOBID)):
             # open the input file
             with open(eazeLog,'r') as INFILE:
                 # scan records in input file
-                for line in INFILE:
-                    # check whether any file could not be opened
-                    if re.search(re.compile('Failed to open the file',re.M), line):
-                        badInputFile = 1
-                        break
-                    # check if end of file has been reached
-                    if re.search(re.compile('\<StorageStatistics\>',re.M), line):
-                        eofile = 1
-                    if re.search(re.compile('EAZE\. Time limit reached\.',re.M), line):
-                        timel = 1
-                    if re.search(re.compile('GAF gives I\/O problem',re.M), line):
-                        ioprob = 1
-                    if re.search(re.compile('FrameworkError ExitStatus=[\'\"]8001[\'\"]',re.M), line):
-                        fw8001 = 1
-                    if re.search(re.compile('too many tracks',re.M), line):
-                        tooManyTracks = 1
-                    if re.search(re.compile('segmentation violation',re.M), line):
-                        segviol = 1
-                    if re.search(re.compile('failed RFIO error',re.M), line):
-                        rfioerr = 1
-                    if re.search(re.compile('Request exceeds quota',re.M), line):
-                        quota = 1
-                    # check for newer (e.g. CMSSW_5_1_X) and older CMSSW:
-                    if re.search(re.compile('Fatal Exception',re.M), line):
-                        exceptionCaught = 1
-                    if re.search(re.compile('Exception caught in cmsRun',re.M), line):
-                        exceptionCaught = 1
-                    # AP 07.09.2009 - Check that the job got to a normal end
-                    if re.search(re.compile('AlignmentProducerAsAnalyzer::endJob\(\)',re.M), line):
-                        endofjob = 1
-                    if re.search(re.compile('MismatchedInputFiles',re.M), line):
-                        mismatchedInputFiles = 1
-                    if re.search(re.compile('Did not process any events',re.M), line):
-                        zeroEvents = 1
-                    if re.search(re.compile('FwkReport            -i main_input:sourc',re.M), line):
-                        array = line.split()
-                        nEvent = int(array[5])
-                    if nEvent==0 and re.search(re.compile('FwkReport            -i PostSource',re.M), line):
-                        array = line.split()
-                        nEvent = int(array[5])
-                    # AP 31.07.2009 - To read number of events in CMSSW_3_2_2_patch2
-                    if nEvent==0 and re.search(re.compile('FwkReport            -i AfterSource',re.M), line):
-                        array = line.split()
-                        nEvent = int(array[5])
-                    # RM 03.02.2023
-                    if nEvent==0:
-                        x = re.search(r"FwkReport            -f AfterSource\s+(\d+)",line)
-                        if x:
-                            nEvent = int(x.group(1))
+                try:
+                    for line in INFILE:
+                        # check whether any file could not be opened
+                        if re.search(re.compile('Failed to open the file',re.M), line):
+                            badInputFile = 1
+                            break
+                        # check if end of file has been reached
+                        if re.search(re.compile('\<StorageStatistics\>',re.M), line):
+                            eofile = 1
+                        if re.search(re.compile('EAZE\. Time limit reached\.',re.M), line):
+                            timel = 1
+                        if re.search(re.compile('GAF gives I\/O problem',re.M), line):
+                            ioprob = 1
+                        if re.search(re.compile('FrameworkError ExitStatus=[\'\"]8001[\'\"]',re.M), line):
+                            fw8001 = 1
+                        if re.search(re.compile('too many tracks',re.M), line):
+                            tooManyTracks = 1
+                        if re.search(re.compile('segmentation violation',re.M), line):
+                            segviol = 1
+                        if re.search(re.compile('failed RFIO error',re.M), line):
+                            rfioerr = 1
+                        if re.search(re.compile('Request exceeds quota',re.M), line):
+                            quota = 1
+                        # check for newer (e.g. CMSSW_5_1_X) and older CMSSW:
+                        if re.search(re.compile('Fatal Exception',re.M), line):
+                            exceptionCaught = 1
+                        if re.search(re.compile('Exception caught in cmsRun',re.M), line):
+                            exceptionCaught = 1
+                        # AP 07.09.2009 - Check that the job got to a normal end
+                        if re.search(re.compile('AlignmentProducerAsAnalyzer::endJob\(\)',re.M), line):
+                            endofjob = 1
+                        if re.search(re.compile('MismatchedInputFiles',re.M), line):
+                            mismatchedInputFiles = 1
+                        if re.search(re.compile('Did not process any events',re.M), line):
+                            zeroEvents = 1
+                        if re.search(re.compile('FwkReport            -i main_input:sourc',re.M), line):
+                            array = line.split()
+                            nEvent = int(array[5])
+                        if nEvent==0 and re.search(re.compile('FwkReport            -i PostSource',re.M), line):
+                            array = line.split()
+                            nEvent = int(array[5])
+                        # AP 31.07.2009 - To read number of events in CMSSW_3_2_2_patch2
+                        if nEvent==0 and re.search(re.compile('FwkReport            -i AfterSource',re.M), line):
+                            array = line.split()
+                            nEvent = int(array[5])
+                        # RM 03.02.2023
+                        if nEvent==0:
+                            x = re.search(r"FwkReport            -f AfterSource\s+(\d+)",line)
+                            if x:
+                                nEvent = int(x.group(1))
+                except UnicodeDecodeError:
+                    print ("Decode error - assuming things are ok ")
+                    endofjob = 1
 
             if logZipped == 'true':
                 os.system('gzip -f '+eazeLog)

@@ -74,6 +74,9 @@ else:
 # build list of binary files
 binaryList = ''
 firstentry = True
+prefix=""
+if lib.rootIO:
+    prefix=f"root://eoscms.cern.ch/{lib.mssDir}/binaries/" 
 for i in range(nJobs):
     separator = ',\n                '
     if firstentry:
@@ -81,8 +84,8 @@ for i in range(nJobs):
     if checkok and lib.JOBSTATUS[i]!='OK':
         continue
     firstentry = False
-
-    newName = 'milleBinary%03d.dat' % (i+1)
+    suffix = "dat" if not lib.rootIO else "root" 
+    newName = f"{prefix}milleBinary{i+1:03d}.{suffix}"
     if checkweight and (lib.JOBSP2[i]!='' and lib.JOBSP2[i]!='1.0'):
         weight = lib.JOBSP2[i]
         print('Adding %s to list of binary files using weight %s' % (newName,weight))
@@ -105,6 +108,9 @@ else:
 # build list of tree files
 treeList =''
 firstentry = True
+prefix=""
+if lib.rootIO:
+    prefix=f"root://eoscms.cern.ch/{lib.mssDir}/tree_files/" 
 for i in range(nJobs):
     separator = ',\n                '
     if firstentry:
@@ -113,7 +119,7 @@ for i in range(nJobs):
         continue
     firstentry = False
 
-    newName = 'treeFile%03d.root' % (i+1)
+    newName = f"{prefix}treeFile{i+1:03d}.root"
     print('Adding %s to list of tree files.' % newName)
     treeList = '%s%s\'%s\'' % (treeList, separator, newName)
 
