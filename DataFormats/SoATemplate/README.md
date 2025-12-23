@@ -73,7 +73,9 @@ and to build a generic `View` as described in [View](#view).
 ## Customized methods
 
 It is possible to generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS`
-and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. 
+and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods.
+Note that `SOA_ELEMENT_METHODS` and `SOA_CONST_ELEMENT_METHODS` should be prefixed with the macro SOA_HOST_DEVICE. 
+This ensures that the methods can also be executed in device kernels.
 [An example is showed below.](#examples)
 
 ## Blocks
@@ -181,14 +183,14 @@ GENERATE_SOA_LAYOUT(SoATemplate,
   
   // methods operating on const_element
   SOA_CONST_ELEMENT_METHODS(
-    auto norm() const {
+    SOA_HOST_DEVICE auto norm() const {
       return sqrt(x()*x() + y()+y() + z()*z());
     }
   ),
 
   // methods operating on element
   SOA_ELEMENT_METHODS(
-    void scale(float arg) {
+    SOA_HOST_DEVICE void scale(float arg) {
       x() *= arg;
       y() *= arg;
       z() *= arg;
