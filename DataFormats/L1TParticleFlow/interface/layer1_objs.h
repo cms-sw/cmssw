@@ -345,6 +345,128 @@ namespace l1ct {
   };
   inline void clear(EmCaloObj &c) { c.clear(); }
 
+  struct CommonCaloObj {
+    pt_t hwPt;
+    eta_t hwEta;  // relative to the region center, at calo
+    phi_t hwPhi;  // relative to the region center, at calo
+    pt_t hwPtAlt;
+    emid_t hwEmID;
+    // pt_t hwPtErr;
+    shower_shape_t hwShowerShape;
+    rel_iso_t hwRelIso;
+
+    inline bool operator==(const CommonCaloObj &other) const {
+      return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwPtAlt == other.hwPtAlt &&
+             hwEmID == other.hwEmID && hwShowerShape == other.hwShowerShape && hwRelIso == other.hwRelIso;
+    }
+
+    inline bool operator>(const CommonCaloObj &other) const { return hwPt > other.hwPt; }
+    inline bool operator<(const CommonCaloObj &other) const { return hwPt < other.hwPt; }
+
+    void convertFrom(const HadCaloObj &h) {
+      assert(!hwEmID[5] && "CommonCaloObj: inconsistent EM ID");
+      // NOTE: Bit 5 of hwEmID is used to indicate that the object is an electromagnetic calorimeter (EM) object.
+      // Assert that bit 5 is not set before conversion, as it will be set during this process.
+      hwPt = h.hwPt;
+      hwEta = h.hwEta;
+      hwPhi = h.hwPhi;
+      hwPtAlt = h.hwEmPt;
+      hwEmID = h.hwEmID;
+      hwShowerShape = 0;
+      hwRelIso = 0;
+    }
+
+    void convertFrom(const EmCaloObj &e) {
+      assert(!hwEmID[5] && "CommonCaloObj: inconsistent EM ID");
+      // NOTE: Bit 5 of hwEmID is used to indicate that the object is an electromagnetic calorimeter (EM) object.
+      // Assert that bit 5 is not set before conversion, as it will be set during this process.
+      hwPt = e.hwPt;
+      hwEta = e.hwEta;
+      hwPhi = e.hwPhi;
+      hwPtAlt = e.hwPtErr;
+      hwEmID = e.hwEmID;
+      hwEmID[5] = true;
+      hwEmID(4, 0) = e.hwEmID(4, 0);
+      hwShowerShape = e.hwShowerShape;
+      hwRelIso = e.hwRelIso;
+    }
+
+    void convertTo(EmCaloObj &e) const {
+      e.clear();
+      if (hwPt && hwEmID[5]) {
+        e.hwPt = hwPt;
+        e.hwEta = hwEta;
+        e.hwPhi = hwPhi;
+        e.hwPtErr = hwPtAlt;
+        e.hwEmID(4, 0) = hwEmID(4, 0);
+        e.hwShowerShape = hwShowerShape;
+        e.hwRelIso = hwRelIso;
+      }
+    }
+
+    void convertTo(HadCaloObj &h) const {
+      h.clear();
+      if (hwPt && !hwEmID[5]) {
+        h.hwPt = hwPt;
+        h.hwEta = hwEta;
+        h.hwPhi = hwPhi;
+        h.hwEmPt = hwPtAlt;
+        h.hwEmID = hwEmID;
+      }
+    }
+
+    inline void clear() {
+      hwPt = 0;
+      hwEta = 0;
+      hwPhi = 0;
+      hwPtAlt = 0;
+      hwEmID = 0;
+      hwShowerShape = 0;
+      hwRelIso = 0;
+    }
+
+    int intPt() const { return Scales::intPt(hwPt); }
+    int intEta() const { return hwEta.to_int(); }
+    int intPhi() const { return hwPhi.to_int(); }
+    int intPtAlt() const { return Scales::intPt(hwPtAlt); }
+
+    float floatPt() const { return Scales::floatPt(hwPt); }
+    float floatEta() const { return Scales::floatEta(hwEta); }
+    float floatPhi() const { return Scales::floatPhi(hwPhi); }
+    float floatPtAlt() const { return Scales::floatPt(hwPtAlt); }
+
+    bool hwIsEM() const { return hwEmID != 0; }
+    static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width + pt_t::width + emid_t::width +
+                                shower_shape_t::width + rel_iso_t::width;
+
+    inline ap_uint<BITWIDTH> pack() const {
+      ap_uint<BITWIDTH> ret;
+      unsigned int start = 0;
+      pack_into_bits(ret, start, hwPt);
+      pack_into_bits(ret, start, hwEta);
+      pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwPtAlt);
+      pack_into_bits(ret, start, hwEmID);
+      pack_into_bits(ret, start, hwShowerShape);
+      pack_into_bits(ret, start, hwRelIso);
+      return ret;
+    }
+
+    inline static CommonCaloObj unpack(const ap_uint<BITWIDTH> &src) {
+      CommonCaloObj ret;
+      unsigned int start = 0;
+      unpack_from_bits(src, start, ret.hwPt);
+      unpack_from_bits(src, start, ret.hwEta);
+      unpack_from_bits(src, start, ret.hwPhi);
+      unpack_from_bits(src, start, ret.hwPtAlt);
+      unpack_from_bits(src, start, ret.hwEmID);
+      unpack_from_bits(src, start, ret.hwShowerShape);
+      unpack_from_bits(src, start, ret.hwRelIso);
+      return ret;
+    }
+  };
+  inline void clear(CommonCaloObj &c) { c.clear(); }
+
   struct TkObj {
     pt_t hwPt;
     eta_t hwEta;      // relative to the region center, at calo

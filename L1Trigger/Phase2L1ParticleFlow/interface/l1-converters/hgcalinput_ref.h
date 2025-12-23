@@ -13,46 +13,47 @@ namespace edm {
 namespace l1ct {
   class HgcalClusterDecoderEmulator {
   public:
-    HgcalClusterDecoderEmulator(const std::string &model,
-                                const std::vector<double> &wp_pt,
-                                const std::vector<double> &wp_PU,
-                                const std::vector<double> &wp_Pi,
-                                const std::vector<double> &wp_PFEm,
-                                const std::vector<double> &wp_EgEm,
-                                const std::vector<double> &wp_EgEm_tight,
-                                bool slim = false,
-                                const std::string &corrector = "",
-                                float correctorEmfMax = -1,
-                                bool emulateCorrections = false,
-                                const std::string &emInterpScenario = "no");
-    HgcalClusterDecoderEmulator(const edm::ParameterSet &pset);
-
     class MultiClassID {
     public:
       typedef ap_ufixed<9, 9, AP_RND_CONV, AP_SAT> bdt_feature_t;
       typedef ap_fixed<18, 4, AP_RND_CONV, AP_SAT> bdt_score_t;
 
+      struct WPs {
+        WPs(const std::vector<double> &wp_pt,
+            const std::vector<double> &wp_PU,
+            const std::vector<double> &wp_Pi,
+            const std::vector<double> &wp_PFEm,
+            const std::vector<double> &wp_EgEm,
+            const std::vector<double> &wp_EgEm_tight);
+
+        WPs(const edm::ParameterSet &pset);
+        static edm::ParameterSetDescription getParameterSetDescription();
+
+        std::vector<l1ct::pt_t> wp_pt;
+        std::vector<l1ct::id_prob_t> wp_PU;
+        std::vector<l1ct::id_prob_t> wp_Pi;
+        std::vector<l1ct::id_prob_t> wp_PFEm;
+        std::vector<l1ct::id_prob_t> wp_EgEm;
+        std::vector<l1ct::id_prob_t> wp_EgEm_tight;
+      };
+
       MultiClassID(const std::string &model,
-                   const std::vector<double> &wp_pt,
-                   const std::vector<double> &wp_PU,
-                   const std::vector<double> &wp_Pi,
-                   const std::vector<double> &wp_PFEm,
-                   const std::vector<double> &wp_EgEm,
-                   const std::vector<double> &wp_EgEm_tight);
+                   const std::vector<double> &wp_eta,
+                   const std::vector<l1ct::HgcalClusterDecoderEmulator::MultiClassID::WPs> &wps);
       MultiClassID(const edm::ParameterSet &pset);
       static edm::ParameterSetDescription getParameterSetDescription();
 
-      bool evaluate(l1ct::HadCaloObjEmu &cl, const std::vector<bdt_feature_t> &input) const;
+      bool evaluate(const l1ct::PFRegionEmu &sector,
+                    l1ct::HadCaloObjEmu &cl,
+                    const std::vector<bdt_feature_t> &input) const;
 
       void softmax(const float rawScores[3], float scores[3]) const;
 
     private:
-      std::vector<l1ct::pt_t> wp_pt_;
-      std::vector<l1ct::id_prob_t> wp_PU_;
-      std::vector<l1ct::id_prob_t> wp_Pi_;
-      std::vector<l1ct::id_prob_t> wp_PFEm_;
-      std::vector<l1ct::id_prob_t> wp_EgEm_;
-      std::vector<l1ct::id_prob_t> wp_EgEm_tight_;
+      void initialize(const std::string &model, const std::vector<double> &wp_eta);
+
+      std::vector<l1ct::eta_t> wp_eta_;
+      std::vector<l1ct::HgcalClusterDecoderEmulator::MultiClassID::WPs> wps_;
 
       typedef ap_fixed<18, 8> activation_table_t;
       typedef ap_fixed<18, 8, AP_RND, AP_SAT> activation_exp_table_t;
@@ -67,6 +68,16 @@ namespace l1ct {
 
       std::unique_ptr<conifer::BDT<bdt_feature_t, bdt_score_t, false>> multiclass_bdt_;
     };
+
+    HgcalClusterDecoderEmulator(const std::string &model,
+                                const std::vector<double> &wp_eta,
+                                const std::vector<l1ct::HgcalClusterDecoderEmulator::MultiClassID::WPs> &wps,
+                                bool slim = false,
+                                const std::string &corrector = "",
+                                float correctorEmfMax = -1,
+                                bool emulateCorrections = false,
+                                const std::string &emInterpScenario = "no");
+    HgcalClusterDecoderEmulator(const edm::ParameterSet &pset);
 
     enum class UseEmInterp { No, EmOnly, AllKeepHad, AllKeepTot };
 
