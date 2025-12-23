@@ -23,6 +23,7 @@ TrackletEventProcessor::~TrackletEventProcessor() {
   if (settings_ && settings_->bookHistos()) {
     histbase_->close();
   }
+  sector_->clean();
 }
 
 void TrackletEventProcessor::init(Settings const& theSettings, const tt::Setup* setup) {
