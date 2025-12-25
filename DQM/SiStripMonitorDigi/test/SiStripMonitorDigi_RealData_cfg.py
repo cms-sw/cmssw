@@ -95,7 +95,7 @@ process.SiStripMonitorDigi.SelectAllDetectors = True
 process.SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
 process.outP = cms.OutputModule("AsciiOutputModule")
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 #--------------------------
 # Sequences 

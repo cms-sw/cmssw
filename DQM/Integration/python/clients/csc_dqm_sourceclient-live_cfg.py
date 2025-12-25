@@ -138,7 +138,7 @@ del cscConditions
 #--------------------------
 # Service
 #--------------------------
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 #--------------------------
 # Message Logger
