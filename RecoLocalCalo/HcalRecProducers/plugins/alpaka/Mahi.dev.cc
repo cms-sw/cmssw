@@ -535,21 +535,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 auto const dfc = compute_diff_charge_gain(
                     qieType, adc, capid, qieOffsets, qieSlopes, gch < f01HEDigis.size() || gch >= nchannelsf015);
 
-#ifdef COMPUTE_TDC_TIME
-                float tdcTime;
-                if (gch >= f01HEDigis.size() && gch < nchannelsf015) {
-                  tdcTime = HcalSpecialTimes::UNKNOWN_T_NOTDC;
-                } else {
-                  if (gch < f01HEDigis.size())
-                    tdcTime =
-                        HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor1>(&(f01HEDigis[gch].data()[0]), sample));
-                  else if (gch >= nchannelsf015)
-                    tdcTime = HcalSpecialTimes::getTDCTime(
-                        tdc_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf015][0]), sample));
-                }
-#endif  // COMPUTE_TDC_TIME
-
-                // compute method 0 quantities
                 // TODO: need to apply containment
                 // TODO: need to apply time slew
                 // TODO: for < run 3, apply HBM legacy energy correction
@@ -645,6 +630,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               auto const lch = channel.local;
               for (auto i_sample : independent_group_elements_x(acc, nsamplesForCompute)) {
                 auto const sampleWithinWindow = i_sample;
+                auto const sample = i_sample + startingSample;
 
                 int32_t const soi =
                     gch < f01HEDigis.size()
@@ -676,6 +662,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 if (sampleWithinWindow == static_cast<unsigned>(soi)) {
                   auto const method0_energy = shrMethod0EnergyAccum[lch];
                   auto const val = shrMethod0EnergySamplePair[lch];
+                  HcalDetId didtmp(id);
+                  auto subdetectorType = didtmp.subdet();
+                  auto subdetectorDepth = didtmp.depth();
                   int const max_sample = (val >> 32) & 0xffffffff;
 
                   float const max_energy = uint_as_float(static_cast<uint32_t>(val & 0xffffffff));
@@ -689,13 +678,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   // need to correct by slew
                   // requires an accumulator -> more shared mem -> omit here unless
                   // really needed
-                  float const time =
-                      max_energy > 0.f && max_energy_1 > 0.f ? 25.f * (position + max_energy_1 / sum) : 25.f * position;
 
+                  float tdcTime = 0.f;
+                  if (gch >= f01HEDigis.size() && gch < nchannelsf015) {
+                    tdcTime = HcalSpecialTimes::UNKNOWN_T_NOTDC;
+                  } else {
+                    if (gch < f01HEDigis.size())
+                      tdcTime =
+                          HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor1>(&(f01HEDigis.data()[gch][0]), sample),
+                                                       subdetectorType,
+                                                       subdetectorDepth);
+                    else if (gch >= nchannelsf015)
+                      tdcTime = HcalSpecialTimes::getTDCTime(
+                          tdc_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf015][0]), sample),
+                          subdetectorType,
+                          subdetectorDepth);
+                  }
                   // store method0 quantities to global mem
-                  outputGPU[gch].detId() = id;
-                  outputGPU[gch].energyM0() = method0_energy;
-                  outputGPU[gch].timeM0() = time;
+                  outputGPU.detId()[gch] = id;
+                  outputGPU.energyM0()[gch] = method0_energy;
+                  outputGPU.timeM0()[gch] = tdcTime;
 
                   // check as in cpu version if mahi is not needed
                   // FIXME: KNOWN ISSUE: observed a problem when rawCharge and pedestal
@@ -714,6 +716,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
 #ifdef HCAL_MAHI_GPUDEBUG
+                  float const time = max_energy > 0.f && max_energy_1 > 0.f ? 25.f * (position + max_energy_1 / sum) : 25.f * position;
                   printf(" method0_energy = %f max_sample = %d max_energy = %f time = %f\n",
                          method0_energy,
                          max_sample,

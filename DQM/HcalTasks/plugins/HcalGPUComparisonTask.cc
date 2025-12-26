@@ -40,6 +40,8 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tokHBHE_target_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
+  hcaldqm::Container2D timeGPUvsCPU_subdet_;
+
   //    GPU reco test verification
   hcaldqm::Container2D energyGPUvsCPU_subdet_;
   hcaldqm::Container1D energyDiffGPUCPU_subdet_;
@@ -63,6 +65,14 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
   edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
 
+  timeGPUvsCPU_subdet_.initialize(_name,
+                                  "TimeGPUvsCPU",
+                                  hcaldqm::hashfunctions::fSubdet,
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fCPUtime, true),
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fGPUtime, true),
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                  0);
+
   //	Book monitoring elements
   energyGPUvsCPU_subdet_.initialize(_name,
                                     "EnergyGPUvsCPU",
@@ -85,6 +95,7 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDiffRatio),
                                      0);
 
+  timeGPUvsCPU_subdet_.book(ib, _emap, _subsystem);
   energyGPUvsCPU_subdet_.book(ib, _emap, _subsystem);
   energyDiffGPUCPU_subdet_.book(ib, _emap, _subsystem);
   energyDiffGPUCPU_depth_.book(ib, _emap, _subsystem);
@@ -105,13 +116,21 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
   auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
   _currentLS = lumiCache->currentLS;
 
+  std::map<HcalDetId, double> mRecHitTime;
   std::map<HcalDetId, double> mRecHitEnergy;
 
   for (HBHERecHitCollection::const_iterator it = chbhe_ref->begin(); it != chbhe_ref->end(); ++it) {
     double energy = it->energy();
+    double time = it->time();
 
     //	Explicit check on the DetIds present in the Collection
     HcalDetId did = it->id();
+
+    if (mRecHitTime.find(did) == mRecHitTime.end())
+      mRecHitTime.insert(std::make_pair(did, time));
+    else
+      edm::LogError("HcalGPUComparisonTask") << "Duplicate Rechit from the same HcalDetId";
+    ;
 
     if (mRecHitEnergy.find(did) == mRecHitEnergy.end())
       mRecHitEnergy.insert(std::make_pair(did, energy));
@@ -122,7 +141,13 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
 
   for (HBHERecHitCollection::const_iterator it = chbhe_target->begin(); it != chbhe_target->end(); ++it) {
     double energy = it->energy();
+    double time = it->time();
     HcalDetId did = it->id();
+
+    if (mRecHitTime.find(did) != mRecHitTime.end()) {
+      timeGPUvsCPU_subdet_.fill(did, mRecHitTime[did], time);
+      mRecHitTime.erase(did);
+    }
 
     if (mRecHitEnergy.find(did) != mRecHitEnergy.end()) {
       energyGPUvsCPU_subdet_.fill(did, mRecHitEnergy[did], energy);
