@@ -146,7 +146,7 @@ namespace {
         std::string type_resource = "endpoint";
         std::string authentication;
         // Organize redirection info
-        if (!auth_method->empty()) {
+        if (auth_method && !auth_method->empty()) {
           authentication = *auth_method;
         } else {
           authentication = "no auth";
@@ -154,11 +154,12 @@ namespace {
         if (host.loadBalancer == 1) {
           type_resource = "load balancer";
         };
+        const std::string noresp{"(null)"};
         li.format("{}. || {} / {} / {} / {} / {} / {} ||\n",
                   idx_redirection,
-                  *hostname_method,
-                  *stack_ip_method,
-                  *ip_method,
+                  hostname_method ? *hostname_method : noresp,
+                  stack_ip_method ? *stack_ip_method : noresp,
+                  ip_method ? *ip_method : noresp,
                   host.url.GetPort(),
                   authentication,
                   type_resource);
