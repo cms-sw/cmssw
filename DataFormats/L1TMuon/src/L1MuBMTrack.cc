@@ -52,6 +52,7 @@ L1MuBMTrack::L1MuBMTrack()
       m_name("L1MuBMTrack"),
       m_empty(true),
       m_tc(UNDEF),
+      m_bx(0),
       m_addArray(),
       m_tsphiList(),
       m_tsetaList() {
@@ -70,6 +71,7 @@ L1MuBMTrack::L1MuBMTrack(const L1MuBMSecProcId& spid)
       m_name("L1MuBMTrack"),
       m_empty(true),
       m_tc(UNDEF),
+      m_bx(0),
       m_addArray(),
       m_tsphiList(),
       m_tsetaList() {
@@ -87,6 +89,7 @@ L1MuBMTrack::L1MuBMTrack(const L1MuBMTrack& id)
       m_name(id.m_name),
       m_empty(id.m_empty),
       m_tc(id.m_tc),
+      m_bx(id.m_bx),
       m_addArray(id.m_addArray),
       m_tsphiList(id.m_tsphiList),
       m_tsetaList(id.m_tsetaList) {}

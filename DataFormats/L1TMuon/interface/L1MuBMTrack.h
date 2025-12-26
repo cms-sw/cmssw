@@ -156,7 +156,7 @@ public:
   /// set charge of muon candidate
   inline void setCharge(int charge) { setHwSign(charge); }
 
-  /// set charge of muon candidate
+  /// set bunch crossing of this muon candidate
   inline void setBx(int bx) { m_bx = bx; }
 
   /// set quality of muon candidate

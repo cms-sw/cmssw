@@ -59,20 +59,20 @@ namespace l1t {
 
   private:
     // Summary of clustering outcomes
-    int m_clusterFlags;  // see ClusterFlag bits (15 bits, will evolve)
+    int m_clusterFlags{0};  // see ClusterFlag bits (15 bits, will evolve)
 
     // Energies
-    int m_hwPtEm;
-    int m_hwPtHad;
-    int m_hwSeedPt;
+    int m_hwPtEm{0};
+    int m_hwPtHad{0};
+    int m_hwSeedPt{0};
 
     // fine grained position
-    int m_fgEta;  // 2 bits (to be defined in agreement with GT inputs)
-    int m_fgPhi;  // 2 bits (to be defined in agreement with GT inputs)
+    int m_fgEta{0};  // 2 bits (to be defined in agreement with GT inputs)
+    int m_fgPhi{0};  // 2 bits (to be defined in agreement with GT inputs)
 
     // identification variables
-    int m_hOverE;  // 8 bits (between 0 and 1 -> resolution=1/256=0.39%). Number of bits is not definitive
-    int m_fgECAL;  // FG bit of the seed tower
+    int m_hOverE{0};  // 8 bits (between 0 and 1 -> resolution=1/256=0.39%). Number of bits is not definitive
+    int m_fgECAL{0};  // FG bit of the seed tower
   };
 
   typedef BXVector<CaloCluster> CaloClusterBxCollection;
