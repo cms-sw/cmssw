@@ -56,7 +56,7 @@ void HcalRecHitSoAToLegacy::produce(edm::Event& event, edm::EventSetup const& se
     // build a legacy rechit with the computed detid and MAHI energy
     recHitsLegacy->emplace_back(HcalDetId{rechit.detId()},
                                 rechit.energy(),
-                                0  // timeRising
+                                rechit.timeM0()  // timeRising
     );
     // update the legacy rechit with the Chi2 and M0 values
     recHitsLegacy->back().setChiSquared(rechit.chi2());
