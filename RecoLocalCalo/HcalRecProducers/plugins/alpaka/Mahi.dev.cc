@@ -716,7 +716,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
 #ifdef HCAL_MAHI_GPUDEBUG
-                  float const time = max_energy > 0.f && max_energy_1 > 0.f ? 25.f * (position + max_energy_1 / sum) : 25.f * position;
+                  float const time =
+                      max_energy > 0.f && max_energy_1 > 0.f ? 25.f * (position + max_energy_1 / sum) : 25.f * position;
                   printf(" method0_energy = %f max_sample = %d max_energy = %f time = %f\n",
                          method0_energy,
                          max_sample,
