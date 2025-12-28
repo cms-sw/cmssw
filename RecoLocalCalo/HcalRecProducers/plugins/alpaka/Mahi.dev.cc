@@ -665,20 +665,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   HcalDetId didtmp(id);
                   auto subdetectorType = didtmp.subdet();
                   auto subdetectorDepth = didtmp.depth();
-                  int const max_sample = (val >> 32) & 0xffffffff;
-
-                  float const max_energy = uint_as_float(static_cast<uint32_t>(val & 0xffffffff));
-
-                  float const max_energy_1 = static_cast<unsigned>(max_sample) < nsamplesForCompute - 1
-                                                 ? shrEnergyM0PerTS[lch * nsamplesForCompute + max_sample + 1]
-                                                 : 0.f;
-                  float const position = nsamplesToAdd < nsamplesForCompute ? max_sample - soi : max_sample;
-                  auto const sum = max_energy + max_energy_1;
-                  // FIXME: for full comparison with cpu method 0  timing,
-                  // need to correct by slew
-                  // requires an accumulator -> more shared mem -> omit here unless
-                  // really needed
-
+                  
                   float tdcTime = 0.f;
                   if (gch >= f01HEDigis.size() && gch < nchannelsf015) {
                     tdcTime = HcalSpecialTimes::UNKNOWN_T_NOTDC;
@@ -716,6 +703,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
 #ifdef HCAL_MAHI_GPUDEBUG
+                  int const max_sample = (val >> 32) & 0xffffffff;
+
+                  float const max_energy = uint_as_float(static_cast<uint32_t>(val & 0xffffffff));
+
+                  float const max_energy_1 = static_cast<unsigned>(max_sample) < nsamplesForCompute - 1
+                                                 ? shrEnergyM0PerTS[lch * nsamplesForCompute + max_sample + 1]
+                                                 : 0.f;
+                  float const position = nsamplesToAdd < nsamplesForCompute ? max_sample - soi : max_sample;
+                  auto const sum = max_energy + max_energy_1;
+                  // FIXME: for full comparison with cpu method 0  timing,
+                  // need to correct by slew
+                  // requires an accumulator -> more shared mem -> omit here unless
+                  // really needed
                   float const time =
                       max_energy > 0.f && max_energy_1 > 0.f ? 25.f * (position + max_energy_1 / sum) : 25.f * position;
                   printf(" method0_energy = %f max_sample = %d max_energy = %f time = %f\n",
