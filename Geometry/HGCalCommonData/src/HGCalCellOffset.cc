@@ -68,7 +68,8 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
 
           double xMag = 1.42; //0.5 * xMag1 + sqrt3By2_ * yMag1;
           double yMag = 2.46; //sqrt3By2_ * xMag1 - 0.5 * yMag1;
-          std::cout << "HD Corner "<< xMag << "  " << yMag << std::endl;
+          //std::cout << "HD Corner "<< xMag << "  " << yMag << std::endl;
+
           std::array<double, 6> tempOffsetX = {{(sqrt3By2_ * xMag - 0.5 * yMag),
                                                 yMag,
                                                 yMag,
@@ -123,9 +124,9 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           double yMag1 = ((-5 * cellX_[k] / 42) * totalArea - (cutArea1 * y1) - (cutArea2 * y2) - (cutArea3 * y3)) /
                          (cellArea[k][j]);
 
-          double xMag = 1.15; //-0.5 * xMag1 - sqrt3By2_ * yMag1;
-          double yMag = 2.38; //sqrt3By2_ * xMag1 - 0.5 * yMag1;
-          std::cout << "LD Corner "<< xMag << "  " << yMag << std::endl;
+          double xMag = 1.48; //-0.5 * xMag1 - sqrt3By2_ * yMag1;
+          double yMag = 2.18; //sqrt3By2_ * xMag1 - 0.5 * yMag1; '-2.38', 'deltaY': '1.15'
+          //std::cout << "LD Corner "<< xMag << "  " << yMag << std::endl;
 
           std::array<double, 6> tempOffsetX = {{(sqrt3By2_ * xMag - 0.5 * yMag),
                                                 yMag,
@@ -186,7 +187,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
       } else if (j == HGCalCell::truncatedMBCell) {
         double H = mouseBiteCut_ - (1 / sqrt3By2_ * guardRingSizeOffset_);
         double h = H - (sqrt3_ / 2 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
-	std::cout << "Truncated MB " << k << "  " << h << " H " << H << " s " << cellX_[k] << " G " << guardRingSizeOffset_ << std::endl;
+	//std::cout << "Truncated MB " << k << "  " << h << " H " << H << " s " << cellX_[k] << " G " << guardRingSizeOffset_ << std::endl;
         if (h > 0) {
           double totalArea = 5.0 * sqrt3_ * std::pow(cellX_[k], 2) / 4.0;
 
@@ -203,7 +204,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           double yMag1 = ((cellX_[k] / 15.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) / (cellArea[k][j]);
           double xMag = -yMag1;
           double yMag = -xMag1;
-          std::cout << "HD trun Corner " << xMag << "  " << yMag << std::endl;
+          //std::cout << "HD trun Corner " << xMag << "  " << yMag << std::endl;
           if (k == 0){
             xMag = -0.05;
 	    yMag = -1.33;
@@ -262,10 +263,14 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
 
         double xMag = yMag1;
         double yMag = -xMag1;
-        std::cout << "HD ext Corner " << xMag << "  " << yMag << std::endl;
+        //std::cout << "HD ext Corner " << xMag << "  " << yMag << std::endl;
         if (k == 0){
-            xMag = 0.27;
-            yMag = 0.61;
+            xMag = 0.40;
+            yMag = 0.54;
+          }
+        else if (k == 1){
+	    xMag = 0.12;
+            yMag = -0.04;
           }
         std::array<double, 6> tempOffsetX = {{(sqrt3By2_ * xMag - 0.5 * yMag),
                                               yMag,
@@ -298,7 +303,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
                       (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
         double yMag = (0 * totalArea - (cutArea * y1)) / (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
 
-        std::cout << "Half Cell k " << k << " xy " << x1 << "   " << y1 << " mag " << xMag << "  " << yMag << std::endl;
+        //std::cout << "Half Cell k " << k << " xy " << x1 << "   " << y1 << " mag " << xMag << "  " << yMag << std::endl;
         std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
                                               (-sqrt3By2_ * xMag + 0.5 * yMag),
                                               yMag,
