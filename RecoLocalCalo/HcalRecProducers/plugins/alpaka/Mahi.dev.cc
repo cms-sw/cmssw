@@ -665,7 +665,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   HcalDetId didtmp(id);
                   auto subdetectorType = didtmp.subdet();
                   auto subdetectorDepth = didtmp.depth();
-                  
+
                   float tdcTime = 0.f;
                   if (gch >= f01HEDigis.size() && gch < nchannelsf015) {
                     tdcTime = HcalSpecialTimes::UNKNOWN_T_NOTDC;
