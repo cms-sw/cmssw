@@ -66,8 +66,10 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
               ((19.0 * cellX_[k] / 132.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2) - (cutArea3 * y3)) /
               (cellArea[k][j]);
 
-          double xMag = 1.42;  //0.5 * xMag1 + sqrt3By2_ * yMag1;
-          double yMag = 2.46;  //sqrt3By2_ * xMag1 - 0.5 * yMag1;
+          double xMag = 0.5 * xMag1 + sqrt3By2_ * yMag1;
+          double yMag = sqrt3By2_ * xMag1 - 0.5 * yMag1;
+          xMag = 1.42;
+          yMag = 2.46;
           //std::cout << "HD Corner "<< xMag << "  " << yMag << std::endl;
 
           std::array<double, 6> tempOffsetX = {{(sqrt3By2_ * xMag - 0.5 * yMag),
@@ -124,8 +126,10 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           double yMag1 = ((-5 * cellX_[k] / 42) * totalArea - (cutArea1 * y1) - (cutArea2 * y2) - (cutArea3 * y3)) /
                          (cellArea[k][j]);
 
-          double xMag = 1.48;  //-0.5 * xMag1 - sqrt3By2_ * yMag1;
-          double yMag = 2.18;  //sqrt3By2_ * xMag1 - 0.5 * yMag1; '-2.38', 'deltaY': '1.15'
+          double xMag = -0.5 * xMag1 - sqrt3By2_ * yMag1;
+          double yMag = sqrt3By2_ * xMag1 - 0.5 * yMag1;
+          xMag = 1.48;
+          yMag = 2.18;
           //std::cout << "LD Corner "<< xMag << "  " << yMag << std::endl;
 
           std::array<double, 6> tempOffsetX = {{(sqrt3By2_ * xMag - 0.5 * yMag),
