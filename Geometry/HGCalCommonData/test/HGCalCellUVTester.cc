@@ -140,27 +140,28 @@ void HGCalCellUVTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iS
         int waferU = HGCalWaferIndex::waferU(indx);
         int waferV = HGCalWaferIndex::waferV(indx);
         int waferType_ = (itr->second).type;
-	nCells = (waferType_ == 0) ? nFine : nCoarse;
-	int FrontBack = (1+layer)%2;
+        nCells = (waferType_ == 0) ? nFine : nCoarse;
+        int FrontBack = (1 + layer) % 2;
         int placeIndex_ = HGCalCell::cellPlacementIndex(-1, FrontBack, orient);
         auto waferxy = cons->waferPositionWithCshift(layer, waferU, waferV, true, true, false);
-	for (int uu = 0; uu < 2*nCells; uu++){
-	  for (int vv = 0; vv < 2*nCells; vv++){
-	    if (((vv - uu) < nCells) && ((uu - vv) <= nCells)) {
-	      if (HGCalWaferMask::goodCell(uu, vv, partial_)){
-	        uint32_t DetID = static_cast<DetId>(HGCSiliconDetId(DetId::HGCalEE, 1, waferType_, layer, waferU, waferV, uu, vv));
-	        HGCalDetId iD(DetID);
-	        //if (iD.isValid());
-	        //  std::cout << "true" << std::endl;
-		//} else {
-		//  std::cout << "false" << std::endl;
-		//  }
-		//}
-	        outputFile2 << DetID << std::endl;
-	      }
-	    }
-	  }
-	}
+        for (int uu = 0; uu < 2 * nCells; uu++) {
+          for (int vv = 0; vv < 2 * nCells; vv++) {
+            if (((vv - uu) < nCells) && ((uu - vv) <= nCells)) {
+              if (HGCalWaferMask::goodCell(uu, vv, partial_)) {
+                uint32_t DetID =
+                    static_cast<DetId>(HGCSiliconDetId(DetId::HGCalEE, 1, waferType_, layer, waferU, waferV, uu, vv));
+                HGCalDetId iD(DetID);
+                //if (iD.isValid());
+                //  std::cout << "true" << std::endl;
+                //} else {
+                //  std::cout << "false" << std::endl;
+                //  }
+                //}
+                outputFile2 << DetID << std::endl;
+              }
+            }
+          }
+        }
         for (int i = 0; i < 1000; i++) {
           double xi = (2 * r2 * (float)rand() / RAND_MAX) - r2;
           double yi = (2 * R2 * (float)rand() / RAND_MAX) - R2;
@@ -180,10 +181,11 @@ void HGCalCellUVTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iS
               auto cellType = HGCalCell::cellType(ui, vi, nCells, placeIndex_, partial_);
               //std::pair<int32_t, int32_t> uv2 = wafer.HGCalCellUVFromXY2(xi, yi, placeIndex_, waferType_, true, false);
               outputFile << layer << "," << waferU << "," << waferV << "," << waferxy.first << "," << waferxy.second
-                         << "," << xi << "," << yi << "," << -10*waferxy.first - xyOffsetLD.first - xy1.first << ","
-                         << 10*waferxy.second + xyOffsetLD.second + xy1.second << "," << uv1.first << "," << uv1.second << "," << xy1.first
-                         << "," << xy1.second << "," << xyOffsetLD.first << "," << xyOffsetLD.second << "," << area << "," << cellType.second << "," << cellType.first << "," << placeIndex_
-                         << std::endl;
+                         << "," << xi << "," << yi << "," << -10 * waferxy.first - xyOffsetLD.first - xy1.first << ","
+                         << 10 * waferxy.second + xyOffsetLD.second + xy1.second << "," << uv1.first << ","
+                         << uv1.second << "," << xy1.first << "," << xy1.second << "," << xyOffsetLD.first << ","
+                         << xyOffsetLD.second << "," << area << "," << cellType.second << "," << cellType.first << ","
+                         << placeIndex_ << std::endl;
               std::string comment = ((uv1.first != uv3.first) || (uv2.first != uv3.first) ||
                                      (uv1.second != uv3.second) || (uv2.second != uv3.second))
                                         ? " ***** ERROR *****"
@@ -191,11 +193,11 @@ void HGCalCellUVTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iS
               edm::LogVerbatim("HGCalGeom")
                   //<< "x = " << xi << " y = " << yi << " type = " << waferType_ << " placement index " << placeIndex_
                   //<< " u " << uv1.first << ":" << uv2.first << ":" << uv3.first << " v " << uv1.second << ":"
-                  //<< uv2.second << ":" << uv3.second << ":" 
-		  << layer << "," << waferU << ":" << waferV << "," << waferxy.first << ":" << waferxy.second
-                  << "," << xi << ":" << yi << "," << -10*waferxy.first + xyOffsetLD.first + xy1.first << ":"
-                  << 10*waferxy.second + xyOffsetLD.second + xy1.second << "," << uv1.first << ":" << uv1.second << "," << xy1.first
-                  << ":" << xy1.second << comment;
+                  //<< uv2.second << ":" << uv3.second << ":"
+                  << layer << "," << waferU << ":" << waferV << "," << waferxy.first << ":" << waferxy.second << ","
+                  << xi << ":" << yi << "," << -10 * waferxy.first + xyOffsetLD.first + xy1.first << ":"
+                  << 10 * waferxy.second + xyOffsetLD.second + xy1.second << "," << uv1.first << ":" << uv1.second
+                  << "," << xy1.first << ":" << xy1.second << comment;
             }
           }
         }

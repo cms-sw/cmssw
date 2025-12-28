@@ -66,8 +66,8 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
               ((19.0 * cellX_[k] / 132.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2) - (cutArea3 * y3)) /
               (cellArea[k][j]);
 
-          double xMag = 1.42; //0.5 * xMag1 + sqrt3By2_ * yMag1;
-          double yMag = 2.46; //sqrt3By2_ * xMag1 - 0.5 * yMag1;
+          double xMag = 1.42;  //0.5 * xMag1 + sqrt3By2_ * yMag1;
+          double yMag = 2.46;  //sqrt3By2_ * xMag1 - 0.5 * yMag1;
           //std::cout << "HD Corner "<< xMag << "  " << yMag << std::endl;
 
           std::array<double, 6> tempOffsetX = {{(sqrt3By2_ * xMag - 0.5 * yMag),
@@ -124,8 +124,8 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           double yMag1 = ((-5 * cellX_[k] / 42) * totalArea - (cutArea1 * y1) - (cutArea2 * y2) - (cutArea3 * y3)) /
                          (cellArea[k][j]);
 
-          double xMag = 1.48; //-0.5 * xMag1 - sqrt3By2_ * yMag1;
-          double yMag = 2.18; //sqrt3By2_ * xMag1 - 0.5 * yMag1; '-2.38', 'deltaY': '1.15'
+          double xMag = 1.48;  //-0.5 * xMag1 - sqrt3By2_ * yMag1;
+          double yMag = 2.18;  //sqrt3By2_ * xMag1 - 0.5 * yMag1; '-2.38', 'deltaY': '1.15'
           //std::cout << "LD Corner "<< xMag << "  " << yMag << std::endl;
 
           std::array<double, 6> tempOffsetX = {{(sqrt3By2_ * xMag - 0.5 * yMag),
@@ -156,7 +156,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
         // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
         // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
-	//offMag = (k == 0) ? 1.9044 : 1.61; 
+        //offMag = (k == 0) ? 1.9044 : 1.61;
         std::array<double, 6> tempOffsetX = {
             {-0.5 * offMag, -offMag, -0.5 * offMag, 0.5 * offMag, offMag, 0.5 * offMag}};
         std::array<double, 6> tempOffsetY = {
@@ -187,7 +187,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
       } else if (j == HGCalCell::truncatedMBCell) {
         double H = mouseBiteCut_ - (1 / sqrt3By2_ * guardRingSizeOffset_);
         double h = H - (sqrt3_ / 2 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
-	//std::cout << "Truncated MB " << k << "  " << h << " H " << H << " s " << cellX_[k] << " G " << guardRingSizeOffset_ << std::endl;
+        //std::cout << "Truncated MB " << k << "  " << h << " H " << H << " s " << cellX_[k] << " G " << guardRingSizeOffset_ << std::endl;
         if (h > 0) {
           double totalArea = 5.0 * sqrt3_ * std::pow(cellX_[k], 2) / 4.0;
 
@@ -205,10 +205,10 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           double xMag = -yMag1;
           double yMag = -xMag1;
           //std::cout << "HD trun Corner " << xMag << "  " << yMag << std::endl;
-          if (k == 0){
+          if (k == 0) {
             xMag = -0.05;
-	    yMag = -1.33;
-	  }
+            yMag = -1.33;
+          }
           std::array<double, 6> tempOffsetX = {{(sqrt3By2_ * xMag - 0.5 * yMag),
                                                 (-sqrt3By2_ * xMag - 0.5 * yMag),
                                                 (-sqrt3By2_ * xMag - 0.5 * yMag),
@@ -264,14 +264,13 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         double xMag = yMag1;
         double yMag = -xMag1;
         //std::cout << "HD ext Corner " << xMag << "  " << yMag << std::endl;
-        if (k == 0){
-            xMag = 0.40;
-            yMag = 0.54;
-          }
-        else if (k == 1){
-	    xMag = 0.12;
-            yMag = -0.04;
-          }
+        if (k == 0) {
+          xMag = 0.40;
+          yMag = 0.54;
+        } else if (k == 1) {
+          xMag = 0.12;
+          yMag = -0.04;
+        }
         std::array<double, 6> tempOffsetX = {{(sqrt3By2_ * xMag - 0.5 * yMag),
                                               yMag,
                                               yMag,
@@ -1226,23 +1225,29 @@ std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(
     }
     x_off = offsetX[type][cellType1][cellPos - HGCalCell::bottomCorner];
     y_off = offsetY[type][cellType1][cellPos - HGCalCell::bottomCorner];
-  }
-  else if (cellType == HGCalCell::extHalfTrunCell || cellType == HGCalCell::extHalfExtCell || cellType == HGCalCell::halfCell || cellType == HGCalCell::intHalfExtCell || cellType == HGCalCell::intHalfTrunCell || cellType == HGCalCell::extTrunCellEdgeCut || cellType == HGCalCell::extExtCellEdgeCut || cellType == HGCalCell::fullCellEdgeCut || cellType == HGCalCell::intTrunCellEdgeCut || cellType == HGCalCell::LDPartial0714Cell || cellType == HGCalCell::LDPartial0815Cell || cellType == HGCalCell::HDPartial0920Cell || cellType == HGCalCell::HDPartial1021Cell) {
-      if (cellPos == HGCalCell::leftCell) {
-        int placeIndex = placementIndex % HGCalCell::cellPlacementExtra;
-        x_off = offsetPartialX[type][cellType1][placeIndex];
-        y_off = offsetPartialY[type][cellType1][placeIndex];
-      } else if (cellPos == HGCalCell::rightCell) {
-        int placeIndex = (HGCalCell::cellPlacementExtra - placementIndex) % HGCalCell::cellPlacementExtra;
-        x_off = -offsetPartialX[type][cellType1][placeIndex];
-        y_off = offsetPartialY[type][cellType1][placeIndex];
-      }
-      x_off = placementIndex < HGCalCell::cellPlacementExtra ? x_off : -x_off;
-  } else if ((cellType == HGCalCell::LDPartial0209Cell) || (cellType == HGCalCell::LDPartial0007Cell) || (cellType == HGCalCell::LDPartial1415Cell) || (cellType == HGCalCell::LDPartial1515Cell)) {
+  } else if (cellType == HGCalCell::extHalfTrunCell || cellType == HGCalCell::extHalfExtCell ||
+             cellType == HGCalCell::halfCell || cellType == HGCalCell::intHalfExtCell ||
+             cellType == HGCalCell::intHalfTrunCell || cellType == HGCalCell::extTrunCellEdgeCut ||
+             cellType == HGCalCell::extExtCellEdgeCut || cellType == HGCalCell::fullCellEdgeCut ||
+             cellType == HGCalCell::intTrunCellEdgeCut || cellType == HGCalCell::LDPartial0714Cell ||
+             cellType == HGCalCell::LDPartial0815Cell || cellType == HGCalCell::HDPartial0920Cell ||
+             cellType == HGCalCell::HDPartial1021Cell) {
+    if (cellPos == HGCalCell::leftCell) {
       int placeIndex = placementIndex % HGCalCell::cellPlacementExtra;
       x_off = offsetPartialX[type][cellType1][placeIndex];
       y_off = offsetPartialY[type][cellType1][placeIndex];
-      x_off = placementIndex < HGCalCell::cellPlacementExtra ? x_off : -x_off;
+    } else if (cellPos == HGCalCell::rightCell) {
+      int placeIndex = (HGCalCell::cellPlacementExtra - placementIndex) % HGCalCell::cellPlacementExtra;
+      x_off = -offsetPartialX[type][cellType1][placeIndex];
+      y_off = offsetPartialY[type][cellType1][placeIndex];
+    }
+    x_off = placementIndex < HGCalCell::cellPlacementExtra ? x_off : -x_off;
+  } else if ((cellType == HGCalCell::LDPartial0209Cell) || (cellType == HGCalCell::LDPartial0007Cell) ||
+             (cellType == HGCalCell::LDPartial1415Cell) || (cellType == HGCalCell::LDPartial1515Cell)) {
+    int placeIndex = placementIndex % HGCalCell::cellPlacementExtra;
+    x_off = offsetPartialX[type][cellType1][placeIndex];
+    y_off = offsetPartialY[type][cellType1][placeIndex];
+    x_off = placementIndex < HGCalCell::cellPlacementExtra ? x_off : -x_off;
   }
   return std::make_pair(x_off, y_off);
 }

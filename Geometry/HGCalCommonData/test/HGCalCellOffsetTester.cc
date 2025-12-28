@@ -112,7 +112,7 @@ void HGCalCellOffsetTester::analyze(const edm::Event&, const edm::EventSetup&) {
       if ((ui < 2 * nCells) && (vi < 2 * nCells) && ((vi - ui) < nCells) && ((ui - vi) <= nCells)) {
         //Only allowing (U, V) inside a wafer
         if (HGCalWaferMask::goodCell(ui, vi, partial_)) {
-	  auto cellType = HGCalCell::cellType(ui, vi, nCells, placeIndex_, partial_);
+          auto cellType = HGCalCell::cellType(ui, vi, nCells, placeIndex_, partial_);
           std::pair<double, double> xy1 = wafer2.cellUV2XY2(ui, vi, placeIndex_, waferType_);
           // std::pair<double, double> xyOffset = offset.cellOffsetUV2XY1(ui, vi, placeIndex_, waferType_);
           std::pair<int32_t, int32_t> uv1 =
@@ -133,11 +133,11 @@ void HGCalCellOffsetTester::analyze(const edm::Event&, const edm::EventSetup&) {
           std::string comment = ((uv1.first != ui) || (uv1.second != vi))
                                     ? " ***** ERROR (u, v) from the methods dosent match *****"
                                     : "";
-          edm::LogVerbatim("HGCalGeom") << "u = " << ui << " v = " << vi << " type = " << waferType_  
+          edm::LogVerbatim("HGCalGeom") << "u = " << ui << " v = " << vi << " type = " << waferType_
                                         << " placement index " << placeIndex_ << " u " << uv1.first << " v "
                                         << uv1.second << " x " << xy1.first << " ,y " << xy1.second << " xoff "
                                         << xyOffsetLD.first << " ,yoff " << xyOffsetLD.second << " , area " << area
-                                        << "CellType:CellPos" << cellType.first << ":" << cellType.second <<comment;
+                                        << "CellType:CellPos" << cellType.first << ":" << cellType.second << comment;
         }
       }
     }
