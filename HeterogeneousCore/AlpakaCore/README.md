@@ -136,7 +136,7 @@ Note that for `CopyToDevice` such `postCopy()` functionality is **not** provided
 
 In EDProducers for each device-side data product a transfer from the device memory space to the host memory space is registered automatically. The data product is copied only if the job has another EDModule that consumes the host-side data product. For each device-side data product a specialization of `cms::alpakatools::CopyToHost` is required to exist.
 
-In addition, for each host-side data product a transfer from the host memory space to the device meory space is registered autmatically **if** a `cms::alpakatools::CopyToDevice` specialization exists. The data product is copied only if the job has another EDModule that consumes the device-side data product.
+In addition, for each host-side data product a transfer from the host memory space to the device meory space is registered automatically **if** a `cms::alpakatools::CopyToDevice` specialization exists. The data product is copied only if the job has another EDModule that consumes the device-side data product. **Note:** The header where the `cms::alpakatools::CopyToDevice` specialization is defined must be `#include`d in the EDProducer source file for the transfer to be registered, even if it is _seemingly_ unused. For example, for `PortableCollection` that means `DataFormats/Portable/interface/PortableCollection.h`.
 
 #### ESProducer
 
