@@ -641,31 +641,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     ? f01HEDigis[gch].ids()
                                     : (gch < nchannelsf015 ? f5HBDigis.ids()[gch - f01HEDigis.size()]
                                                            : f3HBDigis.ids()[gch - nchannelsf015]);
-                auto const did = HcalDetId{id};
-                auto const hashedId =
-                    did.subdetId() == HcalBarrel
-                        ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                        : did2linearIndexHE(id,
-                                            mahi.maxDepthHE(),
-                                            mahi.maxPhiHE(),
-                                            mahi.firstHERing(),
-                                            mahi.lastHERing(),
-                                            mahi.nEtaHE()) +
-                              mahi.offsetForHashes();
-
-                auto const recoParam1 = recoParamsWithPS.recoParamView().param1()[hashedId];
-                auto const recoParam2 = recoParamsWithPS.recoParamView().param2()[hashedId];
-
-                auto const nsamplesToAdd = recoParam1 < 10 ? recoParam2 : (recoParam1 >> 14) & 0xF;
+                
+                
                 // NOTE: must take soi, as values for that thread are used...
                 // NOTE: does not run if soi is bad, because it does not match any sampleWithinWindow
                 if (sampleWithinWindow == static_cast<unsigned>(soi)) {
                   auto const method0_energy = shrMethod0EnergyAccum[lch];
-                  auto const val = shrMethod0EnergySamplePair[lch];
+                  
                   HcalDetId didtmp(id);
                   auto subdetectorType = didtmp.subdet();
                   auto subdetectorDepth = didtmp.depth();
-
+                  
                   float tdcTime = 0.f;
                   if (gch >= f01HEDigis.size() && gch < nchannelsf015) {
                     tdcTime = HcalSpecialTimes::UNKNOWN_T_NOTDC;
@@ -703,6 +689,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
 #ifdef HCAL_MAHI_GPUDEBUG
+                  auto const did = HcalDetId{id};
+                  auto const hashedId =
+                  did.subdetId() == HcalBarrel
+                      ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
+                      : did2linearIndexHE(id,
+                                          mahi.maxDepthHE(),
+                                          mahi.maxPhiHE(),
+                                          mahi.firstHERing(),
+                                          mahi.lastHERing(),
+                                          mahi.nEtaHE()) +
+                            mahi.offsetForHashes();
+
+                  auto const recoParam1 = recoParamsWithPS.recoParamView().param1()[hashedId];
+                  auto const recoParam2 = recoParamsWithPS.recoParamView().param2()[hashedId];
+                  auto const nsamplesToAdd = recoParam1 < 10 ? recoParam2 : (recoParam1 >> 14) & 0xF;
+                  auto const val = shrMethod0EnergySamplePair[lch];
                   int const max_sample = (val >> 32) & 0xffffffff;
 
                   float const max_energy = uint_as_float(static_cast<uint32_t>(val & 0xffffffff));
