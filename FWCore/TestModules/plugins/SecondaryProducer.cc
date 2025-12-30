@@ -4,10 +4,10 @@
 //
 //--------------------------------------------
 
-#include "IOPool/SecondaryInput/test/SecondaryProducer.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
@@ -29,6 +30,7 @@
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
@@ -43,6 +45,39 @@ namespace CLHEP {
 }
 
 namespace edm {
+  class SecondaryProducer : public one::EDProducer<> {
+  public:
+    /** standard constructor*/
+    explicit SecondaryProducer(ParameterSet const& pset);
+
+    /**Default destructor*/
+    ~SecondaryProducer() override;
+
+    /**Accumulates the pileup events into this event*/
+    void produce(Event& e1, EventSetup const& c) override;
+
+    bool processOneEvent(EventPrincipal const& eventPrincipal, Event& e);
+
+  private:
+    virtual void put(Event&) {}
+    void beginJob() override;
+    void endJob() override;
+    std::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
+
+    std::shared_ptr<ProductRegistry const> productRegistry() const { return get_underlying_safe(productRegistry_); }
+    std::shared_ptr<ProductRegistry>& productRegistry() { return get_underlying_safe(productRegistry_); }
+
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
+    edm::propagate_const<std::shared_ptr<VectorInputSource>> secInput_;
+    edm::propagate_const<std::unique_ptr<ProcessConfiguration>> processConfiguration_;
+    edm::propagate_const<std::unique_ptr<EventPrincipal>> eventPrincipal_;
+    bool sequential_;
+    bool specified_;
+    bool sameLumiBlock_;
+    bool firstEvent_;
+    bool firstLoop_;
+    EventNumber_t expectedEventNumber_;
+  };
 
   // Constructor
   // make secondary input source
