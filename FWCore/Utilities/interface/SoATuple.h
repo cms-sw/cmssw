@@ -144,12 +144,10 @@ namespace edm {
     }
 
     ~SoATuple() {
-      soahelper::SoATupleHelper<sizeof...(Args), Args...>::destroy(m_values, m_size);
-      typedef std::aligned_storage<soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment,
-                                   soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment>
-          AlignedType;
+      using Helper = soahelper::SoATupleHelper<sizeof...(Args), Args...>;
+      Helper::destroy(m_values, m_size);
 
-      delete[] static_cast<AlignedType*>(m_values[0]);
+      delete[] static_cast<char*>(m_values[0]);
     }
 
     // ---------- const member functions ---------------------
@@ -262,25 +260,15 @@ namespace edm {
       assert(m_size <= iToSize);
       const size_t memoryNeededInBytes = soahelper::SoATupleHelper<sizeof...(Args), Args...>::spaceNeededFor(iToSize);
       //align memory of the array to be on the strictest alignment boundary for any type in the Tuple
-      // This is done by creating an array of a type that has that same alignment restriction and minimum size.
-      // This has the draw back of possibly padding the array by one extra element if the memoryNeededInBytes is not
-      // a strict multiple of max_alignment.
-      // NOTE: using new char[...] would likely cause more padding based on C++11 5.3.4 paragraph 10 where it
-      // says the alignment will be for the strictest requirement for an object whose size < size of array. So
-      // if the array were for 64 bytes and the strictest requirement of any object was 8 bytes then the entire
-      // char array would be aligned on an 8 byte boundary. However, if the SoATuple<char,char> only 1 byte alignment
-      // is needed. The following algorithm would require only 1 byte alignment
+      // This is done by calling alignment new with the max alignment value.
       const std::size_t max_alignment = soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment;
-      typedef std::aligned_storage<soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment,
-                                   soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment>
-          AlignedType;
       //If needed, pad the number of items by 1
-      const size_t itemsNeeded = (memoryNeededInBytes + max_alignment - 1) / sizeof(AlignedType);
-      char* newMemory = static_cast<char*>(static_cast<void*>(new AlignedType[itemsNeeded]));
+      const size_t itemsNeeded = (memoryNeededInBytes + max_alignment - 1) / max_alignment;
+      char* newMemory = new (std::align_val_t(max_alignment)) char[itemsNeeded * max_alignment];
       void* oldMemory = m_values[0];
       soahelper::SoATupleHelper<sizeof...(Args), Args...>::moveToNew(newMemory, m_size, iToSize, m_values);
       m_reserved = iToSize;
-      delete[] static_cast<AlignedType*>(oldMemory);
+      delete[] static_cast<char*>(oldMemory);
     }
     // ---------- member data --------------------------------
     //Pointers to where each column starts in the shared memory array
