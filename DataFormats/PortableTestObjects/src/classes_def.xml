@@ -6,9 +6,14 @@
 
   <class name="portabletest::TestHostObject"/>
   <!-- portabletest::TestHostObject::Product alias must be listed before the aliased-to type -->
-  <class name="portabletest::TestHostObject::Product"/>
+  <!-- TODO: we should find a better way than replicating the class versions and checksums -->
+  <class name="portabletest::TestHostObject::Product" ClassVersion="3">
+   <version ClassVersion="3" checksum="1507282054"/>
+  </class>
+  <class name="portabletest::TestStruct" ClassVersion="3">
+   <version ClassVersion="3" checksum="1507282054"/>
+  </class>
   <class name="edm::Wrapper<portabletest::TestHostObject>"/>
-  <class name="portabletest::TestStruct"/>
 
   <class name="portabletest::TestSoALayout<128,false>"/>
   <class name="portabletest::TestSoALayout2<128,false>"/>
