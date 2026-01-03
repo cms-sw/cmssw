@@ -59,6 +59,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 
 // forward declarations
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
+#include "FWCore/Framework/interface/ESProductResolverFactoryBase.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
