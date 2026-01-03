@@ -132,7 +132,7 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
     eeRecHitsTag = cms.InputTag("run3ScoutingProducer", "", "PROD"),
     hbheRecHitClassVersion = cms.int32(args.hbheRecHitVersion),
     expectedHBHERecHitFloatingPointValues = cms.vdouble(
-        18.0
+        18.0,  28.0
     ),
     expectedHBHERecHitIntegralValues = cms.vint32(
         18
