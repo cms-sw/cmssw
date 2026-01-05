@@ -120,7 +120,7 @@ namespace edm {
         v = nullptr;
       }
       reserve(iOther.m_size);
-      soahelper::SoATupleHelper<sizeof...(Args), Args...>::copyToNew(
+      soahelper::SoATupleHelper<Args...>::copyToNew(
           static_cast<std::byte*>(m_values[0]), iOther.m_size, m_reserved, iOther.m_values, m_values);
       m_size = iOther.m_size;
     }
@@ -145,7 +145,7 @@ namespace edm {
     }
 
     ~SoATuple() {
-      using Helper = soahelper::SoATupleHelper<sizeof...(Args), Args...>;
+      using Helper = soahelper::SoATupleHelper<Args...>;
       Helper::destroy(m_values, m_size);
 
       constexpr std::size_t max_alignment = soahelper::SoATupleHelper<Args...>::max_alignment;
@@ -202,7 +202,7 @@ namespace edm {
       if (size() + 1 > capacity()) {
         reserve(size() * 2 + 1);
       }
-      soahelper::SoATupleHelper<sizeof...(Args), Args...>::push_back(m_values, m_size, values);
+      soahelper::SoATupleHelper<Args...>::push_back(m_values, m_size, values);
       ++m_size;
     }
 
@@ -212,8 +212,7 @@ namespace edm {
       if (size() + 1 > capacity()) {
         reserve(size() * 2 + 1);
       }
-      soahelper::SoATupleHelper<sizeof...(Args), Args...>::emplace_back(
-          m_values, m_size, std::forward<FArgs>(values)...);
+      soahelper::SoATupleHelper<Args...>::emplace_back(m_values, m_size, std::forward<FArgs>(values)...);
       ++m_size;
     }
 
@@ -256,15 +255,15 @@ namespace edm {
   private:
     void changeSize(unsigned int iToSize) {
       assert(m_size <= iToSize);
-      const size_t memoryNeededInBytes = soahelper::SoATupleHelper<sizeof...(Args), Args...>::spaceNeededFor(iToSize);
+      const size_t memoryNeededInBytes = soahelper::SoATupleHelper<Args...>::spaceNeededFor(iToSize);
       //align memory of the array to be on the strictest alignment boundary for any type in the Tuple
       // This is done by calling alignment new with the max alignment value.
-      const std::size_t max_alignment = soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment;
+      constexpr std::size_t max_alignment = soahelper::SoATupleHelper<Args...>::max_alignment;
       //If needed, pad the number of items by 1
       const size_t itemsNeeded = (memoryNeededInBytes + max_alignment - 1) / max_alignment;
       std::byte* newMemory = new (std::align_val_t(max_alignment)) std::byte[itemsNeeded * max_alignment];
       void* oldMemory = m_values[0];
-      soahelper::SoATupleHelper<sizeof...(Args), Args...>::moveToNew(newMemory, m_size, iToSize, m_values);
+      soahelper::SoATupleHelper<Args...>::moveToNew(newMemory, m_size, iToSize, m_values);
       m_reserved = iToSize;
       operator delete[](static_cast<std::byte*>(oldMemory), std::align_val_t(max_alignment));
     }
