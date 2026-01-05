@@ -88,6 +88,7 @@ Explicitly aligned types and defaultly aligned types can be freely mixed in any 
 #include <tuple>
 #include <cassert>
 #include <utility>
+#include <memory>
 
 // user include files
 #include "FWCore/Utilities/interface/SoATupleHelper.h"
@@ -169,11 +170,7 @@ namespace edm {
         const {
       typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
       typedef typename Helper::Type ReturnType;
-#if GCC_PREREQUISITE(4, 7, 0)
-      return static_cast<ReturnType const*>(__builtin_assume_aligned(m_values[I], Helper::kAlignment));
-#else
-      return static_cast<ReturnType const*>(m_values[I]);
-#endif
+      return std::assume_aligned<Helper::kAlignment>(static_cast<ReturnType const*>(m_values[I]));
     }
     /** Returns the end of the container holding all Ith data elements*/
     template <unsigned int I>
