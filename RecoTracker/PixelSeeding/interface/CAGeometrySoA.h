@@ -4,6 +4,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 
 namespace reco {
@@ -48,6 +49,11 @@ namespace reco {
                       SOA_COLUMN(float, maxDR),
                       SOA_COLUMN(float, ptCuts))
 
+  GENERATE_SOA_BLOCKS(CALayoutTemplate,
+                      SOA_BLOCK(modules, CAModulesLayout),
+                      SOA_BLOCK(layers, CALayersLayout),
+                      SOA_BLOCK(graph, CAGraphLayout))
+
   using CALayersSoA = CALayersLayout<>;
   using CALayersSoAView = CALayersSoA::View;
   using CALayersSoAConstView = CALayersSoA::ConstView;
@@ -59,6 +65,10 @@ namespace reco {
   using CAModulesSoA = CAModulesLayout<>;
   using CAModulesView = CAModulesSoA::View;
   using CAModulesConstView = CAModulesSoA::ConstView;
+
+  using CALayout = CALayoutTemplate<>;
+  using CALayoutView = CALayout::View;
+  using CALayoutConstView = CALayout::ConstView;
 
 }  // namespace reco
 #endif  // RecoTracker_PixelSeeding_interface_CAGeometry_h
