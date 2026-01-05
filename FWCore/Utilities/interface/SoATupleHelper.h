@@ -97,8 +97,8 @@ namespace edm {
           AlignmentInfo::kAlignment > NextHelper::max_alignment ? AlignmentInfo::kAlignment : NextHelper::max_alignment;
 
       // ---------- static member functions --------------------
-      static size_t moveToNew(char* iNewMemory, size_t iSize, size_t iReserve, void** oToSet);
-      static size_t copyToNew(char* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet);
+      static size_t moveToNew(std::byte* iNewMemory, size_t iSize, size_t iReserve, void** oToSet);
+      static size_t copyToNew(std::byte* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet);
       static size_t spaceNeededFor(unsigned int iNElements);
       static void push_back(void** iToSet, size_t iSize, std::tuple<Args...> const& iValues);
       template <typename... FArgs>
@@ -124,18 +124,18 @@ namespace edm {
 
       static size_t spaceNeededFor(unsigned int /*iNElements*/) { return 0; }
 
-      static size_t moveToNew(char* /*iNewMemory*/, size_t /*iSize*/, size_t /*iReserve*/, void** /*oToSet*/) {
+      static size_t moveToNew(std::byte* /*iNewMemory*/, size_t /*iSize*/, size_t /*iReserve*/, void** /*oToSet*/) {
         return 0;
       }
 
       static size_t copyToNew(
-          char* /*iNewMemory*/, size_t /*iSize*/, size_t /*iReserve*/, void* const* /*iFrom*/, void** /*oToSet*/) {
+          std::byte* /*iNewMemory*/, size_t /*iSize*/, size_t /*iReserve*/, void* const* /*iFrom*/, void** /*oToSet*/) {
         return 0;
       }
     };
 
     template <unsigned int I, typename... Args>
-    size_t SoATupleHelper<I, Args...>::moveToNew(char* iNewMemory, size_t iSize, size_t iReserve, void** oToSet) {
+    size_t SoATupleHelper<I, Args...>::moveToNew(std::byte* iNewMemory, size_t iSize, size_t iReserve, void** oToSet) {
       size_t usedSoFar = NextHelper::moveToNew(iNewMemory, iSize, iReserve, oToSet);
 
       //find new start
@@ -162,7 +162,7 @@ namespace edm {
 
     template <unsigned int I, typename... Args>
     size_t SoATupleHelper<I, Args...>::copyToNew(
-        char* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet) {
+        std::byte* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet) {
       size_t usedSoFar = NextHelper::copyToNew(iNewMemory, iSize, iReserve, iFrom, oToSet);
 
       //find new start

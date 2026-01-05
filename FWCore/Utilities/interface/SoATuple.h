@@ -120,7 +120,7 @@ namespace edm {
       }
       reserve(iOther.m_size);
       soahelper::SoATupleHelper<sizeof...(Args), Args...>::copyToNew(
-          static_cast<char*>(m_values[0]), iOther.m_size, m_reserved, iOther.m_values, m_values);
+          static_cast<std::byte*>(m_values[0]), iOther.m_size, m_reserved, iOther.m_values, m_values);
       m_size = iOther.m_size;
     }
 
@@ -147,7 +147,7 @@ namespace edm {
       using Helper = soahelper::SoATupleHelper<sizeof...(Args), Args...>;
       Helper::destroy(m_values, m_size);
 
-      delete[] static_cast<char*>(m_values[0]);
+      delete[] static_cast<std::byte*>(m_values[0]);
     }
 
     // ---------- const member functions ---------------------
@@ -264,11 +264,11 @@ namespace edm {
       const std::size_t max_alignment = soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment;
       //If needed, pad the number of items by 1
       const size_t itemsNeeded = (memoryNeededInBytes + max_alignment - 1) / max_alignment;
-      char* newMemory = new (std::align_val_t(max_alignment)) char[itemsNeeded * max_alignment];
+      std::byte* newMemory = new (std::align_val_t(max_alignment)) std::byte[itemsNeeded * max_alignment];
       void* oldMemory = m_values[0];
       soahelper::SoATupleHelper<sizeof...(Args), Args...>::moveToNew(newMemory, m_size, iToSize, m_values);
       m_reserved = iToSize;
-      delete[] static_cast<char*>(oldMemory);
+      delete[] static_cast<std::byte*>(oldMemory);
     }
     // ---------- member data --------------------------------
     //Pointers to where each column starts in the shared memory array
