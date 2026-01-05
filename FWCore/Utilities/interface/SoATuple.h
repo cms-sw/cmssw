@@ -148,7 +148,8 @@ namespace edm {
       using Helper = soahelper::SoATupleHelper<sizeof...(Args), Args...>;
       Helper::destroy(m_values, m_size);
 
-      delete[] static_cast<std::byte*>(m_values[0]);
+      constexpr std::size_t max_alignment = soahelper::SoATupleHelper<Args...>::max_alignment;
+      operator delete[](static_cast<std::byte*>(m_values[0]), std::align_val_t(max_alignment));
     }
 
     // ---------- const member functions ---------------------
@@ -265,7 +266,7 @@ namespace edm {
       void* oldMemory = m_values[0];
       soahelper::SoATupleHelper<sizeof...(Args), Args...>::moveToNew(newMemory, m_size, iToSize, m_values);
       m_reserved = iToSize;
-      delete[] static_cast<std::byte*>(oldMemory);
+      operator delete[](static_cast<std::byte*>(oldMemory), std::align_val_t(max_alignment));
     }
     // ---------- member data --------------------------------
     //Pointers to where each column starts in the shared memory array
