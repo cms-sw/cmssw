@@ -46,3 +46,6 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
         "keep isHardProcess() || fromHardProcessFinalState() || fromHardProcessDecayed() || fromHardProcessBeforeFSR() || (statusFlags().fromHardProcess() && statusFlags().isLastCopy())",  #keep event summary based on status flags
     )
 )
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(prunedGenParticles.select, func = lambda list: list.append('keep++ abs(pdgId) == 9920443 || abs(pdgId) == 20443 || abs(pdgId) == 511'))
