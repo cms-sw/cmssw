@@ -259,11 +259,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
       layerStarts[n_layers] = n_modules;
 
-      reco::CAGeometryHost product{{{n_layers + 1, n_pairs, n_modules}}, cms::alpakatools::host()};
+      reco::CAGeometryHost product{cms::alpakatools::host(), n_layers + 1, n_pairs, n_modules};
 
-      auto layerSoA = product.view();
-      auto cellSoA = product.view<::reco::CAGraphSoA>();
-      auto modulesSoA = product.view<::reco::CAModulesSoA>();
+      auto layerSoA = product.view().layers();
+      auto cellSoA = product.view().graph();
+      auto modulesSoA = product.view().modules();
 
       for (int i = 0; i < n_modules; ++i) {
         auto idx = moduleToindexInDets[i];
@@ -389,8 +389,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                             << ") and all the starting pairs has BPix1 as inner layer.\nIt's useless "
                                             << "to run the CA. Returning with 0 tracks!";
       auto& queue = iEvent.queue();
-      reco::TracksSoACollection tracks({{0, 0}}, queue);
-      auto ntracks_d = cms::alpakatools::make_device_view(queue, tracks.view().nTracks());
+      reco::TracksSoACollection tracks(queue, 0, 0);
+      auto ntracks_d = cms::alpakatools::make_device_view(queue, tracks.view().tracks().nTracks());
       alpaka::memset(queue, ntracks_d, 0);
       iEvent.emplace(tokenTrack_, std::move(tracks));
     }
