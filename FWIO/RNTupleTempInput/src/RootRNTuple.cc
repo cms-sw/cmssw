@@ -177,6 +177,7 @@ namespace edm::rntuple_temp {
 
   void RootRNTuple::getEntryForAllBranches(
       std::unordered_map<unsigned int, std::unique_ptr<edm::WrapperBase>>& iFields) const {
+    LogTrace("IOTrace").format("RootRNTuple::getEntryForAllBranches() begin for entry {}", entryNumber_);
     oneapi::tbb::this_task_arena::isolate([&]() {
       auto entry = reader_->GetModel().CreateEntry();
       for (auto& iField : iFields) {
@@ -189,6 +190,7 @@ namespace edm::rntuple_temp {
       }
       reader_->LoadEntry(entryNumber_, *entry);
     });
+    LogTrace("IOTrace").format("RootRNTuple::getEntryForAllBranches() end for entry {}", entryNumber_);
   }
 
   void RootRNTuple::getEntry(ROOT::RNTupleView<void>& view, EntryNumber entryNumber) const {
