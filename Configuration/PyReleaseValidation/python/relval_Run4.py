@@ -15,30 +15,13 @@ prefixDet = 34400 #update this line when change the default version
 
 #Run4 WFs to run in IB (TTbar)
 numWFIB = []
-numWFIB.extend([23634.0]) #Run4D95
-numWFIB.extend([24034.0]) #Run4D96
-numWFIB.extend([24834.0]) #Run4D98
-numWFIB.extend([25234.0]) #Run4D99
-numWFIB.extend([25634.0]) #Run4D100
-numWFIB.extend([26034.0]) #Run4D101
-numWFIB.extend([26434.0]) #Run4D102
-numWFIB.extend([26834.0]) #Run4D103
 numWFIB.extend([27234.0]) #Run4D104
-numWFIB.extend([27634.0]) #Run4D105
-numWFIB.extend([28034.0]) #Run4D106
-numWFIB.extend([28434.0]) #Run4D107
-numWFIB.extend([28834.0]) #Run4D108
-numWFIB.extend([29234.0]) #Run4D109
 numWFIB.extend([29634.0]) #Run4D110
 numWFIB.extend([30034.0]) #Run4D111
 numWFIB.extend([30434.0]) #Run4D112
 numWFIB.extend([30834.0]) #Run4D113
 numWFIB.extend([31234.0]) #Run4D114
 numWFIB.extend([32034.0]) #Run4D115
-numWFIB.extend([32434.0]) #Run4D116
-numWFIB.extend([32834.0]) #Run4D117
-numWFIB.extend([33234.0]) #Run4D118
-numWFIB.extend([33634.0]) #Run4D119
 numWFIB.extend([34034.0]) #Run4D120
 numWFIB.extend([34434.0]) #Run4D121
 numWFIB.extend([34834.0]) #Run4D122
