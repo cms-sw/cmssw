@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/DependentRecordTag.h"
+#include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/Utilities/interface/mplVector.h"
 
 //This is here only because too many modules depend no
@@ -79,22 +80,36 @@ namespace edm {
 
       template <typename ProductT, typename DepRecordT>
       ESHandle<ProductT> getHandle(ESGetToken<ProductT, DepRecordT> const& iToken) const {
-        //Make sure that DepRecordT is a type in ListT
-        static_assert((list_type::template contains<DepRecordT>()),
-                      "Trying to get a product with an ESGetToken specifying a Record from another Record where the "
-                      "second Record is not dependent on the first Record.");
-        return getRecord<DepRecordT>().getHandle(iToken);
+        if constexpr (std::is_same_v<DepRecordT, edm::DefaultRecord>) {
+          static_assert((list_type::template contains<eventsetup::default_record_t<ESHandle<ProductT>>>()),
+                        "Trying to get a product with an ESGetToken use DefaultRecord from another Record where the "
+                        "actual default Record is not dependent on the first Record.");
+          return getRecord<eventsetup::default_record_t<ESHandle<ProductT>>>().getHandle(iToken);
+        } else {
+          //Make sure that DepRecordT is a type in ListT
+          static_assert((list_type::template contains<DepRecordT>()),
+                        "Trying to get a product with an ESGetToken specifying a Record from another Record where the "
+                        "second Record is not dependent on the first Record.");
+          return getRecord<DepRecordT>().getHandle(iToken);
+        }
       }
 
       using EventSetupRecordImplementation<RecordT>::getTransientHandle;
 
       template <typename ProductT, typename DepRecordT>
       ESTransientHandle<ProductT> getTransientHandle(ESGetToken<ProductT, DepRecordT> const& iToken) const {
-        //Make sure that DepRecordT is a type in ListT
-        static_assert((list_type::template contains<DepRecordT>()),
-                      "Trying to get a product with an ESGetToken specifying a Record from another Record where the "
-                      "second Record is not dependent on the first Record.");
-        return getRecord<DepRecordT>().getTransientHandle(iToken);
+        if constexpr (std::is_same_v<DepRecordT, edm::DefaultRecord>) {
+          static_assert((list_type::template contains<eventsetup::default_record_t<ESHandle<ProductT>>>()),
+                        "Trying to get a product with an ESGetToken use DefaultRecord from another Record where the "
+                        "actual default Record is not dependent on the first Record.");
+          return getRecord<eventsetup::default_record_t<ESHandle<ProductT>>>().getTransientHandle(iToken);
+        } else {
+          //Make sure that DepRecordT is a type in ListT
+          static_assert((list_type::template contains<DepRecordT>()),
+                        "Trying to get a product with an ESGetToken specifying a Record from another Record where the "
+                        "second Record is not dependent on the first Record.");
+          return getRecord<DepRecordT>().getTransientHandle(iToken);
+        }
       }
 
       using EventSetupRecordImplementation<RecordT>::get;
