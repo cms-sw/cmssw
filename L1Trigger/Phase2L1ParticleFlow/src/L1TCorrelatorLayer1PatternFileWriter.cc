@@ -14,8 +14,7 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
       writeDebugs_(!iConfig.getParameter<std::string>("debugFileName").empty()),
       tfTimeslices_(std::max(1u, tfTmuxFactor_ / tmuxFactor_)),
       hgcTimeslices_(std::max(1u, hgcTmuxFactor_ / tmuxFactor_)),
-      gctEmTimeslices_(std::max(1u, gctEmTmuxFactor_ / tmuxFactor_)),
-      gctHadTimeslices_(std::max(1u, gctHadTmuxFactor_ / tmuxFactor_)),
+      gctTimeslices_(std::max(1u, gctTmuxFactor_ / tmuxFactor_)),
       gmtTimeslices_(std::max(1u, gmtTmuxFactor_ / tmuxFactor_)),
       gttTimeslices_(std::max(1u, gttTmuxFactor_ / tmuxFactor_)),
       outputBoard_(-1),
@@ -41,14 +40,10 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
                                   tfTimeslices_ * nInputFramesPerBX_ * tmuxFactor_ - (tfNumberOfTracks_ * 3 / 2)};
     }
     if (partition_ == Partition::Barrel) {
-      configTimeSlices(iConfig, "gctEm", eventTemplate.raw.gctEm.size(), gctEmTimeslices_, gctEmLinksFactor_);
-      gctNumberOfEMs_ = iConfig.getParameter<uint32_t>("gctNumberOfEMs");
-      channelSpecsInput_["gctEm"] = {tmuxFactor_ * gctEmTimeslices_,
-                                     gctEmTimeslices_ * nInputFramesPerBX_ * tmuxFactor_ - gctNumberOfEMs_};
-      configTimeSlices(iConfig, "gctHad", eventTemplate.raw.gctHad.size(), gctHadTimeslices_, gctHadLinksFactor_);
-      gctNumberOfHads_ = iConfig.getParameter<uint32_t>("gctNumberOfHads");
-      channelSpecsInput_["gctHad"] = {tmuxFactor_ * gctHadTimeslices_,
-                                      gctHadTimeslices_ * nInputFramesPerBX_ * tmuxFactor_ - gctNumberOfHads_};
+      configTimeSlices(iConfig, "gct", eventTemplate.raw.gctcluster.size(), gctTimeslices_, gctEmLinksFactor_);
+      gctNumberOfObjects_ = iConfig.getParameter<uint32_t>("gctNumberOfObjects");
+      channelSpecsInput_["gct"] = {tmuxFactor_ * gctTimeslices_,
+                                     gctTimeslices_ * nInputFramesPerBX_ * tmuxFactor_ - gctNumberOfObjects_};
     }
     if (partition_ == Partition::HGCal || partition_ == Partition::HGCalNoTk) {
       configTimeSlices(iConfig, "hgc", eventTemplate.raw.hgcalcluster.size(), hgcTimeslices_, hgcLinksFactor_);
@@ -199,7 +194,7 @@ edm::ParameterSetDescription L1TCorrelatorLayer1PatternFileWriter::getParameterS
   description.add<uint32_t>("nPFOutMuon", 0);
 
   description.ifValue(edm::ParameterDescription<std::string>("partition", "Barrel", true),
-                      "Barrel" >> (describeTF() and describeGCTEm() and describeGCTHad() and describeGTT() and
+                      "Barrel" >> (describeTF() and describeGCT() and describeGTT() and
                                    describeGMT() and describePuppi() and describeEG()) or
                           "HGCal" >> (describeTF() and describeHGC() and describeGTT() and describeGMT() and
                                       describePuppi() and describeEG()) or
@@ -212,11 +207,8 @@ std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWri
   return describeTimeSlices("tf") and edm::ParameterDescription<uint32_t>(
                                           "tfNumberOfTracks", 108, true);  // need to change if Serenity needs variable
 }
-std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeGCTEm() {
-  return describeTimeSlices("gctEm") and edm::ParameterDescription<uint32_t>("gctNumberOfEMs", 32, true);
-}
-std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeGCTHad() {
-  return describeTimeSlices("gctHad") and edm::ParameterDescription<uint32_t>("gctNumberOfHads", 48, true);
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeGCT() {
+  return describeTimeSlices("gct") and edm::ParameterDescription<uint32_t>("gctNumberOfObjects", 162, true);
 }
 std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeHGC() {
   return describeTimeSlices("hgc");
@@ -246,8 +238,7 @@ void L1TCorrelatorLayer1PatternFileWriter::write(const l1ct::Event& event) {
       writeTF(event, inputs);
     }
     if (partition_ == Partition::Barrel) {
-      writeGCTEm(event, inputs);
-      writeGCTHad(event, inputs);
+      writeGCT(event, inputs);
     }
     if (partition_ == Partition::HGCal || partition_ == Partition::HGCalNoTk) {
       writeHGC(event, inputs);
@@ -403,25 +394,14 @@ void L1TCorrelatorLayer1PatternFileWriter::writeTF(const l1ct::Event& event, l1t
   }
 }
 
-void L1TCorrelatorLayer1PatternFileWriter::writeGCTEm(const l1ct::Event& event, l1t::demo::EventData& out) {
-  for (unsigned int iS = 0, nS = event.raw.gctEm.size(); iS < nS; ++iS) {
-    l1t::demo::LinkId key{"gctEm", iS};
+void L1TCorrelatorLayer1PatternFileWriter::writeGCT(const l1ct::Event& event, l1t::demo::EventData& out) {
+  for (unsigned int iS = 0, nS = event.raw.gctcluster.size(); iS < nS; ++iS) {
+    l1t::demo::LinkId key{"gct", iS};
     if (channelIdsInput_.count(key) == 0)
       continue;
-    std::vector<ap_uint<64>> gctEm = event.raw.gctEm[iS].obj;
-    gctEm.resize(gctNumberOfEMs_, ap_uint<64>(0));
-    out.add(key, gctEm);
-  }
-}
-
-void L1TCorrelatorLayer1PatternFileWriter::writeGCTHad(const l1ct::Event& event, l1t::demo::EventData& out) {
-  for (unsigned int iS = 0, nS = event.raw.gctHad.size(); iS < nS; ++iS) {
-    l1t::demo::LinkId key{"gctHad", iS};
-    if (channelIdsInput_.count(key) == 0)
-      continue;
-    std::vector<ap_uint<64>> gctHad = event.raw.gctHad[iS].obj;
-    gctHad.resize(gctNumberOfHads_, ap_uint<64>(0));
-    out.add(key, gctHad);
+    std::vector<ap_uint<64>> gctclusters = event.raw.gctcluster[iS].obj;
+    gctclusters.resize(gctNumberOfObjects_, ap_uint<64>(0));
+    out.add(key, gctclusters);
   }
 }
 

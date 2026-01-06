@@ -68,18 +68,19 @@ process.l1tTrackSelectionProducer.processSimulatedTracks = False # these would n
 process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 from L1Trigger.Configuration.SimL1Emulator_cff import l1tSAMuonsGmt
 process.l1tSAMuonsGmt = l1tSAMuonsGmt.clone()
-from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import l1tPhase2L1CaloEGammaEmulator
-process.l1tPhase2L1CaloEGammaEmulator = l1tPhase2L1CaloEGammaEmulator.clone()
-from L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi import l1tPhase2CaloPFClusterEmulator
-process.l1tPhase2CaloPFClusterEmulator = l1tPhase2CaloPFClusterEmulator.clone()
-from L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi import l1tPhase2GCTBarrelToCorrelatorLayer1Emulator
-process.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator = l1tPhase2GCTBarrelToCorrelatorLayer1Emulator.clone()
+# from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import l1tPhase2L1CaloEGammaEmulator
+# process.l1tPhase2L1CaloEGammaEmulator = l1tPhase2L1CaloEGammaEmulator.clone()
+# from L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi import l1tPhase2CaloPFClusterEmulator
+# process.l1tPhase2CaloPFClusterEmulator = l1tPhase2CaloPFClusterEmulator.clone()
+# from L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi import l1tPhase2GCTBarrelToCorrelatorLayer1Emulator
+# process.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator = l1tPhase2GCTBarrelToCorrelatorLayer1Emulator.clone()
+
+from L1Trigger.L1CaloTrigger.l1tPhase2CaloToCorrelatorTMI18_cfi import l1tPhase2CaloToCorrelatorTMI18
+process.l1tPhase2CaloToCorrelatorTMI18 = l1tPhase2CaloToCorrelatorTMI18.clone()
 
 process.L1TInputTask = cms.Task(
     process.l1tSAMuonsGmt,
-    process.l1tPhase2L1CaloEGammaEmulator,
-    process.l1tPhase2CaloPFClusterEmulator,
-    process.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator
+    process.l1tPhase2CaloToCorrelatorTMI18
 )
 
 
@@ -117,8 +118,10 @@ process.l1tLayer1BarrelTDR.regionizerAlgoParameters = cms.PSet(
         nMu = cms.uint32(2),
         nClocks = cms.uint32(162),
         doSort = cms.bool(False),
-        bigRegionEdges = cms.vint32(-560, -80, 400, -560),
-        debug = cms.untracked.bool(False)
+        bigRegionEdges = cms.vint32(-560, -560),
+        netaInBR = cms.uint32(6),
+        nphiInBR = cms.uint32(9),
+        debug = cms.untracked.bool(True)
     )
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nSelCalo = 15
@@ -301,3 +304,4 @@ if args.split18 and not args.patternFilesOFF:
         )        
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/FastPUPPI/14_2_X/fpinputs_140X/v0/TT_PU200/inputs140X_1.root' ]
+process.source.fileNames = ["file:inputs140X_1.root "]

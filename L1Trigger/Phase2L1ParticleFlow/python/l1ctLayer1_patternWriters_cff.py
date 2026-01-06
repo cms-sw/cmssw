@@ -8,7 +8,7 @@ _gttNumberOfPVs = 10
 ## Barrel configurations: 54 regions, 6 puppi output links, only write out the layer 1 outputs for now
 _barrelWriterOutputOnly = cms.PSet(
     partition = cms.string("Barrel"),
-    tmuxFactor = cms.uint32(6),
+    tmuxFactor = cms.uint32(18),
     outputLinksPuppi = cms.vuint32(*range(6)),
     outputLinkEgamma = cms.int32(6),
     nEgammaObjectsOut = cms.uint32(16),
@@ -29,12 +29,12 @@ _barrelWriterOutputOnly = cms.PSet(
     gctEmSectors = cms.VPSet(),
     gctHadSectors = cms.VPSet(),
     tfNumberOfTracks = cms.uint32(108),
-    gctNumberOfEMs = cms.uint32(32),
-    gctNumberOfHads = cms.uint32(48),
+    gctNumberOfObjects = cms.uint32(162),
 )
 ## Barrel (54) split in 3 phi slices (EMP format)
 barrelWriterOutputOnlyPhiConfigs = [
     _barrelWriterOutputOnly.clone(
+        tmuxFactor = cms.uint32(6),
         outputRegions = cms.vuint32(*[3*ip+9*ie+i for ie in range(6) for i in range(3) ]),
         outputBoard = cms.int32(ip),
         outputFileName = cms.string("l1BarrelPhi%d-outputs" % (ip+1))

@@ -48,10 +48,9 @@
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
 #include "DataFormats/L1TCorrelator/interface/TkEmFwd.h"
 
-#include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
-// #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedPFClusterCorrelatorTMI18.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelatorTMI18.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedCaloToCorrelatorTMI18.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 
 constexpr unsigned int calomapping[] = {3, 0, 9, 6, 4, 1, 10, 7, 5, 2, 11, 8};
@@ -86,8 +85,7 @@ private:
   edm::EDGetTokenT<l1t::HGCalMulticlusterBxCollection> hadHGCalCands_;
 
   // can alternately give the raw containers (for GCT)
-  edm::EDGetTokenT<l1tp2::GCTEmDigiClusterCollection> emGCTRawCands_;
-  edm::EDGetTokenT<l1tp2::GCTHadDigiClusterCollection> hadGCTRawCands_;
+  edm::EDGetTokenT<l1tp2::DigitizedCaloToCorrelatorCollectionTMI18> gctRawCands_;
 
   float emPtCut_, hadPtCut_;
 
@@ -95,7 +93,8 @@ private:
   std::unique_ptr<l1ct::TrackInputEmulator> trackInput_;
   std::unique_ptr<l1ct::GMTMuonDecoderEmulator> muonInput_;
   std::unique_ptr<l1ct::HgcalClusterDecoderEmulator> hgcalInput_;
-  std::unique_ptr<l1ct::GctHadClusterDecoderEmulator> gctInput_;  // This will chaged
+  std::unique_ptr<l1ct::GctHadClusterDecoderEmulator> gctHadInput_;
+  std::unique_ptr<l1ct::GctEmClusterDecoderEmulator> gctEmInput_;
   std::unique_ptr<l1ct::RegionizerEmulator> regionizer_;
   std::unique_ptr<l1ct::PFAlgoEmulatorBase> l1pfalgo_;
   std::unique_ptr<l1ct::LinPuppiEmulator> l1pualgo_;
@@ -278,25 +277,23 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
       throw cms::Exception("Configuration", "Unsupported hgcalInputConversionAlgo");
   }
   const std::string &gctEmInAlgo = iConfig.getParameter<std::string>("gctEmInputConversionAlgo");
-  const edm::InputTag emClusters = iConfig.getParameter<edm::InputTag>("emClusters");
-  if (!emClusters.label().empty()) {
+  const edm::InputTag gctClusters = iConfig.getParameter<edm::InputTag>("gctClusters");
+  if (!gctClusters.label().empty()) {
     if (gctEmInAlgo == "Emulator") {
       gctEmInput_ = std::make_unique<l1ct::GctEmClusterDecoderEmulator>(
           iConfig.getParameter<edm::ParameterSet>("gctEmInputConversionParameters"));
-      emGCTRawCands_ = consumes<l1tp2::GCTEmDigiClusterCollection>(emClusters);
+      gctRawCands_ = consumes<DigitizedCaloToCorrelatorCollectionTMI18>(gctClusters);  // also for hadronic
     } else if (gctEmInAlgo != "None")
       throw cms::Exception("Configuration", "Unsupported gctEmInputConversionAlgo");
   }
   const std::string &gctHadInAlgo = iConfig.getParameter<std::string>("gctHadInputConversionAlgo");
-  if (!hadClusters.label().empty()) {
-    if (gctHadInAlgo == "Emulator") {
-      gctHadInput_ = std::make_unique<l1ct::GctHadClusterDecoderEmulator>(
-          iConfig.getParameter<edm::ParameterSet>("gctHadInputConversionParameters"));
-      hadGCTRawCands_ = consumes<l1tp2::GCTHadDigiClusterCollection>(hadClusters);
-    } else if (gctHadInAlgo == "Ideal") {
+  if (!gctClusters.label().empty() && gctHadInAlgo == "Emulator") {
+    gctHadInput_ = std::make_unique<l1ct::GctHadClusterDecoderEmulator>(
+        iConfig.getParameter<edm::ParameterSet>("gctHadInputConversionParameters"));
+  } else if (!hadClusters.label().empty() && gctHadInAlgo == "Ideal") {
       hadGCTCands_ = consumes<l1t::PFClusterCollection>(hadClusters);
-    } else if (gctHadInAlgo != "None")
-      throw cms::Exception("Configuration", "Unsupported gctHadInputConversionAlgo");
+  } else if (gctHadInAlgo != "None")
+    throw cms::Exception("Configuration", "Unsupported gctHadInputConversionAlgo");
   }
 
   const std::string &regalgo = iConfig.getParameter<std::string>("regionizerAlgo");
@@ -394,7 +391,7 @@ void L1TCorrelatorLayer1Producer::fillDescriptions(edm::ConfigurationDescription
   // Inputs and cuts
   desc.add<edm::InputTag>("tracks", edm::InputTag(""));
   desc.add<edm::InputTag>("muons", edm::InputTag("l1tSAMuonsGmt", "prompt"));
-  desc.add<edm::InputTag>("emClusters", edm::InputTag(""));
+  desc.add<edm::InputTag>("gctClusters", edm::InputTag(""));
   desc.add<edm::InputTag>("hadClusters", edm::InputTag(""));
   desc.add<edm::InputTag>("vtxCollection", edm::InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"));
   desc.add<bool>("vtxCollectionEmulation", true);

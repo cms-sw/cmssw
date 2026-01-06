@@ -31,18 +31,16 @@ private:
   // They are not configurable in the current architecture.
   const unsigned int tfTmuxFactor_ = 18, tfLinksFactor_ = 1;
   const unsigned int hgcTmuxFactor_ = 18, hgcLinksFactor_ = 4;
-  const unsigned int gctEmTmuxFactor_ = 6, gctEmLinksFactor_ = 1;
-  const unsigned int gctHadTmuxFactor_ = 6, gctHadLinksFactor_ = 1;
+  const unsigned int gctTmuxFactor_ = 18, gctEmLinksFactor_ = 1;
   const unsigned int gmtTmuxFactor_ = 18, gmtLinksFactor_ = 1;
   const unsigned int gttTmuxFactor_ = 6, gttLinksFactor_ = 1;
-  const unsigned int tfTimeslices_, hgcTimeslices_, gctEmTimeslices_, gctHadTimeslices_, gmtTimeslices_, gttTimeslices_;
+  const unsigned int tfTimeslices_, hgcTimeslices_, gctTimeslices_, gmtTimeslices_, gttTimeslices_;
   uint32_t gctLinksEcal_, gctLinksHad_;
   bool gctSingleLink_;
   uint32_t gmtNumberOfMuons_;
   uint32_t gttNumberOfPVs_;
   uint32_t tfNumberOfTracks_;  // if this messes up Serenity, change to int32 and only apply if not negative?
-  uint32_t gctNumberOfEMs_;
-  uint32_t gctNumberOfHads_;
+  uint32_t gctNumberOfObjects_;
   uint32_t gttLatency_;
 
   std::vector<uint32_t> outputRegions_, outputLinksPuppi_;
@@ -72,8 +70,7 @@ private:
   static Partition parsePartition(const std::string& partition);
 
   static std::unique_ptr<edm::ParameterDescriptionNode> describeTF();
-  static std::unique_ptr<edm::ParameterDescriptionNode> describeGCTEm();
-  static std::unique_ptr<edm::ParameterDescriptionNode> describeGCTHad();
+  static std::unique_ptr<edm::ParameterDescriptionNode> describeGCT();
   static std::unique_ptr<edm::ParameterDescriptionNode> describeHGC();
   static std::unique_ptr<edm::ParameterDescriptionNode> describeGMT();
   static std::unique_ptr<edm::ParameterDescriptionNode> describeGTT();
@@ -98,8 +95,7 @@ private:
   static std::unique_ptr<edm::ParameterDescriptionNode> describeLinks(const std::string& prefix);
 
   void writeTF(const l1ct::Event& event, l1t::demo::EventData& out);
-  void writeGCTEm(const l1ct::Event& event, l1t::demo::EventData& out);
-  void writeGCTHad(const l1ct::Event& event, l1t::demo::EventData& out);
+  void writeGCT(const l1ct::Event& event, l1t::demo::EventData& out);
   void writeHGC(const l1ct::Event& event, l1t::demo::EventData& out);
   void writeGMT(const l1ct::Event& event, l1t::demo::EventData& out);
   void writeGTT(const l1ct::Event& event, l1t::demo::EventData& out);
