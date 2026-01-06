@@ -149,7 +149,7 @@ namespace edm {
       Helper::destroy(m_values, m_size);
 
       constexpr std::size_t max_alignment = soahelper::SoATupleHelper<Args...>::max_alignment;
-      operator delete[](static_cast<std::byte*>(m_values[0]), std::align_val_t(max_alignment));
+      operator delete[](m_values[0], std::align_val_t(max_alignment));
     }
 
     // ---------- const member functions ---------------------
@@ -259,13 +259,11 @@ namespace edm {
       //align memory of the array to be on the strictest alignment boundary for any type in the Tuple
       // This is done by calling alignment new with the max alignment value.
       constexpr std::size_t max_alignment = soahelper::SoATupleHelper<Args...>::max_alignment;
-      //If needed, pad the number of items by 1
-      const size_t itemsNeeded = (memoryNeededInBytes + max_alignment - 1) / max_alignment;
-      std::byte* newMemory = new (std::align_val_t(max_alignment)) std::byte[itemsNeeded * max_alignment];
+      void* newMemory = ::operator new[](memoryNeededInBytes, std::align_val_t(max_alignment));
       void* oldMemory = m_values[0];
-      soahelper::SoATupleHelper<Args...>::moveToNew(newMemory, m_size, iToSize, m_values);
+      soahelper::SoATupleHelper<Args...>::moveToNew(static_cast<std::byte*>(newMemory), m_size, iToSize, m_values);
       m_reserved = iToSize;
-      operator delete[](static_cast<std::byte*>(oldMemory), std::align_val_t(max_alignment));
+      operator delete[](oldMemory, std::align_val_t(max_alignment));
     }
     // ---------- member data --------------------------------
     //Pointers to where each column starts in the shared memory array
