@@ -58,15 +58,16 @@ public:
 
 private:
   const std::string nameDetector_;
-  const std::string fileName_;
+  const std::string fileName_, outFileName_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcal_;
   const DetId::Detector dets_;
-  std::vector<HGCSiliconDetId> detIds_;
+  std::vector<DetId> detIds_;
 };
 
 HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
       fileName_(iC.getParameter<std::string>("fileName")),
+      outFileName_(iC.getParameter<std::string>("outFileName")),
       tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})},
       dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
@@ -92,7 +93,7 @@ HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
           int32_t cellU = std::atoi(items[6].c_str());
           int32_t cellV = std::atoi(items[7].c_str());
           HGCSiliconDetId detId(det, zp, type, layer, waferU, waferV, cellU, cellV);
-          detIds_.emplace_back(detId);
+          detIds_.emplace_back(DetId(detId));
           edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << det << ":" << zp << ":" << type << ":"
                                       << layer << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV
                                       << " ==> " << detId;
@@ -100,14 +101,17 @@ HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
       }
       fInput.close();
     }
+    edm::LogVerbatim("HGCGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
+  } else {
+    edm::LogVerbatim("HGCGeom") << "No input file is given == will test all valid ids for " << dets_;
   }
-  edm::LogVerbatim("HGCGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
 }
 
 void HGCalIdCheck::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("nameDetector", "HGCalHESiliconSensitive");
   desc.add<std::string>("fileName", "D120E.txt");
+  desc.add<std::string>("outFileName", "");
   descriptions.add("hgcalIdCheck", desc);
 }
 
@@ -119,7 +123,16 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
   if (hgcGeom.isValid()) {
     const HGCalGeometry *geom = hgcGeom.product();
     edm::LogVerbatim("HGCGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
-
+    std::ofstream fout;
+    int bad(0);
+    if (!outFileName_.empty()) {
+      edm::LogVerbatim("HGCGeom") << "Opens " << outFileName_ << " to list IDs in question";
+      fout.open(outFileName_.c_str(), std::ofstream::out);
+    }
+    if (fileName_.empty()) {
+      detIds_= geom->getValidDetIds(dets_);
+      edm::LogVerbatim("HGCGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
+    }
     for (unsigned int k = 0; k < detIds_.size(); ++k) {
       std::ostringstream st1;
       HGCSiliconDetId id(detIds_[k]);
@@ -135,6 +148,14 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       std::string c3 = ((id.cellU() == idn.cellU()) && (id.cellV() == idn.cellV())) ? "" : "Cell Mismatch";
       edm::LogVerbatim("HGCGeom") << "Hit[" << k << "] " << st1.str() << " Position (" << cell.x() << ", " << cell.y()
                                   << ", " << cell.z() << ") " << c1 << " " << c2 << " " << c3;
+      if ((!outFileName_.empty()) && (id.rawId() != idx.rawId())) {
+	++bad;
+	fout << id.rawId() << " " << c1 << " " << c2 << " " << c3 <<std::endl;
+      }
+    }
+    if (!outFileName_.empty()) {
+      fout.close();
+      edm::LogVerbatim("HGCGeom") << "Log information of " << bad << " problemaic IDs ";
     }
   } else {
     edm::LogWarning("HGCGeom") << "Cannot initiate HGCalGeometry for " << nameDetector_ << std::endl;
