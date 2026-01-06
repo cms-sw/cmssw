@@ -6,6 +6,7 @@
 #endif
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/Portable/interface/PortableCollection.h"
 
 #include "RecoTracker/LSTCore/interface/Common.h"
@@ -42,13 +43,32 @@ namespace lst {
                       SOA_COLUMN(float, eta),
                       SOA_COLUMN(float, phi))
 
+  GENERATE_SOA_BLOCKS(LSTInputSoALayout, SOA_BLOCK(hits, HitsBaseSoALayout), SOA_BLOCK(pixelSeeds, PixelSeedsSoALayout))
+
   using HitsBaseSoA = HitsBaseSoALayout<>;
   using PixelSeedsSoA = PixelSeedsSoALayout<>;
+  using LSTInputSoA = LSTInputSoALayout<>;
 
   using HitsBase = HitsBaseSoA::View;
   using HitsBaseConst = HitsBaseSoA::ConstView;
   using PixelSeeds = PixelSeedsSoA::View;
   using PixelSeedsConst = PixelSeedsSoA::ConstView;
+  using LSTInputView = LSTInputSoA::View;
+  using LSTInputConstView = LSTInputSoA::ConstView;
+
+  // Template based accessor for getting specific SoA views. Needed in LSTEvent.dev.cc
+  template <typename TSoA>
+  struct LSTInputViewAccessor;
+
+  template <>
+  struct LSTInputViewAccessor<HitsBaseSoA> {
+    static constexpr auto get(auto const& v) { return v.hits(); }
+  };
+
+  template <>
+  struct LSTInputViewAccessor<PixelSeedsSoA> {
+    static constexpr auto get(auto const& v) { return v.pixelSeeds(); }
+  };
 
 }  // namespace lst
 

@@ -4,6 +4,7 @@
 #include <alpaka/alpaka.hpp>
 #include "DataFormats/Common/interface/StdArray.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 
 #include "RecoTracker/LSTCore/interface/Common.h"
 
@@ -47,6 +48,28 @@ namespace lst {
   using QuintupletsOccupancySoA = QuintupletsOccupancySoALayout<>;
   using QuintupletsOccupancy = QuintupletsOccupancySoA::View;
   using QuintupletsOccupancyConst = QuintupletsOccupancySoA::ConstView;
+
+  GENERATE_SOA_BLOCKS(QuintupletsSoABlocksLayout,
+                      SOA_BLOCK(quintuplets, QuintupletsSoALayout),
+                      SOA_BLOCK(quintupletsOccupancy, QuintupletsOccupancySoALayout))
+
+  using QuintupletsSoABlocks = QuintupletsSoABlocksLayout<>;
+  using QuintupletsSoABlocksView = QuintupletsSoABlocks::View;
+  using QuintupletsSoABlocksConstView = QuintupletsSoABlocks::ConstView;
+
+  // Template based accessor for getting specific SoA views. Needed in LSTEvent.dev.cc
+  template <typename TSoA>
+  struct QuintupletsViewAccessor;
+
+  template <>
+  struct QuintupletsViewAccessor<QuintupletsSoA> {
+    static constexpr auto get(auto const& v) { return v.quintuplets(); }
+  };
+
+  template <>
+  struct QuintupletsViewAccessor<QuintupletsOccupancySoA> {
+    static constexpr auto get(auto const& v) { return v.quintupletsOccupancy(); }
+  };
 
 }  // namespace lst
 #endif

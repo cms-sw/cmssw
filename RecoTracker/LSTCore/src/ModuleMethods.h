@@ -239,11 +239,10 @@ namespace lst {
           totalSizes_neg,
           connectedModuleDetIds_neg] = getConnectedPixels(nModules, nPixels, pixelMapping, pLStoLayer);
 
-    std::array<int, 2> const modules_sizes{{static_cast<int>(nModules), static_cast<int>(nPixels)}};
+    auto modulesHC = std::make_shared<ModulesHostCollection>(
+        cms::alpakatools::host(), static_cast<int32_t>(nModules), static_cast<int32_t>(nPixels));
 
-    auto modulesHC = std::make_shared<ModulesHostCollection>(modules_sizes, cms::alpakatools::host());
-
-    auto modules_view = modulesHC->view<ModulesSoA>();
+    auto modules_view = modulesHC->view().modules();
 
     // Getting the underlying data pointers
     std::span<unsigned int> host_detIds = modules_view.detIds();
@@ -386,7 +385,7 @@ namespace lst {
     // Fill pixel part
     pixelMapping.pixelModuleIndex = mmd.detIdToIndex.at(1);
 
-    auto modulesPixel_view = modulesHC->view<ModulesPixelSoA>();
+    auto modulesPixel_view = modulesHC->view().modulesPixel();
     auto connectedPixels =
         cms::alpakatools::make_host_view(modulesPixel_view.connectedPixels(), modulesPixel_view.metadata().size());
     for (unsigned int icondet = 0; icondet < totalSizes; icondet++) {

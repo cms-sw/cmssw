@@ -5,6 +5,6 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 
 namespace lst {
-  using QuintupletsHostCollection = PortableHostMultiCollection<QuintupletsSoA, QuintupletsOccupancySoA>;
+  using QuintupletsHostCollection = PortableHostCollection<QuintupletsSoABlocks>;
 }  // namespace lst
 #endif

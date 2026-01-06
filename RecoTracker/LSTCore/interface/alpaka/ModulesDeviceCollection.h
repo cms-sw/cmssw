@@ -7,7 +7,7 @@
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  using ModulesDeviceCollection = PortableCollection2<ModulesSoA, ModulesPixelSoA>;
+  using ModulesDeviceCollection = PortableCollection<ModulesSoABlocks>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 
 #endif

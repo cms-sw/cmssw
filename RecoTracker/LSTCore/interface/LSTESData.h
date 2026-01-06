@@ -19,7 +19,7 @@ namespace lst {
     unsigned int nPixels;
     unsigned int nEndCapMap;
     // Using shared_ptr so that for the serial backend all streams can use the same data
-    std::shared_ptr<const PortableMultiCollection<TDev, ModulesSoA, ModulesPixelSoA>> modules;
+    std::shared_ptr<const PortableCollection<ModulesSoABlocks, TDev>> modules;
     std::shared_ptr<const PortableCollection<EndcapGeometryDevSoA, TDev>> endcapGeometry;
     // Host-side object that is shared between the LSTESData<TDev> objects for different devices
     std::shared_ptr<const PixelMap> pixelMapping;
@@ -28,7 +28,7 @@ namespace lst {
               uint16_t const& nLowerModulesIn,
               unsigned int const& nPixelsIn,
               unsigned int const& nEndCapMapIn,
-              std::shared_ptr<const PortableMultiCollection<TDev, ModulesSoA, ModulesPixelSoA>> modulesIn,
+              std::shared_ptr<const PortableCollection<ModulesSoABlocks, TDev>> modulesIn,
               std::shared_ptr<const PortableCollection<EndcapGeometryDevSoA, TDev>> endcapGeometryIn,
               std::shared_ptr<const PixelMap> const& pixelMappingIn)
         : nModules(nModulesIn),
@@ -52,16 +52,15 @@ namespace cms::alpakatools {
     static lst::LSTESData<alpaka::Dev<TQueue>> copyAsync(TQueue& queue,
                                                          lst::LSTESData<alpaka_common::DevHost> const& srcData) {
       using TDev = alpaka::Dev<TQueue>;
-      std::shared_ptr<const PortableMultiCollection<TDev, lst::ModulesSoA, lst::ModulesPixelSoA>> deviceModules;
+      std::shared_ptr<const PortableCollection<lst::ModulesSoABlocks, TDev>> deviceModules;
       std::shared_ptr<const PortableCollection<lst::EndcapGeometryDevSoA, TDev>> deviceEndcapGeometry;
 
       if constexpr (std::is_same_v<TDev, alpaka_common::DevHost>) {
         deviceModules = srcData.modules;
         deviceEndcapGeometry = srcData.endcapGeometry;
       } else {
-        deviceModules = std::make_shared<PortableMultiCollection<TDev, lst::ModulesSoA, lst::ModulesPixelSoA>>(
-            CopyToDevice<PortableHostMultiCollection<lst::ModulesSoA, lst::ModulesPixelSoA>>::copyAsync(
-                queue, *srcData.modules));
+        deviceModules = std::make_shared<PortableCollection<lst::ModulesSoABlocks, TDev>>(
+            CopyToDevice<PortableHostCollection<lst::ModulesSoABlocks>>::copyAsync(queue, *srcData.modules));
         deviceEndcapGeometry = std::make_shared<PortableCollection<lst::EndcapGeometryDevSoA, TDev>>(
             CopyToDevice<PortableHostCollection<lst::EndcapGeometryDevSoA>>::copyAsync(queue, *srcData.endcapGeometry));
       }
