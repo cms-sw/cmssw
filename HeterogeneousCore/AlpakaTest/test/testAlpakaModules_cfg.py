@@ -70,7 +70,7 @@ process.alpakaESProducerBlocks = testAlpakaESProducerBlocks.clone(appendToDataLa
 from HeterogeneousCore.AlpakaTest.testAlpakaGlobalProducer_cfi import testAlpakaGlobalProducer
 process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
     eventSetupSource = cms.ESInputTag("alpakaESProducerA", "appendedLabel"),
-    eventSetupSourceMulti = cms.ESInputTag("alpakaESProducerBlocks", "appendedLabel"),
+    eventSetupSourceBlocks = cms.ESInputTag("alpakaESProducerBlocks", "appendedLabel"),
     size = dict(
         alpaka_serial_sync = 10,
         alpaka_cuda_async = 20,

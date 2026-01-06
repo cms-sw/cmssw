@@ -62,14 +62,14 @@ namespace portabletest {
 
   using TestSoA3 = TestSoALayout3<>;
 
-  GENERATE_SOA_BLOCKS(SoABlocks2, SOA_BLOCK(firstLayout, TestSoALayout), SOA_BLOCK(secondLayout, TestSoALayout2))
+  GENERATE_SOA_BLOCKS(SoABlocks2, SOA_BLOCK(first, TestSoALayout), SOA_BLOCK(second, TestSoALayout2))
 
   using TestSoABlocks2 = SoABlocks2<>;
 
   GENERATE_SOA_BLOCKS(SoABlocks3,
-                      SOA_BLOCK(firstLayout, TestSoALayout),
-                      SOA_BLOCK(secondLayout, TestSoALayout2),
-                      SOA_BLOCK(thirdLayout, TestSoALayout3))
+                      SOA_BLOCK(first, TestSoALayout),
+                      SOA_BLOCK(second, TestSoALayout2),
+                      SOA_BLOCK(third, TestSoALayout3))
 
   using TestSoABlocks3 = SoABlocks3<>;
 }  // namespace portabletest

@@ -38,10 +38,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     explicit ClusterGenerator(float nvert, float ntrack)
         : rgen(-13., 13), errgen(0.005, 0.025), clusGen(nvert), trackGen(ntrack), gauss(0., 1.), ptGen(1.) {}
 
-    void operator()(vertexFinder::PixelVertexWorkSpaceSoAHost& pwsh, ZVertexHost& vtxh) {
+    void operator()(vertexFinder::PixelVertexWorkSpaceSoAHost& pwsh, reco::ZVertexHost& vtxh) {
       int nclus = clusGen(reng);
-      for (int zint = 0; zint < vtxh.view().metadata().size(); ++zint) {
-        vtxh.view().zv()[zint] = 3.5f * gauss(reng);
+      for (int zint = 0; zint < vtxh.view().zvertex().metadata().size(); ++zint) {
+        vtxh.view().zvertex()[zint].zv() = 3.5f * gauss(reng);
       }
 
       int aux = 0;
@@ -50,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         pwsh.view().itrk()[iv] = nt;
         for (int it = 0; it < nt; ++it) {
           auto err = errgen(reng);  // reality is not flat....
-          pwsh.view().zt()[aux] = vtxh.view().zv()[iv] + err * gauss(reng);
+          pwsh.view().zt()[aux] = vtxh.view().zvertex().zv()[iv] + err * gauss(reng);
           pwsh.view().ezt2()[aux] = err * err;
           pwsh.view().iv()[aux] = iv;
           pwsh.view().ptt2()[aux] = (iv == 5 ? 1.f : 0.5f) + ptGen(reng);
@@ -118,13 +118,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void runKernels(Queue& queue) {
       // Run 3 values, used for testing
-      constexpr uint32_t maxTracks = 32 * 1024;
-      constexpr uint32_t maxVertices = 1024;
+      constexpr int32_t maxTracks = 32 * 1024;
+      constexpr int32_t maxVertices = 1024;
 
       vertexFinder::PixelVertexWorkSpaceSoADevice ws_d(maxTracks, queue);
       vertexFinder::PixelVertexWorkSpaceSoAHost ws_h(maxTracks, queue);
-      ZVertexHost vertices_h({{maxVertices, maxTracks}}, queue);
-      ZVertexSoACollection vertices_d({{maxVertices, maxTracks}}, queue);
+      reco::ZVertexHost vertices_h(queue, maxVertices, maxTracks);
+      reco::ZVertexSoACollection vertices_d(queue, maxVertices, maxTracks);
 
       float eps = 0.1f;
       std::array<float, 3> par{{eps, 0.01f, 9.0f}};
@@ -136,7 +136,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           gen(ws_h, vertices_h);
           auto workDiv1D = make_workdiv<Acc1D>(1, 1);
-          alpaka::exec<Acc1D>(queue, workDiv1D, vertexFinder::Init{}, vertices_d.view(), ws_d.view());
+          alpaka::exec<Acc1D>(queue, workDiv1D, vertexFinder::Init{}, vertices_d.view().zvertex(), ws_d.view());
           // std::cout << "v,t size " << ws_h.view().zt()[0] << ' ' << vertices_h.view().zv()[0] << std::endl;
           alpaka::memcpy(queue, ws_d.buffer(), ws_h.buffer());
           alpaka::wait(queue);
@@ -152,15 +152,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if ((i % 4) == 3)
             par = {{0.7f * eps, 0.01f, 9.0f}};
 
-          alpaka::exec<Acc1D>(queue, workDiv1D, Kernel_print{}, vertices_d.view(), ws_d.view());
+          alpaka::exec<Acc1D>(queue, workDiv1D, Kernel_print{}, vertices_d.view().zvertex(), ws_d.view());
 
           auto workDivClusterizer = make_workdiv<Acc1D>(1, 512 + 256);
 #ifdef ONE_KERNEL
           alpaka::exec<Acc1D>(queue,
                               workDivClusterizer,
                               VertexFinderOneKernel{},
-                              vertices_d.view(),
-                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              vertices_d.view().zvertex(),
+                              vertices_d.view().zvertexTracks(),
                               ws_d.view(),
                               kk,
                               par[0],
@@ -170,8 +170,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::exec<Acc1D>(queue,
                               workDivClusterizer,
                               CLUSTERIZE{},
-                              vertices_d.view(),
-                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              vertices_d.view().zvertex(),
+                              vertices_d.view().zvertexTracks(),
                               ws_d.view(),
                               kk,
                               par[0],
@@ -179,7 +179,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               par[2]);
 #endif
           alpaka::wait(queue);
-          alpaka::exec<Acc1D>(queue, workDiv1D, Kernel_print{}, vertices_d.view(), ws_d.view());
+          alpaka::exec<Acc1D>(queue, workDiv1D, Kernel_print{}, vertices_d.view().zvertex(), ws_d.view());
           alpaka::wait(queue);
 
           auto workDivFitter = make_workdiv<Acc1D>(1, 1024 - 256);
@@ -187,47 +187,49 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::exec<Acc1D>(queue,
                               workDivFitter,
                               vertexFinder::FitVerticesKernel{},
-                              vertices_d.view(),
-                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              vertices_d.view().zvertex(),
+                              vertices_d.view().zvertexTracks(),
                               ws_d.view(),
                               50.f);
 
           alpaka::memcpy(queue, vertices_h.buffer(), vertices_d.buffer());
           alpaka::wait(queue);
 
-          if (vertices_h.view().nvFinal() == 0) {
+          if (vertices_h.view().zvertex().nvFinal() == 0) {
             std::cout << "NO VERTICES???" << std::endl;
             continue;
           }
 
-          for (auto j = 0U; j < vertices_h.view().nvFinal(); ++j)
-            if (vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j] > 0)
-              vertices_h.view().chi2()[j] /= float(vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j]);
+          for (auto j = 0U; j < vertices_h.view().zvertex().nvFinal(); ++j)
+            if (vertices_h.view().zvertexTracks().ndof()[j] > 0)
+              vertices_h.view().zvertex().chi2()[j] /= float(vertices_h.view().zvertexTracks().ndof()[j]);
           {
-            auto mx = std::minmax_element(vertices_h.view().chi2().data(),
-                                          vertices_h.view().chi2().data() + vertices_h.view().nvFinal());
-            std::cout << "after fit nv, min max chi2 " << vertices_h.view().nvFinal() << " " << *mx.first << ' '
-                      << *mx.second << std::endl;
+            auto mx =
+                std::minmax_element(vertices_h.view().zvertex().chi2().data(),
+                                    vertices_h.view().zvertex().chi2().data() + vertices_h.view().zvertex().nvFinal());
+            std::cout << "after fit nv, min max chi2 " << vertices_h.view().zvertex().nvFinal() << " " << *mx.first
+                      << ' ' << *mx.second << std::endl;
           }
 
           alpaka::exec<Acc1D>(queue,
                               workDivFitter,
                               vertexFinder::FitVerticesKernel{},
-                              vertices_d.view(),
-                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              vertices_d.view().zvertex(),
+                              vertices_d.view().zvertexTracks(),
                               ws_d.view(),
                               50.f);
           alpaka::memcpy(queue, vertices_h.buffer(), vertices_d.buffer());
           alpaka::wait(queue);
 
-          for (auto j = 0U; j < vertices_h.view().nvFinal(); ++j)
-            if (vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j] > 0)
-              vertices_h.view().chi2()[j] /= float(vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j]);
+          for (auto j = 0U; j < vertices_h.view().zvertex().nvFinal(); ++j)
+            if (vertices_h.view().zvertexTracks().ndof()[j] > 0)
+              vertices_h.view().zvertex().chi2()[j] /= float(vertices_h.view().zvertexTracks().ndof()[j]);
           {
-            auto mx = std::minmax_element(vertices_h.view().chi2().data(),
-                                          vertices_h.view().chi2().data() + vertices_h.view().nvFinal());
-            std::cout << "before splitting nv, min max chi2 " << vertices_h.view().nvFinal() << " " << *mx.first << ' '
-                      << *mx.second << std::endl;
+            auto mx =
+                std::minmax_element(vertices_h.view().zvertex().chi2().data(),
+                                    vertices_h.view().zvertex().chi2().data() + vertices_h.view().zvertex().nvFinal());
+            std::cout << "before splitting nv, min max chi2 " << vertices_h.view().zvertex().nvFinal() << " "
+                      << *mx.first << ' ' << *mx.second << std::endl;
           }
 
           auto workDivSplitter = make_workdiv<Acc1D>(1024, 64);
@@ -236,8 +238,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::exec<Acc1D>(queue,
                               workDivSplitter,
                               vertexFinder::SplitVerticesKernel{},
-                              vertices_d.view(),
-                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              vertices_d.view().zvertex(),
+                              vertices_d.view().zvertexTracks(),
                               ws_d.view(),
                               9.f);
           alpaka::memcpy(queue, ws_h.buffer(), ws_d.buffer());
@@ -247,8 +249,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::exec<Acc1D>(queue,
                               workDivFitter,
                               vertexFinder::FitVerticesKernel{},
-                              vertices_d.view(),
-                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              vertices_d.view().zvertex(),
+                              vertices_d.view().zvertexTracks(),
                               ws_d.view(),
                               5000.f);
 
@@ -256,47 +258,53 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::exec<Acc1D>(queue,
                               workDivSorter,
                               vertexFinder::SortByPt2Kernel{},
-                              vertices_d.view(),
-                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              vertices_d.view().zvertex(),
+                              vertices_d.view().zvertexTracks(),
                               ws_d.view());
           alpaka::memcpy(queue, vertices_h.buffer(), vertices_d.buffer());
           alpaka::wait(queue);
 
-          if (vertices_h.view().nvFinal() == 0) {
+          if (vertices_h.view().zvertex().nvFinal() == 0) {
             std::cout << "NO VERTICES???" << std::endl;
             continue;
           }
 
-          for (auto j = 0U; j < vertices_h.view().nvFinal(); ++j)
-            if (vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j] > 0)
-              vertices_h.view().chi2()[j] /= float(vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j]);
+          for (auto j = 0U; j < vertices_h.view().zvertex().nvFinal(); ++j)
+            if (vertices_h.view().zvertexTracks().ndof()[j] > 0)
+              vertices_h.view().zvertex().chi2()[j] /= float(vertices_h.view().zvertexTracks().ndof()[j]);
           {
-            auto mx = std::minmax_element(vertices_h.view().chi2().data(),
-                                          vertices_h.view().chi2().data() + vertices_h.view().nvFinal());
-            std::cout << "nv, min max chi2 " << vertices_h.view().nvFinal() << " " << *mx.first << ' ' << *mx.second
-                      << std::endl;
+            auto mx =
+                std::minmax_element(vertices_h.view().zvertex().chi2().data(),
+                                    vertices_h.view().zvertex().chi2().data() + vertices_h.view().zvertex().nvFinal());
+            std::cout << "nv, min max chi2 " << vertices_h.view().zvertex().nvFinal() << " " << *mx.first << ' '
+                      << *mx.second << std::endl;
           }
 
           {
-            auto mx = std::minmax_element(vertices_h.view().wv().data(),
-                                          vertices_h.view().wv().data() + vertices_h.view().nvFinal());
+            auto mx =
+                std::minmax_element(vertices_h.view().zvertex().wv().data(),
+                                    vertices_h.view().zvertex().wv().data() + vertices_h.view().zvertex().nvFinal());
             std::cout << "min max error " << 1. / std::sqrt(*mx.first) << ' ' << 1. / std::sqrt(*mx.second)
                       << std::endl;
           }
 
           {
-            auto mx = std::minmax_element(vertices_h.view().ptv2().data(),
-                                          vertices_h.view().ptv2().data() + vertices_h.view().nvFinal());
+            auto mx =
+                std::minmax_element(vertices_h.view().zvertex().ptv2().data(),
+                                    vertices_h.view().zvertex().ptv2().data() + vertices_h.view().zvertex().nvFinal());
             std::cout << "min max ptv2 " << *mx.first << ' ' << *mx.second << std::endl;
-            std::cout << "min max ptv2 " << vertices_h.view().ptv2()[vertices_h.view().sortInd()[0]] << ' '
-                      << vertices_h.view().ptv2()[vertices_h.view().sortInd()[vertices_h.view().nvFinal() - 1]]
-                      << " at " << vertices_h.view().sortInd()[0] << ' '
-                      << vertices_h.view().sortInd()[vertices_h.view().nvFinal() - 1] << std::endl;
+            std::cout << "min max ptv2 " << vertices_h.view().zvertex().ptv2()[vertices_h.view().zvertex().sortInd()[0]]
+                      << ' '
+                      << vertices_h.view()
+                             .zvertex()
+                             .ptv2()[vertices_h.view().zvertex().sortInd()[vertices_h.view().zvertex().nvFinal() - 1]]
+                      << " at " << vertices_h.view().zvertex().sortInd()[0] << ' '
+                      << vertices_h.view().zvertex().sortInd()[vertices_h.view().zvertex().nvFinal() - 1] << std::endl;
           }
 
-          float dd[vertices_h.view().nvFinal()];
-          for (auto kv = 0U; kv < vertices_h.view().nvFinal(); ++kv) {
-            auto zr = vertices_h.view().zv()[kv];
+          float dd[vertices_h.view().zvertex().nvFinal()];
+          for (auto kv = 0U; kv < vertices_h.view().zvertex().nvFinal(); ++kv) {
+            auto zr = vertices_h.view().zvertex().zv()[kv];
             auto md = 500.0f;
             for (int zint = 0; zint < ws_h.view().metadata().size(); ++zint) {
               auto d = std::abs(zr - ws_h.view().zt()[zint]);
@@ -309,11 +317,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               std::cout << d << ' ';
             std::cout << std::endl;
           }
-          auto mx = std::minmax_element(dd, dd + vertices_h.view().nvFinal());
+          auto mx = std::minmax_element(dd, dd + vertices_h.view().zvertex().nvFinal());
           float rms = 0;
           for (auto d : dd)
             rms += d * d;
-          rms = std::sqrt(rms) / (vertices_h.view().nvFinal() - 1);
+          rms = std::sqrt(rms) / (vertices_h.view().zvertex().nvFinal() - 1);
           std::cout << "min max rms " << *mx.first << ' ' << *mx.second << ' ' << rms << std::endl;
 
         }  // loop on events

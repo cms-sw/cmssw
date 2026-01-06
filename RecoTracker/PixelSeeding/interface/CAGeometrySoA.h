@@ -50,9 +50,9 @@ namespace reco {
                       SOA_COLUMN(float, ptCuts))
 
   GENERATE_SOA_BLOCKS(CALayoutTemplate,
-                      SOA_BLOCK(modules, CAModulesLayout),
                       SOA_BLOCK(layers, CALayersLayout),
-                      SOA_BLOCK(graph, CAGraphLayout))
+                      SOA_BLOCK(graph, CAGraphLayout),
+                      SOA_BLOCK(modules, CAModulesLayout))
 
   using CALayersSoA = CALayersLayout<>;
   using CALayersSoAView = CALayersSoA::View;

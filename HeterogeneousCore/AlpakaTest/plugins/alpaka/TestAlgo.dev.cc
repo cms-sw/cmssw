@@ -87,8 +87,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(collection.view().firstLayout().metadata().size(), items);
-    uint32_t groups2 = divide_up_by(collection.view().secondLayout().metadata().size(), items);
+    uint32_t groups = divide_up_by(collection.view().first().metadata().size(), items);
+    uint32_t groups2 = divide_up_by(collection.view().second().metadata().size(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
@@ -96,8 +96,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto workDiv = make_workdiv<Acc1D>(groups, items);
     auto workDiv2 = make_workdiv<Acc1D>(groups2, items);
 
-    auto view1 = collection.view().firstLayout();
-    auto view2 = collection.view().secondLayout();
+    auto view1 = collection.view().first();
+    auto view2 = collection.view().second();
 
     alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, view1, xvalue);
     alpaka::exec<Acc1D>(queue, workDiv2, TestAlgoMultiKernel2{}, view2, xvalue);
@@ -134,9 +134,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(collection.view().firstLayout().metadata().size(), items);
-    uint32_t groups2 = divide_up_by(collection.view().secondLayout().metadata().size(), items);
-    uint32_t groups3 = divide_up_by(collection.view().thirdLayout().metadata().size(), items);
+    uint32_t groups = divide_up_by(collection.view().first().metadata().size(), items);
+    uint32_t groups2 = divide_up_by(collection.view().second().metadata().size(), items);
+    uint32_t groups3 = divide_up_by(collection.view().third().metadata().size(), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
@@ -145,9 +145,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto workDiv2 = make_workdiv<Acc1D>(groups2, items);
     auto workDiv3 = make_workdiv<Acc1D>(groups3, items);
 
-    auto view1 = collection.view().firstLayout();
-    auto view2 = collection.view().secondLayout();
-    auto view3 = collection.view().thirdLayout();
+    auto view1 = collection.view().first();
+    auto view2 = collection.view().second();
+    auto view3 = collection.view().third();
 
     alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, view1, xvalue);
     alpaka::exec<Acc1D>(queue, workDiv2, TestAlgoMultiKernel2{}, view2, xvalue);
@@ -359,17 +359,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(collection->metadata().maxSize(), items);
+    auto sizes = collection.size();
+    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
 
-    auto inputView1 = input.view().firstLayout();
-    auto inputView2 = input.view().secondLayout();
-    auto outputView1 = collection.view().firstLayout();
-    auto outputView2 = collection.view().secondLayout();
+    auto inputView1 = input.view().first();
+    auto inputView2 = input.view().second();
+    auto outputView1 = collection.view().first();
+    auto outputView2 = collection.view().second();
 
     alpaka::exec<Acc1D>(
         queue, workDiv, TestAlgoKernelUpdateMulti2{}, inputView1, inputView2, esData.view(), outputView1, outputView2);
@@ -385,19 +386,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(input->metadata().maxSize(), items);
+    auto sizes = collection.size();
+    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
 
-    auto inputView1 = input.view().firstLayout();
-    auto inputView2 = input.view().secondLayout();
-    auto inputView3 = input.view().thirdLayout();
-    auto outputView1 = collection.view().firstLayout();
-    auto outputView2 = collection.view().secondLayout();
-    auto outputView3 = collection.view().thirdLayout();
+    auto inputView1 = input.view().first();
+    auto inputView2 = input.view().second();
+    auto inputView3 = input.view().third();
+    auto outputView1 = collection.view().first();
+    auto outputView2 = collection.view().second();
+    auto outputView3 = collection.view().third();
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
@@ -443,17 +445,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(input->metadata().maxSize(), items);
+    auto sizes = collection.size();
+    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
 
-    auto inputView1 = input.view().firstLayout();
-    auto inputView2 = input.view().secondLayout();
-    auto outputView1 = collection.view().firstLayout();
-    auto outputView2 = collection.view().secondLayout();
+    auto inputView1 = input.view().first();
+    auto inputView2 = input.view().second();
+    auto outputView1 = collection.view().first();
+    auto outputView2 = collection.view().second();
 
     alpaka::exec<Acc1D>(
         queue, workDiv, TestAlgoKernelUpdateMulti2{}, inputView1, inputView2, d_updateInfo, outputView1, outputView2);
@@ -469,19 +472,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t items = 64;
 
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(input->metadata().maxSize(), items);
+    auto sizes = collection.size();
+    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
 
-    auto inputView1 = input.view().firstLayout();
-    auto inputView2 = input.view().secondLayout();
-    auto inputView3 = input.view().thirdLayout();
-    auto outputView1 = collection.view().firstLayout();
-    auto outputView2 = collection.view().secondLayout();
-    auto outputView3 = collection.view().thirdLayout();
+    auto inputView1 = input.view().first();
+    auto inputView2 = input.view().second();
+    auto inputView3 = input.view().third();
+    auto outputView1 = collection.view().first();
+    auto outputView2 = collection.view().second();
+    auto outputView3 = collection.view().third();
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
@@ -596,8 +600,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //   - 32 elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(1, 32);
 
-    auto constView1 = collection.const_view().firstLayout();
-    auto constView2 = collection.const_view().secondLayout();
+    auto constView1 = collection.const_view().first();
+    auto constView2 = collection.const_view().second();
 
     // the kernels will make a strided loop over the launch grid to cover all elements in the collection
     alpaka::exec<Acc1D>(queue, workDiv, TestZeroCollectionKernel{}, constView1);
@@ -611,9 +615,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //   - 32 elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(1, 32);
 
-    auto constView1 = collection.const_view().firstLayout();
-    auto constView2 = collection.const_view().secondLayout();
-    auto constView3 = collection.const_view().thirdLayout();
+    auto constView1 = collection.const_view().first();
+    auto constView2 = collection.const_view().second();
+    auto constView3 = collection.const_view().third();
 
     // the kernels will make a strided loop over the launch grid to cover all elements in the collection
     alpaka::exec<Acc1D>(queue, workDiv, TestZeroCollectionKernel{}, constView1);

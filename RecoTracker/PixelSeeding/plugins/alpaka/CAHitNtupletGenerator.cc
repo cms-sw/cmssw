@@ -398,7 +398,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     reco::TracksSoACollection trackCollection(queue, static_cast<int32_t>(nTracks), static_cast<int32_t>(nTracks * H));
 
     auto tracks = trackCollection.view().tracks();
-    auto trackHits = trackCollection.view().trackHits();
 
     auto trackingHits = hits_d.view().trackingHits();
     auto hitModules = hits_d.view().hitModules();

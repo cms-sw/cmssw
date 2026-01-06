@@ -34,7 +34,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  const edm::EDGetTokenT<ZVertexHost> tokenSoAVertex_;
+  const edm::EDGetTokenT<reco::ZVertexHost> tokenSoAVertex_;
   const edm::EDGetTokenT<reco::BeamSpot> tokenBeamSpot_;
   std::string topFolderName_;
   MonitorElement* hnVertex;
@@ -52,7 +52,7 @@ private:
 //
 
 SiPixelMonitorVertexSoAAlpaka::SiPixelMonitorVertexSoAAlpaka(const edm::ParameterSet& iConfig)
-    : tokenSoAVertex_(consumes<ZVertexHost>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"))),
+    : tokenSoAVertex_(consumes<reco::ZVertexHost>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"))),
       tokenBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")) {}
 
@@ -67,8 +67,8 @@ void SiPixelMonitorVertexSoAAlpaka::analyze(const edm::Event& iEvent, const edm:
   }
 
   auto const& vsoa = *vsoaHandle;
-  auto vtx_view = vsoa.view<reco::ZVertexSoA>();
-  auto trk_view = vsoa.view<reco::ZVertexTracksSoA>();
+  auto vtx_view = vsoa.view().zvertex();
+  auto trk_view = vsoa.view().zvertexTracks();
   int nVertices = vtx_view.nvFinal();
   auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
   float x0 = 0., y0 = 0., z0 = 0., dxdz = 0., dydz = 0.;

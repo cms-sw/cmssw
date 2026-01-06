@@ -9,7 +9,9 @@
 #include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 
-template <typename TDev>
-using ZVertexDevice = PortableDeviceCollection<reco::ZVertexBlocks, TDev>;
+namespace reco {
+  template <typename TDev>
+  using ZVertexDevice = PortableDeviceCollection<reco::ZVertexBlocks, TDev>;
+}  // namespace reco
 
 #endif  // DataFormats_VertexSoA_interface_ZVertexDevice_h

@@ -20,8 +20,6 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 // generic SoA-based product in host memory
-// TODO: Should we define a size alias for the number of elements? Also should be switch to unsigned and/or 64 bit?
-// Exeeding the size of int32_t fails without clear error messages.
 template <typename T>
 class PortableHostCollection {
 public:
@@ -141,6 +139,7 @@ public:
     alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
   }
 
+  // part of the ROOT read streamer
   static void ROOTReadStreamer(PortableHostCollection* newObj, Layout& layout) {
     // destroy the default-constructed collection
     newObj->~PortableHostCollection();
@@ -175,10 +174,7 @@ public:
   }
 
   // Either int32_t for normal layouts or std::array<int32_t, N> for SoABlocks layouts
-  auto size() const {
-    return layout_.metadata().size();
-    ;
-  }
+  auto size() const { return layout_.metadata().size(); }
 
 private:
   // Helper function implementing the recursive deep copy
@@ -212,6 +208,7 @@ namespace ngt {
     // The properties needed to initialize a new PrortableHostCollection are just its size.
     static Properties properties(value_type const& object) { return object->metadata().size(); }
 
+    // Replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory.
     static void initialize(value_type& object, Properties const& size)
       requires(!portablecollection::hasBlocksNumber<T>)
     {

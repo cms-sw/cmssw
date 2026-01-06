@@ -22,7 +22,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    edm::EDGetTokenT<ZVertexHost> getToken_;
+    edm::EDGetTokenT<reco::ZVertexHost> getToken_;
   };
 
   TestReadHostVertexSoA::TestReadHostVertexSoA(edm::ParameterSet const& iPSet)

@@ -147,4 +147,31 @@ Modules that implement portable interfaces (_e.g._ producers) should use the gen
 
 ## Multi layout collections
 
-Multi layout collections have been removed and replaced by `SoABlocks`. See the `DataFormats/SoATemplate`
+Multiple SoA layouts can be concatenated using the `GENERATE_SOA_BLOCKS` macro (see `DataFormats/SoATemplate` for details). 
+This macro generates a new composite layout that contains other layouts as members 
+and manages a single contiguous memory buffer large enough to hold all of them.
+
+A `PortableCollection` can then be templated on this `SoABlocks` layout. 
+In this case, the `view` and `const_view` methods return composite views that themselves contain views of each sublayout.
+
+
+## ROOT dictionary declaration helper scripts
+
+In order to be serialized by ROOT, the products need to be added to its dictionary. This happens during `scram build`
+as instructed in `<module>/src/classes_dev.xml` and `<module>/src/alpaka/classes_cuda_def.xml` and
+`<module>/src/alpaka/classes_rocm_def.xml`. Two scripts generate the code to be added to the xml files.
+Both scripts expect the collections to be aliased as in:
+```
+using TestDeviceCollection3 = PortableCollection<TestSoABlocks3>;
+```
+
+In the example here the `TestSoABlocks3` template is an SoABlocks layout composed of three layouts.
+For the host xml, all SoA layouts have to be listed. The scripts are called as follows:
+```
+./DataFormats/Portable/scripts/portableHostCollectionHints portabletest::TestHostCollection3  \
+            portabletest::TestSoALayout portabletest::TestSoALayout2 portabletest::TestSoALayout3 portabletest::SoABlocks3
+
+./DataFormats/Portable/scripts/portableDeviceCollectionHints portabletest::TestHostMultiCollection3
+```
+The layouts should not be added as parameters for the device collection. Those script can be used equally with the
+single layout collections or multi layout collections.
