@@ -5,7 +5,7 @@ from collections import namedtuple
 
 class Entries:
     common = ["id", "timestamp"]
-    Open = namedtuple("Open", common+["filename"])
+    Open = namedtuple("Open", common+["filename", "traceid"])
     common.append("duration")
     Read = namedtuple("Read", common + ["offset", "requested", "actual"])
     Readv = namedtuple("Readv", common + ["requested", "actual", "elements"])
