@@ -48,6 +48,7 @@ namespace edm {
 
       // ---------- const member functions ---------------------
       template <class DepRecordT>
+        requires std::is_base_of_v<EventSetupRecord, DepRecordT>
       const DepRecordT getRecord() const {
         //Make sure that DepRecordT is a type in ListT
         static_assert(
@@ -66,6 +67,7 @@ namespace edm {
       }
 
       template <class DepRecordT>
+        requires std::is_base_of_v<EventSetupRecord, DepRecordT>
       std::optional<DepRecordT> tryToGetRecord() const {
         //Make sure that DepRecordT is a type in ListT
         static_assert(
@@ -116,11 +118,18 @@ namespace edm {
 
       template <typename ProductT, typename DepRecordT>
       ProductT const& get(ESGetToken<ProductT, DepRecordT> const& iToken) const {
-        //Make sure that DepRecordT is a type in ListT
-        static_assert((list_type::template contains<DepRecordT>()),
-                      "Trying to get a product with an ESGetToken specifying a Record from another Record where the "
-                      "second Record is not dependent on the first Record.");
-        return getRecord<DepRecordT>().get(iToken);
+        if constexpr (std::is_same_v<DepRecordT, edm::DefaultRecord>) {
+          static_assert((list_type::template contains<eventsetup::default_record_t<ESHandle<ProductT>>>()),
+                        "Trying to get a product with an ESGetToken use DefaultRecord from another Record where the "
+                        "actual default Record is not dependent on the first Record.");
+          return getRecord<eventsetup::default_record_t<ESHandle<ProductT>>>().get(iToken);
+        } else {
+          //Make sure that DepRecordT is a type in ListT
+          static_assert((list_type::template contains<DepRecordT>()),
+                        "Trying to get a product with an ESGetToken specifying a Record from another Record where the "
+                        "second Record is not dependent on the first Record.");
+          return getRecord<DepRecordT>().get(iToken);
+        }
       }
 
       template <typename ProductT, typename DepRecordT>
