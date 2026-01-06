@@ -48,9 +48,11 @@
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
 #include "DataFormats/L1TCorrelator/interface/TkEmFwd.h"
 
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedPFClusterCorrelatorTMI18.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelatorTMI18.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedCaloToCorrelatorTMI18.h"
+// FIXME!  These are the old TM6 ones
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
+
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 
 constexpr unsigned int calomapping[] = {3, 0, 9, 6, 4, 1, 10, 7, 5, 2, 11, 8};
@@ -85,7 +87,8 @@ private:
   edm::EDGetTokenT<l1t::HGCalMulticlusterBxCollection> hadHGCalCands_;
 
   // can alternately give the raw containers (for GCT)
-  edm::EDGetTokenT<l1tp2::DigitizedCaloToCorrelatorCollectionTMI18> gctRawCands_;
+  // FIXME! These should be all the candidates, not just Em
+  edm::EDGetTokenT<l1tp2::GCTEmDigiClusterCollection> gctRawCands_;
 
   float emPtCut_, hadPtCut_;
 
@@ -150,9 +153,9 @@ private:
   void addHGCalHadCalo(const l1t::HGCalMulticluster &calo, const edm::Ptr<l1t::L1Candidate> &caloPtr);
   // GCT input clusters
   void addGCTHadCalo(const l1t::PFCluster &calo, const edm::Ptr<l1t::L1Candidate> &caloPtr);
-  // for GCT raw calos as input
-  void addGCTEmCaloRaw(const l1tp2::GCTEmDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
-  void addGCTHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
+  // for GCT raw calos as input (FIXME)
+  void addGCTCaloRaw(const l1tp2::GCTEmDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
+  //void addGCTHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
   // add objects in already-decoded format
   void addDecodedTrack(l1ct::DetectorSector<l1ct::TkObjEmu> &sec, const l1t::PFTrack &t);
   void addDecodedMuon(l1ct::DetectorSector<l1ct::MuObjEmu> &sec, const l1t::SAMuon &t);
@@ -280,11 +283,12 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   const edm::InputTag gctClusters = iConfig.getParameter<edm::InputTag>("gctClusters");
   if (!gctClusters.label().empty()) {
     if (gctEmInAlgo == "Emulator") {
-      gctEmInput_ = std::make_unique<l1ct::GctEmClusterDecoderEmulator>(
-          iConfig.getParameter<edm::ParameterSet>("gctEmInputConversionParameters"));
-      gctRawCands_ = consumes<DigitizedCaloToCorrelatorCollectionTMI18>(gctClusters);  // also for hadronic
-    } else if (gctEmInAlgo != "None")
+      gctEmInput_ = std::make_unique<l1ct::GctEmClusterDecoderEmulator>(  // FIXME
+          iConfig.getParameter<edm::ParameterSet>("gctInputConversionParameters"));
+      gctRawCands_ = consumes<l1tp2::GCTEmDigiClusterCollection>(gctClusters);  // FIXME
+    } else if (gctEmInAlgo != "None") {
       throw cms::Exception("Configuration", "Unsupported gctEmInputConversionAlgo");
+    }
   }
   const std::string &gctHadInAlgo = iConfig.getParameter<std::string>("gctHadInputConversionAlgo");
   if (!gctClusters.label().empty() && gctHadInAlgo == "Emulator") {
@@ -292,7 +296,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
         iConfig.getParameter<edm::ParameterSet>("gctHadInputConversionParameters"));
   } else if (!hadClusters.label().empty() && gctHadInAlgo == "Ideal") {
       hadGCTCands_ = consumes<l1t::PFClusterCollection>(hadClusters);
-  } else if (gctHadInAlgo != "None")
+  } else if (gctHadInAlgo != "None") {
     throw cms::Exception("Configuration", "Unsupported gctHadInputConversionAlgo");
   }
 
@@ -529,13 +533,13 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   // ------ READ CALOS -----
 
   // this is for parsing raw calo information
-  if (!emGCTRawCands_.isUninitialized()) {
-    auto caloHandle = iEvent.getHandle(emGCTRawCands_);
+  if (!gctRawCands_.isUninitialized()) {
+    auto caloHandle = iEvent.getHandle(gctRawCands_);
     const auto &links = *caloHandle;
     for (unsigned int ic = 0; ic < links.size(); ++ic) {
       const auto &link = links[ic];
       for (unsigned int ie = 0; ie < link.size(); ++ie) {
-        addGCTEmCaloRaw(link, ic, ie);
+        addGCTCaloRaw(link, ic, ie);  // FIXME?
       }
     }
   }
@@ -551,16 +555,17 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
     }
   }
 
-  if (!hadGCTRawCands_.isUninitialized()) {
-    auto caloHandle = iEvent.getHandle(hadGCTRawCands_);
-    const auto &links = *caloHandle;
-    for (unsigned int ic = 0; ic < links.size(); ++ic) {
-      const auto &link = links[ic];
-      for (unsigned int ie = 0; ie < link.size(); ++ie) {
-        addGCTHadCaloRaw(link, ic, ie);
-      }
-    }
-  }
+  // FIXME
+  // if (!hadGCTRawCands_.isUninitialized()) {
+  //   auto caloHandle = iEvent.getHandle(hadGCTRawCands_);
+  //   const auto &links = *caloHandle;
+  //   for (unsigned int ic = 0; ic < links.size(); ++ic) {
+  //     const auto &link = links[ic];
+  //     for (unsigned int ie = 0; ie < link.size(); ++ie) {
+  //       addGCTHadCaloRaw(link, ic, ie);
+  //     }
+  //   }
+  // }
 
   if (!hadGCTCands_.isUninitialized()) {
     auto caloHandle = iEvent.getHandle(hadGCTCands_);
@@ -862,8 +867,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
   event_.decoded.emcalo.clear();
   event_.decoded.hadcalo.clear();
   event_.raw.hgcalcluster.clear();
-  event_.raw.gctEm.clear();
-  event_.raw.gctHad.clear();
+  event_.raw.gctcluster.clear();
 
   for (const edm::ParameterSet &preg : iConfig.getParameter<edm::VParameterSet>("caloSectors")) {
     std::vector<double> etaBoundaries = preg.getParameter<std::vector<double>>("etaBoundaries");
@@ -883,8 +887,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
         event_.decoded.hadcalo.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
         event_.decoded.emcalo.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
         event_.raw.hgcalcluster.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
-        event_.raw.gctEm.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
-        event_.raw.gctHad.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
+        event_.raw.gctcluster.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
       }
     }
   }
@@ -997,27 +1000,27 @@ void L1TCorrelatorLayer1Producer::addHGCalHadCalo(const l1t::HGCalMulticluster &
   }
 }
 
-void L1TCorrelatorLayer1Producer::addGCTEmCaloRaw(const l1tp2::GCTEmDigiClusterLink &link,
+void L1TCorrelatorLayer1Producer::addGCTCaloRaw(const l1tp2::GCTEmDigiClusterLink &link,
                                                   unsigned int linkidx,
                                                   unsigned int entidx) {
   // in the "Ideal" regionizer, ignore the second set that is sent; only use the first
   auto caloIdx = calomapping[linkidx];
-  if (caloIdx < event_.raw.gctEm.size()) {
-    event_.raw.gctEm[caloIdx].obj.push_back(link[entidx].data());
-    addDecodedGCTEmCalo(event_.decoded.emcalo[caloIdx], link[entidx]);
+  if (caloIdx < event_.raw.gctcluster.size()) {
+    event_.raw.gctcluster[caloIdx].obj.push_back(link[entidx].data());
+    addDecodedGCTEmCalo(event_.decoded.emcalo[caloIdx], link[entidx]);  // FIXME
   }
 }
 
-void L1TCorrelatorLayer1Producer::addGCTHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link,
-                                                   unsigned int linkidx,
-                                                   unsigned int entidx) {
-  // in the "Ideal" regionizer, ignore the second set that is sent; only use the first
-  auto caloIdx = calomapping[linkidx];
-  if (caloIdx < event_.raw.gctHad.size()) {
-    event_.raw.gctHad[caloIdx].obj.push_back(link[entidx].data());
-    addDecodedGCTHadCalo(event_.decoded.hadcalo[caloIdx], link[entidx]);
-  }
-}
+// void L1TCorrelatorLayer1Producer::addGCTHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link,
+//                                                    unsigned int linkidx,
+//                                                    unsigned int entidx) {
+//   // in the "Ideal" regionizer, ignore the second set that is sent; only use the first
+//   auto caloIdx = calomapping[linkidx];
+//   if (caloIdx < event_.raw.gctHad.size()) {
+//     event_.raw.gctHad[caloIdx].obj.push_back(link[entidx].data());
+//     addDecodedGCTHadCalo(event_.decoded.hadcalo[caloIdx], link[entidx]);
+//   }
+// }
 
 void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkObjEmu> &sec, const l1t::PFTrack &t) {
   std::pair<l1ct::TkObjEmu, bool> tkAndSel;
