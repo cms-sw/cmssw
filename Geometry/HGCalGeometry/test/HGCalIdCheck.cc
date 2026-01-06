@@ -130,7 +130,7 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       fout.open(outFileName_.c_str(), std::ofstream::out);
     }
     if (fileName_.empty()) {
-      detIds_= geom->getValidDetIds(dets_);
+      detIds_ = geom->getValidDetIds(dets_);
       edm::LogVerbatim("HGCGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
     }
     for (unsigned int k = 0; k < detIds_.size(); ++k) {
@@ -149,8 +149,8 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       edm::LogVerbatim("HGCGeom") << "Hit[" << k << "] " << st1.str() << " Position (" << cell.x() << ", " << cell.y()
                                   << ", " << cell.z() << ") " << c1 << " " << c2 << " " << c3;
       if ((!outFileName_.empty()) && (id.rawId() != idx.rawId())) {
-	++bad;
-	fout << id.rawId() << " " << c1 << " " << c2 << " " << c3 <<std::endl;
+        ++bad;
+        fout << id.rawId() << " " << c1 << " " << c2 << " " << c3 << std::endl;
       }
     }
     if (!outFileName_.empty()) {
