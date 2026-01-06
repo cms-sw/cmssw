@@ -61,7 +61,6 @@ TEST_CASE("SoABlocks") {
 
   // Fill the blocks with some data
   blocksView.position().detectorType() = 1;
-  REQUIRE(blocksView.metadata().maxSize() == 20);
   for (int i = 0; i < blocksView.position().metadata().size(); ++i) {
     blocksView.position()[i] = {0.1f, 0.2f, 0.3f};
   }
@@ -105,7 +104,6 @@ TEST_CASE("SoABlocks") {
   SECTION("SoABlocks ConstView") {
     // Verify metadata
     REQUIRE(blocksConstView.metadata().size()[0] == 10);
-    REQUIRE(blocksConstView.metadata().maxSize() == 20);
     REQUIRE(blocksConstView.position().metadata().size() == 10);
     REQUIRE(blocksConstView.metadata().size()[1] == 20);
     REQUIRE(blocksConstView.pca().metadata().size() == 20);
@@ -170,7 +168,6 @@ TEST_CASE("SoABlocks") {
 
     SoABlocksTemplated blocksTemplated(buffer.get(), sizes);
 
-    REQUIRE(blocksTemplated.metadata().maxSize() == 20);
     REQUIRE(SoABlocksTemplated::alignment == testAlignment);
     REQUIRE(SoABlocksTemplated::alignmentEnforcement == alignmentEnforcement);
 

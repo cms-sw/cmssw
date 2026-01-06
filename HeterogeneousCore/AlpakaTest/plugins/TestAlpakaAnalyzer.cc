@@ -213,12 +213,12 @@ public:
     }
 
     portabletest::TestHostCollection2 const& productMulti2 = event.get(tokenBlocks2_);
-    auto const& viewMulti2_0 = productMulti2.const_view().firstLayout();
-    auto& mviewMulti2_0 = productMulti2.view().firstLayout();
-    auto const& cmviewMulti2_0 = productMulti2.view().firstLayout();
-    auto const& viewMulti2_1 = productMulti2.const_view().secondLayout();
-    auto& mviewMulti2_1 = productMulti2.view().secondLayout();
-    auto const& cmviewMulti2_1 = productMulti2.view().secondLayout();
+    auto const& viewMulti2_0 = productMulti2.const_view().first();
+    auto& mviewMulti2_0 = productMulti2.view().first();
+    auto const& cmviewMulti2_0 = productMulti2.view().first();
+    auto const& viewMulti2_1 = productMulti2.const_view().second();
+    auto& mviewMulti2_1 = productMulti2.view().second();
+    auto const& cmviewMulti2_1 = productMulti2.view().second();
 
     checkViewAddresses(viewMulti2_0);
     checkViewAddresses(mviewMulti2_0);
@@ -257,15 +257,15 @@ public:
     }
 
     portabletest::TestHostCollection3 const& productMulti3 = event.get(tokenBlocks3_);
-    auto const& viewMulti3_0 = productMulti3.const_view().firstLayout();
-    auto& mviewMulti3_0 = productMulti3.view().firstLayout();
-    auto const& cmviewMulti3_0 = productMulti3.view().firstLayout();
-    auto const& viewMulti3_1 = productMulti3.const_view().secondLayout();
-    auto& mviewMulti3_1 = productMulti3.view().secondLayout();
-    auto const& cmviewMulti3_1 = productMulti3.view().secondLayout();
-    auto const& viewMulti3_2 = productMulti3.const_view().thirdLayout();
-    auto& mviewMulti3_2 = productMulti3.view().thirdLayout();
-    auto const& cmviewMulti3_2 = productMulti3.view().thirdLayout();
+    auto const& viewMulti3_0 = productMulti3.const_view().first();
+    auto& mviewMulti3_0 = productMulti3.view().first();
+    auto const& cmviewMulti3_0 = productMulti3.view().first();
+    auto const& viewMulti3_1 = productMulti3.const_view().second();
+    auto& mviewMulti3_1 = productMulti3.view().second();
+    auto const& cmviewMulti3_1 = productMulti3.view().second();
+    auto const& viewMulti3_2 = productMulti3.const_view().third();
+    auto& mviewMulti3_2 = productMulti3.view().third();
+    auto const& cmviewMulti3_2 = productMulti3.view().third();
 
     checkViewAddresses(viewMulti3_0);
     checkViewAddresses(mviewMulti3_0);

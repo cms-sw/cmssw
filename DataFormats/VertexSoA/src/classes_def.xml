@@ -1,11 +1,12 @@
 <lcgdict>
-  <!-- SoA classes -->
-  <!-- FIXME using the ZVertexSoA and ZVertexTracksSoA type aliases here and below does not work -->
+  <class name="reco::ZVertexHost" rntupleStreamerMode="true"/>
+  <!-- reco::ZVertexHost::Layout must be listed before the aliased-to type see #48824 -->
+  <class name="reco::ZVertexHost::Layout"/>
+  <class name="reco::ZVertexBlocks"/>
+  <class name="reco::ZVertexBlocks::View"/>
+
   <class name="reco::ZVertexLayout<128, false>"/>
   <class name="reco::ZVertexTracksLayout<128, false>"/>
-  <class name="reco::ZVertexBlocksLayout<128, false>"/>
 
-  <!-- Collection declaration for dictionary -->
-  <class name="ZVertexHost" rntupleStreamerMode="true"/>
-  <class name="edm::Wrapper<ZVertexHost>" splitLevel="0"/>
+  <class name="edm::Wrapper<reco::ZVertexHost>" splitLevel="0"/>
 </lcgdict>

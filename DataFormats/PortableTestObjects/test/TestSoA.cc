@@ -30,15 +30,15 @@ int main() {
   portabletest::TestHostCollection2 collection2(cms::alpakatools::host(), size, size2);
   collection2.zeroInitialise();
 
-  collection2.view().firstLayout().r() = 1.;
-  collection2.view().secondLayout().r2() = 2.;
+  collection2.view().first().r() = 1.;
+  collection2.view().second().r2() = 2.;
 
   for (int i = 0; i < size; ++i) {
-    collection2.view().firstLayout()[i] = {0.568, 0.823, 0., i, flags, matrix * i};
+    collection2.view().first()[i] = {0.568, 0.823, 0., i, flags, matrix * i};
   }
 
   for (int i = 0; i < size2; ++i) {
-    collection2.view().secondLayout()[i] = {1.568, 1.823, 1., i + 1000, matrix * (i + 1000)};
+    collection2.view().second()[i] = {1.568, 1.823, 1., i + 1000, matrix * (i + 1000)};
   }
 
   // Same test but for portabletest::TestHostCollection3 --> collection with 3 SoABlocks
@@ -46,20 +46,20 @@ int main() {
   portabletest::TestHostCollection3 collection3(cms::alpakatools::host(), size, size2, size3);
   collection3.zeroInitialise();
 
-  collection3.view().firstLayout().r() = 1.;
-  collection3.view().secondLayout().r2() = 2.;
-  collection3.view().thirdLayout().r3() = 3.;
+  collection3.view().first().r() = 1.;
+  collection3.view().second().r2() = 2.;
+  collection3.view().third().r3() = 3.;
 
   for (int i = 0; i < size; ++i) {
-    collection3.view().firstLayout()[i] = {0.568, 0.823, 0., i, flags, matrix * i};
+    collection3.view().first()[i] = {0.568, 0.823, 0., i, flags, matrix * i};
   }
 
   for (int i = 0; i < size2; ++i) {
-    collection3.view().secondLayout()[i] = {1.568, 1.823, 1., i + 1000, matrix * (i + 1000)};
+    collection3.view().second()[i] = {1.568, 1.823, 1., i + 1000, matrix * (i + 1000)};
   }
 
   for (int i = 0; i < size3; ++i) {
-    collection3.view().thirdLayout()[i] = {2.568, 2.823, 2., i + 2000, matrix * (i + 2000)};
+    collection3.view().third()[i] = {2.568, 2.823, 2., i + 2000, matrix * (i + 2000)};
   }
 
   return 0;

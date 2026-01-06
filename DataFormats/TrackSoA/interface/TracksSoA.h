@@ -57,16 +57,18 @@ namespace reco {
                                         uint16_t maxLayers,
                                         uint32_t const *__restrict__ layerStarts,
                                         int32_t i) {
-    auto start = (i == 0) ? 0 : tracksBlocks.tracks()[i - 1].hitOffsets();
-    auto end = tracksBlocks.tracks()[i].hitOffsets();
-    auto hitId = tracksBlocks.trackHits()[start].id();
+    const TrackSoAConstView &tracks = tracksBlocks.tracks();
+    const TrackHitSoAConstView &hits = tracksBlocks.trackHits();
+    auto start = (i == 0) ? 0 : tracks[i - 1].hitOffsets();
+    auto end = tracks[i].hitOffsets();
+    auto hitId = hits[start].id();
     int nl = 1;
     int ol = 0;
     while (hitId >= layerStarts[ol + 1] and ol < maxLayers)
       ++ol;
     ++start;
     for (; start < end; ++start) {
-      hitId = tracksBlocks.trackHits()[start].id();
+      hitId = hits[start].id();
       int il = 0;
       while (hitId >= layerStarts[il + 1] and il < maxLayers)
         ++il;

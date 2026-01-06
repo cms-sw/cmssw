@@ -14,7 +14,6 @@
 #include <span>
 #include <tuple>
 #include <type_traits>
-#include <algorithm>
 
 #include <boost/preprocessor.hpp>
 

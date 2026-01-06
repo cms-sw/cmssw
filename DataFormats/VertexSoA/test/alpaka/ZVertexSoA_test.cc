@@ -29,6 +29,7 @@
 #include "ZVertexSoA_test.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
+using namespace ALPAKA_ACCELERATOR_NAMESPACE::reco;
 
 // Run 3 values, used for testing
 constexpr uint32_t maxTracks = 32 * 1024;
@@ -62,7 +63,7 @@ int main() {
       ZVertexHost zvertex_h = cms::alpakatools::CopyToHost<ZVertexSoACollection>::copyAsync(queue, zvertex_d);
 #endif
       alpaka::wait(queue);
-      std::cout << zvertex_h.view().metadata().maxSize() << std::endl;
+      std::cout << zvertex_h.view().zvertex().metadata().size() << std::endl;
 
       // Print results
       std::cout << "idv\t"

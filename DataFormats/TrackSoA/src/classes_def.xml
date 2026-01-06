@@ -1,11 +1,12 @@
 <lcgdict>
-
+  <class name="reco::TracksHost" rntupleStreamerMode="true"/>
+  <!-- reco::TracksHost::Layout must be listed before the aliased-to type see #48824 -->
+  <class name="reco::TracksHost::Layout"/>
+  <class name="reco::TrackBlocks"/>
+  <class name="reco::TrackBlocks::View"/>
+  
   <class name="reco::TrackLayout<128, false>"/>
   <class name="reco::TrackHitsLayout<128, false>"/>
-  <class name="reco::TrackBlocksLayout<128, false>"/>
-
-  <class name="reco::TracksHost" rntupleStreamerMode="true"/>
+  
   <class name="edm::Wrapper<reco::TracksHost>" splitLevel="0"/>
-
 </lcgdict>
-
