@@ -418,33 +418,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         m_params, hits_d.nHits(), hits_d.offsetBPIX2(), nDoublets, nTracks, layers.metadata().size(), queue);
 
     kernels.prepareHits(trackingHits, hitModules, layers, queue);
-    kernels.buildDoublets(trackingHits,
-                          graph,
-                          layers,
-                          hits_d.offsetBPIX2(),
-                          queue);
-    kernels.launchKernels(trackingHits,
-                          hits_d.offsetBPIX2(),
-                          layers.metadata().size(),
-                          trackCollection.view(),
-                          layers,
-                          graph,
-                          queue);
+    kernels.buildDoublets(trackingHits, graph, layers, hits_d.offsetBPIX2(), queue);
+    kernels.launchKernels(
+        trackingHits, hits_d.offsetBPIX2(), layers.metadata().size(), trackCollection.view(), layers, graph, queue);
 
     HelixFit fitter(bfield, m_params.algoParams_.fitNas4_);
     fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
     if (m_params.algoParams_.useRiemannFit_) {
-      fitter.launchRiemannKernels(trackingHits,
-                                  modules,
-                                  trackingHits.metadata().size(),
-                                  TrackerTraits::maxNumberOfQuadruplets,
-                                  queue);
+      fitter.launchRiemannKernels(
+          trackingHits, modules, trackingHits.metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     } else {
-      fitter.launchBrokenLineKernels(trackingHits,
-                                     modules,
-                                     trackingHits.metadata().size(),
-                                     TrackerTraits::maxNumberOfQuadruplets,
-                                     queue);
+      fitter.launchBrokenLineKernels(
+          trackingHits, modules, trackingHits.metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     }
     kernels.classifyTuples(trackingHits, tracks, queue);
 #ifdef GPU_DEBUG

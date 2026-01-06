@@ -170,11 +170,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         cms::alpakatools::make_device_view(queue, pixColl.view().hitModules().moduleStart().data(), nPixMod));
     // copy hitModuleStart for Tracker modules (offset after Pixel modules)
     // copy nTrkMod + 1 elements to include the last "hidden" element
-    alpaka::memcpy(queue,
-                   cms::alpakatools::make_device_view(
-                       queue, output.view().hitModules().moduleStart().data() + nPixMod, nTrkMod + 1),
-                   cms::alpakatools::make_device_view(
-                       queue, trkColl.view().hitModules().moduleStart().data(), nTrkMod + 1));
+    alpaka::memcpy(
+        queue,
+        cms::alpakatools::make_device_view(
+            queue, output.view().hitModules().moduleStart().data() + nPixMod, nTrkMod + 1),
+        cms::alpakatools::make_device_view(queue, trkColl.view().hitModules().moduleStart().data(), nTrkMod + 1));
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Copied hitModuleStart for Pixel and Tracker modules\n";
