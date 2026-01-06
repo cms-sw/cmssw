@@ -12,13 +12,15 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::reco {
 
+  using ::reco::ZVertexDevice;
+  using ::reco::ZVertexHost;
   using ZVertexSoACollection =
       std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, ZVertexHost, ZVertexDevice<Device>>;
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::reco
 
-ASSERT_DEVICE_MATCHES_HOST_COLLECTION(ZVertexSoACollection, ZVertexHost);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(reco::ZVertexSoACollection, reco::ZVertexHost);
 
 #endif  // DataFormats_VertexSoA_interface_ZVertexSoACollection_h

@@ -14,7 +14,6 @@
   <class name="portabletest::TestHostCollection3::Layout"/>
   <class name="edm::Wrapper<portabletest::TestHostCollection3>" splitLevel="0"/>
 
-  <class name="portabletest::TestStruct"/>
   <class name="portabletest::TestHostObject"/>
   <!-- portabletest::TestHostObject::Product alias must be listed before the aliased-to type -->
   <!-- TODO: we should find a better way than replicating the class versions and checksums -->
