@@ -5,6 +5,6 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 
 namespace lst {
-  using HitsHostCollection = PortableHostMultiCollection<HitsExtendedSoA, HitsRangesSoA>;
+  using HitsHostCollection = PortableHostCollection<HitsSoA>;
 }  // namespace lst
 #endif

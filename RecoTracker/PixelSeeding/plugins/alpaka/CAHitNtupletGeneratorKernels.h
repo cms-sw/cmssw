@@ -163,7 +163,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void launchKernels(const HitsConstView& hh,
                        uint32_t offsetBPIX2,
                        uint16_t nLayers,
-                       TkSoABlocksView &view,
+                       TkSoABlocksView& view,
                        const ::reco::CALayersSoAConstView& ll,
                        const ::reco::CAGraphSoAConstView& cc,
                        Queue& queue);
