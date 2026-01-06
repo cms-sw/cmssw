@@ -125,7 +125,7 @@ print(process.pixel_lumi_dqm.logFileName)
 #--------------------------
 # Service
 #--------------------------
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 #--------------------------
 # Filters

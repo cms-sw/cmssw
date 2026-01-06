@@ -168,6 +168,167 @@ def customizeHLTfor48921(process):
 
     return process
 
+def replace_all_pixel_seed_inputtags(process):
+    import FWCore.ParameterSet.Config as cms
+
+    replacements = {
+        "hltEgammaElectronPixelSeeds": "hltEgammaFittedElectronPixelSeeds",
+        "hltEgammaElectronPixelSeedsUnseeded": "hltEgammaFittedElectronPixelSeedsUnseeded",
+        "hltEgammaElectronPixelSeedsForBParkingUnseeded": "hltEgammaFittedElectronPixelSeedsForBParkingUnseeded",
+    }
+
+    InputTag = cms.InputTag
+    skip_modules = set(replacements.values())
+
+    def replace_in_module(name, module):
+        # ! Skip the module that PRODUCES the product we are renaming
+        if name in skip_modules:
+            return
+
+        for pName in module.parameters_():
+            val = getattr(module, pName)
+
+            # --- Case 1: a single InputTag ---
+            if isinstance(val, InputTag):
+                old_mod = val.getModuleLabel()
+                if old_mod in replacements:
+                    setattr(module, pName,
+                            cms.InputTag(replacements[old_mod],
+                                         val.getProductInstanceLabel(),
+                                         val.getProcessName()))
+            # --- Case 2: VInputTag / list of InputTag ---
+            elif isinstance(val, (cms.VInputTag, list, tuple)):
+                new_list = []
+                changed = False
+                for it in val:
+                    if isinstance(it, InputTag) and it.getModuleLabel() in replacements:
+                        old_mod = it.getModuleLabel()
+                        it = cms.InputTag(replacements[old_mod],
+                                          it.getProductInstanceLabel(),
+                                          it.getProcessName())
+                        changed = True
+                    new_list.append(it)
+                if changed:
+                    setattr(module, pName, type(val)(new_list))
+
+            # --- Case 3: nested PSet ---
+            elif hasattr(val, "parameters_"):
+                replace_in_pset(val)
+
+    def replace_in_pset(pset):
+        for pName in pset.parameters_():
+            val = getattr(pset, pName)
+            if isinstance(val, InputTag):
+                old_mod = val.getModuleLabel()
+                if old_mod in replacements:
+                    setattr(pset, pName,
+                            cms.InputTag(replacements[old_mod],
+                                         val.getProductInstanceLabel(),
+                                         val.getProcessName()))
+            elif isinstance(val, (cms.VInputTag, list, tuple)):
+                new_list = []
+                changed = False
+                for it in val:
+                    if isinstance(it, InputTag) and it.getModuleLabel() in replacements:
+                        old_mod = it.getModuleLabel()
+                        it = cms.InputTag(replacements[old_mod],
+                                          it.getProductInstanceLabel(),
+                                          it.getProcessName())
+                        changed = True
+                    new_list.append(it)
+                if changed:
+                    setattr(pset, pName, type(val)(new_list))
+            elif hasattr(val, "parameters_"):
+                replace_in_pset(val)
+
+    # Apply to all modules
+    for name,mod in process.producers_().items():
+        replace_in_module(name,mod)
+    for name,mod in process.filters_().items():
+        replace_in_module(name,mod)
+    for name,mod in process.analyzers_().items():
+        replace_in_module(name,mod)
+
+    # also walk top-level PSets
+    for pset in process.psets_().values():
+        replace_in_pset(pset)
+
+def customizeHLTfor49436(process):
+
+    # Replace Ele Pixel Seeds Doublets/Triplets
+    replacements = {
+        "hltElePixelSeedsDoublets": ("hltElePixelHitDoublets"),
+        "hltElePixelSeedsDoubletsUnseeded": ("hltElePixelHitDoubletsUnseeded"),
+        "hltElePixelSeedsTriplets": ("hltElePixelHitTriplets"),
+        "hltElePixelSeedsTripletsUnseeded": ("hltElePixelHitTripletsUnseeded"),
+    }
+
+    for module_name, hitset in replacements.items():
+        if hasattr(process, module_name):
+            setattr(
+                process,
+                module_name,
+                cms.EDProducer(
+                    "FakeStateSeedCreatorFromRegionConsecutiveHitsEDProducer",
+                    seedingHitSets=cms.InputTag(hitset),
+                    SeedComparitorPSet=cms.PSet(
+                        ComponentName=cms.string("none")
+                    )
+                )
+            )
+
+    # Add new ElectronSeedFitter modules
+    fitter_configs = {
+        "hltEgammaFittedElectronPixelSeeds": "hltEgammaElectronPixelSeeds",
+        "hltEgammaFittedElectronPixelSeedsUnseeded": "hltEgammaElectronPixelSeedsUnseeded",
+        "hltEgammaFittedElectronPixelSeedsForBParkingUnseeded": "hltEgammaElectronPixelSeedsForBParkingUnseeded",
+    }
+
+    for mod_name, input_collection in fitter_configs.items():
+        setattr(
+            process,
+            mod_name,
+            cms.EDProducer(
+                "ElectronSeedFitter",
+                eleSeedCollection=cms.InputTag(input_collection),
+                propagator=cms.string("PropagatorWithMaterialParabolicMf"),
+                SeedMomentumForBOFF=cms.double(5.0),
+                OriginTransverseErrorMultiplier=cms.double(1.0),
+                MinOneOverPtError=cms.double(1.0),
+                TTRHBuilder=cms.string("hltESPTTRHBWithTrackAngle"),
+                magneticField=cms.string("ParabolicMf"),
+            )
+        )
+
+    # Global replacements of pixel seed producers
+    replace_all_pixel_seed_inputtags(process)
+
+    # Insert new modules into the 3 sequences
+    # Mapping of sequences -> (new module, pixelMatchVars module)
+    seq_updates = [
+        ("HLTElePixelMatchSequence",
+         "hltEgammaFittedElectronPixelSeeds",
+         "hltEgammaPixelMatchVars"),
+
+        ("HLTElePixelMatchUnseededSequence",
+         "hltEgammaFittedElectronPixelSeedsUnseeded",
+         "hltEgammaPixelMatchVarsUnseeded"),
+
+        ("HLTElePixelMatchUnseededSequenceForBParking",
+         "hltEgammaFittedElectronPixelSeedsForBParkingUnseeded",
+         "hltEgammaPixelMatchVarsForBParkingUnseeded"),
+    ]
+
+    for seq_name, new_mod, match_mod in seq_updates:
+        if hasattr(process, seq_name) and hasattr(process, new_mod) and hasattr(process, match_mod):
+            seq = getattr(process, seq_name)
+            new_module = getattr(process, new_mod)
+            match_module = getattr(process, match_mod)
+            # Insert the new module immediately before pixelMatchVars
+            seq.replace(match_module, new_module + match_module)
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -176,5 +337,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = customizeHLTfor48921(process)
+    # process = customizeHLTfor49436(process)
 
     return process

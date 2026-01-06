@@ -37,3 +37,8 @@ product read from the `Event`.
 Together `edmtest::EventIDProducer` and `edmtest::EventIDValidator` can be used
 to validate that an object produced in a given event is being read back in the
 same event.
+
+
+## `SecondaryProducer`
+
+This module can be used to test `cms.SecSource`.
