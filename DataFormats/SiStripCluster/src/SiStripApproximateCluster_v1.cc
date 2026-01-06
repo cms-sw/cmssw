@@ -10,7 +10,7 @@ v1::SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& c
                                                          unsigned int& module_length,
                                                          unsigned int& previous_module_length,
                                                          bool peakFilter) {
-  bool filter_, isSaturated_, peakFilter_;
+  bool isSaturated{false};
   if (previous_cluster == -999.)
     compBarycenter_ = std::round(cluster.barycenter() * maxRange_ / maxBarycenter_);
   else
@@ -25,12 +25,9 @@ v1::SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& c
   assert(avgCharge_ <= maxavgCharge_ && "Got a avgCharge > maxavgCharge");
   compavgCharge_ = std::round(avgCharge_ * maxavgChargeRange_ / maxavgCharge_);
   assert(compavgCharge_ <= maxavgChargeRange_ && "Filling compavgCharge > maxavgChargeRange");
-  filter_ = false;
-  isSaturated_ = false;
-  peakFilter_ = peakFilter;
 
-  //mimicing the algorithm used in StripSubClusterShapeTrajectoryFilter...
-  //Looks for 3 adjacent saturated strips (ADC>=254)
+  // Mimicking the algorithm used in StripSubClusterShapeTrajectoryFilter...
+  // Looks for 3 adjacent saturated strips (ADC>=254)
   const auto& ampls = cluster.amplitudes();
   unsigned int thisSat = (ampls[0] >= 254), maxSat = thisSat;
   for (unsigned int i = 1, n = ampls.size(); i < n; ++i) {
@@ -45,8 +42,7 @@ v1::SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& c
     maxSat = std::max<int>(maxSat, thisSat);
   }
   if (maxSat >= maxNSat) {
-    filter_ = true;
-    isSaturated_ = true;
+    isSaturated = true;
   }
 
   unsigned int hitStripsTrim = ampls.size();
@@ -62,14 +58,21 @@ v1::SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& c
     hitStripsTrim--;
     --last;
   }
-  if (hitStripsTrim < std::floor(std::abs(hitPredPos) - maxTrimmedSizeDiffNeg_)) {
-    filter_ = false;
-  } else if (hitStripsTrim <= std::ceil(std::abs(hitPredPos) + maxTrimmedSizeDiffPos_)) {
-    filter_ = true;
+
+  const auto absPred = std::abs(hitPredPos);
+  const auto lower = std::floor(absPred - maxTrimmedSizeDiffNeg_);
+  const auto upper = std::ceil(absPred + maxTrimmedSizeDiffPos_);
+
+  bool filter;
+  if (hitStripsTrim < lower) {
+    filter = false;
+  } else if (hitStripsTrim <= upper) {
+    filter = true;
   } else {
-    filter_ = peakFilter_;
+    filter = peakFilter;
   }
-  compavgCharge_ = (compavgCharge_ | (filter_ << kfilterMask));
-  compavgCharge_ = (compavgCharge_ | (peakFilter_ << kpeakFilterMask));
-  compBarycenter_ = (compBarycenter_ | (isSaturated_ << kSaturatedMask));
+
+  compavgCharge_ = (compavgCharge_ | (filter << kfilterMask));
+  compavgCharge_ = (compavgCharge_ | (peakFilter << kpeakFilterMask));
+  compBarycenter_ = (compBarycenter_ | (isSaturated << kSaturatedMask));
 }
