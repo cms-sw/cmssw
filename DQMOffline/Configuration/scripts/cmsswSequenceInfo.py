@@ -70,6 +70,8 @@ def inspectsequence(seq):
     # for HARVESTING, the code in endJob makes most jobs crash. But that is fine,
     # we have the data we need by then.
     if proc.returncode and seq.step not in ("HARVESTING", "ALCAHARVEST"):
+        nl = '\n'
+        print(f"cmsRun failed with output \n {nl.join(tracedump.decode('utf-8').splitlines())}");
         raise Exception("cmsRun failed for cmsDriver command %s" % driverargs)
 
     lines = tracedump.splitlines()
