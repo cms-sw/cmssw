@@ -2,12 +2,8 @@
 
   <class name="edm::Wrapper<std::map <int,std::pair<double,double> > >"/> 
 
-  <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="14">
-   <version ClassVersion="14" checksum="4036611259"/>
-   <version ClassVersion="13" checksum="2098110013"/>
-   <version ClassVersion="12" checksum="2817631301"/>
-   <version ClassVersion="10" checksum="3865088611"/>
-   <version ClassVersion="11" checksum="264617237"/>
+  <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="3796960819"/>
   </class>
   <class name="reco::IsolatedPixelTrackCandidateCollection"/>
   <class name="reco::IsolatedPixelTrackCandidateRef"/>
@@ -31,9 +27,8 @@
   <class name="edm::Wrapper<reco::EcalIsolatedParticleCandidateCollection>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::EcalIsolatedParticleCandidate>,reco::EcalIsolatedParticleCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::EcalIsolatedParticleCandidate>,reco::EcalIsolatedParticleCandidate> > >" />
 
-  <class name="reco::HcalIsolatedTrackCandidate" ClassVersion="13">
-   <version ClassVersion="14" checksum="3313409542"/>
-   <version ClassVersion="13" checksum="3313409542"/>
+  <class name="reco::HcalIsolatedTrackCandidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="201453806"/>
   </class>
   <class name="reco::HcalIsolatedTrackCandidateCollection"/>
   <class name="reco::HcalIsolatedTrackCandidateRef"/>

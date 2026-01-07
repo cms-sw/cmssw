@@ -9,8 +9,8 @@
   </class>
 
 
-  <class name="reco::BaseTauTagInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="2717397101"/>
+  <class name="reco::BaseTauTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="738906165"/>
   </class>
   <class name="std::vector<reco::BaseTauTagInfo>"/>
   <class name="edm::Wrapper<std::vector<reco::BaseTauTagInfo> >"/>
@@ -18,11 +18,8 @@
   <class name="edm::RefProd<std::vector<reco::BaseTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo> >"/>
   
-  <class name="reco::PFTauTagInfo" ClassVersion="13">
-   <version ClassVersion="13" checksum="1453697092"/>
-   <version ClassVersion="12" checksum="3598523528"/>
-   <version ClassVersion="11" checksum="2849126593"/>
-   <version ClassVersion="10" checksum="2791906466"/>
+  <class name="reco::PFTauTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="1535484060"/>
   </class>
   <class name="std::vector<reco::PFTauTagInfo>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTauTagInfo> >"/>
@@ -106,10 +103,8 @@ for(auto const& ref : onfile.PFGammaCands_) {
 
 
   
-  <class name="reco::BaseTau" ClassVersion="12">
-   <version ClassVersion="12" checksum="240869876"/>
-   <version ClassVersion="10" checksum="3887454152"/>
-   <version ClassVersion="11" checksum="3609212284"/>
+  <class name="reco::BaseTau" ClassVersion="3">
+   <version ClassVersion="3" checksum="1151169052"/>
   </class>
   <class name="std::vector<reco::BaseTau>"/>
   <class name="edm::Wrapper<std::vector<reco::BaseTau> >"/>

@@ -336,30 +336,20 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="20">
-   <version ClassVersion="20" checksum="2864582648"/>
-   <version ClassVersion="19" checksum="362503460"/>
-   <version ClassVersion="18" checksum="3235158110"/>
-   <version ClassVersion="17" checksum="3387867292"/>
-   <version ClassVersion="16" checksum="697987788"/>
-   <version ClassVersion="15" checksum="3694119510"/>
-   <version ClassVersion="14" checksum="4228121071"/>
-   <version ClassVersion="13" checksum="36410295"/>
-   <version ClassVersion="12" checksum="1190637787"/>
-   <version ClassVersion="11" checksum="1190637787"/>
-   <version ClassVersion="10" checksum="1190637787"/>
+  <class name="reco::io_v1::Track" ClassVersion="3">
+   <version ClassVersion="3" checksum="3782984338"/>
   </class>
-  <class name="std::vector<reco::Track>"/>
-  <class name="edm::Wrapper<std::vector<reco::Track> >"/>
-  <class name="edm::RefProd<std::vector<reco::Track> >"/>
-  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track>"/>
-  <class name="edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
-  <class name="edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
-  <class name="std::vector<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
-  <class name="edm::Ptr<reco::Track>" />
-  <class name="std::vector<edm::Ptr<reco::Track> >" />
+  <class name="std::vector<reco::io_v1::Track>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::Track> >"/>
+  <class name="edm::RefProd<std::vector<reco::io_v1::Track> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track>"/>
+  <class name="edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >"/>
+  <class name="edm::RefVector<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >"/>
+  <class name="std::vector<edm::RefVector<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > >"/>
+  <class name="edm::Ptr<reco::io_v1::Track>" />
+  <class name="std::vector<edm::Ptr<reco::io_v1::Track> >" />
   <class name="edm::Association<reco::TrackCollection>"/>
   <class name="edm::Wrapper<edm::Association<reco::TrackCollection> >"/>
 
@@ -368,36 +358,36 @@
   </class>
 
   <!-- <class pattern="edm::Wrapper<edm::AssociationMap<*>" /> -->
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<vector<reco::Track>,vector<TrajectorySeed>,unsigned int> > >" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<vector<reco::Track>,vector<reco::Track>,unsigned int> > >" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::Track>,bool,unsigned int> > >" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::Track>,double,unsigned int> > >" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::Track>,float,unsigned int> > >" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::Track>,int,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<vector<reco::io_v1::Track>,vector<TrajectorySeed>,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<vector<reco::io_v1::Track>,vector<reco::io_v1::Track>,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::io_v1::Track>,bool,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::io_v1::Track>,double,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::io_v1::Track>,float,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::io_v1::Track>,int,unsigned int> > >" />
 
-  <class name="edm::helpers::Key<edm::RefProd <std::vector <reco::Track> > >" />
+  <class name="edm::helpers::Key<edm::RefProd <std::vector <reco::io_v1::Track> > >" />
 
-  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,double,unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::io_v1::Track>,double,unsigned int> >">
     <field name="transientMap_" transient="true" /> 
   </class>
 
-  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,bool,unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::io_v1::Track>,bool,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
 
-  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,int,unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::io_v1::Track>,int,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
 
-  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,float,unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::io_v1::Track>,float,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
 
-  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >" />
+  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > >" />
  
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<reco::Track> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::io_v1::Track> >,edm::RefProd<std::vector<reco::io_v1::Track> > >" />
 
-  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,std::vector<reco::Track>,unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::io_v1::Track>,std::vector<reco::io_v1::Track>,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
 
@@ -413,22 +403,22 @@
   <!-- <class pattern="edm::AssociationVector<*>">
     <field name="transientVector_" transient="true"/>
   </class> -->
-  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<bool>,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::io_v1::Track> >,std::vector<bool>,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<double>,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::io_v1::Track> >,std::vector<double>,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<float>,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::io_v1::Track> >,std::vector<float>,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<int>,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::io_v1::Track> >,std::vector<int>,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<std::vector<reco::DeDxHit> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::io_v1::Track> >,std::vector<std::vector<reco::DeDxHit> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::DeDxHit> >" />
+  <class name="std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,std::vector<reco::DeDxHit> >" />
      <!--   <class name="reco::DeDxDataCollection"/> -->
      <class name="reco::DeDxData" ClassVersion="11">
       <version ClassVersion="11" checksum="30657010"/>
@@ -443,57 +433,57 @@
 
 
 
-     <!-- RefToBase<reco::Track> -->
-     <class name="edm::RefToBase<reco::Track>" rntupleStreamerMode="true"/>
-     <class name="edm::reftobase::IndirectHolder<reco::Track>"/>
-     <class name="edm::reftobase::BaseHolder<reco::Track>"/>
+     <!-- RefToBase<reco::io_v1::Track> -->
+     <class name="edm::RefToBase<reco::io_v1::Track>" rntupleStreamerMode="true"/>
+     <class name="edm::reftobase::IndirectHolder<reco::io_v1::Track>"/>
+     <class name="edm::reftobase::BaseHolder<reco::io_v1::Track>"/>
      <class name="edm::reftobase::RefHolder<reco::TrackRef>"/>
-     <class name="edm::reftobase::RefHolder<edm::Ptr<reco::Track> >"/>
-     <class name="edm::reftobase::Holder<reco::Track, reco::TrackRef>"/>
+     <class name="edm::reftobase::RefHolder<edm::Ptr<reco::io_v1::Track> >"/>
+     <class name="edm::reftobase::Holder<reco::io_v1::Track, reco::TrackRef>"/>
 
-     <class name="std::vector<edm::RefToBase<reco::Track> >" />
+     <class name="std::vector<edm::RefToBase<reco::io_v1::Track> >" />
 
-     <class name="std::pair<edm::RefToBase<reco::Track>,double>" />
-     <class name="std::vector<std::pair<edm::RefToBase<reco::Track>,double> >" />
+     <class name="std::pair<edm::RefToBase<reco::io_v1::Track>,double>" />
+     <class name="std::vector<std::pair<edm::RefToBase<reco::io_v1::Track>,double> >" />
 
-     <class name="edm::reftobase::BaseVectorHolder<reco::Track>" />
+     <class name="edm::reftobase::BaseVectorHolder<reco::io_v1::Track>" />
      <class name="reco::TrackBaseRefVector"/>
      <class name="edm::Wrapper<reco::TrackBaseRefVector>"/>
 
-     <!-- RefToBaseProd<reco::Track> -->
-     <class name="edm::RefToBaseProd<reco::Track>" />
+     <!-- RefToBaseProd<reco::io_v1::Track> -->
+     <class name="edm::RefToBaseProd<reco::io_v1::Track>" />
 
-     <!-- ValueMap<reco::Track> -->
+     <!-- ValueMap<reco::io_v1::Track> -->
      <class name="edm::ValueMap<reco::TrackRefVector>" />
      <class name="edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >" />
 
 
-     <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<TrajectorySeed> > >"/>
-     <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::Track>,std::vector<TrajectorySeed>,unsigned int> >">
+     <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::io_v1::Track> >,edm::RefProd<std::vector<TrajectorySeed> > >"/>
+     <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::io_v1::Track>,std::vector<TrajectorySeed>,unsigned int> >">
        <field name="transientMap_" transient="true"/>
      </class>
 
-     <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,float> >" />
-     <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,float>" />
+     <class name="std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,float> >" />
+     <class name="std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,float>" />
 
 
-     <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int> >" />
-     <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int>" />
+     <class name="std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,int> >" />
+     <class name="std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,int>" />
 
 
-     <class name="std::pair<reco::Track,reco::Track>"/>
-     <class name="edm::Wrapper<std::pair<reco::Track,reco::Track> >"/>
-     <class name="std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> >" />
-     <class name="edm::Wrapper<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > >" />
-     <class name="std::vector<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > >"/>
-     <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > > >"/>
+     <class name="std::pair<reco::io_v1::Track,reco::io_v1::Track>"/>
+     <class name="edm::Wrapper<std::pair<reco::io_v1::Track,reco::io_v1::Track> >"/>
+     <class name="std::pair<TrackCandidate,std::pair<reco::io_v1::Track,reco::io_v1::Track> >" />
+     <class name="edm::Wrapper<std::pair<TrackCandidate,std::pair<reco::io_v1::Track,reco::io_v1::Track> > >" />
+     <class name="std::vector<std::pair<TrackCandidate,std::pair<reco::io_v1::Track,reco::io_v1::Track> > >"/>
+     <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<reco::io_v1::Track,reco::io_v1::Track> > > >"/>
 
-     <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
-     <class name="edm::Wrapper<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > >"/>
-     <class name="std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > >" />
-     <class name="edm::Wrapper<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > > >" />
-     <class name="std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > > >"/>
-     <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > > > >"/>
+     <class name="std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > >"/>
+     <class name="edm::Wrapper<std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > > >"/>
+     <class name="std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > > >" />
+     <class name="edm::Wrapper<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > > > >" />
+     <class name="std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > > > >"/>
+     <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > > > > >"/>
 
     <class name="edm::Association<std::vector<reco::TrackExtra>>"/>
     <class name="edm::Wrapper<edm::Association<std::vector<reco::TrackExtra>>>"/>

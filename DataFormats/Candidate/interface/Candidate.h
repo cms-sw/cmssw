@@ -23,7 +23,11 @@
 class OverlapChecker;
 
 namespace reco {
-  class Track;
+  namespace io_v1 {
+    class Track;
+  }
+  using Track = io_v1::Track;
+
   class Candidate {
   public:
     typedef size_t size_type;

@@ -3,6 +3,7 @@
 
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseAlgorithm.h"
 #include "RecoMuon/MuonIsolation/interface/CutsConeSizeFunction.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
   namespace isodeposit {
@@ -11,9 +12,6 @@ namespace reco {
 }  // namespace reco
 namespace muonisolation {
   class IsolatorByDeposit;
-}
-namespace reco {
-  class Track;
 }
 namespace edm {
   class Event;

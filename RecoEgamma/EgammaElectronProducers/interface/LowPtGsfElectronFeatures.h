@@ -8,12 +8,9 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/ParticleFlowReco/interface/PreId.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include <vector>
-
-namespace reco {
-  class Track;
-}
 
 namespace lowptgsfeleseed {
 

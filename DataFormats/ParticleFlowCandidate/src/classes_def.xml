@@ -96,8 +96,8 @@
   <class name="std::vector<reco::PFCandidateFwdPtr>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCandidateFwdPtr> >"/>
 
-  <class name="reco::PFCandidateElectronExtra" ClassVersion="10">
-   <version ClassVersion="10" checksum="1297637479"/>
+  <class name="reco::PFCandidateElectronExtra" ClassVersion="3">
+   <version ClassVersion="3" checksum="450244063"/>
 <!-- 
   <field name="mvaVariables_" transient="true"/>
 -->
@@ -108,13 +108,8 @@
   <class name="reco::PFCandidateElectronExtraRefProd"/>
   <class name="reco::PFCandidateElectronExtraRefVector"/>
 
-  <class name="reco::PFCandidatePhotonExtra" ClassVersion="11">
-   <version ClassVersion="10" checksum="536762407"/>
-   <version ClassVersion="11" checksum="1782832559"/>
-<!-- 
-  <field name="assoSingleLegRefTrack_" transient="true"/>
-  <field name="assoSingleLegMva_" transient="true"/>
--->
+  <class name="reco::PFCandidatePhotonExtra" ClassVersion="3">
+   <version ClassVersion="3" checksum="2283262343"/>
   </class>
   <class name="std::vector<reco::PFCandidatePhotonExtra>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCandidatePhotonExtra> >"/>

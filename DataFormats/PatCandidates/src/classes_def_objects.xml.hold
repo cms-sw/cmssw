@@ -17,7 +17,7 @@
 
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2417779180"/>
+   <version ClassVersion="3" checksum="1391266265"/>
    <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="26" checksum="2045819644"/>
    <version ClassVersion="25" checksum="1488101799"/>
@@ -35,12 +35,14 @@
   <ioread sourceClass="pat::Electron" targetClass="pat::Electron" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
+
+
   <class name="pat::Muon"  ClassVersion="3">
-   <version ClassVersion="3" checksum="4185602613"/>
+   <version ClassVersion="3" checksum="1844520953"/>
   </class>
 
   <class name="pat::Tau"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1081551115"/>
+   <version ClassVersion="3" checksum="1567397432"/>
    <field name="isolationTracksTransientRefVector_" transient="true"/>
    <field name="signalTracksTransientRefVector_" transient="true"/>
    <field name="signalPFCandsTransientPtrs_" transient="true"/>
@@ -94,7 +96,7 @@
   <![CDATA[isolationPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
   <class name="pat::tau::TauPFSpecific"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2664182121"/>
+   <version ClassVersion="3" checksum="2573572161"/>
   </class>
   <class name="std::vector<pat::tau::TauPFSpecific>" />
 
@@ -168,7 +170,7 @@
   </ioread>
 
   <class name="pat::Jet"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1924074509"/>
+   <version ClassVersion="3" checksum="2779345797"/>
    <field name="daughtersTemp_" transient="true"/>
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
@@ -225,7 +227,7 @@
    <version ClassVersion="10" checksum="2240381542"/>
   </class>
   <class name="pat::GenericParticle"  ClassVersion="3">
-   <version ClassVersion="3" checksum="581922746"/>
+   <version ClassVersion="3" checksum="1195315270"/>
   </class>
   <class name="pat::Hemisphere"  ClassVersion="12">
    <version ClassVersion="12" checksum="1827958121"/>

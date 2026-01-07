@@ -23,8 +23,8 @@
   </class>
   <class name="edm::Wrapper<StringMap>" />
 
-  <class name="pat::VertexAssociation"  ClassVersion="10">
-   <version ClassVersion="10" checksum="1319279281"/>
+  <class name="pat::VertexAssociation"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3351303165"/>
   </class>
   <class name="std::vector<pat::VertexAssociation>" />
   <class name="edm::ValueMap<pat::VertexAssociation>" />

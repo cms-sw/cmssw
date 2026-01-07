@@ -31,8 +31,8 @@
   <class name="edm::RefVector<std::vector<reco::PFConversion>,reco::PFConversion,edm::refhelper::FindUsingAdvance<std::vector<reco::PFConversion>,reco::PFConversion> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > >"/>
 
- <class name="reco::PFV0"  ClassVersion="10">
-  <version ClassVersion="10" checksum="40832700"/>
+ <class name="reco::PFV0"  ClassVersion="3">
+  <version ClassVersion="3" checksum="1009242484"/>
  </class>
   <class name="std::vector<reco::PFV0>" />
   <class name="edm::Wrapper<std::vector<reco::PFV0> >" />

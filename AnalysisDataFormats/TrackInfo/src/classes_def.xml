@@ -24,16 +24,16 @@
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,std::vector<reco::TrackInfo>,unsigned int> > >" />
 
-  <class name="TPtoRecoTrack" ClassVersion="10">
-   <version ClassVersion="10" checksum="909265596"/>
+  <class name="TPtoRecoTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="560670808"/>
   </class>
   <class name="edm::Wrapper<TPtoRecoTrack>"/>
   
   <class name="std::vector<TPtoRecoTrack>"/>
   <class name="edm::Wrapper<std::vector<TPtoRecoTrack> >"/>
 
-  <class name="RecoTracktoTP" ClassVersion="10">
-   <version ClassVersion="10" checksum="3470602586"/>
+  <class name="RecoTracktoTP" ClassVersion="3">
+   <version ClassVersion="3" checksum="612992052"/>
   </class>
   <class name="edm::Wrapper<RecoTracktoTP>"/>
   

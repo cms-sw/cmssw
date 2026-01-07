@@ -17,13 +17,10 @@
 */
 #include <vector>
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 class MagneticField;
 class TrackToEcalPropagator;
 class CaloTower;
-
-namespace reco {
-  class Track;
-}
 
 namespace pat {
   class Muon;

@@ -1,7 +1,6 @@
 <lcgdict>
-   <class name="reco::ConversionTrack" ClassVersion="11">
-    <version ClassVersion="11" checksum="1446912891"/>
-    <version ClassVersion="10" checksum="2951396223"/>
+  <class name="reco::ConversionTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="3168503251"/>
      <field name="traj_" transient="true" />
    </class>
    <class name="reco::ConversionTrackCollection" />

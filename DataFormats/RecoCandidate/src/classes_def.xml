@@ -5,10 +5,8 @@
    <version ClassVersion="11" checksum="1478341962"/>
    <version ClassVersion="10" checksum="1183963017"/>
   </class>
-  <class name="reco::RecoChargedCandidate"  ClassVersion="12">
-   <version ClassVersion="12" checksum="3730584585"/>
-   <version ClassVersion="11" checksum="2262215505"/>
-   <version ClassVersion="10" checksum="2818554415"/>
+  <class name="reco::RecoChargedCandidate"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3697403153"/>
   </class>
   <class name="reco::RecoChargedRefCandidate"  ClassVersion="12">
    <version ClassVersion="12" checksum="2499408251"/>

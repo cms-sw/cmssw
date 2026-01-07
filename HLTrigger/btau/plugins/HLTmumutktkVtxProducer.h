@@ -33,7 +33,6 @@ namespace edm {
 
 namespace reco {
   class Candidate;
-  class Track;
 }  // namespace reco
 
 class FreeTrajectoryState;

@@ -8,18 +8,8 @@ not be used as version numbers. By convention, CMS will use 3 as the
 initial version number of a class which has never been stored before.
 -->
 <lcgdict>
-  <class name="reco::Muon" ClassVersion="20">
-   <version ClassVersion="20" checksum="1015091642"/>
-   <version ClassVersion="19" checksum="3201675353"/>
-   <version ClassVersion="18" checksum="2257088106"/>
-   <version ClassVersion="17" checksum="2296096670"/>
-   <version ClassVersion="16" checksum="1808419014"/>
-   <version ClassVersion="15" checksum="4145317518"/>
-   <version ClassVersion="11" checksum="199341143"/>
-   <version ClassVersion="12" checksum="1157850969"/>
-   <version ClassVersion="13" checksum="73400658"/>
-   <version ClassVersion="14" checksum="3316837126"/>
-
+  <class name="reco::Muon" ClassVersion="3">
+   <version ClassVersion="3" checksum="2185262810"/>
   </class>
   <class name="std::vector<reco::Muon>"/>
   <class name="edm::Wrapper<std::vector<reco::Muon> >"/>
@@ -30,8 +20,8 @@ initial version number of a class which has never been stored before.
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >" />
 
-<class name="reco::MuonTrackLinks" ClassVersion="10">
- <version ClassVersion="10" checksum="1800265585"/>
+<class name="reco::MuonTrackLinks" ClassVersion="3">
+ <version ClassVersion="3" checksum="4185047177"/>
 </class>
   <class name="std::vector<reco::MuonTrackLinks>"/>
   <class name="edm::Wrapper<std::vector<reco::MuonTrackLinks> >"/>
@@ -92,8 +82,8 @@ initial version number of a class which has never been stored before.
 
   <class name="reco::Muon::MuonTrackRefMap"/>
 
-  <class name="reco::CaloMuon" ClassVersion="10">
-   <version ClassVersion="10" checksum="3458815810"/>
+  <class name="reco::CaloMuon" ClassVersion="3">
+   <version ClassVersion="3" checksum="4152762730"/>
   </class>
   <class name="std::vector<reco::CaloMuon>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloMuon> >"/>

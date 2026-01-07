@@ -30,8 +30,6 @@
 
 namespace reco {
 
-  class Track;
-
   class Vertex {
   public:
     /// The iteratator for the vector<TrackRef>
