@@ -49,6 +49,15 @@ class NanoAODDirectSimProducer(Module):
 
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         self.out = wrappedOutputTree
+        self.out.branch("nPPSLocalTracks", "I")
+        self.out.branch("PPSLocalTracks_x", "F", lenVar="nPPSLocalTracks")
+        self.out.branch("PPSLocalTracks_y", "F", lenVar="nPPSLocalTracks")
+        self.out.branch("PPSLocalTracks_time", "F", lenVar="nPPSLocalTracks")
+        self.out.branch("PPSLocalTracks_timeUnc", "F", lenVar="nPPSLocalTracks")
+        self.out.branch("PPSLocalTracks_multiRPProtonIdx", "F", lenVar="nPPSLocalTracks")
+        self.out.branch("PPSLocalTracks_singleRPProtonIdx", "F", lenVar="nPPSLocalTracks")
+        self.out.branch("PPSLocalTracks_decRPId", "I", lenVar="nPPSLocalTracks")
+        self.out.branch("PPSLocalTracks_rpType", "I", lenVar="nPPSLocalTracks")
         self.out.branch("nProton_singleRP", "I")
         self.out.branch("Proton_singleRP_arm", "F", lenVar="nProton_singleRP")
         self.out.branch("Proton_singleRP_decRPId", "I", lenVar="nProton_singleRP")
@@ -77,6 +86,16 @@ class NanoAODDirectSimProducer(Module):
         if len(proton_candidates) == 0:
             return False
 
+        # initialise collections to be filled
+        nPPSLocalTracks = 0
+        PPSLocalTracks_x = []
+        PPSLocalTracks_y = []
+        PPSLocalTracks_time = []
+        PPSLocalTracks_timeUnc = []
+        PPSLocalTracks_multiRPProtonIdx = []
+        PPSLocalTracks_singleRPProtonIdx = []
+        PPSLocalTracks_decRPId = []
+        PPSLocalTracks_rpType = []
         nProton_singleRP = 0
         Proton_singleRP_arm = []
         Proton_singleRP_decRPId = []
@@ -95,10 +114,21 @@ class NanoAODDirectSimProducer(Module):
             xi = 1. - proton_mom.Pz() / self.beam_energy  #FIXME
             for track in self.worker.computeProton(ROOT.TLorentzVector(), proton_mom):
                 detid = ROOT.CTPPSDetId(track.rpId())
+                dec_detid = 100 * detid.arm() + 10 * detid.station() + detid.rp()
+                rp_type = detid.subdetId()
+                nPPSLocalTracks += 1
+                PPSLocalTracks_x.append(track.x())
+                PPSLocalTracks_y.append(track.y())
+                PPSLocalTracks_time.append(track.time())
+                PPSLocalTracks_timeUnc.append(track.timeUnc())
+                PPSLocalTracks_multiRPProtonIdx.append(0.)   #FIXME
+                PPSLocalTracks_singleRPProtonIdx.append(nPPSLocalTracks)
+                PPSLocalTracks_decRPId.append(dec_detid)
+                PPSLocalTracks_rpType.append(rp_type)
                 nProton_singleRP += 1
                 Proton_singleRP_arm.append(detid.arm())
-                Proton_singleRP_decRPId.append(100 * detid.arm() + 10 * detid.station() + detid.rp())
-                Proton_singleRP_rpType.append(0)  #FIXME
+                Proton_singleRP_decRPId.append(dec_detid)
+                Proton_singleRP_rpType.append(rp_type)
                 Proton_singleRP_x.append(track.x())
                 Proton_singleRP_y.append(track.y())
                 Proton_singleRP_time.append(track.time())
@@ -107,6 +137,15 @@ class NanoAODDirectSimProducer(Module):
                 Proton_singleRP_thetaX.append(0.)  #FIXME
                 Proton_singleRP_thetaY.append(0.)  #FIXME
 
+        self.out.fillBranch("nPPSLocalTracks", nPPSLocalTracks)
+        self.out.fillBranch("PPSLocalTracks_x", PPSLocalTracks_x)
+        self.out.fillBranch("PPSLocalTracks_y", PPSLocalTracks_y)
+        self.out.fillBranch("PPSLocalTracks_time", PPSLocalTracks_time)
+        self.out.fillBranch("PPSLocalTracks_timeUnc", PPSLocalTracks_timeUnc)
+        self.out.fillBranch("PPSLocalTracks_multiRPProtonIdx", PPSLocalTracks_multiRPProtonIdx)
+        self.out.fillBranch("PPSLocalTracks_singleRPProtonIdx", PPSLocalTracks_singleRPProtonIdx)
+        self.out.fillBranch("PPSLocalTracks_decRPId", PPSLocalTracks_decRPId)
+        self.out.fillBranch("PPSLocalTracks_rpType", PPSLocalTracks_rpType)
         self.out.fillBranch("nProton_singleRP", nProton_singleRP)
         self.out.fillBranch("Proton_singleRP_arm", Proton_singleRP_arm)
         self.out.fillBranch("Proton_singleRP_decRPId", Proton_singleRP_decRPId)
