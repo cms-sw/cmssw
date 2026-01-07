@@ -397,7 +397,7 @@ void Phase2ITValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Delta_Phi_Pixel_Endcap");
+    psd0.add<std::string>("name", "Delta_Phi_Pixel_Endcaps");
     psd0.add<std::string>("title", "#Delta Phi pixel sensor Endcaps;phi");
     psd0.add<double>("xmin", -3.14159);
     psd0.add<bool>("switch", true);

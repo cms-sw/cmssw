@@ -459,7 +459,7 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Delta_Phi_Pixel_Endcap");
+    psd0.add<std::string>("name", "Delta_Phi_Pixel_Endcaps");
     psd0.add<std::string>("title", "#Delta Phi " + mptag + " Endcaps;phi");
     psd0.add<double>("xmin", -3.14159);
     psd0.add<bool>("switch", true);
@@ -531,7 +531,7 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Delta_Phi_Strip_Endcap");
+    psd0.add<std::string>("name", "Delta_Phi_Strip_Endcaps");
     psd0.add<std::string>("title", "#Delta Phi " + striptag + " Endcaps;phi");
     psd0.add<double>("xmin", -3.14159);
     psd0.add<bool>("switch", true);

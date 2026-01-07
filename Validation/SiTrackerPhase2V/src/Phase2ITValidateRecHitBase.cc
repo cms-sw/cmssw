@@ -415,7 +415,7 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   desc.add<edm::ParameterSetDescription>("Delta_Phi", psd18);
 
   edm::ParameterSetDescription psd18b;
-  psd18b.add<std::string>("name", "Delta_phi_barrel");
+  psd18b.add<std::string>("name", "Delta_Phi_Pixel_Barrel");
   psd18b.add<std::string>("title", "Delta Phi macro pixel sensor barrel;phi;");
   psd18b.add<int>("NxBins", 100);
   psd18b.add<bool>("switch", true);
@@ -424,7 +424,7 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   desc.add<edm::ParameterSetDescription>("Delta_Phi_barrel", psd18b);
 
   edm::ParameterSetDescription psd18e;
-  psd18e.add<std::string>("name", "Delta_phi_endcaps");
+  psd18e.add<std::string>("name", "Delta_Phi_Pixel_Endcaps");
   psd18e.add<std::string>("title", "Delta Phi macro pixel sensor endcaps;phi;");
   psd18e.add<int>("NxBins", 100);
   psd18e.add<bool>("switch", true);
