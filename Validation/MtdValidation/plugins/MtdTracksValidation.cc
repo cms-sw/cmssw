@@ -140,6 +140,7 @@ private:
   static constexpr double zETL_ = 290.0;
   static constexpr double etaMatchCut_ = 0.05;
   static constexpr double cluDRradius_ = 0.05;  // to cluster rechits around extrapolated track
+  static constexpr double c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
 
   const reco::RecoToSimCollection* r2s_;
 
@@ -984,6 +985,12 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             }
           }  /// end loop over reco clusters associated to this track.
 
+          // define function to compute path length residual
+          auto computePLres = [&](float recoPL, float simSCTime) -> float {
+            return recoPL - (simSCTime - tsim) * (*tp_info)->p() /
+                                std::sqrt((*tp_info)->massSqr() + (*tp_info)->p() * (*tp_info)->p()) * c_cm_ns;
+          };
+
           // == BTL
           if (std::abs(trackGen.eta()) < trackMaxBtlEta_) {
             // -- Track matched to TP with sim hit in MTD
@@ -999,17 +1006,14 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               if (isTPmtdDirectBTL) {
                 // -- Track matched to TP with sim hit (direct), correctly associated reco cluster
                 if (isTPmtdDirectCorrectBTL) {
-                  float PLres =
-                      pathLength[trackref] - (simClusterEarliestTime_correctAssoc - tsim) * (*tp_info)->p() /
-                                                 pow((((*tp_info)->massSqr() + pow((*tp_info)->p(), 2))), 0.5) *
-                                                 CLHEP::c_light / CLHEP::centimeter * CLHEP::nanosecond;
+                  float PLres = computePLres(pathLength[trackref], simClusterEarliestTime_correctAssoc);
                   meBTLTrackPLRes_->Fill(PLres);
                   meBTLTrackPLResvsSimEta_->Fill(std::abs((*tp_info)->eta()), PLres);
                   meBTLTrackPLResvsRecoEta_->Fill(std::abs(trackGen.eta()), PLres);
                   meBTLTrackPLResvsSimP_->Fill((*tp_info)->p(), PLres);
                   meBTLTrackPLResvsRecoP_->Fill(trackGen.p(), PLres);
                   meBTLTrackPLResvsRecoPL_->Fill(pathLength[trackref], PLres);
-                  meBTLTrackPLResvsSigmadsz_->Fill(pow(trackGen.covariance(4, 4), 0.5), PLres);
+                  meBTLTrackPLResvsSigmadsz_->Fill(std::sqrt(trackGen.covariance(4, 4)), PLres);
 
                   if (optionalPlots_) {
                     meBTLTrackMatchedTPmtdDirectCorrectAssocSimClusSize_->Fill(simClusSize);
@@ -1221,18 +1225,16 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               meETLTrackMatchedTPEtaMtdCorrect_->Fill(std::abs(trackGen.eta()));
               meETLTrackMatchedTPPtMtdCorrect_->Fill(trackGen.pt());
             }
-            // -- Track matched to TP with sim hit in frst etl layer, correctly associated
+            // -- Track matched to TP with sim hit in first etl layer, correctly associated
             if (isTPmtdETLD1 && isTPmtdCorrectETLD1) {
-              float PLres = pathLength[trackref] - (simClusterEarliestTime_correctAssoc - tsim) * (*tp_info)->p() /
-                                                       pow((((*tp_info)->massSqr() + pow((*tp_info)->p(), 2))), 0.5) *
-                                                       CLHEP::c_light / CLHEP::centimeter * CLHEP::nanosecond;
+              float PLres = computePLres(pathLength[trackref], simClusterEarliestTime_correctAssoc);
               meETLTrackPLRes_->Fill(PLres);
               meETLTrackPLResvsSimEta_->Fill(std::abs((*tp_info)->eta()), PLres);
               meETLTrackPLResvsRecoEta_->Fill(std::abs(trackGen.eta()), PLres);
               meETLTrackPLResvsSimP_->Fill((*tp_info)->p(), PLres);
               meETLTrackPLResvsRecoP_->Fill(trackGen.p(), PLres);
               meETLTrackPLResvsRecoPL_->Fill(pathLength[trackref], PLres);
-              meETLTrackPLResvsSigmadsz_->Fill(pow(trackGen.covariance(4, 4), 0.5), PLres);
+              meETLTrackPLResvsSigmadsz_->Fill(std::sqrt(trackGen.covariance(4, 4)), PLres);
             }
             // -- Track matched to TP with sim hit in one etl layer
             if (isTPmtdETLD1 || isTPmtdETLD2) {  // at least one hit (D1 or D2 or both)
