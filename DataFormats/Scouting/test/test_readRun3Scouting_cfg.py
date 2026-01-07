@@ -10,7 +10,7 @@ parser.add_argument("--photonVersion", type=int, help="photon data format versio
 parser.add_argument("--vertexVersion", type=int, help="vertex data format version (default: 4)", default=4)
 parser.add_argument("--ebRecHitVersion", type=int, help="EBRecHit data format version (default: 3)", default=3)
 parser.add_argument("--eeRecHitVersion", type=int, help="EERecHit data format version (default: 3)", default=3)
-parser.add_argument("--hbheRecHitVersion", type=int, help="HBHERecHit data format version (default: 3)", default=3)
+parser.add_argument("--hbheRecHitVersion", type=int, help="HBHERecHit data format version (default: 4)", default=4)
 parser.add_argument("--inputFile", type=str, help="Input file name (default: testRun3Scouting.root)", default="testRun3Scouting.root")
 parser.add_argument("--outputFileName", type=str, help="Output file name (default: testRun3Scouting2.root)", default="testRun3Scouting2.root")
 parser.add_argument("-f", "--fixStreamerInfo", action="store_true")
