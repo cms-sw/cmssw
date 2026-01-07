@@ -66,7 +66,6 @@ int main(int argc, char **argv) {
       "w,write_ntuple", "Write Ntuple", cxxopts::value<int>()->default_value("1"))(
       "s,streams", "Set number of streams", cxxopts::value<int>()->default_value("1"))(
       "d,debug", "Run debug job. i.e. overrides output option to 'debug.root' and 'recreate's the file.")(
-      "l,lower_level", "write lower level objects ntuple results")(
       "j,nsplit_jobs", "Enable splitting jobs by N blocks (--job_index must be set)", cxxopts::value<int>())(
       "I,job_index",
       "job_index of split jobs (--nsplit_jobs must be set. index starts from 0. i.e. 0, 1, 2, 3, etc...)",
@@ -244,14 +243,6 @@ int main(int argc, char **argv) {
 
   //_______________________________________________________________________________
   // --optimization
-
-  //_______________________________________________________________________________
-  // --lower_level
-  if (result.count("lower_level")) {
-    ana.do_lower_level = true;
-  } else {
-    ana.do_lower_level = false;
-  }
 
   //_______________________________________________________________________________
   // --tc_pls_triplets
