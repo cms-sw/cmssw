@@ -594,9 +594,9 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Phi_Pixel");
     psd0.add<std::string>("title", "#Delta Phi " + mptag + ";phi");
-    psd0.add<double>("xmin", -3.14159);
+    psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 3.14159);
+    psd0.add<double>("xmax", 0.5);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel", psd0);
   }
@@ -604,9 +604,9 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Phi_Pixel_Barrel");
     psd0.add<std::string>("title", "#Delta Phi " + mptag + " Barrel;phi");
-    psd0.add<double>("xmin", -3.14159);
+    psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 3.14159);
+    psd0.add<double>("xmax", 0.5);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Barrel", psd0);
   }
@@ -614,9 +614,9 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Phi_Pixel_Endcaps");
     psd0.add<std::string>("title", "#Delta Phi " + mptag + " Endcaps;phi");
-    psd0.add<double>("xmin", -3.14159);
+    psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 3.14159);
+    psd0.add<double>("xmax", 0.5);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Endcaps", psd0);
   }
@@ -872,9 +872,9 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Phi_Strip");
     psd0.add<std::string>("title", "#Delta Phi " + striptag + ";phi");
-    psd0.add<double>("xmin", -3.14159);
+    psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 3.14159);
+    psd0.add<double>("xmax", 0.5);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Phi_Strip", psd0);
   }
@@ -882,9 +882,9 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Phi_Strip_Barrel");
     psd0.add<std::string>("title", "#Delta Phi " + striptag + " Barrel;phi");
-    psd0.add<double>("xmin", -3.14159);
+    psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 3.14159);
+    psd0.add<double>("xmax", 0.5);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Phi_Strip_Barrel", psd0);
   }
@@ -892,9 +892,9 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Phi_Strip_Endcaps");
     psd0.add<std::string>("title", "#Delta Phi " + striptag + " Endcaps;phi");
-    psd0.add<double>("xmin", -3.14159);
+    psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 3.14159);
+    psd0.add<double>("xmax", 0.5);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Phi_Strip_Endcaps", psd0);
   }

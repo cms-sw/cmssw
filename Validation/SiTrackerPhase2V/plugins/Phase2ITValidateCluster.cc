@@ -379,9 +379,9 @@ void Phase2ITValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Phi_Pixel");
     psd0.add<std::string>("title", "#Delta Phi pixel sensor;phi");
-    psd0.add<double>("xmin", -3.14159);
+    psd0.add<double>("xmin", -0.1);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 3.14159);
+    psd0.add<double>("xmax", 0.1);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel", psd0);
   }
@@ -389,9 +389,9 @@ void Phase2ITValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Phi_Pixel_Barrel");
     psd0.add<std::string>("title", "#Delta Phi pixel sensor Barrel;phi");
-    psd0.add<double>("xmin", -3.14159);
+    psd0.add<double>("xmin", -0.1);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 3.14159);
+    psd0.add<double>("xmax", 0.1);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Barrel", psd0);
   }
@@ -399,9 +399,9 @@ void Phase2ITValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Phi_Pixel_Endcaps");
     psd0.add<std::string>("title", "#Delta Phi pixel sensor Endcaps;phi");
-    psd0.add<double>("xmin", -3.14159);
+    psd0.add<double>("xmin", -0.1);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 3.14159);
+    psd0.add<double>("xmax", 0.1);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Endcap", psd0);
   }
