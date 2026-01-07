@@ -11,15 +11,17 @@
 
 class Run3ScoutingHBHERecHit {
 public:
-  Run3ScoutingHBHERecHit(float energy, unsigned int detId) : energy_{energy}, detId_{detId} {}
+  Run3ScoutingHBHERecHit(float energy, float time, unsigned int detId) : energy_{energy}, time_{time}, detId_{detId} {}
 
-  Run3ScoutingHBHERecHit() : energy_{0}, detId_{0} {}
+  Run3ScoutingHBHERecHit() : energy_{0}, time_{0}, detId_{0} {}
 
   float energy() const { return energy_; }
+  float time() const { return time_; }
   unsigned int detId() const { return detId_; }
 
 private:
   float energy_;
+  float time_;
   unsigned int detId_;
 };
 
