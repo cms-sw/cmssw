@@ -203,9 +203,9 @@ CurvilinearTrajectoryError ElectronSeedFitter::initialError(float sin2Theta) con
   auto sin2th = sin2Theta;
   auto minC00 = sqr(minOneOverPtError_);
   C[0][0] = std::max(sin2th / sqr(1.5f), minC00);
-  auto zErr = sqr(12.5);
-  auto transverseErr = sqr(originTransverseErrorMultiplier_ * 0.2);
-  C[1][1] = C[2][2] = 1.;
+  auto zErr = sqr(12.5f);
+  auto transverseErr = sqr(originTransverseErrorMultiplier_ * 0.2f);
+  C[1][1] = C[2][2] = 1.f;
   C[3][3] = transverseErr;
   C[4][4] = zErr * sin2th + transverseErr * (1.f - sin2th);
 
@@ -235,16 +235,7 @@ void ElectronSeedFitter::buildSeed(reco::ElectronSeedCollection& seedCollection,
     }
 
     BaseTrackerRecHit const* tth = static_cast<BaseTrackerRecHit const*>(&hit);
-
-    if (not tth) {
-      return;
-    }
-
     std::unique_ptr<BaseTrackerRecHit> newtth(refitHit(tth, state));
-
-    if (not newtth) {
-      return;
-    }
 
     updatedState = updator.update(state, *newtth);
     if (!updatedState.isValid()) {
