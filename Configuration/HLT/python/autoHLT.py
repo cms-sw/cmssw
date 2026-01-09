@@ -13,7 +13,7 @@ autoHLT = {
   'relval2022'          : 'Fake2',
   'relval2023'          : 'Fake2',
   'relval2024'          : 'Fake2',
-  'relval2025'          : '2025v13',
+  'relval2025'          : 'Fake2',
   'relval2026'          : 'GRun',
   'relvalHI2022'        : 'Fake2',
   'relvalHI2023'        : 'Fake2',
