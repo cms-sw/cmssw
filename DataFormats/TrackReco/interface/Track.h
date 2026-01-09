@@ -165,7 +165,7 @@ namespace reco {
       /// Reference to additional information stored only on RECO.
       TrackExtraRef extra_;
     };
-  }  // namespace v1
+  }  // namespace io_v1
   using Track = io_v1::Track;
 }  // namespace reco
 

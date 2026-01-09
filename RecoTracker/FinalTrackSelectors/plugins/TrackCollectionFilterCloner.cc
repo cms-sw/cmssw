@@ -30,7 +30,6 @@
 #include <array>
 #include "CommonTools/Utils/interface/DynArray.h"
 
-
 namespace {
   using namespace reco;
 

@@ -33,7 +33,6 @@
 
 // #include "TMVA/Reader.h"
 
-
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -48,7 +47,7 @@
 
 namespace {
   using namespace reco;
-  
+
   class DuplicateListMerger final : public edm::global::EDProducer<> {
   public:
     /// constructor
