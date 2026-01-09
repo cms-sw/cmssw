@@ -91,6 +91,13 @@ protected:
     MonitorElement* deltaY_phi_P = nullptr;
     MonitorElement* deltaY_phi_S = nullptr;
 
+    MonitorElement* delta_phi_P = nullptr;
+    MonitorElement* delta_phi_P_barrel = nullptr;
+    MonitorElement* delta_phi_P_endcaps = nullptr;
+    MonitorElement* delta_phi_S = nullptr;
+    MonitorElement* delta_phi_S_barrel = nullptr;
+    MonitorElement* delta_phi_S_endcaps = nullptr;
+
     /*
       As the error is a constant these for now are not needed
 
