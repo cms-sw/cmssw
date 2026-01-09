@@ -69,7 +69,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     triplets.displacedScore()[tripletIndex] = t3Scores[2];
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRZConstraint(TAcc const& acc,
                                                        ModulesConst modules,
                                                        MiniDoubletsConst mds,
@@ -325,7 +325,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return false;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passPointingConstraint(TAcc const& acc,
                                                              ModulesConst modules,
                                                              MiniDoubletsConst mds,
@@ -388,7 +388,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return alpaka::math::abs(acc, betaInRHmin) < betaInCut;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletConstraintsAndAlgo(TAcc const& acc,
                                                                    ModulesConst modules,
                                                                    MiniDoubletsConst mds,

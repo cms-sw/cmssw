@@ -60,8 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
   class FillKernel {
   public:
-    template <typename TAcc>
-      requires ::alpaka::isAccelerator<TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, SoACollectionView view) const {
       if (cms::alpakatools::once_per_grid(acc)) {
         view.type() = 4;
@@ -91,8 +90,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
   class InputVerifyKernel {
   public:
-    template <typename TAcc>
-      requires ::alpaka::isAccelerator<TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, SoACollectionView view) const {
       if (cms::alpakatools::once_per_grid(acc)) {
         ALPAKA_ASSERT_ACC(view.type() == 4);
@@ -122,8 +120,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
   class TestOutputVerifyKernel {
   public:
-    template <typename TAcc>
-      requires ::alpaka::isAccelerator<TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, SoACollectionView view) const {
       for (auto i : cms::alpakatools::uniform_elements(acc, view.metadata().size())) {
         ALPAKA_ASSERT_ACC(view.x()[i] - view.v()[i] < tol);

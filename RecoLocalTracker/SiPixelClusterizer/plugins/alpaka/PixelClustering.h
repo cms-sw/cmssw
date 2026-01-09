@@ -21,7 +21,7 @@
 //#define GPU_DEBUG
 
 // TODO move to HeterogeneousCore/AlpakaInterface or upstream to alpaka
-template <typename TAcc, typename T>
+template <alpaka::concepts::Acc TAcc, typename T>
 ALPAKA_FN_ACC inline T atomicLoadFromShared(TAcc const& acc [[maybe_unused]], T* arg) {
 #if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) or defined(ALPAKA_ACC_GPU_HIP_ENABLED)
   // GPU backend, use a volatile read to force a non-cached acess
