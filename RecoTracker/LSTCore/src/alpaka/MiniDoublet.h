@@ -13,7 +13,7 @@
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addMDToMemory(TAcc const& acc,
                                                     MiniDoublets mds,
                                                     HitsBaseConst hitsBase,
@@ -127,7 +127,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return moduleSeparation;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float dPhiThreshold(TAcc const& acc,
                                                      float rt,
                                                      ModulesConst modules,
@@ -191,7 +191,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_INLINE ALPAKA_FN_ACC void shiftStripHits(TAcc const& acc,
                                                      ModulesConst modules,
                                                      uint16_t lowerModuleIndex,
@@ -359,7 +359,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     shiftedCoords[2] = zn;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC bool runMiniDoubletDefaultAlgoBarrel(TAcc const& acc,
                                                      ModulesConst modules,
                                                      uint16_t lowerModuleIndex,
@@ -487,7 +487,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return alpaka::math::abs(acc, dPhiChange) < miniCut;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC bool runMiniDoubletDefaultAlgoEndcap(TAcc const& acc,
                                                      ModulesConst modules,
                                                      uint16_t lowerModuleIndex,
@@ -599,7 +599,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return alpaka::math::abs(acc, dPhiChange) < miniCut;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC bool runMiniDoubletDefaultAlgo(TAcc const& acc,
                                                ModulesConst modules,
                                                uint16_t lowerModuleIndex,

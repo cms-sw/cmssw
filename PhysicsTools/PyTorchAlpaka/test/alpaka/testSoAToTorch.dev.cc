@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
   class FillKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, PositionDeviceCollectionView view) const {
       float input[4][3] = {{1.f, 2.f, 1.f}, {2.f, 4.f, 3.f}, {3.f, 4.f, 1.f}, {2.f, 3.f, 2.f}};
       for (auto i : cms::alpakatools::uniform_elements(acc, view.metadata().size())) {

@@ -87,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.regressionCenterY()[quadrupletIndex] = regressionCenterY;
   };
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passT4RZConstraint(TAcc const& acc,
                                                          ModulesConst modules,
                                                          MiniDoubletsConst mds,
@@ -299,7 +299,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return rzChiSquared < chi2_cuts[bin_index];
   };
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuadrupletDefaultAlgo(TAcc const& acc,
                                                                ModulesConst modules,
                                                                MiniDoubletsConst mds,

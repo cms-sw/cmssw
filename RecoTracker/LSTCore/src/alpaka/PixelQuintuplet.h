@@ -254,7 +254,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT5RPhiChiSquared(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 uint16_t* lowerModuleIndices,
@@ -377,7 +377,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT5RZChiSquared(TAcc const& acc,
                                                               ModulesConst modules,
                                                               const uint16_t* lowerModuleIndices,
@@ -464,7 +464,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return RMSE;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runPixelQuintupletDefaultAlgo(TAcc const& acc,
                                                                     ModulesConst modules,
                                                                     ObjectRangesConst ranges,
