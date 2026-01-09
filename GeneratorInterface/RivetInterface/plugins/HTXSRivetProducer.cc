@@ -17,6 +17,7 @@
 
 #include "Rivet/Particle.hh"
 #include "Rivet/AnalysisHandler.hh"
+#include "GeneratorInterface/RivetInterface/interface/HardScatterIdentification.h"
 #include "GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 
@@ -81,7 +82,16 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
         unsigned nBs = 0;
         unsigned nHs = 0;
 
-        ConstGenVertexPtr HSvtx = myGenEvent->vertices()[0];
+        const auto hsInfo = HTXSUtils::identifyHardScatter(myGenEvent.get());
+        ConstGenVertexPtr HSvtx = hsInfo.vertex;
+        if (HSvtx)
+          edm::LogInfo("HTXSRivetProducer") << "Found HSvtx, ID: " << HSvtx->id() << endl;
+
+        if (!HSvtx && !myGenEvent->vertices().empty()) {
+          edm::LogWarning("HTXSRivetProducer")
+              << "Unable to identify HS vertex from status/PDG selection, falling back to first vertex." << endl;
+          HSvtx = myGenEvent->vertices()[0];
+        }
 
         if (HSvtx) {
           for (const auto& ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {

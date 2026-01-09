@@ -6,6 +6,8 @@
 #include "Rivet/Particle.hh"
 #include "Rivet/Projections/FastJets.hh"
 
+#include "GeneratorInterface/RivetInterface/interface/HardScatterIdentification.h"
+
 // Definition of the StatusCode and Category enums
 //#include "HiggsTemplateCrossSections.h"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"  //
@@ -32,7 +34,7 @@ namespace Rivet {
     /// follow a "propagating" particle and return its last instance
     Particle getLastInstance(Particle ptcl) {
       if (ptcl.genParticle()->end_vertex()) {
-        if (!hasChild(ptcl.genParticle(), ptcl.pid()))
+        if (!HTXSUtils::hasChildWithPDG(ptcl.genParticle(), ptcl.pid()))
           return ptcl;
         else
           return getLastInstance(ptcl.children()[0]);
@@ -59,24 +61,6 @@ namespace Rivet {
     bool originateFrom(const Particle &p, const Particle &p2) {
       Particles ptcls = {p2};
       return originateFrom(p, ptcls);
-    }
-
-    /// @brief Checks whether the input particle has a child with a given PDGID
-    bool hasChild(const ConstGenParticlePtr &ptcl, int pdgID) {
-      for (const auto &child : Particle(*ptcl).children()) {
-        if (child.pid() == pdgID) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    /// @brief Checks whether the input particle has a parent with a given PDGID
-    bool hasParent(const ConstGenParticlePtr &ptcl, int pdgID) {
-      for (const auto &parent : HepMCUtils::particles(ptcl->production_vertex(), Relatives::PARENTS))
-        if (parent->pdg_id() == pdgID)
-          return true;
-      return false;
     }
 
     /// @brief Return true is particle decays to quarks
@@ -151,29 +135,18 @@ namespace Rivet {
        *  There should be only one of each.
        */
 
-      ConstGenVertexPtr HSvtx = nullptr;
-      int Nhiggs = 0;
-      for (const ConstGenParticlePtr &ptcl : HepMCUtils::particles(event.genEvent())) {
-        // a) Reject all non-Higgs particles
-        if (!PID::isHiggs(ptcl->pdg_id()))
-          continue;
-        // b) select only the final Higgs boson copy, prior to decay
-        if (ptcl->end_vertex() && !hasChild(ptcl, PID::HIGGS)) {
-          cat.higgs = Particle(ptcl);
-          ++Nhiggs;
-        }
-        // c) HepMC3 does not provide signal_proces_vertex anymore
-        //    set hard-scatter vertex based on first Higgs boson
-        if (HSvtx == nullptr && ptcl->production_vertex() && !hasParent(ptcl, PID::HIGGS))
-          HSvtx = ptcl->production_vertex();
-      }
+      const auto hsInfo = HTXSUtils::identifyHardScatter(event.genEvent());
+      ConstGenVertexPtr HSvtx = hsInfo.vertex;
+      const int Nhiggs = hsInfo.higgsCount;
+      if (hsInfo.higgs)
+        cat.higgs = Particle(hsInfo.higgs);
 
       // Make sure things are in order so far
       if (Nhiggs != 1)
         return error(cat,
                      HTXS::HIGGS_IDENTIFICATION,
                      "Current event has " + std::to_string(Nhiggs) + " Higgs bosons. There must be only one.");
-      if (cat.higgs.children().size() < 2)
+      if (!hsInfo.higgs || cat.higgs.children().size() < 2)
         return error(cat, HTXS::HIGGS_DECAY_IDENTIFICATION, "Could not identify Higgs boson decay products.");
 
       if (HSvtx == nullptr)
