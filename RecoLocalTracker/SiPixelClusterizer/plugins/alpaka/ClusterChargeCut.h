@@ -19,7 +19,7 @@ namespace pixelClustering {
 
   template <typename TrackerTraits>
   struct ClusterChargeCut {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   SiPixelDigisSoAView digi_view,
                                   SiPixelClustersSoAView clus_view,

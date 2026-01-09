@@ -16,7 +16,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
-  template <int FEATURES, typename TAcc>
+  template <int FEATURES, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void softmax_activation(TAcc const& acc, float (&input)[FEATURES]) {
     float sum = 0.f;
     // Compute exp and sum
@@ -41,7 +41,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float sigmoid_activation(TAcc const& acc, const float x) {
     return alpaka::math::exp(acc, x) / (alpaka::math::exp(acc, x) + 1.f);
   }
@@ -62,7 +62,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   namespace t3dnn {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runInference(TAcc const& acc,
                                                      MiniDoubletsConst mds,
                                                      const unsigned int mdIndex1,
@@ -141,7 +141,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   namespace pt3dnn {
 
-    template <typename WP, typename TAcc>
+    template <typename WP, alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runInference(TAcc const& acc,
                                                      const float rPhiChiSquared,
                                                      const float tripletRadius,
@@ -192,7 +192,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }  // namespace pt3dnn
 
   namespace t5dnn {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runInference(TAcc const& acc,
                                                      MiniDoubletsConst mds,
                                                      const unsigned int mdIndex1,
@@ -296,7 +296,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }  // namespace t5dnn
 
   namespace t5embdnn {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void runEmbed(TAcc const& acc,
                                                  MiniDoubletsConst mds,
                                                  unsigned int mdIndex1,
@@ -393,7 +393,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }  // namespace t5embdnn
 
   namespace plsembdnn {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void runEmbed(TAcc const& acc,
                                                  const float eta,
                                                  const float etaErr,
@@ -435,7 +435,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }  // namespace plsembdnn
 
   namespace t4dnn {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runInference(TAcc const& acc,
                                                      MiniDoubletsConst mds,
                                                      ModulesConst modules,

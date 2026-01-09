@@ -432,7 +432,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // just for debugging
     template <typename TrackerTraits>
     struct ShowHitsModuleStart {
-      template <typename TAcc>
+      template <alpaka::concepts::Acc TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc &acc, SiPixelClustersSoAView clus_view) const {
         if (cms::alpakatools::once_per_grid(acc)) {
           for (int i = 0; i < TrackerTraits::numberOfModules; i++)
