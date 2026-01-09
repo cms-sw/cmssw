@@ -1,9 +1,12 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalIdCheck_cfg.py geometry=D120 detector=file=D120E
+#   cmsRun testHGCalIdCheck_cfg.py geometry=D120 detector=HGCalEESensitive
+#                                  fileIn=D120E fileOut=junk
 #
 #   Options for geometry D120, D122
-#           for file D120E, D122E, WaferH120, CellE120, CellH120
+#           for fileIn D120E.txt, D122E.txt, WaferH120.txt, CellE120.txt,
+#                    CellH120.txt, ""
+#           for fileOut junk, ""
 #           for detector HGCalEESensitive, HGCalHESiliconSensitive
 #
 ###############################################################################
@@ -19,11 +22,16 @@ options.register('geometry',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D120, D122")
-options.register('file',
+options.register('fileIn',
                  "D120E",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D120E, D122E, WaferH120, CellE120, CellH120")
+options.register('fileOut',
+                 "",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: '', 'D120E.txt', 'D120H.txt'")
 options.register('detector',
                  "HGCalEESensitive",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -41,11 +49,13 @@ print(options)
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 detector = options.detector
-fileName = options.file + ".txt"
+fileName = options.fileIn
+outFile  = options.fileOut
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
 print("Input file:    ", fileName)
+print("Output file:   ", outFile)
 print("Deector:       ", detector)
 
 process = cms.Process('HGCIdCheck',ERA)
@@ -91,5 +101,6 @@ process.maxEvents = cms.untracked.PSet(
 
 process.hgcalIdCheck.nameDetector = detector
 process.hgcalIdCheck.fileName = fileName
+process.hgcalIdCheck.outFileName = outFile
 
 process.p1 = cms.Path(process.generator*process.hgcalIdCheck)
