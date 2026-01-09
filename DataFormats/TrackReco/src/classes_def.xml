@@ -318,26 +318,22 @@
   </ioread>
 
 
-  <class name="reco::TrackExtra" ClassVersion="14">
-   <version ClassVersion="14" checksum="388593738"/>
-   <version ClassVersion="13" checksum="2526033150"/>
-   <version ClassVersion="12" checksum="106004853"/>
-   <version ClassVersion="11" checksum="2586227274"/>
-   <version ClassVersion="10" checksum="1613098482"/>
+  <class name="reco::io_v1::TrackExtra" ClassVersion="3">
+   <version ClassVersion="3" checksum="1477568196"/>
     <field name="outerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="outerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="innerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="innerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
-  <class name="std::vector<reco::TrackExtra>"/>
-  <class name="edm::Wrapper<std::vector<reco::TrackExtra> >"/>
-  <class name="edm::RefProd<std::vector<reco::TrackExtra> >"/>
-  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra>"/>
-  <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
-  <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
+  <class name="std::vector<reco::io_v1::TrackExtra>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::TrackExtra> >"/>
+  <class name="edm::RefProd<std::vector<reco::io_v1::TrackExtra> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackExtra>,reco::io_v1::TrackExtra>"/>
+  <class name="edm::Ref<std::vector<reco::io_v1::TrackExtra>,reco::io_v1::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackExtra>,reco::io_v1::TrackExtra> >"/>
+  <class name="edm::RefVector<std::vector<reco::io_v1::TrackExtra>,reco::io_v1::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackExtra>,reco::io_v1::TrackExtra> >"/>
 
   <class name="reco::io_v1::Track" ClassVersion="3">
-   <version ClassVersion="3" checksum="3782984338"/>
+   <version ClassVersion="3" checksum="874879354"/>
   </class>
   <class name="std::vector<reco::io_v1::Track>"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::Track> >"/>
@@ -485,8 +481,8 @@
      <class name="std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > > > >"/>
      <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > > > > >"/>
 
-    <class name="edm::Association<std::vector<reco::TrackExtra>>"/>
-    <class name="edm::Wrapper<edm::Association<std::vector<reco::TrackExtra>>>"/>
+    <class name="edm::Association<std::vector<reco::io_v1::TrackExtra>>"/>
+    <class name="edm::Wrapper<edm::Association<std::vector<reco::io_v1::TrackExtra>>>"/>
 
    <class name="reco::DeDxHitInfo::DeDxHitInfoContainer" ClassVersion="3">
     <version ClassVersion="2" checksum="3964047764"/>

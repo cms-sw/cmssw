@@ -25,7 +25,7 @@
   <class name="edm::RefVector<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
 
   <class name="reco::GsfTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="916246232"/>
+    <version ClassVersion="3" checksum="100950784"/>
     <field name="momentumMode_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
   <class name="std::vector<reco::GsfTrack>"/>
