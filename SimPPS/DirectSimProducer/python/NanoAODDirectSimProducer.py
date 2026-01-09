@@ -58,6 +58,14 @@ class NanoAODDirectSimProducer(Module):
         self.out.branch("PPSLocalTracks_singleRPProtonIdx", "F", lenVar="nPPSLocalTracks")
         self.out.branch("PPSLocalTracks_decRPId", "I", lenVar="nPPSLocalTracks")
         self.out.branch("PPSLocalTracks_rpType", "I", lenVar="nPPSLocalTracks")
+        self.out.branch("nProton_multiRP", "I")
+        self.out.branch("Proton_multiRP_arm", "F", lenVar="nProton_multiRP")
+        self.out.branch("Proton_multiRP_xi", "F", lenVar="nProton_multiRP")
+        self.out.branch("Proton_multiRP_thetaX", "F", lenVar="nProton_multiRP")
+        self.out.branch("Proton_multiRP_thetaY", "F", lenVar="nProton_multiRP")
+        self.out.branch("Proton_multiRP_t", "F", lenVar="nProton_multiRP")
+        self.out.branch("Proton_multiRP_time", "F", lenVar="nProton_multiRP")
+        self.out.branch("Proton_multiRP_timeUnc", "F", lenVar="nProton_multiRP")
         self.out.branch("nProton_singleRP", "I")
         self.out.branch("Proton_singleRP_arm", "F", lenVar="nProton_singleRP")
         self.out.branch("Proton_singleRP_decRPId", "I", lenVar="nProton_singleRP")
@@ -96,6 +104,14 @@ class NanoAODDirectSimProducer(Module):
         PPSLocalTracks_singleRPProtonIdx = []
         PPSLocalTracks_decRPId = []
         PPSLocalTracks_rpType = []
+        nProton_multiRP = 0
+        Proton_multiRP_arm = []
+        Proton_multiRP_xi = []
+        Proton_multiRP_thetaX = []
+        Proton_multiRP_thetaY = []
+        Proton_multiRP_t = []
+        Proton_multiRP_time = []
+        Proton_multiRP_timeUnc = []
         nProton_singleRP = 0
         Proton_singleRP_arm = []
         Proton_singleRP_decRPId = []
@@ -121,10 +137,12 @@ class NanoAODDirectSimProducer(Module):
                 PPSLocalTracks_y.append(track.y())
                 PPSLocalTracks_time.append(track.time())
                 PPSLocalTracks_timeUnc.append(track.timeUnc())
-                PPSLocalTracks_multiRPProtonIdx.append(0.)   #FIXME
-                PPSLocalTracks_singleRPProtonIdx.append(nPPSLocalTracks)
+                PPSLocalTracks_multiRPProtonIdx.append(nProton_multiRP)
+                PPSLocalTracks_singleRPProtonIdx.append(nProton_singleRP)
                 PPSLocalTracks_decRPId.append(dec_detid)
                 PPSLocalTracks_rpType.append(rp_type)
+                # TODO: multi-RP proton objects
+                # for now, single-RP protons are assumed to be a clone of local tracks
                 nProton_singleRP += 1
                 Proton_singleRP_arm.append(detid.arm())
                 Proton_singleRP_decRPId.append(dec_detid)
@@ -146,6 +164,14 @@ class NanoAODDirectSimProducer(Module):
         self.out.fillBranch("PPSLocalTracks_singleRPProtonIdx", PPSLocalTracks_singleRPProtonIdx)
         self.out.fillBranch("PPSLocalTracks_decRPId", PPSLocalTracks_decRPId)
         self.out.fillBranch("PPSLocalTracks_rpType", PPSLocalTracks_rpType)
+        self.out.fillBranch("nProton_multiRP", nProton_multiRP)
+        self.out.fillBranch("Proton_multiRP_arm", Proton_multiRP_arm)
+        self.out.fillBranch("Proton_multiRP_xi", Proton_multiRP_xi)
+        self.out.fillBranch("Proton_multiRP_thetaX", Proton_multiRP_thetaX)
+        self.out.fillBranch("Proton_multiRP_thetaY", Proton_multiRP_thetaY)
+        self.out.fillBranch("Proton_multiRP_t", Proton_multiRP_t)
+        self.out.fillBranch("Proton_multiRP_time", Proton_multiRP_time)
+        self.out.fillBranch("Proton_multiRP_timeUnc", Proton_multiRP_timeUnc)
         self.out.fillBranch("nProton_singleRP", nProton_singleRP)
         self.out.fillBranch("Proton_singleRP_arm", Proton_singleRP_arm)
         self.out.fillBranch("Proton_singleRP_decRPId", Proton_singleRP_decRPId)
