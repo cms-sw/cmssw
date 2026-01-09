@@ -16,6 +16,8 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <cassert>
 #include <stdexcept>
@@ -48,6 +50,12 @@ namespace edmtest {
 
     virtual ~SCSimpleProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("size")->setComment("Number of Simples to put in the collection");
+      descriptions.addDefault(desc);
+    }
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -91,6 +99,12 @@ namespace edmtest {
 
     virtual ~OVSimpleProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("size")->setComment("Number of Simples to put in the collection");
+      descriptions.addDefault(desc);
+    }
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -144,6 +158,12 @@ namespace edmtest {
     virtual ~VSimpleProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("size")->setComment("Number of Simples to put in the collection");
+      descriptions.addDefault(desc);
+    }
+
   private:
     int size_;  // number of Simples to put in the collection
   };
@@ -176,6 +196,12 @@ namespace edmtest {
     }
 
     virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<edm::InputTag>("src")->setComment("Source input tag for Simple vector");
+      descriptions.addDefault(desc);
+    }
 
   private:
     edm::InputTag src_;
@@ -221,6 +247,12 @@ namespace edmtest {
     virtual ~DSVProducer() {}
 
     virtual void produce(edm::Event& e, edm::EventSetup const&) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("size")->setComment("Number of items to put in the DetSetVector collections");
+      descriptions.addDefault(desc);
+    }
 
   private:
     template <typename PROD>
@@ -277,6 +309,12 @@ namespace edmtest {
     }
     virtual ~ProdigalProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<std::string>("label")->setComment("Label of the IntProduct to consume");
+      descriptions.addDefault(desc);
+    }
 
   private:
     std::string label_;
