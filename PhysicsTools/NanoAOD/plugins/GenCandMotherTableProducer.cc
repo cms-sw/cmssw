@@ -47,7 +47,7 @@ public:
       else {
         key[i] = -1;
         // try to find the closest mother which is in the map
-        while (match.isNull() && motherRef.isNonnull()) {
+        while (match.isNull() && motherRef.isNonnull() && motherRef->numberOfMothers() > 0) {
           motherRef = motherRef->motherRef();
           match = (*map)[motherRef];
           if (match.isNonnull())
