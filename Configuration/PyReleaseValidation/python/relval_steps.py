@@ -1325,9 +1325,9 @@ steps['Cosmics_UP21_0T']=merge([{'--magField':'0T','--conditions':'auto:phase1_2
 steps['CosmicsSPLoose_UP17']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(5000,500000),step1Up2015Defaults])
 steps['CosmicsSPLoose_UP18']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:phase1_2018_cosmics','--scenario':'cosmics','--era':'Run2_2018'},Kby(5000,500000),step1Up2015Defaults])
 
-# Phase2 cosmics with geometry D98
+# Phase2 cosmics with geometry D121
 from Configuration.PyReleaseValidation.upgradeWorkflowComponents import upgradeProperties
-phase2CosInfo=upgradeProperties['Run4']['Run4D98'] # so if the default changes, change wf only here
+phase2CosInfo=upgradeProperties['Run4']['Run4D121'] # so if the default changes, change wf only here
 
 steps['Cosmics_Phase2']=merge([{'cfg':'UndergroundCosmicMu_cfi.py',
                                 '-n':'500',
@@ -4848,13 +4848,6 @@ defaultDataSets["2025HLTOnDigi"] = defaultDataSets["2025SimOnGen"] = defaultData
 defaultDataSets["2026HLTOnDigi"] = defaultDataSets["2026SimOnGen"] = defaultDataSets['2026']
 defaultDataSets['2024FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v' #To replace with new dataset
 defaultDataSets['2025FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v' #To replace with new dataset
-defaultDataSets['Run4D49']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D49noPU-v'
-defaultDataSets['Run4D76']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D76noPU-v'
-defaultDataSets['Run4D77']='CMSSW_12_1_0_pre2-113X_mcRun4_realistic_v7_2026D77noPU-v'
-defaultDataSets['Run4D88']='CMSSW_12_3_0_pre5-123X_mcRun4_realistic_v4_2026D88noPU-v'
-defaultDataSets['Run4D95']='CMSSW_13_1_0_pre1-130X_mcRun4_realistic_v2_2026D95noPU-v'
-defaultDataSets['Run4D96']='CMSSW_13_1_0_pre1-130X_mcRun4_realistic_v2_2026D96noPU-v'
-defaultDataSets['Run4D98']='CMSSW_13_2_0_pre1-131X_mcRun4_realistic_v5_2026D98noPU-v'
 defaultDataSets['Run4D110']='CMSSW_15_1_0_pre5-150X_mcRun4_realistic_v1_STD_RegeneratedGS_Run4D110_noPU-v'
 defaultDataSets['Run4D121']='CMSSW_16_0_0_pre2-150X_mcRun4_realistic_v1_STD_RegeneratedGS_Run4D121_noPU-v'
 
