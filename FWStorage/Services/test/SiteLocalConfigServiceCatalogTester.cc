@@ -1,5 +1,7 @@
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
@@ -14,6 +16,8 @@ namespace edmtest {
     SiteLocalConfigServiceCatalogTester(const edm::ParameterSet& iPSet);
 
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {}
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   };
 
   SiteLocalConfigServiceCatalogTester::SiteLocalConfigServiceCatalogTester(const edm::ParameterSet& iPSet) {
@@ -38,6 +42,16 @@ namespace edmtest {
                                        << ", expected '" << expectResult << "'";
       }
     }
+  }
+
+  void SiteLocalConfigServiceCatalogTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    edm::ParameterSetDescription fileDesc;
+    fileDesc.addUntracked<std::string>("file");
+    fileDesc.addUntracked<unsigned int>("catalogIndex");
+    fileDesc.addUntracked<std::string>("expectResult");
+    desc.addVPSetUntracked("files", fileDesc, {});
+    descriptions.addDefault(desc);
   }
 }  // namespace edmtest
 

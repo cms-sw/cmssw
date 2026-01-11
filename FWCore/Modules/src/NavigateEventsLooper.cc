@@ -21,6 +21,8 @@ turn off fast cloning its configuration.
 #include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 
@@ -36,6 +38,8 @@ namespace edm {
     void startingNewLoop(unsigned int iIteration) override;
     Status duringLoop(Event const& ev, EventSetup const& es, ProcessingController& pc) override;
     Status endOfLoop(EventSetup const& es, unsigned int iCounter) override;
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     int maxLoops_;
@@ -163,6 +167,12 @@ namespace edm {
       return kStop;
     ++countLoops_;
     return (maxLoops_ < 0 || countLoops_ < maxLoops_) ? kContinue : kStop;
+  }
+
+  void NavigateEventsLooper::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.addUntracked<int>("maxLoops", -1);
+    descriptions.addDefault(desc);
   }
 }  // namespace edm
 
