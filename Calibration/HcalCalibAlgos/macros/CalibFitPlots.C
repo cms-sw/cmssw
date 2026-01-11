@@ -163,7 +163,7 @@
 //             uncertainty for each depth
 //
 //            For plotting histogram defined in "hist0" of phisymmetry
-//  DrawHistPhiSymmetry(hist0, isRealData, drawStatBox, save) 
+//  DrawHistPhiSymmetry(hist0, isRealData, drawStatBox, save)
 //      Defaults save=false
 //
 //            For plotting phisymmetry results
@@ -1305,11 +1305,7 @@ void FitHistExtended2(const char* infile,
   }
 }
 
-void FitHistRBX(const char* infile, 
-		const char* outfile, 
-		std::string prefix, 
-		bool append = true, 
-		int iname = 3) {
+void FitHistRBX(const char* infile, const char* outfile, std::string prefix, bool append = true, int iname = 3) {
   std::string sname("RBX"), lname("R");
   int numb(18);
   bool debug(false);
@@ -1705,11 +1701,7 @@ void PlotHistEta(const char* infile,
   }
 }
 
-void PlotHists(std::string infile, 
-	       std::string prefix, 
-	       std::string text, 
-	       bool drawStatBox = true, 
-	       int save = 0) {
+void PlotHists(std::string infile, std::string prefix, std::string text, bool drawStatBox = true, int save = 0) {
   int colors[6] = {1, 6, 4, 7, 2, 9};
   std::string types[6] = {"B", "C", "D", "E", "F", "G"};
   std::string names[3] = {"ratio20", "Z2", "W2"};
@@ -2238,10 +2230,7 @@ void PlotFiveHists(std::string infile,
   }
 }
 
-void PlotHistCorrResults(std::string infile, 
-			 std::string text,
-			 std::string prefixF, 
-			 int save = 0) {
+void PlotHistCorrResults(std::string infile, std::string text, std::string prefixF, int save = 0) {
   std::string name[5] = {"Eta1Bf", "Eta2Bf", "Eta1Af", "Eta2Af", "Cvg0"};
   std::string title[5] = {"Mean at the start of itertions",
                           "Median at the start of itertions",
@@ -2607,12 +2596,8 @@ void PlotHistCorrFactor(std::string infile,
   }
 }
 
-void PlotHistCorrAsymmetry(std::string infile,
-			   std::string text,
-			   std::string prefixF = "", 
-			   int depth = -1,
-			   int iformat = 0, 
-			   int save = 0) {
+void PlotHistCorrAsymmetry(
+    std::string infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
   double scale(1.0);
@@ -3482,10 +3467,7 @@ void PlotHistCorrDFactors(std::string infile1,
   }
 }
 
-void PlotHistCorrSys(std::string infilec, 
-		     int conds, 
-		     std::string text, 
-		     int save = 0) {
+void PlotHistCorrSys(std::string infilec, int conds, std::string text, int save = 0) {
   char fname[100];
   int iformat(0);
   sprintf(fname, "%s_cond0.txt", infilec.c_str());
@@ -3605,10 +3587,7 @@ void PlotHistCorrSys(std::string infilec,
   }
 }
 
-void PlotHistCorrLumis(std::string infilec, 
-		       int conds, 
-		       double lumi, 
-		       int save = 0) {
+void PlotHistCorrLumis(std::string infilec, int conds, double lumi, int save = 0) {
   char fname[100];
   int iformat(0);
   sprintf(fname, "%s_0.txt", infilec.c_str());
@@ -4505,11 +4484,7 @@ void PlotPropertyHist(std::string infile,
   }
 }
 
-void PlotMeanError(const std::string infilest, 
-		   int reg = 3, 
-		   bool resol = false, 
-		   int save = 0, 
-		   bool debug = false) {
+void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, int save = 0, bool debug = false) {
   bool ok(false);
   const int ntypmx = 3;
   const int nregmx = 4;
@@ -4814,10 +4789,7 @@ void PlotDepthCorrFactor(std::string infile,
   }
 }
 
-void DrawHistPhiSymmetry(TH1D* hist0, 
-			 bool isRealData, 
-			 bool drawStatBox, 
-			 bool save=false) {
+void DrawHistPhiSymmetry(TH1D* hist0, bool isRealData, bool drawStatBox, bool save = false) {
   char name[30], namep[30], txt1[30];
   TH1D* hist = (TH1D*)(hist0->Clone());
   sprintf(namep, "c_%s", hist->GetName());
@@ -4860,11 +4832,8 @@ void DrawHistPhiSymmetry(TH1D* hist0,
   }
 }
 
-void PlotPhiSymmetryResults(std::string infile, 
-                            bool isRealData = true, 
-                            bool drawStatBox = true, 
-                            bool debug = false, 
-                            bool save = false) {
+void PlotPhiSymmetryResults(
+    std::string infile, bool isRealData = true, bool drawStatBox = true, bool debug = false, bool save = false) {
   const int maxDepthHB(4), maxDepthHE(7);
   const double cfacMin(0.70), cfacMax(1.5);
   const int nbin = (100.0 * (cfacMax - cfacMin));
@@ -4988,7 +4957,7 @@ void PlotHistCorrRatio(std::string infile1,
                        bool isRealData = true,
                        const char* year = "2024",
                        int iformat = 0,
-		       int range = 2,
+                       int range = 2,
                        int save = 0) {
   std::map<int, cfactors> cfacs[2];
   std::vector<std::string> texts;
