@@ -1,16 +1,16 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_pixelCPEforGPU_h
 #define RecoLocalTracker_SiPixelRecHits_pixelCPEforGPU_h
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <iterator>
 
-#include "CUDADataFormats/TrackingRecHit/interface/SiPixelHitStatus.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
+#include "DataFormats/TrackingRecHitSoA/interface/SiPixelHitStatus.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 
 namespace CPEFastParametrisation {
   // From https://cmssdt.cern.ch/dxr/CMSSW/source/CondFormats/SiPixelTransient/src/SiPixelGenError.cc#485-486
@@ -90,20 +90,18 @@ namespace pixelCPEforGPU {
     LayerGeometry const* m_layerGeometry;
     AverageGeometry const* m_averageGeometry;
 
-    constexpr CommonParams const& __restrict__ commonParams() const {
-      CommonParams const* __restrict__ l = m_commonParams;
+    constexpr CommonParams const& commonParams() const {
+      CommonParams const* l = m_commonParams;
       return *l;
     }
-    constexpr DetParams const& __restrict__ detParams(int i) const {
-      DetParams const* __restrict__ l = m_detParams;
+    constexpr DetParams const& detParams(int i) const {
+      DetParams const* l = m_detParams;
       return l[i];
     }
-    constexpr LayerGeometry const& __restrict__ layerGeometry() const { return *m_layerGeometry; }
-    constexpr AverageGeometry const& __restrict__ averageGeometry() const { return *m_averageGeometry; }
+    constexpr LayerGeometry const& layerGeometry() const { return *m_layerGeometry; }
+    constexpr AverageGeometry const& averageGeometry() const { return *m_averageGeometry; }
 
-    __device__ uint8_t layer(uint16_t id) const {
-      return __ldg(m_layerGeometry->layer + id / m_layerGeometry->maxModuleStride);
-    };
+    uint8_t layer(uint16_t id) const { return *(m_layerGeometry->layer + id / m_layerGeometry->maxModuleStride); };
   };
 
   // SOA (on device)
@@ -133,11 +131,11 @@ namespace pixelCPEforGPU {
     Status status[N];
   };
 
-  constexpr int32_t MaxHitsInIter = pixelClustering::maxHitsInIter();
-  using ClusParams = ClusParamsT<MaxHitsInIter>;
+  constexpr int32_t maxHitsInIter = pixelClustering::maxHitsInIter();
+  using ClusParams = ClusParamsT<maxHitsInIter>;
 
   constexpr inline void computeAnglesFromDet(
-      DetParams const& __restrict__ detParams, float const x, float const y, float& cotalpha, float& cotbeta) {
+      DetParams const& detParams, float const x, float const y, float& cotalpha, float& cotbeta) {
     // x,y local position on det
     auto gvx = x - detParams.x0;
     auto gvy = y - detParams.y0;
@@ -208,8 +206,8 @@ namespace pixelCPEforGPU {
   }
 
   template <typename TrackerTraits>
-  constexpr inline void position(CommonParams const& __restrict__ comParams,
-                                 DetParams const& __restrict__ detParams,
+  constexpr inline void position(CommonParams const& comParams,
+                                 DetParams const& detParams,
                                  ClusParams& cp,
                                  uint32_t ic) {
     constexpr int maxSize = TrackerTraits::maxSizeCluster;
@@ -307,8 +305,8 @@ namespace pixelCPEforGPU {
   }
 
   template <typename TrackerTraits>
-  constexpr inline void errorFromSize(CommonParams const& __restrict__ comParams,
-                                      DetParams const& __restrict__ detParams,
+  constexpr inline void errorFromSize(CommonParams const& comParams,
+                                      DetParams const& detParams,
                                       ClusParams& cp,
                                       uint32_t ic) {
     // Edge cluster errors
@@ -365,8 +363,8 @@ namespace pixelCPEforGPU {
   }
 
   template <typename TrackerTraits>
-  constexpr inline void errorFromDB(CommonParams const& __restrict__ comParams,
-                                    DetParams const& __restrict__ detParams,
+  constexpr inline void errorFromDB(CommonParams const& comParams,
+                                    DetParams const& detParams,
                                     ClusParams& cp,
                                     uint32_t ic) {
     // Edge cluster errors
@@ -423,8 +421,8 @@ namespace pixelCPEforGPU {
 
   //for Phase2 -> fallback to error from size
   template <>
-  constexpr inline void errorFromDB<pixelTopology::Phase2>(CommonParams const& __restrict__ comParams,
-                                                           DetParams const& __restrict__ detParams,
+  constexpr inline void errorFromDB<pixelTopology::Phase2>(CommonParams const& comParams,
+                                                           DetParams const& detParams,
                                                            ClusParams& cp,
                                                            uint32_t ic) {
     errorFromSize<pixelTopology::Phase2>(comParams, detParams, cp, ic);
