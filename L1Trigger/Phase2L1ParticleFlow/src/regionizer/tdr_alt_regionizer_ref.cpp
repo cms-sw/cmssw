@@ -39,10 +39,10 @@ l1ct::TDRAltRegionizerEmulator::TDRAltRegionizerEmulator(uint32_t ntk,
                                                          uint32_t ncalo,
                                                          uint32_t nem,
                                                          uint32_t nmu,
-                                                         bool debug_tk = false,
-                                                         bool debug_calo = false,
-                                                         bool debug_emcalo = false,
-                                                         bool debug_mu = false
+                                                         bool debug_tk,
+                                                         bool debug_calo,
+                                                         bool debug_emcalo,
+                                                         bool debug_mu
                                                         )
   : RegionizerEmulator(),
     ntk_(ntk),

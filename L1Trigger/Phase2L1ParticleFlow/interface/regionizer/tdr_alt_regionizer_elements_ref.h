@@ -36,7 +36,6 @@ namespace l1ct {
 
       //T obj() { return obj_; }
       const T& obj() const { return obj_; }
-      const T
 
     private:
       T obj_;
@@ -48,7 +47,7 @@ namespace l1ct {
     template <typename T>
     class Buffer {
     public:
-      Buffer() : {}
+      Buffer() {}
 
       void addEntry(const T& obj,
                     std::vector<size_t> srs,
@@ -58,14 +57,14 @@ namespace l1ct {
       bool empty(size_t sr) const;
       BufferEntry<T> getEntry(size_t sr);
 
-
-
       // mainly for debug/validation, to check that nothing is left over after an event
       // This is the number of entries in all the deques, not necessarily the number of
       // entries in the map.
       unsigned int numEntries() const;
 
       void reset() { data_.clear(); }
+
+      void printDebug(size_t bufIdx) const;
 
     private:
 
@@ -92,7 +91,7 @@ namespace l1ct {
 
       void reset();
 
-      const std::vector<std::vector<T>>& smallRegions() const return {smallRegionObjects_; }
+      const std::vector<std::vector<T>>& smallRegions() const { return smallRegionObjects_; }
       void clearSmallRegions();
 
       void printDebug(int count) const;

@@ -18,7 +18,11 @@ namespace l1ct {
     TDRAltRegionizerEmulator(uint32_t ntk,
                              uint32_t ncalo,
                              uint32_t nem,
-                             uint32_t nmu);
+                             uint32_t nmu,
+                             bool debug_tk = false,
+                             bool debug_calo = false,
+                             bool debug_emcalo = false,
+                             bool debug_mu = false);
 
     // note: this one will work only in CMSSW
     TDRAltRegionizerEmulator(const edm::ParameterSet& iConfig);

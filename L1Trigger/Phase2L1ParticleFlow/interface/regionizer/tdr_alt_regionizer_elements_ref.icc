@@ -17,12 +17,41 @@ inline void l1ct::tdr_alt_regionizer::Buffer<T>::addEntry(const T& obj, std::vec
   }
 }
 
+template <typename T>
+inline bool l1ct::tdr_alt_regionizer::Buffer<T>::empty(size_t sr) const {
+  auto it = data_.find(sr);
+  if (it != data_.end()) {
+    return it->second.empty();
+  } else {
+    return true;
+  }
+}
+
+template <typename T>
+inline l1ct::tdr_alt_regionizer::BufferEntry<T> l1ct::tdr_alt_regionizer::Buffer<T>::getEntry(size_t sr) {
+  BufferEntry<T> entry = data_[sr].front();
+  data_[sr].pop_front();
+  return entry;
+}
+
+template <typename T>
 unsigned int l1ct::tdr_alt_regionizer::Buffer<T>::numEntries() const {
-  unsinged int count = 0;
+  unsigned int count = 0;
   for (const auto& [key, value] : data_) {
     count += value.size();
   }
   return count;
+}
+
+template <typename T>
+void l1ct::tdr_alt_regionizer::Buffer<T>::printDebug(size_t bufferIdx) const {
+  for (auto srq_it = data_.rbegin(); srq_it != data_.rend(); ++srq_it) {
+    for (unsigned int j = 0; j < srq_it->second.size(); j++) {
+      dbgCout() << "\t" << bufferIdx << "\t" << srq_it->first << "\t" << j << "\t" << srq_it->second[j].pt()
+                << "\t" << srq_it->second[j].glbEta() << "\t" << srq_it->second[j].glbPhi() << std::endl;
+    }
+    dbgCout() << "-------------------------------" << std::endl;
+  }
 }
 
 // REGIONIZER
@@ -50,13 +79,13 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::initSectors(const std::vector<Dete
     sectors_.push_back(sector.region);
   }
 
-  buffers_.resize(sectors_size());
+  buffers_.resize(sectors_.size());
 
   std::sort(sectorMapLogToPhys_.begin(), sectorMapLogToPhys_.end(), [this](size_t a, size_t b) {
     return this->sortSectors(a, b);
   });
   // now logical to physical mapping should be correct
-  
+
   if (debug_) {
     for (auto val : sectorMapLogToPhys_) {
       dbgCout() << "sectorMapLogToPhys phys index = " << val << ", eta = " << sectors_[val].intEtaCenter()
@@ -78,7 +107,7 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::initSectors(const DetectorSector<T
   sectorMapPhysToLog_.push_back(0);
   buffers_.resize(1);
   if (debug_) {
-    dbgCout() << "Number of sectors: " << nsectors_ << std::endl;
+    dbgCout() << "Number of sectors: " << sectors_.size() << std::endl;
   }
 }
 
@@ -115,16 +144,6 @@ bool l1ct::tdr_alt_regionizer::Regionizer<T>::sortRegionsHelper(int etaa, int et
     return false;
   }
 
-  // if here, then etaa == etab, move to phi
-  if (bigRegionMax_ < bigRegionMin_) {
-    // the wraparound case, rewrap around pi
-    if (phia < 0) {
-      phia += l1ct::Scales::INTPHI_TWOPI;
-    }
-    if (phib < 0) {
-      phib += l1ct::Scales::INTPHI_TWOPI;
-    }
-  }
   // regular phi
   if (phia < phib) {
     return true;
@@ -191,15 +210,15 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::setBuffers(const std::vector<std::
   assert(numBuffers() == objvecvec.size());
   for (unsigned int buffer = 0; buffer < numBuffers(); buffer++) {
     assert(buffers_[buffer].numEntries() == 0);  // should be empty
-    for (auto& obj : objvec) {
+    for (auto& obj : objvecvec[buffer]) {
       if (debug_) {
         dbgCout() << "Buffer " << buffer << ": add obj with pt = " << obj.intPt() << std::endl;
       }
       auto glbphi = sectors_[buffer].hwGlbPhiOf(obj).to_int();
       auto glbeta = sectors_[buffer].hwGlbEtaOf(obj).to_int();
       if (debug_) {
-        dbgCout() << "Buffer " << buffer << ": add obj with pt = " << obj.intPt() 
-          << ", glb eta = " << glbeta << ". glb phi = " << gblphi << std::endl;
+        dbgCout() << "Buffer " << buffer << ": add obj with pt = " << obj.intPt()
+          << ", glb eta = " << glbeta << ". glb phi = " << glbphi << std::endl;
       }
       // get the SR indices that this object should go into
       buffers_[buffer].addEntry(obj,
@@ -239,6 +258,8 @@ inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<T>::linksForSR(s
 template <>
 inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<l1ct::TkObjEmu>::linksForSR(size_t sr) const {
   std::pair logic_sr = get_small_region(sr);
+  const auto& ieta = logic_sr.first;
+  const auto& iphi = logic_sr.second;
   std::vector<size_t> retval;
   if (ieta < 3) {
     auto nom = iphi;
@@ -251,7 +272,7 @@ inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<l1ct::TkObjEmu>:
       // also add the other ones
       retval.push_back(nom + 9);
       retval.push_back(smaller + 9);
-      retval.push_back(bigger + 9)
+      retval.push_back(bigger + 9);
     }
   } else {
     auto nom = iphi + 9;
@@ -279,7 +300,7 @@ std::vector<size_t> calo_links(size_t iphi) {
     return retval;
   } else if (iphi == 3) {
     std::vector<size_t> retval = {2};
-    return retval;    
+    return retval;
   } else if (iphi < 6) {
     std::vector<size_t> retval = {0, 2};
     return retval;
@@ -336,14 +357,13 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::run() {
     auto links = linksForSR(sr);  // these are the logical links
     auto physSR = regionmap_[sr];
     bool allEmpty;
-    unsigned int count = 0;
     do {
-      allEmpty = true
+      allEmpty = true;
       for (auto link : links) {
-        auto &buffer = buffer_[sectorMapLogToPhys_(link)]
+        auto &buffer = buffers_[sectorMapLogToPhys_[link]];
         if (!buffer.empty(physSR)) {
           allEmpty = false;
-          addToSmallRegion(physSR, buffer.getEntry(physSR);
+          addToSmallRegion(physSR, buffer.getEntry(physSR));
         }
       }
     } while (!allEmpty);
@@ -372,13 +392,7 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::printDebug(int count) const {
   dbgCout() << "BUFFERS, (for " << numBuffers() << " buffers)" << std::endl;
   dbgCout() << count << "\tbuffer\tregion\titem\tpt\teta\tphi\t" << std::endl;
   for (auto sector : sectorMapLogToPhys_) {
-    for (auto srq_it = buffers_[sector].data_.rbegin(); srq_it != buffers_[sector].data_.rend(); ++srq_it) {
-      for (unsigned int j = 0; j < srq_it->size(); j++) {
-        dbgCout() << "\t" << sector << "\t" << srq_it->first << "\t" << j << "\t" << srq_it->second[j].pt()
-                  << "\t" << srq_it->second[j].glbEta() << "\t" << srq_it->second[j].glbPhi() << std::endl;
-      }
-      dbgCout() << "-------------------------------" << std::endl;
-    }
+    buffers_[sector].printDebug(sector);
   }
 
   dbgCout() << "SMALL REGIONS" << std::endl;
