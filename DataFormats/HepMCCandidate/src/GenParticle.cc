@@ -3,11 +3,15 @@
 using namespace reco;
 
 GenParticle::GenParticle(Charge q, const LorentzVector& p4, const Point& vtx, int pdgId, int status, bool integerCharge)
-    : CompositeRefCandidateT<GenParticleRefVector>(q, p4, vtx, pdgId, status, integerCharge) {}
+    : CompositeRefCandidateT<GenParticleRefVector>(q, p4, vtx, pdgId, status, integerCharge),
+      collisionId_(0),
+      statusFlags_(0) {}
 
 GenParticle::GenParticle(
     Charge q, const PolarLorentzVector& p4, const Point& vtx, int pdgId, int status, bool integerCharge)
-    : CompositeRefCandidateT<GenParticleRefVector>(q, p4, vtx, pdgId, status, integerCharge) {}
+    : CompositeRefCandidateT<GenParticleRefVector>(q, p4, vtx, pdgId, status, integerCharge),
+      collisionId_(0),
+      statusFlags_(0) {}
 
 GenParticle::~GenParticle() {}
 
