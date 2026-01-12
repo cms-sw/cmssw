@@ -70,9 +70,9 @@ _lowPtRegressionModifierUPC = regressionModifier103XLowPtPho.clone(
         )
     ),
 )
-from Configuration.Eras.Era_Run3_2023_UPC_cff import Run3_2023_UPC
+from Configuration.Eras.Modifier_run3_upc_2023_cff import run3_upc_2023
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
-(egamma_lowPt_exclusive & Run3_2023_UPC).toReplaceWith(lowPtRegressionModifier,_lowPtRegressionModifierUPC)
+(egamma_lowPt_exclusive & run3_upc_2023).toReplaceWith(lowPtRegressionModifier,_lowPtRegressionModifierUPC)
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronFinalizer_cfi import lowPtGsfElectronFinalizer
 lowPtGsfElectrons = lowPtGsfElectronFinalizer.clone(
