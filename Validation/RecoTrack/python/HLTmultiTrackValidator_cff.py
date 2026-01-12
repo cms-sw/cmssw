@@ -20,6 +20,7 @@ hltTrackValidator = hltMultiTrackValidator.clone(
 hltPixelLessTracks = _cutsRecoTracks.clone(
     throwOnMissing = cms.bool(False), # HLT collection might be missing
     src = "hltMergedTracks",
+    beamSpot = "hltOnlineBeamSpot",
     minLayer = 3,
     maxPixelHit = 0
 )
@@ -28,6 +29,7 @@ hltPixelLessTracks = _cutsRecoTracks.clone(
 hltWithPixelTracks = _cutsRecoTracks.clone(
     throwOnMissing = cms.bool(False), # HLT collection might be missing
     src = "hltMergedTracks",
+    beamSpot = "hltOnlineBeamSpot",
     minLayer = 3,
     minPixelHit = 1
 )
