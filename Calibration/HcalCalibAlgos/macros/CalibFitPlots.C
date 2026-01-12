@@ -66,7 +66,7 @@
 //             For plotting correction factors
 //  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, isRealData,
 //                     drawStatBox, iformat, save);
-//      Defaults: scale=1.0, nmin=100, isRealData=true, drwaStatBox=false,
+//      Defaults: scale=1.0, nmin=100, isRealData=true, drawStatBox=false,
 //                iformat=0, save=0
 //
 //             For plotting correction factors for a sigle depth
