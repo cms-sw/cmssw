@@ -79,7 +79,7 @@ public:
     int corrCutType;
 
     //Requirement on charge of the three muon legs
-    unsigned int chargeCorrelation;
+    unsigned int chargeCorrelation{0U};
   };
 
 public:

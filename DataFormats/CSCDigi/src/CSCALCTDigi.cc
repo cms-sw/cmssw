@@ -48,6 +48,7 @@ CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
       keywire_(keywire),
       bx_(bx),
       trknmb_(trknmb),
+      fullbx_(0),
       hmt_(hmt),
       version_(version) {}
 
