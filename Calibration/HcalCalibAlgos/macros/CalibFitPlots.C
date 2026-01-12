@@ -48,8 +48,6 @@
 //           text0 is the text for general title added within ()
 //           type=0 plots response distributions and MPV of response vs ieta
 //               =1 plots MPV of response vs RBX #
-//           *drawStatBox* is of type *int* here specifying the index for
-//           calling SetOptStat and SetOptFit
 //
 //             For plotting stored histograms from CalibTree
 //  PlotFiveHists(infile, text0, prefix0, type, iname, drawStatBox, normalize,
@@ -61,8 +59,6 @@
 //           text0 is the text for general title added within ()
 //           prefix0 is the tag attached to the canvas name
 //           type has the same meaning as in PlotTwoHists
-//           *drawStatBox* is of type *int* here specifying the index for
-//           calling SetOptStat and SetOptFit
 //
 //  PlotHistCorrResults(infile, text, prefixF, save);
 //      Defaults: save=0
@@ -177,6 +173,7 @@
 //            For plotting ratio of correction factors as defined in a file
 //            give by infileX for 2 depths (depth1, depth2) as a function of
 //            ieta obaned from 2 sources of data (defined by text1 and text2)
+//
 //  PlotHistCorrRatio(infile1, text1, infile2, text2, depth1, depth2, prefix,
 //                    text0, etaMin, etaMax, doFit, isRealData, year, iformat,
 //                    range, save)
@@ -676,7 +673,7 @@ results fitDoubleSidedCrystalball(TH1D* hist, bool /* fitTwice */, bool debug) {
   return results(value, error, width, werror);
 }
 
-void readCorrFactors(char* infile,
+void readCorrFactors(std::string infile,
                      double scale,
                      std::map<int, cfactors>& cfacs,
                      int& etamin,
@@ -685,7 +682,7 @@ void readCorrFactors(char* infile,
                      int iformat = 0,
                      bool debug = false) {
   cfacs.clear();
-  std::ifstream fInput(infile);
+  std::ifstream fInput(infile.c_str());
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
   } else {
@@ -2313,7 +2310,7 @@ void PlotHistCorrResults(std::string infile, std::string text, std::string prefi
   }
 }
 
-void PlotHistCorrFactor(char* infile,
+void PlotHistCorrFactor(std::string infile,
                         std::string text,
                         std::string prefixF,
                         double scale = 1.0,
@@ -2457,7 +2454,7 @@ void PlotHistCorrFactor(char* infile,
   }
 }
 
-void PlotHistCorrFactor(char* infile,
+void PlotHistCorrFactor(std::string infile,
                         std::string text,
                         int depth,
                         std::string prefixF,
@@ -2600,7 +2597,7 @@ void PlotHistCorrFactor(char* infile,
 }
 
 void PlotHistCorrAsymmetry(
-    char* infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
+    std::string infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
   double scale(1.0);
@@ -2702,29 +2699,29 @@ void PlotHistCorrAsymmetry(
   }
 }
 
-void PlotHistCorrFactors(char* infile1,
+void PlotHistCorrFactors(std::string infile1,
                          std::string text1,
-                         char* infile2,
+                         std::string infile2,
                          std::string text2,
-                         char* infile3,
+                         std::string infile3,
                          std::string text3,
-                         char* infile4,
+                         std::string infile4,
                          std::string text4,
-                         char* infile5,
+                         std::string infile5,
                          std::string text5,
                          std::string prefixF,
-                         bool ratio = false,
-                         bool drawStatBox = true,
+                         bool ratio = true,
+                         bool drawStatBox = false,
                          int nmin = 100,
-                         bool isRealData = false,
+                         bool isRealData = true,
                          const char* year = "2025",
                          int iformat = 0,
-                         int range = 1,
+                         int range = 0,
                          int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
   int nfile(0), etamin(100), etamax(-100), maxdepth(0);
-  const char* blank("");
+  std::string blank("");
   if (infile1 != blank) {
     readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
@@ -2814,7 +2811,7 @@ void PlotHistCorrFactors(char* infile1,
             if (dep == j + 1) {
               int ieta = (itr->second).ieta;
               int bin = ieta - etamin + 1;
-              float val = (itr->second).corrf / (ktr->second).corrf;
+              float val = (ktr->second).corrf / (itr->second).corrf;
               float dvl =
                   val *
                   sqrt((((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
@@ -2836,9 +2833,9 @@ void PlotHistCorrFactors(char* infile1,
           h->SetMarkerSize(0.9);
           h->GetXaxis()->SetTitle("i#eta");
           if (nfile > 2)
-            sprintf(name, "CF_{%s}/CF_{Set}", texts[0].c_str());
+            sprintf(name, "CF_{Set}/CF_{%s}", texts[0].c_str());
           else
-            sprintf(name, "CF_{%s}/CF_{%s}", texts[0].c_str(), texts[ih].c_str());
+            sprintf(name, "CF_{%s}/CF_{%s}", texts[ih].c_str(), texts[0].c_str());
           h->GetYaxis()->SetTitle(name);
           h->GetYaxis()->SetLabelOffset(0.005);
           h->GetYaxis()->SetTitleSize(0.036);
@@ -2940,7 +2937,7 @@ void PlotHistCorrFactors(char* infile1,
         }
         sprintf(name, "Depth %d (%s)", depths[k], texts[k1].c_str());
       } else {
-        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depths[k], text1.c_str(), texts[k1].c_str(), fitr[k]);
+        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depths[k], texts[k1].c_str(), text1.c_str(), fitr[k]);
       }
       if ((depths[k] == 1) || (k1 <= 1) || (maxdepth <= 4))
         legend->AddEntry(hists[k], name, "lp");
@@ -2977,9 +2974,9 @@ void PlotHistCorrFactors(char* infile1,
   }
 }
 
-void PlotHistCorr2Factors(char* infile1,
+void PlotHistCorr2Factors(std::string infile1,
                           std::string text1,
-                          char* infile2,
+                          std::string infile2,
                           std::string text2,
                           int depth,
                           std::string prefixF,
@@ -2994,7 +2991,7 @@ void PlotHistCorr2Factors(char* infile1,
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
   int nfile(0), etamin(100), etamax(-100), maxdepth(0);
-  const char* blank("");
+  std::string blank("");
   if (infile1 != blank) {
     readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
@@ -3208,15 +3205,15 @@ void PlotHistCorr2Factors(char* infile1,
   }
 }
 
-void PlotHistCorrDFactors(char* infile1,
+void PlotHistCorrDFactors(std::string infile1,
                           std::string text1,
-                          char* infile2,
+                          std::string infile2,
                           std::string text2,
-                          char* infile3,
+                          std::string infile3,
                           std::string text3,
-                          char* infile4,
+                          std::string infile4,
                           std::string text4,
-                          char* infile5,
+                          std::string infile5,
                           std::string text5,
                           int depth,
                           std::string prefixF,
@@ -3231,7 +3228,7 @@ void PlotHistCorrDFactors(char* infile1,
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
   int nfile(0), etamin(100), etamax(-100), maxdepth(0);
-  const char* blank("");
+  std::string blank("");
   if (infile1 != blank) {
     readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
@@ -3320,7 +3317,7 @@ void PlotHistCorrDFactors(char* infile1,
           if (dep == depth) {
             int ieta = (itr->second).ieta;
             int bin = ieta - etamin + 1;
-            float val = (itr->second).corrf / (ktr->second).corrf;
+            float val = (ktr->second).corrf / (itr->second).corrf;
             float dvl =
                 val * sqrt((((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
                            (((ktr->second).dcorr * (ktr->second).dcorr) / ((ktr->second).corrf * (ktr->second).corrf)));
@@ -3341,9 +3338,9 @@ void PlotHistCorrDFactors(char* infile1,
         h->SetMarkerSize(0.9);
         h->GetXaxis()->SetTitle("i#eta");
         if (nfile > 2)
-          sprintf(name, "CF_{%s}/CF_{Set}", texts[0].c_str());
+          sprintf(name, "CF_{Set}/CF_{%s}", texts[0].c_str());
         else
-          sprintf(name, "CF_{%s}/CF_{%s}", texts[0].c_str(), texts[ih].c_str());
+          sprintf(name, "CF_{%s}/CF_{%s}", texts[ih].c_str(), texts[0].c_str());
         h->GetYaxis()->SetTitle(name);
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleSize(0.036);
@@ -3434,7 +3431,7 @@ void PlotHistCorrDFactors(char* infile1,
         }
         sprintf(name, "Depth %d (%s)", depth, texts[k1].c_str());
       } else {
-        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depth, text1.c_str(), texts[k1].c_str(), fitr[k]);
+        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depth, texts[k1].c_str(), text1.c_str(), fitr[k]);
       }
       legend->AddEntry(hists[k], name, "lp");
     }
@@ -3676,8 +3673,8 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi, int save = 0
   }
 }
 
-void PlotHistCorrRel(char* infile1,
-                     char* infile2,
+void PlotHistCorrRel(std::string infile1,
+                     std::string infile2,
                      std::string text1,
                      std::string text2,
                      int iformat1 = 0,
@@ -3804,8 +3801,8 @@ void PlotHistCorrRel(char* infile1,
   }
 }
 
-void PlotHistCorrDepth(char* infile1,
-                       char* infile2,
+void PlotHistCorrDepth(std::string infile1,
+                       std::string infile2,
                        std::string text1,
                        std::string text2,
                        int depth,
@@ -4185,7 +4182,7 @@ void PlotPUCorrHists(std::string infile = "corrfac.root",
   }
 }
 
-void PlotHistCorr(const char* infile,
+void PlotHistCorr(std::string infile,
                   std::string prefix,
                   std::string text0,
                   int eta = 0,
@@ -4206,7 +4203,7 @@ void PlotHistCorr(const char* infile,
   std::string text[3] = {"Uncorrected no PU", "Uncorrected PU", "Corrected PU"};
   int colors[3] = {1, 4, 2};
   int styles[3] = {1, 3, 2};
-  TFile* file = new TFile(infile);
+  TFile* file = new TFile(infile.c_str());
   if (mode < 0 || mode > 2)
     mode = 1;
   int etamin = (eta == 0) ? -27 : eta;
@@ -4283,7 +4280,7 @@ void PlotHistCorr(const char* infile,
   }
 }
 
-void PlotPropertyHist(const char* infile,
+void PlotPropertyHist(std::string infile,
                       std::string prefix,
                       std::string text,
                       int etaMax = 25,
@@ -4320,7 +4317,7 @@ void PlotPropertyHist(const char* infile,
     gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
 
-  TFile* file = new TFile(infile);
+  TFile* file = new TFile(infile.c_str());
   char name[100], namep[100];
   for (int k = 1; k <= etaMax; ++k) {
     for (int j = 0; j < 3; ++j) {
@@ -4619,7 +4616,7 @@ void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, 
   }
 }
 
-void PlotDepthCorrFactor(char* infile,
+void PlotDepthCorrFactor(std::string infile,
                          std::string text,
                          std::string prefix = "",
                          bool isRealData = true,
@@ -4627,7 +4624,7 @@ void PlotDepthCorrFactor(char* infile,
                          int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
-  std::ifstream ifile(infile);
+  std::ifstream ifile(infile.c_str());
   if (!ifile.is_open()) {
     std::cout << "Cannot open duplicate file " << infile << std::endl;
   } else {
@@ -4836,7 +4833,7 @@ void DrawHistPhiSymmetry(TH1D* hist0, bool isRealData, bool drawStatBox, bool sa
 }
 
 void PlotPhiSymmetryResults(
-    char* infile, bool isRealData = true, bool drawStatBox = true, bool debug = false, bool save = false) {
+    std::string infile, bool isRealData = true, bool drawStatBox = true, bool debug = false, bool save = false) {
   const int maxDepthHB(4), maxDepthHE(7);
   const double cfacMin(0.70), cfacMax(1.5);
   const int nbin = (100.0 * (cfacMax - cfacMin));
@@ -4866,7 +4863,7 @@ void PlotPhiSymmetryResults(
       std::cout << "Book " << h->GetName() << " Title " << h->GetTitle() << " range " << nbin << ":" << cfacMin << ":"
                 << cfacMax << std::endl;
   }
-  std::ifstream fInput(infile);
+  std::ifstream fInput(infile.c_str());
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
   } else {
@@ -4946,9 +4943,9 @@ void PlotPhiSymmetryResults(
   }
 }
 
-void PlotHistCorrRatio(char* infile1,
+void PlotHistCorrRatio(std::string infile1,
                        std::string text1,
-                       char* infile2,
+                       std::string infile2,
                        std::string text2,
                        int depth1,
                        int depth2,
@@ -4965,7 +4962,7 @@ void PlotHistCorrRatio(char* infile1,
   std::map<int, cfactors> cfacs[2];
   std::vector<std::string> texts;
   int nfile(0), etamin(100), etamax(-100), maxdepth(0);
-  const char* blank("");
+  std::string blank("");
   if (infile1 != blank) {
     readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
