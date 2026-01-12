@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstdio>
 
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
@@ -31,7 +31,7 @@ namespace gpuClustering {
 
     constexpr int startBPIX2 = TrackerTraits::layerStart[1];
 
-    assert(TrackerTraits::numberOfModules < maxNumModules);
+    assert(TrackerTraits::numberOfModules < pixelClustering::maxNumModules);
     assert(startBPIX2 < TrackerTraits::numberOfModules);
 
     auto firstModule = blockIdx.x;
@@ -39,7 +39,7 @@ namespace gpuClustering {
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
       auto thisModuleId = id[firstPixel];
-      while (thisModuleId == invalidModuleId and firstPixel < numElements) {
+      while (thisModuleId == pixelClustering::invalidModuleId and firstPixel < numElements) {
         // skip invalid or duplicate pixels
         ++firstPixel;
         thisModuleId = id[firstPixel];
@@ -70,13 +70,13 @@ namespace gpuClustering {
       if (nclus > maxNumClustersPerModules) {
         // remove excess  FIXME find a way to cut charge first....
         for (auto i = first; i < numElements; i += blockDim.x) {
-          if (id[i] == invalidModuleId)
+          if (id[i] == pixelClustering::invalidModuleId)
             continue;  // not valid
           if (id[i] != thisModuleId)
             break;  // end of module
           if (clusterId[i] >= maxNumClustersPerModules) {
-            id[i] = invalidModuleId;
-            clusterId[i] = invalidModuleId;
+            id[i] = pixelClustering::invalidModuleId;
+            clusterId[i] = pixelClustering::invalidModuleId;
           }
         }
         nclus = maxNumClustersPerModules;
@@ -95,7 +95,7 @@ namespace gpuClustering {
       __syncthreads();
 
       for (auto i = first; i < numElements; i += blockDim.x) {
-        if (id[i] == invalidModuleId)
+        if (id[i] == pixelClustering::invalidModuleId)
           continue;  // not valid
         if (id[i] != thisModuleId)
           break;  // end of module
@@ -139,12 +139,12 @@ namespace gpuClustering {
 
       // reassign id
       for (auto i = first; i < numElements; i += blockDim.x) {
-        if (id[i] == invalidModuleId)
+        if (id[i] == pixelClustering::invalidModuleId)
           continue;  // not valid
         if (id[i] != thisModuleId)
           break;  // end of module
         if (0 == ok[clusterId[i]])
-          clusterId[i] = id[i] = invalidModuleId;
+          clusterId[i] = id[i] = pixelClustering::invalidModuleId;
         else
           clusterId[i] = newclusId[clusterId[i]] - 1;
       }

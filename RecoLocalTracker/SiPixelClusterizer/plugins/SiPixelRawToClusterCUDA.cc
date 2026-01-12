@@ -6,7 +6,6 @@
 // CMSSW includes
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CalibTracker/Records/interface/SiPixelGainCalibrationForHLTGPURcd.h"
@@ -18,6 +17,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -121,8 +121,8 @@ void SiPixelRawToClusterCUDAT<TrackerTraits>::fillDescriptions(edm::Configuratio
   desc.addOptionalNode(edm::ParameterDescription<uint32_t>("MaxFEDWords", 0, true), false)
       ->setComment("This parameter is obsolete and will be ignored.");
   //Clustering Thresholds
-  desc.add<int32_t>("clusterThreshold_layer1", gpuClustering::clusterThresholdLayerOne);
-  desc.add<int32_t>("clusterThreshold_otherLayers", gpuClustering::clusterThresholdOtherLayers);
+  desc.add<int32_t>("clusterThreshold_layer1", pixelClustering::clusterThresholdLayerOne);
+  desc.add<int32_t>("clusterThreshold_otherLayers", pixelClustering::clusterThresholdOtherLayers);
   desc.add<double>("VCaltoElectronGain", 47.f);
   desc.add<double>("VCaltoElectronGain_L1", 50.f);
   desc.add<double>("VCaltoElectronOffset", -60.f);

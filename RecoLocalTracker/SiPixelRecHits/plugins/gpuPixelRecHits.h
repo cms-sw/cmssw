@@ -6,10 +6,10 @@
 #include <limits>
 
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
@@ -53,7 +53,7 @@ namespace gpuPixelRecHits {
     }
 
     // to be moved in common namespace...
-    using gpuClustering::invalidModuleId;
+    using pixelClustering::invalidModuleId;
     constexpr int32_t MaxHitsInIter = pixelCPEforGPU::MaxHitsInIter;
 
     using ClusParams = pixelCPEforGPU::ClusParams;

@@ -1,8 +1,8 @@
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelDigisSoA.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -64,8 +64,8 @@ template <typename TrackerTraits>
 void SiPixelDigisClustersFromSoAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigisSoA"));
-  desc.add<int>("clusterThreshold_layer1", gpuClustering::clusterThresholdLayerOne);
-  desc.add<int>("clusterThreshold_otherLayers", gpuClustering::clusterThresholdOtherLayers);
+  desc.add<int>("clusterThreshold_layer1", pixelClustering::clusterThresholdLayerOne);
+  desc.add<int>("clusterThreshold_otherLayers", pixelClustering::clusterThresholdOtherLayers);
   desc.add<bool>("produceDigis", true);
   desc.add<bool>("storeDigis", true);
 

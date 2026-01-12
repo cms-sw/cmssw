@@ -16,7 +16,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #endif  // __CUDACC__
 
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
@@ -30,6 +30,7 @@ int main(void) {
 #endif  // __CUDACC__
 
   using namespace gpuClustering;
+  using namespace pixelClustering;
   using pixelTopology::Phase1;
 
   constexpr int numElements = 256 * maxNumModules;

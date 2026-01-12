@@ -6,7 +6,7 @@
 #include <cuda_runtime.h>
 
 // CMSSW headers
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 

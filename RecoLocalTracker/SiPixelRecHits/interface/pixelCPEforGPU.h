@@ -6,11 +6,11 @@
 #include <cstdint>
 #include <iterator>
 
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "CUDADataFormats/TrackingRecHit/interface/SiPixelHitStatus.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
-#include "CUDADataFormats/TrackingRecHit/interface/SiPixelHitStatus.h"
 
 namespace CPEFastParametrisation {
   // From https://cmssdt.cern.ch/dxr/CMSSW/source/CondFormats/SiPixelTransient/src/SiPixelGenError.cc#485-486
@@ -133,7 +133,7 @@ namespace pixelCPEforGPU {
     Status status[N];
   };
 
-  constexpr int32_t MaxHitsInIter = gpuClustering::maxHitsInIter();
+  constexpr int32_t MaxHitsInIter = pixelClustering::maxHitsInIter();
   using ClusParams = ClusParamsT<MaxHitsInIter>;
 
   constexpr inline void computeAnglesFromDet(

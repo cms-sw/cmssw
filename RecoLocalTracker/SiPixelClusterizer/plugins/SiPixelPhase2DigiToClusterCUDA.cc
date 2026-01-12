@@ -6,10 +6,10 @@
 // CMSSW includes
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -97,12 +97,12 @@ void SiPixelPhase2DigiToClusterCUDA::acquire(const edm::Event& iEvent,
 
   nDigis_ = 0;
 
-  auto xDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-  auto yDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-  auto adcDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-  auto moduleIds = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-  auto packedData = cms::cuda::make_host_unique<uint32_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-  auto rawIds = cms::cuda::make_host_unique<uint32_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+  auto xDigis = cms::cuda::make_host_unique<uint16_t[]>(pixelClustering::maxNumDigis, ctx.stream());
+  auto yDigis = cms::cuda::make_host_unique<uint16_t[]>(pixelClustering::maxNumDigis, ctx.stream());
+  auto adcDigis = cms::cuda::make_host_unique<uint16_t[]>(pixelClustering::maxNumDigis, ctx.stream());
+  auto moduleIds = cms::cuda::make_host_unique<uint16_t[]>(pixelClustering::maxNumDigis, ctx.stream());
+  auto packedData = cms::cuda::make_host_unique<uint32_t[]>(pixelClustering::maxNumDigis, ctx.stream());
+  auto rawIds = cms::cuda::make_host_unique<uint32_t[]>(pixelClustering::maxNumDigis, ctx.stream());
 
   for (auto DSViter = input.begin(); DSViter != input.end(); DSViter++) {
     unsigned int detid = DSViter->detId();

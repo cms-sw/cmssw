@@ -1,15 +1,16 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
+#include "CUDADataFormats/Common/interface/HostProduct.h"
+#include "CUDADataFormats/Common/interface/PortableHostCollection.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
-#include "CUDADataFormats/Common/interface/PortableHostCollection.h"
-#include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,9 +20,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
@@ -236,7 +237,7 @@ void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::produce(edm::StreamID streamID,
       if (h - fc < maxHitsInModule)
         assert(gind == output.view()[h].detectorIndex());
       else
-        assert(gpuClustering::invalidModuleId == output.view()[h].detectorIndex());
+        assert(pixelClustering::invalidModuleId == output.view()[h].detectorIndex());
 
     if (convert2Legacy_) {
       SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(*legacyOutput, detid);

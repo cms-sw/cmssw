@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstdio>
 
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
@@ -76,13 +76,13 @@ namespace gpuClustering {
 
     [[maybe_unused]] constexpr int nMaxModules = TrackerTraits::numberOfModules;
 
-    assert(nMaxModules < maxNumModules);
+    assert(nMaxModules < pixelClustering::maxNumModules);
     for (int i = first; i < numElements; i += gridDim.x * blockDim.x) {
       clusterId[i] = i;
-      if (invalidModuleId == id[i])
+      if (pixelClustering::invalidModuleId == id[i])
         continue;
       auto j = i - 1;
-      while (j >= 0 and id[j] == invalidModuleId)
+      while (j >= 0 and id[j] == pixelClustering::invalidModuleId)
         --j;
       if (j < 0 or id[j] != id[i]) {
         // boundary...
@@ -112,7 +112,7 @@ namespace gpuClustering {
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
 
-    assert(TrackerTraits::numberOfModules < maxNumModules);
+    assert(TrackerTraits::numberOfModules < pixelClustering::maxNumModules);
 
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
@@ -133,7 +133,7 @@ namespace gpuClustering {
 
       // skip threads not associated to an existing pixel
       for (int i = first; i < numElements; i += blockDim.x) {
-        if (id[i] == invalidModuleId)  // skip invalid pixels
+        if (id[i] == pixelClustering::invalidModuleId)  // skip invalid pixels
           continue;
         if (id[i] != thisModuleId) {  // find the first pixel in a different module
           atomicMin(&msize, i);
@@ -186,18 +186,18 @@ namespace gpuClustering {
           __syncthreads();
           for (int i = first; i < msize - 1; i += blockDim.x) {
             // skip invalid pixels
-            if (id[i] == invalidModuleId)
+            if (id[i] == pixelClustering::invalidModuleId)
               continue;
             pixelStatus::promote(status, x[i], y[i]);
           }
           __syncthreads();
           for (int i = first; i < msize - 1; i += blockDim.x) {
             // skip invalid pixels
-            if (id[i] == invalidModuleId)
+            if (id[i] == pixelClustering::invalidModuleId)
               continue;
             if (pixelStatus::isDuplicate(status, x[i], y[i])) {
               // printf("found dup %d %d %d %d\n", i, id[i], x[i], y[i]);
-              id[i] = invalidModuleId;
+              id[i] = pixelClustering::invalidModuleId;
               rawIdArr[i] = 0;
             }
           }
@@ -207,7 +207,7 @@ namespace gpuClustering {
 
       // fill histo
       for (int i = first; i < msize; i += blockDim.x) {
-        if (id[i] == invalidModuleId)  // skip invalid pixels
+        if (id[i] == pixelClustering::invalidModuleId)  // skip invalid pixels
           continue;
         hist.count(y[i]);
 #ifdef GPU_DEBUG
@@ -227,7 +227,7 @@ namespace gpuClustering {
           printf("histo size %d\n", hist.size());
 #endif
       for (int i = first; i < msize; i += blockDim.x) {
-        if (id[i] == invalidModuleId)  // skip invalid pixels
+        if (id[i] == pixelClustering::invalidModuleId)  // skip invalid pixels
           continue;
         hist.fill(y[i], i - firstPixel);
       }
@@ -280,7 +280,7 @@ namespace gpuClustering {
         assert(k < maxiter);
         auto p = hist.begin() + j;
         auto i = *p + firstPixel;
-        assert(id[i] != invalidModuleId);
+        assert(id[i] != pixelClustering::invalidModuleId);
         assert(id[i] == thisModuleId);  // same module
         int be = Hist::bin(y[i] + 1);
         auto e = hist.end(be);
@@ -358,7 +358,7 @@ namespace gpuClustering {
       // find the number of different clusters, identified by a pixels with clus[i] == i;
       // mark these pixels with a negative id.
       for (int i = first; i < msize; i += blockDim.x) {
-        if (id[i] == invalidModuleId)  // skip invalid pixels
+        if (id[i] == pixelClustering::invalidModuleId)  // skip invalid pixels
           continue;
         if (clusterId[i] == i) {
           auto old = atomicInc(&foundClusters, 0xffffffff);
@@ -369,7 +369,7 @@ namespace gpuClustering {
 
       // propagate the negative id to all the pixels in the cluster.
       for (int i = first; i < msize; i += blockDim.x) {
-        if (id[i] == invalidModuleId)  // skip invalid pixels
+        if (id[i] == pixelClustering::invalidModuleId)  // skip invalid pixels
           continue;
         if (clusterId[i] >= 0) {
           // mark each pixel in a cluster with the same id as the first one
@@ -380,8 +380,8 @@ namespace gpuClustering {
 
       // adjust the cluster id to be a positive value starting from 0
       for (int i = first; i < msize; i += blockDim.x) {
-        if (id[i] == invalidModuleId) {  // skip invalid pixels
-          clusterId[i] = invalidClusterId;
+        if (id[i] == pixelClustering::invalidModuleId) {  // skip invalid pixels
+          clusterId[i] = pixelClustering::invalidClusterId;
           continue;
         }
         clusterId[i] = -clusterId[i] - 1;

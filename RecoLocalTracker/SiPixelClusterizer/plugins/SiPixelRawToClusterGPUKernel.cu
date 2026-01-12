@@ -18,11 +18,11 @@
 #include <cuda_runtime.h>
 
 // CMSSW includes
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelROCsStatusAndMapping.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
@@ -262,7 +262,7 @@ namespace pixelgpudetails {
         uint32_t roc = 1;
         uint32_t link = sipixelconstants::getLink(errWord);
         uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
-        if (rID_temp != gpuClustering::invalidModuleId)
+        if (rID_temp != pixelClustering::invalidModuleId)
           rID = rID_temp;
         break;
       }
@@ -271,7 +271,7 @@ namespace pixelgpudetails {
         uint32_t roc = sipixelconstants::getROC(errWord);
         uint32_t link = sipixelconstants::getLink(errWord);
         uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
-        if (rID_temp != gpuClustering::invalidModuleId)
+        if (rID_temp != pixelClustering::invalidModuleId)
           rID = rID_temp;
         break;
       }
@@ -309,7 +309,7 @@ namespace pixelgpudetails {
       // initialize (too many coninue below)
       dvgi.pdigi() = 0;
       dvgi.rawIdArr() = 0;
-      dvgi.moduleId() = gpuClustering::invalidModuleId;
+      dvgi.moduleId() = pixelClustering::invalidModuleId;
 
       uint32_t ww = word[gIndex];  // Array containing 32 bit raw data
       if (ww == 0) {

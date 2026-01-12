@@ -9,6 +9,7 @@
 
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/VecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
@@ -200,7 +201,7 @@ namespace gpuPixelDoublets {
 
       // found hit corresponding to our cuda thread, now do the job
 
-      if (hh[i].detectorIndex() > gpuClustering::maxNumModules)
+      if (hh[i].detectorIndex() > pixelClustering::maxNumModules)
         continue;  // invalid
 
       /* maybe clever, not effective when zoCut is on
@@ -262,7 +263,7 @@ namespace gpuPixelDoublets {
           assert(oi < offsets[outer + 1]);
           auto mo = hh[oi].detectorIndex();
 
-          if (mo > gpuClustering::maxNumModules)
+          if (mo > pixelClustering::maxNumModules)
             continue;  //    invalid
 
           if (doZ0Cut && z0cutoff(oi))
