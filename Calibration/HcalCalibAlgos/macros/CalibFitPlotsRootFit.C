@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // Usage:
 // .L CalibFitPlotsRooFit.C+g
+//
 //             For extended set of histograms from CalibMonitor using RooFit
 //  FitHistExtended_RootFit(infile, outfile, prefix, numb, type, append,
 //			    fiteta, iname, debug);
@@ -10,7 +11,7 @@
 //             For plotting stird histograms from FitHistExtended_RootFit
 //  PlotHist_RooFit(infile, prefix, text, modePlot, kopt, lumi, ener,
 //		    isRealData, drawStatBox, save, debug);
-//      Defaults: modePlot=4, kopt=100, lumi=0, ener=13.6, isRealData=false,
+//      Defaults: modePlot=4, kopt=100, lumi=0, ener="13.6", isRealData=false,
 //                drawStatBox=true, save=0, debug=false
 //
 //
@@ -20,7 +21,7 @@
 //  prefix   (std::string)  = Prefix for the histogram names
 //  mode     (int)          = Flag to check which set of histograms to be
 //                            done. It has the format lthdo where each of
-//                            l, t,h,d,o can have a value 0 or 1 to select
+//                            l,t,h,d,o can have a value 0 or 1 to select
 //                            or deselect. l,t,h,d,o for momentum range
 //                            60-100, 30-40, all, 20-30, 40-60 Gev (11111)
 //  type     (int)          = defines eta binning type (see CalibMonitor)
@@ -1023,7 +1024,7 @@ void PlotHist_RooFit(const char* infile,
   if (mode < 0 || mode > 5)
     mode = 0;
   if (drawStatBox) {
-    int iopt = (mode != 0 ? 10 : 1110);
+    int iopt = (mode != 0) ? 10 : 1110;
     gStyle->SetOptStat(iopt);
     gStyle->SetOptFit(1);
   } else {
