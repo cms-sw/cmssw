@@ -2397,7 +2397,7 @@ lc_zplus_extended = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus
 ]
 
-def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClustersPlots, name_collection = layerClustersLabel, extended = False):
+def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClustersPlots.value(), name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
@@ -2536,16 +2536,16 @@ sc_ticltracksters = [
 hgcalSimClustersPlotter = Plotter()
 
 def append_hgcalSimClustersPlots(collection, name_collection):
-  if collection == hgcalValidator.label_SimClustersLevel:
+  if collection == hgcalValidator.label_SimClustersLevel.value():
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalFolders(hgcalValidator.label_SimClusters +"/"+ collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters.value() +"/"+ collection)
                   ], PlotFolder(
                   *sc_clusterlevel,
                   loopSubFolders=False,
                   purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
   else:
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalFolders(hgcalValidator.label_SimClusters +"/"+collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters.value() +"/"+collection)
                   ], PlotFolder(
                   *sc_ticltracksters,
                   loopSubFolders=False,
