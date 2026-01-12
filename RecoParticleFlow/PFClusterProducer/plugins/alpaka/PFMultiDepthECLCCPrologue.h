@@ -43,6 +43,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace ::cms::alpakatools;
+  using namespace ::cms::alpakaintrinsics;
 
   /**
  * @class ECLCCPrologueKernel
@@ -54,7 +55,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * The ECLCCPrologueKernel builds the compressed sparse row (CSR) representation
  * of the connectivity graph between particle flow clusters.
  * 
- * It operates at warp level, efficiently detecting both intra-warp and inter-warp
+ * It operates at warp level, detecting both intra-warp and inter-warp
  * neighbors based on precomputed cluster links (e.g., from geometric matching).
  * 
  * The adjacency information is stored into the `PFMultiDepthClusteringEdgeVarsDeviceCollection`,
@@ -66,8 +67,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * components labeling (ECL-CC).
  *
  * @algorithm
- * - Neighbor detection: ballot, match_any_mask, mask manipulation.
- * - Warp-local prefix sum (exclusive sum) for offset computation.
+ * - Neighbor detection using ballot, match_any_mask, mask manipulation.
+ * - Warp-local prefix sum (exclusive sum) for offset computations.
  * - Intra-warp and inter-warp neighbor management.
  * - Atomic updates for global neighbor list in external connections.
  * 
@@ -75,9 +76,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  *   extended for true multi-block excution. 
  * - Shared memory scratch buffers are extensively used for intermediate neighbor masks.
  * 
- * - Care must be taken with shared memory sizing relative to `max_w_items * max_w_extent`.
  * - The algorithm assumes that each destination vertex is connected to just a single source vertex, 
  * - Same source can be linked to one or many destination vertices, or isolated. 
+ * 
+ * @param acc                  Alpaka accelerator instance.
+ * @param pfClusteringEdgeVars Output view for per-edge clustering variables.
+ * @param pfClusteringCCLabels Input view of connected-component labels.
  */
 
   template <unsigned int max_w_items = 32>
@@ -99,22 +103,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int w_extent = alpaka::warp::getSize(acc);
       const unsigned int w_items = alpaka::math::min(acc, (blockDim + (w_extent - 1)) / w_extent, max_w_items);
 
+      // Shared scratch, indexed by "linear lane id" = warp_idx * w_extent + lane_idx.
+      // Size is max_w_items warps per block × max_w_extent lanes per warp
       auto& outer_neigh_masks(
           alpaka::declareSharedVar<warp::warp_mask_t[max_w_items * max_w_extent], __COUNTER__>(acc));
       auto& inner_neigh_masks(
           alpaka::declareSharedVar<warp::warp_mask_t[max_w_items * max_w_extent], __COUNTER__>(acc));
-
+      // For each destination vertex (linear lane id), store its direct neighbor topoId
       auto& base_neighbor(alpaka::declareSharedVar<int[max_w_items * max_w_extent], __COUNTER__>(acc));
-      // Neighbor list offset
+      // nlist_offsets plays two roles:
+      // -- neighbor count per vertex during counting,
+      // -- CSR begin-offset per vertex after prefix sums.
       auto& nlist_offsets(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent], __COUNTER__>(acc));
 
+      // Temporary CSR storage: adjacency_list[0..tot_nnz) built in shared and then copied to global.
+      // Note: adjacency_list capacity is 2*nVertices (worst-case assumption for this graph model).
       auto& adjacency_list(alpaka::declareSharedVar<unsigned int[2 * max_w_items * max_w_extent], __COUNTER__>(acc));
-      // Subdomain offsets:
+      // Per-warp total offsets used for coarse-grained scan across warps.
       auto& subdomain_offsets(alpaka::declareSharedVar<unsigned int[max_w_items], __COUNTER__>(acc));
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {  //loop over thread blocks
-        // Only single block is must be active!
-        // First, we need to initialize shared_buffers:
+        // This kernel is intended to run with a single block for the full graph.
+        // (If multi-block support is needed, the CSR construction could be made block-partition aware.)
         for (auto idx : ::cms::alpakatools::uniform_group_elements(
                  acc, group, ::cms::alpakatools::round_up_by(nVertices, w_extent))) {
           // Reset shared memory buffers to zero:
@@ -128,7 +138,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
 
         alpaka::syncBlockThreads(acc);
-        // Next, we need to find out internal (warp-local) and external (intra-warp) neighbors:
+        // Next, identify:
+        //  - inner (intra-warp) neighbors: vertices within the same warp that share the same base_neighbor
+        //  - outer (inter-warp) neighbors: vertices in other warps that point to a base_neighbor in this warp
         for (auto idx : ::cms::alpakatools::uniform_group_elements(
                  acc, group, ::cms::alpakatools::round_up_by(nVertices, w_extent))) {
           const warp::warp_mask_t active_lanes_mask = alpaka::warp::ballot(acc, idx.local < nVertices);
@@ -142,7 +154,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           const unsigned int warp_idx = idx.local / w_extent;
           const unsigned int lane_idx = idx.local % w_extent;
-          // Usefull lane self-mask:
+          // Lane self-mask (bit corresponding to this lane).
           const warp::warp_mask_t lane_mask = get_lane_mask(lane_idx);
           // Identify warp-local domain range:
           const unsigned int warp_low_boundary = (warp_idx + 0) * w_extent;
@@ -177,20 +189,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // For the toy model one gets (warp 0): control_mask = 0x0011 for lane 0, control_mask =0x0011 for lane 1,
           // control_mask =0x0010 for lane 2 and control_mask =0x0001 for lane 3
           // For warp 1: one gets control_mask = 0x0101 for lane 4 and same for lane 6 etc.
+          // Here we group lanes by identical src_vertex_idx using match_any. The resulting control_mask selects all lanes
+          // that point to the same src_vertex_idx (within the active lanes).
           warp::warp_mask_t control_mask = warp::match_any_mask(acc, active_lanes_mask, src_vertex_idx);
           // Find out representative by lowest index (note that mask will select at least one lane, the very lane that
           // contains vertex):
           // For instance , for warp 0 lanes 0 and 1 are have same control mask, 0x0011, so we choose lane 0 is a local "represntative" (lane with the lowest id)
           // Note that if a vertex is locally or globally isolated (i.e, connected to itself), then it will always represent itself (even though it may
           // have higher index), i.e., if is_self_connected == true then rep_lane_idx = lane_id :
+          // we choose a single representative lane for this group.
+          // If the source vertex is warp-local, prefer the lane that actually owns src_vertex_idx;
+          // otherwise pick the lowest lane in control_mask.
           const unsigned int rep_lane_idx = get_ls1b_idx(
               acc, ((control_mask & local_src_vertex_lane_mask) != 0) ? local_src_vertex_lane_mask : control_mask);
-          // If a vertex represents itself, erase bit that corrsponds to the represntative vertex:
+          // Exclude self-links (v -> v): they are sentinels for isolated vertices and must not appear as edges.
           if (is_self_connected)
-            control_mask = control_mask ^ lane_mask;
-
-          //warp::syncWarpThreads_mask(acc, active_lanes_mask);
-
+            control_mask = control_mask ^ lane_mask;  // clear representative's own bit
+          // Only the representative writes the group mask.
+          // For warp-local sources we store the group under the 'source vertex index' so that the source vertex
+          // can later account for inbound edges from same-warp destinations.
+          // For non-local sources we keep the group under the destination index as 'outbound inter-warp' bookkeeping.
           if (lane_idx == rep_lane_idx) {
             if (is_local_src_vertex_idx) {                       //i.e, src_vertex_idx is warp-local.
               inner_neigh_masks[src_vertex_idx] = control_mask;  // internal (intra-warp) neighbors mask
@@ -243,8 +261,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const auto lane_idx = idx.local % w_extent;
 
           unsigned int nnz = nlist_offsets[idx.local];  //note that nnz = 0 for idx.local >= nVertices
+          //WARNING: unlike a standard exclusive scan, where lane 0 gets 0 (that carries no useful information),
+          //         our lane 0 stores total nnz:
+          // - lanes 1..(w_extent-1) receive the exclusive prefix sum (CSR offsets within the warp),
+          // - lane 0 receives the total sum over the warp (used as the per-warp NNZ aggregate).
           const auto local_warp_offset = warp_exclusive_sum(acc, nnz, lane_idx);
           // First, store total warp-local nnz into shared mem buffer for the lane id = 0:
+          // local_warp_offset is the per-lane CSR offset within the warp (custom exclusive prefix sum of nnz).
           if (lane_idx == 0)
             subdomain_offsets[warp_idx] = local_warp_offset;
           // Second, store total local offsets into shared mem buffer:
@@ -288,8 +311,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const unsigned shift = warp_idx != 0 ? subdomain_offsets[warp_idx] : 0;
 
           const auto global_offset = lane_offset + shift;
-          // We just need to sync threads in the warp,
-          //warp::syncWarpThreads_mask(acc, active_lanes_mask);
           // Store final offsets in shared memory:
           nlist_offsets[idx.local] = global_offset;
 

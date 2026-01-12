@@ -5,18 +5,18 @@
 
 #include <type_traits>
 
-namespace cms::alpakatools {
+namespace cms::alpakaintrinsics {
   namespace warp {
 
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
 #if defined(ALPAKA_ACC_GPU_CUDA_ENABLED)
-    using warp_mask_t = unsigned;  // 32-bit masks on NVIDIA
+    using warp_mask_t = std::uint32_t;  // 32-bit masks on NVIDIA
 #elif defined(ALPAKA_ACC_GPU_HIP_ENABLED)
-    using warp_mask_t = unsigned long;  // 64-bit masks on AMD (check!)
+    using warp_mask_t = std::uint64_t;  // 64-bit masks on AMD (!)
 #endif
 
 #else
-    using warp_mask_t = unsigned;  // for host (no-op)
+    using warp_mask_t = std::uint32_t;  // for host (no-op)
 #endif
 
 #ifdef __HIP_DEVICE_COMPILE__
@@ -26,6 +26,15 @@ namespace cms::alpakatools {
 #endif
 
 #endif
+
+    /**
+ * @brief Synchronize all threads within a subset of lanes in the warp
+ *
+ * @tparam TAcc Alpaka accelerator type.
+ * 
+ * @param acc   Alpaka accelerator instance.
+ * @param mask Input mask.
+ */
 
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void syncWarpThreads_mask(TAcc const& acc, warp::warp_mask_t mask) {
@@ -39,6 +48,22 @@ namespace cms::alpakatools {
       // No-op for CPU accelerators
     }
 
+    /**
+ * @brief Warp-wide ballot of a predicate, restricted to a given active-lane mask.
+ *
+ * Computes a warp mask containing the lanes for which 'pred' is non-zero,
+ * considering only lanes enabled in 'mask'. 
+ *
+ * @tparam TAcc Alpaka accelerator type. 
+ *
+ * @param acc  Alpaka accelerator instance.
+ * @param mask Active-lane mask defining which lanes participate in the ballot.
+ * @param pred Per-lane predicate value; non-zero counts as 'true'.
+ *
+ * @return A warp mask with bits set for participating lanes (as defined by 'mask')
+ *         whose 'pred' evaluates to 'true'.
+ */
+
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t ballot_mask(TAcc const& acc,
                                                                       warp::warp_mask_t mask,
@@ -51,6 +76,21 @@ namespace cms::alpakatools {
 #endif
       return res;
     }
+    /**
+ * @brief Masked warp shuffle from a source lane.
+ *
+ * @tparam TAcc Alpaka accelerator type. 
+ * @tparam T    Value type to be shuffled.
+ *
+ * @param acc     Alpaka accelerator instance.
+ * @param mask    Active-lane mask for the shuffle operation.
+ * @param var     Per-lane input value.
+ * @param srcLane Source lane index within the shuffle width.
+ * @param width   Logical warp width for the shuffle. 
+ *
+ * @return The value of 'var' from lane 'srcLane', or an unspecified value if
+ *         the source lane is inactive (i.e., not set in 'mask' ).
+ */
 
     template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T
@@ -65,6 +105,22 @@ namespace cms::alpakatools {
       return res;
     }
 
+    /**
+ * @brief Masked warp shuffle-down operation.
+ *
+ * @tparam TAcc Alpaka accelerator type. 
+ * @tparam T    Value type to be shuffled.
+ *
+ * @param acc     Alpaka accelerator instance.
+ * @param mask    Active-lane mask for the shuffle operation.
+ * @param var     Per-lane input value.
+ * @param srcLane Lane offset (delta) below the calling lane.
+ * @param width   Logical warp width for the shuffle.
+ *
+ * @return The value of 'var' from the source lane, or an unspecified value if
+ *         the source lane is inactive or out of range.
+ */
+
     template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T
     shfl_down_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
@@ -77,6 +133,22 @@ namespace cms::alpakatools {
       return res;
     }
 
+    /**
+ * @brief Masked warp shuffle-up operation.
+ *
+ * @tparam TAcc Alpaka accelerator type. 
+ * @tparam T    Value type to be shuffled.
+ *
+ * @param acc     Alpaka accelerator instance.
+ * @param mask    Active-lane mask for the shuffle operation.
+ * @param var     Per-lane input value.
+ * @param srcLane Lane offset (delta) above the calling lane.
+ * @param width   Logical warp width for the shuffle.
+ *
+ * @return The value of 'var' from the source lane, or an unspecified value if
+ *         the source lane is inactive or out of range.
+ */
+
     template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T
     shfl_up_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
@@ -88,6 +160,20 @@ namespace cms::alpakatools {
 #endif
       return res;
     }
+
+    /**
+ * @brief Masked warp-wide match-any operation.
+ *
+ * @tparam TAcc Alpaka accelerator type. 
+ * @tparam T    Value type used for the match comparison.
+ *
+ * @param acc  Alpaka accelerator instance.
+ * @param mask Active-lane mask for the match operation.
+ * @param val  Per-lane value to be compared across the warp.
+ *
+ * @return A warp mask with bits set for lanes (enabled in 'mask') whose
+ *         'val' equals the calling lane’s value.
+ */
 
     template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t match_any_mask(TAcc const& acc,
@@ -117,43 +203,56 @@ namespace cms::alpakatools {
 
   }  // namespace warp
 
-  // reverse the bit order of a (32-bit) unsigned integer.
+  /**
+ * @brief Reverse the bit order of a warp mask.
+ *
+ * @tparam TAcc Alpaka accelerator type. 
+ *
+ * @param acc  Alpaka accelerator instance.
+ * @param mask Input warp mask whose bit order is to be reversed.
+ *
+ * @return A warp mask with the lower 32/64 bits reversed.
+ */
+
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t brev(TAcc const& acc, warp::warp_mask_t mask) {
     warp::warp_mask_t res{0};
-#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+#if defined(__CUDA_ARCH__)
     // Alpaka CUDA backend
     res = __brev(mask);
-#endif
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
+#elif defined(__HIP_DEVICE_COMPILE__)
     // Alpaka HIP backend
     res = __brevll(mask);
-#endif
 #else
     res = mask;
 #endif
     return res;
   }
 
-  // count the number of leading zeros in a 32-bit unsigned integer
+  /**
+ * @brief Count leading zeros in a warp mask.
+ *
+ * @tparam TAcc Alpaka accelerator type. 
+ *
+ * @param acc  Alpaka accelerator instance.
+ * @param mask Input warp mask.
+ *
+ * @return The number of leading zero bits in the lower 32 bits of 'mask'.
+ */
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned clz(TAcc const& acc, warp::warp_mask_t mask) {
     unsigned res{0};
-#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+#if defined(__CUDA_ARCH__)
     // Alpaka CUDA backend
     res = __clz(mask);
-#endif
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
+#elif defined(__HIP_DEVICE_COMPILE__)
     // Alpaka HIP backend
     res = __clzll(mask);
-#endif
 #else
     res = mask == 0 ? 1 : 0;
 #endif
     return res;
   }
 
-}  // namespace cms::alpakatools
+}  // namespace cms::alpakaintrinsics
 #endif

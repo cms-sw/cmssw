@@ -38,7 +38,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringCCLabelsHostCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringEdgeVarsHostCollection.h"
 
-using namespace reco;
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 

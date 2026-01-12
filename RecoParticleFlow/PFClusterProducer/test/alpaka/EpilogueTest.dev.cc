@@ -96,22 +96,20 @@ namespace {
     }
   };
 
-  // Thread-local pools: REQUIRED so EZArrayFL/EZMgrFL have backing storage
-  static thread_local CaloCellGeometry::CornersMgr s_cornersMgr(65536,
-                                                                CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
+  CaloCellGeometry::CornersMgr s_cornersMgr(65536,CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
 
-  static thread_local CaloCellGeometry::ParMgr s_parMgr(65536, /*subSize=*/BoxCell::kNPar);
+  CaloCellGeometry::ParMgr s_parMgr(65536, /*subSize=*/BoxCell::kNPar);
 
-  static thread_local CaloCellGeometry::ParVecVec s_parBlocks;
+  CaloCellGeometry::ParVecVec s_parBlocks;
 
-  static thread_local const CaloCellGeometry::CCGFloat *s_boxParPtr = [] {
+  const CaloCellGeometry::CCGFloat *s_boxParPtr = [] {
     using CCF = CaloCellGeometry::CCGFloat;
     std::vector<CCF> pars = {1.f, 1.f, 1.f};
     return CaloCellGeometry::getParmPtr(pars, &s_parMgr, s_parBlocks);
   }();
 
-  inline CaloCellGeometryMayOwnPtr makeBoxCellGeo(float x, float y, float z) {
-    std::unique_ptr<const CaloCellGeometry> base{new BoxCell(&s_cornersMgr, GlobalPoint(x, y, z), s_boxParPtr)};
+  CaloCellGeometryMayOwnPtr makeBoxCellGeo(float x, float y, float z) {
+    auto base = std::make_unique<BoxCell>(&s_cornersMgr, GlobalPoint(x, y, z), s_boxParPtr);
 
     return CaloCellGeometryMayOwnPtr(std::move(base));
   }
@@ -168,7 +166,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        ECLCCEpilogueKernel{},
+                        ECLCCEpilogueKernel<32, true>{},
                         outPFCluster.view(),
                         outPFRecHitFracs.view(),
                         mdpfClusteringVars.view(),

@@ -3,6 +3,7 @@
 
 // Alpaka includes
 #include <alpaka/alpaka.hpp>
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
 
@@ -14,17 +15,19 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringVarsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringEdgeVarsDeviceCollection.h"
 
-#include "HeterogeneousCore/AlpakaMath/interface/deltaPhi.h"
-
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterParams.h"
 
 /**
- * @class PFMultiDepthClusterizer_Alpaka
- * @brief Alpaka clusterizer algorithm for multi-depth particle flow clusters.
- * 
- * This class manages the execution of the full multi-stage particle flow clustering pipeline
- * using Alpaka, including link building, adjacency graph construction,
- * connected component detection (ECL-CC), and postprocessing.
+ * @brief Perform multi-depth PF clusterization on the device.
+ *
+ * @param queue           Alpaka execution queue.
+ * @param outPFCluster    Output PF cluster device collection.
+ * @param outPFRecHitFracs Output PF rechit fraction device collection.
+ * @param pfCluster       Input PF cluster device collection.
+ * @param pfRecHitFracs   Input PF rechit fraction device collection.
+ * @param pfRecHit        Input PF rechit device collection.
+ * @param params          Pointer to clusterization parameters.
+ * @param nClusters       Number of clusters to process.
  */
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {

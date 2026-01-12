@@ -1,9 +1,7 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <algorithm>
-#include <array>
 #include <cmath>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -101,13 +99,6 @@ public:
           vDefaults[1].addParameter<std::vector<double>>("logWeightDenominator", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
           pset1.addVPSet("logWeightDenominatorByDetector", validator, vDefaults);
         }
-        /*{
-          edm::ParameterSetDescription psd;
-          psd.add<std::vector<int>>("depths", {});
-          psd.add<std::string>("detector", "");
-          psd.add<std::vector<double>>("logWeightDenominator", {});
-          pset1.addVPSet("logWeightDenominatorByDetector", psd, {});
-        }*/
         pset1.add<double>("minAllowedNormalization", 1e-09);
         pset1.add<double>("minFractionInCalc", 1e-09);
         pset1.add<int>("posCalcNCrystals", -1);
@@ -166,6 +157,8 @@ void LegacyMultiDepthPFClusterProducer::produce(edm::Event& event, const edm::Ev
     nTopoSeeds[pfClusterSoA[i].topoId()]++;
 
   // Looping over SoA PFClusters to produce legacy PFCluster collection
+  auto const& recHits = *rechitsHandle;
+
   for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
     unsigned int seedIdx = pfClusterSoA[i].seedRHIdx();
 
@@ -174,7 +167,7 @@ void LegacyMultiDepthPFClusterProducer::produce(edm::Event& event, const edm::Ev
 
     reco::PFCluster temp;
 
-    temp.setSeed((*rechitsHandle)[seedIdx].detId());
+    temp.setSeed(recHits[seedIdx].detId());
 
     int const offset = pfClusterSoA[i].rhfracOffset();
     int const size = pfClusterSoA[i].rhfracSize();
