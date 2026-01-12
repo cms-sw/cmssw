@@ -2,12 +2,13 @@
 #define CUDADataFormats_RecHits_TrackingRecHitsUtilities_h
 
 #include <Eigen/Dense>
+
+#include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/TrackingRecHitSoA/interface/SiPixelHitStatus.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-#include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "SiPixelHitStatus.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
 template <typename TrackerTraits>
 struct TrackingRecHitSoA {
