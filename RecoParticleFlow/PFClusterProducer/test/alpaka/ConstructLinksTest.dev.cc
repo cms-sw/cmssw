@@ -38,7 +38,6 @@
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterParams.h"
 
-
 constexpr double nSigmaEta = 0.01234;
 constexpr double nSigmaPhi = 0.2678;
 
