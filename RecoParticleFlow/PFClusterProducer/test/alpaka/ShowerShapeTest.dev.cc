@@ -97,27 +97,26 @@ namespace {
     }
   };
 
-  static thread_local CaloCellGeometry::CornersMgr s_cornersMgr(65536,
+  CaloCellGeometry::CornersMgr s_cornersMgr(65536,
                                                                 CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
 
-  static thread_local CaloCellGeometry::ParMgr s_parMgr(65536, /*subSize=*/BoxCell::kNPar);
+  CaloCellGeometry::ParMgr s_parMgr(65536, /*subSize=*/BoxCell::kNPar);
 
-  static thread_local CaloCellGeometry::ParVecVec s_parBlocks;
+  CaloCellGeometry::ParVecVec s_parBlocks;
 
-  static thread_local const CaloCellGeometry::CCGFloat* s_boxParPtr = [] {
+  const CaloCellGeometry::CCGFloat* s_boxParPtr = [] {
     using CCF = CaloCellGeometry::CCGFloat;
     std::vector<CCF> pars = {1.f, 1.f, 1.f};
     return CaloCellGeometry::getParmPtr(pars, &s_parMgr, s_parBlocks);
   }();
 
-  inline CaloCellGeometryMayOwnPtr makeBoxCellGeo(float x, float y, float z) {
-    std::unique_ptr<const CaloCellGeometry> base{new BoxCell(&s_cornersMgr, GlobalPoint(x, y, z), s_boxParPtr)};
-
+  CaloCellGeometryMayOwnPtr makeBoxCellGeo(float x, float y, float z) {
+    auto base = std::make_unique<BoxCell>(&s_cornersMgr, GlobalPoint(x, y, z), s_boxParPtr);
     return CaloCellGeometryMayOwnPtr(std::move(base));
   }
 }  // namespace
 
-static inline HcalDetId makeDetId(int ieta, int iphi, int depth) {
+inline HcalDetId makeDetId(int ieta, int iphi, int depth) {
   iphi = std::max(1, std::min(iphi, 72));
   ieta = std::max(1, std::min(16, ieta));
   depth = (depth <= 1) ? 1 : 2;
@@ -125,7 +124,7 @@ static inline HcalDetId makeDetId(int ieta, int iphi, int depth) {
   return HcalDetId(HcalBarrel, ieta, iphi, depth);
 }
 
-static inline reco::PFRecHit makePFRecHit(
+inline reco::PFRecHit makePFRecHit(
     PFLayer::Layer layer, const HcalDetId& detId, float energy, float x, float y, float z, uint32_t flags = 0) {
   // half-sizes for a simple cell; tweak as you like
   return reco::PFRecHit{makeBoxCellGeo(x, y, z), detId.rawId(), layer, energy, flags};
@@ -240,6 +239,8 @@ std::pair<int, int> create(::reco::PFClusterCollection& clusters,
   int nHits = 0;
 
   int tot_offset = 0;
+  int recHitIdx = 0;
+
   for (int i = 0; i < nClusters; ++i) {
     const bool is_depth1 = (i % 2 == 0);
     const PFLayer::Layer layer = is_depth1 ? PFLayer::Layer::HCAL_BARREL1 : PFLayer::Layer::HCAL_BARREL2;
@@ -356,6 +357,12 @@ std::pair<int, int> create(::reco::PFClusterCollection& clusters,
       rhfracs[ownerEntry].frac = 0.f;
     ++nFracs;
   }
+  // update cluster collection with rechits:
+  for (int j = 0; j < nFracs; j++) {
+    ::reco::PFRecHitRef refHit(&hits, rhfracs[j].pfrhIdx);
+    clusters[rhfracs[j].pfcIdx].addRecHitFraction(
+        ::reco::PFRecHitFraction(refHit, static_cast<double>(rhfracs[j].frac)));
+  }
 
   if (verbose)
     printf("Generated cluster/rechit collections with %d hits and %d rechit fractions.\n", nHits, nFracs);
@@ -403,6 +410,7 @@ void load(::reco::PFClusterHostCollection& hostClusters,
     const int recHitOffset = recHitFracIdx;
 
     int recHitFracSize = 0;
+
     for (int j = 0; j < nFracs; ++j) {
       if (rhfracs[j].pfcIdx == i) {
         hRecHitFracs[recHitFracIdx].frac() = rhfracs[j].frac;
@@ -430,8 +438,7 @@ void load(::reco::PFClusterHostCollection& hostClusters,
 
 void checkShowerShapes(const ::reco::PFClusterCollection& clusters,
                        const ::reco::PFRecHitCollection& recHits,
-                       const ::reco::PFMultiDepthClusteringVarsHostCollection& hostClusteringVars,
-                       const std::vector<Fraction>& rhfracs) {
+                       const ::reco::PFMultiDepthClusteringVarsHostCollection& hostClusteringVars) {
   const int nClusters = clusters.size();
 
   std::vector<double> etaRMS2(nClusters, 0.0);
@@ -446,13 +453,11 @@ void checkShowerShapes(const ::reco::PFClusterCollection& clusters,
     double phiSum = 0.0;
 
     auto const& crep = cluster.positionREP();
-    for (const auto& frac : rhfracs) {
-      if (frac.pfcIdx != i)
-        continue;
-      auto const& h = recHits[frac.pfrhIdx];
+    for (const auto& frac : cluster.recHitFractions()) {
+      auto const& h = *frac.recHitRef();
       auto const& rep = h.positionREP();
-      etaSum += (frac.frac * h.energy()) * std::abs(rep.eta() - crep.eta());
-      phiSum += (frac.frac * h.energy()) * std::abs(deltaPhi(rep.phi(), crep.phi()));
+      etaSum += (frac.fraction() * h.energy()) * std::abs(rep.eta() - crep.eta());
+      phiSum += (frac.fraction() * h.energy()) * std::abs(deltaPhi(rep.phi(), crep.phi()));
     }
     //protection for single line : assign ~ tower
     etaRMS2[i] = std::max(etaSum / cluster.energy(), static_cast<double>(thrsh));
@@ -534,7 +539,7 @@ int main() {
 
     launch_shower_shape_test(queue, hostClusteringVars, hostClusters, hostRecHits, hostRecHitFracs);
 
-    checkShowerShapes(clusters, hits, hostClusteringVars, rhfracs);
+    checkShowerShapes(clusters, hits, hostClusteringVars);
   }
 
   return 0;

@@ -1,17 +1,4 @@
-#include <Eigen/Core>
-#include <Eigen/Dense>
-
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-#include "HeterogeneousCore/AlpakaCore/interface/MoveToDeviceCache.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
-#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitTopologyRecord.h"
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizer_Alpaka.h"
 
@@ -34,6 +21,7 @@
  * ECL-CC, and aggregates component-level information.
  *
  * The pipeline stages include:
+ * - Shower shape computation
  * - Link construction between clusters based on geometric criteria.
  * - Adjacency graph creation (compressed sparse row format).
  * - ECL-CC connected components detection (low/mid/high degree partitioned).
@@ -47,19 +35,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
   /**
  * @brief Executes the complete multi-depth clustering pipeline.
- * The apply() method launches:
- * - ConstructLinksKernel:  Build geometric links between clusters.
- * - ECLCCPrologueKernel:   Build adjacency graph.
- * - CCGAlgorithmLauncher stages (INIT, LOW, MID, HIGH, FLATTEN): ECL-CC component detection.
- * - ECLCCEpilogueKernel: Aggregate rechit energies and assign final component indices.
  * 
  * @param queue Alpaka execution queue.
  * @param outPFCluster Device collection of clusters (output).
  * @param pfRecHitFracs Device collection of PFRecHits fractions (output)
- * @param pfClusters Device collection of clusters variables(input).
+ * @param pfCluster Device collection of clusters variables(input).
  * @param pfRecHitFracs Device collection of PFRecHits fractions (input)
  * @param pfRecHit Device collection of PFRecHits (input).
- *
+ * @param params Pointer to clusterization parameters. (input).
+ * @param nClusters Number of clusters to process.
  */
   void clusterize(Queue& queue,
                   reco::PFClusterDeviceCollection& outPFCluster,

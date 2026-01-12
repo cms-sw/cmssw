@@ -38,12 +38,9 @@
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterParams.h"
 
-using namespace reco;
 
-//static bool verbose = true;
-
-constexpr double nSigmaEta_ = 0.01234;
-constexpr double nSigmaPhi_ = 0.2678;
+constexpr double nSigmaEta = 0.01234;
+constexpr double nSigmaPhi = 0.2678;
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -95,8 +92,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto params_h = cms::alpakatools::make_host_buffer<PFMultiDepthClusterParams, Platform>();
 
-    params_h->nSigmaEta = nSigmaEta_;
-    params_h->nSigmaPhi = nSigmaPhi_;
+    params_h->nSigmaEta = nSigmaEta;
+    params_h->nSigmaPhi = nSigmaPhi;
 
     auto params_d = cms::alpakatools::make_device_buffer<PFMultiDepthClusterParams>(queue);
 
@@ -216,7 +213,7 @@ std::vector<ClusterLink> link(const ::reco::PFClusterCollection& clusters,
       deta = deta * deta / (etaRMS2[i] + etaRMS2[j]);
       auto dphi = deltaPhi(crep1.phi(), crep2.phi());
       dphi = dphi * dphi / (phiRMS2[i] + phiRMS2[j]);
-      if ((deta < nSigmaEta_) & (dphi < nSigmaPhi_)) {
+      if ((deta < nSigmaEta) & (dphi < nSigmaPhi)) {
         links.push_back(ClusterLink(i, j, deta + dphi, std::abs(dz), cluster1.energy() + cluster2.energy()));
       }
     }

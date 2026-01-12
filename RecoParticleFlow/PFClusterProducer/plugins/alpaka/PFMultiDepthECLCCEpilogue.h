@@ -25,45 +25,33 @@
  * - Consolidation of connected component membership for each cluster.
  * - Assignment of component energy sums based on rechit fractions.
  * - Remapping of cluster indices to component indices.
- * - Masked warp-scope reductions to ensure efficient and divergence-free operations.
- *
- * Key outputs:
- * - mdpf_component()       : representative vertex index per cluster.
- * - mdpf_componentEnergy() : total rechit energy for each component.
- * - mdpf_componentIndex()  : compressed component index for final sorting.
- *
- * - Warp-masked ballot, shuffle, and scan operations are used throughout.
- * - Shared memory usage depends on max_w_items ensure adequate resource sizing.
- * - Only a single block (group == 0) is active during execution.
- * 
- * Ensure consistency between Prologue (adjacency construction) and Epilogue (component labeling) stages.
- *
  */
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace ::cms::alpakatools;
+  using namespace ::cms::alpakaintrinsics;
 
   /**
- * @class ECLCCEpilogueKernel
- * @brief Finalizes cluster component information after ECL-CC labeling.
+ * @brief Alpaka kernel finalizing PF clusters after ECL-CC clustering.
  *
- * The ECLCCEpilogueKernel aggregates information about particle flow clusters
- * after they have been linked into connected components by the ECL-CC algorithm.
- * 
- * Responsibilities:
- * - Calculate total rechit energy per component.
- * - Map cluster vertices to their connected component representatives.
- * - Assign compressed component indices for further processing.
- * 
- * - Warp-masked operations are used throughout to eliminate divergence.
- * - Component aggregation and rechit assignment use warp-level masked scans.
- * 
- * @tparam max_w_items Maximum number of warp tiles processed per block () controls shared memory footprint ).
+ * Produces the final PF cluster and rec hit fraction collections using the
+ * connected-component labels computed by the ECL clustering stage. Supports
+ * optional cooperative warp-level processing.
  *
+ * @tparam max_w_items     Maximum number of items processed per warp.
+ * @tparam is_cooperative Enable cooperative warp-level processing if true.
+ * 
+ * @param acc                 Alpaka accelerator object.
+ * @param outPFCluster        Output PF cluster device collection.
+ * @param outPFRecHitFracs    Output PF rec hit fraction device collection.
+ * @param pfClusteringCCLabels Input view of connected-component labels.
+ * @param pfCluster           Input PF cluster device collection.
+ * @param pfRecHitFracs       Input PF rec hit fraction device collection.
+ * @param pfRecHit            Input PF rec hit device collection.
  */
 
-  template <unsigned int max_w_items = 32>
+  template <unsigned int max_w_items = 32, bool is_cooperative = false>
   class ECLCCEpilogueKernel {
   public:
     ALPAKA_FN_ACC void operator()(
@@ -82,25 +70,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int nVertices = pfClusteringCCLabels.size();
 
       const unsigned int w_extent = alpaka::warp::getSize(acc);
-
+      // Root index (representative) per vertex.
       auto& component_roots(alpaka::declareSharedVar<int[max_w_items * max_w_extent + 1], __COUNTER__>(acc));
 
       auto& connected_comp_rhf_offsets(alpaka::declareSharedVar<int[max_w_items * max_w_extent + 1], __COUNTER__>(acc));
-
+      //representative vertex index for a component.
       auto& cc_roots(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent + 1], __COUNTER__>(acc));
+      // max energy (bit-cast) per component, cc_energies stores float energies bit-cast to uint for atomicMax():
       auto& cc_energies(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent], __COUNTER__>(acc));
+      // selected seed per component:
       auto& cc_seeds(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent], __COUNTER__>(acc));
+      // total rhfrac count per component (compact indexing).
       auto& cc_rhf_sizes(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent + 1], __COUNTER__>(acc));
-
+      // Maps vertex root -> compact component id (cc_idx); also uses [nVertices] as component counter.
       auto& component_map(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent + 1], __COUNTER__>(acc));
-
+      // per-vertex seed RH index:
       auto& vertex_seeds(alpaka::declareSharedVar<int[max_w_items * max_w_extent], __COUNTER__>(acc));
 
       auto& tmp_buf1(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent + 1], __COUNTER__>(acc));
       auto& tmp_buf2(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent + 1], __COUNTER__>(acc));
       auto& tmp_buf3(alpaka::declareSharedVar<unsigned int[max_w_items], __COUNTER__>(acc));
 
+      //component size accumulated at root index
       auto& connected_comp_sizes = tmp_buf1;
+      //total rhfrac count per component (accumulated at root).
       auto& connected_comp_rhf_sizes = tmp_buf2;
       auto& subcc_offsets = tmp_buf3;
 
@@ -353,15 +346,194 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (lane_idx == 0)
             isolated_roots[warp_idx] = iso_root_mask;
 
-          unsigned int store_idx = connected_comp_rhf_offsets[vertex_idx] + cc_rhf_offsets[cc_idx];
+          unsigned int dst_rhf_offset = connected_comp_rhf_offsets[vertex_idx] + cc_rhf_offsets[cc_idx];
 
-          float energy = is_isolated_root == false ? pfRecHit[seed].energy() : 0.f;
+          const float energy = is_isolated_root == false ? pfRecHit[seed].energy() : 0.f;
 
-          for (unsigned int j = rhf_begin; j < rhf_end; j++) {
-            outPFRecHitFracs[store_idx].frac() = pfRecHitFracs[j].frac();
-            outPFRecHitFracs[store_idx].pfrhIdx() = pfRecHitFracs[j].pfrhIdx();
-            outPFRecHitFracs[store_idx].pfcIdx() = cc_idx;
-            ++store_idx;
+          // Cooperative mode: each "master" lane (iter_lane_idx) owns a PFRecHitFraction span
+          // [pfrhf_offset, pfrhf_offset + pfrhf_size). If that span is longer than 1, we recruit a
+          // subgroup of currently "free" lanes to help process the span in parallel.
+          //
+          // Mask conventions in this scope:
+          // - active_lanes_mask : lanes corresponding to in-range clusters (plus any forced lanes).
+          // - free_lanes_mask   : lanes currently available to be assigned as cooperative workers
+          //                       (subset of active_lanes_mask).
+          //                       if a swap_lanes_mask (see below) is a non-empty set, then free lanes mask
+          //                       also includes lanes for later swap operation
+          // - swap_lanes_mask   : lanes that currently hold state and must be preserved to be swapped out to some free lanes.
+          if constexpr (is_cooperative) {
+            const unsigned int eff_w_extent = alpaka::popcount(acc, active_lanes_mask);
+
+            unsigned int src_rhf_offset = rhf_begin;
+            unsigned int rhf_size = rhf_end - rhf_begin;
+            // Define iteration parameters:
+            unsigned int iter_lane_idx = 0;
+
+            while (iter_lane_idx < eff_w_extent) {
+              // Identify lanes whose remaining PFRecHitFraction work is exactly one element.
+              // These lanes cannot benefit from recruiting cooperative helpers and are handled by a fast path.
+              // Note: pfrhf_size may have been reduced in a previous iteration due to leftover handling.
+              const warp::warp_mask_t single_worklane_mask = warp::ballot_mask(acc, active_lanes_mask, rhf_size == 1);
+
+              // Create temporary per-iteration masks for cooperative scheduling:
+              // -- how many vacant lanes in the warp, i.e., lanes available to become cooperators in this iteration ('free_lanes_mask')
+              // -- how many reserved lanes in the warp ('swap_lanes_mask'); note that free_lanes_mask must also include reserved lanes
+              warp::warp_mask_t free_lanes_mask = active_lanes_mask;
+              warp::warp_mask_t swap_lanes_mask = static_cast<warp::warp_mask_t>(0);
+
+              unsigned int swap_lane_idx{w_extent};  //assigned to some default value (it's outside of the warp range)
+              unsigned int swap_proc_dst_rhf_offset{0};  // or max unsigned int?
+              unsigned int swap_proc_src_rhf_offset{0};  // or max unsigned int?
+              unsigned int swap_lanes_num{0};            //no lanes in the warp keep iter lane idx for swap operation
+
+              unsigned int proc_lane_idx{w_extent};
+              unsigned int proc_dst_rhf_offset{dst_rhf_offset};
+              unsigned int proc_src_rhf_offset{src_rhf_offset};
+
+              bool update_params = true;
+
+              warp::syncWarpThreads_mask(acc, active_lanes_mask);
+
+              while (update_params) {
+                const warp::warp_mask_t iter_lane_mask = get_lane_mask(iter_lane_idx);
+
+                const bool is_master_lane = iter_lane_idx == lane_idx;
+                // first we need to check whether the current iter lane itself is vacant.
+                if ((free_lanes_mask & iter_lane_mask) == 0) {
+                  // The current iteration lane is not free: it currently holds state that must be preserved.
+                  // Mark it as reserved-for-swap; later we move its state into an actually free lane.
+                  swap_lanes_mask = swap_lanes_mask | iter_lane_mask;
+                  ++swap_lanes_num;  //how many lanes are reserved for swap
+
+                  if (is_master_lane && iter_lane_idx != proc_lane_idx) {
+                    swap_lane_idx = proc_lane_idx;
+                    swap_proc_dst_rhf_offset = proc_dst_rhf_offset;
+                    swap_proc_src_rhf_offset = proc_src_rhf_offset;
+                  }
+                } else {
+                  // update the free mask (erase master-lane bit):
+                  free_lanes_mask &= ~iter_lane_mask;
+                }
+                // 'iter_lane_idx' is warp-uniform; thus all lanes agree on which lane is the current master.
+                // Check whether the current lane has exactly one element of work remaining.
+                const bool is_single_work_lane = is_work_lane(single_worklane_mask, iter_lane_idx, w_extent);
+                // Available cooperative subgroup capacity: free lanes minus those reserved to preserve state (swap lanes).
+                // Note: the name 'subgroup' is used here because it does not take into account iterative (master) lane itself.
+                const unsigned int free_subgroup_size =
+                    static_cast<std::uint32_t>(alpaka::popcount(acc, free_lanes_mask)) - swap_lanes_num;
+
+                if (is_single_work_lane) {
+                  if (is_master_lane) {
+                    proc_lane_idx = iter_lane_idx;
+                    proc_dst_rhf_offset = dst_rhf_offset;
+                    proc_src_rhf_offset = src_rhf_offset;
+                  }
+                  iter_lane_idx += 1;
+                  update_params = iter_lane_idx < eff_w_extent &&
+                                  (static_cast<std::uint32_t>(alpaka::popcount(acc, free_lanes_mask)) > swap_lanes_num);
+                  continue;
+                }
+
+                const unsigned int proc_rhf_size = is_master_lane ? (rhf_size - 1) : 0;  //exclude master lane itself..
+                // Broadcast worksize (all active lanes):
+                const unsigned int iter_rhf_size =
+                    warp::shfl_mask(acc, active_lanes_mask, proc_rhf_size, iter_lane_idx, w_extent);
+
+                const unsigned int coop_subgroup_size = alpaka::math::min(acc, iter_rhf_size, free_subgroup_size);
+
+                // Check which lane can cooperate in the work:
+                // -- it must be vacant (corresponding bit in 'free_lanes_mask' must be set)
+                // -- among free lanes, it must be within the first 'coop_subgroup_size' positions
+                //    (using logical indexing over free_lanes_mask)
+                // -- vacant lanes must not be reserved for swapping operation (which is already taking into account in 'coop_subgroup_size')
+                const bool is_coop_subgroup_lane =
+                    is_work_lane(free_lanes_mask, lane_idx, w_extent)
+                        ? (get_logical_lane_idx(acc, free_lanes_mask, lane_idx) < coop_subgroup_size)
+                        : false;
+                // Cooperative subgroup lanes are drawn from free_lanes_mask; by construction this excludes the master lane
+                // (because the master lane was already removed from free_lanes_mask earlier).
+                const warp::warp_mask_t coop_subgroup_mask =
+                    warp::ballot_mask(acc, active_lanes_mask, is_coop_subgroup_lane);  //Note: it excludes master lane.
+                // Erase corresponding bits in 'free_lanes_mask'
+                free_lanes_mask &= ~coop_subgroup_mask;
+                // Update parameters only for cooperative subgroup lanes (and the master lane):
+                if (is_coop_subgroup_lane || is_master_lane) {
+                  // Do broadcast of iter. lane index and corresponding rechit offset from source (current iterative) lane:
+                  proc_lane_idx =
+                      warp::shfl_mask(acc, coop_subgroup_mask | iter_lane_mask, iter_lane_idx, iter_lane_idx, w_extent);
+                  proc_dst_rhf_offset = warp::shfl_mask(
+                      acc, coop_subgroup_mask | iter_lane_mask, dst_rhf_offset, iter_lane_idx, w_extent);
+                  proc_src_rhf_offset = warp::shfl_mask(
+                      acc, coop_subgroup_mask | iter_lane_mask, src_rhf_offset, iter_lane_idx, w_extent);
+                }
+                // Now we need to check whether we need to increment iteration lane index.
+                // Check if worksize less or equal subgroup size, if 'true', increment iter lane index for the next rec hit fraction array:
+                if (iter_rhf_size <= free_subgroup_size) {
+                  iter_lane_idx += 1;
+                  // if 'false', we  have to update a leftover work for the current master lane (will continue in the next iteration):
+                } else if (is_master_lane) {
+                  // update rechit fraction offset for the next iteration
+                  dst_rhf_offset +=
+                      coop_subgroup_size + 1;  //we need to take into account the master lane itself (hence "+1" here)
+                  src_rhf_offset +=
+                      coop_subgroup_size + 1;  //we need to take into account the master lane itself (hence "+1" here)
+                  // compute remaining work size (that is a leftover rec hit fraction size)
+                  rhf_size = iter_rhf_size - coop_subgroup_size;
+                }
+                update_params = (iter_lane_idx < eff_w_extent) &&
+                                (static_cast<std::uint32_t>(alpaka::popcount(acc, free_lanes_mask)) > swap_lanes_num);
+              }
+              // Now we need to swap cached values to vacant lanes:
+              if (is_work_lane(free_lanes_mask | swap_lanes_mask, lane_idx, w_extent)) {
+                const unsigned int src_log_lane_idx = is_work_lane(free_lanes_mask, lane_idx, w_extent)
+                                                          ? get_logical_lane_idx(acc, free_lanes_mask, lane_idx)
+                                                          : w_extent;
+                const unsigned int src_phys_lane_idx =
+                    src_log_lane_idx < swap_lanes_num ? get_physical_lane_idx(acc, swap_lanes_mask, src_log_lane_idx)
+                                                      : lane_idx;
+
+                const unsigned int tmp_proc_lane_idx =
+                    warp::shfl_mask(acc, free_lanes_mask | swap_lanes_mask, swap_lane_idx, src_phys_lane_idx, w_extent);
+
+                const unsigned int tmp_proc_dst_rhf_offset = warp::shfl_mask(
+                    acc, free_lanes_mask | swap_lanes_mask, swap_proc_dst_rhf_offset, src_phys_lane_idx, w_extent);
+
+                const unsigned int tmp_proc_src_rhf_offset = warp::shfl_mask(
+                    acc, free_lanes_mask | swap_lanes_mask, swap_proc_src_rhf_offset, src_phys_lane_idx, w_extent);
+
+                if (is_work_lane(free_lanes_mask, lane_idx, w_extent) && src_log_lane_idx < swap_lanes_num) {
+                  proc_lane_idx = tmp_proc_lane_idx;
+                  proc_dst_rhf_offset = tmp_proc_dst_rhf_offset;
+                  proc_src_rhf_offset = tmp_proc_src_rhf_offset;
+                }
+              }
+
+              const warp::warp_mask_t nonvacant_lanes_mask =
+                  warp::ballot_mask(acc, active_lanes_mask, proc_lane_idx != w_extent);
+
+              if (is_work_lane(nonvacant_lanes_mask, lane_idx, w_extent) == false)
+                continue;
+
+              const warp::warp_mask_t coop_group_mask = warp::match_any_mask(acc, nonvacant_lanes_mask, proc_lane_idx);
+
+              const float proc_cc_idx = warp::shfl_mask(acc, coop_group_mask, cc_idx, proc_lane_idx, w_extent);
+
+              const auto log_lane_idx = get_logical_lane_idx(acc, coop_group_mask, lane_idx);
+              const int dst_rhfrac_idx = log_lane_idx + proc_dst_rhf_offset;
+              const int src_rhfrac_idx = log_lane_idx + proc_src_rhf_offset;
+
+              outPFRecHitFracs[dst_rhfrac_idx].frac() = pfRecHitFracs[src_rhfrac_idx].frac();
+              outPFRecHitFracs[dst_rhfrac_idx].pfrhIdx() = pfRecHitFracs[src_rhfrac_idx].pfrhIdx();
+              outPFRecHitFracs[dst_rhfrac_idx].pfcIdx() = proc_cc_idx;
+            }
+          } else {
+            unsigned int dst_rhfrac_idx = dst_rhf_offset;
+            for (unsigned int src_rhfrac_idx = rhf_begin; src_rhfrac_idx < rhf_end; src_rhfrac_idx++) {
+              outPFRecHitFracs[dst_rhfrac_idx].frac() = pfRecHitFracs[src_rhfrac_idx].frac();
+              outPFRecHitFracs[dst_rhfrac_idx].pfrhIdx() = pfRecHitFracs[src_rhfrac_idx].pfrhIdx();
+              outPFRecHitFracs[dst_rhfrac_idx].pfcIdx() = cc_idx;
+              ++dst_rhfrac_idx;
+            }
           }
 
           auto compFn = [] ALPAKA_FN_ACC(const float a, const float b) -> float { return a > b ? a : b; };
@@ -377,7 +549,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const unsigned int low_local_rep_idx = get_ls1b_idx(acc, subcomponent_mask);
 
           const float max_energy = warp_sparse_reduce(acc, subcomponent_mask, lane_idx, energy, compFn);
-
+          // Equality on energy is intentional: max_energy is selected from lane values via shuffles/reduction,
+          // so it is bitwise-equal to at least one participating lane's energy.
           const warp::warp_mask_t max_energy_lanes_mask =
               warp::ballot_mask(acc, subcomponent_mask, max_energy == energy);
 
@@ -388,7 +561,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const auto energy_max = warp::shfl_mask(acc, subcomponent_mask, max_energy, max_energy_lane_idx, w_extent);
 
           warp::syncWarpThreads_mask(acc, updated_active_lanes_mask);
-
+          // Energies are assumed non-negative; bit-cast uint ordering matches float ordering for atomicMax.
           if (lane_idx == low_local_rep_idx) {
             unsigned int x = std::bit_cast<unsigned int>(energy_max);
             alpaka::atomicMax(acc, &cc_energies[cc_idx], x);

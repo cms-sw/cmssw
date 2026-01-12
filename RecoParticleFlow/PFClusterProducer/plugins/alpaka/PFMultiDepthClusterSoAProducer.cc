@@ -1,8 +1,5 @@
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
@@ -30,6 +27,8 @@
 
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   namespace {
@@ -54,9 +53,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::EDGetToken<reco::PFClusterDeviceCollection> inputPFClusterSoA_Token_;
     const device::EDGetToken<reco::PFRecHitFractionDeviceCollection> inputPFRecHitFractionSoA_Token_;
     const device::EDGetToken<reco::PFRecHitDeviceCollection> inputPFRecHitSoA_Token_;
-
-    const edm::EDGetTokenT<cms_uint32_t> inputPFClustersNum_Token_;
-    const edm::EDGetTokenT<cms_uint32_t> inputPFRecHitNum_Token_;
 
     const device::EDPutToken<reco::PFClusterDeviceCollection> outputPFClusterSoA_Token_;
     const device::EDPutToken<reco::PFRecHitFractionDeviceCollection> outputPFRHFractionsSoA_Token_;
@@ -121,8 +117,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         inputPFClusterSoA_Token_{consumes(config.getParameter<edm::InputTag>("clustersSrc"))},
         inputPFRecHitFractionSoA_Token_{consumes(config.getParameter<edm::InputTag>("rhfracSrc"))},
         inputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("rechitSrc"))},
-        inputPFClustersNum_Token_{consumes(config.getParameter<edm::InputTag>("rechitSrc"))},
-        inputPFRecHitNum_Token_{consumes(config.getParameter<edm::InputTag>("rechitSrc"))},
         outputPFClusterSoA_Token_{produces()},
         outputPFRHFractionsSoA_Token_{produces()},
         pfrhfrac_size_{cms::alpakatools::make_host_buffer<int, Platform>()},
@@ -153,7 +147,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::unique_ptr<reco::PFRecHitFractionDeviceCollection> outPFRHFractions;
     std::unique_ptr<reco::PFClusterDeviceCollection> outPFClusters;
 
-    std::cout << "nClusters is: " << *pfcl_size_ << std::endl;
+    if (edm::isDebugEnabled()) {
+      LogDebug("PFMultiDepthClusterSoAProducer") << "nClusters is: " << *pfcl_size_;
+    }
 
     if (*pfcl_size_ > 0) {
       outPFClusters = std::make_unique<reco::PFClusterDeviceCollection>(*pfcl_size_, event.queue());
