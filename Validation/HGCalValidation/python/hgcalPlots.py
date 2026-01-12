@@ -2807,54 +2807,6 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   return hgcalTrackstersPlotter
 
 #=================================================================================================
-_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False, "xtitle": "Default", "ytitle": "Default"}
-
-hgcalCaloParticlesPlotter = Plotter()
-
-def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
-  dqmfolder = hgcVal_dqm + "SelectedCaloParticles/" + collection
-  print(dqmfolder)
-#  _common["ymin"] = 0.0
-  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
-  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
-  key = keys[0]
-  while key:
-    obj = key.ReadObj()
-    name = obj.GetName()
-    plotName = TString(name)
-    plotName.ReplaceAll(" ","_")
-
-    pg = None
-    if obj.InheritsFrom("TH2"):
-        pg = PlotOnSideGroup(plotName.Data(),
-                      Plot(name,
-                           drawCommand = "COLZ",
-                           normalizeToNumberOfEvents = True, **_common_Calo),
-                      ncols=1)
-    elif obj.InheritsFrom("TH1"):
-        pg = PlotGroup(plotName.Data(),[
-                      Plot(name,
-                           drawCommand = "", # may want to customize for TH2 (colz, etc.)
-                           normalizeToNumberOfEvents = True, **_common_Calo)
-                      ],
-                      ncols=1)
-
-    if (pg is not None):
-        hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
-                  dqmfolder
-                  ], PlotFolder(
-                    pg,
-                    loopSubFolders=False,
-                    purpose=PlotPurpose.Timing, page="CaloParticles", section=name_collection)
-                  )
-
-    key = keys.After(key)
-
-  templateFile.Close()
-
-  return hgcalCaloParticlesPlotter
-
-#=================================================================================================
 # hitValidation
 def _hgcalHitFolders(dirName="HGCalSimHitsV/HGCalEESensitive"):
     return "DQMData/Run 1/HGCAL/Run summary/"+dirName
