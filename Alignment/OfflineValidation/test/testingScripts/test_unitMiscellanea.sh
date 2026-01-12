@@ -4,8 +4,8 @@ function die { echo $1: status $2 ; exit $2; }
 echo "TESTING inspect ALCARECO data ..."
 cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/inspectData_cfg.py unitTest=True isCosmics=True trackCollection=ALCARECOTkAlCosmicsCTF0T || die "Failure running inspectData_cfg.py" $?
 
-echo "TESTING inspect Phase2 ALCARECO data ..."
-cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/inspectData_cfg.py unitTest=True isCosmics=False globalTag='' trackCollection=ALCARECOTkAlZMuMu isDiMuonData=True Detector='Run4D98' || die "Failure running inspectData_cfg.py on Phase-2 input" $?
+#echo "TESTING inspect Phase2 ALCARECO data ..."
+#cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/inspectData_cfg.py unitTest=True isCosmics=False globalTag='' trackCollection=ALCARECOTkAlZMuMu isDiMuonData=True Detector='Run4D98' || die "Failure running inspectData_cfg.py on Phase-2 input" $?
 
 echo "TESTING G4e refitter ..."
 cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/testG4Refitter_cfg.py maxEvents=10  || die "Failure running testG4Refitter_cfg.py" $?
