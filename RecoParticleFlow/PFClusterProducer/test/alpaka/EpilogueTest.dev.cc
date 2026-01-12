@@ -96,7 +96,7 @@ namespace {
     }
   };
 
-  CaloCellGeometry::CornersMgr s_cornersMgr(65536,CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
+  CaloCellGeometry::CornersMgr s_cornersMgr(65536, CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
 
   CaloCellGeometry::ParMgr s_parMgr(65536, /*subSize=*/BoxCell::kNPar);
 

@@ -26,7 +26,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringVarsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringEdgeVarsDeviceCollection.h"
 
-
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class ECLCCTest {

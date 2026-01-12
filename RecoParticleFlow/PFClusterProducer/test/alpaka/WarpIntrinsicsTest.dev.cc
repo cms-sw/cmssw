@@ -40,11 +40,11 @@ namespace cmstest {
 }  // namespace cmstest
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-namespace cmstest {
+  namespace cmstest {
     using namespace ::cmstest;
 
     using TestPFClusterDeviceCollection = PortableCollection<::cmstest::TestPFClusterSoA>;
-}  // namespace cmstest
+  }  // namespace cmstest
 
   class PFClusterTest {
   public:
