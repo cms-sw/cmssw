@@ -111,6 +111,10 @@ protected:
 
   // trigger names
   std::vector<std::string> trigger_names_;
+
+  // named constants
+  static constexpr double kDegToRad = M_PI / 180.0;
+  static constexpr double kFiveDegToRad = 5.0 * M_PI / 180.0;
 };
 
 template <typename RecHitType>
@@ -174,33 +178,17 @@ void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibook
       time_histograms_.push_back(ibooker.book1D("time", "Time (ps);Events", 100, 0., 1000.));
       ieta_iphi_histograms_.push_back(
           ibooker.book2D("ieta_iphi", "i#eta;i#phi;Entries", 171, -85.5, 85.5, 360, 0.5, 360.5));
-      eta_phi_histograms_.push_back(ibooker.book2D(
-          "eta_phi", "#eta;#phi;Entries", 170, -85 * 0.017453292519943295, 85 * 0.017453292519943295, 360, -M_PI, M_PI));
+      eta_phi_histograms_.push_back(
+          ibooker.book2D("eta_phi", "#eta;#phi;Entries", 170, -85 * kDegToRad, 85 * kDegToRad, 360, -M_PI, M_PI));
       ieta_iphi_energy_profiles_.push_back(ibooker.bookProfile2D(
           "ieta_iphi_energy", "i#eta;i#phi;mean Energy", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
-      eta_phi_energy_profiles_.push_back(ibooker.bookProfile2D("eta_phi_energy",
-                                                               "#eta;#phi;mean Energy",
-                                                               170,
-                                                               -85 * 0.017453292519943295,
-                                                               85 * 0.017453292519943295,
-                                                               360,
-                                                               -M_PI,
-                                                               M_PI,
-                                                               0,
-                                                               20));
+      eta_phi_energy_profiles_.push_back(ibooker.bookProfile2D(
+          "eta_phi_energy", "#eta;#phi;mean Energy", 170, -85 * kDegToRad, 85 * kDegToRad, 360, -M_PI, M_PI, 0, 20));
 
       ieta_iphi_time_profiles_.push_back(
           ibooker.bookProfile2D("ieta_iphi_time", "i#eta;i#phi;mean Time", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
-      eta_phi_time_profiles_.push_back(ibooker.bookProfile2D("eta_phi_time",
-                                                             "#eta;#phi;mean Time",
-                                                             170,
-                                                             -85 * 0.017453292519943295,
-                                                             85 * 0.017453292519943295,
-                                                             360,
-                                                             -M_PI,
-                                                             M_PI,
-                                                             0,
-                                                             20));
+      eta_phi_time_profiles_.push_back(ibooker.bookProfile2D(
+          "eta_phi_time", "#eta;#phi;mean Time", 170, -85 * kDegToRad, 85 * kDegToRad, 360, -M_PI, M_PI, 0, 20));
 
     } else if constexpr (std::is_same<RecHitType, Run3ScoutingHBHERecHit>()) {
       std::vector<double> eta_edges(59);
@@ -367,7 +355,7 @@ void ScoutingRecHitAnalyzer<RecHitType>::decodeDetId(
     ieta = detId.ieta();
     const auto& ietaAbs = detId.ietaAbs();
     const auto& zside = detId.zside();
-    eta = zside * (ietaAbs - 0.5) * 0.017453292519943295;
+    eta = zside * (ietaAbs - 0.5) * kDegToRad;
     iphi = detId.iphi();
     phi = (iphi - 0.5) * M_PI / 180.;
     if (phi > M_PI)
@@ -378,9 +366,9 @@ void ScoutingRecHitAnalyzer<RecHitType>::decodeDetId(
     const auto& ietaAbs = detId.ietaAbs();
     const auto& zside = detId.zside();
     if (ietaAbs <= 20) {
-      eta = zside * (ietaAbs - 0.5) * 0.087266462599716475;
+      eta = zside * (ietaAbs - 0.5) * kFiveDegToRad;
     } else {
-      eta = zside * ((20 * 0.087266462599716475) + (ietaAbs - 20 - 0.5) * 0.087266462599716475 * 2);
+      eta = zside * ((20 * kFiveDegToRad) + (ietaAbs - 20 - 0.5) * kFiveDegToRad * 2);
     }
     iphi = detId.iphi();
     phi = (iphi - 0.5) * 5 * M_PI / 180.;
