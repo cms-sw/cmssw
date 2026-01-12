@@ -2539,20 +2539,16 @@ sc_ticltracksters = [
 hgcalSimClustersPlotter = Plotter()
 
 def append_hgcalSimClustersPlots(collection, name_collection):
-  if hasattr(collection, 'value'):
-    collection = collection.value()
-  collection = str(collection)
-  simClusterValue = str(hgcalValidator.label_SimClustersLevel.value())
-  if collection == simClusterValue:
+  if collection == hgcalValidator.label_SimClustersLevel.value():
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalFolders(simClusterValue +"/"+ collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters.value() +"/"+ collection)
                   ], PlotFolder(
                   *sc_clusterlevel,
                   loopSubFolders=False,
                   purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
   else:
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalFolders(simClusterValue +"/"+collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters.value() +"/"+collection)
                   ], PlotFolder(
                   *sc_ticltracksters,
                   loopSubFolders=False,
