@@ -15,6 +15,8 @@ L1CaloRegion::L1CaloRegion(
     unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn)
     : m_id(crate, card, rgn),
       m_data(0),  // over-ridden below
+      m_captureBlock(0),
+      m_captureIndex(0),
       m_bx(0) {
   pack(et, overFlow, tauVeto, mip, quiet);
 }
@@ -23,6 +25,8 @@ L1CaloRegion::L1CaloRegion(
 L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn)
     : m_id(crate, 999, rgn),
       m_data(0),  // over-ridden below
+      m_captureBlock(0),
+      m_captureIndex(0),
       m_bx(0) {
   pack((et & 0xff), (et >= 0xff), fineGrain, false, false);
 }
@@ -32,13 +36,15 @@ L1CaloRegion::L1CaloRegion(
     unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi)
     : m_id(ieta, iphi),
       m_data(0),  // over-ridden below
+      m_captureBlock(0),
+      m_captureIndex(0),
       m_bx(0) {
   pack(et, overFlow, fineGrain, mip, quiet);
 }
 
 //constructor for unpacking
 L1CaloRegion::L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi, int16_t bx)
-    : m_id(ieta, iphi), m_data(data), m_bx(bx) {}
+    : m_id(ieta, iphi), m_data(data), m_captureBlock(0), m_captureIndex(0), m_bx(bx) {}
 
 // destructor
 L1CaloRegion::~L1CaloRegion() {}
