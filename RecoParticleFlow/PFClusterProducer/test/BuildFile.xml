@@ -26,7 +26,7 @@
   <use name="DataFormats/SoATemplate"/>
   <use name="DataFormats/Portable"/>
   <use name="RecoParticleFlow/PFClusterProducer/plugins/alpaka"/>
-  <flags ALPAKA_BACKENDS="cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
 <bin file="alpaka/ReductionTest.dev.cc">
@@ -37,7 +37,7 @@
   <use name="DataFormats/SoATemplate"/>
   <use name="DataFormats/Portable"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
-  <flags ALPAKA_BACKENDS="cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
 <bin file="alpaka/ShowerShapeTest.dev.cc">
@@ -48,7 +48,7 @@
   <use name="DataFormats/SoATemplate"/>
   <use name="DataFormats/Portable"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
-  <flags ALPAKA_BACKENDS="cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
 <bin file="alpaka/ConstructLinksTest.dev.cc">
@@ -59,7 +59,7 @@
   <use name="DataFormats/SoATemplate"/>
   <use name="DataFormats/Portable"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
-  <flags ALPAKA_BACKENDS="cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
 <bin file="alpaka/PrologueTest.dev.cc">
@@ -70,7 +70,7 @@
   <use name="DataFormats/SoATemplate"/>
   <use name="DataFormats/Portable"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
-  <flags ALPAKA_BACKENDS="cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
 <bin file="alpaka/ECLCCTest.dev.cc">
@@ -81,7 +81,7 @@
   <use name="DataFormats/SoATemplate"/>
   <use name="DataFormats/Portable"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
-  <flags ALPAKA_BACKENDS="cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
 <bin file="alpaka/EpilogueTest.dev.cc">
@@ -92,5 +92,5 @@
   <use name="DataFormats/SoATemplate"/>
   <use name="DataFormats/Portable"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
-  <flags ALPAKA_BACKENDS="cuda"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>

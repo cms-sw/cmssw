@@ -73,7 +73,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
   using namespace ::cms::alpakatools;
 
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE static void hook(
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void hook(
       Acc1D const& acc,
       reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View pfClusteringCCLabels,
       const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::ConstView pfClusteringEdgeVars,

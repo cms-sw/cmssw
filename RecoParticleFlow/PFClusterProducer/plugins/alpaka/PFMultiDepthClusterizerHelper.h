@@ -20,6 +20,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
+  using namespace cms::alpakaintrinsics;
 
   /**
  * @brief Compute lane mask
@@ -85,6 +86,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @param lane_idx Current thread's lane index.
  * 
  * @return Exclusive prefix sum value for the current lane.
+ * convention used here:
+ * - lanes 1..(w_extent-1) receive the exclusive prefix sum (CSR offsets within the warp),
+ * - lane 0 receives the total sum over the warp (used as the per-warp NNZ aggregate)
  */
 
   template <typename TAcc, bool all = true, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
@@ -182,12 +186,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return return reduced value (propagated to all lanes in the mask by default)
  */
 
-  template <typename TAcc,
-            typename reduce_t,
-            typename reducer_t,
-            bool all = true,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    requires std::is_arithmetic_v<reduce_t>
+  template <typename TAcc, typename reduce_t, typename reducer_t, bool all = true>
+    requires std::is_arithmetic_v<reduce_t> && alpaka::isAccelerator<TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE reduce_t warp_reduce(TAcc const& acc, reduce_t const in, const reducer_t f) {
     unsigned int const w_extent = alpaka::warp::getSize(acc);
 
@@ -216,12 +216,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return return reduced value (propagated to all lanes in the mask by default)
  */
 
-  template <typename TAcc,
-            typename reduce_t,
-            typename reducer_t,
-            bool all = true,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    requires std::is_arithmetic_v<reduce_t>
+  template <typename TAcc, typename reduce_t, typename reducer_t, bool all = true>
+    requires std::is_arithmetic_v<reduce_t> && alpaka::isAccelerator<TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE reduce_t warp_sparse_reduce(TAcc const& acc,
                                                              const warp::warp_mask_t mask,
                                                              const unsigned int lane_idx,
@@ -240,7 +236,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return in;
 
     //Compute the next power of two:
-    const unsigned int pow2 = w_extent - cms::alpakatools::clz(acc, nActiveLanes - 1);
+    const unsigned int pow2 = w_extent - cms::alpakaintrinsics::clz(acc, nActiveLanes - 1);
     const unsigned int pow2_boundary = 1 << pow2;
 
     const unsigned int logical_lane_idx = get_logical_lane_idx(acc, mask, lane_idx);
@@ -269,16 +265,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   /**
- * @brief Sparse warp reduction
+ * @brief Performs warp-level sparse exclusive prefix sum (masked version of warp_exclusive_sum, see above )
  *
  * @tparam TAcc Alpaka accelerator type.
+ * @tparam accum If true, broadcast total accumulated value to lowest active lane.
  * 
- * @param acc Alpaka accelerator instance
- * @param mask input mask 
- * @param in input value to reduce
- * @param f reducer 
+ * @param acc   Alpaka accelerator instance.
+ * @param mask  input mask 
+ * @param val   Value to include in the prefix sum.
+ * @param lane_idx Current thread's lane index.
  * 
- * @return return reduced value (propagated to all lanes in the mask by default)
+ * @return Exclusive prefix sum value for the current lane.
  */
 
   template <typename TAcc, bool all = true, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
@@ -299,7 +296,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return val;  //nothing to do, note that this is the inclusive "sum": low lane always keeps the whole sum
 
     //Compute the next power of two:
-    const unsigned int pow2 = w_extent - cms::alpakatools::clz(acc, nActiveLanes - 1);
+    const unsigned int pow2 = w_extent - cms::alpakaintrinsics::clz(acc, nActiveLanes - 1);
     const unsigned int pow2_boundary = 1 << pow2;
 
     const unsigned int logical_lane_idx = get_logical_lane_idx(acc, mask, lane_idx);
