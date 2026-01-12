@@ -159,13 +159,14 @@ _run3_postValidation += MuonGEMRecHitsPostProcessors
 
 _phase2_postValidation = _run3_postValidation.copy()
 _phase2_postValidation += hgcalPostProcessor
-#_phase2_postValidation += ticlTauHarvesting
+_phase2_postValidation += ticlTauHarvesting
 _phase2_postValidation += MuonME0DigisPostProcessors
 _phase2_postValidation += MuonME0SegPostProcessors
 _phase2_postValidation += trackerphase2ValidationHarvesting
 
 _phase2_ge0_postValidation = _run3_postValidation.copy()
 _phase2_ge0_postValidation += hgcalPostProcessor
+_phase2_ge0_postValidation += ticlTauHarvesting
 _phase2_ge0_postValidation += trackerphase2ValidationHarvesting
 
 _phase2_ticl_barrel_postValidation = _phase2_postValidation.copy()

@@ -83,6 +83,7 @@ private:
 
   std::string folder_;
   double maxAssocScore_;  // smaller = better association
+  double hgcalEtaAbsMin_;
 
   edm::EDGetTokenT<std::vector<SimTauCPLink>> simTauToken_;
   edm::EDGetTokenT<reco::PFTauCollection>     tauProducerToken_;
@@ -108,6 +109,16 @@ private:
   static inline int dmToSelIndex(int dm) {
     for (int i = 0; i < kNDMSel; ++i)
       if (kDMSel[i] == dm) return i;
+    return -1;
+  }
+
+  // Gen-DM set
+  static constexpr int kNDMGen = 5;
+  static constexpr int kDMGen[kNDMGen] = {0, 1, 2, 10, 11};
+
+  static inline int dmToGenIndex(int dm) {
+    for (int i = 0; i < kNDMGen; ++i)
+      if (kDMGen[i] == dm) return i;
     return -1;
   }
 
@@ -180,12 +191,12 @@ private:
   MonitorElement* tau_gePi0_num_iso_pt_[kNDMSel][kMaxGammaLegs]     = {{}};
   MonitorElement* tau_gePi0_num_iso_eta_[kNDMSel][kMaxGammaLegs]    = {{}};
 
-  int eventCount_ = 0;
 };
 
 TICLTauValidator::TICLTauValidator(const edm::ParameterSet& iConfig)
   : folder_( iConfig.getParameter<std::string>("folder") ),
-    maxAssocScore_( iConfig.getParameter<double>("maxAssocScore") )
+    maxAssocScore_( iConfig.getParameter<double>("maxAssocScore") ),
+    hgcalEtaAbsMin_( iConfig.getParameter<double>("hgcalEtaAbsMin") )
 {
   simTauToken_        = consumes<std::vector<SimTauCPLink>>( iConfig.getParameter<edm::InputTag>("simTaus") );
   tauProducerToken_   = consumes<reco::PFTauCollection>(      iConfig.getParameter<edm::InputTag>("TauProducer") );
@@ -215,18 +226,39 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
   auto labelAxes = [](MonitorElement* me){
     if (!me) return;
     if (auto* h2 = me->getTH2F()) {
-      const char* lbl[6] = {"0","1","2","5","10","11"};
-      for (int i = 1; i <= 6; ++i) h2->GetXaxis()->SetBinLabel(i, lbl[i-1]);
-      for (int j = 1; j <= 6; ++j) h2->GetYaxis()->SetBinLabel(j, lbl[j-1]);
+      // X (reco): 6 bins for {0,1,2,5,10,11}
+      std::array<std::string, 6> lblReco = {{
+        "1 #pi^{#pm}",                // DM 0
+        "1 #pi^{#pm} 1 #pi^{0}",      // DM 1
+        "1 #pi^{#pm} 2 #pi^{0}",      // DM 2
+        "2 #pi^{#pm}",                // DM 5 (reco-only 2-prong)
+        "3 #pi^{#pm}",                // DM 10
+        "3 #pi^{#pm} 1 #pi^{0}"       // DM 11
+      }};
+      // Y (gen): 5 bins for {0,1,2,10,11} (no DM 5)
+      std::array<std::string, 5> lblGen = {{
+        "1 #pi^{#pm}",                // DM 0
+        "1 #pi^{#pm} 1 #pi^{0}",      // DM 1
+        "1 #pi^{#pm} 2 #pi^{0}",      // DM 2
+        "3 #pi^{#pm}",                // DM 10
+        "3 #pi^{#pm} 1 #pi^{0}"       // DM 11
+      }};
+
+      auto* xax = h2->GetXaxis();
+      auto* yax = h2->GetYaxis();
+      for (int i = 1; i <= static_cast<int>(lblReco.size()); ++i)
+        xax->SetBinLabel(i, lblReco[i-1].c_str());
+      for (int i = 1; i <= static_cast<int>(lblGen.size()); ++i)
+        yax->SetBinLabel(i, lblGen[i-1].c_str());
     }
   };
 
-  // Confusion matrices
+  // Confusion matrices: 6 reco bins (incl. DM 5), 5 gen bins (no DM 5)
   dm_reco_vs_gen_jet_ = ibook.book2D(
     "dm_reco_vs_gen_jet",
     "Reco DM in jet vs gen DM;reco DM index;gen DM index",
     6, -0.5, 5.5,
-    6, -0.5, 5.5
+    5, -0.5, 4.5
   );
   labelAxes(dm_reco_vs_gen_jet_);
 
@@ -234,7 +266,7 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     "dm_reco_vs_gen_tau",
     "Reco DM in tau vs gen DM;reco DM index;gen DM index",
     6, -0.5, 5.5,
-    6, -0.5, 5.5
+    5, -0.5, 4.5
   );
   labelAxes(dm_reco_vs_gen_tau_);
 
@@ -242,7 +274,7 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     "dm_reco_vs_gen_hps",
     "HPS tau decayMode vs gen DM;HPS DM index;gen DM index",
     6, -0.5, 5.5,
-    6, -0.5, 5.5
+    5, -0.5, 4.5
   );
   labelAxes(dm_reco_vs_gen_hps_);
 
@@ -400,8 +432,6 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
 
 void TICLTauValidator::analyze(const edm::Event& iEvent,
                                const edm::EventSetup&) {
-  ++eventCount_;
-  const bool logFirstEvents = (eventCount_ <= 10);
 
   // handles
   edm::Handle<std::vector<SimTauCPLink>> simTaus;            iEvent.getByToken(simTauToken_, simTaus);
@@ -453,9 +483,14 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       if (!cpRef.isNonnull())
         continue;
       const auto& cp = *cpRef;
+
+      // keep only CPs in HGCAL 
+      if (std::abs(cp.eta()) < hgcalEtaAbsMin_)
+        continue;
+
       const int absPdg = std::abs(cp.pdgId());
       const bool isPhoton        = (absPdg == 22);
-      const bool isChargedHadron = (absPdg == 211 || absPdg == 321 || absPdg == 2212);
+      const bool isChargedHadron = (absPdg == 211); // || absPdg == 321 || absPdg == 2212);
 
       // context CP histos (once per event per CP key)
       if (isChargedHadron && seenCPChargedEvent.insert(cpRef.key()).second) {
@@ -482,6 +517,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
             break;
           }
         }
+      } else {
+        edm::LogWarning("TICLTauValidator")
+          << "simTracksters collection missing ";
       }
       if (matchedSimTkIdx == (size_t)-1)
         continue;
@@ -498,13 +536,25 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
       // Step 1: SimToReco & Step 2: Reco - TICLCandidate
       std::vector<size_t> matchedRecoTkIdx;
-      if (simToRecoMap.isValid()) {
+
+      if (!simToRecoMap.isValid()) {
+        // Product not there at all
+        edm::LogWarning("TICLTauValidator")
+            << "Trackster association map is missing.";
+      } else if (simToRecoMap->size() == 0 ||
+                 matchedSimTkIdx >= simToRecoMap->size()) {
+        edm::LogWarning("TICLTauValidator")
+            << "Trackster association map is empty "
+               "or does not contain entry for sim trackster index "
+            << matchedSimTkIdx << ".";
+      } else {
         auto const& assocs = (*simToRecoMap)[matchedSimTkIdx];
         for (const auto& m : assocs) {
-          if (m.score() <= maxAssocScore_) // smaller is better
+          if (m.score() <= maxAssocScore_)  // smaller is better
             matchedRecoTkIdx.push_back(m.index());
         }
       }
+
       if (!matchedRecoTkIdx.empty())
         pend.stepPass[1] = true;
 
@@ -526,6 +576,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
           if (uses)
             candIdxs.push_back(ci);
         }
+      } else {
+        edm::LogWarning("TICLTauValidator")
+          << "TICLCandidate collection missing";
       }
       if (!candIdxs.empty())
         pend.stepPass[2] = true;
@@ -602,21 +655,19 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         }
       }
 
-      if (logFirstEvents) {
-        std::ostringstream ss;
-        ss << "Chain: CP=" << cpRef.key() << " pdgId=" << cp.pdgId()
-           << " steps=[";
-        for (int s = 0; s < kNSteps; ++s)
-          ss << (pend.stepPass[s] ? '1' : '0');
-        ss << "] jets=[";
-        size_t c = 0;
-        for (auto j : pend.jets) {
-          if (c++) ss << ",";
-          ss << j;
-        }
-        ss << "]";
-        eventChains.push_back(ss.str());
+      std::ostringstream ss;
+      ss << "Chain: CP=" << cpRef.key() << " pdgId=" << cp.pdgId()
+          << " steps=[";
+      for (int s = 0; s < kNSteps; ++s)
+        ss << (pend.stepPass[s] ? '1' : '0');
+      ss << "] jets=[";
+      size_t c = 0;
+      for (auto j : pend.jets) {
+        if (c++) ss << ",";
+        ss << j;
       }
+      ss << "]";
+      eventChains.push_back(ss.str());
     } // leaves
 
     // Jets at step 4: unique jet that contains all PF legs
@@ -1013,32 +1064,28 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       }
     }
 
-    // --- per-link summary for first few events ---
-    if (logFirstEvents) {
-      std::ostringstream ss;
-      ss << "[TICLTauValidator] link summary: "
-         << "DM=" << dmPhys
-         << " nTiclCh=" << pendingHad.size()
-         << " nTiclPho=" << pendingGamma.size()
-         << " hasUniqueJetEndpoint=" << (hasUniqueJetEndpoint ? "yes" : "no")
-         << " jetEndpoint=" << (hasUniqueJetEndpoint ? static_cast<int>(jetEndpoint) : -1)
-         << " nGoodCH_jet=" << nGoodCH_jet
-         << " nPi0_jet=" << nPi0_jet
-         << " haveHpsTaus=" << (haveHpsTaus ? "yes" : "no")
-         << " nGoodCH_tau=" << nGoodCH_tau_total
-         << " nPi0_tau=" << nPi0_tau_total
-         << " endpoint=" << (haveHpsTaus ? "TAU" : "JET");
-      edm::LogVerbatim("TICLTauValidator") << ss.str();
-    }
+    // --- per-link summary ---
+    std::ostringstream ss;
+    ss << "[TICLTauValidator] link summary: "
+        << "DM=" << dmPhys
+        << " nTiclCh=" << pendingHad.size()
+        << " nTiclPho=" << pendingGamma.size()
+        << " hasUniqueJetEndpoint=" << (hasUniqueJetEndpoint ? "yes" : "no")
+        << " jetEndpoint=" << (hasUniqueJetEndpoint ? static_cast<int>(jetEndpoint) : -1)
+        << " nGoodCH_jet=" << nGoodCH_jet
+        << " nPi0_jet=" << nPi0_jet
+        << " haveHpsTaus=" << (haveHpsTaus ? "yes" : "no")
+        << " nGoodCH_tau=" << nGoodCH_tau_total
+        << " nPi0_tau=" << nPi0_tau_total
+        << " endpoint=" << (haveHpsTaus ? "TAU" : "JET");
+    edm::LogVerbatim("TICLTauValidator") << ss.str();
 
-  } // links
+} // links
 
-  if (logFirstEvents) {
-    edm::LogVerbatim("TICLTauValidator")
-      << "[TICLTauValidator] processed event " << iEvent.id();
-    for (const auto& s : eventChains) {
-      edm::LogVerbatim("TICLTauValidator") << "  " << s;
-    }
+  edm::LogVerbatim("TICLTauValidator")
+    << "[TICLTauValidator] processed event " << iEvent.id();
+  for (const auto& s : eventChains) {
+    edm::LogVerbatim("TICLTauValidator") << "  " << s;
   }
 }
 
@@ -1058,6 +1105,7 @@ void TICLTauValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
                                         "ticlSimTrackstersfromCPsToticlCandidate"));
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
   desc.add<double>("maxAssocScore", 0.6);
+  desc.add<double>("hgcalEtaAbsMin", 1.5);
 
   descriptions.add("ticlTauValidator", desc);
 }

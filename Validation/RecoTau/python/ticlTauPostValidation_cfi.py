@@ -4,7 +4,6 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 dm_list = [0, 1, 2, 5, 10, 11]
 effs = []
 
-# Only steps that are actually booked in ticlTauValidator.cc
 steps_to_keep = [0, 1, 4, 5]
 
 for dm in dm_list:
@@ -69,7 +68,7 @@ recoTiclTauHarvester = DQMEDHarvester(
     makeGlobalEffienciesPlot=cms.untracked.bool(False),
 
     # matches recoTiclTauValidator.folder
-    subDirs=cms.untracked.vstring("DQMData/Run 1/RecoTauV/Run summary/ticlTauValidator"),
+    subDirs=cms.untracked.vstring("RecoTauV/ticlTauValidator"),
 
     efficiency=cms.vstring(*effs),
     resolution=cms.vstring(),
@@ -85,14 +84,11 @@ recoTiclTauHarvester = DQMEDHarvester(
 
 hltTiclTauHarvester = DQMEDHarvester(
     "DQMGenericClient",
-    verbose=cms.untracked.uint32(1),
+    verbose=cms.untracked.uint32(5),
     runOnEndLumi=cms.untracked.bool(False),
     runOnEndJob=cms.untracked.bool(True),
     makeGlobalEffienciesPlot=cms.untracked.bool(False),
-
-    # matches hltTiclTauValidator.folder
-    subDirs=cms.untracked.vstring("DQMData/Run 1/HLT/Run summary/TICL/ticlTauValidator"),
-
+    subDirs=cms.untracked.vstring("HLT/TICL/ticlTauValidator"),
     efficiency=cms.vstring(*effs),
     resolution=cms.vstring(),
     efficiencyProfile=cms.untracked.vstring(),
@@ -106,6 +102,11 @@ hltTiclTauHarvester = DQMEDHarvester(
 )
 
 ticlTauHarvesting = cms.Sequence(
-    hltTiclTauHarvester +
-    recoTiclTauHarvester
+    hltTiclTauHarvester
 )
+
+
+#ticlTauHarvesting = cms.Sequence(
+#    hltTiclTauHarvester +
+#    recoTiclTauHarvester
+#)
