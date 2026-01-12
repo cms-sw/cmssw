@@ -2694,17 +2694,19 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
 
   dqmfolder = hgcVal_dqm + "SelectedCaloParticles/" + collection
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
-  if not gDirectory.GetDirectory(dqmfolder):
+  if not templateFile.GetDirectory(dqmfolder):
     print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
     return hgcalTrackstersPlotter
 
-  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  keys = templateFile.GetDirectory(dqmfolder,True).GetListOfKeys()
   key = keys[0]
   while key:
     obj = key.ReadObj()
     name = obj.GetName()
     fileName = TString(name)
     fileName.ReplaceAll(" ","_")
+    plotName = TString(name)
+    plotName.ReplaceAll(" ","_")
     pg = PlotGroup(fileName.Data(),[
                   Plot(name,
                        drawCommand = "",
@@ -2746,11 +2748,11 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   _common["ymin"] = 0.0
   _common["staty"] = 0.85
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
-  if not gDirectory.GetDirectory(dqmfolder):
+  if not templateFile.GetDirectory(dqmfolder):
     print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
     return hgcalTrackstersPlotter
 
-  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  keys = templateFile.GetDirectory(dqmfolder,True).GetListOfKeys()
   key = keys[0]
   while key:
     obj = key.ReadObj()
