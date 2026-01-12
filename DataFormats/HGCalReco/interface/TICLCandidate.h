@@ -21,7 +21,14 @@ public:
   TICLCandidate(Charge q, const LorentzVector& p4)
       : LeafCandidate(q, p4), idProbabilities_{}, time_(0.f), timeError_(-1.f), rawEnergy_(0.f) {}
 
-  TICLCandidate() : LeafCandidate(), idProbabilities_{}, time_(0.f), timeError_(-1.f), rawEnergy_(0.f) {}
+  TICLCandidate()
+      : LeafCandidate(),
+        idProbabilities_{},
+        time_(0.f),
+        timeError_(-1.f),
+        MTDtime_{0.f},
+        MTDtimeError_{-1.f},
+        rawEnergy_(0.f) {}
 
   TICLCandidate(const edm::Ptr<ticl::Trackster>& trackster)
       : LeafCandidate(),
