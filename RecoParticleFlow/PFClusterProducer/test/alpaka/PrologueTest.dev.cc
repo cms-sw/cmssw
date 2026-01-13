@@ -89,8 +89,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::memcpy(queue, hostClusteringEdgeVars.buffer(), devClusteringEdgeVars.buffer());
 
-    auto hClusteringEdgeVars = hostClusteringEdgeVars.view();
-
     alpaka::wait(queue);
   }
 
