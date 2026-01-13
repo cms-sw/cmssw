@@ -241,7 +241,7 @@
   <version ClassVersion="14" checksum="905719452"/>
   <version ClassVersion="15" checksum="898288635"/>
  </class>
- <ioread sourceClass = "LHEEventProduct" version="[13]" targetClass="LHEEventProduct" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
+ <ioread sourceClass = "LHEEventProduct" version="[-13]" targetClass="LHEEventProduct" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
    <![CDATA[pdf_.reset(onfile.pdf_.get()); onfile.pdf_.release();]]>
  </ioread> 
  <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npLO_">
