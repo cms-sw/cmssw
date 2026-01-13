@@ -16,6 +16,11 @@ print("<lcgdict>")
 for l in layouts:
   print("  <class name=\"%s\"/>"% l)
 print()
+print("  <!-- Collection declaration for dictionary -->")
+print("  <class name=\"%s\"/>"% collectionName)
+print("  <!-- %s::Implementation alias must be listed before the aliased-to type -->"% collectionName)
+print("  <class name=\"%s::Implementation\"/>"% collectionName)
+print()
 if len(layouts) > 1:
   print("  <!-- Recursive templates (with no data) ensuring we have one CollectionLeaf<index, type> for each layout in the collection -->")
   for i in range(0, len(layouts)):
@@ -27,7 +32,5 @@ if len(layouts) > 1:
   for i in range(0, len(layouts)):
     print("  <class name=\"portablecollection::CollectionLeaf<%d, %s>\"/>" % (i, layouts[i]))
   print("")
-print("  <!-- Collection declaration for dictionary -->")
-print("  <class name=\"%s\"/>"% collectionName)
 print("  <class name=\"edm::Wrapper<%s>\" splitLevel=\"0\"/>"% collectionName)
 print("</lcgdict>")
