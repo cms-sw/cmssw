@@ -179,7 +179,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto hClusters = hostClusters.view();
     auto hRecHits = hostRecHits.view();
-    auto hRecHitFracs = hostRecHitFracs.view();
 
     const int nClusters = hClusters.size();
     const int nHits = hRecHits.size();
@@ -239,7 +238,6 @@ std::pair<int, int> create(::reco::PFClusterCollection& clusters,
   int nHits = 0;
 
   int tot_offset = 0;
-  int recHitIdx = 0;
 
   for (int i = 0; i < nClusters; ++i) {
     const bool is_depth1 = (i % 2 == 0);
@@ -296,7 +294,6 @@ std::pair<int, int> create(::reco::PFClusterCollection& clusters,
       const float frac_value = (cluster.energy() > 0.0) ? (eH / float(cluster.energy())) : 0.f;
       rhfracs.push_back(Fraction{hIdx, i, frac_value});
 
-      //float current_energy = frac_value * /*hit.energy()*/ eH;
       float current_energy = frac_value * hit.energy();
 
       if (current_energy > best_energy) {
@@ -469,9 +466,6 @@ void checkShowerShapes(const ::reco::PFClusterCollection& clusters,
   auto hClusteringVars = hostClusteringVars.view();
   double tol = 5e-6;
   for (int i = 0; i < nClusters; i++) {
-    const ::reco::PFCluster& cluster = clusters[i];
-    auto const& crep = cluster.positionREP();
-
     const auto x = std::abs(hClusteringVars[i].etaRMS2() - etaRMS2[i]) / etaRMS2[i];
     if (x > tol) {
       printf("Result for cluster id %d : etaRMS2 %f (%f), %f\n", i, hClusteringVars[i].etaRMS2(), etaRMS2[i], x);

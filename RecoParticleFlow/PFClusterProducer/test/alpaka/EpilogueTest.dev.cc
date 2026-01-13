@@ -189,7 +189,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto hOutClusters = outClusters.view();
     auto hClusters = hostClusters.view();
     auto hRecHits = hostRecHits.view();
-    auto hRecHitFracs = hostRecHitFracs.view();
 
     const int nClusters = hClusters.size();
     const int nHits = hRecHits.size();
@@ -296,7 +295,6 @@ std::pair<int, int> create(::reco::PFClusterCollection &clusters,
 
     const double phc = std::atan2(y, x);
     int iphi = 1 + int((phc < 0 ? phc + 2 * M_PI : phc) / (2 * M_PI) * 72.0);
-    //int ieta = std::max(1, std::min(16, int(std::hypot(y, x)/11.0)));
     int ieta_mag = std::max(1, std::min(16, int(std::hypot(y, x) / 11.0)));
     int ieta = (std::uniform_int_distribution<int>(0, 1)(rng) ? +ieta_mag : -ieta_mag);
 
@@ -396,7 +394,6 @@ void load(::reco::PFClusterHostCollection &hostClusters,
           const std::vector<int> &seedIdx) {
   auto hClusters = hostClusters.view();
   auto hRecHits = hostRecHits.view();
-  auto hRecHitFracs = hostRecHitFracs.view();
 
   const int nClusters = hClusters.size();
   const int nHits = hRecHits.size();
@@ -429,9 +426,6 @@ void load(::reco::PFClusterHostCollection &hostClusters,
     int recHitFracSize = 0;
     for (int j = 0; j < nFracs; ++j) {
       if (rhfracs[j].pfcIdx == i) {
-        hRecHitFracs[recHitFracIdx].frac() = rhfracs[j].frac;
-        hRecHitFracs[recHitFracIdx].pfrhIdx() = rhfracs[j].pfrhIdx;
-        hRecHitFracs[recHitFracIdx].pfcIdx() = i;
         ++recHitFracIdx;
         ++recHitFracSize;
       }
@@ -494,7 +488,6 @@ void create_cc_list(::reco::PFMultiDepthClusteringCCLabelsHostCollection &hostCl
       }
     }
     hClusteringVars[i].mdpf_topoId() = x;
-    //printf("Cluster %d linked to %d\n", i, x);
   }
 }
 
@@ -567,10 +560,6 @@ void checkEpilogue(const ::reco::PFClusterHostCollection &outHostClusters,
            clidx,
            seed,
            energy);
-
-    for (int j = 0; j < recFracSize; j++) {
-      auto recHitidx = outHostRecHitsFracsView[recFracOffset + j].pfrhIdx();
-    }
   }
 }
 

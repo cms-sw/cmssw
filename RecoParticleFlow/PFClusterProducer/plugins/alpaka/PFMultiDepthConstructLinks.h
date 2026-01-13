@@ -16,36 +16,6 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterParams.h"
 
 /**
- * @brief Warp-based link construction kernel for Particle Flow  multi-depth clustering.
- *
- * This header defines and implements an Alpaka kernel that constructs links between 
- * particle flow clusters based on geometric proximity and energy sharing criteria.
- * It prepares the cluster connectivity information for subsequent topological 
- * clustering (for connected components analysis via ECL-CC algorithm).
- * 
- * The kernel builds a sparse link map between destination and source clusters,
- * selection is performed by:
- *   - Minimizing depth difference;
- *   - Minimizing transverse distance;
- *   - Maximizing energy.
- *
- * All operations are performed at warp level with warp-masked operations
- * (ballot, shuffle, masked synchronization etc.).
- * 
- * Coputational steps:
- * - Warp tiling over source and destination cluster pairs.
- * - Candidate filtering based on dz > 0;
- * - Geometric filtering based on deta and dphi cuts;
- * - Multi-stage link selection (dz, dr, energy priority).
- * - Store final selected link into cluster's topology ID field.
- *
- * - Full dynamic warp masking is used: ballots and shuffles operate only on selected active lanes.
- * - This kernel does not rely on block-wide reductions or shared memory atomics.
- * - Designed for input cluster graphs with sparse connectivity :
- *   in particular, the destination cluster can be conneted only to at most one source cluster.
- */
-
-/**
  * @brief Warp-based link construction kernel for PF multi-depth clustering.
  *
  * Constructs a sparse directed link map from each destination (target) cluster to at most one
