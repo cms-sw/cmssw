@@ -7,7 +7,7 @@ DATAFORMATS_CHANGED=40
 POLICY_VIOLATION=41
 
 # added test comments
-
+# added
 function die { echo Failure $1: status $2 ; exit $2 ; }
 function checkExitCode {
     if [ "$1" == "$FAILURE" ]; then
