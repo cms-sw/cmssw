@@ -70,6 +70,14 @@ elif tGeometry == 'T33':
     has3DinL1 = True
     LA_value = 0.0503
     tag = 'SiPixelLorentzAngle_Phase2_T33_v1'
+
+elif tGeometry == 'T35':
+    geometry_cff = 'GeometryExtendedRun4D110_cff'
+    recoGeometry_cff = 'GeometryExtendedRun4D110Reco_cff'
+    has3DinL1 = True
+    LA_value = 0.0503
+    tag = 'SiPixelLorentzAngle_Phase2_T35_v1'
+
 else:
     print("Unknown tracker geometry")
     print("What are you doing ?!?!?!?!")
@@ -83,13 +91,19 @@ sqlite_file = 'sqlite_file:' + tag + '.db'
 geometry_cff = 'Configuration.Geometry.' + geometry_cff
 recoGeometry_cff = 'Configuration.Geometry.' + recoGeometry_cff
 
-
 process.load(recoGeometry_cff)
 process.load(geometry_cff)
 
+# trick to get the T33 GT instead
+geomSwap = {
+    "T35": "T33",
+}
+
+effectiveGeometry = geomSwap.get(tGeometry, tGeometry)
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_'+tGeometry, '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_'+effectiveGeometry, '')
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
