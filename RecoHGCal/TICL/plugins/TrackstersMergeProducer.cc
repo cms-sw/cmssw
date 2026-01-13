@@ -22,18 +22,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
-#include "RecoHGCal/TICL/interface/GlobalCache.h"
-
-#include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "PhysicsTools/TensorFlow/interface/TfGraphDefWrapper.h"
-
 #include "RecoHGCal/TICL/plugins/LinkingAlgoBase.h"
 #include "RecoHGCal/TICL/plugins/LinkingAlgoFactory.h"
 #include "RecoHGCal/TICL/plugins/LinkingAlgoByDirectionGeometric.h"
+#include "RecoHGCal/TICL/interface/TracksterInferenceAlgoFactory.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -49,17 +44,18 @@
 #include "TrackstersPCA.h"
 
 using namespace ticl;
+using cms::Ort::ONNXRuntime;
 
-class TrackstersMergeProducer : public edm::stream::EDProducer<> {
+class TrackstersMergeProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
 public:
-  explicit TrackstersMergeProducer(const edm::ParameterSet &ps);
+  explicit TrackstersMergeProducer(const edm::ParameterSet &ps, const ONNXRuntime *);
   ~TrackstersMergeProducer() override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   // static methods for handling the global cache
-  static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet &);
-  static void globalEndJob(TrackstersCache *);
+  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet &iConfig);
+  static void globalEndJob(const ONNXRuntime *);
 
   void beginJob();
   void endJob();
@@ -72,9 +68,6 @@ private:
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
-  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-                             const tensorflow::Session *,
-                             std::vector<Trackster> &result) const;
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
   void assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const;
   void dumpTrackster(const Trackster &) const;
@@ -89,9 +82,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_quality_token_;
   edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_err_token_;
   const edm::EDGetTokenT<std::vector<reco::Muon>> muons_token_;
-  const std::string tfDnnLabel_;
-  const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
-  const tensorflow::Session *tfSession_;
+  const bool regressionAndPid_;
+  std::unique_ptr<TracksterInferenceAlgoBase> inferenceAlgo_;
 
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   const std::string detector_;
@@ -117,36 +109,25 @@ private:
   const double resol_calo_scale_had_;
   const double resol_calo_offset_em_;
   const double resol_calo_scale_em_;
-  const std::string eidInputName_;
-  const std::string eidOutputNameEnergy_;
-  const std::string eidOutputNameId_;
-  const float eidMinClusterEnergy_;
-  const int eidNLayers_;
-  const int eidNClusters_;
   std::once_flag initializeGeometry_;
 
   const HGCalDDDConstants *hgcons_;
 
   std::unique_ptr<GeomDet> firstDisk_[2];
 
-  tensorflow::Session *eidSession_;
   hgcal::RecHitTools rhtools_;
-
-  static constexpr int eidNFeatures_ = 3;
 
   edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hdc_token_;
 };
 
-TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
+TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, const ONNXRuntime *)
     : tracksters_clue3d_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstersclue3d"))),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
       muons_token_(consumes<std::vector<reco::Muon>>(ps.getParameter<edm::InputTag>("muons"))),
-      tfDnnLabel_(ps.getParameter<std::string>("tfDnnLabel")),
-      tfDnnToken_(esConsumes(edm::ESInputTag("", tfDnnLabel_))),
-      tfSession_(nullptr),
+      regressionAndPid_(ps.getParameter<bool>("regressionAndPid")),
       geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
       detector_(ps.getParameter<std::string>("detector")),
       propName_(ps.getParameter<std::string>("propagator")),
@@ -170,14 +151,7 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
       resol_calo_offset_had_(ps.getParameter<double>("resol_calo_offset_had")),
       resol_calo_scale_had_(ps.getParameter<double>("resol_calo_scale_had")),
       resol_calo_offset_em_(ps.getParameter<double>("resol_calo_offset_em")),
-      resol_calo_scale_em_(ps.getParameter<double>("resol_calo_scale_em")),
-      eidInputName_(ps.getParameter<std::string>("eid_input_name")),
-      eidOutputNameEnergy_(ps.getParameter<std::string>("eid_output_name_energy")),
-      eidOutputNameId_(ps.getParameter<std::string>("eid_output_name_id")),
-      eidMinClusterEnergy_(ps.getParameter<double>("eid_min_cluster_energy")),
-      eidNLayers_(ps.getParameter<int>("eid_n_layers")),
-      eidNClusters_(ps.getParameter<int>("eid_n_clusters")),
-      eidSession_(nullptr) {
+      resol_calo_scale_em_(ps.getParameter<double>("resol_calo_scale_em")) {
   produces<std::vector<Trackster>>();
   produces<std::vector<TICLCandidate>>();
 
@@ -194,11 +168,22 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
   auto linkingPSet = ps.getParameter<edm::ParameterSet>("linkingPSet");
   auto algoType = linkingPSet.getParameter<std::string>("type");
   linkingAlgo_ = LinkingAlgoFactory::get()->create(algoType, linkingPSet);
+
+  std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
+  edm::ParameterSet inferencePSet = ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
+  inferenceAlgo_ = std::unique_ptr<TracksterInferenceAlgoBase>(
+      TracksterInferenceAlgoFactory::get()->create(inferencePlugin, inferencePSet));
 }
 
 void TrackstersMergeProducer::beginJob() {}
 
 void TrackstersMergeProducer::endJob() {}
+
+std::unique_ptr<ONNXRuntime> TrackstersMergeProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
+  return std::unique_ptr<ONNXRuntime>(nullptr);
+}
+
+void TrackstersMergeProducer::globalEndJob(const ONNXRuntime *) {}
 
 void TrackstersMergeProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
@@ -254,7 +239,6 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   auto resultTrackstersMerged = std::make_unique<std::vector<Trackster>>();
   auto resultCandidates = std::make_unique<std::vector<TICLCandidate>>();
   auto resultFromTracks = std::make_unique<std::vector<TICLCandidate>>();
-  tfSession_ = es.getData(tfDnnToken_).getSession();
 
   edm::Handle<std::vector<Trackster>> trackstersclue3d_h;
   evt.getByToken(tracksters_clue3d_token_, trackstersclue3d_h);
@@ -363,7 +347,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
                         layerClustersTimes,
                         rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z(),
                         rhtools_);
-  energyRegressionAndID(layerClusters, tfSession_, *resultTrackstersMerged);
+  inferenceAlgo_->inputData(layerClusters, *resultTrackstersMerged, rhtools_);
+  inferenceAlgo_->runInference(
+      *resultTrackstersMerged);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
 
   //filling the TICLCandidates information
   assert(resultTrackstersMerged->size() == resultCandidates->size());
@@ -416,135 +402,15 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   // Compute timing
   resultCandidates->insert(resultCandidates->end(), resultFromTracks->begin(), resultFromTracks->end());
   assignTimeToCandidates(*resultCandidates);
+  if (regressionAndPid_) {
+    // Run inference algorithm
+    inferenceAlgo_->inputData(layerClusters, *resultTrackstersMerged, rhtools_);
+    inferenceAlgo_->runInference(
+        *resultTrackstersMerged);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
+  }
 
   evt.put(std::move(resultTrackstersMerged));
   evt.put(std::move(resultCandidates));
-}
-
-void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-                                                    const tensorflow::Session *eidSession,
-                                                    std::vector<Trackster> &tracksters) const {
-  // Energy regression and particle identification strategy:
-  //
-  // 1. Set default values for regressed energy and particle id for each trackster.
-  // 2. Store indices of tracksters whose total sum of cluster energies is above the
-  //    eidMinClusterEnergy_ (GeV) threshold. Inference is not applied for soft tracksters.
-  // 3. When no trackster passes the selection, return.
-  // 4. Create input and output tensors. The batch dimension is determined by the number of
-  //    selected tracksters.
-  // 5. Fill input tensors with layer cluster features. Per layer, clusters are ordered descending
-  //    by energy. Given that tensor data is contiguous in memory, we can use pointer arithmetic to
-  //    fill values, even with batching.
-  // 6. Zero-fill features for empty clusters in each layer.
-  // 7. Batched inference.
-  // 8. Assign the regressed energy and id probabilities to each trackster.
-  //
-  // Indices used throughout this method:
-  // i -> batch element / trackster
-  // j -> layer
-  // k -> cluster
-  // l -> feature
-
-  // do nothing when no trackster passes the selection (3)
-  int batchSize = (int)tracksters.size();
-  if (batchSize == 0) {
-    return;
-  }
-
-  for (auto &t : tracksters) {
-    t.setRegressedEnergy(0.f);
-    t.zeroProbabilities();
-  }
-
-  // create input and output tensors (4)
-  tensorflow::TensorShape shape({batchSize, eidNLayers_, eidNClusters_, eidNFeatures_});
-  tensorflow::Tensor input(tensorflow::DT_FLOAT, shape);
-  tensorflow::NamedTensorList inputList = {{eidInputName_, input}};
-  static constexpr int inputDimension = 4;
-
-  std::vector<tensorflow::Tensor> outputs;
-  std::vector<std::string> outputNames;
-  if (!eidOutputNameEnergy_.empty()) {
-    outputNames.push_back(eidOutputNameEnergy_);
-  }
-  if (!eidOutputNameId_.empty()) {
-    outputNames.push_back(eidOutputNameId_);
-  }
-
-  // fill input tensor (5)
-  for (int i = 0; i < batchSize; i++) {
-    const Trackster &trackster = tracksters[i];
-
-    // per layer, we only consider the first eidNClusters_ clusters in terms of
-    // energy, so in order to avoid creating large / nested structures to do
-    // the sorting for an unknown number of total clusters, create a sorted
-    // list of layer cluster indices to keep track of the filled clusters
-    std::vector<int> clusterIndices(trackster.vertices().size());
-    for (int k = 0; k < (int)trackster.vertices().size(); k++) {
-      clusterIndices[k] = k;
-    }
-    sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](const int &a, const int &b) {
-      return layerClusters[trackster.vertices(a)].energy() > layerClusters[trackster.vertices(b)].energy();
-    });
-
-    // keep track of the number of seen clusters per layer
-    std::vector<int> seenClusters(eidNLayers_);
-
-    // loop through clusters by descending energy
-    for (const int &k : clusterIndices) {
-      // get features per layer and cluster and store the values directly in the input tensor
-      const reco::CaloCluster &cluster = layerClusters[trackster.vertices(k)];
-      int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
-      if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
-        // get the pointer to the first feature value for the current batch, layer and cluster
-        float *features = &input.tensor<float, inputDimension>()(i, j, seenClusters[j], 0);
-
-        // fill features
-        *(features++) = float(cluster.energy() / float(trackster.vertex_multiplicity(k)));
-        *(features++) = float(std::abs(cluster.eta()));
-        *(features) = float(cluster.phi());
-
-        // increment seen clusters
-        seenClusters[j]++;
-      }
-    }
-
-    // zero-fill features of empty clusters in each layer (6)
-    for (int j = 0; j < eidNLayers_; j++) {
-      for (int k = seenClusters[j]; k < eidNClusters_; k++) {
-        float *features = &input.tensor<float, inputDimension>()(i, j, k, 0);
-        for (int l = 0; l < eidNFeatures_; l++) {
-          *(features++) = 0.f;
-        }
-      }
-    }
-  }
-
-  // run the inference (7)
-  tensorflow::run(eidSession, inputList, outputNames, &outputs);
-
-  // store regressed energy per trackster (8)
-  if (!eidOutputNameEnergy_.empty()) {
-    // get the pointer to the energy tensor, dimension is batch x 1
-    float *energy = outputs[0].flat<float>().data();
-
-    for (int i = 0; i < batchSize; ++i) {
-      float regressedEnergy =
-          tracksters[i].raw_energy() > eidMinClusterEnergy_ ? energy[i] : tracksters[i].raw_energy();
-      tracksters[i].setRegressedEnergy(regressedEnergy);
-    }
-  }
-
-  // store id probabilities per trackster (8)
-  if (!eidOutputNameId_.empty()) {
-    // get the pointer to the id probability tensor, dimension is batch x id_probabilities.size()
-    int probsIdx = !eidOutputNameEnergy_.empty();
-    float *probs = outputs[probsIdx].flat<float>().data();
-    int probsNumber = tracksters[0].id_probabilities().size();
-    for (int i = 0; i < batchSize; ++i) {
-      tracksters[i].setProbabilities(&probs[i * probsNumber]);
-    }
-  }
 }
 
 void TrackstersMergeProducer::assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const {
@@ -598,6 +464,10 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   edm::ParameterSetDescription linkingDesc;
   linkingDesc.addNode(edm::PluginDescription<LinkingAlgoFactory>("type", "LinkingAlgoByDirectionGeometric", true));
   desc.add<edm::ParameterSetDescription>("linkingPSet", linkingDesc);
+  edm::ParameterSetDescription inferenceDesc;
+  inferenceDesc.addNode(
+      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByCNNv4", true));
+  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByCNNv4", inferenceDesc);
 
   desc.add<edm::InputTag>("trackstersclue3d", edm::InputTag("ticlTrackstersCLUE3DHigh"));
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
@@ -607,6 +477,7 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<edm::InputTag>("tracksTimeQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
   desc.add<edm::InputTag>("tracksTimeErr", edm::InputTag("tofPID:sigmat0"));
   desc.add<edm::InputTag>("muons", edm::InputTag("muons1stStep"));
+  desc.add<bool>("regressionAndPid", true);
   desc.add<std::string>("detector", "HGCAL");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<bool>("optimiseAcrossTracksters", true);
@@ -627,13 +498,7 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<double>("resol_calo_scale_had", 0.15);
   desc.add<double>("resol_calo_offset_em", 1.5);
   desc.add<double>("resol_calo_scale_em", 0.15);
-  desc.add<std::string>("tfDnnLabel", "tracksterSelectionTf");
-  desc.add<std::string>("eid_input_name", "input");
-  desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
-  desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
-  desc.add<double>("eid_min_cluster_energy", 2.5);
-  desc.add<int>("eid_n_layers", 50);
-  desc.add<int>("eid_n_clusters", 10);
+  desc.add<std::string>("inferenceAlgo", "TracksterInferenceByCNNv4");
   descriptions.add("trackstersMergeProducer", desc);
 }
 
