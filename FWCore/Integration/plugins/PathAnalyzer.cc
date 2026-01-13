@@ -15,11 +15,12 @@ namespace edmtest {
   class PathAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit PathAnalyzer(edm::ParameterSet const&);
-    ~PathAnalyzer() override;
 
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
     void beginJob() override;
     void endJob() override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     void dumpTriggerNamesServiceInfo(char const* where) const;
@@ -31,7 +32,10 @@ namespace edmtest {
 
   PathAnalyzer::PathAnalyzer(edm::ParameterSet const&) {}
 
-  PathAnalyzer::~PathAnalyzer() {}
+  void PathAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    descriptions.addDefault(desc);
+  }
 
   void PathAnalyzer::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {
     dumpTriggerNamesServiceInfo("analyze");

@@ -25,6 +25,8 @@ namespace edmtest {
 
     void analyze(edm::Event const&, edm::EventSetup const&) final;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     void runOnOtherThread();
     void shutdownThread();
@@ -50,6 +52,11 @@ namespace edmtest {
     m_mutex.lock();
     m_managerThreadReady = true;
     m_continueProcessing = true;
+  }
+
+  void TestServicesOnNonFrameworkThreadsAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    descriptions.addDefault(desc);
   }
 
   TestServicesOnNonFrameworkThreadsAnalyzer::~TestServicesOnNonFrameworkThreadsAnalyzer() {
