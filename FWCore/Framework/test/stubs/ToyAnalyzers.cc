@@ -40,6 +40,11 @@ namespace edmtest {
     explicit NonAnalyzer(edm::ParameterSet const& /*p*/) {}
     ~NonAnalyzer() override {}
     void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const final;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      descriptions.addDefault(desc);
+    }
   };
 
   void NonAnalyzer::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {}

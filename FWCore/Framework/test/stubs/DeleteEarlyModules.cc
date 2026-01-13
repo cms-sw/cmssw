@@ -31,6 +31,11 @@ namespace edmtest {
   public:
     explicit DeleteEarlyProducer(edm::ParameterSet const& pset) { produces<DeleteEarly>(); }
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      descriptions.addDefault(desc);
+    }
+
     void beginJob() override {
       // Needed because DeleteEarly objects may be allocated and deleted in initialization
       edmtest::DeleteEarly::resetDeleteCount();
@@ -48,6 +53,12 @@ namespace edmtest {
       m_put = produces<edm::RefProd<DeleteEarly>>();
     }
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<edm::InputTag>("get");
+      descriptions.addDefault(desc);
+    }
+
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const override {
       auto h = e.getHandle(m_token);
       e.emplace(m_put, h);
@@ -63,6 +74,12 @@ namespace edmtest {
     DeleteEarlyReader(edm::ParameterSet const& pset)
         : getToken_(consumes(pset.getUntrackedParameter<edm::InputTag>("tag"))) {}
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<edm::InputTag>("tag");
+      descriptions.addDefault(desc);
+    }
+
     void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const override { e.get(getToken_); }
 
   private:
@@ -75,6 +92,12 @@ namespace edmtest {
       consumes<DeleteEarly>(pset.getUntrackedParameter<edm::InputTag>("tag"));
     }
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<edm::InputTag>("tag");
+      descriptions.addDefault(desc);
+    }
+
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {}
 
   private:
@@ -84,6 +107,12 @@ namespace edmtest {
   public:
     DeleteEarlyRefProdReader(edm::ParameterSet const& pset)
         : getToken_(consumes(pset.getUntrackedParameter<edm::InputTag>("tag"))) {}
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<edm::InputTag>("tag");
+      descriptions.addDefault(desc);
+    }
 
     void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const override { e.get(getToken_).get(); }
 
@@ -95,6 +124,12 @@ namespace edmtest {
   public:
     DeleteEarlyCheckDeleteAnalyzer(edm::ParameterSet const& pset)
         : m_expectedValues(pset.getUntrackedParameter<std::vector<unsigned int>>("expectedValues")), m_index(0) {}
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<unsigned int>>("expectedValues");
+      descriptions.addDefault(desc);
+    }
 
     void analyze(edm::Event const&, edm::EventSetup const&) override {
       if (DeleteEarly::nDeletes() != m_expectedValues.at(m_index)) {

@@ -33,6 +33,8 @@ namespace edmtest {
     void analyze(edm::Event const& event, edm::EventSetup const&);
     void endJob();
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     typedef std::vector<std::string> vstring;
 
@@ -54,7 +56,7 @@ namespace edmtest {
       : expectedSize_(params.getParameter<int>("expectedSize")),
         eventCount_(0),
         expectedCount_(params.getParameter<int>("expectedCount")),
-        expectedSelectEventsInfo_(params.getParameter<std::vector<edm::ParameterSet> >("expectedSelectEventsInfo")),
+        expectedSelectEventsInfo_(params.getParameter<std::vector<edm::ParameterSet>>("expectedSelectEventsInfo")),
         expectedPaths_(params.getParameter<vstring>("expectedPaths")),
         expectedEndPaths_(params.getParameter<vstring>("expectedEndPaths")),
         expectedModules_(params.getParameter<vstring>("expectedModules")),
@@ -62,6 +64,28 @@ namespace edmtest {
         expectedDroppedModules_(params.getParameter<vstring>("expectedDroppedModules")),
         expectedDropFromProcPSet_(params.getParameter<vstring>("expectedDropFromProcPSet")),
         expectedModulesOnEndPaths_(params.getParameter<edm::ParameterSet>("expectedModulesOnEndPaths")) {}
+
+  void HistoryAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<int>("expectedSize");
+    desc.add<int>("expectedCount");
+    edm::ParameterSetDescription expectedDesc;
+    expectedDesc.add<std::vector<int>>("EndPathPositions");
+    expectedDesc.add<std::vector<std::string>>("EndPaths");
+    expectedDesc.add<bool>("InProcessHistory");
+    expectedDesc.add<std::vector<std::string>>("SelectEvents");
+    desc.addVPSet("expectedSelectEventsInfo", expectedDesc);
+    desc.add<std::vector<std::string>>("expectedPaths");
+    desc.add<std::vector<std::string>>("expectedEndPaths");
+    desc.add<std::vector<std::string>>("expectedModules");
+    desc.add<std::vector<std::string>>("expectedDroppedEndPaths");
+    desc.add<std::vector<std::string>>("expectedDroppedModules");
+    desc.add<std::vector<std::string>>("expectedDropFromProcPSet");
+    edm::ParameterSetDescription modulesOnEndPathsDesc;
+    modulesOnEndPathsDesc.addWildcard<std::vector<std::string>>("*");
+    desc.add<edm::ParameterSetDescription>("expectedModulesOnEndPaths", modulesOnEndPathsDesc);
+    descriptions.addDefault(desc);
+  }
 
   void HistoryAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&) {
     edm::EventSelectionIDVector const& esv = event.eventSelectionIDs();
@@ -97,7 +121,7 @@ namespace edmtest {
         assert(paths == expectedPaths_);
 
         for (vstring::const_iterator i = paths.begin(), iEnd = paths.end(); i != iEnd; ++i) {
-          vstring modulesOnPath = proc_pset.getParameter<std::vector<std::string> >(*i);
+          vstring modulesOnPath = proc_pset.getParameter<std::vector<std::string>>(*i);
           assert(!modulesOnPath.empty());
         }
       }

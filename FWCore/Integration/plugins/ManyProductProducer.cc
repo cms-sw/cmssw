@@ -22,6 +22,12 @@ namespace edmtest {
 
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<unsigned int>("nProducts", 1);
+      descriptions.addDefault(desc);
+    }
+
   private:
     unsigned int nProducts_;
     std::vector<std::string> instanceNames_;
@@ -49,6 +55,12 @@ namespace edmtest {
     explicit ManyProductAnalyzer(edm::ParameterSet const& iConfig);
 
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<unsigned int>("nProducts", 1);
+      descriptions.addDefault(desc);
+    }
 
   private:
     unsigned int nProducts_;
