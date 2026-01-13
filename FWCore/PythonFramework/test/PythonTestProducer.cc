@@ -2,6 +2,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
@@ -16,6 +18,8 @@ namespace edmtest {
     PythonTestProducer(edm::ParameterSet const&);
 
     void produce(edm::Event& iEvent, edm::EventSetup const&) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     edm::EDGetTokenT<IntProduct> get_;
@@ -45,6 +49,14 @@ namespace edmtest {
       outputList_.append(h->value);
     }
     iEvent.emplace(put_, h->value + value_);
+  }
+
+  void PythonTestProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("source");
+    desc.add<std::string>("inputVariable");
+    desc.add<std::string>("outputListVariable");
+    descriptions.addDefault(desc);
   }
 }  // namespace edmtest
 

@@ -1,8 +1,9 @@
 
 #include <iostream>
 
-#include "IOPool/Streamer/test/StreamThingAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ModuleLabelMatch.h"
@@ -14,6 +15,46 @@
 #include <algorithm>
 #include <numeric>
 #include <iterator>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+
+#if 1
+#include "DataFormats/TestObjects/interface/StreamTestThing.h"
+typedef edmtestprod::StreamTestThing WriteThis;
+#else
+#include "FWCore/Integration/interface/IntArray.h"
+typedef edmtestprod::IntArray WriteThis;
+#endif
+
+#include <string>
+#include <fstream>
+
+namespace edmtest_thing {
+
+  class StreamThingAnalyzer : public edm::one::EDAnalyzer<> {
+  public:
+    explicit StreamThingAnalyzer(edm::ParameterSet const&);
+
+    ~StreamThingAnalyzer() override;
+
+    void endJob() override;
+
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    std::string name_;
+    int total_;
+    std::ofstream out_;
+    std::string inChecksumFile_;
+    std::string outChecksumFile_;
+    int cnt_;
+    edm::GetterOfProducts<WriteThis> getterUsingLabel_;
+  };
+}  // namespace edmtest_thing
 
 using namespace edmtestprod;
 
@@ -76,6 +117,14 @@ namespace edmtest_thing {
 #endif
 
     ++cnt_;
+  }
+
+  void StreamThingAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("product_to_get");
+    desc.addUntracked<std::string>("inChecksum", "");
+    desc.addUntracked<std::string>("outChecksum", "");
+    descriptions.addDefault(desc);
   }
 }  // namespace edmtest_thing
 

@@ -20,6 +20,8 @@ namespace edmtest {
 
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     void incrementKey(std::vector<unsigned int>::const_iterator& key) const;
 
@@ -34,6 +36,14 @@ namespace edmtest {
         outputToken_(produces<TrackOfDSVThingsCollection>()),
         keysToReference_(pset.getParameter<std::vector<unsigned int>>("keysToReference")),
         nTracks_(pset.getParameter<unsigned int>("nTracks")) {}
+
+  void TrackOfDSVThingsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("inputTag");
+    desc.add<std::vector<unsigned int>>("keysToReference");
+    desc.add<unsigned int>("nTracks");
+    descriptions.addDefault(desc);
+  }
 
   void TrackOfDSVThingsProducer::incrementKey(std::vector<unsigned int>::const_iterator& key) const {
     ++key;

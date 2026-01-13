@@ -23,6 +23,12 @@ namespace edm {
 
     void produce(StreamID, Event& e, EventSetup const&) const final;
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions) {
+      ParameterSetDescription desc;
+      desc.add<std::string>("module_name");
+      descriptions.addDefault(desc);
+    }
+
   private:
     ParameterSet pset_;
   };
