@@ -663,8 +663,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
       bool hit0InBase = false;
       bool hit1InBase = false;
-
+      // Suppress compiler warning with HIP backend
+#ifndef ALPAKA_ACC_GPU_HIP_ENABLED
       CMS_UNROLL_LOOP
+#endif
       for (int baseHitIndex = 0; baseHitIndex < Params_T5::kHits; ++baseHitIndex) {
         const unsigned int baseHit = quintuplets.hitIndices()[refT5Index][baseHitIndex];
         if (candidateHit0 == baseHit)

@@ -20,6 +20,7 @@ hltTrackValidator = hltMultiTrackValidator.clone(
 hltPixelLessTracks = _cutsRecoTracks.clone(
     throwOnMissing = cms.bool(False), # HLT collection might be missing
     src = "hltMergedTracks",
+    beamSpot = "hltOnlineBeamSpot",
     minLayer = 3,
     maxPixelHit = 0
 )
@@ -28,6 +29,7 @@ hltPixelLessTracks = _cutsRecoTracks.clone(
 hltWithPixelTracks = _cutsRecoTracks.clone(
     throwOnMissing = cms.bool(False), # HLT collection might be missing
     src = "hltMergedTracks",
+    beamSpot = "hltOnlineBeamSpot",
     minLayer = 3,
     minPixelHit = 1
 )
@@ -38,8 +40,6 @@ hltMultiTrackValidationTask = cms.Task(
     , hltTrackAssociatorByHits
 )
 hltMultiTrackValidation = cms.Sequence(
-    hltPixelLessTracks+
-    hltWithPixelTracks+
     hltTrackValidator,
     hltMultiTrackValidationTask
 )
@@ -57,6 +57,17 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(hltTrackValidator, _modifyForPhase2)
 phase2_tracker.toModify(hltPixelLessTracks, src = "hltGeneralTracks")
 phase2_tracker.toModify(hltWithPixelTracks, src = "hltGeneralTracks")
+
+## for Phase 2 only (no pixelless tracks in Run3) run the track selectors
+phase2_tracker.toReplaceWith(
+    hltMultiTrackValidation,
+    cms.Sequence(
+        hltPixelLessTracks +
+        hltWithPixelTracks +
+        hltTrackValidator,
+        hltMultiTrackValidationTask
+    )
+)
 
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
