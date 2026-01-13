@@ -106,6 +106,10 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
 #ifdef EDM_ML_DEBUG
     trkInfo->Print();
 #endif
+    if (theID >= static_cast<int>(PSimHit::k_tidOffset)) {
+      edm::LogError("MtdSim") << " SimTrack ID " << theID << " exceeds maximum allowed by PSimHit identifier"
+                              << PSimHit::k_tidOffset << " unreliable MTD hit type";
+    }
     if (rname == "FastTimerRegionSensBTL") {
       theID = trkInfo->mcTruthID();
       if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering()) {
