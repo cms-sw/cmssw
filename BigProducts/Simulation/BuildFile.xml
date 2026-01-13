@@ -1,3 +1,5 @@
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="CondFormats/HcalObjects"/>
 <use name="SimG4CMS/Calo"/>
 <use name="SimG4CMS/CherenkovAnalysis"/>
 <use name="SimG4CMS/EcalTestBeam"/>
