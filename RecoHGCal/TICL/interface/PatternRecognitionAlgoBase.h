@@ -14,10 +14,8 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 namespace edm {
   class Event;
