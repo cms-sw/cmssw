@@ -64,7 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * 
  * @return Index of least significant 1 bit (0-based). (or -1 if x == 0).
  */
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t get_ls1b_idx(TAcc const& acc, const warp::warp_mask_t mask) {
     if (mask == 0)
       return 0;
@@ -91,7 +91,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * - lane 0 receives the total sum over the warp (used as the per-warp NNZ aggregate)
  */
 
-  template <typename TAcc, bool all = true, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc, bool all = true>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int warp_exclusive_sum(TAcc const& acc,
                                                                  unsigned int val,
                                                                  const unsigned int lane_idx) {
@@ -136,7 +136,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return Index of the lane in the mask 
  */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned int get_logical_lane_idx(TAcc const& acc,
                                                                         const warp::warp_mask_t mask,
                                                                         const unsigned int lane_idx) {
@@ -158,7 +158,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return Physical index of the lane in the mask 
  */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int get_physical_lane_idx(TAcc const& acc,
                                                                     const warp::warp_mask_t mask,
                                                                     int logical_lane_idx) {
@@ -186,8 +186,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return return reduced value (propagated to all lanes in the mask by default)
  */
 
-  template <typename TAcc, typename reduce_t, typename reducer_t, bool all = true>
-    requires std::is_arithmetic_v<reduce_t> && alpaka::isAccelerator<TAcc>
+  template <alpaka::concepts::Acc TAcc, typename reduce_t, typename reducer_t, bool all = true>
+    requires std::is_arithmetic_v<reduce_t>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE reduce_t warp_reduce(TAcc const& acc, reduce_t const in, const reducer_t f) {
     unsigned int const w_extent = alpaka::warp::getSize(acc);
 
@@ -216,8 +216,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return return reduced value (propagated to all lanes in the mask by default)
  */
 
-  template <typename TAcc, typename reduce_t, typename reducer_t, bool all = true>
-    requires std::is_arithmetic_v<reduce_t> && alpaka::isAccelerator<TAcc>
+  template <alpaka::concepts::Acc TAcc, typename reduce_t, typename reducer_t, bool all = true>
+    requires std::is_arithmetic_v<reduce_t>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE reduce_t warp_sparse_reduce(TAcc const& acc,
                                                              const warp::warp_mask_t mask,
                                                              const unsigned int lane_idx,
@@ -278,7 +278,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return Exclusive prefix sum value for the current lane.
  */
 
-  template <typename TAcc, bool all = true, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc, bool all = true>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int warp_sparse_exclusive_sum(TAcc const& acc,
                                                                         const warp::warp_mask_t mask,
                                                                         const unsigned int val,
