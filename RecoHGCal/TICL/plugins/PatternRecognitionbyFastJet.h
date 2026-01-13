@@ -4,6 +4,7 @@
 #ifndef __RecoHGCal_TICL_PRbyFASTJET_H__
 #define __RecoHGCal_TICL_PRbyFASTJET_H__
 #include <memory>  // unique_ptr
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
@@ -28,10 +29,6 @@ namespace ticl {
                 const std::vector<Trackster>& inTracksters,
                 const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
-
-    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
-                               const tensorflow::Session*,
-                               std::vector<Trackster>& result);
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 

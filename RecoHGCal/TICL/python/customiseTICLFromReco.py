@@ -19,8 +19,6 @@ from SimCalorimetry.HGCalAssociatorProducers.SimClusterToCaloParticleAssociation
 
 
 def customiseTICLFromReco(process):
-    # TensorFlow ESSource
-    process.TFESSource = cms.Task(process.trackdnn_source)
 
     process.hgcalLayerClustersTask = cms.Task(process.hgcalLayerClustersEE,
                                               process.hgcalLayerClustersHSi,
@@ -29,7 +27,6 @@ def customiseTICLFromReco(process):
 
 # Reconstruction
     process.TICL = cms.Path(process.hgcalLayerClustersTask,
-                            process.TFESSource,
                             process.ticlLayerTileTask,
                             process.ticlIterationsTask,
                             process.ticlTracksterMergeTask)

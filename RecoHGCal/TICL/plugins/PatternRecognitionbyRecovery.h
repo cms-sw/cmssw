@@ -4,6 +4,7 @@
 #ifndef __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
 #define __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
 #include <memory>  // unique_ptr
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 

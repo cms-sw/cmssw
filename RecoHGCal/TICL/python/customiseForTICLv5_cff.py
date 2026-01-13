@@ -12,8 +12,6 @@ from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
-from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
-
 from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
 from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _ticlCandidateProducer
 from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import customiseForTICLv5EventContent
@@ -40,9 +38,6 @@ from RecoHGCal.TICL.TrkEMStep_cff import ticlTrackstersTrkEM, filteredLayerClust
 from RecoHGCal.TICL.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
 
 def customiseTICLv5FromReco(process, enableDumper = False):
-    # TensorFlow ESSource
-
-    process.TFESSource = cms.Task(process.trackdnn_source)
 
     process.hgcalLayerClustersTask = cms.Task(process.hgcalLayerClustersEE,
                                               process.hgcalLayerClustersHSi,
@@ -84,7 +79,6 @@ def customiseTICLv5FromReco(process, enableDumper = False):
     process.allTrackstersToSimTrackstersAssociationsByHits = _allTrackstersToSimTrackstersAssociationsByHits.clone()
 
     process.iterTICLTask = cms.Path(process.hgcalLayerClustersTask,
-                            process.TFESSource,
                             process.ticlLayerTileTask,
                             process.mtdSoATask,
                             process.ticlIterationsTask,

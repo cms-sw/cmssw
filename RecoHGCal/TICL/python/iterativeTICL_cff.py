@@ -14,7 +14,6 @@ from RecoHGCal.TICL.PRbyRecovery_cff import *
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 from RecoHGCal.TICL.trackstersMergeProducer_cfi import trackstersMergeProducer as _trackstersMergeProducer
-from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
 
 from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
 from RecoHGCal.TICL.superclustering_cff import *
@@ -29,7 +28,24 @@ from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff impor
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
-ticlTrackstersMerge = _trackstersMergeProducer.clone()
+ticlTrackstersMerge = _trackstersMergeProducer.clone(
+    pluginInferenceAlgoTracksterInferenceByCNNv4 = cms.PSet(
+      algo_verbosity = cms.int32(0),
+      onnxModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv4/onnx_models/energy_id_v0.onnx'),
+      inputNames = cms.vstring('input:0'),
+      outputNames = cms.vstring(
+        'output/regressed_energy:0',
+        'output/id_probabilities:0'
+      ),
+      eid_min_cluster_energy = cms.double(1),
+      eid_n_layers = cms.int32(50),
+      eid_n_clusters = cms.int32(10),
+      doPID = cms.int32(1),
+      doRegression = cms.int32(1),
+      type = cms.string('TracksterInferenceByCNNv4')
+    )
+)
+
 ticlTracksterLinks = _tracksterLinksProducer.clone(
     tracksters_collections = cms.VInputTag(
         'ticlTrackstersCLUE3DHigh',
