@@ -114,15 +114,19 @@
    </class>
    <class name="edm::Wrapper<HcalUMNioDigi>" splitLevel="0"/>
 
-   <class name="hcal::HcalPhase1DigiSoA"/>
-   <class name="hcal::HcalPhase0DigiSoA"/>
-   <class name="hcal::HcalPhase1DigiSoA::View"/>
-   <class name="hcal::HcalPhase0DigiSoA::View"/>
 
   <class name="hcal::Phase1DigiHostCollection"/>
+  <!-- hcal::Phase1DigiHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="hcal::Phase1DigiHostCollection::Layout"/>
+  <class name="hcal::HcalPhase1DigiSoA"/>
+  <class name="hcal::HcalPhase1DigiSoA::View"/>
   <class name="edm::Wrapper<hcal::Phase1DigiHostCollection>" splitLevel="0"/>
 
   <class name="hcal::Phase0DigiHostCollection"/> 
+  <!-- hcal::Phase0DigiHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="hcal::Phase0DigiHostCollection::Layout"/>
+  <class name="hcal::HcalPhase0DigiSoA"/>
+  <class name="hcal::HcalPhase0DigiSoA::View"/>
   <class name="edm::Wrapper<hcal::Phase0DigiHostCollection>" splitLevel="0"/>
 
 </lcgdict>
