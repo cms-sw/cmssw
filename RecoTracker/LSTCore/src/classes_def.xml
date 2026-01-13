@@ -2,16 +2,21 @@
   <class name="lst::HitsBaseSoALayout<128,false>"/>
   <class name="lst::PixelSeedsSoALayout<128,false>"/>
 
+  <class name="lst::LSTInputHostCollection"/>
+  <!-- lst::LSTInputHostCollection::Implementation must be listed before the aliased-to type -->
+  <class name="lst::LSTInputHostCollection::Implementation"/>
+
   <class name="portablecollection::CollectionImpl<0,lst::HitsBaseSoALayout<128,false>,lst::PixelSeedsSoALayout<128,false> >"/>
   <class name="portablecollection::CollectionImpl<1,lst::PixelSeedsSoALayout<128,false> >"/>
 
   <class name="portablecollection::CollectionLeaf<0,lst::HitsBaseSoALayout<128,false> >"/>
   <class name="portablecollection::CollectionLeaf<1,lst::PixelSeedsSoALayout<128,false> >"/>
 
-  <class name="lst::LSTInputHostCollection"/>
-  <class name="edm::Wrapper<lst::LSTInputHostCollection>" splitLevel="0"/>
+  <class name="edm::Wrapper<lst::LSTInputHostCollection>" splitLevel="0" persistent="false"/>
 
-  <class name="lst::TrackCandidatesBaseSoALayout<128,false>"/>
   <class name="lst::TrackCandidatesBaseHostCollection"/>
-  <class name="edm::Wrapper<lst::TrackCandidatesBaseHostCollection>" splitLevel="0"/>
+  <!-- lst::TrackCandidatesBaseHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="lst::TrackCandidatesBaseHostCollection::Layout"/>
+  <class name="lst::TrackCandidatesBaseSoALayout<128,false>"/>
+  <class name="edm::Wrapper<lst::TrackCandidatesBaseHostCollection>" splitLevel="0" persistent="false"/>
 </lcgdict>
