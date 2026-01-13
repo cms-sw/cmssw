@@ -20,9 +20,10 @@ namespace edmtest {
   class TrackOfThingsProducer : public edm::one::EDProducer<> {
   public:
     explicit TrackOfThingsProducer(edm::ParameterSet const&);
-    ~TrackOfThingsProducer() override;
 
     void produce(edm::Event&, edm::EventSetup const&) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     void incrementKey(std::vector<unsigned int>::const_iterator& key) const;
@@ -34,12 +35,17 @@ namespace edmtest {
   TrackOfThingsProducer::TrackOfThingsProducer(edm::ParameterSet const& pset) {
     inputToken_ = consumes<ThingCollection>(pset.getParameter<edm::InputTag>("inputTag"));
 
-    keysToReference_ = pset.getParameter<std::vector<unsigned int> >("keysToReference");
+    keysToReference_ = pset.getParameter<std::vector<unsigned int>>("keysToReference");
 
     produces<TrackOfThingsCollection>();
   }
 
-  TrackOfThingsProducer::~TrackOfThingsProducer() {}
+  void TrackOfThingsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("inputTag");
+    desc.add<std::vector<unsigned int>>("keysToReference");
+    descriptions.addDefault(desc);
+  }
 
   void TrackOfThingsProducer::incrementKey(std::vector<unsigned int>::const_iterator& key) const {
     ++key;

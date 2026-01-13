@@ -42,9 +42,10 @@ namespace edmtest {
   class WhatsItAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit WhatsItAnalyzer(const edm::ParameterSet&);
-    ~WhatsItAnalyzer() override;
 
     void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     void getAndTest(edm::EventSetup const&,
@@ -81,9 +82,10 @@ namespace edmtest {
     }
   }
 
-  WhatsItAnalyzer::~WhatsItAnalyzer() {
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
+  void WhatsItAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.addUntracked<std::vector<int>>("expectedValues", std::vector<int>());
+    descriptions.addDefault(desc);
   }
 
   //
