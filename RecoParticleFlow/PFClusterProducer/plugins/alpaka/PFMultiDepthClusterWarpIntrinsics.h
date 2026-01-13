@@ -4,6 +4,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 #include <type_traits>
+#include <concepts>
 
 namespace cms::alpakaintrinsics {
   namespace warp {
@@ -36,7 +37,7 @@ namespace cms::alpakaintrinsics {
  * @param mask Input mask.
  */
 
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void syncWarpThreads_mask(TAcc const& acc, warp::warp_mask_t mask) {
       if (mask == 0)
         return;  //early return for the trivial mask
@@ -63,8 +64,7 @@ namespace cms::alpakaintrinsics {
  * @return A warp mask with bits set for participating lanes (as defined by 'mask')
  *         whose 'pred' evaluates to 'true'.
  */
-
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t ballot_mask(TAcc const& acc,
                                                                       warp::warp_mask_t mask,
                                                                       int pred) {
@@ -91,8 +91,8 @@ namespace cms::alpakaintrinsics {
  * @return The value of 'var' from lane 'srcLane', or an unspecified value if
  *         the source lane is inactive (i.e., not set in 'mask' ).
  */
-
-    template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc, typename T>
+      requires std::is_arithmetic_v<T>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T
     shfl_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
       T res{};
@@ -121,7 +121,8 @@ namespace cms::alpakaintrinsics {
  *         the source lane is inactive or out of range.
  */
 
-    template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc, typename T>
+      requires std::is_arithmetic_v<T>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T
     shfl_down_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
       T res{};
@@ -149,7 +150,8 @@ namespace cms::alpakaintrinsics {
  *         the source lane is inactive or out of range.
  */
 
-    template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc, typename T>
+      requires std::is_arithmetic_v<T>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T
     shfl_up_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
       T res{};
@@ -174,8 +176,8 @@ namespace cms::alpakaintrinsics {
  * @return A warp mask with bits set for lanes (enabled in 'mask') whose
  *         'val' equals the calling lane’s value.
  */
-
-    template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc, typename T>
+      requires std::is_arithmetic_v<T>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t match_any_mask(TAcc const& acc,
                                                                          warp::warp_mask_t mask,
                                                                          T val) {
@@ -214,7 +216,7 @@ namespace cms::alpakaintrinsics {
  * @return A warp mask with the lower 32/64 bits reversed.
  */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t brev(TAcc const& acc, warp::warp_mask_t mask) {
     warp::warp_mask_t res{0};
 #if defined(__CUDA_ARCH__)
@@ -239,7 +241,7 @@ namespace cms::alpakaintrinsics {
  *
  * @return The number of leading zero bits in the lower 32 bits of 'mask'.
  */
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned clz(TAcc const& acc, warp::warp_mask_t mask) {
     unsigned res{0};
 #if defined(__CUDA_ARCH__)

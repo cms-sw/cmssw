@@ -46,10 +46,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return The z-coordinate scaling factor for type T.
  */
     // epsilon^{1/4}:
-    template <typename T>
-      requires std::floating_point<T>
+    template <std::floating_point T>
     constexpr T z_scaled() {
-      using U = std::remove_cv_t<std::remove_reference_t<T>>;
+      using U = std::remove_cv_t<T>;
 
       if constexpr (std::is_same_v<U, float>) {
         constexpr float z_scaled_f = 53.81737057623773f;
@@ -76,7 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  *         +/-infinity depending on the sign of z.
  */
 
-    template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc, std::floating_point T>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T eta(TAcc const& acc, const T x, const T y, const T z) {
       // ROOT-style fast path:
       // uses log(zs + sqrt(zs^2 + 1)) when |zs| is moderate,

@@ -192,7 +192,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  *         finished (winner chosen and dst updated, or destination lane is the winner in owner tile).
  */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t prune_link(
       TAcc const& acc,
       const warp::warp_mask_t mask,  //excludes the owner lane (corresponding bit set to 0)
