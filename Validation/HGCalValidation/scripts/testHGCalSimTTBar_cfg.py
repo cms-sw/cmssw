@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalTTBar_cfg.py geometry=D110 type=DDD
 #
-#   Options for geometry: D105, D121, D114, V17Shift, D104
+#   Options for geometry: D110, D121, D114, V17Shift, D104
 #               type: DDD, DD4hep
 #
 ###############################################################################
@@ -17,7 +17,7 @@ options.register('geometry',
                  "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D105, D121, D114, V17Shift, D104")
+                  "geometry of operations: D110, D121, D114, V17Shift, D104")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
