@@ -19,15 +19,12 @@ namespace trklet {
   public:
     TripletEngine(std::string name, Settings const& settings, Globals* global);
 
-    ~TripletEngine() override;
+    ~TripletEngine() override = default;
 
     void addOutput(MemoryBase* memory, std::string output) override;
     void addInput(MemoryBase* memory, std::string input) override;
 
     void execute();
-
-    void readTables();
-    void writeTables();
 
   private:
     int count_;
@@ -55,10 +52,6 @@ namespace trklet {
     std::vector<StubPairsMemory*> stubpairs_;
 
     StubTripletsMemory* stubtriplets_;
-
-    std::map<std::string, std::vector<std::vector<std::string> > > tmpSPTable_;
-    std::map<std::string, std::vector<std::map<std::string, unsigned> > > spTable_;
-    std::vector<bool> table_;
 
     int secondphibits_;
     int thirdphibits_;

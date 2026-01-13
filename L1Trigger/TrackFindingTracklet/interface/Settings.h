@@ -197,9 +197,6 @@ namespace trklet {
 
     unsigned int writememsect() const { return writememsect_; }
 
-    bool enableTripletTables() const { return enableTripletTables_; }
-    bool writeTripletTables() const { return writeTripletTables_; }
-
     bool writeoutReal() const { return writeoutReal_; }
 
     bool bookHistos() const { return bookHistos_; }
@@ -949,14 +946,6 @@ namespace trklet {
     bool writeHLSInvTable_{false};  //Write out tables of drinv and invt in tracklet calculator for HLS module
 
     unsigned int writememsect_{3};  //writemem only for this sector (note that the files will have _4 extension)
-
-    bool enableTripletTables_{false};  //Enable the application of the TED and
-                                       //TRE tables; when this flag is false,
-                                       //the tables will not be read from disk
-    bool writeTripletTables_{false};   //Train and write the TED and TRE tables. N.B.: the tables
-                                       //cannot be applied while they are being trained, i.e.,
-                                       //this flag effectively turns off the cuts in
-                                       //TrackletEngineDisplaced and TripletEngine
 
     bool writeoutReal_{false};
 

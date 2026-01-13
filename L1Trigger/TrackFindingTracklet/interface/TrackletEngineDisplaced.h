@@ -21,14 +21,12 @@ namespace trklet {
   public:
     TrackletEngineDisplaced(std::string name, Settings const& settings, Globals* global);
 
-    ~TrackletEngineDisplaced() override;
+    ~TrackletEngineDisplaced() override = default;
 
     void addOutput(MemoryBase* memory, std::string output) override;
     void addInput(MemoryBase* memory, std::string input) override;
 
     void execute();
-
-    void readTables();
 
     short memNameToIndex(const std::string& name);
 
@@ -42,8 +40,6 @@ namespace trklet {
     VMStubsTEMemory* secondvmstubs_;
 
     std::vector<StubPairsMemory*> stubpairs_;
-
-    std::vector<std::set<short> > table_;
 
     int firstphibits_;
     int secondphibits_;

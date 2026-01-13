@@ -55,8 +55,6 @@ TrackletEngineDisplaced::TrackletEngineDisplaced(string name, Settings const& se
   secondphibits_ = settings_.nfinephi(1, iSeed_);
 }
 
-TrackletEngineDisplaced::~TrackletEngineDisplaced() { table_.clear(); }
-
 void TrackletEngineDisplaced::addOutput(MemoryBase* memory, string output) {
   if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
@@ -94,9 +92,6 @@ void TrackletEngineDisplaced::addInput(MemoryBase* memory, string input) {
 void TrackletEngineDisplaced::execute() {
   if (!settings_.useSeed(iSeed_))
     return;
-
-  if (table_.empty() && (settings_.enableTripletTables() && !settings_.writeTripletTables()))
-    readTables();
 
   unsigned int countall = 0;
   unsigned int countpass = 0;
@@ -168,31 +163,15 @@ void TrackletEngineDisplaced::execute() {
             index = (index << firstbend.nbits()) + firstbend.value();
             index = (index << secondbend.nbits()) + secondbend.value();
 
-            if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) &&
-                (index >= table_.size() || table_.at(index).empty())) {
-              if (settings_.debugTracklet()) {
-                edm::LogVerbatim("Tracklet")
-                    << "Stub pair rejected because of stub pt cut bends : "
-                    << settings_.benddecode(firstvmstub.bend().value(), layer1_ - 1, firstvmstub.isPSmodule()) << " "
-                    << settings_.benddecode(secondvmstub.bend().value(), layer2_ - 1, secondvmstub.isPSmodule());
-              }
-
-              //FIXME temporarily commented out until stub bend table fixed
-              //if (!settings_.writeTripletTables())
-              //  continue;
-            }
-
             if (settings_.debugTracklet())
               edm::LogVerbatim("Tracklet") << "Adding layer-layer pair in " << getName();
             for (unsigned int isp = 0; isp < stubpairs_.size(); ++isp) {
-              if (!settings_.enableTripletTables() || settings_.writeTripletTables() || table_.at(index).count(isp)) {
-                if (settings_.writeMonitorData("Seeds")) {
-                  ofstream fout("seeds.txt", ofstream::app);
-                  fout << __FILE__ << ":" << __LINE__ << " " << name_ << " " << iSeed_ << endl;
-                  fout.close();
-                }
-                stubpairs_.at(isp)->addStubPair(firstvmstub, secondvmstub, index, getName());
+              if (settings_.writeMonitorData("Seeds")) {
+                ofstream fout("seeds.txt", ofstream::app);
+                fout << __FILE__ << ":" << __LINE__ << " " << name_ << " " << iSeed_ << endl;
+                fout.close();
               }
+              stubpairs_.at(isp)->addStubPair(firstvmstub, secondvmstub, index, getName());
             }
 
             countpass++;
@@ -251,29 +230,15 @@ void TrackletEngineDisplaced::execute() {
             index = (index << firstbend.nbits()) + firstbend.value();
             index = (index << secondbend.nbits()) + secondbend.value();
 
-            if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) &&
-                (index >= table_.size() || table_.at(index).empty())) {
-              if (settings_.debugTracklet()) {
-                edm::LogVerbatim("Tracklet")
-                    << "Stub pair rejected because of stub pt cut bends : "
-                    << settings_.benddecode(firstvmstub.bend().value(), layer1_ - 1, firstvmstub.isPSmodule()) << " "
-                    << settings_.benddecode(secondvmstub.bend().value(), layer2_ - 1, secondvmstub.isPSmodule());
-              }
-              continue;
-            }
-
             if (settings_.debugTracklet())
               edm::LogVerbatim("Tracklet") << "Adding layer-layer pair in " << getName();
             for (unsigned int isp = 0; isp < stubpairs_.size(); ++isp) {
-              if ((!settings_.enableTripletTables() || settings_.writeTripletTables()) ||
-                  (index < table_.size() && table_.at(index).count(isp))) {
-                if (settings_.writeMonitorData("Seeds")) {
-                  ofstream fout("seeds.txt", ofstream::app);
-                  fout << __FILE__ << ":" << __LINE__ << " " << name_ << " " << iSeed_ << endl;
-                  fout.close();
-                }
-                stubpairs_.at(isp)->addStubPair(firstvmstub, secondvmstub, index, getName());
+              if (settings_.writeMonitorData("Seeds")) {
+                ofstream fout("seeds.txt", ofstream::app);
+                fout << __FILE__ << ":" << __LINE__ << " " << name_ << " " << iSeed_ << endl;
+                fout.close();
               }
+              stubpairs_.at(isp)->addStubPair(firstvmstub, secondvmstub, index, getName());
             }
 
             countpass++;
@@ -332,30 +297,16 @@ void TrackletEngineDisplaced::execute() {
             index = (index << firstbend.nbits()) + firstbend.value();
             index = (index << secondbend.nbits()) + secondbend.value();
 
-            if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) &&
-                (index >= table_.size() || table_.at(index).empty())) {
-              if (settings_.debugTracklet()) {
-                edm::LogVerbatim("Tracklet")
-                    << "Stub pair rejected because of stub pt cut bends : "
-                    << settings_.benddecode(firstvmstub.bend().value(), disk1_ + 5, firstvmstub.isPSmodule()) << " "
-                    << settings_.benddecode(secondvmstub.bend().value(), disk2_ + 5, secondvmstub.isPSmodule());
-              }
-              continue;
-            }
-
             if (settings_.debugTracklet())
               edm::LogVerbatim("Tracklet") << "Adding disk-disk pair in " << getName();
 
             for (unsigned int isp = 0; isp < stubpairs_.size(); ++isp) {
-              if ((!settings_.enableTripletTables() || settings_.writeTripletTables()) ||
-                  (index < table_.size() && table_.at(index).count(isp))) {
-                if (settings_.writeMonitorData("Seeds")) {
-                  ofstream fout("seeds.txt", ofstream::app);
-                  fout << __FILE__ << ":" << __LINE__ << " " << name_ << " " << iSeed_ << endl;
-                  fout.close();
-                }
-                stubpairs_.at(isp)->addStubPair(firstvmstub, secondvmstub, index, getName());
+              if (settings_.writeMonitorData("Seeds")) {
+                ofstream fout("seeds.txt", ofstream::app);
+                fout << __FILE__ << ":" << __LINE__ << " " << name_ << " " << iSeed_ << endl;
+                fout.close();
               }
+              stubpairs_.at(isp)->addStubPair(firstvmstub, secondvmstub, index, getName());
             }
             countpass++;
           }
@@ -389,29 +340,6 @@ void TrackletEngineDisplaced::execute() {
   if (settings_.writeMonitorData("TED")) {
     globals_->ofstream("trackletenginedisplaces.txt") << getName() << " " << countall << " " << countpass << endl;
   }
-}
-
-void TrackletEngineDisplaced::readTables() {
-  ifstream fin;
-  string tableName, line, word;
-
-  string tablePath = settings_.tableTEDFile();
-  unsigned int finddir = tablePath.find("table_TED_");
-  tableName = tablePath.substr(0, finddir) + "table_" + name_ + ".txt";
-
-  fin.open(tableName, ifstream::in);
-  if (!fin) {
-    throw cms::Exception("BadConfig") << "TripletEngine::readTables, file " << tableName << " not known";
-  }
-
-  while (getline(fin, line)) {
-    istringstream iss(line);
-    table_.resize(table_.size() + 1);
-
-    while (iss >> word)
-      table_[table_.size() - 1].insert(memNameToIndex(word));
-  }
-  fin.close();
 }
 
 short TrackletEngineDisplaced::memNameToIndex(const string& name) {
