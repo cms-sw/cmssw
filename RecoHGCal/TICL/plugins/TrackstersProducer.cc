@@ -34,19 +34,19 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 using namespace ticl;
-using namespace cms::Ort;
+using cms::Ort::ONNXRuntime;
 
-class TrackstersProducer : public edm::stream::EDProducer<> {
+class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
 public:
-  explicit TrackstersProducer(const edm::ParameterSet&);
+  explicit TrackstersProducer(const edm::ParameterSet&, const ONNXRuntime*);
   ~TrackstersProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet& iConfig);
+  static void globalEndJob(const ONNXRuntime*);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // static methods for handling the global cache
-  static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(TrackstersCache*);
   void beginRun(const edm::Run&, const edm::EventSetup& es) override {
     const auto& geom = es.getData(geometry_token_);
     rhtools_.setGeometry(geom);
@@ -72,7 +72,7 @@ private:
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
-TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
+TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const ONNXRuntime*)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
@@ -117,6 +117,17 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
 }
+
+std::unique_ptr<ONNXRuntime> TrackstersProducer::initializeGlobalCache(const edm::ParameterSet& ps) {
+  std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
+  edm::ParameterSet inferencePSet = ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
+  if (inferencePSet.exists("onnxModelPath"))
+    return std::make_unique<ONNXRuntime>(inferencePSet.getParameter<edm::FileInPath>("onnxModelPath").fullPath());
+  else
+    return std::unique_ptr<ONNXRuntime>(nullptr);
+}
+
+void TrackstersProducer::globalEndJob(const ONNXRuntime*) {}
 
 void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
