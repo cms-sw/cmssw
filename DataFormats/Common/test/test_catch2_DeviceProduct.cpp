@@ -39,9 +39,12 @@ namespace {
 }  // namespace
 
 // Mock Metadata class that provides synchronize() member function
-class MockMetadata {
+class MockMetadata : public edm::DeviceProductMetadataBase {
 public:
   MockMetadata() = default;
+  ~MockMetadata() noexcept override = default;
+
+  void synchronize() const noexcept final { g_synchronized = true; }
 
   template <typename... Args>
   void synchronize(MockMetadata&, Args&&...) const {
@@ -105,7 +108,7 @@ private:
 };
 
 // Metadata class that spawns a thread and demonstrates the behavior when an external thread is involved
-class ThreadedMetadata {
+class ThreadedMetadata : public edm::DeviceProductMetadataBase {
 public:
   ThreadedMetadata(int expectedDataValue)
       : shouldStop_(false), syncCount_(0), threadReady_(false), expectedDataValue_(expectedDataValue) {
@@ -125,7 +128,21 @@ public:
     });
   }
 
-  ~ThreadedMetadata() {
+  ~ThreadedMetadata() noexcept override {
+    synchronize();
+
+    // Now we need to stop and join the worker thread
+    shouldStop_.store(true);
+    if (workerThread_.joinable()) {
+      workerThread_.join();
+    }
+  }
+
+  void synchronize() const noexcept override {
+    if (synchronized_.load()) {
+      return;  // Already synchronized
+    }
+
     // Check if OUR specific paired data was already destructed
     int count = g_destructedDataCount.load();
     bool foundOurData = false;
@@ -141,15 +158,8 @@ public:
     }
 
     ++g_metadataDestructorCalledCount;
-
-    // Now we need to stop and join the worker thread
-    shouldStop_.store(true);
-    if (workerThread_.joinable()) {
-      workerThread_.join();
-    }
+    synchronized_.store(true);
   }
-
-  void synchronize() const {}
 
   int getSyncCount() const { return syncCount_.load(); }
 
@@ -161,6 +171,7 @@ public:
 
 private:
   std::thread workerThread_;
+  mutable std::atomic<bool> synchronized_;
   std::atomic<bool> shouldStop_;
   std::atomic<int> syncCount_;
   std::atomic<bool> threadReady_;
