@@ -233,9 +233,7 @@ double EvolutionECAL::InducedAbsorptionEM(double lumi, double eta) {
                                                      &EvolutionECAL::EquilibriumFractionColorCentersEM,
                                                      0.0,
                                                      22.0,
-                                                     3,
-                                                     "EvolutionECAL",
-                                                     "EquilibriumFractionColorCentersEM");
+                                                     3);
   ftmp1->SetParameters(lumi, eta, alpha1);
   double muEM = mu_max * ftmp1->Integral(0.0, 22.0) / 22.0;
 
