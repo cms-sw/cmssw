@@ -53,7 +53,8 @@ int32_t HGCalTypes::layerType(int type) {
 std::string HGCalTypes::layerTypeX(int32_t type) {
   static constexpr std::string layerTypes[7] = {
       "Center", "CenterB", "CenterYp", "CenterYm", "CenterR", "CenterXp", "CenterXm"};
-  return layerTypes[layerType(type)]; }
+  return layerTypes[layerType(type)];
+}
 
 std::string HGCalTypes::waferType(int32_t type) {
   static constexpr std::string waferType[4] = {"HD120", "LD200", "LD300", "HD200"};
