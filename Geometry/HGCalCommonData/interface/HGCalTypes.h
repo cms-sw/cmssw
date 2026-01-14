@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 class HGCalTypes {
@@ -140,9 +141,9 @@ public:
   // LD vs HD and Fullvs Partial wafer
   static constexpr bool waferHD(int32_t type) { return ((type == WaferHD120) || (type == WaferHD200)); }
   static constexpr bool waferFull(int32_t type) { return (type == WaferFull); }
-  static std::string layerTypeX(int32_t type);
-  static std::string waferType(int32_t type);
-  static std::string waferTypeX(int32_t type);
+  static std::string_view layerTypeX(int32_t type);
+  static std::string_view waferType(int32_t type);
+  static std::string_view waferTypeX(int32_t type);
 
 private:
   static constexpr int32_t facu_ = 1;
@@ -163,10 +164,10 @@ private:
                                             HGCalTypes::CornerCenterYm,
                                             HGCalTypes::CornerCenterXp,
                                             HGCalTypes::CornerCenterXm};
-  static constexpr std::string layerTypes_[7] = {
+  static constexpr std::string_view layerTypes_[7] = {
       "Center", "CenterB", "CenterYp", "CenterYm", "CenterR", "CenterXp", "CenterXm"};
-  static constexpr std::string waferType_[4] = {"HD120", "LD200", "LD300", "HD200"};
-  static constexpr std::string waferTypeX_[27] = {
+  static constexpr std::string_view waferType_[4] = {"HD120", "LD200", "LD300", "HD200"};
+  static constexpr std::string_view waferTypeX_[27] = {
       "Full",      "Five",      "ChopTwo",   "ChopTwoM", "Half",     "Semi",    "Semi2",   "Three",   "Half2",
       "Five2",     "Unknown10", "LDTop",     "LDBottom", "LDLeft",   "LDRight", "LDFive",  "LDThree", "Unknown17",
       "Unknown18", "Unknown19", "Unknown20", "HDTop",    "HDBottom", "HDLeft",  "HDRight", "HDFive",  "Out"};
