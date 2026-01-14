@@ -138,7 +138,8 @@ if __name__ == '__main__':
             # Phase2
             prefixDet+34.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D121         (Phase-2 baseline)
             prefixDet+34.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D121   DD4Hep (HLLHC14TeV BeamSpot)
-            prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D121         AVE_50_BX_25ns_m3p3
+            # TODO: Temporarily disabled until new MinBias files get produced. See https://github.com/cms-sw/cmssw/issues/49795
+            #prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D121         AVE_50_BX_25ns_m3p3
             prefixDet+96.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D121
             prefixDet+100.0,   # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D121
             #23234.0,   # Need new workflow with HFNose
