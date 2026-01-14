@@ -120,8 +120,10 @@
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit> > >" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit> > >" />
 
+  <class name="hcal::RecHitHostCollection" />
+  <!-- hcal::RecHitHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="hcal::RecHitHostCollection::Layout" />
   <class name="hcal::HcalRecHitSoA"/>
   <class name="hcal::HcalRecHitSoA::View"/>
-  <class name="hcal::RecHitHostCollection" />
   <class name="edm::Wrapper<hcal::RecHitHostCollection>" splitLevel="0"/>
   </lcgdict>
