@@ -112,6 +112,10 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
     }
     if (rname == "FastTimerRegionSensBTL") {
       theID = trkInfo->mcTruthID();
+      if (theID >= static_cast<int>(PSimHit::k_tidOffset)) {
+        edm::LogError("MtdSim") << " SimTrack ID " << theID << " exceeds maximum allowed by PSimHit identifier"
+                                << PSimHit::k_tidOffset << " unreliable MTD hit type";
+      }
       if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering()) {
         theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
       } else if (trkInfo->isInTrkFromBackscattering()) {
@@ -125,6 +129,10 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
 #endif
     } else if (rname == "FastTimerRegionSensETL") {
       theID = trkInfo->getIDonCaloSurface();
+      if (theID >= static_cast<int>(PSimHit::k_tidOffset)) {
+        edm::LogError("MtdSim") << " SimTrack ID " << theID << " exceeds maximum allowed by PSimHit identifier"
+                                << PSimHit::k_tidOffset << " unreliable MTD hit type";
+      }
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
                                  << " ETL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
