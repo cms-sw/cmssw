@@ -45,7 +45,6 @@
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometryMayOwnPtr.h"
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringVarsHostCollection.h"

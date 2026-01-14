@@ -59,7 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class PFClusterTestKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, cmstest::TestPFClusterDeviceCollection::View in) const {
       const unsigned int nClusters = in.size();
 
