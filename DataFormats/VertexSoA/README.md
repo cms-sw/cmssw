@@ -5,12 +5,13 @@ information about reconstructed pixel vertices in Structure of Array (SoA)
 format.
 
 
-The `ZVertexBlocks` layout is composed of the layouts `ZVertexLayout` and `ZVertexTracksLayout`
-using the `GENERATE_SOA_BLOCKS` macro. The `PortableHostCollection<reco::ZVertexBlocks>` and 
-`PortableDeviceCollection<reco::ZVertexBlocks, TDev>` can be created using a different number of elements
-for each sub-layout defined at run-time.
-All Layouts are defined by the `GENERATE_SOA_LAYOUT` and `GENERATE_SOA_BLOCKS` macro in
-`DataFormats/VertexSoA/interface/ZVertexSoA.h`.
+The `ZVertexBlocks` layout is composed of the layouts `ZVertexLayout` and
+`ZVertexTracksLayout` using the `GENERATE_SOA_BLOCKS` macro.
+The `PortableHostCollection<reco::ZVertexBlocks>` and 
+`PortableDeviceCollection<reco::ZVertexBlocks, TDev>` can be created using a
+different number of elements for each sub-layout defined at run-time.
+All Layouts are defined by the `GENERATE_SOA_LAYOUT` and `GENERATE_SOA_BLOCKS`
+macro in `DataFormats/VertexSoA/interface/ZVertexSoA.h`.
 
 
 ## `ZVertexHost`
