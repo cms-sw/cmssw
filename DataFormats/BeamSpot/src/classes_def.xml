@@ -5,11 +5,17 @@
   </class>
   <class name="edm::Wrapper<reco::BeamSpot>"/>
 
+  <class name="BeamSpotHost"/>
+  <!-- BeamSpotHost::Product must be listed before the aliased-to type -->
+  <!-- TODO: we should find a better way than replicating the class versions and checksums -->
+  <class name="BeamSpotHost::Product" ClassVersion="3">
+   <version ClassVersion="3" checksum="280341519"/>
+  </class>
+
   <class name="BeamSpotPOD" ClassVersion="3">
    <version ClassVersion="3" checksum="280341519"/>
   </class>
   <class name="edm::Wrapper<BeamSpotPOD>"/>
 
-  <class name="BeamSpotHost"/>
   <class name="edm::Wrapper<BeamSpotHost>"/>
 </lcgdict>

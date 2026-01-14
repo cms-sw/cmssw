@@ -1,14 +1,33 @@
 <lcgdict>
   <class name="portabletest::TestHostCollection"/>
+  <!-- portabletest::TestHostCollection::Layout alias must be listed before the aliased-to type -->
+  <class name="portabletest::TestHostCollection::Layout"/>
   <class name="edm::Wrapper<portabletest::TestHostCollection>" splitLevel="0"/>
 
-  <class name="portabletest::TestStruct"/>
   <class name="portabletest::TestHostObject"/>
+  <!-- portabletest::TestHostObject::Product alias must be listed before the aliased-to type -->
+  <!-- TODO: we should find a better way than replicating the class versions and checksums -->
+  <class name="portabletest::TestHostObject::Product" ClassVersion="3">
+   <version ClassVersion="3" checksum="1507282054"/>
+  </class>
+  <class name="portabletest::TestStruct" ClassVersion="3">
+   <version ClassVersion="3" checksum="1507282054"/>
+  </class>
   <class name="edm::Wrapper<portabletest::TestHostObject>"/>
 
   <class name="portabletest::TestSoALayout<128,false>"/>
   <class name="portabletest::TestSoALayout2<128,false>"/>
   <class name="portabletest::TestSoALayout3<128,false>"/>
+
+  <!-- Collection declaration for dictionary -->
+  <class name="portabletest::TestHostMultiCollection2"/>
+  <!-- portabletest::TestHostObject::Implementation alias must be listed before the aliased-to type -->
+  <class name="portabletest::TestHostMultiCollection2::Implementation"/>
+
+  <!-- Collection declaration for dictionary -->
+  <class name="portabletest::TestHostMultiCollection3"/>
+  <!-- portabletest::TestHostObject::Implementation alias must be listed before the aliased-to type -->
+  <class name="portabletest::TestHostMultiCollection3::Implementation"/>
 
   <!-- Recursive templates (with no data) ensuring we have one CollectionLeaf<index, type> for each layout in the collection -->
   <class name="portablecollection::CollectionImpl<0, portabletest::TestSoALayout<128, false>, portabletest::TestSoALayout2<128, false>>"/>
@@ -17,9 +36,6 @@
   <!-- Recursive templates implementing the association of indices and layouts, and containing the data -->
   <class name="portablecollection::CollectionLeaf<0, portabletest::TestSoALayout<128, false>>"/>
   <class name="portablecollection::CollectionLeaf<1, portabletest::TestSoALayout2<128, false>>"/>
-
-  <!-- Collection declaration for dictionary -->
-  <class name="portabletest::TestHostMultiCollection2"/>
 
   <class name="edm::Wrapper<portabletest::TestHostMultiCollection2>" splitLevel="0"/>
 
@@ -35,48 +51,57 @@
   -->
   <class name="portablecollection::CollectionLeaf<2, portabletest::TestSoALayout3<128, false>>"/>
 
-  <!-- Collection declaration for dictionary -->
-  <class name="portabletest::TestHostMultiCollection3"/>
-
   <class name="edm::Wrapper<portabletest::TestHostMultiCollection3>" splitLevel="0"/>
 
   <class name="portabletest::TestProductWithPtr<alpaka_common::DevHost>"/>
   <class name="edm::Wrapper<portabletest::TestProductWithPtr<alpaka_common::DevHost>>" persistent="false"/>
 
   <!-- Torch SoAs and Collections -->
+  <class name="portabletest::ParticleHostCollection"/>
+  <!-- portabletest::ParticleHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="portabletest::ParticleHostCollection::Layout"/>
   <class name="portabletest::ParticleSoA"/>
   <class name="portabletest::ParticleSoA::View"/>
   <class name="portabletest::ParticleSoA::ConstView"/>
-  <class name="portabletest::ParticleHostCollection"/>
   <class name="edm::Wrapper<portabletest::ParticleHostCollection>" splitLevel="0"/>
 
+  <class name="portabletest::SimpleNetHostCollection"/>
+  <!-- portabletest::SimpleNetHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="portabletest::SimpleNetHostCollection::Layout"/>
   <class name="portabletest::SimpleNetSoA"/>
   <class name="portabletest::SimpleNetSoA::View"/>
   <class name="portabletest::SimpleNetSoA::ConstView"/>
-  <class name="portabletest::SimpleNetHostCollection"/>
   <class name="edm::Wrapper<portabletest::SimpleNetHostCollection>" splitLevel="0"/>
 
+  <class name="portabletest::MultiHeadNetHostCollection"/>
+  <!-- portabletest::MultiHeadNetHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="portabletest::MultiHeadNetHostCollection::Layout"/>
   <class name="portabletest::MultiHeadNetSoA"/>
   <class name="portabletest::MultiHeadNetSoA::View"/>
   <class name="portabletest::MultiHeadNetSoA::ConstView"/>
-  <class name="portabletest::MultiHeadNetHostCollection"/>
   <class name="edm::Wrapper<portabletest::MultiHeadNetHostCollection>" splitLevel="0"/>
 
+  <class name="portabletest::ImageHostCollection"/>
+  <!-- portabletest::ImageHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="portabletest::ImageHostCollection::Layout"/>
   <class name="portabletest::ImageSoA"/>
   <class name="portabletest::ImageSoA::View"/>
   <class name="portabletest::ImageSoA::ConstView"/>
-  <class name="portabletest::ImageHostCollection"/>
   <class name="edm::Wrapper<portabletest::ImageHostCollection>" splitLevel="0"/>
 
+  <class name="portabletest::LogitsHostCollection"/>
+  <!-- portabletest::LogitsHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="portabletest::LogitsHostCollection::Layout"/>
   <class name="portabletest::LogitsSoA"/>
   <class name="portabletest::LogitsSoA::View"/>
   <class name="portabletest::LogitsSoA::ConstView"/>
-  <class name="portabletest::LogitsHostCollection"/>
   <class name="edm::Wrapper<portabletest::LogitsHostCollection>" splitLevel="0"/>
 
+  <class name="portabletest::MaskHostCollection"/>
+  <!-- portabletest::MaskHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="portabletest::MaskHostCollection::Layout"/>
   <class name="portabletest::MaskSoA"/>
   <class name="portabletest::MaskSoA::View"/>
   <class name="portabletest::MaskSoA::ConstView"/>
-  <class name="portabletest::MaskHostCollection"/>
   <class name="edm::Wrapper<portabletest::MaskHostCollection>" splitLevel="0"/>
 </lcgdict>

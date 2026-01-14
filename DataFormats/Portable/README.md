@@ -34,6 +34,8 @@ would create the file `classes.cc` with the content:
 
 SET_PORTABLEHOSTOBJECT_READ_RULES(portabletest::TestHostObject);
 ```
+**Note:** The dictionary for `portabletest::TestHostObject::Product` (using the same type alias as in the registration macro above) must be placed in the `classes_def.xml` file before the type that `Product` aliases.
+
 
 `PortableHostObject<T>` objects can also be read back in "bare ROOT" mode, without any dictionaries.
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
@@ -93,6 +95,8 @@ one would create the file `classes.cc` with the content:
 
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection);
 ```
+**Note:** The dictionary for `portabletest::TestHostCollection::Layout` (using the same type alias as in the registration macro above) must be placed in the `classes_def.xml` file before the type that `Layout` aliases.
+
 
 `PortableHostCollection<T>` collections can also be read back in "bare ROOT" mode, without any dictionaries.
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
@@ -159,6 +163,7 @@ Both scripts expect the collections to be aliased as in:
 ```
 using TestDeviceMultiCollection3 = PortableCollection3<TestSoA, TestSoA2, TestSoA3>;
 ```
+and assume the `TestDeviceMultiCollection3` is used in the `SET_PORTABLEHOSTMULTICOLLECTION_READ_RULES()` macro.
 
 For the host xml, SoA layouts have to be listed and duplicates should be removed manually is multiple
 collections share a same layout. The scripts are called as follows:
