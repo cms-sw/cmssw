@@ -25,7 +25,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # process.mix.input.fileNames = cms.untracked.vstring([]) # MinBias, from step3 confif file
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 process.load('RecoLocalFastTime.FTLClusterizer.MTDCPEESProducer_cfi')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
