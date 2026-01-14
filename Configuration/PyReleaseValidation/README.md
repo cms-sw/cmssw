@@ -58,6 +58,7 @@ The offsets currently in use are:
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.7511: HLT phase-2 timing menu, with PixelTracks CA Extension
 * 0.752: HLT phase-2 timing menu ticl_v5 variant
+* 0.7521: HLT phase-2 timing menu ticl_v5, ticlv5TrackLinkingGNN variant
 * 0.753: HLT phase-2 timing menu single tracking iteration variant
 * 0.754: HLT phase-2 timing menu single tracking iteration, LST building variant
 * 0.755: HLT phase-2 timing menu LST building variant
