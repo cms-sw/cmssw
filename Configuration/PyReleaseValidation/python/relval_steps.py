@@ -1137,6 +1137,7 @@ hiDefaults2022_ppReco = {'--conditions':'auto:phase1_2022_realistic_hi', '--era'
 hiDefaults2022_ppReco_approxClusters = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters'}
 hiDefaults2023_ppReco = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_2023'}
 hiDefaults2023_ppReco_approxClusters = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters_2023'}
+upcDefaults2023 = {'--conditions':'132X_mcRun3_2023_realistic_HI_v10', '--era':'Run3_2023_UPC'}
 
 steps['Hydjet2Q_MinBias_5020GeV_2018_ppReco']=merge([{'-n':1},hiDefaults2018_ppReco,gen2018hiprod('Hydjet2_Quenched_MinBias_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2011']=merge([{'-n':1,'--beamspot':'RealisticHI2011Collision'},hiDefaults2011,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
@@ -3047,6 +3048,8 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECOUP15_ID']=merge([{'--hltProcess':'HLT2'},steps['RECOUP15']])
 
+steps['RECOUPC2023']=merge([upcDefaults2023,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO','--eventcontent':'RECOSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
+
 steps['RECOHI2023PPRECOAPPROXCLUSTERS']=merge([hiDefaults2023_ppReco_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                         '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                                         '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
@@ -3100,6 +3103,11 @@ steps['REMINIAODHI2023PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation
                                          '--era':'Run3_pp_on_PbPb_2023',
                                          '--procModifiers':'genJetSubEvent',
                                      },hiDefaults2023_ppReco,step3Up2015Defaults])
+
+if 'HIForward0' in autoSkim:
+    steps['SKIMHIFORWARDRUN3_2023'] = merge([upcDefaults2023, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIForward0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOUPC2023']])
+if 'HIPhysicsRawPrime0' in autoSkim:
+    steps['SKIMHIPHYSICSRAWPRIMERUN3_2023'] = merge([hiDefaults2023_ppReco_approxClusters, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIPhysicsRawPrime0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOHI2023PPRECO']])
 
 steps['ALCARECOHI2023PPRECO']=merge([hiDefaults2023_ppReco,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias',
                                                             '--datatier':'ALCARECO',
