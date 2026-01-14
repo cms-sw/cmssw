@@ -1,16 +1,15 @@
 <lcgdict>
+  <class name="reco::HitPortableCollectionHost"/>
+  <!-- reco::HitPortableCollectionHost::Layout must be listed before the aliased-to type see #48824 -->
+  <class name="reco::HitPortableCollectionHost::Layout"/>
 
   <class name="reco::TrackingHitsLayout<128, false>"/>
   <class name="reco::HitModulesLayout<128, false>"/>
   <class name="reco::TrackingBlocksLayout<128, false>"/>
-
-  <class name="reco::HitPortableCollectionHost"/>
 
   <class name="reco::TrackingRecHitHost"  rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<reco::TrackingRecHitHost>" splitLevel="0"/>
 
   <class name="SiPixelHitStatus"/>
   <class name="SiPixelHitStatusAndCharge"/>
-  
 </lcgdict>
-
