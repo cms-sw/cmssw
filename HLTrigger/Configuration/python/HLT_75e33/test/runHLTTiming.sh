@@ -77,7 +77,7 @@ fi
 cmsDriver.py NGTScouting -s L1P2GT,HLT:NGTScouting --processName=NLTX \
     --conditions auto:phase2_realistic_T33 --geometry ExtendedRun4D110 \
     --era Phase2C17I13M9 \
-    --procModifiers ngtScouting,phase2CAExtension \
+    --procModifiers alpaka,ngtScouting,phase2CAExtension \
     --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
     --eventcontent FEVTDEBUGHLT \
     --filein=${ALL_FILES} \
