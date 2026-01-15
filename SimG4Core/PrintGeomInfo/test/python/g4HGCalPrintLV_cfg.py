@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4HGCalPringLV_cfg.py geometry=D121 tol=0.01
+#   cmsRun g4HGCalPrintLV_cfg.py geometry=D121 tol=0.01
 #
 #   Options for geometry D120, D121
 #
