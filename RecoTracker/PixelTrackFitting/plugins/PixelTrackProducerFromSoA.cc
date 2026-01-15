@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "CUDADataFormats/Common/interface/HostProduct.h"
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
