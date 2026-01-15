@@ -41,12 +41,12 @@ int32_t HGCalTypes::getUnpackedCell6(int id) { return (id % faccell6_); }
 
 int32_t HGCalTypes::layerType(int type) {
   static const int32_t layerTypeX[7] = {HGCalTypes::WaferCenter,
-					HGCalTypes::WaferCenterB,
-					HGCalTypes::WaferCenterR,
-					HGCalTypes::CornerCenterYp,
-					HGCalTypes::CornerCenterYm,
-					HGCalTypes::CornerCenterXp,
-					HGCalTypes::CornerCenterXm};
+                                        HGCalTypes::WaferCenterB,
+                                        HGCalTypes::WaferCenterR,
+                                        HGCalTypes::CornerCenterYp,
+                                        HGCalTypes::CornerCenterYm,
+                                        HGCalTypes::CornerCenterXp,
+                                        HGCalTypes::CornerCenterXm};
   return ((type >= 0) && (type < 7)) ? layerTypeX[type] : HGCalTypes::WaferCenter;
 }
 
