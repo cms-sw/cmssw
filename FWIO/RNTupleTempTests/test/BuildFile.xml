@@ -114,6 +114,6 @@
 <test name="TestRNTupleTempMissingDictionary" command="Run_MissingDictionary.sh"/>
 
 <test name="TestRNTupleTempProvenance" command ="provenance_test.sh"/>
-<test name="TestMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
+<test name="TestRNTupleTempMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
 
 <test name="TestRNTupleTempUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
