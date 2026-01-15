@@ -1,7 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('testHGCalRecoLocal',Phase2C17I13M9)
+geomName = "Run4D120"
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:  ", geomName)
+print("Geom file Name: ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+
+process = cms.Process('testHGCalRecoLocal',ERA)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +17,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D100Reco_cff')
-process.load('Configuration.Geometry.GeometryExtendedRun4D100_cff')
+process.load(geomFile)
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
@@ -68,7 +75,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 #       'keep *_mix_*_*',
 	'keep *_*HGC*_*_*',
         ),
-    fileName = cms.untracked.string('file:testHGCalSimWatcherV16.root'),
+    fileName = cms.untracked.string('file:testHGCalSimWatcherV19.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
@@ -97,7 +104,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(

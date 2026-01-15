@@ -5,8 +5,10 @@
 
 #include "CondFormats/SiPixelTransient/interface/SiPixelGenError.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+/*
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
+*/
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
@@ -33,7 +35,9 @@ public:
   using LayerGeometry = pixelCPEforGPU::LayerGeometryT<TrackerTraits>;
   using AverageGeometry = pixelTopology::AverageGeometryT<TrackerTraits>;
 
+  /*
   const ParamsOnGPU *getGPUProductAsync(cudaStream_t cudaStream) const;
+  */
 
   ParamsOnGPU const &getCPUProduct() const { return cpuData_; }
 
@@ -53,6 +57,7 @@ private:
   AverageGeometry averageGeometry_;
   ParamsOnGPU cpuData_;
 
+  /*
   struct GPUData {
     ~GPUData();
     // not needed if not used on CPU...
@@ -60,6 +65,7 @@ private:
     ParamsOnGPU *paramsOnGPU_d = nullptr;  // copy of the above on the Device
   };
   cms::cuda::ESProduct<GPUData> gpuData_;
+  */
 
   void fillParamsForGpu();
 };
