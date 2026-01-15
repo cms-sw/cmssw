@@ -1,5 +1,6 @@
 #ifndef DataFormats_HcalRecHit_HcalSpecialTimes_h_
 #define DataFormats_HcalRecHit_HcalSpecialTimes_h_
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 // This is an excerpt from QIE10/QIE11 TDC specifications (by T. Zimmerman):
 //
@@ -64,6 +65,73 @@ namespace HcalSpecialTimes {
     constexpr int tdc_code_undershoot = 63;
 
     float t = tdc_to_ns * tdc;
+    if (tdc > six_bits_mask || tdc < 0)
+      t = UNKNOWN_T_INVALID_RANGE;
+    else if (tdc > tdc_code_largestnormal) {
+      // The undershoot code happens by far more often
+      // than any other special code. So check for it first.
+      if (tdc == tdc_code_undershoot)
+        t = UNKNOWN_T_UNDERSHOOT;
+      else if (tdc == tdc_code_overshoot)
+        t = UNKNOWN_T_OVERSHOOT;
+      else if (tdc == tdc_code_invalid)
+        t = UNKNOWN_T_INVALID_CODE;
+      else if (tdc < tdc_code_invalid)
+        t = UNKNOWN_T_50TO57;
+      else
+        t = UNKNOWN_T_DLL_FAILURE;
+    }
+
+    return t;
+  }
+  constexpr inline float getTDCTime(const int tdc, const int subdet, const int depth) {
+    constexpr float tdc_to_ns = 0.5f;
+
+    constexpr int six_bits_mask = 0x3f;
+    constexpr int tdc_code_largestnormal = 49;
+    constexpr int tdc_code_invalid = 58;
+    constexpr int tdc_code_overshoot = 62;
+    constexpr int tdc_code_undershoot = 63;
+
+    float t = -999.f;
+    if (subdet == HcalEndcap) {  // HcalEndcap subdet 2
+      t = tdc_to_ns * tdc;
+    } else if (subdet == HcalBarrel) {  // HcalBarrel subdet 1
+      if (depth == 1) {
+        switch (tdc) {
+          case 0:
+            t = 4.5f;  // prompt
+            break;
+          case 1:
+            t = 11.f;  // slightly delayed
+            break;
+          case 2:
+            t = 18.5f;  // very delayed
+            break;
+          default:
+            t = UNKNOWN_T_INVALID_RANGE;
+            break;
+        }
+      } else {  // Depth 2+
+        switch (tdc) {
+          case 0:
+            t = 3.f;  // prompt
+            break;
+          case 1:
+            t = 8.f;  // slightly delayed
+            break;
+          case 2:
+            t = 17.f;  // very delayed
+            break;
+          default:
+            t = UNKNOWN_T_INVALID_RANGE;
+            break;
+        }
+      }
+    } else {
+      t = UNKNOWN_T_INVALID_RANGE;
+    }
+
     if (tdc > six_bits_mask || tdc < 0)
       t = UNKNOWN_T_INVALID_RANGE;
     else if (tdc > tdc_code_largestnormal) {
