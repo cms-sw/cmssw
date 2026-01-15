@@ -52,6 +52,7 @@
 #include <set>
 #include <exception>
 #include <sstream>
+#include <ranges>
 
 #include "make_shared_noexcept_false.h"
 #include "processEDAliases.h"
@@ -100,18 +101,20 @@ namespace edm {
       vstring scheduledPaths = proc_pset.getParameter<vstring>("@paths");
       std::set<std::string> modulesOnPaths;
       {
-        std::set<std::string> noEndPaths(scheduledPaths.begin(), scheduledPaths.end());
-        for (auto const& endPath : end_path_name_list) {
-          noEndPaths.erase(endPath);
-        }
-        {
-          vstring labels;
-          for (auto const& path : noEndPaths) {
-            labels = proc_pset.getParameter<vstring>(path);
-            modulesOnPaths.insert(labels.begin(), labels.end());
-          }
+        auto getModuleLabelsOfPath = [&](auto const& lbl) {
+          return proc_pset.getParameter<std::vector<std::string>>(lbl);
+        };
+        auto notEndPath = [&](auto const& lbl) {
+          return std::ranges::find(end_path_name_list, lbl) == end_path_name_list.end();
+        };
+
+        auto tmp = scheduledPaths | std::views::filter(notEndPath) | std::views::transform(getModuleLabelsOfPath) |
+                   std::views::join;
+        for (auto const& modLabel : tmp) {
+          modulesOnPaths.insert(modLabel);
         }
       }
+
       //Initially fill labelsToBeDropped with all module mentioned in
       // the configuration but which are not being used by the system
       std::vector<std::string> labelsToBeDropped;
@@ -144,7 +147,9 @@ namespace edm {
           labelsToBeDropped.begin(), labelsToBeDropped.begin() + sizeBeforeOutputModules, labelsToBeDropped.end());
 
       // drop the parameter sets used to configure the modules
-      for_all(labelsToBeDropped, std::bind(&ParameterSet::eraseOrSetUntrackedParameterSet, std::ref(proc_pset), _1));
+      for (auto& label : labelsToBeDropped) {
+        proc_pset.eraseOrSetUntrackedParameterSet(label);
+      }
 
       // drop the labels from @all_modules
       vstring::iterator endAfterRemove =
