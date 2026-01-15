@@ -14,7 +14,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // generic struct-based product in the device (that may be host) memory
   template <typename T>
-  using PortableObject = ::PortableObject<T, Device>;
+  using PortableObject = ::PortableObject<Device, T>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

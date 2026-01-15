@@ -16,9 +16,9 @@ namespace {
 // This test is currently mostly about the code compiling
 TEST_CASE("Use of PortableCollection<T, TDev> on host code", s_tag) {
   auto const size = 10;
-  PortableCollection<TestSoA, alpaka::DevCpu> coll(size, cms::alpakatools::host());
+  PortableCollection<alpaka::DevCpu, TestSoA> coll(cms::alpakatools::host(), size);
 
   SECTION("Tests") { REQUIRE(coll->metadata().size() == size); }
 
-  static_assert(std::is_same_v<PortableCollection<TestSoA, alpaka::DevCpu>, PortableHostCollection<TestSoA>>);
+  static_assert(std::is_same_v<PortableCollection<alpaka::DevCpu, TestSoA>, PortableHostCollection<TestSoA>>);
 }

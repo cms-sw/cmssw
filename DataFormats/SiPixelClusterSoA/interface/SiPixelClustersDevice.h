@@ -13,17 +13,17 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 template <typename TDev>
-class SiPixelClustersDevice : public PortableDeviceCollection<SiPixelClustersSoA, TDev> {
+class SiPixelClustersDevice : public PortableDeviceCollection<TDev, SiPixelClustersSoA> {
 public:
-  SiPixelClustersDevice(edm::Uninitialized) : PortableDeviceCollection<SiPixelClustersSoA, TDev>{edm::kUninitialized} {}
+  SiPixelClustersDevice(edm::Uninitialized) : PortableDeviceCollection<TDev, SiPixelClustersSoA>{edm::kUninitialized} {}
 
   template <typename TQueue>
   explicit SiPixelClustersDevice(size_t maxModules, TQueue queue)
-      : PortableDeviceCollection<SiPixelClustersSoA, TDev>(maxModules + 1, queue) {}
+      : PortableDeviceCollection<TDev, SiPixelClustersSoA>(queue, maxModules + 1) {}
 
   // Constructor which specifies the SoA size
   explicit SiPixelClustersDevice(size_t maxModules, TDev const &device)
-      : PortableDeviceCollection<SiPixelClustersSoA, TDev>(maxModules + 1, device) {}
+      : PortableDeviceCollection<TDev, SiPixelClustersSoA>(device, maxModules + 1) {}
 
   void setNClusters(uint32_t nClusters, int32_t offsetBPIX2) {
     nClusters_h = nClusters;

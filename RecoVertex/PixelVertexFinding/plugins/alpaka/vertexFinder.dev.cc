@@ -131,11 +131,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "producing Vertices on GPU" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
       const auto maxTracks = tracks_view.metadata().size();
-      reco::ZVertexSoACollection vertices(queue, static_cast<int32_t>(maxVertices), static_cast<int32_t>(maxTracks));
+      reco::ZVertexSoACollection vertices(queue, maxVertices, maxTracks);
       auto data = vertices.view().zvertex();
       auto trkdata = vertices.view().zvertexTracks();
 
-      PixelVertexWorkSpaceSoADevice workspace(maxTracks, queue);
+      PixelVertexWorkSpaceSoADevice workspace(queue, maxTracks);
       auto ws = workspace.view();
 
       // Initialize

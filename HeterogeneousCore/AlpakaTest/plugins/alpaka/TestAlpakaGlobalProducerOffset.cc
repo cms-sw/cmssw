@@ -31,7 +31,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       auto const& esData = iSetup.getData(esToken_);
 
-      portabletest::TestDeviceCollection deviceProduct{esData->metadata().size(), iEvent.queue()};
+      portabletest::TestDeviceCollection deviceProduct{iEvent.queue(), esData->metadata().size()};
 
       // run the algorithm, potentially asynchronously
       algo_.fill(iEvent.queue(), deviceProduct, x_);

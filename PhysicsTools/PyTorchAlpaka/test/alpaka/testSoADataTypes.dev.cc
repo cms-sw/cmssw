@@ -51,8 +51,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
   using SoA = SoATemplate<>;
   using SoAView = SoA::View;
-  using SoACollection = PortableCollection<SoA, Device>;
-  using SoACollectionView = PortableCollection<SoA, Device>::View;
+  using SoACollection = PortableCollection<Device, SoA>;
+  using SoACollectionView = PortableCollection<Device, SoA>::View;
   using SoAHostCollection = PortableHostCollection<SoA>;
   using SoAHostCollectionView = PortableHostCollection<SoA>::View;
 
@@ -203,7 +203,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     const std::size_t batch_size = 64;
 
     // Create and fill needed portable collections
-    SoACollection deviceCollection(batch_size, queue);
+    SoACollection deviceCollection(queue, batch_size);
     fill(queue, deviceCollection);
     auto records = deviceCollection.view().records();
 
@@ -218,7 +218,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
     std::vector<::torch::IValue> tensors = cms::torch::alpakatools::detail::convertInput(input, torchDevice);
 
-    SoAHostCollection hostCollection(batch_size, queue);
+    SoAHostCollection hostCollection(queue, batch_size);
     alpaka::memcpy(queue, hostCollection.buffer(), deviceCollection.buffer());
     alpaka::wait(queue);
 
@@ -238,7 +238,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     const std::size_t batch_size = 64;
 
     // Create and fill needed portable collections
-    SoACollection deviceCollection(batch_size, queue);
+    SoACollection deviceCollection(queue, batch_size);
     fill(queue, deviceCollection);
 
     auto records = deviceCollection.view().records();
@@ -267,7 +267,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
     // Create and fill portable collections
     const std::size_t batch_size = 1;
-    SoACollection deviceCollection(batch_size, queue);
+    SoACollection deviceCollection(queue, batch_size);
     fill(queue, deviceCollection);
     auto records = deviceCollection.view().records();
 
@@ -287,7 +287,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     std::vector<::torch::IValue> tensors = cms::torch::alpakatools::detail::convertInput(input, torchDevice);
 
     // Check if tensor list built correctly
-    SoAHostCollection hostCollection(batch_size, queue);
+    SoAHostCollection hostCollection(queue, batch_size);
     ::alpaka::memcpy(queue, hostCollection.buffer(), deviceCollection.buffer());
     check(hostCollection.view(), tensors);
   };
@@ -302,7 +302,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
     //Create empty portable collection
     const std::size_t batch_size = 0;
-    SoACollection deviceCollection(batch_size, queue);
+    SoACollection deviceCollection(queue, batch_size);
     auto records = deviceCollection.view().records();
 
     // Run Converter
@@ -333,7 +333,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
     // Create and fill portable collections
     const std::size_t batch_size = 32;
-    SoACollection deviceCollection(batch_size, queue);
+    SoACollection deviceCollection(queue, batch_size);
     fill(queue, deviceCollection);
 
     // Run Converter for empty metadata

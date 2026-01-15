@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       [[maybe_unused]] auto inpData = iEvent.getHandle(getToken_);
       [[maybe_unused]] auto const& esData = iSetup.getData(esToken_);
 
-      auto deviceProduct = std::make_unique<portabletest::TestDeviceCollection>(size_, iEvent.queue());
+      auto deviceProduct = std::make_unique<portabletest::TestDeviceCollection>(iEvent.queue(), size_);
       auto deviceProductMulti2 = std::make_unique<portabletest::TestDeviceCollection2>(iEvent.queue(), size_, size2_);
       auto deviceProductMulti3 =
           std::make_unique<portabletest::TestDeviceCollection3>(iEvent.queue(), size_, size2_, size3_);

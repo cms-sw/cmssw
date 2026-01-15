@@ -213,8 +213,7 @@ namespace lst {
       nPixelSeeds = n_max_pixel_segments_per_module;
     }
 
-    LSTInputHostCollection lstInputHC(
-        queue, static_cast<int32_t>(nHitsIT + nHitsOT), static_cast<int32_t>(nPixelSeeds));
+    LSTInputHostCollection lstInputHC(queue, nHitsIT + nHitsOT, nPixelSeeds);
 
     auto hits = lstInputHC.view().hits();
     std::memcpy(hits.xs().data(), ph2_x.data(), nHitsOT * sizeof(float));

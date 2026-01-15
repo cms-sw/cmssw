@@ -12,7 +12,7 @@ int main() {
   constexpr const int size = 42;
   constexpr const int size2 = 21;
   constexpr const int size3 = 69;
-  portabletest::TestHostCollection collection(size, cms::alpakatools::host());
+  portabletest::TestHostCollection collection(cms::alpakatools::host(), size);
 
   const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
   const portabletest::Array flags = {{6, 4, 2, 0}};

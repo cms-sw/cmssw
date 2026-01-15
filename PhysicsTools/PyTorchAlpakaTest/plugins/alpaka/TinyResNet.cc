@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       // in/out collections
       const auto &images = event.get(images_token_);
       const auto batch_size = images.const_view().metadata().size();
-      auto logits = portabletest::LogitsDeviceCollection(batch_size, event.queue());
+      auto logits = portabletest::LogitsDeviceCollection(event.queue(), batch_size);
 
       // records
       auto input_records = images.const_view().records();

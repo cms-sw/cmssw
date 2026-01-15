@@ -95,8 +95,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ecal::raw::InputDataHost inputHost(queue, size, feds);
 
     // output device collections
-    OutputProduct digisDevEB{static_cast<int32_t>(config_.maxChannelsEB), queue};
-    OutputProduct digisDevEE{static_cast<int32_t>(config_.maxChannelsEE), queue};
+    OutputProduct digisDevEB{queue, config_.maxChannelsEB};
+    OutputProduct digisDevEE{queue, config_.maxChannelsEE};
     // reset the size scalar of the SoA
     // memset takes an alpaka view that is created from the scalar in a view to the device collection
     auto digiViewEB = cms::alpakatools::make_device_view<uint32_t>(queue, digisDevEB.view().size());
