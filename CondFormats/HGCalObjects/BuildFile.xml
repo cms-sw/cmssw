@@ -1,17 +1,12 @@
-<use name="CondFormats/Serialization"/>
-<use name="Geometry/HGCalCommonData"/>
 <use name="boost_serialization"/>
+<use name="CondFormats/Serialization"/>
 <use name="DataFormats/HGCalDigi"/>
 <use name="DataFormats/Portable"/>
 <use name="DataFormats/SoATemplate"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
+<use name="Geometry/HGCalCommonData"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
-<iftool name="cuda">
-  <use name="HeterogeneousCore/CUDACore"/>
-<else/>
-  <flags SKIP_FILES="T_EventSetup_HeterogeneousHGCalHEFCellPositionsConditions.cc"/>
-</iftool>
 <flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
