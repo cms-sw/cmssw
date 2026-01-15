@@ -1,77 +1,54 @@
 <lcgdict>
 <selection>
 
-  <class name="reco::PFCluster" ClassVersion="17">
-   <version ClassVersion="17" checksum="3021111509"/>
-   <version ClassVersion="16" checksum="1786894710"/>
-   <version ClassVersion="15" checksum="1837961152"/>
-   <version ClassVersion="14" checksum="3610074122"/>
-   <version ClassVersion="13" checksum="1305770681"/>
-   <version ClassVersion="12" checksum="1218979136"/>
-   <version ClassVersion="11" checksum="1793013291"/>
-   <version ClassVersion="10" checksum="1793013291"/>
+  <class name="reco::io_v1::PFCluster" ClassVersion="3">
+   <version ClassVersion="3" checksum="3548902471"/>
     <field name="posrep_" transient="true"/>
     <field name="layer_" transient="true"/> 
   </class>
-  <class name="std::vector<reco::PFCluster>"/>
-  <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
+  <class name="std::vector<reco::io_v1::PFCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::PFCluster> >"/>
 
-  <class name="reco::HGCalMultiCluster" ClassVersion="3">
-    <version ClassVersion="3" checksum="1942695459"/>
+  <class name="reco::io_v1::HGCalMultiCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="121905775"/>
   </class>
-  <class name="std::vector<reco::HGCalMultiCluster>"/>
-  <class name="edm::RefProd<vector<reco::HGCalMultiCluster> >" />
-  <class name="edm::Wrapper<std::vector<reco::HGCalMultiCluster> >"/>  
+  <class name="std::vector<reco::io_v1::HGCalMultiCluster>"/>
+  <class name="edm::RefProd<vector<reco::io_v1::HGCalMultiCluster> >" />
+  <class name="edm::Wrapper<std::vector<reco::io_v1::HGCalMultiCluster> >"/>  
 
-  <class name="std::pair<edm::Ptr<reco::CaloCluster>::key_type,edm::Ptr<reco::PFCluster> >"/>
-  <class name="reco::PFCluster::EEtoPSAssociation"/>
-  <class name="edm::Wrapper<reco::PFCluster::EEtoPSAssociation>"/>
+  <class name="std::pair<edm::Ptr<reco::io_v1::CaloCluster>::key_type,edm::Ptr<reco::io_v1::PFCluster> >"/>
+  <class name="reco::io_v1::PFCluster::EEtoPSAssociation"/>
+  <class name="edm::Wrapper<reco::io_v1::PFCluster::EEtoPSAssociation>"/>
 
   <class name="PFLayer" ClassVersion="10">
    <version ClassVersion="10" checksum="85611"/>
   </class>
   <enum name="PFLayer::Layer"/> 
-  <class name="reco::PFRecHitFraction" ClassVersion="10">
-   <version ClassVersion="10" checksum="3960206"/>
+  <class name="reco::PFRecHitFraction" ClassVersion="3">
+   <version ClassVersion="3" checksum="1054932742"/>
   </class>
   <class name="std::vector<reco::PFRecHitFraction>"/>
 
-  <class name="reco::RecoPFClusterRefCandidate"  ClassVersion="12">
-   <version ClassVersion="12" checksum="4214927259"/>
-   <version ClassVersion="11" checksum="3462309765"/>
-   <version ClassVersion="10" checksum="3428152128"/>
+  <class name="reco::RecoPFClusterRefCandidate"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3961848295"/>
   </class>
 
 
-  <class name="reco::PFRecHit" ClassVersion="19"> 
-   <version ClassVersion="19" checksum="3022044895"/> 
-   <version ClassVersion="18" checksum="3122773923"/>
-   <version ClassVersion="17" checksum="2606786437"/>
-   <version ClassVersion="10" checksum="1807687081"/>
-   <version ClassVersion="11" checksum="3727193351"/>
-   <version ClassVersion="12" checksum="207373238"/>
-   <version ClassVersion="13" checksum="2553278843"/>
-   <version ClassVersion="14" checksum="3941705446"/>
-   <version ClassVersion="15" checksum="730472518"/>
-   <version ClassVersion="16" checksum="2707878893"/>
-   <ioread sourceClass = "reco::PFRecHit" version="[1-10]" targetClass="reco::PFRecHit" source="std::vector<unsigned> neighbours4_; std::vector<unsigned> neighbours8_;" target="">
-    <![CDATA[]]>
-   </ioread>
-
+  <class name="reco::io_v1::PFRecHit" ClassVersion="3"> 
+   <version ClassVersion="3" checksum="2405400969"/> 
    <field name="caloCell_" transient="true"/>
    <field name="neighbours_" transient="true"/>
    <field name="neighbours_info" transient="true"/>
    <field name="neighbours4_" transient="true"/>
    <field name="neighbours8_" transient="true"/>
-
   </class>
 
 
-  <class name="std::vector<reco::PFRecHit>"/>
-  <class name="edm::Wrapper<std::vector<reco::PFRecHit> >"/>
-  <class name="edm::Ref< std::vector<reco::PFRecHit>, reco::PFRecHit, edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecHit>,reco::PFRecHit>  >"/>
+  <class name="std::vector<reco::io_v1::PFRecHit>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::PFRecHit> >"/>
+  <class name="edm::Ref< std::vector<reco::io_v1::PFRecHit>, reco::io_v1::PFRecHit, edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFRecHit>,reco::io_v1::PFRecHit>  >"/>
 
-  <class name="edm::RefVector<std::vector<reco::PFRecHit>,reco::PFRecHit,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecHit>,reco::PFRecHit> >"/>
+  <class name="edm::RefVector<std::vector<reco::io_v1::PFRecHit>,reco::io_v1::PFRecHit,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFRecHit>,reco::io_v1::PFRecHit> >"/>
 
   
 
@@ -97,7 +74,7 @@
   <class name="std::vector<reco::PFTrajectoryPoint>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
 
-  <class name="edm::RefVector<std::vector<reco::PFBlock>,reco::PFBlock,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
+  <class name="edm::RefVector<std::vector<reco::io_v1::PFBlock>,reco::io_v1::PFBlock,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFBlock>,reco::io_v1::PFBlock> >"/>
   <class name="reco::PFRecTrack" ClassVersion="3">
    <version ClassVersion="3" checksum="3356916753"/>
   </class>
@@ -105,7 +82,7 @@
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
 
   <class name="reco::GsfPFRecTrack" ClassVersion="3">
-   <version ClassVersion="3" checksum="997076017"/>
+   <version ClassVersion="3" checksum="2950231625"/>
   </class>
   <class name="std::vector<reco::GsfPFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfPFRecTrack> >"/>
@@ -145,29 +122,19 @@
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
   <class name="reco::PFBlockElementTrack" ClassVersion="3">
-   <version ClassVersion="3" checksum="764868352"/>
+   <version ClassVersion="3" checksum="972442600"/>
   </class>
 
-  <class name="reco::PFBlockElementGsfTrack" ClassVersion="15">
-   <version ClassVersion="15" checksum="233050648"/>
-   <version ClassVersion="14" checksum="3921871079"/>
-   <version ClassVersion="13" checksum="2453155267"/>
-   <version ClassVersion="12" checksum="1521047275"/>
-   <version ClassVersion="11" checksum="1367777435"/>
-   <version ClassVersion="10" checksum="549349370"/>
+  <class name="reco::PFBlockElementGsfTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="874706272"/>
 <!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)
    Florian
     <field name="GsftrackRefPF_" transient="true"/> // Daniele
 -->
   </class>
 
-  <class name="reco::PFBlockElementBrem" ClassVersion="15">
-   <version ClassVersion="15" checksum="2963077707"/>
-   <version ClassVersion="14" checksum="3702597792"/>
-   <version ClassVersion="13" checksum="157699540"/>
-   <version ClassVersion="12" checksum="112730380"/>
-   <version ClassVersion="11" checksum="2362699420"/>
-   <version ClassVersion="10" checksum="2231967579"/>
+  <class name="reco::PFBlockElementBrem" ClassVersion="3">
+   <version ClassVersion="3" checksum="4159933843"/>
 <!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)
    Florian
     <field name="BremtrackRefPF_" transient="true"/> // Daniele
@@ -175,27 +142,21 @@
   </class>
 
 
-  <class name="reco::PFBlockElementCluster" ClassVersion="16">
-   <version ClassVersion="16" checksum="4263698413"/>
-   <version ClassVersion="15" checksum="3252388"/>
-   <version ClassVersion="14" checksum="407383072"/>
-   <version ClassVersion="13" checksum="775826696"/>
-   <version ClassVersion="12" checksum="1263691576"/>
-   <version ClassVersion="10" checksum="2503385411"/>
-   <version ClassVersion="11" checksum="2936163017"/>
+  <class name="reco::PFBlockElementCluster" ClassVersion="3">
+   <version ClassVersion="3" checksum="1113199285"/>
   </class>
 
-  <class name="std::map<unsigned int,reco::PFBlock::Link>"/>
-  <class name="reco::PFBlock::Link" ClassVersion="10">
-   <version ClassVersion="10" checksum="3119379929"/>
+  <class name="std::map<unsigned int,reco::io_v1::PFBlock::Link>"/>
+  <class name="reco::io_v1::PFBlock::Link" ClassVersion="3">
+   <version ClassVersion="3" checksum="3388044151"/>
   </class>
-  <class name="reco::PFBlock" ClassVersion="10">
-   <version ClassVersion="10" checksum="2213575983"/>
+  <class name="reco::io_v1::PFBlock" ClassVersion="3">
+   <version ClassVersion="3" checksum="2904310273"/>
   </class>
 
-  <class name="std::vector<reco::PFBlock>"/>
-  <class name="edm::Wrapper<std::vector<reco::PFBlock> >"/>
-  <class name="edm::Ref< std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
+  <class name="std::vector<reco::io_v1::PFBlock>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::PFBlock> >"/>
+  <class name="edm::Ref< std::vector<reco::io_v1::PFBlock>, reco::io_v1::PFBlock, edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFBlock>,reco::io_v1::PFBlock> >"/>
   <class name="edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>
   <class name="edm::RefVector<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>
 
@@ -203,7 +164,10 @@
   <class name="edm::RefVector<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > >"/>
 
-  <class name="edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> >"/>
+  <class name="edm::Ref<std::vector<reco::io_v1::PFCluster>,reco::io_v1::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCluster>,reco::io_v1::PFCluster> >"/>
+  <class name="edm::Ptr<reco::io_v1::PFCluster>" />
+  <class name="std::vector<edm::Ptr<reco::io_v1::PFCluster> >" />
+  <class name="edm::RefProd<std::vector<reco::io_v1::PFCluster>>"/>
 
 
   <class name="pftools::ParticleFiltrationDecision" ClassVersion="11">
@@ -228,38 +192,32 @@
   <class name="edm::Wrapper<std::vector<reco::PFDisplacedVertexCandidate> >"/>
   <class name="edm::Ref< std::vector<reco::PFDisplacedVertexCandidate>, reco::PFDisplacedVertexCandidate, edm::refhelper::FindUsingAdvance<std::vector<reco::PFDisplacedVertexCandidate>,reco::PFDisplacedVertexCandidate> >"/>
 
-  <class name="reco::PFDisplacedVertex" ClassVersion="3">
-   <version ClassVersion="3" checksum="2807110114"/>
+  <class name="reco::io_v1::PFDisplacedVertex" ClassVersion="3">
+   <version ClassVersion="3" checksum="2554700204"/>
   </class>
 
-  <class name="std::vector<reco::PFDisplacedVertex>"/>
-  <class name="edm::Wrapper<std::vector<reco::PFDisplacedVertex> >"/>
-  <class name="edm::Ref< std::vector<reco::PFDisplacedVertex>, reco::PFDisplacedVertex, edm::refhelper::FindUsingAdvance<std::vector<reco::PFDisplacedVertex>,reco::PFDisplacedVertex> >"/>
+  <class name="std::vector<reco::io_v1::PFDisplacedVertex>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::PFDisplacedVertex> >"/>
+  <class name="edm::Ref< std::vector<reco::io_v1::PFDisplacedVertex>, reco::io_v1::PFDisplacedVertex, edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFDisplacedVertex>,reco::io_v1::PFDisplacedVertex> >"/>
 
-  <class name="std::vector<reco::PFDisplacedVertex::VertexTrackType>"/>
+  <class name="std::vector<reco::io_v1::PFDisplacedVertex::VertexTrackType>"/>
 
   <class name="std::vector<std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > >"/>
 
   <class name="std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> >"/>
 
-  <class name="reco::PreId" ClassVersion="3">
-   <version ClassVersion="3" checksum="2607778601"/>
+  <class name="reco::io_v1::PreId" ClassVersion="3">
+   <version ClassVersion="3" checksum="4038806563"/>
   </class>
-  <class name="std::vector<reco::PreId>"/>
-  <class name="edm::Wrapper<std::vector<reco::PreId> >"/>
+  <class name="std::vector<reco::io_v1::PreId>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::PreId> >"/>
   <class name="edm::ValueMap<reco::PreIdRef>"/>
   <class name="std::vector<reco::PreIdRef>"/>
   <class name="edm::Wrapper<edm::ValueMap<reco::PreIdRef> >"/>
-  <class name="edm::Ref<std::vector<reco::PreId>,reco::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::PreId>,reco::PreId> >" />
+  <class name="edm::Ref<std::vector<reco::io_v1::PreId>,reco::io_v1::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PreId>,reco::io_v1::PreId> >" />
 
-  <class name="reco::PFBlockElementSuperCluster" ClassVersion="16">
-   <version ClassVersion="16" checksum="4220702137"/>
-   <version ClassVersion="15" checksum="1074027768"/>
-   <version ClassVersion="14" checksum="285242772"/>
-   <version ClassVersion="13" checksum="3749373244"/>
-   <version ClassVersion="12" checksum="1656578540"/>
-   <version ClassVersion="10" checksum="456156271"/>
-   <version ClassVersion="11" checksum="3584097231"/>
+  <class name="reco::PFBlockElementSuperCluster" ClassVersion="3">
+   <version ClassVersion="3" checksum="322190993"/>
   </class>
   <class name="std::vector<reco::PFBlockElementSuperCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFBlockElementSuperCluster> >"/>
@@ -276,9 +234,9 @@
   <class name="edm::RefProd<std::vector<reco::RecoPFClusterRefCandidate> >"/>
   <class name="edm::RefVector<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> >"/>
 
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoPFClusterRefCandidateRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::RecoPFClusterRefCandidateRef>" />
   <class name="edm::reftobase::RefHolder<reco::RecoPFClusterRefCandidateRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoPFClusterRefCandidateRefVector>" />
+  <class name="edm::reftobase::VectorHolder<reco::io_v1::Candidate, reco::RecoPFClusterRefCandidateRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::RecoPFClusterRefCandidateRefVector>" />
 
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> > >" />

@@ -1,20 +1,15 @@
 
 <lcgdict>
 
-  <class name="l1t::TkEtMiss" ClassVersion="5">
-   <version ClassVersion="5" checksum="1279701762"/>
-   <version ClassVersion="4" checksum="2694422826"/>
-   <version ClassVersion="3" checksum="77762919"/>
+  <class name="l1t::TkEtMiss" ClassVersion="3">
+   <version ClassVersion="3" checksum="1845575470"/>
   </class>
   <class name="std::vector<l1t::TkEtMiss>"/>
   <class name="edm::Wrapper<l1t::TkEtMiss>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkEtMiss> >"/>
 
-  <class name="l1t::TkEm" ClassVersion="6">
-   <version ClassVersion="6" checksum="3709420594"/>
-   <version ClassVersion="5" checksum="2211175625"/>
-   <version ClassVersion="4" checksum="1043577432"/>
-   <version ClassVersion="3" checksum="2161257944"/>
+  <class name="l1t::TkEm" ClassVersion="3">
+   <version ClassVersion="3" checksum="153037750"/>
   </class>
   <class name="std::vector<l1t::TkEm>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkEm> >"/>
@@ -24,40 +19,29 @@
   <class name="l1t::RegionalOutput<l1t::TkEmCollection>" />
   <class name="edm::Wrapper<l1t::RegionalOutput<l1t::TkEmCollection>>" />
 
-  <ioread sourceClass="l1t::TkEm" targetClass="l1t::TkEm" version="[-5]" target="" source="edm::Ref<l1t::EGammaBxCollection> egRef_" include="DataFormats/Common/interface/RefToPtr.h">
-  <![CDATA[
-   newObj->setEgCaloPtr(edm::refToPtr(onfile.egRef_));
-  ]]>
-  </ioread>
-
   <class name="l1t::TkEGTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="3759113668"/>
+   <version ClassVersion="3" checksum="2842566824"/>
   </class>
   <class name="std::vector<l1t::TkEGTau>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkEGTau> >"/>
   <class name="edm::Ref<std::vector<l1t::TkEGTau>,l1t::TkEGTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkEGTau>,l1t::TkEGTau> >"/>
 
   <class name="l1t::L1TrkTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="3769006094"/>
+   <version ClassVersion="3" checksum="622855378"/>
   </class>
   <class name="std::vector<l1t::L1TrkTau>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TrkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::L1TrkTau>,l1t::L1TrkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TrkTau>,l1t::L1TrkTau> >"/>
 
   <class name="l1t::L1CaloTkTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="1899265791"/>
+   <version ClassVersion="3" checksum="1330286603"/>
   </class>
   <class name="std::vector<l1t::L1CaloTkTau>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1CaloTkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau> >"/>
 
-  <class name="l1t::TkElectron" ClassVersion="8">
-   <version ClassVersion="8" checksum="3565138561"/>
-   <version ClassVersion="7" checksum="3055953431"/>
-   <version ClassVersion="6" checksum="3899336964"/>
-   <version ClassVersion="5" checksum="965807884"/>
-   <version ClassVersion="4" checksum="3922083203"/>
-   <version ClassVersion="3" checksum="3970647299"/>
+  <class name="l1t::TkElectron" ClassVersion="3">
+   <version ClassVersion="3" checksum="2125012453"/>
   </class>
   <class name="std::vector<l1t::TkElectron>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkElectron> >"/>
@@ -67,9 +51,8 @@
   <class name="l1t::RegionalOutput<l1t::TkElectronCollection>" />
   <class name="edm::Wrapper<l1t::RegionalOutput<l1t::TkElectronCollection>>" />
 
-  <class name="l1t::TkJet" ClassVersion="4">
-   <version ClassVersion="4" checksum="1528601883"/>
-   <version ClassVersion="3" checksum="3336007399"/>
+  <class name="l1t::TkJet" ClassVersion="3">
+   <version ClassVersion="3" checksum="1844772127"/>
   </class>
   <class name="std::vector<l1t::TkJet>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkJet> >"/>
@@ -77,7 +60,7 @@
   <class name="edm::RefProd< std::vector<l1t::TkJet> >"/>
 
   <class name="l1t::TkTriplet" ClassVersion="3">
-    <version ClassVersion="3" checksum="3181606259"/>
+    <version ClassVersion="3" checksum="584260087"/>
   </class>
   <class name="std::vector<l1t::TkTriplet>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkTriplet> >"/>
@@ -85,17 +68,15 @@
   <class name="edm::RefProd< std::vector<l1t::TkTriplet> >"/>
 
 
-  <class name="l1t::TkHTMiss" ClassVersion="4">
-    <version ClassVersion="4" checksum="4116208712"/>
-    <version ClassVersion="3" checksum="1471145680"/>
+  <class name="l1t::TkHTMiss" ClassVersion="3">
+    <version ClassVersion="3" checksum="1186463572"/>
   </class>
   <class name="std::vector<l1t::TkHTMiss>"/>
   <class name="edm::Wrapper<l1t::TkHTMiss>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkHTMiss> >"/>
 
-  <class name="l1t::TkMuon" ClassVersion="4">
-   <version ClassVersion="4" checksum="2325700664"/>
-   <version ClassVersion="3" checksum="4118337663"/>
+  <class name="l1t::TkMuon" ClassVersion="3">
+   <version ClassVersion="3" checksum="3695336860"/>
 
   </class>
   <class name="std::vector<l1t::TkMuon>"/>
@@ -105,28 +86,28 @@
   <class name="edm::Ref<vector<l1t::EMTFTrack>,l1t::EMTFTrack,edm::refhelper::FindUsingAdvance<vector<l1t::EMTFTrack>,l1t::EMTFTrack> >" />
 
   <class name="l1t::TkGlbMuon" ClassVersion="3">
-   <version ClassVersion="3"  checksum="2811548892"/>
+   <version ClassVersion="3"  checksum="3979821352"/>
   </class>
   <class name="std::vector<l1t::TkGlbMuon>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkGlbMuon> >"/>
   <class name="edm::Ref<std::vector<l1t::TkGlbMuon>,l1t::TkGlbMuon,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkGlbMuon>,l1t::TkGlbMuon> >"/>
 
   <class name="l1t::TkTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="701136464"/>
+   <version ClassVersion="3" checksum="2194039764"/>
   </class>
   <class name="std::vector<l1t::TkTau>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::TkTau>,l1t::TkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkTau>,l1t::TkTau> >"/>
 
   <class name="l1t::TkPhiCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="1398617427"/>
+   <version ClassVersion="3" checksum="2112391799"/>
   </class>
   <class name="std::vector<l1t::TkPhiCandidate>" />
   <class name="edm::Wrapper<std::vector<l1t::TkPhiCandidate>>" />
   <class name="edm::Ref<std::vector<l1t::TkPhiCandidate>, l1t::TkPhiCandidate, edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPhiCandidate>, l1t::TkPhiCandidate>>" />
 
   <class name="l1t::TkBsCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="3257789432"/>
+   <version ClassVersion="3" checksum="2539550588"/>
   </class>
   <class name="std::vector<l1t::TkBsCandidate>" />
   <class name="edm::Wrapper<std::vector<l1t::TkBsCandidate>>" />

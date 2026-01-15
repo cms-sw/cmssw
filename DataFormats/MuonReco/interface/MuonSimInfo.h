@@ -71,31 +71,35 @@ namespace reco {
 
   };
 
-  class MuonSimInfo {
-  public:
-    MuonSimInfo();
-    typedef math::XYZPointD Point;                   ///< point in the space
-    typedef math::XYZTLorentzVectorD LorentzVector;  ///< Lorentz vector
-    MuonSimType primaryClass;
-    ExtendedMuonSimType extendedClass;
-    int flavour;
-    int pdgId;          // pdg ID of matching tracking particle
-    int g4processType;  // Geant process producing the particle
-    int motherPdgId;
-    int motherFlavour;
-    int motherStatus;  // Status of the first gen particle
-    int grandMotherPdgId;
-    int grandMotherFlavour;
-    int heaviestMotherFlavour;
-    int tpId;
-    int tpEvent;
-    int tpBX;  // bunch crossing
-    int charge;
-    LorentzVector p4;
-    Point vertex;
-    Point motherVertex;
-    float tpAssoQuality;
-  };
+  namespace io_v1 {
+
+    class MuonSimInfo {
+    public:
+      MuonSimInfo();
+      typedef math::XYZPointD Point;                   ///< point in the space
+      typedef math::XYZTLorentzVectorD LorentzVector;  ///< Lorentz vector
+      MuonSimType primaryClass;
+      ExtendedMuonSimType extendedClass;
+      int flavour;
+      int pdgId;          // pdg ID of matching tracking particle
+      int g4processType;  // Geant process producing the particle
+      int motherPdgId;
+      int motherFlavour;
+      int motherStatus;  // Status of the first gen particle
+      int grandMotherPdgId;
+      int grandMotherFlavour;
+      int heaviestMotherFlavour;
+      int tpId;
+      int tpEvent;
+      int tpBX;  // bunch crossing
+      int charge;
+      LorentzVector p4;
+      Point vertex;
+      Point motherVertex;
+      float tpAssoQuality;
+    };
+  }  // namespace io_v1
+  using MuonSimInfo = io_v1::MuonSimInfo;
 }  // namespace reco
 
 #endif

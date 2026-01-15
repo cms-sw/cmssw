@@ -312,7 +312,7 @@ void PFCandidate::setFlag(Flags theFlag, bool value) {
 
 bool PFCandidate::flag(Flags theFlag) const { return (flags_ >> theFlag) & 1; }
 
-ostream& reco::operator<<(ostream& out, const PFCandidate& c) {
+ostream& reco::io_v1::operator<<(ostream& out, const PFCandidate& c) {
   if (!out)
     return out;
 

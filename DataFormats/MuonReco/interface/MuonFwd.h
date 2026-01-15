@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class Muon;
+  namespace io_v1 {
+    class Muon;
+  }
+  using Muon = io_v1::Muon;
   /// collection of Muon objects
   typedef std::vector<Muon> MuonCollection;
   /// presistent reference to a Muon
@@ -19,12 +22,16 @@ namespace reco {
   typedef MuonRefVector::iterator muon_iterator;
 
   /// Links between the three tracks which can define a muon
-  class MuonTrackLinks;
-
+  namespace io_v1 {
+    class MuonTrackLinks;
+  }
+  using MuonTrackLinks = io_v1::MuonTrackLinks;
   /// collection of MuonTrackLinks
   typedef std::vector<MuonTrackLinks> MuonTrackLinksCollection;
-
-  class CaloMuon;
+  namespace io_v1 {
+    class CaloMuon;
+  }
+  using CaloMuon = io_v1::CaloMuon;
   /// collection of Muon objects
   typedef std::vector<CaloMuon> CaloMuonCollection;
 }  // namespace reco

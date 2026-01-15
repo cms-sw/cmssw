@@ -1,14 +1,14 @@
 <lcgdict>
-  <class name="reco::JetID"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3012457232"/>
+  <class name="reco::io_v1::JetID"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1642836378"/>
   </class>
-  <class name="std::vector<reco::JetID>" />
-  <class name="edm::RefVector<std::vector<reco::JetID>,reco::JetID,edm::refhelper::FindUsingAdvance<std::vector<reco::JetID>,reco::JetID> >"/>
-  <class name="edm::Ref<std::vector<reco::JetID>,reco::JetID,edm::refhelper::FindUsingAdvance<std::vector<reco::JetID>,reco::JetID> >"/>
-  <class name="edm::RefProd<std::vector<reco::JetID> >"/>
-  <class name="edm::Wrapper<std::vector<reco::JetID> >"/>
-  <class name="edm::ValueMap<reco::JetID>" />
-  <class name="edm::Wrapper< edm::ValueMap<reco::JetID> >" />
+  <class name="std::vector<reco::io_v1::JetID>" />
+  <class name="edm::RefVector<std::vector<reco::io_v1::JetID>,reco::io_v1::JetID,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::JetID>,reco::io_v1::JetID> >"/>
+  <class name="edm::Ref<std::vector<reco::io_v1::JetID>,reco::io_v1::JetID,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::JetID>,reco::io_v1::JetID> >"/>
+  <class name="edm::RefProd<std::vector<reco::io_v1::JetID> >"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::JetID> >"/>
+  <class name="edm::ValueMap<reco::io_v1::JetID>" />
+  <class name="edm::Wrapper< edm::ValueMap<reco::io_v1::JetID> >" />
   
   <class name="reco::CastorJetID"  ClassVersion="10">
    <version ClassVersion="10" checksum="3017993717"/>
@@ -21,34 +21,32 @@
   <class name="edm::ValueMap<reco::CastorJetID>" />
   <class name="edm::Wrapper< edm::ValueMap<reco::CastorJetID> >" />
 
-  <class name="edm::Ptr<reco::Jet>" />
-  <class name="edm::reftobase::RefHolder<edm::Ptr<reco::Jet> >" />
-  <class name="edm::PtrVector<reco::Jet>" />
+  <class name="edm::Ptr<reco::io_v1::Jet>" />
+  <class name="edm::reftobase::RefHolder<edm::Ptr<reco::io_v1::Jet> >" />
+  <class name="edm::PtrVector<reco::io_v1::Jet>" />
 
-  <class name="edm::Ptr<reco::CaloJet>" />
-  <class name="edm::PtrVector<reco::CaloJet>" />
-  <class name="edm::reftobase::RefHolder<edm::Ptr<reco::CaloJet> >" />
+  <class name="edm::Ptr<reco::io_v1::CaloJet>" />
+  <class name="edm::PtrVector<reco::io_v1::CaloJet>" />
+  <class name="edm::reftobase::RefHolder<edm::Ptr<reco::io_v1::CaloJet> >" />
 
-  <class name="edm::Ptr<reco::PFJet>" />
-  <class name="edm::PtrVector<reco::PFJet>" />
+  <class name="edm::Ptr<reco::io_v1::PFJet>" />
+  <class name="edm::PtrVector<reco::io_v1::PFJet>" />
 
   <class name="edm::Ptr<reco::BasicJet>" />
   <class name="edm::PtrVector<reco::BasicJet>" />
 
-  <class name="edm::Ptr<reco::GenJet>" />
-  <class name="edm::PtrVector<reco::GenJet>" />
+  <class name="edm::Ptr<reco::io_v1::GenJet>" />
+  <class name="edm::PtrVector<reco::io_v1::GenJet>" />
 
   <class name="edm::Ptr<reco::TrackJet>" />
   <class name="edm::PtrVector<reco::TrackJet>" />
 
   <class name="edm::Ptr<reco::PFClusterJet>" />
   <class name="edm::PtrVector<reco::PFClusterJet>" />
-  <class name="edm::Ptr<reco::PFCluster>" />
-  <class name="std::vector<edm::Ptr<reco::PFCluster> >" />
 
 
-  <class name="edm::Ptr<reco::JetID>" />
-  <class name="edm::PtrVector<reco::JetID>" />
+  <class name="edm::Ptr<reco::io_v1::JetID>" />
+  <class name="edm::PtrVector<reco::io_v1::JetID>" />
   <class name="edm::Ptr<reco::CastorJetID>" />
   <class name="edm::PtrVector<reco::CastorJetID>" />
   
@@ -58,22 +56,22 @@
   <class name="edm::Association<reco::PFJetCollection>" />
   <class name="edm::Wrapper<edm::Association<reco::PFJetCollection> >" />
 
-  <class name="std::vector<reco::CaloJet::Specific>" />
-  <class name="std::vector<reco::PFJet::Specific>"   />
-  <class name="std::vector<reco::JPTJet::Specific>" />
+  <class name="std::vector<reco::io_v1::CaloJet::Specific>" />
+  <class name="std::vector<reco::io_v1::PFJet::Specific>"   />
+  <class name="std::vector<reco::io_v1::JPTJet::Specific>" />
 
-  <class name="reco::TrackExtrapolation"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1386552340"/>
+  <class name="reco::io_v1::TrackExtrapolation"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3399449618"/>
   </class>
-  <class name="std::vector<reco::TrackExtrapolation>" />
-  <class name="edm::Ref<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation>  >" />
-  <class name="edm::RefVector<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation>   >" />
-  <class name="edm::RefProd<std::vector<reco::TrackExtrapolation> >" />
-  <class name="edm::Wrapper<reco::TrackExtrapolation>" />
-  <class name="edm::Wrapper<std::vector<reco::TrackExtrapolation> >" />
-  <class name="edm::Wrapper<edm::Ref<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation>   > >" />
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation> > >" />
-  <class name="edm::Wrapper<edm::RefProd<std::vector<reco::TrackExtrapolation> > >" />
+  <class name="std::vector<reco::io_v1::TrackExtrapolation>" />
+  <class name="edm::Ref<std::vector<reco::io_v1::TrackExtrapolation>,reco::io_v1::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackExtrapolation>,reco::io_v1::TrackExtrapolation>  >" />
+  <class name="edm::RefVector<std::vector<reco::io_v1::TrackExtrapolation>,reco::io_v1::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackExtrapolation>,reco::io_v1::TrackExtrapolation>   >" />
+  <class name="edm::RefProd<std::vector<reco::io_v1::TrackExtrapolation> >" />
+  <class name="edm::Wrapper<reco::io_v1::TrackExtrapolation>" />
+  <class name="edm::Wrapper<std::vector<reco::io_v1::TrackExtrapolation> >" />
+  <class name="edm::Wrapper<edm::Ref<std::vector<reco::io_v1::TrackExtrapolation>,reco::io_v1::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackExtrapolation>,reco::io_v1::TrackExtrapolation>   > >" />
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::TrackExtrapolation>,reco::io_v1::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackExtrapolation>,reco::io_v1::TrackExtrapolation> > >" />
+  <class name="edm::Wrapper<edm::RefProd<std::vector<reco::io_v1::TrackExtrapolation> > >" />
   
 
 
@@ -90,7 +88,8 @@
    <class name="edm::Wrapper<reco::PattRecoTree<float,reco::PattRecoPeak<float> > >" />
    <class name="edm::Wrapper<reco::PattRecoTree<double,reco::PattRecoPeak<double> > >" />
 
-   <class name="reco::FFTJetProducerSummary"  ClassVersion="10">
+   <class name="reco::FFTJetProducerSummary"  ClassVersion="11">
+    <version ClassVersion="11" checksum="445367308"/>
     <version ClassVersion="10" checksum="603545432"/>
    </class>
    <class name="edm::Wrapper<reco::FFTJetProducerSummary>" />
@@ -108,9 +107,9 @@
    <class name="edm::Wrapper<reco::FFTGenJetRefVector>" />
    <class name="edm::Wrapper<reco::FFTGenJetFwdRefVector>" />
    <class name="edm::Wrapper<reco::FFTGenJetFwdPtrVector>" />
-   <class name="edm::reftobase::Holder<reco::Candidate, reco::FFTGenJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::FFTGenJetRef>" />
    <class name="reco::JetTrackMatch<reco::FFTGenJetCollection>" />
-   <class name="edm::reftobase::Holder<reco::Jet, reco::FFTGenJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::FFTGenJetRef>" />
    <class name="edm::reftobase::RefHolder<reco::FFTGenJetRef>" />
    <class name="edm::Ptr<reco::FFTGenJet>" />
    <class name="edm::PtrVector<reco::FFTGenJet>" />
@@ -130,9 +129,9 @@
    <class name="edm::Wrapper<reco::FFTCaloJetRefVector>" />
    <class name="edm::Wrapper<reco::FFTCaloJetFwdRefVector>" />
    <class name="edm::Wrapper<reco::FFTCaloJetFwdPtrVector>" />
-   <class name="edm::reftobase::Holder<reco::Candidate, reco::FFTCaloJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::FFTCaloJetRef>" />
    <class name="reco::JetTrackMatch<reco::FFTCaloJetCollection>" />
-   <class name="edm::reftobase::Holder<reco::Jet, reco::FFTCaloJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::FFTCaloJetRef>" />
    <class name="edm::reftobase::RefHolder<reco::FFTCaloJetRef>" />
    <class name="edm::Ptr<reco::FFTCaloJet>" />
    <class name="edm::PtrVector<reco::FFTCaloJet>" />

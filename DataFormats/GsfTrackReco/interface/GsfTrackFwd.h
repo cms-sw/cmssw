@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class GsfTrack;
+  namespace io_v1 {
+    class GsfTrack;
+  }
+  using GsfTrack = io_v1::GsfTrack;
   /// collection of GsfTracks
   typedef std::vector<GsfTrack> GsfTrackCollection;
   /// persistent reference to a GsfTrack

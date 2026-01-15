@@ -4,6 +4,7 @@
 
 using namespace std;
 using namespace reco;
+using namespace reco::io_v1;
 
 const math::XYZPoint PFCluster::dummyVtx_(0, 0, 0);
 
@@ -60,7 +61,7 @@ PFLayer::Layer PFCluster::layer() const {
   return PFLayer::fromCaloID(caloID());
 }
 
-std::ostream& reco::operator<<(std::ostream& out, const PFCluster& cluster) {
+std::ostream& reco::io_v1::operator<<(std::ostream& out, const PFCluster& cluster) {
   if (!out)
     return out;
 

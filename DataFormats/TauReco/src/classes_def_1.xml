@@ -19,99 +19,23 @@
   <class name="edm::RefVector<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo> >"/>
   
   <class name="reco::PFTauTagInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="1535484060"/>
+   <version ClassVersion="3" checksum="285981860"/>
   </class>
   <class name="std::vector<reco::PFTauTagInfo>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTauTagInfo> >"/>
   <class name="edm::Ref<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo> >"/>
   <class name="edm::RefProd<std::vector<reco::PFTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo> >"/>
-
-<!-- Adding ioread rules for backwards compatibility -->
-
-<ioread sourceClass="reco::PFTauTagInfo" version="[-12]" 
-  source="edm::Ref<vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<vector<reco::PFJet>,reco::PFJet> > PFJetRef_;" 
-  targetClass="reco::PFTauTagInfo" target="PFJetRef_" include="DataFormats/JetReco/interface/PFJet.h">
-    <![CDATA[PFJetRef_ = reco::JetBaseRef(onfile.PFJetRef_);]]>
-  </ioread>
-
-<ioread sourceClass="reco::PFTauTagInfo" version="[11-12]" 
-  source="std::vector<edm::Ptr<reco::PFCandidate> > PFChargedHadrCands_;" 
-  targetClass="reco::PFTauTagInfo" target="PFChargedHadrCands_">
-    <![CDATA[
-    PFChargedHadrCands_.reserve(onfile.PFChargedHadrCands_.size());
-    for (const auto& cand : onfile.PFChargedHadrCands_)
-      PFChargedHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
-  </ioread>
-
-<ioread sourceClass="reco::PFTauTagInfo" version="[11-12]" 
-  source="std::vector<edm::Ptr<reco::PFCandidate> > PFNeutrHadrCands_;" 
-  targetClass="reco::PFTauTagInfo" target="PFNeutrHadrCands_">
-    <![CDATA[
-    PFNeutrHadrCands_.reserve(onfile.PFNeutrHadrCands_.size());
-    for (const auto& cand : onfile.PFNeutrHadrCands_)
-      PFNeutrHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
-  </ioread>
-
-<ioread sourceClass="reco::PFTauTagInfo" version="[11-12]" 
-  source="std::vector<edm::Ptr<reco::PFCandidate> > PFGammaCands_;" 
-  targetClass="reco::PFTauTagInfo" target="PFGammaCands_">
-    <![CDATA[
-    PFGammaCands_.reserve(onfile.PFGammaCands_.size());
-    for (const auto& cand : onfile.PFGammaCands_)
-      PFGammaCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
-  </ioread>
-
-<ioread sourceClass="reco::PFTauTagInfo" version="[-10]"
-source="reco::PFCandidateRefVector PFChargedHadrCands_;"
- targetClass="reco::PFTauTagInfo"
-target="PFChargedHadrCands_"
-include="DataFormats/Common/interface/RefToPtr.h">
-    <![CDATA[
-   PFChargedHadrCands_.reserve(onfile.PFChargedHadrCands_.size());
-for(auto const& ref : onfile.PFChargedHadrCands_) { 
-   PFChargedHadrCands_.push_back(edm::refToPtr(ref));
-}
-]]>
-</ioread>
-
-<ioread sourceClass="reco::PFTauTagInfo" version="[-10]"
-source="reco::PFCandidateRefVector PFNeutrHadrCands_;"
- targetClass="reco::PFTauTagInfo"
-target="PFNeutrHadrCands_"
-include="DataFormats/Common/interface/RefToPtr.h">
-    <![CDATA[
-   PFNeutrHadrCands_.reserve(onfile.PFNeutrHadrCands_.size());
-for(auto const& ref : onfile.PFNeutrHadrCands_) { 
-   PFNeutrHadrCands_.push_back(edm::refToPtr(ref));
-}
-]]>
-</ioread>
-
-<ioread sourceClass="reco::PFTauTagInfo" version="[-10]"
-source="reco::PFCandidateRefVector PFGammaCands_;"
- targetClass="reco::PFTauTagInfo"
-target="PFGammaCands_"
-include="DataFormats/Common/interface/RefToPtr.h">
-    <![CDATA[
-   PFGammaCands_.reserve(onfile.PFGammaCands_.size());
-for(auto const& ref : onfile.PFGammaCands_) { 
-   PFGammaCands_.push_back(edm::refToPtr(ref));
-}
-]]>
-</ioread>
-
-
   
   <class name="reco::BaseTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="1151169052"/>
+   <version ClassVersion="3" checksum="2297856736"/>
   </class>
   <class name="std::vector<reco::BaseTau>"/>
   <class name="edm::Wrapper<std::vector<reco::BaseTau> >"/>
   <class name="edm::Ref<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> >"/>
   <class name="edm::RefProd<std::vector<reco::BaseTau> >"/>
   <class name="edm::RefVector<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> >"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> > >" />
   
 
 </lcgdict>

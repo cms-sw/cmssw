@@ -12,9 +12,9 @@
    <class name="edm::Wrapper<reco::FFTBasicJetRefVector>" />
    <class name="edm::Wrapper<reco::FFTBasicJetFwdRefVector>" />
    <class name="edm::Wrapper<reco::FFTBasicJetFwdPtrVector>" />
-   <class name="edm::reftobase::Holder<reco::Candidate, reco::FFTBasicJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::FFTBasicJetRef>" />
    <class name="reco::JetTrackMatch<reco::FFTBasicJetCollection>" />
-   <class name="edm::reftobase::Holder<reco::Jet, reco::FFTBasicJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::FFTBasicJetRef>" />
    <class name="edm::reftobase::RefHolder<reco::FFTBasicJetRef>" />
    <class name="edm::Ptr<reco::FFTBasicJet>" />
    <class name="edm::PtrVector<reco::FFTBasicJet>" />
@@ -34,9 +34,9 @@
    <class name="edm::Wrapper<reco::FFTPFJetRefVector>" />
    <class name="edm::Wrapper<reco::FFTPFJetFwdRefVector>" />
    <class name="edm::Wrapper<reco::FFTPFJetFwdPtrVector>" />
-   <class name="edm::reftobase::Holder<reco::Candidate, reco::FFTPFJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::FFTPFJetRef>" />
    <class name="reco::JetTrackMatch<reco::FFTPFJetCollection>" />
-   <class name="edm::reftobase::Holder<reco::Jet, reco::FFTPFJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::FFTPFJetRef>" />
    <class name="edm::reftobase::RefHolder<reco::FFTPFJetRef>" />
    <class name="edm::Ptr<reco::FFTPFJet>" />
    <class name="edm::PtrVector<reco::FFTPFJet>" />
@@ -56,9 +56,9 @@
    <class name="edm::Wrapper<reco::FFTTrackJetRefVector>" />
    <class name="edm::Wrapper<reco::FFTTrackJetFwdRefVector>" />
    <class name="edm::Wrapper<reco::FFTTrackJetFwdPtrVector>" />
-   <class name="edm::reftobase::Holder<reco::Candidate, reco::FFTTrackJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::FFTTrackJetRef>" />
    <class name="reco::JetTrackMatch<reco::FFTTrackJetCollection>" />
-   <class name="edm::reftobase::Holder<reco::Jet, reco::FFTTrackJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::FFTTrackJetRef>" />
    <class name="edm::reftobase::RefHolder<reco::FFTTrackJetRef>" />
    <class name="edm::Ptr<reco::FFTTrackJet>" />
    <class name="edm::PtrVector<reco::FFTTrackJet>" />
@@ -78,9 +78,9 @@
    <class name="edm::Wrapper<reco::FFTJPTJetRefVector>" />
    <class name="edm::Wrapper<reco::FFTJPTJetFwdRefVector>" />
    <class name="edm::Wrapper<reco::FFTJPTJetFwdPtrVector>" />
-   <class name="edm::reftobase::Holder<reco::Candidate, reco::FFTJPTJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::FFTJPTJetRef>" />
    <class name="reco::JetTrackMatch<reco::FFTJPTJetCollection>" />
-   <class name="edm::reftobase::Holder<reco::Jet, reco::FFTJPTJetRef>" />
+   <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::FFTJPTJetRef>" />
    <class name="edm::reftobase::RefHolder<reco::FFTJPTJetRef>" />
    <class name="edm::Ptr<reco::FFTJPTJet>" />
    <class name="edm::PtrVector<reco::FFTJPTJet>" />
@@ -97,12 +97,12 @@
    </class>
    <class name="edm::Wrapper<reco::FFTJetPileupSummary>" />
 
-   <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>,std::vector<reco::PFCandidate>,unsigned int> >">
+   <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::io_v1::PFJet>,std::vector<reco::io_v1::PFCandidate>,unsigned int> >">
      <field name="transientMap_" transient="true"/>
    </class>
-   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>,std::vector<reco::PFCandidate>,unsigned int> > >"/>
-   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFJet> >,edm::RefProd<std::vector<reco::PFCandidate> > >"/>
-   <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >"/>
-   <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
+   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::io_v1::PFJet>,std::vector<reco::io_v1::PFCandidate>,unsigned int> > >"/>
+   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::io_v1::PFJet> >,edm::RefProd<std::vector<reco::io_v1::PFCandidate> > >"/>
+   <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::io_v1::PFJet>,reco::io_v1::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFJet>,reco::io_v1::PFJet> >,edm::RefVector<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> > >"/>
+   <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::io_v1::PFJet>,reco::io_v1::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFJet>,reco::io_v1::PFJet> >,edm::RefVector<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> > > >"/>
 
 </lcgdict>

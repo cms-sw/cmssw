@@ -3,7 +3,10 @@
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 namespace reco {
-  class PreId;
+  namespace io_v1 {
+    class PreId;
+  }
+  using PreId = io_v1::PreId;
   typedef std::vector<reco::PreId> PreIdCollection;
   typedef edm::Ref<reco::PreIdCollection> PreIdRef;
 }  // namespace reco

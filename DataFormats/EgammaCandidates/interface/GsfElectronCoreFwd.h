@@ -9,7 +9,10 @@
 
 namespace reco {
 
-  class GsfElectronCore;
+  namespace io_v1 {
+    class GsfElectronCore;
+  }
+  using GsfElectronCore = io_v1::GsfElectronCore;
   typedef std::vector<GsfElectronCore> GsfElectronCoreCollection;
   typedef edm::Ref<GsfElectronCoreCollection> GsfElectronCoreRef;
   typedef edm::RefProd<GsfElectronCoreCollection> GsfElectronCoreRefProd;

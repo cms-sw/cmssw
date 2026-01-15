@@ -34,36 +34,39 @@ struct HaloTowerStrip {
 };
 
 namespace reco {
+  namespace io_v1 {
 
-  class HcalHaloData {
-  public:
-    //constructor
-    HcalHaloData();
-    //destructor
-    ~HcalHaloData() {}
+    class HcalHaloData {
+    public:
+      //constructor
+      HcalHaloData();
+      //destructor
+      ~HcalHaloData() {}
 
-    // Return collection of 5-degree Phi Wedges built from Hcal RecHits
-    const std::vector<PhiWedge>& GetPhiWedges() const { return PhiWedgeCollection; }
-    std::vector<PhiWedge>& GetPhiWedges() { return PhiWedgeCollection; }
+      // Return collection of 5-degree Phi Wedges built from Hcal RecHits
+      const std::vector<PhiWedge>& GetPhiWedges() const { return PhiWedgeCollection; }
+      std::vector<PhiWedge>& GetPhiWedges() { return PhiWedgeCollection; }
 
-    // Return collection of problematic strips (pairs of # of problematic HCAL cells and CaloTowerDetId)
-    const std::vector<HaloTowerStrip>& getProblematicStrips() const { return problematicStripCollection; }
-    std::vector<HaloTowerStrip>& getProblematicStrips() { return problematicStripCollection; }
+      // Return collection of problematic strips (pairs of # of problematic HCAL cells and CaloTowerDetId)
+      const std::vector<HaloTowerStrip>& getProblematicStrips() const { return problematicStripCollection; }
+      std::vector<HaloTowerStrip>& getProblematicStrips() { return problematicStripCollection; }
 
-    const std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHB() const { return thehaloclustercands_hb; }
-    std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHB() { return thehaloclustercands_hb; }
+      const std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHB() const { return thehaloclustercands_hb; }
+      std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHB() { return thehaloclustercands_hb; }
 
-    const std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHE() const { return thehaloclustercands_he; }
-    std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHE() { return thehaloclustercands_he; }
+      const std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHE() const { return thehaloclustercands_he; }
+      std::vector<HaloClusterCandidateHCAL>& getHaloClusterCandidatesHE() { return thehaloclustercands_he; }
 
-    void setHaloClusterCandidatesHB(const std::vector<HaloClusterCandidateHCAL>& x) { thehaloclustercands_hb = x; };
-    void setHaloClusterCandidatesHE(const std::vector<HaloClusterCandidateHCAL>& x) { thehaloclustercands_he = x; };
+      void setHaloClusterCandidatesHB(const std::vector<HaloClusterCandidateHCAL>& x) { thehaloclustercands_hb = x; };
+      void setHaloClusterCandidatesHE(const std::vector<HaloClusterCandidateHCAL>& x) { thehaloclustercands_he = x; };
 
-  private:
-    std::vector<PhiWedge> PhiWedgeCollection;
-    std::vector<HaloTowerStrip> problematicStripCollection;
-    std::vector<HaloClusterCandidateHCAL> thehaloclustercands_hb;
-    std::vector<HaloClusterCandidateHCAL> thehaloclustercands_he;
-  };
+    private:
+      std::vector<PhiWedge> PhiWedgeCollection;
+      std::vector<HaloTowerStrip> problematicStripCollection;
+      std::vector<HaloClusterCandidateHCAL> thehaloclustercands_hb;
+      std::vector<HaloClusterCandidateHCAL> thehaloclustercands_he;
+    };
+  }  // namespace io_v1
+  using HcalHaloData = io_v1::HcalHaloData;
 }  // namespace reco
 #endif

@@ -157,8 +157,6 @@ namespace reco {
     bool isConvertedPhoton() const final { return false; }
     bool isJet() const final { return false; }
 
-    CMS_CLASS_VERSION(13)
-
   protected:
     /// check overlap with another Candidate
     bool overlap(const Candidate&) const override;

@@ -2,30 +2,28 @@
   <class name="CaloRecHit" ClassVersion="10">
    <version ClassVersion="10" checksum="582597904"/>
   </class>
-  <class name="reco::CaloCluster" ClassVersion="13">
-   <version ClassVersion="10" checksum="3936140"/>
-   <version ClassVersion="11" checksum="2938838489"/>
-   <version ClassVersion="12" checksum="4229965835"/>
-   <version ClassVersion="13" checksum="3477374013"/>
+  <class name="reco::io_v1::CaloCluster" ClassVersion="3">
+   <version ClassVersion="3" checksum="2132548181"/>
   </class>
-  <class name="edm::Wrapper<std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > > >"/>
-  <class name="std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > >"/>
-  <class name="std::pair<unsigned long, edm::Ptr<reco::CaloCluster> >"/>
+  <class name="edm::Wrapper<std::vector<std::pair<unsigned long,edm::Ptr<reco::io_v1::CaloCluster> > > >"/>
+  <class name="std::vector<std::pair<unsigned long,edm::Ptr<reco::io_v1::CaloCluster> > >"/>
+  <class name="std::pair<unsigned long, edm::Ptr<reco::io_v1::CaloCluster> >"/>
   <class name="edm::Ptr<CaloRecHit>"/>
-  <class name="edm::Ptr<reco::CaloCluster>"/>
-  <class name="edm::PtrVector<reco::CaloCluster>"/>
-  <class name="edm::Wrapper<edm::PtrVector<reco::CaloCluster> >"/>
-  <class name="std::vector<edm::Ptr<reco::CaloCluster> >"/>
+  <class name="edm::Ptr<reco::io_v1::CaloCluster>"/>
+  <class name="edm::PtrVector<reco::io_v1::CaloCluster>"/>
+  <class name="edm::Wrapper<edm::PtrVector<reco::io_v1::CaloCluster> >"/>
+  <class name="std::vector<edm::Ptr<reco::io_v1::CaloCluster> >"/>
+  
   <!-- FIXME: The following 2 entries are found already in DataFormats/EgammaReco with the typedef 'reco::BasicCluster' -->
-  <!-- <class name="std::vector<reco::CaloCluster>" /> -->
-  <!-- <class name="edm::Wrapper<std::vector<reco::CaloCluster> >" /> -->
+  <!-- <class name="std::vector<reco::io_v1::CaloCluster>" /> -->
+  <!-- <class name="edm::Wrapper<std::vector<reco::io_v1::CaloCluster> >" /> -->
   <class name="reco::CaloID" ClassVersion="10">
    <version ClassVersion="10" checksum="2360607337"/>
   </class>
   <class name="edm::reftobase::BaseHolder<CaloRecHit>"/>
 
-  <class name="edm::ValueMap<reco::CaloCluster>" />
-  <class name="edm::Wrapper<edm::ValueMap<reco::CaloCluster> >" />
+  <class name="edm::ValueMap<reco::io_v1::CaloCluster>" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::io_v1::CaloCluster> >" />
 
   <class name="edm::ValueMap<reco::CaloClusterPtr>" />
   <class name="edm::ValueMap<reco::CaloClusterPtrVector>" />

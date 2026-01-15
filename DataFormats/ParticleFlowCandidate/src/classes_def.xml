@@ -1,69 +1,53 @@
 <lcgdict>
 
-   <class name="reco::PFCandidate" ClassVersion="20">
-    <version ClassVersion="20" checksum="2748489940"/>
-    <version ClassVersion="19" checksum="2990582232"/>
-    <version ClassVersion="18" checksum="910857761"/>
-    <version ClassVersion="17" checksum="3126170233"/>
-    <version ClassVersion="16" checksum="3060382005"/>
-    <version ClassVersion="15" checksum="1136968957"/>
-    <version ClassVersion="10" checksum="536762407"/>
-    <version ClassVersion="11" checksum="2503588164"/>
-    <version ClassVersion="12" checksum="2782366916"/>
-    <version ClassVersion="13" checksum="3911979988"/>
-    <version ClassVersion="14" checksum="3379420193"/>
+   <class name="reco::io_v1::PFCandidate" ClassVersion="3">
+    <version ClassVersion="3" checksum="3624191462"/>
      <field name="elementsInBlocks_" transient="true"/>
      <field name="getter_" transient="true"/>
      <field name="refsCollectionCache_" transient="true"/>
    </class>
-  <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="" target="getter_">
+  <ioread sourceClass = "reco::io_v1::PFCandidate" version="[1-]" targetClass="reco::io_v1::PFCandidate" source="" target="getter_">
     <![CDATA[edm::EDProductGetter::assignEDProductGetter(getter_); ]]>
   </ioread>
-  <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="" target="elementsInBlocks_">
+  <ioread sourceClass = "reco::io_v1::PFCandidate" version="[1-]" targetClass="reco::io_v1::PFCandidate" source="" target="elementsInBlocks_">
     <![CDATA[elementsInBlocks_ = nullptr; ]]>
   </ioread>
-  <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="std::vector<unsigned long long> refsInfo_" target="refsCollectionCache_">
+  <ioread sourceClass = "reco::io_v1::PFCandidate" version="[1-]" targetClass="reco::io_v1::PFCandidate" source="std::vector<unsigned long long> refsInfo_" target="refsCollectionCache_">
     <![CDATA[refsCollectionCache_.clear();refsCollectionCache_.resize(onfile.refsInfo_.size(),0); ]]>
   </ioread>
 
    <class name="edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> >">
      <field name="m_data" transient="true"/>
   </class>
-  <class name="std::vector<reco::PFCandidate>"/>
-  <class name="edm::Wrapper<reco::PFCandidate>"/>
-  <class name="edm::Wrapper<std::vector<reco::PFCandidate> >"/>
+  <class name="std::vector<reco::io_v1::PFCandidate>"/>
+  <class name="edm::Wrapper<reco::io_v1::PFCandidate>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::PFCandidate> >"/>
   <class name="reco::PFCandidateRef"/>
   <class name="reco::PFCandidateRefProd"/>
   <class name="reco::PFCandidateRefVector"/>
-  <class name="reco::PFCandidate::ElementInBlock"/>
-  <class name="reco::PFCandidate::ElementsInBlocks"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::PFCandidateRef>"/>
+  <class name="reco::io_v1::PFCandidate::ElementInBlock"/>
+  <class name="reco::io_v1::PFCandidate::ElementsInBlocks"/>
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::PFCandidateRef>"/>
   <class name="edm::reftobase::RefHolder<reco::PFCandidateRef>"/>
   <class name="reco::PFCandidatePtr"/>
   <class name="edm::AtomicPtrCache<reco::PFCandidatePtr>"/>
   <class name="std::vector<reco::PFCandidatePtr>"/>
-  <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
-  <class name="edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >"/>
-  <class name="std::vector<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
-  <class name="edm::Wrapper<edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > >"/>
-  <class name="edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
-  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::PFCandidate> > >"/>
-  <class name="edm::ValueMap<edm::Ptr<std::vector<reco::PFCandidate> > >"/>
-  <class name="std::vector<edm::Ptr<std::vector<reco::PFCandidate> > >"/>
-  <class name="edm::ValueMap<edm::Ptr<reco::PFCandidate> >"/>
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> > > >"/>
+  <class name="edm::ValueMap<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> > >"/>
+  <class name="std::vector<std::vector<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> > > >"/>
+  <class name="edm::Wrapper<edm::ValueMap<std::vector<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> > > > >"/>
+  <class name="edm::ValueMap<std::vector<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> > > >"/>
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::io_v1::PFCandidate> > >"/>
+  <class name="edm::ValueMap<edm::Ptr<std::vector<reco::io_v1::PFCandidate> > >"/>
+  <class name="std::vector<edm::Ptr<std::vector<reco::io_v1::PFCandidate> > >"/>
+  <class name="edm::ValueMap<edm::Ptr<reco::io_v1::PFCandidate> >"/>
   <class name="edm::reftobase::RefVectorHolder<reco::PFCandidateRefVector >"/>
-  <class name="edm::PtrVector<reco::PFCandidate> "/>
-  <class name="edm::Wrapper<edm::PtrVector<reco::PFCandidate> >"/>
+  <class name="edm::PtrVector<reco::io_v1::PFCandidate> "/>
+  <class name="edm::Wrapper<edm::PtrVector<reco::io_v1::PFCandidate> >"/>
 
-  <class name="reco::IsolatedPFCandidate"  ClassVersion="16">
-   <version ClassVersion="16" checksum="2274533749"/>
-   <version ClassVersion="15" checksum="3042264953"/>
-   <version ClassVersion="14" checksum="207328514"/>
-   <version ClassVersion="13" checksum="1855164250"/>
-   <version ClassVersion="12" checksum="2650360086"/>
-   <version ClassVersion="11" checksum="696008414"/>
-   <version ClassVersion="10" checksum="1426765407"/>
+  <class name="reco::IsolatedPFCandidate"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1014378071"/>
   </class>
   <class name="std::vector<reco::IsolatedPFCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::IsolatedPFCandidate> >"/>
@@ -72,14 +56,8 @@
   <class name="reco::IsolatedPFCandidateRefVector"/>
   <class name="reco::IsolatedPFCandidatePtr"/>
 
-  <class name="reco::PileUpPFCandidate"  ClassVersion="16">
-   <version ClassVersion="16" checksum="3331568330"/>
-   <version ClassVersion="15" checksum="953549166"/>
-   <version ClassVersion="14" checksum="4065938015"/>
-   <version ClassVersion="13" checksum="1734488695"/>
-   <version ClassVersion="12" checksum="2377890195"/>
-   <version ClassVersion="11" checksum="1422984859"/>
-   <version ClassVersion="10" checksum="1986419188"/>
+  <class name="reco::PileUpPFCandidate"  ClassVersion="3">
+   <version ClassVersion="3" checksum="4065313068"/>
   </class>
   <class name="std::vector<reco::PileUpPFCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::PileUpPFCandidate> >"/>
@@ -89,7 +67,7 @@
   <class name="reco::PileUpPFCandidatePtr"/>
 
   <class name="reco::PFCandidateFwdRef"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::PFCandidateFwdRef>"/>
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::PFCandidateFwdRef>"/>
   <class name="edm::reftobase::RefHolder<reco::PFCandidateFwdRef>"/>
   <class name="reco::PFCandidateFwdPtr"/>
   <class name="std::vector<reco::PFCandidateFwdRef>"/>
@@ -97,7 +75,7 @@
   <class name="edm::Wrapper<std::vector<reco::PFCandidateFwdPtr> >"/>
 
   <class name="reco::PFCandidateElectronExtra" ClassVersion="3">
-   <version ClassVersion="3" checksum="450244063"/>
+   <version ClassVersion="3" checksum="356094023"/>
 <!-- 
   <field name="mvaVariables_" transient="true"/>
 -->
@@ -109,7 +87,7 @@
   <class name="reco::PFCandidateElectronExtraRefVector"/>
 
   <class name="reco::PFCandidatePhotonExtra" ClassVersion="3">
-   <version ClassVersion="3" checksum="2283262343"/>
+   <version ClassVersion="3" checksum="2361815551"/>
   </class>
   <class name="std::vector<reco::PFCandidatePhotonExtra>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCandidatePhotonExtra> >"/>
@@ -135,34 +113,34 @@
   <class name="edm::Wrapper<edm::Association<reco::PFCandidateCollection> >" />
 
   
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Vertex> >,edm::RefProd<std::vector<reco::PFCandidate> > >" />  
-  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,float> > >" />
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,float> > > > " />
-  <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::Vertex>,std::vector<reco::PFCandidate>,float,unsigned int> >" >
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::io_v1::Vertex> >,edm::RefProd<std::vector<reco::io_v1::PFCandidate> > >" />  
+  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,float> > >" />
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,float> > > > " />
+  <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::io_v1::Vertex>,std::vector<reco::io_v1::PFCandidate>,float,unsigned int> >" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::Vertex>,std::vector<reco::PFCandidate>,float,unsigned int> > >" >
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::io_v1::Vertex>,std::vector<reco::io_v1::PFCandidate>,float,unsigned int> > >" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,float> >" />							
-  <class name="std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,float>" />	
-  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,int> > >" />
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,int> > > > " />
-  <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::Vertex>,std::vector<reco::PFCandidate>,int,unsigned int> >" >
+  <class name="std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,float> >" />							
+  <class name="std::pair<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,float>" />	
+  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,int> > >" />
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,int> > > > " />
+  <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::io_v1::Vertex>,std::vector<reco::io_v1::PFCandidate>,int,unsigned int> >" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::Vertex>,std::vector<reco::PFCandidate>,int,unsigned int> > >" />
-  <class name="std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,int> >" />							
-  <class name="std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,int>" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::io_v1::Vertex>,std::vector<reco::io_v1::PFCandidate>,int,unsigned int> > >" />
+  <class name="std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,int> >" />							
+  <class name="std::pair<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,int>" />
 										
 										
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFCandidate> >,edm::RefProd<std::vector<reco::Vertex> > >" />  
-  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,std::vector<std::pair<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,int> > >" />
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,std::vector<std::pair<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,int> > > > " />
-  <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::PFCandidate>,std::vector<reco::Vertex>,int,unsigned int> >" >
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::io_v1::PFCandidate> >,edm::RefProd<std::vector<reco::io_v1::Vertex> > >" />  
+  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex> >,int> > >" />
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFCandidate>,reco::io_v1::PFCandidate> >,std::vector<std::pair<edm::Ref<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Vertex>,reco::io_v1::Vertex> >,int> > > > " />
+  <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::io_v1::PFCandidate>,std::vector<reco::io_v1::Vertex>,int,unsigned int> >" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::PFCandidate>,std::vector<reco::Vertex>,int,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::io_v1::PFCandidate>,std::vector<reco::io_v1::Vertex>,int,unsigned int> > >" />
 
 </lcgdict>
  

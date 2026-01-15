@@ -1,26 +1,24 @@
 <lcgdict>
-  <class name="reco::TrackJet" ClassVersion="13">
-   <version ClassVersion="13" checksum="791871228"/>
-   <version ClassVersion="12" checksum="2485634450"/>
-   <version ClassVersion="11" checksum="4018705754"/>
-   <version ClassVersion="10" checksum="3049495721"/>
+  <class name="reco::io_v1::TrackJet" ClassVersion="3">
+   <version ClassVersion="3" checksum="87636228"/>
   </class>
-  <class name="std::vector<reco::TrackJet>"/>
-  <class name="edm::RefVector<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
-  <class name="edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
-  <class name="edm::RefProd<std::vector<reco::TrackJet> >"/>
-  <class name="edm::Wrapper<std::vector<reco::TrackJet> >"/>
+  <class name="std::vector<reco::io_v1::TrackJet>"/>
+  <class name="edm::RefVector<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet> >"/>
+  <class name="edm::Ref<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::io_v1::TrackJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::TrackJet> >"/>
   <class name="edm::Wrapper<reco::TrackJetRefVector>"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> > >" />
-  <class name="reco::JetTrackMatch<std::vector<reco::TrackJet> >"/>
-  <class name="edm::FwdRef<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::io_v1::TrackJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet> >"/>
   <class name="reco::TrackJetFwdRefVector"/>
   <class name="edm::Wrapper<reco::TrackJetFwdRefVector>"/>
-  <class name="edm::FwdPtr<reco::TrackJet>"/>
+  <class name="edm::FwdPtr<reco::io_v1::TrackJet>"/>
   <class name="reco::TrackJetFwdPtrVector"/>
   <class name="edm::Wrapper<reco::TrackJetFwdPtrVector>"/>
 
-  <class name="reco::PFClusterJet" ClassVersion="13">
+  <class name="reco::PFClusterJet" ClassVersion="14">
+   <version ClassVersion="14" checksum="2428041643"/>
    <version ClassVersion="13" checksum="2563954199"/>
    <version ClassVersion="12" checksum="2889604941"/>
    <version ClassVersion="11" checksum="3179889301"/>
@@ -32,7 +30,7 @@
   <class name="edm::RefProd<std::vector<reco::PFClusterJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::PFClusterJet> >"/>
   <class name="edm::Wrapper<reco::PFClusterJetRefVector>"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::PFClusterJet> >"/>
   <class name="edm::FwdRef<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
   <class name="reco::PFClusterJetFwdRefVector"/>
@@ -46,13 +44,13 @@
   <class name="edm::ValueMap<StoredPileupJetIdentifier>"/>
   <class name="edm::Wrapper<edm::ValueMap<StoredPileupJetIdentifier> >"/>
   
-  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::io_v1::Jet>,std::vector<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >,edm::RefToBase<reco::io_v1::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::io_v1::Jet>,std::vector<float>,edm::RefToBase<reco::io_v1::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<reco::JetExtendedAssociation::JetExtendedData>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::io_v1::Jet>,std::vector<reco::JetExtendedAssociation::io_v1::JetExtendedData>,edm::RefToBase<reco::io_v1::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
     <field name="transientVector_" transient="true"/>
   </class>
 
@@ -85,8 +83,8 @@
   <function name="reco::JetTracksAssociation::hasJet"/>
 
   <class name="edm::Wrapper<reco::JetExtendedAssociation::Container>" />
-  <class name="reco::JetExtendedAssociation::JetExtendedData" ClassVersion="10">
-   <version ClassVersion="10" checksum="2863467760"/>
+  <class name="reco::JetExtendedAssociation::io_v1::JetExtendedData" ClassVersion="3">
+   <version ClassVersion="3" checksum="2804756308"/>
   </class>
   <class name="reco::JetExtendedAssociation::Values"/>
   <class name="reco::JetExtendedAssociation::value_type"/>
@@ -103,33 +101,33 @@
   <function name="reco::JetExtendedAssociation::allJets"/>
   <function name="reco::JetExtendedAssociation::hasJet"/>
   
-  <class name="edm::RefToBaseProd<reco::Jet>" >
+  <class name="edm::RefToBaseProd<reco::io_v1::Jet>" >
      <!-- <field name="view_" transient="true" /> -->
   </class>
-  <class name="edm::RefToBase<reco::Jet>" rntupleStreamerMode="true"/>
-  <class name="edm::reftobase::BaseHolder<reco::Jet>" />
-  <class name="edm::reftobase::IndirectHolder<reco::Jet>" />
-  <class name="edm::reftobase::IndirectVectorHolder<reco::Jet>" />
-  <class name="edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> >"/>
-  <class name="edm::RefToBaseVector<reco::Jet>"/>
-  <class name="edm::Wrapper<edm::RefToBaseVector<reco::Jet> >"/>
-  <class name="edm::reftobase::BaseVectorHolder<reco::Jet>"/>
-  <class name="edm::reftobase::Holder<reco::Jet, reco::CaloJetRef>" />
+  <class name="edm::RefToBase<reco::io_v1::Jet>" rntupleStreamerMode="true"/>
+  <class name="edm::reftobase::BaseHolder<reco::io_v1::Jet>" />
+  <class name="edm::reftobase::IndirectHolder<reco::io_v1::Jet>" />
+  <class name="edm::reftobase::IndirectVectorHolder<reco::io_v1::Jet>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate,edm::RefToBase<reco::io_v1::Jet> >"/>
+  <class name="edm::RefToBaseVector<reco::io_v1::Jet>"/>
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::io_v1::Jet> >"/>
+  <class name="edm::reftobase::BaseVectorHolder<reco::io_v1::Jet>"/>
+  <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::CaloJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::CaloJetRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::GenJetRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::GenJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::GenJetRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::PFJetRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::PFJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::PFJetRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::TrackJetRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::TrackJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackJetRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::PFClusterJetRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::PFClusterJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::PFClusterJetRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::JPTJetRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Jet, reco::JPTJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::JPTJetRef>" />
 
-  <class name="edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToOne<edm::View<reco::io_v1::Jet>,edm::View<reco::io_v1::Jet>,unsigned int> >">
       <field name="transientMap_" transient="true" />
   </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> > >"/>
-  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Jet>,edm::RefToBaseProd<reco::Jet> >"/>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<reco::io_v1::Jet>,edm::View<reco::io_v1::Jet>,unsigned int> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::io_v1::Jet>,edm::RefToBaseProd<reco::io_v1::Jet> >"/>
 </lcgdict>

@@ -3,8 +3,11 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 
 namespace reco {
-  class CompositeCandidate;
-}
+  namespace io_v1 {
+    class CompositeCandidate;
+  }
+  using CompositeCandidate = io_v1::CompositeCandidate;
+}  // namespace reco
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"

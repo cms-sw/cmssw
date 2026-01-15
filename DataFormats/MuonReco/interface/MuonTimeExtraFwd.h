@@ -7,7 +7,10 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 namespace reco {
-  class MuonTimeExtra;
+  namespace io_v1 {
+    class MuonTimeExtra;
+  }
+  using MuonTimeExtra = io_v1::MuonTimeExtra;
   /// collection of MuonTimeExtra objects
 
   /*  typedef std::vector<MuonTimeExtra> MuonTimeExtraCollection;

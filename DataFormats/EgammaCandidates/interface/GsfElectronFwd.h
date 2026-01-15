@@ -10,9 +10,10 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 namespace reco {
-
-  class GsfElectron;
-
+  namespace io_v1 {
+    class GsfElectron;
+  }
+  using GsfElectron = io_v1::GsfElectron;
   /// collection of GsfElectron objects
   typedef std::vector<GsfElectron> GsfElectronCollection;
   //typedef GsfElectronCollection PixelMatchGsfElectronCollection ;

@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace reco {
-  class SuperCluster;
+  namespace io_v1 {
+    class SuperCluster;
+  }
+  using SuperCluster = io_v1::SuperCluster;
 
   /// collection of SuperCluser objectr
   typedef std::vector<SuperCluster> SuperClusterCollection;

@@ -1,10 +1,10 @@
 <lcgdict>
-  <class name="reco::ForwardProton" ClassVersion="3">
-    <version ClassVersion="3" checksum="897616683"/>
+  <class name="reco::io_v1::ForwardProton" ClassVersion="3">
+    <version ClassVersion="3" checksum="2994769763"/>
   </class>
-  <class name="std::vector<reco::ForwardProton>"/>
-  <class name="edm::Wrapper<std::vector<reco::ForwardProton> >"/>
-  <class name="edm::RefProd<std::vector<reco::ForwardProton> >"/>
-  <class name="edm::Ref<std::vector<reco::ForwardProton>,reco::ForwardProton,edm::refhelper::FindUsingAdvance<std::vector<reco::ForwardProton>,reco::ForwardProton> >"/>
-  <class name="edm::RefVector<std::vector<reco::ForwardProton>,reco::ForwardProton,edm::refhelper::FindUsingAdvance<std::vector<reco::ForwardProton>,reco::ForwardProton> >"/>
+  <class name="std::vector<reco::io_v1::ForwardProton>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::ForwardProton> >"/>
+  <class name="edm::RefProd<std::vector<reco::io_v1::ForwardProton> >"/>
+  <class name="edm::Ref<std::vector<reco::io_v1::ForwardProton>,reco::io_v1::ForwardProton,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::ForwardProton>,reco::io_v1::ForwardProton> >"/>
+  <class name="edm::RefVector<std::vector<reco::io_v1::ForwardProton>,reco::io_v1::ForwardProton,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::ForwardProton>,reco::io_v1::ForwardProton> >"/>
 </lcgdict>

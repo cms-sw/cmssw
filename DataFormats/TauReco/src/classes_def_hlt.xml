@@ -13,13 +13,13 @@
   <class name="edm::Ptr<reco::BaseTau>" />
   <class name="edm::PtrVector<reco::BaseTau>" />
 
-  <class name="edm::Ptr<reco::PFTau>" />
-  <class name="std::vector<edm::Ptr<reco::PFTau> >" />
-  <class name="edm::Wrapper<std::vector<edm::Ptr<reco::PFTau> > >" />
+  <class name="edm::Ptr<reco::io_v1::PFTau>" />
+  <class name="std::vector<edm::Ptr<reco::io_v1::PFTau> >" />
+  <class name="edm::Wrapper<std::vector<edm::Ptr<reco::io_v1::PFTau> > >" />
 
-  <class name="edm::FwdPtr<reco::PFTau>" />
-  <class name="std::vector<edm::FwdPtr<reco::PFTau> >" />
-  <class name="edm::Wrapper<std::vector<edm::FwdPtr<reco::PFTau> > >" />
+  <class name="edm::FwdPtr<reco::io_v1::PFTau>" />
+  <class name="std::vector<edm::FwdPtr<reco::io_v1::PFTau> >" />
+  <class name="edm::Wrapper<std::vector<edm::FwdPtr<reco::io_v1::PFTau> > >" />
 
   <class name="edm::FwdPtr<reco::BaseTau>" />
   <class name="std::vector<edm::FwdPtr<reco::BaseTau> >" />

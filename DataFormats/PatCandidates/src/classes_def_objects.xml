@@ -1,46 +1,34 @@
 <lcgdict>
  <selection>
   <!-- PAT Base Templates -->
-  <class name="pat::PATObject<reco::GsfElectron>" />
-  <class name="pat::PATObject<reco::Muon>" />
+  <class name="pat::PATObject<reco::io_v1::GsfElectron>" />
+  <class name="pat::PATObject<reco::io_v1::Muon>" />
   <class name="pat::PATObject<reco::BaseTau>" />
-  <class name="pat::PATObject<reco::Photon>" />
-  <class name="pat::PATObject<reco::Jet>" />
-  <class name="pat::PATObject<reco::MET>" />
+  <class name="pat::PATObject<reco::io_v1::Photon>" />
+  <class name="pat::PATObject<reco::io_v1::Jet>" />
+  <class name="pat::PATObject<reco::io_v1::MET>" />
   <class name="pat::PATObject<reco::LeafCandidate>" />
-  <class name="pat::PATObject<reco::CompositeCandidate>" />
-  <class name="pat::PATObject<reco::PFCandidate>" />
+  <class name="pat::PATObject<reco::io_v1::CompositeCandidate>" />
+  <class name="pat::PATObject<reco::io_v1::PFCandidate>" />
   <class name="pat::PATObject<reco::RecoCandidate>" />
-  <class name="pat::Lepton<reco::GsfElectron>" />
-  <class name="pat::Lepton<reco::Muon>" />
+  <class name="pat::Lepton<reco::io_v1::GsfElectron>" />
+  <class name="pat::Lepton<reco::io_v1::Muon>" />
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2417779180"/>
+   <version ClassVersion="3" checksum="3647282676"/>
    <field name="superClusterRelinked_" transient="true"/>
-   <version ClassVersion="26" checksum="2045819644"/>
-   <version ClassVersion="25" checksum="1488101799"/>
-   <version ClassVersion="24" checksum="2646043873"/>
-   <version ClassVersion="23" checksum="434577157"/>
-   <version ClassVersion="22" checksum="4113394532"/>
-   <version ClassVersion="21" checksum="366535823"/>
-   <version ClassVersion="20" checksum="4220542719"/>
-   <version ClassVersion="19" checksum="839477640"/>
-   <version ClassVersion="18" checksum="191995725"/>
-   <version ClassVersion="17" checksum="1230088720"/>
-   <version ClassVersion="15" checksum="990589145"/>
-   <version ClassVersion="10" checksum="1662079993"/>
   </class>
   <ioread sourceClass="pat::Electron" targetClass="pat::Electron" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
   <class name="pat::Muon"  ClassVersion="3">
-   <version ClassVersion="3" checksum="4185602613"/>
+   <version ClassVersion="3" checksum="1254301627"/>
   </class>
 
   <class name="pat::Tau"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1081551115"/>
+   <version ClassVersion="3" checksum="116344369"/>
    <field name="isolationTracksTransientRefVector_" transient="true"/>
    <field name="signalTracksTransientRefVector_" transient="true"/>
    <field name="signalPFCandsTransientPtrs_" transient="true"/>
@@ -53,10 +41,8 @@
    <field name="isolationPFGammaCandsTransientPtrs_" transient="true"/>
   </class>
 
-  <class name="pat::IsolatedTrack" ClassVersion="5">
-   <version ClassVersion="5" checksum="139818330"/>
-   <version ClassVersion="4" checksum="71166093"/>
-   <version ClassVersion="3" checksum="550880582"/>
+  <class name="pat::IsolatedTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="655235006"/>
   </class>
 
   <class name="pat::PFIsolation" ClassVersion="3">
@@ -94,81 +80,25 @@
   <![CDATA[isolationPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
   <class name="pat::tau::TauPFSpecific"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2664182121"/>
+   <version ClassVersion="3" checksum="4003299421"/>
   </class>
   <class name="std::vector<pat::tau::TauPFSpecific>" />
 
-  <class name="pat::tau::TauPFEssential" ClassVersion="14">
-    <version ClassVersion="14" checksum="524735083" /> 
-    <version ClassVersion="13" checksum="1052833547" />
-    <version ClassVersion="12" checksum="3865233356" /> 
-    <version ClassVersion="11" checksum="1193752112" />
-    <version ClassVersion="10" checksum="1628501942" />
+  <class name="pat::tau::TauPFEssential" ClassVersion="3">
+    <version ClassVersion="3" checksum="904488891" /> 
   </class>
-  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4Jet_" target="p4Jet_">
-          <![CDATA[ p4Jet_ = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> >(onfile.p4Jet_); ]]>
-  </ioread>
-  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4CorrJet_" target="p4CorrJet_">
-          <![CDATA[ p4CorrJet_ = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> >(onfile.p4CorrJet_); ]]>
-  </ioread>
-  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> dxy_PCA_" target="dxy_PCA_">
-          <![CDATA[ dxy_PCA_ = ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag>(onfile.dxy_PCA_); ]]>
-  </ioread>
-  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> pvPos_" target="pvPos_">
-          <![CDATA[ pvPos_ = ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag>(onfile.pvPos_); ]]>
-  </ioread>
-  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > pvCov_" target="pvCov_">
-    <![CDATA[
-       // matrices must be copied by hand
-       for (unsigned int i = 0; i < 3; ++i) { for (unsigned int j = 0; j < 3; ++j) {
-            pvCov_(i,j) = onfile.pvCov_(i,j);
-       }}
-    ]]>
-  </ioread>
-  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> flightLength_" target="flightLength_">
-          <![CDATA[ flightLength_ = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag>(onfile.flightLength_); ]]>
-  </ioread>
-  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> svPos_" target="svPos_">
-          <![CDATA[ svPos_ = ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag>(onfile.svPos_); ]]>
-  </ioread>
-  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > svCov_" target="svCov_">
-    <![CDATA[
-       // matrices must be copied by hand
-       for (unsigned int i = 0; i < 3; ++i) { for (unsigned int j = 0; j < 3; ++j) {
-            svCov_(i,j) = onfile.svCov_(i,j);
-       }}
-    ]]>
-  </ioread>
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="22">
-   <version ClassVersion="22" checksum="1415449268"/>
-   <version ClassVersion="21" checksum="3263223164"/>
-   <version ClassVersion="20" checksum="1579185367"/>
-   <version ClassVersion="19" checksum="4285818507"/>
-   <version ClassVersion="18" checksum="1413598928"/>
-   <version ClassVersion="17" checksum="2394457997"/>
+  <class name="pat::Photon"  ClassVersion="3">
+   <version ClassVersion="3" checksum="334335458"/>
    <field name="superClusterRelinked_" transient="true"/>
-   <version ClassVersion="16" checksum="344001813"/>
-   <version ClassVersion="15" checksum="3096238365"/>
-   <version ClassVersion="14" checksum="2817723713"/>
-   <version ClassVersion="13" checksum="3948496360"/>
-   <version ClassVersion="12" checksum="2518470540"/>
-   <version ClassVersion="11" checksum="3277818926"/>
-   <version ClassVersion="10" checksum="865744757"/>
   </class>
   <ioread sourceClass="pat::Photon" targetClass="pat::Photon" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Photon"  targetClass="pat::Photon" version="[-20]" target="" source="float ecalPFClusIso_;float hcalPFClusIso_">
-    <![CDATA[reco::Photon::PflowIsolationVariables pfIsoVar = newObj->getPflowIsolationVariables();
-             pfIsoVar.sumEcalClusterEt = onfile.ecalPFClusIso_;
-             pfIsoVar.sumHcalClusterEt = onfile.hcalPFClusIso_;
-             newObj->setPflowIsolationVariables(pfIsoVar);]]>
-  </ioread>
 
   <class name="pat::Jet"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1924074509"/>
+   <version ClassVersion="3" checksum="306401941"/>
    <field name="daughtersTemp_" transient="true"/>
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
@@ -182,16 +112,9 @@
   <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="daughtersTemp_">
     <![CDATA[daughtersTemp_.reset();]]>
   </ioread>
-  <class name="pat::MET"  ClassVersion="17">
-    <version ClassVersion="17" checksum="1526897576"/>
-    <version ClassVersion="16" checksum="2416242778"/>
+  <class name="pat::MET"  ClassVersion="3">
+    <version ClassVersion="3" checksum="1773211734"/>
     <field name="corMap_" transient="true"/>
-   <version ClassVersion="15" checksum="428901429"/>
-   <version ClassVersion="14" checksum="1795935545"/>
-   <version ClassVersion="13" checksum="2368359386"/>
-   <version ClassVersion="12" checksum="1474251442"/>
-   <version ClassVersion="11" checksum="1829185007"/>
-   <version ClassVersion="10" checksum="1136648776"/>
   </class>
   <class name="pat::MET::PackedMETUncertainty" ClassVersion="11">
     <version ClassVersion="11" checksum="3523936012"/>
@@ -200,37 +123,23 @@
   <class name="pat::MET::Vector2"  transient="true" />
 
   <class name="std::vector<pat::MET::PackedMETUncertainty>" />
-  <class name="pat::MHT"  ClassVersion="12">
-   <version ClassVersion="12" checksum="965016657"/>
-   <version ClassVersion="11" checksum="2562213081"/>
-   <version ClassVersion="10" checksum="2696169357"/>
+  <class name="pat::MHT"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1121416267"/>
   </class>
-  <class name="pat::Particle"  ClassVersion="12">
-   <version ClassVersion="12" checksum="1268816645"/>
-   <version ClassVersion="11" checksum="2960540813"/>
-   <version ClassVersion="10" checksum="1421351288"/>
+  <class name="pat::Particle"  ClassVersion="3">
+   <version ClassVersion="3" checksum="735620471"/>
   </class>
-  <class name="pat::CompositeCandidate"  ClassVersion="12">
-   <version ClassVersion="12" checksum="2489375362"/>
-   <version ClassVersion="11" checksum="3492108938"/>
-   <version ClassVersion="10" checksum="417284221"/>
+  <class name="pat::CompositeCandidate"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2856590720"/>
   </class>
-  <class name="pat::PFParticle"  ClassVersion="16">
-   <version ClassVersion="16" checksum="4057492004"/>
-   <version ClassVersion="15" checksum="1485536104"/>
-   <version ClassVersion="14" checksum="2795911745"/>
-   <version ClassVersion="13" checksum="223824921"/>
-   <version ClassVersion="12" checksum="4118931093"/>
-   <version ClassVersion="11" checksum="2923110109"/>
-   <version ClassVersion="10" checksum="2240381542"/>
+  <class name="pat::PFParticle"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1471957762"/>
   </class>
   <class name="pat::GenericParticle"  ClassVersion="3">
-   <version ClassVersion="3" checksum="581922746"/>
+   <version ClassVersion="3" checksum="776020708"/>
   </class>
-  <class name="pat::Hemisphere"  ClassVersion="12">
-   <version ClassVersion="12" checksum="1827958121"/>
-   <version ClassVersion="11" checksum="1034779649"/>
-   <version ClassVersion="10" checksum="2908192056"/>
+  <class name="pat::Hemisphere"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3728411613"/>
   </class>
   <class name="pat::Conversion"  ClassVersion="11">
    <version ClassVersion="11" checksum="1239840459"/>
@@ -238,33 +147,8 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="35">
-   <version ClassVersion="35" checksum="2065846728"/>
-   <version ClassVersion="34" checksum="3953181632"/>
-   <version ClassVersion="33" checksum="1092680546"/>
-   <version ClassVersion="32" checksum="926869123"/>
-   <version ClassVersion="31" checksum="1248040002"/>
-   <version ClassVersion="30" checksum="3338823671"/>
-   <version ClassVersion="29" checksum="649303924"/>
-   <version ClassVersion="28" checksum="1956349111"/>
-    <version ClassVersion="27" checksum="2418936168"/>
-    <version ClassVersion="26" checksum="2986327792"/>
-    <version ClassVersion="25" checksum="3654469025"/>
-    <version ClassVersion="24" checksum="663492232"/>
-    <version ClassVersion="23" checksum="559934341"/>
-    <version ClassVersion="22" checksum="691064527"/>
-    <version ClassVersion="21" checksum="1075665714"/>
-    <version ClassVersion="20" checksum="2078702780"/>
-    <version ClassVersion="19" checksum="359155190"/>
-    <version ClassVersion="18" checksum="4275117305"/>
-    <version ClassVersion="17" checksum="1257500115"/>
-    <version ClassVersion="16" checksum="3261782486"/>
-    <version ClassVersion="15" checksum="2118306102"/>
-    <version ClassVersion="14" checksum="1075333340"/>
-    <version ClassVersion="13" checksum="981046949"/>
-    <version ClassVersion="12" checksum="981046949"/>
-    <version ClassVersion="11" checksum="3135186025"/>
-    <version ClassVersion="10" checksum="572957881"/>
+  <class name="pat::PackedCandidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="3982189188"/>
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
     <field name="vertex_" transient="true" />
@@ -298,59 +182,13 @@
     <![CDATA[delete m_.exchange(nullptr);
     ]]>
   </ioread>
-  <ioread sourceClass="pat::PackedCandidate" source="uint16_t packedCovarianceDxyDxy_; uint16_t packedCovarianceDxyDz_; uint16_t packedCovarianceDzDz_;   int8_t packedCovarianceDlambdaDz_; int8_t packedCovarianceDphiDxy_;  int8_t packedCovarianceDptDpt_; int8_t packedCovarianceDetaDeta_;  int8_t packedCovarianceDphiDphi_ " version="[-28]" targetClass="pat::PackedCandidate"
-   target="packedCovariance_" embed="false" >
-   <![CDATA[
-            packedCovariance_.dxydxy = onfile.packedCovarianceDxyDxy_;
-            packedCovariance_.dxydz = onfile.packedCovarianceDxyDz_;
-	    packedCovariance_.dzdz = onfile.packedCovarianceDzDz_;
-	    packedCovariance_.dlambdadz = onfile.packedCovarianceDlambdaDz_;
-	    packedCovariance_.dphidxy = onfile.packedCovarianceDphiDxy_;
-            packedCovariance_.dptdpt = onfile.packedCovarianceDptDpt_;
-            packedCovariance_.detadeta = onfile.packedCovarianceDetaDeta_;
-            packedCovariance_.dphidphi = onfile.packedCovarianceDphiDphi_;
-   ]]>
-   </ioread>
-  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
-   target="packedPuppiweight_" include="DataFormats/Math/interface/liblogintpack.h">
-   <![CDATA[
-            packedPuppiweight_ = std::numeric_limits<uint8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2. + 0.5);
-   ]]>
-   </ioread>
-  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweightNoLepDiff_; int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
-   target="packedPuppiweightNoLepDiff_" include="DataFormats/Math/interface/liblogintpack.h">
-   <![CDATA[
-            packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweightNoLepDiff_+onfile.packedPuppiweight_,-2,0,64)/2. - logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2.);
-   ]]>
-   </ioread>
-  <ioread sourceClass="pat::PackedCandidate" source="int8_t hcalFraction_; int pdgId_" version="[-33]" targetClass="pat::PackedCandidate" target="rawHcalFraction_,hcalFraction_,pdgId_">
-   <![CDATA[
-      int absPdgId = abs(onfile.pdgId_);
-      if (absPdgId == 211 || absPdgId == 11 || absPdgId == 13) {
-        rawHcalFraction_ = onfile.hcalFraction_;
-        hcalFraction_ = 0;
-      } else {
-        hcalFraction_ = onfile.hcalFraction_;
-      }
-      pdgId_ = onfile.pdgId_;
-   ]]>
-   </ioread>
 
 
-  <class name="pat::PackedGenParticle" ClassVersion="12">
-    <version ClassVersion="12" checksum="2626711017"/>
-    <version ClassVersion="11" checksum="25552245"/>
-    <version ClassVersion="10" checksum="389883266"/>
+  <class name="pat::PackedGenParticle" ClassVersion="3">
+    <version ClassVersion="3" checksum="126922139"/>
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
   </class>
-  <ioread sourceClass="pat::PackedGenParticle" source="int16_t packedEta_;int16_t packedPt_;int16_t packedM_;" version="[-10]" checksum="[389883266]" targetClass="pat::PackedGenParticle"
-  	 target="packedY_" embed="false" include="DataFormats/PatCandidates/interface/ioread_packedgen.h" >
-	<![CDATA[
-	packedY_ = convertPackedEtaToPackedY(onfile.packedPt_,onfile.packedEta_,onfile.packedM_);
-	]]>
-   </ioread>
-
   <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="p4_">
     <![CDATA[delete p4_.exchange(nullptr);
     ]]>
@@ -496,17 +334,17 @@
 
   <!-- RefToBase<Candidate> from PATObjects -->
     <!-- With direct Holder -->
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::ElectronRef>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::MuonRef>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::TauRef>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::PhotonRef>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::JetRef>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::METRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::ElectronRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::MuonRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::TauRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::PhotonRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::JetRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::METRef>" />
 <!-- no reftobase needed for pat::MHT as it is filled from PAT objects -->
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::ParticleRef>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::CompositeCandidateRef>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::PFParticleRef>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::GenericParticleRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::ParticleRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::CompositeCandidateRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::PFParticleRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::GenericParticleRef>" />
     <!-- With indirect holder (RefHolder) -->
   <class name="edm::reftobase::RefHolder<pat::ElectronRef>" />
   <class name="edm::reftobase::RefHolder<pat::MuonRef>" />
@@ -523,7 +361,7 @@
 
  <!-- RefToBaseVector<Candidate> from PATObjetcs  -->
   <class name="edm::reftobase::RefVectorHolder<pat::CompositeCandidateRefVector>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::CompositeCandidateRefVector>" />
+  <class name="edm::reftobase::VectorHolder<reco::io_v1::Candidate, pat::CompositeCandidateRefVector>" />
 
   <class name="edm::RefProd<pat::PackedCandidateCollection>" />
   <class name="edm::Association<pat::PackedCandidateCollection>" />

@@ -3,8 +3,11 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 
 namespace reco {
-  class VertexCompositePtrCandidate;
-}
+  namespace io_v1 {
+    class VertexCompositePtrCandidate;
+  }
+  using VertexCompositePtrCandidate = io_v1::VertexCompositePtrCandidate;
+}  // namespace reco
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"

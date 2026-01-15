@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class PhotonCore;
+  namespace io_v1 {
+    class PhotonCore;
+  }
+  using PhotonCore = io_v1::PhotonCore;
 
   /// collectin of PhotonCore objects
   typedef std::vector<PhotonCore> PhotonCoreCollection;
