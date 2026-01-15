@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runMaterialBudgetHFNose_cfg.py geometry=D115 type=DD4hep pos=Start
 #
-#   Options for geometry D100, D115
+#   Options for geometry D115
 #   Options for type DD4hep, DDD
 #   Options for pos Start, End
 #
@@ -15,10 +15,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D100",
+                 "D115",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D100, D115")
+                  "geometry of operations: D115")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
