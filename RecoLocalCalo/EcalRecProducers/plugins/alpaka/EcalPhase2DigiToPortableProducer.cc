@@ -48,7 +48,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const uint32_t size = inputDigis.size();
 
     //create host and device Digi collections of required size
-    EcalDigiPhase2HostCollection digisHostColl{static_cast<int32_t>(size), event.queue()};
+    EcalDigiPhase2HostCollection digisHostColl{event.queue(), size};
     auto digisHostCollView = digisHostColl.view();
 
     //iterate over digis

@@ -43,7 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (const auto& token : recHitsToken_)
         num_recHits += event.get(token.first)->metadata().size();
 
-      pfRecHits_.emplace((int)num_recHits, event.queue());
+      pfRecHits_.emplace(event.queue(), num_recHits);
       *size_ = 0;
 
       if (num_recHits != 0) {

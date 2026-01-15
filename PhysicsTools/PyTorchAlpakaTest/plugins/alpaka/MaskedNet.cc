@@ -39,10 +39,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       // in/out collections
       const auto &particles = event.get(particles_token_);
       const auto batch_size = particles.const_view().metadata().size();
-      auto masked_net_output = portabletest::SimpleNetDeviceCollection(batch_size, event.queue());
+      auto masked_net_output = portabletest::SimpleNetDeviceCollection(event.queue(), batch_size);
 
       // mask
-      auto mask = portabletest::MaskDeviceCollection(batch_size, event.queue());
+      auto mask = portabletest::MaskDeviceCollection(event.queue(), batch_size);
       kernels::fillMask(event.queue(), mask);
       // note that scalar mask can be used to mask out entire batch at once (scalars are broadcasted)
       // auto scalar_mask = ScalarMaskDeviceCollection(batch_size, event.queue());

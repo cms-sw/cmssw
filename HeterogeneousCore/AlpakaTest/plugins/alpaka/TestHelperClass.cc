@@ -19,7 +19,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     portabletest::TestDeviceCollection2 const& deviceProductMulti2 = iEvent.get(getTokenMulti2_);
     portabletest::TestDeviceCollection3 const& deviceProductMulti3 = iEvent.get(getTokenMulti3_);
 
-    hostProduct_ = portabletest::TestHostCollection{deviceProduct.size(), iEvent.queue()};
+    hostProduct_ = portabletest::TestHostCollection{iEvent.queue(), deviceProduct.size()};
     hostProductMulti2_ = portabletest::TestHostCollection2{iEvent.queue(), deviceProductMulti2.size()};
     hostProductMulti3_ = portabletest::TestHostCollection3{iEvent.queue(), deviceProductMulti3.size()};
     alpaka::memcpy(iEvent.queue(), hostProduct_->buffer(), deviceProduct.const_buffer());

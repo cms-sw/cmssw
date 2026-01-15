@@ -71,7 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       size_t numberOfXtals = pedestalsData.size();
 
-      auto product = std::make_unique<EcalMultifitConditionsHost>(numberOfXtals, cms::alpakatools::host());
+      auto product = std::make_unique<EcalMultifitConditionsHost>(cms::alpakatools::host(), numberOfXtals);
       auto view = product->view();
 
       // Filling pedestals

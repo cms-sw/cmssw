@@ -100,7 +100,7 @@ void MTDSoAProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
   const auto& probK = ev.get(probKToken_);
   const auto& probP = ev.get(probPToken_);
 
-  auto MtdInfo = std::make_unique<MtdHostCollection>(tracks.size(), cms::alpakatools::host());
+  auto MtdInfo = std::make_unique<MtdHostCollection>(cms::alpakatools::host(), tracks.size());
 
   auto& MtdInfoView = MtdInfo->view();
   for (unsigned int iTrack = 0; iTrack < tracks.size(); ++iTrack) {

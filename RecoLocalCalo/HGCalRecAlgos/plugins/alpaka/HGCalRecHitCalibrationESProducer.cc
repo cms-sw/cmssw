@@ -97,7 +97,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // load dense indexing
         const uint32_t nchans = moduleIndexer.maxDataSize();  // channel-level size
-        hgcalrechit::HGCalCalibParamHost product(nchans, cms::alpakatools::host());
+        hgcalrechit::HGCalCalibParamHost product(cms::alpakatools::host(), nchans);
 
         // load calib parameters from JSON
         std::ifstream infile(filename_.fullPath().c_str());

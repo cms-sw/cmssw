@@ -745,7 +745,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     if (nStrips == 0) {
       return nStrips;
     }
-    digis_d_ = std::make_unique<SiStripDigiDevice>(nStrips, queue);
+    digis_d_ = std::make_unique<SiStripDigiDevice>(queue, nStrips);
 
     // Run the unpacking kernel
     uint32_t divider = 256u;
@@ -763,7 +763,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // dumpUnpackedStrips(queue, digis_d_.get()); // (for debugging)
 
     // Allocate and initialize the StripClustersAux collection
-    sClustersAux_d_ = std::make_unique<StripClustersAuxDevice>(nStrips, queue);
+    sClustersAux_d_ = std::make_unique<StripClustersAuxDevice>(queue, nStrips);
     // LogDebug("sClustersAux") << "Size of StripClustersAuxDevice (bytes): " << alpaka::getExtentProduct(sClustersAux_d_->buffer()) * sizeof(std::byte);
     alpaka::exec<Acc1D>(queue,
                         make_workdiv<Acc1D>(1u, 1u),
@@ -826,7 +826,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   std::unique_ptr<SiStripClusterDevice> SiStripRawToClusterAlgo::makeClusters(Queue& queue,
                                                                               const GainNoiseCals* calibs) {
     // The maximum number of clusters is set to kMaxSeedStrips
-    auto clusters_d = std::make_unique<SiStripClusterDevice>(kMaxSeedStrips_, queue);
+    auto clusters_d = std::make_unique<SiStripClusterDevice>(queue, kMaxSeedStrips_);
     clusters_d->zeroInitialise(queue);
 
     // The number of seed over which to loop for clusters is the min between the number of strips and the kMaxSeeds
@@ -901,7 +901,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   void SiStripRawToClusterAlgo::dumpUnpackedStrips(Queue& queue, SiStripDigiDevice* digis_d) {
     const int digisSize = digis_d->const_view().metadata().size();
-    auto digis_h = SiStripDigiHost(digisSize, queue);
+    auto digis_h = SiStripDigiHost(queue, digisSize);
     alpaka::memcpy(queue, digis_h.buffer(), digis_d->const_buffer());
     alpaka::wait(queue);
     std::ostringstream dumpMsg("");
@@ -923,13 +923,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                           SiStripMappingDevice* mapping_d) {
     // Store the size of the digi to avoid repetitions
     const int digisSize = digis_d->const_view().metadata().size();
-    auto digis_h = SiStripDigiHost(digisSize, queue);
+    auto digis_h = SiStripDigiHost(queue, digisSize);
     alpaka::memcpy(queue, digis_h.buffer(), digis_d->const_buffer());
     // Seed table and digis have the same size
-    auto sClustersAux_h = StripClustersAuxHost(digisSize, queue);
+    auto sClustersAux_h = StripClustersAuxHost(queue, digisSize);
     alpaka::memcpy(queue, sClustersAux_h.buffer(), sClustersAux_d->const_buffer());
     // Mapping table
-    auto mapping_h = SiStripMappingHost(mapping_d->const_view().metadata().size(), queue);
+    auto mapping_h = SiStripMappingHost(queue, mapping_d->const_view().metadata().size());
     alpaka::memcpy(queue, mapping_h.buffer(), mapping_d->const_buffer());
     alpaka::wait(queue);
 
@@ -956,11 +956,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                              bool fullDump) {
     // Store the size of the digi to avoid repetitions
     const int clustersPrealloc = clusters_d->view().metadata().size();
-    auto clusters_h = SiStripClusterHost(clustersPrealloc, queue);
+    auto clusters_h = SiStripClusterHost(queue, clustersPrealloc);
     alpaka::memcpy(queue, clusters_h.buffer(), clusters_d->const_buffer());
 
     const uint32_t nStrips = digis_d->view().metadata().size();
-    auto digis_h = SiStripDigiHost(nStrips, queue);
+    auto digis_h = SiStripDigiHost(queue, nStrips);
     alpaka::memcpy(queue, digis_h.buffer(), digis_d->const_buffer());
 
     alpaka::wait(queue);

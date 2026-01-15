@@ -81,7 +81,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const int size = hbheDigis.size() * stride;  // number of channels * stride
 
     // stack host memory in the queue
-    HostCollectionPhase0 hf5_(size, event.queue());
+    HostCollectionPhase0 hf5_(event.queue(), size);
 
     // set SoA_Scalar;
     hf5_.view().stride() = stride;
@@ -108,8 +108,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     event.emplace(digisF5HBToken_, std::move(hf5_));
 
     if (qie11Digis.empty()) {
-      event.emplace(digisF01HEToken_, 0, event.queue());
-      event.emplace(digisF3HBToken_, 0, event.queue());
+      event.emplace(digisF01HEToken_, event.queue(), 0);
+      event.emplace(digisF3HBToken_, event.queue(), 0);
 
     } else {
       auto size_f1 = 0;
@@ -133,8 +133,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto const stride01 = nsamples * QIE11DataFrame::WORDS_PER_SAMPLE + QIE11DataFrame::HEADER_WORDS;
 
       // stack host memory in the queue
-      HostCollectionPhase1 hf1_(size_f1, event.queue());
-      HostCollectionPhase1 hf3_(size_f3, event.queue());
+      HostCollectionPhase1 hf1_(event.queue(), size_f1);
+      HostCollectionPhase1 hf3_(event.queue(), size_f3);
 
       // set SoA_Scalar;
       hf1_.view().stride() = stride01;

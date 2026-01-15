@@ -11,7 +11,7 @@
 
 namespace reco {
   template <typename TDev>
-  using ZVertexDevice = PortableDeviceCollection<reco::ZVertexBlocks, TDev>;
+  using ZVertexDevice = PortableDeviceCollection<TDev, reco::ZVertexBlocks>;
 }  // namespace reco
 
 #endif  // DataFormats_VertexSoA_interface_ZVertexDevice_h

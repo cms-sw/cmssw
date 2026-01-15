@@ -25,7 +25,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))} {}
 
     void acquire(device::Event const& iEvent, device::EventSetup const& iSetup) override {
-      deviceProduct_ = std::make_unique<portabletest::TestDeviceCollection>(size_, iEvent.queue());
+      deviceProduct_ = std::make_unique<portabletest::TestDeviceCollection>(iEvent.queue(), size_);
 
       // run the algorithm, potentially asynchronously
       algo_.fill(iEvent.queue(), *deviceProduct_);
