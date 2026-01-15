@@ -9,6 +9,7 @@
 #include <memory>
 #include <boost/property_tree/json_parser.hpp>
 #include <cmath>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -46,7 +47,6 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 
 #include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"

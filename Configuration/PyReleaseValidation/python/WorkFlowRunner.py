@@ -60,24 +60,35 @@ class WorkFlowRunner(Thread):
         return ret
     
     @staticmethod
-    def replace_filein_extensions(command_line, extension):
+    def replace_filein_extensions(command_line, outputExtensionForStep, defaultExtension, fileOption='--filein'):
         # Pattern to match --filein followed by file:file.ext entries (comma-separated)
         filein_pattern = re.compile(
-            r'(--filein\s+)((?:file:[a-zA-Z0-9_]+\.[a-z]+(?:,\s*)?)*)'
+            r'('+fileOption+r'\s+)((?:file:[a-zA-Z0-9_]+\.[a-z]+(?:,\s*)?)*)'
         )
 
-        # Inner pattern to match individual file entries
-        file_pattern = re.compile(r'file:([a-zA-Z0-9_]+)\.[a-z]+')
+        # Inner patterns to match individual file entries
+        # For stepN naming need to know the N
+        file_pattern_step = re.compile('file:step([1-9]+)(_[a-zA-Z]+)?\.[a-z]+')
+        # Some ALCA steps use special file names without stepN, those
+        # are assumed to use the default extension
+        file_pattern_gen = re.compile(r'file:([a-zA-Z0-9_]+)\.[a-z]+')
 
         def replace_filein_match(filein_match):
             filein_prefix = filein_match.group(1)
             file_list_str = filein_match.group(2)
 
             # Replace extensions in the file list
-            new_file_list = file_pattern.sub(
-                lambda m: 'file:{0}{1}'.format(m.group(1), extension),
-                file_list_str
-            )
+            m = file_pattern_step.search(file_list_str)
+            if m:
+                new_file_list = file_pattern_step.sub(
+                    lambda m: 'file:step{0}{1}{2}'.format(m.group(1), m.group(2) or "", outputExtensionForStep[int(m.group(1))]),
+                    file_list_str
+                )
+            else:
+                new_file_list = file_pattern_gen.sub(
+                    lambda m: 'file:{0}{1}'.format(m.group(1), defaultExtension),
+                    file_list_str
+                )
 
             return filein_prefix + new_file_list
 
@@ -116,6 +127,21 @@ class WorkFlowRunner(Thread):
 
         def closeCmd(i,ID):
             return ' > %s 2>&1; ' % ('step%d_'%(i,)+ID+'.log ',)
+
+        # For --secondfilein the primary and secondary files must have
+        # the same format (TTree or RNTuple). For now find the last
+        # step that uses --secondfilein, and use TTree for all steps
+        # up to that step. Theoretically we could identify the exact
+        # steps that need TTree output in this case, but given the way
+        # --secondfilein is being used now, and the deployment plan
+        # for RNTuple for HL-LHC, that complexity does not seem worth it.
+        lastStepWithSecondFileIn = None
+        if self.useRNTuple:
+            for (istepmone,com) in enumerate(self.wf.cmds):
+                # I don't know what to do in case com is something else
+                if isinstance(com, str):
+                    if "--secondfilein" in com:
+                        lastStepWithSecondFileIn = istepmone+1
 
         inFile=None
         lumiRangeFile=None
@@ -192,7 +218,8 @@ class WorkFlowRunner(Thread):
 
                 cmd += com
 
-                if self.useRNTuple:
+                if self.useRNTuple and not \
+                   (lastStepWithSecondFileIn is not None and istep < lastStepWithSecondFileIn):
                     cmd+=' --rntuple_out'
                 if self.startFrom:
                     steps = cmd.split("-s ")[1].split(" ")[0]
@@ -229,16 +256,19 @@ class WorkFlowRunner(Thread):
                     if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd) and not 'FASTSIM' in cmd:
                         steps = cmd.split("-s ")[1].split(" ")[0] ## relying on the syntax: cmsDriver -s STEPS --otherFlags
                         if "ALCA" not in steps:
-                            cmd+=' --filein  file:step%s%s '%(istep-1,extension)
+                            cmd+=' --filein  file:step%s%s '%(istep-1,outputExtensionForStep[istep-1])
                         elif "ALCA" in steps and "RECO" in steps:
-                            cmd+=' --filein  file:step%s%s '%(istep-1,extension)
+                            cmd+=' --filein  file:step%s%s '%(istep-1,outputExtensionForStep[istep-1])
                         elif self.recoOutput:
                             cmd+=' --filein %s'%(self.recoOutput)
                         else:
-                            cmd+=' --filein  file:step%s%s '%(istep-1,extension)
+                            cmd+=' --filein  file:step%s%s '%(istep-1,outputExtensionForStep[istep-1])
                     elif istep!=1 and '--filein' in cmd and '--filetype' not in cmd:
                         # make sure correct extension is being used
-                        cmd = self.replace_filein_extensions(cmd, extension)
+                        cmd = self.replace_filein_extensions(cmd, outputExtensionForStep, extension)
+                    if '--pileup_input' in cmd and '--filetype' not in cmd:
+                        # make sure correct extension is being used
+                        cmd = self.replace_filein_extensions(cmd, outputExtensionForStep, extension, fileOption='--pileup_input')
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s%s '%(istep,extension)
                         if "RECO" in cmd:
