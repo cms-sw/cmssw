@@ -228,12 +228,8 @@ double EvolutionECAL::InducedAbsorptionEM(double lumi, double eta) {
   double mu_max = 2.0;
   double alpha1 = 3.41488e+00;
 
-  std::unique_ptr<TF1> ftmp1 = std::make_unique<TF1>("ftmp1",
-                                                     this,
-                                                     &EvolutionECAL::EquilibriumFractionColorCentersEM,
-                                                     0.0,
-                                                     22.0,
-                                                     3);
+  std::unique_ptr<TF1> ftmp1 = std::make_unique<TF1>(
+      "ftmp1", this, &EvolutionECAL::EquilibriumFractionColorCentersEM, 0.0, 22.0, 3, 1, TF1::EAddToList::kNo);
   ftmp1->SetParameters(lumi, eta, alpha1);
   double muEM = mu_max * ftmp1->Integral(0.0, 22.0) / 22.0;
 
