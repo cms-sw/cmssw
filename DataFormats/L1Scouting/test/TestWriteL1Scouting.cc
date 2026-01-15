@@ -19,7 +19,6 @@
 #include <vector>
 
 namespace edmtest {
-  using namespace l1ScoutingRun3;
   class TestWriteL1Scouting : public edm::global::EDProducer<> {
   public:
     TestWriteL1Scouting(edm::ParameterSet const&);

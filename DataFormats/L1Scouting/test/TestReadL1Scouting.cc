@@ -20,7 +20,6 @@
 #include <vector>
 
 namespace edmtest {
-  using namespace l1ScoutingRun3;
   class TestReadL1Scouting : public edm::global::EDAnalyzer<> {
   public:
     TestReadL1Scouting(edm::ParameterSet const&);

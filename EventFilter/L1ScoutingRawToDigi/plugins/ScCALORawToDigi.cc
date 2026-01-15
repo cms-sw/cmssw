@@ -1,43 +1,39 @@
 #include "EventFilter/L1ScoutingRawToDigi/plugins/ScCALORawToDigi.h"
 
 ScCaloRawToDigi::ScCaloRawToDigi(const edm::ParameterSet& iConfig) {
-  using namespace edm;
-  using namespace l1ScoutingRun3;
-  srcInputTag_ = iConfig.getParameter<InputTag>("srcInputTag");
+  srcInputTag_ = iConfig.getParameter<edm::InputTag>("srcInputTag");
   enableAllSums_ = iConfig.getParameter<bool>("enableAllSums");
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
   dataSourceConfig_ = iConfig.getParameter<edm::ParameterSet>("dataSource");
   rawToken_ = consumes<SDSRawDataCollection>(srcInputTag_);
 
-  orbitBufferJets_ = std::vector<std::vector<Jet>>(3565);
-  orbitBufferEGammas_ = std::vector<std::vector<EGamma>>(3565);
-  orbitBufferTaus_ = std::vector<std::vector<Tau>>(3565);
-  orbitBufferEtSums_ = std::vector<std::vector<BxSums>>(3565);
+  orbitBufferJets_ = std::vector<std::vector<l1ScoutingRun3::Jet>>(3565);
+  orbitBufferEGammas_ = std::vector<std::vector<l1ScoutingRun3::EGamma>>(3565);
+  orbitBufferTaus_ = std::vector<std::vector<l1ScoutingRun3::Tau>>(3565);
+  orbitBufferEtSums_ = std::vector<std::vector<l1ScoutingRun3::BxSums>>(3565);
 
   nJetsOrbit_ = 0;
   nEGammasOrbit_ = 0;
   nTausOrbit_ = 0;
   nEtSumsOrbit_ = 0;
 
-  produces<JetOrbitCollection>("Jet").setBranchAlias("JetOrbitCollection");
-  produces<TauOrbitCollection>("Tau").setBranchAlias("TauOrbitCollection");
-  produces<EGammaOrbitCollection>("EGamma").setBranchAlias("EGammaOrbitCollection");
-  produces<BxSumsOrbitCollection>("EtSum").setBranchAlias("BxSumsOrbitCollection");
+  produces<l1ScoutingRun3::JetOrbitCollection>("Jet").setBranchAlias("JetOrbitCollection");
+  produces<l1ScoutingRun3::TauOrbitCollection>("Tau").setBranchAlias("TauOrbitCollection");
+  produces<l1ScoutingRun3::EGammaOrbitCollection>("EGamma").setBranchAlias("EGammaOrbitCollection");
+  produces<l1ScoutingRun3::BxSumsOrbitCollection>("EtSum").setBranchAlias("BxSumsOrbitCollection");
 }
 
 ScCaloRawToDigi::~ScCaloRawToDigi() {}
 
 void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-  using namespace l1ScoutingRun3;
 
-  Handle<SDSRawDataCollection> ScoutingRawDataCollection;
+  edm::Handle<SDSRawDataCollection> ScoutingRawDataCollection;
   iEvent.getByToken(rawToken_, ScoutingRawDataCollection);
 
-  std::unique_ptr<JetOrbitCollection> unpackedJets(new JetOrbitCollection);
-  std::unique_ptr<TauOrbitCollection> unpackedTaus(new TauOrbitCollection);
-  std::unique_ptr<EGammaOrbitCollection> unpackedEGammas(new EGammaOrbitCollection);
-  std::unique_ptr<BxSumsOrbitCollection> unpackedEtSums(new BxSumsOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::JetOrbitCollection> unpackedJets(new l1ScoutingRun3::JetOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::TauOrbitCollection> unpackedTaus(new l1ScoutingRun3::TauOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::EGammaOrbitCollection> unpackedEGammas(new l1ScoutingRun3::EGammaOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::BxSumsOrbitCollection> unpackedEtSums(new l1ScoutingRun3::BxSumsOrbitCollection);
 
   // reset counters
   nJetsOrbit_ = 0;
@@ -87,7 +83,6 @@ void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void ScCaloRawToDigi::unpackOrbitFromDMA(edm::Handle<SDSRawDataCollection>& ScoutingRawDataCollection, int sourceId) {
-  using namespace l1ScoutingRun3;
 
   const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(sourceId);
   if ((sourceRawData.size() == 0) && debug_) {
@@ -101,10 +96,10 @@ void ScCaloRawToDigi::unpackOrbitFromDMA(edm::Handle<SDSRawDataCollection>& Scou
   size_t pos = 0;
 
   while (pos < len) {
-    assert(pos + sizeof(demux::dmaBlock) <= len);
+    assert(pos + sizeof(l1ScoutingRun3::demux::dmaBlock) <= len);
 
-    demux::dmaBlock* bl = (demux::dmaBlock*)(buf + pos);
-    pos += sizeof(demux::dmaBlock);
+    l1ScoutingRun3::demux::dmaBlock* bl = (l1ScoutingRun3::demux::dmaBlock*)(buf + pos);
+    pos += sizeof(l1ScoutingRun3::demux::dmaBlock);
 
     assert(pos <= len);
     uint32_t orbit = bl->orbit & 0x7FFFFFFF;
@@ -155,7 +150,6 @@ void ScCaloRawToDigi::unpackOrbitFromDMA(edm::Handle<SDSRawDataCollection>& Scou
 void ScCaloRawToDigi::unpackTcpData(edm::Handle<SDSRawDataCollection>& ScoutingRawDataCollection,
                                     std::vector<int> sourceList,
                                     CaloObjectType dataType) {
-  using namespace l1ScoutingRun3;
   for (const int& sourceId : sourceList) {
     if ((sourceId < SDSNumbering::CaloTCPMinSDSID) || (sourceId > SDSNumbering::CaloTCPMaxSDSID)) {
       edm::LogWarning("ScCaloRawToDIgi::unpackTCPData")
@@ -176,7 +170,6 @@ void ScCaloRawToDigi::unpackTcpData(edm::Handle<SDSRawDataCollection>& ScoutingR
 }
 
 void ScCaloRawToDigi::unpackOrbitFromTCP(const unsigned char* buf, size_t len, CaloObjectType dataType) {
-  using namespace l1ScoutingRun3;
   size_t pos = 0;
 
   while (pos < len) {
@@ -185,15 +178,15 @@ void ScCaloRawToDigi::unpackOrbitFromTCP(const unsigned char* buf, size_t len, C
 
     // unpack calo sums block
     if (dataType == CaloObjectType::EtSum) {
-      demux::caloSumTcpBlock* bl = (demux::caloSumTcpBlock*)(buf + pos);
-      pos += sizeof(demux::caloSumTcpBlock);
+      l1ScoutingRun3::demux::caloSumTcpBlock* bl = (l1ScoutingRun3::demux::caloSumTcpBlock*)(buf + pos);
+      pos += sizeof(l1ScoutingRun3::demux::caloSumTcpBlock);
       assert(pos <= len);
       if (debug_)
         std::cout << "Sums BX -> " << bl->bx << std::endl;
       unpackEtSums(bl->sum, bl->bx);
     } else {
       // unpack jet/eg/tau
-      demux::caloObjTcpBlock* bl = (demux::caloObjTcpBlock*)(buf + pos);
+      l1ScoutingRun3::demux::caloObjTcpBlock* bl = (l1ScoutingRun3::demux::caloObjTcpBlock*)(buf + pos);
       int nObj = (bl->header) & 0xff;
       pos += 12 + nObj * 4;
 
@@ -227,91 +220,87 @@ void ScCaloRawToDigi::unpackOrbitFromTCP(const unsigned char* buf, size_t len, C
 }
 
 void ScCaloRawToDigi::unpackJets(uint32_t* dataBlock, int bx, int nObjets) {
-  using namespace l1ScoutingRun3;
 
   int32_t ET(0), Eta(0), Phi(0), Qual(0);
   for (int i = 0; i < nObjets; i++) {
-    ET = ((dataBlock[i] >> demux::shiftsJet::ET) & demux::masksJet::ET);
+    ET = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsJet::ET) & l1ScoutingRun3::demux::masksJet::ET);
 
     if (ET != 0) {
-      Eta = ((dataBlock[i] >> demux::shiftsJet::eta) & demux::masksJet::eta);
-      Phi = ((dataBlock[i] >> demux::shiftsJet::phi) & demux::masksJet::phi);
-      Qual = ((dataBlock[i] >> demux::shiftsJet::qual) & demux::masksJet::qual);
+      Eta = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsJet::eta) & l1ScoutingRun3::demux::masksJet::eta);
+      Phi = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsJet::phi) & l1ScoutingRun3::demux::masksJet::phi);
+      Qual = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsJet::qual) & l1ScoutingRun3::demux::masksJet::qual);
 
       if (Eta > 127)
         Eta = Eta - 256;
 
-      Jet jet(ET, Eta, Phi, Qual);
+      l1ScoutingRun3::Jet jet(ET, Eta, Phi, Qual);
       orbitBufferJets_[bx].push_back(jet);
       nJetsOrbit_++;
 
       if (debug_) {
         std::cout << "Jet " << i << std::endl;
         std::cout << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << std::endl;
-        printJet(jet);
+        l1ScoutingRun3::printJet(jet);
       }
     }
   }  // end link jets unpacking loop
 }
 
 void ScCaloRawToDigi::unpackEGammas(uint32_t* dataBlock, int bx, int nObjets) {
-  using namespace l1ScoutingRun3;
 
   int32_t ET(0), Eta(0), Phi(0), Iso(0);
   for (int i = 0; i < nObjets; i++) {
-    ET = ((dataBlock[i] >> demux::shiftsEGamma::ET) & demux::masksEGamma::ET);
+    ET = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsEGamma::ET) & l1ScoutingRun3::demux::masksEGamma::ET);
     if (ET != 0) {
-      Eta = ((dataBlock[i] >> demux::shiftsEGamma::eta) & demux::masksEGamma::eta);
-      Phi = ((dataBlock[i] >> demux::shiftsEGamma::phi) & demux::masksEGamma::phi);
-      Iso = ((dataBlock[i] >> demux::shiftsEGamma::iso) & demux::masksEGamma::iso);
+      Eta = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsEGamma::eta) & l1ScoutingRun3::demux::masksEGamma::eta);
+      Phi = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsEGamma::phi) & l1ScoutingRun3::demux::masksEGamma::phi);
+      Iso = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsEGamma::iso) & l1ScoutingRun3::demux::masksEGamma::iso);
 
       if (Eta > 127)
         Eta = Eta - 256;
 
-      EGamma eGamma(ET, Eta, Phi, Iso);
+      l1ScoutingRun3::EGamma eGamma(ET, Eta, Phi, Iso);
       orbitBufferEGammas_[bx].push_back(eGamma);
       nEGammasOrbit_++;
 
       if (debug_) {
         std::cout << "E/g " << i << std::endl;
         std::cout << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << std::endl;
-        printEGamma(eGamma);
+        l1ScoutingRun3::printEGamma(eGamma);
       }
     }
   }  // end link e/gammas unpacking loop
 }
 
 void ScCaloRawToDigi::unpackTaus(uint32_t* dataBlock, int bx, int nObjets) {
-  using namespace l1ScoutingRun3;
 
   int32_t ET(0), Eta(0), Phi(0), Iso(0);
   for (int i = 0; i < nObjets; i++) {
-    ET = ((dataBlock[i] >> demux::shiftsTau::ET) & demux::masksTau::ET);
+    ET = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsTau::ET) & l1ScoutingRun3::demux::masksTau::ET);
     if (ET != 0) {
-      Eta = ((dataBlock[i] >> demux::shiftsTau::eta) & demux::masksTau::eta);
-      Phi = ((dataBlock[i] >> demux::shiftsTau::phi) & demux::masksTau::phi);
-      Iso = ((dataBlock[i] >> demux::shiftsTau::iso) & demux::masksTau::iso);
+      Eta = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsTau::eta) & l1ScoutingRun3::demux::masksTau::eta);
+      Phi = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsTau::phi) & l1ScoutingRun3::demux::masksTau::phi);
+      Iso = ((dataBlock[i] >> l1ScoutingRun3::demux::shiftsTau::iso) & l1ScoutingRun3::demux::masksTau::iso);
 
       if (Eta > 127)
         Eta = Eta - 256;
 
-      Tau tau(ET, Eta, Phi, Iso);
+      l1ScoutingRun3::Tau tau(ET, Eta, Phi, Iso);
       orbitBufferTaus_[bx].push_back(tau);
       nTausOrbit_++;
 
       if (debug_) {
         std::cout << "Tau " << i << std::endl;
         std::cout << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << std::endl;
-        printTau(tau);
+        l1ScoutingRun3::printTau(tau);
       }
     }
   }  // end link taus unpacking loop
 }
 
 void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
-  using namespace l1ScoutingRun3;
 
-  BxSums bxSums;
+  l1ScoutingRun3::BxSums bxSums;
 
   int32_t ETEt(0), ETEttem(0), ETMinBiasHFP0(0);                                // ET block
   int32_t HTEt(0), HTtowerCount(0), HTMinBiasHFM0(0);                           // HT block
@@ -321,20 +310,20 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
   int32_t HTHFmissEt(0), HTHFmissPhi(0), HTHFmissASYMHTHF(0), HTHFmissCENT(0);  // HTHFMiss block
 
   // ET block
-  ETEt = ((dataBlock[0] >> demux::shiftsESums::ETEt) & demux::masksESums::ETEt);
-  ETEttem = ((dataBlock[0] >> demux::shiftsESums::ETEttem) & demux::masksESums::ETEttem);
+  ETEt = ((dataBlock[0] >> l1ScoutingRun3::demux::shiftsESums::ETEt) & l1ScoutingRun3::demux::masksESums::ETEt);
+  ETEttem = ((dataBlock[0] >> l1ScoutingRun3::demux::shiftsESums::ETEttem) & l1ScoutingRun3::demux::masksESums::ETEttem);
 
   bxSums.setHwTotalEt(ETEt);
   bxSums.setHwTotalEtEm(ETEttem);
 
   // HT block
-  HTEt = ((dataBlock[1] >> demux::shiftsESums::HTEt) & demux::masksESums::HTEt);
+  HTEt = ((dataBlock[1] >> l1ScoutingRun3::demux::shiftsESums::HTEt) & l1ScoutingRun3::demux::masksESums::HTEt);
 
   bxSums.setHwTotalHt(HTEt);
 
   // ETMiss block
-  ETmissEt = ((dataBlock[2] >> demux::shiftsESums::ETmissEt) & demux::masksESums::ETmissEt);
-  ETmissPhi = ((dataBlock[2] >> demux::shiftsESums::ETmissPhi) & demux::masksESums::ETmissPhi);
+  ETmissEt = ((dataBlock[2] >> l1ScoutingRun3::demux::shiftsESums::ETmissEt) & l1ScoutingRun3::demux::masksESums::ETmissEt);
+  ETmissPhi = ((dataBlock[2] >> l1ScoutingRun3::demux::shiftsESums::ETmissPhi) & l1ScoutingRun3::demux::masksESums::ETmissPhi);
 
   if (ETmissEt > 0) {
     bxSums.setHwMissEt(ETmissEt);
@@ -342,8 +331,8 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
   }
 
   // HTMiss block
-  HTmissEt = ((dataBlock[3] >> demux::shiftsESums::HTmissEt) & demux::masksESums::HTmissEt);
-  HTmissPhi = ((dataBlock[3] >> demux::shiftsESums::HTmissPhi) & demux::masksESums::HTmissPhi);
+  HTmissEt = ((dataBlock[3] >> l1ScoutingRun3::demux::shiftsESums::HTmissEt) & l1ScoutingRun3::demux::masksESums::HTmissEt);
+  HTmissPhi = ((dataBlock[3] >> l1ScoutingRun3::demux::shiftsESums::HTmissPhi) & l1ScoutingRun3::demux::masksESums::HTmissPhi);
 
   if (HTmissEt > 0) {
     bxSums.setHwMissHt(HTmissEt);
@@ -351,8 +340,8 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
   }
 
   // ETHFMiss block
-  ETHFmissEt = ((dataBlock[4] >> demux::shiftsESums::ETHFmissEt) & demux::masksESums::ETHFmissEt);
-  ETHFmissPhi = ((dataBlock[4] >> demux::shiftsESums::ETHFmissPhi) & demux::masksESums::ETHFmissPhi);
+  ETHFmissEt = ((dataBlock[4] >> l1ScoutingRun3::demux::shiftsESums::ETHFmissEt) & l1ScoutingRun3::demux::masksESums::ETHFmissEt);
+  ETHFmissPhi = ((dataBlock[4] >> l1ScoutingRun3::demux::shiftsESums::ETHFmissPhi) & l1ScoutingRun3::demux::masksESums::ETHFmissPhi);
 
   if (ETHFmissEt > 0) {
     bxSums.setHwMissEtHF(ETHFmissEt);
@@ -360,8 +349,8 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
   }
 
   // HTHFMiss block
-  HTHFmissEt = ((dataBlock[5] >> demux::shiftsESums::ETHFmissEt) & demux::masksESums::ETHFmissEt);
-  HTHFmissPhi = ((dataBlock[5] >> demux::shiftsESums::ETHFmissPhi) & demux::masksESums::ETHFmissPhi);
+  HTHFmissEt = ((dataBlock[5] >> l1ScoutingRun3::demux::shiftsESums::ETHFmissEt) & l1ScoutingRun3::demux::masksESums::ETHFmissEt);
+  HTHFmissPhi = ((dataBlock[5] >> l1ScoutingRun3::demux::shiftsESums::ETHFmissPhi) & l1ScoutingRun3::demux::masksESums::ETHFmissPhi);
 
   if (HTHFmissEt > 0) {
     bxSums.setHwMissHtHF(HTHFmissEt);
@@ -371,38 +360,38 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
   // Insert additional sums
   if (enableAllSums_) {
     // ET block
-    ETMinBiasHFP0 = ((dataBlock[0] >> demux::shiftsESums::ETMinBiasHF) & demux::masksESums::ETMinBiasHF);
+    ETMinBiasHFP0 = ((dataBlock[0] >> l1ScoutingRun3::demux::shiftsESums::ETMinBiasHF) & l1ScoutingRun3::demux::masksESums::ETMinBiasHF);
     bxSums.setMinBiasHFP0(ETMinBiasHFP0);
 
     // HT block
-    HTtowerCount = ((dataBlock[1] >> demux::shiftsESums::HTtowerCount) & demux::masksESums::HTtowerCount);
-    HTMinBiasHFM0 = ((dataBlock[1] >> demux::shiftsESums::HTMinBiasHF) & demux::masksESums::HTMinBiasHF);
+    HTtowerCount = ((dataBlock[1] >> l1ScoutingRun3::demux::shiftsESums::HTtowerCount) & l1ScoutingRun3::demux::masksESums::HTtowerCount);
+    HTMinBiasHFM0 = ((dataBlock[1] >> l1ScoutingRun3::demux::shiftsESums::HTMinBiasHF) & l1ScoutingRun3::demux::masksESums::HTMinBiasHF);
 
     bxSums.setTowerCount(HTtowerCount);
     bxSums.setMinBiasHFM0(HTMinBiasHFM0);
 
     // ET Miss block
-    ETmissASYMET = ((dataBlock[2] >> demux::shiftsESums::ETmissASYMET) & demux::masksESums::ETmissASYMET);
-    ETmissMinBiasHFP1 = ((dataBlock[2] >> demux::shiftsESums::ETmissMinBiasHF) & demux::masksESums::ETmissMinBiasHF);
+    ETmissASYMET = ((dataBlock[2] >> l1ScoutingRun3::demux::shiftsESums::ETmissASYMET) & l1ScoutingRun3::demux::masksESums::ETmissASYMET);
+    ETmissMinBiasHFP1 = ((dataBlock[2] >> l1ScoutingRun3::demux::shiftsESums::ETmissMinBiasHF) & l1ScoutingRun3::demux::masksESums::ETmissMinBiasHF);
     bxSums.setHwAsymEt(ETmissASYMET);
     bxSums.setMinBiasHFP1(ETmissMinBiasHFP1);
 
     // HT Miss block
-    HTmissASYMHT = ((dataBlock[3] >> demux::shiftsESums::HTmissASYMHT) & demux::masksESums::HTmissASYMHT);
-    HTmissMinBiasHFM1 = ((dataBlock[3] >> demux::shiftsESums::HTmissMinBiasHF) & demux::masksESums::HTmissMinBiasHF);
+    HTmissASYMHT = ((dataBlock[3] >> l1ScoutingRun3::demux::shiftsESums::HTmissASYMHT) & l1ScoutingRun3::demux::masksESums::HTmissASYMHT);
+    HTmissMinBiasHFM1 = ((dataBlock[3] >> l1ScoutingRun3::demux::shiftsESums::HTmissMinBiasHF) & l1ScoutingRun3::demux::masksESums::HTmissMinBiasHF);
 
     bxSums.setHwAsymHt(HTmissASYMHT);
     bxSums.setMinBiasHFM1(HTmissMinBiasHFM1);
 
     // ETHFMiss
-    ETHFmissASYMETHF = ((dataBlock[4] >> demux::shiftsESums::ETHFmissASYMETHF) & demux::masksESums::ETHFmissASYMETHF);
-    ETHFmissCENT = ((dataBlock[4] >> demux::shiftsESums::ETHFmissCENT) & demux::masksESums::ETHFmissCENT);
+    ETHFmissASYMETHF = ((dataBlock[4] >> l1ScoutingRun3::demux::shiftsESums::ETHFmissASYMETHF) & l1ScoutingRun3::demux::masksESums::ETHFmissASYMETHF);
+    ETHFmissCENT = ((dataBlock[4] >> l1ScoutingRun3::demux::shiftsESums::ETHFmissCENT) & l1ScoutingRun3::demux::masksESums::ETHFmissCENT);
 
     bxSums.setHwAsymEtHF(ETHFmissASYMETHF);
 
     // HTHFMiss
-    HTHFmissASYMHTHF = ((dataBlock[5] >> demux::shiftsESums::ETHFmissASYMETHF) & demux::masksESums::ETHFmissASYMETHF);
-    HTHFmissCENT = ((dataBlock[5] >> demux::shiftsESums::ETHFmissCENT) & demux::masksESums::ETHFmissCENT);
+    HTHFmissASYMHTHF = ((dataBlock[5] >> l1ScoutingRun3::demux::shiftsESums::ETHFmissASYMETHF) & l1ScoutingRun3::demux::masksESums::ETHFmissASYMETHF);
+    HTHFmissCENT = ((dataBlock[5] >> l1ScoutingRun3::demux::shiftsESums::ETHFmissCENT) & l1ScoutingRun3::demux::masksESums::ETHFmissCENT);
 
     bxSums.setHwAsymHtHF(HTHFmissASYMHTHF);
     bxSums.setCentrality((HTHFmissCENT << 4) + ETHFmissCENT);
@@ -416,7 +405,7 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
     for (int frame = 0; frame < 6; frame++) {
       std::cout << "  frame " << frame << ": 0x" << std::hex << dataBlock[frame] << std::dec << std::endl;
     }
-    printBxSums(bxSums);
+    l1ScoutingRun3::printBxSums(bxSums);
   }
 }
 

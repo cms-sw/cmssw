@@ -1,8 +1,7 @@
 #include "EventFilter/L1ScoutingRawToDigi/plugins/ScBMTFRawToDigi.h"
 
 ScBMTFRawToDigi::ScBMTFRawToDigi(const edm::ParameterSet& iConfig) {
-  using namespace edm;
-  srcInputTag_ = iConfig.getParameter<InputTag>("srcInputTag");
+  srcInputTag_ = iConfig.getParameter<edm::InputTag>("srcInputTag");
   sourceIdList_ = iConfig.getParameter<std::vector<int>>("sourceIdList");
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
@@ -20,9 +19,8 @@ ScBMTFRawToDigi::ScBMTFRawToDigi(const edm::ParameterSet& iConfig) {
 ScBMTFRawToDigi::~ScBMTFRawToDigi() {}
 
 void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
 
-  Handle<SDSRawDataCollection> ScoutingRawDataCollection;
+  edm::Handle<SDSRawDataCollection> ScoutingRawDataCollection;
   iEvent.getByToken(rawToken_, ScoutingRawDataCollection);
 
   std::unique_ptr<l1ScoutingRun3::BMTFStubOrbitCollection> unpackedStubs(new l1ScoutingRun3::BMTFStubOrbitCollection);
@@ -51,7 +49,6 @@ void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsId) {
-  using namespace l1ScoutingRun3;
 
   // reset counters
   nStubsOrbit_ = 0;
@@ -61,7 +58,7 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsI
   while (pos < len) {
     assert(pos + 4 <= len);
 
-    bmtf::block* bl = (bmtf::block*)(buf + pos);
+    l1ScoutingRun3::bmtf::block* bl = (l1ScoutingRun3::bmtf::block*)(buf + pos);
 
     unsigned bx = bl->bx;
     unsigned orbit = (bl->orbit) & 0x7FFFFFFF;
@@ -87,13 +84,13 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsI
       uint64_t stub_raw = *(uint64_t*)(buf + pos);
       pos += 8;
 
-      phi = ((stub_raw >> bmtf::shiftsStubs::phi) & bmtf::masksStubs::phi);
-      phiB = ((stub_raw >> bmtf::shiftsStubs::phiB) & bmtf::masksStubs::phiB);
-      qual = ((stub_raw >> bmtf::shiftsStubs::qual) & bmtf::masksStubs::qual);
-      eta = ((stub_raw >> bmtf::shiftsStubs::eta) & bmtf::masksStubs::eta);
-      qeta = ((stub_raw >> bmtf::shiftsStubs::qeta) & bmtf::masksStubs::qeta);
-      station = ((stub_raw >> bmtf::shiftsStubs::station) & bmtf::masksStubs::station) + 1;
-      wheel = ((stub_raw >> bmtf::shiftsStubs::wheel) & bmtf::masksStubs::wheel);
+      phi = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::phi) & l1ScoutingRun3::bmtf::masksStubs::phi);
+      phiB = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::phiB) & l1ScoutingRun3::bmtf::masksStubs::phiB);
+      qual = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::qual) & l1ScoutingRun3::bmtf::masksStubs::qual);
+      eta = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::eta) & l1ScoutingRun3::bmtf::masksStubs::eta);
+      qeta = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::qeta) & l1ScoutingRun3::bmtf::masksStubs::qeta);
+      station = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::station) & l1ScoutingRun3::bmtf::masksStubs::station) + 1;
+      wheel = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::wheel) & l1ScoutingRun3::bmtf::masksStubs::wheel);
       sector = sdsId - SDSNumbering::BmtfMinSDSID;
 
       if (stwh_matrix[station - 1][wheel + 2] == false) {
@@ -107,7 +104,7 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsI
       phiB = phiB >= 512 ? phiB - 1024 : phiB;
       wheel = wheel >= 4 ? wheel - 8 : wheel;
 
-      BMTFStub stub(phi, phiB, qual, eta, qeta, station, wheel, sector, tag);
+      l1ScoutingRun3::BMTFStub stub(phi, phiB, qual, eta, qeta, station, wheel, sector, tag);
       orbitBuffer_[bx].push_back(stub);
       nStubsOrbit_++;
 
