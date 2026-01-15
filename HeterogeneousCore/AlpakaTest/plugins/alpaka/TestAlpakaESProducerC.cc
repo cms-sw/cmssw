@@ -34,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int const size = 5;
       // TODO: pinned allocation?
       // TODO: cached allocation?
-      AlpakaESTestDataCHost product(size, cms::alpakatools::host());
+      AlpakaESTestDataCHost product(cms::alpakatools::host(), size);
       for (int i = 0; i < size; ++i) {
         product.view()[i].x() = input.value() - i;
       }

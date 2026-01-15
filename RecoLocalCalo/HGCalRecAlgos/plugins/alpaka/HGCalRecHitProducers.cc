@@ -168,7 +168,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- Copying the calib to the device\n\n" << std::endl;
-    HGCalCalibParamDevice deviceCalibParam(hostCalibParam.view().metadata().size(), queue);
+    HGCalCalibParamDevice deviceCalibParam(queue, hostCalibParam.view().metadata().size());
     alpaka::memcpy(queue, deviceCalibParam.buffer(), hostCalibParam.const_buffer());
 
 #ifdef HGCAL_PERF_TEST

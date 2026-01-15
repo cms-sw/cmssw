@@ -14,39 +14,31 @@
 namespace traits {
 
   // trait for a generic SoA-based product
-  template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
   struct PortableCollectionTrait {
-    using CollectionType = PortableDeviceCollection<T, TDev>;
+    using CollectionType = PortableDeviceCollection<TDev, T>;
   };
 
   // specialise for host device
   template <typename T>
-  struct PortableCollectionTrait<T, alpaka_common::DevHost> {
+  struct PortableCollectionTrait<alpaka_common::DevHost, T> {
     using CollectionType = PortableHostCollection<T>;
   };
 
 }  // namespace traits
 
 // type alias for a generic SoA-based product
-template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
-using PortableCollection = typename traits::PortableCollectionTrait<T, TDev>::CollectionType;
+template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+using PortableCollection = typename traits::PortableCollectionTrait<TDev, T>::CollectionType;
 
 // define how to copy PortableCollection between host and device
 namespace cms::alpakatools {
-  template <typename TLayout, typename TDevice>
+  template <typename TDevice, typename TLayout>
     requires alpaka::isDevice<TDevice>
-  struct CopyToHost<PortableDeviceCollection<TLayout, TDevice>> {
+  struct CopyToHost<PortableDeviceCollection<TDevice, TLayout>> {
     template <typename TQueue>
-      requires alpaka::isQueue<TQueue> && (!portablecollection::hasBlocksNumber<TLayout>)
-    static auto copyAsync(TQueue& queue, PortableDeviceCollection<TLayout, TDevice> const& srcData) {
-      PortableHostCollection<TLayout> dstData(srcData->metadata().size(), queue);
-      alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
-      return dstData;
-    }
-
-    template <typename TQueue>
-      requires alpaka::isQueue<TQueue> && portablecollection::hasBlocksNumber<TLayout>
-    static auto copyAsync(TQueue& queue, PortableDeviceCollection<TLayout, TDevice> const& srcData) {
+      requires alpaka::isQueue<TQueue>
+    static auto copyAsync(TQueue& queue, PortableDeviceCollection<TDevice, TLayout> const& srcData) {
       PortableHostCollection<TLayout> dstData(queue, srcData->metadata().size());
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
@@ -56,19 +48,9 @@ namespace cms::alpakatools {
   template <typename TLayout>
   struct CopyToDevice<PortableHostCollection<TLayout>> {
     template <cms::alpakatools::NonCPUQueue TQueue>
-      requires(!portablecollection::hasBlocksNumber<TLayout>)
     static auto copyAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
-      PortableDeviceCollection<TLayout, TDevice> dstData(srcData->metadata().size(), queue);
-      alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
-      return dstData;
-    }
-
-    template <cms::alpakatools::NonCPUQueue TQueue>
-      requires portablecollection::hasBlocksNumber<TLayout>
-    static auto copyAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
-      using TDevice = typename alpaka::trait::DevType<TQueue>::type;
-      PortableDeviceCollection<TLayout, TDevice> dstData(queue, srcData->metadata().size());
+      PortableDeviceCollection<TDevice, TLayout> dstData(queue, srcData->metadata().size());
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
     }

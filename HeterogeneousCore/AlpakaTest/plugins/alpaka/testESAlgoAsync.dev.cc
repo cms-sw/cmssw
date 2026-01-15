@@ -5,7 +5,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                           AlpakaESTestDataADevice const& dataA,
                                           cms::alpakatest::AlpakaESTestDataB<Device> const& dataB) {
     auto const size = std::min(dataA->metadata().size(), static_cast<int>(dataB.size()));
-    AlpakaESTestDataDDevice ret(size, queue);
+    AlpakaESTestDataDDevice ret(queue, size);
 
     auto const& deviceProperties = alpaka::getAccDevProps<Acc1D>(alpaka::getDev(queue));
     uint32_t maxThreadsPerBlock = deviceProperties.m_blockThreadExtentMax[0];
