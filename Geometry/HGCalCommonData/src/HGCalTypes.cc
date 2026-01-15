@@ -40,15 +40,31 @@ int32_t HGCalTypes::getUnpackedCellType6(int id) { return (id / faccell6_); }
 int32_t HGCalTypes::getUnpackedCell6(int id) { return (id % faccell6_); }
 
 int32_t HGCalTypes::layerType(int type) {
-  return ((type >= 0) && (type < 7)) ? HGCalTypes::layerType_[type] : HGCalTypes::WaferCenter;
+  static const int32_t layerTypeX[7] = {HGCalTypes::WaferCenter,
+                                        HGCalTypes::WaferCenterB,
+                                        HGCalTypes::WaferCenterR,
+                                        HGCalTypes::CornerCenterYp,
+                                        HGCalTypes::CornerCenterYm,
+                                        HGCalTypes::CornerCenterXp,
+                                        HGCalTypes::CornerCenterXm};
+  return ((type >= 0) && (type < 7)) ? layerTypeX[type] : HGCalTypes::WaferCenter;
 }
 
-std::string HGCalTypes::layerTypeX(int32_t type) { return layerTypes_[HGCalTypes::layerType(type)]; }
+std::string HGCalTypes::layerTypeX(int32_t type) {
+  static const std::string layerTypes[7] = {
+      "Center", "CenterB", "CenterYp", "CenterYm", "CenterR", "CenterXp", "CenterXm"};
+  return layerTypes[layerType(type)];
+}
 
 std::string HGCalTypes::waferType(int32_t type) {
-  return (((type >= 0) && (type < 4)) ? HGCalTypes::waferType_[type] : "Undefined");
+  static const std::string waferType[4] = {"HD120", "LD200", "LD300", "HD200"};
+  return (((type >= 0) && (type < 4)) ? waferType[type] : "Undefined");
 }
 
 std::string HGCalTypes::waferTypeX(int32_t type) {
-  return (((type >= 0) && (type < 27)) ? HGCalTypes::waferTypeX_[type] : "UnknownXX");
+  static const std::string waferTypeX[27] = {
+      "Full",      "Five",      "ChopTwo",   "ChopTwoM", "Half",     "Semi",    "Semi2",   "Three",   "Half2",
+      "Five2",     "Unknown10", "LDTop",     "LDBottom", "LDLeft",   "LDRight", "LDFive",  "LDThree", "Unknown17",
+      "Unknown18", "Unknown19", "Unknown20", "HDTop",    "HDBottom", "HDLeft",  "HDRight", "HDFive",  "Out"};
+  return (((type >= 0) && (type < 27)) ? waferTypeX[type] : "UnknownXX");
 }
