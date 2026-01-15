@@ -239,8 +239,7 @@ namespace lst {
           totalSizes_neg,
           connectedModuleDetIds_neg] = getConnectedPixels(nModules, nPixels, pixelMapping, pLStoLayer);
 
-    auto modulesHC = std::make_shared<ModulesHostCollection>(
-        cms::alpakatools::host(), static_cast<int32_t>(nModules), static_cast<int32_t>(nPixels));
+    auto modulesHC = std::make_shared<ModulesHostCollection>(cms::alpakatools::host(), nModules, nPixels);
 
     auto modules_view = modulesHC->view().modules();
 

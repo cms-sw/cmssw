@@ -68,7 +68,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //declare the dense index info collection to be produced
         //the size is determined by the module indexer
         const uint32_t nIndices = modIndexer.maxDataSize();
-        HGCalDenseIndexInfoHost denseIdxInfo(nIndices, cms::alpakatools::host());
+        HGCalDenseIndexInfoHost denseIdxInfo(cms::alpakatools::host(), nIndices);
         for (auto fedRS : modIndexer.fedReadoutSequences()) {
           uint32_t fedId = fedRS.id;
           for (size_t imod = 0; imod < fedRS.readoutTypes_.size(); imod++) {

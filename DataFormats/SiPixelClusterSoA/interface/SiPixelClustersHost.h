@@ -19,7 +19,7 @@ public:
   // FIXME add an explicit overload for the host case
   template <typename TQueue>
   explicit SiPixelClustersHost(size_t maxModules, TQueue queue)
-      : PortableHostCollection<SiPixelClustersSoA>(maxModules + 1, queue) {}
+      : PortableHostCollection<SiPixelClustersSoA>(queue, maxModules + 1) {}
 
   void setNClusters(uint32_t nClusters, int32_t offsetBPIX2) {
     nClusters_h = nClusters;

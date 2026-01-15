@@ -29,8 +29,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     std::unique_ptr<reco::PFRecHitHCALParamsHostCollection> produce(PFRecHitHCALParamsRecord const& iRecord) {
-      auto product = std::make_unique<reco::PFRecHitHCALParamsHostCollection>(HCAL::kMaxDepthHB + HCAL::kMaxDepthHE,
-                                                                              cms::alpakatools::host());
+      auto product = std::make_unique<reco::PFRecHitHCALParamsHostCollection>(cms::alpakatools::host(),
+                                                                              HCAL::kMaxDepthHB + HCAL::kMaxDepthHE);
       for (uint32_t idx = 0; idx < HCAL::kMaxDepthHB; ++idx) {
         product->view().energyThresholds()[idx] = energyThresholdsHB_[idx];
       }

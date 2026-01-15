@@ -31,8 +31,7 @@ namespace edmtest {
       : trackSize_(iPSet.getParameter<unsigned int>("trackSize")), putToken_(produces()) {}
 
   void TestWriteHostTrackSoA::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
-    ::reco::TracksHost tracks(
-        cms::alpakatools::host(), static_cast<int32_t>(trackSize_), static_cast<int32_t>(4 * trackSize_));
+    ::reco::TracksHost tracks(cms::alpakatools::host(), trackSize_, 4 * trackSize_);
     auto tracksBlocksView = tracks.view();
     for (unsigned int i = 0; i < trackSize_; ++i) {
       tracksBlocksView.tracks()[i].eta() = float(i);

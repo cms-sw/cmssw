@@ -77,7 +77,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         numberOfXtals += channelStatusData.endcapItems().size();
       }
 
-      auto product = std::make_unique<EcalRecHitConditionsHost>(numberOfXtals, cms::alpakatools::host());
+      auto product = std::make_unique<EcalRecHitConditionsHost>(cms::alpakatools::host(), numberOfXtals);
       auto view = product->view();
 
       // Filling crystal level conditions
