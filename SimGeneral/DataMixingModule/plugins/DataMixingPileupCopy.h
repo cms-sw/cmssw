@@ -25,14 +25,11 @@
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include <map>
 #include <string>
 #include <vector>
-
-namespace reco {
-  class GenParticle;
-}
 
 namespace edm {
   class ModuleCallingContext;

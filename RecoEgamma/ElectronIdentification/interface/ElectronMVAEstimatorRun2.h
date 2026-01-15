@@ -6,6 +6,7 @@
 #include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 // Note on Python/FWLite support:
 //
@@ -24,10 +25,6 @@
 // To speed up the dictionary generation and avoid errors caused by conflicting
 // C++ modules, we try to forwar declare as much as possible in
 // ElectronMVAEstimatorRun2.h and AnyMVAEstimatorRun2Base.h.
-
-namespace reco {
-  class GsfElectron;
-}
 
 class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
 public:

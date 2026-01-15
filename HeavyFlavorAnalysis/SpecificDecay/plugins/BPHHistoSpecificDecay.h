@@ -3,6 +3,7 @@
 
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -19,11 +20,6 @@ class TH1F;
 class TTree;
 class TBranch;
 class TVector3;
-
-namespace reco {
-  class Candidate;
-  class Vertex;
-}  // namespace reco
 
 class BPHHistoSpecificDecay : public BPHAnalyzerWrapper<BPHModuleWrapper::one_analyzer> {
 public:

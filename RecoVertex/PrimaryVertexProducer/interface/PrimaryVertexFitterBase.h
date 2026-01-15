@@ -2,6 +2,7 @@
 #define PrimaryVertexFitterBase_h
 
 #include <vector>
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 /**\class PrimaryVertexFitterBase
  
@@ -14,7 +15,6 @@ namespace edm {
 }  // namespace edm
 
 namespace reco {
-  class BeamSpot;
   class TransientTrack;
 }  // namespace reco
 

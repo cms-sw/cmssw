@@ -11,14 +11,11 @@
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "TVector3.h"
 
 class TGLEmbeddedViewer;
 class TGTextButton;
-
-namespace reco {
-  class Conversion;
-}
 
 class FWConvTrackHitsDetailView : public FWDetailViewGL<reco::Conversion>, public CSGActionSupervisor {
 public:

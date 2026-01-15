@@ -9,12 +9,10 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 class FWECALDetailViewBuilder;
 class TEveCaloData;
-namespace reco {
-  class Muon;
-}
 
 class FWMuonDetailView : public FWDetailViewGL<reco::Muon> {
 public:

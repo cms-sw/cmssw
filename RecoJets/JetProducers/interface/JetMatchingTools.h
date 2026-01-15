@@ -10,15 +10,13 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/CaloJetFwd.h"
+#include "DataFormats/JetReco/interface/GenJetFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class Event;
 }
-namespace reco {
-  class CaloJet;
-  class GenJet;
-}  // namespace reco
 
 class CaloTower;
 class CaloRecHit;

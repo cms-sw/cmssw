@@ -2,10 +2,7 @@
 #define _HIProtoTrackFilter_h_
 
 #include "RecoTracker/PixelTrackFitting/interface/PixelTrackFilterBase.h"
-
-namespace reco {
-  class BeamSpot;
-}
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 class HIProtoTrackFilter : public PixelTrackFilterBase {
 public:

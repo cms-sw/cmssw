@@ -13,13 +13,11 @@
 // Base Class Headers --
 //----------------------
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-namespace reco {
-  class Candidate;
-}
 
 //---------------
 // C++ Headers --

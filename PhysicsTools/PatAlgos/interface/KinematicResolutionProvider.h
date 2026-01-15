@@ -14,10 +14,8 @@
 
    a setup function is provided but might need to be re-implemented. 
 */
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 
-namespace reco {
-  class Candidate;
-}
 namespace pat {
   class CandKinResolution;
 }
