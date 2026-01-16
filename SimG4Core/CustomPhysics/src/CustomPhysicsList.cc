@@ -105,7 +105,8 @@ void CustomPhysicsList::ConstructProcess() {
           pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper));
         }
         if ((particle->GetParticleType() == "rhadron" || particle->GetParticleType() == "mesonino" ||
-            particle->GetParticleType() == "sbaryon") && particle->GetPDGStable() == false) {
+             particle->GetParticleType() == "sbaryon") &&
+            particle->GetPDGStable() == false) {
           if (!extRHadronDecayerSet) {
             // Set the pythia decayer for Rhadrons if they are unstable
             pythiaDecayProcess = new RHadronPythiaDecayer(myConfig);

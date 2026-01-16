@@ -33,7 +33,7 @@ public:
 
   //What Geant calls to decay the Rhadron
   G4VParticleChange* DecayIt(const G4Track& aTrack, const G4Step& aStep) override;
-  
+
   //Tell pythia to decay the Rhadron and return the products in Geant format
   G4DecayProducts* ImportDecayProducts(const G4Track&) override;
 

@@ -86,14 +86,16 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
         stopLifetime = 1.0 / (width * CLHEP::GeV) * hbar * CLHEP::MeV * CLHEP::s;
 
       G4DecayTable *aDecayTable = getDecayTable(&configFile, pdgId);
-      if (!aDecayTable) aParticle->SetPDGStable(true);
+      if (!aDecayTable)
+        aParticle->SetPDGStable(true);
       else {
         aParticle->SetDecayTable(aDecayTable);
         aParticle->SetPDGStable(false);
         aParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * hbar * CLHEP::MeV * CLHEP::s);
         if (nullptr != aAntiParticle && aAntiParticle->GetPDGEncoding() != pdgId) {
           G4DecayTable *aAntiDecayTable = getAntiDecayTable(pdgId, aDecayTable);
-          if (!aAntiDecayTable) aAntiParticle->SetPDGStable(true);
+          if (!aAntiDecayTable)
+            aAntiParticle->SetPDGStable(true);
           else {
             aAntiParticle->SetDecayTable(aAntiDecayTable);
             aAntiParticle->SetPDGStable(false);

@@ -18,7 +18,17 @@ public:
 
     // Constructor to extract data from G4Track. Necessary to avoid storing G4Track pointers that may become invalid.
     TrackData()
-        : trackID(0), pdgID(0), charge(0), px(0), py(0), pz(0), energy(0), x(0), y(0), z(0), time(0) {}  // Default constructor
+        : trackID(0),
+          pdgID(0),
+          charge(0),
+          px(0),
+          py(0),
+          pz(0),
+          energy(0),
+          x(0),
+          y(0),
+          z(0),
+          time(0) {}  // Default constructor
     TrackData(const G4Track& track)
         : trackID(track.GetTrackID()),
           pdgID(track.GetDefinition()->GetPDGEncoding()),
@@ -41,9 +51,7 @@ public:
     storedDecayParents_[decayCounter_] = TrackData(aTrack);
   }
 
-  void addDecayDaughter(const G4Track& aTrack) {
-    storedDecayDaughters_[decayCounter_].emplace_back(aTrack);
-  }
+  void addDecayDaughter(const G4Track& aTrack) { storedDecayDaughters_[decayCounter_].emplace_back(aTrack); }
 
   void getDecayInfo(std::map<int, TrackData>& decayParents, std::map<int, std::vector<TrackData>>& decayDaughters) {
     decayParents = storedDecayParents_;
