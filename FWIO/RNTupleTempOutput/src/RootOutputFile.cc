@@ -412,18 +412,22 @@ namespace edm::rntuple_temp {
     auto metaData =
         ROOT::RNTupleWriter::Append(std::move(model), poolNames::metaDataTreeName(), *filePtr_, optionsFrom(*om_));
 
-    auto rentry = metaData->CreateEntry();
+    auto rentry = metaData->CreateRawPtrWriteEntry();
 
-    writeFileFormatVersion(*rentry);
+    FileFormatVersion fileFormatVersion;
+    writeFileFormatVersion(*rentry, fileFormatVersion);
     writeFileIdentifier(*rentry);
     writeIndexIntoFile(*rentry);
     writeStoredMergeableRunProductMetadata(*rentry);
-    writeProcessHistoryRegistry(*rentry);
-    writeProductDescriptionRegistry(*rentry, iReg);
+    ProcessHistoryVector procHistoryVector;
+    writeProcessHistoryRegistry(*rentry, procHistoryVector);
+    ProductRegistry pReg(iReg.productList());
+    writeProductDescriptionRegistry(*rentry, pReg);
     writeBranchIDListRegistry(*rentry);
     writeThinnedAssociationsHelper(*rentry);
     writeProductDependencies(*rentry);
-    writeProcessBlockHelper(*rentry);
+    std::optional<StoredProcessBlockHelper> spbh;
+    writeProcessBlockHelper(*rentry, spbh);
     metaData->Fill(*rentry);
   }
 
@@ -440,11 +444,11 @@ namespace edm::rntuple_temp {
     for (auto const& parentageID : parentageIDs_) {
       orderedIDs[parentageID.second] = parentageID.first;
     }
-    auto rentry = parentageWriter->CreateEntry();
+    auto rentry = parentageWriter->CreateRawPtrWriteEntry();
 
     //now put them into the RNTuple in the correct order
     for (auto const& orderedID : orderedIDs) {
-      rentry->BindRawPtr(poolNames::parentageBranchName(), const_cast<edm::Parentage*>(ptReg.getMapped(orderedID)));
+      rentry->BindRawPtr(poolNames::parentageBranchName(), ptReg.getMapped(orderedID));
       parentageWriter->Fill(*rentry);
     }
   }
@@ -494,47 +498,47 @@ namespace edm::rntuple_temp {
   }
 
   ////////
-  void RootOutputFile::writeFileFormatVersion(ROOT::REntry& rentry) {
-    auto fileFormatVersion = std::make_shared<FileFormatVersion>(getFileFormatVersion());
-    rentry.BindValue(poolNames::fileFormatVersionBranchName(), fileFormatVersion);
+  void RootOutputFile::writeFileFormatVersion(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry,
+                                              FileFormatVersion& fileFormatVersion) const {
+    fileFormatVersion = FileFormatVersion(getFileFormatVersion());
+    rentry.BindRawPtr(poolNames::fileFormatVersionBranchName(), &fileFormatVersion);
   }
 
-  void RootOutputFile::writeFileIdentifier(ROOT::REntry& rentry) {
+  void RootOutputFile::writeFileIdentifier(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry) const {
     rentry.BindRawPtr(poolNames::fileIdentifierBranchName(), &fid_);
   }
 
-  void RootOutputFile::writeIndexIntoFile(ROOT::REntry& rentry) {
+  void RootOutputFile::writeIndexIntoFile(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry) {
     indexIntoFile_.sortVector_Run_Or_Lumi_Entries();
     rentry.BindRawPtr(poolNames::indexIntoFileBranchName(), &indexIntoFile_);
   }
 
-  void RootOutputFile::writeStoredMergeableRunProductMetadata(ROOT::REntry& rentry) {
+  void RootOutputFile::writeStoredMergeableRunProductMetadata(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry) {
     storedMergeableRunProductMetadata_.optimizeBeforeWrite();
     rentry.BindRawPtr(poolNames::mergeableRunProductMetadataBranchName(), &storedMergeableRunProductMetadata_);
   }
 
-  void RootOutputFile::writeProcessHistoryRegistry(ROOT::REntry& rentry) {
-    auto procHistoryVector = std::make_shared<ProcessHistoryVector>();
+  void RootOutputFile::writeProcessHistoryRegistry(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry,
+                                                   ProcessHistoryVector& procHistoryVector) const {
     for (auto const& ph : processHistoryRegistry_) {
-      procHistoryVector->push_back(ph.second);
+      procHistoryVector.push_back(ph.second);
     }
-    rentry.BindValue(poolNames::processHistoryBranchName(), procHistoryVector);
+    rentry.BindRawPtr(poolNames::processHistoryBranchName(), &procHistoryVector);
   }
 
-  void RootOutputFile::writeBranchIDListRegistry(ROOT::REntry& rentry) {
-    rentry.BindRawPtr(poolNames::branchIDListBranchName(), const_cast<BranchIDLists*>(om_->branchIDLists()));
+  void RootOutputFile::writeBranchIDListRegistry(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry) const {
+    rentry.BindRawPtr(poolNames::branchIDListBranchName(), om_->branchIDLists());
   }
 
-  void RootOutputFile::writeThinnedAssociationsHelper(ROOT::REntry& rentry) {
-    auto* p = const_cast<ThinnedAssociationsHelper*>(om_->thinnedAssociationsHelper());
-    rentry.BindRawPtr(poolNames::thinnedAssociationsHelperBranchName(), p);
+  void RootOutputFile::writeThinnedAssociationsHelper(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry) const {
+    rentry.BindRawPtr(poolNames::thinnedAssociationsHelperBranchName(), om_->thinnedAssociationsHelper());
   }
 
-  void RootOutputFile::writeProductDescriptionRegistry(ROOT::REntry& rentry, ProductRegistry const& iReg) {
+  void RootOutputFile::writeProductDescriptionRegistry(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry,
+                                                       ProductRegistry& pReg) {
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.
     using ProductList = ProductRegistry::ProductList;
-    auto pReg = std::make_shared<ProductRegistry>(iReg.productList());
-    ProductList& pList = const_cast<ProductList&>(pReg->productList());
+    ProductList& pList = const_cast<ProductList&>(pReg.productList());
     for (auto const& prod : pList) {
       if (prod.second.branchID() != prod.second.originalBranchID()) {
         if (branchesWithStoredHistory_.find(prod.second.branchID()) != branchesWithStoredHistory_.end()) {
@@ -555,20 +559,20 @@ namespace edm::rntuple_temp {
       }
     }
 
-    rentry.BindValue(poolNames::productDescriptionBranchName(), pReg);
+    rentry.BindRawPtr(poolNames::productDescriptionBranchName(), &pReg);
   }
-  void RootOutputFile::writeProductDependencies(ROOT::REntry& rentry) {
-    ProductDependencies& pDeps = const_cast<ProductDependencies&>(om_->productDependencies());
-    rentry.BindRawPtr(poolNames::productDependenciesBranchName(), &pDeps);
+  void RootOutputFile::writeProductDependencies(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry) const {
+    rentry.BindRawPtr(poolNames::productDependenciesBranchName(), &(om_->productDependencies()));
   }
 
-  void RootOutputFile::writeProcessBlockHelper(ROOT::REntry& rentry) {
+  void RootOutputFile::writeProcessBlockHelper(ROOT::Experimental::Detail::RRawPtrWriteEntry& rentry,
+                                               std::optional<StoredProcessBlockHelper>& storedProcessBlockHelper) const {
     if (!om_->outputProcessBlockHelper().processesWithProcessBlockProducts().empty()) {
-      auto storedProcessBlockHelper = std::make_shared<StoredProcessBlockHelper>(
-          om_->outputProcessBlockHelper().processesWithProcessBlockProducts());
+      storedProcessBlockHelper =
+          StoredProcessBlockHelper(om_->outputProcessBlockHelper().processesWithProcessBlockProducts());
       om_->outputProcessBlockHelper().fillCacheIndices(*storedProcessBlockHelper);
 
-      rentry.BindValue(poolNames::processBlockHelperBranchName(), storedProcessBlockHelper);
+      rentry.BindRawPtr(poolNames::processBlockHelperBranchName(), &(*storedProcessBlockHelper));
     }
   }
   void RootOutputFile::writeParameterSetRegistry() {
@@ -583,7 +587,7 @@ namespace edm::rntuple_temp {
 
     std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
 
-    auto rentry = parameterSets->CreateEntry();
+    auto rentry = parameterSets->CreateRawPtrWriteEntry();
     rentry->BindRawPtr("IdToParameterSetsBlobs", &idToBlob);
 
     for (auto const& pset : *pset::Registry::instance()) {
