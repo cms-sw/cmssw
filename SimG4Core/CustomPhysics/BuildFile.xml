@@ -8,6 +8,7 @@
 <use name="SimG4Core/PhysicsLists"/>
 <use name="SimG4Core/Watcher"/>
 <use name="GeneratorInterface/Pythia8Interface"/>
+<use name="DataFormats/HepMCCandidate"/>
 <use name="geant4core"/>
 <use name="clhep"/>
 <use name="boost"/>

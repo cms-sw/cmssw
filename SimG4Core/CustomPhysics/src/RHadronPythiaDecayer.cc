@@ -20,6 +20,7 @@
 #include <cmath>
 #include <fstream>
 
+RHadronPythiaDecayDataManager* gRHadronPythiaDecayDataManager = new RHadronPythiaDecayDataManager();
 static inline unsigned short int nth_digit(const int& val, const unsigned short& n) {
   return (std::abs(val) / (int(std::pow(10, n - 1)))) % 10;
 }
@@ -53,7 +54,7 @@ RHadronPythiaDecayer::~RHadronPythiaDecayer() {
 G4VParticleChange* RHadronPythiaDecayer::DecayIt(const G4Track& aTrack, const G4Step& aStep) {
   // First, clear the secondary displacements and call the standard DecayIt to generate secondaries
   secondaryDisplacements_.clear();
-  RHadronPythiaDecayDataManager::getInstance().addDecayParent(aTrack);
+  gRHadronPythiaDecayDataManager->addDecayParent(aTrack);
   G4VParticleChange* fParticleChangeForDecay = G4Decay::DecayIt(aTrack, aStep);
 
   // Update the position of the secondaries in geant to match the potentially displaced positions from pythia. The list is stored in reverse order
@@ -61,7 +62,7 @@ G4VParticleChange* RHadronPythiaDecayer::DecayIt(const G4Track& aTrack, const G4
   for (G4int i = fParticleChangeForDecay->GetNumberOfSecondaries() - 1; i >= 0; --i) {
     G4Track* secondary = fParticleChangeForDecay->GetSecondary(i);
     secondary->SetPosition(secondary->GetPosition() + secondaryDisplacements_[secondaryDisplacementIndex]);
-    RHadronPythiaDecayDataManager::getInstance().addDecayDaughter(*secondary);
+    gRHadronPythiaDecayDataManager->addDecayDaughter(*secondary);
     ++secondaryDisplacementIndex;
   }
 
@@ -119,21 +120,21 @@ void RHadronPythiaDecayer::pythiaDecay(const G4Track& aTrack, std::vector<G4Dyna
 
     G4ThreeVector displacement(pythia_->event[i].xProd(), pythia_->event[i].yProd(), pythia_->event[i].zProd());
     G4LorentzVector p4(pythia_->event[i].px(), pythia_->event[i].py(), pythia_->event[i].pz(), pythia_->event[i].e());
-    p4 *= 1000.0;  // Convert GeV to MeV
+    p4 *= CLHEP::GeV;
 
-    const G4ParticleDefinition* particleDefinition =
-        particleTable->FindParticle(pythia_->event[i].id());  // Get the particle definition from the Pythia event
+    // Get the particle definition from the Pythia event
+    const G4ParticleDefinition* particleDefinition = particleTable->FindParticle(pythia_->event[i].id());
     if (!particleDefinition) {
       edm::LogWarning("SimG4CoreCustomPhysics") << "RHadronPythiaDecayer: I don't know a definition for pdgid "
                                                 << pythia_->event[i].id() << "! Skipping it...";
       continue;
     }
 
-    G4DynamicParticle* dynamicParticle =
-        new G4DynamicParticle(particleDefinition, p4);  // Create the dynamic particle and add it to Geant
+    // Create the dynamic particle and add it to Geant
+    G4DynamicParticle* dynamicParticle = new G4DynamicParticle(particleDefinition, p4);
     particles.push_back(dynamicParticle);
-    secondaryDisplacements_.push_back(
-        displacement);  // Store the position of the secondary particle to update in RHadronPythiaDecayer::DecayIt
+    // Store the position of the secondary particle to update in RHadronPythiaDecayer::DecayIt
+    secondaryDisplacements_.push_back(displacement);
   }
 }
 

@@ -4,18 +4,24 @@ def customise(process):
 
     FLAVOR = process.generator.hscpFlavor.value()
     PROCESS_FILE = process.generator.processFile.value()
+    PARTICLE_FILE = process.generator.particleFile.value()
     USE_REGGE = process.generator.useregge.value()
 
     process.load("SimG4Core.CustomPhysics.CustomPhysics_cfi")
+    process.customPhysicsSetup.particlesDef = PARTICLE_FILE
     process.customPhysicsSetup.reggeModel = USE_REGGE
 
     # Read in the SLHA file to get the particles definition
-    if hasattr(process.generator, 'SLHAFile'):
-        process.customPhysicsSetup.particlesDef = process.generator.SLHAFile.value()
+    if hasattr(process, 'generator') and hasattr(process.generator, 'SLHAFileForPythia8'):
+        process.customPhysicsSetup.particlesDef = process.generator.SLHAFileForPythia8.value()
+    elif hasattr(process, 'g4SimHits') and hasattr(process.g4SimHits, 'SLHAFileForPythia8'):
+        process.customPhysicsSetup.particlesDef = process.g4SimHits.SLHAFileForPythia8.value()
 
     # Passing pythia settings to the Rhadron decayer is optional
-    if hasattr(process.generator, 'RhadronPythiaDecayerCommandFile'):
+    if hasattr(process, 'generator') and hasattr(process.generator, 'RhadronPythiaDecayerCommandFile'):
         process.customPhysicsSetup.RhadronPythiaDecayerCommandFile = process.generator.RhadronPythiaDecayerCommandFile.value()
+    elif hasattr(process, 'g4SimHits') and hasattr(process.g4SimHits, 'RhadronPythiaDecayerCommandFile'):
+        process.customPhysicsSetup.RhadronPythiaDecayerCommandFile = process.g4SimHits.RhadronPythiaDecayerCommandFile.value()
 
     if hasattr(process,'g4SimHits'):
         # defined watches
