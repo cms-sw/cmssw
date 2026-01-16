@@ -1,18 +1,25 @@
 #include "TFile.h"
 #include "ROOT/RNTupleReader.hxx"
 #include "ROOT/RNTuple.hxx"
+#include <charconv>
 #include <iostream>
 #include <sstream>
 #include <boost/program_options.hpp>
 
 namespace {
+  struct FieldInfo {
+    std::string_view name;
+    unsigned long long compressedSize = 0;  // in B
+    double uncompressedSize = 0;            // in B
+  };
 
   class InfoDump {
   public:
     InfoDump(std::string iOut) : dump_(std::move(iOut)) {}
 
     std::optional<std::string_view> nextLine();
-    std::optional<std::pair<std::string_view, unsigned long long>> nextFieldInfo();
+    std::optional<FieldInfo> nextFieldInfo();
+    std::optional<unsigned int> moveToNumberOfEntries();
     void moveToStartOfFields();
     void moveToLineWith(std::string_view);
 
@@ -30,6 +37,22 @@ namespace {
     return std::string_view(dump_.data() + lastStart, start_++ - lastStart);
   }
 
+  std::optional<unsigned int> InfoDump::moveToNumberOfEntries() {
+    while (auto line = nextLine()) {
+      auto entriesPos = line->find("# Entries:");
+      if (entriesPos != std::string_view::npos) {
+        auto tmp = line->substr(line->find_first_not_of(" ", entriesPos + 12));
+        unsigned int entries{};
+        auto [ptr, ec] = std::from_chars(tmp.begin(), tmp.end(), entries);
+        if (ec != std::errc{}) {
+          return {};
+        }
+        return entries;
+      }
+    }
+    return {};
+  }
+
   void InfoDump::moveToStartOfFields() {
     auto line = nextLine();
     while (line) {
@@ -42,22 +65,39 @@ namespace {
     return;
   }
 
-  std::optional<std::pair<std::string_view, unsigned long long>> InfoDump::nextFieldInfo() {
+  std::optional<FieldInfo> InfoDump::nextFieldInfo() {
     auto line = nextLine();
     if (not line) {
       return {};
     }
-    auto name = line->substr(2, line->find_first_of(" .", 2) - 2);
+    FieldInfo info;
+    info.name = line->substr(2, line->find_first_of(" .", 2) - 2);
 
-    nextLine();
-    nextLine();
-    nextLine();
-    nextLine();
-    line = nextLine();
+    nextLine();         // # elements
+    nextLine();         // # pages
+    nextLine();         // avg elememnts / page
+    nextLine();         // avg page size
+    line = nextLine();  // size on storage
     //std::cout <<line->substr(line->find_first_not_of(" ",line->find_first_of(":")+1))<<std::endl;
-    auto size = std::atoll(line->substr(line->find_first_not_of(" ", line->find_first_of(":") + 1)).data());
+    {
+      auto tmp = line->substr(line->find_first_not_of(" ", line->find_first_of(":") + 1));
+      auto [ptr, ec] = std::from_chars(tmp.begin(), tmp.end(), info.compressedSize);
+      if (ec != std::errc{}) {
+        return {};
+      }
+    }
+    if (info.compressedSize > 0) {  // avoid nans
+      line = nextLine();            // compression factor
+      auto tmp = line->substr(line->find_first_not_of(" ", line->find_first_of(":") + 1));
+      double factor{};
+      auto [ptr, ec] = std::from_chars(tmp.begin(), tmp.end(), factor);
+      if (ec != std::errc{}) {
+        return {};
+      }
+      info.uncompressedSize = info.compressedSize * factor;
+    }
     moveToLineWith("............................................................");
-    return std::make_pair(name, size);
+    return info;
   }
 
   void InfoDump::moveToLineWith(std::string_view iCheck) {
@@ -70,6 +110,63 @@ namespace {
     }
     return;
   }
+
+  void printFieldSizes(InfoDump& info, std::string const& fileName, std::string const& tupleName, bool average) {
+    auto entries = info.moveToNumberOfEntries();
+    if (not entries) {
+      std::cout << "File " << fileName << " " << tupleName << " number of entries not found" << std::endl;
+      return;
+    }
+    std::cout << "File " << fileName << " " << tupleName << " " << *entries << std::endl;
+    info.moveToStartOfFields();
+
+    std::string presentField;
+    unsigned long long compressedSize = 0;
+    double uncompressedSize = 0;
+    std::function<void()> printField;
+    auto field = info.nextFieldInfo();
+    if (average) {
+      std::string unit = "Bytes/";
+      if (tupleName.back() == 's') {
+        unit += tupleName.substr(0, tupleName.size() - 1);
+      } else {
+        unit += tupleName;
+      }
+      std::cout << std::format("Top-level field name | Average uncompressed size ({}) | Average compressed size ({})",
+                               unit,
+                               unit)
+                << std::endl;
+      printField = [&presentField, &compressedSize, &uncompressedSize, n = *entries]() {
+        double us = uncompressedSize / n;
+        double cs = static_cast<double>(compressedSize) / n;
+        std::cout << std::format("{} {:.2f} {:.2f}", presentField, us, cs) << std::endl;
+      };
+    } else {
+      std::cout << "Top-level field name | Uncompressed size (Bytes) | Compressed size (Bytes)" << std::endl;
+      printField = [&presentField, &compressedSize, &uncompressedSize]() {
+        std::cout << presentField << " " << std::format("{:.0f}", uncompressedSize) << " " << compressedSize
+                  << std::endl;
+      };
+    }
+
+    while (field) {
+      if (field->name == presentField) {
+        compressedSize += field->compressedSize;
+        uncompressedSize += field->uncompressedSize;
+      } else {
+        if (not presentField.empty()) {
+          printField();
+        }
+        presentField = field->name;
+        compressedSize = 0;
+        uncompressedSize = 0;
+      }
+      field = info.nextFieldInfo();
+    }
+    if (not presentField.empty()) {
+      printField();
+    }
+  }
 }  // namespace
 
 int main(int iArgc, char const* iArgv[]) {
@@ -80,7 +177,8 @@ int main(int iArgc, char const* iArgv[]) {
       "file,f", boost::program_options::value<std::string>(), "data file")("print,P", "Print list of data products")(
       "verbose,v", "Verbose printout")("printProductDetails,p", "Call PrintInfo() for selected rntuple")(
       "rntuple,r", boost::program_options::value<std::string>(), "Select rntuple used with -P and -p options")(
-      "sizeSummary,s", "Print size on disk for each data product")(
+      "sizeSummary,s", "Print size on disk as well as uncompressed size for each data product")(
+      "average", "With -s, print the average sizes per entry in the RNTuple")(
       "events,e",
       "Print list of all Events, Runs, and LuminosityBlocks in the file sorted by run number, luminosity block number, "
       "and event number.  Also prints the entry numbers and whether it is possible to use fast copy with the file.")(
@@ -114,7 +212,8 @@ int main(int iArgc, char const* iArgv[]) {
 
   using namespace ROOT;
 
-  auto file = TFile::Open(vm["file"].as<std::string>().c_str(), "r");
+  auto fileName = vm["file"].as<std::string>();
+  auto file = TFile::Open(fileName.c_str(), "r");
   if (not file) {
     std::cout << "failed to open " << vm["file"].as<std::string>() << std::endl;
     return 1;
@@ -139,27 +238,7 @@ int main(int iArgc, char const* iArgv[]) {
   ntuple->PrintInfo(ENTupleInfo::kStorageDetails, s);
 
   InfoDump info{s.str()};
-
-  info.moveToStartOfFields();
-
-  std::string presentField;
-  unsigned long long size = 0;
-  auto field = info.nextFieldInfo();
-  while (field) {
-    if (field->first == presentField) {
-      size += field->second;
-    } else {
-      if (not presentField.empty()) {
-        std::cout << presentField << " " << size << std::endl;
-      }
-      presentField = field->first;
-      size = 0;
-    }
-    field = info.nextFieldInfo();
-  }
-  if (not presentField.empty()) {
-    std::cout << presentField << " " << size << std::endl;
-  }
+  printFieldSizes(info, fileName, tupleToRead, vm.count("average"));
 
   return 0;
 }
