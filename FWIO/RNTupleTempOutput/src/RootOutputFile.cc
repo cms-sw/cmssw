@@ -600,9 +600,10 @@ namespace edm::rntuple_temp {
     try {
       // close the file -- mfp
       // Just to play it safe, zero all pointers to objects in the TFile to be closed.
-      status = "closing RNTuples";
+      status = "closing RNTuple ";
       value = "";
       for (auto& treePointer : treePointers_) {
+        value = treePointer->name();
         treePointer->close();
         treePointer = nullptr;
       }
