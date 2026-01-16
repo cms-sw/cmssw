@@ -1,15 +1,151 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQM/TrackingMonitorSource/interface/TrackToTrackComparisonHists.h"
+//
+// Original Author:  John Alison, Mia Tosi
+//         Created:  27 July 2020
+//
+//
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/Luminosity/interface/LumiSummary.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
+// user include files
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Luminosity/interface/LumiSummary.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+// system include files
+#include <memory>
+#include <iostream>
+#include <sstream>
+#include <string>
+
+class TrackToTrackComparisonHists : public DQMEDAnalyzer {
+public:
+  struct generalME {
+    std::string label;
+    MonitorElement *h_tracks, *h_pt, *h_eta, *h_phi, *h_dxy, *h_dz, *h_dxyWRTpv, *h_dzWRTpv, *h_charge, *h_hits;
+    MonitorElement *h_dRmin, *h_dRmin_l;
+    MonitorElement* h_pt_vs_eta;
+    MonitorElement *h_onlinelumi, *h_PU, *h_ls;
+  };
+
+  struct matchingME {
+    std::string label;
+    MonitorElement *h_hits_vs_hits, *h_pt_vs_pt, *h_eta_vs_eta, *h_phi_vs_phi;
+    MonitorElement *h_dPt, *h_dEta, *h_dPhi, *h_dDxy, *h_dDz, *h_dDxyWRTpv, *h_dDzWRTpv, *h_dCharge, *h_dHits;
+  };
+
+  typedef std::vector<std::pair<int, std::map<double, int>>> idx2idxByDoubleColl;
+
+  explicit TrackToTrackComparisonHists(const edm::ParameterSet&);
+  ~TrackToTrackComparisonHists() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
+
+protected:
+  void beginJob(const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+
+  void fillMap(const edm::View<reco::Track>& tracks1,
+               const edm::View<reco::Track>& tracks2,
+               idx2idxByDoubleColl& map,
+               float dRMin);
+
+  void initialize_parameter(const edm::ParameterSet& iConfig);
+  void bookHistos(DQMStore::IBooker& ibooker, generalME& mes, TString label, std::string& dir);
+  void book_generic_tracks_histos(DQMStore::IBooker& ibooker, generalME& mes, TString label, std::string& dir);
+  void book_matching_tracks_histos(DQMStore::IBooker& ibooker, matchingME& mes, TString label, std::string& dir);
+
+  void fill_generic_tracks_histos(generalME& mes,
+                                  reco::Track* trk,
+                                  reco::BeamSpot* bs,
+                                  reco::Vertex* pv,
+                                  unsigned int ls,
+                                  double onlinelumi,
+                                  double PU,
+                                  bool requirePlateau = true);
+  void fill_matching_tracks_histos(
+      matchingME& mes, reco::Track* mon, reco::Track* ref, reco::BeamSpot* bs, reco::Vertex* pv);
+
+  const edm::InputTag monitoredTrackInputTag_;
+  const edm::InputTag referenceTrackInputTag_;
+
+  //these are used by MTVGenPs
+  const edm::EDGetTokenT<edm::View<reco::Track>> monitoredTrackToken_;
+  const edm::EDGetTokenT<edm::View<reco::Track>> referenceTrackToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> monitoredBSToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> referenceBSToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> monitoredPVToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> referencePVToken_;
+  const edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
+  const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
+
+private:
+  //  edm::ParameterSet conf_;
+  const bool isCosmics_;
+  const std::string topDirName_;
+  const double dRmin_;
+  const double pTCutForPlateau_;
+  const double dxyCutForPlateau_;
+  const double dzWRTPvCut_;
+  const bool requireValidHLTPaths_;
+
+  bool hltPathsAreValid_ = false;
+  std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_;
+
+  // reference tracks All and matched
+  generalME referenceTracksMEs_;
+  generalME matchedReferenceTracksMEs_;
+
+  // monitored tracks All and unmatched
+  generalME monitoredTracksMEs_;
+  generalME unMatchedMonitoredTracksMEs_;
+
+  // Track matching statistics
+  matchingME matchTracksMEs_;
+
+  double Eta_rangeMin, Eta_rangeMax;
+  unsigned int Eta_nbin;
+  double Pt_rangeMin, Pt_rangeMax;
+  unsigned int Pt_nbin;  //bool useInvPt;   bool useLogPt;
+  double Phi_rangeMin, Phi_rangeMax;
+  unsigned int Phi_nbin;
+  double Dxy_rangeMin, Dxy_rangeMax;
+  unsigned int Dxy_nbin;
+  double Dz_rangeMin, Dz_rangeMax;
+  unsigned int Dz_nbin;
+
+  double ptRes_rangeMin, ptRes_rangeMax;
+  unsigned int ptRes_nbin;
+  double phiRes_rangeMin, phiRes_rangeMax;
+  unsigned int phiRes_nbin;
+  double etaRes_rangeMin, etaRes_rangeMax;
+  unsigned int etaRes_nbin;
+  double dxyRes_rangeMin, dxyRes_rangeMax;
+  unsigned int dxyRes_nbin;
+  double dzRes_rangeMin, dzRes_rangeMax;
+  unsigned int dzRes_nbin;
+  unsigned int ls_rangeMin, ls_rangeMax;
+  unsigned int ls_nbin;
+  double PU_rangeMin, PU_rangeMax;
+  unsigned int PU_nbin;
+  double onlinelumi_rangeMin, onlinelumi_rangeMax;
+  unsigned int onlinelumi_nbin;
+};
 
 //
 // constructors and destructor
@@ -17,6 +153,17 @@
 TrackToTrackComparisonHists::TrackToTrackComparisonHists(const edm::ParameterSet& iConfig)
     : monitoredTrackInputTag_(iConfig.getParameter<edm::InputTag>("monitoredTrack")),
       referenceTrackInputTag_(iConfig.getParameter<edm::InputTag>("referenceTrack")),
+      monitoredTrackToken_(consumes<edm::View<reco::Track>>(monitoredTrackInputTag_)),
+      referenceTrackToken_(consumes<edm::View<reco::Track>>(referenceTrackInputTag_)),
+      monitoredBSToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("monitoredBeamSpot"))),
+      referenceBSToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("referenceBeamSpot"))),
+      monitoredPVToken_(
+          consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("monitoredPrimaryVertices"))),
+      referencePVToken_(
+          consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("referencePrimaryVertices"))),
+      lumiScalersToken_(consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scalers"))),
+      onlineMetaDataDigisToken_(
+          consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
       isCosmics_(iConfig.getParameter<bool>("isCosmics")),
       topDirName_(iConfig.getParameter<std::string>("topDirName")),
       dRmin_(iConfig.getParameter<double>("dRmin")),
@@ -31,16 +178,6 @@ TrackToTrackComparisonHists::TrackToTrackComparisonHists(const edm::ParameterSet
   initialize_parameter(iConfig);
 
   //now do what ever initialization is needed
-  monitoredTrackToken_ = consumes<edm::View<reco::Track>>(monitoredTrackInputTag_);
-  referenceTrackToken_ = consumes<edm::View<reco::Track>>(referenceTrackInputTag_);
-  monitoredBSToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("monitoredBeamSpot"));
-  referenceBSToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("referenceBeamSpot"));
-  monitoredPVToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("monitoredPrimaryVertices"));
-  referencePVToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("referencePrimaryVertices"));
-  lumiScalersToken_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scalers"));
-  onlineMetaDataDigisToken_ =
-      consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"));
-
   referenceTracksMEs_.label = referenceTrackInputTag_.label();
   matchedReferenceTracksMEs_.label = referenceTrackInputTag_.label() + "_matched";
 
@@ -342,7 +479,7 @@ void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescription
   fillHistoPSetDescription(histoPSet);
   desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
 
-  descriptions.add("trackToTrackComparisonHists", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void TrackToTrackComparisonHists::fillMap(const edm::View<reco::Track>& tracks1,
@@ -684,3 +821,7 @@ void TrackToTrackComparisonHists::fillHistoPSetDescription(edm::ParameterSetDesc
   pset.add<double>("PU_rangeMax", 120.0);
   pset.add<unsigned int>("PU_nbin", 120);
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TrackToTrackComparisonHists);
