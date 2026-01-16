@@ -1,4 +1,3 @@
-<use name="cuda"/>
 <use name="CommonTools/RecoAlgos"/>
 <use name="CommonTools/Utils"/>
 <use name="DataFormats/BeamSpot"/>
