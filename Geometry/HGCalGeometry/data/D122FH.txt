@@ -1,0 +1,20 @@
+2416969728   Cell Mismatch
+2416969729   Cell Mismatch
+2416969760   Cell Mismatch
+2416969929   Cell Mismatch
+2416970016   Cell Mismatch
+2416970048   Cell Mismatch
+2416970080   Cell Mismatch
+2416970113   Cell Mismatch
+2416970153   Cell Mismatch
+2416970752   Cell Mismatch
+2416970753   Cell Mismatch
+2416970763   Cell Mismatch
+2416970764   Cell Mismatch
+2416970784   Cell Mismatch
+2416970797  Wafer Mismatch Cell Mismatch
+2416971072   Cell Mismatch
+2416971094   Cell Mismatch
+2416971104   Cell Mismatch
+2416971127   Cell Mismatch
+2416971137   Cell Mismatch
