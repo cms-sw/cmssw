@@ -69,9 +69,9 @@ void BaseEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
     if (!found)
       throw cms::Exception("ProductAbsent") << "No HepMCProduct, tried to get HepMC3Product, but it is also absent.";
 
-    HepMC3::GenEvent* genevt3 = new HepMC3::GenEvent();
-    genevt3->read_data(*HepUnsmearedMCEvt3->GetEvent());
-    HepMC3Product* productcopy3 = new HepMC3Product(genevt3);
+    HepMC3::GenEvent genevt3;
+    genevt3.read_data(*HepUnsmearedMCEvt3->GetEvent());
+    auto productcopy3 = std::make_unique<HepMC3Product>(genevt3);
     ROOT::Math::XYZTVector VertexShift = vertexShift(engine);
     productcopy3->applyVtxGen(HepMC3::FourVector(VertexShift.x(), VertexShift.y(), VertexShift.z(), VertexShift.t()));
 
@@ -91,8 +91,7 @@ void BaseEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
       }
     }
 
-    std::unique_ptr<edm::HepMC3Product> HepMC3Evt(productcopy3);
-    evt.put(std::move(HepMC3Evt));
+    evt.put(std::move(productcopy3));
   }
 
   return;

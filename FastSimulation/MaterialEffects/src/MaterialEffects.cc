@@ -35,6 +35,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
   // Set the minimal photon energy for a Brem from e+/-
 
   use_hardcoded = matEff.getParameter<bool>("use_hardcoded_geometry");
+  bool saveOutput = matEff.getUntrackedParameter<bool>("saveOutput", false);
 
   bool doPairProduction = matEff.getParameter<bool>("PairProduction");
   bool doBremsstrahlung = matEff.getParameter<bool>("Bremsstrahlung");
@@ -189,7 +190,8 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
                                                            idMap,
                                                            inputFile,
                                                            distAlgo,
-                                                           distCut);
+                                                           distCut,
+                                                           saveOutput);
     }
   }
 }

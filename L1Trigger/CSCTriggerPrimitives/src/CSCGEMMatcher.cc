@@ -277,7 +277,7 @@ uint16_t CSCGEMMatcher::mitigatedSlopeByConsistency(const CSCCLCTDigi& clct,
   const bool isME1a(station_ == 1 and clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B);
 
   // extract hit values from CLCT hit matrix
-  std::vector<std::vector<uint16_t>> CLCTHitMatrix = clct.getHits();
+  const std::vector<std::vector<uint16_t>>& CLCTHitMatrix = clct.getHits();
   int CLCTHits[6] = {-1, -1, -1, -1, -1, -1};
 
   for (unsigned layer = 0; layer < CLCTHitMatrix.size(); ++layer) {

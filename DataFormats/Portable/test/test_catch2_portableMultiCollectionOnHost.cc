@@ -1,10 +1,9 @@
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "DataFormats/Portable/interface/PortableCollection.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 
 namespace {
   GENERATE_SOA_LAYOUT(TestLayout1, SOA_COLUMN(double, x), SOA_COLUMN(int32_t, id))

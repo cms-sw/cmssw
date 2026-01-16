@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/ModuleTypeResolverBase.h"
 #include "FWCore/Framework/interface/ModuleTypeResolverMaker.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <memory>
@@ -38,7 +37,6 @@ namespace edm::detail {
         // if not in cache, then try to create
         auto m = TFactory::get()->tryToCreate(newType);
         if (m) {
-          //FDEBUG(1) << "Factory:  created worker of type " << newType << std::endl;
           auto [it, succeeded] = makerCache.emplace(newType, std::move(m));
           if (not succeeded) {
             return nullptr;
@@ -56,7 +54,6 @@ namespace edm::detail {
       }
     }
     auto [it, succeeded] = makerCache.emplace(moduleType, TFactory::get()->create(moduleType));
-    //FDEBUG(1) << "Factory:  created worker of type " << moduleType << std::endl;
     if (not succeeded) {
       return nullptr;
     }

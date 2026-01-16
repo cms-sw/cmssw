@@ -19,8 +19,11 @@ namespace cms::alpakatools {
   // Return the integer division of the first argument by the second argument, rounded up to the next integer
   inline constexpr Idx divide_up_by(Idx value, Idx divisor) { return (value + divisor - 1) / divisor; }
 
+  // Return the minimum of two values:
+  inline constexpr Idx idx_min(Idx const x, Idx const y) { return (y > x) ? x : y; }
+
   // Trait describing whether or not the accelerator expects the threads-per-block and elements-per-thread to be swapped
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   struct requires_single_thread_per_block : public std::true_type {};
 
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
@@ -39,11 +42,12 @@ namespace cms::alpakatools {
 #endif  // ALPAKA_ACC_CPU_B_SEQ_T_THREADS_ENABLED
 
   // Whether or not the accelerator expects the threads-per-block and elements-per-thread to be swapped
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   inline constexpr bool requires_single_thread_per_block_v = requires_single_thread_per_block<TAcc>::value;
 
   // Create an accelerator-dependent work division for 1-dimensional kernels
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  template <alpaka::concepts::Acc TAcc>
+    requires(alpaka::Dim<TAcc>::value == 1)
   inline WorkDiv<Dim1D> make_workdiv(Idx blocks, Idx elements) {
     if constexpr (not requires_single_thread_per_block_v<TAcc>) {
       // On GPU backends, each thread is looking at a single element:
@@ -59,7 +63,7 @@ namespace cms::alpakatools {
   }
 
   // Create the accelerator-dependent workdiv for N-dimensional kernels
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   inline WorkDiv<alpaka::Dim<TAcc>> make_workdiv(const Vec<alpaka::Dim<TAcc>>& blocks,
                                                  const Vec<alpaka::Dim<TAcc>>& elements) {
     using Dim = alpaka::Dim<TAcc>;
@@ -149,9 +153,8 @@ namespace cms::alpakatools {
    * Note that the use of warp-level primitives is usually suitable only for the fastest-looping dimension, `N-1`.
    */
 
-    template <typename TAcc,
-              std::size_t Dim,
-              typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+    template <alpaka::concepts::Acc TAcc, std::size_t Dim>
+      requires(alpaka::Dim<TAcc>::value >= Dim)
     class UniformElementsAlong {
     public:
       ALPAKA_FN_ACC inline UniformElementsAlong(TAcc const& acc)
@@ -186,9 +189,9 @@ namespace cms::alpakatools {
             : elements_{elements},
               stride_{stride},
               extent_{extent},
-              first_{std::min(first, extent)},
+              first_{idx_min(first, extent)},
               index_{first_},
-              range_{std::min(first + elements, extent)} {}
+              range_{idx_min(first + elements, extent)} {}
 
       public:
         ALPAKA_FN_ACC inline Idx operator*() const { return index_; }
@@ -205,7 +208,7 @@ namespace cms::alpakatools {
           // increment the thread index with the grid stride
           first_ += stride_;
           index_ = first_;
-          range_ = std::min(first_ + elements_, extent_);
+          range_ = idx_min(first_ + elements_, extent_);
           if (index_ < extent_)
             return *this;
 
@@ -305,9 +308,8 @@ namespace cms::alpakatools {
    *     along the fastest, second-fastest, or third-fastest dimension.
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value == 1)
   ALPAKA_FN_ACC inline auto uniform_elements(TAcc const& acc, TArgs... args) {
     return detail::UniformElementsAlong<TAcc, 0>(acc, static_cast<Idx>(args)...);
   }
@@ -318,10 +320,8 @@ namespace cms::alpakatools {
    * infer the accelerator type from the argument.
    */
 
-  template <typename TAcc,
-            std::size_t Dim,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  template <alpaka::concepts::Acc TAcc, std::size_t Dim, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value >= Dim)
   ALPAKA_FN_ACC inline auto uniform_elements_along(TAcc const& acc, TArgs... args) {
     return detail::UniformElementsAlong<TAcc, Dim>(acc, static_cast<Idx>(args)...);
   }
@@ -331,23 +331,20 @@ namespace cms::alpakatools {
    * Like `uniform_elements` for N-dimensional kernels, along the fastest, second-fastest, and third-fastest dimensions.
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 0)
   ALPAKA_FN_ACC inline auto uniform_elements_x(TAcc const& acc, TArgs... args) {
     return detail::UniformElementsAlong<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 1)
   ALPAKA_FN_ACC inline auto uniform_elements_y(TAcc const& acc, TArgs... args) {
     return detail::UniformElementsAlong<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 2)
   ALPAKA_FN_ACC inline auto uniform_elements_z(TAcc const& acc, TArgs... args) {
     return detail::UniformElementsAlong<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
   }
@@ -393,7 +390,8 @@ namespace cms::alpakatools {
    * For more details, see `UniformElementsAlong<TAcc, Dim>(acc, ...)`.
    */
 
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+    template <alpaka::concepts::Acc TAcc>
+      requires(alpaka::Dim<TAcc>::value > 0)
     class UniformElementsND {
     public:
       using Dim = alpaka::Dim<TAcc>;
@@ -506,7 +504,7 @@ namespace cms::alpakatools {
             overflow = true;
           }
           index_[I] = first_[I];
-          range_[I] = std::min(first_[I] + loop_->elements_[I], loop_->extent_[I]);
+          range_[I] = idx_min(first_[I] + loop_->elements_[I], loop_->extent_[I]);
           return overflow;
         }
 
@@ -571,12 +569,14 @@ namespace cms::alpakatools {
    * `uniform_elements_nd(acc, ...)` is a shorthand for `detail::UniformElementsND<TAcc>(acc, ...)`.
    */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  template <alpaka::concepts::Acc TAcc>
+    requires(alpaka::Dim<TAcc>::value > 0)
   ALPAKA_FN_ACC inline auto uniform_elements_nd(TAcc const& acc) {
     return detail::UniformElementsND<TAcc>(acc);
   }
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  template <alpaka::concepts::Acc TAcc>
+    requires(alpaka::Dim<TAcc>::value > 0)
   ALPAKA_FN_ACC inline auto uniform_elements_nd(TAcc const& acc, alpaka::Vec<alpaka::Dim<TAcc>, Idx> extent) {
     return detail::UniformElementsND<TAcc>(acc, extent);
   }
@@ -635,9 +635,8 @@ namespace cms::alpakatools {
    * `uniform_group_elements_along<Dim>`.
    */
 
-    template <typename TAcc,
-              std::size_t Dim,
-              typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+    template <alpaka::concepts::Acc TAcc, std::size_t Dim>
+      requires(alpaka::Dim<TAcc>::value >= Dim)
     class UniformGroupsAlong {
     public:
       ALPAKA_FN_ACC inline UniformGroupsAlong(TAcc const& acc)
@@ -662,7 +661,7 @@ namespace cms::alpakatools {
         friend class UniformGroupsAlong;
 
         ALPAKA_FN_ACC inline const_iterator(Idx stride, Idx extent, Idx first)
-            : stride_{stride}, extent_{extent}, first_{std::min(first, extent)} {}
+            : stride_{stride}, extent_{extent}, first_{idx_min(first, extent)} {}
 
       public:
         ALPAKA_FN_ACC inline Idx operator*() const { return first_; }
@@ -753,9 +752,8 @@ namespace cms::alpakatools {
    *     along the fastest, second-fastest, or third-fastest dimension.
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value == 1)
   ALPAKA_FN_ACC inline auto uniform_groups(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupsAlong<TAcc, 0>(acc, static_cast<Idx>(args)...);
   }
@@ -766,10 +764,8 @@ namespace cms::alpakatools {
    * the accelerator type from the argument.
    */
 
-  template <typename TAcc,
-            std::size_t Dim,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  template <alpaka::concepts::Acc TAcc, std::size_t Dim, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value >= Dim)
   ALPAKA_FN_ACC inline auto uniform_groups_along(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupsAlong<TAcc, Dim>(acc, static_cast<Idx>(args)...);
   }
@@ -779,23 +775,20 @@ namespace cms::alpakatools {
    * Like `uniform_groups` for N-dimensional kernels, along the fastest, second-fastest, and third-fastest dimensions.
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 0)
   ALPAKA_FN_ACC inline auto uniform_groups_x(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupsAlong<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 1)
   ALPAKA_FN_ACC inline auto uniform_groups_y(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupsAlong<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 2)
   ALPAKA_FN_ACC inline auto uniform_groups_z(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupsAlong<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
   }
@@ -853,9 +846,8 @@ namespace cms::alpakatools {
    * Note that the use of warp-level primitives is usually suitable only for the fastest-looping dimension, `N-1`.
    */
 
-    template <typename TAcc,
-              std::size_t Dim,
-              typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+    template <alpaka::concepts::Acc TAcc, std::size_t Dim>
+      requires(alpaka::Dim<TAcc>::value >= Dim)
     class UniformGroupElementsAlong {
     public:
       ALPAKA_FN_ACC inline UniformGroupElementsAlong(TAcc const& acc, Idx block)
@@ -866,10 +858,10 @@ namespace cms::alpakatools {
 
       ALPAKA_FN_ACC inline UniformGroupElementsAlong(TAcc const& acc, Idx block, Idx extent)
           : first_{block * alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[Dim]},
-            local_{std::min(extent - first_,
-                            alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] *
-                                alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])},
-            range_{std::min(extent - first_, local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])} {}
+            local_{idx_min(extent - first_,
+                           alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] *
+                               alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])},
+            range_{idx_min(extent - first_, local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])} {}
 
       class const_iterator;
       using iterator = const_iterator;
@@ -972,9 +964,8 @@ namespace cms::alpakatools {
    *     `uniform_group_elements_z(acc, ...)` to loop along the fastest, second-fastest, or third-fastest dimension.
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value == 1)
   ALPAKA_FN_ACC inline auto uniform_group_elements(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupElementsAlong<TAcc, 0>(acc, static_cast<Idx>(args)...);
   }
@@ -985,10 +976,8 @@ namespace cms::alpakatools {
    * that can infer the accelerator type from the argument.
    */
 
-  template <typename TAcc,
-            std::size_t Dim,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  template <alpaka::concepts::Acc TAcc, std::size_t Dim, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value >= Dim)
   ALPAKA_FN_ACC inline auto uniform_group_elements_along(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupElementsAlong<TAcc, Dim>(acc, static_cast<Idx>(args)...);
   }
@@ -999,23 +988,20 @@ namespace cms::alpakatools {
    * dimensions.
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 0)
   ALPAKA_FN_ACC inline auto uniform_group_elements_x(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupElementsAlong<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 1)
   ALPAKA_FN_ACC inline auto uniform_group_elements_y(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupElementsAlong<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 2)
   ALPAKA_FN_ACC inline auto uniform_group_elements_z(TAcc const& acc, TArgs... args) {
     return detail::UniformGroupElementsAlong<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
   }
@@ -1060,9 +1046,8 @@ namespace cms::alpakatools {
    * group 3.
    */
 
-    template <typename TAcc,
-              std::size_t Dim,
-              typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+    template <alpaka::concepts::Acc TAcc, std::size_t Dim>
+      requires(alpaka::Dim<TAcc>::value >= Dim)
     class IndependentGroupsAlong {
     public:
       ALPAKA_FN_ACC inline IndependentGroupsAlong(TAcc const& acc)
@@ -1086,7 +1071,7 @@ namespace cms::alpakatools {
         friend class IndependentGroupsAlong;
 
         ALPAKA_FN_ACC inline const_iterator(Idx stride, Idx extent, Idx first)
-            : stride_{stride}, extent_{extent}, first_{std::min(first, extent)} {}
+            : stride_{stride}, extent_{extent}, first_{idx_min(first, extent)} {}
 
       public:
         ALPAKA_FN_ACC inline Idx operator*() const { return first_; }
@@ -1164,9 +1149,8 @@ namespace cms::alpakatools {
    *     along the fastest, second-fastest, or third-fastest dimension.
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value == 1)
   ALPAKA_FN_ACC inline auto independent_groups(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupsAlong<TAcc, 0>(acc, static_cast<Idx>(args)...);
   }
@@ -1177,10 +1161,8 @@ namespace cms::alpakatools {
    * infer the accelerator type from the argument.
    */
 
-  template <typename TAcc,
-            std::size_t Dim,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  template <alpaka::concepts::Acc TAcc, std::size_t Dim, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value >= Dim)
   ALPAKA_FN_ACC inline auto independent_groups_along(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupsAlong<TAcc, Dim>(acc, static_cast<Idx>(args)...);
   }
@@ -1191,23 +1173,20 @@ namespace cms::alpakatools {
    * dimensions.
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 0)
   ALPAKA_FN_ACC inline auto independent_groups_x(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupsAlong<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 1)
   ALPAKA_FN_ACC inline auto independent_groups_y(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupsAlong<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 2)
   ALPAKA_FN_ACC inline auto independent_groups_z(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupsAlong<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
   }
@@ -1220,9 +1199,8 @@ namespace cms::alpakatools {
    * `IndependentGroupElementsAlong<TAcc, Dim>(acc, ...)` that can infer the accelerator type from the argument.
    */
 
-    template <typename TAcc,
-              std::size_t Dim,
-              typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+    template <alpaka::concepts::Acc TAcc, std::size_t Dim>
+      requires(alpaka::Dim<TAcc>::value >= Dim)
     class IndependentGroupElementsAlong {
     public:
       ALPAKA_FN_ACC inline IndependentGroupElementsAlong(TAcc const& acc)
@@ -1257,9 +1235,9 @@ namespace cms::alpakatools {
             : elements_{elements},
               stride_{stride},
               extent_{extent},
-              first_{std::min(first, extent)},
+              first_{idx_min(first, extent)},
               index_{first_},
-              range_{std::min(first + elements, extent)} {}
+              range_{idx_min(first + elements, extent)} {}
 
       public:
         ALPAKA_FN_ACC inline Idx operator*() const { return index_; }
@@ -1276,7 +1254,7 @@ namespace cms::alpakatools {
           // increment the thread index with the block stride
           first_ += stride_;
           index_ = first_;
-          range_ = std::min(first_ + elements_, extent_);
+          range_ = idx_min(first_ + elements_, extent_);
           if (index_ < extent_)
             return *this;
 
@@ -1323,9 +1301,8 @@ namespace cms::alpakatools {
   /* independent_group_elements
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value == 1)
   ALPAKA_FN_ACC inline auto independent_group_elements(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupElementsAlong<TAcc, 0>(acc, static_cast<Idx>(args)...);
   }
@@ -1336,10 +1313,8 @@ namespace cms::alpakatools {
    * `detail::IndependentGroupElementsAlong<TAcc, Dim>(acc, ...)` that can infer the accelerator type from the argument.
    */
 
-  template <typename TAcc,
-            std::size_t Dim,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  template <alpaka::concepts::Acc TAcc, std::size_t Dim, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value >= Dim)
   ALPAKA_FN_ACC inline auto independent_group_elements_along(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupElementsAlong<TAcc, Dim>(acc, static_cast<Idx>(args)...);
   }
@@ -1350,23 +1325,20 @@ namespace cms::alpakatools {
    * dimensions.
    */
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 0)
   ALPAKA_FN_ACC inline auto independent_group_elements_x(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupElementsAlong<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 1)
   ALPAKA_FN_ACC inline auto independent_group_elements_y(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupElementsAlong<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
   }
 
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  template <alpaka::concepts::Acc TAcc, typename... TArgs>
+    requires(alpaka::Dim<TAcc>::value > 2)
   ALPAKA_FN_ACC inline auto independent_group_elements_z(TAcc const& acc, TArgs... args) {
     return detail::IndependentGroupElementsAlong<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
   }
@@ -1378,7 +1350,7 @@ namespace cms::alpakatools {
    * Usually the condition is true for block 0 and thread 0, but these indices should not be relied upon.
    */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC inline constexpr bool once_per_grid(TAcc const& acc) {
     return alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc) == Vec<alpaka::Dim<TAcc>>::zeros();
   }
@@ -1390,7 +1362,7 @@ namespace cms::alpakatools {
    * Usually the condition is true for thread 0, but this index should not be relied upon.
    */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC inline constexpr bool once_per_block(TAcc const& acc) {
     return alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc) == Vec<alpaka::Dim<TAcc>>::zeros();
   }

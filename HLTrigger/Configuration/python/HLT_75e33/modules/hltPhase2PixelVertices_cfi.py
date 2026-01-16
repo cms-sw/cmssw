@@ -16,3 +16,8 @@ hltPhase2PixelVertices = cms.EDProducer("PixelVertexProducer",
     ZSeparation = cms.double(0.005),
     beamSpot = cms.InputTag("hltOnlineBeamSpot")
 )
+
+from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
+phase2CAExtension.toModify(hltPhase2PixelVertices,
+    TrackCollection = "hltPhase2PixelTracksCAExtension"
+)

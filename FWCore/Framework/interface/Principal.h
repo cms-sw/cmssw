@@ -118,14 +118,12 @@ namespace edm {
     BasicHandle getByToken(KindOfType kindOfType,
                            TypeID const& typeID,
                            ProductResolverIndex index,
-                           bool skipCurrentProcess,
                            bool& ambiguous,
                            SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const;
 
     void prefetchAsync(WaitingTaskHolder waitTask,
                        ProductResolverIndex index,
-                       bool skipCurrentProcess,
                        ServiceToken const& token,
                        ModuleCallingContext const* mcc) const;
 

@@ -8,7 +8,7 @@ def puppiAK4METReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDi
 
   task = getPatAlgosToolsTask(process)
 
-  pfLabel = "packedPFCandidates"
+  pfInputTag = cms.InputTag("packedPFCandidates", processName=cms.InputTag.skipCurrentProcess())
   pvLabel = "offlineSlimmedPrimaryVertices"
   svLabel = "slimmedSecondaryVertices"
   muLabel = "slimmedMuons"
@@ -37,7 +37,7 @@ def puppiAK4METReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDi
   #
   process.load("RecoJets.JetProducers.ak4PFJets_cfi")
   task.add(process.ak4PFJetsPuppi)
-  process.ak4PFJetsPuppi.src = pfLabel
+  process.ak4PFJetsPuppi.src = pfInputTag
   process.ak4PFJetsPuppi.srcWeights = puppiLabel
 
   from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
@@ -62,7 +62,7 @@ def puppiAK4METReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDi
     jetSource          = cms.InputTag("ak4PFJetsPuppi"),
     algo               = "ak",
     rParam             = 0.4,
-    pfCandidates       = cms.InputTag(pfLabel),
+    pfCandidates       = pfInputTag,
     pvSource           = cms.InputTag(pvLabel),
     svSource           = cms.InputTag(svLabel),
     muSource           = cms.InputTag(muLabel),
@@ -96,7 +96,7 @@ def puppiAK4METReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDi
   from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi import slimmedJets
   addToProcessAndTask('slimmedJetsPuppiNoDeepTags', slimmedJets.clone(
       src = "selectedPatJetsPuppi",
-      packedPFCandidates = pfLabel,
+      packedPFCandidates = pfInputTag,
       dropDaughters = "0",
       rekeyDaughters = "0",
     ),
@@ -108,7 +108,7 @@ def puppiAK4METReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDi
     jetSource = cms.InputTag("slimmedJetsPuppiNoDeepTags"),
     # updateJetCollection defaults to MiniAOD inputs but
     # here it is made explicit (as in training or MINIAOD redoing)
-    pfCandidates = cms.InputTag(pfLabel),
+    pfCandidates = pfInputTag,
     pvSource = cms.InputTag(pvLabel),
     svSource = cms.InputTag(svLabel),
     muSource = cms.InputTag(muLabel),
@@ -131,6 +131,7 @@ def puppiAK4METReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDi
   runMetCorAndUncFromMiniAOD(process,
     isData=not(runOnMC),
     jetCollUnskimmed="slimmedJetsPuppi",
+    pfCandColl=pfInputTag,
     metType="Puppi",
     postfix="Puppi",
     jetFlavor="AK4PFPuppi",
@@ -155,7 +156,7 @@ def puppiAK8ReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDiscr
 
   task = getPatAlgosToolsTask(process)
 
-  pfLabel = "packedPFCandidates"
+  pfInputTag = cms.InputTag("packedPFCandidates", processName=cms.InputTag.skipCurrentProcess())
   pvLabel = "offlineSlimmedPrimaryVertices"
   svLabel = "slimmedSecondaryVertices"
   muLabel = "slimmedMuons"
@@ -188,7 +189,7 @@ def puppiAK8ReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDiscr
   task.add(process.ak8PFJetsPuppiSoftDrop)
 
   # AK8 jet constituents for softdrop
-  process.ak8PFJetsPuppi.src = pfLabel
+  process.ak8PFJetsPuppi.src = pfInputTag
   process.ak8PFJetsPuppi.srcWeights = puppiLabel
 
   # AK8 jet constituents for softdrop
@@ -223,7 +224,7 @@ def puppiAK8ReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDiscr
     jetSource          = cms.InputTag("ak8PFJetsPuppi"),
     algo               = "ak",
     rParam             = 0.8,
-    pfCandidates       = cms.InputTag(pfLabel),
+    pfCandidates       = pfInputTag,
     pvSource           = cms.InputTag(pvLabel),
     svSource           = cms.InputTag(svLabel),
     muSource           = cms.InputTag(muLabel),
@@ -269,7 +270,7 @@ def puppiAK8ReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDiscr
     labelName = "AK8PFPuppiSoftDrop",
     jetSource = cms.InputTag("ak8PFJetsPuppiSoftDrop"),
     btagDiscriminators = ["None"],
-    pfCandidates = cms.InputTag(pfLabel),
+    pfCandidates = pfInputTag,
     pvSource = cms.InputTag(pvLabel),
     svSource = cms.InputTag(svLabel),
     muSource = cms.InputTag(muLabel),
@@ -291,7 +292,7 @@ def puppiAK8ReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDiscr
     rParam = 0.8, # needed for subjet flavor clustering
     explicitJTA = True,  # needed for subjet b tagging
     svClustering = True, # needed for subjet b tagging
-    pfCandidates = cms.InputTag(pfLabel),
+    pfCandidates = pfInputTag,
     pvSource = cms.InputTag(pvLabel),
     svSource = cms.InputTag(svLabel),
     muSource = cms.InputTag(muLabel),
@@ -381,7 +382,7 @@ def puppiAK8ReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDiscr
 
   addToProcessAndTask("slimmedJetsAK8PFPuppiSoftDropSubjetsNoDeepTags", cms.EDProducer("PATJetSlimmer",
       src = cms.InputTag("selectedPatJetsAK8PFPuppiSoftDropSubjets"),
-      packedPFCandidates = cms.InputTag(pfLabel),
+      packedPFCandidates = pfInputTag,
       dropJetVars = cms.string("1"),
       dropDaughters = cms.string("0"),
       rekeyDaughters = cms.string("0"),
@@ -402,7 +403,7 @@ def puppiAK8ReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDiscr
     jetSource = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropSubjetsNoDeepTags"),
     # updateJetCollection defaults to MiniAOD inputs but
     # here it is made explicit (as in training or MINIAOD redoing)
-    pfCandidates = cms.InputTag(pfLabel),
+    pfCandidates = pfInputTag,
     pvSource = cms.InputTag(pvLabel),
     svSource = cms.InputTag(svLabel),
     muSource = cms.InputTag(muLabel),
@@ -430,7 +431,7 @@ def puppiAK8ReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDiscr
         'SoftDropPuppi'
       ),
       fixDaughters = cms.bool(False),
-      packedPFCandidates = cms.InputTag(pfLabel),
+      packedPFCandidates = pfInputTag,
     ),
     process, task
   )
@@ -455,7 +456,7 @@ def puppiAK8ReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDiscr
     jetSource = cms.InputTag("slimmedJetsAK8NoDeepTags"),
     # updateJetCollection defaults to MiniAOD inputs but
     # here it is made explicit (as in training or MINIAOD redoing)
-    pfCandidates = cms.InputTag(pfLabel),
+    pfCandidates = pfInputTag,
     pvSource = cms.InputTag(pvLabel),
     svSource = cms.InputTag(svLabel),
     muSource = cms.InputTag(muLabel),

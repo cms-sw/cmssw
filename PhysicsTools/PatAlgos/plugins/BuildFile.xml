@@ -18,6 +18,7 @@
   <use name="DataFormats/HeavyIonEvent"/>
   <use name="DataFormats/HepMCCandidate"/>
   <use name="PhysicsTools/PatUtils"/>
+  <use name="PhysicsTools/XGBoost"/>
   <use name="CondFormats/JetMETObjects"/>
   <use name="CondFormats/HcalObjects"/>
   <use name="CondFormats/DataRecord"/>

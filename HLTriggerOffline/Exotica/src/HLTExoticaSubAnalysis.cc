@@ -205,7 +205,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
     sources[1] = "rec";
 
     for (size_t i = 0; i < sources.size(); i++) {
-      std::string source = sources[i];
+      const std::string &source = sources[i];
 
       if (source == "gen") {
         if (TString(objStr).Contains("MET") || TString(objStr).Contains("MHT") || TString(objStr).Contains("Jet")) {

@@ -128,8 +128,8 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
     for (unsigned int m = 0; m < placementIndex_.size(); ++m) {
       // First the mother
       std::string mother = parentName + placementIndexTags_[m] + waferTag_ + tags_[k];
-      std::vector<std::pair<double, double> > wxy =
-          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0, (waferMode_ > 0));
+      std::vector<std::pair<double, double> > wxy = HGCalWaferMask::waferXY(
+          partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0, (waferMode_ > 0), true);
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);

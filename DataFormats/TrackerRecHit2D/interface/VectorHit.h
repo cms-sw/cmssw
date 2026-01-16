@@ -72,7 +72,7 @@ public:
 
   // returning methods
   LocalPoint localPosition() const override { return thePosition; }
-  virtual LocalVector localDirection() const { return theDirection; }
+  LocalVector localDirection() const { return theDirection; }
   const AlgebraicSymMatrix44& covMatrix() const;
   LocalError localPositionError() const override;
   LocalError localDirectionError() const;

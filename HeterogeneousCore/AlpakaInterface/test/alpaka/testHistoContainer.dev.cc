@@ -5,7 +5,7 @@
 #include <random>
 
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include <alpaka/alpaka.hpp>
 
@@ -87,10 +87,8 @@ void checkContents(Hist* h,
       ALPAKA_ASSERT_ACC(!l);
     }
   }
-  int status;
-  auto* demangled = abi::__cxa_demangle(typeid(Hist).name(), NULL, NULL, &status);
-  status || printf("Check contents OK with %s\n", demangled);
-  std::free(demangled);
+  std::string_view demangled = alpaka::core::demangled<Hist>;
+  std::cout << "Check contents OK with " << demangled << '\n';
 }
 
 template <typename T>

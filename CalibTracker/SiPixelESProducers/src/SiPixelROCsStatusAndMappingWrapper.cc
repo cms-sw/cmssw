@@ -8,11 +8,11 @@
 #include <cuda_runtime.h>
 
 // CMSSW includes
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelROCsStatusAndMappingWrapper.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -52,8 +52,8 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
           else
             cablingMapHost->badRocs[index] = false;
         } else {  // store some dummy number
-          cablingMapHost->rawId[index] = gpuClustering::invalidModuleId;
-          cablingMapHost->rocInDet[index] = gpuClustering::invalidModuleId;
+          cablingMapHost->rawId[index] = pixelClustering::invalidModuleId;
+          cablingMapHost->rocInDet[index] = pixelClustering::invalidModuleId;
           cablingMapHost->badRocs[index] = true;
           modToUnpDefault[index] = true;
         }
@@ -71,8 +71,8 @@ SiPixelROCsStatusAndMappingWrapper::SiPixelROCsStatusAndMappingWrapper(SiPixelFe
   // idinLnk varies between 1 to 8
 
   for (int i = 1; i < index; i++) {
-    if (cablingMapHost->rawId[i] == gpuClustering::invalidModuleId) {
-      cablingMapHost->moduleId[i] = gpuClustering::invalidModuleId;
+    if (cablingMapHost->rawId[i] == pixelClustering::invalidModuleId) {
+      cablingMapHost->moduleId[i] = pixelClustering::invalidModuleId;
     } else {
       /*
       std::cout << cablingMapHost->rawId[i] << std::endl;

@@ -160,10 +160,12 @@ HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::Paramete
 
   // Define all fit and weight functions
   TMinuitMinimizer::UseStaticMinuit(false);
-  flowFit_p_ = std::make_unique<TF1>("flowFit", flowFunction, -TMath::Pi(), TMath::Pi(), nFlow * 2 + 3);
+  flowFit_p_ =
+      std::make_unique<TF1>("flowFit", flowFunction, -TMath::Pi(), TMath::Pi(), nFlow * 2 + 3, 1, TF1::EAddToList::kNo);
   flowFit_p_->FixParameter(0, nFlow);           // The first parameter defines the number of fitted flow components
   flowFit_p_->FixParameter(1, firstFittedVn_);  // The second parameter defines the first fitted flow component
-  pfWeightFunction_ = std::make_unique<TF2>("weightFunction", weightFunction, 0, TMath::Pi(), -5, 5, 2);
+  pfWeightFunction_ =
+      std::make_unique<TF2>("weightFunction", weightFunction, 0, TMath::Pi(), -5, 5, 2, 2, TF2::EAddToList::kNo);
   pfWeightFunction_->SetParameter(0, pfCandidateEtaCut_);  // Set the allowed eta range for particle flow candidates
   pfWeightFunction_->SetParameter(1, exclusionRadius_);    // Set the exclusion radius around the jets
 }

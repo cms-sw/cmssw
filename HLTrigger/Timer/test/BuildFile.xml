@@ -17,3 +17,6 @@
   <use name="jemalloc"/>
   <use name="HLTrigger/Timer"/>
 </bin>
+
+<test name="TestFastTimerService" command="cmsRun ${LOCALTOP}/src/HLTrigger/Timer/test/testFastTimerService_cfg.py"/>
+

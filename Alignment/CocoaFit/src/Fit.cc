@@ -1311,7 +1311,7 @@ void Fit::printCentreInOptOFrame(const OpticalObject* opto,
               << " parent GLOB " << optoAncestor->centreGlob() << std::endl;
     ALIUtils::dumprm(optoAncestor->rmGlob(), " parent rm ");
   }
-  std::vector<Entry*> entries = opto->CoordinateEntryList();
+  const std::vector<Entry*>& entries = opto->CoordinateEntryList();
   for (ALIuint ii = 0; ii < 3; ii++) {
     /* double entryvalue = getEntryValue( entries[ii] );
        ALIdouble entryvalue;
@@ -1333,7 +1333,7 @@ void Fit::printRotationAnglesInOptOFrame(const OpticalObject* opto,
                                          ALIFileOut& fileout,
                                          ALIbool printErrors,
                                          ALIbool printOrig) {
-  std::vector<Entry*> entries = opto->CoordinateEntryList();
+  const std::vector<Entry*>& entries = opto->CoordinateEntryList();
   std::vector<double> entryvalues = opto->getRotationAnglesInOptOFrame(optoAncestor, entries);
   //-    std::cout << " after return entryvalues[0] " << entryvalues[0] << " entryvalues[1] " << entryvalues[1] << " entryvalues[2] " << entryvalues[2] << std::endl;
   for (ALIuint ii = 3; ii < entries.size(); ii++) {

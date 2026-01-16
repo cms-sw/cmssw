@@ -330,13 +330,13 @@ void l1ct::MultififoRegionizerEmulator::initSectorsAndRegions(const RegionizerDe
     tkRegionizer_.initRouting(tkRoutes_);
   }
   if (ncalo_) {
-    assert(in.hadcalo.size() == NCALO_SECTORS * (nendcaps_ ? nendcaps_ : 1));
+    assert(in.hadcalo.size() == NCALO_SECTORS * (nendcaps_ ? nendcaps_ : 4));
     hadCaloRegionizer_.initSectors(in.hadcalo);
     hadCaloRegionizer_.initRegions(out);
     hadCaloRegionizer_.initRouting(caloRoutes_);
   }
   if (nem_) {
-    assert(in.emcalo.size() == NCALO_SECTORS * (nendcaps_ ? nendcaps_ : 1));
+    assert(in.emcalo.size() == NCALO_SECTORS * (nendcaps_ ? nendcaps_ : 4));
     emCaloRegionizer_.initSectors(in.emcalo);
     emCaloRegionizer_.initRegions(out);
     emCaloRegionizer_.initRouting(emCaloRoutes_);

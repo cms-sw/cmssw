@@ -38,7 +38,7 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet)
       edm::ProcessMatch("*"), this);
   callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
     // in case of EDAliases, consume only the aliased-for original products
-    if (bd.isAnyAlias())
+    if (bd.isAlias())
       return;
     this->HBHERecHitgetter_(bd);
     this->HFRecHitgetter_(bd);

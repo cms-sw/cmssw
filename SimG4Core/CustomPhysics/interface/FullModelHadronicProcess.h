@@ -7,35 +7,25 @@
 #include "G4Nucleus.hh"
 #include "G4ReactionProduct.hh"
 #include <vector>
-#include "G4HadronicException.hh"
 
 #include "SimG4Core/CustomPhysics/interface/FullModelReactionDynamics.h"
 
-class G4ProcessHelper;
+class CustomProcessHelper;
 
 class FullModelHadronicProcess : public G4VDiscreteProcess {
 public:
-  FullModelHadronicProcess(G4ProcessHelper *aHelper, const G4String &processName = "FullModelHadronicProcess");
+  FullModelHadronicProcess(CustomProcessHelper *aHelper, const G4String &processName = "FullModelHadronicProcess");
 
-  ~FullModelHadronicProcess() override;
+  ~FullModelHadronicProcess() override = default;
 
   G4bool IsApplicable(const G4ParticleDefinition &aP) override;
 
   G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) override;
 
 protected:
-  const G4ParticleDefinition *theParticle;
-  G4ParticleDefinition *newParticle;
-
-  G4ParticleChange theParticleChange;
-
-private:
-  virtual G4double GetMicroscopicCrossSection(const G4DynamicParticle *aParticle,
-                                              const G4Element *anElement,
-                                              G4double aTemp);
-
   G4double GetMeanFreePath(const G4Track &aTrack, G4double, G4ForceCondition *) override;
 
+private:
   void CalculateMomenta(G4FastVector<G4ReactionProduct, MYGHADLISTSIZE> &vec,
                         G4int &vecLen,
                         const G4HadProjectile *originalIncident,
@@ -54,12 +44,15 @@ private:
 
   void Rotate(G4FastVector<G4ReactionProduct, MYGHADLISTSIZE> &vec, G4int &vecLen);
 
-  const G4DynamicParticle *FindRhadron(G4ParticleChange *);
+  CustomProcessHelper *theHelper;
+  const G4ParticleDefinition *theParticle{nullptr};
+  G4ParticleDefinition *newParticle{nullptr};
 
-  G4ProcessHelper *theHelper;
-  G4bool toyModel;
-  G4double cache;
-  G4ThreeVector what;
+  G4Nucleus targetNucleus;
+  FullModelReactionDynamics theReactionDynamics;
+
+  G4ThreeVector incomingCloud3Momentum;
+  std::vector<G4double> xsec_;
 };
 
 #endif

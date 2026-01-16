@@ -1,5 +1,5 @@
-#ifndef L1TGlobal_TriggerMenuParser_h
-#define L1TGlobal_TriggerMenuParser_h
+#ifndef L1Trigger_L1TGlobal_TriggerMenuParser_h
+#define L1Trigger_L1TGlobal_TriggerMenuParser_h
 
 /**
  * \class TriggerMenuParser
@@ -26,29 +26,25 @@
  *
  */
 
-// system include files
+#include <map>
 #include <string>
 #include <vector>
 
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
-
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/MuonShowerTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/TOPOTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CICADATemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
-
 #include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
 
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-
-#include <cmath>
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmCondition.h"
@@ -157,6 +153,10 @@ namespace l1t {
     //
     inline const std::vector<std::vector<AXOL1TLTemplate> >& vecAXOL1TLTemplate() const { return m_vecAXOL1TLTemplate; }
     void setVecAXOL1TLTemplate(const std::vector<std::vector<AXOL1TLTemplate> >&);
+
+    //
+    inline const std::vector<std::vector<TOPOTemplate> >& vecTOPOTemplate() const { return m_vecTOPOTemplate; }
+    void setVecTOPOTemplate(const std::vector<std::vector<TOPOTemplate> >&);
 
     //
     inline const std::vector<std::vector<CICADATemplate> >& vecCICADATemplate() const { return m_vecCICADATemplate; }
@@ -314,6 +314,8 @@ namespace l1t {
 
     bool parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned int chipNr = 0);
 
+    bool parseTOPO(L1TUtmCondition condTOPO, unsigned int chipNr = 0);
+
     bool parseCICADA(L1TUtmCondition condCICADA, unsigned int chipNr = 0);
 
     bool parseEnergySumCorr(const L1TUtmObject* corrESum, unsigned int chipNr = 0);
@@ -371,6 +373,11 @@ namespace l1t {
                             TrigFunc_t func,
                             unsigned int prec);
 
+    // Multiply two doubles, and return the result as a "long long" integer
+    //  Note: the output value is clamped within values close to the
+    //        min/max values of the "long long" type in order to avoid overflow
+    long long multiply_and_clamp_longlong(double const d1, double const d2, bool const returnMinIfInvalid) const;
+
   private:
     /// hardware limits
 
@@ -423,6 +430,7 @@ namespace l1t {
     std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<EnergySumZdcTemplate> > m_vecEnergySumZdcTemplate;
     std::vector<std::vector<AXOL1TLTemplate> > m_vecAXOL1TLTemplate;
+    std::vector<std::vector<TOPOTemplate> > m_vecTOPOTemplate;
     std::vector<std::vector<CICADATemplate> > m_vecCICADATemplate;
     std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
@@ -444,4 +452,4 @@ namespace l1t {
   };
 
 }  // namespace l1t
-#endif /*L1TGlobal_TriggerMenuParser_h*/
+#endif

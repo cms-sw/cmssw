@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <string>
+#include <format>
 
 using namespace std;
 using namespace edm;
@@ -141,7 +142,7 @@ void HcalFEDIntegrityTask::labelBins(MonitorElement *me) {
     return;
 
   for (int i = 0; i < xbins; i++) {
-    const std::string xLabel = fmt::format("{}", minFEDNum_ + i);
+    const std::string xLabel = std::format("{}", minFEDNum_ + i);
     me->setBinLabel(i + 1, xLabel, 1);
   }
 }

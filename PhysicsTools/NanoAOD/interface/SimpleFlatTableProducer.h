@@ -148,8 +148,8 @@ public:
     edm::Handle<edm::ValueMap<TIn>> vmap;
     iEvent.getByToken(token_, vmap);
     std::vector<ValType> vals;
+    vals.resize(selptrs.size());
     if (vmap.isValid() || !skipNonExistingSrc_) {
-      vals.resize(selptrs.size());
       for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
         // calls the overloaded method to either get the valuemap value directly, or a function of the object value.
         vals[i] = this->eval(vmap, selptrs[i]);

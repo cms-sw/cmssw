@@ -3,11 +3,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 using namespace edm;
 using namespace std;
-
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 using namespace reco;
 
 BTagSkimMC::BTagSkimMC(const ParameterSet& p, const BTagSkimMCCount::Counters* count) : nEvents_(0), nAccepted_(0) {
@@ -75,6 +76,15 @@ bool BTagSkimMC::filter(Event& evt, const EventSetup& es) {
     cout << " REJECTED " << endl;
 
   return false;
+}
+
+void BTagSkimMC::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("mcProcess", "ttbar");
+  desc.add<double>("pthat_min", 50.0);
+  desc.addUntracked<bool>("verbose", false);
+  desc.add<double>("pthat_max", 80.0);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void BTagSkimMC::endStream() {

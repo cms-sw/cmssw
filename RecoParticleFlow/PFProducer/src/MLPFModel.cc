@@ -66,7 +66,7 @@ namespace reco::mlpf {
       charge = ref->charge();
       num_hits = ref->recHitsSize();
 
-      reco::MuonRef muonRef = orig.muonRef();
+      const reco::MuonRef& muonRef = orig.muonRef();
       if (muonRef.isNonnull()) {
         reco::TrackRef standAloneMu = muonRef->standAloneMuon();
         if (standAloneMu.isNonnull()) {

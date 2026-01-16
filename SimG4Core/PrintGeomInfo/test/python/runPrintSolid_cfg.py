@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runPrintSolid_cfg.py type=DDD geometry=2023
 #
-#   Options for geometry 2021, 2023, 2024
+#   Options for geometry 2021, 2023, 2024, 2025
 #   Options for type DDD, DD4hep
 #
 ###############################################################################
@@ -17,7 +17,7 @@ options.register('geometry',
                  "2024",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2021, 2023, 2024")
+                  "geometry of operations: 2021, 2023, 2024, 2025")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,

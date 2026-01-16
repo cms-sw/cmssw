@@ -26,11 +26,11 @@ the worker is reset().
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
+#include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
-#include "FWCore/Framework/interface/ModuleConsumesMinimalESInfo.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
@@ -40,8 +40,6 @@ the worker is reset().
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
-#include "FWCore/ServiceRegistry/interface/PathContext.h"
-#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
@@ -74,10 +72,7 @@ namespace edm {
   class EventPrincipal;
   class EventSetupImpl;
   class EarlyDeleteHelper;
-  class ProductResolverIndexHelper;
   class ProductResolverIndexAndSkipBit;
-  class ProductRegistry;
-  class ThinnedAssociationsHelper;
 
   namespace workerhelper {
     template <typename O>
@@ -131,9 +126,12 @@ namespace edm {
     virtual bool wantsStreamRuns() const noexcept = 0;
     virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
+    //returns non-nullptr if the module can only process one Run at a time
     virtual SerialTaskQueue* globalRunsQueue() = 0;
+    //returns non-nullptr if the module can only process one LuminosityBlock at a time
     virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
+    //Run only for OutputModules. Causes TriggerResults information to be used to decide if module should run.
     void prePrefetchSelectionAsync(oneapi::tbb::task_group&,
                                    WaitingTask* task,
                                    ServiceToken const&,
@@ -177,15 +175,8 @@ namespace edm {
                           StreamContext const*) noexcept;
 
     void callWhenDoneAsync(WaitingTaskHolder task) { waitingTasks_.add(std::move(task)); }
+    // Called if filter earlier in the path has failed.
     void skipOnPath(EventPrincipal const& iEvent);
-    void beginJob(GlobalContext const&);
-    void endJob(GlobalContext const&);
-    void beginStream(StreamID, StreamContext const&);
-    void endStream(StreamID, StreamContext const&);
-    void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
-    void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
-    void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
-    void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper);
 
     void reset() {
       cached_exception_ = std::exception_ptr();
@@ -208,21 +199,6 @@ namespace edm {
     void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);
 
     void setEarlyDeleteHelper(EarlyDeleteHelper* iHelper);
-
-    //Used to make EDGetToken work
-    virtual void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) = 0;
-    virtual void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) = 0;
-    virtual void releaseMemoryPostLookupSignal() = 0;
-    virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
-    virtual void resolvePutIndicies(
-        BranchType iBranchType,
-        std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
-            iIndicies) = 0;
-
-    virtual void convertCurrentProcessAlias(std::string const& processName) = 0;
-
-    virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
-    virtual std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const = 0;
 
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
@@ -248,6 +224,7 @@ namespace edm {
 
     virtual bool hasAccumulator() const noexcept = 0;
 
+    virtual bool matchesBaseClassPointer(void const* iPtr) const noexcept = 0;
     // Used in PuttableProductResolver
     edm::WaitingTaskList& waitingTaskList() noexcept { return waitingTasks_; }
 
@@ -257,7 +234,6 @@ namespace edm {
 
     virtual void doClearModule() = 0;
 
-    virtual std::string workerType() const = 0;
     virtual bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) = 0;
 
     virtual void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
@@ -284,10 +260,6 @@ namespace edm {
     virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual void implBeginJob() = 0;
-    virtual void implEndJob() = 0;
-    virtual void implBeginStream(StreamID) = 0;
-    virtual void implEndStream(StreamID) = 0;
 
     void resetModuleDescription(ModuleDescription const*);
 
@@ -308,12 +280,6 @@ namespace edm {
     virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                               ModuleCallingContext const& moduleCallingContext,
                                               Principal const& iPrincipal) const noexcept = 0;
-
-    virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseOutputFile() = 0;
-
-    virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
 
     virtual TaskQueueAdaptor serializeRunModule() = 0;
 
@@ -520,7 +486,7 @@ namespace edm {
     };
 
     template <typename DUMMY>
-    class AcquireTask<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>, DUMMY> : public WaitingTask {
+    class AcquireTask<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>, DUMMY> : public WaitingTask {
     public:
       AcquireTask(Worker* worker,
                   EventTransitionInfo const& eventTransitionInfo,
@@ -625,66 +591,11 @@ namespace edm {
     bool shouldTryToContinue_ = false;
     bool beginSucceeded_ = false;
   };
-
-  namespace {
-    template <typename T>
-    class ModuleSignalSentry {
-    public:
-      ModuleSignalSentry(ActivityRegistry* a,
-                         typename T::Context const* context,
-                         ModuleCallingContext const* moduleCallingContext)
-          : a_(a), context_(context), moduleCallingContext_(moduleCallingContext) {}
-
-      ~ModuleSignalSentry() {
-        // This destructor does nothing unless we are unwinding the
-        // the stack from an earlier exception (a_ will be null if we are
-        // are not). We want to report the earlier exception and ignore any
-        // addition exceptions from the post module signal.
-        CMS_SA_ALLOW try {
-          if (a_) {
-            T::postModuleSignal(a_, context_, moduleCallingContext_);
-          }
-        } catch (...) {
-        }
-      }
-      void preModuleSignal() {
-        if (a_) {
-          try {
-            convertException::wrap([this]() { T::preModuleSignal(a_, context_, moduleCallingContext_); });
-          } catch (cms::Exception& ex) {
-            ex.addContext("Handling pre module signal, likely in a service function immediately before module method");
-            throw;
-          }
-        }
-      }
-      void postModuleSignal() {
-        if (a_) {
-          auto temp = a_;
-          // Setting a_ to null informs the destructor that the signal
-          // was already run and that it should do nothing.
-          a_ = nullptr;
-          try {
-            convertException::wrap([this, temp]() { T::postModuleSignal(temp, context_, moduleCallingContext_); });
-          } catch (cms::Exception& ex) {
-            ex.addContext("Handling post module signal, likely in a service function immediately after module method");
-            throw;
-          }
-        }
-      }
-
-    private:
-      ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
-      typename T::Context const* context_;
-      ModuleCallingContext const* moduleCallingContext_;
-    };
-
-  }  // namespace
-
   namespace workerhelper {
     template <>
-    class CallImpl<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>> {
+    class CallImpl<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>> {
     public:
-      typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Arg;
+      typedef OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> Arg;
       static bool call(Worker* iWorker,
                        StreamID,
                        EventTransitionInfo const& info,
@@ -709,9 +620,9 @@ namespace edm {
     };
 
     template <>
-    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>> {
+    class CallImpl<OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Arg;
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin> Arg;
       static bool call(Worker* iWorker,
                        StreamID,
                        RunTransitionInfo const& info,
@@ -743,9 +654,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>> {
+    class CallImpl<OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Arg;
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin> Arg;
       static bool call(Worker* iWorker,
                        StreamID id,
                        RunTransitionInfo const& info,
@@ -772,9 +683,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>> {
+    class CallImpl<OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Arg;
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd> Arg;
       static bool call(Worker* iWorker,
                        StreamID,
                        RunTransitionInfo const& info,
@@ -805,9 +716,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept { return iWorker->globalRunsQueue(); }
     };
     template <>
-    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>> {
+    class CallImpl<OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd>> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Arg;
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd> Arg;
       static bool call(Worker* iWorker,
                        StreamID id,
                        RunTransitionInfo const& info,
@@ -839,9 +750,9 @@ namespace edm {
     };
 
     template <>
-    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>> {
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
       static bool call(Worker* iWorker,
                        StreamID,
                        LumiTransitionInfo const& info,
@@ -870,9 +781,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>> {
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
       static bool call(Worker* iWorker,
                        StreamID id,
                        LumiTransitionInfo const& info,
@@ -900,9 +811,9 @@ namespace edm {
     };
 
     template <>
-    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>> {
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
       static bool call(Worker* iWorker,
                        StreamID,
                        LumiTransitionInfo const& info,
@@ -935,9 +846,9 @@ namespace edm {
       }
     };
     template <>
-    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>> {
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>;
       static bool call(Worker* iWorker,
                        StreamID id,
                        LumiTransitionInfo const& info,
@@ -968,9 +879,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>> {
+    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin>> {
     public:
-      using Arg = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
+      using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin>;
       static bool call(Worker* iWorker,
                        StreamID,
                        ProcessBlockTransitionInfo const& info,
@@ -992,9 +903,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>> {
+    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>> {
     public:
-      using Arg = OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>;
+      using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       static bool call(Worker* iWorker,
                        StreamID,
                        ProcessBlockTransitionInfo const& info,
@@ -1015,9 +926,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) noexcept { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>> {
+    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd>> {
     public:
-      using Arg = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
+      using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd>;
       static bool call(Worker* iWorker,
                        StreamID,
                        ProcessBlockTransitionInfo const& info,

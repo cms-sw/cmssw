@@ -21,7 +21,7 @@ public:
   /// Computation: generates vectors of weights, means and standard deviations
   void compute(const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
 
-  virtual size_t size() const { return 2; }
+  size_t size() const { return 2; }
 };
 
 #endif

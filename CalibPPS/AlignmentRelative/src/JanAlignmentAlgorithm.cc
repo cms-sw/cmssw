@@ -434,7 +434,7 @@ unsigned int JanAlignmentAlgorithm::solve(const std::vector<AlignmentConstraint>
 
   // eigen analysis of CS matrix
   TMatrixDSymEigen CS_eig(CS);
-  TVectorD CS_eigVal = CS_eig.GetEigenValues();
+  const TVectorD &CS_eigVal = CS_eig.GetEigenValues();
   TMatrixD CS_eigVec = CS_eig.GetEigenVectors();
 
   // check regularity of CS matrix

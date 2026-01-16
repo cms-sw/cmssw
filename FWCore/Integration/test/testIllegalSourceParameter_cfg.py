@@ -12,7 +12,7 @@ process.MessageLogger.cerr.enableStatistics = False
 # Intentionally define a parameter that does not
 # exist in the ParameterSetDescription which
 # should result in an exception.
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("EmptySource",
 			    fileNames = cms.untracked.vstring("file:dummy.root"),
                             doesNotExist = cms.bool(True))
 

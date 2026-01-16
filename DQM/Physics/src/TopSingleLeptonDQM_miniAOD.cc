@@ -70,7 +70,8 @@ namespace TopSingleLepton_miniAOD {
       }
 
       if (elecExtras.existsAs<std::string>("rho")) {
-        rhoTag = elecExtras.getParameter<edm::InputTag>("rho");
+        auto rhoTag = elecExtras.getParameter<edm::InputTag>("rho");
+        rhoToken_ = iC.consumes(rhoTag);
       }
       // electronId is optional; in case it's not found the
       // InputTag will remain empty
@@ -406,8 +407,9 @@ namespace TopSingleLepton_miniAOD {
       return;
 
     edm::Handle<double> _rhoHandle;
-    event.getByLabel(rhoTag, _rhoHandle);
-    //if (!event.getByToken(elecs_, elecs)) return;
+    if (!rhoToken_.isUninitialized()) {
+      _rhoHandle = event.getHandle(rhoToken_);
+    }
 
     // check availability of electron id
     edm::Handle<edm::ValueMap<float>> electronId;

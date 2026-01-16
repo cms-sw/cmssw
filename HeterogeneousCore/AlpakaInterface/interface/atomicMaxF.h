@@ -7,7 +7,7 @@
 
 // FIXME: this should be rewritten using the correct template specialisation for the different accelerator types
 
-template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+template <alpaka::concepts::Acc TAcc>
 ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static float atomicMaxF(const TAcc& acc, float* address, float val) {
 #if defined(__CUDA_ARCH__) or defined(__HIP_DEVICE_COMPILE__)
   // GPU implementation uses __float_as_int / __int_as_float

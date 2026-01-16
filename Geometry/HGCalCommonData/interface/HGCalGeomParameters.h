@@ -86,6 +86,7 @@ public:
   void loadCellParsHexagon(const cms::DDVectorsMap& vmap, HGCalParameters& php);
   void loadCellParsHexagon(const HGCalParameters& php);
   void loadCellTrapezoid(HGCalParameters& php);
+  static void rescale(std::vector<double>&, const double s);
 
   struct layerParameters {
     double rmin, rmax, zpos;
@@ -153,7 +154,6 @@ private:
                                          int wafer,
                                          double xx,
                                          double yy);
-  void rescale(std::vector<double>&, const double s);
   void resetZero(std::vector<double>&);
 
   constexpr static double tan30deg_ = 0.5773502693;

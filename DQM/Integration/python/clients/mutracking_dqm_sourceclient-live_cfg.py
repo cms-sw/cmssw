@@ -159,7 +159,7 @@ process.muSTAreco = cms.Sequence(process.CosmicMuonSeed*process.cosmicMuons)
 
 
 #--------------------------                                                                                                         # Service                                                                                                                           #--------------------------                                                                                                                      
-process.AdaptorConfig = cms.Service("AdaptorConfig")                                                                                            
+                                                                                            
 
 #--------------------------
 # Filters

@@ -66,8 +66,6 @@ namespace edm {
                                                     Principal const& iPrincipal) const noexcept {}
 
     private:
-      std::string workerType() const { return "WorkerT<edm::global::OutputModuleBase>"; }
-
       virtual void preallocStreams(unsigned int) {}
       virtual void preallocate(PreallocationConfiguration const&) {}
       virtual void doBeginStream_(StreamID) {}

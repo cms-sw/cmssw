@@ -23,7 +23,7 @@ echo -e "TESTING Pixel Template DB Object Reader ... \n\n"
 cmsRun  ${SCRAM_TEST_PATH}/SiPixelTemplateDBObjectReader_cfg.py MagField=3.8 readFromGT=True || die "Failure running SiPixelTemplateDBObjectReader_cfg.py MagField=3.8 readFromGT=True" $?
 
 echo -e "TESTING Pixel LorentzAngle DB for Phase-2 ... \n\n"
-cmsRun  ${SCRAM_TEST_PATH}/SiPixelLorentzAngleDBLoader_Phase2_cfg.py geometry=T33 || die "Failure running SiPixelLorentzAngleDBLoader_Phase2_cfg.py geometry=T33" $?
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelLorentzAngleDBLoader_Phase2_cfg.py geometry=T35 || die "Failure running SiPixelLorentzAngleDBLoader_Phase2_cfg.py geometry=T35" $?
 
 echo -e "TESTING SiPixelVCal DB codes ... \n\n"
 

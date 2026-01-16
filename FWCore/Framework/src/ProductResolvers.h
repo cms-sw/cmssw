@@ -42,7 +42,7 @@ namespace edm {
   public:
     DataManagingOrAliasProductResolver() : ProductResolverBase{} {}
 
-    // Give AliasProductResolver and SwitchBaseProductResolver access by moving this method to public
+    // Give AliasProductResolver access by moving this method to public
     void resetProductData_(bool deleteEarly) override = 0;
     virtual ProductData const& getProductData() const = 0;
   };
@@ -84,7 +84,7 @@ namespace edm {
     bool productUnavailable_() const final;
     bool productResolved_() const final;
     bool productWasDeleted_() const final;
-    bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final;
+    bool productWasFetchedAndIsValid_() const final;
 
     ProductDescription const& productDescription_() const final { return *getProductData().productDescription(); }
     void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) final {
@@ -130,12 +130,10 @@ namespace edm {
     bool isFromCurrentProcess() const final;
 
     Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
     void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
-                        bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const noexcept override;
@@ -169,12 +167,10 @@ namespace edm {
     void putOrMergeProduct(std::unique_ptr<WrapperBase> prod) const override;
 
     Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const final;
     void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
-                        bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const noexcept final;
@@ -207,12 +203,10 @@ namespace edm {
 
   private:
     Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
     void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
-                        bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const noexcept override;
@@ -235,12 +229,10 @@ namespace edm {
 
   private:
     Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
     void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
-                        bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const noexcept override;
@@ -264,12 +256,10 @@ namespace edm {
   private:
     void putProduct(std::unique_ptr<WrapperBase> edp) const override;
     Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
     void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
-                        bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const noexcept override;
@@ -298,26 +288,22 @@ namespace edm {
 
   private:
     Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override {
-      return realProduct_.resolveProduct(principal, skipCurrentProcess, sra, mcc);
+      return realProduct_.resolveProduct(principal, sra, mcc);
     }
     void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
-                        bool skipCurrentProcess,
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const noexcept override {
-      realProduct_.prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
+      realProduct_.prefetchAsync(waitTask, principal, token, sra, mcc);
     }
     bool unscheduledWasNotRun_() const override { return realProduct_.unscheduledWasNotRun(); }
     bool productUnavailable_() const override { return realProduct_.productUnavailable(); }
     bool productResolved_() const final { return realProduct_.productResolved(); }
     bool productWasDeleted_() const override { return realProduct_.productWasDeleted(); }
-    bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final {
-      return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess);
-    }
+    bool productWasFetchedAndIsValid_() const final { return realProduct_.productWasFetchedAndIsValid(); }
 
     ProductDescription const& productDescription_() const override { return *bd_; }
     void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) override { bd_ = bd; }
@@ -334,223 +320,6 @@ namespace edm {
     DataManagingOrAliasProductResolver& realProduct_;
     std::shared_ptr<ProductDescription const> bd_;
   };
-
-  // Switch is a mixture of DataManaging (for worker and provenance) and Alias (for product)
-  class SwitchBaseProductResolver : public DataManagingOrAliasProductResolver {
-  public:
-    using ProductStatus = DataManagingProductResolver::ProductStatus;
-    SwitchBaseProductResolver(std::shared_ptr<ProductDescription const> bd,
-                              DataManagingOrAliasProductResolver& realProduct);
-
-    void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) final;
-    void setupUnscheduled(UnscheduledConfigurator const& iConfigure) final;
-
-  protected:
-    Resolution resolveProductImpl(Resolution) const;
-    WaitingTaskList& waitingTasks() const { return waitingTasks_; }
-    Worker* worker() const { return worker_; }
-    DataManagingOrAliasProductResolver const& realProduct() const { return realProduct_; }
-    std::atomic<bool>& prefetchRequested() const { return prefetchRequested_; }
-    void unsafe_setWrapperAndProvenance() const;
-    void resetProductData_(bool deleteEarly) override;
-
-  private:
-    bool productResolved_() const final;
-    bool productWasDeleted_() const final { return realProduct_.productWasDeleted(); }
-    bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final {
-      return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess);
-    }
-    ProductDescription const& productDescription_() const final {
-      return *productData_.productDescription();
-      ;
-    }
-    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) final {
-      productData_.resetProductDescription(bd);
-    }
-    Provenance const* provenance_() const final { return &productData_.provenance(); }
-    std::string const& resolvedModuleLabel_() const final { return moduleLabel(); }
-    void setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) final;
-    void setProductID_(ProductID const& pid) final;
-    ProductProvenance const* productProvenancePtr_() const final { return provenance()->productProvenance(); }
-    ProductData const& getProductData() const final { return productData_; }
-    bool singleProduct_() const final { return true; }
-
-    // for "alias" view
-    DataManagingOrAliasProductResolver& realProduct_;
-    // for "product" view
-    ProductData productData_;
-    Worker* worker_ = nullptr;
-    CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
-    mutable std::atomic<bool> prefetchRequested_;
-    // for provenance
-    ParentageID parentageID_;
-  };
-
-  // For the case when SwitchProducer is on a Path
-  class SwitchProducerProductResolver : public SwitchBaseProductResolver, public ProductPutterBase {
-  public:
-    SwitchProducerProductResolver(std::shared_ptr<ProductDescription const> bd,
-                                  DataManagingOrAliasProductResolver& realProduct);
-
-  private:
-    Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
-                               SharedResourcesAcquirer* sra,
-                               ModuleCallingContext const* mcc) const final;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
-                        Principal const& principal,
-                        bool skipCurrentProcess,
-                        ServiceToken const& token,
-                        SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const noexcept final;
-    void putProduct(std::unique_ptr<WrapperBase> edp) const final;
-    bool unscheduledWasNotRun_() const final { return false; }
-    bool productUnavailable_() const final;
-    void resetProductData_(bool deleteEarly) final;
-
-    constexpr static const ProductStatus defaultStatus_ = ProductStatus::NotPut;
-
-    // for filter in a Path
-    // The variable is only modified or read at times where the
-    //  framework has guaranteed synchronization between write and read
-    CMS_THREAD_SAFE mutable ProductStatus status_;
-  };
-
-  // For the case when SwitchProducer is not on any Path
-  class SwitchAliasProductResolver : public SwitchBaseProductResolver {
-  public:
-    SwitchAliasProductResolver(std::shared_ptr<ProductDescription const> bd,
-                               DataManagingOrAliasProductResolver& realProduct)
-        : SwitchBaseProductResolver(std::move(bd), realProduct) {}
-
-  private:
-    Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
-                               SharedResourcesAcquirer* sra,
-                               ModuleCallingContext const* mcc) const final;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
-                        Principal const& principal,
-                        bool skipCurrentProcess,
-                        ServiceToken const& token,
-                        SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const noexcept final;
-    bool unscheduledWasNotRun_() const final { return realProduct().unscheduledWasNotRun(); }
-    bool productUnavailable_() const final { return realProduct().productUnavailable(); }
-  };
-
-  class NoProcessProductResolver : public ProductResolverBase {
-  public:
-    typedef ProducedProductResolver::ProductStatus ProductStatus;
-    NoProcessProductResolver(std::vector<ProductResolverIndex> const& matchingHolders,
-                             std::vector<bool> const& ambiguous,
-                             bool madeAtEnd);
-
-    void connectTo(ProductResolverBase const& iOther, Principal const*) final;
-
-    void tryPrefetchResolverAsync(unsigned int iProcessingIndex,
-                                  Principal const& principal,
-                                  bool skipCurrentProcess,
-                                  SharedResourcesAcquirer* sra,
-                                  ModuleCallingContext const* mcc,
-                                  ServiceToken token,
-                                  oneapi::tbb::task_group*) const noexcept;
-
-    bool dataValidFromResolver(unsigned int iProcessingIndex,
-                               Principal const& principal,
-                               bool iSkipCurrentProcess) const;
-
-    void prefetchFailed(unsigned int iProcessingIndex,
-                        Principal const& principal,
-                        bool iSkipCurrentProcess,
-                        std::exception_ptr iExceptPtr) const;
-
-  private:
-    unsigned int unsetIndexValue() const;
-    Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
-                               SharedResourcesAcquirer* sra,
-                               ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
-                        Principal const& principal,
-                        bool skipCurrentProcess,
-                        ServiceToken const& token,
-                        SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const noexcept override;
-    bool unscheduledWasNotRun_() const override;
-    bool productUnavailable_() const override;
-    bool productWasDeleted_() const override;
-    bool productResolved_() const final;
-    bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
-
-    ProductDescription const& productDescription_() const override;
-    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) override;
-    Provenance const* provenance_() const override;
-
-    std::string const& resolvedModuleLabel_() const override { return moduleLabel(); }
-    void setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) override;
-    void setProductID_(ProductID const& pid) override;
-    ProductProvenance const* productProvenancePtr_() const override;
-    void resetProductData_(bool deleteEarly) override;
-    bool singleProduct_() const override;
-
-    Resolution tryResolver(unsigned int index,
-                           Principal const& principal,
-                           bool skipCurrentProcess,
-                           SharedResourcesAcquirer* sra,
-                           ModuleCallingContext const* mcc) const;
-
-    void setCache(bool skipCurrentProcess, ProductResolverIndex index, std::exception_ptr exceptionPtr) const;
-
-    std::vector<ProductResolverIndex> matchingHolders_;
-    std::vector<bool> ambiguous_;
-    CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
-    CMS_THREAD_SAFE mutable WaitingTaskList skippingWaitingTasks_;
-    mutable std::atomic<unsigned int> lastCheckIndex_;
-    mutable std::atomic<unsigned int> lastSkipCurrentCheckIndex_;
-    mutable std::atomic<bool> prefetchRequested_;
-    mutable std::atomic<bool> skippingPrefetchRequested_;
-    const bool madeAtEnd_;
-  };
-
-  class SingleChoiceNoProcessProductResolver : public ProductResolverBase {
-  public:
-    typedef ProducedProductResolver::ProductStatus ProductStatus;
-    SingleChoiceNoProcessProductResolver(ProductResolverIndex iChoice)
-        : ProductResolverBase(), realResolverIndex_(iChoice) {}
-
-    void connectTo(ProductResolverBase const& iOther, Principal const*) final;
-
-  private:
-    Resolution resolveProduct_(Principal const& principal,
-                               bool skipCurrentProcess,
-                               SharedResourcesAcquirer* sra,
-                               ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
-                        Principal const& principal,
-                        bool skipCurrentProcess,
-                        ServiceToken const& token,
-                        SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const noexcept override;
-    bool unscheduledWasNotRun_() const override;
-    bool productUnavailable_() const override;
-    bool productWasDeleted_() const override;
-    bool productResolved_() const final;
-    bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
-
-    ProductDescription const& productDescription_() const override;
-    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) override;
-    Provenance const* provenance_() const override;
-
-    std::string const& resolvedModuleLabel_() const override { return moduleLabel(); }
-    void setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) override;
-    void setProductID_(ProductID const& pid) override;
-    ProductProvenance const* productProvenancePtr_() const override;
-    void resetProductData_(bool deleteEarly) override;
-    bool singleProduct_() const override;
-
-    ProductResolverIndex realResolverIndex_;
-  };
-
 }  // namespace edm
 
 #endif

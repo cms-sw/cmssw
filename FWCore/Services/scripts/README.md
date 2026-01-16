@@ -34,6 +34,8 @@ The script will output a new file named `data.json`.
 If you only want to see the framework transitions and not all the information about ED or ES modules, you can use the option `-f`.
 You can also have all activities related to each module grouped by using the `-m` option.
 
-#### setup web data
+#### viewing web data
 
-For directions on how to use the web application, see the [`FWCore/Services/web/README.md`](../web/README.md) file.
+The web data is is _chrome trace log_ format and can be read natively by the Chrome application. To so, load the data onto the same machine as Chrome will be running. After starting chrome, type `chrome://tracing/` into the search bar. This will startup the built in viewer. To choose the data file, click on the `load` button. The `?` button explains the various ways to interact with the trace.
+
+If one does not want to use Chrome, other open source software says it supports displaying that format. To find one try searching the term `chrome trace viewer`. The way supported directly by the chromium group can be found at `https://chromium.googlesource.com/catapult`. 

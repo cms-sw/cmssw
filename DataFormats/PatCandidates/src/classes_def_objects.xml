@@ -43,10 +43,6 @@
    <version ClassVersion="15" checksum="990589145"/>
    <version ClassVersion="10" checksum="1662079993"/>
   </class>
-  <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
-  <class name="edm::AtomicPtrCache<std::vector<reco::SuperCluster> >">
-   <field name="m_data" transient="true"/>
-  </class>
   <ioread sourceClass="pat::Electron" targetClass="pat::Electron" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
@@ -134,13 +130,6 @@
     <version ClassVersion="3" checksum="2961562419" />
   </class>
 
-  <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
-   <class name="edm::AtomicPtrCache<reco::TrackRefVector>">
-     <field name="m_data" transient="true"/>
-  </class>
-   <class name="edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> >">
-     <field name="m_data" transient="true"/>
-  </class>
   <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationTracksTransientRefVector_">
   <![CDATA[isolationTracksTransientRefVector_.reset();]]>
   </ioread>
@@ -241,7 +230,6 @@
    <version ClassVersion="11" checksum="3277818926"/>
    <version ClassVersion="10" checksum="865744757"/>
   </class>
-  <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
   <ioread sourceClass="pat::Photon" targetClass="pat::Photon" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>

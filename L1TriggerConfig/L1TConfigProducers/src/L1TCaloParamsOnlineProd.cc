@@ -55,6 +55,8 @@ bool L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelper
       //"layer1SecondStageLUT",
       //"layer1HCalFBLUTUpper",
       //"layer1HCalFBLUTLower"
+      //"layer1ECalZSFactors",
+      //"layer1HCalZSFactors"
   };
   for (const auto param : expectedParams) {
     if (conf.find(param) == conf.end()) {
@@ -84,6 +86,10 @@ bool L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelper
     paramsHelper.setLayer1HCalFBLUTUpper(conf["layer1HCalFBLUTUpper"].getVector<unsigned int>());
   if (conf.find("layer1HCalFBLUTLower") != conf.end())
     paramsHelper.setLayer1HCalFBLUTLower(conf["layer1HCalFBLUTLower"].getVector<unsigned int>());
+  if (conf.find("layer1ECalZSFactors") != conf.end())
+    paramsHelper.setLayer1ECalZSFactors((conf["layer1ECalZSFactors"].getVector<double>()));
+  if (conf.find("layer1HCalZSFactors") != conf.end())
+    paramsHelper.setLayer1HCalZSFactors((conf["layer1HCalZSFactors"].getVector<double>()));
 
   return true;
 }

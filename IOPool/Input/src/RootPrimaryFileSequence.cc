@@ -9,6 +9,7 @@
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -16,7 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 namespace edm {
   RootPrimaryFileSequence::RootPrimaryFileSequence(ParameterSet const& pset,
@@ -65,11 +66,14 @@ namespace edm {
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
       initFile(input_.skipBadFiles());
-      if (rootFile())
+      if (rootFile() and not rootFile()->empty())
         break;
     }
     if (rootFile()) {
-      input_.productRegistryUpdate().updateFromInput(rootFile()->productRegistry()->productList());
+      std::vector<std::string> processOrder;
+      processingOrderMerge(input_.processHistoryRegistry(), processOrder);
+
+      input_.productRegistryUpdate().updateFromInput(rootFile()->productRegistry()->productList(), processOrder);
       if (initialNumberOfEventsToSkip_ != 0) {
         skipEventsAtBeginning(initialNumberOfEventsToSkip_);
       }
@@ -145,38 +149,39 @@ namespace edm {
 
   RootPrimaryFileSequence::RootFileSharedPtr RootPrimaryFileSequence::makeRootFile(std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileNames()[0],
-                                      input_.processConfiguration(),
-                                      logicalFileName(),
-                                      filePtr,
-                                      eventSkipperByID(),
-                                      initialNumberOfEventsToSkip_ != 0,
-                                      remainingEvents(),
-                                      remainingLuminosityBlocks(),
-                                      input_.nStreams(),
-                                      treeCacheSize_,
-                                      input_.treeMaxVirtualSize(),
-                                      input_.processingMode(),
-                                      input_.runHelper(),
-                                      noRunLumiSort_,
-                                      noEventSort_,
-                                      input_.productSelectorRules(),
-                                      InputType::Primary,
-                                      input_.branchIDListHelper(),
-                                      input_.processBlockHelper().get(),
-                                      input_.thinnedAssociationsHelper(),
-                                      nullptr,  // associationsFromSecondary
-                                      duplicateChecker(),
-                                      input_.dropDescendants(),
-                                      input_.processHistoryRegistryForUpdate(),
-                                      indexesIntoFiles(),
-                                      currentIndexIntoFile,
-                                      orderedProcessHistoryIDs_,
-                                      input_.bypassVersionCheck(),
-                                      input_.labelRawDataLikeMC(),
-                                      usingGoToEvent_,
-                                      enablePrefetching_,
-                                      enforceGUIDInFileName_);
+    return std::make_shared<RootFile>(
+        RootFile::FileOptions{.fileName = fileNames()[0],
+                              .logicalFileName = logicalFileName(),
+                              .filePtr = filePtr,
+                              .bypassVersionCheck = input_.bypassVersionCheck(),
+                              .enforceGUIDInFileName = enforceGUIDInFileName_},
+        InputType::Primary,
+        RootFile::ProcessingOptions{.eventSkipperByID = eventSkipperByID(),
+                                    .skipAnyEvents = initialNumberOfEventsToSkip_ != 0,
+                                    .remainingEvents = remainingEvents(),
+                                    .remainingLumis = remainingLuminosityBlocks(),
+                                    .processingMode = input_.processingMode(),
+                                    .noRunLumiSort = noRunLumiSort_,
+                                    .noEventSort = noEventSort_,
+                                    .usingGoToEvent = usingGoToEvent_},
+        RootFile::TTreeOptions{.treeCacheSize = treeCacheSize_,
+                               .treeMaxVirtualSize = input_.treeMaxVirtualSize(),
+                               .enablePrefetching = enablePrefetching_,
+                               .promptReading = not input_.delayReadingEventProducts()},
+        RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
+                                 .associationsFromSecondary = nullptr,  // associationsFromSecondary
+                                 .dropDescendantsOfDroppedProducts = input_.dropDescendants(),
+                                 .labelRawDataLikeMC = input_.labelRawDataLikeMC()},
+        RootFile::CrossFileInfo{.runHelper = input_.runHelper(),
+                                .branchIDListHelper = input_.branchIDListHelper(),
+                                .processBlockHelper = input_.processBlockHelper().get(),
+                                .thinnedAssociationsHelper = input_.thinnedAssociationsHelper(),
+                                .duplicateChecker = duplicateChecker(),
+                                .indexesIntoFiles = indexesIntoFiles(),
+                                .currentIndexIntoFile = currentIndexIntoFile},
+        input_.nStreams(),
+        input_.processHistoryRegistryForUpdate(),
+        orderedProcessHistoryIDs_);
   }
 
   bool RootPrimaryFileSequence::nextFile() {

@@ -123,7 +123,7 @@ process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")
 #--------------------------
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 #--------------------------
 # Message Logger

@@ -13,6 +13,7 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC
       condition_helper_(iCollector),
       version_control_(iConfig),
       sector_processor_lut_(),
+      loader(version_control_.nnModelDxy()),
       pt_assign_engine_(nullptr),
       pt_assign_engine_dxy_(nullptr),
       fw_ver_(0),
@@ -21,16 +22,16 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC
   // Set pt assignment engine according to Era
   if (era() == "Run2_2016") {
     pt_assign_engine_ = std::make_unique<PtAssignmentEngine2016>();
-  } else if (era() == "Run2_2017" || era() == "Run2_2018") {
+  } else if (era() == "Run2_2017" || era() == "Run2_2018" || era() == "Run3_2021" || era() == "Run3_2023" ||
+             era() == "Run3_2024" || era() == "Run3_2025") {
     pt_assign_engine_ = std::make_unique<PtAssignmentEngine2017>();
-  } else if (era() == "Run3_2021") {
-    pt_assign_engine_ = std::make_unique<PtAssignmentEngine2017>();  //TODO - implement ver 2021
   } else {
     throw cms::Exception("L1TMuonEndCap") << "Cannot recognize the era option: " << era();
   }
 
   // No era setup for displaced pT assignment engine
-  pt_assign_engine_dxy_ = std::make_unique<PtAssignmentEngineDxy>();
+  model = loader.load_model();
+  pt_assign_engine_dxy_ = std::make_unique<PtAssignmentEngineDxy>(model);
 
   emtf_assert(pt_assign_engine_ != nullptr);
   emtf_assert(pt_assign_engine_dxy_ != nullptr);

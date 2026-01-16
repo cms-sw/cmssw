@@ -25,19 +25,21 @@ public:
   explicit EgammaBasicClusters(const edm::ParameterSet &);
   ~EgammaBasicClusters() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
-  edm::EDGetTokenT<reco::BasicClusterCollection> barrelBasicClusterCollection_;
-  edm::EDGetTokenT<reco::BasicClusterCollection> endcapBasicClusterCollection_;
+  const bool enableEndcaps_;
+  const edm::EDGetTokenT<reco::BasicClusterCollection> barrelBasicClusterCollection_;
+  const edm::EDGetTokenT<reco::BasicClusterCollection> endcapBasicClusterCollection_;
 
-  HistSpec hsSize_;
-  HistSpec hsNumRecHits_;
-  HistSpec hsET_;
-  HistSpec hsEta_;
-  HistSpec hsPhi_;
-  HistSpec hsR_;
+  const HistSpec hsSize_;
+  const HistSpec hsNumRecHits_;
+  const HistSpec hsET_;
+  const HistSpec hsEta_;
+  const HistSpec hsPhi_;
+  const HistSpec hsR_;
 
   MonitorElement *hist_EB_BC_Size_;
   MonitorElement *hist_EE_BC_Size_;

@@ -57,7 +57,7 @@ JetMatchingTools::JetMatchingTools(const edm::Event& fEvent, edm::ConsumesCollec
   input_pcalohits_hcal_token_ = iC.mayConsume<edm::PCaloHitContainer>(edm::InputTag("g4SimHits:HcalHits"));
   input_simtrack_token_ = iC.mayConsume<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
   input_simvertex_token_ = iC.mayConsume<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  input_cands_token_ = iC.mayConsume<reco::CandidateCollection>(edm::InputTag("genParticleCandidates"));
+  input_cands_token_ = iC.mayConsume<reco::CandidateCollection>(edm::InputTag("genParticles"));
 }
 
 JetMatchingTools::~JetMatchingTools() {}
@@ -155,6 +155,7 @@ const reco::CandidateCollection* JetMatchingTools::getGenParticlesCollection() {
 std::vector<const CaloTower*> JetMatchingTools::getConstituents(const reco::CaloJet& fJet) {
   std::vector<const CaloTower*> result;
   std::vector<CaloTowerPtr> constituents = fJet.getCaloConstituents();
+  result.reserve(constituents.size());
   for (unsigned i = 0; i < constituents.size(); ++i)
     result.push_back(&*(constituents[i]));
   return result;

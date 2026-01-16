@@ -62,28 +62,9 @@ void testStandalone::writeAndReadFile() {
         "process.m1 = cms.EDProducer('IntProducer',\n"
         "    ivalue = cms.int32(11)\n"
         ")\n"
-        "process.out = cms.OutputModule('PoolOutputModule',\n"
-        "    fileName = cms.untracked.string('testStandalone.root')\n"
-        ")\n"
+        "process.out = cms.OutputModule('AsciiOutputModule')\n"
         "process.p = cms.Path(process.m1)\n"
         "process.e = cms.EndPath(process.out)\n");
-
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
-    proc.beginJob();
-    proc.run();
-    proc.endJob();
-  }
-
-  {
-    std::string configuration(
-        "import FWCore.ParameterSet.Config as cms\n"
-        "process = cms.Process('TEST1')\n"
-        "process.source = cms.Source('PoolSource',\n"
-        "    fileNames = cms.untracked.vstring('file:testStandalone.root')\n"
-        ")\n"
-        "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
-        "process.JobReportService = cms.Service('JobReportService')\n"
-        "process.add_(cms.Service('SiteLocalConfigService'))\n");
 
     edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();

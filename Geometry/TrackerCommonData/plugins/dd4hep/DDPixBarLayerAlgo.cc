@@ -83,8 +83,8 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
   edm::LogVerbatim("PixelGeom") << "Cool " << cool.name() << " number 1 positioned in " << coolTube.name()
                                 << " at (0,0,0) with no rotation";
 
-  string ladderFull = ladder[0];
-  string ladderHalf = ladder[1];
+  const string& ladderFull = ladder[0];
+  const string& ladderHalf = ladder[1];
   int nphi = number / 2, copy = 1, iup = -1;
   double phi0 = 90_deg;
   Volume ladderHalfVol = ns.volume(ladderHalf);

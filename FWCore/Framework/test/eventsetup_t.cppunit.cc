@@ -10,9 +10,7 @@
 // Note that repeatedly in this test we add the modules directly to
 // the EventSetupProvider instead of having the controller use the
 // plugin system and ModuleFactory to add the modules. This works OK
-// in tests as long as there are no SubProcesses, otherwise this needs
-// to be done as in a real job where the modules are added as plugins
-// through the parameter set passed to the controller.
+// in tests but in a normal cmsRun job this is done through the controller.
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -231,9 +229,6 @@ void testEventsetup::recordValidityTest() {
 
   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
 
-  // Note this manner of adding finders works OK in tests as long as there
-  // are no SubProcesses, otherwise this needs to be done as in a real
-  // job where they are added as plugins through the pset passed to the controller.
   provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
   Timestamp time_1(1);
@@ -274,9 +269,6 @@ void testEventsetup::recordValidityExcTest() {
 
   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
 
-  // Note this manner of adding finders works OK in tests as long as there
-  // are no SubProcesses, otherwise this needs to be done as in a real
-  // job where they are added as plugins through the pset passed to the controller.
   provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
   Timestamp time_1(1);

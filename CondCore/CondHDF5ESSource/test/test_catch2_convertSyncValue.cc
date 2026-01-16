@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include "CondCore/CondHDF5ESSource/plugins/convertSyncValue.h"
 
 using namespace cond::hdf5;

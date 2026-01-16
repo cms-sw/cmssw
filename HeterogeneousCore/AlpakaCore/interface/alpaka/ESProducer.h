@@ -75,8 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               auto const& devices = cms::alpakatools::devices<Platform>();
               assert(devices.size() == 1);
               device::Record<TRecord> const deviceRecord(record, devices.front());
-              static_assert(std::is_same_v<std::remove_cvref_t<decltype(deviceRecord.queue())>,
-                                           alpaka::Queue<Device, alpaka::Blocking>>,
+              static_assert(std::is_same_v<Queue, alpaka::Queue<Device, alpaka::Blocking>>,
                             "Non-blocking queue when trying to use ES data product directly. This might indicate a "
                             "need to extend the Alpaka ESProducer base class.");
               return std::invoke(iMethod, iThis, deviceRecord);

@@ -202,7 +202,7 @@ HFShowerLibrary::~HFShowerLibrary() {
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step* aStep,
                                                            bool& isKilled,
                                                            double weight,
-                                                           bool onlyLong) {
+                                                           bool onlyLong) const {
   auto const preStepPoint = aStep->GetPreStepPoint();
   auto const postStepPoint = aStep->GetPostStepPoint();
   auto const track = aStep->GetTrack();
@@ -247,7 +247,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
                                                             bool& ok,
                                                             double weight,
                                                             double tSlice,
-                                                            bool onlyLong) {
+                                                            bool onlyLong) const {
   std::vector<HFShowerLibrary::Hit> hit;
   ok = false;
   bool isEM = G4TrackToParticleID::isGammaElectronPositron(parCode);
@@ -572,7 +572,7 @@ HFShowerLibrary::VersionInfo HFShowerLibrary::loadEventInfo(TBranch* branch, int
   return versionInfo;
 }
 
-HFShowerPhotonCollection HFShowerLibrary::interpolate(int type, double pin) {
+HFShowerPhotonCollection HFShowerLibrary::interpolate(int type, double pin) const {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Interpolate for Energy " << pin / CLHEP::GeV << " GeV with "
                                << nMomBin_ << " momentum bins and " << evtPerBin_ << " entries/bin -- total "
@@ -653,7 +653,7 @@ HFShowerPhotonCollection HFShowerLibrary::interpolate(int type, double pin) {
   return pe;
 }
 
-HFShowerPhotonCollection HFShowerLibrary::extrapolate(int type, double pin) {
+HFShowerPhotonCollection HFShowerLibrary::extrapolate(int type, double pin) const {
   int nrec = int(pin / pmom_[nMomBin_ - 1]);
   double w = (pin - pmom_[nMomBin_ - 1] * nrec) / pmom_[nMomBin_ - 1];
   nrec++;

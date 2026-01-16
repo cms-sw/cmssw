@@ -117,7 +117,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('TEXTFILE')
 )
 
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 process.sipixelEDAClient = DQMEDHarvester("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),

@@ -4,7 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/GenVector/Plane3D.h"
-#include "SimG4CMS/Calo/interface/CaloHitID.h"
+#include "FastSimulation/CaloHitMakers/interface/CaloHitMap.h"
 
 //CLHEP headers
 //#include "CLHEP/Geometry/Point3D.h"
@@ -12,7 +12,6 @@
 
 //STL headers
 #include <string>
-#include <map>
 
 class CaloGeometryHelper;
 class CalorimeterProperties;
@@ -28,7 +27,7 @@ public:
 
   virtual bool addHit(double r, double phi, unsigned layer = 0) = 0;
   virtual void setSpotEnergy(double e) = 0;
-  virtual const std::map<CaloHitID, float>& getHits() = 0;
+  virtual const CaloHitMap& getHits() = 0;
 
   const CaloGeometryHelper* getCalorimeter() const {
     //      std::cout << "CaloHitMaker is returning myCalorimeter " << myCalorimeter << std::endl;
@@ -58,7 +57,7 @@ private:
 
 protected:
   unsigned showerType_;
-  std::map<CaloHitID, float> hitMap_;
+  CaloHitMap hitMap_;
 };
 
 #endif

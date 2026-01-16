@@ -29,10 +29,10 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
   histograms.h_tracksters_in_candidate =
       ibook.book1D("N of tracksters in candidate", "N of tracksters in candidate", 100, 0, 99);
   histograms.h_candidate_raw_energy =
-      ibook.book1D("Candidates raw energy", "Candidates raw energy;E (GeV)", 250, 0, 250);
+      ibook.book1D("Candidates raw energy", "Candidates raw energy;E (GeV)", 100, 0, 500);
   histograms.h_candidate_regressed_energy =
-      ibook.book1D("Candidates regressed energy", "Candidates regressed energy;E (GeV)", 250, 0, 250);
-  histograms.h_candidate_pT = ibook.book1D("Candidates pT", "Candidates pT;p_{T}", 250, 0, 250);
+      ibook.book1D("Candidates regressed energy", "Candidates regressed energy;E (GeV)", 100, 0, 500);
+  histograms.h_candidate_pT = ibook.book1D("Candidates pT", "Candidates pT;p_{T}", 100, 0, 200);
   histograms.h_candidate_charge = ibook.book1D("Candidates charge", "Candidates charge;Charge", 3, -1.5, 1.5);
   histograms.h_candidate_pdgId = ibook.book1D("Candidates PDG Id", "Candidates PDG ID", 100, -220, 220);
   histograms.h_candidate_partType = ibook.book1D("Candidates type", "Candidates type", 9, -0.5, 8.5);
@@ -48,7 +48,7 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
                                                                      0,
                                                                      99));
     histograms.h_neut_candidate_regressed_energy.push_back(ibook.book1D(
-        neutrals[i] + "candidates regressed energy", neutrals[i] + " candidates regressed energy;E (GeV)", 250, 0, 250));
+        neutrals[i] + "candidates regressed energy", neutrals[i] + " candidates regressed energy;E (GeV)", 100, 0, 500));
     histograms.h_neut_candidate_charge.push_back(
         ibook.book1D(neutrals[i] + " candidates charge", neutrals[i] + " candidates charge;Charge", 3, -1.5, 1.5));
     histograms.h_neut_candidate_pdgId.push_back(
@@ -57,25 +57,33 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
         ibook.book1D(neutrals[i] + " candidates type", neutrals[i] + " candidates type", 9, -0.5, 8.5));
 
     histograms.h_den_fake_neut_energy_candidate.push_back(
-        ibook.book1D("den_fake_cand_vs_energy_" + neutrals[i], neutrals[i] + " candidates energy;E (GeV)", 50, 0, 250));
+        ibook.book1D("den_fake_cand_vs_energy_" + neutrals[i], neutrals[i] + " candidates energy;E (GeV)", 50, 0, 500));
     histograms.h_num_fake_neut_energy_candidate_pdgId.push_back(ibook.book1D(
-        "num_fake_pid_cand_vs_energy_" + neutrals[i], neutrals[i] + " PID fake vs energy;E (GeV)", 50, 0, 250));
+        "num_fake_pid_cand_vs_energy_" + neutrals[i], neutrals[i] + " PID fake vs energy;E (GeV)", 50, 0, 500));
     histograms.h_num_fake_neut_energy_candidate_energy.push_back(
         ibook.book1D("num_fake_energy_cand_vs_energy_" + neutrals[i],
                      neutrals[i] + " PID and energy fake vs energy;E (GeV)",
                      50,
                      0,
-                     250));
+                     500));
+    histograms.h_num_fake_neut_energy_candidate_tot.push_back(
+        ibook.book1D("num_fake_total_cand_vs_energy_" + neutrals[i],
+                     neutrals[i] + " PID and energy fake vs energy;E (GeV)",
+                     50,
+                     0,
+                     500));
     histograms.h_den_fake_neut_pt_candidate.push_back(
-        ibook.book1D("den_fake_cand_vs_pt_" + neutrals[i], neutrals[i] + " candidates pT;p_{T} (GeV)", 50, 0, 250));
+        ibook.book1D("den_fake_cand_vs_pt_" + neutrals[i], neutrals[i] + " candidates pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_fake_neut_pt_candidate_pdgId.push_back(ibook.book1D(
-        "num_fake_pid_cand_vs_pt_" + neutrals[i], neutrals[i] + " PID fake vs pT;p_{T} (GeV)", 50, 0, 250));
+        "num_fake_pid_cand_vs_pt_" + neutrals[i], neutrals[i] + " PID fake vs pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_fake_neut_pt_candidate_energy.push_back(
         ibook.book1D("num_fake_energy_cand_vs_pt_" + neutrals[i],
                      neutrals[i] + " PID and energy fake vs pT;p_{T} (GeV)",
                      50,
                      0,
-                     250));
+                     200));
+    histograms.h_num_fake_neut_pt_candidate_tot.push_back(ibook.book1D(
+        "num_fake_total_cand_vs_pt_" + neutrals[i], neutrals[i] + " PID and energy fake vs pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_den_fake_neut_eta_candidate.push_back(
         ibook.book1D("den_fake_cand_vs_eta_" + neutrals[i], neutrals[i] + " candidates eta;#eta (GeV)", 50, -3, 3));
     histograms.h_num_fake_neut_eta_candidate_pdgId.push_back(ibook.book1D(
@@ -86,6 +94,8 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
                      50,
                      -3,
                      3));
+    histograms.h_num_fake_neut_eta_candidate_tot.push_back(ibook.book1D(
+        "num_fake_total_cand_vs_eta_" + neutrals[i], neutrals[i] + " PID and energy fake vs eta;#eta (GeV)", 50, -3, 3));
     histograms.h_den_fake_neut_phi_candidate.push_back(ibook.book1D(
         "den_fake_cand_vs_phi_" + neutrals[i], neutrals[i] + " candidates phi;#phi (GeV)", 50, -3.14159, 3.14159));
     histograms.h_num_fake_neut_phi_candidate_pdgId.push_back(ibook.book1D(
@@ -96,31 +106,37 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
                      50,
                      -3.14159,
                      3.14159));
+    histograms.h_num_fake_neut_phi_candidate_tot.push_back(
+        ibook.book1D("num_fake_total_cand_vs_phi_" + neutrals[i],
+                     neutrals[i] + " PID and energy fake vs phi;#phi (GeV)",
+                     50,
+                     -3.14159,
+                     3.14159));
 
     histograms.h_den_neut_energy_candidate.push_back(
-        ibook.book1D("den_cand_vs_energy_" + neutrals[i], neutrals[i] + " simCandidates energy;E (GeV)", 50, 0, 250));
+        ibook.book1D("den_cand_vs_energy_" + neutrals[i], neutrals[i] + " simCandidates energy;E (GeV)", 50, 0, 500));
     histograms.h_num_neut_energy_candidate_pdgId.push_back(
         ibook.book1D("num_pid_cand_vs_energy_" + neutrals[i],
                      neutrals[i] + " track and PID efficiency vs energy;E (GeV)",
                      50,
                      0,
-                     250));
+                     500));
     histograms.h_num_neut_energy_candidate_energy.push_back(
         ibook.book1D("num_energy_cand_vs_energy_" + neutrals[i],
                      neutrals[i] + " track, PID and energy efficiency vs energy;E (GeV)",
                      50,
                      0,
-                     250));
+                     500));
     histograms.h_den_neut_pt_candidate.push_back(
-        ibook.book1D("den_cand_vs_pt_" + neutrals[i], neutrals[i] + " simCandidates pT;p_{T} (GeV)", 50, 0, 250));
+        ibook.book1D("den_cand_vs_pt_" + neutrals[i], neutrals[i] + " simCandidates pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_neut_pt_candidate_pdgId.push_back(ibook.book1D(
-        "num_pid_cand_vs_pt_" + neutrals[i], neutrals[i] + " track and PID efficiency vs pT;p_{T} (GeV)", 50, 0, 250));
+        "num_pid_cand_vs_pt_" + neutrals[i], neutrals[i] + " track and PID efficiency vs pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_neut_pt_candidate_energy.push_back(
         ibook.book1D("num_energy_cand_vs_pt_" + neutrals[i],
                      neutrals[i] + " track, PID and energy efficiency vs pT;p_{T} (GeV)",
                      50,
                      0,
-                     250));
+                     200));
     histograms.h_den_neut_eta_candidate.push_back(
         ibook.book1D("den_cand_vs_eta_" + neutrals[i], neutrals[i] + " simCandidates eta;#eta (GeV)", 50, -3, 3));
     histograms.h_num_neut_eta_candidate_pdgId.push_back(ibook.book1D(
@@ -145,6 +161,31 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
                      50,
                      -3.14159,
                      3.14159));
+
+    histograms.h_neut_energy_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_energy_" + neutrals[i],
+                     neutrals[i] + " simCandidates without trackster energy;E (GeV)",
+                     50,
+                     0,
+                     500));
+    histograms.h_neut_pt_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_pt_" + neutrals[i],
+                     neutrals[i] + " simCandidates without trackster pT;p_{T} (GeV)",
+                     50,
+                     0,
+                     200));
+    histograms.h_neut_eta_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_eta_" + neutrals[i],
+                     neutrals[i] + " simCandidates without trackster eta;#eta (GeV)",
+                     50,
+                     -3,
+                     3));
+    histograms.h_neut_phi_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_phi_" + neutrals[i],
+                     neutrals[i] + " simCandidates without trackster phi;#phi (GeV)",
+                     50,
+                     -3.14159,
+                     3.14159));
   }
   // charged: electron, muon, hadron
   const std::vector<std::string> charged{"electrons", "muons", "charged_hadrons"};
@@ -154,7 +195,7 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
     histograms.h_chg_tracksters_in_candidate.push_back(ibook.book1D(
         "N of tracksters in candidate for " + charged[i], "N of tracksters in candidate for " + charged[i], 100, 0, 99));
     histograms.h_chg_candidate_regressed_energy.push_back(ibook.book1D(
-        charged[i] + "candidates regressed energy", charged[i] + " candidates regressed energy;E (GeV)", 250, 0, 250));
+        charged[i] + "candidates regressed energy", charged[i] + " candidates regressed energy;E (GeV)", 500, 0, 500));
     histograms.h_chg_candidate_charge.push_back(
         ibook.book1D(charged[i] + " candidates charge", charged[i] + " candidates charge;Charge", 3, -1.5, 1.5));
     histograms.h_chg_candidate_pdgId.push_back(
@@ -163,29 +204,41 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
         ibook.book1D(charged[i] + " candidates type", charged[i] + " candidates type", 9, -0.5, 8.5));
 
     histograms.h_den_fake_chg_energy_candidate.push_back(
-        ibook.book1D("den_fake_cand_vs_energy_" + charged[i], charged[i] + " candidates energy;E (GeV)", 50, 0, 250));
+        ibook.book1D("den_fake_cand_vs_energy_" + charged[i], charged[i] + " candidates energy;E (GeV)", 50, 0, 500));
     histograms.h_num_fake_chg_energy_candidate_track.push_back(ibook.book1D(
-        "num_fake_track_cand_vs_energy_" + charged[i], charged[i] + " track fake vs energy;E (GeV)", 50, 0, 250));
+        "num_fake_track_cand_vs_energy_" + charged[i], charged[i] + " track fake vs energy;E (GeV)", 50, 0, 500));
     histograms.h_num_fake_chg_energy_candidate_pdgId.push_back(ibook.book1D(
-        "num_fake_pid_cand_vs_energy_" + charged[i], charged[i] + " track and PID fake vs energy;E (GeV)", 50, 0, 250));
+        "num_fake_pid_cand_vs_energy_" + charged[i], charged[i] + " track and PID fake vs energy;E (GeV)", 50, 0, 500));
     histograms.h_num_fake_chg_energy_candidate_energy.push_back(
         ibook.book1D("num_fake_energy_cand_vs_energy_" + charged[i],
                      charged[i] + " track, PID and energy fake vs energy;E (GeV)",
                      50,
                      0,
-                     250));
+                     500));
+    histograms.h_num_fake_chg_energy_candidate_tot.push_back(
+        ibook.book1D("num_fake_total_cand_vs_energy_" + charged[i],
+                     charged[i] + " track, PID and energy fake vs energy;E (GeV)",
+                     50,
+                     0,
+                     500));
     histograms.h_den_fake_chg_pt_candidate.push_back(
-        ibook.book1D("den_fake_cand_vs_pt_" + charged[i], charged[i] + " candidates pT;p_{T} (GeV)", 50, 0, 250));
+        ibook.book1D("den_fake_cand_vs_pt_" + charged[i], charged[i] + " candidates pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_fake_chg_pt_candidate_track.push_back(ibook.book1D(
-        "num_fake_track_cand_vs_pt_" + charged[i], charged[i] + " track fake vs pT;p_{T} (GeV)", 50, 0, 250));
+        "num_fake_track_cand_vs_pt_" + charged[i], charged[i] + " track fake vs pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_fake_chg_pt_candidate_pdgId.push_back(ibook.book1D(
-        "num_fake_pid_cand_vs_pt_" + charged[i], charged[i] + " track and PID fake vs pT;p_{T} (GeV)", 50, 0, 250));
+        "num_fake_pid_cand_vs_pt_" + charged[i], charged[i] + " track and PID fake vs pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_fake_chg_pt_candidate_energy.push_back(
         ibook.book1D("num_fake_energy_cand_vs_pt_" + charged[i],
                      charged[i] + " track, PID and energy fake vs pT;p_{T} (GeV)",
                      50,
                      0,
-                     250));
+                     200));
+    histograms.h_num_fake_chg_pt_candidate_tot.push_back(
+        ibook.book1D("num_fake_total_cand_vs_pt_" + charged[i],
+                     charged[i] + " track, PID and energy fake vs pT;p_{T} (GeV)",
+                     50,
+                     0,
+                     200));
     histograms.h_den_fake_chg_eta_candidate.push_back(
         ibook.book1D("den_fake_cand_vs_eta_" + charged[i], charged[i] + " candidates eta;#eta (GeV)", 50, -3, 3));
     histograms.h_num_fake_chg_eta_candidate_track.push_back(ibook.book1D(
@@ -194,6 +247,12 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
         "num_fake_pid_cand_vs_eta_" + charged[i], charged[i] + " track and PID fake vs eta;#eta (GeV)", 50, -3, 3));
     histograms.h_num_fake_chg_eta_candidate_energy.push_back(
         ibook.book1D("num_fake_energy_cand_vs_eta_" + charged[i],
+                     charged[i] + " track, PID and energy fake vs eta;#eta (GeV)",
+                     50,
+                     -3,
+                     3));
+    histograms.h_num_fake_chg_eta_candidate_tot.push_back(
+        ibook.book1D("num_fake_total_cand_vs_eta_" + charged[i],
                      charged[i] + " track, PID and energy fake vs eta;#eta (GeV)",
                      50,
                      -3,
@@ -217,31 +276,37 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
                      50,
                      -3.14159,
                      3.14159));
+    histograms.h_num_fake_chg_phi_candidate_tot.push_back(
+        ibook.book1D("num_fake_total_cand_vs_phi_" + charged[i],
+                     charged[i] + " track, PID and energy fake vs phi;#phi (GeV)",
+                     50,
+                     -3.14159,
+                     3.14159));
 
     histograms.h_den_chg_energy_candidate.push_back(
-        ibook.book1D("den_cand_vs_energy_" + charged[i], charged[i] + " simCandidates energy;E (GeV)", 50, 0, 250));
+        ibook.book1D("den_cand_vs_energy_" + charged[i], charged[i] + " simCandidates energy;E (GeV)", 50, 0, 500));
     histograms.h_num_chg_energy_candidate_track.push_back(ibook.book1D(
-        "num_track_cand_vs_energy_" + charged[i], charged[i] + " track efficiency vs energy;E (GeV)", 50, 0, 250));
+        "num_track_cand_vs_energy_" + charged[i], charged[i] + " track efficiency vs energy;E (GeV)", 50, 0, 500));
     histograms.h_num_chg_energy_candidate_pdgId.push_back(ibook.book1D(
-        "num_pid_cand_vs_energy_" + charged[i], charged[i] + " track and PID efficiency vs energy;E (GeV)", 50, 0, 250));
+        "num_pid_cand_vs_energy_" + charged[i], charged[i] + " track and PID efficiency vs energy;E (GeV)", 50, 0, 500));
     histograms.h_num_chg_energy_candidate_energy.push_back(
         ibook.book1D("num_energy_cand_vs_energy_" + charged[i],
                      charged[i] + " track, PID and energy efficiency vs energy;E (GeV)",
                      50,
                      0,
-                     250));
+                     500));
     histograms.h_den_chg_pt_candidate.push_back(
-        ibook.book1D("den_cand_vs_pt_" + charged[i], charged[i] + " simCandidates pT;p_{T} (GeV)", 50, 0, 250));
+        ibook.book1D("den_cand_vs_pt_" + charged[i], charged[i] + " simCandidates pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_chg_pt_candidate_track.push_back(ibook.book1D(
-        "num_track_cand_vs_pt_" + charged[i], charged[i] + " track efficiency vs pT;p_{T} (GeV)", 50, 0, 250));
+        "num_track_cand_vs_pt_" + charged[i], charged[i] + " track efficiency vs pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_chg_pt_candidate_pdgId.push_back(ibook.book1D(
-        "num_pid_cand_vs_pt_" + charged[i], charged[i] + " track and PID efficiency vs pT;p_{T} (GeV)", 50, 0, 250));
+        "num_pid_cand_vs_pt_" + charged[i], charged[i] + " track and PID efficiency vs pT;p_{T} (GeV)", 50, 0, 200));
     histograms.h_num_chg_pt_candidate_energy.push_back(
         ibook.book1D("num_energy_cand_vs_pt_" + charged[i],
                      charged[i] + " track, PID and energy efficiency vs pT;p_{T} (GeV)",
                      50,
                      0,
-                     250));
+                     200));
     histograms.h_den_chg_eta_candidate.push_back(
         ibook.book1D("den_cand_vs_eta_" + charged[i], charged[i] + " simCandidates eta;#eta (GeV)", 50, -3, 3));
     histograms.h_num_chg_eta_candidate_track.push_back(ibook.book1D(
@@ -273,12 +338,75 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
                      50,
                      -3.14159,
                      3.14159));
+
+    histograms.h_chg_energy_noTrack.push_back(ibook.book1D(
+        "noTrack_cand_vs_energy_" + charged[i], charged[i] + " simCandidates without track energy;E (GeV)", 50, 0, 500));
+    histograms.h_chg_pt_noTrack.push_back(ibook.book1D(
+        "noTrack_cand_vs_pt_" + charged[i], charged[i] + " simCandidates without track pT;p_{T} (GeV)", 50, 0, 200));
+    histograms.h_chg_eta_noTrack.push_back(ibook.book1D(
+        "noTrack_cand_vs_eta_" + charged[i], charged[i] + " simCandidates without track eta;#eta (GeV)", 50, -3, 3));
+    histograms.h_chg_phi_noTrack.push_back(ibook.book1D("noTrack_cand_vs_phi_" + charged[i],
+                                                        charged[i] + " simCandidates without track phi;#phi (GeV)",
+                                                        50,
+                                                        -3.14159,
+                                                        3.14159));
+
+    histograms.h_chg_energy_noGoodTrack.push_back(
+        ibook.book1D("noGoodTrack_cand_vs_energy_" + charged[i],
+                     charged[i] + " simCandidates without good track energy;E (GeV)",
+                     50,
+                     0,
+                     500));
+    histograms.h_chg_pt_noGoodTrack.push_back(
+        ibook.book1D("noGoodTrack_cand_vs_pt_" + charged[i],
+                     charged[i] + " simCandidates without good track pT;p_{T} (GeV)",
+                     50,
+                     0,
+                     200));
+    histograms.h_chg_eta_noGoodTrack.push_back(
+        ibook.book1D("noGoodTrack_cand_vs_eta_" + charged[i],
+                     charged[i] + " simCandidates without good track eta;#eta (GeV)",
+                     50,
+                     -3,
+                     3));
+    histograms.h_chg_phi_noGoodTrack.push_back(
+        ibook.book1D("noGoodTrack_cand_vs_phi_" + charged[i],
+                     charged[i] + " simCandidates without good track phi;#phi (GeV)",
+                     50,
+                     -3.14159,
+                     3.14159));
+
+    histograms.h_chg_energy_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_energy_" + charged[i],
+                     charged[i] + " simCandidates without trackster energy;E (GeV)",
+                     50,
+                     0,
+                     500));
+    histograms.h_chg_pt_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_pt_" + charged[i],
+                     charged[i] + " simCandidates without trackster pT;p_{T} (GeV)",
+                     50,
+                     0,
+                     200));
+    histograms.h_chg_eta_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_eta_" + charged[i],
+                     charged[i] + " simCandidates without trackster eta;#eta (GeV)",
+                     50,
+                     -3,
+                     3));
+    histograms.h_chg_phi_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_phi_" + charged[i],
+                     charged[i] + " simCandidates without trackster phi;#phi (GeV)",
+                     50,
+                     -3.14159,
+                     3.14159));
   }
 }
 
 void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
                                                  const Histograms& histograms,
-                                                 edm::Handle<ticl::TracksterCollection> simTrackstersCP_h) const {
+                                                 edm::Handle<ticl::TracksterCollection> simTrackstersCP_h,
+                                                 const StringCutObjectSelector<reco::Track> cutTk) const {
   auto TICLCandidatesHandle = event.getHandle(TICLCandidatesToken_);
   if (!TICLCandidatesHandle.isValid()) {
     edm::LogError("TICLCandidatesError") << "Failed to retrieve TICL candidates.";
@@ -341,6 +469,8 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
   chargedCandidates.shrink_to_fit();
   neutralCandidates.shrink_to_fit();
 
+  auto firstTs = edm::Ptr<ticl::Trackster>(Tracksters_h, 0).get();
+  auto firstTrack = edm::Ptr<reco::Track>(recoTracks_h, 0).get();
   for (const auto i : chargedCandidates) {
     const auto& simCand = simTICLCandidates[i];
     auto index = std::log2(int(ticl::tracksterParticleTypeFromPdgId(simCand.pdgId(), 1)));
@@ -348,16 +478,29 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
      * 13 (type 2) becomes 1
      * 211 (type 4) becomes 2
      */
-    int32_t simCandTrackIdx = -1;
-    if (simCand.trackPtr().get() != nullptr)
-      simCandTrackIdx = simCand.trackPtr().get() - edm::Ptr<reco::Track>(recoTracks_h, 0).get();
-    else {
-      // no reco track, but simCand is charged
+
+    // no track
+    if (simCand.trackPtrs().empty()) {
+      histograms.h_chg_energy_noTrack[index]->Fill(simCand.rawEnergy());
+      histograms.h_chg_pt_noTrack[index]->Fill(simCand.pt());
+      histograms.h_chg_eta_noTrack[index]->Fill(simCand.eta());
+      histograms.h_chg_phi_noTrack[index]->Fill(simCand.phi());
       continue;
     }
-    if (simCand.trackPtr().get()->pt() < 1 or simCand.trackPtr().get()->missingOuterHits() > 5 or
-        not simCand.trackPtr().get()->quality(reco::TrackBase::highPurity))
+
+    std::vector<int32_t> simCandTrackIdx;
+    for (const auto& track : simCand.trackPtrs()) {
+      if (cutTk(*(simCand.trackPtr().get())))
+        simCandTrackIdx.push_back(track.get() - firstTrack);
+    }
+    if (simCandTrackIdx.empty()) {
+      // no track passing cuts
+      histograms.h_chg_energy_noGoodTrack[index]->Fill(simCand.rawEnergy());
+      histograms.h_chg_pt_noGoodTrack[index]->Fill(simCand.pt());
+      histograms.h_chg_eta_noGoodTrack[index]->Fill(simCand.eta());
+      histograms.h_chg_phi_noGoodTrack[index]->Fill(simCand.phi());
       continue;
+    }
 
     // +1 to all denominators
     histograms.h_den_chg_energy_candidate[index]->Fill(simCand.rawEnergy());
@@ -377,19 +520,25 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       cand_idx = min_elem->index();
     }
     // no reco associated to sim
-    if (cand_idx == -1)
+    if (cand_idx == -1) {
+      histograms.h_chg_energy_noTrackster[index]->Fill(simCand.rawEnergy());
+      histograms.h_chg_pt_noTrackster[index]->Fill(simCand.pt());
+      histograms.h_chg_eta_noTrackster[index]->Fill(simCand.eta());
+      histograms.h_chg_phi_noTrackster[index]->Fill(simCand.phi());
       continue;
+    }
 
     auto& recoCand = TICLCandidates[cand_idx];
     if (isTICLv5_) {
       // cand_idx is the tsMerge index, find the ts in the candidates collection
-      auto const tsPtr = edm::Ptr<ticl::Trackster>(Tracksters_h, cand_idx);
-      auto cand_it = std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [tsPtr](TICLCandidate const& cand) {
-        if (!cand.tracksters().empty())
-          return cand.tracksters()[0] == tsPtr;
-        else
-          return false;
-      });
+      auto cand_it =
+          std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [firstTs, cand_idx](TICLCandidate const& cand) {
+            if (!cand.tracksters().empty())
+              return (cand.tracksters()[0]).get() - firstTs ==
+                     cand_idx;  // in TICLv5 there is one trackster per candidate
+            else
+              return false;
+          });
       if (cand_it != TICLCandidates.end())
         recoCand = *cand_it;
       else
@@ -397,8 +546,8 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     }
 
     if (recoCand.trackPtr().get() != nullptr) {
-      const auto candTrackIdx = recoCand.trackPtr().get() - edm::Ptr<reco::Track>(recoTracks_h, 0).get();
-      if (simCandTrackIdx == candTrackIdx) {
+      const auto candTrackIdx = recoCand.trackPtr().get() - firstTrack;
+      if (std::find(simCandTrackIdx.begin(), simCandTrackIdx.end(), candTrackIdx) != simCandTrackIdx.end()) {
         // +1 to track num
         histograms.h_num_chg_energy_candidate_track[index]->Fill(simCand.rawEnergy());
         histograms.h_num_chg_pt_candidate_track[index]->Fill(simCand.pt());
@@ -412,6 +561,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     }
 
     //step 2: PID
+    // NOTE: ok to compare number and not had / em because few pgd are used for the candidates
     if (simCand.pdgId() == recoCand.pdgId()) {
       // +1 to num pdg id
       histograms.h_num_chg_energy_candidate_pdgId[index]->Fill(simCand.rawEnergy());
@@ -455,19 +605,25 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     }
 
     // no reco associated to sim
-    if (cand_idx == -1)
+    if (cand_idx == -1) {
+      histograms.h_neut_energy_noTrackster[index]->Fill(simCand.rawEnergy());
+      histograms.h_neut_pt_noTrackster[index]->Fill(simCand.pt());
+      histograms.h_neut_eta_noTrackster[index]->Fill(simCand.eta());
+      histograms.h_neut_phi_noTrackster[index]->Fill(simCand.phi());
       continue;
+    }
 
     auto& recoCand = TICLCandidates[cand_idx];
     if (isTICLv5_) {
       // cand_idx is the tsMerge index, find the ts in the candidates collection
-      auto const tsPtr = edm::Ptr<ticl::Trackster>(Tracksters_h, cand_idx);
-      auto cand_it = std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [tsPtr](TICLCandidate const& cand) {
-        if (!cand.tracksters().empty())
-          return cand.tracksters()[0] == tsPtr;
-        else
-          return false;
-      });
+      auto cand_it =
+          std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [firstTs, cand_idx](TICLCandidate const& cand) {
+            if (!cand.tracksters().empty())
+              return (cand.tracksters()[0]).get() - firstTs ==
+                     cand_idx;  // in TICLv5 there is one trackster per candidate
+            else
+              return false;
+          });
       if (cand_it != TICLCandidates.end())
         recoCand = *cand_it;
       else
@@ -530,7 +686,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
      * 211 (type 4) becomes 2
      */
     int32_t candTrackIdx = -1;
-    candTrackIdx = cand.trackPtr().get() - edm::Ptr<reco::Track>(recoTracks_h, 0).get();
+    candTrackIdx = cand.trackPtr().get() - firstTrack;
 
     if (cand.tracksters().empty())
       continue;
@@ -538,7 +694,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     // i is the candidate idx == ts idx only in v4, find ts_idx in v5
     auto mergeTs_id = i;
     if (isTICLv5_) {
-      mergeTs_id = cand.tracksters()[0].get() - edm::Ptr<ticl::Trackster>(Tracksters_h, 0).get();
+      mergeTs_id = cand.tracksters()[0].get() - firstTs;
     }
 
     // +1 to all denominators
@@ -547,6 +703,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_den_fake_chg_eta_candidate[index]->Fill(cand.eta());
     histograms.h_den_fake_chg_phi_candidate[index]->Fill(cand.phi());
 
+    // general plots
     histograms.h_chg_tracksters_in_candidate[index]->Fill(cand.tracksters().size());
     histograms.h_chg_candidate_regressed_energy[index]->Fill(cand.energy());
     histograms.h_chg_candidate_charge[index]->Fill(cand.charge());
@@ -571,14 +728,29 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       continue;
 
     const auto& simCand = simTICLCandidates[simCand_idx];
-    if (simCand.trackPtr().get() != nullptr) {
-      const auto simCandTrackIdx = simCand.trackPtr().get() - edm::Ptr<reco::Track>(recoTracks_h, 0).get();
-      if (simCandTrackIdx != candTrackIdx) {
+
+    // if simCand does not have the track and has pdg id charged skip this
+    // it means we have not recontruct the track
+    // if associated cand is neutral then this is correct
+    if (simCand.charge() == 0 and (std::abs(simCand.pdgId()) == 211 or std::abs(simCand.pdgId()) == 11))
+      continue;
+
+    std::vector<int32_t> simCandTrackIdx;
+    for (const auto& track : simCand.trackPtrs()) {
+      simCandTrackIdx.push_back(track.get() - firstTrack);
+    }
+
+    if (!simCandTrackIdx.empty()) {
+      if (std::find(simCandTrackIdx.begin(), simCandTrackIdx.end(), candTrackIdx) == simCandTrackIdx.end()) {
         // fake += 1
         histograms.h_num_fake_chg_energy_candidate_track[index]->Fill(cand.rawEnergy());
         histograms.h_num_fake_chg_pt_candidate_track[index]->Fill(cand.pt());
         histograms.h_num_fake_chg_eta_candidate_track[index]->Fill(cand.eta());
         histograms.h_num_fake_chg_phi_candidate_track[index]->Fill(cand.phi());
+        histograms.h_num_fake_chg_energy_candidate_tot[index]->Fill(cand.rawEnergy());
+        histograms.h_num_fake_chg_pt_candidate_tot[index]->Fill(cand.pt());
+        histograms.h_num_fake_chg_eta_candidate_tot[index]->Fill(cand.eta());
+        histograms.h_num_fake_chg_phi_candidate_tot[index]->Fill(cand.phi());
         continue;
       }
     } else {
@@ -587,6 +759,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       histograms.h_num_fake_chg_pt_candidate_track[index]->Fill(cand.pt());
       histograms.h_num_fake_chg_eta_candidate_track[index]->Fill(cand.eta());
       histograms.h_num_fake_chg_phi_candidate_track[index]->Fill(cand.phi());
+      histograms.h_num_fake_chg_energy_candidate_tot[index]->Fill(cand.rawEnergy());
+      histograms.h_num_fake_chg_pt_candidate_tot[index]->Fill(cand.pt());
+      histograms.h_num_fake_chg_eta_candidate_tot[index]->Fill(cand.eta());
+      histograms.h_num_fake_chg_phi_candidate_tot[index]->Fill(cand.phi());
       continue;
     }
 
@@ -597,6 +773,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       histograms.h_num_fake_chg_pt_candidate_pdgId[index]->Fill(cand.pt());
       histograms.h_num_fake_chg_eta_candidate_pdgId[index]->Fill(cand.eta());
       histograms.h_num_fake_chg_phi_candidate_pdgId[index]->Fill(cand.phi());
+      histograms.h_num_fake_chg_energy_candidate_tot[index]->Fill(cand.rawEnergy());
+      histograms.h_num_fake_chg_pt_candidate_tot[index]->Fill(cand.pt());
+      histograms.h_num_fake_chg_eta_candidate_tot[index]->Fill(cand.eta());
+      histograms.h_num_fake_chg_phi_candidate_tot[index]->Fill(cand.phi());
       continue;
     }
 
@@ -607,8 +787,13 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       histograms.h_num_fake_chg_pt_candidate_energy[index]->Fill(cand.pt());
       histograms.h_num_fake_chg_eta_candidate_energy[index]->Fill(cand.eta());
       histograms.h_num_fake_chg_phi_candidate_energy[index]->Fill(cand.phi());
+      histograms.h_num_fake_chg_energy_candidate_tot[index]->Fill(cand.rawEnergy());
+      histograms.h_num_fake_chg_pt_candidate_tot[index]->Fill(cand.pt());
+      histograms.h_num_fake_chg_eta_candidate_tot[index]->Fill(cand.eta());
+      histograms.h_num_fake_chg_phi_candidate_tot[index]->Fill(cand.phi());
     }
   }
+
   // loop on neutrals
   for (const auto i : neutralCandidates) {
     const auto& cand = TICLCandidates[i];
@@ -624,7 +809,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     // i is the candidate idx == ts idx only in v4, find ts_idx in v5
     auto mergeTs_id = i;
     if (isTICLv5_) {
-      mergeTs_id = cand.tracksters()[0].get() - edm::Ptr<ticl::Trackster>(Tracksters_h, 0).get();
+      mergeTs_id = cand.tracksters()[0].get() - firstTs;
     }
 
     // +1 to all denominators
@@ -633,6 +818,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_den_fake_neut_eta_candidate[index]->Fill(cand.eta());
     histograms.h_den_fake_neut_phi_candidate[index]->Fill(cand.phi());
 
+    // general plots
     histograms.h_neut_tracksters_in_candidate[index]->Fill(cand.tracksters().size());
     histograms.h_neut_candidate_regressed_energy[index]->Fill(cand.energy());
     histograms.h_neut_candidate_charge[index]->Fill(cand.charge());
@@ -665,6 +851,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       histograms.h_num_fake_neut_pt_candidate_pdgId[index]->Fill(cand.pt());
       histograms.h_num_fake_neut_eta_candidate_pdgId[index]->Fill(cand.eta());
       histograms.h_num_fake_neut_phi_candidate_pdgId[index]->Fill(cand.phi());
+      histograms.h_num_fake_neut_energy_candidate_tot[index]->Fill(cand.rawEnergy());
+      histograms.h_num_fake_neut_pt_candidate_tot[index]->Fill(cand.pt());
+      histograms.h_num_fake_neut_eta_candidate_tot[index]->Fill(cand.eta());
+      histograms.h_num_fake_neut_phi_candidate_tot[index]->Fill(cand.phi());
       continue;
     }
 
@@ -675,6 +865,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       histograms.h_num_fake_neut_pt_candidate_energy[index]->Fill(cand.pt());
       histograms.h_num_fake_neut_eta_candidate_energy[index]->Fill(cand.eta());
       histograms.h_num_fake_neut_phi_candidate_energy[index]->Fill(cand.phi());
+      histograms.h_num_fake_neut_energy_candidate_tot[index]->Fill(cand.rawEnergy());
+      histograms.h_num_fake_neut_pt_candidate_tot[index]->Fill(cand.pt());
+      histograms.h_num_fake_neut_eta_candidate_tot[index]->Fill(cand.eta());
+      histograms.h_num_fake_neut_phi_candidate_tot[index]->Fill(cand.phi());
     }
   }
 }

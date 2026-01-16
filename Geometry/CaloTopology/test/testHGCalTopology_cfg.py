@@ -1,10 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROD")
+geomName = "Run4D121"
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+
+process = cms.Process("PROD", ERA)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtendedRun4D110Reco_cff")
+process.load(geomFile)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Geometry.CaloTopology.hgcalTopologyTester_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.HGCalGeom=dict()

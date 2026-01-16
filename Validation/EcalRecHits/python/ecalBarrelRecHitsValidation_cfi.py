@@ -7,5 +7,7 @@ ecalBarrelRecHitsValidation = DQMEDAnalyzer('EcalBarrelRecHitsValidation',
     verbose = cms.untracked.bool(False)
 )
 
-
-
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toModify(ecalBarrelRecHitsValidation,
+     EBuncalibrechitCollection = "ecalUncalibRecHitPhase2:EcalUncalibRecHitsEB"
+)

@@ -20,6 +20,7 @@
 #include "KinVtxFitter.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "helper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 template <typename Lepton>
 class DiLeptonBuilder : public edm::global::EDProducer<> {
@@ -93,12 +94,18 @@ void DiLeptonBuilder<Lepton>::produce(edm::StreamID, edm::Event &evt, edm::Event
       if (!pre_vtx_selection_(lepton_pair))
         continue;  // before making the SV, cut on the info we have
 
-      KinVtxFitter fitter(
-          {ttracks->at(l1_idx), ttracks->at(l2_idx)}, {l1_ptr->mass(), l2_ptr->mass()}, {bph::LEP_SIGMA, bph::LEP_SIGMA}
-          // some small sigma for the particle mass
-      );
+      KinVtxFitter fitter;
+      try {
+        fitter = KinVtxFitter({ttracks->at(l1_idx), ttracks->at(l2_idx)},
+                              {l1_ptr->mass(), l2_ptr->mass()},
+                              {bph::LEP_SIGMA, bph::LEP_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit") << "MuMu Builder Skipping candidate due to fit failure: " << e.what();
+        continue;
+      }
       if (!fitter.success())
         continue;
+
       lepton_pair.setVertex(
           reco::Candidate::Point(fitter.fitted_vtx().x(), fitter.fitted_vtx().y(), fitter.fitted_vtx().z()));
       lepton_pair.addUserInt("sv_ok", fitter.success() ? 1 : 0);

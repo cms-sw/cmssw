@@ -9,8 +9,6 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
-#include "SimG4Core/CustomPhysics/interface/G4muDarkBremsstrahlung.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -107,7 +105,8 @@ void DBremWatcher::update(const BeginOfTrack* trk) {
     if (std::find(pdgs_.begin(), pdgs_.end(), pdg) != pdgs_.end()) {
       //Found an A'
       trkInfo->setStoreTrack();
-      trkInfo->setIdLastStoredAncestor(theTrack->GetTrackID());
+      if (trkInfo->idLastStoredAncestor() == theTrack->GetParentID())
+        trkInfo->setIdLastStoredAncestor(theTrack->GetTrackID());
       VertexPos = Vpos;
       aPrimeTraj = theTrack->GetMomentum();
       LogDebug("DBremWatcher") << "Save SimTrack the Track " << theTrack->GetTrackID() << " Type "
@@ -139,7 +138,8 @@ void DBremWatcher::update(const EndOfTrack* trk) {
     if (std::find(pdgs_.begin(), pdgs_.end(), pdg) == pdgs_.end() &&
         (theTrack->GetCreatorProcess()->GetProcessName()) == "muDBrem") {
       trkInfo->setStoreTrack();
-      trkInfo->setIdLastStoredAncestor(theTrack->GetTrackID());
+      if (trkInfo->idLastStoredAncestor() == theTrack->GetParentID())
+        trkInfo->setIdLastStoredAncestor(theTrack->GetTrackID());
     }
   }
 }

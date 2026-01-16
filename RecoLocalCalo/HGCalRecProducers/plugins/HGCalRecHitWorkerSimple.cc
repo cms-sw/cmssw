@@ -78,12 +78,18 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, ed
 
   hgcEE_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCEE_noise_fC").getParameter<std::vector<double> >("values");
   hgcEE_cce_ = ps.getParameter<edm::ParameterSet>("HGCEE_cce").getParameter<std::vector<double> >("values");
+  assert(hgcEE_cce_.size() == hgcEE_noise_fC_.size());
+  assert(hgcEE_cce_.size() == hgcEE_fCPerMIP_.size());
   hgcHEF_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCHEF_noise_fC").getParameter<std::vector<double> >("values");
   hgcHEF_cce_ = ps.getParameter<edm::ParameterSet>("HGCHEF_cce").getParameter<std::vector<double> >("values");
+  assert(hgcHEF_cce_.size() == hgcHEF_noise_fC_.size());
+  assert(hgcHEF_cce_.size() == hgcHEF_fCPerMIP_.size());
   hgcHEB_noise_MIP_ = ps.getParameter<edm::ParameterSet>("HGCHEB_noise_MIP").getParameter<double>("noise_MIP");
   hgcHFNose_noise_fC_ =
       ps.getParameter<edm::ParameterSet>("HGCHFNose_noise_fC").getParameter<std::vector<double> >("values");
   hgcHFNose_cce_ = ps.getParameter<edm::ParameterSet>("HGCHFNose_cce").getParameter<std::vector<double> >("values");
+  assert(hgcHFNose_cce_.size() == hgcHFNose_noise_fC_.size());
+  assert(hgcHFNose_cce_.size() == hgcHFNose_fCPerMIP_.size());
 
   // don't produce rechit if detid is a ghost one
   rangeMatch_ = ps.getParameter<uint32_t>("rangeMatch");
@@ -178,22 +184,32 @@ void HGCalRecHitWorkerSimple::run(const edm::Event& evt,
     switch (idtype) {
       case hgcee:
         rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_));
+        assert(thickness - 1 < static_cast<int>(hgcEE_cce_.size()));
+        assert(thickness < static_cast<int>(rcorr_.size()));
+        assert(layer < weights_.size());
         cce_correction = hgcEE_cce_[thickness - 1];
         sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness] * hgcEE_noise_fC_[thickness - 1] /
                         hgcEE_fCPerMIP_[thickness - 1];
         break;
       case hgcfh:
         rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
+        assert(thickness - 1 < static_cast<int>(hgcHEF_cce_.size()));
+        assert(thickness + deltasi_index_regemfac_ < static_cast<int>(rcorr_.size()));
+        assert(layer < weights_.size());
         cce_correction = hgcHEF_cce_[thickness - 1];
         sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness + deltasi_index_regemfac_] *
                         hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
         break;
       case hgcbh:
+        assert(layer < weights_.size());
         rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
         sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer] * rcorrscint_;
         break;
       case hgchfnose:
         rechitMaker_->setADCToGeVConstant(float(hgchfnoseUncalib2GeV_));
+        assert(thickness - 1 < static_cast<int>(hgcHFNose_cce_.size()));
+        assert(thickness < static_cast<int>(rcorrNose_.size()));
+        assert(layer < weightsNose_.size());
         cce_correction = hgcHFNose_cce_[thickness - 1];
         sigmaNoiseGeV = 1e-3 * weightsNose_[layer] * rcorrNose_[thickness] * hgcHFNose_noise_fC_[thickness - 1] /
                         hgcHFNose_fCPerMIP_[thickness - 1];

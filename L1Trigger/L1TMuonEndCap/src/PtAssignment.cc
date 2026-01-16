@@ -17,7 +17,7 @@ void PtAssignment::configure(PtAssignmentEngine* pt_assign_engine,
                              bool bugGMTPhi,
                              bool promoteMode7,
                              int modeQualVer,
-                             std::string pbFileName) {
+                             std::vector<int> promoteMode7Sectors) {
   emtf_assert(pt_assign_engine != nullptr);
   emtf_assert(pt_assign_engine_dxy != nullptr);
 
@@ -32,11 +32,22 @@ void PtAssignment::configure(PtAssignmentEngine* pt_assign_engine,
 
   pt_assign_engine_->configure(verbose_, readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt);
 
-  pt_assign_engine_dxy_->configure(verbose_, pbFileName);
+  pt_assign_engine_dxy_->configure(verbose_);
 
   bugGMTPhi_ = bugGMTPhi;
   promoteMode7_ = promoteMode7;
   modeQualVer_ = modeQualVer;
+  promoteMode7Sectors_ = promoteMode7Sectors;
+
+  int es = endcap_ == 1 ? sector_ : -1 * sector_;  // Endcap sign and sector number
+
+  if (promoteMode7_ &&
+      (promoteMode7Sectors_.at(0) == -1 ||
+       std::find(promoteMode7Sectors_.begin(), promoteMode7Sectors_.end(), es) != promoteMode7Sectors_.end())) {
+    promoteMode7_ = true;  // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality in a given sector
+  } else {
+    promoteMode7_ = false;  // Do not promote mode 7 tracks of other sectors
+  }
 }
 
 void PtAssignment::process(EMTFTrackCollection& best_tracks) {

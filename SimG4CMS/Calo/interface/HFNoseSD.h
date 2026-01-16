@@ -9,12 +9,12 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4CMS/Calo/interface/HFNoseNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/HGCGuardRing.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCGuardRing.h"
 
 #include <string>
 
-class HGCalDDDConstants;
 class G4LogicalVolume;
 class G4Step;
 

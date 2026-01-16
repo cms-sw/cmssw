@@ -22,6 +22,7 @@
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
 #include "HepMC3/Print.h"
+#include "HepMC3/WriterAscii.h"
 
 #include <iostream>
 #include <map>
@@ -31,7 +32,7 @@ using namespace std;
 class GenParticles2HepMCConverter : public edm::stream::EDProducer<> {
 public:
   explicit GenParticles2HepMCConverter(const edm::ParameterSet& pset);
-  ~GenParticles2HepMCConverter() override {}
+  ~GenParticles2HepMCConverter() override;
 
   void beginRun(edm::Run const& iRun, edm::EventSetup const&) override;
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
@@ -43,7 +44,10 @@ private:
   edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pTable_;
 
   const double cmEnergy_;
+  const bool writeHepMC_;
+  const std::string outputFile_;
   HepMC3::GenCrossSectionPtr xsec_;
+  std::shared_ptr<HepMC3::Writer> writer_;
 
 private:
   inline HepMC3::FourVector FourVector(const reco::Candidate::Point& point) {
@@ -57,14 +61,27 @@ private:
 };
 
 GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet& pset)
-    // dummy value to set incident proton pz for particle gun samples
-    : cmEnergy_(pset.getUntrackedParameter<double>("cmEnergy", 13000)) {
+    : cmEnergy_(pset.getUntrackedParameter<double>("cmEnergy", 13000)),
+      writeHepMC_(pset.getUntrackedParameter<bool>("writeHepMC", false)),
+      outputFile_(pset.getUntrackedParameter<std::string>("outputFile", "events.hepmc")) {
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
   genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(pset.getParameter<edm::InputTag>("genEventInfo"));
   pTable_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
 
   produces<edm::HepMC3Product>("unsmeared");
+
+  // Initialize HepMC3 writer
+  if (writeHepMC_) {
+    writer_ = std::make_shared<HepMC3::WriterAscii>(outputFile_);
+  }
+}
+
+GenParticles2HepMCConverter::~GenParticles2HepMCConverter() {
+  if (writeHepMC_) {
+    writer_->close();
+    writer_.reset();
+  }
 }
 
 void GenParticles2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup const&) {
@@ -188,6 +205,15 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     if (p == parton1 or p == parton2)
       continue;
 
+    // No mother info: connect to the incident proton vertex
+    if (p->numberOfMothers() == 0) {
+      if (p->pz() > 0) {
+        vertex1->add_particle_out(genCandToHepMCMap[p]);
+      } else {
+        vertex2->add_particle_out(genCandToHepMCMap[p]);
+      }
+      continue;
+    }
     // Connect mother-daughters for the other cases
     for (unsigned int j = 0, nMothers = p->numberOfMothers(); j < nMothers; ++j) {
       // Mother-daughter hierarchy defines vertex
@@ -208,8 +234,13 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     }
   }
 
+  // Write event to HepMC file
+  if (writeHepMC_) {
+    writer_->write_event(hepmc_event);
+  }
+
   // Finalize HepMC event record
-  auto hepmc_product = std::make_unique<edm::HepMC3Product>(&hepmc_event);
+  auto hepmc_product = std::make_unique<edm::HepMC3Product>(hepmc_event);
   event.put(std::move(hepmc_product), "unsmeared");
 }
 

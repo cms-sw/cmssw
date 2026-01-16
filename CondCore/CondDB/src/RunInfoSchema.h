@@ -18,22 +18,28 @@ namespace cond {
       struct MAX_RUN_NUMBER {
         typedef cond::Time_t type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return RUN_NUMBER::tableName(); }
-        static std::string fullyQualifiedName() { return "MAX(" + RUN_NUMBER::fullyQualifiedName() + ")"; }
+        static constexpr std::string_view tableName() { return RUN_NUMBER::tableName(); }
+        static constexpr auto fullyQualifiedName_ =
+            condcore_detail::addMax<RUN_NUMBER::fullyQualifiedName().size()>(RUN_NUMBER::fullyQualifiedName());
+        static constexpr std::string_view fullyQualifiedName() { return std::string_view(fullyQualifiedName_.data()); }
       };
 
       struct MIN_RUN_NUMBER {
         typedef cond::Time_t type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return RUN_NUMBER::tableName(); }
-        static std::string fullyQualifiedName() { return "MIN(" + RUN_NUMBER::fullyQualifiedName() + ")"; }
+        static constexpr std::string_view tableName() { return RUN_NUMBER::tableName(); }
+        static constexpr auto fullyQualifiedName_ =
+            condcore_detail::addMin<RUN_NUMBER::fullyQualifiedName().size()>(RUN_NUMBER::fullyQualifiedName());
+        static constexpr std::string_view fullyQualifiedName() { return std::string_view(fullyQualifiedName_.data()); }
       };
 
       struct MIN_START_TIME {
         typedef boost::posix_time::ptime type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return START_TIME::tableName(); }
-        static std::string fullyQualifiedName() { return "MIN(" + START_TIME::fullyQualifiedName() + ")"; }
+        static constexpr std::string_view tableName() { return START_TIME::tableName(); }
+        static constexpr auto fullyQualifiedName_ =
+            condcore_detail::addMin<START_TIME::fullyQualifiedName().size()>(START_TIME::fullyQualifiedName());
+        static constexpr std::string_view fullyQualifiedName() { return std::string_view(fullyQualifiedName_.data()); }
       };
 
       class Table : public IRunInfoTable {

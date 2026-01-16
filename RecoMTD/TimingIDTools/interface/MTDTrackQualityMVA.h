@@ -10,20 +10,23 @@
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 
 #define MTDTRACKQUALITYMVA_VARS(MTDBDTVAR) \
-  MTDBDTVAR(pt)                            \
-  MTDBDTVAR(eta)                           \
-  MTDBDTVAR(phi)                           \
-  MTDBDTVAR(chi2)                          \
-  MTDBDTVAR(ndof)                          \
-  MTDBDTVAR(numberOfValidHits)             \
-  MTDBDTVAR(numberOfValidPixelBarrelHits)  \
-  MTDBDTVAR(numberOfValidPixelEndcapHits)  \
-  MTDBDTVAR(btlMatchChi2)                  \
-  MTDBDTVAR(btlMatchTimeChi2)              \
-  MTDBDTVAR(etlMatchChi2)                  \
-  MTDBDTVAR(etlMatchTimeChi2)              \
-  MTDBDTVAR(mtdt)                          \
-  MTDBDTVAR(path_len)
+  MTDBDTVAR(Track_pt)                      \
+  MTDBDTVAR(Track_eta)                     \
+  MTDBDTVAR(Track_phi)                     \
+  MTDBDTVAR(Track_dz)                      \
+  MTDBDTVAR(Track_dxy)                     \
+  MTDBDTVAR(Track_chi2)                    \
+  MTDBDTVAR(Track_ndof)                    \
+  MTDBDTVAR(Track_npixBarrelValidHits)     \
+  MTDBDTVAR(Track_npixEndcapValidHits)     \
+  MTDBDTVAR(Track_BTLchi2)                 \
+  MTDBDTVAR(Track_BTLtime_chi2)            \
+  MTDBDTVAR(Track_ETLchi2)                 \
+  MTDBDTVAR(Track_ETLtime_chi2)            \
+  MTDBDTVAR(Track_Tmtd)                    \
+  MTDBDTVAR(Track_sigmaTmtd)               \
+  MTDBDTVAR(Track_length)                  \
+  MTDBDTVAR(Track_lHitPos)
 
 #define MTDBDTVAR_ENUM(ENUM) ENUM,
 #define MTDBDTVAR_STRING(STRING) #STRING,
@@ -38,6 +41,7 @@ public:
   //---getters---
   // 4D
   float operator()(const reco::TrackRef& trk,
+                   const reco::BeamSpot& beamspot,
                    const edm::ValueMap<int>& npixBarrels,
                    const edm::ValueMap<int>& npixEndcaps,
                    const edm::ValueMap<float>& btl_chi2s,
@@ -45,7 +49,9 @@ public:
                    const edm::ValueMap<float>& etl_chi2s,
                    const edm::ValueMap<float>& etl_time_chi2s,
                    const edm::ValueMap<float>& tmtds,
-                   const edm::ValueMap<float>& trk_lengths) const;
+                   const edm::ValueMap<float>& sigmatmtds,
+                   const edm::ValueMap<float>& trk_lengths,
+                   const edm::ValueMap<float>& trk_lhitpos) const;
 
 private:
   std::vector<std::string> vars_, spec_vars_;

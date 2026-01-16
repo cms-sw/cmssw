@@ -2,21 +2,24 @@
 //
 
 #include "LCToCPAssociatorByEnergyScoreImpl.h"
+#include <iostream>
 
+#include "DataFormats/Common/interface/MultiSpan.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
-
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-template <typename HIT>
-LCToCPAssociatorByEnergyScoreImpl<HIT>::LCToCPAssociatorByEnergyScoreImpl(
+template <typename HIT, typename CLUSTER>
+LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::LCToCPAssociatorByEnergyScoreImplT(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::unordered_map<DetId, const unsigned int>* hitMap,
-    const std::vector<const HIT*>& hits)
+    const multiCollectionT& hits)
     : hardScatterOnly_(hardScatterOnly),
       recHitTools_(recHitTools),
       hitMap_(hitMap),
@@ -25,12 +28,12 @@ LCToCPAssociatorByEnergyScoreImpl<HIT>::LCToCPAssociatorByEnergyScoreImpl(
   if constexpr (std::is_same_v<HIT, HGCRecHit>)
     layers_ = recHitTools_->lastLayerBH();
   else
-    layers_ = 6;
+    layers_ = recHitTools_->lastLayerBarrel() + 1;
 }
 
-template <typename HIT>
-ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
-    const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
+template <typename HIT, typename CLUSTER>
+ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnections(
+    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
   // Get collections
   const auto& clusters = *cCCH.product();
   const auto& caloParticles = *cPCH.product();
@@ -48,8 +51,11 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   ticl::caloParticleToLayerCluster cPOnLayer;
   cPOnLayer.resize(nCaloParticles);
   for (unsigned int i = 0; i < nCaloParticles; ++i) {
-    cPOnLayer[i].resize(layers_ * 2);
-    for (unsigned int j = 0; j < layers_ * 2; ++j) {
+    unsigned int nLayers = layers_ * 2;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    cPOnLayer[i].resize(nLayers);
+    for (unsigned int j = 0; j < nLayers; ++j) {
       cPOnLayer[i][j].caloParticleId = i;
       cPOnLayer[i][j].energy = 0.f;
       cPOnLayer[i][j].hits_and_fractions.clear();
@@ -63,15 +69,19 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   // that all the different contributions of the same CaloParticle to a single hit (coming from their
   // internal SimClusters) are merged into a single entry with the fractions properly summed.
   std::unordered_map<DetId, std::vector<ticl::detIdInfoInCluster>> detIdToCaloParticleId_Map;
+  edm::MultiSpan<HIT> hitsMS(hits_);
+
   for (const auto& cpId : cPIndices) {
     const SimClusterRefVector& simClusterRefVector = caloParticles[cpId].simClusters();
     for (const auto& it_sc : simClusterRefVector) {
       const SimCluster& simCluster = (*(it_sc));
       std::vector<std::pair<uint32_t, float>> hits_and_fractions;
       if constexpr (std::is_same_v<HIT, HGCRecHit>)
-        hits_and_fractions = simCluster.endcap_hits_and_fractions();
+        hits_and_fractions = simCluster.filtered_hits_and_fractions(
+            [this](const DetId& detid) { return !recHitTools_->isBarrel(detid); });
       else
-        hits_and_fractions = simCluster.barrel_hits_and_fractions();
+        hits_and_fractions = simCluster.filtered_hits_and_fractions(
+            [this](const DetId& detid) { return recHitTools_->isBarrel(detid); });
       for (const auto& it_haf : hits_and_fractions) {
         const auto hitid = (it_haf.first);
         unsigned int cpLayerId = recHitTools_->getLayerWithOffset(hitid);
@@ -95,7 +105,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
               detIdToCaloParticleId_Map[hitid].emplace_back(cpId, it_haf.second);
             }
           }
-          const HIT* hit = hits_[itcheck->second];
+          const HIT* hit = &hitsMS[itcheck->second];
           cPOnLayer[cpId][cpLayerId].energy += it_haf.second * hit->energy();
           // We need to compress the hits and fractions in order to have a
           // reasonable score between CP and LC. Imagine, for example, that a
@@ -117,39 +127,39 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   }
 
 #ifdef EDM_ML_DEBUG
-  LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "cPOnLayer INFO" << std::endl;
+  LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "cPOnLayer INFO" << std::endl;
   for (size_t cp = 0; cp < cPOnLayer.size(); ++cp) {
-    LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "For CaloParticle Idx: " << cp << " we have: " << std::endl;
+    LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "For CaloParticle Idx: " << cp << " we have: " << std::endl;
     for (size_t cpp = 0; cpp < cPOnLayer[cp].size(); ++cpp) {
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "  On Layer: " << cpp << " we have:" << std::endl;
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "  On Layer: " << cpp << " we have:" << std::endl;
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT")
           << "    CaloParticleIdx: " << cPOnLayer[cp][cpp].caloParticleId << std::endl;
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT")
           << "    Energy:          " << cPOnLayer[cp][cpp].energy << std::endl;
       double tot_energy = 0.;
       for (auto const& haf : cPOnLayer[cp][cpp].hits_and_fractions) {
         //const HIT* hit = &(hits_[hitMap_->at(DetId(haf.first))]);
-        const HIT* hit = hits_[hitMap_->at(haf.first)];
-        LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/"
-                                                      << haf.second << "/" << haf.second * hit->energy() << std::endl;
+        const HIT* hit = &hitsMS[hitMap_->at(haf.first)];
+        LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/"
+                                                       << haf.second << "/" << haf.second * hit->energy() << std::endl;
         tot_energy += haf.second * hit->energy();
       }
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "    Tot Sum haf: " << tot_energy << std::endl;
       for (auto const& lc : cPOnLayer[cp][cpp].layerClusterIdToEnergyAndScore) {
-        LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "      lcIdx/energy/score: " << lc.first << "/"
-                                                      << lc.second.first << "/" << lc.second.second << std::endl;
+        LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "      lcIdx/energy/score: " << lc.first << "/"
+                                                       << lc.second.first << "/" << lc.second.second << std::endl;
       }
     }
   }
 
-  LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "detIdToCaloParticleId_Map INFO" << std::endl;
+  LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "detIdToCaloParticleId_Map INFO" << std::endl;
   for (auto const& cp : detIdToCaloParticleId_Map) {
-    LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+    LogDebug("LCToCPAssociatorByEnergyScoreImplT")
         << "For detId: " << (uint32_t)cp.first
         << " we have found the following connections with CaloParticles:" << std::endl;
-    const HIT* hit = hits_[hitMap_->at(cp.first)];
+    const HIT* hit = &hitsMS[hitMap_->at(cp.first)];
     for (auto const& cpp : cp.second) {
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT")
           << "  CaloParticle Id: " << cpp.clusterId << " with fraction: " << cpp.fraction
           << " and energy: " << cpp.fraction * hit->energy() << std::endl;
     }
@@ -186,7 +196,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
 
       if (hit_find_in_CP != detIdToCaloParticleId_Map.end()) {
         const auto itcheck = hitMap_->find(rh_detid);
-        const HIT* hit = hits_[itcheck->second];
+        const HIT* hit = &hitsMS[itcheck->second];
         for (auto& h : hit_find_in_CP->second) {
           cPOnLayer[h.clusterId][lcLayerId].layerClusterIdToEnergyAndScore[lcId].first += h.fraction * hit->energy();
           cpsInLayerCluster[lcId].emplace_back(h.clusterId, 0.f);
@@ -245,7 +255,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       if (hit_find_in_CP == detIdToCaloParticleId_Map.end()) {
         hitsToCaloParticleId[hitId] -= 1;
       } else {
-        const HIT* hit = hits_[hitMap_->at(rh_detid)];
+        const HIT* hit = &hitsMS[hitMap_->at(rh_detid)];
         auto maxCPEnergyInLC = 0.f;
         auto maxCPId = -1;
         for (auto& h : hit_find_in_CP->second) {
@@ -291,14 +301,14 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       }
     }
 
-    LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+    LogDebug("LCToCPAssociatorByEnergyScoreImplT")
         << std::setw(10) << "LayerId:\t" << std::setw(12) << "layerCluster\t" << std::setw(10) << "lc energy\t"
         << std::setw(5) << "nhits\t" << std::setw(12) << "noise hits\t" << std::setw(22) << "maxCPId_byNumberOfHits\t"
         << std::setw(8) << "nhitsCP\t" << std::setw(13) << "maxCPId_byEnergy\t" << std::setw(20)
         << "maxEnergySharedLCandCP\t" << std::setw(22) << "totalCPEnergyOnLayer\t" << std::setw(22)
         << "energyFractionOfLCinCP\t" << std::setw(25) << "energyFractionOfCPinLC\t"
         << "\n";
-    LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+    LogDebug("LCToCPAssociatorByEnergyScoreImplT")
         << std::setw(10) << lcLayerId << "\t" << std::setw(12) << lcId << "\t" << std::setw(10)
         << clusters[lcId].energy() << "\t" << std::setw(5) << numberOfHitsInLC << "\t" << std::setw(12)
         << numberOfNoiseHitsInLC << "\t" << std::setw(22) << maxCPId_byNumberOfHits << "\t" << std::setw(8)
@@ -307,38 +317,38 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
         << energyFractionOfLCinCP << "\t" << std::setw(25) << energyFractionOfCPinLC << "\n";
   }  // End of loop over LayerClusters
 
-  LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "Improved cPOnLayer INFO" << std::endl;
+  LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "Improved cPOnLayer INFO" << std::endl;
   for (size_t cp = 0; cp < cPOnLayer.size(); ++cp) {
-    LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "For CaloParticle Idx: " << cp << " we have: " << std::endl;
+    LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "For CaloParticle Idx: " << cp << " we have: " << std::endl;
     for (size_t cpp = 0; cpp < cPOnLayer[cp].size(); ++cpp) {
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "  On Layer: " << cpp << " we have:" << std::endl;
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "  On Layer: " << cpp << " we have:" << std::endl;
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT")
           << "    CaloParticleIdx: " << cPOnLayer[cp][cpp].caloParticleId << std::endl;
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT")
           << "    Energy:          " << cPOnLayer[cp][cpp].energy << std::endl;
       double tot_energy = 0.;
       for (auto const& haf : cPOnLayer[cp][cpp].hits_and_fractions) {
-        const HIT* hit = hits_[hitMap_->at(haf.first)];
-        LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/"
-                                                      << haf.second << "/" << haf.second * hit->energy() << std::endl;
+        const HIT* hit = &hitsMS[hitMap_->at(haf.first)];
+        LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/"
+                                                       << haf.second << "/" << haf.second * hit->energy() << std::endl;
         tot_energy += haf.second * hit->energy();
       }
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "    Tot Sum haf: " << tot_energy << std::endl;
       for (auto const& lc : cPOnLayer[cp][cpp].layerClusterIdToEnergyAndScore) {
-        LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "      lcIdx/energy/score: " << lc.first << "/"
-                                                      << lc.second.first << "/" << lc.second.second << std::endl;
+        LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "      lcIdx/energy/score: " << lc.first << "/"
+                                                       << lc.second.first << "/" << lc.second.second << std::endl;
       }
     }
   }
 
-  LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "Improved detIdToCaloParticleId_Map INFO" << std::endl;
+  LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "Improved detIdToCaloParticleId_Map INFO" << std::endl;
   for (auto const& cp : detIdToCaloParticleId_Map) {
-    LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+    LogDebug("LCToCPAssociatorByEnergyScoreImplT")
         << "For detId: " << (uint32_t)cp.first
         << " we have found the following connections with CaloParticles:" << std::endl;
-    const HIT* hit = hits_[hitMap_->at(cp.first)];
+    const HIT* hit = &hitsMS[hitMap_->at(cp.first)];
     for (auto const& cpp : cp.second) {
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT")
           << "  CaloParticle Id: " << cpp.clusterId << " with fraction: " << cpp.fraction
           << " and energy: " << cpp.fraction * hit->energy() << std::endl;
     }
@@ -349,6 +359,13 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   // together with the returned AssociationMap
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     // find the unique caloparticles id contributing to the layer clusters
+    if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+      if (recHitTools_->isBarrel(clusters[lcId].seed()))
+        continue;
+    } else {
+      if (!recHitTools_->isBarrel(clusters[lcId].seed()))
+        continue;
+    }
     std::sort(cpsInLayerCluster[lcId].begin(), cpsInLayerCluster[lcId].end());
     auto last = std::unique(cpsInLayerCluster[lcId].begin(), cpsInLayerCluster[lcId].end());
     cpsInLayerCluster[lcId].erase(last, cpsInLayerCluster[lcId].end());
@@ -359,8 +376,8 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     if (clusters[lcId].energy() == 0. && !cpsInLayerCluster[lcId].empty()) {
       for (auto& cpPair : cpsInLayerCluster[lcId]) {
         cpPair.second = 1.;
-        LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "layerClusterId : \t " << lcId << "\t CP id : \t"
-                                                      << cpPair.first << "\t score \t " << cpPair.second << "\n";
+        LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "layerClusterId : \t " << lcId << "\t CP id : \t"
+                                                       << cpPair.first << "\t score \t " << cpPair.second << "\n";
       }
       continue;
     }
@@ -369,7 +386,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     // It is the inverse of the denominator of the LCToCP score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : hits_and_fractions) {
-      const HIT* hit = hits_[hitMap_->at(haf.first)];
+      const HIT* hit = &hitsMS[hitMap_->at(haf.first)];
       invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
     }
     invLayerClusterEnergyWeight = 1.f / invLayerClusterEnergyWeight;
@@ -380,7 +397,9 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       bool hitWithNoCP = (detIdToCaloParticleId_Map.find(rh_detid) == detIdToCaloParticleId_Map.end());
 
       auto itcheck = hitMap_->find(rh_detid);
-      const HIT* hit = hits_[itcheck->second];
+      if (itcheck == hitMap_->end())
+        continue;
+      const HIT* hit = &hitsMS[itcheck->second];
       float hitEnergyWeight = hit->energy() * hit->energy();
 
       for (auto& cpPair : cpsInLayerCluster[lcId]) {
@@ -398,14 +417,17 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     }  // End of loop over Hits within a LayerCluster
 #ifdef EDM_ML_DEBUG
     if (cpsInLayerCluster[lcId].empty())
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "layerCluster Id: \t" << lcId << "\tCP id:\t-1 "
-                                                    << "\t score \t-1\n";
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "layerCluster Id: \t" << lcId << "\tCP id:\t-1 "
+                                                     << "\t score \t-1\n";
 #endif
   }  // End of loop over LayerClusters
 
   // Compute the CaloParticle-To-LayerCluster score
   for (const auto& cpId : cPIndices) {
-    for (unsigned int layerId = 0; layerId < layers_ * 2; ++layerId) {
+    unsigned int nLayers = layers_ * 2;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    for (unsigned int layerId = 0; layerId < nLayers; ++layerId) {
       unsigned int CPNumberOfHits = cPOnLayer[cpId][layerId].hits_and_fractions.size();
       if (CPNumberOfHits == 0)
         continue;
@@ -423,12 +445,12 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       if (CPenergy > 0.f)
         CPEnergyFractionInLC = maxEnergyLCinCP / CPenergy;
 
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT")
           << std::setw(8) << "LayerId:\t" << std::setw(12) << "caloparticle\t" << std::setw(15) << "cp total energy\t"
           << std::setw(15) << "cpEnergyOnLayer\t" << std::setw(14) << "CPNhitsOnLayer\t" << std::setw(18)
           << "lcWithMaxEnergyInCP\t" << std::setw(15) << "maxEnergyLCinCP\t" << std::setw(20) << "CPEnergyFractionInLC"
           << "\n";
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT")
           << std::setw(8) << layerId << "\t" << std::setw(12) << cpId << "\t" << std::setw(15)
           << caloParticles[cpId].energy() << "\t" << std::setw(15) << CPenergy << "\t" << std::setw(14)
           << CPNumberOfHits << "\t" << std::setw(18) << lcWithMaxEnergyInCP << "\t" << std::setw(15) << maxEnergyLCinCP
@@ -437,7 +459,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       // Compute the correct normalization. Observe that this is the sum of the squares.
       float invCPEnergyWeight = 0.f;
       for (auto const& haf : cPOnLayer[cpId][layerId].hits_and_fractions) {
-        const HIT* hit = hits_[hitMap_->at(haf.first)];
+        const HIT* hit = &hitsMS[hitMap_->at(haf.first)];
         invCPEnergyWeight += std::pow(haf.second * hit->energy(), 2);
       }
       invCPEnergyWeight = 1.f / invCPEnergyWeight;
@@ -452,7 +474,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
         if (hit_find_in_LC == detIdToLayerClusterId_Map.end())
           hitWithNoLC = true;
         auto itcheck = hitMap_->find(cp_hitDetId);
-        const HIT* hit = hits_[itcheck->second];
+        const HIT* hit = &hitsMS[itcheck->second];
         float hitEnergyWeight = hit->energy() * hit->energy();
         for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
           unsigned int layerClusterId = lcPair.first;
@@ -468,7 +490,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
           lcPair.second.second += std::min(std::pow(lcFraction - cpFraction, 2), std::pow(cpFraction, 2)) *
                                   hitEnergyWeight * invCPEnergyWeight;
 #ifdef EDM_ML_DEBUG
-          LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+          LogDebug("LCToCPAssociatorByEnergyScoreImplT")
               << "cpDetId:\t" << (uint32_t)cp_hitDetId << "\tlayerClusterId:\t" << layerClusterId << "\t"
               << "lcfraction,cpfraction:\t" << lcFraction << ", " << cpFraction << "\t"
               << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
@@ -479,11 +501,11 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       }  // End of loop over hits of CaloParticle on a Layer
 #ifdef EDM_ML_DEBUG
       if (cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore.empty())
-        LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "CP Id: \t" << cpId << "\tLC id:\t-1 "
-                                                      << "\t score \t-1\n";
+        LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "CP Id: \t" << cpId << "\tLC id:\t-1 "
+                                                       << "\t score \t-1\n";
 
       for (const auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
-        LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+        LogDebug("LCToCPAssociatorByEnergyScoreImplT")
             << "CP Id: \t" << cpId << "\t LC id: \t" << lcPair.first << "\t score \t" << lcPair.second.second
             << "\t shared energy:\t" << lcPair.second.first << "\t shared energy fraction:\t"
             << (lcPair.second.first / CPenergy) << "\n";
@@ -495,19 +517,24 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   return {cpsInLayerCluster, cPOnLayer};
 }
 
-template <typename HIT>
-ticl::RecoToSimCollection LCToCPAssociatorByEnergyScoreImpl<HIT>::associateRecoToSim(
-    const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
-  ticl::RecoToSimCollection returnValue(productGetter_);
+template <typename HIT, typename CLUSTER>
+ticl::RecoToSimCollectionT<CLUSTER> LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::associateRecoToSim(
+    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
+  ticl::RecoToSimCollectionT<CLUSTER> returnValue(productGetter_);
+
+  if (!hitMap_ || hitMap_->empty()) {
+    edm::LogWarning("LCToCPAssociatorByEnergyScoreImplT") << "hitMap_ is null or empty, skipping association.";
+    return returnValue;  // return empty collection
+  }
   const auto& links = makeConnections(cCCH, cPCH);
 
   const auto& cpsInLayerCluster = std::get<0>(links);
   for (size_t lcId = 0; lcId < cpsInLayerCluster.size(); ++lcId) {
     for (auto& cpPair : cpsInLayerCluster[lcId]) {
-      LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+      LogDebug("LCToCPAssociatorByEnergyScoreImplT")
           << "layerCluster Id: \t" << lcId << "\t CP id: \t" << cpPair.first << "\t score \t" << cpPair.second << "\n";
       // Fill AssociationMap
-      returnValue.insert(edm::Ref<reco::CaloClusterCollection>(cCCH, lcId),  // Ref to LC
+      returnValue.insert(edm::Ref<CLUSTER>(cCCH, lcId),  // Ref to LC
                          std::make_pair(edm::Ref<CaloParticleCollection>(cPCH, cpPair.first),
                                         cpPair.second)  // Pair <Ref to CP, score>
       );
@@ -516,10 +543,16 @@ ticl::RecoToSimCollection LCToCPAssociatorByEnergyScoreImpl<HIT>::associateRecoT
   return returnValue;
 }
 
-template <typename HIT>
-ticl::SimToRecoCollection LCToCPAssociatorByEnergyScoreImpl<HIT>::associateSimToReco(
-    const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
-  ticl::SimToRecoCollection returnValue(productGetter_);
+template <typename HIT, typename CLUSTER>
+ticl::SimToRecoCollectionT<CLUSTER> LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::associateSimToReco(
+    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
+  ticl::SimToRecoCollectionT<CLUSTER> returnValue(productGetter_);
+
+  if (!hitMap_ || hitMap_->empty()) {
+    edm::LogWarning("LCToCPAssociatorByEnergyScoreImplT") << "hitMap_ is null or empty, skipping association.";
+    return returnValue;  // return empty collection
+  }
+
   const auto& links = makeConnections(cCCH, cPCH);
   const auto& cPOnLayer = std::get<1>(links);
   for (size_t cpId = 0; cpId < cPOnLayer.size(); ++cpId) {
@@ -527,7 +560,7 @@ ticl::SimToRecoCollection LCToCPAssociatorByEnergyScoreImpl<HIT>::associateSimTo
       for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
         returnValue.insert(
             edm::Ref<CaloParticleCollection>(cPCH, cpId),                              // Ref to CP
-            std::make_pair(edm::Ref<reco::CaloClusterCollection>(cCCH, lcPair.first),  // Pair <Ref to LC,
+            std::make_pair(edm::Ref<CLUSTER>(cCCH, lcPair.first),                      // Pair <Ref to LC,
                            std::make_pair(lcPair.second.first, lcPair.second.second))  // pair <energy, score> >
         );
       }
@@ -536,5 +569,7 @@ ticl::SimToRecoCollection LCToCPAssociatorByEnergyScoreImpl<HIT>::associateSimTo
   return returnValue;
 }
 
-template class LCToCPAssociatorByEnergyScoreImpl<HGCRecHit>;
-template class LCToCPAssociatorByEnergyScoreImpl<reco::PFRecHit>;
+template class LCToCPAssociatorByEnergyScoreImplT<HGCRecHit, reco::CaloClusterCollection>;
+template class LCToCPAssociatorByEnergyScoreImplT<reco::PFRecHit, reco::CaloClusterCollection>;
+template class LCToCPAssociatorByEnergyScoreImplT<HGCRecHit, reco::PFClusterCollection>;
+template class LCToCPAssociatorByEnergyScoreImplT<reco::PFRecHit, reco::PFClusterCollection>;

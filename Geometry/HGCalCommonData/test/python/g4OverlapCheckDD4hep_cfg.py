@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckDD4hep_cfg.py type=V17 tol=0.01 resol=10000
 #
-#   Options for type  V17, V19
+#   Options for type  V16, V17, V17Shift, V18, V19
 #               tol   1.0, 0.1, 0.01, 0.0
 #               resol 10000, 100000, 1000000
 #
@@ -18,7 +18,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V17, V19")
+                  "type of operations: V16, V17, V17Shift, V18, V19")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -86,3 +86,5 @@ process.g4SimHits.FileNameField   = ''
 process.g4SimHits.FileNameGDML    = ''
 process.g4SimHits.FileNameRegions = ''
 #
+if (options.type == "V16"):
+    process.g4SimHits.OnlySDs = ['CaloTrkProcessing','EcalSensitiveDetector','HGCScintillatorSensitiveDetector','HGCalSensitiveDetector','HcalSensitiveDetector','MtdSensitiveDetector','MuonSensitiveDetector','PLTSensitiveDetector','ZdcSensitiveDetector']

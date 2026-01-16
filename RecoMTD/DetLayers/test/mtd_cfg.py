@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
-_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+import Geometry.MTDCommonData.defaultMTDConditionsEra_cff as _mtdgeo
+_mtdgeo.check_mtdgeo()
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_mtdgeo.MTD_DEFAULT_VERSION)
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
 process = cms.Process("GeometryTest",_PH2_ERA,dd4hep)
@@ -19,16 +21,16 @@ process.MessageLogger.cerr.DEBUG = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.MTDLayerDumpFull = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.MTDDetLayersFull = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.MTDLayerDump = cms.untracked.PSet(
-    limit = cms.untracked.int32(0)
+    limit = cms.untracked.int32(-1)
 )
 process.MessageLogger.cerr.MTDDetLayers = cms.untracked.PSet(
-    limit = cms.untracked.int32(0)
+    limit = cms.untracked.int32(-1)
 )
 process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     MTDLayerDump = cms.untracked.PSet(
@@ -56,7 +58,7 @@ process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'))
 
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryDD4hepExtendedRun4DefaultReco_cff")
+process.load("Geometry.MTDCommonData.GeometryDD4hepExtendedRun4MTDDefaultReco_cff")
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 
 process.Timing = cms.Service("Timing")

@@ -21,6 +21,9 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSiNoiseMap.h"
 
 namespace hgc = hgc_digi;
@@ -80,7 +83,7 @@ public:
   float keV2fC() const { return keV2fC_; }
   bool toaModeByEnergy() const { return (myFEelectronics_->toaMode() == HGCFEElectronics<DFr>::WEIGHTEDBYE); }
   float tdcOnset() const { return myFEelectronics_->getTDCOnset(); }
-  std::array<float, 3> tdcForToAOnset() const { return myFEelectronics_->getTDCForToAOnset(); }
+  std::vector<float> tdcForToAOnset() const { return myFEelectronics_->getTDCForToAOnset(); }
   DetId::Detector det() const { return det_; }
   ForwardSubdetector subdet() const { return subdet_; }
 

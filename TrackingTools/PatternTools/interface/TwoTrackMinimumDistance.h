@@ -31,7 +31,7 @@ public:
 
   bool calculate(const FreeTrajectoryState& sta, const FreeTrajectoryState& stb) override;
 
-  virtual bool calculate(const GlobalTrajectoryParameters& sta, const GlobalTrajectoryParameters& stb);
+  bool calculate(const GlobalTrajectoryParameters& sta, const GlobalTrajectoryParameters& stb);
 
   bool status() const override { return status_; }
 

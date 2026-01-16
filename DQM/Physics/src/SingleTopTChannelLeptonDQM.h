@@ -150,7 +150,7 @@ namespace SingleTopTChannelLepton {
     std::string elecIso_;
     /// extra selection on electrons
     std::unique_ptr<StringCutObjectSelector<reco::GsfElectron>> elecSelect_;
-    edm::InputTag rhoTag;
+    edm::EDGetTokenT<double> rhoToken_;
 
     /// extra selection on primary vertices; meant to investigate the pile-up
     /// effect

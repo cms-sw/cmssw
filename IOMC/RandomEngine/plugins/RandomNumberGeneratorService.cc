@@ -86,6 +86,11 @@ namespace edm {
                                                << "states two different ways in the same process.\n";
       }
 
+      if (not restoreStateTag_.label().empty()) {
+        restoreStateBeginLumiToken_ = consumes<RandomEngineStates, InLumi>(restoreStateBeginLumiTag_);
+        restoreStateToken_ = consumes<RandomEngineStates>(restoreStateTag_);
+      }
+
       // The saveFileName must correspond to a file name without any path specification.
       // Throw if that is not true.
       if (!saveFileName_.empty() && (saveFileName_.find('/') != std::string::npos)) {
@@ -218,12 +223,9 @@ namespace edm {
       }
     }
 
-    RandomNumberGeneratorService::~RandomNumberGeneratorService() {}
+    RandomNumberGeneratorService::~RandomNumberGeneratorService() noexcept(true) {}
 
-    void RandomNumberGeneratorService::consumes(ConsumesCollector&& iC) const {
-      iC.consumes<RandomEngineStates, InLumi>(restoreStateBeginLumiTag_);
-      iC.consumes<RandomEngineStates>(restoreStateTag_);
-    }
+    EDConsumerBase* RandomNumberGeneratorService::consumer() { return this; }
 
     CLHEP::HepRandomEngine& RandomNumberGeneratorService::getEngine(StreamID const& streamID) {
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
@@ -665,8 +667,7 @@ namespace edm {
         }
       }
 
-      Handle<RandomEngineStates> states;
-      lumi.getByLabel(restoreStateBeginLumiTag_, states);
+      Handle<RandomEngineStates> states = lumi.getHandle(restoreStateBeginLumiToken_);
 
       if (!states.isValid()) {
         throw Exception(errors::ProductNotFound)
@@ -682,9 +683,7 @@ namespace edm {
     }
 
     void RandomNumberGeneratorService::readFromEvent(Event const& event) {
-      Handle<RandomEngineStates> states;
-
-      event.getByLabel(restoreStateTag_, states);
+      Handle<RandomEngineStates> states = event.getHandle(restoreStateToken_);
 
       if (!states.isValid()) {
         throw Exception(errors::ProductNotFound)

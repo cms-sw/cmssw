@@ -25,6 +25,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
@@ -80,6 +81,15 @@ private:
   MonitorElement* pfCluster_Phi_HostvsDevice_;
   MonitorElement* pfCluster_DuplicateMatches_HostvsDevice_;
 
+  MonitorElement* pfCluster_Multiplicity_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Energy_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_RecHitMultiplicity_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Layer_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Depth_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Eta_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Phi_Diff_HostvsDevice_;
+
+  std::string subsystemDir_;
   std::string pfCaloGPUCompDir_;
 };
 
@@ -89,11 +99,12 @@ PFHcalGPUComparisonTask::PFHcalGPUComparisonTask(edm::ParameterSet const& conf)
           consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_ref"))},
       pfClusterTok_target_{
           consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_target"))},
+      subsystemDir_{conf.getUntrackedParameter<std::string>("subsystem")},
       pfCaloGPUCompDir_{conf.getUntrackedParameter<std::string>("name")} {}
 
 void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r, edm::EventSetup const& es) {
-  _subsystem = "ParticleFlow";
-  ibooker.setCurrentFolder("ParticleFlow/" + pfCaloGPUCompDir_);
+  _subsystem = subsystemDir_;
+  ibooker.setCurrentFolder(pfCaloGPUCompDir_);
   DQTask::bookHistograms(ibooker, r, es);
   //	Book monitoring elements
   const char* histo;
@@ -129,16 +140,39 @@ void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   histo = "pfCluster_DuplicateMatches_HostvsDevice";
   histoAxis = "pfCluster_Duplicates_HostvsDevice;Cluster Duplicates Host;Cluster Duplicates Device";
   pfCluster_DuplicateMatches_HostvsDevice_ = ibooker.book1I(histo, histoAxis, 100, 0., 1000);
+
+  pfCluster_Multiplicity_Diff_HostvsDevice_ = ibooker.book1D(
+      "MultiplicityDiff", "PFCluster Multiplicity Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_Energy_Diff_HostvsDevice_ =
+      ibooker.book1D("EnergyDiff", "PFCluster Energy Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_RecHitMultiplicity_Diff_HostvsDevice_ = ibooker.book1D(
+      "RHMultiplicityDiff", "PFCluster RecHit Multiplicity Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_Layer_Diff_HostvsDevice_ =
+      ibooker.book1D("LayerDiff", "PFCluster Layer Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_Depth_Diff_HostvsDevice_ =
+      ibooker.book1D("DepthDiff", "PFCluster Depth Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_Eta_Diff_HostvsDevice_ =
+      ibooker.book1D("EtaDiff", "PFCluster #eta Difference; (Reference - Target);#entries", 100, -0.5, 0.5);
+  pfCluster_Phi_Diff_HostvsDevice_ =
+      ibooker.book1D("PhiDiff", "PFCluster #phi Difference; (Reference - Target);#entries", 100, -0.5, 0.5);
 }
 
 void PFHcalGPUComparisonTask::_resetMonitors(hcaldqm::UpdateFreq uf) { DQTask::_resetMonitors(uf); }
 
 void PFHcalGPUComparisonTask::_process(edm::Event const& event, edm::EventSetup const&) {
-  edm::Handle<reco::PFClusterCollection> pfClusters_ref;
-  event.getByToken(pfClusterTok_ref_, pfClusters_ref);
+  const auto& pfClusters_ref = event.getHandle(pfClusterTok_ref_);
+  const auto& pfClusters_target = event.getHandle(pfClusterTok_target_);
 
-  edm::Handle<reco::PFClusterCollection> pfClusters_target;
-  event.getByToken(pfClusterTok_target_, pfClusters_target);
+  // Exit early if any handle is invalid
+  if (!pfClusters_ref || !pfClusters_target) {
+    edm::LogWarning out("PFHcalGPUComparisonTask");
+    if (!pfClusters_ref)
+      out << "reference PF cluster collection not found; ";
+    if (!pfClusters_target)
+      out << "target PF cluster collection not found; ";
+    out << "the comparison will not run.";
+    return;
+  }
 
   auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
   _currentLS = lumiCache->currentLS;
@@ -148,7 +182,7 @@ void PFHcalGPUComparisonTask::_process(edm::Event const& event, edm::EventSetup 
     LOGVERB("PFCaloGPUComparisonTask") << " PFCluster multiplicity " << pfClusters_ref->size() << " "
                                        << pfClusters_target->size();
   pfCluster_Multiplicity_HostvsDevice_->Fill((float)pfClusters_ref->size(), (float)pfClusters_target->size());
-
+  pfCluster_Multiplicity_Diff_HostvsDevice_->Fill((float)pfClusters_ref->size() - (float)pfClusters_target->size());
   //
   // Find matching PF cluster pairs
   std::vector<int> matched_idx;
@@ -192,6 +226,15 @@ void PFHcalGPUComparisonTask::_process(edm::Event const& event, edm::EventSetup 
       pfCluster_Depth_HostvsDevice_->Fill(pfClusters_ref->at(i).depth(), pfClusters_target->at(j).depth());
       pfCluster_RecHitMultiplicity_HostvsDevice_->Fill((float)pfClusters_ref->at(i).recHitFractions().size(),
                                                        (float)pfClusters_target->at(j).recHitFractions().size());
+      pfCluster_Energy_Diff_HostvsDevice_->Fill(pfClusters_ref->at(i).energy() - pfClusters_target->at(j).energy());
+      pfCluster_RecHitMultiplicity_Diff_HostvsDevice_->Fill((float)pfClusters_ref->at(i).recHitFractions().size() -
+                                                            (float)pfClusters_target->at(j).recHitFractions().size());
+      pfCluster_Layer_Diff_HostvsDevice_->Fill(pfClusters_ref->at(i).layer() - pfClusters_target->at(j).layer());
+      pfCluster_Depth_Diff_HostvsDevice_->Fill(pfClusters_ref->at(i).depth() - pfClusters_target->at(j).depth());
+      ;
+      pfCluster_Eta_Diff_HostvsDevice_->Fill(pfClusters_ref->at(i).eta() - pfClusters_target->at(j).eta());
+      pfCluster_Phi_Diff_HostvsDevice_->Fill(
+          reco::deltaPhi(pfClusters_ref->at(i).phi(), pfClusters_target->at(j).phi()));
     }
   }
 }
@@ -214,7 +257,8 @@ void PFHcalGPUComparisonTask::globalEndLuminosityBlock(edm::LuminosityBlock cons
 
 void PFHcalGPUComparisonTask::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("name", "pfCaloGPUCompDir");
+  desc.addUntracked<std::string>("subsystem", "ParticleFlow");
+  desc.addUntracked<std::string>("name", "ParticleFlow/pfCaloGPUCompDir");
   desc.addUntracked<edm::InputTag>("pfClusterToken_ref", edm::InputTag("hltParticleFlowClusterHCALSerialSync"));
   desc.addUntracked<edm::InputTag>("pfClusterToken_target", edm::InputTag("hltParticleFlowClusterHCAL"));
   descriptions.addWithDefaultLabel(desc);

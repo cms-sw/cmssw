@@ -408,7 +408,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
 
     # Setup the PUPPI ValueMap that will consumed by the TagInfo producers.
     puppi_value_map = "puppi"
-    if pfCandidates.value() == 'packedPFCandidates':
+    if 'packedPFCandidates' in pfCandidates.value():
         puppi_value_map = setupPuppiForPackedPF(process)[0]
 
     acceptedTagInfos = list()
@@ -651,7 +651,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
 
                 # use right input tags when running with RECO PF candidates, which actually
                 # depends of whether jets use "particleFlow"
-                if pfCandidates.value() == 'packedPFCandidates':
+                if 'packedPFCandidates' in pfCandidates.value():
                     vertex_associator = cms.InputTag("")
                 else:
                     vertex_associator = cms.InputTag("primaryVertexAssociation","original")
@@ -680,7 +680,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     svUsed, flip, max_sip3dsig_for_flip = svSource, False, -1.
                 # use right input tags when running with RECO PF candidates, which actually
                 # depends of whether jets use "particleFlow"
-                if pfCandidates.value() == 'packedPFCandidates':
+                if 'packedPFCandidates' in pfCandidates.value():
                     vertex_associator = cms.InputTag("")
                 else:
                     vertex_associator = cms.InputTag("primaryVertexAssociation","original")
@@ -710,7 +710,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     flip = False
                 # use right input tags when running with RECO PF candidates, which actually
                 # depends of whether jets use "particleFlow"
-                if pfCandidates.value() == 'packedPFCandidates':
+                if 'packedPFCandidates' in pfCandidates.value():
                     vertex_associator = cms.InputTag("")
                 else:
                     vertex_associator = cms.InputTag("primaryVertexAssociation","original")
@@ -739,7 +739,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     flip = False
                 # use right input tags when running with RECO PF candidates, which actually
                 # depends of whether jets use "particleFlow"
-                if pfCandidates.value() == 'packedPFCandidates':
+                if 'packedPFCandidates' in pfCandidates.value():
                     puppi_value_map = setupPuppiForPackedPF(process)[0]
                     vertex_associator = cms.InputTag("")
                 else:
@@ -786,7 +786,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     process, task)
 
             if btagInfo == 'pfDeepBoostedJetTagInfos':
-                if pfCandidates.value() == 'packedPFCandidates':
+                if 'packedPFCandidates' in pfCandidates.value():
                     # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
                     if 'updated' not in jetSource.value().lower():
                         raise ValueError("Invalid jet collection: %s. pfDeepBoostedJetTagInfos only supports running via updateJetCollection." % jetSource.value())
@@ -811,7 +811,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     process, task)
 
             if btagInfo == 'pfParticleNetTagInfos' or btagInfo == 'pfGlobalParticleTransformerAK8TagInfos':
-                if pfCandidates.value() == 'packedPFCandidates':
+                if 'packedPFCandidates' in pfCandidates.value():
                     # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
                     vertex_associator = ""
                 elif pfCandidates.value() == 'particleFlow':
@@ -841,7 +841,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     secondary_vertices = svSource
                     flip_ip_sign = False
                     sip3dSigMax = -1
-                if pfCandidates.value() == 'packedPFCandidates':
+                if 'packedPFCandidates' in pfCandidates.value():
                     # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
                     vertex_associator = ""
                 elif pfCandidates.value() == 'particleFlow':
@@ -877,7 +877,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 svUsed, flip_ip_sign, max_sip3dsig_for_flip = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix), True, 10.
             else:
                 svUsed, flip_ip_sign, max_sip3dsig_for_flip = svSource, False, -1.
-            if pfCandidates.value() != 'packedPFCandidates':
+            if 'packedPFCandidates' not in pfCandidates.value():
                 raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
             addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                 pfParticleNetFromMiniAODAK4PuppiCentralTagInfos.clone(
@@ -893,7 +893,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             acceptedTagInfos.append(btagInfo)
         elif btagInfo == 'pfParticleNetFromMiniAODAK4PuppiForwardTagInfos':
             # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
-            if pfCandidates.value() != 'packedPFCandidates':
+            if 'packedPFCandidates' not in pfCandidates.value():
                 raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
             addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                 pfParticleNetFromMiniAODAK4PuppiForwardTagInfos.clone(
@@ -911,7 +911,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 svUsed, flip_ip_sign, max_sip3dsig_for_flip = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix), True, 10.
             else:
                 svUsed, flip_ip_sign, max_sip3dsig_for_flip = svSource, False, -1.
-            if pfCandidates.value() != 'packedPFCandidates':
+            if 'packedPFCandidates' not in pfCandidates.value():
                 raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
             addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                 pfParticleNetFromMiniAODAK4CHSCentralTagInfos.clone(
@@ -927,7 +927,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             acceptedTagInfos.append(btagInfo)
         elif btagInfo == 'pfParticleNetFromMiniAODAK4CHSForwardTagInfos':
             # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
-            if pfCandidates.value() != 'packedPFCandidates':
+            if 'packedPFCandidates' not in pfCandidates.value():
                 raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
             addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                 pfParticleNetFromMiniAODAK4CHSForwardTagInfos.clone(
@@ -941,7 +941,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             acceptedTagInfos.append(btagInfo)
         elif btagInfo == 'pfParticleNetFromMiniAODAK8TagInfos':
             # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
-            if pfCandidates.value() != 'packedPFCandidates':
+            if 'packedPFCandidates' not in pfCandidates.value():
                 raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
             addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                 pfParticleNetFromMiniAODAK8TagInfos.clone(

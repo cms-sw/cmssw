@@ -166,13 +166,13 @@ namespace ticl {
 
     CollectionRefProdType collectionRefProds;
 
+  public:
     // Traits to deduce AssociationElementType and ValueType
     using Traits = MapTraits<MapType>;
     using AssociationElementType = typename Traits::AssociationElementType;
     using V = typename Traits::ValueType;
+    using Type = MapType;
     static constexpr bool is_one_to_one = Traits::is_one_to_one;
-
-  public:
     AssociationMap() : collectionRefProds() {}
 
     // Constructor for generic use

@@ -35,7 +35,7 @@ namespace fastsim {
   class Decayer {
   public:
     //! Default Constructor.
-    Decayer();
+    Decayer(bool verbose);
 
     //! Default destructor.
     ~Decayer();

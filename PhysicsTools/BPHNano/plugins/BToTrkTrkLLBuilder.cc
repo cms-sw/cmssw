@@ -28,6 +28,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "helper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class BToTrkTrkLLBuilder : public edm::global::EDProducer<> {
   // perhaps we need better structure here (begin run etc)
@@ -133,7 +134,11 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
       cand.addUserInt("l2_idx", l2_idx);
       cand.addUserInt("trk1_idx", trk1_idx);
       cand.addUserInt("trk2_idx", trk2_idx);
-      cand.addUserInt("ditrack_idx", ditracks_idx);
+      //      cand.addUserInt("ditrack_idx", ditracks_idx); this index corresponds to the ditrack collection.
+      //      However, in order to refuce the event size, we do not store all the ditrack candidates but only those used to build a B candidate.
+      //      So, now, index of B candidate is the same number for index of ditrack candidate
+      //      This variable is not removed from the code in case we decide to store in the future all the ditrack candidates.
+      cand.addUserInt("ll_idx", ll_idx);
 
       auto lep1_p4 = l1_ptr->polarP4();
       auto lep2_p4 = l2_ptr->polarP4();
@@ -161,28 +166,49 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
       if (!pre_vtx_selection_(cand))
         continue;
 
-      KinVtxFitter fitter({leptons_ttracks->at(l1_idx),
-                           leptons_ttracks->at(l2_idx),
-                           ditracks_ttracks->at(trk1_idx),
-                           ditracks_ttracks->at(trk2_idx)},
-                          {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::K_MASS},
-                          {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
+      KinVtxFitter fitter;
+      try {
+        fitter = KinVtxFitter({leptons_ttracks->at(l1_idx),
+                               leptons_ttracks->at(l2_idx),
+                               ditracks_ttracks->at(trk1_idx),
+                               ditracks_ttracks->at(trk2_idx)},
+                              {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::K_MASS},
+                              {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit") << "BToTrkTrkLL - KK mass hypothesis: Skipping candidate due to fit failure: "
+                                        << e.what();
+        continue;
+      }
       if (!fitter.success())
         continue;
-      KinVtxFitter fitter_Kpi({leptons_ttracks->at(l1_idx),
-                               leptons_ttracks->at(l2_idx),
-                               ditracks_ttracks->at(trk1_idx),
-                               ditracks_ttracks->at(trk2_idx)},
-                              {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::PI_MASS},
-                              {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
+      KinVtxFitter fitter_Kpi;
+      try {
+        fitter_Kpi = KinVtxFitter({leptons_ttracks->at(l1_idx),
+                                   leptons_ttracks->at(l2_idx),
+                                   ditracks_ttracks->at(trk1_idx),
+                                   ditracks_ttracks->at(trk2_idx)},
+                                  {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::PI_MASS},
+                                  {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit") << "BToTrkTrkLL - Kpi mass hypothesis: Skipping candidate due to fit failure: "
+                                        << e.what();
+        continue;
+      }
       if (!fitter_Kpi.success())
         continue;
-      KinVtxFitter fitter_piK({leptons_ttracks->at(l1_idx),
-                               leptons_ttracks->at(l2_idx),
-                               ditracks_ttracks->at(trk1_idx),
-                               ditracks_ttracks->at(trk2_idx)},
-                              {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, bph::K_MASS},
-                              {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
+      KinVtxFitter fitter_piK;
+      try {
+        fitter_piK = KinVtxFitter({leptons_ttracks->at(l1_idx),
+                                   leptons_ttracks->at(l2_idx),
+                                   ditracks_ttracks->at(trk1_idx),
+                                   ditracks_ttracks->at(trk2_idx)},
+                                  {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, bph::K_MASS},
+                                  {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit") << "BToTrkTrkLL - piK mass hypothesis: Skipping candidate due to fit failure: "
+                                        << e.what();
+        continue;
+      }
       if (!fitter_piK.success())
         continue;
 
@@ -243,6 +269,19 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
       if (!post_vtx_selection_(cand))
         continue;
 
+      const reco::BeamSpot &beamSpot = *beamspot;
+      TrajectoryStateClosestToPoint theDCAXBS = fitter.fitted_candidate_ttrk().trajectoryStateClosestToPoint(
+          GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()));
+      double DCAB0BS = -99.;
+      double DCAB0BSErr = -99.;
+
+      if (theDCAXBS.isValid() == true) {
+        DCAB0BS = theDCAXBS.perigeeParameters().transverseImpactParameter();
+        DCAB0BSErr = theDCAXBS.perigeeError().transverseImpactParameterError();
+      }
+      cand.addUserFloat("dca", DCAB0BS);
+      cand.addUserFloat("dcaErr", DCAB0BSErr);
+
       cand.addUserFloat("vtx_x", cand.vx());
       cand.addUserFloat("vtx_y", cand.vy());
       cand.addUserFloat("vtx_z", cand.vz());
@@ -296,31 +335,55 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
         // "particles" vector Make sure that the first two particles are the
         // ones you want to constrain
 
-        KinVtxFitter constraint_fitter_KK({leptons_ttracks->at(l1_idx),
-                                           leptons_ttracks->at(l2_idx),
-                                           ditracks_ttracks->at(trk1_idx),
-                                           ditracks_ttracks->at(trk2_idx)},
-                                          {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::K_MASS},
-                                          {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
-                                          mass_constraint);
+        KinVtxFitter constraint_fitter_KK;
+        try {
+          constraint_fitter_KK = KinVtxFitter({leptons_ttracks->at(l1_idx),
+                                               leptons_ttracks->at(l2_idx),
+                                               ditracks_ttracks->at(trk1_idx),
+                                               ditracks_ttracks->at(trk2_idx)},
+                                              {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::K_MASS},
+                                              {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
+                                              mass_constraint);
+        } catch (const VertexException &e) {
+          edm::LogWarning("KinematicFit")
+              << "BToTrkTrkLL - KK mass hypothesis constrained fit: Skipping candidate due to fit failure: "
+              << e.what();
+          continue;
+        }
         if (!constraint_fitter_KK.success())
           continue;
-        KinVtxFitter constraint_fitter_Kpi({leptons_ttracks->at(l1_idx),
-                                            leptons_ttracks->at(l2_idx),
-                                            ditracks_ttracks->at(trk1_idx),
-                                            ditracks_ttracks->at(trk2_idx)},
-                                           {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::PI_MASS},
-                                           {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
-                                           mass_constraint);
+        KinVtxFitter constraint_fitter_Kpi;
+        try {
+          constraint_fitter_Kpi = KinVtxFitter({leptons_ttracks->at(l1_idx),
+                                                leptons_ttracks->at(l2_idx),
+                                                ditracks_ttracks->at(trk1_idx),
+                                                ditracks_ttracks->at(trk2_idx)},
+                                               {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::PI_MASS},
+                                               {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
+                                               mass_constraint);
+        } catch (const VertexException &e) {
+          edm::LogWarning("KinematicFit")
+              << "BToTrkTrkLL - Kpi mass hypothesis constrained fit: Skipping candidate due to fit failure: "
+              << e.what();
+          continue;
+        }
         if (!constraint_fitter_Kpi.success())
           continue;
-        KinVtxFitter constraint_fitter_piK({leptons_ttracks->at(l1_idx),
-                                            leptons_ttracks->at(l2_idx),
-                                            ditracks_ttracks->at(trk1_idx),
-                                            ditracks_ttracks->at(trk2_idx)},
-                                           {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, bph::K_MASS},
-                                           {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
-                                           mass_constraint);
+        KinVtxFitter constraint_fitter_piK;
+        try {
+          constraint_fitter_piK = KinVtxFitter({leptons_ttracks->at(l1_idx),
+                                                leptons_ttracks->at(l2_idx),
+                                                ditracks_ttracks->at(trk1_idx),
+                                                ditracks_ttracks->at(trk2_idx)},
+                                               {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, bph::K_MASS},
+                                               {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
+                                               mass_constraint);
+        } catch (const VertexException &e) {
+          edm::LogWarning("KinematicFit")
+              << "BToTrkTrkLL - piK mass hypothesis constrained fit: Skipping candidate due to fit failure: "
+              << e.what();
+          continue;
+        }
         if (!constraint_fitter_piK.success())
           continue;
 

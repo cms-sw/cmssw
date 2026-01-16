@@ -488,5 +488,5 @@ void CaloTowersCreator::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<int>("HcalPhase", 0);
   desc.add<bool>("usePFThresholdsFromDB", true);
   desc.add<bool>("EcalRecHitThresh", false);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

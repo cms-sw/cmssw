@@ -59,6 +59,7 @@ namespace mkfit {
     void select_best_comb_cands(bool clear_m_tracks = false, bool remove_missing_hits = false);
     void export_best_comb_cands(TrackVec &out_vec, bool remove_missing_hits = false);
     void export_tracks(TrackVec &out_vec);
+    void import_tracks(const TrackVec &in_vec);
 
     void compactifyHitStorageForBestCand(bool remove_seed_hits, int backward_fit_min_hits) {
       m_event_of_comb_cands.compactifyHitStorageForBestCand(remove_seed_hits, backward_fit_min_hits);
@@ -115,6 +116,17 @@ namespace mkfit {
 
     void backwardFit();
     void fit_cands(MkFinder *mkfndr, int start_cand, int end_cand, int region);
+
+    //refit
+
+    void fittracks();
+    void fit_tracks(MkFitter *mkfitter,
+                    int nFoundTracks,
+                    std::vector<int> inds,
+                    int start_trk,
+                    int end_trk,
+                    std::map<int, std::vector<int>> *remap = nullptr);
+    void check_tracks(std::vector<int> inds, int start_trk, int end_trk);
 
   private:
     void fit_one_seed_set(TrackVec &simtracks, int itrack, int end, MkFitter *mkfttr, const bool is_brl[]);

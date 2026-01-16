@@ -124,7 +124,7 @@ G4double MonopoleTransportation::AlongStepGetPhysicalInteractionLength(const G4T
   //
   const G4DynamicParticle* pParticle = track.GetDynamicParticle();
   const G4ThreeVector& startMomentumDir = pParticle->GetMomentumDirection();
-  G4ThreeVector startPosition = track.GetPosition();
+  const G4ThreeVector& startPosition = track.GetPosition();
 
   // The Step Point safety can be limited by other geometries and/or the
   // assumptions of any process - it's not always the geometrical safety.
@@ -233,7 +233,7 @@ G4double MonopoleTransportation::AlongStepGetPhysicalInteractionLength(const G4T
                                             restMass);
     // SetChargeMomentumMass now passes both the electric and magnetic charge - in chargeState
 
-    G4ThreeVector spin = track.GetPolarization();
+    const G4ThreeVector& spin = track.GetPolarization();
     G4FieldTrack aFieldTrack = G4FieldTrack(startPosition,
                                             track.GetMomentumDirection(),
                                             0.0,

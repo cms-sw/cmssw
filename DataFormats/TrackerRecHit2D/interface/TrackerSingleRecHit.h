@@ -68,9 +68,14 @@ public:
 
   bool sharesInput(const TrackingRecHit* other, SharedInputType what) const final;
 
-  bool sharesInput(TrackerSingleRecHit const& other) const { return cluster_ == other.cluster_; }
-
-  bool sameCluster(OmniClusterRef const& oh) const { return oh == cluster_; }
+  bool sharesInput(TrackerSingleRecHit const& other) const {
+    if (cluster_.id() == other.cluster_.id())
+      return (cluster_ == other.cluster_);
+    else {
+      const bool sameDetId = (geographicalId() == other.geographicalId());
+      return (sameDetId) ? other.cluster_.stripOverlap(cluster_) : false;
+    }
+  }
 
   std::vector<const TrackingRecHit*> recHits() const override;
   std::vector<TrackingRecHit*> recHits() override;

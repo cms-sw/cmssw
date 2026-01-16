@@ -4,12 +4,12 @@ namespace evf {
   namespace evtn {
 
     bool daq_board_sense(const unsigned char *p) {
-      return (*(unsigned int *)(p + FEDHeader::length + DAQ_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >>
+      return (*(const unsigned int *)(p + FEDHeader::length + DAQ_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >>
               DAQ_BOARDID_SHIFT) == DAQ_BOARDID_VALUE;
     }
 
     bool gtpe_board_sense(const unsigned char *p) {
-      return (*(unsigned int *)(p + GTPE_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> GTPE_BOARDID_SHIFT) != 0;
+      return (*(const unsigned int *)(p + GTPE_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> GTPE_BOARDID_SHIFT) != 0;
     }
 
     bool evm_board_sense(const unsigned char *p, size_t size) {

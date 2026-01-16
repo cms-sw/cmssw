@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef FWCore_ServiceRegistry_ServiceMaker_h
 #define FWCore_ServiceRegistry_ServiceMaker_h
-// -*- C++ -*-
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceMaker
 //
-/**\class ServiceMaker ServiceMaker.h FWCore/ServiceRegistry/interface/ServiceMaker.h
+/**\class edm::serviceregistry::ServiceMaker
 
  Description: Used to make an instance of a Service
 
@@ -85,10 +85,6 @@ namespace edm {
 
       bool saveConfiguration() const override {
         return ServiceMakerBase::testSaveConfiguration(static_cast<typename TMaker::concrete_t const*>(nullptr));
-      }
-
-      bool processWideService() const override {
-        return service::isProcessWideService(static_cast<typename TMaker::concrete_t const*>(nullptr));
       }
     };
   }  // namespace serviceregistry

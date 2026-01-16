@@ -10,15 +10,14 @@ public:
   /// Constructor
   BTLUncalibRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : MTDUncalibratedRecHitAlgoBase<BTLDataFrame>(conf, sumes),
-        adcNBits_(conf.getParameter<uint32_t>("adcNbits")),
-        adcSaturation_(conf.getParameter<double>("adcSaturation")),
-        adcLSB_(adcSaturation_ / (1 << adcNBits_)),
-        toaLSBToNS_(conf.getParameter<double>("toaLSB_ns")),
+        invLightSpeedLYSO_(conf.getParameter<double>("invLightSpeedLYSO")),
+        c_LYSO_(1. / invLightSpeedLYSO_),
+        npeToADC_(conf.getParameter<std::vector<double>>("npeToADC")),
+        npePerMeV_(conf.getParameter<double>("npePerMeV")),
+        invADCPerMeV_(1. / (npeToADC_[1] * npePerMeV_)),
+        tdc_to_ns_(conf.getParameter<double>("tdcLSB_ns")),
         timeError_(conf.getParameter<std::string>("timeResolutionInNs")),
-        timeCorr_p0_(conf.getParameter<double>("timeCorr_p0")),
-        timeCorr_p1_(conf.getParameter<double>("timeCorr_p1")),
-        timeCorr_p2_(conf.getParameter<double>("timeCorr_p2")),
-        c_LYSO_(conf.getParameter<double>("c_LYSO")) {}
+        timeWalkCorr_(conf.getParameter<std::string>("timeWalkCorrection")) {}
 
   /// Destructor
   ~BTLUncalibRecHitAlgo() override {}
@@ -31,26 +30,20 @@ public:
   FTLUncalibratedRecHit makeRecHit(const BTLDataFrame& dataFrame) const final;
 
 private:
-  const uint32_t adcNBits_;
-  const double adcSaturation_;
-  const double adcLSB_;
-  const double toaLSBToNS_;
-  const reco::FormulaEvaluator timeError_;
-  const double timeCorr_p0_;
-  const double timeCorr_p1_;
-  const double timeCorr_p2_;
+  const double invLightSpeedLYSO_;
   const double c_LYSO_;
+  const std::vector<double> npeToADC_;
+  const double npePerMeV_;
+  const double invADCPerMeV_;
+  const double tdc_to_ns_;
+  const reco::FormulaEvaluator timeError_;
+  const reco::FormulaEvaluator timeWalkCorr_;
 };
 
 FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataFrame) const {
-  // The reconstructed amplitudes and times are saved in a std::pair
-  //    BTL tile geometry (1 SiPM): only the first value of the amplitude
-  //                                and time pairs is used.
-  //    BTL bar geometry (2 SiPMs): both values of the amplitude and
-  //                                time pairs are filled.
-
-  std::pair<float, float> amplitude(0., 0.);
-  std::pair<float, float> time(0., 0.);
+  // The reconstructed amplitudes and times of the right and left hits are saved in a std::pair
+  std::pair<double, double> amplitude(0., 0.);
+  std::pair<double, double> time(0., 0.);
 
   unsigned char flag = 0;
 
@@ -59,30 +52,37 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
   double nHits = 0.;
 
-  LogDebug("BTLUncalibRecHit") << "Original input time t1,t2 " << float(sampleRight.toa()) * toaLSBToNS_ << ", "
-                               << float(sampleLeft.toa()) * toaLSBToNS_ << std::endl;
+  LogDebug("BTLUncalibRecHit") << "Original input time t1, t2 " << double(sampleRight.toa()) * tdc_to_ns_ << ", "
+                               << double(sampleLeft.toa()) * tdc_to_ns_ << std::endl;
 
+  // --- Reconstruct amplitude and time of the crystal's right channel
   if (sampleRight.data() > 0) {
-    amplitude.first = float(sampleRight.data()) * adcLSB_;
-    time.first = float(sampleRight.toa()) * toaLSBToNS_;
+    // Correct the time of the right SiPM for the time-walk
+    amplitude.first = double(sampleRight.data());
+    time.first = double(sampleRight.toa()) -
+                 timeWalkCorr_.evaluate(std::array<double, 1>{{amplitude.first}}, std::array<double, 1>{{0.0}});
 
-    nHits += 1.;
+    // Convert ADC counts to MeV and TDC counts to ns
+    amplitude.first = (double(sampleRight.data()) - npeToADC_[0]) * invADCPerMeV_;
+    time.first *= tdc_to_ns_;
 
-    // Correct the time of the left SiPM for the time-walk
-    time.first -= timeCorr_p0_ * pow(amplitude.first, timeCorr_p1_) + timeCorr_p2_;
     flag |= 0x1;
+    nHits += 1.;
   }
 
-  // --- If available, reconstruct the amplitude and time of the second SiPM
+  // --- Reconstruct amplitude and time of the crystal's left channel
   if (sampleLeft.data() > 0) {
-    amplitude.second = float(sampleLeft.data()) * adcLSB_;
-    time.second = float(sampleLeft.toa()) * toaLSBToNS_;
+    // Correct the time of the left SiPM for the time-walk
+    amplitude.second = double(sampleLeft.data());
+    time.second = double(sampleLeft.toa()) -
+                  timeWalkCorr_.evaluate(std::array<double, 1>{{amplitude.second}}, std::array<double, 1>{{0.0}});
 
-    nHits += 1.;
+    // Convert ADC counts to MeV and TDC counts to ns
+    amplitude.second = (double(sampleLeft.data()) - npeToADC_[0]) * invADCPerMeV_;
+    time.second *= tdc_to_ns_;
 
-    // Correct the time of the right SiPM for the time-walk
-    time.second -= timeCorr_p0_ * pow(amplitude.second, timeCorr_p1_) + timeCorr_p2_;
     flag |= (0x1 << 1);
+    nHits += 1.;
   }
 
   // --- Calculate the error on the hit time using the provided parameterization
@@ -95,16 +95,16 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
   // Calculate the position
   // Distance from center of bar to hit
 
-  float position = 0.5f * (c_LYSO_ * (time.second - time.first));
-  float positionError = BTLRecHitsErrorEstimatorIM::positionError();
+  double position = 0.5f * (c_LYSO_ * (time.second - time.first));
+  double positionError = BTLRecHitsErrorEstimatorIM::positionError();
 
   LogDebug("BTLUncalibRecHit") << "DetId: " << dataFrame.id().rawId() << " x position = " << position << " +/- "
                                << positionError;
   LogDebug("BTLUncalibRecHit") << "ADC+: set the charge to: (" << amplitude.first << ", " << amplitude.second << ")  ("
-                               << sampleRight.data() << ", " << sampleLeft.data() << ") " << adcLSB_ << ' '
+                               << sampleRight.data() << ", " << sampleLeft.data() << ") " << invADCPerMeV_ << ' '
                                << std::endl;
   LogDebug("BTLUncalibRecHit") << "TDC+: set the time to: (" << time.first << ", " << time.second << ")  ("
-                               << sampleRight.toa() << ", " << sampleLeft.toa() << ") " << toaLSBToNS_ << ' '
+                               << sampleRight.toa() << ", " << sampleLeft.toa() << ") " << tdc_to_ns_ << ' '
                                << std::endl;
 
   return FTLUncalibratedRecHit(

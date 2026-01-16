@@ -1,0 +1,5 @@
+<library file="TrivialSerialisation.cc" name="DataFormatsBeamSpotTrivialSerialisation">
+  <use name="DataFormats/BeamSpot"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -16,8 +16,6 @@ CMSSIMPInelasticXS::CMSSIMPInelasticXS() : G4VCrossSectionDataSet("CMSSIMPInelas
   isInitialized = false;
 }
 
-CMSSIMPInelasticXS::~CMSSIMPInelasticXS() {}
-
 G4bool CMSSIMPInelasticXS::IsElementApplicable(const G4DynamicParticle*, G4int, const G4Material*) { return true; }
 
 G4bool CMSSIMPInelasticXS::IsIsoApplicable(const G4DynamicParticle*, G4int, G4int, const G4Element*, const G4Material*) {

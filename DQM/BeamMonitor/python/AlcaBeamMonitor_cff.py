@@ -5,8 +5,8 @@ from DQM.BeamMonitor.AlcaBeamMonitor_cfi import *
 from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
 dqmPerLSsaving.toModify(AlcaBeamMonitor, perLSsaving=True)
 
-import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-scalerBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer as _onlineBeamSpotProducer
+scalerBeamSpot = _onlineBeamSpotProducer.clone()
 
 alcaBeamMonitor = cms.Sequence( scalerBeamSpot*AlcaBeamMonitor )
 

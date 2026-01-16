@@ -100,7 +100,7 @@ process.SiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon=True
 
 process.outP = cms.OutputModule("AsciiOutputModule")
 
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 process.RecoForDQM = cms.Sequence(process.siPixelDigis*process.siPixelClusters*process.siStripDigis*process.gtDigis*process.siStripZeroSuppression*process.siStripClusters)
 process.p = cms.Path(

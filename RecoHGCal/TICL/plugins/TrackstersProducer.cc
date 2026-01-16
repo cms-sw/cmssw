@@ -28,6 +28,11 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoFactory.h"
 
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+
 using namespace ticl;
 using namespace cms::Ort;
 
@@ -42,6 +47,10 @@ public:
   // static methods for handling the global cache
   static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet&);
   static void globalEndJob(TrackstersCache*);
+  void beginRun(const edm::Run&, const edm::EventSetup& es) override {
+    const auto& geom = es.getData(geometry_token_);
+    rhtools_.setGeometry(geom);
+  }
 
 private:
   std::string detector_;
@@ -56,8 +65,10 @@ private:
   edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
   edm::EDGetTokenT<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
-  const std::string itername_;
   ticl::Trackster::IterationIndex iterIndex_ = ticl::Trackster::IterationIndex(0);
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  hgcal::RecHitTools rhtools_;
+  const std::string itername_;
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
@@ -71,6 +82,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
       seeding_regions_token_(
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
+      geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
       itername_(ps.getParameter<std::string>("itername")) {
   auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
@@ -192,7 +204,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
       myAlgoHFNose_->makeTracksters(inputHFNose, *initialResult, seedToTrackstersAssociation);
       // Run inference algorithm
-      inferenceAlgo_->inputData(layerClusters, *initialResult);
+      inferenceAlgo_->inputData(layerClusters, *initialResult, rhtools_);
       inferenceAlgo_->runInference(*initialResult);
       myAlgoHFNose_->filter(*result, *initialResult, inputHFNose, seedToTrackstersAssociation);
 
@@ -203,7 +215,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
       myAlgo_->makeTracksters(input, *initialResult, seedToTrackstersAssociation);
       // Run inference algorithm
-      inferenceAlgo_->inputData(layerClusters, *initialResult);
+      inferenceAlgo_->inputData(layerClusters, *initialResult, rhtools_);
       inferenceAlgo_->runInference(*initialResult);
       myAlgo_->filter(*result, *initialResult, input, seedToTrackstersAssociation);
     }

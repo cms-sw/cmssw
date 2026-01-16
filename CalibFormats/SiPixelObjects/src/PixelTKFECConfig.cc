@@ -209,7 +209,7 @@ std::string PixelTKFECConfig::typeFromTKFECID(std::string TKFECID) const {
 
   assert(0);
 
-  return nullptr;
+  return {};
 }
 
 unsigned int PixelTKFECConfig::addressFromTKFECID(std::string TKFECID) const {

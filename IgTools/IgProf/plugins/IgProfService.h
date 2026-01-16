@@ -91,7 +91,6 @@ namespace edm {
       int nfileopened_;  // counter of files opened thus far
       int nfileclosed_;  // counter of files closed thus far
     };
-    inline bool isProcessWideService(IgProfService const *) { return true; }
   }  // namespace service
 }  // namespace edm
 

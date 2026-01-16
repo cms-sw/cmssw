@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -212,7 +213,7 @@ namespace edm {
     printedException_ = false;
     if (actReg_) {
       ServiceRegistry::Operate guard(iToken);
-      actReg_->prePathEventSignal_(*iStreamContext, pathContext_);
+      actReg_->prePathEventSignal_.emit(*iStreamContext, pathContext_);
     }
     //If the Path succeeds, these are the values we have at the end
     state_ = hlt::Pass;
@@ -245,9 +246,7 @@ namespace edm {
     if (iException) {
       shouldContinue = false;
       std::unique_ptr<cms::Exception> pEx;
-      try {
-        std::rethrow_exception(*iException);
-      } catch (cms::Exception& oldEx) {
+      CMS_SA_ALLOW try { std::rethrow_exception(*iException); } catch (cms::Exception& oldEx) {
         pEx = std::unique_ptr<cms::Exception>(oldEx.clone());
       } catch (std::exception const& oldEx) {
         pEx = std::make_unique<edm::Exception>(errors::StdException);
@@ -313,13 +312,13 @@ namespace edm {
       }
       if (pathStatusInserterWorker_) {
         std::exception_ptr jException =
-            pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+            pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
                 iInfo, streamID, ParentContext(iContext), iContext);
         if (jException && not iException) {
           iException = jException;
         }
       }
-      actReg_->postPathEventSignal_(*iContext, pathContext_, status);
+      actReg_->postPathEventSignal_.emit(*iContext, pathContext_, status);
     } catch (...) {
       if (not iException) {
         iException = std::current_exception();
@@ -346,7 +345,7 @@ namespace edm {
                                             std::exception_ptr const* iException) {
         this->workerFinished(iException, lastModuleIndex, info, weakToken.lock(), iID, iContext, iGroup);
       });
-      workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+      workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
           WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
     }
   }

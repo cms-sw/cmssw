@@ -131,7 +131,7 @@ public:
   int getNumberOfSteps() const { return theStepN; }
 
   float getTrkLen() const { return theTrkLen; }
-  std::string getPVname() const { return thePVname; }
+  const std::string& getPVname() const { return thePVname; }
   int getPVcopyNo() const { return thePVcopyNo; }
   float getRadLen() const { return theRadLen; }
   float getIntLen() const { return theIntLen; }
@@ -211,7 +211,7 @@ public:
   int getStepPostProcess(int is) { return theStepPostProcess[is]; }
 
   int getStepVolumeID(int is) { return theVolumeID[is]; }
-  std::string getStepVolumeName(int is) { return theVolumeName[is]; }
+  const std::string& getStepVolumeName(int is) { return theVolumeName[is]; }
   int getStepVolumeCopy(int is) { return theVolumeCopy[is]; }
   float getStepVolumeX(int is) { return theVolumeX[is]; }
   float getStepVolumeY(int is) { return theVolumeY[is]; }
@@ -226,7 +226,7 @@ public:
     return CLHEP::HepLorentzVector(theVolumeZaxis1[is], theVolumeZaxis2[is], theVolumeZaxis3[is]);
   }
   int getStepMaterialID(int is) { return theMaterialID[is]; }
-  std::string getStepMaterialName(int is) { return theMaterialName[is]; }
+  const std::string& getStepMaterialName(int is) { return theMaterialName[is]; }
   float getStepMaterialX0(int is) { return theMaterialX0[is]; }
   float getStepMaterialLambda0(int is) { return theMaterialLambda0[is]; }
   float getStepMaterialDensity(int is) { return theMaterialDensity[is]; }

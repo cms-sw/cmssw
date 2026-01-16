@@ -1,26 +1,23 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
-
-#include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
-#include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsDevice.h"
 #include "CondFormats/DataRecord/interface/HcalMahiConditionsRcd.h"
-#include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsDevice.h"
 #include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsDevice.h"
 #include "CondFormats/HcalObjects/interface/alpaka/HcalRecoParamWithPulseShapeDevice.h"
-
+#include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsDevice.h"
 #include "DataFormats/HcalDigi/interface/alpaka/HcalDigiDeviceCollection.h"
 #include "DataFormats/HcalRecHit/interface/alpaka/HcalRecHitDeviceCollection.h"
-
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "HeterogeneousCore/AlpakaCore/interface/MoveToDeviceCache.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
-#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 #include "HcalMahiPulseOffsetsSoA.h"
 #include "Mahi.h"
@@ -37,7 +34,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~HBHERecHitProducerPortable() override = default;
     static void fillDescriptions(edm::ConfigurationDescriptions&);
     static std::unique_ptr<HcalMahiPulseOffsetsCache> initializeGlobalCache(edm::ParameterSet const& ps);
-
     static void globalEndJob(HcalMahiPulseOffsetsCache*) {}
 
   private:

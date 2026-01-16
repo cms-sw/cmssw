@@ -97,6 +97,8 @@ namespace edm {
 
     ///These can only be used internally by the framework
     static EDProductGetter const* switchProductGetter(EDProductGetter const*);
+    static void setMultiThreadProductGetter(EDProductGetter const*);
+    static void unsetMultiThreadProductGetter();
     static void assignEDProductGetter(EDProductGetter const*&);
 
   private:

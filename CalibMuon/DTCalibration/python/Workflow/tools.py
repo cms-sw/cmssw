@@ -2,7 +2,7 @@ import os,sys,imp
 import subprocess
 import logging
 import fnmatch
-import signal
+import select
 
 log = logging.getLogger(__name__)
 
@@ -64,26 +64,14 @@ def prependPaths(process,seqname):
     for path in process.paths:
         getattr(process,path)._seq = getattr(process,seqname)*getattr(process,path)._seq
 
-def stdinWait(text, default, time, timeoutDisplay = None, **kwargs):
-    # taken and adjusted from http://stackoverflow.com/a/25860968
-    signal.signal(signal.SIGALRM, interrupt)
-    signal.alarm(time) # sets timeout
-    global timeout
-    try:
-        inp = raw_input(text)
-        signal.alarm(0)
-        timeout = False
-    except (KeyboardInterrupt):
-        printInterrupt = kwargs.get("printInterrupt", True)
-        if printInterrupt:
-            print("Keyboard interrupt")
-        timeout = True # Do this so you don't mistakenly get input when there is none
-        inp = default
-    except:
-        timeout = True
-        if not timeoutDisplay is None:
-            print(timeoutDisplay)
-        signal.alarm(0)
+
+def stdinWait(prompt_text, default, time, timeoutDisplay = None, **kwargs):
+    print(prompt_text)
+    i, o, e = select.select( [sys.stdin], [], [], 10 )
+
+    if (i):
+        inp = sys.stdin.readline().strip()
+    else:
         inp = default
     return inp
 

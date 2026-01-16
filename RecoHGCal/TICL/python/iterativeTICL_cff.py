@@ -23,6 +23,8 @@ from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _t
 from RecoHGCal.TICL.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticl_v5_TrackLinkingGNN
+
 from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
@@ -52,11 +54,11 @@ ticlTracksterLinks = _tracksterLinksProducer.clone(
         100
       ),  
       upper_distance_projective_sqr = cms.vdouble(
-        30, 
+        4, 
         60  
       ),  
       lower_distance_projective_sqr = cms.vdouble(
-        30, 
+        4, 
         60  
       ),  
       min_distance_z = cms.vdouble(
@@ -84,7 +86,7 @@ ticlTracksterLinks = _tracksterLinksProducer.clone(
       type = cms.string('Skeletons')
     
     ),  
-    regressionAndPid = cms.bool(True),
+    regressionAndPid = cms.bool(False),
     inferenceAlgo = cms.string('TracksterInferenceByPFN'),
     pluginInferenceAlgoTracksterInferenceByDNN = cms.PSet(
         algo_verbosity = cms.int32(0),
@@ -107,19 +109,54 @@ ticlTracksterLinks = _tracksterLinksProducer.clone(
         inputNames  = cms.vstring('input','input_tr_features'),
         output_en   = cms.vstring('enreg_output'),
         output_id   = cms.vstring('pid_output'),
-	eid_min_cluster_energy = cms.double(1),
+	eid_min_cluster_energy = cms.double(2.5),
         eid_n_clusters = cms.int32(10),
 	eid_n_layers = cms.int32(50),
-        onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v0.onnx'),
+        onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
         onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
         type = cms.string('TracksterInferenceByPFN')
     )
 )
-ticlCandidate = _ticlCandidateProducer.clone()
+
+ticlCandidate = _ticlCandidateProducer.clone(
+    inferenceAlgo=cms.string('TracksterInferenceByPFN'),
+    regressionAndPid = cms.bool(True),
+    pluginInferenceAlgoTracksterInferenceByPFN=cms.PSet(
+        algo_verbosity=cms.int32(0),
+        onnxPIDModelPath=cms.FileInPath(
+            'RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
+        onnxEnergyModelPath=cms.FileInPath(
+            'RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
+        inputNames=cms.vstring(
+            'input',
+            'input_tr_features'
+        ),
+        output_en=cms.vstring('enreg_output'),
+        output_id=cms.vstring('pid_output'),
+        eid_min_cluster_energy=cms.double(2.5),
+        eid_n_layers=cms.int32(50),
+        eid_n_clusters=cms.int32(10),
+        doPID=cms.int32(1),
+        doRegression=cms.int32(1),
+        type=cms.string('TracksterInferenceByPFN')
+    )
+)
+
 mtdSoA = _mtdSoAProducer.clone()
 
 pfTICL = _pfTICLProducer.clone()
 ticl_v5.toModify(pfTICL, ticlCandidateSrc = cms.InputTag('ticlCandidate'), isTICLv5 = cms.bool(True), useTimingAverage=True)
+ticl_v5_TrackLinkingGNN.toModify(ticlCandidate,
+        interpretationDescPSet = cms.PSet(
+            onnxTrkLinkingModelFirstDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/FirstDiskPropGNN_v0.onnx'),
+            onnxTrkLinkingModelInterfaceDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/InterfaceDiskPropGNN_v0.onnx'),
+            inputNames = cms.vstring('x', 'edge_index', 'edge_attr'),
+            output = cms.vstring('output'),
+            delta_tk_ts = cms.double(0.1),
+            thr_gnn = cms.double(0.5),
+            type = cms.string('GNNLink')
+        )
+    )
 
 ticlPFTask = cms.Task(pfTICL)
 

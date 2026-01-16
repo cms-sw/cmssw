@@ -193,19 +193,6 @@ void testServicesManager::legacyTest() {
     CPPUNIT_ASSERT(1 == sm.get<TestService>().value());
   }
   {
-    std::vector<edm::ParameterSet> pss;
-
-    edm::ParameterSet ps;
-    ps.addParameter("@service_type", typeName);
-    int value = 2;
-    ps.addParameter("value", value);
-    pss.push_back(ps);
-
-    ServicesManager sm(legacyToken, kConfigurationOverrides, pss);
-
-    CPPUNIT_ASSERT(2 == sm.get<TestService>().value());
-  }
-  {
     try {
       std::vector<edm::ParameterSet> pss;
 
@@ -214,7 +201,7 @@ void testServicesManager::legacyTest() {
       CPPUNIT_ASSERT(!sm.get<TestService>().beginJobCalled());
       edm::ActivityRegistry ar;
       sm.connectTo(ar);
-      ar.postBeginJobSignal_();
+      ar.postBeginJobSignal_.emit();
 
       CPPUNIT_ASSERT(sm.get<TestService>().beginJobCalled());
     } catch (const edm::Exception& iException) {

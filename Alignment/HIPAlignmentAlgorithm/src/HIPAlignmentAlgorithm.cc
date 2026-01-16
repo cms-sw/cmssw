@@ -801,7 +801,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo& e
     // loop over measurements
     std::vector<TrajectoryMeasurement> measurements = traj->measurements();
     for (std::vector<TrajectoryMeasurement>::iterator im = measurements.begin(); im != measurements.end(); ++im) {
-      TrajectoryMeasurement meas = *im;
+      const TrajectoryMeasurement& meas = *im;
 
       // const TransientTrackingRecHit* ttrhit = &(*meas.recHit());
       // const TrackingRecHit *hit = ttrhit->hit();

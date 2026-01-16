@@ -18,6 +18,7 @@
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 #include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
 
 using namespace edm;
 
@@ -86,25 +87,24 @@ SerialTaskQueue::TaskBase* SerialTaskQueue::finishedTask() {
 }
 
 SerialTaskQueue::TaskBase* SerialTaskQueue::pickNextTask() {
+  if UNLIKELY (0 != m_pauseCount)
+    return nullptr;
   bool expect = false;
-  if LIKELY (0 == m_pauseCount and m_taskChosen.compare_exchange_strong(expect, true)) {
+  //need pop task and setting m_taskChosen to be atomic to avoid
+  // case where thread pauses just after try_pop failed but then
+  // a task is added and that call fails the check on m_taskChosen
+  while (not m_pickingNextTask.compare_exchange_strong(expect, true)) {
+    expect = false;
+  }
+  auto sentry = edm::make_sentry(&m_pickingNextTask, [](auto* v) { v->store(false); });
+
+  if LIKELY (m_taskChosen.compare_exchange_strong(expect, true)) {
     TaskBase* t = nullptr;
     if LIKELY (m_tasks.try_pop(t)) {
       return t;
     }
     //no task was actually pulled
     m_taskChosen.store(false);
-
-    //was a new entry added after we called 'try_pop' but before we did the clear?
-    expect = false;
-    if (not m_tasks.empty() and m_taskChosen.compare_exchange_strong(expect, true)) {
-      t = nullptr;
-      if (m_tasks.try_pop(t)) {
-        return t;
-      }
-      //no task was still pulled since a different thread beat us to it
-      m_taskChosen.store(false);
-    }
   }
   return nullptr;
 }

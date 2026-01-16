@@ -64,6 +64,10 @@ private:
     MonitorElement* deltaY_P = nullptr;
     MonitorElement* deltaX_P_primary = nullptr;
     MonitorElement* deltaY_P_primary = nullptr;
+
+    MonitorElement* delta_Phi_P = nullptr;
+    MonitorElement* delta_Phi_P_Barrel = nullptr;
+    MonitorElement* delta_Phi_P_Endcaps = nullptr;
   };
 
   void fillITHistos(const edm::Event& iEvent,
@@ -226,6 +230,9 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
       const double deltaX = phase2tkutil::cmtomicron * (localPosCluster.x() - localPosSimHit.x());
       const double deltaY = phase2tkutil::cmtomicron * (localPosCluster.y() - localPosSimHit.y());
 
+      const float deltaPhi = geomDetUnit->surface().toGlobal(localPosCluster).phi() -
+                             geomDetUnit->surface().toGlobal(localPosSimHit).phi();
+
       auto layerMEIt = layerMEs_.find(folderkey);
       if (layerMEIt == layerMEs_.end())
         continue;
@@ -233,6 +240,13 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
       ClusterMEs& local_mes = layerMEIt->second;
       local_mes.deltaX_P->Fill(deltaX);
       local_mes.deltaY_P->Fill(deltaY);
+      local_mes.delta_Phi_P->Fill(deltaPhi);
+
+      if (tTopo_->getITPixelLayerNumber(detId) < 100) {
+        local_mes.delta_Phi_P_Barrel->Fill(deltaPhi);
+      } else {
+        local_mes.delta_Phi_P_Endcaps->Fill(deltaPhi);
+      }
       // Primary particles only
       if (phase2tkutil::isPrimary(simTrackIt->second, closestSimHit)) {
         local_mes.deltaX_P_primary->Fill(deltaX);
@@ -274,15 +288,23 @@ void Phase2ITValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
 
   if (layerMEs_.find(folderName) == layerMEs_.end()) {
     ibooker.cd();
+    ClusterMEs local_mes;
+    ibooker.setCurrentFolder(subdir);
+    local_mes.delta_Phi_P_Barrel =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Pixel_Barrel"), ibooker);
+    local_mes.delta_Phi_P_Endcaps =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Pixel_Endcap"), ibooker);
+
     ibooker.setCurrentFolder(subdir + '/' + folderName);
     edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in: " << subdir + '/' + folderName;
-    ClusterMEs local_mes;
-
     local_mes.deltaX_P =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Pixel"), ibooker);
 
     local_mes.deltaY_P =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel"), ibooker);
+
+    local_mes.delta_Phi_P =
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Pixel"), ibooker);
 
     // Puting primary digis in a subfolder
     ibooker.setCurrentFolder(subdir + '/' + folderName + "/PrimarySimHits");
@@ -352,6 +374,36 @@ void Phase2ITValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
     psd0.add<bool>("switch", true);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Pixel_Primary", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Pixel");
+    psd0.add<std::string>("title", "#Delta Phi pixel sensor;phi");
+    psd0.add<double>("xmin", -0.1);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.1);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Pixel_Barrel");
+    psd0.add<std::string>("title", "#Delta Phi pixel sensor Barrel;phi");
+    psd0.add<double>("xmin", -0.1);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.1);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Barrel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Phi_Pixel_Endcaps");
+    psd0.add<std::string>("title", "#Delta Phi pixel sensor Endcaps;phi");
+    psd0.add<double>("xmin", -0.1);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.1);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("Delta_Phi_Pixel_Endcap", psd0);
   }
 
   desc.add<std::string>("TopFolderName", "TrackerPhase2ITClusterV");

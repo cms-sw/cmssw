@@ -112,9 +112,7 @@ namespace edm {
         }
         case MessageLoggerQ::SUMMARIZE: {
           assert(operand == nullptr);
-          try {
-            triggerStatisticsSummaries();
-          } catch (cms::Exception& e) {
+          CMS_SA_ALLOW try { triggerStatisticsSummaries(); } catch (cms::Exception& e) {
             std::cerr << "ThreadSafeLogMessageLoggerScribe caught exception "
                       << "during summarize:\n"
                       << e.what() << "\n";
@@ -917,7 +915,10 @@ namespace edm {
         topDesc.addUntracked<std::vector<std::string>>("suppressFwkInfo", {});
         topDesc.addUntracked<std::vector<std::string>>("suppressWarning", {});
         topDesc.addUntracked<std::vector<std::string>>("suppressError", {});
-        topDesc.addUntracked<std::vector<std::string>>("debugModules", {});
+        topDesc.addUntracked<std::vector<std::string>>("debugModules", {})
+            ->setComment(
+                "Set to limit the DEBUG-level messages to modules with these labels. If empty or contains '*', all "
+                "DEBUG messages (also those outside modules) will be issued (if allowed by the threshold parameter).");
 
         edm::ParameterSetDescription category;
         category.addUntracked<int>("reportEvery", 1);

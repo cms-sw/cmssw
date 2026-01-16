@@ -6,8 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "G4Track.hh"
 
-void MCTruthUtil::primary(G4Track *aTrack) {
-  TrackInformation *trkInfo = new TrackInformation();
+void MCTruthUtil::primary(G4Track* aTrack) {
+  TrackInformation* trkInfo = new TrackInformation();
   trkInfo->setPrimary(true);
   trkInfo->setStoreTrack();
   trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
@@ -17,8 +17,11 @@ void MCTruthUtil::primary(G4Track *aTrack) {
   aTrack->SetUserInformation(trkInfo);
 }
 
-void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
-  auto motherInfo = static_cast<const TrackInformation *>(mother.GetUserInformation());
+void MCTruthUtil::secondary(G4Track* aTrack, const G4Track* mother, int flag) {
+  const TrackInformation* motherInfo = nullptr;
+  if (nullptr != mother) {
+    motherInfo = dynamic_cast<const TrackInformation*>(mother->GetUserInformation());
+  }
   auto trkInfo = new TrackInformation();
 
   // Take care of cascade decays
@@ -28,7 +31,7 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
     trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
     trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
     trkInfo->setMCTruthID(aTrack->GetTrackID());
-  } else {
+  } else if (nullptr != motherInfo) {
     // secondary
     trkInfo->setGenParticlePID(motherInfo->genParticlePID());
     trkInfo->setGenParticleP(motherInfo->genParticleP());
@@ -44,7 +47,7 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
                                 aTrack->GetDefinition()->GetPDGEncoding(),
                                 aTrack->GetMomentum().mag());
     trkInfo->setIdLastStoredAncestor(aTrack->GetTrackID());
-  } else {
+  } else if (nullptr != motherInfo) {
     // transfer calo ID from mother (to be checked in TrackingAction)
     trkInfo->setIDonCaloSurface(motherInfo->getIDonCaloSurface(),
                                 motherInfo->getIDCaloVolume(),
@@ -54,23 +57,26 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
     trkInfo->setIdLastStoredAncestor(motherInfo->idLastStoredAncestor());
   }
 
-  // for Run1 and Run2
-  if (motherInfo->hasCastorHit()) {
-    trkInfo->setCastorHitPID(motherInfo->getCastorHitPID());
-  }
-
   // for MTD
   if (!trkInfo->isPrimary() && !isInBTL(aTrack)) {
     trkInfo->setExtSecondary();
   }
-  if (motherInfo->isExtSecondary()) {
-    trkInfo->setExtSecondary();
-  }
-  if (motherInfo->isBTLlooper()) {
-    trkInfo->setBTLlooper();
-  }
-  if (motherInfo->isInTrkFromBackscattering()) {
-    trkInfo->setInTrkFromBackscattering();
+  if (nullptr != motherInfo) {
+    // for Run1 and Run2
+    if (motherInfo->hasCastorHit()) {
+      trkInfo->setCastorHitPID(motherInfo->getCastorHitPID());
+    }
+    if (motherInfo->isExtSecondary()) {
+      trkInfo->setExtSecondary();
+    }
+
+    // for MTD
+    if (motherInfo->isBTLlooper()) {
+      trkInfo->setBTLlooper();
+    }
+    if (motherInfo->isInTrkFromBackscattering()) {
+      trkInfo->setInTrkFromBackscattering();
+    }
   }
 
   aTrack->SetUserInformation(trkInfo);
@@ -81,7 +87,7 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
 #endif
 }
 
-bool MCTruthUtil::isInBTL(const G4Track *aTrack) {
+bool MCTruthUtil::isInBTL(const G4Track* aTrack) {
   bool out = false;
   G4String tName(aTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName());
   if (tName == "FastTimerRegionBTL" || tName == "FastTimerRegionSensBTL") {

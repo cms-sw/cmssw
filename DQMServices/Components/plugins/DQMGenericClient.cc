@@ -45,6 +45,7 @@ public:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override {}
 
   enum class EfficType { none = 0, efficiency, fakerate, simpleratio };
+  enum class ResType { none = 0, fit, rms };
 
   struct EfficOption {
     std::string name, title;
@@ -56,6 +57,8 @@ public:
   struct ResolOption {
     std::string namePrefix, titlePrefix;
     std::string srcName;
+    ResType type;
+    bool isProfile;
   };
 
   struct ProfileOption {
@@ -90,7 +93,9 @@ public:
                          const std::string& startDir,
                          const std::string& fitMEPrefix,
                          const std::string& fitMETitlePrefix,
-                         const std::string& srcMEName);
+                         const std::string& srcMEName,
+                         const ResType type = ResType::fit,
+                         const bool makeProfile = false);
   void computeProfile(DQMStore::IBooker& ibooker,
                       DQMStore::IGetter& igetter,
                       const std::string& startDir,
@@ -153,34 +158,25 @@ class FitSlicesYTool {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   FitSlicesYTool(MonitorElement* me) {
-    const bool oldAddDir = TH1::AddDirectoryStatus();
-    TH1::AddDirectory(true);
     // ... create your hists
+    TObjArray aSlices;
     TH2F* h = me->getTH2F();
     TF1 fgaus("fgaus", "gaus", h->GetYaxis()->GetXmin(), h->GetYaxis()->GetXmax(), TF1::EAddToList::kNo);
-    h->FitSlicesY(&fgaus, 0, -1, 0, "QNR SERIAL");
+    h->FitSlicesY(&fgaus, 0, -1, 0, "QNR SERIAL", &aSlices);
     string name(h->GetName());
-    h0 = (TH1*)gDirectory->Get((name + "_0").c_str());
-    h1 = (TH1*)gDirectory->Get((name + "_1").c_str());
-    h2 = (TH1*)gDirectory->Get((name + "_2").c_str());
-    h3 = (TH1*)gDirectory->Get((name + "_chi2").c_str());
-    TH1::AddDirectory(oldAddDir);
+    h0_ = fetchSlice(aSlices, name + "_0");
+    h1_ = fetchSlice(aSlices, name + "_1");
+    h2_ = fetchSlice(aSlices, name + "_2");
+    h3_ = fetchSlice(aSlices, name + "_chi2");
   }
 
-  /// Destructor
-  ~FitSlicesYTool() {
-    delete h0;
-    delete h1;
-    delete h2;
-    delete h3;
-  }
   /// Fill the ME with the mean value of the gaussian fit in each slice
   void getFittedMean(MonitorElement* me) {
-    if (!(h1 && me))
-      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
-    if (h1->GetNbinsX() == me->getNbinsX()) {
-      for (int bin = 0; bin != h1->GetNbinsX(); bin++) {
-        me->setBinContent(bin + 1, h1->GetBinContent(bin + 1));
+    if (!(h1_ && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1_=" << h1_ << " me=" << me;
+    if (h1_->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h1_->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h1_->GetBinContent(bin + 1));
         //       me->setBinEntries(bin+1, 1.);
       }
     } else {
@@ -189,11 +185,11 @@ public:
   }
   /// Fill the ME with the sigma value of the gaussian fit in each slice
   void getFittedSigma(MonitorElement* me) {
-    if (!(h2 && me))
-      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
-    if (h2->GetNbinsX() == me->getNbinsX()) {
-      for (int bin = 0; bin != h2->GetNbinsX(); bin++) {
-        me->setBinContent(bin + 1, h2->GetBinContent(bin + 1));
+    if (!(h2_ && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1_=" << h1_ << " me=" << me;
+    if (h2_->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h2_->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h2_->GetBinContent(bin + 1));
         //       me->setBinEntries(bin+1, 1.);
       }
     } else {
@@ -202,13 +198,15 @@ public:
   }
   /// Fill the ME with the mean value (with error) of the gaussian fit in each slice
   void getFittedMeanWithError(MonitorElement* me) {
-    if (!(h1 && me))
-      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
-    if (h1->GetNbinsX() == me->getNbinsX()) {
-      for (int bin = 0; bin != h1->GetNbinsX(); bin++) {
-        me->setBinContent(bin + 1, h1->GetBinContent(bin + 1));
-        //       me->setBinEntries(bin+1, 1.);
-        me->setBinError(bin + 1, h1->GetBinError(bin + 1));
+    if (!(h1_ && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1_=" << h1_ << " me=" << me;
+    if (h1_->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h1_->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h1_->GetBinContent(bin + 1));
+        me->setBinError(bin + 1, h1_->GetBinError(bin + 1));
+        if (me->kind() == MonitorElement::Kind::TPROFILE) {
+          me->setBinEntries(bin + 1, 1);
+        }
       }
     } else {
       throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
@@ -216,13 +214,15 @@ public:
   }
   /// Fill the ME with the sigma value (with error) of the gaussian fit in each slice
   void getFittedSigmaWithError(MonitorElement* me) {
-    if (!(h2 && me))
-      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
-    if (h2->GetNbinsX() == me->getNbinsX()) {
-      for (int bin = 0; bin != h2->GetNbinsX(); bin++) {
-        me->setBinContent(bin + 1, h2->GetBinContent(bin + 1));
-        //       me->setBinEntries(bin+1, 1.);
-        me->setBinError(bin + 1, h2->GetBinError(bin + 1));
+    if (!(h2_ && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1_=" << h1_ << " me=" << me;
+    if (h2_->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h2_->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h2_->GetBinContent(bin + 1));
+        me->setBinError(bin + 1, h2_->GetBinError(bin + 1));
+        if (me->kind() == MonitorElement::Kind::TPROFILE) {
+          me->setBinEntries(bin + 1, 1);
+        }
       }
     } else {
       throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
@@ -230,10 +230,20 @@ public:
   }
 
 private:
-  TH1* h0;
-  TH1* h1;
-  TH1* h2;
-  TH1* h3;
+  std::unique_ptr<TH1> h0_;
+  std::unique_ptr<TH1> h1_;
+  std::unique_ptr<TH1> h2_;
+  std::unique_ptr<TH1> h3_;
+
+  std::unique_ptr<TH1> fetchSlice(TObjArray& arr, const std::string& name) {
+    auto* obj = (TH1*)arr.FindObject(name.c_str());
+    if (!obj) {
+      throw cms::Exception("FitSlicesYTool") << "Cannot find slice histogram: " << name;
+    }
+    TH1* hnew = (TH1*)obj->Clone();
+    hnew->SetDirectory(nullptr);
+    return std::unique_ptr<TH1>(hnew);
+  }
 };
 
 typedef DQMGenericClient::MonitorElement ME;
@@ -378,40 +388,71 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   // Parse resolution commands
-  vstring resCmds = pset.getParameter<vstring>("resolution");
-  for (vstring::const_iterator resCmd = resCmds.begin(); resCmd != resCmds.end(); ++resCmd) {
-    if (resCmd->empty())
-      continue;
-    boost::tokenizer<elsc> tokens(*resCmd, commonEscapes);
+  std::array<std::string, 2> optionNames = {{"resolution", "resolutionProfile"}};
+  for (auto& optName : optionNames) {
+    vstring resCmds;
+    if (optName.find("Profile") != std::string::npos)
+      resCmds = pset.getUntrackedParameter<vstring>(optName, vstring());
+    else
+      resCmds = pset.getParameter<vstring>(optName);
 
-    vector<string> args;
-    for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
-      if (iToken->empty())
+    for (vstring::const_iterator resCmd = resCmds.begin(); resCmd != resCmds.end(); ++resCmd) {
+      if (resCmd->empty())
         continue;
-      args.push_back(*iToken);
+      boost::tokenizer<elsc> tokens(*resCmd, commonEscapes);
+
+      vector<string> args;
+      for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
+        if (iToken->empty())
+          continue;
+        args.push_back(*iToken);
+      }
+
+      if (args.size() < 3) {
+        LogInfo("DQMGenericClient") << "Wrong input to resCmds\n";
+        continue;
+      }
+
+      ResolOption opt;
+      opt.namePrefix = args[0];
+      opt.titlePrefix = args[1];
+      opt.srcName = args[2];
+      opt.isProfile = (optName.find("Profile") != std::string::npos) ? true : false;
+
+      std::string typeDefault = (optName.find("Profile") != std::string::npos) ? "rms" : "fit";
+      const string typeName = args.size() == 3 ? typeDefault : args[3];
+      if (typeName == "fit")
+        opt.type = ResType::fit;
+      else if (typeName == "rms")
+        opt.type = ResType::rms;
+      else
+        opt.type = ResType::none;
+
+      resolOptions_.push_back(opt);
     }
-
-    if (args.size() != 3) {
-      LogInfo("DQMGenericClient") << "Wrong input to resCmds\n";
-      continue;
-    }
-
-    ResolOption opt;
-    opt.namePrefix = args[0];
-    opt.titlePrefix = args[1];
-    opt.srcName = args[2];
-
-    resolOptions_.push_back(opt);
   }
 
-  VPSet resolSets = pset.getUntrackedParameter<VPSet>("resolutionSets", VPSet());
-  for (VPSet::const_iterator resolSet = resolSets.begin(); resolSet != resolSets.end(); ++resolSet) {
-    ResolOption opt;
-    opt.namePrefix = resolSet->getUntrackedParameter<string>("namePrefix");
-    opt.titlePrefix = resolSet->getUntrackedParameter<string>("titlePrefix");
-    opt.srcName = resolSet->getUntrackedParameter<string>("srcName");
+  std::array<std::string, 2> optionSetNames = {{"resolutionProfileSets", "resolutionSets"}};
+  for (auto& optName : optionSetNames) {
+    VPSet resSets = pset.getUntrackedParameter<VPSet>(optName, VPSet());
+    for (VPSet::const_iterator resSet = resSets.begin(); resSet != resSets.end(); ++resSet) {
+      ResolOption opt;
+      opt.namePrefix = resSet->getUntrackedParameter<string>("namePrefix");
+      opt.titlePrefix = resSet->getUntrackedParameter<string>("titlePrefix");
+      opt.srcName = resSet->getUntrackedParameter<string>("srcName");
 
-    resolOptions_.push_back(opt);
+      std::string typeDefault = (optName.find("Profile") != std::string::npos) ? "rms" : "fit";
+      const string typeName = resSet->getUntrackedParameter<string>("typeName", typeDefault);
+      if (typeName == "fit")
+        opt.type = ResType::fit;
+      else if (typeName == "rms")
+        opt.type = ResType::rms;
+      else
+        opt.type = ResType::none;
+      opt.isProfile = (optName.find("Profile") != std::string::npos) ? true : false;
+
+      resolOptions_.push_back(opt);
+    }
   }
 
   // Parse profiles
@@ -664,8 +705,14 @@ void DQMGenericClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGette
 
     for (vector<ResolOption>::const_iterator resolOption = resolOptions_.begin(); resolOption != resolOptions_.end();
          ++resolOption) {
-      computeResolution(
-          ibooker, igetter, dirName, resolOption->namePrefix, resolOption->titlePrefix, resolOption->srcName);
+      computeResolution(ibooker,
+                        igetter,
+                        dirName,
+                        resolOption->namePrefix,
+                        resolOption->titlePrefix,
+                        resolOption->srcName,
+                        resolOption->type,
+                        resolOption->isProfile);
     }
 
     for (const auto& profileOption : profileOptions_) {
@@ -766,7 +813,8 @@ void DQMGenericClient::computeEfficiency(DQMStore::IBooker& ibooker,
       efficHist->SetBinEntries(i, 1);
       efficHist->SetBinError(i, std::hypot(effVal, errVal));
     }
-    ibooker.bookProfile(newEfficMEName, efficHist);
+    ME* efficMe = ibooker.bookProfile(newEfficMEName, efficHist);
+    efficMe->setEfficiencyFlag();
     delete efficHist;
   }
 
@@ -865,7 +913,9 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker,
                                          const string& startDir,
                                          const string& namePrefix,
                                          const string& titlePrefix,
-                                         const std::string& srcName) {
+                                         const std::string& srcName,
+                                         const ResType type,
+                                         const bool makeProfile) {
   if (!igetter.dirExists(startDir)) {
     if (verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_)) {
       LogInfo("DQMGenericClient") << "computeResolution() : "
@@ -907,31 +957,96 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(newDir);
 
   float* lowedgesfloats = new float[nBin + 1];
-  ME* meanME;
-  ME* sigmaME;
-  if (hSrc->GetXaxis()->GetXbins()->GetSize()) {
-    for (int j = 0; j < nBin + 1; ++j)
-      lowedgesfloats[j] = (float)hSrc->GetXaxis()->GetXbins()->GetAt(j);
-    meanME = ibooker.book1D(newPrefix + "_Mean", titlePrefix + " Mean", nBin, lowedgesfloats);
-    sigmaME = ibooker.book1D(newPrefix + "_Sigma", titlePrefix + " Sigma", nBin, lowedgesfloats);
-  } else {
-    meanME = ibooker.book1D(
-        newPrefix + "_Mean", titlePrefix + " Mean", nBin, hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
-    sigmaME = ibooker.book1D(
-        newPrefix + "_Sigma", titlePrefix + " Sigma", nBin, hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
-  }
 
-  if (meanME && sigmaME) {
-    meanME->setEfficiencyFlag();
-    sigmaME->setEfficiencyFlag();
-
-    if (!resLimitedFit_) {
-      FitSlicesYTool fitTool(srcME);
-      fitTool.getFittedMeanWithError(meanME);
-      fitTool.getFittedSigmaWithError(sigmaME);
-      ////  fitTool.getFittedChisqWithError(chi2ME); // N/A
+  if (makeProfile) {
+    TProfile* meanHist;
+    TProfile* sigmaHist;
+    if (hSrc->GetXaxis()->GetXbins()->GetSize()) {
+      for (int j = 0; j < nBin + 1; ++j)
+        lowedgesfloats[j] = (float)hSrc->GetXaxis()->GetXbins()->GetAt(j);
+      meanHist = new TProfile((newPrefix + "_Mean").c_str(), (titlePrefix + " Mean").c_str(), nBin, lowedgesfloats);
+      sigmaHist = new TProfile((newPrefix + "_Sigma").c_str(), (titlePrefix + " Sigma").c_str(), nBin, lowedgesfloats);
     } else {
-      limitedFit(srcME, meanME, sigmaME);
+      meanHist = new TProfile((newPrefix + "_Mean").c_str(),
+                              (titlePrefix + " Mean").c_str(),
+                              hSrc->GetXaxis()->GetNbins(),
+                              hSrc->GetXaxis()->GetXmin(),
+                              hSrc->GetXaxis()->GetXmax());
+      sigmaHist = new TProfile((newPrefix + "_Sigma").c_str(),
+                               (titlePrefix + " Sigma").c_str(),
+                               hSrc->GetXaxis()->GetNbins(),
+                               hSrc->GetXaxis()->GetXmin(),
+                               hSrc->GetXaxis()->GetXmax());
+    }
+    ME* meanME = ibooker.bookProfile((newPrefix + "_Mean").c_str(), meanHist);
+    ME* sigmaME = ibooker.bookProfile((newPrefix + "_Sigma").c_str(), sigmaHist);
+
+    if (meanME && sigmaME) {
+      meanME->setEfficiencyFlag();
+      sigmaME->setEfficiencyFlag();
+
+      if (type == ResType::fit) {
+        if (!resLimitedFit_) {
+          FitSlicesYTool fitTool(srcME);
+          fitTool.getFittedMeanWithError(meanME);
+          fitTool.getFittedSigmaWithError(sigmaME);
+        } else {
+          limitedFit(srcME, meanME, sigmaME);
+        }
+      }
+      if (type == ResType::rms) {
+        for (int i = 1; i <= nBin; i++) {
+          TH1* histoY = hSrc->ProjectionY(" ", i, i, "e");
+          if (histoY->GetEntries() > 0) {
+            meanME->setBinContent(i, histoY->GetMean() * histoY->GetEntries());
+            meanME->setBinError(i, histoY->GetMeanError());
+            meanME->setBinEntries(i, histoY->GetEntries());
+            sigmaME->setBinContent(i, histoY->GetRMS() * histoY->GetEntries());
+            sigmaME->setBinError(i, histoY->GetRMSError());
+            sigmaME->setBinEntries(i, histoY->GetEntries());
+          }
+        }
+      }
+    }
+  } else {
+    ME* meanME;
+    ME* sigmaME;
+    if (hSrc->GetXaxis()->GetXbins()->GetSize()) {
+      for (int j = 0; j < nBin + 1; ++j)
+        lowedgesfloats[j] = (float)hSrc->GetXaxis()->GetXbins()->GetAt(j);
+      meanME = ibooker.book1D(newPrefix + "_Mean", titlePrefix + " Mean", nBin, lowedgesfloats);
+      sigmaME = ibooker.book1D(newPrefix + "_Sigma", titlePrefix + " Sigma", nBin, lowedgesfloats);
+    } else {
+      meanME = ibooker.book1D(
+          newPrefix + "_Mean", titlePrefix + " Mean", nBin, hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
+      sigmaME = ibooker.book1D(
+          newPrefix + "_Sigma", titlePrefix + " Sigma", nBin, hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
+    }
+
+    if (meanME && sigmaME) {
+      meanME->setEfficiencyFlag();
+      sigmaME->setEfficiencyFlag();
+
+      if (type == ResType::fit) {
+        if (!resLimitedFit_) {
+          FitSlicesYTool fitTool(srcME);
+          fitTool.getFittedMeanWithError(meanME);
+          fitTool.getFittedSigmaWithError(sigmaME);
+          ////  fitTool.getFittedChisqWithError(chi2ME); // N/A
+        } else {
+          limitedFit(srcME, meanME, sigmaME);
+        }
+      } else if (type == ResType::rms) {
+        for (int i = 1; i <= nBin; i++) {
+          TH1* histoY = hSrc->ProjectionY(" ", i, i, "e");
+          if (histoY->GetEntries() > 0) {
+            meanME->setBinContent(i, histoY->GetMean());
+            meanME->setBinError(i, histoY->GetMeanError());
+            sigmaME->setBinContent(i, histoY->GetRMS());
+            sigmaME->setBinError(i, histoY->GetRMSError());
+          }
+        }
+      }
     }
   }
   delete[] lowedgesfloats;

@@ -1,18 +1,3 @@
-// -*- C++ -*-
-//
-// Package:     Core
-// Class  :     FWOverlapTableManager
-//
-// Implementation:
-//     [Notes on implementation]
-//
-// Original Author:
-//         Created:  Wed Jan  4 20:31:32 CET 2012
-//
-
-// system include files
-
-// user include files
 #include "Fireworks/Core/src/FWOverlapTableManager.h"
 #include "Fireworks/Core/src/FWOverlapTableView.h"
 #include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
@@ -34,7 +19,11 @@
 
 #include "TStopwatch.h"
 #include "TTimer.h"
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
 #include "TGeoPainter.h"
+#else
+#include "TGeoChecker.h"
+#endif
 #include "TPRegexp.h"
 
 FWOverlapTableManager::FWOverlapTableManager(FWOverlapTableView* v) : FWGeometryTableManagerBase(), m_browser(v) {}
@@ -90,7 +79,11 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
 
   int oldS = 0;
   timer->Start();
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
   geom->GetGeomPainter()->OpProgress(topVol->GetName(), icheck, ncheck, timer, kFALSE);
+#else
+  geom->GetGeomChecker()->OpProgress(topVol->GetName(), icheck, ncheck, timer, kFALSE);
+#endif
   //   topVol->CheckOverlaps(iPrecision);
   icheck++;
   TGeoIterator git(topVol);
@@ -99,7 +92,7 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
      if (gGeoManager->GetListOfOverlaps()->GetEntriesFast()) {
      int newCnt =  gGeoManager->GetListOfOverlaps()->GetEntriesFast();
      for (int i=0; i<newCnt; ++i) {
-     addOverlapEntry((TGeoOverlap*)gGeoManager->GetListOfOverlaps()->At(i), new TGeoHMatrix(*geom->GetCurrentMatrix()), topNode, next); 
+     addOverlapEntry((TGeoOverlap*)gGeoManager->GetListOfOverlaps()->At(i), new TGeoHMatrix(*geom->GetCurrentMatrix()), topNode, next);
      }
      oldS= newCnt;
      }*/
@@ -136,7 +129,11 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
     // overlap bits
     if (checkingOverlaps) {
       if (!node->GetVolume()->IsSelected()) {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
         geom->GetGeomPainter()->OpProgress(node->GetVolume()->GetName(), icheck + 1, ncheck, timer, kFALSE);
+#else
+        geom->GetGeomChecker()->OpProgress(node->GetVolume()->GetName(), icheck + 1, ncheck, timer, kFALSE);
+#endif
         node->GetVolume()->SelectVolume(kFALSE);
 
         node->GetVolume()->CheckOverlaps(iPrecision);
@@ -184,7 +181,11 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
     obj = (TNamed*)overlaps->At(i);
     obj->SetName(Form("ov%05d", i));
   }
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
   geom->GetGeomPainter()->OpProgress("Check overlaps:", icheck, ncheck, timer, kTRUE);
+#else
+  geom->GetGeomChecker()->OpProgress("Check overlaps:", icheck, ncheck, timer, kTRUE);
+#endif
   Info("CheckOverlaps", "Number of illegal overlaps/extrusions : %d\n", novlps);
   delete timer;
 }
@@ -194,7 +195,7 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
 void FWOverlapTableManager::addOverlapEntry(TGeoOverlap* ovl, int ovlIdx, Int_t parentIdx, TGeoHMatrix* motherm) {
   // printf("add %s \n", ovl->GetTitle());
   // get doughter indices of overlaps
-  /* 
+  /*
       TPMERegexp re(" ", "o");
       re.Split(TString(ovl->GetTitle()));
       printf("add title %s \n", ovl->GetTitle());
@@ -368,9 +369,9 @@ void FWOverlapTableManager::getOverlapTitles(int idx, TString& txt) const {
   TGeoOverlap* ovl;
   TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
   TIter next_ovl(gGeoManager->GetListOfOverlaps());
-  while((ovl = (TGeoOverlap*)next_ovl())) 
+  while((ovl = (TGeoOverlap*)next_ovl()))
   ovl->IsOverlap() ? no++ : ne++;
-     
+
   return Form("%s Ovl[%d] Ext[%d]", data.m_node->GetName(), no, ne);
   }
   else

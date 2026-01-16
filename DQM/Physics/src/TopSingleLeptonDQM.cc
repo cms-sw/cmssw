@@ -61,7 +61,8 @@ namespace TopSingleLepton {
       }
 
       if (elecExtras.existsAs<std::string>("rho")) {
-        rhoTag = elecExtras.getParameter<edm::InputTag>("rho");
+        auto rhoTag = elecExtras.getParameter<edm::InputTag>("rho");
+        rhoToken_ = iC.consumes(rhoTag);
       }
       // electronId is optional; in case it's not found the
       // InputTag will remain empty
@@ -371,8 +372,6 @@ namespace TopSingleLepton {
 
     // fill monitoring plots for electrons
     edm::Handle<edm::View<reco::GsfElectron>> elecs;
-    edm::Handle<double> _rhoHandle;
-    event.getByLabel(rhoTag, _rhoHandle);
     if (!event.getByToken(elecs_, elecs))
       return;
 
@@ -382,6 +381,10 @@ namespace TopSingleLepton {
       if (!event.getByToken(electronId_, electronId)) {
         return;
       }
+    }
+    edm::Handle<double> _rhoHandle;
+    if (!rhoToken_.isUninitialized()) {
+      _rhoHandle = event.getHandle(rhoToken_);
     }
     // loop electron collection
     unsigned int eMult = 0, eMultIso = 0;

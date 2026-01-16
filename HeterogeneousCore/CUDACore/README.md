@@ -16,7 +16,6 @@
   * [Analyzer with CUDA input](#analyzer-with-cuda-input)
   * [Configuration](#configuration)
     * [GPU-only configuration](#gpu-only-configuration)
-    * [Automatic switching between CPU and GPU modules](#automatic-switching-between-cpu-and-gpu-modules)
 * [More details](#more-details)
   * [Device choice](#device-choice)
   * [Data model](#data-model)
@@ -302,85 +301,6 @@ void ProducerInputOutputCUDA::produce(edm::Event& iEvent, edm::EventSetup& iSetu
 [Complete example](../CUDATest/plugins/TestCUDAProducerGPUEW.cc)
 
 
-### Producer with CUDA input and output, and internal chain of CPU and GPU tasks (with ExternalWork)
-
-```cpp
-class ProducerInputOutputCUDA: public edm::stream::EDProducer<ExternalWork> {
-public:
-  ...
-  void acquire(edm::Event const& iEvent, edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
-  void produce(edm::Event& iEvent, edm::EventSetup& iSetup) override;
-  ...
-private:
-  void addMoreWork(edm::WaitingTaskWithArenaHolder waitingTashHolder);
-
-  ...
-  ProducerInputGPUAlgo gpuAlgo_;
-  edm::EDGetTokenT<cms::cuda::Product<InputData>> inputToken_;
-  edm::EDPutTokenT<cms::cuda::Product<OutputData>> outputToken_;
-};
-...
-void ProducerInputOutputCUDA::acquire(edm::Event const& iEvent, edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-  cms::cuda::Product<InputData> const& inputDataWrapped = iEvent.get(inputToken_);
-
-  // Set the current device to the same that was used to produce
-  // InputData, and also use the same CUDA stream
-  cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder), ctxState_};
-
-  // Grab the real input data. Checks that the input data is on the
-  // current device. If the input data was produced in a different CUDA
-  // stream than the cms::cuda::ScopedContextAcquire holds, create an inter-stream
-  // synchronization point with CUDA event and cudaStreamWaitEvent()
-  auto const& inputData = ctx.get(inputDataWrapped);
-
-  // Queues asynchronous data transfers and kernels to the CUDA stream
-  // returned by cms::cuda::ScopedContextAcquire::stream()
-  gpuAlgo.makeAsync(inputData, ctx.stream());
-
-  // Push a functor on top of "a stack of tasks" to be run as a next
-  // task after the work queued above before produce(). In this case ctx
-  // is a context constructed by the calling TBB task, and therefore the
-  // current device and CUDA stream have been already set up. The ctx
-  // internally holds the WaitingTaskWithArenaHolder for the next task.
-
-  ctx.pushNextTask([this](cms::cuda::ScopedContextTask ctx) {
-    addMoreWork(ctx);
-  });
-
-  // Destructor of ctx queues a callback to the CUDA stream notifying
-  // waitingTaskHolder when the queued asynchronous work has finished,
-  // and saves the device and CUDA stream to ctxState_
-}
-
-// Called after the asynchronous work queued in acquire() has finished
-void ProducerInputOutputCUDA::addMoreWork(cms::cuda::ScopedContextTask& ctx) {
-  // Current device and CUDA stream have already been set
-
-  // Queues more asynchronous data transfer and kernels to the CUDA
-  // stream returned by cms::cuda::ScopedContextTask::stream()
-  gpuAlgo.makeMoreAsync(ctx.stream());
-
-  // Destructor of ctx queues a callback to the CUDA stream notifying
-  // waitingTaskHolder when the queued asynchronous work has finished
-}
-
-// Called after the asynchronous work queued in addMoreWork() has finished
-void ProducerInputOutputCUDA::produce(edm::Event& iEvent, edm::EventSetup& iSetup) {
-  // Sets again the current device, uses the CUDA stream created in the acquire()
-  cms::cuda::ScopedContextProduce ctx{ctxState_};
-
-  // Now getResult() returns data in GPU memory that is passed to the
-  // constructor of OutputData. cms::cuda::ScopedContextProduce::emplace() wraps the
-  // OutputData to cms::cuda::Product<OutputData>. cms::cuda::Product<T> stores also
-  // the current device and the CUDA stream since those will be needed
-  // in the consumer side.
-  ctx.emplace(iEvent, outputToken_, gpuAlgo.getResult());
-}
-```
-
-[Complete example](../CUDATest/plugins/TestCUDAProducerGPUEWTask.cc)
-
-
 ### Producer with CUDA input and output (without ExternalWork)
 
 If the producer does not need to transfer anything back to CPU (like
@@ -434,10 +354,9 @@ void ProducerInputOutputCUDA::produce(edm::StreamID streamID, edm::Event& iEvent
 
 Analyzer with CUDA input is similar to [producer with CUDA
 input](#producer-with-cuda-input). Note that currently we do not have
-a mechanism for portable configurations with analyzers (like
-[`SwitchProducer`](#automatic-switching-between-cpu-and-gpu-modules)
-for producers). This means that a configuration with a CUDA analyzer
-can only run on a machine with CUDA device(s).
+a mechanism for portable configurations with analyzers. This means
+that a configuration with a CUDA analyzer can only run on a machine
+with CUDA device(s).
 
 ```cpp
 class AnalyzerInputCUDA: public edm::global::EDAnalyzer<> {
@@ -487,53 +406,9 @@ void AnalyzerInputCUDA::analyze(edm::Event const& iEvent, edm::EventSetup& iSetu
 For a GPU-only configuration there is nothing special to be done, just
 construct the Paths/Sequences/Tasks from the GPU modules.
 
-#### Automatic switching between CPU and GPU modules
-
-The `SwitchProducer` mechanism can be used to switch automatically
-between CPU and GPU modules based on the availability of GPUs on the
-machine where the configuration is done. Framework decides at the
-beginning of the job which of the modules to run for a given module
-label.
-
-Framework requires that the modules in the switch must produce the
-same types of output products (the closer the actual results are the
-better, but the framework can not enforce that). This means that for a
-chain of GPU modules, it is the module that transforms the SoA data
-format back to the legacy data formats (possibly, but not necessarily,
-transferring the SoA data from GPU to CPU) that should be switched
-between the legacy CPU module. The rest of the GPU modules should be
-placed to a `Task`, in which case framework runs them only if their
-output is needed by another module.
-
-```python
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
-process.foo = SwitchProducerCUDA(
-    cpu = cms.EDProducer("FooProducer"), # legacy CPU
-    cuda = cms.EDProducer("FooProducerFromCUDA",
-        src="fooCUDA"
-    )
-)
-process.fooCUDA = cms.EDProducer("FooProducerCUDA")
-
-process.fooTaskCUDA = cms.Task(process.fooCUDA)
-process.fooTask = cms.Task(
-    process.foo,
-    process.fooTaskCUDA
-)
-```
-
-For a more complete example, see [here](../CUDATest/test/testCUDASwitch_cfg.py).
-
-
-
-
-
 ## More details
 
 ### Device choice
-
-As discussed above, with `SwitchProducer` the choice between CPU and
-GPU modules is done at the beginning of the job.
 
 For multi-GPU setup the device is chosen in the first CUDA module in a
 chain of modules by one of the constructors of
@@ -790,79 +665,6 @@ void FooProducerCUDA::produce(...( {
 The `cms::cuda::ScopedContextAcquire` saves its state to the `ctxState_` in
 the destructor, and `cms::cuda::ScopedContextProduce` then restores the
 context.
-
-#### Module-internal chain of CPU and GPU tasks
-
-Technically `ExternalWork` works such that the framework calls
-`acquire()` with a `edm::WaitingTaskWithArenaHolder` that holds an
-`edm::WaitingTask` (that inherits from `tbb::task`) for calling
-`produce()` in a `std::shared_ptr` semantics: spawn the task when
-reference count hits `0`. It is also possible to create a longer chain
-of such tasks, alternating between CPU and GPU work. This mechanism
-can also be used to re-run (part of) the GPU work.
-
-The "next tasks" to run are essentially structured as a stack, such
-that
-- `cms::cuda::ScopedContextAcquire`/`cms::cuda::ScopedContextTask::pushNextTask()`
-  pushes a new functor on top of the stack
-- Completion of both the asynchronous work and the queueing function
-  pops the top task of the stack and enqueues it (so that TBB
-  eventually runs the task)
-  * Technically the task is made eligible to run when all copies of
-    `edm::WaitingTaskWithArenaHolder` of the acquire() (or "previous"
-    function) have either been destructed or their `doneWaiting()` has
-    been called
-  * The code calling `acquire()` or the functor holds one copy of
-    `edm::WaitingTaskWithArenaHolder` so it is guaranteed that the
-    next function will not run before the earlier one has finished
-
-
-Below is an example how to push a functor on top of the stack of tasks
-to run next (following the example of the previous section)
-```cpp
-void FooProducerCUDA::acquire(...) {
-   ...
-   ctx.pushNextTask([this](cms::cuda::ScopedContextTask ctx) {
-     ...
-   });
-   ...
-}
-```
-
-In this case the `ctx`argument to the function is a
-`cms::cuda::ScopedContexTask` object constructed by the TBB task calling the
-user-given function. It follows that the current device and CUDA
-stream have been set up already. The `pushNextTask()` can be called
-many times. On each invocation the `pushNextTask()` pushes a new task
-on top of the stack (i.e. in front of the chain). It follows that in
-```cpp
-void FooProducerCUDA::acquire(...) {
-   ...
-   ctx.pushNextTask([this](cms::cuda::ScopedContextTask ctx) {
-     ... // function 1
-   });
-   ctx.pushNextTask([this](cms::cuda::ScopedContextTask ctx) {
-     ... // function 2
-   });
-   ctx.pushNextTask([this](cms::cuda::ScopedContextTask ctx) {
-     ... // function 3
-   });
-   ...
-}
-```
-the functions will be run in the order 3, 2, 1.
-
-**Note** that the `CUDAService` is **not** available (nor is any other
-service) in these intermediate tasks. In the near future memory
-allocations etc. will be made possible by taking them out from the
-`CUDAService`.
-
-The `cms::cuda::ScopedContextAcquire`/`cms::cuda::ScopedContextTask` have also a
-more generic member function, `replaceWaitingTaskHolder()`, that can
-be used to just replace the currently-hold
-`edm::WaitingTaskWithArenaHolder` (that will get notified by the
-callback function) with anything. In this case the caller is
-responsible of creating the task(s) and setting up the chain of them.
 
 
 #### Transferring GPU data to CPU

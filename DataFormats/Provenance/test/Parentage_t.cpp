@@ -4,7 +4,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 TEST_CASE("test Parentage", "[Parentage]") {
   edm::Parentage ed1;

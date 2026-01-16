@@ -45,13 +45,15 @@ namespace edm {
     /**Given a variable number of arguments, returns the 'J'th one. The first caller must use I=0.*/
     template <unsigned int I, unsigned int J, typename Ret, typename F, typename... Args>
     struct arg_puller<I, J, Ret, F, Args...> {
-      static Ret pull(F const&, const Args&... args) { return arg_puller<I + 1, J, Ret, Args...>::pull(args...); }
+      static constexpr Ret pull(F const&, const Args&... args) {
+        return arg_puller<I + 1, J, Ret, Args...>::pull(args...);
+      }
     };
 
     /**End condition of the template recursion */
     template <unsigned int I, typename Ret, typename F, typename... Args>
     struct arg_puller<I, I, Ret, F, Args...> {
-      static Ret pull(F const& iV, const Args&...) { return iV; }
+      static constexpr Ret pull(F const& iV, const Args&...) { return iV; }
     };
 
     /** A decorator class used in SoATuple's template argument list to denote that
@@ -60,8 +62,8 @@ namespace edm {
      */
     template <typename T, unsigned int ALIGNMENT>
     struct Aligned {
-      static const unsigned int kAlignment = ALIGNMENT;
-      typedef T Type;
+      static constexpr unsigned int kAlignment = ALIGNMENT;
+      using Type = T;
     };
 
     /** Class used by SoATupleHelper to determine the proper alignment of the requested type.
@@ -70,8 +72,8 @@ namespace edm {
      */
     template <typename T>
     struct AlignmentHelper {
-      static const std::size_t kAlignment = alignof(T);
-      typedef T Type;
+      static constexpr std::size_t kAlignment = alignof(T);
+      using Type = T;
     };
 
     /** Specialization of ALignmentHelper for Aligned<T, ALIGNMENT>. This allows users
@@ -79,26 +81,24 @@ namespace edm {
      */
     template <typename T, unsigned int ALIGNMENT>
     struct AlignmentHelper<Aligned<T, ALIGNMENT>> {
-      static const std::size_t kAlignment = ALIGNMENT;
-      typedef T Type;
+      static constexpr std::size_t kAlignment = ALIGNMENT;
+      using Type = T;
     };
 
-    /**Implements most of the internal functions used by SoATuple. The argument I is used to recursively step
-     through each arugment Args when doing the work. SoATupleHelper<I,Args> actually operates on the I-1 argument.
-     There is a specialization of SoATulpeHelper with I=0 which is used to stop the template recursion.
-     */
-    template <unsigned int I, typename... Args>
-    struct SoATupleHelper {
-      typedef AlignmentHelper<typename std::tuple_element<I - 1, std::tuple<Args...>>::type> AlignmentInfo;
-      typedef typename AlignmentInfo::Type Type;
-      typedef SoATupleHelper<I - 1, Args...> NextHelper;
+    template <size_t I, typename... Args>
+    constexpr auto nullPtrType() -> typename std::tuple_element<I, std::tuple<Args...>>::type* {
+      return nullptr;
+    }
 
-      static const std::size_t max_alignment =
-          AlignmentInfo::kAlignment > NextHelper::max_alignment ? AlignmentInfo::kAlignment : NextHelper::max_alignment;
+    /**Implements most of the internal functions used by SoATuple.*/
+    template <typename... Args>
+    struct SoATupleHelper {
+      static constexpr std::size_t max_alignment = std::max({AlignmentHelper<Args>::kAlignment...});
+      static constexpr unsigned int kNTypes = sizeof...(Args);
 
       // ---------- static member functions --------------------
-      static size_t moveToNew(char* iNewMemory, size_t iSize, size_t iReserve, void** oToSet);
-      static size_t copyToNew(char* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet);
+      static size_t moveToNew(std::byte* iNewMemory, size_t iSize, size_t iReserve, void** oToSet);
+      static size_t copyToNew(std::byte* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet);
       static size_t spaceNeededFor(unsigned int iNElements);
       static void push_back(void** iToSet, size_t iSize, std::tuple<Args...> const& iValues);
       template <typename... FArgs>
@@ -107,117 +107,131 @@ namespace edm {
 
       // ---------- member functions ---------------------------
       SoATupleHelper(const SoATupleHelper&) = delete;  // stop default
+      SoATupleHelper(SoATupleHelper&&) = delete;       // stop default
 
-      const SoATupleHelper& operator=(const SoATupleHelper&) = delete;  // stop default
+      SoATupleHelper& operator=(const SoATupleHelper&) = delete;  // stop default
+      SoATupleHelper& operator=(SoATupleHelper&&) = delete;       // stop default
     };
 
-    //Specialization used to stop recursion
     template <typename... Args>
-    struct SoATupleHelper<0, Args...> {
-      static const std::size_t max_alignment = 0;
-      static void destroy(void** /*iToSet*/, size_t /*iSize*/) {}
-
-      static void push_back(void** /*iToSet*/, size_t /*iSize*/, std::tuple<Args...> const& /*values*/) {}
-
-      template <typename... FArgs>
-      static void emplace_back(void** iToSet, size_t iSize, FArgs... iValues) {}
-
-      static size_t spaceNeededFor(unsigned int /*iNElements*/) { return 0; }
-
-      static size_t moveToNew(char* /*iNewMemory*/, size_t /*iSize*/, size_t /*iReserve*/, void** /*oToSet*/) {
-        return 0;
-      }
-
-      static size_t copyToNew(
-          char* /*iNewMemory*/, size_t /*iSize*/, size_t /*iReserve*/, void* const* /*iFrom*/, void** /*oToSet*/) {
-        return 0;
-      }
-    };
-
-    template <unsigned int I, typename... Args>
-    size_t SoATupleHelper<I, Args...>::moveToNew(char* iNewMemory, size_t iSize, size_t iReserve, void** oToSet) {
-      size_t usedSoFar = NextHelper::moveToNew(iNewMemory, iSize, iReserve, oToSet);
-
-      //find new start
-      const unsigned int boundary = AlignmentInfo::kAlignment;
-
-      Type* newStart = reinterpret_cast<Type*>(iNewMemory + usedSoFar + padding_needed(usedSoFar, boundary));
-
-      void** oldStart = oToSet + I - 1;
-
-      Type* oldValues = static_cast<Type*>(*oldStart);
-      if (oldValues != nullptr) {
-        auto ptr = newStart;
-        for (auto it = oldValues; it != oldValues + iSize; ++it, ++ptr) {
-          new (ptr) Type(std::move(*it));
+    size_t SoATupleHelper<Args...>::moveToNew(std::byte* iNewMemory, size_t iSize, size_t iReserve, void** oToSet) {
+      size_t usedSoFar = 0;
+      auto do_move = [&]<typename T>(T const*, auto I) {
+        using Type = typename AlignmentHelper<T>::Type;
+        constexpr unsigned int boundary = AlignmentHelper<T>::kAlignment;
+        Type* newStart = reinterpret_cast<Type*>(iNewMemory + usedSoFar + padding_needed(usedSoFar, boundary));
+        void** oldStart = oToSet + I;
+        Type* oldValues = static_cast<Type*>(*oldStart);
+        if (oldValues != nullptr) {
+          auto ptr = newStart;
+          for (auto it = oldValues; it != oldValues + iSize; ++it, ++ptr) {
+            new (ptr) Type(std::move(*it));
+          }
+          for (auto it = oldValues; it != oldValues + iSize; ++it) {
+            it->~Type();
+          }
         }
-        for (auto it = oldValues; it != oldValues + iSize; ++it) {
+        *oldStart = newStart;
+        unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iReserve * sizeof(Type);
+        usedSoFar += additionalSize;
+      };
+      //The use of index_sequence gives an index for each type in Args...
+      [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        //For each type, call do_move
+        (do_move(nullPtrType<Is, Args...>(), std::integral_constant<size_t, Is>()), ...);
+      }(std::make_index_sequence<kNTypes>());
+      return usedSoFar;
+    }
+
+    template <typename... Args>
+    size_t SoATupleHelper<Args...>::copyToNew(
+        std::byte* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet) {
+      size_t usedSoFar = 0;
+      auto do_copy = [&]<typename T>(T const*, auto I) {
+        using Type = typename AlignmentHelper<T>::Type;
+        constexpr unsigned int boundary = AlignmentHelper<T>::kAlignment;
+        Type* newStart = reinterpret_cast<Type*>(iNewMemory + usedSoFar + padding_needed(usedSoFar, boundary));
+        void* const* oldStart = iFrom + I;
+        Type* oldValues = static_cast<Type*>(*oldStart);
+        if (oldValues != nullptr) {
+          auto ptr = newStart;
+          for (auto it = oldValues; it != oldValues + iSize; ++it, ++ptr) {
+            new (ptr) Type(*it);
+          }
+        }
+        *(oToSet + I) = newStart;
+        unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iReserve * sizeof(Type);
+        usedSoFar += additionalSize;
+      };
+      //The use of index_sequence gives an index for each type in Args...
+      [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        //For each type, call do_copy
+        (do_copy(nullPtrType<Is, Args...>(), std::integral_constant<size_t, Is>()), ...);
+      }(std::make_index_sequence<kNTypes>());
+      return usedSoFar;
+    }
+
+    template <typename... Args>
+    size_t SoATupleHelper<Args...>::spaceNeededFor(unsigned int iNElements) {
+      size_t usedSoFar = 0;
+      auto do_space = [&]<typename T>(T const*) {
+        constexpr unsigned int boundary = AlignmentHelper<T>::kAlignment;
+        using Type = typename AlignmentHelper<T>::Type;
+        unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iNElements * sizeof(Type);
+        usedSoFar += additionalSize;
+      };
+      //The use of index_sequence gives an index for each type in Args...
+      [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        //For each type, call do_space
+        (do_space(nullPtrType<Is, Args...>()), ...);
+      }(std::make_index_sequence<kNTypes>());
+      return usedSoFar;
+    }
+
+    template <typename... Args>
+    void SoATupleHelper<Args...>::push_back(void** iToSet, size_t iSize, std::tuple<Args...> const& iValues) {
+      auto do_placement = [&]<typename T>(auto Index, T const*) {
+        using Type = typename AlignmentHelper<T>::Type;
+        new (static_cast<Type*>(*(iToSet + Index)) + iSize) Type(std::get<Index>(iValues));
+      };
+      //The use of index_sequence gives an index for each type in Args...
+      [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        //For each type, call do_placement
+        (do_placement(std::integral_constant<size_t, Is>(), nullPtrType<Is, Args...>()), ...);
+      }(std::make_index_sequence<kNTypes>());
+    }
+
+    template <typename... Args>
+    template <typename... FArgs>
+    void SoATupleHelper<Args...>::emplace_back(void** iToSet, size_t iSize, FArgs... iValues) {
+      auto do_placement = [&]<typename T>(auto Index, T const*) {
+        using Type = typename AlignmentHelper<T>::Type;
+        new (static_cast<Type*>(*(iToSet + Index)) + iSize)
+            Type(arg_puller<0, Index, Type const&, FArgs...>::pull(std::forward<FArgs>(iValues)...));
+      };
+      //The use of index_sequence gives an index for each type in Args...
+      [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        //For each type, call do_placement
+        (do_placement(std::integral_constant<size_t, Is>(), nullPtrType<Is, Args...>()), ...);
+      }(std::make_index_sequence<kNTypes>());
+    }
+
+    template <typename... Args>
+    void SoATupleHelper<Args...>::destroy(void** iToSet, size_t iSize) {
+      auto do_destroy = [&]<typename T>(std::size_t I, T const*) {
+        void** start = iToSet + I;
+        using Type = typename AlignmentHelper<T>::Type;
+        Type* values = static_cast<Type*>(*start);
+
+        for (auto it = values; it != values + iSize; ++it) {
           it->~Type();
         }
-      }
-      *oldStart = newStart;
-      unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iReserve * sizeof(Type);
-      return usedSoFar + additionalSize;
-    }
-
-    template <unsigned int I, typename... Args>
-    size_t SoATupleHelper<I, Args...>::copyToNew(
-        char* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet) {
-      size_t usedSoFar = NextHelper::copyToNew(iNewMemory, iSize, iReserve, iFrom, oToSet);
-
-      //find new start
-      const unsigned int boundary = AlignmentInfo::kAlignment;
-
-      Type* newStart = reinterpret_cast<Type*>(iNewMemory + usedSoFar + padding_needed(usedSoFar, boundary));
-
-      void* const* oldStart = iFrom + I - 1;
-
-      Type* oldValues = static_cast<Type*>(*oldStart);
-      if (oldValues != nullptr) {
-        auto ptr = newStart;
-        for (auto it = oldValues; it != oldValues + iSize; ++it, ++ptr) {
-          new (ptr) Type(*it);
-        }
-      }
-      *(oToSet + I - 1) = newStart;
-      unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iReserve * sizeof(Type);
-      return usedSoFar + additionalSize;
-    }
-
-    template <unsigned int I, typename... Args>
-    size_t SoATupleHelper<I, Args...>::spaceNeededFor(unsigned int iNElements) {
-      size_t usedSoFar = NextHelper::spaceNeededFor(iNElements);
-      const unsigned int boundary = AlignmentInfo::kAlignment;
-      unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iNElements * sizeof(Type);
-      return usedSoFar + additionalSize;
-    }
-
-    template <unsigned int I, typename... Args>
-    void SoATupleHelper<I, Args...>::push_back(void** iToSet, size_t iSize, std::tuple<Args...> const& iValues) {
-      new (static_cast<Type*>(*(iToSet + I - 1)) + iSize) Type(std::get<I - 1>(iValues));
-
-      NextHelper::push_back(iToSet, iSize, iValues);
-    }
-
-    template <unsigned int I, typename... Args>
-    template <typename... FArgs>
-    void SoATupleHelper<I, Args...>::emplace_back(void** iToSet, size_t iSize, FArgs... iValues) {
-      new (static_cast<Type*>(*(iToSet + I - 1)) + iSize)
-          Type(arg_puller<0, I - 1, Type const&, FArgs...>::pull(std::forward<FArgs>(iValues)...));
-
-      NextHelper::emplace_back(iToSet, iSize, std::forward<FArgs>(iValues)...);
-    }
-
-    template <unsigned int I, typename... Args>
-    void SoATupleHelper<I, Args...>::destroy(void** iToSet, size_t iSize) {
-      void** start = iToSet + I - 1;
-      Type* values = static_cast<Type*>(*start);
-
-      for (auto it = values; it != values + iSize; ++it) {
-        it->~Type();
-      }
-
-      NextHelper::destroy(iToSet, iSize);
+      };
+      //The use of index_sequence gives an index for each type in Args...
+      [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        //For each type, call do_destroy
+        ((do_destroy(Is, nullPtrType<Is, Args...>())), ...);
+      }(std::make_index_sequence<kNTypes>());
     }
 
   }  // namespace soahelper

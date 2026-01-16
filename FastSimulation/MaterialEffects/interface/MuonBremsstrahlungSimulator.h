@@ -19,9 +19,9 @@
  * $Date: 25-Dec-2003
  */
 
-#include <string>
+#include "TF1.h"
 
-class TF1;
+#include <string>
 
 class ParticlePropagator;
 class RandomEngineAndDistribution;
@@ -42,7 +42,7 @@ public:
   inline const XYZTLorentzVector& deltaP_BremPhoton() const { return brem_photon; }
 
 private:
-  TF1* f1;
+  std::unique_ptr<TF1> f1;
 
   int npar;
 

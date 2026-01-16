@@ -3,6 +3,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -125,7 +126,7 @@ void PFClient::createResolutionPlots(DQMStore::IBooker &ibooker,
     float ymax = th->GetYaxis()->GetXmax();
     std::string xtit = th->GetXaxis()->GetTitle();
     std::string ytit = th->GetYaxis()->GetTitle();
-    float *xbins = new float[nbinx + 1];
+    std::unique_ptr<float[]> xbins{new float[nbinx + 1]};
     for (size_t ix = 1; ix < nbinx + 1; ++ix) {
       xbins[ix - 1] = th->GetXaxis()->GetBinLowEdge(ix);
       if (ix == nbinx)
@@ -133,35 +134,39 @@ void PFClient::createResolutionPlots(DQMStore::IBooker &ibooker,
     }
     std::string tit_new = ";" + xtit + ";" + ytit;
     ibooker.setCurrentFolder(folder);
-    MonitorElement *me_slice = ibooker.book1D("PFlowSlice", "PFlowSlice", nbiny, ymin, ymax);
+    TH1F th_slice("PFlowSlice", "PFlowSlice", nbiny, ymin, ymax);
 
     tit_new = ";" + xtit + ";Average_" + ytit;
-    me_average = ibooker.book1D("average_" + name, tit_new, nbinx, xbins);
+    me_average = ibooker.book1D("average_" + name, tit_new, nbinx, xbins.get());
     me_average->setEfficiencyFlag();
     tit_new = ";" + xtit + ";RMS_" + ytit;
-    me_rms = ibooker.book1D("rms_" + name, tit_new, nbinx, xbins);
+    me_rms = ibooker.book1D("rms_" + name, tit_new, nbinx, xbins.get());
     me_rms->setEfficiencyFlag();
     tit_new = ";" + xtit + ";Mean_" + ytit;
-    me_mean = ibooker.book1D("mean_" + name, tit_new, nbinx, xbins);
+    me_mean = ibooker.book1D("mean_" + name, tit_new, nbinx, xbins.get());
     me_mean->setEfficiencyFlag();
     tit_new = ";" + xtit + ";Sigma_" + ytit;
-    me_sigma = ibooker.book1D("sigma_" + name, tit_new, nbinx, xbins);
+    me_sigma = ibooker.book1D("sigma_" + name, tit_new, nbinx, xbins.get());
     me_sigma->setEfficiencyFlag();
 
     double average, rms, mean, sigma;
 
     for (size_t ix = 1; ix < nbinx + 1; ++ix) {
-      me_slice->Reset();
+      th_slice.Reset();
+      unsigned int nNonZeroBins = 0;
       for (size_t iy = 1; iy < nbiny + 1; ++iy) {
-        me_slice->setBinContent(iy, th->GetBinContent(ix, iy));
+        auto value = th->GetBinContent(ix, iy);
+        th_slice.SetBinContent(iy, value);
+        if (value != 0) {
+          ++nNonZeroBins;
+        }
       }
-      getHistogramParameters(me_slice, average, rms, mean, sigma);
+      getHistogramParameters(th_slice, nNonZeroBins, average, rms, mean, sigma);
       me_average->setBinContent(ix, average);
       me_rms->setBinContent(ix, rms);
       me_mean->setBinContent(ix, mean);
       me_sigma->setBinContent(ix, sigma);
     }
-    delete[] xbins;
   }
 }
 
@@ -257,7 +262,7 @@ void PFClient::createProfilePlots(DQMStore::IBooker &ibooker,
     // size_t nbiny = me->getNbinsY();
     // TProfile* profileX = th->ProfileX("",0,nbiny+1); add underflow and
     // overflow
-    static const Int_t NUM_STAT = 7;
+    static constexpr Int_t NUM_STAT = 7;
     Double_t stats[NUM_STAT] = {0};
     th->GetStats(stats);
 
@@ -285,24 +290,24 @@ void PFClient::createProfilePlots(DQMStore::IBooker &ibooker,
 // -- Get Histogram Parameters
 //
 void PFClient::getHistogramParameters(
-    MonitorElement *me_slice, double &average, double &rms, double &mean, double &sigma) {
+    TH1F &th_slice, unsigned int nNonZeroBins, double &average, double &rms, double &mean, double &sigma) {
   average = 0.0;
   rms = 0.0;
   mean = 0.0;
   sigma = 0.0;
 
-  if (!me_slice)
-    return;
-  if (me_slice->kind() == MonitorElement::Kind::TH1F) {
-    average = me_slice->getMean();
-    rms = me_slice->getRMS();
-    TH1F *th_slice = me_slice->getTH1F();
-    if (th_slice && th_slice->GetEntries() > 0) {
-      // need our own copy for thread safety
-      TF1 gaus("mygaus", "gaus");
-      th_slice->Fit(&gaus, "Q0 SERIAL");
+  average = th_slice.GetMean();
+  rms = th_slice.GetRMS();
+  //Need a minimum of 3 points to fit a gaussian
+  if (nNonZeroBins > 2) {
+    // need our own copy for thread safety
+    TF1 gaus("mygaus", "gaus", 0, 1, TF1::EAddToList::kNo);
+    auto fit = th_slice.Fit(&gaus, "Q0 SERIAL");
+    if (int(fit) == 0) {
       sigma = gaus.GetParameter(2);
       mean = gaus.GetParameter(1);
+    } else {
+      edm::LogWarning("FitFailed") << "Failed to fit gaussian";
     }
   }
 }

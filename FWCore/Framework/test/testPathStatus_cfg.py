@@ -44,9 +44,7 @@ process.f2 = cms.EDFilter("ModuloEventIDFilter",
 
 process.prod1 = cms.EDProducer("IntProducer", ivalue = cms.int32(1))
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testPathStatus.root')
-)
+process.out = cms.OutputModule("AsciiOutputModule", verbosity = cms.untracked.uint32(0))
 
 process.path1 = cms.Path(process.prod1 * process.f1 * process.f2)
 process.path2 = cms.Path()

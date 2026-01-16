@@ -53,8 +53,8 @@ using namespace edm::streamer;
 FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
     : edm::RawInputSource(pset, desc),
       defPath_(pset.getUntrackedParameter<std::string>("buDefPath", "")),
-      eventChunkSize_(pset.getUntrackedParameter<unsigned int>("eventChunkSize", 32) * 1048576),
-      eventChunkBlock_(pset.getUntrackedParameter<unsigned int>("eventChunkBlock", 32) * 1048576),
+      paramChunkSize_(pset.getUntrackedParameter<unsigned int>("eventChunkSize", 32)),
+      paramBlockSize_(pset.getUntrackedParameter<unsigned int>("eventChunkBlock", 32)),
       numConcurrentReads_(pset.getUntrackedParameter<int>("numConcurrentReads", -1)),
       numBuffers_(pset.getUntrackedParameter<unsigned int>("numBuffers", 2)),
       maxBufferedFiles_(pset.getUntrackedParameter<unsigned int>("maxBufferedFiles", 2)),
@@ -77,6 +77,17 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
       eventsThisLumi_(0) {
   char thishost[256];
   gethostname(thishost, 255);
+
+  //ensure 32-bit buffer limits
+  if (paramChunkSize_ > 4095)
+    throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
+        << "Invalid chunk size of " << paramChunkSize_ << " MB. Only less than 4GB is supported.";
+  if (paramBlockSize_ > 4095)
+    throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
+        << "Invalid block size of " << paramBlockSize_ << " MB. Only less than 4GB is supported.";
+  eventChunkSize_ = paramChunkSize_ << 20;
+  eventChunkBlock_ = paramBlockSize_ << 20;
+
   edm::LogInfo("FedRawDataInputSource") << "Construction. read-ahead chunk size -: " << std::endl
                                         << (eventChunkSize_ / 1048576) << " MB on host " << thishost;
 
@@ -432,8 +443,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
   //file is finished
   if (currentFile_->bufferPosition_ == currentFile_->fileSize_) {
     readingFilesCount_--;
-    if (fileListMode_)
-      heldFilesCount_--;
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
@@ -451,6 +460,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     } else {
       //in single-thread and stream jobs, events are already processed
       currentFile_.reset();
+      heldFilesCount_--;
     }
     setMonState(inProcessingFile);
     return evf::EvFDaqDirector::noFile;
@@ -476,6 +486,13 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     //advance buffer position to skip file header (chunk will be acquired later)
     currentFile_->chunkPosition_ += currentFile_->rawHeaderSize_;
     currentFile_->bufferPosition_ += currentFile_->rawHeaderSize_;
+
+    if (currentFile_->chunkPosition_ > UINT32_MAX)
+      throw cms::Exception("FedRawDataInputSource::getNextEvent")
+          << "chunkPosition_ overflow " << currentFile_->chunkPosition_;
+    if (currentFile_->bufferPosition_ > UINT32_MAX)
+      throw cms::Exception("FedRawDataInputSource::getNextEvent")
+          << "bufferPosition_ overflow " << currentFile_->bufferPosition_;
   }
 
   //file is too short
@@ -532,7 +549,12 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       chunkIsFree_ = true;
     } else {
       //header was contiguous, but check if payload fits the chunk
-      if (eventChunkSize_ - currentFile_->chunkPosition_ < msgSize) {
+
+      if (currentFile_->chunkPosition_ > UINT32_MAX)
+        throw cms::Exception("FedRawDataInputSource::getNextEvent")
+            << "chunkPosition_ overflow " << currentFile_->chunkPosition_;
+
+      if (eventChunkSize_ - (uint32_t)currentFile_->chunkPosition_ < msgSize) {
         //rewind to header start position
         currentFile_->rewindChunk(FRDHeaderVersionSize[detectedFRDversion_]);
         //copy event to a chunk start and move pointers
@@ -850,6 +872,7 @@ void FedRawDataInputSource::readSupervisor() {
     uint32_t lsFromRaw = 0;
     int32_t serverEventsInNewFile = -1;
     int rawFd = -1;
+    uint16_t rawDataType = 0;
 
     int backoff_exp = 0;
 
@@ -895,7 +918,6 @@ void FedRawDataInputSource::readSupervisor() {
         //return LS if LS not set, otherwise return file
         status = getFile(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);
         if (status == evf::EvFDaqDirector::newFile) {
-          uint16_t rawDataType;
           if (evf::EvFDaqDirector::parseFRDFileHeader(nextFile,
                                                       rawFd,
                                                       rawHeaderSize,
@@ -922,6 +944,7 @@ void FedRawDataInputSource::readSupervisor() {
                                                      ls,
                                                      nextFile,
                                                      rawFd,
+                                                     rawDataType,
                                                      rawHeaderSize,
                                                      serverEventsInNewFile,
                                                      fileSizeFromMetadata,
@@ -1102,7 +1125,7 @@ void FedRawDataInputSource::readSupervisor() {
             uint16_t rawHeaderCheck;
             bool fileFound;
             eventsInNewFile = daqDirector_->grabNextJsonFromRaw(
-                nextFile, rawFdEmpty, rawHeaderCheck, fileSizeFromMetadata, fileFound, 0, true);
+                nextFile, rawFdEmpty, rawDataType, rawHeaderCheck, fileSizeFromMetadata, fileFound, 0, true);
             assert(fileFound && rawHeaderCheck == rawHeaderSize);
             daqDirector_->unlockFULocal();
           } else
@@ -1125,6 +1148,7 @@ void FedRawDataInputSource::readSupervisor() {
                                                               rawFile,
                                                               !fileListMode_,
                                                               rawFd,
+                                                              rawDataType,
                                                               fileSize,
                                                               rawHeaderSize,
                                                               neededChunks,
@@ -1526,12 +1550,17 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile* file) {
       }
     } else {
       //event didn't fit in last chunk, so leftover must be moved to the beginning and completed
-      uint32_t existingSizeLeft = eventChunkSize_ - file->chunkPosition_;
+
+      if (file->chunkPosition_ > UINT32_MAX)
+        throw cms::Exception("FedRawDataInputSource::readNextChunkIntoBuffer")
+            << "chunkPosition_ overflow " << file->chunkPosition_;
+
+      uint32_t existingSizeLeft = eventChunkSize_ - (uint32_t)file->chunkPosition_;
       memmove((void*)file->chunks_[0]->buf_, file->chunks_[0]->buf_ + file->chunkPosition_, existingSizeLeft);
 
       //calculate amount of data that can be added
-      const uint32_t blockcount = file->chunkPosition_ / eventChunkBlock_;
-      const uint32_t leftsize = file->chunkPosition_ % eventChunkBlock_;
+      const uint32_t blockcount = (uint32_t)file->chunkPosition_ / eventChunkBlock_;
+      const uint32_t leftsize = (uint32_t)file->chunkPosition_ % eventChunkBlock_;
 
       for (uint32_t i = 0; i < blockcount; i++) {
         const ssize_t last =

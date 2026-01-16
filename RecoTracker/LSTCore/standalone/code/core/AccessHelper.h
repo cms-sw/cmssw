@@ -38,6 +38,17 @@ std::vector<unsigned int> getModuleIdxsFromT3(LSTEvent* event, unsigned int T3);
 std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHitTypesFromT3(LSTEvent* event,
                                                                                              unsigned T3);
 
+// ----* T4 *----
+std::vector<unsigned int> getT3sFromT4(LSTEvent* event, unsigned int T4);
+std::vector<unsigned int> getLSsFromT4(LSTEvent* event, unsigned int T4);
+std::vector<unsigned int> getMDsFromT4(LSTEvent* event, unsigned int T4);
+std::vector<unsigned int> getHitsFromT4(LSTEvent* event, unsigned int T4);
+std::vector<unsigned int> getHitIdxsFromT4(LSTEvent* event, unsigned int T4);
+std::vector<unsigned int> getHitTypesFromT4(LSTEvent* event, unsigned int T4);
+std::vector<unsigned int> getModuleIdxsFromT4(LSTEvent* event, unsigned int T4);
+std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHitTypesFromT4(LSTEvent* event,
+                                                                                             unsigned T4);
+
 // ----* T5 *----
 std::vector<unsigned int> getT3sFromT5(LSTEvent* event, unsigned int T5);
 std::vector<unsigned int> getLSsFromT5(LSTEvent* event, unsigned int T5);
@@ -83,5 +94,7 @@ std::vector<unsigned int> getLSsFromTC(LSTEvent* event, unsigned int TC);
 std::vector<unsigned int> getHitsFromTC(LSTEvent* event, unsigned int TC);
 std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHitTypesFromTC(LSTEvent* event,
                                                                                              unsigned int TC);
+std::pair<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndTypesFromTC(LSTEvent* event,
+                                                                                         unsigned int tc_idx);
 
 #endif

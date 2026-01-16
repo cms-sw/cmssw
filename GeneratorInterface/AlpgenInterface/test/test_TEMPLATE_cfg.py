@@ -45,7 +45,6 @@ process.p0 = cms.Path(process.generator)
 
 #process.VtxSmeared.src = 'generator'
 #process.genParticles.src = 'VtxSmeared'
-#process.genParticleCandidates.src = 'VtxSmeared'
 
 # Needed for the SIM step.
 #process.g4SimHits.Generator.HepMCProductLabel = 'VtxSmeared'

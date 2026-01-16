@@ -139,7 +139,7 @@ if __name__=="__main__":
             options.datatier= "MINIAOD"
             options.eventcontent="MINIAOD"
             options.rntuple_out = True
-            _test_addOutput(self, options, process, [OutStats('MINIAODoutput','RNTupleOutputModule','MINIAOD','output.rntpl',outputCommands_)])
+            _test_addOutput(self, options, process, [OutStats('MINIAODoutput','RNTupleTempOutputModule','MINIAOD','output.rntpl',outputCommands_)])
             #MINIAOD1 [NOTE notiation not restricted to MINIAOD]
             #NOT SUPPORTED BY outputDefinition
             process = cms.Process("TEST")
@@ -215,7 +215,7 @@ if __name__=="__main__":
             options.datatier= "NANOAOD"
             options.eventcontent="NANOEDMAOD"
             _test_addOutput(self, options, process, [OutStats('NANOEDMAODoutput', 'PoolOutputModule', 'NANOAOD', 'output.root', outputCommands_)])
-            #NANOAOD & rntuple (no change)
+            #NANOAOD & rntuple
             process = cms.Process("TEST")
             outputCommands_ = cms.untracked.vstring('drop *', 'keep foo')
             process.NANOAODEventContent = cms.PSet( outputCommands = outputCommands_)
@@ -224,7 +224,7 @@ if __name__=="__main__":
             options.datatier= "NANOAOD"
             options.eventcontent="NANOAOD"
             options.rntuple_out = True
-            _test_addOutput(self, options, process, [OutStats('NANOAODoutput','NanoAODOutputModule','NANOAOD','output.root',outputCommands_)])
+            _test_addOutput(self, options, process, [OutStats('NANOAODoutput','NanoAODRNTupleOutputModule','NANOAOD','output.rntpl',outputCommands_)])
             #NANOEDMAOD & rntuple
             process = cms.Process("TEST")
             outputCommands_ = cms.untracked.vstring('drop *', 'keep foo')
@@ -234,7 +234,7 @@ if __name__=="__main__":
             options.datatier= "NANOAOD"
             options.eventcontent="NANOEDMAOD"
             options.rntuple_out = True
-            _test_addOutput(self, options, process, [OutStats('NANOEDMAODoutput', 'RNTupleOutputModule', 'NANOAOD', 'output.rntpl', outputCommands_)])
+            _test_addOutput(self, options, process, [OutStats('NANOEDMAODoutput', 'RNTupleTempOutputModule', 'NANOAOD', 'output.rntpl', outputCommands_)])
             #ALCARECO empty
             process = cms.Process("TEST")
             options.scenario = "TEST"

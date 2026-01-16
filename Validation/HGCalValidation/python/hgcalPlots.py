@@ -1614,6 +1614,11 @@ _sharedEnergy_to_trackster = []
 _sharedEnergy_trackster_to = []
 versions = ["", "_assoc", "_assoc_vs_eta", "_assoc_vs_phi"]
 
+_score_simtrackster_to_trackster = []
+_score_trackster_to_simtrackster = []
+score_versions_simToReco = ["", "Dupl", "Pur"]
+score_versions_recoToSim= ["", "Fake", "Merge"]
+
 _energyscore_to_trackster = []
 _energyscore_trackster_to = []
 en_vs_score = ["","best","secBest"]
@@ -1622,11 +1627,22 @@ for val in simDict:
     print("appending plot group", "SharedEnergy_"+val+"ToTrackster")
     _sharedEnergy_trackster_to.append(PlotGroup("SharedEnergy_TracksterTo"+val, [], ncols=2))
     print("appending plot group", "SharedEnergy_TracksterTo"+val)
+    _score_simtrackster_to_trackster.append(PlotGroup("Score_"+val+"2trackster", [], ncols=3))
+    print("appending plot group", "Score_"+val+"2trackster")
+    _score_trackster_to_simtrackster.append(PlotGroup("Score_trackster2"+val, [], ncols=3))
+    print("appending plot group", "Score_trackster2"+val)
     for ver in versions:
         _sharedEnergy_to_trackster[-1].append(Plot("SharedEnergy_"+val+"2trackster"+ver, **_common_shared))
         print("appending plot ", "SharedEnergy_"+val+"2trackster"+ver)
         _sharedEnergy_trackster_to[-1].append(Plot("SharedEnergy_trackster2"+val+ver, **_common_shared))
         print("appending plot ", "SharedEnergy_trackster2"+val+ver)
+    for ver in score_versions_simToReco:
+      _score_simtrackster_to_trackster[-1].append(Plot("Score"+ver+"_"+val+"2trackster", **_common_score))
+      print("appending plot ", "Score"+ver+"_"+val+"2trackster")
+    for ver in score_versions_recoToSim:
+      _score_trackster_to_simtrackster[-1].append(Plot("Score"+ver+"_trackster2"+val, **_common_score))
+      print("appending plot ", "Score"+ver+"_trackster2"+val)
+
 
     _energyscore_to_trackster.append(PlotGroup("Energy_vs_Score_"+val+"ToTracksters", [], ncols=len(en_vs_score)))
     _energyscore_trackster_to.append(PlotGroup("Energy_vs_Score_TrackstersTo"+val, [], ncols=len(en_vs_score)))
@@ -1819,20 +1835,54 @@ for ct in cand_type:
     cand_eff_plots = []
     for var in ["pt", "energy", "eta", "phi"]:
         for cut in ["track", "pid", "energy"]:
-            cand_eff_plots.extend([Plot("eff_"+ct+"_"+cut+"_"+var, title=cut + " efficiency for "+ct.replace("_", " ")+" vs "+var, ytitle="Efficiency", **_common_eff_fake)])
+            if cut=="track" and ct in ["neutral_hadrons", "neutral_pions", "photons"]: continue
+            cand_eff_plots.extend([Plot("eff_"+ct+"_"+cut+"_"+var, title=cut + " - efficiency for "+ct.replace("_", " ")+" vs "+var, ytitle="Efficiency", **_common_eff_fake)])
     _all_cand_eff_plots.append(cand_eff_plots)
+
+_all_cand_effNum_plots = []
+for ct in cand_type:
+    cand_eff_plots = []
+    for var in ["pt", "energy", "eta", "phi"]:
+        for cut in ["track", "pid", "energy"]:
+            if cut=="track" and ct in ["neutral_hadrons", "neutral_pions", "photons"]: continue
+            cand_eff_plots.extend([Plot("num_"+cut+"_cand_vs_"+var+"_"+ct, title=cut + " - number of efficient "+ct.replace("_", " ")+" vs "+var, ytitle="Efficient candidates", **_common)])
+    _all_cand_effNum_plots.append(cand_eff_plots)
 
 _all_cand_fake_plots = []
 for ct in cand_type:
     cand_fake_plots = []
     for var in ["pt", "energy", "eta", "phi"]:
-        for cut in ["track", "pid", "energy"]:
-            cand_fake_plots.extend([Plot("fake_"+ct+"_"+cut+"_"+var, title=cut + " fake rate for "+ct.replace("_", " ")+" vs "+var, ytitle="Fake rate", **_common_eff_fake)])
+        for cut in ["track", "pid", "energy", "total"]:
+            if cut=="track" and ct in ["neutral_hadrons", "neutral_pions", "photons"]: continue
+            cand_fake_plots.extend([Plot("fake_"+ct+"_"+cut+"_"+var, title=cut + " - fake rate for "+ct.replace("_", " ")+" vs "+var, ytitle="Fake rate", **_common_eff_fake)])
     _all_cand_fake_plots.append(cand_fake_plots)
 
+_all_cand_fakeNum_plots = []
+for ct in cand_type:
+    cand_fake_plots = []
+    for var in ["pt", "energy", "eta", "phi"]:
+        for cut in ["track", "pid", "energy", "total"]:
+            if cut=="track" and ct in ["neutral_hadrons", "neutral_pions", "photons"]: continue
+            cand_fake_plots.extend([Plot("num_fake_"+cut+"_cand_vs_"+var+"_"+ct, title=cut + " - number of fakes for "+ct.replace("_", " ")+" vs "+var, ytitle="Fake number", **_common)])
+    _all_cand_fakeNum_plots.append(cand_fake_plots)
+
+#association with track/tracksters
+_all_cand_TkTsAss_plots = []
+for ct in cand_type:
+    cand_ass_plots = []
+    for var in ["pt", "energy", "eta", "phi"]:
+        for cut in ["noTrack", "noGoodTrack", "noTrackster"]:
+            if cut in ["noTrack", "noGoodTrack"] and ct in ["neutral_hadrons", "neutral_pions", "photons"]: continue
+            cand_ass_plots.extend([Plot(cut+"_cand_vs_"+var+"_"+ct, title="number of "+ct.replace("_", " ")+" with "+cut+" vs "+var, ytitle="Number of candidates", **_common)])
+    _all_cand_TkTsAss_plots.append(cand_ass_plots)
+
 _allCandidatesPlots = [[],[],[],[],[],[]]
-for i in range(6):
-    _allCandidatesPlots[i].extend([PlotGroup(cand_type[i]+"_type", _all_cand_type_plots[i], ncols=2), PlotGroup(cand_type[i]+"_kin", _all_cand_ene_plots[i], ncols=3), PlotGroup(cand_type[i]+"_eff", _all_cand_eff_plots[i], ncols=3), PlotGroup(cand_type[i]+"_fake", _all_cand_fake_plots[i], ncols=3)])
+# loop over the 3 charged chandidates (charged_hadrons, electrons, muons: indices 0,1,2 in cand_type respectively)
+for i in range(3):
+    _allCandidatesPlots[i].extend([PlotGroup(cand_type[i]+"_type", _all_cand_type_plots[i], ncols=2), PlotGroup(cand_type[i]+"_kin", _all_cand_ene_plots[i], ncols=3), PlotGroup(cand_type[i]+"_eff", _all_cand_eff_plots[i], ncols=3), PlotGroup(cand_type[i]+"_effMultiplicity", _all_cand_effNum_plots[i], ncols=3), PlotGroup(cand_type[i]+"_fake", _all_cand_fake_plots[i], ncols=4), PlotGroup(cand_type[i]+"_fakeMultiplicity", _all_cand_fakeNum_plots[i], ncols=4), PlotGroup(cand_type[i]+"_NoTrackTracksterAssoc", _all_cand_TkTsAss_plots[i], ncols=3)])
+# loop over the 3 neutral chandidates (neutral_hadrons, neutral_pions, photons: indices 3,4,5 in cand_type respectively)
+for i in range(3,6):
+    _allCandidatesPlots[i].extend([PlotGroup(cand_type[i]+"_type", _all_cand_type_plots[i], ncols=2), PlotGroup(cand_type[i]+"_kin", _all_cand_ene_plots[i], ncols=3), PlotGroup(cand_type[i]+"_eff", _all_cand_eff_plots[i], ncols=2), PlotGroup(cand_type[i]+"_effMultiplicity", _all_cand_effNum_plots[i], ncols=2), PlotGroup(cand_type[i]+"_fake", _all_cand_fake_plots[i], ncols=3), PlotGroup(cand_type[i]+"_fakeMultiplicity", _all_cand_fakeNum_plots[i], ncols=3), PlotGroup(cand_type[i]+"_NoTrackTracksterAssoc", _all_cand_TkTsAss_plots[i], ncols=1)])
 
 #--------------------------------------------------------------------------------------------
 # SIMHITS, DIGIS, RECHITS
@@ -2347,7 +2397,7 @@ lc_zplus_extended = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus
 ]
 
-def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClusterPlots._InputTag__moduleLabel, name_collection = layerClustersLabel, extended = False):
+def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClustersPlots, name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
@@ -2486,16 +2536,16 @@ sc_ticltracksters = [
 hgcalSimClustersPlotter = Plotter()
 
 def append_hgcalSimClustersPlots(collection, name_collection):
-  if collection == hgcalValidator.label_SimClustersLevel._InputTag__moduleLabel:
+  if collection == hgcalValidator.label_SimClustersLevel:
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalFolders(hgcalValidator.label_SimClusters._InputTag__moduleLabel +"/"+ collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters +"/"+ collection)
                   ], PlotFolder(
                   *sc_clusterlevel,
                   loopSubFolders=False,
                   purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
   else:
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalFolders(hgcalValidator.label_SimClusters._InputTag__moduleLabel +"/"+collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters +"/"+collection)
                   ], PlotFolder(
                   *sc_ticltracksters,
                   loopSubFolders=False,
@@ -2528,8 +2578,8 @@ _trackstersToSimTracksterFromCPByHitsPlots = [
   _duplicates[0],
   _fakes[0],
   _merges[0],
-  _score_caloparticle_to_tracksters,
-  _score_trackster_to_caloparticles,
+  _score_simtrackster_to_trackster[0],
+  _score_trackster_to_simtrackster[0],
   _sharedEnergy_to_trackster[0],
   _sharedEnergy_trackster_to[0],
   _energyscore_to_trackster[0],
@@ -2542,8 +2592,8 @@ _trackstersToSimTracksterByLCsPlots = [
   _duplicates[1],
   _fakes[1],
   _merges[1],
-  _score_simtrackster_to_tracksters,
-  _score_trackster_to_simtracksters,
+  _score_simtrackster_to_trackster[1],
+  _score_trackster_to_simtrackster[1],
   _sharedEnergy_to_trackster[1],
   _sharedEnergy_trackster_to[1],
   _energyscore_to_trackster[1],
@@ -2556,8 +2606,8 @@ _trackstersToSimTracksterFromCPByLCsPlots = [
   _duplicates[2],
   _fakes[2],
   _merges[2],
-  _score_simtrackster_to_tracksters,
-  _score_trackster_to_simtracksters,
+  _score_simtrackster_to_trackster[2],
+  _score_trackster_to_simtrackster[2],
   _sharedEnergy_to_trackster[2],
   _sharedEnergy_trackster_to[2],
   _energyscore_to_trackster[2],
@@ -2570,8 +2620,8 @@ _trackstersToSimTracksterByHitsPlots = [
   _duplicates[3],
   _fakes[3],
   _merges[3],
-  _score_simtrackster_to_tracksters,
-  _score_trackster_to_simtracksters,
+  _score_simtrackster_to_trackster[3],
+  _score_trackster_to_simtrackster[3],
   _sharedEnergy_to_trackster[3],
   _sharedEnergy_trackster_to[3],
   _energyscore_to_trackster[3],
@@ -2599,7 +2649,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               ,page="Trackster to SimTracksters from CP Associated by Hits"
               ,section=name_collection)
               )
-  
+
   hgcalTrackstersPlotter.append(collection, [
               _hgcalFolders(collection + "/" + TSbyLCs)
               ], PlotFolder(
@@ -2609,7 +2659,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               ,page="Trackster to SimTracksters Associated by LCs"
               ,section=name_collection)
               )
-  
+
   hgcalTrackstersPlotter.append(collection, [
               _hgcalFolders(collection + "/" + TSbyLCs_CP)
               ], PlotFolder(
@@ -2619,7 +2669,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               ,page="Trackster to SimTracksters from CP Associated by LCs"
               ,section=name_collection)
               )
-  
+
   hgcalTrackstersPlotter.append(collection, [
               _hgcalFolders(collection + "/" + TSbyHits)
               ], PlotFolder(
@@ -2629,8 +2679,8 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               ,page="Trackster to SimTracksters Associated by Hits"
               ,section=name_collection)
               )
-  
-  
+
+
 
 #=================================================================================================
 _common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False, "xtitle": "Default", "ytitle": "Default"}

@@ -61,6 +61,7 @@
 #include "RecoMuon/MuonIdentification/interface/MuonIdTruthInfo.h"
 #include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 class MuonMesh;
 class MuonKinkFinder;
@@ -281,5 +282,8 @@ private:
 
   bool arbClean_;
   std::unique_ptr<MuonMesh> meshAlgo_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemgeomToken_;
+  const GEMGeometry* gemgeom;
+  double GEM_edgecut_;
 };
 #endif

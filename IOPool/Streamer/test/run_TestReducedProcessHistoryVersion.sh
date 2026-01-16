@@ -25,8 +25,8 @@ CatStreamerFiles merged.dat version1.dat version2.dat
 
 runSuccess ${SCRAM_TEST_PATH}/testReducedProcessHistory_cfg.py --input merged.dat --output merged.root
 
-edmProvDump merged.root | grep -q "PROD.*'${VERSION1}'" || die "Did not find ${VERSION1} from merged.root provenance" $?
-edmProvDump merged.root | grep -q "PROD.*'${VERSION2}'" || die "Did not find ${VERSION2} from merged.root provenance" $?
+edmProvDump merged.root | grep -q "version: '${VERSION1}'" || die "Did not find ${VERSION1} from merged.root provenance" $?
+edmProvDump merged.root | grep -q "version: '${VERSION2}'" || die "Did not find ${VERSION2} from merged.root provenance" $?
 
 
 # Check that changing the minor version leads to new lumi
@@ -38,7 +38,7 @@ runFailure ${SCRAM_TEST_PATH}/testReducedProcessHistory_cfg.py --input merged3_l
 
 runSuccess ${SCRAM_TEST_PATH}/testReducedProcessHistory_cfg.py --input merged3_lumi.dat --output merged3_lumi.root --expectNewLumi
 
-edmProvDump merged3_lumi.root | grep -q "PROD.*'${VERSION3}'" || die "Did not find ${VERSION3} from merged3_lumi.root provenance" $?
+edmProvDump merged3_lumi.root | grep -q "version: '${VERSION3}'" || die "Did not find ${VERSION3} from merged3_lumi.root provenance" $?
 
 
 # Check that changing the minor version leads to new run
@@ -50,6 +50,6 @@ runFailure ${SCRAM_TEST_PATH}/testReducedProcessHistory_cfg.py --input merged3_r
 
 runSuccess ${SCRAM_TEST_PATH}/testReducedProcessHistory_cfg.py --input merged3_run.dat --output merged3_run.root --expectNewRun
 
-edmProvDump merged3_run.root | grep -q "PROD.*'${VERSION3}'" || die "Did not find ${VERSION3} from merged3_run.root provenance" $?
+edmProvDump merged3_run.root | grep -q "version: '${VERSION3}'" || die "Did not find ${VERSION3} from merged3_run.root provenance" $?
 
 exit 0

@@ -386,11 +386,6 @@ namespace mkfit {
   // Track
   //==============================================================================
 
-  void Track::resizeHitsForInput() {
-    bzero(&hitsOnTrk_, sizeof(hitsOnTrk_));
-    hitsOnTrk_.resize(lastHitIdx_ + 1);
-  }
-
   void Track::sortHitsByLayer() {
     std::stable_sort(&hitsOnTrk_[0], &hitsOnTrk_[lastHitIdx_ + 1], [](const auto& h1, const auto& h2) {
       return h1.layer < h2.layer;

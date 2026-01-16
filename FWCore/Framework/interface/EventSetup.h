@@ -37,13 +37,12 @@
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 // forward declarations
 
 namespace edm {
 
-  template <class T, class R>
-  class ESGetToken;
   class PileUp;
   class ESParentContext;
 
@@ -76,13 +75,10 @@ namespace edm {
     /** returns the Record of type T.  If no such record available
           a eventsetup::NoRecordException<T> is thrown */
     template <typename T>
+      requires std::is_base_of_v<edm::eventsetup::EventSetupRecord, T>
     T get() const {
       using namespace eventsetup;
       using namespace eventsetup::heterocontainer;
-      //NOTE: this will catch the case where T does not inherit from EventSetupRecord
-      //  HOWEVER the error message under gcc 3.x is awful
-      static_assert(std::is_base_of_v<edm::eventsetup::EventSetupRecord, T>,
-                    "Trying to get a class that is not a Record from EventSetup");
 
       auto const temp = m_setup.findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey, T>::Type,
                                                  eventsetup::EventSetupRecordKey>());
@@ -97,13 +93,11 @@ namespace edm {
     /** returns the Record of type T.  If no such record available
        a null optional is returned */
     template <typename T>
+      requires std::is_base_of_v<edm::eventsetup::EventSetupRecord, T>
     std::optional<T> tryToGet() const {
       using namespace eventsetup;
       using namespace eventsetup::heterocontainer;
 
-      //NOTE: this will catch the case where T does not inherit from EventSetupRecord
-      static_assert(std::is_base_of_v<edm::eventsetup::EventSetupRecord, T>,
-                    "Trying to get a class that is not a Record from EventSetup");
       auto const temp = impl().findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey, T>::Type,
                                                 eventsetup::EventSetupRecordKey>());
       if (temp != nullptr) {

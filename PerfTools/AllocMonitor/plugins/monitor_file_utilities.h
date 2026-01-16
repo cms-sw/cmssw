@@ -39,5 +39,13 @@ namespace edm::moduleAlloc::monitor_file_utilities {
                        char moduleIdSymbol,
                        std::string const& iIDHeader,
                        std::string const& iLabelHeader);
+  void moduleIdToLabelAndType(std::ostream&,
+                              std::vector<std::string> const& iModules,
+                              std::vector<std::string> const& iTypes,
+                              char moduleIdSymbol,
+                              std::string const& iIDHeader,
+                              std::string const& iLabelHeader,
+                              std::string const& iTypeHeader);
+
 }  // namespace edm::moduleAlloc::monitor_file_utilities
 #endif

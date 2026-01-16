@@ -372,7 +372,7 @@ void Model::readSystemDescription() {
         if (ALIUtils::debug >= 3) {
           std::vector<std::vector<ALIstring> >::iterator itevs;
           for (itevs = OptODictionary().begin(); itevs != OptODictionary().end(); ++itevs) {
-            std::vector<ALIstring> ptemp = *itevs;
+            const std::vector<ALIstring>& ptemp = *itevs;
             ALIUtils::dumpVS(ptemp, " SYSTEM TREE DESCRIPTION: after ordering: OBJECT ", std::cout);
           }
         }

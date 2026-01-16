@@ -33,7 +33,6 @@ private:
   bool fixedDataSizePerHGCROC_;
   bool allTrigCellsInTrigSums_;
   std::vector<unsigned> coarsenTriggerCells_;
-  static constexpr int kHighDensityThickness_ = 0;
   static constexpr int kNSubDetectors_ = 3;
 
   std::vector<SelectionType> selectionType_;

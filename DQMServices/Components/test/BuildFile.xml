@@ -2,4 +2,5 @@
 <use name="protobuf"/>
 <use name="cppunit"/>
 <test name="runFastHadd" command="run_fastHadd_tests.sh"/>
+<test name="test_dqm-plot" command="test_dqm-plot.sh"/>
 <bin file="testSchemaEvolution.cpp"/>

@@ -4,24 +4,25 @@
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
-#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
+#include "SimG4Core/CustomPhysics/interface/CustomProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
+#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
+
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4CoulombScattering.hh"
 #include "G4ProcessManager.hh"
-
-#include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
-#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
+#include "G4AutoDelete.hh"
 
 using namespace CLHEP;
 
-G4ThreadLocal std::unique_ptr<G4ProcessHelper> CustomPhysicsListSS::myHelper;
+G4ThreadLocal CustomProcessHelper* CustomPhysicsListSS::myHelper = nullptr;
 
 CustomPhysicsListSS::CustomPhysicsListSS(const std::string& name, const edm::ParameterSet& p, bool apinew)
     : G4VPhysicsConstructor(name) {
@@ -37,13 +38,10 @@ CustomPhysicsListSS::CustomPhysicsListSS(const std::string& name, const edm::Par
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
   fParticleFactory = std::make_unique<CustomParticleFactory>();
-  myHelper.reset(nullptr);
 
   edm::LogVerbatim("SimG4CoreCustomPhysics") << "CustomPhysicsListSS: Path for custom particle definition file: \n"
                                              << particleDefFilePath;
 }
-
-CustomPhysicsListSS::~CustomPhysicsListSS() {}
 
 void CustomPhysicsListSS::ConstructParticle() {
   edm::LogVerbatim("SimG4CoreCustomPhysicsSS") << "===== CustomPhysicsList::ConstructParticle ";
@@ -76,10 +74,11 @@ void CustomPhysicsListSS::ConstructProcess() {
               << " CloudMass= " << cp->GetCloud()->GetPDGMass() / GeV
               << " GeV; SpectatorMass= " << cp->GetSpectator()->GetPDGMass() / GeV << " GeV.";
 
-          if (!myHelper.get()) {
-            myHelper = std::make_unique<G4ProcessHelper>(myConfig, fParticleFactory.get());
+          if (nullptr == myHelper) {
+            myHelper = new CustomProcessHelper(myConfig, fParticleFactory.get());
+            G4AutoDelete::Register(myHelper);
           }
-          pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper.get()));
+          pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper));
         }
         if (particle->GetParticleType() == "darkpho") {
           CMSDarkPairProductionProcess* darkGamma = new CMSDarkPairProductionProcess(dfactor);

@@ -1,7 +1,6 @@
 
 #include "FWCore/Framework/interface/maker/InputSourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>
@@ -28,7 +27,6 @@ namespace edm {
 
   {
     std::string modtype = conf.getParameter<std::string>("@module_type");
-    FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << std::endl;
     auto wm = InputSourcePluginFactory::get()->create(modtype, conf, desc);
 
     if (wm.get() == nullptr) {
@@ -40,9 +38,6 @@ namespace edm {
     }
 
     wm->registerProducts();
-
-    FDEBUG(1) << "InputSourceFactory: created input source " << modtype << std::endl;
-
     return wm;
   }
 

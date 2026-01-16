@@ -5,7 +5,7 @@
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include <vector>
 #include <filesystem>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 static constexpr auto s_tag = "[PoolOutputSource]";
 

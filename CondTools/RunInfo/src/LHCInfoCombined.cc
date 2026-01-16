@@ -30,6 +30,8 @@ void LHCInfoCombined::setFromLHCInfo(const LHCInfo& lhcInfo) {
   betaStarX = lhcInfo.betaStar();
   betaStarY = lhcInfo.betaStar();
   energy = lhcInfo.energy();
+  delivLumi = lhcInfo.delivLumi();
+  recLumi = lhcInfo.recLumi();
   fillNumber = lhcInfo.fillNumber();
 }
 void LHCInfoCombined::setFromPerLS(const LHCInfoPerLS& infoPerLS) {
@@ -40,6 +42,8 @@ void LHCInfoCombined::setFromPerLS(const LHCInfoPerLS& infoPerLS) {
 }
 void LHCInfoCombined::setFromPerFill(const LHCInfoPerFill& infoPerFill) {
   energy = infoPerFill.energy();
+  delivLumi = infoPerFill.delivLumi();
+  recLumi = infoPerFill.recLumi();
   fillNumber = infoPerFill.fillNumber();
 }
 
@@ -61,11 +65,14 @@ bool LHCInfoCombined::isCrossingAngleInvalid() {
 }
 
 void LHCInfoCombined::print(std::ostream& os) const {
-  os << "Crossing angle x (urad): " << crossingAngleX << std::endl
+  os << "Fill: " << fillNumber << std::endl
+     << "Crossing angle x (urad): " << crossingAngleX << std::endl
      << "Crossing angle y (urad): " << crossingAngleY << std::endl
      << "Beta star x (m): " << betaStarX << std::endl
      << "Beta star y (m): " << betaStarY << std::endl
-     << "Energy (GeV): " << energy << std::endl;
+     << "Energy (GeV): " << energy << std::endl
+     << "Delivered lumi (pb^-1): " << delivLumi << std::endl
+     << "Recorded lumi (pb^-1): " << recLumi << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& os, LHCInfoCombined beamInfo) {

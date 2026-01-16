@@ -25,7 +25,7 @@
 
 namespace {
   std::atomic<unsigned int> badFilesSkipped_{0};
-  auto operator"" _uz(unsigned long long i) -> std::size_t { return std::size_t{i}; }  // uz will be in C++23
+  auto operator""_uz(unsigned long long i) -> std::size_t { return std::size_t{i}; }  // uz will be in C++23
 }  // namespace
 
 namespace edm {
@@ -112,7 +112,9 @@ namespace edm {
       }
     }
     if (rootFile()) {
-      input_.productRegistryUpdate().updateFromInput(rootFile()->productRegistry()->productList());
+      std::vector<std::string> processOrder;
+      processingOrderMerge(input_.processHistoryRegistry(), processOrder);
+      input_.productRegistryUpdate().updateFromInput(rootFile()->productRegistry()->productList(), processOrder);
     } else {
       throw Exception(errors::FileOpenError) << "RootEmbeddedFileSequence::RootEmbeddedFileSequence(): "
                                              << " input file retries exhausted.\n";
@@ -137,23 +139,23 @@ namespace edm {
   RootEmbeddedFileSequence::RootFileSharedPtr RootEmbeddedFileSequence::makeRootFile(
       std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileNames()[0],
-                                      ProcessConfiguration(),
-                                      logicalFileName(),
-                                      filePtr,
-                                      input_.nStreams(),
-                                      treeCacheSize_,
-                                      input_.treeMaxVirtualSize(),
-                                      input_.runHelper(),
-                                      input_.productSelectorRules(),
+    return std::make_shared<RootFile>(RootFile::FileOptions{.fileName = fileNames()[0],
+                                                            .logicalFileName = logicalFileName(),
+                                                            .filePtr = filePtr,
+                                                            .bypassVersionCheck = input_.bypassVersionCheck(),
+                                                            .enforceGUIDInFileName = enforceGUIDInFileName_},
                                       InputType::SecondarySource,
+                                      RootFile::ProcessingOptions{},
+                                      RootFile::TTreeOptions{.treeCacheSize = treeCacheSize_,
+                                                             .treeMaxVirtualSize = input_.treeMaxVirtualSize(),
+                                                             .enablePrefetching = enablePrefetching_},
+                                      RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules()},
+                                      RootFile::CrossFileInfo{.runHelper = input_.runHelper(),
+                                                              .indexesIntoFiles = indexesIntoFiles(),
+                                                              .currentIndexIntoFile = currentIndexIntoFile},
+                                      input_.nStreams(),
                                       input_.processHistoryRegistryForUpdate(),
-                                      indexesIntoFiles(),
-                                      currentIndexIntoFile,
-                                      orderedProcessHistoryIDs_,
-                                      input_.bypassVersionCheck(),
-                                      enablePrefetching_,
-                                      enforceGUIDInFileName_);
+                                      orderedProcessHistoryIDs_);
   }
 
   void RootEmbeddedFileSequence::skipEntries(unsigned int offset) {

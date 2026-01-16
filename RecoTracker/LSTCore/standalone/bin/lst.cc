@@ -56,6 +56,7 @@ int main(int argc, char **argv) {
       "o,output", "Output file name", cxxopts::value<std::string>())(
       "N,nmatch", "N match for MTV-like matching", cxxopts::value<int>()->default_value("9"))(
       "p,ptCut", "Min pT cut In GeV", cxxopts::value<float>()->default_value("0.8"))(
+      "c,clustSizeCut", "Max cluster size cut", cxxopts::value<uint16_t>()->default_value("16"))(
       "n,nevents", "N events to loop over", cxxopts::value<int>()->default_value("-1"))(
       "x,event_index", "specific event index to process", cxxopts::value<int>()->default_value("-1"))(
       "g,pdg_id", "The simhit pdgId match option", cxxopts::value<int>()->default_value("0"))(
@@ -65,12 +66,20 @@ int main(int argc, char **argv) {
       "w,write_ntuple", "Write Ntuple", cxxopts::value<int>()->default_value("1"))(
       "s,streams", "Set number of streams", cxxopts::value<int>()->default_value("1"))(
       "d,debug", "Run debug job. i.e. overrides output option to 'debug.root' and 'recreate's the file.")(
-      "l,lower_level", "write lower level objects ntuple results")("G,gnn_ntuple", "write gnn input variable ntuple")(
       "j,nsplit_jobs", "Enable splitting jobs by N blocks (--job_index must be set)", cxxopts::value<int>())(
       "I,job_index",
       "job_index of split jobs (--nsplit_jobs must be set. index starts from 0. i.e. 0, 1, 2, 3, etc...)",
       cxxopts::value<int>())("3,tc_pls_triplets", "Allow triplet pLSs in TC collection")(
-      "2,no_pls_dupclean", "Disable pLS duplicate cleaning (both steps)")("h,help", "Print help");
+      "2,no_pls_dupclean", "Disable pLS duplicate cleaning (both steps)")("h,help", "Print help")(
+      "md", "Write MD branches in output ntuple.")("ls", "Write LS branches in output ntuple.")(
+      "t3", "Write T3 branches in output ntuple.")("t5", "Write T5 branches in output ntuple.")(
+      "pls", "Write pLS branches in output ntuple.")("pt3", "Write pT3 branches in output ntuple.")(
+      "pt5", "Write pT5 branches in output ntuple.")("occ", "Write occupancy branches in output ntuple.")(
+      "t5dnn", "Write T5 DNN branches in output ntuple.")("t3dnn", "Write T3 DNN branches in output ntuple.")(
+      "t4", "Write T4 branches in output ntuple.")("t4dnn", "Write T4 DNN branches in output ntuple.")(
+      "allobj", "Write all object branches in output ntuple.")(
+      "J,jet", "Accounts for specific jet branches in input root file for testing")(
+      "sim", "Write extra sim branches in output ntuple");
 
   auto result = options.parse(argc, argv);
 
@@ -91,6 +100,7 @@ int main(int argc, char **argv) {
 
   // A default value one
   TString TrackingNtupleDir = gSystem->Getenv("TRACKINGNTUPLEDIR");
+
   if (ana.input_raw_string.EqualTo("muonGun"))
     ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_10mu_pt_0p5_2.root", TrackingNtupleDir.Data());
   else if (ana.input_raw_string.EqualTo("muonGun_highPt"))
@@ -151,6 +161,10 @@ int main(int argc, char **argv) {
   //_______________________________________________________________________________
   // --ptCut
   ana.ptCut = result["ptCut"].as<float>();
+
+  //_______________________________________________________________________________
+  // --clustSizeCut
+  ana.clustSizeCut = result["clustSizeCut"].as<uint16_t>();
 
   //_______________________________________________________________________________
   // --nmatch
@@ -232,34 +246,68 @@ int main(int argc, char **argv) {
   // --optimization
 
   //_______________________________________________________________________________
-  // --lower_level
-  if (result.count("lower_level")) {
-    ana.do_lower_level = true;
-  } else {
-    ana.do_lower_level = false;
-  }
-
-  //_______________________________________________________________________________
-  // --gnn_ntuple
-  if (result.count("gnn_ntuple")) {
-    ana.gnn_ntuple = true;
-    // If one is not provided then throw error
-    if (not ana.do_write_ntuple) {
-      std::cout << options.help() << std::endl;
-      std::cout << "ERROR: option string --write_ntuple 1 and --gnn_ntuple must be set at the same time!" << std::endl;
-      exit(1);
-    }
-  } else {
-    ana.gnn_ntuple = false;
-  }
-
-  //_______________________________________________________________________________
   // --tc_pls_triplets
   ana.tc_pls_triplets = result["tc_pls_triplets"].as<bool>();
 
   //_______________________________________________________________________________
   // --no_pls_dupclean
   ana.no_pls_dupclean = result["no_pls_dupclean"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --md
+  ana.md_branches = result["md"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --ls
+  ana.ls_branches = result["ls"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t3
+  ana.t3_branches = result["t3"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t5
+  ana.t5_branches = result["t5"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --pls
+  ana.pls_branches = result["pls"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --pt3
+  ana.pt3_branches = result["pt3"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --pt5
+  ana.pt5_branches = result["pt5"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t4
+  ana.t4_branches = result["t4"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --occ
+  ana.occ_branches = result["occ"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t5dnn
+  ana.t5dnn_branches = result["t5dnn"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t3dnn
+  ana.t3dnn_branches = result["t3dnn"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t4dnn
+  ana.t4dnn_branches = result["t4dnn"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --jet
+  ana.jet_branches = result["jet"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --sim
+  ana.extra_sim_branches = result["sim"].as<bool>() || result["allobj"].as<bool>();
 
   // Printing out the option settings overview
   std::cout << "=========================================================" << std::endl;
@@ -269,6 +317,8 @@ int main(int argc, char **argv) {
   std::cout << " ana.input_file_list_tstring: " << ana.input_file_list_tstring << std::endl;
   std::cout << " ana.output_tfile: " << ana.output_tfile->GetName() << std::endl;
   std::cout << " ana.n_events: " << ana.n_events << std::endl;
+  std::cout << " ana.ptCut: " << ana.ptCut << std::endl;
+  std::cout << " ana.clustSizeCut: " << ana.clustSizeCut << std::endl;
   std::cout << " ana.nsplit_jobs: " << ana.nsplit_jobs << std::endl;
   std::cout << " ana.job_index: " << ana.job_index << std::endl;
   std::cout << " ana.specific_event_index: " << ana.specific_event_index << std::endl;
@@ -324,14 +374,17 @@ void run_lst() {
 
   if (ana.do_write_ntuple) {
     createOutputBranches();
-    if (ana.gnn_ntuple) {
-      createGnnNtupleBranches();
-    }
   }
 
   std::vector<LSTInputHostCollection> out_lstInputHC;
   std::vector<int> evt_num;
   std::vector<TString> file_name;
+
+  // Backwards compatibility
+  const auto hasClustSize = trk.contains("ph2_clustSize");
+  if (ana.verbose >= 1) {
+    std::cout << "hasClustSize = " << hasClustSize << std::endl;
+  }
 
   // Looping input file
   full_timer.Reset();
@@ -343,26 +396,31 @@ void run_lst() {
     if (not goodEvent())
       continue;
 
-    auto lstInputHC = prepareInput(trk.see_px(),
-                                   trk.see_py(),
-                                   trk.see_pz(),
-                                   trk.see_dxy(),
-                                   trk.see_dz(),
-                                   trk.see_ptErr(),
-                                   trk.see_etaErr(),
-                                   trk.see_stateTrajGlbX(),
-                                   trk.see_stateTrajGlbY(),
-                                   trk.see_stateTrajGlbZ(),
-                                   trk.see_stateTrajGlbPx(),
-                                   trk.see_stateTrajGlbPy(),
-                                   trk.see_stateTrajGlbPz(),
-                                   trk.see_q(),
-                                   trk.see_hitIdx(),
-                                   trk.see_algo(),
-                                   trk.ph2_detId(),
-                                   trk.ph2_x(),
-                                   trk.ph2_y(),
-                                   trk.ph2_z(),
+    // Backwards compatibility
+    const auto trk_ph2_clustSize =
+        hasClustSize ? trk.getVUS("ph2_clustSize") : std::vector<uint16_t>(trk.getVF("ph2_x").size());
+
+    auto lstInputHC = prepareInput(trk.getVF("see_px"),
+                                   trk.getVF("see_py"),
+                                   trk.getVF("see_pz"),
+                                   trk.getVF("see_dxy"),
+                                   trk.getVF("see_dz"),
+                                   trk.getVF("see_ptErr"),
+                                   trk.getVF("see_etaErr"),
+                                   trk.getVF("see_stateTrajGlbX"),
+                                   trk.getVF("see_stateTrajGlbY"),
+                                   trk.getVF("see_stateTrajGlbZ"),
+                                   trk.getVF("see_stateTrajGlbPx"),
+                                   trk.getVF("see_stateTrajGlbPy"),
+                                   trk.getVF("see_stateTrajGlbPz"),
+                                   trk.getVI("see_q"),
+                                   trk.getVVI("see_hitIdx"),
+                                   trk.getVU("see_algo"),
+                                   trk.getVU("ph2_detId"),
+                                   trk_ph2_clustSize,
+                                   trk.getVF("ph2_x"),
+                                   trk.getVF("ph2_y"),
+                                   trk.getVF("ph2_z"),
                                    ana.ptCut,
                                    queues[0]);
 
@@ -378,7 +436,7 @@ void run_lst() {
   std::vector<LSTEvent *> events;
   std::vector<ALPAKA_ACCELERATOR_NAMESPACE::Queue *> event_queues;
   for (int s = 0; s < ana.streams; s++) {
-    LSTEvent *event = new LSTEvent(ana.verbose >= 2, ana.ptCut, queues[s], &deviceESData);
+    LSTEvent *event = new LSTEvent(ana.verbose >= 2, ana.ptCut, ana.clustSizeCut, queues[s], &deviceESData);
     events.push_back(event);
     event_queues.push_back(&queues[s]);
   }
@@ -397,6 +455,7 @@ void run_lst() {
     float timing_T3;
     float timing_T5;
     float timing_pLS;
+    float timing_T4;
     float timing_pT5;
     float timing_pT3;
     float timing_TC;
@@ -421,7 +480,7 @@ void run_lst() {
       timing_T5 = runQuintuplet(events.at(omp_get_thread_num()));
 
       timing_pLS = runPixelLineSegment(events.at(omp_get_thread_num()), ana.no_pls_dupclean);
-
+      timing_T4 = runQuadruplet(events.at(omp_get_thread_num()));
       timing_pT5 = runPixelQuintuplet(events.at(omp_get_thread_num()));
       timing_pT3 = runpT3(events.at(omp_get_thread_num()));
       timing_TC = runTrackCandidate(events.at(omp_get_thread_num()), ana.no_pls_dupclean, ana.tc_pls_triplets);
@@ -467,6 +526,7 @@ void run_lst() {
                                     timing_T3,
                                     timing_T5,
                                     timing_pLS,
+                                    timing_T4,
                                     timing_pT5,
                                     timing_pT3,
                                     timing_TC,

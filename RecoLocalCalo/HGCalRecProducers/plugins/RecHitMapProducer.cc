@@ -13,7 +13,8 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 class RecHitMapProducer : public edm::global::EDProducer<> {
 public:
@@ -23,12 +24,9 @@ public:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  const edm::EDGetTokenT<HGCRecHitCollection> hits_ee_token_;
-  const edm::EDGetTokenT<HGCRecHitCollection> hits_fh_token_;
-  const edm::EDGetTokenT<HGCRecHitCollection> hits_bh_token_;
-  const edm::EDGetTokenT<reco::PFRecHitCollection> hits_eb_token_;
-  const edm::EDGetTokenT<reco::PFRecHitCollection> hits_hb_token_;
-  const edm::EDGetTokenT<reco::PFRecHitCollection> hits_ho_token_;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcal_hits_token_;
+  std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> barrel_hits_token_;
+
   bool hgcalOnly_;
 };
 
@@ -36,27 +34,31 @@ DEFINE_FWK_MODULE(RecHitMapProducer);
 
 using DetIdRecHitMap = std::unordered_map<DetId, const unsigned int>;
 
-RecHitMapProducer::RecHitMapProducer(const edm::ParameterSet& ps)
-    : hits_ee_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("EEInput"))),
-      hits_fh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("FHInput"))),
-      hits_bh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("BHInput"))),
-      hits_eb_token_(consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("EBInput"))),
-      hits_hb_token_(consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("HBInput"))),
-      hits_ho_token_(consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("HOInput"))),
-      hgcalOnly_(ps.getParameter<bool>("hgcalOnly")) {
+RecHitMapProducer::RecHitMapProducer(const edm::ParameterSet& ps) : hgcalOnly_(ps.getParameter<bool>("hgcalOnly")) {
+  std::vector<edm::InputTag> tags = ps.getParameter<std::vector<edm::InputTag>>("hits");
+  for (auto& tag : tags) {
+    if (tag.label().find("HGCalRecHit") != std::string::npos) {
+      hgcal_hits_token_.push_back(consumes<HGCRecHitCollection>(tag));
+    } else {
+      barrel_hits_token_.push_back(consumes<reco::PFRecHitCollection>(tag));
+    }
+  }
+
+  produces<edm::RefProdVector<HGCRecHitCollection>>("RefProdVectorHGCRecHitCollection");
   produces<DetIdRecHitMap>("hgcalRecHitMap");
-  if (!hgcalOnly_)
+
+  if (!hgcalOnly_) {
+    produces<edm::RefProdVector<reco::PFRecHitCollection>>("RefProdVectorPFRecHitCollection");
     produces<DetIdRecHitMap>("barrelRecHitMap");
+  }
 }
 
 void RecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("EEInput", {"HGCalRecHit", "HGCEERecHits"});
-  desc.add<edm::InputTag>("FHInput", {"HGCalRecHit", "HGCHEFRecHits"});
-  desc.add<edm::InputTag>("BHInput", {"HGCalRecHit", "HGCHEBRecHits"});
-  desc.add<edm::InputTag>("EBInput", {"particleFlowRecHitECAL", ""});
-  desc.add<edm::InputTag>("HBInput", {"particleFlowRecHitHBHE", ""});
-  desc.add<edm::InputTag>("HOInput", {"particleFlowRecHitHO", ""});
+  desc.add<std::vector<edm::InputTag>>("hits",
+                                       {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
   desc.add<bool>("hgcalOnly", true);
   descriptions.add("recHitMapProducer", desc);
 }
@@ -65,39 +67,61 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
   auto hitMapHGCal = std::make_unique<DetIdRecHitMap>();
 
   // Retrieve collections
-  const auto& ee_hits = evt.getHandle(hits_ee_token_);
-  const auto& fh_hits = evt.getHandle(hits_fh_token_);
-  const auto& bh_hits = evt.getHandle(hits_bh_token_);
+  assert(hgcal_hits_token_.size() == 3);
+  const auto& ee_hits = evt.getHandle(hgcal_hits_token_[0]);
+  const auto& fh_hits = evt.getHandle(hgcal_hits_token_[1]);
+  const auto& bh_hits = evt.getHandle(hgcal_hits_token_[2]);
 
   // Check validity of all handles
   if (!ee_hits.isValid() || !fh_hits.isValid() || !bh_hits.isValid()) {
-    edm::LogWarning("HGCalRecHitMapProducer") << "One or more hit collections are unavailable. Returning an empty map.";
+    edm::LogWarning("HGCalRecHitMapProducer") << "One or more HGCal hit collections are unavailable. Returning an "
+                                                 "empty map and an empty RefProdVectorHGCRecHitCollection";
+    evt.put(std::make_unique<edm::RefProdVector<HGCRecHitCollection>>(), "RefProdVectorHGCRecHitCollection");
     evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
+  } else {
+    // Fix order by storing a edm::RefProdVector<HGCRecHitCollection>
+    auto mcHGCRecHit = std::make_unique<edm::RefProdVector<HGCRecHitCollection>>();
+    mcHGCRecHit->push_back(edm::RefProd<HGCRecHitCollection>(ee_hits));
+    mcHGCRecHit->push_back(edm::RefProd<HGCRecHitCollection>(fh_hits));
+    mcHGCRecHit->push_back(edm::RefProd<HGCRecHitCollection>(bh_hits));
+
+    edm::MultiSpan<HGCRecHit> rechitSpan(*mcHGCRecHit);
+    for (unsigned int i = 0; i < rechitSpan.size(); ++i) {
+      const auto recHitDetId = rechitSpan[i].detid();
+      hitMapHGCal->emplace(recHitDetId, i);
+    }
+
+    evt.put(std::move(mcHGCRecHit), "RefProdVectorHGCRecHitCollection");
+    evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
+  }
+
+  if (hgcalOnly_) {
     return;
   }
 
-  MultiVectorManager<HGCRecHit> rechitManager;
-  rechitManager.addVector(*ee_hits);
-  rechitManager.addVector(*fh_hits);
-  rechitManager.addVector(*bh_hits);
+  auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
 
-  for (unsigned int i = 0; i < rechitManager.size(); ++i) {
-    const auto recHitDetId = rechitManager[i].detid();
-    hitMapHGCal->emplace(recHitDetId, i);
-  }
+  assert(barrel_hits_token_.size() == 2);
+  const auto& ecal_hits = evt.getHandle(barrel_hits_token_[0]);
+  const auto& hbhe_hits = evt.getHandle(barrel_hits_token_[1]);
 
-  evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
+  if (!ecal_hits.isValid() || !hbhe_hits.isValid()) {
+    edm::LogWarning("HGCalRecHitMapProducer") << "One or more barrel hit collections are unavailable. Returning an "
+                                                 "empty map and an empty RefProdVectorPFRecHitCollection";
+    evt.put(std::make_unique<edm::RefProdVector<reco::PFRecHitCollection>>(), "RefProdVectorPFRecHitCollection");
+    evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
+  } else {
+    auto mcPFRecHit = std::make_unique<edm::RefProdVector<reco::PFRecHitCollection>>();
+    mcPFRecHit->push_back(edm::RefProd<reco::PFRecHitCollection>(ecal_hits));
+    mcPFRecHit->push_back(edm::RefProd<reco::PFRecHitCollection>(hbhe_hits));
 
-  if (!hgcalOnly_) {
-    auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
-    MultiVectorManager<reco::PFRecHit> barrelRechitManager;
-    barrelRechitManager.addVector(evt.get(hits_eb_token_));
-    barrelRechitManager.addVector(evt.get(hits_hb_token_));
-    barrelRechitManager.addVector(evt.get(hits_ho_token_));
-    for (unsigned int i = 0; i < barrelRechitManager.size(); ++i) {
-      const auto recHitDetId = barrelRechitManager[i].detId();
+    edm::MultiSpan<reco::PFRecHit> barrelRechitSpan(*mcPFRecHit);
+    for (unsigned int i = 0; i < barrelRechitSpan.size(); ++i) {
+      const auto recHitDetId = barrelRechitSpan[i].detId();
       hitMapBarrel->emplace(recHitDetId, i);
     }
+
+    evt.put(std::move(mcPFRecHit), "RefProdVectorPFRecHitCollection");
     evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
   }
 }

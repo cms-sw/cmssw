@@ -40,11 +40,11 @@ private:
    * Internal private methods, distinguishing between the propagation of neutrals
    * and propagation of cahrged tracks.
    */
-  virtual KinematicState propagateToTheTransversePCACharged(const KinematicState& state,
-                                                            const GlobalPoint& referencePoint) const;
+  KinematicState propagateToTheTransversePCACharged(const KinematicState& state,
+                                                    const GlobalPoint& referencePoint) const;
 
-  virtual KinematicState propagateToTheTransversePCANeutral(const KinematicState& state,
-                                                            const GlobalPoint& referencePoint) const;
+  KinematicState propagateToTheTransversePCANeutral(const KinematicState& state,
+                                                    const GlobalPoint& referencePoint) const;
 
   typedef Point3DBase<double, GlobalTag> GlobalPointDouble;
   typedef Vector3DBase<double, GlobalTag> GlobalVectorDouble;

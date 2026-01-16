@@ -8,6 +8,7 @@
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
@@ -21,106 +22,108 @@ using namespace edm;
 using namespace std;
 
 EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet &ps)
-    : pAgc(esConsumes()), pEcsToken(esConsumes()), pttMapToken(esConsumes()) {
-  // ----------------------
-  HepMCLabel = ps.getParameter<std::string>("moduleLabelMC");
-  hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
-  EBrechitCollection_ = ps.getParameter<edm::InputTag>("EBrechitCollection");
-  EErechitCollection_ = ps.getParameter<edm::InputTag>("EErechitCollection");
-  ESrechitCollection_ = ps.getParameter<edm::InputTag>("ESrechitCollection");
-  EBuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
-  EEuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
-  // switch to allow disabling endcaps for phase 2
-  enableEndcaps_ = ps.getUntrackedParameter<bool>("enableEndcaps", true);
+    : enableEndcaps_{ps.getUntrackedParameter<bool>("enableEndcaps", true)},
+      HepMCLabel_Token_{consumes<HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"))},
+      EBrechitCollection_Token_{consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBrechitCollection"))},
+      EErechitCollection_Token_{enableEndcaps_
+                                    ? consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"))
+                                    : edm::EDGetTokenT<EERecHitCollection>{}},
+      ESrechitCollection_Token_{enableEndcaps_
+                                    ? consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"))
+                                    : edm::EDGetTokenT<ESRecHitCollection>{}},
+      EBuncalibrechitCollection_Token_{
+          consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibrechitCollection"))},
+      EEuncalibrechitCollection_Token_{enableEndcaps_ ? consumes<EEUncalibratedRecHitCollection>(
+                                                            ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"))
+                                                      : edm::EDGetTokenT<EEUncalibratedRecHitCollection>{}},
+      EBHits_Token_{consumes<CrossingFrame<PCaloHit>>(
+          edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")))},
+      EEHits_Token_{enableEndcaps_ ? consumes<CrossingFrame<PCaloHit>>(edm::InputTag(
+                                         std::string("mix"),
+                                         ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")))
+                                   : edm::EDGetTokenT<CrossingFrame<PCaloHit>>{}},
+      ESHits_Token_{enableEndcaps_ ? consumes<CrossingFrame<PCaloHit>>(edm::InputTag(
+                                         std::string("mix"),
+                                         ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")))
+                                   : edm::EDGetTokenT<CrossingFrame<PCaloHit>>{}},
+      pAgc_(esConsumes()),
+      pEcsToken_(esConsumes()),
+      pttMapToken_(esConsumes()),
+      meGunEnergy_(nullptr),
+      meGunEta_(nullptr),
+      meGunPhi_(nullptr),
+      meEBRecHitSimHitRatio_(nullptr),
+      meEERecHitSimHitRatio_(nullptr),
+      meESRecHitSimHitRatio_(nullptr),
+      meEBRecHitSimHitRatio1011_(nullptr),
+      meEERecHitSimHitRatio1011_(nullptr),
+      meEBRecHitSimHitRatio12_(nullptr),
+      meEERecHitSimHitRatio12_(nullptr),
+      meEBRecHitSimHitRatio13_(nullptr),
+      meEERecHitSimHitRatio13_(nullptr),
+      meEBRecHitSimHitRatioGt35_(nullptr),
+      meEERecHitSimHitRatioGt35_(nullptr),
+      meEBUnRecHitSimHitRatio_(nullptr),
+      meEEUnRecHitSimHitRatio_(nullptr),
+      meEBUnRecHitSimHitRatioGt35_(nullptr),
+      meEEUnRecHitSimHitRatioGt35_(nullptr),
+      meEBe5x5_(nullptr),
+      meEBe5x5OverSimHits_(nullptr),
+      meEBe5x5OverGun_(nullptr),
+      meEEe5x5_(nullptr),
+      meEEe5x5OverSimHits_(nullptr),
+      meEEe5x5OverGun_(nullptr),
 
-  // fix for consumes
-  HepMCLabel_Token_ = consumes<HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"));
-  EBrechitCollection_Token_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBrechitCollection"));
-  EBuncalibrechitCollection_Token_ =
-      consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibrechitCollection"));
+      meEBRecHitLog10Energy_(nullptr),
+      meEERecHitLog10Energy_(nullptr),
+      meESRecHitLog10Energy_(nullptr),
+      meEBRecHitLog10EnergyContr_(nullptr),
+      meEERecHitLog10EnergyContr_(nullptr),
+      meESRecHitLog10EnergyContr_(nullptr),
+      meEBRecHitLog10Energy5x5Contr_(nullptr),
+      meEERecHitLog10Energy5x5Contr_(nullptr),
 
-  EBHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
-      edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
-  if (enableEndcaps_) {
-    EErechitCollection_Token_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"));
-    ESrechitCollection_Token_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
-    EEuncalibrechitCollection_Token_ =
-        consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
-    EEHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
-        edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
-    ESHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
-        edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
-  }
+      meEBRecHitsOccupancyFlag5_6_(nullptr),
+      meEBRecHitsOccupancyFlag8_9_(nullptr),
+      meEERecHitsOccupancyPlusFlag5_6_(nullptr),
+      meEERecHitsOccupancyMinusFlag5_6_(nullptr),
+      meEERecHitsOccupancyPlusFlag8_9_(nullptr),
+      meEERecHitsOccupancyMinusFlag8_9_(nullptr),
 
-  // ----------------------
-  // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
+      meEBRecHitFlags_(nullptr),
+      meEBRecHitSimHitvsSimHitFlag5_6_(nullptr),
+      meEBRecHitSimHitFlag6_(nullptr),
+      meEBRecHitSimHitFlag7_(nullptr),
+      meEB5x5RecHitSimHitvsSimHitFlag8_(nullptr),
 
-  if (!outputFile_.empty()) {
-    LogInfo("OutputInfo") << " Ecal RecHits Task histograms will be saved to '" << outputFile_.c_str() << "'";
-  } else {
-    LogInfo("OutputInfo") << " Ecal RecHits Task histograms will NOT be saved";
-  }
-
-  // ----------------------
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // ----------------------
-  meGunEnergy_ = nullptr;
-  meGunEta_ = nullptr;
-  meGunPhi_ = nullptr;
-  meEBRecHitSimHitRatio_ = nullptr;
-  meEERecHitSimHitRatio_ = nullptr;
-  meESRecHitSimHitRatio_ = nullptr;
-  meEBRecHitSimHitRatio1011_ = nullptr;
-  meEERecHitSimHitRatio1011_ = nullptr;
-  meEBRecHitSimHitRatio12_ = nullptr;
-  meEERecHitSimHitRatio12_ = nullptr;
-  meEBRecHitSimHitRatio13_ = nullptr;
-  meEERecHitSimHitRatio13_ = nullptr;
-  meEBRecHitSimHitRatioGt35_ = nullptr;
-  meEERecHitSimHitRatioGt35_ = nullptr;
-  meEBUnRecHitSimHitRatio_ = nullptr;
-  meEEUnRecHitSimHitRatio_ = nullptr;
-  meEBUnRecHitSimHitRatioGt35_ = nullptr;
-  meEEUnRecHitSimHitRatioGt35_ = nullptr;
-  meEBe5x5_ = nullptr;
-  meEBe5x5OverSimHits_ = nullptr;
-  meEBe5x5OverGun_ = nullptr;
-  meEEe5x5_ = nullptr;
-  meEEe5x5OverSimHits_ = nullptr;
-  meEEe5x5OverGun_ = nullptr;
-
-  meEBRecHitLog10Energy_ = nullptr;
-  meEERecHitLog10Energy_ = nullptr;
-  meESRecHitLog10Energy_ = nullptr;
-  meEBRecHitLog10EnergyContr_ = nullptr;
-  meEERecHitLog10EnergyContr_ = nullptr;
-  meESRecHitLog10EnergyContr_ = nullptr;
-  meEBRecHitLog10Energy5x5Contr_ = nullptr;
-  meEERecHitLog10Energy5x5Contr_ = nullptr;
-
-  meEBRecHitsOccupancyFlag5_6_ = nullptr;
-  meEBRecHitsOccupancyFlag8_9_ = nullptr;
-  meEERecHitsOccupancyPlusFlag5_6_ = nullptr;
-  meEERecHitsOccupancyMinusFlag5_6_ = nullptr;
-  meEERecHitsOccupancyPlusFlag8_9_ = nullptr;
-  meEERecHitsOccupancyMinusFlag8_9_ = nullptr;
-
-  meEBRecHitFlags_ = nullptr;
-  meEBRecHitSimHitvsSimHitFlag5_6_ = nullptr;
-  meEBRecHitSimHitFlag6_ = nullptr;
-  meEBRecHitSimHitFlag7_ = nullptr;
-  meEB5x5RecHitSimHitvsSimHitFlag8_ = nullptr;
-
-  meEERecHitFlags_ = nullptr;
-  meEERecHitSimHitvsSimHitFlag5_6_ = nullptr;
-  meEERecHitSimHitFlag6_ = nullptr;
-  meEERecHitSimHitFlag7_ = nullptr;
-}
+      meEERecHitFlags_(nullptr),
+      meEERecHitSimHitvsSimHitFlag5_6_(nullptr),
+      meEERecHitSimHitFlag6_(nullptr),
+      meEERecHitSimHitFlag7_(nullptr) {}
 
 EcalRecHitsValidation::~EcalRecHitsValidation() {}
+
+void EcalRecHitsValidation::fillDescriptions(edm::ConfigurationDescriptions &confDesc) {
+  edm::ParameterSetDescription desc;
+
+  desc.addUntracked<bool>("verbose", false);
+  desc.add<std::string>("moduleLabelMC", "generatorSmeared");
+  desc.add<std::string>("hitsProducer", "g4SimHits");
+  desc.add<edm::InputTag>("EBrechitCollection", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EBuncalibrechitCollection",
+                          edm::InputTag("ecalMultiFitUncalibRecHit", "EcalUncalibRecHitsEB"));
+  desc.ifValue(edm::ParameterDescription<bool>("enableEndcaps", true, false),
+               true >> (edm::ParameterDescription<edm::InputTag>(
+                            "EErechitCollection", edm::InputTag("ecalRecHit", "EcalRecHitsEE"), true) and
+                        edm::ParameterDescription<edm::InputTag>(
+                            "ESrechitCollection", edm::InputTag("ecalPreshowerRecHit", "EcalRecHitsES"), true) and
+                        edm::ParameterDescription<edm::InputTag>(
+                            "EEuncalibrechitCollection",
+                            edm::InputTag("ecalMultiFitUncalibRecHit", "EcalUncalibRecHitsEE"),
+                            true)) or
+                   false >> edm::EmptyGroupDescription());
+  confDesc.add("ecalRecHitsValidation", desc);
+}
 
 void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
   std::string histo;
@@ -295,7 +298,7 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
   LogInfo("EcalRecHitsTask, EventInfo: ") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
   // ADC -> GeV Scale
-  const EcalADCToGeVConstant *agc = &c.getData(pAgc);
+  const EcalADCToGeVConstant *agc = &c.getData(pAgc_);
   const double barrelADCtoGeV_ = agc->getEBValue();
   const double endcapADCtoGeV_ = agc->getEEValue();
 
@@ -470,12 +473,11 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
           }
           uint16_t sc = 0;
 
-          c.getData(pEcsToken);
-          auto pEcs = c.getHandle(pEcsToken);
+          auto pEcs = c.getHandle(pEcsToken_);
           const EcalChannelStatus *ecs = nullptr;
           if (pEcs.isValid())
-            ecs = &c.getData(pEcsToken);
-          ;
+            ecs = &c.getData(pEcsToken_);
+
           if (ecs != nullptr) {
             EcalChannelStatusMap::const_iterator csmi = ecs->find(EBid.rawId());
             EcalChannelStatusCode csc = 0;
@@ -491,10 +493,10 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
             meEBRecHitSimHitRatio12_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()]);
           }
 
-          auto pttMap = c.getHandle(pttMapToken);
+          auto pttMap = c.getHandle(pttMapToken_);
           const EcalTrigTowerConstituentsMap *ttMap = nullptr;
           if (pttMap.isValid())
-            ttMap = &c.getData(pttMapToken);
+            ttMap = &c.getData(pttMapToken_);
           double ttSimEnergy = 0;
           if (ttMap != nullptr) {
             EcalTrigTowerDetId ttDetId = EBid.tower();
@@ -541,13 +543,13 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     findBarrelMatrix(5, 5, bx, by, bz, ebRecMap);
     double e5x5rec = 0.;
     double e5x5sim = 0.;
-    for (unsigned int i = 0; i < crystalMatrix.size(); i++) {
-      e5x5rec += ebRecMap[crystalMatrix[i]];
-      e5x5sim += ebSimMap[crystalMatrix[i]];
-      if (ebRecMap[crystalMatrix[i]] > 0) {
-        int log10i25 = int((log10(ebRecMap[crystalMatrix[i]]) + 5.) * 10.);
+    for (unsigned int i = 0; i < crystalMatrix_.size(); i++) {
+      e5x5rec += ebRecMap[crystalMatrix_[i]];
+      e5x5sim += ebSimMap[crystalMatrix_[i]];
+      if (ebRecMap[crystalMatrix_[i]] > 0) {
+        int log10i25 = int((log10(ebRecMap[crystalMatrix_[i]]) + 5.) * 10.);
         if (log10i25 >= 0 && log10i25 < ebcSize)
-          ebcontr25[log10i25] += ebRecMap[crystalMatrix[i]];
+          ebcontr25[log10i25] += ebRecMap[crystalMatrix_[i]];
       }
     }
 
@@ -643,10 +645,10 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
             meEERecHitSimHitRatioGt35_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()]);
           }
 
-          auto pEcs = c.getHandle(pEcsToken);
+          auto pEcs = c.getHandle(pEcsToken_);
           const EcalChannelStatus *ecs = nullptr;
           if (pEcs.isValid())
-            ecs = &c.getData(pEcsToken);
+            ecs = &c.getData(pEcsToken_);
           if (ecs != nullptr) {
             EcalChannelStatusMap::const_iterator csmi = ecs->find(EEid.rawId());
             EcalChannelStatusCode csc = 0;
@@ -705,13 +707,13 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     findEndcapMatrix(5, 5, bx, by, bz, eeRecMap);
     double e5x5rec = 0.;
     double e5x5sim = 0.;
-    for (unsigned int i = 0; i < crystalMatrix.size(); i++) {
-      e5x5rec += eeRecMap[crystalMatrix[i]];
-      e5x5sim += eeSimMap[crystalMatrix[i]];
-      if (eeRecMap[crystalMatrix[i]] > 0) {
-        int log10i25 = int((log10(eeRecMap[crystalMatrix[i]]) + 5.) * 10.);
+    for (unsigned int i = 0; i < crystalMatrix_.size(); i++) {
+      e5x5rec += eeRecMap[crystalMatrix_[i]];
+      e5x5sim += eeSimMap[crystalMatrix_[i]];
+      if (eeRecMap[crystalMatrix_[i]] > 0) {
+        int log10i25 = int((log10(eeRecMap[crystalMatrix_[i]]) + 5.) * 10.);
         if (log10i25 >= 0 && log10i25 < eecSize)
-          eecontr25[log10i25] += eeRecMap[crystalMatrix[i]];
+          eecontr25[log10i25] += eeRecMap[crystalMatrix_[i]];
       }
     }
 
@@ -811,8 +813,8 @@ void EcalRecHitsValidation::findBarrelMatrix(
   int goBackInEta = nCellInEta / 2;
   int goBackInPhi = nCellInPhi / 2;
   int matrixSize = nCellInEta * nCellInPhi;
-  crystalMatrix.clear();
-  crystalMatrix.resize(matrixSize);
+  crystalMatrix_.clear();
+  crystalMatrix_.resize(matrixSize);
 
   int startEta = CentralZ * CentralEta - goBackInEta;
   int startPhi = CentralPhi - goBackInPhi;
@@ -831,7 +833,7 @@ void EcalRecHitsValidation::findBarrelMatrix(
       } else {
         index = EBDetId(ieta, iphi).rawId();
       }
-      crystalMatrix[i++] = index;
+      crystalMatrix_[i++] = index;
     }
   }
 }
@@ -840,7 +842,7 @@ void EcalRecHitsValidation::findEndcapMatrix(
     int nCellInX, int nCellInY, int CentralX, int CentralY, int CentralZ, MapType &themap) {
   int goBackInX = nCellInX / 2;
   int goBackInY = nCellInY / 2;
-  crystalMatrix.clear();
+  crystalMatrix_.clear();
 
   int startX = CentralX - goBackInX;
   int startY = CentralY - goBackInY;
@@ -854,7 +856,7 @@ void EcalRecHitsValidation::findEndcapMatrix(
       } else {
         continue;
       }
-      crystalMatrix.push_back(index);
+      crystalMatrix_.push_back(index);
     }
   }
 }

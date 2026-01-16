@@ -63,7 +63,9 @@ ALCARECOCalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCAREC
 
 # refit and BS can be dropped if done together with RECO.
 # track filter can be moved in acalreco if no otehr users
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOCalibrationTracks +
+                                        MeasurementTrackerEvent +
                                         offlineBeamSpot +
                                         ALCARECOCalibrationTracksRefit )
 

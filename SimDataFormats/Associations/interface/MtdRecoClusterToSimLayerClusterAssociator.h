@@ -7,6 +7,7 @@
 
 // user include files
 #include "SimDataFormats/Associations/interface/MtdRecoClusterToSimLayerClusterAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 // forward declarations
 
@@ -15,7 +16,8 @@ namespace reco {
   class MtdRecoClusterToSimLayerClusterAssociator {
   public:
     MtdRecoClusterToSimLayerClusterAssociator(std::unique_ptr<reco::MtdRecoClusterToSimLayerClusterAssociatorBaseImpl>);
-    MtdRecoClusterToSimLayerClusterAssociator() = default;
+    MtdRecoClusterToSimLayerClusterAssociator() = delete;
+    explicit MtdRecoClusterToSimLayerClusterAssociator(edm::Uninitialized) noexcept {};
     MtdRecoClusterToSimLayerClusterAssociator(MtdRecoClusterToSimLayerClusterAssociator &&) = default;
     MtdRecoClusterToSimLayerClusterAssociator &operator=(MtdRecoClusterToSimLayerClusterAssociator &&) = default;
     MtdRecoClusterToSimLayerClusterAssociator(const MtdRecoClusterToSimLayerClusterAssociator &) =

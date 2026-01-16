@@ -261,7 +261,7 @@ namespace edm {
       ev.put(std::move(genEventInfo3));
 
       std::unique_ptr<HepMC3Product> bare_product(new HepMC3Product());
-      bare_product->addHepMCData(event3.release());
+      bare_product->addHepMCData(*event3);
       ev.put(std::move(bare_product), "unsmeared");
     }
 

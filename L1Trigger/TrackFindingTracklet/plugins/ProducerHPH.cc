@@ -17,36 +17,38 @@
 
 #include <memory>
 
-using namespace std;
-using namespace edm;
-
 namespace hph {
 
-  class ProducerHPH : public ESProducer {
+  class ProducerHPH : public edm::ESProducer {
   public:
-    ProducerHPH(const ParameterSet& iConfig);
-    ~ProducerHPH() override {}
-    unique_ptr<Setup> produce(const SetupRcd& Rcd);
+    ProducerHPH(const edm::ParameterSet& iConfig);
+    ~ProducerHPH() override = default;
+    std::unique_ptr<Setup> produce(const SetupRcd& Rcd);
 
   private:
-    const ParameterSet iConfig_;
-    ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
-    ESGetToken<trackerTFP::DataFormats, trackerTFP::DataFormatsRcd> esGetTokenDataFormats_;
-    ESGetToken<trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd> esGetTokenLayerEncoding_;
+    Setup::Config iConfig_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<trackerTFP::DataFormats, trackerTFP::DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd> esGetTokenLayerEncoding_;
   };
 
-  ProducerHPH::ProducerHPH(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerHPH::ProducerHPH(const edm::ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetTokenSetup_ = cc.consumes();
     esGetTokenDataFormats_ = cc.consumes();
     esGetTokenLayerEncoding_ = cc.consumes();
+    const edm::ParameterSet& oldKFPSet = iConfig.getParameter<edm::ParameterSet>("oldKFPSet");
+    iConfig_.hphDebug_ = iConfig.getParameter<bool>("hphDebug");
+    iConfig_.useNewKF_ = iConfig.getParameter<bool>("useNewKF");
+    iConfig_.chosenRofZ_ = oldKFPSet.getParameter<double>("ChosenRofZ");
+    iConfig_.etaRegions_ = oldKFPSet.getParameter<std::vector<double>>("EtaRegions");
   }
 
-  unique_ptr<Setup> ProducerHPH::produce(const SetupRcd& Rcd) {
+  std::unique_ptr<Setup> ProducerHPH::produce(const SetupRcd& Rcd) {
     const tt::Setup& setupTT = Rcd.get(esGetTokenSetup_);
     const trackerTFP::DataFormats& dataFormats = Rcd.get(esGetTokenDataFormats_);
     const trackerTFP::LayerEncoding& layerEncoding = Rcd.get(esGetTokenLayerEncoding_);
-    return make_unique<Setup>(iConfig_, setupTT, dataFormats, layerEncoding);
+    return std::make_unique<Setup>(iConfig_, setupTT, dataFormats, layerEncoding);
   }
 
 }  // namespace hph

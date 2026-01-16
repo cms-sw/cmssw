@@ -80,8 +80,9 @@ void HGCalWaferInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   for (auto const& id : ids) {
     if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
       HGCSiliconDetId detId(id);
+      int waferU = (detId.zside() > 0) ? -detId.waferU() : detId.waferU();
       HGCalParameters::waferInfo info =
-          geom->topology().dddConstants().waferInfo(detId.layer(), detId.waferU(), detId.waferV());
+          geom->topology().dddConstants().waferInfo(detId.layer(), waferU, detId.waferV());
       edm::LogVerbatim("HGCalGeom") << "ID: " << detId << " Type " << info.type << ":" << types[info.type] << " Part "
                                     << info.part << ":" << parts[info.part] << " Orient " << info.orient
                                     << " placement " << geom->topology().dddConstants().placementIndex(detId)

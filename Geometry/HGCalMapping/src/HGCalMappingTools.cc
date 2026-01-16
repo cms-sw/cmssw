@@ -50,14 +50,17 @@ namespace hgcal {
     }
 
     //
-    uint32_t getSiPMDetId(bool zside, int moduleplane, int modulev, int celltype, int celliu, int celliv) {
+    uint32_t getSiPMDetId(bool zside, int moduleplane, int modulev, int celltype, int celliu, int celliv, bool isHD) {
       int layer = moduleplane - 25;
       int type = 0;  // depends on SiPM size to be updated with new geometry
 
       int ring = (zside ? celliu : (-1) * celliu);
-      int iphi = modulev * 8 + celliv + 1;
+      int iphi_casette_offset = isHD ? 36 : 24;
+      int iphi = modulev * iphi_casette_offset + celliv + 1;
 
-      return HGCScintillatorDetId(type, layer, ring, iphi, false, celltype).rawId();
+      int granularity = isHD ? 1 : 0;
+
+      return HGCScintillatorDetId(type, layer, ring, iphi, false, celltype, granularity).rawId();
     }
 
   }  // namespace mappingtools

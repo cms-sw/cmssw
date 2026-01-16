@@ -20,7 +20,7 @@ namespace edm {
     std::vector<std::string> returnValue = {"MessageLogger",
                                             "InitRootHandlers",
                                             "UnixSignalService",
-                                            "AdaptorConfig",
+                                            "TFileAdaptor",
                                             "SiteLocalConfigService",
                                             "StatisticsSenderService",
                                             "ResourceInformationService",

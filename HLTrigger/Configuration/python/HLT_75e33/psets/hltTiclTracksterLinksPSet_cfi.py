@@ -18,11 +18,11 @@ hltTiclTracksterLinksPSet = cms.PSet(
         100
       ),
       upper_distance_projective_sqr = cms.vdouble(
-        30,
+        4,
         60
       ),
       lower_distance_projective_sqr = cms.vdouble(
-        30,
+        4,
         60
       ),
       min_distance_z = cms.vdouble(

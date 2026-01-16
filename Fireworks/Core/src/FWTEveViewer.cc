@@ -18,8 +18,10 @@
 // user include files
 
 #include "TMath.h"
-#include "TGLIncludes.h"
 #include "TGLFBO.h"
+
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #include "Fireworks/Core/interface/FWTEveViewer.h"
 #include "Fireworks/Core/interface/FWTGLViewer.h"

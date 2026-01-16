@@ -1,3 +1,5 @@
+#include <limits>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,6 +38,7 @@ private:
 
   edm::EDGetTokenT<reco::RecoToSimCollection> trackRecoToSimAssociationToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> trackSimToRecoAssociationToken_;
+  const std::string weightMethod_;
 };
 
 VertexAssociatorByPositionAndTracksProducer::VertexAssociatorByPositionAndTracksProducer(const edm::ParameterSet &config)
@@ -49,7 +52,8 @@ VertexAssociatorByPositionAndTracksProducer::VertexAssociatorByPositionAndTracks
       trackRecoToSimAssociationToken_(
           consumes<reco::RecoToSimCollection>(config.getParameter<edm::InputTag>("trackAssociation"))),
       trackSimToRecoAssociationToken_(
-          consumes<reco::SimToRecoCollection>(config.getParameter<edm::InputTag>("trackAssociation"))) {
+          consumes<reco::SimToRecoCollection>(config.getParameter<edm::InputTag>("trackAssociation"))),
+      weightMethod_(config.getParameter<std::string>("weightMethod")) {
   produces<reco::VertexToTrackingVertexAssociator>();
 }
 
@@ -60,12 +64,13 @@ void VertexAssociatorByPositionAndTracksProducer::fillDescriptions(edm::Configur
 
   // Matching conditions
   desc.add<double>("absZ", 0.1);
-  desc.add<double>("sigmaZ", 3.0);
+  desc.add<double>("sigmaZ", std::numeric_limits<double>::max());
   desc.add<double>("maxRecoZ", 1000.0);
   desc.add<double>("absT", -1.0);
   desc.add<double>("sigmaT", -1.0);
   desc.add<double>("maxRecoT", -1.0);
   desc.add<double>("sharedTrackFraction", -1.0);
+  desc.add<std::string>("weightMethod", "none");
 
   // Track-TrackingParticle association
   desc.add<edm::InputTag>("trackAssociation", edm::InputTag("trackingParticleRecoTrackAsssociation"));
@@ -98,7 +103,8 @@ void VertexAssociatorByPositionAndTracksProducer::produce(edm::StreamID,
                                                                  maxRecoZ_,
                                                                  sharedTrackFraction_,
                                                                  recotosimCollectionH.product(),
-                                                                 simtorecoCollectionH.product());
+                                                                 simtorecoCollectionH.product(),
+                                                                 weightMethod_);
   } else {
     impl = std::make_unique<VertexAssociatorByPositionAndTracks>(&(iEvent.productGetter()),
                                                                  absZ_,
@@ -109,7 +115,8 @@ void VertexAssociatorByPositionAndTracksProducer::produce(edm::StreamID,
                                                                  maxRecoT_,
                                                                  sharedTrackFraction_,
                                                                  recotosimCollectionH.product(),
-                                                                 simtorecoCollectionH.product());
+                                                                 simtorecoCollectionH.product(),
+                                                                 weightMethod_);
   }
 
   auto toPut = std::make_unique<reco::VertexToTrackingVertexAssociator>(std::move(impl));

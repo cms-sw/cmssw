@@ -148,12 +148,13 @@ namespace {
                 << " The histogram created from the x, P(x) values will be written into the root file "
                 << histoFileName;
 
-            TFile* outfile = new TFile(histoFileName.c_str(), "RECREATE");
-            hprob->Write();
-            outfile->Write();
-            outfile->Close();
-            outfile->Delete();
-
+            {
+              TFile outfile(histoFileName.c_str(), "RECREATE");
+              hprob->SetDirectory(&outfile);
+              outfile.Write();  //this forces the histogram to be written
+              hprob->SetDirectory(nullptr);
+              outfile.Close();
+            }
             pileupconfig = std::make_shared<edm::PileUpConfig>(sourceName, averageNumber, hprob, playback);
             edm::LogInfo("MixingModule") << " Created source " << sourceName << " with averageNumber " << averageNumber;
           }

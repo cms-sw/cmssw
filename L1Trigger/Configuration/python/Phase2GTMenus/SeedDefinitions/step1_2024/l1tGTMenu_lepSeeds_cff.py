@@ -69,17 +69,17 @@ algorithms.append(cms.PSet(expression = cms.string("pTripleTkMuon5_3_3")))
 
 SingleEGEle51 = l1tGTSingleObjectCond.clone(
     l1tGTtkPhoton.clone(),
-    regionsMinPt = get_object_thrs(51, "CL2Photons","Iso"),
+    regionsMinPt = get_object_thrs(51, "L1EG","default"),
 )
 pSingleEGEle51 = cms.Path(SingleEGEle51) 
 algorithms.append(cms.PSet(expression = cms.string("pSingleEGEle51")))
 
 DoubleEGEle3724 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTtkIsoPhoton.clone(
-        regionsMinPt = get_object_thrs(37, "CL2Photons","Iso"),
+    collection1 = l1tGTtkPhoton.clone(
+        regionsMinPt = get_object_thrs(37, "L1EG","default"),
     ),
-    collection2 = l1tGTtkIsoPhoton.clone(
-        regionsMinPt = get_object_thrs(24, "CL2Photons","Iso"), 
+    collection2 = l1tGTtkPhoton.clone(
+        regionsMinPt = get_object_thrs(24, "L1EG","default"), 
     ),
     minDR = cms.double(0.1),
 )
@@ -90,8 +90,8 @@ IsoTkEleEGEle2212 = l1tGTDoubleObjectCond.clone(
     collection1 = l1tGTtkIsoElectron.clone(
         regionsMinPt = get_object_thrs(22, "CL2Electrons","Iso"),
     ),
-    collection2 = l1tGTtkIsoPhoton.clone(
-        regionsMinPt = get_object_thrs(12, "CL2Photons","Iso"),
+    collection2 = l1tGTtkPhoton.clone(
+        regionsMinPt = get_object_thrs(12, "L1EG","default"),
     ),
     minDR = cms.double(0.1),
 )

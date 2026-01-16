@@ -180,9 +180,6 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
       continue;
 
     int aieta = std::abs(hcalTTDetId.ieta());
-    // Do not let ieta 29 in the map
-    if (aieta >= lastHERing)
-      continue;
 
     // Filter weight represented in fixed point 8 bit
     int fixedPointWeight = 255;

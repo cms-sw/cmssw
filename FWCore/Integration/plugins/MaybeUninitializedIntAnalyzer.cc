@@ -2,6 +2,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -20,6 +22,13 @@ namespace edmtest {
         throw cms::Exception("Inconsistent Data", "MaybeUninitializedIntAnalyzer::analyze")
             << "Found value " << product.value << " while expecting value " << value_;
       }
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int32_t>("value");
+      desc.add<edm::InputTag>("source");
+      descriptions.addDefault(desc);
     }
 
   private:

@@ -216,6 +216,7 @@ void testRefInROOT::testGoodChain() {
   TChain eventChain(edm::poolNames::eventTreeName().c_str());
   eventChain.Add("good.root");
   eventChain.Add("good_delta5.root");
+  eventChain.LoadTree(0);
 
   edm::Wrapper<edmtest::OtherThingCollection>* pOthers = nullptr;
   TBranch* othersBranch = nullptr;

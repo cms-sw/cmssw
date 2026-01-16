@@ -24,6 +24,8 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <cmath>
+#include <array>
 
 namespace edmtest {
 

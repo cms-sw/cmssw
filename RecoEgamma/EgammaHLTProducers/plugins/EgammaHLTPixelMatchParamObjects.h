@@ -94,7 +94,8 @@ namespace egPM {
     TF1 func_;
 
   public:
-    TF1Wrap(const std::string& funcExpr, const std::vector<double>& params) : func_("func", funcExpr.c_str()) {
+    TF1Wrap(const std::string& funcExpr, const std::vector<double>& params)
+        : func_("func", funcExpr.c_str(), 0., 1., TF1::EAddToList::kNo) {
       for (size_t paraNr = 0; paraNr < params.size(); paraNr++) {
         func_.SetParameter(paraNr, params[paraNr]);
       }
@@ -114,7 +115,8 @@ namespace egPM {
     TF2 func_;
 
   public:
-    TF2Wrap(const std::string& funcExpr, const std::vector<double>& params) : func_("func", funcExpr.c_str()) {
+    TF2Wrap(const std::string& funcExpr, const std::vector<double>& params)
+        : func_("func", funcExpr.c_str(), 0., 1., 0., 1., "NL") {
       for (size_t paraNr = 0; paraNr < params.size(); paraNr++) {
         func_.SetParameter(paraNr, params[paraNr]);
       }
@@ -134,7 +136,8 @@ namespace egPM {
     TF3 func_;
 
   public:
-    TF3Wrap(const std::string& funcExpr, const std::vector<double>& params) : func_("func", funcExpr.c_str()) {
+    TF3Wrap(const std::string& funcExpr, const std::vector<double>& params)
+        : func_("func", funcExpr.c_str(), 0., 1., 0., 1., 0., 1., "NL") {
       for (size_t paraNr = 0; paraNr < params.size(); paraNr++) {
         func_.SetParameter(paraNr, params[paraNr]);
       }

@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalCellHitSum_cfg.py geometry=D110 layers=1 type=mu
+#   cmsRun testHGCalCellHitSum_cfg.py geometry=D121 layers=1 type=mu
 #
 #   Options for geometry D105, D110, D114
 #               layers '1', '1,2', any combination from 1..47           
@@ -15,10 +15,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D105, D110, D114")
+                  "geometry of operations: D105, D114, D121")
 
 options.register('layers',
                  "1",

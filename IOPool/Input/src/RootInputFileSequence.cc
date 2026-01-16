@@ -9,8 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/StatisticsSenderService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TSystem.h"
@@ -98,9 +98,9 @@ namespace edm {
   //  when it is asked to do so.
   //
 
-  bool RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal) {
+  bool RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal, bool readAllProducts) {
     assert(rootFile());
-    return rootFile()->readEvent(eventPrincipal);
+    return rootFile()->readEvent(eventPrincipal, readAllProducts);
   }
 
   bool RootInputFileSequence::containedInCurrentFile(RunNumber_t run,
@@ -279,11 +279,11 @@ namespace edm {
             throw ex;
           } else {
             exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
-            additionalMessage.push_back(fmt::format(
+            additionalMessage.push_back(std::format(
                 "Input file {} could not be opened, and fallback was attempted.\nAdditional information:", *it));
             char c = 'a';
             for (auto const& ai : e.additionalInfo()) {
-              additionalMessage.push_back(fmt::format("  [{}] {}", c, ai));
+              additionalMessage.push_back(std::format("  [{}] {}", c, ai));
               ++c;
             }
           }

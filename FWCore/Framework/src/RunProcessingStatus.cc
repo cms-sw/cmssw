@@ -17,16 +17,12 @@ namespace edm {
 
   void RunProcessingStatus::resetBeginResources() {
     endIOVWaitingTasks_.doneWaiting(std::exception_ptr{});
-    for (auto& iter : eventSetupImpls_) {
-      iter.reset();
-    }
+    eventSetupImpl_.reset();
   }
 
   void RunProcessingStatus::resetEndResources() {
     endIOVWaitingTasksEndRun_.doneWaiting(std::exception_ptr{});
-    for (auto& iter : eventSetupImplsEndRun_) {
-      iter.reset();
-    }
+    eventSetupImplEndRun_.reset();
   }
 
   void RunProcessingStatus::setEndTime() {

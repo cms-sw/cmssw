@@ -8,6 +8,7 @@
 #include <cstring>
 #include <string>
 #include <unordered_map>
+#include <format>
 
 class ModuleTypeResolverAlpaka : public edm::ModuleTypeResolverBase {
 public:
@@ -42,7 +43,7 @@ public:
     if (modulePSet.existsAs<edm::ParameterSet>("alpaka", false)) {
       auto const& backend =
           modulePSet.getUntrackedParameter<edm::ParameterSet>("alpaka").getUntrackedParameter<std::string>("backend");
-      prefix = fmt::format("alpaka_{}::", backend);
+      prefix = std::format("alpaka_{}::", backend);
 
       LogDebug("AlpakaModuleTypeResolver")
           .format("AlpakaModuleTypeResolver: module {} backend prefix {}",

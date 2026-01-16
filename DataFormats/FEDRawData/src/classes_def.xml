@@ -8,6 +8,9 @@
   <version ClassVersion="11" checksum="1398850430"/>
   <version ClassVersion="10" checksum="2136542618"/>
  </class>
+ <class name="RawDataBuffer" ClassVersion="2">
+  <version ClassVersion="2" checksum="2774327963"/>
+ </class>
  <class name="FEDHeader" ClassVersion="11">
   <version ClassVersion="11" checksum="3644215394"/>
   <version ClassVersion="10" checksum="611523769"/>
@@ -24,4 +27,6 @@
  </class>
  <class name="edm::Wrapper<FEDRawDataCollection>" splitLevel="0"/>
  <class name="edm::RefProd<FEDRawDataCollection>"/>
+ <class name="edm::Wrapper<RawDataBuffer>" splitLevel="0"/>
+ <class name="edm::RefProd<RawDataBuffer>"/>
 </lcgdict>

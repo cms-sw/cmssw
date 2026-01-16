@@ -6,7 +6,6 @@
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 
 //#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 
@@ -33,6 +32,7 @@ namespace hgcalrechit {
                       SOA_EIGEN_COLUMN(Vector8f, TOA_FTDC),   // TOA fine TDC correction
                       SOA_EIGEN_COLUMN(Vector3f, TOA_TW),     // TOA timewalk correction
                       SOA_COLUMN(float, MIPS_scale),          // MIPS scale
+                      SOA_COLUMN(float, EM_scale),            // electromagnetic scale
                       SOA_COLUMN(unsigned char, valid)        // only 1 bit used: if false = mask dead channel
   )
   using HGCalCalibParamSoA = HGCalCalibParamSoALayout<>;

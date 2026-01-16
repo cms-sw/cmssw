@@ -30,6 +30,8 @@ from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(ecalClustersNoPFBoxTask, ecalClustersNoPFBoxTask.copyAndExclude([multi5x5ClusteringTask, multi5x5PreshowerClusteringTask]))
 
 from RecoEcal.EgammaClusterProducers.islandClusteringSequence_cff import *
 

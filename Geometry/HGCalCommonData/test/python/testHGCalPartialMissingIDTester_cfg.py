@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D98, D99, D110")
+                  "geometry of operations: D98, D99, D121")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -31,22 +31,26 @@ print(options)
 
 ####################################################################
 # Use the options
+geomName = "Run4" + options.geometry
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 if (options.type == "DD4hep"):
     from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-    process = cms.Process('SimRun4',Phase2C17I13M9,dd4hep)
-    geomFile = "Configuration.Geometry.Geometry" + options.type +"ExtendedRun4" + options.geometry + "Reco_cff"
+    process = cms.Process('SimRun4',ERA,dd4hep)
+    geomFile = "Configuration.Geometry.Geometry" + options.type + geomName + "Reco_cff"
 else:
-    process = cms.Process('SimRun4',Phase2C17I13M9)
-    geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
+    process = cms.Process('SimRun4',ERA)
+    geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 
-globalTag = "auto:phase2_realistic_T25"
 inFile = "partialMiss" + options.geometry + ".txt"
 
-print("Geometry file: ", geomFile)
-print("Global Tag:    ", globalTag)
-print("Input file:    ", inFile)
+print("Geometry Name:   ", geomName)
+print("Geometry file:   ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+print("Input file:      ", inFile)
 
 process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -57,7 +61,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.SimIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 process.source = cms.Source("EmptySource")
 

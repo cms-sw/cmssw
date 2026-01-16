@@ -31,18 +31,21 @@ namespace hgcal {
       /**
            * @short gets the attribute corresponding the column col in a row
           */
-      HGCalEntityAttr getAttr(std::string col, HGCalEntityRow &row) {
+      const HGCalEntityAttr &getAttr(const std::string &col, const HGCalEntityRow &row) const {
         auto it = columnIndex_.find(col);
         if (it == columnIndex_.end()) {
           throw cms::Exception("ValueError") << "Request for unknown column " << col;
         }
-        return row[it->second];
+        return row.at(it->second);  //[it->second];
       }
-      float getFloatAttr(std::string col, HGCalEntityRow &row) { return (float)atof(getAttr(col, row).c_str()); }
-      float getIntAttr(std::string col, HGCalEntityRow &row) { return atoi(getAttr(col, row).c_str()); }
-      const std::vector<HGCalEntityRow> &getEntries() { return entities_; }
-      HGCalEntityRow getColumnNames() { return colNames_; }
-      bool hasColumn(std::string_view col) {
+
+      float getFloatAttr(std::string col, const HGCalEntityRow &row) const {
+        return (float)atof(getAttr(col, row).c_str());
+      }
+      float getIntAttr(std::string col, const HGCalEntityRow &row) const { return atoi(getAttr(col, row).c_str()); }
+      const std::vector<HGCalEntityRow> &getEntries() const { return entities_; }
+      const HGCalEntityRow &getColumnNames() const { return colNames_; }
+      bool hasColumn(std::string_view col) const {
         return std::find(colNames_.begin(), colNames_.end(), col) != colNames_.end();
       }
 
@@ -64,7 +67,8 @@ namespace hgcal {
     uint32_t getElectronicsId(
         bool zside, uint16_t fedid, uint16_t captureblock, uint16_t econdidx, int cellchip, int cellhalf, int cellseq);
     uint32_t getSiDetId(bool zside, int moduleplane, int moduleu, int modulev, int celltype, int celliu, int celliv);
-    uint32_t getSiPMDetId(bool zside, int moduleplane, int modulev, int celltype, int celliu, int celliv);
+    uint32_t getSiPMDetId(
+        bool zside, int moduleplane, int modulev, int celltype, int celliu, int celliv, bool isHD = false);
 
     /**
      * @short matches the module and cell info by detId and returns their indices (-1 is used in case index was not found)

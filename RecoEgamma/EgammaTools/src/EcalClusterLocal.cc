@@ -35,7 +35,7 @@ namespace egammaTools {
     double depth = X0 * (T0 + log(bclus.energy()));
 
     //find max energy crystal
-    std::vector<std::pair<DetId, float> > crystals_vector = bclus.hitsAndFractions();
+    const std::vector<std::pair<DetId, float> > &crystals_vector = bclus.hitsAndFractions();
     float drmin = 999.;
     EBDetId crystalseed;
     //printf("starting loop over crystals, etot = %5f:\n",bclus.energy());
@@ -115,7 +115,7 @@ namespace egammaTools {
     double depth = X0 * (T0 + log(bclus.energy()));
 
     //find max energy crystal
-    std::vector<std::pair<DetId, float> > crystals_vector = bclus.hitsAndFractions();
+    const std::vector<std::pair<DetId, float> > &crystals_vector = bclus.hitsAndFractions();
     float drmin = 999.;
     EEDetId crystalseed;
     //printf("starting loop over crystals, etot = %5f:\n",bclus.energy());

@@ -8,8 +8,7 @@
 // Addition of reco information
 //-------------------------------------------------------------------------------
 
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "L1AnalysisRecoClusterDataFormat.h"
 

@@ -56,7 +56,7 @@ if "goodlumi" in config["validation"]:
         goodLumiSecs = cms.untracked.VLuminosityBlockRange(LumiList.LumiList(filename = config["validation"]["goodlumi"]).getCMSSWString().split(','))
         
     else:
-        print("Does not exist: {}. Continue without good lumi section file.")
+        print("Does not exist: {}. Continue without good lumi section file.".format(config["validation"]["goodlumi"]))
         goodLumiSecs = cms.untracked.VLuminosityBlockRange()
 
 else:
@@ -161,13 +161,27 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
                                   thresh = cms.untracked.double(0.25)
                                   )
 
+# Select events based on the pixel cluster multiplicity
+process.filterSeq = cms.Sequence()
+
+maxclusters = config["validation"].get("maxclusters", None)
+if(maxclusters is not None):
+    import  HLTrigger.special.hltPixelActivityFilter_cfi
+    process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
+        inputTag = 'ALCARECOTkAlMinBias',
+        minClusters = 1,
+        maxClusters = maxclusters
+    )
+    process.filterSeq += process.multFilter
+
 ###################################################################
 # Beamspot compatibility check
 ###################################################################
 from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
 process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
-    bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
-    bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    bsFromFile = config["validation"].get("bsFromFile","offlineBeamSpot::RECO"),  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    dbFromEvent = True,
     warningThr = config["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
     errorThr = config["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
 )
@@ -182,9 +196,9 @@ else:
      process.filterOutLowPt.runControlNumber = [runboundary]
 
 if isMC:
-     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.noscraping + process.filterOutLowPt)
+     process.goodvertexSkim = cms.Sequence(process.noscraping + process.filterOutLowPt)
 else:
-     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
+     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
 
 
 ####################################################################
@@ -254,6 +268,10 @@ process.TFileService = cms.Service("TFileService",
 ####################################################################
 # Path
 ####################################################################
-process.p = cms.Path(process.goodvertexSkim*process.seqTrackselRefit*process.PVValidation)
+process.p = cms.Path(process.goodvertexSkim*
+                     process.filterSeq*
+                     process.seqTrackselRefit*
+                     process.BeamSpotChecker*
+                     process.PVValidation)
 
 print("Done")

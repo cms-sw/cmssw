@@ -15,6 +15,7 @@
 #include "boost/algorithm/string.hpp"
 
 #include <array>
+#include <cmath>
 #include <memory>
 
 #include <vector>
@@ -448,7 +449,7 @@ public:
     const std::vector<unsigned int>& scaleWeightIDs = weightChoice->scaleWeightIDs;
     const std::vector<unsigned int>& pdfWeightIDs = weightChoice->pdfWeightIDs;
 
-    auto weights = genProd.weights();
+    const auto& weights = genProd.weights();
     double w0 = (weights.size() > 1) ? weights.at(1) : 1.;
     double originalXWGTUP = (weights.size() > 1) ? weights.at(1) : 1.;
 

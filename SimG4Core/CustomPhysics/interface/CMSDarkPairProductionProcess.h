@@ -25,7 +25,7 @@ public:  // with description
                                const G4String& processName = "conv",
                                G4ProcessType type = fElectromagnetic);
 
-  ~CMSDarkPairProductionProcess() override;
+  ~CMSDarkPairProductionProcess() override = default;
 
   // true for Gamma only.
   G4bool IsApplicable(const G4ParticleDefinition&) override;

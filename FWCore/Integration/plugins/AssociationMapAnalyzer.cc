@@ -33,6 +33,8 @@ namespace edmtest {
     explicit AssociationMapAnalyzer(edm::ParameterSet const&);
     void analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
     edm::EDGetTokenT<std::vector<int>> inputToken1_;
     edm::EDGetTokenT<std::vector<int>> inputToken2_;
     edm::EDGetTokenT<edm::View<int>> inputToken1V_;
@@ -61,6 +63,21 @@ namespace edmtest {
     associationMapToken6_ = consumes<AssocOneToManyWithQuality>(pset.getParameter<edm::InputTag>("associationMapTag6"));
     associationMapToken7_ = consumes<AssocOneToOneView>(pset.getParameter<edm::InputTag>("associationMapTag7"));
     associationMapToken8_ = consumes<AssocOneToOneView>(pset.getParameter<edm::InputTag>("associationMapTag8"));
+  }
+
+  void AssociationMapAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("inputTag1");
+    desc.add<edm::InputTag>("inputTag2");
+    desc.add<edm::InputTag>("associationMapTag1");
+    desc.add<edm::InputTag>("associationMapTag2");
+    desc.add<edm::InputTag>("associationMapTag3");
+    desc.add<edm::InputTag>("associationMapTag4");
+    desc.add<edm::InputTag>("associationMapTag5");
+    desc.add<edm::InputTag>("associationMapTag6");
+    desc.add<edm::InputTag>("associationMapTag7");
+    desc.add<edm::InputTag>("associationMapTag8");
+    descriptions.addDefault(desc);
   }
 
   void AssociationMapAnalyzer::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const {

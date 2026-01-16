@@ -1,6 +1,21 @@
 <bin file="alpaka/ZVertexSoA_test.cc alpaka/ZVertexSoA_test.dev.cc" name="ZVertexSoA_test">
   <use name="alpaka"/>
   <use name="eigen"/>
+  <use name="DataFormats/VertexSoA"/>
+  <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
 <flags ALPAKA_BACKENDS="1"/>
 </bin>
+
+<library name="testVertexSoA" file="TestWriteHostVertexSoA.cc,TestReadHostVertexSoA.cc,">
+  <flags EDM_PLUGIN="1"/>
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="DataFormats/VertexSoA"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
+<test name="testWriteAndReadVertexSoA" command="testWriteAndReadVertexSoA.sh" />
+

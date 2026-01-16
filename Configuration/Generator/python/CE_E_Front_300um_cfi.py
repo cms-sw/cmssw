@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDProducer("CloseByParticleGunProducer",
     PGunParameters = cms.PSet(PartID = cms.vint32(22),
+        ControlledByREta = cms.bool(False),
         ControlledByEta = cms.bool(False),
         VarMin = cms.double(25.),
         VarMax = cms.double(200.),

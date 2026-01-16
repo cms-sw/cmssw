@@ -11,7 +11,7 @@
 #include <filesystem>
 #include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

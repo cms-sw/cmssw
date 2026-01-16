@@ -103,8 +103,7 @@ public:
   /// insert a range of digis for a  given DetUnit
   void put(Range range, const IndexType& index) {
     std::vector<DigiType>& digis = data_[index];
-    digis.reserve(digis.size() + (range.second - range.first));
-    std::copy(range.first, range.second, std::back_inserter(digis));
+    digis.insert(digis.end(), range.first, range.second);
   }
 
 #ifndef CMS_NOCXX11
@@ -112,7 +111,6 @@ public:
   template <typename IRange>
   void move(IRange range, const IndexType& index) {
     std::vector<DigiType>& digis = data_[index];
-    digis.reserve(digis.size() + (range.second - range.first));
     digis.insert(digis.end(), std::make_move_iterator(range.first), std::make_move_iterator(range.second));
   }
 #endif

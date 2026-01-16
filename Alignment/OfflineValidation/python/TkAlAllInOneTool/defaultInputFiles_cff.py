@@ -20,7 +20,7 @@ filesDefaultMC_MinBiasPUPhase2 = cms.untracked.vstring(
     '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/ALCARECO/TkAlMinBias-125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/27b7ab93-1d2b-4f4a-a98e-68386c314b5e.root',
 )
 
-filesDefaultMC_DoubleMuonPUPhase_string = '/store/mc/Phase2Fall22DRMiniAOD/DYJetsToMuMu_M-50_TuneCP5_14TeV-madgraphMLM-pythia8/ALCARECO/TkAlZMuMu-PU200ALCA_TkAlPU200_125X_mcRun4_realistic_v5-v1/60000/9382696c-70fd-4b37-8a0f-24bd02aeda5f.root'
+filesDefaultMC_DoubleMuonPUPhase_string = '/store/mc/Phase2Spring24DIGIRECOMiniAOD/DYJetsToMuMu_M-50_TuneCP5_14TeV-madgraphMLM-pythia8/ALCARECO/TkAlZMuMu-noPUALCA_TkAlnoPU_140X_mcRun4_realistic_v6_ext1-v2/110000/1022ba4a-65f7-4409-9069-f35247a7a8e3.root'
 
 filesDefaultMC_MinBiasPUPhase2RECO = cms.untracked.vstring(
     '/store/relval/CMSSW_14_1_0_pre6/RelValMinBias_14TeV/GEN-SIM-RECO/PU_141X_mcRun4_realistic_v1_STD_2026D110_PU-v3/2560000/c22f1cbd-50e3-458e-aba9-b0a327e4c971.root'

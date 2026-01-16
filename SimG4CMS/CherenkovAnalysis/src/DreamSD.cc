@@ -7,7 +7,6 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"

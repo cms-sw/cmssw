@@ -7,3 +7,5 @@ from Validation.EcalHits.ecalEndcapSimHitsValidation_cfi import *
 from Validation.EcalHits.ecalPreshowerSimHitsValidation_cfi import *
 ecalSimHitsValidationSequence = cms.Sequence(ecalSimHitsValidation*ecalBarrelSimHitsValidation*ecalEndcapSimHitsValidation*ecalPreshowerSimHitsValidation)
 
+ecalSimHitsValidationPhase2 = ecalSimHitsValidation.clone(EEHitsCollection='', ESHitsCollection='')
+ecalSimHitsValidationSequencePhase2 = cms.Sequence(ecalSimHitsValidationPhase2*ecalBarrelSimHitsValidation)

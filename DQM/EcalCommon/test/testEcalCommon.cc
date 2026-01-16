@@ -1,9 +1,10 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include <format>
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 // Function to run the catch2 tests
 //___________________________________________________________________________________________
@@ -32,8 +33,8 @@ process.add_(cms.Service('JobReportService'))
 process.add_(cms.Service('DQMStore'))
     )_";
 
-  // Format the raw string literal using fmt::format
-  return fmt::format(rawString, cfiName, analyzerName, analyzerName);
+  // Format the raw string literal using std::format
+  return std::format(rawString, cfiName, analyzerName, analyzerName);
 }
 
 //___________________________________________________________________________________________

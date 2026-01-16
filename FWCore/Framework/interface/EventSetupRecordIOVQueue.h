@@ -1,7 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_EventSetupRecordIOVQueue_h
 #define FWCore_Framework_EventSetupRecordIOVQueue_h
-
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     EventSetupRecordIOVQueue
@@ -49,7 +48,7 @@ namespace edm {
 
       void endIOVAsync(WaitingTaskHolder endTask);
 
-      void setNewIntervalForAnySubProcess();
+      void setNewInterval();
 
       void checkForNewIOVs(WaitingTaskHolder const& taskToStartAfterIOVInit,
                            WaitingTaskList& endIOVWaitingTasks,
@@ -68,8 +67,7 @@ namespace edm {
       // out the set of possible concurrent IOVs.
       std::vector<std::atomic<bool>> isAvailable_;
 
-      // Unless there are SubProcesses this vector will have only 1 element
-      std::vector<edm::propagate_const<EventSetupRecordProvider*>> recordProviders_;
+      edm::propagate_const<EventSetupRecordProvider*> recordProvider_;
 
       // These are associated with the most recent iov.
       unsigned long long cacheIdentifier_;

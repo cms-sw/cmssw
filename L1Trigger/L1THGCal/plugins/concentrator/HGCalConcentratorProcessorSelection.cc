@@ -89,11 +89,11 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
     std::vector<l1t::HGCalTriggerSums> trigSumsVecOutput;
     std::vector<l1t::HGCalConcentratorData> ae_EncodedLayerOutput;
 
-    int thickness = triggerTools_.thicknessIndex(module_trigcell.second.at(0).detId());
+    bool isHighDensity = triggerTools_.isSiliconHighDensity(module_trigcell.second.at(0).detId());
 
     HGCalTriggerTools::SubDetectorType subdet = triggerTools_.getSubDetectorType(module_trigcell.second.at(0).detId());
 
-    if (coarsenTriggerCells_[subdet] || (fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_)) {
+    if (coarsenTriggerCells_[subdet] || (fixedDataSizePerHGCROC_ && !isHighDensity)) {
       coarsenerImpl_->coarsen(module_trigcell.second, trigCellVecCoarsened);
 
       switch (selectionType_[subdet]) {

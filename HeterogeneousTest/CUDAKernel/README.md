@@ -14,8 +14,8 @@ kernels that call the device functions defined in the `HeterogeneousTest/CUDADev
 ```c++
 namespace cms::cudatest {
 
-  __global__ void kernel_add_vectors_f(...);
-  __global__ void kernel_add_vectors_d(...);
+  __global__ __attribute__((visibility("default"))) void kernel_add_vectors_f(...);
+  __global__ __attribute__((visibility("default"))) void kernel_add_vectors_d(...);
 
 }  // namespace cms::cudatest
 ```

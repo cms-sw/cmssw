@@ -1,5 +1,9 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/ParametricResolution.h"
 
+#ifdef CMSSW_GIT_HASH
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 std::vector<float> l1tpf::ParametricResolution::getVFloat(const edm::ParameterSet &cpset, const std::string &name) {
   std::vector<double> vd = cpset.getParameter<std::vector<double>>(name);
   return std::vector<float>(vd.begin(), vd.end());
@@ -27,6 +31,7 @@ l1tpf::ParametricResolution::ParametricResolution(const edm::ParameterSet &cpset
   else
     throw cms::Exception("Configuration", "Bad kind of resolution: " + skind);
 }
+#endif
 
 float l1tpf::ParametricResolution::operator()(const float pt, const float abseta) const {
   for (unsigned int i = 0, n = etas_.size(); i < n; ++i) {

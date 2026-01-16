@@ -34,6 +34,7 @@ def getParser():
     parser.add_argument("--container", default="apptainer", type=str.lower, choices=allowed_containers, help="specify container for fallback server")
     parser.add_argument("--fallbackName", default="", type=str, help="name for fallback server")
     parser.add_argument("--imageName", default="", type=str, help="container image name for fallback server")
+    parser.add_argument("--sandboxDir", default="", type=str, help="apptainer sandbox directory")
     parser.add_argument("--tempDir", default="", type=str, help="temp directory for fallback server")
 
     return parser
@@ -70,6 +71,7 @@ def applyOptions(process, options, applyToModules=False):
     if hasattr(process,'TritonService'):
         process.TritonService.fallback.container = options.container
         process.TritonService.fallback.imageName = options.imageName
+        process.TritonService.fallback.sandboxDir = options.sandboxDir
         process.TritonService.fallback.tempDir = options.tempDir
         process.TritonService.fallback.device = options.device
         if len(options.fallbackName)>0:

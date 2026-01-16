@@ -16,8 +16,7 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                 # if I use pset.parameters_().items() I get copies of the parameter values
                 # so I can't modify the nested pset
                 value = getattr(pset,name)
-                if isinstance(value, cms.PSet) or isinstance(value, cms.EDProducer) or isinstance(value, cms.EDAlias):
-                    # EDProducer and EDAlias to support SwitchProducer
+                if isinstance(value, cms.PSet):
                     self.doIt(value,base+"."+name)
                 elif value.isCompatibleCMSType(cms.VPSet):
                     for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
@@ -112,11 +111,7 @@ class MassSearchReplaceParamVisitor(object):
         self._paramSearch = paramSearch
         self._verbose = verbose
     def enter(self,visitee):
-        if isinstance(visitee, cms.SwitchProducer):
-            for modName in visitee.parameterNames_():
-                self.doIt(getattr(visitee, modName), "%s.%s"%(str(visitee), modName))
-        else:
-            self.doIt(visitee, str(visitee))
+        self.doIt(visitee, str(visitee))
     def doIt(self, mod, name):
         if (hasattr(mod,self._paramName)):
             if getattr(mod,self._paramName) == self._paramSearch:
@@ -140,15 +135,6 @@ def massReplaceParameter(process,name="label",old="rawDataCollector",new="rawDat
 
 if __name__=="__main__":
     import unittest
-    class SwitchProducerTest(cms.SwitchProducer):
-        def __init__(self, **kargs):
-            super(SwitchProducerTest,self).__init__(
-                dict(
-                    test1 = lambda: (True, -10),
-                    test2 = lambda: (True, -9),
-                    test3 = lambda: (True, -8),
-                    test4 = lambda: (True, -7)
-                ), **kargs)
 
     class TestModuleCommand(unittest.TestCase):
 
@@ -163,21 +149,13 @@ if __name__=="__main__":
                                  vec = cms.VInputTag(cms.InputTag("a"), cms.InputTag("b"), cms.InputTag("c"), cms.InputTag("d")),
                                  uvec = cms.untracked.VInputTag(cms.untracked.InputTag("a"), cms.untracked.InputTag("b"), cms.untracked.InputTag("c"), cms.untracked.InputTag("d")),
                                 )
-            p.sp = SwitchProducerTest(
-                test1 = cms.EDProducer("a", src = cms.InputTag("b"),
-                                       nested = cms.PSet(src = cms.InputTag("b"), src2 = cms.InputTag("c"), usrc = cms.untracked.InputTag("b"))
-                                       ),
-                test2 = cms.EDProducer("b", src = cms.InputTag("c"),
-                                       nested = cms.PSet(src = cms.InputTag("b"), src2 = cms.InputTag("c"), usrc = cms.untracked.InputTag("b"))
-                                       ),
-            )
             p.op = cms.EDProducer("op", src = cms.optional.InputTag, unset = cms.optional.InputTag, vsrc = cms.optional.VInputTag, vunset = cms.optional.VInputTag)
             p.op2 = cms.EDProducer("op2", src = cms.optional.InputTag, unset = cms.optional.InputTag, vsrc = cms.optional.VInputTag, vunset = cms.optional.VInputTag)
             p.op.src="b"
             p.op.vsrc = ["b"]
             p.op2.src=cms.InputTag("b")
             p.op2.vsrc = cms.VInputTag("b")
-            p.s = cms.Sequence(p.a*p.b*p.c*p.sp*p.op*p.op2)
+            p.s = cms.Sequence(p.a*p.b*p.c*p.op*p.op2)
             massSearchReplaceAnyInputTag(p.s, cms.InputTag("b"), cms.InputTag("new"))
             self.assertNotEqual(cms.InputTag("new"), p.b.src)
             self.assertEqual(cms.InputTag("new"), p.c.src)
@@ -202,14 +180,6 @@ if __name__=="__main__":
             self.assertFalse(p.c.uvec[1].isTracked())
             self.assertFalse(p.c.uvec[2].isTracked())
             self.assertFalse(p.c.uvec[3].isTracked())
-            self.assertEqual(cms.InputTag("new"), p.sp.test1.src)
-            self.assertEqual(cms.InputTag("new"), p.sp.test1.nested.src)
-            self.assertEqual(cms.InputTag("c"), p.sp.test1.nested.src2)
-            self.assertEqual(cms.untracked.InputTag("new"), p.sp.test1.nested.usrc)
-            self.assertEqual(cms.InputTag("c"), p.sp.test2.src)
-            self.assertEqual(cms.InputTag("new"), p.sp.test2.nested.src)
-            self.assertEqual(cms.InputTag("c"), p.sp.test2.nested.src2)
-            self.assertEqual(cms.untracked.InputTag("new"), p.sp.test2.nested.usrc)
             self.assertEqual(cms.InputTag("new"), p.op.src)
             self.assertEqual(cms.InputTag("new"), p.op.vsrc[0])
             self.assertEqual(cms.InputTag("new"), p.op2.src)
@@ -235,15 +205,7 @@ if __name__=="__main__":
             p.g = cms.EDProducer("ab", src=cms.InputTag("a"))
             p.h = cms.EDProducer("ab", src=cms.InputTag("a"))
             p.i = cms.EDProducer("ab", src=cms.InputTag("a"))
-            p.sp = SwitchProducerTest(
-                test1 = cms.EDProducer("a", src = cms.InputTag("a"),
-                                       nested = cms.PSet(src = cms.InputTag("a"), src2 = cms.InputTag("c"), usrc = cms.untracked.InputTag("a"))
-                                       ),
-                test2 = cms.EDProducer("b", src = cms.InputTag("c"),
-                                       nested = cms.PSet(src = cms.InputTag("a"), src2 = cms.InputTag("c"), usrc = cms.untracked.InputTag("a"))
-                                       ),
-            )
-            p.s1 = cms.Sequence(p.a*p.b*p.c*p.sp)
+            p.s1 = cms.Sequence(p.a*p.b*p.c)
             p.path1 = cms.Path(p.s1)
             p.s2 = cms.Sequence(p.d)
             p.path2 = cms.Path(p.e)
@@ -274,14 +236,6 @@ if __name__=="__main__":
             self.assertEqual(cms.InputTag("b"), p.g.src)
             self.assertEqual(cms.InputTag("b"), p.h.src)
             self.assertEqual(cms.InputTag("b"), p.i.src)
-            self.assertEqual(cms.InputTag("b"), p.sp.test1.src)
-            self.assertEqual(cms.InputTag("b"), p.sp.test1.nested.src)
-            self.assertEqual(cms.InputTag("c"), p.sp.test1.nested.src2)
-            self.assertEqual(cms.untracked.InputTag("b"), p.sp.test1.nested.usrc)
-            self.assertEqual(cms.InputTag("c"), p.sp.test2.src)
-            self.assertEqual(cms.InputTag("b"), p.sp.test2.nested.src)
-            self.assertEqual(cms.InputTag("c"), p.sp.test2.nested.src2)
-            self.assertEqual(cms.untracked.InputTag("b"), p.sp.test2.nested.usrc)
 
         def testMassSearchReplaceParam(self):
             p = cms.Process("test")
@@ -293,13 +247,7 @@ if __name__=="__main__":
             p.d = cms.EDProducer("ac", src=cms.untracked.InputTag("b"),
                                  nested = cms.PSet(src = cms.InputTag("c"), src2 = cms.InputTag("b"))
                                 )
-            p.sp = SwitchProducerTest(
-                test1 = cms.EDProducer("a", src = cms.InputTag("b"),
-                                       nested = cms.PSet(src = cms.InputTag("b"))
-                                       ),
-                test2 = cms.EDProducer("b", src = cms.InputTag("b")),
-            )
-            p.s = cms.Sequence(p.a*p.b*p.c*p.d*p.sp)
+            p.s = cms.Sequence(p.a*p.b*p.c*p.d)
             massSearchReplaceParam(p.s,"src",cms.InputTag("b"),"a")
             self.assertEqual(cms.InputTag("a"),p.c.src)
             self.assertEqual(cms.InputTag("c"),p.c.nested.src)
@@ -307,9 +255,6 @@ if __name__=="__main__":
             self.assertEqual(cms.untracked.InputTag("a"),p.d.src)
             self.assertEqual(cms.InputTag("c"),p.d.nested.src)
             self.assertEqual(cms.InputTag("b"),p.d.nested.src2)
-            self.assertEqual(cms.InputTag("a"),p.sp.test1.src)
-            self.assertEqual(cms.InputTag("b"),p.sp.test1.nested.src)
-            self.assertEqual(cms.InputTag("a"),p.sp.test2.src)
 
         def testMassReplaceParam(self):
             process1 = cms.Process("test")
@@ -330,13 +275,7 @@ if __name__=="__main__":
             p.h = cms.EDProducer("ab", src=cms.InputTag("a"))
             p.i = cms.EDProducer("ab", src=cms.InputTag("a"))
             p.j = cms.EDProducer("ab", src=cms.untracked.InputTag("a"))
-            p.sp = SwitchProducerTest(
-                test1 = cms.EDProducer("a", src = cms.InputTag("a"),
-                                       nested = cms.PSet(src = cms.InputTag("a"))
-                                       ),
-                test2 = cms.EDProducer("b", src = cms.InputTag("a")),
-            )
-            p.s1 = cms.Sequence(p.a*p.b*p.c*p.sp)
+            p.s1 = cms.Sequence(p.a*p.b*p.c)
             p.path1 = cms.Path(p.s1)
             p.s2 = cms.Sequence(p.d)
             p.path2 = cms.Path(p.e)
@@ -359,7 +298,4 @@ if __name__=="__main__":
             self.assertEqual(cms.InputTag("b"), p.h.src)
             self.assertEqual(cms.InputTag("b"), p.i.src)
             self.assertEqual(cms.untracked.InputTag("b"), p.j.src)
-            self.assertEqual(cms.InputTag("b"),p.sp.test1.src)
-            self.assertEqual(cms.InputTag("a"),p.sp.test1.nested.src)
-            self.assertEqual(cms.InputTag("b"),p.sp.test2.src)
     unittest.main()

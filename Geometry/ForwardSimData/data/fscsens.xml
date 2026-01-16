@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<DDDefinition>
+ <SpecParSection label="fscsens.xml" eval="true">
+  <SpecPar name="fsc">
+   <PartSelector path="//FSC1"/>
+   <PartSelector path="//FSC2"/>
+   <Parameter name="SensitiveDetector" value="FSCSensitiveDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="FSCHits" eval="false"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

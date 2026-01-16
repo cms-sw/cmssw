@@ -1,0 +1,1332 @@
+#!/usr/bin/env python3
+
+"""
+Simple DQM comparison plotter using mplhep with CMS styling.
+
+Usage: dqm-plot -s "DQMData/Run 1/HLT/Run summary/Muon/*" [options] $DQM_FILES
+See all available options with `dqm-plot -h`.
+"""
+
+import ROOT
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import mplhep as hep
+import argparse
+import os
+import re
+import multiprocessing
+import warnings
+import urllib.request
+import urllib.error
+from pathlib import Path
+from matplotlib import colors as _mcolors
+
+# Suppress numpy warnings about subnormal float values
+warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
+
+# Set CMS style globally
+plt.style.use(hep.style.CMS)
+
+# Use matplotlib's mathtext
+plt.rcParams["mathtext.default"] = "regular"
+
+
+class DQMPlotter:
+    def __init__(self, figsize=(12, 9), ratio_height=0.3, processors=None):
+        """
+        Initialize the plotter.
+
+        Args:
+            figsize: Figure size (width, height) in inches
+            ratio_height: Fraction of figure height for ratio plot
+            processors: Number of processors to use for multiprocessing (None for auto-detect)
+        """
+        self.figsize = figsize
+        self.ratio_height = ratio_height
+        # Color palette from https://cms-analysis.docs.cern.ch/guidelines/plotting/colors/
+        self.colors = [
+            "#3f8fda",
+            "#ffa90e",
+            "#bd1f01",
+            "#94a4a2",
+            "#832db6",
+            "#a96b59",
+            "#e76300",
+            "#b9ac70",
+            "#717581",
+            "#92dadd",
+        ]
+        self.markers = [
+            "o",  # circle
+            "s",  # square
+            "^",  # triangle up
+            "D",  # diamond
+            "v",  # triangle down
+            "p",  # pentagon
+            "*",  # star
+            "h",  # hexagon
+            "<",  # triangle left
+            ">",  # triangle right
+        ]
+        self.processors = (
+            processors if processors is not None else multiprocessing.cpu_count()
+        )
+
+    def _extend_color_palette(self, needed: int):
+        """Ensure self.colors has at least 'needed' distinct entries."""
+        if needed <= len(self.colors):
+            return
+        
+        extra_needed = needed - len(self.colors)
+        new_colors = []
+
+        cmap = plt.colormaps["hsv"]
+        for i in range(max(extra_needed, 1)):
+            rgba = cmap(i / max(extra_needed, 1))
+            hexcol = _mcolors.to_hex(rgba, keep_alpha=False)
+            if hexcol not in self.colors and hexcol not in new_colors:
+                new_colors.append(hexcol)
+            if len(new_colors) >= extra_needed:
+                break
+
+        self.colors.extend(new_colors)
+
+    def root_to_numpy(self, hist):
+        """
+        Convert ROOT histogram to numpy arrays.
+
+        Args:
+            hist: ROOT histogram
+
+        Returns:
+            tuple: (bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels)
+        """
+        n_bins = hist.GetNbinsX()
+        bin_edges = np.array([hist.GetBinLowEdge(i) for i in range(1, n_bins + 2)])
+        bin_centers = np.array([hist.GetBinCenter(i) for i in range(1, n_bins + 1)])
+
+        bin_contents = np.array([hist.GetBinContent(i) for i in range(1, n_bins + 1)])
+        bin_errors = np.array([hist.GetBinError(i) for i in range(1, n_bins + 1)])
+
+        bin_labels = []
+        for i in range(1, n_bins + 1):
+            label = hist.GetXaxis().GetBinLabel(i)
+            bin_labels.append(self._clean_bin_label(label) if label else "")
+        
+        # Only use extracted labels if meaningful
+        has_labels = any(label and not label.isdigit() for label in bin_labels)
+
+        return bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels
+
+    def _clean_bin_label(self, label):
+        """Clean up bin label for better readability."""
+        return label.replace("TrackSelectionHighPurity", "HP")
+
+    def _apply_axis_scaling(self, ax, xlabel, ylabel, title, logy=False, has_negative_values=False):
+        """Apply log scaling to axes based on content and user settings."""
+        if logy:
+            if has_negative_values:
+                output_file = getattr(self, '_current_output_path', 'unknown')
+                print(f"\nWarning: Cannot set log scale for plot '{title}' (output: {output_file}) - plot contains negative y-values")
+            else:
+                ax.set_yscale("log")
+
+        # Automatic log scale for specific variable types
+        if "p_{\mathrm{T}}" in xlabel and "pull" not in xlabel.lower():
+            ax.set_xscale("log")
+
+        if ("p_{\mathrm{T}}" in ylabel and "pull" not in ylabel.lower()) or "Sigma" in title:
+            if not has_negative_values:
+                ax.set_yscale("log")
+        
+        if "vertpos" in xlabel:
+            ax.set_xscale("log")
+            xlabel = "vert r [cm]"
+        
+        return xlabel, ylabel
+
+    def _plot_histogram_data(self, ax, bin_centers, bin_contents, bin_errors, bin_edges, 
+                           label, color_idx, plot_histograms):
+        """Plot histogram data either as histogram or error bars."""
+        if plot_histograms:
+            hep.histplot(
+                bin_contents,
+                bins=bin_edges,
+                yerr=bin_errors,
+                label=label,
+                color=self.colors[color_idx % len(self.colors)],
+                histtype="step",
+                linewidth=2,
+                ax=ax,
+            )
+        else:
+            ax.errorbar(
+                bin_centers,
+                bin_contents,
+                yerr=bin_errors,
+                label=label,
+                color=self.colors[color_idx % len(self.colors)],
+                fmt=self.markers[color_idx % len(self.markers)],
+                markersize=5,
+                capsize=2,
+                linewidth=1.5,
+            )
+
+    def _calculate_and_plot_ratio(self, ax_ratio, bin_centers, bin_contents, bin_errors,
+                                ref_centers, ref_contents, ref_errors, color_idx, plot_histograms):
+        """Calculate and plot ratio between current and reference histogram."""
+        if ax_ratio is None:
+            return []
+        
+        tolerance = 1e-6
+        matching_indices = []
+
+        for idx, center in enumerate(bin_centers):
+            ref_idx = np.argmin(np.abs(ref_centers - center))
+            if np.abs(ref_centers[ref_idx] - center) < tolerance:
+                matching_indices.append((idx, ref_idx))
+
+        if not matching_indices:
+            return []
+
+        curr_idxs, ref_idxs = zip(*matching_indices)
+        matching_centers = bin_centers[list(curr_idxs)]
+        
+        matching_ref_contents = ref_contents[list(ref_idxs)]
+        matching_contents = bin_contents[list(curr_idxs)]
+        matching_ref_errors = ref_errors[list(ref_idxs)]
+        matching_errors = bin_errors[list(curr_idxs)]
+
+        ratio = np.divide(
+            matching_contents,
+            matching_ref_contents,
+            out=np.zeros_like(matching_contents),
+            where=matching_ref_contents != 0,
+        )
+
+        ratio_errors = np.zeros_like(ratio)
+        mask = (matching_ref_contents != 0) & (matching_contents != 0)
+        ratio_errors[mask] = np.abs(ratio[mask]) * np.sqrt(
+            np.power(matching_errors[mask] / np.maximum(matching_contents[mask], 1e-10), 2)
+            + np.power(matching_ref_errors[mask] / np.maximum(matching_ref_contents[mask], 1e-10), 2)
+        )
+        ratio_errors = np.nan_to_num(ratio_errors, nan=0.0, posinf=0.0, neginf=0.0)
+
+        if plot_histograms and len(matching_centers) > 1:
+            bin_widths = np.diff(np.sort(matching_centers))
+            avg_width = np.mean(bin_widths)
+            matching_edges = np.concatenate([
+                [matching_centers[0] - avg_width / 2],
+                matching_centers + avg_width / 2,
+            ])
+            hep.histplot(
+                ratio, bins=matching_edges, yerr=ratio_errors,
+                color=self.colors[color_idx % len(self.colors)],
+                histtype="step", linewidth=2, ax=ax_ratio,
+            )
+        else:
+            ax_ratio.errorbar(
+                matching_centers, ratio, yerr=ratio_errors,
+                color=self.colors[color_idx % len(self.colors)],
+                fmt=self.markers[color_idx % len(self.markers)],
+                markersize=5, capsize=2, linewidth=1.5,
+            )
+
+        return ratio[(ratio > 0) & np.isfinite(ratio)]
+
+    def _wrap_legend_labels(self, labels, width=25):
+        """Soft-wrap legend labels at natural break points to reduce horizontal size."""
+        wrapped = []
+        for lab in labels:
+            # Explicit new lines
+            if "\\n" in lab:
+                explicit_lines = lab.split("\\n")
+                wrapped.append("\n".join(explicit_lines))
+                continue
+            
+            # Preserve " - " separator (for overlay labels like "File - Collection")
+            if " - " in lab:
+                parts = lab.split(" - ", 1)  # Split only on first occurrence
+                file_part = parts[0]
+                collection_part = parts[1] if len(parts) > 1 else ""
+                
+                # If the combined length is too long, put on separate lines
+                if len(lab) > width:
+                    wrapped.append(f"{file_part}\n- {collection_part}")
+                else:
+                    wrapped.append(lab)
+                continue
+            
+            # Automatic split using / or _
+            parts = re.split(r'(/|_)+', lab)
+            tokens = []
+            buffer = ""
+            for p in parts:
+                if not p:
+                    continue
+                candidate = (buffer + p) if buffer else p
+                if len(candidate) > width and buffer:
+                    tokens.append(buffer.rstrip("_/"))
+                    buffer = p
+                else:
+                    buffer = candidate
+            if buffer:
+                tokens.append(buffer.rstrip("_/"))
+
+            # CamelCase and digit splitting
+            final_tokens = []
+            for tok in tokens:
+                if len(tok) > width:
+                    subtoks = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?![a-z])|\d+', tok)
+                    line = ""
+                    for st in subtoks:
+                        if len(line) + len(st) + 1 > width and line:
+                            final_tokens.append(line)
+                            line = st
+                        else:
+                            line = (line + st) if not line else (line + st)
+                    if line:
+                        final_tokens.append(line)
+                else:
+                    final_tokens.append(tok)
+            wrapped_label = "\n".join(final_tokens) if final_tokens else lab
+            wrapped.append(wrapped_label)
+        return wrapped
+
+    def _configure_legend(self, ax, labels, legend_title, logy=False, force_outside=False):
+        """Configure legend; wrap long entries and move outside if needed."""
+        if not labels:
+            return
+
+        wrapped_labels = self._wrap_legend_labels(labels)
+        max_label_length = max(len(l.replace("\n", "")) for l in wrapped_labels)
+
+        place_outside = (
+            force_outside
+            or max_label_length > 30
+            or (len(wrapped_labels) > 8 and max_label_length > 20)
+        )
+
+        legend_columns = 1 if len(wrapped_labels) <= 2 else 2
+        legend_fontsize = "22"
+        if len(wrapped_labels) > 6:
+            legend_fontsize = "20"
+        if len(wrapped_labels) > 10:
+            legend_fontsize = "18"
+
+        legend_title_fontsize = "24"
+        if legend_title and len(legend_title) > 30:
+            legend_title_fontsize = "20"
+
+        if place_outside:
+            y_min, y_max = ax.get_ylim()
+            y_range = y_max - y_min
+            ax.set_ylim(y_min, y_max + y_range * 0.1)
+            ax.figure.subplots_adjust(right=0.9)
+            ax.legend(
+                wrapped_labels,
+                loc="upper left",
+                bbox_to_anchor=(1.01, 1.0),
+                borderaxespad=0.0,
+                title=legend_title,
+                fontsize=legend_fontsize,
+                title_fontsize=legend_title_fontsize,
+                frameon=False,
+            )
+            return
+
+        legend_padding = 0.5 if len(wrapped_labels) <= 2 else np.ceil(len(wrapped_labels) / 2) * 0.25
+        legend_padding = min(legend_padding, 2.0)
+        if logy or ax.get_yscale() == "log":
+            legend_padding *= 50
+        if any("\n" in l for l in wrapped_labels):
+            legend_padding *= 2
+        y_min, y_max = ax.get_ylim()
+        y_range = y_max - y_min
+        ax.set_ylim(y_min, y_max + y_range * legend_padding)
+
+        ax.legend(
+            wrapped_labels,
+            loc="upper right",
+            ncols=legend_columns,
+            title=legend_title,
+            fontsize=legend_fontsize,
+            title_fontsize=legend_title_fontsize,
+            columnspacing=1.0,
+        )
+
+    def _apply_custom_formatter(self, ax):
+        """Apply custom scientific notation formatter to y-axis."""
+        if ax.get_yscale() != "log":
+            from matplotlib.ticker import ScalarFormatter
+
+            class CustomScalarFormatter(ScalarFormatter):
+                def format_data_short(self, value):
+                    if self.orderOfMagnitude != 0:
+                        return f"×10$^{{{self.orderOfMagnitude}}}$"
+                    return ""
+
+            formatter = CustomScalarFormatter(useOffset=True, useMathText=True)
+            ax.yaxis.set_major_formatter(formatter)
+
+            # Move y-axis scientific notation to avoid overlap with CMS label
+            ax.yaxis.get_offset_text().set_position((-0.01, 1.02))
+            ax.yaxis.get_offset_text().set_horizontalalignment("right")
+            ax.yaxis.get_offset_text().set_verticalalignment("bottom")
+
+    def _load_histograms(self, file_paths, hist_path, labels):
+        """Load histograms from files, returning list of histograms and valid labels."""
+        histograms = []
+        valid_labels = []
+
+        for file_path, label in zip(file_paths, labels):
+            try:
+                root_file = ROOT.TFile.Open(file_path, "READ")
+                if not root_file or root_file.IsZombie():
+                    print(f"Warning: Could not open {file_path}")
+                    continue
+
+                hist = root_file.Get(hist_path)
+                if not hist:
+                    root_file.Close()
+                    continue
+
+                # Clone histogram to avoid issues when file is closed
+                hist_clone = hist.Clone(f"hist_{len(histograms)}")
+                hist_clone.SetDirectory(0)
+                histograms.append(hist_clone)
+                valid_labels.append(label)
+
+                root_file.Close()
+
+            except Exception as e:
+                print(f"Error processing {file_path}: {e}")
+                continue
+
+        return histograms, valid_labels
+
+    def extract_labels_from_hist(self, hist):
+        """
+        Extract title and axis labels from ROOT histogram.
+
+        Args:
+            hist: ROOT histogram
+
+        Returns:
+            tuple: (title, xlabel, ylabel)
+        """
+        title = hist.GetTitle()
+        xlabel = title
+        ylabel = "Occurrences"
+
+        # Match "vs", "vs.", and flexible spacing/periods between v and s; allow underscores or spaces as delimiters
+        vs_regex = re.compile(r'[_\s]+v\s*\.?\s*s\s*\.?[_\s]+', re.IGNORECASE)
+        if vs_regex.search(title):
+            # Detect explicit underscore-delimited form even with optional dots/spaces
+            used_underscore_delim = bool(re.search(r'_v\s*\.?\s*s\s*\.?_', title.lower()))
+            parts = vs_regex.split(title, maxsplit=1)
+            left, right = parts[0].strip(), parts[1].strip()
+
+            if used_underscore_delim:
+                left = left.replace("_", " ")
+                right = right.replace("_", " ")
+
+            if "#sigma(" in title.lower():
+                core = left[left.find("(") + 1 : left.rfind(")")]
+                ylabel = r"$\delta$" + core + "/" + core
+                right_clean = right
+                if "Mean" in title:
+                    ylabel = "<" + ylabel + ">"
+                    right_clean = right_clean.replace("Mean", "")
+                elif "Sigma" in title:
+                    ylabel = r"$\sigma$(" + ylabel + ")"
+                    right_clean = right_clean.replace("Sigma", "")
+                xlabel = right_clean.strip()
+            elif "Mean" in title:
+                right_clean = right.replace("Mean", "").strip()
+                ylabel = "<" + left + ">"
+                xlabel = right_clean
+            elif "Sigma" in title:
+                right_clean = right.replace("Sigma", "").strip()
+                ylabel = r"$\sigma$<" + left + ">"
+                xlabel = right_clean
+            else:
+                # Default: "ylabel vs xlabel"
+                ylabel = left
+                xlabel = right
+                if hist.InheritsFrom("TProfile") and "mean " in ylabel:
+                    ylabel = ylabel.replace("mean ", "<") + ">"
+        else:
+            # Pull plots
+            if "pull" not in title.lower():
+                if "eta" in title.lower():
+                    xlabel = r"$\eta$"
+                elif "pt2" in title.lower():
+                    xlabel = r"$p_{\mathrm{T}}^2$"
+                elif "pt" in title.lower():
+                    xlabel = r"$p_{\mathrm{T}}$"
+                elif "phi" in title.lower():
+                    xlabel = r"$\phi$"
+            # Efficiency and turn-on plots
+            if "eff" in title.lower():
+                ylabel = "Efficiency"
+            elif "turn-on" in title.lower():
+                ylabel = "Turn-On"
+
+        return (
+            self.convert_root_to_latex(title),
+            self.convert_root_to_latex(xlabel),
+            self.convert_root_to_latex(ylabel),
+        )
+
+    def convert_root_to_latex(self, text):
+        """
+        Convert ROOT-style notation to matplotlib mathtext format.
+
+        Args:
+            text: String with ROOT notation
+
+        Returns:
+            String with mathtext notation
+        """
+        conversions = [
+            ("#eta", r"$\eta$"),
+            ("#phi", r"$\phi$"),
+            ("#theta", r"$\theta$"),
+            ("#alpha", r"$\alpha$"),
+            ("#beta", r"$\beta$"),
+            ("#gamma", r"$\gamma$"),
+            ("#delta", r"$\delta$"),
+            ("#Delta", r"$\Delta$"),
+            ("#sigma", r"$\sigma$"),
+            ("d_{xy}", r"$d_{xy}$"),
+            ("d_{z}", r"$d_{z}$"),
+            ("#chi", r"$\chi$"),
+            ("#nu", r"$\nu$"),
+            ("#tau", r"$\tau$"),
+            ("pt2", r"$p_{\mathrm{T}}^2$"),
+            ("Pt2", r"$p_{\mathrm{T}}^2$"),
+            ("pT2", r"$p_{\mathrm{T}}^2$"),
+            ("p_{T}", r"$p_{\mathrm{T}}$"),
+            ("p_{t}", r"$p_{\mathrm{T}}$"),
+            ("pT", r"$p_{\mathrm{T}}$"),
+            ("pt", r"$p_{\mathrm{T}}$"),
+            ("GeV/c^{2}", r"GeV/$c^2$"),
+            ("GeV/c", r"GeV/$c$"),
+            ("^{2}", r"$^2$"),
+            ("number of", "#"),
+            ("Number of", "#"),
+        ]
+
+        result = text
+        for root_notation, mathtext_notation in conversions:
+            result = result.replace(root_notation, mathtext_notation)
+
+        # Replace standalone tokens without #
+        token_map = {
+            "eta": r"$\eta$",
+            "phi": r"$\phi$",
+            "theta": r"$\theta$",
+            "alpha": r"$\alpha$",
+            "beta": r"$\beta$",
+            "gamma": r"$\gamma$",
+            "delta": r"$\delta$",
+            "sigma": r"$\sigma$",
+            "chi": r"$\chi$"
+        }
+        # Tokens not preceded by letter/digit/_ or backslash and not followed by letter/digit/_.
+        pattern = re.compile(
+            r'(?<![A-Za-z0-9_\\])(' + "|".join(token_map.keys()) + r')(?![A-Za-z0-9_])',
+            re.IGNORECASE,
+        )
+
+        def _token_repl(m):
+            return token_map[m.group(1).lower()]
+
+        result = pattern.sub(_token_repl, result)
+
+        return result
+
+    def find_histograms_in_file(self, root_file, pattern):
+        """
+        Find all histogram paths matching a regex pattern in a ROOT file.
+
+        Args:
+            root_file: Open ROOT file
+            pattern: Regex pattern to match histogram paths
+
+        Returns:
+            list: List of histogram paths that match the pattern
+        """
+
+        def traverse_directory(directory, current_path=""):
+            """Recursively traverse ROOT file directory structure."""
+            hist_paths = []
+            for key in directory.GetListOfKeys():
+                obj_name = key.GetName()
+                obj_path = f"{current_path}/{obj_name}" if current_path else obj_name
+
+                obj = key.ReadObj()
+                if obj.InheritsFrom("TDirectory"):
+                    hist_paths.extend(traverse_directory(obj, obj_path))
+                # Skip 2D histograms
+                elif obj.InheritsFrom("TH1") and not obj.InheritsFrom("TH2"):
+                    if re.search(pattern, obj_path):
+                        hist_paths.append(obj_path)
+
+            return hist_paths
+
+        return traverse_directory(root_file)
+
+    def _parse_overlay_groups(self, overlay_specs):
+        """
+        Parse overlay specifications into groups.
+
+        Args:
+            overlay_specs: List of colon-separated pattern strings
+
+        Returns:
+            List of lists, where each inner list contains patterns to overlay
+        """
+        if not overlay_specs:
+            return []
+        
+        groups = []
+        for spec in overlay_specs:
+            patterns = [p.strip() for p in spec.split(":")]
+            if len(patterns) > 1:
+                groups.append(patterns)
+        
+        return groups
+
+    def _normalize_path_for_overlay(self, hist_path, overlay_patterns):
+        """
+        Normalize histogram path by removing overlay pattern components.
+
+        Args:
+            hist_path: Full histogram path
+            overlay_patterns: List of patterns that should be removed for grouping
+
+        Returns:
+            Normalized path (or None if path doesn't match any pattern)
+        """
+        for pattern in overlay_patterns:
+            if re.search(pattern, hist_path):
+                # Remove the matching pattern part
+                normalized = re.sub(pattern, "OVERLAY_PLACEHOLDER", hist_path)
+                return normalized, pattern
+        
+        return None, None
+
+    def _group_histograms_by_overlay(self, all_hists, overlay_groups):
+        """
+        Group histograms that should be overlaid together.
+
+        Args:
+            all_hists: Set of all histogram paths
+            overlay_groups: List of overlay pattern groups
+
+        Returns:
+            Dictionary mapping normalized paths to lists of (hist_path, pattern) tuples
+        """
+        grouped = {}
+        used_hists = set()
+        
+        for overlay_patterns in overlay_groups:
+            # Find all histograms matching any pattern in this overlay group
+            for hist_path in all_hists:
+                normalized, matched_pattern = self._normalize_path_for_overlay(
+                    hist_path, overlay_patterns
+                )
+                
+                if normalized:
+                    if normalized not in grouped:
+                        grouped[normalized] = []
+                    grouped[normalized].append((hist_path, matched_pattern))
+                    used_hists.add(hist_path)
+        
+        # Filter groups to only include those with multiple histograms
+        filtered_groups = {
+            norm_path: hists 
+            for norm_path, hists in grouped.items() 
+            if len(hists) > 1
+        }
+        
+        return filtered_groups, used_hists
+
+    def _generate_overlay_output_path(self, normalized_path, matched_patterns, 
+                                     pattern, output_dir):
+        """
+        Generate output path for overlaid histograms.
+
+        Args:
+            normalized_path: Normalized path with placeholder
+            matched_patterns: List of patterns that were matched
+            pattern: Original search pattern
+            output_dir: Base output directory
+
+        Returns:
+            Output file path
+        """
+        # Create combined collection name from patterns
+        collection_names = []
+        for pat in matched_patterns:
+            # Extract meaningful name from pattern (remove regex special chars)
+            name = re.sub(r'[^a-zA-Z0-9_]', '', pat)
+            if name:
+                collection_names.append(name)
+        
+        combined_name = "+".join(sorted(set(collection_names)))
+        
+        # Replace placeholder with combined name
+        overlay_path = normalized_path.replace("OVERLAY_PLACEHOLDER", combined_name)
+        
+        return self._generate_output_path(overlay_path, pattern, output_dir)
+
+    def plot_comparison(
+        self,
+        histograms,
+        labels,
+        output_path,
+        logy=False,
+        normalize=False,
+        cms_text="Preliminary",
+        energy_text=None,
+        show_energy=False,
+        data=False,
+        grid=False,
+        plot_histograms=False,
+        do_ratio=True,
+        save_as_pdf=False,
+        legend_outside=False,
+        overlay_groups=None,
+    ):
+        """
+        Create comparison plot with ratio panel.
+
+        Args:
+            histograms: List of ROOT histograms to compare
+            labels: List of labels for each histogram
+            output_path: Output file path
+            logy: Use log scale for y-axis
+            normalize: Normalize histograms to unit area
+            cms_text: CMS label text
+            energy_text: Custom energy text (if None, uses default)
+            show_energy: Whether to show energy text
+            grid: Whether to show grid on both main and ratio plots
+            plot_histograms: Whether to plot histograms instead of individual bin points with errors
+            pdf: Whether to save as PDF in addition to PNG
+            legend_outside: Force legend to be placed outside the plot area
+            overlay_groups: List of pattern groups to overlay
+        """
+        if len(histograms) != len(labels):
+            raise ValueError("Number of histograms must match number of labels")
+
+        title, xlabel, ylabel = self.extract_labels_from_hist(histograms[0])
+
+        legend_title = None
+        if hasattr(self, "_current_output_path"):
+            output_parts = self._current_output_path.replace("\\", "/").split("/")
+            if len(output_parts) > 1:
+                # Get the parent directory name (second to last part)
+                legend_title = output_parts[-2] if len(output_parts) >= 2 else None
+                # Ignore legend name for summary plots
+                if "global" in output_parts[-1].lower() or "coll" in output_parts[-1].lower():
+                    legend_title = None
+                # Split long overlay titles at + marker
+                elif legend_title and "+" in legend_title and len(legend_title) > 30:
+                    legend_title = legend_title.replace("+", "\n+")
+
+        fig = plt.figure(figsize=self.figsize)
+        gs = gridspec.GridSpec(
+            2, 1, height_ratios=[1 - self.ratio_height, self.ratio_height], hspace=0.10
+        )
+
+        ax_main = fig.add_subplot(gs[0])
+
+        # CMS styling
+        if show_energy:
+            if energy_text is None:
+                # Default energy text (13 TeV)
+                hep.cms.label(cms_text, data=data, ax=ax_main)
+            else:
+                hep.cms.label(cms_text, data=data, ax=ax_main, rlabel=energy_text)
+        else:
+            hep.cms.label(cms_text, data=data, ax=ax_main, rlabel="")
+
+        ax_ratio = None
+        if do_ratio and len(histograms) > 1:
+            ax_ratio = fig.add_subplot(gs[1], sharex=ax_main)
+
+        ref_centers = None
+        ref_contents = None
+        ref_errors = None
+        has_labels = False
+        bin_labels = None
+        has_negative_values = False
+
+        all_ratios = []
+        ref_centers = ref_contents = ref_errors = None
+        
+        for i, (hist, label) in enumerate(zip(histograms, labels)):
+            bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels = (
+                self.root_to_numpy(hist)
+            )
+
+            if normalize and np.sum(bin_contents) > 0:
+                norm_factor = 1.0 / np.sum(bin_contents)
+                bin_contents *= norm_factor
+                bin_errors *= norm_factor
+
+            # Use first histogram as reference
+            if i == 0:
+                ref_centers, ref_contents, ref_errors = bin_centers, bin_contents, bin_errors
+
+            self._plot_histogram_data(ax_main, bin_centers, bin_contents, bin_errors, 
+                                    bin_edges, label, i, plot_histograms)
+
+            if i > 0:
+                valid_ratios = self._calculate_and_plot_ratio(
+                    ax_ratio, bin_centers, bin_contents, bin_errors,
+                    ref_centers, ref_contents, ref_errors, i, plot_histograms
+                )
+                all_ratios.extend(valid_ratios)
+
+        # Styling for main plot
+        # Calculate visible label length by removing LaTeX notation for sizing
+        visible_ylabel = re.sub(r"\$[^$]*\$", "X", ylabel)
+        label_size = "medium" if len(visible_ylabel) < 20 else "small"
+        if title:
+            ax_main.set_title(title, pad=50)
+        has_negative_values = np.any(bin_contents < 0)
+        xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, has_negative_values)
+
+        # Set custom labels if available
+        if has_labels:
+            ax_main.set_xticks(
+                ref_centers,
+                bin_labels,
+                size="small" if len(bin_labels) < 10 else "xx-small",
+                rotation=45,
+                ha="right",
+                va="top",
+            )
+            ax_main.tick_params(axis="x", which="minor", bottom=False)
+        else:
+            ax_main.set_xlabel(xlabel)
+
+        ax_main.set_ylabel(ylabel, fontsize=label_size)
+
+        self._configure_legend(ax_main, labels, legend_title, logy, force_outside=legend_outside)
+
+        if grid:
+            ax_main.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)
+
+        self._apply_custom_formatter(ax_main)
+
+        # Ratio plot styling
+        if ax_ratio is not None:
+            # Only show label in ratio and keep the same ticks as main plot
+            ax_main.set_xlabel("")
+            ax_main.tick_params(axis="x", labelbottom=False)
+
+            # Set ratio plot limits
+            if len(all_ratios) > 0:
+                # Use percentiles to avoid extreme outliers
+                ratio_min = np.percentile(all_ratios, 5)
+                ratio_max = np.percentile(all_ratios, 95)
+
+                # Set range around 1 in case of small fluctuations
+                ratio_min = min(ratio_min, 0.95)
+                ratio_max = max(ratio_max, 1.05)
+
+                # Add at least 15% padding
+                ratio_range = ratio_max - ratio_min
+                padding = max(0.15, ratio_range * 0.1)
+
+                # Clamp limits between 0.1 and 5.0
+                final_min = max(0.1, ratio_min - padding)
+                final_max = min(5.0, ratio_max + padding)
+
+                ax_ratio.set_ylim(final_min, final_max)
+            else:
+                ax_ratio.set_ylim(0.5, 1.5)
+
+            if has_labels:
+                ax_ratio.set_xticks(
+                    ref_centers,
+                    bin_labels,
+                    size="small" if len(bin_labels) < 10 else "xx-small",
+                    rotation=45,
+                    ha="right",
+                    va="top",
+                )
+                ax_ratio.tick_params(axis="x", which="minor", bottom=False)
+            else:
+                ax_ratio.set_xlabel(xlabel)
+
+            ax_ratio.set_ylabel("Ratio")
+            ax_ratio.axhline(y=1, color="black", linestyle="--", alpha=0.7)
+
+            if grid:
+                ax_ratio.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)
+
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        plt.savefig(output_path, dpi=300, bbox_inches="tight")
+
+        if save_as_pdf:
+            pdf_path = output_path.rsplit(".", 1)[0] + ".pdf"
+            plt.savefig(pdf_path, dpi=300, bbox_inches="tight")
+        plt.close()
+
+    def compare_files(
+        self,
+        file_paths,
+        hist_pattern,
+        labels=None,
+        output_dir="plots",
+        more_files=False,
+        create_web_index=False,
+        overlay_groups=None,
+        overlay_individual=True,
+        **plot_kwargs,
+    ):
+        """
+        Compare histograms matching a pattern from multiple files.
+
+        Args:
+            file_paths: List of ROOT file paths
+            hist_pattern: Regex pattern to match histogram paths
+            labels: Labels for each file (uses filename if None)
+            output_dir: Output directory for plots
+            more_files: Color palette will be extended to support more than 10 files if True
+            create_web_index: Whether to create index.php files for web viewing
+            overlay_groups: List of pattern groups to overlay
+            overlay_individual: Whether to also create individual plots for overlaid collections
+            **plot_kwargs: Additional arguments for plot_comparison
+        """
+        if more_files:
+            self._extend_color_palette(len(file_paths))
+        else:
+            if len(file_paths) > 10:
+                raise ValueError(
+                    f"Default color palette supports a maximum of 10 files, got {len(file_paths)}. "
+                    "Please reduce the number of input files or use the option --more-files if you are really sure of what you are doing."
+                )
+
+        # Normalize patterns to a list
+        patterns = (
+            list(hist_pattern)
+            if isinstance(hist_pattern, (list, tuple, set))
+            else [hist_pattern]
+        )
+
+        if labels is None:
+            labels = []
+            for f in file_paths:
+                legend_label = Path(f).stem
+                if legend_label.startswith("DQM_"):
+                    legend_label = legend_label.replace("DQM_", "")
+                labels.append(legend_label)
+        elif isinstance(labels, str):
+            labels = [label.strip() for label in labels.split(",")]
+
+        if len(labels) != len(file_paths):
+            raise ValueError(
+                f"Number of legend entries ({len(labels)}) must match number of files ({len(file_paths)})"
+            )
+
+        all_matching_hists = set()
+        hist_to_pattern = {}
+
+        print("Scanning all files for histograms matching the pattern(s)...")
+        for i, file_path in enumerate(file_paths):
+            try:
+                root_file = ROOT.TFile.Open(file_path, "READ")
+                if not root_file or root_file.IsZombie():
+                    print(f"Error: Could not open {file_path}")
+                    continue
+
+                total_for_file = 0
+                for pat in patterns:
+                    file_hists = self.find_histograms_in_file(root_file, pat)
+                    total_for_file += len(file_hists)
+                    all_matching_hists.update(file_hists)
+                    for hp in file_hists:
+                        hist_to_pattern.setdefault(hp, pat)
+
+                root_file.Close()
+                print(f"Found {total_for_file} matching histograms in {file_path}")
+
+            except Exception as e:
+                print(f"Error scanning {file_path}: {e}")
+
+        if not all_matching_hists:
+            joined = ", ".join(map(str, patterns))
+            print(f"No histograms matching pattern(s) '{joined}' found in any file")
+            return
+
+        print(
+            f"Total unique histograms found across all files: {len(all_matching_hists)}"
+        )
+
+        plot_tasks = []
+        
+        # Handle overlay groups if specified
+        if overlay_groups:
+            grouped_hists, used_hists = self._group_histograms_by_overlay(
+                all_matching_hists, overlay_groups
+            )
+            
+            if grouped_hists:
+                print(f"Found {len(grouped_hists)} histogram groups to overlay")
+                
+                # Create tasks for overlaid histograms
+                for normalized_path, hist_pattern_pairs in grouped_hists.items():
+                    # Sort by pattern to ensure consistent ordering
+                    hist_pattern_pairs = sorted(hist_pattern_pairs, key=lambda x: x[1])
+                    hist_paths = [hp for hp, _ in hist_pattern_pairs]
+                    matched_patterns = [pat for _, pat in hist_pattern_pairs]
+                    
+                    # Use first pattern for output path generation
+                    base_pattern = hist_to_pattern.get(hist_paths[0], patterns[0])
+                    output_path = self._generate_overlay_output_path(
+                        normalized_path, matched_patterns, base_pattern, output_dir
+                    )
+                    
+                    # For single file: overlay collections within the file
+                    if len(file_paths) == 1:
+                        # Load all histograms from different collections
+                        overlay_labels = []
+                        for hist_path, pattern in hist_pattern_pairs:
+                            # Extract collection name from path
+                            collection = re.search(pattern, hist_path)
+                            collection_name = collection.group(0) if collection else pattern
+                            overlay_labels.append(f"{labels[0]} - {collection_name}")
+                        
+                        plot_tasks.append({
+                            "file_paths": file_paths * len(hist_paths),
+                            "hist_path": hist_paths,
+                            "labels": overlay_labels,
+                            "colors": self.colors,
+                            "output_path": output_path,
+                            "plot_kwargs": plot_kwargs,
+                            "is_overlay": True,
+                        })
+                    else:
+                        # For multiple files: overlay collections across files
+                        # Create consistent ordering: all collections for file1, then all for file2, etc.
+                        overlay_labels = []
+                        extended_file_paths = []
+                        extended_hist_paths = []
+                        
+                        for file_idx, (file_path, file_label) in enumerate(zip(file_paths, labels)):
+                            for hist_path, pattern in hist_pattern_pairs:
+                                collection = re.search(pattern, hist_path)
+                                collection_name = collection.group(0) if collection else pattern
+                                overlay_labels.append(f"{file_label} - {collection_name}")
+                                extended_file_paths.append(file_path)
+                                extended_hist_paths.append(hist_path)
+                        
+                        plot_tasks.append({
+                            "file_paths": extended_file_paths,
+                            "hist_path": extended_hist_paths,
+                            "labels": overlay_labels,
+                            "colors": self.colors,
+                            "output_path": output_path,
+                            "plot_kwargs": plot_kwargs,
+                            "is_overlay": True,
+                        })
+            
+            # Process non-overlaid histograms separately
+            if overlay_individual:
+                # Include individual plots for overlaid collections
+                remaining_hists = all_matching_hists
+                if remaining_hists:
+                    print(f"Processing {len(remaining_hists)} histograms (including individual overlay collections)")
+            else:
+                # Exclude overlaid histograms from individual processing
+                remaining_hists = all_matching_hists - used_hists
+                if remaining_hists:
+                    print(f"Processing {len(remaining_hists)} non-overlaid histograms separately")
+        else:
+            remaining_hists = all_matching_hists
+        
+        # Create tasks for non-overlaid histograms (standard behavior)
+        for hist_path in sorted(remaining_hists):
+            matched_pat = hist_to_pattern.get(hist_path, patterns[0])
+            output_path = self._generate_output_path(hist_path, matched_pat, output_dir)
+
+            plot_tasks.append({
+                "file_paths": file_paths,
+                "hist_path": hist_path,
+                "labels": labels,
+                "colors": self.colors,
+                "output_path": output_path,
+                "plot_kwargs": plot_kwargs,
+                "is_overlay": False,
+            })
+
+        self._process_files(plot_tasks)
+
+        if create_web_index:
+            print("Adding php index files for web viewing...")
+            self._create_web_index_files(output_dir)
+
+    def _generate_output_path(self, hist_path, pattern, output_dir):
+        """
+        Generate output path preserving folder structure from regex match.
+
+        Args:
+            hist_path: Full histogram path from ROOT file
+            pattern: Regex pattern used to find the histogram
+            output_dir: Base output directory
+
+        Returns:
+            Output file path with preserved folder structure
+        """
+        match = re.search(pattern, hist_path)
+        if match:
+            match_end = match.end()
+            remaining_path = hist_path[match_end:].lstrip("/")
+
+            if remaining_path:
+                path_parts = remaining_path.split("/")
+
+                if len(path_parts) > 1:
+                    # Create subdirectories and filename
+                    subdirs = "/".join(path_parts[:-1])
+                    filename = path_parts[-1]
+                    output_path = os.path.join(output_dir, subdirs, f"{filename}")
+                else:
+                    # Single file, no subdirectories
+                    filename = path_parts[0]
+                    output_path = os.path.join(output_dir, f"{filename}")
+            else:
+                # If no remaining path, use the last part of the matched path
+                matched_part = match.group(0)
+                filename = matched_part.split("/")[-1]
+                output_path = os.path.join(output_dir, f"{filename}")
+        else:
+            hist_name = hist_path.replace("/", "_").replace("\\", "_")
+            output_path = os.path.join(output_dir, f"{hist_name}")
+
+        return output_path
+
+    def _create_web_index_files(self, output_dir):
+        """Create index.php files in each subdirectory for web viewing."""
+        index_php_url = "https://cernbox.cern.ch/remote.php/dav/public-files/XCmC5GCFnF7Aqfd/index.php"
+
+        try:
+            with urllib.request.urlopen(index_php_url) as response:
+                index_php_content = response.read().decode("utf-8")
+        except urllib.error.URLError as e:
+            print(f"Warning: Could not download index.php from CERNBox: {e}")
+            print("Skipping web index creation.")
+            return
+
+        n_index = 0
+        for root, dirs, files in os.walk(output_dir):
+            index_php_path = os.path.join(root, "index.php")
+            with open(index_php_path, "w", encoding="utf-8") as f:
+                f.write(index_php_content)
+            n_index += 1
+        print(f"Created index.php files in {n_index} directories for web viewing")
+
+    def _process_files(self, plot_tasks):
+        """Process plotting tasks using multiprocessing."""
+        print(f"Using {self.processors} parallel processes")
+
+        with multiprocessing.Pool(self.processors) as pool:
+            results = []
+            for i, task in enumerate(plot_tasks):
+                task_copy = task.copy()
+                task_copy.pop("progress_counter", None)
+                task_copy.pop("total_tasks", None)
+                result = pool.apply_async(process_histogram_task, (task_copy,))
+                results.append((i, result))
+
+            completed = 0
+            failed = 0
+            for i, result in results:
+                try:
+                    result.get(timeout=300)
+                    completed += 1
+                    if completed % 10 == 0 or completed == len(plot_tasks):
+                        print(
+                            f"\rProgress: {completed}/{len(plot_tasks)} plots completed",
+                            end="",
+                            flush=True,
+                        )
+                except multiprocessing.TimeoutError:
+                    print(f"\nTask {i} timed out")
+                    failed += 1
+                except Exception as e:
+                    print(f"\nError in task {i}: {e}")
+                    failed += 1
+
+            pool.close()
+            pool.join()
+
+            if failed > 0:
+                print(f"\n{failed} tasks failed out of {len(plot_tasks)} total")
+        print()
+
+def process_histogram_task(task):
+    """Process a single histogram task in a separate process."""
+    try:
+        file_paths = task["file_paths"]
+        hist_path = task["hist_path"]
+        labels = task["labels"]
+        output_path = task["output_path"]
+        plot_kwargs = task["plot_kwargs"]
+        is_overlay = task["is_overlay"]
+
+        plotter = DQMPlotter()
+        plotter._current_output_path = output_path
+        plotter.colors = task["colors"]
+
+        if is_overlay:
+            # hist_path is a list of paths for overlay mode
+            histograms = []
+            valid_labels = []
+            
+            if isinstance(hist_path, list):
+                # Process in order to maintain consistent color/marker assignment
+                for fp, hp, lab in zip(file_paths, hist_path, labels):
+                    hists, vlabs = plotter._load_histograms([fp], hp, [lab])
+                    histograms.extend(hists)
+                    valid_labels.extend(vlabs)
+            else:
+                histograms, valid_labels = plotter._load_histograms(
+                    file_paths, hist_path, labels
+                )
+        else:
+            # Keep user-specified order for files
+            histograms, valid_labels = plotter._load_histograms(
+                file_paths, hist_path, labels
+            )
+
+        if len(histograms) > 0:
+            plotter.plot_comparison(histograms, valid_labels, output_path, **plot_kwargs)
+
+    except Exception as e:
+        print(f"Error in process_histogram_task: {e}")
+        raise
+
+if __name__ == "__main__":
+    """Command line interface for DQM plotter."""
+    parser = argparse.ArgumentParser(
+        description="Compare DQM histograms with CMS styling"
+    )
+    parser.add_argument("files", nargs="+", help="ROOT files to compare")
+    parser.add_argument(
+        "-s",
+        "--source",
+        required=True,
+        nargs="+",
+        action="append",
+        help="Histogram path or regex pattern(s) to match. "
+             "Use multiple -s or space-separated values to provide several patterns.",
+    )
+    parser.add_argument(
+        "-l", "--legend", help="Comma-separated list of legend entries for each file. Use \\n for explicit line breaks."
+    )
+    parser.add_argument("-o", "--output-dir", default="plots", help="Output directory")
+    parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis")
+    parser.add_argument("--normalize", action="store_true", help="Normalize histograms")
+    parser.add_argument(
+        "--cms-text",
+        default="Preliminary",
+        help="CMS label text (e.g. Preliminary, Work in progress)",
+    )
+    parser.add_argument(
+        "--energy-text",
+        default=None,
+        help="Custom energy text in the top right corner (e.g., '14 TeV', 'Run 3')",
+    )
+    parser.add_argument(
+        "--data", action="store_true", help="Use CMS datastyle for plots"
+    )
+    parser.add_argument(
+        "--no-energy", action="store_true", help="Don't show energy text"
+    )
+    parser.add_argument("--no-ratio", action="store_true", help="Disable ratio plots")
+    parser.add_argument(
+        "--no-grid", action="store_true", help="Remove grid from all plots"
+    )
+    parser.add_argument(
+        "--histograms",
+        action="store_true",
+        help="Plot histograms instead of points (default: points with error bars)",
+    )
+    parser.add_argument(
+        "--pdf", action="store_true", help="Also save plots in PDF format"
+    )
+    parser.add_argument(
+        "--more-files",
+        action="store_true",
+        help="Allow more than 10 input files (legend might overlap with the plots, color palette only supports 10 files)",
+    )
+    parser.add_argument(
+        "-n",
+        "--nProcessors",
+        type=int,
+        default=None,
+        help="Number of parallel processes to use (default: auto-detect)",
+    )
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Create index.php files for web viewing (downloads from CernBox)",
+    )
+    parser.add_argument(
+        "--legend-outside",
+        action="store_true",
+        help="Force legend to be placed outside the plot area",
+    )
+    parser.add_argument(
+        "--overlay",
+        action="append",
+        help="Overlay histograms from different collections. Specify colon-separated patterns "
+             "(e.g., 'hltPhase2PixelTracks:hltPhase2PixelTracksCAExtension'). "
+             "Can be used multiple times for different overlay groups.",
+    )
+    parser.add_argument(
+        "--no-overlay-individual",
+        action="store_true",
+        help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots)",
+    )
+
+    args = parser.parse_args()
+
+    plotter = DQMPlotter(processors=args.nProcessors)
+
+    # Flatten list of patterns
+    source_patterns = [p for group in args.source for p in group] if isinstance(args.source, list) else [args.source]
+
+    # Parse overlay groups
+    overlay_groups = plotter._parse_overlay_groups(args.overlay) if args.overlay else None
+
+    plotter.compare_files(
+        file_paths=args.files,
+        hist_pattern=source_patterns,
+        labels=args.legend,
+        output_dir=args.output_dir,
+        logy=args.logy,
+        normalize=args.normalize,
+        cms_text=args.cms_text,
+        energy_text=args.energy_text,
+        show_energy=not args.no_energy or args.energy_text is not None,
+        data=args.data,
+        do_ratio=not args.no_ratio,
+        grid=not args.no_grid,
+        plot_histograms=args.histograms,
+        save_as_pdf=args.pdf,
+        more_files=args.more_files,
+        create_web_index=args.web,
+        legend_outside=args.legend_outside,
+        overlay_groups=overlay_groups,
+        overlay_individual=not args.no_overlay_individual,
+    )

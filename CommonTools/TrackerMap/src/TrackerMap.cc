@@ -9,6 +9,7 @@
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include "CommonTools/TrackerMap/interface/TmCcu.h"
 #include "CommonTools/TrackerMap/interface/TmPsu.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include <fstream>
 #include <vector>
 #include <iostream>
@@ -693,7 +694,7 @@ void TrackerMap::drawModule(TmModule *mod, int key, int mlay, bool print_total, 
 
   //Get value and name for TH2Poly bin
   float vals = mod->value;
-  if (std::isnan(vals))
+  if (edm::isNotFinite(vals))
     vals = 0;  //Avoid nan values
   std::string nams = mod->name;
 

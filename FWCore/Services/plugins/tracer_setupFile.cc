@@ -2,6 +2,7 @@
 #include "monitor_file_utilities.h"
 
 #include <chrono>
+#include <numeric>
 
 #include <sstream>
 #include <type_traits>
@@ -33,8 +34,7 @@ using namespace edm::service::monitor_file_utilities;
 
 namespace {
   using duration_t = std::chrono::microseconds;
-  using clock_t = std::chrono::steady_clock;
-  auto const now = clock_t::now;
+  using steady_clock = std::chrono::steady_clock;
 
   enum class Step : char {
     preSourceTransition = 'S',
@@ -86,7 +86,14 @@ namespace {
     esSyncEnqueue = 14,
     getNextTransition = 15,
     construction = 16,
-    startTracing = 17
+    finalizeEDModules = 17,
+    finalizeEventSetupConfiguration = 18,
+    scheduleConsistencyCheck = 19,
+    createRunLumiEvents = 20,
+    finishSchedule = 21,
+    constructESModules = 22,
+    startServices = 23,
+    processPython = 24
   };
 
   std::ostream& operator<<(std::ostream& os, Step const s) {
@@ -187,14 +194,14 @@ namespace {
   template <Step S>
   struct ESModuleState {
     ESModuleState(std::shared_ptr<edm::ThreadSafeOutputFileStream> logFile,
-                  decltype(now()) beginTime,
+                  decltype(steady_clock::now()) beginTime,
                   std::shared_ptr<std::vector<std::type_index>> recordIndices)
         : logFile_{logFile}, recordIndices_{recordIndices}, beginTime_{beginTime} {}
 
     void operator()(edm::eventsetup::EventSetupRecordKey const& iKey,
                     edm::ESModuleCallingContext const& iContext) const {
       using namespace edm;
-      auto const t = std::chrono::duration_cast<duration_t>(now() - beginTime_).count();
+      auto const t = std::chrono::duration_cast<duration_t>(steady_clock::now() - beginTime_).count();
       auto top = iContext.getTopModuleCallingContext();
       short int phase = 0;
       unsigned long phaseID = 0xFFFFFFFF;
@@ -242,17 +249,18 @@ namespace {
 
     std::shared_ptr<edm::ThreadSafeOutputFileStream> logFile_;
     std::shared_ptr<std::vector<std::type_index>> recordIndices_;
-    decltype(now()) beginTime_;
+    decltype(steady_clock::now()) beginTime_;
   };
 
   template <Step S>
   struct GlobalEDModuleState {
-    GlobalEDModuleState(std::shared_ptr<edm::ThreadSafeOutputFileStream> logFile, decltype(now()) beginTime)
+    GlobalEDModuleState(std::shared_ptr<edm::ThreadSafeOutputFileStream> logFile,
+                        decltype(steady_clock::now()) beginTime)
         : logFile_{logFile}, beginTime_{beginTime} {}
 
     void operator()(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
       using namespace edm;
-      auto const t = std::chrono::duration_cast<duration_t>(now() - beginTime_).count();
+      auto const t = std::chrono::duration_cast<duration_t>(steady_clock::now() - beginTime_).count();
       long requestingModuleID = 0;
       decltype(mcc.parent().moduleCallingContext()->callID()) requestingCallID = 0;
       if (mcc.type() == ParentContext::Type::kModule) {
@@ -271,17 +279,18 @@ namespace {
 
   private:
     std::shared_ptr<edm::ThreadSafeOutputFileStream> logFile_;
-    decltype(now()) beginTime_;
+    decltype(steady_clock::now()) beginTime_;
   };
 
   template <Step S>
   struct StreamEDModuleState {
-    StreamEDModuleState(std::shared_ptr<edm::ThreadSafeOutputFileStream> logFile, decltype(now()) beginTime)
+    StreamEDModuleState(std::shared_ptr<edm::ThreadSafeOutputFileStream> logFile,
+                        decltype(steady_clock::now()) beginTime)
         : logFile_{logFile}, beginTime_{beginTime} {}
 
     void operator()(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
       using namespace edm;
-      auto const t = std::chrono::duration_cast<duration_t>(now() - beginTime_).count();
+      auto const t = std::chrono::duration_cast<duration_t>(steady_clock::now() - beginTime_).count();
       long requestingModuleID = 0;
       decltype(mcc.parent().moduleCallingContext()->callID()) requestingCallID = 0;
       if (mcc.type() == ParentContext::Type::kModule) {
@@ -295,7 +304,7 @@ namespace {
 
   private:
     std::shared_ptr<edm::ThreadSafeOutputFileStream> logFile_;
-    decltype(now()) beginTime_;
+    decltype(steady_clock::now()) beginTime_;
   };
 
   struct ModuleCtrDtr {
@@ -304,11 +313,28 @@ namespace {
     long long beginDestruction = 0;
     long long endDestruction = 0;
   };
+
+  struct StartupTimes {
+    using time_diff =
+        decltype(std::chrono::duration_cast<duration_t>(steady_clock::now() - steady_clock::now()).count());
+    time_diff endServiceConstruction = 0;
+    time_diff beginFinalizeEDModules = 0;
+    time_diff endFinalizeEDModules = 0;
+    time_diff beginFinalizeEventSetupConfiguration = 0;
+    time_diff endFinalizeEventSetupConfiguration = 0;
+    time_diff beginScheduleConsistencyCheck = 0;
+    time_diff endScheduleConsistencyCheck = 0;
+    time_diff beginCreateRunLumiEvents = 0;
+    time_diff endCreateRunLumiEvents = 0;
+    time_diff beginFinishSchedule = 0;
+    time_diff endFinishSchedule = 0;
+    time_diff beginConstructESModules = 0;
+    time_diff endConstructESModules = 0;
+  };
 }  // namespace
 
 namespace edm::service::tracer {
   void setupFile(std::string const& iFileName, edm::ActivityRegistry& iRegistry) {
-    auto beginTracer = now();
     using namespace std::chrono;
 
     if (iFileName.empty()) {
@@ -317,62 +343,80 @@ namespace edm::service::tracer {
 
     auto logFile = std::make_shared<edm::ThreadSafeOutputFileStream>(iFileName);
 
-    auto beginTime = TimingServiceBase::jobStartTime();
+    const auto beginTime = TimingServiceBase::jobStartTime();
 
-    auto esModuleLabelsPtr = std::make_shared<std::vector<std::string>>();
+    auto esModuleLabelsPtr = std::make_shared<std::vector<std::pair<std::string, std::string>>>();
     auto& esModuleLabels = *esModuleLabelsPtr;
-    //acquire names for all the ED and ES modules
-    iRegistry.watchPostESModuleRegistration([&esModuleLabels](auto const& iDescription) {
-      if (esModuleLabels.size() <= iDescription.id_ + 1) {
-        esModuleLabels.resize(iDescription.id_ + 2);
-      }
-      //NOTE: we want the id to start at 1 not 0
-      if (not iDescription.label_.empty()) {
-        esModuleLabels[iDescription.id_ + 1] = iDescription.label_;
+    auto esmoduleCtrDtrPtr = std::make_shared<std::vector<ModuleCtrDtr>>();
+    auto& esmoduleCtrDtr = *esmoduleCtrDtrPtr;
+
+    iRegistry.watchPreESModuleConstruction([&esmoduleCtrDtr, &esModuleLabels, beginTime](auto const& md) {
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+
+      auto const mid = md.id_ + 1;  //NOTE: we want the id to start at 1 not 0
+      if (mid < esmoduleCtrDtr.size()) {
+        esmoduleCtrDtr[mid].beginConstruction = t;
       } else {
-        esModuleLabels[iDescription.id_ + 1] = iDescription.type_;
+        esmoduleCtrDtr.resize(mid + 1);
+        esmoduleCtrDtr.back().beginConstruction = t;
+      }
+      auto const* label = md.label_.empty() ? (&md.type_) : (&md.label_);
+      if (mid < esModuleLabels.size()) {
+        esModuleLabels[mid] = std::make_pair(*label, md.type_);
+      } else {
+        esModuleLabels.resize(mid + 1);
+        esModuleLabels.back() = std::make_pair(*label, md.type_);
       }
     });
+    iRegistry.watchPostESModuleConstruction([&esmoduleCtrDtr, beginTime](auto const& md) {
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+      esmoduleCtrDtr[md.id_ + 1].endConstruction = t;
+    });
+
+    //acquire names for all the ED and ES modules
     auto moduleCtrDtrPtr = std::make_shared<std::vector<ModuleCtrDtr>>();
     auto& moduleCtrDtr = *moduleCtrDtrPtr;
-    auto moduleLabelsPtr = std::make_shared<std::vector<std::string>>();
+    auto moduleLabelsPtr = std::make_shared<std::vector<std::pair<std::string, std::string>>>();
     auto& moduleLabels = *moduleLabelsPtr;
     iRegistry.watchPreModuleConstruction([&moduleLabels, &moduleCtrDtr, beginTime](ModuleDescription const& md) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
 
       auto const mid = md.id();
       if (mid < moduleLabels.size()) {
-        moduleLabels[mid] = md.moduleLabel();
+        moduleLabels[mid] = std::make_pair(md.moduleLabel(), md.moduleName());
         moduleCtrDtr[mid].beginConstruction = t;
       } else {
         moduleLabels.resize(mid + 1);
-        moduleLabels.back() = md.moduleLabel();
+        moduleLabels.back() = std::make_pair(md.moduleLabel(), md.moduleName());
         moduleCtrDtr.resize(mid + 1);
         moduleCtrDtr.back().beginConstruction = t;
       }
     });
     iRegistry.watchPostModuleConstruction([&moduleCtrDtr, beginTime](auto const& md) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       moduleCtrDtr[md.id()].endConstruction = t;
     });
 
     iRegistry.watchPreModuleDestruction([&moduleCtrDtr, beginTime](auto const& md) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       moduleCtrDtr[md.id()].beginDestruction = t;
     });
     iRegistry.watchPostModuleDestruction([&moduleCtrDtr, beginTime](auto const& md) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       moduleCtrDtr[md.id()].endDestruction = t;
     });
 
     auto sourceCtrPtr = std::make_shared<ModuleCtrDtr>();
     auto& sourceCtr = *sourceCtrPtr;
-    iRegistry.watchPreSourceConstruction([&sourceCtr, beginTime](auto const&) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+    auto sourceTypePtr = std::make_shared<std::string>();
+    auto& sourceType = *sourceTypePtr;
+    iRegistry.watchPreSourceConstruction([&sourceCtr, &sourceType, beginTime](auto const& md) {
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       sourceCtr.beginConstruction = t;
+      sourceType = md.moduleName();
     });
     iRegistry.watchPostSourceConstruction([&sourceCtr, beginTime](auto const&) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       sourceCtr.endConstruction = t;
     });
 
@@ -398,31 +442,167 @@ namespace edm::service::tracer {
           logFile->write(oss.str());
         });
 
+    auto const pythonBegin = duration_cast<duration_t>(TimingServiceBase::pythonStartTime() - beginTime).count();
+    auto const pythonEnd = duration_cast<duration_t>(TimingServiceBase::pythonEndTime() - beginTime).count();
+    auto const servicesBegin = duration_cast<duration_t>(TimingServiceBase::servicesStartTime() - beginTime).count();
+
+    auto startupTimes = std::make_shared<StartupTimes>();
+    auto ptrStartupTimes = startupTimes.get();
+    iRegistry.watchPostServicesConstruction([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->endServiceConstruction = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPreEventSetupModulesConstruction([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->beginConstructESModules = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPostEventSetupModulesConstruction([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->endConstructESModules = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPreModulesInitializationFinalized([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->beginFinalizeEDModules = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPostModulesInitializationFinalized([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->endFinalizeEDModules = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPreEventSetupConfigurationFinalized([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->beginFinalizeEventSetupConfiguration =
+          duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPostEventSetupConfigurationFinalized([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->endFinalizeEventSetupConfiguration =
+          duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPreScheduleConsistencyCheck([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->beginScheduleConsistencyCheck =
+          duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPostScheduleConsistencyCheck([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->endScheduleConsistencyCheck = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPrePrincipalsCreation([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->beginCreateRunLumiEvents = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPostPrincipalsCreation([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->endCreateRunLumiEvents = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPreFinishSchedule([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->beginFinishSchedule = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
+    iRegistry.watchPostFinishSchedule([ptrStartupTimes, beginTime]() mutable {
+      ptrStartupTimes->endFinishSchedule = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+    });
     iRegistry.watchPreBeginJob([logFile,
                                 moduleLabelsPtr,
                                 esModuleLabelsPtr,
                                 moduleCtrDtrPtr,
+                                esmoduleCtrDtrPtr,
                                 sourceCtrPtr,
+                                sourceTypePtr,
                                 beginTime,
-                                beginTracer](auto&) mutable {
+                                pythonBegin,
+                                pythonEnd,
+                                servicesBegin,
+                                startupTimes](auto&) mutable {
+      if (!moduleLabelsPtr->empty()) {
+        (*moduleLabelsPtr)[0] = std::make_pair("source", *sourceTypePtr);
+      }
       {
         std::ostringstream oss;
-        moduleIdToLabel(oss, *moduleLabelsPtr, 'M', "EDModule ID", "Module label");
+        std::vector<std::pair<std::string, std::string>> nameType{{"source", *sourceTypePtr}};
+        moduleIdToLabel(oss, nameType, 'S', "Source ID", "Source label", "Source type");
+        logFile->write(oss.str());
+        sourceTypePtr.reset();
+      }
+      {
+        std::ostringstream oss;
+        moduleIdToLabel(oss, *moduleLabelsPtr, 'M', "EDModule ID", "Module label", "Module type");
         logFile->write(oss.str());
         moduleLabelsPtr.reset();
       }
       {
         std::ostringstream oss;
-        moduleIdToLabel(oss, *esModuleLabelsPtr, 'N', "ESModule ID", "ESModule label");
+        moduleIdToLabel(oss, *esModuleLabelsPtr, 'N', "ESModule ID", "ESModule label", "Module type");
         logFile->write(oss.str());
         esModuleLabelsPtr.reset();
       }
       {
-        auto const tracerStart = duration_cast<duration_t>(beginTracer - beginTime).count();
         auto msg = assembleMessage<Step::preFrameworkTransition>(
-            static_cast<std::underlying_type_t<Phase>>(Phase::startTracing), 0, 0, 0, 0, tracerStart);
+            static_cast<std::underlying_type_t<Phase>>(Phase::processPython), 0, 0, 0, 0, pythonBegin);
         logFile->write(std::move(msg));
       }
+      {
+        auto msg = assembleMessage<Step::postFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::processPython), 0, 0, 0, 0, pythonEnd);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::preFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::startServices), 0, 0, 0, 0, servicesBegin);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::postFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::startServices),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->endServiceConstruction);
+        logFile->write(std::move(msg));
+      }
+
+      {
+        auto msg = assembleMessage<Step::preFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::constructESModules),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->beginConstructESModules);
+        logFile->write(std::move(msg));
+      }
+      {
+        std::vector<int> indices(esmoduleCtrDtrPtr->size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(indices.begin(), indices.end(), [&esmoduleCtrDtrPtr](int l, int r) {
+          return (*esmoduleCtrDtrPtr)[l].beginConstruction < (*esmoduleCtrDtrPtr)[r].beginConstruction;
+        });
+        for (auto index : indices) {
+          auto const& ctr = (*esmoduleCtrDtrPtr)[index];
+          if (ctr.beginConstruction != 0 and ctr.endConstruction != 0) {
+            auto msg = assembleMessage<Step::preESModule>(
+                static_cast<std::underlying_type_t<Phase>>(Phase::constructESModules),
+                0,
+                index,
+                0,
+                0,
+                0,
+                0,  //signifies no calling module
+                ctr.beginConstruction);
+            logFile->write(std::move(msg));
+            auto emsg = assembleMessage<Step::postESModule>(
+                static_cast<std::underlying_type_t<Phase>>(Phase::constructESModules),
+                0,
+                index,
+                0,
+                0,
+                0,
+                0,
+                ctr.endConstruction);
+            logFile->write(std::move(emsg));
+          }
+        }
+      }
+      {
+        auto msg = assembleMessage<Step::postFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::constructESModules),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->endConstructESModules);
+        logFile->write(std::move(msg));
+      }
+
       //NOTE: the source construction can run concurently with module construction so we need to properly
       // interleave its timing in with the modules
       auto srcBeginConstruction = sourceCtrPtr->beginConstruction;
@@ -443,11 +623,13 @@ namespace edm::service::tracer {
         }
       };
       {
-        std::sort(moduleCtrDtrPtr->begin(), moduleCtrDtrPtr->end(), [](auto const& l, auto const& r) {
-          return l.beginConstruction < r.beginConstruction;
+        std::vector<int> indices(moduleCtrDtrPtr->size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(indices.begin(), indices.end(), [&moduleCtrDtrPtr](int l, int r) {
+          return (*moduleCtrDtrPtr)[l].beginConstruction < (*moduleCtrDtrPtr)[r].beginConstruction;
         });
-        int id = 0;
-        for (auto const& ctr : *moduleCtrDtrPtr) {
+        for (auto id : indices) {
+          auto const& ctr = (*moduleCtrDtrPtr)[id];
           if (ctr.beginConstruction != 0) {
             handleSource(ctr.beginConstruction);
             auto bmsg = assembleMessage<Step::preModuleTransition>(
@@ -460,11 +642,12 @@ namespace edm::service::tracer {
           }
           ++id;
         }
-        id = 0;
-        std::sort(moduleCtrDtrPtr->begin(), moduleCtrDtrPtr->end(), [](auto const& l, auto const& r) {
-          return l.beginDestruction < r.beginDestruction;
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(indices.begin(), indices.end(), [&moduleCtrDtrPtr](int l, int r) {
+          return (*moduleCtrDtrPtr)[l].beginDestruction < (*moduleCtrDtrPtr)[r].beginDestruction;
         });
-        for (auto const& dtr : *moduleCtrDtrPtr) {
+        for (auto id : indices) {
+          auto const& dtr = (*moduleCtrDtrPtr)[id];
           if (dtr.beginDestruction != 0) {
             handleSource(dtr.beginDestruction);
             auto bmsg = assembleMessage<Step::preModuleTransition>(
@@ -479,34 +662,161 @@ namespace edm::service::tracer {
         }
         moduleCtrDtrPtr.reset();
       }
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       handleSource(t);
+
+      {
+        auto msg = assembleMessage<Step::preFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::finishSchedule),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->beginFinishSchedule);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::postFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::finishSchedule),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->endFinishSchedule);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::preFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::createRunLumiEvents),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->beginCreateRunLumiEvents);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::postFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::createRunLumiEvents),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->endCreateRunLumiEvents);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::preFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::scheduleConsistencyCheck),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->beginScheduleConsistencyCheck);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::postFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::scheduleConsistencyCheck),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->endScheduleConsistencyCheck);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::preFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::finalizeEventSetupConfiguration),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->beginFinalizeEventSetupConfiguration);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::postFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::finalizeEventSetupConfiguration),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->endFinalizeEventSetupConfiguration);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::preFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::finalizeEDModules),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->beginFinalizeEDModules);
+        logFile->write(std::move(msg));
+      }
+      {
+        auto msg = assembleMessage<Step::postFrameworkTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::finalizeEDModules),
+            0,
+            0,
+            0,
+            0,
+            startupTimes->endFinalizeEDModules);
+        logFile->write(std::move(msg));
+      }
+
       auto msg = assembleMessage<Step::preFrameworkTransition>(
           static_cast<std::underlying_type_t<Phase>>(Phase::beginJob), 0, 0, 0, 0, t);
       logFile->write(std::move(msg));
     });
     iRegistry.watchPostBeginJob([logFile, beginTime]() {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       auto msg = assembleMessage<Step::postFrameworkTransition>(
           static_cast<std::underlying_type_t<Phase>>(Phase::beginJob), 0, 0, 0, 0, t);
       logFile->write(std::move(msg));
     });
 
     iRegistry.watchPreEndJob([logFile, beginTime]() {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       auto msg = assembleMessage<Step::preFrameworkTransition>(
           static_cast<std::underlying_type_t<Phase>>(Phase::endJob), 0, 0, 0, 0, t);
       logFile->write(std::move(msg));
     });
     iRegistry.watchPostEndJob([logFile, beginTime]() {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       auto msg = assembleMessage<Step::postFrameworkTransition>(
           static_cast<std::underlying_type_t<Phase>>(Phase::endJob), 0, 0, 0, 0, t);
       logFile->write(std::move(msg));
     });
 
+    iRegistry.watchPreBeginStream([logFile, beginTime](auto const& sc) {
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+      auto msg = assembleMessage<Step::preFrameworkTransition>(
+          static_cast<std::underlying_type_t<Phase>>(Phase::beginStream), stream_id(sc), 0, 0, 0, t);
+      logFile->write(std::move(msg));
+    });
+    iRegistry.watchPostBeginStream([logFile, beginTime](auto const& sc) {
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+      auto msg = assembleMessage<Step::postFrameworkTransition>(
+          static_cast<std::underlying_type_t<Phase>>(Phase::beginStream), stream_id(sc), 0, 0, 0, t);
+      logFile->write(std::move(msg));
+    });
+    iRegistry.watchPreEndStream([logFile, beginTime](auto const& sc) {
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+      auto msg = assembleMessage<Step::preFrameworkTransition>(
+          static_cast<std::underlying_type_t<Phase>>(Phase::endStream), stream_id(sc), 0, 0, 0, t);
+      logFile->write(std::move(msg));
+    });
+    iRegistry.watchPostEndStream([logFile, beginTime](auto const& sc) {
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
+      auto msg = assembleMessage<Step::postFrameworkTransition>(
+          static_cast<std::underlying_type_t<Phase>>(Phase::endStream), stream_id(sc), 0, 0, 0, t);
+      logFile->write(std::move(msg));
+    });
+
     iRegistry.watchPreEvent([logFile, beginTime](auto const& sc) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       auto msg = assembleMessage<Step::preFrameworkTransition>(static_cast<std::underlying_type_t<Phase>>(Phase::Event),
                                                                stream_id(sc),
                                                                sc.eventID().run(),
@@ -516,7 +826,7 @@ namespace edm::service::tracer {
       logFile->write(std::move(msg));
     });
     iRegistry.watchPostEvent([logFile, beginTime](auto const& sc) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       auto msg =
           assembleMessage<Step::postFrameworkTransition>(static_cast<std::underlying_type_t<Phase>>(Phase::Event),
                                                          stream_id(sc),
@@ -528,7 +838,7 @@ namespace edm::service::tracer {
     });
 
     iRegistry.watchPreClearEvent([logFile, beginTime](auto const& sc) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       auto msg =
           assembleMessage<Step::preFrameworkTransition>(static_cast<std::underlying_type_t<Phase>>(Phase::clearEvent),
                                                         stream_id(sc),
@@ -539,7 +849,7 @@ namespace edm::service::tracer {
       logFile->write(std::move(msg));
     });
     iRegistry.watchPostClearEvent([logFile, beginTime](auto const& sc) {
-      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
       auto msg =
           assembleMessage<Step::postFrameworkTransition>(static_cast<std::underlying_type_t<Phase>>(Phase::clearEvent),
                                                          stream_id(sc),
@@ -552,7 +862,7 @@ namespace edm::service::tracer {
 
     {
       auto preGlobal = [logFile, beginTime](GlobalContext const& gc) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preFrameworkTransition>(toTransition(gc),
                                                                  toTransitionIndex(gc),
                                                                  gc.luminosityBlockID().run(),
@@ -574,7 +884,7 @@ namespace edm::service::tracer {
     }
     {
       auto postGlobal = [logFile, beginTime](GlobalContext const& gc) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::postFrameworkTransition>(toTransition(gc),
                                                                   toTransitionIndex(gc),
                                                                   gc.luminosityBlockID().run(),
@@ -596,7 +906,7 @@ namespace edm::service::tracer {
     }
     {
       auto preStream = [logFile, beginTime](StreamContext const& sc) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preFrameworkTransition>(
             toTransition(sc), stream_id(sc), sc.eventID().run(), sc.eventID().luminosityBlock(), 0, t);
         logFile->write(std::move(msg));
@@ -608,7 +918,7 @@ namespace edm::service::tracer {
     }
     {
       auto postStream = [logFile, beginTime](StreamContext const& sc) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::postFrameworkTransition>(
             toTransition(sc), stream_id(sc), sc.eventID().run(), sc.eventID().luminosityBlock(), 0, t);
         logFile->write(std::move(msg));
@@ -620,7 +930,7 @@ namespace edm::service::tracer {
     }
     {
       iRegistry.watchESSyncIOVQueuing([logFile, beginTime](IOVSyncValue const& sv) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preFrameworkTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::esSyncEnqueue),
             -1,
@@ -631,7 +941,7 @@ namespace edm::service::tracer {
         logFile->write(std::move(msg));
       });
       iRegistry.watchPreESSyncIOV([logFile, beginTime](IOVSyncValue const& sv) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg =
             assembleMessage<Step::preFrameworkTransition>(static_cast<std::underlying_type_t<Phase>>(Phase::esSync),
                                                           -1,
@@ -642,7 +952,7 @@ namespace edm::service::tracer {
         logFile->write(std::move(msg));
       });
       iRegistry.watchPostESSyncIOV([logFile, beginTime](IOVSyncValue const& sv) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg =
             assembleMessage<Step::postFrameworkTransition>(static_cast<std::underlying_type_t<Phase>>(Phase::esSync),
                                                            -1,
@@ -655,64 +965,64 @@ namespace edm::service::tracer {
     }
     {
       iRegistry.watchPreOpenFile([logFile, beginTime](std::string const&) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::openFile), 0, t);
         logFile->write(std::move(msg));
       });
       iRegistry.watchPostOpenFile([logFile, beginTime](std::string const&) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::postSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::openFile), 0, t);
         logFile->write(std::move(msg));
       });
       iRegistry.watchPreSourceEvent([logFile, beginTime](StreamID id) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::Event), id.value(), t);
         logFile->write(std::move(msg));
       });
       iRegistry.watchPostSourceEvent([logFile, beginTime](StreamID id) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::postSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::Event), id.value(), t);
         logFile->write(std::move(msg));
       });
 
       iRegistry.watchPreSourceRun([logFile, beginTime](RunIndex id) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::globalBeginRun), id.value(), t);
         logFile->write(std::move(msg));
       });
       iRegistry.watchPostSourceRun([logFile, beginTime](RunIndex id) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::postSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::globalBeginRun), id.value(), t);
         logFile->write(std::move(msg));
       });
 
       iRegistry.watchPreSourceLumi([logFile, beginTime](auto id) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::globalBeginLumi), id.value(), t);
         logFile->write(std::move(msg));
       });
       iRegistry.watchPostSourceLumi([logFile, beginTime](auto id) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::postSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::globalBeginLumi), id.value(), t);
         logFile->write(std::move(msg));
       });
 
       iRegistry.watchPreSourceNextTransition([logFile, beginTime]() {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::getNextTransition), t);
         logFile->write(std::move(msg));
       });
       iRegistry.watchPostSourceNextTransition([logFile, beginTime]() {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::postSourceTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::getNextTransition), t);
         logFile->write(std::move(msg));
@@ -720,13 +1030,13 @@ namespace edm::service::tracer {
 
       //ED Modules
       iRegistry.watchPreModuleBeginJob([logFile, beginTime](auto const& md) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preModuleTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::beginJob), 0, md.id(), 0, 0, 0, t);
         logFile->write(std::move(msg));
       });
       iRegistry.watchPostModuleBeginJob([logFile, beginTime](auto const& md) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::postModuleTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::beginJob), 0, md.id(), 0, 0, 0, t);
         logFile->write(std::move(msg));
@@ -739,13 +1049,13 @@ namespace edm::service::tracer {
       iRegistry.watchPostModuleEndStream(StreamEDModuleState<Step::postModuleTransition>(logFile, beginTime));
 
       iRegistry.watchPreModuleEndJob([logFile, beginTime](auto const& md) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::preModuleTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::endJob), 0, md.id(), 0, 0, 0, t);
         logFile->write(std::move(msg));
       });
       iRegistry.watchPostModuleEndJob([logFile, beginTime](auto const& md) {
-        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto const t = duration_cast<duration_t>(steady_clock::now() - beginTime).count();
         auto msg = assembleMessage<Step::postModuleTransition>(
             static_cast<std::underlying_type_t<Phase>>(Phase::endJob), 0, md.id(), 0, 0, 0, t);
         logFile->write(std::move(msg));
@@ -829,35 +1139,42 @@ namespace edm::service::tracer {
     }
 
     std::ostringstream oss;
-    oss << "# Transition              Symbol\n";
-    oss << "#------------------------ ------\n";
-    oss << "# startTracing            " << Phase::startTracing << "\n"
-        << "# construction            " << Phase::construction << "\n"
-        << "# getNextTransition       " << Phase::getNextTransition << "\n"
-        << "# esSyncEnqueue           " << Phase::esSyncEnqueue << "\n"
-        << "# esSync                  " << Phase::esSync << "\n"
-        << "# beginJob                " << Phase::beginJob << "\n"
-        << "# beginStream             " << Phase::beginStream << "\n"
-        << "# openFile                " << Phase::openFile << "\n"
-        << "# beginProcessBlock       " << Phase::beginProcessBlock << "\n"
-        << "# accessInputProcessBlock " << Phase::accessInputProcessBlock << "\n"
-        << "# globalBeginRun          " << Phase::globalBeginRun << "\n"
-        << "# streamBeginRun          " << Phase::streamBeginRun << "\n"
-        << "# globalBeginLumi         " << Phase::globalBeginLumi << "\n"
-        << "# streamBeginLumi         " << Phase::streamBeginLumi << "\n"
-        << "# Event                   " << Phase::Event << "\n"
-        << "# clearEvent              " << Phase::clearEvent << "\n"
-        << "# streamEndLumi           " << Phase::streamEndLumi << "\n"
-        << "# globalEndLumi           " << Phase::globalEndLumi << "\n"
-        << "# globalWriteLumi         " << Phase::globalWriteLumi << "\n"
-        << "# streamEndRun            " << Phase::streamEndRun << "\n"
-        << "# globalEndRun            " << Phase::globalEndRun << "\n"
-        << "# globalWriteRun          " << Phase::globalWriteRun << "\n"
-        << "# endProcessBlock         " << Phase::endProcessBlock << "\n"
-        << "# writeProcessBlock       " << Phase::writeProcessBlock << "\n"
-        << "# endStream               " << Phase::endStream << "\n"
-        << "# endJob                  " << Phase::endJob << "\n"
-        << "# destruction             " << Phase::destruction << "\n\n";
+    oss << "# Transition               Symbol\n";
+    oss << "#------------------------  ------\n";
+    oss << "# processPython            " << Phase::processPython << "\n"
+        << "# startServices            " << Phase::startServices << "\n"
+        << "# constructionESModules    " << Phase::constructESModules << "\n"
+        << "# finishSchedule           " << Phase::finishSchedule << "\n"
+        << "# createRunLumiEvents      " << Phase::createRunLumiEvents << "\n"
+        << "# scheduleConsistencyCheck " << Phase::scheduleConsistencyCheck << "\n"
+        << "# finish ES Configuration  " << Phase::finalizeEventSetupConfiguration << "\n"
+        << "# finalize EDModules       " << Phase::finalizeEDModules << "\n"
+        << "# construction             " << Phase::construction << "\n"
+        << "# getNextTransition        " << Phase::getNextTransition << "\n"
+        << "# esSyncEnqueue            " << Phase::esSyncEnqueue << "\n"
+        << "# esSync                   " << Phase::esSync << "\n"
+        << "# beginJob                 " << Phase::beginJob << "\n"
+        << "# beginStream              " << Phase::beginStream << "\n"
+        << "# openFile                 " << Phase::openFile << "\n"
+        << "# beginProcessBlock        " << Phase::beginProcessBlock << "\n"
+        << "# accessInputProcessBlock  " << Phase::accessInputProcessBlock << "\n"
+        << "# globalBeginRun           " << Phase::globalBeginRun << "\n"
+        << "# streamBeginRun           " << Phase::streamBeginRun << "\n"
+        << "# globalBeginLumi          " << Phase::globalBeginLumi << "\n"
+        << "# streamBeginLumi          " << Phase::streamBeginLumi << "\n"
+        << "# Event                    " << Phase::Event << "\n"
+        << "# clearEvent               " << Phase::clearEvent << "\n"
+        << "# streamEndLumi            " << Phase::streamEndLumi << "\n"
+        << "# globalEndLumi            " << Phase::globalEndLumi << "\n"
+        << "# globalWriteLumi          " << Phase::globalWriteLumi << "\n"
+        << "# streamEndRun             " << Phase::streamEndRun << "\n"
+        << "# globalEndRun             " << Phase::globalEndRun << "\n"
+        << "# globalWriteRun           " << Phase::globalWriteRun << "\n"
+        << "# endProcessBlock          " << Phase::endProcessBlock << "\n"
+        << "# writeProcessBlock        " << Phase::writeProcessBlock << "\n"
+        << "# endStream                " << Phase::endStream << "\n"
+        << "# endJob                   " << Phase::endJob << "\n"
+        << "# destruction              " << Phase::destruction << "\n\n";
     oss << "# Step                       Symbol Entries\n"
         << "# -------------------------- ------ ------------------------------------------\n"
         << "# preSourceTransition           " << Step::preSourceTransition

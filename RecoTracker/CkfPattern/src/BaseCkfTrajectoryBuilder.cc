@@ -130,6 +130,32 @@ bool BaseCkfTrajectoryBuilder::toBeContinued(TempTrajectory& traj, bool inOut) c
   }
   // Called after each new hit is added to the trajectory, to see if it is
   // worth continuing to build this track candidate.
+  //
+  // When a sufficient amount of measurements are made,
+  // ensure that an infinite loop is not created (CMSHLT-3557).
+  // Avoid hit-pair structures as last = last-2, and last-1 = last-3,
+  // where last refers to measurements.
+  //
+  const TempTrajectory::DataContainer tms = traj.measurements();
+  TempTrajectory::DataContainer::const_iterator tm = tms.begin();
+
+  // Ensure at sufficient amount of measurements before checking for loops
+  if (traj.measurements().size() > 15) {
+    TrackingRecHit::RecHitPointer lastHit = tm->recHit();
+    ++tm;
+    TrackingRecHit::RecHitPointer last2Hit = tm->recHit();
+    ++tm;
+    TrackingRecHit::RecHitPointer last3Hit = tm->recHit();
+    ++tm;
+    TrackingRecHit::RecHitPointer last4Hit = tm->recHit();
+    if (lastHit->geographicalId() == last3Hit->geographicalId() &&
+        last2Hit->geographicalId() == last4Hit->geographicalId() &&
+        (lastHit->geographicalId().rawId() == 0 || last2Hit->geographicalId().rawId() == 0)) {
+      LogDebug("CkfPattern") << "Loop pattern found in last recHits\n" << PrintoutHelper::dumpMeasurements(tms);
+
+      return false;
+    }
+  }
   if (inOut) {
     // if (theInOutFilter == 0) edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: trying to use dedicated filter for in-out tracking phase, when none specified";
     return theInOutFilter->toBeContinued(traj);

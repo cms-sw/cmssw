@@ -33,6 +33,7 @@ Toy EDProducers of Ints for testing purposes only.
 #include <string>
 #include <vector>
 #include <chrono>
+#include <cmath>
 
 namespace edmtest {
 

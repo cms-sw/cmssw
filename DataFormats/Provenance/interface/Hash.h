@@ -62,10 +62,22 @@ namespace edm {
     // representation of an MD5 checksum.
     bool isValid() const;
 
-    bool operator<(Hash<I> const& other) const;
-    bool operator>(Hash<I> const& other) const;
-    bool operator==(Hash<I> const& other) const;
-    bool operator!=(Hash<I> const& other) const;
+    auto operator<=>(Hash<I> const& other) const {
+      bool meCF = hash_detail::isCompactForm_(hash_);
+      bool otherCF = hash_detail::isCompactForm_(other.hash_);
+      if (meCF == otherCF) {
+        return this->hash_ <=> other.hash_;
+      }
+      //copy constructor will do compact form conversion
+      if (meCF) {
+        Hash<I> temp(other);  // NOLINT(performance-unnecessary-copy-initialization)
+        return this->hash_ <=> temp.hash_;
+      }
+      Hash<I> temp(*this);
+      return temp.hash_ <=> other.hash_;
+    }
+    bool operator==(Hash<I> const& other) const { return (*this <=> other) == 0; }
+    bool operator!=(Hash<I> const& other) const { return (*this <=> other) != 0; }
     std::ostream& print(std::ostream& os) const;
     void toString(std::string& result) const;
     void toDigest(cms::Digest& digest) const;
@@ -87,22 +99,6 @@ namespace edm {
     /// Hexified version of data *must* contain a multiple of 2
     /// bytes. If it does not, throw an exception.
     void throwIfIllFormed() const;
-
-    template <typename Op>
-    bool compareUsing(Hash<I> const& iOther, Op op) const {
-      bool meCF = hash_detail::isCompactForm_(hash_);
-      bool otherCF = hash_detail::isCompactForm_(iOther.hash_);
-      if (meCF == otherCF) {
-        return op(this->hash_, iOther.hash_);
-      }
-      //copy constructor will do compact form conversion
-      if (meCF) {
-        Hash<I> temp(iOther);  // NOLINT(performance-unnecessary-copy-initialization)
-        return op(this->hash_, temp.hash_);
-      }
-      Hash<I> temp(*this);
-      return op(temp.hash_, iOther.hash_);
-    }
 
     value_type hash_;
   };
@@ -140,26 +136,6 @@ namespace edm {
   template <int I>
   inline bool Hash<I>::isValid() const {
     return hash_detail::isValid_(hash_);
-  }
-
-  template <int I>
-  inline bool Hash<I>::operator<(Hash<I> const& other) const {
-    return this->compareUsing(other, std::less<std::string>());
-  }
-
-  template <int I>
-  inline bool Hash<I>::operator>(Hash<I> const& other) const {
-    return this->compareUsing(other, std::greater<std::string>());
-  }
-
-  template <int I>
-  inline bool Hash<I>::operator==(Hash<I> const& other) const {
-    return this->compareUsing(other, std::equal_to<std::string>());
-  }
-
-  template <int I>
-  inline bool Hash<I>::operator!=(Hash<I> const& other) const {
-    return this->compareUsing(other, std::not_equal_to<std::string>());
   }
 
   template <int I>

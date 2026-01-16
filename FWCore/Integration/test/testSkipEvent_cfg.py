@@ -81,9 +81,8 @@ process.f1 = cms.EDFilter("TestFilterModule",
     onlyOne = cms.untracked.bool(False)
 )
 
-from IOPool.Output.modules import PoolOutputModule
-process.out = PoolOutputModule(
-    fileName = 'testSkipEvent.root',
+from FWCore.Modules.modules import AsciiOutputModule
+process.out = AsciiOutputModule(
     SelectEvents = dict(SelectEvents = ['p1'])
 )
 

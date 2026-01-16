@@ -150,8 +150,8 @@ private:
   std::string LHEInputFileName;
   std::shared_ptr<LHAupLesHouches> lhaUP;
 
-  enum { PP, PPbar, ElectronPositron };
-  int fInitialState;  // pp, ppbar, or e-e+
+  enum { PP, PPbar, ElectronPositron, HeavyIons };
+  int fInitialState;  // pp, ppbar, e-e+ or HI
 
   double fBeam1PZ;
   double fBeam2PZ;
@@ -255,6 +255,15 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
     } else {
       // probably need to throw on attempt to override ?
     }
+  } else if (params.exists("HeavyIonInitialState")) {
+    if (fInitialState == PP) {
+      fInitialState = HeavyIons;
+      edm::LogInfo("GeneratorInterface|Pythia8Interface")
+          << "Pythia8 will be initialized for HEAVY ION collisions. "
+          << "This is a user-request change from the DEFAULT PROTON-PROTON initial state.";
+    } else {
+      // probably need to throw on attempt to override ?
+    }
   } else if (params.exists("ElectronProtonInitialState") || params.exists("PositronProtonInitialState")) {
     // throw on unknown initial state !
     throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
@@ -273,8 +282,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
   if (params.exists("reweightGen")) {
     edm::LogInfo("Pythia8Interface") << "Start setup for reweightGen";
     edm::ParameterSet rgParams = params.getParameter<edm::ParameterSet>("reweightGen");
-    fReweightUserHook = std::make_shared<PtHatReweightUserHook>(
-        rgParams.getParameter<double>("pTRef"), rgParams.getParameter<double>("power"));
+    fReweightUserHook = std::make_shared<PtHatReweightUserHook>(rgParams.getParameter<double>("pTRef"),
+                                                                rgParams.getParameter<double>("power"));
     edm::LogInfo("Pythia8Interface") << "End setup for reweightGen";
   }
   if (params.exists("reweightGenEmp")) {
@@ -291,22 +300,23 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
     edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenRap";
     edm::ParameterSet rgrParams = params.getParameter<edm::ParameterSet>("reweightGenRap");
     fReweightRapUserHook = std::make_shared<RapReweightUserHook>(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
-                                                       rgrParams.getParameter<double>("yLabPower"),
-                                                       rgrParams.getParameter<std::string>("yCMSigmaFunc"),
-                                                       rgrParams.getParameter<double>("yCMPower"),
-                                                       rgrParams.getParameter<double>("pTHatMin"),
-                                                       rgrParams.getParameter<double>("pTHatMax"));
-    edm::LogInfo("Pythia8Interface") << "End setup for reweightGenRap";
-  }
-  if (params.exists("reweightGenPtHatRap")) {
-    edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenPtHatRap";
-    edm::ParameterSet rgrParams = params.getParameter<edm::ParameterSet>("reweightGenPtHatRap");
-    fReweightPtHatRapUserHook = std::make_shared<PtHatRapReweightUserHook>(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
                                                                  rgrParams.getParameter<double>("yLabPower"),
                                                                  rgrParams.getParameter<std::string>("yCMSigmaFunc"),
                                                                  rgrParams.getParameter<double>("yCMPower"),
                                                                  rgrParams.getParameter<double>("pTHatMin"),
                                                                  rgrParams.getParameter<double>("pTHatMax"));
+    edm::LogInfo("Pythia8Interface") << "End setup for reweightGenRap";
+  }
+  if (params.exists("reweightGenPtHatRap")) {
+    edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenPtHatRap";
+    edm::ParameterSet rgrParams = params.getParameter<edm::ParameterSet>("reweightGenPtHatRap");
+    fReweightPtHatRapUserHook =
+        std::make_shared<PtHatRapReweightUserHook>(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
+                                                   rgrParams.getParameter<double>("yLabPower"),
+                                                   rgrParams.getParameter<std::string>("yCMSigmaFunc"),
+                                                   rgrParams.getParameter<double>("yCMPower"),
+                                                   rgrParams.getParameter<double>("pTHatMin"),
+                                                   rgrParams.getParameter<double>("pTHatMax"));
     edm::LogInfo("Pythia8Interface") << "End setup for reweightGenPtHatRap";
   }
 
@@ -360,16 +370,16 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
     if (params.exists("EV1_nFinalMode"))
       EV1_nFinalMode = params.getParameter<int>("EV1_nFinalMode");
     fEmissionVetoHook1 = std::make_shared<EmissionVetoHook1>(EV1_nFinal,
-                                                   EV1_vetoOn,
-                                                   EV1_maxVetoCount,
-                                                   EV1_pThardMode,
-                                                   EV1_pTempMode,
-                                                   EV1_emittedMode,
-                                                   EV1_pTdefMode,
-                                                   EV1_MPIvetoOn,
-                                                   EV1_QEDvetoMode,
-                                                   EV1_nFinalMode,
-                                                   0);
+                                                             EV1_vetoOn,
+                                                             EV1_maxVetoCount,
+                                                             EV1_pThardMode,
+                                                             EV1_pTempMode,
+                                                             EV1_emittedMode,
+                                                             EV1_pTdefMode,
+                                                             EV1_MPIvetoOn,
+                                                             EV1_QEDvetoMode,
+                                                             EV1_nFinalMode,
+                                                             0);
   }
 
   if (params.exists("UserCustomization")) {
@@ -409,10 +419,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     } else if (fInitialState == ElectronPositron) {
       fMasterGen->settings.mode("Beams:idA", 11);
       fMasterGen->settings.mode("Beams:idB", -11);
+    } else if (fInitialState == HeavyIons) {
+      // let user to set up the beam particles
     } else {
       // throw on unknown initial state !
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
-          << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
+          << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron, HeavyIons \n";
     }
     fMasterGen->settings.parm("Beams:eCM", comEnergy);
   } else {

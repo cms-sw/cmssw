@@ -70,7 +70,7 @@ namespace {
     float phi_v = state.globalMomentum().phi();
     float theta_v = state.globalMomentum().theta();
 
-    CurvilinearTrajectoryError curv = state.curvilinearError();
+    const CurvilinearTrajectoryError& curv = state.curvilinearError();
     float errPhi2 = curv.matrix()(3, 3);
     float errLambda2 = curv.matrix()(2, 2);
     float errInvP2 = curv.matrix()(1, 1);

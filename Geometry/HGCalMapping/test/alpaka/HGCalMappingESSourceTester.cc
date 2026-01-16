@@ -88,7 +88,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
              typecode.c_str(),
              idx,
              cellIdx.maxErx_[idx],
-             cellIdx.di_[idx].getMaxIndex(),
+             cellIdx.di_[idx].maxIndex(),
              cellIdx.offsets_[idx]);
     }
 

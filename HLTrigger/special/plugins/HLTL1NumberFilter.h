@@ -1,8 +1,8 @@
-#ifndef HLTL1NumberFilter_h
-#define HLTL1NumberFilter_h
+#ifndef HLTrigger_special_HLTL1NumberFilter_h
+#define HLTrigger_special_HLTL1NumberFilter_h
 // -*- C++ -*-
 //
-// Package:    HLTL1NumberFilter
+// Package:    HLTrigger/special
 // Class:      HLTL1NumberFilter
 //
 /**\class HLTL1NumberFilter HLTL1NumberFilter.cc filter/HLTL1NumberFilter/src/HLTL1NumberFilter.cc
@@ -19,15 +19,13 @@ Implementation:
 //
 
 // include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/global/EDFilter.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <string>
 
@@ -38,7 +36,7 @@ Implementation:
 class HLTL1NumberFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTL1NumberFilter(const edm::ParameterSet &);
-  ~HLTL1NumberFilter() override;
+  ~HLTL1NumberFilter() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
@@ -50,8 +48,8 @@ private:
   const edm::EDGetTokenT<FEDRawDataCollection> inputToken_;
   /// accept the event if its event number is a multiple of period_
   const unsigned int period_;
-  /// FED from which to get lv1ID number
-  const int fedId_;
+  /// FEDs from which to get lv1ID number
+  const std::vector<int> fedIds_;
   /// if invert_=true, invert that event accept decision
   const bool invert_;
   /// if useTCDS=true, use 64-bit Event Number from TCDS record (FED 1024) word 11

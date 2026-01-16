@@ -38,6 +38,8 @@ public:
 
   void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const final;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   // ----------member data ---------------------------
 };
@@ -60,6 +62,11 @@ UseValueExampleAnalyzer::UseValueExampleAnalyzer(const edm::ParameterSet& /* iCo
 //
 // member functions
 //
+
+void UseValueExampleAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.addDefault(desc);
+}
 
 // ------------ method called to produce the data  ------------
 void UseValueExampleAnalyzer::analyze(edm::StreamID,

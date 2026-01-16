@@ -205,7 +205,7 @@ process.SiPixelPhase1RawDataAnalyzer.src = "siPixelDigis"
 #--------------------------
 # Service
 #--------------------------
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 #--------------------------
 # Scheduling

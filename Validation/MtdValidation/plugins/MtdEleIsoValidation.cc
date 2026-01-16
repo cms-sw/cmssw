@@ -892,7 +892,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   auto GenRecTrackHandle = iEvent.getHandle(GenRecTrackToken_);
 
   auto VertexHandle = iEvent.getHandle(RecVertexToken_);
-  std::vector<reco::Vertex> vertices = *VertexHandle;
+  const std::vector<reco::Vertex>& vertices = *VertexHandle;
 
   const auto& t0Pid = iEvent.get(t0PidToken_);
   const auto& Sigmat0Pid = iEvent.get(Sigmat0PidToken_);

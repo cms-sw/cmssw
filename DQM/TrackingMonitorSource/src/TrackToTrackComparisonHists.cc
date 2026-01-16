@@ -471,7 +471,7 @@ void TrackToTrackComparisonHists::book_matching_tracks_histos(DQMStore::IBooker&
                                       Phi_rangeMin,
                                       Phi_rangeMax);
 
-  (mes.h_dPt) = ibooker.book1D(label + "_dPt", "#Delta track #P_T", ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax);
+  (mes.h_dPt) = ibooker.book1D(label + "_dPt", "#Delta track p_{T}", ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax);
   (mes.h_dEta) = ibooker.book1D(label + "_dEta", "#Delta track #eta", etaRes_nbin, etaRes_rangeMin, etaRes_rangeMax);
   (mes.h_dPhi) = ibooker.book1D(label + "_dPhi", "#Delta track #phi", phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax);
   (mes.h_dDxy) = ibooker.book1D(

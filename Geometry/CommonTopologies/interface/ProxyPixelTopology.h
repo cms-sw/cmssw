@@ -85,14 +85,14 @@ public:
   bool isItEdgePixelInY(int iybin) const override { return specificTopology().isItEdgePixelInY(iybin); }
   bool isItEdgePixel(int ixbin, int iybin) const override { return specificTopology().isItEdgePixel(ixbin, iybin); }
 
-  virtual const GeomDetType &type() const { return *theType; }
+  const GeomDetType &type() const { return *theType; }
 
-  virtual PixelGeomDetType const &specificType() const { return *theType; }
+  PixelGeomDetType const &specificType() const { return *theType; }
 
   const SurfaceDeformation *surfaceDeformation() const { return theSurfaceDeformation.operator->(); }
-  virtual void setSurfaceDeformation(const SurfaceDeformation *deformation);
+  void setSurfaceDeformation(const SurfaceDeformation *deformation);
 
-  virtual const PixelTopology &specificTopology() const { return specificType().specificTopology(); }
+  const PixelTopology &specificTopology() const { return specificType().specificTopology(); }
 
 private:
   /// Internal method to get correction of the position from SurfaceDeformation,

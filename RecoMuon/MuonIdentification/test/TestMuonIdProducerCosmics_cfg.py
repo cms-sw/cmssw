@@ -50,7 +50,7 @@ cms.untracked.vstring(
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('/tmp/muonid_1.24.root'),
     outputCommands = cms.untracked.vstring("drop *",
-        "keep *_genParticleCandidates_*_*",
+        "keep *_genParticles_*_*",
 	"keep recoTracks_*_*_*",
 	"keep recoTrackExtras_*_*_*",
 	"keep recoMuons_*_*_*",

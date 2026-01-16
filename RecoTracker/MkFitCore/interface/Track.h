@@ -432,18 +432,28 @@ namespace mkfit {
     // Used by TrackCand::ExportTrack
     void setHitIdxAtPos(int pos, const HitOnTrack& hot) { hitsOnTrk_[pos] = hot; }
 
-    void resizeHitsForInput();
-
     void addHitIdx(int hitIdx, int hitLyr, float chi2) {
       hitsOnTrk_.push_back({hitIdx, hitLyr});
       ++lastHitIdx_;
-      if (hitIdx >= 0 || hitIdx == -9) {
+      if (hitIdx >= 0 || hitIdx == Hit::kHitCCCFilterIdx) {
         ++nFoundHits_;
         chi2_ += chi2;
       }
     }
 
     void addHitIdx(const HitOnTrack& hot, float chi2) { addHitIdx(hot.index, hot.layer, chi2); }
+
+    void removeHit(int posHitIdx) {
+      // negative index and keep hit
+      hitsOnTrk_[posHitIdx].index = -1;
+
+      //should remove it from the vector, but didn't work so far
+      //hitsOnTrk_.erase(hitsOnTrk_.begin() + posHitIdx);
+      //lastHitIdx_=lastHitIdx_-1;
+
+      //reduce nFoundHits_
+      nFoundHits_ = nFoundHits_ - 1;
+    }
 
     HitOnTrack getHitOnTrack(int posHitIdx) const { return hitsOnTrk_[posHitIdx]; }
 
@@ -490,6 +500,8 @@ namespace mkfit {
       return mcHitID;
     }
 
+    const std::vector<HitOnTrack>& refHitsOnTrackVector() const { return hitsOnTrk_; }
+
     const HitOnTrack* getHitsOnTrackArray() const { return hitsOnTrk_.data(); }
     const HitOnTrack* beginHitsOnTrack() const { return hitsOnTrk_.data(); }
     const HitOnTrack* endHitsOnTrack() const { return hitsOnTrk_.data() + (lastHitIdx_ + 1); }
@@ -503,7 +515,7 @@ namespace mkfit {
     void countAndSetNFoundHits() {
       nFoundHits_ = 0;
       for (int i = 0; i <= lastHitIdx_; i++) {
-        if (hitsOnTrk_[i].index >= 0 || hitsOnTrk_[i].index == -9)
+        if (hitsOnTrk_[i].index >= 0 || hitsOnTrk_[i].index == Hit::kHitCCCFilterIdx)
           nFoundHits_++;
       }
     }
@@ -553,7 +565,7 @@ namespace mkfit {
         const auto& hot = tmp_hitsOnTrk[ihit];
         const auto lyr = hot.layer;
         const auto idx = hot.index;
-        if (lyr >= 0 && (idx >= 0 || idx == -9) && lyr != prev_lyr) {
+        if (lyr >= 0 && (idx >= 0 || idx == Hit::kHitCCCFilterIdx) && lyr != prev_lyr) {
           ++lyr_cnt;
           prev_lyr = lyr;
         }
@@ -568,7 +580,7 @@ namespace mkfit {
     std::vector<int> foundLayers() const {
       std::vector<int> layers;
       for (int ihit = 0; ihit <= lastHitIdx_; ++ihit) {
-        if (hitsOnTrk_[ihit].index >= 0 || hitsOnTrk_[ihit].index == -9) {
+        if (hitsOnTrk_[ihit].index >= 0 || hitsOnTrk_[ihit].index == Hit::kHitCCCFilterIdx) {
           layers.push_back(hitsOnTrk_[ihit].layer);
         }
       }

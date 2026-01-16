@@ -16,7 +16,6 @@ process.source = cms.Source("EmptySource")
 # - DAG of event/lumi/run producers that are not consumed by an always-running module, whole DAG deleted
 # - DAG of event(/lumi/run) producers that are partly consumed (kept) and partly non-consumed (delete)
 # - EDAlias with one instance consumed (original producer kept) and another non-consumed (original producer deleted)
-# - SwitchProducer non-chosen case deleted
 
 intEventProducer = cms.EDProducer("IntProducer", ivalue = cms.int32(1))
 intNonEventProducer = cms.EDProducer("NonEventIntProducer", ivalue = cms.int32(1))
@@ -114,20 +113,6 @@ process.consumerEventAlias = cms.EDAnalyzer("edmtest::GenericIntsAnalyzer",
     srcEvent = cms.untracked.VInputTag("producerEventAlias:consumed")
 )
 
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda accelerators: (True, -10),
-                test2 = lambda accelerators: (True, -9)
-            ), **kargs)
-process.producerEventSwitchProducerNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteProducer")
-process.producerEventSwitchProducerConsumed = intEventProducerMustRun.clone()
-process.producerEventSwitchProducer = SwitchProducerTest(
-    test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("producerEventSwitchProducerNotConsumed")),
-    test2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("producerEventSwitchProducerConsumed")),
-)
-
 process.consumerNotExist = cms.EDAnalyzer("edmtest::GenericIntsAnalyzer",
     inputShouldBeMissing = cms.untracked.bool(True),
     srcBeginProcess = cms.untracked.VInputTag(
@@ -179,9 +164,6 @@ process.t = cms.Task(
     #
     process.producerEventAliasNotConsumed,
     process.producerEventAliasConsumed,
-    #
-    process.producerEventSwitchProducerNotConsumed,
-    process.producerEventSwitchProducerConsumed,
 )
 
 process.p = cms.Path(
@@ -198,8 +180,6 @@ process.p = cms.Path(
     process.producerEventPartiallyConsumedChain2+
     #
     process.consumerEventAlias+
-    #
-    process.producerEventSwitchProducer+
     #
     process.intAnalyzerDelete
     ,

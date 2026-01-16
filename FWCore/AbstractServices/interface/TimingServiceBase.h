@@ -41,11 +41,14 @@ namespace edm {
     virtual double getTotalCPU() const = 0;
 
     static void jobStarted();
+    static void pythonStarting();
+    static void pythonFinished();
+    static void servicesStarting();
 
-    static std::chrono::steady_clock::time_point jobStartTime() { return s_jobStartTime; }
-
-  private:
-    static std::chrono::steady_clock::time_point s_jobStartTime;
+    static std::chrono::steady_clock::time_point jobStartTime();
+    static std::chrono::steady_clock::time_point pythonStartTime();
+    static std::chrono::steady_clock::time_point pythonEndTime();
+    static std::chrono::steady_clock::time_point servicesStartTime();
   };
 }  // namespace edm
 

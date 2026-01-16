@@ -30,7 +30,7 @@ typedef ROOT::Math::Plane3D::Vector Vector;
 typedef ROOT::Math::Plane3D::Point Point;
 typedef ROOT::Math::Transform3DPJ Transform3DR;
 
-EcalHitMaker::EcalHitMaker(CaloGeometryHelper* theCalo,
+EcalHitMaker::EcalHitMaker(const CaloGeometryHelper* theCalo,
                            const XYZPoint& ecalentrance,
                            const DetId& cell,
                            int onEcal,
@@ -1095,7 +1095,7 @@ void EcalHitMaker::convertIntegerCoordinates(double x, double y, unsigned& ix, u
     iy = (unsigned)tiy;
 }
 
-const std::map<CaloHitID, float>& EcalHitMaker::getHits() {
+const CaloHitMap& EcalHitMaker::getHits() {
   if (hitmaphasbeencalculated_)
     return hitMap_;
   for (unsigned ic = 0; ic < ncrystals_; ++ic) {

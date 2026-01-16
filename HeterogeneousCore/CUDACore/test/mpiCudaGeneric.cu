@@ -237,7 +237,7 @@ int main(int argc, char *argv[]) {
 
   if (help) {
     printHelp();
-    MPI::Finalize();
+    MPI_Finalize();
     exit(0);
   }
   setupMPIAndVectors(mpiData, user);
@@ -276,7 +276,7 @@ int main(int argc, char *argv[]) {
   if (!mpiData.rank)
     printTable(allTiming, printStander);
 
-  MPI::Finalize();
+  MPI_Finalize();
   return 0;
 }
 const std::vector<int> chooseFunction(int toInteger) {
@@ -341,8 +341,8 @@ void randomGenerator(float *vect) {
   }
 }
 void setupMPIAndVectors(MPIData &mpiData, UserChoises &user) {
-  mpiData.num_procs = MPI::COMM_WORLD.Get_size();  //get total size of processes.
-  mpiData.rank = MPI::COMM_WORLD.Get_rank();       //get each process number.
+  MPI_Comm_size(MPI_COMM_WORLD, &mpiData.num_procs);
+  MPI_Comm_rank(MPI_COMM_WORLD, &mpiData.rank);
 
   user.sizeVectorBytes = sizeVector * sizeof(float);  //get size in byte for vectors.
 
@@ -1298,7 +1298,9 @@ bool saveToFile(const std::string &name, const Timing &timing) {
   return 1;
 }
 void printHelp(void) {
-  int rank = MPI::COMM_WORLD.Get_rank();
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
   if (!rank) {
     std::cout << "\n\n\t**************************************\n";
     std::cout << "\t* This is a Help for Command Opitions*";

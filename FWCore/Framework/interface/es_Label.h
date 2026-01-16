@@ -45,7 +45,7 @@ namespace edm::es {
     T* operator->() { return product_.get(); }
     T const& operator*() const { return *product_; }
     T const* operator->() const { return product_.get(); }
-    mutable std::shared_ptr<T> product_{nullptr};
+    std::shared_ptr<T> product_{nullptr};
   };
 
   template <int ILabel, typename T>

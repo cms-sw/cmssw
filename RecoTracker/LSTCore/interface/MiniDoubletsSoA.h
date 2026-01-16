@@ -39,7 +39,8 @@ namespace lst {
                       SOA_COLUMN(float, outerHighEdgeX),
                       SOA_COLUMN(float, outerHighEdgeY),
                       SOA_COLUMN(float, outerLowEdgeX),
-                      SOA_COLUMN(float, outerLowEdgeY))
+                      SOA_COLUMN(float, outerLowEdgeY),
+                      SOA_COLUMN(unsigned int, connectedMax))
 
   GENERATE_SOA_LAYOUT(MiniDoubletsOccupancySoALayout,
                       SOA_COLUMN(unsigned int, nMDs),

@@ -88,6 +88,8 @@ private:
 
   std::string defPath_;
 
+  unsigned int paramChunkSize_;   // chunk size in MB
+  unsigned int paramBlockSize_;   // read/write block size in MB
   unsigned int eventChunkSize_;   // for buffered read-ahead
   unsigned int eventChunkBlock_;  // how much read(2) asks at the time
   unsigned int readBlocks_;

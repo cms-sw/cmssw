@@ -20,7 +20,7 @@
 #include <limits>
 #include <algorithm>
 
-class SimpleConeBounds final : public Bounds {
+class SimpleConeBounds : public Bounds {
 public:
   /// Construct from inner/outer radius on the two Z faces
   SimpleConeBounds(float zmin, float rmin_zmin, float rmax_zmin, float zmax, float rmin_zmax, float rmax_zmax)

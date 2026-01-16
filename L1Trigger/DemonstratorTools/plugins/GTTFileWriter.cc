@@ -68,6 +68,7 @@ private:
   typedef edm::RefVector<TrackCollection_t> TrackRefCollection_t;
 
   // ----------member functions ----------------------
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
@@ -119,7 +120,8 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
                              l1t::demo::gtt::kGTTBoardTMUX,
                              l1t::demo::gtt::kMaxLinesPerFile,
                              l1t::demo::gtt::kChannelIdsInput,
-                             l1t::demo::gtt::kChannelSpecsInput),
+                             l1t::demo::gtt::kChannelSpecsInput,
+                             false),
       fileWriterConvertedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                  iConfig.getUntrackedParameter<std::string>("inputConvertedFilename"),
                                  iConfig.getUntrackedParameter<std::string>("fileExtension"),
@@ -127,7 +129,8 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
                                  l1t::demo::gtt::kGTTBoardTMUX,
                                  l1t::demo::gtt::kMaxLinesPerFile,
                                  l1t::demo::gtt::kChannelIdsInput,
-                                 l1t::demo::gtt::kChannelSpecsInput),
+                                 l1t::demo::gtt::kChannelSpecsInput,
+                                 false),
       fileWriterSelectedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                 iConfig.getUntrackedParameter<std::string>("selectedTracksFilename"),
                                 iConfig.getUntrackedParameter<std::string>("fileExtension"),
@@ -135,7 +138,8 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
                                 l1t::demo::gtt::kGTTBoardTMUX,
                                 l1t::demo::gtt::kMaxLinesPerFile,
                                 l1t::demo::gtt::kChannelIdsInput,
-                                l1t::demo::gtt::kChannelSpecsInput),
+                                l1t::demo::gtt::kChannelSpecsInput,
+                                false),
       fileWriterVertexAssociatedTracks_(
           l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
           iConfig.getUntrackedParameter<std::string>("vertexAssociatedTracksFilename"),
@@ -144,7 +148,8 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
           l1t::demo::gtt::kGTTBoardTMUX,
           l1t::demo::gtt::kMaxLinesPerFile,
           l1t::demo::gtt::kChannelIdsInput,
-          l1t::demo::gtt::kChannelSpecsInput),
+          l1t::demo::gtt::kChannelSpecsInput,
+          false),
       fileWriterOutputToCorrelator_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                     iConfig.getUntrackedParameter<std::string>("outputCorrelatorFilename"),
                                     iConfig.getUntrackedParameter<std::string>("fileExtension"),
@@ -152,7 +157,8 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
                                     l1t::demo::gtt::kGTTBoardTMUX,
                                     l1t::demo::gtt::kMaxLinesPerFile,
                                     l1t::demo::gtt::kChannelIdsOutputToCorrelator,
-                                    l1t::demo::gtt::kChannelSpecsOutputToCorrelator),
+                                    l1t::demo::gtt::kChannelSpecsOutputToCorrelator,
+                                    false),
       fileWriterOutputToGlobalTrigger_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                        iConfig.getUntrackedParameter<std::string>("outputGlobalTriggerFilename"),
                                        iConfig.getUntrackedParameter<std::string>("fileExtension"),
@@ -160,7 +166,8 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
                                        l1t::demo::gtt::kGTTBoardTMUX,
                                        l1t::demo::gtt::kMaxLinesPerFile,
                                        l1t::demo::gtt::kChannelIdsOutputToGlobalTrigger,
-                                       l1t::demo::gtt::kChannelSpecsOutputToGlobalTrigger) {}
+                                       l1t::demo::gtt::kChannelSpecsOutputToGlobalTrigger,
+                                       false) {}
 
 void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -240,13 +247,34 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   fileWriterOutputToGlobalTrigger_.addEvent(eventDataGlobalTrigger);
 }
 
+// ------------ method called once each job before the event loop  ------------
+void GTTFileWriter::beginJob() {
+  // Create a vector of pointers to all file writers
+  const std::vector<l1t::demo::BoardDataWriter*> fileWriters = {&fileWriterInputTracks_,
+                                                                &fileWriterConvertedTracks_,
+                                                                &fileWriterSelectedTracks_,
+                                                                &fileWriterVertexAssociatedTracks_,
+                                                                &fileWriterOutputToCorrelator_,
+                                                                &fileWriterOutputToGlobalTrigger_};
+
+  // Check that all file writers have the same maxEventsPerFile_
+  l1t::demo::BoardDataWriter::checkNumEventsPerFile(fileWriters);
+}
+
 // ------------ method called once each job just after ending the event loop  ------------
 void GTTFileWriter::endJob() {
+  // Create a vector of pointers to all file writers
+  const std::vector<l1t::demo::BoardDataWriter*> fileWriters = {&fileWriterInputTracks_,
+                                                                &fileWriterConvertedTracks_,
+                                                                &fileWriterSelectedTracks_,
+                                                                &fileWriterVertexAssociatedTracks_,
+                                                                &fileWriterOutputToCorrelator_,
+                                                                &fileWriterOutputToGlobalTrigger_};
+
   // Writing pending events to file before exiting
-  fileWriterInputTracks_.flush();
-  fileWriterConvertedTracks_.flush();
-  fileWriterOutputToCorrelator_.flush();
-  fileWriterOutputToGlobalTrigger_.flush();
+  for (auto& fileWriter : fileWriters) {
+    fileWriter->flush();
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

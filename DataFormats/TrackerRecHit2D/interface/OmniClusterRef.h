@@ -65,6 +65,25 @@ public:
     return rawIndex() < lh.rawIndex();  // in principle this is enough!
   }
 
+  bool const stripOverlap(OmniClusterRef const& lh, bool includeEdges = true) const {
+    if (!isStrip())
+      return false;
+    const auto& tc = stripCluster();
+    const uint16_t tf = tc.firstStrip();
+    const uint16_t tl = tf + tc.amplitudes().size() - 1;
+    const auto& oc = lh.stripCluster();
+    const uint16_t of = oc.firstStrip();
+    const uint16_t ol = of + oc.amplitudes().size() - 1;
+    // By default, include edge overlaps
+    // For single-strip clusters with non-matching edges, edge overlaps are excluded
+    if (((tl - tf) <= 1 || (ol - of) <= 1) && (tf != of || tl != ol))
+      includeEdges = false;
+    const auto e = includeEdges ? 1 : 0;
+    // Check that last strip of "other" cluster is within first and last strip of "this", or viceversa
+    // Edge strips are considered for determining overlap (e=1) if includeEdges = true (default)
+    return (((ol + e) > tf && ol < (tl + e)) || ((tl + e) > of && tl < (ol + e)));
+  }
+
 public:
   // edm Ref interface
   /* auto */ edm::ProductID id() const { return me.id(); }

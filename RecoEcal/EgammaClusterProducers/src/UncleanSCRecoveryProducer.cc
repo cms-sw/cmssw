@@ -220,7 +220,7 @@ void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt, const ed
   // the new collection
   LogTrace("EcalCleaning") << "The new SC clean collection with size " << superClusters.size();
   for (unsigned int i = 0; i < superClusters.size(); ++i) {
-    const reco::SuperCluster nsc = superClusters[i];
+    const reco::SuperCluster& nsc = superClusters[i];
     LogTrace("EcalCleaning") << " >>> newSC    #" << i << "; Energy: " << nsc.energy() << " eta: " << nsc.eta()
                              << " isClean=" << nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
                              << " sc seed detid: " << nsc.seed()->seed().rawId();

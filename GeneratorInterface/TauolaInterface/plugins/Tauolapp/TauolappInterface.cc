@@ -119,7 +119,7 @@ void TauolappInterface::init(const edm::EventSetup& es) {
   if (fPSet->exists("parameterSets")) {
     std::vector<std::string> par = fPSet->getParameter<std::vector<std::string> >("parameterSets");
     for (unsigned int ip = 0; ip < par.size(); ++ip) {
-      std::string curSet = par[ip];
+      const std::string& curSet = par[ip];
       if (curSet == "setNewCurrents")
         Tauolapp::Tauola::setNewCurrents(fPSet->getParameter<int>(curSet));
     }
@@ -133,7 +133,7 @@ void TauolappInterface::init(const edm::EventSetup& es) {
   if (fPSet->exists("parameterSets")) {
     std::vector<std::string> par = fPSet->getParameter<std::vector<std::string> >("parameterSets");
     for (unsigned int ip = 0; ip < par.size(); ++ip) {
-      std::string curSet = par[ip];
+      const std::string& curSet = par[ip];
       if (curSet == "spinCorrelationSetAll")
         Tauolapp::Tauola::spin_correlation.setAll(fPSet->getParameter<bool>(curSet));
       if (curSet == "spinCorrelationGAMMA")

@@ -131,7 +131,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.castorDigis.InputLabel = rawDataRepackerLabel
     process.ctppsDiamondRawToDigi.rawDataTag = rawDataRepackerLabel
     process.ctppsPixelDigis.inputLabel = rawDataRepackerLabel
-    process.ecalDigisCPU.InputLabel = rawDataRepackerLabel
+    process.ecalDigis.InputLabel = rawDataRepackerLabel
     process.ecalPreshowerDigis.sourceTag = rawDataRepackerLabel
     process.hcalDigis.InputLabel = rawDataRepackerLabel
     process.muonCSCDigis.InputObjects = rawDataRepackerLabel

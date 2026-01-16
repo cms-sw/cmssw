@@ -171,30 +171,31 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
         // Condition to save the CPPFDigi
         if (((*cppf1).rawId == rawId) && ((*cppf1).strip == rechitstrip)) {
           int old_strip = (*cppf1).strip;
-          int before = 0;
-          int after = 0;
+          int before = (*cppf1).strip;
+          int after = (*cppf1).strip;
 
-          if (cppf1 != CppfVec1.begin())
+          if (std::distance(CppfVec1.begin(), cppf1) >= 2)
             before = (*(cppf1 - 2)).strip;
-          else if (cppf1 == CppfVec1.begin())
-            before = (*cppf1).strip;
-          if (cppf1 != CppfVec1.end())
+
+          if (std::distance(cppf1, CppfVec1.end()) > 2)
             after = (*(cppf1 + 2)).strip;
-          else if (cppf1 == CppfVec1.end())
-            after = (*cppf1).strip;
+
           cppf = cppf1;
 
           if (clustersize == 2) {
+            bool can_move_back = cppf1 != CppfVec1.begin();
+            bool can_move_fwd = std::next(cppf1) != CppfVec1.end();
+
             if (firststrip == 1) {
-              if (before < after)
-                cppf = (cppf1 - 1);
-              else if (before > after)
-                cppf = (cppf1 + 1);
+              if (before < after && can_move_back)
+                cppf = cppf1 - 1;
+              else if (before > after && can_move_fwd)
+                cppf = cppf1 + 1;
             } else if (firststrip > 1) {
-              if (before < after)
-                cppf = (cppf1 + 1);
-              else if (before > after)
-                cppf = (cppf1 - 1);
+              if (before < after && can_move_fwd)
+                cppf = cppf1 + 1;
+              else if (before > after && can_move_back)
+                cppf = cppf1 - 1;
             }
           }
           // Using the RPCGeometry

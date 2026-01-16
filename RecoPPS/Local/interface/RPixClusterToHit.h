@@ -1,16 +1,17 @@
+#ifndef RecoPPS_Local_interface_RPixClusterToHit_h
+#define RecoPPS_Local_interface_RPixClusterToHit_h
+
 /**********************************************************************
  *
  * Author: F.Ferro - INFN Genova
  *
  **********************************************************************/
-#ifndef RecoPPS_Local_RPixClusterToHit_H
-#define RecoPPS_Local_RPixClusterToHit_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
-#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class RPixClusterToHit {
 public:
@@ -19,12 +20,12 @@ public:
   void buildHits(unsigned int detId,
                  const std::vector<CTPPSPixelCluster> &clusters,
                  std::vector<CTPPSPixelRecHit> &hits,
-                 const PPSPixelTopology &ppt);
-  void make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPixelRecHit> &hits, const PPSPixelTopology &ppt);
-  ~RPixClusterToHit();
+                 const PPSPixelTopology &ppt) const;
 
 private:
-  int verbosity_;
+  void makeHit(CTPPSPixelCluster cluster, std::vector<CTPPSPixelRecHit> &hits, PPSPixelTopology const &ppt) const;
+
+  const int verbosity_;
 };
 
-#endif
+#endif  // RecoPPS_Local_interface_RPixClusterToHit_h

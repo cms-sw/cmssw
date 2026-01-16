@@ -25,21 +25,14 @@ void l1tpf::HGC3DClusterEgID::prepareTMVA() {
   reco::details::loadTMVAWeights(&*reader_, method_, weightsFile_);
 }
 
-float l1tpf::HGC3DClusterEgID::passID(l1t::HGCalMulticluster c, l1t::PFCluster &cpf) {
+bool l1tpf::HGC3DClusterEgID::passID(const l1t::HGCalMulticluster c, float &mvaOut) {
   if (preselection_(c)) {
     for (auto &var : variables_)
       var.fill(c);
-    float mvaOut = reader_->EvaluateMVA(method_);
-    if (isPUFilter_)
-      cpf.setEgVsPUMVAOut(mvaOut);
-    else
-      cpf.setEgVsPionMVAOut(mvaOut);
-    return (mvaOut > wp_(c) ? 1 : 0);
+    mvaOut = reader_->EvaluateMVA(method_);
+    return mvaOut > wp_(c);
   } else {
-    if (isPUFilter_)
-      cpf.setEgVsPUMVAOut(-100.0);
-    else
-      cpf.setEgVsPionMVAOut(-100.0);
-    return 0;
+    mvaOut = -100.;
+    return false;
   }
 }

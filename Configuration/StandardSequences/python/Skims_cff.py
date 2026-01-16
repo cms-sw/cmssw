@@ -49,3 +49,4 @@ from DPGAnalysis.Skims.Skims_DPG_cff import *
 from Configuration.Skimming.Skims_PDWG_cff import *
 from Configuration.Skimming.Skims_PA_cff import *
 from Configuration.Skimming.Skims_PbPb_cff import *
+from Configuration.Skimming.Skims_Ion_cff import *

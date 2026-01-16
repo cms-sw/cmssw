@@ -86,13 +86,13 @@ void CSCStripDigiValidation::analyze(const edm::Event &e, const edm::EventSetup 
 }
 
 void CSCStripDigiValidation::fillPedestalPlots(const CSCStripDigi &digi) {
-  std::vector<int> adcCounts = digi.getADCCounts();
+  const std::vector<int> &adcCounts = digi.getADCCounts();
   thePedestalPlot->Fill(adcCounts[0]);
   thePedestalPlot->Fill(adcCounts[1]);
 }
 
 void CSCStripDigiValidation::fillSignalPlots(const CSCStripDigi &digi) {
-  std::vector<int> adcCounts = digi.getADCCounts();
+  const std::vector<int> &adcCounts = digi.getADCCounts();
   float pedestal = thePedestalSum / thePedestalCount;
   theAmplitudePlot->Fill(adcCounts[4] - pedestal);
   theRatio4to5Plot->Fill((adcCounts[3] - pedestal) / (adcCounts[4] - pedestal));

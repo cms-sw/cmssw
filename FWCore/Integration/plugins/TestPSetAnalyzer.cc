@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // system include files
 #include <iostream>
@@ -26,6 +28,8 @@
 class TestPSetAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit TestPSetAnalyzer(edm::ParameterSet const&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final;
@@ -66,23 +70,23 @@ private:
 //
 TestPSetAnalyzer::TestPSetAnalyzer(edm::ParameterSet const& iConfig) {
   testLumi_ = iConfig.getParameter<edm::LuminosityBlockID>("testLumi");
-  testVLumi_ = iConfig.getParameter<std::vector<edm::LuminosityBlockID> >("testVLumi");
+  testVLumi_ = iConfig.getParameter<std::vector<edm::LuminosityBlockID>>("testVLumi");
   testLRange_ = iConfig.getParameter<edm::LuminosityBlockRange>("testRange");
-  testVLRange_ = iConfig.getParameter<std::vector<edm::LuminosityBlockRange> >("testVRange");
+  testVLRange_ = iConfig.getParameter<std::vector<edm::LuminosityBlockRange>>("testVRange");
   testERange_ = iConfig.getParameter<edm::EventRange>("testERange");
-  testVERange_ = iConfig.getParameter<std::vector<edm::EventRange> >("testVERange");
+  testVERange_ = iConfig.getParameter<std::vector<edm::EventRange>>("testVERange");
 
   testEventID1_ = iConfig.getParameter<edm::EventID>("testEventID1");
   testEventID2_ = iConfig.getParameter<edm::EventID>("testEventID2");
   testEventID3_ = iConfig.getParameter<edm::EventID>("testEventID3");
   testEventID4_ = iConfig.getParameter<edm::EventID>("testEventID4");
-  testVEventID_ = iConfig.getParameter<std::vector<edm::EventID> >("testVEventID");
+  testVEventID_ = iConfig.getParameter<std::vector<edm::EventID>>("testVEventID");
   testERange1_ = iConfig.getParameter<edm::EventRange>("testERange1");
   testERange2_ = iConfig.getParameter<edm::EventRange>("testERange2");
   testERange3_ = iConfig.getParameter<edm::EventRange>("testERange3");
   testERange4_ = iConfig.getParameter<edm::EventRange>("testERange4");
   testERange5_ = iConfig.getParameter<edm::EventRange>("testERange5");
-  testVERange2_ = iConfig.getParameter<std::vector<edm::EventRange> >("testVERange2");
+  testVERange2_ = iConfig.getParameter<std::vector<edm::EventRange>>("testVERange2");
 
   std::cout << "Lumi PSet test " << testLumi_ << std::endl;
   std::cout << "LRange PSet test " << testLRange_ << std::endl;
@@ -117,6 +121,28 @@ TestPSetAnalyzer::TestPSetAnalyzer(edm::ParameterSet const& iConfig) {
   for (auto const& i : testVERange2_) {
     std::cout << "VERange2 PSet test " << i << std::endl;
   }
+}
+
+void TestPSetAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::LuminosityBlockID>("testLumi");
+  desc.add<std::vector<edm::LuminosityBlockID>>("testVLumi");
+  desc.add<edm::LuminosityBlockRange>("testRange");
+  desc.add<std::vector<edm::LuminosityBlockRange>>("testVRange");
+  desc.add<edm::EventRange>("testERange");
+  desc.add<std::vector<edm::EventRange>>("testVERange");
+  desc.add<edm::EventID>("testEventID1");
+  desc.add<edm::EventID>("testEventID2");
+  desc.add<edm::EventID>("testEventID3");
+  desc.add<edm::EventID>("testEventID4");
+  desc.add<std::vector<edm::EventID>>("testVEventID");
+  desc.add<edm::EventRange>("testERange1");
+  desc.add<edm::EventRange>("testERange2");
+  desc.add<edm::EventRange>("testERange3");
+  desc.add<edm::EventRange>("testERange4");
+  desc.add<edm::EventRange>("testERange5");
+  desc.add<std::vector<edm::EventRange>>("testVERange2");
+  descriptions.addDefault(desc);
 }
 
 //

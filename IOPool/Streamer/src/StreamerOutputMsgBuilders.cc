@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -75,13 +74,10 @@ namespace edm::streamer {
             << "Unknown compression algorithm " << compressionAlgoStr_;
 
       if (compressionLevel_ < minCompressionLevel) {
-        FDEBUG(9) << "Compression Level = " << compressionLevel_ << " no compression" << std::endl;
         compressionLevel_ = 0;
         useCompression_ = false;
         compressionAlgo_ = UNCOMPRESSED;
       } else if (compressionLevel_ > maxCompressionLevel) {
-        FDEBUG(9) << "Compression Level = " << compressionLevel_ << " using max compression level "
-                  << maxCompressionLevel << std::endl;
         compressionLevel_ = maxCompressionLevel;
         compressionAlgo_ = UNCOMPRESSED;
       }

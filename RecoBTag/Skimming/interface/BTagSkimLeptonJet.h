@@ -22,6 +22,7 @@ public:
   explicit BTagSkimLeptonJet(const edm::ParameterSet&);
   ~BTagSkimLeptonJet() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void endJob() override;
 
 private:

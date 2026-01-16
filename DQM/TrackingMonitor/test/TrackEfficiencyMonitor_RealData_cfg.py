@@ -52,7 +52,7 @@ process.DQMStore = cms.Service("DQMStore",
 
 process.outP = cms.OutputModule("AsciiOutputModule")
 
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/069/276/D6D1312C-6BAA-DD11-972B-000423D94494.root',

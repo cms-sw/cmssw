@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 import collections
 
 def customiseEarlyDeleteForMkFit(process, products):
+    
+    references = collections.defaultdict(list)
+
     def _branchName(productType, moduleLabel, instanceLabel=""):
         return "%s_%s_%s_%s" % (productType, moduleLabel, instanceLabel, process.name_())
 
@@ -21,9 +24,13 @@ def customiseEarlyDeleteForMkFit(process, products):
             ])
         elif cppType == "MkFitEventOfHitsProducer":
             products[name].append(_branchName("MkFitEventOfHits", name))
+            references[_branchName("MkFitEventOfHits", name)] = [
+                    _branchName("MkFitHitWrapper", module.pixelHits.moduleLabel),
+                    _branchName("MkFitHitWrapper", module.stripHits.moduleLabel)
+                    ]
         elif cppType == "MkFitSeedConverter":
             products[name].append(_branchName("MkFitSeedWrapper", name))
         elif cppType == "MkFitProducer":
             products[name].append(_branchName("MkFitOutputWrapper", name))
 
-    return products
+    return (products,references)

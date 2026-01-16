@@ -332,12 +332,6 @@ void ROCmService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   descriptions.add("ROCmService", desc);
 }
 
-namespace edm {
-  namespace service {
-    inline bool isProcessWideService(ROCmService const*) { return true; }
-  }  // namespace service
-}  // namespace edm
-
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 using ROCmServiceMaker = edm::serviceregistry::ParameterSetMaker<ROCmInterface, ROCmService>;
 DEFINE_FWK_SERVICE_MAKER(ROCmService, ROCmServiceMaker);

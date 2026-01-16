@@ -1,17 +1,33 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_SourceFactory_h
 #define FWCore_Framework_SourceFactory_h
-// -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     SourceFactory
 //
-/**\class SourceFactory SourceFactory.h FWCore/Framework/interface/SourceFactory.h
+/*
+ Description:
+    A SourceFactory is a ComponentFactory used to construct
+    modules that are ESSources used by the EventSetup
+    system.
 
- Description: <one line class summary>
+    The addTo function will both construct anESSource and
+    then pass a shared pointer to it to the EventSetupProvider.
+    The SourceFactory uses a Maker to accomplish this.
+    There is one Maker associated with each type of
+    ESSource. The ComponentFactory stores the Makers.
+    When the ComponentFactory needs a Maker it does not
+    already have, it uses the plugin system to create it.
 
  Usage:
-    <usage>
-
+    addTo is called during EventProcessor construction
+    for each configured ESSource. The call stack looks
+    similar to this:
+        ...
+        EventSetupsController::makeProvider
+        fillEventSetupProvider (a free function)
+        ComponentFactory::addTo
+        ComponentMaker::addTo
+        SourceMakerTraits::addTo
 */
 //
 // Author:      Chris Jones
@@ -31,11 +47,9 @@
 
 namespace edm {
   class EventSetupRecordIntervalFinder;
-  class ParameterSet;
 
   namespace eventsetup {
     class ESProductResolverProvider;
-    class EventSetupsController;
 
     template <class T>
     void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const ESProductResolverProvider*) {
@@ -55,29 +69,12 @@ namespace edm {
       static std::string name();
       static std::string const& baseType();
       template <class T>
-      static void addTo(EventSetupProvider& iProvider,
-                        std::shared_ptr<T> iComponent,
-                        ParameterSet const& iConfiguration,
-                        bool matchesPreceding) {
-        if (matchesPreceding) {
-          logInfoWhenSharing(iConfiguration);
-        }
+      static void addTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent) {
         //a source does not always have to be a provider
         addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
         std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
         iProvider.add(pFinder);
       }
-      static void replaceExisting(EventSetupProvider& iProvider,
-                                  std::shared_ptr<EventSetupRecordIntervalFinder> iComponent);
-
-      static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
-                                                                       ParameterSet const& iConfiguration);
-
-      static void putComponent(EventSetupsController& esController,
-                               ParameterSet const& iConfiguration,
-                               std::shared_ptr<base_type> const& component);
-
-      static void logInfoWhenSharing(ParameterSet const& iConfiguration);
     };
 
     template <class TType>

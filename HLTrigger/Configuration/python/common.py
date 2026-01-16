@@ -3,11 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 def producers_by_type(process, *types):
     "Find all EDProducers in the Process that are instances of the given C++ type."
-    switches = (module for module in (getattr(switchproducer, case) \
-      for switchproducer in process._Process__switchproducers.values() \
-      for case in switchproducer.parameterNames_()) \
-      if isinstance(module, cms.EDProducer))
-    return (module for module in itertools.chain(process._Process__producers.values(), switches) \
+    return (module for module in process._Process__producers.values() \
       if module._TypedParameterizable__type in types)
 
 def filters_by_type(process, *types):
@@ -24,10 +20,7 @@ def esproducers_by_type(process, *types):
 
 def modules_by_type(process, *types):
     "Find all modiles or other components in the Process that are instances of the given C++ type."
-    switches = (module for module in (getattr(switchproducer, case) \
-      for switchproducer in process._Process__switchproducers.values() \
-      for case in switchproducer.parameterNames_()))
-    return (module for module in itertools.chain(process.__dict__.values(), switches) \
+    return (module for module in process.__dict__.values() \
       if hasattr(module, '_TypedParameterizable__type') and module._TypedParameterizable__type in types)
 
 

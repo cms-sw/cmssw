@@ -2,6 +2,7 @@
 #include "monitor_file_utilities.h"
 
 #include <chrono>
+#include <numeric>
 
 #include <sstream>
 #include <type_traits>
@@ -363,35 +364,60 @@ namespace edm::service::moduleAlloc {
 
     auto beginTime = TimingServiceBase::jobStartTime();
 
+    auto esModuleCtrDtrPtr = std::make_shared<std::vector<ModuleCtrDtr>>();
+    auto& esModuleCtrDtr = *esModuleCtrDtrPtr;
     auto esModuleLabelsPtr = std::make_shared<std::vector<std::string>>();
     auto& esModuleLabels = *esModuleLabelsPtr;
+    auto esModuleTypesPtr = std::make_shared<std::vector<std::string>>();
+    auto& esModuleTypes = *esModuleTypesPtr;
     //acquire names for all the ED and ES modules
-    iRegistry.watchPostESModuleRegistration([&esModuleLabels](auto const& iDescription) {
-      if (esModuleLabels.size() <= iDescription.id_ + 1) {
-        esModuleLabels.resize(iDescription.id_ + 2);
-      }
-      //NOTE: we want the id to start at 1 not 0
-      if (not iDescription.label_.empty()) {
-        esModuleLabels[iDescription.id_ + 1] = iDescription.label_;
-      } else {
-        esModuleLabels[iDescription.id_ + 1] = iDescription.type_;
+    iRegistry.watchPreESModuleConstruction(
+        [&esModuleLabels, &esModuleTypes, &esModuleCtrDtr, beginTime, iFilter](auto const& iDescription) {
+          auto const t = duration_cast<duration_t>(now() - beginTime).count();
+          auto const mid = iDescription.id_ + 1;  //NOTE: we want the id to start at 1 not 0
+          if (esModuleLabels.size() <= mid) {
+            esModuleLabels.resize(mid + 1);
+            esModuleTypes.resize(mid + 1);
+            esModuleCtrDtr.resize(mid + 1);
+          }
+          if (not iDescription.label_.empty()) {
+            esModuleLabels[mid] = iDescription.label_;
+          } else {
+            esModuleLabels[mid] = iDescription.type_;
+          }
+          esModuleTypes[mid] = iDescription.type_;
+          esModuleCtrDtr.back().beginConstruction = t;
+          iFilter->startOnThread(-1 * mid);
+        });
+    iRegistry.watchPostESModuleConstruction([&esModuleCtrDtr, beginTime, iFilter](auto const& md) {
+      auto const t = duration_cast<duration_t>(now() - beginTime).count();
+      auto const mid = md.id_ + 1;
+      esModuleCtrDtr[mid].endConstruction = t;
+      auto alloc = iFilter->stopOnThread(-1 * mid);
+      if (alloc) {
+        esModuleCtrDtr[mid].constructionAllocInfo = *alloc;
       }
     });
     auto moduleCtrDtrPtr = std::make_shared<std::vector<ModuleCtrDtr>>();
     auto& moduleCtrDtr = *moduleCtrDtrPtr;
     auto moduleLabelsPtr = std::make_shared<std::vector<std::string>>();
+    auto moduleTypesPtr = std::make_shared<std::vector<std::string>>();
     auto& moduleLabels = *moduleLabelsPtr;
+    auto& moduleTypes = *moduleTypesPtr;
     iRegistry.watchPreModuleConstruction(
-        [&moduleLabels, &moduleCtrDtr, beginTime, iFilter](ModuleDescription const& md) {
+        [&moduleLabels, &moduleTypes, &moduleCtrDtr, beginTime, iFilter](ModuleDescription const& md) {
           auto const t = duration_cast<duration_t>(now() - beginTime).count();
 
           auto const mid = md.id();
           if (mid < moduleLabels.size()) {
             moduleLabels[mid] = md.moduleLabel();
+            moduleTypes[mid] = md.moduleName();
             moduleCtrDtr[mid].beginConstruction = t;
           } else {
             moduleLabels.resize(mid + 1);
             moduleLabels.back() = md.moduleLabel();
+            moduleTypes.resize(mid + 1);
+            moduleTypes.back() = md.moduleName();
             moduleCtrDtr.resize(mid + 1);
             moduleCtrDtr.back().beginConstruction = t;
           }
@@ -442,9 +468,12 @@ namespace edm::service::moduleAlloc {
 
     auto sourceCtrPtr = std::make_shared<ModuleCtrDtr>();
     auto& sourceCtr = *sourceCtrPtr;
-    iRegistry.watchPreSourceConstruction([&sourceCtr, beginTime, iFilter](auto const&) {
+    auto sourceTypePtr = std::make_shared<std::string>("Unknown");
+    iRegistry.watchPreSourceConstruction([&sourceCtr, sourceTypePtr, beginTime, iFilter](auto const& md) {
       auto const t = duration_cast<duration_t>(now() - beginTime).count();
       sourceCtr.beginConstruction = t;
+      // Capture source module type information
+      *sourceTypePtr = md.moduleName();
       iFilter->startOnThread();
     });
     iRegistry.watchPostSourceConstruction([&sourceCtr, beginTime, iFilter](auto const&) {
@@ -481,24 +510,40 @@ namespace edm::service::moduleAlloc {
     iRegistry.watchPreBeginJob([logFile,
                                 iFilter,
                                 moduleLabelsPtr,
+                                moduleTypesPtr,
                                 esModuleLabelsPtr,
+                                esModuleTypesPtr,
                                 moduleCtrDtrPtr,
+                                esModuleCtrDtrPtr,
                                 sourceCtrPtr,
+                                sourceTypePtr = std::move(sourceTypePtr),
                                 beginTime,
                                 beginModuleAlloc,
                                 addDataInDtr](auto&) mutable {
       *addDataInDtr = true;
       {
         std::ostringstream oss;
-        moduleIdToLabel(oss, *moduleLabelsPtr, 'M', "EDModule ID", "Module label");
+        moduleIdToLabelAndType(
+            oss, *moduleLabelsPtr, *moduleTypesPtr, 'M', "EDModule ID", "Module label", "Module type");
         logFile->write(oss.str());
         moduleLabelsPtr.reset();
+        moduleTypesPtr.reset();
       }
       {
         std::ostringstream oss;
-        moduleIdToLabel(oss, *esModuleLabelsPtr, 'N', "ESModule ID", "ESModule label");
+        moduleIdToLabelAndType(
+            oss, *esModuleLabelsPtr, *esModuleTypesPtr, 'N', "ESModule ID", "ESModule label", "ESModule type");
         logFile->write(oss.str());
         esModuleLabelsPtr.reset();
+        esModuleTypesPtr.reset();
+      }
+      {
+        std::ostringstream oss;
+        std::vector<std::string> sourceTypeList{1, *sourceTypePtr};
+        std::vector<std::string> sourceNames{1, "source"};
+        moduleIdToLabelAndType(oss, sourceNames, sourceTypeList, 'S', "Source ID", "Source label", "Source type");
+        logFile->write(oss.str());
+        sourceTypePtr.reset();
       }
       {
         auto const moduleAllocStart = duration_cast<duration_t>(beginModuleAlloc - beginTime).count();
@@ -513,6 +558,35 @@ namespace edm::service::moduleAlloc {
         logFile->write(std::move(msg));
         return;
       }
+      {
+        std::vector<int> indices(esModuleCtrDtrPtr->size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(indices.begin(), indices.end(), [&esModuleCtrDtrPtr](int l, int r) {
+          return (*esModuleCtrDtrPtr)[l].beginConstruction < (*esModuleCtrDtrPtr)[r].beginConstruction;
+        });
+        for (auto index : indices) {
+          if (not iFilter->keepModuleInfo(-1 * index)) {
+            continue;
+          }
+          auto const& ctr = (*esModuleCtrDtrPtr)[index];
+          if (ctr.beginConstruction != 0 and ctr.endConstruction != 0) {
+            auto msg = assembleMessage<Step::preESModule>(
+                static_cast<std::underlying_type_t<Phase>>(Phase::construction), 0, index, 0, 0, ctr.beginConstruction);
+            logFile->write(std::move(msg));
+            auto emsg = assembleAllocMessage<Step::postESModule>(
+                ctr.constructionAllocInfo,
+                static_cast<std::underlying_type_t<Phase>>(Phase::construction),
+                0,
+                index,
+                0,
+                0,
+                ctr.endConstruction);
+            logFile->write(std::move(emsg));
+            ++index;
+          }
+        }
+      }
+
       //NOTE: the source construction can run concurently with module construction so we need to properly
       // interleave its timing in with the modules
       auto srcBeginConstruction = sourceCtrPtr->beginConstruction;
@@ -535,11 +609,13 @@ namespace edm::service::moduleAlloc {
             }
           };
       {
-        std::sort(moduleCtrDtrPtr->begin(), moduleCtrDtrPtr->end(), [](auto const& l, auto const& r) {
-          return l.beginConstruction < r.beginConstruction;
+        std::vector<int> indices(moduleCtrDtrPtr->size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(indices.begin(), indices.end(), [&moduleCtrDtrPtr](auto const& l, auto const& r) {
+          return (*moduleCtrDtrPtr)[l].beginConstruction < (*moduleCtrDtrPtr)[r].beginConstruction;
         });
-        int id = 0;
-        for (auto const& ctr : *moduleCtrDtrPtr) {
+        for (auto const id : indices) {
+          auto const& ctr = (*moduleCtrDtrPtr)[id];
           if (ctr.beginConstruction != 0) {
             handleSource(ctr.beginConstruction);
             if (iFilter->keepModuleInfo(id)) {
@@ -560,13 +636,13 @@ namespace edm::service::moduleAlloc {
               logFile->write(std::move(emsg));
             }
           }
-          ++id;
         }
-        id = 0;
-        std::sort(moduleCtrDtrPtr->begin(), moduleCtrDtrPtr->end(), [](auto const& l, auto const& r) {
-          return l.beginDestruction < r.beginDestruction;
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(indices.begin(), indices.end(), [&moduleCtrDtrPtr](auto const& l, auto const& r) {
+          return (*moduleCtrDtrPtr)[l].beginDestruction < (*moduleCtrDtrPtr)[r].beginDestruction;
         });
-        for (auto const& dtr : *moduleCtrDtrPtr) {
+        for (auto const id : indices) {
+          auto const& dtr = (*moduleCtrDtrPtr)[id];
           if (dtr.beginDestruction != 0) {
             handleSource(dtr.beginDestruction);
             if (iFilter->keepModuleInfo(id)) {
@@ -588,7 +664,6 @@ namespace edm::service::moduleAlloc {
               logFile->write(std::move(emsg));
             }
           }
-          ++id;
         }
         moduleCtrDtrPtr.reset();
       }

@@ -1,27 +1,56 @@
-#include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include <array>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <vector>
+#include <bitset>
+
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+#include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
+#include "EventFilter/HGCalRawToDigi/interface/UnpackerTools.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "EventFilter/HGCalRawToDigi/interface/UnpackerTools.h"
-#include <array>
 
 using namespace hgcal;
 
 uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
-                                     const FEDRawData& fed_data,
+                                     const RawFragmentWrapper& fed_data,
                                      const HGCalMappingModuleIndexer& moduleIndexer,
                                      const HGCalConfiguration& config,
                                      hgcaldigi::HGCalDigiHost& digis,
+                                     hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
+                                     hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
+                                     bool headerOnlyMode) {
+  const auto fed_data_size = fed_data.size();
+  const auto* start_fed_data = &(fed_data.data().front());
+  return parseFEDData(fedId,
+                      start_fed_data,
+                      fed_data_size,
+                      moduleIndexer,
+                      config,
+                      digis,
+                      fedPacketInfo,
+                      econdPacketInfo,
+                      headerOnlyMode);
+}
+
+uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
+                                     const unsigned char* start_fed_data,
+                                     size_t fed_data_size,
+                                     const HGCalMappingModuleIndexer& moduleIndexer,
+                                     const HGCalConfiguration& config,
+                                     hgcaldigi::HGCalDigiHost& digis,
+                                     hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
                                      hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
                                      bool headerOnlyMode) {
   // ReadoutSequence object for this FED
-  const auto& fedReadoutSequence = moduleIndexer.getFEDReadoutSequences()[fedId];
+  const auto& fedReadoutSequence = moduleIndexer.fedReadoutSequences()[fedId];
   // Configuration object for this FED
   const auto& fedConfig = config.feds[fedId];
 
@@ -43,12 +72,25 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
   // Endianness assumption
   // From 32-bit word(ECOND) to 64-bit word(capture block): little endianness
   // Others: big endianness
-  const auto* const header = reinterpret_cast<const uint64_t*>(fed_data.data());
-  const auto* const trailer = reinterpret_cast<const uint64_t*>(fed_data.data() + fed_data.size());
-  LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << " nwords (64b) = " << std::distance(header, trailer);
+  const auto* const header = reinterpret_cast<const uint64_t*>(start_fed_data);
+  const auto* const trailer = reinterpret_cast<const uint64_t*>(start_fed_data + fed_data_size);
+  LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", nwords (64b) = " << std::distance(header, trailer);
   const auto* ptr = header;
 
+  // read L1A number from the SLink header
+  uint64_t SLinkL1Amask = (uint64_t(BACKEND_FRAME::SLINK_GLOBAL_EVENTID_MSB_MASK) << 32) |
+                          uint64_t(BACKEND_FRAME::SLINK_GLOBAL_EVENTID_LSB_MASK);
+  uint64_t L1ASLink = ((*(header + 1) >> BACKEND_FRAME::SLINK_GLOBAL_EVENTID_LSB_POS) & SLinkL1Amask);
+  // read BX number and Orbit number from the SLink trailer
+  uint16_t BXSLink = ((*(trailer - 1) >> BACKEND_FRAME::SLINK_BXID_POS) & BACKEND_FRAME::SLINK_BXID_MASK);
+  uint32_t OrbitSLink = ((*(trailer - 2) >> (BACKEND_FRAME::SLINK_ORBID_POS + 32)) & BACKEND_FRAME::SLINK_ORBID_MASK);
+  fedPacketInfo.view()[fedId].FEDL1A() = L1ASLink;
+  fedPacketInfo.view()[fedId].FEDBX() = BXSLink;
+  fedPacketInfo.view()[fedId].FEDOrbit() = OrbitSLink;
 #ifdef EDM_ML_DEBUG
+  LogDebug("[HGCalUnpacker]") << "S-Link BX number:" << std::dec << BXSLink << ", L1A number:" << std::dec
+                              << (int)L1ASLink << ", Orbit ID:" << std::dec << (int)OrbitSLink;
+
   for (unsigned iword = 0; ptr < trailer; ++iword) {
     LogDebug("[HGCalUnpacker]") << std::setw(8) << iword << ": 0x" << std::hex << std::setfill('0') << std::setw(16)
                                 << *ptr << " (" << std::setfill('0') << std::setw(8)
@@ -59,7 +101,6 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
   LogDebug("[HGCalUnpacker]") << "@@@\n";
   ptr = header;
 #endif
-
   // check SLink header (128b)
   // sanity check
   auto slink_header = *(ptr + 1);
@@ -72,7 +113,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                        << "), got 0x" << std::hex
                                        << ((slink_header >> (BACKEND_FRAME::SLINK_BOE_POS + 32)) &
                                            BACKEND_FRAME::SLINK_BOE_MASK)
-                                       << " from " << slink_header << ".";
+                                       << " from word = 0x" << std::hex << slink_header << ".";
     return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorSLinkHeader);
   }
 
@@ -83,9 +124,10 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
 
   // parse SLink body (capture blocks)
   bool hasActiveCBFlags(false);
-  for (uint32_t captureblockIdx = 0; captureblockIdx < HGCalMappingModuleIndexer::maxCBperFED_ && ptr < trailer - 2;
+  for (uint32_t captureblockIdx = 0; captureblockIdx < fedReadoutSequence.totalCBs_ && ptr < trailer - 2;
        captureblockIdx++) {
     // check capture block header (64b)
+
     LogDebug("[HGCalUnpacker]") << "@" << std::setw(8) << std::distance(header, ptr) << ": 0x" << std::hex
                                 << std::setfill('0') << std::setw(16) << *ptr << std::dec;
     auto cb_header = *ptr;
@@ -100,7 +142,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
       econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
       if (cb_header == 0x0) {
-        auto nToEnd = (fed_data.size() / 8 - 2) - std::distance(header, ptr);
+        auto nToEnd = (fed_data_size / 8 - 2) - std::distance(header, ptr);
         if (nToEnd == 1) {
           ptr++;
           LogDebug("[HGCalUnpacker]")
@@ -120,6 +162,14 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                          << " from 0x" << cb_header << ".";
       return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorCaptureBlockHeader);
     }
+    uint16_t BXCaptureBlock =
+        ((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_BC_POS + 32)) & BACKEND_FRAME::CAPTUREBLOCK_BC_MASK);
+    uint8_t L1ACaptureBlock =
+        ((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_EC_POS + 32)) & BACKEND_FRAME::CAPTUREBLOCK_EC_MASK);
+    uint8_t OrbitCaptureBlock =
+        ((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_OC_POS + 32)) & BACKEND_FRAME::CAPTUREBLOCK_OC_MASK);
+    LogDebug("[HGCalUnpacker]") << "CB BX number:" << std::dec << BXCaptureBlock << ", L1A number:" << std::dec
+                                << (int)L1ACaptureBlock << ", Orbit number:" << std::dec << (int)OrbitCaptureBlock;
     ++ptr;
 
     // parse Capture Block body (ECON-Ds)
@@ -130,7 +180,15 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       if (econd_pkt_status != backend::ECONDPacketStatus::InactiveECOND) {
         // always increment the global ECON-D index (unless inactive/unconnected)
         globalECONDIdx++;
+
+        //stop if we have all the ECON-Ds expected
+        if (globalECONDIdx >= fedReadoutSequence.totalECONs_) {
+          return (0x1 << hgcaldigi::FEDUnpackingFlags::GenericUnpackWarning);
+        }
       }
+      LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
+                                  << ", econdIdx = " << econdIdx << ", globalECONDIdx = " << (int)globalECONDIdx
+                                  << ", econd_pkt_status = " << econd_pkt_status;
       hasActiveCBFlags = (econd_pkt_status != backend::ECONDPacketStatus::Normal) &&
                          (econd_pkt_status != backend::ECONDPacketStatus::InactiveECOND);
       bool pkt_exists =
@@ -150,21 +208,36 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
       const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
 
+      // read BX, L1A, and Orbit number from the ECON-D header
+      uint16_t BXECOND = ((econd_headers[1] >> ECOND_FRAME::BX_POS) & ECOND_FRAME::BX_MASK);
+      uint8_t L1AECOND = ((econd_headers[1] >> ECOND_FRAME::L1A_POS) & ECOND_FRAME::L1A_MASK);
+      uint8_t OrbitECOND = ((econd_headers[1] >> ECOND_FRAME::ORBIT_POS) & ECOND_FRAME::ORBIT_MASK);
+      econdPacketInfo.view()[ECONDdenseIdx].BX() = BXECOND;
+      econdPacketInfo.view()[ECONDdenseIdx].L1A() = L1AECOND;
+      econdPacketInfo.view()[ECONDdenseIdx].Orbit() = OrbitECOND;
+      econdPacketInfo.view()[ECONDdenseIdx].CBBX() = BXCaptureBlock;
+      econdPacketInfo.view()[ECONDdenseIdx].CBL1A() = L1ACaptureBlock;
+      econdPacketInfo.view()[ECONDdenseIdx].CBOrbit() = OrbitCaptureBlock;
+      LogDebug("[HGCalUnpacker]") << "ECON-D BX number:" << std::dec << BXECOND << ", L1A number:" << std::dec
+                                  << (int)L1AECOND << ", Orbit number:" << std::dec << (int)OrbitECOND;
       // sanity check
+      // ECON-D header marker check
       if (((econd_headers[0] >> ECOND_FRAME::HEADER_POS) & ECOND_FRAME::HEADER_MASK) !=
           fedConfig.econds[globalECONDIdx].headerMarker) {
         econdPacketInfo.view()[ECONDdenseIdx].exception() = 3;
         edm::LogWarning("[HGCalUnpacker]")
             << "Expected a ECON-D header at word " << std::dec << (uint32_t)(ptr - header) << "/0x" << std::hex
-            << (uint32_t)(ptr - header) << " (marker: 0x" << fedConfig.econds[globalECONDIdx].headerMarker
-            << "), got 0x" << econd_headers[0] << " and payload=" << econd_payload_length << ".";
+            << (uint32_t)(ptr - header) << ", word = 0x" << econd_headers[0] << " (expected marker: 0x"
+            << fedConfig.econds[globalECONDIdx].headerMarker << ", got marker: 0x"
+            << ((econd_headers[0] >> ECOND_FRAME::HEADER_POS) & ECOND_FRAME::HEADER_MASK)
+            << "), and econd_payload_length = " << std::dec << econd_payload_length << ".";
         return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorECONDHeader) |
                (hasActiveCBFlags << hgcaldigi::FEDUnpackingFlags::ActiveCaptureBlockFlags);
       }
 
       // Compute ECON-D trailer CRC
       bool crcvalid = hgcal::econdCRCAnalysis(ptr, 0, econd_payload_length);
-      LogDebug("[HGCalUnpacker]") << "crc value " << crcvalid;
+      LogDebug("[HGCalUnpacker]") << "CRC valid = " << crcvalid;
       ++ptr;
 
       if (!crcvalid) {
@@ -179,7 +252,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       if (econd_payload_length > 469) {
         econdPacketInfo.view()[ECONDdenseIdx].exception() = 4;
         edm::LogWarning("[HGCalUnpacker]")
-            << "Unpacked payload length=" << econd_payload_length << " exceeds the maximal length=469";
+            << "Unpacked payload length=" << econd_payload_length << " exceeds the maximal length (=469)";
         return (0x1 << hgcaldigi::FEDUnpackingFlags::ECONDPayloadLengthOverflow) |
                (hasActiveCBFlags << hgcaldigi::FEDUnpackingFlags::ActiveCaptureBlockFlags);
       }
@@ -198,7 +271,12 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                   << ", econdIdx = " << econdIdx << ", econd_headers = " << std::hex
                                   << std::setfill('0') << std::setw(8) << econd_headers[0] << " " << econd_headers[1]
-                                  << std::dec << ", econd_payload_length = " << econd_payload_length;
+                                  << ", econd_payload_length = " << std::dec << econd_payload_length << ", "
+                                  << "H/T = 0b"
+                                  << std::bitset<2>((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK)
+                                  << ", E/B/O = 0b"
+                                  << std::bitset<2>((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK)
+                                  << ", M = " << ((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1);
       //quality check for ECON-D (check econd_pkt_status here for error in trailer CRC)
       if ((((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK) >= 0b10) ||
@@ -210,28 +288,28 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
 
       // parse ECON-D body(eRx subpackets)
       const auto enabledErx = fedReadoutSequence.enabledErx_[globalECONDIdx];
-      const auto erxMax = moduleIndexer.getGlobalTypesNErx()[fedReadoutSequence.readoutTypes_[globalECONDIdx]];
+      const auto erxMax = moduleIndexer.globalTypesNErx()[fedReadoutSequence.readoutTypes_[globalECONDIdx]];
       const bool pass_through_mode = (econd_headers[0] >> ECOND_FRAME::BITP_POS) & 0b1;
 
       unsigned iword = 0;
       if (!pass_through_mode) {
         // Standard ECON-D
-        LogDebug("[HGCalUnpacker]") << "Standard ECON-D, erxMax=" << erxMax << "enabledErx= " << enabledErx;
+        LogDebug("[HGCalUnpacker]") << "Standard ECON-D, erxMax = " << erxMax << ", enabledErx = 0b"
+                                    << std::bitset<12>(enabledErx);
         for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
           // check if the eRx is enabled
           if ((enabledErx >> erxIdx & 1) == 0) {
             continue;
           }
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
-                                      << ", econdIdx = " << econdIdx << ", erxIdx=" << erxIdx;
-
+                                      << ", econdIdx = " << econdIdx << ", erxIdx = " << erxIdx;
           econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx, 0) =
               (econd_payload[iword] >> ECOND_FRAME::COMMONMODE0_POS) & ECOND_FRAME::COMMONMODE0_MASK;
           econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx, 1) =
               (econd_payload[iword] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK;
           // check if the eRx sub-packet is empty (the "F" flag in the eRx sub-packet header)
           if (((econd_payload[iword] >> ECOND_FRAME::ERXFORMAT_POS) & ECOND_FRAME::ERXFORMAT_MASK) == 1) {
-            LogDebug("[HGCalUnpacker]") << "eRx " << erxIdx << " is empty";
+            LogDebug("[HGCalUnpacker]") << "eRxIdx = " << erxIdx << " is empty";
             iword += 1;  // length of an empty eRx header (32 bits)
             continue;    // go to the next eRx
           }
@@ -263,11 +341,20 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
             digis.view()[denseIdx].tctp() = tctp_[code];
             digis.view()[denseIdx].adcm1() = (temp >> adcm1Shift_[code]) & adcm1Mask_[code];
             digis.view()[denseIdx].adc() = (temp >> adcShift_[code]) & adcMask_[code];
-            digis.view()[denseIdx].tot() = (temp >> totShift_[code]) & totMask_[code];
+            digis.view()[denseIdx].tot() = decompressToT((temp >> totShift_[code]) & totMask_[code]);
             digis.view()[denseIdx].toa() = (temp >> toaShift_[code] & toaMask_[code]);
             digis.view()[denseIdx].cm() = cmSum;
             digis.view()[denseIdx].flags() = 0;
             iBit += erxBodyBits_[code];
+
+            LogDebug("[HGCalUnpacker]") << "channelIdx = " << channelIdx << ", denseIdx = " << denseIdx
+                                        << ", tctp = " << uint16_t(digis.view()[denseIdx].tctp())
+                                        << ", adcm1 = " << digis.view()[denseIdx].adcm1()
+                                        << ", adc = " << digis.view()[denseIdx].adc()
+                                        << ", tot = " << digis.view()[denseIdx].tot()
+                                        << ", toa = " << digis.view()[denseIdx].toa()
+                                        << ", cm = " << digis.view()[denseIdx].cm() << std::hex
+                                        << ", flags = " << digis.view()[denseIdx].flags();
           }
           iword += iBit / 32;
           if (iBit % 32 != 0) {
@@ -276,7 +363,8 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
         }
       } else {
         // Passthrough ECON-D
-        LogDebug("[HGCalUnpacker]") << "Passthrough ECON-D, erxMax=" << erxMax << "enabledErx= " << enabledErx;
+        LogDebug("[HGCalUnpacker]") << "Passthrough ECON-D, erxMax = " << erxMax << ", enabledErx = 0b"
+                                    << std::bitset<12>(enabledErx);
         for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
           // check if the eRx is enabled
           if ((enabledErx >> erxIdx & 1) == 0) {
@@ -291,7 +379,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
               (econd_payload[iword] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK;
           // check if the eRx sub-packet is empty (the "F" flag in the eRx sub-packet header)
           if (((econd_payload[iword] >> ECOND_FRAME::ERXFORMAT_POS) & ECOND_FRAME::ERXFORMAT_MASK) == 1) {
-            LogDebug("[HGCalUnpacker]") << "eRx " << erxIdx << " is empty";
+            LogDebug("[HGCalUnpacker]") << "erxIdx = " << erxIdx << " is empty";
             iword += 1;  // length of an empty eRx header (32 bits)
             continue;    // go to the next eRx
           }
@@ -319,7 +407,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
               digis.view()[denseIdx].tctp() = (econd_payload[iword] >> 30) & 0b11;
               digis.view()[denseIdx].adcm1() = 0;
               digis.view()[denseIdx].adc() = (econd_payload[iword] >> 20) & 0b1111111111;
-              digis.view()[denseIdx].tot() = (econd_payload[iword] >> 10) & 0b1111111111;
+              digis.view()[denseIdx].tot() = decompressToT((econd_payload[iword] >> 10) & 0b1111111111);
               digis.view()[denseIdx].toa() = econd_payload[iword] & 0b1111111111;
               digis.view()[denseIdx].cm() = cmSum;
               digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Characterization;
@@ -330,7 +418,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
               digis.view()[denseIdx].adcm1() = (econd_payload[iword] >> 20) & 0b1111111111;
               if (econd_payload[iword] >> 31 & 0b1) {
                 digis.view()[denseIdx].adc() = 0;
-                digis.view()[denseIdx].tot() = (econd_payload[iword] >> 10) & 0b1111111111;
+                digis.view()[denseIdx].tot() = decompressToT((econd_payload[iword] >> 10) & 0b1111111111);
               } else {
                 digis.view()[denseIdx].adc() = (econd_payload[iword] >> 10) & 0b1111111111;
                 digis.view()[denseIdx].tot() = 0;
@@ -339,8 +427,16 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
               digis.view()[denseIdx].cm() = cmSum;
               digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Normal;
             }
-
             iword += 1;
+
+            LogDebug("[HGCalUnpacker]") << "channelIdx = " << channelIdx << ", denseIdx = " << denseIdx
+                                        << ", tctp = " << uint16_t(digis.view()[denseIdx].tctp())
+                                        << ", adcm1 = " << digis.view()[denseIdx].adcm1()
+                                        << ", adc = " << digis.view()[denseIdx].adc()
+                                        << ", tot = " << digis.view()[denseIdx].tot()
+                                        << ", toa = " << digis.view()[denseIdx].toa()
+                                        << ", cm = " << digis.view()[denseIdx].cm() << std::hex
+                                        << ", flags = " << digis.view()[denseIdx].flags();
           }
         }
       }
@@ -366,9 +462,9 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
   if (ptr + 2 != trailer) {
     uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
     econdPacketInfo.view()[ECONDdenseIdx].exception() = 6;
-    edm::LogWarning("[HGCalUnpacker]") << "Error finding the S-link trailer, expected at" << std::dec
+    edm::LogWarning("[HGCalUnpacker]") << "Error finding the S-link trailer, expected at " << std::dec
                                        << (uint32_t)(trailer - header) << "/0x" << std::hex
-                                       << (uint32_t)(trailer - header) << "Unpacked trailer at" << std::dec
+                                       << (uint32_t)(trailer - header) << ", unpacked trailer at " << std::dec
                                        << (uint32_t)(trailer - header + 2) << "/0x" << std::hex
                                        << (uint32_t)(ptr - header + 2);
     return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorSLinkTrailer) |

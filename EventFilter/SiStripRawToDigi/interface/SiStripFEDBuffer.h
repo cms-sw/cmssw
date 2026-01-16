@@ -84,7 +84,7 @@ namespace sistrip {
     //check FE unit APV addresses in FULL DEBUG header are equal to the APVe address if the majority was good
     bool checkFEUnitAPVAddresses() const;
     //do all corrupt buffer checks
-    virtual bool doCorruptBufferChecks() const;
+    bool doCorruptBufferChecks() const;
 
     //check that there are no errors in channel, APV or FEUnit status bits
     //these are done by channelGood(). Channels with bad status bits may be disabled so bad status bits do not usually indicate an error
@@ -194,18 +194,18 @@ namespace sistrip {
     namespace detail {
 
       template <uint8_t num_words>
-      uint16_t getADC_W(const uint8_t* data, uint_fast16_t offset, uint8_t bits_shift) {
+      constexpr uint16_t getADC_W(const uint8_t* data, uint_fast16_t offset, uint8_t bits_shift) {
         // get ADC from one or two bytes (at most 10 bits), and shift if needed
         return (data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0)) << bits_shift;
       }
 
       template <uint16_t mask>
-      uint16_t getADC_B2(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
+      constexpr uint16_t getADC_B2(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
         // get ADC from two bytes, from wOffset until bOffset bits from the next byte (maximum decided by mask)
         return (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask;
       }
       template <uint16_t mask>
-      uint16_t getADC_B1(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
+      constexpr uint16_t getADC_B1(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
         // get ADC from one byte, until bOffset into the byte at wOffset (maximum decided by mask)
         return (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask;
       }

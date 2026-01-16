@@ -76,6 +76,7 @@ defaultOptions.prefix = None
 defaultOptions.profile = None
 defaultOptions.heap_profile = None
 defaultOptions.maxmem_profile = None
+defaultOptions.alloc_monitor = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
 defaultOptions.donotDropOnInput = ''
@@ -381,13 +382,13 @@ class ConfigBuilder(object):
         self.addedObjects.append(("","options"))
 
         if self._options.lazy_download:
-            self.process.AdaptorConfig = cms.Service("AdaptorConfig",
+            self.process.TFileAdaptor = cms.Service("TFileAdaptor",
                                                      stats = cms.untracked.bool(True),
                                                      enable = cms.untracked.bool(True),
                                                      cacheHint = cms.untracked.string("lazy-download"),
                                                      readHint = cms.untracked.string("read-ahead-buffered")
                                                      )
-            self.addedObjects.append(("Setup lazy download","AdaptorConfig"))
+            self.addedObjects.append(("Setup lazy download","TFileAdaptor"))
 
         #self.process.cmsDriverCommand = cms.untracked.PSet( command=cms.untracked.string('cmsDriver.py '+self._options.arguments) )
         #self.addedObjects.append(("what cmsDriver command was used","cmsDriverCommand"))
@@ -439,7 +440,7 @@ class ConfigBuilder(object):
                     self.process.source.fileNames.append(self._options.dirin+entry)
             if self._options.secondfilein:
                 if not hasattr(self.process.source,"secondaryFileNames"):
-                    raise Exception("--secondfilein not compatible with "+self._options.filetype+"input type")
+                    raise Exception("--secondfilein not compatible with "+self._options.filetype+" input type")
                 for entry in self._options.secondfilein.split(','):
                     print("entry",entry)
                     if entry.startswith("filelist:"):
@@ -457,9 +458,9 @@ class ConfigBuilder(object):
                                                secondaryFileNames= cms.untracked.vstring())
                 filesFromOption(self)
             if self._options.filetype == "EDM_RNTUPLE":
-                self.process.source=cms.Source("RNTupleSource",
-                                               fileNames = cms.untracked.vstring())#, 2ndary not supported yet
-                                               #secondaryFileNames= cms.untracked.vstring())
+                self.process.source=cms.Source("RNTupleTempSource",
+                                               fileNames = cms.untracked.vstring(),
+                                               secondaryFileNames= cms.untracked.vstring())
                 filesFromOption(self)
             elif self._options.filetype == "DAT":
                 self.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
@@ -711,11 +712,6 @@ class ConfigBuilder(object):
             output = self._createOutputModuleInAddOutput(tier=tier, streamType=streamType, eventContent=theEventContent, fileName = theFileName, filterName = theFilterName, ignoreNano = False)
             self._updateOutputSelectEvents(output, streamType)
 
-            if "MINIAOD" in streamType:
-                ## we should definitely get rid of this customization by now
-                from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
-                miniAOD_customizeOutput(output)
-
             outputModuleName=streamType+streamQualifier+'output'
             outputModule = self._addOutputModuleAndPathToProcess(output, outputModuleName)
 
@@ -732,14 +728,16 @@ class ConfigBuilder(object):
         CppType='PoolOutputModule'
         if self._options.timeoutOutput:
             CppType='TimeoutPoolOutputModule'
-        if streamType=='DQM' and tier=='DQMIO':
+        elif streamType=='DQM' and tier=='DQMIO':
             CppType='DQMRootOutputModule'
+        elif not ignoreNano and "NANOAOD" in streamType:
+            CppType='NanoAODRNTupleOutputModule' if self._options.rntuple_out else 'NanoAODOutputModule'
+        elif self._options.rntuple_out:
+            CppType='RNTupleTempOutputModule'
+        if 'RNTuple' in CppType:
+            fileName = fileName.replace('.root', '.rntpl')
+        else:
             fileName = fileName.replace('.rntpl', '.root')
-        if not ignoreNano and "NANOAOD" in streamType : CppType='NanoAODOutputModule'
-        if self._options.rntuple_out and CppType == 'PoolOutputModule':
-            CppType='RNTupleOutputModule'
-            if len(fileName) > 5 and fileName[-5:] == '.root':
-                fileName = fileName.replace('.root', '.rntpl')
         output = cms.OutputModule(CppType,
                                   eventContent.clone(),
                                   fileName = cms.untracked.string(fileName),
@@ -819,6 +817,8 @@ class ConfigBuilder(object):
                         mixingDict['F']=(filesFromList(self._options.pileup_input[9:]))[0]
                     else:
                         mixingDict['F']=self._options.pileup_input.split(',')
+
+                self.customizeMixingModuleForRNTuple(mixingDict.get('F', []), 'mix')
                 specialization=defineMixing(mixingDict)
                 for command in specialization:
                     self.executeAndRemember(command)
@@ -874,6 +874,20 @@ class ConfigBuilder(object):
                 else:
                     self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'
 
+    def customizeMixingModuleForRNTuple(self, files, mixingModuleLabel):
+        # Do we want a command-line option as well to switch the input type?
+        # Naively the 'filetype' looks attractive, but it would
+        # couple the primary Source and the SecSource to the same
+        # file format, which is not strictly necessary
+        useRNTuple= len(files) > 0 and files[0].lower().endswith(".rntpl")
+        if useRNTuple:
+            rntupleSrc = cms.SecSource("EmbeddedRNTupleRootSource")
+            mixingModule = getattr(self.process, mixingModuleLabel)
+            rntupleSrc.update_(mixingModule.input.parameters_())
+            mixingModule.input = rntupleSrc
+            self.additionalCommands.append('rntupleSrc = cms.SecSource("EmbeddedRNTupleTempSource")')
+            self.additionalCommands.append(f'rntupleSrc.update_(process.{mixingModuleLabel}.input.parameters_())')
+            self.additionalCommands.append(f'process.{mixingModuleLabel}.input = rntupleSrc')
 
     def completeInputCommand(self):
         if self._options.inputEventContent:
@@ -1095,7 +1109,7 @@ class ConfigBuilder(object):
         self.VALIDATIONDefaultSeq=''
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
-        self.PATDefaultSeq='miniAOD'
+        self.PATDefaultSeq='patTask'
         self.PATGENDefaultSeq='miniGEN'
         #TODO: Check based of file input
         self.NANODefaultSeq='nanoSequence'
@@ -1115,7 +1129,6 @@ class ConfigBuilder(object):
         if self._options.isMC==True:
             self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
-            self.PATDefaultCFF="Configuration/StandardSequences/PATMC_cff"
             self.PATGENDefaultCFF="Configuration/StandardSequences/PATGEN_cff"
             self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
             self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
@@ -1244,7 +1257,7 @@ class ConfigBuilder(object):
             # define output module and go from there
         if self._options.rntuple_out:
             extension = '.rntpl'
-            output = cms.OutputModule('RNTupleOutputModule')
+            output = cms.OutputModule('RNTupleTempOutputModule')
         else:
             extension = '.root'
             output = cms.OutputModule("PoolOutputModule")
@@ -1594,6 +1607,8 @@ class ConfigBuilder(object):
                 theFiles= (filesFromList(self._options.pileup_input[9:]))[0]
             else:
                 theFiles=self._options.pileup_input.split(',')
+
+            self.customizeMixingModuleForRNTuple(theFiles, 'mixData')
             #print theFiles
             self.executeAndRemember( "process.mixData.input.fileNames = cms.untracked.vstring(%s)"%(  theFiles ) )
 
@@ -1697,6 +1712,12 @@ class ConfigBuilder(object):
             else:
                 self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(stepSpec.replace(',',':'),optionsForHLTConfig))
         else:
+            # case where HLT:something was provided (most of the cases)
+            if '+' in stepSpec:
+                # case where HLT:menu+customisation+customisation+... was provided
+                # the customiser allows to modify parts of the HLT menu
+                stepSpec, *hltcustomiser = stepSpec.rsplit('+')
+                self._options.customisation_file_unsch = hltcustomiser + self._options.customisation_file_unsch
             self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff' % stepSpec)
 
         if self._options.isMC:
@@ -1735,12 +1756,6 @@ class ConfigBuilder(object):
         _,_raw2digiSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.RAW2DIGIDefaultCFF)
         self.scheduleSequence(_raw2digiSeq,'raw2digi_step')
         return
-
-    def prepare_PATFILTER(self, stepSpec = None):
-        self.loadAndRemember("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff")
-        from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import allMetFilterPaths
-        for filt in allMetFilterPaths:
-            self.schedule.append(getattr(self.process,'Flag_'+filt))
 
     def prepare_L1HwVal(self, stepSpec = 'L1HwVal'):
         ''' Enrich the schedule with L1 HW validation '''
@@ -1813,18 +1828,20 @@ class ConfigBuilder(object):
         self.scheduleSequence(_recobefmixSeq,'reconstruction_befmix_step')
         return
 
-    def prepare_PAT(self, stepSpec = "miniAOD"):
+    def prepare_PAT(self, stepSpec = "patTask"):
         ''' Enrich the schedule with PAT '''
-        self.prepare_PATFILTER(self)
-        self.loadDefaultOrSpecifiedCFF(stepSpec,self.PATDefaultCFF)
-        self.labelsToAssociate.append('patTask')
+        _,pat_sequence,pat_cff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.PATDefaultCFF)
+        ## handle the noise filters as Flag_* path that were loaded
+        for existing_path,path_ in self.process.paths_().items():
+            if existing_path.startswith('Flag_'):
+                print(f'scheduling {existing_path} as part of PAT configuration')
+                self.schedule.append( path_ )
+
+        self.labelsToAssociate.append(pat_sequence)
         if self._options.isData:
-            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+            self._options.customisation_file_unsch.insert(0,f"{pat_cff}.miniAOD_customizeAllData")
         else:
-            if self._options.fast:
-                self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMCFastSim")
-            else:
-                self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
+            self._options.customisation_file_unsch.insert(0,f"{pat_cff}.miniAOD_customizeAllMC")
 
         if self._options.hltProcess:
             self._customise_coms.append( f'process.patTrigger.processName = "{self._options.hltProcess}"')
@@ -1909,9 +1926,15 @@ class ConfigBuilder(object):
             print("replacing %s process name - step SKIM:%s will use '%s'" % (stdHLTProcName, sequence, newHLTProcName))
 
         ## support @Mu+DiJet+@Electron configuration via autoSkim.py
-        from Configuration.Skimming.autoSkim import autoSkim
+        from Configuration.Skimming.autoSkim import autoSkim, autoSkimRunI
         skimlist = sequence.split('+')
         self.expandMapping(skimlist,autoSkim)
+
+        autoSkimRunIList = list(set(
+            item
+            for v in autoSkimRunI.values()
+            for item in v.split('+')
+        ))
 
         #print("dictionary for skims:", skimConfig.__dict__)
         for skim in skimConfig.__dict__:
@@ -1931,6 +1954,10 @@ class ConfigBuilder(object):
             shortname = skim.replace('SKIMStream','')
             if (sequence=="all"):
                 self.addExtraStream(skim,skimstream)
+            elif (sequence=="allRun1"):
+                if not shortname in autoSkimRunIList:
+                    continue
+                self.addExtraStream(skim,skimstream)
             elif (shortname in skimlist):
                 self.addExtraStream(skim,skimstream)
                 #add a DQM eventcontent for this guy
@@ -1948,7 +1975,7 @@ class ConfigBuilder(object):
                 for i in range(skimlist.count(shortname)):
                     skimlist.remove(shortname)
 
-        if (skimlist.__len__()!=0 and sequence!="all"):
+        if (skimlist.__len__()!=0 and sequence!="all" and sequence!="allRun1"):
             print('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
             raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 

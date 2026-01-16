@@ -9,11 +9,20 @@
 
 fastsim::Decayer::~Decayer() { ; }
 
-fastsim::Decayer::Decayer() : pythia_(new Pythia8::Pythia()), pythiaRandomEngine_(new gen::P8RndmEngine()) {
+fastsim::Decayer::Decayer(bool verbose)
+    : pythia_(std::make_unique<Pythia8::Pythia>("../share/Pythia8/xmldoc", verbose)),
+      pythiaRandomEngine_(std::make_unique<gen::P8RndmEngine>()) {
   pythia_->setRndmEnginePtr(pythiaRandomEngine_);
   pythia_->settings.flag("ProcessLevel:all", false);
   pythia_->settings.flag("PartonLevel:FSRinResonances", false);
   pythia_->settings.flag("ProcessLevel:resonanceDecays", false);
+  if (!verbose) {
+    pythia_->settings.flag("Print:quiet", true);
+    pythia_->settings.flag("Init:showProcesses", false);
+    pythia_->settings.flag("Init:showMultipartonInteractions", false);
+    pythia_->settings.flag("Init:showChangedSettings", false);
+    pythia_->settings.flag("Init:showChangedParticleData", false);
+  }
   pythia_->init();
 
   // forbid all decays
@@ -77,7 +86,7 @@ void fastsim::Decayer::decay(const Particle& particle,
   for (int ipart = nentries_before; ipart < nentries_after; ipart++) {
     Pythia8::Particle& daughter = pythia_->event[ipart];
 
-    secondaries.emplace_back(new fastsim::Particle(
+    secondaries.emplace_back(std::make_unique<fastsim::Particle>(
         daughter.id(),
         math::XYZTLorentzVector(daughter.xProd(), daughter.yProd(), daughter.zProd(), daughter.tProd()),
         math::XYZTLorentzVector(daughter.px(), daughter.py(), daughter.pz(), daughter.e())));

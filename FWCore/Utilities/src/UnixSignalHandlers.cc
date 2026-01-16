@@ -5,7 +5,6 @@
 #include <cstring>
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 
 #if !defined(NSIG)
 #if defined(_NSIG)
@@ -22,10 +21,7 @@ namespace edm {
   volatile std::atomic<bool> shutdown_flag{false};
 
   extern "C" {
-  void ep_sigusr2(int, siginfo_t*, void*) {
-    FDEBUG(1) << "in sigusr2 handler\n";
-    shutdown_flag.store(true);
-  }
+  void ep_sigusr2(int, siginfo_t*, void*) { shutdown_flag.store(true); }
   }
 #define MUST_BE_ZERO(fun)                                           \
   if ((fun) != 0) {                                                 \

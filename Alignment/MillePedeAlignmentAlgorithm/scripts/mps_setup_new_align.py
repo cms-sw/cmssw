@@ -43,7 +43,8 @@ def main(argv = None):
                         metavar="TYPE", choices=["MC", "data"],
                         help="type of the input data (choices: %(choices)s)")
     parser.add_argument("-c", "--copy", dest="copy", metavar="CAMPAIGN",
-                        help="input campaign (optional)")
+                        help="input campaign (optional)")    
+    parser.add_argument("-a", "--auto", action="store_true", help="Prepare directory for the automated workflow.")
     args = parser.parse_args(argv)
 
 
@@ -98,7 +99,8 @@ def main(argv = None):
             print("    - updated campaign list '"+campaign_list+"'")
 
             if args.copy is None:
-                copy_default_templates(args, next_campaign)
+                if not args.auto: 
+                    copy_default_templates(args, next_campaign)
             else:
                 copied_files = []
                 for ext in ("py", "ini", "txt"):

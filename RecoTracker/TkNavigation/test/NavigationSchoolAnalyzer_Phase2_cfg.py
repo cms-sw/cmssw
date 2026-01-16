@@ -26,11 +26,6 @@ process.load("RecoTracker.TkNavigation.NavigationSchoolESProducer_cff")
 #)
 
 
-#This has to be modified in order to read the tracker + MTD structure
-process.TrackerRecoGeometryESProducer = cms.ESProducer("TrackerMTDRecoGeometryESProducer",
-    usePhase2Stacks = cms.bool(False)
-)
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )

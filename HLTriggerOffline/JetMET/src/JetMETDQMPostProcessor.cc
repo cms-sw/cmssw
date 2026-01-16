@@ -1,4 +1,4 @@
-// Migrated to use DQMEDHarvester by: Jyothsna Rani Komaragiri, Oct 2014
+// Numerator and denominator histograms filled in HLTriggerOffline/JetMET/src/HLTJetMETValidation.cc
 
 #include "HLTriggerOffline/JetMET/interface/JetMETDQMPostProcessor.h"
 
@@ -50,38 +50,25 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
       isMetDir = true;
 
     if (isMetDir) {
-      // std::cout << "JetMETDQMPostProcessor - Met paths: " << ibooker.pwd() <<
-      // " " << *dir << std::endl;
-
       // GenMET
+      dividehistos(
+          ibooker, igetter, "GenMETTrgMC", "GenMET", "TurnOngMET", "Gen Missing ET", "Gen Missing ET Turn-On RelVal");
       dividehistos(ibooker,
                    igetter,
-                   "_meGenMETTrgMC",
-                   "_meGenMET",
-                   "_meTurnOngMET",
-                   "Gen Missing ET",
-                   "Gen Missing ET Turn-On RelVal");
-      dividehistos(ibooker,
-                   igetter,
-                   "_meGenMETTrg",
-                   "_meGenMETTrgLow",
-                   "_meTurnOngMETLow",
+                   "GenMETTrg",
+                   "GenMETTrgLow",
+                   "TurnOngMETLow",
                    "Gen Missing ETLow",
                    "Gen Missing ET Turn-On Data");
 
       // HLTMET
+      dividehistos(
+          ibooker, igetter, "HLTMETTrgMC", "HLTMET", "TurnOnhMET", "HLT Missing ET", "HLT Missing ET Turn-On RelVal");
       dividehistos(ibooker,
                    igetter,
-                   "_meHLTMETTrgMC",
-                   "_meHLTMET",
-                   "_meTurnOnhMET",
-                   "HLT Missing ET",
-                   "HLT Missing ET Turn-On RelVal");
-      dividehistos(ibooker,
-                   igetter,
-                   "_meHLTMETTrg",
-                   "_meHLTMETTrgLow",
-                   "_meTurnOnhMETLow",
+                   "HLTMETTrg",
+                   "HLTMETTrgLow",
+                   "TurnOnhMETLow",
                    "HLT Missing ETLow",
                    "HLT Missing ET Turn-On Data");
     }
@@ -91,90 +78,60 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
       // " " << *dir << std::endl;
 
       // GenJets
+      dividehistos(
+          ibooker, igetter, "GenJetPtTrgMC", "GenJetPt", "TurnOngJetPt", "Gen Jet Pt", "Gen Jet Pt Turn-On RelVal");
       dividehistos(ibooker,
                    igetter,
-                   "_meGenJetPtTrgMC",
-                   "_meGenJetPt",
-                   "_meTurnOngJetPt",
-                   "Gen Jet Pt",
-                   "Gen Jet Pt Turn-On RelVal");
-      dividehistos(ibooker,
-                   igetter,
-                   "_meGenJetPtTrg",
-                   "_meGenJetPtTrgLow",
-                   "_meTurnOngJetPtLow",
+                   "GenJetPtTrg",
+                   "GenJetPtTrgLow",
+                   "TurnOngJetPtLow",
                    "Gen Jet PtLow",
                    "Gen Jet Pt Turn-On Data");
+      dividehistos(
+          ibooker, igetter, "GenJetEtaTrgMC", "GenJetEta", "TurnOngJetEta", "Gen Jet Eta", "Gen Jet Eta Turn-On RelVal");
       dividehistos(ibooker,
                    igetter,
-                   "_meGenJetEtaTrgMC",
-                   "_meGenJetEta",
-                   "_meTurnOngJetEta",
-                   "Gen Jet Eta",
-                   "Gen Jet Eta Turn-On RelVal");
-      dividehistos(ibooker,
-                   igetter,
-                   "_meGenJetEtaTrg",
-                   "_meGenJetEtaTrgLow",
-                   "_meTurnOngJetEtaLow",
+                   "GenJetEtaTrg",
+                   "GenJetEtaTrgLow",
+                   "TurnOngJetEtaLow",
                    "Gen Jet EtaLow",
                    "Gen Jet Eta Turn-On Data");
+      dividehistos(
+          ibooker, igetter, "GenJetPhiTrgMC", "GenJetPhi", "TurnOngJetPhi", "Gen Jet Phi", "Gen Jet Phi Turn-On RelVal");
       dividehistos(ibooker,
                    igetter,
-                   "_meGenJetPhiTrgMC",
-                   "_meGenJetPhi",
-                   "_meTurnOngJetPhi",
-                   "Gen Jet Phi",
-                   "Gen Jet Phi Turn-On RelVal");
-      dividehistos(ibooker,
-                   igetter,
-                   "_meGenJetPhiTrg",
-                   "_meGenJetPhiTrgLow",
-                   "_meTurnOngJetPhiLow",
+                   "GenJetPhiTrg",
+                   "GenJetPhiTrgLow",
+                   "TurnOngJetPhiLow",
                    "Gen Jet PhiLow",
                    "Gen Jet Phi Turn-On Data");
 
       // HLTJets
+      dividehistos(
+          ibooker, igetter, "HLTJetPtTrgMC", "HLTJetPt", "TurnOnhJetPt", "HLT Jet Pt", "HLT Jet Pt Turn-On RelVal");
       dividehistos(ibooker,
                    igetter,
-                   "_meHLTJetPtTrgMC",
-                   "_meHLTJetPt",
-                   "_meTurnOnhJetPt",
-                   "HLT Jet Pt",
-                   "HLT Jet Pt Turn-On RelVal");
-      dividehistos(ibooker,
-                   igetter,
-                   "_meHLTJetPtTrg",
-                   "_meHLTJetPtTrgLow",
-                   "_meTurnOnhJetPtLow",
+                   "HLTJetPtTrg",
+                   "HLTJetPtTrgLow",
+                   "TurnOnhJetPtLow",
                    "HLT Jet PtLow",
                    "HLT Jet Pt Turn-On Data");
+      dividehistos(
+          ibooker, igetter, "HLTJetEtaTrgMC", "HLTJetEta", "TurnOnhJetEta", "HLT Jet Eta", "HLT Jet Eta Turn-On RelVal");
       dividehistos(ibooker,
                    igetter,
-                   "_meHLTJetEtaTrgMC",
-                   "_meHLTJetEta",
-                   "_meTurnOnhJetEta",
-                   "HLT Jet Eta",
-                   "HLT Jet Eta Turn-On RelVal");
-      dividehistos(ibooker,
-                   igetter,
-                   "_meHLTJetEtaTrg",
-                   "_meHLTJetEtaTrgLow",
-                   "_meTurnOnhJetEtaLow",
+                   "HLTJetEtaTrg",
+                   "HLTJetEtaTrgLow",
+                   "TurnOnhJetEtaLow",
                    "HLT Jet EtaLow",
                    "HLT Jet Eta Turn-On Data");
+      dividehistos(
+          ibooker, igetter, "HLTJetPhiTrgMC", "HLTJetPhi", "TurnOnhJetPhi", "HLT Jet Phi", "HLT Jet Phi Turn-On RelVal");
       dividehistos(ibooker,
                    igetter,
-                   "_meHLTJetPhiTrgMC",
-                   "_meHLTJetPhi",
-                   "_meTurnOnhJetPhi",
-                   "HLT Jet Phi",
-                   "HLT Jet Phi Turn-On RelVal");
-      dividehistos(ibooker,
-                   igetter,
-                   "_meHLTJetPhiTrg",
-                   "_meHLTJetPhiTrgLow",
-                   "_meTurnOnhJetPhiLow",
+                   "HLTJetPhiTrg",
+                   "HLTJetPhiTrgLow",
+                   "TurnOnhJetPhiLow",
                    "HLT Jet PhiLow",
                    "HLT Jet Phi Turn-On Data");
     }
@@ -191,13 +148,7 @@ TProfile *JetMETDQMPostProcessor::dividehistos(DQMStore::IBooker &ibooker,
                                                const std::string &outName,
                                                const std::string &label,
                                                const std::string &titel) {
-  // ibooker.pwd();
-  // std::cout << "In dividehistos: " << ibooker.pwd() << std::endl;
-
-  // std::cout << numName <<std::endl;
   TH1F *num = getHistogram(ibooker, igetter, ibooker.pwd() + "/" + numName);
-
-  // std::cout << denomName << std::endl;
   TH1F *denom = getHistogram(ibooker, igetter, ibooker.pwd() + "/" + denomName);
 
   if (num == nullptr)

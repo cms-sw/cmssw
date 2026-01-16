@@ -166,7 +166,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
             break;
           ++index_counter;
         }
-        float normchi2{0}, dz{0}, dxy{0}, dzError{0}, dxyError{0}, trk_pt{0}, trk_eta{0}, trk_phi{0};
+        float normchi2{0}, dz{0}, dxy{0}, dzSig{0}, dxySig{0}, trk_pt{0}, trk_eta{0}, trk_phi{0};
         uint8_t lostInnerHits{0}, quality{0};
         if (doTrackVars_) {
           const auto *trk = cand.bestTrack();
@@ -187,11 +187,11 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
               const reco::Vertex &pv = (*vertexCollection)[0];
 
               dz = trk->dz(pv.position());
-              dzError = MiniFloatConverter::reduceMantissaToNbitsRounding(dz / trk->dzError(), mantissaPrecision_);
+              dzSig = MiniFloatConverter::reduceMantissaToNbitsRounding(dz / trk->dzError(), mantissaPrecision_);
               dz = MiniFloatConverter::reduceMantissaToNbitsRounding(dz, mantissaPrecision_);
 
               dxy = trk->dxy(pv.position());
-              dxyError = MiniFloatConverter::reduceMantissaToNbitsRounding(dxy / trk->dxyError(), mantissaPrecision_);
+              dxySig = MiniFloatConverter::reduceMantissaToNbitsRounding(dxy / trk->dxyError(), mantissaPrecision_);
               dxy = MiniFloatConverter::reduceMantissaToNbitsRounding(dxy, mantissaPrecision_);
             }
           } else {
@@ -206,8 +206,8 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
                                       normchi2,
                                       dz,
                                       dxy,
-                                      dzError,
-                                      dxyError,
+                                      dzSig,
+                                      dxySig,
                                       lostInnerHits,
                                       quality,
                                       trk_pt,

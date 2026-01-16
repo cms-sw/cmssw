@@ -114,6 +114,7 @@ namespace {
     std::vector<edm::EDGetTokenT<std::vector<int>>> m_tokens;
   };
 
+  constexpr const auto skipCurrentProcessLabel = edm::ProductResolverIndexHelper::skipCurrentProcessLabel();
 }  // namespace
 
 void TestEDConsumerBase::testRegularType() {
@@ -125,27 +126,36 @@ void TestEDConsumerBase::testRegularType() {
   edm::TypeID typeIDSetInt(typeid(std::set<int>));
   edm::TypeID typeIDVSimpleDerived(typeid(std::vector<edmtest::SimpleDerived>));
 
-  helper.insert(typeIDVectorInt, "labelC", "instanceC", "processC");       // 0, 1, 2
-  helper.insert(typeIDVectorInt, "label", "instance", "process");          // 3, 4, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB");         // 6, 7
-  helper.insert(typeIDEventID, "label", "instanceB", "processB");          // 8, 9
-  helper.insert(typeIDEventID, "labelX", "instanceB", "processB");         // 10, 11
-  helper.insert(typeIDEventID, "labelB", "instance", "processB");          // 12, 13
-  helper.insert(typeIDEventID, "labelB", "instanceX", "processB");         // 14, 15
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB1");        // 16, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB3");        // 17, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB2");        // 18, 5
-  helper.insert(typeIDProductID, "label", "instance", "process");          // 19, 20
-  helper.insert(typeIDEventID, "label", "instance", "process");            // 21, 22
-  helper.insert(typeIDProductID, "labelA", "instanceA", "processA");       // 23, 24
-  helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");          // 25, 26
-  helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 27, 28, 29, 30
+  //ProductResolverIndex
+  helper.insert(typeIDVectorInt, "labelC", "instanceC", "processC");       // 0
+  helper.insert(typeIDVectorInt, "label", "instance", "process");          // 1
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB");         // 2
+  helper.insert(typeIDEventID, "label", "instanceB", "processB");          // 3
+  helper.insert(typeIDEventID, "labelX", "instanceB", "processB");         // 4
+  helper.insert(typeIDEventID, "labelB", "instance", "processB");          // 5
+  helper.insert(typeIDEventID, "labelB", "instanceX", "processB");         // 6
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB1");        // 7
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB3");        // 8
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB2");        // 9
+  helper.insert(typeIDProductID, "label", "instance", "process");          // 10
+  helper.insert(typeIDEventID, "label", "instance", "process");            // 11
+  helper.insert(typeIDProductID, "labelA", "instanceA", "processA");       // 12
+  helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");          // 13
+  helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 14
 
-  helper.setFrozen();
+  {
+    std::vector<std::string> processNames = {
+        "processC", "process", "processB", "processB1", "processB2", "processB3", "processA"};
+    helper.setFrozen(processNames);
+  }
 
   edm::TypeID typeID_vint(typeid(std::vector<int>));
   const auto vint_c = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "processC");
+  const auto vint_c_skipCurrent =
+      helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", skipCurrentProcessLabel);
+  CPPUNIT_ASSERT(edm::ProductResolverIndexInvalid == vint_c_skipCurrent);
   const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", 0);
+  CPPUNIT_ASSERT(vint_c == vint_c_no_proc);
   const auto vint_blank = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", "process");
   const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", 0);
   {
@@ -263,7 +273,7 @@ void TestEDConsumerBase::testRegularType() {
     CPPUNIT_ASSERT(intConsumer.m_tokens[0].index() == 0);
     CPPUNIT_ASSERT(intConsumer.m_tokens[1].index() == 1);
 
-    CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_c_no_proc, true) ==
+    CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_c_skipCurrent, true) ==
                    intConsumer.indexFrom(intConsumer.m_tokens[1], edm::InEvent, typeID_vint));
     CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_blank_no_proc, false) ==
                    intConsumer.indexFrom(intConsumer.m_tokens[0], edm::InEvent, typeID_vint));
@@ -271,10 +281,10 @@ void TestEDConsumerBase::testRegularType() {
     std::vector<edm::ProductResolverIndexAndSkipBit> indices;
     intConsumer.itemsToGet(edm::InEvent, indices);
 
-    CPPUNIT_ASSERT(2 == indices.size());
-    CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),
+    CPPUNIT_ASSERT(1 == indices.size());
+    CPPUNIT_ASSERT(indices.end() == std::find(indices.begin(),
                                               indices.end(),
-                                              edm::ProductResolverIndexAndSkipBit(vint_c_no_proc, true)));
+                                              edm::ProductResolverIndexAndSkipBit(vint_c_skipCurrent, true)));
     CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),
                                               indices.end(),
                                               edm::ProductResolverIndexAndSkipBit(vint_blank_no_proc, false)));
@@ -325,23 +335,27 @@ void TestEDConsumerBase::testViewType() {
   edm::TypeID typeIDSetInt(typeid(std::set<int>));
   edm::TypeID typeIDVSimpleDerived(typeid(std::vector<edmtest::SimpleDerived>));
 
-  helper.insert(typeIDVectorInt, "labelC", "instanceC", "processC");       // 0, 1, 2
-  helper.insert(typeIDVectorInt, "label", "instance", "process");          // 3, 4, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB");         // 6, 7
-  helper.insert(typeIDEventID, "label", "instanceB", "processB");          // 8, 9
-  helper.insert(typeIDEventID, "labelX", "instanceB", "processB");         // 10, 11
-  helper.insert(typeIDEventID, "labelB", "instance", "processB");          // 12, 13
-  helper.insert(typeIDEventID, "labelB", "instanceX", "processB");         // 14, 15
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB1");        // 16, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB3");        // 17, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB2");        // 18, 5
-  helper.insert(typeIDProductID, "label", "instance", "process");          // 19, 20
-  helper.insert(typeIDEventID, "label", "instance", "process");            // 21, 22
-  helper.insert(typeIDProductID, "labelA", "instanceA", "processA");       // 23, 24
-  helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");          // 25, 26
-  helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 27, 28, 29, 30
+  helper.insert(typeIDVectorInt, "labelC", "instanceC", "processC");       // 0
+  helper.insert(typeIDVectorInt, "label", "instance", "process");          // 1
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB");         // 2
+  helper.insert(typeIDEventID, "label", "instanceB", "processB");          // 3
+  helper.insert(typeIDEventID, "labelX", "instanceB", "processB");         // 4
+  helper.insert(typeIDEventID, "labelB", "instance", "processB");          // 5
+  helper.insert(typeIDEventID, "labelB", "instanceX", "processB");         // 6
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB1");        // 7
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB3");        // 8
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB2");        // 9
+  helper.insert(typeIDProductID, "label", "instance", "process");          // 10
+  helper.insert(typeIDEventID, "label", "instance", "process");            // 11
+  helper.insert(typeIDProductID, "labelA", "instanceA", "processA");       // 12
+  helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");          // 13
+  helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 14
 
-  helper.setFrozen();
+  {
+    std::vector<std::string> processNames = {
+        "processC", "process", "processB", "processB1", "processB2", "processB3", "processA"};
+    helper.setFrozen(processNames);
+  }
 
   edm::TypeID typeID_int(typeid(int));
   edm::TypeID typeID_Simple(typeid(edmtest::Simple));
@@ -351,6 +365,8 @@ void TestEDConsumerBase::testViewType() {
 
   const auto v_int_no_proc = helper.index(edm::ELEMENT_TYPE, typeID_int, "label", "instance");
   const auto v_simple_no_proc = helper.index(edm::ELEMENT_TYPE, typeID_Simple, "labelC", "instanceC");
+  CPPUNIT_ASSERT(v_simple_no_proc == v_simple);
+  const auto v_simple_skip = helper.index(edm::ELEMENT_TYPE, typeID_Simple, "labelC", skipCurrentProcessLabel);
 
   {
     std::vector<std::pair<edm::TypeToGet, edm::InputTag>> vT = {
@@ -390,19 +406,19 @@ void TestEDConsumerBase::testViewType() {
 
     CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(v_int_no_proc, false) ==
                    consumer.indexFrom(consumer.m_tokens[0], edm::InEvent, typeID_int));
-    CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(v_simple_no_proc, true) ==
+    CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(v_simple_skip, true) ==
                    consumer.indexFrom(consumer.m_tokens[1], edm::InEvent, typeID_Simple));
     {
       std::vector<edm::ProductResolverIndexAndSkipBit> indices;
       consumer.itemsToGet(edm::InEvent, indices);
 
-      CPPUNIT_ASSERT(2 == indices.size());
+      CPPUNIT_ASSERT(1 == indices.size());
       CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),
                                                 indices.end(),
                                                 edm::ProductResolverIndexAndSkipBit(v_int_no_proc, false)));
-      CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),
+      CPPUNIT_ASSERT(indices.end() == std::find(indices.begin(),
                                                 indices.end(),
-                                                edm::ProductResolverIndexAndSkipBit(v_simple_no_proc, true)));
+                                                edm::ProductResolverIndexAndSkipBit(v_simple_skip, true)));
 
       std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
       consumer.itemsMayGet(edm::InEvent, indicesMay);
@@ -454,10 +470,16 @@ void TestEDConsumerBase::testMay() {
   helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");          // 25, 26
   helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 27, 28, 29, 30
 
-  helper.setFrozen();
+  {
+    std::vector<std::string> processNames = {
+        "processC", "process", "processB", "processB1", "processB2", "processB3", "processA"};
+    helper.setFrozen(processNames);
+  }
   edm::TypeID typeID_vint(typeid(std::vector<int>));
   const auto vint_c = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "processC");
   const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", 0);
+  CPPUNIT_ASSERT(vint_c_no_proc == vint_c);
+  const auto vint_c_skip = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", skipCurrentProcessLabel);
   const auto vint_blank = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", "process");
   const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", 0);
   {
@@ -559,7 +581,7 @@ void TestEDConsumerBase::testMay() {
     CPPUNIT_ASSERT(consumer.m_mayTokens[1].index() == 1);
     CPPUNIT_ASSERT(consumer.m_tokens.size() == 0);
 
-    CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_c_no_proc, true) ==
+    CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_c_skip, true) ==
                    consumer.indexFrom(consumer.m_mayTokens[1], edm::InEvent, typeID_vint));
     CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_blank_no_proc, false) ==
                    consumer.indexFrom(consumer.m_mayTokens[0], edm::InEvent, typeID_vint));

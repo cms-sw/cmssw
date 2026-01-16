@@ -26,7 +26,7 @@
 
 namespace edm {
   namespace serviceregistry {
-    enum ServiceLegacy { kOverlapIsError, kTokenOverrides, kConfigurationOverrides };
+    enum ServiceLegacy { kOverlapIsError, kTokenOverrides };
   }
 }  // namespace edm
 

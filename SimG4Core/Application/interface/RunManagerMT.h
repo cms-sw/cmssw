@@ -17,6 +17,7 @@ class CustomUIsession;
 class SimWatcher;
 class SimProducer;
 class G4SimEvent;
+class G4LogicalVolume;
 
 class RunAction;
 
@@ -86,6 +87,15 @@ private:
   void setupVoxels();
 
   void runForPhase2();
+
+  void addRegions();
+
+  void addG4Region(const std::vector<G4LogicalVolume*>&,
+                   const std::string& regName,
+                   double cutg,
+                   double cute,
+                   double cutp,
+                   double cuti);
 
   G4MTRunManagerKernel* m_kernel;
 

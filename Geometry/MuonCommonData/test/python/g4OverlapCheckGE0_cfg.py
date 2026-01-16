@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckGE0_cfg.py geometry=Test tol=0.1
 #
-#   Options for geometry Test, D99
+#   Options for geometry Test, D121
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "Test",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: Test, D99")
+                  "geometry of operations: Test, D121")
 options.register('tol',
                  0.1,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -32,13 +32,13 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('OverlapCheck',Phase2C17I13M9)
+from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+process = cms.Process('OverlapCheck',Phase2C22I13M9)
 
 if (options.geometry == "Test"):
     geomFile = "Geometry.MuonCommonData.testGE0XML_cfi"
 else:
-    geomFile = "Geometry.MuonCommonData.cmsExtendedGeometryRun4D110XML_cfi"
+    geomFile = "Geometry.MuonCommonData.cmsExtendedGeometryRun4D121XML_cfi"
 
 baseName = "cmsRun4" + options.geometry + "DDD"
 

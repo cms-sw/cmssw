@@ -2,6 +2,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 
 namespace edmtest {
@@ -13,6 +15,12 @@ namespace edmtest {
 
     void produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const final {
       event.emplace(token_, value_);
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int32_t>("value");
+      descriptions.addDefault(desc);
     }
 
   private:

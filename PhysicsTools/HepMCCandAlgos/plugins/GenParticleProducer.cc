@@ -235,8 +235,14 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
     } else {
       Handle<HepMC3Product> mcp3;
       bool found = evt.getByToken(srcToken3_, mcp3);
-      if (!found)
-        throw cms::Exception("ProductAbsent") << "No HepMCProduct, tried to get HepMC3Product, but it is also absent.";
+      if (!found) {
+        try {
+          *mcp3;
+        } catch (cms::Exception& iExcept) {
+          iExcept.addContext("No HepMCProduct, tried to get HepMC3Product, but it is also absent.");
+          throw;
+        }
+      }
       ivhepmc = 3;
       mc3 = new HepMC3::GenEvent();
       mc3->read_data(*mcp3->GetEvent());

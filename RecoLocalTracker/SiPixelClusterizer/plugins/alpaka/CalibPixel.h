@@ -24,7 +24,7 @@ namespace calibPixel {
 
   template <bool debug = false>
   struct CalibDigis {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   SiPixelClusterThresholds clusterThresholds,
                                   SiPixelDigisSoAView view,
@@ -90,7 +90,7 @@ namespace calibPixel {
   };
 
   struct CalibDigisPhase2 {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   SiPixelClusterThresholds clusterThresholds,
                                   SiPixelDigisSoAView view,

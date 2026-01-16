@@ -1,0 +1,121 @@
+#! /bin/bash
+
+
+function usage() {
+    echo "Usage: $0 [-v, --verbose] [-h, --help] [-b, --release-base <path>] [--] <ssh options>"
+    echo
+    echo "Options:"
+    echo "  -v, --verbose              Make this script verbose"
+    echo "  -h, --help                 Show this help message"
+    echo "  -b, --release-base <path>  CMSSW release base path to use on remote (default: local CMSSW_BASE)"
+    echo "  --                         Separates cmsenv_ssh options from ssh options"
+    echo
+    echo "ssh options that take a parameter are not supported."
+    exit 0
+}
+
+VERBOSE=false
+
+# REMOTE_RELEASE_BASE is a path containing $REMOTE_RELEASE_BASE/config/scram_basedir.
+# Default to local CMSSW_BASE
+REMOTE_RELEASE_BASE="$CMSSW_BASE"
+ARG_COUNT=$#
+
+# Parse any arguments specific to this script
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            ;;
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -b|--release-base)
+            REMOTE_RELEASE_BASE="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            if [[ $((ARG_COUNT - $#)) -gt 0 ]]; then
+                # if cmsenv_ssh specific options have been passed, throw an error (-- is missing)
+                echo "Error: unrecognised cmsenv_ssh option '$1'. Did you forget '--' between the cmsenv_ssh options and the ssh options?"
+                usage
+            else
+                # no cmsenv_ssh-specific options passed, "--" is not required
+                break
+            fi
+            ;;
+    esac
+done
+
+# Remaining arguments are ssh arguments (ssh options + host + command)
+SSH_ARGS=("$@")
+
+# check that REMOTE_RELEASE_BASE is set
+if [[ -z "$REMOTE_RELEASE_BASE" ]]; then
+    echo "Error: Could not set the remote CMSSW release path to local CMSSW_BASE."
+    echo "Please provide it via the --release-base option or make sure that CMSSW_BASE is set locally."
+    exit 1
+fi
+
+SSH_OPTS=()
+host=""
+cmd=""
+
+# Find the host (first non-option argument)
+for arg in "${SSH_ARGS[@]}"; do
+    if [[ "$arg" != -* ]]; then
+        # First non-option argument is the host
+        host="$arg"
+        shift
+        # Everything remaining is the command
+        cmd="$*"
+        break
+    fi
+    SSH_OPTS+=("$arg")
+    shift
+done
+
+if [[ -z "$host" || -z "$cmd" ]]; then
+    echo "Error: remote host and command must be provided."
+    usage
+fi
+
+function set_remote_cmsenv() {
+    # $RELEASE_BASE is set by the local node and passed to this function.
+    # This function is evaluated in the remote node
+
+    local RELEASE_BASE="$1"
+    if [ ! -d "$RELEASE_BASE" ]; then
+        echo "error: Local \$RELEASE_BASE \"$RELEASE_BASE\" could not be found in host $(hostname)"
+        exit 1
+    fi
+
+    local SCRAM_BASEDIR="$(cat $RELEASE_BASE/config/scram_basedir)"
+
+    if [ -f "$SCRAM_BASEDIR/cmsset_default.sh" ]; then
+        source "$SCRAM_BASEDIR/cmsset_default.sh"
+    else
+        echo "error: $SCRAM_BASEDIR/cmsset_default.sh not found in host $(hostname)"
+        exit 1
+    fi
+
+    cd $RELEASE_BASE
+    eval $(scram runtime -sh)
+}
+
+# set cmssw env in remote before executing cmd
+SSH_CMD="ssh ${SSH_OPTS[@]} $host \"$(declare -f set_remote_cmsenv) && set_remote_cmsenv $REMOTE_RELEASE_BASE; $cmd\""
+
+if [[ "$VERBOSE" == true ]]; then
+    echo "--------------------------------------------------------------------------------"
+    echo "SSH command:"
+    echo "$SSH_CMD"
+    echo "--------------------------------------------------------------------------------"
+fi
+
+exec ssh "${SSH_OPTS[@]}" "$host" "$(declare -f set_remote_cmsenv) && set_remote_cmsenv $REMOTE_RELEASE_BASE; $cmd"

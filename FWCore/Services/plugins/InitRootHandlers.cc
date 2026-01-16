@@ -142,8 +142,6 @@ namespace edm {
       std::shared_ptr<const void> sigFpeHandler_;
     };
 
-    inline bool isProcessWideService(InitRootHandlers const*) { return true; }
-
   }  // end of namespace service
 }  // end of namespace edm
 
@@ -166,7 +164,7 @@ namespace {
   }
 
   //Contents of a message which should be reported as an INFO not a ERROR
-  constexpr std::array<const char* const, 11> in_message{
+  constexpr std::array<const char* const, 12> in_message{
       {"no dictionary for class",
        "already in TClassTable",
        "matrix not positive definite",
@@ -177,7 +175,8 @@ namespace {
        "nbinsy is <=0 - set to nbinsy = 1",
        "oneapi::tbb::global_control is limiting",
        "ufirst < fXmin, fXmin is used",
-       "ulast > fXmax, fXmax is used"}};
+       "ulast > fXmax, fXmax is used",
+       "Inspection for auto_ptr"}};
 
   //Location generating messages which should be reported as an INFO not a ERROR
   constexpr std::array<const char* const, 7> in_location{{"Fit",

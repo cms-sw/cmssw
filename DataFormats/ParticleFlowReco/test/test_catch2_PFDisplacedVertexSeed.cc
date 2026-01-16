@@ -1,7 +1,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexSeed.h"
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 static constexpr auto s_tag = "[PFDisplacedVertexSeed]";
 TEST_CASE("Check adding elements", s_tag) {

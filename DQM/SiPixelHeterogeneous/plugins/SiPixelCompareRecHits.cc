@@ -20,10 +20,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // TODO: change class name to SiPixelCompareRecHitsSoA when CUDA code is removed
-template <typename T>
 class SiPixelCompareRecHits : public DQMEDAnalyzer {
 public:
-  using HitsSoA = TrackingRecHitHost<T>;
+  using HitsSoA = reco::TrackingRecHitHost;
 
   explicit SiPixelCompareRecHits(const edm::ParameterSet&);
   ~SiPixelCompareRecHits() override = default;
@@ -75,8 +74,8 @@ private:
 //
 // constructors
 //
-template <typename T>
-SiPixelCompareRecHits<T>::SiPixelCompareRecHits(const edm::ParameterSet& iConfig)
+
+SiPixelCompareRecHits::SiPixelCompareRecHits(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       tokenSoAHitsReference_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsReferenceSoA"))),
@@ -87,15 +86,14 @@ SiPixelCompareRecHits<T>::SiPixelCompareRecHits(const edm::ParameterSet& iConfig
 //
 // Begin Run
 //
-template <typename T>
-void SiPixelCompareRecHits<T>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+
+void SiPixelCompareRecHits::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
 }
 
-template <typename T>
 template <typename U, typename V>
-void SiPixelCompareRecHits<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
+void SiPixelCompareRecHits::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
   const auto& rhsoaHandleRef = iEvent.getHandle(tokenRef);
   const auto& rhsoaHandleTar = iEvent.getHandle(tokenTar);
 
@@ -206,8 +204,8 @@ void SiPixelCompareRecHits<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm
 //
 // -- Analyze
 //
-template <typename T>
-void SiPixelCompareRecHits<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+void SiPixelCompareRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // The default use case is to use vertices from Alpaka reconstructed on CPU and GPU;
   // The function is left templated if any other cases need to be added
   analyzeSeparate(tokenSoAHitsReference_, tokenSoAHitsTarget_, iEvent);
@@ -216,39 +214,39 @@ void SiPixelCompareRecHits<T>::analyze(const edm::Event& iEvent, const edm::Even
 //
 // -- Book Histograms
 //
-template <typename T>
-void SiPixelCompareRecHits<T>::bookHistograms(DQMStore::IBooker& iBook,
-                                              edm::Run const& iRun,
-                                              edm::EventSetup const& iSetup) {
+
+void SiPixelCompareRecHits::bookHistograms(DQMStore::IBooker& iBook,
+                                           edm::Run const& iRun,
+                                           edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
   // clang-format off
   //Global
-  hnHits_ = iBook.book2I("nHits", "ReferencevsTarget RecHits per event;#Reference RecHits;#Target RecHits", 200, 0, 5000,200, 0, 5000);
+  hnHits_ = iBook.book2I("nHits", "RecHits per event;#Reference RecHits;#Target RecHits", 200, 0, 5000,200, 0, 5000);
   //Barrel Layer
   for(unsigned int il=0;il<tkGeom_->numberOfLayers(PixelSubdetector::PixelBarrel);il++){
-    hBchargeL_[il] = iBook.book2I(Form("recHitsBLay%dCharge",il+1), Form("ReferencevsTarget RecHits Charge Barrel Layer%d;Reference Charge;Target Charge",il+1), 250, 0, 100000, 250, 0, 100000);
-    hBsizexL_[il] = iBook.book2I(Form("recHitsBLay%dSizex",il+1), Form("ReferencevsTarget RecHits SizeX Barrel Layer%d;Reference SizeX;Target SizeX",il+1), 30, 0, 30, 30, 0, 30);
-    hBsizeyL_[il] = iBook.book2I(Form("recHitsBLay%dSizey",il+1), Form("ReferencevsTarget RecHits SizeY Barrel Layer%d;Reference SizeY;Target SizeY",il+1), 30, 0, 30, 30, 0, 30);
-    hBposxL_[il] = iBook.book2D(Form("recHitsBLay%dPosx",il+1), Form("ReferencevsTarget RecHits x-pos in Barrel Layer%d;Reference pos x;Target pos x",il+1), 200, -5, 5, 200,-5,5);
-    hBposyL_[il] = iBook.book2D(Form("recHitsBLay%dPosy",il+1), Form("ReferencevsTarget RecHits y-pos in Barrel Layer%d;Reference pos y;Target pos y",il+1), 200, -5, 5, 200,-5,5);
+    hBchargeL_[il] = iBook.book2I(Form("recHitsBLay%dCharge",il+1), Form("RecHits Charge Barrel Layer%d;Reference Charge;Target Charge",il+1), 250, 0, 100000, 250, 0, 100000);
+    hBsizexL_[il] = iBook.book2I(Form("recHitsBLay%dSizex",il+1), Form("RecHits SizeX Barrel Layer%d;Reference SizeX;Target SizeX",il+1), 30, 0, 30, 30, 0, 30);
+    hBsizeyL_[il] = iBook.book2I(Form("recHitsBLay%dSizey",il+1), Form("RecHits SizeY Barrel Layer%d;Reference SizeY;Target SizeY",il+1), 30, 0, 30, 30, 0, 30);
+    hBposxL_[il] = iBook.book2D(Form("recHitsBLay%dPosx",il+1), Form("RecHits x-pos in Barrel Layer%d;Reference pos x;Target pos x",il+1), 200, -5, 5, 200,-5,5);
+    hBposyL_[il] = iBook.book2D(Form("recHitsBLay%dPosy",il+1), Form("RecHits y-pos in Barrel Layer%d;Reference pos y;Target pos y",il+1), 200, -5, 5, 200,-5,5);
   }
   //Endcaps
   //Endcaps Disk
   for(int is=0;is<2;is++){
     int sign=is==0? -1:1;
     for(unsigned int id=0;id<tkGeom_->numberOfLayers(PixelSubdetector::PixelEndcap);id++){
-      hFchargeD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("ReferencevsTarget RecHits Charge Endcaps Disk%+d;Reference Charge;Target Charge",id*sign+sign), 250, 0, 100000, 250, 0, 100000);
-      hFsizexD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("ReferencevsTarget RecHits SizeX Endcaps Disk%+d;Reference SizeX;Target SizeX",id*sign+sign), 30, 0, 30, 30, 0, 30);
-      hFsizeyD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("ReferencevsTarget RecHits SizeY Endcaps Disk%+d;Reference SizeY;Target SizeY",id*sign+sign), 30, 0, 30, 30, 0, 30);
-      hFposxD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosx",id*sign+sign), Form("ReferencevsTarget RecHits x-pos Endcaps Disk%+d;Reference pos x;Target pos x",id*sign+sign), 200, -5, 5, 200, -5, 5);
-      hFposyD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosy",id*sign+sign), Form("ReferencevsTarget RecHits y-pos Endcaps Disk%+d;Reference pos y;Target pos y",id*sign+sign), 200, -5, 5, 200, -5, 5);
+      hFchargeD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("RecHits Charge Endcaps Disk%+d;Reference Charge;Target Charge",id*sign+sign), 250, 0, 100000, 250, 0, 100000);
+      hFsizexD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("RecHits SizeX Endcaps Disk%+d;Reference SizeX;Target SizeX",id*sign+sign), 30, 0, 30, 30, 0, 30);
+      hFsizeyD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("RecHits SizeY Endcaps Disk%+d;Reference SizeY;Target SizeY",id*sign+sign), 30, 0, 30, 30, 0, 30);
+      hFposxD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosx",id*sign+sign), Form("RecHits x-pos Endcaps Disk%+d;Reference pos x;Target pos x",id*sign+sign), 200, -5, 5, 200, -5, 5);
+      hFposyD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosy",id*sign+sign), Form("RecHits y-pos Endcaps Disk%+d;Reference pos y;Target pos y",id*sign+sign), 200, -5, 5, 200, -5, 5);
     }
   }
   //1D differences
-  hBchargeDiff_ = iBook.book1D("rechitChargeDiffBpix","Charge differnce of rechits in BPix; rechit charge difference (Reference - Target)", 101, -50.5, 50.5);
-  hFchargeDiff_ = iBook.book1D("rechitChargeDiffFpix","Charge differnce of rechits in FPix; rechit charge difference (Reference - Target)", 101, -50.5, 50.5);
+  hBchargeDiff_ = iBook.book1D("rechitChargeDiffBpix","Charge difference of rechits in BPix; rechit charge difference (Reference - Target)", 101, -50.5, 50.5);
+  hFchargeDiff_ = iBook.book1D("rechitChargeDiffFpix","Charge difference of rechits in FPix; rechit charge difference (Reference - Target)", 101, -50.5, 50.5);
   hBsizeXDiff_ = iBook.book1D("rechitsizeXDiffBpix","SizeX difference of rechits in BPix; rechit sizex difference (Reference - Target)", 21, -10.5, 10.5);
   hFsizeXDiff_ = iBook.book1D("rechitsizeXDiffFpix","SizeX difference of rechits in FPix; rechit sizex difference (Reference - Target)", 21, -10.5, 10.5);
   hBsizeYDiff_ = iBook.book1D("rechitsizeYDiffBpix","SizeY difference of rechits in BPix; rechit sizey difference (Reference - Target)", 21, -10.5, 10.5);
@@ -259,8 +257,8 @@ void SiPixelCompareRecHits<T>::bookHistograms(DQMStore::IBooker& iBook,
   hFposYDiff_ = iBook.book1D("rechitsposYDiffFpix","y-position difference of rechits in FPix; rechit y-pos difference (Reference - Target)", 1000, -10, 10);
 }
 
-template<typename T>
-void SiPixelCompareRecHits<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+void SiPixelCompareRecHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelRecHitsSoAAlpaka
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelHitsReferenceSoA", edm::InputTag("siPixelRecHitsPreSplittingAlpakaSerial"));
@@ -270,12 +268,15 @@ void SiPixelCompareRecHits<T>::fillDescriptions(edm::ConfigurationDescriptions& 
   descriptions.addWithDefaultLabel(desc);
 }
 
-using SiPixelPhase1CompareRecHits = SiPixelCompareRecHits<pixelTopology::Phase1>;
-using SiPixelPhase2CompareRecHits = SiPixelCompareRecHits<pixelTopology::Phase2>;
-using SiPixelHIonPhase1CompareRecHits = SiPixelCompareRecHits<pixelTopology::HIonPhase1>;
+using SiPixelCompareRecHits = SiPixelCompareRecHits;
+// keeping the old names to allow a smooth HLT migration
+using SiPixelPhase1CompareRecHits = SiPixelCompareRecHits;
+using SiPixelPhase2CompareRecHits = SiPixelCompareRecHits;
+using SiPixelHIonPhase1CompareRecHits = SiPixelCompareRecHits;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 // TODO: change module names to SiPixel*CompareRecHitsSoA when CUDA code is removed
+DEFINE_FWK_MODULE(SiPixelCompareRecHits);
 DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHits);
 DEFINE_FWK_MODULE(SiPixelPhase2CompareRecHits);
 DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareRecHits);

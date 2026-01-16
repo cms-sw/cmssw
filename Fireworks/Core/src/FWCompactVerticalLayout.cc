@@ -97,7 +97,7 @@ void FWCompactVerticalLayout::Layout() {
           exp_max = 0;
           expandSizes.push_back(size.fHeight);
         } else
-          exp_max = TMath::Max(exp_max, (Int_t)size.fHeight);
+          exp_max = std::max(exp_max, (Int_t)size.fHeight);
       } else {
         remain -= size.fHeight;
         if (remain < 0)
@@ -222,7 +222,7 @@ TGDimension FWCompactVerticalLayout::GetDefaultSize() const {
   while ((ptr = (TGFrameElement *)next())) {
     if (ptr->fState & kIsVisible) {
       csize = ptr->fFrame->GetDefaultSize();
-      size.fWidth = TMath::Max(size.fWidth, csize.fWidth + ptr->fLayout->GetPadLeft() + ptr->fLayout->GetPadRight());
+      size.fWidth = std::max(size.fWidth, csize.fWidth + ptr->fLayout->GetPadLeft() + ptr->fLayout->GetPadRight());
       size.fHeight += csize.fHeight + ptr->fLayout->GetPadTop() + ptr->fLayout->GetPadBottom();
     }
   }

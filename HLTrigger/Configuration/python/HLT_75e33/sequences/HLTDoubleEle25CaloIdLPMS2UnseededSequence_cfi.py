@@ -25,6 +25,7 @@ from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 HLTDoubleEle25CaloIdLPMS2UnseededSequence = cms.Sequence(HLTL1Sequence
                                                          +hltEGL1SeedsForDoubleEleNonIsolatedFilter
                                                          +HLTDoFullUnpackingEgammaEcalSequence
+                                                         +HLTEGammaDoLocalHcalSequence
                                                          +HLTPFClusteringForEgammaUnseededSequence
                                                          +HLTHgcalTiclPFClusteringForEgammaUnseededSequence
                                                          +hltEgammaCandidatesUnseeded
@@ -35,7 +36,6 @@ HLTDoubleEle25CaloIdLPMS2UnseededSequence = cms.Sequence(HLTL1Sequence
                                                          +hltEgammaHGCALIDVarsUnseeded
                                                          +hltDiEG25CaloIdLClusterShapeSigmavvUnseededFilter
                                                          +hltDiEG25CaloIdLHgcalHEUnseededFilter
-                                                         +HLTEGammaDoLocalHcalSequence
                                                          +HLTFastJetForEgammaSequence
                                                          +hltEgammaHoverEUnseeded
                                                          +hltDiEG25CaloIdLHEUnseededFilter

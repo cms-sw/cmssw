@@ -7,12 +7,12 @@
   <flags NO_TESTRUN="1"/>
 </bin>
 
-<bin file="HRTime_t.cpp">
-  <use name="cppunit"/>
+<bin file="test_catch2HRTime.cc,test_catch2_main.cc" name="testFWCoreUtilitiesHRTime">
+  <use name="catch2"/>
 </bin>
 
-<bin name="testFWCoreUtilities" file="typeidbase_t.cppunit.cpp,typeid_t.cppunit.cpp,cputimer_t.cppunit.cpp,esinputtag.cppunit.cpp,friendlyname_t.cppunit.cpp,signal_t.cppunit.cpp,soatuple_t.cppunit.cpp,transform.cppunit.cpp,callxnowait_t.cppunit.cpp,vecarray.cppunit.cpp,reusableobjectholder_t.cppunit.cpp,propagate_const_t.cppunit.cpp,propagate_const_array_t.cppunit.cpp,indexset.cppunit.cpp">
-  <use name="cppunit"/>
+<bin file="test_catch2Slow_cputimer.cc,test_catch2_main.cc" name="testFWCoreUtilitiesCPUTimer">
+  <use name="catch2"/>
 </bin>
 
 <bin file="test_catch2_*.cc" name="testFWCoreUtilitiesCatch2">

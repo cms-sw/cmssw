@@ -3,11 +3,10 @@
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster_v1.h"
 #include <vector>
 #include <numeric>
 #include <iostream>
-
-class SiStripApproximateCluster;
 
 class SiStripCluster {
 public:
@@ -31,6 +30,9 @@ public:
     initQB();
   }
 
+  SiStripCluster(uint16_t firstStrip, std::vector<uint8_t>&& data, float barycenter, float charge)
+      : amplitudes_(std::move(data)), firstStrip_(firstStrip), barycenter_(barycenter), charge_(charge) {}
+
   template <typename Iter>
   SiStripCluster(const uint16_t& firstStrip, Iter begin, Iter end) : amplitudes_(begin, end), firstStrip_(firstStrip) {
     initQB();
@@ -45,6 +47,11 @@ public:
   }
 
   SiStripCluster(const SiStripApproximateCluster cluster, const uint16_t maxStrips);
+  SiStripCluster(const v1::SiStripApproximateCluster cluster,
+                 const uint16_t maxStrips,
+                 float pc = -999,
+                 unsigned int module_length = 0,
+                 unsigned int previous_module_length = 0);
 
   // extend the cluster
   template <typename Iter>

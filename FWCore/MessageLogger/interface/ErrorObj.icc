@@ -14,8 +14,6 @@
 
 #include <sstream>
 
-#include "fmt/ostream.h"
-
 namespace edm {
 
   // ----------------------------------------------------------------------
@@ -57,15 +55,15 @@ namespace edm {
   }
 
   template <typename... Args>
-  inline ErrorObj& ErrorObj::format(fmt::format_string<Args...> format, Args&&... args) {
-    auto str = fmt::format(std::move(format), std::forward<Args>(args)...);
+  inline ErrorObj& ErrorObj::format(std::format_string<Args...> format, Args&&... args) {
+    auto str = std::format(std::move(format), std::forward<Args>(args)...);
     if (!str.empty())
       emitToken(str);
     return *this;
   }
 
-  inline ErrorObj& ErrorObj::vformat(std::string_view format, fmt::format_args args) {
-    auto str = fmt::vformat(format, args);
+  inline ErrorObj& ErrorObj::vformat(std::string_view format, std::format_args args) {
+    auto str = std::vformat(format, args);
     if (!str.empty())
       emitToken(str);
     return *this;

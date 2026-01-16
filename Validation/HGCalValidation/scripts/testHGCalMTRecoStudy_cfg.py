@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runHGCalRecHitStudy_cfg.py geometry=D110
+#   cmsRun runHGCalRecHitStudy_cfg.py geometry=D121
 #
-#   Options for geometry D105, D110, D114
+#   Options for geometry D105, D114,D120, D121
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,10 +16,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D105, D110, D114")
+                  "geometry of operations: D105, D114, D121")
 
 options.register('layers',
                  "1",
@@ -49,13 +49,13 @@ elif (options.geometry == "D114"):
     process = cms.Process('HGCalMTReco',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D114Reco_cff')
     outputFile = 'file:recoutputD114.root'
-elif (options.geometry == "D110"):
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('HGCalMTReco',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
-    outputFile = 'file:recoutputD110.root'
+elif (options.geometry == "D121"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('HGCalMTReco',Phase2C22I13M9)
+    process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
+    outputFile = 'file:recoutputD121.root'
 else:
-    print("Please select a valid geometry version e.g. D105, D110, D114....")
+    print("Please select a valid geometry version e.g. D105, D114, D121....")
 
 print("Input file: ", fileInput)
 print("Output file: ", outputFile)

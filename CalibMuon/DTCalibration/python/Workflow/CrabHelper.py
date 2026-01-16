@@ -50,16 +50,18 @@ class CrabHelper(object):
         print(self.crab_config_filepath)
         task = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                             initUpdate = False)
-        
+
         if self.options.no_exec:
             log.info("Nothing to check in no-exec mode")
             return True
         for n_check in range(self.options.max_checks):
             task.update()
             if task.state in ( "COMPLETED"):
-                print("Crab task complete. Getting output locally")
-                output_path = os.path.join( self.local_path, "unmerged_results" )
-                self.get_output_files(task, output_path)
+                print("Crab task is complete. You can run the next step now.")
+                #output_path = os.path.join( self.local_path, "unmerged_results" )
+                #self.get_output_files(task, output_path)
+                #self.get_output_files(task)
+                #print("Finished with get_output_files()")
                 return True
             if task.state in ("SUBMITFAILED", "FAILED"):
                 print("Crab task failed")
@@ -83,19 +85,24 @@ class CrabHelper(object):
             sys.stdout.write("\r")
             sys.stdout.write("".join([" " for i in range(tools.getTerminalSize()[0])]))
             sys.stdout.write("\r")
-            prompt_text = "Check (%d/%d). Task state: %s (%s). Press q and enter to stop checks: " % (n_check,
-                self.options.max_checks, task.state, jobinfos)
+            prompt_text = "Check (%d/%d). Task state: %s (%s). \nPress q and enter to stop checks: " \
+                % (n_check, self.options.max_checks, task.state, jobinfos)
             user_input = tools.stdinWait(prompt_text, "", self.options.check_interval)
-            if user_input in ("q","Q"):
+            if user_input in ["q","Q"]:
                 return False
         print("Task not completed after %d checks (%d minutes)" % ( self.options.max_checks,
             int( self.options.check_interval / 60. )))
         return False
 
     def voms_proxy_time_left(self):
-        process = subprocess.Popen(['voms-proxy-info', '-timeleft'],
-                                   stdout=subprocess.PIPE)
+        log.debug("Checking voms_proxy time left")
+        process = subprocess.Popen('voms-proxy-info -timeleft',
+                                   stdout = subprocess.PIPE,
+                                   stderr = subprocess.PIPE,
+                                   shell=True
+                                   )
         stdout = process.communicate()[0]
+
         if process.returncode != 0:
             return 0
         else:
@@ -200,8 +207,7 @@ class CrabHelper(object):
 
     @property
     def crab(self):
-        """ Retuns a CrabController instance from cache or creates new
-           on on first call """
+        """ Retuns a CrabController instance from cache or creates new one if it is a first call """
         if self._crab is None:
             if self.cert_info.voGroup:
                 self._crab = self.crabFunctions.CrabController(voGroup = self.cert_info.voGroup)
@@ -212,11 +218,13 @@ class CrabHelper(object):
     @property
     def cert_info(self):
         if not self._cert_info:
+            log.debug("No cert info yet. Will try to get it.")
             if not self.voms_proxy_time_left() > 0:
-                warn_msg = "No valid proxy, a default proxy without a specific"
-                warn_msg = "VOGroup will be used"
-                self.voms_proxy_create()
+                warn_msg = "No valid proxy, a default proxy without a specific VOGroup will be used"
                 log.warning(warn_msg)
+                log.debug("Trying to create voms_proxy")
+                self.voms_proxy_create()
+                log.debug("... voms_proxy is created")
             self._cert_info = self.crabFunctions.CertInfo()
         return self._cert_info
 

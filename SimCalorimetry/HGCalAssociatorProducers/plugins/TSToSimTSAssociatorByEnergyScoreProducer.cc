@@ -67,8 +67,22 @@ void TSToSimTSAssociatorByEnergyScoreProducer::produce(edm::StreamID,
     }
   }
 
-  const auto hitMap = &iEvent.get(hitMap_);
+  if (hits.empty()) {
+    edm::LogWarning("TSToSimTSAssociatorByEnergyScoreProducer") << "No hits collected. Producing empty associator.";
+  }
 
+  if (!iEvent.getHandle(hitMap_)) {
+    edm::LogWarning("TSToSimTSAssociatorByEnergyScoreProducer") << "Hit map not valid. Producing empty associator.";
+
+    const std::unordered_map<DetId, const unsigned int> hitMap;  // empty map
+    auto impl = std::make_unique<TSToSimTSAssociatorByEnergyScoreImpl>(
+        iEvent.productGetter(), hardScatterOnly_, rhtools_, &hitMap, hits);
+    auto emptyAssociator = std::make_unique<ticl::TracksterToSimTracksterAssociator>(std::move(impl));
+    iEvent.put(std::move(emptyAssociator));
+    return;
+  }
+
+  const auto hitMap = &iEvent.get(hitMap_);
   auto impl = std::make_unique<TSToSimTSAssociatorByEnergyScoreImpl>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap, hits);
   auto toPut = std::make_unique<ticl::TracksterToSimTracksterAssociator>(std::move(impl));

@@ -6,7 +6,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 // Note: Does not compile with ALPAKA_FN_ACC on ROCm
-template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>, typename F>
+template <alpaka::concepts::Acc TAcc, typename F>
 ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void atomicMaxPair(const TAcc& acc,
                                                        unsigned long long int* address,
                                                        std::pair<unsigned int, float> value,

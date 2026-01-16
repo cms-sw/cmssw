@@ -89,7 +89,7 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 #--------------------------
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 #--------------------------
 # Message Logger

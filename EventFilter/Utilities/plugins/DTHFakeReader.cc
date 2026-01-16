@@ -2,12 +2,11 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/SLinkRocketHeaders.h"
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
 //#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
-
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -49,12 +48,11 @@ namespace evf {
           static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
       std::srand(time_count & 0xffffffff);
     }
-    produces<FEDRawDataCollection>();
+    produces<RawDataBuffer>();
   }
 
-  void DTHFakeReader::fillRawData(edm::Event& e, FEDRawDataCollection*& data) {
+  void DTHFakeReader::fillRawData(edm::Event& e, RawDataBuffer*& data) {
     // a null pointer is passed, need to allocate the fed collection (reusing it as container)
-    data = new FEDRawDataCollection();
     //auto ls = e.luminosityBlock();
     //this will be used as orbit counter
     edm::EventNumber_t orbitId = e.id().event();
@@ -65,6 +63,7 @@ namespace evf {
     for (auto sourceId : sourceIdList_) {
       randFedSizes[sourceId] = std::map<uint64_t, uint32_t>();
     }
+    uint32_t totSize = 0;
 
     //randomize which orbit was accepted
     for (unsigned i = minOrbitBx; i <= maxOrbitBx; i++) {
@@ -82,39 +81,45 @@ namespace evf {
       }
     }
 
+    //calculate buffer size and create it
     for (auto sourceId : sourceIdList_) {
-      FEDRawData& feddata = data->FEDData(sourceId);
-
       auto size = sizeof(DTHOrbitHeader_v1);
       for (auto eventId : eventIdList_)
         size += randFedSizes[sourceId][eventId] + h_size_ + t_size_ + sizeof(DTHFragmentTrailer_v1);
-      feddata.resize(size);
+      totSize += size;
+    }
+    data = new RawDataBuffer(totSize);
+
+    for (auto sourceId : sourceIdList_) {
+      auto size = sizeof(DTHOrbitHeader_v1);
+      for (auto eventId : eventIdList_)
+        size += randFedSizes[sourceId][eventId] + h_size_ + t_size_ + sizeof(DTHFragmentTrailer_v1);
+      unsigned char* feddata = data->addSource(sourceId, nullptr, size);
 
       uint64_t fragments_size_bytes = sizeof(DTHOrbitHeader_v1);
       //uint32_t runningChecksum = 0xffffffffU;
       uint32_t runningChecksum = 0;
       for (auto eventId : eventIdList_) {
-        unsigned char* fedaddr = feddata.data() + fragments_size_bytes;
-        //fragments_size_bytes += fillFED(fedaddr, sourceId, eventId, randFedSizes[sourceId][eventId], runningChecksum);
+        unsigned char* fedaddr = feddata + fragments_size_bytes;
         fragments_size_bytes +=
             fillSLRFED(fedaddr, sourceId, eventId, orbitId, randFedSizes[sourceId][eventId], runningChecksum);
       }
       //in place construction
-      new (feddata.data()) DTHOrbitHeader_v1(sourceId,
-                                             e.id().run(),
-                                             orbitId,
-                                             eventIdList_.size(),
-                                             fragments_size_bytes >> evf::DTH_WORD_NUM_BYTES_SHIFT,
-                                             0,
-                                             runningChecksum);
+      new (static_cast<void*>(feddata)) DTHOrbitHeader_v1(sourceId,
+                                                          e.id().run(),
+                                                          orbitId,
+                                                          eventIdList_.size(),
+                                                          fragments_size_bytes >> evf::DTH_WORD_NUM_BYTES_SHIFT,
+                                                          0,
+                                                          runningChecksum);
     }
   }
 
   void DTHFakeReader::produce(edm::Event& e, edm::EventSetup const& es) {
-    edm::Handle<FEDRawDataCollection> rawdata;
-    FEDRawDataCollection* fedcoll = nullptr;
+    edm::Handle<RawDataBuffer> rawdata;
+    RawDataBuffer* fedcoll = nullptr;
     fillRawData(e, fedcoll);
-    std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
+    std::unique_ptr<RawDataBuffer> bare_product(fedcoll);
     e.put(std::move(bare_product));
   }
 
@@ -165,53 +170,6 @@ namespace evf {
     //accumulate crc32 checksum
     accum_crc32c = crc32c(accum_crc32c, (const uint8_t*)buf, totsize);
 
-    return totsize;
-  }
-
-  uint32_t DTHFakeReader::fillFED(
-      unsigned char* buf, const int sourceId, edm::EventNumber_t eventId, uint32_t size, uint32_t& accum_crc32c) {
-    // Generate size...
-    const unsigned h_size = 8;
-    const unsigned t_size = 8;
-
-    //header+trailer+payload
-    uint32_t totsize = size + h_size + t_size + sizeof(DTHFragmentTrailer_v1);
-
-    // Generate header
-    //FEDHeader::set(feddata.data(),
-    FEDHeader::set(buf,
-                   1,          // Trigger type
-                   eventId,    // LV1_id (24 bits)
-                   0,          // BX_id
-                   sourceId);  // source_id
-
-    // Payload = all 0s or random
-    if (fillRandom_) {
-      //fill FED with random values
-      size_t size_ui = size - size % sizeof(unsigned int);
-      for (size_t i = 0; i < size_ui; i += sizeof(unsigned int)) {
-        *((unsigned int*)(buf + h_size + i)) = (unsigned int)std::rand();
-      }
-      //remainder
-      for (size_t i = size_ui; i < size; i++) {
-        *(buf + h_size + i) = std::rand() & 0xff;
-      }
-    }
-
-    // Generate trailer
-    int crc = 0;  // FIXME : get CRC16
-    FEDTrailer::set(buf + h_size + size,
-                    size / 8 + 2,  // in 64 bit words
-                    crc,
-                    0,   // Evt_stat
-                    0);  // TTS bits
-
-    //FIXME: accumulate crc32 checksum
-    //crc32c = 0;
-
-    void* dthTrailerAddr = buf + h_size + t_size + size;
-    new (dthTrailerAddr)
-        DTHFragmentTrailer_v1(0, (h_size + t_size + size) >> evf::DTH_WORD_NUM_BYTES_SHIFT, crc, eventId);
     return totsize;
   }
 

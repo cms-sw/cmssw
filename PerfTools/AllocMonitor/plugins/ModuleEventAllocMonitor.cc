@@ -366,14 +366,15 @@ public:
         streamSync_[iStream.streamID().value()].load();
         //search for associated allocs to deallocs in reverse order that modules finished
         auto nRan = streamNFinishedModules_[iStream.streamID().value()].load();
-        auto itBegin = streamModuleFinishOrder_.cbegin() + nModules_ - nRan;
+        auto itBegin =
+            std::reverse_iterator(streamModuleFinishOrder_.begin() + iStream.streamID().value() * nModules_ + nRan);
         auto const itEnd = itBegin + nRan;
         streamNFinishedModules_[iStream.streamID().value()].store(0);
         {
           std::vector<std::size_t> moduleDeallocSize(nModules_);
           std::vector<unsigned int> moduleDeallocCount(nModules_);
           for (auto& address : info->unmatched_) {
-            decltype(streamModuleAllocs_[0].findOffset(address)) offset;
+            decltype(streamModuleAllocs_[0].findOffset(address)) offset = 0;
             auto found = std::find_if(itBegin, itEnd, [&address, &offset, this](auto const& index) {
               auto const& elem = streamModuleAllocs_[index];
               return elem.size() != 0 and (offset = elem.findOffset(address)) != elem.size();

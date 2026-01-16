@@ -2,6 +2,7 @@
 #include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -17,11 +18,18 @@ namespace edmtest {
   public:
     AsyncServiceTesterService(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iRegistry) : continue_{false} {
       if (iConfig.getParameter<bool>("watchEarlyTermination")) {
-        iRegistry.watchPreSourceEarlyTermination([this](edm::TerminationOrigin) { release(); });
-        iRegistry.watchPreGlobalEarlyTermination(
-            [this](edm::GlobalContext const&, edm::TerminationOrigin) { release(); });
-        iRegistry.watchPreStreamEarlyTermination(
-            [this](edm::StreamContext const&, edm::TerminationOrigin) { release(); });
+        iRegistry.watchPreSourceEarlyTermination([this](edm::TerminationOrigin) {
+          edm::LogPrint("AsyncServiceTester") << "Received PreSourceEarlyTermination signal";
+          release();
+        });
+        iRegistry.watchPreGlobalEarlyTermination([this](edm::GlobalContext const&, edm::TerminationOrigin) {
+          edm::LogPrint("AsyncServiceTester") << "Received PreGlobalEarlyTermination signal";
+          release();
+        });
+        iRegistry.watchPreStreamEarlyTermination([this](edm::StreamContext const&, edm::TerminationOrigin) {
+          edm::LogPrint("AsyncServiceTester") << "Received PreStreamEarlyTermination signal";
+          release();
+        });
       }
       if (iConfig.getParameter<bool>("watchStreamEndRun")) {
         // StreamEndRun is the last stream transition in the data
@@ -137,12 +145,42 @@ namespace edmtest {
     std::atomic<int> status_ = 0;
   };
 
+  class AsyncServiceWaitingTesterCache {
+  public:
+    using RunGuard = AsyncServiceTesterCache::RunGuard;
+    RunGuard makeRunCallGuard(int inc) const { return testerCache_.makeRunCallGuard(inc); }
+
+    auto outstandingRunCalls() const { return testerCache_.outstandingRunCalls.load(); }
+
+    void waitInThrowingStream() const {
+      std::unique_lock lk(mutex_);
+      if (not continue_) {
+        cond_.wait(lk, [this]() { return continue_; });
+      }
+    }
+
+    void throwingStreamCanContinue() const {
+      std::unique_lock lk(mutex_);
+      if (not continue_) {
+        continue_ = true;
+        cond_.notify_all();
+      }
+    }
+
+  private:
+    AsyncServiceTesterCache testerCache_;
+
+    mutable std::mutex mutex_;
+    mutable std::condition_variable cond_;
+    CMS_THREAD_GUARD(mutex_) mutable bool continue_ = false;
+  };
+
   class AsyncServiceWaitingTester : public edm::stream::EDProducer<edm::ExternalWork,
-                                                                   edm::GlobalCache<AsyncServiceTesterCache>,
+                                                                   edm::GlobalCache<AsyncServiceWaitingTesterCache>,
                                                                    edm::stream::WatchLuminosityBlocks,
                                                                    edm::stream::WatchRuns> {
   public:
-    AsyncServiceWaitingTester(edm::ParameterSet const& iConfig, AsyncServiceTesterCache const*)
+    AsyncServiceWaitingTester(edm::ParameterSet const& iConfig, AsyncServiceWaitingTesterCache const*)
         : throwingStream_(iConfig.getUntrackedParameter<unsigned int>("throwingStream")),
           waitEarlyTermination_(iConfig.getUntrackedParameter<bool>("waitEarlyTermination")),
           waitStreamEndRun_(iConfig.getUntrackedParameter<bool>("waitStreamEndRun")) {
@@ -172,7 +210,9 @@ namespace edmtest {
       descriptions.setComment("One of 'waitEarlyTermination' and 'waitStreamEndRun' must be set to 'True'");
     }
 
-    static auto initializeGlobalCache(edm::ParameterSet const&) { return std::make_unique<AsyncServiceTesterCache>(); }
+    static auto initializeGlobalCache(edm::ParameterSet const&) {
+      return std::make_unique<AsyncServiceWaitingTesterCache>();
+    }
 
     void beginStream(edm::StreamID id) { streamId_ = id; }
 
@@ -180,6 +220,10 @@ namespace edmtest {
       bool const waitOnThisStream = *streamId_ != throwingStream_;
       AsyncServiceTesterService* testService = nullptr;
       if (waitOnThisStream) {
+        // Signal from non-throwing stream that the module in the throwing stream can continue
+        // Must be done before the testService->wait()
+        globalCache()->throwingStreamCanContinue();
+
         edm::Service<AsyncServiceTesterService> tsh;
         testService = &*tsh;
         if (waitEarlyTermination_)
@@ -194,6 +238,7 @@ namespace edmtest {
           std::move(holder),
           [this, testService]() {
             auto callGuard = globalCache()->makeRunCallGuard(0);
+            edm::LogPrint("AsyncServiceTester") << "Running async function for stream " << *streamId_;
             if (testService and waitStreamEndRun_) {
               testService->wait();
             }
@@ -212,6 +257,13 @@ namespace edmtest {
         throw cms::Exception("Assert") << "In analyze: status_ was " << status_ << ", expected 1";
       }
       status_ = 0;
+
+      // Wait in the modules's Event transition in the throwing stream
+      // until the module's Event transition has started in some other
+      // stream
+      if (*streamId_ == throwingStream_) {
+        globalCache()->waitInThrowingStream();
+      }
     }
 
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final {
@@ -230,9 +282,9 @@ namespace edmtest {
       }
     }
 
-    static void globalEndJob(AsyncServiceTesterCache* cache) {
-      if (cache->outstandingRunCalls != 0) {
-        throw cms::Exception("Assert") << "In globalEndJob: " << cache->outstandingRunCalls
+    static void globalEndJob(AsyncServiceWaitingTesterCache* cache) {
+      if (cache->outstandingRunCalls() != 0) {
+        throw cms::Exception("Assert") << "In globalEndJob: " << cache->outstandingRunCalls()
                                        << " runAsync() calls outstanding, expected 0";
       }
     }

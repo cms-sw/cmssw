@@ -16,6 +16,8 @@
 #include "FWCore/Framework/interface/EDLooper.h"
 #include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
 
@@ -29,6 +31,7 @@ namespace edm {
     // ---------- const member functions ---------------------
 
     // ---------- static member functions --------------------
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     // ---------- member functions ---------------------------
     void startingNewLoop(unsigned int) override;
@@ -83,6 +86,12 @@ namespace edm {
   EDLooper::Status IterateNTimesLooper::endOfLoop(EventSetup const&, unsigned int /*iCounter*/) {
     ++times_;
     return (times_ < max_) ? kContinue : kStop;
+  }
+
+  void IterateNTimesLooper::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.add<unsigned int>("nTimes");
+    descriptions.addDefault(desc);
   }
 }  // namespace edm
 

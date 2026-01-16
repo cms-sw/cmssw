@@ -18,6 +18,7 @@ public:
   int verbose() const { return verbose_; }
   bool useO2O() const { return useO2O_; }
   std::string era() const { return era_; }
+  std::string nnModelDxy() const { return nnModel_; }
 
   friend class SectorProcessor;  // allow access to private memebers
 
@@ -57,7 +58,8 @@ private:
   bool readPtLUTFile_, fixMode15HighPt_;
   bool bug9BitDPhi_, bugMode7CLCT_, bugNegPt_, bugGMTPhi_, promoteMode7_;
   int modeQualVer_;
-  std::string pbFileName_;
+  std::vector<int> promoteMode7Sectors_;  // Sectors to promote mode 7 tracks in Run 2 and Run 3, -1 for all sectors
+  std::string nnModel_;
 };
 
 #endif

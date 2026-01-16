@@ -75,7 +75,7 @@ process.TrackRefitter.TrajectoryInEvent = True
 process.printout = cms.OutputModule("AsciiOutputModule")
 process.ep = cms.EndPath(process.printout)
 
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 process.source = cms.Source(
     # Underground cosmics CRUZET

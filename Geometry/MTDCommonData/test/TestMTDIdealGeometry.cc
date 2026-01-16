@@ -29,6 +29,8 @@
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/Math/interface/Rounding.h"
 
+//#define EDM_ML_DEBUG
+
 class TestMTDIdealGeometry : public edm::one::EDAnalyzer<> {
 public:
   explicit TestMTDIdealGeometry(const edm::ParameterSet&);

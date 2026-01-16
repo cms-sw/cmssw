@@ -40,6 +40,7 @@ MaterialEffectsBlock = cms.PSet(
         pTmin = cms.double(0.2),
 	# Enable Nuclear Interactions
         NuclearInteraction = cms.bool(True), # buggy, should be removed on long term
+        saveOutput = cms.untracked.bool(False),
         #
         G4NuclearInteraction = cms.bool(False), 	
         # The energies of the pions used in the above files (same order)

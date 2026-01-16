@@ -32,9 +32,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
                                                              float errmax,  // max error to be "seed"
                                                              float chi2max  // max normalized distance to cluster
   ) {
-    // workaround for #47808
-    debug::do_not_optimise(ws);
-
     constexpr bool verbose = false;
 
     if constexpr (verbose) {
@@ -46,11 +43,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= ws.metadata().size());
     ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= trkdata.metadata().size());
 
-    float const* __restrict__ zt = ws.zt();
-    float const* __restrict__ ezt2 = ws.ezt2();
-    uint8_t* __restrict__ izt = ws.izt();
-    int32_t* __restrict__ iv = ws.iv();
-    int32_t* __restrict__ nn = trkdata.ndof();
+    float const* __restrict__ zt = ws.zt().data();
+    float const* __restrict__ ezt2 = ws.ezt2().data();
+    uint8_t* __restrict__ izt = ws.izt().data();
+    int32_t* __restrict__ iv = ws.iv().data();
+    int32_t* __restrict__ nn = trkdata.ndof().data();
     ALPAKA_ASSERT_ACC(zt);
     ALPAKA_ASSERT_ACC(ezt2);
     ALPAKA_ASSERT_ACC(izt);
@@ -85,8 +82,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       // Equivalent of iz = std::clamp(iz, INT8_MIN, INT8_MAX)
       // which doesn't compile with gcc14 due to reference to __glibcxx_assert
       // See https://github.com/llvm/llvm-project/issues/95183
-      int tmp_max = std::max<int>(iz, INT8_MIN);
-      iz = std::min<int>(tmp_max, INT8_MAX);
+      int tmp_max = alpaka::math::max(acc, iz, INT8_MIN);
+      iz = alpaka::math::min(acc, tmp_max, INT8_MAX);
       ALPAKA_ASSERT_ACC(iz - INT8_MIN >= 0);
       ALPAKA_ASSERT_ACC(iz - INT8_MIN < 256);
       izt[i] = iz - INT8_MIN;
@@ -110,10 +107,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
       if (ezt2[i] > errmax2)
         continue;
-      cms::alpakatools::forEachInBins(hist, izt[i], 1, [&](uint32_t j) {
+      cms::alpakatools::forEachInBins(acc, hist, izt[i], 1, [&](uint32_t j) {
         if (i == j)
           return;
-        auto dist = std::abs(zt[i] - zt[j]);
+        auto dist = alpaka::math::abs(acc, zt[i] - zt[j]);
         if (dist > eps)
           return;
         if (dist * dist > chi2max * (ezt2[i] + ezt2[j]))
@@ -126,12 +123,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     // find closest above me .... (we ignore the possibility of two j at same distance from i)
     for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
       float mdist = eps;
-      cms::alpakatools::forEachInBins(hist, izt[i], 1, [&](uint32_t j) {
+      cms::alpakatools::forEachInBins(acc, hist, izt[i], 1, [&](uint32_t j) {
         if (nn[j] < nn[i])
           return;
         if (nn[j] == nn[i] && zt[j] >= zt[i])
           return;  // if equal use natural order...
-        auto dist = std::abs(zt[i] - zt[j]);
+        auto dist = alpaka::math::abs(acc, zt[i] - zt[j]);
         if (dist > mdist)
           return;
         if (dist * dist > chi2max * (ezt2[i] + ezt2[j]))
@@ -173,12 +170,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
       auto minJ = i;
       auto mdist = eps;
-      cms::alpakatools::forEachInBins(hist, izt[i], 1, [&](uint32_t j) {
+      cms::alpakatools::forEachInBins(acc, hist, izt[i], 1, [&](uint32_t j) {
         if (nn[j] < nn[i])
           return;
         if (nn[j] == nn[i] && zt[j] >= zt[i])
           return;  // if equal use natural order...
-        auto dist = std::abs(zt[i] - zt[j]);
+        auto dist = alpaka::math::abs(acc, zt[i] - zt[j]);
         if (dist > mdist)
           return;
         if (dist * dist > chi2max * (ezt2[i] + ezt2[j]))

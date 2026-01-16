@@ -27,6 +27,7 @@ ecalDrivenGsfElectrons = gsfElectronProducer.clone(
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(ecalDrivenGsfElectrons.preselection, minSCEtBarrel = 15.0)
 pp_on_AA.toModify(ecalDrivenGsfElectrons.preselection, minSCEtEndcaps = 15.0)
+pp_on_AA.toModify(ecalDrivenGsfElectrons.preselection, maxHOverEBarrelCone = 0.5, maxHOverEEndcapsCone = 0.5)
 
 ecalDrivenGsfElectronsHGC = ecalDrivenGsfElectrons.clone(
     gsfElectronCoresTag = "ecalDrivenGsfElectronCoresHGC",

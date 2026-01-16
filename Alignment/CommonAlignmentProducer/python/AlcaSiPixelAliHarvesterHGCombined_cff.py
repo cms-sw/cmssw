@@ -80,6 +80,7 @@ SiPixelAliDQMModuleHGCombined = SiPixelAliDQMModule.clone()
 SiPixelAliDQMModuleHGCombined.outputFolder = "AlCaReco/SiPixelAliHGCombined"
 SiPixelAliDQMModuleHGCombined.MillePedeFileReader.fileDir = "HGCombinedAlignment/"
 SiPixelAliDQMModuleHGCombined.MillePedeFileReader.isHG = True
+SiPixelAliDQMModuleHGCombined.alignmentTokenSrc = "SiPixelAliPedeAlignmentProducerHGCombined"
 
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 dqmEnvSiPixelAliHGCombined = DQMEDHarvester('DQMHarvestingMetadata',

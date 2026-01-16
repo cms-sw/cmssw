@@ -11,18 +11,6 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   cmsRun ${LOCAL_TEST_DIR}/${test}Task_cfg.py || die "cmsRun ${test}Task_cfg.py 1" $?
 
   echo "*************************************************"
-  echo "Test output"
-  cmsRun ${LOCAL_TEST_DIR}/${test}Analyze_cfg.py testEDAliasTask.root || die "cmsRun ${test}Analyze_cfg.py testEDAliasTask.root" $?
-
-  echo "*************************************************"
-  echo "EDAlias consumer in a Path"
-  cmsRun ${LOCAL_TEST_DIR}/${test}Path_cfg.py || die "cmsRun ${test}Path_cfg.py 1" $?
-
-  echo "*************************************************"
-  echo "Test output"
-  cmsRun ${LOCAL_TEST_DIR}/${test}Analyze_cfg.py testEDAliasTask.root || die "cmsRun ${test}Analyze_cfg.py testEDAliasPath.root" $?
-
-  echo "*************************************************"
   echo "Test EDAlias aliasing for many modules"
   cmsRun ${LOCAL_TEST_DIR}/${test}ManyModules_cfg.py || die "cmsRun ${test}ManyModules_cfg.py 1" $?
 

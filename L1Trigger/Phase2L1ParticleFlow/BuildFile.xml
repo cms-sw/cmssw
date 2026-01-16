@@ -1,22 +1,23 @@
+<use name="L1METML"/>
+<use name="TOoLLiP"/>
+<use name="conifer"/>
+<use name="hls"/>
+<use name="hls4mLEmulatorExtras"/>
+<use name="json"/>
+<use name="roottmva"/>
+<use name="tensorflow"/>
+<use name="CommonTools/BaseParticlePropagator"/>
+<use name="CommonTools/MVAUtils"/>
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/L1THGCal"/>
+<use name="DataFormats/L1TParticleFlow"/>
+<use name="DataFormats/ParticleFlowReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
-<use name="DataFormats/L1THGCal"/>
-<use name="DataFormats/L1TParticleFlow"/>
-<use name="CommonTools/BaseParticlePropagator"/>
-<use name="DataFormats/ParticleFlowReco"/>
-<use name="CommonTools/Utils"/>
-<use name="CommonTools/MVAUtils"/>
 <use name="L1Trigger/DemonstratorTools"/>
 <use name="PhysicsTools/TensorFlow"/>
-<use name="conifer"/>
-<use name="tensorflow"/>
-<use name="roottmva"/>
-<use name="hls"/>
-<use name="L1METML"/>
-<use name="hls4mLEmulatorExtras"/>
-<use name="TOoLLiP"/>
+<flags ADD_SUBDIR="1"/>
 <export>
   <lib name="1"/>
 </export>
-<flags ADD_SUBDIR="1"/>

@@ -158,7 +158,7 @@ void BPHDecayToChargedXXbarBuilder::addParticle(const BPHRecoBuilder::BPHGeneric
       continue;
     if ((charge < 0) && (q >= 0))
       continue;
-    const reco::Candidate::LorentzVector p4 = cand.p4();
+    const reco::Candidate::LorentzVector& p4 = cand.p4();
     if (p4.pt() < ptMin)
       continue;
     if (p4.eta() > etaMax)

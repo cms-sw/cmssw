@@ -34,6 +34,8 @@ would create the file `classes.cc` with the content:
 
 SET_PORTABLEHOSTOBJECT_READ_RULES(portabletest::TestHostObject);
 ```
+**Note:** The dictionary for `portabletest::TestHostObject::Product` (using the same type alias as in the registration macro above) must be placed in the `classes_def.xml` file before the type that `Product` aliases.
+
 
 `PortableHostObject<T>` objects can also be read back in "bare ROOT" mode, without any dictionaries.
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
@@ -93,6 +95,8 @@ one would create the file `classes.cc` with the content:
 
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection);
 ```
+**Note:** The dictionary for `portabletest::TestHostCollection::Layout` (using the same type alias as in the registration macro above) must be placed in the `classes_def.xml` file before the type that `Layout` aliases.
+
 
 `PortableHostCollection<T>` collections can also be read back in "bare ROOT" mode, without any dictionaries.
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
@@ -100,7 +104,13 @@ This could make it possible to read them back with different portability solutio
 
 The member function `void deepCopy(ConstView const& view)` copies the content of all scalars and columns from `view`
 (pointing to data in host memory and potentially to multiple buffers) into the `PortableHostCollection` contiguous buffer.
-See the [`View` section](../../DataFormats/SoATemplate/README.md#view) of [`DataFormats/SoATemplate/README.md`](../../DataFormats/SoATemplate/README.md) for more details.
+This method should be used for host to host data transfer. See the [`View` section](../../DataFormats/SoATemplate/README.md#view)
+of [`DataFormats/SoATemplate/README.md`](../../DataFormats/SoATemplate/README.md) for more details.
+
+The member function `void deepCopy(ConstView const& src, TQueue& queue)` copies the content of all scalars and columns 
+from a `View` or `ConstView` (pointing to data in host/device memory and potentially to multiple buffers), passing through
+a `ConstDescriptor` object, into the `PortableHostCollection` contigous buffer. This method should be used for device to
+host data transfer.
 
 ### `PortableDeviceCollection<T, TDev>`
 
@@ -109,6 +119,11 @@ owns the memory where the SoA is allocated.
 To avoid confusion and ODR-violations, the `PortableDeviceCollection<T, TDev>` template cannot be used with the `Host`
 device type.
 Specialisations of this template are transient and cannot be persisted.
+
+The member function `void deepCopy(ConstView const& src, TQueue& queue)` copies the content of all scalars and columns 
+from a `View` or `ConstView` (pointing to data in host/device memory and potentially to multiple buffers), passing through
+a `ConstDescriptor` object into the `PortableDeviceCollection` contigous buffer. This method should be used for 
+host to device or device to device data transfer.
 
 ### `ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T>`
 
@@ -120,7 +135,6 @@ backend.
 
 `PortableCollection<T, TDev>` is an alias template that resolves to `ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T>`
 for the matching device.
-
 
 ## Notes
 
@@ -149,6 +163,7 @@ Both scripts expect the collections to be aliased as in:
 ```
 using TestDeviceMultiCollection3 = PortableCollection3<TestSoA, TestSoA2, TestSoA3>;
 ```
+and assume the `TestDeviceMultiCollection3` is used in the `SET_PORTABLEHOSTMULTICOLLECTION_READ_RULES()` macro.
 
 For the host xml, SoA layouts have to be listed and duplicates should be removed manually is multiple
 collections share a same layout. The scripts are called as follows:

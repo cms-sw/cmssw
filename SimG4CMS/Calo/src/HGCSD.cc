@@ -6,7 +6,6 @@
 #include "DataFormats/Math/interface/FastMath.h"
 
 #include "SimG4CMS/Calo/interface/HGCSD.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

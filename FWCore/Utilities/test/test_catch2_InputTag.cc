@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
@@ -8,7 +8,12 @@
 
 namespace edm {
   class ProductRegistry;
-}
+
+  class TestEDGetToken {
+  public:
+    static EDGetToken makeEDGetToken(unsigned int iValue) { return EDGetToken(iValue); }
+  };
+}  // namespace edm
 
 namespace {
   class TypeToTestInputTag1 {};
@@ -161,25 +166,15 @@ TEST_CASE("test edm::InputTag", "[InputTag]") {
       REQUIRE(not tag15.willSkipCurrentProcess());
     }
   }
-  SECTION("indexFor") {
-    // This is just for the test. Do not dereference the pointers.
-    // They points to nothing legal.
-    edm::ProductRegistry* reg1 = reinterpret_cast<edm::ProductRegistry*>(1);
-    edm::ProductRegistry* reg2 = reinterpret_cast<edm::ProductRegistry*>(2);
-
+  SECTION("cachedToken") {
     edm::InputTag tag5("g:h");
 
-    unsigned int index = tag5.indexFor(testTypeID1, edm::InRun, reg1);
-    REQUIRE(index == edm::ProductResolverIndexInvalid);
+    auto token = tag5.cachedToken();
+    REQUIRE(token.index() == edm::EDGetToken().index());
 
-    tag5.tryToCacheIndex(5, testTypeID1, edm::InRun, reg1);
-    tag5.tryToCacheIndex(6, testTypeID1, edm::InRun, reg1);
-
-    index = tag5.indexFor(testTypeID1, edm::InRun, reg1);
-    REQUIRE(index == 5);
-
-    REQUIRE(tag5.indexFor(testTypeID1, edm::InLumi, reg1) == edm::ProductResolverIndexInvalid);
-    REQUIRE(tag5.indexFor(testTypeID1, edm::InRun, reg2) == edm::ProductResolverIndexInvalid);
-    REQUIRE(tag5.indexFor(testTypeID2, edm::InRun, reg1) == edm::ProductResolverIndexInvalid);
+    tag5.cacheToken(edm::TestEDGetToken::makeEDGetToken(5));
+    REQUIRE(tag5.cachedToken().index() == 5);
+    tag5.cacheToken(edm::TestEDGetToken::makeEDGetToken(6));
+    REQUIRE(tag5.cachedToken().index() == 6);
   }
 }

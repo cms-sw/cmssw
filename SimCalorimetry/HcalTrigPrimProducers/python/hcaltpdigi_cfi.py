@@ -46,6 +46,7 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
 
     latency = cms.int32(1),
     FG_threshold = cms.uint32(12), ## threshold for setting fine grain bit
+    overrideFGHF = cms.bool(False), ## switch: False = read thresholds from TPParameters (default), True = override with FG_HF_thresholds
     FG_HF_thresholds = cms.vuint32(17, 255), ## thresholds for setting fine grain bit
     ZS_threshold = cms.uint32(1),  ## threshold for setting TP zero suppression
 
@@ -82,6 +83,11 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
         ieta27 = cms.int32(0),
         ieta28 = cms.int32(0)
     ),
+
+    overrideHBLLP = cms.bool(False), ## switch: False = read thresholds from TPParameters (default), True = override with HB_LLP_thresholds                                                         
+    ## defaults for energy requirement for bits 12-15 are high / low to avoid FG bit 0-4 being set when not intended                                                                                              
+    HB_LLP_thresholds = cms.vuint32(0, 0, 999, 999),  ## default energy thresholds for setting HB LLP bit                                                                                           
+                                                      ## depths 1,2 max energy, depths 3+ min energy, prompt min energy, delayed min energy                                            
 
     overrideDBvetoThresholdsHB = cms.bool(False),
     overrideDBvetoThresholdsHE = cms.bool(False),

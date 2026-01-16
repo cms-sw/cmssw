@@ -29,10 +29,7 @@ namespace edm {
     typedef std::map<ProcessHistoryID, ProcessHistoryID> ProcessHistoryIDMap;
     typedef oneapi::tbb::concurrent_unordered_map<ParentageID, ParentageID, dqh::parentage_hash> ParentageIDMap;
     explicit DaqProvenanceHelper(TypeID const& rawDataType);
-    explicit DaqProvenanceHelper(TypeID const& rawDataType,
-                                 std::string const& collectionName,
-                                 std::string const& friendlyName,
-                                 std::string const& sourceLabel);
+    explicit DaqProvenanceHelper(TypeID const& rawDataType, std::string const& sourceLabel);
     ProcessHistoryID daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const;
     void saveInfo(ProductDescription const& oldBD, ProductDescription const& newBD) {
       oldProcessName_ = oldBD.processName();
@@ -42,7 +39,7 @@ namespace edm {
     bool matchProcesses(ProcessConfiguration const& pc, ProcessHistory const& ph) const;
     void fixMetaData(ProcessConfigurationVector& pcv, std::vector<ProcessHistory>& phv);
     void fixMetaData(std::vector<BranchID>& branchIDs) const;
-    void fixMetaData(BranchIDLists const&) const;
+    void fixMetaData(BranchIDLists&) const;
     void fixMetaData(ProductDependencies& productDependencies) const;
     ProcessHistoryID const& mapProcessHistoryID(ProcessHistoryID const& phid);
     ParentageID const& mapParentageID(ParentageID const& phid) const;

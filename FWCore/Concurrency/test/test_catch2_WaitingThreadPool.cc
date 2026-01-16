@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "oneapi/tbb/global_control.h"
 
@@ -11,7 +11,7 @@ namespace {
   constexpr char const* errorContext() { return "WaitingThreadPool test"; }
 }  // namespace
 
-TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
+TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool]") {
   // Using parallelism 2 here because otherwise the
   // tbb::task_arena::enqueue() in WaitingTaskWithArenaHolder will
   // start a new TBB thread that "inherits" the name from the
@@ -126,9 +126,10 @@ TEST_CASE("Test WaitingThreadPool", "[edm::WaitingThreadPool") {
                  lastTask(edm::WaitingTaskHolder(group, &waitTask));
         h.doneWaiting(std::exception_ptr());
       }
-      REQUIRE_THROWS_WITH(
-          waitTask.wait(),
-          Catch::Contains("error") and Catch::Contains("StdException") and Catch::Contains("WaitingThreadPool test"));
+      REQUIRE_THROWS_WITH(waitTask.wait(),
+                          Catch::Matchers::ContainsSubstring("error") and
+                              Catch::Matchers::ContainsSubstring("StdException") and
+                              Catch::Matchers::ContainsSubstring("WaitingThreadPool test"));
       REQUIRE(count.load() == 0);
     }
 

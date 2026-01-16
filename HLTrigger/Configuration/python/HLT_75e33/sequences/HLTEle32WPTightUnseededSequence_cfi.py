@@ -43,6 +43,7 @@ from ..modules.hltEle32WPTightPMS2UnseededFilter_cfi import *
 HLTEle32WPTightUnseededSequence = cms.Sequence(
     hltEGL1SeedsForSingleEleIsolatedFilter
     +HLTDoFullUnpackingEgammaEcalSequence
+    +HLTEGammaDoLocalHcalSequence
     +HLTPFClusteringForEgammaUnseededSequence
     +HLTHgcalTiclPFClusteringForEgammaUnseededSequence
     +hltEgammaCandidatesUnseeded
@@ -54,7 +55,6 @@ HLTEle32WPTightUnseededSequence = cms.Sequence(
     +hltEle32WPTightClusterShapeSigmavvUnseededFilter
     +hltEle32WPTightClusterShapeSigmawwUnseededFilter
     +hltEle32WPTightHgcalHEUnseededFilter
-    +HLTEGammaDoLocalHcalSequence
     +HLTFastJetForEgammaSequence
     +hltEgammaHoverEUnseeded                                            
     +hltEle32WPTightHEUnseededFilter

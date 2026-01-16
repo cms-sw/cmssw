@@ -794,7 +794,7 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> CRackTrajectoryBuilder::inne
   if (nhits < lastFitted + 1)
     lastFitted = nhits - 1;
 
-  std::vector<TrajectoryMeasurement> measvec = traj.measurements();
+  const std::vector<TrajectoryMeasurement>& measvec = traj.measurements();
   TransientTrackingRecHit::ConstRecHitContainer firstHits;
 
   bool foundLast = false;

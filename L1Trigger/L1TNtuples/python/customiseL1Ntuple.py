@@ -99,6 +99,27 @@ def L1NtupleNanoDST(process):
 
     return process
 
+def L1NtupleHLTSCOUT(process):
+    ''' for reading from ScoutingPFRun3 - HLTSCOUT datatier '''
+
+    L1NtupleTFileOut(process)
+
+    from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
+    process.gtStage2Digis = gtStage2Digis.clone(InputLabel="hltFEDSelectorL1")
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleNanoDST_cff')
+
+    # start the sequence by unpacking the gtStage2Digis
+    process.L1NtupleNANO.insert(0, process.gtStage2Digis)
+
+    process.l1ntuplenano = cms.Path(
+        process.L1NtupleNANO
+    )
+
+    process.schedule.append(process.l1ntuplenano)
+
+    return process
+
 def L1NtupleMINI(process):
 
     L1NtupleTFileOut(process)

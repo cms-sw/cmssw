@@ -6,3 +6,14 @@
 <library file="*.cc" name="RecoLocalTrackerPhase2TrackerRecHitsPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="alpaka/*.cc" name="RecoLocalTrackerPhase2OTRecHitsSoAPluginsPortable">
+  <use name="alpaka"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoTracker/Record"/>
+  <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -30,10 +30,10 @@ namespace edm {
   public:
     EventSignalsSentry(ActivityRegistry* iReg, ModuleCallingContext const* iContext)
         : m_reg(iReg), m_context(iContext) {
-      iReg->preModuleEventSignal_(*(iContext->getStreamContext()), *iContext);
+      iReg->preModuleEventSignal_.emit(*(iContext->getStreamContext()), *iContext);
     }
 
-    ~EventSignalsSentry() { m_reg->postModuleEventSignal_(*(m_context->getStreamContext()), *m_context); }
+    ~EventSignalsSentry() { m_reg->postModuleEventSignal_.emit(*(m_context->getStreamContext()), *m_context); }
 
   private:
     // ---------- member data --------------------------------

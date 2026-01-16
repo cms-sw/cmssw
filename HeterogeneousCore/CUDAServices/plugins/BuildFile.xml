@@ -1,6 +1,7 @@
 <iftool name="cuda">
   <use name="cuda"/>
   <use name="tbb"/>
+  <use name="fmt"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
   <use name="FWCore/AbstractServices"/>

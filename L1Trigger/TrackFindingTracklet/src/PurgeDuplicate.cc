@@ -220,10 +220,10 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
                   if (st1.first == st2.first && st1.second == st2.second) {  // tracks share stub
                     // Converts layer/disk encoded in st1->first to an index in the layer array
                     int i = st1.first;  // layer/disk
-                    bool barrel = (i > 0 && i < 10);
-                    bool endcapA = (i > 10);
+                    bool barrel = (i > 0 && i <= N_LAYER);
+                    bool endcapA = (i > N_LAYER);
                     bool endcapB = (i < 0);
-                    int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
+                    int lay = barrel * (i - 1) + endcapA * (i - (N_LAYER - 1)) - endcapB * i;  // encode in range 0-15
                     if (!layerArr[lay]) {
                       nShareLay++;
                       layerArr[lay] = true;
@@ -260,10 +260,10 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
               // For each stub on the second track, find the stub with the best residual and store its index in the layStubidsTrk1 array
               for (unsigned int stcount = 0; stcount < stubsTrk2.size(); stcount++) {
                 int i = stubsTrk2[stcount].first;  // layer/disk
-                bool barrel = (i > 0 && i < 10);
-                bool endcapA = (i > 10);
+                bool barrel = (i > 0 && i <= N_LAYER);
+                bool endcapA = (i > N_LAYER);
                 bool endcapB = (i < 0);
-                int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
+                int lay = barrel * (i - 1) + endcapA * (i - (N_LAYER - 1)) - endcapB * i;  // encode in range 0-15
                 double nres = getPhiRes(inputtracklets_[jtrk], fullStubslistsTrk2[stcount]);
                 double ores = 0;
                 if (layStubidsTrk2[lay] != -1)
@@ -340,9 +340,11 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
                 std::vector<const Stub*> stubsTrk2 = inputstublists_[rejetrk];
                 std::vector<unsigned int> stubsTrk1indices;
                 std::vector<unsigned int> stubsTrk2indices;
+                stubsTrk1indices.reserve(stubsTrk1.size());
                 for (unsigned int stub1it = 0; stub1it < stubsTrk1.size(); stub1it++) {
                   stubsTrk1indices.push_back(stubsTrk1[stub1it]->l1tstub()->uniqueIndex());
                 }
+                stubsTrk2indices.reserve(stubsTrk2.size());
                 for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
                   stubsTrk2indices.push_back(stubsTrk2[stub2it]->l1tstub()->uniqueIndex());
                 }

@@ -10,7 +10,8 @@ namespace ticl {
   }
 
   void TracksterInferenceByANN::inputData(const std::vector<reco::CaloCluster>& layerClusters,
-                                          std::vector<Trackster>& tracksters) {
+                                          std::vector<Trackster>& tracksters,
+                                          const hgcal::RecHitTools& rhtools) {
     // Prepare data for inference
   }
 

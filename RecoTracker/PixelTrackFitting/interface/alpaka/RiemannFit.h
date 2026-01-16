@@ -34,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
  * \return incremental radiation lengths that correspond to each segment.
  */
 
-  template <typename TAcc, typename VNd1, typename VNd2>
+  template <alpaka::concepts::Acc TAcc, typename VNd1, typename VNd2>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void computeRadLenUniformMaterial(const TAcc& acc,
                                                                    const VNd1& length_values,
                                                                    VNd2& rad_lengths) {
@@ -67,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     correspond to the case at eta = 0.
  */
 
-  template <typename TAcc, typename V4, typename VNd1, typename VNd2, int N>
+  template <alpaka::concepts::Acc TAcc, typename V4, typename VNd1, typename VNd2, int N>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE auto scatterCovLine(const TAcc& acc,
                                                      Matrix2d const* cov_sz,
                                                      const V4& fast_fit,
@@ -130,7 +130,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     \details Only the tangential component is computed (the radial one is
     negligible).
  */
-  template <typename TAcc, typename M2xN, typename V4, int N>
+  template <alpaka::concepts::Acc TAcc, typename M2xN, typename V4, int N>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE MatrixNd<N> scatter_cov_rad(
       const TAcc& acc, const M2xN& p2D, const V4& fast_fit, VectorNd<N> const& rad, double B) {
     constexpr uint n = N;
@@ -176,7 +176,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     \return cov_cart covariance matrix in Cartesian coordinates.
 */
 
-  template <typename TAcc, typename M2xN, int N>
+  template <alpaka::concepts::Acc TAcc, typename M2xN, int N>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE Matrix2Nd<N> cov_radtocart(const TAcc& acc,
                                                             const M2xN& p2D,
                                                             const MatrixNd<N>& cov_rad,
@@ -214,7 +214,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     \return cov_rad covariance matrix in raidal coordinate.
     \warning correlation between different point are not computed.
 */
-  template <typename TAcc, typename M2xN, int N>
+  template <alpaka::concepts::Acc TAcc, typename M2xN, int N>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE VectorNd<N> cov_carttorad(const TAcc& acc,
                                                            const M2xN& p2D,
                                                            const Matrix2Nd<N>& cov_cart,
@@ -246,7 +246,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     \return cov_rad covariance matrix in the pre-fitted circle's
     orthogonal system.
 */
-  template <typename TAcc, typename M2xN, typename V4, int N>
+  template <alpaka::concepts::Acc TAcc, typename M2xN, typename V4, int N>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE VectorNd<N> cov_carttorad_prefit(
       const TAcc& acc, const M2xN& p2D, const Matrix2Nd<N>& cov_cart, V4& fast_fit, const VectorNd<N>& rad) {
     constexpr uint n = N;
@@ -280,7 +280,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     diagonal cov matrix. Further investigation needed.
 */
 
-  template <typename TAcc, int N>
+  template <alpaka::concepts::Acc TAcc, int N>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE VectorNd<N> weightCircle(const TAcc& acc, const MatrixNd<N>& cov_rad_inv) {
     return cov_rad_inv.colwise().sum().transpose();
   }
@@ -293,7 +293,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     \param par_uvr result of the circle fit in this form: (X0,Y0,R).
     \return q int 1 or -1.
 */
-  template <typename TAcc, typename M2xN>
+  template <alpaka::concepts::Acc TAcc, typename M2xN>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE int32_t charge(const TAcc& acc, const M2xN& p2D, const Vector3d& par_uvr) {
     return ((p2D(0, 1) - p2D(0, 0)) * (par_uvr.y() - p2D(1, 0)) - (p2D(1, 1) - p2D(1, 0)) * (par_uvr.x() - p2D(0, 0)) >
             0)
@@ -315,7 +315,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     fast closed-form algorithm.
     For this optimization the matrix type must be known at compiling time.
 */
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE Vector3d min_eigen3D(const TAcc& acc, const Matrix3d& A, double& chi2) {
 #ifdef RFIT_DEBUG
     printf("min_eigen3D - enter\n");
@@ -341,7 +341,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     speed up in  single precision.
 */
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE Vector3d min_eigen3D_fast(const TAcc& acc, const Matrix3d& A) {
     Eigen::SelfAdjointEigenSolver<Matrix3f> solver(3);
     solver.computeDirect(A.cast<float>());
@@ -359,7 +359,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     do not use special math function (just sqrt) therefore it doesn't speed up
     significantly in single precision.
 */
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE Vector2d min_eigen2D(const TAcc& acc, const Matrix2d& aMat, double& chi2) {
     Eigen::SelfAdjointEigenSolver<Matrix2d> solver(2);
     solver.computeDirect(aMat);
@@ -381,7 +381,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     - computation of error due to multiple scattering.
 */
 
-  template <typename TAcc, typename M3xN, typename V4>
+  template <alpaka::concepts::Acc TAcc, typename M3xN, typename V4>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void fastFit(const TAcc& acc, const M3xN& hits, V4& result) {
     constexpr uint32_t N = M3xN::ColsAtCompileTime;
     constexpr auto n = N;  // get the number of hits
@@ -461,7 +461,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
     \bug further investigation needed for error propagation with multiple
     scattering.
 */
-  template <typename TAcc, typename M2xN, typename V4, int N>
+  template <alpaka::concepts::Acc TAcc, typename M2xN, typename V4, int N>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE CircleFit circleFit(const TAcc& acc,
                                                      const M2xN& hits2D,
                                                      const Matrix2Nd<N>& hits_cov2D,
@@ -792,7 +792,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
  * what is done in the same fit in the Broken Line approach.
  */
 
-  template <typename TAcc, typename M3xN, typename M6xN, typename V4>
+  template <alpaka::concepts::Acc TAcc, typename M3xN, typename M6xN, typename V4>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE LineFit lineFit(const TAcc& acc,
                                                  const M3xN& hits,
                                                  const M6xN& hits_ge,
@@ -989,7 +989,7 @@ namespace riemannFit {
   template <int N>
   class helixFit {
   public:
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void operator()(const TAcc& acc,
                                                    const Matrix3xNd<N>* hits,
                                                    const Eigen::Matrix<float, 6, N>* hits_ge,

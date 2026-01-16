@@ -123,7 +123,7 @@ namespace edm::test {
 
     //initialize the services
     auto& serviceSets = procDesc->getServicesPSets();
-    ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
+    ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError);
     serviceToken_ = items.addTNS(*psetPtr, token);
 
     //make the services available
@@ -259,7 +259,10 @@ namespace edm::test {
     ServiceRegistry::Operate operate(serviceToken_);
 
     //NOTE: should probably handle merging as well
+    //if there is only one principal, we need to return it to the cache first
+    runPrincipal_.reset();
     runPrincipal_ = principalCache_.getAvailableRunPrincipalPtr();
+    assert(runPrincipal_);
     runPrincipal_->possiblyUpdateAfterAddition(preg_);
     runPrincipal_->setAux(*source_->runAuxiliary());
     source_->readRun(*runPrincipal_, *historyAppender_);
@@ -276,6 +279,8 @@ namespace edm::test {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
+    //if there is only one principal, we need to return it to the cache first
+    lumiPrincipal_.reset();
     lumiPrincipal_ = principalCache_.getAvailableLumiPrincipalPtr();
     assert(lumiPrincipal_);
     lumiPrincipal_->possiblyUpdateAfterAddition(preg_);

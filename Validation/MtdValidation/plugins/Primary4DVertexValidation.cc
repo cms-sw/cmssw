@@ -377,6 +377,7 @@ private:
   MonitorElement* meRecoPVPosSignalNotHighestPt_;
   MonitorElement* meRecoVtxVsLineDensity_;
   MonitorElement* meRecVerNumber_;
+  MonitorElement* meRecSelVerNumber_;
   MonitorElement* meRecPVZ_;
   MonitorElement* meRecPVT_;
   MonitorElement* meSimVerNumber_;
@@ -530,6 +531,23 @@ private:
   MonitorElement* meEndcapTruePAsPi_;
   MonitorElement* meEndcapTruePAsK_;
   MonitorElement* meEndcapTruePAsP_;
+
+  // Histograms to study PID purity/efficiency in different eta regions of ETL
+  MonitorElement* meEndcapTruePiNoPID_Eta_[2];
+  MonitorElement* meEndcapTrueKNoPID_Eta_[2];
+  MonitorElement* meEndcapTruePNoPID_Eta_[2];
+
+  MonitorElement* meEndcapTruePiAsPi_Eta_[2];
+  MonitorElement* meEndcapTruePiAsK_Eta_[2];
+  MonitorElement* meEndcapTruePiAsP_Eta_[2];
+
+  MonitorElement* meEndcapTrueKAsPi_Eta_[2];
+  MonitorElement* meEndcapTrueKAsK_Eta_[2];
+  MonitorElement* meEndcapTrueKAsP_Eta_[2];
+
+  MonitorElement* meEndcapTruePAsPi_Eta_[2];
+  MonitorElement* meEndcapTruePAsK_Eta_[2];
+  MonitorElement* meEndcapTruePAsP_Eta_[2];
 
   // Histograms for study of no PID tracks
 
@@ -727,13 +745,13 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meTimeSignalPull_ =
       ibook.book1D("TimeSignalPull", "Pull for signal; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   mePUvsRealV_ =
-      ibook.bookProfile("PUvsReal", "#PU vertices vs #real matched vertices;#PU;#real ", 100, 0, 300, 100, 0, 200);
+      ibook.bookProfile("PUvsReal", "#PU vertices vs #real matched vertices;#PU;#real ", 100, 0, 300, 100, 0, 300);
   mePUvsFakeV_ =
-      ibook.bookProfile("PUvsFake", "#PU vertices vs #fake matched vertices;#PU;#fake ", 100, 0, 300, 100, 0, 20);
+      ibook.bookProfile("PUvsFake", "#PU vertices vs #fake matched vertices;#PU;#fake ", 100, 0, 300, 100, 0, 300);
   mePUvsOtherFakeV_ = ibook.bookProfile(
-      "PUvsOtherFake", "#PU vertices vs #other fake matched vertices;#PU;#other fake ", 100, 0, 300, 100, 0, 20);
+      "PUvsOtherFake", "#PU vertices vs #other fake matched vertices;#PU;#other fake ", 100, 0, 300, 100, 0, 300);
   mePUvsSplitV_ =
-      ibook.bookProfile("PUvsSplit", "#PU vertices vs #split matched vertices;#PU;#split ", 100, 0, 300, 100, 0, 20);
+      ibook.bookProfile("PUvsSplit", "#PU vertices vs #split matched vertices;#PU;#split ", 100, 0, 300, 100, 0, 300);
   meMatchQual_ = ibook.book1D("MatchQuality", "RECO-SIM vertex match quality; ", 8, 0, 8.);
   meDeltaZrealreal_ = ibook.book1D("DeltaZrealreal", "#Delta Z real-real; |#Delta Z (r-r)| [cm]", 100, 0, 0.5);
   meDeltaZfakefake_ = ibook.book1D("DeltaZfakefake", "#Delta Z fake-fake; |#Delta Z (f-f)| [cm]", 100, 0, 0.5);
@@ -758,6 +776,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    0,
                    20);
   meRecVerNumber_ = ibook.book1D("RecVerNumber", "RECO Vertex Number: Number of vertices", 50, 0, 250);
+  meRecSelVerNumber_ = ibook.book1D("RecSelVerNumber", "RECO Selected Vertex Number: real + fake", 50, 0, 250);
   meSimVerNumber_ = ibook.book1D("SimVerNumber", "SIM Vertex Number: Number of vertices", 50, 0, 250);
   meRecPVZ_ = ibook.book1D("recPVZ", "#Rec vertices/10 mm", 30, -15., 15.);
   meRecPVT_ = ibook.book1D("recPVT", "#Rec vertices/50 ps", 30, -0.75, 0.75);
@@ -1552,6 +1571,64 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book1D("EndcapTruePAsPi", "True p as pi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
   meEndcapTruePAsK_ = ibook.book1D("EndcapTruePAsK", "True p as k momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
   meEndcapTruePAsP_ = ibook.book1D("EndcapTruePAsP", "True p as p momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+
+  if (optionalPlots_) {
+    meEndcapTruePiNoPID_Eta_[0] = ibook.book1D(
+        "EndcapTruePiNoPID_lowEta", "True pi NoPID momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTrueKNoPID_Eta_[0] = ibook.book1D(
+        "EndcapTrueKNoPID_lowEta", "True k NoPID momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePNoPID_Eta_[0] = ibook.book1D(
+        "EndcapTruePNoPID_lowEta", "True p NoPID momentum spectrum, 1.6 < |eta| > 2.1;p [GeV]", 25, 0., 10.);
+
+    meEndcapTruePiAsPi_Eta_[0] = ibook.book1D(
+        "EndcapTruePiAsPi_lowEta", "True pi as pi momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePiAsK_Eta_[0] = ibook.book1D(
+        "EndcapTruePiAsK_lowEta", "True pi as k momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePiAsP_Eta_[0] = ibook.book1D(
+        "EndcapTruePiAsP_lowEta", "True pi as p momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+
+    meEndcapTrueKAsPi_Eta_[0] = ibook.book1D(
+        "EndcapTrueKAsPi_lowEta", "True k as pi momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTrueKAsK_Eta_[0] =
+        ibook.book1D("EndcapTrueKAsK_lowEta", "True k as k momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTrueKAsP_Eta_[0] =
+        ibook.book1D("EndcapTrueKAsP_lowEta", "True k as p momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+
+    meEndcapTruePAsPi_Eta_[0] = ibook.book1D(
+        "EndcapTruePAsPi_lowEta", "True p as pi momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePAsK_Eta_[0] =
+        ibook.book1D("EndcapTruePAsK_lowEta", "True p as k momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePAsP_Eta_[0] =
+        ibook.book1D("EndcapTruePAsP_lowEta", "True p as p momentum spectrum, 1.6 < |eta| < 2.1;p [GeV]", 25, 0., 10.);
+
+    meEndcapTruePiNoPID_Eta_[1] =
+        ibook.book1D("EndcapTruePiNoPID_highEta", "True pi NoPID momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTrueKNoPID_Eta_[1] =
+        ibook.book1D("EndcapTrueKNoPID_highEta", "True k NoPID momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePNoPID_Eta_[1] = ibook.book1D(
+        "EndcapTruePNoPID_highEta", "True p NoPID momentum spectrum, 1.6 < |eta| > 2.1;p [GeV]", 25, 0., 10.);
+
+    meEndcapTruePiAsPi_Eta_[1] =
+        ibook.book1D("EndcapTruePiAsPi_highEta", "True pi as pi momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePiAsK_Eta_[1] =
+        ibook.book1D("EndcapTruePiAsK_highEta", "True pi as k momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePiAsP_Eta_[1] =
+        ibook.book1D("EndcapTruePiAsP_highEta", "True pi as p momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+
+    meEndcapTrueKAsPi_Eta_[1] =
+        ibook.book1D("EndcapTrueKAsPi_highEta", "True k as pi momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTrueKAsK_Eta_[1] =
+        ibook.book1D("EndcapTrueKAsK_highEta", "True k as k momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTrueKAsP_Eta_[1] =
+        ibook.book1D("EndcapTrueKAsP_highEta", "True k as p momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+
+    meEndcapTruePAsPi_Eta_[1] =
+        ibook.book1D("EndcapTruePAsPi_highEta", "True p as pi momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePAsK_Eta_[1] =
+        ibook.book1D("EndcapTruePAsK_highEta", "True p as k momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+    meEndcapTruePAsP_Eta_[1] =
+        ibook.book1D("EndcapTruePAsP_highEta", "True p as p momentum spectrum, |eta| >= 2.1;p [GeV]", 25, 0., 10.);
+  }
 }
 
 bool Primary4DVertexValidation::matchRecoTrack2SimSignal(const reco::TrackBaseRef& recoTrack) {
@@ -2031,7 +2108,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
       unsigned int iv = NOT_MATCHED;  // select a rec vertex index
       for (unsigned int k = 0; k < simpv.at(iev).wos_dominated_recv.size(); k++) {
         unsigned int rec = simpv.at(iev).wos_dominated_recv.at(k);  //candidate rec vertex index
-        auto vrec = recopv.at(rec);
+        const auto& vrec = recopv.at(rec);
         if (vrec.sim != NOT_MATCHED) {
           continue;  // already matched
         }
@@ -2525,12 +2602,36 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                 if (std::abs((*tp_info)->pdgId()) == 211) {
                   if (noPID) {
                     meEndcapTruePiNoPID_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTruePiNoPID_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTruePiNoPID_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else if (isPi) {
                     meEndcapTruePiAsPi_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTruePiAsPi_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTruePiAsPi_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else if (isK) {
                     meEndcapTruePiAsK_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTruePiAsK_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTruePiAsK_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else if (isP) {
                     meEndcapTruePiAsP_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTruePiAsP_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTruePiAsP_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else {
                     edm::LogWarning("Primary4DVertexValidation")
                         << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
@@ -2540,12 +2641,36 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                 } else if (std::abs((*tp_info)->pdgId()) == 321) {
                   if (noPID) {
                     meEndcapTrueKNoPID_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTrueKNoPID_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTrueKNoPID_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else if (isPi) {
                     meEndcapTrueKAsPi_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTrueKAsPi_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTrueKAsPi_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else if (isK) {
                     meEndcapTrueKAsK_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTrueKAsK_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTrueKAsK_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else if (isP) {
                     meEndcapTrueKAsP_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTrueKAsP_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTrueKAsP_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else {
                     edm::LogWarning("Primary4DVertexValidation")
                         << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
@@ -2555,12 +2680,36 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                 } else if (std::abs((*tp_info)->pdgId()) == 2212) {
                   if (noPID) {
                     meEndcapTruePNoPID_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTruePNoPID_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTruePNoPID_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else if (isPi) {
                     meEndcapTruePAsPi_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTruePAsPi_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTruePAsPi_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else if (isK) {
                     meEndcapTruePAsK_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTruePAsK_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTruePAsK_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else if (isP) {
                     meEndcapTruePAsP_->Fill((*iTrack)->p());
+                    if (optionalPlots_) {
+                      if (std::abs((*iTrack)->eta()) < 2.1)
+                        meEndcapTruePAsP_Eta_[0]->Fill((*iTrack)->p());
+                      else
+                        meEndcapTruePAsP_Eta_[1]->Fill((*iTrack)->p());
+                    }
                   } else {
                     edm::LogWarning("Primary4DVertexValidation")
                         << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
@@ -2908,6 +3057,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   LogTrace("Primary4DVertexValidation") << "is_fake: " << fake;
   LogTrace("Primary4DVertexValidation") << "split_from: " << split;
   LogTrace("Primary4DVertexValidation") << "other fake: " << other_fake;
+  meRecSelVerNumber_->Fill(real + fake);
   mePUvsRealV_->Fill(simpv.size(), real);
   mePUvsFakeV_->Fill(simpv.size(), fake);
   mePUvsOtherFakeV_->Fill(simpv.size(), other_fake);

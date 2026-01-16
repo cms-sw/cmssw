@@ -4,7 +4,7 @@ from RecoEgamma.EgammaTools.cleanedEcalDrivenGsfElectronsHGC_cfi import cleanedE
 from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cff import hgcalElectronIDValueMap
 from PhysicsTools.PatAlgos.PATElectronProducer_cfi import PATElectronProducer
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import slimmedElectrons
-from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cfi import recHitMapProducer
+from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer
 
 hgcElectronID = hgcalElectronIDValueMap.clone(
     electrons = "cleanedEcalDrivenGsfElectronsHGC",

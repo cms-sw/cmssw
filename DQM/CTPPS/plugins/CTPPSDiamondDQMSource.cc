@@ -79,6 +79,17 @@ protected:
   void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
 private:
+  // Helper method to transform coordinates to local coordinate system
+  CTPPSGeometry::Vector transformToLocalCoordinates(const CTPPSDetId& detId_pot,
+                                                    double x,
+                                                    double y,
+                                                    double z = 0) const {
+    auto localVector = CTPPSGeometry::Vector(x, y, z);
+    localVector -= diamTranslations_.at(detId_pot);
+    localVector = diamRotations_.at(detId_pot).Inverse() * localVector;
+    return localVector;
+  }
+
   // Constants
   /// Number of seconds per lumisection: used to compute hit rates in Hz
   static constexpr double SEC_PER_LUMI_SECTION = 23.31;
@@ -229,6 +240,9 @@ private:
     double global, withPixels;
   };
   std::unordered_map<CTPPSDetId, DiamondShifts> diamShifts_;
+  std::unordered_map<CTPPSDetId, double> diamHalfWidths_;
+  std::unordered_map<CTPPSDetId, ROOT::Math::Rotation3D> diamRotations_;
+  std::unordered_map<CTPPSDetId, ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>> diamTranslations_;
   std::vector<std::pair<edm::EventRange, int>> runParameters_;
   int centralOOT_;
   unsigned int verbosity_;
@@ -290,7 +304,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker,
       LeadingOnlyCounter(0),
       TrailingOnlyCounter(0),
       CompleteCounter(0),
-      pixelTracksMap("Pixel track maps for efficiency", "Pixel track maps for efficiency", 25, 0, 25, 16, -8, 8) {
+      pixelTracksMap("Pixel track maps for efficiency", "Pixel track maps for efficiency", 25, 0, 25, 24, -6, 18) {
   std::string path, title;
   CTPPSDiamondDetId(id).rpName(path, CTPPSDiamondDetId::nPath);
   ibooker.setCurrentFolder(path);
@@ -495,9 +509,9 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
                                  25,
                                  0,
                                  25,
-                                 16,
-                                 -8,
-                                 8) {
+                                 24,
+                                 -6,
+                                 18) {
   std::string path, title;
   CTPPSDiamondDetId(id).planeName(path, CTPPSDiamondDetId::nPath);
   ibooker.setCurrentFolder(path);
@@ -540,7 +554,7 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
                                        -8,
                                        8);
   EfficiencyWRTPixelsInPlane =
-      ibooker.book2D("Efficiency wrt pixels", title + " Efficiency wrt pixels;x (mm);y (mm)", 25, 0, 25, 16, -8, 8);
+      ibooker.book2D("Efficiency wrt pixels", title + " Efficiency wrt pixels;x (mm);y (mm)", 25, 0, 25, 24, -6, 18);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -661,6 +675,10 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
       const CTPPSDiamondDetId diam_id(it->first);
       const auto diam = geom.sensor(it->first);
       diamShifts_[diam_id].global = diam->translation().x() - diam->getDiamondDimensions().xHalfWidth;
+      diamRotations_[diam_id] = diam->rotation();
+      diamTranslations_[diam_id] = diam->translation();
+      diamHalfWidths_[diam_id] = diam->getDiamondDimensions().xHalfWidth;
+
       if (iRun.run() > FIRST_RUN_W_PIXELS) {  // pixel installed
         const CTPPSPixelDetId pixid(diam_id.arm(), CTPPS_PIXEL_STATION_ID, CTPPS_PIXEL_FAR_RP_ID);
         auto pix = geom.sensor(pixid);
@@ -934,7 +952,6 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
   for (const auto& rechits : *diamondRecHits) {
     const CTPPSDiamondDetId detId(rechits.detId()), detId_pot(detId.rpId());
-    const auto& x_shift = diamShifts_.at(detId_pot);
 
     for (const auto& rechit : rechits) {
       planes_inclusive[detId_pot].insert(detId.plane());
@@ -947,6 +964,9 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         continue;
 
       potPlots_[detId_pot].recHitTime->Fill(rechit.time());
+      // coordinates of the rechit in the local coordinate system are needed for the rotated pot
+      auto localRecHit = transformToLocalCoordinates(detId_pot, rechit.x(), rechit.y(), rechit.z());
+      auto localRecHitLeftX = localRecHit.x() + diamHalfWidths_.at(detId_pot) - 0.5 * rechit.xWidth();
 
       float UFSDShift = 0.0;
       if (rechit.yWidth() < 3)
@@ -955,7 +975,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (rechit.toT() != 0 && centralOOT_ != -999 && rechit.ootIndex() == centralOOT_) {
         TH2F* hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
         TAxis* hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        int startBin = hitHistoTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
+        int startBin = hitHistoTmpYAxis->FindBin(localRecHitLeftX);
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i)
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
@@ -963,7 +983,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         if (!perLSsaving_ && plotOnline_) {
           hitHistoTmp = lumiCache->hitDistribution2dMap[detId_pot].get();
           hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-          startBin = hitHistoTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
+          startBin = hitHistoTmpYAxis->FindBin(localRecHitLeftX);
           numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
           for (int i = 0; i < numOfBins; ++i)
             hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
@@ -977,7 +997,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
         TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT->getTH2F();
         TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
-        int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
+        int startBin = hitHistoOOTTmpYAxis->FindBin(localRecHitLeftX);
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i)
           hitHistoOOTTmp->Fill(detId.plane() + 1. / windowsNum_ * rechit.ootIndex(),
@@ -987,7 +1007,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         // Only leading
         TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT_le->getTH2F();
         TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
-        int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
+        int startBin = hitHistoOOTTmpYAxis->FindBin(localRecHitLeftX);
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i)
           hitHistoOOTTmp->Fill(detId.plane() + 1. / windowsNum_ * rechit.ootIndex(),
@@ -996,9 +1016,6 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
           potPlots_[detId_pot].activity_per_bx.count(rechit.ootIndex()) > 0)
         potPlots_[detId_pot].activity_per_bx.at(rechit.ootIndex())->Fill(event.bunchCrossing());
-
-      // if(plotOffline_)
-      //   potPlots_[detId_pot].TOTVsLS->Fill(event.luminosityBlock(),rechit.toT());
     }
   }
 
@@ -1012,6 +1029,8 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   for (const auto& tracks : *diamondLocalTracks) {
     const CTPPSDiamondDetId detId(tracks.detId()), detId_pot(detId.rpId());
     const auto& x_shift = diamShifts_.at(detId_pot);
+    // extract the rotation angle for the diamond pot
+    auto cosRotAngle = diamRotations_.at(detId_pot) * CTPPSGeometry::Vector(1, 0, 0);
 
     for (const auto& track : tracks) {
       if (!track.isValid())
@@ -1032,7 +1051,13 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
       if (centralOOT_ != -999 && track.ootIndex() == centralOOT_) {
         TH1F* trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
-        int startBin = trackHistoInTimeTmp->FindBin(track.x0() - x_shift.global - track.x0Sigma());
+
+        // X coordinate of the left edge of the track in the local coordinate system
+        auto localTrackX =
+            (track.x0() - diamTranslations_.at(detId_pot).x() + diamHalfWidths_.at(detId_pot) - track.x0Sigma()) /
+            cosRotAngle.x();
+
+        int startBin = trackHistoInTimeTmp->FindBin((localTrackX));
         int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i)
           trackHistoInTimeTmp->Fill(trackHistoInTimeTmp->GetBinCenter(startBin + i));
@@ -1195,7 +1220,9 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (planePlots_.count(detId_plane) != 0) {
         if (centralOOT_ != -999 && rechit.ootIndex() == centralOOT_) {
           TH1F* hitHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
-          int startBin = hitHistoTmp->FindBin(rechit.x() - diamShifts_.at(detId_pot).global - 0.5 * rechit.xWidth());
+          // coordinates of the rechit in the local coordinate system are needed for the rotated pot
+          auto localRecHit = transformToLocalCoordinates(detId_pot, rechit.x(), rechit.y(), rechit.z());
+          int startBin = hitHistoTmp->FindBin(localRecHit.x() + diamHalfWidths_.at(detId_pot) - 0.5 * rechit.xWidth());
           int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
           for (int i = 0; i < numOfBins; ++i)
             hitHistoTmp->Fill(hitHistoTmp->GetBinCenter(startBin + i));

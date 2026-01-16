@@ -1,51 +1,69 @@
 #ifndef METTESTERPOSTPROCESSOR_H
 #define METTESTERPOSTPROCESSOR_H
-
 // author: Matthias Weber, Feb 2015
 
-// system include files
-#include <cmath>
-#include <cstdio>
-#include <memory>
-#include <sstream>
-
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-//
-// class decleration
-//
+#include "Validation/RecoMET/plugins/METTester.h"
 
+//
+// class declaration
+//
 class METTesterPostProcessor : public DQMEDHarvester {
 public:
-  explicit METTesterPostProcessor(const edm::ParameterSet &);
+  explicit METTesterPostProcessor(const edm::ParameterSet&);
   ~METTesterPostProcessor() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
   std::vector<std::string> met_dirs;
 
-  void FillMETRes(std::string metdir, DQMStore::IGetter &);
-  MonitorElement *mMETDifference_GenMETTrue_MET0to20;
-  MonitorElement *mMETDifference_GenMETTrue_MET20to40;
-  MonitorElement *mMETDifference_GenMETTrue_MET40to60;
-  MonitorElement *mMETDifference_GenMETTrue_MET60to80;
-  MonitorElement *mMETDifference_GenMETTrue_MET80to100;
-  MonitorElement *mMETDifference_GenMETTrue_MET100to150;
-  MonitorElement *mMETDifference_GenMETTrue_MET150to200;
-  MonitorElement *mMETDifference_GenMETTrue_MET200to300;
-  MonitorElement *mMETDifference_GenMETTrue_MET300to400;
-  MonitorElement *mMETDifference_GenMETTrue_MET400to500;
-  MonitorElement *mMETDifference_GenMETTrue_MET500;
-  MonitorElement *mMETDifference_GenMETTrue_METResolution;
+  using MElem = MonitorElement;
+
+  void mFillAggrHistograms(std::string, DQMStore::IGetter&);
+  bool mCheckHisto(MElem* h);
+
+  template <typename T>
+  using ArrayVariant = std::variant<std::array<T, METTester::mNMETBins + 1>, std::array<T, METTester::mNPhiBins + 1>>;
+
+  // reading
+  template <typename T>
+  T mArrayIdx(const ArrayVariant<T>& arr, unsigned idx) {
+    return std::visit([idx](const auto& x) { return x.at(idx); }, arr);
+  }
+  // assigning
+  template <typename T>
+  auto& mArrayIdx(ArrayVariant<T>& arr, unsigned idx) {
+    return std::visit([idx](auto& x) -> auto& { return x.at(idx); }, arr);
+  }
+
+  std::unordered_map<std::string, unsigned> mNBins = {{"MET", METTester::mNMETBins}, {"Phi", METTester::mNPhiBins}};
+  std::unordered_map<std::string, ArrayVariant<float>> mEdges = {
+      {"MET", std::array<float, METTester::mNMETBins + 1>{METTester::mMETBins}},
+      {"Phi", std::array<float, METTester::mNPhiBins + 1>{METTester::mPhiBins}}};
+
+  using ElemMap = std::unordered_map<std::string, MElem*>;  // one entry per bin type, for instance "MET" and "Phi"
+  using ElemMapArr =
+      std::unordered_map<std::string, ArrayVariant<MElem*>>;  // one entry per bin type, for instance "MET" and "Phi"
+
+  ElemMapArr mMET;
+  ElemMapArr mMETDiff_GenMETTrue;
+  ElemMapArr mMETRatio_GenMETTrue;
+  ElemMapArr mMETDeltaPhi_GenMETTrue;
+
+  ElemMap mMETDiffAggr;
+  ElemMap mMETRespAggr;
+  ElemMap mMETResolAggr;
+  ElemMap mMETSignAggr;
+
+  std::string runDir;
+
+  float mEpsilonFloat = std::numeric_limits<float>::epsilon();
+  double mEpsilonDouble = std::numeric_limits<double>::epsilon();
 };
 
 #endif

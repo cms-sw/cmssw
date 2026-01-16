@@ -113,7 +113,7 @@ void SiPixelDigiMorphing::fillDescriptions(edm::ConfigurationDescriptions& descr
 
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigis"));
   // LAYER,LADDER,MODULE (coordinates can also be specified as a range FIRST-LAST where appropriate)
-  desc.add<std::vector<std::string>>("barrelRegions", {"1,1-12,1-2", "1,1-12,7-8", "2,1-28,1", "1,1-28,8"});
+  desc.add<std::vector<std::string>>("barrelRegions", {"1,1-12,1-2", "1,1-12,7-8", "2,1-28,1", "2,1-28,8"});
   // DISK,BLADE,SIDE,PANEL (coordinates can also be specified as a range FIRST-LAST where appropriate)
   desc.add<std::vector<std::string>>("endcapRegions", {});
   desc.add<int32_t>("nrows", 160);
@@ -136,7 +136,7 @@ void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
   const TrackerTopology* tTopo = &es.getData(trackerTopologyToken_);
 
   const int rocSize = nrows_ + 2 * iters_;
-  const int arrSize = nrocs_ * rocSize;
+  const int arrSize = nrocs_ * rocSize + ksize_;
 
   uint64_t imap[arrSize];
   uint64_t map1[arrSize];

@@ -57,7 +57,7 @@ namespace cms::alpakatools {
     }
 
     // thread-safe version of the vector, when used in a kernel
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC int push_back(const TAcc &acc, const T &element) {
       auto previousSize = alpaka::atomicAdd(acc, &m_size, 1, alpaka::hierarchy::Blocks{});
       if (previousSize < maxSize) {
@@ -69,7 +69,7 @@ namespace cms::alpakatools {
       }
     }
 
-    template <typename TAcc, class... Ts>
+    template <alpaka::concepts::Acc TAcc, class... Ts>
     ALPAKA_FN_ACC int emplace_back(const TAcc &acc, Ts &&...args) {
       auto previousSize = alpaka::atomicAdd(acc, &m_size, 1, alpaka::hierarchy::Blocks{});
       if (previousSize < maxSize) {

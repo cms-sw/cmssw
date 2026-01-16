@@ -146,6 +146,8 @@ void MuDTSegmentExtTableProducer::fillTable(edm::Event& ev) {
   std::vector<float> seg4D_hitsExpPos;
   std::vector<float> seg4D_hitsExpPosCh;
   std::vector<int16_t> seg4D_hitsExpWire;
+  std::vector<int16_t> seg4D_hitsExpLayer;
+  std::vector<int16_t> seg4D_hitsExpSuperLayer;
 
   // rec-hits vectors, filled if m_fillHits == true
   unsigned int nHits{0};
@@ -258,6 +260,9 @@ void MuDTSegmentExtTableProducer::fillTable(edm::Event& ev) {
 
             bool success{ppt.first};  // check for failure
 
+            seg4D_hitsExpSuperLayer.push_back(iSL);
+            seg4D_hitsExpLayer.push_back(iL);
+
             auto expPos{DEFAULT_DOUBLE_VAL};
             auto expPosCh{DEFAULT_DOUBLE_VAL};
             auto expWire{DEFAULT_INT_VAL_POS};
@@ -352,17 +357,20 @@ void MuDTSegmentExtTableProducer::fillTable(edm::Event& ev) {
 
     tabExtr->setDoc("Size of DT segment *_extr_* vectors");
     addColumn(tabExtr,
+              "ExpSuperLayer",
+              seg4D_hitsExpSuperLayer,
+              "expected superlayer of an extrapolated segment - [1:3] range");
+    addColumn(tabExtr, "ExpLayer", seg4D_hitsExpLayer, "expected layer of an extrapolated segment - [1:4] range");
+    addColumn(tabExtr,
               "ExpPos",
               seg4D_hitsExpPos,
               "expected position of segment extrapolated"
               "<br />to a given layer in layer local coordinates - cm");
-
     addColumn(tabExtr,
               "ExpPosCh",
               seg4D_hitsExpPosCh,
               "expected position of segment extrapolated"
               "<br />to a given layer in chhamber local coordinates - cm");
-
     addColumn(tabExtr,
               "ExpWire",
               seg4D_hitsExpWire,

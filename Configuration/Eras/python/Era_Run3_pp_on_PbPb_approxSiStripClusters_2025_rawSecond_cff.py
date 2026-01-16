@@ -1,0 +1,6 @@
+import FWCore.ParameterSet.Config as cms
+
+from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_2025_cff import Run3_pp_on_PbPb_approxSiStripClusters_2025
+from Configuration.ProcessModifiers.rawSecond_cff import rawSecond
+
+Run3_pp_on_PbPb_approxSiStripClusters_2025_rawSecond = cms.ModifierChain(Run3_pp_on_PbPb_approxSiStripClusters_2025, rawSecond) 

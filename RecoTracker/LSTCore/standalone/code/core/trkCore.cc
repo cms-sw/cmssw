@@ -20,7 +20,7 @@ bool goodEvent() {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runMiniDoublet(LSTEvent *event, int evt) {
+float runMiniDoublet(LSTEvent* event, int evt) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Mini-Doublet start " << evt << std::endl;
@@ -73,7 +73,7 @@ float runMiniDoublet(LSTEvent *event, int evt) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runSegment(LSTEvent *event) {
+float runSegment(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Segment start" << std::endl;
@@ -111,7 +111,7 @@ float runSegment(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runT3(LSTEvent *event) {
+float runT3(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco T3 start" << std::endl;
@@ -153,7 +153,7 @@ float runT3(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runpT3(LSTEvent *event) {
+float runpT3(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Pixel Triplet pT3 start" << std::endl;
@@ -170,7 +170,53 @@ float runpT3(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runQuintuplet(LSTEvent *event) {
+float runQuadruplet(LSTEvent* event) {
+  TStopwatch my_timer;
+  if (ana.verbose >= 2)
+    std::cout << "Reco Quadruplet start" << std::endl;
+  my_timer.Start();
+  event->createQuadruplets();
+  event->wait();  // device side event calls are asynchronous: wait to measure time or print
+  float t4_elapsed = my_timer.RealTime();
+  if (ana.verbose >= 2)
+    std::cout << "Reco Quadruplet processing time: " << t4_elapsed << " secs" << std::endl;
+
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced: " << event->getNumberOfQuadruplets() << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 1-2-3-4: " << event->getNumberOfQuadrupletsByLayerBarrel(0)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 2: " << event->getNumberOfQuadrupletsByLayerBarrel(1) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 3: " << event->getNumberOfQuadrupletsByLayerBarrel(2) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 4: " << event->getNumberOfQuadrupletsByLayerBarrel(3) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 5: " << event->getNumberOfQuadrupletsByLayerBarrel(4) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 6: " << event->getNumberOfQuadrupletsByLayerBarrel(5) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 1: " << event->getNumberOfQuadrupletsByLayerEndcap(0)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 2: " << event->getNumberOfQuadrupletsByLayerEndcap(1)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 3: " << event->getNumberOfQuadrupletsByLayerEndcap(2)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 4: " << event->getNumberOfQuadrupletsByLayerEndcap(3)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 5: " << event->getNumberOfQuadrupletsByLayerEndcap(4)
+              << std::endl;
+
+  return t4_elapsed;
+}
+
+//___________________________________________________________________________________________________________________________________________________________________________________________
+float runQuintuplet(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Quintuplet start" << std::endl;
@@ -216,7 +262,7 @@ float runQuintuplet(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runPixelLineSegment(LSTEvent *event, bool no_pls_dupclean) {
+float runPixelLineSegment(LSTEvent* event, bool no_pls_dupclean) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Pixel Line Segment start" << std::endl;
@@ -232,7 +278,7 @@ float runPixelLineSegment(LSTEvent *event, bool no_pls_dupclean) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runPixelQuintuplet(LSTEvent *event) {
+float runPixelQuintuplet(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Pixel Quintuplet start" << std::endl;
@@ -249,7 +295,7 @@ float runPixelQuintuplet(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runTrackCandidate(LSTEvent *event, bool no_pls_dupclean, bool tc_pls_triplets) {
+float runTrackCandidate(LSTEvent* event, bool no_pls_dupclean, bool tc_pls_triplets) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco TrackCandidate start" << std::endl;
@@ -272,6 +318,8 @@ float runTrackCandidate(LSTEvent *event, bool no_pls_dupclean, bool tc_pls_tripl
     std::cout << "    # of pLS TrackCandidates produced: " << event->getNumberOfPLSTrackCandidates() << std::endl;
   if (ana.verbose >= 2)
     std::cout << "# of T5 TrackCandidates produced: " << event->getNumberOfT5TrackCandidates() << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of T4 TrackCandidates produced: " << event->getNumberOfT4TrackCandidates() << std::endl;
 
   return tc_elapsed;
 }
@@ -283,17 +331,31 @@ float runTrackCandidate(LSTEvent *event, bool no_pls_dupclean, bool tc_pls_tripl
 //  ---------------------------------- =========================================== ----------------------------------------------
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-std::vector<int> matchedSimTrkIdxs(std::vector<int> hitidxs, std::vector<int> hittypes, bool verbose) {
-  std::vector<unsigned int> hitidxs_(std::begin(hitidxs), std::end(hitidxs));
-  std::vector<unsigned int> hittypes_(std::begin(hittypes), std::end(hittypes));
-  return matchedSimTrkIdxs(hitidxs_, hittypes_, verbose);
+std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
+                                   std::vector<unsigned int> hittypes,
+                                   std::vector<int> const& trk_simhit_simTrkIdx,
+                                   std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
+                                   std::vector<std::vector<int>> const& trk_pix_simHitIdx,
+                                   bool verbose,
+                                   float matchfrac,
+                                   float* pmatched) {
+  std::vector<int> matched_idxs;
+  std::vector<float> matched_idx_fracs;
+  std::tie(matched_idxs, matched_idx_fracs) = matchedSimTrkIdxsAndFracs(
+      hitidxs, hittypes, trk_simhit_simTrkIdx, trk_ph2_simHitIdx, trk_pix_simHitIdx, verbose, matchfrac, pmatched);
+  return matched_idxs;
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
-                                   std::vector<unsigned int> hittypes,
-                                   bool verbose,
-                                   float *pmatched) {
+std::tuple<std::vector<int>, std::vector<float>> matchedSimTrkIdxsAndFracs(
+    std::vector<unsigned int> hitidxs,
+    std::vector<unsigned int> hittypes,
+    std::vector<int> const& trk_simhit_simTrkIdx,
+    std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
+    std::vector<std::vector<int>> const& trk_pix_simHitIdx,
+    bool verbose,
+    float matchfrac,
+    float* pmatched) {
   if (hitidxs.size() != hittypes.size()) {
     std::cout << "Error: matched_sim_trk_idxs()   hitidxs and hittypes have different lengths" << std::endl;
     std::cout << "hitidxs.size(): " << hitidxs.size() << std::endl;
@@ -322,7 +384,7 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
 
   for (size_t ihit = 0; ihit < to_check_duplicate.size(); ++ihit) {
     auto ihitdata = to_check_duplicate[ihit];
-    auto &&[hitidx, hittype] = ihitdata;
+    auto&& [hitidx, hittype] = ihitdata;
 
     if (verbose) {
       std::cout << " hitidx: " << hitidx << " hittype: " << hittype << std::endl;
@@ -330,29 +392,29 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
 
     std::vector<int> simtrk_idxs_per_hit;
 
-    const std::vector<std::vector<int>> *simHitIdxs = hittype == 4 ? &trk.ph2_simHitIdx() : &trk.pix_simHitIdx();
+    const std::vector<std::vector<int>>* simHitIdxs = hittype == 4 ? &trk_ph2_simHitIdx : &trk_pix_simHitIdx;
 
     if (verbose) {
-      std::cout << " trk.ph2_simHitIdx().size(): " << trk.ph2_simHitIdx().size() << std::endl;
-      std::cout << " trk.pix_simHitIdx().size(): " << trk.pix_simHitIdx().size() << std::endl;
+      std::cout << " trk_ph2_simHitIdx.size(): " << trk_ph2_simHitIdx.size() << std::endl;
+      std::cout << " trk_pix_simHitIdx.size(): " << trk_pix_simHitIdx.size() << std::endl;
     }
 
     if (static_cast<const unsigned int>((*simHitIdxs).size()) <= hitidx) {
       std::cout << "ERROR" << std::endl;
       std::cout << " hittype: " << hittype << std::endl;
-      std::cout << " trk.pix_simHitIdx().size(): " << trk.pix_simHitIdx().size() << std::endl;
-      std::cout << " trk.ph2_simHitIdx().size(): " << trk.ph2_simHitIdx().size() << std::endl;
+      std::cout << " trk_pix_simHitIdx.size(): " << trk_pix_simHitIdx.size() << std::endl;
+      std::cout << " trk_ph2_simHitIdx.size(): " << trk_ph2_simHitIdx.size() << std::endl;
       std::cout << (*simHitIdxs).size() << " " << hittype << std::endl;
       std::cout << hitidx << " " << hittype << std::endl;
     }
 
-    for (auto &simhit_idx : (*simHitIdxs).at(hitidx)) {
-      if (static_cast<const int>(trk.simhit_simTrkIdx().size()) <= simhit_idx) {
+    for (auto& simhit_idx : (*simHitIdxs).at(hitidx)) {
+      if (static_cast<const int>(trk_simhit_simTrkIdx.size()) <= simhit_idx) {
         std::cout << (*simHitIdxs).size() << " " << hittype << std::endl;
         std::cout << hitidx << " " << hittype << std::endl;
-        std::cout << trk.simhit_simTrkIdx().size() << " " << simhit_idx << std::endl;
+        std::cout << trk_simhit_simTrkIdx.size() << " " << simhit_idx << std::endl;
       }
-      int simtrk_idx = trk.simhit_simTrkIdx().at(simhit_idx);
+      int simtrk_idx = trk_simhit_simTrkIdx[simhit_idx];
       if (verbose) {
         std::cout << " hitidx: " << hitidx << " simhit_idx: " << simhit_idx << " simtrk_idx: " << simtrk_idx
                   << std::endl;
@@ -376,7 +438,7 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
 
   if (verbose) {
     std::cout << " unique_idxs.size(): " << unique_idxs.size() << std::endl;
-    for (auto &unique_idx : unique_idxs) {
+    for (auto& unique_idx : unique_idxs) {
       std::cout << " unique_idx: " << unique_idx << std::endl;
     }
   }
@@ -384,8 +446,8 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
   // print
   if (verbose) {
     std::cout << "va print" << std::endl;
-    for (auto &vec : simtrk_idxs) {
-      for (auto &idx : vec) {
+    for (auto& vec : simtrk_idxs) {
+      for (auto& idx : vec) {
         std::cout << idx << " ";
       }
       std::cout << std::endl;
@@ -394,16 +456,13 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
   }
 
   // Compute all permutations
-  std::function<void(std::vector<std::vector<int>> &, std::vector<int>, size_t, std::vector<std::vector<int>> &)> perm =
-      [&](std::vector<std::vector<int>> &result,
+  std::function<void(std::vector<std::vector<int>>&, std::vector<int>, size_t, std::vector<std::vector<int>>&)> perm =
+      [&](std::vector<std::vector<int>>& result,
           std::vector<int> intermediate,
           size_t n,
-          std::vector<std::vector<int>> &va) {
-        // std::cout <<  " 'called': " << "called" <<  std::endl;
+          std::vector<std::vector<int>>& va) {
         if (va.size() > n) {
           for (auto x : va[n]) {
-            // std::cout <<  " n: " << n <<  std::endl;
-            // std::cout <<  " intermediate.size(): " << intermediate.size() <<  std::endl;
             std::vector<int> copy_intermediate(intermediate);
             copy_intermediate.push_back(x);
             perm(result, copy_intermediate, n + 1, va);
@@ -427,10 +486,11 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
   }
   int maxHitMatchCount = 0;  // ultimate maximum of the number of matched hits
   std::vector<int> matched_sim_trk_idxs;
+  std::vector<float> matched_sim_trk_idxs_frac;
   float max_percent_matched = 0.0f;
-  for (auto &trkidx_perm : allperms) {
+  for (auto& trkidx_perm : allperms) {
     std::vector<int> counts;
-    for (auto &unique_idx : unique_idxs) {
+    for (auto& unique_idx : unique_idxs) {
       int cnt = std::count(trkidx_perm.begin(), trkidx_perm.end(), unique_idx);
       counts.push_back(cnt);
     }
@@ -440,8 +500,13 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
     if (trkidx < 0)
       continue;
     float percent_matched = static_cast<float>(counts[rawidx]) / nhits_input;
-    if (percent_matched > 0.75f)
+    if (verbose) {
+      std::cout << " fr: " << percent_matched << std::endl;
+    }
+    if (percent_matched > matchfrac) {
       matched_sim_trk_idxs.push_back(trkidx);
+      matched_sim_trk_idxs_frac.push_back(percent_matched);
+    }
     maxHitMatchCount = std::max(maxHitMatchCount, *std::max_element(counts.begin(), counts.end()));
     max_percent_matched = std::max(max_percent_matched, percent_matched);
   }
@@ -451,32 +516,64 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
     *pmatched = max_percent_matched;
   }
 
-  std::set<int> s;
+  std::map<int, float> pairs;
   unsigned size = matched_sim_trk_idxs.size();
-  for (unsigned i = 0; i < size; ++i)
-    s.insert(matched_sim_trk_idxs[i]);
-  matched_sim_trk_idxs.assign(s.begin(), s.end());
-  return matched_sim_trk_idxs;
+  for (unsigned i = 0; i < size; ++i) {
+    int idx = matched_sim_trk_idxs[i];
+    float frac = matched_sim_trk_idxs_frac[i];
+    if (pairs.find(idx) != pairs.end()) {
+      if (pairs[idx] < frac)
+        pairs[idx] = frac;
+    } else {
+      pairs[idx] = frac;
+    }
+  }
+  std::vector<int> result;
+  std::vector<float> result_frac;
+  // Loop over the map using range-based for loop
+  for (const auto& pair : pairs) {
+    result.push_back(pair.first);
+    result_frac.push_back(pair.second);
+  }
+  // Sort indices based on 'values'
+  auto indices = sort_indices(result_frac);
+  // Reorder 'vec1' and 'vec2' based on the sorted indices
+  std::vector<int> sorted_result(result.size());
+  std::vector<float> sorted_result_frac(result_frac.size());
+  for (size_t i = 0; i < indices.size(); ++i) {
+    sorted_result[i] = result[indices[i]];
+    sorted_result_frac[i] = result_frac[indices[i]];
+  }
+  return std::make_tuple(sorted_result, sorted_result_frac);
 }
 
 //__________________________________________________________________________________________
-int getDenomSimTrkType(int isimtrk) {
+int getDenomSimTrkType(int isimtrk,
+                       std::vector<int> const& trk_sim_q,
+                       std::vector<float> const& trk_sim_pt,
+                       std::vector<float> const& trk_sim_eta,
+                       std::vector<int> const& trk_sim_bunchCrossing,
+                       std::vector<int> const& trk_sim_event,
+                       std::vector<int> const& trk_sim_parentVtxIdx,
+                       std::vector<float> const& trk_simvtx_x,
+                       std::vector<float> const& trk_simvtx_y,
+                       std::vector<float> const& trk_simvtx_z) {
   if (isimtrk < 0)
     return 0;  // not a sim
-  const int &q = trk.sim_q()[isimtrk];
+  const int& q = trk_sim_q[isimtrk];
   if (q == 0)
     return 1;  // sim
-  const float &pt = trk.sim_pt()[isimtrk];
-  const float &eta = trk.sim_eta()[isimtrk];
+  const float& pt = trk_sim_pt[isimtrk];
+  const float& eta = trk_sim_eta[isimtrk];
   if (pt < 1 or std::abs(eta) > 2.4)
     return 2;  // sim and charged
-  const int &bunch = trk.sim_bunchCrossing()[isimtrk];
-  const int &event = trk.sim_event()[isimtrk];
-  const int &vtxIdx = trk.sim_parentVtxIdx()[isimtrk];
-  const float &vtx_x = trk.simvtx_x()[vtxIdx];
-  const float &vtx_y = trk.simvtx_y()[vtxIdx];
-  const float &vtx_z = trk.simvtx_z()[vtxIdx];
-  const float &vtx_perp = sqrt(vtx_x * vtx_x + vtx_y * vtx_y);
+  const int& bunch = trk_sim_bunchCrossing[isimtrk];
+  const int& event = trk_sim_event[isimtrk];
+  const int& vtxIdx = trk_sim_parentVtxIdx[isimtrk];
+  const float& vtx_x = trk_simvtx_x[isimtrk];
+  const float& vtx_y = trk_simvtx_y[isimtrk];
+  const float& vtx_z = trk_simvtx_z[isimtrk];
+  const float& vtx_perp = sqrt(vtx_x * vtx_x + vtx_y * vtx_y);
   if (vtx_perp > 2.5)
     return 3;  // pt > 1 and abs(eta) < 2.4
   if (std::abs(vtx_z) > 30)
@@ -489,10 +586,28 @@ int getDenomSimTrkType(int isimtrk) {
 }
 
 //__________________________________________________________________________________________
-int getDenomSimTrkType(std::vector<int> simidxs) {
+int getDenomSimTrkType(std::vector<int> simidxs,
+                       std::vector<int> const& trk_sim_q,
+                       std::vector<float> const& trk_sim_pt,
+                       std::vector<float> const& trk_sim_eta,
+                       std::vector<int> const& trk_sim_bunchCrossing,
+                       std::vector<int> const& trk_sim_event,
+                       std::vector<int> const& trk_sim_parentVtxIdx,
+                       std::vector<float> const& trk_simvtx_x,
+                       std::vector<float> const& trk_simvtx_y,
+                       std::vector<float> const& trk_simvtx_z) {
   int type = 0;
-  for (auto &simidx : simidxs) {
-    int this_type = getDenomSimTrkType(simidx);
+  for (auto& simidx : simidxs) {
+    int this_type = getDenomSimTrkType(simidx,
+                                       trk_sim_q,
+                                       trk_sim_pt,
+                                       trk_sim_eta,
+                                       trk_sim_bunchCrossing,
+                                       trk_sim_event,
+                                       trk_sim_parentVtxIdx,
+                                       trk_simvtx_x,
+                                       trk_simvtx_y,
+                                       trk_simvtx_z);
     if (this_type > type) {
       type = this_type;
     }
@@ -507,26 +622,41 @@ int getDenomSimTrkType(std::vector<int> simidxs) {
 //  ---------------------------------- =========================================== ----------------------------------------------
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float drfracSimHitConsistentWithHelix(int isimtrk, int isimhitidx) {
+float drfracSimHitConsistentWithHelix(int isimtrk,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simvtx_x,
+                                      std::vector<float> const& trk_simvtx_y,
+                                      std::vector<float> const& trk_simvtx_z,
+                                      std::vector<float> const& trk_sim_pt,
+                                      std::vector<float> const& trk_sim_eta,
+                                      std::vector<float> const& trk_sim_phi,
+                                      std::vector<int> const& trk_sim_q,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z) {
   // Read track parameters
-  float vx = trk.simvtx_x()[0];
-  float vy = trk.simvtx_y()[0];
-  float vz = trk.simvtx_z()[0];
-  float pt = trk.sim_pt()[isimtrk];
-  float eta = trk.sim_eta()[isimtrk];
-  float phi = trk.sim_phi()[isimtrk];
-  int charge = trk.sim_q()[isimtrk];
+  float vx = trk_simvtx_x[0];
+  float vy = trk_simvtx_y[0];
+  float vz = trk_simvtx_z[0];
+  float pt = trk_sim_pt[isimtrk];
+  float eta = trk_sim_eta[isimtrk];
+  float phi = trk_sim_phi[isimtrk];
+  int charge = trk_sim_q[isimtrk];
 
   // Construct helix object
   lst_math::Helix helix(pt, eta, phi, vx, vy, vz, charge);
 
-  return drfracSimHitConsistentWithHelix(helix, isimhitidx);
+  return drfracSimHitConsistentWithHelix(helix, isimhitidx, trk_simhit_x, trk_simhit_y, trk_simhit_z);
 }
 
 //__________________________________________________________________________________________
-float drfracSimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx) {
+float drfracSimHitConsistentWithHelix(lst_math::Helix& helix,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z) {
   // Sim hit vector
-  std::vector<float> point = {trk.simhit_x()[isimhitidx], trk.simhit_y()[isimhitidx], trk.simhit_z()[isimhitidx]};
+  std::vector<float> point = {trk_simhit_x[isimhitidx], trk_simhit_y[isimhitidx], trk_simhit_z[isimhitidx]};
 
   // Inferring parameter t of helix parametric function via z position
   float t = helix.infer_t(point);
@@ -545,26 +675,41 @@ float drfracSimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx) {
 }
 
 //__________________________________________________________________________________________
-float distxySimHitConsistentWithHelix(int isimtrk, int isimhitidx) {
+float distxySimHitConsistentWithHelix(int isimtrk,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simvtx_x,
+                                      std::vector<float> const& trk_simvtx_y,
+                                      std::vector<float> const& trk_simvtx_z,
+                                      std::vector<float> const& trk_sim_pt,
+                                      std::vector<float> const& trk_sim_eta,
+                                      std::vector<float> const& trk_sim_phi,
+                                      std::vector<int> const& trk_sim_q,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z) {
   // Read track parameters
-  float vx = trk.simvtx_x()[0];
-  float vy = trk.simvtx_y()[0];
-  float vz = trk.simvtx_z()[0];
-  float pt = trk.sim_pt()[isimtrk];
-  float eta = trk.sim_eta()[isimtrk];
-  float phi = trk.sim_phi()[isimtrk];
-  int charge = trk.sim_q()[isimtrk];
+  float vx = trk_simvtx_x[0];
+  float vy = trk_simvtx_y[0];
+  float vz = trk_simvtx_z[0];
+  float pt = trk_sim_pt[isimtrk];
+  float eta = trk_sim_eta[isimtrk];
+  float phi = trk_sim_phi[isimtrk];
+  int charge = trk_sim_q[isimtrk];
 
   // Construct helix object
   lst_math::Helix helix(pt, eta, phi, vx, vy, vz, charge);
 
-  return distxySimHitConsistentWithHelix(helix, isimhitidx);
+  return distxySimHitConsistentWithHelix(helix, isimhitidx, trk_simhit_x, trk_simhit_y, trk_simhit_z);
 }
 
 //__________________________________________________________________________________________
-float distxySimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx) {
+float distxySimHitConsistentWithHelix(lst_math::Helix& helix,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z) {
   // Sim hit vector
-  std::vector<float> point = {trk.simhit_x()[isimhitidx], trk.simhit_y()[isimhitidx], trk.simhit_z()[isimhitidx]};
+  std::vector<float> point = {trk_simhit_x[isimhitidx], trk_simhit_y[isimhitidx], trk_simhit_z[isimhitidx]};
 
   // Inferring parameter t of helix parametric function via z position
   float t = helix.infer_t(point);
@@ -583,7 +728,7 @@ float distxySimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx) {
 }
 
 //__________________________________________________________________________________________
-TVector3 calculateR3FromPCA(const TVector3 &p3, const float dxy, const float dz) {
+TVector3 calculateR3FromPCA(const TVector3& p3, const float dxy, const float dz) {
   const float pt = p3.Pt();
   const float p = p3.Mag();
   const float vz = dz * pt * pt / p / p;
@@ -600,10 +745,10 @@ TVector3 calculateR3FromPCA(const TVector3 &p3, const float dxy, const float dz)
 //  ---------------------------------- =========================================== ----------------------------------------------
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float addInputsToEventPreLoad(LSTEvent *event,
-                              lst::LSTInputHostCollection *lstInputHC,
-                              LSTInputDeviceCollection *lstInputDC,
-                              ALPAKA_ACCELERATOR_NAMESPACE::Queue &queue) {
+float addInputsToEventPreLoad(LSTEvent* event,
+                              lst::LSTInputHostCollection* lstInputHC,
+                              LSTInputDeviceCollection* lstInputDC,
+                              ALPAKA_ACCELERATOR_NAMESPACE::Queue& queue) {
   TStopwatch my_timer;
 
   if (ana.verbose >= 2)
@@ -630,7 +775,7 @@ float addInputsToEventPreLoad(LSTEvent *event,
 }
 
 //________________________________________________________________________________________________________________________________
-void printTimingInformation(std::vector<std::vector<float>> &timing_information, float fullTime, float fullavg) {
+void printTimingInformation(std::vector<std::vector<float>>& timing_information, float fullTime, float fullavg) {
   if (ana.verbose == 0)
     return;
 
@@ -646,6 +791,7 @@ void printTimingInformation(std::vector<std::vector<float>> &timing_information,
   std::cout << "   " << std::setw(6) << "T3";
   std::cout << "   " << std::setw(6) << "T5";
   std::cout << "   " << std::setw(6) << "pLS";
+  std::cout << "   " << std::setw(6) << "T4";
   std::cout << "   " << std::setw(6) << "pT5";
   std::cout << "   " << std::setw(6) << "pT3";
   std::cout << "   " << std::setw(6) << "TC";
@@ -660,81 +806,38 @@ void printTimingInformation(std::vector<std::vector<float>> &timing_information,
     auto timing = timing_information[ievt];
     float timing_total = 0.f;
     float timing_total_short = 0.f;
-    timing_total += timing[0] * 1000;        // Hits
-    timing_total += timing[1] * 1000;        // MD
-    timing_total += timing[2] * 1000;        // LS
-    timing_total += timing[3] * 1000;        // T3
-    timing_total += timing[4] * 1000;        // T5
-    timing_total += timing[5] * 1000;        // pLS
-    timing_total += timing[6] * 1000;        // pT5
-    timing_total += timing[7] * 1000;        // pT3
-    timing_total += timing[8] * 1000;        // TC
-    timing_total_short += timing[1] * 1000;  // MD
-    timing_total_short += timing[2] * 1000;  // LS
-    timing_total_short += timing[3] * 1000;  // T3
-    timing_total_short += timing[4] * 1000;  // T5
-    timing_total_short += timing[6] * 1000;  // pT5
-    timing_total_short += timing[7] * 1000;  // pT3
-    timing_total_short += timing[8] * 1000;  // TC
-    timing_total_short += timing[9] * 1000;  // Reset
+    timing_total += timing[0] * 1000;           // Hits
+    for (size_t iobj = 1; iobj <= 9; ++iobj) {  // MD-TC
+      timing_total += timing[iobj] * 1000;
+      if (iobj != 5)
+        timing_total_short += timing[iobj] * 1000;  // exclude pLS
+    }
+    timing_total_short += timing[10] * 1000;  // Reset
     std::cout << std::setw(6) << ievt;
-    std::cout << "   " << std::setw(6) << timing[0] * 1000;    // Hits
-    std::cout << "   " << std::setw(6) << timing[1] * 1000;    // MD
-    std::cout << "   " << std::setw(6) << timing[2] * 1000;    // LS
-    std::cout << "   " << std::setw(6) << timing[3] * 1000;    // T3
-    std::cout << "   " << std::setw(6) << timing[4] * 1000;    // T5
-    std::cout << "   " << std::setw(6) << timing[5] * 1000;    // pLS
-    std::cout << "   " << std::setw(6) << timing[6] * 1000;    // pT5
-    std::cout << "   " << std::setw(6) << timing[7] * 1000;    // pT3
-    std::cout << "   " << std::setw(6) << timing[8] * 1000;    // TC
-    std::cout << "   " << std::setw(6) << timing[9] * 1000;    // Reset
+    for (auto objtime : timing) {
+      std::cout << "   " << std::setw(6) << objtime * 1000;  // Print Hits-Reset
+    }
     std::cout << "   " << std::setw(7) << timing_total;        // Total time
     std::cout << "   " << std::setw(7) << timing_total_short;  // Total time
     std::cout << std::endl;
-    timing_sum_information[0] += timing[0] * 1000;   // Hits
-    timing_sum_information[1] += timing[1] * 1000;   // MD
-    timing_sum_information[2] += timing[2] * 1000;   // LS
-    timing_sum_information[3] += timing[3] * 1000;   // T3
-    timing_sum_information[4] += timing[4] * 1000;   // T5
-    timing_sum_information[5] += timing[5] * 1000;   // pLS
-    timing_sum_information[6] += timing[6] * 1000;   // pT5
-    timing_sum_information[7] += timing[7] * 1000;   // pT3
-    timing_sum_information[8] += timing[8] * 1000;   // TC
-    timing_sum_information[9] += timing[9] * 1000;   // Reset
+    for (size_t iobj = 0; iobj <= 10; ++iobj) {  // Hits-Reset
+      timing_sum_information[iobj] += timing[iobj] * 1000;
+    }
     timing_shortlist.push_back(timing_total_short);  // short total
     timing_list.push_back(timing_total);             // short total
   }
-  timing_sum_information[0] /= timing_information.size();  // Hits
-  timing_sum_information[1] /= timing_information.size();  // MD
-  timing_sum_information[2] /= timing_information.size();  // LS
-  timing_sum_information[3] /= timing_information.size();  // T3
-  timing_sum_information[4] /= timing_information.size();  // T5
-  timing_sum_information[5] /= timing_information.size();  // pLS
-  timing_sum_information[6] /= timing_information.size();  // pT5
-  timing_sum_information[7] /= timing_information.size();  // pT3
-  timing_sum_information[8] /= timing_information.size();  // TC
-  timing_sum_information[9] /= timing_information.size();  // Reset
+  for (size_t iobj = 0; iobj <= 10; iobj++) {  // Hits-Reset
+    timing_sum_information[iobj] /= timing_information.size();
+  }
 
   float timing_total_avg = 0.0;
-  timing_total_avg += timing_sum_information[0];  // Hits
-  timing_total_avg += timing_sum_information[1];  // MD
-  timing_total_avg += timing_sum_information[2];  // LS
-  timing_total_avg += timing_sum_information[3];  // T3
-  timing_total_avg += timing_sum_information[4];  // T5
-  timing_total_avg += timing_sum_information[5];  // pLS
-  timing_total_avg += timing_sum_information[6];  // pT5
-  timing_total_avg += timing_sum_information[7];  // pT3
-  timing_total_avg += timing_sum_information[8];  // TC
-  timing_total_avg += timing_sum_information[9];  // Reset
   float timing_totalshort_avg = 0.0;
-  timing_totalshort_avg += timing_sum_information[1];  // MD
-  timing_totalshort_avg += timing_sum_information[2];  // LS
-  timing_totalshort_avg += timing_sum_information[3];  // T3
-  timing_totalshort_avg += timing_sum_information[4];  // T5
-  timing_totalshort_avg += timing_sum_information[6];  // pT5
-  timing_totalshort_avg += timing_sum_information[7];  // pT3
-  timing_totalshort_avg += timing_sum_information[8];  // TC
-  timing_totalshort_avg += timing_sum_information[9];  // Reset
+  timing_total_avg += timing_sum_information[0];  // Hits
+  for (size_t iobj = 1; iobj <= 10; iobj++) {     // MD-Reset
+    timing_total_avg += timing_sum_information[iobj];
+    if (iobj != 5)
+      timing_totalshort_avg += timing_sum_information[iobj];  // exclude pLS
+  }
 
   float standardDeviation = 0.0;
   for (auto shorttime : timing_shortlist) {
@@ -750,6 +853,7 @@ void printTimingInformation(std::vector<std::vector<float>> &timing_information,
   std::cout << "   " << std::setw(6) << "T3";
   std::cout << "   " << std::setw(6) << "T5";
   std::cout << "   " << std::setw(6) << "pLS";
+  std::cout << "   " << std::setw(6) << "T4";
   std::cout << "   " << std::setw(6) << "pT5";
   std::cout << "   " << std::setw(6) << "pT3";
   std::cout << "   " << std::setw(6) << "TC";
@@ -758,18 +862,11 @@ void printTimingInformation(std::vector<std::vector<float>> &timing_information,
   std::cout << "   " << std::setw(7) << "Total(short)";
   std::cout << std::endl;
   std::cout << std::setw(6) << "avg";
-  std::cout << "   " << std::setw(6) << timing_sum_information[0];  // Hits
-  std::cout << "   " << std::setw(6) << timing_sum_information[1];  // MD
-  std::cout << "   " << std::setw(6) << timing_sum_information[2];  // LS
-  std::cout << "   " << std::setw(6) << timing_sum_information[3];  // T3
-  std::cout << "   " << std::setw(6) << timing_sum_information[4];  // T5
-  std::cout << "   " << std::setw(6) << timing_sum_information[5];  // pLS
-  std::cout << "   " << std::setw(6) << timing_sum_information[6];  // pT5
-  std::cout << "   " << std::setw(6) << timing_sum_information[7];  // pT3
-  std::cout << "   " << std::setw(6) << timing_sum_information[8];  // TC
-  std::cout << "   " << std::setw(6) << timing_sum_information[9];  // Reset
-  std::cout << "   " << std::setw(7) << timing_total_avg;           // Average total time
-  std::cout << "   " << std::setw(7) << timing_totalshort_avg;      // Average total time
+  for (auto objsum : timing_sum_information) {
+    std::cout << "   " << std::setw(6) << objsum;  // Print Hits-Reset
+  }
+  std::cout << "   " << std::setw(7) << timing_total_avg;       // Average total time
+  std::cout << "   " << std::setw(7) << timing_totalshort_avg;  // Average total time
   std::cout << "+/- " << std::setw(4) << stdDev;
   std::cout << "   " << std::setw(7) << fullavg;  // Average full time
   std::cout << "   " << ana.compilation_target;

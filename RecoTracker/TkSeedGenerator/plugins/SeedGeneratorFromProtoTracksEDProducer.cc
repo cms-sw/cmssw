@@ -44,6 +44,7 @@ void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::Configuration
   desc.add<bool>("useEventsWithNoVertex", true);
   desc.add<std::string>("TTRHBuilder", "TTRHBuilderWithoutAngle4PixelTriplets");
   desc.add<bool>("usePV", false);
+  desc.add<bool>("removeOTRechits", false);
   desc.add<bool>("includeFourthHit", false);
   desc.add<bool>("produceComplement", false);
 
@@ -67,6 +68,7 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
       useProtoTrackKinematics(cfg.getParameter<bool>("useProtoTrackKinematics")),
       useEventsWithNoVertex(cfg.getParameter<bool>("useEventsWithNoVertex")),
       usePV_(cfg.getParameter<bool>("usePV")),
+      removeOTRechits_(cfg.getParameter<bool>("removeOTRechits")),
       includeFourthHit_(cfg.getParameter<bool>("includeFourthHit")),
       produceComplement_(cfg.getParameter<bool>("produceComplement")),
       theInputCollectionTag(consumes<reco::TrackCollection>(cfg.getParameter<InputTag>("InputCollection"))),
@@ -147,10 +149,27 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
 
         seedCreator_.init(region, es, nullptr);
-        if (hits.size() > 3 and not includeFourthHit_)
-          seedCreator_.makeSeed(*result, {hits[0], hits[1], hits[2]});
-        else
-          seedCreator_.makeSeed(*result, hits);
+
+        if (removeOTRechits_) {
+          // Filter out non-pixel hits
+          hits.erase(std::remove_if(hits.begin(),
+                                    hits.end(),
+                                    [](const Hit& hit) {
+                                      unsigned int subdetId = hit->geographicalId().subdetId();
+                                      return subdetId != PixelSubdetector::PixelBarrel &&
+                                             subdetId != PixelSubdetector::PixelEndcap;
+                                    }),
+                     hits.end());
+
+          if (hits.size() > 2) {
+            seedCreator_.makeSeed(*result, hits);
+          }
+        } else {
+          if (hits.size() > 3 and not includeFourthHit_)
+            seedCreator_.makeSeed(*result, {hits[0], hits[1], hits[2]});
+          else
+            seedCreator_.makeSeed(*result, hits);
+        }
       }
     }
   }

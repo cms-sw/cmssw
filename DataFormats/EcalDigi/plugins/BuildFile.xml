@@ -1,0 +1,5 @@
+<library file="TrivialSerialisation.cc" name="DataFormatsEcalDigiTrivialSerialisation">
+  <use name="DataFormats/EcalDigi"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

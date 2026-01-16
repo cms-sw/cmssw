@@ -1,11 +1,11 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun ttbar.py geometry=2016
-#   Options for geometry 2016, 2017, 2018, 2021, 2026, legacy
+#   Options for geometry 2016, 2017, 2018, 2021, Run4, legacy
 # 
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -15,7 +15,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2017, 2018, 2021, 2026, legacy")
+                  "geometry of operations: 2016, 2017, 2018, 2021, Run4, legacy")
 
 ### get and parse the command line arguments
  
@@ -48,11 +48,11 @@ elif (options.geometry == "2021"):
     process = cms.Process('Sim',Run3_DDD)
     geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
     globalTag = "auto:phase1_2022_realistic"
-elif (options.geometry == "2026"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('Sim',Phase2C11M9)
-    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "D110Reco_cff"
-    globalTag = "auto:phase2_realistic"
+elif (options.geometry == "Run4"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I131M9
+    process = cms.Process('Sim',Phase2C22I13M9)
+    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "D121Reco_cff"
+    globalTag = "auto:phase2_realistic_T33"
 else:
     process = cms.Process('Sim')
     geomFile = "Configuration.Geometry.GeometryExtendedReco_cff"

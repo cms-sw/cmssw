@@ -4,6 +4,8 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 CaloTopologyBuilder::CaloTopologyBuilder(const edm::ParameterSet& /*iConfig*/)
     : geometryToken_{setWhatProduced(this, &CaloTopologyBuilder::produceCalo)
@@ -25,4 +27,9 @@ CaloTopologyBuilder::ReturnType CaloTopologyBuilder::produceCalo(const CaloTopol
   ct->setSubdetTopology(DetId::Ecal, EcalEndcap, std::make_unique<EcalEndcapTopology>(geometry));
   ct->setSubdetTopology(DetId::Ecal, EcalPreshower, std::make_unique<EcalPreshowerTopology>());
   return ct;
+}
+
+void CaloTopologyBuilder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.addWithDefaultLabel(desc);
 }

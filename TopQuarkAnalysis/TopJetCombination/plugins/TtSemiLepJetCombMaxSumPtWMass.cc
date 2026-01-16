@@ -48,6 +48,7 @@ void TtSemiLepJetCombMaxSumPtWMass::produce(edm::StreamID, edm::Event& evt, cons
   auto pJetsConsidered = std::make_unique<int>(0);
 
   std::vector<int> match;
+  match.reserve(4);
   for (unsigned int i = 0; i < 4; ++i)
     match.push_back(-1);
 

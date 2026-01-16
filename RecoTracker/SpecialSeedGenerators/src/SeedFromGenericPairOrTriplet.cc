@@ -295,6 +295,7 @@ bool SeedFromGenericPairOrTriplet::qualityFilter(const SeedingHitSet& hits) cons
     if (hits.size() == 3) {
       std::vector<GlobalPoint> gPoints;
       unsigned int nHits = hits.size();
+      gPoints.reserve(nHits);
       for (unsigned int iHit = 0; iHit < nHits; ++iHit)
         gPoints.push_back(hits[iHit]->globalPosition());
       unsigned int subid = (*hits[0]).geographicalId().subdetId();

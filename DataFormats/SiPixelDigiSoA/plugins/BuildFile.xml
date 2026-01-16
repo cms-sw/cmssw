@@ -1,0 +1,5 @@
+<library file="TrivialSerialisation.cc" name="DataFormatsSiPixelDigiSoATrivialSerialisation">
+  <use name="DataFormats/SiPixelDigiSoA"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

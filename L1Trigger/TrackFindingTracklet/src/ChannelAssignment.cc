@@ -14,31 +14,25 @@ using namespace tt;
 
 namespace trklet {
 
-  ChannelAssignment::ChannelAssignment(const edm::ParameterSet& iConfig, const Setup* setup)
+  ChannelAssignment::ChannelAssignment(const Config& iConfig, const Setup* setup)
       : setup_(setup),
-        pSetDRin_(iConfig.getParameter<ParameterSet>("DRin")),
-        widthLayerId_(pSetDRin_.getParameter<int>("WidthLayerId")),
-        widthStubId_(pSetDRin_.getParameter<int>("WidthStubId")),
-        widthSeedStubId_(pSetDRin_.getParameter<int>("WidthSeedStubId")),
-        widthPSTilt_(pSetDRin_.getParameter<int>("WidthPSTilt")),
-        depthMemory_(pSetDRin_.getParameter<int>("DepthMemory")),
-        ptBoundaries_(pSetDRin_.getParameter<vector<double>>("PtBoundaries")),
-        pSetDR_(iConfig.getParameter<ParameterSet>("DR")),
-        numComparisonModules_(pSetDR_.getParameter<int>("NumComparisonModules")),
-        minIdenticalStubs_(pSetDR_.getParameter<int>("MinIdenticalStubs")),
-        numNodesDR_(2 * (ptBoundaries_.size() + 1)),
-        seedTypeNames_(iConfig.getParameter<vector<string>>("SeedTypes")),
-        numSeedTypes_(seedTypeNames_.size()),
+        tmMuxOrder_(iConfig.tmMuxOrder_),
+        tmNumLayers_(iConfig.tmNumLayers_),
+        tmWidthStubId_(iConfig.tmWidthStubId_),
+        tmWidthCot_(iConfig.tmWidthCot_),
+        numComparisonModules_(iConfig.numComparisonModules_),
+        minIdenticalStubs_(iConfig.minIdenticalStubs_),
+        seedTypeNames_(iConfig.seedTypeNames_),
+        numSeedTypes_(iConfig.seedTypeNames_.size()),
         numChannelsTrack_(numSeedTypes_),
-        channelEncoding_(iConfig.getParameter<vector<int>>("IRChannelsIn")) {
-    const ParameterSet& pSetSeedTypesSeedLayers = iConfig.getParameter<ParameterSet>("SeedTypesSeedLayers");
-    const ParameterSet& pSetSeedTypesProjectionLayers = iConfig.getParameter<ParameterSet>("SeedTypesProjectionLayers");
-    seedTypesSeedLayers_.reserve(numSeedTypes_);
-    seedTypesProjectionLayers_.reserve(numSeedTypes_);
-    for (const string& s : seedTypeNames_) {
-      seedTypesSeedLayers_.emplace_back(pSetSeedTypesSeedLayers.getParameter<vector<int>>(s));
-      seedTypesProjectionLayers_.emplace_back(pSetSeedTypesProjectionLayers.getParameter<vector<int>>(s));
-    }
+        numChannelsStub_(iConfig.numChannelsStub_),
+        seedTypesSeedLayers_(iConfig.seedTypesSeedLayers_),
+        seedTypesProjectionLayers_(iConfig.seedTypesProjectionLayers_),
+        maxNumProjectionLayers_(iConfig.maxNumProjectionLayers_),
+        channelEncoding_(iConfig.channelEncoding_),
+        offsetsStubs_(iConfig.offsetsStubs_),
+        numSeedingLayers_(iConfig.numSeedingLayers_),
+        tmMuxOrderInt_(iConfig.tmMuxOrderInt_) {
     // consistency check
     const int offsetBarrel = setup_->offsetLayerId();
     const int numBarrelLayer = setup_->numBarrelLayer();
@@ -114,7 +108,7 @@ namespace trklet {
     numSeedingLayers_ = max_element(seedTypesSeedLayers_.begin(), seedTypesSeedLayers_.end(), bigger)->size();
     maxNumProjectionLayers_ =
         max_element(seedTypesProjectionLayers_.begin(), seedTypesProjectionLayers_.end(), bigger)->size();
-    auto acc = [](int sum, vector<int> ints) { return sum += (int)ints.size(); };
+    auto acc = [](int sum, vector<int> ints) { return sum + static_cast<int>(ints.size()); };
     offsetsStubs_.reserve(numSeedTypes_);
     numChannelsStub_ = accumulate(
         seedTypesProjectionLayers_.begin(), seedTypesProjectionLayers_.end(), numSeedingLayers_ * numSeedTypes_, acc);
@@ -184,22 +178,6 @@ namespace trklet {
     if (its != seeds.end())
       return (int)projections.size() + distance(seeds.begin(), its);
     return -1;
-  }
-
-  // return DR node for given ttTrackRef
-  int ChannelAssignment::nodeDR(const TTTrackRef& ttTrackRef) const {
-    const double pt = ttTrackRef->momentum().perp();
-    int bin(0);
-    for (double b : ptBoundaries_) {
-      if (pt < b)
-        break;
-      bin++;
-    }
-    if (ttTrackRef->rInv() >= 0.)
-      bin += numNodesDR_ / 2;
-    else
-      bin = numNodesDR_ / 2 - 1 - bin;
-    return bin;
   }
 
   // layers a seed types can project to using default layer id [barrel: 1-6, discs: 11-15]

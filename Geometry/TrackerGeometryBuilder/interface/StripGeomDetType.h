@@ -20,7 +20,7 @@ public:
   // Access to topologies
   const Topology& topology() const override { return *theTopology; }
 
-  virtual const TopologyType& specificTopology() const { return *theTopology; }
+  const TopologyType& specificTopology() const { return *theTopology; }
 
   void setTopology(TopologyType* topol);
 

@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "DataFormats/Provenance/interface/ProductNamePattern.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
@@ -15,8 +15,7 @@ namespace {
   edm::ProductDescription make_ProductDescription(std::string const& module,
                                                   std::string const& instance,
                                                   std::string const& process) {
-    edm::TypeWithDict type(typeid(T));
-    edm::ProductDescription prod(edm::InEvent, module, process, type.name(), type.friendlyClassName(), instance, type);
+    edm::ProductDescription prod(edm::InEvent, module, process, instance, edm::TypeID(typeid(T)));
     //prod.write(std::cerr);
     return prod;
   }

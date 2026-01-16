@@ -8,76 +8,15 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
 #include "Math/VectorUtil.h"
 using XYZVector = ROOT::Math::XYZVector;
 
-namespace {
-  using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
-  std::vector<unsigned int> getHitIdxs(short trackCandidateType,
-                                       Params_pT5::ArrayUxHits const& tcHitIndices,
-                                       unsigned int const* hitIndices) {
-    std::vector<unsigned int> hits;
-
-    unsigned int maxNHits = 0;
-    if (trackCandidateType == LSTObjType::pT5)
-      maxNHits = Params_pT5::kHits;
-    else if (trackCandidateType == LSTObjType::pT3)
-      maxNHits = Params_pT3::kHits;
-    else if (trackCandidateType == LSTObjType::T5)
-      maxNHits = Params_T5::kHits;
-    else if (trackCandidateType == LSTObjType::pLS)
-      maxNHits = Params_pLS::kHits;
-
-    for (unsigned int i = 0; i < maxNHits; i++) {
-      unsigned int hitIdxDev = tcHitIndices[i];
-      unsigned int hitIdx =
-          (trackCandidateType == LSTObjType::pLS)
-              ? hitIdxDev
-              : hitIndices[hitIdxDev];  // Hit indices are stored differently in the standalone for pLS.
-
-      // For p objects, the 3rd and 4th hit maybe the same,
-      // due to the way pLS hits are stored in the standalone.
-      // This is because pixel seeds can be either triplets or quadruplets.
-      if (trackCandidateType != LSTObjType::T5 && hits.size() == 3 &&
-          hits.back() == hitIdx)  // Remove duplicate 4th hits.
-        continue;
-
-      hits.push_back(hitIdx);
-    }
-
-    return hits;
-  }
-
-}  // namespace
-
-void LST::getOutput(LSTEvent& event) {
-  out_tc_hitIdxs_.clear();
-  out_tc_len_.clear();
-  out_tc_seedIdx_.clear();
-  out_tc_trackCandidateType_.clear();
-
-  auto const hitsBase = event.getTrimmedHitsBase(false);  // sync on next line
-  auto const& trackCandidates = event.getTrackCandidates(/*inCMSSW*/ true, /*sync*/ true);
-
-  unsigned int nTrackCandidates = trackCandidates.nTrackCandidates();
-
-  for (unsigned int idx = 0; idx < nTrackCandidates; idx++) {
-    short trackCandidateType = trackCandidates.trackCandidateType()[idx];
-    std::vector<unsigned int> hit_idx =
-        getHitIdxs(trackCandidateType, trackCandidates.hitIndices()[idx], hitsBase.idxs());
-
-    out_tc_hitIdxs_.push_back(hit_idx);
-    out_tc_len_.push_back(hit_idx.size());
-    out_tc_seedIdx_.push_back(trackCandidates.pixelSeedIndex()[idx]);
-    out_tc_trackCandidateType_.push_back(trackCandidateType);
-  }
-}
-
 void LST::run(Queue& queue,
               bool verbose,
               float const ptCut,
+              uint16_t const clustSizeCut,
               LSTESData<Device> const* deviceESData,
               LSTInputDeviceCollection const* lstInputDC,
               bool no_pls_dupclean,
               bool tc_pls_triplets) {
-  auto event = LSTEvent(verbose, ptCut, queue, deviceESData);
+  auto event = LSTEvent(verbose, ptCut, clustSizeCut, queue, deviceESData);
 
   event.addInputToEvent(lstInputDC);
   event.addHitToEvent();
@@ -166,6 +105,23 @@ void LST::run(Queue& queue,
     printf("# of Pixel T3s produced: %d\n", event.getNumberOfPixelTriplets());
   }
 
+  event.createQuadruplets();
+  if (verbose) {
+    alpaka::wait(queue);  // event calls are asynchronous: wait before printing
+    printf("# of Quadruplets produced: %d\n", event.getNumberOfQuadruplets());
+    printf("# of Quadruplets produced layer 1-2-3-4: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(0));
+    printf("# of Quadruplets produced layer 2: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(1));
+    printf("# of Quadruplets produced layer 3: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(2));
+    printf("# of Quadruplets produced layer 4: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(3));
+    printf("# of Quadruplets produced layer 5: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(4));
+    printf("# of Quadruplets produced layer 6: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(5));
+    printf("# of Quadruplets produced endcap layer 1: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(0));
+    printf("# of Quadruplets produced endcap layer 2: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(1));
+    printf("# of Quadruplets produced endcap layer 3: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(2));
+    printf("# of Quadruplets produced endcap layer 4: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(3));
+    printf("# of Quadruplets produced endcap layer 5: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(4));
+  }
+
   event.createTrackCandidates(no_pls_dupclean, tc_pls_triplets);
   if (verbose) {
     alpaka::wait(queue);  // event calls are asynchronous: wait before printing
@@ -175,7 +131,8 @@ void LST::run(Queue& queue,
     printf("        # of pT3 TrackCandidates produced: %d\n", event.getNumberOfPT3TrackCandidates());
     printf("        # of pLS TrackCandidates produced: %d\n", event.getNumberOfPLSTrackCandidates());
     printf("        # of T5 TrackCandidates produced: %d\n", event.getNumberOfT5TrackCandidates());
+    printf("        # of T4 TrackCandidates produced: %d\n", event.getNumberOfT4TrackCandidates());
   }
 
-  getOutput(event);
+  trackCandidatesBaseDC_ = event.releaseTrackCandidatesBaseDeviceCollection();
 }

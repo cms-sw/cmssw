@@ -18,6 +18,7 @@ public:
   }
 
   bool filter(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void endStream() override;
   static void globalEndJob(const BTagSkimMCCount::Counters* counters);
 

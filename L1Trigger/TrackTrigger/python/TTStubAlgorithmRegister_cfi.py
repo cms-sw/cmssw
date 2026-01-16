@@ -43,4 +43,3 @@ TTStubAlgorithm_cbc3_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_cbc3_P
 # anything. Override with process.TTStubAlgorithm_PSimHit_ = ...,
 # etc. in your configuration.
 TTStubAlgorithm_Phase2TrackerDigi_ = cms.ESPrefer("TTStubAlgorithm_official_Phase2TrackerDigi_")
-

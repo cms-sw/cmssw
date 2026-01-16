@@ -6,7 +6,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4Core/SensitiveDetector/interface/FrameRotation.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
@@ -23,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "G4Track.hh"

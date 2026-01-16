@@ -2,7 +2,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetInfo.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include <set>
 #include <vector>

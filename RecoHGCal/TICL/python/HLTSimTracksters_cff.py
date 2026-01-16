@@ -8,8 +8,8 @@ from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import simHitTPAssocPro
 # CA - PATTERN RECOGNITION
 
 hltFilteredLayerClustersSimTracksters = _filteredLayerClustersProducer.clone(
-    LayerClusters = cms.InputTag("hltHgcalMergeLayerClusters"),
-    LayerClustersInputMask = cms.InputTag("hltHgcalMergeLayerClusters","InitialLayerClustersMask"),
+    LayerClusters = cms.InputTag("hltMergeLayerClusters"),
+    LayerClustersInputMask = cms.InputTag("hltMergeLayerClusters","InitialLayerClustersMask"),
     clusterFilter = "ClusterFilterByAlgoAndSize",
     min_cluster_size = 0, # inclusive
     iteration_label = "hltTiclSimTracksters"
@@ -23,8 +23,8 @@ hltTiclSimTracksters = _simTrackstersProducer.clone(
     layerClusterCaloParticleAssociator = cms.InputTag("hltLayerClusterCaloParticleAssociationProducer"),
     layerClusterSimClusterAssociator = cms.InputTag("hltLayerClusterSimClusterAssociationProducer"),
     filtered_mask = cms.InputTag("hltFilteredLayerClustersSimTracksters","hltTiclSimTracksters"),
-    layer_clusters = cms.InputTag("hltHgcalMergeLayerClusters"),
-    time_layerclusters = cms.InputTag("hltHgcalMergeLayerClusters","timeLayerCluster"),
+    layer_clusters = cms.InputTag("hltMergeLayerClusters"),
+    time_layerclusters = cms.InputTag("hltMergeLayerClusters","timeLayerCluster"),
     simTrackToTPMap = cms.InputTag("simHitTPAssocProducer","simTrackToTP"),
     recoTracks = cms.InputTag("hltGeneralTracks"),
     simclusters = cms.InputTag("mix","MergedCaloTruth"),

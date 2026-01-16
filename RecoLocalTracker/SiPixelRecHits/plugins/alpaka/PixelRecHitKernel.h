@@ -19,7 +19,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace pixelgpudetails {
     using namespace cms::alpakatools;
-
+    using namespace ALPAKA_ACCELERATOR_NAMESPACE::reco;
     template <typename TrackerTraits>
     class PixelRecHitKernel {
     public:
@@ -33,11 +33,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       using ParamsOnDevice = pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>;
 
-      TrackingRecHitsSoACollection<TrackerTraits> makeHitsAsync(SiPixelDigisSoACollection const& digis_d,
-                                                                SiPixelClustersSoACollection const& clusters_d,
-                                                                BeamSpotPOD const* bs_d,
-                                                                ParamsOnDevice const* cpeParams,
-                                                                Queue queue) const;
+      reco::TrackingRecHitsSoACollection makeHitsAsync(SiPixelDigisSoACollection const& digis_d,
+                                                       SiPixelClustersSoACollection const& clusters_d,
+                                                       BeamSpotPOD const* bs_d,
+                                                       ParamsOnDevice const* cpeParams,
+                                                       Queue queue) const;
     };
   }  // namespace pixelgpudetails
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

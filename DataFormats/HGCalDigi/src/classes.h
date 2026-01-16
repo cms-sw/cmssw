@@ -11,3 +11,5 @@
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoSoA.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoSoA.h"
+#include "DataFormats/HGCalDigi/interface/HGCalDigiTriggerHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalDigiTriggerSoA.h"

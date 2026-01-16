@@ -37,22 +37,71 @@ behavior (usually a core dump).
 
 #include <algorithm>
 #include <iterator>
+#include <numeric>
+#include <type_traits>
 #include <vector>
 
-#include <type_traits>
-#include "boost/concept_check.hpp"
+#include <boost/concept_check.hpp>
 
+#include "DataFormats/Common/interface/BoolCache.h"
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/traits.h"
-
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "DataFormats/Common/interface/BoolCache.h"
-
 namespace edm {
+
+  namespace detail {
+
+    // from https://devblogs.microsoft.com/oldnewthing/20170104-00/?p=95115
+
+    template <typename Iter1, typename Iter2>
+    void apply_permutation(Iter1 first, Iter1 last, Iter2 indices) {
+      using T = std::iterator_traits<Iter1>::value_type;
+      using Diff = std::iterator_traits<Iter2>::value_type;
+      Diff length = last - first;
+      for (Diff i = 0; i < length; i++) {
+        Diff current = i;
+        if (i != indices[current]) {
+          T t{std::move(first[i])};
+          while (i != indices[current]) {
+            Diff next = indices[current];
+            first[current] = std::move(first[next]);
+            indices[current] = current;
+            current = next;
+          }
+          first[current] = std::move(t);
+          indices[current] = current;
+        }
+      }
+    }
+
+    // from https://devblogs.microsoft.com/oldnewthing/20170106-00/?p=95135
+
+    template <typename Iter, typename UnaryOperation, typename Compare>
+    void sort_by_key(Iter first, Iter last, UnaryOperation op, Compare comp) {
+      using Diff = std::iterator_traits<Iter>::difference_type;
+      using T = std::iterator_traits<Iter>::value_type;
+      using Key = decltype(op(std::declval<T>()));
+      Diff length = std::distance(first, last);
+      std::vector<Key> keys;
+      keys.reserve(length);
+      std::transform(first, last, std::back_inserter(keys), [&](T& t) { return op(t); });
+      std::vector<Diff> indices(length);
+      std::iota(indices.begin(), indices.end(), static_cast<Diff>(0));
+      std::sort(indices.begin(), indices.end(), [&](Diff a, Diff b) { return comp(keys[a], keys[b]); });
+      apply_permutation(first, last, indices.begin());
+    }
+
+    template <typename Iter, typename UnaryOperation>
+    void sort_by_key(Iter first, Iter last, UnaryOperation op) {
+      sort_by_key(first, last, op, std::less<>());
+    }
+
+  }  // namespace detail
+
   class ProductID;
 
   //------------------------------------------------------------
@@ -340,7 +389,11 @@ namespace edm {
     for (; i != e; ++i) {
       i->data.shrink_to_fit();
       // sort the Detset pointed to by
-      std::sort(i->data.begin(), i->data.end());
+      if constexpr (requires(const T& t) { t.sort_key(); }) {
+        edm::detail::sort_by_key(i->data.begin(), i->data.end(), [](const T& t) { return t.sort_key(); });
+      } else {
+        std::sort(i->data.begin(), i->data.end());
+      }
     }
   }
 

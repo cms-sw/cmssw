@@ -2,9 +2,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include <format>
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 // Function to run the catch2 tests
 //___________________________________________________________________________________________
@@ -61,8 +62,8 @@ process.add_(cms.Service('JobReportService'))
 process.add_(cms.Service('TFileService',fileName=cms.string('{}')))
     )_";
 
-  // Format the raw string literal using fmt::format
-  return fmt::format(rawString, analyzerName, analyzerName, analyzerName, rootFileName);
+  // Format the raw string literal using std::format
+  return std::format(rawString, analyzerName, analyzerName, analyzerName, rootFileName);
 }
 
 //___________________________________________________________________________________________

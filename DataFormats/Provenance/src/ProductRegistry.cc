@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "DataFormats/Provenance/interface/processingOrderMerge.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -197,15 +198,34 @@ namespace edm {
     return result;
   }
 
-  void ProductRegistry::updateFromInput(ProductList const& other) {
+  void ProductRegistry::updateFromInput(ProductList const& other, std::vector<std::string> const& processOrder) {
     for (auto const& product : other) {
       copyProduct(product.second);
     }
+    updateProcessOrder(processOrder);
   }
 
-  void ProductRegistry::updateFromInput(std::vector<ProductDescription> const& other) {
+  void ProductRegistry::updateFromInput(std::vector<ProductDescription> const& other,
+                                        std::vector<std::string> const& processOrder) {
     for (ProductDescription const& productDescription : other) {
       copyProduct(productDescription);
+    }
+    updateProcessOrder(processOrder);
+  }
+
+  void ProductRegistry::updateProcessOrder(std::vector<std::string> const& processOrder) {
+    throwIfFrozen();
+    processingOrderMerge(processOrder, transient_.processOrder_);
+  }
+
+  void ProductRegistry::mergeProcessOrderFromAddInput(std::vector<std::string> const& processOrder) {
+    if (processOrder.empty())
+      return;
+    //see if the input already has the current process
+    if (not transient_.processOrder_.empty() and (transient_.processOrder_[0] != processOrder[0])) {
+      transient_.processOrder_.insert(transient_.processOrder_.end(), processOrder.begin(), processOrder.end());
+    } else {
+      updateProcessOrder(processOrder);
     }
   }
 
@@ -241,6 +261,23 @@ namespace edm {
   std::string ProductRegistry::merge(ProductRegistry const& other,
                                      std::string const& fileName,
                                      ProductDescription::MatchMode branchesMustMatch) {
+    if (branchesMustMatch == ProductDescription::FromInputToCurrent) {
+      if (processOrder().size() == 1 and not other.processOrder().empty() and
+          processOrder()[0] != other.processOrder()[0]) {
+        assert(transient_.processOrder_.size() == 1);
+        transient_.processOrder_.insert(transient_.processOrder_.end(),
+                                        other.transient_.processOrder_.begin(),
+                                        other.transient_.processOrder_.end());
+      } else {
+        //the current process must not change
+        assert(not processOrder().empty());
+        auto current = processOrder()[0];
+        processingOrderMerge(other.processOrder(), transient_.processOrder_);
+        assert(current == processOrder()[0]);
+      }
+    } else {
+      processingOrderMerge(other.processOrder(), transient_.processOrder_);
+    }
     std::ostringstream differences;
 
     ProductRegistry::ProductList::iterator j = productList_.begin();
@@ -295,6 +332,7 @@ namespace edm {
     std::vector<std::string> producedTypes;
 
     transient_.branchIDToIndex_.clear();
+    assert(productList_.empty() or !processOrder().empty());
 
     std::array<std::shared_ptr<ProductResolverIndexHelper>, NumBranchTypes> new_productLookups{
         {std::make_shared<ProductResolverIndexHelper>(),
@@ -436,7 +474,7 @@ namespace edm {
     }
 
     for (auto& iterProductLookup : new_productLookups) {
-      iterProductLookup->setFrozen();
+      iterProductLookup->setFrozen(processOrder());
     }
     for (size_t i = 0; i < new_productLookups.size(); ++i) {
       transient_.productLookups_[i] = std::move(new_productLookups[i]);

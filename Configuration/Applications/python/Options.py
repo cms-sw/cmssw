@@ -440,6 +440,12 @@ expertSettings.add_argument("--maxmem_profile",
                             action="store_true",
                             dest="maxmem_profile")
 
+expertSettings.add_argument("--alloc_monitor",
+                            help="Add necessary LD_PRELOAD for PerfTools/AllocMonitor",
+                            default=False,
+                            action="store_true",
+                            dest="alloc_monitor")
+
 expertSettings.add_argument("--io",
                             help="Create a json file with io informations",
                             default=None,

@@ -8,8 +8,8 @@
 class CMSAntiSIMP : public G4ParticleDefinition {
 private:
   static CMSAntiSIMP* theInstance;
-  CMSAntiSIMP() {}
-  ~CMSAntiSIMP() override {}
+  CMSAntiSIMP() = default;
+  ~CMSAntiSIMP() override = default;
 
 public:
   static CMSAntiSIMP* Definition(double mass);

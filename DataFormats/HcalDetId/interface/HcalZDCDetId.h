@@ -13,6 +13,7 @@
   *     [5:4] Section (EM/HAD/Lumi)
   *     [3:0] Channel
   *  Contents of the HcalZDCDetId (New):
+  *     [9]   Set for FSC
   *     [8]   Set to 1 for new format
   *     [7]   Set for RPD
   *     [6]   Z position (true for positive)
@@ -30,7 +31,8 @@ public:
   static constexpr uint32_t kZDCZsideMask = 0x40;
   static constexpr uint32_t kZDCRPDMask = 0x80;
   static constexpr uint32_t kZDCnewFormat = 0x100;
-  enum Section { Unknown = 0, EM = 1, HAD = 2, LUM = 3, RPD = 4 };
+  static constexpr uint32_t kZDCFSCMask = 0x200;
+  enum Section { Unknown = 0, EM = 1, HAD = 2, LUM = 3, RPD = 4, FSC = 5 };
 
   static constexpr int32_t SubdetectorId = 2;
 
@@ -38,8 +40,10 @@ public:
   static constexpr int32_t kDepHAD = 4;
   static constexpr int32_t kDepLUM = 2;
   static constexpr int32_t kDepRPD = 16;
+  static constexpr int32_t kDepFSC = 6;
   static constexpr int32_t kDepRun1 = (kDepEM + kDepHAD + kDepLUM);
-  static constexpr int32_t kDepTot = (kDepRun1 + kDepRPD);
+  static constexpr int32_t kDepTot1 = (kDepRun1 + kDepRPD);
+  static constexpr int32_t kDepTot = (kDepTot1 + kDepFSC);
   static constexpr int32_t kDepRun3 = kDepTot;
 
   /** Create a null cellid*/
@@ -91,7 +95,9 @@ public:
   /// get the section
   constexpr Section section() const {
     uint32_t id = newForm(id_);
-    if (id & kZDCRPDMask)
+    if (id & kZDCFSCMask)
+      return FSC;
+    else if (id & kZDCRPDMask)
       return RPD;
     else
       return (Section)((id >> kZDCSectionOffset) & kZDCSectionMask);
@@ -112,7 +118,9 @@ public:
   constexpr int32_t channel() const {
     const int32_t se(section());
     uint32_t id = newForm(id_);
-    if (se == RPD)
+    if (se == FSC)
+      return (1 + (id & kZDCChannelMask2));
+    else if (se == RPD)
       return (1 + (id & kZDCChannelMask2));
     else
       return (id & kZDCChannelMask1);
@@ -133,10 +141,11 @@ public:
 
   constexpr uint32_t denseIndex() const {
     const int32_t se(section());
-    uint32_t di =
-        (channel() - 1 +
-         (se == RPD ? 2 * kDepRun1 + (zside() < 0 ? 0 : kDepRPD)
-                    : ((zside() < 0 ? 0 : kDepRun1) + (se == HAD ? kDepEM : (se == LUM ? kDepEM + kDepHAD : 0)))));
+    uint32_t di = (channel() - 1 +
+                   (se == FSC ? 2 * kDepTot1 + (zside() < 0 ? 0 : kDepFSC)
+                              : (se == RPD ? 2 * kDepRun1 + (zside() < 0 ? 0 : kDepRPD)
+                                           : ((zside() < 0 ? 0 : kDepRun1) +
+                                              (se == HAD ? kDepEM : (se == LUM ? kDepEM + kDepHAD : 0))))));
     return di;
   }
 
@@ -147,7 +156,11 @@ public:
       bool lz(false);
       uint32_t dp(0);
       Section se(Unknown);
-      if (di >= 2 * kDepRun1) {
+      if (di >= 2 * kDepTot1) {
+        lz = (di >= (kDepTot1 + kDepTot));
+        se = FSC;
+        dp = 1 + ((di - 2 * kDepTot1) % kDepFSC);
+      } else if (di >= 2 * kDepRun1) {
         lz = (di >= (kDepRun1 + kDepTot));
         se = RPD;
         dp = 1 + ((di - 2 * kDepRun1) % kDepRPD);
@@ -165,15 +178,39 @@ public:
 
   constexpr static bool validDetId(Section se, int32_t dp) {
     bool flag = (dp >= 1 && (((se == EM) && (dp <= kDepEM)) || ((se == HAD) && (dp <= kDepHAD)) ||
-                             ((se == LUM) && (dp <= kDepLUM)) || ((se == RPD) && (dp <= kDepRPD))));
+                             ((se == LUM) && (dp <= kDepLUM)) || ((se == RPD) && (dp <= kDepRPD)) ||
+                             ((se == FSC) && (dp <= kDepFSC))));
     return flag;
+  }
+
+  static inline int32_t fscChannel(int32_t stn, int32_t phi) {
+    // stn goes from 0..2 and phi 1..2 for stations 0,1 and 1...4 for station 2
+    const int32_t channels[8] = {6, 7, 0, 1, 2, 3, 4, 5};
+    int32_t chn =
+        ((stn < 0 || stn > 2 || phi < 1 || phi > 4) ? -1 : ((stn < 2 && phi > 2) ? -1 : channels[stn * 2 + phi - 1]));
+    return chn;
+  }
+
+  static inline int32_t fscStationFromChannel(int32_t chn) {
+    const int32_t stns[8] = {1, 1, 2, 2, 2, 2, 0, 0};
+    int stn = (chn < 0 || chn > 7) ? -1 : stns[chn];
+    return stn;
+  }
+
+  static inline int32_t fscPhiFromChannel(int32_t chn) {
+    const int32_t phis[8] = {1, 2, 1, 2, 3, 4, 1, 2};
+    int32_t phi = (chn < 0 || chn > 7) ? -1 : phis[chn];
+    return phi;
   }
 
 private:
   constexpr static uint32_t packHcalZDCDetId(const Section& se, const bool& zside, const int32_t& channel) {
     uint32_t id = DetId(DetId::Calo, SubdetectorId);
     id |= kZDCnewFormat;
-    if (se == RPD) {
+    if (se == FSC) {
+      id |= kZDCFSCMask;
+      id |= ((channel - 1) & kZDCChannelMask2);
+    } else if (se == RPD) {
       id |= kZDCRPDMask;
       id |= ((channel - 1) & kZDCChannelMask2);
     } else {
@@ -187,8 +224,8 @@ private:
 
   constexpr static void unpackHcalZDCDetId(const uint32_t& id, Section& se, bool& zside, int32_t& channel) {
     if (id & kZDCnewFormat) {
-      se = (id & kZDCRPDMask) ? RPD : (Section)((id >> kZDCSectionOffset) & kZDCSectionMask);
-      channel = (se == RPD) ? (1 + (id & kZDCChannelMask2)) : (id & kZDCChannelMask1);
+      se = (id & kZDCFSCMask) ? FSC : (id & kZDCRPDMask) ? RPD : (Section)((id >> kZDCSectionOffset) & kZDCSectionMask);
+      channel = ((se == FSC) || (se == RPD)) ? (1 + (id & kZDCChannelMask2)) : (id & kZDCChannelMask1);
       zside = (id & kZDCZsideMask);
     } else {
       se = (id & kZDCRPDMask) ? RPD : (Section)((id >> kZDCSectionOffset) & kZDCSectionMask);

@@ -22,14 +22,14 @@ FILE="$1"
 edmProvDump "$FILE" | awk '
   BEGIN {keep=0}
   /Producers with data in file/ {keep=0}
-  /^Processing History:/ {keep=1; next}
-  keep && NF >= 4 {
-    proc = $1;
+  /--Processes--/ {keep=1; next}
+  keep && /Process:/ { proc = $2 }
+  keep && /PSet id:/ { hash = $3 }
+  keep && /version:/ {
     rel  = gensub(/["'\'']/, "", "g", $2);
-    hash = gensub(/[()]/, "", "g", $4);
-    print proc, rel, hash;
+    print proc, rel, hash
   }
-' | while read PROC REL HASH; do
+'| while read PROC REL HASH; do
   echo "process $PROC (release $REL)"
   edmProvDump "$FILE" --dumpPSetID "$HASH" 2>/dev/null | \
     grep -E '^\s*tableName:|^\s*globaltag:' | \

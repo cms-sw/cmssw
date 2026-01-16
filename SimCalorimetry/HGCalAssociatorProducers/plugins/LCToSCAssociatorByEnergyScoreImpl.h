@@ -11,6 +11,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 namespace edm {
   class EDProductGetter;
@@ -61,22 +62,22 @@ namespace ticl {
   typedef std::tuple<layerClusterToSimCluster, simClusterToLayerCluster> association;
 }  // namespace ticl
 
-template <typename HIT>
-class LCToSCAssociatorByEnergyScoreImpl : public ticl::LayerClusterToSimClusterAssociatorBaseImpl {
+template <typename HIT, typename CLUSTER>
+class LCToSCAssociatorByEnergyScoreImplT : public ticl::LayerClusterToSimClusterAssociatorBaseImplT<CLUSTER> {
 public:
-  explicit LCToSCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-                                             bool,
-                                             std::shared_ptr<hgcal::RecHitTools>,
-                                             const std::unordered_map<DetId, const unsigned int> *,
-                                             std::vector<const HIT *> &hits);
+  using multiCollectionT = std::vector<edm::RefProd<std::vector<HIT>>>;
 
-  ticl::RecoToSimCollectionWithSimClusters associateRecoToSim(
-      const edm::Handle<reco::CaloClusterCollection> &cCH,
-      const edm::Handle<SimClusterCollection> &sCCH) const override;
+  explicit LCToSCAssociatorByEnergyScoreImplT(edm::EDProductGetter const &,
+                                              bool,
+                                              std::shared_ptr<hgcal::RecHitTools>,
+                                              const std::unordered_map<DetId, const unsigned int> *,
+                                              const multiCollectionT &hits);
 
-  ticl::SimToRecoCollectionWithSimClusters associateSimToReco(
-      const edm::Handle<reco::CaloClusterCollection> &cCH,
-      const edm::Handle<SimClusterCollection> &sCCH) const override;
+  ticl::RecoToSimCollectionWithSimClustersT<CLUSTER> associateRecoToSim(
+      const edm::Handle<CLUSTER> &cCH, const edm::Handle<SimClusterCollection> &sCCH) const override;
+
+  ticl::SimToRecoCollectionWithSimClustersT<CLUSTER> associateSimToReco(
+      const edm::Handle<CLUSTER> &cCH, const edm::Handle<SimClusterCollection> &sCCH) const override;
 
 private:
   const bool hardScatterOnly_;
@@ -84,13 +85,20 @@ private:
   const std::unordered_map<DetId, const unsigned int> *hitMap_;
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
-  ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
+  ticl::association makeConnections(const edm::Handle<CLUSTER> &cCH,
                                     const edm::Handle<SimClusterCollection> &sCCH) const;
-  std::vector<const HIT *> hits_;
+  multiCollectionT hits_;
 };
 
-extern template class LCToSCAssociatorByEnergyScoreImpl<HGCRecHit>;
-extern template class LCToSCAssociatorByEnergyScoreImpl<reco::PFRecHit>;
+extern template class LCToSCAssociatorByEnergyScoreImplT<HGCRecHit, reco::CaloClusterCollection>;
+extern template class LCToSCAssociatorByEnergyScoreImplT<reco::PFRecHit, reco::CaloClusterCollection>;
+extern template class LCToSCAssociatorByEnergyScoreImplT<HGCRecHit, reco::PFClusterCollection>;
+extern template class LCToSCAssociatorByEnergyScoreImplT<reco::PFRecHit, reco::PFClusterCollection>;
 
-using HGCalLCToSCAssociatorByEnergyScoreImpl = LCToSCAssociatorByEnergyScoreImpl<HGCRecHit>;
-using BarrelLCToSCAssociatorByEnergyScoreImpl = LCToSCAssociatorByEnergyScoreImpl<reco::PFRecHit>;
+using HGCalLCToSCAssociatorByEnergyScoreImpl =
+    LCToSCAssociatorByEnergyScoreImplT<HGCRecHit, reco::CaloClusterCollection>;
+using BarrelLCToSCAssociatorByEnergyScoreImpl =
+    LCToSCAssociatorByEnergyScoreImplT<reco::PFRecHit, reco::CaloClusterCollection>;
+using HGCalPCToSCAssociatorByEnergyScoreImpl = LCToSCAssociatorByEnergyScoreImplT<HGCRecHit, reco::PFClusterCollection>;
+using BarrelPCToSCAssociatorByEnergyScoreImpl =
+    LCToSCAssociatorByEnergyScoreImplT<reco::PFRecHit, reco::PFClusterCollection>;

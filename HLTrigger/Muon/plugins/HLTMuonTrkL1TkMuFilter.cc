@@ -73,7 +73,7 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
 
   std::vector<l1t::P2GTCandidateRef> vl1cands;
   bool check_l1match = true;
-  if (m_l1GTAlgoBlockTag == edm::InputTag("") || m_l1GTAlgoNames.empty())
+  if (m_l1GTAlgoBlockTag.isUninitialized() || m_l1GTAlgoNames.empty())
     check_l1match = false;
   if (check_l1match) {
     const l1t::P2GTAlgoBlockMap& algos = iEvent.get(m_algoBlockToken);

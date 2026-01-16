@@ -78,6 +78,7 @@ public:
                     const bool add = false);
 
 private:
+  void returnEmptyCollections(edm::Event& e, const int lcSize);
   std::string detector_;
   const bool doNose_ = false;
   const bool computeLocalTime_;
@@ -89,8 +90,9 @@ private:
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
   const edm::EDGetTokenT<MtdSimTracksterCollection> MTDSimTrackstersToken_;
 
-  const edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters> associatorMapSimClusterToReco_token_;
-  const edm::EDGetTokenT<ticl::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>
+      associatorMapSimClusterToReco_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> associatorMapCaloParticleToReco_token_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   hgcal::RecHitTools rhtools_;
   const float fractionCut_;
@@ -231,6 +233,34 @@ void SimTrackstersProducer::addTrackster(
   }
 }
 
+void SimTrackstersProducer::returnEmptyCollections(edm::Event& evt, const int lcSize) {
+  // put into the event empty collections
+  auto e_result = std::make_unique<TracksterCollection>();
+  evt.put(std::move(e_result));
+
+  auto e_result_ticlCandidates = std::make_unique<std::vector<TICLCandidate>>();
+  evt.put(std::move(e_result_ticlCandidates));
+
+  auto e_output_mask = std::make_unique<std::vector<float>>();
+  e_output_mask->resize(lcSize, 1.f);
+  evt.put(std::move(e_output_mask));
+
+  auto e_result_fromCP = std::make_unique<TracksterCollection>();
+  evt.put(std::move(e_result_fromCP), "fromCPs");
+
+  auto e_resultPU = std::make_unique<TracksterCollection>();
+  evt.put(std::move(e_resultPU), "PU");
+
+  auto e_output_mask_fromCP = std::make_unique<std::vector<float>>();
+  e_output_mask_fromCP->resize(lcSize, 1.f);
+  evt.put(std::move(e_output_mask_fromCP), "fromCPs");
+
+  auto e_cpToSc_SimTrackstersMap = std::make_unique<std::map<uint, std::vector<uint>>>();
+  evt.put(std::move(e_cpToSc_SimTrackstersMap));
+
+  return;
+}
+
 void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto result = std::make_unique<TracksterCollection>();
   auto output_mask = std::make_unique<std::vector<float>>();
@@ -247,13 +277,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   // Validate input collections
   if (!layerClustersHandle.isValid() || !layerClustersTimesHandle.isValid() || !inputClusterMaskHandle.isValid()) {
     edm::LogWarning("SimTrackstersProducer") << "Missing input collections. Producing empty outputs.";
-
-    evt.put(std::move(result_ticlCandidates));
-    evt.put(std::move(output_mask));
-    evt.put(std::move(result_fromCP), "fromCPs");
-    evt.put(std::move(resultPU), "PU");
-    evt.put(std::move(output_mask_fromCP), "fromCPs");
-    evt.put(std::move(cpToSc_SimTrackstersMap));
+    this->returnEmptyCollections(evt, 0);
     return;
   }
 
@@ -268,6 +292,11 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   const auto& simclusters = evt.get(simclusters_token_);
   edm::Handle<std::vector<CaloParticle>> caloParticles_h;
   evt.getByToken(caloparticles_token_, caloParticles_h);
+  if (!caloParticles_h.isValid()) {
+    edm::LogWarning("SimTrackstersProducer") << "Missing CaloParticles.";
+    this->returnEmptyCollections(evt, layerClusters.size());
+    return;
+  }
   const auto& caloparticles = *caloParticles_h;
 
   edm::Handle<MtdSimTracksterCollection> MTDSimTracksters_h;
@@ -280,7 +309,16 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   evt.getByToken(trackingParticleToken_, trackingParticles_h);
   edm::Handle<std::vector<reco::Track>> recoTracks_h;
   evt.getByToken(recoTracksToken_, recoTracks_h);
-  const auto& TPtoRecoTrackMap = evt.get(associatormapStRsToken_);
+
+  //TP to reco track map
+  const auto TPtoRecoTrackMapHandle = evt.getHandle(associatormapStRsToken_);
+  if (!TPtoRecoTrackMapHandle.isValid()) {
+    edm::LogWarning("SimTrackstersProducer") << "Missing TP->RecoTrack association.";
+    this->returnEmptyCollections(evt, layerClusters.size());
+    return;
+  }
+  const auto& TPtoRecoTrackMap = *TPtoRecoTrackMapHandle;
+
   const auto& simTrackToTPMap = evt.get(associationSimTrackToTPToken_);
   const auto& recoTracks = *recoTracks_h;
 
@@ -398,9 +436,8 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
   makePUTrackster(inputClusterMask, *output_mask, *resultPU, caloParticles_h.id(), 0);
 
-  auto simTrackToRecoTrack = [&](UniqueSimTrackId simTkId) -> std::pair<int, float> {
-    int trackIdx = -1;
-    float quality = 0.f;
+  auto simTrackToRecoTrack = [&](UniqueSimTrackId simTkId) -> std::vector<int> {
+    std::vector<int> trackIdx;
     auto ipos = simTrackToTPMap.mapping.find(simTkId);
     if (ipos != simTrackToTPMap.mapping.end()) {
       auto jpos = TPtoRecoTrackMap.find((ipos->second));
@@ -409,41 +446,55 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
         if (!associatedRecoTracks.empty()) {
           // associated reco tracks are sorted by decreasing quality
           if (associatedRecoTracks[0].second > qualityCutTrack_) {
-            trackIdx = &(*associatedRecoTracks[0].first) - &recoTracks[0];
-            quality = associatedRecoTracks[0].second;
+            trackIdx.push_back(&(*associatedRecoTracks[0].first) - &recoTracks[0]);
+          }
+        }
+      }
+      const auto& tp = (*ipos->second);
+      if (!tp.decayVertices().empty()) {
+        const auto& iTV = tp.decayVertices()[0];
+        for (auto iTP = iTV->daughterTracks_begin(); iTP != iTV->daughterTracks_end(); ++iTP) {
+          auto kpos = TPtoRecoTrackMap.find((*iTP));
+          if (kpos != TPtoRecoTrackMap.end()) {
+            auto& associatedRecoTracks = kpos->val;
+            if (!associatedRecoTracks.empty()) {
+              // associated reco tracks are sorted by decreasing quality
+              if (associatedRecoTracks[0].second > qualityCutTrack_) {
+                trackIdx.push_back(&(*associatedRecoTracks[0].first) - &recoTracks[0]);
+              }
+            }
           }
         }
       }
     }
-    return {trackIdx, quality};
+    return trackIdx;
   };
 
-  // Creating the map from TrackingParticle to SimTrackstersFromCP
+  // Set the reco track id to SimTrackstersFromCP
   auto& simTrackstersFromCP = *result_fromCP;
   for (unsigned int i = 0; i < simTrackstersFromCP.size(); ++i) {
     if (simTrackstersFromCP[i].vertices().empty())
       continue;
     const auto& simTrack = caloparticles[simTrackstersFromCP[i].seedIndex()].g4Tracks()[0];
     UniqueSimTrackId simTkIds(simTrack.trackId(), simTrack.eventId());
-    auto bestAssociatedRecoTrack = simTrackToRecoTrack(simTkIds);
-    if (bestAssociatedRecoTrack.first != -1 and bestAssociatedRecoTrack.second > qualityCutTrack_) {
-      auto trackIndex = bestAssociatedRecoTrack.first;
-      simTrackstersFromCP[i].setTrackIdx(trackIndex);
+    auto bestAssociatedRecoTracks = simTrackToRecoTrack(simTkIds);
+    if (not bestAssociatedRecoTracks.empty()) {
+      for (auto const trackIndex : bestAssociatedRecoTracks)
+        simTrackstersFromCP[i].addTrackIdx(trackIndex);
     }
   }
 
   auto& simTracksters = *result;
-  // Creating the map from TrackingParticle to SimTrackster
-  std::unordered_map<unsigned int, std::vector<unsigned int>> TPtoSimTracksterMap;
+  // Set the reco track id to simTracksters
   for (unsigned int i = 0; i < simTracksters.size(); ++i) {
     const auto& simTrack = (simTracksters[i].seedID() == caloParticles_h.id())
                                ? caloparticles[simTracksters[i].seedIndex()].g4Tracks()[0]
                                : simclusters[simTracksters[i].seedIndex()].g4Tracks()[0];
     UniqueSimTrackId simTkIds(simTrack.trackId(), simTrack.eventId());
-    auto bestAssociatedRecoTrack = simTrackToRecoTrack(simTkIds);
-    if (bestAssociatedRecoTrack.first != -1 and bestAssociatedRecoTrack.second > qualityCutTrack_) {
-      auto trackIndex = bestAssociatedRecoTrack.first;
-      simTracksters[i].setTrackIdx(trackIndex);
+    auto bestAssociatedRecoTracks = simTrackToRecoTrack(simTkIds);
+    if (not bestAssociatedRecoTracks.empty()) {
+      for (auto const trackIndex : bestAssociatedRecoTracks)
+        simTracksters[i].addTrackIdx(trackIndex);
     }
   }
 
@@ -465,12 +516,15 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                        : SimClusterToCaloParticleMap[simTrackster.seedIndex()];
     auto const& tCP = (*result_fromCP)[cp_index];
     if (!tCP.vertices().empty()) {
-      auto trackIndex = tCP.trackIdx();
+      auto trackIndices = tCP.trackIdxs();
 
       auto& cand = (*result_ticlCandidates)[cp_index];
       cand.addTrackster(edm::Ptr<Trackster>(simTracksters_h, i));
-      if (trackIndex != -1 && caloparticles[cp_index].charge() != 0)
-        cand.setTrackPtr(edm::Ptr<reco::Track>(recoTracks_h, trackIndex));
+      if (cand.trackPtrs().empty() and not trackIndices.empty() and caloparticles[cp_index].charge() != 0) {
+        for (const auto trackIndex : trackIndices) {
+          cand.addTrackPtr(edm::Ptr<reco::Track>(recoTracks_h, trackIndex));
+        }
+      }
       toKeep.push_back(cp_index);
     }
   }

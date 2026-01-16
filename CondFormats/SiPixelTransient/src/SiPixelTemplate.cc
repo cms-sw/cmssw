@@ -82,6 +82,7 @@
 //  V10.21 - Address runtime issues in pushfile() for gcc 7.X due to using tempfile as char string + misc. cleanup [Petar]
 //  V10.22 - Move templateStore to the heap, fix variable name in pushfile() [Petar]
 //  V10.24 - Add sideload() + associated gymnastics [Petar and Oz]
+//  V10.25 - Restore y-residual Gaussian parameters [Morris]
 
 //  Created by Morris Swartz on 10/27/06.
 //
@@ -107,15 +108,16 @@
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#define LOGDEBUG(x) LogDebug(x)
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
-#define LOGWARNING(x) LogWarning(x)
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
 using namespace edm;
 #else
 #include "SiPixelTemplate.h"
 #include "SimplePixel.h"
+#define LOGDEBUG(x) std::cout << x << ": "
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGINFO(x) std::cout << x << ": "
 #define ENDL std::endl
@@ -1324,15 +1326,18 @@ void SiPixelTemplate::postInit(std::vector<SiPixelTemplateStore>& thePixelTemp_)
 //! \param locBx - (input) the sign of this quantity is used to determine whether to flip cot(alpha/beta)<0 quantities from cot(alpha/beta)>0 (FPix only)
 //!                    for Phase 1 FPix IP-related tracks, locBx/locBz > 0 for cot(alpha) > 0 and locBx/locBz < 0 for cot(alpha) < 0
 //!                    for Phase 1 FPix IP-related tracks, locBx > 0 for cot(beta) > 0 and locBx < 0 for cot(beta) < 0
+//! \param goodEdgeAlgo - (input) Flag to turn on the y Gaussian Parameter interpolation to be used with goodEdge reconstruction algorithm
 // ************************************************************************************************************
-bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx) {
+bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx, bool goodEdgeAlgo) {
   // Interpolate for a new set of track angles
 
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
   //check for nan's
   if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
     success_ = false;
     return success_;
   }
+#endif
 
   // Local variables
   int i, j;
@@ -1553,16 +1558,19 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     }
 
     for (i = 0; i < 4; ++i) {
-      yavg_[i] = (1.f - yratio_) * thePixelTemp_[index_id_].enty[ilow].yavg[i] +
-                 yratio_ * thePixelTemp_[index_id_].enty[ihigh].yavg[i];
-      if (flip_y_) {
-        yavg_[i] = -yavg_[i];
-      }
       yavg_[i] = (1.f - yratio_) * enty0_->yavg[i] + yratio_ * enty1_->yavg[i];
       if (flip_y_) {
         yavg_[i] = -yavg_[i];
       }
       yrms_[i] = (1.f - yratio_) * enty0_->yrms[i] + yratio_ * enty1_->yrms[i];
+
+      if (goodEdgeAlgo) {  // restore y Gaussian Parameter interpolation
+        ygx0_[i] = (1.f - yratio_) * enty0_->ygx0[i] + yratio_ * enty1_->ygx0[i];
+        if (flip_y_) {
+          ygx0_[i] = -ygx0_[i];
+        }
+        ygsig_[i] = (1.f - yratio_) * enty0_->ygsig[i] + yratio_ * enty1_->ygsig[i];
+      }  //if(goodEdgeAlgo)
       chi2yavg_[i] = (1.f - yratio_) * enty0_->chi2yavg[i] + yratio_ * enty1_->chi2yavg[i];
       chi2ymin_[i] = (1.f - yratio_) * enty0_->chi2ymin[i] + yratio_ * enty1_->chi2ymin[i];
       chi2xavg[i] = (1.f - yratio_) * enty0_->chi2xavg[i] + yratio_ * enty1_->chi2xavg[i];
@@ -2180,7 +2188,7 @@ void SiPixelTemplate::ysigma2(int fypix, int lypix, float sythr, float ysum[25],
         ysig2[i] = 1.e8;
       }
       if (ysig2[i] <= 0.f) {
-        LOGERROR("SiPixelTemplate") << "neg y-error-squared, id = " << id_current_ << ", index = " << index_id_
+        LOGDEBUG("SiPixelTemplate") << "neg y-error-squared, id = " << id_current_ << ", index = " << index_id_
                                     << ", cot(alpha) = " << cota_current_ << ", cot(beta) = " << cotb_current_
                                     << ", sigi = " << sigi << ENDL;
       }
@@ -2253,7 +2261,7 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
   }
   ysig2 = qscale * err2;
   if (ysig2 <= 0.f) {
-    LOGERROR("SiPixelTemplate") << "neg y-error-squared, id = " << id_current_ << ", index = " << index_id_
+    LOGDEBUG("SiPixelTemplate") << "neg y-error-squared, id = " << id_current_ << ", index = " << index_id_
                                 << ", cot(alpha) = " << cota_current_ << ", cot(beta) = " << cotb_current_
                                 << ", sigi = " << sigi << ENDL;
   }
@@ -2373,7 +2381,7 @@ void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[BXSI
         xsig2[i] = 1.e8;
       }
       if (xsig2[i] <= 0.f) {
-        LOGERROR("SiPixelTemplate") << "neg x-error-squared, id = " << id_current_ << ", index = " << index_id_
+        LOGDEBUG("SiPixelTemplate") << "neg x-error-squared, id = " << id_current_ << ", index = " << index_id_
                                     << ", cot(alpha) = " << cota_current_ << ", cot(beta) = " << cotb_current_
                                     << ", sigi = " << sigi << ENDL;
       }
@@ -4065,7 +4073,7 @@ void SiPixelTemplate::vavilov_pars(double& mpv, double& sigma, double& kappa)
 
   //Avoid rounding difference between floats and doubles causing issues later
   if (kappavav_ <= 0.01f) {
-    LOGERROR("SiPixelTemplate") << "Vavilov kappa value is " << kappavav_ << " changing it to be above 0.01" << ENDL;
+    LOGDEBUG("SiPixelTemplate") << "Vavilov kappa value is " << kappavav_ << " changing it to be above 0.01" << ENDL;
     kappavav_ = 0.01f + 0.0000001f;
   }
 

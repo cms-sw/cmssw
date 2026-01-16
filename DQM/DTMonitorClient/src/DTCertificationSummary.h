@@ -8,6 +8,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
@@ -22,6 +23,7 @@ public:
   ~DTCertificationSummary() override;
 
   // Operations
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 protected:
 private:

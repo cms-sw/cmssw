@@ -16,6 +16,8 @@
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -28,6 +30,8 @@ namespace edmtest {
     explicit GetTriggerNamesAnalyzer(edm::ParameterSet const&);
 
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     edm::EDGetTokenT<edm::TriggerResults> const trToken_;
@@ -56,6 +60,11 @@ void GetTriggerNamesAnalyzer::analyze(edm::StreamID, edm::Event const& iEvent, e
   if (iEvent.triggerNames(iEvent.get(trToken_)).triggerNames().empty()) {
     throw cms::Exception("TestFailed") << " trigger names is empty";
   }
+}
+
+void GetTriggerNamesAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.addDefault(desc);
 }
 
 DEFINE_FWK_MODULE(edmtest::GetTriggerNamesAnalyzer);

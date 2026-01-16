@@ -74,7 +74,7 @@ namespace dqmoffline {
 
     trigger::TriggerObjectCollection getTriggerObjects(const std::vector<edm::InputTag> &hltFilters,
                                                        const trigger::TriggerEvent &triggerEvent) {
-      trigger::TriggerObjectCollection triggerObjects = triggerEvent.getObjects();
+      const trigger::TriggerObjectCollection &triggerObjects = triggerEvent.getObjects();
       trigger::TriggerObjectCollection results;
 
       for (const auto &filter : hltFilters) {

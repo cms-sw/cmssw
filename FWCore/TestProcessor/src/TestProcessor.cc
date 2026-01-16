@@ -45,6 +45,7 @@
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
+#include "DataFormats/Provenance/interface/processingOrderMerge.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include "oneTimeInitialization.h"
@@ -86,7 +87,7 @@ namespace edm {
 
       //initialize the services
       auto& serviceSets = procDesc->getServicesPSets();
-      ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
+      ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError);
       serviceToken_ = items.addTNS(*psetPtr, token);
 
       //make the services available
@@ -121,6 +122,11 @@ namespace edm {
         processHistory_.emplace_back(p, psetid, xstr(PROJECT_VERSION), HardwareResourcesDescription());
         processHistoryRegistry_.registerProcessHistory(processHistory_);
       }
+      std::vector<std::string> orderedProcesses;
+      processingOrderMerge(processHistoryRegistry_, orderedProcesses);
+      orderedProcesses.insert(orderedProcesses.begin(), processConfiguration_->processName());
+
+      tempReg->setProcessOrder(orderedProcesses);
 
       //setup the products we will be adding to the event
       for (auto const& produce : iConfig.produceEntries()) {
@@ -128,14 +134,11 @@ namespace edm {
         if (processName.empty()) {
           processName = processConfiguration_->processName();
         }
-        edm::TypeWithDict twd(produce.type_.typeInfo());
         edm::ProductDescription product(edm::InEvent,
                                         produce.moduleLabel_,
                                         processName,
-                                        twd.userClassName(),
-                                        twd.friendlyClassName(),
                                         produce.instanceLabel_,
-                                        twd,
+                                        produce.type_,
                                         true  //force this to come from 'source'
         );
         product.init();
@@ -426,13 +429,14 @@ namespace edm {
                                    preallocations_.numberOfLuminosityBlocks(),
                                    preallocations_.numberOfRuns(),
                                    preallocations_.numberOfThreads());
-      actReg_->preallocateSignal_(bounds);
+      actReg_->preallocateSignal_.emit(bounds);
       schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
 
       espController_->finishConfiguration();
-      actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
+      actReg_->eventSetupConfigurationSignal_.emit(esp_->recordsToResolverIndices(), processContext_);
 
-      schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, processContext_);
+      schedule_->beginJob(
+          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, processContext_.processName());
 
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
         schedule_->beginStream(i);
@@ -445,7 +449,7 @@ namespace edm {
       processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName());
 
       ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-      using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
+      using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin>;
       processGlobalTransition<Traits>(transitionInfo);
 
       beginProcessBlockCalled_ = true;
@@ -504,13 +508,13 @@ namespace edm {
 
       auto const& es = esp_->eventSetupImpl();
 
-      RunTransitionInfo transitionInfo(*runPrincipal_, es, nullptr);
+      RunTransitionInfo transitionInfo(*runPrincipal_, es);
       {
-        using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
+        using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>;
         processGlobalTransition<Traits>(transitionInfo);
       }
       {
-        using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
+        using Traits = OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>;
         processTransitionForAllStreams<Traits>(transitionInfo);
       }
       beginRunCalled_ = true;
@@ -532,14 +536,14 @@ namespace edm {
 
       auto const& es = esp_->eventSetupImpl();
 
-      LumiTransitionInfo transitionInfo(*lumiPrincipal_, es, nullptr);
+      LumiTransitionInfo transitionInfo(*lumiPrincipal_, es);
 
       {
-        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
+        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
         processGlobalTransition<Traits>(transitionInfo);
       }
       {
-        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
+        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
         processTransitionForAllStreams<Traits>(transitionInfo);
       }
       beginLumiCalled_ = true;
@@ -592,14 +596,14 @@ namespace edm {
 
         auto const& es = esp_->eventSetupImpl();
 
-        LumiTransitionInfo transitionInfo(*lumiPrincipal, es, nullptr);
+        LumiTransitionInfo transitionInfo(*lumiPrincipal, es);
 
         {
-          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
+          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>;
           processTransitionForAllStreams<Traits>(transitionInfo);
         }
         {
-          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
+          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
           processGlobalTransition<Traits>(transitionInfo);
         }
         {
@@ -632,11 +636,11 @@ namespace edm {
         RunTransitionInfo transitionInfo(*runPrincipal, es);
 
         {
-          using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
+          using Traits = OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd>;
           processTransitionForAllStreams<Traits>(transitionInfo);
         }
         {
-          using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
+          using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>;
           processGlobalTransition<Traits>(transitionInfo);
         }
         {
@@ -658,7 +662,7 @@ namespace edm {
         beginProcessBlockCalled_ = false;
 
         ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-        using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
+        using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd>;
         processGlobalTransition<Traits>(transitionInfo);
       }
       return &processBlockPrincipal;
@@ -683,9 +687,9 @@ namespace edm {
         schedule_->endStream(i, c, collectorMutex);
       }
       auto actReg = actReg_.get();
-      c.call([actReg]() { actReg->preEndJobSignal_(); });
+      c.call([actReg]() { actReg->preEndJobSignal_.emit(); });
       schedule_->endJob(c);
-      c.call([actReg]() { actReg->postEndJobSignal_(); });
+      c.call([actReg]() { actReg->postEndJobSignal_.emit(); });
       if (c.hasThrown()) {
         c.rethrow();
       }

@@ -78,15 +78,14 @@ AlignmentTrackFromVertexSelector::Tracks AlignmentTrackFromVertexSelector::selec
   // get collection of reconstructed vertices from event
   edm::Handle<reco::VertexCollection> vertexHandle = evt.getHandle(vertexToken_);
 
-  // get collection of the di-lepton traxks
-  const auto& leptonTracks = evt.get(diLeptonToken_);
-
   // fill the vector of keys
   if (vertexHandle.isValid()) {
     const reco::VertexCollection* vertices = vertexHandle.product();
     const reco::Vertex* theVtx = nullptr;
 
     if (useClosestVertex_) {
+      // get collection of the di-lepton traxks
+      const auto& leptonTracks = evt.get(diLeptonToken_);
       theVtx = findClosestVertex(leptonTracks, vertices, setup);
     } else {
       if ((*vertices).at(vertexIndex_).isValid()) {

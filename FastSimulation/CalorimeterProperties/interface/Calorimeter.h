@@ -26,14 +26,10 @@ namespace edm {
 class Calorimeter {
 public:
   Calorimeter();
-  Calorimeter(const edm::ParameterSet& caloParameters);
+  Calorimeter(const edm::ParameterSet& caloParameters, const CaloGeometry& pG, const CaloTopology& theTopology);
+  Calorimeter(const Calorimeter&) = delete;
+  Calorimeter& operator=(const Calorimeter&) = delete;
   ~Calorimeter();
-
-  // Setup the geometry
-  void setupGeometry(const CaloGeometry& pG);
-
-  // Setup the topology
-  void setupTopology(const CaloTopology&);
 
   /// ECAL properties
   const ECALProperties* ecalProperties(int onEcal) const;
@@ -60,14 +56,17 @@ public:
   const CaloSubdetectorTopology* getEcalTopology(int subdetn) const;
 
 protected:
+  void setupProperties(const edm::ParameterSet& fastDet, const edm::ParameterSet& fastDetHF);
+  void setupGeomTopo(const CaloGeometry& pG, const CaloTopology& theTopology);
+
   //Calorimeter properties
-  PreshowerLayer1Properties* myPreshowerLayer1Properties_;
-  PreshowerLayer2Properties* myPreshowerLayer2Properties_;
-  ECALBarrelProperties* myECALBarrelProperties_;
-  ECALEndcapProperties* myECALEndcapProperties_;
-  HCALBarrelProperties* myHCALBarrelProperties_;
-  HCALEndcapProperties* myHCALEndcapProperties_;
-  HCALForwardProperties* myHCALForwardProperties_;
+  std::unique_ptr<PreshowerLayer1Properties> myPreshowerLayer1Properties_;
+  std::unique_ptr<PreshowerLayer2Properties> myPreshowerLayer2Properties_;
+  std::unique_ptr<ECALBarrelProperties> myECALBarrelProperties_;
+  std::unique_ptr<ECALEndcapProperties> myECALEndcapProperties_;
+  std::unique_ptr<HCALBarrelProperties> myHCALBarrelProperties_;
+  std::unique_ptr<HCALEndcapProperties> myHCALEndcapProperties_;
+  std::unique_ptr<HCALForwardProperties> myHCALForwardProperties_;
 
   // The subdetectors geometry
   const EcalBarrelGeometry* EcalBarrelGeometry_;

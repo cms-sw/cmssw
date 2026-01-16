@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
-_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+import Geometry.MTDCommonData.defaultMTDConditionsEra_cff as _mtdgeo
+_mtdgeo.check_mtdgeo()
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_mtdgeo.MTD_DEFAULT_VERSION)
 
 process = cms.Process("CompareGeometryTest", _PH2_ERA)
 
@@ -16,19 +18,19 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDIdealGeometry = cms.untracked.PSet(
-    # limit = cms.untracked.int32(-1)
+    #limit = cms.untracked.int32(-1)
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDNumbering = cms.untracked.PSet(
-    # limit = cms.untracked.int32(-1)
+    #limit = cms.untracked.int32(-1)
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDPath = cms.untracked.PSet(
-    # limit = cms.untracked.int32(-1)
+    #limit = cms.untracked.int32(-1)
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDPosition = cms.untracked.PSet(
-    # limit = cms.untracked.int32(-1)
+    #limit = cms.untracked.int32(-1)
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.files.mtdCommonDataDDD = cms.untracked.PSet(
@@ -54,7 +56,7 @@ process.MessageLogger.files.mtdCommonDataDDD = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Configuration.Geometry.GeometryExtendedRun4Default_cff')
+process.load('Geometry.MTDCommonData.GeometryExtendedRun4MTDDefault_cff')
 
 process.testBTL = cms.EDAnalyzer("TestMTDIdealGeometry",
                                ddTopNodeName = cms.untracked.string('BarrelTimingLayer')

@@ -31,10 +31,10 @@ void ClusterTools::getEvent(const edm::Event& ev) {
   fhrh_ = &ev.get(fhtok);
   bhrh_ = &ev.get(bhtok);
   hitMap_ = &ev.get(hitMapToken_);
-  rechitManager_ = std::make_unique<MultiVectorManager<HGCRecHit>>();
-  rechitManager_->addVector(*eerh_);
-  rechitManager_->addVector(*fhrh_);
-  rechitManager_->addVector(*bhrh_);
+  rechitSpan_ = std::make_unique<edm::MultiSpan<HGCRecHit>>();
+  rechitSpan_->add(*eerh_);
+  rechitSpan_->add(*fhrh_);
+  rechitSpan_->add(*bhrh_);
 }
 
 void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeometry(es.getData(caloGeometryToken_)); }
@@ -42,7 +42,7 @@ void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeomet
 float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) const {
   float energy = 0.f, energyHad = 0.f;
   const auto& hits = clus.hitsAndFractions();
-  const auto& rhmanager = *rechitManager_;
+  const auto& rhspan = *rechitSpan_;
   for (const auto& hit : hits) {
     const auto& id = hit.first;
     const float fraction = hit.second;
@@ -51,7 +51,7 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
       continue;
     }
     unsigned int rechitIndex = hitIter->second;
-    float hitEnergy = rhmanager[rechitIndex].energy() * fraction;
+    float hitEnergy = rhspan[rechitIndex].energy() * fraction;
     energy += hitEnergy;
     if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc ||
         (id.det() == DetId::Forward && id.subdetId() == HGCHEF) ||
@@ -122,7 +122,7 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
 
   double sumw = 0.;
   double sumlogw = 0.;
-  const auto& rhmanager = *rechitManager_;
+  const auto& rhspan = *rechitSpan_;
 
   for (unsigned int ih = 0; ih < nhit; ++ih) {
     const DetId& id = (clus.hitsAndFractions())[ih].first;
@@ -135,7 +135,7 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
         continue;
       }
       unsigned int rechitIndex = hitIter->second;
-      float hitEnergy = rhmanager[rechitIndex].energy();
+      float hitEnergy = rhspan[rechitIndex].energy();
 
       GlobalPoint cellPos = rhtools_.getPosition(id);
       double weight = hitEnergy;

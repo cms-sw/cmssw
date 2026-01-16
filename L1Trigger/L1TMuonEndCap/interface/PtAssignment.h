@@ -23,7 +23,7 @@ public:
                  bool bugGMTPhi,
                  bool promoteMode7,
                  int modeQualVer,
-                 std::string pbFileName);
+                 std::vector<int> promoteMode7Sectors);
 
   void process(EMTFTrackCollection& best_tracks);
 
@@ -38,6 +38,7 @@ private:
 
   bool bugGMTPhi_, promoteMode7_;
   int modeQualVer_;
+  std::vector<int> promoteMode7Sectors_;
 };
 
 #endif

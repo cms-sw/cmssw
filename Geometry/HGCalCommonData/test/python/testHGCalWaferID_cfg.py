@@ -6,7 +6,7 @@
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -40,8 +40,10 @@ elif (options.type == "V17Shift"):
     geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
 elif (options.type == "V16"):
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D98_cff"
+elif (options.type == "V19"):
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D120_cff"
 else:
-    geomFile = "Configuration.Geometry.GeometryExtendedRun4D110_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D121_cff"
 
 print("Geometry file: ", geomFile)
 

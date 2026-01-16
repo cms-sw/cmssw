@@ -58,21 +58,19 @@ namespace edm {
     ProductResolverBase& operator=(ProductResolverBase const&) = delete;  // Disallow copying and moving
 
     Resolution resolveProduct(Principal const& principal,
-                              bool skipCurrentProcess,
                               SharedResourcesAcquirer* sra,
                               ModuleCallingContext const* mcc) const {
-      return resolveProduct_(principal, skipCurrentProcess, sra, mcc);
+      return resolveProduct_(principal, sra, mcc);
     }
 
     /** oDataFetchedIsValid is allowed to be nullptr in which case no value will be assigned
      */
     void prefetchAsync(WaitingTaskHolder waitTask,
                        Principal const& principal,
-                       bool skipCurrentProcess,
                        ServiceToken const& token,
                        SharedResourcesAcquirer* sra,
                        ModuleCallingContext const* mcc) const noexcept {
-      return prefetchAsync_(waitTask, principal, skipCurrentProcess, token, sra, mcc);
+      return prefetchAsync_(waitTask, principal, token, sra, mcc);
     }
 
     void retrieveAndMerge(Principal const& principal,
@@ -99,9 +97,7 @@ namespace edm {
     // Product was deleted early in order to save memory
     bool productWasDeleted() const { return productWasDeleted_(); }
 
-    bool productWasFetchedAndIsValid(bool iSkipCurrentProcess) const {
-      return productWasFetchedAndIsValid_(iSkipCurrentProcess);
-    }
+    bool productWasFetchedAndIsValid() const { return productWasFetchedAndIsValid_(); }
 
     // Retrieves pointer to the per event(lumi)(run) provenance.
     ProductProvenance const* productProvenancePtr() const { return productProvenancePtr_(); }
@@ -164,12 +160,10 @@ namespace edm {
 
   private:
     virtual Resolution resolveProduct_(Principal const& principal,
-                                       bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const = 0;
     virtual void prefetchAsync_(WaitingTaskHolder waitTask,
                                 Principal const& principal,
-                                bool skipCurrentProcess,
                                 ServiceToken const& token,
                                 SharedResourcesAcquirer* sra,
                                 ModuleCallingContext const* mcc) const noexcept = 0;
@@ -181,7 +175,7 @@ namespace edm {
     virtual bool productUnavailable_() const = 0;
     virtual bool productResolved_() const = 0;
     virtual bool productWasDeleted_() const = 0;
-    virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const = 0;
+    virtual bool productWasFetchedAndIsValid_() const = 0;
 
     virtual ProductDescription const& productDescription_() const = 0;
     virtual void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) = 0;

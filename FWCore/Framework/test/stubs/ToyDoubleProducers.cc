@@ -37,6 +37,12 @@ namespace edmtest {
     explicit ToyDoubleProducer(double d) : value_(d) { produces<DoubleProduct>(); }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<double>("dvalue");
+      descriptions.addDefault(desc);
+    }
+
   private:
     double value_;
   };

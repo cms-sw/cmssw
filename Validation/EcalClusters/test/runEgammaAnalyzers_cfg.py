@@ -8,8 +8,8 @@ process.load("Configuration.StandardSequences.EndOfProcess_cff")
 
 process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-process.load("Validation.EcalClusters.egammaBCAnalyzer_cfi")
-process.load("Validation.EcalClusters.egammaSCAnalyzer_cfi")
+process.load("Validation.EcalClusters.egammaBasicClusterAnalyzer_cff")
+process.load("Validation.EcalClusters.egammaSuperClusterAnalyzer_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( 'file:testfile.root' )

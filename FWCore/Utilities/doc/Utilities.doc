@@ -17,7 +17,6 @@ Low level utilities used by the FWCore packages
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 CodedException
-DebugMacros
 EDMException
 Exception
 md5

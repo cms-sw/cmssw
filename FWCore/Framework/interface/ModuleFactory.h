@@ -1,17 +1,33 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ModuleFactory_h
 #define FWCore_Framework_ModuleFactory_h
-// -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     ModuleFactory
 //
-/**\class ModuleFactory ModuleFactory.h FWCore/Framework/interface/ModuleFactory.h
+/*
+ Description:
+    A ModuleFactory is a ComponentFactory used to construct
+    modules that are ESProducers used by the EventSetup
+    system.
 
- Description: Factory which is dynamically loadable and used to create an eventstore module
+    The addTo function will both construct a module and
+    then pass a shared pointer to it to the EventSetupProvider.
+    The ModuleFactory uses a Maker to accomplish this.
+    There is one Maker associated with each type of
+    ESProducer. The ComponentFactory stores the Makers.
+    When the ComponentFactory needs a Maker it does not
+    already have, it uses the plugin system to create it.
 
  Usage:
-    Used by the EDM plugin-manager
-
+    addTo is called during EventProcessor construction
+    for each configured ESProducer. The call stack looks
+    similar to this:
+        ...
+        EventSetupsController::makeProvider
+        fillEventSetupProvider (a free function)
+        ComponentFactory::addTo
+        ComponentMaker::addTo
+        ModuleMakerTraits::addTo
 */
 //
 // Author:      Chris Jones
@@ -28,27 +44,17 @@
 
 // forward declarations
 namespace edm {
-  class ParameterSet;
 
   namespace eventsetup {
     class ESProductResolverProvider;
-    class EventSetupsController;
+    class EventSetupProvider;
 
     struct ModuleMakerTraits {
       typedef ESProductResolverProvider base_type;
 
       static std::string name();
       static std::string const& baseType();
-      static void addTo(EventSetupProvider& iProvider,
-                        std::shared_ptr<ESProductResolverProvider> iComponent,
-                        ParameterSet const&,
-                        bool);
-      static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<ESProductResolverProvider> iComponent);
-      static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
-                                                                       ParameterSet const& iConfiguration);
-      static void putComponent(EventSetupsController& esController,
-                               ParameterSet& iConfiguration,
-                               std::shared_ptr<base_type> const& component);
+      static void addTo(EventSetupProvider& iProvider, std::shared_ptr<ESProductResolverProvider> iComponent);
     };
     template <class TType>
     struct ModuleMaker : public ComponentMaker<edm::eventsetup::ModuleMakerTraits, TType> {};

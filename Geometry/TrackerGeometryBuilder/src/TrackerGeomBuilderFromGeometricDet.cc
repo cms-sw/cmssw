@@ -71,7 +71,7 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const GeometricDet* g
 
   std::vector<GeometricDet::GDEnumType> gdsubdetmap(
       6, GeometricDet::unknown);  // hardcoded "6" should not be a surprise...
-  GeometricDet::ConstGeometricDetContainer subdetgd = gd->components();
+  const GeometricDet::ConstGeometricDetContainer& subdetgd = gd->components();
 
   LogDebug("SubDetectorGeometricDetType") << "GeometriDet enumerator values of the subdetectors";
   for (unsigned int i = 0; i < subdetgd.size(); ++i) {

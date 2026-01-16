@@ -11,7 +11,7 @@ Exactly how to _dispose_ of the class can be customized via the virtual function
 ## `edm::WaitingTask`
 This class inherits from `edm::TaskBase` and represents a set of code to be run once other activities have completed. This includes the ability to hold a `std::exception_ptr` which can hold an exception which was generated in a dependent task.
 
-A raw pointer to a  `edm::WaitingTask` is not supposed to be handled directly. Instead, one should use the helpers `edm::WaitingTaskHolder`, `edm::WaitingTaskWithArenaHolder` or `edm::WaitingTaskList` to properly manage the internal reference count such that when the count drops to 0 the `execute()` method will be run followed by `recycle()`. In addition, these helper classes will handled passing along any `edm::exception_ptr` generated from a dependent task.
+A raw pointer to a  `edm::WaitingTask` is not supposed to be handled directly. Instead, one should use the helpers `edm::WaitingTaskHolder`, `edm::WaitingTaskWithArenaHolder` or `edm::WaitingTaskList` to properly manage the internal reference count such that when the count drops to 0 the `execute()` method will be run followed by `recycle()`. In addition, these helper classes will handle passing along any `edm::exception_ptr` generated from a dependent task.
 
 The easiest way to create an `edm::WaitingTask` is to call `edm::make_waiting_task` and pass in a lambda of the form `void(std::exception_ptr const*)`.
 ```C++
@@ -34,7 +34,7 @@ In the case where one is doing a synchronous wait on a series of asynchronous ta
 
 Note that the function `wait` will rethrow any exception stored in `finalTask`. There is an alternative function named `waitNoThrow` which will return the `std::exception_ptr`.
 
-WARNING: It important that the finalTask not execute before completion of the construction of all `WaitingTaskHolders` that will be constructed directly from finalTask. The following would be a bug:
+WARNING: It is important that the finalTask not be executed before completion of the construction of all `WaitingTaskHolders` that will be constructed directly from finalTask. The following would be a bug:
 
 ```C++
    oneapi::tbb::task_group group;

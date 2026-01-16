@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include <utility>
 #include <algorithm>
 #include <iterator>

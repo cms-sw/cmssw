@@ -21,6 +21,7 @@ private:
   const bool useProtoTrackKinematics;
   const bool useEventsWithNoVertex;
   const bool usePV_;
+  const bool removeOTRechits_;
   const bool includeFourthHit_;
   const bool produceComplement_;
   const edm::EDGetTokenT<reco::TrackCollection> theInputCollectionTag;

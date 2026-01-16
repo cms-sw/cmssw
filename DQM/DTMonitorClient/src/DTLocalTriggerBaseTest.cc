@@ -279,7 +279,7 @@ pair<float, float> DTLocalTriggerBaseTest::phiRange(const DTChamberId& id) {
     } else
       return make_pair(min, max);
 
-    DTTopology topo2 = layer2->specificTopology();
+    const DTTopology& topo2 = layer2->specificTopology();
 
     if (lposx > 0) {
       max = lposx * .5 + topo2.wirePosition(topo2.lastChannel());

@@ -10,6 +10,7 @@
   <Constant name="FixShldR7"             value="2.1000*m"/>
   <Constant name="FixShldR8"             value="2.1500*m"/>
   <Constant name="WaferSize"             value="167.4408*mm"/>
+  <Constant name="WaferSizeNominal"      value="167.4408*mm"/>
   <Constant name="WaferThickness"        value="0.30*mm"/>
   <Constant name="WaferThicknessFine"    value="0.30*mm"/>
   <Constant name="SensorSeparation"      value="1.00*mm"/>
@@ -53,6 +54,7 @@
   <Constant name="ChoiceType"            value="0"/>
   <Constant name="NCornerCut"            value="2"/>
   <Constant name="FracAreaMin"           value="0.2"/>
+  <Constant name="LayerRotation"         value="-30*deg"/>
 </ConstantsSection>
 
 <SolidSection label="hfnose.xml">

@@ -5,7 +5,7 @@ from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTOtLocalRecoSequence_cfi import *
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTDoLocalHcalSequence_cfi import *
 from ..sequences.HLTDoFullUnpackingEgammaEcalSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
@@ -13,6 +13,7 @@ from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTPfClusteringHBHEHFSequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPhase2L3MuonGeneralTracksSequence_cfi import *
+from ..sequences.HLTPfRecHitUnseededSequence_cfi import *
 from ..modules.hltSingleTkMuon22L1TkMuonFilter_cfi import *
 from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
 from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
@@ -36,9 +37,10 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
     + hltPhase2PixelTrackFilterByKinematics
     + HLTMuonsSequence
     + hltL3fL1TkSingleMu22L3Filtered24Q
-    + HLTHgcalLocalRecoSequence
-    + HLTDoLocalHcalSequence
     + HLTDoFullUnpackingEgammaEcalSequence
+    + HLTDoLocalHcalSequence
+    + HLTPfRecHitUnseededSequence
+    + HLTTICLLocalRecoSequence
     + HLTFastJetForEgammaSequence
     + HLTPfClusteringHBHEHFSequence
     + HLTPFClusteringForEgammaUnseededSequence

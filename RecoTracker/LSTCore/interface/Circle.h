@@ -7,7 +7,7 @@
 
 namespace lst {
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE std::tuple<float, float, float> computeRadiusFromThreeAnchorHits(
       TAcc const& acc, float x1, float y1, float x2, float y2, float x3, float y3) {
     float radius = 0.f;

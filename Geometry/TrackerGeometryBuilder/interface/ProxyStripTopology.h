@@ -93,13 +93,13 @@ public:
   float localStripLength(const LocalPoint& lp) const override { return specificTopology().localStripLength(lp); }
   float localStripLength(const LocalPoint& lp, const Topology::LocalTrackAngles& dir) const override;
 
-  virtual const GeomDetType& type() const { return *theType; }
-  virtual StripGeomDetType const& specificType() const { return *theType; }
+  const GeomDetType& type() const { return *theType; }
+  StripGeomDetType const& specificType() const { return *theType; }
 
   const SurfaceDeformation* surfaceDeformation() const { return theSurfaceDeformation.operator->(); }
-  virtual void setSurfaceDeformation(const SurfaceDeformation* deformation);
+  void setSurfaceDeformation(const SurfaceDeformation* deformation);
 
-  virtual const StripTopology& specificTopology() const { return specificType().specificTopology(); }
+  const StripTopology& specificTopology() const { return specificType().specificTopology(); }
 
 private:
   /// Internal method to get correction of the position from SurfaceDeformation,

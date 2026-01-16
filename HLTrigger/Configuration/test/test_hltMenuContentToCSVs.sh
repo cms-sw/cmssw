@@ -19,6 +19,6 @@ fi
 # run test job
 exeDir="${SCRAM_TEST_PATH}"/../scripts/utils
 
-"${exeDir}"/hltMenuContentToCSVs /dev/CMSSW_13_0_0/GRun \
+"${exeDir}"/hltMenuContentToCSVs /dev/CMSSW_15_0_0/GRun \
   --meta "${exeDir}"/hltPathOwners.json &> test_hltMenuContentToCSVs_log \
   || die "Failure running hltMenuContentToCSVs" $? test_hltMenuContentToCSVs_log

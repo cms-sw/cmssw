@@ -181,7 +181,9 @@ int main(int argc, char* argv[]) {
   t->SetBranchAddress("sim_nValid", &sim_nValid);
 
   std::vector<vector<int>>* sim_trkIdx = 0;
+  std::vector<vector<int>>* sim_simHitIdx = 0;
   t->SetBranchAddress("sim_trkIdx", &sim_trkIdx);
+  t->SetBranchAddress("sim_simHitIdx", &sim_simHitIdx);
 
   //simvtx
   std::vector<float>* simvtx_x = 0;
@@ -491,6 +493,7 @@ int main(int argc, char* argv[]) {
   vector<float>* ph2_yz = 0;
   vector<float>* ph2_zz = 0;
   vector<float>* ph2_zx = 0;
+  vector<size_t>* ph2_clustSize = 0;
   vector<uint64_t>* ph2_usedMask = 0;
   vector<vector<int>>* ph2_simHitIdx = 0;
   if (hasPh2hits && applyCCC)
@@ -510,6 +513,9 @@ int main(int argc, char* argv[]) {
     t->SetBranchAddress("ph2_yz", &ph2_yz);
     t->SetBranchAddress("ph2_zz", &ph2_zz);
     t->SetBranchAddress("ph2_zx", &ph2_zx);
+    if (t->GetBranch("ph2_clustSize")) {
+      t->SetBranchAddress("ph2_clustSize", &ph2_clustSize);
+    }
     if (writeHitIterMasks) {
       t->SetBranchAddress("ph2_usedMask", &ph2_usedMask);
     }
@@ -666,6 +672,12 @@ int main(int argc, char* argv[]) {
     vector<Track>& simTracks_ = EE.simTracks_;
     vector<int> simTrackIdx_(sim_q->size(), -1);  //keep track of original index in ntuple
     vector<int> seedSimIdx(see_q->size(), -1);
+    vector<vector<pair<int, int>>> pixHitSimIdx(pix_lay->size());
+    vector<vector<pair<int, int>>> strHitSimIdx(hasPh2hits ? 0 : str_lay->size());
+    vector<vector<pair<int, int>>> gluHitSimIdx(hasPh2hits ? 0 : glu_lay->size());
+    vector<vector<pair<int, int>>> ph2HitSimIdx(hasPh2hits ? ph2_layer->size() : 0);
+    vector<vector<pair<int, int>>> simHitLayIdx;
+    simHitLayIdx.reserve(sim_q->size());
     for (unsigned int isim = 0; isim < sim_q->size(); ++isim) {
       //load sim production vertex data
       auto iVtx = sim_parentVtxIdx->at(isim);
@@ -740,11 +752,13 @@ int main(int argc, char* argv[]) {
             default:
               throw std::logic_error("Track type can not be handled");
           }  //hit type
-        }    //hits on track
+        }  //hits on track
+
+        //count nlay layers on matching reco track
         for (unsigned int i = 0; i < nTotalLayers; i++)
           if (hitlay[i] > 0)
             nlay++;
-      }  //count nlay layers on matching reco track
+      }  // trkIdx >= 0
 
       //cout << Form("track q=%2i p=(%6.3f, %6.3f, %6.3f) x=(%6.3f, %6.3f, %6.3f) nlay=%i",sim_q->at(isim),sim_px->at(isim),sim_py->at(isim),sim_pz->at(isim),sim_prodx,sim_prody,sim_prodz,nlay) << endl;
 
@@ -772,7 +786,6 @@ int main(int argc, char* argv[]) {
       }
       if (trkIdx >= 0) {
         int seedIdx = trk_seedIdx->at(trkIdx);
-        // Unused: auto const& shTypes = see_hitType->at(seedIdx);
         seedSimIdx[seedIdx] = simTracks_.size();
       }
       if (cleanSimTracks) {
@@ -781,8 +794,8 @@ int main(int argc, char* argv[]) {
         if (cleanSimTrack_minRecHits > 0) {
           int nRecToSimHit = 0;
           for (unsigned int ipix = 0; ipix < pix_lay->size() && nRecToSimHit < cleanSimTrack_minRecHits; ++ipix) {
-            int ilay = -1;
-            ilay = lnc.convertLayerNumber(pix_det->at(ipix), pix_lay->at(ipix), useMatched, -1, pix_z->at(ipix) > 0);
+            int ilay =
+                lnc.convertLayerNumber(pix_det->at(ipix), pix_lay->at(ipix), useMatched, -1, pix_z->at(ipix) > 0);
             if (ilay < 0)
               continue;
             int simTkIdxNt = bestTkIdx(pix_simHitIdx->at(ipix), pix_chargeFraction->at(ipix), ipix, HitType::Pixel);
@@ -791,8 +804,7 @@ int main(int argc, char* argv[]) {
           }
           if (hasPh2hits) {
             for (unsigned int istr = 0; istr < ph2_layer->size() && nRecToSimHit < cleanSimTrack_minRecHits; ++istr) {
-              int ilay = -1;
-              ilay = lnc.convertLayerNumber(
+              int ilay = lnc.convertLayerNumber(
                   ph2_subdet->at(istr), ph2_layer->at(istr), useMatched, ph2_isLower->at(istr), ph2_z->at(istr) > 0);
               if (useMatched && !ph2_isLower->at(istr))
                 continue;
@@ -815,8 +827,7 @@ int main(int argc, char* argv[]) {
               }
             }
             for (unsigned int istr = 0; istr < str_lay->size() && nRecToSimHit < cleanSimTrack_minRecHits; ++istr) {
-              int ilay = -1;
-              ilay = lnc.convertLayerNumber(
+              int ilay = lnc.convertLayerNumber(
                   str_det->at(istr), str_lay->at(istr), useMatched, str_isStereo->at(istr), str_z->at(istr) > 0);
               if (useMatched && str_isBarrel->at(istr) == 1 && str_isStereo->at(istr))
                 continue;
@@ -830,20 +841,70 @@ int main(int argc, char* argv[]) {
           if (nRecToSimHit < cleanSimTrack_minRecHits)
             continue;
         }  //count rec-to-sim hits
-      }    //cleanSimTracks
+      }  //cleanSimTracks
 
+      auto const& shIdxAll = sim_simHitIdx->at(isim);
+      vector<int> rhTypes;
+      rhTypes.reserve(shIdxAll.size() * 1.2);
+      vector<int> rhIdxs;
+      rhIdxs.reserve(shIdxAll.size() * 1.2);
+      for (auto ish : shIdxAll) {
+        for (unsigned int irh = 0; irh < simhit_hitIdx->at(ish).size(); irh++) {
+          rhTypes.push_back(simhit_hitType->at(ish)[irh]);
+          rhIdxs.push_back(simhit_hitIdx->at(ish)[irh]);
+        }
+      }
+      int irh = 0;
+      for (unsigned int ip = 0; ip < rhTypes.size(); ip++) {
+        unsigned int hidx = rhIdxs[ip];
+        pair<int, int> itrh(simTracks_.size(), ip);
+        switch (HitType(rhTypes[ip])) {
+          case HitType::Pixel: {
+            pixHitSimIdx[hidx].push_back(itrh);
+            break;
+          }
+          case HitType::Strip: {
+            strHitSimIdx[hidx].push_back(itrh);
+            break;
+          }
+          case HitType::Glued: {
+            if (not useMatched) {
+              //decompose
+              int uidx = glu_monoIdx->at(hidx);
+              strHitSimIdx[uidx].push_back(itrh);
+              uidx = glu_stereoIdx->at(hidx);
+              strHitSimIdx[uidx].push_back(itrh);
+            } else {
+              gluHitSimIdx[hidx].push_back(itrh);
+            }
+            break;
+          }
+          case HitType::Phase2OT: {
+            ph2HitSimIdx[hidx].push_back(itrh);
+            break;
+          }
+          case HitType::Invalid:
+            break;  //FIXME. Skip, really?
+          default:
+            throw std::logic_error("Track hit type can not be handled");
+        }  //switch( HitType
+        irh++;
+      }  // ip : rhTypes
       simTrackIdx_[isim] = simTracks_.size();
       simTracks_.push_back(track);
+      simHitLayIdx.emplace_back(rhTypes.size(), pair(-11, -1));
     }
 
     if (simTracks_.empty() and not writeAllEvents)
       continue;
 
     vector<Track>& seedTracks_ = EE.seedTracks_;
-    vector<vector<int>> pixHitSeedIdx(pix_lay->size());
-    vector<vector<int>> strHitSeedIdx(hasPh2hits ? 0 : str_lay->size());
-    vector<vector<int>> gluHitSeedIdx(hasPh2hits ? 0 : glu_lay->size());
-    vector<vector<int>> ph2HitSeedIdx(hasPh2hits ? ph2_layer->size() : 0);
+    vector<vector<pair<int, int>>> pixHitSeedIdx(pix_lay->size());
+    vector<vector<pair<int, int>>> strHitSeedIdx(hasPh2hits ? 0 : str_lay->size());
+    vector<vector<pair<int, int>>> gluHitSeedIdx(hasPh2hits ? 0 : glu_lay->size());
+    vector<vector<pair<int, int>>> ph2HitSeedIdx(hasPh2hits ? ph2_layer->size() : 0);
+    vector<vector<pair<int, int>>> seedHitLayIdx;
+    seedHitLayIdx.reserve(see_q->size());
     for (unsigned int is = 0; is < see_q->size(); ++is) {
       auto isAlgo = TrackAlgorithm(see_algo->at(is));
       if (not allSeeds)
@@ -890,37 +951,38 @@ int main(int argc, char* argv[]) {
         state.convertFromGlbCurvilinearToCCS();
       Track track(state, 0, seedSimIdx[is], 0, nullptr);
       track.setAlgorithm(isAlgo);
-      auto const& shTypes = see_hitType->at(is);
-      auto const& shIdxs = see_hitIdx->at(is);
+      auto const& hTypes = see_hitType->at(is);
+      auto const& hIdxs = see_hitIdx->at(is);
       if (not allSeeds)
         if (!((isAlgo == TrackAlgorithm::initialStep || isAlgo == TrackAlgorithm::hltIter0) &&
-              std::count(shTypes.begin(), shTypes.end(), int(HitType::Pixel)) >= 3))
+              std::count(hTypes.begin(), hTypes.end(), int(HitType::Pixel)) >= 3))
           continue;  //check algo and nhits
-      for (unsigned int ip = 0; ip < shTypes.size(); ip++) {
-        unsigned int hidx = shIdxs[ip];
-        switch (HitType(shTypes[ip])) {
+      for (unsigned int ip = 0; ip < hTypes.size(); ip++) {
+        unsigned int hidx = hIdxs[ip];
+        pair<int, int> itrh(seedTracks_.size(), ip);
+        switch (HitType(hTypes[ip])) {
           case HitType::Pixel: {
-            pixHitSeedIdx[hidx].push_back(seedTracks_.size());
+            pixHitSeedIdx[hidx].push_back(itrh);
             break;
           }
           case HitType::Strip: {
-            strHitSeedIdx[hidx].push_back(seedTracks_.size());
+            strHitSeedIdx[hidx].push_back(itrh);
             break;
           }
           case HitType::Glued: {
             if (not useMatched) {
               //decompose
               int uidx = glu_monoIdx->at(hidx);
-              strHitSeedIdx[uidx].push_back(seedTracks_.size());
+              strHitSeedIdx[uidx].push_back(itrh);
               uidx = glu_stereoIdx->at(hidx);
-              strHitSeedIdx[uidx].push_back(seedTracks_.size());
+              strHitSeedIdx[uidx].push_back(itrh);
             } else {
-              gluHitSeedIdx[hidx].push_back(seedTracks_.size());
+              gluHitSeedIdx[hidx].push_back(itrh);
             }
             break;
           }
           case HitType::Phase2OT: {
-            ph2HitSeedIdx[hidx].push_back(seedTracks_.size());
+            ph2HitSeedIdx[hidx].push_back(itrh);
             break;
           }
           case HitType::Invalid:
@@ -930,16 +992,19 @@ int main(int argc, char* argv[]) {
         }  //switch( HitType
       }
       seedTracks_.push_back(track);
+      seedHitLayIdx.emplace_back(hTypes.size(), pair(-11, -1));
     }
 
     if (seedTracks_.empty() and not writeAllEvents)
       continue;
 
     vector<Track>& cmsswTracks_ = EE.cmsswTracks_;
-    vector<vector<int>> pixHitRecIdx(pix_lay->size());
-    vector<vector<int>> strHitRecIdx(hasPh2hits ? 0 : str_lay->size());
-    vector<vector<int>> gluHitRecIdx(hasPh2hits ? 0 : glu_lay->size());
-    vector<vector<int>> ph2HitRecIdx(hasPh2hits ? ph2_layer->size() : 0);
+    vector<vector<pair<int, int>>> pixHitRecIdx(pix_lay->size());
+    vector<vector<pair<int, int>>> strHitRecIdx(hasPh2hits ? 0 : str_lay->size());
+    vector<vector<pair<int, int>>> gluHitRecIdx(hasPh2hits ? 0 : glu_lay->size());
+    vector<vector<pair<int, int>>> ph2HitRecIdx(hasPh2hits ? ph2_layer->size() : 0);
+    vector<vector<pair<int, int>>> recHitLayIdx;
+    recHitLayIdx.reserve(trk_q->size());
     for (unsigned int ir = 0; ir < trk_q->size(); ++ir) {
       //check the origin; redundant for initialStep ntuples
       if (not allSeeds)
@@ -996,27 +1061,28 @@ int main(int argc, char* argv[]) {
       auto const& hIdxs = trk_hitIdx->at(ir);
       for (unsigned int ip = 0; ip < hTypes.size(); ip++) {
         unsigned int hidx = hIdxs[ip];
+        pair<int, int> itrh(cmsswTracks_.size(), ip);
         switch (HitType(hTypes[ip])) {
           case HitType::Pixel: {
             //cout << "pix=" << hidx << " track=" << cmsswTracks_.size() << endl;
-            pixHitRecIdx[hidx].push_back(cmsswTracks_.size());
+            pixHitRecIdx[hidx].push_back(itrh);
             break;
           }
           case HitType::Strip: {
             //cout << "str=" << hidx << " track=" << cmsswTracks_.size() << endl;
-            strHitRecIdx[hidx].push_back(cmsswTracks_.size());
+            strHitRecIdx[hidx].push_back(itrh);
             break;
           }
           case HitType::Glued: {
             if (not useMatched)
               throw std::logic_error("Tracks have glued hits, but matchedHit load is not configured");
             //cout << "glu=" << hidx << " track=" << cmsswTracks_.size() << endl;
-            gluHitRecIdx[hidx].push_back(cmsswTracks_.size());
+            gluHitRecIdx[hidx].push_back(itrh);
             break;
           }
           case HitType::Phase2OT: {
             //cout << "ph2=" << hidx << " track=" << cmsswTracks_.size() << endl;
-            ph2HitRecIdx[hidx].push_back(cmsswTracks_.size());
+            ph2HitRecIdx[hidx].push_back(itrh);
             break;
           }
           case HitType::Invalid:
@@ -1026,6 +1092,7 @@ int main(int argc, char* argv[]) {
         }  //switch( HitType
       }
       cmsswTracks_.push_back(track);
+      recHitLayIdx.emplace_back(hTypes.size(), pair(-11, -1));
     }
 
     vector<vector<Hit>>& layerHits_ = EE.layerHits_;
@@ -1035,11 +1102,11 @@ int main(int argc, char* argv[]) {
     layerHits_.resize(nTotalLayers);
     layerHitMasks_.resize(nTotalLayers);
     for (unsigned int ipix = 0; ipix < pix_lay->size(); ++ipix) {
-      int ilay = -1;
-      ilay = lnc.convertLayerNumber(pix_det->at(ipix), pix_lay->at(ipix), useMatched, -1, pix_z->at(ipix) > 0);
+      int ilay = lnc.convertLayerNumber(pix_det->at(ipix), pix_lay->at(ipix), useMatched, -1, pix_z->at(ipix) > 0);
       if (ilay < 0)
-        continue;
+        throw std::logic_error("Failed layer conversion for pix");
 
+      int ihit = layerHits_[ilay].size();
       unsigned int imoduleid = tkinfo[ilay].short_id(pix_detId->at(ipix));
 
       int simTkIdxNt = bestTkIdx(pix_simHitIdx->at(ipix), pix_chargeFraction->at(ipix), ipix, HitType::Pixel);
@@ -1053,16 +1120,16 @@ int main(int argc, char* argv[]) {
       err.At(0, 1) = pix_xy->at(ipix);
       err.At(0, 2) = pix_zx->at(ipix);
       err.At(1, 2) = pix_yz->at(ipix);
-      if (simTkIdx >= 0) {
-        simTracks_[simTkIdx].addHitIdx(layerHits_[ilay].size(), ilay, 0);
+      for (unsigned int ih = 0; ih < pixHitSimIdx[ipix].size(); ih++) {
+        simHitLayIdx[pixHitSimIdx[ipix][ih].first][pixHitSimIdx[ipix][ih].second] = {ihit, ilay};
       }
-      for (unsigned int is = 0; is < pixHitSeedIdx[ipix].size(); is++) {
-        //cout << "xxx ipix=" << ipix << " seed=" << pixHitSeedIdx[ipix][is] << endl;
-        seedTracks_[pixHitSeedIdx[ipix][is]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+      for (unsigned int ih = 0; ih < pixHitSeedIdx[ipix].size(); ih++) {
+        //cout << "xxx ipix=" << ipix << " seed=" << pixHitSeedIdx[ipix][ih] << endl;
+        seedHitLayIdx[pixHitSeedIdx[ipix][ih].first][pixHitSeedIdx[ipix][ih].second] = {ihit, ilay};
       }
-      for (unsigned int ir = 0; ir < pixHitRecIdx[ipix].size(); ir++) {
-        //cout << "xxx ipix=" << ipix << " recTrack=" << pixHitRecIdx[ipix][ir] << endl;
-        cmsswTracks_[pixHitRecIdx[ipix][ir]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+      for (unsigned int ih = 0; ih < pixHitRecIdx[ipix].size(); ih++) {
+        //cout << "xxx ipix=" << ipix << " recTrack=" << pixHitRecIdx[ipix][ih] << endl;
+        recHitLayIdx[pixHitRecIdx[ipix][ih].first][pixHitRecIdx[ipix][ih].second] = {ihit, ilay};
       }
       Hit hit(pos, err, totHits);
       hit.setupAsPixel(imoduleid, pix_csize_row->at(ipix), pix_csize_col->at(ipix));
@@ -1077,14 +1144,14 @@ int main(int argc, char* argv[]) {
     if (hasPh2hits) {
       vector<int> ph2Idx(ph2_layer->size());
       for (unsigned int iph2 = 0; iph2 < ph2_layer->size(); ++iph2) {
-        int ilay = -1;
-        ilay = lnc.convertLayerNumber(
+        int ilay = lnc.convertLayerNumber(
             ph2_subdet->at(iph2), ph2_layer->at(iph2), useMatched, ph2_isLower->at(iph2), ph2_z->at(iph2) > 0);
         if (useMatched && !ph2_isLower->at(iph2))
           continue;
         if (ilay == -1)
-          continue;
+          throw std::logic_error("Failed layer conversion for ph2");
 
+        int ihit = layerHits_[ilay].size();
         unsigned int imoduleid = tkinfo[ilay].short_id(ph2_detId->at(iph2));
 
         int simTkIdxNt = bestTkIdx(ph2_simHitIdx->at(iph2), ph2_chargeFraction_dummy, iph2, HitType::Phase2OT);
@@ -1098,19 +1165,19 @@ int main(int argc, char* argv[]) {
         err.At(0, 1) = ph2_xy->at(iph2);
         err.At(0, 2) = ph2_zx->at(iph2);
         err.At(1, 2) = ph2_yz->at(iph2);
-        if (simTkIdx >= 0) {
-          simTracks_[simTkIdx].addHitIdx(layerHits_[ilay].size(), ilay, 0);
+        for (unsigned int ih = 0; ih < ph2HitSimIdx[iph2].size(); ih++) {
+          simHitLayIdx[ph2HitSimIdx[iph2][ih].first][ph2HitSimIdx[iph2][ih].second] = {ihit, ilay};
         }
-        for (unsigned int ir = 0; ir < ph2HitSeedIdx[iph2].size(); ir++) {
-          //cout << "xxx iph2=" << iph2 << " seed=" << ph2HitSeedIdx[iph2][ir] << endl;
-          seedTracks_[ph2HitSeedIdx[iph2][ir]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+        for (unsigned int ih = 0; ih < ph2HitSeedIdx[iph2].size(); ih++) {
+          //cout << "xxx iph2=" << iph2 << " seed=" << ph2HitSeedIdx[iph2][ih] << endl;
+          seedHitLayIdx[ph2HitSeedIdx[iph2][ih].first][ph2HitSeedIdx[iph2][ih].second] = {ihit, ilay};
         }
-        for (unsigned int ir = 0; ir < ph2HitRecIdx[iph2].size(); ir++) {
-          //cout << "xxx iph2=" << iph2 << " recTrack=" << ph2HitRecIdx[iph2][ir] << endl;
-          cmsswTracks_[ph2HitRecIdx[iph2][ir]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+        for (unsigned int ih = 0; ih < ph2HitRecIdx[iph2].size(); ih++) {
+          //cout << "xxx iph2=" << iph2 << " recTrack=" << ph2HitRecIdx[iph2][ih] << endl;
+          recHitLayIdx[ph2HitRecIdx[iph2][ih].first][ph2HitRecIdx[iph2][ih].second] = {ihit, ilay};
         }
         Hit hit(pos, err, totHits);
-        hit.setupAsStrip(imoduleid, 0, 1);
+        hit.setupAsStrip(imoduleid, 0, ph2_clustSize ? ph2_clustSize->at(iph2) : 1);
         layerHits_[ilay].push_back(hit);
         if (writeHitIterMasks)
           layerHitMasks_[ilay].push_back(ph2_usedMask->at(iph2));
@@ -1129,6 +1196,7 @@ int main(int argc, char* argv[]) {
           int simTkIdx = simTkIdxNt >= 0 ? simTrackIdx_[simTkIdxNt] : -1;  //switch to index in simTracks_
 
           int ilay = lnc.convertLayerNumber(glu_det->at(iglu), glu_lay->at(iglu), useMatched, -1, glu_z->at(iglu) > 0);
+          int ihit = layerHits_[ilay].size();
           // cout << Form("glu lay=%i det=%i bar=%i x=(%6.3f, %6.3f, %6.3f)",ilay+1,glu_det->at(iglu),glu_isBarrel->at(iglu),glu_x->at(iglu),glu_y->at(iglu),glu_z->at(iglu)) << endl;
           SVector3 pos(glu_x->at(iglu), glu_y->at(iglu), glu_z->at(iglu));
           SMatrixSym33 err;
@@ -1138,18 +1206,16 @@ int main(int argc, char* argv[]) {
           err.At(0, 1) = glu_xy->at(iglu);
           err.At(0, 2) = glu_zx->at(iglu);
           err.At(1, 2) = glu_yz->at(iglu);
-          if (simTkIdx >= 0) {
-            simTracks_[simTkIdx].addHitIdx(layerHits_[ilay].size(), ilay, 0);
+          for (unsigned int ih = 0; ih < gluHitSimIdx[iglu].size(); ih++) {
+            simHitLayIdx[gluHitSimIdx[iglu][ih].first][gluHitSimIdx[iglu][ih].second] = {ihit, ilay};
           }
-          for (unsigned int ir = 0; ir < gluHitSeedIdx[iglu].size(); ir++) {
-            //cout << "xxx iglu=" << iglu << " seed=" << gluHitSeedIdx[iglu][ir] << endl;
-            seedTracks_[gluHitSeedIdx[iglu][ir]].addHitIdx(
-                layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+          for (unsigned int ih = 0; ih < gluHitSeedIdx[iglu].size(); ih++) {
+            //cout << "xxx iglu=" << iglu << " seed=" << gluHitSeedIdx[iglu][ih] << endl;
+            seedHitLayIdx[gluHitSeedIdx[iglu][ih].first][gluHitSeedIdx[iglu][ih].second] = {ihit, ilay};
           }
-          for (unsigned int ir = 0; ir < gluHitRecIdx[iglu].size(); ir++) {
-            //cout << "xxx iglu=" << iglu << " recTrack=" << gluHitRecIdx[iglu][ir] << endl;
-            cmsswTracks_[gluHitRecIdx[iglu][ir]].addHitIdx(
-                layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+          for (unsigned int ih = 0; ih < gluHitRecIdx[iglu].size(); ih++) {
+            //cout << "xxx iglu=" << iglu << " recTrack=" << gluHitRecIdx[iglu][ih] << endl;
+            recHitLayIdx[gluHitRecIdx[iglu][ih].first][gluHitRecIdx[iglu][ih].second] = {ihit, ilay};
           }
 
           // QQQQ module-id-in-layer, adc and phi/theta spans are not done for matched hits.
@@ -1167,13 +1233,12 @@ int main(int argc, char* argv[]) {
       vector<int> strIdx;
       strIdx.resize(str_lay->size());
       for (unsigned int istr = 0; istr < str_lay->size(); ++istr) {
-        int ilay = -1;
-        ilay = lnc.convertLayerNumber(
+        int ilay = lnc.convertLayerNumber(
             str_det->at(istr), str_lay->at(istr), useMatched, str_isStereo->at(istr), str_z->at(istr) > 0);
         if (useMatched && str_isBarrel->at(istr) == 1 && str_isStereo->at(istr))
           continue;
         if (ilay == -1)
-          continue;
+          throw std::logic_error("Failed layer conversion for str");
 
         unsigned int imoduleid = tkinfo[ilay].short_id(str_detId->at(istr));
 
@@ -1181,6 +1246,7 @@ int main(int argc, char* argv[]) {
         int simTkIdx = simTkIdxNt >= 0 ? simTrackIdx_[simTkIdxNt] : -1;  //switch to index in simTracks_
 
         bool passCCC = applyCCC ? (str_chargePerCM->at(istr) > cutValueCCC) : true;
+        int ihit = passCCC ? layerHits_[ilay].size() : Hit::kHitCCCFilterIdx;
 
         //if (str_onTrack->at(istr)==0) continue;//do not consider hits that are not on track!
         SVector3 pos(str_x->at(istr), str_y->at(istr), str_z->at(istr));
@@ -1191,27 +1257,16 @@ int main(int argc, char* argv[]) {
         err.At(0, 1) = str_xy->at(istr);
         err.At(0, 2) = str_zx->at(istr);
         err.At(1, 2) = str_yz->at(istr);
-        if (simTkIdx >= 0) {
-          if (passCCC)
-            simTracks_[simTkIdx].addHitIdx(layerHits_[ilay].size(), ilay, 0);
-          else
-            simTracks_[simTkIdx].addHitIdx(-9, ilay, 0);
+        for (unsigned int ih = 0; ih < strHitSimIdx[istr].size(); ih++) {
+          simHitLayIdx[strHitSimIdx[istr][ih].first][strHitSimIdx[istr][ih].second] = {ihit, ilay};
         }
-        for (unsigned int ir = 0; ir < strHitSeedIdx[istr].size(); ir++) {
-          //cout << "xxx istr=" << istr << " seed=" << strHitSeedIdx[istr][ir] << endl;
-          if (passCCC)
-            seedTracks_[strHitSeedIdx[istr][ir]].addHitIdx(
-                layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
-          else
-            seedTracks_[strHitSeedIdx[istr][ir]].addHitIdx(-9, ilay, 0);
+        for (unsigned int ih = 0; ih < strHitSeedIdx[istr].size(); ih++) {
+          //cout << "xxx istr=" << istr << " seed=" << strHitSeedIdx[istr][ih] << endl;
+          seedHitLayIdx[strHitSeedIdx[istr][ih].first][strHitSeedIdx[istr][ih].second] = {ihit, ilay};
         }
-        for (unsigned int ir = 0; ir < strHitRecIdx[istr].size(); ir++) {
-          //cout << "xxx istr=" << istr << " recTrack=" << strHitRecIdx[istr][ir] << endl;
-          if (passCCC)
-            cmsswTracks_[strHitRecIdx[istr][ir]].addHitIdx(
-                layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
-          else
-            cmsswTracks_[strHitRecIdx[istr][ir]].addHitIdx(-9, ilay, 0);
+        for (unsigned int ih = 0; ih < strHitRecIdx[istr].size(); ih++) {
+          //cout << "xxx istr=" << istr << " recTrack=" << strHitRecIdx[istr][ih] << endl;
+          recHitLayIdx[strHitRecIdx[istr][ih].first][strHitRecIdx[istr][ih].second] = {ihit, ilay};
         }
         if (passCCC) {
           Hit hit(pos, err, totHits);
@@ -1223,8 +1278,22 @@ int main(int argc, char* argv[]) {
           simHitsInfo_.push_back(hitInfo);
           totHits++;
         }
+      }  // istr : str_lay
+    }  // else {!hasPh2hits}
+
+    auto fillHits = [](decltype(simHitLayIdx) const& tkHitLayIdx, decltype(simTracks_)& tks) {
+      int itk = 0;
+      for (auto const& tk : tkHitLayIdx) {
+        for (auto const& hit : tk) {
+          if (hit.second >= 0)
+            tks[itk].addHitIdx(hit.first, hit.second, 0);
+        }
+        itk++;
       }
-    }
+    };
+    fillHits(simHitLayIdx, simTracks_);
+    fillHits(seedHitLayIdx, seedTracks_);
+    fillHits(recHitLayIdx, cmsswTracks_);
 
     // Seed % hit statistics
     nstot += seedTracks_.size();
@@ -1360,7 +1429,7 @@ int main(int argc, char* argv[]) {
         }  //if (writeRecTracks){
 
       }  //verbosity>1
-    }    //verbosity>0
+    }  //verbosity>0
     EE.write_out(data_file);
 
     savedEvents++;

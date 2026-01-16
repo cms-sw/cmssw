@@ -1,12 +1,10 @@
-<library file="*.cc *.cu" name="RecoLocalCaloHGCalRecProducersPlugins">
-  <use name="cuda"/>
-  <use name="tbb"/>
+<library file="*.cc" name="RecoLocalCaloHGCalRecProducersPlugins">
   <use name="alpaka"/>
   <use name="fmt"/>
+  <use name="tbb"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/HGCalObjects"/>
-  <use name="CUDADataFormats/HGCal"/>
   <use name="DataFormats/ForwardDetId"/>
   <use name="DataFormats/HGCDigi"/>
   <use name="DataFormats/HGCRecHit"/>
@@ -19,12 +17,11 @@
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/HGCalCommonData"/>
   <use name="Geometry/HGCalGeometry"/>
-  <use name="HeterogeneousCore/CUDACore"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="RecoLocalCalo/HGCalRecAlgos"/>
   <use name="RecoLocalCalo/HGCalRecProducers"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <!-- alpaka-based portable plugins -->
 <library file="alpaka/*.cc" name="RecoLocalCaloHGCalRecProducersPluginsPortable">
   <use name="alpaka"/>
@@ -34,7 +31,6 @@
   <use name="FWCore/Utilities"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/HGCalObjects"/>
-  <use name="CUDADataFormats/HGCal"/>
   <use name="DataFormats/HGCalReco"/>
   <use name="DataFormats/Portable"/>
   <use name="Geometry/CaloGeometry"/>

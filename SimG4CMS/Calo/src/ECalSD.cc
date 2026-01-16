@@ -186,8 +186,8 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
   // take into account light collection curve for crystals
   double weight = 1.;
   if (suppressHeavy) {
-    TrackInformation* trkInfo = (TrackInformation*)(theTrack->GetUserInformation());
-    if (trkInfo) {
+    auto trkInfo = cmsTrackInformation(theTrack);
+    if (nullptr != trkInfo) {
       int pdg = theTrack->GetDefinition()->GetPDGEncoding();
       if (!(trkInfo->isPrimary())) {  // Only secondary particles
         double ke = theTrack->GetKineticEnergy();

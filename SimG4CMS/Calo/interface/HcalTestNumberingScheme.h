@@ -13,7 +13,7 @@ public:
   HcalTestNumberingScheme(bool forTB);
   HcalTestNumberingScheme() = delete;
   ~HcalTestNumberingScheme() override;
-  uint32_t getUnitID(const HcalNumberingFromDDD::HcalID& id) override;
+  uint32_t getUnitID(const HcalNumberingFromDDD::HcalID& id) const override;
   static uint32_t packHcalIndex(int det, int z, int depth, int eta, int phi, int lay);
   static void unpackHcalIndex(const uint32_t& idx, int& det, int& z, int& depth, int& eta, int& phi, int& lay);
 

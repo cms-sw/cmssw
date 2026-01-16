@@ -5,6 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <format>
 
 RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps) {
   edm::LogVerbatim("rpceventsummary") << "[RPCEventSummary]: Constructor";
@@ -95,14 +96,14 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
     std::vector<std::string> segmentNames;
     for (int i = -2; i <= 2; i++) {
-      const std::string segName = fmt::format("RPC_Wheel{}", i);
+      const std::string segName = std::format("RPC_Wheel{}", i);
       segmentNames.push_back(segName);
     }
 
     for (int i = -numberDisk_; i <= numberDisk_; i++) {
       if (i == 0)
         continue;
-      const std::string segName = fmt::format("RPC_Disk{}", i);
+      const std::string segName = std::format("RPC_Disk{}", i);
       segmentNames.push_back(segName);
     }
 
@@ -146,8 +147,8 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
   float barrelFactor = 0;
 
   for (int w = -2; w < 3; w++) {
-    const std::string meName1 = fmt::format("{}/DeadChannelFraction_Roll_vs_Sector_Wheel{}", globalFolder_, w);
-    const std::string meName2 = fmt::format("{}/RPCNoisyStrips_Roll_vs_Sector_Wheel{}", globalFolder_, w);
+    const std::string meName1 = std::format("{}/DeadChannelFraction_Roll_vs_Sector_Wheel{}", globalFolder_, w);
+    const std::string meName2 = std::format("{}/RPCNoisyStrips_Roll_vs_Sector_Wheel{}", globalFolder_, w);
     MonitorElement* myMe1 = igetter.get(meName1);
     MonitorElement* myMe2 = igetter.get(meName2);
 
@@ -182,7 +183,7 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
 
       wheelFactor = wheelFactor / myMe1->getNbinsX();
 
-      const std::string globalMEName = fmt::format("{}/reportSummaryContents/RPC_Wheel{}", eventInfoPath_, w);
+      const std::string globalMEName = std::format("{}/reportSummaryContents/RPC_Wheel{}", eventInfoPath_, w);
       MonitorElement* globalMe = igetter.get(globalMEName);
       if (globalMe)
         globalMe->Fill(wheelFactor);
@@ -201,8 +202,8 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
       if (d == 0)
         continue;
 
-      const std::string meName1 = fmt::format("{}/DeadChannelFraction_Ring_vs_Segment_Disk{}", globalFolder_, d);
-      const std::string meName2 = fmt::format("{}/RPCNoisyStrips_Ring_vs_Segment_Disk{}", globalFolder_, d);
+      const std::string meName1 = std::format("{}/DeadChannelFraction_Ring_vs_Segment_Disk{}", globalFolder_, d);
+      const std::string meName2 = std::format("{}/RPCNoisyStrips_Ring_vs_Segment_Disk{}", globalFolder_, d);
       MonitorElement* myMe1 = igetter.get(meName1);
       MonitorElement* myMe2 = igetter.get(meName2);
 
@@ -245,7 +246,7 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
 
         diskFactor = diskFactor / 6;
 
-        const std::string globalMEName = fmt::format("{}/reportSummaryContents/RPC_Disk{}", eventInfoPath_, d);
+        const std::string globalMEName = std::format("{}/reportSummaryContents/RPC_Disk{}", eventInfoPath_, d);
         MonitorElement* globalMe = igetter.get(globalMEName);
         if (globalMe)
           globalMe->Fill(diskFactor);

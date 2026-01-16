@@ -3,8 +3,8 @@ from ..psets.hltTiclTracksterLinksPSet_cfi import hltTiclTracksterLinksPSet
 
 hltTiclTracksterLinks = cms.EDProducer("TracksterLinksProducer",
     detector = cms.string('HGCAL'),
-    layer_clusters = cms.InputTag("hltHgcalMergeLayerClusters"),
-    layer_clustersTime = cms.InputTag("hltHgcalMergeLayerClusters","timeLayerCluster"),
+    layer_clusters = cms.InputTag("hltMergeLayerClusters"),
+    layer_clustersTime = cms.InputTag("hltMergeLayerClusters","timeLayerCluster"),
     inferenceAlgo = cms.string('TracksterInferenceByPFN'),
     linkingPSet = hltTiclTracksterLinksPSet,
     pluginInferenceAlgoTracksterInferenceByDNN = cms.PSet(
@@ -36,9 +36,9 @@ hltTiclTracksterLinks = cms.EDProducer("TracksterLinksProducer",
         type = cms.string('TracksterInferenceByPFN')
     ),
     mightGet = cms.optional.untracked.vstring,
-    original_masks = cms.VInputTag("hltHgcalMergeLayerClusters:InitialLayerClustersMask"),
+    original_masks = cms.VInputTag("hltMergeLayerClusters:InitialLayerClustersMask"),
     propagator = cms.string('PropagatorWithMaterial'),
-    regressionAndPid = cms.bool(True),
+    regressionAndPid = cms.bool(False),
     tracksters_collections = cms.VInputTag("hltTiclTrackstersCLUE3DHigh", "hltTiclTrackstersRecovery")
 )
 

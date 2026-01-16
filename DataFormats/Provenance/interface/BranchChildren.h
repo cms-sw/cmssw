@@ -43,6 +43,8 @@ namespace edm {
     // const accessor for the data
     map_t const& childLookup() const { return childLookup_; }
 
+    map_t& mutableChildLookup() { return childLookup_; }
+
   private:
     map_t childLookup_;
 

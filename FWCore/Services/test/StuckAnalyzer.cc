@@ -16,6 +16,8 @@
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class StuckAnalyzer : public edm::global::EDAnalyzer<> {
 public:
@@ -24,6 +26,11 @@ public:
   void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {
     while (true) {
     };
+  }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    descriptions.addDefault(desc);
   }
 };
 

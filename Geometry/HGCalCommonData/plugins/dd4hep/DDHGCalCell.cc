@@ -75,7 +75,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   static const double waf2cell = 3.0;
   static const double cornerfac = 2.5;
   double R =
-      (addWaferSeparation <= 1) ? waferSize / (waf2cell * nCells) : (waferSize + waferSeparation) / (waf2cell * nCells);
+      (addWaferSeparation >= 1) ? waferSize / (waf2cell * nCells) : (waferSize + waferSeparation) / (waf2cell * nCells);
   double r = 0.5 * R * sqrt3;
   double dx1 = R;
   double dx2 = 0.5 * dx1;

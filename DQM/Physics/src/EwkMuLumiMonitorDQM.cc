@@ -491,7 +491,7 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
       const MET& met = metCollection->at(0);
       nW = 0;
       for (unsigned int i = 0; i < nHighPtGlbMu; i++) {
-        reco::Muon muon1 = highPtGlbMuons[i];
+        const reco::Muon& muon1 = highPtGlbMuons[i];
         /*
                quality cut not implemented
             Quality Cuts           double dxy =
@@ -520,7 +520,7 @@ if (!quality) continue;
 
         if (!metIncludesMuons_) {
           for (unsigned int i = 0; i < nHighPtGlbMu; i++) {
-            reco::Muon muon1 = highPtGlbMuons[i];
+            const reco::Muon& muon1 = highPtGlbMuons[i];
             met_px -= muon1.px();
             met_py -= muon1.py();
           }
@@ -554,7 +554,7 @@ if (!quality) continue;
     // efficiency  and muon system efficiency
     if (!(isZGolden2HLT_ || isZGolden1HLT_ || isZGoldenNoIso_)) {
       for (unsigned int i = 0; i < nHighPtGlbMu; ++i) {
-        reco::Muon glbMuon = highPtGlbMuons[i];
+        const reco::Muon& glbMuon = highPtGlbMuons[i];
         const math::XYZTLorentzVector& mu1(glbMuon.p4());
         // double pt1= glbMuon.pt();
         // checking that the global muon is hlt matched otherwise skip the event
@@ -571,7 +571,7 @@ if (!quality) continue;
         // stop the loop after 10 cicles....
         (nHighPtStaMu > 10) ? nHighPtStaMu = 10 : 1;
         for (unsigned int j = 0; j < nHighPtStaMu; ++j) {
-          reco::Muon staMuon = highPtStaMuons[j];
+          const reco::Muon& staMuon = highPtStaMuons[j];
           const math::XYZTLorentzVector& mu2(staMuon.p4());
           // double pt2= staMuon.pt();
           if (glbMuon.charge() == staMuon.charge())

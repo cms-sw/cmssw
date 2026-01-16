@@ -9,7 +9,9 @@ namespace ticl {
   class TracksterInferenceByCNNv4 : public TracksterInferenceAlgoBase {
   public:
     explicit TracksterInferenceByCNNv4(const edm::ParameterSet& conf);
-    void inputData(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& tracksters) override;
+    void inputData(const std::vector<reco::CaloCluster>& layerClusters,
+                   std::vector<Trackster>& tracksters,
+                   const hgcal::RecHitTools& rhtools) override;
     void runInference(std::vector<Trackster>& tracksters) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
@@ -27,7 +29,6 @@ namespace ticl {
     int doPID_;
     int doRegression_;
 
-    hgcal::RecHitTools rhtools_;
     std::vector<std::vector<int64_t>> input_shapes_;
     std::vector<int> tracksterIndices_;
     std::vector<std::vector<float>> input_Data_;

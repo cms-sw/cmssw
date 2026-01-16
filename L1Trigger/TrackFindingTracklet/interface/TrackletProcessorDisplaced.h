@@ -6,9 +6,9 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculatorDisplaced.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 #include "L1Trigger/TrackFindingTracklet/interface/CircularBuffer.h"
-#include "L1Trigger/TrackFindingTracklet/interface/TrackletEngineUnit.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletParametersMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProjectionsMemory.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TripletEngineUnit.h"
 
 #include <vector>
 #include <tuple>
@@ -40,6 +40,10 @@ namespace trklet {
 
   private:
     int iTC_;
+    unsigned int maxStep_;
+
+    std::tuple<CircularBuffer<TrpEData>, unsigned int, unsigned int, unsigned int, unsigned int> trpbuffer_;
+    std::vector<TripletEngineUnit> trpunits_;
 
     unsigned int layerdisk1_;
     unsigned int layerdisk2_;

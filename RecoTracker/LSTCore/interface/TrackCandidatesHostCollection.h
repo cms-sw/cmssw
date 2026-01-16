@@ -5,6 +5,7 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 
 namespace lst {
-  using TrackCandidatesHostCollection = PortableHostCollection<TrackCandidatesSoA>;
+  using TrackCandidatesBaseHostCollection = PortableHostCollection<TrackCandidatesBaseSoA>;
+  using TrackCandidatesExtendedHostCollection = PortableHostCollection<TrackCandidatesExtendedSoA>;
 }  // namespace lst
 #endif

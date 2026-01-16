@@ -43,8 +43,6 @@ namespace edm {
     std::string volume;
     std::string protocol;
   };
-
-  enum class CatalogType { TrivialCatalog, RucioCatalog };
 }  // namespace edm
 
 // PUBLIC VARIABLES
@@ -57,7 +55,6 @@ namespace edm {
     SiteLocalConfig() {}
     virtual ~SiteLocalConfig() {}
 
-    virtual std::vector<std::string> const& trivialDataCatalogs() const = 0;
     virtual std::vector<edm::CatalogAttributes> const& dataCatalogs() const = 0;
     virtual std::filesystem::path const storageDescriptionPath(const edm::CatalogAttributes& aDataCatalog) const = 0;
     virtual std::string const lookupCalibConnect(std::string const& input) const = 0;

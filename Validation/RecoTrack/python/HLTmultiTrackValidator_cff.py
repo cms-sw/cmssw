@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoTrack.HLTmultiTrackValidator_cfi import *
 from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
+from Validation.RecoTrack.cutsRecoTracks_cfi import cutsRecoTracks as _cutsRecoTracks
 
 hltTrackValidator = hltMultiTrackValidator.clone(
     label = [
@@ -15,6 +16,24 @@ hltTrackValidator = hltMultiTrackValidator.clone(
     ]
 )
 
+# Pixel-less track selector
+hltPixelLessTracks = _cutsRecoTracks.clone(
+    throwOnMissing = cms.bool(False), # HLT collection might be missing
+    src = "hltMergedTracks",
+    beamSpot = "hltOnlineBeamSpot",
+    minLayer = 3,
+    maxPixelHit = 0
+)
+
+# Tracks with at least one pixel hit
+hltWithPixelTracks = _cutsRecoTracks.clone(
+    throwOnMissing = cms.bool(False), # HLT collection might be missing
+    src = "hltMergedTracks",
+    beamSpot = "hltOnlineBeamSpot",
+    minLayer = 3,
+    minPixelHit = 1
+)
+
 hltMultiTrackValidationTask = cms.Task(
     hltTPClusterProducer
     , trackingParticleNumberOfLayersProducer
@@ -26,37 +45,42 @@ hltMultiTrackValidation = cms.Sequence(
 )
 
 def _modifyForRun3(trackvalidator):
-    trackvalidator.label = ["hltPixelTracks", "hltMergedTracks", "hltDoubletRecoveryPFlowTrackSelectionHighPurity"] #, "hltIter0PFlowTrackSelectionHighPurity"]
+    trackvalidator.label = ["hltPixelTracks", "hltIter0PFlowCtfWithMaterialTracks", "hltIter0PFlowTrackSelectionHighPurity", "hltDoubletRecoveryPFlowCtfWithMaterialTracks", "hltDoubletRecoveryPFlowTrackSelectionHighPurity", "hltMergedTracks"]
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(hltTrackValidator, _modifyForRun3)
 
 def _modifyForPhase2(trackvalidator):
-    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPurity", "hltHighPtTripletStepTrackSelectionHighPurity"]
+    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPurity", "hltHighPtTripletStepTrackSelectionHighPurity", "hltPixelLessTracks", "hltWithPixelTracks"]
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(hltTrackValidator, _modifyForPhase2)
+phase2_tracker.toModify(hltPixelLessTracks, src = "hltGeneralTracks")
+phase2_tracker.toModify(hltWithPixelTracks, src = "hltGeneralTracks")
+
+## for Phase 2 only (no pixelless tracks in Run3) run the track selectors
+phase2_tracker.toReplaceWith(
+    hltMultiTrackValidation,
+    cms.Sequence(
+        hltPixelLessTracks +
+        hltWithPixelTracks +
+        hltTrackValidator,
+        hltMultiTrackValidationTask
+    )
+)
 
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
-
-def _modifyForPhase2LSTTracking(trackvalidator):
-    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPurity"]
-(~seedingLST & trackingLST).toModify(hltTrackValidator, _modifyForPhase2LSTTracking)
-
-def _modifyForPhase2LSTSeeding(trackvalidator):
-    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST"]
-(seedingLST & trackingLST).toModify(hltTrackValidator, _modifyForPhase2LSTSeeding)
-
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
+
 def _modifyForSingleIterPatatrack(trackvalidator):
-    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPurity"]
-(singleIterPatatrack & ~trackingLST & ~seedingLST).toModify(hltTrackValidator, _modifyForSingleIterPatatrack)
+    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPurity", "hltPixelLessTracks", "hltWithPixelTracks"]
+singleIterPatatrack.toModify(hltTrackValidator, _modifyForSingleIterPatatrack)
 
-def _modifyForSingleIterPatatrackLST(trackvalidator):
-    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST"]
-(singleIterPatatrack & ~seedingLST & trackingLST).toModify(hltTrackValidator, _modifyForSingleIterPatatrackLST)
+def _modifyForNGTScouting(trackvalidator):
+    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks"]
+(ngtScouting & ~trackingLST).toModify(hltTrackValidator, _modifyForNGTScouting)
 
-def _modifyForSingleIterPatatrackLSTSeeding(trackvalidator):
-    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTracksT5TCLST"]
-(singleIterPatatrack & seedingLST & trackingLST).toModify(hltTrackValidator, _modifyForSingleIterPatatrackLSTSeeding)
+def _modifyForNGTScoutingLST(trackvalidator):
+    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTracksT4T5TCLST", "hltPixelLessTracks", "hltWithPixelTracks"]
+(ngtScouting & trackingLST).toModify(hltTrackValidator, _modifyForNGTScoutingLST)

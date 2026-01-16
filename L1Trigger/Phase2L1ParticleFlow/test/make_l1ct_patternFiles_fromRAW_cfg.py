@@ -33,8 +33,7 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff") 
-process.load("L1Trigger.TrackerDTC.ProducerES_cff") 
-process.load("L1Trigger.TrackerDTC.ProducerED_cff") 
+process.load("L1Trigger.TrackerDTC.DTC_cff") 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedConePFJetEmulatorProducer
@@ -69,7 +68,7 @@ process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
 process.PFInputsTask = cms.Task(
     process.TTClustersFromPhase2TrackerDigis,
     process.TTStubsFromPhase2TrackerDigis,
-    process.TrackerDTCProducer,
+    process.ProducerDTC,
     process.offlineBeamSpot,
     process.l1tTTTracksFromTrackletEmulation,
     process.SimL1EmulatorTask

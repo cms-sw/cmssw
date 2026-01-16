@@ -7,6 +7,7 @@ from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
 from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector,performInjectionOptionTest
 from Configuration.PyReleaseValidation.MatrixUtil import cleanComputeCapabilities
+from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 # ================================================================================
 
 def showRaw(opt):
@@ -99,10 +100,12 @@ if __name__ == '__main__':
             12846.0,    # RelValZEE_13                  2024
             13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
             16834.0,    # RelValTTbar_14TeV             2025
-            17034.0,    # RelValTTbar_14TeV		2025 PU = Run3_Flat55To75_PoissonOOTPU
+            17034.0,    # RelValTTbar_14TeV             2025 PU = Run3_Flat55To75_PoissonOOTPU
             14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
             14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
-            2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
+            2500.3001,   # RelValTTbar_14TeV            NanoAOD from existing MINI
+            18434.0,    # RelValTTbar_14TeV             2026
+            18634.0,    # RelValTTbar_14TeV             2026 PU = Run3_Flat55To75_PoissonOOTPU
 
             ###### pp Data
             ## Run3
@@ -110,33 +113,37 @@ if __name__ == '__main__':
             139.001,    # Run2021  MinimumBias                  Commissioning2021
 
             # 2022
-            140.045,    # Run2022C JetHT
+            2022.0030001,     # Run2022C JetHT
 
             # 2023
-            141.042,    # Run2023D ZeroBias
+            2023.0020001,     # Run2023D JetMET0
 
             # 2024
-            145.014,      # Run2024B ZeroBias
-            145.104,      # Run2024C JetMet0
-            145.202,      # Run2024D EGamma0
-            145.301,      # Run2024E DisplacedJet
-            145.408,      # Run2024F ParkingDoubleMuonLowMass0
-            145.500,      # Run2024G BTagMu
-            145.604,      # Run2024H JetMET0
-            145.713,      # Run2024I Tau
+            2024.0000001,      # Run2024B ZeroBias
+            2024.0010001,      # Run2024C JetMET0
+            2024.0020001,      # Run2024D EGamma0
+            2024.0030001,      # Run2024E DisplacedJet
+            2024.0040001,      # Run2024F ParkingDoubleMuonLowMass0
+            2024.0050001,      # Run2024G BTagMu
+            2024.0060001,      # Run2024H Muon0
+            2024.0070001,      # Run2024I Tau
+
+            # 2025
+            2025.0000001,     # Run2025B ZeroBias
+            2025.0010001,     # Run2025C JetMET0
         ],
 
         'phase2' : [
             ###### MC (generated from scratch or from RelVals)
             # Phase2
-            29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline)
-            24834.911,  # Previous DD4hep baseline for monitoring the stability of DD4hep workflow
-            29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D110   DD4Hep (HLLHC14TeV BeamSpot)
-            29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D110         AVE_50_BX_25ns_m3p3
-            29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D110
-            29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D110
+            prefixDet+34.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D121         (Phase-2 baseline)
+            prefixDet+34.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D121   DD4Hep (HLLHC14TeV BeamSpot)
+            # TODO: Temporarily disabled until new MinBias files get produced. See https://github.com/cms-sw/cmssw/issues/49795
+            #prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D121         AVE_50_BX_25ns_m3p3
+            prefixDet+96.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D121
+            prefixDet+100.0,   # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D121
             #23234.0,   # Need new workflow with HFNose
-            29634.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline -  but using timing menu, and only up to step 2)
+            prefixDet+34.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D121         (Phase-2 baseline -  but using timing menu, and only up to step 2)
         ],
 
         'heavyIons' : [
@@ -151,6 +158,30 @@ if __name__ == '__main__':
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
+
+        'ph2_hlt' : [prefixDet+34.75,    # HLT phase-2 timing menu
+                     prefixDet+34.7501,  # HLT phase-2 tracking-only menu
+                     prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
+                     prefixDet+34.7511,  # HLT phase-2 timing menu Phase2CAExtension variant
+                     prefixDet+34.752,   # HLT phase-2 timing menu ticl_v5 variant
+                     prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant   
+                     prefixDet+34.753,   # HLT phase-2 timing menu Alpaka, single tracking iteration variant
+                     prefixDet+34.754,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
+                     prefixDet+34.755,   # HLT phase-2 timing menu Alpaka, LST building variant
+                     prefixDet+34.756,   # HLT phase-2 timing menu trimmed tracking
+                     prefixDet+34.7561,  # HLT phase-2 timing menu Alpaka, trimmed tracking
+                     prefixDet+34.7562,  # HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
+                     prefixDet+34.757,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+                     prefixDet+34.7571,  # HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building variant
+                     prefixDet+34.7572,  # HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building and fitting variant
+                     prefixDet+34.758,   # HLT phase-2 timing menu ticl_barrel variant
+                     prefixDet+34.759,   # HLT phase-2 timing menu, with NANO:@Phase2HLT
+                     prefixDet+34.77,    # HLT phase-2 NGT Scouting menu
+                     prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel, CA Extension
+                     prefixDet+34.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+                     prefixDet+34.773,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+                     prefixDet+34.774,   # HLT phase-2 NGT Scouting menu, Phase2CAExtension as GeneralTracks
+                     prefixDet+34.775],  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks
     }
 
     predefinedSet['limited'] = (
@@ -407,6 +438,12 @@ if __name__ == '__main__':
                         dest='dbsUrl',
                         default=None,
                         action='store')
+
+    parser.add_argument('--use-rntuple',
+                        help='Use RNTuple format for IO',
+                        dest='useRNTuple',
+                        default=False,
+                        action='store_true')
 
     gpugroup = parser.add_argument_group('GPU-related options','These options are only meaningful when --gpu is used, and is not set to forbidden.')
 

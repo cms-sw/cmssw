@@ -20,7 +20,8 @@
 #include "TEveTrans.h"
 #include "TGLBoundingBox.h"
 
-#include "TGLIncludes.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #include "TGLRnrCtx.h"
 #include "TGLUtil.h"

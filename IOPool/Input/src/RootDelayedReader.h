@@ -13,6 +13,7 @@ RootDelayedReader.h // used by ROOT input sources
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "RootTree.h"
+#include "RootDelayedReaderBase.h"
 
 #include <map>
 #include <memory>
@@ -27,10 +28,10 @@ namespace edm {
   class Exception;
 
   //------------------------------------------------------------
-  // Class RootDelayedReader: pretends to support file reading.
+  // Class RootDelayedReader:
   //
 
-  class RootDelayedReader : public DelayedReader {
+  class RootDelayedReader : public RootDelayedReaderBase {
   public:
     typedef roottree::BranchInfo BranchInfo;
     typedef roottree::BranchMap BranchMap;
@@ -42,21 +43,7 @@ namespace edm {
     RootDelayedReader(RootDelayedReader const&) = delete;             // Disallow copying and moving
     RootDelayedReader& operator=(RootDelayedReader const&) = delete;  // Disallow copying and moving
 
-    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal()
-        const final {
-      return preEventReadFromSourceSignal_;
-    }
-    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal()
-        const final {
-      return postEventReadFromSourceSignal_;
-    }
-
-    void setSignals(
-        signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
-        signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource) {
-      preEventReadFromSourceSignal_ = preEventReadSource;
-      postEventReadFromSourceSignal_ = postEventReadSource;
-    }
+    void readAllProductsNow(EDProductGetter const* ep) override;
 
   private:
     std::shared_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
@@ -75,12 +62,6 @@ namespace edm {
         resourceAcquirer_;  // We do not use propagate_const because the acquirer is itself mutable.
     std::shared_ptr<std::recursive_mutex> mutex_;
     InputType inputType_;
-    edm::propagate_const<TClass*> wrapperBaseTClass_;
-
-    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal_ =
-        nullptr;
-    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal_ =
-        nullptr;
 
     //If a fatal exception happens we need to make a copy so we can
     // rethrow that exception on other threads. This avoids TTree

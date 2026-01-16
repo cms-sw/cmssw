@@ -47,6 +47,7 @@ namespace reco {
 namespace pat {
 
   class PATMuonSlimmer;
+  class PATMuonCandidatesRekeyer;
 
   class Muon : public Lepton<reco::Muon> {
   public:
@@ -272,6 +273,7 @@ namespace pat {
     friend std::ostream& reco::operator<<(std::ostream& out, const pat::Muon& obj);
 
     friend class PATMuonSlimmer;
+    friend class PATMuonCandidatesRekeyer;
 
     float pfEcalEnergy() const { return pfEcalEnergy_; }
     void setPfEcalEnergy(float pfEcalEnergy) { pfEcalEnergy_ = pfEcalEnergy; }

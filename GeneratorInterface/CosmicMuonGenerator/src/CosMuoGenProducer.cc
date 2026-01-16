@@ -43,6 +43,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer(const ParameterSet& pset)
       MaxEn(pset.getParameter<double>("MaxEnu")),
       NuPrdAlt(pset.getParameter<double>("NuProdAlt")),
       AllMu(pset.getParameter<bool>("AcptAllMu")),
+      SurfaceDepthToCMS(pset.getParameter<double>("SurfaceDepth")),
       extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
       extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
       cmVerbosity_(pset.getParameter<bool>("Verbosity")),
@@ -91,6 +92,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer(const ParameterSet& pset)
   CosMuoGen->setMaxEnu(MaxEn);
   CosMuoGen->setNuProdAlt(NuPrdAlt);
   CosMuoGen->setAcptAllMu(AllMu);
+  CosMuoGen->setSurfaceDepth(SurfaceDepthToCMS);
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
   produces<GenRunInfoProduct, edm::Transition::EndRun>();
@@ -142,17 +144,21 @@ void edm::CosMuoGenProducer::produce(Event& e, const edm::EventSetup& es) {
     std::cout << "CosMuoGen->Id_at=" << CosMuoGen->Id_at << "  CosMuoGen->Vx_at=" << CosMuoGen->Vx_at
               << "  CosMuoGen->Vy_at=" << CosMuoGen->Vy_at << "  CosMuoGen->Vz_at=" << CosMuoGen->Vz_at
               << "  CosMuoGen->T0_at=" << CosMuoGen->T0_at << std::endl;
-    std::cout << "  Px=" << CosMuoGen->Px_at << "  Py=" << CosMuoGen->Py_at << "  Pz=" << CosMuoGen->Pz_at << std::endl;
+    std::cout << "  Px=" << CosMuoGen->Px_at << "  Py=" << CosMuoGen->Py_at << "  Pz=" << CosMuoGen->Pz_at
+              << "  E_at=" << CosMuoGen->E_at << std::endl;
+
     for (unsigned int i = 0; i < CosMuoGen->Id_sf.size(); ++i) {
       std::cout << "Id_sf[" << i << "]=" << CosMuoGen->Id_sf[i] << "  Vx_sf[" << i << "]=" << CosMuoGen->Vx_sf[i]
                 << "  Vy_sf=" << CosMuoGen->Vy_sf[i] << "  Vz_sf=" << CosMuoGen->Vz_sf[i]
                 << "  T0_sf=" << CosMuoGen->T0_sf[i] << "  Px_sf=" << CosMuoGen->Px_sf[i]
-                << "  Py_sf=" << CosMuoGen->Py_sf[i] << "  Pz_sf=" << CosMuoGen->Pz_sf[i] << std::endl;
+                << "  Py_sf=" << CosMuoGen->Py_sf[i] << "  Pz_sf=" << CosMuoGen->Pz_sf[i]
+                << "  E_sf=" << CosMuoGen->E_sf[i] << std::endl;
       std::cout << "phi_sf=" << atan2(CosMuoGen->Px_sf[i], CosMuoGen->Pz_sf[i]) << std::endl;
       std::cout << "Id_ug[" << i << "]=" << CosMuoGen->Id_ug[i] << "  Vx_ug[" << i << "]=" << CosMuoGen->Vx_ug[i]
                 << "  Vy_ug=" << CosMuoGen->Vy_ug[i] << "  Vz_ug=" << CosMuoGen->Vz_ug[i]
                 << "  T0_ug=" << CosMuoGen->T0_ug[i] << "  Px_ug=" << CosMuoGen->Px_ug[i]
-                << "  Py_ug=" << CosMuoGen->Py_ug[i] << "  Pz_ug=" << CosMuoGen->Pz_ug[i] << std::endl;
+                << "  Py_ug=" << CosMuoGen->Py_ug[i] << "  Pz_ug=" << CosMuoGen->Pz_ug[i]
+                << "  E_ug=" << CosMuoGen->E_ug[i] << std::endl;
       std::cout << "phi_ug=" << atan2(CosMuoGen->Px_ug[i], CosMuoGen->Pz_ug[i]) << std::endl;
       ;
     }

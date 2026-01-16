@@ -9,11 +9,17 @@ namespace hgcal {
   // SoA with channel-level module mapping parameters in host memory:
   using HGCalMappingModuleParamHost = PortableHostCollection<HGCalMappingModuleParamSoA>;
 
+  // SoA with channel-level module mapping parameters in host memory:
+  using HGCalMappingModuleTriggerParamHost = PortableHostCollection<HGCalMappingModuleTriggerParamSoA>;
+
   // SoA with channel-level cell mapping parameters in host memory for both Si and SiPM channels:
   using HGCalMappingCellParamHost = PortableHostCollection<HGCalMappingCellParamSoA>;
 
   //SoA with detailed indices corresponding to the dense index in use
   using HGCalDenseIndexInfoHost = PortableHostCollection<HGCalDenseIndexInfoSoA>;
+
+  //SoA with detailed indices corresponding to the dense index in use for the trigger
+  using HGCalDenseIndexTriggerInfoHost = PortableHostCollection<HGCalDenseIndexTriggerInfoSoA>;
 
 }  // namespace hgcal
 

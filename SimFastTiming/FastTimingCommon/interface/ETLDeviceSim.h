@@ -43,12 +43,13 @@ private:
   const reco::FormulaEvaluator lgadGainDegradation_;
   const bool applyDegradation_;
   float bxTime_;
-  float tofDelay_;
   const reco::FormulaEvaluator MPVMuon_;
   const reco::FormulaEvaluator MPVPion_;
   const reco::FormulaEvaluator MPVKaon_;
   const reco::FormulaEvaluator MPVElectron_;
   const reco::FormulaEvaluator MPVProton_;
+  float tdcWindowStart_;
+  float tdcWindowEnd_;
 };
 
 #endif

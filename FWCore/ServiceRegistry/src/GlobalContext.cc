@@ -106,7 +106,7 @@ namespace edm {
         os << "end ProcessBlock";
         break;
       case GlobalContext::Transition::kEndJob:
-        os << "endJob";
+        os << "end Job";
         break;
       case GlobalContext::Transition::kWriteProcessBlock:
         os << "write ProcessBlock";

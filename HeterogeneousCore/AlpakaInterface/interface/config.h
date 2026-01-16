@@ -62,7 +62,7 @@ namespace alpaka {
 
   template <typename TApi, typename TAcc, typename TDim, typename TIdx, typename TKernelFnObj, typename... TArgs>
   class TaskKernelGpuUniformCudaHipRt final {
-    static_assert(std::is_same_v<TApi, alpaka::ApiCudaRt> and BOOST_LANG_CUDA,
+    static_assert(std::is_same_v<TApi, alpaka::ApiCudaRt> and ALPAKA_LANG_CUDA,
                   "You should move this files to a .dev.cc file under the alpaka/ subdirectory.");
 
   public:
@@ -107,7 +107,7 @@ namespace alpaka {
 
   template <typename TApi, typename TAcc, typename TDim, typename TIdx, typename TKernelFnObj, typename... TArgs>
   class TaskKernelGpuUniformCudaHipRt final {
-    static_assert(std::is_same_v<TApi, alpaka::ApiHipRt> and BOOST_LANG_HIP,
+    static_assert(std::is_same_v<TApi, alpaka::ApiHipRt> and ALPAKA_LANG_HIP,
                   "You should move this files to a .dev.cc file under the alpaka/ subdirectory.");
 
   public:

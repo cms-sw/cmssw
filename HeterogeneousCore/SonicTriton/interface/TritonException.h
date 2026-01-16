@@ -5,9 +5,11 @@
 
 #include <string>
 
+class TritonService;
+
 class TritonException : public cms::Exception {
 public:
-  explicit TritonException(std::string const& aCategory, bool signal = false);
+  explicit TritonException(std::string const& aCategory, const TritonService* service = nullptr);
   void convertToWarning() const;
 };
 

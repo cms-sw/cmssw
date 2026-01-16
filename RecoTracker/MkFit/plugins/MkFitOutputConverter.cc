@@ -141,8 +141,11 @@ private:
   const bool doErrorRescale_;
 
   const int algo_;
-  const bool algoCandSelection_;
-  const float algoCandWorkingPoint_;
+  const bool algoCandCutSelection_;
+  const float algoCandMinPtCut_;
+  const int algoCandMinNHitsCut_;
+  const bool algoCandMVASelection_;
+  const float algoCandMVAWorkingPoint_;
   const int bsize_;
   const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
   const edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
@@ -177,13 +180,16 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
       doErrorRescale_{iConfig.getParameter<bool>("doErrorRescale")},
       algo_{reco::TrackBase::algoByName(
           TString(iConfig.getParameter<edm::InputTag>("seeds").label()).ReplaceAll("Seeds", "").Data())},
-      algoCandSelection_{bool(iConfig.getParameter<bool>("candMVASel"))},
-      algoCandWorkingPoint_{float(iConfig.getParameter<double>("candWP"))},
+      algoCandCutSelection_{bool(iConfig.getParameter<bool>("candCutSel"))},
+      algoCandMinPtCut_{float(iConfig.getParameter<double>("candMinPtCut"))},
+      algoCandMinNHitsCut_{iConfig.getParameter<int>("candMinNHitsCut")},
+      algoCandMVASelection_{bool(iConfig.getParameter<bool>("candMVASel"))},
+      algoCandMVAWorkingPoint_{float(iConfig.getParameter<double>("candWP"))},
       bsize_{int(iConfig.getParameter<int>("batchSize"))},
-      bsToken_(algoCandSelection_ ? consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))
-                                  : edm::EDGetTokenT<reco::BeamSpot>()),
-      verticesToken_(algoCandSelection_ ? consumes<reco::VertexCollection>(edm::InputTag("firstStepPrimaryVertices"))
-                                        : edm::EDGetTokenT<reco::VertexCollection>()),
+      bsToken_(algoCandMVASelection_ ? consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))
+                                     : edm::EDGetTokenT<reco::BeamSpot>()),
+      verticesToken_(algoCandMVASelection_ ? consumes<reco::VertexCollection>(edm::InputTag("firstStepPrimaryVertices"))
+                                           : edm::EDGetTokenT<reco::VertexCollection>()),
       tfDnnLabel_(iConfig.getParameter<std::string>("tfDnnLabel")),
       tfDnnToken_(esConsumes(edm::ESInputTag("", tfDnnLabel_))) {}
 
@@ -211,6 +217,10 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   desc.add<std::string>("tfDnnLabel", "trackSelectionTf");
 
+  desc.add<bool>("candCutSel", false)->setComment("flag used to trigger cut-based selection at cand level");
+  desc.add<double>("candMinPtCut", 0)->setComment("min pt cut at cand level");
+  desc.add<int>("candMinNHitsCut", 0)->setComment("min cut on number of hits at cand level");
+
   desc.add<bool>("candMVASel", false)->setComment("flag used to trigger MVA selection at cand level");
   desc.add<double>("candWP", 0)->setComment("MVA selection at cand level working point");
   desc.add<int>("batchSize", 16)->setComment("batch size for cand DNN evaluation");
@@ -232,13 +242,13 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
   // beamspot as well since the producer can be used in hlt
   const reco::VertexCollection* vertices = nullptr;
   const reco::BeamSpot* beamspot = nullptr;
-  if (algoCandSelection_) {
+  if (algoCandMVASelection_) {
     vertices = &iEvent.get(verticesToken_);
     beamspot = &iEvent.get(bsToken_);
   }
 
   const tensorflow::Session* session = nullptr;
-  if (algoCandSelection_)
+  if (algoCandMVASelection_)
     session = iSetup.getData(tfDnnToken_).getSession();
 
   // Convert mkfit presentation back to CMSSW
@@ -307,6 +317,9 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
           << "Candidate " << candIndex << " failed state quality checks" << cand.state().parameters;
       continue;
     }
+
+    if (algoCandCutSelection_ && (cand.pT() < algoCandMinPtCut_ || cand.nTotalHits() < algoCandMinNHitsCut_))
+      continue;
 
     auto state = cand.state();  // copy because have to modify
     state.convertFromCCSToGlbCurvilinear();
@@ -512,7 +525,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     states.push_back(tsosDet.first);
   }
 
-  if (algoCandSelection_) {
+  if (algoCandMVASelection_) {
     const auto& dnnScores = computeDNNs(
         output, states, bs, vertices, session, chi2, mkFitOutput.propagatedToFirstLayer() && doErrorRescale_);
 
@@ -520,7 +533,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     reducedOutput.reserve(output.size());
     int scoreIndex = 0;
     for (const auto& score : dnnScores) {
-      if (score > algoCandWorkingPoint_)
+      if (score > algoCandMVAWorkingPoint_)
         reducedOutput.push_back(output[scoreIndex]);
       scoreIndex++;
     }

@@ -34,7 +34,6 @@ struct SeedCandidate {
   MuonTransientTrackingRecHit::MuonRecHitContainer theSet;
   CLHEP::Hep3Vector momentum;
   int charge;
-  double weight;
   Trajectory::DataContainer trajectoryMeasurementsInTheSet;
 };
 

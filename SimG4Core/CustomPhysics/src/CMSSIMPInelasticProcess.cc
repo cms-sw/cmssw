@@ -27,8 +27,6 @@ CMSSIMPInelasticProcess::CMSSIMPInelasticProcess(const G4String& processName)
   theParticle = CMSSIMP::SIMP();
 }
 
-CMSSIMPInelasticProcess::~CMSSIMPInelasticProcess() {}
-
 G4bool CMSSIMPInelasticProcess::IsApplicable(const G4ParticleDefinition& aP) {
   return theParticle->GetParticleType() == aP.GetParticleType();
 }

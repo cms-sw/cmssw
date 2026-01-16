@@ -44,6 +44,8 @@ namespace edmtest {
 
     void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     // ----------member data ---------------------------
     void watch1(const GadgetRcd&);
@@ -78,6 +80,10 @@ namespace edmtest {
   //
   // member functions
   //
+  void WhatsItWatcherAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    descriptions.addDefault(desc);
+  }
 
   // ------------ method called to produce the data  ------------
   void WhatsItWatcherAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {

@@ -1,4 +1,3 @@
-
 ###############################################################################
 # Way to use this:
 #   cmsRun testHGCalWaferInFileTest_cfg.py geometry=V17
@@ -7,7 +6,7 @@
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################

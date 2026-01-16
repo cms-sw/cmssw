@@ -103,16 +103,12 @@ void TestBTLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
         BTLDetId modId(imod->geographicalId().rawId());
         auto topoId = topo.product()->btlIndex(modId.rawId());
         auto topoDetId = topo.product()->btlidFromIndex(topoId.first, topoId.second);
-        LogVerbatim("MTDLayerDumpFull") << std::fixed << std::setw(5) << imodInd << " BTLDetId " << modId.rawId()
+        LogVerbatim("MTDLayerDumpFull") << std::fixed << std::setw(5) << imodInd << printBTLSMDetId(modId.rawId()).str()
                                         << " iphi/ieta = " << std::setw(4) << topoId.first << " / " << std::setw(4)
-                                        << topoId.second << " side = " << std::setw(4) << modId.mtdSide()
-                                        << " RU = " << std::setw(4) << modId.runit() << " mod = " << std::setw(4)
-                                        << modId.module() << " pos = " << fvecround(imod->position(), 4);
-        LogVerbatim("MTDLayerDump") << std::fixed << std::setw(5) << imodInd << " BTLDetId " << modId.rawId()
+                                        << topoId.second << " pos = " << fvecround(imod->position(), 4);
+        LogVerbatim("MTDLayerDump") << std::fixed << std::setw(5) << imodInd << printBTLSMDetId(modId.rawId()).str()
                                     << " iphi/ieta = " << std::setw(4) << topoId.first << " / " << std::setw(4)
-                                    << topoId.second << " side = " << std::setw(4) << modId.mtdSide()
-                                    << " RU = " << std::setw(4) << modId.runit() << " mod = " << std::setw(4)
-                                    << modId.module() << " pos = " << fvecround(imod->position(), 2);
+                                    << topoId.second << " pos = " << fvecround(imod->position(), 2);
         if (topoDetId != modId.rawId()) {
           LogVerbatim("MTDLayerDumpFull")
               << "DIFFERENCE BtlDetId " << modId.rawId() << " not equal to MTDTopology " << topoDetId;
@@ -132,14 +128,12 @@ void TestBTLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
             LogVerbatim("MTDLayerDumpFull")
                 << std::fixed << "...............phishift= "
                 << " iphi/ieta = " << std::setw(4) << newTopoId.first << " / " << std::setw(4) << newTopoId.second
-                << std::setw(4) << iside << " side = " << std::setw(4) << newId.mtdSide() << " RU = " << std::setw(4)
-                << newId.runit() << " mod = " << std::setw(4) << newId.module()
+                << std::setw(4) << iside << printBTLSMDetId(newId.rawId()).str()
                 << " pos = " << fvecround(layer->basicComponents()[idetNew]->position(), 4);
             LogVerbatim("MTDLayerDump") << std::fixed << "...............phishift= "
                                         << " iphi/ieta = " << std::setw(4) << newTopoId.first << " / " << std::setw(4)
-                                        << newTopoId.second << std::setw(4) << iside << " side = " << std::setw(4)
-                                        << newId.mtdSide() << " RU = " << std::setw(4) << newId.runit()
-                                        << " mod = " << std::setw(4) << newId.module()
+                                        << newTopoId.second << std::setw(4) << iside
+                                        << printBTLSMDetId(newId.rawId()).str()
                                         << " pos = " << fvecround(layer->basicComponents()[idetNew]->position(), 2);
           }
         }
@@ -156,14 +150,12 @@ void TestBTLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
             LogVerbatim("MTDLayerDumpFull")
                 << std::fixed << "...............etashift= "
                 << " iphi/ieta = " << std::setw(4) << newTopoId.first << " / " << std::setw(4) << newTopoId.second
-                << std::setw(4) << iside << " side = " << std::setw(4) << newId.mtdSide() << " RU = " << std::setw(4)
-                << newId.runit() << " mod = " << std::setw(4) << newId.module()
+                << std::setw(4) << iside << printBTLSMDetId(newId.rawId()).str()
                 << " pos = " << fvecround(layer->basicComponents()[idetNew]->position(), 4);
             LogVerbatim("MTDLayerDump") << std::fixed << "...............etashift= "
                                         << " iphi/ieta = " << std::setw(4) << newTopoId.first << " / " << std::setw(4)
-                                        << newTopoId.second << std::setw(4) << iside << " side = " << std::setw(4)
-                                        << newId.mtdSide() << " RU = " << std::setw(4) << newId.runit()
-                                        << " mod = " << std::setw(4) << newId.module()
+                                        << newTopoId.second << std::setw(4) << iside
+                                        << printBTLSMDetId(newId.rawId()).str()
                                         << " pos = " << fvecround(layer->basicComponents()[idetNew]->position(), 2);
           }
         }

@@ -80,7 +80,7 @@ runnumber="100101"
 
 ################
 echo "Running fileListMode test"
-CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2"
+CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=8 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2"
 CMDLINE_STARTFU="cmsRun unittest_FU.py runNumber=${runnumber} fffBaseDir=${OUTDIR}"
 ${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
 ${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR
@@ -153,7 +153,7 @@ ${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR
 rm -rf $OUTDIR/{ramdisk,data,*.log}
 
 echo "running DAQSource fileListMode test with full event FRD"
-CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=1"
+CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=8 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=1"
 CMDLINE_STARTFU="cmsRun unittest_FU_daqsource.py daqSourceMode=FRD runNumber=${runnumber} fffBaseDir=${OUTDIR}"
 ${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
 ${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR out_2_fu.log

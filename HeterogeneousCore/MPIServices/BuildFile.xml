@@ -1,4 +1,4 @@
-<use name="openmpi"/>
+<use name="mpi"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <export>

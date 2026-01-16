@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <cmath>
 
 #include "TFile.h"
 #include "TH1D.h"
@@ -185,7 +186,8 @@ void printPlot(TH1D* hist, char* prefix, char* postfix) {
   delete cc;
 }
 int getChannelNumber(int ival) {
-  int chan = int(32 * fmod(int(fmod(ival, 256.) / 2.), 4.) + 8 * int(int(fmod(ival, 256.) / 2.) / 4.) -
-                 31 * int(int(fmod(ival, 256.) / 2.) / 16.) + fmod(fmod(ival, 256.), 2.) * 128 + int(ival / 256) * 256);
+  int chan = int(32 * std::fmod(int(std::fmod(ival, 256.) / 2.), 4.) + 8 * int(int(std::fmod(ival, 256.) / 2.) / 4.) -
+                 31 * int(int(std::fmod(ival, 256.) / 2.) / 16.) + std::fmod(std::fmod(ival, 256.), 2.) * 128 +
+                 int(ival / 256) * 256);
   return chan;
 }

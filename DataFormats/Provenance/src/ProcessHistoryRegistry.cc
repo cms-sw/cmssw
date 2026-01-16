@@ -1,4 +1,5 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/processingOrderMerge.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cassert>
@@ -42,4 +43,25 @@ namespace edm {
     }
     return &iter->second;
   }
+
+  void processingOrderMerge(ProcessHistoryRegistry const& registry, std::vector<std::string>& processNames) {
+    /*handle a case for reading an old file merge in a possibly incompatible way*/
+    if (registry.begin() == registry.end()) {
+      return;
+    }
+    auto itLongest = registry.begin();
+    for (auto it = registry.begin(), itEnd = registry.end(); it != itEnd; ++it) {
+      if (it->second.size() > itLongest->second.size()) {
+        itLongest = it;
+      }
+    }
+    processingOrderMerge(itLongest->second, processNames);
+    for (auto it = registry.begin(), itEnd = registry.end(); it != itEnd; ++it) {
+      if (it == itLongest) {
+        continue;
+      }
+      processingOrderMerge(it->second, processNames);
+    }
+  }
+
 }  // namespace edm

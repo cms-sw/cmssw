@@ -1,8 +1,8 @@
 #!/bin/bash
 function die { echo $1: status $2; exit $2; }
 GT=`echo ${@} | python3 -c 'import Configuration.AlCa.autoCond as AC;print(AC.autoCond["run3_data_prompt"])'`
-RUN="319176"
-DQMFILE="/store/group/comm_dqm/DQMGUI_data/Run2018/ZeroBias/R0003191xx/DQM_V0001_R000319176__ZeroBias__Run2018B-PromptReco-v2__DQMIO.root"
+RUN="398593"
+DQMFILE="/store/group/comm_dqm/DQMGUI_data/Run2025/ZeroBias/0003985xx/DQM_V0001_R000398593__ZeroBias__Run2025G-PromptReco-v1__DQMIO.root"
 COMMMAND=`xrdfs cms-xrd-global.cern.ch locate $DQMFILE`
 STATUS=$?
 echo "xrdfs command status = "$STATUS

@@ -183,7 +183,7 @@ HcalDigiStudy::HcalDigiStudy(const edm::ParameterSet& iConfig) {
   tok_ho_ = consumes<HODigiCollection>(inputTag_);
   tok_hf_ = consumes<HFDigiCollection>(inputTag_);
   tok_emulTPs_ = consumes<HcalTrigPrimDigiCollection>(emulTPsTag_);
-  if (dataTPsTag_ == edm::InputTag("")) {
+  if (dataTPsTag_.isUninitialized()) {
     skipDataTPs = true;
     skipTPs = true;
   } else {

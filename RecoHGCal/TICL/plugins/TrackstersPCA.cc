@@ -74,6 +74,9 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       barycenter *= inv_raw_energy;
     trackster.setBarycenter(ticl::Trackster::Vector(barycenter));
 
+    trackster.calculateRawPt();
+    trackster.calculateRawEmPt();
+
     LogDebug("TrackstersPCA_Eigen") << "cleaning is  :" << clean << std::endl;
 
     std::vector<unsigned> filtered_idx;  // indices of layer clusters to consider for cleaned PCA

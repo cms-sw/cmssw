@@ -151,7 +151,7 @@ std::cout<<str.str()<<std::endl;
           payload = this->fetchPayload(std::get<1>(lastiov));
         }
         if (payload.get()) {
-          EcalTimeBiasCorrections it = (*payload);
+          const EcalTimeBiasCorrections& it = (*payload);
 
           NbRows = it.EBTimeCorrAmplitudeBins.size();
           if (irun == 1) {

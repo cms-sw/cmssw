@@ -37,8 +37,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::raw {
       // size
       auto const gridDim = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
       auto const size = ifed == gridDim - 1 ? nbytesTotal - offset : offsets[ifed + 1] - offset;
-      auto* samples = isBarrel ? digisDevEB.data()->data() : digisDevEE.data()->data();
-      auto* ids = isBarrel ? digisDevEB.id() : digisDevEE.id();
+      // digisDevEB.data() returns a span<EcalDataArray>, where EcalDataArray is an array of uint16_t
+      // digisDevEB.data().data() returns a pointer to the first EcalDataArray of the data column
+      // digisDevEB.data().data()->data() returns a pointer to the first uint16_t of the first EcalDataArray of the data column
+      auto* samples = isBarrel ? digisDevEB.data().data()->data() : digisDevEE.data().data()->data();
+      auto* ids = isBarrel ? digisDevEB.id().data() : digisDevEE.id().data();
       auto* pChannelsCounter = isBarrel ? &digisDevEB.size() : &digisDevEE.size();
 
       // offset to the right raw buffer

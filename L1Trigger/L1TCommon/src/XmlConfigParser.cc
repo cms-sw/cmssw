@@ -8,6 +8,7 @@ using namespace std;
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 
@@ -53,7 +54,7 @@ XmlConfigParser::XmlConfigParser()
       kAttrDelim(nullptr),
       kAttrModule(nullptr),
       kTypeTable("table") {
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   kTagHw = XMLString::transcode("system");
   kTagAlgo = XMLString::transcode("algo");
@@ -114,7 +115,7 @@ XmlConfigParser::XmlConfigParser(DOMDocument* doc)
       kAttrDelim(nullptr),
       kAttrModule(nullptr),
       kTypeTable("table") {
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   kTagHw = XMLString::transcode("system");
   kTagAlgo = XMLString::transcode("algo");
@@ -147,7 +148,7 @@ XmlConfigParser::XmlConfigParser(DOMDocument* doc)
 
 XmlConfigParser::~XmlConfigParser() {
   delete parser_;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
 }
 
 void XmlConfigParser::readDOMFromString(const std::string& str, DOMDocument*& doc) {

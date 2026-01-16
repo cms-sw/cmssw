@@ -3,7 +3,7 @@ from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
 from HLTriggerOffline.Egamma.EgammaPostProcessor_cfi import *
 from HLTriggerOffline.B2G.b2gHLTValidationHarvest_cff import *
 from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationHarvestingSequence_cff import *
-from HLTriggerOffline.JetMET.Validation.JetMETPostProcessor_cff import *
+from HLTriggerOffline.JetMET.Validation.HLTJetMETPostVal_cff import *
 #from HLTriggerOffline.special.hltAlCaPostVal_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_postProcessor_cff import *
 from HLTriggerOffline.Higgs.HLTHiggsPostVal_cff import *
@@ -16,16 +16,18 @@ from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
 from Validation.HGCalValidation.HLTHGCalPostProcessor_cff import *
+from Validation.HLTrigger.HLTGenValidationHarvesting_cff import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
+    +postProcessorHLTvertexingReconstructableSim
     +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
     + postProcessorHLTgsfTrackingSequence
     +heavyFlavorValidationHarvestingSequence
-    +JetMETPostVal
+    +HLTJetMETPostVal
     #+HLTAlCaPostVal
     +SusyExoPostVal
    #+ExamplePostVal
@@ -42,9 +44,8 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 # Exclude everything except JetMET for now
 _phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([HLTTauPostVal,
                                                                EgammaPostVal,
-                                                               postProcessorHLTgsfTrackingSequence,
                                                                heavyFlavorValidationHarvestingSequence,
-                                                               #JetMETPostVal,
+                                                               #HLTJetMETPostVal,
                                                                #HLTAlCaPostVal,
                                                                SusyExoPostVal,
                                                                #ExamplePostVal,
@@ -56,6 +57,9 @@ _phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([HLTTauPostVal,
                                                                HltBTagPostVal])
 # Add HGCal validation
 _phase2_hltpostvalidation += hltHcalValidatorPostProcessor
+
+# Add HLT gen validation
+_phase2_hltpostvalidation += hltGenValidationClient
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation)

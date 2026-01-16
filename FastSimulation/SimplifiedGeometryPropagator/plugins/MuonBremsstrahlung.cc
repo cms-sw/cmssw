@@ -82,7 +82,7 @@ namespace fastsim {
     //! Petrukhin Function: Returns cross section using nuclear-electron screening correction from G4 style
     static double PetrukhinFunc(double *x, double *p);
 
-    TF1 *Petrfunc;                    //!< The Petrukhin Function
+    std::unique_ptr<TF1> Petrfunc;    //!< The Petrukhin Function
     double minPhotonEnergy_;          //!< Cut on minimum energy of bremsstrahlung photons
     double minPhotonEnergyFraction_;  //!< Cut on minimum fraction of particle's energy which has to be carried by photon
     double density_;                  //!< Density of material (usually silicon rho=2.329)
@@ -145,7 +145,7 @@ void fastsim::MuonBremsstrahlung::interact(fastsim::Particle &particle,
   double xmax = 1.;
 
   // create TF1 using a free C function
-  Petrfunc = new TF1("Petrfunc", PetrukhinFunc, xmin, xmax, 3);
+  Petrfunc = std::make_unique<TF1>("Petrfunc", PetrukhinFunc, xmin, xmax, 3);
   // Setting parameters
   Petrfunc->SetParameters(particle.momentum().E(), A_, Z_);
   // d = distance for several materials
@@ -183,7 +183,7 @@ void fastsim::MuonBremsstrahlung::interact(fastsim::Particle &particle,
     photonMom = ROOT::Math::RotationZ(phi) * (ROOT::Math::RotationY(theta) * photonMom);
 
     // Add a photon
-    secondaries.emplace_back(new fastsim::Particle(22, particle.position(), photonMom));
+    secondaries.emplace_back(std::make_unique<fastsim::Particle>(22, particle.position(), photonMom));
 
     // Update the original e+/-
     particle.momentum() -= photonMom;

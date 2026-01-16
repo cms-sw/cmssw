@@ -790,7 +790,7 @@ bool PFEGammaAlgo::unwrapSuperCluster(const PFSCElement* thesc,
                                                  << " This is a bug we should fix this!" << std::endl;
     return false;
   }
-  reco::SuperClusterRef scref = thesc->superClusterRef();
+  const reco::SuperClusterRef& scref = thesc->superClusterRef();
   const bool is_pf_sc = thesc->fromPFSuperCluster();
   if (!(scref.isAvailable() && scref.isNonnull())) {
     throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")

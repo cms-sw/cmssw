@@ -18,7 +18,7 @@ public:
   ~CaloTowerTopology() override {}
   /// is this detid present in the Topology?
   bool valid(const DetId& id) const override;
-  virtual bool validDetId(const CaloTowerDetId& id) const;
+  bool validDetId(const CaloTowerDetId& id) const;
   /** Get the neighbors of the given cell in east direction*/
   std::vector<DetId> east(const DetId& id) const override;
   /** Get the neighbors of the given cell in west direction*/

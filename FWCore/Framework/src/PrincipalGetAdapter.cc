@@ -147,7 +147,6 @@ namespace edm {
                                                ModuleCallingContext const* mcc) const {
     ProductResolverIndexAndSkipBit indexAndBit = consumer_->indexFrom(token, branchType(), id);
     ProductResolverIndex index = indexAndBit.productResolverIndex();
-    bool skipCurrentProcess = indexAndBit.skipCurrentProcess();
     if (UNLIKELY(index == ProductResolverIndexInvalid)) {
       return makeFailToGetException(kindOfType, id, token);
     } else if (UNLIKELY(index == ProductResolverIndexAmbiguous)) {
@@ -155,8 +154,7 @@ namespace edm {
       throwAmbiguousException(id, token);
     }
     bool ambiguous = false;
-    BasicHandle h =
-        principal_.getByToken(kindOfType, id, index, skipCurrentProcess, ambiguous, resourcesAcquirer_, mcc);
+    BasicHandle h = principal_.getByToken(kindOfType, id, index, ambiguous, resourcesAcquirer_, mcc);
     if (ambiguous) {
       // This deals with ambiguities where the process is not specified
       throwAmbiguousException(id, token);

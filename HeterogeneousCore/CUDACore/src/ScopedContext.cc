@@ -89,8 +89,4 @@ namespace cms::cuda {
     // elsewhere as well.
     cudaEventRecord(event_.get(), stream());
   }
-
-  ////////////////////
-
-  ScopedContextTask::~ScopedContextTask() { holderHelper_.enqueueCallback(device(), stream()); }
 }  // namespace cms::cuda

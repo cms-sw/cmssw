@@ -57,12 +57,9 @@ namespace evf {
         hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory", "")),
         hostname_(""),
         bu_readlock_fd_(-1),
-        bu_writelock_fd_(-1),
         fu_readwritelock_fd_(-1),
         fulocal_rwlock_fd_(-1),
         fulocal_rwlock_fd2_(-1),
-        bu_w_lock_stream(nullptr),
-        bu_r_lock_stream(nullptr),
         fu_rw_lock_stream(nullptr),
         dirManager_(base_dir_),
         previousFileSize_(0),
@@ -74,7 +71,6 @@ namespace evf {
         fu_rw_fulk(make_flock(F_UNLCK, SEEK_SET, 0, 0, getpid())) {
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
     reg.watchPreGlobalBeginRun(this, &EvFDaqDirector::preBeginRun);
-    reg.watchPostGlobalEndRun(this, &EvFDaqDirector::postEndRun);
     reg.watchPreGlobalEndLumi(this, &EvFDaqDirector::preGlobalEndLumi);
 
     //save hostname for later
@@ -216,7 +212,6 @@ namespace evf {
     //for BU, it is created at this point
     if (directorBU_) {
       bu_run_dir_ = base_dir_ + "/" + run_string_;
-      std::string bulockfile = bu_run_dir_ + "/bu.lock";
       fulockfile_ = bu_run_dir_ + "/fu.lock";
 
       //make or find bu run dir
@@ -232,30 +227,23 @@ namespace evf {
             << " Error creating bu run open dir -: " << bu_run_open_dir_ << " mkdir error:" << strerror(errno);
       }
 
-      // the BU director does not need to know about the fu lock
-      bu_writelock_fd_ = open(bulockfile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
-      if (bu_writelock_fd_ == -1)
-        edm::LogWarning("EvFDaqDirector") << "problem with creating filedesc for buwritelock -: " << strerror(errno);
-      else
-        edm::LogInfo("EvFDaqDirector") << "creating filedesc for buwritelock -: " << bu_writelock_fd_;
-      bu_w_lock_stream = fdopen(bu_writelock_fd_, "w");
-      if (bu_w_lock_stream == nullptr)
-        edm::LogWarning("EvFDaqDirector") << "Error creating write lock stream -: " << strerror(errno);
-
-      // BU INITIALIZES LOCK FILE
-      // FU LOCK FILE OPEN
-      openFULockfileStream(true);
-      tryInitializeFuLockFile();
-      fflush(fu_rw_lock_stream);
-      close(fu_readwritelock_fd_);
-
       if (!hltSourceDirectory_.empty()) {
         struct stat buf;
         if (stat(hltSourceDirectory_.c_str(), &buf) == 0) {
           std::string hltdir = bu_run_dir_ + "/hlt";
-          std::string tmphltdir = bu_run_open_dir_ + "/hlt";
+          if (!stat(hltdir.c_str(), &buf)) {
+            edm::LogInfo("EvFDaqDirector") << "hlt directory already exists";
+            return;
+          }
+
+          timeval ts_temp;
+          gettimeofday(&ts_temp, nullptr);
+          std::stringstream ss;
+          ss << bu_run_open_dir_ << "/hlt" << getpid() << "_" << ts_temp.tv_sec << "_" << ts_temp.tv_usec;
+          std::string tmphltdir = ss.str();
+          //this directory should be unique
           retval = mkdir(tmphltdir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-          if (retval != 0 && errno != EEXIST)
+          if (retval)
             throw cms::Exception("DaqDirector")
                 << " Error creating bu run dir -: " << hltdir << " mkdir error:" << strerror(errno);
 
@@ -274,8 +262,12 @@ namespace evf {
             } catch (...) {
             }
           }
-
-          std::filesystem::rename(tmphltdir, hltdir);
+          try {
+            std::filesystem::rename(tmphltdir, hltdir);
+          } catch (std::filesystem::filesystem_error& e) {
+            if (e.code() != std::errc::file_exists)
+              throw e;
+          }
         } else
           throw cms::Exception("DaqDirector") << " Error looking for HLT configuration -: " << hltSourceDirectory_;
       }
@@ -428,15 +420,6 @@ namespace evf {
     if (dirManager_.findHighestRunDir() != run_dir_) {
       edm::LogWarning("EvFDaqDirector") << "WARNING - checking run dir -: " << run_dir_
                                         << ". This is not the highest run " << dirManager_.findHighestRunDir();
-    }
-  }
-
-  void EvFDaqDirector::postEndRun(edm::GlobalContext const& globalContext) {
-    close(bu_readlock_fd_);
-    close(bu_writelock_fd_);
-    if (directorBU_) {
-      std::string filename = bu_run_dir_ + "/bu.lock";
-      removeFile(filename);
     }
   }
 
@@ -1138,7 +1121,7 @@ namespace evf {
     if (rawFd == -1) {
       if ((rawFd = ::open(rawPath.c_str(), O_RDONLY)) < 0) {
         edm::LogWarning("EvFDaqDirector")
-            << "parseFRDFileHeader - failed to open input file -: " << rawPath << " : " << strerror(errno);
+            << "hasFRDFileHeader - failed to open input file -: " << rawPath << " : " << strerror(errno);
         return retErr();
       }
     }
@@ -1243,8 +1226,22 @@ namespace evf {
     return false;
   }
 
+  uint16_t EvFDaqDirector::frdFileDataType(const void* buf) const {
+    //v2 is the largest possible read
+    const FRDFileHeader_v2* hdr = static_cast<const FRDFileHeader_v2*>(buf);
+
+    const FRDFileHeaderIdentifier* fileId = (const FRDFileHeaderIdentifier*)hdr;
+    uint16_t frd_version = getFRDFileHeaderVersion(fileId->id_, fileId->version_);
+
+    if (frd_version == 2) {
+      return hdr->c_.dataType_;
+    }
+    return 0;
+  }
+
   int EvFDaqDirector::grabNextJsonFromRaw(std::string const& rawSourcePath,
                                           int& rawFd,
+                                          uint16_t& rawDataType,
                                           uint16_t& rawHeaderSize,
                                           int64_t& fileSizeFromHeader,
                                           bool& fileFound,
@@ -1272,7 +1269,6 @@ namespace evf {
     uint32_t lsFromRaw;
     int32_t nbEventsWrittenRaw;
     int64_t fileSizeFromRaw;
-    uint16_t rawDataType;
     auto ret = parseFRDFileHeader(rawSourcePath,
                                   rawFd,
                                   rawHeaderSize,
@@ -1930,6 +1926,8 @@ namespace evf {
               continue;
             }
             auto lumi = extractLumiSectionNumber(fname);
+            if (lumi > 0 && lumi < minDiscoveryLS_)
+              continue;
             if (fname.find("_EoLS.jsn") != std::string::npos) {
               if (lumi > (int)maxClosedLS)
                 maxClosedLS = lumi;
@@ -1957,7 +1955,7 @@ namespace evf {
             if (fname.size() < 4 || fname.substr(fname.size() - 4) != std::string(".raw"))
               continue;
             if (lumi >= (int)lastFileIdx_.first) {
-              if (extractIndexNumber(fname) >= lastFileIdx_.second) {
+              if (extractIndexNumber(fname) > lastFileIdx_.second) {
                 filenames.push_back(entry.path().filename().string());
               }
             }
@@ -2029,7 +2027,7 @@ namespace evf {
         std::string fileprefix = "/fu/";
         std::string rawpath = bu_run_dir_ + "/" + name;  //filestem should be raw
         //make destination dir
-        if (!std::filesystem::exists(bu_run_dir_ + fileprefix)) {
+        if (!discoveryReadOnly_ && !std::filesystem::exists(bu_run_dir_ + fileprefix)) {
           std::filesystem::create_directory(bu_run_dir_ + fileprefix);
         }
         std::filesystem::path p = name;
@@ -2037,9 +2035,14 @@ namespace evf {
             fmt::format("{}{}{}{}", bu_run_dir_, fileprefix, p.stem().string(), p.extension().string());
         try {
           //grab file if possible
-          std::filesystem::rename(rawpath, nextFileRawTmp);
-          //apply changes
-          nextFileRaw = nextFileRawTmp;
+          if (!discoveryReadOnly_) {
+            //read-only mode allows only one client in file discovery option
+            std::filesystem::rename(rawpath, nextFileRawTmp);
+            //apply changes
+            nextFileRaw = nextFileRawTmp;
+          } else
+            nextFileRaw = rawpath;
+
           serverLS = nextLS;  //if changed
           closedServerLS = nextLS - 1;
 
@@ -2078,6 +2081,7 @@ namespace evf {
                                                                    unsigned int& ls,
                                                                    std::string& nextFileRaw,
                                                                    int& rawFd,
+                                                                   uint16_t& rawDataType,
                                                                    uint16_t& rawHeaderSize,
                                                                    int32_t& serverEventsInNewFile,
                                                                    int64_t& fileSizeFromMetadata,
@@ -2176,8 +2180,15 @@ namespace evf {
         //error reading header, set to -1 and trigger error downstream
         serverEventsInNewFile = -1;
       } else if (rawHeader) {
-        serverEventsInNewFile = grabNextJsonFromRaw(
-            nextFileRaw, rawFd, rawHeaderSize, fileSizeFromMetadata, fileFound, serverLS, false, requireHeader);
+        serverEventsInNewFile = grabNextJsonFromRaw(nextFileRaw,
+                                                    rawFd,
+                                                    rawDataType,
+                                                    rawHeaderSize,
+                                                    fileSizeFromMetadata,
+                                                    fileFound,
+                                                    serverLS,
+                                                    false,
+                                                    requireHeader);
       } else if (eventCounter) {
         //there is no header: then try to use model to count events
         serverEventsInNewFile = eventCounter(nextFileRaw, rawFd, fileSizeFromMetadata, serverLS, fileFound);

@@ -137,7 +137,7 @@ namespace TopSingleLepton {
     double eidCutValue_;
     // electron ISO things
 
-    edm::InputTag rhoTag;
+    edm::EDGetTokenT<double> rhoToken_;
 
     /// extra selection on electrons
 

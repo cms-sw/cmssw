@@ -20,7 +20,6 @@
 
 #include <string>
 
-class TrackInformation;
 class SimTrackManager;
 class TrackingSlaveSD;
 class FrameRotation;

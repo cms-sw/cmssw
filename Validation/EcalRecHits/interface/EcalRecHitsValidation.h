@@ -51,9 +51,10 @@ class EcalRecHitsValidation : public DQMEDAnalyzer {
 public:
   /// Constructor
   EcalRecHitsValidation(const edm::ParameterSet &ps);
-
   /// Destructor
   ~EcalRecHitsValidation() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 protected:
   void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
@@ -65,32 +66,20 @@ protected:
   void findEndcapMatrix(int nCellInX, int nCellInY, int CentralX, int CentralY, int CentralZ, MapType &themap);
 
 private:
-  std::string HepMCLabel;
-  std::string hitsProducer_;
+  const bool enableEndcaps_;
 
-  bool verbose_;
-
-  std::string outputFile_;
-
-  edm::InputTag EBrechitCollection_;
-  edm::InputTag EErechitCollection_;
-  edm::InputTag ESrechitCollection_;
-  edm::InputTag EBuncalibrechitCollection_;
-  edm::InputTag EEuncalibrechitCollection_;
-  bool enableEndcaps_;
-  // fix for consumes
-  edm::EDGetTokenT<edm::HepMCProduct> HepMCLabel_Token_;
-  edm::EDGetTokenT<EBRecHitCollection> EBrechitCollection_Token_;
-  edm::EDGetTokenT<EERecHitCollection> EErechitCollection_Token_;
-  edm::EDGetTokenT<ESRecHitCollection> ESrechitCollection_Token_;
-  edm::EDGetTokenT<EBUncalibratedRecHitCollection> EBuncalibrechitCollection_Token_;
-  edm::EDGetTokenT<EEUncalibratedRecHitCollection> EEuncalibrechitCollection_Token_;
-  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
-  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
-  edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
-  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> pAgc;
-  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> pEcsToken;
-  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> pttMapToken;
+  const edm::EDGetTokenT<edm::HepMCProduct> HepMCLabel_Token_;
+  const edm::EDGetTokenT<EBRecHitCollection> EBrechitCollection_Token_;
+  const edm::EDGetTokenT<EERecHitCollection> EErechitCollection_Token_;
+  const edm::EDGetTokenT<ESRecHitCollection> ESrechitCollection_Token_;
+  const edm::EDGetTokenT<EBUncalibratedRecHitCollection> EBuncalibrechitCollection_Token_;
+  const edm::EDGetTokenT<EEUncalibratedRecHitCollection> EEuncalibrechitCollection_Token_;
+  const edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
+  const edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
+  const edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
+  const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> pAgc_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> pEcsToken_;
+  const edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> pttMapToken_;
 
   MonitorElement *meGunEnergy_;
   MonitorElement *meGunEta_;
@@ -145,7 +134,7 @@ private:
   MonitorElement *meEERecHitSimHitFlag6_;
   MonitorElement *meEERecHitSimHitFlag7_;
 
-  std::vector<uint32_t> crystalMatrix;
+  std::vector<uint32_t> crystalMatrix_;
 };
 
 #endif

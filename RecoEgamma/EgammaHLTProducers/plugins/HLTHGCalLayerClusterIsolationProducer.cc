@@ -30,7 +30,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateIsolation.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
 
 #include "RecoEgamma/EgammaTools/interface/HGCalClusterTools.h"
 

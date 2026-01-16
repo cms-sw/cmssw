@@ -1,4 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-from ..modules.hltHighPtTripletStepTrackCandidates_cfi import hltHighPtTripletStepTrackCandidates as _hltHighPtTripletStepTrackCandidates
-hltHighPtTripletStepTrackCandidatespLSTCLST = _hltHighPtTripletStepTrackCandidates.clone( src = "hltInitialStepTrackCandidates:pLSTSsLST" )

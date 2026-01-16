@@ -68,7 +68,7 @@ void HGCalGeometryRotCheck::beginRun(const edm::Run&, const edm::EventSetup& iSe
       for (auto lay : layers_) {
         double zz = geom->topology().dddConstants().waferZ(lay - layerOff, true);
         GlobalPoint global1(r * cos(phi), r * sin(phi), zz);
-        DetId id = geom->getClosestCellHex(global1, true);
+        DetId id = geom->getClosestCellHex(global1, true, false);
         HGCSiliconDetId detId = HGCSiliconDetId(id);
         GlobalPoint global2 = geom->getPosition(id);
         double dx = global1.x() - global2.x();

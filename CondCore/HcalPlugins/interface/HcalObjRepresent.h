@@ -74,7 +74,7 @@ namespace HcalObjRepresent {
       std::string subDetName;
       std::vector<Item> itemsVec;
       std::pair<std::string, int> depthKey;
-      const char* histLabel;
+      std::string histLabel;
       for (std::pair<std::string, std::vector<Item> > cont : (*payload_).getAllContainers()) {
         subDetName = std::get<0>(cont);
         itemsVec = std::get<1>(cont);
@@ -95,9 +95,10 @@ namespace HcalObjRepresent {
 
             auto depthVal = depths_.find(depthKey);
             if (depthVal == depths_.end()) {
-              histLabel = ("run" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(depth)).c_str();
-              depths_.insert(std::make_pair(std::make_pair(subDetName, depth),
-                                            new TH2F(histLabel, histLabel, 83, -42.5, 41.5, 71, 0.5, 71.5)));
+              histLabel = "run" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(depth);
+              depths_.insert(
+                  std::make_pair(std::make_pair(subDetName, depth),
+                                 new TH2F(histLabel.c_str(), histLabel.c_str(), 83, -42.5, 41.5, 71, 0.5, 71.5)));
             }
             depths_[depthKey]->Fill(ieta, iphi, getValue(&item));
           }
@@ -290,7 +291,7 @@ namespace HcalObjRepresent {
                   int startDepth = 1,
                   int startCanv = 1,
                   std::string plotForm = "2DHist") {
-      const char* newName;
+      std::string newName;
       std::pair<float, float> range;
       int padNum;
       int maxDepth = (subDetName == "HO") ? 4 : subDetDepths_[subDetName];
@@ -329,11 +330,10 @@ namespace HcalObjRepresent {
           canvas->GetPad(padNum)->SetLeftMargin(0.152);
           canvas->GetPad(padNum)->SetRightMargin(0.02);
           //gStyle->SetTitleOffset(1.6,"Y");
-          newName = ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i) + "_" +
-                     (plotForm == "EtaProfile" ? "ieta" : "iphi"))
-                        .c_str();
-          //projection = ((TH2F*)(depths_[std::make_pair(subDetName,i)]->Clone("temp")))->ProjectionX(newName);
-          projection = GetProjection(depths_[std::make_pair(subDetName, i)], plotForm, newName, subDetName, i);
+          newName = "run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i) + "_" +
+                    (plotForm == "EtaProfile" ? "ieta" : "iphi");
+          //projection = ((TH2F*)(depths_[std::make_pair(subDetName,i)]->Clone("temp")))->ProjectionX(newName.c_str());
+          projection = GetProjection(depths_[std::make_pair(subDetName, i)], plotForm, newName.c_str(), subDetName, i);
           range = GetRange(projection);
           projection->Draw("hist");
           projection->GetXaxis()->SetTitle((plotForm == "EtaProfile" ? "ieta" : "iphi"));

@@ -18,19 +18,22 @@
 
 #include "EventFilter/Utilities/interface/DAQSourceModels.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "EventFilter/Utilities/interface/DTHHeaders.h"
 
-class FEDRawDataCollection;
+//class FEDRawDataCollection;
 
 class DataModeDTH : public DataMode {
 public:
-  DataModeDTH(DAQSource* daqSource, bool verifyChecksum) : DataMode(daqSource), verifyChecksum_(verifyChecksum) {}
+  DataModeDTH(DAQSource* daqSource, bool verifyChecksum, bool legacyFRDCollection)
+      : DataMode(daqSource), verifyChecksum_(verifyChecksum), legacyFRDCollection_(legacyFRDCollection) {}
   ~DataModeDTH() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
 
   //non-virtual
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection& rawData);
+  edm::Timestamp fillFEDRawData(RawDataBuffer& rawData);
 
   int dataVersion() const override { return detectedDTHversion_; }
   void detectVersion(unsigned char* fileBuf, uint32_t fileHeaderOffset) override {
@@ -84,6 +87,7 @@ public:
 
 private:
   bool verifyChecksum_;
+  bool legacyFRDCollection_;
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>> daqProvenanceHelpers_;
   std::vector<std::filesystem::path> buPaths_;
   std::vector<int> buNumSources_;
@@ -93,6 +97,7 @@ private:
   evf::DTHOrbitHeader_v1* firstOrbitHeader_ = nullptr;
   uint64_t nextEventID_ = 0;
   std::vector<evf::DTHFragmentTrailer_v1*> eventFragments_;  //events in block (DTH trailer)
+  uint32_t totalEventSize_ = 0;
   //numFiles_ = 0;
   bool dataBlockInitialized_ = false;
   bool blockCompleted_ = true;

@@ -42,7 +42,7 @@ public:
     double time;
   };
 
-  std::vector<Hit> getHits(const G4Step *aStep, bool &ok, double weight, bool onlyLong = false);
+  std::vector<Hit> getHits(const G4Step *aStep, bool &ok, double weight, bool onlyLong = false) const;
   std::vector<Hit> fillHits(const G4ThreeVector &p,
                             const G4ThreeVector &v,
                             int parCode,
@@ -50,7 +50,7 @@ public:
                             bool &ok,
                             double weight,
                             double time,
-                            bool onlyLong = false);
+                            bool onlyLong = false) const;
 
   struct Params {
     double probMax_;
@@ -83,8 +83,8 @@ private:
     float listVersion_;
   };
   VersionInfo loadEventInfo(TBranch *, int fileVersion);
-  HFShowerPhotonCollection interpolate(int, double);
-  HFShowerPhotonCollection extrapolate(int, double);
+  HFShowerPhotonCollection interpolate(int, double) const;
+  HFShowerPhotonCollection extrapolate(int, double) const;
   void storePhoton(HFShowerPhoton const &iPhoton, HFShowerPhotonCollection &iPhotons) const;
 
   enum class FileFormat { kOld, kNew, kNewV3 };

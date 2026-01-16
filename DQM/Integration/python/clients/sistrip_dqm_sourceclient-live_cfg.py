@@ -168,7 +168,7 @@ process.trackingQTester = DQMQualityTester(
 #--------------------------
 # Service
 #--------------------------
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 
 # Simple filter for event
 process.eventFilter = cms.EDFilter("SimpleEventFilter",
@@ -245,7 +245,7 @@ process.SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = False
 ### COSMIC RUN SETTING
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
     # event selection for cosmic data
-    if ((process.runType.getRunType() == process.runType.cosmic_run) and live): process.source.SelectEvents = ['HLT*SingleMu*','HLT_L1*']
+    if ((process.runType.getRunType() == process.runType.cosmic_run) and live and (not options.inputFiles)): process.source.SelectEvents = ['HLT*SingleMu*','HLT_L1*']
     # Reference run for cosmic
     # Source config for cosmic data
     process.SiStripSources_TrkReco_cosmic = cms.Sequence(process.SiStripMonitorTrack_ckf*process.TrackMon_ckf)
@@ -267,8 +267,13 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
 
     # Reco for cosmic data
     process.load('RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi')
-    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfStripClusters = 450
-    process.combinatorialcosmicseedfinderP5.MaxNumberOfStripClusters = 450
+    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfStripClusters = 1000
+    process.combinatorialcosmicseedfinderP5.MaxNumberOfStripClusters = 1000
+
+    process.load('RecoTracker.FinalTrackSelectors.CTFFinalTrackSelectorP5_cff')
+    process.ctfWithMaterialTracksP5.min_nHit = 8
+    process.load('RecoTracker.FinalTrackSelectors.CosmicTFFinalTrackSelectorP5_cff')
+    process.cosmictrackfinderP5.min_nHit = 8
 
     process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.ctftracksP5)
 
@@ -304,7 +309,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
 ### COMMISSIONING RUN SETTINGS
 if (process.runType.getRunType() == process.runType.commissioning_run):
     #event selection for commissioning runs
-    if ((process.runType.getRunType() == process.runType.commissioning_run) and live):
+    if ((process.runType.getRunType() == process.runType.commissioning_run) and live and (not options.inputFiles)):
         process.source.SelectEvents = ['HLT_*']
 
     process.SiStripFedMonitor = cms.Sequence(process.siStripFEDMonitor)
@@ -318,7 +323,7 @@ if (process.runType.getRunType() == process.runType.commissioning_run):
 ### pp COLLISION SETTING
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1):
     #event selection for pp collisions
-    if ((process.runType.getRunType() == process.runType.pp_run) and live):
+    if ((process.runType.getRunType() == process.runType.pp_run) and live and (not options.inputFiles)):
         process.source.SelectEvents = [
             'HLT_L1*',
             'HLT_Jet*',
@@ -512,7 +517,7 @@ if (process.runType.getRunType() == process.runType.hpu_run):
 process.castorDigis.InputLabel = rawDataCollectorLabel
 process.csctfDigis.producer = rawDataCollectorLabel
 process.dttfDigis.DTTF_FED_Source = rawDataCollectorLabel
-process.ecalDigisCPU.InputLabel = rawDataCollectorLabel
+process.ecalDigis.InputLabel = rawDataCollectorLabel
 process.ecalPreshowerDigis.sourceTag = rawDataCollectorLabel
 process.gctDigis.inputLabel = rawDataCollectorLabel
 process.gtDigis.DaqGtInputTag = rawDataCollectorLabel
@@ -537,7 +542,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.castorDigis.InputLabel = rawDataRepackerLabel
     process.csctfDigis.producer = rawDataRepackerLabel
     process.dttfDigis.DTTF_FED_Source = rawDataRepackerLabel
-    process.ecalDigisCPU.InputLabel = rawDataRepackerLabel
+    process.ecalDigis.InputLabel = rawDataRepackerLabel
     process.ecalPreshowerDigis.sourceTag = rawDataRepackerLabel
     process.gctDigis.inputLabel = rawDataRepackerLabel
     process.hcalDigis.InputLabel = rawDataRepackerLabel
@@ -550,7 +555,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.siStripFEDMonitor.RawDataTag = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel
 
-    if ((process.runType.getRunType() == process.runType.hi_run) and live):
+    if ((process.runType.getRunType() == process.runType.hi_run) and live and (not options.inputFiles)):
         process.source.SelectEvents = [
 #            'HLT_HICentralityVeto*', # present in 2018 and 2022 HIon menus
             'HLT_HIMinimumBias*',     # replaced HLT_HICentralityVeto starting from the 2023 HIon menu

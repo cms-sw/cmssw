@@ -80,15 +80,19 @@ double g[11][100];
 
 // Lorentzian convoluted with a gaussian:
 // --------------------------------------
-TF1 *GL = new TF1(
-    "GL", "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-[2])/[3],2))/([3]*sqrt(6.283185))", 0, 1000);
+TF1 *GL = new TF1("GL",
+                  "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-[2])/[3],2))/([3]*sqrt(6.283185))",
+                  0,
+                  1000,
+                  TF1::EAddToList::kNo);
 
 TF2 *GL2 = new TF2("GL2",
                    "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-y)/[2],2))/([2]*sqrt(6.283185))",
                    0,
                    200,
                    0,
-                   200);
+                   200,
+                   "NL");
 
 // // Lorentzian convoluted with a gaussian over a linear background:
 // // ---------------------------------------------------------------

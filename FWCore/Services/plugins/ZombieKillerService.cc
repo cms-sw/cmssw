@@ -50,12 +50,6 @@ namespace edm {
 
 using namespace edm;
 
-namespace edm {
-  namespace service {
-    inline bool isProcessWideService(ZombieKillerService const*) { return true; }
-  }  // namespace service
-}  // namespace edm
-
 ZombieKillerService::ZombieKillerService(edm::ParameterSet const& iPSet, edm::ActivityRegistry& iRegistry)
     : m_checkThreshold(iPSet.getUntrackedParameter<unsigned int>("numberOfAllowedFailedChecksInARow")),
       m_secsBetweenChecks(iPSet.getUntrackedParameter<unsigned int>("secondsBetweenChecks")),

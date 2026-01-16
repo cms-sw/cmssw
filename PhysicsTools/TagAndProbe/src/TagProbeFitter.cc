@@ -31,6 +31,8 @@
 #include "RooThresholdCategory.h"
 #include "RooWorkspace.h"
 #include "RooTreeDataStore.h"
+#include "RooAbsPdf.h"
+#include "RooAbsArg.h"
 
 using namespace std;
 using namespace RooFit;

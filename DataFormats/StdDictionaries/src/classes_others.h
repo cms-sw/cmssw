@@ -7,3 +7,4 @@
 #include <vector>
 #include <functional>
 #include <atomic>
+#include <variant>

@@ -11,15 +11,15 @@
 
 namespace l1t {
   class PFTrack;
-  class PFCluster;
   class PFCandidate;
+  class L1Candidate;
   class SAMuon;
 }  // namespace l1t
 
 namespace l1ct {
 
   struct HadCaloObjEmu : public HadCaloObj {
-    const l1t::PFCluster *src = nullptr;
+    const l1t::L1Candidate *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -29,7 +29,7 @@ namespace l1ct {
   };
 
   struct EmCaloObjEmu : public EmCaloObj {
-    const l1t::PFCluster *src = nullptr;
+    const l1t::L1Candidate *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -69,7 +69,7 @@ namespace l1ct {
   };
 
   struct PFChargedObjEmu : public PFChargedObj {
-    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::L1Candidate *srcCluster = nullptr;
     const l1t::PFTrack *srcTrack = nullptr;
     const l1t::SAMuon *srcMu = nullptr;
     const l1t::PFCandidate *srcCand = nullptr;
@@ -85,7 +85,7 @@ namespace l1ct {
   };
 
   struct PFNeutralObjEmu : public PFNeutralObj {
-    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::L1Candidate *srcCluster = nullptr;
     const l1t::PFCandidate *srcCand = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
@@ -112,7 +112,7 @@ namespace l1ct {
   };
 
   struct PuppiObjEmu : public PuppiObj {
-    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::L1Candidate *srcCluster = nullptr;
     const l1t::PFTrack *srcTrack = nullptr;
     const l1t::SAMuon *srcMu = nullptr;
     const l1t::PFCandidate *srcCand = nullptr;
@@ -149,7 +149,7 @@ namespace l1ct {
   };
 
   struct EGObjEmu : public EGIsoObj {
-    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::L1Candidate *srcCluster = nullptr;
     void clear() {
       srcCluster = nullptr;
       EGIsoObj::clear();
@@ -157,7 +157,7 @@ namespace l1ct {
   };
 
   struct EGIsoObjEmu : public EGIsoObj {
-    const l1t::PFCluster *srcCluster;
+    const l1t::L1Candidate *srcCluster;
 
     // NOTE: we use an index to the persistable RefPtr when we reshuffle collections
     // this way we avoid complex object in the object interface which needs to be used in standalone programs
@@ -193,7 +193,7 @@ namespace l1ct {
   };
 
   struct EGIsoEleObjEmu : public EGIsoEleObj {
-    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::L1Candidate *srcCluster = nullptr;
     const l1t::PFTrack *srcTrack = nullptr;
 
     // NOTE: we use an index to the persistable RefPtr when we reshuffle collections
@@ -257,6 +257,9 @@ namespace l1ct {
     std::vector<DetectorSector<ap_uint<96>>> track;
     DetectorSector<ap_uint<64>> muon;  // muons are global
     std::vector<DetectorSector<ap_uint<256>>> hgcalcluster;
+    std::vector<DetectorSector<ap_uint<64>>> gctHad;  // the 48 hadronic clusters from the GCT
+    std::vector<DetectorSector<ap_uint<64>>> gctEm;   // the 36 EM clusters from the GCT
+    // (The trigger towers that follow the clusters are not included in the above data)
 
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
@@ -337,7 +340,7 @@ namespace l1ct {
   };
 
   struct Event {
-    enum { VERSION = 13 };
+    enum { VERSION = 14 };
     uint32_t run, lumi;
     uint64_t event;
     RawInputs raw;

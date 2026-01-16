@@ -5,6 +5,7 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/EcalAlgo"/>
+<use name="SimGeneral/HepPDTRecord"/>
 <export>
   <lib name="1"/>
 </export>

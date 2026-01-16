@@ -1,9 +1,10 @@
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 #include "TestSiteLocalConfig.h"
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
   edm::ServiceToken tempToken = edmtest::catalog::makeTestSiteLocalConfigToken();
@@ -24,6 +25,7 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
     edm::ServiceRegistry::Operate operate(tempToken);
 
     edm::InputFileCatalog catalog(std::vector<std::string>{"/store/foo/bar", "   file:/foo/bar", "root://foobar "}, "");
+    REQUIRE(!catalog.empty());
 
     SECTION("fileNames") {
       SECTION("Catalog 0") {
@@ -57,6 +59,7 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
       }
       SECTION("Catalog 1") {
         CHECK(items[0].fileName(1) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
+        CHECK(items[0].fileNames()[1] == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
       }
       SECTION("Catalog 2") { CHECK(items[0].fileName(2) == "root://host.domain//pnfs/cms/store/foo/bar"); }
     }

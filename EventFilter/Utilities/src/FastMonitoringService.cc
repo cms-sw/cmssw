@@ -820,6 +820,7 @@ namespace evf {
 
         if (fastMonIntervals_ && (snapCounter_ % fastMonIntervals_) == 0) {
           std::vector<std::string> CSVv;
+          CSVv.reserve(nMonThreads_);
           for (unsigned int i = 0; i < nMonThreads_; i++) {
             CSVv.push_back(fmt_->jsonMonitor_->getCSVString((int)i));
           }

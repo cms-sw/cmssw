@@ -1,8 +1,16 @@
-<use name="CUDADataFormats/SiPixelDigi"/>
-<use name="EventFilter/SiPixelRawToDigi"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="cuda"/>
-<use name="alpaka"/>
 <library file="*.cc" name="EventFilterSiPixelRawToDigiPlugins">
+  <use name="alpaka"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/SiPixelObjects"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/FEDRawData"/>
+  <use name="DataFormats/SiPixelDetId"/>
+  <use name="DataFormats/SiPixelDigi"/>
+  <use name="DataFormats/SiPixelDigiSoA"/>
+  <use name="DataFormats/SiPixelRawData"/>
+  <use name="EventFilter/SiPixelRawToDigi"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
   <flags EDM_PLUGIN="1"/>
 </library>

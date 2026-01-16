@@ -10,6 +10,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include <iostream>
+#include <sstream>
 
 class HGCalGeometryDump : public edm::one::EDAnalyzer<> {
 public:
@@ -49,6 +50,14 @@ void HGCalGeometryDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
   for (unsigned int k = 0; k < names_.size(); ++k) {
     const auto& geomR = iSetup.getData(geomTokens_[k]);
     const HGCalGeometry* geom = &geomR;
+
+    std::vector<double> thick = geom->topology().dddConstants().cellThickness();
+    std::ostringstream st1;
+    st1 << "Geometry has " << thick.size() << " wafers of thickness (micron)";
+    for (unsigned int k = 0; k < thick.size(); ++k)
+      st1 << " : " << thick[k];
+    edm::LogVerbatim("HGCalGeomX") << st1.str() << std::endl;
+
     const std::vector<DetId>& ids = geom->getValidDetIds();
     edm::LogVerbatim("HGCalGeomX") << ids.size() << " valid Ids for detector " << names_[k];
     int nall(0);

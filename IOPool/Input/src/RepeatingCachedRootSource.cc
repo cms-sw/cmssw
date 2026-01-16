@@ -38,16 +38,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
+#include "FWCore/Sources/interface/InputSourceRunHelper.h"
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 
-#include "RunHelper.h"
 #include "RootFile.h"
 #include "InputFile.h"
 #include "DuplicateChecker.h"
 
 namespace edm {
-  class RunHelperBase;
 
   class RepeatingCachedRootSource : public InputSource {
   public:
@@ -142,7 +141,7 @@ namespace edm {
 
     RootServiceChecker rootServiceChecker_;
     ProductSelectorRules selectorRules_;
-    edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
+    edm::propagate_const<std::unique_ptr<InputSourceRunHelperBase>> runHelper_;
     std::unique_ptr<RootFile> rootFile_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
     std::vector<std::vector<std::shared_ptr<edm::WrapperBase>>> cachedWrappers_;
@@ -176,7 +175,7 @@ using namespace edm;
 RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, InputSourceDescription const& desc)
     : InputSource(pset, desc),
       selectorRules_(pset, "inputCommands", "InputSource"),
-      runHelper_(std::make_unique<DefaultRunHelper>()),
+      runHelper_(std::make_unique<DefaultInputSourceRunHelper>()),
       cachedWrappers_(pset.getUntrackedParameter<unsigned int>("repeatNEvents")),
       eventAuxs_(cachedWrappers_.size()),
       provRetriever_(0),
@@ -210,8 +209,10 @@ RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, I
       logicalFileName, physicalFileName, 0 != nEventsToSkip, input, skipper, duplicateChecker, indexesIntoFiles);
   rootFile_->reportOpened("repeating");
 
+  std::vector<std::string> processOrder;
+  processingOrderMerge(processHistoryRegistry(), processOrder);
   auto const& prodList = rootFile_->productRegistry()->productList();
-  productRegistryUpdate().updateFromInput(prodList);
+  productRegistryUpdate().updateFromInput(prodList, processOrder);
 
   //setup caching
   auto nProdsInEvent =
@@ -311,38 +312,37 @@ std::unique_ptr<RootFile> RepeatingCachedRootSource::makeRootFile(
     std::shared_ptr<EventSkipperByID> skipper,
     std::shared_ptr<DuplicateChecker> duplicateChecker,
     std::vector<std::shared_ptr<IndexIntoFile>>& indexesIntoFiles) {
-  return std::make_unique<RootFile>(pName,
-                                    processConfiguration(),
-                                    logicalFileName,
-                                    filePtr,
-                                    skipper,
-                                    isSkipping,
-                                    remainingEvents(),
-                                    remainingLuminosityBlocks(),
-                                    1,
-                                    roottree::defaultCacheSize,  //treeCacheSize_,
-                                    -1,                          //treeMaxVirtualSize(),
-                                    processingMode(),
-                                    runHelper_,
-                                    false,  //noRunLumiSort_
-                                    true,   //noEventSort_,
-                                    selectorRules_,
-                                    InputType::Primary,
-                                    branchIDListHelper(),
-                                    processBlockHelper().get(),
-                                    thinnedAssociationsHelper(),
-                                    nullptr,  // associationsFromSecondary
-                                    duplicateChecker,
-                                    false,  //dropDescendants(),
-                                    processHistoryRegistryForUpdate(),
-                                    indexesIntoFiles,
-                                    0,  //currentIndexIntoFile,
-                                    orderedProcessHistoryIDs_,
-                                    false,   //bypassVersionCheck(),
-                                    true,    //labelRawDataLikeMC(),
-                                    false,   //usingGoToEvent_,
-                                    true,    //enablePrefetching_,
-                                    false);  //enforceGUIDInFileName_);
+  return std::make_unique<RootFile>(
+      RootFile::FileOptions{.fileName = pName,
+                            .logicalFileName = logicalFileName,
+                            .filePtr = filePtr,
+                            .bypassVersionCheck = false,
+                            .enforceGUIDInFileName = false},
+      InputType::Primary,
+      RootFile::ProcessingOptions{.eventSkipperByID = skipper,
+                                  .skipAnyEvents = isSkipping,
+                                  .remainingEvents = remainingEvents(),
+                                  .remainingLumis = remainingLuminosityBlocks(),
+                                  .processingMode = processingMode(),
+                                  .noRunLumiSort = false,
+                                  .noEventSort = true,
+                                  .usingGoToEvent = false},
+      RootFile::TTreeOptions{
+          .treeCacheSize = roottree::defaultCacheSize, .treeMaxVirtualSize = -1, .enablePrefetching = true},
+      RootFile::ProductChoices{.productSelectorRules = selectorRules_,
+                               .associationsFromSecondary = nullptr,
+                               .dropDescendantsOfDroppedProducts = false,
+                               .labelRawDataLikeMC = true},
+      RootFile::CrossFileInfo{.runHelper = runHelper_.get(),
+                              .branchIDListHelper = branchIDListHelper(),
+                              .processBlockHelper = processBlockHelper().get(),
+                              .thinnedAssociationsHelper = thinnedAssociationsHelper(),
+                              .duplicateChecker = duplicateChecker,
+                              .indexesIntoFiles = indexesIntoFiles,
+                              .currentIndexIntoFile = 0},
+      1,
+      processHistoryRegistryForUpdate(),
+      orderedProcessHistoryIDs_);
 }
 
 std::shared_ptr<WrapperBase> RepeatingCachedRootSource::getProduct(unsigned int iStreamIndex,

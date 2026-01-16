@@ -13,7 +13,10 @@
 #include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #endif
+
+#include "L1Trigger/Phase2L1ParticleFlow/interface/NNVtxAssoc.h"
 
 using namespace l1ct;
 using namespace linpuppi;
@@ -47,6 +50,12 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(unsigned int nTrack,
                                          double priorPh_1,
                                          pt_t ptCut_0,
                                          pt_t ptCut_1,
+                                         bool useMLAssociation,
+                                         const double associationThreshold,
+                                         std::string associationGraphPath,
+                                         std::vector<double> associationNetworkZ0binning,
+                                         std::vector<double> associationNetworkEtaBounds,
+                                         std::vector<double> associationNetworkZ0ResBins,
                                          unsigned int nFinalSort,
                                          SortAlgo finalSortAlgo)
     : nTrack_(nTrack),
@@ -68,6 +77,7 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(unsigned int nTrack,
       priorNe_(2),
       priorPh_(2),
       ptCut_(2),
+      useMLAssociation_(useMLAssociation),
       nFinalSort_(nFinalSort ? nFinalSort : nOut),
       finalSortAlgo_(finalSortAlgo),
       debug_(false),
@@ -92,6 +102,14 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(unsigned int nTrack,
   priorPh_[1] = priorPh_1;
   ptCut_[0] = ptCut_0;
   ptCut_[1] = ptCut_1;
+
+  if (useMLAssociation_ and withinCMSSW_) {
+    nnVtxAssoc_ = std::make_unique<NNVtxAssoc>(NNVtxAssoc(associationGraphPath,
+                                                          associationThreshold,
+                                                          associationNetworkZ0binning,
+                                                          associationNetworkEtaBounds,
+                                                          associationNetworkZ0ResBins));
+  }
 }
 
 #ifdef CMSSW_GIT_HASH
@@ -116,6 +134,7 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(const edm::ParameterSet &iConfig)
       priorNe_(iConfig.getParameter<std::vector<double>>("priors")),
       priorPh_(iConfig.getParameter<std::vector<double>>("priorsPhoton")),
       ptCut_(edm::vector_transform(iConfig.getParameter<std::vector<double>>("ptCut"), l1ct::Scales::makePtFromFloat)),
+      useMLAssociation_(iConfig.getParameter<bool>("useMLAssociation")),
       nFinalSort_(iConfig.getParameter<uint32_t>("nFinalSort")),
       debug_(iConfig.getUntrackedParameter<bool>("debug", false)),
       fakePuppi_(iConfig.getParameter<bool>("fakePuppi")) {
@@ -139,6 +158,18 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(const edm::ParameterSet &iConfig)
     throw cms::Exception("Configuration", "size mismatch for alphaCrop parameter");
   if (absEtaBins_.size() + 1 != ptCut_.size())
     throw cms::Exception("Configuration", "size mismatch for ptCut parameter");
+  if (useMLAssociation_) {
+    edm::ParameterSet nnVtxAssocPSet_ = iConfig.getParameter<edm::ParameterSet>("NNVtxAssociation");
+    edm::FileInPath associationGraphPathFIP =
+        edm::FileInPath(nnVtxAssocPSet_.getParameter<std::string>("associationGraph"));
+
+    nnVtxAssoc_ = std::make_unique<NNVtxAssoc>(
+        NNVtxAssoc(associationGraphPathFIP.fullPath(),
+                   nnVtxAssocPSet_.getParameter<double>("associationThreshold"),
+                   nnVtxAssocPSet_.getParameter<std::vector<double>>("associationNetworkZ0binning"),
+                   nnVtxAssocPSet_.getParameter<std::vector<double>>("associationNetworkEtaBounds"),
+                   nnVtxAssocPSet_.getParameter<std::vector<double>>("associationNetworkZ0ResBins")));
+  }
   const std::string &sortAlgo = iConfig.getParameter<std::string>("finalSortAlgo");
   if (sortAlgo == "Insertion")
     finalSortAlgo_ = SortAlgo::Insertion;
@@ -146,6 +177,8 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(const edm::ParameterSet &iConfig)
     finalSortAlgo_ = SortAlgo::BitonicRUFL;
   else if (sortAlgo == "BitonicHLS")
     finalSortAlgo_ = SortAlgo::BitonicHLS;
+  else if (sortAlgo == "BitonicVHDL")
+    finalSortAlgo_ = SortAlgo::BitonicVHDL;
   else if (sortAlgo == "Hybrid")
     finalSortAlgo_ = SortAlgo::Hybrid;
   else if (sortAlgo == "FoldedHybrid")
@@ -166,6 +199,8 @@ edm::ParameterSetDescription l1ct::LinPuppiEmulator::getParameterSetDescription(
   description.add<double>("ptMax");
   description.add<std::vector<double>>("absEtaCuts");
   description.add<std::vector<double>>("ptCut");
+  description.add<bool>("useMLAssociation");
+  description.add<edm::ParameterSetDescription>("NNVtxAssociation", NNVtxAssoc::getParameterSetDescription());
   description.add<std::vector<double>>("ptSlopes");
   description.add<std::vector<double>>("ptSlopesPhoton");
   description.add<std::vector<double>>("ptZeros");
@@ -176,9 +211,9 @@ edm::ParameterSetDescription l1ct::LinPuppiEmulator::getParameterSetDescription(
   description.add<std::vector<double>>("priors");
   description.add<std::vector<double>>("priorsPhoton");
   description.add<uint32_t>("nFinalSort");
-  description.ifValue(
-      edm::ParameterDescription<std::string>("finalSortAlgo", "Insertion", true),
-      edm::allowedValues<std::string>("Insertion", "BitonicRUFL", "BitonicHLS", "Hybrid", "FoldedHybrid"));
+  description.ifValue(edm::ParameterDescription<std::string>("finalSortAlgo", "Insertion", true),
+                      edm::allowedValues<std::string>(
+                          "Insertion", "BitonicRUFL", "BitonicHLS", "Hybrid", "FoldedHybrid", "BitonicVHDL"));
   description.add<bool>("fakePuppi", false);
   description.addUntracked<bool>("debug", false);
   return description;
@@ -213,6 +248,27 @@ void l1ct::LinPuppiEmulator::puppisort_and_crop_ref(unsigned int nOutMax,
     hybrid_bitonic_sort_and_crop_ref(in.size(), nOut, &in[0], &out[0], sortAlgo == SortAlgo::Hybrid);
   } else if (sortAlgo == SortAlgo::FoldedHybrid) {
     folded_hybrid_bitonic_sort_and_crop_ref(in.size(), nOut, &in[0], &out[0], true);
+  } else if (sortAlgo == SortAlgo::BitonicVHDL) {
+    // The VHDL version always takes power-of-2 inputs
+    // (Nominally it produces the same size output, though things may get optimized away in the implementation)
+
+    // find the po2 that's bigger than the input size
+    unsigned int nextpo2 = 1;
+    while (nextpo2 < in.size()) {
+      nextpo2 <<= 1;
+    }
+    std::vector<l1ct::PuppiObjEmu> inPadded(nextpo2);
+    for (unsigned int i = 0; i < in.size(); i++) {
+      inPadded[i] = in[i];
+    }
+    for (unsigned int i = in.size(); i < nextpo2; i++) {
+      inPadded[i].clear();
+    }
+    std::vector<l1ct::PuppiObjEmu> outPadded(nextpo2);
+    bitonic_sort_and_crop_ref(nextpo2, nextpo2, inPadded.data(), outPadded.data());
+    for (unsigned int i = 0; i < nOut; i++) {
+      out[i] = outPadded[i];
+    }
   }
 }
 
@@ -226,14 +282,20 @@ void l1ct::LinPuppiEmulator::linpuppi_chs_ref(const PFRegionEmu &region,
   for (unsigned int i = 0; i < nTrack; ++i) {
     int pZ0 = pfch[i].hwZ0;
     int z0diff = -99999;
+    bool pass_network = false;
     for (unsigned int j = 0; j < nVtx; ++j) {
       int pZ0Diff = pZ0 - pv[j].hwZ0;
       if (std::abs(z0diff) > std::abs(pZ0Diff))
         z0diff = pZ0Diff;
+      if (useMLAssociation_ and withinCMSSW_ &&
+          nnVtxAssoc_->TTTrackNetworkSelector<const l1ct::PFChargedObjEmu>(region, pfch[i], pv[j]) == 1)
+        pass_network = true;
     }
     bool accept = pfch[i].hwPt != 0;
-    if (!fakePuppi_)
+    if (!fakePuppi_ && !useMLAssociation_)
       accept = accept && region.isFiducial(pfch[i]) && (std::abs(z0diff) <= int(dzCut_) || pfch[i].hwId.isMuon());
+    if (!fakePuppi_ && useMLAssociation_)
+      accept = accept && region.isFiducial(pfch[i]) && (pass_network || pfch[i].hwId.isMuon());
     if (accept) {
       outallch[i].fill(region, pfch[i]);
       if (fakePuppi_) {                           // overwrite Dxy & TkQuality with debug information
@@ -427,14 +489,20 @@ void l1ct::LinPuppiEmulator::linpuppi_ref(const PFRegionEmu &region,
         continue;
 
       int pZMin = 99999;
+      bool pass_network = false;
       for (unsigned int v = 0; v < nVtx_; ++v) {
         if (v < pv.size()) {
           int ppZMin = std::abs(int(track[it].hwZ0 - pv[v].hwZ0));
           if (pZMin > ppZMin)
             pZMin = ppZMin;
+          if (useMLAssociation_ and withinCMSSW_ &&
+              nnVtxAssoc_->TTTrackNetworkSelector<const l1ct::TkObjEmu>(region, track[it], pv[v]) == 1)
+            pass_network = true;
         }
       }
-      if (std::abs(pZMin) > int(dzCut_))
+      if (useMLAssociation_ && !pass_network)
+        continue;
+      if (!useMLAssociation_ && std::abs(pZMin) > int(dzCut_))
         continue;
       unsigned int dr2 = dr2_int(pfallne[in].hwEta, pfallne[in].hwPhi, track[it].hwEta, track[it].hwPhi);
       if (dr2 <= dR2Max_) {                                             // if dr is inside puppi cone
@@ -577,12 +645,18 @@ void l1ct::LinPuppiEmulator::linpuppi_flt(const PFRegionEmu &region,
         continue;
 
       int pZMin = 99999;
+      bool pass_network = false;
       for (unsigned int v = 0, nVtx = std::min<unsigned int>(nVtx_, pv.size()); v < nVtx; ++v) {
         int ppZMin = std::abs(int(track[it].hwZ0 - pv[v].hwZ0));
         if (pZMin > ppZMin)
           pZMin = ppZMin;
+        if (useMLAssociation_ and withinCMSSW_ &&
+            nnVtxAssoc_->TTTrackNetworkSelector<const l1ct::TkObjEmu>(region, track[it], pv[v]) == 1)
+          pass_network = true;
       }
-      if (std::abs(pZMin) > int(dzCut_))
+      if (useMLAssociation_ && !pass_network)
+        continue;
+      if (!useMLAssociation_ && std::abs(pZMin) > int(dzCut_))
         continue;
       unsigned int dr2 = dr2_int(
           pfallne[in].hwEta, pfallne[in].hwPhi, track[it].hwEta, track[it].hwPhi);  // if dr is inside puppi cone

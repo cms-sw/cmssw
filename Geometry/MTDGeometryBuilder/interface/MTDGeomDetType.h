@@ -21,7 +21,7 @@ public:
   // Access to topologies
   const Topology& topology() const override { return *theTopology; }
 
-  virtual const TopologyType& specificTopology() const { return *theTopology; }
+  const TopologyType& specificTopology() const { return *theTopology; }
 
   MTDGeomDetType& operator=(const MTDGeomDetType& other) = delete;
   MTDGeomDetType(const MTDGeomDetType& other) = delete;

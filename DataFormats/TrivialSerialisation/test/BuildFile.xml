@@ -1,0 +1,4 @@
+<bin name="TestDataFormatsTrivialSerialisation" file="test_catch2_*.cc">
+  <use name="catch2"/>
+  <use name="DataFormats/TrivialSerialisation"/>
+</bin>

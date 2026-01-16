@@ -64,6 +64,9 @@ protected:
     MonitorElement* deltaY = nullptr;
     MonitorElement* pullX = nullptr;
     MonitorElement* pullY = nullptr;
+    MonitorElement* deltaPhi = nullptr;
+    MonitorElement* deltaPhi_barrel = nullptr;
+    MonitorElement* deltaPhi_endcaps = nullptr;
     MonitorElement* deltaX_eta = nullptr;
     MonitorElement* deltaX_phi = nullptr;
     MonitorElement* deltaY_eta = nullptr;

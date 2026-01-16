@@ -101,8 +101,8 @@ namespace {
       std::shared_ptr<SiStripNoises> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripNoises> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
-      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, tagname1);
-      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, tagname2);
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, tagname2);
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, tagname1);
 
       l_objContainer->compare(f_objContainer);
 
@@ -385,6 +385,7 @@ namespace {
           canvas.cd(index)->Update();
 
           std::vector<int> boundaries;
+          boundaries.reserve(v_nAPVs.at(index));
           for (size_t b = 0; b < v_nAPVs.at(index); b++) {
             boundaries.push_back(b * sistrip::STRIPS_PER_APV);
           }

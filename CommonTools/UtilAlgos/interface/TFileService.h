@@ -91,11 +91,4 @@ private:
   void postModuleGlobal(edm::GlobalContext const &, edm::ModuleCallingContext const &);
 };
 
-namespace edm {
-  namespace service {
-    // This function is needed so that there will be only one instance
-    // of this service per process when "subprocesses" are being used.
-    inline bool isProcessWideService(TFileService const *) { return true; }
-  }  // namespace service
-}  // namespace edm
 #endif

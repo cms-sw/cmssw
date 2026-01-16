@@ -1,7 +1,7 @@
 #include <alpaka/alpaka.hpp>
 
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "FWCore/Utilities/interface/stringize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -14,6 +14,8 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 namespace {
   constexpr size_t SIZE = 32;
 
+// Disable this test for HIP/ROCm until ROCm or alpaka provide a non-fatal way to assert in device code.
+#ifndef ALPAKA_ACC_GPU_HIP_ENABLED
   void testDeviceSideError(Device const& device) {
     auto queue = Queue(device);
     auto buf_h = cms::alpakatools::make_host_buffer<int[]>(queue, SIZE);
@@ -43,6 +45,7 @@ namespace {
       alpaka::wait(queue);
     }
   }
+#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
 }  // namespace
 
 TEST_CASE("Test alpaka buffers for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend",
@@ -83,9 +86,12 @@ TEST_CASE("Test alpaka buffers for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESP
     }
   }
 
+// Disable this test for HIP/ROCm until ROCm or alpaka provide a non-fatal way to assert in device code.
+#ifndef ALPAKA_ACC_GPU_HIP_ENABLED
   SECTION("Buffer destruction after a device-side error") {
     for (auto const& device : devices) {
       REQUIRE_THROWS_AS(testDeviceSideError(device), std::runtime_error);
     }
   }
+#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
 }

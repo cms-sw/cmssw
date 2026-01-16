@@ -2,7 +2,7 @@
 // Test code for the ParameterSetDescription and ParameterDescription
 // classes.
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"

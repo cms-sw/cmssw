@@ -202,7 +202,15 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                            'PostDQMOfflineMiniAOD',
                            'DQMHarvestMiniAOD'],
 
+            'miniAODDQMBTagOnly': ['DQMOfflineMiniAODBTagOnly',
+                            'PostDQMOfflineMiniAOD',
+                           'DQMHarvestMiniAODBTagOnly'],  
+
             'nanoAODDQM': ['DQMOfflineNanoAOD',
+                           'PostDQMOffline',
+                           'DQMHarvestNanoAOD'],
+
+            'nanohltDQM': ['DQMOfflineNanoHLT',
                            'PostDQMOffline',
                            'DQMHarvestNanoAOD'],
 
@@ -211,8 +219,8 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                            'DQMHarvestNanoAOD'],
 
             'nanojmeDQM': ['DQMOfflineNanoJME',
-                             'PostDQMOffline',
-                             'DQMHarvestNanoAOD'],
+                           'PostDQMOffline',
+                           'DQMHarvestNanoAOD'],
 
             'pfDQM': ['DQMOfflinePF+DQMOfflinePFExtended',
                       'PostDQMOffline',
@@ -226,6 +234,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 	    'hltScouting': ['DQMOfflineScouting',
 			    'PostDQMOffline',
 			    'DQMHarvestHLTScouting'],
+
+            'hltGPUvsCPU' : ['DQMOfflineHLTGPUvsCPU',
+                             'PostDQMOffline',
+                             'DQMHarvestHLTGPUvsCPU'],
 
             'standardDQMExpress': ['DQMOfflineExpress',
                                    'PostDQMOffline',

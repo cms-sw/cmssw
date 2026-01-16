@@ -3,10 +3,6 @@
 
 #include <numeric>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 TTDTC::TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion)
     : numRegions_(numRegions),
       numOverlappingRegions_(numOverlappingRegions),
@@ -15,13 +11,13 @@ TTDTC::TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion)
       regions_(numRegions_),
       channels_(numDTCsPerTFP_),
       streams_(numRegions_ * numDTCsPerTFP_) {
-  iota(regions_.begin(), regions_.end(), 0);
-  iota(channels_.begin(), channels_.end(), 0);
+  std::iota(regions_.begin(), regions_.end(), 0);
+  std::iota(channels_.begin(), channels_.end(), 0);
 }
 
 // write one specific stream of TTStubRefs using DTC identifier (region[0-8], board[0-23], channel[0-1])
 // dtcRegions aka detector regions are defined by tk layout
-void TTDTC::setStream(int dtcRegion, int dtcBoard, int dtcChannel, const StreamStub& stream) {
+void TTDTC::setStream(int dtcRegion, int dtcBoard, int dtcChannel, const tt::StreamStub& stream) {
   // check arguments
   const bool oorRegion = dtcRegion >= numRegions_ || dtcRegion < 0;
   const bool oorBoard = dtcBoard >= numDTCsPerRegion_ || dtcBoard < 0;
@@ -45,7 +41,7 @@ void TTDTC::setStream(int dtcRegion, int dtcBoard, int dtcChannel, const StreamS
 
 // read one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])
 // tfpRegions aka processing regions are rotated by -0.5 region width w.r.t detector regions
-const StreamStub& TTDTC::stream(int tfpRegion, int tfpChannel) const {
+const tt::StreamStub& TTDTC::stream(int tfpRegion, int tfpChannel) const {
   // check arguments
   const bool oorRegion = tfpRegion >= numRegions_ || tfpRegion < 0;
   const bool oorChannel = tfpChannel >= numDTCsPerTFP_ || tfpChannel < 0;
@@ -65,25 +61,25 @@ const StreamStub& TTDTC::stream(int tfpRegion, int tfpChannel) const {
 
 // total number of frames
 int TTDTC::size() const {
-  auto all = [](int sum, const StreamStub& stream) { return sum + stream.size(); };
-  return accumulate(streams_.begin(), streams_.end(), 0, all);
+  auto all = [](int sum, const tt::StreamStub& stream) { return sum + stream.size(); };
+  return std::accumulate(streams_.begin(), streams_.end(), 0, all);
 }
 
 // total number of stubs
 int TTDTC::nStubs() const {
-  auto stubs = [](int sum, const FrameStub& frame) { return sum + frame.first.isNonnull(); };
+  auto stubs = [](int sum, const tt::FrameStub& frame) { return sum + frame.first.isNonnull(); };
   int n(0);
-  for (const StreamStub& stream : streams_)
-    n += accumulate(stream.begin(), stream.end(), 0, stubs);
+  for (const tt::StreamStub& stream : streams_)
+    n += std::accumulate(stream.begin(), stream.end(), 0, stubs);
   return n;
 }
 
 // total number of gaps
 int TTDTC::nGaps() const {
-  auto gaps = [](int sum, const FrameStub& frame) { return sum + frame.first.isNull(); };
+  auto gaps = [](int sum, const tt::FrameStub& frame) { return sum + frame.first.isNull(); };
   int n(0);
-  for (const StreamStub& stream : streams_)
-    n += accumulate(stream.begin(), stream.end(), 0, gaps);
+  for (const tt::StreamStub& stream : streams_)
+    n += std::accumulate(stream.begin(), stream.end(), 0, gaps);
   return n;
 }
 

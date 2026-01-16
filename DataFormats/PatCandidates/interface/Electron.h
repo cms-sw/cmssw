@@ -47,6 +47,7 @@ namespace reco {
 // Class definition
 namespace pat {
   class PATElectronSlimmer;
+  class PATElectronCandidatesRekeyer;
 
   class Electron : public Lepton<reco::GsfElectron> {
   public:
@@ -269,6 +270,7 @@ namespace pat {
     }
 
     friend class PATElectronSlimmer;
+    friend class PATElectronCandidatesRekeyer;
 
   protected:
     /// init impact parameter defaults (for use in a constructor)

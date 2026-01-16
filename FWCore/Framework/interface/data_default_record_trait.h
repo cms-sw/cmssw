@@ -40,13 +40,12 @@
 // Created:     Thu Apr  7 07:59:56 CDT 2005
 //
 
+#include "FWCore/Utilities/interface/DefaultRecord.h"
+
 namespace edm {
 
   template <typename T>
   class ESHandle;
-
-  // Special class to denote that the default record should be used.
-  struct DefaultRecord {};
 
   namespace eventsetup {
     template <class T>

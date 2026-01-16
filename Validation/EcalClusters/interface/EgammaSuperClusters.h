@@ -29,41 +29,43 @@ public:
   explicit EgammaSuperClusters(const edm::ParameterSet &);
   ~EgammaSuperClusters() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
+  const bool enableEndcaps_;
   // mc truth
-  edm::EDGetTokenT<edm::HepMCProduct> MCTruthCollectionToken_;
+  const edm::EDGetTokenT<edm::HepMCProduct> MCTruthCollectionToken_;
 
   // barrel clusters
-  edm::EDGetTokenT<reco::SuperClusterCollection> barrelRawSuperClusterCollectionToken_;
-  edm::EDGetTokenT<reco::SuperClusterCollection> barrelCorSuperClusterCollectionToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> barrelRawSuperClusterCollectionToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> barrelCorSuperClusterCollectionToken_;
 
   // endcap clusters
-  edm::EDGetTokenT<reco::SuperClusterCollection> endcapRawSuperClusterCollectionToken_;
-  edm::EDGetTokenT<reco::SuperClusterCollection> endcapPreSuperClusterCollectionToken_;
-  edm::EDGetTokenT<reco::SuperClusterCollection> endcapCorSuperClusterCollectionToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> endcapRawSuperClusterCollectionToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> endcapPreSuperClusterCollectionToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> endcapCorSuperClusterCollectionToken_;
 
   // collections of hits
-  edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollectionToken_;
-  edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollectionToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollectionToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollectionToken_;
 
-  EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
-  HistSpec hsSize_;
-  HistSpec hsNumBC_;
-  HistSpec hsET_;
-  HistSpec hsEta_;
-  HistSpec hsPhi_;
-  HistSpec hsS1toS9_;
-  HistSpec hsS25toE_;
-  HistSpec hsEoverTruth_;
-  HistSpec hsdeltaR_;
-  HistSpec hsphiWidth_;
-  HistSpec hsetaWidth_;
-  HistSpec hspreshowerE_;
-  HistSpec hsR_;
+  const HistSpec hsSize_;
+  const HistSpec hsNumBC_;
+  const HistSpec hsET_;
+  const HistSpec hsEta_;
+  const HistSpec hsPhi_;
+  const HistSpec hsS1toS9_;
+  const HistSpec hsS25toE_;
+  const HistSpec hsEoverTruth_;
+  const HistSpec hsdeltaR_;
+  const HistSpec hsphiWidth_;
+  const HistSpec hsetaWidth_;
+  const HistSpec hspreshowerE_;
+  const HistSpec hsR_;
 
   MonitorElement *hist_EB_RawSC_Size_;
   MonitorElement *hist_EE_RawSC_Size_;

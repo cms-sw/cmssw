@@ -83,7 +83,7 @@ Vector GeneralInterpretationAlgo::propagateTrackster(const Trackster &t,
   return tPoint;
 }
 
-void GeneralInterpretationAlgo::findTrackstersInWindow(const MultiVectorManager<Trackster> &tracksters,
+void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trackster> &tracksters,
                                                        const std::vector<std::pair<Vector, unsigned>> &seedingCollection,
                                                        const std::array<TICLLayerTile, 2> &tracksterTiles,
                                                        const std::vector<Vector> &tracksterPropPoints,
@@ -375,18 +375,15 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         // in this case mergeTracksters() clears the pid probabilities and the regressed energy is not set
         // TODO: fix probabilities when CNN will be splitted
         Trackster outTrackster;
-        float regr_en = 0.f;
         bool isHadron = false;
         for (auto const tracksterId : trackstersInTrackIndices[iTrack]) {
           //maskTracksters[tracksterId] = 0;
           outTrackster.mergeTracksters(input.tracksters[tracksterId]);
-          regr_en += input.tracksters[tracksterId].regressed_energy();
           if (input.tracksters[tracksterId].isHadronic())
             isHadron = true;
         }
         resultCandidate[iTrack] = resultTracksters.size();
         resultTracksters.push_back(outTrackster);
-        resultTracksters.back().setRegressedEnergy(regr_en);
         // since a track has been linked it can only be electron or charged hadron
         if (isHadron)
           resultTracksters.back().setIdProbability(ticl::Trackster::ParticleType::charged_hadron, 1.f);
@@ -404,9 +401,6 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
 };
 
 void GeneralInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription &desc) {
-  desc.add<std::string>("cutTk",
-                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
-                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   desc.add<double>("delta_tk_ts_layer1", 0.02);
   desc.add<double>("delta_tk_ts_interface", 0.03);
   desc.add<double>("timing_quality_threshold", 0.5);

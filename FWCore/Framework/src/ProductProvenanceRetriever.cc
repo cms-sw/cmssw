@@ -10,6 +10,8 @@
 */
 
 namespace edm {
+  void ProvenanceReaderBase::unsafe_fillProvenance(unsigned int transitionIndex) const {}
+
   ProductProvenanceRetriever::ProductProvenanceRetriever(unsigned int iTransitionIndex)
       : ProductProvenanceLookup(), nextRetriever_(), provenanceReader_(), transitionIndex_(iTransitionIndex) {}
 
@@ -17,11 +19,12 @@ namespace edm {
                                                          edm::ProductRegistry const& iReg)
       : ProductProvenanceLookup(iReg), nextRetriever_(), provenanceReader_(), transitionIndex_(iTransitionIndex) {}
 
-  ProductProvenanceRetriever::ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader)
+  ProductProvenanceRetriever::ProductProvenanceRetriever(unsigned int iTransitionIndex,
+                                                         std::unique_ptr<ProvenanceReaderBase> reader)
       : ProductProvenanceLookup(),
         nextRetriever_(),
         provenanceReader_(reader.release()),
-        transitionIndex_(std::numeric_limits<unsigned int>::max()) {
+        transitionIndex_(iTransitionIndex) {
     assert(provenanceReader_);
   }
 
@@ -84,6 +87,10 @@ namespace edm {
 
   void ProductProvenanceRetriever::mergeParentProcessRetriever(ProductProvenanceRetriever const& provRetriever) {
     parentProcessRetriever_ = &provRetriever;
+  }
+
+  void ProductProvenanceRetriever::unsafe_fillProvenance() {
+    provenanceReader_->unsafe_fillProvenance(transitionIndex_);
   }
 
   ProvenanceReaderBase::~ProvenanceReaderBase() {}

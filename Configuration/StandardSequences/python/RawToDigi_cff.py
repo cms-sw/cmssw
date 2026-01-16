@@ -73,14 +73,13 @@ RawToDigi_ecalOnly = cms.Sequence(RawToDigiTask_ecalOnly)
 RawToDigiTask_hcalOnly = cms.Task(hcalDigis)
 RawToDigi_hcalOnly = cms.Sequence(RawToDigiTask_hcalOnly)
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
-ecalDigisCPU.InputLabel = 'rawDataCollector'
-gpu.toModify(ecalDigisGPU, InputLabel = 'rawDataCollector')
-alpaka.toModify(ecalDigisPortable, InputLabel = 'rawDataCollector')
+(~alpaka).toModify(ecalDigis, InputLabel = 'rawDataCollector')
+ecalDigisPortable.InputLabel = 'rawDataCollector'
+ecalDigisLegacy.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
@@ -133,4 +132,9 @@ _hfnose_RawToDigiTask.add(hfnoseDigis)
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toReplaceWith(RawToDigiTask,_hfnose_RawToDigiTask)
+
+# No preshower for Phase 2 ECAL
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([ecalPreshowerDigis]))
+phase2_ecal_devel.toReplaceWith(RawToDigiTask_ecalOnly, RawToDigiTask_ecalOnly.copyAndExclude([ecalPreshowerDigis]))
 

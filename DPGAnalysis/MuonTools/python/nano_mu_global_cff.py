@@ -9,8 +9,13 @@ lumiTable = cms.EDProducer("SimpleOnlineLuminosityFlatTableProducer",
     doc  = cms.string("Online luminosity information"),
     variables = cms.PSet(
         instLumi = Var( "instLumi()", "double", doc = "Instantaneous luminosity"),
-        avgPileUp = Var( "avgPileUp()", "double", doc = "Average PU")
+        avgPileUp = Var( "avgPileUp()", "double", doc = "Average PU"),
+        timestamp = Var( "timestamp().unixTime()", "uint", doc = "Time Stamp")
     )
 )
 
-globalTables = cms.Sequence(lumiTable + lhcInfoTable)
+from DPGAnalysis.MuonTools.muGEML1FETableProducer_cfi import muGEML1FETableProducer
+
+muGEML1FETable = muGEML1FETableProducer.clone()
+
+globalTables = cms.Sequence(lumiTable + lhcInfoTable + muGEML1FETable)

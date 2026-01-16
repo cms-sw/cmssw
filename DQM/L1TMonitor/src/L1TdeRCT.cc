@@ -11,8 +11,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
-#include "TF2.h"
-
 #include <iostream>
 #include <bitset>
 

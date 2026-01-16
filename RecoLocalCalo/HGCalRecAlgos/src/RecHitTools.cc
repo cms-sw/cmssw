@@ -4,6 +4,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -31,8 +32,14 @@ namespace {
       throw cms::Exception("hgcal::RecHitTools") << "Geometry not provided yet to hgcal::RecHitTools!";
     }
   }
-
   inline const HGCalDDDConstants* get_ddd(const CaloSubdetectorGeometry* geom, const HGCalDetId& detid) {
+    const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
+    const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
+    check_ddd(ddd);
+    return ddd;
+  }
+
+  inline const HGCalDDDConstants* get_ddd(const CaloSubdetectorGeometry* geom, const HGCScintillatorDetId& detid) {
     const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
     check_ddd(ddd);
@@ -57,6 +64,15 @@ namespace {
     DetId::Detector det = ((type == 0) ? DetId::Forward : ((layer > maxLayerEE) ? DetId::HGCalHSi : DetId::HGCalEE));
     int subdet = ((type != 0) ? ForwardSubdetector::ForwardEmpty
                               : ((layer > maxLayerEE) ? ForwardSubdetector::HGCEE : ForwardSubdetector::HGCHEF));
+    const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(det, subdet));
+    const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
+    check_ddd(ddd);
+    return ddd;
+  }
+
+  inline const HGCalDDDConstants* get_ddd(const CaloGeometry* geom,
+                                          DetId::Detector det,
+                                          int subdet = ForwardSubdetector::ForwardEmpty) {
     const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(det, subdet));
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
     check_ddd(ddd);
@@ -128,6 +144,7 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
 }
 
 const CaloSubdetectorGeometry* RecHitTools::getSubdetectorGeometry(const DetId& id) const {
+  checkGeometry();
   DetId::Detector det = id.det();
   int subdet = (det == DetId::HGCalEE || det == DetId::HGCalHSi || det == DetId::HGCalHSc)
                    ? ForwardSubdetector::ForwardEmpty
@@ -138,6 +155,7 @@ const CaloSubdetectorGeometry* RecHitTools::getSubdetectorGeometry(const DetId& 
 }
 
 GlobalPoint RecHitTools::getPosition(const DetId& id) const {
+  checkGeometry();
   auto geom = getSubdetectorGeometry(id);
   GlobalPoint position;
   if (id.det() == DetId::Hcal || id.det() == DetId::Ecal) {
@@ -149,9 +167,10 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
   return position;
 }
 
-GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
+GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose, bool barrel) const {
+  checkGeometry();
   unsigned int lay = std::abs(layer);
-  double z(0);
+  double x(0), y(0), z(0);
   if (nose) {
     auto geomNose =
         static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HFNose));
@@ -159,6 +178,19 @@ GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
       const HGCalDDDConstants* ddd = &(geomNose->topology().dddConstants());
       if (ddd)
         z = (layer > 0) ? ddd->waferZ(lay, true) : -ddd->waferZ(lay, true);
+    }
+  } else if (barrel) {
+    if (layer == 0) {
+      DetId firstValidDetId = (geom_->getValidDetIds(DetId::Ecal, EcalBarrel))[0];
+      x = getPosition(firstValidDetId).x();
+      y = getPosition(firstValidDetId).y();
+    } else {
+      const std::vector<DetId>& validDetIds = geom_->getValidDetIds(DetId::Hcal, HcalBarrel);
+      auto firstValidDetId =
+          std::find_if(validDetIds.begin(), validDetIds.end(), [&](auto id) { return HcalDetId(id).depth() == layer; });
+      assert(firstValidDetId != validDetIds.end());
+      x = getPosition(*firstValidDetId).x();
+      y = getPosition(*firstValidDetId).y();
     }
   } else {
     const HGCalDDDConstants* ddd = get_ddd(geom_, geometryType_, fhOffset_, lay);
@@ -168,7 +200,7 @@ GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
     }
     z = (layer > 0) ? ddd->waferZ(lay, true) : -ddd->waferZ(lay, true);
   }
-  return GlobalPoint(0, 0, z);
+  return GlobalPoint(x, y, z);
 }
 
 int RecHitTools::zside(const DetId& id) const {
@@ -192,8 +224,7 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
   std::float_t thick(0.37);
   if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     const HGCSiliconDetId hid(id);
-    auto ddd = get_ddd(geom, hid);
-    thick = ddd->cellThickness(hid.layer(), hid.waferU(), hid.waferV());
+    thick = hid.depletion();
   } else if (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)) {
     const HFNoseDetId hid(id);
     auto ddd = get_ddd(geom, hid);
@@ -244,6 +275,7 @@ std::pair<float, float> RecHitTools::getScintDEtaDPhi(const DetId& id) const {
 }
 
 std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
+  checkGeometry();
   auto geom = getSubdetectorGeometry(id);
   std::float_t size(std::numeric_limits<std::float_t>::max());
   if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
@@ -266,6 +298,7 @@ std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
 }
 
 unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
+  checkGeometry();
   int layer(0);
   switch (type) {
     case (ForwardSubdetector::HGCEE): {
@@ -379,6 +412,7 @@ unsigned int RecHitTools::getLayer(const DetId& id) const {
 }
 
 unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
+  checkGeometry();
   unsigned int layer = getLayer(id);
   if (id.det() == DetId::Forward && id.subdetId() == HGCHEF) {
     layer += fhOffset_;
@@ -429,6 +463,7 @@ std::pair<int, int> RecHitTools::getCell(const DetId& id) const {
 }
 
 bool RecHitTools::isHalfCell(const DetId& id) const {
+  checkGeometry();
   bool ishalf = false;
   if (id.det() == DetId::Forward) {
     HGCalDetId hid(id);
@@ -442,6 +477,7 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
 }
 
 int RecHitTools::getCellType(const DetId& id) const {
+  checkGeometry();
   auto layer_number = getLayerWithOffset(id);
   auto thickness = getSiThickIndex(id);
   auto geomNose =
@@ -480,8 +516,21 @@ bool RecHitTools::isSilicon(const DetId& id) const {
           (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)));
 }
 
-bool RecHitTools::isScintillator(const DetId& id) const { return id.det() == DetId::HGCalHSc; }
+bool RecHitTools::isScintillator(const DetId& id) const { return (id.det() == DetId::HGCalHSc); }
 
+bool RecHitTools::isScintillatorFine(const DetId& id) const {
+  if (id.det() == DetId::HGCalHSc) {
+    auto hg = static_cast<const HGCalGeometry*>(getSubdetectorGeometry(id));
+    return hg->topology().dddConstants().scintFine(HGCScintillatorDetId(id).layer());
+  } else {
+    return false;
+  }
+}
+bool RecHitTools::isBarrel(const DetId& id) const {
+  return (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) ||
+         (id.det() == DetId::Hcal && id.subdetId() == HcalBarrel) ||
+         (id.det() == DetId::Hcal && id.subdetId() == HcalOuter);
+}
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO
   bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;
@@ -523,6 +572,15 @@ float RecHitTools::getPt(const DetId& id, const float& hitEnergy, const float& v
   return pt;
 }
 
+int RecHitTools::getScintMaxIphi(const DetId& id) const {
+  if (id.det() == DetId::HGCalHSc) {
+    auto hg = static_cast<const HGCalGeometry*>(getSubdetectorGeometry(id));
+    return hg->topology().dddConstants().maxCells(HGCScintillatorDetId(id).layer(), true);
+  } else {
+    return 0;
+  }
+}
+
 std::pair<uint32_t, uint32_t> RecHitTools::firstAndLastLayer(DetId::Detector det, int subdet) const {
   if ((det == DetId::HGCalEE) || ((det == DetId::Forward) && (subdet == HGCEE))) {
     return std::make_pair(eeOffset_ + 1, fhOffset_);
@@ -543,3 +601,52 @@ bool RecHitTools::maskCell(const DetId& id, int corners) const {
     return hg->topology().dddConstants().maskCell(id, corners);
   }
 }
+
+RecHitTools::siliconWaferInfo RecHitTools::getWaferInfo(const DetId& id) const {
+  RecHitTools::siliconWaferInfo info;
+  if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
+    auto geom = getSubdetectorGeometry(id);
+    HGCSiliconDetId hid(id);
+    auto ddd = get_ddd(geom, hid);
+    HGCalParameters::waferInfo info2 = ddd->waferInfo(hid.layer(), hid.waferU(), hid.waferV());
+    info.type = info2.type;
+    info.partialType = info2.part;
+    info.orientation = info2.orient;
+    info.cassette = info2.cassette;
+    info.placementIndex = ddd->placementIndex(hid);
+  }
+  return info;
+}
+
+RecHitTools::scintillatorTileInfo RecHitTools::getTileInfo(const DetId& id) const {
+  RecHitTools::scintillatorTileInfo info;
+  if (isScintillator(id)) {
+    auto geom = getSubdetectorGeometry(id);
+    HGCScintillatorDetId hid(id);
+    auto ddd = get_ddd(geom, hid);
+    HGCalParameters::tileInfo info2 = ddd->tileInfo(hid.zside(), hid.layer(), hid.ring());
+    info.type = info2.type;
+    info.sipm = info2.sipm;
+    info.cassette = info2.cassette;
+  }
+  return info;
+}
+
+int RecHitTools::getWaferTypes(DetId::Detector det, int subdet) const {
+  auto ddd = get_ddd(geom_, det, subdet);
+  return ddd->waferTypes();
+}
+
+std::vector<double> RecHitTools::getSiThickness(DetId::Detector det, int subdet) const {
+  auto ddd = get_ddd(geom_, det, subdet);
+  return ddd->cellThickness();
+}
+
+namespace hgcal {
+  void RecHitTools::checkGeometry() const {
+    if (!geom_) {
+      throw cms::Exception("hgcal::RecHitTools")
+          << "Geometry not provided yet to RecHitTools! Call setGeometry() before using this function.";
+    }
+  }
+}  // namespace hgcal

@@ -379,6 +379,7 @@ std::unique_ptr<RecoTrackSelectorBase> MTVHistoProducerAlgoForTracker::makeRecoT
   psetTrack.addParameter("maxChi2", 1e10);
   psetTrack.addParameter("minHit", 0);
   psetTrack.addParameter("minPixelHit", 0);
+  psetTrack.addParameter("maxPixelHit", 99);
   psetTrack.addParameter("minLayer", 0);
   psetTrack.addParameter("min3DLayer", 0);
   psetTrack.addParameter("quality", std::vector<std::string>{});

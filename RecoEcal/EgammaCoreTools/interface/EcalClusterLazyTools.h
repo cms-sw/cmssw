@@ -80,7 +80,7 @@ public:
   EcalClusterLazyToolsBase(const edm::Event &ev,
                            ESData const &esData,
                            edm::EDGetTokenT<EcalRecHitCollection> token1,
-                           edm::EDGetTokenT<EcalRecHitCollection> token2,
+                           std::optional<edm::EDGetTokenT<EcalRecHitCollection>> token2,
                            std::optional<edm::EDGetTokenT<EcalRecHitCollection>> token3);
 
   // get time of basic cluster seed crystal
@@ -136,6 +136,9 @@ private:
 template <class ClusterTools>
 class EcalClusterLazyToolsT : public EcalClusterLazyToolsBase {
 public:
+  EcalClusterLazyToolsT(const edm::Event &ev, ESData const &esData, edm::EDGetTokenT<EcalRecHitCollection> token1)
+      : EcalClusterLazyToolsBase(ev, esData, token1, std::nullopt, std::nullopt) {}
+
   EcalClusterLazyToolsT(const edm::Event &ev,
                         ESData const &esData,
                         edm::EDGetTokenT<EcalRecHitCollection> token1,

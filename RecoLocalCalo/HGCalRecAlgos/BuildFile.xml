@@ -1,5 +1,6 @@
 <use name="clhep"/>
 <use name="root"/>
+<use name="json"/>
 <use name="rootminuit"/>
 <use name="DataFormats/HGCRecHit"/>
 <use name="DataFormats/ParticleFlowReco"/>

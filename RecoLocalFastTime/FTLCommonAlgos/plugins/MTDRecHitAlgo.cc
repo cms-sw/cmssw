@@ -74,7 +74,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
     }
   }
 
-  // --- Energy calibration: for the time being this is just a conversion pC --> MeV
+  // --- Energy calibration
   energy *= calibration_;
 
   // --- Time calibration: for the time being just removes a time offset in BTL

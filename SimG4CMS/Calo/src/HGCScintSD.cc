@@ -8,7 +8,6 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "SimG4CMS/Calo/interface/HGCScintSD.h"
 #include "SimG4CMS/Calo/interface/CaloSimUtils.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"

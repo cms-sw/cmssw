@@ -32,7 +32,7 @@ public:
                               std::vector<DetGroup>& result) const override;
 
   //Extension of interface
-  virtual const BoundDisk& specificSurface() const { return *theDisk; }
+  const BoundDisk& specificSurface() const { return *theDisk; }
 
 private:
   // private methods for the implementation of groupedCompatibleDets()

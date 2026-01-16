@@ -6,7 +6,6 @@
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 
 // This data structure is an implementation detail of the RecoParticleFlow/PFRecHitProducer subpackage. Due to Alpaka build rules, it has to be located in the interface+src directories.
 namespace reco {

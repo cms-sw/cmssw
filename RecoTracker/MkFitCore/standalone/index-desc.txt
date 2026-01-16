@@ -17,17 +17,17 @@ Hit indices attached to HitOnTrack array for each track are described below.
 
 Idx >= 0  : Track contains a reconstructed hit. Idx indicates position within container where hit resides. Before building in mkFit, idx (with layer number) points to the position within Event::layerHits_ [vector of vector of hits, first index: layer, second index: hit idx]. Just prior to building, hit idxs are translated into their position within layerHits_ to EventOfHits::m_layers_of_hits [vector of LayerOfHits, first index is layer, LayerOfHits class for containing array of Hits]. Building uses layers_of_hits, then for validation, the hits are translated back to layerHits_.
 
-Idx == -1 : Track has not found a hit on this layer (true miss).
+Idx == -1 = kHitMissIdx      : Track has not found a hit on this layer (true miss).
 
-Idx == -2 : Track has reached maximum number of holes/misses (-1).
+Idx == -2 = kHitStopIdx      : Track has reached maximum number of holes/misses (-1).
 
-Idx == -3 : Track not in sensitive region of detector, does not count towards efficiency.
+Idx == -3 = kHitEdgeIdx      : Track not in sensitive region of detector, does not count towards efficiency.
 
-Idx == -5 : Dummy hit to mark hits with cluster size > maxClusterSize
+Idx == -5 = kHitMaxClusterIdx: Dummy hit to mark hits with cluster size > maxClusterSize
 
-Idx == -7 : Dummy hit to mark the location of an inactive module
+Idx == -7 = kHitInGapIdx     : Dummy hit to mark the location of an inactive module
 
-Idx == -9 : Reference track contained a hit that has since been filtered out via CCC before written to memory file. -9 hits are NOT stored in layerHits_.
+Idx == -9 = kHitCCCFilterIdx : Reference track contained a hit that has since been filtered out via CCC before written to memory file. -9 hits are NOT stored in layerHits_.
 
 
 --------------------

@@ -572,7 +572,7 @@ namespace reco {
     }
 
     bool TrackerTrackHitFilter::isFirstValidHitInLayer(const reco::Track &tk, std::vector<bool> isNotValidVec) {
-      reco::HitPattern hp = tk.hitPattern();
+      const reco::HitPattern &hp = tk.hitPattern();
 
       int vecSize = static_cast<int>(isNotValidVec.size());
       // If hit is not valid, it will not count as a tracker layer with measurement -> don't increase sequLayers

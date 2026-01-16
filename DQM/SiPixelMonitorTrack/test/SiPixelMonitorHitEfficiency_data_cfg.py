@@ -110,7 +110,7 @@ process.DQMStore = cms.Service("DQMStore",
 )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.AdaptorConfig = cms.Service("AdaptorConfig") 
+ 
 
 
 ##

@@ -28,7 +28,7 @@ namespace cms::alpakatools {
     ALPAKA_FN_HOST_ACC constexpr Counters get() const { return counter_.as_counters; }
 
     // atomically add as_counters, and return the previous value
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr Counters add(const TAcc& acc, Counters c) {
       Packer value{pack(c.first, c.second)};
       Packer ret{0};
@@ -38,7 +38,7 @@ namespace cms::alpakatools {
     }
 
     // atomically increment first and add i to second, and return the previous value
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE Counters constexpr inc_add(const TAcc& acc, uint32_t i) {
       return add(acc, {1u, i});
     }

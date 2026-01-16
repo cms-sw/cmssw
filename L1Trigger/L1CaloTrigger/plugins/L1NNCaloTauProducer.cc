@@ -347,6 +347,7 @@ void L1NNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eSe
     // Implement cl3d PU ID as done in
     // https://github.com/cms-sw/cmssw/blob/master/L1Trigger/Phase2L1ParticleFlow/plugins/PFClusterProducerFromHGC3DClusters.cc#L120
     bool isEM = preEmId(*cl3dIt);
+    // FIXME: I suspect the PFCluster and the code handling its energy are not actually needed
     l1t::PFCluster cluster(cl3d.pt(), cl3d.eta(), cl3d.phi(), cl3d.hOverE());
     if (scenario == UseEmInterp::EmOnly)  // for emID objs, use EM interp as pT and set H = 0
     {
@@ -368,9 +369,9 @@ void L1NNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eSe
       float hoe_new = em_new > 0 ? (cl3d.pt() / em_new - 1) : -1;
       cluster = l1t::PFCluster(cl3d.pt(), cl3d.eta(), cl3d.phi(), hoe_new, isEM);
     }
-
+    float mvaOut = -1;
     if (!VsPuId.method().empty()) {
-      int id = VsPuId.passID(*cl3dIt, cluster);
+      bool id = VsPuId.passID(*cl3dIt, mvaOut);
       if (!id) {
         continue;
       }  // skip cl3d if it does not pass puid

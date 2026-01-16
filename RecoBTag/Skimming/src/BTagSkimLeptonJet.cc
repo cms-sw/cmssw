@@ -22,6 +22,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "RecoBTag/Skimming/interface/BTagSkimLeptonJet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "TVector3.h"
 #include "Math/GenVector/VectorUtil.h"
@@ -172,6 +174,21 @@ void BTagSkimLeptonJet::endJob() {
       << " Events read: " << nEvents_ << "\n Events accepted by (" << LeptonType_
       << ") BTagSkimLeptonJet: " << nAccepted_ << "\n Efficiency: " << (double)(nAccepted_) / (double)(nEvents_)
       << "\n===========================================================================" << endl;
+}
+
+void BTagSkimLeptonJet::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("CaloJet", edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<double>("MinimumCaloJetPt", 20.0);
+  desc.add<double>("MinimumPtRel", 0.0);
+  desc.add<std::string>("LeptonType", "");
+  desc.add<edm::InputTag>("Lepton", edm::InputTag(""));
+  desc.add<int>("MinimumNLeptonJet", 1);
+  desc.add<double>("MaximumDeltaR", 0.4);
+  desc.add<double>("MaximumLeptonEta", 2.5);
+  desc.add<double>("MinimumLeptonPt", 6.0);
+  desc.add<double>("MaximumCaloJetEta", 3.0);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

@@ -21,8 +21,8 @@ namespace edm {
 }
 
 namespace fastsim {
-  class InteractionModel;
   class SimplifiedGeometryFactory;
+  class Geometry;
 
   //! Implementation of a generic detector layer (base class for forward/barrel layers).
   /*!
@@ -57,9 +57,6 @@ namespace fastsim {
 
     //! Hack to interface "old" Calorimetry with "new" Tracker
     enum CaloType { NONE, TRACKERBOUNDARY, PRESHOWER1, PRESHOWER2, ECAL, HCAL, VFCAL };
-
-    //! Hack to interface "old" Calorimetry with "new" Tracker
-    void setCaloType(CaloType type) { caloType_ = type; }
 
     //! Hack to interface "old" Calorimetry with "new" Tracker
     CaloType getCaloType() const { return caloType_; }
@@ -139,27 +136,31 @@ namespace fastsim {
         */
     virtual bool isForward() const = 0;
 
-    //! Return the vector of all interaction models that are assigned with a layer.
+    //! Return the vector of all interaction models that are assigned with a layer (index into the central vector of models).
     /*!
             This makes it easy to switch on/off some interactions for some layers.
         */
-    const std::vector<InteractionModel*>& getInteractionModels() const { return interactionModels_; }
+    const std::vector<size_t>& getInteractionModelIndices() const { return interactionModelIndices_; }
 
     //! Some basic output.
     friend std::ostream& operator<<(std::ostream& os, const SimplifiedGeometry& layer);
 
     friend class fastsim::SimplifiedGeometryFactory;
+    friend class fastsim::Geometry;
 
   protected:
+    //! Hack to interface "old" Calorimetry with "new" Tracker
+    void setCaloType(CaloType type) { caloType_ = type; }
+
     double geomProperty_;  //!< Geometric property of the layer: radius (barrel layer) / position z (forward layer)
     int index_;  //!< Return index of this layer (layers are numbered according to their position in the detector). The (usual) order is increasing 'geomProperty'.
     const DetLayer* detLayer_;                 //!< Return pointer to the assigned active layer (if any).
     std::unique_ptr<TH1F> magneticFieldHist_;  //!< Histogram that stores the size of the magnetic field along the layer.
     std::unique_ptr<TH1F> thicknessHist_;      //!< Histogram that stores the tickness (radLengths) along the layer.
     double nuclearInteractionThicknessFactor_;  //!< Some layers have a different thickness for nuclear interactions.
-    std::vector<InteractionModel*>
-        interactionModels_;  //!< Vector of all interaction models that are assigned with a layer.
-    CaloType caloType_;      //!< Hack to interface "old" Calorimetry with "new" Tracker
+    std::vector<size_t>
+        interactionModelIndices_;  //!< Vector of all interaction models that are assigned with a layer (index into the central vector of models).
+    CaloType caloType_;  //!< Hack to interface "old" Calorimetry with "new" Tracker
   };
 
   std::ostream& operator<<(std::ostream& os, const SimplifiedGeometry& layer);

@@ -35,5 +35,12 @@ namespace edm {
     ProcessHistoryMap data_;
     std::map<ProcessHistoryID, ProcessHistoryID> extra_;
   };
+
+  /**
+   * Merge the processing order from the given ProcessHistoryRegistry into the
+   * given vector of process names. Will throw if ordering in processNames is not compatible.
+   * The vector will be filled with process names in reverse time order (most recent to oldest).
+   */
+  void processingOrderMerge(ProcessHistoryRegistry const&, std::vector<std::string>& processNames);
 }  // namespace edm
 #endif

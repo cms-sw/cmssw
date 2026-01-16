@@ -11,7 +11,7 @@ G4ClassificationOfNewTrack KillSecondariesStackingAction::ClassifyNewTrack(const
     return fUrgent;
   } else {
     const G4Track *mother = CurrentG4Track::track();
-    MCTruthUtil::secondary(track, *mother, 0);
+    MCTruthUtil::secondary(track, mother, 0);
     return fKill;
   }
 }

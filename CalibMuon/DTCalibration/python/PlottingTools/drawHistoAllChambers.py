@@ -1,23 +1,30 @@
 import ROOT
 
-def drawHisto(histo,title,ymin,ymax,option="HISTOP",draw=True):
+def drawHisto(histo,yaxis_title,ymin,ymax,option="HISTOP",draw=True):
+    ROOT.gStyle.SetPadRightMargin(0.02)
+    ROOT.gStyle.SetPadLeftMargin(0.07)
+    
     histo.SetStats(0)
     histo.SetLineWidth(3)
     histo.SetMarkerStyle(20)
     histo.SetMarkerSize(0.9)
     histo.GetYaxis().SetRangeUser(ymin,ymax)
-    histo.GetYaxis().SetTitle(title)
+    histo.GetYaxis().SetTitleOffset(1.)
+    histo.GetYaxis().SetDecimals(1)
+    histo.GetYaxis().SetMaxDigits(4)
+    histo.GetYaxis().SetTitle(yaxis_title)
     histo.GetXaxis().SetLabelSize(0.04)
     histo.GetXaxis().SetTickLength(0.)
     histo.LabelsOption("d","X")
- 
+    
     fillColor = 0
     canvas = None 
     if draw:
-        canvas = ROOT.TCanvas("c_" + histo.GetName())
+        canvas = ROOT.TCanvas("c_" + histo.GetName(), "Default Canvas", 1000, 500)
         canvas.SetGridy()
         canvas.SetFillColor(fillColor)
-    if draw: histo.Draw(option)
+        histo.Draw(option)
+        
 
     linesWh = {}
     linesSt = {}

@@ -19,11 +19,5 @@ process.aux = cms.EDProducer("EventAuxiliaryHistoryProducer",
 )
 
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('test.root')
-)
-
 
 process.p1 = cms.Path(process.aux)
-
-process.e1 = cms.EndPath(process.out)

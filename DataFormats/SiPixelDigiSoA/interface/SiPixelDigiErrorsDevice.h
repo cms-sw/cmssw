@@ -26,7 +26,6 @@ public:
   explicit SiPixelDigiErrorsDevice(size_t maxFedWords, TDev const& device)
       : PortableDeviceCollection<SiPixelDigiErrorsSoA, TDev>(maxFedWords, device) {}
 
-  auto& error_data() const { return (*this->view().pixelErrors()); }
   auto maxFedWords() const { return maxFedWords_; }
 
 private:

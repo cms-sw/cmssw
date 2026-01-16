@@ -15,12 +15,13 @@ namespace mtd_digitizer {
   typedef std::array<MTDSimData_t, nSamples> MTDSimHitData;
 
   struct MTDCellInfo {
-    // for the BTL bar geometry:
-    //     3rd array=energy (right side), 4th array=time-of-flight (right side)
+    // for BTL:
+    //     0 --> number of photo-electrons (left side),  1 --> time of flight (left side)
+    //     2 --> number of photo-electrons (right side), 3 --> time of flight (right side)
     std::array<MTDSimHitData, 4> hit_info;
   };
 
-  // Maximum value of time-of-flight for premixing packing
+  // Maximum value of time of flight for premixing packing
   constexpr float PREMIX_MAX_TOF = 25.0f;
 
   struct MTDCellId {

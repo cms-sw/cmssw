@@ -331,7 +331,13 @@
                         "mp3619"
                     ]
                 }
-            }
+            },
+	    "extract": {
+		"testExtractPixBary": {
+		    "singles": ["testSinglePixBary"],
+		    "styles": ["twiki", "csv"]
+		}
+	    }
 	}
     },
     "style":{

@@ -73,8 +73,8 @@ class DTvdriftWorkflow( DTWorkflow ):
     def prepare_segment_write(self):
         self.pset_name = 'dtVDriftSegmentWriter_cfg.py'
         self.pset_template = 'CalibMuon.DTCalibration.dtVDriftSegmentWriter_cfg'
-        tag = self.prepare_common_write()
-        merged_file = os.path.join(self.result_path, self.output_file)
+        (tag, folder) = self.prepare_common_write()
+        merged_file = os.path.join(self.result_path, "Run"+str(self.options.run)+"_"+self.output_file)
         self.process = tools.loadCmsProcess(self.pset_template)
 
         if self.options.inputVDriftDB:
@@ -150,8 +150,8 @@ class DTvdriftWorkflow( DTWorkflow ):
     def prepare_meantimer_write(self):
         self.pset_name = 'dtVDriftMeanTimerWriter_cfg.py'
         self.pset_template = 'CalibMuon.DTCalibration.dtVDriftMeanTimerWriter_cfg'
-        tag = self.prepare_common_write()
-        merged_file = os.path.join(self.result_path, self.output_file)
+        (tag, folder) = self.prepare_common_write()
+        merged_file = os.path.join(self.result_path, "Run"+str(self.options.run)+"_"+self.output_file)
         self.process = tools.loadCmsProcess(self.pset_template)
 
         if self.options.inputVDriftDB:
@@ -176,7 +176,7 @@ class DTvdriftWorkflow( DTWorkflow ):
             dbpath = os.path.abspath(self.options.input_dumpDB)
         else:
             crabtask = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
-                                               initUpdate = False)
+                                                   initUpdate = False)
             tag = crabtask.crabConfig.Data.outputDatasetTag
             dbpath = os.path.abspath( os.path.join(self.result_path,
                                                    "vDrift_meantimer" + tag + ".db"))

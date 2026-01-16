@@ -16,18 +16,14 @@
 
 namespace {
   edm::ProductDescription makeDescriptionForDaqProvHelper(edm::TypeID const& rawDataType,
-                                                          std::string const& collectionName,
-                                                          std::string const& friendlyName,
                                                           std::string const& sourceLabel) {
     edm::ProductDescription desc(edm::InEvent,
                                  "rawDataCollector",
                                  // "source",
                                  "LHC",
                                  // "HLT",
-                                 collectionName,
-                                 friendlyName,
                                  "",
-                                 edm::TypeWithDict(rawDataType.typeInfo()),
+                                 rawDataType,
                                  false);
     desc.setIsProvenanceSetOnRead();
     return desc;
@@ -35,12 +31,8 @@ namespace {
 }  // namespace
 
 namespace edm {
-  DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType,
-                                           std::string const& collectionName,
-                                           std::string const& friendlyName,
-                                           std::string const& sourceLabel)
-      : constProductDescription_(
-            makeDescriptionForDaqProvHelper(rawDataType, collectionName, friendlyName, sourceLabel)),
+  DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType, std::string const& sourceLabel)
+      : constProductDescription_(makeDescriptionForDaqProvHelper(rawDataType, sourceLabel)),
         dummyProvenance_(constProductDescription_.branchID()),
         processParameterSet_(),
         oldProcessName_(),
@@ -86,13 +78,14 @@ namespace edm {
 
   //default
   DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType)
-      : DaqProvenanceHelper(rawDataType, "FEDRawDataCollection", "FEDRawDataCollection", "FedRawDataInputSource") {}
+      : DaqProvenanceHelper(rawDataType, "FedRawDataInputSource") {}
 
   ProcessHistoryID DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry,
                                                 ProcessHistoryRegistry& processHistoryRegistry) const {
     // Now we need to set all the metadata
     // Add the product to the product registry
     productRegistry.copyProduct(constProductDescription_);
+    productRegistry.setProcessOrder({constProductDescription_.processName()});
 
     // Insert an entry for this process in the process history registry
     // This process is about the data from LHC, and has thus no
@@ -161,20 +154,17 @@ namespace edm {
     std::replace(branchID.begin(), branchID.end(), oldBranchID_, newBranchID_);
   }
 
-  void DaqProvenanceHelper::fixMetaData(BranchIDLists const& branchIDLists) const {
+  void DaqProvenanceHelper::fixMetaData(BranchIDLists& branchIDLists) const {
     BranchID::value_type oldID = oldBranchID_.id();
     BranchID::value_type newID = newBranchID_.id();
-    // The const_cast is ugly, but it beats the alternatives.
-    BranchIDLists& lists = const_cast<BranchIDLists&>(branchIDLists);
-    for (auto& list : lists) {
+    for (auto& list : branchIDLists) {
       std::replace(list.begin(), list.end(), oldID, newID);
     }
   }
 
   void DaqProvenanceHelper::fixMetaData(ProductDependencies& productDependencies) const {
     typedef std::map<BranchID, std::set<BranchID> > BCMap;
-    // The const_cast is ugly, but it beats the alternatives.
-    BCMap& childLookup = const_cast<BCMap&>(productDependencies.childLookup());
+    BCMap& childLookup = productDependencies.mutableChildLookup();
     // First fix any old branchID's in the key.
     {
       BCMap::iterator i = childLookup.find(oldBranchID_);

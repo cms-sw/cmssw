@@ -29,9 +29,10 @@ namespace edmtest {
   class MissingDictionaryTestProducer : public edm::one::EDProducer<> {
   public:
     explicit MissingDictionaryTestProducer(edm::ParameterSet const&);
-    ~MissingDictionaryTestProducer() override;
 
     void produce(edm::Event&, edm::EventSetup const&) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     edm::EDGetTokenT<MissingDictionaryTestA> inputToken1_;
@@ -52,7 +53,11 @@ namespace edmtest {
     produces<std::list<MissingDictionaryTestA> >();
   }
 
-  MissingDictionaryTestProducer::~MissingDictionaryTestProducer() {}
+  void MissingDictionaryTestProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("inputTag");
+    descriptions.addDefault(desc);
+  }
 
   void MissingDictionaryTestProducer::produce(edm::Event& event, edm::EventSetup const&) {
     edm::Handle<MissingDictionaryTestA> h1;

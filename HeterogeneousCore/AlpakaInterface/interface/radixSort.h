@@ -13,11 +13,11 @@
 
 namespace cms::alpakatools {
 
-  template <typename TAcc, typename T>
+  template <alpaka::concepts::Acc TAcc, typename T>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void dummyReorder(
       const TAcc& acc, T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {}
 
-  template <typename TAcc, typename T>
+  template <alpaka::concepts::Acc TAcc, typename T>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void reorderSigned(
       const TAcc& acc, T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
     //move negative first...
@@ -50,7 +50,7 @@ namespace cms::alpakatools {
     }
   }
 
-  template <typename TAcc, typename T>
+  template <alpaka::concepts::Acc TAcc, typename T>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void reorderFloat(
       const TAcc& acc, T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
     //move negative first...
@@ -90,7 +90,7 @@ namespace cms::alpakatools {
   // most significant bit for signed types, integer or floating point).
   // The floating point numbers are reinterpret_cast into integers in the calling wrapper
   // This algorithm requires to run in a single block
-  template <typename TAcc,
+  template <alpaka::concepts::Acc TAcc,
             typename T,   // shall be integer, signed or not does not matter here
             int NS,       // number of significant bytes to use in sorting.
             typename RF>  // The post processing reorder function.
@@ -316,7 +316,7 @@ namespace cms::alpakatools {
     }
   }
 
-  template <typename TAcc,
+  template <alpaka::concepts::Acc TAcc,
             typename T,
             int NS = sizeof(T),  // number of significant bytes to use in sorting
             typename std::enable_if<std::is_unsigned<T>::value && !requires_single_thread_per_block_v<TAcc>, T>::type* =
@@ -326,7 +326,7 @@ namespace cms::alpakatools {
     radixSortImpl<TAcc, T, NS>(acc, a, ind, ind2, size, dummyReorder<TAcc, T>);
   }
 
-  template <typename TAcc,
+  template <alpaka::concepts::Acc TAcc,
             typename T,
             int NS = sizeof(T),  // number of significant bytes to use in sorting
             typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
@@ -337,7 +337,7 @@ namespace cms::alpakatools {
     radixSortImpl<TAcc, T, NS>(acc, a, ind, ind2, size, reorderSigned<TAcc, T>);
   }
 
-  template <typename TAcc,
+  template <alpaka::concepts::Acc TAcc,
             typename T,
             int NS = sizeof(T),  // number of significant bytes to use in sorting
             typename std::enable_if<std::is_floating_point<T>::value && !requires_single_thread_per_block_v<TAcc>,
@@ -349,7 +349,7 @@ namespace cms::alpakatools {
     radixSortImpl<TAcc, I, NS>(acc, (I const*)(a), ind, ind2, size, reorderFloat<TAcc, I>);
   }
 
-  template <typename TAcc,
+  template <alpaka::concepts::Acc TAcc,
             typename T,
             int NS = sizeof(T),  // number of significant bytes to use in sorting
             typename std::enable_if<requires_single_thread_per_block_v<TAcc>, T>::type* = nullptr>
@@ -378,7 +378,7 @@ namespace cms::alpakatools {
     */
   }
 
-  template <typename TAcc, typename T, int NS = sizeof(T)>
+  template <alpaka::concepts::Acc TAcc, typename T, int NS = sizeof(T)>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void radixSortMulti(
       const TAcc& acc, T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
     // TODO: check
@@ -403,7 +403,7 @@ namespace cms::alpakatools {
     //__global__ void __launch_bounds__(256, 4)
 #endif
 */
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   T const* v,
                                   uint16_t* index,
@@ -416,7 +416,7 @@ namespace cms::alpakatools {
 
   template <typename T, int NS = sizeof(T)>
   struct radixSortMultiWrapper2 {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   T const* v,
                                   uint16_t* index,
@@ -431,7 +431,7 @@ namespace cms::alpakatools {
 namespace alpaka::trait {
   // specialize the BlockSharedMemDynSizeBytes trait to specify the amount of
   // block shared dynamic memory for the radixSortMultiWrapper kernel
-  template <typename TAcc, typename T, int NS>
+  template <alpaka::concepts::Acc TAcc, typename T, int NS>
   struct BlockSharedMemDynSizeBytes<cms::alpakatools::radixSortMultiWrapper<T, NS>, TAcc> {
     // the size in bytes of the shared memory allocated for a block
     ALPAKA_FN_HOST_ACC static std::size_t getBlockSharedMemDynSizeBytes(

@@ -32,7 +32,7 @@ namespace ticl {
 
       TrackPtr ptr(trackster.seedID(), trackster.seedIndex(), &event.productGetter());
       auto& ticl_cand = ticl_cands[i];
-      ticl_cand.setTrackPtr(ptr);
+      ticl_cand.addTrackPtr(ptr);
     }
   }
 }  // namespace ticl

@@ -32,17 +32,18 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
@@ -123,6 +124,7 @@ private:
     TProfile2D *IPVsEtaVsPhi_, *IPErrVsEtaVsPhi_;
 
     void bookIPMonitor(const edm::ParameterSet &, const edm::Service<TFileService> fs);
+    void fillIPMonitor(const edm::RefToBase<reco::Track> &tk, const math::XYZPoint &pv);
   };
 
   const edm::ParameterSet conf_;
@@ -187,23 +189,35 @@ private:
 
 void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::ParameterSet &config,
                                                                const edm::Service<TFileService> fs) {
+  // Lambda for range validation
+  auto checkRange = [](const std::string &name, double min, double max) {
+    if (min >= max) {
+      throw cms::Exception("IPMonitoring")
+          << "Invalid range for " << name << ": min (" << min << ") >= max (" << max << ")";
+    }
+  };
+
   int VarBin = config.getParameter<int>(fmt::format("D{}Bin", varname_));
   double VarMin = config.getParameter<double>(fmt::format("D{}Min", varname_));
   double VarMax = config.getParameter<double>(fmt::format("D{}Max", varname_));
+  checkRange(fmt::format("D{}", varname_), VarMin, VarMax);
 
   int PhiBin = config.getParameter<int>("PhiBin");
   int PhiBin2D = config.getParameter<int>("PhiBin2D");
   double PhiMin = config.getParameter<double>("PhiMin");
   double PhiMax = config.getParameter<double>("PhiMax");
+  checkRange("Phi", PhiMin, PhiMax);
 
   int EtaBin = config.getParameter<int>("EtaBin");
   int EtaBin2D = config.getParameter<int>("EtaBin2D");
   double EtaMin = config.getParameter<double>("EtaMin");
   double EtaMax = config.getParameter<double>("EtaMax");
+  checkRange("Eta", EtaMin, EtaMax);
 
   int PtBin = config.getParameter<int>("PtBin");
   double PtMin = config.getParameter<double>("PtMin") * pTcut_;
   double PtMax = config.getParameter<double>("PtMax") * pTcut_;
+  checkRange("Pt", PtMin, PtMax);
 
   IP_ = fs->make<TH1D>(fmt::format("d{}_pt{}", varname_, pTcut_).c_str(),
                        fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str(),
@@ -334,6 +348,38 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
   IPErrVsEtaVsPhi_->SetYTitle("PV track (p_{T} > 1 GeV) #phi");
   IPErrVsEtaVsPhi_->SetZTitle(
       fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
+}
+
+void GeneralPurposeVertexAnalyzer::IPMonitoring::fillIPMonitor(const edm::RefToBase<reco::Track> &tk,
+                                                               const math::XYZPoint &pv) {
+  float value = 999.f, error = 9999.f;
+
+  if (varname_ == "xy") {
+    value = tk->dxy(pv) * cmToUm;
+    error = tk->dxyError() * cmToUm;
+  } else if (varname_ == "z") {
+    value = tk->dz(pv) * cmToUm;
+    error = tk->dzError() * cmToUm;
+  } else {
+    throw cms::Exception("IPMonitoring") << "Unknown varname: " << varname_ << ". Expected 'xy' or 'z\'.";
+  }
+
+  const float eta = tk->eta();
+  const float phi = tk->phi();
+  const float pt = tk->pt();
+
+  IP_->Fill(value);
+  IPVsPhi_->Fill(phi, value);
+  IPVsEta_->Fill(eta, value);
+  IPVsPt_->Fill(pt, value);
+  IPVsEtaVsPhi_->Fill(eta, phi, value);
+
+  IPErr_->Fill(error);
+  IPPull_->Fill(value / error);
+  IPErrVsPhi_->Fill(phi, error);
+  IPErrVsEta_->Fill(eta, error);
+  IPErrVsPt_->Fill(pt, error);
+  IPErrVsEtaVsPhi_->Fill(eta, phi, error);
 }
 
 //
@@ -510,9 +556,6 @@ void GeneralPurposeVertexAnalyzer::pvTracksPlots(const reco::Vertex &v) {
     const float chi2NDF = t->normalizedChi2();
     const float chi2Prob = TMath::Prob(t->chi2(), static_cast<int>(t->ndof()));
     const float Dxy = t->dxy(myVertex) * cmToUm;
-    const float Dz = t->dz(myVertex) * cmToUm;
-    const float DxyErr = t->dxyError() * cmToUm;
-    const float DzErr = t->dzError() * cmToUm;
 
     sumPT += pt2;
 
@@ -524,60 +567,20 @@ void GeneralPurposeVertexAnalyzer::pvTracksPlots(const reco::Vertex &v) {
     eta_pt1->Fill(eta);
 
     // dxy pT>1
-
-    dxy_pt1.IP_->Fill(Dxy);
-    dxy_pt1.IPVsPhi_->Fill(phi, Dxy);
-    dxy_pt1.IPVsEta_->Fill(eta, Dxy);
-    dxy_pt1.IPVsEtaVsPhi_->Fill(eta, phi, Dxy);
-
-    dxy_pt1.IPErr_->Fill(DxyErr);
-    dxy_pt1.IPPull_->Fill(Dxy / DxyErr);
-    dxy_pt1.IPErrVsPhi_->Fill(phi, DxyErr);
-    dxy_pt1.IPErrVsEta_->Fill(eta, DxyErr);
-    dxy_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DxyErr);
+    dxy_pt1.fillIPMonitor(t, myVertex);
 
     // dz pT>1
-
-    dz_pt1.IP_->Fill(Dz);
-    dz_pt1.IPVsPhi_->Fill(phi, Dz);
-    dz_pt1.IPVsEta_->Fill(eta, Dz);
-    dz_pt1.IPVsEtaVsPhi_->Fill(eta, phi, Dz);
-
-    dz_pt1.IPErr_->Fill(DzErr);
-    dz_pt1.IPPull_->Fill(Dz / DzErr);
-    dz_pt1.IPErrVsPhi_->Fill(phi, DzErr);
-    dz_pt1.IPErrVsEta_->Fill(eta, DzErr);
-    dz_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
+    dz_pt1.fillIPMonitor(t, myVertex);
 
     if (pt >= 10.f) {
       phi_pt10->Fill(phi);
       eta_pt10->Fill(eta);
 
       // dxy pT>10
-
-      dxy_pt10.IP_->Fill(Dxy);
-      dxy_pt10.IPVsPhi_->Fill(phi, Dxy);
-      dxy_pt10.IPVsEta_->Fill(eta, Dxy);
-      dxy_pt10.IPVsEtaVsPhi_->Fill(eta, phi, Dxy);
-
-      dxy_pt10.IPErr_->Fill(DxyErr);
-      dxy_pt10.IPPull_->Fill(Dxy / DxyErr);
-      dxy_pt10.IPErrVsPhi_->Fill(phi, DxyErr);
-      dxy_pt10.IPErrVsEta_->Fill(eta, DxyErr);
-      dxy_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DxyErr);
+      dxy_pt10.fillIPMonitor(t, myVertex);
 
       // dz pT>10
-
-      dz_pt10.IP_->Fill(Dz);
-      dz_pt10.IPVsPhi_->Fill(phi, Dz);
-      dz_pt10.IPVsEta_->Fill(eta, Dz);
-      dz_pt10.IPVsEtaVsPhi_->Fill(eta, phi, Dz);
-
-      dz_pt10.IPErr_->Fill(DzErr);
-      dz_pt10.IPPull_->Fill(Dz / DzErr);
-      dz_pt10.IPErrVsPhi_->Fill(phi, DzErr);
-      dz_pt10.IPErrVsEta_->Fill(eta, DzErr);
-      dz_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
+      dz_pt10.fillIPMonitor(t, myVertex);
     }
   }
 

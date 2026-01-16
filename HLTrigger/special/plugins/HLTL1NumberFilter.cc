@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HLTL1NumberFilter
+// Package:    HLTrigger/special
 // Class:      HLTL1NumberFilter
 //
-/**\class HLTL1NumberFilter HLTL1NumberFilter.cc filter/HLTL1NumberFilter/src/HLTL1NumberFilter.cc
+/**\class HLTL1NumberFilter HLTL1NumberFilter.cc HLTrigger/special/plugins/HLTL1NumberFilter.cc
 
 Description:
 
@@ -22,12 +22,12 @@ Implementation:
 #include <memory>
 
 // user include files
-#include "HLTL1NumberFilter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HLTL1NumberFilter.h"
 
 //
 // constructors and destructor
@@ -36,22 +36,18 @@ HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& config)
     :  //now do what ever initialization is needed
       inputToken_(consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("rawInput"))),
       period_(config.getParameter<unsigned int>("period")),
-      fedId_(config.getParameter<int>("fedId")),
+      fedIds_(config.getParameter<std::vector<int>>("fedIds")),
       invert_(config.getParameter<bool>("invert")),
-      // only try and use TCDS event number if the FED ID 1024 is selected
-      useTCDS_(config.getParameter<bool>("useTCDSEventNumber") and fedId_ == 1024) {}
-
-HLTL1NumberFilter::~HLTL1NumberFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+      // only try and use TCDS event number if the FED ID 1024 OR 1050 is selected
+      useTCDS_(config.getParameter<bool>("useTCDSEventNumber") &&
+               std::any_of(fedIds_.begin(), fedIds_.end(), [](int id) { return id == 1024 || id == 1050; })) {}
 
 void HLTL1NumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("rawInput", edm::InputTag("source"));
   desc.add<unsigned int>("period", 4096);
   desc.add<bool>("invert", true);
-  desc.add<int>("fedId", 812);
+  desc.add<std::vector<int>>("fedIds", {812});
   desc.add<bool>("useTCDSEventNumber", false);
   descriptions.add("hltL1NumberFilter", desc);
 }
@@ -64,28 +60,36 @@ bool HLTL1NumberFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
   using namespace edm;
 
   if (iEvent.isRealData()) {
-    bool accept(false);
     edm::Handle<FEDRawDataCollection> theRaw;
     iEvent.getByToken(inputToken_, theRaw);
-    const FEDRawData& data = theRaw->FEDData(fedId_);
-    if (data.data() and data.size() > 0) {
-      unsigned long counter;
-      if (useTCDS_) {
-        TCDSRecord record(data.data());
-        counter = record.getTriggerCount();
-      } else {
-        FEDHeader header(data.data());
-        counter = header.lvl1ID();
+
+    bool accept = false;
+    bool atLeastOneValidFED = false;  // Track if any FED had valid data
+    for (int fedId : fedIds_) {
+      const FEDRawData& data = theRaw->FEDData(fedId);
+      if (data.data() && data.size() > 0) {
+        atLeastOneValidFED = true;
+        unsigned long counter;
+        // Use TCDS if requested and fedId is 1024 or 1050
+        if (useTCDS_ && (fedId == 1024 || fedId == 1050)) {
+          TCDSRecord record(data.data());
+          counter = record.getTriggerCount();
+        } else {
+          FEDHeader header(data.data());
+          counter = header.lvl1ID();
+        }
+        if (period_ != 0)
+          accept = accept || (counter % period_ == 0);
+        else
+          accept = true;
       }
-      if (period_ != 0)
-        accept = (counter % period_ == 0);
-      if (invert_)
-        accept = not accept;
-      return accept;
-    } else {
-      LogWarning("HLTL1NumberFilter") << "No valid data for FED " << fedId_ << " used by HLTL1NumberFilter";
-      return false;
     }
+    if (!atLeastOneValidFED) {
+      edm::LogWarning("HLTL1NumberFilter") << "No valid data for any FED in list used by HLTL1NumberFilter";
+    }
+    if (invert_)
+      accept = !accept;
+    return accept;
   } else {
     return true;
   }

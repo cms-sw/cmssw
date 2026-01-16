@@ -16,5 +16,6 @@ ecalCertification = DQMEDHarvester("EcalDQMonitorClient",
         CertificationClient = ecalCertificationClient.clone()
     ),
     commonParameters = ecalCommonParams.clone(willConvertToEDM = False),
+    inputMEs = cms.untracked.VInputTag(("ecalDaqInfoTask"), ("ecalMonitorClient"), ("ecalDcsInfoTask"), ("ecalSummaryClient")),
     verbosity = cms.untracked.int32(0)
 )

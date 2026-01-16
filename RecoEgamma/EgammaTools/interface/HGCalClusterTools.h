@@ -2,7 +2,9 @@
 #define RecoEgamma_EgammaTools_HGCalClusterTools_h
 
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
+#include <algorithm>
 
 class HGCalClusterTools {
 public:

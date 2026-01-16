@@ -54,12 +54,12 @@ DoubleTkMuon4p5OSEr2Mass7to18 = l1tGTDoubleObjectCond.clone(
     collection1 = l1tGTtkMuonLoose.clone(
         minEta = cms.double(-2.0),
         maxEta = cms.double(2.0),
-        minPt = cms.double(4),
+        minPt = cms.double(4.4),
     ),
     collection2 = l1tGTtkMuonLoose.clone(
         minEta = cms.double(-2.0),
         maxEta = cms.double(2.0),
-        minPt = cms.double(4),
+        minPt = cms.double(4.4),
     ),
     minDR = cms.double(0),
     minInvMass = cms.double(7),

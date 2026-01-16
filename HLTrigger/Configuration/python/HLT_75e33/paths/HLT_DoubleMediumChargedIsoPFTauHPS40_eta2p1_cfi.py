@@ -4,7 +4,7 @@ from ..modules.hltAK4PFJetsForTaus_cfi import *
 from ..modules.hltHpsDoublePFTau40TrackPt1MediumChargedIsolation_cfi import *
 from ..modules.hltHpsSelectedPFTausTrackPt1MediumChargedIsolation_cfi import *
 from ..modules.hltPreDoublePFTauHPS_cfi import *
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTAK4PFJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
@@ -15,15 +15,15 @@ from ..sequences.HLTPFTauHPS_cfi import *
 from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
-from ..modules.hltL1SeedForDoublePuppiTau_cfi import *
+from ..modules.hltL1P2GTTau_cfi import *
 
 HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1 = cms.Path(
     HLTBeginSequence
-    + hltL1SeedForDoublePuppiTau
+    + hltL1P2GTTau
     + hltPreDoublePFTauHPS
     + HLTRawToDigiSequence
-    + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence
