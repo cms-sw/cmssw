@@ -68,8 +68,6 @@ void ScoutingJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   fastjet::JetDefinition jetDef(fastjet::antikt_algorithm, akR_);
 
   // loop over valid bunch crossings
-  int nConst = 0;
-  double area = 0.;
   for (const unsigned& bx : caloTowerCollection->getFilledBxs()) {
     const auto& cts = caloTowerCollection->bxIterator(bx);
 
@@ -91,6 +89,8 @@ void ScoutingJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
     // fill fast jet objects buffer
     fastJetBuffer[bx].reserve(incJets.size());
+    int nConst = 0;
+    double area = 0.;
     for (const auto& incJet : incJets) {
       nConst = incJet.has_constituents() ? incJet.constituents().size() : 0;
       area = incJet.has_area() ? incJet.area() : -1.0;
