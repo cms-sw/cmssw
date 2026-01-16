@@ -18,7 +18,6 @@ ScBMTFRawToDigi::ScBMTFRawToDigi(const edm::ParameterSet& iConfig) {
 ScBMTFRawToDigi::~ScBMTFRawToDigi() {}
 
 void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   edm::Handle<SDSRawDataCollection> ScoutingRawDataCollection;
   iEvent.getByToken(rawToken_, ScoutingRawDataCollection);
 
@@ -48,7 +47,6 @@ void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsId) {
-
   // reset counters
   nStubsOrbit_ = 0;
 
@@ -70,7 +68,7 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsI
     pos += 12;  // header
 
     LogDebug("L1Scout") << " BMTF #" << sdsId << " Orbit " << orbit << ", BX -> " << bx << ", nStubs -> " << sCount
-                << "\n";
+                        << "\n";
 
     // Unpack stubs for the current pair (BX, sector)
     int32_t phi, phiB, tag, qual, eta, qeta, station, wheel, sector;
@@ -86,7 +84,8 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsI
       qual = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::qual) & l1ScoutingRun3::bmtf::masksStubs::qual);
       eta = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::eta) & l1ScoutingRun3::bmtf::masksStubs::eta);
       qeta = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::qeta) & l1ScoutingRun3::bmtf::masksStubs::qeta);
-      station = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::station) & l1ScoutingRun3::bmtf::masksStubs::station) + 1;
+      station =
+          ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::station) & l1ScoutingRun3::bmtf::masksStubs::station) + 1;
       wheel = ((stub_raw >> l1ScoutingRun3::bmtf::shiftsStubs::wheel) & l1ScoutingRun3::bmtf::masksStubs::wheel);
       sector = sdsId - SDSNumbering::BmtfMinSDSID;
 
@@ -106,16 +105,15 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsI
       nStubsOrbit_++;
 
       LogDebug("L1Scout") << "Stub " << i << ", raw: 0x" << std::hex << stub_raw << std::dec << "\n"
-      << "\tPhi: " << phi << "\n"
-      << "\tPhiB: " << phiB << "\n"
-      << "\tQuality: " << qual << "\n"
-      << "\tEta: " << eta << "\n"
-      << "\tQEta: " << qeta << "\n"
-      << "\tStation: " << station << "\n"
-      << "\tWheel: " << wheel << "\n"
-      << "\tSector: " << sector << "\n"
-      << "\tTag: " << tag << "\n";
-      
+                          << "\tPhi: " << phi << "\n"
+                          << "\tPhiB: " << phiB << "\n"
+                          << "\tQuality: " << qual << "\n"
+                          << "\tEta: " << eta << "\n"
+                          << "\tQEta: " << qeta << "\n"
+                          << "\tStation: " << station << "\n"
+                          << "\tWheel: " << wheel << "\n"
+                          << "\tSector: " << sector << "\n"
+                          << "\tTag: " << tag << "\n";
     }
   }  // end orbit while loop
 }

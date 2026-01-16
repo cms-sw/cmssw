@@ -18,7 +18,6 @@ ScCaloTowerRawToDigi::ScCaloTowerRawToDigi(const edm::ParameterSet& iConfig) {
 ScCaloTowerRawToDigi::~ScCaloTowerRawToDigi() {}
 
 void ScCaloTowerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   edm::Handle<SDSRawDataCollection> ScoutingRawDataCollection;
   iEvent.getByToken(rawToken_, ScoutingRawDataCollection);
 
@@ -49,7 +48,6 @@ void ScCaloTowerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsId) {
-
   // reset counters
   nCaloTowersOrbit_ = 0;
 
@@ -70,7 +68,8 @@ void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int
 
     pos += 12;  // header
 
-    LogDebug("L1Scout") << " CaloTower #" << sdsId << " Orbit " << orbit << ", BX -> " << bx << ", nCaloTowers -> " << ctCount;
+    LogDebug("L1Scout") << " CaloTower #" << sdsId << " Orbit " << orbit << ", BX -> " << bx << ", nCaloTowers -> "
+                        << ctCount;
 
     // Unpack calo towers
     int32_t ET, erBits, miscBits, eta, phi;
@@ -80,8 +79,10 @@ void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int
       pos += 4;
 
       ET = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::ET) & l1ScoutingRun3::calol2::masksCaloTowers::ET);
-      erBits = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::erBits) & l1ScoutingRun3::calol2::masksCaloTowers::erBits);
-      miscBits = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::miscBits) & l1ScoutingRun3::calol2::masksCaloTowers::miscBits);
+      erBits = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::erBits) &
+                l1ScoutingRun3::calol2::masksCaloTowers::erBits);
+      miscBits = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::miscBits) &
+                  l1ScoutingRun3::calol2::masksCaloTowers::miscBits);
       eta = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::eta) & l1ScoutingRun3::calol2::masksCaloTowers::eta);
       phi = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::phi) & l1ScoutingRun3::calol2::masksCaloTowers::phi);
 
@@ -91,9 +92,9 @@ void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int
       orbitBuffer_[bx].push_back(ct);
       nCaloTowersOrbit_++;
 
-      LogDebug("L1Scout") << "Calo Tower " << i << ", raw: 0x" << std::hex << ct_raw << std::dec 
-      << "\tET: " << ET << "\tER bits: " << erBits << "\tMisc bits: " << miscBits
-      << "\tEta: " << eta << "\tPhi: " << phi;
+      LogDebug("L1Scout") << "Calo Tower " << i << ", raw: 0x" << std::hex << ct_raw << std::dec << "\tET: " << ET
+                          << "\tER bits: " << erBits << "\tMisc bits: " << miscBits << "\tEta: " << eta
+                          << "\tPhi: " << phi;
     }
 
   }  // end orbit while loop

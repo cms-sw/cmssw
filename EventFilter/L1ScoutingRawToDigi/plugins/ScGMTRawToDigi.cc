@@ -18,7 +18,6 @@ ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
 ScGMTRawToDigi::~ScGMTRawToDigi() {}
 
 void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   edm::Handle<SDSRawDataCollection> ScoutingRawDataCollection;
   iEvent.getByToken(rawToken, ScoutingRawDataCollection);
 
@@ -42,7 +41,6 @@ void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 }
 
 void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
-
   // reset counters
   nMuonsOrbit_ = 0;
 
@@ -72,14 +70,17 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
     orbitBuffer_[bx].reserve(mAcount + mBcount);
 
     for (unsigned int i = 0; i < mAcount + mBcount; i++) {
-      uint32_t interm = (bl->mu[i].extra >> l1ScoutingRun3::ugmt::shiftsMuon::interm) & l1ScoutingRun3::ugmt::masksMuon::interm;
+      uint32_t interm =
+          (bl->mu[i].extra >> l1ScoutingRun3::ugmt::shiftsMuon::interm) & l1ScoutingRun3::ugmt::masksMuon::interm;
       if ((interm == 1) && (skipInterm_)) {
         LogDebug("L1Scout") << " -> Excluding intermediate muon\n";
         continue;
       }
 
-      uint32_t index = (bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::index) & l1ScoutingRun3::ugmt::masksMuon::index;
-      uint32_t ietaextu = (bl->mu[i].f >> l1ScoutingRun3::ugmt::shiftsMuon::etaext) & l1ScoutingRun3::ugmt::masksMuon::etaextv;
+      uint32_t index =
+          (bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::index) & l1ScoutingRun3::ugmt::masksMuon::index;
+      uint32_t ietaextu =
+          (bl->mu[i].f >> l1ScoutingRun3::ugmt::shiftsMuon::etaext) & l1ScoutingRun3::ugmt::masksMuon::etaextv;
       int32_t ietaext;
       if (((bl->mu[i].f >> l1ScoutingRun3::ugmt::shiftsMuon::etaext) & l1ScoutingRun3::ugmt::masksMuon::etaexts) != 0) {
         ietaext = ietaextu -= 256;
@@ -88,7 +89,8 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
       }
 
       // extract pt and quality and apply cut if required
-      int32_t iptuncon = (bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::ptuncon) & l1ScoutingRun3::ugmt::masksMuon::ptuncon;
+      int32_t iptuncon =
+          (bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::ptuncon) & l1ScoutingRun3::ugmt::masksMuon::ptuncon;
       int32_t ipt = (bl->mu[i].f >> l1ScoutingRun3::ugmt::shiftsMuon::pt) & l1ScoutingRun3::ugmt::masksMuon::pt;
       if ((ipt - 1) < 0) {
         continue;
@@ -96,7 +98,8 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
       uint32_t qual = (bl->mu[i].f >> l1ScoutingRun3::ugmt::shiftsMuon::qual) & l1ScoutingRun3::ugmt::masksMuon::qual;
 
       // extract integer value for extrapolated phi
-      int32_t iphiext = ((bl->mu[i].f >> l1ScoutingRun3::ugmt::shiftsMuon::phiext) & l1ScoutingRun3::ugmt::masksMuon::phiext);
+      int32_t iphiext =
+          ((bl->mu[i].f >> l1ScoutingRun3::ugmt::shiftsMuon::phiext) & l1ScoutingRun3::ugmt::masksMuon::phiext);
 
       // extract integer value for extrapolated phi
       int32_t idxy = ((bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::dxy) & l1ScoutingRun3::ugmt::masksMuon::dxy);
@@ -105,12 +108,16 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
       uint32_t iso = (bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::iso) & l1ScoutingRun3::ugmt::masksMuon::iso;
       int32_t chrg = 0;
       if (((bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::chrgv) & l1ScoutingRun3::ugmt::masksMuon::chrgv) == 1)
-        chrg = ((bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::chrg) & l1ScoutingRun3::ugmt::masksMuon::chrg) == 1 ? -1 : 1;
+        chrg = ((bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::chrg) & l1ScoutingRun3::ugmt::masksMuon::chrg) == 1
+                   ? -1
+                   : 1;
 
       // extract eta and phi at muon station
       int32_t iphi = (bl->mu[i].s >> l1ScoutingRun3::ugmt::shiftsMuon::phi) & l1ScoutingRun3::ugmt::masksMuon::phi;
-      uint32_t ieta1 = (bl->mu[i].extra >> l1ScoutingRun3::ugmt::shiftsMuon::eta1) & l1ScoutingRun3::ugmt::masksMuon::eta;
-      uint32_t ieta2 = (bl->mu[i].extra >> l1ScoutingRun3::ugmt::shiftsMuon::eta2) & l1ScoutingRun3::ugmt::masksMuon::eta;
+      uint32_t ieta1 =
+          (bl->mu[i].extra >> l1ScoutingRun3::ugmt::shiftsMuon::eta1) & l1ScoutingRun3::ugmt::masksMuon::eta;
+      uint32_t ieta2 =
+          (bl->mu[i].extra >> l1ScoutingRun3::ugmt::shiftsMuon::eta2) & l1ScoutingRun3::ugmt::masksMuon::eta;
 
       uint32_t ieta_u;
       int32_t ieta;
@@ -138,12 +145,12 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
       if (edm::MessageDrop::instance()->debugEnabled) {
         std::ostringstream os;
         LogDebug("L1Scout") << "--- Muon " << i << " ---\n"
-        << "  Raw f:     0x" << std::hex << bl->mu[i].f << std::dec << "\n"
-        << "  Raw s:     0x" << std::hex << bl->mu[i].s << std::dec << "\n" 
-        << "  Raw extra: 0x" << std::hex << bl->mu[i].extra << std::dec << "\n";
+                            << "  Raw f:     0x" << std::hex << bl->mu[i].f << std::dec << "\n"
+                            << "  Raw s:     0x" << std::hex << bl->mu[i].s << std::dec << "\n"
+                            << "  Raw extra: 0x" << std::hex << bl->mu[i].extra << std::dec << "\n";
         printMuon(muon, os);
         LogDebug("L1Scout") << os.str();
-      } 
+      }
 
     }  // end of bx
 
