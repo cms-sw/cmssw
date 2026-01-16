@@ -92,28 +92,30 @@ void HGCalBadIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSet
       std::ifstream fInput(fileName.c_str());
       std::string detn = (dets_ == DetId::HGCalEE) ? "EE" : "HSi";
       if (!fInput.good()) {
-	edm::LogVerbatim("HGCGeom") << "Cannot open file " << fileName;
+        edm::LogVerbatim("HGCGeom") << "Cannot open file " << fileName;
       } else {
-	char buffer[80];
-	while (fInput.getline(buffer, 80)) {
-	  std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
-	  int32_t detId = std::atoi(items[0].c_str());
-	  if (DetId(detId).det() == dets_) {
-	    HGCSiliconDetId id(detId);
-	    int32_t layer = id.layer();
-	    int32_t waferU = id.waferU();
-	    int32_t waferV = id.waferV();
-	    HGCalParameters::waferInfo info = geom->topology().dddConstants().waferInfo(layer, waferU, waferV);
-	    std::ostringstream st1;
-	    int32_t cellU = id.cellU();
-	    int32_t cellV = id.cellV();
-	    st1 << detn << " z " << id.zside() << " Layer " << layer << " Wafer " << waferU << ":" << waferV << " Cell " << cellU << ":" << cellV << " " << HGCalTypes::waferTypeX(info.type) << ":" << info.part << ":" << HGCalTypes::waferTypeX(info.part) << ":" << info.orient << ":" << info.cassette;
-	    for (unsigned int k = 1;  k < items.size(); ++k)
-	      st1 << ":" << items[k];
-	    edm::LogVerbatim("HGCGeom") << st1.str();
-	  }
-	}
-	fInput.close();
+        char buffer[80];
+        while (fInput.getline(buffer, 80)) {
+          std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
+          int32_t detId = std::atoi(items[0].c_str());
+          if (DetId(detId).det() == dets_) {
+            HGCSiliconDetId id(detId);
+            int32_t layer = id.layer();
+            int32_t waferU = id.waferU();
+            int32_t waferV = id.waferV();
+            HGCalParameters::waferInfo info = geom->topology().dddConstants().waferInfo(layer, waferU, waferV);
+            std::ostringstream st1;
+            int32_t cellU = id.cellU();
+            int32_t cellV = id.cellV();
+            st1 << detn << " z " << id.zside() << " Layer " << layer << " Wafer " << waferU << ":" << waferV << " Cell "
+                << cellU << ":" << cellV << " " << HGCalTypes::waferTypeX(info.type) << ":" << info.part << ":"
+                << HGCalTypes::waferTypeX(info.part) << ":" << info.orient << ":" << info.cassette;
+            for (unsigned int k = 1; k < items.size(); ++k)
+              st1 << ":" << items[k];
+            edm::LogVerbatim("HGCGeom") << st1.str();
+          }
+        }
+        fInput.close();
       }
     }
   } else {
