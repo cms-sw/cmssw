@@ -38,7 +38,6 @@ private:
   std::vector<std::vector<l1ScoutingRun3::CaloTower>> orbitBuffer_;
   int nCaloTowersOrbit_;
 
-  bool debug_ = false;
   std::vector<int> sourceIdList_;
   edm::InputTag srcInputTag_;
   edm::EDGetToken rawToken_;

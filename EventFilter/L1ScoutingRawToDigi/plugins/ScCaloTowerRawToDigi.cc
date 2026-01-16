@@ -3,7 +3,6 @@
 ScCaloTowerRawToDigi::ScCaloTowerRawToDigi(const edm::ParameterSet& iConfig) {
   srcInputTag_ = iConfig.getParameter<edm::InputTag>("srcInputTag");
   sourceIdList_ = iConfig.getParameter<std::vector<int>>("sourceIdList");
-  debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
   // initialize orbit buffer for BX 1->3564;
   orbitBuffer_ = std::vector<std::vector<l1ScoutingRun3::CaloTower>>(3565);
@@ -34,8 +33,8 @@ void ScCaloTowerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iS
     const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(sdsId);
     size_t orbitSize = sourceRawData.size();
 
-    if ((sourceRawData.size() == 0) && debug_) {
-      std::cout << "No raw data for CaloTower FED " << sdsId << std::endl;
+    if (sourceRawData.size() == 0) {
+      LogDebug("L1Scout") << "No raw data for CaloTower FED " << sdsId;
     }
 
     // unpack current orbit and store data into the orbitBufferr
@@ -71,10 +70,7 @@ void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int
 
     pos += 12;  // header
 
-    if (debug_) {
-      std::cout << " CaloTower #" << sdsId << " Orbit " << orbit << ", BX -> " << bx << ", nCaloTowers -> " << ctCount
-                << std::endl;
-    }
+    LogDebug("L1Scout") << " CaloTower #" << sdsId << " Orbit " << orbit << ", BX -> " << bx << ", nCaloTowers -> " << ctCount;
 
     // Unpack calo towers
     int32_t ET, erBits, miscBits, eta, phi;
@@ -95,14 +91,9 @@ void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int
       orbitBuffer_[bx].push_back(ct);
       nCaloTowersOrbit_++;
 
-      if (debug_) {
-        std::cout << "Calo Tower " << i << ", raw: 0x" << std::hex << ct_raw << std::dec << std::endl;
-        std::cout << "\tET: " << ET << std::endl;
-        std::cout << "\tER bits: " << erBits << std::endl;
-        std::cout << "\tMisc bits: " << miscBits << std::endl;
-        std::cout << "\tEta: " << eta << std::endl;
-        std::cout << "\tPhi: " << phi << std::endl;
-      }
+      LogDebug("L1Scout") << "Calo Tower " << i << ", raw: 0x" << std::hex << ct_raw << std::dec 
+      << "\tET: " << ET << "\tER bits: " << erBits << "\tMisc bits: " << miscBits
+      << "\tEta: " << eta << "\tPhi: " << phi;
     }
 
   }  // end orbit while loop

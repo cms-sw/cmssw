@@ -3,7 +3,6 @@
 ScBMTFRawToDigi::ScBMTFRawToDigi(const edm::ParameterSet& iConfig) {
   srcInputTag_ = iConfig.getParameter<edm::InputTag>("srcInputTag");
   sourceIdList_ = iConfig.getParameter<std::vector<int>>("sourceIdList");
-  debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
   // initialize orbit buffer for BX 1->3564;
   orbitBuffer_ = std::vector<std::vector<l1ScoutingRun3::BMTFStub>>(3565);
@@ -33,8 +32,8 @@ void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(sdsId);
     size_t orbitSize = sourceRawData.size();
 
-    if ((sourceRawData.size() == 0) && debug_) {
-      std::cout << "No raw data for BMTF FED " << sdsId << std::endl;
+    if (sourceRawData.size() == 0) {
+      LogDebug("L1Scout") << "No raw data for BMTF FED " << sdsId << "\n";
     }
 
     // unpack current orbit and store data into the orbitBufferr
@@ -70,10 +69,8 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsI
 
     pos += 12;  // header
 
-    if (debug_) {
-      std::cout << " BMTF #" << sdsId << " Orbit " << orbit << ", BX -> " << bx << ", nStubs -> " << sCount
-                << std::endl;
-    }
+    LogDebug("L1Scout") << " BMTF #" << sdsId << " Orbit " << orbit << ", BX -> " << bx << ", nStubs -> " << sCount
+                << "\n";
 
     // Unpack stubs for the current pair (BX, sector)
     int32_t phi, phiB, tag, qual, eta, qeta, station, wheel, sector;
@@ -108,20 +105,18 @@ void ScBMTFRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int sdsI
       orbitBuffer_[bx].push_back(stub);
       nStubsOrbit_++;
 
-      if (debug_) {
-        std::cout << "Stub " << i << ", raw: 0x" << std::hex << stub_raw << std::dec << std::endl;
-        std::cout << "\tPhi: " << phi << std::endl;
-        std::cout << "\tPhiB: " << phiB << std::endl;
-        std::cout << "\tQuality: " << qual << std::endl;
-        std::cout << "\tEta: " << eta << std::endl;
-        std::cout << "\tQEta: " << qeta << std::endl;
-        std::cout << "\tStation: " << station << std::endl;
-        std::cout << "\tWheel: " << wheel << std::endl;
-        std::cout << "\tSector: " << sector << std::endl;
-        std::cout << "\tTag: " << tag << std::endl;
-      }
+      LogDebug("L1Scout") << "Stub " << i << ", raw: 0x" << std::hex << stub_raw << std::dec << "\n"
+      << "\tPhi: " << phi << "\n"
+      << "\tPhiB: " << phiB << "\n"
+      << "\tQuality: " << qual << "\n"
+      << "\tEta: " << eta << "\n"
+      << "\tQEta: " << qeta << "\n"
+      << "\tStation: " << station << "\n"
+      << "\tWheel: " << wheel << "\n"
+      << "\tSector: " << sector << "\n"
+      << "\tTag: " << tag << "\n";
+      
     }
-
   }  // end orbit while loop
 }
 

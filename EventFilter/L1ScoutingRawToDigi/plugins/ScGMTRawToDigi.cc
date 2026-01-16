@@ -3,7 +3,6 @@
 ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
   srcInputTag = iConfig.getParameter<edm::InputTag>("srcInputTag");
   skipInterm_ = iConfig.getParameter<bool>("skipInterm");
-  debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
   // initialize orbit buffer for BX 1->3564;
   orbitBuffer_ = std::vector<std::vector<l1ScoutingRun3::Muon>>(3565);
@@ -28,8 +27,8 @@ void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   std::unique_ptr<l1ScoutingRun3::MuonOrbitCollection> unpackedMuons(new l1ScoutingRun3::MuonOrbitCollection);
 
-  if ((sourceRawData.size() == 0) && debug_) {
-    std::cout << "No raw data for GMT FED\n";
+  if (sourceRawData.size() == 0) {
+    LogDebug("L1Scout") << "No raw data for GMT FED\n";
   }
 
   // unpack current orbit and store data into the orbitBufferr
@@ -67,9 +66,7 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
     uint32_t orbit = bl->orbit & 0x7FFFFFFF;
     uint32_t bx = bl->bx;
 
-    if (debug_) {
-      std::cout << "GMT Orbit " << orbit << ", BX -> " << bx << ", nMuons -> " << mAcount + mBcount << std::endl;
-    }
+    LogDebug("L1Scout") << "GMT Orbit " << orbit << ", BX -> " << bx << ", nMuons -> " << mAcount + mBcount;
 
     // Unpack muons for this BX
     orbitBuffer_[bx].reserve(mAcount + mBcount);
@@ -77,9 +74,7 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
     for (unsigned int i = 0; i < mAcount + mBcount; i++) {
       uint32_t interm = (bl->mu[i].extra >> l1ScoutingRun3::ugmt::shiftsMuon::interm) & l1ScoutingRun3::ugmt::masksMuon::interm;
       if ((interm == 1) && (skipInterm_)) {
-        if (debug_) {
-          std::cout << " -> Excluding intermediate muon\n";
-        }
+        LogDebug("L1Scout") << " -> Excluding intermediate muon\n";
         continue;
       }
 
@@ -140,13 +135,15 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
 
       orbitBuffer_[bx].push_back(muon);
 
-      if (debug_) {
-        std::cout << "--- Muon " << i << " ---\n";
-        std::cout << "  Raw f:     0x" << std::hex << bl->mu[i].f << std::dec << "\n";
-        std::cout << "  Raw s:     0x" << std::hex << bl->mu[i].s << std::dec << "\n";
-        std::cout << "  Raw extra: 0x" << std::hex << bl->mu[i].extra << std::dec << "\n";
-        printMuon(muon);
-      }
+      if (edm::MessageDrop::instance()->debugEnabled) {
+        std::ostringstream os;
+        LogDebug("L1Scout") << "--- Muon " << i << " ---\n"
+        << "  Raw f:     0x" << std::hex << bl->mu[i].f << std::dec << "\n"
+        << "  Raw s:     0x" << std::hex << bl->mu[i].s << std::dec << "\n" 
+        << "  Raw extra: 0x" << std::hex << bl->mu[i].extra << std::dec << "\n";
+        printMuon(muon, os);
+        LogDebug("L1Scout") << os.str();
+      } 
 
     }  // end of bx
 
