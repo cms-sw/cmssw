@@ -24,13 +24,15 @@ __global__ void invert(M* mm, int n) {
   if (i >= n)
     return;
 
-  auto& m = mm[i];
+  auto& src = mm[i];
+  M dst;
 
-  printf("before %d %f %f %f\n", N, m(0, 0), m(1, 0), m(1, 1));
+  printf("before %d %f %f %f\n", N, src(0, 0), src(1, 0), src(1, 1));
 
-  invertNN(m, m);
+  invertNN(src, dst);
+  src = dst;
 
-  printf("after %d %f %f %f\n", N, m(0, 0), m(1, 0), m(1, 1));
+  printf("after %d %f %f %f\n", N, src(0, 0), src(1, 0), src(1, 1));
 }
 
 template <typename M, int N>
@@ -87,7 +89,11 @@ int main() {
 
   printf("on CPU before %d %f %f %f\n", DIM, m(0, 0), m(1, 0), m(1, 1));
 
-  invertNN(m, m);
+  {
+    M tmp;
+    invertNN(m, tmp);
+    m = tmp;
+  }
 
   printf("on CPU after %d %f %f %f\n", DIM, m(0, 0), m(1, 0), m(1, 1));
 
@@ -95,8 +101,6 @@ int main() {
   cudaMalloc(&d, sizeof(M));
   cudaMemcpy(d, &m, sizeof(M), cudaMemcpyHostToDevice);
   invert<M, DIM><<<1, 1>>>((M*)d, 1);
-  cudaCheck(cudaDeviceSynchronize());
-  invertE<M, DIM><<<1, 1>>>((M*)d, 1);
   cudaCheck(cudaDeviceSynchronize());
 
   return 0;
