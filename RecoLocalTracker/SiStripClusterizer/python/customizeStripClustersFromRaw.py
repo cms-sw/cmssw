@@ -12,17 +12,6 @@ def customizeStripClustersFromRaw(process):
 
     return process
 
-def customizeHLTStripClustersFromRaw(process):
-    if hasattr(process, 'hltSiStripRawToClustersFacility'):
-        import RecoLocalTracker.SiStripClusterizer.SiStripClusterizerOnDemand_cfi as SiStripClusterizerOnDemand_cfi
-
-        process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizerOnDemand_cfi")
-        process.hltSiStripRawToClustersFacility = SiStripClusterizerOnDemand_cfi.siStripClusters.clone()
-        process.HLTDoLocalStripSequence.replace(process.hltSiStripRawToClustersFacility,
-                                   cms.Sequence(process.hltSiStripRawToClustersFacility, process.siStripClustersTaskCUDA))
-
-    return process
-
 def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize:int = 768, doNotReplaceInPath = []):
     if hasattr(process, 'hltSiStripRawToClustersFacility'):
         from RecoLocalTracker.SiStripZeroSuppression.DefaultAlgorithms_cff import DefaultAlgorithms
