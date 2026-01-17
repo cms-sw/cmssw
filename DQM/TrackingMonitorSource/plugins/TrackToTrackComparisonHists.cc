@@ -241,8 +241,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   //
   //  Get Reference Track Info
   //
-  edm::Handle<edm::View<reco::Track>> referenceTracksHandle;
-  iEvent.getByToken(referenceTrackToken_, referenceTracksHandle);
+  auto const referenceTracksHandle = iEvent.getHandle(referenceTrackToken_);
   if (!referenceTracksHandle.isValid()) {
     edm::LogError("TrackToTrackComparisonHists")
         << "referenceTracksHandle with input tag " << referenceTrackInputTag_.encode() << " not found, skipping event";
@@ -250,17 +249,14 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   }
   const edm::View<reco::Track>& referenceTracks = *referenceTracksHandle;
 
-  edm::Handle<reco::BeamSpot> referenceBSHandle;
-  iEvent.getByToken(referenceBSToken_, referenceBSHandle);
+  const auto& referenceBSHandle = iEvent.getHandle(referenceBSToken_);
   if (!referenceBSHandle.isValid()) {
     edm::LogError("TrackToTrackComparisonHists") << "referenceBSHandle not found, skipping event";
     return;
   }
   reco::BeamSpot referenceBS = *referenceBSHandle;
 
-  edm::Handle<reco::VertexCollection> referencePVHandle;
-  iEvent.getByToken(referencePVToken_, referencePVHandle);
-
+  const auto& referencePVHandle = iEvent.getHandle(referencePVToken_);
   reco::Vertex referencePV;
   if (isCosmics_) {
     referencePV = reco::Vertex(referenceBS.position(), referenceBS.rotatedCovariance3D(), 0., 0., 0);
@@ -277,8 +273,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   //
   //  Get Monitored Track Info
   //
-  edm::Handle<edm::View<reco::Track>> monitoredTracksHandle;
-  iEvent.getByToken(monitoredTrackToken_, monitoredTracksHandle);
+  const auto& monitoredTracksHandle = iEvent.getHandle(monitoredTrackToken_);
   if (!monitoredTracksHandle.isValid()) {
     edm::LogError("TrackToTrackComparisonHists")
         << "monitoredTracksHandle with input tag " << monitoredTrackInputTag_.encode() << " not found, skipping event";
@@ -286,17 +281,14 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   }
   const edm::View<reco::Track>& monitoredTracks = *monitoredTracksHandle;
 
-  edm::Handle<reco::BeamSpot> monitoredBSHandle;
-  iEvent.getByToken(monitoredBSToken_, monitoredBSHandle);
+  const auto& monitoredBSHandle = iEvent.getHandle(monitoredBSToken_);
   if (!monitoredTracksHandle.isValid()) {
     edm::LogError("TrackToTrackComparisonHists") << "monitoredBSHandle not found, skipping event";
     return;
   }
   reco::BeamSpot monitoredBS = *monitoredBSHandle;
 
-  edm::Handle<reco::VertexCollection> monitoredPVHandle;
-  iEvent.getByToken(monitoredPVToken_, monitoredPVHandle);
-
+  const auto& monitoredPVHandle = iEvent.getHandle(monitoredPVToken_);
   reco::Vertex monitoredPV;
   if (isCosmics_) {
     monitoredPV = reco::Vertex(monitoredBS.position(), monitoredBS.rotatedCovariance3D(), 0., 0., 0);
