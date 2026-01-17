@@ -212,6 +212,7 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
     // Just to play it safe, zero all pointers to quantities in the file.
     auxBranches_.clear();
     producedBranches_.clear();
+    writer_->CommitDataset();
     writer_ = nullptr;   // propagate_const<T> has no reset() function
     filePtr_ = nullptr;  // propagate_const<T> has no reset() function
   }
