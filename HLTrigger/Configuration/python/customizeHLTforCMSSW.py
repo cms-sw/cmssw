@@ -198,6 +198,18 @@ def customizeHLTfor49436(process):
 
     return process
 
+
+def customizeHLTfor49799(process):
+    """Remove obsolete CUDA pixel ESProducers"""
+
+    if hasattr(process, "siPixelGainCalibrationForHLTGPU"):
+        del process.siPixelGainCalibrationForHLTGPU
+    if hasattr(process, "siPixelROCsStatusAndMappingWrapperESProducer"):
+        del process.siPixelROCsStatusAndMappingWrapperESProducer
+
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -206,5 +218,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     # process = customizeHLTfor49436(process)
+
+    process = customizeHLTfor49799(process)
 
     return process
