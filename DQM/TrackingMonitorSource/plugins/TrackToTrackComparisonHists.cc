@@ -333,7 +333,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   // loop over reference tracks
   //
   LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (reference): " << referenceTracks.size() << "\n";
-  for (const auto& [trackIdx, trackDRmap] : reference2monitoredColl) {
+  for (const auto& [trackIdx, trackDR2map] : reference2monitoredColl) {
     nReferenceTracks++;
 
     const reco::Track& track = referenceTracks.at(trackIdx);
@@ -344,13 +344,14 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
     fill_generic_tracks_histos(*&referenceTracksMEs_, &track, &referenceBS, &referencePV, ls, onlinelumi, PU);
 
-    if (trackDRmap.empty()) {
+    if (trackDR2map.empty()) {
       matchedReferenceTracksMEs_.h_dRmin->Fill(-1.);
       matchedReferenceTracksMEs_.h_dRmin_l->Fill(-1.);
       continue;
     }
 
-    const double dRmin = trackDRmap.begin()->first;
+    const double dR2min = trackDR2map.begin()->first;
+    const double dRmin = std::sqrt(dR2min);
     referenceTracksMEs_.h_dRmin->Fill(dRmin);
     referenceTracksMEs_.h_dRmin_l->Fill(dRmin);
 
@@ -362,7 +363,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
       matchedReferenceTracksMEs_.h_dRmin->Fill(dRmin);
       matchedReferenceTracksMEs_.h_dRmin_l->Fill(dRmin);
 
-      const int matchedTrackIndex = trackDRmap.at(dRmin);
+      const int matchedTrackIndex = trackDR2map.at(dR2min);
       const reco::Track& matchedTrack = monitoredTracks.at(matchedTrackIndex);
 
       fill_matching_tracks_histos(*&matchTracksMEs_, &track, &matchedTrack, &referenceBS, &referencePV);
@@ -373,7 +374,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   // loop over monitoed tracks
   //
   LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (monitored): " << monitoredTracks.size() << "\n";
-  for (const auto& [trackIdx, trackDRmap] : monitored2referenceColl) {
+  for (const auto& [trackIdx, trackDR2map] : monitored2referenceColl) {
     nMonitoredTracks++;
 
     const reco::Track& track = monitoredTracks.at(trackIdx);
@@ -384,13 +385,14 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
     fill_generic_tracks_histos(*&monitoredTracksMEs_, &track, &monitoredBS, &monitoredPV, ls, onlinelumi, PU);
 
-    if (trackDRmap.empty()) {
+    if (trackDR2map.empty()) {
       unMatchedMonitoredTracksMEs_.h_dRmin->Fill(-1.);
       unMatchedMonitoredTracksMEs_.h_dRmin_l->Fill(-1.);
       continue;
     }
 
-    const double dRmin = trackDRmap.begin()->first;
+    const double dR2min = trackDR2map.begin()->first;
+    const double dRmin = std::sqrt(dR2min);
     monitoredTracksMEs_.h_dRmin->Fill(dRmin);
     monitoredTracksMEs_.h_dRmin_l->Fill(dRmin);
 
@@ -485,22 +487,22 @@ void TrackToTrackComparisonHists::fillMap(const edm::View<reco::Track>& tracks1,
   for (const auto& track1 : tracks1) {
     std::map<double, int> tmp;
     int j = 0;
-    float smallest_dR = 1e9;
-    int smallest_dR_j = -1;
+    float smallest_dR2 = 1e9 * 1e9;
+    int smallest_dR2_j = -1;
 
     //
     // loop on tracks2
     //
     for (const auto& track2 : tracks2) {
-      double dR = reco::deltaR(track1.eta(), track1.phi(), track2.eta(), track2.phi());
+      double dR2 = reco::deltaR2(track1.eta(), track1.phi(), track2.eta(), track2.phi());
 
-      if (dR < smallest_dR) {
-        smallest_dR = dR;
-        smallest_dR_j = j;
+      if (dR2 < smallest_dR2) {
+        smallest_dR2 = dR2;
+        smallest_dR2_j = j;
       }
 
-      if (dR < dRMin) {
-        tmp[dR] = j;
+      if (dR2 < dRMin * dRMin) {
+        tmp[dR2] = j;
       }
 
       j++;
@@ -510,7 +512,7 @@ void TrackToTrackComparisonHists::fillMap(const edm::View<reco::Track>& tracks1,
     // If there are no tracks that pass the dR store the smallest (for debugging/validating matching)
     //
     if (tmp.empty())
-      tmp[smallest_dR] = smallest_dR_j;
+      tmp[smallest_dR2] = smallest_dR2_j;
 
     map.push_back(std::make_pair(i, tmp));
     i++;
