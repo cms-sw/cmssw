@@ -1,10 +1,8 @@
-#ifndef RecoTracker_PixelTrackFitting_FitResult_h
-#define RecoTracker_PixelTrackFitting_FitResult_h
+#ifndef RecoTracker_PixelTrackFitting_interface_FitResult_h
+#define RecoTracker_PixelTrackFitting_interface_FitResult_h
 
 #include <cmath>
 #include <cstdint>
-
-#include <cuda_runtime.h>
 
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
@@ -63,4 +61,5 @@ namespace riemannFit {
   };  // __attribute__((aligned(16)));
 
 }  // namespace riemannFit
-#endif
+
+#endif  // RecoTracker_PixelTrackFitting_interface_FitResult_h
