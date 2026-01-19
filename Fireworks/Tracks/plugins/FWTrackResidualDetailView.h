@@ -36,15 +36,12 @@
 #include <vector>
 #include "Rtypes.h"
 #include "Fireworks/Core/interface/FWDetailViewCanvas.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class FWGeometry;
 class FWModelId;
 class TEveWindowSlot;
 class TEveWindow;
-
-namespace reco {
-  class Track;
-}
 
 class FWTrackResidualDetailView : public FWDetailViewCanvas<reco::Track> {
 public:

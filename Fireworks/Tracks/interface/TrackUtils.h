@@ -9,11 +9,9 @@
 // system include files
 #include "TEveVSDStructs.h"
 #include <set>
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 // forward declarations
-namespace reco {
-  class Track;
-}
 class RecSegment;
 
 class FWEventItem;

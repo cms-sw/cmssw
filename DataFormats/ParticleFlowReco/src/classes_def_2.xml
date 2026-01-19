@@ -98,29 +98,20 @@
   <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
 
   <class name="edm::RefVector<std::vector<reco::PFBlock>,reco::PFBlock,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
-  <class name="reco::PFRecTrack" ClassVersion="13">
-   <version ClassVersion="13" checksum="2549841209"/>
-   <version ClassVersion="12" checksum="2850643502"/>
-   <version ClassVersion="11" checksum="2924298092"/>
-   <version ClassVersion="10" checksum="2979491836"/>
+  <class name="reco::PFRecTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="3356916753"/>
   </class>
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
 
-  <class name="reco::GsfPFRecTrack" ClassVersion="13">
-   <version ClassVersion="13" checksum="974620889"/>
-   <version ClassVersion="12" checksum="2203231294"/>
-   <version ClassVersion="11" checksum="2592328732"/>
-   <version ClassVersion="10" checksum="3411096264"/>
+  <class name="reco::GsfPFRecTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="997076017"/>
   </class>
   <class name="std::vector<reco::GsfPFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfPFRecTrack> >"/>
 
-  <class name="reco::PFBrem" ClassVersion="13">
-   <version ClassVersion="13" checksum="1718201023"/>
-   <version ClassVersion="12" checksum="3001582852"/>
-   <version ClassVersion="11" checksum="1785919010"/>
-   <version ClassVersion="10" checksum="3922569476"/>
+  <class name="reco::PFBrem" ClassVersion="3">
+   <version ClassVersion="3" checksum="3811198743"/>
   </class>
   <class name="std::vector<reco::PFBrem>"/>
 
@@ -153,17 +144,8 @@
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >" rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
-  <class name="reco::PFBlockElementTrack" ClassVersion="16">
-   <version ClassVersion="16" checksum="700008520"/>
-   <version ClassVersion="15" checksum="1577934967"/>
-   <version ClassVersion="14" checksum="3952424659"/>
-   <version ClassVersion="13" checksum="1449646331"/>
-   <version ClassVersion="12" checksum="417575083"/>
-   <version ClassVersion="10" checksum="2342660248"/>
-   <version ClassVersion="11" checksum="1450496342"/>
-<!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)   
-    <field name="trackRefPF_" transient="true"/>
--->
+  <class name="reco::PFBlockElementTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="764868352"/>
   </class>
 
   <class name="reco::PFBlockElementGsfTrack" ClassVersion="15">
@@ -238,19 +220,16 @@
    <version ClassVersion="10" checksum="1506624066"/>
   </class>
   <class name="reco::PFDisplacedVertexCandidate::DistMap"/>
-  <class name="reco::PFDisplacedVertexCandidate" ClassVersion="10">
-   <version ClassVersion="10" checksum="165857237"/>
+  <class name="reco::PFDisplacedVertexCandidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="3588517525"/>
   </class>
 
   <class name="std::vector<reco::PFDisplacedVertexCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::PFDisplacedVertexCandidate> >"/>
   <class name="edm::Ref< std::vector<reco::PFDisplacedVertexCandidate>, reco::PFDisplacedVertexCandidate, edm::refhelper::FindUsingAdvance<std::vector<reco::PFDisplacedVertexCandidate>,reco::PFDisplacedVertexCandidate> >"/>
 
-  <class name="reco::PFDisplacedVertex" ClassVersion="13">
-   <version ClassVersion="13" checksum="3552936040"/>
-   <version ClassVersion="12" checksum="2818127737"/>
-   <version ClassVersion="11" checksum="4172417049"/>
-   <version ClassVersion="10" checksum="4202892065"/>
+  <class name="reco::PFDisplacedVertex" ClassVersion="3">
+   <version ClassVersion="3" checksum="2807110114"/>
   </class>
 
   <class name="std::vector<reco::PFDisplacedVertex>"/>
@@ -263,8 +242,8 @@
 
   <class name="std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> >"/>
 
-  <class name="reco::PreId" ClassVersion="10">
-   <version ClassVersion="10" checksum="1753132977"/>
+  <class name="reco::PreId" ClassVersion="3">
+   <version ClassVersion="3" checksum="2607778601"/>
   </class>
   <class name="std::vector<reco::PreId>"/>
   <class name="edm::Wrapper<std::vector<reco::PreId> >"/>

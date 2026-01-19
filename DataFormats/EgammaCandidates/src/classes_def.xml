@@ -17,17 +17,11 @@
    <version ClassVersion="13" checksum="2963666409"/>
    <version ClassVersion="14" checksum="753726370"/>
   </class>
-  <class name="reco::Conversion" ClassVersion="11">
-   <version ClassVersion="10" checksum="2140222741"/>
-   <version ClassVersion="11" checksum="598717096"/>
+  <class name="reco::Conversion" ClassVersion="3">
+   <version ClassVersion="3" checksum="2072110730"/>
   </class>
-  <ioread sourceClass = "reco::Conversion" version="[1-10]" targetClass="reco::Conversion" source="std::vector<reco::TrackRef> tracks_; std::vector<edm::RefToBase<reco::Track> > trackToBaseRefs_" target="trackToBaseRefs_">
-     <![CDATA[trackToBaseRefs_=onfile.trackToBaseRefs_; if(onfile.tracks_.size()>onfile.trackToBaseRefs_.size()) { for(auto const& t: onfile.tracks_) { trackToBaseRefs_.emplace_back(t);} }]]>
-  </ioread>
-  <class name="reco::Electron" ClassVersion="13">
-   <version ClassVersion="13" checksum="827670837"/>
-   <version ClassVersion="12" checksum="1547192125"/>
-   <version ClassVersion="11" checksum="1178796923"/>
+  <class name="reco::Electron" ClassVersion="3">
+   <version ClassVersion="3" checksum="3447704829"/>
   </class>
   <class name="reco::SiStripElectron" ClassVersion="13">
    <version ClassVersion="13" checksum="1547231262"/>
@@ -130,14 +124,9 @@
 
 
 
-  <class name="reco::GsfElectronCore" ClassVersion="12">
-   <version ClassVersion="10" checksum="2226610106"/>
-   <version ClassVersion="11" checksum="2637403054"/>
-   <version ClassVersion="12" checksum="2885797746"/>
+  <class name="reco::GsfElectronCore" ClassVersion="3">
+   <version ClassVersion="3" checksum="1298688554"/>
   </class>
-  <ioread sourceClass="reco::GsfElectronCore" version="[1-10]" targetClass="reco::GsfElectronCore" source="reco::SuperClusterRef pflowSuperCluster_;" target="parentSuperCluster_">
-    <![CDATA[parentSuperCluster_ = onfile.pflowSuperCluster_;]]>
-  </ioread>
 
   <class name="std::vector<reco::GsfElectronCore>"/>
   <class name="edm::reftobase::BaseHolder<reco::GsfElectronCore>"/>
@@ -157,8 +146,8 @@
   <class name="reco::GsfElectron::TrackExtrapolations" ClassVersion="10">
    <version ClassVersion="10" checksum="517526181"/>
   </class>
-  <class name="reco::GsfElectron::ClosestCtfTrack" ClassVersion="10">
-   <version ClassVersion="10" checksum="1307042460"/>
+  <class name="reco::GsfElectron::ClosestCtfTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="3122967300"/>
   </class>
   <class name="reco::GsfElectron::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2564471186"/>
@@ -176,9 +165,8 @@
    <version ClassVersion="11" checksum="1799511018"/>
    <version ClassVersion="10" checksum="4260674990"/>
   </class>
-  <class name="reco::GsfElectron::ConversionRejection" ClassVersion="11">
-   <version ClassVersion="11" checksum="2813508647"/>
-   <version ClassVersion="10" checksum="190549577"/>
+  <class name="reco::GsfElectron::ConversionRejection" ClassVersion="3">
+   <version ClassVersion="3" checksum="2253948903"/>
   </class>
   <class name="reco::GsfElectron::Corrections" ClassVersion="12">
    <version ClassVersion="12" checksum="796270676"/>

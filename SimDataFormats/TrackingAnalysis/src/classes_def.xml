@@ -24,13 +24,13 @@
   <class name="TrackingParticleRefVector" />
   <class name="edm::Wrapper<TrackingParticleRefVector>"/>
 
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track> >" />
-  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Track>,edm::RefProd<std::vector<TrackingParticle> > >" />
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > > >" />
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefToBaseProd<reco::io_v1::Track> >" />
+  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::io_v1::Track>,edm::RefProd<std::vector<TrackingParticle> > >" />
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::io_v1::Track>,double> > > >" />
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::io_v1::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > > >" />
 
-  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > >" />
-  <class name="edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > >" />
+  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::io_v1::Track>,double> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefToBase<reco::io_v1::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > >" />
 
   <class name="std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> >" />
   <class name="std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double>" />

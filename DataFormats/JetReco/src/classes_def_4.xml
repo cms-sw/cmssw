@@ -62,8 +62,8 @@
   <class name="std::vector<reco::PFJet::Specific>"   />
   <class name="std::vector<reco::JPTJet::Specific>" />
 
-  <class name="reco::TrackExtrapolation"  ClassVersion="10">
-   <version ClassVersion="10" checksum="4193842732"/>
+  <class name="reco::TrackExtrapolation"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1386552340"/>
   </class>
   <class name="std::vector<reco::TrackExtrapolation>" />
   <class name="edm::Ref<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation>  >" />

@@ -1,9 +1,7 @@
 #ifndef CalibTracker_SiSitripLorentzAngle_SiStripFineDelayTOF_h
 #define CalibTracker_SiSitripLorentzAngle_SiStripFineDelayTOF_h
 
-namespace reco {
-  class Track;
-}
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class TrackingRecHit;
 

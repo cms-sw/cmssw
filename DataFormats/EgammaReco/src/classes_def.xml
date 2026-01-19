@@ -91,15 +91,9 @@
   <class name="edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> > >" splitLevel="0"/>
 
-  <class name="reco::ElectronSeed" ClassVersion="13">
-   <version ClassVersion="13" checksum="3112955595"/> 
-   <version ClassVersion="12" checksum="536071409"/>
-   <version ClassVersion="11" checksum="3831394066"/>
-   <version ClassVersion="10" checksum="534580602"/>
+  <class name="reco::ElectronSeed" ClassVersion="3">
+    <version ClassVersion="3" checksum="567408035"/>
   </class>
-  <ioread sourceClass="reco::ElectronSeed" version="[1-12]" targetClass="reco::ElectronSeed" source="float dRz2_; float dPhi2_; float dRz2Pos_; float dPhi2Pos_; float dRz1_; float dPhi1_; float dRz1Pos_; float dPhi1Pos_; unsigned char hitsMask_;" target="hitInfo_">
-    <![CDATA[hitInfo_ = reco::ElectronSeed::createHitInfo(onfile.dPhi1Pos_,onfile.dPhi1_,onfile.dRz1Pos_,onfile.dRz1_,onfile.dPhi2Pos_,onfile.dPhi2_,onfile.dRz2Pos_,onfile.dRz2_,onfile.hitsMask_,newObj->recHits());]]>
-  </ioread>
   <class name="reco::ElectronSeed::PMVars" ClassVersion="3">
     <version ClassVersion="3" checksum="1322802316"/>
   </class>

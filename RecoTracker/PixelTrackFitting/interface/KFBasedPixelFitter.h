@@ -4,11 +4,11 @@
 #include "RecoTracker/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <vector>
 
 namespace reco {
-  class Track;
   class BeamSpot;
 }  // namespace reco
 

@@ -17,9 +17,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 
-namespace reco {
-  class Track;
-}
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 

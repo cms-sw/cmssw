@@ -21,9 +21,8 @@
   <class name="reco::JetTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::JetTagInfoCollection>"/>
 
-  <class name="reco::JTATagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="3077814749"/>
-   <version ClassVersion="10" checksum="1485737861"/>
+  <class name="reco::JTATagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2626339357"/>
   </class>
   <class name="reco::JTATagInfoCollection"/>
   <class name="reco::JTATagInfoRef"/>
@@ -84,9 +83,8 @@
   <class name="edm::Wrapper<reco::ShallowTagInfoCollection>"/>
   <class name="edm::Wrapper<std::vector<reco::ShallowTagInfo> >"/>
 
-  <class name="reco::CombinedTauTagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="224969361"/>
-   <version ClassVersion="10" checksum="3920242404"/>
+  <class name="reco::CombinedTauTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2237505417"/>
   </class>
   <class name="reco::CombinedTauTagInfoCollection"/>
   <class name="reco::CombinedTauTagInfoRef"/>
@@ -95,9 +93,8 @@
   <class name="reco::CombinedTauTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::CombinedTauTagInfoCollection>"/>
 
-  <class name="reco::IsolatedTauTagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="1582752903"/>
-   <version ClassVersion="10" checksum="3305352842"/>
+  <class name="reco::IsolatedTauTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2139950407"/>
   </class>
   <class name="reco::IsolatedTauTagInfoCollection"/>
   <class name="reco::IsolatedTauTagInfoRef"/>
@@ -126,8 +123,8 @@
     <![CDATA[sip3d = 0;]]>
   </ioread>
   
-  <class name="std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>"/>
-  <class name="reco::TemplatedSoftLeptonTagInfo<edm::RefToBase<reco::Track> >::LeptonMap"/>
+  <class name="std::pair<edm::RefToBase<reco::io_v1::Track>, reco::SoftLeptonProperties>"/>
+  <class name="reco::TemplatedSoftLeptonTagInfo<edm::RefToBase<reco::io_v1::Track> >::LeptonMap"/>
   <class name="reco::SoftLeptonTagInfo" />
   <class name="reco::SoftLeptonTagInfoCollection"/>
   <class name="reco::SoftLeptonTagInfoRef"/>
@@ -214,8 +211,8 @@
   <class name="reco::TauImpactParameterTrackData" ClassVersion="10">
    <version ClassVersion="10" checksum="3058583707"/>
   </class>
-  <class name="reco::TauImpactParameterInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="2113839025"/>
+  <class name="reco::TauImpactParameterInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="3204581905"/>
   </class>
   <class name="reco::TauImpactParameterInfoCollection"/>
   <class name="reco::TauImpactParameterInfoRef"/>
@@ -231,9 +228,8 @@
   <!--commented out because the typedef resolves to std containers of built in types-->
   <!--class name="reco::TauMassTagInfo_ClusterTrackAssociationMapType"/-->
   <class name="reco::TauMassTagInfo_ClusterTrackAssociationRefType"/>
-  <class name="reco::TauMassTagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="2786100405"/>
-   <version ClassVersion="10" checksum="2019622266"/>
+  <class name="reco::TauMassTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="1251178229"/>
   </class>
   <class name="reco::TauMassTagInfoCollection"/>
   <class name="reco::TauMassTagInfoRef"/>
@@ -242,9 +238,8 @@
   <class name="reco::TauMassTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::TauMassTagInfoCollection>"/>
 
-  <class name="reco::TrackCountingTagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="2205881990"/>
-   <version ClassVersion="10" checksum="4189230159"/>
+  <class name="reco::TrackCountingTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="4167605446"/>
   </class>
   <class name="reco::TrackCountingTagInfoCollection"/>
   <class name="reco::TrackCountingTagInfoRef"/>
@@ -253,9 +248,8 @@
   <class name="reco::TrackCountingTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::TrackCountingTagInfoCollection>"/>
 
-  <class name="reco::TrackProbabilityTagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="1102826734"/>
-   <version ClassVersion="10" checksum="2989842515"/>
+  <class name="reco::TrackProbabilityTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="366358830"/>
   </class>
   <class name="reco::TrackProbabilityTagInfoCollection"/>
   <class name="reco::TrackProbabilityTagInfoRef"/>

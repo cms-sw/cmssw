@@ -36,6 +36,7 @@ class Trajectory;
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -44,7 +45,6 @@ namespace edm {
   class ParameterSet;
 }  // namespace edm
 namespace reco {
-  class Track;
   class BeamSpot;
 }  // namespace reco
 

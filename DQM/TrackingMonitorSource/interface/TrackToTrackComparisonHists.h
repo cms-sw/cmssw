@@ -29,7 +29,6 @@
 //
 class DQMStore;
 namespace reco {
-  class Track;
   class BeamSpot;
   class Vertex;
 }  // namespace reco

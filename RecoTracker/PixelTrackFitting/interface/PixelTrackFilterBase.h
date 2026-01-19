@@ -1,9 +1,7 @@
 #ifndef RecoTracker_PixelTrackFitting_PixelTrackFilterBase_h
 #define RecoTracker_PixelTrackFitting_PixelTrackFilterBase_h
 
-namespace reco {
-  class Track;
-}
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 namespace edm {
   class Event;
   class EventSetup;
