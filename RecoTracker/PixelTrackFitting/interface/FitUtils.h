@@ -1,8 +1,7 @@
-#ifndef RecoTracker_PixelTrackFitting_FitUtils_h
-#define RecoTracker_PixelTrackFitting_FitUtils_h
+#ifndef RecoTracker_PixelTrackFitting_interface_FitUtils_h
+#define RecoTracker_PixelTrackFitting_interface_FitUtils_h
 
 #include "DataFormats/Math/interface/choleskyInversion.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoTracker/PixelTrackFitting/interface/FitResult.h"
 
 namespace riemannFit {
@@ -50,7 +49,7 @@ namespace riemannFit {
   using Vector6f = Eigen::Matrix<double, 6, 1>;
 
   template <class C>
-  __host__ __device__ void printIt(C* m, const char* prefix = "") {
+  void printIt(C* m, const char* prefix = "") {
 #ifdef RFIT_DEBUG
     for (uint r = 0; r < m->rows(); ++r) {
       for (uint c = 0; c < m->cols(); ++c) {
@@ -76,16 +75,14 @@ namespace riemannFit {
     \return z component of the cross product.
   */
 
-  __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b) {
-    return a.x() * b.y() - a.y() * b.x();
-  }
+  inline double cross2D(const Vector2d& a, const Vector2d& b) { return a.x() * b.y() - a.y() * b.x(); }
 
   /*!
    *  load error in CMSSW format to our formalism
    *  
    */
   template <typename M6xNf, typename M2Nd>
-  __host__ __device__ void loadCovariance2D(M6xNf const& ge, M2Nd& hits_cov) {
+  void loadCovariance2D(M6xNf const& ge, M2Nd& hits_cov) {
     // Index numerology:
     // i: index of the hits/point (0,..,3)
     // j: index of space component (x,y,z)
@@ -117,7 +114,7 @@ namespace riemannFit {
   }
 
   template <typename M6xNf, typename M3xNd>
-  __host__ __device__ void loadCovariance(M6xNf const& ge, M3xNd& hits_cov) {
+  void loadCovariance(M6xNf const& ge, M3xNd& hits_cov) {
     // Index numerology:
     // i: index of the hits/point (0,..,3)
     // j: index of space component (x,y,z)
@@ -170,7 +167,7 @@ namespace riemannFit {
     \param B magnetic field in Gev/cm/c unit.
     \param error flag for errors computation.
   */
-  __host__ __device__ inline void par_uvrtopak(CircleFit& circle, const double B, const bool error) {
+  inline void par_uvrtopak(CircleFit& circle, const double B, const bool error) {
     Vector3d par_pak;
     const double temp0 = circle.par.head(2).squaredNorm();
     const double temp1 = sqrt(temp0);
@@ -193,7 +190,7 @@ namespace riemannFit {
     \param circle_uvr parameter (X0,Y0,R), covariance matrix to
     be transformed and particle charge.
   */
-  __host__ __device__ inline void fromCircleToPerigee(CircleFit& circle) {
+  inline void fromCircleToPerigee(CircleFit& circle) {
     Vector3d par_pak;
     const double temp0 = circle.par.head(2).squaredNorm();
     const double temp1 = sqrt(temp0);
@@ -215,7 +212,7 @@ namespace riemannFit {
   // from   //!<(phi,Tip,q/pt,cotan(theta)),Zip)
   // to q/p,dx/dz,dy/dz,x,z
   template <typename VI5, typename MI5, typename VO5, typename MO5>
-  __host__ __device__ inline void transformToPerigeePlane(VI5 const& ip, MI5 const& icov, VO5& op, MO5& ocov) {
+  inline void transformToPerigeePlane(VI5 const& ip, MI5 const& icov, VO5& op, MO5& ocov) {
     auto sinTheta2 = 1. / (1. + ip(3) * ip(3));
     auto sinTheta = std::sqrt(sinTheta2);
     auto cosTheta = ip(3) * sinTheta;
@@ -240,4 +237,4 @@ namespace riemannFit {
 
 }  // namespace riemannFit
 
-#endif  // RecoTracker_PixelTrackFitting_FitUtils_h
+#endif  // RecoTracker_PixelTrackFitting_interface_FitUtils_h

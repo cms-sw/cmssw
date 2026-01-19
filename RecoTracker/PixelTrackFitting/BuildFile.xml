@@ -1,5 +1,4 @@
 <use name="alpaka"/>
-<use name="cuda"/>
 <use name="eigen"/>
 <use name="root"/>
 <use name="CommonTools/Statistics"/>
