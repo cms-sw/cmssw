@@ -72,7 +72,7 @@ void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int
                         << ctCount;
 
     // Unpack calo towers
-    int32_t ET, erBits, miscBits, eta, phi;
+    int16_t ET, erBits, miscBits, eta, phi;
 
     for (unsigned int i = 0; i < ctCount; i++) {
       uint64_t ct_raw = *(uint32_t*)(buf + pos);

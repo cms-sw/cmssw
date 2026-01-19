@@ -9,27 +9,27 @@ namespace l1ScoutingRun3 {
   public:
     CaloTower() : hwEt_(0), erBits_(0), miscBits_(0), hwEta_(0), hwPhi_(0) {}
 
-    CaloTower(int hwEt, int erBits, int miscBits, int hwPhi, int hwEta)
+    CaloTower(int16_t hwEt, int16_t erBits, int16_t miscBits, int16_t hwEta, int16_t hwPhi)
         : hwEt_(hwEt), erBits_(erBits), miscBits_(miscBits), hwEta_(hwEta), hwPhi_(hwPhi) {}
 
-    void setHwEt(int hwEt) { hwEt_ = hwEt; }
-    void setErBits(int erBits) { erBits_ = erBits; }
-    void setMiscBits(int miscBits) { miscBits_ = miscBits; }
-    void setHwEta(int hwEta) { hwEta_ = hwEta; }
-    void setHwPhi(int hwPhi) { hwPhi_ = hwPhi; }
+    void setHwEt(uint16_t hwEt) { hwEt_ = hwEt; }
+    void setErBits(uint16_t erBits) { erBits_ = erBits; }
+    void setMiscBits(uint16_t miscBits) { miscBits_ = miscBits; }
+    void setHwEta(uint16_t hwEta) { hwEta_ = hwEta; }
+    void setHwPhi(uint16_t hwPhi) { hwPhi_ = hwPhi; }
 
-    int hwEt() const { return hwEt_; }
-    int erBits() const { return erBits_; }
-    int miscBits() const { return miscBits_; }
-    int hwEta() const { return hwEta_; }
-    int hwPhi() const { return hwPhi_; }
+    uint16_t hwEt() const { return hwEt_; }
+    uint16_t erBits() const { return erBits_; }
+    uint16_t miscBits() const { return miscBits_; }
+    uint16_t hwEta() const { return hwEta_; }
+    uint16_t hwPhi() const { return hwPhi_; }
 
   private:
-    int hwEt_;
-    int erBits_;
-    int miscBits_;
-    int hwEta_;
-    int hwPhi_;
+    uint16_t hwEt_;
+    uint16_t erBits_;
+    uint16_t miscBits_;
+    uint16_t hwEta_;
+    uint16_t hwPhi_;
   };
 
   typedef OrbitCollection<CaloTower> CaloTowerOrbitCollection;
