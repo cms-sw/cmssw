@@ -19,7 +19,7 @@ namespace cms::alpakatools {
     return false;
   }
 
-  template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc, typename T>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void warpPrefixScan(
       const TAcc& acc, int32_t laneId, T const* ci, T* co, uint32_t i, bool active = true) {
     // ci and co may be the same
@@ -36,14 +36,14 @@ namespace cms::alpakatools {
       co[i] = x;
   }
 
-  template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc, typename T>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void warpPrefixScan(
       const TAcc& acc, int32_t laneId, T* c, uint32_t i, bool active = true) {
     warpPrefixScan(acc, laneId, c, c, i, active);
   }
 
   // limited to warpSize² elements
-  template <typename TAcc, typename T>
+  template <alpaka::concepts::Acc TAcc, typename T>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void blockPrefixScan(
       const TAcc& acc, T const* ci, T* co, int32_t size, T* ws = nullptr) {
     if constexpr (!requires_single_thread_per_block_v<TAcc>) {
@@ -88,7 +88,7 @@ namespace cms::alpakatools {
     }
   }
 
-  template <typename TAcc, typename T>
+  template <alpaka::concepts::Acc TAcc, typename T>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void blockPrefixScan(const TAcc& acc,
                                                            T* __restrict__ c,
                                                            int32_t size,
@@ -136,7 +136,7 @@ namespace cms::alpakatools {
   // in principle not limited....
   template <typename T>
   struct multiBlockPrefixScan {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(
         const TAcc& acc, T const* ci, T* co, uint32_t size, int32_t numBlocks, int32_t* pc, std::size_t warpSize) const {
       // Get shared variable. The workspace is needed only for multi-threaded accelerators.
@@ -225,7 +225,7 @@ namespace cms::alpakatools {
 // declare the amount of block shared memory used by the multiBlockPrefixScan kernel
 namespace alpaka::trait {
   // Variable size shared mem
-  template <typename TAcc, typename T>
+  template <alpaka::concepts::Acc TAcc, typename T>
   struct BlockSharedMemDynSizeBytes<cms::alpakatools::multiBlockPrefixScan<T>, TAcc> {
     template <typename TVec>
     ALPAKA_FN_HOST_ACC static std::size_t getBlockSharedMemDynSizeBytes(

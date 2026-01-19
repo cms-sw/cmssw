@@ -18,7 +18,7 @@
 namespace cms::alpakatools {
 
   struct countFromVector {
-    template <typename TAcc, typename Histo, typename T>
+    template <alpaka::concepts::Acc TAcc, typename Histo, typename T>
     ALPAKA_FN_ACC void operator()(const TAcc &acc,
                                   Histo *__restrict__ h,
                                   uint32_t nh,
@@ -37,7 +37,7 @@ namespace cms::alpakatools {
   };
 
   struct fillFromVector {
-    template <typename TAcc, typename Histo, typename T>
+    template <alpaka::concepts::Acc TAcc, typename Histo, typename T>
     ALPAKA_FN_ACC void operator()(const TAcc &acc,
                                   Histo *__restrict__ h,
                                   uint32_t nh,
@@ -55,7 +55,7 @@ namespace cms::alpakatools {
     }
   };
 
-  template <typename TAcc, typename Histo, typename T, typename TQueue>
+  template <alpaka::concepts::Acc TAcc, typename Histo, typename T, typename TQueue>
   ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
                                            uint32_t nh,
                                            T const *__restrict__ v,
@@ -75,7 +75,7 @@ namespace cms::alpakatools {
     alpaka::exec<TAcc>(queue, workDiv, fillFromVector(), h, nh, v, offsets);
   }
 
-  template <typename TAcc, typename Histo, typename T, typename TQueue>
+  template <alpaka::concepts::Acc TAcc, typename Histo, typename T, typename TQueue>
   ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
                                            typename Histo::View hv,
                                            uint32_t nh,
@@ -97,7 +97,7 @@ namespace cms::alpakatools {
   }
 
   // iteratate over N bins left and right of the one containing "v"
-  template <typename TAcc, typename Hist, typename V, typename Func>
+  template <alpaka::concepts::Acc TAcc, typename Hist, typename V, typename Func>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void forEachInBins(const TAcc &acc, Hist const &hist, V value, int n, Func func) {
     int bs = Hist::bin(value);
     int be = alpaka::math::min(acc, int(Hist::nbins() - 1), bs + n);
@@ -161,14 +161,14 @@ namespace cms::alpakatools {
       return (t >> shift) & mask;
     }
 
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, T t) {
       uint32_t b = bin(t);
       ALPAKA_ASSERT_ACC(b < nbins());
       Base::atomicIncrement(acc, this->off[b]);
     }
 
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, T t, index_type j) {
       uint32_t b = bin(t);
       ALPAKA_ASSERT_ACC(b < nbins());
@@ -177,7 +177,7 @@ namespace cms::alpakatools {
       this->content[w - 1] = j;
     }
 
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, T t, uint32_t nh) {
       uint32_t b = bin(t);
       ALPAKA_ASSERT_ACC(b < nbins());
@@ -186,7 +186,7 @@ namespace cms::alpakatools {
       Base::atomicIncrement(acc, this->off[b]);
     }
 
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, T t, index_type j, uint32_t nh) {
       uint32_t b = bin(t);
       ALPAKA_ASSERT_ACC(b < nbins());

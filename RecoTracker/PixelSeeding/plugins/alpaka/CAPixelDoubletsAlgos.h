@@ -67,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     return moduleIsOuterLadderPhase2(moduleId);
   }
 
-  template <typename TrackerTraits, typename TAcc>
+  template <typename TrackerTraits, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool zSizeCut(
       const TAcc& acc, HitsConstView hh, ::reco::CALayersSoAConstView ll, AlgoParams const& params, int i, int o) {
     const uint32_t mi = hh[i].detectorIndex();
@@ -118,7 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                : innerBarrel && std::abs(mes - int(std::abs(dz / dr) * params.dzdrFact_ + 0.5f)) > params.maxDYPred_;
   }
 
-  template <typename TrackerTraits, typename TAcc>
+  template <typename TrackerTraits, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool clusterCut(
       const TAcc& acc, HitsConstView hh, ::reco::CALayersSoAConstView ll, AlgoParams const& params, uint32_t i) {
     const uint32_t mi = hh[i].detectorIndex();
@@ -158,7 +158,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     return false;
   }
 
-  template <typename TrackerTraits, typename TAcc>
+  template <typename TrackerTraits, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void doubletsFromHisto(const TAcc& acc,
                                                         uint32_t maxNumOfDoublets,
                                                         CACell<TrackerTraits>* cells,
