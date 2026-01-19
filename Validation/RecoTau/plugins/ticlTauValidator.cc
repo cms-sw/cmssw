@@ -150,10 +150,10 @@ private:
   static inline int pi0CapForDM(int dm) { return std::min(expectedPi0ForDM(dm), kMaxGammaLegs); }
 
   struct StepHists {
-    MonitorElement* den_pt[kNSteps]  {nullptr};
-    MonitorElement* den_eta[kNSteps] {nullptr};
-    MonitorElement* num_pt[kNSteps]  {nullptr};
-    MonitorElement* num_eta[kNSteps] {nullptr};
+    MonitorElement* cp_gen_pt[kNSteps]  {nullptr};
+    MonitorElement* cp_gen_eta[kNSteps] {nullptr};
+    MonitorElement* cp_gen_matched_pt[kNSteps]  {nullptr};
+    MonitorElement* cp_gen_matched_eta[kNSteps] {nullptr};
   };
 
   // per-DM, per-leg step histos
@@ -170,26 +170,26 @@ private:
   MonitorElement* cp_gamma_eta_all_ = nullptr;
 
   // denominators
-  MonitorElement* tau_den_pt_[kNDMSel]  = {};
-  MonitorElement* tau_den_eta_[kNDMSel] = {};
+  MonitorElement* tau_gen_pt_[kNDMSel]  = {};
+  MonitorElement* tau_gen_eta_[kNDMSel] = {};
 
   // numerators
-  MonitorElement* tau_geCh_num_pt_[kNDMSel][kMaxCHLegs]     = {{}};
-  MonitorElement* tau_geCh_num_eta_[kNDMSel][kMaxCHLegs]    = {{}};
-  MonitorElement* tau_gePi0_num_pt_[kNDMSel][kMaxGammaLegs] = {{}};
-  MonitorElement* tau_gePi0_num_eta_[kNDMSel][kMaxGammaLegs]= {{}};
-  MonitorElement* tau_all_num_pt_[kNDMSel]  = {};
-  MonitorElement* tau_all_num_eta_[kNDMSel] = {};
+  MonitorElement* tau_gen_matched_to_nCh_pt_[kNDMSel][kMaxCHLegs]     = {{}};
+  MonitorElement* tau_gen_matched_to_nCh_eta_[kNDMSel][kMaxCHLegs]    = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_pt_[kNDMSel][kMaxGammaLegs] = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_eta_[kNDMSel][kMaxGammaLegs]= {{}};
+  MonitorElement* tau_gen_matched_to_all_pt_[kNDMSel]  = {};
+  MonitorElement* tau_gen_matched_to_all_eta_[kNDMSel] = {};
 
   // numerators split into signal and isolation (tau endpoint only)
-  MonitorElement* tau_geCh_num_signal_pt_[kNDMSel][kMaxCHLegs]      = {{}};
-  MonitorElement* tau_geCh_num_signal_eta_[kNDMSel][kMaxCHLegs]     = {{}};
-  MonitorElement* tau_geCh_num_iso_pt_[kNDMSel][kMaxCHLegs]         = {{}};
-  MonitorElement* tau_geCh_num_iso_eta_[kNDMSel][kMaxCHLegs]        = {{}};
-  MonitorElement* tau_gePi0_num_signal_pt_[kNDMSel][kMaxGammaLegs]  = {{}};
-  MonitorElement* tau_gePi0_num_signal_eta_[kNDMSel][kMaxGammaLegs] = {{}};
-  MonitorElement* tau_gePi0_num_iso_pt_[kNDMSel][kMaxGammaLegs]     = {{}};
-  MonitorElement* tau_gePi0_num_iso_eta_[kNDMSel][kMaxGammaLegs]    = {{}};
+  MonitorElement* tau_gen_matched_to_nCh_sig_pt_[kNDMSel][kMaxCHLegs]      = {{}};
+  MonitorElement* tau_gen_matched_to_nCh_sig_eta_[kNDMSel][kMaxCHLegs]     = {{}};
+  MonitorElement* tau_gen_matched_to_nCh_iso_pt_[kNDMSel][kMaxCHLegs]         = {{}};
+  MonitorElement* tau_gen_matched_to_nCh_iso_eta_[kNDMSel][kMaxCHLegs]        = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_sig_pt_[kNDMSel][kMaxGammaLegs]  = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_sig_eta_[kNDMSel][kMaxGammaLegs] = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_iso_pt_[kNDMSel][kMaxGammaLegs]     = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_iso_eta_[kNDMSel][kMaxGammaLegs]    = {{}};
 
 };
 
@@ -279,64 +279,63 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
   labelAxes(dm_reco_vs_gen_hps_);
 
   // steps we save per-leg histos for
-  const int stepsToKeep[4] = {0, 1, 4, 5};
+  const std::vector<int> stepsToKeep = {0, 1, 2, 3, 4, 5};
 
   for (int dmI = 0; dmI < kNDMSel; ++dmI) {
     int dm = kDMSel[dmI];
+    ibook.setCurrentFolder(folder_ + "/GenDM" + std::to_string(dm));
 
     const int chCap    = chCapForDM(dm);
     const int gammaCap = std::min(2 * expectedPi0ForDM(dm), kMaxGammaLegs);
 
     // charged legs
     for (int li = 0; li < chCap; ++li) {
-      for (int si = 0; si < 4; ++si) {
-        int s = stepsToKeep[si];
-        {
+      for (int s : stepsToKeep) {
+        {        
           std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_step" << s << "_den_pt";
           t << "Den: charged; DM=" << dm << " leg=" << li << " step=" << s << "; pT (CP) [GeV]; entries";
-          chStepHists_[dmI][li].den_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+          chStepHists_[dmI][li].cp_gen_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
         }
         {
           std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_step" << s << "_den_eta";
           t << "Den: charged; DM=" << dm << " leg=" << li << " step=" << s << "; eta (CP); entries";
-          chStepHists_[dmI][li].den_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+          chStepHists_[dmI][li].cp_gen_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
         }
         {
           std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_step" << s << "_num_pt";
           t << "Num: charged; DM=" << dm << " leg=" << li << " step=" << s << "; pT (CP) [GeV]; entries";
-          chStepHists_[dmI][li].num_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+          chStepHists_[dmI][li].cp_gen_matched_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
         }
         {
           std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_step" << s << "_num_eta";
           t << "Num: charged; DM=" << dm << " leg=" << li << " step=" << s << "; eta (CP); entries";
-          chStepHists_[dmI][li].num_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+          chStepHists_[dmI][li].cp_gen_matched_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
         }
       }
     }
 
     // photon legs
     for (int li = 0; li < gammaCap; ++li) {
-      for (int si = 0; si < 4; ++si) {
-        int s = stepsToKeep[si];
+      for (int s : stepsToKeep) {
         {
           std::ostringstream n, t; n << "pho_dm" << dm << "_leg" << li << "_step" << s << "_den_pt";
           t << "Den: photon; DM=" << dm << " leg=" << li << " step=" << s << "; pT (CP) [GeV]; entries";
-          gammaStepHists_[dmI][li].den_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+          gammaStepHists_[dmI][li].cp_gen_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
         }
         {
           std::ostringstream n, t; n << "pho_dm" << dm << "_leg" << li << "_step" << s << "_den_eta";
           t << "Den: photon; DM=" << dm << " leg=" << li << " step=" << s << "; eta (CP); entries";
-          gammaStepHists_[dmI][li].den_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+          gammaStepHists_[dmI][li].cp_gen_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
         }
         {
           std::ostringstream n, t; n << "pho_dm" << dm << "_leg" << li << "_step" << s << "_num_pt";
           t << "Num: photon; DM=" << dm << " leg=" << li << " step=" << s << "; pT (CP) [GeV]; entries";
-          gammaStepHists_[dmI][li].num_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+          gammaStepHists_[dmI][li].cp_gen_matched_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
         }
         {
           std::ostringstream n, t; n << "pho_dm" << dm << "_leg" << li << "_step" << s << "_num_eta";
           t << "Num: photon; DM=" << dm << " leg=" << li << " step=" << s << "; eta (CP); entries";
-          gammaStepHists_[dmI][li].num_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+          gammaStepHists_[dmI][li].cp_gen_matched_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
         }
       }
     }
@@ -347,16 +346,17 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     const int dm     = kDMSel[dmI];
     const int chCap  = chCapForDM(dm);
     const int pi0Cap = pi0CapForDM(dm);
+    ibook.setCurrentFolder(folder_ + "/GenDM" + std::to_string(dm));
 
     {
       std::ostringstream n1, t1; n1 << "tau_dm" << dm << "_den_pt";
       t1 << "DM " << dm << " gen tau; pT [GeV]; entries";
-      tau_den_pt_[dmI] = ibook.book1D(n1.str(), t1.str(), 60, 0., 120.);
+      tau_gen_pt_[dmI] = ibook.book1D(n1.str(), t1.str(), 60, 0., 120.);
     }
     {
       std::ostringstream n2, t2; n2 << "tau_dm" << dm << "_den_eta";
       t2 << "DM " << dm << " gen tau; eta; entries";
-      tau_den_eta_[dmI] = ibook.book1D(n2.str(), t2.str(), 50, -3., 3.);
+      tau_gen_eta_[dmI] = ibook.book1D(n2.str(), t2.str(), 50, -3., 3.);
     }
 
     // reco (jet/tau) endpoint: combined
@@ -366,8 +366,8 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       tpt << "DM " << dm << " tau: >= " << N << " charged at reco; pT [GeV]; entries";
       neta << "tau_dm" << dm << "_ge" << N << "ch_num_eta";
       teta << "DM " << dm << " tau: >= " << N << " charged at reco; eta; entries";
-      tau_geCh_num_pt_[dmI][N-1]  = ibook.book1D(npt.str(),  tpt.str(), 60, 0., 120.);
-      tau_geCh_num_eta_[dmI][N-1] = ibook.book1D(neta.str(), teta.str(), 50, -3., 3.);
+      tau_gen_matched_to_nCh_pt_[dmI][N-1]  = ibook.book1D(npt.str(),  tpt.str(), 60, 0., 120.);
+      tau_gen_matched_to_nCh_eta_[dmI][N-1] = ibook.book1D(neta.str(), teta.str(), 50, -3., 3.);
     }
     for (int N = 1; N <= pi0Cap; ++N) {
       std::ostringstream npt, tpt, neta, teta;
@@ -375,8 +375,8 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       tpt << "DM " << dm << " tau: >= " << N << " pi0 at reco; pT [GeV]; entries";
       neta << "tau_dm" << dm << "_ge" << N << "pi0_num_eta";
       teta << "DM " << dm << " tau: >= " << N << " pi0 at reco; eta; entries";
-      tau_gePi0_num_pt_[dmI][N-1]  = ibook.book1D(npt.str(),  tpt.str(), 60, 0., 120.);
-      tau_gePi0_num_eta_[dmI][N-1] = ibook.book1D(neta.str(), teta.str(), 50, -3., 3.);
+      tau_gen_matched_to_nPi0_pt_[dmI][N-1]  = ibook.book1D(npt.str(),  tpt.str(), 60, 0., 120.);
+      tau_gen_matched_to_nPi0_eta_[dmI][N-1] = ibook.book1D(neta.str(), teta.str(), 50, -3., 3.);
     }
     {
       std::ostringstream npt, tpt, neta, teta;
@@ -384,8 +384,8 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       tpt << "DM " << dm << " tau: all expected charged+pi0 at reco; pT [GeV]; entries";
       neta << "tau_dm" << dm << "_all_num_eta";
       teta << "DM " << dm << " tau: all expected charged+pi0 at reco; eta; entries";
-      tau_all_num_pt_[dmI]  = ibook.book1D(npt.str(),  tpt.str(), 60, 0., 120.);
-      tau_all_num_eta_[dmI] = ibook.book1D(neta.str(), teta.str(), 50, -3., 3.);
+      tau_gen_matched_to_all_pt_[dmI]  = ibook.book1D(npt.str(),  tpt.str(), 60, 0., 120.);
+      tau_gen_matched_to_all_eta_[dmI] = ibook.book1D(neta.str(), teta.str(), 50, -3., 3.);
     }
 
     // TAU-only endpoint: signal vs iso
@@ -403,10 +403,10 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       nieta << "tau_dm" << dm << "_ge" << N << "ch_num_iso_eta";
       tieta << "DM " << dm << " tau: >= " << N << " charged in isolation; eta; entries";
 
-      tau_geCh_num_signal_pt_[dmI][N-1]  = ibook.book1D(nspt.str(),  tspt.str(), 60, 0., 120.);
-      tau_geCh_num_signal_eta_[dmI][N-1] = ibook.book1D(nseta.str(), tseta.str(), 50, -3., 3.);
-      tau_geCh_num_iso_pt_[dmI][N-1]     = ibook.book1D(nipt.str(),  tipt.str(), 60, 0., 120.);
-      tau_geCh_num_iso_eta_[dmI][N-1]    = ibook.book1D(nieta.str(), tieta.str(), 50, -3., 3.);
+      tau_gen_matched_to_nCh_sig_pt_[dmI][N-1]  = ibook.book1D(nspt.str(),  tspt.str(), 60, 0., 120.);
+      tau_gen_matched_to_nCh_sig_eta_[dmI][N-1] = ibook.book1D(nseta.str(), tseta.str(), 50, -3., 3.);
+      tau_gen_matched_to_nCh_iso_pt_[dmI][N-1]     = ibook.book1D(nipt.str(),  tipt.str(), 60, 0., 120.);
+      tau_gen_matched_to_nCh_iso_eta_[dmI][N-1]    = ibook.book1D(nieta.str(), tieta.str(), 50, -3., 3.);
     }
     for (int N = 1; N <= pi0Cap; ++N) {
       std::ostringstream nspt, tspt, nseta, tseta;
@@ -422,10 +422,10 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       nieta << "tau_dm" << dm << "_ge" << N << "pi0_num_iso_eta";
       tieta << "DM " << dm << " tau: >= " << N << " pi0 in isolation; eta; entries";
 
-      tau_gePi0_num_signal_pt_[dmI][N-1]  = ibook.book1D(nspt.str(),  tspt.str(), 60, 0., 120.);
-      tau_gePi0_num_signal_eta_[dmI][N-1] = ibook.book1D(nseta.str(), tseta.str(), 50, -3., 3.);
-      tau_gePi0_num_iso_pt_[dmI][N-1]     = ibook.book1D(nipt.str(),  tipt.str(), 60, 0., 120.);
-      tau_gePi0_num_iso_eta_[dmI][N-1]    = ibook.book1D(nieta.str(), tieta.str(), 50, -3., 3.);
+      tau_gen_matched_to_nPi0_sig_pt_[dmI][N-1]  = ibook.book1D(nspt.str(),  tspt.str(), 60, 0., 120.);
+      tau_gen_matched_to_nPi0_sig_eta_[dmI][N-1] = ibook.book1D(nseta.str(), tseta.str(), 50, -3., 3.);
+      tau_gen_matched_to_nPi0_iso_pt_[dmI][N-1]     = ibook.book1D(nipt.str(),  tipt.str(), 60, 0., 120.);
+      tau_gen_matched_to_nPi0_iso_eta_[dmI][N-1]    = ibook.book1D(nieta.str(), tieta.str(), 50, -3., 3.);
     }
   }
 }
@@ -880,20 +880,20 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
                               const std::array<bool, kNSteps>& pass){
       if (isCharged) {
         for (int s = 0; s < kNSteps; ++s) {
-          if (auto* h = chStepHists_[dmI][legIdx].den_pt[s])  h->Fill(cpPt);
-          if (auto* h = chStepHists_[dmI][legIdx].den_eta[s]) h->Fill(cpEta);
+          if (auto* h = chStepHists_[dmI][legIdx].cp_gen_pt[s])  h->Fill(cpPt);
+          if (auto* h = chStepHists_[dmI][legIdx].cp_gen_eta[s]) h->Fill(cpEta);
           if (pass[s]) {
-            if (auto* h = chStepHists_[dmI][legIdx].num_pt[s])  h->Fill(cpPt);
-            if (auto* h = chStepHists_[dmI][legIdx].num_eta[s]) h->Fill(cpEta);
+            if (auto* h = chStepHists_[dmI][legIdx].cp_gen_matched_pt[s])  h->Fill(cpPt);
+            if (auto* h = chStepHists_[dmI][legIdx].cp_gen_matched_eta[s]) h->Fill(cpEta);
           }
         }
       } else {
         for (int s = 0; s < kNSteps; ++s) {
-          if (auto* h = gammaStepHists_[dmI][legIdx].den_pt[s])  h->Fill(cpPt);
-          if (auto* h = gammaStepHists_[dmI][legIdx].den_eta[s]) h->Fill(cpEta);
+          if (auto* h = gammaStepHists_[dmI][legIdx].cp_gen_pt[s])  h->Fill(cpPt);
+          if (auto* h = gammaStepHists_[dmI][legIdx].cp_gen_eta[s]) h->Fill(cpEta);
           if (pass[s]) {
-            if (auto* h = gammaStepHists_[dmI][legIdx].num_pt[s])  h->Fill(cpPt);
-            if (auto* h = gammaStepHists_[dmI][legIdx].num_eta[s]) h->Fill(cpEta);
+            if (auto* h = gammaStepHists_[dmI][legIdx].cp_gen_matched_pt[s])  h->Fill(cpPt);
+            if (auto* h = gammaStepHists_[dmI][legIdx].cp_gen_matched_eta[s]) h->Fill(cpEta);
           }
         }
       }
@@ -998,8 +998,8 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
     // Fill tau-level denominators only for taus with enough TICL legs
     if (bestMotherTau && tauInAcceptance) {
-      if (tau_den_pt_[dmIdx])  tau_den_pt_[dmIdx]->Fill(tauPt);
-      if (tau_den_eta_[dmIdx]) tau_den_eta_[dmIdx]->Fill(tauEta);
+      if (tau_gen_pt_[dmIdx])  tau_gen_pt_[dmIdx]->Fill(tauPt);
+      if (tau_gen_eta_[dmIdx]) tau_gen_eta_[dmIdx]->Fill(tauEta);
     }
 
     // tau-level numerators
@@ -1013,24 +1013,24 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       // >= N charged legs at reco
       for (int N = 1; N <= chCap; ++N) {
         if (nGoodCH_endpoint >= N) {
-          if (auto* h = tau_geCh_num_pt_[dmIdx][N-1])  h->Fill(tauPt);
-          if (auto* h = tau_geCh_num_eta_[dmIdx][N-1]) h->Fill(tauEta);
+          if (auto* h = tau_gen_matched_to_nCh_pt_[dmIdx][N-1])  h->Fill(tauPt);
+          if (auto* h = tau_gen_matched_to_nCh_eta_[dmIdx][N-1]) h->Fill(tauEta);
         }
       }
 
       // >= N pi0 at reco
       for (int N = 1; N <= p0Cap; ++N) {
         if (nPi0_endpoint >= N) {
-          if (auto* h = tau_gePi0_num_pt_[dmIdx][N-1])  h->Fill(tauPt);
-          if (auto* h = tau_gePi0_num_eta_[dmIdx][N-1]) h->Fill(tauEta);
+          if (auto* h = tau_gen_matched_to_nPi0_pt_[dmIdx][N-1])  h->Fill(tauPt);
+          if (auto* h = tau_gen_matched_to_nPi0_eta_[dmIdx][N-1]) h->Fill(tauEta);
         }
       }
 
       // ALL expected legs
       if (expCh > 0 || expPi0 > 0) {
         if (nGoodCH_endpoint >= expCh && nPi0_endpoint >= expPi0) {
-          if (tau_all_num_pt_[dmIdx])  tau_all_num_pt_[dmIdx]->Fill(tauPt);
-          if (tau_all_num_eta_[dmIdx]) tau_all_num_eta_[dmIdx]->Fill(tauEta);
+          if (tau_gen_matched_to_all_pt_[dmIdx])  tau_gen_matched_to_all_pt_[dmIdx]->Fill(tauPt);
+          if (tau_gen_matched_to_all_eta_[dmIdx]) tau_gen_matched_to_all_eta_[dmIdx]->Fill(tauEta);
         }
       }
 
@@ -1043,22 +1043,22 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
         for (int N = 1; N <= chCap; ++N) {
           if (nGoodCH_signal >= N) {
-            if (auto* h = tau_geCh_num_signal_pt_[dmIdx][N-1])  h->Fill(tauPt);
-            if (auto* h = tau_geCh_num_signal_eta_[dmIdx][N-1]) h->Fill(tauEta);
+            if (auto* h = tau_gen_matched_to_nCh_sig_pt_[dmIdx][N-1])  h->Fill(tauPt);
+            if (auto* h = tau_gen_matched_to_nCh_sig_eta_[dmIdx][N-1]) h->Fill(tauEta);
           }
           if (nGoodCH_iso >= N) {
-            if (auto* h = tau_geCh_num_iso_pt_[dmIdx][N-1])  h->Fill(tauPt);
-            if (auto* h = tau_geCh_num_iso_eta_[dmIdx][N-1]) h->Fill(tauEta);
+            if (auto* h = tau_gen_matched_to_nCh_iso_pt_[dmIdx][N-1])  h->Fill(tauPt);
+            if (auto* h = tau_gen_matched_to_nCh_iso_eta_[dmIdx][N-1]) h->Fill(tauEta);
           }
         }
         for (int N = 1; N <= p0Cap; ++N) {
           if (nPi0_signal >= N) {
-            if (auto* h = tau_gePi0_num_signal_pt_[dmIdx][N-1])  h->Fill(tauPt);
-            if (auto* h = tau_gePi0_num_signal_eta_[dmIdx][N-1]) h->Fill(tauEta);
+            if (auto* h = tau_gen_matched_to_nPi0_sig_pt_[dmIdx][N-1])  h->Fill(tauPt);
+            if (auto* h = tau_gen_matched_to_nPi0_sig_eta_[dmIdx][N-1]) h->Fill(tauEta);
           }
           if (nPi0_iso >= N) {
-            if (auto* h = tau_gePi0_num_iso_pt_[dmIdx][N-1])  h->Fill(tauPt);
-            if (auto* h = tau_gePi0_num_iso_eta_[dmIdx][N-1]) h->Fill(tauEta);
+            if (auto* h = tau_gen_matched_to_nPi0_iso_pt_[dmIdx][N-1])  h->Fill(tauPt);
+            if (auto* h = tau_gen_matched_to_nPi0_iso_eta_[dmIdx][N-1]) h->Fill(tauEta);
           }
         }
       }

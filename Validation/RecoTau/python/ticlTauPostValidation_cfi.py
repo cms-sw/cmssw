@@ -4,7 +4,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 dm_list = [0, 1, 2, 5, 10, 11]
 effs = []
 
-steps_to_keep = [0, 1, 4, 5]
+steps_to_keep = [0, 1, 2, 3, 4, 5]
 
 for dm in dm_list:
     for leg in range(3):
@@ -68,7 +68,7 @@ recoTiclTauHarvester = DQMEDHarvester(
     makeGlobalEffienciesPlot=cms.untracked.bool(False),
 
     # matches recoTiclTauValidator.folder
-    subDirs=cms.untracked.vstring("RecoTauV/ticlTauValidator"),
+    subDirs=cms.untracked.vstring("RecoTauV/ticlTauValidator/*"),
 
     efficiency=cms.vstring(*effs),
     resolution=cms.vstring(),
@@ -88,7 +88,7 @@ hltTiclTauHarvester = DQMEDHarvester(
     runOnEndLumi=cms.untracked.bool(False),
     runOnEndJob=cms.untracked.bool(True),
     makeGlobalEffienciesPlot=cms.untracked.bool(False),
-    subDirs=cms.untracked.vstring("HLT/TICL/ticlTauValidator"),
+    subDirs=cms.untracked.vstring("HLT/TICL/ticlTauValidator/*"),
     efficiency=cms.vstring(*effs),
     resolution=cms.vstring(),
     efficiencyProfile=cms.untracked.vstring(),
