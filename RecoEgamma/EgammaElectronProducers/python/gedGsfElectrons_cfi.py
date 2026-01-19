@@ -22,7 +22,7 @@ gedGsfElectronsTmp = ecalDrivenGsfElectrons.clone(
 
     #Egamma PFID DNN model configuration
     EleDNNPFid= dict(
-        outputTensorName = "sequential_1/FinalLayer/Softmax",
+        outputTensorName = "sequential_1/FinalLayer/Softmax:0",
         modelsFiles = [
             "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_modelDNN.onnx",
             "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/EB_highpT/barrel_highpT_modelDNN.onnx",
