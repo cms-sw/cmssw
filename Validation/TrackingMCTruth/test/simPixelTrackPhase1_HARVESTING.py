@@ -1,17 +1,17 @@
 """
-This script runs the harvesting step on top of the file `simDoublets_DQMIO.root` produced when running the
-simDoubletsPhase2_TEST.py script. To harvest simply run:
+This script runs the harvesting step on top of the file `simPixelTrack_DQMIO.root` produced when running the
+simPixelTrackPhase1_TEST.py script. To harvest simply run:
 
-cmsRun simDoubletsPhase2_HARVESTING.py
+cmsRun simPixelTrackPhase1_HARVESTING.py
 
-This will produce a DQM file with all SimDoublets histograms.
+This will produce a DQM file with all SimPixelTrack histograms.
 """
 
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
 
-process = cms.Process('HARVESTING',Phase2C22I13M9)
+process = cms.Process('HARVESTING',Run3_2025)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -19,7 +19,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
@@ -30,8 +30,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
-process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring('file:simDoublets_DQMIO.root')
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring('file:simPixelTrack_DQMIO.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -48,11 +48,11 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '142X_mcRun3_2025_realistic_v4', '')
 
 # Path and EndPath definitions
-process.load('Validation.TrackingMCTruth.PostProcessorSimDoublets_cff')  # load harvesting config for SimDoublets
-process.harvesting_step = cms.Path(process.postProcessorSimDoublets)
+process.load('Validation.TrackingMCTruth.PostProcessorSimPixelTrack_cff')  # load harvesting config for SimPixelTrack
+process.harvesting_step = cms.Path(process.postProcessorSimPixelTrackSequence)
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition
