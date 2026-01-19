@@ -47,7 +47,7 @@ using GenericSoAConstView = GenericSoA::ConstView;
 
 // Kernel for filling the SoA
 struct FillSoA {
-  template <typename TAcc, typename PositionView, typename PCAView>
+  template <alpaka::concepts::Acc TAcc, typename PositionView, typename PCAView>
   ALPAKA_FN_ACC void operator()(TAcc const& acc, PositionView positionView, PCAView pcaView) const {
     constexpr float interval = 0.01f;
     if (cms::alpakatools::once_per_grid(acc))

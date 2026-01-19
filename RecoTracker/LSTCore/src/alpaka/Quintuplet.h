@@ -98,7 +98,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   //bounds can be found at http://uaf-10.t2.ucsd.edu/~bsathian/SDL/T5_RZFix/t5_rz_thresholds.txt
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passT5RZConstraint(TAcc const& acc,
                                                          ModulesConst modules,
                                                          MiniDoubletsConst mds,
@@ -530,7 +530,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool T5HasCommonMiniDoublet(TripletsConst triplets,
                                                              SegmentsConst segments,
                                                              unsigned int innerTripletIndex,
@@ -545,7 +545,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return (innerOuterOuterMiniDoubletIndex == outerInnerInnerMiniDoubletIndex);
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void computeSigmasForRegression(TAcc const& acc,
                                                                  ModulesConst modules,
                                                                  const uint16_t* lowerModuleIndices,
@@ -632,7 +632,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computeRadiusUsingRegression(TAcc const& acc,
                                                                     unsigned int nPoints,
                                                                     float* xs,
@@ -731,7 +731,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return radius;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computeChiSquared(TAcc const& acc,
                                                          unsigned int nPoints,
                                                          float* xs,
@@ -778,7 +778,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return chiSquared;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void runDeltaBetaIterations(TAcc const& acc,
                                                              float& betaIn,
                                                              float& betaOut,
@@ -877,7 +877,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletdBetaCutBBBB(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 MiniDoubletsConst mds,
@@ -1056,7 +1056,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return dBeta * dBeta <= dBetaCut2;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletdBetaCutBBEE(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 MiniDoubletsConst mds,
@@ -1222,7 +1222,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return dBeta * dBeta <= dBetaCut2;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletdBetaCutEEEE(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 MiniDoubletsConst mds,
@@ -1352,7 +1352,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return dBeta * dBeta <= dBetaCut2;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletdBetaAlgoSelector(TAcc const& acc,
                                                                      ModulesConst modules,
                                                                      MiniDoubletsConst mds,
@@ -1469,7 +1469,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return false;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletDefaultAlgo(TAcc const& acc,
                                                                ModulesConst modules,
                                                                MiniDoubletsConst mds,
