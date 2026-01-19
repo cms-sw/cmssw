@@ -242,7 +242,7 @@ namespace edmtest {
     int nFastJets = 0;
     for (const unsigned& bx : bxValues_) {
       for (const int& val : fastJetValues_) {
-        orbitBufferFastJets[bx].emplace_back(val, val, val, val, val);
+        orbitBufferFastJets[bx].emplace_back(val, val, val, val, val, val);
         nFastJets++;
       }
     }
