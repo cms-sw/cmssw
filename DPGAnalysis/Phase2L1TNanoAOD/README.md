@@ -5,7 +5,9 @@ Initially an independent package here: https://github.com/cms-l1-dpg/Phase2-L1Na
 
 ## Setup
 
-For more information on the latest L1T Phase 2 software developments in CMSSW see: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TPhase2Instructions#Development
+For more information on the latest L1T Phase 2 software developments in CMSSW see: https://cmsl1tofflinesw.docs.cern.ch/Phase2/phase2recipe/
+
+Previous twiki page: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TPhase2Instructions#Development
 
 Corresponding menu twiki section: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PhaseIIL1TriggerMenuTools#Phase_2_L1_Trigger_objects_based
 
@@ -16,7 +18,7 @@ Corresponding menu twiki section: https://twiki.cern.ch/twiki/bin/viewauth/CMS/P
 
 One can append the L1Nano output to the `cmsDriver` command via the `NANO:@Phase2L1DPGwithGen` autoNANO handle, e.g.:
 ```bash
-cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPGwithGen
+cmsDriver.py -s L1TrackTrigger,L1,L1P2GT,NANO:@Phase2L1DPGwithGen
 ```
 
 Check `PhysicsTools/NanoAOD/python/autoNANO.py` for the way this command is defined.
@@ -26,9 +28,9 @@ It is mostly created for workflow tests.
 
 An example `cmsDriver` command for 14x files:
 ```bash
-cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPGwithGen \
---conditions auto:phase2_realistic_T33 \
---geometry ExtendedRun4D110 \
+cmsDriver.py -s L1TrackTrigger,L1,L1P2GT,NANO:@Phase2L1DPGwithGen \
+--conditions auto:phase2_realistic_T35 \
+--geometry ExtendedRun4D121 \
 --era Phase2C17I13M9 \
 --eventcontent NANOAOD \
 --datatier GEN-SIM-DIGI-RAW-MINIAOD \
