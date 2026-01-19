@@ -231,3 +231,9 @@ class TICLConfig:
     def to_cff(self, path, process_name="TICL"):
         from RecoTICL.Configuration.exporter import to_cff
         return to_cff(self, path, process_name)
+
+    def build_validation(self):
+        """Build the label-derived validation chain (associators auto-created &
+        scheduled, dumper, validator).  Returns ``(modules, task_children, labels)``."""
+        from RecoTICL.Configuration.validation import build_validation
+        return build_validation(self)

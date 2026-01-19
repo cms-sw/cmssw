@@ -73,7 +73,12 @@ a signal that the menu should be regenerated.
 | `assembler.py` | clones the real `_cfi` defaults + applies algorithm overrides and the **computed** plumbing `InputTag`s; builds the `Task` hierarchy |
 | `validator.py` | builds the product graph and rejects type-incompatible / missing / GPU-unsupported connections |
 | `exporter.py` | `to_cff(path)` -- a self-contained, loadable cff fragment |
+| `validation.py` | single-source-of-truth derivation of the iteration labels, associator instances, the (auto-created & scheduled) trackster<->simTrackster associators, the `ticlDumper` and the `hgcalValidator` |
 | `compare.py` | per-module comparison of an assembled config vs a baseline `Task` |
+
+From one list of labels, `cfg.build_validation()` derives the whole validation
+chain exactly as the baseline does (verified byte-for-byte for the associators
+and `hgcalValidator`), so reco, dumper and validation never drift apart.
 
 Byte-for-byte reproduction is achievable because the assembler clones the *same*
 `_cfi` defaults the baseline uses and re-applies the same overrides; the
