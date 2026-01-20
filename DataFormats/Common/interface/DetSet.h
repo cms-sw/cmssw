@@ -74,7 +74,7 @@ namespace edm {
     det_id_type detId() const { return id; }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
     det_id_type id;
     collection_type data;

@@ -122,7 +122,7 @@ namespace edm {
     }
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(13)
+    CMS_CLASS_VERSION(3)
 
   private:
     std::vector<void const*> const& memberPointers() const { return memberPointersHolder_.memberPointers(); }
