@@ -41,7 +41,7 @@ else:
     process = cms.Process('SimRun4',Phase2C22I13M9)
     geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 
-globalTag = "auto:phase2_realistic_T33"
+globalTag = "auto:phase2_realistic_T35"
 inFile = "partial" + options.geometry + ".txt"
 
 print("Geometry file: ", geomFile)

@@ -48,7 +48,7 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 
 # Path and EndPath definitions
 process.load('Validation.TrackingMCTruth.PostProcessorSimDoublets_cff')  # load harvesting config for SimDoublets
