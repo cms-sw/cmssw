@@ -98,10 +98,10 @@ namespace mkfit {
     //----------------------------------------------------------------------------
 
   protected:
-    MPlexLS m_Err[2];
-    MPlexLV m_Par[2];
-    MPlexQI m_Chg;
-    MPlexQI m_FailFlag;
+    MPlexLS m_Err[2]{0.0f};
+    MPlexLV m_Par[2]{0.0f};
+    MPlexQI m_Chg{0};
+    MPlexQI m_FailFlag{0};
   };
 
 }  // end namespace mkfit
