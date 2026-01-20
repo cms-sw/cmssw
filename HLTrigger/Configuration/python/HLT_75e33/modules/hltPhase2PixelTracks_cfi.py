@@ -1,12 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-hltPhase2PixelTracks = cms.EDProducer("TrackCollectionFilterCloner",
-    copyExtras = cms.untracked.bool(True),
-    copyTrajectories = cms.untracked.bool(False),
-    minQuality = cms.string('highPurity'),
-    originalMVAVals = cms.InputTag("hltPhase2PixelTracksCutClassifier","MVAValues"),
-    originalQualVals = cms.InputTag("hltPhase2PixelTracksCutClassifier","QualityMasks"),
-    originalSource = cms.InputTag("hltPhase2PixelTracksCAExtension")
+hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
+    beamSpot = cms.InputTag("hltOnlineBeamSpot"),
+    minNumberOfHits = cms.int32(0),
+    minQuality = cms.string('tight'),
+    pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHits"),
+    trackSrc = cms.InputTag("hltPhase2PixelTrackTorchHighPuritySelector"),
+    outerTrackerRecHitSrc = cms.InputTag("hltSiPhase2RecHits"),
+    outerTrackerRecHitSoAConverterSrc = cms.InputTag("hltPhase2OtRecHitsSoA"),
+    useOTExtension = cms.bool(True),
+    requireQuadsFromConsecutiveLayers = cms.bool(False)
 )
 
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
