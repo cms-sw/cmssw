@@ -140,21 +140,35 @@ std::shared_ptr<DetIdMaps> PixelTrackProducerFromSoAAlpaka::globalBeginRun(const
     // get track geometry
     const auto &trackerGeometry = &iSetup.getData(trackerGeometryTokenRun_);
 
-    // function to check if given module is used as OT for CA
+    // function to check if a given module is a pixel in the TOB
     auto isPinPSinOTBarrel = [&](DetId detId) {
-      // Select only P-hits from the OT barrel
       return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
               detId.subdetId() == StripSubdetector::TOB);
     };
+    // function to check if a given module is a pixel in the TID
+    auto isPinPSinOTDisk = [&](DetId detId) {
+      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
+              detId.subdetId() == StripSubdetector::TID);
+    };
 
+    uint32_t otModuleId = 0;
     // loop over all modules and fill the map detIdToOTModuleId_
     auto const &detUnits = trackerGeometry->detUnits();
-    for (uint32_t otModuleId{0}; auto &detUnit : detUnits) {
+    for (auto &detUnit : detUnits) {
       DetId detId(detUnit->geographicalId());
       // check if the module is used for OT extension
-      bool isUsedOTModule = isPinPSinOTBarrel(detId);
+      bool isUsedOTModule = isPinPSinOTBarrel(detId) || isPinPSinOTDisk(detId);
       detIdMaps->detIdIsUsedOTModule_[detUnit->geographicalId()] = isUsedOTModule;
-      if (isUsedOTModule) {
+      if (isPinPSinOTBarrel(detId)) {
+        // save the module index among the extension modules
+        detIdMaps->detIdToOTModuleId_[detUnit->geographicalId()] = otModuleId;
+        otModuleId++;
+      }
+    }
+    // loop again to add the TID modules after the TOB ones
+    for (auto &detUnit : detUnits) {
+      DetId detId(detUnit->geographicalId());
+      if (isPinPSinOTDisk(detId)) {
         // save the module index among the extension modules
         detIdMaps->detIdToOTModuleId_[detUnit->geographicalId()] = otModuleId;
         otModuleId++;
@@ -329,9 +343,14 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   // function that returns the number of skipped layers for a given pair of RecHits
   // for the case where the inner RecHit is in the OT barrel.
   auto getNSkippedLayersInnerInOT = [&](const DetId &innerDetId, const DetId &outerDetId) {
-    assert(outerDetId.subdetId() == StripSubdetector::TOB);
-    int nSkippedLayers =
-        trackerTopology.getOTLayerNumber(outerDetId) - trackerTopology.getOTLayerNumber(innerDetId) - 1;
+    int nSkippedLayers = 0;
+    assert(outerDetId.subdetId() == StripSubdetector::TOB || outerDetId.subdetId() == StripSubdetector::TID);
+    switch (outerDetId.subdetId()) {
+      case StripSubdetector::TOB:
+        nSkippedLayers =
+            trackerTopology.getOTLayerNumber(outerDetId) - trackerTopology.getOTLayerNumber(innerDetId) - 1;
+        break;
+    }
     return nSkippedLayers;
   };
 
@@ -355,6 +374,8 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       case StripSubdetector::TOB:
         nSkippedLayers = getNSkippedLayersInnerInOT(innerDetId, outerDetId);
         break;
+        // case StripSubdetector::TID not needed, to be implemented if necessary
+        // hint: use trackerTopology.tidWheel(detId)
     }
     return nSkippedLayers;
   };
@@ -417,17 +438,26 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     hits.resize(nHits - nRemovedHits);
     end = end - nRemovedHits;
 
-    // implement custome requirement for quadruplets coming from consecutive layers
+    // implement custom requirement for quadruplets coming from consecutive layers
+    // the requirement is not asked if at least one hit belongs to the TID
     if (requireQuadsFromConsecutiveLayers_ && (nHits == 4)) {
       bool skipThisTrack{false};
       // loop over layer pairs and check if they skip
       for (auto iHit = start; iHit < end - 1; ++iHit) {
+        auto innerRecHit = hits[iHit - start];
+        auto outerRecHit = hits[iHit - start + 1];
+        auto innerDetId = innerRecHit->geographicalId();
+        auto outerDetId = outerRecHit->geographicalId();
         // if the inner (iHit-start) to outer (iHit-start+1) hit layer-change skips 1 or more
         // layers skipt the track
-        if (getNSkippedLayers(hits[iHit - start], hits[iHit - start + 1]) > 0) {
-          skipThisTrack = true;
+        bool skippedLayers = getNSkippedLayers(innerRecHit, outerRecHit) > 0;
+        bool isTID = (innerDetId.subdetId() == StripSubdetector::TID || outerDetId.subdetId() == StripSubdetector::TID);
+        if (isTID) {
+          skipThisTrack = false;
           break;
         }
+        if (skippedLayers)
+          skipThisTrack = true;
       }
       if (skipThisTrack) {
         indToEdm[it] = pixelTrack::skippedTrack;  // mark as skipped

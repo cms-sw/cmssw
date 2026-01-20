@@ -38,7 +38,7 @@
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 
 namespace reco {
   struct CAGeometryParams {
@@ -69,7 +69,6 @@ namespace reco {
     // Layers params
     const std::vector<double> caThetaCuts_;
     const std::vector<double> caDCACuts_;
-    const std::vector<int> isBarrel_;
 
     // Cells params
     const std::vector<unsigned int> pairGraph_;
@@ -173,11 +172,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // at the end to hold the total number of modules.
 
       std::vector<int> moduleToindexInDets;
-
+      // function that given a module check if it is a pixel in the TOB
       auto isPinPSinOTBarrel = [&](DetId detId) {
-        // Select only P-hits from the OT barrel
         return (trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
                 detId.subdetId() == StripSubdetector::TOB);
+      };
+      // function that given a module check if it is a pixel in the TID
+      auto isPinPSinOTDisk = [&](DetId detId) {
+        return (trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
+                detId.subdetId() == StripSubdetector::TID);
       };
       auto isPixel = [&](DetId detId) {
         auto subId = detId.subdetId();
@@ -196,8 +199,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto layer = trackerTopology.layer(detid);
         // Logic:
         // - if we are not inside pixels, we need to ignore anything **but** the OT.
-        // - for the time being, this is assuming that the CA extension will
-        //   only cover the OT barrel part, and will ignore the OT forward.
+        // - we use two for loops to enforce the following ordering of the layers:
+        //   1) TIB
+        //   2) PXF
+        //   3) TOB
+        //   4) TID
 
 #ifdef GPU_DEBUG
         auto subId = detid.subdetId();
@@ -226,12 +232,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
 
         // if we are using the CA extension for Phase-2,
-        // we also have to collect the modules from the considered OT layers
+        // we also have to collect first the modules from the TOB layer
         if constexpr (std::is_same_v<pixelTopology::Phase2OT, TrackerTraits>) {
           auto const& detUnits = det->components();
           for (auto& detUnit : detUnits) {
             DetId unitDetId(detUnit->geographicalId());
-            // Modules of the considered OT layers
+            // Select pixel modules from the TOB
             if (isPinPSinOTBarrel(unitDetId)) {
               if (layer != oldLayer) {
 #ifdef GPU_DEBUG
@@ -252,7 +258,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         counter++;
       }
-
+      // if we are using the CA extension for Phase-2,
+      // we loop again to collect also the modules from the TID layer
+      if constexpr (std::is_same_v<pixelTopology::Phase2OT, TrackerTraits>) {
+        counter = -1;
+        for (auto& det : dets) {
+          counter++;
+          DetId detid = det->geographicalId();
+          if (isPixel(detid))
+            continue;
+          auto layer = trackerTopology.layer(detid);
+#ifdef GPU_DEBUG
+          auto subId = detid.subdetId();
+          if (subSystemName != trackerGeometry.geomDetSubDetector(subId)) {
+            subSystemName = trackerGeometry.geomDetSubDetector(subId);
+            std::cout << " ===================== Subsystem: " << subSystemName << std::endl;
+          }
+#endif
+          auto const& detUnits = det->components();
+          for (auto& detunit : detUnits) {
+            DetId unitDetId(detunit->geographicalId());
+            // Select pixel modules from  the TID
+            if (isPinPSinOTDisk(unitDetId)) {
+              if (layer != oldLayer) {
+#ifdef GPU_DEBUG
+                std::cout << "OT LayerStart: CA layer " << layerCount << " at subdetector layer " << layer
+                          << " starts at module " << n_modules << " and is "
+                          << (isBarrel(detid) ? "barrel" : "not barrel") << std::endl;
+#endif
+                layerIsBarrel[layerCount] = isBarrel(detid);
+                layerStarts[layerCount++] = n_modules;
+                if (layerCount >= layerStarts.size())
+                  break;
+                oldLayer = layer;
+              }
+              moduleToindexInDets.push_back(counter);
+              n_modules++;
+            } else if (isPinPSinOTBarrel(unitDetId))
+              break;
+          }
+        }
+      }
+// -----------------------------------------------------------------------------------------------------------
 #ifdef GPU_DEBUG
       std::cout << "Full CA LayerStart: " << n_layers << " layers with " << n_modules << " modules in total."
                 << std::endl;
@@ -275,7 +322,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto const& detUnits = det->components();
         for (auto& detUnit : detUnits) {
           DetId unitDetId(detUnit->geographicalId());
-          if (isPinPSinOTBarrel(unitDetId)) {
+          if (isPinPSinOTBarrel(unitDetId) || isPinPSinOTDisk(unitDetId)) {
             std::cout << "Filling frame at index " << idx << " in SoA position " << i << " for det "
                       << det->geographicalId() << " and detUnit->index: " << detUnit->index() << std::endl;
           }
