@@ -1055,9 +1055,9 @@ public:
         std::ostringstream psdoc;
         psdoc << "[Sherpa detected] All generator weights are stored in the PSWeight table.\n"
               << "  - Baseline weight (index " << weightChoice->psBaselineID << ") is kept UNNORMALIZED\n"
-              << "    to allow post-hoc renormalization or alternative reference choices.\n"
+              << "    and saved in 'genWeight' branch.\n"
               << "  - All other weights are stored as w_i / w_baseline.\n"
-              << "  - This includes internal Sherpa weights (Weight, MEWeight, WeightNormalisation, NTrials)\n"
+              << "  - This includes internal Sherpa weights (MEWeight, WeightNormalisation, NTrials)\n"
               << "    as well as all additional variation weights.\n"
               << "  - No splitting into scale/PDF containers is performed for Sherpa samples.\n"
               << "  Stored indices: [0 .. " << (!weightNames.empty() ? weightNames.size() - 1 : 0) << "]\n";
