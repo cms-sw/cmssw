@@ -37,7 +37,7 @@ ticlTrackstersMerge = _trackstersMergeProducer.clone(
         'output/regressed_energy:0',
         'output/id_probabilities:0'
       ),
-      eid_min_cluster_energy = cms.double(1),
+      eid_min_cluster_energy = cms.double(2.5),
       eid_n_layers = cms.int32(50),
       eid_n_clusters = cms.int32(10),
       doPID = cms.int32(1),
