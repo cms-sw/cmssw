@@ -70,7 +70,7 @@ else:
         process = cms.Process('SingleMuonSim',Phase2C17I13M9)
         geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
         
-globalTag = "auto:phase2_realistic_T33"
+globalTag = "auto:phase2_realistic_T35"
 inFile = "file:step2" + options.type + options.geometry + options.data + ".root"
 outFile = "file:step3" + options.type + options.geometry + options.data  + ".root"
 fileName = "missing" + options.type + options.geometry + options.data  + options.tag + ".root"

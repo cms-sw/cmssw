@@ -63,7 +63,7 @@ if(options.fromESSource):
     #process.SiPhase2OTFakeBadStripsESSource.printDebug = cms.untracked.bool(True)    # this makes it verbose 
     process.SiPhase2OTFakeBadStripsESSource.badComponentsFraction = cms.double(0.05)   # bad components fraction is 5%
 else:
-    tag = 'SiStripBadStripPhase2_T33'
+    tag = 'SiStripBadStripPhase2_T35'
     suffix = 'v0'
     inFile = tag+'_'+suffix+'.db'
     inDB = 'sqlite_file:'+inFile
