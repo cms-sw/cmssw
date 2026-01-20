@@ -13,7 +13,7 @@ process.load("Configuration.Geometry.GeometryExtendedRun4D121Reco_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase2_realistic_T33", "")
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase2_realistic_T35", "")
 
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
 

@@ -27,7 +27,7 @@ It is mostly created for workflow tests.
 An example `cmsDriver` command for 14x files:
 ```bash
 cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPGwithGen \
---conditions auto:phase2_realistic_T33 \
+--conditions auto:phase2_realistic_T35 \
 --geometry ExtendedRun4D110 \
 --era Phase2C17I13M9 \
 --eventcontent NANOAOD \
