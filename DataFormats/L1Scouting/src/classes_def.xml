@@ -11,7 +11,7 @@
   <class name="l1ScoutingRun3::CaloObject"/>
 
   <class name="l1ScoutingRun3::CaloTower" ClassVersion="3">
-    <version ClassVersion="3" checksum="748009083"/>
+    <version ClassVersion="3" checksum="4158775224"/>
   </class>
 
   <class name="l1ScoutingRun3::EGamma" ClassVersion="3">
@@ -19,7 +19,7 @@
   </class>
 
   <class name="l1ScoutingRun3::FastJet" ClassVersion="3">
-    <version ClassVersion="3" checksum="1804192151"/>
+    <version ClassVersion="3" checksum="2288624047"/>
   </class>
 
   <class name="l1ScoutingRun3::Jet" ClassVersion="3">

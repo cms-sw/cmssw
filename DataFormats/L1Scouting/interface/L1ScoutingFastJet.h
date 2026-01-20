@@ -7,32 +7,32 @@ namespace l1ScoutingRun3 {
 
   class FastJet {
   public:
-    FastJet() : et_(0), eta_(0), phi_(0), nConst_(0), area_(0), mass_(0) {}
+    FastJet() : et_(0), eta_(0), phi_(0), mass_(0), nConst_(0), area_(0) {}
 
-    FastJet(float et, float eta, float phi, int nConst, float area, float mass)
-        : et_(et), eta_(eta), phi_(phi), nConst_(nConst), area_(area), mass_(mass) {}
+    FastJet(float et, float eta, float phi, float mass, int nConst, float area)
+        : et_(et), eta_(eta), phi_(phi), mass_(mass), nConst_(nConst), area_(area) {}
 
     void setEt(float et) { et_ = et; }
     void setEta(float eta) { eta_ = eta; }
     void setPhi(float phi) { phi_ = phi; }
+    void setMass(float mass) { mass_ = mass; }
     void setNConst(int nConst) { nConst_ = nConst; }
     void setArea(float area) { area_ = area; }
-    void setMass(float mass) { mass_ = mass; }
 
     float et() const { return et_; }
     float eta() const { return eta_; }
     float phi() const { return phi_; }
+    float mass() const { return mass_; }
     int nConst() const { return nConst_; }
     float area() const { return area_; }
-    float mass() const { return mass_; }
 
   private:
     float et_;
     float eta_;
     float phi_;
+    float mass_;
     int nConst_;
     float area_;
-    float mass_;
   };
 
   typedef OrbitCollection<FastJet> FastJetOrbitCollection;
