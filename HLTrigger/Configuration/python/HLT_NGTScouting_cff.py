@@ -230,6 +230,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTVertexRecoSequence
 ### Services
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/FastTimerService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/services/PyTorchService_cfi")
 
 fragment.schedule = cms.Schedule(*[
     fragment.DST_NGTScouting,
