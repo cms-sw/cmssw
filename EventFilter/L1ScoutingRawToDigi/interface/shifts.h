@@ -113,8 +113,8 @@ namespace l1ScoutingRun3 {
       static constexpr uint32_t eohrFlag = 13;
       static constexpr uint32_t hcalFlag = 14;
       static constexpr uint32_t ecalFlag = 15;
-      static constexpr uint32_t eta = 16;
-      static constexpr uint32_t phi = 24;
+      static constexpr uint32_t phi = 16;
+      static constexpr uint32_t eta = 24;
     };
   }  // namespace calol2
 

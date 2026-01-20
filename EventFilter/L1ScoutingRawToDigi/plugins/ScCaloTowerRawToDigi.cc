@@ -83,9 +83,9 @@ void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int
                 l1ScoutingRun3::calol2::masksCaloTowers::erBits);
       miscBits = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::miscBits) &
                   l1ScoutingRun3::calol2::masksCaloTowers::miscBits);
-      eta = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::eta) & l1ScoutingRun3::calol2::masksCaloTowers::eta);
       phi = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::phi) & l1ScoutingRun3::calol2::masksCaloTowers::phi);
 
+      eta = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::eta) & l1ScoutingRun3::calol2::masksCaloTowers::eta);
       eta = eta >= 128 ? eta - 256 : eta;
 
       l1ScoutingRun3::CaloTower ct(ET, erBits, miscBits, eta, phi);
