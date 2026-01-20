@@ -1607,11 +1607,11 @@ namespace mkfit {
 #endif
     auto mkfitter = g_exe_ctx.m_fitters.makeOrGet();
     for (auto &m : mapFoundHits) {
-      int ntimes = m.second.size() / NN;
+      int size = m.second.size();
+      int ntimes = size / NN;
 #ifdef DEBUG_FIT
       std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-      std::cout << "ntimes " << ntimes << " size  " << m.second.size() << " extra " << m.second.size() - NN * ntimes
-                << std::endl;
+      std::cout << "ntimes " << ntimes << " size  " << size << " extra " << size - NN * ntimes << std::endl;
 #endif
       for (int i = 0; i < ntimes; i++) {
 #ifdef DEBUG_FIT
@@ -1620,9 +1620,11 @@ namespace mkfit {
         fit_tracks(mkfitter.get(), m.first, m.second, NN * i, NN * (i + 1), &remap);
       }
 #ifdef DEBUG_FIT
-      check_tracks(m.second, NN * ntimes, m.second.size());
+      if (size % NN)
+        check_tracks(m.second, NN * ntimes, size);
 #endif
-      fit_tracks(mkfitter.get(), m.first, m.second, NN * ntimes, m.second.size(), &remap);
+      if (size % NN)
+        fit_tracks(mkfitter.get(), m.first, m.second, NN * ntimes, size, &remap);
     }
 #ifdef DEBUG_FIT
     n = 0;
@@ -1638,11 +1640,11 @@ namespace mkfit {
     std::cout << "total REMAP " << n << std::endl;
 #endif
     for (auto &m : remap) {
-      int ntimes = m.second.size() / NN;
+      int size = m.second.size();
+      int ntimes = size / NN;
 #ifdef DEBUG_FIT
       std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-      std::cout << "ntimes " << ntimes << " size  " << m.second.size() << " extra " << m.second.size() - NN * ntimes
-                << std::endl;
+      std::cout << "ntimes " << ntimes << " size  " << second << " extra " << size - NN * ntimes << std::endl;
 #endif
       for (int i = 0; i < ntimes; i++) {
 #ifdef DEBUG_FIT
@@ -1651,9 +1653,11 @@ namespace mkfit {
         fit_tracks(mkfitter.get(), m.first, m.second, NN * i, NN * (i + 1));
       }
 #ifdef DEBUG_FIT
-      check_tracks(m.second, NN * ntimes, m.second.size());
+      if (size % NN)
+        check_tracks(m.second, NN * ntimes, size);
 #endif
-      fit_tracks(mkfitter.get(), m.first, m.second, NN * ntimes, m.second.size());
+      if (size % NN)
+        fit_tracks(mkfitter.get(), m.first, m.second, NN * ntimes, size);
     }
     mkfitter.release();
   }
