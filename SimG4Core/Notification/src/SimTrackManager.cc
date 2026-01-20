@@ -164,7 +164,7 @@ void SimTrackManager::reallyStoreTracks() {
     }
 
     if (id >= static_cast<int>(PSimHit::k_tidOffset)) {
-      throw cms::Exception("SimTrackManager::reallyStoreTracks")
+      edm::LogWarning("SimTrackManager::reallyStoreTracks")
           << " SimTrack ID " << id << " exceeds maximum allowed by PSimHit identifier" << PSimHit::k_tidOffset;
     }
     TmpSimTrack* g4simtrack =
