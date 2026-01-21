@@ -70,7 +70,8 @@ namespace edm {
   PileUp::PileUp(ParameterSet const& pset,
                  const std::shared_ptr<PileUpConfig>& config,
                  edm::ConsumesCollector iC,
-                 const bool mixingConfigFromDB)
+                 const bool mixingConfigFromDB,
+                 SciTagCategoryForEmbeddedSources cat)
       : type_(pset.getParameter<std::string>("type")),
         Source_type_(config->sourcename_),
         averageNumber_(config->averageNumber_),
@@ -85,7 +86,8 @@ namespace edm {
         productRegistry_(),
         input_(VectorInputSourceFactory::get()->makeVectorInputSource(
             pset,
-            VectorInputSourceDescription(std::make_shared<edm::ProductRegistry>(), edm::PreallocationConfiguration()))),
+            VectorInputSourceDescription(
+                std::make_shared<edm::ProductRegistry>(), edm::PreallocationConfiguration(), cat))),
         // hardware information is not needed for the "overlay"
         processConfiguration_(std::make_shared<ProcessConfiguration>(
             "@MIXING", getReleaseVersion(), edm::HardwareResourcesDescription())),
