@@ -1,7 +1,7 @@
 #ifndef RecoEgamma_ElectronTools_EgammaDNNHelper_h
 #define RecoEgamma_ElectronTools_EgammaDNNHelper_h
 
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include <vector>
 #include <memory>
 #include <string>
@@ -9,7 +9,7 @@
 
 //author: Davide Valsecchi
 //description:
-// Handles Tensorflow DNN graphs and variables scaler configuration.
+// Handles ONNXRuntime DNN graphs and variables scaler configuration.
 // To be used for PFID egamma DNNs
 
 namespace egammaTools {
@@ -52,7 +52,7 @@ namespace egammaTools {
         const std::vector<std::map<std::string, float>>& candidates) const;
 
   private:
-    void initTensorFlowSessions();
+    void initONNXRuntimeSessions();
     void initScalerFiles(const std::vector<std::string>& availableVars);
 
     const DNNConfiguration cfg_;
@@ -62,8 +62,8 @@ namespace egammaTools {
     // Number of inputs for each loaded model
     std::vector<uint> nInputs_;
 
-    // TF SessionCache stores both the grapha and the session of each model
-    std::vector<std::unique_ptr<tensorflow::SessionCache>> tf_sessions_cache_;
+    // ONNXRuntime sessions
+    std::vector<std::unique_ptr<cms::Ort::ONNXRuntime>> onnx_sessions_;
 
     // List of input variables for each of the model;
     std::vector<std::vector<ScalerConfiguration>> featuresMap_;
