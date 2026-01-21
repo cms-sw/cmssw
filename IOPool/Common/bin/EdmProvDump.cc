@@ -13,6 +13,7 @@
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
+#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWStorage/Services/interface/setupSiteLocalConfig.h"
@@ -188,7 +189,7 @@ namespace {
     std::string override;
     std::vector<std::string> fileNames;
     fileNames.push_back(filename);
-    edm::InputFileCatalog catalog(fileNames, override, true);
+    edm::InputFileCatalog catalog(fileNames, override, true, edm::SciTagCategory::Undefined);
     if (catalog.fileNames(0)[0] == filename) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
           << "File " << filename << " was not found or could not be opened.\n";
