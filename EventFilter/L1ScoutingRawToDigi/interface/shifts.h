@@ -104,7 +104,7 @@ namespace l1ScoutingRun3 {
     };
   }  // namespace bmtf
 
-  namespace calol2 {
+  namespace calol1 {
     struct shiftsCaloTowers {
       static constexpr uint32_t ET = 0;
       static constexpr uint32_t erBits = 9;
@@ -116,7 +116,7 @@ namespace l1ScoutingRun3 {
       static constexpr uint32_t phi = 16;
       static constexpr uint32_t eta = 24;
     };
-  }  // namespace calol2
+  }  // namespace calol1
 
   struct header_shifts {
     static constexpr uint32_t bxmatch = 24;

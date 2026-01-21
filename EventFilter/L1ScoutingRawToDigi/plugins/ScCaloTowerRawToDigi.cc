@@ -78,14 +78,14 @@ void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int
       uint64_t ct_raw = *(uint32_t*)(buf + pos);
       pos += 4;
 
-      ET = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::ET) & l1ScoutingRun3::calol2::masksCaloTowers::ET);
-      erBits = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::erBits) &
-                l1ScoutingRun3::calol2::masksCaloTowers::erBits);
-      miscBits = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::miscBits) &
-                  l1ScoutingRun3::calol2::masksCaloTowers::miscBits);
-      phi = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::phi) & l1ScoutingRun3::calol2::masksCaloTowers::phi);
+      ET = ((ct_raw >> l1ScoutingRun3::calol1::shiftsCaloTowers::ET) & l1ScoutingRun3::calol1::masksCaloTowers::ET);
+      erBits = ((ct_raw >> l1ScoutingRun3::calol1::shiftsCaloTowers::erBits) &
+                l1ScoutingRun3::calol1::masksCaloTowers::erBits);
+      miscBits = ((ct_raw >> l1ScoutingRun3::calol1::shiftsCaloTowers::miscBits) &
+                  l1ScoutingRun3::calol1::masksCaloTowers::miscBits);
+      phi = ((ct_raw >> l1ScoutingRun3::calol1::shiftsCaloTowers::phi) & l1ScoutingRun3::calol1::masksCaloTowers::phi);
 
-      eta = ((ct_raw >> l1ScoutingRun3::calol2::shiftsCaloTowers::eta) & l1ScoutingRun3::calol2::masksCaloTowers::eta);
+      eta = ((ct_raw >> l1ScoutingRun3::calol1::shiftsCaloTowers::eta) & l1ScoutingRun3::calol1::masksCaloTowers::eta);
       eta = eta >= 128 ? eta - 256 : eta;
 
       l1ScoutingRun3::CaloTower ct(ET, erBits, miscBits, eta, phi);

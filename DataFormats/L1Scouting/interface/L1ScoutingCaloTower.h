@@ -1,6 +1,7 @@
 #ifndef DataFormats_L1Scouting_L1ScoutingCaloTower_h
 #define DataFormats_L1Scouting_L1ScoutingCaloTower_h
 
+#include <cstdint>
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 
 namespace l1ScoutingRun3 {
