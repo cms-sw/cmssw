@@ -1644,7 +1644,7 @@ namespace mkfit {
       int ntimes = size / NN;
 #ifdef DEBUG_FIT
       std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-      std::cout << "ntimes " << ntimes << " size  " << second << " extra " << size - NN * ntimes << std::endl;
+      std::cout << "ntimes " << ntimes << " size  " << size << " extra " << size - NN * ntimes << std::endl;
 #endif
       for (int i = 0; i < ntimes; i++) {
 #ifdef DEBUG_FIT
