@@ -481,7 +481,6 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
           bend_res_is2S_barrel->Fill(bendRes);
         }
       } else {
-        // --- ENDCAP LOGIC ---
         
         // Fill Summary Endcap plots
         if (isPSmodule) {
@@ -525,10 +524,6 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
           }
         }
       }
-
-      // --- SAFE FILLING ---
-      // Now we fill the vector. Because of the logic above, 
-      // phi_res_vec is guaranteed to match the isBarrel state.
       
       if (isBarrel) {
         if (layer >= 1 && layer <= trklet::N_LAYER) {
@@ -694,7 +689,7 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
     // NEW LOGIC: "Flag Method" (One entry per TP)
     // --------------------------------------------------------------------------------
 
-    // 1. Check for Clusters (Denominator Flags)
+    // Check for Clusters (Denominator Flags)
     bool hasBarrelCluster = false;
     bool hasEndcapCluster = false;
 
@@ -711,8 +706,8 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     }
 
-    // 2. Check for Stubs (Numerator Flags)
-    // Using direct reference matching (Safe & Fast)
+    // Check for Stubs (Numerator Flags)
+    // Using direct reference matching
     bool hasBarrelStub = false;
     bool hasEndcapStub = false;
 
@@ -729,7 +724,7 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     }
 
-    // 3. Fill Histograms (Once per TP)
+    // Fill Histograms (Once per TP)
     
     // Barrel Region
     if (hasBarrelCluster) {
