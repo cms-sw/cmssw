@@ -4,6 +4,7 @@
 #include <alpaka/alpaka.hpp>
 #include "DataFormats/Common/interface/StdArray.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 
 #include "RecoTracker/LSTCore/interface/Common.h"
 
@@ -43,6 +44,28 @@ namespace lst {
   using TripletsOccupancySoA = TripletsOccupancySoALayout<>;
   using TripletsOccupancy = TripletsOccupancySoA::View;
   using TripletsOccupancyConst = TripletsOccupancySoA::ConstView;
+
+  GENERATE_SOA_BLOCKS(TripletsSoABlocksLayout,
+                      SOA_BLOCK(triplets, TripletsSoALayout),
+                      SOA_BLOCK(tripletsOccupancy, TripletsOccupancySoALayout))
+
+  using TripletsSoABlocks = TripletsSoABlocksLayout<>;
+  using TripletsSoABlocksView = TripletsSoABlocks::View;
+  using TripletsSoABlocksConstView = TripletsSoABlocks::ConstView;
+
+  // Template based accessor for getting specific SoA views. Needed in LSTEvent.dev.cc
+  template <typename TSoA>
+  struct TripletsViewAccessor;
+
+  template <>
+  struct TripletsViewAccessor<TripletsSoA> {
+    static constexpr auto get(auto const& v) { return v.triplets(); }
+  };
+
+  template <>
+  struct TripletsViewAccessor<TripletsOccupancySoA> {
+    static constexpr auto get(auto const& v) { return v.tripletsOccupancy(); }
+  };
 
 }  // namespace lst
 #endif

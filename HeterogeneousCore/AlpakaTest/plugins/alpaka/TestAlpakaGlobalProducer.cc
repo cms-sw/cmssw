@@ -23,7 +23,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TestAlpakaGlobalProducer(edm::ParameterSet const& config)
         : EDProducer<>(config),
           esToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
-          esMultiToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSourceMulti"))),
+          esBlocksToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSourceBlocks"))),
           deviceToken_{produces()},
           deviceTokenMulti2_{produces()},
           deviceTokenMulti3_{produces()},
@@ -36,11 +36,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       [[maybe_unused]] auto const& esData = iSetup.getData(esToken_);
-      [[maybe_unused]] auto const& esMultiData = iSetup.getData(esMultiToken_);
+      [[maybe_unused]] auto const& esBlocksData = iSetup.getData(esBlocksToken_);
 
       portabletest::TestDeviceCollection deviceProduct{size_, iEvent.queue()};
-      portabletest::TestDeviceMultiCollection2 deviceProductMulti2{{{size_, size2_}}, iEvent.queue()};
-      portabletest::TestDeviceMultiCollection3 deviceProductMulti3{{{size_, size2_, size3_}}, iEvent.queue()};
+      portabletest::TestDeviceCollection2 deviceProductMulti2{iEvent.queue(), size_, size2_};
+      portabletest::TestDeviceCollection3 deviceProductMulti3{iEvent.queue(), size_, size2_, size3_};
 
       // run the algorithm, potentially asynchronously
       algo_.fill(iEvent.queue(), deviceProduct);
@@ -55,7 +55,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add("eventSetupSource", edm::ESInputTag{});
-      desc.add("eventSetupSourceMulti", edm::ESInputTag{});
+      desc.add("eventSetupSourceBlocks", edm::ESInputTag{});
 
       edm::ParameterSetDescription psetSize;
       psetSize.add<int32_t>("alpaka_serial_sync");
@@ -68,10 +68,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const device::ESGetToken<AlpakaESTestDataADevice, AlpakaESTestRecordA> esToken_;
-    const device::ESGetToken<AlpakaESTestDataACMultiDevice, AlpakaESTestRecordA> esMultiToken_;
+    const device::ESGetToken<AlpakaESTestDataACBlocksDevice, AlpakaESTestRecordA> esBlocksToken_;
     const device::EDPutToken<portabletest::TestDeviceCollection> deviceToken_;
-    const device::EDPutToken<portabletest::TestDeviceMultiCollection2> deviceTokenMulti2_;
-    const device::EDPutToken<portabletest::TestDeviceMultiCollection3> deviceTokenMulti3_;
+    const device::EDPutToken<portabletest::TestDeviceCollection2> deviceTokenMulti2_;
+    const device::EDPutToken<portabletest::TestDeviceCollection3> deviceTokenMulti3_;
     const int32_t size_;
     const int32_t size2_;
     const int32_t size3_;
