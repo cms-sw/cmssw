@@ -16,7 +16,7 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/Records"/>
-<use name="PhysicsTools/TensorFlow" />
+<use name="PhysicsTools/ONNXRuntime" />
 <use name="PhysicsTools/XGBoost" />
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>

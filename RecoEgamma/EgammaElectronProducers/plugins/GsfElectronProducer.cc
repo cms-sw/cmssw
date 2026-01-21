@@ -304,16 +304,16 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     edm::ParameterSetDescription psd1;
     psd1.add<bool>("enabled", false);
     psd1.add<double>("extetaboundary", 2.65);
-    psd1.add<std::string>("inputTensorName", "FirstLayer_input");
-    psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
+    psd1.add<std::string>("inputTensorName", "FirstLayer_input:0");
+    psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax:0");
 
     psd1.add<std::vector<std::string>>(
         "modelsFiles",
-        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_modelDNN.pb",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEB/highpTEB_modelDNN.pb",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEE/highpTEE_modelDNN.pb",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/modelDNN.pb",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta2/modelDNN.pb"});
+        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_modelDNN.onnx",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEB/highpTEB_modelDNN.onnx",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEE/highpTEE_modelDNN.onnx",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/modelDNN.onnx",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta2/modelDNN.onnx"});
     psd1.add<std::vector<std::string>>(
         "scalersFiles",
         {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_scaler.txt",

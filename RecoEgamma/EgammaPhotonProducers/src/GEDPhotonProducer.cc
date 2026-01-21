@@ -48,7 +48,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonDNNEstimator.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/HcalPFClusterIsolation.h"
 #include "CondFormats/GBRForest/interface/GBRForest.h"
