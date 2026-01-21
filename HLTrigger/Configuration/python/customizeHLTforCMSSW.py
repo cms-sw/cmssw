@@ -209,6 +209,14 @@ def customizeHLTfor49799(process):
 
     return process
 
+def customizeHLTfor49852(process):
+    for prod in producers_by_type(process, 'HLTEcalPhiSymFilter'):
+        if not hasattr(prod, 'cleanReco'):
+            setattr(prod, 'cleanReco', cms.bool(False))
+        if not hasattr(prod, 'cleaningConfig'):
+            from RecoLocalCalo.EcalRecAlgos.ecalCleaningAlgo import cleaningAlgoConfig
+            setattr(prod, 'cleaningConfig', cleaningAlgoConfig)
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -220,5 +228,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customizeHLTfor49436(process)
 
     process = customizeHLTfor49799(process)
+    process = customizeHLTfor49852(process)
 
     return process
