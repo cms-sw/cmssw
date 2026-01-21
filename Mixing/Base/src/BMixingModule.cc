@@ -177,7 +177,9 @@ namespace {
 namespace edm {
 
   // Constructor
-  BMixingModule::BMixingModule(const edm::ParameterSet& pset, MixingCache::Config const* globalConf)
+  BMixingModule::BMixingModule(const edm::ParameterSet& pset,
+                               MixingCache::Config const* globalConf,
+                               SciTagCategoryForEmbeddedSources cat)
       : bunchSpace_(globalConf->bunchSpace_),
         vertexOffset_(0),
         minBunch_(globalConf->minBunch_),
@@ -191,7 +193,7 @@ namespace edm {
         const edm::ParameterSet& psin =
             pset.getParameter<edm::ParameterSet>(globalConf->inputConfigs_[makeIdx]->sourcename_);
         inputSources_.push_back(
-            std::make_shared<PileUp>(psin, globalConf->inputConfigs_[makeIdx], consumesCollector(), readDB_));
+            std::make_shared<PileUp>(psin, globalConf->inputConfigs_[makeIdx], consumesCollector(), readDB_, cat));
         inputSources_.back()->input(makeIdx);
       } else {
         inputSources_.push_back(nullptr);
