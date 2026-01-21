@@ -39,8 +39,8 @@ public:
 
 private:
   // these two are both on Host but originally they have been produced on Host or on Device
-  const edm::EDGetTokenT<ZVertexHost> tokenSoAVertexReferenceSoA_;
-  const edm::EDGetTokenT<ZVertexHost> tokenSoAVertexTargetSoA_;
+  const edm::EDGetTokenT<reco::ZVertexHost> tokenSoAVertexReferenceSoA_;
+  const edm::EDGetTokenT<reco::ZVertexHost> tokenSoAVertexTargetSoA_;
   const edm::EDGetTokenT<reco::BeamSpot> tokenBeamSpot_;
   const std::string topFolderName_;
   const float dzCut_;
@@ -63,8 +63,9 @@ private:
 
 SiPixelCompareVertices::SiPixelCompareVertices(const edm::ParameterSet& iConfig)
     : tokenSoAVertexReferenceSoA_(
-          consumes<ZVertexHost>(iConfig.getParameter<edm::InputTag>("pixelVertexReferenceSoA"))),
-      tokenSoAVertexTargetSoA_(consumes<ZVertexHost>(iConfig.getParameter<edm::InputTag>("pixelVertexTargetSoA"))),
+          consumes<reco::ZVertexHost>(iConfig.getParameter<edm::InputTag>("pixelVertexReferenceSoA"))),
+      tokenSoAVertexTargetSoA_(
+          consumes<reco::ZVertexHost>(iConfig.getParameter<edm::InputTag>("pixelVertexTargetSoA"))),
       tokenBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")),
       dzCut_(iConfig.getParameter<double>("dzCut")) {}
@@ -87,9 +88,9 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
   }
 
   auto const& vsoaRef = *vsoaHandleRef;
-  int nVerticesRef = vsoaRef.view().nvFinal();
+  int nVerticesRef = vsoaRef.view().zvertex().nvFinal();
   auto const& vsoaTar = *vsoaHandleTar;
-  int nVerticesTar = vsoaTar.view().nvFinal();
+  int nVerticesTar = vsoaTar.view().zvertex().nvFinal();
 
   auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
   float x0 = 0., y0 = 0., z0 = 0., dxdz = 0., dydz = 0.;
@@ -105,22 +106,22 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
   }
 
   for (int ivc = 0; ivc < nVerticesRef; ivc++) {
-    auto sic = vsoaRef.view()[ivc].sortInd();
-    auto zc = vsoaRef.view()[sic].zv();
+    auto sic = vsoaRef.view().zvertex()[ivc].sortInd();
+    auto zc = vsoaRef.view().zvertex()[sic].zv();
     auto xc = x0 + dxdz * zc;
     auto yc = y0 + dydz * zc;
     zc += z0;
 
-    auto ndofRef = vsoaRef.template view<reco::ZVertexTracksSoA>()[sic].ndof();
-    auto chi2Ref = vsoaRef.view()[sic].chi2();
+    auto ndofRef = vsoaRef.view().zvertexTracks()[sic].ndof();
+    auto chi2Ref = vsoaRef.view().zvertex()[sic].chi2();
 
     const int32_t notFound = -1;
     int32_t closestVtxidx = notFound;
     float mindz = dzCut_;
 
     for (int ivg = 0; ivg < nVerticesTar; ivg++) {
-      auto sig = vsoaTar.view()[ivg].sortInd();
-      auto zgc = vsoaTar.view()[sig].zv() + z0;
+      auto sig = vsoaTar.view().zvertex()[ivg].sortInd();
+      auto zgc = vsoaTar.view().zvertex()[sig].zv() + z0;
       auto zDist = std::abs(zc - zgc);
       //insert some matching condition
       if (zDist > dzCut_)
@@ -133,12 +134,12 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
     if (closestVtxidx == notFound)
       continue;
 
-    auto zg = vsoaTar.view()[closestVtxidx].zv();
+    auto zg = vsoaTar.view().zvertex()[closestVtxidx].zv();
     auto xg = x0 + dxdz * zg;
     auto yg = y0 + dydz * zg;
     zg += z0;
-    auto ndofTar = vsoaTar.template view<reco::ZVertexTracksSoA>()[closestVtxidx].ndof();
-    auto chi2Tar = vsoaTar.view()[closestVtxidx].chi2();
+    auto ndofTar = vsoaTar.view().zvertexTracks()[closestVtxidx].ndof();
+    auto chi2Tar = vsoaTar.view().zvertex()[closestVtxidx].chi2();
 
     hx_->Fill(xc - x0, xg - x0);
     hy_->Fill(yc - y0, yg - y0);
@@ -148,7 +149,7 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
     hzdiff_->Fill(zc - zg);
     hchi2_->Fill(chi2Ref, chi2Tar);
     hchi2oNdof_->Fill(chi2Ref / ndofRef, chi2Tar / ndofTar);
-    hptv2_->Fill(vsoaRef.view()[sic].ptv2(), vsoaTar.view()[closestVtxidx].ptv2());
+    hptv2_->Fill(vsoaRef.view().zvertex()[sic].ptv2(), vsoaTar.view().zvertex()[closestVtxidx].ptv2());
     hntrks_->Fill(ndofRef + 1, ndofTar + 1);
   }
   hnVertex_->Fill(nVerticesRef, nVerticesTar);

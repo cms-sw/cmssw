@@ -37,7 +37,7 @@ namespace edmtest {
 
   void TestWriteHostHitSoA::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
     HitsOnHost hits(cms::alpakatools::host(), hitSize_, 100);
-    auto hitsView = hits.view();
+    auto hitsView = hits.view().trackingHits();
     for (unsigned int i = 0; i < hitSize_; ++i) {
       hitsView[i].xGlobal() = float(i);
     }
