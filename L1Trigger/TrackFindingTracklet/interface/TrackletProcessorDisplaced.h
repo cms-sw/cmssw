@@ -22,7 +22,6 @@ namespace trklet {
   class AllStubsMemory;
   class AllInnerStubsMemory;
   class VMStubsTEMemory;
-  class StubPairsMemory;
 
   class TrackletProcessorDisplaced : public TrackletCalculatorDisplaced {
   public:
