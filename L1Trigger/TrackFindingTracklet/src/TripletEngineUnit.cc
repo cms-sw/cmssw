@@ -18,14 +18,15 @@ TripletEngineUnit::TripletEngineUnit(const Settings* const settings,
                                      unsigned int iSeed,
                                      std::vector<VMStubsTEMemory*> innervmstubs,
                                      std::vector<VMStubsTEMemory*> outervmstubs)
-    : settings_(settings), candtriplets_(3) {
-  idle_ = true;
-  layerdisk1_ = layerdisk1;
-  layerdisk2_ = layerdisk2;
-  layerdisk3_ = layerdisk3;
-  iSeed_ = iSeed;
-  innervmstubs_ = innervmstubs;
-  outervmstubs_ = outervmstubs;
+    : innervmstubs_{std::move(innervmstubs)},
+      outervmstubs_{std::move(outervmstubs)},
+      settings_{settings},
+      layerdisk1_{layerdisk1},
+      layerdisk2_{layerdisk2},
+      layerdisk3_{layerdisk3},
+      iSeed_{iSeed},
+      candtriplets_(3) {
+  setNearFull();
 }
 
 void TripletEngineUnit::init(const TrpEData& trpdata) {
