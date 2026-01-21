@@ -1,12 +1,9 @@
 <iftool name="cuda-gcc-support">
-  <library file="*.cc *.cu" name="HeterogeneousCoreCUDATestPlugins">
-    <flags EDM_PLUGIN="1"/>
-    <use name="CUDADataFormats/Common"/>
+  <library file="*.cc" name="HeterogeneousCoreCUDATestPlugins">
+    <use name="cuda"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
-    <use name="HeterogeneousCore/CUDACore"/>
-    <use name="HeterogeneousCore/CUDAUtilities"/>
-    <use name="cuda"/>
+    <use name="HeterogeneousCore/CUDATest"/>
+    <flags EDM_PLUGIN="1"/>
   </library>
-
 </iftool>
