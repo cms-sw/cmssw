@@ -16,8 +16,8 @@ gedPhotonsTmp = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone
     reconstructionStep     = "tmp",
     #Photon PFID DNN model configuration
     PhotonDNNPFid = dict(
-        modelsFiles = [ "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EB/barrel_modelDNN.pb",
-                        "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EE/endcap_modelDNN.pb"],
+        modelsFiles = [ "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EB/barrel_modelDNN.onnx",
+                        "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EE/endcap_modelDNN.onnx"],
         scalersFiles = [
                     "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EB/barrel_scaler.txt",
                     "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EE/endcap_scaler.txt"]
