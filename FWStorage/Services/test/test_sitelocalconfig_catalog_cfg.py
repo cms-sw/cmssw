@@ -9,12 +9,12 @@ process.tester = cms.EDAnalyzer("SiteLocalConfigServiceCatalogTester",
         cms.untracked.PSet(
             file = cms.untracked.string("/store/a/b.root"),
             catalogIndex = cms.untracked.uint32(0),
-            expectResult = cms.untracked.string("root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/a/b.root")
+            expectResult = cms.untracked.string("root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/a/b.root?scitag.flow=196664")
         ),
         cms.untracked.PSet(
             file = cms.untracked.string("/store/a/b.root"),
             catalogIndex = cms.untracked.uint32(1),
-            expectResult = cms.untracked.string("root://xrootd-cms.infn.it//store/a/b.root")
+            expectResult = cms.untracked.string("root://xrootd-cms.infn.it//store/a/b.root?scitag.flow=196664")
         ),
     )
 )
