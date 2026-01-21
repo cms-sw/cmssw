@@ -53,14 +53,15 @@ int main() {
       constexpr auto nTracks = 1000;
       constexpr auto nHits = nTracks * 5;
 
-      TracksSoACollection tracks_d({{nTracks, nHits}}, queue);
-      testTrackSoA::runKernels(tracks_d.view(), queue);
+      TracksSoACollection tracks_d(queue, nTracks, nHits);
+      auto tracksView = tracks_d.view().tracks();
+      testTrackSoA::runKernels(tracksView, queue);
 
       // Instantate tracks on host. This is where the data will be
       // copied to from device.
-      ::reco::TracksHost tracks_h({{nTracks, nHits}}, queue);
+      ::reco::TracksHost tracks_h(queue, nTracks, nHits);
 
-      std::cout << "no. of tracks = " << tracks_h.view().metadata().size() << std::endl;
+      std::cout << "no. of tracks = " << tracks_h.view().tracks().metadata().size() << std::endl;
       alpaka::memcpy(queue, tracks_h.buffer(), tracks_d.const_buffer());
       alpaka::wait(queue);
 
@@ -78,9 +79,10 @@ int main() {
                 << "hitIndices off" << std::endl;
 
       for (int i = 0; i < 10; ++i) {
-        std::cout << tracks_h.view()[i].pt() << "\t" << tracks_h.view()[i].eta() << "\t" << tracks_h.view()[i].chi2()
-                  << "\t" << (int)tracks_h.view()[i].quality() << "\t" << (int)tracks_h.view()[i].nLayers() << "\t"
-                  << tracks_h.view()[i].hitOffsets() << std::endl;
+        std::cout << tracks_h.view().tracks()[i].pt() << "\t" << tracks_h.view().tracks()[i].eta() << "\t"
+                  << tracks_h.view().tracks()[i].chi2() << "\t" << (int)tracks_h.view().tracks()[i].quality() << "\t"
+                  << (int)tracks_h.view().tracks()[i].nLayers() << "\t" << tracks_h.view().tracks()[i].hitOffsets()
+                  << std::endl;
       }
     }
   }
