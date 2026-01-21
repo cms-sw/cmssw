@@ -33,7 +33,7 @@ namespace p2eg {
   static constexpr int n_towers_Phi = 72;
   static constexpr int n_towers_halfPhi = 36;
   static constexpr int n_towers_cardEta = 17;  // new: equivalent to n_towers_per_link
-  static constexpr int n_towers_cardPhi = 4;
+  static constexpr int n_towers_cardPhi = 5;
   static constexpr int n_crystals_cardEta = (n_towers_Eta * n_towers_cardEta);
   static constexpr int n_crystals_cardPhi = (n_towers_Phi * n_towers_cardPhi);
 
@@ -86,7 +86,7 @@ namespace p2eg {
   static constexpr int N_GCTINTERNAL_FIBERS = 64;
   static constexpr int N_GCTPOSITIVE_FIBERS = 32;
   static constexpr int N_GCTETA = 34;
-  static constexpr int N_GCTPHI = 32;
+  static constexpr int N_GCTPHI = 36;
 
   // for emulator: "top" of the GCT card in phi is tower idx 20, for GCT card #0:
   static constexpr int GCTCARD_0_TOWER_IPHI_OFFSET = 20;
@@ -98,10 +98,10 @@ namespace p2eg {
 
   // Outputs to correlator
   // Fixed number of EG and PF clusters per RCT card in each output SLR
-  static const int N_EG_CLUSTERS_PER_RCT_CARD = 9;
-  static const int N_PF_CLUSTERS_PER_RCT_CARD = 12;
+  static const int N_EG_CLUSTERS_PER_RCT_CARD = 4; // each eta side
+  static const int N_PF_CLUSTERS_PER_RCT_CARD = 6; // each eta side
   // Height of one SLR region in phi in degrees
-  static constexpr float PHI_RANGE_PER_SLR_DEGREES = 120;
+  static constexpr float PHI_RANGE_PER_SLR_DEGREES = 120; // including overlap
 
   //////////////////////////////////////////////////////////////////////////
   // RCT: indexing helper functions
@@ -1256,20 +1256,30 @@ namespace p2eg {
      * unique to each GCT card.
      */
     l1tp2::DigitizedClusterCorrelator createDigitizedClusterCorrelator(const int corrTowPhiOffset) const {
+	  // Sascha eta and phi
+          //ap_uint<7> abseta = 0 ;
+	  ap_uint<8> abseta = 0 ;
+          ap_uint<10> spare = 0 ;
+          if(globalClusteriEta()>85) {abseta = globalClusteriEta() - 85 ; spare = 4 ; }
+          else { abseta = 85 - globalClusteriEta() ; spare = 0 ; }
+
+          ap_int<8> tmpphi = (((towPhi - corrTowPhiOffset) * CRYSTALS_IN_TOWER_PHI) + crPhi) ;
+          if( tmpphi < 60) {spare = spare | 3;}
+          else {tmpphi = tmpphi - 60 ; spare = spare | 1 ;}
+          ap_int<7> phivscenter = ap_int<7>(tmpphi - 30) ;
+	  //if (et > 100) std::cout<<"createDigitizedClusterCorrelator: "<<et<<"\t"<<abseta<<"\t"<<"tmpphi :"<<tmpphi<<"\t"<<"phivscenter: "<<phivscenter<<"\t"<<"nGCTCard: "<<nGCTCard<<"\t"<<"towPhi: "<<towPhi<<"\t"<<"corrTowPhiOffset: "<<corrTowPhiOffset<<"\t"<<"crPhi: "<<crPhi<<"\t"<<"globalToweriPhi(): "<<globalToweriPhi()<<"\t"<<"globalClusteriEta: "<<globalClusteriEta()<<"\t"<<"spare: "<<spare<<std::endl;
       return l1tp2::DigitizedClusterCorrelator(
-          etFloat(),  // technically we are just multiplying and then dividing again by the LSB
-          globalClusteriEta(),
-          ((towPhi - corrTowPhiOffset) * CRYSTALS_IN_TOWER_PHI) +
-              crPhi,  // cannot use globalClusteriPhi() helper function because correlator offset is different than GCT offset
-          hoe,
-          hoe_flag,
-          iso,
-          (is_iso) | (is_looseTkiso << 1),  // 2 bits: e.g. 0b10 means is_looseTkiso was true, and is_iso was false
-          fb,
-          timing,
-          (is_ss) | (is_looseTkss << 1),  // 2 bits (same as iso flags) is_ss in lowest bit, is_looseTkss in higher bit
-          brems,
-          nGCTCard);
+          et,  // technically we are just multiplying and then dividing again by the LSB
+          abseta,
+          phivscenter,
+          ap_uint<6>(0x3F) ,
+          ap_uint<6>(0x3F) ,
+          ap_uint<6>(0x3F) ,
+          ap_uint<3>(0x7) ,
+          ap_uint<5>(timing),
+          ap_uint<2>(brems),
+          ap_uint<10>(spare) ,
+          nGCTCard, true ) ;
     }
 
     /*

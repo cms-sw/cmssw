@@ -25,10 +25,11 @@ namespace l1tp2 {
     static constexpr unsigned int n_bits_unused_start = 63;  // unused bits start at bit 63
 
     // "top" of the correlator card #0 in GCT coordinates is iPhi tower index 24
-    static constexpr int correlatorCard0_tower_iphi_offset = 24;
+    // Pallabi: changed offset values to correctly calculate realPhi() following L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h
+    static constexpr int correlatorCard0_tower_iphi_offset = 20;
     // same but for correlator cards #1 and 2 (cards wrap around phi = 180 degrees):
-    static constexpr int correlatorCard1_tower_iphi_offset = 48;
-    static constexpr int correlatorCard2_tower_iphi_offset = 0;
+    static constexpr int correlatorCard1_tower_iphi_offset = 44;
+    static constexpr int correlatorCard2_tower_iphi_offset = 68;
 
     // Private member functions to perform digitization
     ap_uint<12> digitizePt(float pt_f) {
@@ -41,28 +42,27 @@ namespace l1tp2 {
       return (ap_uint<12>)(pt_f / LSB_PT);
     }
 
-    ap_uint<8> digitizeIEtaCr(unsigned int iEtaCr) { return (ap_uint<8>)iEtaCr; }
+    ap_uint<7> digitizeEta(unsigned int iEtaCr) { return (ap_uint<7>)iEtaCr; }
 
-    ap_uint<7> digitizeIPhiCr(unsigned int iPhiCr) { return (ap_uint<7>)iPhiCr; }
+    ap_uint<7> digitizePhi(unsigned int iPhiCr) { return (ap_uint<7>)iPhiCr; }
 
     // To-do: HoE is not defined for clusters
-    ap_uint<4> digitizeHoE(unsigned int hoe) { return (ap_uint<4>)hoe; }
-    ap_uint<2> digitizeHoeFlag(unsigned int hoeFlag) { return (ap_uint<2>)hoeFlag; }
+    ap_uint<6> digitizeHoE(unsigned int hoe) { return (ap_uint<6>)hoe; }
 
-    ap_uint<3> digitizeIso(unsigned int iso) { return (ap_uint<3>)iso; }
-    ap_uint<2> digitizeIsoFlag(unsigned int isoFlag) { return (ap_uint<2>)isoFlag; }
+    ap_uint<6> digitizeIso(unsigned int iso) { return (ap_uint<6>)iso; }
+    ap_uint<6> digitizeShape(unsigned int shape) { return (ap_uint<6>)shape; }
 
-    // To-do: fb: no information yet
-    ap_uint<6> digitizeFb(unsigned int fb) { return (ap_uint<6>)fb; }
+    // To-do: WP: no information yet
+    ap_uint<3> digitizeWP(unsigned int wp) { return (ap_uint<3>)wp; }
 
     // To-do: timing: no information yet
     ap_uint<5> digitizeTiming(unsigned int timing) { return (ap_uint<5>)timing; }
 
-    // Shape: shower shape working point
-    ap_uint<2> digitizeShapeFlag(unsigned int shapeFlag) { return (ap_uint<2>)shapeFlag; }
-
     // TO-DO: Brems: was brems applied (NOT STORED YET IN GCT)
     ap_uint<2> digitizeBrems(unsigned int brems) { return (ap_uint<2>)brems; }
+
+    // TO-DO: Spare
+    ap_uint<10> digitizeSpare(unsigned int spare) { return (ap_uint<10>)spare; }
 
   public:
     DigitizedClusterCorrelator() { clusterData = 0x0; }
@@ -71,45 +71,22 @@ namespace l1tp2 {
 
     // Constructor from digitized inputs
     DigitizedClusterCorrelator(ap_uint<12> pt,
-                               ap_uint<8> etaCr,
-                               ap_uint<7> phiCr,
-                               ap_uint<4> hoe,
-                               ap_uint<2> hoeFlag,
-                               ap_uint<3> iso,
-                               ap_uint<2> isoFlag,
-                               ap_uint<6> fb,
+                               ap_uint<7> eta,
+                               ap_int<7> phi,
+                               ap_uint<6> hoe,
+                               ap_uint<6> iso,
+                               ap_uint<6> shape,
+                               ap_uint<3> wp,
                                ap_uint<5> timing,
-                               ap_uint<2> shapeFlag,
                                ap_uint<2> brems,
+                               ap_uint<10> spare,
                                int iGCTCard,
                                bool fullydigitizedInputs) {
-      (void)fullydigitizedInputs;
-      clusterData = ((ap_uint<64>)pt) | (((ap_uint<64>)etaCr) << 12) | (((ap_uint<64>)phiCr) << 20) |
-                    (((ap_uint<64>)hoe) << 27) | (((ap_uint<64>)hoeFlag) << 31) | (((ap_uint<64>)iso) << 36) |
-                    (((ap_uint<64>)isoFlag) << 38) | (((ap_uint<64>)fb) << 44) | (((ap_uint<64>)timing) << 49) |
-                    (((ap_uint<64>)shapeFlag << 51)) | (((ap_uint<64>)brems << 53));
-      idxGCTCard = iGCTCard;
-    }
-
-    // Constructor from float inputs
-    DigitizedClusterCorrelator(float pt_f,
-                               unsigned int iEtaCr,
-                               unsigned int iPhiCr,
-                               unsigned int hoe,
-                               unsigned int hoeFlag,
-                               unsigned int iso,
-                               unsigned int isoFlag,
-                               unsigned int fb,
-                               unsigned int timing,
-                               unsigned int shapeFlag,
-                               unsigned int brems,
-                               int iGCTCard) {
-      clusterData = (((ap_uint<64>)digitizePt(pt_f)) | ((ap_uint<64>)digitizeIEtaCr(iEtaCr) << 12) |
-                     ((ap_uint<64>)digitizeIPhiCr(iPhiCr) << 20) | ((ap_uint<64>)digitizeHoE(hoe) << 27) |
-                     ((ap_uint<64>)digitizeHoeFlag(hoeFlag) << 31) | ((ap_uint<64>)digitizeIso(iso) << 36) |
-                     ((ap_uint<64>)digitizeIsoFlag(isoFlag) << 38) | ((ap_uint<64>)digitizeFb(fb) << 44) |
-                     ((ap_uint<64>)digitizeTiming(timing) << 49) | ((ap_uint<64>)digitizeShapeFlag(shapeFlag) << 51) |
-                     ((ap_uint<64>)digitizeBrems(brems) << 53));
+      (void)fullydigitizedInputs;  // what is this?
+      clusterData = ((ap_uint<64>)pt) | (((ap_uint<64>)eta) << 12) | (((ap_uint<64>)(phi & 0x7F)) << 19) |
+                    (((ap_uint<64>)hoe) << 26) | (((ap_uint<64>)iso) << 32) |
+                    (((ap_uint<64>)shape) << 38) | (((ap_uint<64>)wp) << 44) | (((ap_uint<64>)timing) << 47) |
+                    (((ap_uint<64>)brems) << 52) | (((ap_uint<64>)spare) << 54);
       idxGCTCard = iGCTCard;
     }
 
@@ -121,45 +98,33 @@ namespace l1tp2 {
     float ptFloat() const { return (pt() * ptLSB()); }
 
     // crystal eta in the correlator region (LSB: 2.8/170)
-    ap_uint<8> eta() const { return ((clusterData >> 12) & 0xFF); }  // (eight 1's) 0b11111111 = 0xFF
+    ap_uint<7> eta() const { return ((clusterData >> 12) & 0x7F); }  // (eight 1's) 0b11111111 = 0xFF   // not eight but seven?
 
     // crystal phi in the correlator region (LSB: 2pi/360)
-    ap_uint<7> phi() const { return ((clusterData >> 20) & 0x7F); }  // (seven 1's) 0b1111111 = 0x7F
+    ap_int<7> phi() const { return ((clusterData >> 19) & 0x7F); }  // (seven 1's) 0b1111111 = 0x7F
 
-    // HoE value and flag: not defined yet in the emulator
-    ap_uint<4> hoe() const { return ((clusterData >> 27) & 0xF); }      // (four 1's) 0b1111 = 0xF
-    ap_uint<2> hoeFlag() const { return ((clusterData >> 31) & 0x3); }  // (two 1's) 0b11 = 0x3
+    // HoE value and flag: not defined yet in the emulator 
+    ap_uint<6> hoe() const { return ((clusterData >> 26) & 0x3F); }      // (four 1's) 0b1111 = 0xF // split 6 bits in 4 and 2?
 
     // Raw isolation sum: not saved in the emulator
-    ap_uint<3> iso() const { return ((clusterData >> 36) & 0x7); }
+    ap_uint<6> iso() const { return ((clusterData >> 32) & 0x3F); } // split 6 bits in 4 and 2? passes_iso and passes_looseTkiso defined in emulator?
 
-    // iso flag: two bits, least significant bit is the standalone WP (true or false), second bit is the looseTk WP (true or false)
-    // e.g. 0b01 : standalone iso flag passed, loose Tk iso flag did not pass
-    ap_uint<2> isoFlags() const { return ((clusterData >> 38) & 0x3); }  // (two 1's) 0b11 = 0x3
-    bool passes_iso() const { return (isoFlags() & 0x1); }               // standalone iso WP
-    bool passes_looseTkiso() const { return (isoFlags() & 0x2); }        // loose Tk iso WP
+    ap_uint<6> shape() const { return ((clusterData >> 38) & 0x3F); } // shape flags not defined?
 
-    // fb and timing: not saved in the current emulator
-    ap_uint<6> fb() const { return ((clusterData >> 44) & 0x3F); }
-    ap_uint<5> timing() const { return ((clusterData >> 49) & 0x1F); }
+    // wp: not saved in the current emulator
+    ap_uint<3> wp() const { return ((clusterData >> 44) & 0x7); } //passes_iso and passes_looseTkiso defined in emulator?
 
-    // shower shape shape flag: two bits, least significant bit is the standalone WP, second bit is the looseTk WP
-    // e.g. 0b01 : standalone shower shape flag passed, loose Tk shower shape flag did not pass
-    ap_uint<2> shapeFlags() const { return ((clusterData >> 51) & 0x3); }
-
-    bool passes_ss() const { return (shapeFlags() & 0x1); }         // standalone shower shape WP
-    bool passes_looseTkss() const { return (shapeFlags() & 0x2); }  // loose Tk shower shape WP
+    // timing: not saved in the current emulator
+    ap_uint<5> timing() const { return ((clusterData >> 47) & 0x1F); }
 
     // brems: not saved in the current emulator
-    ap_uint<2> brems() const { return ((clusterData >> 53) & 0x3); }
+    ap_uint<2> brems() const { return ((clusterData >> 52) & 0x3); }
+
+    ap_uint<10> spare() const { return ((clusterData >> 54) & 0x3FF); }
 
     // which GCT card (0, 1, or 2)
-    unsigned int cardNumber() const { return idxGCTCard; }
-
-    const int unusedBitsStart() const { return n_bits_unused_start; }
-
-    // Other checks
-    bool passNullBitsCheck(void) const { return ((data() >> unusedBitsStart()) == 0x0); }
+    // Pallabi: this is currently set incorrectly in L1Trigger/L1CaloTrigger/plugins/Phase2L1CaloEGammaEmulator.cc so only use it to get realPhi()
+    //unsigned int cardNumber() const { return idxGCTCard; }
 
     // Get real eta (does not depend on card number). crystal iEta = 0 starts at real eta -1.4841.
     // LSB_ETA/2 is to add half a crystal width to get the center of the crystal in eta
@@ -169,18 +134,48 @@ namespace l1tp2 {
     float realPhi() const {
       // each card starts at a different real phi
       int offset_tower = 0;
-      if (cardNumber() == 0) {
+      if (idxGCTCard == 0) {
         offset_tower = correlatorCard0_tower_iphi_offset;
-      } else if (cardNumber() == 1) {
+      } else if (idxGCTCard == 1) {
         offset_tower = correlatorCard1_tower_iphi_offset;
-      } else if (cardNumber() == 2) {
+      } else if (idxGCTCard == 2) {
         offset_tower = correlatorCard2_tower_iphi_offset;
       }
-      int thisPhi = (phi() + (offset_tower * n_crystals_in_tower));
-      // crystal iPhi = 0 starts at real phi = -180 degrees
-      // LSB_PHI/2 is to add half a crystal width to get the center of the crystal in phi
-      return (float)((-1 * M_PI) + (thisPhi * LSB_PHI) + (LSB_PHI / 2));
+
+      int thisPhi = (phi() + 30); // add back the offset from L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h 
+      int tmpphi = thisPhi;
+      bool wrapped = ((spare() & 0x2) == 0);
+      if (wrapped) { tmpphi = thisPhi + 60; } // add back the offset from L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h
+      int crPhi = phi() % 5;
+      if (phi() < 0) crPhi = (30 + phi()) % 5;
+      int towPhi = (tmpphi - crPhi) / 5  + 4; // corrTowPhiOffset = 4
+
+      int iPhi_in_gctCard = (towPhi * 5) + crPhi;
+      int globalClusteriPhi = (offset_tower * 5 + iPhi_in_gctCard) % (5 * 72); // CRYSTALS_IN_TOWER_PHI * n_towers_phi
+      float size_cell = 2 * M_PI / (5 * 72); // CRYSTALS_IN_TOWER_PHI * n_towers_phi
+      return globalClusteriPhi * size_cell - M_PI + 0.00873; // half_crystal_size = 0.00873
     }
+
+    // which GCT card (0, 1, or 2)
+    unsigned int cardNumber() const {
+      float phiInDegrees = realPhi()* 180 / M_PI + 180;
+      int cardnumber = 0;
+      if (phiInDegrees > 160 && phiInDegrees < 280) cardnumber = 0;
+      if ((phiInDegrees > 280 && phiInDegrees < 360) || phiInDegrees < 40) cardnumber = 1;
+      if (phiInDegrees > 40 && phiInDegrees < 160) cardnumber = 2;
+      if (pt() == 96) std::cout<<realPhi()<<"\t"<<phiInDegrees<<"\t"<<cardnumber<<std::endl;
+      return cardnumber;
+    }
+
+    unsigned int slrNumber() const {
+      float phiInDegrees = realPhi()* 180 / M_PI + 180;
+      int slrnumber = 3;
+      if (cardNumber() == 0 && phiInDegrees > 220) slrnumber = 1;
+      if (cardNumber() == 1 && (phiInDegrees > 340 || phiInDegrees < 40)) slrnumber = 1;
+      if (cardNumber() == 2 && phiInDegrees > 100) slrnumber = 1;
+      return slrnumber;
+     }
+
   };
 
   // Collection typedef
