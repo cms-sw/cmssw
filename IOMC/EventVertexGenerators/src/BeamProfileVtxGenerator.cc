@@ -109,9 +109,9 @@ ROOT::Math::XYZTVector BeamProfileVtxGenerator::vertexShift(CLHEP::HepRandomEngi
 
   double xp, yp, zp;
   if (2. * M_PI < fabs(fPsi)) {
-    xp = -aX * cos(fTheta) * cos(fPhi) + aY * sin(fPhi) + fMeanZ * sin(fTheta) * cos(fPhi);
-    yp = -aX * cos(fTheta) * sin(fPhi) - aY * cos(fPhi) + fMeanZ * sin(fTheta) * sin(fPhi);
-    zp = aX * sin(fTheta) + fMeanZ * cos(fTheta);
+    xp = aX * cos(fTheta) * cos(fPhi) - aY * sin(fPhi) + fMeanZ * sin(fTheta) * cos(fPhi);
+    yp = aX * cos(fTheta) * sin(fPhi) + aY * cos(fPhi) + fMeanZ * sin(fTheta) * sin(fPhi);
+    zp = -aX * sin(fTheta) + fMeanZ * cos(fTheta);
   } else  // for endcap testbeam, use 3rd angle psi
   {
     const HepGeom::Vector3D<double> av(aX, aY, fMeanZ);
