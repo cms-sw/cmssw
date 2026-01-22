@@ -1,16 +1,4 @@
 <iftool name="cuda-gcc-support">
-  <bin file="test_*.cc test_*.cu" name="testHeterogeneousCoreCUDACore">
-    <use name="catch2"/>
-    <use name="cuda"/>
-    <use name="tbb"/>
-    <use name="CUDADataFormats/Common"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/ParameterSetReader"/>
-    <use name="FWCore/PluginManager"/>
-    <use name="FWCore/ServiceRegistry"/>
-    <use name="HeterogeneousCore/CUDACore"/>
-  </bin>
-
   <bin file="testStreamEvent.cu" name="testHeterogeneousCoreCUDACoreStreamEvent">
     <use name="cuda"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>

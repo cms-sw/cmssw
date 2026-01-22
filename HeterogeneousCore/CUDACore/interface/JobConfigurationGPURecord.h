@@ -1,8 +1,0 @@
-#ifndef HeterogeneousCore_CUDACore_interface_JobConfigurationGPURecord_h
-#define HeterogeneousCore_CUDACore_interface_JobConfigurationGPURecord_h
-
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-
-class JobConfigurationGPURecord : public edm::eventsetup::EventSetupRecordImplementation<JobConfigurationGPURecord> {};
-
-#endif  // HeterogeneousCore_CUDACore_interface_JobConfigurationGPURecord_h

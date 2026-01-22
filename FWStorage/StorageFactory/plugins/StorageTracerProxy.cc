@@ -50,7 +50,7 @@ namespace edm::storage {
           std::format("# {}: prefetch element of the preceding '{}' line\n", kPrefetch, kPrefetchElement) +
           std::format("# {}: resize\n", kResize) + std::format("# {}: flush\n", kFlush) +
           std::format("# {}: close\n", kClose) + "# --------\n"s + "# line formats\n"s +
-          std::format("# {} <id> <timestamp ms> <file name>\n", kOpen) +
+          std::format("# {} <id> <timestamp ms> <file name> <trace file id>\n", kOpen) +
           std::format("# {} <id> <timestamp ms> <duration us> <offset B> <requested B> <actual B>\n", kRead) +
           std::format(
               "# {} <id> <timestamp ms> <duration us> <requested total B> <actual total B> <number of elements>\n",
@@ -69,11 +69,12 @@ namespace edm::storage {
           std::format("# {} <id> <timestamp ms> <duration us>\n", kFlush) +
           std::format("# {} <id> <timestamp ms> <duration us>\n", kClose) + "# --------\n"s);
       auto const entryId = idCounter_.fetch_add(1);
-      file_.write(std::format("{} {} {} {}\n",
+      file_.write(std::format("{} {} {} {} {}\n",
                               kOpen,
                               entryId,
                               std::chrono::round<std::chrono::milliseconds>(now().time_since_epoch()).count(),
-                              storageUrl));
+                              storageUrl,
+                              traceId_));
       LogTrace("IOTrace").format("IOTrace {} id {}", traceId_, entryId);
     }
 
