@@ -21,13 +21,10 @@
 // system include files
 
 // user include files
+#include "DataFormats/JetReco/interface/JetFwd.h"
 
 // forward declarations
 class TEveJetCone;
-
-namespace reco {
-  class Jet;
-}
 
 namespace fireworks {
   class Context;

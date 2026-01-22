@@ -18,13 +18,10 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/JetReco/interface/JetFwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
-namespace reco {
-  class Jet;
-  class MET;
-}  // namespace reco
 
 class EwkDQM : public DQMEDAnalyzer {
 public:

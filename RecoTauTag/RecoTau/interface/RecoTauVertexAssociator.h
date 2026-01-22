@@ -21,6 +21,8 @@
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/JetReco/interface/JetFwd.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
@@ -38,11 +40,6 @@ namespace edm {
   class ParameterSet;
   class Event;
 }  // namespace edm
-
-namespace reco {
-  class PFTau;
-  class Jet;
-}  // namespace reco
 
 namespace reco {
   namespace tau {

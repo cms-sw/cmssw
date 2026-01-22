@@ -19,14 +19,13 @@
 
 #include <vector>
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/JetReco/interface/JetFwd.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauPluginsCommon.h"
+#include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace reco {
-  // Forward declarations
-  class Jet;
-  class RecoTauPiZero;
   namespace tau {
 
     class RecoTauPiZeroBuilderPlugin : public RecoTauEventHolderPlugin {

@@ -11,18 +11,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/JetReco/interface/JetFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
-namespace reco {
-  class Muon;
-  class Jet;
-  class MET;
-  class Vertex;
-  class Photon;
-  class BeamSpot;
-}  // namespace reco
 
 class EwkMuDQM : public DQMEDAnalyzer {
 public:

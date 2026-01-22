@@ -7,10 +7,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include <iostream>
 #include <vector>
-
-class Conversion;
 
 namespace reco {
 

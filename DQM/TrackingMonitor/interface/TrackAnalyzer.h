@@ -34,7 +34,6 @@ Monitoring source for general quantities related to tracks.
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
-class BeamSpot;
 namespace tadqm {
   class TrackAnalyzer {
   public:

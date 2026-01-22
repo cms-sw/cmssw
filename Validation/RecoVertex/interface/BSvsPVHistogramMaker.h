@@ -4,17 +4,13 @@
 #include <string>
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 
 namespace edm {
-  class ParameterSet;
   class Event;
 }  // namespace edm
-
-namespace reco {
-  class BeamSpot;
-}
 
 class TH1F;
 class TH2F;

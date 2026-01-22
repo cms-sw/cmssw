@@ -9,6 +9,7 @@
  */
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <set>
@@ -19,9 +20,6 @@ namespace edm {
   class Event;
   class ConsumesCollector;
 }  // namespace edm
-namespace reco {
-  class Candidate;
-}
 
 class GenJetParticleSelector {
 public:
