@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
 
-process = cms.Process("GeometryTest", Phase2C22I13M9,dd4hep)
+process = cms.Process("GeometryTest", Phase2C22I13M9)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -21,16 +20,10 @@ process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
 )
-process.MessageLogger.cerr.MTDDigiGeometryAnalyzer = cms.untracked.PSet(
-    limit = cms.untracked.int32(0)
+process.MessageLogger.cerr.GeometricTimingDetAnalyzer = cms.untracked.PSet(
+    limit = cms.untracked.int32(-1)
 )
-process.MessageLogger.cerr.DD4hep_TestPixelTopology = cms.untracked.PSet(
-    limit = cms.untracked.int32(0)
-)
-process.MessageLogger.cerr.MTDUnitTest = cms.untracked.PSet(
-    limit = cms.untracked.int32(0)
-)
-process.MessageLogger.files.mtdGeometryDD4hep = cms.untracked.PSet(
+process.MessageLogger.files.mtdNumberingDDD = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
     ),
@@ -53,19 +46,11 @@ process.MessageLogger.files.mtdGeometryDD4hep = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Geometry.MTDTBCommonData.GeometryDD4hepExtendedMTDTB2025Reco_cff')
+process.load('Geometry.MTDTBCommonData.GeometryExtendedMTDTB2025Reco_DUTinFront_cff')
 process.mtdTopology.isFull = False
 
 process.Timing = cms.Service("Timing")
 
-process.prod = cms.EDAnalyzer("MTDDigiGeometryAnalyzer")
-process.prod1 = cms.EDAnalyzer("DD4hep_TestPixelTopology",
-    DDDetector = cms.ESInputTag('',''),
-    ddTopNodeName = cms.untracked.string('BarrelTimingLayer')
-)
-process.prod2 = cms.EDAnalyzer("DD4hep_TestPixelTopology",
-    DDDetector = cms.ESInputTag('',''),
-    ddTopNodeName = cms.untracked.string('EndcapTimingLayer')
-)
+process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
 
-process.p1 = cms.Path(cms.wait(process.prod)+cms.wait(process.prod1)+process.prod2)
+process.p1 = cms.Path(process.prod)

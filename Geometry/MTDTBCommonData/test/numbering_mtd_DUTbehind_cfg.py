@@ -46,7 +46,7 @@ process.MessageLogger.files.mtdNumberingDDD = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Geometry.MTDTBCommonData.GeometryExtendedMTDTB2025Reco_cff')
+process.load('Geometry.MTDTBCommonData.GeometryExtendedMTDTB2025Reco_DUTbehind_cff')
 process.mtdTopology.isFull = False
 
 process.Timing = cms.Service("Timing")
