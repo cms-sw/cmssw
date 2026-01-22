@@ -1,4 +1,4 @@
-
+#define EDM_ML_DEBUG
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"

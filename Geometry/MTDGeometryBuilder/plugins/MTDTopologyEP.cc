@@ -32,16 +32,20 @@ private:
 
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
   edm::ESGetToken<PMTDParameters, PMTDParametersRcd> mtdparToken_;
+
+  bool isFull_;
 };
 
 MTDTopologyEP::MTDTopologyEP(const edm::ParameterSet& conf) {
   auto cc = setWhatProduced(this);
   mtdgeoToken_ = cc.consumesFrom<MTDGeometry, MTDDigiGeometryRecord>(edm::ESInputTag());
   mtdparToken_ = cc.consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag());
+  isFull_ = conf.getParameter<bool>("isFull");
 }
 
 void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription ttc;
+  ttc.add<bool>("isFull", true);
   descriptions.add("mtdTopology", ttc);
 }
 
@@ -64,7 +68,7 @@ MTDTopologyEP::ReturnType MTDTopologyEP::produce(const MTDTopologyRcd& iRecord) 
 void MTDTopologyEP::fillBTLtopology(const MTDGeometry& mtdgeo, MTDTopology::BTLValues& btlVals) {
   MTDTopology::BTLLayout tmpLayout;
   uint32_t index(0), iphi(1), ieta(0);
-  if (mtdgeo.detsBTL().size() != tmpLayout.nBTLmodules_) {
+  if ((mtdgeo.detsBTL().size() != tmpLayout.nBTLmodules_) && isFull_) {
     throw cms::Exception("MTDTopologyEP") << "Inconsistent size of BTL structure arrays";
   }
   for (const auto& det : mtdgeo.detsBTL()) {

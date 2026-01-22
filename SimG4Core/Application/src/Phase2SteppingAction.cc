@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include "SimG4Core/Application/interface/Phase2SteppingAction.h"
 #include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
