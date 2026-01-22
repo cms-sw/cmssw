@@ -247,8 +247,6 @@ namespace mkfit {
 #ifdef DEBUG_FIT
     const int DSLOT = 0;
     printf("fit entry, track in slot %d\n", DSLOT);
-    print_par_err(iC, DSLOT);
-    print_par_err(iC, 1);
     printf("\ninitial fit , track in slot %d --- (%g, %g, %g)\n",
            DSLOT,
            m_msPar(DSLOT, 0, 0),
