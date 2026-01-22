@@ -12,6 +12,8 @@
 
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,6 +27,8 @@ namespace edmtest {
     SiteLocalConfigServiceTester(const edm::ParameterSet& iPSet);
 
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     std::string m_cacheHint;
@@ -46,7 +50,7 @@ SiteLocalConfigServiceTester::SiteLocalConfigServiceTester(const edm::ParameterS
       m_readHint(iPSet.getUntrackedParameter<std::string>("sourceReadHint")),
       m_tempDir(iPSet.getUntrackedParameter<std::string>("sourceTempDir")),
       m_ttreeCacheSize(iPSet.getUntrackedParameter<unsigned int>("sourceTTreeCacheSize")),
-      m_nativeProtocols(iPSet.getUntrackedParameter<std::vector<std::string> >("sourceNativeProtocols")),
+      m_nativeProtocols(iPSet.getUntrackedParameter<std::vector<std::string>>("sourceNativeProtocols")),
       m_valuesSet(iPSet.getUntrackedParameter<bool>("sourceValuesSet", true)),
       m_expectedUseLocalConnectString(iPSet.getUntrackedParameter<bool>("expectedUseLocalConnectString")),
       m_expectedLocalConnectPrefix(iPSet.getUntrackedParameter<std::string>("expectedLocalConnectPrefix")),
@@ -135,6 +139,20 @@ void SiteLocalConfigServiceTester::analyze(edm::StreamID, const edm::Event&, con
     throw cms::Exception("TestFailure") << "The value of localConnectSuffix is \"" << pConfig->localConnectSuffix()
                                         << "\" but we expected the value \"" << m_expectedLocalConnectSuffix << "\"";
   }
+}
+
+void SiteLocalConfigServiceTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("sourceCacheHint");
+  desc.addUntracked<std::string>("sourceReadHint");
+  desc.addUntracked<std::string>("sourceTempDir");
+  desc.addUntracked<unsigned int>("sourceTTreeCacheSize");
+  desc.addUntracked<std::vector<std::string>>("sourceNativeProtocols");
+  desc.addUntracked<bool>("sourceValuesSet", true);
+  desc.addUntracked<bool>("expectedUseLocalConnectString");
+  desc.addUntracked<std::string>("expectedLocalConnectPrefix");
+  desc.addUntracked<std::string>("expectedLocalConnectSuffix");
+  descriptions.addDefault(desc);
 }
 
 DEFINE_FWK_MODULE(SiteLocalConfigServiceTester);

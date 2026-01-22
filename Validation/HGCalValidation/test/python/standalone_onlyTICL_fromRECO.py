@@ -7,7 +7,7 @@ from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
 options = VarParsing.VarParsing ('standard')
 options.register('inputFile', 'step3.root', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Input file")
 options.register('outputFile', 'step3_reReco_ticlOnly.root', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Output file")
-options.register ('globalTag', 'auto:phase2_realistic_T33', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag")
+options.register ('globalTag', 'auto:phase2_realistic_T35', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag")
 options.parseArguments()
 
 print("Input file: ", options.inputFile)

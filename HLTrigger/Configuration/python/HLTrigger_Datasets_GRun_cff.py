@@ -1,4 +1,4 @@
-# /dev/CMSSW_15_1_0/GRun
+# /dev/CMSSW_16_0_0/GRun
 
 import FWCore.ParameterSet.Config as cms
 
@@ -1741,6 +1741,7 @@ streamPhysicsBTagMuEGTau_datasetTau_selector.triggerConditions = cms.vstring(
     'HLT_DoubleMediumChargedIsoDisplacedPFTauHPS36_Trk1_eta2p1_v13',
     'HLT_DoublePNetTauhPFJet26_L2NN_eta2p3_PFJet60_v11',
     'HLT_DoublePNetTauhPFJet26_L2NN_eta2p3_PFJet75_v11',
+    'HLT_DoublePNetTauhPFJet30_Flat_L2NN_eta2p3_v11',
     'HLT_DoublePNetTauhPFJet30_Medium_L2NN_eta2p3_v11',
     'HLT_DoublePNetTauhPFJet30_Tight_L2NN_eta2p3_v11',
     'HLT_SinglePNetTauhPFJet130_Loose_L2NN_eta2p3_v11',
@@ -2868,6 +2869,7 @@ streamPhysicsMuon0_datasetMuon0_selector.triggerConditions = cms.vstring(
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet26_L2NN_eta2p3_CrossL1_PFJet60_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet26_L2NN_eta2p3_CrossL1_PFJet75_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet26_L2NN_eta2p3_CrossL1_v11',
+    'HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Flat_L2NN_eta2p3_CrossL1_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Loose_eta2p3_CrossL1_ETau_Monitoring_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_eta2p3_CrossL1_ETau_Monitoring_v11',
@@ -3007,6 +3009,7 @@ streamPhysicsMuon1_datasetMuon1_selector.triggerConditions = cms.vstring(
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet26_L2NN_eta2p3_CrossL1_PFJet60_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet26_L2NN_eta2p3_CrossL1_PFJet75_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet26_L2NN_eta2p3_CrossL1_v11',
+    'HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Flat_L2NN_eta2p3_CrossL1_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Loose_eta2p3_CrossL1_ETau_Monitoring_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1_v11',
     'HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_eta2p3_CrossL1_ETau_Monitoring_v11',
@@ -3089,6 +3092,8 @@ streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditio
     'DST_PFScouting_DoubleEGMonitorZ_v2',
     'DST_PFScouting_DoubleMuonVtxMonitorJPsi_v5',
     'DST_PFScouting_DoubleMuonVtxMonitorZ_v5',
+    'DST_PFScouting_SingleMuonMonitorJPsi_v1',
+    'DST_PFScouting_SingleMuonMonitorZ_v1',
     'DST_PFScouting_SinglePhotonEBMonitorJPsi_v2',
     'DST_PFScouting_SinglePhotonEBMonitorZ_v2',
     'HLT_TriggersForScoutingPFMonitor_PS1000_v1',

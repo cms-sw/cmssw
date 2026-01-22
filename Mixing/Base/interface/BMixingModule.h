@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Sources/interface/SciTagCategoryForEmbeddedSources.h"
 #include "Mixing/Base/interface/PileUp.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/MixingRcd.h"
@@ -41,7 +42,9 @@ namespace edm {
   class BMixingModule : public stream::EDProducer<GlobalCache<MixingCache::Config>> {
   public:
     /** standard constructor*/
-    explicit BMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf);
+    explicit BMixingModule(const edm::ParameterSet& ps,
+                           MixingCache::Config const* globalConf,
+                           SciTagCategoryForEmbeddedSources cat = SciTagCategoryForEmbeddedSources::Embedded);
 
     /**Default destructor*/
     ~BMixingModule() override;

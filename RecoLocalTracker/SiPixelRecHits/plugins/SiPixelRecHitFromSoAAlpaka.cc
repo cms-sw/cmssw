@@ -66,8 +66,8 @@ void SiPixelRecHitFromSoAAlpaka::produce(edm::StreamID streamID,
                                          edm::Event& iEvent,
                                          const edm::EventSetup& iSetup) const {
   auto const& hits = iEvent.get(hitsToken_);
-  auto hitsView = hits.view();
-  auto modulesView = hits.view<::reco::HitModuleSoA>();
+  auto hitsView = hits.view().trackingHits();
+  auto modulesView = hits.view().hitModules();
   auto nHits = hitsView.metadata().size();
   auto nModules = modulesView.metadata().size();
   LogDebug("SiPixelRecHitFromSoAAlpaka") << "converting " << nHits << " hits in max " << nModules << " modules";

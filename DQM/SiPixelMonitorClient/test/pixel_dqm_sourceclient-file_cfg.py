@@ -73,7 +73,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     destinations = cms.untracked.vstring('cout')
 )
-process.AdaptorConfig = cms.Service("AdaptorConfig")
+
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 

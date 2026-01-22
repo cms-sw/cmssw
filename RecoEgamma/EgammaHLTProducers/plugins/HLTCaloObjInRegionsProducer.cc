@@ -1,15 +1,16 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -196,8 +197,9 @@ void HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::produce(edm::Eve
     event.getByToken(inputTokens_[inputCollNr], inputColl);
 
     if (!(inputColl.isValid())) {
-      edm::LogError("ProductNotFound") << "could not get a handle on the " << typeid(CaloObjCollType).name()
-                                       << " named " << inputCollTags_[inputCollNr].encode() << std::endl;
+      edm::LogError("ProductNotFound") << "could not get a handle on the "
+                                       << edm::typeDemangle(typeid(CaloObjCollType).name()) << " named "
+                                       << inputCollTags_[inputCollNr].encode() << std::endl;
       continue;
     }
     auto outputColl = makeFilteredColl(inputColl, caloGeom, regions);
@@ -224,8 +226,9 @@ std::unique_ptr<CaloObjCollType> HLTCaloObjInRegionsProducer<CaloObjType, CaloOb
           //so we check if the ID is valid
           if (validIDForGeom(obj.id())) {
             edm::LogError("HLTCaloObjInRegionsProducer")
-                << "for an object of type " << typeid(CaloObjType).name() << " the geometry returned null for id "
-                << DetId(obj.id()).rawId() << " with initial ID " << DetId(inputColl->begin()->id()).rawId()
+                << "for an object of type " << edm::typeDemangle(typeid(CaloObjType).name())
+                << " the geometry returned null for id " << DetId(obj.id()).rawId() << " with initial ID "
+                << DetId(inputColl->begin()->id()).rawId()
                 << " in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong, auto accepting "
                    "hit";
           }

@@ -38,6 +38,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 #include "IOPool/Provenance/interface/CommonProvenanceFiller.h"
 
@@ -177,11 +178,18 @@ namespace edm::rntuple_temp {
       for (auto& item : om_->selectedOutputItemList()[i]) {
         item.setProduct(nullptr);
         ProductDescription const& desc = *item.productDescription();
-        theRNTuple->addField(fixName(desc.branchName()),
-                             desc.wrappedName(),
-                             item.productPtr(),
-                             item.streamerProduct() or om_->allProductsUseStreamer(),
-                             om_->noSplitSubFields());
+        try {
+          edm::convertException::wrap([&]() {
+            theRNTuple->addField(fixName(desc.branchName()),
+                                 desc.wrappedName(),
+                                 item.productPtr(),
+                                 item.streamerProduct() or om_->allProductsUseStreamer(),
+                                 om_->noSplitSubFields());
+          });
+        } catch (cms::Exception& iExcept) {
+          iExcept.addContext(std::format("adding field {} with class type {}", desc.branchName(), desc.className()));
+          throw;
+        }
         //make sure we always store product registry info for all branches we create
         branchesWithStoredHistory_.insert(item.branchID());
       }
@@ -600,9 +608,10 @@ namespace edm::rntuple_temp {
     try {
       // close the file -- mfp
       // Just to play it safe, zero all pointers to objects in the TFile to be closed.
-      status = "closing RNTuples";
+      status = "closing RNTuple ";
       value = "";
       for (auto& treePointer : treePointers_) {
+        value = treePointer->name();
         treePointer->close();
         treePointer = nullptr;
       }

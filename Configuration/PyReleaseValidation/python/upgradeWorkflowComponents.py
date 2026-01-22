@@ -66,34 +66,8 @@ upgradeKeys[2017] = [
 ]
 
 upgradeKeys['Run4'] = [
-    'Run4D95',
-    'Run4D95PU',
-    'Run4D96',
-    'Run4D96PU',
-    'Run4D98',
-    'Run4D98PU',
-    'Run4D99',
-    'Run4D99PU',
-    'Run4D100',
-    'Run4D100PU',
-    'Run4D101',
-    'Run4D101PU',
-    'Run4D102',
-    'Run4D102PU',
-    'Run4D103',
-    'Run4D103PU',
     'Run4D104',
     'Run4D104PU',
-    'Run4D105',
-    'Run4D105PU',
-    'Run4D106',
-    'Run4D106PU',
-    'Run4D107',
-    'Run4D107PU',
-    'Run4D108',
-    'Run4D108PU',
-    'Run4D109',
-    'Run4D109PU',
     'Run4D110',
     'Run4D110PU',
     'Run4D111',
@@ -108,14 +82,6 @@ upgradeKeys['Run4'] = [
     'Run4D110SimOnGen',
     'Run4D115',
     'Run4D115PU',
-    'Run4D116',
-    'Run4D116PU',
-    'Run4D117',
-    'Run4D117PU',
-    'Run4D118',
-    'Run4D118PU',
-    'Run4D119',
-    'Run4D119PU',
     'Run4D120',
     'Run4D120PU',
     'Run4D121',
@@ -138,7 +104,9 @@ numWFStart={
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
 numWFConflict = [[14400,14800], #2022ReReco, 2022ReRecoPU (in 12_4)
-                 [24400,24800], #D97
+                 [23600,27200], #D95-D103
+                 [27600,29600], #D105-D109
+                 [32400,34000], #D116-D119
                  [50000,51000]]
 numWFAll={
     2017: [],
@@ -1075,6 +1043,38 @@ upgradeWFs['ticl_barrel_CPfromPU'].step2 = {'--procModifiers': 'ticl_barrel,enab
 upgradeWFs['ticl_barrel_CPfromPU'].step3 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
 upgradeWFs['ticl_barrel_CPfromPU'].step4 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
 
+class UpgradeWorkflow_ticlv5_TrackLinkingGNN(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        selected_fragments = ["TTbar_14TeV", "CloseByP", "Eta1p7_2p7", "ZEE_14"]
+        return any(sf in fragment for sf in selected_fragments) and 'Run4' in key
+    
+upgradeWFs['ticlv5_TrackLinkingGNN'] = UpgradeWorkflow_ticlv5_TrackLinkingGNN(
+    steps = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_ticlv5_TrackLinkGNN',
+    offset = 0.211,
+)
+upgradeWFs['ticlv5_TrackLinkingGNN'].step2 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
+upgradeWFs['ticlv5_TrackLinkingGNN'].step3 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
+upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
+
 # L3 Tracker Muon Outside-In reconstruction first
 class UpgradeWorkflow_phase2L3MuonsOIFirst(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -1955,6 +1955,20 @@ upgradeWFs['HLTTiming75e33TiclV5'].step2 = {
 upgradeWFs['HLTTiming75e33TiclV5'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
+
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].suffix = '_HLT75e33TimingTiclV5TrackLinkGNN'
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].offset = 0.7521
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'ticlv5_TrackLinkingGNN',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
+
 
 upgradeWFs['HLTTiming75e33AlpakaSingleIter'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33AlpakaSingleIter'].suffix = '_HLT75e33TimingAlpakaSingleIter'
@@ -3536,7 +3550,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2025',
         'Era' : 'Run3_2025',
         'BeamSpot': 'DBrealistic',
-        'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
+        'ScenToRun' : ['GenSim','Digi','RecoNanoFakeHLT','HARVESTNanoFakeHLT','ALCA'],
     },
     '2025HLTOnDigi' : {
         'Geom' : 'DB:Extended',
@@ -3544,7 +3558,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2025',
         'Era' : 'Run3_2025',
         'BeamSpot': 'DBrealistic',
-        'ScenToRun' : ['GenSim','DigiNoHLT','HLTOnly','RecoNano','HARVESTNano','ALCA'],
+        'ScenToRun' : ['GenSim','DigiNoHLT','HLTOnly','RecoNanoFakeHLT','HARVESTNanoFakeHLT','ALCA'],
     },
     '2025GenOnly' : {
         'Geom' : 'DB:Extended',
@@ -3560,7 +3574,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2025',
         'Era' : 'Run3_2025',
         'BeamSpot': 'DBrealistic',
-        'ScenToRun' : ['Gen','Sim','Digi','RecoNano','HARVESTNano','ALCA'],
+        'ScenToRun' : ['Gen','Sim','Digi','RecoNanoFakeHLT','HARVESTNanoFakeHLT','ALCA'],
     },
     '2025FS' : {
         'Geom' : 'DB:Extended',
@@ -3630,157 +3644,17 @@ for key in list(upgradeProperties[2017].keys()):
         upgradeProperties[2017][key+'PU']['ScenToRun'] = ['Gen','FastSimRun3PU','HARVESTFastRun3PU']
 
 upgradeProperties['Run4'] = {
-    'Run4D86' : {
-        'Geom' : 'ExtendedRun4D86',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobalFakeHLT', 'HARVESTGlobalFakeHLT', 'ALCAPhase2'],
-    },
-    'Run4D88' : {
-        'Geom' : 'ExtendedRun4D88',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D91' : {
-        'Geom' : 'ExtendedRun4D91',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T30',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobalFakeHLT', 'HARVESTGlobalFakeHLT', 'ALCAPhase2'],
-    },
-    'Run4D92' : {
-        'Geom' : 'ExtendedRun4D92',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobalFakeHLT', 'HARVESTGlobalFakeHLT', 'ALCAPhase2'],
-    },
-    'Run4D93' : {
-        'Geom' : 'ExtendedRun4D93',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobalFakeHLT', 'HARVESTGlobalFakeHLT', 'ALCAPhase2'],
-    },
-    'Run4D94' : {
-        'Geom' : 'ExtendedRun4D94',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C20I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobalFakeHLT', 'HARVESTGlobalFakeHLT', 'ALCAPhase2'],
-    },
-    'Run4D95' : {
-        'Geom' : 'ExtendedRun4D95',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D96' : {
-        'Geom' : 'ExtendedRun4D96',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobalFakeHLT', 'HARVESTGlobalFakeHLT', 'ALCAPhase2'],
-    },
-    'Run4D97' : {
-        'Geom' : 'ExtendedRun4D97',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T25',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobalFakeHLT', 'HARVESTGlobalFakeHLT', 'ALCAPhase2'],
-    },
-    'Run4D98' : {
-        'Geom' : 'ExtendedRun4D98',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T25',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D99' : {
-        'Geom' : 'ExtendedRun4D99',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T25',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D100' : {
-        'Geom' : 'ExtendedRun4D100',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T25',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D101' : {
-        'Geom' : 'ExtendedRun4D101',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T25',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D102' : {
-        'Geom' : 'ExtendedRun4D102',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D103' : {
-        'Geom' : 'ExtendedRun4D103',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T25',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
     'Run4D104' : {
         'Geom' : 'ExtendedRun4D104',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C22I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D105' : {
-        'Geom' : 'ExtendedRun4D105',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D106' : {
-        'Geom' : 'ExtendedRun4D106',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C22I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D107' : {
-        'Geom' : 'ExtendedRun4D107',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T25',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D108' : {
-        'Geom' : 'ExtendedRun4D108',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D109' : {
-        'Geom' : 'ExtendedRun4D109',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D110' : {
         'Geom' : 'ExtendedRun4D110',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
@@ -3808,14 +3682,14 @@ upgradeProperties['Run4'] = {
     'Run4D114' : {
         'Geom' : 'ExtendedRun4D114',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D110GenOnly' : {
         'Geom' : 'ExtendedRun4D110',
         'BeamSpot' : 'DBrealisticHLLHC',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenHLBeamSpot'],
     },
@@ -3823,84 +3697,56 @@ upgradeProperties['Run4'] = {
         'Geom' : 'ExtendedRun4D110',
         'HLTmenu': '@relvalRun4',
         'BeamSpot' : 'DBrealisticHLLHC',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenHLBeamSpot','Sim','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D115' : {
         'Geom' : 'ExtendedRun4D115',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C20I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D116' : {
-        'Geom' : 'ExtendedRun4D116',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C22I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D117' : {
-        'Geom' : 'ExtendedRun4D117',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C22I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D118' : {
-        'Geom' : 'ExtendedRun4D118',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C22I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
-    },
-    'Run4D119' : {
-        'Geom' : 'ExtendedRun4D119',
-        'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D120' : {
         'Geom' : 'ExtendedRun4D120',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C26I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D121' : {
         'Geom' : 'ExtendedRun4D121',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D122' : {
         'Geom' : 'ExtendedRun4D122',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C26I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D123' : {
         'Geom' : 'ExtendedRun4D123',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C26I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D124' : {
         'Geom' : 'ExtendedRun4D124',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D125' : {
         'Geom' : 'ExtendedRun4D125',
         'HLTmenu': '@relvalRun4',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },

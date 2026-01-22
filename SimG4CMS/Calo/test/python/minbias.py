@@ -52,7 +52,7 @@ elif (options.geometry == "Run4"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('Sim',Phase2C22I13M9)
     geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "D121Reco_cff"
-    globalTag = "auto:phase2_realistic_T33"
+    globalTag = "auto:phase2_realistic_T35"
 else:
     process = cms.Process('Sim')
     geomFile = "Configuration.Geometry.GeometryExtendedReco_cff"

@@ -72,6 +72,8 @@ namespace hcaldqm {
       fDiffRatio,  // (v2-v1)/v1
       fCPUenergy,
       fGPUenergy,
+      fCPUtime,
+      fGPUtime,
       fNbins,
     };
     const std::map<ValueQuantityType, std::string> name_value = {
@@ -139,6 +141,8 @@ namespace hcaldqm {
         {fDiffRatio, "(GPU energy - CPU energy)/CPU energy"},
         {fCPUenergy, "CPU energy"},
         {fGPUenergy, "GPU energy"},
+        {fCPUtime, "CPU time"},
+        {fGPUtime, "GPU time"},
         {fNbins, "Nbins"},
     };
     const std::map<ValueQuantityType, double> min_value = {
@@ -206,6 +210,8 @@ namespace hcaldqm {
         {fDiffRatio, -2.5},
         {fCPUenergy, 0},
         {fGPUenergy, 0},
+        {fCPUtime, 0},
+        {fGPUtime, 0},
         {fNbins, 0},
     };
     const std::map<ValueQuantityType, double> max_value = {
@@ -273,6 +279,8 @@ namespace hcaldqm {
         {fDiffRatio, 2.5},
         {fCPUenergy, 200},
         {fGPUenergy, 200},
+        {fCPUtime, 200},
+        {fGPUtime, 200},
         {fNbins, 50},
     };
     const std::map<ValueQuantityType, int> nbins_value = {
@@ -339,6 +347,8 @@ namespace hcaldqm {
         {fDiffRatio, 50},
         {fCPUenergy, 1000},
         {fGPUenergy, 1000},
+        {fCPUtime, 1000},
+        {fGPUtime, 1000},
         {fNbins, 50},
     };
     class ValueQuantity : public Quantity {

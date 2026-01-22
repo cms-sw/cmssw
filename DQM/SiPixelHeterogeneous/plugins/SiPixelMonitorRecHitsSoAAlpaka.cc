@@ -87,7 +87,7 @@ void SiPixelMonitorRecHitsSoAAlpaka::analyze(const edm::Event& iEvent, const edm
     return;
   }
   auto const& rhsoa = *rhsoaHandle;
-  auto const& soa2d = rhsoa.const_view();
+  auto const& soa2d = rhsoa.const_view().trackingHits();
 
   uint32_t nHits_ = soa2d.metadata().size();
   hnHits->Fill(nHits_);

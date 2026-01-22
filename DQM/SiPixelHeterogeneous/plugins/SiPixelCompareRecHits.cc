@@ -111,8 +111,8 @@ void SiPixelCompareRecHits::analyzeSeparate(U tokenRef, V tokenTar, const edm::E
   const auto& rhsoaRef = *rhsoaHandleRef;
   const auto& rhsoaTar = *rhsoaHandleTar;
 
-  auto const& soa2dRef = rhsoaRef.const_view();
-  auto const& soa2dTar = rhsoaTar.const_view();
+  auto const& soa2dRef = rhsoaRef.const_view().trackingHits();
+  auto const& soa2dTar = rhsoaTar.const_view().trackingHits();
 
   uint32_t nHitsRef = soa2dRef.metadata().size();
   uint32_t nHitsTar = soa2dTar.metadata().size();

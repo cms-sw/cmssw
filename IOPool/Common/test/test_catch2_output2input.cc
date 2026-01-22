@@ -39,6 +39,7 @@ process = TestSourceProcess()
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(''))
 process.add_(cms.Service("InitRootHandlers"))
 process.add_(cms.Service("SiteLocalConfigService"))
+process.add_(cms.Service("ScitagConfig"))
 process.add_(cms.Service("JobReportService"))
     )_"};
 

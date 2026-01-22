@@ -382,13 +382,13 @@ class ConfigBuilder(object):
         self.addedObjects.append(("","options"))
 
         if self._options.lazy_download:
-            self.process.AdaptorConfig = cms.Service("AdaptorConfig",
+            self.process.TFileAdaptor = cms.Service("TFileAdaptor",
                                                      stats = cms.untracked.bool(True),
                                                      enable = cms.untracked.bool(True),
                                                      cacheHint = cms.untracked.string("lazy-download"),
                                                      readHint = cms.untracked.string("read-ahead-buffered")
                                                      )
-            self.addedObjects.append(("Setup lazy download","AdaptorConfig"))
+            self.addedObjects.append(("Setup lazy download","TFileAdaptor"))
 
         #self.process.cmsDriverCommand = cms.untracked.PSet( command=cms.untracked.string('cmsDriver.py '+self._options.arguments) )
         #self.addedObjects.append(("what cmsDriver command was used","cmsDriverCommand"))
@@ -440,7 +440,7 @@ class ConfigBuilder(object):
                     self.process.source.fileNames.append(self._options.dirin+entry)
             if self._options.secondfilein:
                 if not hasattr(self.process.source,"secondaryFileNames"):
-                    raise Exception("--secondfilein not compatible with "+self._options.filetype+"input type")
+                    raise Exception("--secondfilein not compatible with "+self._options.filetype+" input type")
                 for entry in self._options.secondfilein.split(','):
                     print("entry",entry)
                     if entry.startswith("filelist:"):
@@ -459,8 +459,8 @@ class ConfigBuilder(object):
                 filesFromOption(self)
             if self._options.filetype == "EDM_RNTUPLE":
                 self.process.source=cms.Source("RNTupleTempSource",
-                                               fileNames = cms.untracked.vstring())#, 2ndary not supported yet
-                                               #secondaryFileNames= cms.untracked.vstring())
+                                               fileNames = cms.untracked.vstring(),
+                                               secondaryFileNames= cms.untracked.vstring())
                 filesFromOption(self)
             elif self._options.filetype == "DAT":
                 self.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
@@ -817,6 +817,8 @@ class ConfigBuilder(object):
                         mixingDict['F']=(filesFromList(self._options.pileup_input[9:]))[0]
                     else:
                         mixingDict['F']=self._options.pileup_input.split(',')
+
+                self.customizeMixingModuleForRNTuple(mixingDict.get('F', []), 'mix')
                 specialization=defineMixing(mixingDict)
                 for command in specialization:
                     self.executeAndRemember(command)
@@ -872,6 +874,20 @@ class ConfigBuilder(object):
                 else:
                     self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'
 
+    def customizeMixingModuleForRNTuple(self, files, mixingModuleLabel):
+        # Do we want a command-line option as well to switch the input type?
+        # Naively the 'filetype' looks attractive, but it would
+        # couple the primary Source and the SecSource to the same
+        # file format, which is not strictly necessary
+        useRNTuple= len(files) > 0 and files[0].lower().endswith(".rntpl")
+        if useRNTuple:
+            rntupleSrc = cms.SecSource("EmbeddedRNTupleRootSource")
+            mixingModule = getattr(self.process, mixingModuleLabel)
+            rntupleSrc.update_(mixingModule.input.parameters_())
+            mixingModule.input = rntupleSrc
+            self.additionalCommands.append('rntupleSrc = cms.SecSource("EmbeddedRNTupleTempSource")')
+            self.additionalCommands.append(f'rntupleSrc.update_(process.{mixingModuleLabel}.input.parameters_())')
+            self.additionalCommands.append(f'process.{mixingModuleLabel}.input = rntupleSrc')
 
     def completeInputCommand(self):
         if self._options.inputEventContent:
@@ -1591,6 +1607,8 @@ class ConfigBuilder(object):
                 theFiles= (filesFromList(self._options.pileup_input[9:]))[0]
             else:
                 theFiles=self._options.pileup_input.split(',')
+
+            self.customizeMixingModuleForRNTuple(theFiles, 'mixData')
             #print theFiles
             self.executeAndRemember( "process.mixData.input.fileNames = cms.untracked.vstring(%s)"%(  theFiles ) )
 

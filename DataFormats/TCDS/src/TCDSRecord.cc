@@ -20,7 +20,8 @@ TCDSRecord::TCDSRecord()
       eventType_(0),
       triggerTypeFlags_(0),
       inputs_(0),
-      bxid_(0) {}
+      bxid_(0),
+      sourceid_(0) {}
 
 TCDSRecord::TCDSRecord(const unsigned char* rawData) {
   tcds::Raw_v1 const* tcdsRaw = reinterpret_cast<tcds::Raw_v1 const*>(rawData + FEDHeader::length);

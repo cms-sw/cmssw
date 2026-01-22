@@ -395,55 +395,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const int32_t H = m_params.algoParams_.avgHitsPerTrack_;
 
-    reco::TracksSoACollection tracks({{int(nTracks), int(nTracks * H)}}, queue);
+    reco::TracksSoACollection trackCollection(queue, static_cast<int32_t>(nTracks), static_cast<int32_t>(nTracks * H));
+
+    auto tracks = trackCollection.view().tracks();
+
+    auto trackingHits = hits_d.view().trackingHits();
+    auto hitModules = hits_d.view().hitModules();
+
+    auto layers = geometry_d.view().layers();
+    auto graph = geometry_d.view().graph();
+    auto modules = geometry_d.view().modules();
 
     // Don't bother if less than 2 this
-    if (hits_d.view().metadata().size() < 2) {
+    if (trackingHits.metadata().size() < 2) {
       const auto device = alpaka::getDev(queue);
-      auto ntracks_d = cms::alpakatools::make_device_view(device, tracks.view().nTracks());
+      auto ntracks_d = cms::alpakatools::make_device_view(device, tracks.nTracks());
       alpaka::memset(queue, ntracks_d, 0);
-      return tracks;
+      return trackCollection;
     }
     GPUKernels kernels(
-        m_params, hits_d.nHits(), hits_d.offsetBPIX2(), nDoublets, nTracks, geometry_d.view().metadata().size(), queue);
+        m_params, hits_d.nHits(), hits_d.offsetBPIX2(), nDoublets, nTracks, layers.metadata().size(), queue);
 
-    kernels.prepareHits(hits_d.view(), hits_d.view<::reco::HitModuleSoA>(), geometry_d.view(), queue);
-    kernels.buildDoublets(hits_d.view(),
-                          geometry_d.view<::reco::CAGraphSoA>(),
-                          geometry_d.view<::reco::CALayersSoA>(),
-                          hits_d.offsetBPIX2(),
-                          queue);
-    kernels.launchKernels(hits_d.view(),
-                          hits_d.offsetBPIX2(),
-                          geometry_d.view().metadata().size(),
-                          tracks.view(),
-                          tracks.view<TrackHitSoA>(),
-                          geometry_d.view<::reco::CALayersSoA>(),
-                          geometry_d.view<::reco::CAGraphSoA>(),
-                          queue);
+    kernels.prepareHits(trackingHits, hitModules, layers, queue);
+    kernels.buildDoublets(trackingHits, graph, layers, hits_d.offsetBPIX2(), queue);
+    kernels.launchKernels(
+        trackingHits, hits_d.offsetBPIX2(), layers.metadata().size(), trackCollection.view(), layers, graph, queue);
 
     HelixFit fitter(bfield, m_params.algoParams_.fitNas4_);
-    fitter.allocate(kernels.tupleMultiplicity(), tracks.view(), kernels.hitContainer());
+    fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
     if (m_params.algoParams_.useRiemannFit_) {
-      fitter.launchRiemannKernels(hits_d.view(),
-                                  geometry_d.view<::reco::CAModulesSoA>(),
-                                  hits_d.view().metadata().size(),
-                                  TrackerTraits::maxNumberOfQuadruplets,
-                                  queue);
+      fitter.launchRiemannKernels(
+          trackingHits, modules, trackingHits.metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     } else {
-      fitter.launchBrokenLineKernels(hits_d.view(),
-                                     geometry_d.view<::reco::CAModulesSoA>(),
-                                     hits_d.view().metadata().size(),
-                                     TrackerTraits::maxNumberOfQuadruplets,
-                                     queue);
+      fitter.launchBrokenLineKernels(
+          trackingHits, modules, trackingHits.metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     }
-    kernels.classifyTuples(hits_d.view(), tracks.view(), queue);
+    kernels.classifyTuples(trackingHits, tracks, queue);
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "finished building pixel tracks on GPU" << std::endl;
 #endif
 
-    return tracks;
+    return trackCollection;
   }
 
   template class CAHitNtupletGenerator<pixelTopology::Phase1>;

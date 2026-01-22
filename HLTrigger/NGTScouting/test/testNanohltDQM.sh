@@ -21,7 +21,7 @@ echo "Discovered files: $ALL_FILES"
 
 ## Step 2: reHLT, NANO, DQM
 cmsDriver.py step2 -s L1P2GT,HLT:NGTScouting,NANO:@NGTScouting,DQM:@nanohltDQM \
-	     --conditions auto:phase2_realistic_T33 \
+	     --conditions auto:phase2_realistic_T35 \
 	     --datatier DQMIO,NANOAODSIM \
 	     -n 10 \
 	     --eventcontent DQMIO,NANOAODSIM \
@@ -37,7 +37,7 @@ cmsDriver.py step2 -s L1P2GT,HLT:NGTScouting,NANO:@NGTScouting,DQM:@nanohltDQM \
 
 ## Step 2: harvesting
 cmsDriver.py step3 -s HARVESTING:@nanohltDQM \
-	     --conditions auto:phase2_realistic_T33 \
+	     --conditions auto:phase2_realistic_T35 \
 	     --mc \
 	     --geometry ExtendedRun4D110 \
 	     --scenario pp \

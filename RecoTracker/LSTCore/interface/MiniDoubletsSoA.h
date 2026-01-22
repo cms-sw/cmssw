@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_interface_MiniDoubletsSoA_h
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/Portable/interface/PortableCollection.h"
 
 namespace lst {
@@ -46,13 +47,34 @@ namespace lst {
                       SOA_COLUMN(unsigned int, nMDs),
                       SOA_COLUMN(unsigned int, totOccupancyMDs))
 
+  GENERATE_SOA_BLOCKS(MiniDoubletsSoABlocksLayout,
+                      SOA_BLOCK(miniDoublets, MiniDoubletsSoALayout),
+                      SOA_BLOCK(miniDoubletsOccupancy, MiniDoubletsOccupancySoALayout))
+
   using MiniDoubletsSoA = MiniDoubletsSoALayout<>;
   using MiniDoubletsOccupancySoA = MiniDoubletsOccupancySoALayout<>;
+  using MiniDoubletsSoABlocks = MiniDoubletsSoABlocksLayout<>;
 
   using MiniDoublets = MiniDoubletsSoA::View;
   using MiniDoubletsConst = MiniDoubletsSoA::ConstView;
   using MiniDoubletsOccupancy = MiniDoubletsOccupancySoA::View;
   using MiniDoubletsOccupancyConst = MiniDoubletsOccupancySoA::ConstView;
+  using MiniDoubletsSoABlocksView = MiniDoubletsSoABlocks::View;
+  using MiniDoubletsSoABlocksConstView = MiniDoubletsSoABlocks::ConstView;
+
+  // Template based accessor for getting specific SoA views. Needed in LSTEvent.dev.cc
+  template <typename TSoA>
+  struct MiniDoubletsViewAccessor;
+
+  template <>
+  struct MiniDoubletsViewAccessor<MiniDoubletsSoA> {
+    static constexpr auto get(auto const& v) { return v.miniDoublets(); }
+  };
+
+  template <>
+  struct MiniDoubletsViewAccessor<MiniDoubletsOccupancySoA> {
+    static constexpr auto get(auto const& v) { return v.miniDoubletsOccupancy(); }
+  };
 
 }  // namespace lst
 

@@ -11,10 +11,10 @@ echo -e "TESTING Pixel 1D GenErr DB code ..."
 cmsRun ${SCRAM_TEST_PATH}/SiPixelGenErrorDBObjectUploader_cfg.py MagField=0.0 Fullname=SiPixelGenErrorDBObject_phase1_0T_mc_BoR3_v1_bugfix Map=${SCRAM_TEST_PATH}/../data/phaseI_mapping.csv GenErrFilePath=CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1 || die "Failure running SiPixelGenErrorDBObjectUploader_cfg.py" $?
 
 echo -e "TESTING Pixel 1D Template DB code for Phase-2 ..."
-cmsRun ${SCRAM_TEST_PATH}/SiPixelTemplateDBObjectUploader_Phase2_cfg.py MagField=3.8 Version=1 Append=mc_25x100_IT711 Map=${SCRAM_TEST_PATH}/../data/phase2_T33_mapping.csv geometry=T33 TemplateFilePath=CalibTracker/SiPixelESProducers/data/Phase2_IT_v7.1.1_25x100_v1_mc || die "Failure running SiPixelTemplateDBObjectUploader_Phase2_cfg.py" $?
+cmsRun ${SCRAM_TEST_PATH}/SiPixelTemplateDBObjectUploader_Phase2_cfg.py MagField=3.8 Version=1 Append=mc_25x100_IT711 Map=${SCRAM_TEST_PATH}/../data/phase2_T33_mapping.csv geometry=T35 TemplateFilePath=CalibTracker/SiPixelESProducers/data/Phase2_IT_v7.1.1_25x100_v1_mc || die "Failure running SiPixelTemplateDBObjectUploader_Phase2_cfg.py" $?
 
 echo -e "TESTING Pixel 1D GenErr DB code for Phase-2 ..."
-cmsRun ${SCRAM_TEST_PATH}/SiPixelGenErrorDBObjectUploader_Phase2_cfg.py MagField=3.8 Version=1 Append=mc_25x100_IT711 Map=${SCRAM_TEST_PATH}/../data/phase2_T33_mapping.csv geometry=T33 GenErrFilePath=CalibTracker/SiPixelESProducers/data/Phase2_IT_v7.1.1_25x100_v1_mc || die "Failure running SiPixelGenErrorDBObjectUploader_Phase2_cfg.py" $?
+cmsRun ${SCRAM_TEST_PATH}/SiPixelGenErrorDBObjectUploader_Phase2_cfg.py MagField=3.8 Version=1 Append=mc_25x100_IT711 Map=${SCRAM_TEST_PATH}/../data/phase2_T33_mapping.csv geometry=T35 GenErrFilePath=CalibTracker/SiPixelESProducers/data/Phase2_IT_v7.1.1_25x100_v1_mc || die "Failure running SiPixelGenErrorDBObjectUploader_Phase2_cfg.py" $?
 
 #echo -e "TESTING Pixel 2D Template DB code for Phase-2 ..."
 #cmsRun  ${SCRAM_TEST_PATH}/SiPixel2DTemplateDBObjectUploader_Phase2_cfg.py MagField=3.8 Version=1 Append=mc_25x100_IT615 Map=${SCRAM_TEST_PATH}/../data/phase2_T21_mapping_den.csv TemplateFilePath=CalibTracker/SiPixelESProducers/data/Phase2_IT_v6.1.5_25x100_irradiated_v2_mc denominator=True || die "Failure running SiPixel2DTemplateDBObjectUploader_Phase2_cfg.py" $?
@@ -23,7 +23,7 @@ echo -e "TESTING Pixel Template DB Object Reader ... \n\n"
 cmsRun  ${SCRAM_TEST_PATH}/SiPixelTemplateDBObjectReader_cfg.py MagField=3.8 readFromGT=True || die "Failure running SiPixelTemplateDBObjectReader_cfg.py MagField=3.8 readFromGT=True" $?
 
 echo -e "TESTING Pixel LorentzAngle DB for Phase-2 ... \n\n"
-cmsRun  ${SCRAM_TEST_PATH}/SiPixelLorentzAngleDBLoader_Phase2_cfg.py geometry=T33 || die "Failure running SiPixelLorentzAngleDBLoader_Phase2_cfg.py geometry=T33" $?
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelLorentzAngleDBLoader_Phase2_cfg.py geometry=T35 || die "Failure running SiPixelLorentzAngleDBLoader_Phase2_cfg.py geometry=T35" $?
 
 echo -e "TESTING SiPixelVCal DB codes ... \n\n"
 

@@ -1,10 +1,13 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalIdCheck_cfg.py geometry=D120 detector=file=D120E
+#   cmsRun testHGCalIdCheck_cfg.py geometry=D120 detector=HGCalEESensitive
+#                                  fileIn=D120E fileOut=junk mode=0
 #
 #   Options for geometry D120, D122
-#           for file D120E, D122E, WaferH120, CellE120, CellH120
+#           for fileIn D120E.txt, D120H.txt D122E.txt, D122H.txt, ""
+#           for fileOut D120E.out, D120H.out, D122E.out, D122H.out, ""
 #           for detector HGCalEESensitive, HGCalHESiliconSensitive
+#           for outMode 0, 1
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -19,16 +22,26 @@ options.register('geometry',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D120, D122")
-options.register('file',
-                 "D120E",
+options.register('fileIn',
+                 "D120E.txt",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D120E, D122E, WaferH120, CellE120, CellH120")
+                  "geometry of operations: D120E.txt, D120H.txt, D122E.txt, D122H.txt")
+options.register('fileOut',
+                 "",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: '', 'D120E.out', 'D120H.out', 'D122E.out', 'D122H.out'")
 options.register('detector',
                  "HGCalEESensitive",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: HGCalEESensitive, HGCalHESiliconSensitive")
+options.register('outMode',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.float,
+                 "Resolution for checking overlaps: 0, 1")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -41,12 +54,16 @@ print(options)
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 detector = options.detector
-fileName = options.file + ".txt"
+fileName = options.fileIn
+outFile  = options.fileOut
+outMode = int(options.outMode)
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
 print("Input file:    ", fileName)
-print("Deector:       ", detector)
+print("Output file:   ", outFile)
+print("Detector:      ", detector)
+print("OutMode:       ", outMode)
 
 process = cms.Process('HGCIdCheck',ERA)
 
@@ -91,5 +108,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.hgcalIdCheck.nameDetector = detector
 process.hgcalIdCheck.fileName = fileName
+process.hgcalIdCheck.outFileName = outFile
+process.hgcalIdCheck.mode = outMode
 
 process.p1 = cms.Path(process.generator*process.hgcalIdCheck)

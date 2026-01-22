@@ -38,7 +38,7 @@ echo "Discovered files: $ALL_FILES"
 
 # run timing menu HLT:75e33_timing (use GPU if available)
 cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing --processName=HLTX \
-    --conditions auto:phase2_realistic_T33 --geometry ExtendedRun4D110 \
+    --conditions auto:phase2_realistic_T35 --geometry ExtendedRun4D110 \
     --era Phase2C17I13M9 \
     --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
     --eventcontent FEVTDEBUGHLT \
@@ -75,7 +75,7 @@ fi
 
 # run NGT scouting menu (currently used modifiers ngtScouting,phase2CAExtension)
 cmsDriver.py NGTScouting -s L1P2GT,HLT:NGTScouting --processName=NLTX \
-    --conditions auto:phase2_realistic_T33 --geometry ExtendedRun4D110 \
+    --conditions auto:phase2_realistic_T35 --geometry ExtendedRun4D110 \
     --era Phase2C17I13M9 \
     --procModifiers ngtScouting,phase2CAExtension \
     --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \

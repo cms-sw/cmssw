@@ -30,7 +30,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
   SiPhase2OuterTrackerLorentzAngle = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
 )
 
-tag = 'SiPhase2OuterTrackerLorentzAngle_T33'
+tag = 'SiPhase2OuterTrackerLorentzAngle_T35'
 suffix = 'v0'
 outfile = tag+'_'+suffix+'.db'
 outdb = 'sqlite_file:'+outfile

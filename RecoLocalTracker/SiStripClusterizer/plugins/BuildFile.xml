@@ -1,13 +1,30 @@
-<library name="RecoLocalTrackerSiStripClusterizerPlugins" file="*.cc *.cu">
+<library name="RecoLocalTrackerSiStripClusterizerPlugins" file="*.cc">
   <use name="EventFilter/SiStripRawToDigi"/>
   <use name="RecoLocalTracker/SiStripClusterizer"/>
   <use name="RecoLocalTracker/SiStripZeroSuppression"/>
-  <use name="HeterogeneousCore/CUDACore"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <use name="CUDADataFormats/SiStripCluster"/>
-  <use name="cuda"/>
   <use name="RecoTracker/PixelLowPtUtilities"/>
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CalibTracker/SiStripCommon"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<!-- alpaka-based portable plugins -->
+<library name="RecoLocalTrackerSiStripClusterizerPluginsPortable" file="alpaka/*.cc">
+  <use name="alpaka"/>
+  <use name="CalibTracker/SiStripCommon"/>
+  <use name="CalibFormats/SiStripObjects"/>
+  <use name="CondFormats/SiStripObjects"/>
+  <use name="DataFormats/SiStripClusterSoA"/>
+  <use name="DataFormats/SiStripDigiSoA"/>
+  <use name="DataFormats/Portable"/>
+  <use name="EventFilter/SiStripRawToDigi"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoLocalTracker/Records"/>
+  <use name="RecoLocalTracker/SiStripClusterizer"/>
+  <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

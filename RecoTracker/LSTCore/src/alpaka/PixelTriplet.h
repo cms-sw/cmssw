@@ -15,7 +15,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPBB(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,
@@ -32,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int thirdMDIndex,
                                                                 unsigned int fourthMDIndex,
                                                                 const float ptCut);
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPEE(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,
@@ -117,7 +117,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.rzChiSquared()[pixelTripletIndex] = rzChiSquared;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runPixelTrackletDefaultAlgopT3(TAcc const& acc,
                                                                      ModulesConst modules,
                                                                      ObjectRangesConst ranges,
@@ -230,7 +230,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   //TODO: merge this one and the pT5 function later into a single function
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT3RPhiChiSquared(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 uint16_t* lowerModuleIndices,
@@ -320,7 +320,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   /*bounds for high Pt taken from : http://uaf-10.t2.ucsd.edu/~bsathian/SDL/T5_efficiency/efficiencies/new_efficiencies/efficiencies_20210513_T5_recovering_high_Pt_efficiencies/highE_radius_matching/highE_bounds.txt */
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterionBBB(TAcc const& acc,
                                                              float pixelRadius,
                                                              float pixelRadiusError,
@@ -344,7 +344,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return checkIntervalOverlappT3(tripletRadiusInvMin, tripletRadiusInvMax, pixelRadiusInvMin, pixelRadiusInvMax);
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterionBBE(TAcc const& acc,
                                                              float pixelRadius,
                                                              float pixelRadiusError,
@@ -368,7 +368,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return checkIntervalOverlappT3(tripletRadiusInvMin, tripletRadiusInvMax, pixelRadiusInvMin, pixelRadiusInvMax);
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterionBEE(TAcc const& acc,
                                                              float pixelRadius,
                                                              float pixelRadiusError,
@@ -394,7 +394,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return checkIntervalOverlappT3(tripletRadiusInvMin, tripletRadiusInvMax, pixelRadiusInvMin, pixelRadiusInvMax);
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterionEEE(TAcc const& acc,
                                                              float pixelRadius,
                                                              float pixelRadiusError,
@@ -420,7 +420,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return checkIntervalOverlappT3(tripletRadiusInvMin, tripletRadiusInvMax, pixelRadiusInvMin, pixelRadiusInvMax);
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterion(TAcc const& acc,
                                                           ModulesConst modules,
                                                           float pixelRadius,
@@ -440,7 +440,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT3RZChiSquared(TAcc const& acc,
                                                               ModulesConst modules,
                                                               const uint16_t* lowerModuleIndices,
@@ -529,7 +529,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return RMSE;
   }
 
-  template <typename WP = dnn::pt3dnn::pT3WP, typename TAcc>
+  template <typename WP = dnn::pt3dnn::pT3WP, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runPixelTripletDefaultAlgo(TAcc const& acc,
                                                                  ModulesConst modules,
                                                                  ObjectRangesConst ranges,
@@ -836,7 +836,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPBB(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,
@@ -1095,7 +1095,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return dBeta * dBeta <= dBetaCut2;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPEE(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,

@@ -20,7 +20,7 @@ do
 done
 
 cmsRun ${SCRAM_TEST_PATH}/python/testPixelTopologyMapTest_cfg.py runNumber=300000  || die "Failure using cmsRun testPixelTopologyMapTest_cfg.py runNumber=300000" $?
-cmsRun ${SCRAM_TEST_PATH}/python/testPixelTopologyMapTest_cfg.py globalTag=auto:phase2_realistic_T33  || die "Failure using cmsRun testPixelTopologyMapTest_cfg.py globalTag=auto:phase2_realistic_T33" $?
+cmsRun ${SCRAM_TEST_PATH}/python/testPixelTopologyMapTest_cfg.py globalTag=auto:phase2_realistic_T35  || die "Failure using cmsRun testPixelTopologyMapTest_cfg.py globalTag=auto:phase2_realistic_T35" $?
 
 FILE1=trackerParametersDD4hep.log
 FILE2=trackerParametersDDD.log

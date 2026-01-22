@@ -50,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const float ptMax_;
 
     device::EDGetToken<TkSoADevice> tokenDeviceTrack_;
-    device::EDPutToken<ZVertexSoACollection> tokenDeviceVertex_;
+    device::EDPutToken<reco::ZVertexSoACollection> tokenDeviceVertex_;
   };
 
   template <typename TrackerTraits>
@@ -102,7 +102,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                          const device::EventSetup& iSetup) const {
     auto const& hTracks = iEvent.get(tokenDeviceTrack_);
 
-    iEvent.emplace(tokenDeviceVertex_, algo_.makeAsync(iEvent.queue(), hTracks.view(), maxVertices_, ptMin_, ptMax_));
+    iEvent.emplace(tokenDeviceVertex_,
+                   algo_.makeAsync(iEvent.queue(), hTracks.view().tracks(), maxVertices_, ptMin_, ptMax_));
   }
 
   using PixelVertexProducerAlpakaPhase1 = PixelVertexProducerAlpaka<pixelTopology::Phase1>;

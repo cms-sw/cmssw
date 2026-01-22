@@ -77,8 +77,10 @@ NanoHGCalTables = cms.Sequence(
 
 # Store PixelTracks objects
 NanoPixelTables = cms.Sequence(
-    hltPixelTrackTable
+    pixelTrackAssoc
+    + hltPixelTrackTable
     + hltPixelTrackExtTable
+    + hltPixelTrackRecHitsTable
 )
 
 # Store variables and associators for validation purposes
@@ -122,6 +124,12 @@ hltValidationNanoFlavour = cms.Sequence(
     + NanoPixelTables
     + NanoHGCalTables
     + NanoValTables
+)
+
+# Phase-2 HLT Nano flavour for pixel tracking validation / optimization
+hltPixelOnlyNanoFlavour = cms.Sequence(
+    NanoGenTables
+    + NanoPixelTables
 )
 
 ######################################

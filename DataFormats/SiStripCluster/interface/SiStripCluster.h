@@ -30,6 +30,9 @@ public:
     initQB();
   }
 
+  SiStripCluster(uint16_t firstStrip, std::vector<uint8_t>&& data, float barycenter, float charge)
+      : amplitudes_(std::move(data)), firstStrip_(firstStrip), barycenter_(barycenter), charge_(charge) {}
+
   template <typename Iter>
   SiStripCluster(const uint16_t& firstStrip, Iter begin, Iter end) : amplitudes_(begin, end), firstStrip_(firstStrip) {
     initQB();

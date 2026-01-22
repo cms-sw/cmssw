@@ -15,6 +15,6 @@ DEFINE_TRIVIAL_SERIALISER_PLUGIN(portabletest::MultiHeadNetHostCollection);
 DEFINE_TRIVIAL_SERIALISER_PLUGIN(portabletest::ParticleHostCollection);
 DEFINE_TRIVIAL_SERIALISER_PLUGIN(portabletest::SimpleNetHostCollection);
 DEFINE_TRIVIAL_SERIALISER_PLUGIN(portabletest::TestHostCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN(portabletest::TestHostMultiCollection2);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN(portabletest::TestHostMultiCollection3);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN(portabletest::TestHostCollection2);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN(portabletest::TestHostCollection3);
 DEFINE_TRIVIAL_SERIALISER_PLUGIN(portabletest::TestHostObject);

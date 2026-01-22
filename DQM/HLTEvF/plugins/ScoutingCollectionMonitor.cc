@@ -434,6 +434,7 @@ private:
   dqm::reco::MonitorElement* eeMinusRecHitsXYMap[2];
   dqm::reco::MonitorElement* hbheRecHitsNumber_hist;
   dqm::reco::MonitorElement* hbheRecHits_energy_hist;
+  dqm::reco::MonitorElement* hbheRecHits_time_hist;
   dqm::reco::MonitorElement* hbheRecHitsEtaPhiMap;
   dqm::reco::MonitorElement* hbRecHitsEtaPhiMap;
   dqm::reco::MonitorElement* heRecHitsEtaPhiMap;
@@ -970,6 +971,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     hbheRecHitsNumber_hist->Fill(hbheRecHitsH->size());
     for (const auto& hbheRecHit : *hbheRecHitsH) {
       hbheRecHits_energy_hist->Fill(hbheRecHit.energy());
+      hbheRecHits_time_hist->Fill(hbheRecHit.time());
       HcalDetId hcalid(hbheRecHit.detId());
       hbheRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
       const auto& subdet = hcalid.subdetId();
@@ -1477,6 +1479,9 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book1D("hbheRechitsN", "number of hbhe RecHits; Number of HBHE recHits; Entries", 100, 0.0, 2000.0);
   hbheRecHits_energy_hist = ibook.book1D(
       "hbheRechits_energy", "Energy spectrum of hbhe RecHits; Energy of HBHE recHits (GeV); Entries", 100, 0.0, 200.0);
+
+  hbheRecHits_time_hist =
+      ibook.book1D("hbheRechits time", "Time of HBHE RecHits; Time of HBHE recHits (ns); Entries", 100, 0.0, 30.0);
 
   hbheRecHitsEtaPhiMap = ibook.book2D(
       "hbheRecHitsEtaPhitMap", "Occupancy map of HBHE rechits;ieta;iphi;Entries", 61, -30.5, 30.5, 74, -0.5, 73.5);

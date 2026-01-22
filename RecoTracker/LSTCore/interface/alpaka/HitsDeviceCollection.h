@@ -7,7 +7,7 @@
 #include "RecoTracker/LSTCore/interface/HitsSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  using HitsDeviceCollection = PortableCollection2<HitsExtendedSoA, HitsRangesSoA>;
+  using HitsDeviceCollection = PortableCollection<HitsSoA>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 
 #endif

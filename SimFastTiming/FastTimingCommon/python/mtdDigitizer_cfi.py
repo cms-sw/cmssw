@@ -77,8 +77,8 @@ _endcap_MTDDigitizer = cms.PSet(
         MPVKaon             = cms.string("1.20998e-05 + 2.47192e-06 / (x * x * x)"),
         MPVElectron         = cms.string("1.30030e-05 + 1.55166e-07 / (x * x)"),
         MPVProton           = cms.string("1.13666e-05 + 1.20093e-05 / (x * x)"),
-        tdcWindowStart      = cms.double(9.375), # 3 x ETROC_clock
-        tdcWindowEnd        = cms.double(21.875) # 3 x ETROC_clock + 12.5 ns
+        tdcWindowStart      = cms.double(9.375), # now set to 3 x ETROC_clock, phase can be adjusted to set the start at any value
+        tdcWindowEnd        = cms.double(21.875) # now set to tdcWindowStart + nominal TDC window width (12.5 ns), TDC window width can be adjusted.
         ),
     ElectronicsSimulation = cms.PSet(
         bxTime               = cms.double(25),

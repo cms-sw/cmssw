@@ -88,6 +88,7 @@
 #include <iostream>
 #include <utility>
 #include <sstream>
+#include <ranges>
 
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -546,7 +547,7 @@ namespace edm {
         actReg_->prePrincipalsCreationSignal_.emit();
         auto guard = makeGuard([this]() { actReg_->postPrincipalsCreationSignal_.emit(); });
         principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
-        for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
+        for (auto index : std::views::iota(0U, preallocations_.numberOfStreams())) {
           // Reusable event principal
           auto ep = std::make_shared<EventPrincipal>(preg(),
                                                      productResolversFactory::makePrimary,
@@ -559,7 +560,7 @@ namespace edm {
           principalCache_.insert(std::move(ep));
         }
 
-        for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
+        for (auto index : std::views::iota(0U, preallocations_.numberOfRuns())) {
           auto rp = std::make_unique<RunPrincipal>(preg(),
                                                    productResolversFactory::makePrimary,
                                                    *processConfiguration_,
@@ -569,7 +570,7 @@ namespace edm {
           principalCache_.insert(std::move(rp));
         }
 
-        for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
+        for (auto index : std::views::iota(0U, preallocations_.numberOfLuminosityBlocks())) {
           auto lp = std::make_unique<LuminosityBlockPrincipal>(
               preg(), productResolversFactory::makePrimary, *processConfiguration_, historyAppender_.get(), index);
           principalCache_.insert(std::move(lp));
@@ -772,7 +773,7 @@ namespace edm {
     using namespace edm::waiting_task::chain;
     {
       WaitingTaskHolder taskHolder(group, &finalWaitingTask);
-      for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+      for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
         first([this, i](auto nextTask) {
           std::exception_ptr exceptionPtr;
           {
@@ -798,7 +799,7 @@ namespace edm {
     using namespace edm::waiting_task::chain;
     {
       WaitingTaskHolder taskHolder(group, &finalWaitingTask);
-      for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+      for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
         first([this, i, &collector, &collectorMutex](auto nextTask) {
           {
             ServiceRegistry::Operate operate(serviceToken_);
@@ -1332,7 +1333,7 @@ namespace edm {
 
                           CMS_SA_ALLOW try {
                             streamQueuesInserter_.push(*holder.group(), [this, status, holder]() mutable {
-                              for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+                              for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
                                 CMS_SA_ALLOW try {
                                   streamQueues_[i].push(*holder.group(), [this, i, status, holder]() mutable {
                                     streamBeginRunAsync(i, std::move(status), std::move(holder));
@@ -1443,7 +1444,7 @@ namespace edm {
       }
       ServiceRegistry::Operate operate(serviceToken_);
       streamQueuesInserter_.push(*nextTask.group(), [this, nextTask]() mutable {
-        for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+        for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
           CMS_SA_ALLOW try {
             streamQueues_[i].push(*nextTask.group(), [this, i, nextTask]() mutable {
               streamQueues_[i].pause();
@@ -1757,7 +1758,7 @@ namespace edm {
                                 using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
 
                                 streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
-                                  for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+                                  for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
                                     streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
                                       if (!status->shouldStreamStartLumi()) {
                                         return;
@@ -1962,7 +1963,7 @@ namespace edm {
         streamLumiStatus_[0]->setCleaningUpAfterException(cleaningUpAfterException);
         {
           WaitingTaskHolder holder{taskGroup_, &globalWaitTask};
-          for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+          for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
             streamEndLumiAsync(holder, i);
           }
         }
