@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
-                                     args = cms.vstring('/cvmfs/cms.cern.ch/phys_generator/gridpacks/RunIII/5p36TeV/starlight/starlight_double_diffraction_el8_amd64_gcc11_CMSSW_13_0_18_tarball.tgz'),
+                                     args = cms.vstring('/cvmfs/cms.cern.ch/phys_generator/gridpacks/RunIII/5p36TeV/starlight/starlight_double_diffraction_el8_amd64_gcc11_CMSSW_13_0_18_tarball.tgz','use_singularity'),
                                      nEvents = cms.untracked.uint32(5000),
-                                     numberOfParameters = cms.uint32(1),
+                                     numberOfParameters = cms.uint32(2),
                                      outputFile = cms.string('cmsgrid_final.lhe'),
                                      scriptName = cms.FileInPath('GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh'),
                                      generateConcurrently = cms.untracked.bool(True)
