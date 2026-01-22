@@ -22,7 +22,16 @@ The `BuildFile.xml` must contain `<flags ALPAKA_BACKENDS="1"/>` to enable the be
     * Use `stream::EDProducer`
   * If you need to transfer some data back to host, use `stream::SynchronizingEDProducer`
 * All code using `ALPAKA_ACCELERATOR_NAMESPACE` should be placed in `Package/SubPackage/{interface,src,plugins,test}/alpaka` directory
-  * Alpaka-dependent code that uses templates instead of the namespace macro can be placed in `Package/SubPackage/interface` directory
+  * `ALPAKA_ACCELERATOR_NAMESPACE` should be used for Alpaka-backend-specific code that is not separated from other backends by other means
+    * Some examples when to enclose code in `ALPAKA_ACCELERATOR_NAMESPACE`
+      * EDProducers consuming or producing device data products
+      * EDProducers producing host data products that should be copied to the device implicitly
+      * Functions that are not templated and use the type aliases (such as `Queue` or `Acc1D`) from the `ALPAKA_ACCELERATOR_NAMESPACE`
+        * This category includes the functions that are called from the EDProducers and launch the kernels
+    * As an exception test code in `Package/SubPackage/test` that is built such that each backend gets a separate executable (which is the typical case) does not have to enclose code in `ALPAKA_ACCELERATOR_NAMESPACE`
+  * Alpaka-dependent code that uses templates instead of the namespace macro can be placed in `Package/SubPackage/interface` directory. Some examples of such code
+    * Kernels and device functions that are templated with the accelerator (`TAcc`)
+  * Alpaka-independent code, including `constexpr` functions that are called from device code, should follow the usual [packaging rules](https://cms-sw.github.io/cms_coding_rules.html#6--packaging-rules-1)
 * All source files (not headers) using Alpaka device code (such as kernel call, functions called by kernels) must have a suffic `.dev.cc`, and be placed in the aforementioned `alpaka` subdirectory
 * Any code that `#include`s a header from the framework or from the `HeterogeneousCore/AlpakaCore` must be separated from the Alpaka device code, and have the usual `.cc` suffix.
   * Some framework headers are allowed to be used in `.dev.cc` files:
@@ -127,7 +136,7 @@ Note that for `CopyToDevice` such `postCopy()` functionality is **not** provided
 
 In EDProducers for each device-side data product a transfer from the device memory space to the host memory space is registered automatically. The data product is copied only if the job has another EDModule that consumes the host-side data product. For each device-side data product a specialization of `cms::alpakatools::CopyToHost` is required to exist.
 
-In addition, for each host-side data product a transfer from the host memory space to the device meory space is registered autmatically **if** a `cms::alpakatools::CopyToDevice` specialization exists. The data product is copied only if the job has another EDModule that consumes the device-side data product.
+In addition, for each host-side data product a transfer from the host memory space to the device meory space is registered automatically **if** a `cms::alpakatools::CopyToDevice` specialization exists. The data product is copied only if the job has another EDModule that consumes the device-side data product. **Note:** The header where the `cms::alpakatools::CopyToDevice` specialization is defined must be `#include`d in the EDProducer source file for the transfer to be registered, even if it is _seemingly_ unused. For example, for `PortableCollection` that means `DataFormats/Portable/interface/PortableCollection.h`.
 
 #### ESProducer
 
