@@ -48,13 +48,16 @@ std::string generateBaseConfig(const std::string& analyzerName, const std::strin
 process = TestProcess()
 process.load("MagneticField.Engine.uniformMagneticField_cfi")
 process.load("Configuration.Geometry.GeometryExtended2024Reco_cff")
-process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2024_design', '')
 from DQM.TrackingMonitorSource.{}_cfi import {}
 process.trackAnalyzer = {}
 process.moduleToTest(process.trackAnalyzer)
 process.add_(cms.Service('DQMStore'))
 process.add_(cms.Service('MessageLogger'))
 process.add_(cms.Service('JobReportService'))
+process.add_(cms.Service('SiteLocalConfigService'))
 process.add_(cms.Service('TFileService',fileName=cms.string('{}')))
     )_";
 
@@ -81,10 +84,10 @@ TEST_CASE("AlcaRecoTrackSelector tests", "[AlcaRecoTrackSelector]") {
 }
 
 //___________________________________________________________________________________________
-//TEST_CASE("HltPathSelector tests", "[HltPathSelector]") {
-//  const std::string baseConfig = generateBaseConfig("hltPathSelector", "test_hltPathSelector.root");
-//  runTestForAnalyzer(baseConfig, "HltPathSelector");
-//}
+TEST_CASE("HltPathSelector tests", "[HltPathSelector]") {
+  const std::string baseConfig = generateBaseConfig("hltPathSelector", "test_hltPathSelector.root");
+  runTestForAnalyzer(baseConfig, "HltPathSelector");
+}
 
 //___________________________________________________________________________________________
 TEST_CASE("TrackMultiplicityFilter tests", "[TrackMultiplicityFilter]") {
@@ -93,10 +96,10 @@ TEST_CASE("TrackMultiplicityFilter tests", "[TrackMultiplicityFilter]") {
 }
 
 //___________________________________________________________________________________________
-//TEST_CASE("TrackToTrackComparisonHists tests", "[TrackToTrackComparisonHists]") {
-//  const std::string baseConfig = generateBaseConfig("trackToTrackComparisonHists", "test_trackToTrackComparisonHists.root");
-//  runTestForAnalyzer(baseConfig, "TrackToTrackComparisonHists");
-//}
+TEST_CASE("TrackToTrackComparisonHists tests", "[TrackToTrackComparisonHists]") {
+ const std::string baseConfig = generateBaseConfig("trackToTrackComparisonHists", "test_trackToTrackComparisonHists.root");
+ runTestForAnalyzer(baseConfig, "TrackToTrackComparisonHists");
+}
 
 //___________________________________________________________________________________________
 TEST_CASE("TrackTypeMonitor tests", "[TrackTypeMonitor]") {
