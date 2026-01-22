@@ -277,18 +277,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const TrackerTopology* tTopo_ = &iSetup.getData(trackerTopologyToken_);
       // collect morphing module ids on host, then copy once to device
       std::vector<uint32_t> morphingModulesHost;
-      for (const auto& connection : cablingMap_->det2fedMap()) {
-        auto rawId = connection.first;
-        if (rawId == 0)
-          continue;
-        DetId detId(rawId);
-        if (!SiPixelRawToCluster::skipDetId(tTopo_, detId, theBarrelRegions_, theEndcapRegions_)) {
-          morphingModulesHost.push_back(rawId);
+      if (digiMorphingConfig_.applyDigiMorphing) {
+        for (const auto& connection : cablingMap_->det2fedMap()) {
+          auto rawId = connection.first;
+          if (rawId == 0)
+            continue;
+          DetId detId(rawId);
+          if (!SiPixelRawToCluster::skipDetId(tTopo_, detId, theBarrelRegions_, theEndcapRegions_)) {
+            morphingModulesHost.push_back(rawId);
+          }
         }
-      }
 
-      // Sort once on CPU for efficient binary search on device later
-      std::sort(morphingModulesHost.begin(), morphingModulesHost.end());
+        // Sort once on CPU for efficient binary search on device later
+        std::sort(morphingModulesHost.begin(), morphingModulesHost.end());
+      }
 
       // update count in config and copy module ids to device buffer once
       digiMorphingConfig_.numMorphingModules = morphingModulesHost.size();
