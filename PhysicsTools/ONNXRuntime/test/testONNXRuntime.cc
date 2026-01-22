@@ -2,7 +2,9 @@
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#ifdef CMSSW_CUDA_IS_AVAILABLE
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
+#endif
 
 #include <iostream>
 
@@ -11,7 +13,9 @@ using namespace cms::Ort;
 class testONNXRuntime : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testONNXRuntime);
   CPPUNIT_TEST(checkCPU);
+#ifdef CMSSW_CUDA_IS_AVAILABLE
   CPPUNIT_TEST(checkGPU);
+#endif
   CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -45,7 +49,9 @@ void testONNXRuntime::test(Backend backend) {
 void testONNXRuntime::checkCPU() { test(Backend::cpu); }
 
 void testONNXRuntime::checkGPU() {
+#ifdef CMSSW_CUDA_IS_AVAILABLE
   if (cms::cudatest::testDevices()) {
     test(Backend::cuda);
   }
+#endif
 }
