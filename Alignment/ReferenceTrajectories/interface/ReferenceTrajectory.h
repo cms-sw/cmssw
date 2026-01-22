@@ -38,6 +38,7 @@
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 
 #include "GblTrajectory.h"
@@ -47,10 +48,6 @@ class MagneticField;
 class MaterialEffectsUpdator;
 class Plane;
 class BeamSpotTransientTrackingRecHit;
-
-namespace reco {
-  class BeamSpot;
-}
 
 class ReferenceTrajectory : public ReferenceTrajectoryBase {
 public:

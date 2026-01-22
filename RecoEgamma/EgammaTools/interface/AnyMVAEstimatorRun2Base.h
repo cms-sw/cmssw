@@ -8,14 +8,11 @@
 
 #include <string>
 #include <vector>
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 
 namespace edm {
   class ParameterSet;
 }  // namespace edm
-
-namespace reco {
-  class Candidate;
-}  // namespace reco
 
 class AnyMVAEstimatorRun2Base {
 public:

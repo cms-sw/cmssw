@@ -2,10 +2,7 @@
 //#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
-namespace reco {
-  class PFCandidate;
-  class PFRecHit;
-}  // namespace reco
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 class CaloRecHit;
 
 class FWPFCandidateWithHitsProxyBuilder : public FWProxyBuilderBase {

@@ -7,16 +7,13 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 /// Base class for factories producing reference trajectories, i.e. instances of classes deriving from
 /// ReferenceTrajectoryBase, from a TrajTrackPairCollection.
-
-namespace reco {
-  class BeamSpot;
-}
 
 class TrajectoryFactoryBase {
 public:

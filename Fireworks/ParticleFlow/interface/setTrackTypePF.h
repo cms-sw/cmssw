@@ -11,9 +11,6 @@
 // user include files
 
 // forward declarations
-namespace reco {
-  class PFCandidate;
-}
 class TEveTrack;
 
 namespace fireworks {

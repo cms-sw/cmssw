@@ -10,9 +10,7 @@
  *
  */
 
-namespace reco {
-  class Candidate;
-}
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 
 class OverlapChecker {
 public:

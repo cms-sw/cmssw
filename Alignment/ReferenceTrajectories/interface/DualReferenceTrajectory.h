@@ -28,11 +28,9 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 class ReferenceTrajectory;
-namespace reco {
-  class BeamSpot;
-}
 
 class DualReferenceTrajectory : public ReferenceTrajectoryBase {
 public:

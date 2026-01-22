@@ -2,6 +2,7 @@
 #define TtSemiLepEvtPartons_h
 
 #include "AnalysisDataFormats/TopObjects/interface/TtEventPartons.h"
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 
 #include <vector>
 
@@ -13,9 +14,6 @@
    This class is mainly used for the jet-parton matching in TopTools.
 */
 
-namespace reco {
-  class Candidate;
-}
 class TtGenEvent;
 
 class TtSemiLepEvtPartons : public TtEventPartons {
