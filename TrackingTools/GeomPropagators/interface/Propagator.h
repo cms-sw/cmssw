@@ -2,6 +2,7 @@
 #define CommonDet_Propagator_H
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -12,10 +13,6 @@ class Plane;
 class Cylinder;
 class Surface;
 class MagneticField;
-
-namespace reco {
-  class BeamSpot;
-}
 
 /** Basic tool for "propagation" of trajectory states to surfaces.
  *  If the starting state has an error matrix the errors will be also

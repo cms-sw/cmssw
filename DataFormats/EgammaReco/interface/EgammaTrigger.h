@@ -9,10 +9,9 @@
  *
  */
 #include "DataFormats/EgammaReco/interface/EgammaTriggerFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 namespace reco {
-
-  class SuperCluster;
 
   namespace egamma {
     enum { L1Single = 0, L1Double, L1RelaxedDouble, IsolatedL1 };

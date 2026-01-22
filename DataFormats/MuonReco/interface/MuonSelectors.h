@@ -7,11 +7,8 @@
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include <string>
-
-namespace reco {
-  class Vertex;
-}
 
 namespace muon {
   /// Selector type
