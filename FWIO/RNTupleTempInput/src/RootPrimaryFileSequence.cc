@@ -162,7 +162,8 @@ namespace edm::rntuple_temp {
                                     .noEventSort = noEventSort_,
                                     .usingGoToEvent = usingGoToEvent_},
         RootFile::TTreeOptions{.useClusterCache = input_.optimizations().useClusterCache,
-                               .promptReading = not input_.delayReadingEventProducts()},
+                               .promptReading = not input_.delayReadingEventProducts(),
+                               .enableIMT = input_.optimizations().enableIMT},
         RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
                                  .associationsFromSecondary = nullptr,  // associationsFromSecondary
                                  .dropDescendantsOfDroppedProducts = input_.dropDescendants(),

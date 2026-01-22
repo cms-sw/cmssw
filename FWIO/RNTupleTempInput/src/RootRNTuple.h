@@ -96,6 +96,7 @@ namespace edm::rntuple_temp {
     struct Options {
       bool useClusterCache = true;
       bool promptReading = false;
+      bool enableIMT = true;
 
       Options usingDefaultNonEventOptions() const { return {}; }
     };

@@ -73,6 +73,8 @@ namespace edm::rntuple_temp {
         ROOT::RNTupleReadOptions rntupleOptions;
         rntupleOptions.SetClusterCache(options.useClusterCache ? ROOT::RNTupleReadOptions::EClusterCache::kOn
                                                                : ROOT::RNTupleReadOptions::EClusterCache::kOff);
+        rntupleOptions.SetUseImplicitMT(options.enableIMT ? ROOT::RNTupleReadOptions::EImplicitMT::kDefault
+                                                          : ROOT::RNTupleReadOptions::EImplicitMT::kOff);
         reader_ = ROOT::RNTupleReader::Open(*tuple, rntupleOptions);
       }
     }
