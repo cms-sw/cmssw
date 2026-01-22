@@ -469,7 +469,7 @@ void run_lst() {
 
       // We need to initialize it here so that it stays in scope
       auto &queue = *event_queues.at(omp_get_thread_num());
-      LSTInputDeviceCollection lstInputDC(out_lstInputHC.at(evt).sizes(), queue);
+      LSTInputDeviceCollection lstInputDC(queue, out_lstInputHC.at(evt)->metadata().size());
 
       timing_input_loading =
           addInputsToEventPreLoad(events.at(omp_get_thread_num()), &out_lstInputHC.at(evt), &lstInputDC, queue);
