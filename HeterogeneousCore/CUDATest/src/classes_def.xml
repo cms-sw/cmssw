@@ -1,7 +1,4 @@
 <lcgdict>
-    <class name="cms::cuda::Product<cms::cudatest::Thing>" persistent="false"/>
-    <class name="edm::Wrapper<cms::cuda::Product<cms::cudatest::Thing>>" persistent="false"/>
-
     <!--
     A simple data product used to test that the framework handles correctly the case of
     edm::Wrapper<T> where

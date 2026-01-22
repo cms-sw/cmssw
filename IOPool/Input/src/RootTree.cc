@@ -247,7 +247,11 @@ namespace edm {
     entryNumber_ = newEntryNumber;
   }
 
-  void RootTree::getEntryForAllBranches() const { treeCacheManager_->getEntryForAllBranches(entryNumber_); }
+  void RootTree::getEntryForAllBranches() const {
+    LogTrace("IOTrace").format("RootTree::getEntryForAllBranches() begin for entry {}", entryNumber_);
+    treeCacheManager_->getEntryForAllBranches(entryNumber_);
+    LogTrace("IOTrace").format("RootTree::getEntryForAllBranches() end for entry {}", entryNumber_);
+  }
 
   void RootTree::getEntry(TBranch* branch, EntryNumber entryNumber) const {
     LogTrace("IOTrace").format("RootTree::getEntry() begin for branch {} entry {}", branch->GetName(), entryNumber);

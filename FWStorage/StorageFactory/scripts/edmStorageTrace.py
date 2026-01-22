@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 
+import re
+from enum import Enum
 import argparse
 from collections import namedtuple
 
 class Entries:
     common = ["id", "timestamp"]
-    Open = namedtuple("Open", common+["filename"])
+    Open = namedtuple("Open", common+["filename", "traceid"])
     common.append("duration")
     Read = namedtuple("Read", common + ["offset", "requested", "actual"])
     Readv = namedtuple("Readv", common + ["requested", "actual", "elements"])
-    ReadvElement = namedtuple("ReadvElements", ["index", "offset", "requested"])
+    ReadvElement = namedtuple("ReadvElement", ["index", "offset", "requested"])
     Write = namedtuple("Write", common + ["offset", "requested", "actual"])
     Writev = namedtuple("Writev", common + ["requested", "actual", "elements"])
-    WritevElement = namedtuple("WritevElements", ["index", "offset", "requested"])
+    WritevElement = namedtuple("WritevElement", ["index", "offset", "requested"])
     Position = namedtuple("Position", common + ["offset", "whence"])
-    Prefetch = namedtuple("Prefech", common + ["requested", "elements", "supported"])
-    PrefetchElement = namedtuple("PrefetchElements", ["index", "offset", "requested"])
+    Prefetch = namedtuple("Prefetch", common + ["requested", "elements", "supported"])
+    PrefetchElement = namedtuple("PrefetchElement", ["index", "offset", "requested"])
     Resize = namedtuple("Resize", common+["size"])
     Flush = namedtuple("Flush", common)
     Close = namedtuple("Close", common)
@@ -54,7 +56,20 @@ class Entries:
     def isVectorElement(obj):
         return isinstance(obj, Entries.ReadvElement) or isinstance(obj, Entries.WritevElement) or isinstance(obj, Entries.PrefetchElement)
 
+    @staticmethod
+    def toString(obj, indent=""):
+        s = f"{indent}{obj.__class__.__name__}"
+        for f in obj._fields:
+            if f in ["actual", "elements"]:
+                continue
+            s += f" {f} {getattr(obj, f)}"
+        if Entries.isVector(obj):
+            for e in obj.elements:
+                s += f"\n{indent}{Entries.toString(e, indent)}"
+        return s
+
 Chunk = namedtuple("Chunk", ("begin", "end"))
+ChunkWithTime = namedtuple("ChunkWithTime", ("begin", "end", "begintime", "endtime"))
 
 def readlog(f):
     ret = []
@@ -166,6 +181,94 @@ def analyzeReadOrder(logEntries):
 ####################
 # Read overlaps analysis
 ####################
+class OverlapType(Enum):
+    UNIQUE = "unique"
+    PARTIAL_OVERLAP = "partial overlap"
+    FULL_OVERLAP = "full overlap"
+
+overlapColors = {
+    OverlapType.UNIQUE: "#276827",
+    OverlapType.PARTIAL_OVERLAP: "#C6BA13",
+    OverlapType.FULL_OVERLAP: "#FF4400"
+}
+
+def addAndMergeRange(chunk, seen_ranges):
+    """Add chunk to seen_ranges, merging with any overlapping ranges
+
+    seen_ranges is a list of (start, end) tuples, sorted by start and properly merged.
+    The function modifies seen_ranges in-place by adding the chunk and merging
+    it with any overlapping existing ranges.
+
+    Returns:
+        OverlapResult with:
+        - overlap_type: OverlapType.UNIQUE/PARTIAL_OVERLAP/FULL_OVERLAP
+        - overlap_bytes: number of bytes in chunk that overlapped with existing ranges
+    """
+    OverlapResult = namedtuple("OverlapResult", ("overlap_type", "overlap_bytes"))
+    if len(seen_ranges) == 0:
+        seen_ranges.append((chunk.begin, chunk.end))
+        return OverlapResult(OverlapType.UNIQUE, 0)
+
+    import bisect
+
+    # Find the first range that could potentially overlap with chunk
+    # We need to find ranges where range.end > chunk.begin
+    # Since ranges are sorted by start, we use bisect to find insertion point
+    left_idx = bisect.bisect_left(seen_ranges, (chunk.begin, 0))
+
+    # Check if chunk overlaps with the previous range (if any)
+    if left_idx > 0 and seen_ranges[left_idx - 1][1] > chunk.begin:
+        left_idx -= 1
+
+    # Find the rightmost range that overlaps with chunk
+    # We need ranges where range.start < chunk.end
+    right_idx = left_idx
+    while right_idx < len(seen_ranges) and seen_ranges[right_idx][0] < chunk.end:
+        right_idx += 1
+
+    # No overlapping ranges found
+    if left_idx == right_idx:
+        # Insert chunk at the correct position
+        seen_ranges.insert(left_idx, (chunk.begin, chunk.end))
+        return OverlapResult(OverlapType.UNIQUE, 0)
+
+    # Calculate overlapping bytes
+    overlap_bytes = 0
+    for i in range(left_idx, right_idx):
+        start, end = seen_ranges[i]
+        # Find intersection of chunk and current range
+        intersection_start = max(chunk.begin, start)
+        intersection_end = min(chunk.end, end)
+        if intersection_start < intersection_end:
+            overlap_bytes += intersection_end - intersection_start
+
+    # Check if chunk is fully contained within a single range
+    for i in range(left_idx, right_idx):
+        start, end = seen_ranges[i]
+        if chunk.begin >= start and chunk.end <= end:
+            # Chunk is fully contained, no modification needed
+            return OverlapResult(OverlapType.FULL_OVERLAP, chunk.end - chunk.begin)
+
+    # Partial overlap: merge chunk with all overlapping ranges
+    merge_start = chunk.begin
+    merge_end = chunk.end
+
+    # Extend merge bounds to include all overlapping ranges
+    for i in range(left_idx, right_idx):
+        start, end = seen_ranges[i]
+        merge_start = min(merge_start, start)
+        merge_end = max(merge_end, end)
+
+    # Remove all overlapping ranges (in reverse order to maintain indices)
+    for i in range(right_idx - 1, left_idx - 1, -1):
+        del seen_ranges[i]
+
+    # Insert the merged range at the correct position
+    seen_ranges.insert(left_idx, (merge_start, merge_end))
+
+    return OverlapResult(OverlapType.PARTIAL_OVERLAP, overlap_bytes)
+
+
 def processReadOverlaps(read_chunks):
     """Takes a list of Chunks
 
@@ -180,33 +283,31 @@ def processReadOverlaps(read_chunks):
     N reads that overlap with each other, total_count is increased by N,
     and overlap_count by N-1.
     """
-    # smallest begin first, and among them, largest end first
-    read_chunks.sort(key=lambda x: (x.begin, -x.end))
+    read_total_bytes = 0
 
     read_total_bytes = 0
-    read_unique_bytes = 0
+    read_total_count = 0
 
-    prev = read_chunks[0]
-    read_total_bytes = prev.end-prev.begin
-    read_total_count = 1
+    read_overlap_bytes = 0
+    read_full_overlap_count = 0
+    read_partial_overlap_count = 0
 
-    read_unique_bytes = 0
-    read_overlap_count = 0
-
-    for chunk in read_chunks[1:]:
+    seen_ranges = []
+    for chunk in read_chunks:
         read_total_bytes += chunk.end-chunk.begin
         read_total_count += 1
-        if chunk.begin >= prev.end:
-            read_unique_bytes += prev.end-prev.begin
-            prev = chunk
-        else:
-            read_overlap_count += 1
-            if chunk.end > prev.end:
-                prev = Chunk(prev.begin, chunk.end)
-    read_unique_bytes += prev.end-prev.begin
 
-    OverlapResult = namedtuple("OverlapResult", ("total_bytes", "overlap_bytes", "total_count", "overlap_count"))
-    return OverlapResult(read_total_bytes, read_total_bytes-read_unique_bytes, read_total_count, read_overlap_count)
+        ret = addAndMergeRange(chunk, seen_ranges)
+        read_overlap_bytes += ret.overlap_bytes
+        if ret.overlap_type == OverlapType.UNIQUE:
+            pass
+        elif ret.overlap_type == OverlapType.PARTIAL_OVERLAP:
+            read_partial_overlap_count += 1
+        elif ret.overlap_type == OverlapType.FULL_OVERLAP:
+            read_full_overlap_count += 1
+
+    OverlapSummary = namedtuple("OverlapSummary", ("total_bytes", "overlap_bytes", "total_count", "full_overlap_count", "partial_overlap_count"))
+    return OverlapSummary(read_total_bytes, read_overlap_bytes, read_total_count, read_full_overlap_count, read_partial_overlap_count)
 
 def analyzeReadOverlaps(logEntries, args):
     read_chunks = []
@@ -223,8 +324,10 @@ def analyzeReadOverlaps(logEntries, args):
     print(f" Number of reads (singular or vector elements) {result.total_count}")
     print(f" Bytes read {format_bytes(result.total_bytes)}")
     print(f"Overlaps")
-    print(f" Number of reads that could overlapped with another read {result.overlap_count}")
-    print(f"  Fraction of all reads {result.overlap_count/float(result.total_count)*100} %")
+    print(f" Number of reads that partially overlapped with an earlier read {result.partial_overlap_count}")
+    print(f"  Fraction of all reads {result.partial_overlap_count/float(result.total_count)*100} %")
+    print(f" Number of reads that fully overlapped with an earlier read {result.full_overlap_count}")
+    print(f"  Fraction of all reads {result.full_overlap_count/float(result.total_count)*100} %")
     print(f" Bytes read that had been already read {format_bytes(result.overlap_bytes)}")
     print(f"  Fraction of all bytes {result.overlap_bytes/float(result.total_bytes)*100} %")
 
@@ -295,69 +398,191 @@ def summary(logEntries):
         print_summary(h, q)
 
 ####################
-# Read ranges
-####################
-def printReadRanges(logEntries):
-    for entry in logEntries:
-        if isinstance(entry, Entries.Read):
-            print(f"# id {entry.id}")
-            print(f"{entry.offset} {entry.offset+entry.requested}")
-        elif isinstance(entry, Entries.Readv):
-            print(f"# id {entry.id}")
-            for element in entry.elements:
-                print(f"{element.offset} {element.offset+element.requested}")
-
-####################
-# Map read ranges
+# Mapping of read ranges
 ####################
 MapChunk = namedtuple("MapChunk", ("begin", "end", "type", "content"))
-def searchMapChunk(chunks, offset, size):
-    if len(chunks) == 0:
-        return []
+class MapChunks:
+    def __init__(self, mapFileName):
+        self._chunks = []
+        with open(mapFileName) as f:
+            import re
+            # Extract the offset (At:...), size (N=...), type, and content
+            # (with name and possibly title) of an element in
+            # TFile::Map("extended") printout
+            line_re = re.compile(r"At:(?P<offset>\d+)\s*N=(?P<size>\d+)\s*(?P<type>\w+).*(?P<content>name:.*$)")
+            for line in f:
+                m = line_re.search(line)
+                if m:
+                    offset = int(m.group("offset"))
+                    self._chunks.append(MapChunk(offset, offset+int(m.group("size")), m.group("type"), m.group("content")))
 
-    offset_end = offset+size
-    import bisect
-    i = bisect.bisect_left(chunks, MapChunk(offset, 0, "", ""))
-    ret = []
-    if i > 0 and offset < chunks[i-1].end:
-        ret.append(i-1)
-    while i < len(chunks) and chunks[i].begin < offset_end:
-        ret.append(i)
-        i += 1
+    def chunks(self, offset, size):
+        if len(self._chunks) == 0:
+            return []
 
-    return ret
+        offset_end = offset+size
+        import bisect
+        i = bisect.bisect_left(self._chunks, MapChunk(offset, 0, "", ""))
+        ret = []
+        if i > 0 and offset < self._chunks[i-1].end:
+            ret.append(self._chunks[i-1])
+        while i < len(self._chunks) and self._chunks[i].begin < offset_end:
+            ret.append(self._chunks[i])
+            i += 1
 
-def printMapReadRanges(logEntries, mapFileName):
-    chunks = []
-    with open(mapFileName) as f:
-        import re
-        # Extract the offset (At:...), size (N=...), type, and content
-        # (with name and possibly title) of an element in
-        # TFile::Map("extended") printout
-        line_re = re.compile("At:(?P<offset>\d+)\s*N=(?P<size>\d+)\s*(?P<type>\w+).*(?P<content>name:.*$)")
-        for line in f:
-            m = line_re.search(line)
-            if m:
-                offset = int(m.group("offset"))
-                chunks.append(MapChunk(offset, offset+int(m.group("size")), m.group("type"), m.group("content")))
+        return ret
 
+####################
+# Read ranges
+####################
+def printReadRanges(logEntries, mapChunks=None):
     for entry in logEntries:
         if isinstance(entry, Entries.Read):
             print(f"# id {entry.id}")
-            for i in searchMapChunk(chunks, entry.offset, entry.requested):
-                ch = chunks[i]
-                print(f"{ch.begin} {ch.end} {ch.type} {ch.content}")
+            if mapChunks:
+                for ch in mapChunks.chunks(entry.offset, entry.requested):
+                    print(f"{ch.begin} {ch.end} {ch.type} {ch.content}")
+            else:
+                print(f"{entry.offset} {entry.offset+entry.requested}")
         elif isinstance(entry, Entries.Readv):
             print(f"# id {entry.id}")
             for element in entry.elements:
-                for i in searchMapChunk(chunks, element.offset, element.requested):
-                    ch = chunks[i]
-                    print(f"{ch.begin} {ch.end} {ch.type} {ch.content}")
+                if mapChunks:
+                    for ch in mapChunks.chunks(element.offset, element.requested):
+                        print(f"{ch.begin} {ch.end} {ch.type} {ch.content}")
+                else:
+                    print(f"{element.offset} {element.offset+element.requested}")
+
+####################
+# Read overlapping ranges
+####################
+def printReadOverlapRanges(logEntries, mapChunks=None):
+    seen_chunks = []
+    for entry in logEntries:
+        if isinstance(entry, Entries.Read):
+            chunk = Chunk(entry.offset, entry.offset+entry.requested)
+            ret = addAndMergeRange(chunk, seen_chunks)
+            if ret.overlap_type != OverlapType.UNIQUE:
+                print(f"# id {entry.id} overlap_type {ret.overlap_type.value}")
+                print(f"{entry.offset} {entry.offset+entry.requested}")
+                if mapChunks:
+                    for ch in mapChunks.chunks(entry.offset, entry.requested):
+                        print(f" {ch.begin} {ch.end} {ch.type} {ch.content}")
+        elif isinstance(entry, Entries.Readv):
+            overlaps = []
+            for element in entry.elements:
+                chunk = Chunk(element.offset, element.offset+element.requested)
+                ret = addAndMergeRange(chunk, seen_chunks)
+                if ret.overlap_type != OverlapType.UNIQUE:
+                    overlaps.append(f"# element overlap type {ret.overlap_type.value}")
+                    overlaps.append(f" {element.offset} {element.offset+element.requested}")
+                    if mapChunks:
+                        for ch in mapChunks.chunks(element.offset, element.requested):
+                            overlaps.append(f"  {ch.begin} {ch.end} {ch.type} {ch.content}")
+            if len(overlaps) > 0:
+                print(f"# id {entry.id}")
+                for line in overlaps:
+                    print(line)
+
+######################
+# Correlate reads with log file
+#######################
+
+def printReadCorrelations(logEntries, logFileName):
+    if len(logEntries) == 0:
+        return
+
+    openEntry = logEntries[0]
+    if not isinstance(openEntry, Entries.Open):
+        raise Exception("First log entry is not file open")
+
+    traceFileID = openEntry.traceid
+
+    def create_read_entry_finder():
+        for entry in logEntries:
+            yield entry
+    entry_generator = create_read_entry_finder()
+    def nextEntryIfRead(trace_id):
+        for entry in entry_generator:
+            if entry.id == trace_id:
+                if isinstance(entry, Entries.Read) or isinstance(entry, Entries.Readv):
+                    return entry
+                else:
+                    return None
+        return None
+
+    keepLogLinePatterns = [
+        "Initiating request to open file",
+        "Successfully opened file",
+        "RootTree::getEntryUsingCache()",
+        "RootTree::getEntryForAllBranches()",
+        "DataProductsRNTuple::dataProduct()",
+    ]
+    trace_re = re.compile(r"IOTrace {} id (\d+)".format(traceFileID))
+    with open(logFileName) as f:
+        for line in f:
+            if any(pattern in line for pattern in keepLogLinePatterns):
+                print(line.strip())
+                continue
+            m = trace_re.search(line)
+            if m:
+                entry = nextEntryIfRead(int(m.group(1)))
+                if entry is not None:
+                    print(Entries.toString(entry, " "))
+
+#####################
+# Plot read patterns
+#####################
+def plotReadPatterns(logEntries, outputFileName):
+    if len(logEntries) == 0:
+        return
+
+    beginTime = logEntries[0].timestamp
+
+    def makeChunkWithTime(offset, requested, timestamp, duration):
+        timestamp = (timestamp-beginTime) / 1000.0 # convert ms to s
+        duration = duration / 1_000_000.0 # convert us to s
+        return ChunkWithTime(offset, offset+requested, timestamp, timestamp+duration)
+
+    read_chunks = []
+    for entry in logEntries:
+        if isinstance(entry, Entries.Read):
+            read_chunks.append(makeChunkWithTime(entry.offset, entry.requested, entry.timestamp, entry.duration))
+        elif isinstance(entry, Entries.Readv):
+            for element in entry.elements:
+                read_chunks.append(makeChunkWithTime(element.offset, element.requested, entry.timestamp, entry.duration))
+
+    if len(read_chunks) == 0:
+        return
+
+    import matplotlib.pyplot as plt
+
+    # Create a plot with read patterns
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    seen_ranges = []
+    for chunk in read_chunks:
+        ret = addAndMergeRange(chunk, seen_ranges)
+        ax.plot([chunk.begintime, chunk.endtime], [chunk.begin, chunk.end], color=overlapColors[ret.overlap_type], alpha=0.5)
+
+    ax.set_xlabel('Time (from job start) (s)')
+    ax.set_ylabel('Offset (B)')
+    ax.set_title('Read operations')
+    ax.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    plt.tight_layout()
+    plt.savefig(outputFileName)
+    print(f"Read pattern plot saved to {outputFileName}")
+
 
 ####################
 # Main function
 ####################
 def main(logEntries, args):
+    mapChunks = None
+    if args.mapFile:
+        mapChunks = MapChunks(args.mapFile)
+
     if args.summary:
         summary(logEntries)
         print()
@@ -368,9 +593,13 @@ def main(logEntries, args):
         analyzeReadOverlaps(logEntries, args)
         print()
     if args.readRanges:
-        printReadRanges(logEntries)
-    if args.mapReadRanges:
-        printMapReadRanges(logEntries, args.mapReadRanges)
+        printReadRanges(logEntries, mapChunks)
+    if args.readOverlapRanges:
+        printReadOverlapRanges(logEntries, mapChunks)
+    if args.correlateReads:
+        printReadCorrelations(logEntries, args.correlateReads)
+    if args.plotReads:
+        plotReadPatterns(logEntries, args.plotReads)
     pass
 
 ####################
@@ -410,7 +639,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 10)
         self.assertEqual(result.overlap_bytes, 0)
         self.assertEqual(result.total_count, 2)
-        self.assertEqual(result.overlap_count, 0)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 0)
 
         chunks = [
             Chunk(0, 10),
@@ -420,7 +650,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 15)
         self.assertEqual(result.overlap_bytes, 5)
         self.assertEqual(result.total_count, 2)
-        self.assertEqual(result.overlap_count, 1)
+        self.assertEqual(result.full_overlap_count, 1)
+        self.assertEqual(result.partial_overlap_count, 0)
 
         chunks = [
             Chunk(0, 10),
@@ -431,7 +662,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 20)
         self.assertEqual(result.overlap_bytes, 10)
         self.assertEqual(result.total_count, 3)
-        self.assertEqual(result.overlap_count, 2)
+        self.assertEqual(result.full_overlap_count, 2)
+        self.assertEqual(result.partial_overlap_count, 0)
 
         chunks = [
             Chunk(0, 10),
@@ -441,7 +673,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 20)
         self.assertEqual(result.overlap_bytes, 5)
         self.assertEqual(result.total_count, 2)
-        self.assertEqual(result.overlap_count, 1)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 1)
 
         chunks = [
             Chunk(0, 5),
@@ -452,7 +685,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 16)
         self.assertEqual(result.overlap_bytes, 4)
         self.assertEqual(result.total_count, 3)
-        self.assertEqual(result.overlap_count, 2)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 2)
 
         chunks = [
             Chunk(0, 5),
@@ -465,7 +699,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 19)
         self.assertEqual(result.overlap_bytes, 6)
         self.assertEqual(result.total_count, 5)
-        self.assertEqual(result.overlap_count, 3)
+        self.assertEqual(result.full_overlap_count, 1)
+        self.assertEqual(result.partial_overlap_count, 2)
 
         chunks = [
             Chunk(2, 4),
@@ -477,7 +712,8 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 26)
         self.assertEqual(result.overlap_bytes, 6)
         self.assertEqual(result.total_count, 4)
-        self.assertEqual(result.overlap_count, 3)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 1)
 
         chunks = [
             Chunk(0, 20),
@@ -488,32 +724,122 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result.total_bytes, 27)
         self.assertEqual(result.overlap_bytes, 2)
         self.assertEqual(result.total_count, 3)
-        # Value 2 here is debatable
-        self.assertEqual(result.overlap_count, 2)
+        self.assertEqual(result.full_overlap_count, 0)
+        self.assertEqual(result.partial_overlap_count, 2)
 
-    def test_searchMapChunk(self):
-        self.assertEqual(searchMapChunk([], 0, 10), [])
+    def test_addAndMergeRange(self):
+        # Test with empty seen_ranges
+        seen_ranges = []
+        result = addAndMergeRange(Chunk(0, 10), seen_ranges)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges, [(0, 10)])
 
-        chunks = []
-        for i in range(0, 100):
-            chunks.append(MapChunk(i*100, i*100+50, "", i))
-        self.assertEqual(searchMapChunk(chunks, 0, 10), [0])
-        self.assertEqual(searchMapChunk(chunks, 0, 50), [0])
-        self.assertEqual(searchMapChunk(chunks, 0, 100), [0])
-        self.assertEqual(searchMapChunk(chunks, 10, 50), [0])
-        self.assertEqual(searchMapChunk(chunks, 10, 90), [0])
-        self.assertEqual(searchMapChunk(chunks, 9900, 50), [99])
-        self.assertEqual(searchMapChunk(chunks, 9900, 100), [99])
-        self.assertEqual(searchMapChunk(chunks, 9900, 100), [99])
+        # Test UNIQUE cases - no overlap
+        seen_ranges = [(10, 20), (30, 40), (50, 60)]
+        original_ranges = seen_ranges.copy()
 
-        self.assertEqual(searchMapChunk(chunks, -10, 5), [])
-        self.assertEqual(searchMapChunk(chunks, 50, 40), [])
-        self.assertEqual(searchMapChunk(chunks, 50, 50), [])
-        self.assertEqual(searchMapChunk(chunks, 9950, 10), [])
+        # Before all ranges
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(0, 5), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges_copy, [(0, 5), (10, 20), (30, 40), (50, 60)])
 
-        self.assertEqual(searchMapChunk(chunks, 0, 200), [0, 1])
-        self.assertEqual(searchMapChunk(chunks, 49, 101-49), [0, 1])
-        self.assertEqual(searchMapChunk(chunks, 149, 301-149), [1, 2, 3])
+        # Between ranges
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(25, 30), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges_copy, [(10, 20), (25, 30), (30, 40), (50, 60)])
+
+        # After all ranges
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(65, 70), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges_copy, [(10, 20), (30, 40), (50, 60), (65, 70)])
+
+        # Adjacent but not overlapping - should remain separate
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(0, 10), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.UNIQUE)
+        self.assertEqual(result.overlap_bytes, 0)
+        self.assertEqual(seen_ranges_copy, [(0, 10), (10, 20), (30, 40), (50, 60)])
+
+        # Test FULL_OVERLAP cases - chunk completely contained within a seen range
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(12, 18), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.FULL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 6)  # 18 - 12 = 6 bytes fully overlapped
+        self.assertEqual(seen_ranges_copy, original_ranges)  # No change expected
+
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(10, 20), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.FULL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 10)  # 20 - 10 = 10 bytes fully overlapped
+        self.assertEqual(seen_ranges_copy, original_ranges)  # No change expected
+
+        # Test PARTIAL_OVERLAP cases - chunk partially overlaps with seen ranges
+
+        # Overlaps beginning of first range
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(5, 15), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 5)  # 15 - 10 = 5 bytes overlapped with (10, 20)
+        self.assertEqual(seen_ranges_copy, [(5, 20), (30, 40), (50, 60)])
+
+        # Overlaps end of first range
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(15, 25), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 5)  # 20 - 15 = 5 bytes overlapped with (10, 20)
+        self.assertEqual(seen_ranges_copy, [(10, 25), (30, 40), (50, 60)])
+
+        # Spans multiple ranges
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(15, 35), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 10)  # (20-15) + (35-30) = 5 + 5 = 10 bytes
+        self.assertEqual(seen_ranges_copy, [(10, 40), (50, 60)])
+
+        # Encompasses a range
+        seen_ranges_copy = seen_ranges.copy()
+        result = addAndMergeRange(Chunk(5, 45), seen_ranges_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 20)  # (20-10) + (40-30) = 10 + 10 = 20 bytes
+        self.assertEqual(seen_ranges_copy, [(5, 45), (50, 60)])
+
+        # Test edge cases with single range
+        single_range = [(20, 30)]
+
+        # Overlaps beginning
+        single_range_copy = single_range.copy()
+        result = addAndMergeRange(Chunk(10, 25), single_range_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 5)  # 25 - 20 = 5 bytes overlapped
+        self.assertEqual(single_range_copy, [(10, 30)])
+
+        # Overlaps end
+        single_range_copy = single_range.copy()
+        result = addAndMergeRange(Chunk(25, 35), single_range_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 5)  # 30 - 25 = 5 bytes overlapped
+        self.assertEqual(single_range_copy, [(20, 35)])
+
+        # Fully contained
+        single_range_copy = single_range.copy()
+        result = addAndMergeRange(Chunk(22, 28), single_range_copy)
+        self.assertEqual(result.overlap_type, OverlapType.FULL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 6)  # 28 - 22 = 6 bytes fully overlapped
+        self.assertEqual(single_range_copy, [(20, 30)])  # No change
+
+        # Encompasses the range
+        single_range_copy = single_range.copy()
+        result = addAndMergeRange(Chunk(15, 35), single_range_copy)
+        self.assertEqual(result.overlap_type, OverlapType.PARTIAL_OVERLAP)
+        self.assertEqual(result.overlap_bytes, 10)  # 30 - 20 = 10 bytes overlapped
+        self.assertEqual(single_range_copy, [(15, 35)])
 
 def test():
     import sys
@@ -542,15 +868,18 @@ if __name__ == "__main__":
     parser.add_argument("--readOrder", action="store_true", help="Analyze ordering of reads")
     parser.add_argument("--readOverlaps", action="store_true", help="Analyze overlaps of reads")
     parser.add_argument("--readRanges", action="store_true", help="Print offset ranges of each read element")
-    parser.add_argument("--mapReadRanges", type=str, default=None, help="Like --readRanges, but uses the output of TFile::Map() to map the file regions to TFile content. The argument should be a file containing the output of 'edmFileUtil --map'.")
+    parser.add_argument("--readOverlapRanges", action="store_true", help="Print offset ranges of reads that overlap with any earlier read")
+    parser.add_argument("--mapFile", type=str, default=None, help="Alter behavior of --readRanges or --readOverlapRanges using the output of TFile::Map() to map the file regions to TFile content. The argument should be a file containing the output of 'edmFileUtil --map'.")
+    parser.add_argument("--correlateReads", type=str, default=None, help="Correlate reads with high-level IOTrace printouts from the CMSSW log file.")
+    parser.add_argument("--plotReads", type=str, default=None, help="Generate a plot of the read patterns. The argument should be the name of the output PDF file.")
     parser.add_argument("--test", action="store_true", help="Run internal tests")
 
     args = parser.parse_args()
     if args.test:
         test()
     else:
-        if args.readRanges and args.mapReadRanges:
-            parser.error("Only one of --readRanges and --mapReadRanges can be given")
+        if args.readRanges and args.readOverlapRanges:
+            parser.error("Cannot use --readRanges and --readOverlapRanges at the same time")
         if args.filename is None:
             parser.error("filename argument is missing")
         with open(args.filename) as f:
