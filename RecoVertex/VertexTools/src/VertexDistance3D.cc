@@ -9,7 +9,7 @@ Measurement1D VertexDistance3D::signedDistance(const Vertex& vtx1,
   Measurement1D unsignedDistance = distance(vtx1, vtx2);
   Basic3DVector<float> diff = Basic3DVector<float>(vtx2.position()) - Basic3DVector<float>(vtx1.position());
   //   Basic3DVector<float> (vtx2 - vtx1);
-  if ((momentum.x() * diff.x() + momentum.y() * diff.y() * momentum.z() * diff.z()) < 0)
+  if ((momentum.x() * diff.x() + momentum.y() * diff.y() + momentum.z() * diff.z()) < 0)
     return Measurement1D(-1.0 * unsignedDistance.value(), unsignedDistance.error());
   return unsignedDistance;
 }
