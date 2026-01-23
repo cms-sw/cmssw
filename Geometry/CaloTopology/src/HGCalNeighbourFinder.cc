@@ -6,7 +6,7 @@ constexpr int densityNumberHD = 12;
 constexpr unsigned int iuMask = 0x0000001F;
 constexpr unsigned int ivMask = 0x000003E0;
 constexpr unsigned int waferMask = 0x000FFC00;
-constexpr unsigned int layerMask = 0x01F00000;
+//constexpr unsigned int layerMask = 0x01F00000;
 constexpr unsigned int detectorMask = 0xF0000000;
 
 constexpr unsigned int HGCalEE = 0x80000000;
