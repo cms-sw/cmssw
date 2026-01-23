@@ -16,6 +16,9 @@
 * threshold (e.g. eCut_barl_high_) is applied. If  parameter useRecoFlag_  
 * is true, statusThreshold_ acts on EcalRecHit::recoFlag(), while if it is 
 * false, it acts on the ChannelStatus record from the database.
+* To allow to use tighter cleaning thresholds than the ones used in the
+* RecHitProducer the cleanReco_ parameter can be used the specify a
+* new cleaningConfig.
 
 */
 
@@ -42,6 +45,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -60,8 +64,18 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const ecalChannelStatusRcdToken_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const caloGeometryRecordToken_;
+  std::unique_ptr<EcalCleaningAlgo> cleaningAlgo_;
+
+  const uint32_t statusThreshold_;  ///< accept channels with up to this status
+  const bool useRecoFlag_;          ///< use recoflag instead of DB for bad channels
+  const bool cleanReco_;            ///< run cleaning algo and use flag if higher than the reco flag
+  const std::vector<double> ampCut_barlP_;
+  const std::vector<double> ampCut_barlM_;
+  const std::vector<double> ampCut_endcP_;
+  const std::vector<double> ampCut_endcM_;
+
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> ecalChannelStatusRcdToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryRecordToken_;
 
   const edm::EDGetTokenT<EBDigiCollection> barrelDigisToken_;
   const edm::EDGetTokenT<EEDigiCollection> endcapDigisToken_;
@@ -71,12 +85,6 @@ private:
   const edm::EDGetTokenT<EERecHitCollection> endcapHitsToken_;
   const std::string phiSymBarrelDigis_;
   const std::string phiSymEndcapDigis_;
-  const std::vector<double> ampCut_barlP_;
-  const std::vector<double> ampCut_barlM_;
-  const std::vector<double> ampCut_endcP_;
-  const std::vector<double> ampCut_endcM_;
-  const uint32_t statusThreshold_;  ///< accept channels with up to this status
-  const bool useRecoFlag_;          ///< use recoflag instead of DB for bad channels
 };
 
 #endif
