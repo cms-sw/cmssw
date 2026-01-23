@@ -72,10 +72,11 @@ void HGCalGeometryNewCornersTest::beginRun(const edm::Run&, const edm::EventSetu
   edm::LogVerbatim("HGCalGeom") << nameDetector_ << " with layers in the range " << layerF << ":" << layerL
                                 << " Offset " << layerOff << " and for " << waferU_.size() << " wafers and cells";
 
+  int debug = debug_ ? 1 : 0;
   for (unsigned int k = 0; k < waferU_.size(); ++k) {
     for (auto lay : layers_) {
       HGCSiliconDetId detId(det, 1, types_[k], lay - layerOff, waferU_[k], waferV_[k], 0, 0);
-      GlobalPoint global = geom->getPosition(DetId(detId), debug_);
+      GlobalPoint global = geom->getPosition(DetId(detId), debug);
       double phi2 = global.phi();
       auto xy = geom->topology().dddConstants().waferPosition(lay - layerOff, waferU_[k], waferV_[k], true, debug_);
       double phi1 = std::atan2(xy.second, xy.first);
