@@ -94,7 +94,7 @@ if [ -e 'Phase2_L1P2GT_HLT_OnCPU.py' ]; then
     fi
     patatrack-scripts/benchmark -j 16 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT_OnCPU.py
     check_logs_for_errors || exit 1
-    mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_OnCPU_resources.json
+    mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources_OnCPU.json
 fi
 
 # run NGT scouting menu (currently used modifiers ngtScouting,phase2CAExtension)
