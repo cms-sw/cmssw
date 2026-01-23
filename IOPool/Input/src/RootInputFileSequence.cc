@@ -263,12 +263,11 @@ namespace edm {
             errors::ErrorCodes errorCode = usedFallback_ ? errors::FallbackFileOpenError : errors::FileOpenError;
             Exception ex(errorCode, "", e);
             ex.addContext("Calling RootInputFileSequence::initTheFile()");
-            std::ostringstream out;
-            out << "Input file " << (*it) << " could not be opened.";
-            ex.addAdditionalInfo(out.str());
+            ex.addAdditionalInfo(std::format("Failed to open the file with physical name {}.", (*it)));
             //report previous exceptions when use other names to open file
             for (auto const& s : exInfo)
               ex.addAdditionalInfo(s);
+            ex.addAdditionalInfo(std::format("Attempted to open logical file {}.", lfn()));
             //report more information of the earlier file open failures in a log message
             if (not additionalMessage.empty()) {
               edm::LogWarning l("RootInputFileSequence");
@@ -278,7 +277,17 @@ namespace edm {
             }
             throw ex;
           } else {
-            exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
+            //NOTE: additional info of an exception is written in reverse order in the `what` message.
+            if (e.category() != "FileOpenError") {
+              exInfo.push_front(std::format(
+                  "Failed to open file with physical name {}. Will attempt fallback. The error was\nError type {}\n{}",
+                  (*it),
+                  e.category(),
+                  e.additionalInfo().empty() ? std::string() : e.additionalInfo().front()));
+            } else {
+              exInfo.push_front(
+                  std::format("Failed to open the file with physical name {}. Will attempt fallback.", (*it)));
+            }
             additionalMessage.push_back(std::format(
                 "Input file {} could not be opened, and fallback was attempted.\nAdditional information:", *it));
             char c = 'a';
