@@ -1,9 +1,18 @@
-#ifndef PROCESSINTERFACE_H
-#define PROCESSINTERFACE_H
+#ifndef HeterogeneousCore_MPICore_test_MPITestBase_h
+#define HeterogeneousCore_MPICore_test_MPITestBase_h
 
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <random>
+#include <string>
+#include <tuple>
+#include <utility>
 #include <vector>
-#include <unistd.h>
-#include <fcntl.h>
+
+#include <mpi.h>
+
 class MPI_TEST {
 public:
   int size_;
@@ -19,6 +28,8 @@ public:
     MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
   }
 
+  virtual ~MPI_TEST() = default;
+
   virtual std::pair<float, float> blockingSend() = 0;
   virtual std::pair<float, float> nonBlockingSend() = 0;
   virtual std::pair<float, float> blockingScatter() = 0;
@@ -27,25 +38,28 @@ public:
   virtual std::pair<float, float> oneSidedCommMaster() = 0;
   virtual std::pair<float, float> oneSidedCommWorker() = 0;
 
-  void getTimeMeasurements(int vecSize, std::vector<int> commMethods, int iterations, int inputNum_) {
-    //tuple<commMethod, avgSendTime, avgRecvTime>
+  void getTimeMeasurements(
+      int vecSize, std::vector<int> commMethods, int iterations, int warmup, int inputNum_, bool outputCsv) {
+    // Tuple: <commMethod, avgSendTime, avgRecvTime>
 
     std::vector<std::tuple<int, float, float>> results;
 
-    for (auto i = 0; i < commMethods.size(); ++i) {
-      auto [avgSendTime, avgRecvTime] = calculateAverageTime(commMethods[i], iterations);
+    for (size_t i = 0; i < commMethods.size(); ++i) {
+      auto [avgSendTime, avgRecvTime] = calculateAverageTime(commMethods[i], iterations, warmup);
       results.push_back(std::make_tuple(commMethods[i], avgSendTime, avgRecvTime));
     }
 
-    if (rank_ == 0) {                                            //root
-      printResults(results, iterations, vecSize, size_);         //print to std output
-      printCSV(results, iterations, vecSize, size_, inputNum_);  //print to a csv file
+    if (rank_ == 0) {                                     // Root
+      printResults(results, iterations, vecSize, size_);  // Print to std output
+      if (outputCsv) {
+        printCSV(results, iterations, vecSize, size_, inputNum_);  // Print to a CSV file
+      }
     }
   }
-  std::pair<float, float> calculateAverageTime(int funcNum, int iterations) {
-    std::pair<float, float> averageTime;
+  std::pair<float, float> calculateAverageTime(int funcNum, unsigned int iterations, unsigned int warmup) {
+    std::pair<float, float> averageTime{0.0f, 0.0f};
 
-    for (unsigned int i = 0; i < iterations; ++i) {
+    for (unsigned int i = 0; i < iterations + warmup; ++i) {
       std::pair<float, float> timeDuration;
       switch (funcNum) {
         case 1:
@@ -74,8 +88,11 @@ public:
           abort();
       }
 
-      averageTime.first += timeDuration.first;    //sendDuration from root
-      averageTime.second += timeDuration.second;  //recvDuration to root
+      // Skip warmup iterations for averaging
+      if (i >= warmup) {
+        averageTime.first += timeDuration.first;    // sendDuration from root
+        averageTime.second += timeDuration.second;  // recvDuration to root
+      }
     }
 
     // Calculate the average timings by dividing the accumulated values
@@ -101,7 +118,7 @@ public:
     float totalError{0.0};  // Variable to store the total error.
 
     // Calculate the percentage difference and accumulate the total error.
-    for (int i = 0; i < result_Vect.size(); i++) {
+    for (size_t i = 0; i < result_Vect.size(); i++) {
       float s = v1_[i] + v2_[i];
       totalError += ((s - result_Vect[i]) / s) * 100.0;
     }
@@ -116,11 +133,11 @@ public:
     std::cout << "\n-------------------------------------------------------\n";
     std::cout.precision(precisionFactor);
 
-    int batchSize = v1_.size() / (size_ - 1);     //execluding root
-    int extraBatches = v1_.size() % (size_ - 1);  //execluding root
-    int curBatchSize = batchSize + (extraBatches > 0) ? 1 : 0;
+    int batchSize = v1_.size() / (size_ - 1);     // Excluding root
+    int extraBatches = v1_.size() % (size_ - 1);  // Excluding root
+    size_t curBatchSize = batchSize + (extraBatches > 0) ? 1 : 0;
     int workerRank = 0;
-    for (int i = 0; i < result_Vect.size(); i++) {
+    for (size_t i = 0; i < result_Vect.size(); i++) {
       float correct = v1_[i] + v2_[i];
       float error = correct - result_Vect[i];
       if (error != 0.0) {
@@ -138,7 +155,7 @@ public:
     std::cout << "Total Error = " << totalError << std::endl;
   }
 
-  // print to the standared output
+  // Print to the standard output
   void printResults(const std::vector<std::tuple<int, float, float>> executionTimes,
                     int iterations,
                     int vecSize,
@@ -171,7 +188,7 @@ public:
               << "\n\t" << ROW;
 
     // Print the execution times and related information
-    for (int i = 0; i < executionTimes.size(); ++i) {
+    for (size_t i = 0; i < executionTimes.size(); ++i) {
       if (i > 0)
         std::cout << "\n\t" << DASHES;
 
@@ -183,15 +200,14 @@ public:
     }
 
     std::cout << "\n\t" << ROW << "\n\n";
-  }  //end of printResults
+  }  // End of printResults
 
-  // printing to a text file
+  // Print to a text file
   void printFile(const std::vector<std::tuple<int, float, float>> executionTimes,
                  int iterations,
                  int vecSize,
                  int size) {
-    /*Printing to the file*/
-    /*Printing to the output screen*/
+    // Printing to the file
     const std::string COMM_METHOD_NAMES[] = {"NONBLOCKING SCATTER",
                                              "BLOCKING SCATTER",
                                              "BLOCKING SEND/RECV",
@@ -210,12 +226,12 @@ public:
 
     std::fstream fd;
     fd.open("result_file.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-    if (!fd) {  //file cannot be opened
-      std::cout << "File Cannot be opened1\n";
+    if (!fd) {  // File cannot be opened
+      std::cout << "File cannot be opened!\n";
       exit(0);
-    } else {  //file is opened
+    } else {  // File is opened
 
-      //write to the file the results
+      // Write to the file the results
 
       fd << "\n\n\t" << ROW;
       fd << "\n\t|| " << std::left << std::setw(COL1) << "Communication Method"
@@ -228,7 +244,7 @@ public:
          << "\n\t" << ROW;
 
       // Print the execution times and related information
-      for (int i = 0; i < executionTimes.size(); ++i) {
+      for (size_t i = 0; i < executionTimes.size(); ++i) {
         if (i > 0)
           fd << "\n\t" << DASHES;
 
@@ -243,8 +259,9 @@ public:
       fd.close();
     }
 
-  }  //end of printFile
-  // printing to a csv file
+  }  // End of printFile
+
+  // Print to a CSV file
   void printCSV(const std::vector<std::tuple<int, float, float>> executionTimes,
                 int iterations,
                 int vecSize,
@@ -285,14 +302,14 @@ public:
       } else {
         std::cout << "File name not found!\n";
       }
-      if (!fd) {  //file cannot be opened
-        std::cout << "File Cannot be opened!\n";
+      if (!fd) {  // File cannot be opened
+        std::cout << "File cannot be opened!\n";
         exit(0);
       }
 
-      fd.seekg(0, std::ios::end);  //seek the end of the file
+      fd.seekg(0, std::ios::end);  // Seek the end of the file
       int file_size = fd.tellg();
-      if (file_size == 0)  //first time to open and write to a file
+      if (file_size == 0)  // First time to open and write to a file
       {
         fd << "Communication Method"
            << ","
@@ -310,14 +327,14 @@ public:
         fd << COMM_METHOD_NAMES[commMethod - 1] << "," << avgSendTime << "," << avgRecvTime << "," << iterations << ","
            << vecSize << "," << size;
 
-      } else {  //not the first time i.e. data exist in the file
+      } else {  // Not the first time, i.e. data exists in the file
         fd << COMM_METHOD_NAMES[commMethod - 1] << "," << avgSendTime << "," << avgRecvTime << "," << iterations << ","
            << vecSize << "," << size;
       }
       fd << "\n";
       fd.close();
-    }  //end while
-  }    //end of printCSV
+    }  // End while
+  }  // End of printCSV
 };
 
-#endif  // PROCESSINTERFACE_H
+#endif  // HeterogeneousCore_MPICore_test_MPITestBase_h
