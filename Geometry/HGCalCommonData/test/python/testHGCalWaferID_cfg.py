@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalWaferID_cfg.py type=V17
 #
-#   Options for type V16, V17, V17Shift, V18, V19
+#   Options for type V17, V17Shift, V18, V19
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17Shift, V18, V19")
+                  "type of operations: V17, V17Shift, V18, V19")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -38,8 +38,6 @@ if (options.type == "V18"):
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D104_cff"
 elif (options.type == "V17Shift"):
     geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
-elif (options.type == "V16"):
-    geomFile = "Configuration.Geometry.GeometryExtendedRun4D98_cff"
 elif (options.type == "V19"):
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D120_cff"
 else:
