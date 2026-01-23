@@ -4,15 +4,12 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include <vector>
 #include <cmath>
 
 class CaloGeometry;
 class CaloTopology;
-
-namespace reco {
-  class SuperCluster;
-}
 
 class EcalRegressionData {
 public:

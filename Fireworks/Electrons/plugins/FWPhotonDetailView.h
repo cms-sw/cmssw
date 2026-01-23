@@ -14,12 +14,10 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 class FWECALDetailViewBuilder;
 class TEveCaloData;
-namespace reco {
-  class Photon;
-}
 
 class FWPhotonDetailView : public FWDetailViewGL<reco::Photon> {
 public:

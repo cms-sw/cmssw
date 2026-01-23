@@ -24,11 +24,9 @@
 #include "CommonTools/Utils/interface/DynArray.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
 
 class PileupSummaryInfo;
-namespace reco {
-  class DeDxData;
-}
 
 struct MultiTrackValidatorHistograms {
   MTVHistoProducerAlgoForTrackerHistograms histoProducerAlgo;

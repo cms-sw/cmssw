@@ -16,6 +16,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 class TEveCaloDataVec;
 class TEveCaloLego;
@@ -23,10 +24,6 @@ class TLegend;
 class FWECALDetailViewBuilder;
 class TEveCaloData;
 class TGSlider;
-
-namespace reco {
-  class GsfElectron;
-}
 
 class FWElectronDetailView : public FWDetailViewGL<reco::GsfElectron> {
 public:

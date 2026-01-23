@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -27,11 +28,6 @@
 //
 // class declaration
 //
-class DQMStore;
-namespace reco {
-  class BeamSpot;
-  class Vertex;
-}  // namespace reco
 class DQMStore;
 class GenericTriggerEventFlag;
 

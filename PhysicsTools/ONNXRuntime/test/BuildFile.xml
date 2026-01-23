@@ -1,9 +1,13 @@
 <test name="test_py_onnxruntime" command="plot_load_and_predict.py">
   <use name="onnxruntime"/>
 </test>
+
+<iftool name="cuda">
+  <flags CPPDEFINES="CMSSW_CUDA_IS_AVAILABLE"/>
+</iftool>
 <bin name="testONNXRuntime" file="testRunner.cpp, testONNXRuntime.cc">
   <use name="cppunit"/>
-  <use name="PhysicsTools/ONNXRuntime"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="FWCore/ParameterSet"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <use name="PhysicsTools/ONNXRuntime"/>
 </bin>

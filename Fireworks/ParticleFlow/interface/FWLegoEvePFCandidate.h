@@ -4,13 +4,10 @@
 #include "TEveLine.h"
 #include "TEveStraightLineSet.h"
 #include "Rtypes.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 class TEveTrack;
 class FWViewContext;
-
-namespace reco {
-  class PFCandidate;
-}
 
 namespace fireworks {
   class Context;

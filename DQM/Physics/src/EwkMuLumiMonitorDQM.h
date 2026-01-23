@@ -21,6 +21,8 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -28,10 +30,6 @@
 namespace trigger {
   class TriggerEvent;
 }
-namespace reco {
-  class BeamSpot;
-  class MET;
-}  // namespace reco
 
 class EwkMuLumiMonitorDQM : public DQMEDAnalyzer {
 public:

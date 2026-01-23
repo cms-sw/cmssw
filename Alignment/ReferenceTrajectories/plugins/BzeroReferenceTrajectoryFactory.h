@@ -1,13 +1,11 @@
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 namespace edm {
   class ParameterSet;
   class EventSetup;
 }  // namespace edm
-namespace reco {
-  class BeamSpot;
-}
 
 /// A factory that produces instances of class BzeroReferenceTrajectory from a
 /// given TrajTrackPairCollection.

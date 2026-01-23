@@ -10,11 +10,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidateOnlyFwd.h"
 #include <vector>
 class MagneticField;
-namespace reco {
-  class VertexCompositeCandidate;
-}
 
 class CandCommonVertexFitterBase {
 public:
