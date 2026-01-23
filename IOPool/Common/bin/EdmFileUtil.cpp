@@ -14,6 +14,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
+#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -131,7 +132,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    edm::InputFileCatalog catalog(in, catalogIn, true);
+    edm::InputFileCatalog catalog(in, catalogIn, true, edm::SciTagCategory::Undefined);
     std::vector<std::string> const& filesIn = catalog.fileNames(0);
 
     if (json) {
