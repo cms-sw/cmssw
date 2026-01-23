@@ -94,7 +94,6 @@ void createT5DNNBranches() {
   ana.tx->createBranch<std::vector<int>>("t5_t3_idx1");
   ana.tx->createBranch<std::vector<int>>("t5_tc_idx");
   ana.tx->createBranch<std::vector<int>>("t5_partOfTC");
-  ana.tx->createBranch<std::vector<float>>("t5_t3_pt");
   ana.tx->createBranch<std::vector<float>>("t5_t3_eta");
   ana.tx->createBranch<std::vector<float>>("t5_t3_phi");
   ana.tx->createBranch<std::vector<float>>("t5_t3_fakeScore1");
@@ -161,7 +160,6 @@ void createT4DNNBranches() {
   ana.tx->createBranch<std::vector<int>>("t4_t3_idx1");
   ana.tx->createBranch<std::vector<int>>("t4_tc_idx");
   ana.tx->createBranch<std::vector<int>>("t4_partOfTC");
-  ana.tx->createBranch<std::vector<float>>("t4_t3_pt");
   ana.tx->createBranch<std::vector<float>>("t4_t3_eta");
   ana.tx->createBranch<std::vector<float>>("t4_t3_phi");
   ana.tx->createBranch<std::vector<float>>("t4_t3_fakeScore1");
@@ -2566,17 +2564,6 @@ void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
     ana.tx->pushbackToBranch<int>("t5_t3_" + idx + "_moduleType", modules.moduleType()[module]);
   }
 
-  float radius;
-  auto const& devHost = cms::alpakatools::host();
-  std::tie(radius, std::ignore, std::ignore) = computeRadiusFromThreeAnchorHits(devHost,
-                                                                                hitObjects[0].x(),
-                                                                                hitObjects[0].y(),
-                                                                                hitObjects[1].x(),
-                                                                                hitObjects[1].y(),
-                                                                                hitObjects[2].x(),
-                                                                                hitObjects[2].y());
-  ana.tx->pushbackToBranch<float>("t5_t3_pt", k2Rinv1GeVf * 2 * radius);
-
   // Angles
   ana.tx->pushbackToBranch<float>("t5_t3_eta", hitObjects[2].eta());
   ana.tx->pushbackToBranch<float>("t5_t3_phi", hitObjects[0].phi());
@@ -2621,18 +2608,6 @@ void fillT4DNNBranches(LSTEvent* event, unsigned int iT3) {
     ana.tx->pushbackToBranch<int>("t4_t3_" + idx + "_moduleType", modules.moduleType()[module]);
     ana.tx->pushbackToBranch<int>("t4_t3_" + idx + "_moduleIdx", module);
   }
-
-  float radius;
-  auto const& devHost = cms::alpakatools::host();
-  std::tie(radius, std::ignore, std::ignore) = computeRadiusFromThreeAnchorHits(devHost,
-                                                                                hitObjects[0].x(),
-                                                                                hitObjects[0].y(),
-                                                                                hitObjects[1].x(),
-                                                                                hitObjects[1].y(),
-                                                                                hitObjects[2].x(),
-                                                                                hitObjects[2].y());
-
-  ana.tx->pushbackToBranch<float>("t4_t3_pt", k2Rinv1GeVf * 2 * radius);
 
   // Angles
   ana.tx->pushbackToBranch<float>("t4_t3_eta", hitObjects[2].eta());
