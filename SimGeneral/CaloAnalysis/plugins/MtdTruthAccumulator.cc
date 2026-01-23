@@ -191,7 +191,7 @@ namespace {
       // -- loop over possible trackIdOffsets to save also sim clusters from non-direct hits
       for (unsigned int offset = 0; offset < MtdHitCategory::n_categories + 1; offset++) {
         auto trackIdx = vertex_property.simTrack->trackId();
-        trackIdx += offset * (static_cast<int>(PSimHit::k_tidOffset));
+        //trackIdx += offset * (static_cast<int>(PSimHit::k_tidOffset));
         IfLogDebug(DEBUG, messageCategoryGraph_)
             << " Found " << simHitBarcodeToIndex_.count(trackIdx) << " associated simHits" << std::endl;
         if (simHitBarcodeToIndex_.count(trackIdx)) {
@@ -205,11 +205,13 @@ namespace {
             simcluster.addHitAndFraction(hit_and_energy.first, hit_and_energy.second);
             simcluster.addHitEnergy(hit_and_energy.second);
             simcluster.addHitTime(std::get<1>(
-                simTrackDetIdMap_[simcluster.g4Tracks()[0].trackId() +
-                                  offset * (static_cast<int>(PSimHit::k_tidOffset))][hit_and_energy.first]));
+                //simTrackDetIdMap_[simcluster.g4Tracks()[0].trackId() +
+                                  //offset * (static_cast<int>(PSimHit::k_tidOffset))][hit_and_energy.first]));
+                simTrackDetIdMap_[simcluster.g4Tracks()[0].trackId()][hit_and_energy.first]));
             simcluster.addHitPosition(std::get<2>(
-                simTrackDetIdMap_[simcluster.g4Tracks()[0].trackId() +
-                                  offset * (static_cast<int>(PSimHit::k_tidOffset))][hit_and_energy.first]));
+                //simTrackDetIdMap_[simcluster.g4Tracks()[0].trackId() +
+                                  //offset * (static_cast<int>(PSimHit::k_tidOffset))][hit_and_energy.first]));
+                simTrackDetIdMap_[simcluster.g4Tracks()[0].trackId()][hit_and_energy.first]));
             simcluster.setTrackIdOffset(offset);
           }
         }
