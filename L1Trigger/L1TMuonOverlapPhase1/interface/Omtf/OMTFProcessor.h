@@ -12,8 +12,6 @@
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/ProcessorBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/SorterBase.h"
 
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/PtAssignmentBase.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
