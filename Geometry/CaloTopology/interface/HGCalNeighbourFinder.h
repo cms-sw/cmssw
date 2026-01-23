@@ -14,12 +14,11 @@
 #include <vector>
 
 class HGCalNeighbourFinder {
-
 public:
   HGCalNeighbourFinder(const HGCalDDDConstants*);
   ~HGCalNeighbourFinder() = default;
 
-  std::vector<unsigned int> nearestNeighboursOfDetId (unsigned int) const;
+  std::vector<unsigned int> nearestNeighboursOfDetId(unsigned int) const;
 
 private:
   const HGCalDDDConstants* hgc_;
@@ -30,18 +29,17 @@ private:
   int edgeIndexForU(int iu, int iv, bool HD) const;
 
   int detIdVec[8];
-  
+
   int iuEdgeLD[45];
   int ivEdgeLD[45];
   int sideLD[45];
-  
+
   int iuEdgeHD[69];
   int ivEdgeHD[69];
   int sideHD[69];
 
   // ---- not relevant for CMSSW implementation
   int combo[6][6];
-
 };
 
 #endif
