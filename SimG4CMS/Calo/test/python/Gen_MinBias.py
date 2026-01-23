@@ -18,13 +18,17 @@ options.register('maxevt',
 ### get and parse the command line arguments
 options.parseArguments()
 
+geomName = "Run4D121"
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+
 maxevt = int(options.maxevt)
 print(options)
-print("maxevt: ", maxevt)
+print("maxevt:   ", maxevt)
+print("geomFile: ", geomFile)
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-
-process = cms.Process('GEN',Phase2C17I13M9)
+process = cms.Process('GEN',ERA)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -32,7 +36,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D98Reco_cff')
+process.load(geomFile)
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC_cfi')
@@ -106,7 +110,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T25', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 process.generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
     PythiaParameters = cms.PSet(
