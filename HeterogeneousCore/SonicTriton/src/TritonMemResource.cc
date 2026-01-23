@@ -2,7 +2,6 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonMemResource.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include <cstring>
 #include <fcntl.h>
@@ -149,6 +148,7 @@ template class TritonHeapResource<tc::InferRequestedOutput>;
 template class TritonCpuShmResource<tc::InferRequestedOutput>;
 
 #ifdef TRITON_ENABLE_GPU
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 template <typename IO>
 TritonGpuShmResource<IO>::TritonGpuShmResource(TritonData<IO>* data, const std::string& name, size_t size)
     : TritonMemResource<IO>(data, name, size),
