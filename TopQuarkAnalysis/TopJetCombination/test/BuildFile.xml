@@ -1,1 +1,1 @@
-<test name="runtestTqafTopJetCombination" command="runtests.sh"/>
+<!-- <test name="runtestTqafTopJetCombination" command="runtests.sh"/> COMMENT: reads old format files -->
