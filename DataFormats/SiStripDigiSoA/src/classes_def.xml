@@ -2,6 +2,6 @@
   <!-- ::Layout alias must be listed before the aliased-to type -->
   <class name="sistrip::SiStripDigiHost::Layout"/>
   <class name="sistrip::SiStripDigiSoALayout<128,false>"/>
-  <class name="sistrip::SiStripDigiHost"/>
+  <class name="sistrip::SiStripDigiHost" rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<sistrip::SiStripDigiHost>" splitLevel="0"/>
 </lcgdict>

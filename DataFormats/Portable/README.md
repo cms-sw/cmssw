@@ -36,6 +36,8 @@ SET_PORTABLEHOSTOBJECT_READ_RULES(portabletest::TestHostObject);
 ```
 **Note:** The dictionary for `portabletest::TestHostObject::Product` (using the same type alias as in the registration macro above) must be placed in the `classes_def.xml` file before the type that `Product` aliases.
 
+**Note:** The dictionary for `portabletest::TestHostObject` in `classes_def.xml` needs `rntupleStreamerMode="true"` attribute in order to be storable with RNTuple.
+
 
 `PortableHostObject<T>` objects can also be read back in "bare ROOT" mode, without any dictionaries.
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
@@ -96,6 +98,8 @@ one would create the file `classes.cc` with the content:
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection);
 ```
 **Note:** The dictionary for `portabletest::TestHostCollection::Layout` (using the same type alias as in the registration macro above) must be placed in the `classes_def.xml` file before the type that `Layout` aliases.
+
+**Note:** The dictionary for `portabletest::TestHostCollection` in `classes_def.xml` needs `rntupleStreamerMode="true"` attribute in order to be storable with RNTuple.
 
 
 `PortableHostCollection<T>` collections can also be read back in "bare ROOT" mode, without any dictionaries.

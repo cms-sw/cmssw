@@ -1,5 +1,5 @@
 <lcgdict>
-  <class name="PortableHostCollection<SiPixelClustersSoA>"/>
+  <class name="PortableHostCollection<SiPixelClustersSoA>" rntupleStreamerMode="true"/>
   <!-- PortableHostCollection<SiPixelClustersSoA>::Layout must be listed before the aliased-to type -->
   <class name="PortableHostCollection<SiPixelClustersSoA>::Layout"/>
   <class name="SiPixelClustersSoA"/>
