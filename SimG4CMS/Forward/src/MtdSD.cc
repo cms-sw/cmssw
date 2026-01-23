@@ -111,32 +111,12 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
     if (!trkInfo->storeTrack()) {
       theID = trkInfo->idLastStoredAncestor();
     }
-    if (theID >= static_cast<int>(PSimHit::k_tidOffset)) {
-      edm::LogError("MtdSim") << " SimTrack ID " << theID << " exceeds maximum allowed by PSimHit identifier"
-                              << PSimHit::k_tidOffset << " unreliable MTD hit type";
-    }
-    if (rname == "FastTimerRegionSensBTL") {
-      if (trkInfo->isInTrkFromBackscattering()) {
-        theID = PSimHit::addTrackIdOffset(theID, k_idFromCaloOffset);
-      } else if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering() && !trkInfo->storeTrack()) {
-        theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
-      } else if (trkInfo->isBTLlooper()) {
-        theID = PSimHit::addTrackIdOffset(theID, k_idloopOffset);
-      }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
-                                 << " BTL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
+    edm::LogVerbatim("MtdSim") << "MtdSD: current Track ID: " << aTrack->GetTrackID()
+                               << " stored Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
-    } else if (rname == "FastTimerRegionSensETL") {
-      if (hitClassID == k_idETLfromBack) {
-        theID = PSimHit::addTrackIdOffset(theID, k_idETLfromBack);
-      }
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
-                                 << " ETL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
-#endif
-      // In the case of ECAL GFlash fast spot may be inside MTD and should be ignored
-    } else {
+    // In the case of ECAL GFlash fast spot may be inside MTD and should be ignored
+    if (rname != "FastTimerRegionSensBTL" && rname != "FastTimerRegionSensETL") {
       throw cms::Exception("MtdSDError") << "MtdSD called in incorrect region " << rname;
     }
   } else {
@@ -153,7 +133,15 @@ void MtdSD::setHitClassID(const G4Step* aStep) {
     return;
   }
   const G4String& rname = aStep->GetTrack()->GetVolume()->GetLogicalVolume()->GetRegion()->GetName();
-  if (rname == "FastTimerRegionSensETL") {
+  if (rname == "FastTimerRegionSensBTL") {
+    if (trkInfo->isInTrkFromBackscattering()) {
+      hitClassID = k_idFromCaloOffset;
+    } else if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering() && !trkInfo->storeTrack()) {
+      hitClassID = k_idsecOffset;
+    } else if (trkInfo->isBTLlooper()) {
+      hitClassID = k_idloopOffset;
+    }
+  } else if (rname == "FastTimerRegionSensETL") {
     double zin = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
     double zout = std::abs(aStep->GetPostStepPoint()->GetPosition().z());
     if (zout - zin < 0.) {
