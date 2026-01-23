@@ -1,13 +1,14 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun testHGCalIdCheck_cfg.py geometry=D120 detector=HGCalEESensitive
-#                                  fileIn=D120E fileOut=junk mode=0
+#                                  fileIn=D120E fileOut=junk mode=0 cog=10
 #
 #   Options for geometry D120, D122
 #           for fileIn D120E.txt, D120H.txt D122E.txt, D122H.txt, ""
 #           for fileOut D120E.out, D120H.out, D122E.out, D122H.out, ""
 #           for detector HGCalEESensitive, HGCalHESiliconSensitive
 #           for outMode 0, 1
+#           for cog 0, 10
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -42,6 +43,11 @@ options.register('outMode',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
                  "Resolution for checking overlaps: 0, 1")
+options.register('cog',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.float,
+                 "Resolution for checking overlaps: 0, 10")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -56,7 +62,8 @@ geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 detector = options.detector
 fileName = options.fileIn
 outFile  = options.fileOut
-outMode = int(options.outMode)
+outMode  = int(options.outMode)
+cog      = int(options.cog)
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
@@ -64,6 +71,7 @@ print("Input file:    ", fileName)
 print("Output file:   ", outFile)
 print("Detector:      ", detector)
 print("OutMode:       ", outMode)
+print("COG:           ", cog)
 
 process = cms.Process('HGCIdCheck',ERA)
 
@@ -110,5 +118,6 @@ process.hgcalIdCheck.nameDetector = detector
 process.hgcalIdCheck.fileName = fileName
 process.hgcalIdCheck.outFileName = outFile
 process.hgcalIdCheck.mode = outMode
+process.hgcalIdCheck.cog  = cog
 
 process.p1 = cms.Path(process.generator*process.hgcalIdCheck)

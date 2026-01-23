@@ -6,6 +6,28 @@ set -e
 # Enable pipefail to propagate the exit status of the entire pipeline
 set -o pipefail
 
+# Function to check logs for errors
+check_logs_for_errors() {
+    local log_dirs=${1:-"logs/step*/pid*"}  # default path if none passed
+    local error_found=0
+
+    for f in $log_dirs/stdout $log_dirs/stderr; do
+        if [ -f "$f" ]; then
+            # Check for common error keywords
+            if grep -qiE 'error|fail|exception|traceback' "$f"; then
+                echo "Error keyword found in: $f"
+                error_found=1
+            fi
+        fi
+    done
+
+    if [ $error_found -eq 1 ]; then
+        echo "Failure detected in logs."
+        return 1
+    fi
+    return 0
+}
+
 FOLDER_FILES="/data/user/${USER}/"
 DATASET="/RelValTTbar_14TeV/CMSSW_15_1_0_pre3-PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/GEN-SIM-DIGI-RAW"
 FILES=($(dasgoclient -query="file dataset=${DATASET}" --limit=-1 | sort | head -4))
@@ -51,6 +73,7 @@ if [ -e 'Phase2_L1P2GT_HLT.py' ]; then
         git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
     patatrack-scripts/benchmark -j 16 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
+    check_logs_for_errors || exit 1
     mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources.json
     if [ -e "$(dirname $0)/augmentResources.py" ]; then
         python3 $(dirname $0)/augmentResources.py
@@ -70,7 +93,8 @@ if [ -e 'Phase2_L1P2GT_HLT_OnCPU.py' ]; then
         git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
     patatrack-scripts/benchmark -j 16 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT_OnCPU.py
-    mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_OnCPU_resources.json
+    check_logs_for_errors || exit 1
+    mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources_OnCPU.json
 fi
 
 # run NGT scouting menu (currently used modifiers ngtScouting,phase2CAExtension)
@@ -89,5 +113,6 @@ if [ -e 'NGTScouting_L1P2GT_HLT.py' ]; then
         git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
     patatrack-scripts/benchmark -j 16 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- NGTScouting_L1P2GT_HLT.py
+    #check_logs_for_errors || exit 1  (commenting check for now, needs a better job division to fit memory budget contraints)
     mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources_NGT.json
 fi
