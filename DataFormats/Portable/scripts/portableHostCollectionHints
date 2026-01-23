@@ -13,7 +13,7 @@ for i in range(len(layouts)):
 print("In <module>/src/classes_def.xml (with necessary includes in <module>/src/classes.h):\n")
 print("<lcgdict>")
 print("  <!-- Collection declaration for dictionary -->")
-print("  <class name=\"%s\"/>"% collectionName)
+print("  <class name=\"%s\" rntupleStreamerMode=\"true\"/>"% collectionName)
 print("  <!-- %s::Layout must be listed before the aliased-to type -->"% collectionName)
 print("  <class name=\"%s::Layout\"/>"% collectionName)
 print()
