@@ -57,9 +57,6 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 //used for backward compatibility
-#include "DataFormats/Provenance/interface/EventAux.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
-#include "DataFormats/Provenance/interface/RunAux.h"
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 
 #include "Rtypes.h"
@@ -1064,16 +1061,8 @@ namespace edm::rntuple_temp {
       // Already read.
       return eventAuxCache_;
     }
-    if (fileFormatVersion().newAuxiliary()) {
-      EventAuxiliary* pEvAux = &eventAuxCache_;
-      eventTree_.fillAux<EventAuxiliary>(pEvAux);
-    } else {
-      // for backward compatibility.
-      EventAux eventAux;
-      EventAux* pEvAux = &eventAux;
-      eventTree_.fillAux<EventAux>(pEvAux);
-      conversion(eventAux, eventAuxCache_);
-    }
+    EventAuxiliary* pEvAux = &eventAuxCache_;
+    eventTree_.fillAux<EventAuxiliary>(pEvAux);
     lastEventEntryNumberRead_ = eventTree_.entryNumber();
     return eventAuxCache_;
   }
@@ -1139,15 +1128,8 @@ namespace edm::rntuple_temp {
 
   std::shared_ptr<LuminosityBlockAuxiliary> RootFile::fillLumiAuxiliary() {
     auto lumiAuxiliary = std::make_shared<LuminosityBlockAuxiliary>();
-    if (fileFormatVersion().newAuxiliary()) {
-      LuminosityBlockAuxiliary* pLumiAux = lumiAuxiliary.get();
-      lumiTree_.fillAux<LuminosityBlockAuxiliary>(pLumiAux);
-    } else {
-      LuminosityBlockAux lumiAux;
-      LuminosityBlockAux* pLumiAux = &lumiAux;
-      lumiTree_.fillAux<LuminosityBlockAux>(pLumiAux);
-      conversion(lumiAux, *lumiAuxiliary);
-    }
+    LuminosityBlockAuxiliary* pLumiAux = lumiAuxiliary.get();
+    lumiTree_.fillAux<LuminosityBlockAuxiliary>(pLumiAux);
     if (daqProvenanceHelper_) {
       lumiAuxiliary->setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(lumiAuxiliary->processHistoryID()));
     }
@@ -1159,15 +1141,8 @@ namespace edm::rntuple_temp {
 
   std::shared_ptr<RunAuxiliary> RootFile::fillRunAuxiliary() {
     auto runAuxiliary = std::make_shared<RunAuxiliary>();
-    if (fileFormatVersion().newAuxiliary()) {
-      RunAuxiliary* pRunAux = runAuxiliary.get();
-      runTree_.fillAux<RunAuxiliary>(pRunAux);
-    } else {
-      RunAux runAux;
-      RunAux* pRunAux = &runAux;
-      runTree_.fillAux<RunAux>(pRunAux);
-      conversion(runAux, *runAuxiliary);
-    }
+    RunAuxiliary* pRunAux = runAuxiliary.get();
+    runTree_.fillAux<RunAuxiliary>(pRunAux);
     if (daqProvenanceHelper_) {
       runAuxiliary->setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(runAuxiliary->processHistoryID()));
     }
