@@ -541,7 +541,6 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea;
         double x1 = 0.5 * sqrt3_ * cellX_[k] -
                     ((2 * std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) / (cellX_[k] + guardRingOffset_ / sqrt3_));
-        double y1 = 0;
         double xMag = (-(cutArea * x1)) / (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
         double yMag = 0.0;
 
