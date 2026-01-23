@@ -9,7 +9,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/AllInnerStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsMEMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/StubTripletsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletParametersMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProjectionsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FullMatchMemory.h"
@@ -20,7 +19,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/VMRouterCM.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessorDisplaced.h"
-#include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculatorDisplaced.h"
 #include "L1Trigger/TrackFindingTracklet/interface/ProjectionCalculator.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubMERouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/MatchProcessor.h"
@@ -107,8 +105,6 @@ void Sector::addMem(const string& memType, const string& memName) {
     addMemToVec(VMSTE_, memName, settings_);
   } else if (memType == "VMStubsME:") {
     addMemToVec(VMSME_, memName, settings_);
-  } else if (memType == "StubTriplets:") {
-    addMemToVec(ST_, memName, settings_);
   } else if (memType == "TrackletParameters:") {
     addMemToVec(TPAR_, memName, settings_);
   } else if (memType == "TrackletProjections:") {
@@ -134,8 +130,6 @@ void Sector::addProc(const string& procType, const string& procName) {
     addProcToVec(TP_, procName, settings_, globals_);
   } else if (procType == "TrackletProcessorDisplaced:") {
     addProcToVec(TPD_, procName, settings_, globals_);
-  } else if (procType == "TrackletCalculatorDisplaced:") {
-    addProcToVec(TCD_, procName, settings_, globals_);
   } else if (procType == "ProjectionCalculator:") {
     addProcToVec(PC_, procName, settings_, globals_);
   } else if (procType == "VMStubMERouter:") {
@@ -232,12 +226,6 @@ void Sector::writeAIS(bool first) {
   }
 }
 
-void Sector::writeST(bool first) {
-  for (auto& i : ST_) {
-    i->writeST(first, isector_);
-  }
-}
-
 void Sector::writeTPAR(bool first) {
   for (auto& i : TPAR_) {
     i->writeTPAR(first, isector_);
@@ -300,12 +288,6 @@ void Sector::executeTP() {
 
 void Sector::executeTPD() {
   for (auto& i : TPD_) {
-    i->execute(isector_, phimin_, phimax_);
-  }
-}
-
-void Sector::executeTCD() {
-  for (auto& i : TCD_) {
     i->execute(isector_, phimin_, phimax_);
   }
 }

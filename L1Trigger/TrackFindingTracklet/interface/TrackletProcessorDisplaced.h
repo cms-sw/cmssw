@@ -61,6 +61,10 @@ namespace trklet {
 
     std::vector<VMStubsTEMemory*> innervmstubs_;
     std::vector<VMStubsTEMemory*> outervmstubs_;
+
+    std::vector<AllStubsMemory*> innerallstubs_;
+    std::vector<AllStubsMemory*> middleallstubs_;
+    std::vector<AllStubsMemory*> outerallstubs_;
   };
 
 };  // namespace trklet

@@ -47,16 +47,6 @@ TrackletProcessorDisplaced::TrackletProcessorDisplaced(string name, Settings con
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk1_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk1_);
 
-  for (unsigned int ilayer = 0; ilayer < N_LAYER; ilayer++) {
-    vector<TrackletProjectionsMemory*> tmp(settings_.nallstubs(ilayer), nullptr);
-    trackletprojlayers_.push_back(tmp);
-  }
-
-  for (unsigned int idisk = 0; idisk < N_DISK; idisk++) {
-    vector<TrackletProjectionsMemory*> tmp(settings_.nallstubs(idisk + N_LAYER), nullptr);
-    trackletprojdisks_.push_back(tmp);
-  }
-
   // set TC index
   iTC_ = region;
   TCIndex_ = (iSeed_ << settings.nbitsseed()) + iTC_;

@@ -73,8 +73,6 @@ namespace trklet {
     std::string const& wiresFullPath() const { return edm::FileInPath(wiresFile()).fullPath(); }
     std::string const& wiresJSONFile() const { return wiresJSONFile_; }
     std::string const& wiresJSONFullPath() const { return edm::FileInPath(wiresJSONFile()).fullPath(); }
-    std::string const& tableTEDFile() const { return tableTEDFile_; }
-    std::string const& tableTREFile() const { return tableTREFile_; }
 
     void setFitPatternFile(const std::string& fitPatternFileName) { fitPatternFile_ = fitPatternFileName; }
     void setProcessingModulesFile(const std::string& processingModulesFileName) {
@@ -83,8 +81,6 @@ namespace trklet {
     void setMemoryModulesFile(const std::string& memoryModulesFileName) { memoryModulesFile_ = memoryModulesFileName; }
     void setWiresFile(const std::string& wiresFileName) { wiresFile_ = wiresFileName; }
     void setWiresJSONFile(const std::string& wiresJSONFileName) { wiresJSONFile_ = wiresJSONFileName; }
-    void setTableTEDFile(const std::string& tableTEDFileName) { tableTEDFile_ = tableTEDFileName; }
-    void setTableTREFile(const std::string& tableTREFileName) { tableTREFile_ = tableTREFileName; }
 
     unsigned int nndbitsstub(unsigned int layerdisk) const { return nndbitsstub_[layerdisk]; }
     unsigned int nzbitsstub(unsigned int layerdisk) const { return nzbitsstub_[layerdisk]; }
@@ -505,8 +501,6 @@ namespace trklet {
     std::string memoryModulesFile_;
     std::string wiresFile_;
     std::string wiresJSONFile_;
-    std::string tableTEDFile_;
-    std::string tableTREFile_;
 
     double rcrit_{55.0};  // critical radius for the hourglass configuration
 

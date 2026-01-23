@@ -31,7 +31,6 @@ namespace trklet {
   class AllInnerStubsMemory;
   class VMStubsTEMemory;
   class VMStubsMEMemory;
-  class StubTripletsMemory;
   class TrackletParametersMemory;
   class TrackletProjectionsMemory;
   class FullMatchMemory;
@@ -43,7 +42,6 @@ namespace trklet {
   class VMRouterCM;
   class TrackletProcessor;
   class TrackletProcessorDisplaced;
-  class TrackletCalculatorDisplaced;
   class ProjectionCalculator;
   class VMStubMERouter;
   class MatchProcessor;
@@ -80,7 +78,6 @@ namespace trklet {
     void writeVMSME(bool first);
     void writeAS(bool first);
     void writeAIS(bool first);
-    void writeST(bool first);
     void writeTPAR(bool first);
     void writeTPROJ(bool first);
     void writeMC(bool first);
@@ -92,11 +89,8 @@ namespace trklet {
     // execute the different tracklet processing modules
     void executeIR();
     void executeVMR();
-    void executeTED();
-    void executeTRE();
     void executeTP();
     void executeTPD();
-    void executeTCD();
     void executePC();
     void executeVMSMER();
     void executeMP();
@@ -140,7 +134,6 @@ namespace trklet {
     std::vector<std::unique_ptr<AllInnerStubsMemory>> AIS_;
     std::vector<std::unique_ptr<VMStubsTEMemory>> VMSTE_;
     std::vector<std::unique_ptr<VMStubsMEMemory>> VMSME_;
-    std::vector<std::unique_ptr<StubTripletsMemory>> ST_;
     std::vector<std::unique_ptr<TrackletParametersMemory>> TPAR_;
     std::vector<std::unique_ptr<TrackletProjectionsMemory>> TPROJ_;
     std::vector<std::unique_ptr<FullMatchMemory>> FM_;
@@ -152,7 +145,6 @@ namespace trklet {
     std::vector<std::unique_ptr<VMRouterCM>> VMRCM_;
     std::vector<std::unique_ptr<TrackletProcessor>> TP_;
     std::vector<std::unique_ptr<TrackletProcessorDisplaced>> TPD_;
-    std::vector<std::unique_ptr<TrackletCalculatorDisplaced>> TCD_;
     std::vector<std::unique_ptr<ProjectionCalculator>> PC_;
     std::vector<std::unique_ptr<VMStubMERouter>> VMSMER_;
     std::vector<std::unique_ptr<MatchProcessor>> MP_;
