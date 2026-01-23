@@ -29,8 +29,6 @@ HTo2XTo4LGunProducer::HTo2XTo4LGunProducer(const ParameterSet& pset) : BaseFlatG
   llp_mass_spectrum_ =
       pgun_params.exists("LLPMassSpectrum") ? pgun_params.getParameter<std::string>("LLPMassSpectrum") : "flatMass";
 
-  min_m_llp_ = min_m_h_ / 2;
-  max_m_llp_ = max_m_h_ / 2;
   min_invpt_h_ = (max_pt_h_ != 0.) ? 1. / max_pt_h_ : 1e9;
   max_invpt_h_ = (min_pt_h_ != 0.) ? 1. / min_pt_h_ : 1e9;
 
@@ -73,17 +71,19 @@ void HTo2XTo4LGunProducer::produce(Event& evt, const EventSetup& es) {
 
     // Get random LLP mass
     double llp_mass;
+    double max_m_llp = h_mass / 2;
+    double min_m_llp = min_m_h_ / 2;
 
     if (llp_mass_spectrum_ == "flatInvDMass") {
-      double max_dmass = h_mass - min_m_llp_;
-      double min_dmass = h_mass - max_m_llp_;
+      double max_dmass = h_mass - min_m_llp;
+      double min_dmass = h_mass - max_m_llp;
       double max_invdmass = 1 / min_dmass;
       double min_invdmass = 1 / max_dmass;
       double dmass = 1 / CLHEP::RandFlat::shoot(engine, min_invdmass, max_invdmass);
 
       llp_mass = h_mass - dmass;
     } else {
-      llp_mass = CLHEP::RandFlat::shoot(engine, min_m_llp_, max_m_llp_);
+      llp_mass = CLHEP::RandFlat::shoot(engine, min_m_llp, max_m_llp);
     }
 
     // Calculate Higgs 4-vertex and LLP 4-momentum

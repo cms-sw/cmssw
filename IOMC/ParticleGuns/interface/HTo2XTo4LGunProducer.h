@@ -47,8 +47,6 @@ namespace edm {
     double min_ctau_llp_;
     double max_ctau_llp_;
     std::string llp_mass_spectrum_;
-    double min_m_llp_;
-    double max_m_llp_;
     double min_invpt_h_;
     double max_invpt_h_;
 
