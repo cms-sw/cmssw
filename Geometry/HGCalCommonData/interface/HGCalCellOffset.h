@@ -30,6 +30,10 @@ private:
   int32_t ncell_[2];
   double cellX_[2], cellY_[2], fullArea[2], cellArea[2][6], cellAreaPartial[2][25];
   std::unique_ptr<HGCalCell> hgcalcell_;
+  const int map_idx[6]  = {1, 0, 2, 4, 3, 5};
+  const int sx[6]       = {-1,-1, 1,-1,-1, 1};
+  const int sy[6]       = { 1, 1,-1, 1, 1,-1};
+  bool reco;
 };
 
 #endif
