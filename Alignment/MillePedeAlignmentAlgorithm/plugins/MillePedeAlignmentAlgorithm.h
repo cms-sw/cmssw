@@ -56,7 +56,9 @@ class IntegratedCalibrationBase;
 class MillePedeMonitor;
 class PedeSteerer;
 class PedeLabelerBase;
-class Mille;
+namespace Mille {
+  class MilleRecord;
+}
 class TrajectoryFactoryBase;
 
 // already from base class - and forward declaration does not work since typedef!
@@ -266,6 +268,10 @@ private:
                   const TkFittedLasBeam &lasBeam,
                   const std::vector<TrajectoryStateOnSurface> &tsoses);
 
+  // ensure our local label vector for Mille has the expected
+  // size and content.
+  void prepareLocalLabels(size_t nLocal);
+
   /// add measurement data from PXB survey
   void addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg);
 
@@ -294,7 +300,7 @@ private:
   align::Alignables theAlignables;
   std::unique_ptr<AlignableNavigator> theAlignableNavigator;
   std::unique_ptr<MillePedeMonitor> theMonitor;
-  std::unique_ptr<Mille> theMille;
+  std::unique_ptr<Mille::MilleRecord> theMille;
   std::shared_ptr<PedeLabelerBase> thePedeLabels;
   std::unique_ptr<PedeSteerer> thePedeSteer;
   std::unique_ptr<TrajectoryFactoryBase> theTrajectoryFactory;
@@ -312,9 +318,8 @@ private:
   std::vector<float> theFloatBufferX;
   std::vector<float> theFloatBufferY;
   std::vector<int> theIntBuffer;
+  std::vector<unsigned int> theLocalLabelBuffer_ = {};
   bool theDoSurveyPixelBarrel;
-  // CHK for GBL
-  std::unique_ptr<gbl::MilleBinary> theBinary;
   bool theGblDoubleBinary;
 
   const bool runAtPCL_;
