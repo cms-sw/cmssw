@@ -5,12 +5,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 #include <vector>
-
-namespace reco {
-  class BeamSpot;
-}  // namespace reco
 
 class TransientTrackingRecHitBuilder;
 class TrackerGeometry;

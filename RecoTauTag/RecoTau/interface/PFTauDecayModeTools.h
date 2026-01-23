@@ -10,11 +10,7 @@
  */
 
 #include "DataFormats/TauReco/interface/PFTau.h"
-
-// Forward declaration
-namespace reco {
-  class GenJet;
-}
+#include "DataFormats/JetReco/interface/GenJetFwd.h"
 
 namespace reco {
   namespace tau {

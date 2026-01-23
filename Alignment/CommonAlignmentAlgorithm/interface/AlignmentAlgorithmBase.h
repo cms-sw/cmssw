@@ -37,6 +37,7 @@ class Trajectory;
 #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -44,9 +45,6 @@ namespace edm {
   class EventSetup;
   class ParameterSet;
 }  // namespace edm
-namespace reco {
-  class BeamSpot;
-}  // namespace reco
 
 /*** Global typedefs part I (see EOF for part II) ***/
 typedef std::pair<const Trajectory *, const reco::Track *> ConstTrajTrackPair;

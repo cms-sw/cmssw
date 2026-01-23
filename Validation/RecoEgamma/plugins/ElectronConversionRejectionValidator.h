@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 //
@@ -21,9 +22,6 @@
 #include <vector>
 
 // forward declarations
-namespace reco {
-  class BeamSpot;
-}
 class TFile;
 class TH1F;
 class TH2F;

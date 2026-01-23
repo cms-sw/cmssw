@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
@@ -34,10 +35,6 @@ namespace edm {
 }
 
 // ----------------------------------------------------------------------
-
-namespace reco {
-  class Candidate;
-}  // namespace reco
 
 class FreeTrajectoryState;
 class MagneticField;

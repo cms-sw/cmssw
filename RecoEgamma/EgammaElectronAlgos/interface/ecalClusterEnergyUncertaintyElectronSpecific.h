@@ -12,9 +12,7 @@
   *  \author Nicolas Chanon, December 2011
   */
 
-namespace reco {
-  class SuperCluster;
-}
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 namespace egamma {
 

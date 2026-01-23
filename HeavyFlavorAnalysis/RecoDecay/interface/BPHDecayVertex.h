@@ -13,6 +13,7 @@
 // Base Class Headers --
 //----------------------
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHDecayMomentum.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class BPHEventSetupWrapper;
 
@@ -22,7 +23,6 @@ namespace edm {
 
 namespace reco {
   class TransientTrack;
-  class Vertex;
 }  // namespace reco
 
 //------------------------------------

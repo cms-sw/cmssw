@@ -22,13 +22,13 @@
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Calo/interface/scaleMarker.h"
+#include "DataFormats/JetReco/interface/JetFwd.h"
 #include <vector>
 
 class TEveScalableStraightLineSet;
 class FWViewContext;
 
 namespace reco {
-  class Jet;
   class BaseTau;
 }  // namespace reco
 

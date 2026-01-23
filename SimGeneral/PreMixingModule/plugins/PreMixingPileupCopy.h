@@ -16,6 +16,7 @@
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
@@ -23,9 +24,6 @@
 #include <vector>
 #include <string>
 
-namespace reco {
-  class GenParticle;
-}
 class PileUpEventPrincipal;
 
 namespace edm {

@@ -22,6 +22,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -32,10 +33,6 @@
 namespace edm {
   class ConfigurationDescriptions;
 }
-
-namespace reco {
-  class Candidate;
-}  // namespace reco
 
 class FreeTrajectoryState;
 class MagneticField;

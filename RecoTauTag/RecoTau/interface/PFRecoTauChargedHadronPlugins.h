@@ -18,6 +18,7 @@
  */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/JetReco/interface/JetFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauPluginsCommon.h"
 
@@ -26,7 +27,6 @@
 namespace reco {
 
   // Forward declarations
-  class Jet;
   class PFRecoTauChargedHadron;
 
   namespace tau {
