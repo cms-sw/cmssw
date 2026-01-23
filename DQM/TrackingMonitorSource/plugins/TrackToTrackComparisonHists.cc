@@ -238,69 +238,65 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
     return;
   }
 
+  // lambda function to get the event data products
+  auto getEventContext =
+      [&](const edm::EDGetTokenT<edm::View<reco::Track>>& trackToken,
+          const edm::EDGetTokenT<reco::BeamSpot>& bsToken,
+          const edm::EDGetTokenT<reco::VertexCollection>& pvToken,
+          const edm::InputTag& trackTag,
+          const std::string& label) -> std::tuple<const edm::View<reco::Track>*, reco::BeamSpot, reco::Vertex> {
+    // Tracks
+    const auto tracksHandle = iEvent.getHandle(trackToken);
+    if (!tracksHandle.isValid()) {
+      edm::LogError("TrackToTrackComparisonHists")
+          << label << "TracksHandle with input tag " << trackTag.encode() << " not found, skipping event";
+      return {nullptr, {}, {}};
+    }
+
+    // BeamSpot
+    const auto bsHandle = iEvent.getHandle(bsToken);
+    if (!bsHandle.isValid()) {
+      edm::LogError("TrackToTrackComparisonHists") << label << "BSHandle not found, skipping event";
+      return {nullptr, {}, {}};
+    }
+
+    reco::BeamSpot bs = *bsHandle;
+
+    // Primary vertex
+    reco::Vertex pv;
+    if (isCosmics_) {
+      pv = reco::Vertex(bs.position(), bs.rotatedCovariance3D(), 0., 0., 0);
+    } else {
+      const auto pvHandle = iEvent.getHandle(pvToken);
+      if (!pvHandle.isValid() || pvHandle->empty()) {
+        edm::LogError("TrackToTrackComparisonHists")
+            << label
+            << (!pvHandle.isValid() ? "PVHandle not found, skipping event" : "PVHandle is empty, skipping event");
+        return {nullptr, {}, {}};
+      }
+      pv = pvHandle->front();
+    }
+
+    return {tracksHandle.product(), bs, pv};
+  };
+
   //
   //  Get Reference Track Info
   //
-  auto const referenceTracksHandle = iEvent.getHandle(referenceTrackToken_);
-  if (!referenceTracksHandle.isValid()) {
-    edm::LogError("TrackToTrackComparisonHists")
-        << "referenceTracksHandle with input tag " << referenceTrackInputTag_.encode() << " not found, skipping event";
-    return;
-  }
-  const edm::View<reco::Track>& referenceTracks = *referenceTracksHandle;
+  const auto [referenceTracks, referenceBS, referencePV] =
+      getEventContext(referenceTrackToken_, referenceBSToken_, referencePVToken_, referenceTrackInputTag_, "reference");
 
-  const auto& referenceBSHandle = iEvent.getHandle(referenceBSToken_);
-  if (!referenceBSHandle.isValid()) {
-    edm::LogError("TrackToTrackComparisonHists") << "referenceBSHandle not found, skipping event";
+  if (!referenceTracks)
     return;
-  }
-  reco::BeamSpot referenceBS = *referenceBSHandle;
-
-  const auto& referencePVHandle = iEvent.getHandle(referencePVToken_);
-  reco::Vertex referencePV;
-  if (isCosmics_) {
-    referencePV = reco::Vertex(referenceBS.position(), referenceBS.rotatedCovariance3D(), 0., 0., 0);
-  } else {
-    if (!referencePVHandle.isValid() || referencePVHandle->empty()) {
-      edm::LogError("TrackToTrackComparisonHists")
-          << (!referencePVHandle.isValid() ? "referencePVHandle not found, skipping event"
-                                           : "referencePVHandle is empty, skipping event");
-      return;
-    }
-    referencePV = referencePVHandle->front();
-  }
 
   //
   //  Get Monitored Track Info
   //
-  const auto& monitoredTracksHandle = iEvent.getHandle(monitoredTrackToken_);
-  if (!monitoredTracksHandle.isValid()) {
-    edm::LogError("TrackToTrackComparisonHists")
-        << "monitoredTracksHandle with input tag " << monitoredTrackInputTag_.encode() << " not found, skipping event";
-    return;
-  }
-  const edm::View<reco::Track>& monitoredTracks = *monitoredTracksHandle;
+  const auto [monitoredTracks, monitoredBS, monitoredPV] =
+      getEventContext(monitoredTrackToken_, monitoredBSToken_, monitoredPVToken_, monitoredTrackInputTag_, "monitored");
 
-  const auto& monitoredBSHandle = iEvent.getHandle(monitoredBSToken_);
-  if (!monitoredTracksHandle.isValid()) {
-    edm::LogError("TrackToTrackComparisonHists") << "monitoredBSHandle not found, skipping event";
+  if (!monitoredTracks)
     return;
-  }
-  reco::BeamSpot monitoredBS = *monitoredBSHandle;
-
-  const auto& monitoredPVHandle = iEvent.getHandle(monitoredPVToken_);
-  reco::Vertex monitoredPV;
-  if (isCosmics_) {
-    monitoredPV = reco::Vertex(monitoredBS.position(), monitoredBS.rotatedCovariance3D(), 0., 0., 0);
-  } else {
-    if (!monitoredPVHandle.isValid() || monitoredPVHandle->empty()) {
-      edm::LogError("TrackToTrackComparisonHists")
-          << (!monitoredPVHandle.isValid() ? "monitoredPVHandle not found, skipping event"
-                                           : "monitoredPVHandle is empty, skipping event");
-      return;
-    }
-    monitoredPV = monitoredPVHandle->front();
-  }
 
   edm::LogInfo("TrackToTrackComparisonHists")
       << "analyzing " << monitoredTrackInputTag_.process() << ":" << monitoredTrackInputTag_.label() << ":"
@@ -311,10 +307,10 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   // Build the dR maps
   //
   idx2idxByDoubleColl monitored2referenceColl;
-  fillMap(monitoredTracks, referenceTracks, monitored2referenceColl, dRmin_);
+  fillMap(*monitoredTracks, *referenceTracks, monitored2referenceColl, dRmin_);
 
   idx2idxByDoubleColl reference2monitoredColl;
-  fillMap(referenceTracks, monitoredTracks, reference2monitoredColl, dRmin_);
+  fillMap(*referenceTracks, *monitoredTracks, reference2monitoredColl, dRmin_);
 
   unsigned int nReferenceTracks(0);           // Counts the number of refernce tracks
   unsigned int nMatchedReferenceTracks(0);    // Counts the number of matched refernce tracks
@@ -324,11 +320,11 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   //
   // loop over reference tracks
   //
-  LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (reference): " << referenceTracks.size() << "\n";
+  LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (reference): " << referenceTracks->size() << "\n";
   for (const auto& [trackIdx, trackDR2map] : reference2monitoredColl) {
     nReferenceTracks++;
 
-    const reco::Track& track = referenceTracks.at(trackIdx);
+    const reco::Track& track = referenceTracks->at(trackIdx);
 
     float dzWRTpv = track.dz(referencePV.position());
     if (std::abs(dzWRTpv) > dzWRTPvCut_)
@@ -356,7 +352,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
       matchedReferenceTracksMEs_.h_dRmin_l->Fill(dRmin);
 
       const int matchedTrackIndex = trackDR2map.at(dR2min);
-      const reco::Track& matchedTrack = monitoredTracks.at(matchedTrackIndex);
+      const reco::Track& matchedTrack = monitoredTracks->at(matchedTrackIndex);
 
       fill_matching_tracks_histos(*&matchTracksMEs_, &track, &matchedTrack, &referenceBS, &referencePV);
     }
@@ -365,11 +361,11 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   //
   // loop over monitoed tracks
   //
-  LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (monitored): " << monitoredTracks.size() << "\n";
+  LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (monitored): " << monitoredTracks->size() << "\n";
   for (const auto& [trackIdx, trackDR2map] : monitored2referenceColl) {
     nMonitoredTracks++;
 
-    const reco::Track& track = monitoredTracks.at(trackIdx);
+    const reco::Track& track = monitoredTracks->at(trackIdx);
 
     float dzWRTpv = track.dz(monitoredPV.position());
     if (std::abs(dzWRTpv) > dzWRTPvCut_)
