@@ -138,6 +138,7 @@ This service is multi-thread safe.
 
 This service registers a monitor when the service is created (after python parsing is finished, but before any modules have been loaded into cmsRun). The user can then start the monitoring in their code as shown in the example below. The monitoring stops, in an RAII fashion, at the end of the scope and the results of the memory operations are printed with the [MessageLogger](../../FWCore/MessageService/Readme.md) with an `IntrusiveAllocMonitor` message category.
 
+Example how to use the `IntrusiveAllocMonitor` in C++ code
 ```cpp
 #include "FWCore/AbstractServices/interface/IntrusiveMonitorBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -146,7 +147,7 @@ This service registers a monitor when the service is created (after python parsi
 void someFunction() {
   {
     edm::Service<IntrusiveMonitorBase> monitor;
-    auto guard = monitor.startMeasurement("Measurement description");
+    auto guard = monitor->startMonitoring("Measurement description");
 
     // more code doing memory allocations
   }
