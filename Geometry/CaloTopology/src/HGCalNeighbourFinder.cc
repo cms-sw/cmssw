@@ -190,7 +190,7 @@ std::vector<unsigned int> HGCalNeighbourFinder::nearestNeighboursOfDetId(unsigne
        if([theDetInterface partialType] == 1 && edgeIndex == weirdPartialCell) return;
        }
        -------------------------------------------------------------------------------- */
-    
+
     const int weirdPartialCell = 37;
     if (partialWafer && !HD && (edgeIndex == weirdPartialCell))
       return detIdVec;
