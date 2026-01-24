@@ -761,8 +761,8 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<std::vector<int>>("minNumLayerCluster", {2, 2, 2})->setComment("Not Inclusive");
   iDesc.add<bool>("doPidCut", false);
   iDesc.add<double>("cutHadProb", 0.5);
-  iDesc.add<bool>("computeLocalTime", false);
-  iDesc.add<bool>("usePCACleaning", false)->setComment("Enable PCA cleaning alorithm");
+  iDesc.add<bool>("computeLocalTime", true);
+  iDesc.add<bool>("usePCACleaning", true)->setComment("Enable PCA cleaning algorithm");
 }
 
 template class ticl::PatternRecognitionbyCLUE3D<TICLLayerTiles>;

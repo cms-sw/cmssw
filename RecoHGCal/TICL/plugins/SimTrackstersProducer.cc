@@ -144,7 +144,7 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
 void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("detector", "HGCAL");
-  desc.add<bool>("computeLocalTime", "false");
+  desc.add<bool>("computeLocalTime", "true");
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("time_layerclusters", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("filtered_mask", edm::InputTag("filteredLayerClustersSimTracksters", "ticlSimTracksters"));

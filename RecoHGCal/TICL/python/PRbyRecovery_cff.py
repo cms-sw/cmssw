@@ -44,7 +44,6 @@ ticlTrackstersRecovery = _trackstersProducer.clone(
     ),
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 
 ticlRecoveryStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersRecovery

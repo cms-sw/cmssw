@@ -294,7 +294,7 @@ void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescrip
       ->setComment("make default such that no filtering is applied");
   iDesc.add<double>("max_longitudinal_sigmaPCA", 9999);
   iDesc.add<double>("max_delta_time", 3.)->setComment("nsigma");
-  iDesc.add<bool>("computeLocalTime", false);
+  iDesc.add<bool>("computeLocalTime", true);
   iDesc.add<std::vector<double>>("siblings_maxRSquared", {6e-4, 6e-4, 6e-4});
 }
 

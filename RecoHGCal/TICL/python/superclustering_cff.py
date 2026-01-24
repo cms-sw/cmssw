@@ -4,8 +4,6 @@ from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as 
 from RecoHGCal.TICL.ticlEGammaSuperClusterProducer_cfi import ticlEGammaSuperClusterProducer
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff import particleFlowSuperClusterHGCal
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
 
@@ -27,14 +25,8 @@ ticlTracksterLinksSuperclusteringMustache = _tracksterLinksProducer.clone(
     tracksters_collections = [cms.InputTag("ticlTrackstersCLUE3DHigh")], # to be changed to ticlTrackstersCLUE3DEM once separate CLUE3D iterations are introduced
 )
 
-### Superclustering : 3 options : DNN, Mustache-TICL (from tracksters), Mustache-PF (converting tracksters to PFClusters, default for ticl_v4, enable with modifier for v5)
-ticlSuperclusteringTask = cms.Task()
-
-# DNN
-_dnn_task = cms.Task(ticlTracksterLinksSuperclusteringDNN)
-ticl_superclustering_dnn.toReplaceWith(ticlSuperclusteringTask, _dnn_task)
-ticl_superclustering_dnn.toModify(ticlEGammaSuperClusterProducer, ticlSuperClusters=cms.InputTag("ticlTracksterLinksSuperclusteringDNN"))
-ticl_superclustering_dnn.toReplaceWith(particleFlowSuperClusterHGCal, ticlEGammaSuperClusterProducer)
+### Superclustering : 3 options : DNN, Mustache-TICL (from tracksters)
+ticlSuperclusteringTask = cms.Task(ticlTracksterLinksSuperclusteringDNN, ticlEGammaSuperClusterProducer)
 
 # Mustache-TICL
 _mustache_ticl_task = cms.Task(ticlTracksterLinksSuperclusteringMustache)

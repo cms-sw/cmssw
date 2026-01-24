@@ -23,7 +23,7 @@ namespace ticl {
                              const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                              double z_limit_em,
                              hgcal::RecHitTools const &rhTools,
-                             bool computeLocalTime = false,
+                             bool computeLocalTime = true,
                              bool energyWeight = true,
                              bool clean = false,
                              int minLayer = 10,
