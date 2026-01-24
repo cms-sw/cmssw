@@ -60,26 +60,19 @@ phase2_hgcal.toModify(
     # If true, PF(Muon)Algo will ignore muon candidates incorporated via pfTICL
     # in addMissingMuons. This will prevent potential double-counting.
 )
+# We copy the standard task to create the Phase-2 specific task
+_phase2_hgcal_particleFlowRecoTask = particleFlowRecoTask.copy()
 
-#
-# for simPF
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
-from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
-from RecoParticleFlow.PFProducer.simPFProducer_cff import *
-from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
-from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
+# We replace the standard 'particleFlowTmpTask' (which runs standard PF)
+# with a task that runs:
+# 1. particleFlowTmpBarrel (Standard PF restricted to Barrel)
+# 2. particleFlowTmp (The Merger of Barrel + TICL)
+_phase2_hgcal_particleFlowRecoTask.replace(
+    particleFlowTmpTask, 
+    cms.Task(particleFlowTmpBarrel, particleFlowTmp)
+)
 
-_phase2_hgcal_simPFTask = cms.Task( pfTrack ,
-                                    hgcalTrackCollection ,
-                                    tpClusterProducer ,
-                                    quickTrackAssociatorByHits ,
-                                    particleFlowClusterHGCalFromSimCl ,
-                                    simPFProducer )
-_phase2_hgcal_simPFSequence = cms.Sequence(_phase2_hgcal_simPFTask)
-
-_phase2_hgcal_particleFlowRecoTask = cms.Task( _phase2_hgcal_simPFTask , particleFlowRecoTask.copy() )
-_phase2_hgcal_particleFlowRecoTask.replace( particleFlowTmpTask, cms.Task( particleFlowTmpBarrel, particleFlowTmp ) )
-
+# Switch to this new task in the phase2_hgcal era
 phase2_hgcal.toReplaceWith( particleFlowRecoTask, _phase2_hgcal_particleFlowRecoTask )
 
 #
