@@ -1729,9 +1729,9 @@ _clusternum_in_trackster_vs_layer = PlotGroup("NumberofLayerClustersinTracksterP
 
 _common["scale"] = 100.
 #, ztitle = "% of clusters" normalizeToUnitArea=True
-_multiplicity_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_numberOfEventsHistogram"
-_multiplicity_zminus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zminus_numberOfEventsHistogram"
-_multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zplus_numberOfEventsHistogram"
+_multiplicity_numberOfEventsHistogram = hgcVal_dqm + "ticlCandidate/multiplicity_numberOfEventsHistogram"
+_multiplicity_zminus_numberOfEventsHistogram = hgcVal_dqm + "ticlCandidate/multiplicity_zminus_numberOfEventsHistogram"
+_multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlCandidate/multiplicity_zplus_numberOfEventsHistogram"
 
 _multiplicityOfLCinTST_plots = [Plot("multiplicityOfLCinTST",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]

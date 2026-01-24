@@ -526,7 +526,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<std::vector<edm::InputTag>>("label_tst",
                                        {
                                            edm::InputTag("ticlTrackstersCLUE3DHigh"),
-                                           edm::InputTag("ticlTrackstersMerge"),
+                                           edm::InputTag("ticlCandidate"),
                                            edm::InputTag("ticlSimTracksters", "fromCPs"),
                                            edm::InputTag("ticlSimTracksters"),
                                        });
