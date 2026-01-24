@@ -4,11 +4,9 @@ import os
 import argparse
 import datetime
 
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabels_v5
-
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels
 from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleValidation, SimpleSample
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
-import Validation.HGCalValidation.hgcalPlots as hgcalPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
 simClustersIters = [hgcalValidator.label_SimClustersLevel.value(), "ticlSimTracksters"]
@@ -21,8 +19,8 @@ trackstersWithEdgesLabel = 'trackstersWithEdges'
 candidatesLabel = 'candidates'
 simLabel = 'simulation'
 allLabel = 'all'
-ticlVersions = [4, 5]
-ticlVersion = 4
+ticlVersions = [5]
+ticlVersion = 5
 collection_choices = [allLabel]
 collection_choices.extend([hitCalLabel]+[hitValLabel]+[layerClustersLabel]+[trackstersLabel]+[trackstersWithEdgesLabel]+[candidatesLabel]+[simLabel])
 tracksters = []
@@ -31,7 +29,7 @@ def main(opts):
     
     drawArgs={}
     extendedFlag = False
-    ticlVersion = 4
+    ticlVersion = 5
     if opts.no_ratio:
         drawArgs["ratio"] = False
     if opts.separate:
@@ -42,8 +40,8 @@ def main(opts):
         extendedFlag = True
     if opts.verbose:
         plotting.verbose = True
-    if opts.ticlv == 5:
-        ticlVersion = 5
+
+
 
     filenames = [(f, f.replace(".root", "")) for f in opts.files]
     sample = SimpleSample(opts.subdirprefix[0], opts.html_sample, filenames)
@@ -52,13 +50,13 @@ def main(opts):
     if opts.separate:
         val = SeparateValidation([sample], opts.outputDir[0])
     htmlReport = val.createHtmlReport(validationName=opts.html_validation_name[0])
-    trackstersIters = []
-    if (ticlVersion == 5):
-        trackstersIters = ticlIterLabels_v5.copy()
-        trackstersIters.extend(['ticlTracksterLinksSuperclusteringDNN','ticlTracksterLinksSuperclusteringMustache'])
-    else:
-        trackstersIters = ticlIterLabels.copy()
+
+    trackstersIters = ticlIterLabels.copy()
+    trackstersIters.extend(['ticlTracksterLinksSuperclusteringDNN','ticlTracksterLinksSuperclusteringMustache'])
+
     trackstersIters.extend(['ticlSimTracksters', 'ticlSimTracksters_fromCPs'])
+    import Validation.HGCalValidation.hgcalPlots as hgcalPlots
+
     #layerClusters
     def plot_LC():
         hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
@@ -163,8 +161,8 @@ if __name__ == "__main__":
                         help="Include extended set of plots (e.g. bunch of distributions; default off)")
     parser.add_argument("--jobs", default=0, type=int,
                         help="Number of jobs to run in parallel for generating plots. Default is 0 i.e. run number of cpu cores jobs.")
-    parser.add_argument("--ticlv", choices=ticlVersions, default=4, type=int,
-                        help="TICL Version. Specify 4 or 5. Default 4.")
+    parser.add_argument("--ticlv", choices=ticlVersions, default=5, type=int,
+                        help="TICL Version. Default 5.")
     parser.add_argument("--verbose", action="store_true", default = False,
                         help="Be verbose")
 
@@ -173,5 +171,7 @@ if __name__ == "__main__":
     for f in opts.files:
         if not os.path.exists(f):
             parser.error("DQM file %s does not exist" % f)
-
-    main(opts)
+    if len(opts.files) == 0:
+        parser.error("No DQM files specified")
+    else:
+        main(opts)

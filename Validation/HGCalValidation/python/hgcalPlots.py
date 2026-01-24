@@ -2399,6 +2399,9 @@ lc_zplus_extended = [
 
 def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClustersPlots.value(), name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
+  if hasattr(collection, 'value'):
+     collection = collection.value()
+  collection = str(collection)
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
   regions_LCtoCP_association = ["Z-minus: LC_CP association", "Z-plus: LC_CP association"]
