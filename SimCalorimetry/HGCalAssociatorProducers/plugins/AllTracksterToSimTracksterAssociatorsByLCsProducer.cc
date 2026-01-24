@@ -119,7 +119,8 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
     iEvent.getByToken(tracksterToken.second, recoTrackstersHandle);
 
     if (!recoTrackstersHandle.isValid()) {
-      edm::LogWarning("MissingInput") << "trackster  collection not found. Producing empty maps.";
+      edm::LogWarning("MissingInput") << "trackster collection " + tracksterToken.first +
+                                             " not found. Producing empty maps.";
       for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
         iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
                                                          std::vector<ticl::Trackster>,
