@@ -285,7 +285,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   const auto& hits = event.get(hitsToken_);
   for (std::size_t index = 0; const auto& pfRecHitCollection : hits) {
     if (pfRecHitCollection->empty()) {
-      edm::LogWarning("BarrelValidator") << "PFRecHitCollections #" << index << " is not valid.";
+      LogDebug("BarrelValidator") << "PFRecHitCollections #" << index << " is empty.";
     }
     index++;
   }

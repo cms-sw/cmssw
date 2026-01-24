@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from RecoHGCal.TICL.ticlDumper_cfi import ticlDumper as ticlDumper_
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
@@ -41,13 +40,8 @@ ticlDumper = ticlDumper_.clone(
     ],
 
     associators=dumperAssociators.copy(),
-    saveSuperclustering = cms.bool(False)
+    saveSuperclustering = cms.bool(True)
 )
 
-ticl_v5.toModify(ticlDumper, 
-                 ticlcandidates = cms.InputTag("ticlCandidate"), 
-                 recoSuperClusters_sourceTracksterCollection=cms.InputTag("ticlTrackstersCLUE3DHigh"), 
-                 saveSuperclustering = cms.bool(True), 
-                 trackstersInCand=cms.InputTag("ticlCandidate"))
 
-(ticl_v5 & ticl_superclustering_mustache_pf).toModify(ticlDumper, saveSuperclustering=False, recoSuperClusters_sourceTracksterCollection=cms.InputTag("ticlTrackstersCLUE3DHigh"))
+ticl_superclustering_mustache_pf.toModify(ticlDumper, saveSuperclustering=False, recoSuperClusters_sourceTracksterCollection=cms.InputTag("ticlTrackstersCLUE3DHigh"))
