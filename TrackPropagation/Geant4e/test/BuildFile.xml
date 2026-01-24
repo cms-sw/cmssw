@@ -15,6 +15,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<test name="testG4Refitter" command="cmsRun ${LOCALTOP}/src/TrackPropagation/Geant4e/test/Geant4e_example_cfg.py"/>
+<!-- <test name="testG4Refitter" command="cmsRun ${LOCALTOP}/src/TrackPropagation/Geant4e/test/Geant4e_example_cfg.py"/> COMMENT: reads old format file -->
 <test name="testG4SimplePropagator" command="cmsRun ${LOCALTOP}/src/TrackPropagation/Geant4e/test/simpleTestPropagator_cfg.py"/>
-<test name="testG4PropagatorAnalyzer" command="cmsRun ${LOCALTOP}/src/TrackPropagation/Geant4e/test/testPropagatorAnalyzer_cfg.py"/>
+<!-- <test name="testG4PropagatorAnalyzer" command="cmsRun ${LOCALTOP}/src/TrackPropagation/Geant4e/test/testPropagatorAnalyzer_cfg.py"/> COMMENT: reads old format file -->
