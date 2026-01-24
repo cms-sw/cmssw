@@ -13,7 +13,7 @@ hltParticleFlowClusterHGCal = cms.EDProducer("PFClusterProducer",
         filter_on_iterations = cms.vint32(0, 1),
         pid_threshold = cms.double(0.8),
         thresholdsByDetector = cms.VPSet(),
-        tracksterSrc = cms.InputTag("hltTiclTrackstersMerge")
+        tracksterSrc = cms.InputTag("hltTiclCandidate")
     ),
     pfClusterBuilder = cms.PSet(
 
@@ -34,5 +34,3 @@ hltParticleFlowClusterHGCal = cms.EDProducer("PFClusterProducer",
     usePFThresholdsFromDB = cms.bool(False)
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(hltParticleFlowClusterHGCal.initialClusteringStep, tracksterSrc = "hltTiclCandidate")

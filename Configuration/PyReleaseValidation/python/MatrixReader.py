@@ -265,9 +265,9 @@ With --checkInputs option this throws an error.
                             stepList.pop(0)
                         #print "\t\tmod",stepList
                         break
-
             for (stepI,step) in enumerate(stepList):
                 stepName=step
+
                 if self.relvalModule.steps[stepName] is None:
                     continue
                 if self.wm:

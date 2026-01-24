@@ -58,7 +58,6 @@ The offsets currently in use are:
 * 0.7501: HLT phase-2 tracking-only menu
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.7511: HLT phase-2 timing menu, with PixelTracks CA Extension
-* 0.752: HLT phase-2 timing menu ticl_v5 variant
 * 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
 * 0.754: HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
 * 0.755: HLT phase-2 timing menu Alpaka, LST building variant
@@ -72,7 +71,6 @@ The offsets currently in use are:
 * 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
 * 0.76: HLT phase-2 reduced menu, with DIGI step
 * 0.77: HLT phase-2 NGT Scouting menu
-* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel, CA Extension
 * 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
 * 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
 * 0.774: HLT phase-2 NGT Scouting menu Alpaka variant, with PixelTracks CA Extension as GeneralTracks
@@ -114,9 +112,6 @@ The offsets currently in use are:
 * 0.914: DDD DB
 * 0.101: Phase-2 aging, 1000fb-1
 * 0.103: Phase-2 aging, 3000fb-1
-* 0.201: HGCAL special TICL Pattern recognition Workflows: clue3D
-* 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
-* 0.203: HGCAL TICLv5
 * 0.204: HGCAL superclustering : using Mustache in TICLv5
 * 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICLv5
 * 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters

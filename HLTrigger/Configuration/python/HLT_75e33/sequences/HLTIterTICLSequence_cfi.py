@@ -8,7 +8,5 @@ from ..sequences.HLTTiclTrackstersRecoverySequence_cfi import *
 from ..sequences.HLTTiclTracksterLinksSequence_cfi import *
 from ..sequences.HLTTiclCandidateSequence_cfi import *
 
-HLTIterTICLSequence = cms.Sequence(HLTTiclLayerTileSequence+HLTTiclTrackstersCLUE3DHighStepSequence+HLTTiclTracksterMergeSequence+HLTTiclPFSequence)
+HLTIterTICLSequence = cms.Sequence(HLTTiclLayerTileSequence+HLTTiclTrackstersCLUE3DHighStepSequence+HLTTiclTrackstersRecoverySequence+HLTTiclTracksterLinksSequence+HLTTiclCandidateSequence+HLTTiclPFSequence)
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toReplaceWith(HLTIterTICLSequence, cms.Sequence(HLTTiclLayerTileSequence+HLTTiclTrackstersCLUE3DHighStepSequence+HLTTiclTrackstersRecoverySequence+HLTTiclTracksterLinksSequence+HLTTiclCandidateSequence+HLTTiclPFSequence))
