@@ -1,3 +1,3 @@
 <test name="RecoPPSLocalNewT2" command="testNT2.sh"/>
-<test name="PPSReconstructionDefault" command="global_reco_PPS_test.sh"/>
+<!-- <test name="PPSReconstructionDefault" command="global_reco_PPS_test.sh"/> COMMENT: reads old format file -->
 <test name="PPSReconstructionStrips" command="global_reco_PPS_test_strips.sh"/>

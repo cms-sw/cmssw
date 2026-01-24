@@ -1,1 +1,1 @@
-<test name="testRecoBTagInfoWithUnsubJets" command="cmsRun ${LOCALTOP}/src/RecoBTag/FeatureTools/test/u0_cfg.py"/>
+<!-- <test name="testRecoBTagInfoWithUnsubJets" command="cmsRun ${LOCALTOP}/src/RecoBTag/FeatureTools/test/u0_cfg.py"/> COMMENT: read old format file -->
