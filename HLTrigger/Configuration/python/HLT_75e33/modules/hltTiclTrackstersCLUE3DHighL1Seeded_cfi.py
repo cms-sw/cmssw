@@ -10,7 +10,7 @@ hltTiclTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
     mightGet = cms.optional.untracked.vstring,
     original_mask = cms.InputTag("hltMergeLayerClustersL1Seeded","InitialLayerClustersMask"),
     patternRecognitionBy = cms.string('CLUE3D'),
-    inferenceAlgo = cms.string('TracksterInferenceByCNNv4'),
+    inferenceAlgo = cms.string('TracksterInferenceByPFN'),
     pluginPatternRecognitionByCA = cms.PSet(
         algo_verbosity = cms.int32(0),
         energy_em_over_total_threshold = cms.double(-1),
@@ -95,7 +95,7 @@ hltTiclTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
       2,
       2
     ),
-    computeLocalTime = cms.bool(False),
+    computeLocalTime = cms.bool(True),
     doPidCut = cms.bool(True),
     cutHadProb = cms.double(999.),
     type = cms.string('CLUE3D')
@@ -105,18 +105,6 @@ hltTiclTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
         antikt_radius = cms.double(0.09),
         minNumLayerCluster = cms.int32(5),
         type = cms.string('FastJet')
-    ),
-    pluginInferenceAlgoTracksterInferenceByCNNv4 = cms.PSet(
-        algo_verbosity = cms.int32(0),
-        onnxModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv4/onnx_models/energy_id_v0.onnx'),
-        inputNames  = cms.vstring('input:0'),
-        outputNames = cms.vstring("output/regressed_energy:0", "output/id_probabilities:0"),
-        eid_min_cluster_energy = cms.double(1),
-        eid_n_layers = cms.int32(50),
-        eid_n_clusters = cms.int32(10),
-        doPID = cms.int32(1),
-        doRegression = cms.int32(0),
-        type = cms.string('TracksterInferenceByCNNv4')
     ),
     pluginInferenceAlgoTracksterInferenceByDNN = cms.PSet(
         algo_verbosity = cms.int32(0),
@@ -152,8 +140,3 @@ hltTiclTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
     seeding_regions = cms.InputTag("hltTiclSeedingL1"),
     time_layerclusters = cms.InputTag("hltMergeLayerClustersL1Seeded","timeLayerCluster"),
 )
-
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(hltTiclTrackstersCLUE3DHighL1Seeded.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True))
-ticl_v5.toModify(hltTiclTrackstersCLUE3DHighL1Seeded, inferenceAlgo = cms.string('TracksterInferenceByPFN'))
-
