@@ -9,7 +9,6 @@ from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProdu
 # (for now until global reco is going with some sort of clustering)
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
-from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import *
 from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClustersHFNose, hgcalLayerClustersEE, hgcalLayerClustersHSi, hgcalLayerClustersHSci, hgcalMergeLayerClusters
 
 hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
@@ -19,7 +18,6 @@ hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        hgcalLayerClustersHSi,
                                        hgcalLayerClustersHSci,
                                        hgcalMergeLayerClusters,
-                                       hgcalMultiClusters,
                                        particleFlowRecHitHGC,
                                        particleFlowClusterHGCal )
 
