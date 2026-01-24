@@ -1,0 +1,7 @@
+<use name="mpi"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/Framework"/>
+<use name="HeterogeneousCore/TrivialSerialisation"/>
+<export>
+  <lib name="1"/>
+</export>
