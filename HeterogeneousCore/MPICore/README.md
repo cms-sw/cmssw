@@ -33,12 +33,15 @@ The `MPISender` is an `EDProducer` that can read any number of collections of ar
 For each event, it first sends a metadata message describing the products to be transferred, including their number and
 basic characteristics.
 
-If `TrivialCopyTraits` are defined for a given product, the data are transferred directly from the product's memory
+If `MemoryCopyTraits` are defined for a given product, the data are transferred directly from the product's memory
 regions; otherwise, the product is serialised into a single buffer using its ROOT dictionary. The regions and the buffer
 are sent to another process over the MPI communication channel.
 
+If an event has been filtered out upstream (for example via a missing `edm::PathStateToken`), the sender marks the
+metadata with a negative product count so that the receiver can skip transfers for that event.
+
 The number and types of the collections to be read from the `Event` is determined by the module configuration. The
-configuration can speficy a list of module labels, branch names, or a mix of the two:
+configuration can specify a list of module labels, branch names, or a mix of the two:
   - a module label selects all collections produced by that module, irrespective of the type and instance;
   - a branch name selects only the collections that match all the branch fields (type, label, instance, process name),
     similar to an `OutputModule`'s `"keep ..."` statement.
@@ -49,7 +52,7 @@ Wildcards (`?` and `*`) are allowed in a module label or in each field of a bran
 ## `MPIReceiver` class
 
 The `MPIReceiver` is an `EDProducer` that can receive any number of collections of arbitrary types over the MPI
-communication channel. It first receives metadata, which is leter used to initialise trivially copyable products and
+communication channel. It first receives metadata, which is later used to initialise trivially copyable products and
 allocate buffers for serialised products.
 
 For trivially copyable products, the receiver initialises the target objects using the metadata and performs an
@@ -60,7 +63,7 @@ All received products are put into the `Event`. The number, type and label of th
 determined by the module configuration.
 
 For each collection, the `type` indicates the C++ type as understood by the ROOT dictionary, and the `label` indicates
-the module instance label to be used for producing that cllection into the `Event`.
+the module instance label to be used for producing that collection into the `Event`.
 
 
 ## `MPISender` and `MPIReceiver` instances
@@ -76,7 +79,7 @@ The `MPIController` and `MPISource` produce an `MPIToken`, a special data produc
 about the MPI communication channel.
 
 Both `MPISender` and `MPIReceiver` obtain the MPI communication channel reading an `MPIToken` from the event, identified
-by the `upstream` parmeter.
+by the `upstream` parameter.
 They also produce a copy of the `MPIToken`, so other modules can consume it to declare a dependency on those modules.
 
 
@@ -88,14 +91,14 @@ An automated test is available in the `test/` directory.
 ## Current limitations
 
   - `MPIController` is a "one" module that supports only a single luminosity block at a time;
-  - there is only a partial check the number, type and order of collections sent by the `MPISender` matches those
+  - there is only a partial check that the number, type and order of collections sent by the `MPISender` match those
     expected by the `MPIReceiver`.
 
 
 ## Notes for future developments
 
   - implement efficient GPU-direct transfers for trivially serialisable products (in progress);
-  - check the the collection sent by the `MPISender` and the one expected by the `MPIReceiver` match;
+  - check that the collection sent by the `MPISender` matches the one expected by the `MPIReceiver`;
   - integrate filter decisions and GPU backend into the metadata message
   - improve the `MPIController` to be a `global` module rather than a `one` module;
   - let an `MPISource` accept connections and events from multiple `MPIController` modules in different jobs;

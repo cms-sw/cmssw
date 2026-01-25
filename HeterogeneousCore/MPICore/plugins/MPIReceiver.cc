@@ -63,7 +63,7 @@ public:
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     const MPIToken& token = event.get(upstream_);
 
-    //also try unique or optional
+    // also try unique or optional
     received_meta_ = std::make_shared<ProductMetadataBuilder>();
 
     edm::Service<edm::Async> as;
@@ -114,7 +114,6 @@ public:
         std::unique_ptr<edm::WrapperBase> wrapper(
             reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
         auto productBuffer = TBufferFile(TBuffer::kRead, product_meta.sizeMeta);
-        // assert(!wrapper->hasTrivialCopyTraits() && "mismatch between expected and actual metadata type");
         assert(buffer_offset < serialized_buffer->BufferSize() && "serialized data buffer is shorter than expected");
         productBuffer.SetBuffer(serialized_buffer->Buffer() + buffer_offset, product_meta.sizeMeta, false);
         buffer_offset += product_meta.sizeMeta;
@@ -124,7 +123,6 @@ public:
       }
 
       else if (product_meta.kind == ProductMetadata::Kind::TrivialCopy) {
-        // assert(wrapper->hasTrivialCopyTraits() && "mismatch between expected and actual metadata type");
         std::unique_ptr<ngt::SerialiserBase> serialiser =
             ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
         if (not serialiser) {
@@ -134,7 +132,6 @@ public:
         ngt::AnyBuffer buffer = writer->uninitialized_parameters();  // constructs buffer with typeid
         assert(buffer.size_bytes() == product_meta.sizeMeta);
         std::memcpy(buffer.data(), product_meta.trivialCopyOffset, product_meta.sizeMeta);
-        // why both of these methods are called initialize? I find this rather confusing
         writer->initialize(buffer);
         token.channel()->receiveInitializedTrivialCopy(instance_, *writer);
         writer->finalize();
@@ -167,12 +164,12 @@ public:
         ->setComment(
             "MPI communication channel. Can be an \"MPIController\", \"MPISource\", \"MPISender\" or \"MPIReceiver\". "
             "Passing an \"MPIController\" or \"MPISource\" only identifies the pair of local and remote application "
-            "that communicate. Passing an \"MPISender\" or \"MPIReceiver\" in addition in addition imposes a "
-            "scheduling dependency.");
+            "that communicate. Passing an \"MPISender\" or \"MPIReceiver\" in addition imposes a scheduling "
+            "dependency.");
     desc.addVPSet("products", product, {})
         ->setComment("Products to be received by a separate CMSSW job and produced into the event.");
     desc.add<int32_t>("instance", 0)
-        ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIRecevier\".");
+        ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIReceiver\".");
 
     descriptions.addWithDefaultLabel(desc);
   }

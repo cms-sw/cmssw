@@ -83,7 +83,7 @@ std::span<const uint8_t> ProductMetadataBuilder::buffer() const { return {buffer
 void ProductMetadataBuilder::receiveMetadata(int src, int tag, MPI_Comm comm) {
   MPI_Status status;
   MPI_Recv(buffer_, maxMetadataSize_, MPI_BYTE, src, tag, comm, &status);
-  //add error hadling if message too long
+  // add error handling if message is too long
   int receivedBytes = 0;
   MPI_Get_count(&status, MPI_BYTE, &receivedBytes);
   assert(static_cast<size_t>(receivedBytes) >= headerSize_ && "received metadata was less than header size");
