@@ -80,8 +80,8 @@ private:
   size_t capacity_;
   size_t size_;
   size_t readOffset_;
-  const size_t headerSize_ = 13;  // header is always present in the metadata object do describe products in general
-  const size_t maxMetadataSize_ = 1024;  // default size for buffer initialization. must fit any metadata
+  const size_t headerSize_ = 13;         // fixed header that stores global info (count, flags, serialized size)
+  const size_t maxMetadataSize_ = 1024;  // default size for buffer initialization. Must fit any metadata
   int serializedBufferSize_ = 0;
   uint8_t productFlags_ = 0;
   int64_t productCount_ = 0;
