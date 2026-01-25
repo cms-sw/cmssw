@@ -97,6 +97,8 @@ HLTriggerMINIAODSIM = cms.PSet(
 HLTDebugRAW = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *RecHit*_hltSiPixelRecHitsSoASerialSync_*_*',
+        'keep *RecHit*_hltSiPixelRecHitsSoA_*_*',
         'keep *_hltAK4CaloJetsCorrectedIDPassed_*_*',
         'keep *_hltAK4CaloJetsIDPassed_*_*',
         'keep *_hltAK4CaloJets_*_*',
@@ -288,6 +290,8 @@ HLTDebugRAW = cms.PSet(
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *RecHit*_hltSiPixelRecHitsSoASerialSync_*_*',
+        'keep *RecHit*_hltSiPixelRecHitsSoA_*_*',
         'keep *_hltAK4CaloJetsCorrectedIDPassed_*_*',
         'keep *_hltAK4CaloJetsIDPassed_*_*',
         'keep *_hltAK4CaloJets_*_*',
