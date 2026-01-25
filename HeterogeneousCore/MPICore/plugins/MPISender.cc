@@ -104,18 +104,14 @@ public:
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     const MPIToken& token = event.get(upstream_);
-    // we need 1 byte for type, 8 bytes for size and at least 8 bytes for trivial copy parameters buffer
+    // we need 1 byte for type, 8 bytes for size, and at least 8 bytes for MemoryCopyTraits Properties buffer
     auto meta = std::make_shared<ProductMetadataBuilder>(products_.size() * 24);
     size_t index = 0;
-    // this seems to work fine, but does this vector indeed persist between acquire() and produce()?
-    // serializedBuffers_.clear();
     buffer_->Reset();
     buffer_offset_ = 0;
     meta->setProductCount(products_.size());
     has_serialized_ = false;
     is_active_ = true;
-
-    // estimate buffer size in the constructor
 
     for (auto const& entry : products_) {
       // Get the product
@@ -218,15 +214,15 @@ public:
         ->setComment(
             "MPI communication channel. Can be an \"MPIController\", \"MPISource\", \"MPISender\" or \"MPIReceiver\". "
             "Passing an \"MPIController\" or \"MPISource\" only identifies the pair of local and remote application "
-            "that communicate. Passing an \"MPISender\" or \"MPIReceiver\" in addition in addition imposes a "
-            "scheduling dependency.");
+            "that communicate. Passing an \"MPISender\" or \"MPIReceiver\" in addition imposes a scheduling "
+            "dependency.");
     desc.add<std::vector<std::string>>("products", {})
         ->setComment(
             "Event products to be consumed and copied over to a separate CMSSW job. Can be a list of module labels, "
             "branch names (similar to an OutputModule's \"keep ...\" statement), or a mix of the two. Wildcards (\"?\" "
             "and \"*\") are allowed in a module label or in each field of a branch name.");
     desc.add<int32_t>("instance", 0)
-        ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIRecevier\".");
+        ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIReceiver\".");
 
     descriptions.addWithDefaultLabel(desc);
   }
