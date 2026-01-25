@@ -11,7 +11,7 @@
   <use name="millepede"/>
 </test>
 
-<test name="test_MilleZmm" command="test_mille.sh"/>
+<!-- <test name="test_MilleZmm" command="test_mille.sh"/> COMMENT: reads old format file -->
 <test name="test_PedeCampaign" command="test_pede.sh"/>
 <test name="test_PedeConversion" command="test_pedeConversion.sh">
   <flags PRE_TEST="test_PedeCampaign"/>
