@@ -3,6 +3,9 @@
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
+// This test checks the functionality of customized methods in SoA elements
+// The declared methods need to be constexpr
+
 GENERATE_SOA_LAYOUT(SoATemplate,
                     SOA_COLUMN(float, x),
                     SOA_COLUMN(float, y),
@@ -13,29 +16,30 @@ GENERATE_SOA_LAYOUT(SoATemplate,
 
                     SOA_ELEMENT_METHODS(
 
-                        void normalise() {
+                        constexpr void normalise() {
                           float norm_position = square_norm_position();
                           if (norm_position > 0.0f) {
                             x() /= norm_position;
                             y() /= norm_position;
                             z() /= norm_position;
-                          };
+                          }
                           double norm_velocity = square_norm_velocity();
                           if (norm_velocity > 0.0f) {
                             v_x() /= norm_velocity;
                             v_y() /= norm_velocity;
                             v_z() /= norm_velocity;
-                          };
+                          }
                         }),
 
                     SOA_CONST_ELEMENT_METHODS(
-                        float square_norm_position() const { return sqrt(x() * x() + y() * y() + z() * z()); };
+                        constexpr float square_norm_position()
+                            const { return sqrt(x() * x() + y() * y() + z() * z()); };
 
-                        double square_norm_velocity()
+                        constexpr double square_norm_velocity()
                             const { return sqrt(v_x() * v_x() + v_y() * v_y() + v_z() * v_z()); };
 
                         template <typename T1, typename T2>
-                        static auto time(T1 pos, T2 vel) {
+                        constexpr static auto time(T1 pos, T2 vel) {
                           if (not(vel == 0))
                             return pos / vel;
                           return 0.;
