@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_16_0_0/HIon --full --data --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_16_0_0/HIon/V4 (CMSSW_16_0_0_pre4)
+# /dev/CMSSW_16_0_0/HIon/V7 (CMSSW_16_0_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTHIon" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_16_0_0/HIon/V4")
+  tableName = cms.string("/dev/CMSSW_16_0_0/HIon/V7")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -12085,9 +12085,6 @@ process.preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeGEM = cms.bool( False ),
   includeME0 = cms.bool( False )
 )
-process.siPixelGainCalibrationForHLTGPU = cms.ESProducer( "SiPixelGainCalibrationForHLTGPUESProducer",
-  appendToDataLabel = cms.string( "" )
-)
 process.siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
   siPixelQualityFromDbLabel = cms.string( "" ),
   ListOfRecordToMerge = cms.VPSet( 
@@ -12098,12 +12095,6 @@ process.siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
       tag = cms.string( "" )
     )
   ),
-  appendToDataLabel = cms.string( "" )
-)
-process.siPixelROCsStatusAndMappingWrapperESProducer = cms.ESProducer( "SiPixelROCsStatusAndMappingWrapperESProducer",
-  ComponentName = cms.string( "" ),
-  CablingMapLabel = cms.string( "" ),
-  UseQualityInfo = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
 process.siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
@@ -12413,7 +12404,16 @@ process.hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     EEuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEE' ),
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    ChannelStatusToBeExcluded = cms.vstring(  ),
+    ChannelStatusToBeExcluded = cms.vstring( 'kDAC',
+      'kNoisy',
+      'kNNoisy',
+      'kFixedG6',
+      'kFixedG1',
+      'kFixedG0',
+      'kNonRespondingIsolated',
+      'kDeadVFE',
+      'kDeadFE',
+      'kNoDataNoTP' ),
     killDeadChannels = cms.bool( True ),
     algo = cms.string( "EcalRecHitWorkerSimple" ),
     EBLaserMIN = cms.double( 0.5 ),
@@ -13339,20 +13339,6 @@ process.hltTrimmedPixelVerticesPPOnAASerialSync = cms.EDProducer( "PixelVertexCo
     minSumPt2 = cms.double( 0.0 ),
     PVcomparer = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPvClusterComparerForIT" ) )
 )
-process.hltSiPixelRecHitsSoAMonitorCPUPPOnAA = cms.EDProducer( "SiPixelHIonPhase1MonitorRecHitsSoAAlpaka",
-    pixelHitsSrc = cms.InputTag( "hltSiPixelRecHitsPPOnAASoASerialSync" ),
-    TopFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsCPU" )
-)
-process.hltSiPixelRecHitsSoAMonitorGPUPPOnAA = cms.EDProducer( "SiPixelHIonPhase1MonitorRecHitsSoAAlpaka",
-    pixelHitsSrc = cms.InputTag( "hltSiPixelRecHitsPPOnAASoA" ),
-    TopFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsGPU" )
-)
-process.hltSiPixelRecHitsSoACompareGPUvsCPUPPOnAA = cms.EDProducer( "SiPixelHIonPhase1CompareRecHits",
-    pixelHitsReferenceSoA = cms.InputTag( "hltSiPixelRecHitsPPOnAASoASerialSync" ),
-    pixelHitsTargetSoA = cms.InputTag( "hltSiPixelRecHitsPPOnAASoA" ),
-    topFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU" ),
-    minD2cut = cms.double( 1.0E-4 )
-)
 process.hltL1sDQMHIEcalReconstruction = cms.EDFilter( "HLTL1TSeed",
     saveTags = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1GlobalDecision" ),
@@ -13427,7 +13413,16 @@ process.hltEcalRecHitSerialSync = cms.EDProducer( "EcalRecHitProducer",
     EEuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHitSerialSync','EcalUncalibRecHitsEE' ),
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHitSerialSync','EcalUncalibRecHitsEB' ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    ChannelStatusToBeExcluded = cms.vstring(  ),
+    ChannelStatusToBeExcluded = cms.vstring( 'kDAC',
+      'kNoisy',
+      'kNNoisy',
+      'kFixedG6',
+      'kFixedG1',
+      'kFixedG0',
+      'kNonRespondingIsolated',
+      'kDeadVFE',
+      'kDeadFE',
+      'kNoDataNoTP' ),
     killDeadChannels = cms.bool( True ),
     algo = cms.string( "EcalRecHitWorkerSimple" ),
     EBLaserMIN = cms.double( 0.5 ),
@@ -29109,6 +29104,8 @@ process.hltOutputHIDQMGPUvsCPU = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIDQMGPUvsCPU' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *RecHit*_hltSiPixelRecHitsPPOnAASoASerialSync_*_*',
+      'keep *RecHit*_hltSiPixelRecHitsPPOnAASoA_*_*',
       'keep *_hltEcalDigisSerialSync_*_*',
       'keep *_hltEcalDigis_*_*',
       'keep *_hltEcalUncalibRecHitSerialSync_*_*',
@@ -30845,7 +30842,6 @@ process.HLTRecoPixelTracksPPOnAASequence = cms.Sequence( process.hltPixelTracksP
 process.HLTRecopixelvertexingPPOnAASequence = cms.Sequence( process.HLTRecoPixelTracksPPOnAASequence + process.hltPixelVerticesPPOnAASoA + process.hltPixelVerticesPPOnAA + process.hltTrimmedPixelVerticesPPOnAA )
 process.HLTRecoPixelTracksPPOnAASequenceSerialSync = cms.Sequence( process.hltPixelTracksPPOnAASoASerialSync + process.hltPixelTracksPPOnAASerialSync )
 process.HLTRecopixelvertexingPPOnAASequenceSerialSync = cms.Sequence( process.HLTRecoPixelTracksPPOnAASequenceSerialSync + process.hltPixelVerticesPPOnAASoASerialSync + process.hltPixelVerticesPPOnAASerialSync + process.hltTrimmedPixelVerticesPPOnAASerialSync )
-process.HLTDQMPixelReconstructionPPOnAA = cms.Sequence( process.hltSiPixelRecHitsSoAMonitorCPUPPOnAA + process.hltSiPixelRecHitsSoAMonitorGPUPPOnAA + process.hltSiPixelRecHitsSoACompareGPUvsCPUPPOnAA )
 process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequenceSerialSync = cms.Sequence( process.hltEcalDigisLegacy + process.hltEcalDigisSoASerialSync + process.hltEcalDigisSerialSync + process.hltEcalUncalibRecHitSoASerialSync + process.hltEcalUncalibRecHitSerialSync + process.hltEcalDetIdToBeRecovered + process.hltEcalRecHitSerialSync )
 process.HLTDoLocalHcalSequence = cms.Sequence( process.hltHcalDigis + process.hltHcalDigisSoA + process.hltHbheRecoSoA + process.hltHbhereco + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
 process.HLTDoLocalHcalSequenceSerialSync = cms.Sequence( process.hltHcalDigis + process.hltHcalDigisSoASerialSync + process.hltHbheRecoSoASerialSync + process.hltHbherecoSerialSync + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
@@ -30961,7 +30957,7 @@ process.AlCa_EcalEtaEEonlyForHI_v15 = cms.Path( process.HLTBeginSequence + proce
 process.AlCa_EcalPi0EBonlyForHI_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaEcalPi0EtaForHI + process.hltPreAlCaEcalPi0EBonlyForHI + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltSimple3x3Clusters + process.hltAlCaPi0RecHitsFilterEBonlyRegional + process.hltAlCaPi0EBUncalibrator + process.hltAlCaPi0EBRechitsToDigis + process.hltFEDSelectorL1 + process.HLTEndSequence )
 process.AlCa_EcalPi0EEonlyForHI_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaEcalPi0EtaForHI + process.hltPreAlCaEcalPi0EEonlyForHI + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltSimple3x3Clusters + process.hltAlCaPi0RecHitsFilterEEonlyRegional + process.hltAlCaPi0EEUncalibrator + process.hltAlCaPi0EERechitsToDigis + process.hltFEDSelectorL1 + process.HLTEndSequence )
 process.AlCa_RPCMuonNormalisationForHI_v14 = cms.Path( process.HLTBeginSequence + process.hltL1sRPCMuonNormalisationForHI + process.hltPreAlCaRPCMuonNormalisationForHI + process.hltRPCMuonNormaL1Filtered0ForHI + process.HLTFEDSelectorsForRPCMonitor + process.HLTEndSequence )
-process.DQM_HIPixelReconstruction_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMHIPixelReconstruction + process.hltPreDQMHIPixelReconstruction + process.hltBackend + process.hltStatusOnGPUFilter + process.HLTDoLocalPixelPPOnAASequence + process.HLTDoLocalPixelPPOnAASequenceSerialSync + process.HLTRecopixelvertexingPPOnAASequence + process.HLTRecopixelvertexingPPOnAASequenceSerialSync + process.HLTDQMPixelReconstructionPPOnAA + process.HLTEndSequence )
+process.DQM_HIPixelReconstruction_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMHIPixelReconstruction + process.hltPreDQMHIPixelReconstruction + process.hltBackend + process.hltStatusOnGPUFilter + process.HLTDoLocalPixelPPOnAASequence + process.HLTDoLocalPixelPPOnAASequenceSerialSync + process.HLTRecopixelvertexingPPOnAASequence + process.HLTRecopixelvertexingPPOnAASequenceSerialSync + process.HLTEndSequence )
 process.DQM_HIEcalReconstruction_v11 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMHIEcalReconstruction + process.hltPreDQMHIEcalReconstruction + process.hltBackend + process.hltStatusOnGPUFilter + process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequenceSerialSync + process.HLTEndSequence )
 process.DQM_HIHcalReconstruction_v9 = cms.Path( process.HLTBeginSequence + process.hltL1sDQMHIHcalReconstruction + process.hltPreDQMHIHcalReconstruction + process.hltBackend + process.hltStatusOnGPUFilter + process.HLTDoLocalHcalSequence + process.HLTDoLocalHcalSequenceSerialSync + process.HLTPFHcalClustering + process.HLTPFHcalClusteringSerialSync + process.HLTEndSequence )
 process.DST_Physics_v18 = cms.Path( process.HLTBeginSequence + process.hltPreDSTPhysics + process.hltFEDSelectorL1 + process.hltFEDSelectorL1uGTTest + process.hltFEDSelectorTCDS + process.HLTEndSequence )
