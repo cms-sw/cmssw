@@ -880,7 +880,7 @@ PhysicsEmittanceScan1Output # CMSHLT-3465
 PhysicsEmittanceScan2Output # CMSHLT-3465
 
 LocalTestDataRawOutput      # CMSHLT-3462
-LocalTestDataScoutingOutput # CMSHLT-3462
+DQMTestDataScoutingOutput # CMSHLT-3462, CMSHLT-3712
 
 ######## MC paths - template paths only for MC (only in GRun, not in online) ################################
 
