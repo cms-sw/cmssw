@@ -686,10 +686,10 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   HistoName = "n_trackParts";
   n_trackParts = iBooker.book1D(HistoName,
-		  HistoName,
-		  n_trackParticles.getParameter<int32_t>("Nbinsx"),
-		  n_trackParticles.getParameter<double>("xmin"),
-		  n_trackParticles.getParameter<double>("xmax"));
+                                HistoName,
+                                n_trackParticles.getParameter<int32_t>("Nbinsx"),
+                                n_trackParticles.getParameter<double>("xmin"),
+                                n_trackParticles.getParameter<double>("xmax"));
   n_trackParts->setAxisTitle("# track particles per event", 1);
 
   // 1D plots for nominal collection efficiency

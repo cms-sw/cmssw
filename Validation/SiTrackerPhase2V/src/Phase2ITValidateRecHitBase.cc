@@ -194,9 +194,11 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   // TrackingRecHits have a larger range of delta phi values
   // The ranges are changed so validators can see the difference
   double delta_phi_range;
-  if (tracking) delta_phi_range = 0.5;
-  else delta_phi_range = 0.005;
-  
+  if (tracking)
+    delta_phi_range = 0.5;
+  else
+    delta_phi_range = 0.005;
+
   edm::ParameterSetDescription psd0;
   psd0.add<std::string>("name", "Delta_X");
   psd0.add<std::string>("title", "Delta_X;RecHit resolution X coordinate [#mum]");

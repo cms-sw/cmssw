@@ -353,8 +353,10 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   // TrackingRecHits have a larger range of delta phi values than RecHits
   // The ranges are changed so validators can see the difference
   double delta_phi_range;
-  if (tracking) delta_phi_range = 0.5;
-  else delta_phi_range = 0.005;
+  if (tracking)
+    delta_phi_range = 0.5;
+  else
+    delta_phi_range = 0.005;
 
   //for macro-pixel sensors
   std::string mptag = "macro-pixel sensor";
