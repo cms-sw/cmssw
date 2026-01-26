@@ -71,6 +71,7 @@ The offsets currently in use are:
 * 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
 * 0.76: HLT phase-2 reduced menu, with DIGI step
 * 0.77: HLT phase-2 NGT Scouting menu
+* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel, CA Extension
 * 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
 * 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
 * 0.774: HLT phase-2 NGT Scouting menu Alpaka variant, with PixelTracks CA Extension as GeneralTracks
