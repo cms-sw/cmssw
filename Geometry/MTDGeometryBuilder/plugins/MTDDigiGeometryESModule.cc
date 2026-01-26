@@ -88,6 +88,7 @@ void MTDDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& d
   descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("applyAlignment", true);
   descDB.add<std::string>("alignmentsLabel", "");
+  descriptions.addDefault(descDB);
   descriptions.add("mtdGeometryDB", descDB);
 
   edm::ParameterSetDescription desc;
