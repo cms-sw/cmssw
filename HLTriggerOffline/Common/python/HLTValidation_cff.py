@@ -244,8 +244,7 @@ ticl_barrel.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2_WithB
 hltvalidation = cms.Sequence(
     hltvalidationCommon * # HCAL RecHit analyzer
     hltvalidationWithMC *
-    hltvalidationWithData *
-    DQMHLTPF
+    hltvalidationWithData
 )
 
 # some hlt collections have no direct fastsim equivalent
