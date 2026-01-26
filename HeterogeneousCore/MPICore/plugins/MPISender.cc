@@ -44,7 +44,6 @@ public:
         patterns_(edm::productPatterns(config.getParameter<std::vector<std::string>>("products"))),
         instance_(config.getParameter<int32_t>("instance")),
         buffer_(std::make_unique<TBufferFile>(TBuffer::kWrite)),
-        buffer_offset_(0),
         metadata_size_(0) {
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
@@ -108,7 +107,6 @@ public:
     auto meta = std::make_shared<ProductMetadataBuilder>(products_.size() * 24);
     size_t index = 0;
     buffer_->Reset();
-    buffer_offset_ = 0;
     meta->setProductCount(products_.size());
     has_serialized_ = false;
     is_active_ = true;
@@ -229,11 +227,9 @@ public:
 
 private:
   size_t serializeAndStoreBuffer_(size_t index, TClass* type, void const* product) {
-    buffer_->ResetMap();
+    size_t size = buffer_->Length();
     type->Streamer(const_cast<void*>(product), *buffer_);
-    size_t prod_size = buffer_->Length() - buffer_offset_;
-    buffer_offset_ = buffer_->Length();
-    return prod_size;
+    return buffer_->Length() - size;
   }
 
   struct Entry {
@@ -242,14 +238,12 @@ private:
     edm::EDGetToken token;
   };
 
-  // TODO consider if upstream_ should be a vector instead of a single token ?
   edm::EDGetTokenT<MPIToken> const upstream_;  // MPIToken used to establish the communication channel
   edm::EDPutTokenT<MPIToken> const token_;  // copy of the MPIToken that may be used to implement an ordering relation
   std::vector<edm::ProductNamePattern> patterns_;  // branches to read from the Event and send over the MPI channel
   std::vector<Entry> products_;                    // types and tokens corresponding to the branches
   int32_t const instance_;                         // instance used to identify the source-destination pair
   std::unique_ptr<TBufferFile> buffer_;
-  size_t buffer_offset_;
   size_t metadata_size_;
   bool has_serialized_ = false;
   bool is_active_ = true;
