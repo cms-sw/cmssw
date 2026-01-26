@@ -34,7 +34,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFractionHostCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
-#include "DataFormats/ParticleFlowReco/interface/alpaka/PFClusterDeviceCollection.h"
+//#include "DataFormats/ParticleFlowReco/interface/alpaka/PFClusterDeviceCollection.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
