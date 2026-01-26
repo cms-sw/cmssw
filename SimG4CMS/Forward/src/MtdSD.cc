@@ -16,8 +16,6 @@
 
 #include <iostream>
 
-using namespace MtdHitCategory;
-
 //-------------------------------------------------------------------
 MtdSD::MtdSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
@@ -128,6 +126,7 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
 }
 
 void MtdSD::setHitClassID(const G4Step* aStep) {
+  hitClassID = 0;
   TrackInformation* trkInfo = cmsTrackInformation(aStep->GetTrack());
   if (nullptr == trkInfo) {
     return;
@@ -135,21 +134,23 @@ void MtdSD::setHitClassID(const G4Step* aStep) {
   const G4String& rname = aStep->GetTrack()->GetVolume()->GetLogicalVolume()->GetRegion()->GetName();
   if (rname == "FastTimerRegionSensBTL") {
     if (trkInfo->isInTrkFromBackscattering()) {
-      hitClassID = k_idFromCaloOffset;
+      hitClassID = SimHitCategory::k_BTLfromCalo;
     } else if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering() && !trkInfo->storeTrack()) {
-      hitClassID = k_idsecOffset;
+      hitClassID = SimHitCategory::k_BTLsecondary;
     } else if (trkInfo->isBTLlooper()) {
-      hitClassID = k_idloopOffset;
+      hitClassID = SimHitCategory::k_BTLlooper;
     }
   } else if (rname == "FastTimerRegionSensETL") {
     double zin = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
     double zout = std::abs(aStep->GetPostStepPoint()->GetPosition().z());
     if (zout - zin < 0.) {
-      hitClassID = k_idETLfromBack;
+      hitClassID = SimHitCategory::k_ETLfromBack;
       trkInfo->setETLfromBack();
     } else {
-      hitClassID = 0;
       trkInfo->setETLfromFront();
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MtdSim") << "MtdSD: process type = " << hitClassID;
+#endif
 }
