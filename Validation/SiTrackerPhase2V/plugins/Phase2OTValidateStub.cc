@@ -282,7 +282,7 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
   double c_ = settings.c();
 
   // Geometries
-  //const TrackerGeometry* theTrackerGeom = tkGeom_;
+  const TrackerGeometry* theTrackerGeom = tkGeom_;
   const TrackerTopology* tTopo = tTopo_;
 
   /// Loop over input Stubs for basic histogram filling (e.g., Stub_RZ)
@@ -560,6 +560,10 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
         layer = static_cast<int>(tTopo->layer(detid)) + 5;  // fill in array as entries 6-10
 
       // treat genuine stubs separately (==2 is genuine, ==1 is not)
+      // Prioritize "Genuine" stubs (value 2) over "Combinatorial/Unknown" stubs (value 1)
+      // Check if the stub is NOT genuine (findTrackingParticlePtr is null)
+      // If it is NOT genuine, only record it as '1' if we haven't already found a genuine stub (value < 2) in this layer
+      // Otherwise (the stub IS genuine), strictly mark the layer as '2', overwriting any previous '1'
       if (MCTruthTTStubHandle->findTrackingParticlePtr(theStubRefs.at(is)).isNull() && hasStubInLayer[layer] < 2)
         hasStubInLayer[layer] = 1;
       else
@@ -596,10 +600,25 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
     if (nStubTP < TP_minNStub || nStubLayerTP < TP_minNLayersStub)
       continue;
 
-    /*// Find all clusters that can be associated to a tracking particle with at
+    // Find all clusters that can be associated to a tracking particle with at
     // least one hit
     std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>>
         associatedClusters = MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr);
+
+    int nValidClustersBarrel = 0;
+    int nValidClustersEndcap = 0;
+
+    // Count genuine clusters first
+    for (const auto& clus : associatedClusters) {
+        if (!MCTruthTTClusterHandle->isGenuine(clus)) continue;
+        DetId detid = clus->getDetId();
+        if (detid.subdetId() == StripSubdetector::TOB) nValidClustersBarrel++;
+        else if (detid.subdetId() == StripSubdetector::TID) nValidClustersEndcap++;
+    }
+    
+    // Define weights (1.0 / N)
+    float weightBarrel = (nValidClustersBarrel > 0) ? 1.0f / nValidClustersBarrel : 0.0f;
+    float weightEndcap = (nValidClustersEndcap > 0) ? 1.0f / nValidClustersEndcap : 0.0f;
 
     // Loop through associated clusters
     for (std::size_t k = 0; k < associatedClusters.size(); ++k) {
@@ -613,6 +632,10 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
       bool isGenuine = MCTruthTTClusterHandle->isGenuine(clusA);
       if (!isGenuine)
         continue;
+
+      // apply weight
+      bool isBarrelBool = (clusdetid.subdetId() == StripSubdetector::TOB);
+      float currentWeight = isBarrelBool ? weightBarrel : weightEndcap;
 
       DetId detidA = tTopo->stack(clusdetid);
       const GeomDetUnit* detA = theTrackerGeom->idToDetUnit(clusdetid);
@@ -630,12 +653,13 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
         edm::LogVerbatim("Tracklet") << "WARNING -- neither TOB or TID stub, shouldn't happen...";
       }
 
+      // modified for weights
       if (isBarrel == 1) {
-        gen_clusters_barrel->Fill(tmp_tp_pt);
-        gen_clusters_zoom_barrel->Fill(tmp_tp_pt);
+        gen_clusters_barrel->Fill(tmp_tp_pt, currentWeight);
+        gen_clusters_zoom_barrel->Fill(tmp_tp_pt, currentWeight);
       } else {
-        gen_clusters_endcaps->Fill(tmp_tp_pt);
-        gen_clusters_zoom_endcaps->Fill(tmp_tp_pt);
+        gen_clusters_endcaps->Fill(tmp_tp_pt, currentWeight);
+        gen_clusters_zoom_endcaps->Fill(tmp_tp_pt, currentWeight);
       }
 
       // If there are stubs on the same detid, loop on those stubs
@@ -671,82 +695,20 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
               continue;
             float stub_tp_pt = stubTP->pt();
             if (stub_tp_pt == tmp_tp_pt) {
+              // modified for weights
               if (isBarrel == 1) {
-                gen_clusters_if_stub_barrel->Fill(tmp_tp_pt);
-                gen_clusters_if_stub_zoom_barrel->Fill(tmp_tp_pt);
+                gen_clusters_if_stub_barrel->Fill(tmp_tp_pt, currentWeight);
+                gen_clusters_if_stub_zoom_barrel->Fill(tmp_tp_pt, currentWeight);
               } else {
-                gen_clusters_if_stub_endcaps->Fill(tmp_tp_pt);
-                gen_clusters_if_stub_zoom_endcaps->Fill(tmp_tp_pt);
+                gen_clusters_if_stub_endcaps->Fill(tmp_tp_pt, currentWeight);
+                gen_clusters_if_stub_zoom_endcaps->Fill(tmp_tp_pt, currentWeight);
               }
               break;
             }
           }  // end if stub cluster coords.x matches associated cluster coords.x
         }  // end loop over stubs on the same detid as associated clusters
       }  // end if stubs on same detid
-    }  // end loop over associated clusters*/
-    
-    // --------------------------------------------------------------------------------
-    // NEW LOGIC: "Flag Method" (One entry per TP)
-    // --------------------------------------------------------------------------------
-
-    // Check for Clusters (Denominator Flags)
-    bool hasBarrelCluster = false;
-    bool hasEndcapCluster = false;
-
-    if (MCTruthTTClusterHandle.isValid()) {
-      auto associatedClusters = MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr);
-      for (const auto& clus : associatedClusters) {
-        if (!MCTruthTTClusterHandle->isGenuine(clus)) continue;
-
-        DetId detid = clus->getDetId();
-        if (detid.subdetId() == StripSubdetector::TOB) hasBarrelCluster = true;
-        else if (detid.subdetId() == StripSubdetector::TID) hasEndcapCluster = true;
-
-        if (hasBarrelCluster && hasEndcapCluster) break; // Optimization
-      }
-    }
-
-    // Check for Stubs (Numerator Flags)
-    // Using direct reference matching
-    bool hasBarrelStub = false;
-    bool hasEndcapStub = false;
-
-    if (MCTruthTTStubHandle.isValid()) {
-      // We can re-use 'theStubRefs' calculated at the top of the loop
-      for (const auto& stub : theStubRefs) {
-        if (!MCTruthTTStubHandle->isGenuine(stub)) continue;
-
-        DetId detid = stub->getDetId();
-        if (detid.subdetId() == StripSubdetector::TOB) hasBarrelStub = true;
-        else if (detid.subdetId() == StripSubdetector::TID) hasEndcapStub = true;
-
-        if (hasBarrelStub && hasEndcapStub) break; // Optimization
-      }
-    }
-
-    // Fill Histograms (Once per TP)
-    
-    // Barrel Region
-    if (hasBarrelCluster) {
-      gen_clusters_barrel->Fill(tmp_tp_pt);
-      gen_clusters_zoom_barrel->Fill(tmp_tp_pt);
-      
-      if (hasBarrelStub) {
-        gen_clusters_if_stub_barrel->Fill(tmp_tp_pt);
-        gen_clusters_if_stub_zoom_barrel->Fill(tmp_tp_pt);
-      }
-    }
-
-    // Endcap Region
-    if (hasEndcapCluster) {
-      gen_clusters_endcaps->Fill(tmp_tp_pt);
-      gen_clusters_zoom_endcaps->Fill(tmp_tp_pt);
-
-      if (hasEndcapStub) {
-        gen_clusters_if_stub_endcaps->Fill(tmp_tp_pt);
-        gen_clusters_if_stub_zoom_endcaps->Fill(tmp_tp_pt);
-      }
-    }
+    }  // end loop over associated clusters
   }  // end loop over tracking particles
 }  // end of method
 
