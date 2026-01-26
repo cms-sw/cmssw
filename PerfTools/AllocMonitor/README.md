@@ -175,4 +175,4 @@ This service registers a monitor when the service is created and will abort the 
 - `maxThreshold` : the maximum number of bytes an allocation request must stay below (or equal) before an abort might be triggered. A value of `0` means there is no such limit.
 - `skipCount` : the number of times allocations have satisfied the `minThreshold` to `maxThreshold` range before the next time will trigger an abort. A value of `0` will trigger the first time the range is met.
 
-This service is multi-thread safe although it may not yeild consistent results if multiple thread reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.
+This service is multi-thread safe although it may not yield consistent results if multiple threads reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.
