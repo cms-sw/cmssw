@@ -112,7 +112,7 @@ public:
       else if (product_meta.kind == ProductMetadata::Kind::Serialized) {
         std::unique_ptr<edm::WrapperBase> wrapper(
             reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
-        assert(static_cast<int64_t>(serialized_buffer->Length() + product_meta.sizeMeta) <=
+        assert(static_cast<int32_t>(serialized_buffer->Length() + product_meta.sizeMeta) <=
                    received_meta_->serializedBufferSize() &&
                "serialized data buffer is shorter than expected");
         entry.wrappedType.getClass()->Streamer(wrapper.get(), *serialized_buffer);
