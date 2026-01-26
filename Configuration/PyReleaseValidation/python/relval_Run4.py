@@ -69,6 +69,7 @@ numWFIB.extend([prefixDet+34.7572]) # HLTTiming75e33, alpaka,singleIterPatatrack
 numWFIB.extend([prefixDet+34.758]) # HLTTiming75e33, ticl_barrel
 numWFIB.extend([prefixDet+34.759]) # HLTTiming75e33 + NANO
 numWFIB.extend([prefixDet+34.77])  # NGTScouting
+numWFIB.extend([prefixDet+34.771]) # NGTScouting + alpaka + TICL-Barrel
 numWFIB.extend([prefixDet+34.772]) # NGTScouting + NANO
 numWFIB.extend([prefixDet+34.773]) # NGTScouting + NANO (including validation)
 numWFIB.extend([prefixDet+34.774])  # NGTScouting + Phase2CAExtension as GeneneralTracks
