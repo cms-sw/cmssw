@@ -21,7 +21,7 @@ else:
   from DQM.Integration.config.inputsource_cfi import options
 
   if not options.inputFiles:
-      process.source.streamLabel = "streamLocalTestDataScouting"
+      process.source.streamLabel = "streamDQMTestDataScouting"
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
