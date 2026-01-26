@@ -62,12 +62,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @param acc   Alpaka accelerator instance.
  * @param mask  Input mask.
  * 
- * @return Index of least significant 1 bit (0-based). (or -1 if x == 0).
+ * @return Index of least significant 1 bit (0-based). (or warp size if x == 0).
  */
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t get_ls1b_idx(TAcc const& acc, const warp::warp_mask_t mask) {
     if (mask == 0)
-      return 0;
+      return static_cast<warp::warp_mask_t>(alpaka::warp::getSize(acc));
 
     using signed_warp_mask_t = std::conditional_t<sizeof(warp::warp_mask_t) == 8, std::int64_t, std::int32_t>;
 

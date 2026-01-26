@@ -22,7 +22,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/MoveToDeviceCache.h"
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterParams.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizer_Alpaka.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizer.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringVarsDeviceCollection.h"
 
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
@@ -147,9 +147,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::unique_ptr<reco::PFRecHitFractionDeviceCollection> outPFRHFractions;
     std::unique_ptr<reco::PFClusterDeviceCollection> outPFClusters;
 
-    if (edm::isDebugEnabled()) {
-      LogDebug("PFMultiDepthClusterSoAProducer") << "nClusters is: " << *pfcl_size_;
-    }
+    //if (edm::isDebugEnabled()) {
+    LogDebug("PFMultiDepthClusterSoAProducer") << "nClusters is: " << *pfcl_size_;
+    //}
 
     if (*pfcl_size_ > 0) {
       outPFClusters = std::make_unique<reco::PFClusterDeviceCollection>(*pfcl_size_, event.queue());

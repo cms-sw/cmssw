@@ -149,7 +149,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // Skip inactive lanes:
           if (idx.global >= nClusters)
             continue;
-
           const int i = idx.global;
 
           const auto pfc_energy = pfClusters[i].energy();
@@ -206,8 +205,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
               unsigned int swap_lane_idx{
                   w_extent};  //assigned to some default value (note that it's outside of the warp range)
-              unsigned int swap_proc_pfrhf_offset{0};  // or max unsigned int?
-              unsigned int swap_lanes_num{0};          //no lanes in the warp keep iter lane idx for swap operation
+              unsigned int swap_lanes_num{0};  //no lanes in the warp keep iter lane idx for swap operation
 
               unsigned int proc_lane_idx{w_extent};
               unsigned int proc_pfrhf_offset{static_cast<unsigned int>(pfrhf_offset)};
@@ -229,10 +227,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   swap_lanes_mask = swap_lanes_mask | iter_lane_mask;
                   ++swap_lanes_num;  // number of lanes reserved for swap in this iteration
 
-                  if (is_master_lane && iter_lane_idx != proc_lane_idx) {
+                  if (is_master_lane && iter_lane_idx != proc_lane_idx)
                     swap_lane_idx = proc_lane_idx;
-                    swap_proc_pfrhf_offset = proc_pfrhf_offset;
-                  }
                 } else {
                   // update the free mask (erase master-lane bit):
                   free_lanes_mask &= ~iter_lane_mask;
@@ -280,14 +276,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 // Erase corresponding bits in 'free_lanes_mask'
                 free_lanes_mask &= ~coop_subgroup_mask;
                 // Update parameters only for cooperative subgroup lanes (and the master lane):
-                if (is_coop_subgroup_lane || is_master_lane) {
-                  // Broadcast from the current master lane (iter_lane_idx): which lane owns the work and its current offset.
-                  // Only the cooperative subgroup lanes and the master lane participate in these shuffles.
+                // Broadcast from the current master lane (iter_lane_idx): which lane owns the work and its current offset.
+                // Only the cooperative subgroup lanes and the master lane participate in these shuffles
+                if (is_coop_subgroup_lane || is_master_lane)
                   proc_lane_idx =
                       warp::shfl_mask(acc, coop_subgroup_mask | iter_lane_mask, iter_lane_idx, iter_lane_idx, w_extent);
-                  proc_pfrhf_offset =
-                      warp::shfl_mask(acc, coop_subgroup_mask | iter_lane_mask, pfrhf_offset, iter_lane_idx, w_extent);
-                }
+
                 // Now we need to check whether we need to increment iteration lane index.
                 // Check if worksize less or equal subgroup size, if 'true', increment iter lane index for the next rec hit fraction array:
                 if (iter_pfrhf_size <= free_subgroup_size) {
@@ -299,6 +293,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   // We advance pfrhf_offset by (coop helpers + master) and reduce pfrhf_size accordingly.
                   keep_accum = true;
                   // update rechit fraction offset for the next iteration
+                  proc_pfrhf_offset = pfrhf_offset;
                   pfrhf_offset += coop_subgroup_size + 1;  // +1 accounts for the master lane processing one element
                   // compute remaining work size (that is a leftover rec hit fraction size)
                   pfrhf_size = iter_pfrhf_size - coop_subgroup_size;
@@ -321,13 +316,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 const unsigned int tmp_proc_lane_idx =
                     warp::shfl_mask(acc, free_lanes_mask | swap_lanes_mask, swap_lane_idx, src_phys_lane_idx, w_extent);
 
-                const unsigned int tmp_proc_pfrhf_offset = warp::shfl_mask(
-                    acc, free_lanes_mask | swap_lanes_mask, swap_proc_pfrhf_offset, src_phys_lane_idx, w_extent);
-
-                if (is_work_lane(free_lanes_mask, lane_idx, w_extent) && src_log_lane_idx < swap_lanes_num) {
+                if (is_work_lane(free_lanes_mask, lane_idx, w_extent) && src_log_lane_idx < swap_lanes_num)
                   proc_lane_idx = tmp_proc_lane_idx;
-                  proc_pfrhf_offset = tmp_proc_pfrhf_offset;
-                }
               }
 
               const warp::warp_mask_t nonvacant_lanes_mask =
@@ -342,7 +332,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               const float proc_phi_c = warp::shfl_mask(acc, coop_group_mask, phi_c, proc_lane_idx, w_extent);
               const float proc_pfc_energy = warp::shfl_mask(acc, coop_group_mask, pfc_energy, proc_lane_idx, w_extent);
 
-              const int pfrhfrac_idx = get_logical_lane_idx(acc, coop_group_mask, lane_idx) + proc_pfrhf_offset;
+              const unsigned int coop_pfrhf_offset =
+                  warp::shfl_mask(acc, coop_group_mask, proc_pfrhf_offset, proc_lane_idx, w_extent);
+
+              const int pfrhfrac_idx = get_logical_lane_idx(acc, coop_group_mask, lane_idx) + coop_pfrhf_offset;
 
               const int pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
               const float frac_energy = pfRecHitFracs[pfrhfrac_idx].frac() * pfRecHit[pfrh_idx].energy();

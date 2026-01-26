@@ -1,5 +1,5 @@
-#ifndef PFClusterProducer_plugins_alpaka_PFMultiDepthClusterizer_Alpaka_h
-#define PFClusterProducer_plugins_alpaka_PFMultiDepthClusterizer_Alpaka_h
+#ifndef PFClusterProducer_plugins_alpaka_PFMultiDepthClusterizer_h
+#define PFClusterProducer_plugins_alpaka_PFMultiDepthClusterizer_h
 
 // Alpaka includes
 #include <alpaka/alpaka.hpp>
