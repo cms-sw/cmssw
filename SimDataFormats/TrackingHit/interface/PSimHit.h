@@ -4,6 +4,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "SimHitCategory.h"
 
 class TrackingSlaveSD;  // for friend declaration only
 
@@ -117,7 +118,11 @@ public:
    *  value with special significance is zero (for "undefined"), so zero should
    *  not be the ID of any process.
    */
-  unsigned short processType() const { return theProcessType; }
+  // use 9 bits (up to 511) for process id, reserve the rest for hit production mechanism id
+  unsigned short processType() const { return theProcessType & k_procidMask_; }
+
+  unsigned short hitProdType() const { return (theProcessType >> k_hitidShift_) & k_hitidMask_; }
+  void setHitProdType(unsigned int hitId) { theProcessType |= hitId << k_hitidShift_; }
 
   void setTof(float tof) { theTof = tof; }
 
