@@ -54,7 +54,7 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
 
 void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("ticlCandidateSrc", edm::InputTag("ticlTrackstersMerge"));
+  desc.add<edm::InputTag>("ticlCandidateSrc", edm::InputTag("ticlCandidate"));
   desc.add<edm::InputTag>("trackTimeValueMap", edm::InputTag("tofPID:t0"));
   desc.add<edm::InputTag>("trackTimeErrorMap", edm::InputTag("tofPID:sigmat0"));
   desc.add<edm::InputTag>("trackTimeQualityMap", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
