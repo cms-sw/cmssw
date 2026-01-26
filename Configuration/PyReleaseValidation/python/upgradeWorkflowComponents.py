@@ -2140,6 +2140,19 @@ upgradeWFs['NGTScouting'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
 
+upgradeWFs['NGTScoutingAll'] = deepcopy(upgradeWFs['NGTScouting'])
+upgradeWFs['NGTScoutingAll'].suffix = '_NGTScoutingAll'
+upgradeWFs['NGTScoutingAll'].offset = 0.771
+upgradeWFs['NGTScoutingAll'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation',
+    '--procModifiers': 'ngtScouting,alpaka,ticl_barrel,phase2CAExtension',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['NGTScoutingAll'].step3 = {
+    '--procModifiers': 'ngtScouting,alpaka,ticl_barrel',
+   '-s':'HARVESTING:@hltValidation'
+}
 
 upgradeWFs['NGTScoutingCAExtensionPixelOnly'] = deepcopy(upgradeWFs['NGTScouting'])
 upgradeWFs['NGTScoutingCAExtensionPixelOnly'].suffix = '_NGTScoutingCAExtensionPixelOnly'
