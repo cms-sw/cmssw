@@ -87,7 +87,6 @@ public:
       return;
     }
 
-    int buffer_offset = 0;
     std::unique_ptr<TBufferFile> serialized_buffer;
     if (received_meta_->hasSerialized()) {
       serialized_buffer = token.channel()->receiveSerializedBuffer(instance_, received_meta_->serializedBufferSize());
@@ -95,7 +94,7 @@ public:
       {
         edm::LogSystem msg("MPISender");
         msg << "Received serialised product:\n";
-        for (int i = 0; i < serialized_buffer->Length(); ++i) {
+        for (int i = 0; i < received_meta_->serializedBufferSize(); ++i) {
           msg << "0x" << std::hex << std::setw(2) << std::setfill('0')
               << (unsigned int)(unsigned char)serialized_buffer->Buffer()[i] << (i % 16 == 15 ? '\n' : ' ');
         }
@@ -113,11 +112,10 @@ public:
       else if (product_meta.kind == ProductMetadata::Kind::Serialized) {
         std::unique_ptr<edm::WrapperBase> wrapper(
             reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
-        auto productBuffer = TBufferFile(TBuffer::kRead, product_meta.sizeMeta);
-        assert(buffer_offset < serialized_buffer->BufferSize() && "serialized data buffer is shorter than expected");
-        productBuffer.SetBuffer(serialized_buffer->Buffer() + buffer_offset, product_meta.sizeMeta, false);
-        buffer_offset += product_meta.sizeMeta;
-        entry.wrappedType.getClass()->Streamer(wrapper.get(), productBuffer);
+        assert(static_cast<int64_t>(serialized_buffer->Length() + product_meta.sizeMeta) <=
+                   received_meta_->serializedBufferSize() &&
+               "serialized data buffer is shorter than expected");
+        entry.wrappedType.getClass()->Streamer(wrapper.get(), *serialized_buffer);
         // put the data into the Event
         event.put(entry.token, std::move(wrapper));
       }
@@ -141,7 +139,7 @@ public:
     }
 
     if (received_meta_->hasSerialized()) {
-      assert(buffer_offset == received_meta_->serializedBufferSize() &&
+      assert(serialized_buffer->Length() == received_meta_->serializedBufferSize() &&
              "serialized data buffer is not equal to the expected length");
     }
 
