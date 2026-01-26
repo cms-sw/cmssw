@@ -77,6 +77,9 @@ public:
   // Global position of the stubs
   MonitorElement* Stub_RZ = nullptr;  // TTStub #rho vs. z
 
+  // Number of stubs per event
+  MonitorElement* number_of_stubs = nullptr;
+
   // delta_z hists barrel
   MonitorElement* z_res_isPS_barrel = nullptr;
   MonitorElement* z_res_is2S_barrel = nullptr;
@@ -293,6 +296,12 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
     edm::LogError("Phase2OTValidateStub") << "Invalid handle(s) detected.";
     return;
   }
+
+  int nStubs = 0;
+  for (auto const& detSet : *Phase2TrackerDigiTTStubHandle) {
+      nStubs += detSet.size();
+  }
+  number_of_stubs->Fill(nStubs);
 
   for (inputIter = Phase2TrackerDigiTTStubHandle->begin(); inputIter != Phase2TrackerDigiTTStubHandle->end();
        ++inputIter) {
@@ -715,6 +724,7 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
 // ------------ method called when starting to processes a run  ------------
 void Phase2OTValidateStub::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& es) {
   edm::ParameterSet psTTStub_RZ = conf_.getParameter<edm::ParameterSet>("TH2TTStub_RZ");
+  edm::ParameterSet psNStubs = conf_.getParameter<edm::ParameterSet>("TH1NStubs");
   edm::ParameterSet ps_2S_Res = conf_.getParameter<edm::ParameterSet>("TH1_2S_Res");
   edm::ParameterSet ps_PS_Res = conf_.getParameter<edm::ParameterSet>("TH1_PS_Res");
   edm::ParameterSet psPhi_Res = conf_.getParameter<edm::ParameterSet>("TH1Phi_Res");
@@ -742,6 +752,9 @@ void Phase2OTValidateStub::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
                            psTTStub_RZ.getParameter<int32_t>("Nbinsy"),
                            psTTStub_RZ.getParameter<double>("ymin"),
                            psTTStub_RZ.getParameter<double>("ymax"));
+
+  // number of stubs histogram
+  number_of_stubs = book1DFromPS(iBooker, "number_of_stubs", psNStubs, "# stubs", "events");
 
   iBooker.setCurrentFolder(topFolderName_ + "/Residual");
   // z residuals barrel (Summary)
@@ -820,6 +833,13 @@ void Phase2OTValidateStub::fillDescriptions(edm::ConfigurationDescriptions& desc
     psd0.add<double>("ymax", 120);
     psd0.add<double>("ymin", 0);
     desc.add<edm::ParameterSetDescription>("TH2TTStub_RZ", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<int>("Nbinsx", 100);
+    psd0.add<double>("xmax", 25000);
+    psd0.add<double>("xmin", 0);
+    desc.add<edm::ParameterSetDescription>("TH1NStubs", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
