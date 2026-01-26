@@ -1,6 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
 
-#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizer_Alpaka.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizer.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringVarsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringCCLabelsDeviceCollection.h"
@@ -13,7 +13,7 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCEpilogue.h"
 
 /**
- * @file PFMultiDepthClusterizer_Alpaka.cc
+ * @file PFMultiDepthClusterizer.dev.cc
  * @brief Alpaka-based particle flow multi-depth clustering using Alpaka.
  *
  * This file implements the complete multi-depth clustering pipeline for particle flow reconstruction.

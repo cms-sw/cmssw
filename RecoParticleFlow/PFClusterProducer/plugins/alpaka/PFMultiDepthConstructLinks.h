@@ -153,24 +153,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   /**
- * @brief Prune a link between active lanes in a warp.
- *
- * @tparam TAcc Alpaka accelerator type. 
- *
- * @param acc            Alpaka accelerator instance.
- * @param mask           Active-lane mask excluding the owner lane.
- * @param dst_link_params Destination link parameters to be updated.
- * @param src_link_params Source link parameters.
- * @param lane_idx       Index of the calling lane.
- * @param dst_lane_idx   Index of the destination lane.
- * @param kind           Link parameter kind.
- * @param is_owner_tile  Whether the destination belongs to the owner tile.
- *
- * @return Updated active-lane mask after link pruning. If selction process is successful, that is, only a single lane selected
- *         returns the zero mask.
- */
-
-  /**
  * @brief Prune candidate links for a given destination lane using a single comparison key.
  *
  * The function reduces over the current candidate set and keeps only lanes that match the
@@ -203,7 +185,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const PFMDLinkParamKind kind,
       const bool is_owner_tile = false) {
     const unsigned int w_extent = alpaka::warp::getSize(acc);
-
     // 1. Create target lane mask:
     const warp::warp_mask_t dst_lane_mask = get_lane_mask(dst_lane_idx);
     // 2. First, we select parameter value for the selection process, based on specified test value type:
@@ -214,7 +195,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // 3.2. then check two cases: for a single active lane, just continue with the current mask, otherwise perform
     //      link filtering.
     warp::warp_mask_t leftover_mask = mask;
-
     //      Check number of active lanes and do filtering
     if (nLanes > 1) {
       // 3.3. Perform warp-level reduction:
@@ -263,7 +243,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
       return 0;
     }
-    return (leftover_mask | dst_lane_mask);
+
+    return leftover_mask;
   }
   /**
  * @brief Alpaka kernel constructing inter-cluster links for multi-depth clustering.
@@ -287,9 +268,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int nClusters = mdpfClusteringVars.size();
 
       const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
+      const unsigned int gridDim = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
 
       const unsigned int w_extent = alpaka::warp::getSize(acc);
-      const unsigned int w_items = alpaka::math::min(acc, (blockDim + (w_extent - 1)) / w_extent, max_w_items);
 
       const double nSigmaEta_ = nSigma->nSigmaEta;
       const double nSigmaPhi_ = nSigma->nSigmaPhi;
@@ -302,8 +283,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
-        const auto cluster_tiles = w_items;
-        const auto cluster_tile_size = w_extent;
+        const unsigned int cluster_tiles = (gridDim + (w_extent - 1)) / w_extent;
+        const unsigned int cluster_tile_size = w_extent;
         // Execution domain along destination (target) clusters
         for (auto idx : ::cms::alpakatools::uniform_group_elements(
                  acc, group, ::cms::alpakatools::round_up_by(nClusters, w_extent))) {
@@ -330,8 +311,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const auto dst_cl_params =
               idx.global < nClusters ? PFMDClusterParam(mdpfClusteringVars[idx.global]) : PFMDClusterParam();
           // Get warp and lane indices
-          const auto warp_idx = idx.local / w_extent;
-          const auto lane_idx = idx.local % w_extent;
+          const unsigned int warp_idx = idx.local / w_extent;
+          const unsigned int lane_idx = idx.local % w_extent;
           // We iterate over source tiles (size = warp extent)
           // In fact, we process nCluster x nCluster domain, where we distribute tiles over the first dimention (row indices)
           // and warps over the second one (coloumn indices).
@@ -349,9 +330,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             // We call a cluster tile as the 'owner' tile
             // if the lane index of each thread coincide with the destination cluster index
             // (in fact, we compare warp index with tile index):
-            const bool is_owner_tile = (warp_idx + group * blockDim) == (tile + group * cluster_tiles);
+            const bool is_owner_tile = (warp_idx + group * blockDim) == tile;
             // A destination cluster params, for 'non-owner' tile load cluster data again:
-            const auto src_idx = (tile * cluster_tile_size + lane_idx) + group * blockDim;
+            const unsigned int src_idx = tile * cluster_tile_size + lane_idx;
 
             const auto src_cl_params =
                 is_owner_tile
@@ -439,8 +420,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                       dst_lane_idx,
                                                       param_kinds[k],
                                                       is_owner_tile);
+                if (next_leftover_lanes_mask == 0)
+                  break;
 
-                if (is_work_lane(next_leftover_lanes_mask, lane_idx, w_extent) == false)
+                if (is_work_lane(next_leftover_lanes_mask | dst_lane_mask, lane_idx, w_extent) == false)
                   break;  // exit loop for filtered lanes only
                 // Reset filtered link mask:
                 leftover_lanes_mask = next_leftover_lanes_mask;
