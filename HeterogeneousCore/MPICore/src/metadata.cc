@@ -12,9 +12,12 @@ ProductMetadataBuilder::ProductMetadataBuilder() : buffer_(nullptr), capacity_(0
   size_ = headerSize_;
 }
 
-ProductMetadataBuilder::ProductMetadataBuilder(size_t expectedSize)
+ProductMetadataBuilder::ProductMetadataBuilder(int16_t productCount)
     : buffer_(nullptr), capacity_(0), size_(0), readOffset_(0) {
-  reserve(expectedSize + headerSize_);
+  // we need 1 byte for type, 8 bytes for size, and at least 8 bytes for MemoryCopyTraits Properties buffer
+  // on average 24 bytes per product should be enough, but metadata will adapt if the actual contents is larger
+  reserve(productCount * 24 + headerSize_);
+  header_.productCount = static_cast<int16_t>(productCount);
   size_ = headerSize_;
 }
 
@@ -51,27 +54,25 @@ void ProductMetadataBuilder::reserve(size_t bytes) {
 
 void ProductMetadataBuilder::setHeader() {
   assert(size_ >= headerSize_ && "Buffer must reserve space for header");
-  std::memcpy(buffer_, &productCount_, sizeof(int64_t));          // first 8 bytes
-  buffer_[8] = productFlags_;                                     // indicate which products are present
-  std::memcpy(buffer_ + 9, &serializedBufferSize_, sizeof(int));  // size of serialized products
+  std::memcpy(buffer_, &header_, sizeof(header_));
 }
 
 void ProductMetadataBuilder::addMissing() {
-  productFlags_ |= HasMissing;
+  header_.productFlags |= HasMissing;
   append<uint8_t>(static_cast<uint8_t>(ProductMetadata::Kind::Missing));
 }
 
-void ProductMetadataBuilder::addSerialized(size_t size) {
-  productFlags_ |= HasSerialized;
+void ProductMetadataBuilder::addSerialized(uint64_t size) {
+  header_.productFlags |= HasSerialized;
   append<uint8_t>(static_cast<uint8_t>(ProductMetadata::Kind::Serialized));
-  append<size_t>(size);
-  serializedBufferSize_ += size;
+  append<uint64_t>(size);
+  header_.serializedBufferSize += static_cast<int32_t>(size);
 }
 
-void ProductMetadataBuilder::addTrivialCopy(const std::byte* buffer, size_t size) {
-  productFlags_ |= HasTrivialCopy;
+void ProductMetadataBuilder::addTrivialCopy(const std::byte* buffer, uint64_t size) {
+  header_.productFlags |= HasTrivialCopy;
   append<uint8_t>(static_cast<uint8_t>(ProductMetadata::Kind::TrivialCopy));
-  append<size_t>(size);
+  append<uint64_t>(size);
   appendBytes(buffer, size);
 }
 
@@ -83,14 +84,13 @@ std::span<const uint8_t> ProductMetadataBuilder::buffer() const { return {buffer
 void ProductMetadataBuilder::receiveMetadata(int src, int tag, MPI_Comm comm) {
   MPI_Status status;
   MPI_Recv(buffer_, maxMetadataSize_, MPI_BYTE, src, tag, comm, &status);
-  // add error handling if message is too long
+  // add error handling if message is too long (quite unlikely to happen so far)
   int receivedBytes = 0;
   MPI_Get_count(&status, MPI_BYTE, &receivedBytes);
   assert(static_cast<size_t>(receivedBytes) >= headerSize_ && "received metadata was less than header size");
-  productCount_ = consume<int64_t>();
-  productFlags_ = consume<ProductFlags>();
-  serializedBufferSize_ = consume<int>();
+  memcpy(&header_, buffer_, sizeof(header_));
   size_ = receivedBytes;
+  readOffset_ = headerSize_;
 }
 
 ProductMetadata ProductMetadataBuilder::getNext() {
@@ -106,11 +106,11 @@ ProductMetadata ProductMetadataBuilder::getNext() {
       break;
 
     case ProductMetadata::Kind::Serialized:
-      meta.sizeMeta = consume<size_t>();
+      meta.sizeMeta = consume<uint64_t>();
       break;
 
     case ProductMetadata::Kind::TrivialCopy: {
-      size_t blobSize = consume<size_t>();
+      uint64_t blobSize = consume<uint64_t>();
       if (readOffset_ + blobSize > size_) {
         throw std::runtime_error("Metadata buffer too short for trivialCopy data");
       }
@@ -157,31 +157,59 @@ void ProductMetadataBuilder::appendBytes(const std::byte* src, size_t size) {
 }
 
 void ProductMetadataBuilder::debugPrintMetadataSummary() const {
-  if (size_ < headerSize_) {
-    std::cerr << "ERROR: Buffer too small to contain header\n";
+  if (size_ < sizeof(MetadataHeader)) {
+    std::cerr << "ERROR: Buffer too small to contain metadata header\n";
     return;
   }
 
   std::ostringstream out;
-  size_t offset = headerSize_;  // Skip the header
+
+  // --- Read header fields explicitly (must match setHeader layout) ---
+  int16_t productCount = 0;
+  uint8_t productFlags = 0;
+  int32_t serializedBufferSize = 0;
+
+  size_t offset = 0;
+  std::memcpy(&productCount, buffer_ + offset, sizeof(int16_t));
+  offset += sizeof(int16_t);
+
+  productFlags = buffer_[offset];
+  offset += sizeof(uint8_t);
+
+  std::memcpy(&serializedBufferSize, buffer_ + offset, sizeof(int32_t));
+  offset += sizeof(int64_t);
+
+  out << "---- ProductMetadata Debug Summary ----\n";
+  out << "Header:\n";
+  out << "  Product count:           " << productCount << "\n";
+  out << "  Serialized buffer size:  " << serializedBufferSize << " bytes\n";
+  out << "  Flags:";
+  if (productFlags & HasMissing)
+    out << " Missing";
+  if (productFlags & HasSerialized)
+    out << " Serialized";
+  if (productFlags & HasTrivialCopy)
+    out << " TrivialCopy";
+  out << "\n\n";
+
+  // --- Parse product entries ---
   size_t count = 0;
   size_t numMissing = 0;
   size_t numSerialized = 0;
   size_t numTrivial = 0;
 
-  uint64_t headerCount = 0;
-  std::memcpy(&headerCount, buffer_, sizeof(uint64_t));
-  uint8_t flags = buffer_[sizeof(uint64_t)];
-
-  out << "---- ProductMetadata Debug Summary ----\n";
-  out << "Header:\n";
-  out << "  Product count:  " << headerCount << "\n";
-  out << "  Flags: " << ((flags & HasMissing) ? "Missing " : "") << ((flags & HasSerialized) ? "Serialized " : "")
-      << ((flags & HasTrivialCopy) ? "TrivialCopy " : "") << "\n\n";
-
   while (offset < size_) {
-    uint8_t kindVal = buffer_[offset];
-    auto kind = static_cast<ProductMetadata::Kind>(kindVal);
+    if (count >= static_cast<size_t>(productCount)) {
+      out << "WARNING: More metadata entries than header.productCount\n";
+      break;
+    }
+
+    if (offset + sizeof(uint8_t) > size_) {
+      out << "ERROR: Truncated metadata entry\n";
+      break;
+    }
+
+    auto kind = static_cast<ProductMetadata::Kind>(buffer_[offset]);
     offset += sizeof(uint8_t);
     count++;
 
@@ -198,7 +226,7 @@ void ProductMetadataBuilder::debugPrintMetadataSummary() const {
           out << "ERROR: Corrupted serialized metadata\n";
           return;
         }
-        size_t sz;
+        size_t sz = 0;
         std::memcpy(&sz, buffer_ + offset, sizeof(size_t));
         offset += sizeof(size_t);
         numSerialized++;
@@ -208,14 +236,15 @@ void ProductMetadataBuilder::debugPrintMetadataSummary() const {
 
       case ProductMetadata::Kind::TrivialCopy: {
         if (offset + sizeof(size_t) > size_) {
-          out << "ERROR: Corrupted trivial copy metadata\n";
+          out << "ERROR: Corrupted trivial-copy metadata\n";
           return;
         }
-        size_t sz;
+        size_t sz = 0;
         std::memcpy(&sz, buffer_ + offset, sizeof(size_t));
         offset += sizeof(size_t);
+
         if (offset + sz > size_) {
-          out << "ERROR: Trivial copy data overflows buffer\n";
+          out << "ERROR: Trivial-copy data overflows buffer\n";
           return;
         }
         offset += sz;
@@ -225,17 +254,21 @@ void ProductMetadataBuilder::debugPrintMetadataSummary() const {
       }
 
       default:
-        out << "Unknown kind: " << static_cast<int>(kindVal) << "\n";
+        out << "ERROR: Unknown product kind " << static_cast<int>(kind) << "\n";
         return;
     }
   }
 
-  out << "----------------------------------------\n";
+  if (count != static_cast<size_t>(productCount)) {
+    out << "\nWARNING: Parsed " << count << " entries, but header says " << productCount << "\n";
+  }
+
+  out << "\n----------------------------------------\n";
   out << "Total entries parsed:   " << count << "\n";
   out << "  Missing:              " << numMissing << "\n";
   out << "  Serialized:           " << numSerialized << "\n";
   out << "  TrivialCopy:          " << numTrivial << "\n";
-  out << "Total buffer size:      " << size_ << " bytes\n";
+  out << "Total metadata size:    " << size_ << " bytes\n";
 
   std::cerr << out.str() << std::flush;
 }

@@ -103,11 +103,10 @@ public:
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     const MPIToken& token = event.get(upstream_);
-    // we need 1 byte for type, 8 bytes for size, and at least 8 bytes for MemoryCopyTraits Properties buffer
-    auto meta = std::make_shared<ProductMetadataBuilder>(products_.size() * 24);
+    // pass the number of products to estimate the right size for the metadata buffer
+    auto meta = std::make_shared<ProductMetadataBuilder>(products_.size());
     size_t index = 0;
     buffer_->Reset();
-    meta->setProductCount(products_.size());
     has_serialized_ = false;
     is_active_ = true;
 
