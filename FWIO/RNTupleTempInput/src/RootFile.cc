@@ -1047,6 +1047,10 @@ namespace edm::rntuple_temp {
   }
 
   void RootFile::close() {
+    // To destroy RNTupleView before the reader
+    for (auto& prov : eventProductProvenanceRetrievers_) {
+      prov = nullptr;  // propagate_const<T> has no reset() function
+    }
     // Just to play it safe, zero all pointers to objects in the InputFile to be closed.
     for (auto& treePointer : treePointers_) {
       treePointer->close();
@@ -1902,7 +1906,7 @@ namespace edm::rntuple_temp {
     edm::propagate_const<RootRNTuple*> rootTree_;
     ROOT::DescriptorId_t provID_;
     StoredProductProvenanceVector provVector_;
-    StoredProductProvenanceVector const* pProvVector_;
+    std::optional<ROOT::RNTupleView<void>> provView_;
     std::vector<ParentageID> const& parentageIDLookup_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
     std::shared_ptr<std::recursive_mutex> mutex_;
@@ -1914,12 +1918,14 @@ namespace edm::rntuple_temp {
                                                    DaqProvenanceHelper const* daqProvenanceHelper)
       : ProvenanceReaderBase(),
         rootTree_(iRootRNTuple),
-        provID_(rootTree_->descriptorFor(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()))),
-        pProvVector_(&provVector_),
+        provView_(rootTree_->view(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()))),
         parentageIDLookup_(iParentageIDLookup),
         daqProvenanceHelper_(daqProvenanceHelper),
         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
-        acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {}
+        acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first) {
+    assert(provView_.has_value());
+    provView_->BindRawPtr(&provVector_);
+  }
 
   namespace {
     using SignalType = signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)>;
@@ -1999,14 +2005,14 @@ namespace edm::rntuple_temp {
   //
   void ReducedProvenanceReader::unsafe_fillProvenance(unsigned int transitionIndex) const {
     ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-    me->rootTree_->fillEntry(me->provID_, me->rootTree_->entryNumberForIndex(transitionIndex), &me->provVector_);
+    me->rootTree_->fillEntry(*me->provView_, me->rootTree_->entryNumberForIndex(transitionIndex));
   }
 
   std::set<ProductProvenance> ReducedProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     if (provVector_.empty()) {
       std::lock_guard<std::recursive_mutex> guard(*mutex_);
       ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-      me->rootTree_->fillEntry(me->provID_, me->rootTree_->entryNumberForIndex(transitionIndex), &me->provVector_);
+      me->rootTree_->fillEntry(*me->provView_, me->rootTree_->entryNumberForIndex(transitionIndex));
     }
     std::set<ProductProvenance> retValue;
     if (daqProvenanceHelper_) {

@@ -79,6 +79,8 @@ namespace edm {
       nextRetriever_->reset();
     }
     parentProcessRetriever_ = nullptr;
+    // Allow reader to be destructed earlier than the destructor of EventPrincipal
+    provenanceReader_.reset();
   }
 
   void ProductProvenanceRetriever::mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other) {
