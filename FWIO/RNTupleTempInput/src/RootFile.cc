@@ -186,6 +186,8 @@ namespace edm::rntuple_temp {
                                             ? eventTree_.view(poolNames::eventToProcessBlockIndexesBranchName())
                                             : std::optional<ROOT::RNTupleView<void>>()),
         productProvenanceView_(eventTree_.view(BranchTypeToProductProvenanceBranchName(eventTree_.branchType()))),
+        eventSelectionIDsView_(eventTree_.view(poolNames::eventSelectionsBranchName())),
+        branchListIndexesView_(eventTree_.view(poolNames::branchListIndexesBranchName())),
         productDependencies_(new ProductDependencies),
         duplicateChecker_(crossFileInfo.duplicateChecker),
         provenanceReaderMaker_(),
@@ -1102,22 +1104,17 @@ namespace edm::rntuple_temp {
     // We could consider doing delayed reading, but because we have to
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.
-    if (fileFormatVersion().eventHistoryBranch()) {
-      assert(false);
-    } else if (fileFormatVersion().eventHistoryTree()) {
-      assert(false);
-      // for backward compatibility.
-    } else if (fileFormatVersion().noMetaDataTrees()) {
-      // Current format
-      auto eventSelectionIDsView = eventTree_.view(poolNames::eventSelectionsBranchName());
-      assert(eventSelectionIDsView.has_value());
-      eventSelectionIDsView->BindRawPtr(&eventSelectionIDs);
-      eventTree_.fillEntry(*eventSelectionIDsView);
-      auto branchListIndexesView = eventTree_.view(poolNames::branchListIndexesBranchName());
-      assert(branchListIndexesView.has_value());
-      branchListIndexesView->BindRawPtr(&branchListIndexes);
-      eventTree_.fillEntry(*branchListIndexesView);
-    }
+    assert(not fileFormatVersion().eventHistoryBranch());
+    assert(not fileFormatVersion().eventHistoryTree());
+    // Current format
+    assert(fileFormatVersion().noMetaDataTrees());
+    assert(eventSelectionIDsView_.has_value());
+    assert(branchListIndexesView_.has_value());
+    eventSelectionIDsView_->BindRawPtr(&eventSelectionIDs);
+    eventTree_.fillEntry(*eventSelectionIDsView_);
+    branchListIndexesView_->BindRawPtr(&branchListIndexes);
+    eventTree_.fillEntry(*branchListIndexesView_);
+
     if (daqProvenanceHelper_) {
       evtAux.setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(evtAux.processHistoryID()));
     }
