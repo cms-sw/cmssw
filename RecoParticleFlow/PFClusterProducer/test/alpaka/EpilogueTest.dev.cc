@@ -51,6 +51,12 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#ifdef EPILOGUE_COOPERATIVE
+static constexpr bool cooperative = true;
+#else
+static constexpr bool cooperative = false;
+#endif
+
 using PFRecHitsNeighbours = Eigen::Matrix<int32_t, 8, 1>;
 
 using namespace reco;
@@ -165,7 +171,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        ECLCCEpilogueKernel<32, true>{},
+                        ECLCCEpilogueKernel<32, cooperative>{},
                         outPFCluster.view(),
                         outPFRecHitFracs.view(),
                         mdpfClusteringVars.view(),
@@ -188,6 +194,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto hOutClusters = outClusters.view();
     auto hClusters = hostClusters.view();
     auto hRecHits = hostRecHits.view();
+    auto hRecHitFracs = hostRecHitFracs.view();
 
     const int nClusters = hClusters.size();
     const int nHits = hRecHits.size();
@@ -393,6 +400,7 @@ void load(::reco::PFClusterHostCollection &hostClusters,
           const std::vector<int> &seedIdx) {
   auto hClusters = hostClusters.view();
   auto hRecHits = hostRecHits.view();
+  auto hRecHitFracs = hostRecHitFracs.view();
 
   const int nClusters = hClusters.size();
   const int nHits = hRecHits.size();
@@ -425,6 +433,9 @@ void load(::reco::PFClusterHostCollection &hostClusters,
     int recHitFracSize = 0;
     for (int j = 0; j < nFracs; ++j) {
       if (rhfracs[j].pfcIdx == i) {
+        hRecHitFracs[recHitFracIdx].frac() = rhfracs[j].frac;
+        hRecHitFracs[recHitFracIdx].pfrhIdx() = rhfracs[j].pfrhIdx;
+        hRecHitFracs[recHitFracIdx].pfcIdx() = i;
         ++recHitFracIdx;
         ++recHitFracSize;
       }
@@ -559,6 +570,10 @@ void checkEpilogue(const ::reco::PFClusterHostCollection &outHostClusters,
            clidx,
            seed,
            energy);
+
+    for (int j = 0; j < recFracSize; j++) {
+      auto recHitidx = outHostRecHitsFracsView[recFracOffset + j].pfrhIdx();
+    }
   }
 }
 
