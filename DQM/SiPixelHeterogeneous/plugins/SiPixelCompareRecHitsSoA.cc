@@ -1,5 +1,3 @@
-// TODO: change file name to SiPixelCompareRecHitsSoA.cc when CUDA code is removed
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -19,13 +17,12 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-// TODO: change class name to SiPixelCompareRecHitsSoA when CUDA code is removed
-class SiPixelCompareRecHits : public DQMEDAnalyzer {
+class SiPixelCompareRecHitsSoA : public DQMEDAnalyzer {
 public:
   using HitsSoA = reco::TrackingRecHitHost;
 
-  explicit SiPixelCompareRecHits(const edm::ParameterSet&);
-  ~SiPixelCompareRecHits() override = default;
+  explicit SiPixelCompareRecHitsSoA(const edm::ParameterSet&);
+  ~SiPixelCompareRecHitsSoA() override = default;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -75,7 +72,7 @@ private:
 // constructors
 //
 
-SiPixelCompareRecHits::SiPixelCompareRecHits(const edm::ParameterSet& iConfig)
+SiPixelCompareRecHitsSoA::SiPixelCompareRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       tokenSoAHitsReference_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsReferenceSoA"))),
@@ -87,19 +84,19 @@ SiPixelCompareRecHits::SiPixelCompareRecHits(const edm::ParameterSet& iConfig)
 // Begin Run
 //
 
-void SiPixelCompareRecHits::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void SiPixelCompareRecHitsSoA::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
 }
 
 template <typename U, typename V>
-void SiPixelCompareRecHits::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
+void SiPixelCompareRecHitsSoA::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
   const auto& rhsoaHandleRef = iEvent.getHandle(tokenRef);
   const auto& rhsoaHandleTar = iEvent.getHandle(tokenTar);
 
   // Exit early if any handle is invalid
   if (!rhsoaHandleRef || !rhsoaHandleTar) {
-    edm::LogWarning out("SiPixelCompareRecHits");
+    edm::LogWarning out("SiPixelCompareRecHitsSoA");
     if (!rhsoaHandleRef)
       out << "reference rechits not found; ";
     if (!rhsoaHandleTar)
@@ -205,7 +202,7 @@ void SiPixelCompareRecHits::analyzeSeparate(U tokenRef, V tokenTar, const edm::E
 // -- Analyze
 //
 
-void SiPixelCompareRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelCompareRecHitsSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // The default use case is to use vertices from Alpaka reconstructed on CPU and GPU;
   // The function is left templated if any other cases need to be added
   analyzeSeparate(tokenSoAHitsReference_, tokenSoAHitsTarget_, iEvent);
@@ -215,9 +212,9 @@ void SiPixelCompareRecHits::analyze(const edm::Event& iEvent, const edm::EventSe
 // -- Book Histograms
 //
 
-void SiPixelCompareRecHits::bookHistograms(DQMStore::IBooker& iBook,
-                                           edm::Run const& iRun,
-                                           edm::EventSetup const& iSetup) {
+void SiPixelCompareRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
+                                              edm::Run const& iRun,
+                                              edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
@@ -258,7 +255,7 @@ void SiPixelCompareRecHits::bookHistograms(DQMStore::IBooker& iBook,
 }
 
 
-void SiPixelCompareRecHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelCompareRecHitsSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelRecHitsSoAAlpaka
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelHitsReferenceSoA", edm::InputTag("siPixelRecHitsPreSplittingAlpakaSerial"));
@@ -268,16 +265,6 @@ void SiPixelCompareRecHits::fillDescriptions(edm::ConfigurationDescriptions& des
   descriptions.addWithDefaultLabel(desc);
 }
 
-using SiPixelCompareRecHits = SiPixelCompareRecHits;
-// keeping the old names to allow a smooth HLT migration
-using SiPixelPhase1CompareRecHits = SiPixelCompareRecHits;
-using SiPixelPhase2CompareRecHits = SiPixelCompareRecHits;
-using SiPixelHIonPhase1CompareRecHits = SiPixelCompareRecHits;
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-// TODO: change module names to SiPixel*CompareRecHitsSoA when CUDA code is removed
-DEFINE_FWK_MODULE(SiPixelCompareRecHits);
-DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHits);
-DEFINE_FWK_MODULE(SiPixelPhase2CompareRecHits);
-DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareRecHits);
+DEFINE_FWK_MODULE(SiPixelCompareRecHitsSoA);
 

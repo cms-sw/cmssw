@@ -1,10 +1,8 @@
-// TODO: change file name to SiPixelCompareVerticesSoA.cc when CUDA code is removed
-
 // -*- C++ -*-
-// Package:    SiPixelCompareVertices
-// Class:      SiPixelCompareVertices
+// Package:    SiPixelCompareVerticesSoA
+// Class:      SiPixelCompareVerticesSoA
 //
-/**\class SiPixelCompareVertices SiPixelCompareVertices.cc
+/**\class SiPixelCompareVerticesSoA SiPixelCompareVerticesSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -23,12 +21,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-// TODO: change class name to SiPixelCompareVerticesSoA when CUDA code is removed
-class SiPixelCompareVertices : public DQMEDAnalyzer {
+class SiPixelCompareVerticesSoA : public DQMEDAnalyzer {
 public:
   using IndToEdm = std::vector<uint16_t>;
-  explicit SiPixelCompareVertices(const edm::ParameterSet&);
-  ~SiPixelCompareVertices() override = default;
+  explicit SiPixelCompareVerticesSoA(const edm::ParameterSet&);
+  ~SiPixelCompareVerticesSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   // analyzeSeparate is templated to accept distinct types of SoAs
@@ -61,7 +58,7 @@ private:
 // constructors
 //
 
-SiPixelCompareVertices::SiPixelCompareVertices(const edm::ParameterSet& iConfig)
+SiPixelCompareVerticesSoA::SiPixelCompareVerticesSoA(const edm::ParameterSet& iConfig)
     : tokenSoAVertexReferenceSoA_(
           consumes<reco::ZVertexHost>(iConfig.getParameter<edm::InputTag>("pixelVertexReferenceSoA"))),
       tokenSoAVertexTargetSoA_(
@@ -71,12 +68,12 @@ SiPixelCompareVertices::SiPixelCompareVertices(const edm::ParameterSet& iConfig)
       dzCut_(iConfig.getParameter<double>("dzCut")) {}
 
 template <typename U, typename V>
-void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
+void SiPixelCompareVerticesSoA::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
   const auto& vsoaHandleRef = iEvent.getHandle(tokenRef);
   const auto& vsoaHandleTar = iEvent.getHandle(tokenTar);
 
   if (not vsoaHandleRef or not vsoaHandleTar) {
-    edm::LogWarning out("SiPixelCompareVertices");
+    edm::LogWarning out("SiPixelCompareVerticesSoA");
     if (not vsoaHandleRef) {
       out << "reference vertices not found; ";
     }
@@ -95,7 +92,7 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
   auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
   float x0 = 0., y0 = 0., z0 = 0., dxdz = 0., dydz = 0.;
   if (not bsHandle.isValid()) {
-    edm::LogWarning("SiPixelCompareVertices") << "No beamspot found, returning vertexes with (0,0,Z).";
+    edm::LogWarning("SiPixelCompareVerticesSoA") << "No beamspot found, returning vertexes with (0,0,Z).";
   } else {
     const reco::BeamSpot& bs = *bsHandle;
     x0 = bs.x0();
@@ -158,7 +155,7 @@ void SiPixelCompareVertices::analyzeSeparate(U tokenRef, V tokenTar, const edm::
 //
 // -- Analyze
 //
-void SiPixelCompareVertices::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelCompareVerticesSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // The default use case is to use vertices from Alpaka reconstructed on CPU and GPU;
   // The function is left templated if any other cases need to be added
   analyzeSeparate(tokenSoAVertexReferenceSoA_, tokenSoAVertexTargetSoA_, iEvent);
@@ -167,9 +164,9 @@ void SiPixelCompareVertices::analyze(const edm::Event& iEvent, const edm::EventS
 //
 // -- Book Histograms
 //
-void SiPixelCompareVertices::bookHistograms(DQMStore::IBooker& ibooker,
-                                            edm::Run const& iRun,
-                                            edm::EventSetup const& iSetup) {
+void SiPixelCompareVerticesSoA::bookHistograms(DQMStore::IBooker& ibooker,
+                                               edm::Run const& iRun,
+                                               edm::EventSetup const& iSetup) {
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
 
@@ -189,7 +186,7 @@ void SiPixelCompareVertices::bookHistograms(DQMStore::IBooker& ibooker,
   hzdiff_ = ibooker.book1D("vzdiff", ";Vertex z difference (Reference - Target);#entries", 100, -2.5, 2.5);
 }
 
-void SiPixelCompareVertices::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelCompareVerticesSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelVertexSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelVertexReferenceSoA", edm::InputTag("pixelVerticesAlpakaSerial"));
@@ -200,5 +197,4 @@ void SiPixelCompareVertices::fillDescriptions(edm::ConfigurationDescriptions& de
   descriptions.addWithDefaultLabel(desc);
 }
 
-// TODO: change module name to SiPixelCompareVerticesSoA when CUDA code is removed
-DEFINE_FWK_MODULE(SiPixelCompareVertices);
+DEFINE_FWK_MODULE(SiPixelCompareVerticesSoA);
