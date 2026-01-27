@@ -1,10 +1,8 @@
-// TODO: change file name to SiPixelCompareTracksSoA.cc when CUDA code is removed
-
 // -*- C++ -*-
-// Package:    SiPixelCompareTracks
-// Class:      SiPixelCompareTracks
+// Package:    SiPixelCompareTracksSoA
+// Class:      SiPixelCompareTracksSoA
 //
-/**\class SiPixelCompareTracks SiPixelCompareTracks.cc
+/**\class SiPixelCompareTracksSoA SiPixelCompareTracksSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -68,14 +66,12 @@ namespace {
   }
 }  // namespace
 
-// TODO: change class name to SiPixelCompareTracksSoA when CUDA code is removed
-
-class SiPixelCompareTracks : public DQMEDAnalyzer {
+class SiPixelCompareTracksSoA : public DQMEDAnalyzer {
 public:
   using PixelTrackSoA = reco::TracksHost;
 
-  explicit SiPixelCompareTracks(const edm::ParameterSet&);
-  ~SiPixelCompareTracks() override = default;
+  explicit SiPixelCompareTracksSoA(const edm::ParameterSet&);
+  ~SiPixelCompareTracksSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   // analyzeSeparate is templated to accept distinct types of SoAs
@@ -135,7 +131,7 @@ private:
 // constructors
 //
 
-SiPixelCompareTracks::SiPixelCompareTracks(const edm::ParameterSet& iConfig)
+SiPixelCompareTracksSoA::SiPixelCompareTracksSoA(const edm::ParameterSet& iConfig)
     : tokenSoATrackReference_(consumes<PixelTrackSoA>(iConfig.getParameter<edm::InputTag>("pixelTrackReferenceSoA"))),
       tokenSoATrackTarget_(consumes<PixelTrackSoA>(iConfig.getParameter<edm::InputTag>("pixelTrackTargetSoA"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")),
@@ -144,12 +140,12 @@ SiPixelCompareTracks::SiPixelCompareTracks(const edm::ParameterSet& iConfig)
       dr2cut_(iConfig.getParameter<double>("deltaR2cut")) {}
 
 template <typename U, typename V>
-void SiPixelCompareTracks::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
+void SiPixelCompareTracksSoA::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
   const auto& tsoaHandleRef = iEvent.getHandle(tokenRef);
   const auto& tsoaHandleTar = iEvent.getHandle(tokenTar);
 
   if (not tsoaHandleRef or not tsoaHandleTar) {
-    edm::LogWarning out("SiPixelCompareTracks");
+    edm::LogWarning out("SiPixelCompareTracksSoA");
     if (not tsoaHandleRef) {
       out << "reference tracks not found; ";
     }
@@ -278,7 +274,7 @@ void SiPixelCompareTracks::analyzeSeparate(U tokenRef, V tokenTar, const edm::Ev
 // -- Analyze
 //
 
-void SiPixelCompareTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelCompareTracksSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // The default use case is to use vertices from Alpaka reconstructed on CPU and GPU;
   // The function is left templated if any other cases need to be added
   analyzeSeparate(tokenSoATrackReference_, tokenSoATrackTarget_, iEvent);
@@ -288,9 +284,9 @@ void SiPixelCompareTracks::analyze(const edm::Event& iEvent, const edm::EventSet
 // -- Book Histograms
 //
 
-void SiPixelCompareTracks::bookHistograms(DQMStore::IBooker& iBook,
-                                          edm::Run const& iRun,
-                                          edm::EventSetup const& iSetup) {
+void SiPixelCompareTracksSoA::bookHistograms(DQMStore::IBooker& iBook,
+                                             edm::Run const& iRun,
+                                             edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
@@ -369,7 +365,7 @@ void SiPixelCompareTracks::bookHistograms(DQMStore::IBooker& iBook,
 
 }
 
-void SiPixelCompareTracks::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelCompareTracksSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackReferenceSoA", edm::InputTag("pixelTracksAlpakaSerial"));
@@ -381,15 +377,6 @@ void SiPixelCompareTracks::fillDescriptions(edm::ConfigurationDescriptions& desc
   descriptions.addWithDefaultLabel(desc);
 }
 
-// TODO: change module names to SiPixel*CompareTracksSoA when CUDA code is removed
-
-using SiPixelPhase1CompareTracks = SiPixelCompareTracks;
-using SiPixelPhase2CompareTracks = SiPixelCompareTracks;
-using SiPixelHIonPhase1CompareTracks = SiPixelCompareTracks;
-
 // Duplicates to keep them alive for the HLT menu to migrate to the new modules
-DEFINE_FWK_MODULE(SiPixelCompareTracks);
-DEFINE_FWK_MODULE(SiPixelPhase1CompareTracks);
-DEFINE_FWK_MODULE(SiPixelPhase2CompareTracks);
-DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareTracks);
+DEFINE_FWK_MODULE(SiPixelCompareTracksSoA);
 

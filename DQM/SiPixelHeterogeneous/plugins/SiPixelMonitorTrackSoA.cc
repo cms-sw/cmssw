@@ -1,8 +1,8 @@
 // -*- C++ -*-
-// Package:    SiPixelMonitorTrackSoAAlpaka
-// Class:      SiPixelMonitorTrackSoAAlpaka
+// Package:    SiPixelMonitorTrackSoA
+// Class:      SiPixelMonitorTrackSoA
 //
-/**\class SiPixelMonitorTrackSoAAlpaka SiPixelMonitorTrackSoAAlpaka.cc
+/**\class SiPixelMonitorTrackSoA SiPixelMonitorTrackSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -26,11 +26,11 @@
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 
-class SiPixelMonitorTrackSoAAlpaka : public DQMEDAnalyzer {
+class SiPixelMonitorTrackSoA : public DQMEDAnalyzer {
 public:
   using PixelTrackHeterogeneous = reco::TracksHost;
-  explicit SiPixelMonitorTrackSoAAlpaka(const edm::ParameterSet&);
-  ~SiPixelMonitorTrackSoAAlpaka() override = default;
+  explicit SiPixelMonitorTrackSoA(const edm::ParameterSet&);
+  ~SiPixelMonitorTrackSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -64,7 +64,7 @@ private:
 // constructors
 //
 
-SiPixelMonitorTrackSoAAlpaka::SiPixelMonitorTrackSoAAlpaka(const edm::ParameterSet& iConfig) {
+SiPixelMonitorTrackSoA::SiPixelMonitorTrackSoA(const edm::ParameterSet& iConfig) {
   tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("topFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
   useQualityCut_ = iConfig.getParameter<bool>("useQualityCut");
@@ -75,10 +75,10 @@ SiPixelMonitorTrackSoAAlpaka::SiPixelMonitorTrackSoAAlpaka(const edm::ParameterS
 // -- Analyze
 //
 
-void SiPixelMonitorTrackSoAAlpaka::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelMonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandle = iEvent.getHandle(tokenSoATrack_);
   if (!tsoaHandle.isValid()) {
-    edm::LogWarning("SiPixelMonitorTrackSoAAlpaka") << "No Track SoA found \n returning!" << std::endl;
+    edm::LogWarning("SiPixelMonitorTrackSoA") << "No Track SoA found \n returning!" << std::endl;
     return;
   }
 
@@ -139,9 +139,9 @@ void SiPixelMonitorTrackSoAAlpaka::analyze(const edm::Event& iEvent, const edm::
 // -- Book Histograms
 //
 
-void SiPixelMonitorTrackSoAAlpaka::bookHistograms(DQMStore::IBooker& iBook,
-                                                  edm::Run const& iRun,
-                                                  edm::EventSetup const& iSetup) {
+void SiPixelMonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
+                                            edm::Run const& iRun,
+                                            edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
@@ -180,7 +180,7 @@ hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::format("{} vs track #eta;T
   }
 }
 
-void SiPixelMonitorTrackSoAAlpaka::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelMonitorTrackSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksAlpaka"));
@@ -190,12 +190,5 @@ void SiPixelMonitorTrackSoAAlpaka::fillDescriptions(edm::ConfigurationDescriptio
   descriptions.addWithDefaultLabel(desc);
 }
 
-using SiPixelPhase1MonitorTrackSoAAlpaka = SiPixelMonitorTrackSoAAlpaka;
-using SiPixelPhase2MonitorTrackSoAAlpaka = SiPixelMonitorTrackSoAAlpaka;
-using SiPixelHIonPhase1MonitorTrackSoAAlpaka = SiPixelMonitorTrackSoAAlpaka;
-
 // Duplicates to keep them alive for the HLT menu to migrate to the new modules
-DEFINE_FWK_MODULE(SiPixelMonitorTrackSoAAlpaka);
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorTrackSoAAlpaka);
-DEFINE_FWK_MODULE(SiPixelPhase2MonitorTrackSoAAlpaka);
-DEFINE_FWK_MODULE(SiPixelHIonPhase1MonitorTrackSoAAlpaka);
+DEFINE_FWK_MODULE(SiPixelMonitorTrackSoA);

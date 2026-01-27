@@ -1,9 +1,9 @@
 // -*- C++ -*-
 ///bookLayer
-// Package:    SiPixelMonitorVertexSoAAlpaka
-// Class:      SiPixelMonitorVertexSoAAlpaka
+// Package:    SiPixelMonitorVertexSoA
+// Class:      SiPixelMonitorVertexSoA
 //
-/**\class SiPixelMonitorVertexSoAAlpaka SiPixelMonitorVertexSoAAlpaka.cc
+/**\class SiPixelMonitorVertexSoA SiPixelMonitorVertexSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -24,11 +24,11 @@
 #include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-class SiPixelMonitorVertexSoAAlpaka : public DQMEDAnalyzer {
+class SiPixelMonitorVertexSoA : public DQMEDAnalyzer {
 public:
   using IndToEdm = std::vector<uint16_t>;
-  explicit SiPixelMonitorVertexSoAAlpaka(const edm::ParameterSet&);
-  ~SiPixelMonitorVertexSoAAlpaka() override = default;
+  explicit SiPixelMonitorVertexSoA(const edm::ParameterSet&);
+  ~SiPixelMonitorVertexSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -51,7 +51,7 @@ private:
 // constructors
 //
 
-SiPixelMonitorVertexSoAAlpaka::SiPixelMonitorVertexSoAAlpaka(const edm::ParameterSet& iConfig)
+SiPixelMonitorVertexSoA::SiPixelMonitorVertexSoA(const edm::ParameterSet& iConfig)
     : tokenSoAVertex_(consumes<reco::ZVertexHost>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"))),
       tokenBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")) {}
@@ -59,10 +59,10 @@ SiPixelMonitorVertexSoAAlpaka::SiPixelMonitorVertexSoAAlpaka(const edm::Paramete
 //
 // -- Analyze
 //
-void SiPixelMonitorVertexSoAAlpaka::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelMonitorVertexSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& vsoaHandle = iEvent.getHandle(tokenSoAVertex_);
   if (!vsoaHandle.isValid()) {
-    edm::LogWarning("SiPixelMonitorVertexSoAAlpaka") << "No Vertex SoA found \n returning!" << std::endl;
+    edm::LogWarning("SiPixelMonitorVertexSoA") << "No Vertex SoA found \n returning!" << std::endl;
     return;
   }
 
@@ -73,7 +73,7 @@ void SiPixelMonitorVertexSoAAlpaka::analyze(const edm::Event& iEvent, const edm:
   auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
   float x0 = 0., y0 = 0., z0 = 0., dxdz = 0., dydz = 0.;
   if (!bsHandle.isValid()) {
-    edm::LogWarning("SiPixelMonitorVertexSoAAlpaka") << "No beamspot found. returning vertexes with (0,0,Z) ";
+    edm::LogWarning("SiPixelMonitorVertexSoA") << "No beamspot found. returning vertexes with (0,0,Z) ";
   } else {
     const reco::BeamSpot& bs = *bsHandle;
     x0 = bs.x0();
@@ -105,9 +105,9 @@ void SiPixelMonitorVertexSoAAlpaka::analyze(const edm::Event& iEvent, const edm:
 //
 // -- Book Histograms
 //
-void SiPixelMonitorVertexSoAAlpaka::bookHistograms(DQMStore::IBooker& ibooker,
-                                                   edm::Run const& iRun,
-                                                   edm::EventSetup const& iSetup) {
+void SiPixelMonitorVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
+                                             edm::Run const& iRun,
+                                             edm::EventSetup const& iSetup) {
   //std::string top_folder = ""//
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
@@ -121,7 +121,7 @@ void SiPixelMonitorVertexSoAAlpaka::bookHistograms(DQMStore::IBooker& ibooker,
   hntrks = ibooker.book1D("ntrk", ";#tracks associated;#entries", 100, -0.5, 99.5);
 }
 
-void SiPixelMonitorVertexSoAAlpaka::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelMonitorVertexSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelVertexSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelVertexSrc", edm::InputTag("pixelVerticesAlpaka"));
@@ -130,4 +130,4 @@ void SiPixelMonitorVertexSoAAlpaka::fillDescriptions(edm::ConfigurationDescripti
   descriptions.addWithDefaultLabel(desc);
 }
 
-DEFINE_FWK_MODULE(SiPixelMonitorVertexSoAAlpaka);
+DEFINE_FWK_MODULE(SiPixelMonitorVertexSoA);

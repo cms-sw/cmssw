@@ -104,8 +104,8 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.siPixelPhase1MonitorRawDataASerial.src = 'hltSiPixelDigiErrorsPPOnAASerialSync'
     process.siPixelPhase1MonitorRawDataADevice.src = 'hltSiPixelDigiErrorsPPOnAA'
 
-    process.siPixelPhase1CompareDigiErrorsSoAAlpaka.pixelErrorSrcGPU = 'hltSiPixelDigiErrorsPPOnAA'
-    process.siPixelPhase1CompareDigiErrorsSoAAlpaka.pixelErrorSrcCPU = 'hltSiPixelDigiErrorsPPOnAASerialSync'
+    process.siPixelPhase1CompareDigiErrorsSoA.pixelErrorSrcGPU = 'hltSiPixelDigiErrorsPPOnAA'
+    process.siPixelPhase1CompareDigiErrorsSoA.pixelErrorSrcCPU = 'hltSiPixelDigiErrorsPPOnAASerialSync'
 
     process.siPixelRecHitsSoAMonitorSerial.pixelHitsSrc = 'hltSiPixelRecHitsPPOnAASoASerialSync'
     process.siPixelRecHitsSoAMonitorSerial.TopFolderName = 'SiPixelHeterogeneous/PixelRecHitsCPU'
@@ -113,9 +113,9 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.siPixelRecHitsSoAMonitorDevice.pixelHitsSrc = 'hltSiPixelRecHitsPPOnAASoA'
     process.siPixelRecHitsSoAMonitorDevice.TopFolderName = 'SiPixelHeterogeneous/PixelRecHitsGPU'
 
-    process.siPixelPhase1CompareRecHits.pixelHitsReferenceSoA = 'hltSiPixelRecHitsPPOnAASoASerialSync'
-    process.siPixelPhase1CompareRecHits.pixelHitsTargetSoA  = 'hltSiPixelRecHitsPPOnAASoA'
-    process.siPixelPhase1CompareRecHits.topFolderName = 'SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU'
+    process.siPixelCompareRecHitsSoA.pixelHitsReferenceSoA = 'hltSiPixelRecHitsPPOnAASoASerialSync'
+    process.siPixelCompareRecHitsSoA.pixelHitsTargetSoA  = 'hltSiPixelRecHitsPPOnAASoA'
+    process.siPixelCompareRecHitsSoA.topFolderName = 'SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU'
 
     process.siPixelTrackSoAMonitorSerial.pixelTrackSrc = 'hltPixelTracksPPOnAASoASerialSync'
     process.siPixelTrackSoAMonitorSerial.topFolderName = 'SiPixelHeterogeneous/PixelTrackCPU'
@@ -123,9 +123,9 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.siPixelTrackSoAMonitorDevice.pixelTrackSrc = 'hltPixelTracksPPOnAASoA'
     process.siPixelTrackSoAMonitorDevice.topFolderName = 'SiPixelHeterogeneous/PixelTrackGPU'
 
-    process.siPixelPhase1CompareTracks.pixelTrackReferenceSoA = 'hltPixelTracksPPOnAASoASerialSync'
-    process.siPixelPhase1CompareTracks.pixelTrackTargetSoA = 'hltPixelTracksPPOnAASoA'
-    process.siPixelPhase1CompareTracks.topFolderName = 'SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU'
+    process.siPixelCompareTracksSoA.pixelTrackReferenceSoA = 'hltPixelTracksPPOnAASoASerialSync'
+    process.siPixelCompareTracksSoA.pixelTrackTargetSoA = 'hltPixelTracksPPOnAASoA'
+    process.siPixelCompareTracksSoA.topFolderName = 'SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU'
 
     process.siPixelVertexSoAMonitorSerial.pixelVertexSrc = 'hltPixelVerticesPPOnAASoASerialSync'
     process.siPixelVertexSoAMonitorSerial.beamSpotSrc = 'hltOnlineBeamSpot'
@@ -135,17 +135,17 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.siPixelVertexSoAMonitorDevice.beamSpotSrc = 'hltOnlineBeamSpot'
     process.siPixelVertexSoAMonitorDevice.topFolderName = 'SiPixelHeterogeneous/PixelVertexGPU'
 
-    process.siPixelCompareVertices.pixelVertexReferenceSoA = 'hltPixelVerticesPPOnAASoASerialSync'
-    process.siPixelCompareVertices.pixelVertexTargetSoA = 'hltPixelVerticesPPOnAASoA'
-    process.siPixelCompareVertices.beamSpotSrc = 'hltOnlineBeamSpot'
-    process.siPixelCompareVertices.topFolderName = 'SiPixelHeterogeneous/PixelVertexCompareGPUvsCPU'
+    process.siPixelCompareVerticesSoA.pixelVertexReferenceSoA = 'hltPixelVerticesPPOnAASoASerialSync'
+    process.siPixelCompareVerticesSoA.pixelVertexTargetSoA = 'hltPixelVerticesPPOnAASoA'
+    process.siPixelCompareVerticesSoA.beamSpotSrc = 'hltOnlineBeamSpot'
+    process.siPixelCompareVerticesSoA.topFolderName = 'SiPixelHeterogeneous/PixelVertexCompareGPUvsCPU'
 
 else:
     process.siPixelPhase1MonitorRawDataASerial.src = 'hltSiPixelDigiErrorsSerialSync'
     process.siPixelPhase1MonitorRawDataADevice.src = 'hltSiPixelDigiErrors'
     
-    process.siPixelPhase1CompareDigiErrorsSoAAlpaka.pixelErrorSrcGPU = 'hltSiPixelDigiErrors'
-    process.siPixelPhase1CompareDigiErrorsSoAAlpaka.pixelErrorSrcCPU = 'hltSiPixelDigiErrorsSerialSync'
+    process.siPixelPhase1CompareDigiErrorsSoA.pixelErrorSrcGPU = 'hltSiPixelDigiErrors'
+    process.siPixelPhase1CompareDigiErrorsSoA.pixelErrorSrcCPU = 'hltSiPixelDigiErrorsSerialSync'
     
     process.siPixelRecHitsSoAMonitorSerial.pixelHitsSrc = 'hltSiPixelRecHitsSoASerialSync'
     process.siPixelRecHitsSoAMonitorSerial.TopFolderName = 'SiPixelHeterogeneous/PixelRecHitsCPU'
@@ -153,9 +153,9 @@ else:
     process.siPixelRecHitsSoAMonitorDevice.pixelHitsSrc = 'hltSiPixelRecHitsSoA'
     process.siPixelRecHitsSoAMonitorDevice.TopFolderName = 'SiPixelHeterogeneous/PixelRecHitsGPU'
     
-    process.siPixelPhase1CompareRecHits.pixelHitsReferenceSoA = 'hltSiPixelRecHitsSoASerialSync'
-    process.siPixelPhase1CompareRecHits.pixelHitsTargetSoA  = 'hltSiPixelRecHitsSoA'
-    process.siPixelPhase1CompareRecHits.topFolderName = 'SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU'
+    process.siPixelCompareRecHitsSoA.pixelHitsReferenceSoA = 'hltSiPixelRecHitsSoASerialSync'
+    process.siPixelCompareRecHitsSoA.pixelHitsTargetSoA  = 'hltSiPixelRecHitsSoA'
+    process.siPixelCompareRecHitsSoA.topFolderName = 'SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU'
     
     process.siPixelTrackSoAMonitorSerial.pixelTrackSrc = 'hltPixelTracksSoASerialSync'
     process.siPixelTrackSoAMonitorSerial.topFolderName = 'SiPixelHeterogeneous/PixelTrackCPU'
@@ -163,9 +163,9 @@ else:
     process.siPixelTrackSoAMonitorDevice.pixelTrackSrc = 'hltPixelTracksSoA'
     process.siPixelTrackSoAMonitorDevice.topFolderName = 'SiPixelHeterogeneous/PixelTrackGPU'
 
-    process.siPixelPhase1CompareTracks.pixelTrackReferenceSoA = 'hltPixelTracksSoASerialSync'
-    process.siPixelPhase1CompareTracks.pixelTrackTargetSoA = 'hltPixelTracksSoA'
-    process.siPixelPhase1CompareTracks.topFolderName = 'SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU'
+    process.siPixelCompareTracksSoA.pixelTrackReferenceSoA = 'hltPixelTracksSoASerialSync'
+    process.siPixelCompareTracksSoA.pixelTrackTargetSoA = 'hltPixelTracksSoA'
+    process.siPixelCompareTracksSoA.topFolderName = 'SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU'
     
     process.siPixelVertexSoAMonitorSerial.pixelVertexSrc = 'hltPixelVerticesSoASerialSync'
     process.siPixelVertexSoAMonitorSerial.beamSpotSrc = 'hltOnlineBeamSpot'
@@ -175,10 +175,10 @@ else:
     process.siPixelVertexSoAMonitorDevice.beamSpotSrc = 'hltOnlineBeamSpot'
     process.siPixelVertexSoAMonitorDevice.topFolderName = 'SiPixelHeterogeneous/PixelVertexGPU'
     
-    process.siPixelCompareVertices.pixelVertexReferenceSoA = 'hltPixelVerticesSoASerialSync'
-    process.siPixelCompareVertices.pixelVertexTargetSoA = 'hltPixelVerticesSoA'
-    process.siPixelCompareVertices.beamSpotSrc = 'hltOnlineBeamSpot'
-    process.siPixelCompareVertices.topFolderName = 'SiPixelHeterogeneous/PixelVertexCompareGPUvsCPU'
+    process.siPixelCompareVerticesSoA.pixelVertexReferenceSoA = 'hltPixelVerticesSoASerialSync'
+    process.siPixelCompareVerticesSoA.pixelVertexTargetSoA = 'hltPixelVerticesSoA'
+    process.siPixelCompareVerticesSoA.beamSpotSrc = 'hltOnlineBeamSpot'
+    process.siPixelCompareVerticesSoA.topFolderName = 'SiPixelHeterogeneous/PixelVertexCompareGPUvsCPU'
     
 #-------------------------------------
 #       Some Debug
@@ -194,22 +194,22 @@ monitoring_modules = []
 # Mandatory pixel digi error modules
 monitoring_modules.append(process.siPixelPhase1MonitorRawDataASerial)
 monitoring_modules.append(process.siPixelPhase1MonitorRawDataADevice)
-monitoring_modules.append(process.siPixelPhase1CompareDigiErrorsSoAAlpaka)
+monitoring_modules.append(process.siPixelPhase1CompareDigiErrorsSoA)
 
 if doRecHits:
     monitoring_modules.append(process.siPixelRecHitsSoAMonitorDevice)
     monitoring_modules.append(process.siPixelRecHitsSoAMonitorSerial)
-    monitoring_modules.append(process.siPixelPhase1CompareRecHits)
+    monitoring_modules.append(process.siPixelCompareRecHitsSoA)
 
 if doTracks:
     monitoring_modules.append(process.siPixelTrackSoAMonitorDevice)
     monitoring_modules.append(process.siPixelTrackSoAMonitorSerial)
-    monitoring_modules.append(process.siPixelPhase1CompareTracks)
+    monitoring_modules.append(process.siPixelCompareTracksSoA)
 
 if doVertices:
     monitoring_modules.append(process.siPixelVertexSoAMonitorDevice)
     monitoring_modules.append(process.siPixelVertexSoAMonitorSerial)
-    monitoring_modules.append(process.siPixelCompareVertices)
+    monitoring_modules.append(process.siPixelCompareVerticesSoA)
 
 # Always add the comparison harvesting sequence as before
 monitoring_modules.append(process.siPixelPhase1RawDataHarvesterSerial)

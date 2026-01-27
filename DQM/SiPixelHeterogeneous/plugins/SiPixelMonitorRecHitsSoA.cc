@@ -16,12 +16,12 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-class SiPixelMonitorRecHitsSoAAlpaka : public DQMEDAnalyzer {
+class SiPixelMonitorRecHitsSoA : public DQMEDAnalyzer {
 public:
   using HitsOnHost = reco::TrackingRecHitHost;
 
-  explicit SiPixelMonitorRecHitsSoAAlpaka(const edm::ParameterSet&);
-  ~SiPixelMonitorRecHitsSoAAlpaka() override = default;
+  explicit SiPixelMonitorRecHitsSoA(const edm::ParameterSet&);
+  ~SiPixelMonitorRecHitsSoA() override = default;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -61,7 +61,7 @@ private:
 // constructors
 //
 
-SiPixelMonitorRecHitsSoAAlpaka::SiPixelMonitorRecHitsSoAAlpaka(const edm::ParameterSet& iConfig)
+SiPixelMonitorRecHitsSoA::SiPixelMonitorRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       tokenSoAHits_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrc"))),
@@ -71,7 +71,7 @@ SiPixelMonitorRecHitsSoAAlpaka::SiPixelMonitorRecHitsSoAAlpaka(const edm::Parame
 // Begin Run
 //
 
-void SiPixelMonitorRecHitsSoAAlpaka::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void SiPixelMonitorRecHitsSoA::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
 }
@@ -80,10 +80,10 @@ void SiPixelMonitorRecHitsSoAAlpaka::dqmBeginRun(const edm::Run& iRun, const edm
 // -- Analyze
 //
 
-void SiPixelMonitorRecHitsSoAAlpaka::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelMonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& rhsoaHandle = iEvent.getHandle(tokenSoAHits_);
   if (!rhsoaHandle.isValid()) {
-    edm::LogWarning("SiPixelMonitorRecHitsSoAAlpaka") << "No RecHits SoA found \n returning!";
+    edm::LogWarning("SiPixelMonitorRecHitsSoA") << "No RecHits SoA found \n returning!";
     return;
   }
   auto const& rhsoa = *rhsoaHandle;
@@ -136,9 +136,9 @@ void SiPixelMonitorRecHitsSoAAlpaka::analyze(const edm::Event& iEvent, const edm
 // -- Book Histograms
 //
 
-void SiPixelMonitorRecHitsSoAAlpaka::bookHistograms(DQMStore::IBooker& iBook,
-                                                    edm::Run const& iRun,
-                                                    edm::EventSetup const& iSetup) {
+void SiPixelMonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
+                                              edm::Run const& iRun,
+                                              edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
@@ -178,7 +178,7 @@ void SiPixelMonitorRecHitsSoAAlpaka::bookHistograms(DQMStore::IBooker& iBook,
   }
 }
 
-void SiPixelMonitorRecHitsSoAAlpaka::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelMonitorRecHitsSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelRecHitsSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelHitsSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
@@ -186,13 +186,6 @@ void SiPixelMonitorRecHitsSoAAlpaka::fillDescriptions(edm::ConfigurationDescript
   descriptions.addWithDefaultLabel(desc);
 }
 
-using SiPixelPhase1MonitorRecHitsSoAAlpaka = SiPixelMonitorRecHitsSoAAlpaka;
-using SiPixelPhase2MonitorRecHitsSoAAlpaka = SiPixelMonitorRecHitsSoAAlpaka;
-using SiPixelHIonPhase1MonitorRecHitsSoAAlpaka = SiPixelMonitorRecHitsSoAAlpaka;
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(SiPixelMonitorRecHitsSoAAlpaka);
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorRecHitsSoAAlpaka);
-DEFINE_FWK_MODULE(SiPixelPhase2MonitorRecHitsSoAAlpaka);
-DEFINE_FWK_MODULE(SiPixelHIonPhase1MonitorRecHitsSoAAlpaka);
+DEFINE_FWK_MODULE(SiPixelMonitorRecHitsSoA);
 
