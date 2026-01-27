@@ -27,6 +27,7 @@ pixelTrackAssoc = trackingAssocValueMapsProducer.clone(
     trackingParticles = cms.InputTag("mix", "MergedTrackTruth"),
     tpSelectorPSet = tpSelectorPixelTracks,
     storeTPKinematics = cms.bool(True),
+    useMuonAssociators = cms.bool(False)
 )
 
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
