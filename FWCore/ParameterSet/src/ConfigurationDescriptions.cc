@@ -75,8 +75,9 @@ namespace edm {
     }
 
     if (!descriptions_.empty() && defaultDescDefined_ == false) {
-      throw edm::Exception(edm::errors::LogicError,
-                           "If more than one ParameterSetDescription added, must first do addDefault\n");
+      throw edm::Exception(
+          edm::errors::LogicError,
+          "More than one ParameterSetDescription was added, one of them must be added with addDefault()\n");
     }
     // To minimize the number of copies involved create an empty description first
     // and push it into the vector.  Then perform the copy.
