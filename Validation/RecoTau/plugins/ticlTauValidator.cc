@@ -169,6 +169,12 @@ private:
   MonitorElement* cp_gamma_pt_all_  = nullptr;
   MonitorElement* cp_gamma_eta_all_ = nullptr;
 
+  // per-DM CP context histos
+  MonitorElement* cp_chHad_pt_dm_[kNDMSel]  = {};
+  MonitorElement* cp_chHad_eta_dm_[kNDMSel] = {};
+  MonitorElement* cp_gamma_pt_dm_[kNDMSel]  = {};
+  MonitorElement* cp_gamma_eta_dm_[kNDMSel] = {};
+
   // denominators
   MonitorElement* tau_gen_pt_[kNDMSel]  = {};
   MonitorElement* tau_gen_eta_[kNDMSel] = {};
@@ -190,6 +196,12 @@ private:
   MonitorElement* tau_gen_matched_to_nPi0_sig_eta_[kNDMSel][kMaxGammaLegs] = {{}};
   MonitorElement* tau_gen_matched_to_nPi0_iso_pt_[kNDMSel][kMaxGammaLegs]     = {{}};
   MonitorElement* tau_gen_matched_to_nPi0_iso_eta_[kNDMSel][kMaxGammaLegs]    = {{}};
+
+  MonitorElement* tau_pt_reco_over_gen_[kNDMSel] = {};
+
+  // reco tau shapes per DM
+  MonitorElement* tau_reco_pt_[kNDMSel]  = {};
+  MonitorElement* tau_reco_eta_[kNDMSel] = {};
 
 };
 
@@ -288,6 +300,32 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     const int chCap    = chCapForDM(dm);
     const int gammaCap = std::min(2 * expectedPi0ForDM(dm), kMaxGammaLegs);
 
+    // per-DM CP base histos
+    {
+      std::ostringstream n, t;
+      n << "cp_chHad_dm" << dm << "_pt";
+      t << "Charged CP (DM=" << dm << "); pT [GeV]; entries";
+      cp_chHad_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_chHad_dm" << dm << "_eta";
+      t << "Charged CP (DM=" << dm << "); eta; entries";
+      cp_chHad_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_gamma_dm" << dm << "_pt";
+      t << "Photon CP (DM=" << dm << "); pT [GeV]; entries";
+      cp_gamma_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_gamma_dm" << dm << "_eta";
+      t << "Photon CP (DM=" << dm << "); eta; entries";
+      cp_gamma_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    }
+
     // charged legs
     for (int li = 0; li < chCap; ++li) {
       for (int s : stepsToKeep) {
@@ -358,7 +396,22 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       t2 << "DM " << dm << " gen tau; eta; entries";
       tau_gen_eta_[dmI] = ibook.book1D(n2.str(), t2.str(), 50, -3., 3.);
     }
-
+    {
+      std::ostringstream n1, t1; n1 << "tau_dm" << dm << "_reco_pt";
+      t1 << "DM " << dm << " reco tau; pT [GeV]; entries";
+      tau_reco_pt_[dmI] = ibook.book1D(n1.str(), t1.str(), 60, 0., 120.);
+    }
+    {
+      std::ostringstream n2, t2; n2 << "tau_dm" << dm << "_reco_eta";
+      t2 << "DM " << dm << " reco tau; eta; entries";
+      tau_reco_eta_[dmI] = ibook.book1D(n2.str(), t2.str(), 50, -3., 3.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "tau_dm" << dm << "_pt_reco_over_gen";
+      t << "DM " << dm << " tau: pT_reco/pT_gen; pT_reco/pT_gen; entries";
+      tau_pt_reco_over_gen_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 3.);
+    } 
     // reco (jet/tau) endpoint: combined
     for (int N = 1; N <= chCap; ++N) {
       std::ostringstream npt, tpt, neta, teta;
@@ -427,6 +480,7 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       tau_gen_matched_to_nPi0_iso_pt_[dmI][N-1]     = ibook.book1D(nipt.str(),  tipt.str(), 60, 0., 120.);
       tau_gen_matched_to_nPi0_iso_eta_[dmI][N-1]    = ibook.book1D(nieta.str(), tieta.str(), 50, -3., 3.);
     }
+
   }
 }
 
@@ -492,14 +546,28 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       const bool isPhoton        = (absPdg == 22);
       const bool isChargedHadron = (absPdg == 211); // || absPdg == 321 || absPdg == 2212);
 
-      // context CP histos (once per event per CP key)
-      if (isChargedHadron && seenCPChargedEvent.insert(cpRef.key()).second) {
-        if (cp_chHad_pt_all_)  cp_chHad_pt_all_->Fill(cp.pt());
-        if (cp_chHad_eta_all_) cp_chHad_eta_all_->Fill(cp.eta());
+      // context CP histos (once per event per CP key) + per-DM base histos
+      if (isChargedHadron) {
+        const bool firstTime = seenCPChargedEvent.insert(cpRef.key()).second;
+        if (firstTime) {
+          if (cp_chHad_pt_all_)  cp_chHad_pt_all_->Fill(cp.pt());
+          if (cp_chHad_eta_all_) cp_chHad_eta_all_->Fill(cp.eta());
+          if (dmIdx >= 0) {
+            if (cp_chHad_pt_dm_[dmIdx])  cp_chHad_pt_dm_[dmIdx]->Fill(cp.pt());
+            if (cp_chHad_eta_dm_[dmIdx]) cp_chHad_eta_dm_[dmIdx]->Fill(cp.eta());
+          }
+        }
       }
-      if (isPhoton && seenCPPhotonEvent.insert(cpRef.key()).second) {
-        if (cp_gamma_pt_all_)  cp_gamma_pt_all_->Fill(cp.pt());
-        if (cp_gamma_eta_all_) cp_gamma_eta_all_->Fill(cp.eta());
+      if (isPhoton) {
+        const bool firstTime = seenCPPhotonEvent.insert(cpRef.key()).second;
+        if (firstTime) {
+          if (cp_gamma_pt_all_)  cp_gamma_pt_all_->Fill(cp.pt());
+          if (cp_gamma_eta_all_) cp_gamma_eta_all_->Fill(cp.eta());
+          if (dmIdx >= 0) {
+            if (cp_gamma_pt_dm_[dmIdx])  cp_gamma_pt_dm_[dmIdx]->Fill(cp.pt());
+            if (cp_gamma_eta_dm_[dmIdx]) cp_gamma_eta_dm_[dmIdx]->Fill(cp.eta());
+          }
+        }
       }
 
       if (isChargedHadron) chKinTicl[cpRef.key()] = {cp.pt(), cp.eta()};
@@ -731,6 +799,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
     // taus - step 5
     const bool haveHpsTaus = (taus.isValid() && !taus->empty() && pfJets.isValid());
+    int bestTauIdxForLink = -1;
 
     int nGoodCH_tau_total        = 0;
     int nGoodCH_signal_tau       = 0;
@@ -863,6 +932,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
             bestTauIdx  = t;
           }
         }
+        bestTauIdxForLink = static_cast<int>(bestTauIdx);
 
         int hpsDM = (*taus)[bestTauIdx].decayMode();
         int rSel  = dmToSelIndex(hpsDM);
@@ -1061,8 +1131,21 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
             if (auto* h = tau_gen_matched_to_nPi0_iso_eta_[dmIdx][N-1]) h->Fill(tauEta);
           }
         }
+        // tau resolution
+        if (tauPt > 0.) {
+          if (bestTauIdxForLink >= 0 && taus.isValid()) {
+            const auto& tau = (*taus)[bestTauIdxForLink];
+            const double respTau = tau.pt() / tauPt;  // reco / gen
+            if (tau_pt_reco_over_gen_[dmIdx]) {
+              tau_pt_reco_over_gen_[dmIdx]->Fill(respTau);
+            }
+            // reco tau shapes per DM
+            if (tau_reco_pt_[dmIdx])  tau_reco_pt_[dmIdx]->Fill(tau.pt());
+            if (tau_reco_eta_[dmIdx]) tau_reco_eta_[dmIdx]->Fill(tau.eta());
+          }
+        }
       }
-    }
+    } 
 
     // --- per-link summary ---
     std::ostringstream ss;

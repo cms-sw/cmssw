@@ -24,7 +24,7 @@ hltTiclTauValidator = _ticlTauValidator.clone(
 )
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(recoTiclTauValidator,
+ticl_v5.toModify(hltTiclTauValidator,
     ticlCandidates = cms.InputTag("hltTiclCandidate"),
     allTrackstersToSimTrackstersAssociationsByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
