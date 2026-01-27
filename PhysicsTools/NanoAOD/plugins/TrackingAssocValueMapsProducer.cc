@@ -8,9 +8,10 @@
  *  - whether the track is a duplicate (i.e. the matched TP is also matched to other tracks)
  *  - the PDG ID and charge of the matched TP
  *  - optionally, the kinematic variables (pt, eta, phi) of the matched TP
- *  The association is performed using a TrackToTrackingParticleAssociator.
+ *  The association is performed using a TrackToTrackingParticleAssociator or
+ *  by consuming existing association maps (reco::RecoToSimCollection and reco::SimToRecoCollection).
  *  The TrackingParticles considered for the association can be filtered
- *  using a set of selection criteria provided via a ParameterSet.
+ *  using a set of selection criteria provided via a ParameterSet (only for non-muon associators).
  *
  *   \author Luca Ferragina (INFN BO), 2025
  */
@@ -32,7 +33,6 @@
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 class TrackingAssocValueMapsProducer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
@@ -44,14 +44,25 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
+  // reco::Track collection
   const edm::EDGetTokenT<edm::View<reco::Track>> tracksToken_;
-  const edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociatorToken_;
+
+  // Tracking associator
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociatorToken_;
+
+  // Muon associators
+  edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimToken_;
+  edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoToken_;
+
+  // TrackingParticle collection
   const edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
 
+  // TP Selector and parameters
   edm::ParameterSet tpSet_;
   TrackingParticleSelector tpSelector_;
 
-  bool storeTPKinematics_;
+  const bool storeTPKinematics_;
+  const bool useMuonAssociators_;
 };
 
 namespace {
@@ -70,26 +81,32 @@ namespace {
 
 TrackingAssocValueMapsProducer::TrackingAssocValueMapsProducer(const edm::ParameterSet& cfg)
     : tracksToken_(consumes<edm::View<reco::Track>>(cfg.getParameter<edm::InputTag>("trackCollection"))),
-      trackAssociatorToken_(
-          consumes<reco::TrackToTrackingParticleAssociator>(cfg.getParameter<edm::InputTag>("associator"))),
       tpToken_(consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticles"))),
-      tpSet_(cfg.getParameter<edm::ParameterSet>("tpSelectorPSet")),
-      storeTPKinematics_(cfg.getParameter<bool>("storeTPKinematics")) {
-  tpSelector_ = TrackingParticleSelector(tpSet_.getParameter<double>("ptMin"),
-                                         tpSet_.getParameter<double>("ptMax"),
-                                         tpSet_.getParameter<double>("minRapidity"),
-                                         tpSet_.getParameter<double>("maxRapidity"),
-                                         tpSet_.getParameter<double>("tip"),
-                                         tpSet_.getParameter<double>("lip"),
-                                         tpSet_.getParameter<int>("minHit"),
-                                         tpSet_.getParameter<bool>("signalOnly"),
-                                         tpSet_.getParameter<bool>("intimeOnly"),
-                                         tpSet_.getParameter<bool>("chargedOnly"),
-                                         tpSet_.getParameter<bool>("stableOnly"),
-                                         tpSet_.getParameter<std::vector<int>>("pdgId"),
-                                         tpSet_.getParameter<bool>("invertRapidityCut"),
-                                         tpSet_.getParameter<double>("minPhi"),
-                                         tpSet_.getParameter<double>("maxPhi"));
+      storeTPKinematics_(cfg.getParameter<bool>("storeTPKinematics")),
+      useMuonAssociators_(cfg.getParameter<bool>("useMuonAssociators")) {
+  if (useMuonAssociators_) {
+    recoToSimToken_ = consumes<reco::RecoToSimCollection>(cfg.getParameter<edm::InputTag>("associator"));
+    simToRecoToken_ = consumes<reco::SimToRecoCollection>(cfg.getParameter<edm::InputTag>("associator"));
+  } else {
+    trackAssociatorToken_ =
+        consumes<reco::TrackToTrackingParticleAssociator>(cfg.getParameter<edm::InputTag>("associator"));
+    tpSet_ = cfg.getParameter<edm::ParameterSet>("tpSelectorPSet");
+    tpSelector_ = TrackingParticleSelector(tpSet_.getParameter<double>("ptMin"),
+                                           tpSet_.getParameter<double>("ptMax"),
+                                           tpSet_.getParameter<double>("minRapidity"),
+                                           tpSet_.getParameter<double>("maxRapidity"),
+                                           tpSet_.getParameter<double>("tip"),
+                                           tpSet_.getParameter<double>("lip"),
+                                           tpSet_.getParameter<int>("minHit"),
+                                           tpSet_.getParameter<bool>("signalOnly"),
+                                           tpSet_.getParameter<bool>("intimeOnly"),
+                                           tpSet_.getParameter<bool>("chargedOnly"),
+                                           tpSet_.getParameter<bool>("stableOnly"),
+                                           tpSet_.getParameter<std::vector<int>>("pdgId"),
+                                           tpSet_.getParameter<bool>("invertRapidityCut"),
+                                           tpSet_.getParameter<double>("minPhi"),
+                                           tpSet_.getParameter<double>("maxPhi"));
+  }
 
   produces<edm::ValueMap<int>>("matched");
   produces<edm::ValueMap<int>>("duplicate");
@@ -106,24 +123,38 @@ void TrackingAssocValueMapsProducer::produce(edm::Event& iEvent, const edm::Even
   edm::Handle<edm::View<reco::Track>> tracksH;
   iEvent.getByToken(tracksToken_, tracksH);
 
-  edm::Handle<reco::TrackToTrackingParticleAssociator> associatorH;
-  iEvent.getByToken(trackAssociatorToken_, associatorH);
-
   edm::Handle<TrackingParticleCollection> tpH;
   iEvent.getByToken(tpToken_, tpH);
 
+  // Storage for handles/collections depending on mode
+  edm::Handle<reco::TrackToTrackingParticleAssociator> associatorH;
+  edm::Handle<reco::RecoToSimCollection> recoToSimH;
+  edm::Handle<reco::SimToRecoCollection> simToRecoH;
+
+  bool inputsValid = tracksH.isValid() && tpH.isValid();
+  if (inputsValid) {
+    if (useMuonAssociators_) {
+      iEvent.getByToken(recoToSimToken_, recoToSimH);
+      iEvent.getByToken(simToRecoToken_, simToRecoH);
+      inputsValid = inputsValid && recoToSimH.isValid() && simToRecoH.isValid();
+    } else {
+      iEvent.getByToken(trackAssociatorToken_, associatorH);
+      inputsValid = inputsValid && associatorH.isValid();
+    }
+  }
+
   const size_t nTracks = tracksH->size();
 
-  if (nTracks == 0 || !tracksH.isValid() || !associatorH.isValid() || !tpH.isValid()) {
+  if (nTracks == 0 || !inputsValid) {
     // No tracks or invalid handles, put empty ValueMaps and return
-    fillAndPut<int>(iEvent, tracksH, std::make_unique<edm::ValueMap<int>>(), {}, "matched");
-    fillAndPut<int>(iEvent, tracksH, std::make_unique<edm::ValueMap<int>>(), {}, "duplicate");
-    fillAndPut<int>(iEvent, tracksH, std::make_unique<edm::ValueMap<int>>(), {}, "tpPdgId");
-    fillAndPut<int>(iEvent, tracksH, std::make_unique<edm::ValueMap<int>>(), {}, "tpCharge");
+    iEvent.put(std::make_unique<edm::ValueMap<int>>(), "matched");
+    iEvent.put(std::make_unique<edm::ValueMap<int>>(), "duplicate");
+    iEvent.put(std::make_unique<edm::ValueMap<int>>(), "tpPdgId");
+    iEvent.put(std::make_unique<edm::ValueMap<int>>(), "tpCharge");
     if (storeTPKinematics_) {
-      fillAndPut<float>(iEvent, tracksH, std::make_unique<edm::ValueMap<float>>(), {}, "tpPt");
-      fillAndPut<float>(iEvent, tracksH, std::make_unique<edm::ValueMap<float>>(), {}, "tpEta");
-      fillAndPut<float>(iEvent, tracksH, std::make_unique<edm::ValueMap<float>>(), {}, "tpPhi");
+      iEvent.put(std::make_unique<edm::ValueMap<float>>(), "tpPt");
+      iEvent.put(std::make_unique<edm::ValueMap<float>>(), "tpEta");
+      iEvent.put(std::make_unique<edm::ValueMap<float>>(), "tpPhi");
     }
     return;
   }
@@ -140,21 +171,38 @@ void TrackingAssocValueMapsProducer::produce(edm::Event& iEvent, const edm::Even
     tpPhi.assign(nTracks, -10.f);
   }
 
-  TrackingParticleRefVector tpCollection;
-  for (size_t i = 0, size = tpH->size(); i < size; ++i) {
-    auto tp = TrackingParticleRef(tpH, i);
-    if (tpSelector_(*tp)) {
-      tpCollection.push_back(tp);
-    }
-  }
-
   edm::RefToBaseVector<reco::Track> trackRefs;
   for (edm::View<reco::Track>::size_type i = 0; i < nTracks; ++i) {
     trackRefs.push_back(tracksH->refAt(i));
   }
 
-  reco::RecoToSimCollection const& recoToSimColl = associatorH->associateRecoToSim(trackRefs, tpCollection);
-  reco::SimToRecoCollection const& simToRecoColl = associatorH->associateSimToReco(trackRefs, tpCollection);
+  // Association Maps pointers
+  const reco::RecoToSimCollection* recoToSimCollPtr = nullptr;
+  const reco::SimToRecoCollection* simToRecoCollPtr = nullptr;
+
+  // Local objects to hold computed associations if needed
+  reco::RecoToSimCollection recSimMap;
+  reco::SimToRecoCollection simRecMap;
+
+  if (useMuonAssociators_) {
+    recoToSimCollPtr = &(*recoToSimH);
+    simToRecoCollPtr = &(*simToRecoH);
+  } else {
+    TrackingParticleRefVector tpCollection;
+    for (size_t i = 0, size = tpH->size(); i < size; ++i) {
+      auto tp = TrackingParticleRef(tpH, i);
+      if (tpSelector_(*tp)) {
+        tpCollection.push_back(tp);
+      }
+    }
+    recSimMap = associatorH->associateRecoToSim(trackRefs, tpCollection);
+    simRecMap = associatorH->associateSimToReco(trackRefs, tpCollection);
+    recoToSimCollPtr = &recSimMap;
+    simToRecoCollPtr = &simRecMap;
+  }
+
+  const auto& recoToSimColl = *recoToSimCollPtr;
+  const auto& simToRecoColl = *simToRecoCollPtr;
 
   for (edm::View<reco::Track>::size_type i = 0; i < trackRefs.size(); ++i) {
     const auto& track = trackRefs[i];
@@ -218,6 +266,7 @@ void TrackingAssocValueMapsProducer::fillDescriptions(edm::ConfigurationDescript
 
   desc.add<edm::ParameterSetDescription>("tpSelectorPSet", tpSet);
   desc.add<bool>("storeTPKinematics", true);
+  desc.add<bool>("useMuonAssociators", false);
 
   descriptions.addWithDefaultLabel(desc);
 }
