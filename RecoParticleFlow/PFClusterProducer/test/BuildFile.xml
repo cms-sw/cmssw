@@ -40,7 +40,7 @@
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
-<bin file="alpaka/ShowerShapeTest.dev.cc">
+<bin name="ShowerShapeTest_noncooperative" file="alpaka/ShowerShapeTest.dev.cc">
   <use name="alpaka"/>
   <use name="eigen"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
@@ -50,6 +50,19 @@
   <use name="RecoParticleFlow/PFClusterProducer"/>
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
+
+<bin name="ShowerShapeTest_cooperative" file="alpaka/ShowerShapeTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags CPPFLAGS="-DSHOWER_SHAPE_COOPERATIVE"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
+
 
 <bin file="alpaka/ConstructLinksTest.dev.cc">
   <use name="alpaka"/>
@@ -94,3 +107,27 @@
   <use name="RecoParticleFlow/PFClusterProducer"/>
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
+
+<bin name="EpilogueTest_noncooperative"  file="alpaka/EpilogueTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin name="EpilogueTest_cooperative" file="alpaka/EpilogueTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags CPPFLAGS="-DEPILOGUE_COOPERATIVE"/>
+  <flags ALPAKA_BACKENDS="cuda"/>
+</bin>
+
