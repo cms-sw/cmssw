@@ -88,9 +88,8 @@
    <class name="edm::Wrapper<reco::PattRecoTree<float,reco::PattRecoPeak<float> > >" />
    <class name="edm::Wrapper<reco::PattRecoTree<double,reco::PattRecoPeak<double> > >" />
 
-   <class name="reco::FFTJetProducerSummary"  ClassVersion="11">
-    <version ClassVersion="11" checksum="445367308"/>
-    <version ClassVersion="10" checksum="603545432"/>
+   <class name="reco::FFTJetProducerSummary"  ClassVersion="3">
+    <version ClassVersion="3" checksum="445367308"/>
    </class>
    <class name="edm::Wrapper<reco::FFTJetProducerSummary>" />
 
