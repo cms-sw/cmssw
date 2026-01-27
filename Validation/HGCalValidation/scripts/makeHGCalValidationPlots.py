@@ -11,7 +11,7 @@ from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
 import Validation.HGCalValidation.hgcalPlots as hgcalPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
-simClustersIters = [hgcalValidator.label_SimClustersLevel, "ticlSimTracksters"]
+simClustersIters = [hgcalValidator.label_SimClustersLevel.value(), "ticlSimTracksters"]
 
 hitCalLabel = 'hitCalibration'
 hitValLabel = 'hitValidation'
@@ -62,7 +62,7 @@ def main(opts):
     #layerClusters
     def plot_LC():
         hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-        hgcalPlots.append_hgcalLayerClustersPlots(hgcalValidator.label_layerClustersPlots, "Layer Clusters", extendedFlag)
+        hgcalPlots.append_hgcalLayerClustersPlots(hgcalValidator.label_layerClustersPlots.value(), "Layer Clusters", extendedFlag)
         val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
 
     #simClusters

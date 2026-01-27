@@ -2397,7 +2397,7 @@ lc_zplus_extended = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus
 ]
 
-def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClustersPlots, name_collection = layerClustersLabel, extended = False):
+def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClustersPlots.value(), name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
@@ -2536,16 +2536,16 @@ sc_ticltracksters = [
 hgcalSimClustersPlotter = Plotter()
 
 def append_hgcalSimClustersPlots(collection, name_collection):
-  if collection == hgcalValidator.label_SimClustersLevel:
+  if collection == hgcalValidator.label_SimClustersLevel.value():
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalFolders(hgcalValidator.label_SimClusters +"/"+ collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters.value() +"/"+ collection)
                   ], PlotFolder(
                   *sc_clusterlevel,
                   loopSubFolders=False,
                   purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
   else:
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalFolders(hgcalValidator.label_SimClusters +"/"+collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters.value() +"/"+collection)
                   ], PlotFolder(
                   *sc_ticltracksters,
                   loopSubFolders=False,
@@ -2694,17 +2694,19 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
 
   dqmfolder = hgcVal_dqm + "SelectedCaloParticles/" + collection
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
-  if not gDirectory.GetDirectory(dqmfolder):
+  if not templateFile.GetDirectory(dqmfolder):
     print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
     return hgcalTrackstersPlotter
 
-  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  keys = templateFile.GetDirectory(dqmfolder,True).GetListOfKeys()
   key = keys[0]
   while key:
     obj = key.ReadObj()
     name = obj.GetName()
     fileName = TString(name)
     fileName.ReplaceAll(" ","_")
+    plotName = TString(name)
+    plotName.ReplaceAll(" ","_")
     pg = PlotGroup(fileName.Data(),[
                   Plot(name,
                        drawCommand = "",
@@ -2746,11 +2748,11 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   _common["ymin"] = 0.0
   _common["staty"] = 0.85
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
-  if not gDirectory.GetDirectory(dqmfolder):
+  if not templateFile.GetDirectory(dqmfolder):
     print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
     return hgcalTrackstersPlotter
 
-  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  keys = templateFile.GetDirectory(dqmfolder,True).GetListOfKeys()
   key = keys[0]
   while key:
     obj = key.ReadObj()
@@ -2805,54 +2807,6 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   templateFile.Close()
 
   return hgcalTrackstersPlotter
-
-#=================================================================================================
-_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False, "xtitle": "Default", "ytitle": "Default"}
-
-hgcalCaloParticlesPlotter = Plotter()
-
-def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
-  dqmfolder = hgcVal_dqm + "SelectedCaloParticles/" + collection
-  print(dqmfolder)
-#  _common["ymin"] = 0.0
-  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
-  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
-  key = keys[0]
-  while key:
-    obj = key.ReadObj()
-    name = obj.GetName()
-    plotName = TString(name)
-    plotName.ReplaceAll(" ","_")
-
-    pg = None
-    if obj.InheritsFrom("TH2"):
-        pg = PlotOnSideGroup(plotName.Data(),
-                      Plot(name,
-                           drawCommand = "COLZ",
-                           normalizeToNumberOfEvents = True, **_common_Calo),
-                      ncols=1)
-    elif obj.InheritsFrom("TH1"):
-        pg = PlotGroup(plotName.Data(),[
-                      Plot(name,
-                           drawCommand = "", # may want to customize for TH2 (colz, etc.)
-                           normalizeToNumberOfEvents = True, **_common_Calo)
-                      ],
-                      ncols=1)
-
-    if (pg is not None):
-        hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
-                  dqmfolder
-                  ], PlotFolder(
-                    pg,
-                    loopSubFolders=False,
-                    purpose=PlotPurpose.Timing, page="CaloParticles", section=name_collection)
-                  )
-
-    key = keys.After(key)
-
-  templateFile.Close()
-
-  return hgcalCaloParticlesPlotter
 
 #=================================================================================================
 # hitValidation
