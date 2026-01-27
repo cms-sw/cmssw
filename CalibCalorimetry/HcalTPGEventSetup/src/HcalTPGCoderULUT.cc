@@ -62,6 +62,8 @@ private:
   double containPhaseNSHB_, containPhaseNSHE_;
   bool applyFixPCC_;
   bool overrideDBweightsAndFilterHB_, overrideDBweightsAndFilterHE_;
+  double nPedWidthsForZS_;
+  bool overrideDBnPedWidthsForZS_;
   double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
   bool overrideFGHF_;
@@ -93,6 +95,8 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   containPhaseNSHE_ = iConfig.getParameter<double>("containPhaseNSHE");
   overrideDBweightsAndFilterHB_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHB");
   overrideDBweightsAndFilterHE_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHE");
+  nPedWidthsForZS_ = iConfig.getParameter<double>("nPedWidthsForZS");
+  overrideDBnPedWidthsForZS_ = iConfig.getParameter<bool>("overrideDBnPedWidthsForZS");
   applyFixPCC_ = iConfig.getParameter<bool>("applyFixPCC");
 
   //the following line is needed to tell the framework what
@@ -134,6 +138,9 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo,
 
   theCoder->setContainPhaseHB(containPhaseNSHB_);
   theCoder->setContainPhaseHE(containPhaseNSHE_);
+
+  theCoder->setNpedWidthsForZS(nPedWidthsForZS_);
+  theCoder->setOverrideDBnPedWidthsForZS(overrideDBnPedWidthsForZS_);
 
   theCoder->setApplyFixPCC(applyFixPCC_);
 
