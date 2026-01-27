@@ -33,19 +33,19 @@ hltSiPixelPhase1CompareDigiErrors = siPixelPhase1RawDataErrorComparator.clone(
     topFolderName = 'HLT/HeterogeneousComparisons/PixelErrors'
 )
 
-hltSiPixelPhase1CompareRecHits = siPixelPhase1CompareRecHits.clone(
+hltSiPixelPhase1CompareRecHits = siPixelCompareRecHitsSoA.clone(
     pixelHitsReferenceSoA = 'hltSiPixelRecHitsSoASerialSync',
     pixelHitsTargetSoA  = 'hltSiPixelRecHitsSoA',
     topFolderName = 'HLT/HeterogeneousComparisons/PixelRecHits'
 )
 
-hltSiPixelPhase1CompareTracks = siPixelPhase1CompareTracks.clone(
+hltSiPixelPhase1CompareTracks = siPixelCompareTracksSoA.clone(
     pixelTrackReferenceSoA = 'hltPixelTracksSoASerialSync',
     pixelTrackTargetSoA = 'hltPixelTracksSoA',
     topFolderName = 'HLT/HeterogeneousComparisons/PixelTracks'
 )
 
-hltSiPixelCompareVertices = siPixelCompareVertices.clone(
+hltSiPixelCompareVertices = siPixelCompareVerticesSoA.clone(
     pixelVertexReferenceSoA = 'hltPixelVerticesSoASerialSync',
     pixelVertexTargetSoA = 'hltPixelVerticesSoA',
     beamSpotSrc = 'hltOnlineBeamSpot',
