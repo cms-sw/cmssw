@@ -706,46 +706,82 @@ dataTE_2017 = {'--conditions': 'auto:run2_data', '--scenario': 'pp', '--era': 'R
 mcTE_2017 = {'--conditions': 'auto:phase1_2017_realistic', '--scenario': 'pp', '--era': 'Run2_2017', '--beamspot': 'Realistic25ns13TeVEarly2017Collision'}
 dataTE_2018 = {'--conditions': 'auto:run2_data', '--scenario': 'pp', '--era': 'Run2_2018'}
 mcTE_2018 = {'--conditions': 'auto:phase1_2018_realistic', '--scenario': 'pp', '--era': 'Run2_2018', '--beamspot': 'Realistic25ns13TeVEarly2018Collision'}
-embedding_selection = {'-s': 'RAW2DIGI,L1Reco,RECO,PAT', '--datatier': 'FEVT', '--eventcontent': 'FEVT', '--data': ''}
-embedding_cleaning = {'-s': 'RAW2DIGI,RECO,PAT', '--data': '', '--eventcontent': 'RAWRECO', '--datatier': 'RAWRECO'}
-embedding_genpreHLT = {'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI', '--mc': '', '--eventcontent': 'RAWSIM', '--datatier': 'RAWSIM', '--geometry': 'DB:Extended', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_preHLT', '--customise_commands': '\"process.generator.nAttempts = cms.uint32(1000)\"'}
-embedding_genHLT = {'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'HLT:Fake2', '--mc': '','--eventcontent': 'RAWSIM', '--datatier': 'RAWSIM','--geometry': 'DB:Extended', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_HLT'}
-embedding_genpostHLT = {'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--mc': '', '--eventcontent': 'RAWRECOSIMHLT', '--datatier': 'RAW-RECO-SIM', '--geometry': 'DB:Extended', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_postHLT'}
-embedding_merge = {'-s': 'PAT', '--data': '', '--eventcontent': 'MINIAODSIM', '--datatier': 'MINIAODSIM', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseMerging'}
+dataTE_2022 = {'--conditions': 'auto:run3_data', '--scenario': 'pp', '--era': 'Run3'}
+mcTE_2022 = {'--conditions': 'auto:phase1_2022_realistic', '--scenario': 'pp', '--era': 'Run3', '--beamspot': 'Realistic25ns13p6TeVEarly2022Collision'}
+dataTE_2022_EE = {'--conditions': 'auto:run3_data', '--scenario': 'pp', '--era': 'Run3'}
+mcTE_2022_EE = {'--conditions': 'auto:phase1_2022_realistic_postEE', '--scenario': 'pp', '--era': 'Run3', '--beamspot': 'Realistic25ns13p6TeVEarly2022Collision'}
+dataTE_2024 = {'--conditions': 'auto:run3_data', '--scenario': 'pp', '--era': 'Run3_2024'}
+mcTE_2024 = {'--conditions': 'auto:phase1_2024_realistic', '--scenario': 'pp', '--era': 'Run3_2024', '--beamspot': 'DBrealistic'}
+embedding_selection = {'-s': 'RAW2DIGI,L1Reco,RECO,PAT,FILTER:TauAnalysis/MCEmbeddingTools/Selection_FILTER_cff.makePatMuonsZmumuSelection', '--processName': 'SELECT', '--datatier': 'FEVT', '--eventcontent': 'TauEmbeddingSelection', '--data': ''}
+embedding_cleaning = {'-s': 'USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO', '--processName': 'LHEembeddingCLEAN', '--data': '', '--eventcontent': 'TauEmbeddingCleaning', '--datatier': 'RAWRECO', '--procModifiers': 'tau_embedding_cleaning,tau_embedding_mutauh'}
+embedding_genpreHLT = {'cfg': 'TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py', '-s': 'GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI', '--processName': 'SIMembeddingpreHLT', '--mc': '', '--eventcontent': 'TauEmbeddingSimGen', '--datatier': 'RAWSIM', '--geometry': 'DB:Extended', '--procModifiers': 'tau_embedding_sim,tau_embedding_mutauh'}
+embedding_genHLT = {'-s': 'HLT:Fake2+TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser', '--processName': 'SIMembeddingHLT', '--mc': '','--eventcontent': 'TauEmbeddingSimHLT', '--datatier': 'RAWSIM','--geometry': 'DB:Extended'}
+embedding_genpostHLT = {'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--processName': 'SIMembedding', '--mc': '', '--eventcontent': 'TauEmbeddingSimReco', '--datatier': 'RAW-RECO-SIM', '--geometry': 'DB:Extended', '--procModifiers': 'tau_embedding_sim'}
+embedding_merge = {'-s': 'USER:TauAnalysis/MCEmbeddingTools/Merging_USER_cff.merge_step,PAT', '--processName': 'MERGE', '--data': '', '--eventcontent': 'TauEmbeddingMergeMINIAOD', '--datatier': 'USER', '--procModifiers': 'tau_embedding_merging'}
+embedding_nano = {'-s': 'NANO:@TauEmbedding', '--data': '', '--eventcontent': 'TauEmbeddingNANOAOD', '--datatier': 'NANOAODSIM'}
 
 ### Tau Embedding 2016 HIPM ###
-steps['TauEmbedding_Selection_2016_HIPM'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting'}, dataTE_2016_HIPM, embedding_selection])
-steps['TauEmbedding_Cleaning_2016_HIPM'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning'}, dataTE_2016_HIPM, embedding_cleaning])
+steps['TauEmbedding_Selection_2016_HIPM'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016'}, dataTE_2016_HIPM, embedding_selection])
+steps['TauEmbedding_Cleaning_2016_HIPM'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016'}, dataTE_2016_HIPM, embedding_cleaning])
 steps['TauEmbedding_GenPreHLT_2016_HIPM'] = merge([mcTE_2016_HIPM, embedding_genpreHLT])
 steps['TauEmbedding_GenHLT_2016_HIPM'] = merge([mcTE_2016_HIPM, embedding_genHLT])
 steps['TauEmbedding_GenPostHLT_2016_HIPM'] = merge([mcTE_2016_HIPM, embedding_genpostHLT])
 steps['TauEmbedding_Merging_2016_HIPM'] = merge([dataTE_2016_HIPM, embedding_merge])
+steps['TauEmbedding_Nano_2016_HIPM'] = merge([dataTE_2016_HIPM, embedding_nano])
 
 ### Tau Embedding 2016 ###
-steps['TauEmbedding_Selection_2016'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting'}, dataTE_2016, embedding_selection])
-steps['TauEmbedding_Cleaning_2016'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning'}, dataTE_2016, embedding_cleaning])
+steps['TauEmbedding_Selection_2016'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016'}, dataTE_2016, embedding_selection])
+steps['TauEmbedding_Cleaning_2016'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016'}, dataTE_2016, embedding_cleaning])
 steps['TauEmbedding_GenPreHLT_2016'] = merge([mcTE_2016, embedding_genpreHLT])
 steps['TauEmbedding_GenHLT_2016'] = merge([mcTE_2016, embedding_genHLT])
 steps['TauEmbedding_GenPostHLT_2016'] = merge([mcTE_2016, embedding_genpostHLT])
 steps['TauEmbedding_Merging_2016'] = merge([dataTE_2016, embedding_merge])
+steps['TauEmbedding_Nano_2016'] = merge([dataTE_2016, embedding_nano])
 
 ### Tau Embedding 2017 ###
-steps['TauEmbedding_Selection_2017'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting'}, dataTE_2017, embedding_selection])
-steps['TauEmbedding_Cleaning_2017'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning'}, dataTE_2017, embedding_cleaning])
+steps['TauEmbedding_Selection_2017'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017'}, dataTE_2017, embedding_selection])
+steps['TauEmbedding_Cleaning_2017'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017'}, dataTE_2017, embedding_cleaning])
 steps['TauEmbedding_GenPreHLT_2017'] = merge([mcTE_2017, embedding_genpreHLT])
 steps['TauEmbedding_GenHLT_2017'] = merge([mcTE_2017, embedding_genHLT])
 steps['TauEmbedding_GenPostHLT_2017'] = merge([mcTE_2017, embedding_genpostHLT])
 steps['TauEmbedding_Merging_2017'] = merge([dataTE_2017, embedding_merge])
+steps['TauEmbedding_Nano_2017'] = merge([dataTE_2017, embedding_nano])
 
 ### Tau Embedding 2018 ###
-steps['TauEmbedding_Selection_2018'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting'}, dataTE_2018, embedding_selection])
-steps['TauEmbedding_Cleaning_2018'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning'}, dataTE_2018, embedding_cleaning])
+steps['TauEmbedding_Selection_2018'] = merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018'}, dataTE_2018, embedding_selection])
+steps['TauEmbedding_Cleaning_2018'] = merge([{'--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018'}, dataTE_2018, embedding_cleaning])
 steps['TauEmbedding_GenPreHLT_2018'] = merge([mcTE_2018, embedding_genpreHLT])
 steps['TauEmbedding_GenHLT_2018'] = merge([mcTE_2018, embedding_genHLT])
 steps['TauEmbedding_GenPostHLT_2018'] = merge([mcTE_2018, embedding_genpostHLT])
 steps['TauEmbedding_Merging_2018'] = merge([dataTE_2018, embedding_merge])
+steps['TauEmbedding_Nano_2018'] = merge([dataTE_2018, embedding_nano])
 
+### Tau Embedding 2022 pre EE ###
+steps['TauEmbedding_Selection_2022'] = merge([dataTE_2022, embedding_selection])
+steps['TauEmbedding_Cleaning_2022'] = merge([dataTE_2022, embedding_cleaning])
+steps['TauEmbedding_GenPreHLT_2022'] = merge([mcTE_2022, embedding_genpreHLT])
+steps['TauEmbedding_GenHLT_2022'] = merge([mcTE_2022, embedding_genHLT])
+steps['TauEmbedding_GenPostHLT_2022'] = merge([mcTE_2022, embedding_genpostHLT])
+steps['TauEmbedding_Merging_2022'] = merge([dataTE_2022, embedding_merge])
+steps['TauEmbedding_Nano_2022'] = merge([dataTE_2022, embedding_nano])
 
+### Tau Embedding 2022 post EE ###
+steps['TauEmbedding_Selection_2022_EE'] = merge([dataTE_2022_EE, embedding_selection, {'-n': '200'}])
+steps['TauEmbedding_Cleaning_2022_EE'] = merge([dataTE_2022_EE, embedding_cleaning])
+steps['TauEmbedding_GenPreHLT_2022_EE'] = merge([mcTE_2022_EE, embedding_genpreHLT])
+steps['TauEmbedding_GenHLT_2022_EE'] = merge([mcTE_2022_EE, embedding_genHLT])
+steps['TauEmbedding_GenPostHLT_2022_EE'] = merge([mcTE_2022_EE, embedding_genpostHLT])
+steps['TauEmbedding_Merging_2022_EE'] = merge([dataTE_2022_EE, embedding_merge])
+steps['TauEmbedding_Nano_2022_EE'] = merge([dataTE_2022_EE, embedding_nano])
+
+### Tau Embedding 2024 ###
+steps['TauEmbedding_Selection_2024'] = merge([dataTE_2024, embedding_selection])
+steps['TauEmbedding_Cleaning_2024'] = merge([dataTE_2024, embedding_cleaning])
+steps['TauEmbedding_GenPreHLT_2024'] = merge([mcTE_2024, embedding_genpreHLT])
+steps['TauEmbedding_GenHLT_2024'] = merge([mcTE_2024, embedding_genHLT])
+steps['TauEmbedding_GenPostHLT_2024'] = merge([mcTE_2024, embedding_genpostHLT])
+steps['TauEmbedding_Merging_2024'] = merge([dataTE_2024, embedding_merge])
+steps['TauEmbedding_Nano_2024'] = merge([dataTE_2024, embedding_nano])
 
 def gen(fragment,howMuch):
     global step1Defaults
