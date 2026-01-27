@@ -14,3 +14,4 @@
 <flags EDM_PLUGIN="1"/>
 <library file="*.cc" name="testValidationHGCalValidation">
 </library>
+<test name="testMakeHGCalValidationPlots" command="test_makeHGCalValidationPlots.sh"/>
