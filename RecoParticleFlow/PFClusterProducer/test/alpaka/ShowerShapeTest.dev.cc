@@ -51,6 +51,12 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#ifdef SHOWER_SHAPE_COOPERATIVE
+static constexpr bool cooperative = true;
+#else
+static constexpr bool cooperative = false;
+#endif
+
 using PFRecHitsNeighbours = Eigen::Matrix<int32_t, 8, 1>;
 
 using namespace reco;
@@ -159,7 +165,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        ShowerShapeKernel{},
+                        ShowerShapeKernel<32, cooperative>{},
                         mdpfClusteringVars.view(),
                         pfClusters.view(),
                         pfRecHitFracs.view(),
