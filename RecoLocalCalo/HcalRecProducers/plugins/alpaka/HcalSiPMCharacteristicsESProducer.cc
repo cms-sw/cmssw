@@ -29,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       size_t const totalItems = sipmCharacteristics.getTypes();
 
-      auto product = std::make_unique<hcal::HcalSiPMCharacteristicsPortableHost>(totalItems, cms::alpakatools::host());
+      auto product = std::make_unique<hcal::HcalSiPMCharacteristicsPortableHost>(cms::alpakatools::host(), totalItems);
 
       auto view = product->view();
 

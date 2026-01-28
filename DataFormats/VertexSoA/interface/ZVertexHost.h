@@ -9,6 +9,8 @@
 #include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-using ZVertexHost = PortableHostCollection2<reco::ZVertexSoA, reco::ZVertexTracksSoA>;
+namespace reco {
+  using ZVertexHost = PortableHostCollection<reco::ZVertexBlocks>;
+}  // namespace reco
 
 #endif  // DataFormats_VertexSoA_ZVertexHost_H

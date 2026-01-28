@@ -22,7 +22,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    edm::EDGetTokenT<ZVertexHost> getToken_;
+    edm::EDGetTokenT<reco::ZVertexHost> getToken_;
   };
 
   TestReadHostVertexSoA::TestReadHostVertexSoA(edm::ParameterSet const& iPSet)
@@ -32,10 +32,10 @@ namespace edmtest {
     auto const& ZVertexs = iEvent.get(getToken_);
     auto ZVertexsView = ZVertexs.view();
 
-    std::cout << "ZVertexsView.metadata().size() " << ZVertexsView.metadata().size() << std::endl;
-    std::cout << "ZVertexsView.chi2() " << ZVertexsView[10].chi2() << std::endl;
-    for (int i = 0; i < ZVertexsView.metadata().size(); ++i) {
-      if (ZVertexsView[i].chi2() != float(i)) {
+    std::cout << "ZVertexsView.zvertex().metadata().size() " << ZVertexsView.zvertex().metadata().size() << std::endl;
+    std::cout << "ZVertexsView.zvertex()[10].chi2() " << ZVertexsView.zvertex()[10].chi2() << std::endl;
+    for (int i = 0; i < ZVertexsView.zvertex().metadata().size(); ++i) {
+      if (ZVertexsView.zvertex()[i].chi2() != float(i)) {
         throw cms::Exception("TestReadHostVertexSoA Failure") << "TestReadHostVertexSoA::analyze, entry. i = " << i;
       }
     }

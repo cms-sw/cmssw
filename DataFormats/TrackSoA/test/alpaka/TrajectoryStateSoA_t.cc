@@ -39,9 +39,10 @@ int main() {
 
     // Inner scope to deallocate memory before destroying the stream.
     {
-      TracksSoACollection tracks_d({{1000, 5000}}, queue);
+      TracksSoACollection tracks_d(queue, 1000, 5000);
 
-      test::testTrackSoA<pixelTopology::Phase1>(queue, tracks_d.view());
+      auto tracksView = tracks_d.view().tracks();
+      test::testTrackSoA<pixelTopology::Phase1>(queue, tracksView);
 
       // Wait for the tests to complete.
       alpaka::wait(queue);

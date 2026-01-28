@@ -131,9 +131,8 @@ public:
   TestAlpakaAnalyzer(edm::ParameterSet const& config)
       : source_{config.getParameter<edm::InputTag>("source")},
         token_{consumes(source_)},
-        //tokenMulti_{consumes(source_)},
-        tokenMulti2_{consumes(source_)},
-        tokenMulti3_{consumes(source_)},
+        tokenBlocks2_{consumes(source_)},
+        tokenBlocks3_{consumes(source_)},
         expectSize_{config.getParameter<int>("expectSize")},
         expectXvalues_{config.getParameter<std::vector<double>>("expectXvalues")} {
     if (std::string const& eb = config.getParameter<std::string>("expectBackend"); not eb.empty()) {
@@ -213,21 +212,13 @@ public:
       }
     }
 
-    //    portabletest::TestHostMultiCollection const& productMulti = event.get(tokenMulti_);
-    //    auto const& viewMulti0 = productMulti.const_view<0>();
-    //    auto& mviewMulti0 = productMulti.view<0>();
-    //    auto const& cmviewMulti0 = productMulti.view<0>();
-    //    auto const& viewMulti1 = productMulti.const_view<1>();
-    //    auto& mviewMulti1 = productMulti.view<1>();
-    //    auto const& cmviewMulti1 = productMulti.view<1>();
-
-    portabletest::TestHostMultiCollection2 const& productMulti2 = event.get(tokenMulti2_);
-    auto const& viewMulti2_0 = productMulti2.const_view<0>();
-    auto& mviewMulti2_0 = productMulti2.view<0>();
-    auto const& cmviewMulti2_0 = productMulti2.view<0>();
-    auto const& viewMulti2_1 = productMulti2.const_view<1>();
-    auto& mviewMulti2_1 = productMulti2.view<1>();
-    auto const& cmviewMulti2_1 = productMulti2.view<1>();
+    portabletest::TestHostCollection2 const& productMulti2 = event.get(tokenBlocks2_);
+    auto const& viewMulti2_0 = productMulti2.const_view().first();
+    auto& mviewMulti2_0 = productMulti2.view().first();
+    auto const& cmviewMulti2_0 = productMulti2.view().first();
+    auto const& viewMulti2_1 = productMulti2.const_view().second();
+    auto& mviewMulti2_1 = productMulti2.view().second();
+    auto const& cmviewMulti2_1 = productMulti2.view().second();
 
     checkViewAddresses(viewMulti2_0);
     checkViewAddresses(mviewMulti2_0);
@@ -265,16 +256,16 @@ public:
       assert(vi.m2() == matrix * i);
     }
 
-    portabletest::TestHostMultiCollection3 const& productMulti3 = event.get(tokenMulti3_);
-    auto const& viewMulti3_0 = productMulti3.const_view<0>();
-    auto& mviewMulti3_0 = productMulti3.view<0>();
-    auto const& cmviewMulti3_0 = productMulti3.view<0>();
-    auto const& viewMulti3_1 = productMulti3.const_view<1>();
-    auto& mviewMulti3_1 = productMulti3.view<1>();
-    auto const& cmviewMulti3_1 = productMulti3.view<1>();
-    auto const& viewMulti3_2 = productMulti3.const_view<2>();
-    auto& mviewMulti3_2 = productMulti3.view<2>();
-    auto const& cmviewMulti3_2 = productMulti3.view<2>();
+    portabletest::TestHostCollection3 const& productMulti3 = event.get(tokenBlocks3_);
+    auto const& viewMulti3_0 = productMulti3.const_view().first();
+    auto& mviewMulti3_0 = productMulti3.view().first();
+    auto const& cmviewMulti3_0 = productMulti3.view().first();
+    auto const& viewMulti3_1 = productMulti3.const_view().second();
+    auto& mviewMulti3_1 = productMulti3.view().second();
+    auto const& cmviewMulti3_1 = productMulti3.view().second();
+    auto const& viewMulti3_2 = productMulti3.const_view().third();
+    auto& mviewMulti3_2 = productMulti3.view().third();
+    auto const& cmviewMulti3_2 = productMulti3.view().third();
 
     checkViewAddresses(viewMulti3_0);
     checkViewAddresses(mviewMulti3_0);
@@ -348,8 +339,8 @@ private:
   edm::EDGetTokenT<unsigned short> backendToken_;
   std::optional<cms::alpakatools::Backend> expectBackend_;
   //const edm::EDGetTokenT<portabletest::TestHostMultiCollection> tokenMulti_;
-  const edm::EDGetTokenT<portabletest::TestHostMultiCollection2> tokenMulti2_;
-  const edm::EDGetTokenT<portabletest::TestHostMultiCollection3> tokenMulti3_;
+  const edm::EDGetTokenT<portabletest::TestHostCollection2> tokenBlocks2_;
+  const edm::EDGetTokenT<portabletest::TestHostCollection3> tokenBlocks3_;
   const int expectSize_;
   const std::vector<double> expectXvalues_;
 };

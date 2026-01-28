@@ -5,6 +5,6 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 
 namespace lst {
-  using ModulesHostCollection = PortableHostMultiCollection<ModulesSoA, ModulesPixelSoA>;
+  using ModulesHostCollection = PortableHostCollection<ModulesSoABlocks>;
 }  // namespace lst
 #endif

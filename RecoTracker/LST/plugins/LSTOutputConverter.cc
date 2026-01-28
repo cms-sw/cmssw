@@ -146,7 +146,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   outputpTTC.reserve(nTrackCandidates);
   outputpLSTC.reserve(nTrackCandidates);
 
-  auto OTHits = lstInputHC.const_view<lst::HitsBaseSoA>().hits();
+  auto OTHits = lstInputHC.const_view().hits().hits();
 
   LogDebug("LSTOutputConverter") << "nTrackCandidates " << nTrackCandidates;
   for (unsigned int i = 0; i < nTrackCandidates; i++) {

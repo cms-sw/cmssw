@@ -27,7 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     std::unique_ptr<reco::PFRecHitECALParamsHostCollection> produce(const EcalPFRecHitThresholdsRcd& iRecord) {
       const auto& thresholds = iRecord.get(thresholdsToken_);
-      auto product = std::make_unique<reco::PFRecHitECALParamsHostCollection>(ECAL::kSize, cms::alpakatools::host());
+      auto product = std::make_unique<reco::PFRecHitECALParamsHostCollection>(cms::alpakatools::host(), ECAL::kSize);
       for (uint32_t denseId = 0; denseId < ECAL::Barrel::kSize; denseId++)
         product->view().energyThresholds()[denseId] = thresholds.barrel(denseId);
       for (uint32_t denseId = 0; denseId < ECAL::Endcap::kSize; denseId++)

@@ -7,6 +7,6 @@
 #include "RecoTracker/LSTCore/interface/QuintupletsSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  using QuintupletsDeviceCollection = PortableCollection2<QuintupletsSoA, QuintupletsOccupancySoA>;
+  using QuintupletsDeviceCollection = PortableCollection<QuintupletsSoABlocks>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 #endif

@@ -57,7 +57,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
     ~Producer() = default;
 
-    ZVertexSoACollection makeAsync(
+    reco::ZVertexSoACollection makeAsync(
         Queue &queue, TkSoAConstView const &tracks_view, int maxVertices, float ptMin, float ptMax) const;
 
   private:

@@ -10,9 +10,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testZVertexSoAT {
 
   class TestFillKernel {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  reco::ZVertexSoAView zvertex_view,
-                                  reco::ZVertexTracksSoAView ztracks_view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::ZVertexBlocksView view) const {
+      ::reco::ZVertexSoAView zvertex_view = view.zvertex();
+      ::reco::ZVertexTracksSoAView ztracks_view = view.zvertexTracks();
+
       if (cms::alpakatools::once_per_grid(acc)) {
         zvertex_view.nvFinal() = 420;
       }
@@ -33,9 +34,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testZVertexSoAT {
 
   class TestVerifyKernel {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  reco::ZVertexSoAView zvertex_view,
-                                  reco::ZVertexTracksSoAView ztracks_view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::ZVertexBlocksView view) const {
+      ::reco::ZVertexSoAView zvertex_view = view.zvertex();
+      ::reco::ZVertexTracksSoAView ztracks_view = view.zvertexTracks();
+
       if (cms::alpakatools::once_per_grid(acc)) {
         ALPAKA_ASSERT_ACC(zvertex_view.nvFinal() == 420);
       }
@@ -54,12 +56,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testZVertexSoAT {
     }
   };
 
-  void runKernels(reco::ZVertexSoAView zvertex_view, reco::ZVertexTracksSoAView ztracks_view, Queue& queue) {
+  void runKernels(::reco::ZVertexBlocksView view, Queue& queue) {
     uint32_t items = 64;
-    uint32_t groups = cms::alpakatools::divide_up_by(zvertex_view.metadata().size(), items);
+    uint32_t groups = cms::alpakatools::divide_up_by(view.zvertex().metadata().size(), items);
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
-    alpaka::exec<Acc1D>(queue, workDiv, TestFillKernel{}, zvertex_view, ztracks_view);
-    alpaka::exec<Acc1D>(queue, workDiv, TestVerifyKernel{}, zvertex_view, ztracks_view);
+    alpaka::exec<Acc1D>(queue, workDiv, TestFillKernel{}, view);
+    alpaka::exec<Acc1D>(queue, workDiv, TestVerifyKernel{}, view);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::testZVertexSoAT

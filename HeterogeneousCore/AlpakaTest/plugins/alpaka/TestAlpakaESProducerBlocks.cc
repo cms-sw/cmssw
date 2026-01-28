@@ -17,9 +17,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    * host ESProduct and converts the data into PortableHostMultiCollection, and
    * implicitly transfers the data product to device
    */
-  class TestAlpakaESProducerAMulti : public ESProducer {
+  class TestAlpakaESProducerBlocks : public ESProducer {
   public:
-    TestAlpakaESProducerAMulti(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
+    TestAlpakaESProducerBlocks(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
       auto cc = setWhatProduced(this);
       token_ = cc.consumes();
     }
@@ -29,17 +29,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       descriptions.addWithDefaultLabel(desc);
     }
 
-    std::optional<AlpakaESTestDataACMultiHost> produce(AlpakaESTestRecordA const& iRecord) {
+    std::optional<AlpakaESTestDataBlocksACHost> produce(AlpakaESTestRecordA const& iRecord) {
       auto const& input = iRecord.get(token_);
 
       int const sizeA = 10;
       int const sizeC = 100;
       // TODO: pinned allocation?
       // TODO: cached allocation?
-      AlpakaESTestDataACMultiHost product({{sizeA, sizeC}}, cms::alpakatools::host());
-      auto viewA = product.view<
-          cms::alpakatest::AlpakaESTestSoAA>();  // this template is not really needed as this is fhe first layout
-      auto viewC = product.view<cms::alpakatest::AlpakaESTestSoAC>();
+      AlpakaESTestDataBlocksACHost product(cms::alpakatools::host(), sizeA, sizeC);
+      auto viewA = product.view().testSoAA();  // this template is not really needed as this is fhe first layout
+      auto viewC = product.view().testSoAC();
 
       for (int i = 0; i < sizeA; ++i) {
         viewA[i].z() = input.value() - i;
@@ -57,4 +56,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(TestAlpakaESProducerAMulti);
+DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(TestAlpakaESProducerBlocks);

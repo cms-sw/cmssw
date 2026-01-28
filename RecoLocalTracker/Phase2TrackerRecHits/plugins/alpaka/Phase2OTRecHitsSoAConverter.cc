@@ -126,7 +126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const auto& stripHits = iEvent.get(recHitToken_);
 
     const auto& pixelHitsSoA = iEvent.get(pixelHitsSoA_);
-    int nPixelHits = pixelHitsSoA.view().metadata().size();
+    int nPixelHits = pixelHitsSoA.view().trackingHits().metadata().size();
 
     // Count strip hits and active strip modules
     const int nStripHits = stripHits.data().size();
@@ -149,7 +149,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         << "Total hits of PinOTBarrel:   " << PHitsInOTBarrel << '\n';
 
     Hits stripHitsSoA(queue, PHitsInOTBarrel, orderedModules_.size());
-    auto& stripHitsModuleView = stripHitsSoA.view<::reco::HitModuleSoA>();
+    auto stripHitsModuleView = stripHitsSoA.view().hitModules();
 
     std::vector<int> counterOfHitsPerModule(orderedModules_.size(), 0);
     assert(!orderedModules_.empty());
@@ -197,7 +197,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (detIdIsP_[detId]) {
             int idx = moduleHitIndex++;
             assert(idx < PHitsInOTBarrel);
-            auto hit = stripHitsSoA.view()[idx];
+            auto hit = stripHitsSoA.view().trackingHits()[idx];
             hit.xLocal() = recHit.localPosition().x();
             hit.yLocal() = recHit.localPosition().y();
             hit.xerrLocal() = recHit.localPositionError().xx();

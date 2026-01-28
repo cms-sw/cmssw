@@ -51,6 +51,7 @@ namespace caStructures {
   //Tracks data formats
   using TkSoAView = ::reco::TrackSoAView;
   using TkHitsSoAView = ::reco::TrackHitSoAView;
+  using TkSoABlocksView = ::reco::TrackBlocksView;
 
   //Indices for hits, tracks and cells
   using hindex_type = uint32_t;

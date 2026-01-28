@@ -5,6 +5,6 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 
 namespace lst {
-  using MiniDoubletsHostCollection = PortableHostMultiCollection<MiniDoubletsSoA, MiniDoubletsOccupancySoA>;
+  using MiniDoubletsHostCollection = PortableHostCollection<MiniDoubletsSoABlocks>;
 }  // namespace lst
 #endif

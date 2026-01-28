@@ -128,8 +128,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     auto nStrips = algo_.unpackStrips(iEvent.queue(), stripDataCond.const_data());
     if (nStrips == 0) {
       // No strips to unpack, empty cluster collection
-      iEvent.emplace(stripClustPutToken_, 0, iEvent.queue());
-      iEvent.emplace(stripDigiPutToken_, 0, iEvent.queue());
+      iEvent.emplace(stripClustPutToken_, iEvent.queue(), 0);
+      iEvent.emplace(stripDigiPutToken_, iEvent.queue(), 0);
     } else {
       // Run the clusterization algorithm (ThreeThresholdAlgorithm)
       auto cluster_d = algo_.makeClusters(iEvent.queue(), stripDataCond.const_data());

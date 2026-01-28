@@ -50,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       auto geom = iRecord.getTransientHandle(geometryToken_);
-      SiPixelMappingHost product(pixelgpudetails::MAX_SIZE, cms::alpakatools::host());
+      SiPixelMappingHost product(cms::alpakatools::host(), pixelgpudetails::MAX_SIZE);
       std::vector<unsigned int> const& fedIds = cablingMap->fedIds();
       std::unique_ptr<SiPixelFedCablingTree> const& cabling = cablingMap->cablingTree();
 

@@ -1,4 +1,4 @@
 #include "DataFormats/Portable/interface/PortableHostCollectionReadRules.h"
 #include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 
-SET_PORTABLEHOSTMULTICOLLECTION_READ_RULES(ZVertexHost);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(reco::ZVertexHost);

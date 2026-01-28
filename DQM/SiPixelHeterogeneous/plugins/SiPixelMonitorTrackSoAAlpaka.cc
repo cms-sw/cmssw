@@ -83,17 +83,17 @@ void SiPixelMonitorTrackSoAAlpaka::analyze(const edm::Event& iEvent, const edm::
   }
 
   auto const& tsoa = *tsoaHandle.product();
-  auto maxTracks = tsoa.view().metadata().size();
-  auto const quality = tsoa.view().quality();
+  auto maxTracks = tsoa.view().tracks().metadata().size();
+  auto const quality = tsoa.view().tracks().quality();
   int32_t nTracks = 0;
   int32_t nLooseAndAboveTracks = 0;
 
   for (int32_t it = 0; it < maxTracks; ++it) {
-    auto nHits = reco::nHits(tsoa.const_view(), it);
-    auto nLayers = tsoa.view()[it].nLayers();
+    auto nHits = reco::nHits(tsoa.const_view().tracks(), it);
+    auto nLayers = tsoa.view().tracks()[it].nLayers();
     if (nHits == 0)
       break;  // this is a guard
-    float pt = tsoa.view()[it].pt();
+    float pt = tsoa.view().tracks()[it].pt();
     if (!(pt > 0.))
       continue;
 
@@ -106,13 +106,13 @@ void SiPixelMonitorTrackSoAAlpaka::analyze(const edm::Event& iEvent, const edm::
       continue;
 
     // fill parameters only for quality >= loose
-
-    float chi2 = tsoa.view()[it].chi2();
-    float phi = tsoa.view()[it].state()(0);  //TODO: put these numbers in enum
-    float zip = tsoa.view()[it].state()(4);
-    float eta = tsoa.view()[it].eta();
-    float tip = tsoa.view()[it].state()(1);
-    auto charge = reco::charge(tsoa.view(), it);
+    auto track = tsoa.view().tracks()[it];
+    float chi2 = track.chi2();
+    float phi = track.state()(0);  //TODO: put these numbers in enum
+    float zip = track.state()(4);
+    float eta = track.eta();
+    float tip = track.state()(1);
+    auto charge = reco::charge(tsoa.view().tracks(), it);
 
     hchi2->Fill(chi2);
     hChi2VsPhi->Fill(phi, chi2);
