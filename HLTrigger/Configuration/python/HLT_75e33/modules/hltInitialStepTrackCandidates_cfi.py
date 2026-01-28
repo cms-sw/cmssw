@@ -86,4 +86,22 @@ from Configuration.ProcessModifiers.hltTrackingMkFitInitialStep_cff import hltTr
 (~(singleIterPatatrack & seedingLST) & trackingLST).toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesLST)
 (singleIterPatatrack & trackingLST & seedingLST).toModify(hltInitialStepTrackCandidates, src = "hltInitialStepTrajectorySeedsLST") # All LST seeds
 (~seedingLST & ~trackingLST & hltTrackingMkFitInitialStep).toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesMkFit)
-(singleIterPatatrack & seedingLST & trackingLST & hltTrackingMkFitInitialStep).toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesMkFitLSTSeeds)
+_singlePataLSTMkFit = singleIterPatatrack & trackingLST & seedingLST & hltTrackingMkFitInitialStep
+_singlePataLSTMkFit.toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesMkFitLSTSeeds)
+
+# Supported combinations for LST CPU vs. GPU validation
+# The default hltInitialStepTrackCandidatesSerialSync is defined
+# for the _singlePataLSTMkFit procModifier combination.
+# Avoids config duplication warnings.
+hltInitialStepTrackCandidatesSerialSync = _hltInitialStepTrackCandidatesMkFitLSTSeeds.clone(
+    mkFitSeeds = "hltInitialStepMkFitSeedsSerialSync",
+    seeds = "hltInitialStepTrajectorySeedsLSTSerialSync",
+    tracks = "hltInitialStepTrackCandidatesMkFitSerialSync",
+)
+(singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltInitialStepTrackCandidatesSerialSync,
+    _hltInitialStepTrackCandidatesLST.clone(
+        lstOutput = "hltLSTSerialSync",
+        lstInput = "hltInputLSTSerialSync",
+        lstPixelSeeds = "hltInputLSTSerialSync"
+    )
+)

@@ -17,3 +17,7 @@ hltInitialStepTrackCandidatesMkFit = cms.EDProducer("MkFitProducer",
         seeds = cms.InputTag("hltInitialStepMkFitSeeds"),
         stripHits = cms.InputTag("hltMkFitSiPhase2Hits")
 )
+
+hltInitialStepTrackCandidatesMkFitSerialSync = hltInitialStepTrackCandidatesMkFit.clone(
+    seeds = "hltInitialStepMkFitSeedsSerialSync"
+)

@@ -19,3 +19,9 @@ hltInitialStepTrajectorySeedsLST = cms.EDProducer('LSTOutputConverter',
         forceKinematicWithRegionDirection = cms.bool(False)
     )
 )
+
+hltInitialStepTrajectorySeedsLSTSerialSync = hltInitialStepTrajectorySeedsLST.clone(
+    lstOutput = "hltLSTSerialSync",
+    lstInput = "hltInputLSTSerialSync",
+    lstPixelSeeds = "hltInputLSTSerialSync"
+)

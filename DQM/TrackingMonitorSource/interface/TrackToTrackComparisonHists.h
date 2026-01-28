@@ -105,6 +105,7 @@ private:
   double dxyCutForPlateau_;
   double dzWRTPvCut_;
   bool requireValidHLTPaths_;
+  bool ignoreLumiPUPlots_;
   bool hltPathsAreValid_ = false;
   std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_;
 

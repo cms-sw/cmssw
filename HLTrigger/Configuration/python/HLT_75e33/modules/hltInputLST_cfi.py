@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
 
 hltInputLST = cms.EDProducer('LSTInputProducer@alpaka',
     ptCut = cms.double(0.8),
@@ -19,6 +20,8 @@ _hltInputLSTSingleIterPatatrack = hltInputLST.clone(
 
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 singleIterPatatrack.toReplaceWith(hltInputLST, _hltInputLSTSingleIterPatatrack)
+
+hltInputLSTSerialSync = makeSerialClone(hltInputLST)
 
 _hltInputLSTNGTScouting = hltInputLST.clone(
     seedTracks = ['hltInitialStepSeedTracksLST']
