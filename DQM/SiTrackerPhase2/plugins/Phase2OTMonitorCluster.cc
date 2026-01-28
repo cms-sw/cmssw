@@ -185,8 +185,8 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
           }
         }
         if (tTopo_->getOTLayerNumber(rawid) < 100) {
-          if (local_mes.PositionOfClusters_2SLadder[module] != nullptr) {
-            unsigned int ladder = tTopo_->tobRod(rawid);
+          unsigned int ladder = tTopo_->tobRod(rawid);
+          if (local_mes.PositionOfClusters_2SLadder[ladder] != nullptr) {
             //Change the module nums from 1 - 24 to -12 - 12 so that ladder 'before' the collision point is negative
             local_mes.PositionOfClusters_2SLadder[ladder]->Fill((module < 13 ? module - 13 : module - 12),
                                                                 topOrBottomColumn);

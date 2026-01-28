@@ -44,7 +44,7 @@ public:
   ~Phase2ITValidateRecHitBase() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+  static void fillPSetDescription(edm::ParameterSetDescription& desc, bool tracking);
 
 protected:
   void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir);

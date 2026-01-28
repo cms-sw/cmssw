@@ -53,7 +53,7 @@ public:
                           std::map<std::string, unsigned int>& nrechitLayerMapP_primary,
                           std::map<std::string, unsigned int>& nrechitLayerMapS_primary);
 
-  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+  static void fillPSetDescription(edm::ParameterSetDescription& desc, bool tracking);
   void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir);
 
 protected:

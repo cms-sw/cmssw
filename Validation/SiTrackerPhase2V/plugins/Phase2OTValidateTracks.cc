@@ -80,6 +80,8 @@ public:
   MonitorElement *trackParts_Eta = nullptr;
   MonitorElement *trackParts_Phi = nullptr;
   MonitorElement *trackParts_Pt = nullptr;
+  MonitorElement *n_trackParts = nullptr;
+  unsigned int nTrackParts = 0;
 
   // pT and eta for efficiency plots
   MonitorElement *tp_pt = nullptr;             // denominator
@@ -540,6 +542,7 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
       trackParts_Pt->Fill(tmp_tp_pt);
       trackParts_Eta->Fill(tmp_tp_eta);
       trackParts_Phi->Fill(tmp_tp_phi);
+      nTrackParts++;
     }
 
     // if (TP_select_eventid == 0 && tmp_eventid != 0)
@@ -620,6 +623,8 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
                              iEvent);  // Regular L1 Tracks
     }
   }  // end loop over tracking particles
+  n_trackParts->Fill(nTrackParts);
+  nTrackParts = 0;
 }  // end of method
 
 // ------------ method called once each job just before starting event loop
@@ -644,6 +649,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   edm::ParameterSet psRes_z0 = conf_.getParameter<edm::ParameterSet>("TH1Res_z0");
   edm::ParameterSet psRes_d0 = conf_.getParameter<edm::ParameterSet>("TH1Res_d0");
   edm::ParameterSet psRes_displaced_d0 = conf_.getParameter<edm::ParameterSet>("TH1Resdisplaced_d0");
+  edm::ParameterSet n_trackParticles = conf_.getParameter<edm::ParameterSet>("n_trackParticles");
   // Histogram setup and definitions
   std::string HistoName;
   iBooker.setCurrentFolder(topFolderName_ + "/trackParticles");
@@ -677,6 +683,14 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
                                   psTrackParts_Phi.getParameter<double>("xmax"));
   trackParts_Phi->setAxisTitle("#phi", 1);
   trackParts_Phi->setAxisTitle("# tracking particles", 2);
+
+  HistoName = "n_trackParts";
+  n_trackParts = iBooker.book1D(HistoName,
+                                HistoName,
+                                n_trackParticles.getParameter<int32_t>("Nbinsx"),
+                                n_trackParticles.getParameter<double>("xmin"),
+                                n_trackParticles.getParameter<double>("xmax"));
+  n_trackParts->setAxisTitle("# track particles per event", 1);
 
   // 1D plots for nominal collection efficiency
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/EfficiencyIngredients");
@@ -1432,6 +1446,13 @@ void Phase2OTValidateTracks::fillDescriptions(edm::ConfigurationDescriptions &de
     psd0.add<double>("xmax", 2.0);
     psd0.add<double>("xmin", -2.0);
     desc.add<edm::ParameterSetDescription>("TH1Resdisplaced_d0", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<int>("Nbinsx", 100);
+    psd0.add<double>("xmax", 600.0);
+    psd0.add<double>("xmin", 0.0);
+    desc.add<edm::ParameterSetDescription>("n_trackParticles", psd0);
   }
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1TrackV");
   desc.add<edm::InputTag>("trackingParticleToken", edm::InputTag("mix", "MergedTrackTruth"));

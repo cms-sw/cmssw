@@ -188,7 +188,7 @@ void Phase2OTValidateRecHit::fillOTHistos(const edm::Event& iEvent,
 void Phase2OTValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // call the base fillPsetDescription for the plots bookings
-  Phase2OTValidateRecHitBase::fillPSetDescription(desc);
+  Phase2OTValidateRecHitBase::fillPSetDescription(desc, false);
 
   //for macro-pixel sensors
   ///////
