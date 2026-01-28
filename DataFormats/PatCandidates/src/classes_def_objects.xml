@@ -320,9 +320,19 @@
   <class name="pat::Conversion"  ClassVersion="11">
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
-  <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
+  <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="4">
+   <version ClassVersion="4" checksum="2490965287"/>
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
+  <ioread sourceClass="pat::PackedCandidate::PackedCovariance" source="int16_t dxydz;int16_t dzdz;int16_t dlambdadz;" version="[-3]" targetClass="pat::PackedCandidate::PackedCovariance"
+         target="dxydsz,dszdsz,dlambdadsz" embed="false">
+	<![CDATA[
+	 dxydsz = onfile.dxydz;
+	 dszdsz = onfile.dzdz;
+	 dlambdadsz = onfile.dlambdadz;
+	]]>
+   </ioread>
+
   <class name="pat::PackedCandidate" ClassVersion="35">
    <version ClassVersion="35" checksum="2065846728"/>
    <version ClassVersion="34" checksum="3953181632"/>
@@ -387,10 +397,10 @@
    target="packedCovariance_" embed="false" >
    <![CDATA[
             packedCovariance_.dxydxy = onfile.packedCovarianceDxyDxy_;
-            packedCovariance_.dxydz = onfile.packedCovarianceDxyDz_;
-	    packedCovariance_.dzdz = onfile.packedCovarianceDzDz_;
-	    packedCovariance_.dlambdadz = onfile.packedCovarianceDlambdaDz_;
-	    packedCovariance_.dphidxy = onfile.packedCovarianceDphiDxy_;
+            packedCovariance_.dxydsz = onfile.packedCovarianceDxyDz_;
+            packedCovariance_.dszdsz = onfile.packedCovarianceDzDz_;
+            packedCovariance_.dlambdadsz = onfile.packedCovarianceDlambdaDz_;
+            packedCovariance_.dphidxy = onfile.packedCovarianceDphiDxy_;
             packedCovariance_.dptdpt = onfile.packedCovarianceDptDpt_;
             packedCovariance_.detadeta = onfile.packedCovarianceDetaDeta_;
             packedCovariance_.dphidphi = onfile.packedCovarianceDphiDphi_;
