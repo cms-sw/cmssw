@@ -56,7 +56,7 @@ class IntegratedCalibrationBase;
 class MillePedeMonitor;
 class PedeSteerer;
 class PedeLabelerBase;
-namespace Mille{
+namespace Mille {
   class MilleRecord;
 }
 class TrajectoryFactoryBase;
@@ -202,7 +202,7 @@ private:
                                     const TrajectoryStateOnSurface &tsos,
                                     const edm::EventSetup &setup,
                                     const EventInfo &eventInfo,
-                                  std::vector<float> &globalDerivativesX,
+                                    std::vector<float> &globalDerivativesX,
                                     std::vector<float> &globalDerivativesY,
                                     std::vector<int> &globalLabels) const;
 
@@ -267,10 +267,10 @@ private:
   void addLasBeam(const EventInfo &eventInfo,
                   const TkFittedLasBeam &lasBeam,
                   const std::vector<TrajectoryStateOnSurface> &tsoses);
-  
+
   // ensure our local label vector for Mille has the expected
-  // size and content. 
-  void prepareLocalLabels(size_t nLocal); 
+  // size and content.
+  void prepareLocalLabels(size_t nLocal);
 
   /// add measurement data from PXB survey
   void addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg);
@@ -318,7 +318,7 @@ private:
   std::vector<float> theFloatBufferX;
   std::vector<float> theFloatBufferY;
   std::vector<int> theIntBuffer;
-  std::vector<unsigned int> theLocalLabelBuffer_={}; 
+  std::vector<unsigned int> theLocalLabelBuffer_ = {};
   bool theDoSurveyPixelBarrel;
   bool theGblDoubleBinary;
 
