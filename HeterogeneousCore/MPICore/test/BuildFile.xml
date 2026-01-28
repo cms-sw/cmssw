@@ -1,6 +1,6 @@
-<bin name="testMPI" file="testMPI.cc">
+<bin name="MPITestLauncher" file="MPITestLauncher.cc">
     <use name="mpi"/>
-    <flags TEST_RUNNER_CMD="mpirun -np 4 testMPI -s 1000 -r 12345 -n 10"/>
+    <flags TEST_RUNNER_CMD="mpirun -n 4 MPITestLauncher --size 1000 --iterations 10 --tests all"/>
 </bin>
 
 <test name="testMPIEventId" command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py"/>
