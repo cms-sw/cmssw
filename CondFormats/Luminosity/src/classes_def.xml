@@ -7,4 +7,5 @@
  <class name="std::vector< lumi::TriggerInfo >"/>
  <class name="std::vector< lumi::BunchCrossingInfo >"/>
  <class name="LumiCorrections" class_version="0"/>
+ <class name="PccVetoList"/>
 </lcgdict>  
