@@ -2,6 +2,8 @@
 function die { echo $1: status $2 ; exit $2; }
 
 echo " TESTING data set skimming"
+# Added a new line for old bot testing
+
 # skim the predefined data set
 python3 $CMSSW_BASE/src/Alignment/APEEstimation/test/SkimProducer/startSkim.py -s UnitTest || die "Failure skimming data set" $?
 
