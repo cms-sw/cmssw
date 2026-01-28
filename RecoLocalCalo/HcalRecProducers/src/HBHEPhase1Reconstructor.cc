@@ -58,6 +58,9 @@
 #include "CondFormats/HcalObjects/interface/HBHENegativeEFilter.h"
 #include "CondFormats/DataRecord/interface/HBHENegativeEFilterRcd.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapeLookup.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalPulseShapeLookupRcd.h"
+
 // Parser for Phase 1 HB/HE reco algorithms
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHBHEPhase1AlgoDescription.h"
 
@@ -295,6 +298,7 @@ private:
 
   // Configuration parameters
   std::string algoConfigClass_;
+  std::string channelShapesLabel_;
   bool processQIE8_;
   bool processQIE11_;
   bool saveInfos_;
@@ -305,6 +309,7 @@ private:
   bool recoParamsFromDB_;
   bool saveEffectivePedestal_;
   bool use8ts_;
+  bool useChannelShapes_;
   int sipmQTSShift_;
   int sipmQNTStoSum_;
 
@@ -336,6 +341,7 @@ private:
   edm::ESGetToken<HcalChannelPropertiesVec, HcalChannelPropertiesRecord> propertiesToken_;
   edm::ESGetToken<HBHENegativeEFilter, HBHENegativeEFilterRcd> negToken_;
   edm::ESGetToken<HcalFrontEndMap, HcalFrontEndMapRcd> feMapToken_;
+  edm::ESGetToken<HcalPulseShapeLookup, HcalPulseShapeLookupRcd> pulseShapesToken_;
 
   // For the function below, arguments "infoColl" and/or "rechits"
   // are allowed to be null.
@@ -372,6 +378,7 @@ private:
 //
 HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
     : algoConfigClass_(conf.getParameter<std::string>("algoConfigClass")),
+      channelShapesLabel_(conf.getParameter<std::string>("channelShapesLabel")),
       processQIE8_(conf.getParameter<bool>("processQIE8")),
       processQIE11_(conf.getParameter<bool>("processQIE11")),
       saveInfos_(conf.getParameter<bool>("saveInfos")),
@@ -382,6 +389,7 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       recoParamsFromDB_(conf.getParameter<bool>("recoParamsFromDB")),
       saveEffectivePedestal_(conf.getParameter<bool>("saveEffectivePedestal")),
       use8ts_(conf.getParameter<bool>("use8ts")),
+      useChannelShapes_(conf.getParameter<bool>("useChannelShapes")),
       sipmQTSShift_(conf.getParameter<int>("sipmQTSShift")),
       sipmQNTStoSum_(conf.getParameter<int>("sipmQNTStoSum")),
       setNegativeFlagsQIE8_(conf.getParameter<bool>("setNegativeFlagsQIE8")),
@@ -442,6 +450,9 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
     negToken_ = esConsumes<HBHENegativeEFilter, HBHENegativeEFilterRcd>();
   if (setNoiseFlagsQIE8_ || setNoiseFlagsQIE11_)
     feMapToken_ = esConsumes<HcalFrontEndMap, HcalFrontEndMapRcd, edm::Transition::BeginRun>();
+  if (useChannelShapes_)
+    pulseShapesToken_ = esConsumes<HcalPulseShapeLookup, HcalPulseShapeLookupRcd, edm::Transition::BeginRun>(
+        edm::ESInputTag("", channelShapesLabel_));
 }
 
 HBHEPhase1Reconstructor::~HBHEPhase1Reconstructor() {
@@ -744,6 +755,15 @@ void HBHEPhase1Reconstructor::beginRun(edm::Run const& r, edm::EventSetup const&
           << "Failed to configure HBHEPhase1Algo algorithm from EventSetup" << std::endl;
   }
 
+  if (useChannelShapes_) {
+    if (auto handle = es.getHandle(pulseShapesToken_)) {
+      const HcalPulseShapeLookup& lookup = *handle;
+      reco_->setPulseShapes(&lookup);
+    } else {
+      edm::LogWarning("EventSetup") << "HBHEPhase1Reconstructor failed to get HcalPulseShapeLookup!" << std::endl;
+    }
+  }
+
   if (setNoiseFlagsQIE8_ || setNoiseFlagsQIE11_) {
     if (auto handle = es.getHandle(feMapToken_)) {
       const HcalFrontEndMap& hfemap = *handle;
@@ -777,6 +797,7 @@ void HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("saveInfos", false);
   desc.add<bool>("saveDroppedInfos", false);
   desc.add<bool>("use8ts", true);
+  desc.add<bool>("useChannelShapes", false);
   desc.add<int>("sipmQTSShift", 0);
   desc.add<int>("sipmQNTStoSum", 3);
   {
@@ -840,9 +861,11 @@ void HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& d
     psd0.add<bool>("useM3", true);
     psd0.add<bool>("useMahi", true);
     psd0.add<bool>("applyLegacyHBMCorrection", true);
+    psd0.add<bool>("useChannelPulseShapesForMC", false);
     desc.add<edm::ParameterSetDescription>("algorithm", psd0);
   }
   desc.add<std::string>("algoConfigClass", "");
+  desc.add<std::string>("channelShapesLabel", "HcalDataShapes");
   desc.add<bool>("setNegativeFlagsQIE8", true);
   desc.add<bool>("setNegativeFlagsQIE11", false);
   desc.add<bool>("setNoiseFlagsQIE8", true);
