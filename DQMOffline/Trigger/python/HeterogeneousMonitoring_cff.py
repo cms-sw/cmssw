@@ -97,11 +97,11 @@ hltHcalGPUComparisonTask = hcalGPUComparisonTask.clone(
 HLTHeterogeneousMonitoringSequence = cms.Sequence(
     hltPfHcalGPUComparisonTask +
     hltSiPixelPhase1CompareDigiErrors +
-    #hltSiPixelPhase1CompareRecHits +   # waiting a resolution of #49349
+    hltSiPixelPhase1CompareRecHits +
     hltSiPixelPhase1CompareTracks +
     hltSiPixelCompareVertices +
     hltEcalMonitorTask +
-    hltHcalGPUComparisonTask    
+    hltHcalGPUComparisonTask
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
