@@ -3,39 +3,36 @@
   <class name="edm::Wrapper<std::map <int,std::pair<double,double> > >"/> 
 
   <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="3796960819"/>
+   <version ClassVersion="3" checksum="369629847"/>
   </class>
   <class name="reco::IsolatedPixelTrackCandidateCollection"/>
   <class name="reco::IsolatedPixelTrackCandidateRef"/>
   <class name="reco::IsolatedPixelTrackCandidateRefVector"/>
   <class name="reco::IsolatedPixelTrackCandidateRefProd"/>
   <class name="edm::Wrapper<reco::IsolatedPixelTrackCandidateCollection>"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >" />
   <class name="edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >"/>
 
-  <class name="reco::EcalIsolatedParticleCandidate" ClassVersion="13">
-   <version ClassVersion="13" checksum="929444430"/>
-   <version ClassVersion="12" checksum="554168470"/>
-   <version ClassVersion="10" checksum="4174683084"/>
-   <version ClassVersion="11" checksum="928263435"/>
+  <class name="reco::EcalIsolatedParticleCandidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="36843570"/>
   </class>
   <class name="reco::EcalIsolatedParticleCandidateCollection"/>
   <class name="reco::EcalIsolatedParticleCandidateRef"/>
   <class name="reco::EcalIsolatedParticleCandidateRefVector"/>
   <class name="reco::EcalIsolatedParticleCandidateRefProd"/>
   <class name="edm::Wrapper<reco::EcalIsolatedParticleCandidateCollection>"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::EcalIsolatedParticleCandidate>,reco::EcalIsolatedParticleCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::EcalIsolatedParticleCandidate>,reco::EcalIsolatedParticleCandidate> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<reco::EcalIsolatedParticleCandidate>,reco::EcalIsolatedParticleCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::EcalIsolatedParticleCandidate>,reco::EcalIsolatedParticleCandidate> > >" />
 
   <class name="reco::HcalIsolatedTrackCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="201453806"/>
+   <version ClassVersion="3" checksum="3839867770"/>
   </class>
   <class name="reco::HcalIsolatedTrackCandidateCollection"/>
   <class name="reco::HcalIsolatedTrackCandidateRef"/>
   <class name="reco::HcalIsolatedTrackCandidateRefVector"/>
   <class name="reco::HcalIsolatedTrackCandidateRefProd"/>
   <class name="edm::Wrapper<reco::HcalIsolatedTrackCandidateCollection>"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate> > >" />
   <class name="edm::Ref<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate> > >"/>
 

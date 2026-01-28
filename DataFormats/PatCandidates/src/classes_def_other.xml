@@ -24,22 +24,22 @@
   <class name="edm::Wrapper<StringMap>" />
 
   <class name="pat::VertexAssociation"  ClassVersion="3">
-   <version ClassVersion="3" checksum="3351303165"/>
+   <version ClassVersion="3" checksum="21244477"/>
   </class>
   <class name="std::vector<pat::VertexAssociation>" />
   <class name="edm::ValueMap<pat::VertexAssociation>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::VertexAssociation> >" />
 
-  <class name="pat::EventHypothesis"  ClassVersion="10">
-   <version ClassVersion="10" checksum="1415498305"/>
+  <class name="pat::EventHypothesis"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3601051829"/>
   </class>
   <class name="std::vector<pat::EventHypothesis>" />
 
   <class name="edm::Wrapper<std::vector<pat::EventHypothesis> >" />
 
   <enum name ="pat::IsolationKeys" />
-  <class name="std::pair<pat::IsolationKeys,reco::IsoDeposit>" />
-  <class name="std::vector<std::pair<pat::IsolationKeys,reco::IsoDeposit> >" />
+  <class name="std::pair<pat::IsolationKeys,reco::io_v1::IsoDeposit>" />
+  <class name="std::vector<std::pair<pat::IsolationKeys,reco::io_v1::IsoDeposit> >" />
 
   <class name="pat::LookupTableRecord"  ClassVersion="10">
    <version ClassVersion="10" checksum="3701346054"/>

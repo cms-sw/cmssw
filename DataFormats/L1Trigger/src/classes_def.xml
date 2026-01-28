@@ -1,8 +1,6 @@
 <lcgdict>
-  <class name="l1t::L1Candidate" ClassVersion="12">
-   <version ClassVersion="12" checksum="939575486"/>
-   <version ClassVersion="11" checksum="2395983446"/>
-   <version ClassVersion="10" checksum="3629668391"/>
+  <class name="l1t::L1Candidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="4267141578"/>
   </class>
   <class name="l1t::L1CandidateBxCollection"/>
   <class name="edm::Wrapper<l1t::L1CandidateBxCollection>"/>
@@ -16,9 +14,8 @@
 
 
   <class name="l1t::P2GTCandidate::Optional<int>"/>
-  <class name="l1t::P2GTCandidate" ClassVersion="11">
-    <version ClassVersion="11" checksum="2947772579"/>
-    <version ClassVersion="10" checksum="2728416623"/>
+  <class name="l1t::P2GTCandidate" ClassVersion="3">
+    <version ClassVersion="3" checksum="2509933543"/>
   </class>
   <class name="l1t::P2GTCandidateCollection"/>
   <class name="edm::Wrapper<l1t::P2GTCandidateCollection>"/>
@@ -37,11 +34,8 @@
   <class name="edm::Wrapper<l1t::P2GTAlgoBlockMap>"/>
 
 
-  <class name="l1t::Jet" ClassVersion="13">
-   <version ClassVersion="13" checksum="3915457337"/>
-   <version ClassVersion="12" checksum="380555501"/>
-   <version ClassVersion="11" checksum="1836963461"/>
-   <version ClassVersion="10" checksum="4108627301"/>
+  <class name="l1t::Jet" ClassVersion="3">
+   <version ClassVersion="3" checksum="1812905789"/>
   </class>
   <class name="l1t::JetBxCollection"/>
   <class name="edm::Wrapper<l1t::JetBxCollection>"/>
@@ -61,12 +55,8 @@
   <class name="std::vector<l1t::TkTripletWord>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkTripletWord> >"/>
 
-  <class name="l1t::EGamma" ClassVersion="14">
-   <version ClassVersion="14" checksum="1235149790"/>
-   <version ClassVersion="13" checksum="2044674704"/>
-   <version ClassVersion="12" checksum="1332125006"/>
-   <version ClassVersion="11" checksum="2788532966"/>
-   <version ClassVersion="10" checksum="130849840"/>
+  <class name="l1t::EGamma" ClassVersion="3">
+   <version ClassVersion="3" checksum="80208738"/>
   </class>
   <class name="l1t::EGammaBxCollection"/>
   <class name="std::vector<l1t::EGamma>"/>
@@ -78,11 +68,8 @@
   <class name="l1t::EGammaVectorRef"/>
   <class name="edm::Wrapper<l1t::EGammaVectorRef>"/>
 
-  <class name="l1t::EtSum" ClassVersion="13">
-   <version ClassVersion="13" checksum="914893879"/>
-   <version ClassVersion="12" checksum="2853072620"/>
-   <version ClassVersion="11" checksum="2043464580"/>
-   <version ClassVersion="10" checksum="3389025278"/>
+  <class name="l1t::EtSum" ClassVersion="3">
+   <version ClassVersion="3" checksum="621331451"/>
   </class>
   <class name="l1t::EtSumBxCollection"/>
   <class name="std::vector<l1t::EtSum>"/>
@@ -101,11 +88,8 @@
   <class name="l1t::EtSumVectorP2Ref"/>
   <class name="edm::Wrapper<l1t::EtSumVectorP2Ref>"/>
 
-  <class name="l1t::Tau" ClassVersion="13">
-   <version ClassVersion="13" checksum="3236083459"/>
-   <version ClassVersion="12" checksum="1992693786"/>
-   <version ClassVersion="11" checksum="3449101746"/>
-   <version ClassVersion="10" checksum="3214350964"/>
+  <class name="l1t::Tau" ClassVersion="3">
+   <version ClassVersion="3" checksum="3417165519"/>
   </class>
   <class name="l1t::TauBxCollection"/>
   <class name="std::vector<l1t::Tau>"/>
@@ -117,16 +101,8 @@
   <class name="l1t::TauVectorRef"/>
   <class name="edm::Wrapper<l1t::TauVectorRef>"/>
 
-  <class name="l1t::Muon" ClassVersion="18">
-   <version ClassVersion="18" checksum="2723313197"/>
-   <version ClassVersion="17" checksum="3946815604"/>
-   <version ClassVersion="16" checksum="1302394108"/>
-   <version ClassVersion="15" checksum="957467775"/>
-   <version ClassVersion="14" checksum="1302394108"/>
-   <version ClassVersion="13" checksum="957467775"/>
-   <version ClassVersion="12" checksum="2662600115"/>
-   <version ClassVersion="11" checksum="2449295419"/>
-   <version ClassVersion="10" checksum="1956355507"/>
+  <class name="l1t::Muon" ClassVersion="3">
+   <version ClassVersion="3" checksum="2524012369"/>
   </class>
   <class name="edm::Ptr<l1t::Muon>"/>
   <class name="l1t::MuonBxCollection"/>
@@ -139,11 +115,8 @@
   <class name="l1t::MuonVectorRef"/>
   <class name="edm::Wrapper<l1t::MuonVectorRef>"/>
 
-  <class name="l1t::MuonShower" ClassVersion="13">
-   <version ClassVersion="13" checksum="39793345"/>
-   <version ClassVersion="12" checksum="2452991184"/>
-   <version ClassVersion="11" checksum="3610959089"/>
-   <version ClassVersion="10" checksum="3869296059"/>
+  <class name="l1t::MuonShower" ClassVersion="3">
+   <version ClassVersion="3" checksum="3216123309"/>
   </class>
   <class name="edm::Ptr<l1t::MuonShower>"/>
   <class name="l1t::MuonShowerBxCollection"/>
@@ -156,38 +129,24 @@
   <class name="l1t::MuonShowerVectorRef"/>
   <class name="edm::Wrapper<l1t::MuonShowerVectorRef>"/>
 
-  <class name="l1t::CaloSpare" ClassVersion="13">
-   <version ClassVersion="13" checksum="50826133"/>
-   <version ClassVersion="12" checksum="3118488206"/>
-   <version ClassVersion="11" checksum="2308880166"/>
-   <version ClassVersion="10" checksum="3477497140"/>
+  <class name="l1t::CaloSpare" ClassVersion="3">
+   <version ClassVersion="3" checksum="2428051929"/>
   </class>
   <class name="l1t::CaloSpareBxCollection"/>
   <class name="std::vector<l1t::CaloSpare>"/>
   <class name="edm::Wrapper<l1t::CaloSpareBxCollection>"/>
 
-  <class name="l1extra::L1EmParticle" ClassVersion="13">
-   <version ClassVersion="13" checksum="3236372598"/>
-   <version ClassVersion="12" checksum="3931086678"/>
-   <version ClassVersion="11" checksum="711885342"/>
-   <version ClassVersion="10" checksum="2019457791"/>
+  <class name="l1extra::L1EmParticle" ClassVersion="3">
+   <version ClassVersion="3" checksum="1758571202"/>
   </class>
-  <class name="l1extra::L1JetParticle" ClassVersion="13">
-   <version ClassVersion="13" checksum="2428218521"/>
-   <version ClassVersion="12" checksum="4036782287"/>
-   <version ClassVersion="11" checksum="979511831"/>
-   <version ClassVersion="10" checksum="2992828146"/>
+  <class name="l1extra::L1JetParticle" ClassVersion="3">
+   <version ClassVersion="3" checksum="3147792133"/>
   </class>
-  <class name="l1extra::L1MuonParticle" ClassVersion="12">
-   <version ClassVersion="12" checksum="3630739036"/>
-   <version ClassVersion="11" checksum="3788189108"/>
-   <version ClassVersion="10" checksum="404862417"/>
+  <class name="l1extra::L1MuonParticle" ClassVersion="3">
+   <version ClassVersion="3" checksum="2101229128"/>
   </class>
-  <class name="l1extra::L1EtMissParticle" ClassVersion="13">
-   <version ClassVersion="13" checksum="2570765761"/>
-   <version ClassVersion="12" checksum="3702781837"/>
-   <version ClassVersion="11" checksum="2391271061"/>
-   <version ClassVersion="10" checksum="256436604"/>
+  <class name="l1extra::L1EtMissParticle" ClassVersion="3">
+   <version ClassVersion="3" checksum="878707437"/>
   </class>
   <class name="l1extra::L1ParticleMap" ClassVersion="11">
    <version ClassVersion="11" checksum="3029280877"/>
@@ -239,15 +198,15 @@
 
   <class name="edm::RefProd<l1extra::L1EtMissParticle>"/>
 
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> > >" />
 
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> > >" />
 
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> > >" />
 
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle> > >" />
 
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::RefProd<l1extra::L1EtMissParticle> >"/>
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::RefProd<l1extra::L1EtMissParticle> >"/>
 
   <class name="std::vector<l1extra::L1ParticleMap::L1ObjectType>"/>
 

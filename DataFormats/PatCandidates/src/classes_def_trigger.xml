@@ -1,10 +1,8 @@
 <lcgdict>
  <selection>
 
-  <class name="pat::TriggerObject"  ClassVersion="12">
-   <version ClassVersion="12" checksum="2628734905"/>
-   <version ClassVersion="11" checksum="2574350865"/>
-   <version ClassVersion="10" checksum="2299474032"/>
+  <class name="pat::TriggerObject"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2359969177"/>
   </class>
   <class name="std::vector&lt;pat::TriggerObject&gt;" />
   <class name="std::vector&lt;pat::TriggerObject&gt;::const_iterator" />
@@ -17,7 +15,7 @@
   <class name="pat::TriggerObjectRefVector" />
   <class name="pat::TriggerObjectRefVectorIterator" />
   <class name="edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt;" />
-  <class name="edm::reftobase::Holder&lt;reco::Candidate,pat::TriggerObjectRef&gt;" />
+  <class name="edm::reftobase::Holder&lt;reco::io_v1::Candidate,pat::TriggerObjectRef&gt;" />
   <class name="edm::reftobase::RefHolder&lt;pat::TriggerObjectRef&gt;" />
   <class name="edm::Wrapper&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt;" />
   <class name="edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt;" />
@@ -26,12 +24,8 @@
   <class name="std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt;::const_iterator" />
   <class name="edm::Wrapper&lt;std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt; &gt;" />
 
-  <class name="pat::TriggerObjectStandAlone"  ClassVersion="14">
-   <version ClassVersion="14" checksum="2704342787"/>
-   <version ClassVersion="13" checksum="54935316"/>
-   <version ClassVersion="12" checksum="2923001116"/>
-   <version ClassVersion="10" checksum="3478292234"/>
-   <version ClassVersion="11" checksum="167266363"/>
+  <class name="pat::TriggerObjectStandAlone"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3324775075"/>
   </class>
   <class name="std::vector&lt;pat::TriggerObjectStandAlone&gt;" />
   <class name="std::vector&lt;pat::TriggerObjectStandAlone&gt;::const_iterator" />
@@ -42,7 +36,7 @@
   <class name="pat::TriggerObjectStandAloneRefVector" />
   <class name="pat::TriggerObjectStandAloneRefVectorIterator" />
   <class name="edm::Association&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt; &gt;" />
-  <class name="edm::reftobase::Holder&lt;reco::Candidate,pat::TriggerObjectStandAloneRef&gt;" />
+  <class name="edm::reftobase::Holder&lt;reco::io_v1::Candidate,pat::TriggerObjectStandAloneRef&gt;" />
   <class name="edm::reftobase::RefHolder&lt;pat::TriggerObjectStandAloneRef&gt;" />
   <class name="edm::Wrapper&lt;edm::Association&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt; &gt; &gt;" />
 

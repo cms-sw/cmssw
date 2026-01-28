@@ -1,15 +1,12 @@
 <lcgdict>
   <class name="reco::CompositeRefCandidateT<reco::GenParticleRefVector>" />
-  <class name="reco::GenParticle"  ClassVersion="13">
-   <version ClassVersion="13" checksum="1588260052"/>
-   <version ClassVersion="12" checksum="3369685722"/>
-   <version ClassVersion="11" checksum="446025970"/>
-   <version ClassVersion="10" checksum="2736964676"/>
+  <class name="reco::io_v1::GenParticle"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3117626542"/>
   </class>
-  <class name="std::vector<reco::GenParticle>" />
-  <class name="edm::Wrapper<std::vector<reco::GenParticle> >" />
-  <class name="edm::Association<std::vector<reco::GenParticle> >" />
-  <class name="edm::Wrapper<edm::Association<std::vector<reco::GenParticle> > >" />
+  <class name="std::vector<reco::io_v1::GenParticle>" />
+  <class name="edm::Wrapper<std::vector<reco::io_v1::GenParticle> >" />
+  <class name="edm::Association<std::vector<reco::io_v1::GenParticle> >" />
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::io_v1::GenParticle> > >" />
 
 
   <class name="reco::GenParticleRef" />
@@ -18,13 +15,13 @@
   <class name="std::vector<std::vector<reco::GenParticleRef> >"/>
   <class name="std::vector<reco::GenParticleRef>" />
   <class name="edm::Wrapper<reco::GenParticleRefVector>" />
-  <class name="edm::Ptr<reco::GenParticle>" />
-  <class name="edm::FwdPtr<reco::GenParticle>" />
-  <class name="std::vector<edm::FwdPtr<reco::GenParticle> >" />
-  <class name="edm::Wrapper<std::vector<edm::FwdPtr<reco::GenParticle> > >" />  
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::GenParticleRef>" />
+  <class name="edm::Ptr<reco::io_v1::GenParticle>" />
+  <class name="edm::FwdPtr<reco::io_v1::GenParticle>" />
+  <class name="std::vector<edm::FwdPtr<reco::io_v1::GenParticle> >" />
+  <class name="edm::Wrapper<std::vector<edm::FwdPtr<reco::io_v1::GenParticle> > >" />  
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::GenParticleRef>" />
   <class name="edm::reftobase::RefHolder<reco::GenParticleRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::GenParticleRefVector>" />
+  <class name="edm::reftobase::VectorHolder<reco::io_v1::Candidate, reco::GenParticleRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::GenParticleRefVector>" />
   <class name="reco::GenStatusFlags"  ClassVersion="10">
    <version ClassVersion="10" checksum="3329737103"/>
@@ -33,10 +30,8 @@
    <version ClassVersion="10" checksum="1002280074"/>
   </class>
   <class name="edm::Wrapper<reco::PdfInfo>" />
-  <class name="reco::FlavorHistory"  ClassVersion="12">
-   <version ClassVersion="12" checksum="699034420"/>
-   <version ClassVersion="11" checksum="425358630"/>
-   <version ClassVersion="10" checksum="425358630"/>
+  <class name="reco::FlavorHistory"  ClassVersion="3">
+   <version ClassVersion="3" checksum="726979366"/>
   </class>
   <class name="std::vector<reco::FlavorHistory>" />
   <class name="edm::Wrapper<std::vector<reco::FlavorHistory> >" />
@@ -51,9 +46,9 @@
   <class name="edm::Wrapper<reco::FlavorHistoryEvent >" />
   <class name="edm::ValueMap<reco::FlavorHistoryEvent >" />
   <class name="edm::Wrapper<edm::ValueMap<reco::FlavorHistoryEvent > >" />
-  <class name="edm::RefVectorIterator<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> >"/>
-  <class name="edm::ValueMap<edm::Ref<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > >" />
-  <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > > >" />
+  <class name="edm::RefVectorIterator<std::vector<reco::io_v1::GenParticle>,reco::io_v1::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GenParticle>,reco::io_v1::GenParticle> >"/>
+  <class name="edm::ValueMap<edm::Ref<std::vector<reco::io_v1::GenParticle>,reco::io_v1::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GenParticle>,reco::io_v1::GenParticle> > >" />
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::io_v1::GenParticle>,reco::io_v1::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GenParticle>,reco::io_v1::GenParticle> > > >" />
   <!--<class pattern="std::iterator<*edm::Ref*GenParticle*>"/>-->
 </lcgdict>
  

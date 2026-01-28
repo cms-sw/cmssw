@@ -1,16 +1,15 @@
 <lcgdict>
-  <class name="reco::JetFlavourInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="1683584268"/>
+  <class name="reco::JetFlavourInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2786652764"/>
   </class>
   <class name="std::vector<reco::JetFlavourInfo>"/>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavourInfo>"/>
-  <class name="std::vector<std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavourInfo> >"/>
+  <class name="std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::JetFlavourInfo>"/>
+  <class name="std::vector<std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::JetFlavourInfo> >"/>
   <class name="reco::JetFlavourInfoMatchingCollectionBase">
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="reco::JetFlavourInfoMatchingCollection" ClassVersion="11">
-   <version ClassVersion="11" checksum="2491721971"/>
-   <version ClassVersion="10" checksum="581152871"/>
+  <class name="reco::JetFlavourInfoMatchingCollection" ClassVersion="3">
+   <version ClassVersion="3" checksum="4221335161"/>
     <!-- <field name="transientVector_" transient="true"/> -->
     <!-- <field name="fixed_" transient="true"/> -->
   </class>
@@ -26,14 +25,13 @@
    <version ClassVersion="10" checksum="1787336562"/>
   </class>
   <class name="std::vector<reco::JetFlavour>"/>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavour>"/>
-  <class name="std::vector<std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavour> >"/>
+  <class name="std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::JetFlavour>"/>
+  <class name="std::vector<std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::JetFlavour> >"/>
   <class name="reco::JetFlavourMatchingCollectionBase">
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="reco::JetFlavourMatchingCollection" ClassVersion="11">
-   <version ClassVersion="11" checksum="392469271"/>
-   <version ClassVersion="10" checksum="344297371"/>
+  <class name="reco::JetFlavourMatchingCollection" ClassVersion="3">
+   <version ClassVersion="3" checksum="100619317"/>
     <!-- <field name="transientVector_" transient="true"/> -->
     <!-- <field name="fixed_" transient="true"/> -->
   </class>
@@ -42,18 +40,17 @@
   <class name="reco::JetFlavourMatchingRefVector"/>
   <class name="edm::Wrapper<reco::JetFlavourMatchingCollection>"/>
 
-  <class name="reco::MatchedPartons" ClassVersion="10">
-   <version ClassVersion="10" checksum="4065573666"/>
+  <class name="reco::MatchedPartons" ClassVersion="3">
+   <version ClassVersion="3" checksum="4053838322"/>
   </class>
   <class name="std::vector<reco::MatchedPartons>"/>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::MatchedPartons>"/>
-  <class name="std::vector<std::pair<edm::RefToBase<reco::Jet>, reco::MatchedPartons> >"/>
+  <class name="std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::MatchedPartons>"/>
+  <class name="std::vector<std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::MatchedPartons> >"/>
   <class name="reco::JetMatchedPartonsCollectionBase">
     <field name="transientVector_" transient="true"/>  
   </class>
-  <class name="reco::JetMatchedPartonsCollection" ClassVersion="11">
-   <version ClassVersion="11" checksum="3945783503"/>
-   <version ClassVersion="10" checksum="1343220703"/>
+  <class name="reco::JetMatchedPartonsCollection" ClassVersion="3">
+   <version ClassVersion="3" checksum="120689249"/>
     <!-- <field name="transientVector_" transient="true"/> -->
     <!-- <field name="fixed_" transient="true"/> -->
   </class>

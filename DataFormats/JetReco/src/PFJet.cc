@@ -11,6 +11,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 using namespace reco;
+using namespace reco::io_v1;
 
 PFJet::PFJet(const LorentzVector& fP4,
              const Point& fVertex,
@@ -95,7 +96,7 @@ std::string PFJet::print() const {
   return out.str();
 }
 
-std::ostream& reco::operator<<(std::ostream& out, const reco::PFJet& jet) {
+std::ostream& reco::io_v1::operator<<(std::ostream& out, const reco::io_v1::PFJet& jet) {
   if (out) {
     out << "PFJet "
         << "(pt, eta, phi) = " << jet.pt() << "," << jet.eta() << "," << jet.phi()

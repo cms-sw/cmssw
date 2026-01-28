@@ -1,30 +1,24 @@
 <lcgdict>
-  <class name="TtGenEvent"  ClassVersion="12">
-   <version ClassVersion="12" checksum="3953108735"/>
-   <version ClassVersion="11" checksum="3979818069"/>
-   <version ClassVersion="10" checksum="2353612425"/>
+  <class name="TtGenEvent"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2709360007"/>
   </class>
-  <class name="StGenEvent"  ClassVersion="11">
-   <version ClassVersion="11" checksum="712808804"/>
-   <version ClassVersion="10" checksum="3161795320"/>
+  <class name="StGenEvent"  ClassVersion="3">
+   <version ClassVersion="3" checksum="816344636"/>
   </class>
-  <class name="TopGenEvent"  ClassVersion="10">
-   <version ClassVersion="10" checksum="4112324732"/>
+  <class name="TopGenEvent"  ClassVersion="3">
+   <version ClassVersion="3" checksum="4215860564"/>
   </class>
-  <class name="TtEvent"  ClassVersion="11">
-   <version ClassVersion="11" checksum="1688727696"/>
+  <class name="TtEvent"  ClassVersion="3">
+   <version ClassVersion="3" checksum="67438550"/>
   </class>
-  <class name="TtFullLeptonicEvent"  ClassVersion="11">
-   <version ClassVersion="11" checksum="4030394490"/>
-   <version ClassVersion="10" checksum="1854988496"/>
+  <class name="TtFullLeptonicEvent"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3754713216"/>
   </class>
-  <class name="TtSemiLeptonicEvent"  ClassVersion="11">
-   <version ClassVersion="11" checksum="3559376459"/>
-   <version ClassVersion="10" checksum="4150310883"/>
+  <class name="TtSemiLeptonicEvent"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2068896689"/>
   </class>
-  <class name="TtFullHadronicEvent"  ClassVersion="11">
-   <version ClassVersion="11" checksum="350583477"/>
-   <version ClassVersion="10" checksum="3848919223"/>
+  <class name="TtFullHadronicEvent"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3024261627"/>
   </class>
   <class name="edm::Wrapper<TtGenEvent>" />
   <class name="edm::Wrapper<StGenEvent>" />
@@ -32,7 +26,6 @@
   <class name="edm::Wrapper<TtFullLeptonicEvent>" />
   <class name="edm::Wrapper<TtSemiLeptonicEvent>" />
   <class name="edm::Wrapper<TtFullHadronicEvent>" />
-  <class name="edm::Wrapper<reco::CompositeCandidate>" />
 
   <class name="edm::RefProd<TtGenEvent>" />
   <class name="edm::RefProd<StGenEvent>" />
@@ -42,18 +35,15 @@
   <class name="edm::RefProd<TtFullHadronicEvent>" />
 
   <class name="std::pair<WDecay::LeptonType, WDecay::LeptonType>" />
-  <class name="std::pair<reco::CompositeCandidate, std::vector<int> >" />
-  <class name="std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >" />
-  <class name="edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
 
   <class name="std::map<TtEvent::HypoClassKey, int>" />
-  <class name="std::map<TtEvent::HypoClassKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
+  <class name="std::map<TtEvent::HypoClassKey, std::vector<std::pair<reco::io_v1::CompositeCandidate, std::vector<int> > > >" />
 
   <class name="TtDilepEvtSolution"  ClassVersion="10">
    <version ClassVersion="10" checksum="3903965368"/>
   </class>
-  <class name="TtSemiEvtSolution"  ClassVersion="10">
-   <version ClassVersion="10" checksum="702702553"/>
+  <class name="TtSemiEvtSolution"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3559385149"/>
   </class>
   <class name="TtHadEvtSolution"  ClassVersion="10">
    <version ClassVersion="10" checksum="4003976374"/>

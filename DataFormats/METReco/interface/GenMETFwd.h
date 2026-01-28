@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace reco {
-  class GenMET;
+  namespace io_v1 {
+    class GenMET;
+  }
+  using io_v1::GenMET;
   /// collection of GenMET objects
   typedef std::vector<GenMET> GenMETCollection;
   /// edm references

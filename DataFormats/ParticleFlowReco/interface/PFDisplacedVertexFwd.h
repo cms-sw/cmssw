@@ -7,7 +7,10 @@
 /* #include "DataFormats/Common/interface/RefProd.h" */
 
 namespace reco {
-  class PFDisplacedVertex;
+  namespace io_v1 {
+    class PFDisplacedVertex;
+  }
+  using PFDisplacedVertex = io_v1::PFDisplacedVertex;
 
   /// collection of PFDisplacedVertex objects
   typedef std::vector<PFDisplacedVertex> PFDisplacedVertexCollection;

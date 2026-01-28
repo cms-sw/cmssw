@@ -8,37 +8,37 @@ not be used as version numbers. By convention, CMS will use 3 as the
 initial version number of a class which has never been stored before.
 -->
 <lcgdict>
-  <class name="reco::Muon" ClassVersion="3">
-   <version ClassVersion="3" checksum="2185262810"/>
+  <class name="reco::io_v1::Muon" ClassVersion="3">
+   <version ClassVersion="3" checksum="1255314174"/>
   </class>
-  <class name="std::vector<reco::Muon>"/>
-  <class name="edm::Wrapper<std::vector<reco::Muon> >"/>
-  <class name="edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >"/>
-  <class name="edm::RefProd<std::vector<reco::Muon> >"/>
-  <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::Muon> > >"/>
-  <class name="edm::RefVector<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >" />
+  <class name="std::vector<reco::io_v1::Muon>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::Muon> >"/>
+  <class name="edm::Ref<std::vector<reco::io_v1::Muon>,reco::io_v1::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Muon>,reco::io_v1::Muon> >"/>
+  <class name="edm::RefProd<std::vector<reco::io_v1::Muon> >"/>
+  <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::io_v1::Muon> > >"/>
+  <class name="edm::RefVector<std::vector<reco::io_v1::Muon>,reco::io_v1::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Muon>,reco::io_v1::Muon> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::Muon>,reco::io_v1::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Muon>,reco::io_v1::Muon> > >"/>
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<reco::io_v1::Muon>,reco::io_v1::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Muon>,reco::io_v1::Muon> > >" />
 
-<class name="reco::MuonTrackLinks" ClassVersion="3">
- <version ClassVersion="3" checksum="4185047177"/>
+<class name="reco::io_v1::MuonTrackLinks" ClassVersion="3">
+ <version ClassVersion="3" checksum="2538579591"/>
 </class>
-  <class name="std::vector<reco::MuonTrackLinks>"/>
-  <class name="edm::Wrapper<std::vector<reco::MuonTrackLinks> >"/>
-<class name="edm::Ref<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> >"/>
-  <class name="edm::RefProd<std::vector<reco::MuonTrackLinks> >"/>
-  <class name="edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> > >"/>
+  <class name="std::vector<reco::io_v1::MuonTrackLinks>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::MuonTrackLinks> >"/>
+<class name="edm::Ref<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks> >"/>
+  <class name="edm::RefProd<std::vector<reco::io_v1::MuonTrackLinks> >"/>
+  <class name="edm::RefVector<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks> > >"/>
   
   <class name="reco::MuonTime" ClassVersion="10">
    <version ClassVersion="10" checksum="799301851"/>
   </class>
-  <class name="reco::MuonTimeExtra" ClassVersion="10">
-   <version ClassVersion="10" checksum="1523685726"/>
+  <class name="reco::io_v1::MuonTimeExtra" ClassVersion="3">
+   <version ClassVersion="3" checksum="287562408"/>
   </class>
-  <class name="std::vector<reco::MuonTimeExtra>"/>
+  <class name="std::vector<reco::io_v1::MuonTimeExtra>"/>
   <class name="reco::MuonTimeExtraMap"/>
-  <class name="edm::Wrapper<std::vector<reco::MuonTimeExtra> >"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::MuonTimeExtra> >"/>
   <class name="edm::Wrapper<reco::MuonTimeExtraMap>"/>
 
   <class name="reco::MuonEnergy" ClassVersion="11">
@@ -80,40 +80,40 @@ initial version number of a class which has never been stored before.
    <version ClassVersion="15" checksum="838139830"/>
   </class>
 
-  <class name="reco::Muon::MuonTrackRefMap"/>
+  <class name="reco::io_v1::Muon::MuonTrackRefMap"/>
 
-  <class name="reco::CaloMuon" ClassVersion="3">
-   <version ClassVersion="3" checksum="4152762730"/>
+  <class name="reco::io_v1::CaloMuon" ClassVersion="3">
+   <version ClassVersion="3" checksum="3619049272"/>
   </class>
-  <class name="std::vector<reco::CaloMuon>"/>
-  <class name="edm::Wrapper<std::vector<reco::CaloMuon> >"/>
+  <class name="std::vector<reco::io_v1::CaloMuon>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::CaloMuon> >"/>
 
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::MuonRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::MuonRef>" />
   <class name="edm::reftobase::RefHolder<reco::MuonRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::MuonRefVector>" />
+  <class name="edm::reftobase::VectorHolder<reco::io_v1::Candidate, reco::MuonRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::MuonRefVector>" />
 
-  <class name="edm::reftobase::BaseHolder<reco::Muon>"/>
-  <class name="edm::RefToBase<reco::Muon>"/>
-  <class name="edm::reftobase::IndirectHolder<reco::Muon>" />
-  <class name="edm::RefToBaseProd<reco::Muon>" />
-  <class name="edm::RefToBaseVector<reco::Muon>" />
-  <class name="edm::Wrapper<edm::RefToBaseVector<reco::Muon> >" />
-  <class name="edm::reftobase::BaseVectorHolder<reco::Muon>" />
+  <class name="edm::reftobase::BaseHolder<reco::io_v1::Muon>"/>
+  <class name="edm::RefToBase<reco::io_v1::Muon>"/>
+  <class name="edm::reftobase::IndirectHolder<reco::io_v1::Muon>" />
+  <class name="edm::RefToBaseProd<reco::io_v1::Muon>" />
+  <class name="edm::RefToBaseVector<reco::io_v1::Muon>" />
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::io_v1::Muon> >" />
+  <class name="edm::reftobase::BaseVectorHolder<reco::io_v1::Muon>" />
   
-  <class name="reco::MuonMETCorrectionData" ClassVersion="10">
-   <version ClassVersion="10" checksum="1486369093"/>
+  <class name="reco::io_v1::MuonMETCorrectionData" ClassVersion="3">
+   <version ClassVersion="3" checksum="90175135"/>
   </class>
-  <class name="std::vector<reco::MuonMETCorrectionData>"/>
-  <class name="std::vector<reco::MuonMETCorrectionData>::const_iterator"/>
-  <class name="edm::Wrapper<std::vector<reco::MuonMETCorrectionData> >"/>
-  <class name="edm::ValueMap<reco::MuonMETCorrectionData>"/>
-  <class name="edm::ValueMap<reco::MuonMETCorrectionData>::const_iterator">
+  <class name="std::vector<reco::io_v1::MuonMETCorrectionData>"/>
+  <class name="std::vector<reco::io_v1::MuonMETCorrectionData>::const_iterator"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::MuonMETCorrectionData> >"/>
+  <class name="edm::ValueMap<reco::io_v1::MuonMETCorrectionData>"/>
+  <class name="edm::ValueMap<reco::io_v1::MuonMETCorrectionData>::const_iterator">
     <field name="values_" transient="true"/>
     <field name="i_" transient="true"/>
     <field name="end_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<edm::ValueMap<reco::MuonMETCorrectionData> >"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::io_v1::MuonMETCorrectionData> >"/>
 
   <class name="edm::Association<reco::MuonCollection>" />
   <class name="edm::Wrapper<edm::Association<reco::MuonCollection>>" />
@@ -132,33 +132,33 @@ initial version number of a class which has never been stored before.
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonQuality> >"/>
 
-  <class name="reco::MuonCosmicCompatibility" ClassVersion="10">
-   <version ClassVersion="10" checksum="3519151418"/>
+  <class name="reco::io_v1::MuonCosmicCompatibility" ClassVersion="3">
+   <version ClassVersion="3" checksum="2262157368"/>
   </class>
-  <class name="std::vector<reco::MuonCosmicCompatibility>"/>
-  <class name="std::vector<reco::MuonCosmicCompatibility>::const_iterator"/>
-  <class name="edm::Wrapper<std::vector<reco::MuonCosmicCompatibility> >"/>
-  <class name="edm::ValueMap<reco::MuonCosmicCompatibility>"/>
-  <class name="edm::ValueMap<reco::MuonCosmicCompatibility>::const_iterator">
+  <class name="std::vector<reco::io_v1::MuonCosmicCompatibility>"/>
+  <class name="std::vector<reco::io_v1::MuonCosmicCompatibility>::const_iterator"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::MuonCosmicCompatibility> >"/>
+  <class name="edm::ValueMap<reco::io_v1::MuonCosmicCompatibility>"/>
+  <class name="edm::ValueMap<reco::io_v1::MuonCosmicCompatibility>::const_iterator">
     <field name="values_" transient="true"/>
     <field name="i_" transient="true"/>
     <field name="end_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<edm::ValueMap<reco::MuonCosmicCompatibility> >"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::io_v1::MuonCosmicCompatibility> >"/>
 
-  <class name="reco::MuonShower" ClassVersion="10">
-   <version ClassVersion="10" checksum="371813366"/>
+  <class name="reco::io_v1::MuonShower" ClassVersion="3">
+   <version ClassVersion="3" checksum="99079040"/>
   </class>
-  <class name="std::vector<reco::MuonShower>"/>
-  <class name="std::vector<reco::MuonShower>::const_iterator"/>
-  <class name="edm::Wrapper<std::vector<reco::MuonShower> >"/>
-  <class name="edm::ValueMap<reco::MuonShower>"/>
-  <class name="edm::ValueMap<reco::MuonShower>::const_iterator">
+  <class name="std::vector<reco::io_v1::MuonShower>"/>
+  <class name="std::vector<reco::io_v1::MuonShower>::const_iterator"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::MuonShower> >"/>
+  <class name="edm::ValueMap<reco::io_v1::MuonShower>"/>
+  <class name="edm::ValueMap<reco::io_v1::MuonShower>::const_iterator">
     <field name="values_" transient="true"/>
     <field name="i_" transient="true"/>
     <field name="end_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<edm::ValueMap<reco::MuonShower> >"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::io_v1::MuonShower> >"/>
 
   <class name="reco::MuonRecHitCluster" ClassVersion="3">
     <version ClassVersion="3" checksum="2080298867"/>
@@ -190,24 +190,24 @@ initial version number of a class which has never been stored before.
   <class name="edm::Wrapper<edm::ValueMap<reco::DYTInfo> >"/>
 
   <!-- 
-  <class name="edm::reftobase::BaseHolder<reco::Muon>" />
-  <class name="edm::reftobase::IndirectVectorHolder<reco::Muon>" />
-  <class name="edm::reftobase::Holder<reco::Muon, reco::MuonRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Muon, reco::MuonRefVector>" />
+  <class name="edm::reftobase::BaseHolder<reco::io_v1::Muon>" />
+  <class name="edm::reftobase::IndirectVectorHolder<reco::io_v1::Muon>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Muon, reco::MuonRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::io_v1::Muon, reco::MuonRefVector>" />
   -->
 
-  <class name="edm::Ptr<reco::Muon>" />
-  <class name="edm::Wrapper<edm::Ptr<reco::Muon> >" />
-  <class name="edm::PtrVector<reco::Muon>" />
-  <class name="edm::Wrapper<edm::PtrVector<reco::Muon> >" />
+  <class name="edm::Ptr<reco::io_v1::Muon>" />
+  <class name="edm::Wrapper<edm::Ptr<reco::io_v1::Muon> >" />
+  <class name="edm::PtrVector<reco::io_v1::Muon>" />
+  <class name="edm::Wrapper<edm::PtrVector<reco::io_v1::Muon> >" />
   
-  <class name="reco::MuonSimInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="2552652034"/>
+  <class name="reco::io_v1::MuonSimInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="638791164"/>
   </class>
-  <class name="std::vector<reco::MuonSimInfo>"/>
-  <class name="edm::Wrapper<std::vector<reco::MuonSimInfo> >"/>
-  <class name="edm::ValueMap<reco::MuonSimInfo>"/>
-  <class name="edm::Wrapper<edm::ValueMap<reco::MuonSimInfo> >"/>
+  <class name="std::vector<reco::io_v1::MuonSimInfo>"/>
+  <class name="edm::Wrapper<std::vector<reco::io_v1::MuonSimInfo> >"/>
+  <class name="edm::ValueMap<reco::io_v1::MuonSimInfo>"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::io_v1::MuonSimInfo> >"/>
 
 
 </lcgdict>

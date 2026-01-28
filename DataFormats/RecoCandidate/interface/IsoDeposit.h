@@ -45,264 +45,267 @@ namespace reco {
 }  // namespace reco
 
 namespace reco {
+  namespace io_v1 {
 
-  class IsoDeposit {
-  public:
-    typedef isodeposit::Direction Direction;
-    typedef isodeposit::AbsVeto AbsVeto;
-    typedef isodeposit::AbsVetos AbsVetos;
-    typedef Direction::Distance Distance;
-    typedef std::multimap<Distance, float> DepositsMultimap;
-    typedef DepositsMultimap::const_iterator DepIterator;
-
-    // old style vetos
-    struct Veto {
-      Direction vetoDir;
-      float dR;
-      Veto() {}
-      Veto(Direction dir, double d) : vetoDir(dir), dR(d) {}
-    };
-    typedef std::vector<Veto> Vetos;
-
-    //! Constructor
-    IsoDeposit(double eta = 0, double phi = 0);
-    IsoDeposit(const Direction& candDirection);
-
-    //! Destructor
-    virtual ~IsoDeposit() {}
-
-    //! Get direction of isolation cone
-    const Direction& direction() const { return theDirection; }
-    double eta() const { return theDirection.eta(); }
-    double phi() const { return theDirection.phi(); }
-
-    //! Get veto area
-    const Veto& veto() const { return theVeto; }
-    //! Set veto
-    void setVeto(const Veto& aVeto) { theVeto = aVeto; }
-
-    //! Add deposit (ie. transverse energy or pT)
-    void addDeposit(double dr, double deposit);  // FIXME - temporary for backward compatibility
-    void addDeposit(const Direction& depDir, double deposit);
-
-    //! Get deposit
-    double depositWithin(double coneSize,               //dR in which deposit is computed
-                         const Vetos& vetos = Vetos(),  //additional vetos
-                         bool skipDepositVeto = false   //skip exclusion of veto
-    ) const;
-
-    //! Get deposit wrt other direction
-    double depositWithin(Direction dir,
-                         double coneSize,               //dR in which deposit is computed
-                         const Vetos& vetos = Vetos(),  //additional vetos
-                         bool skipDepositVeto = false   //skip exclusion of veto
-    ) const;
-
-    //! Get deposit
-    std::pair<double, int> depositAndCountWithin(double coneSize,               //dR in which deposit is computed
-                                                 const Vetos& vetos = Vetos(),  //additional vetos
-                                                 double threshold = -1e+36,     //threshold on counted deposits
-                                                 bool skipDepositVeto = false   //skip exclusion of veto
-    ) const;
-
-    //! Get deposit wrt other direction
-    std::pair<double, int> depositAndCountWithin(Direction dir,                 //wrt another direction
-                                                 double coneSize,               //dR in which deposit is computed
-                                                 const Vetos& vetos = Vetos(),  //additional vetos
-                                                 double threshold = -1e+36,     //threshold on deposits
-                                                 bool skipDepositVeto = false   //skip exclusion of veto
-    ) const;
-
-    //! Get deposit with new style vetos
-    double depositWithin(double coneSize,              //dR in which deposit is computed
-                         const AbsVetos& vetos,        //additional vetos
-                         bool skipDepositVeto = false  //skip exclusion of veto
-    ) const;
-
-    //! Get deposit
-    std::pair<double, int> depositAndCountWithin(double coneSize,              //dR in which deposit is computed
-                                                 const AbsVetos& vetos,        //additional vetos
-                                                 bool skipDepositVeto = false  //skip exclusion of veto
-    ) const;
-
-    //! Get energy or pT attached to cand trajectory
-    double candEnergy() const { return theCandTag; }
-
-    //! Set energy or pT attached to cand trajectory
-    void addCandEnergy(double et) { theCandTag += et; }
-
-    std::string print() const;
-
-    class const_iterator {
+    class IsoDeposit {
     public:
-      const const_iterator& operator++() {
-        ++it_;
-        cacheReady_ = false;
-        return *this;
-      }
-      const const_iterator* operator->() const { return this; }
-      float dR() const { return it_->first.deltaR; }
-      float eta() const {
-        if (!cacheReady_)
-          doDir();
-        return cache_.eta();
-      }
-      float phi() const {
-        if (!cacheReady_)
-          doDir();
-        return cache_.phi();
-      }
-      float value() const { return it_->second; }
-      bool operator!=(const const_iterator& it2) { return it2.it_ != it_; }
-      friend class IsoDeposit;
-
-    private:
+      typedef isodeposit::Direction Direction;
+      typedef isodeposit::AbsVeto AbsVeto;
+      typedef isodeposit::AbsVetos AbsVetos;
       typedef Direction::Distance Distance;
-      void doDir() const {
-        if (!cacheReady_)
-          cache_ = parent_->direction() + it_->first;
-        cacheReady_ = true;
-      }
-      const_iterator(const IsoDeposit* parent, std::multimap<Distance, float>::const_iterator it)
-          : parent_(parent), it_(it), cache_(), cacheReady_(false) {}
-      const reco::IsoDeposit* parent_;
-      std::multimap<Distance, float>::const_iterator it_;
-      CMS_THREAD_SAFE mutable Direction cache_;
-      mutable std::atomic<bool> cacheReady_;
-    };
-    const_iterator begin() const { return const_iterator(this, theDeposits.begin()); }
-    const_iterator end() const { return const_iterator(this, theDeposits.end()); }
+      typedef std::multimap<Distance, float> DepositsMultimap;
+      typedef DepositsMultimap::const_iterator DepIterator;
 
-    class SumAlgo {
-    public:
-      SumAlgo() : sum_(0) {}
-      void operator+=(DepIterator deposit) { sum_ += deposit->second; }
-      void operator+=(double deposit) { sum_ += deposit; }
-      double result() const { return sum_; }
+      // old style vetos
+      struct Veto {
+        Direction vetoDir;
+        float dR;
+        Veto() {}
+        Veto(Direction dir, double d) : vetoDir(dir), dR(d) {}
+      };
+      typedef std::vector<Veto> Vetos;
 
-    private:
-      double sum_;
-    };
-    class CountAlgo {
-    public:
-      CountAlgo() : count_(0) {}
-      void operator+=(DepIterator deposit) { count_++; }
-      void operator+=(double deposit) { count_++; }
-      double result() const { return count_; }
+      //! Constructor
+      IsoDeposit(double eta = 0, double phi = 0);
+      IsoDeposit(const Direction& candDirection);
 
-    private:
-      size_t count_;
-    };
-    class Sum2Algo {
-    public:
-      Sum2Algo() : sum2_(0) {}
-      void operator+=(DepIterator deposit) { sum2_ += deposit->second * deposit->second; }
-      void operator+=(double deposit) { sum2_ += deposit * deposit; }
-      double result() const { return sum2_; }
+      //! Destructor
+      virtual ~IsoDeposit() {}
 
-    private:
-      double sum2_;
-    };
-    class MaxAlgo {
-    public:
-      MaxAlgo() : max_(0) {}
-      void operator+=(DepIterator deposit) {
-        if (deposit->second > max_)
-          max_ = deposit->second;
-      }
-      void operator+=(double deposit) {
-        if (deposit > max_)
-          max_ = deposit;
-      }
-      double result() const { return max_; }
+      //! Get direction of isolation cone
+      const Direction& direction() const { return theDirection; }
+      double eta() const { return theDirection.eta(); }
+      double phi() const { return theDirection.phi(); }
 
-    private:
-      double max_;
-    };
+      //! Get veto area
+      const Veto& veto() const { return theVeto; }
+      //! Set veto
+      void setVeto(const Veto& aVeto) { theVeto = aVeto; }
 
-    class MeanDRAlgo {
-    public:
-      MeanDRAlgo() : sum_(0.), count_(0.) {}
-      void operator+=(DepIterator deposit) {
-        sum_ += deposit->first.deltaR;
-        count_ += 1.0;
-      }
-      double result() const { return sum_ / std::max(1., count_); }
+      //! Add deposit (ie. transverse energy or pT)
+      void addDeposit(double dr, double deposit);  // FIXME - temporary for backward compatibility
+      void addDeposit(const Direction& depDir, double deposit);
 
-    private:
-      double sum_;
-      double count_;
-    };
+      //! Get deposit
+      double depositWithin(double coneSize,               //dR in which deposit is computed
+                           const Vetos& vetos = Vetos(),  //additional vetos
+                           bool skipDepositVeto = false   //skip exclusion of veto
+      ) const;
 
-    class SumDRAlgo {
-    public:
-      SumDRAlgo() : sum_(0.) {}
-      void operator+=(DepIterator deposit) { sum_ += deposit->first.deltaR; }
-      double result() const { return sum_; }
+      //! Get deposit wrt other direction
+      double depositWithin(Direction dir,
+                           double coneSize,               //dR in which deposit is computed
+                           const Vetos& vetos = Vetos(),  //additional vetos
+                           bool skipDepositVeto = false   //skip exclusion of veto
+      ) const;
 
-    private:
-      double sum_;
-    };
+      //! Get deposit
+      std::pair<double, int> depositAndCountWithin(double coneSize,               //dR in which deposit is computed
+                                                   const Vetos& vetos = Vetos(),  //additional vetos
+                                                   double threshold = -1e+36,     //threshold on counted deposits
+                                                   bool skipDepositVeto = false   //skip exclusion of veto
+      ) const;
 
-    //! Get some info about the deposit (e.g. sum, max, sum2, count)
-    template <typename Algo>
-    double algoWithin(double coneSize,                     //dR in which deposit is computed
-                      const AbsVetos& vetos = AbsVetos(),  //additional vetos
-                      bool skipDepositVeto = false         //skip exclusion of veto
-    ) const;
-    //! Get some info about the deposit (e.g. sum, max, sum2, count) w.r.t. other direction
-    template <typename Algo>
-    double algoWithin(const Direction&,
-                      double coneSize,                     //dR in which deposit is computed
-                      const AbsVetos& vetos = AbsVetos(),  //additional vetos
-                      bool skipDepositVeto = false         //skip exclusion of veto
-    ) const;
-    // count of the non-vetoed deposits in the cone
-    double countWithin(double coneSize,                     //dR in which deposit is computed
+      //! Get deposit wrt other direction
+      std::pair<double, int> depositAndCountWithin(Direction dir,                 //wrt another direction
+                                                   double coneSize,               //dR in which deposit is computed
+                                                   const Vetos& vetos = Vetos(),  //additional vetos
+                                                   double threshold = -1e+36,     //threshold on deposits
+                                                   bool skipDepositVeto = false   //skip exclusion of veto
+      ) const;
+
+      //! Get deposit with new style vetos
+      double depositWithin(double coneSize,              //dR in which deposit is computed
+                           const AbsVetos& vetos,        //additional vetos
+                           bool skipDepositVeto = false  //skip exclusion of veto
+      ) const;
+
+      //! Get deposit
+      std::pair<double, int> depositAndCountWithin(double coneSize,              //dR in which deposit is computed
+                                                   const AbsVetos& vetos,        //additional vetos
+                                                   bool skipDepositVeto = false  //skip exclusion of veto
+      ) const;
+
+      //! Get energy or pT attached to cand trajectory
+      double candEnergy() const { return theCandTag; }
+
+      //! Set energy or pT attached to cand trajectory
+      void addCandEnergy(double et) { theCandTag += et; }
+
+      std::string print() const;
+
+      class const_iterator {
+      public:
+        const const_iterator& operator++() {
+          ++it_;
+          cacheReady_ = false;
+          return *this;
+        }
+        const const_iterator* operator->() const { return this; }
+        float dR() const { return it_->first.deltaR; }
+        float eta() const {
+          if (!cacheReady_)
+            doDir();
+          return cache_.eta();
+        }
+        float phi() const {
+          if (!cacheReady_)
+            doDir();
+          return cache_.phi();
+        }
+        float value() const { return it_->second; }
+        bool operator!=(const const_iterator& it2) { return it2.it_ != it_; }
+        friend class IsoDeposit;
+
+      private:
+        typedef Direction::Distance Distance;
+        void doDir() const {
+          if (!cacheReady_)
+            cache_ = parent_->direction() + it_->first;
+          cacheReady_ = true;
+        }
+        const_iterator(const IsoDeposit* parent, std::multimap<Distance, float>::const_iterator it)
+            : parent_(parent), it_(it), cache_(), cacheReady_(false) {}
+        const IsoDeposit* parent_;
+        std::multimap<Distance, float>::const_iterator it_;
+        CMS_THREAD_SAFE mutable Direction cache_;
+        mutable std::atomic<bool> cacheReady_;
+      };
+      const_iterator begin() const { return const_iterator(this, theDeposits.begin()); }
+      const_iterator end() const { return const_iterator(this, theDeposits.end()); }
+
+      class SumAlgo {
+      public:
+        SumAlgo() : sum_(0) {}
+        void operator+=(DepIterator deposit) { sum_ += deposit->second; }
+        void operator+=(double deposit) { sum_ += deposit; }
+        double result() const { return sum_; }
+
+      private:
+        double sum_;
+      };
+      class CountAlgo {
+      public:
+        CountAlgo() : count_(0) {}
+        void operator+=(DepIterator deposit) { count_++; }
+        void operator+=(double deposit) { count_++; }
+        double result() const { return count_; }
+
+      private:
+        size_t count_;
+      };
+      class Sum2Algo {
+      public:
+        Sum2Algo() : sum2_(0) {}
+        void operator+=(DepIterator deposit) { sum2_ += deposit->second * deposit->second; }
+        void operator+=(double deposit) { sum2_ += deposit * deposit; }
+        double result() const { return sum2_; }
+
+      private:
+        double sum2_;
+      };
+      class MaxAlgo {
+      public:
+        MaxAlgo() : max_(0) {}
+        void operator+=(DepIterator deposit) {
+          if (deposit->second > max_)
+            max_ = deposit->second;
+        }
+        void operator+=(double deposit) {
+          if (deposit > max_)
+            max_ = deposit;
+        }
+        double result() const { return max_; }
+
+      private:
+        double max_;
+      };
+
+      class MeanDRAlgo {
+      public:
+        MeanDRAlgo() : sum_(0.), count_(0.) {}
+        void operator+=(DepIterator deposit) {
+          sum_ += deposit->first.deltaR;
+          count_ += 1.0;
+        }
+        double result() const { return sum_ / std::max(1., count_); }
+
+      private:
+        double sum_;
+        double count_;
+      };
+
+      class SumDRAlgo {
+      public:
+        SumDRAlgo() : sum_(0.) {}
+        void operator+=(DepIterator deposit) { sum_ += deposit->first.deltaR; }
+        double result() const { return sum_; }
+
+      private:
+        double sum_;
+      };
+
+      //! Get some info about the deposit (e.g. sum, max, sum2, count)
+      template <typename Algo>
+      double algoWithin(double coneSize,                     //dR in which deposit is computed
+                        const AbsVetos& vetos = AbsVetos(),  //additional vetos
+                        bool skipDepositVeto = false         //skip exclusion of veto
+      ) const;
+      //! Get some info about the deposit (e.g. sum, max, sum2, count) w.r.t. other direction
+      template <typename Algo>
+      double algoWithin(const Direction&,
+                        double coneSize,                     //dR in which deposit is computed
+                        const AbsVetos& vetos = AbsVetos(),  //additional vetos
+                        bool skipDepositVeto = false         //skip exclusion of veto
+      ) const;
+      // count of the non-vetoed deposits in the cone
+      double countWithin(double coneSize,                     //dR in which deposit is computed
+                         const AbsVetos& vetos = AbsVetos(),  //additional vetos
+                         bool skipDepositVeto = false         //skip exclusion of veto
+      ) const;
+      // sum of the non-vetoed deposits in the cone
+      double sumWithin(double coneSize,                     //dR in which deposit is computed
                        const AbsVetos& vetos = AbsVetos(),  //additional vetos
                        bool skipDepositVeto = false         //skip exclusion of veto
-    ) const;
-    // sum of the non-vetoed deposits in the cone
-    double sumWithin(double coneSize,                     //dR in which deposit is computed
-                     const AbsVetos& vetos = AbsVetos(),  //additional vetos
-                     bool skipDepositVeto = false         //skip exclusion of veto
-    ) const;
-    // sum of the non-vetoed deposits in the cone w.r.t. other direction
-    double sumWithin(const Direction& dir,
-                     double coneSize,                      //dR in which deposit is computed
-                     const AbsVetos& vetos = AbsVetos(),   //additional vetos
-                     bool skipDepositVeto = false          //skip exclusion of veto
-    ) const;                                               // sum of the squares of the non-vetoed deposits in the cone
-    double sum2Within(double coneSize,                     //dR in which deposit is computed
-                      const AbsVetos& vetos = AbsVetos(),  //additional vetos
-                      bool skipDepositVeto = false         //skip exclusion of veto
-    ) const;
-    // maximum value among the non-vetoed deposits in the cone
-    double maxWithin(double coneSize,                     //dR in which deposit is computed
-                     const AbsVetos& vetos = AbsVetos(),  //additional vetos
-                     bool skipDepositVeto = false         //skip exclusion of veto
-    ) const;
-    // maximum value among the non-vetoed deposits in the cone
-    double nearestDR(double coneSize,                     //dR in which deposit is computed
-                     const AbsVetos& vetos = AbsVetos(),  //additional vetos
-                     bool skipDepositVeto = false         //skip exclusion of veto
-    ) const;
+      ) const;
+      // sum of the non-vetoed deposits in the cone w.r.t. other direction
+      double sumWithin(const Direction& dir,
+                       double coneSize,                     //dR in which deposit is computed
+                       const AbsVetos& vetos = AbsVetos(),  //additional vetos
+                       bool skipDepositVeto = false         //skip exclusion of veto
+      ) const;                                              // sum of the squares of the non-vetoed deposits in the cone
+      double sum2Within(double coneSize,                    //dR in which deposit is computed
+                        const AbsVetos& vetos = AbsVetos(),  //additional vetos
+                        bool skipDepositVeto = false         //skip exclusion of veto
+      ) const;
+      // maximum value among the non-vetoed deposits in the cone
+      double maxWithin(double coneSize,                     //dR in which deposit is computed
+                       const AbsVetos& vetos = AbsVetos(),  //additional vetos
+                       bool skipDepositVeto = false         //skip exclusion of veto
+      ) const;
+      // maximum value among the non-vetoed deposits in the cone
+      double nearestDR(double coneSize,                     //dR in which deposit is computed
+                       const AbsVetos& vetos = AbsVetos(),  //additional vetos
+                       bool skipDepositVeto = false         //skip exclusion of veto
+      ) const;
 
-  private:
-    //! direcion of deposit (center of isolation cone)
-    Direction theDirection;
+    private:
+      //! direcion of deposit (center of isolation cone)
+      Direction theDirection;
 
-    //! area to be excluded in computaion of depositWithin
-    Veto theVeto;
+      //! area to be excluded in computaion of depositWithin
+      Veto theVeto;
 
-    //! float tagging cand, ment to be transverse energy or pT attached to cand,
-    float theCandTag;
+      //! float tagging cand, ment to be transverse energy or pT attached to cand,
+      float theCandTag;
 
-    //! the deposits identifed by relative position to center of cone and deposit value
+      //! the deposits identifed by relative position to center of cone and deposit value
 
-    DepositsMultimap theDeposits;
-  };
+      DepositsMultimap theDeposits;
+    };
 
+  }  // namespace io_v1
+  using IsoDeposit = io_v1::IsoDeposit;
 }  // namespace reco
 
 template <typename Algo>

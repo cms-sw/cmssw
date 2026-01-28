@@ -1,7 +1,7 @@
 <lcgdict>
   <enum name="reco::btau::TaggingVariableName"/>
-  <class name="reco::BaseTagInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="2760058808"/>
+  <class name="reco::io_v1::BaseTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2873039314"/>
   </class>
   <class name="reco::BaseTagInfoCollection"/>
   <class name="reco::BaseTagInfoRef"/>
@@ -10,9 +10,8 @@
   <class name="reco::BaseTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::BaseTagInfoCollection>"/>
 
-  <class name="reco::JetTagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="1187716230"/>
-   <version ClassVersion="10" checksum="2733970706"/>
+  <class name="reco::io_v1::JetTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="398162194"/>
   </class>
   <class name="reco::JetTagInfoCollection"/>
   <class name="reco::JetTagInfoRef"/>
@@ -22,7 +21,7 @@
   <class name="edm::Wrapper<reco::JetTagInfoCollection>"/>
 
   <class name="reco::JTATagInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="2626339357"/>
+   <version ClassVersion="3" checksum="1301168175"/>
   </class>
   <class name="reco::JTATagInfoCollection"/>
   <class name="reco::JTATagInfoRef"/>
@@ -41,7 +40,7 @@
   <class name="reco::btag::IndexedTrackData"/>
   <class name="std::vector<reco::btag::IndexedTrackData>"/>
 
-  <class name="reco::TemplatedSecondaryVertexTagInfo<reco::TrackIPTagInfo,reco::Vertex>::VertexData"/>
+  <class name="reco::TemplatedSecondaryVertexTagInfo<reco::TrackIPTagInfo,reco::io_v1::Vertex>::VertexData"/>
   <class name="std::vector<reco::SecondaryVertexTagInfo::VertexData>"/>
   <class name="reco::SecondaryVertexTagInfo"/>
   <class name="reco::SecondaryVertexTagInfoCollection"/>
@@ -51,7 +50,7 @@
   <class name="reco::SecondaryVertexTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SecondaryVertexTagInfoCollection>"/>
 
-  <class name="reco::TemplatedSecondaryVertexTagInfo<reco::CandIPTagInfo,reco::VertexCompositePtrCandidate>::VertexData"/>
+  <class name="reco::TemplatedSecondaryVertexTagInfo<reco::CandIPTagInfo,reco::io_v1::VertexCompositePtrCandidate>::VertexData"/>
   <class name="std::vector<reco::CandSecondaryVertexTagInfo::VertexData>"/>
   <class name="reco::CandSecondaryVertexTagInfo"/>
   <class name="reco::CandSecondaryVertexTagInfoCollection"/>
@@ -62,7 +61,7 @@
   <class name="edm::Wrapper<reco::CandSecondaryVertexTagInfoCollection>"/>
 
   <class name="reco::BoostedDoubleSVTagInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="1146731392"/>
+   <version ClassVersion="3" checksum="2378940590"/>
   </class>
   <class name="reco::BoostedDoubleSVTagInfoCollection"/>
   <class name="reco::BoostedDoubleSVTagInfoRef"/>
@@ -73,7 +72,7 @@
   <class name="edm::Wrapper<std::vector<reco::BoostedDoubleSVTagInfo> >"/>
 
   <class name="reco::ShallowTagInfo" ClassVersion="3">
-		<version ClassVersion="3" checksum="3904302444"/>
+		<version ClassVersion="3" checksum="963908996"/>
   </class>
   <class name="reco::ShallowTagInfoCollection"/>
   <class name="reco::ShallowTagInfoRef"/>
@@ -84,7 +83,7 @@
   <class name="edm::Wrapper<std::vector<reco::ShallowTagInfo> >"/>
 
   <class name="reco::CombinedTauTagInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="2237505417"/>
+   <version ClassVersion="3" checksum="1170584203"/>
   </class>
   <class name="reco::CombinedTauTagInfoCollection"/>
   <class name="reco::CombinedTauTagInfoRef"/>
@@ -94,7 +93,7 @@
   <class name="edm::Wrapper<reco::CombinedTauTagInfoCollection>"/>
 
   <class name="reco::IsolatedTauTagInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="2139950407"/>
+   <version ClassVersion="3" checksum="2093744889"/>
   </class>
   <class name="reco::IsolatedTauTagInfoCollection"/>
   <class name="reco::IsolatedTauTagInfoRef"/>
@@ -133,8 +132,8 @@
   <class name="reco::SoftLeptonTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SoftLeptonTagInfoCollection>"/>
 
-  <class name="std::pair<edm::Ptr<reco::Candidate>, reco::SoftLeptonProperties>"/>
-  <class name="reco::TemplatedSoftLeptonTagInfo<edm::Ptr<reco::Candidate> >::LeptonMap"/>
+  <class name="std::pair<edm::Ptr<reco::io_v1::Candidate>, reco::SoftLeptonProperties>"/>
+  <class name="reco::TemplatedSoftLeptonTagInfo<edm::Ptr<reco::io_v1::Candidate> >::LeptonMap"/>
   <class name="reco::CandSoftLeptonTagInfo" />
   <class name="reco::CandSoftLeptonTagInfoCollection"/>
   <class name="reco::CandSoftLeptonTagInfoRef"/>
@@ -144,14 +143,13 @@
   <class name="edm::Wrapper<reco::CandSoftLeptonTagInfoCollection>"/>
 
 
-  <class name="reco::CATopJetProperties" ClassVersion="10">
-   <version ClassVersion="10" checksum="4096516518"/>
+  <class name="reco::CATopJetProperties" ClassVersion="3">
+   <version ClassVersion="3" checksum="4096516518"/>
   </class>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>"/>
+  <class name="std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::CATopJetProperties>"/>
 
-  <class name="reco::CATopJetTagInfo" ClassVersion="11">
-   <version ClassVersion="10" checksum="3059833435"/>
-   <version ClassVersion="11" checksum="241737491"/>
+  <class name="reco::CATopJetTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="1392563819"/>
   </class>
   <class name="reco::CATopJetTagInfoCollection"/>
   <class name="reco::CATopJetTagInfoRef"/>
@@ -162,17 +160,17 @@
   <class name="reco::HTTTopJetProperties" ClassVersion="3">
     <version ClassVersion="3" checksum="3737009156"/>
   </class>
-  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>"/>
+  <class name="std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::HTTTopJetProperties>"/>
  
   <class name="reco::HTTTopJetTagInfo" ClassVersion="3">
-    <version ClassVersion="3" checksum="3013029993"/>
+    <version ClassVersion="3" checksum="3688420857"/>
   </class>
   <class name="reco::HTTTopJetTagInfoCollection"/>
   <class name="reco::HTTTopJetTagInfoRef"/>
   <class name="reco::HTTTopJetTagInfoRefProd"/>
   <class name="reco::HTTTopJetTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::HTTTopJetTagInfoCollection>"/>
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::HTTTopJetTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::HTTTopJetTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::HTTTopJetTagInfoRef>" />
 
   <class name="std::pair< reco::btau::TaggingVariableName, float >"/>
@@ -188,16 +186,16 @@
   <class name="edm::Wrapper<reco::TaggingVariableListCollection>"/>
 
   <!-- Dictionary for the association in SVTagInfoProxy-->
-  <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > > >" persistent="false"/>
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > >"/>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::Vertex>, unsigned int > > >" persistent="false"/>
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::Vertex>, unsigned int > >">
+  <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::io_v1::Vertex> > > >" persistent="false"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::io_v1::Vertex> > >"/>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::io_v1::Vertex>, unsigned int > > >" persistent="false"/>
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::io_v1::Vertex>, unsigned int > >">
     <field name="transientMap_" transient="true" />
   </class>
-  <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::VertexCompositePtrCandidate> > > >" persistent="false"/>
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::VertexCompositePtrCandidate> > >"/>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::VertexCompositePtrCandidate>, unsigned int > > >" persistent="false"/>
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::VertexCompositePtrCandidate>, unsigned int > >">
+  <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::io_v1::VertexCompositePtrCandidate> > > >" persistent="false"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::io_v1::VertexCompositePtrCandidate> > >"/>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::io_v1::VertexCompositePtrCandidate>, unsigned int > > >" persistent="false"/>
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::io_v1::VertexCompositePtrCandidate>, unsigned int > >">
     <field name="transientMap_" transient="true" />
   </class>
 
@@ -229,7 +227,7 @@
   <!--class name="reco::TauMassTagInfo_ClusterTrackAssociationMapType"/-->
   <class name="reco::TauMassTagInfo_ClusterTrackAssociationRefType"/>
   <class name="reco::TauMassTagInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="1251178229"/>
+   <version ClassVersion="3" checksum="3554191277"/>
   </class>
   <class name="reco::TauMassTagInfoCollection"/>
   <class name="reco::TauMassTagInfoRef"/>
@@ -239,7 +237,7 @@
   <class name="edm::Wrapper<reco::TauMassTagInfoCollection>"/>
 
   <class name="reco::TrackCountingTagInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="4167605446"/>
+   <version ClassVersion="3" checksum="3001913416"/>
   </class>
   <class name="reco::TrackCountingTagInfoCollection"/>
   <class name="reco::TrackCountingTagInfoRef"/>
@@ -249,7 +247,7 @@
   <class name="edm::Wrapper<reco::TrackCountingTagInfoCollection>"/>
 
   <class name="reco::TrackProbabilityTagInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="366358830"/>
+   <version ClassVersion="3" checksum="3100149024"/>
   </class>
   <class name="reco::TrackProbabilityTagInfoCollection"/>
   <class name="reco::TrackProbabilityTagInfoRef"/>
@@ -296,116 +294,116 @@
   <class name="std::vector<Measurement1D>"/>
 
   <!-- RefToBase stuff -->
-  <class name="edm::reftobase::BaseHolder<reco::BaseTagInfo>" />
-  <class name="edm::reftobase::IndirectHolder<reco::BaseTagInfo>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::BaseTagInfoRef>" />
+  <class name="edm::reftobase::BaseHolder<reco::io_v1::BaseTagInfo>" />
+  <class name="edm::reftobase::IndirectHolder<reco::io_v1::BaseTagInfo>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::BaseTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::BaseTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::JTATagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::JTATagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::JTATagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::JetTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::JetTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::JetTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackCountingTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::TrackCountingTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackCountingTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::TrackIPTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackIPTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CandIPTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::CandIPTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CandIPTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SecondaryVertexTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::SecondaryVertexTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::SecondaryVertexTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSecondaryVertexTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::CandSecondaryVertexTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::BoostedDoubleSVTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::BoostedDoubleSVTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::ShallowTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::ShallowTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::DeepFlavourTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::DeepFlavourTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::DeepFlavourTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ParticleTransformerAK4TagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::ParticleTransformerAK4TagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::ParticleTransformerAK4TagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::UnifiedParticleTransformerAK4TagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::UnifiedParticleTransformerAK4TagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::UnifiedParticleTransformerAK4TagInfoRef>" />  
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::IsolatedTauTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::IsolatedTauTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::SoftLeptonTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::SoftLeptonTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::CandSoftLeptonTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::TauMassTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::TauMassTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::TrackProbabilityTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoRef>" />
 
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::BaseTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::BaseTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::BaseTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::JTATagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::JTATagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::JTATagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::JetTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::JetTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::JetTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackCountingTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::TrackCountingTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackCountingTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::TrackIPTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackIPTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CandIPTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::CandIPTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::CandIPTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SecondaryVertexTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::SecondaryVertexTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::SecondaryVertexTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSecondaryVertexTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::CandSecondaryVertexTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::BoostedDoubleSVTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::BoostedDoubleSVTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::ShallowTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::ShallowTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::DeepFlavourTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::DeepFlavourTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::DeepFlavourTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ParticleTransformerAK4TagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::ParticleTransformerAK4TagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::ParticleTransformerAK4TagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::UnifiedParticleTransformerAK4TagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::UnifiedParticleTransformerAK4TagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::UnifiedParticleTransformerAK4TagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::CombinedTauTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::IsolatedTauTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::IsolatedTauTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::SoftLeptonTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::SoftLeptonTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::CandSoftLeptonTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::TauMassTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::TauMassTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::TrackProbabilityTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoFwdRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::io_v1::BaseTagInfo, reco::CATopJetTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>" />
 
 
-  <class name="edm::Ptr<reco::BaseTagInfo>" />
-  <class name="std::vector<edm::Ptr<reco::BaseTagInfo> >" />
-  <class name="edm::FwdPtr<reco::BaseTagInfo>" />
-  <class name="std::vector<edm::FwdPtr<reco::BaseTagInfo> >" />
-  <class name="edm::ValueMap<edm::Ptr<reco::BaseTagInfo> >" />
-  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > >" />
-  <class name="std::vector<reco::BaseTagInfo *>" />
-  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" rntupleStreamerMode="true"/>
+  <class name="edm::Ptr<reco::io_v1::BaseTagInfo>" />
+  <class name="std::vector<edm::Ptr<reco::io_v1::BaseTagInfo> >" />
+  <class name="edm::FwdPtr<reco::io_v1::BaseTagInfo>" />
+  <class name="std::vector<edm::FwdPtr<reco::io_v1::BaseTagInfo> >" />
+  <class name="edm::ValueMap<edm::Ptr<reco::io_v1::BaseTagInfo> >" />
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::io_v1::BaseTagInfo> > >" />
+  <class name="std::vector<reco::io_v1::BaseTagInfo *>" />
+  <class name="edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >" rntupleStreamerMode="true"/>
  <exclusion>
-  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >">
+  <class name="edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >">
    <method name="sort" />
   </class>
  </exclusion>
 
-  <class name="edm::Wrapper<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> > >" />
+  <class name="edm::Wrapper<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> > >" />
 
 
- <class name="edm::FwdRef<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> >"/>
- <class name="edm::Ref<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> >"/>
- <class name="std::vector<edm::FwdRef<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > >"/>
- <class name="std::vector<edm::Ref<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > >"/>
+ <class name="edm::FwdRef<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo>>,reco::io_v1::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >,reco::io_v1::BaseTagInfo> >"/>
+ <class name="edm::Ref<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo>>,reco::io_v1::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >,reco::io_v1::BaseTagInfo> >"/>
+ <class name="std::vector<edm::FwdRef<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo>>,reco::io_v1::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >,reco::io_v1::BaseTagInfo> > >"/>
+ <class name="std::vector<edm::Ref<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo>>,reco::io_v1::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >,reco::io_v1::BaseTagInfo> > >"/>
 
 
- <class name="edm::Wrapper<edm::FwdRef<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > >"/>
- <class name="edm::Wrapper<edm::Ref<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > >"/>
- <class name="edm::Wrapper<std::vector<edm::FwdRef<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > > >"/>
- <class name="edm::Wrapper<std::vector<edm::Ref<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > > >"/>
+ <class name="edm::Wrapper<edm::FwdRef<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo>>,reco::io_v1::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >,reco::io_v1::BaseTagInfo> > >"/>
+ <class name="edm::Wrapper<edm::Ref<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo>>,reco::io_v1::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >,reco::io_v1::BaseTagInfo> > >"/>
+ <class name="edm::Wrapper<std::vector<edm::FwdRef<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo>>,reco::io_v1::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >,reco::io_v1::BaseTagInfo> > > >"/>
+ <class name="edm::Wrapper<std::vector<edm::Ref<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo>>,reco::io_v1::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::io_v1::BaseTagInfo, edm::ClonePolicy<reco::io_v1::BaseTagInfo> >,reco::io_v1::BaseTagInfo> > > >"/>
 
   <class name="btagbtvdeep::JetFeatures" ClassVersion="4">
     <version ClassVersion="3" checksum="386672900"/>
@@ -500,12 +498,12 @@
   <class name="reco::DeepBoostedJetTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::DeepBoostedJetTagInfoCollection>" persistent="false"/>
 
-  <class name="reco::PixelClusterProperties"/>
-  <class name="reco::PixelClusterData" ClassVersion="3">
-    <version ClassVersion="3" checksum="525314740"/>
+  <class name="reco::io_v1::PixelClusterProperties"/>
+  <class name="reco::io_v1::PixelClusterData" ClassVersion="3">
+    <version ClassVersion="3" checksum="88772050"/>
   </class>
-  <class name="reco::PixelClusterTagInfo" ClassVersion="3">
-    <version ClassVersion="3" checksum="2876828956"/>
+  <class name="reco::io_v1::PixelClusterTagInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="2609794082"/>
   </class>
   <class name="reco::PixelClusterTagInfoCollection"/>
   <class name="edm::Wrapper<reco::PixelClusterTagInfoCollection>"/>

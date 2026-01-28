@@ -5,7 +5,7 @@
 <lcgdict>
 
   <class name="l1tp2::CaloCrystalCluster"  ClassVersion="3">
-         <version ClassVersion="3" checksum="811222139"/>
+         <version ClassVersion="3" checksum="3612859615"/>
   </class>
   <class name="std::vector<l1tp2::CaloCrystalCluster>" />
   <class name="l1tp2::CaloCrystalClusterCollection" />
@@ -13,14 +13,14 @@
   <class name="edm::Ref<l1tp2::CaloCrystalClusterCollection>" />
 
   <class name="l1tp2::CaloJet"  ClassVersion="3">
-         <version ClassVersion="3" checksum="2520028496"/>
+         <version ClassVersion="3" checksum="1771236956"/>
   </class>
   <class name="std::vector<l1tp2::CaloJet>" />
   <class name="l1tp2::CaloJetsCollection" />
   <class name="edm::Wrapper<l1tp2::CaloJetsCollection>" />
 
   <class name="l1tp2::CaloPFCluster"  ClassVersion="3">
-         <version ClassVersion="3" checksum="4176166177"/>
+         <version ClassVersion="3" checksum="2510893573"/>
   </class>
   <class name="std::vector<l1tp2::CaloPFCluster>" />
   <class name="l1tp2::CaloPFClusterCollection" />
@@ -35,7 +35,7 @@
   <class name="edm::Wrapper<std::vector<std::vector<l1tp2::GCTHadDigiCluster> > >" /> 
 
   <class name="l1tp2::CaloTower"  ClassVersion="3">
-         <version ClassVersion="3" checksum="2608605419"/>
+         <version ClassVersion="3" checksum="351125807"/>
   </class>
   <class name="std::vector<l1tp2::CaloTower>" />
   <class name="l1tp2::CaloTowerCollection" />
@@ -71,7 +71,7 @@
   <class name="edm::Wrapper<std::vector<std::vector<l1tp2::GCTEmDigiCluster> > >" />  
 
   <class name="l1tp2::Phase2L1CaloJet"  ClassVersion="3">
-         <version ClassVersion="3" checksum="289384850"/>
+         <version ClassVersion="3" checksum="3359793942"/>
   </class>
   <class name="std::vector<l1tp2::Phase2L1CaloJet>" />
   <class name="l1tp2::Phase2L1CaloJetCollection" />

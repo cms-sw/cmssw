@@ -8,28 +8,32 @@
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 
 namespace reco {
+  namespace io_v1 {
 
-  class BaseTagInfo {
-  public:
-    BaseTagInfo(void) {}
+    class BaseTagInfo {
+    public:
+      BaseTagInfo(void) {}
 
-    virtual ~BaseTagInfo(void) {}
+      virtual ~BaseTagInfo(void) {}
 
-    /// clone
-    virtual BaseTagInfo* clone(void) const { return new BaseTagInfo(*this); }
+      /// clone
+      virtual BaseTagInfo* clone(void) const { return new BaseTagInfo(*this); }
 
-    /// returns a polymorphic reference to the tagged jet
-    virtual edm::RefToBase<Jet> jet(void) const { return edm::RefToBase<Jet>(); }
+      /// returns a polymorphic reference to the tagged jet
+      virtual edm::RefToBase<Jet> jet(void) const { return edm::RefToBase<Jet>(); }
 
-    /// returns a list of tracks associated to the jet
-    virtual TrackRefVector tracks(void) const { return TrackRefVector(); }
+      /// returns a list of tracks associated to the jet
+      virtual TrackRefVector tracks(void) const { return TrackRefVector(); }
 
-    /// check if the algorithm is using the tracks or not
-    virtual bool hasTracks(void) const { return false; }
+      /// check if the algorithm is using the tracks or not
+      virtual bool hasTracks(void) const { return false; }
 
-    /// returns a description of the extended informations in a TaggingVariableList
-    virtual TaggingVariableList taggingVariables(void) const { return TaggingVariableList(); }
-  };
+      /// returns a description of the extended informations in a TaggingVariableList
+      virtual TaggingVariableList taggingVariables(void) const { return TaggingVariableList(); }
+    };
+
+  }  // namespace io_v1
+  using BaseTagInfo = io_v1::BaseTagInfo;
 
   DECLARE_EDM_REFS(BaseTagInfo)
 

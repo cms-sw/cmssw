@@ -416,9 +416,8 @@
   </class>
   <class name="std::pair<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> >,std::vector<reco::DeDxHit> >" />
      <!--   <class name="reco::DeDxDataCollection"/> -->
-     <class name="reco::DeDxData" ClassVersion="11">
-      <version ClassVersion="11" checksum="30657010"/>
-      <version ClassVersion="10" checksum="204721063"/>
+     <class name="reco::io_v1::DeDxData" ClassVersion="3">
+      <version ClassVersion="3" checksum="3791549648"/>
      </class>
      <class name="reco::DeDxDataCollection"/>
      <class name="reco::DeDxDataValueMap"/>
@@ -484,23 +483,21 @@
     <class name="edm::Association<std::vector<reco::io_v1::TrackExtra>>"/>
     <class name="edm::Wrapper<edm::Association<std::vector<reco::io_v1::TrackExtra>>>"/>
 
-   <class name="reco::DeDxHitInfo::DeDxHitInfoContainer" ClassVersion="3">
-    <version ClassVersion="2" checksum="3964047764"/>
-    <version ClassVersion="3" checksum="4148946944"/>
+   <class name="reco::io_v1::DeDxHitInfo::DeDxHitInfoContainer" ClassVersion="3">
+    <version ClassVersion="3" checksum="3147335498"/>
    </class>
-   <class name="reco::DeDxHitInfo::DeDxHitInfoContainerCollection"/>
+   <class name="reco::io_v1::DeDxHitInfo::DeDxHitInfoContainerCollection"/>
 
 
-   <class name="reco::DeDxHitInfo" ClassVersion="3">
-    <version ClassVersion="3" checksum="2577777556"/>
-    <version ClassVersion="2" checksum="3000986250"/>
+   <class name="reco::io_v1::DeDxHitInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="4266756504"/>
    </class>
    <class name="reco::DeDxHitInfoCollection"/>
    <class name="reco::DeDxHitInfoRef"/>
    <class name="reco::DeDxHitInfoRefProd"/>
    <class name="reco::DeDxHitInfoRefVector"/>
    <class name="reco::DeDxHitInfoAss"/>
-   <class name="edm::Wrapper<reco::DeDxHitInfo>"/>
+   <class name="edm::Wrapper<reco::io_v1::DeDxHitInfo>"/>
    <class name="edm::Wrapper<reco::DeDxHitInfoCollection>"/>
    <class name="edm::Wrapper<reco::DeDxHitInfoAss>"/>
 

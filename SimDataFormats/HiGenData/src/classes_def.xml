@@ -1,6 +1,6 @@
 <lcgdict>
- <class name="edm::GenHIEvent" ClassVersion="10">
-  <version ClassVersion="10" checksum="1192921172"/>
+ <class name="edm::GenHIEvent" ClassVersion="3">
+  <version ClassVersion="3" checksum="1558760564"/>
  </class>
  <class name="edm::Wrapper<edm::GenHIEvent>"/>
 </lcgdict>

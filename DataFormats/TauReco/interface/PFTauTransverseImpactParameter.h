@@ -21,64 +21,67 @@
 #include "TVector3.h"
 
 namespace reco {
-  class PFTauTransverseImpactParameter {
-    enum { dimension = 3 };
-    enum { covarianceSize = dimension * (dimension + 1) / 2 };
+  namespace io_v1 {
+    class PFTauTransverseImpactParameter {
+      enum { dimension = 3 };
+      enum { covarianceSize = dimension * (dimension + 1) / 2 };
 
-  public:
-    typedef math::Error<dimension>::type CovMatrix;
-    typedef math::XYZPoint Point;
-    typedef math::XYZVector Vector;
+    public:
+      typedef math::Error<dimension>::type CovMatrix;
+      typedef math::XYZPoint Point;
+      typedef math::XYZVector Vector;
 
-    PFTauTransverseImpactParameter() {}
-    /// constructor from values
-    PFTauTransverseImpactParameter(const Point&, double, double, const Point&, double, double, const VertexRef&);
-    PFTauTransverseImpactParameter(const Point&,
-                                   double,
-                                   double,
-                                   const Point&,
-                                   double,
-                                   double,
-                                   const VertexRef&,
-                                   const Point&,
-                                   double,
-                                   const VertexRef&);
+      PFTauTransverseImpactParameter() {}
+      /// constructor from values
+      PFTauTransverseImpactParameter(const Point&, double, double, const Point&, double, double, const VertexRef&);
+      PFTauTransverseImpactParameter(const Point&,
+                                     double,
+                                     double,
+                                     const Point&,
+                                     double,
+                                     double,
+                                     const VertexRef&,
+                                     const Point&,
+                                     double,
+                                     const VertexRef&);
 
-    virtual ~PFTauTransverseImpactParameter() {}
-    PFTauTransverseImpactParameter* clone() const;
+      virtual ~PFTauTransverseImpactParameter() {}
+      PFTauTransverseImpactParameter* clone() const;
 
-    const Point& dxy_PCA() const { return pca_; }
-    double dxy() const { return dxy_; }
-    double dxy_error() const { return dxy_error_; }
-    double dxy_Sig() const { return (dxy_error_ != 0) ? (dxy_ / dxy_error_) : 0.; }
-    const Point& ip3d_PCA() const { return pca3d_; }
-    double ip3d() const { return ip3d_; }
-    double ip3d_error() const { return ip3d_error_; }
-    double ip3d_Sig() const { return (ip3d_error_ != 0) ? (ip3d_ / ip3d_error_) : 0.; }
-    const VertexRef& primaryVertex() const { return PV_; }
-    Point primaryVertexPos() const;
-    CovMatrix primaryVertexCov() const;
-    bool hasSecondaryVertex() const { return hasSV_; }
-    const Vector& flightLength() const;
-    double flightLengthSig() const;
-    CovMatrix flightLengthCov() const;
-    const VertexRef& secondaryVertex() const { return SV_; }
-    Point secondaryVertexPos() const;
-    CovMatrix secondaryVertexCov() const;
+      const Point& dxy_PCA() const { return pca_; }
+      double dxy() const { return dxy_; }
+      double dxy_error() const { return dxy_error_; }
+      double dxy_Sig() const { return (dxy_error_ != 0) ? (dxy_ / dxy_error_) : 0.; }
+      const Point& ip3d_PCA() const { return pca3d_; }
+      double ip3d() const { return ip3d_; }
+      double ip3d_error() const { return ip3d_error_; }
+      double ip3d_Sig() const { return (ip3d_error_ != 0) ? (ip3d_ / ip3d_error_) : 0.; }
+      const VertexRef& primaryVertex() const { return PV_; }
+      Point primaryVertexPos() const;
+      CovMatrix primaryVertexCov() const;
+      bool hasSecondaryVertex() const { return hasSV_; }
+      const Vector& flightLength() const;
+      double flightLengthSig() const;
+      CovMatrix flightLengthCov() const;
+      const VertexRef& secondaryVertex() const { return SV_; }
+      Point secondaryVertexPos() const;
+      CovMatrix secondaryVertexCov() const;
 
-  private:
-    Point pca_;
-    double dxy_{0};
-    double dxy_error_{0};
-    Point pca3d_;
-    double ip3d_{0};
-    double ip3d_error_{0};
-    VertexRef PV_;
-    bool hasSV_{false};
-    Vector FlightLength_;
-    double FlightLengthSig_{0};
-    VertexRef SV_;
-  };
+    private:
+      Point pca_;
+      double dxy_{0};
+      double dxy_error_{0};
+      Point pca3d_;
+      double ip3d_{0};
+      double ip3d_error_{0};
+      VertexRef PV_;
+      bool hasSV_{false};
+      Vector FlightLength_;
+      double FlightLengthSig_{0};
+      VertexRef SV_;
+    };
+  }  // namespace io_v1
+  using PFTauTransverseImpactParameter = io_v1::PFTauTransverseImpactParameter;
 }  // namespace reco
 
 #endif

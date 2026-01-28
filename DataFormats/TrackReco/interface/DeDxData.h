@@ -4,28 +4,32 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 namespace reco {
+  namespace io_v1 {
 
-  class DeDxData {
-  public:
-    DeDxData();
-    DeDxData(float val, int nsat, unsigned int num);
-    DeDxData(float val, float er, int sat, unsigned int num);
-    virtual ~DeDxData();
-    float dEdx() const;
-    float dEdxError() const;
-    int numberOfSaturatedMeasurements() const;
-    unsigned int numberOfMeasurements() const;
+    class DeDxData {
+    public:
+      DeDxData();
+      DeDxData(float val, int nsat, unsigned int num);
+      DeDxData(float val, float er, int sat, unsigned int num);
+      virtual ~DeDxData();
+      float dEdx() const;
+      float dEdxError() const;
+      int numberOfSaturatedMeasurements() const;
+      unsigned int numberOfMeasurements() const;
 
-  private:
-    float value_;
-    float error_;
-    unsigned int numberOfMeasurements_;
-    int numberOfSatMeasurements_;
-  };
+    private:
+      float value_;
+      float error_;
+      unsigned int numberOfMeasurements_;
+      int numberOfSatMeasurements_;
+    };
+
+  }  // namespace io_v1
+  using DeDxData = io_v1::DeDxData;
 
   //Association Track -> float estimator
-  typedef std::vector<reco::DeDxData> DeDxDataCollection;
-  typedef edm::ValueMap<reco::DeDxData> DeDxDataValueMap;
+  typedef std::vector<DeDxData> DeDxDataCollection;
+  typedef edm::ValueMap<DeDxData> DeDxDataValueMap;
 
   // //Association Track -> float estimator
   //typedef  edm::AssociationVector<reco::TrackRefProd,std::vector<DeDxData> >  DeDxDataCollection;
