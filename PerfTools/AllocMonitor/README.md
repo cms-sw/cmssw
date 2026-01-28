@@ -176,3 +176,12 @@ This service registers a monitor when the service is created and will abort the 
 - `skipCount` : the number of times allocations have satisfied the `minThreshold` to `maxThreshold` range before the next time will trigger an abort. A value of `0` will trigger the first time the range is met.
 
 This service is multi-thread safe although it may not yield consistent results if multiple threads reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.
+
+### PresentThresholdAbortAllocMonitor
+
+This service registers a monitor when the service is created and will abort the job (which will normally trigger a stack trace) if the actual presently allocated memory would grow above a threshold for a specified number of times. The service accepts the following parameters
+
+- `threshold` : the number of bytes the actual presently allocated memory must reach before an abort might be triggered.
+- `skipCount` : the number of times the `threshold` condition is crossed  before the next time will trigger an abort. A value of `0` will trigger the first time the `threshold` is met.
+
+This service is multi-thread safe although it may not yield consistent results if multiple threads reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.
