@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_interface_ModulesSoA_h
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/Portable/interface/PortableCollection.h"
 
 #include "RecoTracker/LSTCore/interface/Common.h"
@@ -46,13 +47,34 @@ namespace lst {
 
   GENERATE_SOA_LAYOUT(ModulesPixelSoALayout, SOA_COLUMN(unsigned int, connectedPixels))
 
+  GENERATE_SOA_BLOCKS(ModulesSoABlocksLayout,
+                      SOA_BLOCK(modules, ModulesSoALayout),
+                      SOA_BLOCK(modulesPixel, ModulesPixelSoALayout))
+
   using ModulesSoA = ModulesSoALayout<>;
   using ModulesPixelSoA = ModulesPixelSoALayout<>;
+  using ModulesSoABlocks = ModulesSoABlocksLayout<>;
 
   using Modules = ModulesSoA::View;
   using ModulesConst = ModulesSoA::ConstView;
   using ModulesPixel = ModulesPixelSoA::View;
   using ModulesPixelConst = ModulesPixelSoA::ConstView;
+  using ModulesSoABlocksView = ModulesSoABlocks::View;
+  using ModulesSoABlocksConstView = ModulesSoABlocks::ConstView;
+
+  // Template based accessor for getting specific SoA views. Needed in LSTEvent.dev.cc
+  template <typename TSoA>
+  struct ModulesViewAccessor;
+
+  template <>
+  struct ModulesViewAccessor<ModulesSoA> {
+    static constexpr auto get(auto const& v) { return v.modules(); }
+  };
+
+  template <>
+  struct ModulesViewAccessor<ModulesPixelSoA> {
+    static constexpr auto get(auto const& v) { return v.modulesPixel(); }
+  };
 
 }  // namespace lst
 
