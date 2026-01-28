@@ -4,6 +4,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "SimHitCategory.h"
 
 class TrackingSlaveSD;  // for friend declaration only
 
@@ -14,8 +15,6 @@ class TrackingSlaveSD;  // for friend declaration only
 
 class PSimHit {
 public:
-  static constexpr unsigned int k_tidOffset = 200000000;
-
   PSimHit() : theDetUnitId(0) {}
 
   PSimHit(const Local3DPoint& entry,
@@ -107,15 +106,6 @@ public:
    */
   unsigned int trackId() const { return theTrackId; }
 
-  /** In case te SimTrack ID is incremented by the k_tidOffset for hit category definition, this
-   * methods returns the original theTrackId value directly.
-   */
-  unsigned int originalTrackId() const { return theTrackId % k_tidOffset; }
-
-  unsigned int offsetTrackId() const { return theTrackId / k_tidOffset; }
-
-  static unsigned int addTrackIdOffset(unsigned int tId, unsigned int offset) { return offset * k_tidOffset + tId; }
-
   EncodedEventId eventId() const { return theEventId; }
 
   void setEventId(EncodedEventId e) { theEventId = e; }
@@ -128,7 +118,11 @@ public:
    *  value with special significance is zero (for "undefined"), so zero should
    *  not be the ID of any process.
    */
-  unsigned short processType() const { return theProcessType; }
+  // use 9 bits (up to 511) for process id, reserve the rest for hit production mechanism id
+  unsigned short processType() const { return theProcessType & k_procidMask_; }
+
+  unsigned short hitProdType() const { return (theProcessType >> k_hitidShift_) & k_hitidMask_; }
+  void setHitProdType(unsigned int hitId) { theProcessType |= hitId << k_hitidShift_; }
 
   void setTof(float tof) { theTof = tof; }
 
