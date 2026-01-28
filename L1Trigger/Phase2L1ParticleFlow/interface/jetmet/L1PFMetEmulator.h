@@ -114,7 +114,7 @@ namespace L1METEmu {
     /*
       Convert pt, phi to px, py
       - Use 2nd order Polynomial interpolation for cos, sin
-      - Divide the sine and cosine value from -2 pi to 2 pi into 16 parts
+      - Divide the sine and cosine value from -pi to pi into 16 parts
       - Fitting the value with 2nd order function
     */
 
@@ -126,6 +126,10 @@ namespace L1METEmu {
         phibin = i;
         break;
       }
+    }
+    // Handle the edge case where hwPhi is exactly equal to the last bin edge
+    if (hwPhi == P.phi_edges[P.phi_bins]) {
+      phibin = P.phi_bins - 1;
     }
 
     Particle_xy proj_xy;
