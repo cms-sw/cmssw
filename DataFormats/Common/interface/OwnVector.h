@@ -217,7 +217,7 @@ namespace edm {
                        std::vector<void const*>& ptrs) const;
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(11)
+    CMS_CLASS_VERSION(3)
 
   private:
     void destroy() noexcept;

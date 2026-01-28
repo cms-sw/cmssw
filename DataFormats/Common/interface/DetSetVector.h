@@ -227,7 +227,7 @@ namespace edm {
     void fillView(ProductID const& id, std::vector<void const*>& pointers, FillViewHelperVector& helpers) const;
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   private:
     collection_type _sets;

@@ -73,7 +73,7 @@ namespace edm {
     bool isAvailable() const { return holder_->isAvailable(); }
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   private:
     holder_type* holder_;
