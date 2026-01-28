@@ -517,12 +517,13 @@ void DD4hep_TestPixelTopology::analyseRectangle(const GeomDetUnit& det) {
 
   edm::LogVerbatim("DD4hep_TestPixelTopology")
       << " " << fvecround(pos, 4) << " R= " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()), 4)
-      << " phi= " << fround(convertRadToDeg(pos.phi()), 4) << " outerMiddle " << fvecround(outerMiddle, 4) << "\n"
+      << " phi= " << fround(convertRadToDeg(pos.barePhi()), 4) << " outerMiddle " << fvecround(outerMiddle, 4) << "\n"
       << " l/w/t " << fround(length, 4) << " / " << fround(width, 4) << " / " << fround(thickness, 4)
       << " RadLeng= " << p.mediumProperties().radLen() << " Xi= " << p.mediumProperties().xi()
       << " det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n";
   sunitt_ << " " << fvecround(pos, 2) << " R= " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()), 2)
-          << " phi= " << fround(convertRadToDeg(pos.phi()), 2) << " outerMiddle " << fvecround(outerMiddle, 2) << "\n"
+          << " phi= " << fround(convertRadToDeg(pos.barePhi()), 2) << " outerMiddle " << fvecround(outerMiddle, 2)
+          << "\n"
           << " l/w/t " << fround(length, 2) << " / " << fround(width, 2) << " / " << fround(thickness, 2)
           << " RadLeng= " << p.mediumProperties().radLen() << " Xi= " << p.mediumProperties().xi()
           << " det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n";
