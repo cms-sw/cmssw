@@ -154,9 +154,6 @@ private:
   edm::FileInPath processingModulesFile;
   edm::FileInPath wiresFile;
 
-  edm::FileInPath tableTEDFile;
-  edm::FileInPath tableTREFile;
-
   std::string asciiEventOutName_;
   std::ofstream asciiEventOut_;
 
@@ -264,11 +261,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   reduced_ = iConfig.getParameter<bool>("Reduced");
   nHelixPar_ = iConfig.getParameter<unsigned int>("Hnpar");
 
-  if (extended_) {
-    tableTEDFile = iConfig.getParameter<edm::FileInPath>("tableTEDFile");
-    tableTREFile = iConfig.getParameter<edm::FileInPath>("tableTREFile");
-  }
-
   // --------------------------------------------------------------------------------
   // set options in Settings based on inputs from configuration files
   // --------------------------------------------------------------------------------
@@ -291,12 +283,8 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   settings_.setDoMultipleMatches(iConfig.getParameter<bool>("DoMultipleMatches"));
 
   if (extended_) {
-    settings_.setTableTEDFile(tableTEDFile.fullPath());
-    settings_.setTableTREFile(tableTREFile.fullPath());
-
-    //FIXME: The TED and TRE tables are currently disabled by default, so we
-    //need to allow for the additional tracklets that will eventually be
-    //removed by these tables, once they are finalized
+    //FIXME: We need to allow for the additional tracklets that will eventually
+    //       be removed by lookup tables, once they are finalized
     settings_.setNbitstrackletindex(15);
   }
 
@@ -312,10 +300,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
 #endif
         << "\n process modules : " << processingModulesFile.fullPath()
         << "\n memory modules :  " << memoryModulesFile.fullPath() << "\n wires          :  " << wiresFile.fullPath();
-    if (extended_) {
-      edm::LogVerbatim("Tracklet") << "table_TED    :  " << tableTEDFile.fullPath()
-                                   << "\n table_TRE    :  " << tableTREFile.fullPath();
-    }
   }
   if (settings_.storeTrackBuilderOutput() && (settings_.doMultipleMatches() || !settings_.removalType().empty())) {
     cms::Exception exception("ConfigurationNotSupported.");

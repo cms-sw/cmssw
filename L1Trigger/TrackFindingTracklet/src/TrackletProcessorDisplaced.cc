@@ -3,7 +3,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/AllStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/AllInnerStubsMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/StubPairsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"

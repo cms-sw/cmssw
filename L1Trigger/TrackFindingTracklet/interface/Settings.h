@@ -65,8 +65,6 @@ namespace trklet {
     std::string const& processingModulesFile() const { return processingModulesFile_; }
     std::string const& memoryModulesFile() const { return memoryModulesFile_; }
     std::string const& wiresFile() const { return wiresFile_; }
-    std::string const& tableTEDFile() const { return tableTEDFile_; }
-    std::string const& tableTREFile() const { return tableTREFile_; }
 
     void setFitPatternFile(std::string fitPatternFileName) { fitPatternFile_ = fitPatternFileName; }
     void setProcessingModulesFile(std::string processingModulesFileName) {
@@ -74,8 +72,6 @@ namespace trklet {
     }
     void setMemoryModulesFile(std::string memoryModulesFileName) { memoryModulesFile_ = memoryModulesFileName; }
     void setWiresFile(std::string wiresFileName) { wiresFile_ = wiresFileName; }
-    void setTableTEDFile(std::string tableTEDFileName) { tableTEDFile_ = tableTEDFileName; }
-    void setTableTREFile(std::string tableTREFileName) { tableTREFile_ = tableTREFileName; }
 
     unsigned int nzbitsstub(unsigned int layerdisk) const { return nzbitsstub_[layerdisk]; }
     unsigned int nphibitsstub(unsigned int layerdisk) const { return nphibitsstub_[layerdisk]; }
@@ -200,9 +196,6 @@ namespace trklet {
     bool writeHLSInvTable() const { return writeHLSInvTable_; }
 
     unsigned int writememsect() const { return writememsect_; }
-
-    bool enableTripletTables() const { return enableTripletTables_; }
-    bool writeTripletTables() const { return writeTripletTables_; }
 
     bool writeoutReal() const { return writeoutReal_; }
 
@@ -506,8 +499,6 @@ namespace trklet {
     std::string processingModulesFile_;
     std::string memoryModulesFile_;
     std::string wiresFile_;
-    std::string tableTEDFile_;
-    std::string tableTREFile_;
 
     double rcrit_{55.0};  // critical radius for the hourglass configuration
 
@@ -955,14 +946,6 @@ namespace trklet {
     bool writeHLSInvTable_{false};  //Write out tables of drinv and invt in tracklet calculator for HLS module
 
     unsigned int writememsect_{3};  //writemem only for this sector (note that the files will have _4 extension)
-
-    bool enableTripletTables_{false};  //Enable the application of the TED and
-                                       //TRE tables; when this flag is false,
-                                       //the tables will not be read from disk
-    bool writeTripletTables_{false};   //Train and write the TED and TRE tables. N.B.: the tables
-                                       //cannot be applied while they are being trained, i.e.,
-                                       //this flag effectively turns off the cuts in
-                                       //TrackletEngineDisplaced and TripletEngine
 
     bool writeoutReal_{false};
 
