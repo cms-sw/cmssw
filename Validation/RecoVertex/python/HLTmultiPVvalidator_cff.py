@@ -10,6 +10,7 @@ hltMultiPVanalysis = vertexAnalysis.clone(
     trackAssociatorMap    = "trackingParticleRecoTrackAsssociation",
     vertexAssociator      = "VertexAssociatorByPositionAndTracks"
 )
+
 from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import VertexAssociatorByPositionAndTracks as _VertexAssociatorByPositionAndTracks
 vertexAssociatorByPositionAndTracks4pixelTracks = _VertexAssociatorByPositionAndTracks.clone(
@@ -70,6 +71,18 @@ hltPVanalysis = hltMultiPVanalysis.clone(
     )
 )
 
+hltPVanalysisReconstructable = hltMultiPVanalysis.clone(
+    do_generic_sim_plots  = False, # to not produce fill the ones from hltPixelPVanalysisReconstructable twice
+    use_reconstructable_simvertices = True,
+    reco_tracks_for_reconstructable_simvertices = 1, #inclusive, below or equal discard sim vertex.
+    root_folder           = "HLT/Vertexing/ValidationWRTReconstructableSim",
+    trackAssociatorMap    = "tpToHLTpfMuonMergingTrackAssociation",
+    vertexAssociator      = "vertexAssociatorByPositionAndTracks4pfMuonMergingTracks",
+    vertexRecoCollections = (
+        "hltVerticesPFFilter",
+    )
+)
+
 tpToHLTphase2TrackAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = "hltGeneralTracks"
 )
@@ -85,6 +98,7 @@ def _modifyFullPVanalysisForPhase2(pvanalysis):
     pvanalysis.vertexAssociator   = "vertexAssociatorByPositionAndTracks4phase2HLTTracks"
 
 phase2_tracker.toModify(hltPVanalysis, _modifyFullPVanalysisForPhase2)
+phase2_tracker.toModify(hltPVanalysisReconstructable, _modifyFullPVanalysisForPhase2)
 
 hltMultiPVAssociations = cms.Task(
     hltOtherTPClusterProducer,
@@ -98,9 +112,8 @@ hltMultiPVAssociations = cms.Task(
     vertexAssociatorByPositionAndTracks4phase2HLTTracks
 )
 
-hltMultiPVValidation = cms.Sequence( 
-    hltPixelPVanalysis
-    + hltPixelPVanalysisReconstructable
-    + hltPVanalysis,
-    hltMultiPVAssociations
-)
+hltMultiPVValidation = cms.Sequence(hltPixelPVanalysis +
+                                    hltPixelPVanalysisReconstructable +
+                                    hltPVanalysis +
+                                    hltPVanalysisReconstructable,
+                                    hltMultiPVAssociations)
