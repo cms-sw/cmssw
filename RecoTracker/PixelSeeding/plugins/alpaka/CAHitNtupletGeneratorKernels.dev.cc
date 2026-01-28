@@ -169,8 +169,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_nCellTracks_ =
         cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_extraStorage_->data() + 4));
 
-    deviceTriplets_ = CAPairSoACollection(maxDoublets * algoParams.avgCellsPerCell_, queue);
-    deviceTracksCells_ = CAPairSoACollection(nCellsToTracks, queue);
+    deviceTriplets_ = CAPairSoACollection(queue, std::lrint(maxDoublets * algoParams.avgCellsPerCell_));
+    deviceTracksCells_ = CAPairSoACollection(queue, nCellsToTracks);
 
     //TODO: if doStats?
     alpaka::memset(queue, *counters_, 0);
@@ -274,7 +274,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     auto threadsPerBlock = 1024;
-    auto blocks = cms::alpakatools::divide_up_by(maxDoublets * m_params.algoParams_.avgCellsPerCell_, threadsPerBlock);
+    auto blocks = cms::alpakatools::divide_up_by(std::lrint(maxDoublets * m_params.algoParams_.avgCellsPerCell_),
+                                                 threadsPerBlock);
     auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
     alpaka::exec<Acc1D>(queue,
@@ -339,7 +340,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     CellToTracks::template launchFinalize<Acc1D>(this->device_cellToTracksView_, queue);
 
-    blocks = cms::alpakatools::divide_up_by(maxDoublets * m_params.algoParams_.avgCellsPerCell_, threadsPerBlock);
+    blocks = cms::alpakatools::divide_up_by(std::lrint(maxDoublets * m_params.algoParams_.avgCellsPerCell_),
+                                            threadsPerBlock);
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
     alpaka::exec<Acc1D>(queue,

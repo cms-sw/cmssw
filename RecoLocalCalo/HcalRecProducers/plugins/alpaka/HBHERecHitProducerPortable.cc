@@ -130,7 +130,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::ParameterSet const& ps) {
     std::vector<int> offsets = ps.getParameter<std::vector<int>>("pulseOffsets");
 
-    PortableHostCollection<hcal::HcalMahiPulseOffsetsSoA> obj(offsets.size(), cms::alpakatools::host());
+    PortableHostCollection<hcal::HcalMahiPulseOffsetsSoA> obj(cms::alpakatools::host(), offsets.size());
     auto view = obj.view();
 
     for (uint32_t i = 0; i < offsets.size(); i++) {
@@ -153,7 +153,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const f3DigisSize = f3HBDigisDev->metadata().size();
 
     auto const totalChannels = f01DigisSize + f5DigisSize + f3DigisSize;
-    OProductType outputGPU_{totalChannels, queue};
+    OProductType outputGPU_{queue, totalChannels};
 
     if (totalChannels > 0) {
       // conditions

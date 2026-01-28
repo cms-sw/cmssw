@@ -11,6 +11,6 @@
 
 namespace reco {
   template <typename TDev>
-  using CAGeometryDevice = PortableDeviceCollection<CALayout, TDev>;
+  using CAGeometryDevice = PortableDeviceCollection<TDev, CALayout>;
 }
 #endif  // RecoTracker_PixelSeeding_interface_CAGeometryDevice_H

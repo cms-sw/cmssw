@@ -67,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   public:
     PortableFEDMover(Queue& queue, uint32_t rawBufferSize, uint32_t fedChannelsNb)
         : buffer_(cms::alpakatools::make_host_buffer<uint8_t[]>(queue, rawBufferSize)),
-          mapping_(fedChannelsNb, queue),
+          mapping_(queue, fedChannelsNb),
           bufferSize_(0),
           channelNb_(fedChannelsNb),
           offset4FedId_(sistrip::FED_ID_MAX + 1) {}

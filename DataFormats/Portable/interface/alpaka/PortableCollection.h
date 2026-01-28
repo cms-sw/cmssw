@@ -14,7 +14,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // generic SoA-based product in the device (that may be host) memory
   template <typename T>
-  using PortableCollection = ::PortableCollection<T, Device>;
+  using PortableCollection = ::PortableCollection<Device, T>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

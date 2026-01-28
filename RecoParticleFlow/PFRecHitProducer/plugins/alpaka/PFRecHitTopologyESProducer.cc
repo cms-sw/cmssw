@@ -50,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     std::unique_ptr<typename CAL::TopologyTypeHost> produce(const typename CAL::TopologyRecordType& iRecord) {
       const auto& geom = iRecord.get(geomToken_);
-      auto product = std::make_unique<typename CAL::TopologyTypeHost>(CAL::kSize, cms::alpakatools::host());
+      auto product = std::make_unique<typename CAL::TopologyTypeHost>(cms::alpakatools::host(), CAL::kSize);
       auto view = product->view();
       const int calEnums[2] = {CAL::kSubdetectorBarrelId, CAL::kSubdetectorEndcapId};
       for (const auto subdet : calEnums) {

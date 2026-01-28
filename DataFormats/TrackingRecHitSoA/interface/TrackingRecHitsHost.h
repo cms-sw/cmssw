@@ -28,15 +28,13 @@ namespace reco {
     // FIXME add an explicit overload for the host case
     template <typename TQueue>
     explicit TrackingRecHitHost(TQueue queue, uint32_t nHits, uint32_t nModules)
-        : HitPortableCollectionHost(queue, static_cast<int32_t>(nHits), static_cast<int32_t>(nModules + 1)) {}
+        : HitPortableCollectionHost(queue, nHits, nModules + 1) {}
     // Why this +1? See TrackingRecHitDevice.h constructor for an explanation
 
     // Constructor from clusters
     template <typename TQueue>
     explicit TrackingRecHitHost(TQueue queue, SiPixelClustersHost const& clusters)
-        : HitPortableCollectionHost(queue,
-                                    static_cast<int32_t>(clusters.nClusters()),
-                                    static_cast<int32_t>(clusters.view().metadata().size())) {
+        : HitPortableCollectionHost(queue, clusters.nClusters(), clusters.view().metadata().size()) {
       auto hitsView = view().trackingHits();
       auto modsView = view().hitModules();
 

@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       // in/out collections
       const auto &particles = event.get(particles_token_);
       const auto batch_size = particles.const_view().metadata().size();
-      auto multi_head_output = portabletest::MultiHeadNetDeviceCollection(batch_size, event.queue());
+      auto multi_head_output = portabletest::MultiHeadNetDeviceCollection(event.queue(), batch_size);
 
       // records
       auto input_records = particles.const_view().records();

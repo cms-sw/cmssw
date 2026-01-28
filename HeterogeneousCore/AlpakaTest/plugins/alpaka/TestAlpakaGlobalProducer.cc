@@ -38,7 +38,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       [[maybe_unused]] auto const& esData = iSetup.getData(esToken_);
       [[maybe_unused]] auto const& esBlocksData = iSetup.getData(esBlocksToken_);
 
-      portabletest::TestDeviceCollection deviceProduct{size_, iEvent.queue()};
+      portabletest::TestDeviceCollection deviceProduct{iEvent.queue(), size_};
       portabletest::TestDeviceCollection2 deviceProductMulti2{iEvent.queue(), size_, size2_};
       portabletest::TestDeviceCollection3 deviceProductMulti3{iEvent.queue(), size_, size2_, size3_};
 

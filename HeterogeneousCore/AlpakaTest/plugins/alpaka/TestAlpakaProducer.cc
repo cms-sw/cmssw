@@ -30,7 +30,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void produce(edm::StreamID sid, device::Event& event, device::EventSetup const&) const override {
       // run the algorithm, potentially asynchronously
-      portabletest::TestDeviceCollection deviceCollection{size_, event.queue()};
+      portabletest::TestDeviceCollection deviceCollection{event.queue(), size_};
       deviceCollection.zeroInitialise(event.queue());
       algo_.checkZero(event.queue(), deviceCollection);
       algo_.fill(event.queue(), deviceCollection);

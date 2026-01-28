@@ -9,8 +9,8 @@ namespace hcal {
   template <typename TDev>
   class HcalRecoParamWithPulseShapeT {
   public:
-    using RecoParamCollection = PortableCollection<HcalRecoParamSoA, TDev>;
-    using PulseShapeCollection = PortableCollection<HcalPulseShapeSoA, TDev>;
+    using RecoParamCollection = PortableCollection<TDev, HcalRecoParamSoA>;
+    using PulseShapeCollection = PortableCollection<TDev, HcalPulseShapeSoA>;
 
     using PulseShapeConstElement = typename PulseShapeCollection::ConstView::const_element;
 
@@ -34,10 +34,10 @@ namespace hcal {
     };
 
     HcalRecoParamWithPulseShapeT(size_t recoSize, size_t pulseSize, TDev const& dev)
-        : recoParam_(recoSize, dev), pulseShape_(pulseSize, dev) {}
+        : recoParam_(dev, recoSize), pulseShape_(dev, pulseSize) {}
     template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
     HcalRecoParamWithPulseShapeT(size_t recoSize, size_t pulseSize, TQueue const& queue)
-        : recoParam_(recoSize, queue), pulseShape_(pulseSize, queue) {}
+        : recoParam_(queue, recoSize), pulseShape_(queue, pulseSize) {}
     HcalRecoParamWithPulseShapeT(RecoParamCollection reco, PulseShapeCollection pulse)
         : recoParam_(std::move(reco)), pulseShape_(std::move(pulse)) {}
 

@@ -35,8 +35,8 @@ TEST_CASE("Deep copy from SoABlocks Generic View") {
   const std::size_t elemsPCA = 20;
 
   // Portable Collections
-  PortableHostCollection<SoAPosition> positionCollection(elemsPos, cms::alpakatools::host());
-  PortableHostCollection<SoAPCA> pcaCollection(elemsPCA, cms::alpakatools::host());
+  PortableHostCollection<SoAPosition> positionCollection(cms::alpakatools::host(), elemsPos);
+  PortableHostCollection<SoAPCA> pcaCollection(cms::alpakatools::host(), elemsPCA);
 
   // Portable Collection Views
   SoAPosition::View& positionCollectionView = positionCollection.view();
@@ -73,7 +73,7 @@ TEST_CASE("Deep copy from SoABlocks Generic View") {
             pcaCollectionView.metadata().addressOf_candidateDirection());
 
     // PortableHostCollection that will host the aggregated columns
-    std::array<cms::soa::size_type, 2> sizes{{elemsPos, elemsPCA}};
+    std::array<SoAGenericBlocks::size_type, 2> sizes{{elemsPos, elemsPCA}};
     PortableHostCollection<SoAGenericBlocks> genericCollection(cms::alpakatools::host(), sizes);
     genericCollection.deepCopy(genericBlocksView);
 

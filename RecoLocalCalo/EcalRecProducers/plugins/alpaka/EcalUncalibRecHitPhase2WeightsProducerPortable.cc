@@ -126,7 +126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const uint32_t size = digis->metadata().size();
 
     //allocate output product on the device
-    OutputProduct uncalibratedRecHits{static_cast<int32_t>(size), event.queue()};
+    OutputProduct uncalibratedRecHits{event.queue(), size};
 
     //do not run the algo if there are no digis
     if (size > 0) {

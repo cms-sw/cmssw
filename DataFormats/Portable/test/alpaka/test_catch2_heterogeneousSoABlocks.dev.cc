@@ -24,7 +24,12 @@ GENERATE_SOA_LAYOUT(EdgesT, SOA_COLUMN(int, src), SOA_COLUMN(int, dst), SOA_COLU
 
 using Edges = EdgesT<>;
 
+GENERATE_SOA_BLOCKS(OneBlockTemplate, SOA_BLOCK(nodes, NodesT))
 GENERATE_SOA_BLOCKS(GraphT, SOA_BLOCK(nodes, NodesT), SOA_BLOCK(edges, EdgesT))
+
+using OneBlock = OneBlockTemplate<>;
+using OneBlockView = OneBlock::View;
+using OneBlockConstView = OneBlock::ConstView;
 
 using Graph = GraphT<>;
 using GraphView = Graph::View;
@@ -54,6 +59,21 @@ struct FillSoAs {
     }
     if (cms::alpakatools::once_per_grid(acc)) {
       edges.count() = E;
+    }
+  }
+};
+
+// Fill one block SoABlocks
+struct FillOneBlockSoABlocks {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, OneBlockView blocksView) const {
+    const int N = static_cast<int>(blocksView.nodes().metadata().size());
+
+    // Fill nodes with the indexes
+    for (auto i : cms::alpakatools::uniform_elements(acc, blocksView.nodes().metadata().size())) {
+      blocksView.nodes()[i].id() = static_cast<int>(i);
+    }
+    if (cms::alpakatools::once_per_grid(acc)) {
+      blocksView.nodes().count() = N;
     }
   }
 };
@@ -103,43 +123,55 @@ TEST_CASE("SoABlocks minimal graph in heterogeneous environment") {
     const int E = 120;
 
     // Portable Collections for SoAs
-    PortableCollection<Nodes, Device> nodesCollection(N, queue);
-    PortableCollection<Edges, Device> edgesCollection(E, queue);
+    PortableCollection<Device, Nodes> nodesCollection(queue, N);
+    PortableCollection<Device, Edges> edgesCollection(queue, E);
     Nodes::View& nodesCollectionView = nodesCollection.view();
     Edges::View& edgesCollectionView = edgesCollection.view();
 
     // Portable Collection for SoABlocks
-    PortableCollection<Graph, Device> graphCollection(queue, N, E);
+    PortableCollection<Device, OneBlock> oneBlockCollection(queue, N);
+    OneBlockView& oneBlockCollectionView = oneBlockCollection.view();
+
+    PortableCollection<Device, Graph> graphCollection(queue, N, E);
     GraphView& graphCollectionView = graphCollection.view();
 
     // Work division
     const std::size_t blockSize = 256;
+    const std::size_t numberOfBlocksOneBlockVersion = cms::alpakatools::divide_up_by(N, blockSize);
+    const auto workDivOneBlockVersion = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocksOneBlockVersion, blockSize);
+
     const std::size_t maxElems = std::max<std::size_t>(N, E);
     const std::size_t numberOfBlocks = cms::alpakatools::divide_up_by(maxElems, blockSize);
     const auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
 
     // Fill: separate e blocks
     alpaka::exec<Acc1D>(queue, workDiv, FillSoAs{}, nodesCollectionView, edgesCollectionView);
+    alpaka::exec<Acc1D>(queue, workDivOneBlockVersion, FillOneBlockSoABlocks{}, oneBlockCollectionView);
     alpaka::exec<Acc1D>(queue, workDiv, FillBlocks{}, graphCollectionView);
     alpaka::wait(queue);
 
     // Check results on host
-    PortableHostCollection<Nodes> nodesHost(N, cms::alpakatools::host());
-    PortableHostCollection<Edges> edgesHost(E, cms::alpakatools::host());
+    PortableHostCollection<Nodes> nodesHost(cms::alpakatools::host(), N);
+    PortableHostCollection<Edges> edgesHost(cms::alpakatools::host(), E);
+    PortableHostCollection<OneBlock> oneBlockHost(cms::alpakatools::host(), N);
     PortableHostCollection<Graph> graphHost(cms::alpakatools::host(), N, E);
 
     alpaka::memcpy(queue, nodesHost.buffer(), nodesCollection.buffer());
     alpaka::memcpy(queue, edgesHost.buffer(), edgesCollection.buffer());
+    alpaka::memcpy(queue, oneBlockHost.buffer(), oneBlockCollection.buffer());
     alpaka::memcpy(queue, graphHost.buffer(), graphCollection.buffer());
     alpaka::wait(queue);
 
     const Nodes::ConstView nodesHostView = nodesHost.const_view();
     const Edges::ConstView edgesHostView = edgesHost.const_view();
+    const OneBlockConstView oneBlockHostView = oneBlockHost.const_view();
     const GraphConstView graphHostView = graphHost.const_view();
 
     // Nodes
     REQUIRE(graphHostView.nodes().count() == N);
     for (int i = 0; i < N; ++i) {
+      REQUIRE(oneBlockHostView.nodes()[i].id() == nodesHostView[i].id());
+      REQUIRE(oneBlockHostView.nodes()[i].id() == i);
       REQUIRE(graphHostView.nodes()[i].id() == nodesHostView[i].id());
       REQUIRE(graphHostView.nodes()[i].id() == i);
     }

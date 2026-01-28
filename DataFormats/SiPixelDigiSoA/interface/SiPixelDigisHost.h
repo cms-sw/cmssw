@@ -15,7 +15,7 @@ public:
 
   template <typename TQueue>
   explicit SiPixelDigisHost(size_t maxFedWords, TQueue queue)
-      : PortableHostCollection<SiPixelDigisSoA>(maxFedWords + 1, queue) {}
+      : PortableHostCollection<SiPixelDigisSoA>(queue, maxFedWords + 1) {}
 
   void setNModules(uint32_t nModules) { nModules_h = nModules; }
 
