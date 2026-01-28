@@ -1140,7 +1140,12 @@ namespace edmtest {
     }
   }  // namespace
   void ProducerWithPSetDesc::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    descriptions.addDefault(description(2));
+
+    // ------------------------------------------
+
     auto iDesc = description(2147483647);
+
     // ------------------------------------------
 
     descriptions.add("testProducerWithPsetDesc", iDesc);
@@ -1209,10 +1214,6 @@ namespace edmtest {
 
     iDesc1.add("noDefaultPset2", noDefaultPset2);
     descriptions.add("testLabel1", iDesc1);
-
-    // ------------------------------------------
-
-    descriptions.addDefault(description(2));
 
     // ------------------------------------------
 

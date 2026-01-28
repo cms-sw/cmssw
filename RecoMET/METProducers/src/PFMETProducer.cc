@@ -148,6 +148,7 @@ namespace cms {
     edm::ParameterSetDescription desc2 = desc;
     desc1.add<bool>("applyWeight", false);
     desc1.add<edm::InputTag>("srcWeights", edm::InputTag(""));
+    descriptions.addDefault(desc1);
     descriptions.add("pfMet", desc1);
     desc2.add<bool>("applyWeight", true);
     desc2.add<edm::InputTag>("srcWeights", edm::InputTag("puppiNoLep"));

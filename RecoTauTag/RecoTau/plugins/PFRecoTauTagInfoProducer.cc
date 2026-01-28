@@ -132,6 +132,7 @@ void PFRecoTauTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& 
     desc.add<double>("smearedPVsigmaZ", 0.005);
     desc.add<double>("ChargedHadrCand_tkPVmaxDZ", 0.2);
     desc.add<double>("tkmaxipt", 0.03);
+    descriptions.addDefault(desc);
     descriptions.add("pfRecoTauTagInfoProducerInsideOut", desc);
   }
   {

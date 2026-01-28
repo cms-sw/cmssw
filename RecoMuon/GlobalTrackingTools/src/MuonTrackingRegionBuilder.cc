@@ -269,6 +269,7 @@ void MuonTrackingRegionBuilder::fillDescriptions(edm::ConfigurationDescriptions&
   {
     edm::ParameterSetDescription desc;
     fillDescriptionsOffline(desc);
+    descriptions.addDefault(desc);
     descriptions.add("MuonTrackingRegionBuilder", desc);
   }
   {

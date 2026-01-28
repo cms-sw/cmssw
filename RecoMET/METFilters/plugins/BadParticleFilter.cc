@@ -233,6 +233,7 @@ void BadParticleFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<double>("maxDR", 0.001);
   desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<double>("minPtDiffRel", 0.0);
+  descriptions.addDefault(desc);
   descriptions.add("BadPFMuonFilter", desc);
   descriptions.addWithDefaultLabel(desc);
 }

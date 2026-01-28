@@ -128,6 +128,7 @@ void HcalSimpleReconstructor::fillDescriptions(edm::ConfigurationDescriptions& d
   descHO.add<bool>("dropZSmarkedPassed", true);
   descHO.add<bool>("correctForPhaseContainment", true);
   descHO.add<int>("firstSample", 4);
+  descriptions.addDefault(descHO);
   descriptions.add("hosimplereco", descHO);
 
   // hfreco

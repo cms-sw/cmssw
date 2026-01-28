@@ -358,6 +358,7 @@ void L1TGlobalPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descri
             // if mode is "applyColumnValues", "applyColumnRatios" or "forceColumnValues", read the target column
             "applyColumnValues" >> l1tPrescaleColumn or "applyColumnRatios" >> l1tPrescaleColumn or
             "forceColumnValues" >> l1tPrescaleColumn);
+    descriptions.addDefault(desc);
     descriptions.add("l1tGlobalPrescaler", desc);
   }
 
