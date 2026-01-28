@@ -94,6 +94,7 @@ public:
 
   int getParentId() const { return theParentId; };
   int getProcessId() const { return theProcessId; };
+  int getProdType() const { return (theProcessId >> k_hitidShift_) & k_hitidMask_; }
   void setHitProdType(unsigned int hitId) { theProcessId |= hitId << k_hitidShift_; }
   float getVx() const { return theVx; };
   float getVy() const { return theVy; };

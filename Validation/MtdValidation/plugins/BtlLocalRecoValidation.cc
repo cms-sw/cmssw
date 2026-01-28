@@ -686,7 +686,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           float simClusTime = (*simClusterRef).simLCTime();
           LocalPoint simClusLocalPos = (*simClusterRef).simLCPos();
           const auto& simClusGlobalPos = genericDet->toGlobal(simClusLocalPos);
-          unsigned int idOffset = (*simClusterRef).trackIdOffset();
+          unsigned int idOffset = (*simClusterRef).hitProdType();
 
           float time_res = cluster.time() - simClusTime;
           float energy_res = cluster.energy() - simClusEnergy;
