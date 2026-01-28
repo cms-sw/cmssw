@@ -21,7 +21,7 @@ else:
   from DQM.Integration.config.inputsource_cfi import options
 
   if not options.inputFiles:
-      process.source.streamLabel = "streamLocalTestDataScouting"
+      process.source.streamLabel = "streamDQMTestDataScouting"
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -30,6 +30,11 @@ else:
 #process.maxEvents = cms.untracked.PSet(
 #    input = cms.untracked.int32(100)
 #)
+
+# import beamspot
+from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer as _onlineBeamSpotProducer
+process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
+
 
 process.load("DQM.Integration.config.environment_cfi")
 
@@ -52,11 +57,13 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
 process.scoutingCollectionMonitor.topfoldername = "NGT/ScoutingCollections"
-process.scoutingCollectionMonitor.onlyScouting = True
+process.scoutingCollectionMonitor.onlyScouting = False
+process.scoutingCollectionMonitor.onlineMetaDataDigis = "hltOnlineMetaDataDigis"
+process.scoutingCollectionMonitor.rho = ["hltScoutingPFPacker", "rho"]
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)#*process.dqmSaverPB)
 
-process.p = cms.Path(process.dqmcommon * process.scoutingCollectionMonitor)
+process.p = cms.Path(process.dqmcommon * process.hltOnlineBeamSpot * process.scoutingCollectionMonitor)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
