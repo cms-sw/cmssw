@@ -1,0 +1,4 @@
+<use name="SimDataFormats/TrackingHit"/>
+
+<bin file="testPSimHit.cc">
+</bin>

@@ -59,13 +59,11 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
-#include "SimG4CMS/Forward/interface/MtdHitCategory.h"
-
 #include <CLHEP/Units/SystemOfUnits.h>
 
 namespace {
   using Index_t = unsigned;
-  using Barcode_t = int;
+  using Barcode_t = int64_t;
   const std::string messageCategoryGraph_("MtdTruthAccumulatorGraphProducer");
   inline int64_t tidAndProc(int a, unsigned short b) {
     auto tmpout = static_cast<int64_t>(a) << 32;
@@ -170,6 +168,10 @@ private:
 /* Graph utility functions */
 
 namespace {
+
+  // hit types beyond direct considered for the accumulation
+  static constexpr unsigned int n_categories = 4;
+
   class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
   public:
     CaloParticle_dfs_visitor(
@@ -194,8 +196,8 @@ namespace {
       auto const vertex_property = get(vertex_name, g, u);
       if (!vertex_property.simTrack)
         return;
-      // -- loop over possible trackIdOffsets to save also sim clusters from non-direct hits
-      for (unsigned int offset = 0; offset < MtdHitCategory::n_categories + 1; offset++) {
+      // -- loop over possible hitProdTypes to save also sim clusters from non-direct hits
+      for (unsigned int offset = 0; offset < n_categories + 1; offset++) {
         auto trackIdx = tidAndProc(vertex_property.simTrack->trackId(), offset);
         IfLogDebug(DEBUG, messageCategoryGraph_)
             << " Found " << simHitBarcodeToIndex_.count(trackIdx) << " associated simHits" << std::endl;
@@ -213,7 +215,7 @@ namespace {
                 simTrackDetIdMap_[tidAndProc(simcluster.g4Tracks()[0].trackId(), offset)][hit_and_energy.first]));
             simcluster.addHitPosition(std::get<2>(
                 simTrackDetIdMap_[tidAndProc(simcluster.g4Tracks()[0].trackId(), offset)][hit_and_energy.first]));
-            simcluster.setTrackIdOffset(offset);
+            simcluster.setHitProdType(offset);
           }
         }
       }
@@ -475,7 +477,7 @@ void MtdTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup const
       SimLCz = 0.;
       tmpLC.addCluIndex(SC_index);
       tmpLC.computeClusterTime();
-      tmpLC.setTrackIdOffset(sc.trackIdOffset());  // add trackIdoffset
+      tmpLC.setHitProdType(sc.hitProdType());  // add hitProdType
       output_.pMtdSimLayerClusters->push_back(tmpLC);
       LC_indices.push_back(LC_index);
       LC_index++;
@@ -614,7 +616,8 @@ void MtdTruthAccumulator::accumulateEvent(const T &event,
   // Clear maps from previous event fill them for this one
   m_simHitBarcodeToIndex.clear();
   for (unsigned int i = 0; i < simHitPointers.size(); ++i) {
-    m_simHitBarcodeToIndex.emplace(simHitPointers[i].second->trackId(), i);
+    m_simHitBarcodeToIndex.emplace(
+        tidAndProc(simHitPointers[i].second->trackId(), simHitPointers[i].second->hitProdType()), i);
   }
 
   auto const &tracks = *hSimTracks;
