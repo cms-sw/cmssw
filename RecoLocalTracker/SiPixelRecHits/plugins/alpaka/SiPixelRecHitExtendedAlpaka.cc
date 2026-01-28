@@ -116,9 +116,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     // start from the hits SoA, use metarecords to loop over all the columns
-    auto outView = output.view();
-    auto pixView = pixColl.view();
-    auto trkView = trkColl.view();
+    auto outView = output.view().trackingHits();
+    auto pixView = pixColl.view().trackingHits();
+    auto trkView = trkColl.view().trackingHits();
 
     // layout type (same for all views)
     using ViewType = decltype(outView);
@@ -166,15 +166,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // copy hitModuleStart for Pixel modules
     alpaka::memcpy(
         queue,
-        cms::alpakatools::make_device_view(queue, output.view<::reco::HitModuleSoA>().moduleStart().data(), nPixMod),
-        cms::alpakatools::make_device_view(queue, pixColl.view<::reco::HitModuleSoA>().moduleStart().data(), nPixMod));
+        cms::alpakatools::make_device_view(queue, output.view().hitModules().moduleStart().data(), nPixMod),
+        cms::alpakatools::make_device_view(queue, pixColl.view().hitModules().moduleStart().data(), nPixMod));
     // copy hitModuleStart for Tracker modules (offset after Pixel modules)
     // copy nTrkMod + 1 elements to include the last "hidden" element
-    alpaka::memcpy(queue,
-                   cms::alpakatools::make_device_view(
-                       queue, output.view<::reco::HitModuleSoA>().moduleStart().data() + nPixMod, nTrkMod + 1),
-                   cms::alpakatools::make_device_view(
-                       queue, trkColl.view<::reco::HitModuleSoA>().moduleStart().data(), nTrkMod + 1));
+    alpaka::memcpy(
+        queue,
+        cms::alpakatools::make_device_view(
+            queue, output.view().hitModules().moduleStart().data() + nPixMod, nTrkMod + 1),
+        cms::alpakatools::make_device_view(queue, trkColl.view().hitModules().moduleStart().data(), nTrkMod + 1));
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Copied hitModuleStart for Pixel and Tracker modules\n";

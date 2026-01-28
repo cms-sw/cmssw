@@ -5,8 +5,8 @@
  * SoA Blocks: collection of SoA layouts (blocks) that can be accessed in a structured way.
  */
 
-#include "SoALayout.h"
 #include "SoACommon.h"
+#include "SoALayout.h"
 
 /*
  * Declare accessors for the View of each block
@@ -231,7 +231,7 @@
  * Call ROOTReadstreamer for each block.
  */
 #define _STREAMER_READ_SOA_BLOCK_DATA_MEMBER_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  BOOST_PP_CAT(NAME, _).ROOTReadStreamer(onfile);
+  BOOST_PP_CAT(NAME, _).ROOTReadStreamer(onfile.BOOST_PP_CAT(NAME, _));
 
 #define _STREAMER_READ_SOA_BLOCK_DATA_MEMBER(R, DATA, NAME)                      \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -497,7 +497,8 @@
           _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_BLOCKS, ~, __VA_ARGS__) {}                        \
                                                                                                                        \
     /* Constructor relying on user provided storage and array of sizes */                                              \
-    SOA_HOST_ONLY CLASS(std::byte* mem, std::array<size_type, blocksNumber> elements) : sizes_(elements) {             \
+    SOA_HOST_ONLY CLASS(std::byte* mem, std::array<size_type, blocksNumber> elements)                                  \
+        : sizes_(elements) {                                                                                           \
       byte_size_type offset = 0;                                                                                       \
       size_type index = 0;                                                                                             \
       _ITERATE_ON_ALL(_DECLARE_MEMBER_CONSTRUCTION_BLOCKS, ~, __VA_ARGS__)                                             \
