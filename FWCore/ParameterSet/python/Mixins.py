@@ -540,7 +540,10 @@ class _Labelable(object):
     """A 'mixin' used to denote that the class can be paired with a label (e.g. an EDProducer)"""
     def label_(self) -> str:
         if not hasattr(self, "_Labelable__label"):
-           raise RuntimeError("module has no label.  Perhaps it wasn't inserted into the process?")
+           if hasattr(self, '_filename'):
+              raise RuntimeError("module has no label.  Perhaps it wasn't inserted into the process?\n The module was defined at "+self._filename+":"+str(self._lineNumber))
+           else:
+              raise RuntimeError("module has no label.  Perhaps it wasn't inserted into the process?")
         return self.__label
     def hasLabel_(self) -> bool:
         return hasattr(self, "_Labelable__label") and self.__label is not None
