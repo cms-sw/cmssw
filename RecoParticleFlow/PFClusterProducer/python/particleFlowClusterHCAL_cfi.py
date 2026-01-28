@@ -67,6 +67,11 @@ particleFlowClusterHCALOnly = particleFlowClusterHCAL.clone(
     clustersSource = "particleFlowClusterHBHEOnly"
 )
 
+# Alpaka
+particleFlowClusterHCALOnlyLegacy = particleFlowClusterHCALOnly.clone(
+    clustersSource = "particleFlowClusterHBHEOnlyLegacy"
+)
+
 #--- Use DB conditions for cuts&seeds for Run3 and Phase2
 from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
 hcalPfCutsFromDB.toModify( particleFlowClusterHCAL,
