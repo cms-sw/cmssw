@@ -18,19 +18,15 @@
 
 namespace scouting {
 
-  inline int charge(const Run3ScoutingMuon& mu) {
-    return mu.charge();
-  }
+  inline int charge(const Run3ScoutingMuon& mu) { return mu.charge(); }
 
-  inline int charge(const Run3ScoutingElectron& el) {
-    return el.trkcharge()[0];
-  }
+  inline int charge(const Run3ScoutingElectron& el) { return el.trkcharge()[0]; }
 
   template <typename T>
   math::PtEtaPhiMLorentzVector p4(const T& obj, double mass) {
     return math::PtEtaPhiMLorentzVector(obj.pt(), obj.eta(), obj.phi(), mass);
   }
-}
+}  // namespace scouting
 
 class ScoutingDileptonMonitor : public DQMEDAnalyzer {
 public:
@@ -58,9 +54,7 @@ private:
                          bool doEtaSplit);
 
   template <typename T>
-  void fillPairs(const std::vector<const T*>&,
-                 MassHistos&,
-                 bool doEtaSplit);
+  void fillPairs(const std::vector<const T*>&, MassHistos&, bool doEtaSplit);
 
   // ---- configuration ----------------------------------------------------
   const std::string outputInternalPath_;
@@ -101,32 +95,19 @@ ScoutingDileptonMonitor::ScoutingDileptonMonitor(const edm::ParameterSet& iConfi
       electronToken_(consumes<std::vector<Run3ScoutingElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
       electronCut_(iConfig.getParameter<std::string>("electronCut")) {}
 
-void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker,
-                                             edm::Run const&,
-                                             edm::EventSetup const&) {
+void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   ibooker.setCurrentFolder(outputInternalPath_);
 
   auto bookSet = [&](const std::string& name, MassHistos& h, bool splitEta) {
     h.full = ibooker.book1D(
-        name + "_mass",
-        name + " opposite-charge invariant mass;M [GeV];Events",
-        massBins_, massMin_, massMax_);
+        name + "_mass", name + " opposite-charge invariant mass;M [GeV];Events", massBins_, massMin_, massMax_);
 
-    h.zwin = ibooker.book1D(
-        name + "_zMass",
-        name + " Z window;M [GeV];Events",
-        massBins_, zMin_, zMax_);
+    h.zwin = ibooker.book1D(name + "_zMass", name + " Z window;M [GeV];Events", massBins_, zMin_, zMax_);
 
     if (splitEta) {
-      h.barrel = ibooker.book1D(
-          name + "_barrelMass",
-          name + " barrel;M [GeV];Events",
-          massBins_, massMin_, massMax_);
+      h.barrel = ibooker.book1D(name + "_barrelMass", name + " barrel;M [GeV];Events", massBins_, massMin_, massMax_);
 
-      h.endcap = ibooker.book1D(
-          name + "_endcapMass",
-          name + " endcap;M [GeV];Events",
-          massBins_, massMin_, massMax_);
+      h.endcap = ibooker.book1D(name + "_endcapMass", name + " endcap;M [GeV];Events", massBins_, massMin_, massMax_);
     }
   };
 
@@ -137,8 +118,7 @@ void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker,
     bookSet("electrons", electronHistos_, true);
 }
 
-void ScoutingDileptonMonitor::analyze(edm::Event const& iEvent,
-                                      edm::EventSetup const&) {
+void ScoutingDileptonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
   if (doMuons_) {
     analyzeCollection(iEvent, muonToken_, muonCut_, muonHistos_, false);
   }
@@ -151,13 +131,11 @@ void ScoutingDileptonMonitor::analyze(edm::Event const& iEvent,
 // ------------------------------------------------------------------------
 
 template <typename T>
-void ScoutingDileptonMonitor::analyzeCollection(
-    const edm::Event& iEvent,
-    const edm::EDGetTokenT<std::vector<T>>& token,
-    const StringCutObjectSelector<T>& cut,
-    MassHistos& histos,
-    bool doEtaSplit) {
-
+void ScoutingDileptonMonitor::analyzeCollection(const edm::Event& iEvent,
+                                                const edm::EDGetTokenT<std::vector<T>>& token,
+                                                const StringCutObjectSelector<T>& cut,
+                                                MassHistos& histos,
+                                                bool doEtaSplit) {
   edm::Handle<std::vector<T>> handle;
   iEvent.getByToken(token, handle);
   if (!handle.isValid())
@@ -175,28 +153,19 @@ void ScoutingDileptonMonitor::analyzeCollection(
 }
 
 template <typename T>
-void ScoutingDileptonMonitor::fillPairs(
-    const std::vector<const T*>& leptons,
-    MassHistos& histos,
-    bool doEtaSplit) {
-
+void ScoutingDileptonMonitor::fillPairs(const std::vector<const T*>& leptons, MassHistos& histos, bool doEtaSplit) {
   constexpr double muMass = 0.105658;
   constexpr double elMass = 0.000511;
 
-  const double massHypothesis =
-      std::is_same_v<T, Run3ScoutingMuon> ? muMass : elMass;
+  const double massHypothesis = std::is_same_v<T, Run3ScoutingMuon> ? muMass : elMass;
 
   const size_t n = leptons.size();
   for (size_t i = 0; i < n; ++i) {
     for (size_t j = i + 1; j < n; ++j) {
-
-      if (scouting::charge(*leptons[i]) *
-              scouting::charge(*leptons[j]) >= 0)
+      if (scouting::charge(*leptons[i]) * scouting::charge(*leptons[j]) >= 0)
         continue;
 
-      const auto p4 =
-          scouting::p4(*leptons[i], massHypothesis) +
-          scouting::p4(*leptons[j], massHypothesis);
+      const auto p4 = scouting::p4(*leptons[i], massHypothesis) + scouting::p4(*leptons[j], massHypothesis);
 
       const double mass = p4.mass();
 
@@ -206,9 +175,7 @@ void ScoutingDileptonMonitor::fillPairs(
         histos.zwin->Fill(mass);
 
       if (doEtaSplit) {
-        const bool barrel =
-            std::abs(leptons[i]->eta()) < barrelEta_ &&
-            std::abs(leptons[j]->eta()) < barrelEta_;
+        const bool barrel = std::abs(leptons[i]->eta()) < barrelEta_ && std::abs(leptons[j]->eta()) < barrelEta_;
 
         if (barrel)
           histos.barrel->Fill(mass);
@@ -218,7 +185,5 @@ void ScoutingDileptonMonitor::fillPairs(
     }
   }
 }
-
-
 
 DEFINE_FWK_MODULE(ScoutingDileptonMonitor);
