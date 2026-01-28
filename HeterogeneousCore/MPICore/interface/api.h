@@ -96,7 +96,7 @@ public:
     }
   }
 
-  // receive and object of type T, and deserialize it using its ROOT dictionary
+  // receive an object of type T, and deserialize it using its ROOT dictionary
   template <typename T>
   void receiveProduct(int instance, T& product) {
     if constexpr (std::is_fundamental_v<T>) {
@@ -131,7 +131,7 @@ private:
   void edmToBuffer_(EDM_MPI_LuminosityBlockAuxiliary_t& buffer, edm::LuminosityBlockAuxiliary const& aux);
   void edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxiliary const& aux);
 
-  // dwserialize an EDM object from a simplified representation transmitted as an MPI message
+  // deserialize an EDM object from a simplified representation transmitted as an MPI message
   void edmFromBuffer_(EDM_MPI_RunAuxiliary_t const& buffer, edm::RunAuxiliary& aux);
   void edmFromBuffer_(EDM_MPI_LuminosityBlockAuxiliary_t const& buffer, edm::LuminosityBlockAuxiliary& aux);
   void edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::EventAuxiliary& aux);

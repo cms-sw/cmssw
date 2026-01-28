@@ -136,10 +136,10 @@ namespace mpi_traits {
   _Pragma("GCC diagnostic push");                                                                   \
   _Pragma("GCC diagnostic ignored \"-Winvalid-offsetof\"");                                         \
   {                                                                                                 \
-    constexpr int lenghts[] = {_GET_MPI_TYPE_LENGTHS(STRUCT, __VA_ARGS__)};                         \
+    constexpr int lengths[] = {_GET_MPI_TYPE_LENGTHS(STRUCT, __VA_ARGS__)};                         \
     constexpr MPI_Aint displacements[] = {_GET_MPI_TYPE_OFFSETS(STRUCT, __VA_ARGS__)};              \
     const MPI_Datatype types[] = {_GET_MPI_TYPE_TYPEIDS(STRUCT, __VA_ARGS__)};                      \
-    MPI_Type_create_struct(std::size(lenghts), lenghts, displacements, types, &TYPE);               \
+    MPI_Type_create_struct(std::size(lengths), lengths, displacements, types, &TYPE);               \
     MPI_Type_commit(&TYPE);                                                                         \
   }                                                                                                 \
   _Pragma("GCC diagnostic pop")

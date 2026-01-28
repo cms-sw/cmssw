@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("MPIServer")
+process = cms.Process("MPIController")
 
 process.options.numberOfThreads = 4
 process.options.numberOfStreams = 4
