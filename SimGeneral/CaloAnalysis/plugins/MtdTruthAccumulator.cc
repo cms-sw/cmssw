@@ -170,7 +170,7 @@ private:
 namespace {
 
   // hit types beyond direct considered for the accumulation
-  static constexpr unsigned int n_categories = 4;
+  constexpr unsigned int n_categories = 4;
 
   class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
   public:
