@@ -50,7 +50,8 @@ namespace Phase2L1GMT {
     const ap_uint<67> word() const {
       ap_uint<67> w = 0;
       int bstart = 0;
-      bstart = wordconcat<ap_uint<67>>(w, bstart, 1, 1); //valid bit is always on in emulator because invalid tracks are never created
+      //valid bit is always on in emulator because invalid tracks are never created
+      bstart = wordconcat<ap_uint<67>>(w, bstart, 1, 1);
       bstart = wordconcat<ap_uint<67>>(w, bstart, charge_, 1);
       bstart = wordconcat<ap_uint<67>>(w, bstart, pt_, BITSPT);
       bstart = wordconcat<ap_uint<67>>(w, bstart, phi_, BITSPHI);
@@ -67,40 +68,42 @@ namespace Phase2L1GMT {
       offline_phi_ = phi;
     }
 
-    void print(std::string module="ConvertedTTTrack", uint spaces=0, bool label=true) const {
+    void print(std::string module = "ConvertedTTTrack", uint spaces = 0, bool label = true) const {
       std::string lab = "";
       lab.append(spaces, ' ');
       if (label)
         lab.append("converted track:    ");
       std::string chargeSign = (charge_ == 0) ? "+1" : "-1";
-      edm::LogInfo(module) << lab
-      	                   << "charge = " << chargeSign << " (" << charge_ << ")" << ",    "
-                           << "pt = " << offline_pt_ << " (" << pt_ << ")" << ",    "
-                           << "phi = " << offline_phi_ << " (" << phi_ << ")" << ",    "
-		           << "eta = " << offline_eta_ << " (" << eta_ << ")" << ","
-			   << "\n" << std::setfill(' ') << std::setw(lab.length()) << " "
-			   << "z0 = " << z0_ << ",    " 
-			   << "d0 = " << d0_ << ",    "
+      edm::LogInfo(module) << lab << "charge = " << chargeSign << " (" << charge_ << ")"
+                           << ",    "
+                           << "pt = " << offline_pt_ << " (" << pt_ << ")"
+                           << ",    "
+                           << "phi = " << offline_phi_ << " (" << phi_ << ")"
+                           << ",    "
+                           << "eta = " << offline_eta_ << " (" << eta_ << ")"
+                           << ","
+                           << "\n"
+                           << std::setfill(' ') << std::setw(lab.length()) << " "
+                           << "z0 = " << z0_ << ",    "
+                           << "d0 = " << d0_ << ",    "
                            << "quality = " << quality_ << ",    "
-			   << "(curvature = " << curvature_ << ")"
-			   << std::flush;
+                           << "(curvature = " << curvature_ << ")" << std::flush;
     }
-                           
-    void printWord(std::string module="ConvertedTTTrack", uint spaces=0, bool label=true) const {
+
+    void printWord(std::string module = "ConvertedTTTrack", uint spaces = 0, bool label = true) const {
       std::string lab = "";
       lab.append(spaces, ' ');
       if (label)
         lab.append("converted track word = ");
       ap_uint<67> w = word();
-      edm::LogInfo(module) << lab
-	                   << std::setfill('0') << std::setw(1)  << std::hex << (long long unsigned int)((w >> 64).to_uint64()) 
-			   << std::setfill('0') << std::setw(16) << std::hex << (long long unsigned int)((w & 0xffffffffffffffff).to_uint64())
-			   << std::flush;
+      edm::LogInfo(module) << lab << std::setfill('0') << std::setw(1) << std::hex
+                           << (long long unsigned int)((w >> 64).to_uint64()) << std::setfill('0') << std::setw(16)
+                           << std::hex << (long long unsigned int)((w & 0xffffffffffffffff).to_uint64()) << std::flush;
     }
 
-    void setTrkPtr(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& trkPtr) { trkPtr_ = trkPtr; }
+    void setTrkPtr(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& trkPtr) { trkPtr_ = trkPtr; }
 
-    const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr() const { return trkPtr_; }
+    const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> trkPtr() const { return trkPtr_; }
 
   private:
     ap_uint<1> charge_;
@@ -116,7 +119,7 @@ namespace Phase2L1GMT {
     float offline_eta_;
     float offline_phi_;
 
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr_;
+    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> trkPtr_;
   };
 }  // namespace Phase2L1GMT
 

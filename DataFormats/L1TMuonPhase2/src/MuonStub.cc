@@ -91,7 +91,8 @@ void MuonStub::print() const {
 const Phase2L1GMT::wordtype MuonStub::hybridStubWord() const {
   Phase2L1GMT::wordtype w = 0;
   int bstart = 0;
-  bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, 1, 1); //valid bit is always on in emulator because invalid stubs are never created
+  //valid bit is always on in emulator because invalid stubs are never created
+  bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, 1, 1);
   bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, quality_, Phase2L1GMT::BITSSTUBPHIQUALITY);
   bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, etaQuality_, Phase2L1GMT::BITSSTUBETAQUALITY);
   bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, bxNum_, Phase2L1GMT::BITSMUONBX);
@@ -99,35 +100,40 @@ const Phase2L1GMT::wordtype MuonStub::hybridStubWord() const {
   bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, coord2_, Phase2L1GMT::BITSSTUBCOORD);
   bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, eta1_, Phase2L1GMT::BITSSTUBETA);
   bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, eta2_, Phase2L1GMT::BITSSTUBETA);
-  bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, 0, Phase2L1GMT::BITSSTUBTIME); //placeholder for time
+  bstart =
+      Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, 0, Phase2L1GMT::BITSSTUBTIME);  //placeholder for time
   int addr = address();
   bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, addr, Phase2L1GMT::BITSSTUBID);
   bstart = Phase2L1GMT::wordconcat<Phase2L1GMT::wordtype>(w, bstart, tfLayer_, 3);
   return w;
 }
 
-void MuonStub::printHybridStub(std::string module="MuonStub", uint spaces=0, bool label=true) const {
+void MuonStub::printHybridStub(std::string module = "MuonStub", uint spaces = 0, bool label = true) const {
   std::string lab = "";
   lab.append(spaces, ' ');
   if (label)
     lab.append("hybrid stub:    ");
   int addr = address();
-  edm::LogInfo(module) << lab
-                       << "quality = " << quality_ << ",    "
+  edm::LogInfo(module) << lab << "quality = " << quality_ << ",    "
                        << "etaQuality = " << etaQuality_ << ",    "
                        << "bxNum = " << bxNum_ << ",    "
-                       << "coord1 = " << offline_coord1_ << " (" << coord1_ << ")" << ",    "
-                       << "coord2 = " << offline_coord2_ << " (" << coord2_ << ")" << ",    "
-                       << "eta1 = " << offline_eta1_ << " (" << eta1_ << ")" << ",    "
-                       << "eta2 = " << offline_eta2_ << " (" << eta2_ << ")" << ","
-                       << "\n" << std::setfill(' ') << std::setw(lab.length()) << " "
-                       << "time = " << 0 << ",    " //placeholder for time
-                       << "address = " << addr << " (id = " << id_ << ")" << ",    "
-                       << "tfLayer = " << tfLayer_
-		       << std::flush;
+                       << "coord1 = " << offline_coord1_ << " (" << coord1_ << ")"
+                       << ",    "
+                       << "coord2 = " << offline_coord2_ << " (" << coord2_ << ")"
+                       << ",    "
+                       << "eta1 = " << offline_eta1_ << " (" << eta1_ << ")"
+                       << ",    "
+                       << "eta2 = " << offline_eta2_ << " (" << eta2_ << ")"
+                       << ","
+                       << "\n"
+                       << std::setfill(' ') << std::setw(lab.length()) << " "
+                       << "time = " << 0 << ",    "  //placeholder for time
+                       << "address = " << addr << " (id = " << id_ << ")"
+                       << ",    "
+                       << "tfLayer = " << tfLayer_ << std::flush;
 }
 
-void MuonStub::printHybridStubWord(std::string module="MuonStub", uint spaces=0, bool label=true) const {
+void MuonStub::printHybridStubWord(std::string module = "MuonStub", uint spaces = 0, bool label = true) const {
   std::string lab = "";
   lab.append(spaces, ' ');
   if (label)
@@ -135,4 +141,3 @@ void MuonStub::printHybridStubWord(std::string module="MuonStub", uint spaces=0,
   Phase2L1GMT::wordtype w = MuonStub::hybridStubWord();
   edm::LogInfo(module) << lab << std::setfill('0') << std::setw(16) << std::hex << w.to_uint64() << std::flush;
 }
-

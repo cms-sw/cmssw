@@ -52,7 +52,7 @@ std::vector<PreTrackMatchedMuon> TPSAlgorithm::cleanNeighbor(const std::vector<P
   return out;
 }
 
-std::vector<PreTrackMatchedMuon> TPSAlgorithm::cleanAll(std::vector<PreTrackMatchedMuon>& muons) {
+std::vector<PreTrackMatchedMuon> TPSAlgorithm::cleanAll(std::vector<PreTrackMatchedMuon>& muons) const {
   std::vector<PreTrackMatchedMuon> out;
 
   if (muons.empty())
@@ -71,13 +71,16 @@ std::vector<PreTrackMatchedMuon> TPSAlgorithm::cleanAll(std::vector<PreTrackMatc
     for (uint j = 0; j < muons.size(); ++j) {
       if (i == j)
         continue;
-      bool muons_equal = ((muons[i].charge() == muons[j].charge()) && (muons[i].pt() == muons[j].pt()) && (muons[i].phi() == muons[j].phi())
-		       && (muons[i].eta() == muons[j].eta()) && (muons[i].z0() == muons[j].z0()) && (muons[i].d0() == muons[j].d0())
-		       && (muons[i].beta() == muons[j].beta()) && (muons[i].isGlobalMuon() == muons[j].isGlobalMuon()) && (muons[i].stubID0() == muons[j].stubID0())
-		       && (muons[i].stubID1() == muons[j].stubID1()) && (muons[i].stubID2() == muons[j].stubID2()) && (muons[i].stubID3() == muons[j].stubID3())
-		       && (muons[i].stubID4() == muons[j].stubID4()));
+      bool muons_equal =
+          ((muons[i].charge() == muons[j].charge()) && (muons[i].pt() == muons[j].pt()) &&
+           (muons[i].phi() == muons[j].phi()) && (muons[i].eta() == muons[j].eta()) &&
+           (muons[i].z0() == muons[j].z0()) && (muons[i].d0() == muons[j].d0()) &&
+           (muons[i].beta() == muons[j].beta()) && (muons[i].isGlobalMuon() == muons[j].isGlobalMuon()) &&
+           (muons[i].stubID0() == muons[j].stubID0()) && (muons[i].stubID1() == muons[j].stubID1()) &&
+           (muons[i].stubID2() == muons[j].stubID2()) && (muons[i].stubID3() == muons[j].stubID3()) &&
+           (muons[i].stubID4() == muons[j].stubID4()));
       bool equality = (muons_equal && (i < j));
-      mask = mask & cleanMuon(muons[i], muons[j], equality); //only the first duplicate survives
+      mask = mask & cleanMuon(muons[i], muons[j], equality);  //only the first duplicate survives
     }
     muons[i].setCleanMask(mask);
     if (mask) {
@@ -92,8 +95,7 @@ std::vector<PreTrackMatchedMuon> TPSAlgorithm::cleanAll(std::vector<PreTrackMatc
   return out;
 }
 
-
-std::vector<l1t::TrackerMuon> TPSAlgorithm::convert(std::vector<PreTrackMatchedMuon>& muons, uint maximum) {
+std::vector<l1t::TrackerMuon> TPSAlgorithm::convert(std::vector<PreTrackMatchedMuon>& muons, uint maximum) const {
   std::vector<l1t::TrackerMuon> out;
   for (const auto& mu : muons) {
     if (out.size() == maximum)
@@ -106,29 +108,33 @@ std::vector<l1t::TrackerMuon> TPSAlgorithm::convert(std::vector<PreTrackMatchedM
     }
 
     if (verbose_ == 1) {
-      edm::LogInfo("TPSAlgo") << "PreTrackMatchedMuon: " << "\n"
+      edm::LogInfo("TPSAlgo") << "PreTrackMatchedMuon: "
+                              << "\n"
                               << "    charge = " << mu.charge() << "\n"
-                              << "    stub ids: " << "\n"
+                              << "    stub ids: "
+                              << "\n"
                               << "        id0 = " << mu.stubID0() << "\n"
                               << "        id1 = " << mu.stubID1() << "\n"
                               << "        id2 = " << mu.stubID2() << "\n"
                               << "        id3 = " << mu.stubID3() << "\n"
                               << "        id4 = " << mu.stubID4() << "\n"
-                              << "    stub addresses: " << "\n"
-			      << std::flush;
-      for (const auto& stub : mu.stubs()) 
+                              << "    stub addresses: "
+                              << "\n"
+                              << std::flush;
+      for (const auto& stub : mu.stubs())
         edm::LogInfo("TPSAlgo") << "        " << stub->address() << "\n" << std::flush;
       edm::LogInfo("TPSAlgo") << "\n"
-                              << "TrackerMuon: " << "\n"
+                              << "TrackerMuon: "
+                              << "\n"
                               << "    charge   = " << muon.charge() << "\n"
                               << "    hwCharge = " << muon.hwCharge() << "\n"
-                              << "    stub addresses: " << "\n"
-			      << std::flush
-                              << std::hex << muon.word()[1] << "\n"
-			      << std::hex << muon.word()[0] << std::flush;
-    for (const auto& stub : muon.stubs())
-      edm::LogInfo("TPSAlgo") << "        " << stub->address() << "\n" << std::flush;
-    edm::LogInfo("TPSAlgo") << "\n\n\n" << std::flush;
+                              << "    stub addresses: "
+                              << "\n"
+                              << std::flush << std::hex << muon.word()[1] << "\n"
+                              << std::hex << muon.word()[0] << std::flush;
+      for (const auto& stub : muon.stubs())
+        edm::LogInfo("TPSAlgo") << "        " << stub->address() << "\n" << std::flush;
+      edm::LogInfo("TPSAlgo") << "\n\n\n" << std::flush;
     }
 
     uint matches = 0;
@@ -137,7 +143,7 @@ std::vector<l1t::TrackerMuon> TPSAlgorithm::convert(std::vector<PreTrackMatchedM
 
     for (uint i = 0; i < 5; i = i + 1) {
       if (cleanMask & (1 << i)) {
-	for (uint j = 2*i; j < 2*i + 2; j = j + 1) {
+        for (uint j = 2 * i; j < 2 * i + 2; j = j + 1) {
           if (matchMask & (1 << j))
             matches++;
         }
@@ -397,13 +403,13 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
 
   ap_int<BITSETA> eta = track.eta();
   out.eta = eta / ETADIVIDER;
-  
+
   ap_uint<BITSPROPSIGMAETA_B + BITSTTCURV2> resetak = (res1_eta * k2) >> 23;
   ap_ufixed<BITSSIGMAETA, BITSSIGMAETA, AP_TRN_ZERO, AP_SAT_SYM> sigma_eta1 = res0_eta1 + resetak;
   out.sigma_eta1 = ap_uint<BITSSIGMAETA>(sigma_eta1);
   ap_ufixed<BITSSIGMAETA, BITSSIGMAETA, AP_TRN_ZERO, AP_SAT_SYM> sigma_eta2 = res0_eta2 + resetak;
   out.sigma_eta2 = ap_uint<BITSSIGMAETA>(sigma_eta2);
-  
+
   out.valid = 1;
   out.is_barrel = is_barrel;
 
@@ -492,7 +498,7 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
     eta1Matched = 1;
   else
     eta1Matched = 0;
-    
+
   if (verbose_ == 1)
     edm::LogInfo("TPSAlgo") << "eta1 matched=" << eta1Matched.to_int() << " delta=" << deltaEta1.to_int()
                             << " res=" << prop_sigma_eta1.to_int();
@@ -522,7 +528,7 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
     if (out.valid == 0) {
       out.quality = 0;
     } else {
-      out.quality = 32 - deltaCoord1 / 4; //do we really need to divide by 4?
+      out.quality = 32 - deltaCoord1 / 4;  //do we really need to divide by 4?
       if (coord2Matched == 1) {
         out.quality += 32 - deltaCoord2 / 4;
         out.valid = 3;
@@ -565,7 +571,8 @@ match_t TPSAlgorithm::propagateAndMatch(const ConvertedTTTrack& track,
 match_t TPSAlgorithm::getBest(const std::vector<match_t>& matches) const {
   match_t best = matches[0];
   for (const auto& m : matches) {
-    if ((m.quality > best.quality) || ((m.quality == best.quality) && (m.id > best.id))) //implement well-ordered tie breaker
+    if ((m.quality > best.quality) ||
+        ((m.quality == best.quality) && (m.id > best.id)))  //implement well-ordered tie breaker
       best = m;
   }
 
@@ -651,11 +658,10 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
 
   //printouts
   if (verbose_ == 1) {
-    
     edm::LogInfo("TPSAlgo") << "Input converted track: " << std::flush;
     //q, pt, phi, eta, z0, d0, quality
     edm::LogInfo("TPSAlgo") << "    "
-	                    << "q=" + to_string(ap_uint<1>(track.charge())) + ", "
+                            << "q=" + to_string(ap_uint<1>(track.charge())) + ", "
                             << "pt=" + to_string(ap_uint<BITSPT>(track.pt())) + ", "
                             << "phi=" + to_string(ap_int<BITSPHI>(track.phi())) + ", "
                             << "eta=" + to_string(ap_int<BITSETA>(track.eta())) + ", "
@@ -663,10 +669,10 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
                             << "d0=" + to_string(ap_int<BITSD0>(track.d0())) + ", "
                             << "quality=" + to_string(ap_uint<1>(track.quality())) + ", "
                             << "\n"
-			    << std::flush;
+                            << std::flush;
 
     edm::LogInfo("TPSAlgo") << "Input stubs:" << std::flush;
-  
+
     for (const auto& stub : stubs) {
       edm::LogInfo("TPSAlgo") << "    "
                               << "layer=" + to_string(stub->tfLayer()) + ", "
@@ -676,12 +682,11 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
                               << "eta2=" + to_string(stub->eta2()) + ", "
                               << "quality=" + to_string(stub->quality()) + ", "
                               << "etaQuality=" + to_string(stub->etaQuality()) + ", "
-                              << "id=" + to_string(stub->address()) + ", "
-			      << std::flush;
+                              << "id=" + to_string(stub->address()) + ", " << std::flush;
     }
 
     edm::LogInfo("TPSAlgo") << "End stubs\n" << std::flush;
-  
+
     edm::LogInfo("TPSAlgo") << "Output PreTrackMatchedMuon: "
                             << "valid=" + to_string(muon.valid()) + ", "
                             << "q=" + to_string(muon.charge()) + ", "
@@ -693,13 +698,13 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
                             << "isGlobalMuon=" + to_string(muon.isGlobalMuon()) + ", "
                             << "beta=" + to_string(muon.beta()) + ", "
                             << "quality=" + to_string(muon.quality()) + ", "
-                            << "\n" 
-			    << std::flush;
+                            << "\n"
+                            << std::flush;
 
     edm::LogInfo("TPSAlgo") << "Output PreTrackMatchedMuon matched stubs:" << std::flush;
-  
+
     for (const auto& stub : muon.stubs()) {
-      match_t tempmatch = propagateAndMatch(track, stub, 0); //want to verify details of match as well as stub
+      match_t tempmatch = propagateAndMatch(track, stub, 0);  //want to verify details of match as well as stub
       edm::LogInfo("TPSAlgo") << "    "
                               << "layer=" + to_string(stub->tfLayer()) + ", "
                               << "coord1=" + to_string(stub->coord1()) + ", "
@@ -710,12 +715,10 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
                               << "etaQuality=" + to_string(stub->etaQuality()) + ", "
                               << "id=" + to_string(stub->address()) + ", "
                               << "quality=" + to_string(tempmatch.quality) + ", "
-                              << "valid=" + to_string(tempmatch.valid) + ", "
-			      << std::flush;
+                              << "valid=" + to_string(tempmatch.valid) + ", " << std::flush;
     }
 
-  edm::LogInfo("TPSAlgo") << "End stubs\n\n" << std::flush;
-  
+    edm::LogInfo("TPSAlgo") << "End stubs\n\n" << std::flush;
   }
 
   return muon;

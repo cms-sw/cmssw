@@ -69,12 +69,12 @@ namespace Phase2L1GMT {
     std::vector<PreTrackMatchedMuon> cleanNeighbor(const std::vector<PreTrackMatchedMuon>& muons,
                                                    const std::vector<PreTrackMatchedMuon>& muonsPrevious,
                                                    const std::vector<PreTrackMatchedMuon>& muonsNext,
-                                                   bool equality);
-    std::vector<PreTrackMatchedMuon> cleanAll(std::vector<PreTrackMatchedMuon>& muons);
-    std::vector<l1t::TrackerMuon> convert(std::vector<PreTrackMatchedMuon>& muons, uint maximum);
-    bool outputGT(std::vector<l1t::TrackerMuon>& muons);
-    void SetQualityBits(std::vector<l1t::TrackerMuon>& muons);
-    std::vector<l1t::TrackerMuon> sort(std::vector<l1t::TrackerMuon>& muons, uint maximum);
+                                                   bool equality) const;
+    std::vector<PreTrackMatchedMuon> cleanAll(std::vector<PreTrackMatchedMuon>& muons) const;
+    std::vector<l1t::TrackerMuon> convert(std::vector<PreTrackMatchedMuon>& muons, uint maximum) const;
+    bool outputGT(std::vector<l1t::TrackerMuon>& muons) const;
+    void SetQualityBits(std::vector<l1t::TrackerMuon>& muons) const;
+    std::vector<l1t::TrackerMuon> sort(std::vector<l1t::TrackerMuon>& muons, uint maximum) const;
 
   private:
     int verbose_;
