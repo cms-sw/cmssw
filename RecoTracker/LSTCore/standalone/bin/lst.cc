@@ -3,6 +3,8 @@
 
 #include <typeinfo>
 
+#include <boost/core/demangle.hpp>
+
 using LSTEvent = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTEvent;
 using LSTInputDeviceCollection = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTInputDeviceCollection;
 using namespace ::lst;
@@ -560,3 +562,9 @@ void run_lst() {
 
   delete ana.output_tfile;
 }
+
+// Dummy implementation of edm::typeDemangle (without extra replacements)
+// to avoid having to link extra libraries
+namespace edm {
+  std::string typeDemangle(char const *mangledName) { return boost::core::demangle(mangledName); }
+}  // namespace edm
