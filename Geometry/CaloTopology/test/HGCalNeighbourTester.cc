@@ -99,7 +99,7 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
       unsigned int k1(0);
       for (auto const &idZ : ids) {
         HGCSiliconDetId idx(idZ);
-        edm::LogVerbatim("HGCGeom") << "[" << k << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":"
+        edm::LogVerbatim("HGCGeom") << "[" << k1 << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":"
                                     << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has "
                                     << ids.size() << " neighbours:";
         ++k1;
