@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 
 hltUpgradeNanoTask = cms.Task(nanoMetadata)
 
 hltTiclCandidateTable = cms.EDProducer(
     "TICLCandidateTableProducer",
     skipNonExistingSrc=cms.bool(True),
-    src=cms.InputTag("hltTiclTrackstersMerge"),
+    src=cms.InputTag("hltTiclCandidate"),
     cut=cms.string(""),
     name=cms.string("hltTICLCandidates"),
     doc=cms.string("TICLCandidates"),
@@ -97,7 +96,7 @@ hltSimTiclCandidateTable = cms.EDProducer(
 )
 hltTiclCandidateExtraTable = cms.EDProducer(
     "TICLCandidateExtraTableProducer",
-    src = cms.InputTag("hltTiclTrackstersMerge"),
+    src = cms.InputTag("hltTiclCandidate"),
     name = cms.string("Candidate2Tracksters"),
     doc = cms.string("TICLCandidates extra table with linked Tracksters"),
     collectionVariables = cms.PSet(
@@ -127,5 +126,4 @@ hltSimTiclCandidateExtraTable = cms.EDProducer(
     ),
 )
 
-ticl_v5.toModify(hltTiclCandidateTable, src = cms.InputTag('hltTiclCandidate'))
-ticl_v5.toModify(hltTiclCandidateExtraTable, src = cms.InputTag('hltTiclCandidate'))
+

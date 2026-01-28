@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #------------------
-#Hybrid clustering:
+# Hybrid clustering:
 #------------------
 # Producer for Box Particle Flow Super Clusters
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cff import *

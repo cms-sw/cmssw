@@ -167,7 +167,7 @@ void PatternRecognitionbyFastJet<TILES>::fillPSetDescription(edm::ParameterSetDe
   iDesc.add<int>("algo_verbosity", 0);
   iDesc.add<double>("antikt_radius", 0.09)->setComment("Radius to be used while running the Anti-kt clustering");
   iDesc.add<int>("minNumLayerCluster", 5)->setComment("Not Inclusive");
-  iDesc.add<bool>("computeLocalTime", false);
+  iDesc.add<bool>("computeLocalTime", true);
 }
 
 template class ticl::PatternRecognitionbyFastJet<TICLLayerTiles>;

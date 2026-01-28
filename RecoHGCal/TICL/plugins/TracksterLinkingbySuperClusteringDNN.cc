@@ -27,6 +27,7 @@ Date: 07/2025
 #include <memory>
 #include <algorithm>
 #include <vector>
+#include <numeric>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"

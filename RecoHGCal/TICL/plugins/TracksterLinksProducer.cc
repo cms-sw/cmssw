@@ -21,10 +21,6 @@
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 
-#include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "PhysicsTools/TensorFlow/interface/TfGraphDefWrapper.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
@@ -288,12 +284,6 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   inferenceDescPFN.addNode(
       edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
   desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByPFN", inferenceDescPFN);
-
-  edm::ParameterSetDescription inferenceDescCNNv4;
-  inferenceDescCNNv4.addNode(
-      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByCNNv4", true));
-  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByCNNv4", inferenceDescCNNv4);
-
   desc.add<edm::ParameterSetDescription>("linkingPSet", linkingDesc);
   desc.add<std::vector<edm::InputTag>>("tracksters_collections", {edm::InputTag("ticlTrackstersCLUE3DHigh")});
   desc.add<std::vector<edm::InputTag>>("original_masks",

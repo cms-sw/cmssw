@@ -35,7 +35,6 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 
-#include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
