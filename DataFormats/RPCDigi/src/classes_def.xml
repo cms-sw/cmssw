@@ -8,6 +8,24 @@
 <class name="MuonDigiCollection<RPCDetId,RPCDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<RPCDetId,RPCDigi>>" splitLevel="0"/> 
 
+<class name="RPCDigiPhase2" ClassVersion="2">
+ <version ClassVersion="2" checksum="1584553419"/>
+</class>
+<class name="std::vector<RPCDigiPhase2>"/>
+<class name="std::map<RPCDetId,std::vector<RPCDigiPhase2> >"/>
+<class name="std::pair<RPCDetId,std::vector<RPCDigiPhase2> >"/>
+<class name="MuonDigiCollection<RPCDetId,RPCDigiPhase2>"/>
+<class name="edm::Wrapper<MuonDigiCollection<RPCDetId,RPCDigiPhase2>>" splitLevel="0"/>  
+
+<class name="IRPCDigi" ClassVersion="2">
+ <version ClassVersion="2" checksum="4103044833"/>
+</class>
+<class name="std::vector<IRPCDigi>"/>
+<class name="std::map<RPCDetId,std::vector<IRPCDigi> >"/>
+<class name="std::pair<RPCDetId,std::vector<IRPCDigi> >"/>
+<class name="MuonDigiCollection<RPCDetId,IRPCDigi>"/>
+<class name="edm::Wrapper<MuonDigiCollection<RPCDetId,IRPCDigi>>" splitLevel="0"/>   
+
 <class name="edm::Wrapper<std::map <std::pair<int,int>, int> >"/> 
 <class name="RPCRawDataCounts" ClassVersion="10">
  <version ClassVersion="10" checksum="977138550"/>
