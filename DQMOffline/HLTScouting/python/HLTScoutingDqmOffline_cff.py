@@ -24,6 +24,9 @@ from DQM.HLTEvF.ScoutingCollectionMonitor_cfi import *
 ### RecHits monitoring
 from HLTriggerOffline.Scouting.ScoutingRecHitAnalyzers_cff import *
 
+### DiLeptons monitoring
+from HLTriggerOffline.Scouting.HLTScoutingDileptonMonitor_cfi import *
+
 hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
                                          scoutingMonitoringTagProbeMuonVtx *
                                          scoutingMonitoringTriggerMuon_DoubleMu *
@@ -35,10 +38,12 @@ hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting)
 hltScoutingJetDqmOfflineForRelVals = cms.Sequence(jetMETDQMOfflineSourceScoutingNoCorrection)
 
 hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
+hltScoutingDileptonMonitor = cms.Sequence(ScoutingDileptonMonitor)
 
 hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline +
                                      hltScoutingEGammaDqmOffline +
                                      hltScoutingJetDqmOffline +
+                                     hltScoutingDileptonMonitor +
                                      hltScoutingCollectionMonitor)
 
 ## Add the scouting rechits monitoring (only for 2025, integrated in menu GRun 2025 V1.3)
