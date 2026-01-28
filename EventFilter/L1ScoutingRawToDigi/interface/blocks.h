@@ -69,5 +69,14 @@ namespace l1ScoutingRun3 {
     };
   }  // namespace bmtf
 
+  namespace calol2 {
+    struct block {
+      uint32_t header;
+      uint32_t bx;
+      uint32_t orbit;
+      uint32_t tower[4096];
+    };
+  }  // namespace calol2
+
 }  // namespace l1ScoutingRun3
 #endif  // L1ScoutingRawToDigi_blocks_h

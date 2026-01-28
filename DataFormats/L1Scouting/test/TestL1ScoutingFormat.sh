@@ -33,14 +33,21 @@ cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$file" || die "Fail
 oldFiles="testL1Scouting_v3_v3_v3_v3_v3_14_0_0_split_99.root testL1Scouting_v3_v3_v3_v3_v3_14_0_0_split_0.root"
 for file in $oldFiles; do
   inputfile=$(edmFileInPath DataFormats/L1Scouting/data/$file) || die "Failure edmFileInPath DataFormats/L1Scouting/data/$file" $?
-  cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$inputfile" --bmtfStubVersion 0 || die "Failed to read old file $file" $?
+  cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$inputfile" --bmtfStubVersion 0 --caloTowerVersion 0 || die "Failed to read old file $file" $?
 done
 
 # added BMTF input stubs data format
 oldFiles="testL1Scouting_v3_v3_v3_v3_v3_v3_14_1_0_pre5_split_99.root testL1Scouting_v3_v3_v3_v3_v3_v3_14_1_0_pre5_split_0.root"
 for file in $oldFiles; do
   inputfile=$(edmFileInPath DataFormats/L1Scouting/data/$file) || die "Failure edmFileInPath DataFormats/L1Scouting/data/$file" $?
-  cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$inputfile" --bmtfStubVersion 3 || die "Failed to read old file $file" $?
+  cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$inputfile" --bmtfStubVersion 3 --caloTowerVersion 0 || die "Failed to read old file $file" $?
+done
+
+# added Calo tower data format
+oldFiles="testL1Scouting_v3_v3_v3_v3_v3_v3_v3_15_1_0_split_99.root testL1Scouting_v3_v3_v3_v3_v3_v3_v3_15_1_0_split_0.root"
+for file in $oldFiles; do
+  inputfile=$(edmFileInPath DataFormats/L1Scouting/data/$file) || die "Failure edmFileInPath DataFormats/L1Scouting/data/$file" $?
+  cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$inputfile" --bmtfStubVersion 3 --caloTowerVersion 3 || die "Failed to read old file $file" $?
 done
 
 exit 0
