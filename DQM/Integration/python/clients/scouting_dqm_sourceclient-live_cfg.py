@@ -57,7 +57,7 @@ process.load("DQM.HLTEvF.ScoutingMuonMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingJetMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingElectronMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingRechitMonitoring_cff")
-process.load("HLTriggerOffline.Scouting.HLTScoutingDileptonMonitor_cfi")
+process.load("DQM.HLTEvF.ScoutingDileptonMonitor_cfi")
 ## Run-1 L1TGT required by ScoutingJetMonitoring https://github.com/cms-sw/cmssw/blob/master/DQMOffline/JetMET/src/JetAnalyzer.cc#L2603-L2611
 process.GlobalTag.toGet.append(
  cms.PSet(
@@ -73,7 +73,7 @@ process.p = cms.Path(process.dqmcommon *
                      process.ScoutingJetMonitoring *
                      process.ScoutingElectronMonitoring *
                      process.ScoutingRecHitsMonitoring *
-                     process.ScoutingDileptonMonitor
+                     process.ScoutingDileptonMonitorOnline
                      )
 
 ### process customizations included here

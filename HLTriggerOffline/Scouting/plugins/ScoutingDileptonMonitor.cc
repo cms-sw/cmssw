@@ -1,3 +1,10 @@
+// system includes
+#include <type_traits>
+#include <map>
+#include <string>
+#include <vector>
+
+// user includes
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -8,11 +15,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include <type_traits>
-#include <map>
-#include <string>
-#include <vector>
 
 namespace scouting {
 
@@ -61,6 +63,7 @@ private:
                  bool doEtaSplit);
 
   // ---- configuration ----------------------------------------------------
+  const std::string outputInternalPath_;
   const double massMin_;
   const double massMax_;
   const int massBins_;
@@ -82,7 +85,8 @@ private:
 };
 
 ScoutingDileptonMonitor::ScoutingDileptonMonitor(const edm::ParameterSet& iConfig)
-    : massMin_(iConfig.getParameter<double>("massMin")),
+    : outputInternalPath_{iConfig.getParameter<std::string>("OutputInternalPath")},
+      massMin_(iConfig.getParameter<double>("massMin")),
       massMax_(iConfig.getParameter<double>("massMax")),
       massBins_(iConfig.getParameter<int>("massBins")),
       zMin_(iConfig.getParameter<double>("zMassMin")),
@@ -100,7 +104,7 @@ ScoutingDileptonMonitor::ScoutingDileptonMonitor(const edm::ParameterSet& iConfi
 void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker,
                                              edm::Run const&,
                                              edm::EventSetup const&) {
-  ibooker.setCurrentFolder("HLT/Scouting/Dilepton");
+  ibooker.setCurrentFolder(outputInternalPath_);
 
   auto bookSet = [&](const std::string& name, MassHistos& h, bool splitEta) {
     h.full = ibooker.book1D(

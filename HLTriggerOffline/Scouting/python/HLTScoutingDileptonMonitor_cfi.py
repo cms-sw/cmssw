@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 ScoutingDileptonMonitor = DQMEDAnalyzer("ScoutingDileptonMonitor",
+                                        OutputInternalPath = cms.string('HLT/ScoutingOffline/DiLepton'), #Output of the root file
                                         muons     = cms.InputTag("hltScoutingMuonPacker"),
                                         electrons = cms.InputTag("hltScoutingElectronPacker"),
                                         doMuons     = cms.bool(True),
