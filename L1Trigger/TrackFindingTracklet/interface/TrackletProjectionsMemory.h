@@ -44,6 +44,8 @@ namespace trklet {
     int layer_;
     int disk_;
     int npage_;
+
+    std::vector<std::ofstream> outTPROJ_;
   };
 
 };  // namespace trklet

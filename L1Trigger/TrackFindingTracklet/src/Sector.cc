@@ -256,6 +256,42 @@ void Sector::writeCT(bool first) {
   }
 }
 
+void Sector::incrBXEvent() {
+  for (auto& i : DL_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : IL_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : VMSTE_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : VMSME_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : AS_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : AIS_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : TPAR_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : TPROJ_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : FM_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : TF_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : CT_) {
+    i->incrBXEvent();
+  }
+}
+
 void Sector::clean() {
   for (auto& mem : MemoriesV_) {
     mem->clean();

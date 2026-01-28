@@ -30,16 +30,9 @@ void TrackletParametersMemory::clean() {
 
 void TrackletParametersMemory::writeTPAR(bool first, unsigned int iSector) {
   iSector_ = iSector;
+
   const string dirTP = settings_.memPath() + "TrackletParameters/";
-
-  std::ostringstream oss;
-  oss << dirTP << "TrackletParameters_" << getName() << "_" << std::setfill('0') << std::setw(2) << (iSector_ + 1)
-      << ".dat";
-  auto const& fname = oss.str();
-
-  openfile(out_, first, dirTP, fname, __FILE__, __LINE__);
-
-  out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
+  openFile(first, dirTP, "TrackletParameters_");
 
   for (unsigned int page = 0; page < tracklets_.size(); page++) {
     for (unsigned int j = 0; j < tracklets_[page].size(); j++) {
@@ -48,9 +41,4 @@ void TrackletParametersMemory::writeTPAR(bool first, unsigned int iSector) {
     }
   }
   out_.close();
-
-  bx_++;
-  event_++;
-  if (bx_ > 7)
-    bx_ = 0;
 }

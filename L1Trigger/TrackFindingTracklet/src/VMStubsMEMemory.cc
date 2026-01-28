@@ -18,16 +18,9 @@ VMStubsMEMemory::VMStubsMEMemory(string name, Settings const& settings) : Memory
 
 void VMStubsMEMemory::writeStubs(bool first, unsigned int iSector) {
   iSector_ = iSector;
+
   const string dirVM = settings_.memPath() + "VMStubsME/";
-
-  std::ostringstream oss;
-  oss << dirVM << "VMStubs_" << getName();
-  oss << "_" << std::setfill('0') << std::setw(2) << (iSector_ + 1) << ".dat";
-  auto const& fname = oss.str();
-
-  openfile(out_, first, dirVM, fname, __FILE__, __LINE__);
-
-  out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
+  openFile(first, dirVM, "VMStubs_");
 
   for (unsigned int i = 0; i < binnedstubs_.size(); i++) {
     int nbitsrz = (layerdisk_ < N_LAYER) ? 3 : 4;
@@ -45,9 +38,4 @@ void VMStubsMEMemory::writeStubs(bool first, unsigned int iSector) {
     }
   }
   out_.close();
-
-  bx_++;
-  event_++;
-  if (bx_ > 7)
-    bx_ = 0;
 }

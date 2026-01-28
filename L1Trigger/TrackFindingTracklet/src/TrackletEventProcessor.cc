@@ -209,18 +209,22 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
     // ----------------------------------------------------------------------------------------
     // Now start the tracklet processing
 
-    // VM router
+    const bool writeSect = (static_cast<int>(k) == settings_->writememsect() || settings_->writememsect() < 0);
+    const bool multiSectFiles = (settings_->writememsect() < 0 && !settings_->splitmembysect());
+
+    // Input router
     InputRouterTimer_.start();
     sector_->executeIR();
-    if (settings_->writeMem() && k == settings_->writememsect()) {
+    if (settings_->writeMem() && writeSect) {
       sector_->writeDTCStubs(first);
       sector_->writeIRStubs(first);
     }
     InputRouterTimer_.stop();
 
+    // VM router
     VMRouterTimer_.start();
     sector_->executeVMR();
-    if (settings_->writeMem() && k == settings_->writememsect()) {
+    if (settings_->writeMem() && writeSect) {
       sector_->writeVMSTE(first);
       sector_->writeAIS(first);
     }
@@ -285,7 +289,7 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
     PCTimer_.start();
     sector_->executePC();
     PCTimer_.stop();
-    if (settings_->writeMem() && k == settings_->writememsect()) {
+    if (settings_->writeMem() && writeSect) {
       sector_->writeTPROJ(first);
       sector_->writeTPAR(first);
     }
@@ -294,7 +298,7 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
     VMSMERTimer_.start();
     sector_->executeVMSMER();
     VMSMERTimer_.stop();
-    if (settings_->writeMem() && k == settings_->writememsect()) {
+    if (settings_->writeMem() && writeSect) {
       sector_->writeVMSME(first);
       sector_->writeAS(first);
     }
@@ -304,14 +308,14 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
     sector_->executeMP();
     MPTimer_.stop();
 
-    if (settings_->writeMem() && k == settings_->writememsect()) {
+    if (settings_->writeMem() && writeSect) {
       sector_->writeMC(first);
     }
 
     // fit track
     FTTimer_.start();
     sector_->executeFT(streamsTrackRaw, streamsStubRaw);
-    if ((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) {
+    if ((settings_->writeMem() || settings_->writeMonitorData("IFit")) && writeSect) {
       sector_->writeTF(first);
     }
     FTTimer_.stop();
@@ -319,12 +323,18 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
     // purge duplicate
     PDTimer_.start();
     sector_->executePD(tracks_);
-    if (((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) ||
+    if (((settings_->writeMem() || settings_->writeMonitorData("IFit")) && writeSect) ||
         settings_->writeMonitorData("CT")) {
       sector_->writeCT(first);
     }
     PDTimer_.stop();
+
+    if (multiSectFiles)
+      first = false;
   }
+
+  if (settings_->writeMem())
+    sector_->incrBXEvent();
 }
 
 void TrackletEventProcessor::printSummary() {

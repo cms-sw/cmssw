@@ -192,7 +192,8 @@ namespace trklet {
     const std::string& memPath() const { return memPath_; }
     const std::string& tablePath() const { return tablePath_; }
 
-    unsigned int writememsect() const { return writememsect_; }
+    int writememsect() const { return writememsect_; }
+    bool splitmembysect() const { return (writememsect_ >= 0 || splitmembysect_); }
 
     bool enableTripletTables() const { return enableTripletTables_; }
     bool writeTripletTables() const { return writeTripletTables_; }
@@ -920,7 +921,9 @@ namespace trklet {
     std::string memPath_{"L1Trigger/TrackFindingTracklet/data/MemPrints/"};  //path for writing memories
     std::string tablePath_{"L1Trigger/TrackFindingTracklet/data/LUTs/"};     //path for writing LUTs
 
-    unsigned int writememsect_{3};  //writemem only for this sector (note that the files will have _4 extension)
+    int writememsect_{3};         //writemem only for this sector (note that the files will have _4 extension);
+                                  //negative values will cause all sectors to be written
+    bool splitmembysect_{false};  //If true will write each sector to separate files when writememsect_ is negative
 
     bool enableTripletTables_{false};  //Enable the application of the TED and
                                        //TRE tables; when this flag is false,
