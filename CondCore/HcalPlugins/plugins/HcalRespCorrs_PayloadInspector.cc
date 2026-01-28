@@ -724,6 +724,283 @@ namespace {
         return false;
     }  // fill method
   };
+
+  /**********************************************************
+     Plot overlay of response-corrections vs i eta for all depths in the same canvas,
+     one total pad including all the partitions
+  **********************************************************/
+  class HcalRespCorrsDepthsOverlay : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
+  public:
+    HcalRespCorrsDepthsOverlay()
+        : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorrs - Depths Overlay vs ieta") {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      auto iov = iovs.front();
+      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
+      if (!payload.get())
+        return false;
+
+      HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+      const auto& items = objContainer->getAllItems();
+
+      if (items.empty())
+        return false;
+
+      TCanvas canvas("DepthsOverlay", "Depths overlay vs ieta", 1200, 800);
+      canvas.cd();
+
+      gPad->SetRightMargin(0.18);
+      gPad->SetLeftMargin(0.12);
+      gPad->SetGrid();
+
+      std::map<int, TProfile*> profiles;
+      int nBins = 85;
+      double minEta = -42.5;
+      double maxEta = 42.5;
+
+      std::vector<int> colors = {kBlack, kBlue, kRed, kGreen + 2, kMagenta, kCyan + 1, kOrange + 7, kViolet + 1};
+      std::vector<int> markers = {20, 21, 22, 23, 24, 25, 26, 32};
+
+      for (const auto& partPair : items) {
+        for (const auto& item : partPair.second) {
+          HcalDetId detId(item.rawId());
+          if (detId == HcalDetId())
+            continue;
+
+          int d = detId.depth();
+
+          if (d < 1)
+            continue;  // skipping depth = 0
+
+          int ieta = detId.ieta();
+          float val = objContainer->getValue(&item);
+
+          if (profiles.find(d) == profiles.end()) {
+            std::string hname = Form("p_depth%d", d);
+            profiles[d] = new TProfile(hname.c_str(),
+                                       "HCAL Response Corrections vs Eta (All Partitions);i#eta;Correction Factor",
+                                       nBins,
+                                       minEta,
+                                       maxEta);
+            profiles[d]->SetErrorOption("s");
+          }
+
+          profiles[d]->Fill(ieta, val);
+        }
+      }
+
+      if (profiles.empty())
+        return false;
+
+      double globalMax = -999.0;
+      double globalMin = 999.0;
+      for (auto& pair : profiles) {
+        double hMax = pair.second->GetMaximum();
+        double hMin = pair.second->GetMinimum(0.0001);
+        if (hMax > globalMax)
+          globalMax = hMax;
+        if (hMin < globalMin)
+          globalMin = hMin;
+      }
+
+      double range = globalMax - globalMin;
+      if (range <= 0)
+        range = 1.0;
+      globalMax += range * 0.30;
+      globalMin -= range * 0.30;
+
+      if (globalMin < 0 && (globalMin + range * 0.1) >= 0)
+        globalMin = 0.0;
+
+      TLegend legend(0.83, 0.50, 0.99, 0.90);
+      legend.SetTextSize(0.035);
+      legend.SetBorderSize(1);
+      legend.SetFillColor(kWhite);
+
+      bool first = true;
+
+      for (auto& pair : profiles) {
+        int depth = pair.first;
+        TProfile* p = pair.second;
+
+        int colorIdx = (depth - 1);
+        if (colorIdx < 0)
+          colorIdx = 0;
+
+        int color = colors[colorIdx % colors.size()];
+        int marker = markers[colorIdx % markers.size()];
+
+        p->SetLineColor(color);
+        p->SetMarkerColor(color);
+        p->SetMarkerStyle(marker);
+        p->SetMarkerSize(0.8);
+        p->SetStats(kFALSE);
+
+        p->GetXaxis()->SetTitleSize(0.045);
+        p->GetYaxis()->SetTitleSize(0.045);
+        p->GetXaxis()->SetTitleOffset(1.1);
+        p->GetYaxis()->SetTitleOffset(1.4);
+
+        if (first) {
+          p->GetYaxis()->SetRangeUser(globalMin, globalMax);
+          p->Draw("P");
+          first = false;
+        } else {
+          p->Draw("P same");
+        }
+
+        legend.AddEntry(p, Form("Depth %d", depth), "lp");
+      }
+
+      legend.Draw();
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+      return true;
+    }
+  };
+
+  /**********************************************************
+     Distributions of Response Corrections (Value vs Entries), overlaid by depth
+  **********************************************************/
+  class HcalRespCorrsDistOverlay : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
+  public:
+    HcalRespCorrsDistOverlay()
+        : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorrs - Distribution per Partition") {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      auto iov = iovs.front();
+      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
+      if (!payload.get())
+        return false;
+
+      HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+      const auto& items = objContainer->getAllItems();
+
+      if (items.empty()) {
+        return false;
+      }
+
+      TCanvas canvas("DistOverlay", "Dist overlay per partition", 1600, 1000);
+      canvas.Divide(2, 2);
+
+      std::vector<int> colors = {kBlack, kBlue, kRed, kGreen + 2, kMagenta, kCyan + 1, kOrange + 7, kViolet + 1};
+
+      std::vector<std::shared_ptr<TH1F>> globalCache;
+
+      int pad = 0;
+
+      for (const auto& partPair : items) {
+        if (pad >= 4) {
+          continue;
+        }
+
+        const auto& corrections = partPair.second;
+
+        if (corrections.empty())
+          continue;
+
+        pad++;
+
+        std::string partName = partPair.first;
+        canvas.cd(pad);
+        gPad->SetTopMargin(0.06);
+        gPad->SetRightMargin(0.05);
+        gPad->SetLeftMargin(0.12);
+        gPad->SetBottomMargin(0.12);
+        gPad->SetGrid();
+
+        std::map<int, std::shared_ptr<TH1F>> histos;
+
+        for (const auto& item : corrections) {
+          HcalDetId detId(item.rawId());
+          if (detId == HcalDetId())
+            continue;
+
+          int d = detId.depth();
+          if (d < 1)
+            continue;
+
+          if (histos.find(d) == histos.end()) {
+            std::string hname = Form("h_%s_depth%d", partName.c_str(), d);
+            auto h = std::make_shared<TH1F>(
+                hname.c_str(), Form("%s Distribution;Correction Factor;Entries", partName.c_str()), 100, 0.0, 3.0);
+            h->SetDirectory(nullptr);
+            histos[d] = h;
+
+            globalCache.push_back(h);
+          }
+          histos[d]->Fill(objContainer->getValue(&item));
+        }
+
+        if (histos.empty()) {
+          pad--;
+          continue;
+        }
+
+        double globalMax = 0;
+        for (auto& h : histos) {
+          if (h.second->GetMaximum() > globalMax)
+            globalMax = h.second->GetMaximum();
+        }
+        if (globalMax <= 0)
+          globalMax = 1.0;
+
+        auto legend = new TLegend(0.70, 0.60, 0.93, 0.92);
+        legend->SetTextSize(0.035);
+        legend->SetBorderSize(1);
+        legend->SetFillColor(kWhite);
+
+        bool first = true;
+        for (auto& pair : histos) {
+          int depth = pair.first;
+          auto hist = pair.second;
+
+          int colorIdx = (depth - 1) % colors.size();
+          if (colorIdx < 0)
+            colorIdx = 0;
+
+          hist->SetLineColor(colors[colorIdx]);
+          hist->SetLineWidth(2);
+          hist->SetStats(kFALSE);
+
+          hist->GetXaxis()->SetTitleSize(0.05);
+          hist->GetYaxis()->SetTitleSize(0.05);
+          hist->GetXaxis()->SetLabelSize(0.04);
+          hist->GetYaxis()->SetLabelSize(0.04);
+          hist->GetXaxis()->SetTitleOffset(1.1);
+          hist->GetYaxis()->SetTitleOffset(1.2);
+
+          if (first) {
+            hist->SetMaximum(globalMax * 1.1);
+            hist->Draw("HIST");
+            first = false;
+          } else {
+            hist->Draw("HIST SAME");
+          }
+
+          legend->AddEntry(hist.get(), Form("Depth %d", depth), "l");
+        }
+
+        legend->Draw();
+
+        TLatex title;
+        title.SetNDC();
+        title.SetTextSize(0.05);
+        title.SetTextAlign(13);
+        title.DrawLatex(0.15, 0.98, partName.c_str());
+      }
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+      return true;
+    }
+  };
+
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -744,4 +1021,6 @@ PAYLOAD_INSPECTOR_MODULE(HcalRespCorrs) {
   PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsRatioHE);
   PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsPlotHF);
   PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsRatioHF);
+  PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsDepthsOverlay);
+  PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsDistOverlay);
 }
