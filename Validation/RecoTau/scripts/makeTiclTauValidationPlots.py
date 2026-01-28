@@ -107,6 +107,48 @@ def overlay_efficiency(list_objs, out):
     plt.savefig(out)
     plt.close()
 
+def overlay_efficiency_with_gen(list_eff_objs, gen_obj, out):
+    """Create efficiency plot with gen distribution on secondary y-axis"""
+    fontsize = 18
+    fig, ax1 = plt.subplots(figsize=(12, 10))
+    hep.cms.text(' Simulation Preliminary', ax=ax1, fontsize=fontsize)
+    hep.cms.lumitext(args.sample_label, ax=ax1, fontsize=fontsize)
+
+    # Primary axis: efficiency curves
+    for i, obj in enumerate(list_eff_objs):
+        nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
+        values, errors = histo_values_errors(obj)
+        label = obj.GetTitle().split(":")[0].strip()
+        ax1.errorbar(bin_centers, values, xerr=None, yerr=errors, fmt='s', 
+                     label=label, color=colors_iter[i], linewidth=2, markersize=8)
+        ax1.stairs(values, bin_edges, linewidth=2, baseline=None, color=colors_iter[i])
+    
+    ax1.set_ylabel('Efficiency', fontsize=fontsize, color='black')
+    ax1.tick_params(axis='y', labelcolor='black')
+    ax1.set_ylim([0, 1.1])
+    ax1.set_xlabel('', fontsize=fontsize)
+
+    # Secondary axis: gen distribution
+    if gen_obj:
+        ax2 = ax1.twinx()
+        nbins_gen, bin_edges_gen, bin_centers_gen, bin_widths_gen = define_bins(gen_obj)
+        values_gen, _ = histo_values_errors(gen_obj)
+        
+        # Plot as histogram with alpha transparency
+        ax2.stairs(values_gen, bin_edges_gen, linewidth=2.5, baseline=None, 
+                   color='gray', alpha=0.6, label='Gen distribution')
+        ax2.bar(bin_centers_gen, values_gen, width=bin_widths_gen, 
+                alpha=0.15, color='gray', edgecolor='none')
+        
+        ax2.set_ylabel('Entries (Gen)', fontsize=fontsize, color='gray')
+        ax2.tick_params(axis='y', labelcolor='gray')
+
+    ax1.legend(fontsize=14, loc='upper left')
+    plt.tight_layout()
+    print(f'Saving plot: {out}')
+    plt.savefig(out)
+    plt.close()
+
 def draw_hist(obj, out, opt=None):
     c = ROOT.TCanvas("c","c",900,650); obj.SetStats(0)
     if obj.InheritsFrom("TH2"): obj.Draw(opt or "COLZ")
@@ -274,8 +316,13 @@ if __name__ == '__main__':
                     else:
                         print("MISSING:", f"{dqm_dir}/{dm_subdir}/{nm}")
                         missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
-                overlay_efficiency(
+                
+                # Try to get gen CP distribution for dual-axis plot
+                gen_obj = d_dm.Get(f"cp_chHad_dm{dm}_{var}") if var == "pt" else d_dm.Get(f"cp_chHad_dm{dm}_{var}")
+                
+                overlay_efficiency_with_gen(
                     list_eff_steps,
+                    gen_obj,
                     os.path.join(dm_dir, f"eff_ch_dm{dm}_leg{L}_{var}.png"),
                 )
 
@@ -291,8 +338,13 @@ if __name__ == '__main__':
                     else:
                         print("MISSING:", f"{dqm_dir}/{dm_subdir}/{nm}")
                         missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
-                overlay_efficiency(
+                
+                # Try to get gen CP distribution for dual-axis plot
+                gen_obj = d_dm.Get(f"cp_gamma_dm{dm}_{var}")
+                
+                overlay_efficiency_with_gen(
                     list_eff_steps,
+                    gen_obj,
                     os.path.join(dm_dir, f"eff_pho_dm{dm}_leg{L}_{var}.png"),
                 )
 
@@ -600,6 +652,50 @@ if __name__ == '__main__':
                 draw_hist(obj, os.path.join(dm_dir, f"{nm}.png"), "HIST E1")
             else:
                 missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
+
+    # ======= 7) CP-to-PF pT resolution (1D ratio histograms, per DM) =======
+    cp_pf_had_hists = []  # (dm, hist) for overlays
+    cp_pf_em_hists = []   # (dm, hist) for overlays
+
+    for dm in dm_list:
+        dm_dir = os.path.join(out_dir, f"dm{dm}")
+        os.makedirs(dm_dir, exist_ok=True)
+
+        d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
+        if not d_dm:
+            missing.append(f"{dqm_dir}/GenDM{dm}")
+            continue
+
+        # Hadronic (charged hadron) resolution
+        obj_had = d_dm.Get(f"cp_pf_pt_resolution_hadronic_dm{dm}")
+        if obj_had:
+            draw_resolution(obj_had, os.path.join(dm_dir, f"cp_pf_pt_resolution_hadronic_dm{dm}.png"),
+                           r"$p_{T}^{reco}/p_{T}^{gen}$")
+            cp_pf_had_hists.append((dm, obj_had))
+        else:
+            missing.append(f"{dqm_dir}/GenDM{dm}/cp_pf_pt_resolution_hadronic_dm{dm}")
+
+        # Electromagnetic (photon) resolution
+        obj_em = d_dm.Get(f"cp_pf_pt_resolution_em_dm{dm}")
+        if obj_em:
+            draw_resolution(obj_em, os.path.join(dm_dir, f"cp_pf_pt_resolution_em_dm{dm}.png"),
+                           r"$p_{T}^{reco}/p_{T}^{gen}$")
+            cp_pf_em_hists.append((dm, obj_em))
+        else:
+            missing.append(f"{dqm_dir}/GenDM{dm}/cp_pf_pt_resolution_em_dm{dm}")
+
+    # Create overlay plots of CP-to-PF resolution across DMs
+    if cp_pf_had_hists:
+        objs = [h for dm, h in cp_pf_had_hists]
+        labels = [f'DM {dm}' for dm, h in cp_pf_had_hists]
+        out_overlay_had = os.path.join(out_dir, "cp_pf_pt_resolution_hadronic_overlay.png")
+        overlay_resolution(objs, labels, out_overlay_had, r"$p_{T}^{reco}/p_{T}^{gen}$")
+
+    if cp_pf_em_hists:
+        objs = [h for dm, h in cp_pf_em_hists]
+        labels = [f'DM {dm}' for dm, h in cp_pf_em_hists]
+        out_overlay_em = os.path.join(out_dir, "cp_pf_pt_resolution_em_overlay.png")
+        overlay_resolution(objs, labels, out_overlay_em, r"$p_{T}^{reco}/p_{T}^{gen}$")
 
     # Report missing without failing
     if missing:

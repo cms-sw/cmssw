@@ -203,6 +203,10 @@ private:
   MonitorElement* tau_reco_pt_[kNDMSel]  = {};
   MonitorElement* tau_reco_eta_[kNDMSel] = {};
 
+  // CP-to-PF resolution: 1D ratio histograms (PF pT / CP pT) per DM
+  MonitorElement* cp_pf_pt_resolution_had_dm_[kNDMSel] = {};  // hadronic (charged hadrons)
+  MonitorElement* cp_pf_pt_resolution_em_dm_[kNDMSel]  = {};  // electromagnetic (photons)
+
 };
 
 TICLTauValidator::TICLTauValidator(const edm::ParameterSet& iConfig)
@@ -324,6 +328,20 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       n << "cp_gamma_dm" << dm << "_eta";
       t << "Photon CP (DM=" << dm << "); eta; entries";
       cp_gamma_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    }
+
+    // CP-to-PF pT resolution per DM (ratio: PF pT / CP pT)
+    {
+      std::ostringstream n, t;
+      n << "cp_pf_pt_resolution_hadronic_dm" << dm;
+      t << "Charged hadron CP-to-PF pT resolution (DM=" << dm << ");pT^{reco}/pT^{gen};entries";
+      cp_pf_pt_resolution_had_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 3.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_pf_pt_resolution_em_dm" << dm;
+      t << "Photon CP-to-PF pT resolution (DM=" << dm << ");pT^{reco}/pT^{gen};entries";
+      cp_pf_pt_resolution_em_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 3.);
     }
 
     // charged legs
@@ -664,6 +682,17 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
           pend.pfPt  = pfCand.pt();
           pend.pfEta = pfCand.eta();
           pend.stepPass[3] = true;
+
+          // Fill CP-to-PF resolution histograms (per-DM): ratio PF pT / CP pT
+          if (cp.pt() > 0.) {
+            const double ratio = pfCand.pt() / cp.pt();
+            if (isChargedHadron && dmIdx >= 0 && cp_pf_pt_resolution_had_dm_[dmIdx]) {
+              cp_pf_pt_resolution_had_dm_[dmIdx]->Fill(ratio);
+            }
+            if (isPhoton && dmIdx >= 0 && cp_pf_pt_resolution_em_dm_[dmIdx]) {
+              cp_pf_pt_resolution_em_dm_[dmIdx]->Fill(ratio);
+            }
+          }
 
           // Step 4: PFCand - PFJet membership
           if (pfJets.isValid()) {
