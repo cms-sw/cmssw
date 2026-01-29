@@ -34,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto const& input = iRecord.get(token_);
 
       int const edatasize = 2;
-      AlpakaESTestDataEHost::EDataCollection data(edatasize, cms::alpakatools::host());
+      AlpakaESTestDataEHost::EDataCollection data(cms::alpakatools::host(), edatasize);
       for (int i = 0; i < edatasize; ++i) {
         data.view()[i].val2() = i * 10 + 1;
       }
@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int const esize = 5;
       // TODO: pinned allocation?
       // TODO: cached allocation?
-      AlpakaESTestDataEHost::ECollection e(esize, cms::alpakatools::host());
+      AlpakaESTestDataEHost::ECollection e(cms::alpakatools::host(), esize);
       for (int i = 0; i < esize; ++i) {
         e.view()[i].val() = std::abs(input.value()) + i * 2;
         e.view()[i].ind() = i % edatasize;

@@ -278,12 +278,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Copying the digis to the device\n\n" << std::endl;
     auto const ndigis = host_digis.view().metadata().size();
-    HGCalDigiDevice device_digis(ndigis, queue);
+    HGCalDigiDevice device_digis(queue, ndigis);
     alpaka::memcpy(queue, device_digis.buffer(), host_digis.const_buffer());
 
     LogDebug("HGCalRecHitCalibrationAlgorithms")
         << "\n\nINFO -- Allocating rechits buffer and initiating values" << std::endl;
-    HGCalSoARecHitsDeviceCollection device_recHits(ndigis, queue);
+    HGCalSoARecHitsDeviceCollection device_recHits(queue, ndigis);
 
     // number of items per group
     uint32_t items = n_threads_;
@@ -351,7 +351,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //   - elements within a single thread on a CPU backend
     auto grid = make_workdiv<Acc1D>(groups, items);
 
-    HGCalSoARecHitsDeviceCollection device_selRecHits(*nsel, queue);
+    HGCalSoARecHitsDeviceCollection device_selRecHits(queue, *nsel);
     alpaka::exec<Acc1D>(queue,
                         grid,
                         HGCalRecHitCalibrationKernel_copyRecHits{},
