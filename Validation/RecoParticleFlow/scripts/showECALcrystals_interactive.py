@@ -98,7 +98,7 @@ def writeContacts():
     Tool developed under the <a href="https://nextgentriggers.web.cern.ch/">Next Generation Trigger project</a> (task 3.1.1).
     </p>
     <p>
-    <i>Contact:</i> For bug reports or feature requests please reach out to <code>bruno.alves@cern.ch</code>.
+    <i>Contact:</i> For bug reports or feature requests please write a message to <code>bruno.alves@cern.ch</code>.
     </p>
     <br>
     """
@@ -697,7 +697,7 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--file", help="Path to the input ROOT file.")
     parser.add_argument("-o", "--outdir", help="Path to the output folder where the script outputs will be stored.")
     parser.add_argument("--outname", default='EventDisplay', help="Name of the output html file with the event display.")
-    parser.add_argument("-n", "--nevents", help="Number of events to plot.", default=10, type=int)
+    parser.add_argument("-n", "--nevents", help="Number of events to plot. If the input file has less events, then it plots all events of the input file.", default=10, type=int)
     parser.add_argument("-c", "--clusters", help="Add cluster information.", default=False, action='store_true')
     geom_help_str = "Plot only the geometry. It highlights the position of the center and corners of each ECAL crystal."
     parser.add_argument("-g", "--geom", help=geom_help_str, default=False, action='store_true')
