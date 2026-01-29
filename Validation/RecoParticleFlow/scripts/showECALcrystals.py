@@ -202,7 +202,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--file', help='Path to the input ROOT file.')
     parser.add_argument('-o', '--outdir', help='Path to the output folder where the events will be stored.')
     parser.add_argument('-z', '--zoom', help='Zoom over a hard-coded eta/phi region: (min_eta, max_eta, min_phi, max_phi)', nargs=4, type=float, default=None)
-    parser.add_argument('-n', '--nevents', help='Number of events to plot.', default=6)
+    parser.add_argument('-n', '--nevents', help='Number of events to plot. If the input file has less events, then it plots all events of the input file.', default=10)
     
     args = parser.parse_args()
     props = InputArgs(zoom=args.zoom, nevents=args.nevents)
