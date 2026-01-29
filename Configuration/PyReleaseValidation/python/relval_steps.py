@@ -6,7 +6,7 @@ from .MatrixUtil import *
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
 from Configuration.Skimming.autoSkim import autoSkim
-from Configuration.PyReleaseValidation.upgradeWorkflowComponents import step3_trackingOnly,undefInput
+from Configuration.PyReleaseValidation.upgradeWorkflowComponents import step3_trackingOnly,undefInput,run3_years
 
 # step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
@@ -4895,7 +4895,7 @@ for ds in defaultDataSets:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2018' in ds or 'postLS2' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2022' in ds or '2023' in ds or '2024' in ds or '2025' in ds:
+    elif any(year in ds for year in run3_years):
         if 'FS' not in ds:
             PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
         else:
