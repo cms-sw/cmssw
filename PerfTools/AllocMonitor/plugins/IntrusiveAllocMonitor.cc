@@ -15,11 +15,7 @@ namespace {
     static void startOnThread() { threadAllocInfo().reset(); }
     static ThreadAllocInfo const& stopOnThread() {
       auto& t = threadAllocInfo();
-      if (not t.active_) {
-        t.reset();
-      } else {
-        t.deactivate();
-      }
+      t.deactivate();
       return t;
     }
 
