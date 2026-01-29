@@ -197,8 +197,6 @@ std::unique_ptr<TBufferFile> MPIChannel::receiveSerializedBuffer(int instance, i
   int receivedCount = 0;
   MPI_Get_count(&status, MPI_BYTE, &receivedCount);
   assert(receivedCount == bufSize && "received serialized buffer size mismatches the size expected from metadata");
-  // set the buffer length
-  buffer->SetBufferOffset(receivedCount);
   return buffer;
 }
 

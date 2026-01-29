@@ -21,18 +21,26 @@ enum ProductFlags : uint8_t {
   HasTrivialCopy = 1 << 2,
 };
 
+struct MetadataHeader {
+  int16_t productCount = 0;
+  uint8_t productFlags = 0;
+  int32_t serializedBufferSize = 0;
+};
+
+static_assert(sizeof(MetadataHeader) == 8, "Wrong MPI MetadataHeader size - expected to be 8 bytes.");
+
 struct ProductMetadata {
   enum class Kind : uint8_t { Missing = 0, Serialized = 1, TrivialCopy = 2 };
 
   Kind kind;
-  size_t sizeMeta = 0;
+  uint64_t sizeMeta = 0;
   const uint8_t* trivialCopyOffset = nullptr;  // Only valid if kind == TrivialCopy
 };
 
 class ProductMetadataBuilder {
 public:
   ProductMetadataBuilder();
-  explicit ProductMetadataBuilder(size_t productCount);
+  explicit ProductMetadataBuilder(int16_t productCount);
   ~ProductMetadataBuilder();
 
   // No copy
@@ -47,7 +55,7 @@ public:
   void reserve(size_t bytes);
 
   // set or reset number of products. will fail if not set called before sending
-  void setProductCount(size_t prod_num) { productCount_ = prod_num; }
+  void setProductCount(int16_t prod_num) { header_.productCount = prod_num; }
   void setHeader();
 
   // Sender API
@@ -67,11 +75,11 @@ public:
   // Please make sure that ProductMetadataBuilder lives longer than returned ProductMetadata
   ProductMetadata getNext();
 
-  int64_t productCount() const { return productCount_; }
-  int64_t serializedBufferSize() const { return serializedBufferSize_; }
-  bool hasMissing() const { return productFlags_ & HasMissing; }
-  bool hasSerialized() const { return productFlags_ & HasSerialized; }
-  bool hasTrivialCopy() const { return productFlags_ & HasTrivialCopy; }
+  int16_t productCount() const { return header_.productCount; }
+  int32_t serializedBufferSize() const { return header_.serializedBufferSize; }
+  bool hasMissing() const { return header_.productFlags & HasMissing; }
+  bool hasSerialized() const { return header_.productFlags & HasSerialized; }
+  bool hasTrivialCopy() const { return header_.productFlags & HasTrivialCopy; }
 
   void debugPrintMetadataSummary() const;
 
@@ -80,11 +88,9 @@ private:
   size_t capacity_;
   size_t size_;
   size_t readOffset_;
-  const size_t headerSize_ = 13;  // header is always present in the metadata object do describe products in general
-  const size_t maxMetadataSize_ = 1024;  // default size for buffer initialization. must fit any metadata
-  int serializedBufferSize_ = 0;
-  uint8_t productFlags_ = 0;
-  int64_t productCount_ = 0;
+  const size_t maxMetadataSize_ = 1024;  // default size for buffer initialization. Must fit any metadata
+  MetadataHeader header_;
+  static constexpr size_t headerSize_ = sizeof(header_);
 
   void resizeBuffer(size_t newCap);
   void ensureCapacity(size_t needed);
