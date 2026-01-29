@@ -3,12 +3,12 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 ScoutingDileptonMonitor = DQMEDAnalyzer("ScoutingDileptonMonitor",
                                         OutputInternalPath = cms.string('HLT/ScoutingOffline/DiLepton'), #Output of the root file
-                                        muons     = cms.InputTag("hltScoutingMuonPacker"),
-                                        electrons = cms.InputTag("hltScoutingElectronPacker"),
+                                        muons     = cms.InputTag("hltScoutingMuonPackerVtx"),
+                                        electrons = cms.InputTag("hltScoutingEgammaPacker"),
                                         doMuons     = cms.bool(True),
                                         doElectrons = cms.bool(True),                                            
-                                        muonCut     = cms.string("pt > 5 && abs(eta) < 2.4"),
-                                        electronCut = cms.string("pt > 7 && abs(eta) < 2.5"),                           
+                                        muonCut     = cms.string("pt > 3 && abs(eta) < 2.4"),
+                                        electronCut = cms.string("pt > 3 && abs(eta) < 2.5"),                           
                                         massBins = cms.int32(120),
                                         massMin  = cms.double(0.0),
                                         massMax  = cms.double(200.0),                                            
