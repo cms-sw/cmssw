@@ -43,7 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //std::cout << "Size of device collection: " << deviceInput->metadata().size() << std::endl;
       auto const input_v = deviceInput.view();
       // Allocate output SoA
-      HGCalSoARecHitsExtraDeviceCollection output(deviceInput->metadata().size(), iEvent.queue());
+      HGCalSoARecHitsExtraDeviceCollection output(iEvent.queue(), deviceInput->metadata().size());
       auto output_v = output.view();
 
       algo_.run(
