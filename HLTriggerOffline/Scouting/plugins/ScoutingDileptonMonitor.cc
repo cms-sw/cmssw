@@ -101,12 +101,10 @@ void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   auto bookSet = [&](const std::string& name, MassHistos& h, bool splitEta) {
     h.full = ibooker.book1D(
         name + "_mass", name + " opposite-charge invariant mass;M [GeV];Events", massBins_, massMin_, massMax_);
-
     h.zwin = ibooker.book1D(name + "_zMass", name + " Z window;M [GeV];Events", massBins_, zMin_, zMax_);
 
     if (splitEta) {
       h.barrel = ibooker.book1D(name + "_barrelMass", name + " barrel;M [GeV];Events", massBins_, massMin_, massMax_);
-
       h.endcap = ibooker.book1D(name + "_endcapMass", name + " endcap;M [GeV];Events", massBins_, massMin_, massMax_);
     }
   };
@@ -120,10 +118,12 @@ void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
 
 void ScoutingDileptonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
   if (doMuons_) {
+    std::cout << "doing muons: " << std::endl;
     analyzeCollection(iEvent, muonToken_, muonCut_, muonHistos_, false);
   }
 
   if (doElectrons_) {
+    std::cout << "doing electrons: " << std::endl;
     analyzeCollection(iEvent, electronToken_, electronCut_, electronHistos_, true);
   }
 }
@@ -136,17 +136,25 @@ void ScoutingDileptonMonitor::analyzeCollection(const edm::Event& iEvent,
                                                 const StringCutObjectSelector<T>& cut,
                                                 MassHistos& histos,
                                                 bool doEtaSplit) {
+  std::cout << "IN ANALYZE COLLECTION" << std::endl;
+  
   edm::Handle<std::vector<T>> handle;
   iEvent.getByToken(token, handle);
-  if (!handle.isValid())
+  if (!handle.isValid()){
+    std::cout << "Invalid Handle!" << std::endl;;
     return;
+  } else {
+    std::cout << "Valid Handle!" << std::endl;;
+  }
 
   std::vector<const T*> selected;
   selected.reserve(handle->size());
 
+  std::cout << "collection size: " << handle->size() << std::endl;
+
   for (const auto& obj : *handle) {
-    if (cut(obj))
-      selected.push_back(&obj);
+    //if (cut(obj))
+    selected.push_back(&obj);
   }
 
   fillPairs(selected, histos, doEtaSplit);
@@ -160,6 +168,9 @@ void ScoutingDileptonMonitor::fillPairs(const std::vector<const T*>& leptons, Ma
   const double massHypothesis = std::is_same_v<T, Run3ScoutingMuon> ? muMass : elMass;
 
   const size_t n = leptons.size();
+
+  std::cout << "lepton size: " << n <<std::endl;
+  
   for (size_t i = 0; i < n; ++i) {
     for (size_t j = i + 1; j < n; ++j) {
       if (scouting::charge(*leptons[i]) * scouting::charge(*leptons[j]) >= 0)
