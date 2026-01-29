@@ -2954,19 +2954,33 @@ hgcalHitCalibPlotter.append("EcalDrivenGsfElectronsFromTrackster_Closest_EoverCP
         purpose=PlotPurpose.Timing, page=hitCalibrationLabel, section=hitCalibrationLabel
         ))
 
-hgcalTICLCandPlotter = Plotter()
+def _build_hgcalTICLCandPlotter(dqm_base):
+  """Build the TICL candidates plotter for a given HGCalValidator base folder."""
+  plotter = Plotter()
 
-hgcalTICLCandPlotter.append('ticlCandidates', [
-             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+hgcalValidator.ticlCandidates.value(),
-            ], PlotFolder(
-            *_candidatesPlots,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="General", section="Candidates"))
+  plotter.append('ticlCandidates', [
+      dqm_base + hgcalValidator.ticlCandidates.value(),
+  ], PlotFolder(
+      *_candidatesPlots,
+      loopSubFolders=False,
+      purpose=PlotPurpose.Timing, page="General", section="Candidates"))
 
-for i in range(6):
-    hgcalTICLCandPlotter.append('ticlCandidates', [
-             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+hgcalValidator.ticlCandidates.value()+"/"+cand_type[i],
-            ], PlotFolder(
-            *_allCandidatesPlots[i],
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page=cand_type[i], section="Candidates"))
+  for i in range(6):
+    plotter.append('ticlCandidates', [
+        dqm_base + hgcalValidator.ticlCandidates.value() + "/" + cand_type[i],
+    ], PlotFolder(
+        *_allCandidatesPlots[i],
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page=cand_type[i], section="Candidates"))
+
+  return plotter
+
+
+hgcalTICLCandPlotter = _build_hgcalTICLCandPlotter(hgcVal_dqm)
+
+
+def set_hgcVal_dqm(dqm_base):
+  """Override the HGCalValidator base folder and rebuild dependent plotters."""
+  global hgcVal_dqm, hgcalTICLCandPlotter
+  hgcVal_dqm = dqm_base
+  hgcalTICLCandPlotter = _build_hgcalTICLCandPlotter(hgcVal_dqm)
