@@ -27,8 +27,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static std::unique_ptr<PFClusterParamsCache> initializeGlobalCache(edm::ParameterSet const& config) {
       constexpr static uint32_t kMaxDepth_barrel = 4;
       constexpr static uint32_t kMaxDepth_endcap = 7;
-      PortableHostCollection<::reco::PFClusterParamsSoA> obj(std::max(kMaxDepth_barrel, kMaxDepth_endcap),
-                                                             cms::alpakatools::host());
+      PortableHostCollection<::reco::PFClusterParamsSoA> obj(cms::alpakatools::host(),
+                                                             std::max(kMaxDepth_barrel, kMaxDepth_endcap));
       auto view = obj.view();
 
       // seedFinder
@@ -167,9 +167,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int nRH = event.get(inputPFRecHitNum_Token_);
       const auto& params = globalCache()->get(event.queue());
 
-      pfClusteringVars_.emplace(nRH, event.queue());
-      pfClusteringEdgeVars_.emplace(nRH * 8, event.queue());
-      pfClusters_.emplace(nRH, event.queue());
+      pfClusteringVars_.emplace(event.queue(), nRH);
+      pfClusteringEdgeVars_.emplace(event.queue(), nRH * 8);
+      pfClusters_.emplace(event.queue(), nRH);
 
       *numRHF_ = 0;
 
@@ -196,7 +196,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       int nRH = event.get(inputPFRecHitNum_Token_);
       if (nRH != 0) {
-        pfrhFractions.emplace(*numRHF_, event.queue());
+        pfrhFractions.emplace(event.queue(), *numRHF_);
         PFClusterProducerKernel kernel(event.queue());
         kernel.cluster(event.queue(),
                        params.const_view(),
@@ -208,7 +208,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                        *pfClusters_,
                        *pfrhFractions);
       } else {
-        pfrhFractions.emplace(0, event.queue());
+        pfrhFractions.emplace(event.queue(), 0);
       }
 
       if (synchronise_)

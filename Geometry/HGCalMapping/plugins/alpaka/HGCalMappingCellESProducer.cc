@@ -94,7 +94,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const HGCalMappingCellIndexer& cellIndexer = iRecord.get(cellIndexTkn_);
         const HGCalMappingModuleIndexer& moduleIndexer = iRecord.get(moduleIndexTkn_);
         const uint32_t size = cellIndexer.maxDenseIndex();  // channel-level size
-        HGCalMappingCellParamHost cellParams(size, cms::alpakatools::host());
+        HGCalMappingCellParamHost cellParams(cms::alpakatools::host(), size);
         for (uint32_t i = 0; i < size; i++)
           cellParams.view()[i].valid() = false;
 

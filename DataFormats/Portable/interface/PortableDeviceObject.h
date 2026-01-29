@@ -12,7 +12,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 // generic object in device memory
-template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
 class PortableDeviceObject {
   static_assert(not std::is_same_v<TDev, alpaka_common::DevHost>,
                 "Use PortableHostObject<T> instead of PortableDeviceObject<T, DevHost>");

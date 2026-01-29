@@ -121,8 +121,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       constexpr int32_t maxTracks = 32 * 1024;
       constexpr int32_t maxVertices = 1024;
 
-      vertexFinder::PixelVertexWorkSpaceSoADevice ws_d(maxTracks, queue);
-      vertexFinder::PixelVertexWorkSpaceSoAHost ws_h(maxTracks, queue);
+      vertexFinder::PixelVertexWorkSpaceSoADevice ws_d(queue, maxTracks);
+      vertexFinder::PixelVertexWorkSpaceSoAHost ws_h(queue, maxTracks);
       reco::ZVertexHost vertices_h(queue, maxVertices, maxTracks);
       reco::ZVertexSoACollection vertices_d(queue, maxVertices, maxTracks);
 
