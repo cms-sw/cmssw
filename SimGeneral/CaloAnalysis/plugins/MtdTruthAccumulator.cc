@@ -169,9 +169,6 @@ private:
 
 namespace {
 
-  // hit types beyond direct considered for the accumulation
-  constexpr unsigned int n_categories = 4;
-
   class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
   public:
     CaloParticle_dfs_visitor(
@@ -197,7 +194,7 @@ namespace {
       if (!vertex_property.simTrack)
         return;
       // -- loop over possible hitProdTypes to save also sim clusters from non-direct hits
-      for (unsigned int offset = 0; offset < n_categories + 1; offset++) {
+      for (unsigned int offset = 0; offset < SimHitCategory::n_mtd_categories; offset++) {
         auto trackIdx = tidAndProc(vertex_property.simTrack->trackId(), offset);
         IfLogDebug(DEBUG, messageCategoryGraph_)
             << " Found " << simHitBarcodeToIndex_.count(trackIdx) << " associated simHits" << std::endl;
