@@ -85,13 +85,15 @@ namespace edm::rntuple_temp {
   // Algorithm classes for making ProvenanceReader:
   class MakeReducedProvenanceReader : public MakeProvenanceReader {
   public:
-    MakeReducedProvenanceReader(std::vector<ParentageID> const& parentageIDLookup)
-        : parentageIDLookup_(parentageIDLookup) {}
+    MakeReducedProvenanceReader(std::vector<ParentageID> const& parentageIDLookup,
+                                ROOT::RNTupleView<void>& productProvenanceView)
+        : parentageIDLookup_(parentageIDLookup), productProvenanceView_(productProvenanceView) {}
     std::unique_ptr<ProvenanceReaderBase> makeReader(RootRNTuple& eventTree,
                                                      DaqProvenanceHelper const* daqProvenanceHelper) const override;
 
   private:
     std::vector<ParentageID> const& parentageIDLookup_;
+    ROOT::RNTupleView<void>& productProvenanceView_;
   };
 
   namespace {
@@ -183,6 +185,7 @@ namespace edm::rntuple_temp {
         eventToProcessBlockIndexesView_(inputType == InputType::Primary
                                             ? eventTree_.view(poolNames::eventToProcessBlockIndexesBranchName())
                                             : std::optional<ROOT::RNTupleView<void>>()),
+        productProvenanceView_(eventTree_.view(BranchTypeToProductProvenanceBranchName(eventTree_.branchType()))),
         productDependencies_(new ProductDependencies),
         duplicateChecker_(crossFileInfo.duplicateChecker),
         provenanceReaderMaker_(),
@@ -191,6 +194,7 @@ namespace edm::rntuple_temp {
         daqProvenanceHelper_(),
         edProductClass_(TypeWithDict::byName("edm::WrapperBase").getClass()),
         inputType_(inputType) {
+    assert(productProvenanceView_);
     hasNewlyDroppedBranch_.fill(false);
 
     treePointers_.resize(3);
@@ -1865,9 +1869,8 @@ namespace edm::rntuple_temp {
   }
 
   std::unique_ptr<MakeProvenanceReader> RootFile::makeProvenanceReaderMaker(InputType inputType) {
-    //if (fileFormatVersion_.storedProductProvenanceUsed()) {
     readParentageTree(inputType);
-    return std::make_unique<MakeReducedProvenanceReader>(parentageIDLookup_);
+    return std::make_unique<MakeReducedProvenanceReader>(parentageIDLookup_, *productProvenanceView_);
   }
 
   std::shared_ptr<ProductProvenanceRetriever> RootFile::makeProductProvenanceRetriever(unsigned int iStreamID) {
@@ -1886,6 +1889,7 @@ namespace edm::rntuple_temp {
   class ReducedProvenanceReader : public ProvenanceReaderBase {
   public:
     ReducedProvenanceReader(RootRNTuple* iRootRNTuple,
+                            ROOT::RNTupleView<void>* iProductProvenanceView,
                             std::vector<ParentageID> const& iParentageIDLookup,
                             DaqProvenanceHelper const* daqProvenanceHelper);
 
@@ -1900,9 +1904,8 @@ namespace edm::rntuple_temp {
                              std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept override;
 
     edm::propagate_const<RootRNTuple*> rootTree_;
-    ROOT::DescriptorId_t provID_;
+    edm::propagate_const<ROOT::RNTupleView<void>*> provView_;
     StoredProductProvenanceVector provVector_;
-    StoredProductProvenanceVector const* pProvVector_;
     std::vector<ParentageID> const& parentageIDLookup_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
     std::shared_ptr<std::recursive_mutex> mutex_;
@@ -1910,12 +1913,12 @@ namespace edm::rntuple_temp {
   };
 
   ReducedProvenanceReader::ReducedProvenanceReader(RootRNTuple* iRootRNTuple,
+                                                   ROOT::RNTupleView<void>* iProductProvenanceView,
                                                    std::vector<ParentageID> const& iParentageIDLookup,
                                                    DaqProvenanceHelper const* daqProvenanceHelper)
       : ProvenanceReaderBase(),
         rootTree_(iRootRNTuple),
-        provID_(rootTree_->descriptorFor(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()))),
-        pProvVector_(&provVector_),
+        provView_(iProductProvenanceView),
         parentageIDLookup_(iParentageIDLookup),
         daqProvenanceHelper_(daqProvenanceHelper),
         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
@@ -1999,14 +2002,14 @@ namespace edm::rntuple_temp {
   //
   void ReducedProvenanceReader::unsafe_fillProvenance(unsigned int transitionIndex) const {
     ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-    me->rootTree_->fillEntry(me->provID_, me->rootTree_->entryNumberForIndex(transitionIndex), &me->provVector_);
+    me->rootTree_->fillEntry(*(me->provView_), me->rootTree_->entryNumberForIndex(transitionIndex), &me->provVector_);
   }
 
   std::set<ProductProvenance> ReducedProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     if (provVector_.empty()) {
       std::lock_guard<std::recursive_mutex> guard(*mutex_);
       ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-      me->rootTree_->fillEntry(me->provID_, me->rootTree_->entryNumberForIndex(transitionIndex), &me->provVector_);
+      me->rootTree_->fillEntry(*(me->provView_), me->rootTree_->entryNumberForIndex(transitionIndex), &me->provVector_);
     }
     std::set<ProductProvenance> retValue;
     if (daqProvenanceHelper_) {
@@ -2036,6 +2039,7 @@ namespace edm::rntuple_temp {
 
   std::unique_ptr<ProvenanceReaderBase> MakeReducedProvenanceReader::makeReader(
       RootRNTuple& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::make_unique<ReducedProvenanceReader>(&rootTree, parentageIDLookup_, daqProvenanceHelper);
+    return std::make_unique<ReducedProvenanceReader>(
+        &rootTree, &productProvenanceView_, parentageIDLookup_, daqProvenanceHelper);
   }
 }  // namespace edm::rntuple_temp

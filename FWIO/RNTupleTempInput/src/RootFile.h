@@ -305,6 +305,7 @@ namespace edm {
       std::map<std::string, std::string> newBranchToOldBranch_;
       EventToProcessBlockIndexes eventToProcessBlockIndexes_;
       std::optional<ROOT::RNTupleView<void>> eventToProcessBlockIndexesView_;
+      std::optional<ROOT::RNTupleView<void>> productProvenanceView_;
       edm::propagate_const<std::shared_ptr<ProductDependencies>> productDependencies_;
       edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;
       edm::propagate_const<std::unique_ptr<MakeProvenanceReader>> provenanceReaderMaker_;
