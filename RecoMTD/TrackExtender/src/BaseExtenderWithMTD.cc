@@ -1,0 +1,980 @@
+#include "RecoMTD/TrackExtender/interface/BaseExtenderWithMTD.h"
+
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+#include "DataFormats/ForwardDetId/interface/MTDChannelIdentifier.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Rounding.h"
+#include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
+#include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
+#include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
+#include "RecoMTD/TransientTrackingRecHit/interface/MTDTransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
+
+using namespace std;
+using namespace edm;
+using namespace reco;
+
+namespace mtdtof{
+  // MTDHitMatchingInfo --------
+  MTDHitMatchingInfo::MTDHitMatchingInfo() {
+      hit = nullptr;
+      estChi2 = std::numeric_limits<float>::max();
+      timeChi2 = std::numeric_limits<float>::max();
+  };
+
+  //Operator used to sort the hits while performing the matching step at the MTD
+  bool MTDHitMatchingInfo::operator<(const MTDHitMatchingInfo& m2) const {
+    //only for good matching in time use estChi2, otherwise use mostly time compatibility
+    constexpr float chi2_cut = 10.f;
+    constexpr float low_weight = 3.f;
+    constexpr float high_weight = 8.f;
+    if (timeChi2 < chi2_cut && m2.timeChi2 < chi2_cut)
+      return chi2(low_weight) < m2.chi2(low_weight);
+    else
+      return chi2(high_weight) < m2.chi2(high_weight);
+  };
+
+  float MTDHitMatchingInfo::chi2(float timeWeight) const { return estChi2 + timeWeight * timeChi2; };
+
+  // TrackSegments --------
+  TrackSegments::TrackSegments() {
+    sigmaTofs_.reserve(30);  // observed upper limit on nSegments
+  };
+
+  uint32_t TrackSegments::addSegment(float tPath, float tMom2, float sigmaMom) {
+    segmentPathOvc_.emplace_back(tPath * c_inv);
+    segmentMom2_.emplace_back(tMom2);
+    segmentSigmaMom_.emplace_back(sigmaMom);
+    nSegment_++;
+
+    LogTrace("BaseExtenderWithMTD") << "addSegment # " << nSegment_ << " s = " << tPath
+                                     << " p = " << std::sqrt(tMom2) << " sigma_p = " << sigmaMom
+                                     << " sigma_p/p = " << sigmaMom / std::sqrt(tMom2) * 100 << " %";
+
+    return nSegment_;
+  };
+
+  float TrackSegments::computeTof(float mass_inv2) const {
+    float tof(0.f);
+    for (uint32_t iSeg = 0; iSeg < nSegment_; iSeg++) {
+      float gammasq = 1.f + segmentMom2_[iSeg] * mass_inv2;
+      float beta = std::sqrt(1.f - 1.f / gammasq);
+      tof += segmentPathOvc_[iSeg] / beta;
+
+      LogTrace("BaseExtenderWithMTD") << " TOF Segment # " << iSeg + 1 << " p = " << std::sqrt(segmentMom2_[iSeg])
+                                       << " tof = " << tof;
+
+#ifdef EDM_ML_DEBUG
+      float sigma_tof = segmentPathOvc_[iSeg] * segmentSigmaMom_[iSeg] /
+                        (segmentMom2_[iSeg] * sqrt(segmentMom2_[iSeg] + 1 / mass_inv2) * mass_inv2);
+
+      LogTrace("BaseExtenderWithMTD") << "TOF Segment # " << iSeg + 1 << std::fixed << std::setw(6)
+                                       << " tof segment = " << segmentPathOvc_[iSeg] / beta << std::scientific
+                                       << "+/- " << sigma_tof << std::fixed
+                                       << "(rel. err. = " << sigma_tof / (segmentPathOvc_[iSeg] / beta) * 100
+                                       << " %)";
+#endif
+    }
+    return tof;
+  };
+
+  float TrackSegments::computeSigmaTof(float mass_inv2) {
+    float sigmatof = 0.;
+
+    // remove previously calculated sigmaTofs
+    sigmaTofs_.clear();
+
+    // compute sigma(tof) on each segment first by propagating sigma(p)
+    // also add diagonal terms to sigmatof
+    float sigma = 0.;
+    for (uint32_t iSeg = 0; iSeg < nSegment_; iSeg++) {
+      sigma = segmentPathOvc_[iSeg] * segmentSigmaMom_[iSeg] /
+              (segmentMom2_[iSeg] * sqrt(segmentMom2_[iSeg] + 1 / mass_inv2) * mass_inv2);
+      sigmaTofs_.push_back(sigma);
+
+      sigmatof += sigma * sigma;
+    }
+
+    // compute sigma on sum of tofs assuming full correlation between segments
+    for (uint32_t iSeg = 0; iSeg < nSegment_; iSeg++) {
+      for (uint32_t jSeg = iSeg + 1; jSeg < nSegment_; jSeg++) {
+        sigmatof += 2 * sigmaTofs_[iSeg] * sigmaTofs_[jSeg];
+      }
+    }
+
+    return sqrt(sigmatof);
+  };
+
+  uint32_t TrackSegments::size() const { return nSegment_; };
+
+  uint32_t TrackSegments::removeFirstSegment() {
+    if (nSegment_ > 0) {
+      segmentPathOvc_.erase(segmentPathOvc_.begin());
+      segmentMom2_.erase(segmentMom2_.begin());
+      nSegment_--;
+    }
+    return nSegment_;
+  };
+
+  std::pair<float, float> TrackSegments::getSegmentPathAndMom2(uint32_t iSegment) const {
+    if (iSegment >= nSegment_) {
+      throw cms::Exception("BaseExtenderWithMTD") << "Requesting non existing track segment #" << iSegment;
+    }
+    return std::make_pair(segmentPathOvc_[iSegment], segmentMom2_[iSegment]);
+  };
+  
+  const TrackTofPidInfo computeTrackTofPidInfo(float magp2,
+                                               float length,
+                                               TrackSegments trs,
+                                               float t_mtd,
+                                               float t_mtderr,
+                                               float t_vtx,
+                                               float t_vtx_err,
+                                               bool addPIDError,
+                                               TofCalc choice,
+                                               SigmaTofCalc sigma_choice) {
+    constexpr float m_pi = 0.13957018f;
+    constexpr float m_pi_inv2 = 1.0f / m_pi / m_pi;
+    constexpr float m_k = 0.493677f;
+    constexpr float m_k_inv2 = 1.0f / m_k / m_k;
+    constexpr float m_p = 0.9382720813f;
+    constexpr float m_p_inv2 = 1.0f / m_p / m_p;
+
+    TrackTofPidInfo tofpid;
+
+    tofpid.tmtd = t_mtd;
+    tofpid.tmtderror = t_mtderr;
+    tofpid.pathlength = length;
+
+    auto deltat = [&](const float mass_inv2, const float betatmp) {
+      float res(1.f);
+      switch (choice) {
+        case TofCalc::kCost:
+          res = tofpid.pathlength / betatmp * c_inv;
+          break;
+        case TofCalc::kSegm:
+          res = trs.computeTof(mass_inv2);
+          break;
+        case TofCalc::kMixd:
+          res = trs.computeTof(mass_inv2) + tofpid.pathlength / betatmp * c_inv;
+          break;
+      }
+      return res;
+    };
+
+    auto sigmadeltat = [&](const float mass_inv2) {
+      float res(1.f);
+      switch (sigma_choice) {
+        case SigmaTofCalc::kCost:
+          // sigma(t) = sigma(p) * |dt/dp| = sigma(p) * DeltaL/c * m^2 / (p^2 * E)
+          res = tofpid.pathlength * c_inv * trs.segmentSigmaMom_[trs.nSegment_ - 1] /
+                (magp2 * sqrt(magp2 + 1 / mass_inv2) * mass_inv2);
+          break;
+        case SigmaTofCalc::kSegm:
+          res = trs.computeSigmaTof(mass_inv2);
+          break;
+        case SigmaTofCalc::kMixd:
+          float res1 = tofpid.pathlength * c_inv * trs.segmentSigmaMom_[trs.nSegment_ - 1] /
+                       (magp2 * sqrt(magp2 + 1 / mass_inv2) * mass_inv2);
+          float res2 = trs.computeSigmaTof(mass_inv2);
+          res = sqrt(res1 * res1 + res2 * res2 + 2 * res1 * res2);
+      }
+
+      return res;
+    };
+
+    tofpid.gammasq_pi = 1.f + magp2 * m_pi_inv2;
+    tofpid.beta_pi = std::sqrt(1.f - 1.f / tofpid.gammasq_pi);
+    tofpid.dt_pi = deltat(m_pi_inv2, tofpid.beta_pi);
+    tofpid.sigma_dt_pi = sigmadeltat(m_pi_inv2);
+
+    tofpid.gammasq_k = 1.f + magp2 * m_k_inv2;
+    tofpid.beta_k = std::sqrt(1.f - 1.f / tofpid.gammasq_k);
+    tofpid.dt_k = deltat(m_k_inv2, tofpid.beta_k);
+    tofpid.sigma_dt_k = sigmadeltat(m_k_inv2);
+
+    tofpid.gammasq_p = 1.f + magp2 * m_p_inv2;
+    tofpid.beta_p = std::sqrt(1.f - 1.f / tofpid.gammasq_p);
+    tofpid.dt_p = deltat(m_p_inv2, tofpid.beta_p);
+    tofpid.sigma_dt_p = sigmadeltat(m_p_inv2);
+
+    tofpid.dt = tofpid.tmtd - tofpid.dt_pi - t_vtx;  //assume by default the pi hypothesis
+    tofpid.dterror2 = tofpid.tmtderror * tofpid.tmtderror + t_vtx_err * t_vtx_err;
+    tofpid.betaerror = 0.f;
+    if (addPIDError) {
+      tofpid.dterror2 = tofpid.dterror2 + (tofpid.dt_p - tofpid.dt_pi) * (tofpid.dt_p - tofpid.dt_pi);
+      tofpid.betaerror = tofpid.beta_p - tofpid.beta_pi;
+    } else {
+      // only add sigma(TOF) if not considering mass hp. uncertainty
+      tofpid.dterror2 = tofpid.dterror2 + tofpid.sigma_dt_pi * tofpid.sigma_dt_pi;
+    }
+    tofpid.dterror = sqrt(tofpid.dterror2);
+
+    tofpid.dtchi2 = (tofpid.dt * tofpid.dt) / tofpid.dterror2;
+
+    tofpid.dt_best = tofpid.dt;
+    tofpid.dterror_best = tofpid.dterror;
+    tofpid.dtchi2_best = tofpid.dtchi2;
+
+    tofpid.prob_pi = -1.f;
+    tofpid.prob_k = -1.f;
+    tofpid.prob_p = -1.f;
+
+    if (!addPIDError) {
+      //*TODO* deal with heavier nucleons and/or BSM case here?
+      const float dterror2_wo_sigmatof = tofpid.dterror2 - tofpid.sigma_dt_pi * tofpid.sigma_dt_pi;
+      float chi2_pi = tofpid.dtchi2;
+      float chi2_k = (tofpid.tmtd - tofpid.dt_k - t_vtx) * (tofpid.tmtd - tofpid.dt_k - t_vtx) /
+                     (dterror2_wo_sigmatof + tofpid.sigma_dt_k * tofpid.sigma_dt_k);
+      float chi2_p = (tofpid.tmtd - tofpid.dt_p - t_vtx) * (tofpid.tmtd - tofpid.dt_p - t_vtx) /
+                     (dterror2_wo_sigmatof + tofpid.sigma_dt_p * tofpid.sigma_dt_p);
+
+      float rawprob_pi = exp(-0.5f * chi2_pi);
+      float rawprob_k = exp(-0.5f * chi2_k);
+      float rawprob_p = exp(-0.5f * chi2_p);
+      float normprob = 1.f / (rawprob_pi + rawprob_k + rawprob_p);
+
+      tofpid.prob_pi = rawprob_pi * normprob;
+      tofpid.prob_k = rawprob_k * normprob;
+      tofpid.prob_p = rawprob_p * normprob;
+
+      float prob_heavy = 1.f - tofpid.prob_pi;
+      constexpr float heavy_threshold = 0.75f;
+
+      if (prob_heavy > heavy_threshold) {
+        if (chi2_k < chi2_p) {
+          tofpid.dt_best = (tofpid.tmtd - tofpid.dt_k - t_vtx);
+          tofpid.dtchi2_best = chi2_k;
+        } else {
+          tofpid.dt_best = (tofpid.tmtd - tofpid.dt_p - t_vtx);
+          tofpid.dtchi2_best = chi2_p;
+        }
+      }
+    }
+    return tofpid;
+  };
+
+  bool getTrajectoryStateClosestToBeamLine(const Trajectory& traj,
+                                           const reco::BeamSpot& bs,
+                                           const Propagator* thePropagator,
+                                           TrajectoryStateClosestToBeamLine& tscbl) {
+    // get the state closest to the beamline
+    TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface =
+        traj.closestMeasurement(GlobalPoint(bs.x0(), bs.y0(), bs.z0())).updatedState();
+
+    if (!stateForProjectionToBeamLineOnSurface.isValid()) {
+      edm::LogError("CannotPropagateToBeamLine") << "the state on the closest measurement isnot valid. skipping track.";
+      return false;
+    }
+
+    const FreeTrajectoryState& stateForProjectionToBeamLine = *stateForProjectionToBeamLineOnSurface.freeState();
+
+    TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
+    tscbl = tscblBuilder(stateForProjectionToBeamLine, bs);
+
+    return tscbl.isValid();
+  };
+
+  bool trackPathLength(const Trajectory& traj,
+                       const TrajectoryStateClosestToBeamLine& tscbl,
+                       const Propagator* thePropagator,
+                       float& pathlength,
+                       TrackSegments& trs) {
+    pathlength = 0.f;
+
+    bool validpropagation = true;
+    float oldp = traj.measurements().begin()->updatedState().globalMomentum().mag();
+    float pathlength1 = 0.f;
+    float pathlength2 = 0.f;
+
+    //add pathlength layer by layer
+    for (auto it = traj.measurements().begin(); it != traj.measurements().end() - 1; ++it) {
+      const auto& propresult = thePropagator->propagateWithPath(it->updatedState(), (it + 1)->updatedState().surface());
+      float layerpathlength = std::abs(propresult.second);
+      if (layerpathlength == 0.f) {
+        validpropagation = false;
+      }
+      pathlength1 += layerpathlength;
+
+      // sigma(p) from curvilinear error (on q/p)
+      float sigma_p = sqrt((it + 1)->updatedState().curvilinearError().matrix()(0, 0)) *
+                      (it + 1)->updatedState().globalMomentum().mag2();
+
+      trs.addSegment(layerpathlength, (it + 1)->updatedState().globalMomentum().mag2(), sigma_p);
+
+      LogTrace("BaseExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_i " << std::fixed
+                                       << std::setw(14) << it->updatedState().globalPosition().perp() << " z_i "
+                                       << std::fixed << std::setw(14) << it->updatedState().globalPosition().z()
+                                       << " R_e " << std::fixed << std::setw(14)
+                                       << (it + 1)->updatedState().globalPosition().perp() << " z_e " << std::fixed
+                                       << std::setw(14) << (it + 1)->updatedState().globalPosition().z() << " p "
+                                       << std::fixed << std::setw(14) << (it + 1)->updatedState().globalMomentum().mag()
+                                       << " dp " << std::fixed << std::setw(14)
+                                       << (it + 1)->updatedState().globalMomentum().mag() - oldp;
+      oldp = (it + 1)->updatedState().globalMomentum().mag();
+    }
+
+    //add distance from bs to first measurement
+    auto const& tscblPCA = tscbl.trackStateAtPCA();
+    auto const& aSurface = traj.direction() == alongMomentum ? traj.firstMeasurement().updatedState().surface()
+                                                             : traj.lastMeasurement().updatedState().surface();
+    pathlength2 = thePropagator->propagateWithPath(tscblPCA, aSurface).second;
+    if (pathlength2 == 0.f) {
+      validpropagation = false;
+    }
+    pathlength = pathlength1 + pathlength2;
+
+    float sigma_p = sqrt(tscblPCA.curvilinearError().matrix()(0, 0)) * tscblPCA.momentum().mag2();
+
+    trs.addSegment(pathlength2, tscblPCA.momentum().mag2(), sigma_p);
+
+    LogTrace("BaseExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_e " << std::fixed
+                                     << std::setw(14) << tscblPCA.position().perp() << " z_e " << std::fixed
+                                     << std::setw(14) << tscblPCA.position().z() << " p " << std::fixed << std::setw(14)
+                                     << tscblPCA.momentum().mag() << " dp " << std::fixed << std::setw(14)
+                                     << tscblPCA.momentum().mag() - oldp << " sigma_p = " << std::fixed << std::setw(14)
+                                     << sigma_p << " sigma_p/p = " << std::fixed << std::setw(14)
+                                     << sigma_p / tscblPCA.momentum().mag() * 100 << " %";
+
+    return validpropagation;
+  };
+
+  bool trackPathLength(const Trajectory& traj,
+                       const reco::BeamSpot& bs,
+                       const Propagator* thePropagator,
+                       float& pathlength,
+                       TrackSegments& trs) {
+    pathlength = 0.f;
+
+    TrajectoryStateClosestToBeamLine tscbl;
+    bool tscbl_status = getTrajectoryStateClosestToBeamLine(traj, bs, thePropagator, tscbl);
+
+    if (!tscbl_status)
+      return false;
+
+    return trackPathLength(traj, tscbl, thePropagator, pathlength, trs);
+  };
+
+  bool cmp_for_detset(const unsigned one, const unsigned two) { return one < two; };
+
+  void find_hits_in_dets(const MTDTrackingDetSetVector& hits,
+                         const Trajectory& traj,
+                         const DetLayer* layer,
+                         const TrajectoryStateOnSurface& tsos,
+                         const float pmag2,
+                         const float pathlength0,
+                         const TrackSegments& trs0,
+                         const float vtxTime,
+                         const float vtxTimeError,
+                         bool useVtxConstraint,
+                         const reco::BeamSpot& bs,
+                         const float bsTimeSpread,
+                         const Propagator* prop,
+                         const MeasurementEstimator* estimator,
+                         std::set<MTDHitMatchingInfo>& out) {
+    pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, *prop, *estimator);
+    if (comp.first) {
+      const vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, *prop, *estimator);
+      LogTrace("BaseExtenderWithMTD") << "Hit search: Compatible dets " << compDets.size();
+      if (!compDets.empty()) {
+        for (const auto& detWithState : compDets) {
+          auto range = hits.equal_range(detWithState.first->geographicalId(), cmp_for_detset);
+          if (range.first == range.second) {
+            LogTrace("BaseExtenderWithMTD")
+                << "Hit search: no hit in DetId " << detWithState.first->geographicalId().rawId();
+            continue;
+          }
+
+          auto pl = prop->propagateWithPath(tsos, detWithState.second.surface());
+          if (pl.second == 0.) {
+            LogTrace("BaseExtenderWithMTD")
+                << "Hit search: no propagation to DetId " << detWithState.first->geographicalId().rawId();
+            continue;
+          }
+
+          const float t_vtx = useVtxConstraint ? vtxTime : 0.f;
+
+          const float t_vtx_err = useVtxConstraint ? vtxTimeError : bsTimeSpread;
+
+          float lastpmag2 = trs0.getSegmentPathAndMom2(0).second;
+
+          for (auto detitr = range.first; detitr != range.second; ++detitr) {
+            for (const auto& hit : *detitr) {
+              auto est = estimator->estimate(detWithState.second, hit);
+              if (!est.first) {
+                LogTrace("BaseExtenderWithMTD")
+                    << "Hit search: no compatible estimate in DetId " << detWithState.first->geographicalId().rawId()
+                    << " for hit at pos (" << std::fixed << std::setw(14) << hit.globalPosition().x() << ","
+                    << std::fixed << std::setw(14) << hit.globalPosition().y() << "," << std::fixed << std::setw(14)
+                    << hit.globalPosition().z() << ")";
+                continue;
+              }
+
+              LogTrace("BaseExtenderWithMTD")
+                  << "Hit search: spatial compatibility DetId " << detWithState.first->geographicalId().rawId()
+                  << " TSOS dx/dy " << std::fixed << std::setw(14)
+                  << std::sqrt(detWithState.second.localError().positionError().xx()) << " " << std::fixed
+                  << std::setw(14) << std::sqrt(detWithState.second.localError().positionError().yy()) << " hit dx/dy "
+                  << std::fixed << std::setw(14) << std::sqrt(hit.localPositionError().xx()) << " " << std::fixed
+                  << std::setw(14) << std::sqrt(hit.localPositionError().yy()) << " chi2 " << std::fixed
+                  << std::setw(14) << est.second;
+
+              TrackTofPidInfo tof = computeTrackTofPidInfo(lastpmag2,
+                                                           std::abs(pl.second),
+                                                           trs0,
+                                                           hit.time(),
+                                                           hit.timeError(),
+                                                           t_vtx,
+                                                           t_vtx_err,  //put vtx error by hand for the moment
+                                                           false,
+                                                           TofCalc::kMixd,
+                                                           SigmaTofCalc::kMixd);
+              MTDHitMatchingInfo mi;
+              mi.hit = &hit;
+              mi.estChi2 = est.second;
+              mi.timeChi2 = tof.dtchi2_best;  //use the chi2 for the best matching hypothesis
+
+              out.insert(mi);
+            }
+          }
+        }
+      }
+    }
+  };
+}  // namespace
+
+// BaseExtenderWithMTD ----------
+
+using namespace mtdtof;
+
+BaseExtenderWithMTD::BaseExtenderWithMTD(const ParameterSet& iConfig)
+    : estMaxChi2_(iConfig.getParameter<double>("estimatorMaxChi2")),
+      estMaxNSigma_(iConfig.getParameter<double>("estimatorMaxNSigma")),
+      btlChi2Cut_(iConfig.getParameter<double>("btlChi2Cut")),
+      btlTimeChi2Cut_(iConfig.getParameter<double>("btlTimeChi2Cut")),
+      etlChi2Cut_(iConfig.getParameter<double>("etlChi2Cut")),
+      etlTimeChi2Cut_(iConfig.getParameter<double>("etlTimeChi2Cut")),
+      useVertex_(iConfig.getParameter<bool>("useVertex")),
+      dzCut_(iConfig.getParameter<double>("dZCut")),
+      bsTimeSpread_(iConfig.getParameter<double>("bsTimeSpread")) {
+  theEstimator = std::make_unique<Chi2MeasurementEstimator>(estMaxChi2_, estMaxNSigma_);
+}
+
+BaseExtenderWithMTD::~BaseExtenderWithMTD() = default;
+
+void BaseExtenderWithMTD::setParameters(const TransientTrackingRecHitBuilder* hitbuilder, const GlobalTrackingGeometry* gtg) {
+  basehitbuilder_ = hitbuilder;
+  basegtg_ = gtg;
+}
+
+const TransientTrackingRecHitBuilder* BaseExtenderWithMTD::getHitBuilder() const{
+  return basehitbuilder_;
+}
+
+void BaseExtenderWithMTD::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc, transDesc;
+  desc.add<edm::InputTag>("hitsSrc", edm::InputTag("mtdTrackingRecHits"));
+  desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("vtxSrc", edm::InputTag("offlinePrimaryVertices4D"));
+  desc.add<bool>("updateTrackTrajectory", true);
+  desc.add<bool>("updateTrackExtra", true);
+  desc.add<bool>("updateTrackHitPattern", true);
+  desc.add<std::string>("TransientTrackBuilder", "TransientTrackBuilder");
+  desc.add<std::string>("MTDRecHitBuilder", "MTDRecHitBuilder");
+  desc.add<std::string>("Propagator", "PropagatorWithMaterialForMTD");
+  TrackTransformer::fillPSetDescription(transDesc,
+                                        false,
+                                        "KFFitterForRefitInsideOut",
+                                        "KFSmootherForRefitInsideOut",
+                                        "PropagatorWithMaterialForMTD",
+                                        "alongMomentum",
+                                        true,
+                                        "WithTrackAngle",
+                                        "MuonRecHitBuilder",
+                                        "MTDRecHitBuilder");
+  desc.add<edm::ParameterSetDescription>("TrackTransformer", transDesc);
+  desc.add<double>("estimatorMaxChi2", 500.);
+  desc.add<double>("estimatorMaxNSigma", 10.);
+  desc.add<double>("btlChi2Cut", 50.);
+  desc.add<double>("btlTimeChi2Cut", 10.);
+  desc.add<double>("etlChi2Cut", 50.);
+  desc.add<double>("etlTimeChi2Cut", 10.);
+  desc.add<bool>("useVertex", false);
+  desc.add<double>("dZCut", 0.1);
+  desc.add<double>("bsTimeSpread", 0.2);
+  descriptions.add("trackExtenderWithMTDBase", desc);
+}
+
+TransientTrackingRecHit::ConstRecHitContainer BaseExtenderWithMTD::tryBTLLayers(
+    const TrajectoryStateOnSurface& tsos,
+    const Trajectory& traj,
+    const float pmag2,
+    const float pathlength0,
+    const TrackSegments& trs0,
+    const MTDTrackingDetSetVector& hits,
+    const MTDDetLayerGeometry* geo,
+    const MagneticField* field,
+    const Propagator* prop,
+    const reco::BeamSpot& bs,
+    const float vtxTime,
+    const float vtxTimeError,
+    MTDHitMatchingInfo& bestHit) const {
+  const vector<const DetLayer*>& layers = geo->allBTLLayers();
+
+  TransientTrackingRecHit::ConstRecHitContainer output;
+  bestHit = MTDHitMatchingInfo();
+  for (const DetLayer* ilay : layers) {
+    LogTrace("BaseExtenderWithMTD") << "Hit search: BTL layer at R= "
+                                     << static_cast<const BarrelDetLayer*>(ilay)->specificSurface().radius();
+
+    fillMatchingHits(
+        ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, vtxTimeError, output, bestHit);
+  }
+
+  return output;
+}
+
+TransientTrackingRecHit::ConstRecHitContainer BaseExtenderWithMTD::tryETLLayers(
+    const TrajectoryStateOnSurface& tsos,
+    const Trajectory& traj,
+    const float pmag2,
+    const float pathlength0,
+    const TrackSegments& trs0,
+    const MTDTrackingDetSetVector& hits,
+    const MTDDetLayerGeometry* geo,
+    const MagneticField* field,
+    const Propagator* prop,
+    const reco::BeamSpot& bs,
+    const float vtxTime,
+    const float vtxTimeError,
+    MTDHitMatchingInfo& bestHit) const {
+  const vector<const DetLayer*>& layers = geo->allETLLayers();
+
+  TransientTrackingRecHit::ConstRecHitContainer output;
+  bestHit = MTDHitMatchingInfo();
+  for (const DetLayer* ilay : layers) {
+    const BoundDisk& disk = static_cast<const ForwardDetLayer*>(ilay)->specificSurface();
+    const float diskZ = disk.position().z();
+
+    if (tsos.globalPosition().z() * diskZ < 0)
+      continue;  // only propagate to the disk that's on the same side
+
+    LogTrace("BaseExtenderWithMTD") << "Hit search: ETL disk at Z = " << diskZ;
+
+    fillMatchingHits(
+        ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, vtxTimeError, output, bestHit);
+  }
+
+  // the ETL hits order must be from the innermost to the outermost
+
+  if (output.size() == 2) {
+    if (std::abs(output[0]->globalPosition().z()) > std::abs(output[1]->globalPosition().z())) {
+      std::reverse(output.begin(), output.end());
+    }
+  }
+  return output;
+}
+
+void BaseExtenderWithMTD::fillMatchingHits(const DetLayer* ilay,
+                                           const TrajectoryStateOnSurface& tsos,
+                                           const Trajectory& traj,
+                                           const float pmag2,
+                                           const float pathlength0,
+                                           const TrackSegments& trs0,
+                                           const MTDTrackingDetSetVector& hits,
+                                           const Propagator* prop,
+                                           const reco::BeamSpot& bs,
+                                           const float& vtxTime,
+                                           const float& vtxTimeError,
+                                           TransientTrackingRecHit::ConstRecHitContainer& output,
+                                           MTDHitMatchingInfo& bestHit) const {
+  std::set<MTDHitMatchingInfo> hitsInLayer;
+  bool hitMatched = false;
+
+  using namespace std::placeholders;
+  auto find_hits = std::bind(find_hits_in_dets,
+                             std::cref(hits),
+                             std::cref(traj),
+                             ilay,
+                             std::cref(tsos),
+                             pmag2,
+                             pathlength0,
+                             trs0,
+                             _1,
+                             _2,
+                             _3,
+                             std::cref(bs),
+                             bsTimeSpread_,
+                             prop,
+                             theEstimator.get(),
+                             std::ref(hitsInLayer));
+
+  bool matchVertex = vtxTimeError > 0.f;
+  if (useVertex_ && matchVertex) {
+    find_hits(vtxTime, vtxTimeError, true);
+  } else {
+    find_hits(0, 0, false);
+  }
+
+  float spaceChi2Cut = ilay->isBarrel() ? btlChi2Cut_ : etlChi2Cut_;
+  float timeChi2Cut = ilay->isBarrel() ? btlTimeChi2Cut_ : etlTimeChi2Cut_;
+
+  //just take the first hit because the hits are sorted on their matching quality
+  if (!hitsInLayer.empty()) {
+    //check hits to pass minimum quality matching requirements
+    auto const& firstHit = *hitsInLayer.begin();
+    LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: matching trial 1: estChi2= " << firstHit.estChi2
+                                     << " timeChi2= " << firstHit.timeChi2;
+    if (firstHit.estChi2 < spaceChi2Cut && firstHit.timeChi2 < timeChi2Cut) {
+      hitMatched = true;
+      output.push_back(basehitbuilder_->build(firstHit.hit));
+      if (firstHit < bestHit)
+        bestHit = firstHit;
+    }
+  }
+
+  if (useVertex_ && matchVertex && !hitMatched) {
+    //try a second search with beamspot hypothesis
+    hitsInLayer.clear();
+    find_hits(0, 0, false);
+    if (!hitsInLayer.empty()) {
+      auto const& firstHit = *hitsInLayer.begin();
+      LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: matching trial 2: estChi2= " << firstHit.estChi2
+                                       << " timeChi2= " << firstHit.timeChi2;
+      if (firstHit.timeChi2 < timeChi2Cut) {
+        if (firstHit.estChi2 < spaceChi2Cut) {
+          hitMatched = true;
+          output.push_back(basehitbuilder_->build(firstHit.hit));
+          if (firstHit < bestHit)
+            bestHit = firstHit;
+        }
+      }
+    }
+  }
+
+#ifdef EDM_ML_DEBUG
+  if (hitMatched) {
+    LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: matched hit with time: " << bestHit.hit->time()
+                                     << " +/- " << bestHit.hit->timeError();
+  } else {
+    LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: no matched hit";
+  }
+#endif
+}
+
+RefitDirection::GeometricalDirection BaseExtenderWithMTD::checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer const& recHits) const {
+  if (!recHits.empty()) {
+    GlobalPoint first = basegtg_->idToDet(recHits.front()->geographicalId())->position();
+    GlobalPoint last = basegtg_->idToDet(recHits.back()->geographicalId())->position();
+
+    // maybe perp2?
+    auto rFirst = first.mag2();
+    auto rLast = last.mag2();
+    if (rFirst < rLast)
+      return RefitDirection::insideOut;
+    if (rFirst > rLast)
+      return RefitDirection::outsideIn;
+  }
+  LogDebug("BaseExtenderWithMTD") << "Impossible to determine the rechits order" << endl;
+  return RefitDirection::undetermined;
+}
+
+reco::Track BaseExtenderWithMTD::buildTrack(const reco::TrackRef& orig,
+                                            const Trajectory& traj,
+                                            const Trajectory& trajWithMtd,
+                                            const reco::BeamSpot& bs,
+                                            const MagneticField* field,
+                                            const Propagator* thePropagator,
+                                            bool hasMTD,
+                                            float& pathLengthOut,
+                                            float& tmtdOut,
+                                            float& sigmatmtdOut,
+                                            GlobalPoint& tmtdPosOut,
+                                            float& tofpi,
+                                            float& tofk,
+                                            float& tofp,
+                                            float& sigmatofpi,
+                                            float& sigmatofk,
+                                            float& sigmatofp) const {
+  TrajectoryStateClosestToBeamLine tscbl;
+  bool tsbcl_status = getTrajectoryStateClosestToBeamLine(traj, bs, thePropagator, tscbl);
+
+  if (!tsbcl_status)
+    return reco::Track();
+
+  GlobalPoint v = tscbl.trackStateAtPCA().position();
+  math::XYZPoint pos(v.x(), v.y(), v.z());
+  GlobalVector p = tscbl.trackStateAtPCA().momentum();
+  math::XYZVector mom(p.x(), p.y(), p.z());
+
+  int ndof = traj.ndof();
+
+  float t0 = 0.f;
+  float covt0t0 = -1.f;
+  pathLengthOut = -1.f;  // if there is no MTD flag the pathlength with -1
+  tmtdOut = 0.f;
+  sigmatmtdOut = -1.f;
+  float betaOut = 0.f;
+  float covbetabeta = -1.f;
+
+  auto routput = [&]() {
+    return reco::Track(traj.chiSquared(),
+                       int(ndof),
+                       pos,
+                       mom,
+                       tscbl.trackStateAtPCA().charge(),
+                       tscbl.trackStateAtPCA().curvilinearError(),
+                       orig->algo(),
+                       reco::TrackBase::undefQuality,
+                       t0,
+                       betaOut,
+                       covt0t0,
+                       covbetabeta);
+  };
+
+  //compute path length for time backpropagation, using first MTD hit for the momentum
+  if (hasMTD) {
+    float pathlength;
+    TrackSegments trs;
+    bool validpropagation = trackPathLength(trajWithMtd, bs, thePropagator, pathlength, trs);
+    float thit = 0.f;
+    float thiterror = -1.f;
+    GlobalPoint thitpos{0., 0., 0.};
+    bool validmtd = false;
+
+    if (!validpropagation) {
+      return routput();
+    }
+
+    uint32_t ihitcount(0), ietlcount(0);
+    for (auto const& hit : trajWithMtd.measurements()) {
+      if (hit.recHit()->geographicalId().det() == DetId::Forward &&
+          ForwardSubdetector(hit.recHit()->geographicalId().subdetId()) == FastTime) {
+        ihitcount++;
+        if (MTDDetId(hit.recHit()->geographicalId()).mtdSubDetector() == MTDDetId::MTDType::ETL) {
+          ietlcount++;
+        }
+      }
+    }
+
+    LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: selected #hits " << ihitcount << " from ETL "
+                                     << ietlcount;
+
+    auto ihit1 = trajWithMtd.measurements().cbegin();
+    if (ihitcount == 1) {
+      const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
+      thit = mtdhit->time();
+      thiterror = mtdhit->timeError();
+      thitpos = mtdhit->globalPosition();
+      validmtd = true;
+    } else if (ihitcount == 2 && ietlcount == 2) {
+      std::pair<float, float> lastStep = trs.getSegmentPathAndMom2(0);
+      float etlpathlength = std::abs(lastStep.first * c_cm_ns);
+      //
+      // The information of the two ETL hits is combined and attributed to the innermost hit
+      //
+      if (etlpathlength == 0.f) {
+        validpropagation = false;
+      } else {
+        pathlength -= etlpathlength;
+        trs.removeFirstSegment();
+        const MTDTrackingRecHit* mtdhit1 = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
+        const MTDTrackingRecHit* mtdhit2 = static_cast<const MTDTrackingRecHit*>((*(ihit1 + 1)).recHit()->hit());
+        TrackTofPidInfo tofInfo = computeTrackTofPidInfo(
+            lastStep.second, etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0.f, 0.f, true, TofCalc::kCost);
+        //
+        // Protect against incompatible times
+        //
+        float err1 = tofInfo.dterror2;
+        float err2 = mtdhit2->timeError() * mtdhit2->timeError();
+        if (cms_rounding::roundIfNear0(err1) == 0.f || cms_rounding::roundIfNear0(err2) == 0.f) {
+          edm::LogError("BaseExtenderWithMTD")
+              << "MTD tracking hits with zero time uncertainty: " << err1 << " " << err2;
+        } else {
+          if ((tofInfo.dt - mtdhit2->time()) * (tofInfo.dt - mtdhit2->time()) < (err1 + err2) * etlTimeChi2Cut_) {
+            //
+            // Subtract the ETL time of flight from the outermost measurement, and combine it in a weighted average with the innermost
+            // the mass ambiguity related uncertainty on the time of flight is added as an additional uncertainty
+            //
+            err1 = 1.f / err1;
+            err2 = 1.f / err2;
+            thiterror = 1.f / (err1 + err2);
+            thit = (tofInfo.dt * err1 + mtdhit2->time() * err2) * thiterror;
+            thiterror = std::sqrt(thiterror);
+            thitpos = mtdhit2->globalPosition();
+            LogTrace("BaseExtenderWithMTD")
+                << "BaseExtenderWithMTD: p trk = " << p.mag() << " ETL hits times/errors: 1) " << mtdhit1->time()
+                << " +/- " << mtdhit1->timeError() << " , 2) " << mtdhit2->time() << " +/- " << mtdhit2->timeError()
+                << " extrapolated time1: " << tofInfo.dt << " +/- " << tofInfo.dterror << " average = " << thit
+                << " +/- " << thiterror << "\n    hit1 pos: " << mtdhit1->globalPosition()
+                << " hit2 pos: " << mtdhit2->globalPosition() << " etl path length " << etlpathlength << std::endl;
+            validmtd = true;
+          } else {
+            // if back extrapolated time of the outermost measurement not compatible with the innermost, keep the one with smallest error
+            if (err1 <= err2) {
+              thit = tofInfo.dt;
+              thiterror = tofInfo.dterror;
+              validmtd = true;
+            } else {
+              thit = mtdhit2->time();
+              thiterror = mtdhit2->timeError();
+              validmtd = true;
+            }
+          }
+        }
+      }
+    } else {
+      edm::LogInfo("BaseExtenderWithMTD")
+          << "MTD hits #" << ihitcount << "ETL hits #" << ietlcount << " anomalous pattern, skipping...";
+    }
+
+    if (validmtd && validpropagation) {
+      //here add the PID uncertainty for later use in the 1st step of 4D vtx reconstruction
+      TrackTofPidInfo tofInfo = computeTrackTofPidInfo(
+          p.mag2(), pathlength, trs, thit, thiterror, 0.f, 0.f, true, TofCalc::kSegm, SigmaTofCalc::kCost);
+
+      pathLengthOut = pathlength;  // set path length if we've got a timing hit
+      tmtdOut = thit;
+      sigmatmtdOut = thiterror;
+      tmtdPosOut = thitpos;
+      t0 = tofInfo.dt;
+      covt0t0 = tofInfo.dterror2;
+      betaOut = tofInfo.beta_pi;
+      covbetabeta = tofInfo.betaerror * tofInfo.betaerror;
+      tofpi = tofInfo.dt_pi;
+      tofk = tofInfo.dt_k;
+      tofp = tofInfo.dt_p;
+      sigmatofpi = tofInfo.sigma_dt_pi;
+      sigmatofk = tofInfo.sigma_dt_k;
+      sigmatofp = tofInfo.sigma_dt_p;
+    }
+  }
+
+  return routput();
+}
+
+reco::TrackExtra BaseExtenderWithMTD::buildTrackExtra(const Trajectory& trajectory) const {
+  static const string metname = "BaseExtenderWithMTD";
+
+  const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
+
+  // put the collection of TrackingRecHit in the event
+
+  // sets the outermost and innermost TSOSs
+  // ToDo: validation for track states with MTD
+  TrajectoryStateOnSurface outerTSOS;
+  TrajectoryStateOnSurface innerTSOS;
+  unsigned int innerId = 0, outerId = 0;
+  TrajectoryMeasurement::ConstRecHitPointer outerRecHit;
+  DetId outerDetId;
+
+  if (trajectory.direction() == alongMomentum) {
+    LogTrace(metname) << "alongMomentum";
+    outerTSOS = trajectory.lastMeasurement().updatedState();
+    innerTSOS = trajectory.firstMeasurement().updatedState();
+    outerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
+    innerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
+    outerRecHit = trajectory.lastMeasurement().recHit();
+    outerDetId = trajectory.lastMeasurement().recHit()->geographicalId();
+  } else if (trajectory.direction() == oppositeToMomentum) {
+    LogTrace(metname) << "oppositeToMomentum";
+    outerTSOS = trajectory.firstMeasurement().updatedState();
+    innerTSOS = trajectory.lastMeasurement().updatedState();
+    outerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
+    innerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
+    outerRecHit = trajectory.firstMeasurement().recHit();
+    outerDetId = trajectory.firstMeasurement().recHit()->geographicalId();
+  } else
+    LogError(metname) << "Wrong propagation direction!";
+
+  const GeomDet* outerDet = basegtg_->idToDet(outerDetId);
+  GlobalPoint outerTSOSPos = outerTSOS.globalParameters().position();
+  bool inside = outerDet->surface().bounds().inside(outerDet->toLocal(outerTSOSPos));
+
+  GlobalPoint hitPos =
+      (outerRecHit->isValid()) ? outerRecHit->globalPosition() : outerTSOS.globalParameters().position();
+
+  if (!inside) {
+    LogTrace(metname) << "The Global Muon outerMostMeasurementState is not compatible with the recHit detector!"
+                      << " Setting outerMost postition to recHit position if recHit isValid: "
+                      << outerRecHit->isValid();
+    LogTrace(metname) << "From " << outerTSOSPos << " to " << hitPos;
+  }
+
+  //build the TrackExtra
+  GlobalPoint v = (inside) ? outerTSOSPos : hitPos;
+  GlobalVector p = outerTSOS.globalParameters().momentum();
+  math::XYZPoint outpos(v.x(), v.y(), v.z());
+  math::XYZVector outmom(p.x(), p.y(), p.z());
+
+  v = innerTSOS.globalParameters().position();
+  p = innerTSOS.globalParameters().momentum();
+  math::XYZPoint inpos(v.x(), v.y(), v.z());
+  math::XYZVector inmom(p.x(), p.y(), p.z());
+
+  reco::TrackExtra trackExtra(outpos,
+                              outmom,
+                              true,
+                              inpos,
+                              inmom,
+                              true,
+                              outerTSOS.curvilinearError(),
+                              outerId,
+                              innerTSOS.curvilinearError(),
+                              innerId,
+                              trajectory.direction(),
+                              trajectory.seedRef());
+
+  return trackExtra;
+}
+
+string BaseExtenderWithMTD::dumpLayer(const DetLayer* layer) const {
+  stringstream output;
+
+  const BoundSurface* sur = nullptr;
+  const BoundCylinder* bc = nullptr;
+  const BoundDisk* bd = nullptr;
+
+  sur = &(layer->surface());
+  if ((bc = dynamic_cast<const BoundCylinder*>(sur))) {
+    output << "  Cylinder of radius: " << bc->radius() << endl;
+  } else if ((bd = dynamic_cast<const BoundDisk*>(sur))) {
+    output << "  Disk at: " << bd->position().z() << endl;
+  }
+  return output.str();
+}
