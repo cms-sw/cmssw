@@ -7,29 +7,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-  EDMetadata::~EDMetadata() {
-    // Make sure that the production of the product in the GPU is
-    // complete before destructing the product. This is to make sure
-    // that the EDM stream does not move to the next event before all
-    // asynchronous processing of the current is complete.
-
-    // TODO: a callback notifying a WaitingTaskHolder (or similar)
-    // would avoid blocking the CPU, but would also require more work.
-
-    // If event_ is null, the EDMetadata was either
-    // default-constructed, or fully synchronized before leaving the
-    // produce() call, so no synchronization is needed.
-    // If the queue was re-used, then some other EDMetadata object in
-    // the same edm::Event records the event_ (in the same queue) and
-    // calls alpaka::wait(), and therefore this wait() call can be
-    // skipped).
-    if (event_ and not eventComplete_ and mayReuseQueue_) {
-      // Must not throw in a destructor, and if there were an
-      // exception could not really propagate it anyway.
-      CMS_SA_ALLOW try { alpaka::wait(*event_); } catch (...) {
-      }
-    }
-  }
+  EDMetadata::~EDMetadata() noexcept { synchronize(); }
 
   void EDMetadata::enqueueCallback(edm::WaitingTaskWithArenaHolder holder) {
     edm::Service<edm::Async> async;
@@ -38,6 +16,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         std::move(holder),
         [event = event_]() mutable { alpaka::wait(*event); },
         []() { return "Enqueued via " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) "::EDMetadata::enqueueCallback()"; });
+  }
+
+  void EDMetadata::synchronize() const noexcept {
+    // Make sure that the production of the product in the GPU is
+    // complete before destructing the product. This will also make sure
+    // that the EDM stream does not move to the next event before all
+    // asynchronous processing of the current is complete.
+
+    // TODO: a callback notifying a WaitingTaskHolder (or similar)
+    // would avoid blocking the CPU, but would also require more work.
+
+    if (eventComplete_) {
+      return;
+    }
+
+    // If the event has been discarded, the produce() function that
+    // constructed this EDMetadata object did not launch any
+    // asynchronous work.
+    if (not event_) {
+      return;
+    }
+
+    // This function is called from a destructor, so we want
+    // to avoid throwing exceptions. If there was an
+    // exception we could not really propagate it anyway.
+    CMS_SA_ALLOW try { alpaka::wait(*event_); } catch (...) {
+    }
+    eventComplete_ = true;
   }
 
   void EDMetadata::synchronize(EDMetadata& consumer, bool tryReuseQueue) const {
