@@ -118,6 +118,12 @@ public:
    *  value with special significance is zero (for "undefined"), so zero should
    *  not be the ID of any process.
    */
+
+  // 7 bits field available in PSimHit processType, i.e. up 127, to store processes
+  static constexpr unsigned int k_procidMask_ = 0x1FF;
+  static constexpr unsigned int k_hitidMask_ = 0x7F;
+  static constexpr unsigned int k_hitidShift_ = 9;
+
   // use 9 bits (up to 511) for process id, reserve the rest for hit production mechanism id
   unsigned short processType() const { return theProcessType & k_procidMask_; }
 

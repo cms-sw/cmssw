@@ -14,7 +14,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include "SimDataFormats/TrackingHit/interface/SimHitCategory.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 class BscG4Hit : public G4VHit {
 public:
@@ -94,8 +94,8 @@ public:
 
   int getParentId() const { return theParentId; };
   int getProcessId() const { return theProcessId; };
-  int getProdType() const { return (theProcessId >> k_hitidShift_) & k_hitidMask_; }
-  void setHitProdType(unsigned int hitId) { theProcessId |= hitId << k_hitidShift_; }
+  int getProdType() const { return (theProcessId >> PSimHit::k_hitidShift_) & PSimHit::k_hitidMask_; }
+  void setHitProdType(unsigned int hitId) { theProcessId |= hitId << PSimHit::k_hitidShift_; }
   float getVx() const { return theVx; };
   float getVy() const { return theVy; };
   float getVz() const { return theVz; };
