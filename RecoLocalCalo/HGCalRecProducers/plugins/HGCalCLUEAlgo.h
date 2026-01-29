@@ -5,6 +5,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
@@ -73,7 +74,7 @@ public:
   void makeClusters() override;
 
   // this is the method to get the cluster collection out
-  std::vector<reco::BasicCluster> getClusters(bool) override;
+  reco::CaloClusterHostCollection getClusters(bool) override;
 
   void reset() override {
     clusters_v_.clear();

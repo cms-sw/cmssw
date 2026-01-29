@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -61,7 +62,7 @@ public:
   virtual void populate(const HGCRecHitCollection &hits) = 0;
   virtual void populate(const reco::PFRecHitCollection &hits) = 0;
   virtual void makeClusters() = 0;
-  virtual std::vector<reco::BasicCluster> getClusters(bool) = 0;
+  virtual reco::CaloClusterHostCollection getClusters(bool) = 0;
   virtual void reset() = 0;
   virtual hgcal_clustering::Density getDensity() { return {}; };        //implementation is in some child class
   virtual void getEventSetupPerAlgorithm(const edm::EventSetup &es) {}  //implementation is in some child class
@@ -98,6 +99,8 @@ protected:
 
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v_;
+
+  // reco::CaloClusterHostCollection layer_clusters_;
 
   hgcal::RecHitTools rhtools_;
 

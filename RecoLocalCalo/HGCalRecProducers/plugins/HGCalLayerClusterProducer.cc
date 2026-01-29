@@ -9,11 +9,14 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
+
+#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
@@ -31,8 +34,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
 
 #if DEBUG_CLUSTERS_ALPAKA
 #include "RecoLocalCalo/HGCalRecProducers/interface/DumpClustersDetails.h"
@@ -137,9 +139,10 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
   positionDeltaRho2_ = pluginPSet.getParameter<double>("positionDeltaRho2");
 
   produces<std::vector<float>>("InitialLayerClustersMask");
-  produces<std::vector<reco::BasicCluster>>();
+  produces<reco::CaloClusterHostCollection>();
+  // produces<std::vector<reco::BasicCluster>>();
   //time for layer clusters
-  produces<edm::ValueMap<std::pair<float, float>>>(timeClname_);
+  // produces<edm::ValueMap<std::pair<float, float>>>(timeClname_);
 }
 
 void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -240,8 +243,6 @@ std::pair<float, float> HGCalLayerClusterProducer::calculateTime(
 void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<HGCRecHitCollection> hits;
 
-  std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
-
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
   rhtools_.setGeometry(*geom);
   algo_->getEventSetup(es, rhtools_);
@@ -258,22 +259,24 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   }
 
   algo_->makeClusters();
+
+  auto clusters = std::make_unique<reco::CaloClusterHostCollection>(new reco::CaloClusterHostCollection);
   *clusters = algo_->getClusters(false);
 
   std::vector<std::pair<float, float>> times;
-  times.reserve(clusters->size());
+  times.reserve(clusters->view().metadata().size());
 
-  for (unsigned i = 0; i < clusters->size(); ++i) {
-    reco::CaloCluster& sCl = (*clusters)[i];
-    if (!calculatePositionInAlgo_) {
-      sCl.setPosition(calculatePosition(hitmap, sCl.hitsAndFractions()));
-    }
-    if (detector_ != "BH") {
-      times.push_back(calculateTime(hitmap, sCl.hitsAndFractions(), sCl.size()));
-    } else {
-      times.push_back(std::pair<float, float>(-99.f, -1.f));
-    }
-  }
+  // for (unsigned i = 0; i < legacy_clusters->size(); ++i) {
+  //   reco::CaloCluster& sCl = (*legacy_clusters)[i];
+  //   if (!calculatePositionInAlgo_) {
+  //     sCl.setPosition(calculatePosition(hitmap, sCl.hitsAndFractions()));
+  //   }
+  //   if (detector_ != "BH") {
+  //     times.push_back(calculateTime(hitmap, sCl.hitsAndFractions(), sCl.size()));
+  //   } else {
+  //     times.push_back(std::pair<float, float>(-99.f, -1.f));
+  //   }
+  // }
 
 #if DEBUG_CLUSTERS_ALPAKA
   hgcalUtils::DumpClusters dumper;
@@ -281,22 +284,29 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   auto lumiNumber = evt.eventAuxiliary().luminosityBlock();
   auto evtNumber = evt.eventAuxiliary().id().event();
 
-  dumper.dumpInfos(*clusters, moduleLabel_, runNumber, lumiNumber, evtNumber, true);
+  dumper.dumpInfos(*legacy_clusters, moduleLabel_, runNumber, lumiNumber, evtNumber, true);
 #endif
 
-  auto clusterHandle = evt.put(std::move(clusters));
+  // auto clusterHandle = evt.put(std::move(clusters));
 
-  if (detector_ == "HFNose") {
-    std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
-    layerClustersMask->resize(clusterHandle->size(), 1.0);
-    evt.put(std::move(layerClustersMask), "InitialLayerClustersMask");
-  }
+  // if (detector_ == "HFNose") {
+  //   std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
+  //   layerClustersMask->resize(legacy_clusters->size(), 1.0);
+  //   evt.put(std::move(layerClustersMask), "InitialLayerClustersMask");
+  // }
 
-  auto timeCl = std::make_unique<edm::ValueMap<std::pair<float, float>>>();
-  edm::ValueMap<std::pair<float, float>>::Filler filler(*timeCl);
-  filler.insert(clusterHandle, times.begin(), times.end());
-  filler.fill();
-  evt.put(std::move(timeCl), timeClname_);
+  // auto timeCl = std::make_unique<edm::ValueMap<std::pair<float, float>>>();
+  // edm::ValueMap<std::pair<float, float>>::Filler filler(*timeCl);
+  // filler.insert(*legacy_clusters, times.begin(), times.end());
+  // filler.fill();
+  // evt.put(std::move(timeCl), timeClname_);
+
+  // for (auto i = 0; i < timeCl->size(); ++i) {
+  //   clusters->view().timing().time()[i] = (*timeCl)[i].first;
+  //   clusters->view().timing().timeError()[i] = (*timeCl)[i].second;
+  // }
+
+  evt.put(std::move(clusters));
 
   algo_->reset();
 }

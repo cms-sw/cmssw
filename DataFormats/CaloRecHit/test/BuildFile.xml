@@ -9,6 +9,6 @@
     <use name="DataFormats/CaloRecHit"/>
     <use name="DataFormats/DetId"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
-    <use name="cuda"/>
+    <use name="1"/>
   </bin>
 </iftool>

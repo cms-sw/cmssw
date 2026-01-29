@@ -1,6 +1,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgo.h"
 
 // Geometry
+#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -134,7 +135,7 @@ void HGCalCLUEAlgoT<T, STRATEGY>::makeClusters() {
 }
 
 template <typename T, typename STRATEGY>
-std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
+reco::CaloClusterHostCollection HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
   std::vector<int> offsets(numberOfClustersPerLayer_.size(), 0);
 
   int maxClustersOnLayer = numberOfClustersPerLayer_[0];
@@ -146,9 +147,14 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
   }
 
   auto totalNumberOfClusters = offsets.back() + numberOfClustersPerLayer_.back();
-  clusters_v_.resize(totalNumberOfClusters);
+  // clusters_v_.resize(totalNumberOfClusters);
   std::vector<std::vector<int>> cellsIdInCluster;
   cellsIdInCluster.reserve(maxClustersOnLayer);
+  reco::CaloClusterHostCollection layer_clusters(cms::alpakatools::host(),
+                                                 totalNumberOfClusters,
+                                                 totalNumberOfClusters,
+                                                 totalNumberOfClusters,
+                                                 totalNumberOfClusters);
 
   for (unsigned int layerId = 0; layerId < 2 * maxlayer_ + 2; ++layerId) {
     cellsIdInCluster.resize(numberOfClustersPerLayer_[layerId]);
@@ -165,14 +171,14 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
     std::vector<std::pair<DetId, float>> thisCluster;
 
     for (auto& cl : cellsIdInCluster) {
-      float maxEnergyValue = std::numeric_limits<float>::min();
-      int maxEnergyCellIndex = -1;
+      auto maxEnergyValue = std::numeric_limits<float>::min();
+      auto maxEnergyCellIndex = -1;
       DetId maxEnergyDetId;
-      float energy = 0.f;
-      int seedDetId = -1;
-      float x = 0.f;
-      float y = 0.f;
-      float z = cellsOnLayer.layerDim3;
+      auto energy = 0.f;
+      auto seedDetId = -1;
+      auto x = 0.f;
+      auto y = 0.f;
+      auto z = cellsOnLayer.layerDim3;
       // TODO Felice: maybe use the seed for the position calculation
       for (auto cellIdx : cl) {
         energy += cellsOnLayer.weight[cellIdx];
@@ -187,8 +193,8 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
         }
       }
 
-      float total_weight_log = 0.f;
-      float total_weight = energy;
+      auto total_weight_log = 0.f;
+      auto total_weight = energy;
 
       if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
         auto thick = rhtools_.getSiThickIndex(maxEnergyDetId);
@@ -215,27 +221,33 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
       }
 
       if (total_weight != 0.) {
-        float inv_tot_weight = 1.f / total_weight;
+        auto inv_tot_weight = 1.f / total_weight;
         x *= inv_tot_weight;
         y *= inv_tot_weight;
       } else {
         x = cellsOnLayer.dim1[maxEnergyCellIndex];
         y = cellsOnLayer.dim2[maxEnergyCellIndex];
       }
-      math::XYZPoint position = math::XYZPoint(x, y, z);
 
       auto globalClusterIndex = cellsOnLayer.clusterIndex[cl[0]] + firstClusterIdx;
 
-      clusters_v_[globalClusterIndex] =
-          reco::BasicCluster(energy, position, reco::CaloID::DET_HGCAL_ENDCAP, thisCluster, algoId_);
-      clusters_v_[globalClusterIndex].setSeed(seedDetId);
-      thisCluster.clear();
+      layer_clusters.view().position().x()[globalClusterIndex] = x;
+      layer_clusters.view().position().y()[globalClusterIndex] = y;
+      layer_clusters.view().position().z()[globalClusterIndex] = z;
+      layer_clusters.view().energy().energy()[globalClusterIndex] = energy;
+      layer_clusters.view().energy().correctedEnergy()[globalClusterIndex] = -1.f;
+      layer_clusters.view().energy().correctedEnergyUncertainty()[globalClusterIndex] = -1.f;
+      layer_clusters.view().indexes().caloID()[globalClusterIndex] = reco::CaloID::DET_HGCAL_ENDCAP;
+      layer_clusters.view().indexes().algoID()[globalClusterIndex] = algoId_;
+      layer_clusters.view().indexes().seedID()[globalClusterIndex] = seedDetId;
+      layer_clusters.view().indexes().flags()[globalClusterIndex] = 0;
     }
 
     cellsIdInCluster.clear();
   }
-  return clusters_v_;
+  return layer_clusters;
 }
+
 template <typename T, typename STRATEGY>
 void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt,
                                                         const unsigned int layerId,
