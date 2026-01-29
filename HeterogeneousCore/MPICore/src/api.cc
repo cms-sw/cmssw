@@ -165,7 +165,6 @@ MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Mess
 
 void MPIChannel::sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
   int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
-  meta->setHeader();
   MPI_Ssend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_);
 }
 
