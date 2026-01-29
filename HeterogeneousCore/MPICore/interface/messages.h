@@ -7,7 +7,7 @@
 // MPI headers
 #include <mpi.h>
 
-/* register the MPI message types forthe EDM communication
+/* register the MPI message types for the EDM communication
  */
 void EDM_MPI_build_types();
 

@@ -9,6 +9,8 @@
 
 <test name="testMPIComplexTransfer" command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_complex_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_complex_cfg.py"/>
 
+<test name="testMPIFilters" command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_filters_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_filters_cfg.py"/>
+
 <bin name="testSerialisation" file="testSerialisation.cc">
     <use name="root"/>
 </bin>
