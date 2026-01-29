@@ -34,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int const size = 10;
       // TODO: pinned allocation?
       // TODO: cached allocation?
-      auto product = std::make_unique<AlpakaESTestDataAHost>(size, cms::alpakatools::host());
+      auto product = std::make_unique<AlpakaESTestDataAHost>(cms::alpakatools::host(), size);
       for (int i = 0; i < size; ++i) {
         product->view()[i].z() = input.value() - i;
       }
