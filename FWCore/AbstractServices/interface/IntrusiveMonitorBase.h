@@ -1,6 +1,7 @@
 #ifndef FWCore_AbstractServices_IntrusiveMonitorBase_h
 #define FWCore_AbstractServices_IntrusiveMonitorBase_h
 
+#include <any>
 #include <string>
 #include <string_view>
 
@@ -18,17 +19,18 @@ namespace edm {
       requires std::is_same_v<T, std::string> or std::is_same_v<T, std::string_view>
     class Guard {
     public:
-      Guard(IntrusiveMonitorBase& mon, T name) : monitor_(mon), name_(std::move(name)) { monitor_.start(); }
+      Guard(IntrusiveMonitorBase& mon, T name) : monitor_(mon), name_(std::move(name)), value_(monitor_.start()) {}
       Guard(Guard const&) = delete;
       Guard& operator=(Guard const&) = delete;
       Guard(Guard&&) = delete;
       Guard& operator=(Guard&&) = delete;
 
-      ~Guard() { monitor_.stop(name_); }
+      ~Guard() { monitor_.stop(name_, std::move(value_)); }
 
     private:
       IntrusiveMonitorBase& monitor_;
       T name_;
+      std::any value_;
     };
 
     auto startMonitoring(std::string_view name) { return Guard<std::string_view>(*this, name); }
@@ -42,8 +44,8 @@ namespace edm {
     }
 
   private:
-    virtual void start() = 0;
-    virtual void stop(std::string_view name) = 0;
+    virtual std::any start() = 0;
+    virtual void stop(std::string_view name, std::any) = 0;
   };
 }  // namespace edm
 

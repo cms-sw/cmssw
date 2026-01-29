@@ -12,11 +12,18 @@ namespace {
   using namespace edm::service::moduleAlloc;
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
-    static void startOnThread() { threadAllocInfo().reset(); }
-    static ThreadAllocInfo const& stopOnThread() {
+    static std::any startOnThread() {
+      std::any previous = threadAllocInfo();
+      threadAllocInfo().reset();
+      return previous;
+    }
+    static ThreadAllocInfo stopOnThread(std::any previous) {
       auto& t = threadAllocInfo();
       t.deactivate();
-      return t;
+      // restore state before the current measurement to allow nested measurements
+      auto measured = t;
+      t = std::any_cast<ThreadAllocInfo>(previous);
+      return measured;
     }
 
     static ThreadAllocInfo& threadAllocInfo() {
@@ -67,10 +74,9 @@ public:
   };
   ~IntrusiveAllocMonitor() override = default;
 
-  void start() final { MonitorAdaptor::startOnThread(); }
-  void stop(std::string_view name) final {
-    MonitorAdaptor::stopOnThread();
-    auto& info = MonitorAdaptor::threadAllocInfo();
+  std::any start() final { return MonitorAdaptor::startOnThread(); }
+  void stop(std::string_view name, std::any previousAllocInfo) final {
+    auto const& info = MonitorAdaptor::stopOnThread(std::move(previousAllocInfo));
     edm::LogSystem("IntrusiveAllocMonitor")
         .format("{}: requested {} added {} max alloc {} peak {} nAlloc {} nDealloc {}",
                 name,
