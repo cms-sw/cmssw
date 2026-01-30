@@ -46,8 +46,8 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     useTimingAverage = cms.bool(False)
 )
 
-from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticl_v5_TrackLinkingGNN
-ticl_v5_TrackLinkingGNN.toModify(hltTiclCandidate,
+from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticlv5_TrackLinkingGNN
+ticlv5_TrackLinkingGNN.toModify(hltTiclCandidate,
     interpretationDescPSet = cms.PSet(
         onnxTrkLinkingModelFirstDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/FirstDiskPropGNN_v0.onnx'),
         onnxTrkLinkingModelInterfaceDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/InterfaceDiskPropGNN_v0.onnx'),
