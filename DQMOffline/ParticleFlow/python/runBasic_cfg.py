@@ -19,7 +19,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
 
 # my analyzer
-process.load('DQMOffline.ParticleFlow.runBasic_cfi')
+process.load('DQMOffline.ParticleFlow.runBasic_cff')
 
 # Setup Global Tag
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -55,8 +55,6 @@ goldenJSONPath="/eos/user/c/cmsdqm/www/CAF/certification/Collisions25/Cert_Colli
 if goldenJSONPath != "":
     import FWCore.PythonUtilities.LumiList as LumiList
     process.source.lumisToProcess = LumiList.LumiList(filename = goldenJSONPath).getVLuminosityBlockRange()
-
-from DQMOffline.ParticleFlow.runBasic_cfi import *
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
                                      fileName = cms.untracked.string("OUT_step1.root"))
