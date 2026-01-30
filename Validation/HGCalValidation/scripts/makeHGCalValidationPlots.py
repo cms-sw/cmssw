@@ -136,10 +136,6 @@ def main(opts):
         # Start from known default collections, but keep only the ones that actually exist
         trackstersIters = []
 
-        for name in ['ticlTracksterLinksSuperclusteringDNN', 'ticlTracksterLinksSuperclusteringMustache']:
-            if name.lower() in present_lower:
-                trackstersIters.append(present_lower[name.lower()])
-
         # Add any other folder that looks like a trackster collection (case-insensitive match)
         for name in sorted(discovered_subdirs, key=str.lower):
             if ("trackster" in name.lower()) or ("candidate" in name.lower()) and name not in trackstersIters:
