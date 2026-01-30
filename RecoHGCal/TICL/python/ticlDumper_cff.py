@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from RecoHGCal.TICL.ticlDumper_cfi import ticlDumper as ticlDumper_
 
-from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
 
