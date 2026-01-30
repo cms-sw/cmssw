@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+from DQMOffline.ParticleFlow.pfAnalyzer_cfi import pfAnalyzer
 
-PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
+PFAnalyzer = pfAnalyzer.clone( 
+    isMiniAOD = cms.bool(True),
     pfCandidates             = cms.InputTag("particleFlow"),
     pfJetCollection        = cms.InputTag("ak4PFJetsPuppiCorrected"),
     PVCollection             = cms.InputTag("offlinePrimaryVertices"),
-
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
     TriggerNames = cms.vstring("HLT_PFJet450"),
     #puppiWeight  = cms.InputTag("packedPuppiweight"),
@@ -109,6 +110,4 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
                                    '[pt;20;10000]',
                                   ),
     )
-
-
 )
