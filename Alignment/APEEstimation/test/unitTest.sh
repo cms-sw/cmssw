@@ -1,6 +1,8 @@
 #! /bin/bash
 function die { echo $1: status $2 ; exit $2; }
 
+# test line added
+
 echo " TESTING data set skimming"
 # skim the predefined data set
 python3 $CMSSW_BASE/src/Alignment/APEEstimation/test/SkimProducer/startSkim.py -s UnitTest || die "Failure skimming data set" $?
