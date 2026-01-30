@@ -81,8 +81,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const int nClusters = hClusteringCCLabels.size();
 
-    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringCCLabels{nClusters, queue};
-    reco::PFMultiDepthClusteringEdgeVarsDeviceCollection devClusteringEdgeVars{2 * nClusters, queue};
+    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringCCLabels{queue, nClusters};
+    reco::PFMultiDepthClusteringEdgeVarsDeviceCollection devClusteringEdgeVars{queue, 2 * nClusters};
 
     alpaka::memcpy(queue, devClusteringCCLabels.buffer(), hostClusteringCCLabels.buffer());
     alpaka::memcpy(queue, devClusteringEdgeVars.buffer(), hostClusteringEdgeVars.buffer());
@@ -327,8 +327,8 @@ int main() {
   for (auto const& device : devices) {
     auto queue = Queue(device);
 
-    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringCCLabels{nClusters, queue};
-    ::reco::PFMultiDepthClusteringEdgeVarsHostCollection hostClusteringEdgeVars{2 * nClusters, queue};
+    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringCCLabels{queue, nClusters};
+    ::reco::PFMultiDepthClusteringEdgeVarsHostCollection hostClusteringEdgeVars{queue, 2 * nClusters};
 
     auto hClusteringCCLabels = hostClusteringCCLabels.view();
     hClusteringCCLabels.size() = nClusters;

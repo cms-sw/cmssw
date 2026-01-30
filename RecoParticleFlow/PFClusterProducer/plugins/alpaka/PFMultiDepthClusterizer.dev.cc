@@ -57,9 +57,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     const unsigned int threadsPerBlock = ::cms::alpakatools::round_up_by(nClusters, wExtend);
     const unsigned int blocks = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock);
 
-    reco::PFMultiDepthClusteringVarsDeviceCollection mdpfClusteringVars{static_cast<int>(nClusters), queue};
-    reco::PFMultiDepthClusteringCCLabelsDeviceCollection mdpfCCLabels{static_cast<int>(nClusters) + 1, queue};
-    reco::PFMultiDepthClusteringEdgeVarsDeviceCollection mdpfClusteringEdgeVars{2 * static_cast<int>(nClusters), queue};
+    reco::PFMultiDepthClusteringVarsDeviceCollection mdpfClusteringVars{queue, static_cast<int>(nClusters)};
+    reco::PFMultiDepthClusteringCCLabelsDeviceCollection mdpfCCLabels{queue, static_cast<int>(nClusters) + 1};
+    reco::PFMultiDepthClusteringEdgeVarsDeviceCollection mdpfClusteringEdgeVars{queue, 2 * static_cast<int>(nClusters)};
 
     alpaka::exec<Acc1D>(queue,
                         ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),

@@ -189,15 +189,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const int nHits = hRecHits.size();
     const int nFracs = hClusters.nRHFracs();
 
-    reco::PFClusterDeviceCollection devClusters{nClusters, queue};
-    reco::PFRecHitDeviceCollection devRecHits{nHits, queue};
-    reco::PFRecHitFractionDeviceCollection devRecHitFracs{nFracs, queue};
+    reco::PFClusterDeviceCollection devClusters{queue, nClusters};
+    reco::PFRecHitDeviceCollection devRecHits{queue, nHits};
+    reco::PFRecHitFractionDeviceCollection devRecHitFracs{queue, nFracs};
 
     alpaka::memcpy(queue, devClusters.buffer(), hostClusters.buffer());
     alpaka::memcpy(queue, devRecHits.buffer(), hostRecHits.buffer());
     alpaka::memcpy(queue, devRecHitFracs.buffer(), hostRecHitFracs.buffer());
 
-    reco::PFMultiDepthClusteringVarsDeviceCollection devClusteringVars{nClusters, queue};
+    reco::PFMultiDepthClusteringVarsDeviceCollection devClusteringVars{queue, nClusters};
 
     shower_shape_test.apply(queue, devClusteringVars, devClusters, devRecHitFracs, devRecHits);
 
@@ -518,9 +518,9 @@ int main() {
   for (auto const& device : devices) {
     auto queue = Queue(device);
 
-    ::reco::PFClusterHostCollection hostClusters{nClusters, queue};
-    ::reco::PFRecHitHostCollection hostRecHits{nHits, queue};
-    ::reco::PFRecHitFractionHostCollection hostRecHitFracs{nFracs, queue};
+    ::reco::PFClusterHostCollection hostClusters{queue, nClusters};
+    ::reco::PFRecHitHostCollection hostRecHits{queue, nHits};
+    ::reco::PFRecHitFractionHostCollection hostRecHitFracs{queue, nFracs};
 
     auto hClusters = hostClusters.view();
     auto hRecHits = hostRecHits.view();
@@ -534,7 +534,7 @@ int main() {
 
     load(hostClusters, hostRecHits, hostRecHitFracs, clusters, hits, rhfracs, seedIdx);
 
-    ::reco::PFMultiDepthClusteringVarsHostCollection hostClusteringVars{nClusters, queue};
+    ::reco::PFMultiDepthClusteringVarsHostCollection hostClusteringVars{queue, nClusters};
 
     launch_shower_shape_test(queue, hostClusteringVars, hostClusters, hostRecHits, hostRecHitFracs);
 

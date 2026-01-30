@@ -223,8 +223,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::unique_ptr<::reco::PFRecHitFractionHostCollection> outPFRecHitFractionSoAPtr;
 
     if (pfClusterSoA.nSeeds() == 0 || nRH == 0) {
-      outPFClusterSoAPtr = std::make_unique<::reco::PFClusterHostCollection>(0, cms::alpakatools::host());
-      outPFRecHitFractionSoAPtr = std::make_unique<::reco::PFRecHitFractionHostCollection>(0, cms::alpakatools::host());
+      outPFClusterSoAPtr = std::make_unique<::reco::PFClusterHostCollection>(cms::alpakatools::host(), 0);
+      outPFRecHitFractionSoAPtr = std::make_unique<::reco::PFRecHitFractionHostCollection>(cms::alpakatools::host(), 0);
       event.emplace(outPFClusterSoAToken_, std::move(*outPFClusterSoAPtr));
       event.emplace(outPFRecHitFractionSoAToken_, std::move(*outPFRecHitFractionSoAPtr));
       return;
@@ -234,7 +234,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const rechitsHandle = event.getHandle(recHitsLabel_);
 
     outPFClusterSoAPtr =
-        std::make_unique<::reco::PFClusterHostCollection>(pfClusterSoA.nSeeds(), cms::alpakatools::host());
+        std::make_unique<::reco::PFClusterHostCollection>(cms::alpakatools::host(), pfClusterSoA.nSeeds());
 
     auto& outPFClusterSoA = outPFClusterSoAPtr->view();
 
@@ -300,7 +300,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     outPFRecHitFractionSoAPtr =
-        std::make_unique<::reco::PFRecHitFractionHostCollection>(rhfTotSize, cms::alpakatools::host());
+        std::make_unique<::reco::PFRecHitFractionHostCollection>(cms::alpakatools::host(), rhfTotSize);
     auto& outPFRecHitFractionSoA = outPFRecHitFractionSoAPtr->view();
 
     for (int i = 0; i < rhfTotSize; i++) {

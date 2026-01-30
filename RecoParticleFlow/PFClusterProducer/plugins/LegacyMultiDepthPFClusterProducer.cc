@@ -73,9 +73,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
-    desc.add<edm::InputTag>("src", edm::InputTag("pfClusterSoAProducer"));
-    desc.add<edm::InputTag>("PFRecHitsLabelIn", edm::InputTag("pfRecHitSoAProducerHCAL"));
-    desc.add<edm::InputTag>("recHitsSource", edm::InputTag("legacyPFRecHitProducer"));
+    desc.add<edm::InputTag>("pfClusterSoA", edm::InputTag("pfClusterSoAProducer"));
+    desc.add<edm::InputTag>("pfRecHitSoA", edm::InputTag("pfRecHitSoAProducerHCAL"));
+    desc.add<edm::InputTag>("pfRecHits", edm::InputTag("legacyPFRecHitProducer"));
     desc.add<bool>("usePFThresholdsFromDB", true);
 
     desc.add<edm::ParameterSetDescription>("energyCorrector", {});
@@ -151,7 +151,7 @@ void LegacyMultiDepthPFClusterProducer::produce(edm::Event& event, const edm::Ev
   // Build PFClusters in legacy format
 
   std::unordered_map<int, int> nTopoSeeds;
-  nTopoSeeds.reserve(static_cast<size_t>(pfClusterSoA.nSeeds()));
+  nTopoSeeds.reserve(pfClusterSoA.nSeeds());
 
   for (int i = 0; i < pfClusterSoA.nSeeds(); ++i)
     nTopoSeeds[pfClusterSoA[i].topoId()]++;
