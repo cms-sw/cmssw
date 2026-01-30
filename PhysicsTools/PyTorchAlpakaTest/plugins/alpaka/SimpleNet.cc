@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       // in/out collections
       const auto &particles = event.get(particles_token_);
       const auto batch_size = particles.const_view().metadata().size();
-      auto regression_collection = portabletest::SimpleNetDeviceCollection(batch_size, event.queue());
+      auto regression_collection = portabletest::SimpleNetDeviceCollection(event.queue(), batch_size);
 
       // records
       auto input_records = particles.const_view().records();

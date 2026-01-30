@@ -165,7 +165,6 @@ MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Mess
 
 void MPIChannel::sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
   int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
-  meta->setHeader();
   MPI_Ssend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_);
 }
 
@@ -197,8 +196,6 @@ std::unique_ptr<TBufferFile> MPIChannel::receiveSerializedBuffer(int instance, i
   int receivedCount = 0;
   MPI_Get_count(&status, MPI_BYTE, &receivedCount);
   assert(receivedCount == bufSize && "received serialized buffer size mismatches the size expected from metadata");
-  // set the buffer length
-  buffer->SetBufferOffset(receivedCount);
   return buffer;
 }
 

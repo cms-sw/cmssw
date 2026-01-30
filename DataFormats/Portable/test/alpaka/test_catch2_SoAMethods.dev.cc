@@ -96,11 +96,11 @@ TEST_CASE("SoACustomizedMethods Alpaka", "[SoACustomizedMethods][Alpaka]") {
 
     constexpr unsigned int elems = 10;
 
-    PortableHostCollection<SoA> hostCollection(elems, cms::alpakatools::host());
+    PortableHostCollection<SoA> hostCollection(cms::alpakatools::host(), elems);
     auto h_view = hostCollection.view();
     const auto h_Constview = hostCollection.const_view();
 
-    PortableHostCollection<ResultSoA> hostResultCollection(elems, cms::alpakatools::host());
+    PortableHostCollection<ResultSoA> hostResultCollection(cms::alpakatools::host(), elems);
     auto h_result_view = hostResultCollection.view();
 
     // fill up
@@ -114,12 +114,12 @@ TEST_CASE("SoACustomizedMethods Alpaka", "[SoACustomizedMethods][Alpaka]") {
     }
     h_view.detectorType() = 42;
 
-    PortableCollection<SoA, Device> deviceCollection(elems, queue);
+    PortableCollection<Device, SoA> deviceCollection(queue, elems);
     auto d_view = deviceCollection.view();
     auto d_Constview = deviceCollection.const_view();
     alpaka::memcpy(queue, deviceCollection.buffer(), hostCollection.buffer());
 
-    PortableCollection<ResultSoA, Device> deviceResultCollection(elems, queue);
+    PortableCollection<Device, ResultSoA> deviceResultCollection(queue, elems);
     auto d_result_view = deviceResultCollection.view();
     alpaka::wait(queue);
 

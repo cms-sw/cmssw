@@ -240,8 +240,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const eeDigisSize = static_cast<int>(*eeDigisSizeHostBuf_.data());
 
     // output device collections
-    OutputProduct uncalibRecHitsDevEB{ebDigisSize, queue};
-    OutputProduct uncalibRecHitsDevEE{eeDigisSize, queue};
+    OutputProduct uncalibRecHitsDevEB{queue, ebDigisSize};
+    OutputProduct uncalibRecHitsDevEE{queue, eeDigisSize};
     // reset the size scalar of the SoA
     // memset takes an alpaka view that is created from the scalar in a view to the portable device collection
     auto uncalibRecHitSizeViewEB =
