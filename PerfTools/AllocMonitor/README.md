@@ -165,7 +165,9 @@ The message will print
 | `nAlloc` | Number of memory allocations |
 | `nDealloc` | Number of memory deallocations |
 
-This service is multi-thread safe, and concurrent measurements can be done in different threads. Nested measurements are not supported (i.e. one thread can be doing only one measurement at a time), and neither are measurements started in one thread and ended in different thread.
+This service is multi-thread safe, and concurrent measurements can be done in different threads. The service is re-entrant, i.e. measurements in nested scopes or function calls can be done within one thread. In case of nested measurements the numbers for the outer scope exclude the numbers of the inner scope. For the inner scope measurement the message will contain the descriptions of all outer measurements separated by the semicolon (`;`).
+
+Allocations done in different thread where the `startMeasurement()` is called are not recorded. Measurements started in one thread and ended in different thread are not supported.
 
 ### ThresholdAbortAllocMonitor
 
