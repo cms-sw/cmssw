@@ -66,7 +66,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       // Allocate Host SoA will contain one entry for each RecHit above threshold
-      HGCalSoARecHitsHostCollection cells(index, iEvent.queue());
+      HGCalSoARecHitsHostCollection cells(iEvent.queue(), index);
       auto cellsView = cells.view();
 
       // loop over all hits and create the Hexel structure, skip energies below ecut
@@ -126,7 +126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if constexpr (!std::is_same_v<Device, alpaka_common::DevHost>) {
         // Trigger copy async to GPU
         //std::cout << "GPU" << std::endl;
-        HGCalSoARecHitsDeviceCollection deviceProduct{cells->metadata().size(), iEvent.queue()};
+        HGCalSoARecHitsDeviceCollection deviceProduct{iEvent.queue(), cells->metadata().size()};
         alpaka::memcpy(iEvent.queue(), deviceProduct.buffer(), cells.const_buffer());
         iEvent.emplace(deviceToken_, std::move(deviceProduct));
       } else {

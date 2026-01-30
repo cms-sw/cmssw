@@ -25,8 +25,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
     void produce(device::Event &event, const device::EventSetup &event_setup) override {
       // allocate data sources
-      auto particles = portabletest::ParticleDeviceCollection(batch_size_, event.queue());
-      auto images = portabletest::ImageDeviceCollection(batch_size_, event.queue());
+      auto particles = portabletest::ParticleDeviceCollection(event.queue(), batch_size_);
+      auto images = portabletest::ImageDeviceCollection(event.queue(), batch_size_);
 
       // fill data
       kernels::randomFillParticleCollection(event.queue(), particles);

@@ -4,7 +4,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   portabletest::TestProductWithPtr<Device> testPtrAlgoAsync(Queue& queue, int size) {
-    portabletest::TestProductWithPtr<Device> ret{size, queue};
+    portabletest::TestProductWithPtr<Device> ret{queue, size};
     using View = portabletest::TestProductWithPtr<Device>::View;
     alpaka::exec<Acc1D>(
         queue,

@@ -11,17 +11,17 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 template <typename TDev>
-class SiPixelDigisDevice : public PortableDeviceCollection<SiPixelDigisSoA, TDev> {
+class SiPixelDigisDevice : public PortableDeviceCollection<TDev, SiPixelDigisSoA> {
 public:
-  SiPixelDigisDevice(edm::Uninitialized) : PortableDeviceCollection<SiPixelDigisSoA, TDev>{edm::kUninitialized} {}
+  SiPixelDigisDevice(edm::Uninitialized) : PortableDeviceCollection<TDev, SiPixelDigisSoA>{edm::kUninitialized} {}
 
   template <typename TQueue>
   explicit SiPixelDigisDevice(size_t maxFedWords, TQueue queue)
-      : PortableDeviceCollection<SiPixelDigisSoA, TDev>(maxFedWords + 1, queue) {}
+      : PortableDeviceCollection<TDev, SiPixelDigisSoA>(queue, maxFedWords + 1) {}
 
   // Constructor which specifies the SoA size
   explicit SiPixelDigisDevice(size_t maxFedWords, TDev const &device)
-      : PortableDeviceCollection<SiPixelDigisSoA, TDev>(maxFedWords + 1, device) {}
+      : PortableDeviceCollection<TDev, SiPixelDigisSoA>(device, maxFedWords + 1) {}
 
   void setNModules(uint32_t nModules) { nModules_h = nModules; }
 

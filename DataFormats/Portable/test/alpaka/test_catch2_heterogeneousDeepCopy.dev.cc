@@ -86,8 +86,8 @@ TEST_CASE("Deep copy from SoA Generic View") {
     const std::size_t elems = 10;
 
     // Portable Collections
-    PortableCollection<SoAPosition, Device> positionCollection(elems, queue);
-    PortableCollection<SoAPCA, Device> pcaCollection(elems, queue);
+    PortableCollection<Device, SoAPosition> positionCollection(queue, elems);
+    PortableCollection<Device, SoAPCA> pcaCollection(queue, elems);
 
     // Portable Collection Views
     SoAPositionView& positionCollectionView = positionCollection.view();
@@ -122,8 +122,8 @@ TEST_CASE("Deep copy from SoA Generic View") {
               pcaCollectionView.metadata().addressOf_candidateDirection());
 
       // PortableCollection that will host the aggregated columns
-      PortableCollection<GenericSoA, Device> genericCollection(elems, queue);
-      genericCollection.deepCopy(genericView, queue);
+      PortableCollection<Device, GenericSoA> genericCollection(queue, elems);
+      genericCollection.deepCopy(queue, genericView);
 
       // Check for inequality of memory addresses[`View` section](../../DataFormats/SoATemplate/README.md#view)
       REQUIRE(genericCollection.view().metadata().addressOf_x() != positionCollectionView.metadata().addressOf_x());
@@ -149,8 +149,8 @@ TEST_CASE("Deep copy from SoA Generic View") {
               pcaCollectionView.metadata().addressOf_candidateDirection());
 
       // PortableCollection that will host the aggregated columns
-      PortableCollection<GenericSoA, Device> genericCollection(elems, queue);
-      genericCollection.deepCopy(genericConstView, queue);
+      PortableCollection<Device, GenericSoA> genericCollection(queue, elems);
+      genericCollection.deepCopy(queue, genericConstView);
 
       // Check for inequality of memory addresses
       REQUIRE(genericCollection.view().metadata().addressOf_x() != positionCollectionView.metadata().addressOf_x());
@@ -160,9 +160,9 @@ TEST_CASE("Deep copy from SoA Generic View") {
               pcaCollectionView.metadata().addressOf_candidateDirection());
 
       // Check for correctness of the copy
-      PortableHostCollection<GenericSoA> genericHostCollection(elems, queue);
-      PortableHostCollection<SoAPosition> positionHostCollection(elems, queue);
-      PortableHostCollection<SoAPCA> pcaHostCollection(elems, queue);
+      PortableHostCollection<GenericSoA> genericHostCollection(queue, elems);
+      PortableHostCollection<SoAPosition> positionHostCollection(queue, elems);
+      PortableHostCollection<SoAPCA> pcaHostCollection(queue, elems);
 
       alpaka::memcpy(queue, genericHostCollection.buffer(), genericCollection.buffer());
       alpaka::memcpy(queue, positionHostCollection.buffer(), positionCollection.buffer());
@@ -203,8 +203,8 @@ TEST_CASE("Deep copy from SoA Generic View") {
               pcaCollectionView.metadata().addressOf_candidateDirection());
 
       // PortableCollection that will host the aggregated columns
-      PortableHostCollection<GenericSoA> genericCollection(elems, queue);
-      genericCollection.deepCopy(genericConstView, queue);
+      PortableHostCollection<GenericSoA> genericCollection(queue, elems);
+      genericCollection.deepCopy(queue, genericConstView);
 
       // Check for inequality of memory addresses
       REQUIRE(genericCollection.view().metadata().addressOf_x() != positionCollectionView.metadata().addressOf_x());
@@ -214,8 +214,8 @@ TEST_CASE("Deep copy from SoA Generic View") {
               pcaCollectionView.metadata().addressOf_candidateDirection());
 
       // Check for correctness of the copy
-      PortableHostCollection<SoAPosition> positionHostCollection(elems, queue);
-      PortableHostCollection<SoAPCA> pcaHostCollection(elems, queue);
+      PortableHostCollection<SoAPosition> positionHostCollection(queue, elems);
+      PortableHostCollection<SoAPCA> pcaHostCollection(queue, elems);
 
       alpaka::memcpy(queue, positionHostCollection.buffer(), positionCollection.buffer());
       alpaka::memcpy(queue, pcaHostCollection.buffer(), pcaCollection.buffer());
@@ -237,8 +237,8 @@ TEST_CASE("Deep copy from SoA Generic View") {
     }
 
     SECTION("Deep copy the ConstView host to device") {
-      PortableHostCollection<SoAPosition> positionHostCollection(elems, queue);
-      PortableHostCollection<SoAPCA> pcaHostCollection(elems, queue);
+      PortableHostCollection<SoAPosition> positionHostCollection(queue, elems);
+      PortableHostCollection<SoAPCA> pcaHostCollection(queue, elems);
 
       alpaka::memcpy(queue, positionHostCollection.buffer(), positionCollection.buffer());
       alpaka::memcpy(queue, pcaHostCollection.buffer(), pcaCollection.buffer());
@@ -261,8 +261,8 @@ TEST_CASE("Deep copy from SoA Generic View") {
               pcaViewHostCollection.metadata().addressOf_candidateDirection());
 
       // PortableCollection that will host the aggregated columns
-      PortableCollection<GenericSoA, Device> genericCollection(elems, queue);
-      genericCollection.deepCopy(genericConstView, queue);
+      PortableCollection<Device, GenericSoA> genericCollection(queue, elems);
+      genericCollection.deepCopy(queue, genericConstView);
 
       // Check for inequality of memory addresses
       REQUIRE(genericCollection.view().metadata().addressOf_x() != positionViewHostCollection.metadata().addressOf_x());
@@ -272,7 +272,7 @@ TEST_CASE("Deep copy from SoA Generic View") {
               pcaViewHostCollection.metadata().addressOf_candidateDirection());
 
       // Check for correctness of the copy
-      PortableHostCollection<GenericSoA> genericHostCollection(elems, queue);
+      PortableHostCollection<GenericSoA> genericHostCollection(queue, elems);
 
       alpaka::memcpy(queue, genericHostCollection.buffer(), genericCollection.buffer());
 
