@@ -14,7 +14,7 @@
 
 std::unique_ptr<int> nested() {
   edm::Service<edm::IntrusiveMonitorBase> imb;
-  auto guard = imb->startMonitoring("Nested allocation inner");
+  auto guard = imb->startMonitoring("inner unique_ptr");
 
   return std::make_unique<int>(42);
 }
@@ -64,19 +64,23 @@ process.add_(cms.Service('IntrusiveAllocMonitor'))
     edm::LogPrint("Test").format("Sum {}", sum);
   }
 
-  vec = std::vector<int>();  // clear capacity
   {
     int sum = 0;
     {
-      auto guard = imb->startMonitoring("Nested allocation outer vector fill");
-      for (int i = 0; i < N; ++i) {
-        vec.push_back(i * 2 - 1);
-      }
+      auto guard = imb->startMonitoring("Nested allocation empty outer");
+      auto ptr2 = nested();
+      sum = *ptr2;
+    }
+    edm::LogPrint("Test").format("Sum {}", sum);
+  }
 
-      auto ptr = nested();
-      for (int a : vec) {
-        sum += a - *ptr;
-      }
+  {
+    int sum = 0;
+    {
+      auto guard = imb->startMonitoring("Nested allocation outer unique_ptr");
+      auto ptr1 = std::make_unique<int>(42);
+      auto ptr2 = nested();
+      sum = *ptr1 + *ptr2;
     }
 
     edm::LogPrint("Test").format("Sum {}", sum);

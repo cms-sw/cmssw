@@ -10,20 +10,34 @@
 
 namespace {
   using namespace edm::service::moduleAlloc;
+  class MonitorPauseGuard {
+  public:
+    MonitorPauseGuard(ThreadAllocInfo& info) : info_(info) {}
+    ~MonitorPauseGuard() { info_.activate(); }
+
+  private:
+    ThreadAllocInfo& info_;
+  };
+
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
     static std::any startOnThread() {
-      std::any previous = threadAllocInfo();
+      auto& t = threadAllocInfo();
+      // deactivate before creating the std::any
+      // keep deactivated until the guard activates it again in ~MonitorPauseGuard
+      t.deactivate();
+      std::any previous = t;
       threadAllocInfo().reset();
       return previous;
     }
-    static ThreadAllocInfo stopOnThread(std::any previous) {
+    static std::pair<ThreadAllocInfo, MonitorPauseGuard> stopOnThread(std::any previous) {
       auto& t = threadAllocInfo();
       t.deactivate();
       // restore state before the current measurement to allow nested measurements
       auto measured = t;
       t = std::any_cast<ThreadAllocInfo>(previous);
-      return measured;
+      assert(not t.active_);
+      return {measured, t};
     }
 
     static ThreadAllocInfo& threadAllocInfo() {
@@ -75,8 +89,22 @@ public:
   ~IntrusiveAllocMonitor() override = default;
 
   std::any start() final { return MonitorAdaptor::startOnThread(); }
-  void stop(std::string_view name, std::any previousAllocInfo) final {
-    auto const& info = MonitorAdaptor::stopOnThread(std::move(previousAllocInfo));
+  void stop(edm::IntrusiveMonitorStackNode const* callStack, std::any previousAllocInfo) final {
+    auto [info, pauseGuard] = MonitorAdaptor::stopOnThread(std::move(previousAllocInfo));
+    // The pauseGuard keeps the monitoring paused during the all string operations below
+    std::string name;
+    {
+      // concatenate the names of the call stack backwards
+      edm::IntrusiveMonitorStackNode const* node = callStack;
+      while (node != nullptr) {
+        name = std::format("{};{}", node->name(), name);
+        node = node->previousNode();
+      }
+      // remove the trailing semicolon
+      if (not name.empty()) {
+        name.pop_back();
+      }
+    }
     edm::LogSystem("IntrusiveAllocMonitor")
         .format("{}: requested {} added {} max alloc {} peak {} nAlloc {} nDealloc {}",
                 name,
