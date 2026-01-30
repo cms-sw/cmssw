@@ -5,6 +5,8 @@ hltTiclIterLabels = [
     "hltTiclTrackstersCLUE3DHigh",
     "hltTiclTrackstersCLUE3DHighL1Seeded",
     "hltTiclTracksterLinks",
+    "hltTiclTracksterLinksSuperclusteringDNN",
+    "hltTiclTracksterLinksSuperclusteringDNNL1Seeded",
     "hltTiclCandidate"
 ]
 
