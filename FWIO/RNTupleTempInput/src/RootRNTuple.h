@@ -167,8 +167,8 @@ namespace edm::rntuple_temp {
     void fillEntry(ROOT::RNTupleView<void>& view) { getEntry(view, entryNumber_); }
     void fillEntry(ROOT::RNTupleView<void>& view, EntryNumber entryNumber) { getEntry(view, entryNumber); }
 
-    void fillEntry(ROOT::DescriptorId_t id, EntryNumber entryNumber, void* iData) {
-      auto view = reader_->GetView(id, iData);
+    void fillEntry(ROOT::RNTupleView<void>& view, EntryNumber entryNumber, void* iData) {
+      view.BindRawPtr(iData);
       getEntry(view, entryNumber);
     }
 
