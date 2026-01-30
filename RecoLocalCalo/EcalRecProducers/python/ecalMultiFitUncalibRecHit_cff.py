@@ -49,7 +49,7 @@ gpuValidationEcal.toReplaceWith(ecalMultiFitUncalibRecHitTask, _ecalMultiFitUnca
 from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
 from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
 ecalMultiFitUncalibRecHitPortableSerialSync = makeSerialClone(ecalMultiFitUncalibRecHitPortable)
-ecalMultiFitUncalibRecHitSerialSync = ecalMultiFitUncalibRecHit.clone(
+ecalMultiFitUncalibRecHitSerialSync = _ecalUncalibRecHitSoAToLegacy.clone(
     inputCollectionEB = 'ecalMultiFitUncalibRecHitPortableSerialSync:EcalUncalibRecHitsEB',
     inputCollectionEE = 'ecalMultiFitUncalibRecHitPortableSerialSync:EcalUncalibRecHitsEE'
 )
