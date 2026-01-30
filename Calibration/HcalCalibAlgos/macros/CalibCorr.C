@@ -411,7 +411,7 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
       if (debug)
         std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
                   << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
-    } else if (type == 8) { // Mahi 22pu (Jan, 2022)
+    } else if (type == 8) {  // Mahi 22pu (Jan, 2022)
       const double CONST_COR_COEF[6] = {0.995902, 0.991240, 0.981019, 0.788052, 0.597956, 0.538731};
       const double LINEAR_COR_COEF[6] = {-0.0540563, -0.104361, -0.215936, -0.147801, -0.160845, -0.154359};
       const double SQUARE_COR_COEF[6] = {0, 0, 0.0365911, 0.0161266, 0.0180053, 0.0184295};
@@ -464,10 +464,10 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
                   << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
     } else {  // (type == 11) Mahi 25pu (Jan, 2025)
       const double CONST_COR_COEF[6] = {1.00418, 1.00013, 1.02139, 0.670393, 0.497555, 0.380463};
-      const double LINEAR_COR_COEF[6] =  {-0.0193499, -0.0160719, -0.364176, -0.148756, -0.127428, -0.0940064 };
+      const double LINEAR_COR_COEF[6] = {-0.0193499, -0.0160719, -0.364176, -0.148756, -0.127428, -0.0940064};
       const double SQUARE_COR_COEF[6] = {0, 0, 0.0667812, 0.0156051, 0.0129546, 0.00923415};
-      const int PU_IETA_1 = 7;		
-      const int PU_IETA_2 = 16;		
+      const int PU_IETA_1 = 7;
+      const int PU_IETA_2 = 16;
       const int PU_IETA_3 = 25;
       const int PU_IETA_4 = 26;
       const int PU_IETA_5 = 27;
