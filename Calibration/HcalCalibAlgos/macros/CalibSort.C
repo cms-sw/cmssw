@@ -1519,9 +1519,10 @@ CalibFitPU::CalibFitPU(const char *fname) : fChain(0) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   TFile *f = new TFile(fname);
+  std::cout << "Opens file " << fname << " in " << f << std::endl;
   TTree *tree = new TTree();
   f->GetObject("tree", tree);
-  std::cout << "Find tree Tree in " << tree << " from " << fname << std::endl;
+  std::cout << "Finds tree Tree in " << tree << " from " << fname << std::endl;
   Init(tree);
 }
 
