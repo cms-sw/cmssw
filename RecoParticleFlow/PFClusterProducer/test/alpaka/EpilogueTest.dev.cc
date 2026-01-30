@@ -194,7 +194,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto hOutClusters = outClusters.view();
     auto hClusters = hostClusters.view();
     auto hRecHits = hostRecHits.view();
-    auto hRecHitFracs = hostRecHitFracs.view();
+    //auto hRecHitFracs = hostRecHitFracs.view();
 
     const int nClusters = hClusters.size();
     const int nHits = hRecHits.size();
@@ -202,18 +202,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const int nOutClusters = hOutClusters.size();
 
-    reco::PFClusterDeviceCollection outDevClusters{nOutClusters, queue};
-    reco::PFRecHitFractionDeviceCollection outDevRecHitFracs{nFracs, queue};
+    reco::PFClusterDeviceCollection outDevClusters{queue, nOutClusters};
+    reco::PFRecHitFractionDeviceCollection outDevRecHitFracs{queue, nFracs};
 
-    reco::PFClusterDeviceCollection devClusters{nClusters, queue};
-    reco::PFRecHitDeviceCollection devRecHits{nHits, queue};
-    reco::PFRecHitFractionDeviceCollection devRecHitFracs{nFracs, queue};
+    reco::PFClusterDeviceCollection devClusters{queue, nClusters};
+    reco::PFRecHitDeviceCollection devRecHits{queue, nHits};
+    reco::PFRecHitFractionDeviceCollection devRecHitFracs{queue, nFracs};
 
     alpaka::memcpy(queue, devClusters.buffer(), hostClusters.buffer());
     alpaka::memcpy(queue, devRecHits.buffer(), hostRecHits.buffer());
     alpaka::memcpy(queue, devRecHitFracs.buffer(), hostRecHitFracs.buffer());
 
-    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringVars{nClusters, queue};
+    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringVars{queue, nClusters};
 
     alpaka::memcpy(queue, devClusteringVars.buffer(), hostClusteringVars.buffer());
 
@@ -570,10 +570,6 @@ void checkEpilogue(const ::reco::PFClusterHostCollection &outHostClusters,
            clidx,
            seed,
            energy);
-
-    for (int j = 0; j < recFracSize; j++) {
-      auto recHitidx = outHostRecHitsFracsView[recFracOffset + j].pfrhIdx();
-    }
   }
 }
 
@@ -617,14 +613,14 @@ int main() {
   for (auto const &device : devices) {
     auto queue = Queue(device);
 
-    ::reco::PFClusterHostCollection outHostClusters{cc_num, queue};
-    ::reco::PFRecHitFractionHostCollection outHostRecHitFracs{nFracs, queue};
+    ::reco::PFClusterHostCollection outHostClusters{queue, cc_num};
+    ::reco::PFRecHitFractionHostCollection outHostRecHitFracs{queue, nFracs};
 
-    ::reco::PFClusterHostCollection hostClusters{nClusters, queue};
-    ::reco::PFRecHitHostCollection hostRecHits{nHits, queue};
-    ::reco::PFRecHitFractionHostCollection hostRecHitFracs{nFracs, queue};
+    ::reco::PFClusterHostCollection hostClusters{queue, nClusters};
+    ::reco::PFRecHitHostCollection hostRecHits{queue, nHits};
+    ::reco::PFRecHitFractionHostCollection hostRecHitFracs{queue, nFracs};
 
-    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringVars{nClusters, queue};
+    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringVars{queue, nClusters};
 
     auto hClusters = hostClusters.view();
     auto outHClusters = outHostClusters.view();

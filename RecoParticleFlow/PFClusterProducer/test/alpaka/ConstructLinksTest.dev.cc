@@ -83,11 +83,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const int nClusters = hClusteringVars.size();
 
-    reco::PFMultiDepthClusteringVarsDeviceCollection devClusteringVars{nClusters, queue};
+    reco::PFMultiDepthClusteringVarsDeviceCollection devClusteringVars{queue, nClusters};
 
     alpaka::memcpy(queue, devClusteringVars.buffer(), hostClusteringVars.buffer());
 
-    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringCCLabels{nClusters + 1, queue};
+    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringCCLabels{queue, nClusters + 1};
 
     auto params_h = cms::alpakatools::make_host_buffer<PFMultiDepthClusterParams, Platform>();
 
@@ -347,9 +347,9 @@ int main() {
   for (auto const& device : devices) {
     auto queue = Queue(device);
 
-    ::reco::PFMultiDepthClusteringVarsHostCollection hostClusteringVars{nClusters, queue};
+    ::reco::PFMultiDepthClusteringVarsHostCollection hostClusteringVars{queue, nClusters};
 
-    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringCCLabels{nClusters + 1, queue};
+    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringCCLabels{queue, nClusters + 1};
 
     auto hClusteringVars = hostClusteringVars.view();
     hClusteringVars.size() = nClusters;

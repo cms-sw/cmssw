@@ -121,7 +121,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void launch_test(Queue& queue, const int collectionSize) {
     PFClusterTest pfcluster_test_{};
     // Create device products :
-    cmstest::TestPFClusterHostCollection hostProduct{collectionSize, queue};
+    cmstest::TestPFClusterHostCollection hostProduct{queue, collectionSize};
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -152,7 +152,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     viewProduct.size() = collectionSize;
 
-    cmstest::TestPFClusterDeviceCollection deviceProduct{collectionSize, queue};
+    cmstest::TestPFClusterDeviceCollection deviceProduct{queue, collectionSize};
 
     alpaka::memcpy(queue, deviceProduct.buffer(), hostProduct.buffer());
 
