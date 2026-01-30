@@ -332,7 +332,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   portabletest::TestDeviceCollection TestAlgo::update(Queue& queue,
                                                       portabletest::TestDeviceCollection const& input,
                                                       AlpakaESTestDataEDevice const& esData) const {
-    portabletest::TestDeviceCollection collection{input.size(), queue};
+    portabletest::TestDeviceCollection collection{queue, input.size()};
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
@@ -418,7 +418,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   portabletest::TestDeviceCollection TestAlgo::update(Queue& queue,
                                                       portabletest::TestDeviceCollection const& input,
                                                       UpdateInfo const* d_updateInfo) const {
-    portabletest::TestDeviceCollection collection{input.size(), queue};
+    portabletest::TestDeviceCollection collection{queue, input.size()};
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
