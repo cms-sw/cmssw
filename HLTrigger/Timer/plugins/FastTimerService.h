@@ -170,6 +170,16 @@ private:
   void preModuleEventDelayedGet(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postModuleEventDelayedGet(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
+  // transform
+  void preModuleTransformPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleTransformPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleTransform(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleTransform(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleTransformAcquiring(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleTransformAcquiring(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
   void preEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
 

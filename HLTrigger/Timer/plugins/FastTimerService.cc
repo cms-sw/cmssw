@@ -838,6 +838,13 @@ FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::Activit
   registry.watchPostSourceLumi(this, &FastTimerService::postSourceLumi);
   registry.watchPreSourceEvent(this, &FastTimerService::preSourceEvent);
   registry.watchPostSourceEvent(this, &FastTimerService::postSourceEvent);
+  // transform signals
+  //registry.watchPreModuleTransformPrefetching(this, &FastTimerService::preModuleTransformPrefetching);
+  //registry.watchPostModuleTransformPrefetching(this, &FastTimerService::postModuleTransformPrefetching);
+  registry.watchPreModuleTransform(this, &FastTimerService::preModuleTransform);
+  registry.watchPostModuleTransform(this, &FastTimerService::postModuleTransform);
+  registry.watchPreModuleTransformAcquiring(this, &FastTimerService::preModuleTransformAcquiring);
+  registry.watchPostModuleTransformAcquiring(this, &FastTimerService::postModuleTransformAcquiring);
   //registry.watchPreModuleConstruction(      this, & FastTimerService::preModuleConstruction);
   //registry.watchPostModuleConstruction(     this, & FastTimerService::postModuleConstruction);
   //registry.watchPreModuleBeginJob(          this, & FastTimerService::preModuleBeginJob );
@@ -1500,6 +1507,50 @@ void FastTimerService::postModuleEventAcquire(edm::StreamContext const& sc, edm:
   auto& module = stream.modules[id];
 
   thread().measure_and_store(module.total);
+}
+
+// transform signals
+void FastTimerService::preModuleTransformPrefetching(edm::StreamContext const& sc,
+                                                     edm::ModuleCallingContext const& mcc) {
+  ignoredSignal(__func__);
+}
+
+void FastTimerService::postModuleTransformPrefetching(edm::StreamContext const& sc,
+                                                      edm::ModuleCallingContext const& mcc) {
+  ignoredSignal(__func__);
+}
+
+void FastTimerService::preModuleTransformAcquiring(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+  thread().measure_and_accumulate(stream.overhead);
+}
+
+void FastTimerService::postModuleTransformAcquiring(edm::StreamContext const& sc,
+                                                    edm::ModuleCallingContext const& mcc) {
+  edm::ModuleDescription const& md = *mcc.moduleDescription();
+  unsigned int id = md.id();
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+  auto& module = stream.modules[id];
+
+  thread().measure_and_accumulate(module.total);
+}
+
+void FastTimerService::preModuleTransform(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+  thread().measure_and_accumulate(stream.overhead);
+}
+
+void FastTimerService::postModuleTransform(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  edm::ModuleDescription const& md = *mcc.moduleDescription();
+  unsigned int id = md.id();
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+  auto& module = stream.modules[id];
+
+  thread().measure_and_accumulate(module.total);
 }
 
 void FastTimerService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
