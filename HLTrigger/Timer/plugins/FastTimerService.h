@@ -58,6 +58,8 @@ public:
 private:
   void ignoredSignal(const std::string& signal) const;
   void unsupportedSignal(const std::string& signal) const;
+  // helper function for event measurement finalization
+  void finalizeEventMeasurement(edm::StreamContext const&);
 
   // these signal pairs are not guaranteed to happen in the same thread
 
@@ -173,6 +175,10 @@ private:
 
   void preESModule(edm::eventsetup::EventSetupRecordKey const&, edm::ESModuleCallingContext const&);
   void postESModule(edm::eventsetup::EventSetupRecordKey const&, edm::ESModuleCallingContext const&);
+
+  // cleanup
+  void preClearEvent(edm::StreamContext const&);
+  void postClearEvent(edm::StreamContext const&);
 
   // inherited from TBB task_scheduler_observer
   void on_scheduler_entry(bool worker) final;
@@ -311,8 +317,8 @@ private:
     AtomicResources eventsetup;
     AtomicResources idle;
     AtomicResources source;
-    Resources event;  // total time etc. spent between preSourceEvent and postEvent
-    Measurement event_measurement;
+    Resources cleanup;  // total time etc. spent between preClearEvent and postClearEvent
+    Resources event;    // total time etc. spent between preSourceEvent and postEvent
     std::vector<Resources> highlight;
     std::vector<ResourcesPerModule> modules;
     // Before the Framework SubProcess feature was removed, the following data
@@ -440,6 +446,7 @@ private:
     PlotsPerElement overhead_;
     PlotsPerElement idle_;
     PlotsPerElement source_;
+    PlotsPerElement cleanup_;
     // resources spent in the modules' lumi and run transitions
     PlotsPerElement lumi_;
     PlotsPerElement run_;
