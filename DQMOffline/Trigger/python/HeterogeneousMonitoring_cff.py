@@ -57,7 +57,7 @@ hltSiPixelCompareVertices = siPixelCompareVertices.clone(
 from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
 from DQM.EcalMonitorTasks.ecalGpuTask_cfi import ecalGpuTask as _ecalGpuTask
 
-_hltdir = 'HLT/HeterogeneousComparison/'
+_hltdir = 'HLT/HeterogeneousComparisons/'
 _remove = '%(prefix)sGpuTask/'
 
 def cloneMEsWithPathFix(srcMEs, prefix):
