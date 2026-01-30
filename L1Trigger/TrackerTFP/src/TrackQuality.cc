@@ -151,9 +151,9 @@ namespace trackerTFP {
 
     const float mva = output[0].to_float();
     // fill frame
-    std::string hits = hitPattern.str();
-    std::reverse(hits.begin(), hits.end());
-    TTBV ttBV(hits);
+    std::string reversedHitPattern = hitPattern.str();
+    std::reverse(reversedHitPattern.begin(), reversedHitPattern.end());
+    TTBV ttBV(reversedHitPattern);
     ttBV += TTBV(tq->toBinMVA(mva), widthMVA_);
     tq->format(VariableTQ::chi20).attach(trackchi2rphi, ttBV);
     tq->format(VariableTQ::chi21).attach(trackchi2rz, ttBV);

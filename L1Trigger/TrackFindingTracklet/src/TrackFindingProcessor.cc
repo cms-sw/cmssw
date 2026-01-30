@@ -53,7 +53,7 @@ namespace trklet {
     chi20_ = trackTQ.chi20();
     chi21_ = trackTQ.chi21();
     // bin chi2s
-    const int dof = (trackTQ.hitPattern().count() - 2);
+    const int dof = (trackTQ.reversedHitPattern().count() - 2);
     chi20bin_ = -1;
     for (double d : TTTrack_TrackWord::chi2RPhiBins)
       if (chi20_ >= d * dof)
@@ -80,9 +80,11 @@ namespace trklet {
     if (!valid_)
       return;
     // create bit vectors
-    std::string s = trackTQ.hitPattern().str();
-    s.resize(TTTrack_TrackWord::TrackBitWidths::kHitPatternSize);
-    hitPattern_ = TTBV(s);
+    std::string hitPattern = trackTQ.reversedHitPattern().str();
+    std::reverse(hitPattern.begin(), hitPattern.end());
+    // Drop outermost (8th) track layer, as data format foresees only 7 bits.
+    hitPattern.erase(0, 1);
+    hitPattern_ = TTBV(hitPattern);
     const TTBV other = TTBV(0, 2 * TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize);
     const TTBV chi2bend = TTBV(0, TTTrack_TrackWord::TrackBitWidths::kBendChi2Size);
     const TTBV d0(0., baseD0, TTTrack_TrackWord::TrackBitWidths::kD0Size, true);

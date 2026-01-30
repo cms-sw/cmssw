@@ -243,7 +243,7 @@ namespace trklet {
     return DataFormat(false, width);
   }
   template <>
-  DataFormat makeDataFormat<Variable::hitPattern, Process::tq>(const ChannelAssignment* ca) {
+  DataFormat makeDataFormat<Variable::reversedHitPattern, Process::tq>(const ChannelAssignment* ca) {
     const int width = ca->setup()->numLayers();
     return DataFormat(false, width);
   }

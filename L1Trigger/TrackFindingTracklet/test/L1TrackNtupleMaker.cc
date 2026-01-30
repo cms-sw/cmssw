@@ -177,6 +177,7 @@ private:
   std::vector<int>* m_trk_lhits;
   std::vector<int>* m_trk_dhits;
   std::vector<int>* m_trk_seed;
+  // WARNING - info unpacked from the hit pattern is unrelable due to bugs in HitPatternHelper
   std::vector<int>* m_trk_hitpattern;
   std::vector<int>* m_trk_lhits_hitpattern;  // 6-digit hit mask (barrel layer only) dervied from hitpattern
   std::vector<int>* m_trk_dhits_hitpattern;  // disk only
@@ -1101,6 +1102,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       int tmp_trk_hitpattern = 0;
       tmp_trk_hitpattern = (int)iterL1Track->hitPattern();
+      // TO FIX -- The HitPatternHelper code contains several bugs & design flaws.
       hph::HitPatternHelper hph(hphSetup, tmp_trk_hitpattern, tmp_trk_tanL, tmp_trk_z0);
       std::vector<int> hitpattern_expanded_binary = hph.binary();
       int tmp_trk_lhits_hitpattern = 0;
@@ -1165,6 +1167,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       //float tmp_trk_bend_chi2 = 0;
       int tmp_trk_dhits = 0;
       int tmp_trk_lhits = 0;
+      set<int> hitLayPS;
+      set<int> hitLay2S;
 
       if (true) {
         // loop over stubs
@@ -1181,13 +1185,14 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
           double z = posStub.z();
 
           int layer = -999999;
-          if (detIdStub.subdetId() == StripSubdetector::TOB) {
+          bool barrel = (detIdStub.subdetId() == StripSubdetector::TOB);
+          if (barrel) {
             layer = static_cast<int>(tTopo->layer(detIdStub));
             if (DebugMode)
               edm::LogVerbatim("Tracklet")
                   << "   stub in layer " << layer << " at position x y z = " << x << " " << y << " " << z;
             tmp_trk_lhits += pow(10, layer - 1);
-          } else if (detIdStub.subdetId() == StripSubdetector::TID) {
+          } else {
             layer = static_cast<int>(tTopo->layer(detIdStub));
             if (DebugMode)
               edm::LogVerbatim("Tracklet")
@@ -1195,8 +1200,39 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
             tmp_trk_dhits += pow(10, layer - 1);
           }
 
+          bool psMod = (theTrackerGeom->getDetectorType(detIdStub) == TrackerGeometry::ModuleType::Ph2PSP);
+          int layerdisk = barrel ? layer : 10 + layer;
+          if (psMod) {
+            hitLayPS.insert(layerdisk);
+          } else {
+            hitLay2S.insert(layerdisk);
+          }
         }  //end loop over stubs
       }
+
+      // Check accuracy of hit pattern info.
+      if (DebugMode && hph.newKF()) {
+        // Only bother for New KF, as HitPatternHelper buggy for Old KF.
+        // For New KF, hph gets these via function LayerEncoding::analyze().
+        if (hph.numPS() != int(hitLayPS.size()) || hph.num2S() != int(hitLay2S.size())) {
+          // Some inaccuracy expected, as estimating number of PS stubs from hit pattern is approximate,
+          // due to r-boundary of PS-2S not being well defined (analyze() assumes 2S if ambiguous),
+          // and due to truncation of hit pattern from 8 to 7 bits.
+          std::stringstream ss;
+          ss << "Number of layers with stubs estimated from hit pattern is inaccurate: (PS,2S) = (" << hph.numPS()
+             << "," << hph.num2S() << ") vs (" << hitLayPS.size() << "," << hitLay2S.size()
+             << "), eta sect = " << hph.etaSector() << ", hitpattern = " << std::bitset<8>(tmp_trk_hitpattern)
+             << ", hit layers = PS(";
+          for (const auto& lay : hitLayPS)
+            ss << " " << lay;
+          ss << ") + 2S(";
+          for (const auto& lay : hitLay2S)
+            ss << " " << lay;
+          ss << ")";
+          edm::LogWarning("Tracklet") << ss.str();
+        }
+      }
+
       // ----------------------------------------------------------------------------------------------
 
       int tmp_trk_genuine = 0;

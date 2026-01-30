@@ -27,7 +27,7 @@ namespace hph {
         nKalmanLayers_(tmtt::KFbase::nKFlayer_) {
     if (useNewKF_) {
       chosenRofZ_ = chosenRofZNewKF_;
-      etaRegions_ = etaRegionsNewKF_;
+      etaRegions_ = etaRegionsNewKF_;  // TO FIX: Not defined
     } else {
       chosenRofZ_ = iConfig.chosenRofZ_;
       etaRegions_ = iConfig.etaRegions_;
@@ -60,7 +60,7 @@ namespace hph {
         layerEncoding_(setup->layerEncoding(zT_)),
         numExpLayer_(layerEncoding_.size()),
         hitpattern_(hitpattern),
-        etaSector_(setup_->etaRegion(z0, cot, useNewKF_)),
+        etaSector_(setup_->etaRegion(z0, cot, useNewKF_)),  // Only works for old KF
         numMissingLayer_(0),
         numMissingPS_(0),
         numMissing2S_(0),
@@ -70,14 +70,17 @@ namespace hph {
         numMissingInterior2_(0),
         binary_(11, 0),  //there are 11 unique layer IDs, as defined in variable "layerIds"
         bonusFeatures_() {
-    setup->analyze(hitpattern, cot, z0, numPS_, num2S_, numMissingPS_, numMissing2S_);
+    // FIX: Function analyze is only designed to work correctly for NEWKF.
+    int rzSect = 0;
+    setup->analyze(hitpattern, cot, z0, rzSect, numPS_, num2S_, numMissingPS_, numMissing2S_);
+    if (useNewKF_)
+      etaSector_ = rzSect;
     int kf_eta_reg = etaSector_;
     if (kf_eta_reg < ((int)etaRegions_.size() - 1) / 2) {
       kf_eta_reg = ((int)etaRegions_.size() - 1) / 2 - 1 - kf_eta_reg;
     } else {
       kf_eta_reg = kf_eta_reg - (int)(etaRegions_.size() - 1) / 2;
     }
-
     int nbits = floor(log2(hitpattern_)) + 1;
     int lay_i = 0;
     bool seq = false;
@@ -105,36 +108,40 @@ namespace hph {
 
     if (hphDebug_) {
       if (useNewKF_) {
-        edm::LogVerbatim("TrackTriggerHPH") << "Running with New KF";
+        edm::LogVerbatim("Tracklet") << "Running with New KF";
       } else {
-        edm::LogVerbatim("TrackTriggerHPH") << "Running with Old KF";
+        edm::LogVerbatim("Tracklet") << "Running with Old KF";
       }
-      edm::LogVerbatim("TrackTriggerHPH") << "======================================================";
-      edm::LogVerbatim("TrackTriggerHPH")
-          << "Looking at hitpattern " << std::bitset<7>(hitpattern_) << "; Looping over KF layers:";
+      edm::LogVerbatim("Tracklet") << "======================================================";
+      edm::LogVerbatim("Tracklet") << "Looking at hitpattern " << std::bitset<7>(hitpattern_)
+                                   << "; Looping over KF layers:";
     }
 
     if (useNewKF_) {
       //New KF uses sensor modules to determine the hitmask already
       for (int i = 0; i < numExpLayer_; i++) {
         if (hphDebug_) {
-          edm::LogVerbatim("TrackTriggerHPH") << "--------------------------";
-          edm::LogVerbatim("TrackTriggerHPH") << "Looking at KF layer " << i;
+          edm::LogVerbatim("Tracklet") << "--------------------------";
+          edm::LogVerbatim("Tracklet") << "Looking at KF layer " << i;
           if (layerEncoding_[i] < 10) {
-            edm::LogVerbatim("TrackTriggerHPH") << "KF expects L" << layerEncoding_[i];
+            edm::LogVerbatim("Tracklet") << "KF expects L" << layerEncoding_[i];
           } else {
-            edm::LogVerbatim("TrackTriggerHPH") << "KF expects D" << layerEncoding_[i] - 10;
+            edm::LogVerbatim("Tracklet") << "KF expects D" << layerEncoding_[i] - 10;
           }
         }
 
         if (((1 << i) & hitpattern_) >> i) {
           if (hphDebug_) {
-            edm::LogVerbatim("TrackTriggerHPH") << "Layer found in hitpattern";
+            edm::LogVerbatim("Tracklet") << "Layer found in hitpattern";
+          }
+          if (layerEncoding_[i] < 0) {
+            edm::LogError("Tracklet") << "Track's hit-pattern shows stub in non-traversed layer";
+            continue;
           }
           binary_[reducedId(layerEncoding_[i])] = 1;
         } else {
           if (hphDebug_) {
-            edm::LogVerbatim("TrackTriggerHPH") << "Layer missing in hitpattern";
+            edm::LogVerbatim("Tracklet") << "Layer missing in hitpattern";
           }
         }
       }
@@ -144,13 +151,13 @@ namespace hph {
       for (int i = 0; i < nKalmanLayers_; i++) {  //Loop over each digit of hitpattern
 
         if (hphDebug_) {
-          edm::LogVerbatim("TrackTriggerHPH") << "--------------------------";
-          edm::LogVerbatim("TrackTriggerHPH") << "Looking at KF layer " << i;
+          edm::LogVerbatim("Tracklet") << "--------------------------";
+          edm::LogVerbatim("Tracklet") << "Looking at KF layer " << i;
         }
 
         if (layermap_[kf_eta_reg][i].empty()) {
           if (hphDebug_) {
-            edm::LogVerbatim("TrackTriggerHPH") << "KF does not expect this layer";
+            edm::LogVerbatim("Tracklet") << "KF does not expect this layer";
           }
 
           continue;
@@ -161,9 +168,9 @@ namespace hph {
 
           if (hphDebug_) {
             if (j < 10) {
-              edm::LogVerbatim("TrackTriggerHPH") << "KF expects L" << j;
+              edm::LogVerbatim("Tracklet") << "KF expects L" << j;
             } else {
-              edm::LogVerbatim("TrackTriggerHPH") << "KF expects D" << j - 10;
+              edm::LogVerbatim("Tracklet") << "KF expects D" << j - 10;
             }
           }
 
@@ -171,24 +178,24 @@ namespace hph {
           if (k < 0) {
             //k<0 means even though layer j is predicted by Old KF, this prediction is rejected because it contradicts
             if (hphDebug_) {  //a more accurate prediction made with the help of information from sensor modules
-              edm::LogVerbatim("TrackTriggerHPH") << "Rejected by sensor modules";
+              edm::LogVerbatim("Tracklet") << "Rejected by sensor modules";
             }
 
             continue;
           }
 
           if (hphDebug_) {
-            edm::LogVerbatim("TrackTriggerHPH") << "Confirmed by sensor modules";
+            edm::LogVerbatim("Tracklet") << "Confirmed by sensor modules";
           }
           //prediction is accepted
           if (((1 << i) & hitpattern_) >> i) {
             if (hphDebug_) {
-              edm::LogVerbatim("TrackTriggerHPH") << "Layer found in hitpattern";
+              edm::LogVerbatim("Tracklet") << "Layer found in hitpattern";
             }
             binary_[reducedId(j)] = 1;
           } else {
             if (hphDebug_) {
-              edm::LogVerbatim("TrackTriggerHPH") << "Layer missing in hitpattern";
+              edm::LogVerbatim("Tracklet") << "Layer missing in hitpattern";
             }
           }
         }
@@ -196,10 +203,10 @@ namespace hph {
     }
 
     if (hphDebug_) {
-      edm::LogVerbatim("TrackTriggerHPH") << "------------------------------";
-      edm::LogVerbatim("TrackTriggerHPH") << "numPS = " << numPS_ << ", num2S = " << num2S_
-                                          << ", missingPS = " << numMissingPS_ << ", missing2S = " << numMissing2S_;
-      edm::LogVerbatim("TrackTriggerHPH") << "======================================================";
+      edm::LogVerbatim("Tracklet") << "------------------------------";
+      edm::LogVerbatim("Tracklet") << "numPS = " << numPS_ << ", num2S = " << num2S_
+                                   << ", missingPS = " << numMissingPS_ << ", missing2S = " << numMissing2S_;
+      edm::LogVerbatim("Tracklet") << "======================================================";
     }
   }
 
@@ -228,7 +235,7 @@ namespace hph {
 
   int HitPatternHelper::reducedId(int layerId) {
     if (hphDebug_ && (layerId > 15 || layerId < 1)) {
-      edm::LogVerbatim("TrackTriggerHPH") << "Warning: invalid layer id !";
+      edm::LogVerbatim("Tracklet") << "Warning: invalid layer id !";
     }
     if (layerId <= 6) {
       layerId = layerId - 1;

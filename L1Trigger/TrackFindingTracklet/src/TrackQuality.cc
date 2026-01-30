@@ -89,7 +89,7 @@ namespace trklet {
       // transform double to AP_FIXED_BDT
       static const double d = std::pow(2., 10);
       const std::vector<AP_FIXED_BDT> features({nStubs, zT / d, cot / d, chi20 / d, chi21 / d, nGaps});
-      // BDT Inference
+      // Run the Track Quality BDT calculation
       const AP_FIXED_BDT mvaFixed = bdt_->decision_function(features).at(0);
       const AP_INT_BDT mvaInt = mvaFixed.range(mvaFixed.width - 1, 0);
       // bin mva
@@ -99,9 +99,9 @@ namespace trklet {
         if (mvaInt <= binEdges[mva + 1])
           break;
       // build output Track
-      std::string s = hitPattern.str();
-      std::reverse(s.begin(), s.end());
-      TrackTQ trackTQ(*frame.track_, s, mva, chi20F, chi21F);
+      std::string reversedHitPattern = hitPattern.str();
+      std::reverse(reversedHitPattern.begin(), reversedHitPattern.end());
+      TrackTQ trackTQ(*frame.track_, reversedHitPattern, mva, chi20F, chi21F);
       // store result
       output.push_back(trackTQ.frame());
     }

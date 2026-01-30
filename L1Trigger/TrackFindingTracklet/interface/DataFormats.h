@@ -41,7 +41,7 @@ namespace trklet {
     chi20,
     chi21,
     mva,
-    hitPattern,
+    reversedHitPattern,
     end,
     x
   };
@@ -210,7 +210,7 @@ namespace trklet {
   template <>
   DataFormat makeDataFormat<Variable::mva, Process::tq>(const ChannelAssignment* ca);
   template <>
-  DataFormat makeDataFormat<Variable::hitPattern, Process::tq>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::reversedHitPattern, Process::tq>(const ChannelAssignment* ca);
 
   /*! \class  trklet::DataFormats
    *  \brief  Class to calculate and provide dataformats used by Hybrid emulator
@@ -235,7 +235,7 @@ namespace trklet {
         {{Process::x, Process::x, Process::x, Process::tq, Process::x}},       // Variable::chi20
         {{Process::x, Process::x, Process::x, Process::tq, Process::x}},       // Variable::chi21
         {{Process::x, Process::x, Process::x, Process::tq, Process::x}},       // Variable::mva
-        {{Process::x, Process::x, Process::x, Process::tq, Process::x}}        // Variable::hitPattern
+        {{Process::x, Process::x, Process::x, Process::tq, Process::x}}        // Variable::reversedHitPattern
     }};
     // stub word assembly, shows which stub variables are used by each process
     static constexpr std::array<std::initializer_list<Variable>, +Process::end> stubs_ = {{
@@ -247,11 +247,11 @@ namespace trklet {
     }};
     // track word assembly, shows which track variables are used by each process
     static constexpr std::array<std::initializer_list<Variable>, +Process::end> tracks_ = {{
-        {Variable::inv2R, Variable::phiT, Variable::zT},                          // Process::tm
-        {Variable::inv2R, Variable::phiT, Variable::zT},                          // Process::dr
-        {Variable::inv2R, Variable::phiT, Variable::cot, Variable::zT},           // Process::kf
-        {Variable::hitPattern, Variable::mva, Variable::chi20, Variable::chi21},  // Process::tq
-        {}                                                                        // Process::tfp
+        {Variable::inv2R, Variable::phiT, Variable::zT},                                  // Process::tm
+        {Variable::inv2R, Variable::phiT, Variable::zT},                                  // Process::dr
+        {Variable::inv2R, Variable::phiT, Variable::cot, Variable::zT},                   // Process::kf
+        {Variable::reversedHitPattern, Variable::mva, Variable::chi20, Variable::chi21},  // Process::tq
+        {}                                                                                // Process::tfp
     }};
 
   public:
@@ -561,12 +561,12 @@ namespace trklet {
     // construct TrackTQ from Frame
     TrackTQ(const tt::FrameTrack& ft, const DataFormats* df) : Track(ft, df, Process::tq) {}
     // construct TrackTQ from TrackKF
-    TrackTQ(const TrackKF& track, const TTBV& hitPattern, int mva, double chi20, double chi21)
-        : Track(track, hitPattern, mva, chi20, chi21) {}
+    TrackTQ(const TrackKF& track, const TTBV& reversedHitPattern, int mva, double chi20, double chi21)
+        : Track(track, reversedHitPattern, mva, chi20, chi21) {}
     TrackTQ() {}
     ~TrackTQ() override = default;
     // mva
-    const TTBV& hitPattern() const { return std::get<0>(data_); }
+    const TTBV& reversedHitPattern() const { return std::get<0>(data_); }
     // mva
     int mva() const { return std::get<1>(data_); }
     // track r-phi chi2
