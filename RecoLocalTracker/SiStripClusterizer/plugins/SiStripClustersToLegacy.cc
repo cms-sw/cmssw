@@ -26,7 +26,7 @@ namespace sistrip {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("source");
+      desc.add<edm::InputTag>("source", edm::InputTag("hltSiStripRawToClustersFacilityAlpaka"));
       descriptions.addWithDefaultLabel(desc);
     }
 
