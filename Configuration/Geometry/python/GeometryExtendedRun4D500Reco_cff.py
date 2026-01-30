@@ -12,5 +12,5 @@ from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi impor
 from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
-trackerGeometry.applyAlignment = True
+trackerGeometry.applyAlignment = False
 
