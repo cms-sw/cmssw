@@ -149,6 +149,7 @@ class FullOutput(OutputTree):
                 '1', "", maxEntries if maxEntries else ROOT.TVirtualTreePlayer.kMaxEntries, firstEntry)
         else:
             outputTree = inputTree.CloneTree(0)
+        ROOT.SetOwnership(outputTree, False)
 
         # enable back all branches in inputTree, then disable for computation
         # the branches as requested in branchSelection
@@ -169,10 +170,12 @@ class FullOutput(OutputTree):
                     # treat content of other trees as if associated to event 0
                     self._otherTrees[kn] = inputFile.Get(
                         kn).CopyTree('1' if firstEntry == 0 else '0')
+                    ROOT.SetOwnership(self._otherTrees[kn], False)
             elif kn in ("LuminosityBlocks", "Runs"):
                 if not jsonFilter:
                     self._otherTrees[kn] = inputFile.Get(
                         kn).CopyTree('1' if firstEntry == 0 else '0')
+                    ROOT.SetOwnership(self._otherTrees[kn], False)
                 elif firstEntry == 0:
                     _isRun = (kn == "Runs")
                     _it = inputFile.Get(kn)
@@ -181,6 +184,7 @@ class FullOutput(OutputTree):
                         if (jsonFilter.filterRunOnly(ev.run) if _isRun else jsonFilter.filterRunLumi(ev.run, ev.luminosityBlock)):
                             _ot.Fill()
                     self._otherTrees[kn] = _ot
+                    ROOT.SetOwnership(self._otherTrees[kn], False)
             elif k.GetClassName() == "TTree":
                 print("Not copying unknown tree %s" % kn)
             else:
@@ -195,7 +199,7 @@ class FullOutput(OutputTree):
             self.outputbranchSelection.selectBranches(self._tree)
         self._tree = self.tree().CopyTree('1', "",
                                           self.maxEntries if self.maxEntries else ROOT.TVirtualTreePlayer.kMaxEntries, 0)
-
+        ROOT.SetOwnership(self._tree, False)
         OutputTree.write(self)
         for t in self._otherTrees.values():
             t.Write()
@@ -208,4 +212,5 @@ class FriendOutput(OutputTree):
         outputFile.cd()
         outputTree = ROOT.TTree(
             treeName, "Friend tree for " + inputTree.GetName())
+        ROOT.SetOwnership(outputTree, False)
         OutputTree.__init__(self, outputFile, outputTree, inputTree)
