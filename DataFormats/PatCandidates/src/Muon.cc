@@ -5,6 +5,8 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+#include "DataFormats/PatCandidates/interface/ScoutingDataHandling.h"
 #include <limits>
 
 using namespace pat;
@@ -127,6 +129,52 @@ Muon::Muon(const edm::Ptr<reco::Muon>& aMuonRef)
       inverseBetaErr_(0) {
   initImpactParameters();
   initSimInfo();
+}
+
+/// constructor from reco::Muon
+Muon::Muon(const Run3ScoutingMuon& aMuon)
+    : Lepton<reco::Muon>(),
+      embeddedMuonBestTrack_(false),
+      embeddedTunePMuonBestTrack_(false),
+      embeddedTrack_(false),
+      embeddedStandAloneMuon_(false),
+      embeddedCombinedMuon_(false),
+      embeddedTCMETMuonCorrs_(false),
+      embeddedCaloMETMuonCorrs_(false),
+      embeddedPickyMuon_(false),
+      embeddedTpfmsMuon_(false),
+      embeddedDytMuon_(false),
+      embeddedPFCandidate_(false),
+      pfCandidateRef_(),
+      cachedNormChi2_(false),
+      normChi2_(0.0),
+      cachedNumberOfValidHits_(false),
+      numberOfValidHits_(0),
+      pfEcalEnergy_(0),
+      jetPtRatio_(0),
+      jetPtRel_(0),
+      mvaIDValue_(0),
+      softMvaValue_(0),
+      inverseBeta_(0),
+      inverseBetaErr_(0) {
+  initImpactParameters();
+  initSimInfo();
+
+  reco::Candidate::PolarLorentzVector p4(aMuon.pt(), aMuon.eta(), aMuon.phi(), aMuon.m());
+  auto track = makeRecoTrack(aMuon);
+  
+  this->setCharge(aMuon.charge());
+  this->setP4(reco::Particle::LorentzVector(p4));
+  this->setVertex(track.vertex());
+
+  std::vector<reco::Track> tracks;
+  tracks.push_back(track);
+  this->setGlobalTrack(reco::TrackRef(&tracks, 0));
+  this->embedCombinedMuon();
+  this->setBestTrack(reco::Muon::CombinedTrack);
+    
+  this->setMiniPFIsolation(pat::PFIsolation());
+  
 }
 
 /// destructor

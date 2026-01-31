@@ -31,6 +31,8 @@
 #include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 
 // Define typedefs for convenience
+class Run3ScoutingMuon;
+
 namespace pat {
   class Muon;
   typedef std::vector<Muon> MuonCollection;
@@ -59,6 +61,8 @@ namespace pat {
     Muon(const edm::RefToBase<reco::Muon>& aMuonRef);
     /// constructor from a Ptr to a reco muon
     Muon(const edm::Ptr<reco::Muon>& aMuonRef);
+    /// constructor from a scouting muon
+    Muon(const Run3ScoutingMuon& aMuon);
     /// destructor
     ~Muon() override;
 
