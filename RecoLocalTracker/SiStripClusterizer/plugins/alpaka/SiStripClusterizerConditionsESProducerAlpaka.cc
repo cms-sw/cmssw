@@ -59,8 +59,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<edm::ESInputTag>("QualityLabel");
-      desc.add<edm::ESInputTag>("Label");
+      desc.add<edm::ESInputTag>("QualityLabel", edm::ESInputTag(""));
+      desc.add<edm::ESInputTag>("Label", edm::ESInputTag(""));
       descriptions.addWithDefaultLabel(desc);
     }
 
