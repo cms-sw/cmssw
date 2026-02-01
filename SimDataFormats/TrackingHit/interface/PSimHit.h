@@ -36,7 +36,7 @@ public:
         thePhiAtEntry(phi),
         theTof(tof),
         theParticleType(particleType),
-        theProcessType(processType),
+        theProcessProdType(processType),
         theDetUnitId(detId),
         theTrackId(trackId) {}
 
@@ -119,20 +119,20 @@ public:
    *  not be the ID of any process.
    */
 
-  // 7 bits field available in PSimHit processType, i.e. up 127, to store processes
-  static constexpr unsigned int k_procidMask_ = 0x1FF;
-  static constexpr unsigned int k_hitidMask_ = 0x7F;
-  static constexpr unsigned int k_hitidShift_ = 9;
-
   // use 9 bits (up to 511) for process id, reserve the rest for hit production mechanism id
-  unsigned short processType() const { return theProcessType & k_procidMask_; }
+  // 7 bits field available in PSimHit processType, i.e. up 127, to store processes
+  unsigned short processType() const { return theProcessProdType & kProcidMask; }
 
-  unsigned short hitProdType() const { return (theProcessType >> k_hitidShift_) & k_hitidMask_; }
-  void setHitProdType(unsigned int hitId) { theProcessType |= hitId << k_hitidShift_; }
+  unsigned short hitProdType() const { return (theProcessProdType >> kHitidShift) & kHitidMask; }
+  void setHitProdType(unsigned int hitId) { theProcessProdType |= hitId << kHitidShift; }
 
   void setTof(float tof) { theTof = tof; }
 
 protected:
+  static constexpr unsigned int kProcidMask = 0x1FF;
+  static constexpr unsigned int kHitidMask = 0x7F;
+  static constexpr unsigned int kHitidShift = 9;
+
   // properties
   Local3DPoint theEntryPoint;  // position at entry
   Local3DVector theSegment;    // exitPos - entryPos
@@ -143,7 +143,7 @@ protected:
 
   float theTof;  // Time Of Flight
   int theParticleType;
-  unsigned short theProcessType;  // ID of the process which created the track
+  unsigned short theProcessProdType;  // ID of the process which created the track
                                   // which created the PSimHit
 
   // association
@@ -152,6 +152,7 @@ protected:
   EncodedEventId theEventId;
 
   friend class TrackingSlaveSD;
+  friend class BscG4Hit;;
 };
 
 std::ostream& operator<<(std::ostream& o, const PSimHit& hit);

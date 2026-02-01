@@ -194,7 +194,7 @@ namespace {
       if (!vertex_property.simTrack)
         return;
       // -- loop over possible hitProdTypes to save also sim clusters from non-direct hits
-      for (unsigned int offset = 0; offset < SimHitCategory::n_mtd_categories; offset++) {
+      for (unsigned int offset = 0; offset < SimHitCategory::nCategoriesMTD; offset++) {
         auto trackIdx = tidAndProc(vertex_property.simTrack->trackId(), offset);
         IfLogDebug(DEBUG, messageCategoryGraph_)
             << " Found " << simHitBarcodeToIndex_.count(trackIdx) << " associated simHits" << std::endl;

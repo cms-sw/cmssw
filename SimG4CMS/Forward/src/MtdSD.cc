@@ -134,17 +134,17 @@ void MtdSD::setHitClassID(const G4Step* aStep) {
   const G4String& rname = aStep->GetTrack()->GetVolume()->GetLogicalVolume()->GetRegion()->GetName();
   if (rname == "FastTimerRegionSensBTL") {
     if (trkInfo->isInTrkFromBackscattering()) {
-      hitClassID = SimHitCategory::mtd_prodType[3];
+      hitClassID = SimHitCategory::prodTypeMTD[3];
     } else if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering() && !trkInfo->storeTrack()) {
-      hitClassID = SimHitCategory::mtd_prodType[1];
+      hitClassID = SimHitCategory::prodTypeMTD[1];
     } else if (trkInfo->isBTLlooper()) {
-      hitClassID = SimHitCategory::mtd_prodType[2];
+      hitClassID = SimHitCategory::prodTypeMTD[2];
     }
   } else if (rname == "FastTimerRegionSensETL") {
     double zin = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
     double zout = std::abs(aStep->GetPostStepPoint()->GetPosition().z());
     if (zout - zin < 0.) {
-      hitClassID = SimHitCategory::mtd_prodType[4];
+      hitClassID = SimHitCategory::prodTypeMTD[4];
       trkInfo->setETLfromBack();
     } else {
       trkInfo->setETLfromFront();

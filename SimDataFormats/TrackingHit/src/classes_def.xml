@@ -1,17 +1,17 @@
 <lcgdict>
   <class name="PSimHit" ClassVersion="11">
-   <version ClassVersion="11" checksum="1181355938"/>
+   <version ClassVersion="11" checksum="547102469"/>
    <version ClassVersion="10" checksum="1181355938"/>
-   <ioread sourceClass = "PSimHit" version="[-10]" targetClass="PSimHit" source="unsigned int theTrackId" target="theTrackId">
+   <ioread sourceClass = "PSimHit" version="[10]" targetClass="PSimHit" source="unsigned int theTrackId; unsigned int theDetUnitId" target="theTrackId">
      <![CDATA[
-     if ((newObj->detUnitId() >> 25) == 0x31) {theTrackId = onfile.theTrackId % 200000000;}
+     if ((onfile.theDetUnitId >> 25) == 0x31) {theTrackId = (onfile.theTrackId % 200000000);}
     ]]>
    </ioread>
-   <ioread sourceClass = "PSimHit" version="[-10]" targetClass="PSimHit" source="unsigned int theTrackId; unsigned short theProcessType" target="theProcessType">
-     <![CDATA[
-     if ((newObj->detUnitId() >> 25) == 0x31) {theProcessType |= (onfile.theTrackId / 200000000) << 9 ;}
-    ]]>
-   </ioread>
+   <!--<ioread sourceClass = "PSimHit" version="[-10]" targetClass="PSimHit" source="unsigned int theTrackId; unsigned int theDetUnitId; unsigned short theProcessType" target="theProcessType">-->
+     <!--<![CDATA[-->
+     <!--if ((onfile.theDetUnitId >> 25) == 0x31) {theProcessProdType |= (onfile.theTrackId / 200000000) << 9 ;}-->
+    <!--]]>-->
+   <!--</ioread>-->
   </class>
   <class name="std::vector<PSimHit>"/>
   <class name="edm::Wrapper<std::vector<PSimHit> >" splitLevel="0"/>
