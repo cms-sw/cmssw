@@ -162,17 +162,18 @@ Muon::Muon(const Run3ScoutingMuon& aMuon)
 
   reco::Candidate::PolarLorentzVector p4(aMuon.pt(), aMuon.eta(), aMuon.phi(), aMuon.m());
   auto track = makeRecoTrack(aMuon);
-  
+
   this->setCharge(aMuon.charge());
   this->setP4(reco::Particle::LorentzVector(p4));
   this->setVertex(track.vertex());
 
-  std::vector<reco::Track> tracks;
-  tracks.push_back(track);
-  this->setGlobalTrack(reco::TrackRef(&tracks, 0));
-  this->embedCombinedMuon();
+  // Directly embed the track without creating a temporary TrackRef
+  // This avoids the transient reference issue that prevents serialization
+  combinedMuon_.clear();
+  combinedMuon_.push_back(track);
+  embeddedCombinedMuon_ = true;
   this->setBestTrack(reco::Muon::CombinedTrack);
-    
+
   this->setMiniPFIsolation(pat::PFIsolation());
   
 }

@@ -4,44 +4,126 @@
 
 static constexpr auto s_tag = "[PatFromScouting]";
 
-TEST_CASE("Standard checks of PatFromScouting", s_tag) {
+TEST_CASE("Standard checks of PatFromScoutingMuonProducer", s_tag) {
   const std::string baseConfig{
       R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
-process.toTest = cms.EDProducer("PatFromScouting"
-#necessary configuration parameters
- )
+process.toTest = cms.EDProducer("PatFromScoutingMuonProducer",
+    src = cms.InputTag("hltScoutingMuonPacker")
+)
 process.moduleToTest(process.toTest)
 )_"};
 
   edm::test::TestProcessor::Config config{baseConfig};
   SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
 
-  SECTION("No event data") {
-    edm::test::TestProcessor tester(config);
-
-    REQUIRE_THROWS_AS(tester.test(), cms::Exception);
-    //If the module does not throw when given no data, substitute
-    //REQUIRE_NOTHROW for REQUIRE_THROWS_AS
-  }
-
   SECTION("beginJob and endJob only") {
     edm::test::TestProcessor tester(config);
-
     REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
   }
 
   SECTION("Run with no LuminosityBlocks") {
     edm::test::TestProcessor tester(config);
-
     REQUIRE_NOTHROW(tester.testRunWithNoLuminosityBlocks());
   }
 
   SECTION("LuminosityBlock with no Events") {
     edm::test::TestProcessor tester(config);
-
     REQUIRE_NOTHROW(tester.testLuminosityBlockWithNoEvents());
   }
 }
 
-//Add additional TEST_CASEs to exercise the modules capabilities
+TEST_CASE("Standard checks of PatFromScoutingElectronProducer", s_tag) {
+  const std::string baseConfig{
+      R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("PatFromScoutingElectronProducer",
+    src = cms.InputTag("hltScoutingEgammaPacker")
+)
+process.moduleToTest(process.toTest)
+)_"};
+
+  edm::test::TestProcessor::Config config{baseConfig};
+  SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+  SECTION("beginJob and endJob only") {
+    edm::test::TestProcessor tester(config);
+    REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
+  }
+}
+
+TEST_CASE("Standard checks of PatFromScoutingPhotonProducer", s_tag) {
+  const std::string baseConfig{
+      R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("PatFromScoutingPhotonProducer",
+    src = cms.InputTag("hltScoutingEgammaPacker")
+)
+process.moduleToTest(process.toTest)
+)_"};
+
+  edm::test::TestProcessor::Config config{baseConfig};
+  SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+  SECTION("beginJob and endJob only") {
+    edm::test::TestProcessor tester(config);
+    REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
+  }
+}
+
+TEST_CASE("Standard checks of PatFromScoutingJetProducer", s_tag) {
+  const std::string baseConfig{
+      R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("PatFromScoutingJetProducer",
+    src = cms.InputTag("hltScoutingPFPacker")
+)
+process.moduleToTest(process.toTest)
+)_"};
+
+  edm::test::TestProcessor::Config config{baseConfig};
+  SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+  SECTION("beginJob and endJob only") {
+    edm::test::TestProcessor tester(config);
+    REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
+  }
+}
+
+TEST_CASE("Standard checks of Run3ScoutingVertexToRecoVertexProducer", s_tag) {
+  const std::string baseConfig{
+      R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("Run3ScoutingVertexToRecoVertexProducer",
+    src = cms.InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx")
+)
+process.moduleToTest(process.toTest)
+)_"};
+
+  edm::test::TestProcessor::Config config{baseConfig};
+  SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+  SECTION("beginJob and endJob only") {
+    edm::test::TestProcessor tester(config);
+    REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
+  }
+}
+
+TEST_CASE("Standard checks of Run3ScoutingMETProducer", s_tag) {
+  const std::string baseConfig{
+      R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("Run3ScoutingMETProducer",
+    src = cms.InputTag("hltScoutingPFPacker")
+)
+process.moduleToTest(process.toTest)
+)_"};
+
+  edm::test::TestProcessor::Config config{baseConfig};
+  SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+  SECTION("beginJob and endJob only") {
+    edm::test::TestProcessor tester(config);
+    REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
+  }
+}
