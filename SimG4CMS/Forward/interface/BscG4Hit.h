@@ -94,8 +94,8 @@ public:
 
   int getParentId() const { return theParentId; };
   int getProcessId() const { return theProcessId; };
-  int getProdType() const { return (theProcessId >> PSimHit::k_hitidShift_) & PSimHit::k_hitidMask_; }
-  void setHitProdType(unsigned int hitId) { theProcessId |= hitId << PSimHit::k_hitidShift_; }
+  int getProdType() const { return (theProcessId >> PSimHit::kHitidShift) & PSimHit::kHitidMask; }
+  void setHitProdType(unsigned int hitId) { theProcessId |= hitId << PSimHit::kHitidShift; }
   float getVx() const { return theVx; };
   float getVy() const { return theVy; };
   float getVz() const { return theVz; };

@@ -7,9 +7,9 @@ namespace SimHitCategory {
 
   // MTD
 
-  static constexpr unsigned int n_mtd_categories = 5;
+  static constexpr unsigned int nCategoriesMTD = 5;
 
-  static constexpr unsigned int mtd_prodType[n_mtd_categories] = {
+  static constexpr unsigned int prodTypeMTD[nCategoriesMTD] = {
       0,  // direct hit from particle coming from tracker
       1,  // BTL hit from secondary particle not saved in history
       2,  // BTL hit from identified looper
