@@ -144,7 +144,7 @@ protected:
   float theTof;  // Time Of Flight
   int theParticleType;
   unsigned short theProcessProdType;  // ID of the process which created the track
-                                  // which created the PSimHit
+                                      // which created the PSimHit
 
   // association
   unsigned int theDetUnitId;
@@ -152,7 +152,8 @@ protected:
   EncodedEventId theEventId;
 
   friend class TrackingSlaveSD;
-  friend class BscG4Hit;;
+  friend class BscG4Hit;
+  ;
 };
 
 std::ostream& operator<<(std::ostream& o, const PSimHit& hit);
