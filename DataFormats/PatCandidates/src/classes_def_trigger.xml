@@ -24,21 +24,21 @@
   <class name="std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt;::const_iterator" />
   <class name="edm::Wrapper&lt;std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt; &gt;" />
 
-  <class name="pat::TriggerObjectStandAlone"  ClassVersion="3">
-   <version ClassVersion="3" checksum="3324775075"/>
+  <class name="pat::io_v1::TriggerObjectStandAlone"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3330323749"/>
   </class>
-  <class name="std::vector&lt;pat::TriggerObjectStandAlone&gt;" />
-  <class name="std::vector&lt;pat::TriggerObjectStandAlone&gt;::const_iterator" />
-  <class name="edm::Wrapper&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt; &gt;" />
+  <class name="std::vector&lt;pat::io_v1::TriggerObjectStandAlone&gt;" />
+  <class name="std::vector&lt;pat::io_v1::TriggerObjectStandAlone&gt;::const_iterator" />
+  <class name="edm::Wrapper&lt;std::vector&lt;pat::io_v1::TriggerObjectStandAlone&gt; &gt;" />
   <class name="pat::TriggerObjectStandAloneRef" />
   <class name="pat::TriggerObjectStandAloneRefProd" />
   <class name="edm::Wrapper&lt;pat::TriggerObjectStandAloneRefProd&gt;" />
   <class name="pat::TriggerObjectStandAloneRefVector" />
   <class name="pat::TriggerObjectStandAloneRefVectorIterator" />
-  <class name="edm::Association&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt; &gt;" />
+  <class name="edm::Association&lt;std::vector&lt;pat::io_v1::TriggerObjectStandAlone&gt; &gt;" />
   <class name="edm::reftobase::Holder&lt;reco::io_v1::Candidate,pat::TriggerObjectStandAloneRef&gt;" />
   <class name="edm::reftobase::RefHolder&lt;pat::TriggerObjectStandAloneRef&gt;" />
-  <class name="edm::Wrapper&lt;edm::Association&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt; &gt; &gt;" />
+  <class name="edm::Wrapper&lt;edm::Association&lt;std::vector&lt;pat::io_v1::TriggerObjectStandAlone&gt; &gt; &gt;" />
 
   <class name="pat::TriggerFilter"  ClassVersion="10">
    <version ClassVersion="10" checksum="2906762000"/>
@@ -98,9 +98,8 @@
   </class>
   <class name="edm::Wrapper&lt;pat::TriggerEvent&gt;" />
 
-  <class name="pat::PackedTriggerPrescales"  ClassVersion="11">
-   <version ClassVersion="11" checksum="3391959050"/>
-   <version ClassVersion="10" checksum="2688342584"/>
+  <class name="pat::PackedTriggerPrescales"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3645169248"/>
    <field name="triggerNames_" transient="true" />
   </class>
   <ioread sourceClass="pat::PackedTriggerPrescales"  version="[1-]" targetClass="pat::PackedTriggerPrescales" source="" target="triggerNames_">
