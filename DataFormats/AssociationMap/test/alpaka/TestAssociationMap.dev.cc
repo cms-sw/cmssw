@@ -52,10 +52,10 @@ TEST_CASE("Construct and fill an association map") {
     auto device_associations = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, nvalues);
     alpaka::memcpy(queue, device_values, host_values);
     alpaka::memcpy(queue, device_associations, host_associations);
-    associator::fill_associator<Acc1D>(queue,
-                                       map.view(),
-                                       std::span<const uint32_t>{device_associations.data(), nvalues},
-                                       std::span<const uint32_t>{device_values.data(), nvalues});
+    ticl::associator::fill<Acc1D>(queue,
+                                  map.view(),
+                                  std::span<const uint32_t>{device_associations.data(), nvalues},
+                                  std::span<const uint32_t>{device_values.data(), nvalues});
     auto offsets = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nkeys + 1);
     auto values = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nvalues);
     alpaka::memcpy(queue,
