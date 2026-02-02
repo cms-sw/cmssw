@@ -15,9 +15,7 @@
   \version  $Id: TrackerIsolationPt.h,v 1.3 2008/02/28 14:54:24 llista Exp $
 */
 
-namespace reco {
-  class Track;
-}
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace edm {
   template <typename T>
