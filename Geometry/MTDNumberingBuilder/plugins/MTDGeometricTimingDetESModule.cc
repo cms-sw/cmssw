@@ -53,6 +53,7 @@ void MTDGeometricTimingDetESModule::fillDescriptions(edm::ConfigurationDescripti
   edm::ParameterSetDescription descDB;
   descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("fromDD4hep", false);
+  descriptions.addDefault(descDB);
   descriptions.add("mtdNumberingGeometryDB", descDB);
 
   edm::ParameterSetDescription desc;
