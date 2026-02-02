@@ -58,6 +58,7 @@ public:
       edm::ParameterSetDescription descRegion;
       descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
 
+      descriptions.addDefault(descRegion);
       descriptions.add("globalTrackingRegionFromBeamSpot", descRegion);
     }
 

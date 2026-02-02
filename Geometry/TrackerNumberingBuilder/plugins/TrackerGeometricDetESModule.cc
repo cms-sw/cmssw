@@ -53,6 +53,7 @@ void TrackerGeometricDetESModule::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription descDB;
   descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("fromDD4hep", false);
+  descriptions.addDefault(descDB);
   descriptions.add("trackerNumberingGeometryDB", descDB);
 
   edm::ParameterSetDescription desc;
