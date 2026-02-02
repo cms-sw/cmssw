@@ -5,7 +5,6 @@
 #include <vector>
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
 
 namespace l1tp2 {
 
@@ -14,42 +13,26 @@ namespace l1tp2 {
 
   class DigitizedCaloToCorrelatorTMI18 {
   private:
-    // Data
-    ap_uint<64> Card0Data[162] ;
-    ap_uint<64> Card1Data[162] ;
-    ap_uint<64> Card2Data[162] ;
+    // Data (to remove)
+    ap_uint<64> CardData[162];
 
-    GCTDigiClusterLink Card0Link;
-    GCTDigiClusterLink Card1Link;
-    GCTDigiClusterLink Card2Link;
+    GCTDigiClusterLink CardLink;
 
   public:
-
-    DigitizedCaloToCorrelatorTMI18() { 
-	    for (int i = 0; i < 162; i++) {
-		    Card0Data[i]=0;
-		    Card1Data[i]=0;
-		    Card2Data[i]=0;
-	    }
+    DigitizedCaloToCorrelatorTMI18() {
+      for (int i = 0; i < 162; i++) {
+        CardData[i] = 0;
+      }
     }
-    DigitizedCaloToCorrelatorTMI18(ap_uint<64> data0[162], ap_uint<64> data1[162], ap_uint<64> data2[162], GCTDigiClusterLink link0, GCTDigiClusterLink link1, GCTDigiClusterLink link2) { 
-	    for (int i = 0; i < 162; i++) {
-		    Card0Data[i]=data0[i];
-		    Card1Data[i]=data1[i];
-		    Card2Data[i]=data2[i];
-	    }
-	    Card0Link = link0;
-	    Card1Link = link1;
-	    Card2Link = link2;
+    DigitizedCaloToCorrelatorTMI18(ap_uint<64> data[162], GCTDigiClusterLink link) {
+      for (int i = 0; i < 162; i++) {
+        CardData[i] = data[i];
+      }
+      CardLink = link;
     }
 
-    const ap_uint<64>*  dataCard0() const { return Card0Data; }
-    const ap_uint<64>*  dataCard1() const { return Card1Data; }
-    const ap_uint<64>*  dataCard2() const { return Card2Data; }
-    const GCTDigiClusterLink& linkCard0() const { return Card0Link; }
-    const GCTDigiClusterLink& linkCard1() const { return Card1Link; }
-    const GCTDigiClusterLink& linkCard2() const { return Card2Link; } 
-
+    const ap_uint<64>* dataCard() const { return CardData; }
+    const GCTDigiClusterLink& linkCard() const { return CardLink; }
   };
 
   // Collection typedef

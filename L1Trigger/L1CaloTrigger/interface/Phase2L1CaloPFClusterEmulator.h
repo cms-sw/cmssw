@@ -31,19 +31,14 @@ namespace gctpf {
 
   typedef struct {
     float et;
-    int eta;
-    int phi;
-  } GCTpfcluster_t;
-
-  typedef struct {
-    GCTpfcluster_t GCTpfclusters[nPFClusterSLR];
-  } PFcluster_t;
-
-  typedef struct {
-    float et;
+    float ecal;
     int eta;
     int phi;
   } GCTint_t;
+
+  typedef struct {
+    GCTint_t GCTpfclusters[nPFClusterSLR];
+  } PFcluster_t;
 
   typedef struct {
     GCTint_t t[nTowerPhiSLR];
@@ -173,12 +168,13 @@ namespace gctpf {
     return max;
   }
 
-  inline Region_t initStructure(float temp[nTowerEtaSLR][nTowerPhiSLR]) {
+  inline Region_t initStructure(std::pair<float, float> temp[nTowerEtaSLR][nTowerPhiSLR]) {
     Region_t r;
 
     for (int i = 0; i < nTowerPhiSLR; i++) {
       for (int j = 0; j < nTowerEtaSLR; j++) {
-        r.s[j].t[i].et = temp[j][i];
+        r.s[j].t[i].et = temp[j][i].first;
+        r.s[j].t[i].ecal = temp[j][i].second;
         r.s[j].t[i].eta = j;
         r.s[j].t[i].phi = i;
       }
@@ -193,6 +189,7 @@ namespace gctpf {
     for (int i = 0; i < nHfPhi / 6; i++) {
       for (int j = 0; j < nHfEta; j++) {
         r.s[j].t[i].et = temp[j][i];
+        r.s[j].t[i].ecal = 0.;
         r.s[j].t[i].eta = j;
         r.s[j].t[i].phi = i;
       }
@@ -201,20 +198,23 @@ namespace gctpf {
     return r;
   }
 
-  inline float getEt(float temp[nTowerEtaSLR][nTowerPhiSLR], int eta, int phi) {
+  inline std::pair<float, float> getEt(std::pair<float, float> temp[nTowerEtaSLR][nTowerPhiSLR], int eta, int phi) {
     float et_sumEta[3] = {0., 0., 0.};
+    float ecal_sumEta[3] = {0., 0., 0.};
 
     for (int i = 0; i < (nTowerEtaSLR - 2); i++) {
       for (int j = 0; j < (nTowerPhiSLR - 2); j++) {
         if (i + 1 == eta && j + 1 == phi) {
           for (int k = 0; k < 3; k++) {
-            et_sumEta[k] = temp[i + k][j] + temp[i + k][j + 1] + temp[i + k][j + 2];
+            et_sumEta[k] = temp[i + k][j].first + temp[i + k][j + 1].first + temp[i + k][j + 2].first;
+            ecal_sumEta[k] = temp[i + k][j].second + temp[i + k][j + 1].second + temp[i + k][j + 2].second;
           }
         }
       }
     }
 
-    float pfcluster_et = et_sumEta[0] + et_sumEta[1] + et_sumEta[2];
+    std::pair<float, float> pfcluster_et =
+        std::make_pair(et_sumEta[0] + et_sumEta[1] + et_sumEta[2], ecal_sumEta[0] + ecal_sumEta[1] + ecal_sumEta[2]);
 
     return pfcluster_et;
   }
@@ -250,12 +250,12 @@ namespace gctpf {
     return pfcluster_et;
   }
 
-  inline void RemoveTmp(float temp[nTowerEtaSLR][nTowerPhiSLR], int eta, int phi) {
+  inline void RemoveTmp(std::pair<float, float> temp[nTowerEtaSLR][nTowerPhiSLR], int eta, int phi) {
     for (int i = 0; i < nTowerEtaSLR; i++) {
       if (i + 1 >= eta && i <= eta + 1) {
         for (int j = 0; j < nTowerPhiSLR; j++) {
           if (j + 1 >= phi && j <= phi + 1) {
-            temp[i][j] = 0;
+            temp[i][j] = std::make_pair(0., 0.);
           }
         }
       }
@@ -278,8 +278,10 @@ namespace gctpf {
     return;
   }
 
-  inline GCTpfcluster_t recoPfcluster(float temporary[nTowerEtaSLR][nTowerPhiSLR], int etaoffset, int phioffset) {
-    GCTpfcluster_t pfclusterReturn;
+  inline GCTint_t recoPfcluster(std::pair<float, float> temporary[nTowerEtaSLR][nTowerPhiSLR],
+                                int etaoffset,
+                                int phioffset) {
+    GCTint_t pfclusterReturn;
 
     Region_t region;
 
@@ -287,7 +289,7 @@ namespace gctpf {
 
     GCTint_t regionMax = getPeakPosition(region);
 
-    float pfcluster_et = getEt(temporary, regionMax.eta, regionMax.phi);
+    std::pair<float, float> pfcluster_et = getEt(temporary, regionMax.eta, regionMax.phi);
     float pfcluster_eta = regionMax.eta - 2 + etaoffset;
     float pfcluster_phi = regionMax.phi - 2 + phioffset;
 
@@ -295,20 +297,22 @@ namespace gctpf {
 
     if (!(regionMax.eta >= 2 && regionMax.eta < (nTowerEtaSLR - 2) && regionMax.phi >= 2 &&
           regionMax.phi < (nTowerPhiSLR - 2))) {
-      pfcluster_et = 0;   // set energy to be zero if maximum energy tower is not within the unique region
-      pfcluster_eta = 2;  // choose the default to be at one corner of the unique region
-      pfcluster_phi = 2;  // choose the default to be at one corner of the unique region
+      pfcluster_et =
+          std::make_pair(0., 0.);  // set energy to be zero if maximum energy tower is not within the unique region
+      pfcluster_eta = 2;           // choose the default to be at one corner of the unique region
+      pfcluster_phi = 2;           // choose the default to be at one corner of the unique region
     }
 
-    pfclusterReturn.et = pfcluster_et;
+    pfclusterReturn.et = pfcluster_et.first;
+    pfclusterReturn.ecal = pfcluster_et.second;
     pfclusterReturn.eta = pfcluster_eta;
     pfclusterReturn.phi = pfcluster_phi;
 
     return pfclusterReturn;
   }
 
-  inline GCTpfcluster_t recoPfclusterHF(float temporary[nHfEta][nHfPhi / 6], int etaoffset, int phioffset) {
-    GCTpfcluster_t pfclusterReturn;
+  inline GCTint_t recoPfclusterHF(float temporary[nHfEta][nHfPhi / 6], int etaoffset, int phioffset) {
+    GCTint_t pfclusterReturn;
 
     RegionHF_t region;
 
@@ -321,6 +325,7 @@ namespace gctpf {
     RemoveTmpHF(temporary, regionMax.eta, regionMax.phi);
 
     pfclusterReturn.et = pfcluster_et;
+    pfclusterReturn.ecal = 0.;
     pfclusterReturn.eta = regionMax.eta + etaoffset;
     pfclusterReturn.phi = regionMax.phi + phioffset;
     if (pfclusterReturn.phi < 0)
@@ -329,8 +334,10 @@ namespace gctpf {
     return pfclusterReturn;
   }
 
-  inline PFcluster_t pfcluster(float temporary[nTowerEtaSLR][nTowerPhiSLR], int etaoffset, int phioffset) {
-    GCTpfcluster_t pfcluster[nPFClusterSLR];
+  inline PFcluster_t pfcluster(std::pair<float, float> temporary[nTowerEtaSLR][nTowerPhiSLR],
+                               int etaoffset,
+                               int phioffset) {
+    GCTint_t pfcluster[nPFClusterSLR];
 
     for (int i = 0; i < nPFClusterSLR; i++) {
       pfcluster[i] = recoPfcluster(temporary, etaoffset, phioffset);
@@ -340,6 +347,7 @@ namespace gctpf {
 
     for (int i = 0; i < nPFClusterSLR; i++) {
       GCTPfclusters.GCTpfclusters[i].et = pfcluster[i].et;
+      GCTPfclusters.GCTpfclusters[i].ecal = pfcluster[i].ecal;
       GCTPfclusters.GCTpfclusters[i].eta = pfcluster[i].eta;
       GCTPfclusters.GCTpfclusters[i].phi = pfcluster[i].phi;
     }
@@ -348,7 +356,7 @@ namespace gctpf {
   }
 
   inline PFcluster_t pfclusterHF(float temporary[nHfEta][nHfPhi / 6], int etaoffset, int phioffset) {
-    GCTpfcluster_t pfcluster[nPFClusterSLR];
+    GCTint_t pfcluster[nPFClusterSLR];
 
     for (int i = 0; i < nPFClusterSLR; i++) {
       pfcluster[i] = recoPfclusterHF(temporary, etaoffset, phioffset);
