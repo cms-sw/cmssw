@@ -94,6 +94,7 @@ void TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescription
   descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("applyAlignment", true);
   descDB.add<std::string>("alignmentsLabel", "");
+  descriptions.addDefault(descDB);
   descriptions.add("trackerGeometryDB", descDB);
 
   edm::ParameterSetDescription desc;

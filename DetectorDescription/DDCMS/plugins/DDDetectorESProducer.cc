@@ -1,4 +1,4 @@
-// -*- C++ -*-
+/// -*- C++ -*-
 //
 // Package:    DetectorDescription/DDDetectorESProducer
 // Class:      DDDetectorESProducer
@@ -99,6 +99,7 @@ void DDDetectorESProducer::fillDescriptions(ConfigurationDescriptions& descripti
   desc.add<string>("rootDDName", "cms:OCMS");
   desc.add<string>("label", "");
   desc.add<bool>("fromDB", false);
+  descriptions.addDefault(desc);
   descriptions.add("DDDetectorESProducer", desc);
 
   edm::ParameterSetDescription descDB;
