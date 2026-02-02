@@ -165,7 +165,9 @@ The message will print
 | `nAlloc` | Number of memory allocations |
 | `nDealloc` | Number of memory deallocations |
 
-This service is multi-thread safe, and concurrent measurements can be done in different threads. The service is re-entrant, i.e. measurements in nested scopes or function calls can be done within one thread. In case of nested measurements the numbers for the outer scope exclude the numbers of the inner scope. For the inner scope measurement the message will contain the descriptions of all outer measurements separated by the semicolon (`;`).
+This service is multi-thread safe, and concurrent measurements can be done in different threads. The service is re-entrant, i.e. measurements in nested scopes or function calls can be done within one thread. In case of nested measurements the numbers for the outer scope exclude the numbers of the inner scope. For the inner scope measurement the message will contain the description strings of all outer measurements in a strack-trace-like format.
+
+Note that if an `std::string` is passed to `startMeasurement()`, the memory allocations from the string formatting will be accounted by a possible outer scope measurements. In that case the measurement printout of the outer scope will denote that along with the minimum amount of allocated memory and the number of allocations for the strings, but generally the numbers can not be obtained precisely. Therefore it is recommended to use `std::string` overload only when really necessary.
 
 Allocations done in different thread where the `startMeasurement()` is called are not recorded. Measurements started in one thread and ended in different thread are not supported.
 

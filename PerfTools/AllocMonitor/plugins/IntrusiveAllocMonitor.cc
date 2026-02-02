@@ -19,9 +19,16 @@ namespace {
   class MonitorStackNode {
   public:
     MonitorStackNode(std::string_view name,
+                     bool nameIsString,
                      ThreadAllocInfo const& previousInfo,
                      std::unique_ptr<MonitorStackNode> previousNode)
-        : name_(name), previousInfo_(previousInfo), previousNode_(std::move(previousNode)) {}
+        : name_(name), previousInfo_(previousInfo), previousNode_(std::move(previousNode)) {
+      if (nameIsString and previousNode_) {
+        auto& n = previousNode_->nestedNameSizes_;
+        n.sum_ += name.size();
+        n.count_ += 1;
+      }
+    }
     MonitorStackNode(MonitorStackNode const&) = delete;
     MonitorStackNode& operator=(MonitorStackNode const&) = delete;
     MonitorStackNode(MonitorStackNode&&) = delete;
@@ -33,10 +40,17 @@ namespace {
     ThreadAllocInfo const& previousAllocInfo() const { return previousInfo_; }
     MonitorStackNode const* previousNode() const { return previousNode_.get(); }
 
+    struct NestedNameSizes {
+      size_t sum_ = 0;
+      size_t count_ = 0;
+    };
+    NestedNameSizes const& nestedNameSizes() const { return nestedNameSizes_; }
+
     std::unique_ptr<MonitorStackNode> popPreviousNode() { return std::move(previousNode_); }
 
   private:
     std::string_view name_;
+    NestedNameSizes nestedNameSizes_;
     ThreadAllocInfo previousInfo_;
     std::unique_ptr<MonitorStackNode> previousNode_;
   };
@@ -70,13 +84,13 @@ namespace {
 
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
-    static void startOnThread(std::string_view name) {
+    static void startOnThread(std::string_view name, bool nameIsString) {
       auto& t = threadAllocInfo();
       // deactivate before allocating the MonitorStackNode
       // keep the previous measurement deactivated until the guard activates it again in ~PreviousStateRestoreGuard
       t.deactivate();
       // push a node to the top of the MonitorStackNode list
-      auto node = std::make_unique<MonitorStackNode>(name, t, std::move(currentMonitorStackNode()));
+      auto node = std::make_unique<MonitorStackNode>(name, nameIsString, t, std::move(currentMonitorStackNode()));
       currentMonitorStackNode() = std::move(node);
       t.reset();
     }
@@ -135,35 +149,35 @@ public:
   };
   ~IntrusiveAllocMonitor() noexcept override = default;
 
-  void start(std::string_view name) final { MonitorAdaptor::startOnThread(name); }
+  void start(std::string_view name, bool nameIsString) final { MonitorAdaptor::startOnThread(name, nameIsString); }
   void stop() noexcept final {
     // If an exception is thrown here, can't do much more than ignore it
     CMS_SA_ALLOW try {
       auto guard = MonitorAdaptor::stopOnThread();
-      // The pauseGuard keeps the monitoring paused during the all string operations below
-      std::string name;
-      {
-        // concatenate the names of the call stack backwards
-        MonitorStackNode const* node = guard.currentNode();
-        while (node != nullptr) {
-          name = std::format("{};{}", node->name(), name);
-          node = node->previousNode();
-        }
-        // remove the trailing semicolon
-        if (not name.empty()) {
-          name.pop_back();
-        }
-      }
+      // The guard keeps the monitoring paused during the all string operations below
+      edm::LogSystem log("IntrusiveAllocMonitor");
       auto const& info = guard.currentAllocInfo();
-      edm::LogSystem("IntrusiveAllocMonitor")
-          .format("{}: requested {} added {} max alloc {} peak {} nAlloc {} nDealloc {}",
-                  name,
-                  info.requested_,
-                  info.presentActual_,
-                  info.maxSingleAlloc_,
-                  info.maxActual_,
-                  info.nAllocations_,
-                  info.nDeallocations_);
+      log.format("measured: requested {} added {} max alloc {} peak {} nAlloc {} nDealloc {}",
+                 info.requested_,
+                 info.presentActual_,
+                 info.maxSingleAlloc_,
+                 info.maxActual_,
+                 info.nAllocations_,
+                 info.nDeallocations_);
+
+      MonitorStackNode const* node = guard.currentNode();
+      int depth = 0;
+      while (node != nullptr) {
+        log.format("\n[{}] {}", depth, node->name());
+        node = node->previousNode();
+        ++depth;
+      }
+      auto const& nestedNames = guard.currentNode()->nestedNameSizes();
+      if (nestedNames.count_ > 0) {
+        log.format("\nThis includes at least {} bytes in {} allocations from string names in nested measurements",
+                   nestedNames.sum_,
+                   nestedNames.count_);
+      }
     } catch (...) {
     }
   }

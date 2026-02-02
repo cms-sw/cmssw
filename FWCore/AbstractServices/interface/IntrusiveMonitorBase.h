@@ -26,7 +26,7 @@ namespace edm {
     Guard<std::string> startMonitoring(T&& name);
 
   private:
-    virtual void start(std::string_view name) = 0;
+    virtual void start(std::string_view name, bool nameIsString) = 0;
     virtual void stop() noexcept = 0;
   };
 
@@ -34,7 +34,7 @@ namespace edm {
   class IntrusiveMonitorBase::Guard<std::string> {
   public:
     Guard(IntrusiveMonitorBase& mon, std::string name) : monitor_(mon), name_(std::move(name)) {
-      monitor_.start(name_);
+      monitor_.start(name_, true);
     }
     Guard(Guard const&) = delete;
     Guard& operator=(Guard const&) = delete;
@@ -52,7 +52,7 @@ namespace edm {
   template <>
   class IntrusiveMonitorBase::Guard<std::string_view> {
   public:
-    Guard(IntrusiveMonitorBase& mon, std::string_view name) : monitor_(mon) { monitor_.start(name); }
+    Guard(IntrusiveMonitorBase& mon, std::string_view name) : monitor_(mon) { monitor_.start(name, false); }
     Guard(Guard const&) = delete;
     Guard& operator=(Guard const&) = delete;
     Guard(Guard&&) = delete;
