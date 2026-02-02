@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef DataFormats_AssociationMap_interface_FillAssociator_alpaka_h
+#define DataFormats_AssociationMap_interface_FillAssociator_alpaka_h
 
 #include "DataFormats/AssociationMap/interface/AssociationMap.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
@@ -81,5 +82,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
     }  // namespace detail
-  }  // namespace associator
+  }    // namespace associator
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+#endif
