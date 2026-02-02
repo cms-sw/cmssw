@@ -10,43 +10,87 @@
 
 namespace {
   using namespace edm::service::moduleAlloc;
-  class MonitorPauseGuard {
+
+  /**
+   * These objects form a linked list of nested uses
+   * IntrusiveAllocMonitor measurements.
+   */
+  class MonitorStackNode {
   public:
-    MonitorPauseGuard(ThreadAllocInfo& info) : info_(info) {}
-    ~MonitorPauseGuard() { info_.activate(); }
+    MonitorStackNode(std::string_view name,
+                     ThreadAllocInfo const& previousInfo,
+                     std::unique_ptr<MonitorStackNode> previousNode)
+        : name_(name), previousInfo_(previousInfo), previousNode_(std::move(previousNode)) {}
+    MonitorStackNode(MonitorStackNode const&) = delete;
+    MonitorStackNode& operator=(MonitorStackNode const&) = delete;
+    MonitorStackNode(MonitorStackNode&&) = delete;
+    MonitorStackNode& operator=(MonitorStackNode&&) = delete;
+
+    std::string_view name() const { return name_; }
+    ThreadAllocInfo const& previousAllocInfo() const { return previousInfo_; }
+    MonitorStackNode const* previousNode() const { return previousNode_.get(); }
+
+    std::unique_ptr<MonitorStackNode> popPreviousNode() { return std::move(previousNode_); }
 
   private:
+    std::string_view name_;
+    ThreadAllocInfo previousInfo_;
+    std::unique_ptr<MonitorStackNode> previousNode_;
+  };
+  std::unique_ptr<MonitorStackNode>& currentMonitorStackNode() {
+    static thread_local std::unique_ptr<MonitorStackNode> ptr;
+    return ptr;
+  }
+
+  class PreviousStateRestoreGuard {
+  public:
+    PreviousStateRestoreGuard(std::unique_ptr<MonitorStackNode> node, ThreadAllocInfo& info)
+        : currentNode_(std::move(node)), info_(info) {}
+    ~PreviousStateRestoreGuard() {
+      currentMonitorStackNode() = currentNode_->popPreviousNode();
+      info_ = currentNode_->previousAllocInfo();
+      assert(not info_.active_);
+
+      // deallocate outside of measurement
+      currentNode_.reset();
+
+      info_.activate();
+    }
+
+    ThreadAllocInfo const& currentAllocInfo() const { return info_; }
+    MonitorStackNode const* currentNode() const { return currentNode_.get(); }
+
+  private:
+    std::unique_ptr<MonitorStackNode> currentNode_;
     ThreadAllocInfo& info_;
   };
 
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
-    static std::any startOnThread() {
+    static void startOnThread(std::string_view name) {
       auto& t = threadAllocInfo();
-      // deactivate before creating the std::any
-      // keep deactivated until the guard activates it again in ~MonitorPauseGuard
+      // deactivate before allocating the MonitorStackNode
+      // keep the previous measurement deactivated until the guard activates it again in ~PreviousStateRestoreGuard
       t.deactivate();
-      std::any previous = t;
-      threadAllocInfo().reset();
-      return previous;
+      // push a node to the top of the MonitorStackNode list
+      auto node = std::make_unique<MonitorStackNode>(name, t, std::move(currentMonitorStackNode()));
+      currentMonitorStackNode() = std::move(node);
+      t.reset();
     }
-    static std::pair<ThreadAllocInfo, MonitorPauseGuard> stopOnThread(std::any previous) {
+    static PreviousStateRestoreGuard stopOnThread() {
       auto& t = threadAllocInfo();
       t.deactivate();
-      // restore state before the current measurement to allow nested measurements
-      auto measured = t;
-      t = std::any_cast<ThreadAllocInfo>(previous);
-      assert(not t.active_);
-      return {measured, t};
+      // pop the top node from the MonitorStackNode list
+      return {std::move(currentMonitorStackNode()), t};
     }
 
+  private:
     static ThreadAllocInfo& threadAllocInfo() {
       using namespace cms::perftools::allocMon;
       static ThreadAllocInfo s_info[ThreadTracker::kTotalEntries];
       return s_info[ThreadTracker::instance().thread_index()];
     }
 
-  private:
     void allocCalled(size_t iRequested, size_t iActual, void const*) final {
       auto& allocInfo = threadAllocInfo();
       if (not allocInfo.active_) {
@@ -88,14 +132,14 @@ public:
   };
   ~IntrusiveAllocMonitor() override = default;
 
-  std::any start() final { return MonitorAdaptor::startOnThread(); }
-  void stop(edm::IntrusiveMonitorStackNode const* callStack, std::any previousAllocInfo) final {
-    auto [info, pauseGuard] = MonitorAdaptor::stopOnThread(std::move(previousAllocInfo));
+  void start(std::string_view name) final { MonitorAdaptor::startOnThread(name); }
+  void stop() final {
+    auto guard = MonitorAdaptor::stopOnThread();
     // The pauseGuard keeps the monitoring paused during the all string operations below
     std::string name;
     {
       // concatenate the names of the call stack backwards
-      edm::IntrusiveMonitorStackNode const* node = callStack;
+      MonitorStackNode const* node = guard.currentNode();
       while (node != nullptr) {
         name = std::format("{};{}", node->name(), name);
         node = node->previousNode();
@@ -105,6 +149,7 @@ public:
         name.pop_back();
       }
     }
+    auto const& info = guard.currentAllocInfo();
     edm::LogSystem("IntrusiveAllocMonitor")
         .format("{}: requested {} added {} max alloc {} peak {} nAlloc {} nDealloc {}",
                 name,
