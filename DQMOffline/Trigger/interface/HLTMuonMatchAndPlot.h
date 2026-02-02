@@ -75,15 +75,26 @@ public:
   template <class T>
   void fillMapFromPSet(std::map<std::string, T> &, const edm::ParameterSet &, const std::string &);
   template <class T1, class T2>
-  std::vector<size_t> matchByDeltaR(const std::vector<T1> &, const std::vector<T2> &, const double maxDeltaR = NOMATCH);
+  std::vector<size_t> matchByDeltaR(const std::vector<T1> &, const std::vector<T2> &, const double maxDeltaR = NOMATCH, bool isTnPAnalyzer = false);
 
 private:
   // Internal Methods
   void book1D(DQMStore::IBooker &, std::string, const std::string &, std::string);
   void book2D(DQMStore::IBooker &, const std::string &, const std::string &, const std::string &, const std::string &);
-  reco::MuonCollection selectedMuons(const reco::MuonCollection &, const reco::BeamSpot &, bool);
+  reco::MuonCollection selectedMuons(const reco::MuonCollection &, const reco::BeamSpot &, bool, bool);
   trigger::TriggerObjectCollection selectedTriggerObjects(const trigger::TriggerObjectCollection &,
-                                                          const trigger::TriggerEvent &);
+                                                          const trigger::TriggerEvent &) const;
+
+  // Tag and Probe helper functions
+  bool isTagMuon(const reco::Muon& muon, const reco::BeamSpot& beamSpot, const reco::VertexCollection& vertices,
+                 const trigger::TriggerEvent& triggerSummary, const edm::TriggerResults& triggerResults,
+                 const edm::TriggerNames& trigNames) const;
+  bool isProbeMuon(const reco::Muon& muon, const reco::VertexCollection& vertices) const;
+  bool isTightMuonID(const reco::Muon& muon, const reco::VertexCollection& vertices) const;
+  bool isTightPFIsolation(const reco::Muon& muon) const;
+  bool passTriggerMatching(const reco::Muon& muon, const trigger::TriggerEvent& triggerSummary,
+                          const std::string& triggerPath, double deltaRCut = 0.1) const;
+  double calculateInvariantMass(const reco::Muon& muon1, const reco::Muon& muon2) const;
 
   // Input from Configuration File
   std::string hltProcessName_;
