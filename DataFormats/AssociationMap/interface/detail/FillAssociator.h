@@ -8,81 +8,77 @@
 #include <concepts>
 #include <span>
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  namespace associator {
-    namespace detail {
+namespace ticl::associator::detail {
 
-      struct KernelComputeAssociationSizes {
-        template <typename TAcc, std::integral TKey>
-        ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                      std::span<const TKey> keys,
-                                      uint32_t* keys_counts,
-                                      std::size_t size) const {
-          for (auto i : alpaka::uniformElements(acc, size)) {
-            alpaka::atomicAdd(acc, &keys_counts[keys[i]], 1u);
-          }
-        }
-      };
-
-      struct KernelFillAssociator {
-        template <typename TAcc, ticl::concepts::trivially_copyable TMapped, std::integral TKey>
-        ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                      ticl::AssociationMapView<TMapped, TKey> view,
-                                      std::span<const TKey> keys,
-                                      std::span<const TMapped> values,
-                                      TKey* temp_offsets) const {
-          for (auto i : alpaka::uniformElements(acc, values.size())) {
-            const auto key = keys[i];
-            const auto offset = alpaka::atomicAdd(acc, &temp_offsets[key], 1u);
-            view.content().mapped_values()[offset] = values[i];
-          }
-        }
-      };
-
-      template <typename TAcc, typename TQueue, ticl::concepts::trivially_copyable TMapped, std::integral TKey>
-        requires alpaka::isQueue<TQueue> && alpaka::isAccelerator<TAcc>
-      ALPAKA_FN_HOST auto fill_associator(TQueue& queue,
-                                          ticl::AssociationMapView<TMapped, TKey>& map,
-                                          std::span<const TKey> keys,
-                                          std::span<const TMapped> values) {
-        using namespace ::cms::alpakatools;
-
-        const auto nkeys = map.metadata().size()[1];
-        const auto nvalues = map.metadata().size()[0];
-
-        auto dev = alpaka::getDev(queue);
-        const auto blocksize = 512;
-        const auto gridsize = divide_up_by(keys.size(), blocksize);
-        const auto workdiv = make_workdiv<TAcc>(gridsize, blocksize);
-        auto keys_counts = make_device_buffer<TKey[]>(dev, nkeys);
-        alpaka::memset(queue, keys_counts, 0);
-        alpaka::exec<TAcc>(queue, workdiv, KernelComputeAssociationSizes{}, keys, keys_counts.data(), nvalues);
-
-        // prepare for prefix scan
-        auto block_counter = make_device_buffer<int32_t>(queue);
-        alpaka::memset(queue, block_counter, 0);
-        auto temp_offsets = make_device_buffer<TKey[]>(queue, nkeys + 1);
-        alpaka::memset(queue, temp_offsets, 0);
-        const auto blocksize_multiblockscan = 1024;
-        auto gridsize_multiblockscan = divide_up_by(nkeys, blocksize_multiblockscan);
-        const auto workdiv_multiblockscan = make_workdiv<TAcc>(gridsize_multiblockscan, blocksize_multiblockscan);
-        auto warp_size = alpaka::getPreferredWarpSize(dev);
-        alpaka::exec<TAcc>(queue,
-                           workdiv_multiblockscan,
-                           multiBlockPrefixScan<uint32_t>{},
-                           keys_counts.data(),
-                           temp_offsets.data() + 1,
-                           nkeys,
-                           gridsize_multiblockscan,
-                           block_counter.data(),
-                           warp_size);
-
-        alpaka::memcpy(queue, make_device_view(dev, map.offsets().keys_offsets().data(), nkeys + 1), temp_offsets);
-        alpaka::exec<TAcc>(queue, workdiv, KernelFillAssociator{}, map, keys, values, temp_offsets.data());
+  struct KernelComputeAssociationSizes {
+    template <typename TAcc, std::integral TKey>
+    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+                                  std::span<const TKey> keys,
+                                  uint32_t* keys_counts,
+                                  std::size_t size) const {
+      for (auto i : alpaka::uniformElements(acc, size)) {
+        alpaka::atomicAdd(acc, &keys_counts[keys[i]], 1u);
       }
+    }
+  };
 
-    }  // namespace detail
-  }    // namespace associator
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+  struct KernelFillAssociator {
+    template <typename TAcc, ticl::concepts::trivially_copyable TMapped, std::integral TKey>
+    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+                                  ticl::AssociationMapView<TMapped, TKey> view,
+                                  std::span<const TKey> keys,
+                                  std::span<const TMapped> values,
+                                  TKey* temp_offsets) const {
+      for (auto i : alpaka::uniformElements(acc, values.size())) {
+        const auto key = keys[i];
+        const auto offset = alpaka::atomicAdd(acc, &temp_offsets[key], 1u);
+        view.content().mapped_values()[offset] = values[i];
+      }
+    }
+  };
+
+  template <typename TAcc, typename TQueue, ticl::concepts::trivially_copyable TMapped, std::integral TKey>
+    requires alpaka::isQueue<TQueue> && alpaka::isAccelerator<TAcc>
+  ALPAKA_FN_HOST auto fill(TQueue& queue,
+                           ticl::AssociationMapView<TMapped, TKey>& map,
+                           std::span<const TKey> keys,
+                           std::span<const TMapped> values) {
+    using namespace ::cms::alpakatools;
+
+    const auto nkeys = map.metadata().size()[1];
+    const auto nvalues = map.metadata().size()[0];
+
+    auto dev = alpaka::getDev(queue);
+    const auto blocksize = 512;
+    const auto gridsize = divide_up_by(keys.size(), blocksize);
+    const auto workdiv = make_workdiv<TAcc>(gridsize, blocksize);
+    auto keys_counts = make_device_buffer<TKey[]>(dev, nkeys);
+    alpaka::memset(queue, keys_counts, 0);
+    alpaka::exec<TAcc>(queue, workdiv, KernelComputeAssociationSizes{}, keys, keys_counts.data(), nvalues);
+
+    // prepare for prefix scan
+    auto block_counter = make_device_buffer<int32_t>(queue);
+    alpaka::memset(queue, block_counter, 0);
+    auto temp_offsets = make_device_buffer<TKey[]>(queue, nkeys + 1);
+    alpaka::memset(queue, temp_offsets, 0);
+    const auto blocksize_multiblockscan = 1024;
+    auto gridsize_multiblockscan = divide_up_by(nkeys, blocksize_multiblockscan);
+    const auto workdiv_multiblockscan = make_workdiv<TAcc>(gridsize_multiblockscan, blocksize_multiblockscan);
+    auto warp_size = alpaka::getPreferredWarpSize(dev);
+    alpaka::exec<TAcc>(queue,
+                       workdiv_multiblockscan,
+                       multiBlockPrefixScan<uint32_t>{},
+                       keys_counts.data(),
+                       temp_offsets.data() + 1,
+                       nkeys,
+                       gridsize_multiblockscan,
+                       block_counter.data(),
+                       warp_size);
+
+    alpaka::memcpy(queue, make_device_view(dev, map.offsets().keys_offsets().data(), nkeys + 1), temp_offsets);
+    alpaka::exec<TAcc>(queue, workdiv, KernelFillAssociator{}, map, keys, values, temp_offsets.data());
+  }
+
+}  // namespace ticl::associator::detail
 
 #endif
