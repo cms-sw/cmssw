@@ -12,7 +12,7 @@ namespace edm {
     IntrusiveMonitorBase& operator=(IntrusiveMonitorBase const&) = delete;
     IntrusiveMonitorBase(IntrusiveMonitorBase&&) = delete;
     IntrusiveMonitorBase& operator=(IntrusiveMonitorBase&&) = delete;
-    virtual ~IntrusiveMonitorBase();
+    virtual ~IntrusiveMonitorBase() noexcept;
 
     template <typename T>
     class Guard;
@@ -27,7 +27,7 @@ namespace edm {
 
   private:
     virtual void start(std::string_view name) = 0;
-    virtual void stop() = 0;
+    virtual void stop() noexcept = 0;
   };
 
   template <>
@@ -41,7 +41,7 @@ namespace edm {
     Guard(Guard&&) = delete;
     Guard& operator=(Guard&&) = delete;
 
-    ~Guard() { monitor_.stop(); }
+    ~Guard() noexcept { monitor_.stop(); }
 
   private:
     IntrusiveMonitorBase& monitor_;
@@ -58,7 +58,7 @@ namespace edm {
     Guard(Guard&&) = delete;
     Guard& operator=(Guard&&) = delete;
 
-    ~Guard() { monitor_.stop(); }
+    ~Guard() noexcept { monitor_.stop(); }
 
   private:
     IntrusiveMonitorBase& monitor_;

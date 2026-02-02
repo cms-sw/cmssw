@@ -1,6 +1,7 @@
 #include "FWCore/AbstractServices/interface/IntrusiveMonitorBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "PerfTools/AllocMonitor/interface/AllocMonitorBase.h"
 #include "PerfTools/AllocMonitor/interface/AllocMonitorRegistry.h"
@@ -26,6 +27,8 @@ namespace {
     MonitorStackNode(MonitorStackNode&&) = delete;
     MonitorStackNode& operator=(MonitorStackNode&&) = delete;
 
+    ~MonitorStackNode() noexcept = default;
+
     std::string_view name() const { return name_; }
     ThreadAllocInfo const& previousAllocInfo() const { return previousInfo_; }
     MonitorStackNode const* previousNode() const { return previousNode_.get(); }
@@ -46,7 +49,7 @@ namespace {
   public:
     PreviousStateRestoreGuard(std::unique_ptr<MonitorStackNode> node, ThreadAllocInfo& info)
         : currentNode_(std::move(node)), info_(info) {}
-    ~PreviousStateRestoreGuard() {
+    ~PreviousStateRestoreGuard() noexcept {
       currentMonitorStackNode() = currentNode_->popPreviousNode();
       info_ = currentNode_->previousAllocInfo();
       assert(not info_.active_);
@@ -130,35 +133,39 @@ public:
   IntrusiveAllocMonitor() {
     (void)cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
   };
-  ~IntrusiveAllocMonitor() override = default;
+  ~IntrusiveAllocMonitor() noexcept override = default;
 
   void start(std::string_view name) final { MonitorAdaptor::startOnThread(name); }
-  void stop() final {
-    auto guard = MonitorAdaptor::stopOnThread();
-    // The pauseGuard keeps the monitoring paused during the all string operations below
-    std::string name;
-    {
-      // concatenate the names of the call stack backwards
-      MonitorStackNode const* node = guard.currentNode();
-      while (node != nullptr) {
-        name = std::format("{};{}", node->name(), name);
-        node = node->previousNode();
+  void stop() noexcept final {
+    // If an exception is thrown here, can't do much more than ignore it
+    CMS_SA_ALLOW try {
+      auto guard = MonitorAdaptor::stopOnThread();
+      // The pauseGuard keeps the monitoring paused during the all string operations below
+      std::string name;
+      {
+        // concatenate the names of the call stack backwards
+        MonitorStackNode const* node = guard.currentNode();
+        while (node != nullptr) {
+          name = std::format("{};{}", node->name(), name);
+          node = node->previousNode();
+        }
+        // remove the trailing semicolon
+        if (not name.empty()) {
+          name.pop_back();
+        }
       }
-      // remove the trailing semicolon
-      if (not name.empty()) {
-        name.pop_back();
-      }
+      auto const& info = guard.currentAllocInfo();
+      edm::LogSystem("IntrusiveAllocMonitor")
+          .format("{}: requested {} added {} max alloc {} peak {} nAlloc {} nDealloc {}",
+                  name,
+                  info.requested_,
+                  info.presentActual_,
+                  info.maxSingleAlloc_,
+                  info.maxActual_,
+                  info.nAllocations_,
+                  info.nDeallocations_);
+    } catch (...) {
     }
-    auto const& info = guard.currentAllocInfo();
-    edm::LogSystem("IntrusiveAllocMonitor")
-        .format("{}: requested {} added {} max alloc {} peak {} nAlloc {} nDealloc {}",
-                name,
-                info.requested_,
-                info.presentActual_,
-                info.maxSingleAlloc_,
-                info.maxActual_,
-                info.nAllocations_,
-                info.nDeallocations_);
   }
 };
 
