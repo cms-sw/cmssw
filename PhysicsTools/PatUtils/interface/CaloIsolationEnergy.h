@@ -30,7 +30,6 @@ namespace pat {
   class CaloIsolationEnergy {
   public:
     CaloIsolationEnergy();
-    virtual ~CaloIsolationEnergy();
 
     float calculate(const Electron& anElectron,
                     const std::vector<CaloTower>& theTowers,

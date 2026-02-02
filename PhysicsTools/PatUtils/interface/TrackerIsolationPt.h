@@ -29,7 +29,6 @@ namespace pat {
   class TrackerIsolationPt {
   public:
     TrackerIsolationPt();
-    virtual ~TrackerIsolationPt();
 
     float calculate(const Electron& theElectron,
                     const edm::View<reco::Track>& theTracks,
