@@ -85,14 +85,14 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet& pset, string hltPat
   }
   delete objArray;
 }
- 
+
 void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& iRun, const edm::EventSetup& iSetup) {
   TPRegexp suffixPtCut("Mu[0-9]+$");
 
   string baseDir = destination_;
   if (baseDir[baseDir.size() - 1] != '/')
     baseDir += '/';
-    
+
   string pathSansSuffix = hltPath_;
   if (hltPath_.rfind("_v") < hltPath_.length())
     pathSansSuffix = hltPath_.substr(0, hltPath_.rfind("_v"));
@@ -102,9 +102,9 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
   else
     iBooker.setCurrentFolder(baseDir + pathSansSuffix + "/" + moduleLabel_);
 
-   // Form is book1D(name, binningType, title) where 'binningType' is used
-   // to fetch the bin settings from binParams_.
- 
+  // Form is book1D(name, binningType, title) where 'binningType' is used
+  // to fetch the bin settings from binParams_.
+
   // Determine if this is a TnP analyzer instance or Global analyzer instance
   bool isTnPAnalyzer = (destination_.find("DistributionsTnP") != string::npos);
 
@@ -121,7 +121,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
       book1D(iBooker, "efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
       book1D(iBooker, "efficiencyNVertex_" + suffix, "NVertex", ";NVertex;");
     }
-    
+
     // Book TnP plots only if this IS a TnP analyzer
     if (isTnPAnalyzer) {
       book1D(iBooker, "efficiencyEtaTnP_" + suffix, "etaFine", ";#eta;");
@@ -140,7 +140,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
     if (!isLastFilter_)
       continue;  //this will be plotted only for the last filter
 
-    // Book Global plots only 
+    // Book Global plots only
     if (!isTnPAnalyzer) {
       book1D(iBooker, "efficiencyCharge_" + suffix, "charge", ";charge;");
       book1D(iBooker, "efficiencyZ0_" + suffix, "z0", ";z0;");
@@ -148,16 +148,15 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
     }
   }
 }
- 
+
 void HLTMuonMatchAndPlot::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
- 
+
 void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
-                                   Handle<BeamSpot>& beamSpot,
-                                   Handle<VertexCollection>& vertices,
-                                   Handle<TriggerEvent>& triggerSummary,
-                                   Handle<TriggerResults>& triggerResults,
-                                   const edm::TriggerNames& trigNames) {
- 
+                                  Handle<BeamSpot>& beamSpot,
+                                  Handle<VertexCollection>& vertices,
+                                  Handle<TriggerEvent>& triggerSummary,
+                                  Handle<TriggerResults>& triggerResults,
+                                  const edm::TriggerNames& trigNames) {
   // Determine if this is a TnP analyzer instance
   bool isTnPAnalyzer = (destination_.find("DistributionsTnP") != string::npos);
 
@@ -169,7 +168,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
 
     // Find the best trigger object matches for the targetMuons.
     vector<size_t> matches = matchByDeltaR(targetMuons, hltMuons, plotCuts_[triggerLevel_ + "DeltaR"], isTnPAnalyzer);
- 
+
     for (size_t i = 0; i < targetMuons.size(); i++) {
       Muon& muon = targetMuons[i];
 
@@ -204,7 +203,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
           }
         }
       }  // finish loop numerator / denominator...
- 
+
       if (!isLastFilter_)
         continue;
       // Fill plots for tag and probe
@@ -285,7 +284,8 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
         continue;
 
       for (size_t j = 0; j < targetMuons.size(); ++j) {
-        if (i == j) continue;
+        if (i == j)
+          continue;
 
         Muon& probeCandidate = targetMuons[j];
 
@@ -303,13 +303,14 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
           continue;
 
         double pTCutProbe = 0.;
-        if (hltPath_.find("Mu50") != string::npos || hltPath_.find("CascadeMu100") != string::npos || hltPath_.find("HighPtTkMu100") != string::npos)
+        if (hltPath_.find("Mu50") != string::npos || hltPath_.find("CascadeMu100") != string::npos ||
+            hltPath_.find("HighPtTkMu100") != string::npos)
           pTCutProbe = 52.;
         else if (hltPath_.find("Mu24") != string::npos)
           pTCutProbe = 26.;
         else if (hltPath_.find("Mu8") != string::npos)
           pTCutProbe = 10.;
-        
+
         // Find track of probe muon to fill the track-based information
         const Track* track = nullptr;
         if (probeCandidate.isTrackerMuon() || probeCandidate.isGlobalMuon())
@@ -323,7 +324,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
         if (probeCandidate.pt() > pTCutProbe) {
           hists_["efficiencyEtaTnP_" + denomSuffix]->Fill(probeCandidate.eta());
           hists_["efficiencyPhiTnP_" + denomSuffix]->Fill(probeCandidate.phi());
-          
+
           if (track) {
             hists_["efficiencyChargeTnP_" + denomSuffix]->Fill(probeCandidate.charge());
             hists_["efficiencyNVertexTnP_" + denomSuffix]->Fill(vertices->size());
@@ -332,9 +333,9 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
         }
 
         // Check if probe muon passes HLT
-        if (matches[j] == (size_t)(-1)) 
+        if (matches[j] == (size_t)(-1))
           continue;
-          
+
         // Fill numerator histograms
         std::string numerSuffix = "numer";
         hists_["efficiencyPtTnP_" + numerSuffix]->Fill(probeCandidate.pt());
@@ -352,27 +353,30 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
     }
   }
 }  // End analyze() method.
- 
+
 // Tag and Probe helper function implementations
 bool HLTMuonMatchAndPlot::isTightMuonID(const reco::Muon& muon, const reco::VertexCollection& vertices) const {
-  if (vertices.empty()) return false;
+  if (vertices.empty())
+    return false;
   const reco::Vertex& primaryVertex = vertices.front();
   return muon::isTightMuon(muon, primaryVertex);
 }
- 
+
 bool HLTMuonMatchAndPlot::isTightPFIsolation(const reco::Muon& muon) const {
   // Tight PF isolation
   const double isoCut = 0.15;
   reco::MuonPFIsolation pfIso = muon.pfIsolationR04();
-  double relativeIso = (pfIso.sumChargedHadronPt + 
-                      std::max(0.0, pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt)) / muon.pt();
+  double relativeIso =
+      (pfIso.sumChargedHadronPt + std::max(0.0, pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt)) /
+      muon.pt();
   return relativeIso < isoCut;
 }
 
 // Check if muon passes trigger matching (IsoMu24)
-bool HLTMuonMatchAndPlot::passTriggerMatching(const reco::Muon& muon, const trigger::TriggerEvent& triggerSummary,
-                                              const std::string& triggerPath, double deltaRCut) const {
-
+bool HLTMuonMatchAndPlot::passTriggerMatching(const reco::Muon& muon,
+                                              const trigger::TriggerEvent& triggerSummary,
+                                              const std::string& triggerPath,
+                                              double deltaRCut) const {
   trigger::TriggerObjectCollection allTriggerObjects = triggerSummary.getObjects();
   trigger::TriggerObjectCollection hltMuons;
 
@@ -387,7 +391,7 @@ bool HLTMuonMatchAndPlot::passTriggerMatching(const reco::Muon& muon, const trig
       }
     }
   }
- 
+
   // Check if muon matches any HLT muon object within deltaR cut
   for (const auto& hltMuon : hltMuons) {
     double dR = deltaR(muon.eta(), muon.phi(), hltMuon.eta(), hltMuon.phi());
@@ -395,39 +399,46 @@ bool HLTMuonMatchAndPlot::passTriggerMatching(const reco::Muon& muon, const trig
       return true;
     }
   }
-   
+
   return false;
 }
- 
-bool HLTMuonMatchAndPlot::isTagMuon(const reco::Muon& muon, const reco::BeamSpot& beamSpot, 
-                                  const reco::VertexCollection& vertices,
-                                  const trigger::TriggerEvent& triggerSummary, const edm::TriggerResults& triggerResults,
-                                  const edm::TriggerNames& trigNames) const {
+
+bool HLTMuonMatchAndPlot::isTagMuon(const reco::Muon& muon,
+                                    const reco::BeamSpot& beamSpot,
+                                    const reco::VertexCollection& vertices,
+                                    const trigger::TriggerEvent& triggerSummary,
+                                    const edm::TriggerResults& triggerResults,
+                                    const edm::TriggerNames& trigNames) const {
   // Tag muon selection criteria:
-  if (muon.pt() <= 27.0) return false;
-  if (!isTightMuonID(muon, vertices)) return false;
-  if (!isTightPFIsolation(muon)) return false;
-  if (!passTriggerMatching(muon, triggerSummary, "IsoMu24", 0.1)) return false;
+  if (muon.pt() <= 27.0)
+    return false;
+  if (!isTightMuonID(muon, vertices))
+    return false;
+  if (!isTightPFIsolation(muon))
+    return false;
+  if (!passTriggerMatching(muon, triggerSummary, "IsoMu24", 0.1))
+    return false;
 
-  return true;
- }
- 
-bool HLTMuonMatchAndPlot::isProbeMuon(const reco::Muon& muon, const reco::VertexCollection& vertices) const {
-
-  if (!isTightMuonID(muon, vertices)) return false;
-  
-  if (!isTightPFIsolation(muon)) return false;
-  
   return true;
 }
- 
+
+bool HLTMuonMatchAndPlot::isProbeMuon(const reco::Muon& muon, const reco::VertexCollection& vertices) const {
+  if (!isTightMuonID(muon, vertices))
+    return false;
+
+  if (!isTightPFIsolation(muon))
+    return false;
+
+  return true;
+}
+
 double HLTMuonMatchAndPlot::calculateInvariantMass(const reco::Muon& muon1, const reco::Muon& muon2) const {
-  math::XYZTLorentzVector p4_1 = muon1.p4();
-  math::XYZTLorentzVector p4_2 = muon2.p4();
+  const math::XYZTLorentzVector& p4_1 = muon1.p4();
+  const math::XYZTLorentzVector& p4_2 = muon2.p4();
   math::XYZTLorentzVector p4_total = p4_1 + p4_2;
   return p4_total.mass();
 }
- 
+
 // Method to fill binning parameters from a vector of doubles.
 bool HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<double>& binning) {
   if (binning.size() < 3) {
@@ -478,7 +489,7 @@ void HLTMuonMatchAndPlot::fillMapFromPSet(map<string, T>& m, const ParameterSet&
       m[*iter] = targetPset.getUntrackedParameter<T>(*iter);
   }
 }
- 
+
 // A generic method to find the best deltaR matches from 2 collections.
 template <class T1, class T2>
 vector<size_t> HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1>& collection1,
@@ -520,8 +531,7 @@ vector<size_t> HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1>& collection1,
     }
 
     return result;
-  }
-  else {
+  } else {
     const size_t n1 = collection1.size();
     const size_t n2 = collection2.size();
 
@@ -539,7 +549,6 @@ vector<size_t> HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1>& collection1,
   }
 }
 
- 
 MuonCollection HLTMuonMatchAndPlot::selectedMuons(const MuonCollection& allMuons,
                                                   const BeamSpot& beamSpot,
                                                   bool isTargetMuons,
@@ -566,8 +575,7 @@ MuonCollection HLTMuonMatchAndPlot::selectedMuons(const MuonCollection& allMuons
     }
 
     return reducedMuons;
-  }
-  else {
+  } else {
     MuonCollection reducedMuons;
     double RecoMuonEtaMax = isTargetMuons ? targetMuonEtaMax_ : probeMuonEtaMax_;
     for (auto const& mu : allMuons) {
@@ -578,7 +586,7 @@ MuonCollection HLTMuonMatchAndPlot::selectedMuons(const MuonCollection& allMuons
     return reducedMuons;
   }
 }
- 
+
 TriggerObjectCollection HLTMuonMatchAndPlot::selectedTriggerObjects(const TriggerObjectCollection& triggerObjects,
                                                                     const TriggerEvent& triggerSummary) const {
   InputTag filterTag(moduleLabel_, "", hltProcessName_);
@@ -596,7 +604,7 @@ TriggerObjectCollection HLTMuonMatchAndPlot::selectedTriggerObjects(const Trigge
 
   return selectedObjects;
 }
- 
+
 void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker& iBooker, string name, const string& binningType, string title) {
   /* Properly delete the array of floats that has been allocated on
   * the heap by fillEdges.  Avoid multiple copies and internal ROOT
@@ -615,12 +623,12 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker& iBooker, string name, const 
     delete[] edges;
   }
 }
- 
+
 void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
-                                const string& name,
-                                const string& binningTypeX,
-                                const string& binningTypeY,
-                                const string& title) {
+                                 const string& name,
+                                 const string& binningTypeX,
+                                 const string& binningTypeY,
+                                 const string& title) {
   /* Properly delete the arrays of floats that have been allocated on
   * the heap by fillEdges.  Avoid multiple copies and internal ROOT
   * clones by simply creating the histograms directly in the DQMStore
@@ -648,4 +656,3 @@ void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
     delete[] edgesY;
   }
 }
- 
