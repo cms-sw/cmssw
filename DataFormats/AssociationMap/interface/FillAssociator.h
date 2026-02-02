@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef DataFormats_AssociationMap_interface_FillAssociator_h
+#define DataFormats_AssociationMap_interface_FillAssociator_h
 
 #include "DataFormats/AssociationMap/interface/AssociationMap.h"
 #include "DataFormats/AssociationMap/interface/detail/FillAssociator.h"
@@ -23,3 +24,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   }  // namespace associator
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+#endif
