@@ -4,6 +4,8 @@
 
 #include "CondFormats/Serialization/interface/Equal.h"
 
+#added a line to test
+
 template <typename T>
 void same(const T &first, const T &second) {
   std::cout << "Same " << typeid(T).name() << std::endl;
