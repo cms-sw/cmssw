@@ -211,7 +211,8 @@ def main(opts):
             if not has_candidates:
                 print(f"Skipping candidates for {prefix}: no folder matching 'candidate' found under {dqm_base}")
                 return
-            ticlcand = [hgcalPlots.hgcalTICLCandPlotter]
+            candidate_labels = [n for n in discovered_subdirs if "candidate" in n.lower()]
+            ticlcand = [hgcalPlots.hgcalTICLCandPlotter(candidate_labels)]
             val.doPlots(ticlcand, plotterDrawArgs=drawArgs)
 
         plotDict = {
