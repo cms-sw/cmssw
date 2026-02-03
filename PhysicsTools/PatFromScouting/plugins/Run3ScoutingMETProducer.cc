@@ -5,10 +5,10 @@
 //
 /**\class Run3ScoutingMETProducer Run3ScoutingMETProducer.cc PhysicsTools/PatFromScouting/plugins/Run3ScoutingMETProducer.cc
 
- Description: Computes MET from Run3ScoutingParticle collection
+ Description: Creates pat::MET from scouting MET (pt, phi) stored in event
 
  Implementation:
-     Computes MET as negative vector sum of all PF candidates
+     Reads precomputed MET pt and phi from hltScoutingPFPacker and creates pat::MET
 */
 //
 // Original Author:  Dmytro Kovalskyi
@@ -28,7 +28,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingParticle.h"
 
 class Run3ScoutingMETProducer : public edm::stream::EDProducer<> {
 public:
@@ -40,41 +39,41 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  const edm::EDGetTokenT<Run3ScoutingParticleCollection> pfCandToken_;
+  const edm::EDGetTokenT<double> metPtToken_;
+  const edm::EDGetTokenT<double> metPhiToken_;
 };
 
 Run3ScoutingMETProducer::Run3ScoutingMETProducer(const edm::ParameterSet& iConfig)
-    : pfCandToken_(consumes<Run3ScoutingParticleCollection>(iConfig.getParameter<edm::InputTag>("src"))) {
+    : metPtToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("metPt"))),
+      metPhiToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("metPhi"))) {
   produces<pat::METCollection>();
 }
 
 void Run3ScoutingMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto patMETs = std::make_unique<pat::METCollection>();
 
-  const auto& pfCandidates = iEvent.get(pfCandToken_);
+  double metPt = iEvent.get(metPtToken_);
+  double metPhi = iEvent.get(metPhiToken_);
 
-  double sumPx = 0.0;
-  double sumPy = 0.0;
-  double sumEt = 0.0;
+  double metPx = metPt * std::cos(metPhi);
+  double metPy = metPt * std::sin(metPhi);
 
-  for (const auto& pfCand : pfCandidates) {
-    double px = pfCand.pt() * std::cos(pfCand.phi());
-    double py = pfCand.pt() * std::sin(pfCand.phi());
-
-    sumPx += px;
-    sumPy += py;
-    sumEt += pfCand.pt();
-  }
-
-  double metPx = -sumPx;
-  double metPy = -sumPy;
-  double metPt = std::sqrt(metPx * metPx + metPy * metPy);
+  // sumEt is not available in scouting, use metPt as approximation
+  double sumEt = metPt;
 
   reco::MET::LorentzVector p4(metPx, metPy, 0.0, metPt);
   reco::MET::Point vtx(0.0, 0.0, 0.0);
 
   reco::MET recoMET(sumEt, p4, vtx);
   pat::MET patMET(recoMET);
+
+  // Initialize MET corrections to make NanoAOD happy
+  // Using the same values since scouting MET is already the "raw" PF MET
+  patMET.setCorShift(metPx, metPy, sumEt, pat::MET::None);
+  patMET.setCorShift(metPx, metPy, sumEt, pat::MET::T1);
+  patMET.setCorShift(metPx, metPy, sumEt, pat::MET::Calo);
+  patMET.setCorShift(metPx, metPy, sumEt, pat::MET::Chs);
+  patMET.setCorShift(metPx, metPy, sumEt, pat::MET::Trk);
 
   patMETs->push_back(patMET);
 
@@ -83,7 +82,8 @@ void Run3ScoutingMETProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
 void Run3ScoutingMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("hltScoutingPFPacker"));
+  desc.add<edm::InputTag>("metPt", edm::InputTag("hltScoutingPFPacker", "pfMetPt"));
+  desc.add<edm::InputTag>("metPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
   descriptions.addWithDefaultLabel(desc);
 }
 
