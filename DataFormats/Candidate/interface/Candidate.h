@@ -17,6 +17,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
@@ -25,14 +26,7 @@ class OverlapChecker;
 namespace reco {
   class ShallowCloneCandidate;
   class ShallowClonePtrCandidate;
-
   namespace io_v1 {
-    class Track;
-  }
-  using Track = io_v1::Track;
-
-  namespace io_v1 {
-
     class Candidate {
     public:
       typedef size_t size_type;

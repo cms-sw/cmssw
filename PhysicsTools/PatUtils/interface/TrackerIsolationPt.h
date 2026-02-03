@@ -16,6 +16,8 @@
 */
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/PatCandidates/interface/ElectronFwd.h"
+#include "DataFormats/PatCandidates/interface/MuonFwd.h"
 
 namespace edm {
   template <typename T>
@@ -24,12 +26,9 @@ namespace edm {
 }  // namespace edm
 
 namespace pat {
-  class Electron;
-  class Muon;
   class TrackerIsolationPt {
   public:
     TrackerIsolationPt();
-    virtual ~TrackerIsolationPt();
 
     float calculate(const Electron& theElectron,
                     const edm::View<reco::Track>& theTracks,
