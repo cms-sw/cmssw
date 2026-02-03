@@ -43,7 +43,7 @@ namespace edm {
       return std::regex_replace(iIn, reAllSpaces, emptyString);
     }
     static std::regex const reWrapper("edm::Wrapper<(.*)>");
-    static std::regex const reVersion("::io_v[0-9]+::");
+    static std::regex const reVersion("io_v[0-9]+::");
     static std::regex const reString("std::basic_string<char>");
     static std::regex const reString2("std::string");
     static std::regex const reString3("std::basic_string<char,std::char_traits<char> >");
@@ -117,7 +117,7 @@ namespace edm {
       static std::regex const reArray("\\[\\]");
 
       std::string name = regex_replace(iIn, reWrapper, "$1");
-      name = regex_replace(name, reVersion, "::");
+      name = regex_replace(name, reVersion, "");
       name = regex_replace(name, rePointer, "ptr");
       name = regex_replace(name, reArray, "As");
       name = regex_replace(name, reAIKR, "");
