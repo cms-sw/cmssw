@@ -12,22 +12,25 @@ namespace edm {
     IntrusiveMonitorBase& operator=(IntrusiveMonitorBase const&) = delete;
     IntrusiveMonitorBase(IntrusiveMonitorBase&&) = delete;
     IntrusiveMonitorBase& operator=(IntrusiveMonitorBase&&) = delete;
-    virtual ~IntrusiveMonitorBase();
+    virtual ~IntrusiveMonitorBase() noexcept;
 
     template <typename T>
       requires std::is_same_v<T, std::string> or std::is_same_v<T, std::string_view>
     class Guard {
     public:
-      Guard(IntrusiveMonitorBase& mon, T name) : monitor_(mon), name_(std::move(name)) { monitor_.start(); }
+      Guard(IntrusiveMonitorBase& mon, T name) : monitor_(mon), name_(std::move(name)) {
+        monitor_.start(name_, std::is_same_v<T, std::string>);
+      }
       Guard(Guard const&) = delete;
       Guard& operator=(Guard const&) = delete;
       Guard(Guard&&) = delete;
       Guard& operator=(Guard&&) = delete;
 
-      ~Guard() { monitor_.stop(name_); }
+      ~Guard() noexcept { monitor_.stop(name_); }
 
     private:
       IntrusiveMonitorBase& monitor_;
+      // Especially with std::string the name_ must be kept alive until the monitor_.stop() call finishes
       T name_;
     };
 
@@ -42,8 +45,8 @@ namespace edm {
     }
 
   private:
-    virtual void start() = 0;
-    virtual void stop(std::string_view name) = 0;
+    virtual void start(std::string_view name, bool nameIsString) = 0;
+    virtual void stop(std::string_view name) noexcept = 0;
   };
 }  // namespace edm
 
