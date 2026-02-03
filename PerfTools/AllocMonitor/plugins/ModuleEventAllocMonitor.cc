@@ -210,7 +210,7 @@ class ModuleEventAllocMonitor {
 public:
   ModuleEventAllocMonitor(edm::ParameterSet const& iPS, edm::ActivityRegistry& iAR)
       : moduleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames")),
-        skippedNames_(iPS.getUntrackedParameter<std::vector<std::string>>("skippedModuleNames")),
+        skippedModuleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("skippedModuleNames")),
         nEventsToSkip_(iPS.getUntrackedParameter<unsigned int>("nEventsToSkip")),
         filter_(&moduleIDs_) {
     (void)cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
@@ -262,10 +262,10 @@ public:
         file->write(s.str());
       });
     }
-    if (not skippedNames_.empty()) {
+    if (not skippedModuleNames_.empty()) {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
-        auto found = std::find(skippedNames_.begin(), skippedNames_.end(), description.moduleLabel());
-        if (found != skippedNames_.end()) {
+        auto found = std::find(skippedModuleNames_.begin(), skippedModuleNames_.end(), description.moduleLabel());
+        if (found != skippedModuleNames_.end()) {
           moduleIDs_.erase(moduleIDs_.begin() + moduleIndex(description.id()));
           std::stringstream s;
           s << "# Skipping module " << description.moduleLabel() << " " << description.moduleName() << " "
@@ -456,7 +456,7 @@ private:
   std::vector<std::atomic<unsigned int>> streamNFinishedModules_;
   std::vector<std::atomic<unsigned int>> streamSync_;
   std::vector<std::string> moduleNames_;
-  std::vector<std::string> skippedNames_;
+  std::vector<std::string> skippedModuleNames_;
   std::vector<int> moduleIDs_;
   unsigned int nStreams_ = 0;
   unsigned int nModules_ = 0;
