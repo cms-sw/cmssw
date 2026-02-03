@@ -150,7 +150,7 @@ public:
   ~IntrusiveAllocMonitor() noexcept override = default;
 
   void start(std::string_view name, bool nameIsString) final { MonitorAdaptor::startOnThread(name, nameIsString); }
-  void stop() noexcept final {
+  void stop(std::string_view nameArg) noexcept final {
     // If an exception is thrown here, can't do much more than ignore it
     CMS_SA_ALLOW try {
       auto guard = MonitorAdaptor::stopOnThread();
@@ -166,6 +166,10 @@ public:
                  info.nDeallocations_);
 
       MonitorStackNode const* node = guard.currentNode();
+      if (node != nullptr) {
+        // sanity check
+        assert(nameArg == node->name());
+      }
       int depth = 0;
       while (node != nullptr) {
         log.format("\n[{}] {}", depth, node->name());
