@@ -1,8 +1,8 @@
 
-#ifndef DataFormats_AssociationMap_interface_FillAssociator_alpaka_h
-#define DataFormats_AssociationMap_interface_FillAssociator_alpaka_h
+#ifndef DataFormats_TICL_interface_detail_FillAssociator_h
+#define DataFormats_TICL_interface_detail_FillAssociator_h
 
-#include "DataFormats/AssociationMap/interface/AssociationMap.h"
+#include "DataFormats/TICL/interface/AssociationMap.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 #include <alpaka/alpaka.hpp>
 #include <concepts>

@@ -1,9 +1,9 @@
 
-#ifndef DataFormats_AssociationMap_interface_FillAssociator_h
-#define DataFormats_AssociationMap_interface_FillAssociator_h
+#ifndef DataFormats_TICL_interface_FillAssociator_h
+#define DataFormats_TICL_interface_FillAssociator_h
 
-#include "DataFormats/AssociationMap/interface/AssociationMap.h"
-#include "DataFormats/AssociationMap/interface/detail/FillAssociator.h"
+#include "DataFormats/TICL/interface/AssociationMap.h"
+#include "DataFormats/TICL/interface/detail/FillAssociator.h"
 #include <alpaka/alpaka.hpp>
 #include <span>
 

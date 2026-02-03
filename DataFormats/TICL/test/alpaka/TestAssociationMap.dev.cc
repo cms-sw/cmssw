@@ -1,8 +1,8 @@
 
 #include "DataFormats/Portable/interface/PortableCollection.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
-#include "DataFormats/AssociationMap/interface/AssociationMap.h"
-#include "DataFormats/AssociationMap/interface/FillAssociator.h"
+#include "DataFormats/TICL/interface/AssociationMap.h"
+#include "DataFormats/TICL/interface/FillAssociator.h"
 
 #include <alpaka/alpaka.hpp>
 #include <ranges>
