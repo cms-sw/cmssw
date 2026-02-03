@@ -46,6 +46,7 @@ namespace edm::service::moduleAlloc {
       active_ = true;
     }
 
+    void activate() { active_ = true; }
     void deactivate() { active_ = false; }
   };
 }  // namespace edm::service::moduleAlloc
