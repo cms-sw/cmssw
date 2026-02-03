@@ -21,9 +21,9 @@
   <!-- <test name="DiMuonVall" command="testingScripts/test_unitDiMuonV.sh"> COMMENT: reads old format file
     <flags PRE_TEST="validateAlignments"/>
   </test> -->
-  <test name="MTSall" command="testingScripts/test_unitMTS.sh">
+  <!-- <test name="MTSall" command="testingScripts/test_unitMTS.sh"> COMMENT: reads old format file
     <flags PRE_TEST="validateAlignments"/>
-  </test>  
+  </test>  -->
   <test name="PixBaryall" command="testingScripts/test_unitPixBary.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>

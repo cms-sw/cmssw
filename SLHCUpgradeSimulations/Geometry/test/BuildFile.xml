@@ -40,7 +40,7 @@
     <use name="RecoTracker/TransientTrackingRecHit"/>
   </library>
 
-  <test name="testPhase2PixelNtuple" command="phase2_digi_reco_pixelntuple.sh"/>
+  <!-- <test name="testPhase2PixelNtuple" command="phase2_digi_reco_pixelntuple.sh"/> COMMENT: reads old format file -->
 
   <test name="testPhase2SkimmedGeometry" command="phase2_skimmed_geometry.sh"/>
 
