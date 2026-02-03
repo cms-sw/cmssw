@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
@@ -38,7 +39,6 @@ private:
   std::vector<std::vector<l1ScoutingRun3::Muon>> orbitBuffer_;
   int nMuonsOrbit_;
 
-  bool debug_ = false;
   bool skipInterm_ = true;
   edm::InputTag srcInputTag;
   edm::EDGetToken rawToken;

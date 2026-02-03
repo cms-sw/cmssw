@@ -2,6 +2,7 @@
 <use name="EventFilter/Utilities"/>
 <use name="DataFormats/L1Scouting"/>
 <use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/NanoAOD"/>
 <export>
   <lib name="1"/>
 </export>
