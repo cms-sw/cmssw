@@ -15,14 +15,11 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/JetReco/interface/JetFwd.h"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
-namespace reco {
-  class Jet;
-  class MET;
-  class BeamSpot;
-}  // namespace reco
 
 class EwkElecDQM : public DQMOneEDAnalyzer<> {
 public:

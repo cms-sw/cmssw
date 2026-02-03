@@ -216,14 +216,13 @@ namespace mkfit {
       errorProp(n, 4, 4) = 1.f;
       errorProp(n, 5, 5) = 1.f;
     }
-    float zout[NN];
-    float zin[NN];
-    float ipt[NN];
-    float phiin[NN];
-    float theta[NN];
+    float zout[NN]{0.0f};
+    float zin[NN]{0.0f};
+    float ipt[NN]{0.0f};
+    float phiin[NN]{0.0f};
+    float theta[NN]{0.0f};
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      //initialize erroProp to identity matrix, except element 2,2 which is zero
+    for (int n = 0; n < N_proc; ++n) {
       zout[n] = msZ.constAt(n, 0, 0);
       zin[n] = inPar.constAt(n, 2, 0);
       ipt[n] = inPar.constAt(n, 3, 0);

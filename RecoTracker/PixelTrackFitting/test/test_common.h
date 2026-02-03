@@ -6,7 +6,7 @@
 #include <random>
 
 template <class C>
-__host__ __device__ void printIt(C* m) {
+void printIt(C* m) {
 #ifdef TEST_DEBUG
   printf("\nMatrix %dx%d\n", (int)m->rows(), (int)m->cols());
   for (u_int r = 0; r < m->rows(); ++r) {

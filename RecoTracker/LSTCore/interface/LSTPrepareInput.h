@@ -213,10 +213,9 @@ namespace lst {
       nPixelSeeds = n_max_pixel_segments_per_module;
     }
 
-    std::array<int, 2> const soa_sizes{{nHitsIT + nHitsOT, nPixelSeeds}};
-    LSTInputHostCollection lstInputHC(soa_sizes, queue);
+    LSTInputHostCollection lstInputHC(queue, nHitsIT + nHitsOT, nPixelSeeds);
 
-    auto hits = lstInputHC.view<HitsBaseSoA>();
+    auto hits = lstInputHC.view().hits();
     std::memcpy(hits.xs().data(), ph2_x.data(), nHitsOT * sizeof(float));
     std::memcpy(hits.ys().data(), ph2_y.data(), nHitsOT * sizeof(float));
     std::memcpy(hits.zs().data(), ph2_z.data(), nHitsOT * sizeof(float));
@@ -237,7 +236,7 @@ namespace lst {
 
     std::memcpy(hits.idxs().data(), hitIdxs.data(), (nHitsIT + nHitsOT) * sizeof(unsigned int));
 
-    auto pixelSeeds = lstInputHC.view<PixelSeedsSoA>();
+    auto pixelSeeds = lstInputHC.view().pixelSeeds();
     std::memcpy(pixelSeeds.hitIndices().data(), hitIndices_vec.data(), nPixelSeeds * sizeof(Params_pLS::ArrayUxHits));
     std::memcpy(pixelSeeds.deltaPhi().data(), deltaPhi_vec.data(), nPixelSeeds * sizeof(float));
     std::memcpy(pixelSeeds.ptIn().data(), ptIn_vec.data(), nPixelSeeds * sizeof(float));

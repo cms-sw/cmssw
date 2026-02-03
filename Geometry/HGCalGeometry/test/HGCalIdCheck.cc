@@ -59,6 +59,7 @@ public:
 private:
   const std::string nameDetector_;
   const std::string fileName_, outFileName_;
+  const int mode_, cog_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcal_;
   const DetId::Detector dets_;
   std::vector<DetId> detIds_;
@@ -68,10 +69,13 @@ HGCalIdCheck::HGCalIdCheck(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
       fileName_(iC.getParameter<std::string>("fileName")),
       outFileName_(iC.getParameter<std::string>("outFileName")),
+      mode_(iC.getParameter<int>("mode")),
+      cog_(iC.getParameter<int>("cog")),
       tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})},
       dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
-  edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetector_ << " with inputs from " << fileName_;
+  edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetector_ << " with inputs from " << fileName_
+                              << " and mode " << mode_ << " cog " << cog_;
 
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("Geometry/HGCalGeometry/data/" + fileName_);
@@ -112,6 +116,8 @@ void HGCalIdCheck::fillDescriptions(edm::ConfigurationDescriptions &descriptions
   desc.add<std::string>("nameDetector", "HGCalHESiliconSensitive");
   desc.add<std::string>("fileName", "D120E.txt");
   desc.add<std::string>("outFileName", "");
+  desc.add<int>("mode", 1);
+  desc.add<int>("cog", 0);
   descriptions.add("hgcalIdCheck", desc);
 }
 
@@ -133,13 +139,15 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       detIds_ = geom->getValidDetIds(dets_);
       edm::LogVerbatim("HGCGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
     }
+    int cog = cog_/10;
+    cog = 10 * cog;
     for (unsigned int k = 0; k < detIds_.size(); ++k) {
       std::ostringstream st1;
       HGCSiliconDetId id(detIds_[k]);
-      GlobalPoint xy = geom->getPosition(id, true);
+      GlobalPoint xy = geom->getPosition(id, cog);
       bool valid = geom->topology().valid(id);
       DetId idx = geom->getClosestCell(xy, true);
-      GlobalPoint cell = geom->getPosition(idx, true);
+      GlobalPoint cell = geom->getPosition(idx, cog_);
       std::string ok = (id.rawId() == idx.rawId()) ? "OK" : "ERROR";
       st1 << "Old: " << id << " Valid " << valid << " New: " << HGCSiliconDetId(idx) << " === " << ok << " at " << xy;
       HGCSiliconDetId idn(idx);
@@ -150,7 +158,16 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
                                   << ", " << cell.z() << ") " << c1 << " " << c2 << " " << c3;
       if ((!outFileName_.empty()) && (id.rawId() != idx.rawId())) {
         ++bad;
-        fout << id.rawId() << " " << c1 << " " << c2 << " " << c3 << std::endl;
+        if (mode_ > 0) {
+          HGCalParameters::waferInfo info =
+              geom->topology().dddConstants().waferInfo(id.layer(), id.waferU(), id.waferV());
+          fout << id.rawId() << " z " << id.zside() << " Layer " << id.layer() << " Wafer " << id.waferU() << ":"
+               << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " " << HGCalTypes::waferTypeX(info.type)
+               << ":" << info.part << ":" << HGCalTypes::waferTypeX(info.part) << ":" << info.orient << ":"
+               << info.cassette << " " << c1 << " " << c2 << " " << c3 << std::endl;
+        } else {
+          fout << id.rawId() << " " << c1 << " " << c2 << " " << c3 << std::endl;
+        }
       }
     }
     if (!outFileName_.empty()) {

@@ -138,6 +138,7 @@ This service is multi-thread safe.
 
 This service registers a monitor when the service is created (after python parsing is finished, but before any modules have been loaded into cmsRun). The user can then start the monitoring in their code as shown in the example below. The monitoring stops, in an RAII fashion, at the end of the scope and the results of the memory operations are printed with the [MessageLogger](../../FWCore/MessageService/Readme.md) with an `IntrusiveAllocMonitor` message category.
 
+Example how to use the `IntrusiveAllocMonitor` in C++ code
 ```cpp
 #include "FWCore/AbstractServices/interface/IntrusiveMonitorBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -146,7 +147,7 @@ This service registers a monitor when the service is created (after python parsi
 void someFunction() {
   {
     edm::Service<IntrusiveMonitorBase> monitor;
-    auto guard = monitor.startMeasurement("Measurement description");
+    auto guard = monitor->startMonitoring("Measurement description");
 
     // more code doing memory allocations
   }
@@ -174,4 +175,13 @@ This service registers a monitor when the service is created and will abort the 
 - `maxThreshold` : the maximum number of bytes an allocation request must stay below (or equal) before an abort might be triggered. A value of `0` means there is no such limit.
 - `skipCount` : the number of times allocations have satisfied the `minThreshold` to `maxThreshold` range before the next time will trigger an abort. A value of `0` will trigger the first time the range is met.
 
-This service is multi-thread safe although it may not yeild consistent results if multiple thread reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.
+This service is multi-thread safe although it may not yield consistent results if multiple threads reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.
+
+### PresentThresholdAbortAllocMonitor
+
+This service registers a monitor when the service is created and will abort the job (which will normally trigger a stack trace) if the actual presently allocated memory would grow above a threshold for a specified number of times. The service accepts the following parameters
+
+- `threshold` : the number of bytes the actual presently allocated memory must reach before an abort might be triggered.
+- `skipCount` : the number of times the `threshold` condition is crossed  before the next time will trigger an abort. A value of `0` will trigger the first time the `threshold` is met.
+
+This service is multi-thread safe although it may not yield consistent results if multiple threads reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.

@@ -1,13 +1,14 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun testHGCalIdCheck_cfg.py geometry=D120 detector=HGCalEESensitive
-#                                  fileIn=D120E fileOut=junk
+#                                  fileIn=D120E fileOut=junk mode=0 cog=10
 #
 #   Options for geometry D120, D122
-#           for fileIn D120E.txt, D122E.txt, WaferH120.txt, CellE120.txt,
-#                    CellH120.txt, ""
-#           for fileOut junk, ""
+#           for fileIn D120E.txt, D120H.txt D122E.txt, D122H.txt, ""
+#           for fileOut D120E.out, D120H.out, D122E.out, D122H.out, ""
 #           for detector HGCalEESensitive, HGCalHESiliconSensitive
+#           for outMode 0, 1
+#           for cog 0, 10
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -23,20 +24,30 @@ options.register('geometry',
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D120, D122")
 options.register('fileIn',
-                 "D120E",
+                 "D120E.txt",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D120E, D122E, WaferH120, CellE120, CellH120")
+                  "Input File name: D120E.txt, D120H.txt, D122E.txt, D122H.txt")
 options.register('fileOut',
                  "",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: '', 'D120E.txt', 'D120H.txt'")
+                  "Outout File name: D120E.out, D120H.out, D122E.out, D122H.out")
 options.register('detector',
                  "HGCalEESensitive",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: HGCalEESensitive, HGCalHESiliconSensitive")
+                  "detector name: HGCalEESensitive, HGCalHESiliconSensitive")
+options.register('outMode',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.float,
+                 "Output mode: 0, 1")
+options.register('cog',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.float,
+                 "Use of cell center: 0, 10")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -51,12 +62,16 @@ geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 detector = options.detector
 fileName = options.fileIn
 outFile  = options.fileOut
+outMode  = int(options.outMode)
+cog      = int(options.cog)
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
 print("Input file:    ", fileName)
 print("Output file:   ", outFile)
-print("Deector:       ", detector)
+print("Detector:      ", detector)
+print("OutMode:       ", outMode)
+print("COG:           ", cog)
 
 process = cms.Process('HGCIdCheck',ERA)
 
@@ -102,5 +117,7 @@ process.maxEvents = cms.untracked.PSet(
 process.hgcalIdCheck.nameDetector = detector
 process.hgcalIdCheck.fileName = fileName
 process.hgcalIdCheck.outFileName = outFile
+process.hgcalIdCheck.mode = outMode
+process.hgcalIdCheck.cog  = cog
 
 process.p1 = cms.Path(process.generator*process.hgcalIdCheck)

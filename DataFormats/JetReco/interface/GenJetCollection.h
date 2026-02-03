@@ -11,7 +11,6 @@
 #include "DataFormats/JetReco/interface/GenJet.h"  //INCLUDECHECKER:SKIP
 
 namespace reco {
-  class GenJet;
   /// collection of GenJet objects
   typedef std::vector<GenJet> GenJetCollection;
   /// edm references

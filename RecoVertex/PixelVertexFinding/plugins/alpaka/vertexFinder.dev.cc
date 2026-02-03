@@ -38,14 +38,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto const quality = tracks_view.quality();
 
         for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.nTracks())) {
-          [[maybe_unused]] auto nHits = reco::nHits(tracks_view, idx);
+          [[maybe_unused]] auto nHits = ::reco::nHits(tracks_view, idx);
           ALPAKA_ASSERT_ACC(nHits >= 3);
 
           // initialize the track data
           trkdata[idx].idv() = -1;
 
           // do not use triplets
-          if (reco::isTriplet(tracks_view, idx))
+          if (::reco::isTriplet(tracks_view, idx))
             continue;
 
           // use only "high purity" track
@@ -63,7 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // load the track data into the workspace
           auto it = alpaka::atomicAdd(acc, &ws.ntrks(), 1u, alpaka::hierarchy::Blocks{});
           ws[it].itrk() = idx;
-          ws[it].zt() = reco::zip(tracks_view, idx);
+          ws[it].zt() = ::reco::zip(tracks_view, idx);
           ws[it].ezt2() = tracks_view[idx].covariance()(14);
           ws[it].ptt2() = pt * pt;
         }
@@ -125,17 +125,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     template <typename TrackerTraits>
-    ZVertexSoACollection Producer<TrackerTraits>::makeAsync(
+    reco::ZVertexSoACollection Producer<TrackerTraits>::makeAsync(
         Queue& queue, ::reco::TrackSoAConstView const& tracks_view, int maxVertices, float ptMin, float ptMax) const {
 #ifdef PIXVERTEX_DEBUG_PRODUCE
       std::cout << "producing Vertices on GPU" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
       const auto maxTracks = tracks_view.metadata().size();
-      ZVertexSoACollection vertices({{maxVertices, maxTracks}}, queue);
-      auto data = vertices.view();
-      auto trkdata = vertices.view<reco::ZVertexTracksSoA>();
+      reco::ZVertexSoACollection vertices(queue, maxVertices, maxTracks);
+      auto data = vertices.view().zvertex();
+      auto trkdata = vertices.view().zvertexTracks();
 
-      PixelVertexWorkSpaceSoADevice workspace(maxTracks, queue);
+      PixelVertexWorkSpaceSoADevice workspace(queue, maxTracks);
       auto ws = workspace.view();
 
       // Initialize

@@ -5,13 +5,10 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include <vector>
 #include <string>
-
-namespace reco {
-  class RecoEcalCandidate;
-}
 
 namespace trigger {
   class EgammaObject : public TriggerObject {

@@ -24,6 +24,7 @@
 #include <utility>
 #include <vector>
 
+#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
@@ -47,7 +48,8 @@ namespace edm {
   public:
     InputFileCatalog(std::vector<std::string> logicalFileNames,
                      std::string const& override,
-                     bool useLFNasPFNifLFNnotFound = false);
+                     bool useLFNasPFNifLFNnotFound = false,
+                     SciTagCategory sciTagCategory = SciTagCategory::Primary);
     ~InputFileCatalog();
 
     std::vector<FileCatalogItem> const& fileCatalogItems() const { return fileCatalogItems_; }
@@ -56,11 +58,12 @@ namespace edm {
     static bool isPhysical(std::string const& name) { return (name.empty() || name.find(':') != std::string::npos); }
 
   private:
-    void findFile(std::string const& lfn, std::vector<std::string>& pfns, bool useLFNasPFNifLFNnotFound);
+    void findFile(std::string const& lfn, std::vector<std::string>& pfns, bool useLFNasPFNifLFNnotFound) const;
 
     std::vector<FileCatalogItem> fileCatalogItems_;
     propagate_const<std::unique_ptr<FileLocator>> overrideFileLocator_;
     std::vector<propagate_const<std::unique_ptr<FileLocator>>> fileLocators_;
+    SciTagCategory sciTagCategory_;
   };
 }  // namespace edm
 #endif

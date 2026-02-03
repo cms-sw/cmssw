@@ -17,7 +17,7 @@ template <typename TrackerTraits>
 class PixelTrackDumpAlpakaT : public edm::global::EDAnalyzer<> {
 public:
   using TkSoAHost = reco::TracksHost;
-  using VertexSoAHost = ZVertexHost;
+  using VertexSoAHost = reco::ZVertexHost;
 
   explicit PixelTrackDumpAlpakaT(const edm::ParameterSet& iConfig);
   ~PixelTrackDumpAlpakaT() override = default;
@@ -49,24 +49,24 @@ void PixelTrackDumpAlpakaT<TrackerTraits>::analyze(edm::StreamID streamID,
                                                    edm::Event const& iEvent,
                                                    const edm::EventSetup& iSetup) const {
   auto const& tracks = iEvent.get(tokenSoATrack_);
-  assert(tracks.view().quality().data());
-  assert(tracks.view().chi2().data());
-  assert(tracks.view().nLayers().data());
-  assert(tracks.view().eta().data());
-  assert(tracks.view().pt().data());
-  assert(tracks.view().state().data());
-  assert(tracks.view().covariance().data());
-  assert(tracks.view().nTracks());
+  assert(tracks.view().tracks().quality().data());
+  assert(tracks.view().tracks().chi2().data());
+  assert(tracks.view().tracks().nLayers().data());
+  assert(tracks.view().tracks().eta().data());
+  assert(tracks.view().tracks().pt().data());
+  assert(tracks.view().tracks().state().data());
+  assert(tracks.view().tracks().covariance().data());
+  assert(tracks.view().tracks().nTracks());
 
   auto const& vertices = iEvent.get(tokenSoAVertex_);
-  assert(vertices.view<reco::ZVertexTracksSoA>().idv().data());
-  assert(vertices.view().zv().data());
-  assert(vertices.view().wv().data());
-  assert(vertices.view().chi2().data());
-  assert(vertices.view().ptv2().data());
-  assert(vertices.view<reco::ZVertexTracksSoA>().ndof().data());
-  assert(vertices.view().sortInd().data());
-  assert(vertices.view().nvFinal());
+  assert(vertices.view().zvertexTracks().idv().data());
+  assert(vertices.view().zvertex().zv().data());
+  assert(vertices.view().zvertex().wv().data());
+  assert(vertices.view().zvertex().chi2().data());
+  assert(vertices.view().zvertex().ptv2().data());
+  assert(vertices.view().zvertexTracks().ndof().data());
+  assert(vertices.view().zvertex().sortInd().data());
+  assert(vertices.view().zvertex().nvFinal());
 }
 
 using PixelTrackDumpAlpakaPhase1 = PixelTrackDumpAlpakaT<pixelTopology::Phase1>;

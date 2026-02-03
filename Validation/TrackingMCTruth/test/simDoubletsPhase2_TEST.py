@@ -37,7 +37,7 @@ process.source = cms.Source("PoolSource",
 ### conditions
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 
 ### standard includes
 process.load('Configuration/StandardSequences/Services_cff')

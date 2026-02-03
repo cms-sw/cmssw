@@ -38,10 +38,6 @@ namespace edm {
   class ConsumesCollector;
 }
 
-namespace reco {
-  class Vertex;
-}
-
 class PVFitter {
 public:
   PVFitter() {}

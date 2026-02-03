@@ -36,6 +36,8 @@ SET_PORTABLEHOSTOBJECT_READ_RULES(portabletest::TestHostObject);
 ```
 **Note:** The dictionary for `portabletest::TestHostObject::Product` (using the same type alias as in the registration macro above) must be placed in the `classes_def.xml` file before the type that `Product` aliases.
 
+**Note:** The dictionary for `portabletest::TestHostObject` in `classes_def.xml` needs `rntupleStreamerMode="true"` attribute in order to be storable with RNTuple.
+
 
 `PortableHostObject<T>` objects can also be read back in "bare ROOT" mode, without any dictionaries.
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
@@ -97,6 +99,8 @@ SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection);
 ```
 **Note:** The dictionary for `portabletest::TestHostCollection::Layout` (using the same type alias as in the registration macro above) must be placed in the `classes_def.xml` file before the type that `Layout` aliases.
 
+**Note:** The dictionary for `portabletest::TestHostCollection` in `classes_def.xml` needs `rntupleStreamerMode="true"` attribute in order to be storable with RNTuple.
+
 
 `PortableHostCollection<T>` collections can also be read back in "bare ROOT" mode, without any dictionaries.
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
@@ -147,12 +151,13 @@ Modules that implement portable interfaces (_e.g._ producers) should use the gen
 
 ## Multi layout collections
 
-Some use cases require multiple sets of columns of different sizes. This is can be achieved in a single
-`PortableCollection` using `PortableCollection2<T1, T2>`, `PortableCollection3<T1, T2, T3>` and so on up to
-`PortableCollection5<...>`. The numbered, fixed size wrappers are needed in order to be added to the ROOT dictionary.
-Behind the scenes recursive `PortableHostMultiCollection<T0, ...>` and
-`ALPAKA_ACCELERATOR_NAMESPACE::PortableDeviceMultiCollection<TDev, T0, ...>` (note the reversed parameter order) provide
-the actual class definitions.
+Multiple SoA layouts can be concatenated using the `GENERATE_SOA_BLOCKS` macro (see `DataFormats/SoATemplate` for details). 
+This macro generates a new composite layout that contains other layouts as members 
+and manages a single contiguous memory buffer large enough to hold all of them.
+
+A `PortableCollection` can then be templated on this `SoABlocks` layout. 
+In this case, the `view` and `const_view` methods return composite views that themselves contain views of each sublayout.
+
 
 ## ROOT dictionary declaration helper scripts
 
@@ -161,17 +166,16 @@ as instructed in `<module>/src/classes_dev.xml` and `<module>/src/alpaka/classes
 `<module>/src/alpaka/classes_rocm_def.xml`. Two scripts generate the code to be added to the xml files.
 Both scripts expect the collections to be aliased as in:
 ```
-using TestDeviceMultiCollection3 = PortableCollection3<TestSoA, TestSoA2, TestSoA3>;
+using TestDeviceCollection3 = PortableCollection<TestSoABlocks3>;
 ```
-and assume the `TestDeviceMultiCollection3` is used in the `SET_PORTABLEHOSTMULTICOLLECTION_READ_RULES()` macro.
 
-For the host xml, SoA layouts have to be listed and duplicates should be removed manually is multiple
-collections share a same layout. The scripts are called as follows:
+In the example here the `TestSoABlocks3` template is an SoABlocks layout composed of three layouts.
+For the host xml, all SoA layouts have to be listed. The scripts are called as follows:
 ```
-./DataFormats/Portable/scripts/portableHostCollectionHints portabletest::TestHostMultiCollection3  \
-            portabletest::TestSoALayout portabletest::TestSoALayout2 portabletest::TestSoALayout3
+./DataFormats/Portable/scripts/portableHostCollectionHints portabletest::TestHostCollection3  \
+            portabletest::TestSoALayout portabletest::TestSoALayout2 portabletest::TestSoALayout3 portabletest::SoABlocks3
 
 ./DataFormats/Portable/scripts/portableDeviceCollectionHints portabletest::TestHostMultiCollection3
 ```
-The layouts should not be added as parameters for the device collection. Those script can be use equally with the
+The layouts should not be added as parameters for the device collection. Those script can be used equally with the
 single layout collections or multi layout collections.

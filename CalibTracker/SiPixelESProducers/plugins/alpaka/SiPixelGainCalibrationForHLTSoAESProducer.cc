@@ -51,7 +51,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const& gains = iRecord.get(gainsToken_);
     auto const& geom = iRecord.get(geometryToken_);
 
-    auto product = std::make_unique<SiPixelGainCalibrationForHLTHost>(gains.data().size(), cms::alpakatools::host());
+    auto product = std::make_unique<SiPixelGainCalibrationForHLTHost>(cms::alpakatools::host(), gains.data().size());
 
     // bizzarre logic (looking for fist strip-det) don't ask
     auto const& dus = geom.detUnits();

@@ -5,14 +5,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
-
-namespace edm {
-  class ParameterSet;
-}
-
-namespace reco {
-  class BeamSpot;
-}
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 class TH1F;
 class TProfile;

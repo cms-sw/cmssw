@@ -17,10 +17,7 @@ class MagneticField;
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-namespace reco {
-  class BeamSpot;
-}
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase {
 public:

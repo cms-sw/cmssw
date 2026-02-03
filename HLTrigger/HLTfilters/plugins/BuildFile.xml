@@ -16,9 +16,20 @@
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/TauReco"/>
 <use name="DataFormats/L1TMuonPhase2"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/VertexReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="HLTrigger/HLTcore"/>
-<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="HLTriggerHLTfiltersPlugins">
+  <flags SKIP_FILES="HLTADFilter.cc"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="HLTADFilter.cc" name="HLTriggerHLTfiltersTorchPlugins">
+  <use name="PhysicsTools/PyTorch"/>
+  <use name="torch-interface"/>
+  <use name="pytorch"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

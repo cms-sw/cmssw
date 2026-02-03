@@ -37,6 +37,7 @@ namespace edm::rntuple_temp {
   public:
     struct Optimizations {
       bool useClusterCache = true;
+      bool enableIMT = true;
     };
 
     explicit EmbeddedRNTupleTempSource(ParameterSet const& pset, VectorInputSourceDescription const& desc);

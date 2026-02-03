@@ -1,11 +1,8 @@
-#include <cuda_runtime.h>
-
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
 
@@ -46,6 +43,7 @@ PixelCPEFast<TrackerTraits>::PixelCPEFast(edm::ParameterSet const& conf,
   };
 }
 
+/*
 template <typename TrackerTraits>
 const pixelCPEforGPU::ParamsOnGPUT<TrackerTraits>* PixelCPEFast<TrackerTraits>::getGPUProductAsync(
     cudaStream_t cudaStream) const {
@@ -86,10 +84,10 @@ const pixelCPEforGPU::ParamsOnGPUT<TrackerTraits>* PixelCPEFast<TrackerTraits>::
   });
   return data.paramsOnGPU_d;
 }
+*/
 
 template <typename TrackerTraits>
 void PixelCPEFast<TrackerTraits>::fillParamsForGpu() {
-  //
   // this code executes only once per job, computation inefficiency is not an issue
   // many code blocks are repeated: better keep the computation local and self oconsistent as blocks may in future move around, be deleted ...
   // It is valid only for Phase1 and the version of GenError in DB used in late 2018 and in 2021
@@ -381,6 +379,7 @@ void PixelCPEFast<TrackerTraits>::fillParamsForGpu() {
   layerGeometry_.maxModuleStride = pixelTopology::maxModuleStride<TrackerTraits>;
 }
 
+/*
 template <typename TrackerTraits>
 PixelCPEFast<TrackerTraits>::GPUData::~GPUData() {
   if (paramsOnGPU_d != nullptr) {
@@ -391,6 +390,7 @@ PixelCPEFast<TrackerTraits>::GPUData::~GPUData() {
     cudaFree(paramsOnGPU_d);
   }
 }
+*/
 
 template <typename TrackerTraits>
 void PixelCPEFast<TrackerTraits>::errorFromTemplates(DetParam const& theDetParam,

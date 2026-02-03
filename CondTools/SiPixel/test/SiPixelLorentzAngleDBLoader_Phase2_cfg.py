@@ -94,16 +94,9 @@ recoGeometry_cff = 'Configuration.Geometry.' + recoGeometry_cff
 process.load(recoGeometry_cff)
 process.load(geometry_cff)
 
-# trick to get the T33 GT instead
-geomSwap = {
-    "T35": "T33",
-}
-
-effectiveGeometry = geomSwap.get(tGeometry, tGeometry)
-
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_'+effectiveGeometry, '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_'+tGeometry, '')
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 

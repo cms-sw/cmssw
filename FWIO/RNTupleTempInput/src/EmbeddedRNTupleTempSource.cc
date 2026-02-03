@@ -3,10 +3,12 @@
 #include "EmbeddedRNTupleTempSource.h"
 #include "InputFile.h"
 #include "RootEmbeddedFileSequence.h"
+#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/InputSourceRunHelper.h"
+#include "FWCore/Sources/interface/SciTagCategoryForEmbeddedSources.h"
 
 namespace edm {
 
@@ -18,6 +20,7 @@ namespace edm::rntuple_temp {
     EmbeddedRNTupleTempSource::Optimizations fromConfig(edm::ParameterSet const& iConfig) {
       EmbeddedRNTupleTempSource::Optimizations opts;
       opts.useClusterCache = iConfig.getUntrackedParameter<bool>("useClusterCache", true);
+      opts.enableIMT = iConfig.getUntrackedParameter<bool>("enableIMT", true);
       return opts;
     }
 
@@ -43,7 +46,10 @@ namespace edm::rntuple_temp {
         productSelectorRules_(pset, "inputCommands", "InputSource"),
         runHelper_(new DefaultInputSourceRunHelper()),
         catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
-                 pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
+                 pset.getUntrackedParameter<std::string>("overrideCatalog", std::string()),
+                 false,
+                 desc.cat_ == SciTagCategoryForEmbeddedSources::PreMixedPileup ? SciTagCategory::PreMixedPileup
+                                                                               : SciTagCategory::Embedded),
         // Note: fileSequence_ needs to be initialized last, because it uses data members
         // initialized previously in its own initialization.
         fileSequence_(new RootEmbeddedFileSequence(pset, *this, catalog_)) {}
@@ -105,6 +111,8 @@ namespace edm::rntuple_temp {
       ParameterSetDescription rntupleReadOptions;
       rntupleReadOptions.addUntracked<bool>("useClusterCache", true)
           ->setComment("True: use ROOT cluster cache. False: do not use cluster cache.");
+      rntupleReadOptions.addUntracked<bool>("enableIMT", true)
+          ->setComment("True: use the global Implicit MT setting. False: disable IMT in RNTuple reading.");
       desc.addUntracked("rntupleReadOptions", rntupleReadOptions);
     }
 

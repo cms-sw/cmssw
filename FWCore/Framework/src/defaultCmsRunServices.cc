@@ -22,6 +22,7 @@ namespace edm {
                                             "UnixSignalService",
                                             "TFileAdaptor",
                                             "SiteLocalConfigService",
+                                            "ScitagConfig",
                                             "StatisticsSenderService",
                                             "ResourceInformationService",
                                             "CPU",

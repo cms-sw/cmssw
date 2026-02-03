@@ -51,8 +51,7 @@ namespace brokenline {
     
     \return the variance of the planar angle ((theta_0)^2 /3).
   */
-  __host__ __device__ inline double multScatt(
-      const double& length, const double bField, const double radius, int layer, double slope) {
+  inline double multScatt(const double& length, const double bField, const double radius, int layer, double slope) {
     // limit R to 20GeV...
     auto pt2 = std::min(20., bField * radius);
     pt2 *= pt2;
@@ -75,7 +74,7 @@ namespace brokenline {
     
     \return 2D rotation matrix.
   */
-  __host__ __device__ inline riemannFit::Matrix2d rotationMatrix(double slope) {
+  inline riemannFit::Matrix2d rotationMatrix(double slope) {
     riemannFit::Matrix2d rot;
     rot(0, 0) = 1. / sqrt(1. + riemannFit::sqr(slope));
     rot(0, 1) = slope * rot(0, 0);
@@ -95,10 +94,7 @@ namespace brokenline {
     \param y0 y coordinate of the translation vector.
     \param jacobian passed by reference in order to save stack.
   */
-  __host__ __device__ inline void translateKarimaki(karimaki_circle_fit& circle,
-                                                    double x0,
-                                                    double y0,
-                                                    riemannFit::Matrix3d& jacobian) {
+  inline void translateKarimaki(karimaki_circle_fit& circle, double x0, double y0, riemannFit::Matrix3d& jacobian) {
     // Avoid multiple access to the circle.par vector.
     using scalar = std::remove_reference<decltype(circle.par(0))>::type;
     scalar phi = circle.par(0);
@@ -148,10 +144,10 @@ namespace brokenline {
     \param results PreparedBrokenLineData to be filled (see description of PreparedBrokenLineData).
   */
   template <typename M3xN, typename V4, int n>
-  __host__ __device__ inline void prepareBrokenLineData(const M3xN& hits,
-                                                        const V4& fast_fit,
-                                                        const double bField,
-                                                        PreparedBrokenLineData<n>& results) {
+  inline void prepareBrokenLineData(const M3xN& hits,
+                                    const V4& fast_fit,
+                                    const double bField,
+                                    PreparedBrokenLineData<n>& results) {
     riemannFit::Vector2d dVec;
     riemannFit::Vector2d eVec;
 
@@ -213,9 +209,9 @@ namespace brokenline {
     \return the n-by-n matrix of the linear system
   */
   template <int n>
-  __host__ __device__ inline riemannFit::MatrixNd<n> matrixC_u(const riemannFit::VectorNd<n>& weights,
-                                                               const riemannFit::VectorNd<n>& sTotal,
-                                                               const riemannFit::VectorNd<n>& varBeta) {
+  inline riemannFit::MatrixNd<n> matrixC_u(const riemannFit::VectorNd<n>& weights,
+                                           const riemannFit::VectorNd<n>& sTotal,
+                                           const riemannFit::VectorNd<n>& varBeta) {
     riemannFit::MatrixNd<n> c_uMat = riemannFit::MatrixNd<n>::Zero();
     for (u_int i = 0; i < n; i++) {
       c_uMat(i, i) = weights(i);
@@ -256,7 +252,7 @@ namespace brokenline {
   */
 
   template <typename M3xN, typename V4>
-  __host__ __device__ inline void fastFit(const M3xN& hits, V4& result) {
+  inline void fastFit(const M3xN& hits, V4& result) {
     constexpr uint32_t n = M3xN::ColsAtCompileTime;
 
     int mId = 1;
@@ -312,12 +308,12 @@ namespace brokenline {
    * covariance matrix are transformed to the original coordinate system.
   */
   template <typename M3xN, typename M6xN, typename V4, int n>
-  __host__ __device__ inline void circleFit(const M3xN& hits,
-                                            const M6xN& hits_ge,
-                                            const V4& fast_fit,
-                                            const double bField,
-                                            PreparedBrokenLineData<n>& data,
-                                            karimaki_circle_fit& circle_results) {
+  inline void circleFit(const M3xN& hits,
+                        const M6xN& hits_ge,
+                        const V4& fast_fit,
+                        const double bField,
+                        PreparedBrokenLineData<n>& data,
+                        karimaki_circle_fit& circle_results) {
     circle_results.qCharge = data.qCharge;
     auto& radii = data.radii;
     const auto& sTransverse = data.sTransverse;
@@ -461,11 +457,11 @@ namespace brokenline {
    * matrix are transformed to the original coordinate system.
    */
   template <typename V4, typename M6xN, int n>
-  __host__ __device__ inline void lineFit(const M6xN& hits_ge,
-                                          const V4& fast_fit,
-                                          const double bField,
-                                          const PreparedBrokenLineData<n>& data,
-                                          riemannFit::LineFit& line_results) {
+  inline void lineFit(const M6xN& hits_ge,
+                      const V4& fast_fit,
+                      const double bField,
+                      const PreparedBrokenLineData<n>& data,
+                      riemannFit::LineFit& line_results) {
     const auto& radii = data.radii;
     const auto& sTotal = data.sTotal;
     const auto& zInSZplane = data.zInSZplane;

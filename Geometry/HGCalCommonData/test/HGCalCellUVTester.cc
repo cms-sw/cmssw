@@ -93,7 +93,7 @@ HGCalCellUVTester::HGCalCellUVTester(const edm::ParameterSet &iC)
   if (!outputFile.is_open()) {
     edm::LogError("HGCalGeom") << "Could not open output file.";
   } else {
-    outputFile << "lay, wu, wv, wx, wy, x, y, cox, coy, cu, cv, cx, cy, cix, ciy, area, ctype, cpos, place\n";
+    outputFile << "lay, wu, wv, wx, wy, x, y, cox, coy, cu, cv, cx, cy, cix, ciy, area, ctype, cpos, place, cwx, cwy\n";
   }
   outputFile2.open("DetIDs.csv");
 }
@@ -179,13 +179,14 @@ void HGCalCellUVTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iS
               std::pair<double, double> xy1 = wafer2.cellUV2XY2(ui, vi, placeIndex_, waferType_);
               std::pair<double, double> xyOffsetLD = offset.cellOffsetUV2XY1(ui, vi, placeIndex_, waferType_, partial_);
               auto cellType = HGCalCell::cellType(ui, vi, nCells, placeIndex_, partial_);
+              auto Totalxy = cons->locateCell(-1, layer, waferU, waferV, ui, vi, true, true, false, true, true);
               //std::pair<int32_t, int32_t> uv2 = wafer.HGCalCellUVFromXY2(xi, yi, placeIndex_, waferType_, true, false);
               outputFile << layer << "," << waferU << "," << waferV << "," << waferxy.first << "," << waferxy.second
                          << "," << xi << "," << yi << "," << -10 * waferxy.first - xyOffsetLD.first - xy1.first << ","
                          << 10 * waferxy.second + xyOffsetLD.second + xy1.second << "," << uv1.first << ","
                          << uv1.second << "," << xy1.first << "," << xy1.second << "," << xyOffsetLD.first << ","
                          << xyOffsetLD.second << "," << area << "," << cellType.second << "," << cellType.first << ","
-                         << placeIndex_ << std::endl;
+                         << placeIndex_ << "," << Totalxy.first << "," << Totalxy.second << std::endl;
               std::string comment = ((uv1.first != uv3.first) || (uv2.first != uv3.first) ||
                                      (uv1.second != uv3.second) || (uv2.second != uv3.second))
                                         ? " ***** ERROR *****"
@@ -195,9 +196,10 @@ void HGCalCellUVTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iS
                   //<< " u " << uv1.first << ":" << uv2.first << ":" << uv3.first << " v " << uv1.second << ":"
                   //<< uv2.second << ":" << uv3.second << ":"
                   << layer << "," << waferU << ":" << waferV << "," << waferxy.first << ":" << waferxy.second << ","
-                  << xi << ":" << yi << "," << -10 * waferxy.first + xyOffsetLD.first + xy1.first << ":"
+                  << xi << ":" << yi << "," << -10 * waferxy.first - xyOffsetLD.first - xy1.first << ":"
                   << 10 * waferxy.second + xyOffsetLD.second + xy1.second << "," << uv1.first << ":" << uv1.second
-                  << "," << xy1.first << ":" << xy1.second << comment;
+                  << "," << xy1.first << ":" << xy1.second << " cell cen " << xy1.first << ":" << xy1.second
+                  << " Cell cog " << xyOffsetLD.first << ":" << xyOffsetLD.second << comment;
             }
           }
         }

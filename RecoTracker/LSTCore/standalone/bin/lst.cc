@@ -3,6 +3,8 @@
 
 #include <typeinfo>
 
+#include <boost/core/demangle.hpp>
+
 using LSTEvent = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTEvent;
 using LSTInputDeviceCollection = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTInputDeviceCollection;
 using namespace ::lst;
@@ -469,7 +471,7 @@ void run_lst() {
 
       // We need to initialize it here so that it stays in scope
       auto &queue = *event_queues.at(omp_get_thread_num());
-      LSTInputDeviceCollection lstInputDC(out_lstInputHC.at(evt).sizes(), queue);
+      LSTInputDeviceCollection lstInputDC(queue, out_lstInputHC.at(evt)->metadata().size());
 
       timing_input_loading =
           addInputsToEventPreLoad(events.at(omp_get_thread_num()), &out_lstInputHC.at(evt), &lstInputDC, queue);
@@ -560,3 +562,9 @@ void run_lst() {
 
   delete ana.output_tfile;
 }
+
+// Dummy implementation of edm::typeDemangle (without extra replacements)
+// to avoid having to link extra libraries
+namespace edm {
+  std::string typeDemangle(char const *mangledName) { return boost::core::demangle(mangledName); }
+}  // namespace edm

@@ -1,11 +1,7 @@
-<library name="RecoLocalTrackerSiStripClusterizerPlugins" file="*.cc *.cu">
+<library name="RecoLocalTrackerSiStripClusterizerPlugins" file="*.cc">
   <use name="EventFilter/SiStripRawToDigi"/>
   <use name="RecoLocalTracker/SiStripClusterizer"/>
   <use name="RecoLocalTracker/SiStripZeroSuppression"/>
-  <use name="HeterogeneousCore/CUDACore"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <use name="CUDADataFormats/SiStripCluster"/>
-  <use name="cuda"/>
   <use name="RecoTracker/PixelLowPtUtilities"/>
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CalibTracker/SiStripCommon"/>

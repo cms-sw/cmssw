@@ -64,7 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             digis_d.nDigis(),
                             digis_d.nModules(),
                             clusters_d.view(),
-                            hits_d.view());
+                            hits_d.view().trackingHits());
 #ifdef GPU_DEBUG
         alpaka::wait(queue);
 #endif

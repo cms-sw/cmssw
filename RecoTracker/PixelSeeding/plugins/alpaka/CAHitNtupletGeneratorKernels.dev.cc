@@ -169,8 +169,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_nCellTracks_ =
         cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_extraStorage_->data() + 4));
 
-    deviceTriplets_ = CAPairSoACollection(maxDoublets * algoParams.avgCellsPerCell_, queue);
-    deviceTracksCells_ = CAPairSoACollection(nCellsToTracks, queue);
+    deviceTriplets_ = CAPairSoACollection(queue, std::lrint(maxDoublets * algoParams.avgCellsPerCell_));
+    deviceTracksCells_ = CAPairSoACollection(queue, nCellsToTracks);
 
     //TODO: if doStats?
     alpaka::memset(queue, *counters_, 0);
@@ -216,13 +216,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void CAHitNtupletGeneratorKernels<TrackerTraits>::launchKernels(const HitsConstView &hh,
                                                                   uint32_t offsetBPIX2,
                                                                   uint16_t nLayers,
-                                                                  TkSoAView &tracks_view,
-                                                                  TkHitsSoAView &tracks_hits_view,
+                                                                  TkSoABlocksView &view,
                                                                   const reco::CALayersSoAConstView &ll,
                                                                   const reco::CAGraphSoAConstView &cc,
                                                                   Queue &queue) {
     using namespace caPixelDoublets;
     using namespace caHitNtupletGeneratorKernels;
+
+    auto tracks_view = view.tracks();
+    auto tracks_hits_view = view.trackHits();
 
     uint32_t nhits = hh.metadata().size();
     auto const maxDoublets = this->maxNumberOfDoublets_;
@@ -272,7 +274,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     auto threadsPerBlock = 1024;
-    auto blocks = cms::alpakatools::divide_up_by(maxDoublets * m_params.algoParams_.avgCellsPerCell_, threadsPerBlock);
+    auto blocks = cms::alpakatools::divide_up_by(std::lrint(maxDoublets * m_params.algoParams_.avgCellsPerCell_),
+                                                 threadsPerBlock);
     auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
     alpaka::exec<Acc1D>(queue,
@@ -337,7 +340,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     CellToTracks::template launchFinalize<Acc1D>(this->device_cellToTracksView_, queue);
 
-    blocks = cms::alpakatools::divide_up_by(maxDoublets * m_params.algoParams_.avgCellsPerCell_, threadsPerBlock);
+    blocks = cms::alpakatools::divide_up_by(std::lrint(maxDoublets * m_params.algoParams_.avgCellsPerCell_),
+                                            threadsPerBlock);
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
     alpaka::exec<Acc1D>(queue,
@@ -388,8 +392,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
                         Kernel_fillNLayers<TrackerTraits>{},
-                        tracks_view,
-                        tracks_hits_view,
+                        view,
                         this->device_layerStarts_->data(),
                         nLayers,
                         this->device_hitTuple_apc_);

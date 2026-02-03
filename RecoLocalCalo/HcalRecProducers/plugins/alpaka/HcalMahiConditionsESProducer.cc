@@ -109,7 +109,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       size_t const totalChannels =
           pedestals.getAllContainers()[0].second.size() + pedestals.getAllContainers()[1].second.size();
 
-      auto product = std::make_unique<hcal::HcalMahiConditionsPortableHost>(totalChannels, cms::alpakatools::host());
+      auto product = std::make_unique<hcal::HcalMahiConditionsPortableHost>(cms::alpakatools::host(), totalChannels);
 
       auto view = product->view();
 

@@ -12,7 +12,7 @@
 // ***********************************************************
 PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_directory = "ParticleFlow";
-  m_isMiniAOD = true;
+  m_isMiniAOD = pSet.getParameter<bool>("isMiniAOD");
   parameters_ = pSet.getParameter<edm::ParameterSet>("pfAnalysis");
 
   //patPfCandidateCollection_ = consumes<pat::PFParticleCollection>(pSet.getParameter<edm::InputTag>("pfCandidates"));
@@ -227,7 +227,6 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   // with the first being the observable name (corresponding to one of
   // the keys in m_funcMap), the second being the number of bins,
   // and the last two being the min and max value for the histogram respectively.
-
   for (unsigned int i = 0; i < m_fullCutList2D.size(); i++) {
     // Loop over all of the different types of PF candidates
     for (unsigned int m = 0; m < m_pfNames.size(); m++) {
@@ -449,6 +448,41 @@ void PFAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker& iboo
 
 // ***********************************************************
 void PFAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
+
+void PFAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("isMiniAOD", true)->setComment("Is the input file in miniAOD format? Alternative would be RECO");
+  desc.add<edm::InputTag>("pfCandidates", edm::InputTag("particleFlow"))
+      ->setComment("Input collection of PF candidates");
+  desc.add<edm::InputTag>("pfJetCollection", edm::InputTag("ak4PFJets"))->setComment("Input collection of PF jets");
+  desc.add<edm::InputTag>("TriggerResultsLabel", edm::InputTag("TriggerResults", "", "HLT"))
+      ->setComment("Input tag for trigger results");
+  desc.add<std::string>("eventSelection", "nocut")->setComment("Event selection to apply (nocut, dijet, anomalous)");
+  desc.add<std::vector<std::string>>("TriggerNames", std::vector<std::string>())
+      ->setComment("List of trigger path names to require");
+  desc.add<edm::InputTag>("PVCollection", edm::InputTag("offlinePrimaryVertices"))
+      ->setComment("Input collection of primary vertices");
+
+  edm::ParameterSetDescription pfAnalysisDesc;
+  pfAnalysisDesc.add<std::vector<std::string>>("observables", std::vector<std::string>())
+      ->setComment("List of PF candidate observables to monitor");
+  pfAnalysisDesc.add<std::vector<std::string>>("eventObservables", std::vector<std::string>())
+      ->setComment("List of event- or jet- wide observables to monitor.");
+  pfAnalysisDesc.add<std::vector<std::string>>("pfInJetObservables", std::vector<std::string>())
+      ->setComment("List of PF-in-jet observables to monitor");
+  pfAnalysisDesc.add<std::vector<double>>("NPVBins", std::vector<double>())->setComment("NPV binning for histograms");
+  pfAnalysisDesc.add<std::vector<std::string>>("cutList", std::vector<std::string>())
+      ->setComment("List of cuts to apply to PF candidates");
+  pfAnalysisDesc.add<std::vector<std::string>>("binList2D", std::vector<std::string>())
+      ->setComment("List of 2D binning configurations");
+  pfAnalysisDesc.add<std::vector<std::string>>("jetCutList", std::vector<std::string>())
+      ->setComment("List of cuts to apply to jets");
+
+  desc.add<edm::ParameterSetDescription>("pfAnalysis", pfAnalysisDesc)
+      ->setComment("Configuration for PF candidate analysis");
+
+  descriptions.addWithDefaultLabel(desc);
+}
 
 // How many significant digits do we need to save for the values to be distinct?
 std::string PFAnalyzer::stringWithDecimals(int bin, std::vector<double> bins) {
@@ -677,7 +711,6 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   unsigned int numJets = 0;
   unsigned int numPFCands = 0;
-  m_isMiniAOD = true;
   if (!m_isMiniAOD) {
     iEvent.getByToken(thePfCandidateCollection_, recoPfCollection);
     if (!recoPfCollection.isValid()) {

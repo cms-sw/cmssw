@@ -1,8 +1,9 @@
-#ifndef defaultModuleLabel_h
-#define defaultModuleLabel_h
+#ifndef HLTrigger_HLTcore_defaultModuleLabel_h
+#define HLTrigger_HLTcore_defaultModuleLabel_h
 
 // C++ headers
 #include <string>
+#include <regex>
 
 // boost headers
 #include <boost/version.hpp>
@@ -20,6 +21,14 @@ std::string defaultModuleLabel() {
 #else
   std::string name = boost::core::demangle(typeid(T).name());
 #endif
+
+  {
+    //Data products have version names which are meant to mostly
+    // be hidden. Need to remove them if the class type references
+    // a data product as a template argument.
+    const std::regex vNamespace("io_v[0-9]::");
+    name = std::regex_replace(name, vNamespace, "");
+  }
 
   // expected size of the label
   unsigned int size = 0;

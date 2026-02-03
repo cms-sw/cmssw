@@ -185,9 +185,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const uncalibRecHitsSizeEE = isPhase2_ ? 0 : uncalibRecHitsDevEE->const_view().metadata().size();
 
     // output device collections with the same size than the input collections
-    auto recHitsDevEB = std::make_unique<OutputProduct>(uncalibRecHitsSizeEB, queue);
+    auto recHitsDevEB = std::make_unique<OutputProduct>(queue, uncalibRecHitsSizeEB);
     auto recHitsDevEE =
-        isPhase2_ ? std::unique_ptr<OutputProduct>() : std::make_unique<OutputProduct>(uncalibRecHitsSizeEE, queue);
+        isPhase2_ ? std::unique_ptr<OutputProduct>() : std::make_unique<OutputProduct>(queue, uncalibRecHitsSizeEE);
     // reset the size scalar of the SoA
     // memset takes an alpaka view that is created from the scalar in a view to the portable device collection
     auto recHitSizeViewEB = cms::alpakatools::make_device_view<uint32_t>(queue, recHitsDevEB->view().size());

@@ -20,7 +20,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "FWCore/Sources/interface/SciTagCategoryForEmbeddedSources.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -103,7 +103,7 @@ namespace edm {
   };
 
   PreMixingModule::PreMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf)
-      : BMixingModule(ps, globalConf),
+      : BMixingModule(ps, globalConf, SciTagCategoryForEmbeddedSources::PreMixedPileup),
         puWorker_(ps.getParameter<edm::ParameterSet>("workers").getParameter<edm::ParameterSet>("pileup"),
                   producesCollector(),
                   consumesCollector()),

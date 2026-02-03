@@ -2,14 +2,11 @@
 #define RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedHeavyObjectCache_h
 
 #include "CondFormats/GBRForest/interface/GBRForest.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include <vector>
-
-namespace reco {
-  class BeamSpot;
-  class PreId;
-}  // namespace reco
 
 namespace lowptgsfeleseed {
 

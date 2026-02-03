@@ -6,7 +6,7 @@ from .MatrixUtil import *
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
 from Configuration.Skimming.autoSkim import autoSkim
-from Configuration.PyReleaseValidation.upgradeWorkflowComponents import step3_trackingOnly,undefInput
+from Configuration.PyReleaseValidation.upgradeWorkflowComponents import step3_trackingOnly,undefInput,run3_years
 
 # step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
@@ -3611,10 +3611,6 @@ steps['RECOHI2024MBAPPROXCLUSTERS']=merge([hiDefaults2024_approxClusters,{'-s':'
                                                                           '--procModifiers':'genJetSubEvent',
                                                                           },step3Up2015Defaults])
 
-steps['SKIMHIFORWARDRUN3_2024'] = merge([upcDefaults2024, {'-s':'RAW2DIGI,L1Reco,RECO,SKIM:UPCMonopole,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOUPC2024']])
-steps['SKIMHIPHYSICSRAWPRIMERUN3_2024'] = merge([hiDefaults2024_approxClusters, {'-s':'RAW2DIGI,L1Reco,RECO,SKIM:PbPbEMu+PbPbZEE+PbPbZMu+PbPbHighPtJets,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOHI2024']])
-steps['SKIMHIPHYSICSRAWPRIMERUN3_2025'] = merge([hiDefaults2025_approxClusters, {'-s':'RAW2DIGI,L1Reco,RECO,PAT,SKIM:PbPbEW+PbPbHighPtJets,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOHI2025']])
-
 steps['MINIHI2024PROD']=merge([hiDefaults2024,{'-s':'PAT',
                                                '--datatier':'MINIAODSIM',
                                                '--eventcontent':'MINIAODSIM',
@@ -3680,6 +3676,17 @@ steps['REMINIAODHI2023PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation
                                          '--era':'Run3_pp_on_PbPb_2023',
                                          '--procModifiers':'genJetSubEvent',
                                      },hiDefaults2023_ppReco,step3Up2015Defaults])
+
+if 'HIForward0' in autoSkim:
+    steps['SKIMHIFORWARDRUN3_2023'] = merge([upcDefaults2023, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIForward0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOUPC2023']])
+    steps['SKIMHIFORWARDRUN3_2024'] = merge([upcDefaults2024, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIForward0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOUPC2024']])
+    steps['SKIMHIFORWARDRUN3_2025'] = merge([upcDefaults2025, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIForward0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOUPC2025']])
+    steps['SKIMHIFORWARDRUN3_2026'] = merge([upcDefaults2026, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIForward0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOUPC2026']])
+if 'HIPhysicsRawPrime0' in autoSkim:
+    steps['SKIMHIPHYSICSRAWPRIMERUN3_2023'] = merge([hiDefaults2023_ppReco_approxClusters, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIPhysicsRawPrime0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOHI2023PPRECO']])
+    steps['SKIMHIPHYSICSRAWPRIMERUN3_2024'] = merge([hiDefaults2024_approxClusters, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIPhysicsRawPrime0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOHI2024']])
+    steps['SKIMHIPHYSICSRAWPRIMERUN3_2025'] = merge([hiDefaults2025_approxClusters, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIPhysicsRawPrime0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOHI2025']])
+    steps['SKIMHIPHYSICSRAWPRIMERUN3_2026'] = merge([hiDefaults2026_approxClusters, {'-s':f'RAW2DIGI,L1Reco,RECO,PAT,SKIM:{autoSkim["HIPhysicsRawPrime0"]},VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},steps['RECOHI2026']])
 
 steps['ALCARECOHI2023PPRECO']=merge([hiDefaults2023_ppReco,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias',
                                                             '--datatier':'ALCARECO',
@@ -4881,7 +4888,7 @@ for ds in defaultDataSets:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2018' in ds or 'postLS2' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2022' in ds or '2023' in ds or '2024' in ds or '2025' in ds:
+    elif any(year in ds for year in run3_years):
         if 'FS' not in ds:
             PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
         else:

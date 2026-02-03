@@ -10,6 +10,9 @@ RootRNTuple.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -25,6 +28,7 @@ RootRNTuple.h // used by ROOT input sources
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+#include <variant>
 
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleReader.hxx"
@@ -92,6 +96,7 @@ namespace edm::rntuple_temp {
     struct Options {
       bool useClusterCache = true;
       bool promptReading = false;
+      bool enableIMT = true;
 
       Options usingDefaultNonEventOptions() const { return {}; }
     };
@@ -141,7 +146,11 @@ namespace edm::rntuple_temp {
     template <typename T>
     void fillAux(T*& pAux) {
       try {
-        auto view = reader_->GetView(auxDesc_, pAux);
+        if (std::holds_alternative<std::monostate>(auxView_)) {
+          auxView_ = reader_->GetView(auxDesc_, pAux);
+        }
+        auto& view = std::get<ROOT::RNTupleView<T>>(auxView_);
+        view.BindRawPtr(pAux);
         view(entryNumber_);
       } catch (cms::Exception const& e) {
         throw Exception(errors::FileReadError, "", e);
@@ -158,8 +167,8 @@ namespace edm::rntuple_temp {
     void fillEntry(ROOT::RNTupleView<void>& view) { getEntry(view, entryNumber_); }
     void fillEntry(ROOT::RNTupleView<void>& view, EntryNumber entryNumber) { getEntry(view, entryNumber); }
 
-    void fillEntry(ROOT::DescriptorId_t id, EntryNumber entryNumber, void* iData) {
-      auto view = reader_->GetView(id, iData);
+    void fillEntry(ROOT::RNTupleView<void>& view, EntryNumber entryNumber, void* iData) {
+      view.BindRawPtr(iData);
       getEntry(view, entryNumber);
     }
 
@@ -201,6 +210,11 @@ namespace edm::rntuple_temp {
     unsigned long treeAutoFlush_ = 0;
     bool promptRead_;
     std::unique_ptr<RootDelayedReaderBase> rootDelayedReader_;
+    std::variant<std::monostate,
+                 ROOT::RNTupleView<edm::EventAuxiliary>,
+                 ROOT::RNTupleView<edm::LuminosityBlockAuxiliary>,
+                 ROOT::RNTupleView<edm::RunAuxiliary>>
+        auxView_;
   };
 }  // namespace edm::rntuple_temp
 #endif

@@ -19,15 +19,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
   GENERATE_SOA_LAYOUT(SoAPositionTemplate, SOA_COLUMN(float, x), SOA_COLUMN(float, y), SOA_COLUMN(float, z))
 
   using SoAPosition = SoAPositionTemplate<>;
-  using PositionDeviceCollection = PortableCollection<SoAPosition, Device>;
-  using PositionDeviceCollectionView = PortableCollection<SoAPosition, Device>::View;
+  using PositionDeviceCollection = PortableCollection<Device, SoAPosition>;
+  using PositionDeviceCollectionView = PortableCollection<Device, SoAPosition>::View;
 
   // Output SOA
   GENERATE_SOA_LAYOUT(SoAResultTemplate, SOA_COLUMN(float, x), SOA_COLUMN(float, y))
 
   using SoAResult = SoAResultTemplate<>;
-  using ResultDeviceCollection = PortableCollection<SoAResult, Device>;
-  using ResultDeviceCollectionView = PortableCollection<SoAResult, Device>::View;
+  using ResultDeviceCollection = PortableCollection<Device, SoAResult>;
+  using ResultDeviceCollectionView = PortableCollection<Device, SoAResult>::View;
 
   class testSOAToTorch : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(testSOAToTorch);
@@ -92,8 +92,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     const std::size_t batch_size = 4;
 
     // Create and fill needed portable collections
-    PositionDeviceCollection positionCollection(batch_size, alpakaDevice);
-    ResultDeviceCollection resultCollection(batch_size, alpakaDevice);
+    PositionDeviceCollection positionCollection(alpakaDevice, batch_size);
+    ResultDeviceCollection resultCollection(alpakaDevice, batch_size);
     fill(queue, positionCollection);
 
     // Deserialize the ScriptModule

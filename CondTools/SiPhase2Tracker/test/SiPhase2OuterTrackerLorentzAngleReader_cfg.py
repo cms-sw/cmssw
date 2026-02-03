@@ -68,7 +68,7 @@ if(options.fromESSource):
     process.mySiPhase2OTFakeLorentzAngleESSource =  SiPhase2OTFakeLorentzAngleESSource.clone(LAValue = cms.double(0.14))
     process.es_prefer_fake_LA = cms.ESPrefer("SiPhase2OuterTrackerFakeLorentzAngleESSource","mySiPhase2OTFakeLorentzAngleESSource")
 else:
-    tag = 'SiPhase2OuterTrackerLorentzAngle_T33'
+    tag = 'SiPhase2OuterTrackerLorentzAngle_T35'
     suffix = 'v0'
     inFile = tag+'_'+suffix+'.db'
     inDB = 'sqlite_file:'+inFile

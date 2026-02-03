@@ -2,6 +2,7 @@
 #define TtEventPartons_h
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 
 #include <vector>
 
@@ -11,9 +12,6 @@
    \brief   Common base class for TtFullLepEvtPartons, TtFullHadEvtPartons and TtSemiLepEvtPartons
 */
 
-namespace reco {
-  class Candidate;
-}
 class TtGenEvent;
 
 class TtEventPartons {

@@ -18,7 +18,7 @@
 namespace reco {
 
   template <typename TDev>
-  using HitPortableCollectionDevice = PortableDeviceMultiCollection<TDev, reco::TrackingRecHitSoA, reco::HitModuleSoA>;
+  using HitPortableCollectionDevice = PortableDeviceCollection<TDev, reco::TrackingBlocksSoA>;
 
   template <typename TDev>
   class TrackingRecHitDevice : public HitPortableCollectionDevice<TDev> {
@@ -30,7 +30,7 @@ namespace reco {
     // Constructor which specifies only the SoA size, to be used when copying the results from host to device
     template <typename TQueue>
     explicit TrackingRecHitDevice(TQueue queue, uint32_t nHits, uint32_t nModules)
-        : HitPortableCollectionDevice<TDev>({{int(nHits), int(nModules + 1)}}, queue) {}
+        : HitPortableCollectionDevice<TDev>(queue, nHits, nModules + 1) {}
 
     // N.B. why this + 1? Because the HitModulesLayout is holding the
     // moduleStart vector that is a cumulative sum of all the hits
@@ -42,10 +42,10 @@ namespace reco {
     // Constructor from clusters
     template <typename TQueue>
     explicit TrackingRecHitDevice(TQueue queue, SiPixelClustersDevice<TDev> const &clusters)
-        : HitPortableCollectionDevice<TDev>({{int(clusters.nClusters()), clusters.view().metadata().size()}}, queue),
+        : HitPortableCollectionDevice<TDev>(queue, clusters.nClusters(), clusters.view().metadata().size()),
           offsetBPIX2_{clusters.offsetBPIX2()} {
-      auto hitsView = this->template view<TrackingRecHitSoA>();
-      auto modsView = this->template view<HitModuleSoA>();
+      auto hitsView = this->view().trackingHits();
+      auto modsView = this->view().hitModules();
 
       auto nModules = clusters.view().metadata().size();
 
@@ -59,8 +59,8 @@ namespace reco {
       alpaka::memcpy(queue, off_d, off_h);
     }
 
-    uint32_t nHits() const { return this->template view<TrackingRecHitSoA>().metadata().size(); }
-    uint32_t nModules() const { return this->template view<HitModuleSoA>().metadata().size() - 1; }
+    uint32_t nHits() const { return static_cast<uint32_t>(this->view().trackingHits().metadata().size()); }
+    uint32_t nModules() const { return static_cast<uint32_t>(this->view().hitModules().metadata().size() - 1); }
 
     int32_t offsetBPIX2() const { return offsetBPIX2_; }
 
@@ -68,7 +68,7 @@ namespace reco {
     template <typename TQueue>
     void updateFromDevice(TQueue queue) {
       auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
-      auto off_d = cms::alpakatools::make_device_view(queue, this->template view<TrackingRecHitSoA>().offsetBPIX2());
+      auto off_d = cms::alpakatools::make_device_view(queue, this->view().trackingHits().offsetBPIX2());
       alpaka::memcpy(queue, off_h, off_d);
     }
 

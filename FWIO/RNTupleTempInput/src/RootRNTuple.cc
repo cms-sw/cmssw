@@ -73,13 +73,15 @@ namespace edm::rntuple_temp {
         ROOT::RNTupleReadOptions rntupleOptions;
         rntupleOptions.SetClusterCache(options.useClusterCache ? ROOT::RNTupleReadOptions::EClusterCache::kOn
                                                                : ROOT::RNTupleReadOptions::EClusterCache::kOff);
+        rntupleOptions.SetUseImplicitMT(options.enableIMT ? ROOT::RNTupleReadOptions::EImplicitMT::kDefault
+                                                          : ROOT::RNTupleReadOptions::EImplicitMT::kOff);
         reader_ = ROOT::RNTupleReader::Open(*tuple, rntupleOptions);
       }
     }
     if (not reader_) {
       throw cms::Exception("WrongFileFormat")
-          << "The ROOT file does not contain a TTree named " << productTreeName
-          << "\n This is either not an edm ROOT file or is one that has been corrupted.";
+          << "The ROOT file does not contain a RNTuple named " << productTreeName
+          << "\n This is either not an edm RNTuple ROOT file or is one that has been corrupted.";
     }
     entries_ = reader_->GetNEntries();
   }
@@ -177,6 +179,7 @@ namespace edm::rntuple_temp {
 
   void RootRNTuple::getEntryForAllBranches(
       std::unordered_map<unsigned int, std::unique_ptr<edm::WrapperBase>>& iFields) const {
+    LogTrace("IOTrace").format("RootRNTuple::getEntryForAllBranches() begin for entry {}", entryNumber_);
     oneapi::tbb::this_task_arena::isolate([&]() {
       auto entry = reader_->GetModel().CreateEntry();
       for (auto& iField : iFields) {
@@ -189,6 +192,7 @@ namespace edm::rntuple_temp {
       }
       reader_->LoadEntry(entryNumber_, *entry);
     });
+    LogTrace("IOTrace").format("RootRNTuple::getEntryForAllBranches() end for entry {}", entryNumber_);
   }
 
   void RootRNTuple::getEntry(ROOT::RNTupleView<void>& view, EntryNumber entryNumber) const {

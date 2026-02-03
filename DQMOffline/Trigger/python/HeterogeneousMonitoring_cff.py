@@ -33,19 +33,19 @@ hltSiPixelPhase1CompareDigiErrors = siPixelPhase1RawDataErrorComparator.clone(
     topFolderName = 'HLT/HeterogeneousComparisons/PixelErrors'
 )
 
-hltSiPixelPhase1CompareRecHits = siPixelPhase1CompareRecHits.clone(
+hltSiPixelPhase1CompareRecHits = siPixelCompareRecHitsSoA.clone(
     pixelHitsReferenceSoA = 'hltSiPixelRecHitsSoASerialSync',
     pixelHitsTargetSoA  = 'hltSiPixelRecHitsSoA',
     topFolderName = 'HLT/HeterogeneousComparisons/PixelRecHits'
 )
 
-hltSiPixelPhase1CompareTracks = siPixelPhase1CompareTracks.clone(
+hltSiPixelPhase1CompareTracks = siPixelCompareTracksSoA.clone(
     pixelTrackReferenceSoA = 'hltPixelTracksSoASerialSync',
     pixelTrackTargetSoA = 'hltPixelTracksSoA',
     topFolderName = 'HLT/HeterogeneousComparisons/PixelTracks'
 )
 
-hltSiPixelCompareVertices = siPixelCompareVertices.clone(
+hltSiPixelCompareVertices = siPixelCompareVerticesSoA.clone(
     pixelVertexReferenceSoA = 'hltPixelVerticesSoASerialSync',
     pixelVertexTargetSoA = 'hltPixelVerticesSoA',
     beamSpotSrc = 'hltOnlineBeamSpot',
@@ -97,11 +97,11 @@ hltHcalGPUComparisonTask = hcalGPUComparisonTask.clone(
 HLTHeterogeneousMonitoringSequence = cms.Sequence(
     hltPfHcalGPUComparisonTask +
     hltSiPixelPhase1CompareDigiErrors +
-    #hltSiPixelPhase1CompareRecHits +   # waiting a resolution of #49349
+    hltSiPixelPhase1CompareRecHits +
     hltSiPixelPhase1CompareTracks +
     hltSiPixelCompareVertices +
     hltEcalMonitorTask +
-    hltHcalGPUComparisonTask    
+    hltHcalGPUComparisonTask
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common

@@ -150,7 +150,6 @@ def formatToCircles(moduleTransitions):
         ]
     # The circles code uses the "events" field to normalize the values between files with different number of events
     # Here we set it to 1 for the total events because the total is already normalized per transition
-    doc["total"]["events"] = 1
     doc["total"]["label"] = "Job"
     doc["total"]["type"] = "Job"
     # Initialize totals for all transition types and allocation types
@@ -197,7 +196,7 @@ def formatToCircles(moduleTransitions):
                     nDealloc += alloc.get("nDealloc", 0)
                     maxTemp += alloc.get("maxTemp", 0)
                     max1Alloc += alloc.get("max1Alloc", 0)
-                ntransitions = moduleTransitions[transitionType][uniqueKey].get("nTransitions", 0)
+                ntransitions = moduleTransitions[transitionType][uniqueKey].get("nTransitions", -1)
                 # Normalize by number of transitions if > 0, otherwise use raw values
                 divisor = max(ntransitions, 1)  # Avoid division by zero
 
@@ -234,10 +233,9 @@ def formatToCircles(moduleTransitions):
         moduleLabel = key.moduleLabel
         # Look for the corresponding regular module key for event transitions
         eventKey = UniqueKey(moduleLabel, key.moduleType, "")
-        eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", 0)
+        eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", -1)
         # Set events to 1 if it's 0 to prevent NaNs in Circles visualization
-        module["events"] = max(eventCount, 1)
-        doc["total"]["events"] = max(doc["total"]["events"], module["events"])
+        module["transitions"] = max(eventCount, 1)
         doc["modules"].append(module)
 
     return doc

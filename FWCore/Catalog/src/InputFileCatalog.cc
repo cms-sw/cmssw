@@ -13,7 +13,9 @@ namespace edm {
 
   InputFileCatalog::InputFileCatalog(std::vector<std::string> logicalFileNames,
                                      std::string const& override,
-                                     bool useLFNasPFNifLFNnotFound) {
+                                     bool useLFNasPFNifLFNnotFound,
+                                     SciTagCategory sciTagCategory)
+      : sciTagCategory_(sciTagCategory) {
     Service<SiteLocalConfig> localconfservice;
     if (!localconfservice.isAvailable()) {
       cms::Exception ex("FileCatalog");
@@ -102,6 +104,20 @@ namespace edm {
       }
       lfn.shrink_to_fit();  // try to release memory
 
+      if (sciTagCategory_ != SciTagCategory::Undefined) {
+        Service<StorageURLModifier> sciTagConfigService;
+        if (!sciTagConfigService.isAvailable()) {
+          cms::Exception ex("FileCatalog");
+          ex << "edm::SciTagConfig service is not available";
+          ex.addContext("Calling edm::InputFileCatalog constructor");
+          throw ex;
+        }
+
+        for (auto& pfn : pfns) {
+          sciTagConfigService->modify(sciTagCategory_, pfn);
+        }
+      }
+
       fileCatalogItems_.emplace_back(std::move(pfns), std::move(lfn));
     }
   }
@@ -119,16 +135,16 @@ namespace edm {
 
   void InputFileCatalog::findFile(std::string const& lfn,
                                   std::vector<std::string>& pfns,
-                                  bool useLFNasPFNifLFNnotFound) {
+                                  bool useLFNasPFNifLFNnotFound) const {
     if (overrideFileLocator_) {
-      pfns.push_back(overrideFileLocator_->pfn(lfn));
+      pfns.emplace_back(overrideFileLocator_->pfn(lfn));
     } else {
       for (auto const& locator : fileLocators_) {
         std::string pfn = locator->pfn(lfn);
         if (pfn.empty() && useLFNasPFNifLFNnotFound) {
-          pfns.push_back(lfn);
+          pfns.emplace_back(lfn);
         } else {
-          pfns.push_back(pfn);
+          pfns.emplace_back(std::move(pfn));
         }
       }
     }

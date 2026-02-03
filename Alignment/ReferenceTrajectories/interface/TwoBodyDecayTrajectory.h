@@ -3,14 +3,11 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 #include "Alignment/ReferenceTrajectories/interface/TwoBodyDecayTrajectoryState.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 /**
    by Edmund Widl, see CMS NOTE-2007/032.
  */
-
-namespace reco {
-  class BeamSpot;
-}
 
 class TwoBodyDecayTrajectory : public ReferenceTrajectoryBase {
 public:

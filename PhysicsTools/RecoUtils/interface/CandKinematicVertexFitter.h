@@ -10,6 +10,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidateOnlyFwd.h"
 #include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
@@ -17,9 +18,6 @@
 #include <vector>
 
 class MagneticField;
-namespace reco {
-  class VertexCompositeCandidate;
-}
 
 class CandKinematicVertexFitter {
 public:

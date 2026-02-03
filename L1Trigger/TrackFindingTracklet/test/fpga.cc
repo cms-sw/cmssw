@@ -60,11 +60,6 @@ int main(const int argc, const char **argv) {
   settings.setMemoryModulesFile("../data/memorymodules_" + settings.geomext() + ".dat");
   settings.setWiresFile("../data/wires_" + settings.geomext() + ".dat");
 
-  if (settings.extended()) {
-    settings.setTableTEDFile("../data/table_TED/table_TED_Dummy.txt");
-    settings.setTableTREFile("../data/table_TRE/table_TRE_Dummy.txt");
-  }
-
   edm::LogVerbatim("Tracklet") << "fit pattern :     " << settings.fitPatternFile();
   edm::LogVerbatim("Tracklet") << "process modules : " << settings.processingModulesFile();
   edm::LogVerbatim("Tracklet") << "memory modules :  " << settings.memoryModulesFile();

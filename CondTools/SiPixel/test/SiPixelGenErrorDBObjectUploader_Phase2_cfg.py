@@ -198,6 +198,9 @@ elif tGeometry == 'T21':
 elif tGeometry == 'T33':
     geometry_cff = 'GeometryExtendedRun4D110_cff'
     recoGeometry_cff = 'GeometryExtendedRun4D110Reco_cff'
+elif tGeometry == 'T35':
+    geometry_cff = 'GeometryExtendedRun4D121_cff'
+    recoGeometry_cff = 'GeometryExtendedRun4D121Reco_cff'
 else:
     print("Unknown tracker geometry")
     print("What are you doing ?!?!?!?!")

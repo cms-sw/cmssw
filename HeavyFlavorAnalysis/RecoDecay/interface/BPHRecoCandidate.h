@@ -28,10 +28,6 @@
 
 class BPHEventSetupWrapper;
 
-namespace reco {
-  class Candidate;
-}
-
 //---------------
 // C++ Headers --
 //---------------

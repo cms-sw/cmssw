@@ -12,7 +12,6 @@
 <use name="RecoTracker/Record"/>
 
 <library file="*.cc" name="CalibTrackerSiPixelESProducersPlugins">
-  <use name="cuda"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
