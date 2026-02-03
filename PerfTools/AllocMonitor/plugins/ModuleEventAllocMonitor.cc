@@ -265,7 +265,7 @@ public:
           file->write(s.str());
         } else {
           std::stringstream s;
-          s << "# Skipping module" << description.moduleLabel() << " " << description.moduleName() << " " << description.id()
+          s << "# Skipping module " << description.moduleLabel() << " " << description.moduleName() << " " << description.id()
             << " # skipped\n";
           file->write(s.str());
         }
