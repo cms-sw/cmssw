@@ -76,6 +76,7 @@ OniaPhotonConversionProducer::OniaPhotonConversionProducer(const edm::ParameterS
 
   convSelectionCuts_ = ps.getParameter<std::string>("convSelection");
   convSelection_ = std::make_unique<StringCutObjectSelector<reco::Conversion>>(convSelectionCuts_);
+  addExtraInfo_ = ps.getParameter<bool>("addExtraInfo");
   produces<pat::CompositeCandidateCollection>("conversions");
 }
 
@@ -203,7 +204,7 @@ int OniaPhotonConversionProducer::PackFlags(const reco::Conversion& conv,
   for (std::vector<int>::const_iterator qq = i_quals.begin(); qq != i_quals.end(); ++qq) {
     reco::Conversion::ConversionQuality q = (reco::Conversion::ConversionQuality)(*qq);
     if (conv.quality(q))
-      q_mask = *qq;
+      q_mask = addExtraInfo_ ? (q_mask + (1 << q)) : *qq;
   }
   flags += (q_mask * 32 * 8);
   return flags;
@@ -334,6 +335,12 @@ pat::CompositeCandidate* OniaPhotonConversionProducer::makePhotonCandidate(const
 
   photonCand->addUserData<reco::Track>("track0", *conv.tracks()[0]);
   photonCand->addUserData<reco::Track>("track1", *conv.tracks()[1]);
+
+  if (addExtraInfo_) {
+    photonCand->addUserFloat("vertexChi2", conv.conversionVertex().chi2());
+    photonCand->addUserFloat("vertexNdof", conv.conversionVertex().ndof());
+    photonCand->addUserFloat("distOfMinimumApproach", conv.distOfMinimumApproach());
+  }
 
   return photonCand;
 }

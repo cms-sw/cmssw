@@ -74,6 +74,7 @@ private:
 
   std::string convSelectionCuts_;
   std::unique_ptr<StringCutObjectSelector<reco::Conversion>> convSelection_;
+  bool addExtraInfo_;
 };
 
 #endif
