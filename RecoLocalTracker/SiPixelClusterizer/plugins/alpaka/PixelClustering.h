@@ -322,11 +322,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
               alpaka::syncBlockThreads(acc);
 
               // use the image buffer as a 1-bit-per-pixel image, with 32 pixels packed in each 32-bit word
-              // ......  .................................................................  .....
-              // .....#  #.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#  #....
-              // .....# [#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#] #....
-              // .....#  #.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#  #....
-              // ......  .................................................................  .....
+              // ......  ...............................................................  .....
+              // .....#  #.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#  #....
+              // .....# [#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#] #....
+              // .....#  #.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#  #....
+              // ......  ...............................................................  .....
 
               // first step: expand - read from image, write to temp (where image is 0)
               // Mark empty pixels (image=0) as fake (temp=1) if any neighbor has image=1
@@ -364,19 +364,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                 }
 
                 // For each pixel where image=0, check if any neighbor (in merged buffer) is set
-                uint32_t fake = 0;
-                for (uint32_t j = 0; j < valuesPerWord; ++j) {
-                  uint32_t shift = j * bits;
-                  // skip pixels where image bit is set (found pixels, not empty)
-                  if ((img >> shift) & mask) {
-                    continue;
-                  }
-                  // check 3 consecutive bits: left neighbor (shift), current (shift+1), right neighbor (shift+2)
-                  // in the merged buffer (which has all 3 rows ORed together)
-                  if (((buffer >> shift) & 0b111) != 0) {
-                    fake |= mask << shift;
-                  }
-                }
+                // OR together 3 shifted versions of buffer to check all neighbors at once: buffer[j] | buffer[j+1] | buffer[j+2] for each bit position j
+                uint32_t neighbors = static_cast<uint32_t>(buffer) | static_cast<uint32_t>(buffer >> 1) |
+                                     static_cast<uint32_t>(buffer >> 2);
+                // Mark as fake only where image=0 (empty) AND neighbors exist
+                uint32_t fake = neighbors & ~img;
                 // write fake pixels to temp buffer
                 temp[i] |= fake;
               }
