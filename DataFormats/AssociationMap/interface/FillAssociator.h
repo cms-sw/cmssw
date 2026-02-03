@@ -9,11 +9,11 @@
 
 namespace ticl::associator {
 
-  template <typename TAcc,
+  template <alpaka::concepts::Acc TAcc,
             typename TQueue,
             ticl::concepts::trivially_copyable TMapped = uint32_t,
             std::integral TKey = uint32_t>
-    requires alpaka::isQueue<TQueue> && alpaka::isAccelerator<TAcc>
+    requires alpaka::isQueue<TQueue>
   ALPAKA_FN_HOST auto fill(TQueue& queue,
                            ticl::AssociationMapView<TMapped, TKey>& map,
                            std::span<const TKey> keys,

@@ -14,7 +14,7 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
 namespace {
   struct TestKernel {
-    template <typename TAcc>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc, ticl::AssociationMapView<> map, bool* result) const {
       // with view methods
       for (auto idx : alpaka::uniformElements(acc, map.size())) {
@@ -41,7 +41,7 @@ TEST_CASE("Construct and fill an association map") {
 
     const auto nkeys = 2u;
     const auto nvalues = 100u;
-    PortableCollection<ticl::AssociationMap<>, Device> map(queue, nvalues, nkeys);
+    PortableCollection<Device, ticl::AssociationMap<>> map(queue, nvalues, nkeys);
     auto host_values = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nvalues);
     auto host_associations = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nvalues);
     std::ranges::copy(std::views::iota(0) | std::views::take(nvalues), host_values.data());
