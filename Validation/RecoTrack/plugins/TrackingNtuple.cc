@@ -33,6 +33,7 @@
 #include "CommonTools/Utils/interface/DynArray.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/transform.h"
@@ -2798,31 +2799,29 @@ void TrackingNtuple::fillGenJets(const edm::Event& iEvent, const TrackingParticl
   for (const TrackingParticleRef& tp : tpCollection) {
     float sim_eta = tp->eta();
     float sim_phi = tp->phi();
-    float dEtaj = 999;
-    float dPhij = 999;
-    float dRj2 = 999;
-    float dEtaTemp = 999;
-    float dPhiTemp = 999;
-    float dRTemp2 = 999;
-    int jet_idx = 999;
-    int counter = 0;
 
-    for (auto const& jet : genJets) {
-      dEtaj = sim_eta - jet.eta();
-      dPhij = reco::deltaPhi(sim_phi, jet.phi());
-      dRj2 = std::pow(dEtaj, 2) + std::pow(dPhij, 2);
-      if (dRj2 < dRTemp2) {
-        dEtaTemp = dEtaj;
-        dPhiTemp = dPhij;
-        dRTemp2 = dRj2;
-        jet_idx = counter;
+    float best_dR2 = std::numeric_limits<float>::max();
+    float best_dEta = 0.f, best_dPhi = 0.f;
+    int best_jet_idx = -1;
+
+    for (size_t i = 0; i < genJets.size(); ++i) {
+      const auto& jet = genJets[i];
+      const float dEta = sim_eta - jet.eta();
+      const float dPhi = reco::deltaPhi(sim_phi, jet.phi());
+      const float dR2 = reco::deltaR2(sim_eta, sim_phi, jet.eta(), jet.phi());
+
+      if (dR2 < best_dR2) {
+        best_dR2 = dR2;
+        best_dEta = dEta;
+        best_dPhi = dPhi;
+        best_jet_idx = i;
       }
-      counter = counter + 1;
     }
-    sim_genjet_deltaEta.push_back(dEtaTemp);
-    sim_genjet_deltaPhi.push_back(dPhiTemp);
-    sim_genjet_deltaR.push_back(std::sqrt(dRTemp2));
-    sim_genjet_idx.push_back(jet_idx);
+
+    sim_genjet_deltaEta.push_back(best_dEta);
+    sim_genjet_deltaPhi.push_back(best_dPhi);
+    sim_genjet_deltaR.push_back(std::sqrt(best_dR2));
+    sim_genjet_idx.push_back(best_jet_idx);
   }
 }
 

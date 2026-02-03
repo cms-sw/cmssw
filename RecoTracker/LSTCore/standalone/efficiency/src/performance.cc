@@ -1051,25 +1051,17 @@ float dRClosestJet(float eta,
                    std::vector<float> const& genJetPt,
                    std::vector<float> const& genJetEta,
                    std::vector<float> const& genJetPhi) {
-  float dEtaj = 999;
-  float dPhij = 999;
-  float dRj2 = 999;
-  float dRTemp2 = 999;
-  float genJetPtj;
-  float genJetEtaj;
-  for (unsigned int ijet = 0; ijet < genJetPhi.size(); ++ijet) {
-    genJetPtj = genJetPt[ijet];
-    genJetEtaj = genJetEta[ijet];
-    if (genJetPtj > 1000 && (genJetEtaj < 2.5 && genJetEtaj > -2.5)) {
-      dEtaj = eta - genJetEtaj;
-      dPhij = std::acos(std::cos(phi - genJetPhi[ijet]));
-      dRj2 = std::pow(dEtaj, 2) + std::pow(dPhij, 2);
-      if (dRj2 < dRTemp2) {
-        dRTemp2 = dRj2;
-      }
+  float best_dR2 = 999;
+  for (size_t i = 0; i < genJetPhi.size(); ++i) {
+    if (genJetPt[i] > 1000.f && std::abs(genJetEta[i]) < 2.5f) {
+      auto dPhi = std::abs(phi - genJetPhi[i]);
+      if (dPhi > float(M_PI))
+        dPhi -= float(2 * M_PI);
+      const float dR2 = std::pow(eta - genJetEta[i], 2) + std::pow(dPhi, 2);
+      best_dR2 = std::min(best_dR2, dR2);
     }
   }
-  return std::sqrt(dRTemp2);
+  return std::sqrt(best_dR2);
 }
 
 //__________________________________________________________________________________________________________________________________________________________________________
@@ -1099,7 +1091,7 @@ void fillEfficiencySets(std::vector<SimTrackSetDefinition>& effsets) {
       for (unsigned int isimtrk = 0; isimtrk < lstEff.getVF("sim_pt").size(); ++isimtrk) {
         genJetPt_isimtrk = genJetPt.at(genJetIdx.at(isimtrk));
         genJetEta_isimtrk = genJetEta.at(genJetIdx.at(isimtrk));
-        if (genJetPt_isimtrk > 1000 && (genJetEta_isimtrk < 2.5 && genJetEta_isimtrk > -2.5)) {
+        if (genJetPt_isimtrk > 1000 && std::abs(genJetEta_isimtrk) < 2.5) {
           fillEfficiencySet(isimtrk,
                             effset,
                             pt.at(isimtrk),
