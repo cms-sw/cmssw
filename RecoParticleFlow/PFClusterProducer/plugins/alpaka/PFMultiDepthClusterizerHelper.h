@@ -23,6 +23,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakaintrinsics;
 
   /**
+ * @brief Compute warp size
+ *
+ * @param mask Input lane index in the warp
+ * 
+ * @return compute lane mask:
+ */
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr std::int32_t get_warp_size() {
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
+    return alpaka::warp::getSizeCompileTime<TAcc>();
+#else
+    return 1;
+#endif
+  }
+
+  /**
  * @brief Compute lane mask
  *
  * @param mask Input lane index in the warp
@@ -65,9 +81,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return Index of least significant 1 bit (0-based). (or warp size if x == 0).
  */
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t get_ls1b_idx(TAcc const& acc, const warp::warp_mask_t mask) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE warp::warp_mask_t get_ls1b_idx(TAcc const& acc, const warp::warp_mask_t mask) {
     if (mask == 0)
-      return static_cast<warp::warp_mask_t>(alpaka::warp::getSize(acc));
+      return static_cast<warp::warp_mask_t>(get_warp_size<TAcc>());
 
     using signed_warp_mask_t = std::conditional_t<sizeof(warp::warp_mask_t) == 8, std::int64_t, std::int32_t>;
 
@@ -97,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                  const unsigned int lane_idx) {
     const auto full_mask = alpaka::warp::ballot(acc, true);
 
-    const unsigned int w_extent = alpaka::warp::getSize(acc);
+    constexpr unsigned int w_extent = get_warp_size<TAcc>();
 
     unsigned int local_offset = val;
 
@@ -137,9 +153,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  */
 
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned int get_logical_lane_idx(TAcc const& acc,
-                                                                        const warp::warp_mask_t mask,
-                                                                        const unsigned int lane_idx) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int get_logical_lane_idx(TAcc const& acc,
+                                                                   const warp::warp_mask_t mask,
+                                                                   const unsigned int lane_idx) {
     if (lane_idx == 0)
       return lane_idx;  // nothing to do, phys idx coincide with the logical one.
     const warp::warp_mask_t lane_mask = mask & (get_lane_mask(lane_idx) - 1);
@@ -189,7 +205,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc, typename reduce_t, typename reducer_t, bool all = true>
     requires std::is_arithmetic_v<reduce_t>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE reduce_t warp_reduce(TAcc const& acc, reduce_t const in, const reducer_t f) {
-    unsigned int const w_extent = alpaka::warp::getSize(acc);
+    constexpr unsigned int w_extent = get_warp_size<TAcc>();
 
     reduce_t result = in;
 
@@ -223,7 +239,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                              const unsigned int lane_idx,
                                                              reduce_t const in,
                                                              const reducer_t f) {
-    unsigned int const w_extent = alpaka::warp::getSize(acc);
+    constexpr unsigned int w_extent = get_warp_size<TAcc>();
 
     // Non-active lanes should skip the reduction:
     if (is_work_lane(mask, lane_idx, w_extent) == false)
@@ -283,7 +299,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                         const warp::warp_mask_t mask,
                                                                         const unsigned int val,
                                                                         const unsigned int lane_idx) {
-    unsigned int const w_extent = alpaka::warp::getSize(acc);
+    constexpr unsigned int w_extent = get_warp_size<TAcc>();
 
     // Non-active lanes should skip the reduction:
     if (is_work_lane(mask, lane_idx, w_extent) == false)

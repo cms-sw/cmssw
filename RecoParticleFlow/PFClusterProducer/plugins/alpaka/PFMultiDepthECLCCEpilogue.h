@@ -62,14 +62,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const reco::PFClusterDeviceCollection::ConstView pfCluster,
         const reco::PFRecHitFractionDeviceCollection::ConstView pfRecHitFracs,
         const reco::PFRecHitDeviceCollection::ConstView pfRecHit) const {
-      static_assert(max_w_items <= 32,
-                    "ECLCCEpilogueKernel: Maximum number of supported warps per block is 32, "
-                    "assuming one warp per 32 threads.");
-      constexpr unsigned int max_w_extent = 32;  // max warp size..
+      constexpr unsigned int w_extent = get_warp_size<Acc1D>();
+
+      static_assert(max_w_items <= 32, "ECLCCEpilogueKernel: number of warps per block is unsupported.");
+
+      constexpr unsigned int max_w_extent = 32;  //is it true for rocm?
 
       const unsigned int nVertices = pfClusteringCCLabels.size();
-
-      const unsigned int w_extent = alpaka::warp::getSize(acc);
 
       //representative vertex index for a component.
       auto& cc_roots(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent + 1], __COUNTER__>(acc));

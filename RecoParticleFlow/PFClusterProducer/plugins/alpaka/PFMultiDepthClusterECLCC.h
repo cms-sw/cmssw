@@ -169,9 +169,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::ConstView pfClusteringEdgeVars) const {
       constexpr Idx mid_degree_threshold = default_mid_degree_threshold;
 
-      const unsigned int nClusters = pfClusteringCCLabels.size();
+      constexpr int warpExtent = get_warp_size<Acc1D>();
 
-      const int warpExtent = alpaka::warp::getSize(acc);
+      const unsigned int nClusters = pfClusteringCCLabels.size();
 
       const unsigned int low_degree_threshold = warpExtent / 2;  // also okay for warp size
 
@@ -206,7 +206,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::ConstView pfClusteringEdgeVars) const {
       const unsigned int nClusters = pfClusteringCCLabels.size();
 
-      const int w_extent = alpaka::warp::getSize(acc);
+      constexpr unsigned int w_extent = get_warp_size<Acc1D>();
 
       for (auto idx : ::cms::alpakatools::uniform_elements(acc, ::cms::alpakatools::round_up_by(nClusters, w_extent))) {
         const warp::warp_mask_t active_lanes_mask = alpaka::warp::ballot(acc, idx < nClusters);
