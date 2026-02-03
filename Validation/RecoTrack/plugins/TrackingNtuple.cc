@@ -93,6 +93,12 @@
 
 #include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
 
+// GenJet headers
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+
 #include <set>
 #include <map>
 #include <unordered_set>
@@ -628,6 +634,8 @@ private:
   void fillTrackingVertices(const TrackingVertexRefVector& trackingVertices,
                             const TrackingParticleRefKeyToIndex& tpKeyToIndex);
 
+  void fillGenJets(const edm::Event& iEvent, const TrackingParticleRefVector& tpCollection);
+
   struct SimHitData {
     std::vector<int> matchingSimHit;
     std::vector<float> chargeFraction;
@@ -704,6 +712,8 @@ private:
 
   HistoryBase tracer_;
   ParametersDefinerForTP parametersDefiner_;
+
+  const edm::EDGetTokenT<reco::GenJetCollection> tok_jets_;
 
   TTree* t;
 
@@ -1415,6 +1425,18 @@ private:
   std::vector<std::vector<int>> simvtx_sourceSimIdx;    // second index runs through source TrackingParticles
   std::vector<std::vector<int>> simvtx_daughterSimIdx;  // second index runs through daughter TrackingParticles
   std::vector<int> simpv_idx;
+  std::vector<float> sim_genjet_deltaEta;  // distance to closest GenJet
+  std::vector<float> sim_genjet_deltaPhi;
+  std::vector<float> sim_genjet_deltaR;
+  std::vector<int> sim_genjet_idx;  // index of GenJet for each Sim track
+
+  ////////////////////
+  // GenJets
+  std::vector<float> genjet_pt;
+  std::vector<float> genjet_eta;
+  std::vector<float> genjet_phi;
+  std::vector<float> genjet_invisible_energy;
+  std::vector<float> genjet_auxiliary_energy;
 };
 
 //
@@ -1473,7 +1495,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       keepEleSimHits_(iConfig.getUntrackedParameter<bool>("keepEleSimHits")),
       saveSimHitsP3_(iConfig.getUntrackedParameter<bool>("saveSimHitsP3")),
       simHitBySignificance_(iConfig.getUntrackedParameter<bool>("simHitBySignificance")),
-      parametersDefiner_(iConfig.getUntrackedParameter<edm::InputTag>("beamSpot"), consumesCollector()) {
+      parametersDefiner_(iConfig.getUntrackedParameter<edm::InputTag>("beamSpot"), consumesCollector()),
+      tok_jets_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("jetSource"))) {
   if (includeSeeds_) {
     seedTokens_ =
         edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("seedTracks"),
@@ -2050,8 +2073,19 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
   t->Branch("simvtx_z", &simvtx_z);
   t->Branch("simvtx_sourceSimIdx", &simvtx_sourceSimIdx);
   t->Branch("simvtx_daughterSimIdx", &simvtx_daughterSimIdx);
+  t->Branch("sim_genjet_deltaEta", &sim_genjet_deltaEta);
+  t->Branch("sim_genjet_deltaPhi", &sim_genjet_deltaPhi);
+  t->Branch("sim_genjet_deltaR", &sim_genjet_deltaR);
 
   t->Branch("simpv_idx", &simpv_idx);
+
+  // GenJets
+  t->Branch("genjet_pt", &genjet_pt);
+  t->Branch("genjet_eta", &genjet_eta);
+  t->Branch("genjet_phi", &genjet_phi);
+  t->Branch("genjet_invisible_energy", &genjet_invisible_energy);
+  t->Branch("genjet_auxiliary_energy", &genjet_auxiliary_energy);
+  t->Branch("sim_genjet_idx", &sim_genjet_idx);
 
   //t->Branch("" , &);
 }
@@ -2462,6 +2496,17 @@ void TrackingNtuple::clearVariables() {
   simvtx_sourceSimIdx.clear();
   simvtx_daughterSimIdx.clear();
   simpv_idx.clear();
+  sim_genjet_deltaEta.clear();
+  sim_genjet_deltaPhi.clear();
+  sim_genjet_deltaR.clear();
+  sim_genjet_idx.clear();
+
+  // GenJets
+  genjet_pt.clear();
+  genjet_eta.clear();
+  genjet_phi.clear();
+  genjet_invisible_energy.clear();
+  genjet_auxiliary_energy.clear();
 }
 
 // ------------ method called for each event  ------------
@@ -2735,7 +2780,50 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // tracking vertices
   fillTrackingVertices(tvRefs, tpKeyToIndex);
 
+  // GenJets
+  fillGenJets(iEvent, tpCollection);
+
   t->Fill();
+}
+
+void TrackingNtuple::fillGenJets(const edm::Event& iEvent, const TrackingParticleRefVector& tpCollection) {
+  auto const& genJets = iEvent.get(tok_jets_);
+  for (auto const& jet : genJets) {
+    genjet_pt.push_back(jet.pt());
+    genjet_eta.push_back(jet.eta());
+    genjet_phi.push_back(jet.phi());
+    genjet_invisible_energy.push_back(jet.invisibleEnergy());
+    genjet_auxiliary_energy.push_back(jet.auxiliaryEnergy());
+  }
+  for (const TrackingParticleRef& tp : tpCollection) {
+    float sim_eta = tp->eta();
+    float sim_phi = tp->phi();
+    float dEtaj = 999;
+    float dPhij = 999;
+    float dRj2 = 999;
+    float dEtaTemp = 999;
+    float dPhiTemp = 999;
+    float dRTemp2 = 999;
+    int jet_idx = 999;
+    int counter = 0;
+
+    for (auto const& jet : genJets) {
+      dEtaj = sim_eta - jet.eta();
+      dPhij = reco::deltaPhi(sim_phi, jet.phi());
+      dRj2 = std::pow(dEtaj, 2) + std::pow(dPhij, 2);
+      if (dRj2 < dRTemp2) {
+        dEtaTemp = dEtaj;
+        dPhiTemp = dPhij;
+        dRTemp2 = dRj2;
+        jet_idx = counter;
+      }
+      counter = counter + 1;
+    }
+    sim_genjet_deltaEta.push_back(dEtaTemp);
+    sim_genjet_deltaPhi.push_back(dPhiTemp);
+    sim_genjet_deltaR.push_back(std::sqrt(dRTemp2));
+    sim_genjet_idx.push_back(jet_idx);
+  }
 }
 
 void TrackingNtuple::fillBeamSpot(const reco::BeamSpot& bs) {
@@ -4721,6 +4809,7 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<bool>("keepEleSimHits", false);
   desc.addUntracked<bool>("saveSimHitsP3", false);
   desc.addUntracked<bool>("simHitBySignificance", false);
+  desc.add<edm::InputTag>("jetSource", edm::InputTag("ak4GenJets"));
   descriptions.add("trackingNtuple", desc);
 }
 
