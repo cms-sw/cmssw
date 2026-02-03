@@ -261,8 +261,12 @@ public:
           nModules_ = moduleIDs_.size();
           std::sort(moduleIDs_.begin(), moduleIDs_.end());
           std::stringstream s;
-          s << "# Skipping module " << description.moduleLabel() << " " << description.moduleName() << " "
-            << description.id() << "\n";
+          s << "@ " << description.moduleLabel() << " " << description.moduleName() << " " << description.id() << "\n";
+          file->write(s.str());
+        } else {
+          std::stringstream s;
+          s << "# Skipping module" << description.moduleLabel() << " " << description.moduleName() << " " << description.id()
+            << " # skipped\n";
           file->write(s.str());
         }
       });
