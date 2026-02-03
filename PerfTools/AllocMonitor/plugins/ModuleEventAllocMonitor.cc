@@ -252,6 +252,20 @@ public:
           file->write(s.str());
         }
       });
+    }
+    else if (not skippedModuleNames_.empty()) {
+      iAR.watchPreModuleConstruction([this, file](auto const& description) {
+        auto found = std::find(skippedModuleNames_.begin(), skippedModuleNames_.end(), description.moduleLabel());
+        if (found == skippedModuleNames_.end()) {
+          moduleIDs_.push_back(description.id());
+          nModules_ = moduleIDs_.size();
+          std::sort(moduleIDs_.begin(), moduleIDs_.end());
+          std::stringstream s;
+          s << "# Skipping module " << description.moduleLabel() << " " << description.moduleName() << " "
+            << description.id() << "\n";
+          file->write(s.str());
+        }
+      });
     } else {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
         if (description.id() + 1 > nModules_) {
@@ -262,20 +276,7 @@ public:
         file->write(s.str());
       });
     }
-    if (not skippedModuleNames_.empty()) {
-      iAR.watchPreModuleConstruction([this, file](auto const& description) {
-        auto found = std::find(skippedModuleNames_.begin(), skippedModuleNames_.end(), description.moduleLabel());
-        if (found != skippedModuleNames_.end()) {
-          moduleIDs_.erase(moduleIDs_.begin() + moduleIndex(description.id()));
-          nModules_ = moduleIDs_.size();
-          std::sort(moduleIDs_.begin(), moduleIDs_.end());
-          std::stringstream s;
-          s << "# Skipping module " << description.moduleLabel() << " " << description.moduleName() << " "
-            << description.id() << "\n";
-          file->write(s.str());
-        }
-      });
-    }
+
     if (nEventsToSkip_ > 0) {
       iAR.watchPreSourceEvent([this](auto) {
         ++nEventsStarted_;
