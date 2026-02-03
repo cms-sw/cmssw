@@ -1,6 +1,6 @@
 
-#ifndef DataFormats_AssociationMap_interface_AssociationMap_h
-#define DataFormats_AssociationMap_interface_AssociationMap_h
+#ifndef DataFormats_TICL_interface_AssociationMap_h
+#define DataFormats_TICL_interface_AssociationMap_h
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
