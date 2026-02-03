@@ -34,7 +34,7 @@
     <use name="PerfTools/AllocMonitor"/>
     <use name="PerfTools/AllocMonitorPreload"/>
   </bin>
-  <test name="testIntrusiveAllocMonitorOutput" command="testIntrusiveAllocMonitor 2>&amp;1 | grep -q 'Vector fill: requested'">
+  <test name="testIntrusiveAllocMonitorOutput" command="testIntrusiveAllocMonitor 2>&amp;1 | ${LOCALTOP}/src/PerfTools/AllocMonitor/test/verifyIntrusiveAllocMonitor.py">
     <flags PRE_TEST="testIntrusiveAllocMonitor"/>
   </test>
 </ifrelease>
