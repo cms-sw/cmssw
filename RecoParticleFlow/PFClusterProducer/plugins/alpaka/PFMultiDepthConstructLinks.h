@@ -159,8 +159,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * winning value for the given key (min for DZ/DR, max for ENERGY). If the candidate set
  * collapses to a single lane, the destination lane updates 'dst_link_params' accordingly.
  *
- * @tparam TAcc Alpaka accelerator type.
- *
  * @param acc              Alpaka accelerator instance.
  * @param mask             Active-lanes mask excluding the owner lane.
  * @param dst_link_params  Destination-selected link parameters (updated on the destination lane).
@@ -174,9 +172,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  *         finished (winner chosen and dst updated, or destination lane is the winner in owner tile).
  */
 
-  template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t prune_link(
-      TAcc const& acc,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE warp::warp_mask_t prune_link(
+      Acc1D const& acc,
       const warp::warp_mask_t mask,  //excludes the owner lane (corresponding bit set to 0)
       PFMDLinkParam& dst_link_params,
       const PFMDLinkParam& src_link_params,
@@ -184,7 +181,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int dst_lane_idx,
       const PFMDLinkParamKind kind,
       const bool is_owner_tile = false) {
-    const unsigned int w_extent = alpaka::warp::getSize(acc);
+    constexpr unsigned int w_extent = get_warp_size<Acc1D>();
     // 1. Create target lane mask:
     const warp::warp_mask_t dst_lane_mask = get_lane_mask(dst_lane_idx);
     // 2. First, we select parameter value for the selection process, based on specified test value type:
@@ -265,12 +262,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View mdpfClusteringCCLabels,
                                   const reco::PFMultiDepthClusteringVarsDeviceCollection::ConstView mdpfClusteringVars,
                                   const PFMultiDepthClusterParams* nSigma) const {
+      constexpr unsigned int w_extent = get_warp_size<Acc1D>();
+
       const unsigned int nClusters = mdpfClusteringVars.size();
 
       const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
       const unsigned int gridDim = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
-
-      const unsigned int w_extent = alpaka::warp::getSize(acc);
 
       const double nSigmaEta_ = nSigma->nSigmaEta;
       const double nSigmaPhi_ = nSigma->nSigmaPhi;
@@ -283,8 +280,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
+        constexpr unsigned int cluster_tile_size = w_extent;
         const unsigned int cluster_tiles = (gridDim + (w_extent - 1)) / w_extent;
-        const unsigned int cluster_tile_size = w_extent;
         // Execution domain along destination (target) clusters
         for (auto idx : ::cms::alpakatools::uniform_group_elements(
                  acc, group, ::cms::alpakatools::round_up_by(nClusters, w_extent))) {

@@ -91,17 +91,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         Acc1D const& acc,
         reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::View pfClusteringEdgeVars,
         const reco::PFMultiDepthClusteringCCLabelsDeviceCollection::ConstView pfClusteringCCLabels) const {
-      static_assert(max_w_items <= 32,
-                    "ECLCCPrologueKernel: Maximum number of supported warps per block is 32, "
-                    "assuming one warp per 32 threads.");
+      constexpr unsigned int w_extent = get_warp_size<Acc1D>();
+      static_assert(max_w_items <= 32, "ECLCCPrologueKernel: number of warps per block is unsupported.");
+
       constexpr unsigned int max_w_extent = 32;
 
       const unsigned int nVertices = pfClusteringCCLabels.size();
 
       const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
-      //const unsigned int nBlocks  = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
 
-      const unsigned int w_extent = alpaka::warp::getSize(acc);
       const unsigned int w_items = alpaka::math::min(acc, (blockDim + (w_extent - 1)) / w_extent, max_w_items);
 
       // nlist_offsets plays two roles:

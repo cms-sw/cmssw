@@ -38,7 +38,7 @@ namespace cms::alpakaintrinsics {
  */
 
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void syncWarpThreads_mask(TAcc const& acc, warp::warp_mask_t mask) {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void syncWarpThreads_mask(TAcc const& acc, warp::warp_mask_t mask) {
       if (mask == 0)
         return;  //early return for the trivial mask
 
@@ -65,9 +65,7 @@ namespace cms::alpakaintrinsics {
  *         whose 'pred' evaluates to 'true'.
  */
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t ballot_mask(TAcc const& acc,
-                                                                      warp::warp_mask_t mask,
-                                                                      int pred) {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE warp::warp_mask_t ballot_mask(TAcc const& acc, warp::warp_mask_t mask, int pred) {
       warp::warp_mask_t res{0};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
       res = __ballot_sync(mask, pred);
@@ -93,8 +91,7 @@ namespace cms::alpakaintrinsics {
  */
     template <alpaka::concepts::Acc TAcc, typename T>
       requires std::is_arithmetic_v<T>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T
-    shfl_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE T shfl_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
       T res{};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
       res = __shfl_sync(mask, var, srcLane, width);  // Synchronize all threads within a warp
@@ -123,7 +120,7 @@ namespace cms::alpakaintrinsics {
 
     template <alpaka::concepts::Acc TAcc, typename T>
       requires std::is_arithmetic_v<T>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE T
     shfl_down_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
       T res{};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
@@ -152,7 +149,7 @@ namespace cms::alpakaintrinsics {
 
     template <alpaka::concepts::Acc TAcc, typename T>
       requires std::is_arithmetic_v<T>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE T
     shfl_up_mask(TAcc const& acc, warp::warp_mask_t mask, T var, int srcLane, int width) {
       T res{};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
@@ -178,16 +175,14 @@ namespace cms::alpakaintrinsics {
  */
     template <alpaka::concepts::Acc TAcc, typename T>
       requires std::is_arithmetic_v<T>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t match_any_mask(TAcc const& acc,
-                                                                         warp::warp_mask_t mask,
-                                                                         T val) {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE warp::warp_mask_t match_any_mask(TAcc const& acc, warp::warp_mask_t mask, T val) {
       warp::warp_mask_t res{};
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
 
 #if __CUDA_ARCH__ >= 700 || ALPAKA_ACC_GPU_HIP_ENABLED
       res = __match_any_sync(mask, val);
 #else
-      const unsigned int w_extent = alpaka::warp::getSize(acc);
+      constexpr unsigned int w_extent = alpaka::warp::getSizeCompileTime<TAcc>();
       unsigned int match = 0;
       for (int iter_lane_idx = 0; iter_lane_idx < w_extent; ++iter_lane_idx) {
         T iter_val = __shfl_sync(mask, val, iter_lane_idx, w_extent);
@@ -217,7 +212,7 @@ namespace cms::alpakaintrinsics {
  */
 
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE warp::warp_mask_t brev(TAcc const& acc, warp::warp_mask_t mask) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE warp::warp_mask_t brev(TAcc const& acc, warp::warp_mask_t mask) {
     warp::warp_mask_t res{0};
 #if defined(__CUDA_ARCH__)
     // Alpaka CUDA backend
@@ -242,7 +237,7 @@ namespace cms::alpakaintrinsics {
  * @return The number of leading zero bits in the lower 32 bits of 'mask'.
  */
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned clz(TAcc const& acc, warp::warp_mask_t mask) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned clz(TAcc const& acc, warp::warp_mask_t mask) {
     unsigned res{0};
 #if defined(__CUDA_ARCH__)
     // Alpaka CUDA backend
