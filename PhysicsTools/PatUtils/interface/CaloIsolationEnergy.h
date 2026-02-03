@@ -18,18 +18,17 @@
 #include <vector>
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/PatCandidates/interface/MuonFwd.h"
+#include "DataFormats/PatCandidates/interface/ElectronFwd.h"
+
 class MagneticField;
 class TrackToEcalPropagator;
 class CaloTower;
 
 namespace pat {
-  class Muon;
-  class Electron;
-
   class CaloIsolationEnergy {
   public:
     CaloIsolationEnergy();
-    virtual ~CaloIsolationEnergy();
 
     float calculate(const Electron& anElectron,
                     const std::vector<CaloTower>& theTowers,

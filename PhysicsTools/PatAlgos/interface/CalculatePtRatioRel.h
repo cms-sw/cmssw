@@ -2,13 +2,10 @@
 #define __PhysicsTools_PatAlgos_CalculatePtRatioRel__
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/PatCandidates/interface/MuonFwd.h"
 
 #include <memory>
 #include <string>
-
-namespace pat {
-  class Muon;
-}
 
 namespace reco {
   class JetCorrector;
