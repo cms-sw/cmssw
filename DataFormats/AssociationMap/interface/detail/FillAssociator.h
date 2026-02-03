@@ -11,7 +11,7 @@
 namespace ticl::associator::detail {
 
   struct KernelComputeAssociationSizes {
-    template <typename TAcc, std::integral TKey>
+    template <alpaka::concepts::Acc TAcc, std::integral TKey>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   std::span<const TKey> keys,
                                   uint32_t* keys_counts,
@@ -23,7 +23,7 @@ namespace ticl::associator::detail {
   };
 
   struct KernelFillAssociator {
-    template <typename TAcc, ticl::concepts::trivially_copyable TMapped, std::integral TKey>
+    template <alpaka::concepts::Acc TAcc, ticl::concepts::trivially_copyable TMapped, std::integral TKey>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   ticl::AssociationMapView<TMapped, TKey> view,
                                   std::span<const TKey> keys,
@@ -37,8 +37,8 @@ namespace ticl::associator::detail {
     }
   };
 
-  template <typename TAcc, typename TQueue, ticl::concepts::trivially_copyable TMapped, std::integral TKey>
-    requires alpaka::isQueue<TQueue> && alpaka::isAccelerator<TAcc>
+  template <alpaka::concepts::Acc TAcc, typename TQueue, ticl::concepts::trivially_copyable TMapped, std::integral TKey>
+    requires alpaka::isQueue<TQueue>
   ALPAKA_FN_HOST auto fill(TQueue& queue,
                            ticl::AssociationMapView<TMapped, TKey>& map,
                            std::span<const TKey> keys,
