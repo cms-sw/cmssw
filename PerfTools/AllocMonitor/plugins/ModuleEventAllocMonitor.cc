@@ -267,6 +267,8 @@ public:
         auto found = std::find(skippedModuleNames_.begin(), skippedModuleNames_.end(), description.moduleLabel());
         if (found != skippedModuleNames_.end()) {
           moduleIDs_.erase(moduleIDs_.begin() + moduleIndex(description.id()));
+          nModules_ = moduleIDs_.size();
+          std::sort(moduleIDs_.begin(), moduleIDs_.end());
           std::stringstream s;
           s << "# Skipping module " << description.moduleLabel() << " " << description.moduleName() << " "
             << description.id() << "\n";
