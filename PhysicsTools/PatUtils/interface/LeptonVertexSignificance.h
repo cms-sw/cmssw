@@ -16,18 +16,14 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/PatCandidates/interface/ElectronFwd.h"
+#include "DataFormats/PatCandidates/interface/MuonFwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class TransientTrackBuilder;
 
-namespace reco {
-  class Track;
-}
-
 namespace pat {
-  class Electron;
-  class Muon;
-
   class LeptonVertexSignificance {
   public:
     LeptonVertexSignificance() = default;

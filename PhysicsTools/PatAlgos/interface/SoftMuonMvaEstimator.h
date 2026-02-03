@@ -3,12 +3,9 @@
 
 #include <memory>
 #include <string>
+#include "DataFormats/PatCandidates/interface/MuonFwd.h"
 
 class GBRForest;
-
-namespace pat {
-  class Muon;
-}
 
 namespace edm {
   class FileInPath;

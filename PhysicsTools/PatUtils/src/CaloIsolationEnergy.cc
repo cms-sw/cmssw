@@ -16,9 +16,6 @@ using namespace pat;
 /// constructor
 CaloIsolationEnergy::CaloIsolationEnergy() {}
 
-/// destructor
-CaloIsolationEnergy::~CaloIsolationEnergy() {}
-
 /// calculate the CalIsoE from the lepton object
 float CaloIsolationEnergy::calculate(const Electron& theElectron,
                                      const std::vector<CaloTower>& theTowers,

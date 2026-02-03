@@ -4,9 +4,7 @@
 class EGammaMvaEleEstimator;
 class EGammaMvaEleEstimatorCSA14;
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-namespace pat {
-  class Electron;
-}
+#include "DataFormats/PatCandidates/interface/ElectronFwd.h"
 #include <vector>
 #include <string>
 

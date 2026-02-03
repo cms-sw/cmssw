@@ -17,13 +17,13 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 class OverlapChecker;
 
 namespace reco {
-  class Track;
   class Candidate {
   public:
     typedef size_t size_type;
