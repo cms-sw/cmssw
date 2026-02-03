@@ -7,11 +7,8 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "DataFormats/PatCandidates/interface/MuonFwd.h"
 //
-
-namespace pat {
-  class Muon;
-}
 
 namespace edm {
   class FileInPath;

@@ -20,9 +20,6 @@ using namespace pat;
 /// constructor
 TrackerIsolationPt::TrackerIsolationPt() {}
 
-/// destructor
-TrackerIsolationPt::~TrackerIsolationPt() {}
-
 /// calculate the TrackIsoPt for the lepton object
 float TrackerIsolationPt::calculate(const Electron& theElectron,
                                     const edm::View<reco::Track>& theTracks,
