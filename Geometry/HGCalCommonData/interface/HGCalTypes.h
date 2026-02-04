@@ -20,12 +20,12 @@ public:
 
   static constexpr int32_t UnknownPosition = -1;
   static constexpr int32_t WaferCenter = 0;
-  static constexpr int32_t WaferCenterB = 1;
-  static constexpr int32_t CornerCenterYp = 2;
-  static constexpr int32_t CornerCenterYm = 3;
-  static constexpr int32_t WaferCenterR = 4;
-  static constexpr int32_t CornerCenterXp = 5;
-  static constexpr int32_t CornerCenterXm = 6;
+  static constexpr int32_t CornerCenterYp = 1;
+  static constexpr int32_t CornerCenterYm = 2;
+  static constexpr int32_t CornerCenterXp = 3;
+  static constexpr int32_t CornerCenterXm = 4;
+  static constexpr int32_t WaferCenterB = 5;
+  static constexpr int32_t WaferCenterR = 6;
 
   static constexpr int32_t WaferTypeUndefined = -1;
   static constexpr int32_t WaferHD120 = 0;
