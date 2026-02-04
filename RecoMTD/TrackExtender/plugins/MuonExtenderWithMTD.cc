@@ -637,6 +637,44 @@ MuonExtenderWithMTDT<T1>::MuonExtenderWithMTDT(const ParameterSet& iConfig)
   produces<TrackCollection>();
 }
 
+template <class T1>
+void MuonExtenderWithMTDT<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc, transDesc;
+  desc.setAllowAnything();
+  desc.add<edm::InputTag>("muonSrc", edm::InputTag("slimmedMuons"));
+  desc.add<edm::InputTag>("hitsSrc", edm::InputTag("mtdTrackingRecHits"));
+  desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("vtxSrc", edm::InputTag("offlinePrimaryVertices4D"));
+  desc.add<bool>("updateTrackTrajectory", true);
+  desc.add<bool>("updateTrackExtra", true);
+  desc.add<bool>("updateTrackHitPattern", true);
+  desc.add<std::string>("TransientTrackBuilder", "TransientTrackBuilder");
+  desc.add<std::string>("MTDRecHitBuilder", "MTDRecHitBuilder");
+  desc.add<std::string>("Propagator", "PropagatorWithMaterialForMTD");
+  TrackTransformer::fillPSetDescription(transDesc,
+                                        false,
+                                        "KFFitterForRefitInsideOut",
+                                        "KFSmootherForRefitInsideOut",
+                                        "PropagatorWithMaterialForMTD",
+                                        "alongMomentum",
+                                        true,
+                                        "WithTrackAngle",
+                                        "MuonRecHitBuilder",
+                                        "MTDRecHitBuilder");
+  desc.add<edm::ParameterSetDescription>("TrackTransformer", transDesc);
+  desc.add<double>("estimatorMaxChi2", 500.);
+  desc.add<double>("estimatorMaxNSigma", 10.);
+  desc.add<double>("btlChi2Cut", 50.);
+  desc.add<double>("btlTimeChi2Cut", 10.);
+  desc.add<double>("etlChi2Cut", 50.);
+  desc.add<double>("etlTimeChi2Cut", 10.);
+  desc.add<bool>("useVertex", false);
+  desc.add<double>("dZCut", 0.1);
+  desc.add<double>("bsTimeSpread", 0.2);
+  //descriptions.add("trackExtenderWithMTDBase", desc);
+  descriptions.addDefault(desc);
+}
+
 template <typename T1>
 template <class H, class T>
 void MuonExtenderWithMTDT<T1>::fillValueMap(edm::Event& iEvent,

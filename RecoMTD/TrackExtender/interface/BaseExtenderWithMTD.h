@@ -163,8 +163,6 @@ public:
   void setParameters(const TransientTrackingRecHitBuilder* hitbuilder, const GlobalTrackingGeometry* gtg);
   const TransientTrackingRecHitBuilder* getHitBuilder() const;
 
-  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
   TransientTrackingRecHit::ConstRecHitContainer tryBTLLayers(const TrajectoryStateOnSurface&,
                                                              const Trajectory& traj,
                                                              const float,

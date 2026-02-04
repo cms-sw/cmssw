@@ -131,6 +131,8 @@ class MuonExtenderWithMTDT : public edm::stream::EDProducer<> {
 public:
   MuonExtenderWithMTDT(const ParameterSet& pset);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   template <class H, class T>
   void fillValueMap(edm::Event& iEvent, const H& handle, const std::vector<T>& vec, const edm::EDPutToken& token) const;
 
