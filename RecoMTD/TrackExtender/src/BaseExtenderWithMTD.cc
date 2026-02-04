@@ -49,12 +49,12 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-namespace mtdtof{
+namespace mtdtof {
   // MTDHitMatchingInfo --------
   MTDHitMatchingInfo::MTDHitMatchingInfo() {
-      hit = nullptr;
-      estChi2 = std::numeric_limits<float>::max();
-      timeChi2 = std::numeric_limits<float>::max();
+    hit = nullptr;
+    estChi2 = std::numeric_limits<float>::max();
+    timeChi2 = std::numeric_limits<float>::max();
   };
 
   //Operator used to sort the hits while performing the matching step at the MTD
@@ -82,9 +82,9 @@ namespace mtdtof{
     segmentSigmaMom_.emplace_back(sigmaMom);
     nSegment_++;
 
-    LogTrace("BaseExtenderWithMTD") << "addSegment # " << nSegment_ << " s = " << tPath
-                                     << " p = " << std::sqrt(tMom2) << " sigma_p = " << sigmaMom
-                                     << " sigma_p/p = " << sigmaMom / std::sqrt(tMom2) * 100 << " %";
+    LogTrace("BaseExtenderWithMTD") << "addSegment # " << nSegment_ << " s = " << tPath << " p = " << std::sqrt(tMom2)
+                                    << " sigma_p = " << sigmaMom << " sigma_p/p = " << sigmaMom / std::sqrt(tMom2) * 100
+                                    << " %";
 
     return nSegment_;
   };
@@ -97,17 +97,16 @@ namespace mtdtof{
       tof += segmentPathOvc_[iSeg] / beta;
 
       LogTrace("BaseExtenderWithMTD") << " TOF Segment # " << iSeg + 1 << " p = " << std::sqrt(segmentMom2_[iSeg])
-                                       << " tof = " << tof;
+                                      << " tof = " << tof;
 
 #ifdef EDM_ML_DEBUG
       float sigma_tof = segmentPathOvc_[iSeg] * segmentSigmaMom_[iSeg] /
                         (segmentMom2_[iSeg] * sqrt(segmentMom2_[iSeg] + 1 / mass_inv2) * mass_inv2);
 
       LogTrace("BaseExtenderWithMTD") << "TOF Segment # " << iSeg + 1 << std::fixed << std::setw(6)
-                                       << " tof segment = " << segmentPathOvc_[iSeg] / beta << std::scientific
-                                       << "+/- " << sigma_tof << std::fixed
-                                       << "(rel. err. = " << sigma_tof / (segmentPathOvc_[iSeg] / beta) * 100
-                                       << " %)";
+                                      << " tof segment = " << segmentPathOvc_[iSeg] / beta << std::scientific << "+/- "
+                                      << sigma_tof << std::fixed
+                                      << "(rel. err. = " << sigma_tof / (segmentPathOvc_[iSeg] / beta) * 100 << " %)";
 #endif
     }
     return tof;
@@ -157,7 +156,7 @@ namespace mtdtof{
     }
     return std::make_pair(segmentPathOvc_[iSegment], segmentMom2_[iSegment]);
   };
-  
+
   const TrackTofPidInfo computeTrackTofPidInfo(float magp2,
                                                float length,
                                                TrackSegments trs,
@@ -338,14 +337,14 @@ namespace mtdtof{
       trs.addSegment(layerpathlength, (it + 1)->updatedState().globalMomentum().mag2(), sigma_p);
 
       LogTrace("BaseExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_i " << std::fixed
-                                       << std::setw(14) << it->updatedState().globalPosition().perp() << " z_i "
-                                       << std::fixed << std::setw(14) << it->updatedState().globalPosition().z()
-                                       << " R_e " << std::fixed << std::setw(14)
-                                       << (it + 1)->updatedState().globalPosition().perp() << " z_e " << std::fixed
-                                       << std::setw(14) << (it + 1)->updatedState().globalPosition().z() << " p "
-                                       << std::fixed << std::setw(14) << (it + 1)->updatedState().globalMomentum().mag()
-                                       << " dp " << std::fixed << std::setw(14)
-                                       << (it + 1)->updatedState().globalMomentum().mag() - oldp;
+                                      << std::setw(14) << it->updatedState().globalPosition().perp() << " z_i "
+                                      << std::fixed << std::setw(14) << it->updatedState().globalPosition().z()
+                                      << " R_e " << std::fixed << std::setw(14)
+                                      << (it + 1)->updatedState().globalPosition().perp() << " z_e " << std::fixed
+                                      << std::setw(14) << (it + 1)->updatedState().globalPosition().z() << " p "
+                                      << std::fixed << std::setw(14) << (it + 1)->updatedState().globalMomentum().mag()
+                                      << " dp " << std::fixed << std::setw(14)
+                                      << (it + 1)->updatedState().globalMomentum().mag() - oldp;
       oldp = (it + 1)->updatedState().globalMomentum().mag();
     }
 
@@ -364,12 +363,12 @@ namespace mtdtof{
     trs.addSegment(pathlength2, tscblPCA.momentum().mag2(), sigma_p);
 
     LogTrace("BaseExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_e " << std::fixed
-                                     << std::setw(14) << tscblPCA.position().perp() << " z_e " << std::fixed
-                                     << std::setw(14) << tscblPCA.position().z() << " p " << std::fixed << std::setw(14)
-                                     << tscblPCA.momentum().mag() << " dp " << std::fixed << std::setw(14)
-                                     << tscblPCA.momentum().mag() - oldp << " sigma_p = " << std::fixed << std::setw(14)
-                                     << sigma_p << " sigma_p/p = " << std::fixed << std::setw(14)
-                                     << sigma_p / tscblPCA.momentum().mag() * 100 << " %";
+                                    << std::setw(14) << tscblPCA.position().perp() << " z_e " << std::fixed
+                                    << std::setw(14) << tscblPCA.position().z() << " p " << std::fixed << std::setw(14)
+                                    << tscblPCA.momentum().mag() << " dp " << std::fixed << std::setw(14)
+                                    << tscblPCA.momentum().mag() - oldp << " sigma_p = " << std::fixed << std::setw(14)
+                                    << sigma_p << " sigma_p/p = " << std::fixed << std::setw(14)
+                                    << sigma_p / tscblPCA.momentum().mag() * 100 << " %";
 
     return validpropagation;
   };
@@ -476,7 +475,7 @@ namespace mtdtof{
       }
     }
   };
-}  // namespace
+}  // namespace mtdtof
 
 // BaseExtenderWithMTD ----------
 
@@ -497,14 +496,13 @@ BaseExtenderWithMTD::BaseExtenderWithMTD(const ParameterSet& iConfig)
 
 BaseExtenderWithMTD::~BaseExtenderWithMTD() = default;
 
-void BaseExtenderWithMTD::setParameters(const TransientTrackingRecHitBuilder* hitbuilder, const GlobalTrackingGeometry* gtg) {
+void BaseExtenderWithMTD::setParameters(const TransientTrackingRecHitBuilder* hitbuilder,
+                                        const GlobalTrackingGeometry* gtg) {
   basehitbuilder_ = hitbuilder;
   basegtg_ = gtg;
 }
 
-const TransientTrackingRecHitBuilder* BaseExtenderWithMTD::getHitBuilder() const{
-  return basehitbuilder_;
-}
+const TransientTrackingRecHitBuilder* BaseExtenderWithMTD::getHitBuilder() const { return basehitbuilder_; }
 
 void BaseExtenderWithMTD::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc, transDesc;
@@ -540,27 +538,26 @@ void BaseExtenderWithMTD::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.add("trackExtenderWithMTDBase", desc);
 }
 
-TransientTrackingRecHit::ConstRecHitContainer BaseExtenderWithMTD::tryBTLLayers(
-    const TrajectoryStateOnSurface& tsos,
-    const Trajectory& traj,
-    const float pmag2,
-    const float pathlength0,
-    const TrackSegments& trs0,
-    const MTDTrackingDetSetVector& hits,
-    const MTDDetLayerGeometry* geo,
-    const MagneticField* field,
-    const Propagator* prop,
-    const reco::BeamSpot& bs,
-    const float vtxTime,
-    const float vtxTimeError,
-    MTDHitMatchingInfo& bestHit) const {
+TransientTrackingRecHit::ConstRecHitContainer BaseExtenderWithMTD::tryBTLLayers(const TrajectoryStateOnSurface& tsos,
+                                                                                const Trajectory& traj,
+                                                                                const float pmag2,
+                                                                                const float pathlength0,
+                                                                                const TrackSegments& trs0,
+                                                                                const MTDTrackingDetSetVector& hits,
+                                                                                const MTDDetLayerGeometry* geo,
+                                                                                const MagneticField* field,
+                                                                                const Propagator* prop,
+                                                                                const reco::BeamSpot& bs,
+                                                                                const float vtxTime,
+                                                                                const float vtxTimeError,
+                                                                                MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
   TransientTrackingRecHit::ConstRecHitContainer output;
   bestHit = MTDHitMatchingInfo();
   for (const DetLayer* ilay : layers) {
     LogTrace("BaseExtenderWithMTD") << "Hit search: BTL layer at R= "
-                                     << static_cast<const BarrelDetLayer*>(ilay)->specificSurface().radius();
+                                    << static_cast<const BarrelDetLayer*>(ilay)->specificSurface().radius();
 
     fillMatchingHits(
         ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, vtxTimeError, output, bestHit);
@@ -569,20 +566,19 @@ TransientTrackingRecHit::ConstRecHitContainer BaseExtenderWithMTD::tryBTLLayers(
   return output;
 }
 
-TransientTrackingRecHit::ConstRecHitContainer BaseExtenderWithMTD::tryETLLayers(
-    const TrajectoryStateOnSurface& tsos,
-    const Trajectory& traj,
-    const float pmag2,
-    const float pathlength0,
-    const TrackSegments& trs0,
-    const MTDTrackingDetSetVector& hits,
-    const MTDDetLayerGeometry* geo,
-    const MagneticField* field,
-    const Propagator* prop,
-    const reco::BeamSpot& bs,
-    const float vtxTime,
-    const float vtxTimeError,
-    MTDHitMatchingInfo& bestHit) const {
+TransientTrackingRecHit::ConstRecHitContainer BaseExtenderWithMTD::tryETLLayers(const TrajectoryStateOnSurface& tsos,
+                                                                                const Trajectory& traj,
+                                                                                const float pmag2,
+                                                                                const float pathlength0,
+                                                                                const TrackSegments& trs0,
+                                                                                const MTDTrackingDetSetVector& hits,
+                                                                                const MTDDetLayerGeometry* geo,
+                                                                                const MagneticField* field,
+                                                                                const Propagator* prop,
+                                                                                const reco::BeamSpot& bs,
+                                                                                const float vtxTime,
+                                                                                const float vtxTimeError,
+                                                                                MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
   TransientTrackingRecHit::ConstRecHitContainer output;
@@ -659,7 +655,7 @@ void BaseExtenderWithMTD::fillMatchingHits(const DetLayer* ilay,
     //check hits to pass minimum quality matching requirements
     auto const& firstHit = *hitsInLayer.begin();
     LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: matching trial 1: estChi2= " << firstHit.estChi2
-                                     << " timeChi2= " << firstHit.timeChi2;
+                                    << " timeChi2= " << firstHit.timeChi2;
     if (firstHit.estChi2 < spaceChi2Cut && firstHit.timeChi2 < timeChi2Cut) {
       hitMatched = true;
       output.push_back(basehitbuilder_->build(firstHit.hit));
@@ -675,7 +671,7 @@ void BaseExtenderWithMTD::fillMatchingHits(const DetLayer* ilay,
     if (!hitsInLayer.empty()) {
       auto const& firstHit = *hitsInLayer.begin();
       LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: matching trial 2: estChi2= " << firstHit.estChi2
-                                       << " timeChi2= " << firstHit.timeChi2;
+                                      << " timeChi2= " << firstHit.timeChi2;
       if (firstHit.timeChi2 < timeChi2Cut) {
         if (firstHit.estChi2 < spaceChi2Cut) {
           hitMatched = true;
@@ -689,15 +685,16 @@ void BaseExtenderWithMTD::fillMatchingHits(const DetLayer* ilay,
 
 #ifdef EDM_ML_DEBUG
   if (hitMatched) {
-    LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: matched hit with time: " << bestHit.hit->time()
-                                     << " +/- " << bestHit.hit->timeError();
+    LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: matched hit with time: " << bestHit.hit->time() << " +/- "
+                                    << bestHit.hit->timeError();
   } else {
     LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: no matched hit";
   }
 #endif
 }
 
-RefitDirection::GeometricalDirection BaseExtenderWithMTD::checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer const& recHits) const {
+RefitDirection::GeometricalDirection BaseExtenderWithMTD::checkRecHitsOrdering(
+    TransientTrackingRecHit::ConstRecHitContainer const& recHits) const {
   if (!recHits.empty()) {
     GlobalPoint first = basegtg_->idToDet(recHits.front()->geographicalId())->position();
     GlobalPoint last = basegtg_->idToDet(recHits.back()->geographicalId())->position();
@@ -792,8 +789,7 @@ reco::Track BaseExtenderWithMTD::buildTrack(const reco::TrackRef& orig,
       }
     }
 
-    LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: selected #hits " << ihitcount << " from ETL "
-                                     << ietlcount;
+    LogTrace("BaseExtenderWithMTD") << "BaseExtenderWithMTD: selected #hits " << ihitcount << " from ETL " << ietlcount;
 
     auto ihit1 = trajWithMtd.measurements().cbegin();
     if (ihitcount == 1) {

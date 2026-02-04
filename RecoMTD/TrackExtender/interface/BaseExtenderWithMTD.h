@@ -29,39 +29,39 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-namespace mtdtof{
+namespace mtdtof {
   constexpr float c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
   constexpr float c_inv = 1.0f / c_cm_ns;
 
-  class MTDHitMatchingInfo{
-    public:
-      MTDHitMatchingInfo();
+  class MTDHitMatchingInfo {
+  public:
+    MTDHitMatchingInfo();
 
-      bool operator<(const MTDHitMatchingInfo& m2) const;
-      float chi2(float timeWeight = 1.f) const;
+    bool operator<(const MTDHitMatchingInfo& m2) const;
+    float chi2(float timeWeight = 1.f) const;
 
-      const MTDTrackingRecHit* hit;
-      float estChi2;
-      float timeChi2;
+    const MTDTrackingRecHit* hit;
+    float estChi2;
+    float timeChi2;
   };
 
   class TrackSegments {
-    public:
-      TrackSegments();
+  public:
+    TrackSegments();
 
-      uint32_t addSegment(float tPath, float tMom2, float sigmaMom);
-      float computeTof(float mass_inv2) const;
-      float computeSigmaTof(float mass_inv2);
-      uint32_t size() const;
-      uint32_t removeFirstSegment();
-      std::pair<float, float> getSegmentPathAndMom2(uint32_t iSegment) const;
+    uint32_t addSegment(float tPath, float tMom2, float sigmaMom);
+    float computeTof(float mass_inv2) const;
+    float computeSigmaTof(float mass_inv2);
+    uint32_t size() const;
+    uint32_t removeFirstSegment();
+    std::pair<float, float> getSegmentPathAndMom2(uint32_t iSegment) const;
 
-      uint32_t nSegment_ = 0;
-      std::vector<float> segmentPathOvc_;
-      std::vector<float> segmentMom2_;
-      std::vector<float> segmentSigmaMom_;
+    uint32_t nSegment_ = 0;
+    std::vector<float> segmentPathOvc_;
+    std::vector<float> segmentMom2_;
+    std::vector<float> segmentSigmaMom_;
 
-      std::vector<float> sigmaTofs_;
+    std::vector<float> sigmaTofs_;
   };
 
   struct TrackTofPidInfo {
@@ -148,106 +148,105 @@ namespace mtdtof{
                          const Propagator* prop,
                          const MeasurementEstimator* estimator,
                          std::set<MTDHitMatchingInfo>& out);
-}
+}  // namespace mtdtof
 
 class BaseExtenderWithMTD {
+public:
+  explicit BaseExtenderWithMTD(const ParameterSet& iConfig);
+  virtual ~BaseExtenderWithMTD();
 
-  public:
-    explicit BaseExtenderWithMTD(const ParameterSet& iConfig);
-    virtual ~BaseExtenderWithMTD();
+  std::unique_ptr<MeasurementEstimator> theEstimator;
 
-    std::unique_ptr<MeasurementEstimator> theEstimator;
+  typedef typename TrackCollection::value_type TrackType;
+  typedef edm::View<TrackType> InputCollection;
 
-    typedef typename TrackCollection::value_type TrackType;
-    typedef edm::View<TrackType> InputCollection;
+  void setParameters(const TransientTrackingRecHitBuilder* hitbuilder, const GlobalTrackingGeometry* gtg);
+  const TransientTrackingRecHitBuilder* getHitBuilder() const;
 
-    void setParameters(const TransientTrackingRecHitBuilder* hitbuilder, const GlobalTrackingGeometry* gtg);
-    const TransientTrackingRecHitBuilder* getHitBuilder() const;
+  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  TransientTrackingRecHit::ConstRecHitContainer tryBTLLayers(const TrajectoryStateOnSurface&,
+                                                             const Trajectory& traj,
+                                                             const float,
+                                                             const float,
+                                                             const mtdtof::TrackSegments&,
+                                                             const MTDTrackingDetSetVector&,
+                                                             const MTDDetLayerGeometry*,
+                                                             const MagneticField* field,
+                                                             const Propagator* prop,
+                                                             const reco::BeamSpot& bs,
+                                                             const float vtxTime,
+                                                             const float vtxTimeError,
+                                                             mtdtof::MTDHitMatchingInfo& bestHit) const;
 
-    TransientTrackingRecHit::ConstRecHitContainer tryBTLLayers(const TrajectoryStateOnSurface&,
-                                                               const Trajectory& traj,
-                                                               const float,
-                                                               const float,
-                                                               const mtdtof::TrackSegments&,
-                                                               const MTDTrackingDetSetVector&,
-                                                               const MTDDetLayerGeometry*,
-                                                               const MagneticField* field,
-                                                               const Propagator* prop,
-                                                               const reco::BeamSpot& bs,
-                                                               const float vtxTime,
-                                                               const float vtxTimeError,
-                                                               mtdtof::MTDHitMatchingInfo& bestHit) const;
+  TransientTrackingRecHit::ConstRecHitContainer tryETLLayers(const TrajectoryStateOnSurface&,
+                                                             const Trajectory& traj,
+                                                             const float,
+                                                             const float,
+                                                             const mtdtof::TrackSegments&,
+                                                             const MTDTrackingDetSetVector&,
+                                                             const MTDDetLayerGeometry*,
+                                                             const MagneticField* field,
+                                                             const Propagator* prop,
+                                                             const reco::BeamSpot& bs,
+                                                             const float vtxTime,
+                                                             const float vtxTimeError,
+                                                             mtdtof::MTDHitMatchingInfo& bestHit) const;
 
-    TransientTrackingRecHit::ConstRecHitContainer tryETLLayers(const TrajectoryStateOnSurface&,
-                                                              const Trajectory& traj,
-                                                              const float,
-                                                              const float,
-                                                              const mtdtof::TrackSegments&,
-                                                              const MTDTrackingDetSetVector&,
-                                                              const MTDDetLayerGeometry*,
-                                                              const MagneticField* field,
-                                                              const Propagator* prop,
-                                                              const reco::BeamSpot& bs,
-                                                              const float vtxTime,
-                                                              const float vtxTimeError,
-                                                              mtdtof::MTDHitMatchingInfo& bestHit) const;
+  virtual void fillMatchingHits(const DetLayer*,
+                                const TrajectoryStateOnSurface&,
+                                const Trajectory&,
+                                const float,
+                                const float,
+                                const mtdtof::TrackSegments&,
+                                const MTDTrackingDetSetVector&,
+                                const Propagator*,
+                                const reco::BeamSpot&,
+                                const float&,
+                                const float&,
+                                TransientTrackingRecHit::ConstRecHitContainer&,
+                                mtdtof::MTDHitMatchingInfo&) const;
 
-    virtual void fillMatchingHits(const DetLayer*,
-                                  const TrajectoryStateOnSurface&,
-                                  const Trajectory&,
-                                  const float,
-                                  const float,
-                                  const mtdtof::TrackSegments&,
-                                  const MTDTrackingDetSetVector&,
-                                  const Propagator*,
-                                  const reco::BeamSpot&,
-                                  const float&,
-                                  const float&,
-                                  TransientTrackingRecHit::ConstRecHitContainer&,
-                                  mtdtof::MTDHitMatchingInfo&) const;
-    
-    RefitDirection::GeometricalDirection checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer const& recHits) const;                          
+  RefitDirection::GeometricalDirection checkRecHitsOrdering(
+      TransientTrackingRecHit::ConstRecHitContainer const& recHits) const;
 
-    reco::Track buildTrack(const reco::TrackRef&,
-                           const Trajectory&,
-                           const Trajectory&,
-                           const reco::BeamSpot&,
-                           const MagneticField* field,
-                           const Propagator* prop,
-                           bool hasMTD,
-                           float& pathLength,
-                           float& tmtdOut,
-                           float& sigmatmtdOut,
-                           GlobalPoint& tmtdPosOut,
-                           float& tofpi,
-                           float& tofk,
-                           float& tofp,
-                           float& sigmatofpi,
-                           float& sigmatofk,
-                           float& sigmatofp) const;
+  reco::Track buildTrack(const reco::TrackRef&,
+                         const Trajectory&,
+                         const Trajectory&,
+                         const reco::BeamSpot&,
+                         const MagneticField* field,
+                         const Propagator* prop,
+                         bool hasMTD,
+                         float& pathLength,
+                         float& tmtdOut,
+                         float& sigmatmtdOut,
+                         GlobalPoint& tmtdPosOut,
+                         float& tofpi,
+                         float& tofk,
+                         float& tofp,
+                         float& sigmatofpi,
+                         float& sigmatofk,
+                         float& sigmatofp) const;
 
-    reco::TrackExtra buildTrackExtra(const Trajectory& trajectory) const;
-    string dumpLayer(const DetLayer* layer) const; 
+  reco::TrackExtra buildTrackExtra(const Trajectory& trajectory) const;
+  string dumpLayer(const DetLayer* layer) const;
 
-    const float estMaxChi2_;
-    const float estMaxNSigma_;
-    const float btlChi2Cut_;
-    const float btlTimeChi2Cut_;
-    const float etlChi2Cut_;
-    const float etlTimeChi2Cut_;
+  const float estMaxChi2_;
+  const float estMaxNSigma_;
+  const float btlChi2Cut_;
+  const float btlTimeChi2Cut_;
+  const float etlChi2Cut_;
+  const float etlTimeChi2Cut_;
 
-    const bool useVertex_;
-    const float dzCut_;
-    const float bsTimeSpread_;
+  const bool useVertex_;
+  const float dzCut_;
+  const float bsTimeSpread_;
 
-  private:
+private:
+  const TransientTrackingRecHitBuilder* basehitbuilder_;
+  const GlobalTrackingGeometry* basegtg_;
 
-    const TransientTrackingRecHitBuilder* basehitbuilder_;
-    const GlobalTrackingGeometry* basegtg_;
-
-    static constexpr float trackMaxBtlEta_ = 1.5;
+  static constexpr float trackMaxBtlEta_ = 1.5;
 };
 
 #endif

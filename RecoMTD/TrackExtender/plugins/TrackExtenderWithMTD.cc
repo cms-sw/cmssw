@@ -65,8 +65,7 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
       mtdRecHitBuilder_(iConfig.getParameter<std::string>("MTDRecHitBuilder")),
       propagator_(iConfig.getParameter<std::string>("Propagator")),
       transientTrackBuilder_(iConfig.getParameter<std::string>("TransientTrackBuilder")),
-      useVertex_(iConfig.getParameter<bool>("useVertex")){
-  
+      useVertex_(iConfig.getParameter<bool>("useVertex")) {
   baseMTDExtender_ = std::make_unique<BaseExtenderWithMTD>(iConfig);
 
   if (useVertex_) {
@@ -333,7 +332,8 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
           t2t(thetrj, *outhits, trajParams, chi2s);
         }
         size_t hitsend = outhits->size();
-        extras->push_back(baseMTDExtender_->buildTrackExtra(trj));  // always push back the fully built extra, update by setting in track
+        extras->push_back(baseMTDExtender_->buildTrackExtra(
+            trj));  // always push back the fully built extra, update by setting in track
         extras->back().setHits(hitsRefProd, hitsstart, hitsend - hitsstart);
         extras->back().setTrajParams(trajParams, chi2s);
         //create the track
