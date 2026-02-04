@@ -379,8 +379,17 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
   for (unsigned trkId : candidateTrackIds) {
     const auto& tk = tracks[trkId];
     const int side = (tk.eta() > 0);
+    FreeTrajectoryState fts;
 
-    const auto& fts = trajectoryStateTransform::outerFreeState(tk, bFieldProd);
+    // Check whether the outer state is actually valid
+    if (tk.outerOk()) {
+      // Use outer state if available
+      fts = trajectoryStateTransform::outerFreeState(tk, bFieldProd);
+    } else {
+      // Fallback: use PCA (reference point)
+      fts = trajectoryStateTransform::initialFreeState(tk, bFieldProd);
+    }
+
     // to the HGCal front
     const auto tsosFront = prop.propagate(fts, firstDisk_[side]->surface());
     if (tsosFront.isValid()) {
