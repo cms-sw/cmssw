@@ -240,34 +240,26 @@ public:
            "#D <module ID> <stream #> <total matched deallocations (bytes)> <# matched deallocations>\n";
       file->write(s.str());
     }
-    if (not moduleNames_.empty()) {
+    if (not moduleNames_.empty() or not skippedModuleNames_.empty()) {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
-        auto found = std::find(moduleNames_.begin(), moduleNames_.end(), description.moduleLabel());
-        if (found != moduleNames_.end()) {
-          moduleIDs_.push_back(description.id());
-          nModules_ = moduleIDs_.size();
-          std::sort(moduleIDs_.begin(), moduleIDs_.end());
-          std::stringstream s;
-          s << "@ " << description.moduleLabel() << " " << description.moduleName() << " " << description.id() << "\n";
-          file->write(s.str());
+        bool shouldKeep = false;
+        if (not moduleNames_.empty()) {
+          shouldKeep = std::ranges::find(moduleNames_, description.moduleLabel()) != moduleNames_.end();
         }
-      });
-    } else if (not skippedModuleNames_.empty()) {
-      iAR.watchPreModuleConstruction([this, file](auto const& description) {
-        auto found = std::find(skippedModuleNames_.begin(), skippedModuleNames_.end(), description.moduleLabel());
-        if (found == skippedModuleNames_.end()) {
+        if (not skippedModuleNames_.empty()) {
+          shouldKeep = std::ranges::find(skippedModuleNames_, description.moduleLabel()) != skippedModuleNames_.end();
+        }
+        std::stringstream s;
+        if (shouldKeep) {
+          s << "@ " << description.moduleLabel() << " " << description.moduleName() << " " << description.id() << "\n";
           moduleIDs_.push_back(description.id());
           nModules_ = moduleIDs_.size();
           std::sort(moduleIDs_.begin(), moduleIDs_.end());
-          std::stringstream s;
-          s << "@ " << description.moduleLabel() << " " << description.moduleName() << " " << description.id() << "\n";
-          file->write(s.str());
         } else {
-          std::stringstream s;
           s << "# Skipping module" << description.moduleLabel() << " " << description.moduleName() << " "
-            << description.id() << " # skipped\n";
-          file->write(s.str());
+              << description.id() << " # skipped\n";
         }
+        file->write(s.str());
       });
     } else {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
