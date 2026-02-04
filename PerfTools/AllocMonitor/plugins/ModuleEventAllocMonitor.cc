@@ -13,6 +13,7 @@
 // system include files
 #include <atomic>
 #include <numeric>
+#include <unordered_set>
 
 // user include files
 #include "PerfTools/AllocMonitor/interface/AllocMonitorBase.h"
@@ -209,8 +210,8 @@ namespace {
 class ModuleEventAllocMonitor {
 public:
   ModuleEventAllocMonitor(edm::ParameterSet const& iPS, edm::ActivityRegistry& iAR)
-      : moduleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames")),
-        skippedModuleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("skippedModuleNames")),
+      : moduleNamesVec_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames")),
+        skippedModuleNamesVec_(iPS.getUntrackedParameter<std::vector<std::string>>("skippedModuleNames")),
         nEventsToSkip_(iPS.getUntrackedParameter<unsigned int>("nEventsToSkip")),
         filter_(&moduleIDs_) {
     (void)cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
@@ -240,14 +241,16 @@ public:
            "#D <module ID> <stream #> <total matched deallocations (bytes)> <# matched deallocations>\n";
       file->write(s.str());
     }
+    moduleNames_ = std::unordered_set<std::string>(moduleNamesVec_.begin(), moduleNamesVec_.end());
+    skippedModuleNames_ = std::unordered_set<std::string>(skippedModuleNamesVec_.begin(), skippedModuleNamesVec_.end());
     if (not moduleNames_.empty() or not skippedModuleNames_.empty()) {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
         bool shouldKeep = false;
         if (not moduleNames_.empty()) {
-          shouldKeep = std::ranges::find(moduleNames_, description.moduleLabel()) != moduleNames_.end();
+          shouldKeep = moduleNames_.contains(description.moduleLabel());
         }
         if (not skippedModuleNames_.empty()) {
-          shouldKeep = std::ranges::find(skippedModuleNames_, description.moduleLabel()) == skippedModuleNames_.end();
+          shouldKeep = not skippedModuleNames_.contains(description.moduleLabel());
         }
         std::stringstream s;
         if (shouldKeep) {
@@ -271,7 +274,6 @@ public:
         file->write(s.str());
       });
     }
-
     if (nEventsToSkip_ > 0) {
       iAR.watchPreSourceEvent([this](auto) {
         ++nEventsStarted_;
@@ -455,8 +457,10 @@ private:
   CMS_THREAD_GUARD(streamSync_) std::vector<int> streamModuleFinishOrder_;
   std::vector<std::atomic<unsigned int>> streamNFinishedModules_;
   std::vector<std::atomic<unsigned int>> streamSync_;
-  std::vector<std::string> moduleNames_;
-  std::vector<std::string> skippedModuleNames_;
+  std::vector<std::string> moduleNamesVec_;
+  std::unordered_set<std::string> moduleNames_;
+  std::vector<std::string> skippedModuleNamesVec_;
+  std::unordered_set<std::string> skippedModuleNames_;
   std::vector<int> moduleIDs_;
   unsigned int nStreams_ = 0;
   unsigned int nModules_ = 0;
