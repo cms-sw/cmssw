@@ -30,6 +30,20 @@
 #include <ostream>
 #include <sstream>
 
+namespace {
+  void addInputElement(edm::JobReport::InputFile const& inpFile,
+                       std::map<std::string, bool> const& fastCopyingInputs,
+                       std::ostream& ost) {
+    ost << "\n<Input>\n  ";
+    edm::xml::addElement("LFN", inpFile.logicalFileName, "\n  ", ost);
+    edm::xml::addElement("PFN", inpFile.physicalFileName, "\n  ", ost);
+    // Casting to int to have 0/1 instead of false/true
+    edm::xml::addElement(
+        "FastCopying", static_cast<int>(edm::findOrDefault(fastCopyingInputs, inpFile.physicalFileName)), "\n", ost);
+    ost << "</Input>";
+  }
+}  // namespace
+
 namespace edm {
   /*
    * Note that output formatting is spattered across these classes
@@ -206,22 +220,10 @@ namespace edm {
 
       *ost_ << "\n<Inputs>";
       for (auto token : f.contributingInputs) {
-        JobReport::InputFile inpFile = inputFiles_.at(token);
-        *ost_ << "\n<Input>\n  ";
-        xml::addElement("LFN", inpFile.logicalFileName, "\n  ", *ost_);
-        xml::addElement("PFN", inpFile.physicalFileName, "\n  ", *ost_);
-        xml::addElement(
-            "FastCopying", static_cast<int>(findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName)), "\n", *ost_);
-        *ost_ << "</Input>";
+        addInputElement(inputFiles_.at(token), f.fastCopyingInputs, *ost_);
       }
       for (auto token : f.contributingInputsSecSource) {
-        JobReport::InputFile inpFile = inputFilesSecSource_.at(token);
-        *ost_ << "\n<Input>\n  ";
-        xml::addElement("LFN", inpFile.logicalFileName, "\n  ", *ost_);
-        xml::addElement("PFN", inpFile.physicalFileName, "\n  ", *ost_);
-        xml::addElement(
-            "FastCopying", static_cast<int>(findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName)), "\n", *ost_);
-        *ost_ << "</Input>";
+        addInputElement(inputFilesSecSource_.at(token), f.fastCopyingInputs, *ost_);
       }
       *ost_ << "\n</Inputs>";
       *ost_ << "\n</File>\n";
@@ -762,13 +764,7 @@ namespace edm {
       msg << "\n<Inputs>";
       typedef std::vector<JobReport::Token>::iterator iterator;
       for (auto const& iInput : f.contributingInputs) {
-        auto const& inpFile = impl_->inputFiles_[iInput];
-        msg << "\n<Input>\n  ";
-        xml::addElement("LFN", inpFile.logicalFileName, "\n  ", msg);
-        xml::addElement("PFN", inpFile.physicalFileName, "\n  ", msg);
-        xml::addElement(
-            "FastCopying", static_cast<int>(findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName)), "", msg);
-        msg << "\n</Input>";
+        addInputElement(impl_->inputFiles_[iInput], f.fastCopyingInputs, msg);
       }
       msg << "\n</Inputs>";
       msg << "\n</File>";
