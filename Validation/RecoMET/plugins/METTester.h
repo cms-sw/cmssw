@@ -41,32 +41,34 @@ public:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
-  static constexpr int mNMETBins = 11;
-  static constexpr std::array<float, mNMETBins + 1> mMETBins = {
-      {0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 1000.}};
-  static constexpr int mNPhiBins = 6;
-  static constexpr std::array<float, mNPhiBins + 1> mPhiBins = {{-3.15, -2., -1., 0., 1., 2., 3.15}};
-
-  static std::string binStr(float left, float right, bool roundInt = true);
-
 private:
   std::map<std::string, MonitorElement *> me;
 
   // Inputs from Configuration File
   edm::InputTag mInputCollection_;
-  edm::InputTag inputMETLabel_;
+  std::string inputMETLabel_;
+  std::string inputMHTLabel_;
   std::string METType_;
   edm::InputTag inputCaloMETLabel_;
 
   // Tokens
   edm::InputTag pvTokenTag_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> pvToken_;
-  edm::EDGetTokenT<reco::CaloMETCollection> caloMETsToken_;
-  edm::EDGetTokenT<reco::PFMETCollection> pfMETsToken_;
-  edm::EDGetTokenT<reco::GenMETCollection> genMETsToken_;
-  edm::EDGetTokenT<reco::GenMETCollection> genMETsTrueToken_;
-  edm::EDGetTokenT<reco::GenMETCollection> genMETsCaloToken_;
-  edm::EDGetTokenT<pat::METCollection> patMETToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection> caloMetToken_;
+  edm::EDGetTokenT<reco::PFMETCollection> pfMetToken_;
+  edm::EDGetTokenT<reco::METCollection> recoMhtToken_;
+  edm::EDGetTokenT<reco::METCollection> genMhtToken_;
+  edm::EDGetTokenT<reco::GenMETCollection> genMetToken_;
+  edm::EDGetTokenT<reco::GenMETCollection> genMetTrueToken_;
+  edm::EDGetTokenT<reco::GenMETCollection> genMetCaloToken_;
+  edm::EDGetTokenT<pat::METCollection> patMetToken_;
+
+  edm::Handle<reco::CaloMETCollection> caloMetHandle_;
+  edm::Handle<reco::PFMETCollection> pfMetHandle_;
+  edm::Handle<reco::GenMETCollection> genMetHandle_;
+  edm::Handle<pat::METCollection> patMetHandle_;
+  edm::Handle<reco::METCollection> genMhtHandle_;
+  edm::Handle<reco::METCollection> recoMhtHandle_;
 
   // Events variables
   MonitorElement *mNvertex;
@@ -76,10 +78,11 @@ private:
   MonitorElement *mMEy;
   MonitorElement *mMETSignPseudo;
   MonitorElement *mMETSignReal;
+  MonitorElement *mGenMETTrue;
+  MonitorElement *mGenMETCalo;
   MonitorElement *mMET;
-  MonitorElement *mMETFine;
+  MonitorElement *mMHT;
   MonitorElement *mMET_Nvtx;
-  MonitorElement *mMETEta;
   MonitorElement *mMETPhi;
   MonitorElement *mSumET;
   MonitorElement *mMETDiff_GenMETTrue;
@@ -88,6 +91,19 @@ private:
   MonitorElement *mMETDiff_GenMETCalo;
   MonitorElement *mMETRatio_GenMETCalo;
   MonitorElement *mMETDeltaPhi_GenMETCalo;
+
+  MonitorElement *mMET_vs_MHT;
+  MonitorElement *mGenMETTrue_vs_GenMHT;
+
+  MonitorElement *mGenMETTrue_vs_MET;
+  MonitorElement *mGenMETPhi_vs_MET;
+  MonitorElement *mGenMETTrue_vs_mGenMETPhi;
+  MonitorElement *mMETDiff_vs_GenMETTrue;
+  MonitorElement *mMETDiff_vs_GenMETPhi;
+  MonitorElement *mMETRatio_vs_GenMETTrue;
+  MonitorElement *mMETRatio_vs_GenMETPhi;  
+  MonitorElement *mMETDeltaPhi_vs_GenMETTrue;
+  MonitorElement *mMETDeltaPhi_vs_GenMETPhi;  
 
   // MET Uncertainity Variables
   MonitorElement *mMETUnc_JetResUp;
@@ -120,6 +136,9 @@ private:
   MonitorElement *mCaloEmEtInEE;
   MonitorElement *mCaloEmEtInEB;
 
+  MonitorElement *mGenMETCalo_vs_MET;
+  MonitorElement *mGenMETCalo_vs_mGenMETPhi;
+
   // GenMET variables
   MonitorElement *mNeutralEMEtFraction;
   MonitorElement *mNeutralHadEtFraction;
@@ -147,21 +166,24 @@ private:
   template <size_t S>
   using ElemArr = std::array<MonitorElement *, S>;
 
-  ElemArr<mNMETBins> mMET_METBins;
-  ElemArr<mNPhiBins> mMET_PhiBins;
-
-  ElemArr<mNMETBins> mMETDiff_GenMETTrue_METBins;
-  ElemArr<mNPhiBins> mMETDiff_GenMETTrue_PhiBins;
-  ElemArr<mNMETBins> mMETRatio_GenMETTrue_METBins;
-  ElemArr<mNPhiBins> mMETRatio_GenMETTrue_PhiBins;
-  ElemArr<mNMETBins> mMETDeltaPhi_GenMETTrue_METBins;
-  ElemArr<mNPhiBins> mMETDeltaPhi_GenMETTrue_PhiBins;
-
   bool isCaloMET;
   bool isPFMET;
+  bool isMHT;
   bool isGenMET;
   bool isMiniAODMET;
   std::string runDir;
+  std::string mGenMetTrueLabel;
+  std::string mGenMetCaloLabel;
+
+  float phiEdge = 3.2;
+  float metEdge = 1600.;
+  float metDiffEdge = 600.;
+  float metRatioEdge = 600.;
+
+  int phiNbins = 100;
+  int metNbins = 1600;
+  int metDiffNbins = 600;
+  int metRatioNbins = 600;
 };
 
 #endif  // METTESTER_H

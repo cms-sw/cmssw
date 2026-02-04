@@ -1,21 +1,9 @@
-// -*- C++ -*-
-//
-// Package:    Validation/RecoMET
-// Class:      METTesterPostProcessorHarvesting
-//
-// Original Author:  "Matthias Weber"
-//         Created:  Sun Feb 22 14:35:25 CET 2015
-//
-
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "Validation/RecoMET/plugins/METTesterPostProcessorHarvesting.h"
 
-// Some switches
-//
-// constructors and destructor
-//
 METTesterPostProcessorHarvesting::METTesterPostProcessorHarvesting(const edm::ParameterSet &iConfig) {
+  runDir = iConfig.getUntrackedParameter<std::string>("runDir");
   inputMETLabelRECO_ = iConfig.getParameter<edm::InputTag>("METTypeRECO");
   inputMETLabelMiniAOD_ = iConfig.getParameter<edm::InputTag>("METTypeMiniAOD");
 }
@@ -25,23 +13,23 @@ METTesterPostProcessorHarvesting::~METTesterPostProcessorHarvesting() {}
 // ------------ method called right after a run ends ------------
 void METTesterPostProcessorHarvesting::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGetter &iget_) {
   std::vector<std::string> subDirVec;
-  std::string RunDir = "JetMET/METValidation/";
-  iget_.setCurrentFolder(RunDir);
+  iget_.setCurrentFolder(runDir);
   met_dirs = iget_.getSubdirs();
   bool found_reco_dir = false;
   bool found_miniaod_dir = false;
+
   // loop over met subdirectories
   for (int i = 0; i < int(met_dirs.size()); i++) {
-    if (met_dirs[i] == (RunDir + inputMETLabelRECO_.label())) {
+    if (met_dirs[i] == (runDir + inputMETLabelRECO_.label())) {
       found_reco_dir = true;
     }
-    if (met_dirs[i] == (RunDir + inputMETLabelMiniAOD_.label())) {
+    if (met_dirs[i] == (runDir + inputMETLabelMiniAOD_.label())) {
       found_miniaod_dir = true;
     }
   }
   if (found_miniaod_dir && found_reco_dir) {
-    std::string rundir_reco = RunDir + inputMETLabelRECO_.label();
-    std::string rundir_miniaod = RunDir + inputMETLabelMiniAOD_.label();
+    std::string rundir_reco = runDir + inputMETLabelRECO_.label();
+    std::string rundir_miniaod = runDir + inputMETLabelMiniAOD_.label();
     MonitorElement *mMET_Reco = iget_.get(rundir_reco + "/" + "MET");
     MonitorElement *mMETPhi_Reco = iget_.get(rundir_reco + "/" + "METPhi");
     MonitorElement *mSumET_Reco = iget_.get(rundir_reco + "/" + "SumET");
@@ -73,7 +61,7 @@ void METTesterPostProcessorHarvesting::dqmEndJob(DQMStore::IBooker &ibook_, DQMS
     ME_Reco.push_back(mMETDiff_GenMETTrue_MET100to150_Reco);
     ME_Reco.push_back(mMETDiff_GenMETTrue_MET300to400_Reco);
 
-    MonitorElement *mMET_MiniAOD = iget_.get(rundir_miniaod + "/" + "MET");
+    MonitorElement *mMET_MiniAOD = iget_.get(rundir_miniaod + "/" + "MET1");
     MonitorElement *mMETPhi_MiniAOD = iget_.get(rundir_miniaod + "/" + "METPhi");
     MonitorElement *mSumET_MiniAOD = iget_.get(rundir_miniaod + "/" + "SumET");
     MonitorElement *mMETDiff_GenMETTrue_MiniAOD = iget_.get(rundir_miniaod + "/" + "METDiff_GenMETTrue");
@@ -105,7 +93,7 @@ void METTesterPostProcessorHarvesting::dqmEndJob(DQMStore::IBooker &ibook_, DQMS
     ME_MiniAOD.push_back(mMETDiff_GenMETTrue_MET100to150_MiniAOD);
     ME_MiniAOD.push_back(mMETDiff_GenMETTrue_MET300to400_MiniAOD);
 
-    ibook_.setCurrentFolder(RunDir + "MiniAOD_over_RECO");
+    ibook_.setCurrentFolder(runDir + "MiniAOD_over_RECO");
     mMET_MiniAOD_over_Reco = ibook_.book1D("MET_MiniAOD_over_RECO", (TH1F *)mMET_Reco->getRootObject());
     mMETPhi_MiniAOD_over_Reco = ibook_.book1D("METPhi_MiniAOD_over_RECO", (TH1F *)mMETPhi_Reco->getRootObject());
     mSumET_MiniAOD_over_Reco = ibook_.book1D("SumET_MiniAOD_over_RECO", (TH1F *)mSumET_Reco->getRootObject());
@@ -168,3 +156,12 @@ void METTesterPostProcessorHarvesting::dqmEndJob(DQMStore::IBooker &ibook_, DQMS
     }
   }
 }
+
+void METTesterPostProcessorHarvesting::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("runDir", "JetMET/METValidation");
+  desc.add<edm::InputTag>("METTypeRECO", edm::InputTag("PfMetT1"));
+  desc.add<edm::InputTag>("METTypeMiniAOD", edm::InputTag("slimmedMETs"));
+  descriptions.addWithDefaultLabel(desc);
+}
+

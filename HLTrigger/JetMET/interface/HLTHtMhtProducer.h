@@ -23,6 +23,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+#include "DataFormats/JetReco/interface/GenJet.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }

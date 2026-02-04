@@ -28,8 +28,12 @@ HLTHtMhtProducer::HLTHtMhtProducer(const edm::ParameterSet& iConfig)
       maxEtaJetMht_(iConfig.getParameter<double>("maxEtaJetMht")),
       jetsLabel_(iConfig.getParameter<edm::InputTag>("jetsLabel")),
       pfCandidatesLabel_(iConfig.getParameter<edm::InputTag>("pfCandidatesLabel")) {
+
   m_theJetToken = consumes<reco::CandidateView>(jetsLabel_);
   m_thePFCandidateToken = consumes<reco::PFCandidateCollection>(pfCandidatesLabel_);
+
+  if (excludePFMuons_)
+    assert(!pfCandidatesLabel_.label().empty());
 
   // Register the products
   produces<reco::METCollection>();
@@ -60,12 +64,9 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // Create a pointer to the products
   std::unique_ptr<reco::METCollection> result(new reco::METCollection());
 
-  if (pfCandidatesLabel_.label().empty())
-    excludePFMuons_ = false;
-
   edm::Handle<reco::CandidateView> jets;
   iEvent.getByToken(m_theJetToken, jets);
-
+	
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   if (excludePFMuons_)
     iEvent.getByToken(m_thePFCandidateToken, pfCandidates);

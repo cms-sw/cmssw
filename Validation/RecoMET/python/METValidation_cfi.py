@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 metAnalyzer = DQMEDAnalyzer(
     "METTester",
-    inputMETLabel = cms.InputTag("caloMet"),
+    inputMETLabel = cms.string("caloMet"),
     METType = cms.untracked.string("calo"),
     primaryVertices = cms.InputTag("offlinePrimaryVertices")
 )

@@ -29,9 +29,12 @@ public:
   explicit METTesterPostProcessorHarvesting(const edm::ParameterSet &);
   ~METTesterPostProcessorHarvesting() override;
 
-private:
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
+
+  private:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
+  std::string runDir;
   edm::InputTag inputMETLabelRECO_;
   edm::InputTag inputMETLabelMiniAOD_;
 

@@ -1,6 +1,5 @@
 #ifndef METTESTERPOSTPROCESSOR_H
 #define METTESTERPOSTPROCESSOR_H
-// author: Matthias Weber, Feb 2015
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
@@ -23,47 +22,43 @@ private:
   std::vector<std::string> met_dirs;
 
   using MElem = MonitorElement;
+	
+  static constexpr int mNMETBins = 11;
+  const std::vector<float> mMETBins = {{0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 1000.}};
 
-  void mFillAggrHistograms(std::string, DQMStore::IGetter&);
-  bool mCheckHisto(MElem* h);
-
-  template <typename T>
-  using ArrayVariant = std::variant<std::array<T, METTester::mNMETBins + 1>, std::array<T, METTester::mNPhiBins + 1>>;
-
-  // reading
-  template <typename T>
-  T mArrayIdx(const ArrayVariant<T>& arr, unsigned idx) {
-    return std::visit([idx](const auto& x) { return x.at(idx); }, arr);
-  }
-  // assigning
-  template <typename T>
-  auto& mArrayIdx(ArrayVariant<T>& arr, unsigned idx) {
-    return std::visit([idx](auto& x) -> auto& { return x.at(idx); }, arr);
-  }
-
-  std::unordered_map<std::string, unsigned> mNBins = {{"MET", METTester::mNMETBins}, {"Phi", METTester::mNPhiBins}};
-  std::unordered_map<std::string, ArrayVariant<float>> mEdges = {
-      {"MET", std::array<float, METTester::mNMETBins + 1>{METTester::mMETBins}},
-      {"Phi", std::array<float, METTester::mNPhiBins + 1>{METTester::mPhiBins}}};
+  static constexpr int mNPhiBins = 6;
+  const std::vector<float> mPhiBins = {{-3.15, -2., -1., 0., 1., 2., 3.15}};
 
   using ElemMap = std::unordered_map<std::string, MElem*>;  // one entry per bin type, for instance "MET" and "Phi"
-  using ElemMapArr =
-      std::unordered_map<std::string, ArrayVariant<MElem*>>;  // one entry per bin type, for instance "MET" and "Phi"
 
-  ElemMapArr mMET;
-  ElemMapArr mMETDiff_GenMETTrue;
-  ElemMapArr mMETRatio_GenMETTrue;
-  ElemMapArr mMETDeltaPhi_GenMETTrue;
+  MElem *mGenMETTrue_vs_MET;
+  MElem *mGenMETPhi_vs_MET;
+  MElem *mGenMETTrue_vs_mGenMETPhi;
+  MElem *mMETDiff_vs_GenMETTrue;
+  MElem *mMETDiff_vs_GenMETPhi;
+  MElem *mMETRatio_vs_GenMETTrue;
+  MElem *mMETRatio_vs_GenMETPhi;
+  MElem *mMETDeltaPhi_vs_GenMETTrue;
+  MElem *mMETDeltaPhi_vs_GenMETPhi;
 
   ElemMap mMETDiffAggr;
+  ElemMap mMETDeltaPhiAggr;
   ElemMap mMETRespAggr;
-  ElemMap mMETResolAggr;
-  ElemMap mMETSignAggr;
+  ElemMap mMETResolAggr, mMETGenResolAggr, mMETResolDiffAggr;
+  ElemMap mMETSignAggr, mMETGenSignAggr, mMETSignDiffAggr;
 
   std::string runDir;
 
   float mEpsilonFloat = std::numeric_limits<float>::epsilon();
   double mEpsilonDouble = std::numeric_limits<double>::epsilon();
+
+  // methods
+  void mFillAggrHistograms(std::string, DQMStore::IGetter&);
+  bool mCheckHisto(MElem* h);
+  float mComputeSignErr(float significance, float metRMS, float metMean, float metRMSError);
+  std::vector<std::unordered_map<std::string,float>> projectionMeanAndRMS(MElem* src, const std::vector<float>& bins, std::string axis = "X");
+  void fillProjectionHisto(MElem* src, MElem* dest, const std::vector<float>& bins);
+  void logDebugEmptyHisto(std::string);
 };
 
 #endif
