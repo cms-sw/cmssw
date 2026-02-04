@@ -37,7 +37,7 @@ namespace edmtest {
 
     void throwWithMessage(const char*) const;
 
-    const std::vector<unsigned int> bxValues_;
+    const std::vector<int> bxValues_;
 
     const std::vector<int> muonValues_;
     const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::Muon>> muonsPutToken_;
@@ -65,7 +65,7 @@ namespace edmtest {
   };
 
   TestWriteL1Scouting::TestWriteL1Scouting(edm::ParameterSet const& iPSet)
-      : bxValues_(iPSet.getParameter<std::vector<unsigned>>("bxValues")),
+      : bxValues_(iPSet.getParameter<std::vector<int>>("bxValues")),
         muonValues_(iPSet.getParameter<std::vector<int>>("muonValues")),
         muonsPutToken_(produces()),
         jetValues_(iPSet.getParameter<std::vector<int>>("jetValues")),
@@ -127,7 +127,7 @@ namespace edmtest {
 
     std::vector<std::vector<l1ScoutingRun3::Muon>> orbitBufferMuons(3565);
     int nMuons = 0;
-    for (const unsigned& bx : bxValues_) {
+    for (const int& bx : bxValues_) {
       for (const int& val : muonValues_) {
         orbitBufferMuons[bx].emplace_back(val, val, val, val, val, val, val, val, val, val, val, val);
         nMuons++;
@@ -143,7 +143,7 @@ namespace edmtest {
 
     std::vector<std::vector<l1ScoutingRun3::Jet>> orbitBufferJets(3565);
     int nJets = 0;
-    for (const unsigned& bx : bxValues_) {
+    for (const int& bx : bxValues_) {
       for (const int& val : jetValues_) {
         orbitBufferJets[bx].emplace_back(val, val, val, val);
         nJets++;
@@ -159,7 +159,7 @@ namespace edmtest {
 
     std::vector<std::vector<l1ScoutingRun3::EGamma>> orbitBufferEGammas(3565);
     int nEGammas = 0;
-    for (const unsigned& bx : bxValues_) {
+    for (const int& bx : bxValues_) {
       for (const int& val : eGammaValues_) {
         orbitBufferEGammas[bx].emplace_back(val, val, val, val);
         nEGammas++;
@@ -175,7 +175,7 @@ namespace edmtest {
 
     std::vector<std::vector<l1ScoutingRun3::Tau>> orbitBufferTaus(3565);
     int nTaus = 0;
-    for (const unsigned& bx : bxValues_) {
+    for (const int& bx : bxValues_) {
       for (const int& val : tauValues_) {
         orbitBufferTaus[bx].emplace_back(val, val, val, val);
         nTaus++;
@@ -191,7 +191,7 @@ namespace edmtest {
 
     std::vector<std::vector<l1ScoutingRun3::BxSums>> orbitBufferBxSums(3565);
     int nBxSums = 0;
-    for (const unsigned& bx : bxValues_) {
+    for (const int& bx : bxValues_) {
       for (const int& val : bxSumsValues_) {
         orbitBufferBxSums[bx].emplace_back(
             val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val);
@@ -208,7 +208,7 @@ namespace edmtest {
 
     std::vector<std::vector<l1ScoutingRun3::BMTFStub>> orbitBufferStubs(3565);
     int nStubs = 0;
-    for (const unsigned& bx : bxValues_) {
+    for (const int& bx : bxValues_) {
       for (const int& val : bmtfStubsValues_) {
         orbitBufferStubs[bx].emplace_back(val + 8, val + 7, val + 6, val + 5, val + 4, val + 3, val + 2, val + 1, val);
         nStubs++;
@@ -224,7 +224,7 @@ namespace edmtest {
 
     std::vector<std::vector<l1ScoutingRun3::CaloTower>> orbitBufferCaloTowers(3565);
     int nCaloTowers = 0;
-    for (const unsigned& bx : bxValues_) {
+    for (const int& bx : bxValues_) {
       for (const int& val : caloTowerValues_) {
         orbitBufferCaloTowers[bx].emplace_back(val, val, val, val, val);
         nCaloTowers++;
@@ -240,7 +240,7 @@ namespace edmtest {
 
     std::vector<std::vector<l1ScoutingRun3::FastJet>> orbitBufferFastJets(3565);
     int nFastJets = 0;
-    for (const unsigned& bx : bxValues_) {
+    for (const int& bx : bxValues_) {
       for (const int& val : fastJetValues_) {
         orbitBufferFastJets[bx].emplace_back(val, val, val, val, val, val);
         nFastJets++;
@@ -253,7 +253,7 @@ namespace edmtest {
 
   void TestWriteL1Scouting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::vector<unsigned int>>("bxValues");
+    desc.add<std::vector<int>>("bxValues");
     desc.add<std::vector<int>>("muonValues");
     desc.add<std::vector<int>>("jetValues");
     desc.add<std::vector<int>>("eGammaValues");
