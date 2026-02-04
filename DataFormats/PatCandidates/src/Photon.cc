@@ -157,9 +157,23 @@ Photon::Photon(const edm::Ptr<reco::Photon>& aPhotonRef)
       iEta_(-999),
       iPhi_(-999) {}
 
+// Helper to create reco::Photon from scouting photon
+namespace {
+  reco::Photon makeRecoPhoton(const Run3ScoutingPhoton& sPhoton) {
+    float px = sPhoton.pt() * std::cos(sPhoton.phi());
+    float py = sPhoton.pt() * std::sin(sPhoton.phi());
+    float pz = sPhoton.pt() * std::sinh(sPhoton.eta());
+    float energy = std::sqrt(px * px + py * py + pz * pz + sPhoton.m() * sPhoton.m());
+    reco::Photon::LorentzVector p4(px, py, pz, energy);
+    reco::Photon::Point caloPos(0, 0, 0);
+    reco::Photon::Point vtx(0, 0, 0);
+    return reco::Photon(p4, caloPos, reco::PhotonCoreRef(), vtx);
+  }
+}  // namespace
+
 /// constructor from Run3ScoutingPhoton
 Photon::Photon(const Run3ScoutingPhoton& sPhoton)
-    : PATObject<reco::Photon>(reco::Photon()),
+    : PATObject<reco::Photon>(makeRecoPhoton(sPhoton)),
       embeddedSuperCluster_(false),
       embeddedSeedCluster_(false),
       embeddedRecHits_(false),
@@ -193,15 +207,6 @@ Photon::Photon(const Run3ScoutingPhoton& sPhoton)
       cryPhi_(-999),
       iEta_(-999),
       iPhi_(-999) {
-  // Set kinematics
-  float px = sPhoton.pt() * std::cos(sPhoton.phi());
-  float py = sPhoton.pt() * std::sin(sPhoton.phi());
-  float pz = sPhoton.pt() * std::sinh(sPhoton.eta());
-  float energy = std::sqrt(px * px + py * py + pz * pz + sPhoton.m() * sPhoton.m());
-  reco::Photon::LorentzVector p4(px, py, pz, energy);
-
-  this->setP4(p4);
-  this->setVertex(reco::Photon::Point(0, 0, 0));
 
   // Store shower shape variables as userFloats
   this->addUserFloat("sigmaIetaIeta", sPhoton.sigmaIetaIeta());

@@ -167,6 +167,14 @@ Muon::Muon(const Run3ScoutingMuon& aMuon)
   this->setP4(reco::Particle::LorentzVector(p4));
   this->setVertex(track.vertex());
 
+  // Set muon type from scouting flags
+  unsigned int muonType = 0;
+  if (aMuon.isGlobalMuon())
+    muonType |= reco::Muon::GlobalMuon;
+  if (aMuon.isTrackerMuon())
+    muonType |= reco::Muon::TrackerMuon;
+  this->setType(muonType);
+
   // Directly embed the track without creating a temporary TrackRef
   // This avoids the transient reference issue that prevents serialization
   combinedMuon_.clear();
