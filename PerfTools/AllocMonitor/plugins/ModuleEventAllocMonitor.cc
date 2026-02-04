@@ -247,7 +247,7 @@ public:
           shouldKeep = std::ranges::find(moduleNames_, description.moduleLabel()) != moduleNames_.end();
         }
         if (not skippedModuleNames_.empty()) {
-          shouldKeep = std::ranges::find(skippedModuleNames_, description.moduleLabel()) != skippedModuleNames_.end();
+          shouldKeep = std::ranges::find(skippedModuleNames_, description.moduleLabel()) == skippedModuleNames_.end();
         }
         std::stringstream s;
         if (shouldKeep) {
