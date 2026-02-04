@@ -8,7 +8,11 @@
  Description: Converts Run3ScoutingPhoton to pat::Photon
 
  Implementation:
-     Creates pat::Photon from scouting data, storing shower shape variables as userFloats
+     Uses the pat::Photon(const Run3ScoutingPhoton&) constructor which sets:
+     - Kinematics (pt, eta, phi, mass)
+     - Shower shape variables as userFloats (sigmaIetaIeta, hOverE, r9, sMin, sMaj)
+     - Energy variables as userFloats (rawEnergy, preshowerEnergy, corrEcalEnergyError)
+     - Isolation as userFloats and PAT isolation keys (ecalIso, hcalIso, trkIso)
 */
 //
 // Original Author:  Dmytro Kovalskyi
@@ -17,7 +21,6 @@
 //
 
 #include <memory>
-#include <cmath>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -54,37 +57,8 @@ void PatFromScoutingPhotonProducer::produce(edm::Event& iEvent, const edm::Event
   const auto& scoutingPhotons = iEvent.get(photonToken_);
 
   for (const auto& sPhoton : scoutingPhotons) {
-    float px = sPhoton.pt() * std::cos(sPhoton.phi());
-    float py = sPhoton.pt() * std::sin(sPhoton.phi());
-    float pz = sPhoton.pt() * std::sinh(sPhoton.eta());
-    float energy = std::sqrt(px * px + py * py + pz * pz + sPhoton.m() * sPhoton.m());
-
-    reco::Photon::LorentzVector p4(px, py, pz, energy);
-    reco::Photon::Point caloPos(0, 0, 0);
-    reco::Photon::Point vtx(0, 0, 0);
-
-    reco::Photon recoPhoton(p4, caloPos, reco::PhotonCoreRef(), vtx);
-    pat::Photon patPhoton(recoPhoton);
-
-    patPhoton.addUserFloat("sigmaIetaIeta", sPhoton.sigmaIetaIeta());
-    patPhoton.addUserFloat("hOverE", sPhoton.hOverE());
-    patPhoton.addUserFloat("r9", sPhoton.r9());
-    patPhoton.addUserFloat("sMin", sPhoton.sMin());
-    patPhoton.addUserFloat("sMaj", sPhoton.sMaj());
-
-    patPhoton.addUserFloat("rawEnergy", sPhoton.rawEnergy());
-    patPhoton.addUserFloat("preshowerEnergy", sPhoton.preshowerEnergy());
-    patPhoton.addUserFloat("corrEcalEnergyError", sPhoton.corrEcalEnergyError());
-
-    patPhoton.addUserFloat("ecalIso", sPhoton.ecalIso());
-    patPhoton.addUserFloat("hcalIso", sPhoton.hcalIso());
-    patPhoton.addUserFloat("trkIso", sPhoton.trkIso());
-
-    patPhoton.setIsolation(pat::TrackIso, sPhoton.trkIso());
-    patPhoton.setIsolation(pat::EcalIso, sPhoton.ecalIso());
-    patPhoton.setIsolation(pat::HcalIso, sPhoton.hcalIso());
-
-    patPhotons->push_back(patPhoton);
+    // Constructor now handles kinematics, shower shape, and isolation
+    patPhotons->push_back(pat::Photon(sPhoton));
   }
 
   iEvent.put(std::move(patPhotons));

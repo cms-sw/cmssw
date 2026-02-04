@@ -2,7 +2,10 @@
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+
+#include <cmath>
 
 using pat::Photon;
 
@@ -153,6 +156,75 @@ Photon::Photon(const edm::Ptr<reco::Photon>& aPhotonRef)
       cryPhi_(-999),
       iEta_(-999),
       iPhi_(-999) {}
+
+/// constructor from Run3ScoutingPhoton
+Photon::Photon(const Run3ScoutingPhoton& sPhoton)
+    : PATObject<reco::Photon>(reco::Photon()),
+      embeddedSuperCluster_(false),
+      embeddedSeedCluster_(false),
+      embeddedRecHits_(false),
+      passElectronVeto_(false),
+      hasPixelSeed_(false),
+      seedEnergy_(0.0),
+      eMax_(0.0),
+      e2nd_(0.0),
+      e3x3_(0.0),
+      eTop_(0.0),
+      eBottom_(0.0),
+      eLeft_(0.0),
+      eRight_(0.0),
+      see_(-999.),
+      spp_(-999.),
+      sep_(-999.),
+      maxDR_(-999.),
+      maxDRDPhi_(-999.),
+      maxDRDEta_(-999.),
+      maxDRRawEnergy_(-999.),
+      subClusRawE1_(-999.),
+      subClusRawE2_(-999.),
+      subClusRawE3_(-999.),
+      subClusDPhi1_(-999.),
+      subClusDPhi2_(-999.),
+      subClusDPhi3_(-999.),
+      subClusDEta1_(-999.),
+      subClusDEta2_(-999.),
+      subClusDEta3_(-999.),
+      cryEta_(-999.),
+      cryPhi_(-999),
+      iEta_(-999),
+      iPhi_(-999) {
+  // Set kinematics
+  float px = sPhoton.pt() * std::cos(sPhoton.phi());
+  float py = sPhoton.pt() * std::sin(sPhoton.phi());
+  float pz = sPhoton.pt() * std::sinh(sPhoton.eta());
+  float energy = std::sqrt(px * px + py * py + pz * pz + sPhoton.m() * sPhoton.m());
+  reco::Photon::LorentzVector p4(px, py, pz, energy);
+
+  this->setP4(p4);
+  this->setVertex(reco::Photon::Point(0, 0, 0));
+
+  // Store shower shape variables as userFloats
+  this->addUserFloat("sigmaIetaIeta", sPhoton.sigmaIetaIeta());
+  this->addUserFloat("hOverE", sPhoton.hOverE());
+  this->addUserFloat("r9", sPhoton.r9());
+  this->addUserFloat("sMin", sPhoton.sMin());
+  this->addUserFloat("sMaj", sPhoton.sMaj());
+
+  // Store energy variables
+  this->addUserFloat("rawEnergy", sPhoton.rawEnergy());
+  this->addUserFloat("preshowerEnergy", sPhoton.preshowerEnergy());
+  this->addUserFloat("corrEcalEnergyError", sPhoton.corrEcalEnergyError());
+
+  // Store isolation as userFloats (for NanoAOD access)
+  this->addUserFloat("ecalIso", sPhoton.ecalIso());
+  this->addUserFloat("hcalIso", sPhoton.hcalIso());
+  this->addUserFloat("trkIso", sPhoton.trkIso());
+
+  // Also set isolation using PAT isolation keys
+  this->setIsolation(pat::TrackIso, sPhoton.trkIso());
+  this->setIsolation(pat::EcalIso, sPhoton.ecalIso());
+  this->setIsolation(pat::HcalIso, sPhoton.hcalIso());
+}
 
 /// destructor
 Photon::~Photon() {}

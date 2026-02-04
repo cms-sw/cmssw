@@ -31,6 +31,9 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 
+// Forward declaration for scouting
+class Run3ScoutingElectron;
+
 // Define typedefs for convenience
 namespace pat {
   class Electron;
@@ -61,6 +64,8 @@ namespace pat {
     Electron(const edm::RefToBase<reco::GsfElectron>& anElectronRef);
     /// constructor from a Ptr to a reco::GsfElectron
     Electron(const edm::Ptr<reco::GsfElectron>& anElectronRef);
+    /// constructor from Run3ScoutingElectron
+    Electron(const Run3ScoutingElectron& scoutingElectron);
     /// destructor
     ~Electron() override;
 

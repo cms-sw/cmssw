@@ -26,6 +26,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 
+// Forward declaration for scouting
+class Run3ScoutingPhoton;
+
 // Define typedefs for convenience
 namespace pat {
   class Photon;
@@ -56,6 +59,8 @@ namespace pat {
     Photon(const edm::RefToBase<reco::Photon>& aPhotonRef);
     /// constructor from a Ptr to a reco photon
     Photon(const edm::Ptr<reco::Photon>& aPhotonRef);
+    /// constructor from Run3ScoutingPhoton
+    Photon(const Run3ScoutingPhoton& scoutingPhoton);
     /// destructor
     ~Photon() override;
 

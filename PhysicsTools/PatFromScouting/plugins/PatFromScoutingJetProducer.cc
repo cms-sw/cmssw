@@ -8,7 +8,11 @@
  Description: Converts Run3ScoutingPFJet to pat::Jet
 
  Implementation:
-     Creates pat::Jet with PFSpecific from scouting data, adds b-tagging discriminators
+     Uses the pat::Jet(const Run3ScoutingPFJet&) constructor which sets:
+     - Kinematics (pt, eta, phi, mass)
+     - Jet area
+     - PFJet::Specific (energy fractions, multiplicities)
+     - B-tagging discriminators (CSV, DeepCSV)
 */
 //
 // Original Author:  Dmytro Kovalskyi
@@ -17,7 +21,6 @@
 //
 
 #include <memory>
-#include <cmath>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -28,7 +31,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
 
 class PatFromScoutingJetProducer : public edm::stream::EDProducer<> {
@@ -55,56 +57,8 @@ void PatFromScoutingJetProducer::produce(edm::Event& iEvent, const edm::EventSet
   const auto& scoutingJets = iEvent.get(jetToken_);
 
   for (const auto& sJet : scoutingJets) {
-    float px = sJet.pt() * std::cos(sJet.phi());
-    float py = sJet.pt() * std::sin(sJet.phi());
-    float pz = sJet.pt() * std::sinh(sJet.eta());
-    float energy = std::sqrt(px * px + py * py + pz * pz + sJet.m() * sJet.m());
-
-    reco::Particle::LorentzVector p4(px, py, pz, energy);
-
-    reco::PFJet::Specific pfSpecific;
-    pfSpecific.mChargedHadronEnergy = sJet.chargedHadronEnergy();
-    pfSpecific.mNeutralHadronEnergy = sJet.neutralHadronEnergy();
-    pfSpecific.mPhotonEnergy = sJet.photonEnergy();
-    pfSpecific.mElectronEnergy = sJet.electronEnergy();
-    pfSpecific.mMuonEnergy = sJet.muonEnergy();
-    pfSpecific.mHFHadronEnergy = sJet.HFHadronEnergy();
-    pfSpecific.mHFEMEnergy = sJet.HFEMEnergy();
-
-    pfSpecific.mChargedHadronMultiplicity = sJet.chargedHadronMultiplicity();
-    pfSpecific.mNeutralHadronMultiplicity = sJet.neutralHadronMultiplicity();
-    pfSpecific.mPhotonMultiplicity = sJet.photonMultiplicity();
-    pfSpecific.mElectronMultiplicity = sJet.electronMultiplicity();
-    pfSpecific.mMuonMultiplicity = sJet.muonMultiplicity();
-    pfSpecific.mHFHadronMultiplicity = sJet.HFHadronMultiplicity();
-    pfSpecific.mHFEMMultiplicity = sJet.HFEMMultiplicity();
-
-    pfSpecific.mHOEnergy = sJet.HOEnergy();
-
-    pfSpecific.mChargedEmEnergy = sJet.electronEnergy();
-    pfSpecific.mChargedMuEnergy = sJet.muonEnergy();
-    pfSpecific.mNeutralEmEnergy = sJet.photonEnergy() + sJet.HFEMEnergy();
-
-    int chargedMultiplicity =
-        sJet.chargedHadronMultiplicity() + sJet.electronMultiplicity() + sJet.muonMultiplicity();
-    int neutralMultiplicity =
-        sJet.neutralHadronMultiplicity() + sJet.photonMultiplicity() + sJet.HFHadronMultiplicity() + sJet.HFEMMultiplicity();
-
-    pfSpecific.mChargedMultiplicity = chargedMultiplicity;
-    pfSpecific.mNeutralMultiplicity = neutralMultiplicity;
-
-    reco::PFJet pfJet(p4, math::XYZPoint(0, 0, 0), pfSpecific);
-    pfJet.setJetArea(sJet.jetArea());
-
-    pat::Jet patJet(pfJet);
-
-    patJet.addBDiscriminatorPair(std::make_pair("pfCombinedSecondaryVertexV2BJetTags", sJet.csv()));
-    patJet.addBDiscriminatorPair(std::make_pair("pfDeepCSVJetTags:probb", sJet.mvaDiscriminator()));
-
-    patJet.addUserFloat("csv", sJet.csv());
-    patJet.addUserFloat("mvaDiscriminator", sJet.mvaDiscriminator());
-
-    patJets->push_back(patJet);
+    // Constructor now handles kinematics, PFSpecific, and b-tagging
+    patJets->push_back(pat::Jet(sJet));
   }
 
   iEvent.put(std::move(patJets));

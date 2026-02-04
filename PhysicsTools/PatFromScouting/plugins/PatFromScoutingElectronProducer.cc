@@ -8,7 +8,13 @@
  Description: Converts Run3ScoutingElectron to pat::Electron
 
  Implementation:
-     Creates pat::Electron from scouting data, storing shower shape and ID variables as userFloats
+     Uses the pat::Electron(const Run3ScoutingElectron&) constructor which sets:
+     - Kinematics (pt, eta, phi, mass, charge)
+     - Shower shape variables as userFloats (sigmaIetaIeta, hOverE, r9, sMin, sMaj)
+     - ID variables as userFloats (dEtaIn, dPhiIn, ooEMOop, missingHits)
+     - Track variables as userFloats (trkd0, trkdz, trkpt, trkchi2overndf, trackfbrem)
+     - Energy variables as userFloats (rawEnergy, preshowerEnergy, corrEcalEnergyError)
+     - Isolation as userFloats (ecalIso, hcalIso, trackIso)
 */
 //
 // Original Author:  Dmytro Kovalskyi
@@ -17,7 +23,6 @@
 //
 
 #include <memory>
-#include <cmath>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -54,59 +59,8 @@ void PatFromScoutingElectronProducer::produce(edm::Event& iEvent, const edm::Eve
   const auto& scoutingElectrons = iEvent.get(electronToken_);
 
   for (const auto& sElec : scoutingElectrons) {
-    float px = sElec.pt() * std::cos(sElec.phi());
-    float py = sElec.pt() * std::sin(sElec.phi());
-    float pz = sElec.pt() * std::sinh(sElec.eta());
-    float energy = std::sqrt(px * px + py * py + pz * pz + sElec.m() * sElec.m());
-
-    reco::GsfElectron::LorentzVector p4(px, py, pz, energy);
-
-    int charge = 0;
-    if (!sElec.trkcharge().empty()) {
-      charge = sElec.trkcharge()[0];
-    }
-
-    reco::GsfElectron gsfElec;
-    gsfElec.setCharge(charge);
-    gsfElec.setP4(p4);
-    gsfElec.setVertex(math::XYZPoint(0, 0, 0));
-
-    pat::Electron patElec(gsfElec);
-
-    patElec.addUserFloat("sigmaIetaIeta", sElec.sigmaIetaIeta());
-    patElec.addUserFloat("hOverE", sElec.hOverE());
-    patElec.addUserFloat("r9", sElec.r9());
-    patElec.addUserFloat("sMin", sElec.sMin());
-    patElec.addUserFloat("sMaj", sElec.sMaj());
-
-    patElec.addUserFloat("dEtaIn", sElec.dEtaIn());
-    patElec.addUserFloat("dPhiIn", sElec.dPhiIn());
-    patElec.addUserFloat("ooEMOop", sElec.ooEMOop());
-    patElec.addUserInt("missingHits", sElec.missingHits());
-
-    patElec.addUserFloat("trackfbrem", sElec.trackfbrem());
-    patElec.addUserFloat("rawEnergy", sElec.rawEnergy());
-    patElec.addUserFloat("preshowerEnergy", sElec.preshowerEnergy());
-    patElec.addUserFloat("corrEcalEnergyError", sElec.corrEcalEnergyError());
-
-    if (!sElec.trkd0().empty()) {
-      patElec.addUserFloat("trkd0", sElec.trkd0()[0]);
-    }
-    if (!sElec.trkdz().empty()) {
-      patElec.addUserFloat("trkdz", sElec.trkdz()[0]);
-    }
-    if (!sElec.trkpt().empty()) {
-      patElec.addUserFloat("trkpt", sElec.trkpt()[0]);
-    }
-    if (!sElec.trkchi2overndf().empty()) {
-      patElec.addUserFloat("trkchi2overndf", sElec.trkchi2overndf()[0]);
-    }
-
-    patElec.addUserFloat("ecalIso", sElec.ecalIso());
-    patElec.addUserFloat("hcalIso", sElec.hcalIso());
-    patElec.addUserFloat("trackIso", sElec.trackIso());
-
-    patElectrons->push_back(patElec);
+    // Constructor now handles kinematics, shower shape, ID, and isolation
+    patElectrons->push_back(pat::Electron(sElec));
   }
 
   iEvent.put(std::move(patElectrons));

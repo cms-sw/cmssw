@@ -48,6 +48,9 @@
 
 #include <numeric>
 
+// Forward declaration for scouting
+class Run3ScoutingPFJet;
+
 // Define typedefs for convenience
 namespace pat {
   class Jet;
@@ -95,6 +98,8 @@ namespace pat {
     Jet(const edm::RefToBase<pat::Jet>& aJetRef);
     /// constructure from ref to pat::Jet
     Jet(const edm::Ptr<pat::Jet>& aJetRef);
+    /// constructor from Run3ScoutingPFJet
+    Jet(const Run3ScoutingPFJet& scoutingJet);
     /// destructor
     ~Jet() override;
     /// required reimplementation of the Candidate's clone method

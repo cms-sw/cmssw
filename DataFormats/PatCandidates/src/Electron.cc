@@ -2,10 +2,12 @@
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 #include <limits>
+#include <cmath>
 
 using namespace pat;
 
@@ -79,6 +81,88 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron>& anElectronRef)
       embeddedPFCandidate_(false),
       ecalDrivenMomentum_(anElectronRef->p4()) {
   initImpactParameters();
+}
+
+/// constructor from Run3ScoutingElectron
+Electron::Electron(const Run3ScoutingElectron& sElec)
+    : Lepton<reco::GsfElectron>(),
+      embeddedGsfElectronCore_(false),
+      embeddedGsfTrack_(false),
+      embeddedSuperCluster_(false),
+      embeddedPflowSuperCluster_(false),
+      embeddedTrack_(false),
+      embeddedSeedCluster_(false),
+      embeddedRecHits_(false),
+      embeddedPFCandidate_(false),
+      ecalDrivenMomentum_(Candidate::LorentzVector(0., 0., 0., 0.)),
+      ecalRegressionEnergy_(0.0),
+      ecalTrackRegressionEnergy_(0.0),
+      ecalRegressionError_(0.0),
+      ecalTrackRegressionError_(0.0),
+      ecalScale_(-99999.),
+      ecalSmear_(-99999.),
+      ecalRegressionScale_(-99999.),
+      ecalRegressionSmear_(-99999.),
+      ecalTrackRegressionScale_(-99999.),
+      ecalTrackRegressionSmear_(-99999.),
+      packedPFCandidates_(),
+      associatedPackedFCandidateIndices_() {
+  initImpactParameters();
+
+  // Set kinematics
+  float px = sElec.pt() * std::cos(sElec.phi());
+  float py = sElec.pt() * std::sin(sElec.phi());
+  float pz = sElec.pt() * std::sinh(sElec.eta());
+  float energy = std::sqrt(px * px + py * py + pz * pz + sElec.m() * sElec.m());
+  reco::GsfElectron::LorentzVector p4(px, py, pz, energy);
+
+  // Get charge from first track
+  int charge = 0;
+  if (!sElec.trkcharge().empty()) {
+    charge = sElec.trkcharge()[0];
+  }
+
+  this->setCharge(charge);
+  this->setP4(p4);
+  this->setVertex(math::XYZPoint(0, 0, 0));
+
+  // Store shower shape variables as userFloats (GsfElectron native members not writable)
+  this->addUserFloat("sigmaIetaIeta", sElec.sigmaIetaIeta());
+  this->addUserFloat("hOverE", sElec.hOverE());
+  this->addUserFloat("r9", sElec.r9());
+  this->addUserFloat("sMin", sElec.sMin());
+  this->addUserFloat("sMaj", sElec.sMaj());
+
+  // Store ID variables
+  this->addUserFloat("dEtaIn", sElec.dEtaIn());
+  this->addUserFloat("dPhiIn", sElec.dPhiIn());
+  this->addUserFloat("ooEMOop", sElec.ooEMOop());
+  this->addUserInt("missingHits", sElec.missingHits());
+
+  // Store track variables
+  this->addUserFloat("trackfbrem", sElec.trackfbrem());
+  if (!sElec.trkd0().empty()) {
+    this->addUserFloat("trkd0", sElec.trkd0()[0]);
+  }
+  if (!sElec.trkdz().empty()) {
+    this->addUserFloat("trkdz", sElec.trkdz()[0]);
+  }
+  if (!sElec.trkpt().empty()) {
+    this->addUserFloat("trkpt", sElec.trkpt()[0]);
+  }
+  if (!sElec.trkchi2overndf().empty()) {
+    this->addUserFloat("trkchi2overndf", sElec.trkchi2overndf()[0]);
+  }
+
+  // Store energy variables
+  this->addUserFloat("rawEnergy", sElec.rawEnergy());
+  this->addUserFloat("preshowerEnergy", sElec.preshowerEnergy());
+  this->addUserFloat("corrEcalEnergyError", sElec.corrEcalEnergyError());
+
+  // Store isolation
+  this->addUserFloat("ecalIso", sElec.ecalIso());
+  this->addUserFloat("hcalIso", sElec.hcalIso());
+  this->addUserFloat("trackIso", sElec.trackIso());
 }
 
 /// destructor
