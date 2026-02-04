@@ -34,6 +34,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFractionHostCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
+#include "DataFormats/ParticleFlowReco/interface/alpaka/PFClusterDeviceCollection.h"
+
 /*
  * This class must be placed under ALPAKA_ACCELERATOR_NAMESPACE to enable 
  * implicit device-to-host data transfers

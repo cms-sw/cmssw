@@ -18,7 +18,7 @@ particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
            minFractionToKeep = cms.double(1e-7),
            allCellsPositionCalc = cms.PSet(
                algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
-               minFractionInCalc = cms.double(1e-9),    
+               minFractionInCalc = cms.double(1e-9),
                posCalcNCrystals = cms.int32(-1),
                logWeightDenominatorByDetector = cms.VPSet(
                 cms.PSet( detector = cms.string("HCAL_BARREL1"),
@@ -72,7 +72,19 @@ particleFlowClusterHCALOnlyLegacy = particleFlowClusterHCALOnly.clone(
     clustersSource = "particleFlowClusterHBHEOnlyLegacy"
 )
 
+from RecoParticleFlow.PFClusterProducer.legacyMultiDepthPFClusterProducer_cfi import legacyMultiDepthPFClusterProducer as _legacyPFMultiDepthClusterProducer
+
+legacyPFMultiDepthClusterProducerHCALOnly = _legacyPFMultiDepthClusterProducer.clone(
+    pfClusterSoA   = 'pfMultiDepthClusterSoAProducerHCALOnly',
+    pfRecHitSoA    = 'particleFlowRecHitHBHEOnly',
+    pfRecHits      = 'pfRecHitSoAProducerHBHEOnly'
+)
+
+
 #--- Use DB conditions for cuts&seeds for Run3 and Phase2
 from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
 hcalPfCutsFromDB.toModify( particleFlowClusterHCAL,
                            usePFThresholdsFromDB = True)
+
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+alpaka.toReplaceWith(particleFlowClusterHCALOnly, legacyPFMultiDepthClusterProducerHCALOnly)
