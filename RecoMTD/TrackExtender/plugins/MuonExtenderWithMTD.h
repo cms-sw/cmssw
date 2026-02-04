@@ -95,7 +95,7 @@ namespace mtdtof{
 class MuonBaseExtenderWithMTD : public BaseExtenderWithMTD {
   public:
     explicit MuonBaseExtenderWithMTD(const ParameterSet& iConfig);
-    virtual ~MuonBaseExtenderWithMTD();
+    ~MuonBaseExtenderWithMTD() override;
 
     void fillMatchingHits(const DetLayer*,
                           const TrajectoryStateOnSurface&,
