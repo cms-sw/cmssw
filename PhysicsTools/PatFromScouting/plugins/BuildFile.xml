@@ -7,4 +7,7 @@
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/TrackReco"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="heppdt"/>
 <flags EDM_PLUGIN="1"/>
