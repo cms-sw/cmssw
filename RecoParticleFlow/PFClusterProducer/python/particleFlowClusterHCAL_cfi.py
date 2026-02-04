@@ -76,8 +76,9 @@ from RecoParticleFlow.PFClusterProducer.legacyMultiDepthPFClusterProducer_cfi im
 
 legacyPFMultiDepthClusterProducerHCALOnly = _legacyPFMultiDepthClusterProducer.clone(
     pfClusterSoA   = 'pfMultiDepthClusterSoAProducerHCALOnly',
-    pfRecHitSoA    = 'particleFlowRecHitHBHEOnly',
-    pfRecHits      = 'pfRecHitSoAProducerHBHEOnly'
+    pfRecHitFractionSoA = 'pfMultiDepthClusterSoAProducerHCALOnly',    
+    pfRecHitsSoA        = 'pfRecHitSoAProducerHBHEOnly',
+    recHitsSource  = 'particleFlowRecHitHBHEOnly'
 )
 
 

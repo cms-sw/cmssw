@@ -35,9 +35,9 @@
 class LegacyMultiDepthPFClusterProducer : public edm::stream::EDProducer<> {
 public:
   LegacyMultiDepthPFClusterProducer(edm::ParameterSet const& config)
-      : pfClusterSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
-        pfRecHitFractionSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
-        inputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
+      : pfClusterSoAToken_(consumes(config.getParameter<edm::InputTag>("pfClusterSoA"))),
+        pfRecHitFractionSoAToken_(consumes(config.getParameter<edm::InputTag>("pfRecHitFractionSoA"))),
+        inputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("pfRecHitsSoA"))},
         legacyPfClustersToken_(produces()),
         recHitsLabel_(consumes(config.getParameter<edm::InputTag>("recHitsSource"))),
         hcalCutsToken_(esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"))),
@@ -74,8 +74,9 @@ public:
     edm::ParameterSetDescription desc;
 
     desc.add<edm::InputTag>("pfClusterSoA", edm::InputTag("pfClusterSoAProducer"));
-    desc.add<edm::InputTag>("pfRecHitSoA", edm::InputTag("pfRecHitSoAProducerHCAL"));
-    desc.add<edm::InputTag>("pfRecHits", edm::InputTag("legacyPFRecHitProducer"));
+    desc.add<edm::InputTag>("pfRecHitFractionSoA", edm::InputTag("pfClusterSoAProducer"));
+    desc.add<edm::InputTag>("pfRecHitsSoA", edm::InputTag("pfRecHitSoAProducerHCAL"));
+    desc.add<edm::InputTag>("recHitsSource", edm::InputTag("legacyPFRecHitProducer"));
     desc.add<bool>("usePFThresholdsFromDB", true);
 
     desc.add<edm::ParameterSetDescription>("energyCorrector", {});
