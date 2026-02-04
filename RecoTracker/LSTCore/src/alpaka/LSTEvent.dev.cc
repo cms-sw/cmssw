@@ -1579,7 +1579,7 @@ typename TSoA::ConstView LSTEvent::getInput(bool sync) {
       if (sync)
         alpaka::wait(queue_);  // host consumers expect filled data
     }
-    return LSTInputViewAccessor<TSoA>::get(lstInputDC_->const_view());
+    return LSTInputViewAccessor<TSoA>::get(lstInputHC_->const_view());
   }
 }
 template HitsBaseConst LSTEvent::getInput<HitsBaseSoA>(bool);
@@ -1588,7 +1588,7 @@ template PixelSeedsConst LSTEvent::getInput<PixelSeedsSoA>(bool);
 template <typename TSoA, typename TDev>
 typename TSoA::ConstView LSTEvent::getHits(bool sync) {
   if constexpr (std::is_same_v<TDev, DevHost>) {
-    return HitsViewAccessor<TSoA>::get(hitsHC_->const_view());
+    return HitsViewAccessor<TSoA>::get(hitsDC_->const_view());
   } else {
     if (!hitsHC_) {
       hitsHC_.emplace(
