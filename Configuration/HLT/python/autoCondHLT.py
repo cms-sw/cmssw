@@ -18,13 +18,13 @@ l1Menus = {
     'Fake'         : ( ','.join( [ 'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc'             , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
     'Fake1'        : ( ','.join( [ 'L1Menu_Collisions2015_25nsStage1_v5'                     , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
     'Fake2'        : ( ','.join( [ 'L1Menu_Collisions2016_v9_m2_xml'                         ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-10-06 19:36:53.000"] ), ),
-    'FULL'         : ( ','.join( [ 'L1Menu_Collisions2025_v1_3_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2025-07-24 05:13:35.000"] ), ),
-    'GRun'         : ( ','.join( [ 'L1Menu_Collisions2025_v1_3_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2025-07-24 05:13:35.000"] ), ),
-    '2025v13'      : ( ','.join( [ 'L1Menu_Collisions2025_v1_3_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2025-07-24 05:13:35.000"] ), ),
+    'FULL'         : ( ','.join( [ 'L1Menu_Collisions2026_v1_0_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2026-02-04 14:35:13.000"] ), ),
+    'GRun'         : ( ','.join( [ 'L1Menu_Collisions2026_v1_0_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2026-02-04 14:35:13.000"] ), ),
+    '2025v13'      : ( ','.join( [ 'L1Menu_Collisions2026_v1_0_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2026-02-04 14:35:13.000"] ), ),
     'HIon'         : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2025_v1_0_3_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2025-10-10 12:59:51.000"] ), ),
     'PIon'         : ( ','.join( [ 'L1Menu_CollisionsSmallSystems2025_v1_0_4_xml'            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2025-06-10 10:00:00.000"] ), ),
     'PRef'         : ( ','.join( [ 'L1Menu_CollisionsPPRef2024_v1_0_0_xml'                   ,l1tMenuRecord,connectionString,l1tMenuLabel, "2024-09-24 11:45:00.000"] ), ),
-    'Special'      : ( ','.join( [ 'L1Menu_Collisions2025_v1_3_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2025-07-24 05:13:35.000"] ), ),
+    'Special'      : ( ','.join( [ 'L1Menu_Collisions2026_v1_0_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2026-02-04 14:35:13.000"] ), ),
 }
 
 hltGTs = {
