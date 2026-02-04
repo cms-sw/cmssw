@@ -41,7 +41,8 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/eos/user/h/hrejebsf/CRACK/CRACK_MC_260126.root'),
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/a/alaperto/CMSSW_16_1_X_2026-01-27-1100/src/step2_16.root'),
+    #fileNames = cms.untracked.vstring('file:/eos/user/h/hrejebsf/CRACK/CRACK_MC_260126.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -99,7 +100,7 @@ process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
 process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T38', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -114,8 +115,8 @@ process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 #process.rechits_step = cms.Path(process.siPhase2RecHits * process.siPixelRecHits)
 
 #DQM modules
-process.load('DQM.SiTrackerPhase2.c-rackDQMFirstStep_cff')
 #process.load('DQM.SiTrackerPhase2.Phase2OTMonitorRecHit_cfi')
+process.load('DQM.SiTrackerPhase2.Phase2CRackDQMFirstStep_cff')
 #process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy()*process.Phase2OTMonitorRecHit)
 process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy())
 process.dqm_step=cms.Path(process.otdqm_seq)
