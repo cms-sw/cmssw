@@ -50,8 +50,7 @@ pfClusteringHBHEHFOnlyLegacyTask = cms.Task(particleFlowRecHitHBHEOnlyLegacy,
                                             particleFlowRecHitHF,
                                             particleFlowClusterHBHEOnlyLegacy,
                                             particleFlowClusterHF,
-                                            particleFlowClusterHCALOnlyLegacy,
-                                            particleFlowClusterHCALOnly)
+                                            particleFlowClusterHCALOnlyLegacy)
 
 pfClusteringHOTask = cms.Task(particleFlowRecHitHO,particleFlowClusterHO)
 pfClusteringHO = cms.Sequence(pfClusteringHOTask)
@@ -187,9 +186,9 @@ pfClusterSoAUpdated = _pfClusterSoAPositionUpdater.clone(
 )
 
 from RecoParticleFlow.PFClusterProducer.pfMultiDepthClusterSoAProducer_cfi import pfMultiDepthClusterSoAProducer as _pfMultiDepthClusterSoAProducer
-pfMultiDepthClusterSoAProducerHBHEOnly = _pfMultiDepthClusterSoAProducer.clone(
-    clustersSrc    = "pfClusterSoAUpdated",
-    rhfracSrc      = 'pfClusterSoAProducerHBHEOnly',
+pfMultiDepthClusterSoAProducerHCALOnly = _pfMultiDepthClusterSoAProducer.clone(
+    clustersSrc    = 'pfClusterSoAUpdated',
+    rhfracSrc      = 'pfClusterSoAUpdated',
     rechitSrc         = 'pfRecHitSoAProducerHBHEOnly',
 )
 
@@ -198,7 +197,7 @@ _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitSoAProducerHBHEOnly)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfClusterSoAProducerHBHEOnly)
 
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfClusterSoAUpdated)
-_alpaka_pfClusteringHBHEHFOnlyTask.add(pfMultiDepthClusterSoAProducerHBHEOnly)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(pfMultiDepthClusterSoAProducerHCALOnly)
 
 alpaka.toReplaceWith(pfClusteringHBHEHFTask, _alpaka_pfClusteringHBHEHFTask)
 alpaka.toReplaceWith(pfClusteringHBHEHFOnlyTask, _alpaka_pfClusteringHBHEHFOnlyTask)
