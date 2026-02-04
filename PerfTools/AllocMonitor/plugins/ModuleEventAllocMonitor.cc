@@ -257,7 +257,7 @@ public:
           std::sort(moduleIDs_.begin(), moduleIDs_.end());
         } else {
           s << "# Skipping module" << description.moduleLabel() << " " << description.moduleName() << " "
-              << description.id() << " # skipped\n";
+            << description.id() << " # skipped\n";
         }
         file->write(s.str());
       });
