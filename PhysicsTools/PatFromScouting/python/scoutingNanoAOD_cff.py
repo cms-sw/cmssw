@@ -36,21 +36,35 @@ scoutingMuonTable = cms.EDProducer("SimplePATMuonFlatTableProducer",
         mass = Var("mass", float, doc="mass", precision=10),
         charge = Var("charge", int, doc="charge"),
         pdgId = Var("pdgId", int, doc="PDG ID"),
-        dxy = Var("dB('PV2D')", float, doc="dxy wrt PV", precision=10),
-        dz = Var("dB('PVDZ')", float, doc="dz wrt PV", precision=10),
-        trkChi2 = Var("? innerTrack.isNonnull ? innerTrack.normalizedChi2 : -1", float, doc="track chi2/ndof", precision=6),
-        nValidHits = Var("? innerTrack.isNonnull ? innerTrack.numberOfValidHits : -1", int, doc="number of valid hits"),
+        # Use global track dxy/dz - for scouting muons the track is embedded as combinedMuon
+        dxy = Var("? globalTrack.isNonnull ? globalTrack.dxy : 0", float, doc="dxy w.r.t. track reference point", precision=10),
+        dxyErr = Var("? globalTrack.isNonnull ? globalTrack.dxyError : 0", float, doc="dxy uncertainty", precision=10),
+        dz = Var("? globalTrack.isNonnull ? globalTrack.dz : 0", float, doc="dz w.r.t. track reference point", precision=10),
+        dzErr = Var("? globalTrack.isNonnull ? globalTrack.dzError : 0", float, doc="dz uncertainty", precision=10),
+        trkChi2 = Var("? globalTrack.isNonnull ? globalTrack.normalizedChi2 : -1", float, doc="track chi2/ndof", precision=6),
+        nValidHits = Var("? globalTrack.isNonnull ? globalTrack.numberOfValidHits : -1", int, doc="number of valid hits"),
         # ID flags
         isGlobal = Var("isGlobalMuon", bool, doc="is global muon"),
         isTracker = Var("isTrackerMuon", bool, doc="is tracker muon"),
         isStandalone = Var("isStandAloneMuon", bool, doc="is standalone muon"),
         isPF = Var("isPFMuon", bool, doc="is PF muon"),
+        # Station and layer counts
+        nStations = Var("numberOfMatchedStations()", int, doc="number of matched stations with default arbitration"),
+        nTrackerLayers = Var("numberOfTrackerLayersWithMeasurement()", int, doc="number of tracker layers with measurement"),
+        nPixelLayers = Var("numberOfPixelLayersWithMeasurement()", int, doc="number of pixel layers with measurement"),
+        nChambers = Var("numberOfChambers()", int, doc="number of chambers"),
+        nChambersCSCorDT = Var("numberOfChambersCSCorDT()", int, doc="number of CSC or DT chambers"),
+        # Hit counts
+        nValidMuonHits = Var("numberOfValidMuonHits()", int, doc="number of valid muon hits"),
+        nValidPixelHits = Var("numberOfValidPixelHits()", int, doc="number of valid pixel hits"),
+        nValidStripHits = Var("numberOfValidStripHits()", int, doc="number of valid strip hits"),
         # Isolation - scouting provides trackIso, ecalIso, hcalIso (not PF components)
         # Use calorimeter isolation sum as proxy for relIso
         relIso = Var("(isolationR03().emEt + isolationR03().hadEt)/pt", float, doc="relative calo isolation (ecal+hcal)/pt", precision=6),
         ecalIso = Var("isolationR03().emEt", float, doc="ECAL isolation", precision=6),
         hcalIso = Var("isolationR03().hadEt", float, doc="HCAL isolation", precision=6),
         trkIso = Var("isolationR03().sumPt", float, doc="tracker isolation", precision=6),
+        tkRelIso = Var("isolationR03().sumPt/pt", float, doc="tracker relative isolation", precision=6),
     )
 )
 

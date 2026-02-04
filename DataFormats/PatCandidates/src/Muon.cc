@@ -167,8 +167,8 @@ Muon::Muon(const Run3ScoutingMuon& aMuon)
   this->setP4(reco::Particle::LorentzVector(p4));
   this->setVertex(track.vertex());
 
-  // Set muon type from scouting flags
-  unsigned int muonType = 0;
+  // Set muon type from scouting flags - always set ScoutingMuon bit
+  unsigned int muonType = reco::Muon::ScoutingMuon;
   if (aMuon.isGlobalMuon())
     muonType |= reco::Muon::GlobalMuon;
   if (aMuon.isTrackerMuon())
@@ -190,6 +190,23 @@ Muon::Muon(const Run3ScoutingMuon& aMuon)
   reco::Muon::setIsolation(isolation, isolation);
 
   this->setMiniPFIsolation(pat::PFIsolation());
+
+  // Store scouting-specific muon information directly
+  scoutingNChambers_ = aMuon.nRecoMuonChambers();
+  scoutingNChambersCSCorDT_ = aMuon.nRecoMuonChambersCSCorDT();
+  scoutingNMatches_ = aMuon.nRecoMuonMatches();
+  scoutingNMatchedStations_ = aMuon.nRecoMuonMatchedStations();
+  scoutingExpectedMatchedStations_ = aMuon.nRecoMuonExpectedMatchedStations();
+  scoutingStationMask_ = aMuon.recoMuonStationMask();
+  scoutingNMatchedRPCLayers_ = aMuon.nRecoMuonMatchedRPCLayers();
+  scoutingRPCLayerMask_ = aMuon.recoMuonRPClayerMask();
+  scoutingNValidMuonHits_ = aMuon.nValidRecoMuonHits();
+  scoutingNValidStandAloneMuonHits_ = aMuon.nValidStandAloneMuonHits();
+  scoutingNStandAloneMuonMatchedStations_ = aMuon.nStandAloneMuonMatchedStations();
+  scoutingNValidPixelHits_ = aMuon.nValidPixelHits();
+  scoutingNValidStripHits_ = aMuon.nValidStripHits();
+  scoutingNPixelLayersWithMeasurement_ = aMuon.nPixelLayersWithMeasurement();
+  scoutingNTrackerLayersWithMeasurement_ = aMuon.nTrackerLayersWithMeasurement();
 }
 
 /// destructor
@@ -609,3 +626,147 @@ bool Muon::isMediumMuon() const { return muon::isMediumMuon(*this); }
 bool Muon::isSoftMuon(const reco::Vertex& vtx) const { return muon::isSoftMuon(*this, vtx); }
 
 bool Muon::isHighPtMuon(const reco::Vertex& vtx) const { return muon::isHighPtMuon(*this, vtx); }
+
+// ---- Methods that hide reco::Muon for scouting muon compatibility ----
+
+int Muon::numberOfChambers() const {
+  if (isScoutingMuon()) {
+    return scoutingNChambers_;
+  }
+  return reco::Muon::numberOfChambers();
+}
+
+int Muon::numberOfChambersCSCorDT() const {
+  if (isScoutingMuon()) {
+    return scoutingNChambersCSCorDT_;
+  }
+  return reco::Muon::numberOfChambersCSCorDT();
+}
+
+int Muon::numberOfMatches(reco::Muon::ArbitrationType type) const {
+  if (isScoutingMuon()) {
+    return scoutingNMatches_;
+  }
+  return reco::Muon::numberOfMatches(type);
+}
+
+int Muon::numberOfMatchedStations(reco::Muon::ArbitrationType type) const {
+  if (isScoutingMuon()) {
+    return scoutingNMatchedStations_;
+  }
+  return reco::Muon::numberOfMatchedStations(type);
+}
+
+unsigned int Muon::stationMask(reco::Muon::ArbitrationType type) const {
+  if (isScoutingMuon()) {
+    return scoutingStationMask_;
+  }
+  return reco::Muon::stationMask(type);
+}
+
+unsigned int Muon::expectedNnumberOfMatchedStations(float minDistanceFromEdge) const {
+  if (isScoutingMuon()) {
+    return scoutingExpectedMatchedStations_;
+  }
+  return reco::Muon::expectedNnumberOfMatchedStations(minDistanceFromEdge);
+}
+
+int Muon::numberOfMatchedRPCLayers(reco::Muon::ArbitrationType type) const {
+  if (isScoutingMuon()) {
+    return scoutingNMatchedRPCLayers_;
+  }
+  return reco::Muon::numberOfMatchedRPCLayers(type);
+}
+
+unsigned int Muon::RPClayerMask(reco::Muon::ArbitrationType type) const {
+  if (isScoutingMuon()) {
+    return scoutingRPCLayerMask_;
+  }
+  return reco::Muon::RPClayerMask(type);
+}
+
+// ---- Hit information accessors ----
+
+int Muon::numberOfValidMuonHits() const {
+  if (isScoutingMuon()) {
+    return scoutingNValidMuonHits_;
+  }
+  // For standard muons, get from global track hit pattern
+  reco::TrackRef glbTrack = globalTrack();
+  if (glbTrack.isNonnull()) {
+    return glbTrack->hitPattern().numberOfValidMuonHits();
+  }
+  return 0;
+}
+
+int Muon::numberOfValidStandAloneMuonHits() const {
+  if (isScoutingMuon()) {
+    return scoutingNValidStandAloneMuonHits_;
+  }
+  // For standard muons, get from outer track hit pattern
+  reco::TrackRef saTrack = standAloneMuon();
+  if (saTrack.isNonnull()) {
+    return saTrack->hitPattern().numberOfValidMuonHits();
+  }
+  return 0;
+}
+
+int Muon::numberOfStandAloneMuonMatchedStations() const {
+  if (isScoutingMuon()) {
+    return scoutingNStandAloneMuonMatchedStations_;
+  }
+  // For standard muons, get from outer track hit pattern
+  reco::TrackRef saTrack = standAloneMuon();
+  if (saTrack.isNonnull()) {
+    return saTrack->hitPattern().muonStationsWithValidHits();
+  }
+  return 0;
+}
+
+int Muon::numberOfValidPixelHits() const {
+  if (isScoutingMuon()) {
+    return scoutingNValidPixelHits_;
+  }
+  // For standard muons, get from inner track hit pattern
+  reco::TrackRef tkTrack = innerTrack();
+  if (tkTrack.isNonnull()) {
+    return tkTrack->hitPattern().numberOfValidPixelHits();
+  }
+  return 0;
+}
+
+int Muon::numberOfValidStripHits() const {
+  if (isScoutingMuon()) {
+    return scoutingNValidStripHits_;
+  }
+  // For standard muons, get from inner track hit pattern
+  reco::TrackRef tkTrack = innerTrack();
+  if (tkTrack.isNonnull()) {
+    return tkTrack->hitPattern().numberOfValidStripHits();
+  }
+  return 0;
+}
+
+int Muon::numberOfPixelLayersWithMeasurement() const {
+  if (isScoutingMuon()) {
+    return scoutingNPixelLayersWithMeasurement_;
+  }
+  // For standard muons, get from inner track hit pattern
+  reco::TrackRef tkTrack = innerTrack();
+  if (tkTrack.isNonnull()) {
+    return tkTrack->hitPattern().pixelLayersWithMeasurement();
+  }
+  return 0;
+}
+
+int Muon::numberOfTrackerLayersWithMeasurement() const {
+  if (isScoutingMuon()) {
+    return scoutingNTrackerLayersWithMeasurement_;
+  }
+  // For standard muons, get from inner track hit pattern
+  reco::TrackRef tkTrack = innerTrack();
+  if (tkTrack.isNonnull()) {
+    return tkTrack->hitPattern().trackerLayersWithMeasurement();
+  }
+  return 0;
+}
