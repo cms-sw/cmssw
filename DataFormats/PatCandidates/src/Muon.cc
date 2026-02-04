@@ -174,8 +174,14 @@ Muon::Muon(const Run3ScoutingMuon& aMuon)
   embeddedCombinedMuon_ = true;
   this->setBestTrack(reco::Muon::CombinedTrack);
 
+  // Set isolation from scouting muon (call reco::Muon method directly)
+  reco::MuonIsolation isolation;
+  isolation.sumPt = aMuon.trackIso();
+  isolation.emEt = aMuon.ecalIso();
+  isolation.hadEt = aMuon.hcalIso();
+  reco::Muon::setIsolation(isolation, isolation);
+
   this->setMiniPFIsolation(pat::PFIsolation());
-  
 }
 
 /// destructor

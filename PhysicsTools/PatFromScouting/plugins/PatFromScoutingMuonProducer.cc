@@ -8,7 +8,10 @@
  Description: Converts Run3ScoutingMuon to pat::Muon
 
  Implementation:
-     Uses the existing pat::Muon(const Run3ScoutingMuon&) constructor
+     Uses the pat::Muon(const Run3ScoutingMuon&) constructor which sets:
+     - Kinematics (pt, eta, phi, mass, charge)
+     - Embedded track with vertex
+     - Isolation (trackIso, ecalIso, hcalIso -> isolationR03)
 */
 //
 // Original Author:  Dmytro Kovalskyi
@@ -53,15 +56,8 @@ void PatFromScoutingMuonProducer::produce(edm::Event& iEvent, const edm::EventSe
   const auto& scoutingMuons = iEvent.get(muonToken_);
 
   for (const auto& sMuon : scoutingMuons) {
-    pat::Muon patMuon(sMuon);
-
-    reco::MuonIsolation isolation;
-    isolation.sumPt = sMuon.trackIso();
-    isolation.emEt = sMuon.ecalIso();
-    isolation.hadEt = sMuon.hcalIso();
-    static_cast<reco::Muon&>(patMuon).setIsolation(isolation, isolation);
-
-    patMuons->push_back(patMuon);
+    // Constructor now handles kinematics, track embedding, and isolation
+    patMuons->push_back(pat::Muon(sMuon));
   }
 
   iEvent.put(std::move(patMuons));
