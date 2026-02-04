@@ -252,8 +252,7 @@ public:
           file->write(s.str());
         }
       });
-    }
-    else if (not skippedModuleNames_.empty()) {
+    } else if (not skippedModuleNames_.empty()) {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
         auto found = std::find(skippedModuleNames_.begin(), skippedModuleNames_.end(), description.moduleLabel());
         if (found == skippedModuleNames_.end()) {
@@ -265,8 +264,8 @@ public:
           file->write(s.str());
         } else {
           std::stringstream s;
-          s << "# Skipping module " << description.moduleLabel() << " " << description.moduleName() << " " << description.id()
-            << " # skipped\n";
+          s << "# Skipping module" << description.moduleLabel() << " " << description.moduleName() << " "
+            << description.id() << " # skipped\n";
           file->write(s.str());
         }
       });
@@ -434,9 +433,8 @@ public:
         ->setComment(
             "Module labels for modules which should have their allocations monitored. If empty all modules will be "
             "monitored.");
-     ps.addUntracked<std::vector<std::string>>("skippedModuleNames", std::vector<std::string>())
-        ->setComment(
-            "Module labels for modules which should have their allocations ignored.");
+    ps.addUntracked<std::vector<std::string>>("skippedModuleNames", std::vector<std::string>())
+        ->setComment("Module labels for modules which should have their allocations ignored.");
     ps.addUntracked<unsigned int>("nEventsToSkip", 0)
         ->setComment(
             "Number of events to skip before turning on monitoring. If used in a multi-threaded application, "
