@@ -1,40 +1,51 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run3_scouting_2024_cff import run3_scouting_2024
 
-# PF Candidates (using existing producer from PhysicsTools/Scouting)
-scoutingPFCandidates = cms.EDProducer("Run3ScoutingParticleToRecoPFCandidateProducer",
-    scoutingparticle=cms.InputTag("hltScoutingPFPacker"),
-    softKiller=cms.bool(False),
-    CHS=cms.bool(False)
-)
+# Use standard MiniAOD collection names for NanoAOD compatibility
 
-# Vertices
-scoutingVertices = cms.EDProducer("Run3ScoutingVertexToRecoVertexProducer",
+# Vertices - standard MiniAOD name (must be produced before PF candidates)
+offlineSlimmedPrimaryVertices = cms.EDProducer("Run3ScoutingVertexToRecoVertexProducer",
     src=cms.InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx")
 )
 
-# Muons
-scoutingMuons = cms.EDProducer("PatFromScoutingMuonProducer",
+# PF Candidates - using pat::PackedCandidate for MiniAOD compatibility
+# Requires vertices to be produced first for proper vertex references
+packedPFCandidates = cms.EDProducer("Run3ScoutingParticleToPackedCandidateProducer",
+    src=cms.InputTag("hltScoutingPFPacker"),
+    vertices=cms.InputTag("offlineSlimmedPrimaryVertices"),
+    CHS=cms.bool(False)
+)
+
+
+# Muons - standard MiniAOD name
+# Note: From 2024, there are two muon collections (with/without vertex)
+# Default uses hltScoutingMuonPacker, 2024+ uses hltScoutingMuonPackerVtx
+slimmedMuons = cms.EDProducer("PatFromScoutingMuonProducer",
     src=cms.InputTag("hltScoutingMuonPacker")
 )
+# For 2024 data, use hltScoutingMuonPackerVtx which includes vertex information
+run3_scouting_2024.toModify(slimmedMuons, src="hltScoutingMuonPackerVtx")
 
-# Electrons
-scoutingElectrons = cms.EDProducer("PatFromScoutingElectronProducer",
+# Electrons - standard MiniAOD name
+slimmedElectrons = cms.EDProducer("PatFromScoutingElectronProducer",
     src=cms.InputTag("hltScoutingEgammaPacker")
 )
 
-# Photons
-scoutingPhotons = cms.EDProducer("PatFromScoutingPhotonProducer",
+# Photons - standard MiniAOD name
+slimmedPhotons = cms.EDProducer("PatFromScoutingPhotonProducer",
     src=cms.InputTag("hltScoutingEgammaPacker")
 )
 
-# Jets
-scoutingJets = cms.EDProducer("PatFromScoutingJetProducer",
+# Jets - standard MiniAOD name
+slimmedJets = cms.EDProducer("PatFromScoutingJetProducer",
     src=cms.InputTag("hltScoutingPFPacker")
 )
 
-# MET
-scoutingMET = cms.EDProducer("Run3ScoutingMETProducer",
-    src=cms.InputTag("hltScoutingPFPacker")
+# MET - standard MiniAOD name
+# Uses precomputed MET from scouting data
+slimmedMETs = cms.EDProducer("Run3ScoutingMETProducer",
+    metPt=cms.InputTag("hltScoutingPFPacker", "pfMetPt"),
+    metPhi=cms.InputTag("hltScoutingPFPacker", "pfMetPhi")
 )
 
 # Tracks
@@ -42,17 +53,120 @@ scoutingTracks = cms.EDProducer("Run3ScoutingTrackToRecoTrackProducer",
     src=cms.InputTag("hltScoutingTrackPacker")
 )
 
+# Beam spot from conditions database
+offlineBeamSpot = cms.EDProducer("BeamSpotProducer")
+
+# Rho (pileup density) - copy from HLT scouting data
+fixedGridRhoFastjetAll = cms.EDProducer("ScoutingRhoProducer",
+    src=cms.InputTag("hltScoutingPFPacker", "rho")
+)
+
+# L1 trigger unpacking from raw FED data
+# Scouting stores L1 raw data in hltFEDSelectorL1
+gtStage2Digis = cms.EDProducer("L1TRawToDigi",
+    InputLabel = cms.InputTag("hltFEDSelectorL1"),
+    Setup = cms.string("stage2::GTSetup"),
+    FedIds = cms.vint32(1404),
+)
+
+# L1 objects with standard module names for downstream compatibility
+# Standard MiniAOD has L1 muons from gmtStage2Digis and L1 calo objects from caloStage2Digis
+# These producers copy from gtStage2Digis to provide the expected module labels
+gmtStage2Digis = cms.EDProducer("Run3ScoutingL1MuonProducer",
+    muonSource = cms.InputTag("gtStage2Digis", "Muon")
+)
+
+caloStage2Digis = cms.EDProducer("Run3ScoutingL1CaloProducer",
+    jetSource = cms.InputTag("gtStage2Digis", "Jet"),
+    egammaSource = cms.InputTag("gtStage2Digis", "EGamma"),
+    tauSource = cms.InputTag("gtStage2Digis", "Tau"),
+    etsumSource = cms.InputTag("gtStage2Digis", "EtSum")
+)
+
 # Task containing all producers
 scoutingToMiniAODTask = cms.Task(
-    scoutingPFCandidates,
-    scoutingVertices,
-    scoutingMuons,
-    scoutingElectrons,
-    scoutingPhotons,
-    scoutingJets,
-    scoutingMET,
-    scoutingTracks
+    packedPFCandidates,
+    offlineSlimmedPrimaryVertices,
+    offlineBeamSpot,
+    slimmedMuons,
+    slimmedElectrons,
+    slimmedPhotons,
+    slimmedJets,
+    slimmedMETs,
+    scoutingTracks,
+    fixedGridRhoFastjetAll,
+    gtStage2Digis,
+    gmtStage2Digis,
+    caloStage2Digis
 )
 
 # Sequence for backward compatibility
 scoutingToMiniAODSequence = cms.Sequence(scoutingToMiniAODTask)
+
+
+# ============================================================
+# Customization function for cmsDriver
+# ============================================================
+
+def customiseScoutingToMiniAOD(process):
+    """
+    Minimal customization for scouting to MiniAOD conversion.
+
+    Usage with cmsDriver (for 2024 data):
+
+        cmsDriver.py scoutMini \\
+            --scenario pp \\
+            --conditions auto:run3_data_prompt \\
+            --era Run3_2024 \\
+            --eventcontent MINIAOD \\
+            --datatier MINIAOD \\
+            --step USER:PhysicsTools/PatFromScouting/scoutingToMiniAOD_cff.scoutingToMiniAODTask \\
+            --filein file:scouting.root \\
+            --fileout file:scoutingMiniAOD.root \\
+            --customise PhysicsTools/PatFromScouting/scoutingToMiniAOD_cff.customiseScoutingToMiniAOD \\
+            --data --no_exec -n 100
+
+    For 2025 data, use --era Run3_2025
+
+    The customization only:
+    - Loads particle data table (needed for PackedCandidate producer)
+    - Extends output to include scoutingTracks and L1 collections
+
+    The --step USER:...Task handles adding the producers.
+    The --eventcontent MINIAOD provides standard MiniAOD output commands.
+    """
+
+    # Load particle data table (needed for PackedCandidate producer)
+    process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+
+    # Handle missing collections gracefully (not all scouting triggers save all objects)
+    # This allows processing datasets where some events don't have egamma, etc.
+    if hasattr(process, 'options'):
+        if not hasattr(process.options, 'TryToContinue'):
+            process.options.TryToContinue = cms.untracked.vstring()
+        process.options.TryToContinue.append('ProductNotFound')
+    else:
+        process.options = cms.untracked.PSet(
+            TryToContinue = cms.untracked.vstring('ProductNotFound')
+        )
+
+    # Extend output commands to include scouting-specific collections
+    # Standard MINIAOD eventcontent already keeps slimmedMuons, slimmedJets, etc.
+    # We add scoutingTracks, L1 collections, rho, and drop raw scouting collections
+    for name in ['MINIAODoutput', 'MINIAODSIMoutput', 'output', 'out']:
+        if hasattr(process, name):
+            outputModule = getattr(process, name)
+            outputModule.outputCommands.extend([
+                # Keep scouting-specific collections
+                'keep *_scoutingTracks_*_*',
+                'keep *_gtStage2Digis_*_*',
+                'keep *_gmtStage2Digis_*_*',
+                'keep *_caloStage2Digis_*_*',
+                'keep *_fixedGridRhoFastjetAll_*_*',
+                # Drop raw scouting collections to save space
+                'drop *_hltScouting*_*_*',
+                'drop *_hltFEDSelectorL1_*_*',
+            ])
+            break
+
+    return process
