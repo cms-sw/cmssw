@@ -9,7 +9,7 @@ from math import sqrt
 
 sel_choices = ["base", "loweta", "xtr", "vtr", "none"]
 metric_choices = ["eff", "fakerate", "duplrate", "fakeorduplrate", "avgOTlen"]
-variable_choices = ["pt", "ptmtv", "ptlow", "eta", "phi", "dxy", "dz", "vxy", "deltaEta", "deltaPhi", "deltaR", "jet_eta", "jet_phi", "jet_pt"]
+variable_choices = ["pt", "ptmtv", "ptlow", "eta", "phi", "dxy", "dz", "vxy", "deltaEta", "deltaPhi", "deltaR", "genJetEta", "genJetPhi", "genJetPt"]
 objecttype_choices = ["TC", "pT5", "T5", "pT3", "pLS", "T4", "pT5_lower", "pT3_lower", "T5_lower", "pLS_lower"]
 #lowerObjectType = ["pT5_lower", "pT3_lower", "T5_lower"]
 
@@ -478,11 +478,11 @@ def set_label(eff, output_name, raw_number):
         title = "#phi diffs"
     elif "_deltaR" in output_name:
         title = "#Delta R"
-    elif "_jet_eta" in output_name:
+    elif "_genJetEta" in output_name:
         title = "jet #eta"
-    elif "_jet_phi" in output_name:
+    elif "_genJetPhi" in output_name:
         title = "jet #phi"
-    elif "_jet_pt" in output_name:
+    elif "_genJetPt" in output_name:
         title = "jet pT"
     elif "_dz" in output_name:
         title = "z [cm]"
@@ -735,7 +735,11 @@ def plot_standard_performance_plots(args):
             "fakeorduplrate": ["pt", "ptlow", "ptmtv", "eta", "phi"],
             "avgOTlen": ["eta"],
             }
-    if (args.jet_branches): variables["eff"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "dxy", "dz", "vxy", "deltaEta", "deltaPhi", "deltaR", "jet_eta", "jet_phi", "jet_pt"]
+    if (args.jet_branches): 
+        variables["eff"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "dxy", "dz", "vxy", "deltaEta", "deltaPhi", "deltaR", "genJetEta", "genJetPhi", "genJetPt"]
+        variables["duplrate"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "deltaR"]
+        variables["fakerate"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "deltaR"]
+        variables["fakeorduplrate"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "deltaR"]
     sels = {
             "eff": ["base", "loweta"],
             "fakerate": ["none"],
@@ -757,9 +761,9 @@ def plot_standard_performance_plots(args):
         xcoarses["deltaEta"] = [False, True]
         xcoarses["deltaPhi"] = [False, True]
         xcoarses["deltaR"] = [False, True]
-        xcoarses["jet_eta"] = [False, True]
-        xcoarses["jet_phi"] = [False, True]
-        xcoarses["jet_pt"] = [False, True]
+        xcoarses["genJetEta"] = [False, True]
+        xcoarses["genJetPhi"] = [False, True]
+        xcoarses["genJetPt"] = [False, True]
 
     types = objecttype_choices
     breakdowns = {

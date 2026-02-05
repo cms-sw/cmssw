@@ -48,6 +48,9 @@ void fillOutputBranches(LSTEvent* event) {
 
   unsigned int n_accepted_simtrk = setSimTrackContainerBranches(event);
 
+  if (ana.jet_branches)
+    setGenJetBranches(event);
+
   if (ana.occ_branches)
     setOccupancyBranches(event);
 
@@ -190,12 +193,13 @@ void createT4DNNBranches() {
 
 //________________________________________________________________________________________________________________________________
 void createJetBranches() {
-  ana.tx->createBranch<std::vector<float>>("sim_deltaEta");
-  ana.tx->createBranch<std::vector<float>>("sim_deltaPhi");
-  ana.tx->createBranch<std::vector<float>>("sim_deltaR");
-  ana.tx->createBranch<std::vector<float>>("sim_jet_eta");
-  ana.tx->createBranch<std::vector<float>>("sim_jet_phi");
-  ana.tx->createBranch<std::vector<float>>("sim_jet_pt");
+  ana.tx->createBranch<std::vector<float>>("sim_genjet_deltaEta");
+  ana.tx->createBranch<std::vector<float>>("sim_genjet_deltaPhi");
+  ana.tx->createBranch<std::vector<float>>("sim_genjet_deltaR");
+  ana.tx->createBranch<std::vector<int>>("sim_genjet_idx");
+  ana.tx->createBranch<std::vector<float>>("genjet_eta");
+  ana.tx->createBranch<std::vector<float>>("genjet_phi");
+  ana.tx->createBranch<std::vector<float>>("genjet_pt");
 }
 
 //________________________________________________________________________________________________________________________________
@@ -615,6 +619,27 @@ void createOccupancyBranches() {
 }
 
 //________________________________________________________________________________________________________________________________
+void setGenJetBranches(LSTEvent* event) {
+  //--------------------------------------------
+  //
+  //
+  // Gen Jets
+  //
+  //
+  //--------------------------------------------
+
+  auto const& trk_genjet_eta = trk.getVF("genjet_eta");
+  auto const& trk_genjet_phi = trk.getVF("genjet_phi");
+  auto const& trk_genjet_pt = trk.getVF("genjet_pt");
+
+  for (unsigned int ijet = 0; ijet < trk_genjet_pt.size(); ++ijet) {
+    ana.tx->pushbackToBranch<float>("genjet_eta", trk_genjet_eta[ijet]);
+    ana.tx->pushbackToBranch<float>("genjet_phi", trk_genjet_phi[ijet]);
+    ana.tx->pushbackToBranch<float>("genjet_pt", trk_genjet_pt[ijet]);
+  }
+}
+
+//________________________________________________________________________________________________________________________________
 unsigned int setSimTrackContainerBranches(LSTEvent* event) {
   //--------------------------------------------
   //
@@ -667,19 +692,15 @@ unsigned int setSimTrackContainerBranches(LSTEvent* event) {
     // Now we have a list of "accepted" tracks (no condition on vtx_z/perp, nor pt, eta etc are applied yet)
 
     if (ana.jet_branches) {
-      auto const& trk_sim_deltaEta = trk.getVF("sim_deltaEta");
-      auto const& trk_sim_deltaPhi = trk.getVF("sim_deltaPhi");
-      auto const& trk_sim_deltaR = trk.getVF("sim_deltaR");
-      auto const& trk_sim_jet_eta = trk.getVF("sim_jet_eta");
-      auto const& trk_sim_jet_phi = trk.getVF("sim_jet_phi");
-      auto const& trk_sim_jet_pt = trk.getVF("sim_jet_pt");
+      auto const& trk_sim_genjet_deltaEta = trk.getVF("sim_genjet_deltaEta");
+      auto const& trk_sim_genjet_deltaPhi = trk.getVF("sim_genjet_deltaPhi");
+      auto const& trk_sim_genjet_deltaR = trk.getVF("sim_genjet_deltaR");
+      auto const& trk_sim_genjet_idx = trk.getVI("sim_genjet_idx");
 
-      ana.tx->pushbackToBranch<float>("sim_deltaEta", trk_sim_deltaEta[isimtrk]);
-      ana.tx->pushbackToBranch<float>("sim_deltaPhi", trk_sim_deltaPhi[isimtrk]);
-      ana.tx->pushbackToBranch<float>("sim_deltaR", trk_sim_deltaR[isimtrk]);
-      ana.tx->pushbackToBranch<float>("sim_jet_eta", trk_sim_jet_eta[isimtrk]);
-      ana.tx->pushbackToBranch<float>("sim_jet_phi", trk_sim_jet_phi[isimtrk]);
-      ana.tx->pushbackToBranch<float>("sim_jet_pt", trk_sim_jet_pt[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_genjet_deltaEta", trk_sim_genjet_deltaEta[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_genjet_deltaPhi", trk_sim_genjet_deltaPhi[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_genjet_deltaR", trk_sim_genjet_deltaR[isimtrk]);
+      ana.tx->pushbackToBranch<int>("sim_genjet_idx", trk_sim_genjet_idx[isimtrk]);
     }
 
     // Fill the branch with simulated tracks.
