@@ -28,7 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::atomicAdd(acc, &outputs[clIdx].energy(), input_rechits_soa[i].energy());
         alpaka::atomicAdd(acc, &outputs[clIdx].cells(), 1);
         if (input_clusters_soa[i].isSeed() == 1) {
-          outputs[clIdx].seed() = input_rechits_soa[i].detid();
+          outputs[clIdx].seed() = i;
         }
       }
     }
