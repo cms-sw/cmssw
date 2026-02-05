@@ -266,7 +266,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
   evaluatePoissonian(vPoissonProbs, meanVal);
 
   // Find median occupancy, taking into account only good strips
-  unsigned int goodstripentries[128];
+  unsigned int goodstripentries[128] = {};
   int nGoodStrips = 0;
   for (size_t i = ibinStart; i < ibinStop; ++i) {
     if (ishot[(apv * 128) + i - 1] == 0) {
