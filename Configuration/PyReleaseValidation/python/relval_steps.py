@@ -3878,6 +3878,13 @@ steps['SKIMD']={'-s':'SKIM:all',
 
 steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu, '--hltProcess':'reHLT', '--filein':'file:step3.root'}, steps['SKIMD'] ])
 
+steps['SKIMDRun1']={'-s':'SKIM:allRun1',
+                '--conditions':'auto:run1_data',
+                '--data':'',
+                '--scenario':'pp',
+                '--filein':'file:step2.root',
+                '--secondfilein':'filelist:step1_dasquery.log'}
+
 steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--conditions':'auto:run1_data',
                    '--data':'',
