@@ -178,7 +178,7 @@ bool omtfHitWithQualAndRToEventInput(OmtfHit& hit, std::vector<float>& inputs, u
 
     rangeFactor = rangeFactor * rBins;
 
-  } else if (hit.layer >= 10 || hit.layer <= 14) {  //RPCb hits
+  } else if (hit.layer >= 10 && hit.layer <= 14) {  //RPCb hits
     rangeFactor *= 4;
   }
 
