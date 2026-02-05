@@ -39,17 +39,17 @@
   <class name="std::map<TtEvent::HypoClassKey, int>" />
   <class name="std::map<TtEvent::HypoClassKey, std::vector<std::pair<reco::io_v1::CompositeCandidate, std::vector<int> > > >" />
 
-  <class name="TtDilepEvtSolution"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3903965368"/>
+  <class name="TtDilepEvtSolution"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2760008840"/>
   </class>
   <class name="TtSemiEvtSolution"  ClassVersion="3">
-   <version ClassVersion="3" checksum="3559385149"/>
+   <version ClassVersion="3" checksum="3136151227"/>
   </class>
-  <class name="TtHadEvtSolution"  ClassVersion="10">
-   <version ClassVersion="10" checksum="4003976374"/>
+  <class name="TtHadEvtSolution"  ClassVersion="3">
+   <version ClassVersion="3" checksum="236483958"/>
   </class>
-  <class name="StEvtSolution"  ClassVersion="10">
-   <version ClassVersion="10" checksum="520926643"/>
+  <class name="StEvtSolution"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2664175531"/>
   </class>
   <class name="std::vector<TtDilepEvtSolution>" />
   <class name="std::vector<TtSemiEvtSolution>" />

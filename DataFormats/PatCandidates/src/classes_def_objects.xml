@@ -16,19 +16,19 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="3">
-   <version ClassVersion="3" checksum="3647282676"/>
+  <class name="pat::io_v1::Electron"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1162514746"/>
    <field name="superClusterRelinked_" transient="true"/>
   </class>
-  <ioread sourceClass="pat::Electron" targetClass="pat::Electron" version="[1-]" source="" target="superClusterRelinked_">
+  <ioread sourceClass="pat::io_v1::Electron" targetClass="pat::io_v1::Electron" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
-  <class name="pat::Muon"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1254301627"/>
+  <class name="pat::io_v1::Muon"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1784244193"/>
   </class>
 
-  <class name="pat::Tau"  ClassVersion="3">
-   <version ClassVersion="3" checksum="116344369"/>
+  <class name="pat::io_v1::Tau"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3191587699"/>
    <field name="isolationTracksTransientRefVector_" transient="true"/>
    <field name="signalTracksTransientRefVector_" transient="true"/>
    <field name="signalPFCandsTransientPtrs_" transient="true"/>
@@ -41,42 +41,42 @@
    <field name="isolationPFGammaCandsTransientPtrs_" transient="true"/>
   </class>
 
-  <class name="pat::IsolatedTrack" ClassVersion="3">
-   <version ClassVersion="3" checksum="655235006"/>
+  <class name="pat::io_v1::IsolatedTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="3587924376"/>
   </class>
 
   <class name="pat::PFIsolation" ClassVersion="3">
     <version ClassVersion="3" checksum="2961562419" />
   </class>
 
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationTracksTransientRefVector_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="isolationTracksTransientRefVector_">
   <![CDATA[isolationTracksTransientRefVector_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalTracksTransientRefVector_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="signalTracksTransientRefVector_">
   <![CDATA[signalTracksTransientRefVector_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFCandsTransientPtrs_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="signalPFCandsTransientPtrs_">
   <![CDATA[signalPFCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFChargedHadrCandsTransientPtrs_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="signalPFChargedHadrCandsTransientPtrs_">
   <![CDATA[signalPFChargedHadrCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFNeutralHadrCandsTransientPtrs_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="signalPFNeutralHadrCandsTransientPtrs_">
   <![CDATA[signalPFNeutralHadrCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFGammaCandsTransientPtrs_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="signalPFGammaCandsTransientPtrs_">
   <![CDATA[signalPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFCandsTransientPtrs_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="isolationPFCandsTransientPtrs_">
   <![CDATA[isolationPFCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFChargedHadrCandsTransientPtrs_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="isolationPFChargedHadrCandsTransientPtrs_">
   <![CDATA[isolationPFChargedHadrCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFNeutralHadrCandsTransientPtrs_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="isolationPFNeutralHadrCandsTransientPtrs_">
   <![CDATA[isolationPFNeutralHadrCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFGammaCandsTransientPtrs_">
+  <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="isolationPFGammaCandsTransientPtrs_">
   <![CDATA[isolationPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
   <class name="pat::tau::TauPFSpecific"  ClassVersion="3">
@@ -89,54 +89,53 @@
   </class>
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="3">
-   <version ClassVersion="3" checksum="334335458"/>
+  <class name="pat::io_v1::Photon"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2881732216"/>
    <field name="superClusterRelinked_" transient="true"/>
   </class>
-  <ioread sourceClass="pat::Photon" targetClass="pat::Photon" version="[1-]" source="" target="superClusterRelinked_">
+  <ioread sourceClass="pat::io_v1::Photon" targetClass="pat::io_v1::Photon" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="3">
-   <version ClassVersion="3" checksum="306401941"/>
+  <class name="pat::io_v1::Jet"  ClassVersion="3">
+   <version ClassVersion="3" checksum="387523721"/>
    <field name="daughtersTemp_" transient="true"/>
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
   </class>
-  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="caloTowersTemp_">
+  <ioread sourceClass = "pat::io_v1::Jet" version="[1-]" targetClass="pat::io_v1::Jet" source="" target="caloTowersTemp_">
     <![CDATA[caloTowersTemp_.reset();]]>
   </ioread>
-  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="pfCandidatesTemp_">
+  <ioread sourceClass = "pat::io_v1::Jet" version="[1-]" targetClass="pat::io_v1::Jet" source="" target="pfCandidatesTemp_">
     <![CDATA[pfCandidatesTemp_.reset();]]>
   </ioread>
-  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="daughtersTemp_">
+  <ioread sourceClass = "pat::io_v1::Jet" version="[1-]" targetClass="pat::io_v1::Jet" source="" target="daughtersTemp_">
     <![CDATA[daughtersTemp_.reset();]]>
   </ioread>
-  <class name="pat::MET"  ClassVersion="3">
-    <version ClassVersion="3" checksum="1773211734"/>
+  <class name="pat::io_v1::MET"  ClassVersion="3">
+    <version ClassVersion="3" checksum="967983118"/>
     <field name="corMap_" transient="true"/>
   </class>
-  <class name="pat::MET::PackedMETUncertainty" ClassVersion="11">
-    <version ClassVersion="11" checksum="3523936012"/>
-    <version ClassVersion="10" checksum="1984780659"/>
+  <class name="pat::io_v1::MET::PackedMETUncertainty" ClassVersion="3">
+    <version ClassVersion="3" checksum="1865831794"/>
   </class>
-  <class name="pat::MET::Vector2"  transient="true" />
+  <class name="pat::io_v1::MET::Vector2"  transient="true" />
 
-  <class name="std::vector<pat::MET::PackedMETUncertainty>" />
+  <class name="std::vector<pat::io_v1::MET::PackedMETUncertainty>" />
   <class name="pat::MHT"  ClassVersion="3">
    <version ClassVersion="3" checksum="1121416267"/>
   </class>
   <class name="pat::Particle"  ClassVersion="3">
-   <version ClassVersion="3" checksum="735620471"/>
+   <version ClassVersion="3" checksum="1152623389"/>
   </class>
-  <class name="pat::CompositeCandidate"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2856590720"/>
+  <class name="pat::io_v1::CompositeCandidate"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3450971292"/>
   </class>
   <class name="pat::PFParticle"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1471957762"/>
+   <version ClassVersion="3" checksum="213995894"/>
   </class>
   <class name="pat::GenericParticle"  ClassVersion="3">
-   <version ClassVersion="3" checksum="776020708"/>
+   <version ClassVersion="3" checksum="2807844620"/>
   </class>
   <class name="pat::Hemisphere"  ClassVersion="3">
    <version ClassVersion="3" checksum="3728411613"/>
@@ -144,11 +143,11 @@
   <class name="pat::Conversion"  ClassVersion="11">
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
-  <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
-   <version ClassVersion="3" checksum="3320406063"/>
+  <class name="pat::io_v1::PackedCandidate::PackedCovariance" ClassVersion="3">
+   <version ClassVersion="3" checksum="4230301381"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="3982189188"/>
+  <class name="pat::io_v1::PackedCandidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="2363146854"/>
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
     <field name="vertex_" transient="true" />
@@ -162,126 +161,126 @@
     <!--- <field name="covariance_load_flag" transient="true"/> -->
    <!--- <field name="covarianceParameterization_" transient="true" />-->
   </class>
-  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="p4_">
+  <ioread sourceClass="pat::io_v1::PackedCandidate"  version="[1-]" targetClass="pat::io_v1::PackedCandidate" source="" target="p4_">
     <![CDATA[delete p4_.exchange(nullptr);
     ]]>
   </ioread>
-  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="p4c_">
+  <ioread sourceClass="pat::io_v1::PackedCandidate"  version="[1-]" targetClass="pat::io_v1::PackedCandidate" source="" target="p4c_">
     <![CDATA[delete p4c_.exchange(nullptr);
     ]]>
   </ioread>
-  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="vertex_">
+  <ioread sourceClass="pat::io_v1::PackedCandidate"  version="[1-]" targetClass="pat::io_v1::PackedCandidate" source="" target="vertex_">
     <![CDATA[delete vertex_.exchange(nullptr);
     ]]>
   </ioread>
-  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="track_">
+  <ioread sourceClass="pat::io_v1::PackedCandidate"  version="[1-]" targetClass="pat::io_v1::PackedCandidate" source="" target="track_">
     <![CDATA[delete track_.exchange(nullptr);
     ]]>
   </ioread>
-  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="m_">
+  <ioread sourceClass="pat::io_v1::PackedCandidate"  version="[1-]" targetClass="pat::io_v1::PackedCandidate" source="" target="m_">
     <![CDATA[delete m_.exchange(nullptr);
     ]]>
   </ioread>
 
 
-  <class name="pat::PackedGenParticle" ClassVersion="3">
-    <version ClassVersion="3" checksum="126922139"/>
+  <class name="pat::io_v1::PackedGenParticle" ClassVersion="3">
+    <version ClassVersion="3" checksum="2152850173"/>
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
   </class>
-  <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="p4_">
+  <ioread sourceClass="pat::io_v1::PackedGenParticle"  version="[1-]" targetClass="pat::io_v1::PackedGenParticle" source="" target="p4_">
     <![CDATA[delete p4_.exchange(nullptr);
     ]]>
   </ioread>
-  <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="p4c_">
+  <ioread sourceClass="pat::io_v1::PackedGenParticle"  version="[1-]" targetClass="pat::io_v1::PackedGenParticle" source="" target="p4c_">
     <![CDATA[delete p4c_.exchange(nullptr);
     ]]>
   </ioread>
 
 
   <!-- PAT Object Ptrs  -->
-  <class name="edm::Ptr<pat::Electron>" />
-  <class name="edm::Ptr<pat::Muon>" />
-  <class name="edm::Ptr<pat::Tau>" />
-  <class name="edm::Ptr<pat::Jet>" />
-  <class name="edm::Ptr<pat::MET>" />
+  <class name="edm::Ptr<pat::io_v1::Electron>" />
+  <class name="edm::Ptr<pat::io_v1::Muon>" />
+  <class name="edm::Ptr<pat::io_v1::Tau>" />
+  <class name="edm::Ptr<pat::io_v1::Jet>" />
+  <class name="edm::Ptr<pat::io_v1::MET>" />
   <class name="edm::Ptr<pat::Conversion>" />
-  <class name="edm::Ptr<pat::PackedCandidate>" />
-  <class name="edm::Ptr<pat::PackedGenParticle>" />
+  <class name="edm::Ptr<pat::io_v1::PackedCandidate>" />
+  <class name="edm::Ptr<pat::io_v1::PackedGenParticle>" />
 
 
-  <class name="edm::FwdPtr<pat::PackedCandidate>" />
-  <class name="std::vector<edm::FwdPtr<pat::PackedCandidate> >" />
-  <class name="edm::Wrapper<edm::FwdPtr<pat::PackedCandidate> >" />
-  <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedCandidate> > >" />
+  <class name="edm::FwdPtr<pat::io_v1::PackedCandidate>" />
+  <class name="std::vector<edm::FwdPtr<pat::io_v1::PackedCandidate> >" />
+  <class name="edm::Wrapper<edm::FwdPtr<pat::io_v1::PackedCandidate> >" />
+  <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::io_v1::PackedCandidate> > >" />
 
-  <class name="edm::FwdPtr<pat::PackedGenParticle>" />
-  <class name="std::vector<edm::FwdPtr<pat::PackedGenParticle> >" />
-  <class name="edm::Wrapper<edm::FwdPtr<pat::PackedGenParticle> >" />
-  <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedGenParticle> > >" />
+  <class name="edm::FwdPtr<pat::io_v1::PackedGenParticle>" />
+  <class name="std::vector<edm::FwdPtr<pat::io_v1::PackedGenParticle> >" />
+  <class name="edm::Wrapper<edm::FwdPtr<pat::io_v1::PackedGenParticle> >" />
+  <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::io_v1::PackedGenParticle> > >" />
 
-  <class name="std::vector<edm::Ptr<pat::PackedCandidate> >" />
-  <class name="edm::Wrapper<edm::Ptr<pat::PackedCandidate> >" />
-  <class name="edm::Wrapper<std::vector<edm::Ptr<pat::PackedCandidate> > >" />
-  <class name="edm::ValueMap<edm::Ptr<pat::PackedCandidate> >" />
-  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<pat::PackedCandidate> > >" />
+  <class name="std::vector<edm::Ptr<pat::io_v1::PackedCandidate> >" />
+  <class name="edm::Wrapper<edm::Ptr<pat::io_v1::PackedCandidate> >" />
+  <class name="edm::Wrapper<std::vector<edm::Ptr<pat::io_v1::PackedCandidate> > >" />
+  <class name="edm::ValueMap<edm::Ptr<pat::io_v1::PackedCandidate> >" />
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<pat::io_v1::PackedCandidate> > >" />
 
-  <class name="std::vector<edm::Ptr<pat::PackedGenParticle> >" />
-  <class name="edm::Wrapper<edm::Ptr<pat::PackedGenParticle> >" />
-  <class name="edm::Wrapper<std::vector<edm::Ptr<pat::PackedGenParticle> > >" />
+  <class name="std::vector<edm::Ptr<pat::io_v1::PackedGenParticle> >" />
+  <class name="edm::Wrapper<edm::Ptr<pat::io_v1::PackedGenParticle> >" />
+  <class name="edm::Wrapper<std::vector<edm::Ptr<pat::io_v1::PackedGenParticle> > >" />
 
   <!-- PAT Object Collections -->
-  <class name="std::vector<pat::Electron>" />
-  <class name="std::vector<pat::Muon>" />
-  <class name="std::vector<pat::Tau>" />
-  <class name="std::vector<pat::Photon>" />
-  <class name="std::vector<pat::Jet>" />
-  <class name="std::vector<pat::MET>" />
+  <class name="std::vector<pat::io_v1::Electron>" />
+  <class name="std::vector<pat::io_v1::Muon>" />
+  <class name="std::vector<pat::io_v1::Tau>" />
+  <class name="std::vector<pat::io_v1::Photon>" />
+  <class name="std::vector<pat::io_v1::Jet>" />
+  <class name="std::vector<pat::io_v1::MET>" />
   <class name="std::vector<pat::MHT>" />
   <class name="std::vector<pat::Particle>" />
-  <class name="std::vector<pat::CompositeCandidate>" />
+  <class name="std::vector<pat::io_v1::CompositeCandidate>" />
   <class name="std::vector<pat::PFParticle>" />
   <class name="std::vector<pat::GenericParticle>" />
   <class name="std::vector<pat::Hemisphere>" />
   <class name="std::vector<pat::Conversion>" />
-  <class name="std::vector<pat::PackedCandidate>"/>
-  <class name="std::vector<pat::IsolatedTrack>"/>
-  <class name="std::vector<pat::PackedGenParticle>"/>
+  <class name="std::vector<pat::io_v1::PackedCandidate>"/>
+  <class name="std::vector<pat::io_v1::IsolatedTrack>"/>
+  <class name="std::vector<pat::io_v1::PackedGenParticle>"/>
 
   <!-- PAT Object Collection Iterators -->
-  <class name="std::vector<pat::Electron>::const_iterator" />
-  <class name="std::vector<pat::Muon>::const_iterator" />
-  <class name="std::vector<pat::Tau>::const_iterator" />
-  <class name="std::vector<pat::Photon>::const_iterator" />
-  <class name="std::vector<pat::Jet>::const_iterator" />
-  <class name="std::vector<pat::MET>::const_iterator" />
+  <class name="std::vector<pat::io_v1::Electron>::const_iterator" />
+  <class name="std::vector<pat::io_v1::Muon>::const_iterator" />
+  <class name="std::vector<pat::io_v1::Tau>::const_iterator" />
+  <class name="std::vector<pat::io_v1::Photon>::const_iterator" />
+  <class name="std::vector<pat::io_v1::Jet>::const_iterator" />
+  <class name="std::vector<pat::io_v1::MET>::const_iterator" />
   <class name="std::vector<pat::MHT>::const_iterator" />
   <class name="std::vector<pat::Particle>::const_iterator" />
-  <class name="std::vector<pat::CompositeCandidate>::const_iterator" />
+  <class name="std::vector<pat::io_v1::CompositeCandidate>::const_iterator" />
   <class name="std::vector<pat::PFParticle>::const_iterator" />
   <class name="std::vector<pat::GenericParticle>::const_iterator" />
   <class name="std::vector<pat::Hemisphere>::const_iterator" />
   <class name="std::vector<pat::Conversion>::const_iterator" />
-  <class name="std::vector<pat::PackedCandidate>::const_iterator" />
-  <class name="std::vector<pat::PackedGenParticle>::const_iterator" />
+  <class name="std::vector<pat::io_v1::PackedCandidate>::const_iterator" />
+  <class name="std::vector<pat::io_v1::PackedGenParticle>::const_iterator" />
 
   <!-- PAT Object Collection Wrappers -->
-  <class name="edm::Wrapper<std::vector<pat::Electron> >" />
-  <class name="edm::Wrapper<std::vector<pat::Muon> >" />
-  <class name="edm::Wrapper<std::vector<pat::Tau> >" />
-  <class name="edm::Wrapper<std::vector<pat::Photon> >" />
-  <class name="edm::Wrapper<std::vector<pat::Jet> >" />
-  <class name="edm::Wrapper<std::vector<pat::MET> >" />
+  <class name="edm::Wrapper<std::vector<pat::io_v1::Electron> >" />
+  <class name="edm::Wrapper<std::vector<pat::io_v1::Muon> >" />
+  <class name="edm::Wrapper<std::vector<pat::io_v1::Tau> >" />
+  <class name="edm::Wrapper<std::vector<pat::io_v1::Photon> >" />
+  <class name="edm::Wrapper<std::vector<pat::io_v1::Jet> >" />
+  <class name="edm::Wrapper<std::vector<pat::io_v1::MET> >" />
   <class name="edm::Wrapper<std::vector<pat::MHT> >" />
   <class name="edm::Wrapper<std::vector<pat::Particle> >" />
-  <class name="edm::Wrapper<std::vector<pat::CompositeCandidate> >" />
+  <class name="edm::Wrapper<std::vector<pat::io_v1::CompositeCandidate> >" />
   <class name="edm::Wrapper<std::vector<pat::PFParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::GenericParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
   <class name="edm::Wrapper<std::vector<pat::Conversion> >" />
-  <class name="edm::Wrapper<std::vector<pat::PackedCandidate> >"/>
-  <class name="edm::Wrapper<std::vector<pat::IsolatedTrack> >"/>
-  <class name="edm::Wrapper<std::vector<pat::PackedGenParticle> >"/>
+  <class name="edm::Wrapper<std::vector<pat::io_v1::PackedCandidate> >"/>
+  <class name="edm::Wrapper<std::vector<pat::io_v1::IsolatedTrack> >"/>
+  <class name="edm::Wrapper<std::vector<pat::io_v1::PackedGenParticle> >"/>
 
   <!-- PAT Object References -->
   <class name="pat::ElectronRef" />
@@ -367,35 +366,35 @@
   <class name="edm::Association<pat::PackedCandidateCollection>" />
   <class name="edm::Wrapper<edm::Association<pat::PackedCandidateCollection> >" />
 
-  <class name="edm::RefProd<std::vector<pat::PackedGenParticle> >" />
-  <class name="edm::Association<std::vector<pat::PackedGenParticle> >" />
-  <class name="edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > >"/>
+  <class name="edm::RefProd<std::vector<pat::io_v1::PackedGenParticle> >" />
+  <class name="edm::Association<std::vector<pat::io_v1::PackedGenParticle> >" />
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::io_v1::PackedGenParticle> > >"/>
 
   <class name="edm::RefProd<pat::CompositeCandidateCollection>" />
   <class name="edm::Association<pat::CompositeCandidateCollection>" />
   <class name="edm::Wrapper<edm::Association<pat::CompositeCandidateCollection> >"/>
 
   <!--- vectors of Ptrs -->
-  <class name="std::vector<edm::Ptr<pat::Jet> >" />
-  <class name="std::vector< std::vector<edm::Ptr<pat::Jet> > >" />
-  <class name="edm::Wrapper< std::vector<edm::Ptr<pat::Jet> > >" />
-  <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::Jet> > > >" />
+  <class name="std::vector<edm::Ptr<pat::io_v1::Jet> >" />
+  <class name="std::vector< std::vector<edm::Ptr<pat::io_v1::Jet> > >" />
+  <class name="edm::Wrapper< std::vector<edm::Ptr<pat::io_v1::Jet> > >" />
+  <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::io_v1::Jet> > > >" />
 
   <!--  Association for Jet, and AssociationMap Jet-PackedCandidate -->
-  <class name="edm::Association<std::vector<pat::Jet> >"/>
-  <class name="edm::Wrapper<edm::Association<std::vector<pat::Jet> > >"/>
-  <class name="edm::RefProd<vector<pat::Jet> >"/>
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> >">
+  <class name="edm::Association<std::vector<pat::io_v1::Jet> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::io_v1::Jet> > >"/>
+  <class name="edm::RefProd<vector<pat::io_v1::Jet> >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<pat::io_v1::Jet>,std::vector<pat::io_v1::PackedCandidate>,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> > >"/>
-  <class name="edm::helpers::KeyVal<edm::RefProd<vector<pat::Jet> >,edm::RefProd<vector<pat::PackedCandidate> > >"/>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<pat::io_v1::Jet>,std::vector<pat::io_v1::PackedCandidate>,unsigned int> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<pat::io_v1::Jet> >,edm::RefProd<vector<pat::io_v1::PackedCandidate> > >"/>
 
   <class name="pat::PATTauDiscriminatorBase">
     <field name="transientVector_" transient="true"/>
   </class>  
   <class name="pat::PATTauDiscriminator"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2916098408"/>  
+   <version ClassVersion="3" checksum="3352211268"/>  
   </class>  
   <class name="pat::PATTauDiscriminatorRef"/>
   <class name="pat::PATTauDiscriminatorRefProd"/>
@@ -404,7 +403,7 @@
 
   <class name="std::pair<pat::TauRef, float>"/>
   <class name="std::vector<std::pair<pat::TauRef, float> >" />
-  <class name="edm::RefProd<std::vector<pat::Tau> >"/>
+  <class name="edm::RefProd<std::vector<pat::io_v1::Tau> >"/>
 
   <class name="edm::RefProd<std::vector<pat::GenericParticle>>" />
   <class name="edm::Association<std::vector<pat::GenericParticle>>" />
