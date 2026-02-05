@@ -42,6 +42,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimTracksterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/SimHitCategory.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 #include "SimGeneral/MixingModule/interface/DecayGraph.h"

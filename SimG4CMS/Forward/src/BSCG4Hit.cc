@@ -5,6 +5,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
+#include "SimDataFormats/TrackingHit/interface/SimHitCategory.h"
 #include <iostream>
 
 BscG4Hit::BscG4Hit() : entry(0., 0., 0.), entrylp(0., 0., 0.), exitlp(0., 0., 0.) {
