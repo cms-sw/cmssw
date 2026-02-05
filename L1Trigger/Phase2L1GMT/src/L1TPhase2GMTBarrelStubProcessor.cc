@@ -149,7 +149,6 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
               sN = sN | (wr1 << 30);
               sN = sN | (wq << 51);
               sN = sN | (wr2 << 55);
-              unsigned int index = (station - 1) * 4 + phiDigi.index();
               os << std::setw(0) << std::dec << sector << " " << wheel << " " << station << " ";
               os << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << uint64_t(sN) << " ";
             }
