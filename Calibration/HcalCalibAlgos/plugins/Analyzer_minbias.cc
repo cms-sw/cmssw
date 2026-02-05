@@ -531,36 +531,30 @@ namespace cms {
       HcalDetId hid = HcalDetId(id);
 
       int mysu = ((hid).rawId() >> 25) & 0x7;
-      if (hid.ieta() > 0) {
-        theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] + 1.;
-        theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] + energyhit;
-        theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] + pow(energyhit, 2);
-        theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] + pow(energyhit, 4);
-
-        tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
+      const int hid_depth = hid.depth();
+      const int hid_iphi = hid.iphi();
+      const int hid_ieta = hid.ieta();
+      if (hid_ieta > 0) {
+        theNSFillDetMapPl0[mysu][hid_depth][hid_iphi][hid_ieta] += 1.;
+        theNSFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta] += energyhit;
+        theNSFillDetMapPl2[mysu][hid_depth][hid_iphi][hid_ieta] += pow(energyhit, 2);
+        theNSFillDetMapPl4[mysu][hid_depth][hid_iphi][hid_ieta] += pow(energyhit, 4);
+        tmpNSFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta] = energyhit;
 
       } else {
-        theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + 1.;
-        theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + energyhit;
-        theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + pow(energyhit, 2);
-        theNSFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theNSFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + pow(energyhit, 4);
-
-        tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
+        const unsigned int abs_ieta = abs(hid_ieta);
+        theNSFillDetMapMin0[mysu][hid_depth][hid_iphi][abs_ieta] += 1.;
+        theNSFillDetMapMin1[mysu][hid_depth][hid_iphi][abs_ieta] += energyhit;
+        theNSFillDetMapMin2[mysu][hid_depth][hid_iphi][abs_ieta] += pow(energyhit, 2);
+        theNSFillDetMapMin4[mysu][hid_depth][hid_iphi][abs_ieta] += pow(energyhit, 4);
+        tmpNSFillDetMapMin1[mysu][hid_depth][hid_iphi][abs_ieta] = energyhit;
       }
 
-      if (hid.depth() == 1) {
+      if (hid_depth == 1) {
         hbheNoiseE->Fill(energyhit);
 
         if (energyhit < -2.)
-          edm::LogVerbatim("AnalyzerMB") << " Run " << rnnum << " ieta,iphi " << hid.ieta() << " " << hid.iphi()
+          edm::LogVerbatim("AnalyzerMB") << " Run " << rnnum << " ieta,iphi " << hid_ieta << " " << hid_iphi
                                          << energyhit;
 
       }  // depth=1
@@ -584,43 +578,40 @@ namespace cms {
       HcalDetId hid = HcalDetId(id);
 
       int mysu = ((hid).rawId() >> 25) & 0x7;
-      if (hid.ieta() > 0) {
-        theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] += 1.;
-        theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] += energyhit;
-        theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] += pow(energyhit, 2);
-        theMBFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] += pow(energyhit, 4);
-        float mydiff = energyhit - tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
+      const int hid_depth = hid.depth();
+      const int hid_iphi = hid.iphi();
+      const int hid_ieta = hid.ieta();
+      if (hid_ieta > 0) {
+        theMBFillDetMapPl0[mysu][hid_depth][hid_iphi][hid_ieta] += 1.;
+        theMBFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta] += energyhit;
+        theMBFillDetMapPl2[mysu][hid_depth][hid_iphi][hid_ieta] += pow(energyhit, 2);
+        theMBFillDetMapPl4[mysu][hid_depth][hid_iphi][hid_ieta] += pow(energyhit, 4);
 
-        theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] + mydiff;
-        theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] + pow(mydiff, 2);
+        double mydiff = energyhit - tmpNSFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta];
+        theDFFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta] += mydiff;
+        theDFFillDetMapPl2[mysu][hid_depth][hid_iphi][hid_ieta] += pow(mydiff, 2);
       } else {
-        theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + 1.;
-        theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + energyhit;
-        theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + pow(energyhit, 2);
-        theMBFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theMBFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + pow(energyhit, 4);
+        const unsigned int abs_ieta = abs(hid_ieta);
+        theMBFillDetMapMin0[mysu][hid_depth][hid_iphi][abs_ieta] += 1.;
+        theMBFillDetMapMin1[mysu][hid_depth][hid_iphi][abs_ieta] += energyhit;
+        theMBFillDetMapMin2[mysu][hid_depth][hid_iphi][abs_ieta] += pow(energyhit, 2);
+        theMBFillDetMapMin4[mysu][hid_depth][hid_iphi][abs_ieta] += pow(energyhit, 4);
 
-        float mydiff = energyhit - tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
-        theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] + mydiff;
-        theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] + pow(mydiff, 2);
+        double mydiff = energyhit - tmpNSFillDetMapMin1[mysu][hid_depth][hid_iphi][abs_ieta];
+        theDFFillDetMapMin1[mysu][hid_depth][hid_iphi][abs_ieta] += mydiff;
+        theDFFillDetMapMin2[mysu][hid_depth][hid_iphi][abs_ieta] += pow(mydiff, 2);
       }
 
-      if (hid.depth() == 1) {
+      if (hid_depth == 1) {
         hbheSignalE->Fill(energyhit);
 
-        if (hid.ieta() > 0) {
-          hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit);
-          hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit, 2));
+        if (hid_ieta > 0) {
+          hCalo1[hid_iphi][hid_ieta]->Fill(energyhit);
+          hCalo1mom2[hid_iphi][hid_ieta]->Fill(pow(energyhit, 2));
         } else {
-          hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit);
-          hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit, 2));
+          const unsigned int abs_ieta = abs(hid_ieta);
+          hCalo2[hid_iphi][abs_ieta]->Fill(energyhit);
+          hCalo2mom2[hid_iphi][abs_ieta]->Fill(pow(energyhit, 2));
         }  // eta><0
 
       }  // depth=1
@@ -649,32 +640,26 @@ namespace cms {
         continue;
 
       int mysu = hid.subdetId();
-      if (hid.ieta() > 0) {
-        theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] + 1.;
-        theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] + energyhit;
-        theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] + pow(energyhit, 2);
-        theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] + pow(energyhit, 4);
-
-        tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
+      const int hid_depth = hid.depth();
+      const int hid_iphi = hid.iphi();
+      const int hid_ieta = hid.ieta();
+      if (hid_ieta > 0) {
+        theNSFillDetMapPl0[mysu][hid_depth][hid_iphi][hid_ieta] += 1.;
+        theNSFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta] += energyhit;
+        theNSFillDetMapPl2[mysu][hid_depth][hid_iphi][hid_ieta] += pow(energyhit, 2);
+        theNSFillDetMapPl4[mysu][hid_depth][hid_iphi][hid_ieta] += pow(energyhit, 4);
+        tmpNSFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta] = energyhit;
 
       } else {
-        theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + 1.;
-        theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + energyhit;
-        theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + pow(energyhit, 2);
-        theNSFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theNSFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + pow(energyhit, 4);
-
-        tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
+        const unsigned int abs_ieta = abs(hid_ieta);
+        theNSFillDetMapMin0[mysu][hid_depth][hid_iphi][abs_ieta] += 1.;
+        theNSFillDetMapMin1[mysu][hid_depth][hid_iphi][abs_ieta] += energyhit;
+        theNSFillDetMapMin2[mysu][hid_depth][hid_iphi][abs_ieta] += pow(energyhit, 2);
+        theNSFillDetMapMin4[mysu][hid_depth][hid_iphi][abs_ieta] += pow(energyhit, 4);
+        tmpNSFillDetMapMin1[mysu][hid_depth][hid_iphi][abs_ieta] = energyhit;
       }
 
-      if (hid.depth() == 1) {
+      if (hid_depth == 1) {
         hfNoiseE->Fill(energyhit);
 
       }  // depth=1
@@ -703,49 +688,40 @@ namespace cms {
       HcalDetId hid = HcalDetId(id);
 
       int mysu = ((hid).rawId() >> 25) & 0x7;
-      if (hid.ieta() > 0) {
-        theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] + 1.;
-        theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] + energyhit;
-        theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] + pow(energyhit, 2);
-        theMBFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theMBFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] + pow(energyhit, 4);
+      const int hid_depth = hid.depth();
+      const int hid_iphi = hid.iphi();
+      const int hid_ieta = hid.ieta();
+      if (hid_ieta > 0) {
+        theMBFillDetMapPl0[mysu][hid_depth][hid_iphi][hid_ieta] += 1.;
+        theMBFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta] += energyhit;
+        theMBFillDetMapPl2[mysu][hid_depth][hid_iphi][hid_ieta] += pow(energyhit, 2);
+        theMBFillDetMapPl4[mysu][hid_depth][hid_iphi][hid_ieta] += pow(energyhit, 4);
 
-        theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] + energyhit -
-            tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
-        theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] +
-            pow((energyhit - tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]), 2);
+        double mydiff = energyhit - tmpNSFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta];
+        theDFFillDetMapPl1[mysu][hid_depth][hid_iphi][hid_ieta] += mydiff;
+        theDFFillDetMapPl2[mysu][hid_depth][hid_iphi][hid_ieta] += pow(mydiff, 2);
       } else {
-        theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + 1.;
-        theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + energyhit;
-        theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + pow(energyhit, 2);
-        theMBFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] =
-            theMBFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] + pow(energyhit, 4);
+        const unsigned int abs_ieta = abs(hid_ieta);
+        theMBFillDetMapMin0[mysu][hid_depth][hid_iphi][abs_ieta] += 1.;
+        theMBFillDetMapMin1[mysu][hid_depth][hid_iphi][abs_ieta] += energyhit;
+        theMBFillDetMapMin2[mysu][hid_depth][hid_iphi][abs_ieta] += pow(energyhit, 2);
+        theMBFillDetMapMin4[mysu][hid_depth][hid_iphi][abs_ieta] += pow(energyhit, 4);
 
-        theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] + energyhit -
-            tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
-        theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-            theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] +
-            pow((energyhit - tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()]), 2);
+        double mydiff = energyhit - tmpNSFillDetMapMin1[mysu][depth][iphi][abs_ieta];
+        theDFFillDetMapMin1[mysu][hid_depth][hid_iphi][abs_ieta] += mydiff;
+        theDFFillDetMapMin2[mysu][hid_depth][hid_iphi][abs_ieta] += pow(mydiff, 2);
       }
 
-      if (hid.depth() == 1) {
+      if (hid_depth == 1) {
         hfSignalE->Fill(energyhit);
 
-        if (hid.ieta() > 0) {
-          hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit);
-          hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit, 2));
+        if (hid_ieta > 0) {
+          hCalo1[hid_iphi][hid_ieta]->Fill(energyhit);
+          hCalo1mom2[hid_iphi][hid_ieta]->Fill(pow(energyhit, 2));
         } else {
-          hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit);
-          hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit, 2));
+          const unsigned int abs_ieta = abs(hid_ieta);
+          hCalo2[hid_iphi][abs_ieta]->Fill(energyhit);
+          hCalo2mom2[hid_iphi][abs_ieta]->Fill(pow(energyhit, 2));
         }  // eta><0
 
       }  // depth=1
