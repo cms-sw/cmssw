@@ -14,5 +14,8 @@ ScoutingDileptonMonitor = DQMEDAnalyzer("ScoutingDileptonMonitor",
                                         massMax  = cms.double(200.0),                                            
                                         zMassMin = cms.double(70.0),
                                         zMassMax = cms.double(110.0),                                            
-                                        barrelEta = cms.double(1.479)
+                                        barrelEta = cms.double(1.479),
+
+                                        muonID = cms.bool(True),
+                                        electronID = cms.bool(True)
                                         )
