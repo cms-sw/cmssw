@@ -66,9 +66,75 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       static_assert(max_w_items <= 32, "ECLCCEpilogueKernel: number of warps per block is unsupported.");
 
-      constexpr unsigned int max_w_extent = 32;  //is it true for rocm?
+      constexpr unsigned int max_w_extent = 32;
 
       const unsigned int nVertices = pfClusteringCCLabels.size();
+
+      if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
+        if (::cms::alpakatools::once_per_grid(acc)) {
+          unsigned int ccrhfrac_idx = 0;
+          unsigned int cc_idx = 0;
+
+          for (unsigned int vtx_idx = 0; vtx_idx < nVertices; vtx_idx++) {
+            const unsigned int rep_idx = pfClusteringCCLabels[vtx_idx].mdpf_topoId();
+            const bool is_representative = rep_idx == vtx_idx;
+
+            if (is_representative == false)
+              continue;
+
+            outPFCluster[cc_idx].depth() = pfCluster[rep_idx].depth();
+            outPFCluster[cc_idx].topoId() = cc_idx;
+            outPFCluster[cc_idx].energy() = pfCluster[rep_idx].energy();
+            outPFCluster[cc_idx].x() = pfCluster[rep_idx].x();
+            outPFCluster[cc_idx].y() = pfCluster[rep_idx].y();
+            outPFCluster[cc_idx].z() = pfCluster[rep_idx].z();
+            outPFCluster[cc_idx].topoRHCount() = pfCluster[rep_idx].topoRHCount();
+
+            int cc_seed = pfCluster[rep_idx].seedRHIdx();
+            float cc_energy = pfRecHit[cc_seed].energy();
+
+            outPFCluster[cc_idx].rhfracOffset() = ccrhfrac_idx;
+
+            for (unsigned int iter_idx = 0; iter_idx < nVertices; iter_idx++) {
+              const unsigned int comp_id = pfClusteringCCLabels[iter_idx].mdpf_topoId();
+
+              if (comp_id != rep_idx)
+                continue;
+
+              const int seed = pfCluster[iter_idx].seedRHIdx();
+              const float energy = pfRecHit[seed].energy();
+
+              const unsigned int rhf_begin = pfCluster[iter_idx].rhfracOffset();
+              const unsigned int rhf_end = rhf_begin + pfCluster[iter_idx].rhfracSize();
+
+              for (unsigned int src_rhfrac_idx = rhf_begin; src_rhfrac_idx < rhf_end; src_rhfrac_idx++) {
+                const unsigned int dst_rhfrac_idx = ccrhfrac_idx;
+
+                outPFRecHitFracs[dst_rhfrac_idx].frac() = pfRecHitFracs[src_rhfrac_idx].frac();
+                outPFRecHitFracs[dst_rhfrac_idx].pfrhIdx() = pfRecHitFracs[src_rhfrac_idx].pfrhIdx();
+                outPFRecHitFracs[dst_rhfrac_idx].pfcIdx() = cc_idx;
+
+                ccrhfrac_idx += 1;
+              }
+
+              if (energy > cc_energy) {
+                cc_energy = energy;
+                cc_seed = seed;
+              }
+            }  // iter_idx
+
+            outPFCluster[cc_idx].rhfracSize() = ccrhfrac_idx - outPFCluster[cc_idx].rhfracOffset();
+            outPFCluster[cc_idx].seedRHIdx() = cc_seed;
+
+            cc_idx += 1;  //nComponents
+          }  // vtx_idx
+
+          outPFCluster.nTopos() = cc_idx;
+          outPFCluster.nSeeds() = cc_idx;
+          outPFCluster.size() = cc_idx;
+        }
+        return;
+      }
 
       //representative vertex index for a component.
       auto& cc_roots(alpaka::declareSharedVar<unsigned int[max_w_items * max_w_extent + 1], __COUNTER__>(acc));

@@ -70,7 +70,7 @@ namespace cms::alpakaintrinsics {
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
       res = __ballot_sync(mask, pred);
 #else
-      res = pred == 1 ? mask : 0;
+      res = pred == 0 ? 0 : mask;
 #endif
       return res;
     }

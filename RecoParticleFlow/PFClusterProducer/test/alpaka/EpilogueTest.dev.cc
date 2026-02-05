@@ -155,16 +155,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                            const reco::PFClusterDeviceCollection &pfClusters,
                            const reco::PFRecHitFractionDeviceCollection &pfRecHitFracs,
                            const reco::PFRecHitDeviceCollection &pfRecHit) const {
-    const uint32_t wextent = 32;
+    uint32_t items = 160;
 
-    auto n = static_cast<uint32_t>(pfClusters->metadata().size());
-
-    uint32_t items = cms::alpakatools::round_up_by(n, wextent);
+    auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
     uint32_t groups = cms::alpakatools::divide_up_by(n, items);
 
     if (groups < 1) {
       printf("Skip kernel launch...\n");
       return;
+    } else {
+      printf("Number of groups :: %d\n", groups);
     }
 
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
