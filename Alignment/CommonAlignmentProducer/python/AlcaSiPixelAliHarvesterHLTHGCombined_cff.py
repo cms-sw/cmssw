@@ -7,7 +7,7 @@ SiPixelAliMilleFileExtractorHLTHGMinBias = cms.EDAnalyzer("MillePedeFileExtracto
     # file as real binary files to disk, so that the pede step can read them.
     # This includes the formatting directive "%04d" which will be expanded to
     # 0000, 0001, 0002,...
-    outputBinaryFile = cms.string('pedeBinaryHLTHGMinBias%04d.dat'))
+    outputBinaryFile = cms.string('pedeBinaryHLTHGMinBias%04d.dat.gz'))
 
 SiPixelAliMilleFileExtractorHLTHGZMuMu = cms.EDAnalyzer("MillePedeFileExtractor",
     fileBlobInputTag = cms.InputTag("SiPixelAliMillePedeFileConverterHLTHGDimuon",''),
@@ -16,7 +16,7 @@ SiPixelAliMilleFileExtractorHLTHGZMuMu = cms.EDAnalyzer("MillePedeFileExtractor"
     # file as real binary files to disk, so that the pede step can read them.
     # This includes the formatting directive "%04d" which will be expanded to
     # 0000, 0001, 0002,...
-    outputBinaryFile = cms.string('pedeBinaryHLTHGDiMuon%04d.dat'))
+    outputBinaryFile = cms.string('pedeBinaryHLTHGDiMuon%04d.dat.gz'))
 
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff import AlignmentProducer
@@ -44,7 +44,7 @@ SiPixelAliPedeAlignmentProducerHLTHGCombined.algoConfig = MillePedeAlignmentAlgo
     runAtPCL = True,
     #mergeBinaryFiles = [SiPixelAliMilleFileExtractorHGMinBias.outputBinaryFile.value()],
     #mergeBinaryFiles = [SiPixelAliMilleFileExtractorHGZMuMu.outputBinaryFile.value()],
-    mergeBinaryFiles = ['pedeBinaryHLTHGMinBias%04d.dat','pedeBinaryHLTHGDiMuon%04d.dat -- 10.0'],
+    mergeBinaryFiles = ['pedeBinaryHLTHGMinBias%04d.dat.gz','pedeBinaryHLTHGDiMuon%04d.dat.gz -- 10.0'],
     binaryFile = '',
     TrajectoryFactory = cms.PSet(BrokenLinesTrajectoryFactory),
     minNumHits = 10,

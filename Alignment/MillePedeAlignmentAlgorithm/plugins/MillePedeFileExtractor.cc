@@ -103,7 +103,7 @@ void MillePedeFileExtractor::fillDescriptions(edm::ConfigurationDescriptions& de
           "Keep the fileDir empty if you want to write to the current "
           "directory.");
 
-  desc.add<std::string>("outputBinaryFile", "milleBinary%04d.dat")
+  desc.add<std::string>("outputBinaryFile", "milleBinary%04d.dat.gz")
       ->setComment(
           "Base filename of the files that will be created. This must "
           "contain "
