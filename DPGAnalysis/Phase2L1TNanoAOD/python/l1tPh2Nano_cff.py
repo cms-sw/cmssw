@@ -67,7 +67,7 @@ def addGenObjects(process):
 def addFullPh2L1Nano(process):
     addGenObjects(process)
     addPh2L1Objects(process)
-    addPh2GTObjects(process)
+    #addPh2GTObjects(process)
 
     return process
 

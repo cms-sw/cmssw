@@ -87,7 +87,7 @@ namespace l1gt {
   };
 
   struct Jet {
-    static const unsigned NTagFields = 8;
+    static const unsigned NTagFields = 9;
     valid_t valid;
     ThreeVector v3;
     z0_t z0;

@@ -15,7 +15,7 @@ namespace l1ct {
   // all possible tag categories (can be extended for new / separate taggers)
   class JetTagClass {
   public:
-    enum JetTagClassValue : uint8_t { b, c, uds, g, tau_p, tau_n, mu, e };
+    enum JetTagClassValue : uint8_t { b, c, uds, g, tau_p, tau_n, mu, e, nprong };
     JetTagClass() = default;
     JetTagClass(JetTagClassValue aJetTagClassValue) : value_(aJetTagClassValue) {}
     JetTagClass(std::string aJetTagClassValueString) {
@@ -47,7 +47,7 @@ namespace l1ct {
 
   // Define a separate class/struct for jet tag handling
   struct JetTagClassHandler {
-    static const unsigned NTagFields = 8;
+    static const unsigned NTagFields = 9;
     static const JetTagClass tagClassesDefault_[NTagFields];
 
     JetTagClass tagClassesArray[NTagFields];
@@ -66,7 +66,7 @@ namespace l1ct {
     glbphi_t hwPhi;
     z0_t hwZ0;
 
-    static const unsigned NTagFields = 8;
+    static const unsigned NTagFields = 9;
     jet_tag_score_t hwTagScores[NTagFields];
     mass2_t hwMassSq;
 
@@ -78,6 +78,7 @@ namespace l1ct {
       }
       return eq;
     }
+
 
     inline bool operator>(const Jet &other) const { return hwPt > other.hwPt; }
     inline bool operator<(const Jet &other) const { return hwPt < other.hwPt; }
@@ -194,7 +195,7 @@ namespace l1ct {
       j.v3.phi = CTtoGT_phi(hwPhi);
       j.v3.eta = CTtoGT_eta(hwEta);
       j.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
-      j.hwNProngScore = 0;
+      j.hwNProngScore = hwTagScores[0]; // currently only one WideJet tagger
       j.hwMassSq = CTtoGT_massSq(hwMassSq);
 
       return j;
