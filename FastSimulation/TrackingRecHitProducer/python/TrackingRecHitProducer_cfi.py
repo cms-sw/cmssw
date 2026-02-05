@@ -24,7 +24,7 @@ phase1Pixel.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase1)
 
 # Phase 2 Era: replace plugins by Phase 2 plugins, etc...
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase2)
+#phase2_tracker.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase2)
 
 # Configure strip tracker Gaussian-smearing plugins:
 trackerStripGaussianResolutions={
@@ -37,10 +37,7 @@ trackerStripGaussianResolutions={
     "TID": {
         1: cms.double(0.00262),
         2: cms.double(0.00354),
-        3: cms.double(0.00391),
-        4: cms.double(0.00391),
-        5: cms.double(0.00391)
-    },
+        3: cms.double(0.00391)},
     "TOB": {
         1: cms.double(0.00461),
         2: cms.double(0.00458),
@@ -71,3 +68,42 @@ for subdetId,trackerLayers in trackerStripGaussianResolutions.items():
             select=cms.string("(subdetId=="+subdetId+") && (layer=="+str(trackerLayer)+")"),
         )
         fastTrackerRecHits.plugins.append(pluginConfig)
+
+
+
+
+#phase2_tracker.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase2)
+print("Type of pixelPluginsPhase2: ", type(pixelPluginsPhase2))
+PluginsPhase2=pixelPluginsPhase2.copy()
+# Configure strip tracker Gaussian-smearing plugins:
+trackerStripGaussianResolutionsPhase2={
+    "TID": {
+        1: cms.double(0.00262),
+        2: cms.double(0.00354),
+        3: cms.double(0.00391),
+        4: cms.double(0.00391),
+        5: cms.double(0.00391)
+    },
+    "TOB": {
+        1: cms.double(0.00461),
+        2: cms.double(0.00458),
+        3: cms.double(0.00488),
+        4: cms.double(0.00491),
+        5: cms.double(0.00293),
+        6: cms.double(0.00299)
+    }
+}
+
+
+for subdetId,trackerLayers in trackerStripGaussianResolutionsPhase2.items():
+    for trackerLayer, resolutionX in trackerLayers.items():
+        pluginConfig = cms.PSet(
+            name = cms.string(subdetId+str(trackerLayer)),
+            type=cms.string("TrackingRecHitStripGSPlugin"),
+            resolutionX=resolutionX,
+            select=cms.string("(subdetId=="+subdetId+") && (layer=="+str(trackerLayer)+")"),
+        )
+        PluginsPhase2.append(pluginConfig)
+
+        
+phase2_tracker.toModify(fastTrackerRecHits, plugins = PluginsPhase2)
