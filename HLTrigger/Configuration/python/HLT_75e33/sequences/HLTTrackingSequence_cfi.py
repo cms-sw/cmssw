@@ -8,13 +8,15 @@ from ..sequences.HLTInitialStepSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTOtLocalRecoSequence_cfi import *
 
-_HLTTrackingSequenceLegacy = cms.Sequence(HLTItLocalRecoSequence+
-                                   HLTOtLocalRecoSequence+
-                                   hltTrackerClusterCheck+
-                                   HLTPhase2PixelTracksAndVerticesSequence+
-                                   HLTInitialStepSequence+
-                                   HLTHighPtTripletStepSequence+
-                                   hltGeneralTracks)
+_HLTTrackingSequenceLegacy = cms.Sequence(
+    HLTItLocalRecoSequence
+    +HLTOtLocalRecoSequence
+    +hltTrackerClusterCheck
+    +HLTPhase2PixelTracksAndVerticesSequence
+    +HLTInitialStepSequence
+    +HLTHighPtTripletStepSequence
+    +hltGeneralTracks
+)
 
 HLTTrackingSequence = _HLTTrackingSequenceLegacy.copyAndExclude([HLTHighPtTripletStepSequence])
 
