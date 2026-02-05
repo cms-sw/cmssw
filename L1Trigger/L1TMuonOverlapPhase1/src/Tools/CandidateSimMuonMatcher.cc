@@ -800,7 +800,6 @@ void CandidateSimMuonMatcher::match(const FinalMuons& finalMuons,
 
       deltaPhiVertexProp->Fill(ptGen, simTrack.momentum().phi() - tsof.globalPosition().phi());*/
 
-    unsigned int iCand = 0;
     bool matched = false;
     for (auto& muonCand : finalMuons) {
       //dropping very low quality candidates, as they are fakes usually - but it has no sense, then the results are not conclusive
@@ -815,7 +814,6 @@ void CandidateSimMuonMatcher::match(const FinalMuons& finalMuons,
           matched = true;
         }
       }
-      iCand++;
     }
 
     if (!matched) {  //adding matchingResults (i.e. simMuon in this case) also if it was not matched to any candidate
@@ -972,7 +970,6 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::matchSimple(
 
 std::vector<MatchingResult> CandidateSimMuonMatcher::collectMuonCands(const FinalMuons& finalMuons) {
   std::vector<MatchingResult> matchingResults;
-  unsigned int iCand = 0;
   for (auto& finalMuon : finalMuons) {
     //dropping very low quality candidates, as they are fakes usually - but it has no sense, then the results are not conclusive
     //if(muonCand->hwQual() > 1)
@@ -985,7 +982,6 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::collectMuonCands(const Fina
 
       matchingResults.push_back(result);
     }
-    iCand++;
   }
   return matchingResults;
 }
