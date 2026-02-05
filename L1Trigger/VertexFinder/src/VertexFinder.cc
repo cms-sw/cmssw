@@ -90,6 +90,7 @@ namespace l1tVertexFinder {
     bool highPt = false;
     double highestPt = 0.;
     unsigned int numHighPtTracks = 0;
+    unsigned int numSelectedTracks = 0;
 
     float SumZ = 0.;
     float z0square = 0.;
@@ -120,6 +121,7 @@ namespace l1tVertexFinder {
         else if (settings_->vx_TrackMaxPtBehavior() == 1)
           trackPt = settings_->vx_TrackMaxPt();  // saturate
       }
+      numSelectedTracks++;
 
       std::pair<float, float> PFAweights;
       if (isPFA) {
@@ -167,9 +169,9 @@ namespace l1tVertexFinder {
         z0 = vertex.z0();
         z0width = 0.;
       }
-    } else {
-      z0 = SumZ / ((settings_->vx_weightedmean() > 0) ? pt : vertex.numTracks());
-      z0square /= vertex.numTracks();
+    } else if (pt > 0) {  // Avoid dividing by 0 when there are no tracks. pt > 0 also implies numSelectedTracks > 0.
+      z0 = SumZ / ((settings_->vx_weightedmean() > 0) ? pt : numSelectedTracks);
+      z0square /= numSelectedTracks;
       z0width = sqrt(std::abs(z0 * z0 - z0square));
     }
 
