@@ -16,12 +16,27 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "ScoutingDQMUtils.h"
+
+
+namespace {
+  bool checkScoutingID(const Run3ScoutingMuon& obj){
+  	return scoutingDQMUtils::scoutingMuonID(obj);
+  }
+
+  bool checkScoutingID(const Run3ScoutingElectron& obj){
+	return scoutingDQMUtils::scoutingElectronID(obj);
+  } 
+
+}
+
 namespace scouting {
 
   inline int charge(const Run3ScoutingMuon& mu) { return mu.charge(); }
 
   inline int charge(const Run3ScoutingElectron& el) { return el.trkcharge()[0]; }
 
+ 
   template <typename T>
   math::PtEtaPhiMLorentzVector p4(const T& obj, double mass) {
     return math::PtEtaPhiMLorentzVector(obj.pt(), obj.eta(), obj.phi(), mass);
@@ -51,7 +66,8 @@ private:
                          const edm::EDGetTokenT<std::vector<T>>&,
                          const StringCutObjectSelector<T>&,
                          MassHistos&,
-                         bool doEtaSplit);
+                         bool doEtaSplit,
+			 bool useID);
 
   template <typename T>
   void fillPairs(const std::vector<const T*>&, MassHistos&, bool doEtaSplit);
@@ -70,12 +86,14 @@ private:
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonToken_;
   const StringCutObjectSelector<Run3ScoutingMuon> muonCut_;
   MassHistos muonHistos_;
+  const bool muonID_;
 
   // ---- electrons --------------------------------------------------------
   const bool doElectrons_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronToken_;
   const StringCutObjectSelector<Run3ScoutingElectron> electronCut_;
   MassHistos electronHistos_;
+  const bool electronID_;
 };
 
 ScoutingDileptonMonitor::ScoutingDileptonMonitor(const edm::ParameterSet& iConfig)
@@ -90,10 +108,15 @@ ScoutingDileptonMonitor::ScoutingDileptonMonitor(const edm::ParameterSet& iConfi
       doMuons_(iConfig.getParameter<bool>("doMuons")),
       muonToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muons"))),
       muonCut_(iConfig.getParameter<std::string>("muonCut")),
+      //muonID_(iConfig.getParameter<bool>("muonID") ? iConfig.getParameter<bool>("muonID") : true),
+      muonID_(iConfig.getParameter<bool>("muonID")),
 
       doElectrons_(iConfig.getParameter<bool>("doElectrons")),
       electronToken_(consumes<std::vector<Run3ScoutingElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
-      electronCut_(iConfig.getParameter<std::string>("electronCut")) {}
+      electronCut_(iConfig.getParameter<std::string>("electronCut")),
+      // electronID_(iConfig.getParameter<bool>("electronID") ? iConfig.getParameter<bool>("electronID") : true) {}
+      electronID_(iConfig.getParameter<bool>("electronID")) {}
+
 
 void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   ibooker.setCurrentFolder(outputInternalPath_);
@@ -119,12 +142,13 @@ void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
 void ScoutingDileptonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
   if (doMuons_) {
     std::cout << "doing muons: " << std::endl;
-    analyzeCollection(iEvent, muonToken_, muonCut_, muonHistos_, false);
+    std::cout << "\n" << "MUON ID ::: " << muonID_ << "\n" << std::endl;
+    analyzeCollection(iEvent, muonToken_, muonCut_, muonHistos_, false, muonID_);
   }
 
   if (doElectrons_) {
     std::cout << "doing electrons: " << std::endl;
-    analyzeCollection(iEvent, electronToken_, electronCut_, electronHistos_, true);
+    analyzeCollection(iEvent, electronToken_, electronCut_, electronHistos_, true, electronID_);
   }
 }
 
@@ -135,11 +159,13 @@ void ScoutingDileptonMonitor::analyzeCollection(const edm::Event& iEvent,
                                                 const edm::EDGetTokenT<std::vector<T>>& token,
                                                 const StringCutObjectSelector<T>& cut,
                                                 MassHistos& histos,
-                                                bool doEtaSplit) {
+                                                bool doEtaSplit,
+						bool useID) {
   std::cout << "IN ANALYZE COLLECTION" << std::endl;
   
   edm::Handle<std::vector<T>> handle;
   iEvent.getByToken(token, handle);
+  
   if (!handle.isValid()){
     std::cout << "Invalid Handle!" << std::endl;;
     return;
@@ -152,8 +178,14 @@ void ScoutingDileptonMonitor::analyzeCollection(const edm::Event& iEvent,
 
   std::cout << "collection size: " << handle->size() << std::endl;
 
+  
+
   for (const auto& obj : *handle) {
     //if (cut(obj))
+    
+    if (useID && !checkScoutingID(obj)) continue;
+    
+
     selected.push_back(&obj);
   }
 
