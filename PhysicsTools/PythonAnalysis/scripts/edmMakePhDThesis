@@ -156,7 +156,7 @@ from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libRint.s
 
 ### show rotating symbol, since non working software should at least look fancy
 def printRotor(number, end=" \n"):
-   rotor = "-\|/"
+   rotor = "-\\|/"
    sys.stdout.write("  ")
    for i in range(number):
      for symbol in rotor:
@@ -170,8 +170,8 @@ def printRotor(number, end=" \n"):
 
 # got it? we are writing crap ;-)
 def printSingleLine(line,number, end = " "):
-   print line.ljust(40),
-   printRotor(number,end = end)
+   print (line.ljust(40),
+   printRotor(number,end = end))
 
 
 ###########################
@@ -181,10 +181,12 @@ if __name__ == "__main__":
 
   title = titles[int(random.random()*len(titles))]
 
-  print "Searching for topic...  ",
-  printRotor(6)
-  print "\nProposing:    ",title,"\n"
+  print ("Searching for topic...  ",
+  printRotor(6))
+  print ("\nProposing:    ",title,"\n")
   
+  #TODO: Add ChatGPT API calls to produce an actual Thesis. 
+
   time.sleep(2)
   for line in initialMessages.splitlines():
     printSingleLine(line, 2, end="DONE\n")
@@ -193,11 +195,11 @@ if __name__ == "__main__":
 
   # and now let the poor user read tons of stupid output
   try:
-    for i in xrange(10):
+    for i in range(10):
       for line in stackTrace.splitlines():
-        print line
+        print (line)
         time.sleep(0.01)
   except KeyboardInterrupt:
-    print "\nAh! Smart enough to find the way out of the procedure. ;-)"
-    print "That was saving you from another",int((10-i)*131*0.01),"seconds of silly output."
+    print ("\nAh! Smart enough to find the way out of the procedure. ;-)")
+    print ("That was saving you from another",int((10-i)*131*0.01),"seconds of silly output.")
    
