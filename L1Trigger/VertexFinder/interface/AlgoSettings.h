@@ -95,7 +95,7 @@ namespace l1tVertexFinder {
     unsigned int vx_kmeans_nclusters() const { return vx_kmeans_nclusters_; }
     float vx_TrackMinPt() const { return vx_TrackMinPt_; }
     float vx_TrackMaxPt() const { return vx_TrackMaxPt_; }
-    float vx_TrackMaxPtBehavior() const { return vx_TrackMaxPtBehavior_; }
+    int vx_TrackMaxPtBehavior() const { return vx_TrackMaxPtBehavior_; }
     float vx_TrackMaxChi2() const { return vx_TrackMaxChi2_; }
     unsigned int vx_NStubMin() const { return vx_NStubMin_; }
     unsigned int vx_NStubPSMin() const { return vx_NStubPSMin_; }
@@ -155,7 +155,7 @@ namespace l1tVertexFinder {
     unsigned int vx_NStubMin_;
     unsigned int vx_NStubPSMin_;
     float vx_dbscan_pt_;
-    float vx_dbscan_mintracks_;
+    unsigned int vx_dbscan_mintracks_;
     unsigned int vx_kmeans_iterations_;
     unsigned int vx_kmeans_nclusters_;
     edm::FileInPath vx_trkw_graph_;     //For NNVtx (TrackWeight)
