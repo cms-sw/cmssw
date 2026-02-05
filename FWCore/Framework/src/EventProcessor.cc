@@ -492,28 +492,34 @@ namespace edm {
         // initialize the input source
         auto sourceID = ModuleDescription::getUniqueID();
 
-        group.run([&, this]() {
-          // initialize the Schedule
-          ServiceRegistry::Operate operate(serviceToken_);
-          auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
-          madeModules =
-              items.initModules(*parameterSet, tns, preallocations_, &processContext_, moduleTypeResolverMaker_.get());
-        });
+        {
+          items.actReg_->preModulesAndSourceConstructionSignal_.emit();
+          auto guard = makeGuard([&items]() { items.actReg_->postModulesAndSourceConstructionSignal_.emit(); });
 
-        group.run([&, this]() {
-          ServiceRegistry::Operate operate(serviceToken_);
-          input_ = makeInput(sourceID,
-                             *parameterSet,
-                             *common,
-                             items.branchIDListHelper(),
-                             get_underlying_safe(processBlockHelper_),
-                             items.thinnedAssociationsHelper(),
-                             items.actReg_,
-                             items.processConfiguration(),
-                             preallocations_);
-        });
+          group.run([&, this]() {
+            // initialize the Schedule
+            ServiceRegistry::Operate operate(serviceToken_);
+            auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
+            madeModules = items.initModules(
+                *parameterSet, tns, preallocations_, &processContext_, moduleTypeResolverMaker_.get());
+          });
 
-        group.wait();
+          group.run([&, this]() {
+            ServiceRegistry::Operate operate(serviceToken_);
+            input_ = makeInput(sourceID,
+                               *parameterSet,
+                               *common,
+                               items.branchIDListHelper(),
+                               get_underlying_safe(processBlockHelper_),
+                               items.thinnedAssociationsHelper(),
+                               items.actReg_,
+                               items.processConfiguration(),
+                               preallocations_);
+          });
+
+          group.wait();
+        }
+
         items.preg()->addFromInput(input_->productRegistry());
         {
           items.actReg_->preFinishScheduleSignal_.emit();
@@ -1023,12 +1029,18 @@ namespace edm {
 
   void EventProcessor::openOutputFiles() {
     if (fileBlockValid()) {
+      auto guard = makeGuard([this]() { actReg_->postOpenOutputFilesSignal_.emit(); });
+      actReg_->preOpenOutputFilesSignal_.emit();
       schedule_->openOutputFiles(*fb_);
     }
   }
 
   void EventProcessor::closeOutputFiles() {
-    schedule_->closeOutputFiles();
+    {
+      auto guard = makeGuard([this]() { actReg_->postCloseOutputFilesSignal_.emit(); });
+      actReg_->preCloseOutputFilesSignal_.emit();
+      schedule_->closeOutputFiles();
+    }
     processBlockHelper_->clearAfterOutputFilesClose();
   }
 
