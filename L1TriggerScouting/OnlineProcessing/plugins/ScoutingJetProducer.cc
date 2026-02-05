@@ -18,7 +18,7 @@
 #include "L1TriggerScouting/Utilities/interface/conversion.h"
 
 // root libraries
-#include "TLorentzVector.h"
+#include "Math/Vector4D.h"
 #include "Math/VectorUtil.h"
 
 // fastjet libraries
