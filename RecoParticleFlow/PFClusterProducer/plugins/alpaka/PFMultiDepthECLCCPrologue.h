@@ -98,6 +98,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       const unsigned int nVertices = pfClusteringCCLabels.size();
 
+      if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
+        if (::cms::alpakatools::once_per_grid(acc)) {
+          unsigned int store_idx = 0;
+
+          for (unsigned int dst_idx = 0; dst_idx < nVertices; dst_idx++) {
+            pfClusteringEdgeVars[dst_idx].mdpf_adjacencyIndex() = store_idx;
+
+            const unsigned int base_neigh_idx = pfClusteringCCLabels[dst_idx].mdpf_topoId();
+
+            if (dst_idx != base_neigh_idx)
+              pfClusteringEdgeVars[store_idx++].mdpf_adjacencyList() = base_neigh_idx;
+
+            for (unsigned int iter_idx = 0; iter_idx < nVertices; iter_idx++) {
+              if (iter_idx == dst_idx)
+                continue;
+
+              const unsigned int neigh_idx = pfClusteringCCLabels[iter_idx].mdpf_topoId();
+
+              if (neigh_idx == dst_idx)
+                pfClusteringEdgeVars[store_idx++].mdpf_adjacencyList() = iter_idx;
+            }
+          }
+          pfClusteringEdgeVars[nVertices].mdpf_adjacencyIndex() = store_idx;
+        }
+        return;
+      }
+
       const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
 
       const unsigned int w_items = alpaka::math::min(acc, (blockDim + (w_extent - 1)) / w_extent, max_w_items);
@@ -388,7 +415,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             pfClusteringEdgeVars[i].mdpf_adjacencyList() = adjacency_list[i];
           }
         }
-      }
+      }  //groups
     }
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

@@ -85,6 +85,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (mask == 0)
       return static_cast<warp::warp_mask_t>(get_warp_size<TAcc>());
 
+    if constexpr (std::is_same_v<Device, alpaka::DevCpu>)
+      return 0;
+
     using signed_warp_mask_t = std::conditional_t<sizeof(warp::warp_mask_t) == 8, std::int64_t, std::int32_t>;
 
     const auto pos = alpaka::ffs(acc, static_cast<signed_warp_mask_t>(mask));
@@ -111,6 +114,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int warp_exclusive_sum(TAcc const& acc,
                                                                  unsigned int val,
                                                                  const unsigned int lane_idx) {
+    if constexpr (std::is_same_v<Device, alpaka::DevCpu>)
+      return all ? val : 0;
+
     const auto full_mask = alpaka::warp::ballot(acc, true);
 
     constexpr unsigned int w_extent = get_warp_size<TAcc>();
@@ -180,6 +186,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                     int logical_lane_idx) {
     using signed_warp_mask_t = std::conditional_t<sizeof(warp::warp_mask_t) == 8, std::int64_t, std::int32_t>;
 
+    if constexpr (std::is_same_v<Device, alpaka::DevCpu>)
+      return 0;
+
     signed_warp_mask_t m = mask;
 
     while (logical_lane_idx--)
@@ -208,6 +217,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     constexpr unsigned int w_extent = get_warp_size<TAcc>();
 
     reduce_t result = in;
+
+    if constexpr (std::is_same_v<Device, alpaka::DevCpu>)
+      return result;
 
     for (unsigned int offset = w_extent / 2; offset > 0; offset /= 2) {
       result = f(result, alpaka::warp::shfl_down(acc, result, offset, w_extent));
@@ -240,6 +252,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                              reduce_t const in,
                                                              const reducer_t f) {
     constexpr unsigned int w_extent = get_warp_size<TAcc>();
+
+    if constexpr (std::is_same_v<Device, alpaka::DevCpu>)
+      return mask == 0 ? 0 : in;
 
     // Non-active lanes should skip the reduction:
     if (is_work_lane(mask, lane_idx, w_extent) == false)
@@ -300,6 +315,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                         const unsigned int val,
                                                                         const unsigned int lane_idx) {
     constexpr unsigned int w_extent = get_warp_size<TAcc>();
+
+    if constexpr (std::is_same_v<Device, alpaka::DevCpu>)
+      return all == false ? 0 : (mask == 0 ? 0 : val);
 
     // Non-active lanes should skip the reduction:
     if (is_work_lane(mask, lane_idx, w_extent) == false)

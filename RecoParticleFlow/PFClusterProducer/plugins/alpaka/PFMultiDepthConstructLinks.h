@@ -217,10 +217,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * CUDA < SM80: some masked shuffle/reduction usage patterns are constrained; use a broader
  * participation mask to avoid undefined behavior from non-participating lanes.
  */
-#if __CUDA_ARCH__ >= 800
-      const warp::warp_mask_t aggr_mask = leftover_mask | dst_lane_mask;
-#else
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 800)
       const warp::warp_mask_t aggr_mask = mask;
+#else
+      const warp::warp_mask_t aggr_mask = leftover_mask | dst_lane_mask;
 #endif
       // 4.1 Fetch new values from the source link:
       const float new_dz =
@@ -269,8 +269,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
       const unsigned int gridDim = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
 
-      const double nSigmaEta_ = nSigma->nSigmaEta;
-      const double nSigmaPhi_ = nSigma->nSigmaPhi;
+      const double nSigmaEta = nSigma->nSigmaEta;
+      const double nSigmaPhi = nSigma->nSigmaPhi;
 
       constexpr PFMDLinkParamKind param_kinds[3] = {
           PFMDLinkParamKind::DZ, PFMDLinkParamKind::DR, PFMDLinkParamKind::ENERGY};
@@ -281,7 +281,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         constexpr unsigned int cluster_tile_size = w_extent;
-        const unsigned int cluster_tiles = (gridDim + (w_extent - 1)) / w_extent;
+        const unsigned int cluster_tiles =
+            (std::is_same_v<Device, alpaka::DevCpu>) ? nClusters : (gridDim + (w_extent - 1)) / w_extent;
         // Execution domain along destination (target) clusters
         for (auto idx : ::cms::alpakatools::uniform_group_elements(
                  acc, group, ::cms::alpakatools::round_up_by(nClusters, w_extent))) {
@@ -295,10 +296,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 // Active-lane mask for this warp iteration:
 // every warp collective must use a mask that covers all participating lanes;
 // we additionally OR-in the destination lane to keep it active for result updates.
-#if __CUDA_ARCH__ >= 800
-          const warp::warp_mask_t init_active_lanes_mask = alpaka::warp::ballot(acc, idx.global < nClusters);
-#else
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 800)
           const warp::warp_mask_t init_active_lanes_mask = alpaka::warp::ballot(acc, true);
+#else
+          const warp::warp_mask_t init_active_lanes_mask = alpaka::warp::ballot(acc, idx.global < nClusters);
 #endif
           // From this point all warp-level collectives must be accompanied with init_active_lanes_mask (or any derived from it) mask:
           // for example, new_mask = warp::ballot_mask(acc, old_mask, predicate) will generate a new mask that selects a subset of lanes from old_mask
@@ -307,6 +308,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // Load destination (target) cluster parameters:
           const auto dst_cl_params =
               idx.global < nClusters ? PFMDClusterParam(mdpfClusteringVars[idx.global]) : PFMDClusterParam();
+
           // Get warp and lane indices
           const unsigned int warp_idx = idx.local / w_extent;
           const unsigned int lane_idx = idx.local % w_extent;
@@ -386,7 +388,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               warp::warp_mask_t next_leftover_lanes_mask = warp::ballot_mask(
                   acc,
                   leftover_lanes_mask | dst_lane_mask,
-                  (deta < nSigmaEta_ && dphi < nSigmaPhi_) && is_valid_lane);  //update valid candidate mask
+                  (deta < nSigmaEta && dphi < nSigmaPhi) && is_valid_lane);  //update valid candidate mask
 
               if (next_leftover_lanes_mask == 0)
                 continue;
@@ -408,6 +410,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             src_idx, alpaka::math::abs(acc, dz), deta + dphi, dst_energy + src_cl_params.energy())
                       : PFMDLinkParam(idx.global);
               // 7.2 Check 3 parameters (dZ, dR, energy) to prune the candidate links:
+              if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
+                if (is_non_owner_lane)
+                  selected_link_params.try_update(candidate_link_params.index(),
+                                                  candidate_link_params.value(PFMDLinkParamKind::DZ),
+                                                  candidate_link_params.value(PFMDLinkParamKind::DR),
+                                                  candidate_link_params.value(PFMDLinkParamKind::ENERGY));
+                continue;
+              }
+
               for (unsigned int k = 0; k < 3; k++) {
                 next_leftover_lanes_mask = prune_link(acc,
                                                       leftover_lanes_mask,
