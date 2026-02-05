@@ -19,8 +19,8 @@
 <test name="test_PayloadSanity" command="test_payload_sanity.sh">
   <flags PRE_TEST="test_PedeCampaign"/>
 </test>
-<test name="test_ZMuMuMassConstraintParameterFinder" command="test_ZMuMuMassConstraintParameterFinder.sh"/>
-<bin file="testFindMassContraintParameters.cpp" name="test_ExtractMassConstraint">
-  <flags PRE_TEST="test_ZMuMuMassConstraintParameterFinder"/>
+<!-- <test name="test_ZMuMuMassConstraintParameterFinder" command="test_ZMuMuMassConstraintParameterFinder.sh"/> COMMENT: reads old format file -->
+<!-- <bin file="testFindMassContraintParameters.cpp" name="test_ExtractMassConstraint"> COMMENT: reads old format file
+  <flags PRE_TEST="test_ZMuMuMassConstraintParameterFinder"/> 
   <use name="roothistmatrix"/>
-</bin>
+</bin> -->
