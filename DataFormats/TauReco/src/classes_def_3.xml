@@ -103,6 +103,7 @@
   <class name="edm::RefProd<std::vector<reco::PFTauTransverseImpactParameter> >"/>
   <class name="edm::RefVector<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter> >"/>
   <class name="edm::reftobase::Holder<reco::PFTauTransverseImpactParameter, edm::Ref<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter> > >" />
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter>"/>
   <class name="edm::Association<std::vector<reco::PFTauTransverseImpactParameter> >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauTransverseImpactParameter> > >"/>
 
@@ -142,6 +143,7 @@
   <class name="edm::Association<std::vector<std::vector<reco::VertexRef> > >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<std::vector<reco::VertexRef> > > >"/>
 
+  <class name="std::vector<edm::Ref<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter> > >"/>
   <class name="reco::PFTauTIPAssociation">
     <field name="transientVector_" transient="true"/>
   </class>
