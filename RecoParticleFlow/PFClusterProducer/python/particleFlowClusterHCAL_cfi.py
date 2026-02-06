@@ -80,7 +80,7 @@ alpaka.toReplaceWith(particleFlowClusterHCALOnly, _legacyPFMultiDepthClusterProd
     pfRecHitFractionSoA = 'pfMultiDepthClusterSoAProducerHCALOnly',    
     pfRecHitsSoA        = 'pfRecHitSoAProducerHBHEOnly',
     recHitsSource  = 'particleFlowRecHitHBHEOnly'
-)
+))
 
 
 #--- Use DB conditions for cuts&seeds for Run3 and Phase2
