@@ -250,12 +250,14 @@ namespace edm {
     // T holds the value of the switch variable.
     // If you try using any other type, then it will not compile.
     template <typename T>
+      requires(std::is_same_v<T, bool> || std::is_same_v<T, int> || std::is_same_v<T, std::string>)
     ParameterDescriptionNode* ifValue(ParameterDescription<T> const& switchParameter,
                                       std::unique_ptr<ParameterDescriptionCases<T>> cases) {
       return ifValue<T>(switchParameter, std::move(cases), Modifier::kNone, true);
     }
 
     template <typename T>
+      requires(std::is_same_v<T, bool> || std::is_same_v<T, int> || std::is_same_v<T, std::string>)
     ParameterDescriptionNode* ifValueOptional(ParameterDescription<T> const& switchParameter,
                                               std::unique_ptr<ParameterDescriptionCases<T>> cases,
                                               bool writeToCfi) {
@@ -303,6 +305,8 @@ namespace edm {
     // Note the U and V can be determined from the arguments, but
     // T must be explicitly specified by the calling function.
     template <typename T, typename U, typename V>
+      requires(std::is_same_v<T, edm::ParameterSetDescription> && std::is_same_v<V, edm::ParameterSetDescription>) ||
+              (std::is_same_v<T, std::vector<edm::ParameterSet>> && std::is_same_v<V, edm::ParameterSetDescription>)
     ParameterDescriptionNode* labelsFrom(U const& iLabel, V const& desc) {
       return labelsFrom<T, U, V>(iLabel, true, Modifier::kNone, true, desc);
     }
