@@ -210,8 +210,8 @@ namespace {
 class ModuleEventAllocMonitor {
 public:
   ModuleEventAllocMonitor(edm::ParameterSet const& iPS, edm::ActivityRegistry& iAR)
-      : moduleNamesVec_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames")),
-        skippedModuleNamesVec_(iPS.getUntrackedParameter<std::vector<std::string>>("skippedModuleNames")),
+      : moduleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames")),
+        skippedModuleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("skippedModuleNames")),
         nEventsToSkip_(iPS.getUntrackedParameter<unsigned int>("nEventsToSkip")),
         filter_(&moduleIDs_) {
     (void)cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
@@ -241,16 +241,16 @@ public:
            "#D <module ID> <stream #> <total matched deallocations (bytes)> <# matched deallocations>\n";
       file->write(s.str());
     }
-    moduleNames_ = std::unordered_set<std::string>(moduleNamesVec_.begin(), moduleNamesVec_.end());
-    skippedModuleNames_ = std::unordered_set<std::string>(skippedModuleNamesVec_.begin(), skippedModuleNamesVec_.end());
     if (not moduleNames_.empty() or not skippedModuleNames_.empty()) {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
         bool shouldKeep = false;
+        auto moduleNamesSet = std::unordered_set<std::string>(moduleNames_.begin(), moduleNames_.end());
+        auto skippedModuleNamesSet = std::unordered_set<std::string>(skippedModuleNames_.begin(), skippedModuleNames_.end());
         if (not moduleNames_.empty()) {
-          shouldKeep = moduleNames_.contains(description.moduleLabel());
+          shouldKeep = moduleNamesSet.contains(description.moduleLabel());
         }
         if (not skippedModuleNames_.empty()) {
-          shouldKeep = not skippedModuleNames_.contains(description.moduleLabel());
+          shouldKeep = not skippedModuleNamesSet.contains(description.moduleLabel());
         }
         std::stringstream s;
         if (shouldKeep) {
@@ -457,10 +457,8 @@ private:
   CMS_THREAD_GUARD(streamSync_) std::vector<int> streamModuleFinishOrder_;
   std::vector<std::atomic<unsigned int>> streamNFinishedModules_;
   std::vector<std::atomic<unsigned int>> streamSync_;
-  std::vector<std::string> moduleNamesVec_;
-  std::unordered_set<std::string> moduleNames_;
-  std::vector<std::string> skippedModuleNamesVec_;
-  std::unordered_set<std::string> skippedModuleNames_;
+  std::vector<std::string> moduleNames_;
+  std::vector<std::string> skippedModuleNames_;
   std::vector<int> moduleIDs_;
   unsigned int nStreams_ = 0;
   unsigned int nModules_ = 0;
