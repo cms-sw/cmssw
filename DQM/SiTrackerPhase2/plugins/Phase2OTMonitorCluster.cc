@@ -388,7 +388,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "NumberOfClusters");
-    psd0.add<std::string>("title", ";Number of clusters per event;");
+    psd0.add<std::string>("title", "Number_Of_Clusters;Number of clusters per event;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 350000.0);
@@ -473,7 +473,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "NumberOfClusters_Layer_P");
-    psd0.add<std::string>("title", ";Number of clusters per event (macro pixel sensor);");
+    psd0.add<std::string>("title", "Number_Of_Clusters_P_Layer;Number of clusters per event (macro pixel sensor);");
     psd0.add<double>("xmin", 0.0);
     psd0.add<double>("xmax", 28000.0);
     psd0.add<int>("NxBins", 150);
@@ -483,7 +483,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "NumberOfClusters_Layer_S");
-    psd0.add<std::string>("title", ";Number of clusters per event (strip sensor);");
+    psd0.add<std::string>("title", "Number_Of_Clusters_S_Layer;Number of clusters per event (strip sensor);");
     psd0.add<double>("xmin", 0.0);
     psd0.add<double>("xmax", 28000.0);
     psd0.add<int>("NxBins", 150);
@@ -493,7 +493,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Cluster_Size_P");
-    psd0.add<std::string>("title", ";Cluster size (macro pixel sensor);");
+    psd0.add<std::string>("title", "Cluster_Size_P;Cluster size (macro pixel sensor);");
     psd0.add<double>("xmin", -0.5);
     psd0.add<double>("xmax", 30.5);
     psd0.add<int>("NxBins", 31);
@@ -503,7 +503,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Cluster_Size_S");
-    psd0.add<std::string>("title", ";Cluster size (strip sensor);");
+    psd0.add<std::string>("title", "Cluster_Size_S;Cluster size (strip sensor);");
     psd0.add<double>("xmin", -0.5);
     psd0.add<double>("xmax", 30.5);
     psd0.add<int>("NxBins", 31);
