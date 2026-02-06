@@ -24,7 +24,17 @@ clusterMonitorCRACK = _Phase2OTMonitorCluster.clone(
         ymin = cms.double(-2.5),
         ymax = cms.double(2.5),
         switch = cms.bool(True)
+    ),
+    CrackOverview = _Phase2OTMonitorCluster.CrackOverview.clone(
+    name = cms.string('Crack_Overview_clusters'),
+    title = cms.string('Crack_Overview_clusters;Module;Layer'),
+    xmin = cms.double(0.0),
+    xmax = cms.double(13.0),
+    ymin = cms.double(0.0),
+    ymax = cms.double(7.5),
+    switch = cms.bool(True)
     )
+
     #TopFolderName = cms.string('TrackerPhase2OTCluster'),
     #clusterSrc = cms.InputTag('siPhase2Clusters'),
     #mightGet = cms.optional.untracked.vstring

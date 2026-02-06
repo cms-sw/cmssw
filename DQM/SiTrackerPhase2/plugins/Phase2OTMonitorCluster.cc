@@ -68,6 +68,7 @@ private:
   MonitorElement* globalXY_S_;
   MonitorElement* globalRZ_S_;
   MonitorElement* numberClusters_Barrel_;
+  MonitorElement* crackOverview_;
 
   void fillOTHistos(const edm::Event& iEvent);
 
@@ -193,6 +194,8 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
             int signedModule = module <= 12 ? module : -(module - 12);
             local_mes.PositionOfClusters_2SLadder[ladder]->Fill(signedModule, topOrBottomColumn);
           }
+          if (crackOverview_)
+            crackOverview_->Fill(module, tTopo_->getOTLayerNumber(rawid) - 0.05 + (module % 2 * 0.1));
         }
       }
     }
@@ -235,6 +238,32 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
   numberClusters_Barrel_ =
       phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClusters_Barrel"), ibooker);
+
+  edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("CrackOverview");
+  if (Parameters.getParameter<bool>("switch")) {
+    crackOverview_ = ibooker.book2DPoly(Parameters.getParameter<std::string>("name"),
+                                        Parameters.getParameter<std::string>("title"),
+                                        Parameters.getParameter<double>("xmin"),
+                                        Parameters.getParameter<double>("xmax"),
+                                        Parameters.getParameter<double>("ymin"),
+                                        Parameters.getParameter<double>("ymax"));
+    if (crackOverview_->getTH2Poly()->GetNumberOfBins() == 0) {
+      double yOffset = 0;
+      for (int layer = 1; layer < 7; layer++) {
+        for (int module = 1; module < 13; module++) {
+          if (module % 2 == 0)
+            yOffset = -0.1;
+          else
+            yOffset = 0;
+          crackOverview_->addBin(module - 0.7, layer + yOffset, module + 0.7, layer + yOffset + 0.1);
+        }
+      }
+    }
+    crackOverview_->getTH2Poly()->SetStats(false);
+    crackOverview_->setOption("z");
+
+  } else
+    crackOverview_ = nullptr;
 
   //Now book layer wise histos
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
@@ -365,6 +394,17 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<double>("xmax", 350000.0);
     psd0.add<int>("NxBins", 150);
     desc.add<edm::ParameterSetDescription>("GlobalNClusters", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Crack_Overview");
+    psd0.add<std::string>("title", "Crack_Overview_clusters;Module;Layer");
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<bool>("switch", false);
+    psd0.add<double>("xmax", 13.0);
+    psd0.add<double>("ymin", 0.0);
+    psd0.add<double>("ymax", 7.5);
+    desc.add<edm::ParameterSetDescription>("CrackOverview", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
