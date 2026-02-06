@@ -346,6 +346,8 @@ namespace edm {
 
     bool isLabelUnused(std::string const& label) const;
 
+    cfi::Trackiness trackiness(std::string_view path) const;
+
   private:
     template <typename T, typename U>
     ParameterDescriptionBase* add(U const& iLabel, T const& value, bool isTracked, Modifier modifier, bool writeToCfi);

@@ -153,6 +153,17 @@ namespace edm {
       }
     }
 
+    cfi::Trackiness trackiness_(std::string_view path) const override {
+      cfi::Trackiness trackiness = cfi::Trackiness::kNotAllowed;
+      for (auto& e : loadDescription(findType(edm::ParameterSet{}))) {
+        cfi::Trackiness t = e.node()->trackiness(path);
+        if (t != cfi::Trackiness::kNotAllowed) {
+          return t;
+        }
+      }
+      return trackiness;
+    }
+
     bool hasNestedContent_() const final { return true; }
 
     void printNestedContent_(std::ostream& os, bool /*optional*/, DocFormatHelper& dfh) const final {
