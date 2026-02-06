@@ -91,6 +91,7 @@ public:
   MonitorElement* RZPositionMap{nullptr};
   MonitorElement* XYOccupancyMap{nullptr};
   MonitorElement* RZOccupancyMap{nullptr};
+  MonitorElement* CrackOverview{nullptr};
 
 private:
   void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id);
@@ -333,6 +334,8 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
         local_mes.PositionOfDigisP->Fill(row + 1, col + 1);
       if (nColumns <= 2 && local_mes.PositionOfDigisS)
         local_mes.PositionOfDigisS->Fill(row + 1, col + 1);
+      if (CrackOverview)
+        CrackOverview->Fill(tTopo_->module(rawid), layer - 0.05 + (tTopo_->module(rawid) % 2 * 0.1));
 
       if (clsFlag_) {
         if (row_last == -1 || abs(row - row_last) != 1 || col != col_last) {
@@ -484,6 +487,33 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
     RZOccupancyMap->setAxisTitle("Digi position #rho [cm]", 2);
   } else
     RZOccupancyMap = nullptr;
+
+
+  Parameters = config_.getParameter<edm::ParameterSet>("CrackOverview");
+  if (Parameters.getParameter<bool>("switch")) {
+    CrackOverview = ibooker.book2DPoly(Parameters.getParameter<std::string>("name"),
+                                       Parameters.getParameter<std::string>("title"),
+                                       Parameters.getParameter<double>("xmin"),
+                                       Parameters.getParameter<double>("xmax"),
+                                       Parameters.getParameter<double>("ymin"),
+                                       Parameters.getParameter<double>("ymax"));
+    if (CrackOverview->getTH2Poly()->GetNumberOfBins() == 0) {
+      double yOffset = 0;
+      for (int layer = 1; layer < 7; layer++) {
+        for (int module = 1; module < 13; module++) {
+          if (module % 2 == 0)
+            yOffset = -0.1;
+          else
+            yOffset = 0;
+          CrackOverview->addBin(module - 0.7, layer + yOffset, module + 0.7, layer + yOffset + 0.1);
+        }
+      }
+    }
+    CrackOverview->getTH2Poly()->SetStats(false);
+    CrackOverview->setOption("z");
+
+  } else
+    CrackOverview = nullptr;
 }
 //
 // -- Book Layer Histograms
