@@ -210,10 +210,7 @@ namespace {
 class ModuleEventAllocMonitor {
 public:
   ModuleEventAllocMonitor(edm::ParameterSet const& iPS, edm::ActivityRegistry& iAR)
-      : moduleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames")),
-        skippedModuleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("skippedModuleNames")),
-        nEventsToSkip_(iPS.getUntrackedParameter<unsigned int>("nEventsToSkip")),
-        filter_(&moduleIDs_) {
+      : nEventsToSkip_(iPS.getUntrackedParameter<unsigned int>("nEventsToSkip")), filter_(&moduleIDs_) {
     (void)cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
 
     if (nEventsToSkip_ > 0) {
@@ -241,16 +238,19 @@ public:
            "#D <module ID> <stream #> <total matched deallocations (bytes)> <# matched deallocations>\n";
       file->write(s.str());
     }
-    if (not moduleNames_.empty() or not skippedModuleNames_.empty()) {
+    auto skippedModuleNamesVec = iPS.getUntrackedParameter<std::vector<std::string>>("skippedModuleNames");
+    auto moduleNamesVec = iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames");
+    moduleNamesSet_ = std::unordered_set<std::string>(moduleNamesVec.begin(), moduleNamesVec.end());
+    skippedModuleNamesSet_ =
+        std::unordered_set<std::string>(skippedModuleNamesVec.begin(), skippedModuleNamesVec.end());
+    if (not moduleNamesSet_.empty() or not skippedModuleNamesSet_.empty()) {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
         bool shouldKeep = false;
-        auto moduleNamesSet = std::unordered_set<std::string>(moduleNames_.begin(), moduleNames_.end());
-        auto skippedModuleNamesSet = std::unordered_set<std::string>(skippedModuleNames_.begin(), skippedModuleNames_.end());
-        if (not moduleNames_.empty()) {
-          shouldKeep = moduleNamesSet.contains(description.moduleLabel());
+        if (not moduleNamesSet_.empty()) {
+          shouldKeep = moduleNamesSet_.contains(description.moduleLabel());
         }
-        if (not skippedModuleNames_.empty()) {
-          shouldKeep = not skippedModuleNamesSet.contains(description.moduleLabel());
+        if (not skippedModuleNamesSet_.empty()) {
+          shouldKeep = not skippedModuleNamesSet_.contains(description.moduleLabel());
         }
         std::stringstream s;
         if (shouldKeep) {
@@ -448,7 +448,7 @@ private:
   }
 
   bool forThisModule(unsigned int iID) const {
-    return (moduleNames_.empty() or std::binary_search(moduleIDs_.begin(), moduleIDs_.end(), iID));
+    return (moduleNamesSet_.empty() or std::binary_search(moduleIDs_.begin(), moduleIDs_.end(), iID));
   }
   //The size is (#streams)*(#modules)
   CMS_THREAD_GUARD(streamSync_) std::vector<AllocMap> streamModuleAllocs_;
@@ -457,8 +457,8 @@ private:
   CMS_THREAD_GUARD(streamSync_) std::vector<int> streamModuleFinishOrder_;
   std::vector<std::atomic<unsigned int>> streamNFinishedModules_;
   std::vector<std::atomic<unsigned int>> streamSync_;
-  std::vector<std::string> moduleNames_;
-  std::vector<std::string> skippedModuleNames_;
+  std::unordered_set<std::string> moduleNamesSet_;
+  std::unordered_set<std::string> skippedModuleNamesSet_;
   std::vector<int> moduleIDs_;
   unsigned int nStreams_ = 0;
   unsigned int nModules_ = 0;
