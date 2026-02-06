@@ -819,10 +819,48 @@ int PedeSteerer::runPede(const std::string &masterSteer) const {
 
   edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede"
                             << "Start running " << command;
-  // FIXME: Recommended interface to system commands?
+
+  // as Pede does not return a meaningful
+  // exit code, the gSystem->Exec return
+  // can only tell us if pede was found.
   int shellReturn = gSystem->Exec(command.c_str());
+
+  // The real pede return flag is written into
+  // a single-character 'millepede.end'
+  // file. Read this here.
+  std::ifstream mpend("millepede.end");  // open the Pede exit code file
+
+  if (shellReturn != 0 || !mpend.is_open()) {
+    edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede"
+                               << "Failed to call Pede";
+  } else {
+    // read the pede exit code from the file.
+    mpend >> shellReturn;
+    mpend.close();
+  }
   edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede"
                             << "Command returns " << shellReturn;
 
+  // the return code actually does not
+  // get checked by client code (as of 02/2026).
+  // So warn the user if something went wrong.
+  // Documentation of exit codes:
+  // https://millepede.pages.desy.de/millepede-ii/exit_code_page.html
+  if (shellReturn == -1) {
+    edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede"
+                               << "Pede crashed. Please check the log.";
+  } else if (shellReturn == 1) {
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede"
+                              << "Pede exited with tolerable warnings. Please check the log.";
+  } else if (shellReturn > 1 && shellReturn < 5) {
+    edm::LogWarning("Alignment") << "@SUB=PedeSteerer::runPede"
+                                 << "Pede exited with severe warnings. Please check the log.";
+  } else if (shellReturn == 5) {
+    edm::LogWarning("Alignment") << "@SUB=PedeSteerer::runPede"
+                                 << "Pede did not find a solution. Please check the log.";
+  } else if (shellReturn > 9) {
+    edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede"
+                               << "Pede aborted due to errors. Please check the log.";
+  }
   return shellReturn;
 }
