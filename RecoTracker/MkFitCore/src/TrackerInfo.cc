@@ -195,10 +195,10 @@ namespace mkfit {
     fh.f_n_layers = n_layers();
     fwrite(&fh, sizeof(GeomFileHeader), 1, fp);
 
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
     write_std_vec(fp, m_layers, (int)offsetof(LayerInfo, m_final_member_for_streaming));
-    #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
     write_std_vec(fp, m_barrel);
     write_std_vec(fp, m_ecap_pos);
     write_std_vec(fp, m_ecap_neg);
@@ -249,10 +249,10 @@ namespace mkfit {
            fh.f_format_version,
            fh.f_n_layers);
 
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
     read_std_vec(fp, m_layers, (int)offsetof(LayerInfo, m_final_member_for_streaming));
-    #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
     read_std_vec(fp, m_barrel);
     read_std_vec(fp, m_ecap_pos);
     read_std_vec(fp, m_ecap_neg);
