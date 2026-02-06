@@ -26,7 +26,7 @@ namespace scoutingDQMUtils {
         return false;
       if (el.hOverE() > 0.2)
         return false;
-      if (std::abs(el.ooEMOop()) > 0.0641) 
+      if (std::abs(el.ooEMOop()) > 0.0641)
         return false;
       if (std::abs(el.dEtaIn()) > 0.0087)
         return false;

@@ -202,7 +202,8 @@ PatElectronTagProbeAnalyzer::PatElectronTagProbeAnalyzer(const edm::ParameterSet
   l1GtUtils_ = std::make_shared<l1t::L1TGlobalUtil>(iConfig, consumesCollector(), l1t::UseEventSetupIn::RunAndEvent);
   l1Seeds_ = iConfig.getParameter<std::vector<std::string>>("L1Seeds");
   for (const auto& pset : vtriggerConfig_) {
-    vtriggerSet_.push_back({pset.getParameter<std::string>("pathName"), pset.getParameter<std::vector<std::string>>("filters")});
+    vtriggerSet_.push_back(
+        {pset.getParameter<std::string>("pathName"), pset.getParameter<std::vector<std::string>>("filters")});
   }
 }
 
@@ -251,7 +252,7 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
 
   std::vector<kTriggerSetResult> vtriggerSetResults;
   vtriggerSetResults.reserve(vtriggerSet_.size());
-  for(const auto& config : vtriggerSet_) {
+  for (const auto& config : vtriggerSet_) {
     vtriggerSetResults.push_back({config.pathName, config.filters, false, {}});
   }
 
@@ -261,9 +262,9 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       TString TrigPath = triggerNames.triggerName(i_Trig);
       for (auto& result : vtriggerSetResults) {
         if (!result.passTrigger) {
-           if (TrigPath.Index(result.pathName) >= 0) {
-             result.passTrigger = true;
-           }
+          if (TrigPath.Index(result.pathName) >= 0) {
+            result.passTrigger = true;
+          }
         }
       }
 
@@ -277,16 +278,15 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
 
   // Trigger Object Matching
   for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
-      obj.unpackNamesAndLabels(iEvent, *triggerResults);
-      for (auto& result : vtriggerSetResults) {
-          for (const auto& filterName : result.filters) {
-              if (obj.hasFilterLabel(filterName)) {
-                  result.filterObjects[filterName].push_back(obj);
-              }
-          }
+    obj.unpackNamesAndLabels(iEvent, *triggerResults);
+    for (auto& result : vtriggerSetResults) {
+      for (const auto& filterName : result.filters) {
+        if (obj.hasFilterLabel(filterName)) {
+          result.filterObjects[filterName].push_back(obj);
+        }
       }
+    }
   }
-  
 
   // L1 Object Matching
   size_t numberOfl1Filters = l1filterToMatch_.size();
@@ -551,51 +551,52 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematic
     histos.hPtvsInvMass_Barrel->Fill(el.pt(), inv_mass);
 
     if (pass_baseDST) {
-      auto*  selected_histos = (pt_order == 0) ? &histos.leading_electron : 
-                              (pt_order == 1) ? &histos.subleading_electron : nullptr;
+      auto* selected_histos = (pt_order == 0)   ? &histos.leading_electron
+                              : (pt_order == 1) ? &histos.subleading_electron
+                                                : nullptr;
       if (selected_histos) {
-          selected_histos->hPt_Barrel_passBaseDST->Fill(el.pt());
-          selected_histos->hEta_passBaseDST->Fill(el.eta());
-          int filter_idx_counter = 0; // Keeps track of flattened filter histogram index
-          for (size_t i = 0; i < triggerset_result.size(); i++) {
-              const auto& res = triggerset_result[i];
-              // Pass Trigger Path
-              if (res.passTrigger) {
-                  selected_histos->hPt_Barrel_passDST[i]->Fill(el.pt());
-                  selected_histos->hEta_passDST[i]->Fill(el.eta());
-              }
-              // Pass Filter Objects
-              for (const auto& filterName : res.filters) {
-                  bool passObj = false;
-                  // Check if we have objects for this filter
-                  auto it = res.filterObjects.find(filterName);
-                  if (it != res.filterObjects.end()) {
-                      if (patElectron_passHLT(el, it->second)) {
-                          passObj = true;
-                      }
-                  }
-                  if (passObj) {
-                      selected_histos->hPt_Barrel_fireTrigObj[filter_idx_counter]->Fill(el.pt());
-                      selected_histos->hEta_fireTrigObj[filter_idx_counter]->Fill(el.eta());
-                  }
-
-                  filter_idx_counter++;
-              }
+        selected_histos->hPt_Barrel_passBaseDST->Fill(el.pt());
+        selected_histos->hEta_passBaseDST->Fill(el.eta());
+        int filter_idx_counter = 0;  // Keeps track of flattened filter histogram index
+        for (size_t i = 0; i < triggerset_result.size(); i++) {
+          const auto& res = triggerset_result[i];
+          // Pass Trigger Path
+          if (res.passTrigger) {
+            selected_histos->hPt_Barrel_passDST[i]->Fill(el.pt());
+            selected_histos->hEta_passDST[i]->Fill(el.eta());
           }
-
-          for (unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++) {
-              if (l1_result[il1seed]) {
-                  unsigned int ifilter = 0;
-                  while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter]))
-                      ifilter++;
-                  if (!(patElectron_passHLT(el, l1_legObjects[ifilter])))
-                      continue;
-                  // check if electron fire the l1 seed leg
-                  selected_histos->hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
-                  selected_histos->hEta_fireL1[il1seed]->Fill(el.eta());
+          // Pass Filter Objects
+          for (const auto& filterName : res.filters) {
+            bool passObj = false;
+            // Check if we have objects for this filter
+            auto it = res.filterObjects.find(filterName);
+            if (it != res.filterObjects.end()) {
+              if (patElectron_passHLT(el, it->second)) {
+                passObj = true;
               }
+            }
+            if (passObj) {
+              selected_histos->hPt_Barrel_fireTrigObj[filter_idx_counter]->Fill(el.pt());
+              selected_histos->hEta_fireTrigObj[filter_idx_counter]->Fill(el.eta());
+            }
+
+            filter_idx_counter++;
           }
-      } 
+        }
+
+        for (unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++) {
+          if (l1_result[il1seed]) {
+            unsigned int ifilter = 0;
+            while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter]))
+              ifilter++;
+            if (!(patElectron_passHLT(el, l1_legObjects[ifilter])))
+              continue;
+            // check if electron fire the l1 seed leg
+            selected_histos->hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
+            selected_histos->hEta_fireL1[il1seed]->Fill(el.eta());
+          }
+        }
+      }
     }
   } else {
     histos.hPt_Endcap->Fill(el.pt());
@@ -613,52 +614,53 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematic
     histos.hPtvsInvMass_Endcap->Fill(el.pt(), inv_mass);
 
     if (pass_baseDST) {
-        auto* selected_histos = (pt_order == 0) ? &histos.leading_electron :
-                                (pt_order == 1) ? &histos.subleading_electron : nullptr;
-        if (selected_histos){
-            selected_histos->hPt_Endcap_passBaseDST->Fill(el.pt());
-            selected_histos->hEta_passBaseDST->Fill(el.eta());
+      auto* selected_histos = (pt_order == 0)   ? &histos.leading_electron
+                              : (pt_order == 1) ? &histos.subleading_electron
+                                                : nullptr;
+      if (selected_histos) {
+        selected_histos->hPt_Endcap_passBaseDST->Fill(el.pt());
+        selected_histos->hEta_passBaseDST->Fill(el.eta());
 
-            int filter_idx_counter = 0; // Keeps track of flattened filter histogram index
-            for (size_t i = 0; i < triggerset_result.size(); i++) {
-                const auto& res = triggerset_result[i];
-                // Pass Trigger Path
-                if (res.passTrigger) {
-                    selected_histos->hPt_Endcap_passDST[i]->Fill(el.pt());
-                    selected_histos->hEta_passDST[i]->Fill(el.eta());
-                }
-                // Pass Filter Objects
-                for (const auto& filterName : res.filters) {
-                    bool passObj = false;
-                    // Check if we have objects for this filter
-                    auto it = res.filterObjects.find(filterName);
-                    if (it != res.filterObjects.end()) {
-                        if (patElectron_passHLT(el, it->second)) {
-                            passObj = true;
-                        }
-                    }
-                    if (passObj) {
-                        selected_histos->hPt_Endcap_fireTrigObj[filter_idx_counter]->Fill(el.pt());
-                        selected_histos->hEta_fireTrigObj[filter_idx_counter]->Fill(el.eta());
-                    }
-
-                    filter_idx_counter++;
-                }
+        int filter_idx_counter = 0;  // Keeps track of flattened filter histogram index
+        for (size_t i = 0; i < triggerset_result.size(); i++) {
+          const auto& res = triggerset_result[i];
+          // Pass Trigger Path
+          if (res.passTrigger) {
+            selected_histos->hPt_Endcap_passDST[i]->Fill(el.pt());
+            selected_histos->hEta_passDST[i]->Fill(el.eta());
+          }
+          // Pass Filter Objects
+          for (const auto& filterName : res.filters) {
+            bool passObj = false;
+            // Check if we have objects for this filter
+            auto it = res.filterObjects.find(filterName);
+            if (it != res.filterObjects.end()) {
+              if (patElectron_passHLT(el, it->second)) {
+                passObj = true;
+              }
+            }
+            if (passObj) {
+              selected_histos->hPt_Endcap_fireTrigObj[filter_idx_counter]->Fill(el.pt());
+              selected_histos->hEta_fireTrigObj[filter_idx_counter]->Fill(el.eta());
             }
 
-            for (unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++) {
-                if (l1_result[il1seed]) {
-                    unsigned int ifilter = 0;
-                    while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter]))
-                        ifilter++;
-                    if (!(patElectron_passHLT(el, l1_legObjects[ifilter])))
-                        continue;
-                    // check if electron fire the l1 seed leg
-                    selected_histos->hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
-                    selected_histos->hEta_fireL1[il1seed]->Fill(el.eta());
-                }
-            }
+            filter_idx_counter++;
+          }
         }
+
+        for (unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++) {
+          if (l1_result[il1seed]) {
+            unsigned int ifilter = 0;
+            while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter]))
+              ifilter++;
+            if (!(patElectron_passHLT(el, l1_legObjects[ifilter])))
+              continue;
+            // check if electron fire the l1 seed leg
+            selected_histos->hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
+            selected_histos->hEta_fireL1[il1seed]->Fill(el.eta());
+          }
+        }
+      }
     }
   }
 }
@@ -707,53 +709,54 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinem
     }
 
     if (pass_baseDST) {
-
-      auto*  selected_histos = (pt_order == 0) ? &histos.leading_electron : 
-                              (pt_order == 1) ? &histos.subleading_electron : nullptr;
+      auto* selected_histos = (pt_order == 0)   ? &histos.leading_electron
+                              : (pt_order == 1) ? &histos.subleading_electron
+                                                : nullptr;
       if (selected_histos) {
-          selected_histos->hPt_Barrel_passBaseDST->Fill(el.pt());
-          selected_histos->hEta_passBaseDST->Fill(el.eta());
-          int filter_idx_counter = 0; // Keeps track of flattened filter histogram index
-          for (size_t i = 0; i < triggerset_result.size(); i++) {
-              const auto& res = triggerset_result[i];
-              // Pass Trigger Path
-              if (res.passTrigger) {
-                  selected_histos->hPt_Barrel_passDST[i]->Fill(el.pt());
-                  selected_histos->hEta_passDST[i]->Fill(el.eta());
-              }
-              // Pass Filter Objects
-              for (const auto& filterName : res.filters) {
-                  bool passObj = false;
-                  // Check if we have objects for this filter
-                  auto it = res.filterObjects.find(filterName);
-                  if (it != res.filterObjects.end()) {
-                      if (scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], it->second)) {
-                          passObj = true;
-                      }
-                  }
-                  if (passObj) {
-                      selected_histos->hPt_Barrel_fireTrigObj[filter_idx_counter]->Fill(el.pt());
-                      selected_histos->hEta_fireTrigObj[filter_idx_counter]->Fill(el.eta());
-                  }
-
-                  filter_idx_counter++;
-              }
+        selected_histos->hPt_Barrel_passBaseDST->Fill(el.pt());
+        selected_histos->hEta_passBaseDST->Fill(el.eta());
+        int filter_idx_counter = 0;  // Keeps track of flattened filter histogram index
+        for (size_t i = 0; i < triggerset_result.size(); i++) {
+          const auto& res = triggerset_result[i];
+          // Pass Trigger Path
+          if (res.passTrigger) {
+            selected_histos->hPt_Barrel_passDST[i]->Fill(el.pt());
+            selected_histos->hEta_passDST[i]->Fill(el.eta());
           }
-
-          for (unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++) {
-              if (l1_result[il1seed]) {
-                  unsigned int ifilter = 0;
-                  while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter]))
-                      ifilter++;
-                  if (!(scoutingElectron_passHLT(
-                      el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], l1_legObjects[ifilter])))
-                  continue;
-                  // check if electron fire the l1 seed leg
-                  selected_histos->hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
-                  selected_histos->hEta_fireL1[il1seed]->Fill(el.eta());
+          // Pass Filter Objects
+          for (const auto& filterName : res.filters) {
+            bool passObj = false;
+            // Check if we have objects for this filter
+            auto it = res.filterObjects.find(filterName);
+            if (it != res.filterObjects.end()) {
+              if (scoutingElectron_passHLT(
+                      el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], it->second)) {
+                passObj = true;
               }
+            }
+            if (passObj) {
+              selected_histos->hPt_Barrel_fireTrigObj[filter_idx_counter]->Fill(el.pt());
+              selected_histos->hEta_fireTrigObj[filter_idx_counter]->Fill(el.eta());
+            }
+
+            filter_idx_counter++;
           }
-      } 
+        }
+
+        for (unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++) {
+          if (l1_result[il1seed]) {
+            unsigned int ifilter = 0;
+            while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter]))
+              ifilter++;
+            if (!(scoutingElectron_passHLT(
+                    el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], l1_legObjects[ifilter])))
+              continue;
+            // check if electron fire the l1 seed leg
+            selected_histos->hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
+            selected_histos->hEta_fireL1[il1seed]->Fill(el.eta());
+          }
+        }
+      }
     }
   } else {
     histos.hPt_Endcap->Fill(el.pt());
@@ -785,52 +788,54 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinem
     }
 
     if (pass_baseDST) {
-      auto*  selected_histos = (pt_order == 0) ? &histos.leading_electron : 
-                              (pt_order == 1) ? &histos.subleading_electron : nullptr;
+      auto* selected_histos = (pt_order == 0)   ? &histos.leading_electron
+                              : (pt_order == 1) ? &histos.subleading_electron
+                                                : nullptr;
       if (selected_histos) {
-          selected_histos->hPt_Endcap_passBaseDST->Fill(el.pt());
-          selected_histos->hEta_passBaseDST->Fill(el.eta());
-          int filter_idx_counter = 0; // Keeps track of flattened filter histogram index
-          for (size_t i = 0; i < triggerset_result.size(); i++) {
-              const auto& res = triggerset_result[i];
-              // Pass Trigger Path
-              if (res.passTrigger) {
-                  selected_histos->hPt_Endcap_passDST[i]->Fill(el.pt());
-                  selected_histos->hEta_passDST[i]->Fill(el.eta());
-              }
-              // Pass Filter Objects
-              for (const auto& filterName : res.filters) {
-                  bool passObj = false;
-                  // Check if we have objects for this filter
-                  auto it = res.filterObjects.find(filterName);
-                  if (it != res.filterObjects.end()) {
-                      if (scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], it->second)) {
-                          passObj = true;
-                      }
-                  }
-                  if (passObj) {
-                      selected_histos->hPt_Endcap_fireTrigObj[filter_idx_counter]->Fill(el.pt());
-                      selected_histos->hEta_fireTrigObj[filter_idx_counter]->Fill(el.eta());
-                  }
-
-                  filter_idx_counter++;
-              }
+        selected_histos->hPt_Endcap_passBaseDST->Fill(el.pt());
+        selected_histos->hEta_passBaseDST->Fill(el.eta());
+        int filter_idx_counter = 0;  // Keeps track of flattened filter histogram index
+        for (size_t i = 0; i < triggerset_result.size(); i++) {
+          const auto& res = triggerset_result[i];
+          // Pass Trigger Path
+          if (res.passTrigger) {
+            selected_histos->hPt_Endcap_passDST[i]->Fill(el.pt());
+            selected_histos->hEta_passDST[i]->Fill(el.eta());
           }
-
-          for (unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++) {
-              if (l1_result[il1seed]) {
-                  unsigned int ifilter = 0;
-                  while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter]))
-                      ifilter++;
-                  if (!(scoutingElectron_passHLT(
-                      el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], l1_legObjects[ifilter])))
-                  continue;
-                  // check if electron fire the l1 seed leg
-                  selected_histos->hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
-                  selected_histos->hEta_fireL1[il1seed]->Fill(el.eta());
+          // Pass Filter Objects
+          for (const auto& filterName : res.filters) {
+            bool passObj = false;
+            // Check if we have objects for this filter
+            auto it = res.filterObjects.find(filterName);
+            if (it != res.filterObjects.end()) {
+              if (scoutingElectron_passHLT(
+                      el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], it->second)) {
+                passObj = true;
               }
+            }
+            if (passObj) {
+              selected_histos->hPt_Endcap_fireTrigObj[filter_idx_counter]->Fill(el.pt());
+              selected_histos->hEta_fireTrigObj[filter_idx_counter]->Fill(el.eta());
+            }
+
+            filter_idx_counter++;
           }
-      } 
+        }
+
+        for (unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++) {
+          if (l1_result[il1seed]) {
+            unsigned int ifilter = 0;
+            while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter]))
+              ifilter++;
+            if (!(scoutingElectron_passHLT(
+                    el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], l1_legObjects[ifilter])))
+              continue;
+            // check if electron fire the l1 seed leg
+            selected_histos->hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
+            selected_histos->hEta_fireL1[il1seed]->Fill(el.eta());
+          }
+        }
+      }
     }
   }
 }
@@ -950,70 +955,54 @@ void PatElectronTagProbeAnalyzer::bookHistograms_resonance(DQMStore::IBooker& ib
   histos.subleading_electron.hEta_passBaseDST =
       ibook.book1D(name + "_subleading_Eta_passBaseDST", name + "_subleading_Eta_passBaseDST", 20, -5.0, 5.0);
 
-
   for (const auto& config : vtriggerSet_) {
-      std::string cleaned_vt = config.pathName;
-      cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
+    std::string cleaned_vt = config.pathName;
+    cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
 
-      // =======================================================
-      // Pass DST
-      // =======================================================
-      // -- Leading Electron --
+    // =======================================================
+    // Pass DST
+    // =======================================================
+    // -- Leading Electron --
 
-      histos.leading_electron.hPt_Barrel_passDST.push_back(ibook.book1D(
-            name + "_leading_Pt_Barrel_pass" + cleaned_vt,
-            name + "_leading_Pt_Barrel_pass" + cleaned_vt, 40, 0, 200));
-      histos.leading_electron.hPt_Endcap_passDST.push_back(ibook.book1D(
-            name + "_leading_Pt_Endcap_pass" + cleaned_vt,
-            name + "_leading_Pt_Endcap_pass" + cleaned_vt, 40, 0, 200));
-      histos.leading_electron.hEta_passDST.push_back(ibook.book1D(
-            name + "_leading_Eta_pass" + cleaned_vt,
-            name + "_leading_Eta_pass" + cleaned_vt, 20, -5.0, 5.0));
+    histos.leading_electron.hPt_Barrel_passDST.push_back(ibook.book1D(
+        name + "_leading_Pt_Barrel_pass" + cleaned_vt, name + "_leading_Pt_Barrel_pass" + cleaned_vt, 40, 0, 200));
+    histos.leading_electron.hPt_Endcap_passDST.push_back(ibook.book1D(
+        name + "_leading_Pt_Endcap_pass" + cleaned_vt, name + "_leading_Pt_Endcap_pass" + cleaned_vt, 40, 0, 200));
+    histos.leading_electron.hEta_passDST.push_back(
+        ibook.book1D(name + "_leading_Eta_pass" + cleaned_vt, name + "_leading_Eta_pass" + cleaned_vt, 20, -5.0, 5.0));
 
-      // -- SubLeading Electron --
-      histos.subleading_electron.hPt_Barrel_passDST.push_back(ibook.book1D(
-            name + "_subleading_Pt_Barrel_pass" + cleaned_vt, 
-            name + "_subleading_Pt_Barrel_pass" + cleaned_vt, 40, 0, 200));
-      histos.subleading_electron.hPt_Endcap_passDST.push_back(ibook.book1D(
-            name + "_subleading_Pt_Endcap_pass" + cleaned_vt, 
-            name + "_subleading_Pt_Endcap_pass" + cleaned_vt, 40, 0, 200));
-      histos.subleading_electron.hEta_passDST.push_back(ibook.book1D(
-            name + "_subleading_Eta_pass" + cleaned_vt, 
-            name + "_subleading_Eta_pass" + cleaned_vt, 20, -5.0, 5.0));
+    // -- SubLeading Electron --
+    histos.subleading_electron.hPt_Barrel_passDST.push_back(ibook.book1D(
+        name + "_subleading_Pt_Barrel_pass" + cleaned_vt, name + "_subleading_Pt_Barrel_pass" + cleaned_vt, 40, 0, 200));
+    histos.subleading_electron.hPt_Endcap_passDST.push_back(ibook.book1D(
+        name + "_subleading_Pt_Endcap_pass" + cleaned_vt, name + "_subleading_Pt_Endcap_pass" + cleaned_vt, 40, 0, 200));
+    histos.subleading_electron.hEta_passDST.push_back(ibook.book1D(
+        name + "_subleading_Eta_pass" + cleaned_vt, name + "_subleading_Eta_pass" + cleaned_vt, 20, -5.0, 5.0));
 
-      // -----------------------------------------------------
-      // B. Book Fire TrigObj Histograms (Per Filter)
-      // -----------------------------------------------------
-      // These vectors will grow larger than the passDST vectors!
-      for (const auto& filterName : config.filters) {
+    // -----------------------------------------------------
+    // B. Book Fire TrigObj Histograms (Per Filter)
+    // -----------------------------------------------------
+    // These vectors will grow larger than the passDST vectors!
+    for (const auto& filterName : config.filters) {
+      // Create a unique name: Path + Filter
+      std::string suffix = cleaned_vt + "_" + filterName;
 
-        // Create a unique name: Path + Filter
-        std::string suffix = cleaned_vt + "_" + filterName;
+      // Leading
+      histos.leading_electron.hPt_Barrel_fireTrigObj.push_back(ibook.book1D(
+          name + "_leading_Pt_Barrel_pass" + suffix, name + "_leading_Pt_Barrel_pass" + suffix, 40, 0, 200));
+      histos.leading_electron.hPt_Endcap_fireTrigObj.push_back(ibook.book1D(
+          name + "_leading_Pt_Endcap_pass" + suffix, name + "_leading_Pt_Endcap_pass" + suffix, 40, 0, 200));
+      histos.leading_electron.hEta_fireTrigObj.push_back(
+          ibook.book1D(name + "_leading_Eta_pass" + suffix, name + "_leading_Eta_pass" + suffix, 20, -5.0, 5.0));
 
-        // Leading
-        histos.leading_electron.hPt_Barrel_fireTrigObj.push_back(ibook.book1D(
-            name + "_leading_Pt_Barrel_pass" + suffix,
-            name + "_leading_Pt_Barrel_pass" + suffix, 40, 0, 200));
-        histos.leading_electron.hPt_Endcap_fireTrigObj.push_back(ibook.book1D(
-            name + "_leading_Pt_Endcap_pass" + suffix,
-            name + "_leading_Pt_Endcap_pass" + suffix, 40, 0, 200));
-        histos.leading_electron.hEta_fireTrigObj.push_back(ibook.book1D(
-            name + "_leading_Eta_pass" + suffix,
-            name + "_leading_Eta_pass" + suffix, 20, -5.0, 5.0));
-
-        // SubLeading
-        histos.subleading_electron.hPt_Barrel_fireTrigObj.push_back(ibook.book1D(
-            name + "_subleading_Pt_Barrel_pass" + suffix,
-            name + "_subleading_Pt_Barrel_pass" + suffix, 40, 0, 200));
-        histos.subleading_electron.hPt_Endcap_fireTrigObj.push_back(ibook.book1D(
-            name + "_subleading_Pt_Endcap_pass" + suffix,
-            name + "_subleading_Pt_Endcap_pass" + suffix, 40, 0, 200));
-        histos.subleading_electron.hEta_fireTrigObj.push_back(ibook.book1D(
-            name + "_subleading_Eta_pass" + suffix,
-            name + "_subleading_Eta_pass" + suffix, 20, -5.0, 5.0));
+      // SubLeading
+      histos.subleading_electron.hPt_Barrel_fireTrigObj.push_back(ibook.book1D(
+          name + "_subleading_Pt_Barrel_pass" + suffix, name + "_subleading_Pt_Barrel_pass" + suffix, 40, 0, 200));
+      histos.subleading_electron.hPt_Endcap_fireTrigObj.push_back(ibook.book1D(
+          name + "_subleading_Pt_Endcap_pass" + suffix, name + "_subleading_Pt_Endcap_pass" + suffix, 40, 0, 200));
+      histos.subleading_electron.hEta_fireTrigObj.push_back(
+          ibook.book1D(name + "_subleading_Eta_pass" + suffix, name + "_subleading_Eta_pass" + suffix, 20, -5.0, 5.0));
     }
-
-
   }
 
   for (auto const& l1seed : l1Seeds_) {
