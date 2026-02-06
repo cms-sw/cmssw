@@ -26,6 +26,7 @@ namespace edm {
   template <typename T>
   class ParameterDescriptionCases;
   class DocFormatHelper;
+  class Entry;
 
   // Originally these were defined such that the values were the
   // same as in the ParameterSet Entry class and the validation
@@ -35,6 +36,8 @@ namespace edm {
   // a task for the future when someone has free time would be
   // to define the values in a common header, but that would involve
   // significant changes to ParameterSet ...)
+  // NOTE: the only difference is k_PSet and k_VPSet which do not match
+  // the Entry class values of kTPSet, KTvPSet
   enum ParameterTypes {
     k_int32 = 'I',
     k_vint32 = 'i',
@@ -47,6 +50,7 @@ namespace edm {
     k_double = 'D',
     k_vdouble = 'd',
     k_bool = 'B',
+    k_vbool = 'b',
     k_stringRaw = 'Z',
     k_vstringRaw = 'z',
     k_stringHex = 'S',
@@ -68,6 +72,7 @@ namespace edm {
     k_VPSet = 'q'
   };
 
+  bool compareEntryCodeToParameterType(char code, ParameterTypes type);
   std::string parameterTypeEnumToString(ParameterTypes iType);
 
   enum class ParameterModifier : unsigned char { kNone, kOptional, kObsolete };
