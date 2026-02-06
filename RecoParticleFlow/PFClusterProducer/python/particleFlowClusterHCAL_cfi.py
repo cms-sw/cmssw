@@ -73,8 +73,9 @@ particleFlowClusterHCALOnlyLegacy = particleFlowClusterHCALOnly.clone(
 )
 
 from RecoParticleFlow.PFClusterProducer.legacyMultiDepthPFClusterProducer_cfi import legacyMultiDepthPFClusterProducer as _legacyPFMultiDepthClusterProducer
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
-legacyPFMultiDepthClusterProducerHCALOnly = _legacyPFMultiDepthClusterProducer.clone(
+alpaka.toReplaceWith(particleFlowClusterHCALOnly, _legacyPFMultiDepthClusterProducer.clone(
     pfClusterSoA   = 'pfMultiDepthClusterSoAProducerHCALOnly',
     pfRecHitFractionSoA = 'pfMultiDepthClusterSoAProducerHCALOnly',    
     pfRecHitsSoA        = 'pfRecHitSoAProducerHBHEOnly',
@@ -86,6 +87,3 @@ legacyPFMultiDepthClusterProducerHCALOnly = _legacyPFMultiDepthClusterProducer.c
 from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
 hcalPfCutsFromDB.toModify( particleFlowClusterHCAL,
                            usePFThresholdsFromDB = True)
-
-from Configuration.ProcessModifiers.alpaka_cff import alpaka
-alpaka.toReplaceWith(particleFlowClusterHCALOnly, legacyPFMultiDepthClusterProducerHCALOnly)

@@ -69,8 +69,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       constexpr unsigned int max_w_extent = 32;
 
       const unsigned int nVertices = pfClusteringCCLabels.size();
-
-      if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
+#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
+      constexpr bool hip_enabled = std::is_same_v<Device, alpaka::DevHipRt>;
+#else
+      constexpr bool hip_enabled = false;
+#endif
+      if constexpr (std::is_same_v<Device, alpaka::DevCpu> || hip_enabled) {
         if (::cms::alpakatools::once_per_grid(acc)) {
           unsigned int ccrhfrac_idx = 0;
           unsigned int cc_idx = 0;
