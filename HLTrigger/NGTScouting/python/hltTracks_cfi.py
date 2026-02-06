@@ -32,7 +32,7 @@ pixelTrackAssoc = trackingAssocValueMapsProducer.clone(
 )
 
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
-hltPhase2LegacyTracking.toReplaceWith(pixelTrackAssoc, trackCollection = "hltPhase2PixelTracks")
+hltPhase2LegacyTracking.toModify(pixelTrackAssoc, trackCollection = "hltPhase2PixelTracks")
 
 hltPixelTrackTable = cms.EDProducer(
     "SimpleTriggerTrackFlatTableProducer",
