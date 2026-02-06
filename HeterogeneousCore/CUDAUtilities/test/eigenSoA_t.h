@@ -16,10 +16,12 @@ using V = MySoA<128>;
 __global__ void testBasicSoA(float* p) {
   using namespace eigenSoA;
 
+#ifndef EIGEN_NO_DEBUG
   assert(!isPowerOf2(0));
   assert(isPowerOf2(1));
   assert(isPowerOf2(1024));
   assert(!isPowerOf2(1026));
+#endif
 
   using M3 = Eigen::Matrix<float, 3, 3>;
 
