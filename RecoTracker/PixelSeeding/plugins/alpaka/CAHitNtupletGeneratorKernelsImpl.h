@@ -90,14 +90,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   uint32_t const *__restrict__ nTrips,
                                   uint32_t const *__restrict__ nCellTracks) const {
       if (cms::alpakatools::once_per_grid(acc))
-        printf("nSizes:%d;%d;%d;%d;%d;%d;%d\n",
-               hh.metadata().size(),
-               hh.metadata().size() - hh.offsetBPIX2(),
-               *nCells,
-               *nTrips,
-               *nCellTracks,
-               tt.nTracks(),
-               tt.metadata().size());
+        printf(
+            "nSizes: hh.metadata().size() %d; hh.metadata().size() - hh.offsetBPIX2() %d; nCells %d; nTrips %d; "
+            "nCellTracks %d; nTracks %d; tt.metadata().size() %d\n",
+            hh.metadata().size(),
+            hh.metadata().size() - hh.offsetBPIX2(),
+            *nCells,
+            *nTrips,
+            *nCellTracks,
+            tt.nTracks(),
+            tt.metadata().size());
     }
   };
 
@@ -1055,8 +1057,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   HitContainer const *__restrict__ foundNtuplets,
                                   HitToTuple const *__restrict__ phitToTuple,
-                                  int32_t firstPrint,
-                                  int32_t lastPrint,
+                                  uint32_t firstPrint,
+                                  uint32_t lastPrint,
                                   int iev) const {
       constexpr auto loose = Quality::loose;
 

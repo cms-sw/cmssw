@@ -27,13 +27,6 @@ using SmallAssoc = OneToManyAssocSequential<uint16_t, 128, MaxAssocs>;
 using Multiplicity = OneToManyAssocRandomAccess<uint16_t, 8, MaxTk>;
 using TK = std::array<uint16_t, 4>;
 
-namespace {
-  template <typename T>
-  ALPAKA_FN_HOST_ACC typename std::make_signed<T>::type toSigned(T v) {
-    return static_cast<typename std::make_signed<T>::type>(v);
-  }
-}  // namespace
-
 struct countMultiLocal {
   ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                 TK const* __restrict__ tk,
@@ -137,10 +130,10 @@ struct fillBulk {
 struct verifyBulk {
   template <typename Assoc>
   ALPAKA_FN_ACC void operator()(Acc1D const& acc, Assoc const* __restrict__ assoc, AtomicPairCounter const* apc) const {
-    if (::toSigned(apc->get().first) >= Assoc::ctNOnes()) {
+    if (apc->get().first >= Assoc::ctNOnes()) {
       printf("Overflow %d %d\n", apc->get().first, Assoc::ctNOnes());
     }
-    ALPAKA_ASSERT_ACC(toSigned(assoc->size()) < Assoc::ctCapacity());
+    ALPAKA_ASSERT_ACC(assoc->size() < Assoc::ctCapacity());
   }
 };
 

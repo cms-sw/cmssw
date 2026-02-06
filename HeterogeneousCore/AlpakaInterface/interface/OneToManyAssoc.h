@@ -15,40 +15,44 @@
 
 namespace cms::alpakatools {
 
-  template <typename I,    // type stored in the container (usually an index in a vector of the input values)
-            int32_t ONES,  // number of "Ones"  +1. If -1 is initialized at runtime using external storage
-            int32_t SIZE   // max number of element. If -1 is initialized at runtime using external storage
-            >
+  template <
+      // type stored in the container (usually an index in a vector of the input values)
+      typename I,
+      // number of "Ones"  +1. If cms::alpakatools::kDynamicSize is initialized at runtime using external storage
+      FlexiStorageBase::size_type ONES,
+      // max number of element. If cms::alpakatools::kDynamicSize is initialized at runtime using external storage
+      FlexiStorageBase::size_type SIZE>
   class OneToManyAssocBase {
   public:
     using Counter = uint32_t;
 
     using CountersOnly = OneToManyAssocBase<I, ONES, 0>;
 
-    using index_type = I;
+    using size_type = typename FlexiStorageBase::size_type;  // type of the "ones" / keys
+    using value_type = I;                                    // type of the "many" / values / content
 
     struct View {
       OneToManyAssocBase *assoc = nullptr;
       Counter *offStorage = nullptr;
-      index_type *contentStorage = nullptr;
-      int32_t offSize = -1;
-      int32_t contentSize = -1;
+      value_type *contentStorage = nullptr;
+      size_type offSize = kDynamicSize;
+      size_type contentSize = kDynamicSize;
     };
 
-    static constexpr int32_t ctNOnes() { return ONES; }
-    constexpr auto totOnes() const { return off.capacity(); }
-    constexpr auto nOnes() const { return totOnes() - 1; }
-    static constexpr int32_t ctCapacity() { return SIZE; }
-    constexpr auto capacity() const { return content.capacity(); }
+    static constexpr size_type ctNOnes() { return ONES; }
+    constexpr size_type totOnes() const { return off.capacity(); }
+    constexpr size_type nOnes() const { return totOnes() - 1; }
+    static constexpr size_type ctCapacity() { return SIZE; }
+    constexpr size_type capacity() const { return content.capacity(); }
 
     ALPAKA_FN_HOST_ACC void initStorage(View view) {
       ALPAKA_ASSERT_ACC(view.assoc == this);
-      if constexpr (ctCapacity() < 0) {
+      if constexpr (ctCapacity() == kDynamicSize) {
         ALPAKA_ASSERT_ACC(view.contentStorage);
         ALPAKA_ASSERT_ACC(view.contentSize > 0);
         content.init(view.contentStorage, view.contentSize);
       }
-      if constexpr (ctNOnes() < 0) {
+      if constexpr (ctNOnes() == kDynamicSize) {
         ALPAKA_ASSERT_ACC(view.offStorage);
         ALPAKA_ASSERT_ACC(view.offSize > 0);
         off.init(view.offStorage, view.offSize);
@@ -56,37 +60,37 @@ namespace cms::alpakatools {
     }
 
     ALPAKA_FN_HOST_ACC void zero() {
-      for (int32_t i = 0; i < totOnes(); ++i) {
+      for (size_type i = 0; i < totOnes(); ++i) {
         off[i] = 0;
       }
     }
 
     template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void add(const TAcc &acc, CountersOnly const &co) {
-      for (uint32_t i = 0; static_cast<int>(i) < totOnes(); ++i) {
+      for (size_type i = 0; i < totOnes(); ++i) {
         alpaka::atomicAdd(acc, off.data() + i, co.off[i], alpaka::hierarchy::Blocks{});
       }
     }
 
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicIncrement(const TAcc &acc, Counter &x) {
-      return alpaka::atomicAdd(acc, &x, 1u, alpaka::hierarchy::Blocks{});
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static Counter atomicIncrement(const TAcc &acc, Counter &x) {
+      return alpaka::atomicAdd(acc, &x, static_cast<Counter>(1), alpaka::hierarchy::Blocks{});
     }
 
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicDecrement(const TAcc &acc, Counter &x) {
-      return alpaka::atomicSub(acc, &x, 1u, alpaka::hierarchy::Blocks{});
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static Counter atomicDecrement(const TAcc &acc, Counter &x) {
+      return alpaka::atomicSub(acc, &x, static_cast<Counter>(1), alpaka::hierarchy::Blocks{});
     }
 
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, I b) {
-      ALPAKA_ASSERT_ACC(b < static_cast<uint32_t>(nOnes()));
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, size_type b) {
+      ALPAKA_ASSERT_ACC(b < nOnes());
       atomicIncrement(acc, off[b]);
     }
 
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, I b, index_type j) {
-      ALPAKA_ASSERT_ACC(b < static_cast<uint32_t>(nOnes()));
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, size_type b, value_type j) {
+      ALPAKA_ASSERT_ACC(b < nOnes());
       auto w = atomicDecrement(acc, off[b]);
       ALPAKA_ASSERT_ACC(w > 0);
       content[w - 1] = j;
@@ -104,7 +108,7 @@ namespace cms::alpakatools {
           h->initStorage(view);
         }
         alpaka::syncBlockThreads(acc);
-        for (int i : cms::alpakatools::independent_group_elements(acc, h->totOnes())) {
+        for (size_type i : cms::alpakatools::independent_group_elements(acc, h->totOnes())) {
           h->off[i] = 0;
         }
       }
@@ -112,17 +116,17 @@ namespace cms::alpakatools {
 
     template <alpaka::concepts::Acc TAcc, typename TQueue>
     ALPAKA_FN_INLINE static void launchZero(OneToManyAssocBase *h, TQueue &queue) {
-      View view = {h, nullptr, nullptr, -1, -1};
+      View view = {h, nullptr, nullptr, kDynamicSize, kDynamicSize};
       launchZero<TAcc>(view, queue);
     }
 
     template <alpaka::concepts::Acc TAcc, typename TQueue>
     ALPAKA_FN_INLINE static void launchZero(View view, TQueue &queue) {
-      if constexpr (ctCapacity() < 0) {
+      if constexpr (ctCapacity() == kDynamicSize) {
         ALPAKA_ASSERT_ACC(view.contentStorage);
         ALPAKA_ASSERT_ACC(view.contentSize > 0);
       }
-      if constexpr (ctNOnes() < 0) {
+      if constexpr (ctNOnes() == kDynamicSize) {
         ALPAKA_ASSERT_ACC(view.offStorage);
         ALPAKA_ASSERT_ACC(view.offSize > 0);
       }
@@ -140,36 +144,40 @@ namespace cms::alpakatools {
       }
     }
 
-    constexpr auto size() const { return uint32_t(off[totOnes() - 1]); }
-    constexpr auto size(uint32_t b) const { return off[b + 1] - off[b]; }
+    constexpr Counter size() const { return off[totOnes() - 1]; }
+    constexpr Counter size(size_type b) const { return off[b + 1] - off[b]; }
 
-    constexpr index_type const *begin() const { return content.data(); }
-    constexpr index_type const *end() const { return begin() + size(); }
+    constexpr value_type const *begin() const { return content.data(); }
+    constexpr value_type const *end() const { return begin() + size(); }
 
-    constexpr index_type const *begin(uint32_t b) const { return content.data() + off[b]; }
-    constexpr index_type const *end(uint32_t b) const { return content.data() + off[b + 1]; }
+    constexpr value_type const *begin(size_type b) const { return content.data() + off[b]; }
+    constexpr value_type const *end(size_type b) const { return content.data() + off[b + 1]; }
 
     FlexiStorage<Counter, ONES> off;
-    FlexiStorage<index_type, SIZE> content;
+    FlexiStorage<value_type, SIZE> content;
     int32_t psws;  // prefix-scan working space
   };
 
-  template <typename I,    // type stored in the container (usually an index in a vector of the input values)
-            int32_t ONES,  // number of "Ones"  +1. If -1 is initialized at runtime using external storage
-            int32_t SIZE   // max number of element. If -1 is initialized at runtime using external storage
-            >
+  template <
+      // type stored in the container (usually an index in a vector of the input values)
+      typename I,
+      // number of "Ones"  +1. If cms::alpakatools::kDynamicSize is initialized at runtime using external storage
+      FlexiStorageBase::size_type ONES,
+      // max number of element. If cms::alpakatools::kDynamicSize is initialized at runtime using external storage
+      FlexiStorageBase::size_type SIZE>
   class OneToManyAssocSequential : public OneToManyAssocBase<I, ONES, SIZE> {
   public:
-    using index_type = typename OneToManyAssocBase<I, ONES, SIZE>::index_type;
+    using size_type = typename OneToManyAssocBase<I, ONES, SIZE>::size_type;
+    using value_type = typename OneToManyAssocBase<I, ONES, SIZE>::value_type;
 
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE int32_t
-    bulkFill(const TAcc &acc, AtomicPairCounter &apc, index_type const *v, uint32_t n) {
+    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE size_type
+    bulkFill(const TAcc &acc, AtomicPairCounter &apc, value_type const *v, size_type n) {
       auto c = apc.inc_add(acc, n);
-      if (int(c.first) >= this->nOnes())
-        return -int32_t(c.first);
+      if (c.first >= this->nOnes())  // overflow!
+        return kOverflow;
       this->off[c.first] = c.second;
-      for (uint32_t j = 0; j < n; ++j)
+      for (size_type j = 0; j < n; ++j)
         this->content[c.second + j] = v[j];
       return c.first;
     }
@@ -180,14 +188,14 @@ namespace cms::alpakatools {
 
     template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void bulkFinalizeFill(const TAcc &acc, AtomicPairCounter const &apc) {
-      int f = apc.get().first;
+      size_type f = apc.get().first;
       auto s = apc.get().second;
       if (f >= this->nOnes()) {  // overflow!
-        this->off[this->nOnes()] = uint32_t(this->off[this->nOnes() - 1]);
+        this->off[this->nOnes()] = this->off[this->nOnes() - 1];
         return;
       }
       auto first = f + alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
-      for (int i = first; i < this->totOnes(); i += alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0]) {
+      for (size_type i = first; i < this->totOnes(); i += alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0]) {
         this->off[i] = s;
       }
     }
@@ -202,14 +210,19 @@ namespace cms::alpakatools {
     };
   };
 
-  template <typename I,    // type stored in the container (usually an index in a vector of the input values)
-            int32_t ONES,  // number of "Ones"  +1. If -1 is initialized at runtime using external storage
-            int32_t SIZE   // max number of element. If -1 is initialized at runtime using external storage
-            >
+  template <
+      // type stored in the container (usually an index in a vector of the input values)
+      typename I,
+      // number of "Ones"  +1. If cms::alpakatools::kDynamicSize is initialized at runtime using external storage
+      FlexiStorageBase::size_type ONES,
+      // max number of element. If cms::alpakatools::kDynamicSize is initialized at runtime using external storage
+      FlexiStorageBase::size_type SIZE>
   class OneToManyAssocRandomAccess : public OneToManyAssocBase<I, ONES, SIZE> {
   public:
     using Counter = typename OneToManyAssocBase<I, ONES, SIZE>::Counter;
     using View = typename OneToManyAssocBase<I, ONES, SIZE>::View;
+    using size_type = typename OneToManyAssocBase<I, ONES, SIZE>::size_type;
+    using value_type = typename OneToManyAssocBase<I, ONES, SIZE>::value_type;
 
     template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void finalize(const TAcc &acc, Counter *ws = nullptr) {
@@ -220,13 +233,13 @@ namespace cms::alpakatools {
 
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void finalize() {
       // Single thread finalize.
-      for (uint32_t i = 1; static_cast<int>(i) < this->totOnes(); ++i)
+      for (size_type i = 1; i < this->totOnes(); ++i)
         this->off[i] += this->off[i - 1];
     }
 
     template <alpaka::concepts::Acc TAcc, typename TQueue>
     ALPAKA_FN_INLINE static void launchFinalize(OneToManyAssocRandomAccess *h, TQueue &queue) {
-      View view = {h, nullptr, nullptr, -1, -1};
+      View view = {h, nullptr, nullptr, kDynamicSize, kDynamicSize};
       launchFinalize<TAcc>(view, queue);
     }
 
@@ -238,7 +251,7 @@ namespace cms::alpakatools {
       if constexpr (!requires_single_thread_per_block_v<TAcc>) {
         Counter *poff = (Counter *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, off));
         auto nOnes = OneToManyAssocRandomAccess::ctNOnes();
-        if constexpr (OneToManyAssocRandomAccess::ctNOnes() < 0) {
+        if constexpr (OneToManyAssocRandomAccess::ctNOnes() == kDynamicSize) {
           ALPAKA_ASSERT_ACC(view.offStorage);
           ALPAKA_ASSERT_ACC(view.offSize > 0);
           nOnes = view.offSize;
