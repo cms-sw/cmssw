@@ -15,10 +15,14 @@ process.l1ScoutingTestProducer = cms.EDProducer("TestWriteL1Scouting",
   tauValues = cms.vint32(11, 12),
   bxSumsValues = cms.vint32(13),
   bmtfStubValues = cms.vint32(1, 2),
+  caloTowerValues = cms.vint32(14, 15),
+  fastJetValues = cms.vint32(16, 19)
+
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testL1Scouting.root')
+    fileName = cms.untracked.string('testL1Scouting.root'),
+    splitLevel = cms.untracked.int32(99)
 )
 
 process.path = cms.Path(process.l1ScoutingTestProducer)
