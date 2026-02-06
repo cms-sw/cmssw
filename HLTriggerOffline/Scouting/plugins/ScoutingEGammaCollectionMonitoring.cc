@@ -359,9 +359,9 @@ void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook
       ibook.book1D("patElectron_subleading_Phi", "patElectron_subleading_Phi", 660, -3.3, 3.3);
 
   // Inv Mass PAT Electron Summary
-  histos.patElectron.h1InvMass12 = ibook.book1D("patElectron_E1E2_invMass", "patElectron_E1E2_invMass", 400, 0., 200.);
+  histos.patElectron.h1InvMass12 = ibook.book1D("patElectron_E1E2_invMass", "patElectron_E1E2_invMass", 2000, 0., 200.);
   histos.patElectron.h1InvMassID =
-      ibook.book1D("patElectron_appliedID_invMass", "patElectron_appliedID_invMass", 400, 0., 200.);
+      ibook.book1D("patElectron_appliedID_invMass", "patElectron_appliedID_invMass", 2000, 0., 200.);
   // Scouting electron summary
   histos.sctElectron.h1N = ibook.book1D("all_sctElectron_electrons_N", "all_sctElectron_electrons_N", 20, 0., 20.);
   histos.sctElectron.electrons.h1Pt =
@@ -386,15 +386,15 @@ void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook
   histos.sctElectron.electron2.h1Phi =
       ibook.book1D("sctElectron_subleading_Phi", "sctElectron_subleading_Phi", 660, -3.3, 3.3);
 
-  histos.sctElectron.h1InvMass12 = ibook.book1D("sctElectron_E1E2_invMass", "sctElectron_E1E2_invMass", 400, 0., 200.);
+  histos.sctElectron.h1InvMass12 = ibook.book1D("sctElectron_E1E2_invMass", "sctElectron_E1E2_invMass", 2000, 0., 200.);
   histos.sctElectron.h1InvMassID =
-      ibook.book1D("sctElectron_appliedID_invMass", "sctElectron_appliedID_invMass", 400, 0., 200.);
+      ibook.book1D("sctElectron_appliedID_invMass", "sctElectron_appliedID_invMass", 2000, 0., 200.);
   histos.sctElectron.h1InvMassIDEBEB =
-      ibook.book1D("sctElectron_EBEB_appliedID_invMass", "sctElectron_EBEB_appliedID_invMass", 400, 0., 200.);
+      ibook.book1D("sctElectron_EBEB_appliedID_invMass", "sctElectron_EBEB_appliedID_invMass", 2000, 0., 200.);
   histos.sctElectron.h1InvMassIDEBEE =
-      ibook.book1D("sctElectron_EBEE_appliedID_invMass", "sctElectron_EBEE_appliedID_invMass", 400, 0., 200.);
+      ibook.book1D("sctElectron_EBEE_appliedID_invMass", "sctElectron_EBEE_appliedID_invMass", 2000, 0., 200.);
   histos.sctElectron.h1InvMassIDEEEE =
-      ibook.book1D("sctElectron_EEEE_appliedID_invMass", "sctElectron_EEEE_appliedID_invMass", 400, 0., 200.);
+      ibook.book1D("sctElectron_EEEE_appliedID_invMass", "sctElectron_EEEE_appliedID_invMass", 2000, 0., 200.);
 
   for (auto const& vt : vtriggerSelection_) {
     std::string cleaned_vt = vt;
@@ -406,33 +406,33 @@ void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook
     std::vector<dqm::reco::MonitorElement*> h_EEEE_passDST;
 
     h_passDST.push_back(ibook.book1D(
-        "sctElectron_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+        "sctElectron_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 2000, 0., 200));
     h_EBEB_passDST.push_back(ibook.book1D(
-        "sctElectron_EBEB_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+        "sctElectron_EBEB_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 2000, 0., 200));
     h_EBEE_passDST.push_back(ibook.book1D(
-        "sctElectron_EBEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+        "sctElectron_EBEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 2000, 0., 200));
     h_EEEE_passDST.push_back(ibook.book1D(
-        "sctElectron_EEEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+        "sctElectron_EEEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 2000, 0., 200));
 
     for (auto const& l1seed : l1Seeds_) {
       h_passDST.push_back(ibook.book1D("sctElectron_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
                                        ";Invariant mass (GeV); Electrons",
-                                       400,
+                                       2000,
                                        0.,
                                        200));
       h_EBEB_passDST.push_back(ibook.book1D("sctElectron_EBEB_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
                                             ";Invariant mass (GeV); Electrons",
-                                            400,
+                                            2000,
                                             0.,
                                             200));
       h_EBEE_passDST.push_back(ibook.book1D("sctElectron_EBEE_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
                                             ";Invariant mass (GeV); Electrons",
-                                            400,
+                                            2000,
                                             0.,
                                             200));
       h_EEEE_passDST.push_back(ibook.book1D("sctElectron_EEEE_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
                                             ";Invariant mass (GeV); Electrons",
-                                            400,
+                                            2000,
                                             0.,
                                             200));
     }
