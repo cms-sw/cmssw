@@ -5,6 +5,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
+#include "SimDataFormats/TrackingHit/interface/SimHitCategory.h"
 #include <iostream>
 
 BscG4Hit::BscG4Hit() : entry(0., 0., 0.), entrylp(0., 0., 0.), exitlp(0., 0., 0.) {
@@ -141,8 +142,8 @@ std::ostream& operator<<(std::ostream& os, const BscG4Hit& hit) {
      << " EnergyLoss = " << hit.getEnergyLoss() << std::endl
      << " ParticleType = " << hit.getParticleType() << std::endl
      << " Pabs = " << hit.getPabs() << std::endl
-     << " Energy of primary particle (ID = " << hit.getTrackID() << ") = " << hit.getIncidentEnergy() << " (MeV)"
-     << std::endl
+     << " Energy of primary particle (ID = " << hit.getTrackID() << " hit type = " << hit.getProdType()
+     << ") = " << hit.getIncidentEnergy() << " (MeV)" << std::endl
      << " Entry point in Bsc unit number " << hit.getUnitID() << " is: " << hit.getEntry() << " (mm)" << std::endl;
   os << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
   return os;
