@@ -16,3 +16,4 @@ ReflowComments: false
 BinPackArguments: false
 BinPackParameters: false
 InsertNewlineAtEOF: true
+DerivePointerAlignment: true
