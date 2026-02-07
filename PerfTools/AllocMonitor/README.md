@@ -110,6 +110,7 @@ list of module names, and  an optional number of initial events to skip are spec
 service in the configuration. The parameters are
 - `filename`: name of file to which to write reports
 - `moduleNames`: list of modules which should have their information added to the file. An empty list specifies all modules should be included.
+- `skippedModuleNames`: list of module which should have their information skipped. 
 - `nEventsToSkip`: the number of initial events that must be processed before reporting happens.
 
 The beginning of the file contains a description of the structure and contents of the file.
