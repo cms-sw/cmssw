@@ -39,8 +39,21 @@ alpaka.toReplaceWith(ecalMultiFitUncalibRecHitTask, cms.Task(
   ecalMultiFitUncalibRecHit,
 ))
 
-# for alpaka validation compare the legacy CPU module with the alpaka module
-from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
+# for GPU validation compare the legacy CPU module with the alpaka module
+from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
 _ecalMultiFitUncalibRecHitTaskValidation = ecalMultiFitUncalibRecHitTask.copy()
 _ecalMultiFitUncalibRecHitTaskValidation.add(ecalMultiFitUncalibRecHitLegacy)
+gpuValidationEcal.toReplaceWith(ecalMultiFitUncalibRecHitTask, _ecalMultiFitUncalibRecHitTaskValidation)
+
+# for alpaka validation compare alpaka serial with alpaka
+from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
+from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
+ecalMultiFitUncalibRecHitPortableSerialSync = makeSerialClone(ecalMultiFitUncalibRecHitPortable)
+ecalMultiFitUncalibRecHitSerialSync = _ecalUncalibRecHitSoAToLegacy.clone(
+    inputCollectionEB = 'ecalMultiFitUncalibRecHitPortableSerialSync:EcalUncalibRecHitsEB',
+    inputCollectionEE = 'ecalMultiFitUncalibRecHitPortableSerialSync:EcalUncalibRecHitsEE'
+)
+_ecalMultiFitUncalibRecHitTaskValidation = ecalMultiFitUncalibRecHitTask.copy()
+_ecalMultiFitUncalibRecHitTaskValidation.add(ecalMultiFitUncalibRecHitPortableSerialSync)
+_ecalMultiFitUncalibRecHitTaskValidation.add(ecalMultiFitUncalibRecHitSerialSync)
 alpakaValidationEcal.toReplaceWith(ecalMultiFitUncalibRecHitTask, _ecalMultiFitUncalibRecHitTaskValidation)

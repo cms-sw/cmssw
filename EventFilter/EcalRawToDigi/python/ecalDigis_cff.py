@@ -53,9 +53,21 @@ phase2_ecal_devel.toReplaceWith(ecalDigisTask_alpaka, ecalDigisTask_alpaka.copyA
 
 alpaka.toReplaceWith(ecalDigisTask, ecalDigisTask_alpaka)
 
-# for alpaka validation compare the legacy CPU module with the alpaka module
-from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
+# for GPU validation compare the legacy CPU module with the alpaka module
+from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
 _ecalDigisTaskValidation = ecalDigisTask_alpaka.copy()
 _ecalDigisTaskValidation.add(ecalDigisLegacy)
-alpakaValidationEcal.toReplaceWith(ecalDigisTask, _ecalDigisTaskValidation)
+gpuValidationEcal.toReplaceWith(ecalDigisTask, _ecalDigisTaskValidation)
 
+# for alpaka validation compare alpaka serial with alpaka
+from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
+from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
+ecalDigisPortableSerialSync = makeSerialClone(ecalDigisPortable)
+ecalDigisSerialSync = _ecalDigisFromPortable.clone(
+    digisInLabelEB = 'ecalDigisPortableSerialSync:ebDigis',
+    digisInLabelEE = 'ecalDigisPortableSerialSync:eeDigis'
+)
+_ecalDigisTaskValidation = ecalDigisTask_alpaka.copy()
+_ecalDigisTaskValidation.add(ecalDigisPortableSerialSync)
+_ecalDigisTaskValidation.add(ecalDigisSerialSync)
+alpakaValidationEcal.toReplaceWith(ecalDigisTask, _ecalDigisTaskValidation)
