@@ -107,8 +107,37 @@ _pageNameMap = {
     "standalone" : "Standalone study on simulated hits, digis, reconstructed hits"   
 }
 
+
+# Extra page display names (used by the HTML report) for TICL candidates and trackster association pages.
+_candidateTypePageNameMap = {
+    "charged_hadrons": "Charged hadrons",
+    "electrons": "Electrons",
+    "muons": "Muons",
+    "neutral_hadrons": "Neutral hadrons",
+    "neutral_pions": "Neutral pions",
+    "photons": "Photons",
+}
+
+_pageNameMap.update({
+    # Candidates
+    "General": "Candidates (all)",
+    **_candidateTypePageNameMap,
+
+    # Trackster association pages (strings as used in hgcalPlots.py)
+    "Trackster to SimTracksters from CP Associated by Hits": "Trackster to SimTracksters from CP (by hits)",
+    "Trackster to SimTracksters Associated by LCs": "Trackster to SimTracksters (by LCs)",
+    "Trackster to SimTracksters from CP Associated by LCs": "Trackster to SimTracksters from CP (by LCs)",
+    "Trackster to SimTracksters Associated by Hits": "Trackster to SimTracksters (by hits)",
+
+    # Common top-level pages in hgcalPlots.py
+    "Hits": "Hits",
+    "CaloParticles": "CaloParticles",
+    "SimClusters": "SimClusters",
+    "Calibrated RecHits": "Calibrated RecHits",
+})
 _sectionNameMapOrder = collections.OrderedDict([
     ("layerClusters", "Layer clusters"),
+    ("Candidates", "Candidates"),
     ("tracksters","Tracksters"),
     ("Tracksters","Tracksters"),
     ("TICL-Trackster_vs_SimTracksterFromCP_byHits","Tracksters vs SimTracksters from CPs Associated by Hits"),

@@ -121,8 +121,8 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
   const auto hits = iEvent.get(hitsToken_);
   for (std::size_t index = 0; const auto& hgcRecHitCollection : hits) {
     if (hgcRecHitCollection->empty()) {
-      edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
-          << "HGCRecHitCollections #" << index << " is not valid.";
+      LogDebug("AllTracksterToSimTracksterAssociatorsByHitsProducer")
+          << "HGCRecHitCollections #" << index << " is empty.";
     }
     index++;
   }
@@ -130,8 +130,8 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
   edm::MultiSpan<HGCRecHit> rechitSpan(hits);
   // Check if rechitSpan is empty
   if (rechitSpan.size() == 0) {
-    edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
-        << "No valid HGCRecHitCollections found. Association maps will be empty.";
+    LogDebug("AllTracksterToSimTracksterAssociatorsByHitsProducer")
+        << "Only empty HGCRecHitCollections found. Association maps will be empty.";
 
     for (const auto& tracksterToken : tracksterCollectionTokens_) {
       for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
