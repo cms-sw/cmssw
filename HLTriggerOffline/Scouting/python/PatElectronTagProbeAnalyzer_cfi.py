@@ -39,12 +39,32 @@ SinglePhotonL1 = [
   'L1_SingleIsoEG34er2p5'
 ]
 
+triggerConfigs = cms.VPSet(
+    cms.PSet(
+        pathName = cms.string("DST_PFScouting_DoubleEG_v"),
+        filters  = cms.vstring("hltEGL1DoubleIsoEG11Filter", 
+                               "hltDoubleEG11CaloIdLEt11Filter",
+                               "hltDoubleEG11CaloIdLClusterShapeFilter",
+                               "hltDoubleEG11CaloIdLHEFilter")
+    ),
+    cms.PSet(
+        pathName = cms.string("DST_PFScouting_SinglePhotonEB_v"),
+        filters  = cms.vstring("hltEGL1SingleEGOrFilter",
+                               "hltEG30EBTightIDTightIsoEtFilter",
+                               "hltEG30EBTightIDTightIsoClusterShapeFilter",
+                               "hltEG30EBTightIDTightIsoHEFilter",
+                               "hltEG30EBTightIDTightIsoR9Filter",
+                               "hltEG30EBTightIDTightIsotEcalIsoFilter",
+                               "hltEG30EBTightIDTightIsoHcalIsoFilter",
+                               "hltEG30EBTightIDTightIsoTrackIsoFilter"),
+    )
+)
+
 PatElectronTagProbeAnalysis = DQMEDAnalyzer('PatElectronTagProbeAnalyzer',
 
     OutputInternalPath = cms.string('/HLT/ScoutingOffline/EGamma/TnP/Tag_PatElectron'),
     BaseTriggerSelection = cms.vstring(["DST_PFScouting_ZeroBias_v", "DST_PFScouting_SingleMuon_v", "DST_PFScouting_DoubleMuon_v", "DST_PFScouting_JetHT_v"]),
-    triggerSelection = cms.vstring(["DST_PFScouting_DoubleEG_v", "DST_PFScouting_SinglePhotonEB_v"]),
-    finalfilterSelection = cms.vstring(["hltDoubleEG11CaloIdLHEFilter", "hltEG30EBTightIDTightIsoTrackIsoFilter"]), # Must align with triggerSelection
+    triggerConfigs   = triggerConfigs,
     l1filterSelection  = cms.vstring(["hltL1sDSTRun3DoubleEGPFScoutingPixelTracking", "hltL1sSingleEGor"]),
     l1filterSelectionIndex = cms.vuint32([len(DoubleEGL1), len(DoubleEGL1) + len(SinglePhotonL1)]),
     AlgInputTag        = cms.InputTag("gtStage2Digis"),
