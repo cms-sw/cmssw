@@ -5,6 +5,8 @@
 #include <iostream>
 #include <math.h>
 
+namespace hls4ml_nnpuppitau_v0 {
+
 namespace nnet {
 
   constexpr int ceillog2(int x) { return (x <= 2) ? 1 : 1 + ceillog2((x + 1) / 2); }
@@ -104,5 +106,7 @@ namespace nnet {
   }
 
 }  // namespace nnet
+
+}  // namespace hls4ml_nnpuppitau_v0
 
 #endif

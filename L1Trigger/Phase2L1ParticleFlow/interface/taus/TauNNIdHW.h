@@ -15,8 +15,8 @@ typedef ap_fixed<10, 4> etaphi_t;
 
 // Tau NN returns two values
 struct Tau_NN_Result {
-  result_t nn_pt_correction;
-  result_t nn_id;
+  hls4ml_nnpuppitau_v0::result_t nn_pt_correction;
+  hls4ml_nnpuppitau_v0::result_t nn_id;
 };
 
 namespace L1TauEmu {
@@ -139,7 +139,7 @@ public:
 
   void initialize(const std::string &iName, int iNParticles);
   void SetNNVectorVar();
-  input_t *NNVectorVar() { return NNvectorVar_.data(); }
+  hls4ml_nnpuppitau_v0::input_t *NNVectorVar() { return NNvectorVar_.data(); }
   Tau_NN_Result EvaluateNN();
   Tau_NN_Result compute(const l1t::PFCandidate &iSeed, std::vector<l1t::PFCandidate> &iParts);
   //void print();
@@ -153,7 +153,7 @@ public:
   //FILE *file_;
 
 private:
-  std::vector<input_t> NNvectorVar_;
+  std::vector<hls4ml_nnpuppitau_v0::input_t> NNvectorVar_;
 };
 
 #endif
