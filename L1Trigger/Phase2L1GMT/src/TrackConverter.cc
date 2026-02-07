@@ -32,16 +32,7 @@ ConvertedTTTrack TrackConverter::convert(const edm::Ptr<TTTrack<Ref_Phase2Tracke
 
   ap_int<BITSPHI> phi = ap_int<BITSPHI>(phisec + track->phiSector() * 910);
 
-  wordtype word = 0;
-  int bstart = 0;
-  bstart = wordconcat<wordtype>(word, bstart, curvature, BITSTTCURV);
-  bstart = wordconcat<wordtype>(word, bstart, phi, BITSPHI);  //was phiSec
-  bstart = wordconcat<wordtype>(word, bstart, tanLambda, BITSTTTANL);
-  bstart = wordconcat<wordtype>(word, bstart, z0, BITSZ0);
-  bstart = wordconcat<wordtype>(word, bstart, d0, BITSD0);
-  wordconcat<wordtype>(word, bstart, uint(track->chi2()), 4);
-
-  ConvertedTTTrack convertedTrack(charge, curvature, absEta, pt, eta, phi, z0, d0, quality, word);
+  ConvertedTTTrack convertedTrack(charge, curvature, absEta, pt, eta, phi, z0, d0, quality);
   convertedTrack.setOfflineQuantities(LSBpt * pt, LSBeta * eta, LSBphi * phi);
   if (verbose_)
     convertedTrack.print();
