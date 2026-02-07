@@ -268,7 +268,15 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             )
         ),
         PFCand = cms.PSet(
-            sels = cms.PSet(),
+            sels = cms.PSet(
+                    ChargedHadron = cms.string('abs(pdgId) == 211'),
+                    NeutralHadron = cms.string('pdgId == 130'),
+                    Photon = cms.string('pdgId == 22'),
+                    Electron = cms.string('abs(pdgId) == 11'),
+                    Muon = cms.string('abs(pdgId) == 13'),
+                    HFHadron = cms.string('pdgId == 1'),
+                    HFEM = cms.string('pdgId == 2')
+                ),
             plots = cms.VPSet(
                 Count1D('_size', 10, 0, 100, 'PF candidates'),
                 Plot1D('pt', 'pt', 20,  0, 50, 'Puppi-weighted pt'),
