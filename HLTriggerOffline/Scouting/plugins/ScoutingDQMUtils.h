@@ -11,6 +11,7 @@
 namespace scoutingDQMUtils {
 
   // Constants
+  static constexpr double MUON_MASS = 0.105658;      // Muon mass in GeV
   static constexpr double ELECTRON_MASS = 0.000511;  // Electron mass in GeV
   static constexpr double ELE_etaEB = 1.479;         // Eta restriction to barrel (for electrons)
 
@@ -21,11 +22,14 @@ namespace scoutingDQMUtils {
   }
 
   // scouting muons ID
-  inline const bool scoutingMuonID(const Run3ScoutingMuon& mu){
-        if (mu.pt() < 3.0) return false;
-        if (std::abs(mu.eta()) > 2.4) return false;
-        if (mu.normalizedChi2() > 3) return false;
-        return true;
+  inline const bool scoutingMuonID(const Run3ScoutingMuon& mu) {
+    if (mu.pt() < 3.0)
+      return false;
+    if (std::abs(mu.eta()) > 2.4)
+      return false;
+    if (mu.normalizedChi2() > 3)
+      return false;
+    return true;
   }
 
   // scouting electron IB

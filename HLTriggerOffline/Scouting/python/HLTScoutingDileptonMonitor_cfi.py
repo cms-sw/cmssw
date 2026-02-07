@@ -6,16 +6,14 @@ ScoutingDileptonMonitor = DQMEDAnalyzer("ScoutingDileptonMonitor",
                                         muons     = cms.InputTag("hltScoutingMuonPackerVtx"),
                                         electrons = cms.InputTag("hltScoutingEgammaPacker"),
                                         doMuons     = cms.bool(True),
-                                        doElectrons = cms.bool(True),                                            
-                                        muonCut     = cms.string("pt > 3 && abs(eta) < 2.4"),
-                                        electronCut = cms.string("pt > 3 && abs(eta) < 2.5"),                           
+                                        doElectrons = cms.bool(True),
+                                        muonCut     = cms.string(""), #cms.string("pt > 3 && abs(eta) < 2.4"),
+                                        electronCut = cms.string(""), #cms.string("pt > 3 && abs(eta) < 2.5"),
                                         massBins = cms.int32(120),
                                         massMin  = cms.double(0.0),
-                                        massMax  = cms.double(200.0),                                            
+                                        massMax  = cms.double(200.0),
                                         zMassMin = cms.double(70.0),
-                                        zMassMax = cms.double(110.0),                                            
+                                        zMassMax = cms.double(110.0),
                                         barrelEta = cms.double(1.479),
-
                                         muonID = cms.bool(True),
-                                        electronID = cms.bool(True)
-                                        )
+                                        electronID = cms.bool(True))
