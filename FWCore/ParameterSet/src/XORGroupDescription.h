@@ -46,6 +46,8 @@ namespace edm {
 
     void print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const override;
 
+    cfi::Trackiness trackiness_(std::string_view path) const override;
+
     bool hasNestedContent_() const override { return true; }
 
     void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const override;
