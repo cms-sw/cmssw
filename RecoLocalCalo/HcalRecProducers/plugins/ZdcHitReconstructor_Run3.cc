@@ -177,7 +177,7 @@ void ZdcHitReconstructor_Run3::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("digiLabelQIE10ZDC", edm::InputTag("hcalDigis", "ZDC"));
   desc.add<std::string>("Subdetector", "ZDC");
   desc.add<bool>("dropZSmarkedPassed", true);
-  desc.add<bool>("skipRPD", true);
+  desc.add<bool>("skipRPD", false);
   desc.add<int>("recoMethod", 1);
   desc.add<int>("correctionMethodEM", 1);
   desc.add<int>("correctionMethodHAD", 1);
