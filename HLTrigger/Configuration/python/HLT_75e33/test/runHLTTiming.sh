@@ -97,11 +97,11 @@ if [ -e 'Phase2_L1P2GT_HLT_OnCPU.py' ]; then
     mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources_OnCPU.json
 fi
 
-# run NGT scouting menu (currently used modifiers ngtScouting,phase2CAExtension)
+# run NGT scouting menu (currently used modifiers ngtScouting)
 cmsDriver.py NGTScouting -s L1P2GT,HLT:NGTScouting --processName=NLTX \
     --conditions auto:phase2_realistic_T35 --geometry ExtendedRun4D110 \
     --era Phase2C17I13M9 \
-    --procModifiers ngtScouting,phase2CAExtension \
+    --procModifiers ngtScouting \
     --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
     --eventcontent FEVTDEBUGHLT \
     --filein=${ALL_FILES} \
