@@ -51,3 +51,10 @@ hbherecoSerial = hcalRecHitSoAToLegacy.clone(
 )
 alpaka.toReplaceWith(hcalGlobalRecoTask, hcalGlobalRecoTask.copyAndAdd(hbherecoSerial))
 alpaka.toReplaceWith(hcalOnlyGlobalRecoTask, hcalOnlyGlobalRecoTask.copyAndAdd(hbherecoSerial))
+
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_hbhereco_cleaner
+tau_embedding_cleaning.toModify(hbhereco, cpu=tau_embedding_hbhereco_cleaner)

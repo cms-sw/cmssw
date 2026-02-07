@@ -9,34 +9,36 @@ function die {
     exit $2
 }
 
-## This is a PRE SKIMED dataset
-dataset="root://eoscms.cern.ch//store/group/phys_tau/embedding_test_files/2016_G-v1_RAW_preselected.root"
+## This is a dataset from the CMSSW integration file catalog (IBEos) from the release validation tests (runTheMatrix.py)
+dataset="root://eoscms.cern.ch//store/user/cmsbuild/store/data/Run2016H/DoubleMuon/RAW/v1/000/283/877/00000/0CEA1E63-EF9B-E611-AE44-02163E011CD4.root"
 
 echo "################ Selection ################"
-cmsDriver.py RECO \
-    --step RAW2DIGI,L1Reco,RECO,PAT \
+cmsDriver.py \
+    --step RAW2DIGI,L1Reco,RECO,PAT,FILTER:TauAnalysis/MCEmbeddingTools/Selection_FILTER_cff.makePatMuonsZmumuSelection \
+    --processName SELECT \
     --data \
     --scenario pp \
     --conditions auto:run2_data \
     --era Run2_2016 \
-    --eventcontent RAWRECO \
+    --eventcontent TauEmbeddingSelection \
     --datatier RAWRECO \
-    --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting_Reselect \
+    --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016 \
     --filein $dataset \
     --fileout file:selection.root \
-    -n -1 \
+    -n 100 \
     --python_filename selection.py || die 'Failure during selecting step' $?
 
 echo "################ LHE production and cleaning ################"
-cmsDriver.py LHEprodandCLEAN \
-    --step RAW2DIGI,RECO,PAT \
+cmsDriver.py \
+    --step USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO \
+    --processName LHEembeddingCLEAN \
     --data \
     --scenario pp \
     --conditions auto:run2_data \
     --era Run2_2016 \
-    --eventcontent RAWRECO \
+    --eventcontent TauEmbeddingCleaning \
     --datatier RAWRECO \
-    --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning_Reselect \
+    --procModifiers tau_embedding_cleaning,tau_embedding_mutauh \
     --filein file:selection.root \
     --fileout file:lhe_and_cleaned.root \
     -n -1 \
@@ -44,17 +46,17 @@ cmsDriver.py LHEprodandCLEAN \
 
 # Simulation (MC & Detector)
 echo "################ Simulation (MC & Detector) ################"
-cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py \
     --step GEN,SIM,DIGI,L1,DIGI2RAW \
+    --processName SIMembeddingpreHLT \
     --mc \
     --beamspot Realistic25ns13TeV2016Collision \
     --geometry DB:Extended \
     --era Run2_2016 \
     --conditions auto:run2_mc \
-    --eventcontent RAWSIM \
+    --eventcontent TauEmbeddingSimGen \
     --datatier RAWSIM \
-    --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_preHLT_Reselect \
+    --procModifiers tau_embedding_sim,tau_embedding_mutauh \
     --filein file:lhe_and_cleaned.root \
     --fileout file:simulated_and_cleaned_prehlt.root \
     -n -1 \
@@ -62,17 +64,16 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.
 
 # Simulation (Trigger)
 echo "################ Simulation (Trigger) ################"
-cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
-    --step HLT:Fake2 \
+cmsDriver.py \
+    --step HLT:Fake2+TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser \
+    --processName SIMembeddingHLT \
     --mc \
     --beamspot Realistic25ns13TeV2016Collision \
     --geometry DB:Extended \
     --era Run2_2016 \
     --conditions auto:run2_mc \
-    --eventcontent RAWSIM \
+    --eventcontent TauEmbeddingSimHLT \
     --datatier RAWSIM \
-    --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_HLT_Reselect \
     --filein file:simulated_and_cleaned_prehlt.root \
     --fileout file:simulated_and_cleaned_hlt.root \
     -n -1 \
@@ -80,17 +81,17 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.
 
 # Simulation (Reconstruction)
 echo "################ Simulation (Reconstruction) ################"
-cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+cmsDriver.py \
     --step RAW2DIGI,L1Reco,RECO,RECOSIM \
+    --processName SIMembedding \
     --mc \
     --beamspot Realistic25ns13TeV2016Collision \
     --geometry DB:Extended \
     --era Run2_2016 \
     --conditions auto:run2_mc \
-    --eventcontent RAWRECOSIMHLT \
+    --eventcontent TauEmbeddingSimReco \
     --datatier RAW-RECO-SIM \
-    --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_postHLT_Reselect \
+    --procModifiers tau_embedding_sim \
     --filein file:simulated_and_cleaned_hlt.root \
     --fileout file:simulated_and_cleaned_posthlt.root \
     -n -1 \
@@ -98,16 +99,17 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.
 
 # Merging
 echo "################ Merging ################"
-cmsDriver.py PAT \
-    --step PAT \
+cmsDriver.py \
+    --step USER:TauAnalysis/MCEmbeddingTools/Merging_USER_cff.merge_step,PAT \
+    --processName MERGE \
     --data \
     --scenario pp \
     --conditions auto:run2_data \
     --era Run2_2016 \
-    --eventcontent MINIAODSIM \
+    --eventcontent TauEmbeddingMergeMINIAOD \
     --datatier USER \
-    --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseMerging_Reselect \
+    --procModifiers tau_embedding_merging \
+    --inputCommands 'keep *_*_*_*' \
     --filein file:simulated_and_cleaned_posthlt.root \
     --fileout file:merged.root \
     -n -1 \
@@ -116,13 +118,12 @@ cmsDriver.py PAT \
 # NanoAOD Production
 echo "################ NanoAOD Production ################"
 cmsDriver.py \
-    --step NANO \
+    --step NANO:@TauEmbedding \
     --data \
     --conditions auto:run2_data \
-    --era Run2_2016,run2_nanoAOD_106Xv2 \
-    --eventcontent NANOAODSIM \
+    --era Run2_2016 \
+    --eventcontent TauEmbeddingNANOAOD \
     --datatier NANOAODSIM \
-    --customise TauAnalysis/MCEmbeddingTools/customisers.customiseNanoAOD \
     --filein file:merged.root \
     --fileout file:merged_nano.root \
     -n -1 \

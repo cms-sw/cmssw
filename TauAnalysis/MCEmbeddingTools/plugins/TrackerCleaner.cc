@@ -1,4 +1,4 @@
-#include "TauAnalysis/MCEmbeddingTools/plugins/TrackerCleaner.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/TrackerCleaner.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
