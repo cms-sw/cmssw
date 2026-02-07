@@ -11,6 +11,18 @@ def customise(process):
     process.customPhysicsSetup.particlesDef = PARTICLE_FILE
     process.customPhysicsSetup.reggeModel = USE_REGGE
 
+    # Read in the SLHA file to get the particles definition
+    if hasattr(process, 'generator') and hasattr(process.generator, 'SLHAFileForPythia8'):
+        process.customPhysicsSetup.particlesDef = process.generator.SLHAFileForPythia8.value()
+    elif hasattr(process, 'g4SimHits') and hasattr(process.g4SimHits, 'SLHAFileForPythia8'):
+        process.customPhysicsSetup.particlesDef = process.g4SimHits.SLHAFileForPythia8.value()
+
+    # Passing pythia settings to the Rhadron decayer is optional
+    if hasattr(process, 'generator') and hasattr(process.generator, 'RhadronPythiaDecayerCommandFile'):
+        process.customPhysicsSetup.RhadronPythiaDecayerCommandFile = process.generator.RhadronPythiaDecayerCommandFile.value()
+    elif hasattr(process, 'g4SimHits') and hasattr(process.g4SimHits, 'RhadronPythiaDecayerCommandFile'):
+        process.customPhysicsSetup.RhadronPythiaDecayerCommandFile = process.g4SimHits.RhadronPythiaDecayerCommandFile.value()
+
     if hasattr(process,'g4SimHits'):
         # defined watches
         process.g4SimHits.Watchers = cms.VPSet (
@@ -42,5 +54,8 @@ def customise(process):
             process.customPhysicsSetup
         )	
 
-        return (process)
+        # Add Rhadron decay tracking
+        process.RHDecayTracer = cms.EDProducer("RHDecayTracer")
+        process.simulation_step *= process.RHDecayTracer
 
+        return (process)
