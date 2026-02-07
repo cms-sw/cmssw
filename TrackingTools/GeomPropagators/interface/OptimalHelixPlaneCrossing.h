@@ -45,7 +45,7 @@ private:
     HelixForwardPlaneCrossing b;
     HelixArbitraryPlaneCrossing c;
   };
-  using aligned_union_t = typename std::aligned_storage<sizeof(Tmp), alignof(Tmp)>::type;
+  using aligned_union_t = std::aligned_storage_t<sizeof(Tmp), alignof(Tmp)>;
   aligned_union_t mem;
 };
 
