@@ -135,9 +135,6 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   const int EGVecSize = 12;    //NEgammas * 3;    //so 12
   const int EtSumVecSize = 3;  //NEtSums * 3;    //so 3
 
-  //total # inputs in vector is (4+10+4+1)*3 = 57
-  const int NInputs = 57;
-
   //types of inputs and outputs
   typedef ap_fixed<18, 13> inputtype;
   typedef ap_ufixed<18, 14> losstype;
@@ -256,6 +253,10 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   score = ((loss).to_float()) * 16.0;  //scaling to match threshold
   //save score to class variable in case score saving needed
   setScore(score);
+
+  for (unsigned int i = 0; i < NInputs; ++i) {
+    m_lastInputs_[i] = ADModelInput[i].to_float();
+  }
 
   //number of objects/thrsholds to check
   int iCondition = 0;  // number of conditions: there is only one
