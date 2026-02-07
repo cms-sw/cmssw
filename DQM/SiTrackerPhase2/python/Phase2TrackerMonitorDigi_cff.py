@@ -61,20 +61,20 @@ otDigiMon = digiMon.clone(
     TopFolderName = "TrackerPhase2OTDigi",
     XYPositionMapH = digiMon.XYPositionMapH.clone(
         Nxbins = 250,
-        xmin = -1250.,
-        xmax = 1250.,
+        xmin = -125.,
+        xmax = 125.,
         Nybins = 250,
-        ymin = -1250.,
-        ymax = 1250.,
+        ymin = -125.,
+        ymax = 125.,
         switch = True
     ),
     RZPositionMapH = digiMon.RZPositionMapH.clone(
         Nxbins = 600,
-        xmin = -3000.,
-        xmax = 3000.,
+        xmin = -300.,
+        xmax = 300.,
         Nybins = 250,
         ymin = 0.,
-        ymax = 1250.,
+        ymax = 125.,
         switch = True
     )
 )
