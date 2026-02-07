@@ -115,7 +115,7 @@ class Eras (object):
                            'run3_SiPixel_2025',
                            'run2_CSC_2018',
                            'phase2_common', 'phase2_tracker',
-                           'phase2_muon', 'phase2_GEM', 'phase2_GE0',
+                           'phase2_muon', 'phase2_GEM', 'phase2_GE0', 'phase2_rpc_devel',
                            'phase2_hgcal', 'phase2_timing', 'phase2_hfnose', 'phase2_hgcalV10', 'phase2_hgcalV11', 'phase2_hgcalV12',
                            'phase2_timing_layer', 'phase2_etlV4', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel', 'phase2_ecalTP_devel',
                            'phase2_trigger',
