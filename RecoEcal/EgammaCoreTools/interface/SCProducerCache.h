@@ -15,16 +15,15 @@ namespace reco {
 
       if (clustering_type == "DeepSC") {
         const auto& pset_dnn = conf.getParameter<edm::ParameterSet>("deepSuperClusterConfig");
-        config.modelFile = pset_dnn.getParameter<std::string>("modelFile");
+        config.modelFiles = pset_dnn.getParameter<std::vector<std::string>>("modelFiles");
         config.configFileClusterFeatures = pset_dnn.getParameter<std::string>("configFileClusterFeatures");
         config.configFileWindowFeatures = pset_dnn.getParameter<std::string>("configFileWindowFeatures");
         config.configFileHitsFeatures = pset_dnn.getParameter<std::string>("configFileHitsFeatures");
         config.nClusterFeatures = pset_dnn.getParameter<uint>("nClusterFeatures");
         config.nWindowFeatures = pset_dnn.getParameter<uint>("nWindowFeatures");
         config.nHitsFeatures = pset_dnn.getParameter<uint>("nHitsFeatures");
-        config.maxNClusters = pset_dnn.getParameter<uint>("maxNClusters");
-        config.maxNRechits = pset_dnn.getParameter<uint>("maxNRechits");
-        config.batchSize = pset_dnn.getParameter<uint>("batchSize");
+        config.maxNClusters = pset_dnn.getParameter<std::vector<uint>>("maxNClusters");
+        config.maxNRechits = pset_dnn.getParameter<std::vector<uint>>("maxNRechits");
         config.collectionStrategy = pset_dnn.getParameter<std::string>("collectionStrategy");
         deepSCEvaluator = std::make_unique<DeepSCGraphEvaluation>(config);
       }
