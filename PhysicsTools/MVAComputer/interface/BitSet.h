@@ -14,6 +14,7 @@
 #include <cstring>
 #include <cstddef>
 #include <cstring>
+#include <cassert>
 
 namespace PhysicsTools {
 
@@ -130,21 +131,17 @@ namespace PhysicsTools {
 
     BitSet(const BitSet &orig) : bits_(orig.bits_) {
       std::size_t words = bitsToWords(bits_);
-      if (words) {
-        store = new Word_t[words];
-        std::memcpy(store, orig.store, words * sizeof(Word_t));
-      } else
-        store = nullptr;
+      assert(words);
+      store = new Word_t[words];
+      std::memcpy(store, orig.store, words * sizeof(Word_t));
     }
 
     /// construct BitSet with a fixed size of \a bits bits
     BitSet(size_t bits) : bits_(bits) {
       std::size_t words = bitsToWords(bits);
-      if (words) {
-        store = new Word_t[words];
-        std::memset(store, 0, sizeof(Word_t) * words);
-      } else
-        store = nullptr;
+      assert(words);
+      store = new Word_t[words];
+      std::memset(store, 0, sizeof(Word_t) * words);
     }
 
     inline ~BitSet() { delete[] store; }
