@@ -1406,8 +1406,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_BS_dz_hist = ibook.book1D("tk_BS_dz", "Track dz w.r.t. BeamSpot;dz_{BS} (cm);Entries", 100, -20.0, 20.0);
 
   // book the calo rechits histograms
-  const std::array<std::string, 2> caloLabels = {{"All", "Cleaned"}};
-  const std::array<std::string, 2> caloSuffixes = {{"", "_clean"}};
+  const std::array<std::string, 2> caloLabels = {{"Accepted", "Rejected"}};
+  const std::array<std::string, 2> caloSuffixes = {{"", "_bad"}};
   for (int i = 0; i < 2; ++i) {
     ibook.setCurrentFolder(topfoldername_ + "/CaloRecHits" + caloLabels[i]);
 
