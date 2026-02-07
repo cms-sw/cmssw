@@ -9,13 +9,13 @@ using Vector = ticl::Trackster::Vector;
 
 GeneralInterpretationAlgo::~GeneralInterpretationAlgo() {}
 
-GeneralInterpretationAlgo::GeneralInterpretationAlgo(const edm::ParameterSet &conf, edm::ConsumesCollector cc)
+GeneralInterpretationAlgo::GeneralInterpretationAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector cc)
     : TICLInterpretationAlgoBase(conf, cc),
       del_tk_ts_layer1_(conf.getParameter<double>("delta_tk_ts_layer1")),
       del_tk_ts_int_(conf.getParameter<double>("delta_tk_ts_interface")),
       timing_quality_threshold_(conf.getParameter<double>("timing_quality_threshold")) {}
 
-void GeneralInterpretationAlgo::initialize(const HGCalDDDConstants *hgcons,
+void GeneralInterpretationAlgo::initialize(const HGCalDDDConstants* hgcons,
                                            const hgcal::RecHitTools rhtools,
                                            const edm::ESHandle<MagneticField> bfieldH,
                                            const edm::ESHandle<Propagator> propH) {
@@ -52,13 +52,13 @@ void GeneralInterpretationAlgo::buildLayers() {
             .get());
   }
 }
-Vector GeneralInterpretationAlgo::propagateTrackster(const Trackster &t,
+Vector GeneralInterpretationAlgo::propagateTrackster(const Trackster& t,
                                                      const unsigned idx,
                                                      float zVal,
-                                                     std::array<TICLLayerTile, 2> &tracksterTiles) {
+                                                     std::array<TICLLayerTile, 2>& tracksterTiles) {
   // needs only the positive Z co-ordinate of the surface to propagate to
   // the correct sign is calculated inside according to the barycenter of trackster
-  Vector const &baryc = t.barycenter();
+  Vector const& baryc = t.barycenter();
   Vector directnv = t.eigenvectors(0);
 
   // barycenter as direction for tracksters w/ poor PCA
@@ -83,13 +83,13 @@ Vector GeneralInterpretationAlgo::propagateTrackster(const Trackster &t,
   return tPoint;
 }
 
-void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trackster> &tracksters,
-                                                       const std::vector<std::pair<Vector, unsigned>> &seedingCollection,
-                                                       const std::array<TICLLayerTile, 2> &tracksterTiles,
-                                                       const std::vector<Vector> &tracksterPropPoints,
+void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trackster>& tracksters,
+                                                       const std::vector<std::pair<Vector, unsigned>>& seedingCollection,
+                                                       const std::array<TICLLayerTile, 2>& tracksterTiles,
+                                                       const std::vector<Vector>& tracksterPropPoints,
                                                        const float delta,
                                                        unsigned trackstersSize,
-                                                       std::vector<std::vector<unsigned>> &resultCollection,
+                                                       std::vector<std::vector<unsigned>>& resultCollection,
                                                        bool useMask = false) {
   // Finds tracksters in tracksterTiles within an eta-phi window
   // (given by delta) of the objects (track/trackster) in the seedingCollection.
@@ -99,12 +99,12 @@ void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trac
   std::vector<int> mask(trackstersSize, 0);
   const float delta2 = delta * delta;
 
-  for (auto &i : seedingCollection) {
+  for (auto& i : seedingCollection) {
     float seed_eta = i.first.Eta();
     float seed_phi = i.first.Phi();
     unsigned seedId = i.second;
     auto sideZ = seed_eta > 0;  //forward or backward region
-    const TICLLayerTile &tile = tracksterTiles[sideZ];
+    const TICLLayerTile& tile = tracksterTiles[sideZ];
     float eta_min = std::max(std::fabs(seed_eta) - delta, (float)TileConstants::minEta);
     float eta_max = std::min(std::fabs(seed_eta) + delta, (float)TileConstants::maxEta);
 
@@ -116,8 +116,8 @@ void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trac
     std::vector<float> energies;
     for (int eta_i = search_box[0]; eta_i <= search_box[1]; ++eta_i) {
       for (int phi_i = search_box[2]; phi_i <= search_box[3]; ++phi_i) {
-        const auto &in_tile = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
-        for (const unsigned &t_i : in_tile) {
+        const auto& in_tile = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
+        for (const unsigned& t_i : in_tile) {
           // calculate actual distances of tracksters to the seed for a more accurate cut
           auto sep2 = (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) +
                       (tracksterPropPoints[t_i].Phi() - seed_phi) * (tracksterPropPoints[t_i].Phi() - seed_phi);
@@ -136,8 +136,8 @@ void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trac
     std::sort(indices.begin(), indices.end(), [&](unsigned i, unsigned j) { return energies[i] > energies[j]; });
 
     // push back sorted tracksters in the result collection
-    for (const unsigned &index : indices) {
-      const auto &t_i = in_delta[index];
+    for (const unsigned& index : indices) {
+      const auto& t_i = in_delta[index];
       if (!mask[t_i]) {
         resultCollection[seedId].push_back(t_i);
         if (useMask)
@@ -148,14 +148,14 @@ void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trac
   }  // seeding collection loop
 }
 
-bool GeneralInterpretationAlgo::timeAndEnergyCompatible(float &total_raw_energy,
-                                                        const reco::Track &track,
-                                                        const Trackster &trackster,
-                                                        const float &tkT,
-                                                        const float &tkTErr,
-                                                        const float &tkQual,
-                                                        const float &tkBeta,
-                                                        const GlobalPoint &tkMtdPos,
+bool GeneralInterpretationAlgo::timeAndEnergyCompatible(float& total_raw_energy,
+                                                        const reco::Track& track,
+                                                        const Trackster& trackster,
+                                                        const float& tkT,
+                                                        const float& tkTErr,
+                                                        const float& tkQual,
+                                                        const float& tkBeta,
+                                                        const GlobalPoint& tkMtdPos,
                                                         bool useMTDTiming) {
   float threshold = std::min(0.2 * trackster.raw_energy(), 10.0);
   bool energyCompatible = (total_raw_energy + trackster.raw_energy() < track.p() + threshold);
@@ -174,7 +174,7 @@ bool GeneralInterpretationAlgo::timeAndEnergyCompatible(float &total_raw_energy,
   if (tsT == -99. or tkTErr == -1 or tkQual < timing_quality_threshold_)
     timeCompatible = true;
   else {
-    const auto &barycenter = trackster.barycenter();
+    const auto& barycenter = trackster.barycenter();
 
     const auto deltaSoverV = std::sqrt((barycenter.x() - tkMtdPos.x()) * (barycenter.x() - tkMtdPos.x()) +
                                        (barycenter.y() - tkMtdPos.y()) * (barycenter.y() - tkMtdPos.y()) +
@@ -202,18 +202,18 @@ bool GeneralInterpretationAlgo::timeAndEnergyCompatible(float &total_raw_energy,
   return energyCompatible && timeCompatible;
 }
 
-void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
+void GeneralInterpretationAlgo::makeCandidates(const Inputs& input,
                                                edm::Handle<MtdHostCollection> inputTiming_h,
-                                               std::vector<Trackster> &resultTracksters,
-                                               std::vector<int> &resultCandidate) {
+                                               std::vector<Trackster>& resultTracksters,
+                                               std::vector<int>& resultCandidate) {
   bool useMTDTiming = inputTiming_h.isValid();
   const auto tkH = input.tracksHandle;
   const auto maskTracks = input.maskedTracks;
-  const auto &tracks = *tkH;
-  const auto &tracksters = input.tracksters;
+  const auto& tracks = *tkH;
+  const auto& tracksters = input.tracksters;
 
   auto bFieldProd = bfield_.product();
-  const Propagator &prop = (*propagator_);
+  const Propagator& prop = (*propagator_);
 
   // propagated point collections
   // elements in the propagated points collecions are used
@@ -244,7 +244,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   });
 
   for (auto const i : candidateTrackIds) {
-    const auto &tk = tracks[i];
+    const auto& tk = tracks[i];
     int iSide = int(tk.eta() > 0);
     FreeTrajectoryState fts;
 
@@ -258,13 +258,13 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
     }
 
     // to the HGCal front
-    const auto &tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
+    const auto& tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
     if (tsos.isValid()) {
       Vector trackP(tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z());
       trackPColl.emplace_back(trackP, i);
     }
     // to lastLayerEE
-    const auto &tsos_int = prop.propagate(fts, interfaceDisk_[iSide]->surface());
+    const auto& tsos_int = prop.propagate(fts, interfaceDisk_[iSide]->surface());
     if (tsos_int.isValid()) {
       Vector trackP(tsos_int.globalPosition().x(), tsos_int.globalPosition().y(), tsos_int.globalPosition().z());
       tkPropIntColl.emplace_back(trackP, i);
@@ -286,7 +286,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   // Propagate tracksters
 
   for (unsigned i = 0; i < tracksters.size(); ++i) {
-    const auto &t = tracksters[i];
+    const auto& t = tracksters[i];
     if (TICLInterpretationAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced)
       LogDebug("GeneralInterpretationAlgo")
           << "trackster " << i << " - eta " << t.barycenter().eta() << " phi " << t.barycenter().phi() << " time "
@@ -319,7 +319,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   trackstersInTrackIndices.resize(tracks.size());
 
   std::vector<bool> chargedMask(tracksters.size(), true);
-  for (unsigned &i : candidateTrackIds) {
+  for (unsigned& i : candidateTrackIds) {
     if (tsNearTk[i].empty() && tsNearTkAtInt[i].empty()) {  // nothing linked to track, make charged hadrons
       continue;
     }
@@ -333,7 +333,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
     float track_beta = 0.f;
     GlobalPoint track_MtdPos{0.f, 0.f, 0.f};
     if (useMTDTiming) {
-      auto const &inputTimingView = (*inputTiming_h).const_view();
+      auto const& inputTimingView = (*inputTiming_h).const_view();
       track_time = inputTimingView.time()[i];
       track_timeErr = inputTimingView.timeErr()[i];
       track_quality = inputTimingView.MVAquality()[i];
@@ -410,7 +410,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   }
 };
 
-void GeneralInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription &desc) {
+void GeneralInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<double>("delta_tk_ts_layer1", 0.02);
   desc.add<double>("delta_tk_ts_interface", 0.03);
   desc.add<double>("timing_quality_threshold", 0.5);

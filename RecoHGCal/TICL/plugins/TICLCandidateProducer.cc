@@ -61,22 +61,22 @@ using cms::Ort::ONNXRuntime;
 
 class TICLCandidateProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
 public:
-  explicit TICLCandidateProducer(const edm::ParameterSet &ps, const ONNXRuntime *);
+  explicit TICLCandidateProducer(const edm::ParameterSet& ps, const ONNXRuntime*);
   ~TICLCandidateProducer() override {}
-  void produce(edm::Event &, const edm::EventSetup &) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void beginRun(edm::Run const &iEvent, edm::EventSetup const &es) override;
-  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet &iConfig);
-  static void globalEndJob(const ONNXRuntime *);
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const& es) override;
+  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet& iConfig);
+  static void globalEndJob(const ONNXRuntime*);
 
 private:
-  void dumpCandidate(const TICLCandidate &) const;
+  void dumpCandidate(const TICLCandidate&) const;
 
   template <typename F>
-  void assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates,
+  void assignTimeToCandidates(std::vector<TICLCandidate>& resultCandidates,
                               edm::Handle<std::vector<reco::Track>> track_h,
-                              MtdHostCollection::ConstView &inputTimingView,
+                              MtdHostCollection::ConstView& inputTimingView,
                               F func) const;
 
   std::unique_ptr<TICLInterpretationAlgoBase<reco::Track>> generalInterpretationAlgo_;
@@ -109,7 +109,7 @@ private:
   const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeometry_token_;
 
   std::once_flag initializeGeometry_;
-  const HGCalDDDConstants *hgcons_;
+  const HGCalDDDConstants* hgcons_;
   hgcal::RecHitTools rhtools_;
   const float tkEnergyCut_ = 2.0f;
   const StringCutObjectSelector<reco::Track> cutTk_;
@@ -121,7 +121,7 @@ private:
   static constexpr float timeRes = 0.02f;
 };
 
-TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const ONNXRuntime *)
+TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet& ps, const ONNXRuntime*)
     : clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
@@ -141,12 +141,12 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
           esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord, edm::Transition::BeginRun>()),
       cutTk_(ps.getParameter<std::string>("cutTk")) {
   // These are the CLUE3DEM Tracksters put in the event by the TracksterLinksProducer with the superclustering algorithm
-  for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("egamma_tracksters_collections")) {
+  for (auto const& tag : ps.getParameter<std::vector<edm::InputTag>>("egamma_tracksters_collections")) {
     egamma_tracksters_tokens_.emplace_back(consumes<std::vector<Trackster>>(tag));
   }
 
   // These are the links put in the event by the TracksterLinksProducer with the superclustering algorithm
-  for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("egamma_tracksterlinks_collections")) {
+  for (auto const& tag : ps.getParameter<std::vector<edm::InputTag>>("egamma_tracksterlinks_collections")) {
     egamma_tracksterlinks_tokens_.emplace_back(consumes<std::vector<std::vector<unsigned int>>>(tag));
   }
 
@@ -155,11 +155,11 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
 
   // Loop over the edm::VInputTag and append the token to general_tracksters_tokens_
   // These, instead, are the tracksters already merged by the TrackstersLinksProducer
-  for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("general_tracksters_collections")) {
+  for (auto const& tag : ps.getParameter<std::vector<edm::InputTag>>("general_tracksters_collections")) {
     general_tracksters_tokens_.emplace_back(consumes<std::vector<Trackster>>(tag));
   }
 
-  for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("general_tracksterlinks_collections")) {
+  for (auto const& tag : ps.getParameter<std::vector<edm::InputTag>>("general_tracksterlinks_collections")) {
     general_tracksterlinks_tokens_.emplace_back(consumes<std::vector<std::vector<unsigned int>>>(tag));
   }
 
@@ -167,7 +167,7 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
   assert(general_tracksters_tokens_.size() == general_tracksterlinks_tokens_.size());
 
   //Loop over the edm::VInputTag of masks and append the token to original_masks_tokens_
-  for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("original_masks")) {
+  for (auto const& tag : ps.getParameter<std::vector<edm::InputTag>>("original_masks")) {
     original_masks_tokens_.emplace_back(consumes<std::vector<float>>(tag));
   }
 
@@ -194,13 +194,13 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
       TICLGeneralInterpretationPluginFactory::get()->create(algoType, interpretationPSet, consumesCollector());
 }
 
-std::unique_ptr<ONNXRuntime> TICLCandidateProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
+std::unique_ptr<ONNXRuntime> TICLCandidateProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   return std::unique_ptr<ONNXRuntime>(nullptr);
 }
 
-void TICLCandidateProducer::globalEndJob(const ONNXRuntime *) {}
+void TICLCandidateProducer::globalEndJob(const ONNXRuntime*) {}
 
-void TICLCandidateProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
+void TICLCandidateProducer::beginRun(edm::Run const& iEvent, edm::EventSetup const& es) {
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
   hgcons_ = hdc.product();
 
@@ -215,13 +215,13 @@ void TICLCandidateProducer::beginRun(edm::Run const &iEvent, edm::EventSetup con
 };
 
 void filterTracks(edm::Handle<std::vector<reco::Track>> tkH,
-                  const edm::Handle<std::vector<reco::Muon>> &muons_h,
+                  const edm::Handle<std::vector<reco::Muon>>& muons_h,
                   const StringCutObjectSelector<reco::Track> cutTk_,
                   const float tkEnergyCut_,
-                  std::vector<bool> &maskTracks) {
-  auto const &tracks = *tkH;
+                  std::vector<bool>& maskTracks) {
+  auto const& tracks = *tkH;
   for (unsigned i = 0; i < tracks.size(); ++i) {
-    const auto &tk = tracks[i];
+    const auto& tk = tracks[i];
     reco::TrackRef trackref = reco::TrackRef(tkH, i);
 
     // veto tracks associated to muons
@@ -244,19 +244,19 @@ void filterTracks(edm::Handle<std::vector<reco::Track>> tkH,
   }
 }
 
-void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
+void TICLCandidateProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto resultTracksters = std::make_unique<std::vector<Trackster>>();
   auto resultTrackstersMerged = std::make_unique<std::vector<Trackster>>();
   auto linkedResultTracksters = std::make_unique<std::vector<std::vector<unsigned int>>>();
 
-  const auto &layerClusters = evt.get(clusters_token_);
-  const auto &layerClustersTimes = evt.get(clustersTime_token_);
+  const auto& layerClusters = evt.get(clusters_token_);
+  const auto& layerClustersTimes = evt.get(clustersTime_token_);
   edm::Handle<reco::MuonCollection> muons_h;
   evt.getByToken(muons_token_, muons_h);
 
   edm::Handle<std::vector<reco::Track>> tracks_h;
   evt.getByToken(tracks_token_, tracks_h);
-  const auto &tracks = *tracks_h;
+  const auto& tracks = *tracks_h;
 
   edm::Handle<MtdHostCollection> inputTiming_h;
   MtdHostCollection::ConstView inputTimingView;
@@ -266,13 +266,13 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   }
 
   auto const bFieldProd = bfield_.product();
-  const Propagator *propagator = propagator_.product();
+  const Propagator* propagator = propagator_.product();
 
   // loop over the original_masks_tokens_ and get the original masks collections and multiply them
   // to get the global mask
   std::vector<float> original_global_mask(layerClusters.size(), 1.f);
   for (unsigned int i = 0; i < original_masks_tokens_.size(); ++i) {
-    const auto &tmp_mask = evt.get(original_masks_tokens_[i]);
+    const auto& tmp_mask = evt.get(original_masks_tokens_[i]);
     for (unsigned int j = 0; j < tmp_mask.size(); ++j) {
       original_global_mask[j] *= tmp_mask[j];
     }
@@ -295,7 +295,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
     evt.getByToken(general_tracksterlinks_tokens_[i], general_tracksterlinks_h[i]);
     for (unsigned int j = 0; j < general_tracksterlinks_h[i]->size(); ++j) {
       generalTracksterLinksGlobalId.emplace_back();
-      auto &links_vector = generalTracksterLinksGlobalId.back();
+      auto& links_vector = generalTracksterLinksGlobalId.back();
       links_vector.resize((*general_tracksterlinks_h[i])[j].size());
       for (unsigned int k = 0; k < links_vector.size(); ++k) {
         links_vector[k] = generalTrackstersSpan.globalIndex(i, (*general_tracksterlinks_h[i])[j][k]);
@@ -377,7 +377,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   }
 
   auto getPathLength =
-      [&](const reco::Track &track, float zVal) {
+      [&](const reco::Track& track, float zVal) {
         // Bail out early if inner/outer surfaces are not available
         if (!track.innerOk() || !track.outerOk()) {
           if (edm::isDebugEnabled()) {
@@ -387,10 +387,10 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
           return 0.f;
         }
 
-        const auto &fts_inn = trajectoryStateTransform::innerFreeState(track, bFieldProd);
-        const auto &fts_out = trajectoryStateTransform::outerFreeState(track, bFieldProd);
-        const auto &surf_inn = trajectoryStateTransform::innerStateOnSurface(track, *trackingGeometry_, bFieldProd);
-        const auto &surf_out = trajectoryStateTransform::outerStateOnSurface(track, *trackingGeometry_, bFieldProd);
+        const auto& fts_inn = trajectoryStateTransform::innerFreeState(track, bFieldProd);
+        const auto& fts_out = trajectoryStateTransform::outerFreeState(track, bFieldProd);
+        const auto& surf_inn = trajectoryStateTransform::innerStateOnSurface(track, *trackingGeometry_, bFieldProd);
+        const auto& surf_out = trajectoryStateTransform::outerStateOnSurface(track, *trackingGeometry_, bFieldProd);
 
         Basic3DVector<float> pos(track.referencePoint());
         Basic3DVector<float> mom(track.momentum());
@@ -399,7 +399,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
         float pathlength = propagator->propagateWithPath(stateAtBeamspot, surf_inn.surface()).second;
 
         if (pathlength) {
-          const auto &t_inn_out = propagator->propagateWithPath(fts_inn, surf_out.surface());
+          const auto& t_inn_out = propagator->propagateWithPath(fts_inn, surf_out.surface());
 
           if (t_inn_out.first.isValid()) {
             pathlength += t_inn_out.second;
@@ -408,12 +408,12 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
 
             int iSide = int(track.eta() > 0);
             float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-            const auto &disk = std::make_unique<GeomDet>(
+            const auto& disk = std::make_unique<GeomDet>(
                 Disk::build(Disk::PositionType(0, 0, zSide),
                             Disk::RotationType(),
                             SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
                     .get());
-            const auto &tsos = propagator->propagateWithPath(fts_out, disk->surface());
+            const auto& tsos = propagator->propagateWithPath(fts_out, disk->surface());
 
             if (tsos.first.isValid()) {
               pathlength += tsos.second;
@@ -434,11 +434,11 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
 }
 
 template <typename F>
-void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates,
+void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate>& resultCandidates,
                                                    edm::Handle<std::vector<reco::Track>> track_h,
-                                                   MtdHostCollection::ConstView &inputTimingView,
+                                                   MtdHostCollection::ConstView& inputTimingView,
                                                    F func) const {
-  for (auto &cand : resultCandidates) {
+  for (auto& cand : resultCandidates) {
     float beta = 1;
     float time = 0.f;
     float invTimeErr = 0.f;
@@ -446,7 +446,7 @@ void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &r
 
     const int trackIndex =
         cand.trackPtr().isNonnull() ? (cand.trackPtr().get() - (edm::Ptr<reco::Track>(track_h, 0)).get()) : -1;
-    for (const auto &tr : cand.tracksters()) {
+    for (const auto& tr : cand.tracksters()) {
       if (tr->timeError() > 0) {
         const auto invTimeESq = pow(tr->timeError(), -2);
         const auto x = tr->barycenter().X();
@@ -509,7 +509,7 @@ void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &r
   }
 }
 
-void TICLCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void TICLCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   edm::ParameterSetDescription interpretationDesc;
   interpretationDesc.addNode(edm::PluginDescription<TICLGeneralInterpretationPluginFactory>("type", "General", true));
