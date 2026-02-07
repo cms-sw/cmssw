@@ -6,6 +6,7 @@
 
 #include "xercesc/util/XercesDefs.hpp"
 
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OmtfName.h"
 
@@ -14,9 +15,6 @@ class OMTFConfiguration;
 class OMTFinput;
 class OMTFResult;
 class AlgoMuon;
-namespace l1t {
-  class RegionalMuonCand;
-}
 struct Key;
 
 namespace XERCES_CPP_NAMESPACE {
