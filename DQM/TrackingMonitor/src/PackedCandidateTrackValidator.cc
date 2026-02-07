@@ -696,7 +696,7 @@ void PackedCandidateTrackValidator::bookHistograms(DQMStore::IBooker& iBooker,
                                   -0.001,
                                   0.001);  // expect equality within precision
   h_diffDszError = iBooker.book1D("diffDszError",
-                                  "(PackedCandidate::dzError() - reco::Track::dszError())/reco::Track",
+                                  "(PackedCandidate::dszError() - reco::Track::dszError())/reco::Track",
                                   40,
                                   -0.001,
                                   0.001);  // ideally, not equal, but for now they are
@@ -950,7 +950,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
         h_diffCovDszDsz, reco::TrackBase::i_dsz, reco::TrackBase::i_dsz, [](double value) { return value * 10000.; });
 
     if (isInRange(diffCovDszDsz.status())) {
-      fillNoFlow(h_diffDszError, diffRelative(pcRef->dzError(), track.dszError()));
+      fillNoFlow(h_diffDszError, diffRelative(pcRef->dszError(), track.dszError()));
       fillNoFlow(h_diffDzError, diffRelative(pcRef->dzError(), track.dzError()));
       fillNoFlow(h_diffTrackDzError, diffRelative(trackPc.dzError(), track.dzError()));
     }
