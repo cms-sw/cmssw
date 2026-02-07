@@ -16,7 +16,7 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHLTTrackIsolation.h"
 
 std::pair<int, float> EgammaHLTTrackIsolation::electronIsolation(const reco::Track* const tr,
-                                                                 const reco::TrackCollection* isoTracks) {
+                                                                 const reco::TrackCollection* isoTracks) const {
   GlobalPoint vtx(0, 0, tr->vertex().z());
   const reco::Track::Vector& p = tr->momentum();
   GlobalVector mom(p.x(), p.y(), p.z());
@@ -25,7 +25,7 @@ std::pair<int, float> EgammaHLTTrackIsolation::electronIsolation(const reco::Tra
 
 std::pair<int, float> EgammaHLTTrackIsolation::electronIsolation(const reco::Track* const tr,
                                                                  const reco::TrackCollection* isoTracks,
-                                                                 GlobalPoint zvtx) {
+                                                                 GlobalPoint zvtx) const {
   // Just to insure consistency with no-vertex-code
   GlobalPoint vtx(0, 0, zvtx.z());
   const reco::Track::Vector& p = tr->momentum();
@@ -35,7 +35,7 @@ std::pair<int, float> EgammaHLTTrackIsolation::electronIsolation(const reco::Tra
 
 std::pair<int, float> EgammaHLTTrackIsolation::electronIsolation(const reco::Track* const tr,
                                                                  const reco::ElectronCollection* allEle,
-                                                                 const reco::TrackCollection* isoTracks) {
+                                                                 const reco::TrackCollection* isoTracks) const {
   GlobalPoint vtx(0, 0, tr->vertex().z());
   const reco::Track::Vector& p = tr->momentum();
   GlobalVector mom(p.x(), p.y(), p.z());
@@ -44,7 +44,7 @@ std::pair<int, float> EgammaHLTTrackIsolation::electronIsolation(const reco::Tra
 
 std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate* const recocandidate,
                                                                const reco::TrackCollection* isoTracks,
-                                                               bool useVertex) {
+                                                               bool useVertex) const {
   if (useVertex) {
     GlobalPoint vtx(0, 0, recocandidate->vertex().z());
     return photonIsolation(recocandidate, isoTracks, vtx);
@@ -57,11 +57,16 @@ std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoC
 
 std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate* const recocandidate,
                                                                const reco::TrackCollection* isoTracks,
-                                                               GlobalPoint zvtx) {
+                                                               GlobalPoint zvtx) const {
+  return photonIsolation(recocandidate->superCluster()->position(), isoTracks, zvtx);
+}
+
+std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate::Point& pos,
+                                                               const reco::TrackCollection* isoTracks,
+                                                               GlobalPoint zvtx) const {
   // to insure consistency with no-free-vertex-code
   GlobalPoint vtx(0, 0, zvtx.z());
 
-  reco::RecoCandidate::Point pos = recocandidate->superCluster()->position();
   GlobalVector mom(pos.x() - vtx.x(), pos.y() - vtx.y(), pos.z() - vtx.z());
 
   return findIsoTracks(mom, vtx, isoTracks, false);
@@ -69,14 +74,20 @@ std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoC
 
 std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate* const recocandidate,
                                                                const reco::ElectronCollection* allEle,
-                                                               const reco::TrackCollection* isoTracks) {
-  reco::RecoCandidate::Point pos = recocandidate->superCluster()->position();
-  GlobalVector mom(pos.x(), pos.y(), pos.z());
-  return findIsoTracksWithoutEle(mom, GlobalPoint(), allEle, isoTracks);
+                                                               const reco::TrackCollection* isoTracks) const {
+  const auto& sc = recocandidate->superCluster();
+  return photonIsolation(sc->eta(), sc->phi(), allEle, isoTracks);
+}
+
+std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(float phoEta,
+                                                               float phoPhi,
+                                                               const reco::ElectronCollection* allEle,
+                                                               const reco::TrackCollection* isoTracks) const {
+  return findIsoTracksWithoutEle(phoEta, phoPhi, GlobalPoint(), allEle, isoTracks);
 }
 
 std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracks(
-    GlobalVector mom, GlobalPoint vtx, const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex) {
+    GlobalVector mom, GlobalPoint vtx, const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex) const {
   // Check that reconstructed tracks fit within cone boundaries,
   // (Note: tracks will not always stay within boundaries)
   int ntrack = 0;
@@ -113,19 +124,6 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracks(
 
     float R = sqrt(dphi * dphi + deta * deta);
 
-    // Apply boundary cut
-    // bool selected=false;
-
-    // if (pt > ptMin && R < conesize &&
-    //	fabs(dperp) < rspan && fabs(dz) < zspan) selected=true;
-
-    // if (selected) {
-    //  ntrack++;
-    //  if (!isElectron || R > vetoConesize) ptSum+=pt; //to exclude electron track
-    // }
-    // float theVetoVar = R;
-    // if (isElectron) theVetoVar = R;
-
     //hmm how do I figure out if this is barrel or endcap?
     //abs(mom.eta())<1.5 is the obvious choice but that will be electron not detector eta for electrons
     //well lets leave it as that for now, its what reco does (well with eta=1.479)
@@ -138,15 +136,14 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracks(
     }
   }
 
-  // if (isElectron) ntrack-=1; //to exclude electron track
-
   return (std::pair<int, float>(ntrack, ptSum));
 }
 
-std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVector mom,
+std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(float centerEta,
+                                                                       float centerPhi,
                                                                        GlobalPoint vtx,
                                                                        const reco::ElectronCollection* allEle,
-                                                                       const reco::TrackCollection* isoTracks) {
+                                                                       const reco::TrackCollection* isoTracks) const {
   // Check that reconstructed tracks fit within cone boundaries,
   // (Note: tracks will not always stay within boundaries)
   int ntrack = 0;
@@ -171,8 +168,8 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVec
     float pt = imom.perp();
     float dperp = ivtx.perp() - vtx.perp();
     float dz = ivtx.z() - vtx.z();
-    float deta = imom.eta() - mom.eta();
-    float dphi = imom.phi() - mom.phi();
+    float deta = imom.eta() - centerEta;
+    float dphi = imom.phi() - centerPhi;
 
     // Correct dmom_phi's from [-2pi,2pi] to [-pi,pi]
     if (dphi > M_PI)
@@ -187,9 +184,9 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVec
     bool passedconeveto = true;
 
     //hmm how do I figure out if this is barrel or endcap?
-    //abs(mom.eta())<1.5 is the obvious choice but that will be electron not detector eta for electrons
+    //abs(centreEta)<1.5 is the obvious choice but that will be electron not detector eta for electrons
     //well lets leave it as that for now, its what reco does (well with eta=1.479)
-    double innerStrip = fabs(mom.eta()) < 1.479 ? stripBarrel : stripEndcap;
+    double innerStrip = fabs(centerEta) < 1.479 ? stripBarrel : stripEndcap;
 
     if (pt > ptMin && R < conesize && fabs(dperp) < rspan && fabs(dz) < zspan && fabs(deta) >= innerStrip)
       selected = true;
