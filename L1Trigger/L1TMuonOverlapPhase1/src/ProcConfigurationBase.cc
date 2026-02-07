@@ -50,6 +50,12 @@ void ProcConfigurationBase::configureFromEdmParameterSet(const edm::ParameterSet
         << "lctCentralBx: " << edmParameterSet.getParameter<int>("lctCentralBx") << std::endl;
   }
 
+  if (edmParameterSet.exists("dtBxShift")) {
+    dtBxShift_ = edmParameterSet.getParameter<int>("dtBxShift");
+    edm::LogVerbatim("OMTFReconstruction")
+        << "dtBxShift: " << edmParameterSet.getParameter<int>("dtBxShift") << std::endl;
+  }
+
   if (edmParameterSet.exists("minDtPhiQuality")) {
     minDtPhiQuality = edmParameterSet.getParameter<int>("minDtPhiQuality");
     edm::LogVerbatim("OMTFReconstruction")
@@ -68,6 +74,8 @@ void ProcConfigurationBase::configureFromEdmParameterSet(const edm::ParameterSet
       stubEtaEncoding = StubEtaEncoding::bits;
     else if (stubEtaEncodingStr == "valueP1Scale")
       stubEtaEncoding = StubEtaEncoding::valueP1Scale;
+    else if (stubEtaEncodingStr == "valueP2Scale")
+      stubEtaEncoding = StubEtaEncoding::valueP2Scale;
     else
       throw cms::Exception(std::string("ProcConfigurationBase::configureFromEdmParameterSet: stubEtaEncoding ") +
                            stubEtaEncodingStr + "is not correct");

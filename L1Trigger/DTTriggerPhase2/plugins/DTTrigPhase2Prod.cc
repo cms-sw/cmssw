@@ -177,9 +177,9 @@ private:
   bool activateBuffer_;
   int superCellhalfspacewidth_;
   float superCelltimewidth_;
-  std::vector<DTDigiCollection*> distribDigis(std::queue<std::pair<DTLayerId, DTDigi>>& inQ);
+  std::vector<DTDigiCollection> distribDigis(std::queue<std::pair<DTLayerId, DTDigi>>& inQ);
   void processDigi(std::queue<std::pair<DTLayerId, DTDigi>>& inQ,
-                   std::vector<std::queue<std::pair<DTLayerId, DTDigi>>*>& vec);
+                   std::vector<std::queue<std::pair<DTLayerId, DTDigi>>>& vec);
 
   // RPC
   std::unique_ptr<RPCIntegrator> rpc_integrator_;
@@ -375,14 +375,14 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       tmpvec.clear();
 
       // Distribute the digis from the queue into supercells
-      std::vector<DTDigiCollection*> superCells;
+      std::vector<DTDigiCollection> superCells;
       superCells = distribDigis(timequeue);
 
       // Process each supercell & collect the resulting muonpaths (as the muonpaths std::vector is only enlarged each time
       // the groupings access it, it's not needed to "collect" the final products).
 
       while (!superCells.empty()) {
-        grouping_obj_->run(iEvent, iEventSetup, *(superCells.back()), muonpaths[chid.rawId()]);
+        grouping_obj_->run(iEvent, iEventSetup, superCells.back(), muonpaths[chid.rawId()]);
         superCells.pop_back();
       }
     } else {
@@ -1247,35 +1247,36 @@ int DTTrigPhase2Prod::assignQualityOrder(const metaPrimitive& mP) const {
   return qmap_.find(mP.quality)->second;
 }
 
-std::vector<DTDigiCollection*> DTTrigPhase2Prod::distribDigis(std::queue<std::pair<DTLayerId, DTDigi>>& inQ) {
-  std::vector<std::queue<std::pair<DTLayerId, DTDigi>>*> tmpVector;
+std::vector<DTDigiCollection> DTTrigPhase2Prod::distribDigis(std::queue<std::pair<DTLayerId, DTDigi>>& inQ) {
+  // Use value-based containers to avoid returning pointers to local variables.
+  std::vector<std::queue<std::pair<DTLayerId, DTDigi>>> tmpVector;
   tmpVector.clear();
-  std::vector<DTDigiCollection*> collVector;
+  std::vector<DTDigiCollection> collVector;
   collVector.clear();
   while (!inQ.empty()) {
     processDigi(inQ, tmpVector);
   }
   for (auto& sQ : tmpVector) {
     DTDigiCollection tmpColl;
-    while (!sQ->empty()) {
-      tmpColl.insertDigi((sQ->front().first), (sQ->front().second));
-      sQ->pop();
+    while (!sQ.empty()) {
+      tmpColl.insertDigi((sQ.front().first), (sQ.front().second));
+      sQ.pop();
     }
-    collVector.push_back(&tmpColl);
+    collVector.push_back(std::move(tmpColl));
   }
   return collVector;
 }
 
 void DTTrigPhase2Prod::processDigi(std::queue<std::pair<DTLayerId, DTDigi>>& inQ,
-                                   std::vector<std::queue<std::pair<DTLayerId, DTDigi>>*>& vec) {
+                                   std::vector<std::queue<std::pair<DTLayerId, DTDigi>>>& vec) {
   bool classified = false;
   if (!vec.empty()) {
     for (auto& sC : vec) {  // Conditions for entering a super cell.
-      if ((sC->front().second.time() + superCelltimewidth_) > inQ.front().second.time()) {
+      if ((sC.front().second.time() + superCelltimewidth_) > inQ.front().second.time()) {
         // Time requirement
-        if (std::abs(sC->front().second.wire() - inQ.front().second.wire()) <= superCellhalfspacewidth_) {
+        if (std::abs(sC.front().second.wire() - inQ.front().second.wire()) <= superCellhalfspacewidth_) {
           // Spatial requirement
-          sC->push(std::move(inQ.front()));
+          sC.push(std::move(inQ.front()));
           classified = true;
         }
       }
@@ -1293,7 +1294,7 @@ void DTTrigPhase2Prod::processDigi(std::queue<std::pair<DTLayerId, DTDigi>>& inQ
   newQueue.push(tmpPair);
   inQ.pop();
 
-  vec.push_back(&newQueue);
+  vec.push_back(std::move(newQueue));
 }
 
 void DTTrigPhase2Prod::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -136,23 +136,44 @@ public:
   const vector4D& getMeasurements4D() const { return measurements4D; }
   const vector4D& getMeasurements4Dref() const { return measurements4Dref; }
 
+  //pt unit of the OMTF patrterns, the same as in the phase-1 uGMT
+  //TODO refactor to omtfPtUnit
   double ptUnit = 0.5;  // GeV/unit
   ///uGMT pt scale conversion
-  double hwPtToGev(int hwPt) const override { return (hwPt - 1.) * ptUnit; }
-
-  double uptUnit = 1;  // GeV/unit
-  double hwUPtToGev(int hwPt) const override { return (hwPt - 1.) * uptUnit; }
+  //TODO refactor to omtfPtToGev
+  double hwPtToGev(int hwPt) const override { return (hwPt == 0 ? 0 : (hwPt - 1.) * ptUnit); }
 
   ///uGMT pt scale conversion: [0GeV, 0.5GeV) = 1 [0.5GeV, 1 Gev) = 2
   int ptGevToHw(double ptGev) const override { return (ptGev / ptUnit + 1); }
 
-  int calcGlobalPhi(int locPhi, int proc) const;
-
-  double etaUnit = 0.010875;  //=2.61/240 TODO value taken from the interface note, should be defined somewhere globally
   ///center of eta bin
-  virtual double hwEtaToEta(int hwEta) const { return (hwEta * etaUnit); }
+  virtual double hwEtaToEta(int hwEta) const { return (hwEta * etaUnit_); }
 
-  int etaToHwEta(double eta) const override { return (eta / etaUnit); }
+  //TODO use version with round
+  int etaToHwEta(double eta) const override { return (eta / etaUnit_); }
+  //int etaToHwEta(double eta) const override { return std::lround(eta / etaUnit_); }
+
+  //TODO the phase-1 values 92, 79 and 75 are quite far from the chamber middle, should be fixed for phase-2
+  //eta of the middle DT Wheel 2 MB1, in the OMTF scale
+  int mb1W2Eta() const override {
+    //92 in phase 1 scale
+    return etaToHwEta(1.0005);
+  }
+
+  //eta of the middle DT Wheel 2 MB2, in the OMTF scale
+  int mb2W2Eta() const override {
+    //79 in phase 1 scale
+    return etaToHwEta(0.859125);
+  }
+
+  //eta of the middle DT Wheel 2 MB3, in the OMTF scale
+  int mb3W2Eta() const override {
+    //75 in phase 1 scale
+    return etaToHwEta(0.815625);
+  }
+
+  //eta of the middle DT Wheel 2 MB4, in the OMTF scale
+  int mb4W2Eta() const override { return etaToHwEta(0.67); }
 
   static unsigned int eta2Bits(unsigned int eta);
 
@@ -160,12 +181,7 @@ public:
 
   static int etaBit2Code(unsigned int bit);
 
-  double phiGmtUnit = 2. * M_PI / 576;  //TODO from the interface note, should be defined somewhere globally
-  //phi in radians
-  virtual int phiToGlobalHwPhi(double phi) const { return std::floor(phi / phiGmtUnit); }
-
-  //phi in radians
-  virtual double hwPhiToGlobalPhi(int phi) const { return phi * phiGmtUnit; }
+  double phiGmtUnit = 2. * M_PI / 576;  //phase-1, from the interface note, should be defined somewhere globally
 
   ///iProcessor - 0...5
   ///phiRad [-pi,pi]
@@ -176,9 +192,16 @@ public:
     return 0;  // TODO replace getProcScalePhi(unsigned int iProcessor, double phiRad) with this function
   }
 
-  double procHwPhiToGlobalPhi(int procHwPhi, int procHwPhi0) const;
+  //returns the global phi in the OMTF scale
+  int procPhiOmtfToGlobalPhiOmtf(unsigned int iProcessor, int procHwPhi) const;
 
-  int procPhiToGmtPhi(int procPhi) const {
+  //phi in radians, -pi to pi convention
+  double procPhiOmtfToPhiRad(unsigned int iProcessor, int procHwPhi) const {
+    auto procPhi = procPhiOmtfToGlobalPhiOmtf(iProcessor, procHwPhi) * 2. * M_PI / nPhiBins();
+    return (procPhi > M_PI) ? procPhi - 2. * M_PI : procPhi;
+  };
+
+  int procPhiToGmtPhase1Phi(int procPhi) const {
     ///conversion factor from OMTF to uGMT scale is  5400/576 i.e. phiValue/=9.375;
     return floor(procPhi * 437. / (1 << 12));  // ie. use as in hw: 9.3729977
     //cannot be (procPhi * 437) >> 12, because this floor is needed
@@ -285,6 +308,8 @@ public:
 
   bool cleanStubs() const { return cleanStubs_; }
 
+  bool usePhase2DTPrimitives() const { return usePhase2DTPrimitives_; }
+
 private:
   L1TMuonOverlapParams rawParams;
 
@@ -366,6 +391,8 @@ private:
   bool dumpResultToXML = false;
 
   bool cleanStubs_ = false;
+
+  bool usePhase2DTPrimitives_ = false;
 };
 
 #endif
