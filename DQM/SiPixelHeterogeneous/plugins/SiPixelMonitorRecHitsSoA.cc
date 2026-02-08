@@ -163,7 +163,8 @@ void SiPixelMonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
   for(int is=0;is<2;is++){
     int sign=is==0? -1:1;
     for(unsigned int id=0;id<tkGeom_->numberOfLayers(PixelSubdetector::PixelEndcap);id++){
-      hFposXYD[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosXY",id*sign+sign), Form("RecHits position Endcaps Disk%+d;X;Y",id*sign+sign), 200, -20, 20, 200,-20,20);
+      const double range = (id > 8) ? 27.5 : 20.0;  // Phase-2 TEPX disks larger
+      hFposXYD[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosXY",id*sign+sign), Form("RecHits position Endcaps Disk%+d;X;Y",id*sign+sign), 200, -range, range, 200, -range, range);
       hFchargeD[is][id] = iBook.book1D(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("RecHits Charge Endcaps Disk%+d;Charge;#events",id*sign+sign), 250, 0, 100000);
       hFsizexD[is][id] = iBook.book1D(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("RecHits SizeX Endcaps Disk%+d;SizeX;#events",id*sign+sign), 50, 0, 50);
       hFsizeyD[is][id] = iBook.book1D(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("RecHits SizeY Endcaps Disk%+d;SizeY;#events",id*sign+sign), 50, 0, 50);
