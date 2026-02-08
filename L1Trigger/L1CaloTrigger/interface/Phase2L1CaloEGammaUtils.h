@@ -1273,11 +1273,11 @@ namespace p2eg {
     l1tp2::DigitizedClusterCorrelator createDigitizedClusterCorrelator(const int corrTowPhiOffset) const {
       ap_uint<7> abseta = 0;
       ap_uint<10> spare = 0;
-      if (globalClusteriEta() > n_towers_cardEta * CRYSTALS_IN_TOWER_ETA) {
-        abseta = globalClusteriEta() - n_towers_cardEta * CRYSTALS_IN_TOWER_ETA;
+      if (globalClusteriEta() >= n_towers_cardEta * CRYSTALS_IN_TOWER_ETA) {
+        abseta = globalClusteriEta() - n_towers_cardEta * CRYSTALS_IN_TOWER_ETA;  // 0 to 84
         spare = 4;
       } else {
-        abseta = n_towers_cardEta * CRYSTALS_IN_TOWER_ETA - globalClusteriEta();
+        abseta = n_towers_cardEta * CRYSTALS_IN_TOWER_ETA + 1 - globalClusteriEta();  // 84 to 0
         spare = 0;
       }
 

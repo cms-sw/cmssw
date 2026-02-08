@@ -237,7 +237,7 @@ void Phase2L1CaloJetEmulator::produce(edm::Event& iEvent, const edm::EventSetup&
   for (const l1tp2::CaloTower& i : *caloTowerCollection) {
     int ieta = i.towerIEta();
     int iphi = i.towerIPhi();
-    if (i.ecalTowerEt() > 1. || i.hcalTowerEt() > 1.)
+    if (i.ecalTowerEt() + i.hcalTowerEt() > 1.)
       GCTintTowers[ieta][iphi] = i.ecalTowerEt() + i.hcalTowerEt();  // suppress <= 1 GeV towers
     else
       GCTintTowers[ieta][iphi] = 0;

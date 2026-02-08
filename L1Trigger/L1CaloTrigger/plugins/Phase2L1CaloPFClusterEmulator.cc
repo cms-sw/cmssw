@@ -146,7 +146,7 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
 
   std::pair<float, float> temporary[nTowerEtaSLR][nTowerPhiSLR];
   int etaoffset = 0;
-  int phioffset = 0;
+  int phioffset = -2;
 
   //Use same code from firmware for finding clusters
   for (int k = 0; k < nSLR; k++) {
@@ -156,7 +156,7 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
       }
     }
     if (k % 2 == 0)
-      etaoffset = 0;
+      etaoffset = -2;
     else
       etaoffset = nTowerEta / 2 - 2;
     if (k > 1 && k % 2 == 0)
@@ -183,7 +183,7 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
 
   edm::Handle<HcalTrigPrimDigiCollection> hfHandle;
   if (!iEvent.getByToken(hfToken_, hfHandle))
-    edm::LogError("Phase2L1CaloJetEmulator") << "Failed to get HcalTrigPrimDigi for HF!";
+    edm::LogError("Phase2L1CaloPFClusterEmulator") << "Failed to get HcalTrigPrimDigi for HF!";
   iEvent.getByToken(hfToken_, hfHandle);
 
   float hfTowers[2 * nHfEta][nHfPhi];  // split 12 -> 24

@@ -88,9 +88,14 @@ namespace l1tp2 {
     // which GCT card (0, 1, or 2)
     unsigned int cardNumber() const { return idxGCTCard; }
 
-    // Get real eta (does not depend on card number). crystal iEta = 0 starts at real eta -1.4841.
+    // Get real eta (does not depend on card number)
     // LSB_ETA/2 is to add half a crystal width to get the center of the crystal in eta
-    float realEta() const { return (float)((-1 * ETA_RANGE_ONE_SIDE) + (eta() * LSB_ETA) + (LSB_ETA / 2)); }
+    float realEta() const {
+      float tmpeta = (eta() * LSB_ETA) + (LSB_ETA / 2);
+      if ((spare() & 0x4) == 0)
+        tmpeta = -((eta() * LSB_ETA) + (LSB_ETA / 2));
+      return tmpeta;
+    }
 
     // Get real phi (uses card number).
     float realPhi() const {

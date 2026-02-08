@@ -290,8 +290,8 @@ namespace gctpf {
     GCTint_t regionMax = getPeakPosition(region);
 
     std::pair<float, float> pfcluster_et = getEt(temporary, regionMax.eta, regionMax.phi);
-    float pfcluster_eta = regionMax.eta - 2 + etaoffset;
-    float pfcluster_phi = regionMax.phi - 2 + phioffset;
+    float pfcluster_eta = regionMax.eta + etaoffset;
+    float pfcluster_phi = regionMax.phi + phioffset;
 
     RemoveTmp(temporary, regionMax.eta, regionMax.phi);
 

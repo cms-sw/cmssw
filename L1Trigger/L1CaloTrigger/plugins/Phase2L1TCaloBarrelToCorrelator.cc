@@ -163,8 +163,9 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
       float clusterRealPhiAsDegree = clusterIn.realPhi() * 180 / M_PI;
       float phiDifference = p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, regionCentersInDegrees[iRegion]);
       if (std::abs(phiDifference) < (p2eg::PHI_RANGE_PER_SLR_DEGREES / 4)) {  // only unique region
-        // The eta is already digitized, just needs to be converted from [0, +2*17*5) to [-17*5, +17*5)
-        int temp_iEta_signed = clusterIn.eta() - (p2eg::CRYSTALS_IN_TOWER_ETA * p2eg::n_towers_per_link);
+        // Use realEta() to determine which link
+        float eta_LSB = p2eg::ECAL_eta_range / (p2eg::N_GCTTOWERS_FIBER * p2eg::CRYSTALS_IN_TOWER_ETA);
+        int temp_iEta_signed = std::floor(clusterIn.realEta() / eta_LSB);
 
         // Need to adapt DigitizedClusterCorrelator to DigitizedClusterCorrelatorTM18
         l1tp2::GCTEmDigiCluster clusterOut = l1tp2::GCTEmDigiCluster(clusterIn.pt(),
