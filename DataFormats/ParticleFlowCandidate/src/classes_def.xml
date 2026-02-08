@@ -32,6 +32,7 @@
   <class name="std::vector<reco::PFCandidate>"/>
   <class name="edm::Wrapper<reco::PFCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCandidate> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate>"/>
   <class name="reco::PFCandidateRef"/>
   <class name="reco::PFCandidateRefProd"/>
   <class name="reco::PFCandidateRefVector"/>
