@@ -1,3 +1,13 @@
+// -*- C++ -*-
+// Package:    DQM/SiPixelHeterogeneous
+// Class:      SiPixelCompareRecHitsSoA
+//
+/**\class SiPixelCompareRecHitsSoA SiPixelCompareRecHitsSoA.cc
+*/
+//
+// Author: Suvankar Roy Chowdhury
+//
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"

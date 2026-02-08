@@ -1,6 +1,16 @@
-#include "DQMServices/Core/interface/MonitorElement.h"
+// -*- C++ -*-
+// Package:    DQM/SiPixelHeterogeneous
+// Class:      SiPixelMonitorTrackSoA
+//
+/**\class SiPixelMonitorRecHitsSoA SiPixelMonitorRecHitsSoA.cc
+*/
+//
+// Author: Suvankar Roy Chowdhury
+//
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -8,9 +18,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -57,28 +67,16 @@ private:
   MonitorElement* hFsizeyD[2][12];
 };
 
-//
-// constructors
-//
-
 SiPixelMonitorRecHitsSoA::SiPixelMonitorRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       tokenSoAHits_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrc"))),
       topFolderName_(iConfig.getParameter<std::string>("TopFolderName")) {}
 
-//
-// Begin Run
-//
-
 void SiPixelMonitorRecHitsSoA::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
 }
-
-//
-// -- Analyze
-//
 
 void SiPixelMonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& rhsoaHandle = iEvent.getHandle(tokenSoAHits_);
@@ -132,16 +130,11 @@ void SiPixelMonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm::Even
   }
 }
 
-//
-// -- Book Histograms
-//
-
 void SiPixelMonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
                                               edm::Run const& iRun,
                                               edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
-
   // clang-format off
   //Global
   hnHits = iBook.book1D("nHits", "RecHits per event;RecHits;#events", 200, 0, 5000);
@@ -176,10 +169,10 @@ void SiPixelMonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
       hFsizeyD[is][id] = iBook.book1D(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("RecHits SizeY Endcaps Disk%+d;SizeY;#events",id*sign+sign), 50, 0, 50);
     }
   }
+  // clang-format on
 }
 
 void SiPixelMonitorRecHitsSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // monitorpixelRecHitsSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelHitsSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelRecHitsAlpaka");
@@ -188,4 +181,3 @@ void SiPixelMonitorRecHitsSoA::fillDescriptions(edm::ConfigurationDescriptions& 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelMonitorRecHitsSoA);
-

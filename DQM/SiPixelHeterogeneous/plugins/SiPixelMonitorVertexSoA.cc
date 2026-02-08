@@ -1,28 +1,28 @@
 // -*- C++ -*-
-///bookLayer
-// Package:    SiPixelMonitorVertexSoA
+// Package:    DQM/SiPixelHeterogeneous
 // Class:      SiPixelMonitorVertexSoA
 //
 /**\class SiPixelMonitorVertexSoA SiPixelMonitorVertexSoA.cc
 */
+
 //
 // Author: Suvankar Roy Chowdhury
 //
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
-// DQM Histograming
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/VertexSoA/interface/ZVertexHost.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/VertexSoA/interface/ZVertexHost.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class SiPixelMonitorVertexSoA : public DQMEDAnalyzer {
 public:
@@ -47,18 +47,11 @@ private:
   MonitorElement* hntrks;
 };
 
-//
-// constructors
-//
-
 SiPixelMonitorVertexSoA::SiPixelMonitorVertexSoA(const edm::ParameterSet& iConfig)
     : tokenSoAVertex_(consumes<reco::ZVertexHost>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"))),
       tokenBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")) {}
 
-//
-// -- Analyze
-//
 void SiPixelMonitorVertexSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& vsoaHandle = iEvent.getHandle(tokenSoAVertex_);
   if (!vsoaHandle.isValid()) {
@@ -102,13 +95,9 @@ void SiPixelMonitorVertexSoA::analyze(const edm::Event& iEvent, const edm::Event
   hnVertex->Fill(nVertices);
 }
 
-//
-// -- Book Histograms
-//
 void SiPixelMonitorVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
                                              edm::Run const& iRun,
                                              edm::EventSetup const& iSetup) {
-  //std::string top_folder = ""//
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
   hnVertex = ibooker.book1D("nVertex", ";# of Vertices;#entries", 101, -0.5, 100.5);
@@ -122,7 +111,6 @@ void SiPixelMonitorVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void SiPixelMonitorVertexSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // monitorpixelVertexSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelVertexSrc", edm::InputTag("pixelVerticesAlpaka"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("offlineBeamSpot"));
@@ -130,4 +118,5 @@ void SiPixelMonitorVertexSoA::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.addWithDefaultLabel(desc);
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelMonitorVertexSoA);

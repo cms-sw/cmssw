@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Package:    SiPixelMonitorTrackSoA
+// Package:    DQM/SiPixelHetrogeneous
 // Class:      SiPixelMonitorTrackSoA
 //
 /**\class SiPixelMonitorTrackSoA SiPixelMonitorTrackSoA.cc
@@ -8,23 +8,25 @@
 // Author: Suvankar Roy Chowdhury
 //
 
-// for string manipulations
+// system includes
 #include <fmt/printf.h>
+
+// user includes
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-// DQM Histograming
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/TrackSoA/interface/TracksHost.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 
 class SiPixelMonitorTrackSoA : public DQMEDAnalyzer {
 public:
@@ -36,10 +38,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrack_;
-  std::string topFolderName_;
-  bool useQualityCut_;
-  pixelTrack::Quality minQuality_;
+  const edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrack_;
+  const std::string topFolderName_;
+  const bool useQualityCut_;
+  const pixelTrack::Quality minQuality_;
   MonitorElement* hnTracks;
   MonitorElement* hnLooseAndAboveTracks;
   MonitorElement* hnHits;
@@ -60,20 +62,11 @@ private:
   MonitorElement* hquality;
 };
 
-//
-// constructors
-//
-
-SiPixelMonitorTrackSoA::SiPixelMonitorTrackSoA(const edm::ParameterSet& iConfig) {
-  tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
-  topFolderName_ = iConfig.getParameter<std::string>("topFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
-  useQualityCut_ = iConfig.getParameter<bool>("useQualityCut");
-  minQuality_ = pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"));
-}
-
-//
-// -- Analyze
-//
+SiPixelMonitorTrackSoA::SiPixelMonitorTrackSoA(const edm::ParameterSet& iConfig)
+    : tokenSoATrack_{consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"))},
+      topFolderName_{iConfig.getParameter<std::string>("topFolderName")},
+      useQualityCut_{iConfig.getParameter<bool>("useQualityCut")},
+      minQuality_{pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))} {}
 
 void SiPixelMonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandle = iEvent.getHandle(tokenSoATrack_);
@@ -135,10 +128,6 @@ void SiPixelMonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::EventS
   hnLooseAndAboveTracks->Fill(nLooseAndAboveTracks);
 }
 
-//
-// -- Book Histograms
-//
-
 void SiPixelMonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
                                             edm::Run const& iRun,
                                             edm::EventSetup const& iSetup) {
@@ -146,24 +135,24 @@ void SiPixelMonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
   iBook.setCurrentFolder(topFolderName_);
 
   // clang-format off
-std::string toRep = "Number of tracks";
-hnTracks = iBook.book1D("nTracks", fmt::format(";{} per event;#events",toRep), 1001, -0.5, 2001.5);
-hnLooseAndAboveTracks = iBook.book1D("nLooseAndAboveTracks", fmt::format(";{} (quality #geq loose) per event;#events",toRep), 1001, -0.5, 2001.5);
+  std::string toRep = "Number of tracks";
+  hnTracks = iBook.book1D("nTracks", fmt::format(";{} per event;#events",toRep), 1001, -0.5, 2001.5);
+  hnLooseAndAboveTracks = iBook.book1D("nLooseAndAboveTracks", fmt::format(";{} (quality #geq loose) per event;#events",toRep), 1001, -0.5, 2001.5);
 
-toRep = "Number of all RecHits per track (quality #geq loose)";
-hnHits = iBook.book1D("nRecHits", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);
-hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
-hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -3., 3., 0., 15.);
+  toRep = "Number of all RecHits per track (quality #geq loose)";
+  hnHits = iBook.book1D("nRecHits", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);
+  hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
+  hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -3., 3., 0., 15.);
 
-toRep = "Number of all layers per track (quality #geq loose)";
-hnLayers = iBook.book1D("nLayers", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);
-hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
-hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -3., 3., 0., 15.);
+  toRep = "Number of all layers per track (quality #geq loose)";
+  hnLayers = iBook.book1D("nLayers", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);
+  hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
+  hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -3., 3., 0., 15.);
 
-toRep = "Track (quality #geq loose) #chi^{2}/ndof";
-hchi2 = iBook.book1D("nChi2ndof", fmt::format(";{};#tracks",toRep), 40, 0., 20.);
-hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI, 0., 20.);
-hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -3., 3., 0., 20.);
+  toRep = "Track (quality #geq loose) #chi^{2}/ndof";
+  hchi2 = iBook.book1D("nChi2ndof", fmt::format(";{};#tracks",toRep), 40, 0., 20.);
+  hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI, 0., 20.);
+  hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -3., 3., 0., 20.);
   // clang-format on
 
   hpt = iBook.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#tracks", 200, 0., 200.);
@@ -181,7 +170,6 @@ hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::format("{} vs track #eta;T
 }
 
 void SiPixelMonitorTrackSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksAlpaka"));
   desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelTrackAlpaka");
@@ -190,5 +178,5 @@ void SiPixelMonitorTrackSoA::fillDescriptions(edm::ConfigurationDescriptions& de
   descriptions.addWithDefaultLabel(desc);
 }
 
-// Duplicates to keep them alive for the HLT menu to migrate to the new modules
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelMonitorTrackSoA);
