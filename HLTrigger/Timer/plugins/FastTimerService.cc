@@ -261,6 +261,7 @@ void FastTimerService::ResourcesPerJob::reset() {
   idle.reset();
   source.reset();
   eventsetup.reset();
+  cleanup.reset();
   event.reset();
   for (auto& module : highlight)
     module.reset();
@@ -276,6 +277,7 @@ FastTimerService::ResourcesPerJob& FastTimerService::ResourcesPerJob::operator+=
   idle += other.idle;
   source += other.source;
   eventsetup += other.eventsetup;
+  cleanup += other.cleanup;
   event += other.event;
   assert(highlight.size() == other.highlight.size());
   for (unsigned int i : boost::irange(0ul, highlight.size()))
@@ -697,6 +699,7 @@ void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::IBooker& booker,
   overhead_.book(booker, "overhead", "Overhead", event_ranges, lumisections, byls);
   idle_.book(booker, "idle", "Idle", event_ranges, lumisections, byls);
   source_.book(booker, "source", "Source", event_ranges, lumisections, byls);
+  cleanup_.book(booker, "cleanup", "Cleanup", event_ranges, lumisections, byls);
 
   if (transitions) {
     lumi_.book(booker, "lumi", "LumiSection transitions", event_ranges, lumisections, byls);
@@ -733,6 +736,7 @@ void FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesP
   overhead_.fill(data.overhead, ls);
   idle_.fill(data.idle, ls);
   source_.fill(data.source, ls);
+  cleanup_.fill(data.cleanup, ls);
 
   // fill highltight plots
   for (unsigned int group : boost::irange(0ul, highlight_.size()))
@@ -834,6 +838,13 @@ FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::Activit
   registry.watchPostSourceLumi(this, &FastTimerService::postSourceLumi);
   registry.watchPreSourceEvent(this, &FastTimerService::preSourceEvent);
   registry.watchPostSourceEvent(this, &FastTimerService::postSourceEvent);
+  // transform signals
+  //registry.watchPreModuleTransformPrefetching(this, &FastTimerService::preModuleTransformPrefetching);
+  //registry.watchPostModuleTransformPrefetching(this, &FastTimerService::postModuleTransformPrefetching);
+  registry.watchPreModuleTransform(this, &FastTimerService::preModuleTransform);
+  registry.watchPostModuleTransform(this, &FastTimerService::postModuleTransform);
+  registry.watchPreModuleTransformAcquiring(this, &FastTimerService::preModuleTransformAcquiring);
+  registry.watchPostModuleTransformAcquiring(this, &FastTimerService::postModuleTransformAcquiring);
   //registry.watchPreModuleConstruction(      this, & FastTimerService::preModuleConstruction);
   //registry.watchPostModuleConstruction(     this, & FastTimerService::postModuleConstruction);
   //registry.watchPreModuleBeginJob(          this, & FastTimerService::preModuleBeginJob );
@@ -868,6 +879,9 @@ FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::Activit
   registry.watchPostModuleEvent(this, &FastTimerService::postModuleEvent);
   registry.watchPreModuleEventDelayedGet(this, &FastTimerService::preModuleEventDelayedGet);
   registry.watchPostModuleEventDelayedGet(this, &FastTimerService::postModuleEventDelayedGet);
+  // cleanup signals
+  registry.watchPreClearEvent(this, &FastTimerService::preClearEvent);
+  registry.watchPostClearEvent(this, &FastTimerService::postClearEvent);
   registry.watchPreEventReadFromSource(this, &FastTimerService::preEventReadFromSource);
   registry.watchPostEventReadFromSource(this, &FastTimerService::postEventReadFromSource);
   registry.watchPreESModule(this, &FastTimerService::preESModule);
@@ -885,6 +899,45 @@ void FastTimerService::unsupportedSignal(const std::string& signal) const {
     edm::LogWarning("FastTimerService") << "The FastTimerService received the unsupported signal \"" << signal
                                         << "\".\n"
                                         << "Please report how to reproduce the issue to cms-hlt@cern.ch .";
+}
+
+void FastTimerService::finalizeEventMeasurement(edm::StreamContext const& sc) {
+  unsigned int sid = sc.streamID();
+  auto& stream = streams_[sid];
+
+  stream.total += stream.cleanup;
+
+  auto& process = callgraph_.processDescription();
+  // measure the event resources as the sum of all modules' resources
+  auto& data = stream.process.total;
+  for (unsigned int id : process.modules_) {
+    data += stream.modules[id].total;
+  }
+  stream.total += data;
+
+  // add to the event resources those used by source (which is not part of any process)
+  stream.total += stream.source;
+
+  // highlighted modules
+  for (unsigned int group : boost::irange(0ul, highlight_modules_.size()))
+    for (unsigned int i : highlight_modules_[group].modules)
+      stream.highlight[group] += stream.modules[i].total;
+
+  // avoid concurrent access to the summary objects
+  {
+    std::lock_guard<std::mutex> guard(summary_mutex_);
+    job_summary_ += stream;
+    run_summary_[sc.runIndex()] += stream;
+  }
+
+  if (print_event_summary_) {
+    edm::LogVerbatim out("FastReport");
+    printEvent(out, stream);
+  }
+
+  if (enable_dqm_) {
+    plots_->fill(callgraph_, stream, sc.eventID().luminosityBlock());
+  }
 }
 
 void FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc) {
@@ -1291,6 +1344,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
   }
   printSummaryLine(out, data.total, data.events, "total");
   printSummaryLine(out, data.eventsetup, data.events, "eventsetup");
+  printSummaryLine(out, data.cleanup, data.events, "cleanup");
   printSummaryLine(out, data.overhead, data.events, "other");
   printSummaryLine(out, data.idle, data.events, "idle");
   out << '\n';
@@ -1309,6 +1363,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
   }
   printSummaryLine(out, data.total, data.events, "total");
   printSummaryLine(out, data.eventsetup, data.events, "eventsetup");
+  printSummaryLine(out, data.cleanup, data.events, "cleanup");
   printSummaryLine(out, data.overhead, data.events, "other");
   printSummaryLine(out, data.idle, data.events, "idle");
   out << '\n';
@@ -1378,6 +1433,7 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
   }
 
   // add an entry for the non-event transitions, modules, and idle states
+  j["modules"].push_back(encodeToJSON("cleanup", "cleanup", data.events, data.cleanup));
   j["modules"].push_back(encodeToJSON("other", "other", data.events, data.overhead));
   j["modules"].push_back(encodeToJSON("eventsetup", "eventsetup", data.events, data.eventsetup));
   j["modules"].push_back(encodeToJSON("idle", "idle", data.events, data.idle));
@@ -1388,49 +1444,7 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
 
 void FastTimerService::preEvent(edm::StreamContext const& sc) { ignoredSignal(__func__); }
 
-void FastTimerService::postEvent(edm::StreamContext const& sc) {
-  ignoredSignal(__func__);
-
-  unsigned int sid = sc.streamID();
-  auto& stream = streams_[sid];
-  auto& process = callgraph_.processDescription();
-
-  // measure the event resources as the sum of all modules' resources
-  auto& data = stream.process.total;
-  for (unsigned int id : process.modules_) {
-    data += stream.modules[id].total;
-  }
-  stream.total += data;
-
-  // handle the summaries and fill the plots
-
-  // measure the event resources explicitly
-  stream.event_measurement.measure_and_store(stream.event);
-
-  // add to the event resources those used by source (which is not part of any process)
-  stream.total += stream.source;
-
-  // highlighted modules
-  for (unsigned int group : boost::irange(0ul, highlight_modules_.size()))
-    for (unsigned int i : highlight_modules_[group].modules)
-      stream.highlight[group] += stream.modules[i].total;
-
-  // avoid concurrent access to the summary objects
-  {
-    std::lock_guard<std::mutex> guard(summary_mutex_);
-    job_summary_ += stream;
-    run_summary_[sc.runIndex()] += stream;
-  }
-
-  if (print_event_summary_) {
-    edm::LogVerbatim out("FastReport");
-    printEvent(out, stream);
-  }
-
-  if (enable_dqm_) {
-    plots_->fill(callgraph_, stream, sc.eventID().luminosityBlock());
-  }
-}
+void FastTimerService::postEvent(edm::StreamContext const& sc) { ignoredSignal(__func__); }
 
 void FastTimerService::preSourceEvent(edm::StreamID sid) {
   // clear the event counters
@@ -1438,10 +1452,7 @@ void FastTimerService::preSourceEvent(edm::StreamID sid) {
   stream.reset();
   ++stream.events;
 
-  // reuse the same measurement for the Source module and for the explicit begin of the Event
-  auto& measurement = thread();
-  measurement.measure_and_accumulate(stream.overhead);
-  stream.event_measurement = measurement;
+  thread().measure_and_accumulate(stream.overhead);
 }
 
 void FastTimerService::postSourceEvent(edm::StreamID sid) {
@@ -1496,6 +1507,50 @@ void FastTimerService::postModuleEventAcquire(edm::StreamContext const& sc, edm:
   auto& module = stream.modules[id];
 
   thread().measure_and_store(module.total);
+}
+
+// transform signals
+void FastTimerService::preModuleTransformPrefetching(edm::StreamContext const& sc,
+                                                     edm::ModuleCallingContext const& mcc) {
+  ignoredSignal(__func__);
+}
+
+void FastTimerService::postModuleTransformPrefetching(edm::StreamContext const& sc,
+                                                      edm::ModuleCallingContext const& mcc) {
+  ignoredSignal(__func__);
+}
+
+void FastTimerService::preModuleTransformAcquiring(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+  thread().measure_and_accumulate(stream.overhead);
+}
+
+void FastTimerService::postModuleTransformAcquiring(edm::StreamContext const& sc,
+                                                    edm::ModuleCallingContext const& mcc) {
+  edm::ModuleDescription const& md = *mcc.moduleDescription();
+  unsigned int id = md.id();
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+  auto& module = stream.modules[id];
+
+  thread().measure_and_accumulate(module.total);
+}
+
+void FastTimerService::preModuleTransform(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+  thread().measure_and_accumulate(stream.overhead);
+}
+
+void FastTimerService::postModuleTransform(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  edm::ModuleDescription const& md = *mcc.moduleDescription();
+  unsigned int id = md.id();
+  unsigned int sid = sc.streamID().value();
+  auto& stream = streams_[sid];
+  auto& module = stream.modules[id];
+
+  thread().measure_and_accumulate(module.total);
 }
 
 void FastTimerService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
@@ -1648,6 +1703,20 @@ void FastTimerService::postESModule(edm::eventsetup::EventSetupRecordKey const&,
     auto& stream = streams_[sid];
     thread().measure_and_accumulate(stream.eventsetup);
   }
+}
+
+void FastTimerService::preClearEvent(edm::StreamContext const& sc) {
+  auto& stream = streams_[sc.streamID()];
+  thread().measure_and_accumulate(stream.overhead);
+}
+
+void FastTimerService::postClearEvent(edm::StreamContext const& sc) {
+  unsigned int sid = sc.streamID();
+  auto& stream = streams_[sid];
+  // measure the cleanup resources first
+  thread().measure_and_store(stream.cleanup);
+
+  finalizeEventMeasurement(sc);
 }
 
 FastTimerService::ThreadGuard::ThreadGuard() {

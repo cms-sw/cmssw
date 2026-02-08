@@ -1,7 +1,6 @@
 #include "L1Trigger/L1TGlobal/interface/CICADATemplate.h"
 
-#include <iostream>
-#include <iomanip>
+#include <ios>
 
 //TODO: Check the actual conditions name: "CondCICADA"
 CICADATemplate::CICADATemplate() : GlobalCondition() { m_condCategory = l1t::CondCICADA; }
