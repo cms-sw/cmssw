@@ -372,7 +372,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               // 6. Skip if there are no active lanes in the leftover lanes mask (all lanes are filtered and must skip);
               if (leftover_lanes_mask == 0)
                 continue;
-                // From here on, only lanes in (leftover_lanes_mask | dst_lane_mask) are allowed to call masked collectives.
+              // From here on, only lanes in (leftover_lanes_mask | dst_lane_mask) are allowed to call masked collectives.
 #ifndef FULL_WARP_COMPUTE
               if (is_work_lane(leftover_lanes_mask | dst_lane_mask, lane_idx, w_extent) == false)
                 continue;
