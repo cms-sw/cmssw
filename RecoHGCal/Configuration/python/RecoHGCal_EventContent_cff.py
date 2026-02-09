@@ -4,6 +4,7 @@ from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels
 
 trackstersIters = ['keep *_'+iteration+'_*_*' for iteration in ticlIterLabels]
 
+#Added line
 #AOD content
 TICL_AOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
