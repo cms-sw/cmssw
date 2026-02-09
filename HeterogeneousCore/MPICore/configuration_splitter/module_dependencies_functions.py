@@ -76,6 +76,61 @@ def get_module_dependencies(process, module_names):
     return deps
 
 
+def get_grouped_module_dependencies(
+    process,
+    groups: List[List[str]],
+) -> List[Set[str]]:
+    """
+    For each dependency group, return the set of producer modules
+    whose products must be sent to that group.
+
+    Returns:
+        List[Set[str]] aligned with `groups`
+    """
+
+    grouped_deps: List[Set[str]] = []
+
+    for group in groups:
+        group_set = set(group)
+        deps = set()
+
+        for name in group:
+            if not hasattr(process, name):
+                print(f"[WARN] process has no module named '{name}'")
+                continue
+
+            module = getattr(process, name)
+
+            for param in module.parameters_().values():
+                for tag in extract_inputtags(param):
+                    producer = tag.getModuleLabel()
+                    if producer and producer not in group_set:
+                        deps.add(producer)
+
+        grouped_deps.append(deps)
+
+    return grouped_deps
+
+
+def build_producer_to_groups_map(
+    grouped_dependencies: List[Set[str]],
+) -> Dict[str, Set[int]]:
+    """
+    Invert grouped dependencies.
+
+    Returns:
+        producer -> set of group indices that need its products
+    """
+    producer_to_groups: Dict[str, Set[int]] = defaultdict(set)
+
+    for group_idx, deps in enumerate(grouped_dependencies):
+        for producer in deps:
+            producer_to_groups[producer].add(group_idx)
+
+    return producer_to_groups
+
+
+
 def build_restricted_dependency_graph(process, modules: Set[str]) -> Dict[str, Set[str]]:
     """
     Build a directed graph A -> B where B depends on A,
@@ -197,3 +252,95 @@ def print_dependency_groups(graph: Dict[str, Set[str]]):
         for m in isolated:
             print(f"  {m} (isolated)")
 
+
+def modules_to_send_products_from_by_group(process, groups, modules_to_run_on_both):
+    """
+    Returns:
+      List[List[str]] where index matches `groups` index
+      Each list preserves the order of modules in the group
+    """
+
+    # Build quick lookup: module -> group index
+    module_to_group = {}
+    for gi, group in enumerate(groups):
+        for m in group:
+            module_to_group[m] = gi
+
+    all_producers = list(process.producers_())
+
+    result = [[] for _ in groups]
+    modules_wo_local_deps = []
+
+    for gi, group in enumerate(groups):
+        for produced in group:
+            
+            if produced in modules_to_run_on_both:
+                continue
+
+            needed_outside_group = False
+
+            for consumer in all_producers:
+                # skip consumers inside the same group
+                if module_to_group.get(consumer) == gi:
+                    continue
+
+                mod = getattr(process, consumer)
+
+                for param in mod.parameters_().values():
+                    for tag in extract_inputtags(param):
+                        if tag.getModuleLabel() == produced:
+                            print(f"Offloaded module {produced} is needed by local module {consumer}")
+                            needed_outside_group = True
+                            break
+                    if needed_outside_group:
+                        break
+                if needed_outside_group:
+                    break
+
+            if needed_outside_group:
+                result[gi].append(produced)
+            else:
+                modules_wo_local_deps.append(produced)
+                print(f"Offloaded module {produced} is not needed by any local module")
+
+    return result, modules_wo_local_deps
+
+
+
+# def modules_to_send_products_from_by_group(process, groups, offloaded_modules):
+#     """
+#     Returns:
+#       List[List[str]] where index matches `groups` index
+#       Each list preserves the order of modules in the group
+#     """
+
+#     # ONLY consumers that will remain local
+#     local_consumers = [
+#         name for name in process.producers_()
+#         if name not in offloaded_modules
+#     ]
+
+#     result = [[] for _ in groups]
+
+#     for gi, group in enumerate(groups):
+#         for produced in group:
+#             needed_outside_group = False
+
+#             for consumer in local_consumers:
+#                 mod = getattr(process, consumer)
+
+#                 for param in mod.parameters_().values():
+#                     for tag in extract_inputtags(param):
+#                         if tag.getModuleLabel() == produced:
+#                             print(f"Offloaded module {produced} depends on local module {consumer}")
+#                             needed_outside_group = True
+#                             break
+#                     if needed_outside_group:
+#                         break
+#                 if needed_outside_group:
+#                     break
+
+#             if needed_outside_group:
+#                 result[gi].append(produced)
+
+#     return result
