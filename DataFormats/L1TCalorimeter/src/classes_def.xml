@@ -9,13 +9,17 @@
   <class name="l1t::CaloRegionBxCollection"/>
   <class name="edm::Wrapper<l1t::CaloRegionBxCollection>"/>
 
-  <class name="l1t::CaloTower" />
-  <class name="std::vector<l1t::CaloTower>" />
+  <class name="l1t::io_v1::CaloTower" ClassVersion="3">
+    <version ClassVersion="3" checksum="3371409311"/>
+  </class>
+  <class name="std::vector<l1t::io_v1::CaloTower>" />
   <class name="l1t::CaloTowerBxCollection"/>
   <class name="edm::Wrapper<l1t::CaloTowerBxCollection>"/>
 
-  <class name="l1t::CaloCluster" />
-  <class name="std::vector<l1t::CaloCluster>" />
+  <class name="l1t::io_v1::CaloCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="2887161955"/>
+  </class>
+  <class name="std::vector<l1t::io_v1::CaloCluster>" />
   <class name="l1t::CaloClusterBxCollection"/>
   <class name="edm::Wrapper<l1t::CaloClusterBxCollection>"/>
 

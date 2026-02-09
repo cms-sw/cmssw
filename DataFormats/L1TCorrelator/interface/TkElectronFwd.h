@@ -13,7 +13,10 @@
 #include "DataFormats/L1Trigger/interface/RegionalOutput.h"
 
 namespace l1t {
-  class TkElectron;
+  namespace io_v1 {
+    class TkElectron;
+  }
+  using TkElectron = io_v1::TkElectron;
 
   typedef std::vector<TkElectron> TkElectronCollection;
 

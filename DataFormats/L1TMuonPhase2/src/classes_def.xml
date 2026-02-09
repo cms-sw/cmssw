@@ -1,29 +1,29 @@
 <lcgdict>
   <selection>
-    <class name="l1t::MuonStub" ClassVersion="3">
-      <version ClassVersion="3" checksum="1164456369"/>
+    <class name="l1t::io_v1::MuonStub" ClassVersion="3">
+      <version ClassVersion="3" checksum="242583979"/>
     </class>
-    <class name="std::vector<l1t::MuonStub>"/>
-    <class name="edm::Wrapper<std::vector<l1t::MuonStub > >"/>
+    <class name="std::vector<l1t::io_v1::MuonStub>"/>
+    <class name="edm::Wrapper<std::vector<l1t::io_v1::MuonStub > >"/>
     <class name="edm::Ref<l1t::MuonStubCollection>" splitLevel="0"/>
 
-     <class name="l1t::TrackerMuon" ClassVersion="3">
-       <version ClassVersion="3" checksum="872327352"/>
+     <class name="l1t::io_v1::TrackerMuon" ClassVersion="3">
+       <version ClassVersion="3" checksum="2744910294"/>
      </class>
-     <class name="std::vector<l1t::TrackerMuon>"/>
-     <class name="edm::Wrapper<std::vector<l1t::TrackerMuon > >"/>
+     <class name="std::vector<l1t::io_v1::TrackerMuon>"/>
+     <class name="edm::Wrapper<std::vector<l1t::io_v1::TrackerMuon > >"/>
      <class name="edm::Ref<l1t::TrackerMuonCollection>" splitLevel="0"/>
      <class name="std::vector<edm::Ref<l1t::TrackerMuonCollection> >"/>
      
-     <class name="l1t::SAMuon" ClassVersion="3">
-       <version ClassVersion="3" checksum="3053745761"/>
+     <class name="l1t::io_v1::SAMuon" ClassVersion="3">
+       <version ClassVersion="3" checksum="3688858819"/>
      </class>
-     <class name="std::vector<l1t::SAMuon>"/>
-     <class name="edm::Wrapper<std::vector<l1t::SAMuon > >"/>
+     <class name="std::vector<l1t::io_v1::SAMuon>"/>
+     <class name="edm::Wrapper<std::vector<l1t::io_v1::SAMuon>>"/>
      <class name="edm::Ref<l1t::SAMuonCollection>" splitLevel="0"/>
 
    <class name="l1t::KMTFTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="2839714417"/>
+    <version ClassVersion="3" checksum="754125433"/>
    </class>
    <class name="std::vector<l1t::KMTFTrack>"/>
    <class name="l1t::KMTFTrackCollection"/>
