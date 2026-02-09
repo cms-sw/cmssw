@@ -156,6 +156,7 @@
 
   <class name="std::vector<reco::io_v1::PFBlock>"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::PFBlock> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFBlock>,reco::io_v1::PFBlock>"/>
   <class name="edm::Ref< std::vector<reco::io_v1::PFBlock>, reco::io_v1::PFBlock, edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFBlock>,reco::io_v1::PFBlock> >"/>
   <class name="edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>
   <class name="edm::RefVector<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>

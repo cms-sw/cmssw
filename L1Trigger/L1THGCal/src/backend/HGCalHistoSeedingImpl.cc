@@ -88,7 +88,7 @@ HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillHistoClusters(
   double maxx2 = std::get<3>(bounds);
 
   for (auto& clu : clustersPtrs) {
-    float x1 = 0., x2 = 0;
+    double x1 = 0., x2 = 0;
     switch (seedingSpace_) {
       case RPhi:
         x1 = sqrt(pow(clu->centreProj().x(), 2) + pow(clu->centreProj().y(), 2));
@@ -100,12 +100,14 @@ HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillHistoClusters(
         break;
     };
     if (x1 < minx1 || x1 >= maxx1) {
-      throw cms::Exception("OutOfBound") << "TC X1 = " << x1 << " out of the seeding histogram bounds " << minx1
-                                         << " - " << maxx1;
+      edm::LogWarning("OutOfBound") << "TC X1 = " << x1 << " out of the seeding histogram bounds " << minx1 << " - "
+                                    << maxx1;
+      x1 = std::clamp(x1, minx1, maxx1 - std::numeric_limits<double>::epsilon());
     }
     if (x2 < minx2 || x2 >= maxx2) {
-      throw cms::Exception("OutOfBound") << "TC X2 = " << x2 << " out of the seeding histogram bounds " << minx2
-                                         << " - " << maxx2;
+      edm::LogWarning("OutOfBound") << "TC X2 = " << x2 << " out of the seeding histogram bounds " << minx2 << " - "
+                                    << maxx2;
+      x2 = std::clamp(x2, minx2, maxx2 - std::numeric_limits<double>::epsilon());
     }
     unsigned bin1 = unsigned((x1 - minx1) * nBins1_ / (maxx1 - minx1));
     unsigned bin2 = unsigned((x2 - minx2) * nBins2_ / (maxx2 - minx2));
