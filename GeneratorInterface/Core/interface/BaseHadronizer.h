@@ -87,6 +87,7 @@ namespace gen {
     void generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine, unsigned int ncpu);
     void cleanLHE();
     unsigned int getVHepMC() { return ivhepmc; }
+    virtual int getOverrideHEPIDWTUP() { return -999; }
 
   protected:
     unsigned int ivhepmc = 2;
