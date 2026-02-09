@@ -1,6 +1,6 @@
 #include "HLTElectronPFMTFilter.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
-
+// Added line
 template <typename T>
 HLTElectronPFMTFilter<T>::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   // MHT parameters
