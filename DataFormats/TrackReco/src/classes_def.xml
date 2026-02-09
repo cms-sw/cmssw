@@ -383,6 +383,7 @@
  
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::io_v1::Track> >,edm::RefProd<std::vector<reco::io_v1::Track> > >" />
 
+  <class name="edm::OneToOne<std::vector<reco::io_v1::Track>,std::vector<reco::io_v1::Track>,unsigned int>"/>
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::io_v1::Track>,std::vector<reco::io_v1::Track>,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
