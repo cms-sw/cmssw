@@ -158,28 +158,28 @@ void SiPixelMonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
   // (see https://root.cern.ch/doc/master/classTProfile.html), otherwise the default in DQMServices/Core/interface/DQMStore.h
   // uses the option "s" (i.e. standard deviation on all y values)
 
-  const double etaMax = isPhase2_ ? 4. : 3.;
+  const double etaMax = isPhase2_ ? 4.1 : 3.;
 
   toRep = "Number of all RecHits per track (quality #geq loose)";
   hnHits = iBook.book1D("nRecHits", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);
-  hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI,0., 15., "");
+  hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi [rad];{}",toRep,toRep), 30, -M_PI, M_PI,0., 15., "");
   hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -etaMax, etaMax, 0., 15., "");
 
   toRep = "Number of all layers per track (quality #geq loose)";
   hnLayers = iBook.book1D("nLayers", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);
-  hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI,0., 15., "");
+  hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi [rad];{}",toRep,toRep), 30, -M_PI, M_PI,0., 15., "");
   hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -etaMax, etaMax, 0., 15., "");
 
   toRep = "Track (quality #geq loose) #chi^{2}/ndof";
   hchi2 = iBook.book1D("nChi2ndof", fmt::format(";{};#tracks",toRep), 40, 0., 20.);
-  hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI, 0., 20., "");
+  hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::format("{} vs track #phi;Track #phi [rad];{}",toRep,toRep), 30, -M_PI, M_PI, 0., 20., "");
   hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -etaMax, etaMax, 0., 20., "");
   // clang-format on
 
   hpt = iBook.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#tracks", 200, 0., 200.);
   hCurvature = iBook.book1D("curvature", ";Track (quality #geq loose) q/p_{T} [GeV^{-1}];#tracks", 100, -3., 3.);
   heta = iBook.book1D("eta", ";Track (quality #geq loose) #eta;#tracks", 30, -etaMax, etaMax);
-  hphi = iBook.book1D("phi", ";Track (quality #geq loose) #phi;#tracks", 30, -M_PI, M_PI);
+  hphi = iBook.book1D("phi", ";Track (quality #geq loose) #phi [rad];#tracks", 30, -M_PI, M_PI);
   hz = iBook.book1D("z", ";Track (quality #geq loose) z [cm];#tracks", 30, -30., 30.);
   htip = iBook.book1D("tip", ";Track (quality #geq loose) TIP [cm];#tracks", 100, -0.5, 0.5);
   hquality = iBook.book1D("quality", ";Track Quality;#tracks", 7, -0.5, 6.5);
