@@ -4,4 +4,3 @@ namespace reco {
   class GenJet;
 }
 #endif
-

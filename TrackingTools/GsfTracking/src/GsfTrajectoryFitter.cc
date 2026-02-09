@@ -71,7 +71,9 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     assert((!(ihit)->canImproveWithTrack()) || (nullptr != dynamic_cast<BaseTrackerRecHit const*>(ihit.get())));
     auto preciseHit = theHitCloner->makeShared(ihit, predTsos);
     dump(*preciseHit, 1, "GsfTrackFitters");
-    { currTsos = updator()->update(predTsos, *preciseHit); }
+    {
+      currTsos = updator()->update(predTsos, *preciseHit);
+    }
     if (!predTsos.isValid() || !currTsos.isValid()) {
       edm::LogError("InvalidState") << "first hit";
       return Trajectory();
