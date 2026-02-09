@@ -44,6 +44,11 @@ private:
   const std::string topFolderName_;
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
+
+  bool isPhase2_;
+  static constexpr double kInnerDiskRange = 20.0;
+  static constexpr double kOuterDiskRange = 27.5;
+
   MonitorElement* hnHits;
   MonitorElement* hBFposZP;
   MonitorElement* hBFposZR;
@@ -75,6 +80,9 @@ SiPixelMonitorRecHitsSoA::SiPixelMonitorRecHitsSoA(const edm::ParameterSet& iCon
 
 void SiPixelMonitorRecHitsSoA::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
+  if ((tkGeom_->isThere(GeomDetEnumerators::P2PXB)) || (tkGeom_->isThere(GeomDetEnumerators::P2PXEC))) {
+    isPhase2_ = true;
+  }
   tTopo_ = &iSetup.getData(topoToken_);
 }
 
@@ -163,7 +171,8 @@ void SiPixelMonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
   for(int is=0;is<2;is++){
     int sign=is==0? -1:1;
     for(unsigned int id=0;id<tkGeom_->numberOfLayers(PixelSubdetector::PixelEndcap);id++){
-      const double range = (id > 8) ? 27.5 : 20.0;  // Phase-2 TEPX disks larger
+      // Phase-2 TEPX disks larger
+      const double range = (id > 7) ? kOuterDiskRange : kInnerDiskRange;
       hFposXYD[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosXY",id*sign+sign), Form("RecHits position Endcaps Disk%+d;X;Y",id*sign+sign), 200, -range, range, 200, -range, range);
       hFchargeD[is][id] = iBook.book1D(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("RecHits Charge Endcaps Disk%+d;Charge;#events",id*sign+sign), 250, 0, 100000);
       hFsizexD[is][id] = iBook.book1D(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("RecHits SizeX Endcaps Disk%+d;SizeX;#events",id*sign+sign), 50, 0, 50);

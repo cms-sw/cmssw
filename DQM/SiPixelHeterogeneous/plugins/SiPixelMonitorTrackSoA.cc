@@ -27,21 +27,27 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 class SiPixelMonitorTrackSoA : public DQMEDAnalyzer {
 public:
   using PixelTrackHeterogeneous = reco::TracksHost;
   explicit SiPixelMonitorTrackSoA(const edm::ParameterSet&);
   ~SiPixelMonitorTrackSoA() override = default;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   const edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrack_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const std::string topFolderName_;
   const bool useQualityCut_;
   const pixelTrack::Quality minQuality_;
+  const TrackerGeometry* tkGeom_ = nullptr;
+  bool isPhase2_;
   MonitorElement* hnTracks;
   MonitorElement* hnLooseAndAboveTracks;
   MonitorElement* hnHits;
@@ -64,9 +70,18 @@ private:
 
 SiPixelMonitorTrackSoA::SiPixelMonitorTrackSoA(const edm::ParameterSet& iConfig)
     : tokenSoATrack_{consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"))},
+      geomToken_{esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()},
       topFolderName_{iConfig.getParameter<std::string>("topFolderName")},
       useQualityCut_{iConfig.getParameter<bool>("useQualityCut")},
-      minQuality_{pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))} {}
+      minQuality_{pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))},
+      isPhase2_{false} {}
+
+void SiPixelMonitorTrackSoA::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  tkGeom_ = &iSetup.getData(geomToken_);
+  if ((tkGeom_->isThere(GeomDetEnumerators::P2PXB)) || (tkGeom_->isThere(GeomDetEnumerators::P2PXEC))) {
+    isPhase2_ = true;
+  }
+}
 
 void SiPixelMonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandle = iEvent.getHandle(tokenSoATrack_);
@@ -139,30 +154,31 @@ void SiPixelMonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
   hnTracks = iBook.book1D("nTracks", fmt::format(";{} per event;#events",toRep), 1001, -0.5, 2001.5);
   hnLooseAndAboveTracks = iBook.book1D("nLooseAndAboveTracks", fmt::format(";{} (quality #geq loose) per event;#events",toRep), 1001, -0.5, 2001.5);
 
-
   // N.B.: we need to book explicitly profiles with the option "" (default) in order to get the error on the mean
   // (see https://root.cern.ch/doc/master/classTProfile.html), otherwise the default in DQMServices/Core/interface/DQMStore.h
   // uses the option "s" (i.e. standard deviation on all y values)
 
+  const double etaMax = isPhase2_ ? 4. : 3.;
+
   toRep = "Number of all RecHits per track (quality #geq loose)";
   hnHits = iBook.book1D("nRecHits", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);
   hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI,0., 15., "");
-  hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -3., 3., 0., 15., "");
+  hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -etaMax, etaMax, 0., 15., "");
 
   toRep = "Number of all layers per track (quality #geq loose)";
   hnLayers = iBook.book1D("nLayers", fmt::format(";{};#tracks",toRep), 15, -0.5, 14.5);
   hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI,0., 15., "");
-  hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -3., 3., 0., 15., "");
+  hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -etaMax, etaMax, 0., 15., "");
 
   toRep = "Track (quality #geq loose) #chi^{2}/ndof";
   hchi2 = iBook.book1D("nChi2ndof", fmt::format(";{};#tracks",toRep), 40, 0., 20.);
   hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::format("{} vs track #phi;Track #phi;{}",toRep,toRep), 30, -M_PI, M_PI, 0., 20., "");
-  hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -3., 3., 0., 20., "");
+  hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::format("{} vs track #eta;Track #eta;{}",toRep,toRep), 30, -etaMax, etaMax, 0., 20., "");
   // clang-format on
 
   hpt = iBook.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#tracks", 200, 0., 200.);
   hCurvature = iBook.book1D("curvature", ";Track (quality #geq loose) q/p_{T} [GeV^{-1}];#tracks", 100, -3., 3.);
-  heta = iBook.book1D("eta", ";Track (quality #geq loose) #eta;#tracks", 30, -3., 3.);
+  heta = iBook.book1D("eta", ";Track (quality #geq loose) #eta;#tracks", 30, -etaMax, etaMax);
   hphi = iBook.book1D("phi", ";Track (quality #geq loose) #phi;#tracks", 30, -M_PI, M_PI);
   hz = iBook.book1D("z", ";Track (quality #geq loose) z [cm];#tracks", 30, -30., 30.);
   htip = iBook.book1D("tip", ";Track (quality #geq loose) TIP [cm];#tracks", 100, -0.5, 0.5);
