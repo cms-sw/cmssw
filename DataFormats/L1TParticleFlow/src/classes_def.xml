@@ -1,7 +1,7 @@
 <lcgdict>
                       
   <class name="l1t::io_v1::PFCluster" ClassVersion="3">
-   <version ClassVersion="3" checksum="3153188912"/>
+   <version ClassVersion="3" checksum="2217551988"/>
   </class> 
   <class name="l1t::PFClusterCollection"/>
   <class name="edm::Wrapper<l1t::PFClusterCollection>" />
@@ -10,7 +10,7 @@
 
   <class name="l1t::io_v1::PFTrack::TrackRef" />
   <class name="l1t::io_v1::PFTrack"  ClassVersion="3">
-      <version ClassVersion="3" checksum="2606074849"/>
+      <version ClassVersion="3" checksum="3854171349"/>
   </class>
   <class name="l1t::PFTrackCollection" />
   <class name="edm::Wrapper<l1t::PFTrackCollection>" />
@@ -19,7 +19,7 @@
   <class name="std::vector<edm::Ref<l1t::PFTrackCollection> >" />
 
   <class name="l1t::io_v1::PFCandidate"  ClassVersion="3">
-        <version ClassVersion="3" checksum="3329592613"/>
+        <version ClassVersion="3" checksum="2694777321"/>
   </class>
   <class name="l1t::PFCandidateCollection" />
   <class name="edm::Wrapper<l1t::PFCandidateCollection>" />
@@ -30,7 +30,7 @@
   <class name="edm::Wrapper<l1t::RegionalOutput<l1t::PFCandidateCollection>>" />
 
   <class name="l1t::io_v1::PFJet"  ClassVersion="3">
-        <version ClassVersion="3" checksum="2101418964"/>
+        <version ClassVersion="3" checksum="3811042396"/>
   </class>
   <class name="l1t::PFJetCollection" />
   <class name="edm::Wrapper<l1t::PFJetCollection>" />
@@ -39,7 +39,7 @@
   <class name="std::vector<edm::Ref<std::vector<l1t::io_v1::PFJet>,l1t::io_v1::PFJet,edm::refhelper::FindUsingAdvance<std::vector<l1t::io_v1::PFJet>,l1t::io_v1::PFJet> > >" />
 
   <class name="l1t::io_v1::PFTau"  ClassVersion="3">
-        <version ClassVersion="3" checksum="2079127010"/>
+        <version ClassVersion="3" checksum="3230913040"/>
   </class>
   <class name="l1t::PFTauCollection" />
   <class name="edm::Wrapper<l1t::PFTauCollection>" />

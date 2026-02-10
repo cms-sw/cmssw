@@ -2,14 +2,14 @@
 <lcgdict>
 
   <class name="l1t::io_v1::TkEtMiss" ClassVersion="3">
-   <version ClassVersion="3" checksum="3402924650"/>
+   <version ClassVersion="3" checksum="2399316004"/>
   </class>
   <class name="std::vector<l1t::io_v1::TkEtMiss>"/>
   <class name="edm::Wrapper<l1t::io_v1::TkEtMiss>"/>
   <class name="edm::Wrapper<std::vector<l1t::io_v1::TkEtMiss> >"/>
 
   <class name="l1t::io_v1::TkEm" ClassVersion="3">
-   <version ClassVersion="3" checksum="264824122"/>
+   <version ClassVersion="3" checksum="914854194"/>
   </class>
   <class name="std::vector<l1t::io_v1::TkEm>"/>
   <class name="edm::Wrapper<std::vector<l1t::io_v1::TkEm> >"/>
@@ -20,28 +20,28 @@
   <class name="edm::Wrapper<l1t::RegionalOutput<l1t::TkEmCollection>>" />
 
   <class name="l1t::TkEGTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="2020650744"/>
+   <version ClassVersion="3" checksum="2091429364"/>
   </class>
   <class name="std::vector<l1t::TkEGTau>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkEGTau> >"/>
   <class name="edm::Ref<std::vector<l1t::TkEGTau>,l1t::TkEGTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkEGTau>,l1t::TkEGTau> >"/>
 
   <class name="l1t::L1TrkTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="622855378"/>
+   <version ClassVersion="3" checksum="4132905380"/>
   </class>
   <class name="std::vector<l1t::L1TrkTau>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TrkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::L1TrkTau>,l1t::L1TrkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TrkTau>,l1t::L1TrkTau> >"/>
 
   <class name="l1t::L1CaloTkTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="936372729"/>
+   <version ClassVersion="3" checksum="731058509"/>
   </class>
   <class name="std::vector<l1t::L1CaloTkTau>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1CaloTkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau> >"/>
 
   <class name="l1t::io_v1::TkElectron" ClassVersion="3">
-   <version ClassVersion="3" checksum="575948237"/>
+   <version ClassVersion="3" checksum="1493701125"/>
   </class>
   <class name="std::vector<l1t::io_v1::TkElectron>"/>
   <class name="edm::Wrapper<std::vector<l1t::io_v1::TkElectron> >"/>
@@ -52,7 +52,7 @@
   <class name="edm::Wrapper<l1t::RegionalOutput<l1t::TkElectronCollection>>" />
 
   <class name="l1t::io_v1::TkJet" ClassVersion="3">
-   <version ClassVersion="3" checksum="910459585"/>
+   <version ClassVersion="3" checksum="2867462231"/>
   </class>
   <class name="std::vector<l1t::io_v1::TkJet>"/>
   <class name="edm::Wrapper<std::vector<l1t::io_v1::TkJet> >"/>
@@ -60,7 +60,7 @@
   <class name="edm::RefProd< std::vector<l1t::io_v1::TkJet> >"/>
 
   <class name="l1t::io_v1::TkTriplet" ClassVersion="3">
-    <version ClassVersion="3" checksum="3599499569"/>
+    <version ClassVersion="3" checksum="765075353"/>
   </class>
   <class name="std::vector<l1t::io_v1::TkTriplet>"/>
   <class name="edm::Wrapper<std::vector<l1t::io_v1::TkTriplet> >"/>
@@ -69,14 +69,14 @@
 
 
   <class name="l1t::io_v1::TkHTMiss" ClassVersion="3">
-    <version ClassVersion="3" checksum="1170652312"/>
+    <version ClassVersion="3" checksum="3819981244"/>
   </class>
   <class name="std::vector<l1t::io_v1::TkHTMiss>"/>
   <class name="edm::Wrapper<l1t::io_v1::TkHTMiss>"/>
   <class name="edm::Wrapper<std::vector<l1t::io_v1::TkHTMiss> >"/>
 
   <class name="l1t::TkMuon" ClassVersion="3">
-   <version ClassVersion="3" checksum="3490777028"/>
+   <version ClassVersion="3" checksum="1122123778"/>
   </class>
   <class name="std::vector<l1t::TkMuon>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkMuon> >"/>
@@ -84,28 +84,28 @@
   <class name="std::vector<edm::Ref<std::vector<l1t::TkMuon>,l1t::TkMuon,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkMuon>,l1t::TkMuon> > >"/>
 
   <class name="l1t::TkGlbMuon" ClassVersion="3">
-   <version ClassVersion="3"  checksum="3566435360"/>
+   <version ClassVersion="3"  checksum="3336698296"/>
   </class>
   <class name="std::vector<l1t::TkGlbMuon>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkGlbMuon> >"/>
   <class name="edm::Ref<std::vector<l1t::TkGlbMuon>,l1t::TkGlbMuon,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkGlbMuon>,l1t::TkGlbMuon> >"/>
 
   <class name="l1t::TkTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="248325140"/>
+   <version ClassVersion="3" checksum="3715552284"/>
   </class>
   <class name="std::vector<l1t::TkTau>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::TkTau>,l1t::TkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkTau>,l1t::TkTau> >"/>
 
   <class name="l1t::TkPhiCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="2112391799"/>
+   <version ClassVersion="3" checksum="501058403"/>
   </class>
   <class name="std::vector<l1t::TkPhiCandidate>" />
   <class name="edm::Wrapper<std::vector<l1t::TkPhiCandidate>>" />
   <class name="edm::Ref<std::vector<l1t::TkPhiCandidate>, l1t::TkPhiCandidate, edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPhiCandidate>, l1t::TkPhiCandidate>>" />
 
   <class name="l1t::TkBsCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="2539550588"/>
+   <version ClassVersion="3" checksum="3404664832"/>
   </class>
   <class name="std::vector<l1t::TkBsCandidate>" />
   <class name="edm::Wrapper<std::vector<l1t::TkBsCandidate>>" />

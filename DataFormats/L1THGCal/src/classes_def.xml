@@ -31,7 +31,7 @@
   <class name="l1t::HGCalClusterT<l1t::io_v1::HGCalTriggerCell>" />
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerSums>" />
   <class name="l1t::io_v1::HGCalCluster" ClassVersion="3">
-   <version ClassVersion="3" checksum="3980316185"/>
+   <version ClassVersion="3" checksum="3522432005"/>
   </class>
   <class name="std::vector<l1t::io_v1::HGCalCluster>" />
   <class name="l1t::HGCalClusterBxCollection"/>
@@ -40,21 +40,21 @@
   <class name="l1t::HGCalClusterT<l1t::io_v1::HGCalCluster>" />
 
   <class name="l1t::io_v1::HGCalMulticluster" ClassVersion="3">
-   <version ClassVersion="3" checksum="931599963"/>
+   <version ClassVersion="3" checksum="303960767"/>
   </class>
   <class name="std::vector<l1t::io_v1::HGCalMulticluster>" />
   <class name="l1t::HGCalMulticlusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalMulticlusterBxCollection>"/>
 
   <class name="l1t::io_v1::HGCalTriggerCell" ClassVersion="3">
-   <version ClassVersion="3" checksum="2090774606"/>
+   <version ClassVersion="3" checksum="3220253986"/>
   </class>
   <class name="std::vector<l1t::io_v1::HGCalTriggerCell>" />
   <class name="l1t::HGCalTriggerCellBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTriggerCellBxCollection>"/>
 
   <class name="l1t::HGCalTriggerSums" ClassVersion="3">
-   <version ClassVersion="3" checksum="3641159285"/>
+   <version ClassVersion="3" checksum="3304991089"/>
   </class>
   <class name="std::vector<l1t::HGCalTriggerSums>" />
   <class name="l1t::HGCalTriggerSumsBxCollection"/>
