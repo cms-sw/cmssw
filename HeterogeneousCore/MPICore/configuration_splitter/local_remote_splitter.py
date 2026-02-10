@@ -1,4 +1,62 @@
-#!/usr/bin/env python3
+"""
+This script splits an HLT configuration into local and remote processes
+by offloading selected modules or sequences.
+
+This tool analyzes data dependencies between CMSSW modules and generates
+two derived configuration files:
+    - a *local* process config
+    - a *remote* process config
+
+Modules specified for offloading will be moved to the remote process.
+Any required data products are automatically identified and forwarded
+between processes unless the producing module is explicitly marked as
+shared.
+
+Positional arguments:
+    config
+        Path to the input HLT Python configuration file.
+
+    modules
+        One or more module labels and/or sequence names to offload to the
+        remote process. Sequence names are expanded into their constituent
+        modules.
+
+Optional arguments:
+    -ol, --output_local
+        Path to the output configuration for the local process.
+        (default: splitted_config/local_split.py)
+
+    -or, --output_remote
+        Path to the output configuration for the remote process.
+        (default: splitted_config/remote_split.py)
+
+    --shared-modules
+        List of module labels that must run on both local and remote
+        processes. Products from these modules are not transferred
+        between processes.
+    
+    --cpp-names-exist
+        False by default. If this script was run before, pass this 
+        argument to reuse the generated file with C++ product names
+
+Example:
+    python3 local_remote_splitter.py hlt.py  hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+        hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
+        --shared-modules hltHcalDigis
+        --output_local local.py \
+        --output_remote remote.py
+
+Notes:
+    - Only data dependencies expressed via InputTag are considered.
+    - Module execution order inside dependency groups is preserved.
+
+Some TBDs:
+    - Mow we check all dependencies by input tags. We have to try utilising DependencyGraph. 
+      Modifying the service is mandatory, because current visual graph is to large to be processed
+    - (maybe later?) Do motre elegant file dumping
+    - Test if the results and througputs are the same as in manual split
+
+"""
 
 import argparse
 import pathlib
@@ -8,17 +66,11 @@ import sys
 
 
 from cpp_name_getter import CPPNameGetter
+from module_dependency_analyzer import ModuleDependencyAnalyzer, flatten_all_to_module_set
 from editor_functions import *
-from module_dependencies_functions import *
 from path_state_helpers import *
 
-# some unresolved problems:
-# how do we decide which of the offloaded modules we send back and which not? (not all hcal modules have their senders) - check by input tags and add info about it, document, etc. - done? (maybe use DependencyGraph later)
-# do we really have to insert filters after all local receivers? or maybe only before the first module in the dependency group? - put just one before the receiver of the first offloaded module of the dependency group
-# should we do something more elegant than dumping processes into files? - no, fine for now
 
-
-# filters - for when local offloads several
 
 
 def load_config(path: pathlib.Path):
@@ -47,11 +99,6 @@ def load_config(path: pathlib.Path):
     return config
 
 
-# The splitting algorithm proceeds as follows:
-#   1) Form the connected groups from passed modules to separate offloaded modules into distinct paths
-#   2) Figure out the dependencies each module has to determine which data has to be transmitted
-#   3) Insert senders to local paths with the needed data (raw and/or others)
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -77,6 +124,13 @@ def main():
         default=[],
         help="Modules that must run on both local and remote processes",
     )
+    parser.add_argument(
+        "--cpp-names-exist",
+        action="store_true",
+        help="Assume the file with C++ product names already exists; "
+            "do not run cmsRun to regenerate it",
+    )
+
     args = parser.parse_args()
 
     # Import config
@@ -88,64 +142,38 @@ def main():
 
     local_process = cfg.process
 
-    pure_modules_to_offload = flatten_all_to_module_list(local_process, args.modules)
-    modules_to_run_on_both = flatten_all_to_module_list(local_process, args.shared_modules)
-
-
-    overlap = set(pure_modules_to_offload) & set(modules_to_run_on_both)
-    if overlap:
-        parser.error(
-            f"Modules cannot be both offloaded and shared: {', '.join(overlap)}"
-        )
+    modules_to_offload = flatten_all_to_module_set(local_process, args.modules)
+    modules_to_run_on_both = flatten_all_to_module_set(local_process, args.shared_modules)
     
-    modules_to_offload = pure_modules_to_offload + modules_to_run_on_both
+    # list of all modules to run on remote
+    modules_to_offload |= modules_to_run_on_both
+
+    analyzer = ModuleDependencyAnalyzer(local_process)
 
 
-    # figure out on which modules the offloaded modules depend 
-    # we will send all data products of these dependencies from local to remote
+    groups = analyzer.dependency_groups(modules_to_offload)
+    grouped_deps = analyzer.grouped_external_dependencies(groups)
+    producer_to_groups = analyzer.producer_to_groups(grouped_deps)
 
-    deps = get_module_dependencies(local_process, modules_to_offload)
 
-    modules_to_send_products_from = deps - set(modules_to_offload)
-
-    print("Data to send from local ", modules_to_send_products_from)
-
-    # determine relationships between modules to be offloaded(not used yet)
-
-    graph = build_restricted_dependency_graph(local_process, set(modules_to_offload))
-    groups = connected_groups(graph)
     print("Dependency groups: ", groups)
-
-    grouped_deps = get_grouped_module_dependencies(local_process, groups)
     print("Grouped depencencies:", grouped_deps )
-
-
-    producer_to_groups = build_producer_to_groups_map(grouped_deps)
     print("Local producers - dependant groups correspondance: ", producer_to_groups)
 
-    # print_dependency_groups(graph)
 
+    # get products whose data needs to be sent, excluding modules without local dependencies and modules which should run on both processes
+    modules_to_send, modules_without_local_deps = analyzer.modules_to_send_back_by_group(groups, modules_to_run_on_both)
 
-    # base_sequences = get_sequences_of_the_modules(local_process, modules_to_offload)
-
-    # # print("Base sequences: ", base_sequences)
-
-    # sequences_by_group = group_sequences(groups, base_sequences)
-
-    # print("Sequences by group: ", sequences_by_group)
-
-    # find correspondance modules_to_send_products_from - sequences (on which sequences do we need the data products of this module?)
-   
-    
-    # capture_names = insert_path_state_capture_by_group(local_process, groups, sequences_by_group)
-    
+    print("Offloaded modues whose products need to be sent: ", modules_to_send)
+    print("Offloaded modules without local dependencies: ", modules_without_local_deps)
 
 
     # -- get c++ names --
 
-    print("Launching cmsRun to get c++ names of all products in the process...")
+    if not args.cpp_names_exist:
+        print("Launching cmsRun to get C++ names of all products in the process...")
 
-    cpp_names_getter = CPPNameGetter(local_process, exists=True)
+    cpp_names_getter = CPPNameGetter(local_process, exists=args.cpp_names_exist)
     cpp_names_of_the_products = cpp_names_getter.get_cpp_types_of_module_products()
 
 
@@ -160,17 +188,20 @@ def main():
     instance = 1
 
     # how to add state captures to the splitter?
-    # (uncomplicated implementation)
 
-    # 1) for the local sender - create path state capture per sender. 
-    # insert this path state capture into before the first module of each group (if this group needs it ofc)
+    # 1) For the local sender - create path state capture per sender. 
+    # Insert this path state capture before the first module of each needed group.
+    # If multiple groups need these products, create individual path state captures
+    # and add separate senders on top
     # 
-    # 2) for the remote receiver - add path state product to the list
-    # add the activity filter at the beginning of the group path
-
-    # 3) for the remote sender - add the state capture at the end of the groups path
-    # each sender module depens on this state capture
-    # 4) for the local receiver - before deleting the offloaded module, insert filter for the activity it receives
+    # 2) For the remote receiver - add path state product to the list.
+    # Add the general activity filter at the beginning of the group path
+    # and, if needed, separate activity filters for each group
+    #
+    # 3) For the remote sender - add the state capture at the end of the groups path.
+    # Each sender module for this group depens on this state capture
+    #
+    # 4) For the local receiver - before deleting the offloaded module, insert filter for the activity it receives
 
 
     # send the data needed by offloaded modules from local to remote
@@ -211,9 +242,9 @@ def main():
 
 
 
-        # handle the case when onle local product is needed by multiple remote groups
+        # Handle the case when onle local product is needed by multiple remote groups
         # For sending from local process - if data is needed by multiple paths, insert additional path state capture and additional sender per group
-        # on remote insert one more receiver for this capture and one more filter in the beginning of the deps group
+        # On remote insert one more receiver for this capture and one more filter in the beginning of the deps group
         # In this approach if there are 2 senders with intersecting groups, it will result in only one group activation sender-receiver pair per group
         if len(group_indices) >= 2:
             for group_idx in group_indices:
@@ -249,13 +280,10 @@ def main():
 
     
 
-    # get products whose data needs to be sent, excluding modules without local dependencies and modules which should run on both processes
-    modules_to_send, modules_without_local_deps = modules_to_send_products_from_by_group(local_process, groups, modules_to_run_on_both)
-    print("Offloaded modues whose products need to be sent: ", modules_to_send)
 
     per_group_remote_captures = []
+    
     # send the results from remote to local
-
     for group_idx, group in enumerate(modules_to_send):
 
         remote_capture_name = f"PathStateCaptureGroup{group_idx}"
@@ -264,7 +292,9 @@ def main():
         
         for i, offloaded_module in enumerate(group):
             if i == 0:
+                # First sender in the group has to depend on source 
                 sender_upstream=mpi_path_modules_remote[0]
+                # First receiver on local depend on the last sender from group
                 receiver_upstream = local_sender_by_group[group_idx][-1]
             else:
                 sender_upstream=mpi_path_modules_remote[-1]

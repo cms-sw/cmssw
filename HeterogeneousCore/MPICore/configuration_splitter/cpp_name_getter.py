@@ -31,14 +31,13 @@ class CPPNameGetter:
         if exists:
             if not os.path.exists(self.log_path):
                 raise RuntimeError(
-                    f"exists=True but log file does not exist: {self.log_path}"
+                    f"--cpp-names-exist was specified, but the C++ names file was not found: {self.log_path}"
                 )
             self.process = None
         else:
             self.process = copy.deepcopy(original_process)
         self.exists = exists
-
-
+    
 
     # ---------- public API ----------
 

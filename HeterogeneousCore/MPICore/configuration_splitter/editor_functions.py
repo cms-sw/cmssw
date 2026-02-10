@@ -6,8 +6,6 @@ from HLTrigger.Configuration.common import *
 from HeterogeneousCore.MPICore.mpiController_cfi import mpiController as mpiController_
 
 
-# -- functions add communicaion base ---
-
 
 def add_controller_to_local(process):
     process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
@@ -57,7 +55,6 @@ def create_remote_process(local_process, modules_to_run):
 # -- functions to add senders and receivers --
 
 
-
 def is_device_product(prod):
     return prod["type"].startswith("edm::DeviceProduct")
 
@@ -103,8 +100,6 @@ def replace_module(process, name, new_module):
     setattr(process, name, new_module)
 
 
-
-
 def get_sender_name(module_name):
     return f"mpiSender{module_name[0].upper()}{module_name[1:]}"
 
@@ -135,8 +130,6 @@ def create_sender(
 
 
 
-
-
 def create_receiver(
     products,
     instance,
@@ -164,74 +157,6 @@ def create_receiver(
     )
 
     return receiver
-
-def add_activity_filter(process, module_name):
-    filter_object =  cms.EDFilter("PathStateRelease",
-            state = cms.InputTag(module_name)
-        )
-    filter_name = f"activityFilter{module_name}"
-    setattr(process, filter_name, filter_object)
-    return filter_name
-
-
-
-
-def add_sender_receiver(
-    sender_process,
-    receiver_process,
-    module_name,
-    products,
-    instance,
-    sender_upstream,
-    receiver_upstream,
-    path_state_capture=None,
-):
-    """
-    Add MPISender (local) + MPIReceiver (remote) for one module.
-    """
-
-    # ----------------
-    # Local: MPISender
-    # ----------------
-    sender_name = f"mpiSender{module_name[0].upper()}{module_name[1:]}"
-    sender_products = make_sender_patterns(module_name, products)
-
-    if path_state_capture is not None:
-        sender_products.append(f"*_{path_state_capture}__*".replace(" ", ""))
-
-    sender = cms.EDProducer(
-        "MPISender",
-        upstream=cms.InputTag(sender_upstream),
-        instance=cms.int32(instance),
-        products=cms.vstring(*sender_products),
-    )
-
-    setattr(sender_process, sender_name, sender)
-
-    # ------------------
-    # Remote: MPIReceiver
-    # ------------------
-    receiver_products = make_receiver_psets(products)
-
-    if path_state_capture is not None:
-        receiver_products.append(
-            cms.PSet(
-                type=cms.string("edm::PathStateToken"),
-                label=cms.string(""),
-            )
-        )
-
-    receiver = cms.EDProducer(
-        "MPIReceiver",
-        upstream=cms.InputTag(receiver_upstream),
-        instance=cms.int32(instance),
-        products=cms.VPSet(*receiver_products),
-    )
-
-    replace_module(receiver_process, module_name, receiver)
-
-    return sender_name
-
 
 
 
