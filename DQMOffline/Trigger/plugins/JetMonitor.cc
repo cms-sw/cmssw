@@ -15,6 +15,14 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 class JetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:
@@ -30,6 +38,22 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
+  struct correctedPFJets {
+    double pt;
+    double eta;
+    double phi;
+    double NHF;
+    double NEMF;
+    double CHF;
+    double CEMF;
+    double MUF;
+    int NumNeutralParticles;
+    int CHM;
+  };
+  std::vector<correctedPFJets> corrected_jets;
+
+  bool passTightJetID(const correctedPFJets& jet);
+  bool isCleanJet(double JetEta, double JetPhi, const std::vector<reco::Muon>& muons, double dr2Cut);
   bool isBarrel(double eta);
   bool isEndCapP(double eta);
   bool isEndCapM(double eta);
@@ -66,13 +90,25 @@ private:
   double ptcut_;
   bool isPFJetTrig;
   bool isCaloJetTrig;
-
+  bool isPuppiJet;
+  double dr2cut_;
   const bool enableFullMonitoring_;
 
-  edm::EDGetTokenT<edm::View<reco::Jet> > jetSrc_;
+  edm::InputTag muoInputTag_;
+  edm::InputTag vtxInputTag_;
+
+  const edm::EDGetTokenT<reco::MuonCollection> muoToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  const edm::EDGetTokenT<reco::PFJetCollection> jetSrc_;
+  const edm::EDGetTokenT<reco::JetCorrector> correctorToken_;
+  const edm::EDGetTokenT<reco::CaloJetCollection> calojetToken_;
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+
+  StringCutObjectSelector<reco::Muon, true> muoSelection_;
+
+  unsigned nmuons_;
 
   MEbinning jetpt_binning_;
   MEbinning jetptThr_binning_;
@@ -85,9 +121,12 @@ private:
   ObjME a_ME_HE_p[7];
   ObjME a_ME_HE_m[7];
 
-  std::vector<double> v_jetpt;
-  std::vector<double> v_jeteta;
-  std::vector<double> v_jetphi;
+  struct correctedCaloJets {
+    double pt;
+    double eta;
+    double phi;
+  };
+  std::vector<correctedCaloJets> corrected_calojets;
 
   // (mia) not optimal, we should make use of variable binning which reflects the detector !
   MEbinning jet_phi_binning_{64, -3.2, 3.2};
@@ -101,12 +140,22 @@ JetMonitor::JetMonitor(const edm::ParameterSet& iConfig)
       ptcut_(iConfig.getParameter<double>("ptcut")),
       isPFJetTrig(iConfig.getParameter<bool>("ispfjettrg")),
       isCaloJetTrig(iConfig.getParameter<bool>("iscalojettrg")),
+      isPuppiJet(iConfig.getParameter<bool>("ispuppijet")),
+      dr2cut_(iConfig.getParameter<double>("dr2cut")),
       enableFullMonitoring_(iConfig.getParameter<bool>("enableFullMonitoring")),
-      jetSrc_(mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetSrc"))),
+      muoInputTag_(iConfig.getParameter<edm::InputTag>("muons")),
+      vtxInputTag_(iConfig.getParameter<edm::InputTag>("vertices")),
+      muoToken_(mayConsume<reco::MuonCollection>(muoInputTag_)),
+      vtxToken_(mayConsume<reco::VertexCollection>(vtxInputTag_)),
+      jetSrc_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jetSrc"))),
+      correctorToken_(mayConsume<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("corrector"))),
+      calojetToken_(mayConsume<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("jetSrc"))),
       num_genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
       den_genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this)),
+      muoSelection_(iConfig.getParameter<std::string>("muoSelection")),
+      nmuons_(iConfig.getParameter<unsigned>("nmuons")),
       jetpt_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPSet"))),
       jetptThr_binning_(getHistoPSet(
@@ -149,16 +198,21 @@ void JetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
 
-  if (isPFJetTrig) {
-    hist_obtag = "pfjet";
-    histtitle_obtag = "PFJet";
+  if (isPFJetTrig) {   // flag for the trigger path
+    if (isPuppiJet) {  // flag for the offline collection
+      hist_obtag = "pfpuppijet";
+      histtitle_obtag = "PFPuppi Jet";
+    } else if (!isPuppiJet) {
+      hist_obtag = "pfjet";
+      histtitle_obtag = "PFJet";
+    }
   } else if (isCaloJetTrig) {
     hist_obtag = "calojet";
     histtitle_obtag = "CaloJet";
   } else {
-    hist_obtag = "pfjet";
-    histtitle_obtag = "PFJet";
-  }  //default is pfjet
+    hist_obtag = "pfpuppijet";
+    histtitle_obtag = "PFPuppi Jet";
+  }  //default is pfpuppijet
 
   bookMESub(ibooker, a_ME, sizeof(a_ME) / sizeof(a_ME[0]), hist_obtag, histtitle_obtag, "", "");
   bookMESub(ibooker,
@@ -234,36 +288,144 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
+  if (!num_genTriggerEventFlag_->on())
+    return;
 
   const int ls = iEvent.id().luminosityBlock();
 
-  v_jetpt.clear();
-  v_jeteta.clear();
-  v_jetphi.clear();
+  //--------- access vrtx -----------
+  reco::Vertex vtx;
+  edm::Handle<reco::VertexCollection> vtxHandle;
+  iEvent.getByToken(vtxToken_, vtxHandle);
+  if (vtxHandle.isValid()) {
+    for (auto const& v : *vtxHandle) {
+      bool isFake = v.isFake();
 
-  edm::Handle<edm::View<reco::Jet> > offjets;
-  iEvent.getByToken(jetSrc_, offjets);
-  if (!offjets.isValid()) {
-    edm::LogWarning("JetMonitor") << "Jet handle not valid \n";
-    return;
-  }
-  for (edm::View<reco::Jet>::const_iterator ibegin = offjets->begin(), iend = offjets->end(), ijet = ibegin;
-       ijet != iend;
-       ++ijet) {
-    if (ijet->pt() < ptcut_) {
-      continue;
+      if (!isFake) {
+        vtx = v;
+        break;
+      }
     }
-    v_jetpt.push_back(ijet->pt());
-    v_jeteta.push_back(ijet->eta());
-    v_jetphi.push_back(ijet->phi());
-    //    cout << "jetpt (view ) : " << ijet->pt() << endl;
+  } else {
+    if (vtxInputTag_.label().empty())
+      edm::LogWarning("JetMonitor") << "VertexCollection is not set";
+    else
+      edm::LogWarning("JetMonitor") << "skipping events because the collection " << vtxInputTag_.label().c_str()
+                                    << " is not available";
+    if (!vtxInputTag_.label().empty())
+      return;
   }
+  // -------- muons ----------
+  std::vector<reco::Muon> muons;
+  edm::Handle<reco::MuonCollection> muoHandle;
+  iEvent.getByToken(muoToken_, muoHandle);
+  if (muoHandle.isValid()) {
+    if (muoHandle->size() < nmuons_)
+      return;
+    for (auto const& m : *muoHandle) {
+      bool istightID = m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. &&
+                       m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 &&
+                       fabs(m.muonBestTrack()->dxy(vtx.position())) < 0.2 &&
+                       fabs(m.muonBestTrack()->dz(vtx.position())) < 0.5 &&
+                       m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
+                       m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
+      if (muoSelection_(m) && istightID) {
+        muons.push_back(m);
+      }
+    }
+    if (muons.size() < nmuons_)  // require 1 tight muon if orthogonal method, else nmuons_ is 0
+      return;
+  } else {
+    if (muoInputTag_.label().empty())
+      edm::LogWarning("JetMonitor") << "MuonCollection not set";
+    else
+      edm::LogWarning("JetMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str()
+                                    << " is not available";
+    if (!muoInputTag_.label().empty())
+      return;
+  }
+  // ------------- Jets ------------
+  corrected_jets.clear();
+  corrected_calojets.clear();
 
-  if (v_jetpt.empty())
-    return;
-  double jetpt_ = v_jetpt[0];
-  double jeteta_ = v_jeteta[0];
-  double jetphi_ = v_jetphi[0];
+  edm::Handle<reco::PFJetCollection> PFjetHandle;
+  edm::Handle<reco::CaloJetCollection> calojetHandle;
+
+  edm::Handle<reco::JetCorrector> Corrector;
+  iEvent.getByToken(correctorToken_, Corrector);
+  if (isPFJetTrig) {  // if pfjet
+    iEvent.getByToken(jetSrc_, PFjetHandle);
+    if (!PFjetHandle.isValid()) {
+      edm::LogWarning("JetMonitor") << "Jet handle not valid \n";
+      return;
+    }
+
+    for (auto const& ijet : *PFjetHandle) {
+      // Clean Jets
+      if (!isCleanJet(ijet.eta(), ijet.phi(), muons, dr2cut_))
+        continue;
+
+      // apply corrections on the fly
+      double jec = Corrector.isValid() ? Corrector->correction(ijet) : 1.0;
+      double corjet = jec * ijet.pt();
+      if (corjet < ptcut_) {
+        continue;
+      }
+      corrected_jets.push_back({corjet,
+                                ijet.eta(),
+                                ijet.phi(),
+                                ijet.neutralHadronEnergyFraction(),
+                                ijet.neutralEmEnergyFraction(),
+                                ijet.chargedHadronEnergyFraction(),
+                                ijet.chargedEmEnergyFraction(),
+                                ijet.muonEnergyFraction(),
+                                ijet.neutralMultiplicity(),
+                                ijet.chargedMultiplicity()});
+
+    }  // end for jets
+    std::sort(corrected_jets.begin(), corrected_jets.end(), [](const auto& a, const auto& b) { return a.pt > b.pt; });
+    if (corrected_jets.empty())
+      return;
+    if (!passTightJetID(corrected_jets[0]))
+      return;
+
+  }  // end if PF Jets
+
+  if (isCaloJetTrig) {  //if calojet
+    iEvent.getByToken(calojetToken_, calojetHandle);
+    if (!calojetHandle.isValid()) {
+      edm::LogWarning("JetMonitor") << "Jet handle not valid \n";
+      return;
+    }
+    for (auto const& j : *calojetHandle) {
+      // Clean Jets
+      if (!isCleanJet(j.eta(), j.phi(), muons, dr2cut_))
+        continue;
+
+      // apply corrections on the fly
+      double jec = Corrector.isValid() ? Corrector->correction(j) : 1.0;
+      double corjet = jec * j.pt();
+      if (corjet < ptcut_) {
+        continue;
+      }
+      corrected_calojets.push_back({corjet, j.eta(), j.phi()});
+    }  // end for jets
+    std::sort(
+        corrected_calojets.begin(), corrected_calojets.end(), [](const auto& a, const auto& b) { return a.pt > b.pt; });
+    if (corrected_calojets.empty())
+      return;
+
+  }  // end if Calo Jets
+
+  double jetpt_ = (isPFJetTrig && !corrected_jets.empty())         ? corrected_jets[0].pt
+                  : (isCaloJetTrig && !corrected_calojets.empty()) ? corrected_calojets[0].pt
+                                                                   : -99.;
+  double jeteta_ = (isPFJetTrig && !corrected_jets.empty())         ? corrected_jets[0].eta
+                   : (isCaloJetTrig && !corrected_calojets.empty()) ? corrected_calojets[0].eta
+                                                                    : 99;
+  double jetphi_ = (isPFJetTrig && !corrected_jets.empty())         ? corrected_jets[0].phi
+                   : (isCaloJetTrig && !corrected_calojets.empty()) ? corrected_calojets[0].phi
+                                                                    : 99;
 
   FillME(a_ME, jetpt_, jetphi_, jeteta_, ls, "denominator");
   if (isBarrel(jeteta_)) {
@@ -281,9 +443,9 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   } else if (isForward(jeteta_)) {
     FillME(a_ME_HF, jetpt_, jetphi_, jeteta_, ls, "denominator", true, true, true, false);
   }
-
+  // Require Numerator //
   if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
-    return;  // Require Numerator //
+    return;
 
   FillME(a_ME, jetpt_, jetphi_, jeteta_, ls, "numerator");
   if (isBarrel(jeteta_)) {
@@ -303,6 +465,41 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   }
 }
 
+bool JetMonitor::passTightJetID(const correctedPFJets& jet) {
+  const double abseta = std::abs(jet.eta);
+
+  const double NHF = jet.NHF;
+  const double NEMF = jet.NEMF;
+  const double CHF = jet.CHF;
+  const double CEMF = jet.CEMF;
+  const double MUF = jet.MUF;
+  const int NumNeutralParticles = jet.NumNeutralParticles;
+  const int CHM = jet.CHM;
+  const int NumConst = CHM + NumNeutralParticles;
+  bool passjetID = false;
+  // Id for puppi jets
+  if (abseta <= 2.6) {
+    passjetID = (CEMF < 0.8 && CHM > 0 && CHF > 0.01 && NumConst > 1 && NEMF < 0.9 && MUF < 0.8 && NHF < 0.9);
+  } else if (abseta > 2.6 && abseta <= 2.7) {
+    passjetID = ((CEMF < 0.8 && NEMF < 0.99 && MUF < 0.8 && NHF < 0.9));
+  } else if (abseta > 2.7 && abseta <= 3.0) {
+    passjetID = (NHF < 0.9999);
+  } else if (abseta > 3.0) {
+    passjetID = (NEMF < 0.90 && NumNeutralParticles > 2);
+  }
+
+  return passjetID;
+}
+
+bool JetMonitor::isCleanJet(double JetEta, double JetPhi, const std::vector<reco::Muon>& muons, double dr2Cut) {
+  for (const auto& mu : muons) {
+    double dR2 = deltaR2(JetEta, JetPhi, mu.eta(), mu.phi());
+    if (dR2 < dr2Cut) {
+      return false;
+    }
+  }
+  return true;
+}
 bool JetMonitor::isBarrel(double eta) {
   bool output = false;
   if (fabs(eta) <= 1.3)
@@ -467,12 +664,19 @@ void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<std::string>("FolderName", "HLT/Jet");
   desc.add<bool>("requireValidHLTPaths", true);
 
-  desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJetsCHS"));
-  desc.add<double>("ptcut", 20);
+  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJetsPuppi"));
+  desc.add<edm::InputTag>("corrector", edm::InputTag(""));
+  desc.add<double>("ptcut", 30);
   desc.add<bool>("ispfjettrg", true);
   desc.add<bool>("iscalojettrg", false);
+  desc.add<bool>("ispuppijet", false);
+  desc.add<double>("dr2cut", 0.16);
 
   desc.add<bool>("enableFullMonitoring", true);
+  desc.add<std::string>("muoSelection", "pt > 30");
+  desc.add<unsigned>("nmuons", 0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
