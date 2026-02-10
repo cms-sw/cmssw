@@ -8,14 +8,6 @@
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
-  <bin file="test_SimpleVector.cu" name="gpuSimpleVector_t">
-    <flags CUDA_FLAGS="-g"/>
-  </bin>
-
-  <bin file="test_SimpleVector.cu" name="gpuSimpleVector_debug">
-    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
-  </bin>
-
   <bin file="cudastdAlgorithm_t.cpp">
     <flags CUDA_FLAGS="-g"/>
   </bin>
