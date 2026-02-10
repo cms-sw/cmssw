@@ -9,10 +9,10 @@
 #include "DataFormats/L1TParticleFlow/interface/egamma.h"
 #include "DataFormats/L1TParticleFlow/interface/emulator_io.h"
 #include "DataFormats/L1TParticleFlow/interface/PFTrackFwd.h"
+#include "DataFormats/L1Trigger/interface/L1CandidateFwd.h"
 
 namespace l1t {
   class PFCandidate;
-  class L1Candidate;
   class SAMuon;
 }  // namespace l1t
 
