@@ -1,3 +1,4 @@
+from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
 from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.NanoAOD.jetMC_cff import *
 from PhysicsTools.NanoAOD.globals_cff import genTable,genFilterTable
@@ -9,14 +10,6 @@ from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.common_cff import Var,CandVars
 from PhysicsTools.NanoAOD.simpleSingletonCandidateFlatTableProducer_cfi import simpleSingletonCandidateFlatTableProducer
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
-
-nanoMetadata = cms.EDProducer("UniqueStringProducer",
-    strings = cms.PSet(
-        tag = cms.string("untagged"),
-    )
-)
-
-
 
 nanogenSequence = cms.Sequence(
     nanoMetadata+
