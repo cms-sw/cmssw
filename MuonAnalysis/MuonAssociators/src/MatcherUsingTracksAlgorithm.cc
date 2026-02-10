@@ -500,7 +500,7 @@ bool MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState
     }  // if match
 
     return isBest;
-    /*2.2.X*/ } catch (const TrajectoryStateException &err) { return false; }
+  /*2.2.X*/ } catch (const TrajectoryStateException &err) { return false; }
 }
 
 bool MatcherUsingTracksAlgorithm::matchByDirectComparison(const FreeTrajectoryState &start,
