@@ -829,6 +829,7 @@ int PedeSteerer::runPede(const std::string &masterSteer) const {
   // a single-character 'millepede.end'
   // file. Read this here.
   std::ifstream mpend("millepede.end");  // open the Pede exit code file
+  std::string statusMessage;
 
   if (shellReturn != 0 || !mpend.is_open()) {
     edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede"
@@ -836,10 +837,16 @@ int PedeSteerer::runPede(const std::string &masterSteer) const {
   } else {
     // read the pede exit code from the file.
     mpend >> shellReturn;
+    // some acrobatics to get a nice formatting of the remaining text
+    std::stringstream remainingCont;
+    remainingCont << mpend.rdbuf();
+    statusMessage = remainingCont.str();
+    statusMessage = statusMessage.substr(statusMessage.find_first_not_of(' '));
+    statusMessage = statusMessage.substr(0, statusMessage.find_last_not_of(" \n") + 1);
     mpend.close();
   }
   edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede"
-                            << "Command returns " << shellReturn;
+                            << "Command returns " << shellReturn << " - " << statusMessage;
 
   // the return code actually does not
   // get checked by client code (as of 02/2026).
@@ -848,19 +855,24 @@ int PedeSteerer::runPede(const std::string &masterSteer) const {
   // https://millepede.pages.desy.de/millepede-ii/exit_code_page.html
   if (shellReturn == -1) {
     edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede"
-                               << "Pede crashed. Please check the log.";
+                               << "Pede crashed:\n   " << statusMessage << "\n"
+                               << "Please check the millepede log files for more information.";
   } else if (shellReturn == 1) {
     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede"
-                              << "Pede exited with tolerable warnings. Please check the log.";
+                              << "Pede exited with tolerable warnings:\n   " << statusMessage << "\n"
+                              << "Please check the millepede log files for more information.";
   } else if (shellReturn > 1 && shellReturn < 5) {
     edm::LogWarning("Alignment") << "@SUB=PedeSteerer::runPede"
-                                 << "Pede exited with severe warnings. Please check the log.";
+                                 << "Pede exited with severe warnings:\n   " << statusMessage << "\n"
+                                 << "Please check the millepede log files for more information.";
   } else if (shellReturn == 5) {
     edm::LogWarning("Alignment") << "@SUB=PedeSteerer::runPede"
-                                 << "Pede did not find a solution. Please check the log.";
+                                 << "Pede did not find a solution:\n   " << statusMessage << "\n"
+                                 << "Please check the millepede log files for more information.";
   } else if (shellReturn > 9) {
     edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede"
-                               << "Pede aborted due to errors. Please check the log.";
+                               << "Pede aborted due to errors:\n   " << statusMessage << "\n"
+                               << "Please check the millepede log files for more information.";
   }
   return shellReturn;
 }
