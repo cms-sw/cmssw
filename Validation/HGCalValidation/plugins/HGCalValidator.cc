@@ -423,7 +423,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   const auto& hits = event.get(hitsToken_);
   for (std::size_t index = 0; const auto& hgcRecHitCollection : hits) {
     if (hgcRecHitCollection->empty()) {
-      edm::LogWarning("HGCalValidator") << "HGCRecHitCollection #" << index << "is not valid.";
+      edm::LogWarning("HGCalValidator") << "HGCRecHitCollection #" << index << " is not valid.";
     }
     index++;
   }
