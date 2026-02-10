@@ -44,14 +44,6 @@
    <flags CXXFLAGS="-g"/>
   </bin>
 
-  <bin file="AtomicPairCounter_t.cu" name="gpuAtomicPairCounter_t">
-    <flags CUDA_FLAGS="-g"/>
-  </bin>
-
-  <bin file="AtomicPairCounter_t.cu" name="gpuAtomicPairCounter_debug">
-    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
-  </bin>
-
   <bin file="prefixScan_t.cu" name="gpuPrefixScan_t">
     <flags CUDA_FLAGS="-g"/>
   </bin>
