@@ -44,7 +44,6 @@
 //
 // (*) Requires df_extended>0 in L1Trigger/DTTriggerPhase2/plugins/DTTrigPhase2Prod.cc
 
-using namespace edm;
 using namespace std;
 using namespace cmsdt;
 
@@ -121,8 +120,6 @@ public:
   void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
 
   // Methods
-  void sortPhiDigis(const edm::Handle<L1Phase2MuDTExtPhContainer>& thePhiDigis);
-  void sortThetaDigis(const edm::Handle<L1Phase2MuDTExtThContainer>& theThetaDigis);
   std::vector<L1Phase2MuDTExtPhiThetaPair> bestPairsPerChamber(const std::vector<L1Phase2MuDTExtPhDigi>& phiDigis,
                                                                const std::vector<L1Phase2MuDTExtThDigi>& thetaDigis,
                                                                unsigned int maxPairs,
@@ -130,7 +127,7 @@ public:
                                                                int sector,
                                                                int station);
   float computeTimePosDistance(
-      const L1Phase2MuDTExtPhDigi phiDigi, const L1Phase2MuDTExtThDigi thetaDigi, int sector, int wheel, int station);
+      const L1Phase2MuDTExtPhDigi& phiDigi, const L1Phase2MuDTExtThDigi& thetaDigi, int sector, int wheel, int station);
 
   // Setter-methods
 
@@ -151,7 +148,7 @@ private:
   edm::EDGetTokenT<L1Phase2MuDTExtThContainer> digiThToken_;
 };
 
-DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const ParameterSet& pset) {
+DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const edm::ParameterSet& pset) {
   produces<L1Phase2MuDTExtPhiThetaPairContainer>();
 
   debug_ = pset.getUntrackedParameter<bool>("debug");
@@ -182,7 +179,7 @@ void DTTrigPhase2PairsProd::beginRun(edm::Run const& iRun, const edm::EventSetup
     LogDebug("DTTrigPhase2PairsProd") << "beginRun " << iRun.id().run();
 }
 
-void DTTrigPhase2PairsProd::produce(Event& iEvent, const EventSetup& iEventSetup) {
+void DTTrigPhase2PairsProd::produce(edm::Event& iEvent, const edm::EventSetup& iEventSetup) {
   if (debug_)
     LogDebug("DTTrigPhase2PairsProd") << "produce";
 
@@ -346,7 +343,7 @@ std::vector<L1Phase2MuDTExtPhiThetaPair> DTTrigPhase2PairsProd::bestPairsPerCham
 }
 
 float DTTrigPhase2PairsProd::computeTimePosDistance(
-    const L1Phase2MuDTExtPhDigi phiDigi, const L1Phase2MuDTExtThDigi thetaDigi, int sector, int wheel, int station) {
+    const L1Phase2MuDTExtPhDigi& phiDigi, const L1Phase2MuDTExtThDigi& thetaDigi, int sector, int wheel, int station) {
   float t01 = ((int)round(thetaDigi.t0() / (float)LHC_CLK_FREQ)) - shift_back;
   float posRefZ = zFE[wheel + 2];
 

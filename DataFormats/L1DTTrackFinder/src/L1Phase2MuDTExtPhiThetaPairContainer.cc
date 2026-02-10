@@ -40,7 +40,7 @@ void L1Phase2MuDTExtPhiThetaPairContainer::setContainer(const Segment_Container&
   m_segments = inputSegments;
 }
 
-L1Phase2MuDTExtPhiThetaPairContainer::Segment_Container const* L1Phase2MuDTExtPhiThetaPairContainer::getContainer()
+L1Phase2MuDTExtPhiThetaPairContainer::Segment_Container const& L1Phase2MuDTExtPhiThetaPairContainer::getContainer()
     const {
-  return &m_segments;
+  return m_segments;
 }

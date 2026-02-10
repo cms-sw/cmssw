@@ -41,7 +41,7 @@ public:
 
   void setContainer(const Segment_Container& inputSegments);
 
-  Segment_Container const* getContainer() const;
+  Segment_Container const& getContainer() const;
 
 private:
   Segment_Container m_segments;
