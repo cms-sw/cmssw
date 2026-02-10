@@ -20,37 +20,8 @@
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
-  <bin file="radixSort_t.cu" name="gpuRadixSort_t">
-    <flags CUDA_FLAGS="-g"/>
-  </bin>
-
-  <bin file="radixSort_t.cu" name="gpuRadixSort_debug">
-    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
-  </bin>
-
-  <bin file="oneRadixSort_t.cu">
-    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
-  </bin>
-
   <bin file="testCatch2Main.cpp,device_unique_ptr_t.cpp,host_unique_ptr_t.cpp,host_noncached_unique_ptr_t.cpp,copyAsync_t.cpp,memsetAsync_t.cpp" name="cudaMemUtils_t">
     <use name="catch2"/>
-  </bin>
-
-  <bin file="eigenSoA_t.cpp" name="cpuEigenSoA_t">
-    <use name="eigen"/>
-    <flags CXXFLAGS="-g"/>
-  </bin>
-
-  <bin file="eigenSoA_t.cu" name="gpuEigenSoA_t">
-    <use name="eigen"/>
-    <flags CUDA_FLAGS="-g"/>
-    <flags CXXFLAGS="-g"/>
-  </bin>
-
-  <bin file="eigenSoA_t.cu" name="gpuEigenSoA_debug">
-    <use name="eigen"/>
-    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
-    <flags CXXFLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="testCudaCheck.cpp" name="testCudaCheck">
