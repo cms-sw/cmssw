@@ -1055,8 +1055,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   HitContainer const *__restrict__ foundNtuplets,
                                   HitToTuple const *__restrict__ phitToTuple,
-                                  int32_t firstPrint,
-                                  int32_t lastPrint,
+                                  uint32_t firstPrint,
+                                  uint32_t lastPrint,
                                   int iev) const {
       constexpr auto loose = Quality::loose;
 

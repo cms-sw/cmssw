@@ -57,19 +57,25 @@ namespace caStructures {
   using tindex_type = uint32_t;
   using cindex_type = uint32_t;
 
-  using GenericContainer = cms::alpakatools::OneToManyAssocRandomAccess<hindex_type, -1, -1>;
-  using GenericContainerStorage = typename GenericContainer::index_type;
+  using GenericContainer = cms::alpakatools::
+      OneToManyAssocRandomAccess<hindex_type, cms::alpakatools::kDynamicSize, cms::alpakatools::kDynamicSize>;
+  using GenericContainerStorage = typename GenericContainer::value_type;
   using GenericContainerOffsets = typename GenericContainer::Counter;
   using GenericContainerView = typename GenericContainer::View;
 
-  using SequentialContainer = cms::alpakatools::OneToManyAssocSequential<hindex_type, -1, -1>;
-  using SequentialContainerStorage = typename SequentialContainer::index_type;
+  using SequentialContainer = cms::alpakatools::
+      OneToManyAssocSequential<hindex_type, cms::alpakatools::kDynamicSize, cms::alpakatools::kDynamicSize>;
+  using SequentialContainerStorage = typename SequentialContainer::value_type;
   using SequentialContainerOffsets = typename SequentialContainer::Counter;
   using SequentialContainerView = typename SequentialContainer::View;
 
   template <typename TrackerTraits>
-  using PhiBinnerT =
-      cms::alpakatools::HistoContainer<int16_t, 256, -1, 8 * sizeof(int16_t), hindex_type, TrackerTraits::numberOfLayers>;
+  using PhiBinnerT = cms::alpakatools::HistoContainer<int16_t,
+                                                      256,
+                                                      cms::alpakatools::kDynamicSize,
+                                                      8 * sizeof(int16_t),
+                                                      hindex_type,
+                                                      TrackerTraits::numberOfLayers>;
 
   template <typename TrackerTraits>
   using CellNeighborsT =
@@ -100,7 +106,7 @@ namespace caStructures {
   template <typename TrackerTraits>
   using HitToTupleT =
       cms::alpakatools::OneToManyAssocRandomAccess<tindex_type,
-                                                   -1,
+                                                   cms::alpakatools::kDynamicSize,
                                                    TrackerTraits::maxNumberOfTuples *
                                                        TrackerTraits::avgHitsPerTrack>;  // 3.5 should be enough
 

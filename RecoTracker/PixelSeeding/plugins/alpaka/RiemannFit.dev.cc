@@ -57,7 +57,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // get it from the ntuple container (one to one to helix)
         auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_idx);
-        ALPAKA_ASSERT_ACC(static_cast<int>(tkid) < foundNtuplets->nOnes());
+        ALPAKA_ASSERT_ACC(tkid < foundNtuplets->nOnes());
 
         ALPAKA_ASSERT_ACC(foundNtuplets->size(tkid) == nHits);
 
