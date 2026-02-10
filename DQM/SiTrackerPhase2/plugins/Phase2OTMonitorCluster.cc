@@ -260,7 +260,7 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
       }
     }
     crackOverview_->getTH2Poly()->SetStats(false);
-    crackOverview_->setOption("z");
+    crackOverview_->setOption("z0");
 
   } else
     crackOverview_ = nullptr;

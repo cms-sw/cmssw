@@ -284,7 +284,7 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
       }
     }
     CrackOverview->getTH2Poly()->SetStats(false);
-    CrackOverview->setOption("z");
+    CrackOverview->setOption("z0");
 
   } else
     CrackOverview = nullptr;

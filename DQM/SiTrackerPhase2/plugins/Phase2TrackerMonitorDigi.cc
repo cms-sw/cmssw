@@ -488,7 +488,6 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
   } else
     RZOccupancyMap = nullptr;
 
-
   Parameters = config_.getParameter<edm::ParameterSet>("CrackOverview");
   if (Parameters.getParameter<bool>("switch")) {
     CrackOverview = ibooker.book2DPoly(Parameters.getParameter<std::string>("name"),
@@ -510,7 +509,7 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
       }
     }
     CrackOverview->getTH2Poly()->SetStats(false);
-    CrackOverview->setOption("z");
+    CrackOverview->setOption("z0");
 
   } else
     CrackOverview = nullptr;
