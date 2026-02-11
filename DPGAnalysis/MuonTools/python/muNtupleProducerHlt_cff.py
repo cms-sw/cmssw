@@ -8,9 +8,34 @@ from DPGAnalysis.MuonTools.nano_mu_hlt_cff import *
 
 
 hltMuNanoProducer = cms.Sequence(
-    prunedGenParticles + finalGenParticles + genParticleTable + hltMuonTriggerProducers
+    prunedGenParticles
+    + finalGenParticles
+    + genParticleTable
+    + hltMuonTriggerProducers
 )
 
+hltMuNanoProducerForTraining = cms.Sequence(
+    prunedGenParticles
+    + finalGenParticles
+    + genParticleTable
+)
+
+_hltMuNanoProducerTrainingPixel = hltMuNanoProducerForTraining.copy()
+_hltMuNanoProducerTrainingPixel += hltMuonTriggerProducersForTrainingPixel
+from Configuration.ProcessModifiers.phase2MuonPixelTracksSelector_cff import phase2MuonPixelTracksSelector
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+(phase2MuonPixelTracksSelector | ngtScouting).toReplaceWith(
+    hltMuNanoProducerForTraining,
+    _hltMuNanoProducerTrainingPixel
+)
+
+_hltMuNanoProducerTrainingSeeds = hltMuNanoProducerForTraining.copy()
+_hltMuNanoProducerTrainingSeeds += hltMuonTriggerProducersForTrainingSeeds
+from Configuration.ProcessModifiers.phase2MuonSeedsSelector_cff import phase2MuonSeedsSelector
+(phase2MuonSeedsSelector).toReplaceWith(
+    hltMuNanoProducerForTraining,
+    _hltMuNanoProducerTrainingSeeds
+)
 
 def hltMuNanoCustomize(process):
 
