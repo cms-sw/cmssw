@@ -101,7 +101,8 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
   using namespace edm;
 
   if (!iEvent.getHandle(hitsToken_).isValid()) {
-    edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer") << "Missing MultiHGCRecHitCollection.";
+    edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
+        << "MultiHGCRecHitCollection is invalid. Association maps will be empty.";
     for (const auto& tracksterToken : tracksterCollectionTokens_) {
       for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
         iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
@@ -164,8 +165,8 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
     iEvent.getByToken(tracksterToken.second, recoTrackstersHandle);
 
     if (!recoTrackstersHandle.isValid()) {
-      edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
-          << "No valid Trackster collection found. Association maps will be empty.";
+      LogDebug("AllTracksterToSimTracksterAssociatorsByHitsProducer")
+          << "The collection " << tracksterToken.first << " is invalid. Association maps will be empty.";
       for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
         Handle<std::vector<ticl::Trackster>> simTrackstersHandle;
 

@@ -380,7 +380,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<ticl::TracksterCollection> simTracksterHandle;
   event.getByToken(simTracksters_, simTracksterHandle);
   if (!simTracksterHandle.isValid()) {
-    edm::LogWarning("MissingInput") << "Missing SimTrackster collection";
+    LogDebug("MissingInput") << "SimTrackster collection is invalid.";
     return;
   }
   ticl::TracksterCollection const& simTracksters = *simTracksterHandle;
@@ -388,7 +388,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
   event.getByToken(simTracksters_fromCPs_, simTracksterFromCPHandle);
   if (!simTracksterFromCPHandle.isValid()) {
-    edm::LogWarning("MissingInput") << "Missing SimTrackster collection from CP";
+    LogDebug("MissingInput") << "SimTrackster collection from CP is invalid.";
     return;
   }
   ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
@@ -413,7 +413,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& hitMap = *hitMapHandle;
 
   if (!event.getHandle(hitsToken_).isValid()) {
-    edm::LogWarning("HGCalValidator") << "edm::RefProdVector<HGCRecHitCollection> token is not valid.";
+    LogDebug("HGCalValidator") << "edm::RefProdVector<HGCRecHitCollection> token is not valid.";
     return;
   }
 
@@ -428,7 +428,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
   edm::MultiSpan<HGCRecHit> rechitSpan(hits);
   if (rechitSpan.size() == 0) {
-    edm::LogWarning("HGCalValidator") << "The HGCRecHitCollection MultiSpan is empty.";
+    LogDebug("HGCalValidator") << "The HGCRecHitCollection MultiSpan is empty.";
   }
 
   //Some general info on layers etc.
@@ -582,7 +582,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(label_tstTokens[wml], tracksterHandle);
 
       if (!tracksterHandle.isValid()) {
-        edm::LogWarning("MissingInput") << "Failed to retrieve tracksters for wml index: " << wml;
+        LogDebug("MissingInput") << "Failed to retrieve tracksters: " << label_tst[wml].label();
         continue;  // Or handle the error as needed
       }
 
