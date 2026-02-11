@@ -59,9 +59,15 @@ TracksterLinkingbySuperClusteringDNN::TracksterLinkingbySuperClusteringDNN(const
       filterByTracksterPID_(ps.getParameter<bool>("filterByTracksterPID")),
       tracksterPIDCategoriesToFilter_(ps.getParameter<std::vector<int>>("tracksterPIDCategoriesToFilter")),
       PIDThreshold_(ps.getParameter<double>("PIDThreshold")) {
-  assert(onnxRuntime_ &&
-         "TracksterLinkingbySuperClusteringDNN : ONNXRuntime was not provided, the model should have been set in "
-         "onnxModelPath in the plugin config");
+  const auto model = ps.getParameter<std::string>("onnxModelPath");
+  if (model.empty()) {
+    throw cms::Exception("Configuration")
+        << "TracksterLinkingbySuperClusteringDNN requires a non-empty 'onnxModelPath'.";
+  }
+  if (!onnxRuntime_) {
+    throw cms::Exception("Configuration")
+        << "TracksterLinkingbySuperClusteringDNN could not retrieve an ONNX session for 'onnxModelPath' = " << model;
+  }
 }
 
 void TracksterLinkingbySuperClusteringDNN::initialize(const HGCalDDDConstants* hgcons,
@@ -346,7 +352,7 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
 
 void TracksterLinkingbySuperClusteringDNN::fillPSetDescription(edm::ParameterSetDescription& desc) {
   TracksterLinkingAlgoBase::fillPSetDescription(desc);  // adds algo_verbosity
-  desc.add<edm::FileInPath>("onnxModelPath")->setComment("Path to DNN (as ONNX model)");
+  desc.add<std::string>("onnxModelPath")->setComment("Path to DNN (as ONNX model), empty disables loading");
   desc.ifValue(edm::ParameterDescription<std::string>("dnnInputsVersion", "v3", true),
                edm::allowedValues<std::string>("v1", "v2", "v3"))
       ->setComment(

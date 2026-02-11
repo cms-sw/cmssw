@@ -13,6 +13,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
 
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
@@ -45,16 +47,16 @@
 using namespace ticl;
 using cms::Ort::ONNXRuntime;
 
-class TracksterLinksProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class TracksterLinksProducer : public edm::stream::EDProducer<edm::GlobalCache<ticl::TICLONNXGlobalCache>> {
 public:
-  explicit TracksterLinksProducer(const edm::ParameterSet &ps, const ONNXRuntime *);
+  explicit TracksterLinksProducer(const edm::ParameterSet &ps, const ticl::TICLONNXGlobalCache *cache);
   ~TracksterLinksProducer() override {};
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void beginRun(edm::Run const &iEvent, edm::EventSetup const &es) override;
-  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet &iConfig);
-  static void globalEndJob(const ONNXRuntime *);
+  static std::unique_ptr<ticl::TICLONNXGlobalCache> initializeGlobalCache(const edm::ParameterSet &iConfig);
+  static void globalEndJob(const ticl::TICLONNXGlobalCache *);
 
 private:
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
@@ -83,7 +85,7 @@ private:
   edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hdc_token_;
 };
 
-TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps, const ONNXRuntime *onnxRuntime)
+TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps, const ticl::TICLONNXGlobalCache *cache)
     : algoType_(ps.getParameter<edm::ParameterSet>("linkingPSet").getParameter<std::string>("type")),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       clustersTime_token_(
@@ -95,49 +97,69 @@ TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps, cons
       bfield_token_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
       propagator_token_(
           esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(edm::ESInputTag("", propName_))) {
-  // Loop over the edm::VInputTag and append the token to tracksters_tokens_
   for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("tracksters_collections")) {
     tracksters_tokens_.emplace_back(consumes<std::vector<Trackster>>(tag));
   }
-  //Loop over the edm::VInputTag of masks and append the token to original_masks_tokens_
   for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("original_masks")) {
     original_masks_tokens_.emplace_back(consumes<std::vector<float>>(tag));
   }
-  // Initialize inference algorithm using the factory
-  std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
-  edm::ParameterSet inferencePSet = ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
-  inferenceAlgo_ = std::unique_ptr<TracksterInferenceAlgoBase>(
-      TracksterInferenceAlgoFactory::get()->create(inferencePlugin, inferencePSet));
 
-  // New trackster collection after linking
   produces<std::vector<Trackster>>();
-
-  // Links
   produces<std::vector<std::vector<unsigned int>>>();
   produces<std::vector<std::vector<unsigned int>>>("linkedTracksterIdToInputTracksterId");
-  // LayerClusters Mask
   produces<std::vector<float>>();
 
-  auto linkingPSet = ps.getParameter<edm::ParameterSet>("linkingPSet");
-
   if (algoType_ == "Skeletons") {
-    std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
+    std::string detectorName = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
     hdc_token_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
-        edm::ESInputTag("", detectorName_));
+        edm::ESInputTag("", detectorName));
   }
 
-  linkingAlgo_ = TracksterLinkingPluginFactory::get()->create(algoType_, linkingPSet, consumesCollector(), onnxRuntime);
+  // Enforce presence of the superclustering DNN model when using a DNN-based linking plugin.
+  // This fails fast at construction time, before any event processing.
+  auto const linkingPSet = ps.getParameter<edm::ParameterSet>("linkingPSet");
+  cms::Ort::ONNXRuntime const *linkingSession = nullptr;
+
+  if (linkingPSet.existsAs<std::string>("onnxModelPath", true)) {
+    auto const model = linkingPSet.getParameter<std::string>("onnxModelPath");
+    linkingSession = cache ? cache->getByModelPathString(model) : nullptr;
+  }
+
+  linkingAlgo_ =
+      TracksterLinkingPluginFactory::get()->create(algoType_, linkingPSet, consumesCollector(), linkingSession);
+
+  // Initialize inference algorithm using the factory.
+  // Do not build the inference plugin if it is disabled or if no model is configured (empty string => no session loaded).
+  if (regressionAndPid_) {
+    const std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
+    if (!inferencePlugin.empty()) {
+      const edm::ParameterSet inferencePSet =
+          ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
+
+      // If the plugin config exposes model paths as std::string with default "",
+      // the cache will only contain sessions for non-empty paths.
+      const bool hasSingleModel = inferencePSet.existsAs<std::string>("onnxModelPath", true) &&
+                                  !inferencePSet.getParameter<std::string>("onnxModelPath").empty();
+      const bool hasPIDModel = inferencePSet.existsAs<std::string>("onnxPIDModelPath", true) &&
+                               !inferencePSet.getParameter<std::string>("onnxPIDModelPath").empty();
+      const bool hasEnergyModel = inferencePSet.existsAs<std::string>("onnxEnergyModelPath", true) &&
+                                  !inferencePSet.getParameter<std::string>("onnxEnergyModelPath").empty();
+
+      // Only instantiate the plugin if at least one model path is configured.
+      if (hasSingleModel || hasPIDModel || hasEnergyModel) {
+        inferenceAlgo_ = std::unique_ptr<TracksterInferenceAlgoBase>(
+            TracksterInferenceAlgoFactory::get()->create(inferencePlugin, inferencePSet, cache));
+      }
+    }
+  }
 }
 
-std::unique_ptr<ONNXRuntime> TracksterLinksProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
-  auto const &pluginPset = iConfig.getParameter<edm::ParameterSet>("linkingPSet");
-  if (pluginPset.exists("onnxModelPath"))
-    return std::make_unique<ONNXRuntime>(pluginPset.getParameter<edm::FileInPath>("onnxModelPath").fullPath());
-  else
-    return std::unique_ptr<ONNXRuntime>(nullptr);
+std::unique_ptr<ticl::TICLONNXGlobalCache> TracksterLinksProducer::initializeGlobalCache(
+    const edm::ParameterSet &iConfig) {
+  return ticl::TICLONNXGlobalCache::initialize(iConfig);
 }
 
-void TracksterLinksProducer::globalEndJob(const ONNXRuntime *) {}
+void TracksterLinksProducer::globalEndJob(const ticl::TICLONNXGlobalCache *) {}
 
 void TracksterLinksProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
   if (algoType_ == "Skeletons") {
@@ -233,11 +255,9 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
                         rhtools_,
                         true);
 
-  if (regressionAndPid_) {
-    // Run inference algorithm
+  if (regressionAndPid_ && inferenceAlgo_) {
     inferenceAlgo_->inputData(layerClusters, *resultTracksters, rhtools_);
-    inferenceAlgo_->runInference(
-        *resultTracksters);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
+    inferenceAlgo_->runInference(*resultTracksters);
   }
 
   evt.put(std::move(linkedResultTracksters));
@@ -293,7 +313,7 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   desc.add<bool>("regressionAndPid", false);
   desc.add<std::string>("detector", "HGCAL");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
-  desc.add<std::string>("inferenceAlgo", "TracksterInferenceByPFN");
+  desc.add<std::string>("inferenceAlgo", "");
   descriptions.add("tracksterLinksProducer", desc);
 }
 

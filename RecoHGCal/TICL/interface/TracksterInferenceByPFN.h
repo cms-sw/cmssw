@@ -3,12 +3,14 @@
 
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
 
 namespace ticl {
 
   class TracksterInferenceByPFN : public TracksterInferenceAlgoBase {
   public:
-    explicit TracksterInferenceByPFN(const edm::ParameterSet& conf);
+    explicit TracksterInferenceByPFN(const edm::ParameterSet& conf, TICLONNXGlobalCache const* cache);
     void inputData(const std::vector<reco::CaloCluster>& layerClusters,
                    std::vector<Trackster>& tracksters,
                    const hgcal::RecHitTools& rhtools) override;
@@ -17,8 +19,6 @@ namespace ticl {
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   private:
-    const std::unique_ptr<cms::Ort::ONNXRuntime> onnxPIDRuntimeInstance_;
-    const std::unique_ptr<cms::Ort::ONNXRuntime> onnxEnergyRuntimeInstance_;
     const cms::Ort::ONNXRuntime* onnxPIDSession_;
     const cms::Ort::ONNXRuntime* onnxEnergySession_;
 
@@ -31,6 +31,7 @@ namespace ticl {
     static constexpr int eidNFeatures_ = 7;
     int doPID_;
     int doRegression_;
+    bool enabled_ = false;
 
     std::vector<std::vector<int64_t>> input_shapes_;
     std::vector<int> tracksterIndices_;

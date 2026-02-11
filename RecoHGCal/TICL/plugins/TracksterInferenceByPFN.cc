@@ -8,31 +8,43 @@
 #include "TrackstersPCA.h"
 
 namespace ticl {
-  using namespace cms::Ort;  // Use ONNXRuntime namespace
 
-  // Constructor for TracksterInferenceByPFN
-  TracksterInferenceByPFN::TracksterInferenceByPFN(const edm::ParameterSet& conf)
-      : TracksterInferenceAlgoBase(conf),
-        onnxPIDRuntimeInstance_(std::make_unique<cms::Ort::ONNXRuntime>(
-            conf.getParameter<edm::FileInPath>("onnxPIDModelPath").fullPath().c_str())),
-        onnxEnergyRuntimeInstance_(std::make_unique<cms::Ort::ONNXRuntime>(
-            conf.getParameter<edm::FileInPath>("onnxEnergyModelPath").fullPath().c_str())),
-        inputNames_(conf.getParameter<std::vector<std::string>>("inputNames")),  // Define input names for inference
-        output_en_(conf.getParameter<std::vector<std::string>>("output_en")),    // Define output energy for inference
-        output_id_(conf.getParameter<std::vector<std::string>>("output_id")),    // Define output PID for inference
-        eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),  // Minimum cluster energy
-        eidNLayers_(conf.getParameter<int>("eid_n_layers")),                        // Number of layers
-        eidNClusters_(conf.getParameter<int>("eid_n_clusters")),                    // Number of clusters
-        doPID_(conf.getParameter<int>("doPID")),                                    // Number of clusters
-        doRegression_(conf.getParameter<int>("doRegression"))                       // Number of clusters
-  {
-    onnxPIDSession_ = onnxPIDRuntimeInstance_.get();
-    onnxEnergySession_ = onnxEnergyRuntimeInstance_.get();
+  TracksterInferenceByPFN::TracksterInferenceByPFN(const edm::ParameterSet& conf,
+                                                   ticl::TICLONNXGlobalCache const* cache)
+      : TracksterInferenceAlgoBase(conf, cache),
+        inputNames_(conf.getParameter<std::vector<std::string>>("inputNames")),
+        output_en_(conf.getParameter<std::vector<std::string>>("output_en")),
+        output_id_(conf.getParameter<std::vector<std::string>>("output_id")),
+        eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
+        eidNLayers_(conf.getParameter<int>("eid_n_layers")),
+        eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
+        doPID_(conf.getParameter<int>("doPID")),
+        doRegression_(conf.getParameter<int>("doRegression")) {
+    // Resolve sessions only if model paths are provided.
+    std::string pidModel = conf.getParameter<std::string>("onnxPIDModelPath");
+    std::string energyModel = conf.getParameter<std::string>("onnxEnergyModelPath");
+
+    if (cache_ != nullptr) {
+      if (!pidModel.empty()) {
+        onnxPIDSession_ = cache_->getByModelPathString(pidModel);
+      }
+      if (!energyModel.empty()) {
+        onnxEnergySession_ = cache_->getByModelPathString(energyModel);
+      }
+    }
+
+    // Enable only if at least one requested task has an available model.
+    enabled_ = ((doPID_ && onnxPIDSession_ != nullptr) || (doRegression_ && onnxEnergySession_ != nullptr));
   }
+
   // Method to process input data and prepare it for inference
   void TracksterInferenceByPFN::inputData(const std::vector<reco::CaloCluster>& layerClusters,
                                           std::vector<Trackster>& tracksters,
                                           const hgcal::RecHitTools& rhtools) {
+    if (!enabled_) {
+      batchSize_ = 0;
+      return;
+    }
     tracksterIndices_.clear();  // Clear previous indices
     for (int i = 0; i < static_cast<int>(tracksters.size()); i++) {
       for (const unsigned int& vertex : tracksters[i].vertices()) {
@@ -106,7 +118,7 @@ namespace ticl {
     if (batchSize_ == 0)
       return;  // Exit if no batch
 
-    if (doPID_ and doRegression_) {
+    if (doRegression_ && onnxEnergySession_ != nullptr) {
       // Run energy model inference
       auto result = onnxEnergySession_->run(inputNames_, input_Data_, input_shapes_, output_en_, batchSize_);
       auto& energyOutput = result[0];
@@ -118,7 +130,7 @@ namespace ticl {
         }
       }
     }
-    if (doPID_) {
+    if (doPID_ && onnxPIDSession_ != nullptr) {
       // Run PID model inference
       auto pidOutput = onnxPIDSession_->run(inputNames_, input_Data_, input_shapes_, output_id_, batchSize_);
       auto pidOutputTensor = pidOutput[0];
@@ -134,16 +146,12 @@ namespace ticl {
   // Method to fill parameter set description for configuration
   void TracksterInferenceByPFN::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     iDesc.add<int>("algo_verbosity", 0);
-    iDesc
-        .add<edm::FileInPath>(
-            "onnxPIDModelPath",
-            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/patternrecognition/id_v0.onnx"))
-        ->setComment("Path to ONNX PID model CLU3D");
-    iDesc
-        .add<edm::FileInPath>(
-            "onnxEnergyModelPath",
-            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/patternrecognition/energy_v0.onnx"))
-        ->setComment("Path to ONNX Energy model CLU3D");
+
+    iDesc.add<std::string>("onnxPIDModelPath", "")
+        ->setComment("Path to ONNX PID model. If empty, PID inference is skipped.");
+    iDesc.add<std::string>("onnxEnergyModelPath", "")
+        ->setComment("Path to ONNX energy model. If empty, energy regression is skipped.");
+
     iDesc.add<std::vector<std::string>>("inputNames", {"input", "input_tr_features"});
     iDesc.add<std::vector<std::string>>("output_en", {"enreg_output"});
     iDesc.add<std::vector<std::string>>("output_id", {"pid_output"});
@@ -153,4 +161,5 @@ namespace ticl {
     iDesc.add<int>("doPID", 1);
     iDesc.add<int>("doRegression", 1);
   }
+
 }  // namespace ticl
