@@ -254,7 +254,7 @@ namespace gs {
                                   a1,
                                   p2,
                                   processClassId,
-                                  Int2Type < IOTraits<typename T::value_type>::IsPOD && IOTraits<T>::IsContiguous > ());
+                                  Int2Type<IOTraits<typename T::value_type>::IsPOD && IOTraits<T>::IsContiguous>());
           } catch (...) {
             footerStatus = Visitor<Arg1, Arg2, T, InContainerFooter>::process(obj, a1, p2, processClassId);
             throw;
@@ -468,7 +468,7 @@ namespace gs {
                                   a1,
                                   p2,
                                   processClassId,
-                                  Int2Type < IOTraits<typename T::value_type>::IsPOD && IOTraits<T>::IsContiguous > ());
+                                  Int2Type<IOTraits<typename T::value_type>::IsPOD && IOTraits<T>::IsContiguous>());
           } catch (...) {
             footerStatus = Visitor<Arg1, Arg2, T, InContainerFooter>::process(obj, a1, p2, processClassId);
             throw;

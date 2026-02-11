@@ -2330,8 +2330,8 @@ Double_t findStatistic(
                      (sigmaorg * x / (rel * rel)) * (sigmaorg * x / (rel * rel)));
       else
         error = sqrt(sigma1 * sigma1 + sigma2 * sigma2);  // = 1 if axis == 'x' && !pull
-            // = sqrt(2) if axis == 'y' && !pull, so that you get the error in 1 track
-            //       when you divide by it
+      // = sqrt(2) if axis == 'y' && !pull, so that you get the error in 1 track
+      //       when you divide by it
       x /= (rel * error);
       if (!std::isfinite(x))  //e.g. in data with no pixels, the error occasionally comes out to be NaN
         continue;  //Filling a histogram with NaN is irrelevant, but here it would cause the whole result to be NaN
