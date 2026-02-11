@@ -42,7 +42,7 @@ void HitToSimClusterCaloParticleAssociatorProducer::produce(edm::StreamID,
 
   if (!iEvent.getHandle(hitsToken_).isValid()) {
     edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
-        << "No valid HGCRecHitCollections found. Association maps will be empty.";
+        << "HGCRecHitCollections is invalid. Association maps will be empty.";
     // Store empty maps in the event
     iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitToSimClusterMap");
     iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitToCaloParticleMap");
@@ -61,8 +61,8 @@ void HitToSimClusterCaloParticleAssociatorProducer::produce(edm::StreamID,
   edm::MultiSpan<HGCRecHit> rechitSpan(hits);
   // Check if rechitSpan is empty after processing hitsTokens_
   if (rechitSpan.size() == 0) {
-    edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
-        << "Only empty HGCRecHitCollections found. Association maps will be empty.";
+    LogDebug("HitToSimClusterCaloParticleAssociatorProducer")
+        << "HGCRecHitCollection is empty. Association maps will be empty.";
     // Store empty maps in the event
     iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitToSimClusterMap");
     iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitToCaloParticleMap");
