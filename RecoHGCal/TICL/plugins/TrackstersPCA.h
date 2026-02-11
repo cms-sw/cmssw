@@ -38,9 +38,7 @@ namespace ticl {
                                                size_t N);
 
   inline unsigned getLayerFromLC(const reco::CaloCluster &LC, const hgcal::RecHitTools &rhtools) {
-    std::vector<std::pair<DetId, float>> thisclusterHits = LC.hitsAndFractions();
-    auto layer = rhtools.getLayerWithOffset(thisclusterHits[0].first);
-    return layer;
+    return rhtools.getLayerWithOffset(LC.hitsAndFractions()[0].first);
   }
 
   // Sort the layer clusters in the given trackster in bins of layer. Returns : vector[index=layer, value=vector[LC index]]]
