@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dm_list = [0, 1, 2, 5, 10, 11]
+dm_list = [0, 1, 2, 10, 11]
 effs = []
 
 steps_to_keep = [0, 1, 2, 3, 4, 5]
@@ -32,8 +32,8 @@ for dm in dm_list:
                 f"pho_dm{dm}_leg{leg}_step{s}_num_eta pho_dm{dm}_leg{leg}_step{s}_den_eta"
             )
 
-ch_cap = {0: 1, 1: 1, 2: 1, 5: 2, 10: 3, 11: 3}
-pi0_cap = {0:0, 1:1, 2:2, 5:0, 10:0, 11:1}
+ch_cap = {0: 1, 1: 1, 2: 1, 10: 3, 11: 3}
+pi0_cap = {0:0, 1:1, 2:2, 10:0, 11:1}
 for dm in dm_list:
     cap_ch = ch_cap.get(dm, 0)
     for N in range(1, cap_ch + 1):
@@ -58,6 +58,29 @@ for dm in dm_list:
         effs.append(
             f"eff_tau_dm{dm}_all_eta 'DM {dm}: ALL expected @step5 vs eta' tau_dm{dm}_all_num_eta tau_dm{dm}_den_eta"
         )
+
+# Fake rate efficiencies (num / den = fake rate)
+fake_effs = []
+
+# Inclusive fake rate
+fake_effs.append(
+    "fake_rate_pt  'Fake rate vs pT'  fake_num_pt  fake_den_pt"
+)
+fake_effs.append(
+    "fake_rate_eta 'Fake rate vs eta' fake_num_eta fake_den_eta"
+)
+
+# Per reco DM fake rate (DMs 0,1,2,5,10,11)
+fake_dm_list = [0, 1, 2, 5, 10, 11]
+for dm in fake_dm_list:
+    fake_effs.append(
+        f"fake_rate_dm{dm}_pt  'DM {dm}: fake rate vs pT'  fake_dm{dm}_num_pt  fake_dm{dm}_den_pt"
+    )
+    fake_effs.append(
+        f"fake_rate_dm{dm}_eta 'DM {dm}: fake rate vs eta' fake_dm{dm}_num_eta fake_dm{dm}_den_eta"
+    )
+
+effs += fake_effs
 
 # Client (folder must match analyzer fill path: "SimTauValidator")
 recoTiclTauHarvester = DQMEDHarvester(

@@ -16,9 +16,13 @@ hltTiclTauValidator = _ticlTauValidator.clone(
     jets        = cms.InputTag("hltAK4PFJets"),
     ticlCandidates = cms.InputTag("hltTiclTrackstersMerge"),
     simTracksters  = cms.InputTag("hltTiclSimTracksters","fromCPs"),
-    allTrackstersToSimTrackstersAssociationsByLCs =
+    simToRecoTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
                         "hltTiclSimTrackstersfromCPsTohltTiclTrackstersMerge"),
+    recoToSimTracksterAssocByLCs =
+        cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
+                        "hltTiclTrackstersMergeTohltTiclSimTrackstersfromCPs"),
+    genVisTaus = cms.InputTag("genVisTaus"),
     genParticles = cms.InputTag("genParticles"),
     maxAssocScore = 0.6,
 )
@@ -26,7 +30,10 @@ hltTiclTauValidator = _ticlTauValidator.clone(
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 ticl_v5.toModify(hltTiclTauValidator,
     ticlCandidates = cms.InputTag("hltTiclCandidate"),
-    allTrackstersToSimTrackstersAssociationsByLCs =
+    simToRecoTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
                         "hltTiclSimTrackstersfromCPsTohltTiclCandidate"),
+    recoToSimTracksterAssocByLCs =
+        cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
+                        "hltTiclCandidateTohltTiclSimTrackstersfromCPs"),
 )

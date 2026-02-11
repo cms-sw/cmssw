@@ -96,6 +96,8 @@ private:
   edm::EDGetTokenT<TracksterToTracksterMap>          allTrkToSimTrkAssocByLCsToken_;
   edm::EDGetTokenT<reco::PFJetCollection>            pfJetsToken_;
   edm::EDGetTokenT<reco::GenParticleCollection>      genParticlesToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genVisTausToken_;
+  edm::EDGetTokenT<TracksterToTracksterMap>      recoToSimAssocByLCsToken_;
 
   // ---------- constants & helpers ----------
   static constexpr int   kMaxDM        = 16;
@@ -170,42 +172,53 @@ private:
   MonitorElement* cp_gamma_eta_all_ = nullptr;
 
   // per-DM CP context histos
-  MonitorElement* cp_chHad_pt_dm_[kNDMSel]  = {};
-  MonitorElement* cp_chHad_eta_dm_[kNDMSel] = {};
-  MonitorElement* cp_gamma_pt_dm_[kNDMSel]  = {};
-  MonitorElement* cp_gamma_eta_dm_[kNDMSel] = {};
+  MonitorElement* cp_chHad_pt_dm_[kNDMGen]  = {};
+  MonitorElement* cp_chHad_eta_dm_[kNDMGen] = {};
+  MonitorElement* cp_gamma_pt_dm_[kNDMGen]  = {};
+  MonitorElement* cp_gamma_eta_dm_[kNDMGen] = {};
 
-  // denominators
-  MonitorElement* tau_gen_pt_[kNDMSel]  = {};
-  MonitorElement* tau_gen_eta_[kNDMSel] = {};
+  // denominators (gen-level, use kNDMGen)
+  MonitorElement* tau_gen_pt_[kNDMGen]  = {};
+  MonitorElement* tau_gen_eta_[kNDMGen] = {};
 
-  // numerators
-  MonitorElement* tau_gen_matched_to_nCh_pt_[kNDMSel][kMaxCHLegs]     = {{}};
-  MonitorElement* tau_gen_matched_to_nCh_eta_[kNDMSel][kMaxCHLegs]    = {{}};
-  MonitorElement* tau_gen_matched_to_nPi0_pt_[kNDMSel][kMaxGammaLegs] = {{}};
-  MonitorElement* tau_gen_matched_to_nPi0_eta_[kNDMSel][kMaxGammaLegs]= {{}};
-  MonitorElement* tau_gen_matched_to_all_pt_[kNDMSel]  = {};
-  MonitorElement* tau_gen_matched_to_all_eta_[kNDMSel] = {};
+  // numerators (gen-level, use kNDMGen)
+  MonitorElement* tau_gen_matched_to_nCh_pt_[kNDMGen][kMaxCHLegs]     = {{}};
+  MonitorElement* tau_gen_matched_to_nCh_eta_[kNDMGen][kMaxCHLegs]    = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_pt_[kNDMGen][kMaxGammaLegs] = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_eta_[kNDMGen][kMaxGammaLegs]= {{}};
+  MonitorElement* tau_gen_matched_to_all_pt_[kNDMGen]  = {};
+  MonitorElement* tau_gen_matched_to_all_eta_[kNDMGen] = {};
 
-  // numerators split into signal and isolation (tau endpoint only)
-  MonitorElement* tau_gen_matched_to_nCh_sig_pt_[kNDMSel][kMaxCHLegs]      = {{}};
-  MonitorElement* tau_gen_matched_to_nCh_sig_eta_[kNDMSel][kMaxCHLegs]     = {{}};
-  MonitorElement* tau_gen_matched_to_nCh_iso_pt_[kNDMSel][kMaxCHLegs]         = {{}};
-  MonitorElement* tau_gen_matched_to_nCh_iso_eta_[kNDMSel][kMaxCHLegs]        = {{}};
-  MonitorElement* tau_gen_matched_to_nPi0_sig_pt_[kNDMSel][kMaxGammaLegs]  = {{}};
-  MonitorElement* tau_gen_matched_to_nPi0_sig_eta_[kNDMSel][kMaxGammaLegs] = {{}};
-  MonitorElement* tau_gen_matched_to_nPi0_iso_pt_[kNDMSel][kMaxGammaLegs]     = {{}};
-  MonitorElement* tau_gen_matched_to_nPi0_iso_eta_[kNDMSel][kMaxGammaLegs]    = {{}};
+  // numerators split into signal and isolation (tau endpoint only, gen-level use kNDMGen)
+  MonitorElement* tau_gen_matched_to_nCh_sig_pt_[kNDMGen][kMaxCHLegs]      = {{}};
+  MonitorElement* tau_gen_matched_to_nCh_sig_eta_[kNDMGen][kMaxCHLegs]     = {{}};
+  MonitorElement* tau_gen_matched_to_nCh_iso_pt_[kNDMGen][kMaxCHLegs]         = {{}};
+  MonitorElement* tau_gen_matched_to_nCh_iso_eta_[kNDMGen][kMaxCHLegs]        = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_sig_pt_[kNDMGen][kMaxGammaLegs]  = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_sig_eta_[kNDMGen][kMaxGammaLegs] = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_iso_pt_[kNDMGen][kMaxGammaLegs]     = {{}};
+  MonitorElement* tau_gen_matched_to_nPi0_iso_eta_[kNDMGen][kMaxGammaLegs]    = {{}};
 
-  MonitorElement* tau_pt_reco_over_gen_[kNDMSel] = {};
+  MonitorElement* tau_pt_reco_over_gen_[kNDMGen] = {};
 
-  // reco tau shapes per DM
-  MonitorElement* tau_reco_pt_[kNDMSel]  = {};
-  MonitorElement* tau_reco_eta_[kNDMSel] = {};
+  // reco tau shapes per DM (gen-level, use kNDMGen)
+  MonitorElement* tau_reco_pt_[kNDMGen]  = {};
+  MonitorElement* tau_reco_eta_[kNDMGen] = {};
 
-  // CP-to-PF resolution: 1D ratio histograms (PF pT / CP pT) per DM
-  MonitorElement* cp_pf_pt_resolution_had_dm_[kNDMSel] = {};  // hadronic (charged hadrons)
-  MonitorElement* cp_pf_pt_resolution_em_dm_[kNDMSel]  = {};  // electromagnetic (photons)
+  // CP-to-PF resolution: 1D ratio histograms (PF pT / CP pT) per DM (gen-level, use kNDMGen)
+  MonitorElement* cp_pf_pt_resolution_had_dm_[kNDMGen] = {};  // hadronic (charged hadrons)
+  MonitorElement* cp_pf_pt_resolution_em_dm_[kNDMGen]  = {};  // electromagnetic (photons)
+
+  // ---------- fake rate histograms ----------
+  MonitorElement* fake_den_pt_  = nullptr;
+  MonitorElement* fake_den_eta_ = nullptr;
+  MonitorElement* fake_num_pt_  = nullptr;
+  MonitorElement* fake_num_eta_ = nullptr;
+
+  MonitorElement* fake_den_dm_pt_[kNDMSel]  = {};
+  MonitorElement* fake_den_dm_eta_[kNDMSel] = {};
+  MonitorElement* fake_num_dm_pt_[kNDMSel]  = {};
+  MonitorElement* fake_num_dm_eta_[kNDMSel] = {};
 
 };
 
@@ -223,9 +236,12 @@ TICLTauValidator::TICLTauValidator(const edm::ParameterSet& iConfig)
   ticlCandidatesToken_ = consumes<std::vector<TICLCandidate>>(   iConfig.getParameter<edm::InputTag>("ticlCandidates") );
   simTrackstersToken_  = consumes<std::vector<ticl::Trackster>>( iConfig.getParameter<edm::InputTag>("simTracksters") );
   allTrkToSimTrkAssocByLCsToken_ = consumes<TracksterToTracksterMap>(
-    iConfig.getParameter<edm::InputTag>("allTrackstersToSimTrackstersAssociationsByLCs") );
+    iConfig.getParameter<edm::InputTag>("simToRecoTracksterAssocByLCs") );
   pfJetsToken_       = consumes<reco::PFJetCollection>(        iConfig.getParameter<edm::InputTag>("jets") );
   genParticlesToken_ = consumes<reco::GenParticleCollection>(  iConfig.getParameter<edm::InputTag>("genParticles") );
+  genVisTausToken_   = consumes<reco::GenParticleCollection>(    iConfig.getParameter<edm::InputTag>("genVisTaus") );
+  recoToSimAssocByLCsToken_ = consumes<TracksterToTracksterMap>(
+    iConfig.getParameter<edm::InputTag>("recoToSimTracksterAssocByLCs") );
 }
 
 void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
@@ -297,8 +313,9 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
   // steps we save per-leg histos for
   const std::vector<int> stepsToKeep = {0, 1, 2, 3, 4, 5};
 
-  for (int dmI = 0; dmI < kNDMSel; ++dmI) {
-    int dm = kDMSel[dmI];
+  // Book gen-level histograms only for physical DMs (no DM 5)
+  for (int dmI = 0; dmI < kNDMGen; ++dmI) {
+    int dm = kDMGen[dmI];
     ibook.setCurrentFolder(folder_ + "/GenDM" + std::to_string(dm));
 
     const int chCap    = chCapForDM(dm);
@@ -397,9 +414,9 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     }
   }
 
-  // tau-level denominators & numerators
-  for (int dmI = 0; dmI < kNDMSel; ++dmI) {
-    const int dm     = kDMSel[dmI];
+  // tau-level denominators & numerators (gen-level, so use kNDMGen)
+  for (int dmI = 0; dmI < kNDMGen; ++dmI) {
+    const int dm     = kDMGen[dmI];
     const int chCap  = chCapForDM(dm);
     const int pi0Cap = pi0CapForDM(dm);
     ibook.setCurrentFolder(folder_ + "/GenDM" + std::to_string(dm));
@@ -500,6 +517,42 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     }
 
   }
+
+  // ---------- Fake rate histograms ----------
+  ibook.setCurrentFolder(folder_ + "/FakeRate");
+
+  fake_den_pt_  = ibook.book1D("fake_den_pt",  "Fake rate denom; reco tau pT [GeV]; entries", 60, 0., 120.);
+  fake_den_eta_ = ibook.book1D("fake_den_eta", "Fake rate denom; reco tau eta; entries",      50, -3., 3.);
+  fake_num_pt_  = ibook.book1D("fake_num_pt",  "Fake rate numer; reco tau pT [GeV]; entries", 60, 0., 120.);
+  fake_num_eta_ = ibook.book1D("fake_num_eta", "Fake rate numer; reco tau eta; entries",      50, -3., 3.);
+
+  for (int i = 0; i < kNDMSel; ++i) {
+    int dm = kDMSel[i];
+    {
+      std::ostringstream n, t;
+      n << "fake_dm" << dm << "_den_pt";
+      t << "Fake rate denom (DM=" << dm << "); reco tau pT [GeV]; entries";
+      fake_den_dm_pt_[i] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "fake_dm" << dm << "_den_eta";
+      t << "Fake rate denom (DM=" << dm << "); reco tau eta; entries";
+      fake_den_dm_eta_[i] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "fake_dm" << dm << "_num_pt";
+      t << "Fake rate numer (DM=" << dm << "); reco tau pT [GeV]; entries";
+      fake_num_dm_pt_[i] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "fake_dm" << dm << "_num_eta";
+      t << "Fake rate numer (DM=" << dm << "); reco tau eta; entries";
+      fake_num_dm_eta_[i] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    }
+  }
 }
 
 void TICLTauValidator::analyze(const edm::Event& iEvent,
@@ -510,11 +563,13 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   edm::Handle<reco::PFTauCollection>     taus;               iEvent.getByToken(tauProducerToken_, taus);
   edm::Handle<std::vector<ticl::Trackster>> simTracksters;   iEvent.getByToken(simTrackstersToken_, simTracksters);
   edm::Handle<TracksterToTracksterMap>   simToRecoMap;       iEvent.getByToken(allTrkToSimTrkAssocByLCsToken_, simToRecoMap);
+  edm::Handle<TracksterToTracksterMap>   recoToSimMap;       iEvent.getByToken(recoToSimAssocByLCsToken_, recoToSimMap);
   edm::Handle<std::vector<TICLCandidate>> ticlCandidates;    iEvent.getByToken(ticlCandidatesToken_, ticlCandidates);
   edm::Handle<reco::PFCandidateCollection> pfMerged;         iEvent.getByToken(pfToken_, pfMerged);
   edm::Handle<reco::PFCandidateCollection> pfTmpBarrel;      iEvent.getByToken(pfTmpBarrelToken_, pfTmpBarrel);
   edm::Handle<reco::PFJetCollection>      pfJets;            iEvent.getByToken(pfJetsToken_, pfJets);
   edm::Handle<reco::GenParticleCollection> genParticles;     iEvent.getByToken(genParticlesToken_, genParticles);
+  edm::Handle<reco::GenParticleCollection> genVisTaus;       iEvent.getByToken(genVisTausToken_, genVisTaus);
 
   if (!simTaus.isValid())
     return;
@@ -524,9 +579,12 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
   for (const auto& link : *simTaus) {
     const int dmPhys = link.decayMode;
-    const int dmIdx  = dmToSelIndex(dmPhys);
-    if (dmIdx < 0)
+    const int dmSelIdx = dmToSelIndex(dmPhys);
+    const int dmGenIdx = dmToGenIndex(dmPhys);
+    if (dmSelIdx < 0)
       continue; // ignore non-selected DMs
+    if (dmGenIdx < 0)
+      continue; // ignore non-physical gen DMs (e.g., DM 5)
 
     struct PtEta { float pt=0.f, eta=0.f; };
     struct TauRegionFlags { bool signal=false, isolation=false; };
@@ -570,9 +628,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         if (firstTime) {
           if (cp_chHad_pt_all_)  cp_chHad_pt_all_->Fill(cp.pt());
           if (cp_chHad_eta_all_) cp_chHad_eta_all_->Fill(cp.eta());
-          if (dmIdx >= 0) {
-            if (cp_chHad_pt_dm_[dmIdx])  cp_chHad_pt_dm_[dmIdx]->Fill(cp.pt());
-            if (cp_chHad_eta_dm_[dmIdx]) cp_chHad_eta_dm_[dmIdx]->Fill(cp.eta());
+          if (dmGenIdx >= 0) {
+            if (cp_chHad_pt_dm_[dmGenIdx])  cp_chHad_pt_dm_[dmGenIdx]->Fill(cp.pt());
+            if (cp_chHad_eta_dm_[dmGenIdx]) cp_chHad_eta_dm_[dmGenIdx]->Fill(cp.eta());
           }
         }
       }
@@ -581,9 +639,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         if (firstTime) {
           if (cp_gamma_pt_all_)  cp_gamma_pt_all_->Fill(cp.pt());
           if (cp_gamma_eta_all_) cp_gamma_eta_all_->Fill(cp.eta());
-          if (dmIdx >= 0) {
-            if (cp_gamma_pt_dm_[dmIdx])  cp_gamma_pt_dm_[dmIdx]->Fill(cp.pt());
-            if (cp_gamma_eta_dm_[dmIdx]) cp_gamma_eta_dm_[dmIdx]->Fill(cp.eta());
+          if (dmGenIdx >= 0) {
+            if (cp_gamma_pt_dm_[dmGenIdx])  cp_gamma_pt_dm_[dmGenIdx]->Fill(cp.pt());
+            if (cp_gamma_eta_dm_[dmGenIdx]) cp_gamma_eta_dm_[dmGenIdx]->Fill(cp.eta());
           }
         }
       }
@@ -686,11 +744,11 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
           // Fill CP-to-PF resolution histograms (per-DM): ratio PF pT / CP pT
           if (cp.pt() > 0.) {
             const double ratio = pfCand.pt() / cp.pt();
-            if (isChargedHadron && dmIdx >= 0 && cp_pf_pt_resolution_had_dm_[dmIdx]) {
-              cp_pf_pt_resolution_had_dm_[dmIdx]->Fill(ratio);
+            if (isChargedHadron && dmGenIdx >= 0 && cp_pf_pt_resolution_had_dm_[dmGenIdx]) {
+              cp_pf_pt_resolution_had_dm_[dmGenIdx]->Fill(ratio);
             }
-            if (isPhoton && dmIdx >= 0 && cp_pf_pt_resolution_em_dm_[dmIdx]) {
-              cp_pf_pt_resolution_em_dm_[dmIdx]->Fill(ratio);
+            if (isPhoton && dmGenIdx >= 0 && cp_pf_pt_resolution_em_dm_[dmGenIdx]) {
+              cp_pf_pt_resolution_em_dm_[dmGenIdx]->Fill(ratio);
             }
           }
 
@@ -820,7 +878,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       } else if (nGoodCH_jet == 3) {
         recoDM = (nPi0_jet >= 1 ? 11 : 10);
       }
-      const int gSel = dmIdx;
+      const int gSel = dmGenIdx;
       const int rSel = dmToSelIndex(recoDM);
       if (gSel >= 0 && rSel >= 0)
         dm_reco_vs_gen_jet_->Fill(rSel, gSel);
@@ -889,7 +947,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       } else if (nGoodCH_tau_total == 3) {
         recoDM = (nPi0_tau_total >= 1 ? 11 : 10);
       }
-      const int gSel = dmIdx;
+      const int gSel = dmGenIdx;
       const int rSel = dmToSelIndex(recoDM);
       if (gSel >= 0 && rSel >= 0)
         dm_reco_vs_gen_tau_->Fill(rSel, gSel);
@@ -965,7 +1023,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
         int hpsDM = (*taus)[bestTauIdx].decayMode();
         int rSel  = dmToSelIndex(hpsDM);
-        int gSel  = dmIdx;
+        int gSel  = dmGenIdx;
         if (rSel >= 0 && gSel >= 0)
           dm_reco_vs_gen_hps_->Fill(rSel, gSel);
       }
@@ -1019,7 +1077,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         const auto& pend = it->second;
         if (!pend.hasCPKinematics)
           continue;
-        fillLegStepsDM(true, dmIdx, li, pend.cpPt, pend.cpEta, pend.stepPass);
+        fillLegStepsDM(true, dmGenIdx, li, pend.cpPt, pend.cpEta, pend.stepPass);
         ++li;
       }
     }
@@ -1045,7 +1103,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         const auto& pend = it->second;
         if (!pend.hasCPKinematics)
           continue;
-        fillLegStepsDM(false, dmIdx, li, pend.cpPt, pend.cpEta, pend.stepPass);
+        fillLegStepsDM(false, dmGenIdx, li, pend.cpPt, pend.cpEta, pend.stepPass);
         ++li;
       }
     }
@@ -1054,6 +1112,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
     double tauPt = 0., tauEta = 0.;
     const reco::GenParticle* bestMotherTau = nullptr;
     double bestMotherPt = -1.;
+    u_int bestMotherIdx = -1;
     if (genParticles.isValid()) {
       for (const auto& leaf : link.leaves) {
         const int genIdx = leaf.gen_particle_idx();
@@ -1073,6 +1132,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
                  mom->pt() > bestMotherPt)) {
               bestMotherTau = mom;
               bestMotherPt  = mom->pt();
+              bestMotherIdx = cur->motherRef().key();
             }
             break;
           }
@@ -1081,8 +1141,40 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       }
     }
     if (bestMotherTau) {
+      // Fallback to mother tau kinematics to avoid default zero values.
       tauPt  = bestMotherTau->pt();
       tauEta = bestMotherTau->eta();
+      bool foundVisTau = false;
+      if (genVisTaus.isValid()) {
+        for (const auto& genVisTau : *genVisTaus) {
+          if (genVisTau.motherRef().isNonnull() &&
+              genVisTau.motherRef().key() == bestMotherIdx) {
+            tauPt  = genVisTau.pt();
+            tauEta = genVisTau.eta();
+            foundVisTau = true;
+            break;
+          }
+        }
+        if (!foundVisTau) {
+          static unsigned int nNoMatch = 0;
+          if (nNoMatch < 5) {
+            edm::LogWarning("TICLTauValidator")
+              << "No genVisTau match for bestMotherIdx=" << bestMotherIdx
+              << " (dm=" << dmPhys << ", tau pt=" << tauPt
+              << ", eta=" << tauEta << ")";
+          }
+          ++nNoMatch;
+        }
+      } else {
+        static unsigned int nInvalid = 0;
+        if (nInvalid < 5) {
+          edm::LogWarning("TICLTauValidator")
+            << "genVisTaus collection missing/invalid; using mother tau kinematics"
+            << " (dm=" << dmPhys << ", tau pt=" << tauPt
+            << ", eta=" << tauEta << ")";
+        }
+        ++nInvalid;
+      }
     }
 
     const int expCh  = expectedChForDM(dmPhys);
@@ -1097,8 +1189,8 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
     // Fill tau-level denominators only for taus with enough TICL legs
     if (bestMotherTau && tauInAcceptance) {
-      if (tau_gen_pt_[dmIdx])  tau_gen_pt_[dmIdx]->Fill(tauPt);
-      if (tau_gen_eta_[dmIdx]) tau_gen_eta_[dmIdx]->Fill(tauEta);
+      if (tau_gen_pt_[dmGenIdx])  tau_gen_pt_[dmGenIdx]->Fill(tauPt);
+      if (tau_gen_eta_[dmGenIdx]) tau_gen_eta_[dmGenIdx]->Fill(tauEta);
     }
 
     // tau-level numerators
@@ -1112,24 +1204,24 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       // >= N charged legs at reco
       for (int N = 1; N <= chCap; ++N) {
         if (nGoodCH_endpoint >= N) {
-          if (auto* h = tau_gen_matched_to_nCh_pt_[dmIdx][N-1])  h->Fill(tauPt);
-          if (auto* h = tau_gen_matched_to_nCh_eta_[dmIdx][N-1]) h->Fill(tauEta);
+          if (auto* h = tau_gen_matched_to_nCh_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+          if (auto* h = tau_gen_matched_to_nCh_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
         }
       }
 
       // >= N pi0 at reco
       for (int N = 1; N <= p0Cap; ++N) {
         if (nPi0_endpoint >= N) {
-          if (auto* h = tau_gen_matched_to_nPi0_pt_[dmIdx][N-1])  h->Fill(tauPt);
-          if (auto* h = tau_gen_matched_to_nPi0_eta_[dmIdx][N-1]) h->Fill(tauEta);
+          if (auto* h = tau_gen_matched_to_nPi0_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+          if (auto* h = tau_gen_matched_to_nPi0_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
         }
       }
 
       // ALL expected legs
       if (expCh > 0 || expPi0 > 0) {
         if (nGoodCH_endpoint >= expCh && nPi0_endpoint >= expPi0) {
-          if (tau_gen_matched_to_all_pt_[dmIdx])  tau_gen_matched_to_all_pt_[dmIdx]->Fill(tauPt);
-          if (tau_gen_matched_to_all_eta_[dmIdx]) tau_gen_matched_to_all_eta_[dmIdx]->Fill(tauEta);
+          if (tau_gen_matched_to_all_pt_[dmGenIdx])  tau_gen_matched_to_all_pt_[dmGenIdx]->Fill(tauPt);
+          if (tau_gen_matched_to_all_eta_[dmGenIdx]) tau_gen_matched_to_all_eta_[dmGenIdx]->Fill(tauEta);
         }
       }
 
@@ -1142,22 +1234,22 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
         for (int N = 1; N <= chCap; ++N) {
           if (nGoodCH_signal >= N) {
-            if (auto* h = tau_gen_matched_to_nCh_sig_pt_[dmIdx][N-1])  h->Fill(tauPt);
-            if (auto* h = tau_gen_matched_to_nCh_sig_eta_[dmIdx][N-1]) h->Fill(tauEta);
+            if (auto* h = tau_gen_matched_to_nCh_sig_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+            if (auto* h = tau_gen_matched_to_nCh_sig_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
           }
           if (nGoodCH_iso >= N) {
-            if (auto* h = tau_gen_matched_to_nCh_iso_pt_[dmIdx][N-1])  h->Fill(tauPt);
-            if (auto* h = tau_gen_matched_to_nCh_iso_eta_[dmIdx][N-1]) h->Fill(tauEta);
+            if (auto* h = tau_gen_matched_to_nCh_iso_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+            if (auto* h = tau_gen_matched_to_nCh_iso_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
           }
         }
         for (int N = 1; N <= p0Cap; ++N) {
           if (nPi0_signal >= N) {
-            if (auto* h = tau_gen_matched_to_nPi0_sig_pt_[dmIdx][N-1])  h->Fill(tauPt);
-            if (auto* h = tau_gen_matched_to_nPi0_sig_eta_[dmIdx][N-1]) h->Fill(tauEta);
+            if (auto* h = tau_gen_matched_to_nPi0_sig_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+            if (auto* h = tau_gen_matched_to_nPi0_sig_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
           }
           if (nPi0_iso >= N) {
-            if (auto* h = tau_gen_matched_to_nPi0_iso_pt_[dmIdx][N-1])  h->Fill(tauPt);
-            if (auto* h = tau_gen_matched_to_nPi0_iso_eta_[dmIdx][N-1]) h->Fill(tauEta);
+            if (auto* h = tau_gen_matched_to_nPi0_iso_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+            if (auto* h = tau_gen_matched_to_nPi0_iso_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
           }
         }
         // tau resolution
@@ -1165,12 +1257,12 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
           if (bestTauIdxForLink >= 0 && taus.isValid()) {
             const auto& tau = (*taus)[bestTauIdxForLink];
             const double respTau = tau.pt() / tauPt;  // reco / gen
-            if (tau_pt_reco_over_gen_[dmIdx]) {
-              tau_pt_reco_over_gen_[dmIdx]->Fill(respTau);
+            if (tau_pt_reco_over_gen_[dmGenIdx]) {
+              tau_pt_reco_over_gen_[dmGenIdx]->Fill(respTau);
             }
             // reco tau shapes per DM
-            if (tau_reco_pt_[dmIdx])  tau_reco_pt_[dmIdx]->Fill(tau.pt());
-            if (tau_reco_eta_[dmIdx]) tau_reco_eta_[dmIdx]->Fill(tau.eta());
+            if (tau_reco_pt_[dmGenIdx])  tau_reco_pt_[dmGenIdx]->Fill(tau.pt());
+            if (tau_reco_eta_[dmGenIdx]) tau_reco_eta_[dmGenIdx]->Fill(tau.eta());
           }
         }
       }
@@ -1194,6 +1286,102 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
 } // links
 
+  // === FAKE RATE: loop reco taus, reverse the TICL association chain ===
+  // Build set of CaloParticle keys belonging to any simulated hadronic tau
+  std::unordered_set<unsigned int> tauCPKeys;
+  for (const auto& link : *simTaus) {
+    if (dmToGenIndex(link.decayMode) < 0)
+      continue;
+    for (const auto& leaf : link.leaves) {
+      const int cpId = leaf.calo_particle_idx();
+      if (cpId < 0 || static_cast<size_t>(cpId) >= link.calo_particle_leaves.size())
+        continue;
+      const auto& cpRef = link.calo_particle_leaves[cpId];
+      if (cpRef.isNonnull())
+        tauCPKeys.insert(cpRef.key());
+    }
+  }
+
+  if (taus.isValid() && pfJets.isValid() && pfMerged.isValid() &&
+      ticlCandidates.isValid() && recoToSimMap.isValid() && simTracksters.isValid()) {
+    const size_t barrelSize = pfTmpBarrel.isValid() ? pfTmpBarrel->size() : 0;
+
+    for (size_t t = 0; t < taus->size(); ++t) {
+      const auto& tau = (*taus)[t];
+
+      // restrict to HGCAL acceptance
+      if (std::abs(tau.eta()) < hgcalEtaAbsMin_)
+        continue;
+
+      const int hpsDM  = tau.decayMode();
+      const int dmSelI = dmToSelIndex(hpsDM);
+
+      // denominator: all reco taus in acceptance
+      if (fake_den_pt_)  fake_den_pt_->Fill(tau.pt());
+      if (fake_den_eta_) fake_den_eta_->Fill(tau.eta());
+      if (dmSelI >= 0) {
+        if (fake_den_dm_pt_[dmSelI])  fake_den_dm_pt_[dmSelI]->Fill(tau.pt());
+        if (fake_den_dm_eta_[dmSelI]) fake_den_dm_eta_[dmSelI]->Fill(tau.eta());
+      }
+
+      // Walk chain backwards:
+      //   reco PFTau → signal PF cands → TICLCandidate → reco Trackster
+      //     → (reco→sim map) → SimTrackster → CaloParticle key → check in tauCPKeys
+      bool isGenuine = false;
+
+      for (const auto& pfPtr : tau.signalPFCands()) {
+        if (!pfPtr.isNonnull())
+          continue;
+        const size_t pfKey = pfPtr.key();
+        if (pfKey < barrelSize)
+          continue;  // barrel PF candidate, not from TICL
+
+        const size_t ticlIdx = pfKey - barrelSize;
+        if (ticlIdx >= ticlCandidates->size())
+          continue;
+
+        const auto& cand = (*ticlCandidates)[ticlIdx];
+        for (const auto& tsPtr : cand.tracksters()) {
+          if (!tsPtr.isNonnull())
+            continue;
+          const size_t recoTkIdx = tsPtr.key();
+          if (recoTkIdx >= recoToSimMap->size())
+            continue;
+
+          for (const auto& m : (*recoToSimMap)[recoTkIdx]) {
+            if (m.score() > maxAssocScore_)
+              continue;
+            const size_t simTkIdx = m.index();
+            if (simTkIdx >= simTracksters->size())
+              continue;
+
+            const auto& simTk = (*simTracksters)[simTkIdx];
+            const int seedIdx = simTk.seedIndex();
+            if (seedIdx >= 0 &&
+                tauCPKeys.count(static_cast<unsigned int>(seedIdx))) {
+              isGenuine = true;
+              break;
+            }
+          }
+          if (isGenuine)
+            break;
+        }
+        if (isGenuine)
+          break;
+      }
+
+      // numerator: reco taus NOT matched to a gen tau → fakes
+      if (!isGenuine) {
+        if (fake_num_pt_)  fake_num_pt_->Fill(tau.pt());
+        if (fake_num_eta_) fake_num_eta_->Fill(tau.eta());
+        if (dmSelI >= 0) {
+          if (fake_num_dm_pt_[dmSelI])  fake_num_dm_pt_[dmSelI]->Fill(tau.pt());
+          if (fake_num_dm_eta_[dmSelI]) fake_num_dm_eta_[dmSelI]->Fill(tau.eta());
+        }
+      }
+    }
+  }
+
   edm::LogVerbatim("TICLTauValidator")
     << "[TICLTauValidator] processed event " << iEvent.id();
   for (const auto& s : eventChains) {
@@ -1212,10 +1400,14 @@ void TICLTauValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJets"));
   desc.add<edm::InputTag>("ticlCandidates", edm::InputTag("ticlCandidate"));
   desc.add<edm::InputTag>("simTracksters", edm::InputTag("ticlSimTracksters", "fromCPs"));
-  desc.add<edm::InputTag>("allTrackstersToSimTrackstersAssociationsByLCs",
+  desc.add<edm::InputTag>("simToRecoTracksterAssocByLCs",
                           edm::InputTag("allTrackstersToSimTrackstersAssociationsByLCs",
                                         "ticlSimTrackstersfromCPsToticlCandidate"));
+  desc.add<edm::InputTag>("recoToSimTracksterAssocByLCs",
+                          edm::InputTag("allTrackstersToSimTrackstersAssociationsByLCs",
+                                        "ticlCandidateToticlSimTrackstersfromCPs"));
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
+  desc.add<edm::InputTag>("genVisTaus", edm::InputTag("genVisTaus"));
   desc.add<double>("maxAssocScore", 0.6);
   desc.add<double>("hgcalEtaAbsMin", 1.5);
 
