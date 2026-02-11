@@ -1,7 +1,9 @@
 // Author: Felice Pantaleo,Marco Rovere - felice.pantaleo@cern.ch,marco.rovere@cern.ch
 // Date: 09/2018
 
-// user include files
+#include <algorithm>
+#include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -15,38 +17,30 @@
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "DataFormats/HGCalReco/interface/Trackster.h"
 
+#include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
+#include "RecoHGCal/TICL/interface/TracksterInferenceAlgoBase.h"
+#include "RecoHGCal/TICL/interface/TracksterInferenceAlgoFactory.h"
 #include "RecoHGCal/TICL/plugins/PatternRecognitionPluginFactory.h"
 
-#include "RecoHGCal/TICL/interface/TracksterInferenceAlgoBase.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "RecoHGCal/TICL/interface/TracksterInferenceAlgoFactory.h"
-
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 using namespace ticl;
-using cms::Ort::ONNXRuntime;
 
-class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<ticl::TICLONNXGlobalCache>> {
 public:
-  explicit TrackstersProducer(const edm::ParameterSet&, const ONNXRuntime*);
+  explicit TrackstersProducer(const edm::ParameterSet&, ticl::TICLONNXGlobalCache const* cache);
   ~TrackstersProducer() override {}
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet& iConfig);
-  static void globalEndJob(const ONNXRuntime*);
+  static std::unique_ptr<ticl::TICLONNXGlobalCache> initializeGlobalCache(const edm::ParameterSet& iConfig);
+  static void globalEndJob(ticl::TICLONNXGlobalCache const*);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  // static methods for handling the global cache
   void beginRun(const edm::Run&, const edm::EventSetup& es) override {
     const auto& geom = es.getData(geometry_token_);
     rhtools_.setGeometry(geom);
@@ -57,22 +51,28 @@ private:
   bool doNose_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTiles>> myAlgo_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>> myAlgoHFNose_;
+
   std::unique_ptr<TracksterInferenceAlgoBase> inferenceAlgo_;
+
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
   const edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
+
   edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
   edm::EDGetTokenT<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
+
   ticl::Trackster::IterationIndex iterIndex_ = ticl::Trackster::IterationIndex(0);
+
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   hgcal::RecHitTools rhtools_;
   const std::string itername_;
 };
+
 DEFINE_FWK_MODULE(TrackstersProducer);
 
-TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const ONNXRuntime*)
+TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, ticl::TICLONNXGlobalCache const* cache)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
@@ -84,24 +84,34 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const ONNXRu
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
       geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
       itername_(ps.getParameter<std::string>("itername")) {
-  auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
-  auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
+  const auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
+  const auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
+
   if (doNose_) {
-    myAlgoHFNose_ = PatternRecognitionHFNoseFactory::get()->create(
-        ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, consumesCollector());
+    myAlgoHFNose_ = PatternRecognitionHFNoseFactory::get()->create(plugin, pluginPSet, consumesCollector());
     layer_clusters_tiles_hfnose_token_ =
         consumes<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"));
   } else {
-    myAlgo_ = PatternRecognitionFactory::get()->create(
-        ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, consumesCollector());
+    myAlgo_ = PatternRecognitionFactory::get()->create(plugin, pluginPSet, consumesCollector());
     layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
   }
 
-  // Initialize inference algorithm using the factory
-  std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
-  edm::ParameterSet inferencePSet = ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
-  inferenceAlgo_ = std::unique_ptr<TracksterInferenceAlgoBase>(
-      TracksterInferenceAlgoFactory::get()->create(inferencePlugin, inferencePSet));
+  // Instantiate the inference plugin only if it is configured with at least one non-empty model path.
+  const std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
+  if (!inferencePlugin.empty()) {
+    const edm::ParameterSet inferencePSet = ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
+
+    const bool hasSingleModel = inferencePSet.existsAs<std::string>("onnxModelPath", true) &&
+                                !inferencePSet.getParameter<std::string>("onnxModelPath").empty();
+    const bool hasPIDModel = inferencePSet.existsAs<std::string>("onnxPIDModelPath", true) &&
+                             !inferencePSet.getParameter<std::string>("onnxPIDModelPath").empty();
+    const bool hasEnergyModel = inferencePSet.existsAs<std::string>("onnxEnergyModelPath", true) &&
+                                !inferencePSet.getParameter<std::string>("onnxEnergyModelPath").empty();
+
+    if (hasSingleModel || hasPIDModel || hasEnergyModel) {
+      inferenceAlgo_ = TracksterInferenceAlgoFactory::get()->create(inferencePlugin, inferencePSet, cache);
+    }
+  }
 
   if (itername_ == "TrkEM")
     iterIndex_ = ticl::Trackster::TRKEM;
@@ -115,19 +125,77 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const ONNXRu
     iterIndex_ = ticl::Trackster::MIP;
 
   produces<std::vector<Trackster>>();
-  produces<std::vector<float>>();  // Mask to be applied at the next iteration
+  produces<std::vector<float>>();
 }
 
-std::unique_ptr<ONNXRuntime> TrackstersProducer::initializeGlobalCache(const edm::ParameterSet& ps) {
-  std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
-  edm::ParameterSet inferencePSet = ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
-  if (inferencePSet.exists("onnxModelPath"))
-    return std::make_unique<ONNXRuntime>(inferencePSet.getParameter<edm::FileInPath>("onnxModelPath").fullPath());
-  else
-    return std::unique_ptr<ONNXRuntime>(nullptr);
+std::unique_ptr<ticl::TICLONNXGlobalCache> TrackstersProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
+  return ticl::TICLONNXGlobalCache::initialize(iConfig);
 }
 
-void TrackstersProducer::globalEndJob(const ONNXRuntime*) {}
+void TrackstersProducer::globalEndJob(ticl::TICLONNXGlobalCache const*) {}
+
+void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+  auto result = std::make_unique<std::vector<Trackster>>();
+  auto initialResult = std::make_unique<std::vector<Trackster>>();
+  auto output_mask = std::make_unique<std::vector<float>>();
+
+  const auto& original_layerclusters_mask = evt.get(original_layerclusters_mask_token_);
+  const auto& layerClusters = evt.get(clusters_token_);
+  const auto& inputClusterMask = evt.get(filtered_layerclusters_mask_token_);
+  const auto& layerClustersTimes = evt.get(clustersTime_token_);
+  const auto& seeding_regions = evt.get(seeding_regions_token_);
+
+  std::unordered_map<int, std::vector<int>> seedToTrackstersAssociation;
+
+  if (!seeding_regions.empty() && seeding_regions[0].index != -1) {
+    for (unsigned int i = 0; i < seeding_regions.size(); ++i) {
+      seedToTrackstersAssociation.emplace(seeding_regions[i].index, 0);
+    }
+  }
+
+  if (!seeding_regions.empty()) {
+    if (doNose_) {
+      const auto& tiles = evt.get(layer_clusters_tiles_hfnose_token_);
+      const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
+          evt, es, layerClusters, inputClusterMask, layerClustersTimes, tiles, seeding_regions);
+
+      myAlgoHFNose_->makeTracksters(inputHFNose, *initialResult, seedToTrackstersAssociation);
+
+      if (inferenceAlgo_) {
+        inferenceAlgo_->inputData(layerClusters, *initialResult, rhtools_);
+        inferenceAlgo_->runInference(*initialResult);
+      }
+
+      myAlgoHFNose_->filter(*result, *initialResult, inputHFNose, seedToTrackstersAssociation);
+    } else {
+      const auto& tiles = evt.get(layer_clusters_tiles_token_);
+      const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
+          evt, es, layerClusters, inputClusterMask, layerClustersTimes, tiles, seeding_regions);
+
+      myAlgo_->makeTracksters(input, *initialResult, seedToTrackstersAssociation);
+
+      if (inferenceAlgo_) {
+        inferenceAlgo_->inputData(layerClusters, *initialResult, rhtools_);
+        inferenceAlgo_->runInference(*initialResult);
+      }
+
+      myAlgo_->filter(*result, *initialResult, input, seedToTrackstersAssociation);
+    }
+  }
+
+  output_mask->reserve(original_layerclusters_mask.size());
+  std::copy(original_layerclusters_mask.begin(), original_layerclusters_mask.end(), std::back_inserter(*output_mask));
+
+  for (auto& trackster : *result) {
+    trackster.setIteration(iterIndex_);
+    for (auto const v : trackster.vertices()) {
+      (*output_mask)[v] = 0.f;
+    }
+  }
+
+  evt.put(std::move(result));
+  evt.put(std::move(output_mask));
+}
 
 void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -139,34 +207,35 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("layer_clusters_tiles", edm::InputTag("ticlLayerTileProducer"));
   desc.add<edm::InputTag>("layer_clusters_hfnose_tiles", edm::InputTag("ticlLayerTileHFNose"));
   desc.add<edm::InputTag>("seeding_regions", edm::InputTag("ticlSeedingRegionProducer"));
-  desc.add<std::string>("patternRecognitionBy", "CA");
+  desc.add<std::string>("patternRecognitionBy", "CLUE3D");
   desc.add<std::string>("itername", "unknown");
-  desc.add<std::string>("inferenceAlgo", "TracksterInferenceByPFN");
 
-  // CA Plugin
-  edm::ParameterSetDescription pluginDesc;
-  pluginDesc.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "CA", true));
-  desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByCA", pluginDesc);
-  //
-  // CLUE3D Plugin
+  // Inference plugin name (can be left as default). If the corresponding plugin PSet
+  // contains only empty model path strings, inference will be disabled at runtime.
+  desc.add<std::string>("inferenceAlgo", "");
+
+  // Pattern recognition plugins
+  edm::ParameterSetDescription pluginDescCA;
+  pluginDescCA.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "CA", true));
+  desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByCA", pluginDescCA);
+
   edm::ParameterSetDescription pluginDescClue3D;
   pluginDescClue3D.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "CLUE3D", true));
   desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByCLUE3D", pluginDescClue3D);
 
-  // FastJet Plugin
   edm::ParameterSetDescription pluginDescFastJet;
   pluginDescFastJet.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "FastJet", true));
   desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByFastJet", pluginDescFastJet);
 
-  // Recovery Plugin
   edm::ParameterSetDescription pluginDescRecovery;
   pluginDescRecovery.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "Recovery", true));
   desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByRecovery", pluginDescRecovery);
 
-  // Inference Plugins
-  edm::ParameterSetDescription inferenceDesc;
-  inferenceDesc.addNode(edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByDNN", true));
-  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByDNN", inferenceDesc);
+  // Inference plugins
+  edm::ParameterSetDescription inferenceDescDNN;
+  inferenceDescDNN.addNode(
+      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByDNN", true));
+  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByDNN", inferenceDescDNN);
 
   edm::ParameterSetDescription inferenceDescPFN;
   inferenceDescPFN.addNode(
@@ -179,68 +248,4 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByANN", inferenceDescANN);
 
   descriptions.add("trackstersProducer", desc);
-}
-
-void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  auto result = std::make_unique<std::vector<Trackster>>();
-  auto initialResult = std::make_unique<std::vector<Trackster>>();
-  auto output_mask = std::make_unique<std::vector<float>>();
-
-  const std::vector<float>& original_layerclusters_mask = evt.get(original_layerclusters_mask_token_);
-  const auto& layerClusters = evt.get(clusters_token_);
-  const auto& inputClusterMask = evt.get(filtered_layerclusters_mask_token_);
-  const auto& layerClustersTimes = evt.get(clustersTime_token_);
-  const auto& seeding_regions = evt.get(seeding_regions_token_);
-
-  std::unordered_map<int, std::vector<int>> seedToTrackstersAssociation;
-  // if it's regional iteration and there are seeding regions
-  if (!seeding_regions.empty()) {
-    if (seeding_regions[0].index != -1) {
-      auto numberOfSeedingRegions = seeding_regions.size();
-      for (unsigned int i = 0; i < numberOfSeedingRegions; ++i) {
-        seedToTrackstersAssociation.emplace(seeding_regions[i].index, 0);
-      }
-    }
-
-    if (doNose_) {
-      const auto& layer_clusters_hfnose_tiles = evt.get(layer_clusters_tiles_hfnose_token_);
-      const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
-          evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
-
-      myAlgoHFNose_->makeTracksters(inputHFNose, *initialResult, seedToTrackstersAssociation);
-      // Run inference algorithm
-      inferenceAlgo_->inputData(layerClusters, *initialResult, rhtools_);
-      inferenceAlgo_->runInference(*initialResult);
-      myAlgoHFNose_->filter(*result, *initialResult, inputHFNose, seedToTrackstersAssociation);
-
-    } else {
-      const auto& layer_clusters_tiles = evt.get(layer_clusters_tiles_token_);
-      const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
-          evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
-
-      myAlgo_->makeTracksters(input, *initialResult, seedToTrackstersAssociation);
-      // Run inference algorithm
-      inferenceAlgo_->inputData(layerClusters, *initialResult, rhtools_);
-      inferenceAlgo_->runInference(*initialResult);
-      myAlgo_->filter(*result, *initialResult, input, seedToTrackstersAssociation);
-    }
-  }
-  // Now update the global mask and put it into the event
-  output_mask->reserve(original_layerclusters_mask.size());
-  // Copy over the previous state
-  std::copy(
-      std::begin(original_layerclusters_mask), std::end(original_layerclusters_mask), std::back_inserter(*output_mask));
-
-  for (auto& trackster : *result) {
-    trackster.setIteration(iterIndex_);
-    // Mask the used elements, accordingly
-    for (auto const v : trackster.vertices()) {
-      // TODO(rovere): for the moment we mask the layer cluster completely. In
-      // the future, properly compute the fraction of usage.
-      (*output_mask)[v] = 0.;
-    }
-  }
-
-  evt.put(std::move(result));
-  evt.put(std::move(output_mask));
 }

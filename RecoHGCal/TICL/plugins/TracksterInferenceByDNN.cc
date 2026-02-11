@@ -1,88 +1,98 @@
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "RecoHGCal/TICL/interface/TracksterInferenceByDNN.h"
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <algorithm>
+#include <cmath>
+
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "TrackstersPCA.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace ticl {
-  using namespace cms::Ort;  // Use ONNXRuntime namespace
 
-  // Constructor for TracksterInferenceByDNN
-  TracksterInferenceByDNN::TracksterInferenceByDNN(const edm::ParameterSet& conf)
-      : TracksterInferenceAlgoBase(conf),
-        onnxPIDRuntimeInstance_(std::make_unique<cms::Ort::ONNXRuntime>(
-            conf.getParameter<edm::FileInPath>("onnxPIDModelPath").fullPath().c_str())),
-        onnxEnergyRuntimeInstance_(std::make_unique<cms::Ort::ONNXRuntime>(
-            conf.getParameter<edm::FileInPath>("onnxEnergyModelPath").fullPath().c_str())),
-        inputNames_(conf.getParameter<std::vector<std::string>>("inputNames")),  // Define input names for inference
-        output_en_(conf.getParameter<std::vector<std::string>>("output_en")),    // Define output energy for inference
-        output_id_(conf.getParameter<std::vector<std::string>>("output_id")),    // Define output PID for inference
-        eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),  // Minimum cluster energy
-        eidNLayers_(conf.getParameter<int>("eid_n_layers")),                        // Number of layers
-        eidNClusters_(conf.getParameter<int>("eid_n_clusters")),                    // Number of clusters
-        doPID_(conf.getParameter<int>("doPID")),                                    // Number of clusters
-        doRegression_(conf.getParameter<int>("doRegression"))                       // Number of clusters
-  {
-    // Initialize ONNX Runtime sessions for PID and Energy models
-    onnxPIDSession_ = onnxPIDRuntimeInstance_.get();
-    onnxEnergySession_ = onnxEnergyRuntimeInstance_.get();
+  TracksterInferenceByDNN::TracksterInferenceByDNN(const edm::ParameterSet& conf, TICLONNXGlobalCache const* cache)
+      : TracksterInferenceAlgoBase(conf, cache),
+        inputNames_(conf.getParameter<std::vector<std::string>>("inputNames")),
+        output_en_(conf.getParameter<std::vector<std::string>>("output_en")),
+        output_id_(conf.getParameter<std::vector<std::string>>("output_id")),
+        eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
+        eidNLayers_(conf.getParameter<int>("eid_n_layers")),
+        eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
+        doPID_(conf.getParameter<int>("doPID")),
+        doRegression_(conf.getParameter<int>("doRegression")) {
+    // Empty string means "disabled": the cache will not load anything and we keep nullptr sessions.
+    const std::string pidModel = conf.getParameter<std::string>("onnxPIDModelPath");
+    const std::string energyModel = conf.getParameter<std::string>("onnxEnergyModelPath");
+
+    if (cache != nullptr) {
+      if (!pidModel.empty()) {
+        onnxPIDSession_ = cache->getByModelPathString(pidModel);
+      }
+      if (!energyModel.empty()) {
+        onnxEnergySession_ = cache->getByModelPathString(energyModel);
+      }
+    }
+
+    // Enable only if the requested tasks have sessions.
+    enabled_ = ((doPID_ != 0 && onnxPIDSession_ != nullptr) || (doRegression_ != 0 && onnxEnergySession_ != nullptr));
   }
 
-  // Method to process input data and prepare it for inference
   void TracksterInferenceByDNN::inputData(const std::vector<reco::CaloCluster>& layerClusters,
                                           std::vector<Trackster>& tracksters,
                                           const hgcal::RecHitTools& rhtools) {
-    tracksterIndices_.clear();  // Clear previous indices
+    if (!enabled_) {
+      batchSize_ = 0;
+      return;
+    }
+
+    tracksterIndices_.clear();
     for (int i = 0; i < static_cast<int>(tracksters.size()); i++) {
-      float sumClusterEnergy = 0.;
+      float sumClusterEnergy = 0.f;
       for (const unsigned int& vertex : tracksters[i].vertices()) {
-        if (rhtools.isBarrel(layerClusters[vertex].seed()))
+        if (rhtools.isBarrel(layerClusters[vertex].seed())) {
           continue;
+        }
         sumClusterEnergy += static_cast<float>(layerClusters[vertex].energy());
         if (sumClusterEnergy >= eidMinClusterEnergy_) {
-          tracksters[i].setRegressedEnergy(0.f);  // Set regressed energy to 0
-          tracksters[i].zeroProbabilities();      // Zero out probabilities
-          tracksterIndices_.push_back(i);         // Add index to the list
+          tracksters[i].setRegressedEnergy(0.f);
+          tracksters[i].zeroProbabilities();
+          tracksterIndices_.push_back(i);
           break;
         }
       }
     }
 
-    // Prepare input shapes and data for inference
     batchSize_ = static_cast<int>(tracksterIndices_.size());
-    if (batchSize_ == 0)
-      return;  // Exit if no tracksters
+    if (batchSize_ == 0) {
+      return;
+    }
 
     std::vector<int64_t> inputShape = {batchSize_, eidNLayers_, eidNClusters_, eidNFeatures_};
-    input_shapes_ = {inputShape};
+    input_shapes_.clear();
+    input_shapes_.push_back(std::move(inputShape));
 
     input_Data_.clear();
-    input_Data_.emplace_back(batchSize_ * eidNLayers_ * eidNClusters_ * eidNFeatures_, 0);
+    input_Data_.emplace_back(batchSize_ * eidNLayers_ * eidNClusters_ * eidNFeatures_, 0.f);
 
     for (int i = 0; i < batchSize_; i++) {
       const Trackster& trackster = tracksters[tracksterIndices_[i]];
 
-      // Prepare indices and sort clusters based on energy
       std::vector<int> clusterIndices(trackster.vertices().size());
       for (int k = 0; k < static_cast<int>(trackster.vertices().size()); k++) {
         clusterIndices[k] = k;
       }
 
-      std::sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](const int& a, const int& b) {
+      std::sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](int a, int b) {
         return layerClusters[trackster.vertices(a)].energy() > layerClusters[trackster.vertices(b)].energy();
       });
 
       std::vector<int> seenClusters(eidNLayers_, 0);
 
-      // Fill input data with cluster information
-      for (const int& k : clusterIndices) {
+      for (int k : clusterIndices) {
         const reco::CaloCluster& cluster = layerClusters[trackster.vertices(k)];
         int j = rhtools.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
         if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
-          auto index = (i * eidNLayers_ + j) * eidNFeatures_ * eidNClusters_ + seenClusters[j] * eidNFeatures_;
+          const int index = (i * eidNLayers_ + j) * eidNFeatures_ * eidNClusters_ + seenClusters[j] * eidNFeatures_;
           input_Data_[0][index] =
               static_cast<float>(cluster.energy() / static_cast<float>(trackster.vertex_multiplicity(k)));
           input_Data_[0][index + 1] = static_cast<float>(std::abs(cluster.eta()));
@@ -93,49 +103,43 @@ namespace ticl {
     }
   }
 
-  // Method to run inference and update tracksters
   void TracksterInferenceByDNN::runInference(std::vector<Trackster>& tracksters) {
-    if (batchSize_ == 0)
-      return;  // Exit if no batch
+    if (!enabled_ || batchSize_ == 0) {
+      return;
+    }
 
-    if (doPID_ and doRegression_) {
-      // Run energy model inference
+    if (doRegression_ != 0 && onnxEnergySession_ != nullptr) {
       auto result = onnxEnergySession_->run(inputNames_, input_Data_, input_shapes_, output_en_, batchSize_);
-      auto& energyOutputTensor = result[0];
+      auto const& energyOutputTensor = result[0];
       if (!output_en_.empty()) {
-        for (int i = 0; i < static_cast<int>(batchSize_); i++) {
+        for (int i = 0; i < batchSize_; i++) {
           const float energy = energyOutputTensor[i];
-          tracksters[tracksterIndices_[i]].setRegressedEnergy(energy);  // Update energy
+          tracksters[tracksterIndices_[i]].setRegressedEnergy(energy);
         }
       }
     }
 
-    if (doPID_) {
-      // Run PID model inference
+    if (doPID_ != 0 && onnxPIDSession_ != nullptr) {
       auto pidOutput = onnxPIDSession_->run(inputNames_, input_Data_, input_shapes_, output_id_, batchSize_);
       auto pidOutputTensor = pidOutput[0];
       float* probs = pidOutputTensor.data();
       if (!output_id_.empty()) {
         for (int i = 0; i < batchSize_; i++) {
-          tracksters[tracksterIndices_[i]].setProbabilities(probs);             // Update probabilities
-          probs += tracksters[tracksterIndices_[i]].id_probabilities().size();  // Move to next set of probabilities
+          tracksters[tracksterIndices_[i]].setProbabilities(probs);
+          probs += tracksters[tracksterIndices_[i]].id_probabilities().size();
         }
       }
     }
   }
-  // Method to fill parameter set description for configuration
+
   void TracksterInferenceByDNN::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<int>("algo_verbosity", 0);
-    iDesc
-        .add<edm::FileInPath>(
-            "onnxPIDModelPath",
-            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/id_v0.onnx"))
-        ->setComment("Path to ONNX PID model CLU3D");
-    iDesc
-        .add<edm::FileInPath>(
-            "onnxEnergyModelPath",
-            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/energy_v0.onnx"))
-        ->setComment("Path to ONNX Energy model CLU3D");
+    TracksterInferenceAlgoBase::fillPSetDescription(iDesc);
+
+    iDesc.add<std::string>("onnxPIDModelPath", "")
+        ->setComment("Path to ONNX PID model. If empty, PID inference is skipped.");
+    iDesc.add<std::string>("onnxEnergyModelPath", "")
+        ->setComment("Path to ONNX energy model. If empty, energy regression is skipped.");
+
     iDesc.add<std::vector<std::string>>("inputNames", {"input"});
     iDesc.add<std::vector<std::string>>("output_en", {"enreg_output"});
     iDesc.add<std::vector<std::string>>("output_id", {"pid_output"});
@@ -145,4 +149,5 @@ namespace ticl {
     iDesc.add<int>("doPID", 1);
     iDesc.add<int>("doRegression", 1);
   }
+
 }  // namespace ticl

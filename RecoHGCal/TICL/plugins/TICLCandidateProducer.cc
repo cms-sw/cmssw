@@ -46,7 +46,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
 
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -56,18 +56,17 @@
 #include "TrackstersPCA.h"
 
 using namespace ticl;
-using cms::Ort::ONNXRuntime;
 
-class TICLCandidateProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class TICLCandidateProducer : public edm::stream::EDProducer<edm::GlobalCache<ticl::TICLONNXGlobalCache>> {
 public:
-  explicit TICLCandidateProducer(const edm::ParameterSet &ps, const ONNXRuntime *);
+  explicit TICLCandidateProducer(const edm::ParameterSet &ps, const ticl::TICLONNXGlobalCache *);
   ~TICLCandidateProducer() override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void beginRun(edm::Run const &iEvent, edm::EventSetup const &es) override;
-  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet &iConfig);
-  static void globalEndJob(const ONNXRuntime *);
+  static std::unique_ptr<ticl::TICLONNXGlobalCache> initializeGlobalCache(const edm::ParameterSet &iConfig);
+  static void globalEndJob(const ticl::TICLONNXGlobalCache *);
 
 private:
   void dumpCandidate(const TICLCandidate &) const;
@@ -120,7 +119,7 @@ private:
   static constexpr float timeRes = 0.02f;
 };
 
-TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const ONNXRuntime *)
+TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const ticl::TICLONNXGlobalCache *cache)
     : clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
@@ -176,11 +175,30 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
   if (useMTDTiming_) {
     inputTimingToken_ = consumes<MtdHostCollection>(ps.getParameter<edm::InputTag>("timingSoA"));
   }
-  // Initialize inference algorithm using the factory
-  std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
-  edm::ParameterSet inferencePSet = ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
-  inferenceAlgo_ = std::unique_ptr<TracksterInferenceAlgoBase>(
-      TracksterInferenceAlgoFactory::get()->create(inferencePlugin, inferencePSet));
+  // Initialize inference algorithm using the factory.
+  // Do not build the inference plugin if it is disabled or if no model is configured (empty string => no session loaded).
+  if (regressionAndPid_) {
+    const std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
+    if (!inferencePlugin.empty()) {
+      const edm::ParameterSet inferencePSet =
+          ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
+
+      // If the plugin config exposes model paths as std::string with default "",
+      // the cache will only contain sessions for non-empty paths.
+      const bool hasSingleModel = inferencePSet.existsAs<std::string>("onnxModelPath", true) &&
+                                  !inferencePSet.getParameter<std::string>("onnxModelPath").empty();
+      const bool hasPIDModel = inferencePSet.existsAs<std::string>("onnxPIDModelPath", true) &&
+                               !inferencePSet.getParameter<std::string>("onnxPIDModelPath").empty();
+      const bool hasEnergyModel = inferencePSet.existsAs<std::string>("onnxEnergyModelPath", true) &&
+                                  !inferencePSet.getParameter<std::string>("onnxEnergyModelPath").empty();
+
+      // Only instantiate the plugin if at least one model path is configured.
+      if (hasSingleModel || hasPIDModel || hasEnergyModel) {
+        inferenceAlgo_ = std::unique_ptr<TracksterInferenceAlgoBase>(
+            TracksterInferenceAlgoFactory::get()->create(inferencePlugin, inferencePSet, cache));
+      }
+    }
+  }
 
   produces<std::vector<TICLCandidate>>();
 
@@ -193,11 +211,12 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
       TICLGeneralInterpretationPluginFactory::get()->create(algoType, interpretationPSet, consumesCollector());
 }
 
-std::unique_ptr<ONNXRuntime> TICLCandidateProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
-  return std::unique_ptr<ONNXRuntime>(nullptr);
+std::unique_ptr<ticl::TICLONNXGlobalCache> TICLCandidateProducer::initializeGlobalCache(
+    const edm::ParameterSet &iConfig) {
+  return ticl::TICLONNXGlobalCache::initialize(iConfig);
 }
 
-void TICLCandidateProducer::globalEndJob(const ONNXRuntime *) {}
+void TICLCandidateProducer::globalEndJob(const ticl::TICLONNXGlobalCache *) {}
 
 void TICLCandidateProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
@@ -211,7 +230,7 @@ void TICLCandidateProducer::beginRun(edm::Run const &iEvent, edm::EventSetup con
   generalInterpretationAlgo_->initialize(hgcons_, rhtools_, bfield_, propagator_);
 
   trackingGeometry_ = es.getHandle(trackingGeometry_token_);
-};
+}
 
 void filterTracks(edm::Handle<std::vector<reco::Track>> tkH,
                   const edm::Handle<std::vector<reco::Muon>> &muons_h,
@@ -233,7 +252,7 @@ void filterTracks(edm::Handle<std::vector<reco::Track>> tkH,
     }
 
     // don't consider tracks below 2 GeV for linking
-    if (std::sqrt(tk.p() * tk.p() + ticl::mpion2) < tkEnergyCut_) {
+    if (std::sqrt(tk.p() * tk.p() + mpion2) < tkEnergyCut_) {
       maskTracks[i] = false;
       continue;
     }
@@ -333,8 +352,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   if (regressionAndPid_) {
     // Run inference algorithm
     inferenceAlgo_->inputData(layerClusters, *resultTracksters, rhtools_);
-    inferenceAlgo_->runInference(
-        *resultTracksters);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
+    inferenceAlgo_->runInference(*resultTracksters);
   }
 
   std::vector<bool> maskTracksters(resultTracksters->size(), true);
