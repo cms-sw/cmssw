@@ -53,8 +53,7 @@ public:
                        const uint16_t run3_pattern = 0,
                        const uint16_t run3_slope = 0,
                        const int type = ALCTCLCT,
-                       const bool has_gem_layer1_hits = false,
-                       const bool has_gem_layer2_hits = false);
+                       const uint16_t gemLayerUsedForSlopeComputation = 0);
 
   /// default (calls clear())
   CSCCorrelatedLCTDigi();
@@ -214,10 +213,8 @@ public:
 
   void setType(int type) { type_ = type; }
 
-  bool hasGEMLayer1Hist() const { return has_gem_layer1_hits_; }
-  bool hasGEMLayer2Hist() const { return has_gem_layer2_hits_; }
-  void setHasGEMLayer1Hits(bool has_hits) { has_gem_layer1_hits_ = has_hits; }
-  void setHasGEMLayer2Hits(bool has_hits) { has_gem_layer2_hits_ = has_hits; }
+  uint16_t getGemLayerUsedForSlopeComputation() const { return gemLayerUsedForSlopeComputation_; }
+  void setGemLayerUsedForSlopeComputation(uint16_t layer) { gemLayerUsedForSlopeComputation_ = layer; }
 
   void setALCT(const CSCALCTDigi& alct) { alct_ = alct; }
   void setCLCT(const CSCCLCTDigi& clct) { clct_ = clct; }
@@ -277,8 +274,8 @@ private:
   uint16_t run3_pattern_;
   // 4-bit bending value. There will be 16 bending values * 2 (left/right)
   uint16_t run3_slope_;
-  // In Run-3, the GEM information is included in the LCT data format. The "gem_layerN_" indicates whatever GEM layer N have hits in coincidence with the CSC primitives.
-  bool has_gem_layer1_hits_, has_gem_layer2_hits_;
+  // In Run-3, the GEM information is included in the LCT data format. The "gemLayerUsedForSlopeComputation_" indicates what GEM layer was used to compute the slope.
+  uint16_t gemLayerUsedForSlopeComputation_;
 
   /// SIMULATION ONLY ////
   int type_;

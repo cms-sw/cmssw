@@ -29,8 +29,7 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t itrknmb,
                                            const uint16_t run3_pattern,
                                            const uint16_t run3_slope,
                                            const int type,
-                                           const bool has_gem_layer1_hits,
-                                           const bool has_gem_layer2_hits)
+                                           const uint16_t gemLayerUsedForSlopeComputation)
 
     : trknmb(itrknmb),
       valid(ivalid),
@@ -49,8 +48,7 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t itrknmb,
       run3_eighth_strip_bit_(run3_eighth_strip_bit),
       run3_pattern_(run3_pattern),
       run3_slope_(run3_slope),
-      has_gem_layer1_hits_(has_gem_layer1_hits),
-      has_gem_layer2_hits_(has_gem_layer2_hits),
+      gemLayerUsedForSlopeComputation_(gemLayerUsedForSlopeComputation),
       type_(type),
       version_(version) {}
 
@@ -82,8 +80,7 @@ void CSCCorrelatedLCTDigi::clear() {
   run3_slope_ = 0;
   // clear the components
   type_ = 1;
-  has_gem_layer1_hits_ = false;
-  has_gem_layer2_hits_ = false;
+  gemLayerUsedForSlopeComputation_ = 0;
   alct_.clear();
   clct_.clear();
   gem1_ = GEMPadDigi();
