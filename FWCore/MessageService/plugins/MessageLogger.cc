@@ -803,8 +803,8 @@ namespace edm {
       auto v = fill_buffer(buffer, "Run: ", id.run(), " Event: ", id.event());
       edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreEventProcessing");  // changelog 17
-          // Note - module name had not been set here  Similarly in other places where
-          // RunEvent carries the new information; we add setSinglet for module name.
+      // Note - module name had not been set here  Similarly in other places where
+      // RunEvent carries the new information; we add setSinglet for module name.
     }
 
     void MessageLogger::postEvent(StreamContext const& iContext) {
