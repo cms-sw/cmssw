@@ -53,8 +53,8 @@ public:
                        const uint16_t run3_pattern = 0,
                        const uint16_t run3_slope = 0,
                        const int type = ALCTCLCT,
-                       const bool has_gem_layer1_hits=false,
-                       const bool has_gem_layer2_hits=false);
+                       const bool has_gem_layer1_hits = false,
+                       const bool has_gem_layer2_hits = false);
 
   /// default (calls clear())
   CSCCorrelatedLCTDigi();
