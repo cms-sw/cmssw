@@ -171,7 +171,7 @@ void ScoutingDileptonMonitor::analyzeCollection(const edm::Event& iEvent,
   edm::LogInfo("ScoutingDileptonMonitor") << "collection size: " << handle->size();
 
   for (const auto& obj : *handle) {
-    if (cut(obj)) {
+    if (!cut(obj)) {
       continue;
     }
     if (useID && !checkScoutingID(obj)) {
