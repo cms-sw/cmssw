@@ -27,6 +27,7 @@
 
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleReader.hxx"
+#include "TApplication.h"
 
 #include "boost/program_options.hpp"
 
@@ -1177,6 +1178,11 @@ static char const* const kDumpPSetIDCommandOpt = "dumpPSetID,i";
 static char const* const kProductIDEntryOpt = "productIDEntry";
 
 int main(int argc, char* argv[]) {
+  // TApplication sets up atexit handlers such that header parsing
+  // should not happen there
+  // A simpler solution would be nice
+  TApplication application("edmRNTupleTempProvDump", nullptr, nullptr);
+
   using namespace boost::program_options;
 
   std::string descString(argv[0]);
