@@ -250,14 +250,16 @@ namespace edm {
     // T holds the value of the switch variable.
     // If you try using any other type, then it will not compile.
     template <typename T>
-      requires(std::is_same_v<T, bool> || std::is_same_v<T, int> || std::is_same_v<T, std::string>)
+      requires(std::is_same_v<T, bool> || std::is_same_v<T, int> || std::is_same_v<T, unsigned int> ||
+               std::is_same_v<T, long long> || std::is_same_v<T, unsigned long long> || std::is_same_v<T, std::string>)
     ParameterDescriptionNode* ifValue(ParameterDescription<T> const& switchParameter,
                                       std::unique_ptr<ParameterDescriptionCases<T>> cases) {
       return ifValue<T>(switchParameter, std::move(cases), Modifier::kNone, true);
     }
 
     template <typename T>
-      requires(std::is_same_v<T, bool> || std::is_same_v<T, int> || std::is_same_v<T, std::string>)
+      requires(std::is_same_v<T, bool> || std::is_same_v<T, int> || std::is_same_v<T, unsigned int> ||
+               std::is_same_v<T, long long> || std::is_same_v<T, unsigned long long> || std::is_same_v<T, std::string>)
     ParameterDescriptionNode* ifValueOptional(ParameterDescription<T> const& switchParameter,
                                               std::unique_ptr<ParameterDescriptionCases<T>> cases,
                                               bool writeToCfi) {
