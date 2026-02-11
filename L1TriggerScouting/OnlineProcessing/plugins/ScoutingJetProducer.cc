@@ -4,6 +4,7 @@
 
 #include "DataFormats/L1Scouting/interface/L1ScoutingCaloTower.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingFastJet.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -27,9 +28,15 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
+  // Number of BXs per orbit
+  static constexpr unsigned int NBX = 3564;
+
   edm::EDGetTokenT<l1ScoutingRun3::CaloTowerOrbitCollection> const src_;
   double const akR_;
   double const ptMin_;
+  int const towerMinHwEt_;
+  int const towerMaxHwEt_;
+  int const mantissaPrecision_;
   bool const debug_;
 };
 
@@ -37,6 +44,9 @@ ScoutingJetProducer::ScoutingJetProducer(const edm::ParameterSet& iPSet)
     : src_(consumes(iPSet.getParameter<edm::InputTag>("src"))),
       akR_(iPSet.getParameter<double>("akR")),
       ptMin_(iPSet.getParameter<double>("ptMin")),
+      towerMinHwEt_(iPSet.getParameter<int>("towerMinHwEt")),
+      towerMaxHwEt_(iPSet.getParameter<int>("towerMaxHwEt")),
+      mantissaPrecision_(iPSet.getParameter<int>("mantissaPrecision")),
       debug_(iPSet.getUntrackedParameter<bool>("debug")) {
   produces<l1ScoutingRun3::FastJetOrbitCollection>("FastJet").setBranchAlias("FastJetOrbitCollection");
 }
@@ -46,7 +56,7 @@ void ScoutingJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
   auto const& caloTowerCollection = iEvent.get(src_);
 
   auto fastJetCollection = std::make_unique<l1ScoutingRun3::FastJetOrbitCollection>();
-  std::vector<std::vector<l1ScoutingRun3::FastJet>> fastJetBuffer(3565);  // range of BX values
+  std::vector<std::vector<l1ScoutingRun3::FastJet>> fastJetBuffer(NBX + 1);
   unsigned int nFastJet = 0;
 
   // define fastjet algorithm
@@ -63,6 +73,11 @@ void ScoutingJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
     pjCTs.clear();
     pjCTs.reserve(cts.size());
     for (const auto& ct : cts) {
+      if (not((towerMinHwEt_ < 0 or ct.hwEt() >= towerMinHwEt_) and
+              (towerMaxHwEt_ < 0 or ct.hwEt() <= towerMaxHwEt_))) {
+        continue;
+      }
+
       ROOT::Math::PtEtaPhiMVector ctLV(l1ScoutingRun3::calol1::fEt(ct.hwEt()),
                                        l1ScoutingRun3::calol1::fEta(ct.hwEta()),
                                        l1ScoutingRun3::calol1::fPhi(ct.hwPhi()),
@@ -82,7 +97,12 @@ void ScoutingJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
     for (const auto& incJet : incJets) {
       int nConst = incJet.has_constituents() ? incJet.constituents().size() : 0;
       float area = incJet.has_area() ? incJet.area() : -1.0f;
-      bufferThisBX.emplace_back(incJet.Et(), incJet.eta(), incJet.phi(), incJet.m(), nConst, area);
+      bufferThisBX.emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.Et(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.eta(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.phi(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.m(), mantissaPrecision_),
+                                nConst,
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(area, mantissaPrecision_));
       nFastJet++;
     }
   }
@@ -97,6 +117,11 @@ void ScoutingJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("src");
   desc.add<double>("akR");
   desc.add<double>("ptMin");
+  desc.add<int>("towerMinHwEt", 1)
+      ->setComment("Min hwEt (inclusive) of CaloTowers used for jet clustering (ignored if negative)");
+  desc.add<int>("towerMaxHwEt", -1)
+      ->setComment("Max hwEt (inclusive) of CaloTowers used for jet clustering (ignored if negative)");
+  desc.add<int>("mantissaPrecision", 10)->setComment("default float16, change to 23 for float32");
   desc.addUntracked<bool>("debug", false);
   descriptions.addDefault(desc);
 }
