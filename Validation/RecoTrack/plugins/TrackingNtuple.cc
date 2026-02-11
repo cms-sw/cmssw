@@ -3618,6 +3618,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_stateTrajGlbPx.push_back(stateGlobal.momentum().x());
       see_stateTrajGlbPy.push_back(stateGlobal.momentum().y());
       see_stateTrajGlbPz.push_back(stateGlobal.momentum().z());
+      if (charge == 0)  // replace with seed state if the  track failed
+        see_q.back() = stateGlobal.charge();
       if (addSeedCurvCov_) {
         auto const& stateCcov = tsos.curvilinearError().matrix();
         std::vector<float> cov(15);
