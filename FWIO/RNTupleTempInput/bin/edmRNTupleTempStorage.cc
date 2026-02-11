@@ -1,8 +1,6 @@
 #include "TFile.h"
 #include "ROOT/RNTupleReader.hxx"
 #include "ROOT/RNTuple.hxx"
-#include "TApplication.h"
-
 #include <charconv>
 #include <iostream>
 #include <sstream>
@@ -172,11 +170,6 @@ namespace {
 }  // namespace
 
 int main(int iArgc, char const* iArgv[]) {
-  // TApplication sets up atexit handlers such that header parsing
-  // should not happen there
-  // A simpler solution would be nice
-  TApplication application("edmRNTupleTempStorage", nullptr, nullptr);
-
   // Add options here
 
   boost::program_options::options_description desc("Allowed options");

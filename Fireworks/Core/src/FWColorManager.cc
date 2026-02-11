@@ -136,8 +136,8 @@ void FWColorManager::initialize() {
   int index = m_startColorIndex;
   //std::cout <<"start color index "<<m_startColorIndex<<std::endl;
 
-  const float (*itEnd)[3] = fireworks::s_forBlack + fireworks::s_size;
-  for (const float (*it)[3] = fireworks::s_forBlack; it != itEnd; ++it) {
+  const float(*itEnd)[3] = fireworks::s_forBlack + fireworks::s_size;
+  for (const float(*it)[3] = fireworks::s_forBlack; it != itEnd; ++it) {
     //NOTE: this constructor automatically places this color into the gROOT color list
     //std::cout <<" color "<< index <<" "<<(*it)[0]<<" "<<(*it)[1]<<" "<<(*it)[2]<<std::endl;
     if (index <= gROOT->GetListOfColors()->GetLast())
@@ -157,14 +157,14 @@ void FWColorManager::setPalette(long long x) {
 }
 
 void FWColorManager::initColorTable() {
-  const float (*colValues)[3];
+  const float(*colValues)[3];
   colValues = isColorSetLight() ? fireworks::s_forWhite : fireworks::s_forBlack;
   if (m_paletteId == EPalette::kClassic) {
     // std::cout << "initColorTable classic \n";
     resetColors(colValues, fireworks::s_size, m_startColorIndex, m_gammaOff);
   } else {
     // std::cout << "initColorTable extra \n";
-    float (*ev)[3] = (float (*)[3])calloc(3 * fireworks::s_size, sizeof(float));
+    float(*ev)[3] = (float(*)[3])calloc(3 * fireworks::s_size, sizeof(float));
     for (int ci = 0; ci < 34; ++ci) {
       for (int j = 0; j < 3; ++j)
         ev[ci][j] = colValues[ci][j];

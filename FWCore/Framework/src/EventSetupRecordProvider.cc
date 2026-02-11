@@ -81,6 +81,7 @@ namespace edm {
 
     void EventSetupRecordProvider::setDependentProviders(
         const std::vector<std::shared_ptr<EventSetupRecordProvider>>& iProviders) {
+      using std::placeholders::_1;
       std::shared_ptr<DependentRecordIntervalFinder> newFinder =
           make_shared_noexcept_false<DependentRecordIntervalFinder>(key());
 

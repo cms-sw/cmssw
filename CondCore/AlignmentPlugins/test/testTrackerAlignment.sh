@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# test line
 # Save current working dir so img can be outputted there later
 W_DIR=$(pwd);
 

@@ -35,7 +35,7 @@ process.testMillePedeFileExtractor = millePedeFileExtractor.clone(
     #TODO: Above sentence needs to be finished, otherwise I don't know what to fix.
     fileBlobInputTag = cms.InputTag("SiPixelAliMillePedeFileConverter",""),
     # You can add formatting directives like "%04d" in the output file name to setup numbering.
-    outputBinaryFile = cms.string('pippo%04d.dat.gz'),
+    outputBinaryFile = cms.string('pippo%04d.dat'),
     fileDir = cms.string('/afs/cern.ch/work/b/bvanbesi/private/PCLALI/CMSSW_7_4_4/src/'))
     ##fileDir = cms.string('/afs/cern.ch/work/c/cerminar/pcl/ali/frombroen/new/CMSSW_7_4_4/src/'))
 

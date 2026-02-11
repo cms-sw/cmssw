@@ -525,7 +525,7 @@ upgradeWFs['lstOnCPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnCPUIters01Track
         'HARVESTGlobal',
     ],
     suffix = '_lstOnCPUIters01TrackingOnly',
-    offset = 0.711,
+    offset = 0.703,
 )
 upgradeWFs['lstOnCPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
     '--procModifiers': 'trackingIters01,trackingLST',
@@ -554,20 +554,10 @@ upgradeWFs['lstOnGPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnGPUIters01Track
         'HARVESTGlobal',
     ],
     suffix = '_lstOnGPUIters01TrackingOnly',
-    offset = 0.712,
+    offset = 0.704,
 )
 upgradeWFs['lstOnGPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
     '--procModifiers': 'trackingIters01,trackingLST',
-}
-
-# LST on GPU (if available), initialStep+highPtTripletStep-only tracking-only, CPU vs. GPU comparison
-class UpgradeWorkflow_lstOnGPUIters01TrackingOnlyAlpakaValidationLST(UpgradeWorkflow_lstOnGPUIters01TrackingOnly):
-    pass
-upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'] = deepcopy(upgradeWFs['lstOnGPUIters01TrackingOnly'])
-upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'].suffix = '_lstOnGPUIters01TrackingOnlyAlpakaValidationLST'
-upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'].offset = 0.713
-upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'].step3 = upgradeWFs['trackingOnly'].step3 | {
-    '--procModifiers': 'alpakaValidationLST,trackingIters01,trackingLST',
 }
 
 #DeepCore seeding for JetCore iteration workflow

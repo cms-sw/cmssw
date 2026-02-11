@@ -13,7 +13,6 @@
 // system include files
 #include <atomic>
 #include <numeric>
-#include <unordered_set>
 
 // user include files
 #include "PerfTools/AllocMonitor/interface/AllocMonitorBase.h"
@@ -210,7 +209,9 @@ namespace {
 class ModuleEventAllocMonitor {
 public:
   ModuleEventAllocMonitor(edm::ParameterSet const& iPS, edm::ActivityRegistry& iAR)
-      : nEventsToSkip_(iPS.getUntrackedParameter<unsigned int>("nEventsToSkip")), filter_(&moduleIDs_) {
+      : moduleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames")),
+        nEventsToSkip_(iPS.getUntrackedParameter<unsigned int>("nEventsToSkip")),
+        filter_(&moduleIDs_) {
     (void)cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
 
     if (nEventsToSkip_ > 0) {
@@ -238,31 +239,17 @@ public:
            "#D <module ID> <stream #> <total matched deallocations (bytes)> <# matched deallocations>\n";
       file->write(s.str());
     }
-    auto skippedModuleNamesVec = iPS.getUntrackedParameter<std::vector<std::string>>("skippedModuleNames");
-    auto moduleNamesVec = iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames");
-    moduleNamesSet_ = std::unordered_set<std::string>(moduleNamesVec.begin(), moduleNamesVec.end());
-    skippedModuleNamesSet_ =
-        std::unordered_set<std::string>(skippedModuleNamesVec.begin(), skippedModuleNamesVec.end());
-    if (not moduleNamesSet_.empty() or not skippedModuleNamesSet_.empty()) {
+    if (not moduleNames_.empty()) {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
-        bool shouldKeep = false;
-        if (not moduleNamesSet_.empty()) {
-          shouldKeep = moduleNamesSet_.contains(description.moduleLabel());
-        }
-        if (not skippedModuleNamesSet_.empty()) {
-          shouldKeep = not skippedModuleNamesSet_.contains(description.moduleLabel());
-        }
-        std::stringstream s;
-        if (shouldKeep) {
-          s << "@ " << description.moduleLabel() << " " << description.moduleName() << " " << description.id() << "\n";
+        auto found = std::find(moduleNames_.begin(), moduleNames_.end(), description.moduleLabel());
+        if (found != moduleNames_.end()) {
           moduleIDs_.push_back(description.id());
           nModules_ = moduleIDs_.size();
           std::sort(moduleIDs_.begin(), moduleIDs_.end());
-        } else {
-          s << "# Skipping module" << description.moduleLabel() << " " << description.moduleName() << " "
-            << description.id() << " # skipped\n";
+          std::stringstream s;
+          s << "@ " << description.moduleLabel() << " " << description.moduleName() << " " << description.id() << "\n";
+          file->write(s.str());
         }
-        file->write(s.str());
       });
     } else {
       iAR.watchPreModuleConstruction([this, file](auto const& description) {
@@ -427,8 +414,6 @@ public:
         ->setComment(
             "Module labels for modules which should have their allocations monitored. If empty all modules will be "
             "monitored.");
-    ps.addUntracked<std::vector<std::string>>("skippedModuleNames", std::vector<std::string>())
-        ->setComment("Module labels for modules which should have their allocations ignored.");
     ps.addUntracked<unsigned int>("nEventsToSkip", 0)
         ->setComment(
             "Number of events to skip before turning on monitoring. If used in a multi-threaded application, "
@@ -448,7 +433,7 @@ private:
   }
 
   bool forThisModule(unsigned int iID) const {
-    return (moduleNamesSet_.empty() or std::binary_search(moduleIDs_.begin(), moduleIDs_.end(), iID));
+    return (moduleNames_.empty() or std::binary_search(moduleIDs_.begin(), moduleIDs_.end(), iID));
   }
   //The size is (#streams)*(#modules)
   CMS_THREAD_GUARD(streamSync_) std::vector<AllocMap> streamModuleAllocs_;
@@ -457,8 +442,7 @@ private:
   CMS_THREAD_GUARD(streamSync_) std::vector<int> streamModuleFinishOrder_;
   std::vector<std::atomic<unsigned int>> streamNFinishedModules_;
   std::vector<std::atomic<unsigned int>> streamSync_;
-  std::unordered_set<std::string> moduleNamesSet_;
-  std::unordered_set<std::string> skippedModuleNamesSet_;
+  std::vector<std::string> moduleNames_;
   std::vector<int> moduleIDs_;
   unsigned int nStreams_ = 0;
   unsigned int nModules_ = 0;

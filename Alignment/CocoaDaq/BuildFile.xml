@@ -1,0 +1,5 @@
+<use name="rootcore"/>
+<use name="CondFormats/OptAlignObjects"/>
+<export>
+  <lib name="1"/>
+</export>

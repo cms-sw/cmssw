@@ -33,7 +33,6 @@ void createOccupancyBranches();
 
 void fillOutputBranches(LSTEvent* event);
 void setOccupancyBranches(LSTEvent* event);
-void setGenJetBranches(LSTEvent* event);
 unsigned int setSimTrackContainerBranches(LSTEvent* event);
 void setTrackCandidateBranches(LSTEvent* event,
                                unsigned int n_accepted_tracks,

@@ -245,7 +245,7 @@ if __name__=="__main__":
     if args.retained:
         printReport(reportModuleRetainingMemory(fileParser, args.eventData, args.csv), args.eventData, "average retained", "retained each event", args.maxColumn)
     if args.product:
-        printReport(reportModuleDataProductMemory(fileParser, args.eventData, args.csv), args.eventData, "average data products size", "data products size each event", args.maxColumn)
+        printReport(reportModuleDataProductMemory(fileParser, args.eventData), args.eventData, "average data products size", "data products size each event", args.maxColumn)
     if args.tempSize:
         printReport(reportModuleTemporary(fileParser, args.eventData, args.csv), args.eventData, "average temporary allocation size", "temporary allocation size each event", args.maxColumn)
     if args.nTemp:

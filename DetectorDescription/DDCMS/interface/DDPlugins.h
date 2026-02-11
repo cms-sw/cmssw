@@ -26,7 +26,7 @@ namespace {
   DD4HEP_OPEN_PLUGIN(dd4hep, ddcms_det_element_##name) {                                                       \
     typedef DDCMSDetElementFactory<ddcms_det_element_##name> _IMP;                                             \
     template <>                                                                                                \
-    long _IMP::create(dd4hep::Detector & d, cms::DDParsingContext & c, xml::Handle_t e) {                      \
+    long _IMP::create(dd4hep::Detector& d, cms::DDParsingContext& c, xml::Handle_t e) {                        \
       return func(d, c, e);                                                                                    \
     }                                                                                                          \
     DD4HEP_PLUGINSVC_FACTORY(                                                                                  \

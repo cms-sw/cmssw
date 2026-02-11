@@ -79,8 +79,8 @@ private:
 
   // Index for generating names
   int fNameIndex;  // Names for canvases and pads are generated using this index. Static so that unique naming is ensured
-  // This used to be static, but for some reason does not compile if defined as static. Should work like this also though
-  // Remember: static means that only one fNameIndex is used by all the JDrawers that are created in the code
+      // This used to be static, but for some reason does not compile if defined as static. Should work like this also though
+      // Remember: static means that only one fNameIndex is used by all the JDrawers that are created in the code
 
   /*
    * Trim the styles of given axes

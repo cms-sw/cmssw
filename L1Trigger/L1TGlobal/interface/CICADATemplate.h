@@ -1,9 +1,8 @@
 #ifndef L1Trigger_L1TGlobal_CICADATemplate_h
 #define L1Trigger_L1TGlobal_CICADATemplate_h
 
-#include <ostream>
 #include <string>
-#include <vector>
+#include <iosfwd>
 
 #include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
@@ -13,7 +12,7 @@ public:
   CICADATemplate(const std::string&);
   CICADATemplate(const std::string&, const l1t::GtConditionType&);
   CICADATemplate(const CICADATemplate&);
-  ~CICADATemplate() override = default;
+  ~CICADATemplate() = default;
 
   CICADATemplate& operator=(const CICADATemplate&);
 

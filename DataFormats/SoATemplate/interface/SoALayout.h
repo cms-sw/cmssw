@@ -179,49 +179,6 @@ namespace cms::soa {
               BOOST_PP_EXPAND(_DECLARE_CONST_DESCRIPTOR_SPANS_IMPL TYPE_NAME))
 
 /**
- * Declare const descriptor parameter types 
- */
-// clang-format off
-#define _DECLARE_CONST_DESCRIPTOR_PARAMETER_TYPES_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)            \
-  (_SWITCH_ON_TYPE(VALUE_TYPE,                                                                      \
-      cms::soa::SoAConstParameters_ColumnType<cms::soa::SoAColumnType::scalar>::DataType<CPP_TYPE>, \
-      cms::soa::SoAConstParameters_ColumnType<cms::soa::SoAColumnType::column>::DataType<CPP_TYPE>, \
-      cms::soa::SoAConstParameters_ColumnType<cms::soa::SoAColumnType::eigen>::DataType<CPP_TYPE>)  \
-  )
-// clang-format on
-
-/**
- * Declare descriptor parameter types 
- */
-// clang-format off
-#define _DECLARE_DESCRIPTOR_PARAMETER_TYPES_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)             \
-  (_SWITCH_ON_TYPE(VALUE_TYPE,                                                                 \
-      cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::scalar>::DataType<CPP_TYPE>, \
-      cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::column>::DataType<CPP_TYPE>, \
-      cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::eigen>::DataType<CPP_TYPE>)  \
-  )
-// clang-format on
-
-#define _DECLARE_CONST_DESCRIPTOR_PARAMETER_TYPES(R, DATA, TYPE_NAME)                       \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DECLARE_CONST_DESCRIPTOR_PARAMETER_TYPES_IMPL TYPE_NAME))
-
-#define _DECLARE_DESCRIPTOR_PARAMETER_TYPES(R, DATA, TYPE_NAME)                             \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DECLARE_DESCRIPTOR_PARAMETER_TYPES_IMPL TYPE_NAME))
-
-// clang-format off
-#define _ASSIGN_PARAMETER_TO_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                 \
-  (view.metadata().BOOST_PP_CAT(parametersOf_, NAME)())
-// clang-format on
-
-#define _ASSIGN_PARAMETER_TO_COLUMNS(R, DATA, TYPE_NAME)                                    \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_ASSIGN_PARAMETER_TO_COLUMNS_IMPL TYPE_NAME))
-/**
  * Declare the spans of the descriptor data member 
  */
 // clang-format off
@@ -1787,15 +1744,13 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       ConstDescriptor() = default;                                                                                     \
                                                                                                                        \
       explicit ConstDescriptor(ConstView const& view)                                                                  \
-          : buff{ _ITERATE_ON_ALL_COMMA(_ASSIGN_SPAN_TO_COLUMNS, ~, __VA_ARGS__)},                                     \
-            parameterTypes{ _ITERATE_ON_ALL_COMMA(_ASSIGN_PARAMETER_TO_COLUMNS, ~, __VA_ARGS__)} {}                    \
+          : buff{ _ITERATE_ON_ALL_COMMA(_ASSIGN_SPAN_TO_COLUMNS, ~, __VA_ARGS__)} {}                                   \
                                                                                                                        \
       std::tuple<_ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_SPANS, ~, __VA_ARGS__)> buff;                         \
-      std::tuple<_ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_PARAMETER_TYPES, ~, __VA_ARGS__)> parameterTypes;     \
+      static constexpr std::array<cms::soa::SoAColumnType, std::tuple_size_v<decltype(buff)>> columnTypes = {{         \
+        _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_TYPE, ~, __VA_ARGS__)}};                                                 \
       static constexpr size_type num_cols = std::tuple_size<std::tuple<                                                \
                                     _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_SPANS, ~, __VA_ARGS__)>>::value;   \
-      static constexpr std::array<cms::soa::SoAColumnType, num_cols> columnTypes = {{                                  \
-        _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_TYPE, ~, __VA_ARGS__)}};                                                 \
     };                                                                                                                 \
                                                                                                                        \
     /* Helper struct to loop over the columns without using name for mutable data */                                   \
@@ -1803,15 +1758,13 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       Descriptor() = default;                                                                                          \
                                                                                                                        \
       explicit Descriptor(View& view)                                                                                  \
-          : buff{ _ITERATE_ON_ALL_COMMA(_ASSIGN_SPAN_TO_COLUMNS, ~, __VA_ARGS__)},                                     \
-            parameterTypes{ _ITERATE_ON_ALL_COMMA(_ASSIGN_PARAMETER_TO_COLUMNS, ~, __VA_ARGS__)} {}                    \
+          : buff{ _ITERATE_ON_ALL_COMMA(_ASSIGN_SPAN_TO_COLUMNS, ~, __VA_ARGS__)} {}                                   \
                                                                                                                        \
       std::tuple<_ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_SPANS, ~, __VA_ARGS__)> buff;                               \
-      std::tuple<_ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_PARAMETER_TYPES, ~, __VA_ARGS__)> parameterTypes;           \
+      static constexpr std::array<cms::soa::SoAColumnType, std::tuple_size_v<decltype(buff)>> columnTypes = {{         \
+        _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_TYPE, ~, __VA_ARGS__)}};                                                 \
       static constexpr size_type num_cols = std::tuple_size<std::tuple<                                                \
                                     _ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_SPANS, ~, __VA_ARGS__)>>::value;         \
-      static constexpr std::array<cms::soa::SoAColumnType, num_cols> columnTypes = {{                                  \
-        _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_TYPE, ~, __VA_ARGS__)}};                                                 \
     };                                                                                                                 \
                                                                                                                        \
     /* Trivial constuctor */                                                                                           \

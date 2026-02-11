@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+ <Include>
+  <File name="Alignment/CocoaApplication/test/table2DWithMirror.xml" url="."/>
+ </Include>
+ <Root fileName="table2DWithMirror.xml" logicalPartName="OCMS"/>
+</Configuration>
+

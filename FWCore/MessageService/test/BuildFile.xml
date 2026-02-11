@@ -256,18 +256,8 @@
 <test name="unitTestsGroup_6" command="${value}.sh" foreach="u23,u27,u30,u31,u33"/>
 
 <test name="TestFWCoreMessageServiceJobReport" command="testJobReport.sh"/>
-
 <bin name="makeJobReport" file="makeJobReport.cpp">
   <use name="boost_program_options"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
-  <flags NO_TESTRUN="1"/>
-</bin>
-<test name="testMakeJobReport" command="testMakeJobReport.sh">
-  <flags PRE_TEST="makeJobReport"/>
-</test>
-<bin name="testJobReportXMLUtils" file="testJobReportXMLUtils.cpp">
-  <use name="catch2"/>
-  <use name="tinyxml2"/>
-  <use name="FWCore/MessageLogger" source_only="1"/>
 </bin>

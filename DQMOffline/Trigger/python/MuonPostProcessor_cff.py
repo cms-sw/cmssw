@@ -30,9 +30,6 @@ hltMuonEfficiencies = DQMEDHarvester("DQMGenericClient",
                                      
 
     efficiencyProfile = cms.untracked.vstring(
-        #
-        
-        #
         "efficiencyVertex 'Efficiency to Match Reco Muons to Trigger Objects; NVertex^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyVertex_numer efficiencyVertex_denom",
         "efficiencyEta 'Efficiency to Match Reco Muons to Trigger Objects; #eta^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyEta_numer efficiencyEta_denom",
         "efficiencyPhi 'Efficiency to Match Reco Muons to Trigger Objects; #phi^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyPhi_numer efficiencyPhi_denom",
@@ -40,8 +37,6 @@ hltMuonEfficiencies = DQMEDHarvester("DQMGenericClient",
         "efficiencyD0 'Efficiency to Match Reco Muons to Trigger Objects; d0^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyD0_numer efficiencyD0_denom",
         "efficiencyZ0 'Efficiency to Match Reco Muons to Trigger Objects; z0^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyZ0_numer efficiencyZ0_denom",
         "efficiencyCharge 'Efficiency to Match Reco Muons to Trigger Objects; q^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyCharge_numer efficiencyCharge_denom",
-        #
-        #
         "fakerateVertex 'Trigger Fake Rate; NVertex^{trigger}; N(unmatched trigger objects) / N(trigger objects)' fakerateVertex_numer fakerateVertex_denom",
         "fakerateEta 'Trigger Fake Rate; #eta^{trigger}; N(unmatched trigger objects) / N(trigger objects)' fakerateEta_numer fakerateEta_denom",
         "fakeratePhi 'Trigger Fake Rate; #phi^{trigger}; N(unmatched trigger objects) / N(trigger objects)' fakeratePhi_numer fakeratePhi_denom",
@@ -53,29 +48,7 @@ hltMuonEfficiencies = DQMEDHarvester("DQMGenericClient",
         "TPefficiencyVertexZ 'Tag & Probe efficiency; NVertex; N(tt) / N(tp)' massVsVertexZ_numer massVsVertexZ_denom",
                 
     ),
-)
 
-hltMuonEfficienciesTnP = DQMEDHarvester("DQMGenericClient",
-
-    subDirs        = cms.untracked.vstring("HLT/Muon/DistributionsTnP.*"),
-    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
-    outputFileName = cms.untracked.string(''),
-    commands       = cms.vstring(),
-    resolution     = cms.vstring(),
-    efficiency     = cms.vstring(),
-
-    efficiencyProfile = cms.untracked.vstring(
-        # "efficiencyOfflineMuonPt '; p_{T}^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyOfflineMuonPt_numer efficiencyOfflineMuonPt_denom",
-        # "efficiencyOfflineMuonEta '; #eta^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyOfflineMuonEta_numer efficiencyOfflineMuonEta_denom",
-        # "efficiencyOfflineMuonPhi '; #phi^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyOfflineMuonPhi_numer efficiencyOfflineMuonPhi_denom",
-
-        "efficiencyEtaTnP 'Tag & Probe Efficiency; #eta^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyEtaTnP_numer efficiencyEtaTnP_denom",
-        "efficiencyPtTnP 'Tag & Probe Efficiency; p_{T}^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyPtTnP_numer efficiencyPtTnP_denom",
-        "efficiencyPhiTnP 'Tag & Probe Efficiency; #phi^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyPhiTnP_numer efficiencyPhiTnP_denom",
-        "efficiencyNVertexTnP 'Tag & Probe Efficiency; NVertex^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyNVertexTnP_numer efficiencyNVertexTnP_denom",
-        "efficiencyZ0TnP 'Tag & Probe Efficiency; z0^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyZ0TnP_numer efficiencyZ0TnP_denom",
-        "efficiencyChargeTnP 'Tag & Probe Efficiency; q^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyChargeTnP_numer efficiencyChargeTnP_denom",    
-    ),
 )
 
 hltMuonEfficienciesMR =  DQMEDHarvester("DQMGenericClient",
@@ -162,8 +135,12 @@ hltMuonRefEfficienciesMR = DQMEDHarvester("HLTMuonRefMethod",
 
 hltMuonPostVal = cms.Sequence(
     hltMuonEfficiencies*
-    hltMuonEfficienciesTnP*
     hltMuonEfficienciesMR*
     hltMuonRefEfficiencies*
     hltMuonRefEfficienciesMR
 )
+
+
+
+
+

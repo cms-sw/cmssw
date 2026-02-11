@@ -372,7 +372,9 @@ namespace {
     }
     while (count) {
       if (timeout_s >= 0) {
-        struct pollfd poll_info{fd, POLLIN, 0};
+        struct pollfd poll_info {
+          fd, POLLIN, 0
+        };
         int ms_remaining =
             std::chrono::duration_cast<std::chrono::milliseconds>(end_time - std::chrono::steady_clock::now()).count();
         if (ms_remaining > 0) {

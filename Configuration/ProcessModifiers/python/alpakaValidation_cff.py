@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.ProcessModifiers.alpaka_cff import *
 from Configuration.ProcessModifiers.alpakaValidationEcal_cff import *
-from Configuration.ProcessModifiers.alpakaValidationLST_cff import *
 from Configuration.ProcessModifiers.alpakaValidationPixel_cff import *
 
 # This modifier chain is for turning on DQM modules used for alpaka device/host validation
@@ -10,6 +9,5 @@ from Configuration.ProcessModifiers.alpakaValidationPixel_cff import *
 alpakaValidation =  cms.ModifierChain(
     alpaka,
     alpakaValidationEcal,
-    alpakaValidationLST,
     alpakaValidationPixel
 )

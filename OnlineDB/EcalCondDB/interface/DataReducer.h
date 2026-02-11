@@ -77,7 +77,7 @@ public:
         for (it = my_new_list->begin(); it != my_new_list->end(); ++it) {
           // check on the state
 
-          const std::pair<Tm, DataMap>& pair_new_list = *it;
+          std::pair<Tm, DataMap> pair_new_list = *it;
 
           Tm t_l = pair_new_list.first;
           DataMap dd = pair_new_list.second;
@@ -104,7 +104,7 @@ public:
 
         if (last_state != d.second.getStatus()) {
           if (!new_time_change) {
-            const std::pair<Tm, DataMap>& pair_new_list = *it_good;
+            std::pair<Tm, DataMap> pair_new_list = *it_good;
             Tm t_good = pair_new_list.first;
             the_data = pair_new_list.second;
             the_data.insert(d);
@@ -130,7 +130,7 @@ public:
           if (m_printout) {
             std::cout << "************" << std::endl;
             for (it3 = my_new_list->begin(); it3 != my_new_list->end(); ++it3) {
-              const std::pair<Tm, DataMap>& pair_new_list3 = *it3;
+              std::pair<Tm, DataMap> pair_new_list3 = *it3;
               Tm t3 = pair_new_list3.first;
               std::cout << " T =" << t3.str() << std::endl;
             }
@@ -153,7 +153,7 @@ public:
     if (m_printout) {
       list_iterator it3;
       for (it3 = my_new_list->begin(); it3 != my_new_list->end(); ++it3) {
-        const std::pair<Tm, DataMap>& pair_new_list3 = *it3;
+        std::pair<Tm, DataMap> pair_new_list3 = *it3;
         Tm t3 = pair_new_list3.first;
         std::cout << " T =" << t3.str() << std::endl;
       }

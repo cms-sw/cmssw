@@ -45,8 +45,8 @@ namespace edm {
     ///iF should be a functor and will only be called if the Service is available
     template <typename F>
       requires(!requires(F&& iF, T* t) {
-        { iF(*t) } -> std::same_as<void>;
-      })
+                { iF(*t) } -> std::same_as<void>;
+              })
     auto and_then(F&& iF, T* t) -> std::optional<decltype(iF(*t))> const {
       if (isAvailable()) {
         return iF(*(operator->()));

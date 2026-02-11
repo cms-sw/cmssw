@@ -1,7 +1,6 @@
 #!/bin/env python3
-import ROOT
 
-ROOT.gROOT.SetBatch(ROOT.kTRUE)
+import ROOT
 
 f = ROOT.TFile.Open("btvNanoMC_NANO.root")
 t = f.Get("Events")

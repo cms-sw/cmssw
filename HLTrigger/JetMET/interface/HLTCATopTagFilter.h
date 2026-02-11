@@ -80,13 +80,13 @@ inline reco::CATopJetProperties CATopJetHelperUser::operator()(reco::Jet const& 
     // Now look at the subjets that were formed
     for (int isub = 0; isub < 2; ++isub) {
       // Get this subjet
-      const reco::Jet::Constituent& icandJet = subjets[isub];
+      reco::Jet::Constituent icandJet = subjets[isub];
 
       // Now look at the "other" subjets than this one, form the minimum invariant mass
       // pairing, as well as the "closest" combination to the W mass
       for (int jsub = isub + 1; jsub < 3; ++jsub) {
         // Get the second subjet
-        const reco::Jet::Constituent& jcandJet = subjets[jsub];
+        reco::Jet::Constituent jcandJet = subjets[jsub];
 
         reco::Candidate::LorentzVector wCand = icandJet->p4() + jcandJet->p4();
 

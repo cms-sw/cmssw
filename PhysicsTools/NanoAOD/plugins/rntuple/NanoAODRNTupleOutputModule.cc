@@ -59,7 +59,6 @@ private:
   std::string m_compressionAlgorithm;
   int m_compressionLevel;
   bool m_writeProvenance;
-  bool m_writeTriggerResults;
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
   edm::JobReport::Token m_jrToken;
 
@@ -122,7 +121,6 @@ NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& 
       m_compressionAlgorithm(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
       m_compressionLevel(pset.getUntrackedParameter<int>("compressionLevel")),
       m_writeProvenance(pset.getUntrackedParameter<bool>("saveProvenance", true)),
-      m_writeTriggerResults(pset.getUntrackedParameter<bool>("saveTriggerResults")),
       m_processHistoryRegistry(),
       m_noSplitFields{pset.getUntrackedParameter<std::vector<std::string>>("noSplitFields")},
       m_writeOptions(writeOptions(pset.getUntrackedParameterSet("rntupleWriteOptions"))) {}
@@ -243,9 +241,7 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
       iEvent.getByToken(token, handle);
       m_tables.add(token, *handle);
     } else if (keep.first->className() == "edm::TriggerResults") {
-      if (m_writeTriggerResults) {
-        m_triggers.emplace_back(TriggerOutputFields(keep.first->processName(), keep.second));
-      }
+      m_triggers.emplace_back(TriggerOutputFields(keep.first->processName(), keep.second));
     } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
                keep.first->productInstanceName() == "genModel") {
       m_evstrings.registerToken(keep.second);
@@ -254,10 +250,8 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
     }
   }
   m_tables.createFields(iEvent, *model);
-  if (m_writeTriggerResults) {
-    for (auto& trigger : m_triggers) {
-      trigger.createFields(iEvent, *model);
-    }
+  for (auto& trigger : m_triggers) {
+    trigger.createFields(iEvent, *model);
   }
   m_evstrings.createFields(*model);
 
@@ -291,10 +285,8 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
 
   m_commonFields.fill(iEvent.id());
   m_tables.fill(iEvent);
-  if (m_writeTriggerResults) {
-    for (auto& trigger : m_triggers) {
-      trigger.fill(iEvent);
-    }
+  for (auto& trigger : m_triggers) {
+    trigger.fill(iEvent);
   }
   m_evstrings.fill(iEvent);
   m_ntuple->Fill();
@@ -371,8 +363,6 @@ void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions
   }
   desc.addUntracked<bool>("saveProvenance", true)
       ->setComment("Save process provenance information, e.g. for edmProvDump");
-  desc.addUntracked<bool>("saveTriggerResults", true)
-      ->setComment("Save the content of edm::TriggerResults in dedicated output branches (one per trigger)");
   const std::vector<std::string> keep = {"drop *",
                                          "keep nanoaodFlatTable_*Table_*_*",
                                          "keep edmTriggerResults_*_*_*",

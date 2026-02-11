@@ -1784,7 +1784,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                           << " Type " << (ktr->second).type << ":" << (ktr->second).part << ":"
                                           << (ktr->second).orient << ":" << (ktr->second).cassette;
         } else {
-          if (mode_ >= HGCalGeometryMode::Hexagon8Cassette) {
+          if (mode_ == HGCalGeometryMode::Hexagon8FineCell) {
             if (debug)
               edm::LogVerbatim("HGCalGeom") << "Cannot find waferinformation --> Skip this " << layer << ":" << waferU
                                             << ":" << waferV << " wafer assignment";

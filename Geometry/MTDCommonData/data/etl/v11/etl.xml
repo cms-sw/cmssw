@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition>
   
-  <RotationSection label="etl.xml">
-    <Rotation name="RPCD_plus_90CW" thetaX="90*deg" phiX="-90*deg" thetaY="90*deg" phiY="180*deg" thetaZ="180*deg" phiZ="0*deg"/>
-  </RotationSection>
+
 
   <ConstantsSection label="etl.xml" eval="true">
     <Constant name="ETL_thickness" value="([caloBase:Zpos0H]-[caloBase:Zpos10])"/>
@@ -954,13 +952,11 @@
     <PosPart copyNumber="1">
       <rParent name="etl:Half_Module_Front"/>
       <rChild name="etl:LGAD"/>
-      <rRotation name="rotations:R270" />
       <Translation x="-1*[LGAD_translation_x]" y="-1*[LGAD_translation_y]" z="[LGAD_translation_z]" />
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="etl:Half_Module_Front"/>
       <rChild name="etl:LGAD"/>
-      <rRotation name="rotations:R270" />
       <Translation x="[LGAD_translation_x]" y="-1*[LGAD_translation_y]" z="[LGAD_translation_z]" />
     </PosPart>
 
@@ -1155,13 +1151,13 @@
     <PosPart copyNumber="1">
       <rParent name="etl:Half_Module_Back"/>
       <rChild name="etl:LGAD"/>
-      <rRotation name="etl:RPCD_plus_90CW" /> 
+      <rRotation name="rotations:RPCD" />
       <Translation x="-1*[LGAD_translation_x]" y="-1*[LGAD_translation_y]" z="-1*[LGAD_translation_z]" />
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="etl:Half_Module_Back"/>
       <rChild name="etl:LGAD"/>
-      <rRotation name="etl:RPCD_plus_90CW" /> 
+      <rRotation name="rotations:RPCD" />
       <Translation x="[LGAD_translation_x]" y="-1*[LGAD_translation_y]" z="-1*[LGAD_translation_z]" />
     </PosPart>
     

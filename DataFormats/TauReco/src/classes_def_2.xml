@@ -37,7 +37,6 @@
   <class name="edm::RefVector<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> >"/>
           <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> > >"/>
   <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> > >" />
-  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau>"/>
 
   <class name="edm::RefToBaseProd<reco::PFTau>" >
      <!-- <field name="view_" transient="true" /> -->

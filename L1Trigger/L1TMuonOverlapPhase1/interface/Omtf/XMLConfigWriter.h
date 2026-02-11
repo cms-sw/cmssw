@@ -1,7 +1,6 @@
 #ifndef L1T_OmtfP1_XMLConfigWriter_H
 #define L1T_OmtfP1_XMLConfigWriter_H
 
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OmtfName.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternBase.h"
@@ -15,6 +14,9 @@ class OMTFConfiguration;
 class OMTFinput;
 class GoldenPatternResult;
 class AlgoMuon;
+namespace l1t {
+  class RegionalMuonCand;
+}
 struct Key;
 
 namespace XERCES_CPP_NAMESPACE {

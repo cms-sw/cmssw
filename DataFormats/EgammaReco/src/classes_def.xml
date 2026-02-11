@@ -134,7 +134,6 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::BasicCluster> >, edm::RefProd<std::vector<reco::ClusterShape> > >"/>
 
-  <class name="edm::OneToOne<std::vector<reco::SuperCluster>, std::vector<reco::HFEMClusterShape>, unsigned int >"/>
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::SuperCluster>, std::vector<reco::HFEMClusterShape>, unsigned int > >">
     <field name="transientMap_" transient="true" />
   </class>

@@ -28,14 +28,8 @@
 #include "TTree.h"
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleReader.hxx"
-#include "TApplication.h"
 
 int main(int argc, char* argv[]) {
-  // TApplication sets up atexit handlers such that header parsing
-  // should not happen there
-  // A simpler solution would be nice
-  TApplication application("edmRNTupleTempFileUtil", nullptr, nullptr);
-
   gErrorIgnoreLevel = kError;
 
   // Add options here

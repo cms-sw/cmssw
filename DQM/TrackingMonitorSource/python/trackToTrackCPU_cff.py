@@ -17,6 +17,5 @@ _trackToTrackCPUTask_trackingLST = cms.Sequence(HighPtTripletStepTaskSerialSync)
 _trackToTrackCPUTask_trackingLST += highPtTripletStepTrackToTrackSerialSync
 
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-from Configuration.ProcessModifiers.alpakaValidationLST_cff import alpakaValidationLST
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-(trackingPhase2PU140 & alpakaValidationLST & trackingLST).toReplaceWith(trackToTrackCPUSequence, _trackToTrackCPUTask_trackingLST)
+(trackingPhase2PU140 & trackingLST).toReplaceWith(trackToTrackCPUSequence, _trackToTrackCPUTask_trackingLST)

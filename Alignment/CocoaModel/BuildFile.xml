@@ -1,0 +1,8 @@
+<use name="CLHEP"/>
+<use name="Alignment/CocoaUtilities"/>
+<use name="Alignment/CocoaDDLObjects"/>
+<use name="Alignment/CocoaDaq"/>
+<use name="CondFormats/OptAlignObjects"/>
+<export>
+  <lib name="1"/>
+</export>

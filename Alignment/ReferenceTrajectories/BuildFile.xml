@@ -16,7 +16,6 @@
 <use name="RecoTracker/TransientTrackingRecHit"/>
 <use name="TrackPropagation/RungeKutta"/>
 <use name="gbl"/>
-<use name="mille"/>
 <export>
   <lib name="1"/>
 </export>

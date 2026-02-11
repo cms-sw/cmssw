@@ -15,7 +15,6 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCassette.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCellOffset.h"
@@ -43,7 +42,6 @@ public:
   std::array<int, 5> assignCellHex(float x, float y, int zside, int lay, bool reco, bool extend, bool debug) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
   std::vector<int> calibCells(bool hd, bool full) const {
-    edm::LogVerbatim("HGCal") << "hd " << hd << " full " << full;
     if (hd) {
       return (full ? hgpar_->calibCellFullHD_ : hgpar_->calibCellPartHD_);
     } else {

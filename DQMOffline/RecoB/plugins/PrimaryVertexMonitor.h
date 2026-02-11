@@ -25,7 +25,7 @@ namespace pvMonitor {
   // cf https://github.com/cms-sw/cmssw/blob/master/Validation/RecoTrack/src/MTVHistoProducerAlgoForTracker.cc
   typedef dqm::reco::DQMStore DQMStore;
 
-  inline void setBinLog(TAxis *axis) {
+  void setBinLog(TAxis *axis) {
     int bins = axis->GetNbins();
     float from = axis->GetXmin();
     float to = axis->GetXmax();
@@ -37,11 +37,11 @@ namespace pvMonitor {
     axis->Set(bins, new_bins.data());
   }
 
-  inline void setBinLogX(TH1 *h) {
+  void setBinLogX(TH1 *h) {
     TAxis *axis = h->GetXaxis();
     setBinLog(axis);
   }
-  inline void setBinLogY(TH1 *h) {
+  void setBinLogY(TH1 *h) {
     TAxis *axis = h->GetYaxis();
     setBinLog(axis);
   }

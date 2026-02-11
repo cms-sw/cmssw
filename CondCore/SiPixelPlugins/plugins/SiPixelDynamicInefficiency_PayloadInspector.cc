@@ -73,7 +73,7 @@ namespace {
       const std::map<uint32_t, double>& PixelGeomFactorsDBIn = payload->getPixelGeomFactors();
 
       // first fill
-      for (const auto& db_factor : PixelGeomFactorsDBIn) {
+      for (const auto db_factor : PixelGeomFactorsDBIn) {
         int subid = DetId(db_factor.first).subdetId();
         int shift = (subid == static_cast<int>(PixelSubdetector::PixelBarrel)) ? BPixRocIdShift : FPixRocIdShift;
         unsigned int rocMask = rocIdMaskBits << shift;

@@ -139,7 +139,7 @@ void HGCalIdCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       detIds_ = geom->getValidDetIds(dets_);
       edm::LogVerbatim("HGCGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
     }
-    int cog = cog_ / 10;
+    int cog = cog_/10;
     cog = 10 * cog;
     for (unsigned int k = 0; k < detIds_.size(); ++k) {
       std::ostringstream st1;

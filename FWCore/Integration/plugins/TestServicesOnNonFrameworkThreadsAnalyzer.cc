@@ -71,9 +71,7 @@ namespace edmtest {
     edm::ServiceToken token = edm::ServiceRegistry::instance().presentToken();
     m_serviceToken = &token;
     m_streamID = iEvent.streamID();
-    {
-      edm::LogSystem("FrameworkThread") << "new Event";
-    }
+    { edm::LogSystem("FrameworkThread") << "new Event"; }
     m_mutex.unlock();
     {
       std::unique_lock<std::mutex> lk(m_mutex);

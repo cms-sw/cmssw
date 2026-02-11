@@ -344,7 +344,7 @@ void SiStripDcsInfo::addBadModules(DQMStore& dqm_store) {
 
   for (auto const& pr : SubDetMEsMap) {
     auto const& lumiCountBadModules = pr.second.NLumiDetectorIsFaulty;
-    for (auto const& [ibad, nBadLumi] : lumiCountBadModules) {
+    for (auto const [ibad, nBadLumi] : lumiCountBadModules) {
       if (nBadLumi <= MaxAcceptableBadDcsLumi_)
         continue;
       std::string bad_module_folder = mechanical_dir + "/" + pr.second.folder_name +

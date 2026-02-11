@@ -414,9 +414,7 @@ void FWEveView::addToPerspectiveCamera(TGLPerspectiveCamera* cam, const std::str
     osValue << (cam->GetCamBase())[i];
     iTo.addKeyValue(matrixName + osIndex.str() + name, FWConfiguration(osValue.str()));
   }
-  {
-    iTo.addKeyValue(name + " FOV", FWConfiguration(std::to_string(cam->GetFOV())));
-  }
+  { iTo.addKeyValue(name + " FOV", FWConfiguration(std::to_string(cam->GetFOV()))); }
 }
 
 void FWEveView::setFromPerspectiveCamera(TGLPerspectiveCamera* cam,

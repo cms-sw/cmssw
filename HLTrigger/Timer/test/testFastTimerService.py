@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+# test line added
 # import a full HLT menu
 import sys, os
 sys.path.append( '%s/src/HLTrigger/Configuration/test' % os.environ['CMSSW_BASE'] )

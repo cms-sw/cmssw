@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="AliDaqEventHeader"/>
+  <class name="AliDaqPosition2D"/>
+  <class name="AliDaqPositionCOPS"/>
+  <class name="AliDaqTilt"/>
+  <class name="AliDaqDistance"/>
+  <class name="AliDaqTemperature"/>
+  <class name="CocoaDaqRootEvent"/>
+</lcgdict>

@@ -28,7 +28,7 @@ public:
 
   class PCAAssocMap {
   public:
-    PCAAssocMap(double HGCalShowerShapeHelper::ShowerWidths::* var, const std::string& name) : var_(var), name_(name) {}
+    PCAAssocMap(double HGCalShowerShapeHelper::ShowerWidths::*var, const std::string& name) : var_(var), name_(name) {}
 
     void initMap(const edm::Handle<reco::RecoEcalCandidateCollection>& candHandle) {
       assocMap_ = std::make_unique<reco::RecoEcalCandidateIsolationMap>(candHandle);
@@ -42,7 +42,7 @@ public:
     const std::string& name() const { return name_; }
 
   private:
-    double HGCalShowerShapeHelper::ShowerWidths::* var_;
+    double HGCalShowerShapeHelper::ShowerWidths::*var_;
     std::string name_;
     std::unique_ptr<reco::RecoEcalCandidateIsolationMap> assocMap_;
   };

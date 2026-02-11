@@ -18,7 +18,6 @@
 //
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/MessageLogger/interface/xmlUtils.h"
 #include "FWCore/Utilities/interface/Map.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -30,20 +29,6 @@
 #include <ostream>
 #include <sstream>
 
-namespace {
-  void addInputElement(edm::JobReport::InputFile const& inpFile,
-                       std::map<std::string, bool> const& fastCopyingInputs,
-                       std::ostream& ost) {
-    ost << "\n<Input>\n  ";
-    edm::xml::addElement("LFN", inpFile.logicalFileName, "\n  ", ost);
-    edm::xml::addElement("PFN", inpFile.physicalFileName, "\n  ", ost);
-    // Casting to int to have 0/1 instead of false/true
-    edm::xml::addElement(
-        "FastCopying", static_cast<int>(edm::findOrDefault(fastCopyingInputs, inpFile.physicalFileName)), "\n", ost);
-    ost << "</Input>";
-  }
-}  // namespace
-
 namespace edm {
   /*
    * Note that output formatting is spattered across these classes
@@ -53,21 +38,21 @@ namespace edm {
 
   template <typename S, typename T>
   S& formatFile(T const& f, S& os) {
+    tinyxml2::XMLDocument doc;
     if (f.fileHasBeenClosed) {
       os << "\n<State  Value=\"closed\"/>";
     } else {
       os << "\n<State  Value=\"open\"/>";
     }
-    os << "\n";
-    xml::addElement("LFN", f.logicalFileName, "\n", os);
-    xml::addElement("PFN", f.physicalFileName, "\n", os);
-    xml::addElement("Catalog", f.catalog, "\n", os);
-    xml::addElement("ModuleLabel", f.moduleLabel, "\n", os);
-    xml::addElement("GUID", f.guid, "\n", os);
-    os << "<Branches>";
+    os << "\n<LFN>" << doc.NewText(f.logicalFileName.c_str())->Value() << "</LFN>";
+    os << "\n<PFN>" << doc.NewText(f.physicalFileName.c_str())->Value() << "</PFN>";
+    os << "\n<Catalog>" << doc.NewText(f.catalog.c_str())->Value() << "</Catalog>";
+    os << "\n<ModuleLabel>" << doc.NewText(f.moduleLabel.c_str())->Value() << "</ModuleLabel>";
+    os << "\n<GUID>" << f.guid << "</GUID>";
+    os << "\n<Branches>";
     for (auto const& branch : f.branchNames) {
-      os << "\n  ";
-      xml::addElement("Branch", branch, "", os);
+      os << "\n  <Branch>" << doc.NewText(branch.c_str())->Value() << "</Branch>";
+      doc.DeleteChildren();
     }
     os << "\n</Branches>";
     return os;
@@ -79,23 +64,23 @@ namespace edm {
    */
   template <typename S>
   S& print(S& os, JobReport::InputFile const& f) {
+    tinyxml2::XMLDocument doc;
     os << "\n<InputFile>";
     formatFile(f, os);
-    os << "\n";
-    xml::addElement("InputType", f.inputType, "\n", os);
-    xml::addElement("InputSourceClass", f.inputSourceClassName, "\n", os);
-    xml::addElement("EventsRead", f.numEventsRead, "", os);
+    os << "\n<InputType>" << f.inputType << "</InputType>";
+    os << "\n<InputSourceClass>" << doc.NewText(f.inputSourceClassName.c_str())->Value() << "</InputSourceClass>";
+    os << "\n<EventsRead>" << f.numEventsRead << "</EventsRead>";
     return os;
   }
 
   template <typename S>
   S& print(S& os, JobReport::OutputFile const& f) {
+    tinyxml2::XMLDocument doc;
     formatFile(f, os);
-    os << "\n";
-    xml::addElement("OutputModuleClass", f.outputModuleClassName, "\n", os);
-    xml::addElement("TotalEvents", f.numEventsWritten, "\n\n", os);
-    xml::addElement("DataType", f.dataType, "\n\n", os);
-    xml::addElement("BranchHash", f.branchHash, "\n", os);
+    os << "\n<OutputModuleClass>" << doc.NewText(f.outputModuleClassName.c_str())->Value() << "</OutputModuleClass>";
+    os << "\n<TotalEvents>" << f.numEventsWritten << "</TotalEvents>\n";
+    os << "\n<DataType>" << doc.NewText(f.dataType.c_str())->Value() << "</DataType>\n";
+    os << "\n<BranchHash>" << doc.NewText(f.branchHash.c_str())->Value() << "</BranchHash>\n";
     return os;
   }
 
@@ -208,6 +193,7 @@ namespace edm {
    *
    */
   void JobReport::JobReportImpl::writeOutputFile(JobReport::OutputFile const& f) {
+    tinyxml2::XMLDocument doc;
     if (ost_) {
       *ost_ << "\n<File>";
       *ost_ << f;
@@ -220,10 +206,24 @@ namespace edm {
 
       *ost_ << "\n<Inputs>";
       for (auto token : f.contributingInputs) {
-        addInputElement(inputFiles_.at(token), f.fastCopyingInputs, *ost_);
+        JobReport::InputFile inpFile = inputFiles_.at(token);
+        *ost_ << "\n<Input>";
+        *ost_ << "\n  <LFN>" << doc.NewText(inpFile.logicalFileName.c_str())->Value() << "</LFN>";
+        *ost_ << "\n  <PFN>" << doc.NewText(inpFile.physicalFileName.c_str())->Value() << "</PFN>";
+        *ost_ << "\n  <FastCopying>" << findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName)
+              << "</FastCopying>";
+        *ost_ << "\n</Input>";
+        doc.DeleteChildren();
       }
       for (auto token : f.contributingInputsSecSource) {
-        addInputElement(inputFilesSecSource_.at(token), f.fastCopyingInputs, *ost_);
+        JobReport::InputFile inpFile = inputFilesSecSource_.at(token);
+        *ost_ << "\n<Input>";
+        *ost_ << "\n  <LFN>" << doc.NewText(inpFile.logicalFileName.c_str())->Value() << "</LFN>";
+        *ost_ << "\n  <PFN>" << doc.NewText(inpFile.physicalFileName.c_str())->Value() << "</PFN>";
+        *ost_ << "\n  <FastCopying>" << findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName)
+              << "</FastCopying>";
+        *ost_ << "\n</Input>";
+        doc.DeleteChildren();
       }
       *ost_ << "\n</Inputs>";
       *ost_ << "\n</File>\n";
@@ -756,6 +756,7 @@ namespace edm {
   std::string JobReport::dumpFiles(void) {
     std::ostringstream msg;
 
+    tinyxml2::XMLDocument doc;
     for (auto const& f : impl_->outputFiles_) {
       msg << "\n<File>";
       msg << f;
@@ -764,7 +765,13 @@ namespace edm {
       msg << "\n<Inputs>";
       typedef std::vector<JobReport::Token>::iterator iterator;
       for (auto const& iInput : f.contributingInputs) {
-        addInputElement(impl_->inputFiles_[iInput], f.fastCopyingInputs, msg);
+        auto const& inpFile = impl_->inputFiles_[iInput];
+        msg << "\n<Input>";
+        msg << "\n  <LFN>" << doc.NewText(inpFile.logicalFileName.c_str())->Value() << "</LFN>";
+        msg << "\n  <PFN>" << doc.NewText(inpFile.physicalFileName.c_str())->Value() << "</PFN>";
+        msg << "\n  <FastCopying>" << findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName) << "</FastCopying>";
+        msg << "\n</Input>";
+        doc.DeleteChildren();
       }
       msg << "\n</Inputs>";
       msg << "\n</File>";

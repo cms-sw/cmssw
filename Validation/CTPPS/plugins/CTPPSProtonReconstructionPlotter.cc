@@ -129,7 +129,7 @@ private:
       TDirectory *d_top = gDirectory;
 
       gDirectory = d_top->mkdir("h_xi_nTracks");
-      for (const auto &p : m_h_xi_nTracks) {
+      for (const auto p : m_h_xi_nTracks) {
         char buf[100];
         sprintf(buf, "h_xi_nTracks_%u", p.first);
         p.second->Write(buf);
@@ -340,7 +340,7 @@ private:
       TDirectory *d_top = gDirectory;
 
       gDirectory = d_top->mkdir("h_xi_nTracks");
-      for (const auto &p : m_h_xi_nTracks) {
+      for (const auto p : m_h_xi_nTracks) {
         char buf[100];
         sprintf(buf, "h_xi_nTracks_%u", p.first);
         p.second->Write(buf);

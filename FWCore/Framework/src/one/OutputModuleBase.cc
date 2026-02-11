@@ -64,9 +64,7 @@ namespace edm {
     bool OutputModuleBase::doEvent(EventTransitionInfo const& info,
                                    ActivityRegistry* act,
                                    ModuleCallingContext const* mcc) {
-      {
-        core::OutputModuleCore::doEvent_(info, act, mcc);
-      }
+      { core::OutputModuleCore::doEvent_(info, act, mcc); }
       if (remainingEvents_ > 0) {
         --remainingEvents_;
       }

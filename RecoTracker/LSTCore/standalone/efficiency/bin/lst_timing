@@ -146,8 +146,8 @@ if [ -z "${SPECIFICGPUVERSION}" ] || [[ "${SPECIFICGPUVERSION}" == "explicit" ]]
 fi
 
 echo "Total Timing Summary"
-grep -ah "Time for map " timing_temp.txt | cut -d " " -f 6 | awk '{ SUM += $1} END { print "Average time for map loading =",SUM/5,"ms" }' # 5 is the number of stream values run
-grep -ah "Time for input " timing_temp.txt | cut -d " " -f 6 | awk '{ SUM += $1} END { print "Average time for input loading =",SUM/5,"ms" }' # 5 is the number of stream values run
-grep -ah "Time for event " timing_temp.txt | cut -d " " -f 6 | awk '{ SUM += $1} END { print "Average time for lst::Event creation =",SUM/21,"ms"}' # 5 is the number of total streams run (1+2+4+6+8)
+grep -h "Time for map " timing_temp.txt | cut -d " " -f 6 | awk '{ SUM += $1} END { print "Average time for map loading =",SUM/5,"ms" }' # 5 is the number of stream values run
+grep -h "Time for input " timing_temp.txt | cut -d " " -f 6 | awk '{ SUM += $1} END { print "Average time for input loading =",SUM/5,"ms" }' # 5 is the number of stream values run
+grep -h "Time for event " timing_temp.txt | cut -d " " -f 6 | awk '{ SUM += $1} END { print "Average time for lst::Event creation =",SUM/21,"ms"}' # 5 is the number of total streams run (1+2+4+6+8)
 echo "   Evt    Hits       MD       LS      T3       T5       pLS       T4       pT5      pT3      TC       Reset    Event     Short             Rate"
-grep -ah "avg " timing_temp.txt
+grep -hr "avg " timing_temp.txt # space is needed to not get certain bad lines 

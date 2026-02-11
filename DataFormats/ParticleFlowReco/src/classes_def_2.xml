@@ -213,7 +213,6 @@
 
   <class name="std::vector<reco::PFBlock>"/>
   <class name="edm::Wrapper<std::vector<reco::PFBlock> >"/>
-  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock>"/>
   <class name="edm::Ref< std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
   <class name="edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>
   <class name="edm::RefVector<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>

@@ -97,9 +97,8 @@ TEST_CASE("TrackMultiplicityFilter tests", "[TrackMultiplicityFilter]") {
 
 //___________________________________________________________________________________________
 TEST_CASE("TrackToTrackComparisonHists tests", "[TrackToTrackComparisonHists]") {
-  const std::string baseConfig =
-      generateBaseConfig("trackToTrackComparisonHists", "test_trackToTrackComparisonHists.root");
-  runTestForAnalyzer(baseConfig, "TrackToTrackComparisonHists");
+ const std::string baseConfig = generateBaseConfig("trackToTrackComparisonHists", "test_trackToTrackComparisonHists.root");
+ runTestForAnalyzer(baseConfig, "TrackToTrackComparisonHists");
 }
 
 //___________________________________________________________________________________________

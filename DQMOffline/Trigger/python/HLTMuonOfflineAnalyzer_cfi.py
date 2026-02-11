@@ -17,9 +17,9 @@ hltMuonOfflineAnalyzer = DQMEDAnalyzer('HLTMuonOfflineAnalyzer',
       "HLT_IsoMu24_v",
       "HLT_IsoMu27_v",
       "HLT_IsoMu20_v",
-      "HLT_HIL3Mu12_v",
-      "HLT_HIL3Mu15_v",
-      "HLT_HIL3Mu20_v",
+      "HLT_HIL3Mu12_v", #for HI
+      "HLT_HIL3Mu15_v", #for HI
+      "HLT_HIL3Mu20_v", #for HI
       "HLT_CascadeMu100_v",
       "HLT_HighPtTkMu100_v"
     ),
@@ -68,7 +68,7 @@ hltMuonOfflineAnalyzer = DQMEDAnalyzer('HLTMuonOfflineAnalyzer',
         pt = cms.untracked.vdouble(  0.0,   2.0,   4.0, 
                                      6.0,   8.0,  10.0, 
                                     20.0,  30.0,  40.0, 
-                                   100.0, 200.0, 500.0),
+                                   100.0, 200.0, 400.0),
     ),
 
     ## These parameters define which objects are used to fill plots

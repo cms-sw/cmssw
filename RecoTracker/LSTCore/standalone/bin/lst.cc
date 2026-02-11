@@ -304,8 +304,8 @@ int main(int argc, char **argv) {
   ana.t4dnn_branches = result["t4dnn"].as<bool>() || result["allobj"].as<bool>();
 
   //_______________________________________________________________________________
-  // --jet (Not triggered by allobj since most files don't have jet info)
-  ana.jet_branches = result["jet"].as<bool>();
+  // --jet
+  ana.jet_branches = result["jet"].as<bool>() || result["allobj"].as<bool>();
 
   //_______________________________________________________________________________
   // --sim

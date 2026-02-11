@@ -595,33 +595,25 @@ bool testMultiAssociation::tryBadFill(int i) {
       {
         MultiRef::FastFiller filler = m.fastFiller(handleK1);
       }
-      {
-        MultiRef::FastFiller filler = m.fastFiller(handleK2);
-      }
+      { MultiRef::FastFiller filler = m.fastFiller(handleK2); }
     }; break;
     case 3: {  // fill again with the same id
       {
         MultiRef::FastFiller filler = m.fastFiller(handleK1);
       }
-      {
-        MultiRef::FastFiller filler = m.fastFiller(handleK1);
-      }
+      { MultiRef::FastFiller filler = m.fastFiller(handleK1); }
     }; break;
     case 4: {  // Check lazyFiller doesn't fill if not requested
       {
         MultiRef::LazyFiller filler = m.lazyFiller(handleK1);
       }
-      {
-        MultiRef::LazyFiller filler = m.lazyFiller(handleK1);
-      }
+      { MultiRef::LazyFiller filler = m.lazyFiller(handleK1); }
     }; break;
     case 5: {  // Check lazyFiller can't fill twice the same key if requested
       {
         MultiRef::LazyFiller filler = m.lazyFiller(handleK1, true);
       }
-      {
-        MultiRef::LazyFiller filler = m.lazyFiller(handleK1, true);
-      }
+      { MultiRef::LazyFiller filler = m.lazyFiller(handleK1, true); }
     }; break;
     case 6: {  // Check lazyFiller doesn't fill twice by mistake
       MultiRef::LazyFiller filler = m.lazyFiller(handleK1, true);
