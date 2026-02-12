@@ -84,9 +84,9 @@ public:
   };
 
 private:
-  int signFromPacked(unsigned packed) const = 0;
-  int idxFromPacked(unsigned packed) const = 0;
-  unsigned packedFromIdx(int idx) const = 0;
+  int signFromPacked(unsigned packed) const override = 0;
+  int idxFromPacked(unsigned packed) const override = 0;
+  unsigned packedFromIdx(int idx) const override = 0;
 };
 
 /**
@@ -134,9 +134,9 @@ public:
   };
 
 private:
-  int signFromPacked(unsigned packed) const = 0;
-  int idxFromPacked(unsigned packed) const = 0;
-  unsigned packedFromIdx(int idx) const = 0;
+  int signFromPacked(unsigned packed) const override = 0;
+  int idxFromPacked(unsigned packed) const override = 0;
+  unsigned packedFromIdx(int idx) const override = 0;
 };
 
 /**
