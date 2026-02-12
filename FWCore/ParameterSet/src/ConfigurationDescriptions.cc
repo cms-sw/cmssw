@@ -34,9 +34,9 @@ namespace {
   }
 }  // namespace
 
-static const char* const kSource = "Source";
-static const char* const kService = "Service";
-static const char* const k_source = "source";
+static constexpr char const* const kSource = "Source";
+static constexpr char const* const kService = "Service";
+static constexpr char const* const k_source = "source";
 
 namespace edm {
 
@@ -114,6 +114,19 @@ namespace edm {
     defaultDesc_ = psetDescription;
   }
 
+  void ConfigurationDescriptions::add(std::string_view label, DescriptionCloner const& cloner) {
+    if (descriptions_.empty() and not defaultDescDefined_) {
+      throw edm::Exception(edm::errors::LogicError,
+                           "ConfigurationDescriptions::add with DescriptionCloner called before any\n"
+                           "ParameterSetDescriptions have been added. There must be at least one\n"
+                           "description from which to clone.\n");
+    }
+
+    const ParameterSetDescription& psetDescription = defaultDescDefined_ ? defaultDesc_ : descriptions_.front().second;
+    descriptionCloners_.emplace_back(label, cloner);
+    descriptionCloners_.back().second.determineTrackinessFromDefaultDescription(psetDescription);
+  }
+
   ParameterSetDescription* ConfigurationDescriptions::defaultDescription() {
     if (defaultDescDefined_) {
       return &defaultDesc_;
@@ -127,19 +140,29 @@ namespace edm {
 
   void ConfigurationDescriptions::validate(ParameterSet& pset, std::string const& moduleLabel) const {
     ParameterSetDescription const* psetDesc = nullptr;
-    for_all(descriptions_, std::bind(&matchLabel, std::placeholders::_1, std::cref(moduleLabel), std::ref(psetDesc)));
+    for (auto const& desc : descriptions_) {
+      matchLabel(desc, moduleLabel, psetDesc);
+    }
 
     // If there is a matching label
     if (psetDesc != nullptr) {
       psetDesc->validate(pset);
     }
-    // Is there an explicit description to be used for a non standard label
-    else if (defaultDescDefined_) {
-      defaultDesc_.validate(pset);
-    }
-    // Otherwise use the first one.
-    else if (!descriptions_.empty()) {
-      descriptions_[0].second.validate(pset);
+    // Is there an explicit description to be used for a non standard label or use the first one if not
+    else {
+      auto* desc =
+          defaultDescDefined_ ? &defaultDesc_ : (descriptions_.empty() ? nullptr : &descriptions_.front().second);
+      if (desc != nullptr) {
+        auto it = std::ranges::find_if(descriptionCloners_,
+                                       [&moduleLabel](auto const& pair) { return pair.first == moduleLabel; });
+        if (it != descriptionCloners_.end()) {
+          auto descSlim = it->second.createDifference();
+          //Only deal with the parameters known by the cloner. All other parameters should be checked by the default
+          descSlim.setAllowAnything();
+          descSlim.validate(pset);
+        }
+        desc->validate(pset);
+      }
     }
     // It is possible for no descriptions to be defined and no validation occurs
     // for this module ever.
@@ -159,6 +182,9 @@ namespace edm {
     for (auto& d : descriptions_) {
       writeCfiForLabel(
           d, baseType_, pluginName_, (not defaultDescDefined_) and (1 == descriptions_.size()), ops, usedCfiFileNames);
+    }
+    for (auto& d : descriptionCloners_) {
+      writeCfiForLabel(d, baseType_, pluginName_, ops, usedCfiFileNames);
     }
   }
 
@@ -297,6 +323,84 @@ namespace edm {
     }
   }
 
+  void ConfigurationDescriptions::writeCfiForLabel(std::pair<std::string, DescriptionCloner> const& labelAndDesc,
+                                                   std::string const& baseType,
+                                                   std::string const& pluginName,
+                                                   CfiOptions& options,
+                                                   std::set<std::string>& usedCfiFileNames) {
+    if (0 == strcmp(baseType.c_str(), kService) && labelAndDesc.first != pluginName) {
+      throw edm::Exception(edm::errors::LogicError,
+                           "ConfigurationDescriptions::writeCfiForLabel\nFor a service the label and the plugin name "
+                           "must be the same.\n")
+          << "This error is probably caused by an incorrect label being passed\nto the ConfigurationDescriptions::add "
+             "function earlier.\n"
+          << "plugin name = \"" << pluginName << "\"  label name = \"" << labelAndDesc.first << "\"\n";
+    }
+
+    std::string cfi_filename;
+    if (0 == strcmp(baseType.c_str(), kSource)) {
+      cfi_filename = pluginName + "_cfi.py";
+    } else {
+      cfi_filename = labelAndDesc.first + "_cfi.py";
+    }
+    if (!usedCfiFileNames.insert(cfi_filename).second) {
+      edm::Exception ex(edm::errors::LogicError,
+                        "Two cfi files are being generated with the same name in the same directory.\n");
+      ex << "The cfi file name is '" << cfi_filename << "' and\n"
+         << "the module label is \'" << labelAndDesc.first << "\'.\n"
+         << "This error is probably caused by an error in one or more fillDescriptions functions\n"
+         << "where duplicate module labels are being passed to the ConfigurationDescriptions::add\n"
+         << "function. All such module labels must be unique within a package.\n"
+         << "If you do not want the generated cfi file and do not need more than one\n"
+         << "description for a plugin, then a way to fix this is to use the addDefault\n"
+         << "function instead of the add function.\n"
+         << "There are 3 common ways this problem can happen.\n"
+         << "1. This can happen when a module label is explicitly duplicated in one or more\n"
+         << "fillDescriptions functions. Fix these by changing the module labels to be unique.\n"
+         << "2. This can also happen when a module class is a template class and plugins are\n"
+         << "defined by instantiations with differing template parameters and these plugins\n"
+         << "share the same fillDescriptions function. Fix these by specializing the fillDescriptions\n"
+         << "function for each template instantiation.\n"
+         << "3. This can also happen when there is an inheritance heirarchy and multiple plugin modules\n"
+         << "are defined using derived classes and the base class which share the same fillDescriptions\n"
+         << "function. Fix these by redefining the fillDescriptions function in each derived class.\n";
+      ex.addContext("Executing function ConfigurationDescriptions::writeCfiForLabel");
+      throw ex;
+    }
+    std::ofstream outFile(cfi_filename.c_str());
+    if (outFile.fail()) {
+      edm::Exception ex(edm::errors::LogicError, "Creating cfi file failed.\n");
+      ex << "Opening a file '" << cfi_filename << "' for module '" << labelAndDesc.first << "' failed.\n";
+      ex << "Error code from errno " << errno << ": " << std::strerror(errno) << "\n";
+
+      ex.addContext("Executing function ConfigurationDescriptions::writeCfiForLabel");
+      throw ex;
+    }
+
+    outFile << "import FWCore.ParameterSet.Config as cms\n\n";
+
+    auto pythonName = modifyPluginName(pluginName);
+    outFile << "from ." << pythonName << " import " << pythonName << "\n\n";
+    outFile << labelAndDesc.first << " = " << pythonName << "(";
+    outFile << "\n";
+    /* Create a CfiOptions containing the paths to be written and if they are typed or untyped 
+    Then create a ParameterSetDescription holding only those entries and write them out by calling
+    writeCfi on that ParameterSetDescription
+    */
+    int indentation = 2;
+    auto descSlim = labelAndDesc.second.createDifference();
+    descSlim.writeCfi(outFile, false, indentation, options);
+    outFile << ")\n";
+
+    outFile.close();
+
+    if (0 == strcmp(baseType.c_str(), kSource)) {
+      std::cout << pluginName << "\n";
+    } else {
+      std::cout << labelAndDesc.first << "\n";
+    }
+  }
+
   void ConfigurationDescriptions::print(std::ostream& os,
                                         std::string const& moduleLabel,
                                         bool brief,
@@ -324,7 +428,7 @@ namespace edm {
       return;
     }
 
-    if (descriptions_.empty() && defaultDescDefined_ && defaultDesc_.isUnknown()) {
+    if (descriptions_.empty() && descriptionCloners_.empty() && defaultDescDefined_ && defaultDesc_.isUnknown()) {
       indentation += DocFormatHelper::offsetModuleLabel();
       char oldFill = os.fill();
       os << std::setfill(' ') << std::setw(indentation) << "";
@@ -347,7 +451,7 @@ namespace edm {
              << "This description is always used to validate configurations. "
              << "Because this configuration has no label, no cfi files will be generated.";
         } else {
-          ss << "This plugin has " << (descriptions_.size() + 1U) << " PSet descriptions. "
+          ss << "This plugin has " << (descriptions_.size() + descriptionCloners_.size() + 1U) << " PSet descriptions. "
              << "The description used to validate a configuration is selected by "
              << "matching the module labels. If none match, then the last description, "
              << "which has no label, is selected. "
@@ -355,11 +459,11 @@ namespace edm {
         }
       } else {
         if (descriptions_.size() == 1U) {
-          ss << "This plugin has " << descriptions_.size() << " PSet description. "
+          ss << "This plugin has 1 PSet description. "
              << "This description is always used to validate configurations. "
              << "The label below is used when generating the cfi file.";
         } else {
-          ss << "This plugin has " << descriptions_.size() << " PSet descriptions. "
+          ss << "This plugin has " << descriptions_.size() + descriptionCloners_.size() << " PSet descriptions. "
              << "The description used to validate a configuration is selected by "
              << "matching the module labels. If none match the first description below is used. "
              << "The module labels below are also used when generating the cfi files.";
@@ -375,6 +479,14 @@ namespace edm {
     counter.iPlugin = iPlugin;
     counter.iSelectedModule = 0;
     counter.iModule = 0;
+
+    for (auto const& d : descriptionCloners_) {
+      auto descSlim = d.second.createDifference();
+      descSlim.setComment(
+          "This label contains only the parameters that have defaults different from the default configuration. See "
+          "default configuration for all allowed parameters and their comments.");
+      printForLabel(os, d.first, descSlim, moduleLabel, brief, printOnlyLabels, lineWidth, indentation, counter);
+    }
 
     for (auto const& d : descriptions_) {
       printForLabel(d, os, moduleLabel, brief, printOnlyLabels, lineWidth, indentation, counter);

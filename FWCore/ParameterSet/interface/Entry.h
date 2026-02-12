@@ -34,6 +34,43 @@ namespace edm {
   // forward declarations:
   class ParameterSet;
 
+  namespace detail {
+    enum EntryCode : char {
+      kTbool = 'B',
+      kTvBool = 'b',
+      kTint32 = 'I',
+      kTvint32 = 'i',
+      kTuint32 = 'U',
+      kTvuint32 = 'u',
+      kTint64 = 'L',
+      kTvint64 = 'l',
+      kTuint64 = 'X',
+      kTvuint64 = 'x',
+      kTstringHex = 'S',
+      kTvstringHex = 's',
+      kTstringRaw = 'Z',
+      kTvstringRaw = 'z',
+      kTdouble = 'D',
+      kTvdouble = 'd',
+      kTPSet = 'P',
+      kTvPSet = 'p',
+      kTpath = 'T',
+      kTFileInPath = 'F',
+      kTInputTag = 't',
+      kTVInputTag = 'v',
+      kTESInputTag = 'g',
+      kTVESInputTag = 'G',
+      kTEventID = 'E',
+      kTVEventID = 'e',
+      kTLuminosityBlockID = 'M',
+      kTVLuminosityBlockID = 'm',
+      kTLuminosityBlockRange = 'A',
+      kTVLuminosityBlockRange = 'a',
+      kTEventRange = 'R',
+      kTVEventRange = 'r'
+    };
+  }
+
   // ----------------------------------------------------------------------
   // Entry
 
@@ -174,6 +211,9 @@ namespace edm {
     bool isTracked() const { return tracked_ == '+'; }
 
     char typeCode() const { return type_; }
+    std::string_view typeName() const;
+
+    std::string const& name() const { return name_; }
 
     friend std::ostream& operator<<(std::ostream& ost, Entry const& entry);
 
