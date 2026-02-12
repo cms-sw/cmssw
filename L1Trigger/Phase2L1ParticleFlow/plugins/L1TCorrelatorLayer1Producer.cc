@@ -551,18 +551,6 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
     }
   }
 
-  // FIXME
-  // if (!hadGCTRawCands_.isUninitialized()) {
-  //   auto caloHandle = iEvent.getHandle(hadGCTRawCands_);
-  //   const auto &links = *caloHandle;
-  //   for (unsigned int ic = 0; ic < links.size(); ++ic) {
-  //     const auto &link = links[ic];
-  //     for (unsigned int ie = 0; ie < link.size(); ++ie) {
-  //       addGCTHadCaloRaw(link, ic, ie);
-  //     }
-  //   }
-  // }
-
   if (!hadGCTCands_.isUninitialized()) {
     auto caloHandle = iEvent.getHandle(hadGCTCands_);
     if (caloHandle.isValid()) {
