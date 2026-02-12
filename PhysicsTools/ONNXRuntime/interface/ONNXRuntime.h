@@ -50,10 +50,14 @@ namespace cms::Ort {
                     const std::vector<std::string>& output_names = {},
                     int64_t batch_size = 1) const;
 
-    // Run inference writing outputs directly into user-provided buffers.
-    // output_values will be resized as needed; callers can reuse capacity across events to reduce allocations.
-    // output_shapes is optional; if empty, shapes are derived from the model metadata and the batch size.
-    // If any output has non-batch dynamic dimensions (-1), output_shapes must be provided for that output.
+    // Run inference writing outputs into user-provided buffers when possible.
+    //
+    // - output_values will be resized as needed; callers can reuse capacity across events to reduce allocations.
+    // - If output_shapes is provided (non-empty), outputs are written directly into output_values (preallocated path).
+    // - If output_shapes is empty:
+    //     * for outputs with fully-known shapes (or only dynamic batch dim at index 0), we still use the preallocated path
+    //     * for outputs with other dynamic dims (-1 at index > 0), the implementation falls back to ORT-allocated outputs
+    //       and copies the results into output_values (capacity still reusable across events).
     void runInto(const std::vector<std::string>& input_names,
                  FloatArrays& input_values,
                  const std::vector<std::vector<int64_t>>& input_shapes,
