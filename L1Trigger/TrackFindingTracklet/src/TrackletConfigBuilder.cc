@@ -921,15 +921,13 @@ void TrackletConfigBuilder::writeFMMemories(std::ostream& os, std::ostream& memo
               memories << "FullMatch: FM_" << iSeedStr(iSeed) << "_" << LayerName(ilayer) << "PHI" << iTCStr(iReg)
                        << " [36]" << std::endl;
               memories << "FullMatch: FM_" << iSeedStr(iSeed) << "_" << LayerName(ilayer) << "PHI"
-                       << iTCStr(iReg) + "_E"
-                       << " [36]" << std::endl;
+                       << iTCStr(iReg) + "_E" << " [36]" << std::endl;
               os << "FM_" << iSeedStr(iSeed) << "_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << " input=> MP_"
                  << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".matchout1 output=> FT_" << iSeedStr(iSeed)
                  << ".fullmatch" << matchport_[iSeed][ilayer] << "in" << iReg + 1 << std::endl;
               os << "FM_" << iSeedStr(iSeed) << "_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) + "_E"
-                 << " input=> MP_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) + "_E"
-                 << ".matchout1 output=> FT_" << iSeedStr(iSeed) << ".fullmatch" << matchport_[iSeed][ilayer] << "in"
-                 << iReg + 1 << std::endl;
+                 << " input=> MP_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) + "_E" << ".matchout1 output=> FT_"
+                 << iSeedStr(iSeed) << ".fullmatch" << matchport_[iSeed][ilayer] << "in" << iReg + 1 << std::endl;
             }
           } else {
             modules << "MatchProcessor: MP_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << std::endl;
@@ -1005,8 +1003,7 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
                << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".allstubin" << std::endl;
             os << "AS_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << "n2"
                << " input=> VMR_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".allstubout output=> MP_"
-               << LayerName(ilayer) << "PHI" << iTCStr(iReg) + "_E"
-               << ".allstubin" << std::endl;
+               << LayerName(ilayer) << "PHI" << iTCStr(iReg) + "_E" << ".allstubin" << std::endl;
           } else {
             memories << "AllStubs: AS_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << "n1"
                      << " [42]" << std::endl;
@@ -1238,8 +1235,7 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
                << " output=> MP_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".vmstubin" << std::endl;
             os << "VMSME_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << "n2"
                << " input=> VMR_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".vmstuboutPHI" << iTCStr(iReg)
-               << " output=> MP_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) + "_E"
-               << ".vmstubin" << std::endl;
+               << " output=> MP_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) + "_E" << ".vmstubin" << std::endl;
           } else {
             memories << "VMStubsME: VMSME_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << "n1 [18]" << std::endl;
             os << "VMSME_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << "n1"
