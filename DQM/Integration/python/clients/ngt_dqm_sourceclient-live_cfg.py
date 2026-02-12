@@ -63,14 +63,23 @@ process.scoutingCollectionMonitor.rho = ["hltScoutingPFPacker", "rho"]
 process.load("DQM.HLTEvF.ScoutingDileptonMonitor_cfi")
 process.ScoutingDileptonMonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/DiLepton"
 
+process.load("DQM.HLTEvF.ScoutingPi0Monitor_cfi")
+process.ScoutingPi0MonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/PiZero"
+process.ScoutingPi0MonitorOnline.maxEta = 2.5
+process.ScoutingPi0MonitorOnline.minPt = 1.5
+process.ScoutingPi0MonitorOnline.maxMass = 1.
+process.ScoutingPi0MonitorOnline.isolationPtRatio = 0.8
+process.ScoutingPi0MonitorOnline.asymmetryCut = 0.85
+process.ScoutingPi0MonitorOnline.pairMaxDr = 0.1
+
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)#*process.dqmSaverPB)
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
                      process.scoutingCollectionMonitor *
-                     process.ScoutingDileptonMonitorOnline
-                     )
+                     process.ScoutingDileptonMonitorOnline *
+                     process.ScoutingPi0MonitorOnline)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
