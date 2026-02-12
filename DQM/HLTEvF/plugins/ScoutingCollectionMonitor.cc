@@ -187,14 +187,13 @@ private:
   dqm::reco::MonitorElement* PF_vertex_n13_hist;
   dqm::reco::MonitorElement* PF_vertex_1_hist;
   dqm::reco::MonitorElement* PF_vertex_2_hist;
+
+  // the following variables make sense only if there is a Track
+
   dqm::reco::MonitorElement* PF_normchi2_211_hist;
   dqm::reco::MonitorElement* PF_normchi2_n211_hist;
-  dqm::reco::MonitorElement* PF_normchi2_130_hist;
-  dqm::reco::MonitorElement* PF_normchi2_22_hist;
   dqm::reco::MonitorElement* PF_normchi2_13_hist;
   dqm::reco::MonitorElement* PF_normchi2_n13_hist;
-  dqm::reco::MonitorElement* PF_normchi2_1_hist;
-  dqm::reco::MonitorElement* PF_normchi2_2_hist;
 
   dqm::reco::MonitorElement* PF_dz_211_hist;
   dqm::reco::MonitorElement* PF_dz_n211_hist;
@@ -590,7 +589,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
         PF_eta_130_hist->Fill(cand.eta());
         PF_phi_130_hist->Fill(cand.phi());
         PF_vertex_130_hist->Fill(cand.vertex());
-        PF_normchi2_130_hist->Fill(cand.normchi2());
         break;
 
       case 22:
@@ -598,7 +596,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
         PF_eta_22_hist->Fill(cand.eta());
         PF_phi_22_hist->Fill(cand.phi());
         PF_vertex_22_hist->Fill(cand.vertex());
-        PF_normchi2_22_hist->Fill(cand.normchi2());
         break;
 
       case 13:
@@ -636,7 +633,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
         PF_eta_1_hist->Fill(cand.eta());
         PF_phi_1_hist->Fill(cand.phi());
         PF_vertex_1_hist->Fill(cand.vertex());
-        PF_normchi2_1_hist->Fill(cand.normchi2());
         break;
 
       case 2:
@@ -644,7 +640,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
         PF_eta_2_hist->Fill(cand.eta());
         PF_phi_2_hist->Fill(cand.phi());
         PF_vertex_2_hist->Fill(cand.vertex());
-        PF_normchi2_2_hist->Fill(cand.normchi2());
         break;
     }
   }
@@ -1015,87 +1010,101 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   }
 
   ibook.setCurrentFolder(topfoldername_ + "/PFcand");
-  PF_pT_211_hist = ibook.book1DD("pT_211", "PF h^{+}  pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 13.0);
-  PF_pT_n211_hist = ibook.book1DD("pT_n211", "PF h^{-} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 14.0);
-  PF_pT_130_hist = ibook.book1DD("pT_130", "PF h^{0} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 20.0);
-  PF_pT_22_hist = ibook.book1DD("pT_22", "PF #gamma pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 18.0);
-  PF_pT_13_hist = ibook.book1DD("pT_13", "PF #mu^{+} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 80.0);
-  PF_pT_n13_hist = ibook.book1DD("pT_n13", "PF #mu^{-} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 80.0);
-  PF_pT_2_hist = ibook.book1DD("pT_2", "PF HF h (GeV);pT [GeV];Entries", 100, 0.0, 4.5);
-  PF_pT_1_hist = ibook.book1DD("pT_1", "PF HF e/#gamma pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 6.0);
+  PF_pT_211_hist = ibook.book1DD("pT_posHad", "PF h^{+}  pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 13.0);
+  PF_pT_n211_hist = ibook.book1DD("pT_negHad", "PF h^{-} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 14.0);
+  PF_pT_130_hist = ibook.book1DD("pT_neuHad", "PF h^{0} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 20.0);
+  PF_pT_22_hist = ibook.book1DD("pT_gamma", "PF #gamma pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 18.0);
+  PF_pT_13_hist = ibook.book1DD("pT_mu_plus", "PF #mu^{+} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 80.0);
+  PF_pT_n13_hist = ibook.book1DD("pT_mu_minus", "PF #mu^{-} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 80.0);
+  PF_pT_2_hist = ibook.book1DD("pT_HF_had", "PF HF h (GeV);pT [GeV];Entries", 100, 0.0, 4.5);
+  PF_pT_1_hist = ibook.book1DD("pT_HF_eg", "PF HF e/#gamma pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 6.0);
 
-  PF_eta_211_hist = ibook.book1DD("eta_211", "PF h^{+} #eta;#eta;Entries", 100, -5.0, 5.0);
-  PF_eta_n211_hist = ibook.book1DD("eta_n211", "PF h^{-} #eta;#eta;Entries", 100, -5.0, 5.0);
-  PF_eta_130_hist = ibook.book1DD("eta_130", "PF h^{0} #eta;#eta;Entries", 100, -5.0, 5.0);
-  PF_eta_22_hist = ibook.book1DD("eta_22", "PF #gamma #eta;#eta;Entries", 100, -5.0, 5.0);
-  PF_eta_13_hist = ibook.book1DD("eta_13", "PF #mu^{+} #eta;#eta;Entries", 100, -5.0, 5.0);
-  PF_eta_n13_hist = ibook.book1DD("eta_n13", "PF #mu^{-} #eta;#eta;Entries", 100, -5.0, 5.0);
-  PF_eta_1_hist = ibook.book1DD("eta_2", "PF HF h #eta;#eta;Entries", 100, -5.0, 5.0);
-  PF_eta_2_hist = ibook.book1DD("eta_1", "PF HF e/#gamma #eta;#eta;Entries", 100, -5.0, 5.0);
+  PF_eta_211_hist = ibook.book1DD("eta_posHad", "PF h^{+} #eta;#eta;Entries", 100, -5.0, 5.0);
+  PF_eta_n211_hist = ibook.book1DD("eta_negHad", "PF h^{-} #eta;#eta;Entries", 100, -5.0, 5.0);
+  PF_eta_130_hist = ibook.book1DD("eta_neuHad", "PF h^{0} #eta;#eta;Entries", 100, -5.0, 5.0);
+  PF_eta_22_hist = ibook.book1DD("eta_gamma", "PF #gamma #eta;#eta;Entries", 100, -5.0, 5.0);
+  PF_eta_13_hist = ibook.book1DD("eta_mu_plus", "PF #mu^{+} #eta;#eta;Entries", 100, -5.0, 5.0);
+  PF_eta_n13_hist = ibook.book1DD("eta_mu_minus", "PF #mu^{-} #eta;#eta;Entries", 100, -5.0, 5.0);
+  PF_eta_1_hist = ibook.book1DD("eta_HF_had", "PF HF h #eta;#eta;Entries", 100, -5.0, 5.0);
+  PF_eta_2_hist = ibook.book1DD("eta_HF_eg", "PF HF e/#gamma #eta;#eta;Entries", 100, -5.0, 5.0);
 
-  PF_phi_211_hist = ibook.book1DD("phi_211", "PF h^{+} #phi;#phi;Entries", 100, -3.2, 3.2);
-  PF_phi_n211_hist = ibook.book1DD("phi_n211", "PF h^{-} #phi;#phi;Entries", 100, -3.2, 3.2);
-  PF_phi_130_hist = ibook.book1DD("phi_130", "PF h^{0} #phi;#phi;Entries", 100, -3.2, 3.2);
-  PF_phi_22_hist = ibook.book1DD("phi_22", "PF #gamma #phi;#phi;Entries", 100, -3.2, 3.2);
-  PF_phi_13_hist = ibook.book1DD("phi_13", "PF #mu^{+} #phi;#phi;Entries", 100, -3.2, 3.2);
-  PF_phi_n13_hist = ibook.book1DD("phi_n13", "PF #mu^{-} #phi;#phi;Entries", 100, -3.2, 3.2);
-  PF_phi_1_hist = ibook.book1DD("phi_2", "PF HF h #phi;#phi;Entries", 100, -3.2, 3.2);
-  PF_phi_2_hist = ibook.book1DD("phi_1", "PF HF e/#gamma #phi;#phi;Entries", 100, -3.2, 3.2);
+  PF_phi_211_hist = ibook.book1DD("phi_posHad", "PF h^{+} #phi;#phi;Entries", 100, -3.2, 3.2);
+  PF_phi_n211_hist = ibook.book1DD("phi_negHad", "PF h^{-} #phi;#phi;Entries", 100, -3.2, 3.2);
+  PF_phi_130_hist = ibook.book1DD("phi_neuHad", "PF h^{0} #phi;#phi;Entries", 100, -3.2, 3.2);
+  PF_phi_22_hist = ibook.book1DD("phi_gamma", "PF #gamma #phi;#phi;Entries", 100, -3.2, 3.2);
+  PF_phi_13_hist = ibook.book1DD("phi_mu_plus", "PF #mu^{+} #phi;#phi;Entries", 100, -3.2, 3.2);
+  PF_phi_n13_hist = ibook.book1DD("phi_mu_minus", "PF #mu^{-} #phi;#phi;Entries", 100, -3.2, 3.2);
+  PF_phi_1_hist = ibook.book1DD("phi_HF_had", "PF HF h #phi;#phi;Entries", 100, -3.2, 3.2);
+  PF_phi_2_hist = ibook.book1DD("phi_HF_eg", "PF HF e/#gamma #phi;#phi;Entries", 100, -3.2, 3.2);
 
-  PF_vertex_211_hist = ibook.book1DD("vertex_211", "PF h^{+} Vertex;Vertex;Entries", 100, -10.0, 15.0);
-  PF_vertex_n211_hist = ibook.book1DD("vertex_n211", "PF h^{-} Vertex;Vertex;Entries", 100, -10.0, 15.0);
-  PF_vertex_130_hist = ibook.book1DD("vertex_130", "PF h^{0} Vertex;Vertex;Entries", 100, -10.0, 10.0);
-  PF_vertex_22_hist = ibook.book1DD("vertex_22", "PF #gamma Vertex;Vertex;Entries", 100, -10.0, 10.0);
-  PF_vertex_13_hist = ibook.book1DD("vertex_13", "PF #mu^{+} Vertex;Vertex;Entries", 100, -10.0, 15.0);
-  PF_vertex_n13_hist = ibook.book1DD("vertex_n13", "PF #mu^{-} Vertex;Vertex;Entries", 100, -10.0, 15.0);
-  PF_vertex_1_hist = ibook.book1DD("vertex_1", "PF HF h Vertex;Vertex;Entries", 100, -10.0, 10.0);
-  PF_vertex_2_hist = ibook.book1DD("vertex_2", "PF HF e/#gamma Vertex;Vertex;Entries", 100, -10.0, 10.0);
+  PF_vertex_211_hist =
+      ibook.book1DD("vertexIndex_posHad", "PF h^{+} Vertex Index ;Vertex index;Entries", 17, -1.5, 15.5);
+  PF_vertex_n211_hist =
+      ibook.book1DD("vertexIndex_negHad", "PF h^{-} Vertex Index;Vertex index;Entries", 17, -1.5, 15.5);
+  PF_vertex_130_hist =
+      ibook.book1DD("vertexIndex_neuHad", "PF h^{0} Vertex Index;Vertex index;Entries", 17, -1.5, 15.5);
+  PF_vertex_22_hist = ibook.book1DD("vertexIndex_gamma", "PF #gamma Vertex Index;Vertex index;Entries", 17, -1.5, 15.5);
+  PF_vertex_13_hist =
+      ibook.book1DD("vertexIndex_mu_plus", "PF #mu^{+} Vertex Index;Vertex index;Entries", 17, -1.5, 15.5);
+  PF_vertex_n13_hist =
+      ibook.book1DD("vertexIndex_mu_minus", "PF #mu^{-} Vertex Index;Vertex index;Entries", 17, -1.5, 15.5);
+  PF_vertex_1_hist = ibook.book1DD("vertexIndex_HF_eg", "PF HF h Vertex Index;Vertex index;Entries", 17, -1.5, 15.5);
+  PF_vertex_2_hist =
+      ibook.book1DD("vertexIndex_HF_had", "PF HF e/#gamma Vertex Index;Vertex index;Entries", 17, -1.5, 15.5);
 
-  PF_normchi2_211_hist = ibook.book1DD("normchi2_211", "PF h^{+} Norm #chi^2;Norm #chi^2;Entries", 100, 0.0, 10.0);
-  PF_normchi2_n211_hist = ibook.book1DD("normchi2_n211", "PF h^{-} Norm #chi^2;Norm #chi^2;Entries", 100, 0.0, 10.0);
-  PF_normchi2_130_hist = ibook.book1DD("normchi2_130", "PF h^{0} Norm #chi^2;Norm #chi^2;Entries", 100, 0.0, 100.0);
-  PF_normchi2_22_hist = ibook.book1DD("normchi2_22", "PF #gamma Norm #chi^2;Norm #chi^2;Entries", 100, 0.0, 100.0);
-  PF_normchi2_13_hist = ibook.book1DD("normchi2_13", "PF #mu^{+} Norm #chi^2;Norm #chi^2;Entries", 100, 0.0, 10.0);
-  PF_normchi2_n13_hist = ibook.book1DD("normchi2_n13", "PF #mu^{-} Norm #chi^2;Norm #chi^2;Entries", 100, 0.0, 10.0);
-  PF_normchi2_1_hist = ibook.book1DD("normchi2_1", "PF HF h Norm #chi^2;Norm #chi^2;Entries", 100, 0.0, 100.0);
-  PF_normchi2_2_hist = ibook.book1DD("normchi2_2", "PF HF e/#gamma Norm #chi^2;Norm #chi^2;Entries", 100, 0.0, 100.0);
+  // the following variables make sense only if there is a Track
 
-  PF_dz_211_hist = ibook.book1DD("dz_211", "PF h^{+} dz (cm);dz (cm);Entries", 100, -1.0, 1.0);
-  PF_dz_n211_hist = ibook.book1DD("dz_n211", "PF h^{-} dz (cm);dz (cm);Entries", 100, -1.0, 1.0);
-  PF_dz_13_hist = ibook.book1DD("dz_13", "PF #mu^{+} dz (cm);dz (cm);Entries", 100, -1.0, 1.0);
-  PF_dz_n13_hist = ibook.book1DD("dz_n13", "PF #mu^{-} dz (cm);dz (cm);Entries", 100, -1.0, 1.0);
+  PF_normchi2_211_hist =
+      ibook.book1DD("normchi2_posHad", "PF h^{+} Norm #chi^{2};Norm #chi^{2};Entries", 100, 0.0, 10.0);
+  PF_normchi2_n211_hist =
+      ibook.book1DD("normchi2_negHad", "PF h^{-} Norm #chi^{2};Norm #chi^{2};Entries", 100, 0.0, 10.0);
+  PF_normchi2_13_hist =
+      ibook.book1DD("normchi2_mu_plus", "PF #mu^{+} Norm #chi^{2};Norm #chi^{2};Entries", 100, 0.0, 10.0);
+  PF_normchi2_n13_hist =
+      ibook.book1DD("normchi2_mu_minus", "PF #mu^{-} Norm #chi^{2};Norm #chi^{2};Entries", 100, 0.0, 10.0);
 
-  PF_dxy_211_hist = ibook.book1DD("dxy_211", "PF h^{+} dxy (cm);dxy (cm);Entries", 100, -0.5, 0.5);
-  PF_dxy_n211_hist = ibook.book1DD("dxy_n211", "PF h^{-} dxy (cm);dxy (cm);Entries", 100, -0.5, 0.5);
-  PF_dxy_13_hist = ibook.book1DD("dxy_13", "PF #mu^{+} dxy (cm);dxy (cm);Entries", 100, -0.5, 0.5);
-  PF_dxy_n13_hist = ibook.book1DD("dxy_n13", "PF #mu^{-} dxy (cm);dxy (cm);Entries", 100, -0.5, 0.5);
+  PF_dz_211_hist = ibook.book1DD("dz_posHad", "PF h^{+} dz (cm);dz (cm);Entries", 100, -1.0, 1.0);
+  PF_dz_n211_hist = ibook.book1DD("dz_negHad", "PF h^{-} dz (cm);dz (cm);Entries", 100, -1.0, 1.0);
+  PF_dz_13_hist = ibook.book1DD("dz_mu_plus", "PF #mu^{+} dz (cm);dz (cm);Entries", 100, -1.0, 1.0);
+  PF_dz_n13_hist = ibook.book1DD("dz_mu_minus", "PF #mu^{-} dz (cm);dz (cm);Entries", 100, -1.0, 1.0);
 
-  PF_dzsig_211_hist = ibook.book1DD("dzsig_211", "PF h^{+} dzsig;dzsig;Entries", 100, 0.0, 10.0);
-  PF_dzsig_n211_hist = ibook.book1DD("dzsig_n211", "PF h^{-} dzsig;dzsig;Entries", 100, 0.0, 10.0);
-  PF_dzsig_13_hist = ibook.book1DD("dzsig_13", "PF #mu^{+} dzsig;dzsig;Entries", 100, 0.0, 10.0);
-  PF_dzsig_n13_hist = ibook.book1DD("dzsig_n13", "PF #mu^{-} dzsig;dzsig;Entries", 100, 0.0, 10.0);
+  PF_dxy_211_hist = ibook.book1DD("dxy_posHad", "PF h^{+} dxy (cm);dxy (cm);Entries", 100, -0.5, 0.5);
+  PF_dxy_n211_hist = ibook.book1DD("dxy_negHad", "PF h^{-} dxy (cm);dxy (cm);Entries", 100, -0.5, 0.5);
+  PF_dxy_13_hist = ibook.book1DD("dxy_mu_plus", "PF #mu^{+} dxy (cm);dxy (cm);Entries", 100, -0.5, 0.5);
+  PF_dxy_n13_hist = ibook.book1DD("dxy_mu_minus", "PF #mu^{-} dxy (cm);dxy (cm);Entries", 100, -0.5, 0.5);
 
-  PF_dxysig_211_hist = ibook.book1DD("dxysig_211", "PF h^{+} dxysig;dxysig;Entries", 100, 0.0, 10.0);
-  PF_dxysig_n211_hist = ibook.book1DD("dxysig_n211", "PF h^{-} dxysig;dxysig;Entries", 100, 0.0, 10.0);
-  PF_dxysig_13_hist = ibook.book1DD("dxysig_13", "PF #mu^{+} dxysig;dxysig;Entries", 100, 0.0, 10.0);
-  PF_dxysig_n13_hist = ibook.book1DD("dxysig_n13", "PF #mu^{-} dxysig;dxysig;Entries", 100, 0.0, 10.0);
+  PF_dzsig_211_hist = ibook.book1DD("dzsig_posHad", "PF h^{+} dzsig;dzsig;Entries", 100, 0.0, 10.0);
+  PF_dzsig_n211_hist = ibook.book1DD("dzsig_negHad", "PF h^{-} dzsig;dzsig;Entries", 100, 0.0, 10.0);
+  PF_dzsig_13_hist = ibook.book1DD("dzsig_mu_plus", "PF #mu^{+} dzsig;dzsig;Entries", 100, 0.0, 10.0);
+  PF_dzsig_n13_hist = ibook.book1DD("dzsig_mu_minus", "PF #mu^{-} dzsig;dzsig;Entries", 100, 0.0, 10.0);
 
-  PF_trk_pt_211_hist = ibook.book1DD("trk_pt_211", "PF h^{+} Track pT (GeV);Track p_{T} (GeV);Entries", 100, 0.0, 10.0);
+  PF_dxysig_211_hist = ibook.book1DD("dxysig_posHad", "PF h^{+} dxysig;dxysig;Entries", 100, 0.0, 10.0);
+  PF_dxysig_n211_hist = ibook.book1DD("dxysig_negHad", "PF h^{-} dxysig;dxysig;Entries", 100, 0.0, 10.0);
+  PF_dxysig_13_hist = ibook.book1DD("dxysig_mu_plus", "PF #mu^{+} dxysig;dxysig;Entries", 100, 0.0, 10.0);
+  PF_dxysig_n13_hist = ibook.book1DD("dxysig_mu_minus", "PF #mu^{-} dxysig;dxysig;Entries", 100, 0.0, 10.0);
+
+  // These variables are actually the difference between the PF candidate reconstructed kinematics and it's bestTrack ones.
+  // This behaviour is governed by the "relativeTrackVars" parameter of HLTScoutingPFProducer
+  // see https://github.com/cms-sw/cmssw/blob/master/HLTrigger/JetMET/plugins/HLTScoutingPFProducer.cc#L177-L185no
+
+  PF_trk_pt_211_hist =
+      ibook.book1DD("trk_pt_posHad", "PF h^{+} Track pT (GeV);Track p_{T} (GeV);Entries", 100, -1., 1.);
   PF_trk_pt_n211_hist =
-      ibook.book1DD("trk_pt_n211", "PF h^{-} Track pT (GeV);Track p_{T} (GeV);Entries", 100, 0.0, 10.0);
-  PF_trk_pt_13_hist = ibook.book1DD("trk_pt_13", "PF #mu^{+} Track pT (GeV);Track p_{T} (GeV);Entries", 100, 0.0, 10.0);
+      ibook.book1DD("trk_pt_negHad", "PF h^{-} Track pT (GeV);Track p_{T} (GeV);Entries", 100, -1., 1.);
+  PF_trk_pt_13_hist =
+      ibook.book1DD("trk_pt_mu_plus", "PF #mu^{+} Track pT (GeV);Track p_{T} (GeV);Entries", 100, -1., 1.);
   PF_trk_pt_n13_hist =
-      ibook.book1DD("trk_pt_n13", "PF #mu^{-} Track pT (GeV);Track p_{T} (GeV);Entries", 100, 0.0, 10.0);
+      ibook.book1DD("trk_pt_mu_minus", "PF #mu^{-} Track pT (GeV);Track p_{T} (GeV);Entries", 100, -1., 1.);
 
-  PF_trk_eta_211_hist = ibook.book1DD("trk_eta_211", "PF h^{+} Track #eta;Track #eta;Entries", 100, -3.0, 3.0);
-  PF_trk_eta_n211_hist = ibook.book1DD("trk_eta_n211", "PF h^{-} Track #eta;Track #eta;Entries", 100, -3.0, 3.0);
-  PF_trk_eta_13_hist = ibook.book1DD("trk_eta_13", "PF #mu^{+} Track #eta;Track #eta;Entries", 100, -3.0, 3.0);
-  PF_trk_eta_n13_hist = ibook.book1DD("trk_eta_n13", "PF #mu^{-} Track #eta;Track #eta;Entries", 100, -3.0, 3.0);
+  PF_trk_eta_211_hist = ibook.book1DD("trk_eta_posHad", "PF h^{+} Track #eta;Track #eta;Entries", 100, -0.1, 0.1);
+  PF_trk_eta_n211_hist = ibook.book1DD("trk_eta_negHad", "PF h^{-} Track #eta;Track #eta;Entries", 100, -0.1, 0.1);
+  PF_trk_eta_13_hist = ibook.book1DD("trk_eta_mu_plus", "PF #mu^{+} Track #eta;Track #eta;Entries", 100, -0.1, 0.1);
+  PF_trk_eta_n13_hist = ibook.book1DD("trk_eta_mu_minus", "PF #mu^{-} Track #eta;Track #eta;Entries", 100, -0.1, 0.1);
 
-  PF_trk_phi_211_hist = ibook.book1DD("trk_phi_211", "PF h^{+} Track #phi;Track #phi;Entries", 100, -3.2, 3.2);
-  PF_trk_phi_n211_hist = ibook.book1DD("trk_phi_n211", "PF h^{-} Track #phi;Track #phi;Entries", 100, -3.2, 3.2);
-  PF_trk_phi_13_hist = ibook.book1DD("trk_phi_13", "PF #mu^{+} Track #phi;Track #phi;Entries", 100, -3.2, 3.2);
-  PF_trk_phi_n13_hist = ibook.book1DD("trk_phi_n13", "PF #mu^{-} Track #phi;Track #phi;Entries", 100, -3.2, 3.2);
+  PF_trk_phi_211_hist = ibook.book1DD("trk_phi_posHad", "PF h^{+} Track #phi;Track #phi;Entries", 100, -0.1, 0.1);
+  PF_trk_phi_n211_hist = ibook.book1DD("trk_phi_negHad", "PF h^{-} Track #phi;Track #phi;Entries", 100, -0.1, 0.1);
+  PF_trk_phi_13_hist = ibook.book1DD("trk_phi_mu_plus", "PF #mu^{+} Track #phi;Track #phi;Entries", 100, -0.1, 0.1);
+  PF_trk_phi_n13_hist = ibook.book1DD("trk_phi_mu_minus", "PF #mu^{-} Track #phi;Track #phi;Entries", 100, -0.1, 0.1);
 
   ibook.setCurrentFolder(topfoldername_ + "/Photon");
   pt_pho_hist = ibook.book1DD("pt_pho", "Photon pT; p_{T} (GeV); Entries", 100, 0.0, 100.0);
