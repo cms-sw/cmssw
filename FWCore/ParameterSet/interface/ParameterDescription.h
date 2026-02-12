@@ -225,6 +225,8 @@ namespace edm {
 
     void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const override;
 
+    cfi::Trackiness trackiness_(std::string_view path) const override;
+
     bool exists_(ParameterSet const& pset) const override;
 
     using ParameterDescriptionNode::writeCfi_;

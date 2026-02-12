@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginFactoryMacros.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 
 #include <vector>
 #include <limits>
@@ -1148,7 +1149,11 @@ namespace edmtest {
 
     // ------------------------------------------
 
-    descriptions.add("testProducerWithPsetDesc", iDesc);
+    {
+      edm::DescriptionCloner cn;
+      cn.set("p_int", 2147483647);
+      descriptions.add("testProducerWithPsetDesc", cn);
+    }
 
     // ------------------------------------------
 
