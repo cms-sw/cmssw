@@ -14,13 +14,17 @@
 #include <vector>
 #include <algorithm>
 
-inline bool operator>(l1t::Jet& a, l1t::Jet& b) {
-  if (a.hwPt() > b.hwPt()) {
-    return true;
-  } else {
-    return false;
-  }
-}
+namespace {
+  struct Greater {
+    inline bool operator()(l1t::Jet& a, l1t::Jet& b) const noexcept {
+      if (a.hwPt() > b.hwPt()) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  };
+}  // namespace
 
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
@@ -38,7 +42,7 @@ void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l
   //    std::cout << "MP : " << jet.hwPt() << ", " << jet.hwEta() << ", " << jet.hwPhi() << ", " << CaloTools::towerEta(jet.hwEta()) << ", " << CaloTools::towerPhi(jet.hwEta(),jet.hwPhi()) << std::endl;
   //  }
 
-  BitonicSort<l1t::Jet>(down, start, end);
+  BitonicSort<l1t::Jet, Greater>(down, start, end);
 
   // convert eta to GT coordinates
   for (auto& jet : outputJets) {

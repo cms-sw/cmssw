@@ -232,7 +232,7 @@ namespace l1HPSPFTauEmu {
     }
 
     for (std::vector<int>::size_type i = 0; i != signalParts.size(); i++) {
-      Particle sigP = signalParts.at(i);
+      const Particle& sigP = signalParts.at(i);
       if (is_charged(sigP) || (sigP.pID == 3)) {
         sum_pt += sigP.hwPt;
         sum_eta += sigP.hwPt * sigP.hwEta;
@@ -302,7 +302,7 @@ namespace l1HPSPFTauEmu {
     int parts_max = parts_copy.size();
     //first find the seeds
     while (preseed.size() < 128 && parts_index != parts_max) {
-      Particle pSeed = parts_copy.at(parts_index);
+      const Particle& pSeed = parts_copy.at(parts_index);
 
       if (pSeed.hwPt > l1ct::Scales::makePtFromFloat(5.) && is_charged(pSeed) && int_abs(pSeed.hwEta) < etaCutoff) {
         preseed.push_back(pSeed);
@@ -322,7 +322,7 @@ namespace l1HPSPFTauEmu {
     //With jets
     if (jEnable) {
       while (jseeds.size() < 4 && jets_index != jets_max) {
-        Particle jSeed = jets_copy.at(jets_index);
+        const Particle& jSeed = jets_copy.at(jets_index);
 
         if (jSeed.hwPt > l1ct::Scales::makePtFromFloat(20.) && int_abs(jSeed.hwEta) < etaCutoff) {
           jseeds.push_back(jSeed);
@@ -331,7 +331,7 @@ namespace l1HPSPFTauEmu {
       }
     }
     for (std::vector<int>::size_type i = 0; i != seeds.size(); i++) {
-      Particle seed = seeds[i];
+      const Particle& seed = seeds[i];
 
       std::vector<Particle> iso_parts;
 
@@ -339,7 +339,7 @@ namespace l1HPSPFTauEmu {
       pt_t total_pt = 0;
       std::vector<int>::size_type iso_index = 0;
       while (iso_index < parts_copy.size() && iso_parts.size() < 30) {
-        Particle isoCand = parts_copy.at(iso_index);
+        const Particle& isoCand = parts_copy.at(iso_index);
         if (inIsolationCone(isoCand, seed)) {
           iso_parts.push_back(isoCand);
           total_pt += isoCand.hwPt;
@@ -361,7 +361,7 @@ namespace l1HPSPFTauEmu {
 
         pt_t max_pt_j = 0;
         while (iso_index < parts_copy.size()) {
-          Particle isoCand = parts_copy.at(iso_index);
+          const Particle& isoCand = parts_copy.at(iso_index);
 
           if (inIsolationCone(isoCand, jseed)) {
             if (is_charged(isoCand) && isoCand.hwPt > max_pt_j) {

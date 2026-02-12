@@ -2,7 +2,7 @@
 #include <list>
 #include <cstdint>
 
-template <typename T>
+template <typename T, typename Greater>
 class AccumulatingSort {
 private:
   std::vector<std::list<T> > mSortArrays;
@@ -13,16 +13,16 @@ private:
     aTail.clear();
 
     bool lAccInserted(false);
-
-    for (typename std::list<T>::const_iterator lIt(aInput.begin()); lIt != aInput.end(); ++lIt) {
+    const Greater g;
+    for (auto const& l : aInput) {
       if (!lAccInserted and
-          !(*lIt >
-            aAcc))  // Accumulator greater than or equal to new entry and not previously inserted -> Reinsert accumulator
+          !g(l,
+             aAcc))  // Accumulator greater than or equal to new entry and not previously inserted -> Reinsert accumulator
       {
         aTail.push_back(aAcc);
         lAccInserted = true;
       }
-      aTail.push_back(*lIt);
+      aTail.push_back(l);
     }
 
     aAcc = *aTail.begin();
