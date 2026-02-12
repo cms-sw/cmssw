@@ -53,17 +53,24 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
-
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
-process.scoutingCollectionMonitor.topfoldername = "NGT/ScoutingCollections"
+process.scoutingCollectionMonitor.topfoldername = "NGT/ScoutingOnline/ScoutingCollections"
 process.scoutingCollectionMonitor.onlyScouting = False
 process.scoutingCollectionMonitor.onlineMetaDataDigis = "hltOnlineMetaDataDigis"
 process.scoutingCollectionMonitor.rho = ["hltScoutingPFPacker", "rho"]
+
+process.load("DQM.HLTEvF.ScoutingDileptonMonitor_cfi")
+process.ScoutingDileptonMonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/DiLepton"
+
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)#*process.dqmSaverPB)
 
-process.p = cms.Path(process.dqmcommon * process.hltOnlineBeamSpot * process.scoutingCollectionMonitor)
+process.p = cms.Path(process.dqmcommon *
+                     process.hltOnlineBeamSpot *
+                     process.scoutingCollectionMonitor *
+                     process.ScoutingDileptonMonitorOnline
+                     )
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
