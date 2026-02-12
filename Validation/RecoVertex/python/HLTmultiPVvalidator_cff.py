@@ -17,7 +17,9 @@ vertexAssociatorByPositionAndTracks4pixelTracks = _VertexAssociatorByPositionAnd
     trackAssociation = "tpToHLTpixelTrackAssociation",
     sharedTrackFraction = -1, # requires optimization
     weightMethod = "dzError",
+    sigmaZ = 10e6
 )
+
 hltOtherTPClusterProducer = hltTPClusterProducer.clone(
     stripClusterOtherSrc = "hltSiStripRawToClustersFacilityOnDemand"
 )
@@ -90,6 +92,7 @@ vertexAssociatorByPositionAndTracks4phase2HLTTracks = _VertexAssociatorByPositio
     trackAssociation = "tpToHLTphase2TrackAssociation",
     sharedTrackFraction = 0.5, # requires optimization
     weightMethod = "dzError",
+    sigmaZ = 10e6
 )
 
 def _modifyFullPVanalysisForPhase2(pvanalysis):
