@@ -154,6 +154,11 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
       double rawBend = tempStubRef->rawBend();
       double bendOffset = tempStubRef->bendOffset();
 
+      // Get module
+      unsigned int module = tTopo_->module(detIdStub);
+      // CRACK is viewed from behind, so to align plots with what is seen in real life, modules are flipped
+      if (CrackOverview)
+        module = std::abs(int(module - 13));
       /// Define position stub by position inner cluster
       MeasurementPoint mp = (tempStubRef->clusterRef(0))->findAverageLocalCoordinates();
       const GeomDet *theGeomDet = tkGeom_->idToDet(detIdStub);
@@ -167,8 +172,7 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
       Stub_bendBE->Fill(tempStubRef->bendBE());
       Stub_isPS->Fill(tempStubRef->moduleTypePS());
       if (CrackOverview)
-        CrackOverview->Fill(tTopo_->module(detIdStub),
-                            tTopo_->getOTLayerNumber(detIdStub) - 0.05 + (tTopo_->module(detIdStub) % 2 * 0.1));
+        CrackOverview->Fill(module, tTopo_->getOTLayerNumber(detIdStub) + 0.05 - (module % 2 * 0.1));
 
       if (detIdStub.subdetId() == static_cast<int>(StripSubdetector::TOB)) {  // Phase 2 Outer Tracker Barrel
         Stub_Barrel->Fill(tTopo_->layer(detIdStub));
@@ -275,7 +279,7 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
       double yOffset = 0;
       for (int layer = 1; layer < 7; layer++) {
         for (int module = 1; module < 13; module++) {
-          if (module % 2 == 0)
+          if (module % 2 == 1)
             yOffset = -0.1;
           else
             yOffset = 0;

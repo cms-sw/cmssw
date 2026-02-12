@@ -183,6 +183,9 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       if (mType == TrackerGeometry::ModuleType::Ph2SS) {
         if (detId.subdetId() == SiStripSubdetector::TOB) {
           unsigned int module = tTopo_->module(rawid);
+          // CRACK is viewed from behind, so to align plots with what is seen in real life, modules are flipped
+          if (crackOverview_)
+            module = std::abs(int(module - 13));
           //If column is on the bottom of the sensor, *-1 to distinguish it from top
           int topOrBottomColumn = (tTopo_->isLower(rawid) ? (clusterItr.column() + 1) * -1 : (clusterItr.column() + 1));
           if (module < local_mes.PositionOfClusters_2S.size() && local_mes.PositionOfClusters_2S[module]) {
@@ -195,7 +198,7 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
             local_mes.PositionOfClusters_2SLadder[ladder]->Fill(signedModule, topOrBottomColumn);
           }
           if (crackOverview_)
-            crackOverview_->Fill(module, tTopo_->getOTLayerNumber(rawid) - 0.05 + (module % 2 * 0.1));
+            crackOverview_->Fill(module, tTopo_->getOTLayerNumber(rawid) + 0.05 - (module % 2 * 0.1));
         }
       }
     }
@@ -251,7 +254,7 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
       double yOffset = 0;
       for (int layer = 1; layer < 7; layer++) {
         for (int module = 1; module < 13; module++) {
-          if (module % 2 == 0)
+          if (module % 2 == 1)
             yOffset = -0.1;
           else
             yOffset = 0;

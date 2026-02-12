@@ -303,6 +303,10 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     const GeomDet* geomDet = tkGeom_->idToDet(detId);
 
     const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
+    int module = tTopo_->module(detId);
+    // CRACK is viewed from behind, so to align plots with what is seen in real life, modules are flipped
+    if (CrackOverview)
+      module = std::abs(int(module - 13));
     int nRows = tkDetUnit->specificTopology().nrows();
     int nColumns = tkDetUnit->specificTopology().ncolumns();
     if (nRows * nColumns == 0)
@@ -335,7 +339,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       if (nColumns <= 2 && local_mes.PositionOfDigisS)
         local_mes.PositionOfDigisS->Fill(row + 1, col + 1);
       if (CrackOverview)
-        CrackOverview->Fill(tTopo_->module(rawid), layer - 0.05 + (tTopo_->module(rawid) % 2 * 0.1));
+        CrackOverview->Fill(module, layer + 0.05 - (module % 2 * 0.1));
 
       if (clsFlag_) {
         if (row_last == -1 || abs(row - row_last) != 1 || col != col_last) {
@@ -500,7 +504,7 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
       double yOffset = 0;
       for (int layer = 1; layer < 7; layer++) {
         for (int module = 1; module < 13; module++) {
-          if (module % 2 == 0)
+          if (module % 2 == 1)
             yOffset = -0.1;
           else
             yOffset = 0;
