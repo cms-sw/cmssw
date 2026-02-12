@@ -2,6 +2,7 @@
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
@@ -37,13 +38,17 @@ namespace edm {
       } else {
         allowedLabels = pset.getUntrackedParameter<std::vector<std::string> >(parameterHoldingLabels_.label());
       }
-      for_all(allowedLabels,
-              std::bind(&AllowedLabelsDescriptionBase::validateAllowedLabel_,
-                        this,
-                        std::placeholders::_1,
-                        std::ref(pset),
-                        std::ref(validatedLabels)));
+      for (auto const& allowedLabel : allowedLabels) {
+        validateAllowedLabel_(allowedLabel, pset, validatedLabels);
+      }
     }
+  }
+
+  cfi::Trackiness AllowedLabelsDescriptionBase::trackiness_(std::string_view path) const {
+    if (path == parameterHoldingLabels_.label()) {
+      return isTracked() ? cfi::Trackiness::kTracked : cfi::Trackiness::kUntracked;
+    }
+    return cfi::Trackiness::kNotAllowed;
   }
 
   void AllowedLabelsDescriptionBase::writeCfi_(std::ostream& os,
