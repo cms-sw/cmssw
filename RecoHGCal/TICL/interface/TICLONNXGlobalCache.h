@@ -55,45 +55,44 @@ namespace ticl {
       return (name.find("onnx") != std::string::npos) && (name.find("ModelPath") != std::string::npos);
     }
 
-static void collectModelPathsRecursively(edm::ParameterSet const& pset,
-                                         std::unordered_set<std::string>& outFullPaths) {
-  // Scan string parameters in this PSet.
-  for (auto const& name : pset.getParameterNames()) {
-    if (!looksLikeModelPathParam(name)) {
-      continue;
-    }
-    if (!pset.existsAs<std::string>(name, true)) {
-      continue;
-    }
+    static void collectModelPathsRecursively(edm::ParameterSet const& pset,
+                                             std::unordered_set<std::string>& outFullPaths) {
+      // Scan string parameters in this PSet.
+      for (auto const& name : pset.getParameterNames()) {
+        if (!looksLikeModelPathParam(name)) {
+          continue;
+        }
+        if (!pset.existsAs<std::string>(name, true)) {
+          continue;
+        }
 
-    std::string model = pset.getParameter<std::string>(name);
-    if (model.empty()) {
-      continue;
+        std::string model = pset.getParameter<std::string>(name);
+        if (model.empty()) {
+          continue;
+        }
+
+        outFullPaths.emplace(edm::FileInPath(model).fullPath());
+      }
+
+      // Recurse into nested PSets.
+      std::vector<std::string> nestedNames;
+      pset.getParameterSetNames(nestedNames);
+      for (auto const& nestedName : nestedNames) {
+        auto const& nested = pset.getParameter<edm::ParameterSet>(nestedName);
+        collectModelPathsRecursively(nested, outFullPaths);
+      }
+
+      // Recurse into nested VParametersets.
+      std::vector<std::string> vpsetNames;
+      pset.getParameterSetVectorNames(vpsetNames);
+      for (auto const& vpsetName : vpsetNames) {
+        auto const& vpsets = pset.getParameter<std::vector<edm::ParameterSet>>(vpsetName);
+        for (auto const& elem : vpsets) {
+          collectModelPathsRecursively(elem, outFullPaths);
+        }
+      }
     }
-
-    outFullPaths.emplace(edm::FileInPath(model).fullPath());
-  }
-
-  // Recurse into nested PSets.
-  std::vector<std::string> nestedNames;
-  pset.getParameterSetNames(nestedNames);
-  for (auto const& nestedName : nestedNames) {
-    auto const& nested = pset.getParameter<edm::ParameterSet>(nestedName);
-    collectModelPathsRecursively(nested, outFullPaths);
-  }
-
-  // Recurse into nested VParametersets.
-  std::vector<std::string> vpsetNames;
-  pset.getParameterSetVectorNames(vpsetNames);
-  for (auto const& vpsetName : vpsetNames) {
-    auto const& vpsets = pset.getParameter<std::vector<edm::ParameterSet>>(vpsetName);
-    for (auto const& elem : vpsets) {
-      collectModelPathsRecursively(elem, outFullPaths);
-    }
-  }
-}
   };
-
 
 }  // namespace ticl
 
