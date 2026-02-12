@@ -5,48 +5,47 @@
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
-#include <memory>
+#include <variant>
 
 class OptimalHelixPlaneCrossing {
 public:
   using Base = HelixPlaneCrossing;
 
   template <typename... Args>
-  OptimalHelixPlaneCrossing(Plane const &plane, Args &&...args) {
+  explicit OptimalHelixPlaneCrossing(Plane const &plane, Args &&...args) {
     GlobalVector u = plane.normalVector();
     constexpr float small = 1.e-6;  // for orientation of planes
 
     if (std::abs(u.z()) < small) {
       // barrel plane:
       // instantiate HelixBarrelPlaneCrossing,
-      new (get()) HelixBarrelPlaneCrossingByCircle(args...);
+      mem_.emplace<HelixBarrelPlaneCrossingByCircle>(args...);
+      base_ = std::get_if<HelixBarrelPlaneCrossingByCircle>(&mem_);
     } else if ((std::abs(u.x()) < small) && (std::abs(u.y()) < small)) {
       // forward plane:
       // instantiate HelixForwardPlaneCrossing
-      new (get()) HelixForwardPlaneCrossing(args...);
+      mem_.emplace<HelixForwardPlaneCrossing>(args...);
+      base_ = std::get_if<HelixForwardPlaneCrossing>(&mem_);
     } else {
       // arbitrary plane:
       // instantiate HelixArbitraryPlaneCrossing
-      new (get()) HelixArbitraryPlaneCrossing(args...);
+      mem_.emplace<HelixArbitraryPlaneCrossing>(args...);
+      base_ = std::get_if<HelixArbitraryPlaneCrossing>(&mem_);
     }
   }
+  OptimalHelixPlaneCrossing() = delete;
+  OptimalHelixPlaneCrossing(const OptimalHelixPlaneCrossing &) = delete;
+  OptimalHelixPlaneCrossing &operator=(const OptimalHelixPlaneCrossing &) = delete;
+  OptimalHelixPlaneCrossing(OptimalHelixPlaneCrossing &&) = delete;
+  OptimalHelixPlaneCrossing &operator=(OptimalHelixPlaneCrossing &&) = delete;
 
-  ~OptimalHelixPlaneCrossing() { get()->~Base(); }
-
-  Base &operator*() { return *get(); }
-  Base const &operator*() const { return *get(); }
+  [[nodiscard]] Base &operator*() noexcept { return *base_; }
+  [[nodiscard]] Base const &operator*() const noexcept { return *base_; }
 
 private:
-  Base *get() { return (Base *)&mem; }
-  Base const *get() const { return (Base const *)&mem; }
-
-  union Tmp {
-    HelixBarrelPlaneCrossingByCircle a;
-    HelixForwardPlaneCrossing b;
-    HelixArbitraryPlaneCrossing c;
-  };
-  using aligned_union_t = typename std::aligned_storage<sizeof(Tmp), alignof(Tmp)>::type;
-  aligned_union_t mem;
+  std::variant<std::monostate, HelixBarrelPlaneCrossingByCircle, HelixForwardPlaneCrossing, HelixArbitraryPlaneCrossing>
+      mem_;
+  Base *base_;
 };
 
 #endif
