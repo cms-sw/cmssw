@@ -50,6 +50,18 @@ namespace cms::Ort {
                     const std::vector<std::string>& output_names = {},
                     int64_t batch_size = 1) const;
 
+    // Run inference writing outputs directly into user-provided buffers.
+    // output_values will be resized as needed; callers can reuse capacity across events to reduce allocations.
+    // output_shapes is optional; if empty, shapes are derived from the model metadata and the batch size.
+    // If any output has non-batch dynamic dimensions (-1), output_shapes must be provided for that output.
+    void runInto(const std::vector<std::string>& input_names,
+                 FloatArrays& input_values,
+                 const std::vector<std::vector<int64_t>>& input_shapes,
+                 const std::vector<std::string>& output_names,
+                 FloatArrays& output_values,
+                 const std::vector<std::vector<int64_t>>& output_shapes = {},
+                 int64_t batch_size = 1) const;
+
     // Get a list of names of all the output nodes
     const std::vector<std::string>& getOutputNames() const;
 

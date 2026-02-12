@@ -15,10 +15,30 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace cms::Ort {
 
   using namespace ::Ort;
+
+  namespace {
+
+    inline int64_t numel(const std::vector<int64_t>& dims) {
+      return std::accumulate(dims.begin(), dims.end(), int64_t{1}, std::multiplies<int64_t>());
+    }
+
+    inline void ensureNoDynamicDimsExceptBatch(const std::vector<int64_t>& dims, const std::string& name) {
+      for (size_t i = 0; i < dims.size(); ++i) {
+        if (dims[i] == -1 && i != 0) {
+          throw cms::Exception("RuntimeError") << "Output " << name << " has a dynamic dimension at index " << i
+                                               << ". Please pass output_shapes to runInto().";
+        }
+      }
+    }
+
+  }  // namespace
 
   const Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_ERROR, "");
 
@@ -84,30 +104,42 @@ namespace cms::Ort {
     return sess_opts;
   }
 
-  FloatArrays ONNXRuntime::run(const std::vector<std::string>& input_names,
-                               FloatArrays& input_values,
-                               const std::vector<std::vector<int64_t>>& input_shapes,
-                               const std::vector<std::string>& output_names,
-                               int64_t batch_size) const {
+  void ONNXRuntime::runInto(const std::vector<std::string>& input_names,
+                            FloatArrays& input_values,
+                            const std::vector<std::vector<int64_t>>& input_shapes,
+                            const std::vector<std::string>& output_names,
+                            FloatArrays& output_values,
+                            const std::vector<std::vector<int64_t>>& output_shapes,
+                            int64_t batch_size) const {
     assert(input_names.size() == input_values.size());
     assert(input_shapes.empty() || input_names.size() == input_shapes.size());
+    assert(output_shapes.empty() || (!output_names.empty() && output_shapes.size() == output_names.size()));
     assert(batch_size > 0);
+
+    // Fast lookup input name -> position
+    std::unordered_map<std::string, size_t> inputPos;
+    inputPos.reserve(input_names.size());
+    for (size_t i = 0; i < input_names.size(); ++i) {
+      inputPos.emplace(input_names[i], i);
+    }
 
     // create input tensor objects from data values
     std::vector<Value> input_tensors;
+    input_tensors.reserve(input_node_strings_.size());
+
     auto memory_info = MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
+
     for (const auto& name : input_node_strings_) {
-      auto iter = std::find(input_names.begin(), input_names.end(), name);
-      if (iter == input_names.end()) {
+      auto it = inputPos.find(name);
+      if (it == inputPos.end()) {
         throw cms::Exception("RuntimeError") << "Input " << name << " is not provided!";
       }
-      auto input_pos = iter - input_names.begin();
-      auto value = input_values.begin() + input_pos;
-      std::vector<int64_t> input_dims;
+      const size_t input_pos = it->second;
+      auto& value = input_values[input_pos];
 
-      //Get input dimensions: use provided shapes if available, otherwise fall back to ONNX model defaults
+      // Get input dimensions: use provided shapes if available, otherwise fall back to ONNX model defaults
       const auto& onnx_dims = input_node_dims_.at(name);
-      input_dims = input_shapes.empty() ? onnx_dims : input_shapes[input_pos];
+      std::vector<int64_t> input_dims = input_shapes.empty() ? onnx_dims : input_shapes[input_pos];
 
       // Check if the model expects a dynamic batch dimension (indicated by -1)
       const bool has_dynamic_batch = !onnx_dims.empty() && (onnx_dims[0] == -1);
@@ -122,49 +154,86 @@ namespace cms::Ort {
         }
       }
 
-      auto expected_len = std::accumulate(input_dims.begin(), input_dims.end(), 1, std::multiplies<int64_t>());
-      if (expected_len != (int64_t)value->size()) {
+      const int64_t expected_len = numel(input_dims);
+      if (expected_len != static_cast<int64_t>(value.size())) {
         throw cms::Exception("RuntimeError")
-            << "Input array " << name << " has a wrong size of " << value->size() << ", expected " << expected_len;
+            << "Input array " << name << " has a wrong size of " << value.size() << ", expected " << expected_len;
       }
+
       auto input_tensor =
-          Value::CreateTensor<float>(memory_info, value->data(), value->size(), input_dims.data(), input_dims.size());
+          Value::CreateTensor<float>(memory_info, value.data(), value.size(), input_dims.data(), input_dims.size());
       assert(input_tensor.IsTensor());
       input_tensors.emplace_back(std::move(input_tensor));
     }
 
-    // set output node names; will get all outputs if `output_names` is not provided
-    std::vector<const char*> run_output_node_names;
+    // Resolve output node names; will get all outputs if `output_names` is not provided
+    std::vector<std::string> resolved_output_names;
     if (output_names.empty()) {
-      run_output_node_names = output_node_names_;
+      resolved_output_names = output_node_strings_;
     } else {
-      for (const auto& name : output_names) {
-        run_output_node_names.push_back(name.c_str());
+      resolved_output_names = output_names;
+    }
+
+    std::vector<const char*> run_output_node_names;
+    run_output_node_names.reserve(resolved_output_names.size());
+    for (const auto& n : resolved_output_names) {
+      run_output_node_names.push_back(n.c_str());
+    }
+
+    // Prepare output buffers and Ort::Value tensors that write directly into them
+    output_values.resize(resolved_output_names.size());
+
+    std::vector<Value> output_tensors;
+    output_tensors.reserve(resolved_output_names.size());
+
+    for (size_t i = 0; i < resolved_output_names.size(); ++i) {
+      const auto& out_name = resolved_output_names[i];
+
+      std::vector<int64_t> out_dims;
+      if (!output_shapes.empty()) {
+        out_dims = output_shapes[i];
+      } else {
+        out_dims = getOutputShape(out_name);
+        if (!out_dims.empty() && out_dims[0] == -1) {
+          out_dims[0] = batch_size;
+        }
+        ensureNoDynamicDimsExceptBatch(out_dims, out_name);
       }
+
+      const int64_t out_len = numel(out_dims);
+      if (out_len <= 0) {
+        throw cms::Exception("RuntimeError") << "Output " << out_name << " has invalid inferred size " << out_len;
+      }
+
+      auto& out_buf = output_values[i];
+      if (static_cast<int64_t>(out_buf.capacity()) < out_len) {
+        out_buf.reserve(static_cast<size_t>(out_len));
+      }
+      out_buf.resize(static_cast<size_t>(out_len));
+
+      auto out_tensor =
+          Value::CreateTensor<float>(memory_info, out_buf.data(), out_buf.size(), out_dims.data(), out_dims.size());
+      assert(out_tensor.IsTensor());
+      output_tensors.emplace_back(std::move(out_tensor));
     }
 
-    // run
-    auto output_tensors = session_->Run(RunOptions{nullptr},
-                                        input_node_names_.data(),
-                                        input_tensors.data(),
-                                        input_tensors.size(),
-                                        run_output_node_names.data(),
-                                        run_output_node_names.size());
+    // Run inference writing directly into output_tensors
+    session_->Run(RunOptions{nullptr},
+                  input_node_names_.data(),
+                  input_tensors.data(),
+                  input_tensors.size(),
+                  run_output_node_names.data(),
+                  output_tensors.data(),
+                  output_tensors.size());
+  }
 
-    // convert output to floats
+  FloatArrays ONNXRuntime::run(const std::vector<std::string>& input_names,
+                               FloatArrays& input_values,
+                               const std::vector<std::vector<int64_t>>& input_shapes,
+                               const std::vector<std::string>& output_names,
+                               int64_t batch_size) const {
     FloatArrays outputs;
-    for (auto& output_tensor : output_tensors) {
-      assert(output_tensor.IsTensor());
-
-      // get output shape
-      auto tensor_info = output_tensor.GetTensorTypeAndShapeInfo();
-      auto length = tensor_info.GetElementCount();
-
-      auto floatarr = output_tensor.GetTensorMutableData<float>();
-      outputs.emplace_back(floatarr, floatarr + length);
-    }
-    assert(outputs.size() == run_output_node_names.size());
-
+    runInto(input_names, input_values, input_shapes, output_names, outputs, {}, batch_size);
     return outputs;
   }
 
