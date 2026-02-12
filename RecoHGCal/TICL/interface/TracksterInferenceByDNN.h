@@ -28,6 +28,9 @@ namespace ticl {
     cms::Ort::ONNXRuntime const* onnxPIDSession_ = nullptr;
     cms::Ort::ONNXRuntime const* onnxEnergySession_ = nullptr;
 
+    // Reuse input and output buffers
+    cms::Ort::FloatArrays inputs_;
+    cms::Ort::FloatArrays outputs_;
     const std::vector<std::string> inputNames_;
     const std::vector<std::string> output_en_;
     const std::vector<std::string> output_id_;
