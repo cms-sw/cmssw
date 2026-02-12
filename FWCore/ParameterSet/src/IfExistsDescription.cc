@@ -74,6 +74,14 @@ namespace edm {
     }
   }
 
+  cfi::Trackiness IfExistsDescription::trackiness_(std::string_view path) const {
+    cfi::Trackiness trackinessLeft = node_left_->trackiness(path);
+    if (trackinessLeft != cfi::Trackiness::kNotAllowed) {
+      return trackinessLeft;
+    }
+    return node_right_->trackiness(path);
+  }
+
   void IfExistsDescription::writeCfi_(std::ostream& os,
                                       Modifier modifier,
                                       bool& startWithComma,
@@ -203,7 +211,7 @@ namespace edm {
         ss << " \"" << *iter << "\"\n";
       }
       throw edm::Exception(errors::LogicError) << "Labels used in a node of a ParameterSetDescription\n"
-                                               << "\"ifExists\" expression must be not be the same as labels used\n"
+                                               << "\"ifExists\" expression must not be the same as labels used\n"
                                                << "in other nodes of the expression.  The following duplicate\n"
                                                << "labels were detected:\n"
                                                << ss.str() << "\n";
