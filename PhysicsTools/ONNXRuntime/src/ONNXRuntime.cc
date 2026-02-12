@@ -9,6 +9,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 #include <algorithm>
 #include <cassert>
 #include <functional>
@@ -29,13 +30,13 @@ namespace cms::Ort {
       return std::accumulate(dims.begin(), dims.end(), int64_t{1}, std::multiplies<int64_t>());
     }
 
-    inline void ensureNoDynamicDimsExceptBatch(const std::vector<int64_t>& dims, const std::string& name) {
+    inline bool hasDynamicDimsExceptBatch(const std::vector<int64_t>& dims) {
       for (size_t i = 0; i < dims.size(); ++i) {
         if (dims[i] == -1 && i != 0) {
-          throw cms::Exception("RuntimeError") << "Output " << name << " has a dynamic dimension at index " << i
-                                               << ". Please pass output_shapes to runInto().";
+          return true;
         }
       }
+      return false;
     }
 
   }  // namespace
@@ -141,15 +142,12 @@ namespace cms::Ort {
       const auto& onnx_dims = input_node_dims_.at(name);
       std::vector<int64_t> input_dims = input_shapes.empty() ? onnx_dims : input_shapes[input_pos];
 
-      // Check if the model expects a dynamic batch dimension (indicated by -1)
+      // Dynamic batch handling (-1 in dim0)
       const bool has_dynamic_batch = !onnx_dims.empty() && (onnx_dims[0] == -1);
-
       if (has_dynamic_batch) {
         if (input_shapes.empty()) {
-          // No shapes provided then enforce the current batch size
           input_dims[0] = batch_size;
         } else if (input_dims[0] != batch_size) {
-          // Shapes provided but batch size mismatch then update global batch size
           batch_size = input_dims[0];
         }
       }
@@ -180,7 +178,51 @@ namespace cms::Ort {
       run_output_node_names.push_back(n.c_str());
     }
 
-    // Prepare output buffers and Ort::Value tensors that write directly into them
+    // Decide whether we can use the preallocated output path.
+    // - If caller provided output_shapes => always preallocated.
+    // - Otherwise => preallocated only if ALL outputs have no dynamic dims except batch.
+    bool need_fallback_allocation = false;
+    if (output_shapes.empty()) {
+      for (const auto& out_name : resolved_output_names) {
+        std::vector<int64_t> out_dims = getOutputShape(out_name);
+        if (!out_dims.empty() && out_dims[0] == -1) {
+          out_dims[0] = batch_size;
+        }
+        if (hasDynamicDimsExceptBatch(out_dims)) {
+          need_fallback_allocation = true;
+          break;
+        }
+      }
+    }
+
+    if (need_fallback_allocation) {
+      // Fallback: let ORT allocate outputs, then copy into output_values (capacity reused across events).
+      auto ort_outputs = session_->Run(RunOptions{nullptr},
+                                       input_node_names_.data(),
+                                       input_tensors.data(),
+                                       input_tensors.size(),
+                                       run_output_node_names.data(),
+                                       run_output_node_names.size());
+
+      output_values.resize(ort_outputs.size());
+
+      for (size_t i = 0; i < ort_outputs.size(); ++i) {
+        auto& out_tensor = ort_outputs[i];
+        assert(out_tensor.IsTensor());
+
+        auto tensor_info = out_tensor.GetTensorTypeAndShapeInfo();
+        const size_t length = static_cast<size_t>(tensor_info.GetElementCount());
+
+        const float* data = out_tensor.GetTensorData<float>();
+
+        auto& out_buf = output_values[i];
+        out_buf.resize(length);
+        std::copy(data, data + length, out_buf.begin());
+      }
+      return;
+    }
+
+    // Preallocated path (output_shapes provided, or outputs are statically known except batch)
     output_values.resize(resolved_output_names.size());
 
     std::vector<Value> output_tensors;
@@ -197,7 +239,7 @@ namespace cms::Ort {
         if (!out_dims.empty() && out_dims[0] == -1) {
           out_dims[0] = batch_size;
         }
-        ensureNoDynamicDimsExceptBatch(out_dims, out_name);
+        // safe here because need_fallback_allocation == false
       }
 
       const int64_t out_len = numel(out_dims);
@@ -217,7 +259,6 @@ namespace cms::Ort {
       output_tensors.emplace_back(std::move(out_tensor));
     }
 
-    // Run inference writing directly into output_tensors
     session_->Run(RunOptions{nullptr},
                   input_node_names_.data(),
                   input_tensors.data(),
