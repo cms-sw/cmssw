@@ -255,7 +255,7 @@ class SyncValues(object):
             return self.lumiFor(index)
         if transition == Phase.getNextTransition:
             return ()
-        if transition == Phase.writeProcessBlock:
+        if transition == Phase.writeProcessBlock or transition == Phase.beginProcessBlock or transition == Phase.endProcessBlock or transition == Phase.accessProcessBlock:
             return ()
         if transition == Phase.beginStream:
             self.setStream(index, 0,0,0)
