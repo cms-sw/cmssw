@@ -9,7 +9,6 @@
 #include <memory>
 
 // test line
-// new line
 namespace edm {
 
   class IntSource : public ProducerSourceBase {
