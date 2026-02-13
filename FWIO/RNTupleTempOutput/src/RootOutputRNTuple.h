@@ -87,6 +87,7 @@ namespace edm {
     std::string name_;
     std::unique_ptr<ROOT::RNTupleModel> model_;
     edm::propagate_const<std::unique_ptr<ROOT::RNTupleWriter>> writer_;
+    std::unique_ptr<ROOT::REntry> entry_;
 
     std::vector<ROOT::RFieldToken> producedBranches_;
     std::vector<void**> producedBranchPointers_;
