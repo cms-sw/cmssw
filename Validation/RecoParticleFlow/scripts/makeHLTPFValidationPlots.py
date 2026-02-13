@@ -107,12 +107,12 @@ class InputArgs:
     normalize: bool = False
 
 class Plotter:
-    def __init__(self, label, fontsize=18, grid_color='grey'):
+    def __init__(self, label, fontsize=18, era='Phase2', grid_color='grey'):
         self._fig, self._ax = plt.subplots(figsize=(10, 10))
         self.fontsize = fontsize
         
-        if args.era == 'Phase2': era='Phase-2'; en='14'
-        elif args.era == 'Run3': era='Run-3'; en='13.6'
+        if era == 'Phase2': era='Phase-2'; en='14'
+        elif era == 'Run3': era='Run-3'; en='13.6'
         hep.cms.text(f' {era} Simulation Preliminary', ax=self._ax, fontsize=fontsize)
         hep.cms.lumitext(label + f" | {en} TeV", ax=self._ax, fontsize=fontsize)
         if grid_color:
@@ -176,7 +176,7 @@ class Plotter:
             plt.savefig(name + '.' + ext)
         plt.close()
 
-def plotProject(h, props, rebin_edges, outname):
+def plotProject(h, sample_label, era, props, rebin_edges, outname):
     """
     Project and plot slices of a 2D histogram.
     """
@@ -184,7 +184,7 @@ def plotProject(h, props, rebin_edges, outname):
 
     valuesList, errorsList = [], []
     fit_params = {} if props.fit else None
-    plotter = Plotter(args.sample_label, grid_color=None)
+    plotter = Plotter(sample_label, grid_color=None, era=era)
 
     for ibin, (low, high) in enumerate(zip(rebin_edges[:-1],rebin_edges[1:])):
         hproj = h.ProjectionY(h.GetName() + "_proj" + str(ibin),
@@ -225,17 +225,17 @@ def plotProject(h, props, rebin_edges, outname):
     plotter.save(outname)
     return fit_params
 
-def plotOverlay(subdirs, cached_histos, name, props, outdir):
+def plotOverlay(subdirs, cached_histos, name, match_by_score, sample_label, era, props, outdir):
     """
     Plots 1D distributions, overlaying plots with identical names in different 'subdirs'.
     """
     colors_iter = iter(colorblind_palette)
     
     pattern = r"Score(\d+)p(\d+)"
-    matching = "score" if args.match_by_score else "shared energy fraction"
+    matching = "score" if match_by_score else "shared energy fraction"
     replacement = lambda m: f"{matching} = {m.group(1)}.{m.group(2)}"
     
-    plotter = Plotter(args.sample_label, grid_color=None)
+    plotter = Plotter(sample_label, grid_color=None, era=era)
     for sub in subdirs:
         root_hist = cached_histos[f"{sub}/{name}"]
 
@@ -280,16 +280,16 @@ def plotOverlay(subdirs, cached_histos, name, props, outdir):
     plt.tight_layout()
     plotter.save( os.path.join(outdir, name) )
 
-def plotOverlayRatio(subdirs, cached_histos, num, den, props, outdir):
+def plotOverlayRatio(subdirs, cached_histos, num, den, match_by_score, sample_label, era, props, outdir):
     """
     Plots 1D distributions of numerator / denominator.
     """
     colors_iter = iter(colorblind_palette)
     pattern = r"Score(\d+)p(\d+)"
-    matching = "score" if args.match_by_score else "shared energy fraction"
+    matching = "score" if match_by_score else "shared energy fraction"
     replacement = lambda m: f"{matching} = {m.group(1)}.{m.group(2)}"
     
-    plotter = Plotter(args.sample_label, grid_color=None)
+    plotter = Plotter(sample_label, grid_color=None, era=era)
     for sub in subdirs:
         hist_num = cached_histos[f"{sub}/{num}"]
         hist_den = cached_histos[f"{sub}/{den}"]
@@ -336,11 +336,11 @@ def plotOverlayRatio(subdirs, cached_histos, num, den, props, outdir):
     plt.tight_layout()
     plotter.save( os.path.join(outdir, props.name) )
 
-def plotEffComp1D(cached_histos, title, vars1d, outdir, text, top_text=False, suffix=''):
+def plotEffComp1D(cached_histos, title, vars1d, outdir, text, sample_label, era, top_text=False, suffix=''):
     """
     Plots 1D distributions.
     """
-    plotter = Plotter(args.sample_label, grid_color=None)
+    plotter = Plotter(sample_label, grid_color=None, era=era)
     ax2 = plotter.ax.twinx()
     eff_color = '#bd1f01'
     
@@ -412,6 +412,7 @@ def plotEffComp1D(cached_histos, title, vars1d, outdir, text, top_text=False, su
         errorsList.append(errors)
 
     plotter.limits_with_margin(valuesList, errorsList, logY=logy)
+    #plotter.limits(x=(-9,109), y=(10E-5, 10E4), logY=logy)
     plotter.labels(x=xlabel, y=ylabel, legend_title='')
 
     plotter.ax.text(0.03, 0.97, text, transform=plotter.ax.transAxes, fontsize=fontsize,
@@ -429,12 +430,12 @@ def plotEffComp1D(cached_histos, title, vars1d, outdir, text, top_text=False, su
     plt.tight_layout()
     plotter.save( os.path.join(outdir, title) )
 
-def plot2D(h, props, outname):
+def plot2D(h, sample_label, era, props, outname):
     """
     Plot with mplhep's hist2d (preserves ROOT bin edges, color bar included)
     empty bins will be invisible (background color).
     """
-    plotter = Plotter(args.sample_label, fontsize=15)
+    plotter = Plotter(sample_label, fontsize=15, era=era)
 
     nbins_x, nbins_y, x_edges, y_edges = define_bins_2D(h)
     values = histo_values_2D(h)
@@ -460,9 +461,9 @@ def plot2D(h, props, outname):
     plt.tight_layout()
     plotter.save(outname)
         
-def plot1D(h, props, outname):
+def plot1D(h, sample_label, era, props, outname):
 
-    plotter = Plotter(args.sample_label, fontsize=15)
+    plotter = Plotter(sample_label, fontsize=15, era=era)
     nbins, bin_edges, bin_centers, bin_widths = define_bins(h)
     values, errors = histo_values_errors(h)
     errors /= 2
@@ -667,7 +668,8 @@ if __name__ == '__main__':
 
         # Compare pairs of variables
         for title, props in varsDict.items():
-            plotEffComp1D(cached_histos, title, vars1d=props, outdir=args.odir, text='', suffix=f'')
+            plotEffComp1D(cached_histos, title, vars1d=props, outdir=args.odir, text='',
+                          sample_label=args.sample_label, era=args.era, suffix=f'')
 
         varsDict = {
             # Cluster fake rate
@@ -675,31 +677,31 @@ if __name__ == '__main__':
                 ratio=f'{subdir}/Fake_vs_En', 
                 den=f'RecoClustersEn', legden='RecoClusters',
                 num=f'{subdir}/RecoClustersMatchedSimClustersEn', legnum='Matched RecoClusters', 
-                xtitle='Energy [GeV]', ytitle=nPFClustersLabel, rebin=4
+                xtitle='Energy [GeV]', ytitle=nPFClustersLabel, rebin=4, logy=True,
             ),
             f'{subdir}/Fake_vs_Pt': InputArgs(
                 ratio=f'{subdir}/Fake_vs_Pt', 
                 den=f'RecoClustersPt', legden='RecoClusters',
                 num=f'{subdir}/RecoClustersMatchedSimClustersPt', legnum='Matched RecoClusters', 
-                xtitle=r'$p_{T}$ [GeV]', ytitle=nPFClustersLabel, rebin=4
+                xtitle=r'$p_{T}$ [GeV]', ytitle=nPFClustersLabel, rebin=4,
             ),
             f'{subdir}/Fake_vs_Eta': InputArgs(
                 ratio=f'{subdir}/Fake_vs_Eta', 
                 den=f'RecoClustersEta', legden='RecoClusters',
                 num=f'{subdir}/RecoClustersMatchedSimClustersEta', legnum='Matched RecoClusters', 
-                xtitle=r'$\eta$', ytitle=nPFClustersLabel
+                xtitle=r'$\eta$', ytitle=nPFClustersLabel,
             ),
             f'{subdir}/Fake_vs_Phi': InputArgs(
                 ratio=f'{subdir}/Fake_vs_Phi', 
                 den=f'RecoClustersPhi', legden='RecoClusters',
                 num=f'{subdir}/RecoClustersMatchedSimClustersPhi', legnum='Matched RecoClusters', 
-                xtitle=r'$\phi$', ytitle=nPFClustersLabel
+                xtitle=r'$\phi$', ytitle=nPFClustersLabel,
             ),
             f'{subdir}/Fake_vs_Mult': InputArgs(
                 ratio=f'{subdir}/Fake_vs_Mult', 
                 den=f'RecoClustersMult', legden='RecoClusters',
                 num=f'{subdir}/RecoClustersMatchedSimClustersMult', legnum='Matched RecoClusters', 
-                xtitle='Multiplicity', ytitle=nPFClustersLabel, rebin=4
+                xtitle='Multiplicity', ytitle=nPFClustersLabel, rebin=4,
             ),
             # Cluster merge rate (WIP)
             f'{subdir}/Merge_vs_En': InputArgs(
@@ -735,7 +737,8 @@ if __name__ == '__main__':
 
         # Compare pairs of variables
         for title, props in varsDict.items():
-            plotEffComp1D(cached_histos, title, vars1d=props, outdir=args.odir, text='', suffix=f'')
+            plotEffComp1D(cached_histos, title, vars1d=props, outdir=args.odir, text='',
+                          sample_label=args.sample_label, era=args.era, suffix=f'')
 
     varsOverlay = {
         "ResponseE_En_Mean"             : InputArgs(ytitle=titles['response'], rebin=(0., 5., 10., 20., 40., 60., 100.),
@@ -774,7 +777,7 @@ if __name__ == '__main__':
         "Merge_vs_Mult"                 : InputArgs(ytitle=titles['merge'], rebin=4, xtitle='Multiplicity'),
         }
     for name, props in varsOverlay.items():
-        plotOverlay(subdirs, cached_histos, name, props, outdir=args.odir)
+        plotOverlay(subdirs, cached_histos, name, args.match_by_score, args.sample_label, args.era, props, outdir=args.odir)
 
     varsResponse = {
         ("ResponseE_En_Sigma", "ResponseE_En_Mean"):
@@ -811,7 +814,7 @@ if __name__ == '__main__':
         ),
     }
     for (num, den), props in varsResponse.items():
-        plotOverlayRatio(subdirs, cached_histos, num, den, props, outdir=args.odir)
+        plotOverlayRatio(subdirs, cached_histos, num, den, args.match_by_score, args.sample_label, args.era, props, outdir=args.odir)
 
     vars2DProjection = {
         **{f'{subdir}/ResponseE_En':
@@ -837,7 +840,8 @@ if __name__ == '__main__':
         **{f'{subdir}/ResponseE_Eta':
            InputArgs(
                xtitle=titles['response'], ytitle='# Clusters', var=r'$\eta$',
-               rebin=(-1.5, -1.3, -1., -0.75, -0.5, -0.25, 0., 0.25, 0.5, 0.75, 1., 1.3, 1.5)
+               # rebin=(-1.5, -1.3, -1., -0.75, -0.5, -0.25, 0., 0.25, 0.5, 0.75, 1., 1.3, 1.5)
+               rebin=(-1.5, -0.75, 0., 0.75, 1.5)
            ) for subdir in subdirs},
         **{f'{subdir}/ResponseE_Phi':
            InputArgs(
@@ -858,7 +862,8 @@ if __name__ == '__main__':
 
     for name, props in vars2DProjection.items():
         root_hist = cached_histos[f"{name}"]
-        fitpars = plotProject(root_hist, props, rebin_edges=props.rebin, outname=os.path.join(args.odir, name + '_Projected'))
+        fitpars = plotProject(root_hist, args.sample_label, args.era, props, rebin_edges=props.rebin,
+                              outname=os.path.join(args.odir, name + '_Projected'))
 
         if props.fit:
             n_bins = len(fitpars)
@@ -880,12 +885,20 @@ if __name__ == '__main__':
         if props.fit:
             props.xtitle = 'Energy [GeV]'
             props.ytitle = 'Response'
-            plotOverlay(subdirs, cached_histos, fitstr.format('Mean'), props, outdir=args.odir)
+            plotOverlay(subdirs, cached_histos, fitstr.format('Mean'), args.match_by_score, args.sample_label, args.era, props, outdir=args.odir)
             props.ytitle = 'Resolution'
-            plotOverlay(subdirs, cached_histos, fitstr.format('Width'), props, outdir=args.odir)
+            plotOverlay(subdirs, cached_histos, fitstr.format('Width'), args.match_by_score, args.sample_label, args.era, props, outdir=args.odir)
 
     vars2D = {
-        'SimClustersEnFrac_Mult': dict(ytitle='Multiplicity', var='# Clusters', xtitle='Energy Fraction'),
+        'SimClustersEnFrac_Mult': dict(ytitle='Multiplicity', var='# Sim Clusters', xtitle='Energy Fraction'),
+        'SimClustersEn_Mult': dict(ytitle='Multiplicity', var='# Sim Clusters', xtitle='Energy [GeV]'),
+        'SimClustersEn_Eta': dict(ytitle=r'$\eta$', var='# Sim Clusters', xtitle='Energy [GeV]'),
+        'SimClustersEn_Phi': dict(ytitle=r'$\phi$', var='# Sim Clusters', xtitle='Energy [GeV]'),
+        'SimClustersMult_Eta': dict(xtitle='Multiplicity', var='# Sim Clusters', ytitle=r'$\eta$'),
+        'RecoClustersEn_Mult': dict(ytitle='Multiplicity', var='# Reco Clusters', xtitle='Energy [GeV]'),
+        'RecoClustersEn_Eta': dict(ytitle=r'$\eta$', var='# Reco Clusters', xtitle='Energy [GeV]', logz=True),
+        'RecoClustersEn_Phi': dict(ytitle=r'$\phi$', var='# Reco Clusters', xtitle='Energy [GeV]', logz=True),
+        'RecoClustersMult_Eta': dict(xtitle='Multiplicity', var='# Reco Clusters', ytitle=r'$\eta$'),
         'simToRecoScore_En': dict(ytitle='SimCluster Energy [GeV]', var='# Clusters', xtitle='SimToReco Score'),
         'simToRecoScore_EnFrac': dict(ytitle='Energy Fraction', var='# Clusters', xtitle='SimToReco Score'),
         'simToRecoScore_EnSimTrack': dict(ytitle='SimTrack Energy [GeV]', var='# Clusters', xtitle='SimToReco Score'),
@@ -897,9 +910,14 @@ if __name__ == '__main__':
         'simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# Clusters', xtitle='SimToReco Shared Energy Fraction', logz=True),
     }
 
+    vars2D.update({
+        **{f'{subdir}/ResponseE_Eta': dict(ytitle=titles['response'], var='# Clusters', xtitle=r'$\eta$') for subdir in subdirs},
+        **{f'{subdir}/ResponseE_Phi': dict(ytitle=titles['response'], var='# Clusters', xtitle=r'$\phi$') for subdir in subdirs},
+    })
+
     for name, props in vars2D.items():
         root_hist = cached_histos[f"{name}"]
-        plot2D(root_hist, props, outname=os.path.join(args.odir, name))
+        plot2D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
 
     vars1D = {
         'simToRecoShEnF': dict(xtitle='SimToReco Shared Energy Fraction', ytitle='# SimClusters', var='SimClusters', logy=False),
@@ -909,7 +927,7 @@ if __name__ == '__main__':
 
     for name, props in vars1D.items():
         root_hist = cached_histos[f"{name}"]
-        plot1D(root_hist, props, outname=os.path.join(args.odir, name))
+        plot1D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
 
     ##################################################################################
     # Temporary hack to access CaloParticle histrograms
@@ -946,7 +964,7 @@ if __name__ == '__main__':
 
     for name, props in vars1D.items():
         root_hist = cached_histos[f"{name}"]
-        plot1D(root_hist, props, outname=os.path.join(args.odir, name))
+        plot1D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
     
     vars2D = {
         'CP_simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# CaloParticles', xtitle='SimToReco Shared Energy Fraction', logz=True),
@@ -954,4 +972,4 @@ if __name__ == '__main__':
 
     for name, props in vars2D.items():
         root_hist = cached_histos[f"{name}"]
-        plot2D(root_hist, props, outname=os.path.join(args.odir, name))
+        plot2D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
