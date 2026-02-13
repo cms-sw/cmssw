@@ -23,14 +23,13 @@
 //   base classes
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
+#include "DataFormats/L1Trigger/interface/L1CandidateFwd.h"
 
 // forward declarations
 class GlobalCondition;
 class CorrelationTemplate;
 
 namespace l1t {
-
-  class L1Candidate;
 
   class GlobalBoard;
 
