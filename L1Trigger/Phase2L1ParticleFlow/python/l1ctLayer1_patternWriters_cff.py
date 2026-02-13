@@ -14,26 +14,28 @@ _barrelWriterOutputOnly = cms.PSet(
     nEgammaObjectsOut = cms.uint32(16),
     nInputFramesPerBX = cms.uint32(9),
     nOutputFramesPerBX = cms.uint32(9),
-    fileFormat = cms.string("EMPv2"),
+    fileFormat = cms.string("APx"),
     inputFileExtension = cms.string("txt.gz"),
     outputFileExtension = cms.string("txt.gz"),
     maxLinesPerInputFile = cms.uint32(1024),
     maxLinesPerOutputFile = cms.uint32(1024),
     eventsPerFile = cms.uint32(_eventsPerFile),
-    tfTimeSlices = cms.VPSet(),
-    gmtTimeSlices = cms.VPSet(),
     gmtNumberOfMuons = cms.uint32(12),
+    gmtLink = cms.int32(-1),
+    gctLinks = cms.vint32(-1),
+    tfLinks = cms.vint32(-1),
     gttLink = cms.int32(-1),
-    gttLatency = cms.uint32(156+10),
+    gttLatency = cms.uint32(167),
     gttNumberOfPVs = cms.uint32(_gttNumberOfPVs),
-    gctEmSectors = cms.VPSet(),
-    gctHadSectors = cms.VPSet(),
     tfNumberOfTracks = cms.uint32(108),
     gctNumberOfObjects = cms.uint32(162),
+    outputRegions = cms.vuint32(*range(54)),
+    outputBoard = cms.int32(0),
 )
 ## Barrel (54) split in 3 phi slices (EMP format)
 barrelWriterOutputOnlyPhiConfigs = [
     _barrelWriterOutputOnly.clone(
+        fileFormat = cms.string("EMPv2"),
         tmuxFactor = cms.uint32(6),
         outputRegions = cms.vuint32(*[3*ip+9*ie+i for ie in range(6) for i in range(3) ]),
         outputBoard = cms.int32(ip),
@@ -41,50 +43,7 @@ barrelWriterOutputOnlyPhiConfigs = [
     ) for ip in range(3)
 ]
 
-def _sortApxRegions(etaPhiSortedRegions):
-    """Returns the APx output order for a tuple/list of regions (ints)
-    """
-    apxOrder = (0, 4, 2, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 1, 17, 3)
-    if len(etaPhiSortedRegions) != len(apxOrder):
-        raise RuntimeError(f"Unexptected number of regions passed: {len(etaPhiSortedRegions)}")
-    return [etaPhiSortedRegions[apxOrder[i]] for i in range(len(apxOrder))]
-
-## Barrel (54) split in 3 phi slices (APx format)
-barrelWriterOutputOnlyPhiConfigsAPx = [
-    _barrelWriterOutputOnly.clone(
-        fileFormat = cms.string("APx"),
-        outputRegions = cms.vuint32(*_sortApxRegions([3*ip+9*ie+i for ie in range(6) for i in range(3) ])),
-        outputBoard = cms.int32(ip),
-        outputFileName = cms.string("l1BarrelApxPhi%d-outputs" % (ip+1))
-    ) for ip in range(3)
-]
-
-barrelWriterDebugPFInConfigsAPx = [
-    _barrelWriterOutputOnly.clone(
-        fileFormat = cms.string("APx"),
-        outputRegions = cms.vuint32(*_sortApxRegions([3*ip+9*ie+i for ie in range(6) for i in range(3) ])),
-        outputBoard = cms.int32(ip),
-        nPFInTrack = cms.uint32(22),
-        nPFInEmCalo = cms.uint32(12),
-        nPFInHadCalo = cms.uint32(15),
-        nPFInMuon = cms.uint32(2),
-        debugFileName = cms.string("l1BarrelApxPhi%d-pfin" % (ip+1))
-    ) for ip in range(3)
-]
-
-barrelWriterDebugPFOutConfigsAPx = [
-    _barrelWriterOutputOnly.clone(
-        fileFormat = cms.string("APx"),
-        outputRegions = cms.vuint32(*_sortApxRegions([3*ip+9*ie+i for ie in range(6) for i in range(3) ])),
-        outputBoard = cms.int32(ip),
-        nPFOutCharged = cms.uint32(22),
-        nPFOutPhoton = cms.uint32(12),
-        nPFOutNeutral = cms.uint32(15),
-        nPFOutMuon = cms.uint32(2),
-        debugFileName = cms.string("l1BarrelApxPhi%d-pfout" % (ip+1))
-    ) for ip in range(3)
-]
-
+# I do not think these work any more, particularly for the gct
 barrelSerenityPhi1Config = barrelWriterOutputOnlyPhiConfigs[0].clone(
     tfTimeSlices = cms.VPSet(*[cms.PSet(tfSectors = cms.VPSet(*[ cms.PSet(tfLink = cms.int32(-1)) for s in range(18) ])) for t in range(3)]),
     gctEmSectors = cms.VPSet(*[ cms.PSet(gctEmLink = cms.int32(-1)) for s in range(12) ]),
@@ -102,62 +61,8 @@ barrelSerenityVU13PPhi1Config = barrelSerenityPhi1Config.clone(
     inputFileName = cms.string("l1BarrelPhi1Serenity-inputs-vu13p"),
 )
 
-# This includes muon and GTT sector mapping. There is only one GTT fiber, with a logical firmware link of 123.
-# The muons, being TM18, have three time slices, to map the emulated data to logical firmware links of 10, 48, and 107
-# Only placeholders are entered for the GCT and TF link numbers here, which are filled in the loops below
-barrelApxWriterConfig = [
-    _barrelWriterOutputOnly.clone(
-        fileFormat = cms.string("APx"),
-        gttLink = cms.int32(123),
-        gmtTimeSlices = cms.VPSet(*[cms.PSet(gmtLink = cms.int32(38*t+10)) for t in range(3)]),
-        gctEmSectors = cms.VPSet(*[ cms.PSet(gctEmLink = cms.int32(-1)) for s in range(12) ]),
-        gctHadSectors = cms.VPSet(*[ cms.PSet(gctHadLink = cms.int32(-1)) for s in range(12) ]),
-        inputFileName = cms.string("l1BarrelApxPhi%d-inputs" % (ip+1)),
-        tfTimeSlices = cms.VPSet(*[cms.PSet(tfSectors = cms.VPSet(*[ cms.PSet(tfLink = cms.int32(-1)) for s in range(18) ])) for t in range(3)]),
-    ) for ip in range(3)
-]
-
-# Set GCT link numbers. 115-122 are the logical fiber numbers in the firmware.
-# This maps the emulated sector indices to the firmware logical numbers
-# Note, since both the GCT and CL1 are TM6 in this case, there are no time slices
-for iBigRegion, ilink in enumerate((0, 1, 2)):
-    barrelApxWriterConfig[iBigRegion].gctEmSectors[ilink].gctEmLink = 119
-    barrelApxWriterConfig[iBigRegion].gctEmSectors[ilink+6].gctEmLink = 120
-    barrelApxWriterConfig[iBigRegion].gctEmSectors[ilink+3].gctEmLink = 121
-    barrelApxWriterConfig[iBigRegion].gctEmSectors[ilink+9].gctEmLink = 122
-    barrelApxWriterConfig[iBigRegion].gctHadSectors[ilink].gctHadLink = 115
-    barrelApxWriterConfig[iBigRegion].gctHadSectors[ilink+6].gctHadLink = 116
-    barrelApxWriterConfig[iBigRegion].gctHadSectors[ilink+3].gctHadLink = 117
-    barrelApxWriterConfig[iBigRegion].gctHadSectors[ilink+9].gctHadLink = 118
-
-# Set tracking link numbers. The tracks are logically 0-9, 38-47, and 76-85 for TM groups 0, 1, and 2 in the firmware
-# This maps the emulated sector indices to the firmware logical numbers
-for timeSlice in range(3):
-    for iBigRegion, ilink in enumerate((8, 2, 5)):
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[ilink].tfLink = 0 + timeSlice * 38
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[(ilink+1)%9].tfLink = 1 + timeSlice * 38
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[(ilink+2)%9].tfLink = 2 + timeSlice * 38
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[(ilink+3)%9].tfLink = 3 + timeSlice * 38
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[(ilink+4)%9].tfLink = 4 + timeSlice * 38
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + ilink].tfLink = 5 + timeSlice * 38
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + (ilink+1)%9].tfLink = 6 + timeSlice * 38
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + (ilink+2)%9].tfLink = 7 + timeSlice * 38
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + (ilink+3)%9].tfLink = 8 + timeSlice * 38
-        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + (ilink+4)%9].tfLink = 9 + timeSlice * 38
-
-# Similar mapping for the barrel Serenity setup
-for t in range(3):
-   for ie in range(2):
-    for i,s in enumerate([8, 0, 1, 2, 3]):
-        loglink = 3*(i+5*ie)+t
-        physlink = loglink+4*1 if loglink < 15 else (loglink-15)+4*25
-        barrelSerenityVU9PPhi1Config.tfTimeSlices[t].tfSectors[s+9*ie].tfLink = physlink
-        physlink = loglink+4*0 if loglink < 15 else (loglink-15)+4*28
-        barrelSerenityVU13PPhi1Config.tfTimeSlices[t].tfSectors[s+9*ie].tfLink = physlink
 
 barrelWriterConfigs =  barrelWriterOutputOnlyPhiConfigs
-barrelOutputWriterConfigsAPx =  barrelWriterOutputOnlyPhiConfigsAPx
-barrelInputWriterConfigsAPx =  barrelApxWriterConfig
 
 #####################################################################################################################
 ## HGcal configuration: write out both inputs and outputs
@@ -290,10 +195,9 @@ hgcalNoTKWriterConfigs = [
 #####################################################################################################################
 ## TM18 configuration
 _barrelSerenityTM18 = _barrelWriterOutputOnly.clone(
+    fileFormat = cms.string("EMPv2"),
     tmuxFactor = cms.uint32(18),
-    tfTimeSlices = None,
     tfSectors = cms.VPSet(*[cms.PSet(tfLink = cms.int32(-1)) for i in range(18)]),
-    gmtTimeSlices = None,
     gmtLink = cms.int32(4*18+0),
     gttLink = 4*28+3,
     eventsPerFile = 4,
@@ -320,6 +224,43 @@ barrelSerenityTM18WriterConfigs = [
     barrelSerenityOutputTM18WriterConfig,
     barrelSerenityVU13PTM18WriterConfig
 ]
+
+## Barrel (54) TM18 (APx format)
+barrelWriterOutputOnlyPhiConfigsAPx = _barrelWriterOutputOnly.clone(
+    fileFormat = cms.string("APx"),
+    outputFileName = cms.string("l1BarrelApx-outputs")
+)
+
+barrelWriterDebugPFInConfigsAPx = _barrelWriterOutputOnly.clone(
+    fileFormat = cms.string("APx"),
+    nPFInTrack = cms.uint32(22),
+    nPFInEmCalo = cms.uint32(12),
+    nPFInHadCalo = cms.uint32(15),
+    nPFInMuon = cms.uint32(2),
+    debugFileName = cms.string("l1BarrelApx-pfin")
+)
+
+barrelWriterDebugPFOutConfigsAPx = _barrelWriterOutputOnly.clone(
+    fileFormat = cms.string("APx"),
+    nPFOutCharged = cms.uint32(22),
+    nPFOutPhoton = cms.uint32(12),
+    nPFOutNeutral = cms.uint32(15),
+    nPFOutMuon = cms.uint32(2),
+    debugFileName = cms.string("l1BarrelApx-pfout")
+)
+
+# This includes the tracker, GCT, muon and GTT sector mapping. There is only one GTT fiber, with a logical firmware link of 123.
+barrelApxWriterConfig = _barrelWriterOutputOnly.clone(
+    fileFormat = cms.string("APx"),
+    gttLink = cms.int32(123),
+    gmtLink = cms.int32(21),
+    gctLinks = cms.vint32(18, 19, 20),
+    tfLinks = cms.vint32(*range(18)),
+    inputFileName = cms.string("l1BarrelApx-inputs")
+)
+
+barrelOutputWriterConfigsAPx =  barrelWriterOutputOnlyPhiConfigsAPx
+barrelInputWriterConfigsAPx =  barrelApxWriterConfig
 
 _hgcalWriterTM18 = _hgcalWriterConfig.clone(
     tmuxFactor = cms.uint32(18),
