@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!--
+============= XML GENERATION METADATA HEADER =============
+tkLayout revision: xmls_dd4hep-3445-70dcfbb
+tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
+Gabrielle (ghugo on localhost.localdomain) responsible for cross-check of the automatically-generated description below.
+generation date: 2021-02-08.11:54:56
+note: see OT800_IT615_2021_02_08.cfg for full config files
+enlarged the Tracker volume so that it touches CALO and BeamPipe
+=========== END XML GENERATION METADATA HEADER ===========
+-->
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<ConstantsSection label="tracker.xml" eval="true">
+<Constant name="BackPlaneDz" value="0.015*mm"/>
+<Constant name="TrackerMaximumZ" value="2935*mm"/>
+<Constant name="TrackerMinimumZ" value="-[TrackerMaximumZ]"/>
+<!--<Constant name="TrackerInnermostRadius" value="25*mm"/>-->
+<Constant name="TrackerInnermostRadius" value="0*mm"/>
+<Constant name="TrackerOutermostRadius" value="1233*mm"/>
+<!--<Constant name="TrackerOutermostRadius" value="122.15*cm"/> -->
+</ConstantsSection>
+<RotationSection label="tracker.xml">
+<Rotation name="OUTERTRACKERRODTOFLIPPEDMODULE" thetaX="90*deg" phiX="270*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="180*deg"/>
+<Rotation name="OUTERTRACKERRODTOMODULE" thetaX="90*deg" phiX="90*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="0*deg"/>
+<Rotation name="Y180" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>
+</RotationSection>
+<LogicalPartSection label="tracker.xml">
+<LogicalPart name="Tracker" category="unspecified">
+<rSolid name="tracker:Tracker"/>
+<rMaterial name="materials:Air"/>
+</LogicalPart>
+</LogicalPartSection>
+<SolidSection label="tracker.xml">
+<!-- 
+     Tracker volume contains Inner Tracker + Outer Tracker + (BTL) + OTST.
+     (BTL) is in parentheses as it is not included in all geometry scenarios.
+     See Configuration/Geometry/README.md for more details.
+-->
+<Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg">
+  <ZSection z="[tracker:TrackerMinimumZ]" rMin="[tracker:TrackerInnermostRadius]" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="[tracker:TrackerMaximumZ]" rMin="[tracker:TrackerInnermostRadius]" rMax="[tracker:TrackerOutermostRadius]"/>
+</Polycone>
+  <!-- TEMPORARY!! Should not be defined automatically
+         <ZSection z="-291.0*cm" rMin="110.0*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="-276.9*cm" rMin="110.0*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="-276.9*cm" rMin="6.23*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="-150.0*cm" rMin="6.23*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="-150.0*cm" rMin="2.8*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="-22.70*cm" rMin="2.8*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="-22.70*cm" rMin="2.6*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="22.70*cm" rMin="2.6*cm" rMax="[tracker:TrackerOutermostRadius]"/> 
+  <ZSection z="22.70*cm" rMin="2.8*cm" rMax="[tracker:TrackerOutermostRadius]"/> 
+  <ZSection z="150.0*cm" rMin="2.8*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="150.0*cm" rMin="6.23*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="276.9*cm" rMin="6.23*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="276.9*cm" rMin="110.0*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+  <ZSection z="291.0*cm" rMin="110.0*cm" rMax="[tracker:TrackerOutermostRadius]"/>
+-->
+</SolidSection>
+</DDDefinition>
