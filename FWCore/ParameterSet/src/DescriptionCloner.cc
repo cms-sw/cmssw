@@ -109,7 +109,7 @@ namespace edm {
     class NoneDescriptionNode : public edm::ParameterDescriptionNode {
     public:
       explicit NoneDescriptionNode(std::string iLabel) : label_(std::move(iLabel)) {}
-      ~NoneDescriptionNode() final = default;
+      ~NoneDescriptionNode() = default;
 
       ParameterDescriptionNode* clone() const final { return new NoneDescriptionNode(label_); }
 
