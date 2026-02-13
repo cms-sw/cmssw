@@ -77,6 +77,13 @@
   <use name="DataFormats/Portable"/>
 </bin>
 
+<bin file="SoAStreamInternal_t.cc" name="SoAStreamInternal_t">
+  <use name="boost"/>
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/SoATemplate"/>
+</bin>
+
 <!-- This test triggers a bug in ROOT, so it's kept disabled
 <bin file="SoAStreamer_t.cpp" name="SoAStreamer_t">
   <use name="root"/>

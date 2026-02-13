@@ -13,9 +13,11 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
+using namespace Catch::Matchers;
 
 using Vector5f = Eigen::Matrix<float, 5, 1>;
 using Vector15f = Eigen::Matrix<float, 15, 1>;
+using Matrix6x4d = Eigen::Matrix<double, 6, 4>;
 
 GENERATE_SOA_LAYOUT(SoATemplate,
                     SOA_COLUMN(float, quality),
@@ -25,6 +27,7 @@ GENERATE_SOA_LAYOUT(SoATemplate,
                     SOA_COLUMN(float, pt),
                     SOA_EIGEN_COLUMN(Vector5f, state),
                     SOA_EIGEN_COLUMN(Vector15f, covariance),
+                    SOA_EIGEN_COLUMN(Matrix6x4d, matrix),
                     SOA_SCALAR(int, nTracks),
                     SOA_COLUMN(uint32_t, hitOffsets))
 
@@ -81,19 +84,21 @@ TEST_CASE("test merge soa alpaka", "[SoAMerge][Alpaka]") {
       h_view1[i].pt() = static_cast<float>(5);
       h_view1[i].state().setConstant(6.f);
       h_view1[i].covariance().setConstant(7.f);
+      h_view1[i].matrix().setConstant(8.0);
       h_view1[i].hitOffsets() = static_cast<uint32_t>(9);
     }
     h_view1.nTracks() = 8;
 
     for (int i = 0; i < hostCollection2.size(); i++) {
-      h_view2[i].quality() = static_cast<float>(10);
-      h_view2[i].chi2() = static_cast<float>(11);
-      h_view2[i].nLayers() = static_cast<int8_t>(12);
-      h_view2[i].eta() = static_cast<float>(13);
-      h_view2[i].pt() = static_cast<float>(14);
-      h_view2[i].state().setConstant(15.f);
-      h_view2[i].covariance().setConstant(16.f);
-      h_view2[i].hitOffsets() = static_cast<uint32_t>(18);
+      h_view2[i].quality() = static_cast<float>(11);
+      h_view2[i].chi2() = static_cast<float>(12);
+      h_view2[i].nLayers() = static_cast<int8_t>(13);
+      h_view2[i].eta() = static_cast<float>(14);
+      h_view2[i].pt() = static_cast<float>(15);
+      h_view2[i].state().setConstant(16.f);
+      h_view2[i].covariance().setConstant(17.f);
+      h_view2[i].matrix().setConstant(18.0);
+      h_view2[i].hitOffsets() = static_cast<uint32_t>(19);
     }
     h_view2.nTracks() = 17;
 
@@ -132,13 +137,13 @@ TEST_CASE("test merge soa alpaka", "[SoAMerge][Alpaka]") {
                             inCol2.data());
       } else if constexpr (std::get<columnIndex>(outDesc.columnTypes) == cms::soa::SoAColumnType::eigen) {
         using EigenType = std::tuple_element_t<columnIndex, decltype(outDesc.parameterTypes)>::ValueType;
-        constexpr int num_rows = EigenType::RowsAtCompileTime;
+        constexpr int nRows = EigenType::RowsAtCompileTime * EigenType::ColsAtCompileTime;
 
-        const auto strideOutput = std::get<1>(std::get<columnIndex>(outDesc.parameterTypes).tupleOrPointer());
-        const auto strideInput1 = std::get<1>(std::get<columnIndex>(inDesc1.parameterTypes).tupleOrPointer());
-        const auto strideInput2 = std::get<1>(std::get<columnIndex>(inDesc2.parameterTypes).tupleOrPointer());
+        const auto strideOutput = std::get<columnIndex>(outDesc.parameterTypes).stride();
+        const auto strideInput1 = std::get<columnIndex>(inDesc1.parameterTypes).stride();
+        const auto strideInput2 = std::get<columnIndex>(inDesc2.parameterTypes).stride();
 
-        for (int i = 0; i < num_rows; ++i) {
+        for (int i = 0; i < nRows; ++i) {
           const auto offsetOutput = i * strideOutput;
           const auto offsetIn1 = i * strideInput1;
           const auto offsetIn2 = i * strideInput2;
@@ -173,23 +178,23 @@ TEST_CASE("test merge soa alpaka", "[SoAMerge][Alpaka]") {
 
     for (int i = 0; i < nTk1 + nTk2; i++) {
       if (i < nTk1) {
-        REQUIRE(h_viewOut[i].quality() == Catch::Approx(1.0f));
-        REQUIRE(h_viewOut[i].chi2() == Catch::Approx(2.0f));
-        REQUIRE(h_viewOut[i].nLayers() == 3);
-        REQUIRE(h_viewOut[i].eta() == Catch::Approx(4.0f));
-        REQUIRE(h_viewOut[i].pt() == Catch::Approx(5.0f));
-        REQUIRE(h_viewOut[i].state() == Vector5f(6.f, 6.f, 6.f, 6.f, 6.f));
-        REQUIRE(h_viewOut[i].covariance() ==
-                Vector15f(7.f, 7.f, 7.f, 7.f, 7.f, 7.f, 7.f, 7.f, 7.f, 7.f, 7.f, 7.f, 7.f, 7.f, 7.f));
+        REQUIRE_THAT(h_viewOut[i].quality(), WithinRel(h_view1[i].quality()));
+        REQUIRE_THAT(h_viewOut[i].chi2(), WithinRel(h_view1[i].chi2()));
+        REQUIRE(h_viewOut[i].nLayers() == h_view1[i].nLayers());
+        REQUIRE_THAT(h_viewOut[i].eta(), WithinRel(h_view1[i].eta()));
+        REQUIRE_THAT(h_viewOut[i].pt(), WithinRel(h_view1[i].pt()));
+        REQUIRE(h_viewOut[i].state().isApprox(h_view1[i].state()));
+        REQUIRE(h_viewOut[i].covariance().isApprox(h_view1[i].covariance()));
+        REQUIRE(h_viewOut[i].matrix().isApprox(h_view1[i].matrix()));
       } else {
-        REQUIRE(h_viewOut[i].quality() == Catch::Approx(10.0f));
-        REQUIRE(h_viewOut[i].chi2() == Catch::Approx(11.0f));
-        REQUIRE(h_viewOut[i].nLayers() == 12);
-        REQUIRE(h_viewOut[i].eta() == Catch::Approx(13.0f));
-        REQUIRE(h_viewOut[i].pt() == Catch::Approx(14.0f));
-        REQUIRE(h_viewOut[i].state() == Vector5f(15.f, 15.f, 15.f, 15.f, 15.f));
-        REQUIRE(h_viewOut[i].covariance() ==
-                Vector15f(16.f, 16.f, 16.f, 16.f, 16.f, 16.f, 16.f, 16.f, 16.f, 16.f, 16.f, 16.f, 16.f, 16.f, 16.f));
+        REQUIRE_THAT(h_viewOut[i].quality(), WithinRel(h_view2[i - nTk1].quality()));
+        REQUIRE_THAT(h_viewOut[i].chi2(), WithinRel(h_view2[i - nTk1].chi2()));
+        REQUIRE(h_viewOut[i].nLayers() == h_view2[i - nTk1].nLayers());
+        REQUIRE_THAT(h_viewOut[i].eta(), WithinRel(h_view2[i - nTk1].eta()));
+        REQUIRE_THAT(h_viewOut[i].pt(), WithinRel(h_view2[i - nTk1].pt()));
+        REQUIRE(h_viewOut[i].state().isApprox(h_view2[i - nTk1].state()));
+        REQUIRE(h_viewOut[i].covariance().isApprox(h_view2[i - nTk1].covariance()));
+        REQUIRE(h_viewOut[i].matrix().isApprox(h_view2[i - nTk1].matrix()));
       }
     }
   }
