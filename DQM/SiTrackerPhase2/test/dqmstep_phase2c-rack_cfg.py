@@ -23,25 +23,24 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D500Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 process.load('Configuration.StandardSequences.RecoSim_cff')
-#process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMServices.Core.DQMStoreNonLegacy_cff')
 process.load('DQMOffline.Configuration.DQMOffline_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10),
+    input = cms.untracked.int32(-1),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root'),
+    fileNames = cms.untracked.vstring('file:/eos/user/h/hrejebsf/CRACK/CRACK_MC_260126.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -109,28 +108,21 @@ process.recosim_step = cms.Path(process.recosim)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 ##phase2 OT rechit step
-process.load('RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi')
-process.load('RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi')
-process.rechits_step = cms.Path(process.siPhase2RecHits * process.siPixelRecHits)
+#process.load('RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi')
+#process.load('RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi')
+#process.rechits_step = cms.Path(process.siPhase2RecHits * process.siPixelRecHits)
+
 #DQM modules
-process.load('DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff')
-process.load('DQM.SiTrackerPhase2.Phase2OTMonitorRecHit_cfi')
-
-process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy()*process.Phase2OTMonitorRecHit)
-
-#process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff')
-#process.load('Validation.SiTrackerPhase2V.Phase2OTValidateRecHit_cfi')
-
-#process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy()*process.Phase2OTValidateRecHit)
-
+#process.load('DQM.SiTrackerPhase2.Phase2OTMonitorRecHit_cfi')
+process.load('DQM.SiTrackerPhase2.Phase2CRackDQMFirstStep_cff')
+#process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy()*process.Phase2OTMonitorRecHit)
+process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy())
 process.dqm_step=cms.Path(process.otdqm_seq)
-#process.validation_step=cms.Path(process.otvalid_seq)
 
 
 # Schedule definition
-process.schedule = cms.Schedule(process.rechits_step,
+process.schedule = cms.Schedule(#process.rechits_step,
                                 process.dqm_step,
-                                #process.validation_step,
                                 process.DQMoutput_step
 )
 # customisation of the process.
