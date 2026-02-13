@@ -70,6 +70,26 @@ This service registers a monitor at the end of beginJob (after all modules have 
 
 This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
 
+### PhaseAllocMonitor
+
+This service registers a monitor at the end of service construction, and on a predefined set of other signals that correspond to framework's "phases". Each such signal corresponds to a global synchronization point of the framework. This can be useful to understand how memory is being used in different phases of a job. The monitor reports the following quantities measured during the period from the previous signal to the current signal
+
+| Field | Description |
+|-------|-------------|
+| `requested` | Total amount of bytes requested by all allocation calls since the previous signal |
+| `max alloc` | The largest single memory allocation since the previous signal |
+| `presentActual` | The amount of _used_ memory (i.e. actual size) at the time of the signal |
+| `peak` | The maximum amount of _used_ allocated memory that was in use at one time since the previous signal |
+| `added ` | The amount of _used_ memory added by the allocations and deallocations since the previous signal. Can be negative if memory allocated in earlier phases is deleted in the current phase. |
+| `nAlloc` | Number of calls made to allocation functions since the previous signal |
+| `nDealloc` | Number of calls made to deallocation functions since the previous signal |
+
+
+The service has the following configuration parameters:
+- `showSignals`: names of [`ActivityRegistry`](../../FWCore/ServiceRegistry/interface/ActivityRegistry.h) signals to measure. Empty vector (default) shows for all the predefined signals. For a list of possible values see the [code](plugins/PhaseAllocMonitor.cc).
+
+This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
+
 ### HistogrammingAllocMonitor
 This service registers a monitor when the service is created (after python parsing is finished but before any modules
 have been loaded into cmsRun) and reports its accumulated information when the service is destroyed (services are the
