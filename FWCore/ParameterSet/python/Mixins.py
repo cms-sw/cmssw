@@ -301,6 +301,9 @@ class _Parameterizable(object):
 
         items = d.items() if isinstance(d, dict) else d.parameters_().items()
         for k,v in items:
+            if v is None:
+                delattr(self, k)
+            else:
                 setattr(self, k, v)
 
 
