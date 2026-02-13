@@ -880,6 +880,9 @@ if __name__ == "__main__":
             a.update_(__PSet(a=__TestType(5)))
             self.assertEqual(a.a.value(), 5)
             self.assertRaises(TypeError, lambda: a.update_(dict(c=6)))
+            self.assertTrue(hasattr(a, "a"))
+            a.update_(dict(a=None))
+            self.assertFalse(hasattr(a, "a"))
 
         def testCopy(self):
             class __Test(_TypedParameterizable):
