@@ -20,8 +20,6 @@ ScCaloUnpacker = cms.EDProducer("ScCaloRawToDigi",
   # DMA / TCP mode configs
   dataSource = tcpDataModeParameters,
   # unpack the full set of energy sums
-  enableAllSums = cms.bool(True),
-  # print all objects
-  debug = cms.untracked.bool(False)
+  enableAllSums = cms.bool(True)
 )
 
