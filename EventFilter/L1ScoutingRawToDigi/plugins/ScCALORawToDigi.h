@@ -53,7 +53,6 @@ private:
   std::vector<std::vector<l1ScoutingRun3::Tau>> orbitBufferTaus_;
   std::vector<std::vector<l1ScoutingRun3::BxSums>> orbitBufferEtSums_;
 
-  bool debug_ = false;
   bool enableAllSums_ = false;  // write the full sert of ET sums
   edm::InputTag srcInputTag_;
   edm::EDGetToken rawToken_;
