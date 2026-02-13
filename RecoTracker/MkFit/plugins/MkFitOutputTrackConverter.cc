@@ -109,6 +109,7 @@ private:
                                                                             const edm::OwnVector<TrackingRecHit>& hits,
                                                                             const Propagator& propagatorAlong,
                                                                             const Propagator& propagatorOpposite) const;
+  float ptcorr(const float abstheta, const float pt) const;
 
   const edm::EDGetTokenT<MkFitEventOfHits> eventOfHitsToken_;
   const edm::EDGetTokenT<MkFitClusterIndexToHit> pixelClusterIndexToHitToken_;
@@ -521,8 +522,15 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     auto const& stateAtPCA = tsAtClosestApproachTrackCand.trackStateAtPCA();
     auto v0 = stateAtPCA.position();
     auto p = stateAtPCA.momentum();
+
+    float factor = 1.f;
+    //if calibrate == true
+    const float abstheta = std::fabs(tsosState.globalMomentum().theta() - 1.570796);
+    const float pt = tsosState.globalMomentum().perp();
+    factor = ptcorr(abstheta, pt) / pt;
+
     math::XYZPoint pos(v0.x(), v0.y(), v0.z());
-    math::XYZVector mom(p.x(), p.y(), p.z());
+    math::XYZVector mom(p.x() * factor, p.y() * factor, p.z() * factor);  //can I just multiply p??
 
     int ndof = -5;
     for (auto const& recHit : recHits)
@@ -614,6 +622,38 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputTrackConverter::c
   }
 
   return std::make_pair(tsosDouble.first, det);
+}
+
+float MkFitOutputTrackConverter::ptcorr(const float abstheta, float pt) const {
+  // Representative x positions (bin centers)
+  static const int N = 7;
+  static const float xk[N] = {0.1704, 0.6028, 1.0188, 1.2898, 1.4390, 1.4908, 1.5500};
+
+  // Intercepts a(x)
+  static const float a[N] = {0.0016, 0.0032, 0.0033, 0.0045, 0.0005, 0.0012, 0.0003};
+
+  // Slopes b(x)
+  static const float b[N] = {1.0000, 1.0004, 1.00014, 1.0027, 1.0029, 1.0009, 0.9999};
+
+  // Clamp x to range
+  if (abstheta <= xk[0])
+    return a[0] + b[0] * pt;
+  if (abstheta >= xk[N - 1])
+    return a[N - 1] + b[N - 1] * pt;
+
+  // Find interval
+  for (int i = 0; i < N - 1; ++i) {
+    if (abstheta >= xk[i] && abstheta < xk[i + 1]) {
+      float t = (abstheta - xk[i]) / (xk[i + 1] - xk[i]);
+      float a_interp = a[i] + t * (a[i + 1] - a[i]);
+      float b_interp = b[i] + t * (b[i + 1] - b[i]);
+
+      return a_interp + b_interp * pt;
+    }
+  }
+
+  // Should never reach here
+  return pt;
 }
 
 DEFINE_FWK_MODULE(MkFitOutputTrackConverter);

@@ -102,7 +102,7 @@ namespace mkfit {
       const float p = pt / sT;
       const float pz = p * cT;
       const float p2 = p * p;
-      constexpr float mpi = 0.140;       // m=140 MeV, pion
+      constexpr float mpi = 0.105;       // m=140 MeV, pion, m=105, muon is used in CKF
       constexpr float mpi2 = mpi * mpi;  // m=140 MeV, pion
       const float beta2 = p2 / (p2 + mpi2);
       const float beta = std::sqrt(beta2);
