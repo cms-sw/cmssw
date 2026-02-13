@@ -20,6 +20,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "TLorentzVector.h"
 #include <cassert>
@@ -48,8 +49,10 @@ protected:
   bool isEndCapInner(double eta);
   bool isEndCapOuter(double eta);
   bool isForward(double eta);
+  bool isBPix(double eta, double phi);  // monitor BPix issue
+  bool isFPix(double eta, double phi);  // monitor FPix issue
 
-  bool isMatched(double hltJetEta, double hltJetPhi, double OffJetEta, double OffJetPhi);
+  bool isMatched(double hltJetEta, double hltJetPhi, double OffJetEta, double OffJetPhi, double DRMatched2);
 
   void bookMESub(DQMStore::IBooker&,
                  ObjME* a_me,
@@ -58,16 +61,27 @@ protected:
                  const std::string& h_Title,
                  const std::string& h_subOptName,
                  const std::string& h_subOptTitle,
+                 const bool doEta = true,
+                 const bool doPhi = true,
                  const bool doDirectBalancevsReferencePt = true,
+                 const bool dohltJetEtavshltJetPhi = true,
+                 const bool dohltPhotonEtavsPhi = true,
                  const bool bookDen = false);
 
-  void fillME(ObjME* a_me,
+  template <typename T, size_t N>
+  void fillME(T (&arr)[N],
               const double directbalance_,
               const double Difjetref_,
               const double Assymetry_,
               const double ReferencePt_,
               const double Jetpt_,
-              const bool doDirectBalancevsReferencePt = true);
+              const double Jeteta_,
+              const double Jetphi_,
+              const bool doEta = true,
+              const bool doPhi = true,
+              const bool doDirectBalancevsReferencePt = true,
+              const bool dohltJetEtavshltJetPhi = true,
+              const bool dohltPhotonEtavsPhi = true);
 
 private:
   const std::string folderName_;
@@ -82,8 +96,10 @@ private:
   const std::string moduleName;
   const edm::InputTag jetInputTag_;
   const edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
+  const edm::EDGetTokenT<reco::CaloJetCollection> calojetToken_;
   const edm::EDGetTokenT<reco::JetCorrector> correctorToken_;
 
+  double dr2_cut;
   double muon_pt;
   double muon_eta;
   double pt_cut;
@@ -92,45 +108,61 @@ private:
   double dphi_cut;
   double offline_cut;
   bool isMuonPath_;
+  bool doMatching_;
 
   std::vector<double> directbalance_Binning;
   std::vector<double> TrObjPt_Binning;
   std::vector<double> jetpt_Binning;
   MEbinning DifJetRefPT_Binning{50, -75.0, 75.0};
+  MEbinning Eta_Binning{100, -5.0, 5.0};
+  MEbinning Photon_Eta_Binning{30, -1.5, 1.5};
+  MEbinning Phi_Binning{64, -3.2, 3.2};
 
-  //# of variables: 1. direct balance, 2. difference, 3. asymmetry, 4. hltobjectPt, 5. hltJetPt, 6. directbalanceVShltobjectPt
-  ObjME a_ME[6];
-  ObjME a_ME_HB[6];
-  ObjME a_ME_HE_I[6];
-  ObjME a_ME_HE_O[6];
-  ObjME a_ME_HF[6];
-  ObjME a_ME_HB_lowRefPt[6];
-  ObjME a_ME_HE_I_lowRefPt[6];
-  ObjME a_ME_HE_O_lowRefPt[6];
-  ObjME a_ME_HF_lowRefPt[6];
-  ObjME a_ME_HB_mediumRefPt[6];
-  ObjME a_ME_HE_I_mediumRefPt[6];
-  ObjME a_ME_HE_O_mediumRefPt[6];
-  ObjME a_ME_HF_mediumRefPt[6];
-  ObjME a_ME_HB_highRefPt[6];
-  ObjME a_ME_HE_I_highRefPt[6];
-  ObjME a_ME_HE_O_highRefPt[6];
-  ObjME a_ME_HF_highRefPt[6];
+  // # of variables: 1. direct balance, 2. difference, 3. asymmetry, 4. hltobjectPt, 5. hltJetPt, 6. hltJetEta, 7. hltJetPhi, 8. directbalanceVShltobjectPt, 9. hlt-JetEtaPhi, 10. hlt-PhotonEtaPhi
+  // variable 10. is drawn (set to true) only for γ+Jts,11.-7. TrigRef Pt for Jet Pt cuts: 40, 60, 80, 110, 140, 200, 320 to get emulated efficiency defined only in basic detector categories
+  ObjME a_ME[17];
+  ObjME a_ME_HB[17];
+  ObjME a_ME_HE_I[17];
+  ObjME a_ME_HE_O[17];
+  ObjME a_ME_HF[10];
+  ObjME a_ME_HB_lowRefPt[10];
+  ObjME a_ME_HE_I_lowRefPt[10];
+  ObjME a_ME_HE_O_lowRefPt[10];
+  ObjME a_ME_HF_lowRefPt[10];
+  ObjME a_ME_HB_mediumRefPt[10];
+  ObjME a_ME_HE_I_mediumRefPt[10];
+  ObjME a_ME_HE_O_mediumRefPt[10];
+  ObjME a_ME_HF_mediumRefPt[10];
+  ObjME a_ME_HB_highRefPt[10];
+  ObjME a_ME_HE_I_highRefPt[10];
+  ObjME a_ME_HE_O_highRefPt[10];
+  ObjME a_ME_HF_highRefPt[10];
+  // BPix & FPix
+  ObjME a_ME_BPix[10];
+  ObjME a_ME_FPix[10];
 
   ObjME mZMassME_;
   ObjME DPhiRefJetME_;
+  ObjME PhotonEtaME_;
 
   std::vector<double> v_jetpt;
   std::vector<double> v_jeteta;
   std::vector<double> v_jetphi;
 
+  // trigger object to be used for Jet cleaning
+  std::vector<double> trigobj_eta_cl;
+  std::vector<double> trigobj_phi_cl;
+
   std::vector<double> trigobj_pt;
   std::vector<double> trigobj_eta;
   std::vector<double> trigobj_phi;
 
+  std::vector<int> pts = {40, 60, 80, 110, 140, 200, 320};  // Pt cuts for efficiency
+
   TLorentzVector muon_1;
   TLorentzVector muon_2;
   TLorentzVector Zhltreco;
+
   std::string fullpathName;
 };
 
@@ -143,7 +175,9 @@ ZGammaplusJetsMonitor::ZGammaplusJetsMonitor(const edm::ParameterSet& iConfig)
       moduleName(iConfig.getParameter<std::string>("ModuleName")),
       jetInputTag_(iConfig.getParameter<edm::InputTag>("jets")),
       jetToken_(mayConsume<reco::PFJetCollection>(jetInputTag_)),
+      calojetToken_(mayConsume<reco::CaloJetCollection>(jetInputTag_)),
       correctorToken_(mayConsume<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("corrector"))),
+      dr2_cut(iConfig.getParameter<double>("dr2cut")),
       muon_pt(iConfig.getParameter<double>("muonpt")),
       muon_eta(iConfig.getParameter<double>("muoneta")),
       pt_cut(iConfig.getParameter<double>("ptcut")),
@@ -152,6 +186,7 @@ ZGammaplusJetsMonitor::ZGammaplusJetsMonitor(const edm::ParameterSet& iConfig)
       dphi_cut(iConfig.getParameter<double>("DeltaPhi")),
       offline_cut(iConfig.getParameter<double>("OfflineCut")),
       isMuonPath_(iConfig.getParameter<bool>("isMuonPath")),
+      doMatching_(iConfig.getParameter<bool>("doMatching")),
       directbalance_Binning(iConfig.getParameter<edm::ParameterSet>("histoPSet")
                                 .getParameter<std::vector<double> >("directbalanceBinning")),
       TrObjPt_Binning(
@@ -179,14 +214,40 @@ void ZGammaplusJetsMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   } else {
     hist_obtag = "Photon";
     histtitle_obtag = "Photon";
+    histname = hist_obtag + "EtavsPhi";
+    histtitle = histtitle_obtag + " Eta vs Phi ";
   }
 
   histname = "DPhi" + hist_obtag + "Jet";
   histtitle = "DPhi " + hist_obtag + " Jet";
   bookME(ibooker, DPhiRefJetME_, histname, histtitle, 100, 0., acos(-1.), false);
 
-  bookMESub(ibooker, a_ME, sizeof(a_ME) / sizeof(a_ME[0]), hist_obtag, histtitle_obtag, "", "");
-  bookMESub(ibooker, a_ME_HB, sizeof(a_ME_HB) / sizeof(a_ME_HB[0]), hist_obtag, histtitle_obtag, "HB", "(HB)", true);
+  bookMESub(ibooker,
+            a_ME,
+            sizeof(a_ME) / sizeof(a_ME[0]),
+            hist_obtag,
+            histtitle_obtag,
+            "",
+            "",
+            true,
+            true,
+            true,
+            true,
+            !isMuonPath_,
+            false);
+  bookMESub(ibooker,
+            a_ME_HB,
+            sizeof(a_ME_HB) / sizeof(a_ME_HB[0]),
+            hist_obtag,
+            histtitle_obtag,
+            "HB",
+            "(hltJet in HB)",
+            false,
+            true,
+            true,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
             a_ME_HE_I,
             sizeof(a_ME_HE_I) / sizeof(a_ME_HE_I[0]),
@@ -194,7 +255,12 @@ void ZGammaplusJetsMonitor::bookHistograms(DQMStore::IBooker& ibooker,
             histtitle_obtag,
             "HEInner",
             "(HE Inner)",
-            true);
+            false,
+            true,
+            true,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
             a_ME_HE_O,
             sizeof(a_ME_HE_O) / sizeof(a_ME_HE_O[0]),
@@ -202,110 +268,219 @@ void ZGammaplusJetsMonitor::bookHistograms(DQMStore::IBooker& ibooker,
             histtitle_obtag,
             "HEOuter",
             "(HE Outer)",
-            true);
-  bookMESub(ibooker, a_ME_HF, sizeof(a_ME_HF) / sizeof(a_ME_HF[0]), hist_obtag, histtitle_obtag, "HF", "(HF)", true);
+            false,
+            true,
+            true,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
-            a_ME_HB_lowRefPt,
-            sizeof(a_ME_HB_lowRefPt) / sizeof(a_ME_HB_lowRefPt[0]),
+            a_ME_HF,
+            sizeof(a_ME_HF) / sizeof(a_ME_HF[0]),
             hist_obtag,
             histtitle_obtag,
-            "HB_lowRefPt",
-            "(HB) lowRefPt",
-            true);
-  bookMESub(ibooker,
-            a_ME_HE_I_lowRefPt,
-            sizeof(a_ME_HE_I_lowRefPt) / sizeof(a_ME_HE_I_lowRefPt[0]),
-            hist_obtag,
-            histtitle_obtag,
-            "HEInner_lowRefPt",
-            "(HE Inner) lowRefPt",
-            true);
-  bookMESub(ibooker,
-            a_ME_HE_O_lowRefPt,
-            sizeof(a_ME_HE_O_lowRefPt) / sizeof(a_ME_HE_O_lowRefPt[0]),
-            hist_obtag,
-            histtitle_obtag,
-            "HEOuter_lowRefPt",
-            "(HE Outer) lowRefPt",
-            true);
-  bookMESub(ibooker,
-            a_ME_HF_lowRefPt,
-            sizeof(a_ME_HF_lowRefPt) / sizeof(a_ME_HF_lowRefPt[0]),
-            hist_obtag,
-            histtitle_obtag,
-            "HF_lowRefPt",
-            "(HF) lowRefPt",
-            true);
+            "HF",
+            "(HF)",
+            false,
+            true,
+            true,
+            true,
+            !isMuonPath_,
+            false);
+  if (isMuonPath_) {
+    bookMESub(ibooker,
+              a_ME_HB_lowRefPt,
+              sizeof(a_ME_HB_lowRefPt) / sizeof(a_ME_HB_lowRefPt[0]),
+              hist_obtag,
+              histtitle_obtag,
+              "HB_lowRefPt",
+              "(HB) lowRefPt",
+              false,
+              false,
+              false,
+              true,
+              !isMuonPath_,
+              false);
+    bookMESub(ibooker,
+              a_ME_HE_I_lowRefPt,
+              sizeof(a_ME_HE_I_lowRefPt) / sizeof(a_ME_HE_I_lowRefPt[0]),
+              hist_obtag,
+              histtitle_obtag,
+              "HEInner_lowRefPt",
+              "(hltJet-HE Inner) lowRefPt",
+              false,
+              false,
+              false,
+              true,
+              !isMuonPath_,
+              false);
+    bookMESub(ibooker,
+              a_ME_HE_O_lowRefPt,
+              sizeof(a_ME_HE_O_lowRefPt) / sizeof(a_ME_HE_O_lowRefPt[0]),
+              hist_obtag,
+              histtitle_obtag,
+              "HEOuter_lowRefPt",
+              "(hltJet-HE Outer) lowRefPt",
+              false,
+              false,
+              false,
+              true,
+              !isMuonPath_,
+              false);
+    bookMESub(ibooker,
+              a_ME_HF_lowRefPt,
+              sizeof(a_ME_HF_lowRefPt) / sizeof(a_ME_HF_lowRefPt[0]),
+              hist_obtag,
+              histtitle_obtag,
+              "HF_lowRefPt",
+              "(hltJet-HF) lowRefPt",
+              false,
+              false,
+              false,
+              true,
+              !isMuonPath_,
+              false);
+  }
   bookMESub(ibooker,
             a_ME_HB_mediumRefPt,
             sizeof(a_ME_HB_mediumRefPt) / sizeof(a_ME_HB_mediumRefPt[0]),
             hist_obtag,
             histtitle_obtag,
             "HB_mediumRefPt",
-            "(HB) mediumRefPt",
-            true);
+            "(hltJet-HB) mediumRefPt",
+            false,
+            false,
+            false,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
             a_ME_HE_I_mediumRefPt,
             sizeof(a_ME_HE_I_mediumRefPt) / sizeof(a_ME_HE_I_mediumRefPt[0]),
             hist_obtag,
             histtitle_obtag,
             "HEInner_mediumRefPt",
-            "(HE Inner) mediumRefPt",
-            true);
+            "(hltJet-HE Inner) mediumRefPt",
+            false,
+            false,
+            false,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
             a_ME_HE_O_mediumRefPt,
             sizeof(a_ME_HE_O_mediumRefPt) / sizeof(a_ME_HE_O_mediumRefPt[0]),
             hist_obtag,
             histtitle_obtag,
             "HEOuter_mediumRefPt",
-            "(HE Outer) mediumRefPt",
-            true);
+            "(hltJet-HE Outer) mediumRefPt",
+            false,
+            false,
+            false,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
             a_ME_HF_mediumRefPt,
             sizeof(a_ME_HF_mediumRefPt) / sizeof(a_ME_HF_mediumRefPt[0]),
             hist_obtag,
             histtitle_obtag,
             "HF_mediumRefPt",
-            "(HF) mediumRefPt",
-            true);
+            "(hltJet-HF) mediumRefPt",
+            false,
+            false,
+            false,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
             a_ME_HB_highRefPt,
             sizeof(a_ME_HB_highRefPt) / sizeof(a_ME_HB_highRefPt[0]),
             hist_obtag,
             histtitle_obtag,
             "HB_highRefPt",
-            "(HB) highRefPt",
-            true);
+            "(hltJet-HB) highRefPt",
+            false,
+            false,
+            false,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
             a_ME_HE_I_highRefPt,
             sizeof(a_ME_HE_I_highRefPt) / sizeof(a_ME_HE_I_highRefPt[0]),
             hist_obtag,
             histtitle_obtag,
             "HEInner_highRefPt",
-            "(HE Inner) highRefPt",
-            true);
+            "(hltJet-HE Inner) highRefPt",
+            false,
+            false,
+            false,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
             a_ME_HE_O_highRefPt,
             sizeof(a_ME_HE_O_highRefPt) / sizeof(a_ME_HE_O_highRefPt[0]),
             hist_obtag,
             histtitle_obtag,
             "HEOuter_highRefPt",
-            "(HE Outer) highRefPt",
-            true);
+            "(hltJet-HE Outer) highRefPt",
+            false,
+            false,
+            false,
+            true,
+            !isMuonPath_,
+            false);
   bookMESub(ibooker,
             a_ME_HF_highRefPt,
             sizeof(a_ME_HF_highRefPt) / sizeof(a_ME_HF_highRefPt[0]),
             hist_obtag,
             histtitle_obtag,
             "HF_highRefPt",
-            "(HF) highRefPt",
-            true);
+            "(hltJet-HF) highRefPt",
+            false,
+            false,
+            false,
+            true,
+            !isMuonPath_,
+            false);
+  // ---- BPix & FPix ----
+  bookMESub(ibooker,
+            a_ME_BPix,
+            sizeof(a_ME_BPix) / sizeof(a_ME_BPix[0]),
+            hist_obtag,
+            histtitle_obtag,
+            "BPix",
+            "(hltJet-BPix)",
+            false,
+            false,
+            true,
+            true,
+            false,
+            false);
+  bookMESub(ibooker,
+            a_ME_FPix,
+            sizeof(a_ME_FPix) / sizeof(a_ME_FPix[0]),
+            hist_obtag,
+            histtitle_obtag,
+            "FPix",
+            "(hltJet-FPix)",
+            false,
+            false,
+            true,
+            true,
+            false,
+            false);
 }
 
 void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   v_jetpt.clear();
   v_jeteta.clear();
   v_jetphi.clear();
+
+  trigobj_eta_cl.clear();
+  trigobj_phi_cl.clear();
 
   trigobj_pt.clear();
   trigobj_eta.clear();
@@ -325,7 +500,6 @@ void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup co
   const edm::TriggerNames& triggerNames_ = iEvent.triggerNames(*triggerResults);  // all trigger names available
 
   bool passTrig = false;
-
   unsigned hltcfgIndex = hltConfig_.triggerIndex(fullpathName);
   unsigned index = triggerNames_.triggerIndex(fullpathName);  // find in which index is that path
   if (!(hltcfgIndex == index)) {
@@ -376,7 +550,7 @@ void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup co
   const trigger::size_type nK_ = KEYS_.size();
   assert(nI_ == nK_);
   const trigger::TriggerObjectCollection& TOC(aodTriggerEvent->getObjects());
-  for (trigger::size_type idx = 0; idx < nI_; ++idx) {
+  for (trigger::size_type idx = 0; idx < nI_; idx++) {
     const trigger::TriggerObject& TO(TOC[KEYS_[idx]]);
     //VIDS :  muons-->83 / jets-->85  / met-->87 / photon-->81
     edm::LogInfo("ZGammaplusJetsMonitor") << " idx:  " << idx << "| vid  " << VIDS_[idx] << "|"
@@ -389,6 +563,8 @@ void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup co
       trigobj_pt.push_back(TOC[key].pt());
       trigobj_eta.push_back(TOC[key].eta());
       trigobj_phi.push_back(TOC[key].phi());
+      trigobj_eta_cl.push_back(TOC[key].eta());  // keep for cleaning
+      trigobj_phi_cl.push_back(TOC[key].phi());
     }
   }
   if (VIDS_[0] == 83 && nK_ < 2) {  //muon
@@ -402,6 +578,9 @@ void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup co
       double mass = TOC[key].mass();
       int id = TOC[key].id();
       unsigned int kCnt0 = 0;
+      // keep for cleaning
+      trigobj_eta_cl.push_back(TOC[key].eta());
+      trigobj_phi_cl.push_back(TOC[key].phi());
 
       TLorentzVector v1;         //keep first muon
       if (std::abs(id) == 13) {  // check if it is a muon
@@ -486,11 +665,18 @@ void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup co
         << " keys  " << KEYS[idx] << ": "
         << " obj_id " << TO_.id() << " " << TO_.pt() << " " << TO_.eta() << " " << TO_.phi() << " " << TO_.mass();
   }
+
+  // -------------- HLT Jet cleaning -------------------
   for (const auto& key : KEYS) {
-    v_jetpt.push_back(objects[key].pt());
-    v_jeteta.push_back(objects[key].eta());
-    v_jetphi.push_back(objects[key].phi());
-  }
+    for (unsigned int c = 0; c < trigobj_eta_cl.size(); c++) {
+      if (!(isMatched(objects[key].eta(), objects[key].phi(), trigobj_eta_cl[c], trigobj_phi_cl[c], dr2_cut))) {
+        v_jetpt.push_back(objects[key].pt());
+        v_jeteta.push_back(objects[key].eta());
+        v_jetphi.push_back(objects[key].phi());
+      }
+    }  //end for trigobjsize
+  }  //end for key
+
   bool Jet_pass = (!v_jetpt.empty() && v_jetpt[0] >= pt_cut);
   if (!Jet_pass) {
     return;
@@ -502,95 +688,372 @@ void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup co
   if (dphi < dphi_cut) {  // be sure is back to back
     return;
   }
-  // --- offline Jets -----
-  edm::Handle<reco::PFJetCollection> jetHandle;
-  iEvent.getByToken(jetToken_, jetHandle);
-  edm::Handle<reco::JetCorrector> Corrector;
-  iEvent.getByToken(correctorToken_, Corrector);
-  double leading_JetPt = -10.0;
-  double leading_JetEta = -10.0;
-  double leading_JetPhi = -10.0;
-  int ind = 0;
+  // -------------  Matching to Offline ----------------
+  if (doMatching_) {
+    // --- offline Jets -----
+    edm::Handle<reco::PFJetCollection> jetHandle;
+    edm::Handle<reco::CaloJetCollection> calojetHandle;
+    iEvent.getByToken(jetToken_, jetHandle);
+    edm::Handle<reco::JetCorrector> Corrector;
+    iEvent.getByToken(correctorToken_, Corrector);
+    double leading_JetPt = -10.0;
+    double leading_JetEta = -10.0;
+    double leading_JetPhi = -10.0;
+    int ind = 0;
 
-  if (!jetHandle.isValid()) {
-    edm::LogWarning("ZGammaplusJetsMonitor")
-        << "skipping events because the collection " << jetInputTag_.label().c_str() << " is not available";
-    return;
-  }
-  for (auto const& j : *jetHandle) {
-    if (Corrector.isValid()) {
-      double jec = Corrector->correction(j);
-      double cor_jet = jec * j.pt();
-      if (cor_jet > leading_JetPt) {
-        leading_JetPt = cor_jet;
-        leading_JetEta = j.eta();
-        leading_JetPhi = j.phi();
+    if (TString(fullpathName).Contains("PF") ||
+        TString(fullpathName)
+            .Contains("AK8")) {  // AK8 Calo collection do not exist in AOD files so mathcing with PFPuppi
+      if (!jetHandle.isValid()) {
+        edm::LogWarning("ZGammaplusJetsMonitor")
+            << "skipping events because the collection " << jetInputTag_.label().c_str() << " is not available";
+        return;
       }
-    } else if (!Corrector.isValid() && ind == 0) {
-      leading_JetPt = j.pt();
-      leading_JetEta = j.eta();
-      leading_JetPhi = j.phi();
-      ind += 1;
+      for (auto const& j : *jetHandle) {
+        double PhEnFrac = j.photonEnergyFraction();
+        double MUF = j.muonEnergyFraction();
+        if (PhEnFrac < 0.90 && MUF < 0.80) {
+          if (Corrector.isValid()) {
+            double jec = Corrector->correction(j);
+            double cor_jet = jec * j.pt();
+            if (cor_jet > leading_JetPt) {
+              leading_JetPt = cor_jet;
+              leading_JetEta = j.eta();
+              leading_JetPhi = j.phi();
+            }
+          } else if (!Corrector.isValid() && ind == 0) {
+            leading_JetPt = j.pt();
+            leading_JetEta = j.eta();
+            leading_JetPhi = j.phi();
+            ind += 1;
+          }  // if valid corrector
+        }  // photon-muon fraction
+      }  // jet handle
+    }  // pf path
+    else if (TString(fullpathName).Contains("_Calo")) {
+      iEvent.getByToken(calojetToken_, calojetHandle);
+      if (!calojetHandle.isValid()) {
+        edm::LogWarning("ZGammaplusJetsMonitor")
+            << "skipping events because the collection " << jetInputTag_.label().c_str() << " is not available";
+        return;
+      }
+      for (auto const& j : *calojetHandle) {
+        if (j.emEnergyFraction() < 0.90) {
+          if (Corrector.isValid()) {
+            double jec = Corrector->correction(j);
+            double cor_jet = jec * j.pt();
+            if (cor_jet > leading_JetPt) {
+              leading_JetPt = cor_jet;
+              leading_JetEta = j.eta();
+              leading_JetPhi = j.phi();
+            }
+          } else if (!Corrector.isValid() && ind == 0) {
+            leading_JetPt = j.pt();
+            leading_JetEta = j.eta();
+            leading_JetPhi = j.phi();
+            ind += 1;
+          }  // if corrector valid
+        }  // em fraction
+      }  // calo jet handle
+    }  // calo path
+    if (leading_JetPt < offline_cut) {  // offline cuts
+      return;
     }
-  }
-  if (leading_JetPt < offline_cut) {  // offline cuts
-    return;
-  }
 
-  if (!(isMatched(v_jeteta[0], v_jetphi[0], leading_JetEta, leading_JetPhi))) {
-    return;
-  }
+    if (!(isMatched(v_jeteta[0], v_jetphi[0], leading_JetEta, leading_JetPhi, dr2_cut))) {
+      return;
+    }
+  }  //do mathcing
 
   double DirectBalance_ = v_jetpt[0] / trigobj_pt[0];
   double DifJ1PtTrObjPt_ = v_jetpt[0] - trigobj_pt[0];
   double asymmetry = (trigobj_pt[0] - v_jetpt[0]) / (trigobj_pt[0] + v_jetpt[0]);
 
   // ------------------------- Filling Histos -----------------------------------
+  bool doPhotonEtaPhiMap = !isMuonPath_;
   if (isMuonPath_) {
     mZMassME_.numerator->Fill(Zhltreco.M());
   }
+
   DPhiRefJetME_.numerator->Fill(dphi);
-  fillME(a_ME, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+
+  fillME(a_ME,
+         DirectBalance_,
+         DifJ1PtTrObjPt_,
+         asymmetry,
+         trigobj_pt[0],
+         v_jetpt[0],
+         v_jeteta[0],
+         v_jetphi[0],
+         true,
+         true,
+         true,
+         true,
+         doPhotonEtaPhiMap);
   if (isBarrel(v_jeteta[0])) {
-    fillME(a_ME_HB, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
-    if (islowRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HB_lowRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+    fillME(a_ME_HB,
+           DirectBalance_,
+           DifJ1PtTrObjPt_,
+           asymmetry,
+           trigobj_pt[0],
+           v_jetpt[0],
+           v_jeteta[0],
+           v_jetphi[0],
+           false,
+           true,
+           true,
+           true,
+           doPhotonEtaPhiMap);
+    if (islowRefPt(trigobj_pt[0]) && isMuonPath_) {
+      fillME(a_ME_HB_lowRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             false);
     } else if (ismediumRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HB_mediumRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+      fillME(a_ME_HB_mediumRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             doPhotonEtaPhiMap);
     } else if (ishighRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HB_highRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+      fillME(a_ME_HB_highRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             doPhotonEtaPhiMap);
     }
   }  // end is barrel
   if (isEndCapInner(v_jeteta[0])) {
-    fillME(a_ME_HE_I, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
-    if (islowRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HE_I_lowRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+    fillME(a_ME_HE_I,
+           DirectBalance_,
+           DifJ1PtTrObjPt_,
+           asymmetry,
+           trigobj_pt[0],
+           v_jetpt[0],
+           v_jeteta[0],
+           v_jetphi[0],
+           false,
+           true,
+           true,
+           true,
+           doPhotonEtaPhiMap);
+    if (islowRefPt(trigobj_pt[0]) && isMuonPath_) {
+      fillME(a_ME_HE_I_lowRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             false);
     } else if (ismediumRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HE_I_mediumRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+      fillME(a_ME_HE_I_mediumRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             doPhotonEtaPhiMap);
     } else if (ishighRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HE_I_highRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+      fillME(a_ME_HE_I_highRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             doPhotonEtaPhiMap);
     }
   }  // end is endcap-inner
   if (isEndCapOuter(v_jeteta[0])) {
-    fillME(a_ME_HE_O, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
-    if (islowRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HE_O_lowRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+    fillME(a_ME_HE_O,
+           DirectBalance_,
+           DifJ1PtTrObjPt_,
+           asymmetry,
+           trigobj_pt[0],
+           v_jetpt[0],
+           v_jeteta[0],
+           v_jetphi[0],
+           false,
+           true,
+           true,
+           true,
+           doPhotonEtaPhiMap);
+    if (islowRefPt(trigobj_pt[0]) && isMuonPath_) {
+      fillME(a_ME_HE_O_lowRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             false);
     } else if (ismediumRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HE_O_mediumRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+      fillME(a_ME_HE_O_mediumRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             doPhotonEtaPhiMap);
     } else if (ishighRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HE_O_highRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+      fillME(a_ME_HE_O_highRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             doPhotonEtaPhiMap);
     }
   }  // end is endcap-outer
   if (isForward(v_jeteta[0])) {
-    fillME(a_ME_HF, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
-    if (islowRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HF_lowRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+    fillME(a_ME_HF,
+           DirectBalance_,
+           DifJ1PtTrObjPt_,
+           asymmetry,
+           trigobj_pt[0],
+           v_jetpt[0],
+           v_jeteta[0],
+           v_jetphi[0],
+           false,
+           true,
+           true,
+           true,
+           doPhotonEtaPhiMap);
+    if (islowRefPt(trigobj_pt[0]) && isMuonPath_) {
+      fillME(a_ME_HF_lowRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             false);
     } else if (ismediumRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HF_mediumRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+      fillME(a_ME_HF_mediumRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             doPhotonEtaPhiMap);
     } else if (ishighRefPt(trigobj_pt[0])) {
-      fillME(a_ME_HF_highRefPt, DirectBalance_, DifJ1PtTrObjPt_, asymmetry, trigobj_pt[0], v_jetpt[0], true);
+      fillME(a_ME_HF_highRefPt,
+             DirectBalance_,
+             DifJ1PtTrObjPt_,
+             asymmetry,
+             trigobj_pt[0],
+             v_jetpt[0],
+             v_jeteta[0],
+             v_jetphi[0],
+             false,
+             false,
+             false,
+             true,
+             doPhotonEtaPhiMap);
     }
   }  // end is Forward
+  //--------------- BPix ----------------------
+  if (isBPix(v_jeteta[0], v_jetphi[0])) {
+    fillME(a_ME_BPix,
+           DirectBalance_,
+           DifJ1PtTrObjPt_,
+           asymmetry,
+           trigobj_pt[0],
+           v_jetpt[0],
+           v_jeteta[0],
+           v_jetphi[0],
+           false,
+           false,
+           true,
+           true,
+           false);
+  }  // end is BPix
+  //--------------- FPix ----------------------
+  if (isFPix(v_jeteta[0], v_jetphi[0])) {
+    fillME(a_ME_FPix,
+           DirectBalance_,
+           DifJ1PtTrObjPt_,
+           asymmetry,
+           trigobj_pt[0],
+           v_jetpt[0],
+           v_jeteta[0],
+           v_jetphi[0],
+           false,
+           false,
+           true,
+           true,
+           false);
+  }  // end is FPix
 }
 // ----- Reference'Pt categories: low[30,50), medium[50,100), high[100,inf) -----
 bool ZGammaplusJetsMonitor::islowRefPt(double refPt) {
@@ -641,30 +1104,71 @@ bool ZGammaplusJetsMonitor::isForward(double eta) {
     output = true;
   return output;
 }
-// --------- Matching ---------------------------------------------------------------
-bool ZGammaplusJetsMonitor::isMatched(double hltJetEta, double hltJetPhi, double OffJetEta, double OffJetPhi) {
+// --------- detector areas with issues ---------------------------------------
+bool ZGammaplusJetsMonitor::isBPix(double eta, double phi) {
   bool output = false;
-  double DRMatched2 = 0.16;
+  if (eta > -1.5 && eta < 0.0 && phi > -1.2 && phi < -0.8)
+    output = true;
+  return output;
+}
+bool ZGammaplusJetsMonitor::isFPix(double eta, double phi) {
+  bool output = false;
+  if (eta > -3.0 && eta < -1.5 && phi > 2 && phi < 3.15)
+    output = true;
+  return output;
+}
+
+bool ZGammaplusJetsMonitor::isMatched(
+    double hltJetEta, double hltJetPhi, double OffJetEta, double OffJetPhi, double DRMatched2) {
+  bool output = false;
   double dR2 = deltaR2(hltJetEta, hltJetPhi, OffJetEta, OffJetPhi);
   if (dR2 < DRMatched2)
     output = true;
   return output;
 }
 
-void ZGammaplusJetsMonitor::fillME(ObjME* a_me,
+template <typename T, size_t N>
+void ZGammaplusJetsMonitor::fillME(T (&arr)[N],
                                    const double directbalance_,
                                    const double Difjetref_,
                                    const double Asymmetry_,
                                    const double ReferencePt_,
                                    const double Jetpt_,
-                                   const bool doDirectBalancevsReferencePt) {
-  a_me[0].numerator->Fill(directbalance_);  // index 0 = DirectBalance
-  a_me[1].numerator->Fill(Difjetref_);      // index 1 = Leading JetPt minus Reference Pt
-  a_me[2].numerator->Fill(Asymmetry_);      // index 2 =  asymmetry
-  a_me[3].numerator->Fill(ReferencePt_);    // index 3 = Reference Pt
-  a_me[4].numerator->Fill(Jetpt_);          // index 4 = Jet Pt
+                                   const double Jeteta_,
+                                   const double Jetphi_,
+                                   const bool doEta,
+                                   const bool doPhi,
+                                   const bool doDirectBalancevsReferencePt,
+                                   const bool dohltJetEtavshltJetPhi,
+                                   const bool dohltPhotoEtavsPhi) {
+  arr[0].numerator->Fill(directbalance_);  // index 0 = DirectBalance
+  arr[1].numerator->Fill(Difjetref_);      // index 1 = Leading JetPt minus Reference Pt
+  arr[2].numerator->Fill(Asymmetry_);      // index 2 =  asymmetry
+  arr[3].numerator->Fill(ReferencePt_);    // index 3 = Reference Pt
+  arr[4].numerator->Fill(Jetpt_);          // index 4 = Jet Pt
+  if (doEta) {
+    arr[5].numerator->Fill(Jeteta_);  // index 5 = Jet Eta
+  }
+  if (doPhi) {
+    arr[6].numerator->Fill(Jetphi_);  // index 6 = Jet Phi
+  }
   if (doDirectBalancevsReferencePt) {
-    a_me[5].numerator->Fill(ReferencePt_, directbalance_);  // index 5 = Balance vs Reference' Pt
+    arr[7].numerator->Fill(ReferencePt_, directbalance_);  // index 7 = Balance vs Reference' Pt
+  }
+  if (dohltJetEtavshltJetPhi) {
+    arr[8].numerator->Fill(Jeteta_, Jetphi_);  // index 8 = hltJet Eta vs hltJet Phi
+  }
+  if (dohltPhotoEtavsPhi) {
+    arr[9].numerator->Fill(
+        trigobj_eta[0],
+        trigobj_phi[0]);  // index 9 = hltPhoton Eta vs hltPhoton Phi [both booked and filled only for γ path]
+  }
+
+  for (size_t i = 0; i < pts.size(); ++i) {
+    if ((N > 10 + i) && Jetpt_ > pts[i]) {
+      int idx = 10 + i;
+      arr[idx].numerator->Fill(ReferencePt_);
+    }
   }
 }
 
@@ -675,7 +1179,11 @@ void ZGammaplusJetsMonitor::bookMESub(DQMStore::IBooker& Ibooker,
                                       const std::string& h_Title,
                                       const std::string& h_subOptName,
                                       const std::string& hSubT,
+                                      const bool doEta,
+                                      const bool doPhi,
                                       const bool doDirectBalancevsReferencePt,
+                                      const bool dohltJetEtavshltJetPhi,
+                                      const bool dohltPhotoEtavsPhi,
                                       const bool bookDen) {
   std::string hName = h_Name;
   std::string hTitle = h_Title;
@@ -684,6 +1192,18 @@ void ZGammaplusJetsMonitor::bookMESub(DQMStore::IBooker& Ibooker,
   int nbin_DifJetRef = DifJetRefPT_Binning.nbins;
   double maxbin_DifJetRef = DifJetRefPT_Binning.xmax;
   double minbin_DifJetRef = DifJetRefPT_Binning.xmin;
+
+  int nbin_Eta = Eta_Binning.nbins;
+  double maxbin_Eta = Eta_Binning.xmax;
+  double minbin_Eta = Eta_Binning.xmin;
+
+  int nbin_Ph_Eta = Photon_Eta_Binning.nbins;
+  double maxbin_Ph_Eta = Photon_Eta_Binning.xmax;
+  double minbin_Ph_Eta = Photon_Eta_Binning.xmin;
+
+  int nbin_Phi = Phi_Binning.nbins;
+  double maxbin_Phi = Phi_Binning.xmax;
+  double minbin_Phi = Phi_Binning.xmin;
 
   hName = "DirectBalance" + hSubN;
   hTitle = " DirectBalance " + hSubT;
@@ -710,11 +1230,59 @@ void ZGammaplusJetsMonitor::bookMESub(DQMStore::IBooker& Ibooker,
   bookME(Ibooker, a_me[4], hName, hTitle, jetpt_Binning, bookDen);
   setMETitle(a_me[4], hTitle + " [GeV]", "events / [GeV]");
 
+  if (doEta) {
+    hName = "JetEta" + hSubN;
+    hTitle = "Jet Eta " + hSubN;
+    bookME(Ibooker, a_me[5], hName, hTitle, nbin_Eta, minbin_Eta, maxbin_Eta, bookDen);
+    setMETitle(a_me[5], hTitle + " ", "events");
+  }
+  if (doPhi) {
+    hName = "JetPhi" + hSubN;
+    hTitle = "Jet Phi " + hSubN;
+    bookME(Ibooker, a_me[6], hName, hTitle, nbin_Phi, minbin_Phi, maxbin_Phi, bookDen);
+    setMETitle(a_me[6], hTitle + " ", "events");
+  }
   if (doDirectBalancevsReferencePt) {
     hName = "DirectBalanceVs" + h_Name + "Pt" + hSubN;
     hTitle = "Direct Balance vs " + h_Title + " Pt " + hSubT;
-    bookME(Ibooker, a_me[5], hName, hTitle, TrObjPt_Binning, directbalance_Binning, bookDen);
-    setMETitle(a_me[5], h_Title + " pt", "Direct Balance");
+    bookME(Ibooker, a_me[7], hName, hTitle, TrObjPt_Binning, directbalance_Binning, bookDen);
+    setMETitle(a_me[7], h_Title + " pt", "Direct Balance");
+  }
+  if (dohltJetEtavshltJetPhi) {
+    hName = "HLTJetEtavsPhi" + hSubN;
+    hTitle = "HLT Jet Eta vs Phi " + hSubT;
+    bookME(
+        Ibooker, a_me[8], hName, hTitle, nbin_Eta, minbin_Eta, maxbin_Eta, nbin_Phi, minbin_Phi, maxbin_Phi, bookDen);
+    setMETitle(a_me[8], "HLT Jet Eta", " HLT Jet Phi");
+  }
+  if (dohltPhotoEtavsPhi) {
+    hName = "HLTPhotonEtavsPhi" + hSubN;
+    hTitle = "HLT Photon Eta vs Phi " + hSubT;
+    bookME(Ibooker,
+           a_me[9],
+           hName,
+           hTitle,
+           nbin_Ph_Eta,
+           minbin_Ph_Eta,
+           maxbin_Ph_Eta,
+           nbin_Phi,
+           minbin_Phi,
+           maxbin_Phi,
+           bookDen);
+    setMETitle(a_me[9], "HLT Photon Eta", " HLT Photon Phi");
+  }
+  for (size_t i = 0; i < pts.size(); ++i) {
+    int c = 10 + i;
+    if (len_ > c) {
+      int idx = 10 + i;
+      std::string ptStr = std::to_string(pts[i]);
+
+      std::string hName = h_Name + "pT_for_JetpT_over" + ptStr + hSubN;
+      std::string hTitle = h_Title + " pT " + hSubN;
+
+      bookME(Ibooker, a_me[idx], hName, hTitle, TrObjPt_Binning, bookDen);
+      setMETitle(a_me[idx], hTitle + " [GeV]", "events / [GeV]");
+    }
   }
 }
 
@@ -734,6 +1302,7 @@ void ZGammaplusJetsMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup co
         edm::LogInfo("ZGammaplusJetsMonitor::dqmBeginRun ") << PATHNAME;
         if (TString(PATHNAME).Contains(pattern)) {
           fullpathName = PATHNAME;
+          edm::LogInfo("ZGammaplusJetsMonitor::dqmBeginRun ") << PATHNAME;
         }
       }
     }
@@ -754,8 +1323,9 @@ void ZGammaplusJetsMonitor::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<std::string>("PathName", "");
   desc.add<std::string>("ModuleName", "");
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsPuppi"));
-  desc.add<edm::InputTag>("corrector", edm::InputTag("ak4PFPuppiL1FastL2L3Corrector"));
+  desc.add<edm::InputTag>("corrector", edm::InputTag("ak4PFPuppiL1FastL2L3ResidualCorrector"));
 
+  desc.add<double>("dr2cut", 0.16);
   desc.add<double>("muonpt", 20.);
   desc.add<double>("muoneta", 2.3);
   desc.add<double>("ptcut", 30.);
@@ -764,6 +1334,7 @@ void ZGammaplusJetsMonitor::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("DeltaPhi", 2.7);
   desc.add<double>("OfflineCut", 20.0);
   desc.add<bool>("isMuonPath", true);
+  desc.add<bool>("doMatching", true);
 
   edm::ParameterSetDescription histoPSet;
 
