@@ -6,7 +6,10 @@
 
 namespace l1t {
   enum tftype { bmtf, omtf_neg, omtf_pos, emtf_neg, emtf_pos };
-  class RegionalMuonCand;
+  namespace io_v1 {
+    class RegionalMuonCand;
+  }
+  using RegionalMuonCand = io_v1::RegionalMuonCand;
   typedef BXVector<RegionalMuonCand> RegionalMuonCandBxCollection;
 
   typedef ObjectRef<RegionalMuonCand> RegionalMuonCandRef;

@@ -3,7 +3,7 @@
   <class name="edm::Wrapper<std::map <int,std::pair<double,double> > >"/> 
 
   <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="369629847"/>
+   <version ClassVersion="3" checksum="412602791"/>
   </class>
   <class name="reco::IsolatedPixelTrackCandidateCollection"/>
   <class name="reco::IsolatedPixelTrackCandidateRef"/>

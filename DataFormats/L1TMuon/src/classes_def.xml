@@ -1,26 +1,18 @@
 <lcgdict>
  <selection>
 
-  <class name="l1t::RegionalMuonCand" ClassVersion="12">
-   <version ClassVersion="12" checksum="1761665561"/>
-    <version ClassVersion="11" checksum="2292293737"/>
-    <version ClassVersion="10" checksum="1070099328"/>
+  <class name="l1t::io_v1::RegionalMuonCand" ClassVersion="3">
+   <version ClassVersion="3" checksum="2054748643"/>
   </class>
-  <ioread sourceClass="l1t::RegionalMuonCand" targetClass="l1t::RegionalMuonCand" version="[10]"  source="int m_hwPt2" target="m_hwPtUnconstrained">
-    <![CDATA[ m_hwPtUnconstrained = onfile.m_hwPt2; ]]>
-  </ioread>
 
-  <class name="std::vector<l1t::RegionalMuonCand>"/>
+  <class name="std::vector<l1t::io_v1::RegionalMuonCand>"/>
   <class name="l1t::RegionalMuonCandBxCollection"/>
   <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
 
-  <class name="l1t::RegionalMuonShower" ClassVersion="13">
-   <version ClassVersion="13" checksum="420598270"/>
-    <version ClassVersion="12" checksum="1591048325"/>
-    <version ClassVersion="11" checksum="376206249"/>
-    <version ClassVersion="10" checksum="3501434665"/>
+  <class name="l1t::io_v1::RegionalMuonShower" ClassVersion="3">
+   <version ClassVersion="3" checksum="406108264"/>
   </class>
-  <class name="std::vector<l1t::RegionalMuonShower>"/>
+  <class name="std::vector<l1t::io_v1::RegionalMuonShower>"/>
   <class name="l1t::RegionalMuonShowerBxCollection"/>
   <class name="edm::Wrapper<l1t::RegionalMuonShowerBxCollection>"/>
 
@@ -48,15 +40,20 @@
   <class name="l1t::emtf::MTF7Trailer"/>
   <class name="l1t::emtf::AMC13Trailer"/>
 
-  <class name="l1t::EMTFHit"/>
+  <class name="l1t::io_v1::EMTFHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="2668881504"/>
+  </class>
   <class name="l1t::EMTFHitCollection"/>
   <class name="edm::Wrapper<l1t::EMTFHitCollection>"/>
   <class name="l1t::EMTFRoad"/>
   <class name="l1t::EMTFRoadCollection"/>
   <class name="edm::Wrapper<l1t::EMTFRoadCollection>"/>
-  <class name="l1t::EMTFTrack"/>
+  <class name="l1t::io_v1::EMTFTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="2534157498"/>
+  </class>
   <class name="l1t::EMTFTrackCollection"/>
   <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
+  <class name="edm::Ref<vector<l1t::io_v1::EMTFTrack>,l1t::io_v1::EMTFTrack,edm::refhelper::FindUsingAdvance<vector<l1t::io_v1::EMTFTrack>,l1t::io_v1::EMTFTrack> >" />
   <class name="l1t::EMTFPtLUT"/>
 
   <class name="l1t::CPPFDigi" ClassVersion="3">
@@ -83,13 +80,8 @@
 
 
 
-  <class name="L1MuBMTrack" ClassVersion="15">
-   <version ClassVersion="15" checksum="99482231"/>
-   <version ClassVersion="14" checksum="2164413511"/>
-    <version ClassVersion="10" checksum="955528069"/>
-    <version ClassVersion="11" checksum="1941187557"/>
-    <version ClassVersion="12" checksum="4194061270"/>
-    <version ClassVersion="13" checksum="879964230"/>
+  <class name="L1MuBMTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="2654259449"/>
   </class>
 
 

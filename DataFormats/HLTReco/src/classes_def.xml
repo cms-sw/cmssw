@@ -37,32 +37,27 @@
 
   <class name="trigger::TriggerObjectCollection"/>
   <class name="trigger::TriggerRefsCollections" ClassVersion="3">
-   <version ClassVersion="3" checksum="2127445073"/>
+   <version ClassVersion="3" checksum="1210037489"/>
   </class>
   <class name="trigger::TriggerFilterObjectWithRefs" ClassVersion="3">
-   <version ClassVersion="3" checksum="579919418"/>
+   <version ClassVersion="3" checksum="4124915994"/>
   </class>
 
   <class name="trigger::TriggerEvent::TriggerFilterObject" ClassVersion="10">
    <version ClassVersion="10" checksum="886279077"/>
   </class>
   <class name="std::vector<trigger::TriggerEvent::TriggerFilterObject>"/>
+  <!-- TriggerEvent is stored as part of RAW -->
   <class name="trigger::TriggerEvent" ClassVersion="11">
    <version ClassVersion="11" checksum="3351458717"/>
    <version ClassVersion="10" checksum="1112210423"/>
   </class>
-  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="18">
-   <version ClassVersion="18" checksum="3279814163"/>
-   <version ClassVersion="17" checksum="3926145865"/>
-   <version ClassVersion="16" checksum="752200108"/>
-   <version ClassVersion="15" checksum="450435068"/>
-   <version ClassVersion="14" checksum="1673531968"/>
-   <version ClassVersion="13" checksum="1672519577"/>
-   <version ClassVersion="12" checksum="2301242282"/>
+  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="3">
+   <version ClassVersion="3" checksum="3279814163"/>
   </class>
   <class name="std::vector<trigger::TriggerEventWithRefs::TriggerFilterObject>"/>
   <class name="trigger::TriggerEventWithRefs" ClassVersion="3">
-   <version ClassVersion="3" checksum="3617316456"/>
+   <version ClassVersion="3" checksum="307844616"/>
   </class>
 
   <class name="edm::Wrapper<trigger::TriggerObjectCollection>" splitLevel="0"/>

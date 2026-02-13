@@ -15,41 +15,43 @@
 #include <vector>
 
 namespace l1t {
+  namespace io_v1 {
+    class TkTriplet : public L1Candidate {
+    public:
+      typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
+      typedef std::vector<L1TTTrackType> L1TTTrackCollection;
 
-  class TkTriplet : public L1Candidate {
-  public:
-    typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-    typedef std::vector<L1TTTrackType> L1TTTrackCollection;
+      TkTriplet();
 
-    TkTriplet();
+      TkTriplet(const LorentzVector& p4, int charge);
+      TkTriplet(const LorentzVector& p4,
+                int charge,
+                double pair_mass_max,
+                double pair_mass_min,
+                double pair_dz_max,
+                double pair_dz_min,
+                std::vector<edm::Ptr<L1TTTrackType>> trkPtrList);
 
-    TkTriplet(const LorentzVector& p4, int charge);
-    TkTriplet(const LorentzVector& p4,
-              int charge,
-              double pair_mass_max,
-              double pair_mass_min,
-              double pair_dz_max,
-              double pair_dz_min,
-              std::vector<edm::Ptr<L1TTTrackType>> trkPtrList);
+      ~TkTriplet() override {}
 
-    ~TkTriplet() override {}
+      int getTripletCharge() const { return charge_; }
+      double getPairMassMax() const { return pair_mass_max_; }
+      double getPairMassMin() const { return pair_mass_min_; }
+      double getPairDzMax() const { return pair_dz_max_; }
+      double getPairDzMin() const { return pair_dz_min_; }
+      const edm::Ptr<L1TTTrackType>& trkPtr(size_t i) const { return trkPtrList_.at(i); }
+      int bx() const;
 
-    int getTripletCharge() const { return charge_; }
-    double getPairMassMax() const { return pair_mass_max_; }
-    double getPairMassMin() const { return pair_mass_min_; }
-    double getPairDzMax() const { return pair_dz_max_; }
-    double getPairDzMin() const { return pair_dz_min_; }
-    const edm::Ptr<L1TTTrackType>& trkPtr(size_t i) const { return trkPtrList_.at(i); }
-    int bx() const;
-
-  private:
-    int charge_;
-    double pair_mass_max_;
-    double pair_mass_min_;
-    double pair_dz_max_;
-    double pair_dz_min_;
-    std::vector<edm::Ptr<L1TTTrackType>> trkPtrList_;
-  };
+    private:
+      int charge_;
+      double pair_mass_max_;
+      double pair_mass_min_;
+      double pair_dz_max_;
+      double pair_dz_min_;
+      std::vector<edm::Ptr<L1TTTrackType>> trkPtrList_;
+    };
+  }  // namespace io_v1
+  using TkTriplet = io_v1::TkTriplet;
 }  // namespace l1t
 
 #endif

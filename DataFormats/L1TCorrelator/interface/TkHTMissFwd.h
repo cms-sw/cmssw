@@ -7,7 +7,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace l1t {
-  class TkHTMiss;
+  namespace io_v1 {
+    class TkHTMiss;
+  }
+  using TkHTMiss = io_v1::TkHTMiss;
   typedef std::vector<TkHTMiss> TkHTMissCollection;
 }  // namespace l1t
 
