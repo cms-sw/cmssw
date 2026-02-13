@@ -8,6 +8,7 @@
 
 #include <memory>
 
+// test line
 namespace edm {
 
   class IntSource : public ProducerSourceBase {
