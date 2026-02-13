@@ -446,7 +446,7 @@ namespace edm {
     if (!brief) {
       std::stringstream ss;
       if (defaultDescDefined_) {
-        if (descriptions_.empty()) {
+        if (descriptions_.empty() and descriptionCloners_.empty()) {
           ss << "This plugin has only one PSet description. "
              << "This description is always used to validate configurations. "
              << "Because this configuration has no label, no cfi files will be generated.";
@@ -480,14 +480,6 @@ namespace edm {
     counter.iSelectedModule = 0;
     counter.iModule = 0;
 
-    for (auto const& d : descriptionCloners_) {
-      auto descSlim = d.second.createDifference();
-      descSlim.setComment(
-          "This label contains only the parameters that have defaults different from the default configuration. See "
-          "default configuration for all allowed parameters and their comments.");
-      printForLabel(os, d.first, descSlim, moduleLabel, brief, printOnlyLabels, lineWidth, indentation, counter);
-    }
-
     for (auto const& d : descriptions_) {
       printForLabel(d, os, moduleLabel, brief, printOnlyLabels, lineWidth, indentation, counter);
     }
@@ -502,6 +494,13 @@ namespace edm {
                     lineWidth,
                     indentation,
                     counter);
+    }
+    for (auto const& d : descriptionCloners_) {
+      auto descSlim = d.second.createDifference();
+      descSlim.setComment(
+          "This label contains only the parameters that have defaults different from the default configuration. See "
+          "default configuration for all allowed parameters and their comments.");
+      printForLabel(os, d.first, descSlim, moduleLabel, brief, printOnlyLabels, lineWidth, indentation, counter);
     }
   }
 
