@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="l1t::HGCFETriggerDigi" ClassVersion="10">
-    <version ClassVersion="10" checksum="3197268020"/>
+  <class name="l1t::HGCFETriggerDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="3197268020"/>
   </class>
   <class name="std::vector<l1t::HGCFETriggerDigi>"/>
   <class name="l1t::HGCFETriggerDigiCollection"/>
@@ -14,7 +14,9 @@
   <class name="l1t::HGCFETriggerDigiPtrVector"/>
   <class name="edm::Wrapper<l1t::HGCFETriggerDigiPtrVector>"/>
 
-  <class name="l1t::io_v1::HGCalTower" />
+  <class name="l1t::io_v1::HGCalTower" ClassVersion="3">
+    <version ClassVersion="3" checksum="3636755697"/>
+  </class>
   <class name="std::vector<l1t::io_v1::HGCalTower>" />
   <class name="std::unordered_map<int,l1t::io_v1::HGCalTower>" />
   <class name="l1t::HGCalTowerBxCollection"/>
@@ -22,7 +24,9 @@
   <class name="unordered_map<int,l1t::io_v1::HGCalTower>"/>
 
 
-  <class name="l1t::io_v1::HGCalTowerMap" />
+  <class name="l1t::io_v1::HGCalTowerMap" ClassVersion="3">
+    <version ClassVersion="3" checksum="162335852"/>
+  </class>
   <class name="l1t::HGCalTowerID" />
   <class name="std::vector<l1t::io_v1::HGCalTowerMap>" />
   <class name="l1t::HGCalTowerMapBxCollection"/>
