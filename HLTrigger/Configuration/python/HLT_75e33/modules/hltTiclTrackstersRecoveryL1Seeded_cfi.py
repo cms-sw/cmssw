@@ -71,7 +71,7 @@ hltTiclTrackstersRecoveryL1Seeded = cms.EDProducer("TrackstersProducer",
 
     pluginInferenceAlgoTracksterInferenceByDNN = cms.PSet(
         algo_verbosity = cms.int32(0),
-	onnxPIDModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/id_v0.onnx'),
+        onnxPIDModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/id_v0.onnx'),
         onnxEnergyModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/energy_v0.onnx'),
         inputNames  = cms.vstring('input'),
         output_en   = cms.vstring('enreg_output'),
