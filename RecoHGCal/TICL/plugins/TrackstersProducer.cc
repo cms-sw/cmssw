@@ -44,6 +44,13 @@ public:
   void beginRun(const edm::Run&, const edm::EventSetup& es) override {
     const auto& geom = es.getData(geometry_token_);
     rhtools_.setGeometry(geom);
+
+    // Configure the pattern recognition plugin once per run/IOV.
+    if (doNose_) {
+      myAlgoHFNose_->setGeometry(rhtools_);
+    } else {
+      myAlgo_->setGeometry(rhtools_);
+    }
   }
 
 private:
