@@ -25,6 +25,7 @@ namespace ticl {
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+    void setGeometry(hgcal::RecHitTools const& rhtools) override;
 
   private:
     struct ClustersOnLayer {
@@ -113,10 +114,9 @@ namespace ticl {
     void dumpTiles(const TILES&) const;
 
     std::vector<ClustersOnLayer> clusters_;
-    std::vector<float> layersPosZ_;
+    std::vector<float> layersPosZ_;  // cached once per run/IOV
     std::vector<int> tracksterSeedAlgoId_;
 
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const std::vector<double> criticalDensity_;
     const std::vector<double> criticalSelfDensity_;
     const std::vector<int> densitySiblingLayers_;
@@ -138,8 +138,6 @@ namespace ticl {
     const std::vector<int> filter_on_categories_;
     const bool computeLocalTime_;
     const bool usePCACleaning_;
-
-    hgcal::RecHitTools rhtools_;
   };
 
 }  // namespace ticl

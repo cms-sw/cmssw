@@ -31,14 +31,12 @@ namespace ticl {
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+    void setGeometry(hgcal::RecHitTools const& rhtools) override;
 
   private:
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const double antikt_radius_;
     const int minNumLayerCluster_;
     const bool computeLocalTime_;
-
-    hgcal::RecHitTools rhtools_;
 
     void buildJetAndTracksters(std::vector<fastjet::PseudoJet>&, std::vector<ticl::Trackster>&);
   };

@@ -25,10 +25,10 @@ namespace ticl {
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+    void setGeometry(hgcal::RecHitTools const& rhtools) override;
 
   private:
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
-    hgcal::RecHitTools rhtools_;
+    float z_limit_em_ = 0.f;
   };
 
 }  // namespace ticl

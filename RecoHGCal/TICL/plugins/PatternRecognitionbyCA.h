@@ -30,13 +30,13 @@ namespace ticl {
                                      const edm::ProductID& collectionID) const;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+    void setGeometry(hgcal::RecHitTools const& rhtools) override;
 
   private:
     void mergeTrackstersTRK(const std::vector<Trackster>&,
                             const std::vector<reco::CaloCluster>&,
                             std::vector<Trackster>&,
                             std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const std::unique_ptr<HGCGraphT<TILES>> theGraph_;
     const bool oneTracksterPerTrackSeed_;
     const bool promoteEmptyRegionToTrackster_;
@@ -61,8 +61,6 @@ namespace ticl {
     const std::string eidOutputNameEnergy_;
     const std::string eidOutputNameId_;
     const bool computeLocalTime_;
-
-    hgcal::RecHitTools rhtools_;
     const std::vector<double> siblings_maxRSquared_;
   };
 
