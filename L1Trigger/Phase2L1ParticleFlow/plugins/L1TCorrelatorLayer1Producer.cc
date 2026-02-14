@@ -282,7 +282,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     }
     if (gctEmInAlgo == "Emulator") {
       gctEmInput_ = std::make_unique<l1ct::GctEmClusterDecoderEmulator>(  // FIXME
-          iConfig.getParameter<edm::ParameterSet>("gctInputConversionParameters"));
+          iConfig.getParameter<edm::ParameterSet>("gctEmInputConversionParameters"));
     } else if (gctEmInAlgo != "None") {
       throw cms::Exception("Configuration", "Unsupported gctEmInputConversionAlgo");
     }
