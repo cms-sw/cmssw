@@ -16,6 +16,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace edm {
   class Event;
@@ -57,8 +58,14 @@ namespace ticl {
                         const Inputs& input,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) = 0;
 
+    virtual void setGeometry(hgcal::RecHitTools const& rhtools) = 0;
+
   protected:
     int algo_verbosity_;
+
+    bool geometryReady_ = false;
+
+    hgcal::RecHitTools const* rhtools_ = nullptr;  // non-owning, set in beginRun()
   };
 }  // namespace ticl
 

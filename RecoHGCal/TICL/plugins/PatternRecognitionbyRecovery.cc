@@ -18,46 +18,60 @@ using namespace ticl;
 template <typename TILES>
 PatternRecognitionbyRecovery<TILES>::PatternRecognitionbyRecovery(const edm::ParameterSet &conf,
                                                                   edm::ConsumesCollector iC)
-    : PatternRecognitionAlgoBaseT<TILES>(conf, iC), caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
+    : PatternRecognitionAlgoBaseT<TILES>(conf, iC) {}
+
+template <typename TILES>
+void PatternRecognitionbyRecovery<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
+  this->rhtools_ = &rhtools;
+  z_limit_em_ = std::abs(this->rhtools_->getPositionLayer(this->rhtools_->lastLayerEE(false), false).z());
+  this->geometryReady_ = true;
+}
 
 template <typename TILES>
 void PatternRecognitionbyRecovery<TILES>::makeTracksters(
     const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
     std::vector<Trackster> &result,
     std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
-  // Get the geometry setup
-  edm::EventSetup const &es = input.es;
-  const CaloGeometry &geom = es.getData(caloGeomToken_);
-  rhtools_.setGeometry(geom);
-  const auto z_limit_em = rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z();
+  if (UNLIKELY(!this->geometryReady_ || this->rhtools_ == nullptr)) {
+    throw cms::Exception("LogicError")
+        << "PatternRecognitionbyRecovery::setGeometry() must be called in beginRun() before makeTracksters().";
+  }
+
   // Clear the result vector
   result.clear();
 
+  result.reserve(input.layerClusters.size() / 16);  // Heuristic
+
   // Iterate over all layer clusters
-  for (size_t i = 0; i < input.layerClusters.size(); ++i) {
+  for (unsigned int i = 0; i < input.layerClusters.size(); ++i) {
     if (input.mask[i] == 0.f) {
       continue;  // Skip masked clusters
     }
-
     // Create a new trackster for each layer cluster
-    Trackster trackster;
-    trackster.vertices().push_back(i);
-    trackster.vertex_multiplicity().push_back(1);
+    result.emplace_back();
+    auto &trackster = result.back();
+    auto &v = trackster.vertices();
+    v.clear();
+    v.reserve(1);
+    v.push_back(i);
+
+    auto &mult = trackster.vertex_multiplicity();
+    mult.clear();
+    mult.reserve(1);
+    mult.push_back(1);
     const auto &lc = input.layerClusters[i];
-    trackster.setTimeAndError(input.layerClustersTime.get(i).first, input.layerClustersTime.get(i).second);
+    const auto timePair = input.layerClustersTime.get(i);
+    trackster.setTimeAndError(timePair.first, timePair.second);
     trackster.setRawEnergy(lc.energy());
     trackster.setBarycenter({float(lc.x()), float(lc.y()), float(lc.z())});
     trackster.calculateRawPt();
-
-    if (std::abs(lc.z()) <= z_limit_em) {
+    const float z = lc.z();
+    if (z <= z_limit_em_ && z >= -z_limit_em_) {
       trackster.setRawEmEnergy(lc.energy());
       trackster.calculateRawEmPt();
     }
-
-    // Add the trackster to the result vector
-    result.push_back(trackster);
   }
-
+  result.shrink_to_fit();
   // Log the number of tracksters created
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
     edm::LogVerbatim("PatternRecognitionbyRecovery") << "Created " << result.size() << " tracksters";
