@@ -22,10 +22,9 @@ namespace cms {
 #include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 #include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
+#include "DataFormats/HGCalReco/interface/TracksterFwd.h"
 
 namespace ticl {
-  class Trackster;
-
   class TracksterLinkingbySuperClusteringMustache : public TracksterLinkingAlgoBase {
   public:
     TracksterLinkingbySuperClusteringMustache(const edm::ParameterSet& ps,

@@ -12,6 +12,7 @@
 #include "L1Trigger/CSCTrackFinder/interface/CSCTFDTReceiver.h"
 #include "L1Trigger/CSCTrackFinder/src/CSCTFTrackBuilder.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStubFwd.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -21,9 +22,6 @@ class CSCTFTrackBuilder;
 class L1MuDTChambPhContainer;
 template <typename T>
 class CSCTriggerContainer;
-namespace csctf {
-  class TrackStub;
-}
 
 class CSCTFTrackProducer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
