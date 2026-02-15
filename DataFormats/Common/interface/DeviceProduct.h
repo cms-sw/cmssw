@@ -50,6 +50,9 @@ namespace edm {
       requires(requires { T(edm::kUninitialized); })
         : data_{edm::kUninitialized} {}
 
+    // Construct from an already-initialized T
+    explicit DeviceProduct(T&& data) : data_(std::move(data)) {}
+
     template <typename M, typename... Args>
       requires std::is_base_of_v<DeviceProductMetadataBase, M>
     explicit DeviceProduct(std::shared_ptr<M> metadata, Args&&... args)
@@ -97,6 +100,19 @@ namespace edm {
       // probably not that much?
       assert(typeid(M) == *metadataType_);
       return *static_cast<M const*>(metadata_.get());
+    }
+
+    /**
+     * Get the actual data product after synchronizing all pending asynchronous
+     * operations on the product's queue. Unlike getSynchronized<M>(), this will
+     * block the CPU until all preceding operations on the queue are complete.
+     * Prefer getSynchronized<M>() when the metadata type is known.
+     */
+    T const& getSynchronized() const {
+      if (metadata_) {
+        metadata_->synchronize();
+      }
+      return data_;
     }
 
   private:

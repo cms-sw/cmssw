@@ -2,3 +2,16 @@
   <use name="catch2"/>
   <use name="DataFormats/TrivialSerialisation"/>
 </bin>
+
+
+<bin name="TestDataFormatsTrivialSerialisationPortable" file="alpaka/test_catch2_*.cc,alpaka/test_catch2_*.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="Eigen"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/PortableTestObjects"/>
+  <use name="DataFormats/TrivialSerialisation"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
