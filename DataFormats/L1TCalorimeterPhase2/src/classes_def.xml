@@ -4,18 +4,18 @@
 
 <lcgdict>
 
-  <class name="l1tp2::CaloCrystalCluster"  ClassVersion="3">
-         <version ClassVersion="3" checksum="375396287"/>
+  <class name="l1tp2::io_v1::CaloCrystalCluster"  ClassVersion="3">
+         <version ClassVersion="3" checksum="1906486965"/>
   </class>
-  <class name="std::vector<l1tp2::CaloCrystalCluster>" />
+  <class name="std::vector<l1tp2::io_v1::CaloCrystalCluster>" />
   <class name="l1tp2::CaloCrystalClusterCollection" />
   <class name="edm::Wrapper<l1tp2::CaloCrystalClusterCollection>" />
   <class name="edm::Ref<l1tp2::CaloCrystalClusterCollection>" />
 
-  <class name="l1tp2::CaloJet"  ClassVersion="3">
-         <version ClassVersion="3" checksum="3035742018"/>
+  <class name="l1tp2::io_v1::CaloJet"  ClassVersion="3">
+         <version ClassVersion="3" checksum="1988318136"/>
   </class>
-  <class name="std::vector<l1tp2::CaloJet>" />
+  <class name="std::vector<l1tp2::io_v1::CaloJet>" />
   <class name="l1tp2::CaloJetsCollection" />
   <class name="edm::Wrapper<l1tp2::CaloJetsCollection>" />
 
@@ -34,32 +34,29 @@
   <class name="l1tp2::GCTHadDigiClusterCollection" />
   <class name="edm::Wrapper<std::vector<std::vector<l1tp2::GCTHadDigiCluster> > >" /> 
 
-  <class name="l1tp2::CaloTower"  ClassVersion="3">
-         <version ClassVersion="3" checksum="2068588777"/>
+  <class name="l1tp2::io_v1::CaloTower"  ClassVersion="3">
+         <version ClassVersion="3" checksum="3031797483"/>
   </class>
-  <class name="std::vector<l1tp2::CaloTower>" />
+  <class name="std::vector<l1tp2::io_v1::CaloTower>" />
   <class name="l1tp2::CaloTowerCollection" />
   <class name="edm::Wrapper<l1tp2::CaloTowerCollection>" />
 
-  <class name="l1tp2::DigitizedClusterCorrelator"  ClassVersion="4">
-   <version ClassVersion="4" checksum="838642806"/>
-     <version ClassVersion="3" checksum="1943292648"/>
+  <class name="l1tp2::io_v1::DigitizedClusterCorrelator"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3854049656"/>
   </class>
   <class name="l1tp2::DigitizedClusterCorrelatorCollection" />
   <class name="edm::Wrapper<l1tp2::DigitizedClusterCorrelatorCollection>" />
   <class name="edm::Ref<l1tp2::DigitizedClusterCorrelatorCollection>" />
 
-  <class name="l1tp2::DigitizedClusterGT"  ClassVersion="4">
-   <version ClassVersion="4" checksum="2603854524"/>
-       <version ClassVersion="3" checksum="3611926846"/>
+  <class name="l1tp2::io_v1::DigitizedClusterGT"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1818518158"/>
   </class>
   <class name="l1tp2::DigitizedClusterGTCollection" />
   <class name="edm::Wrapper<l1tp2::DigitizedClusterGTCollection>" /> 
 
 
-  <class name="l1tp2::DigitizedTowerCorrelator"  ClassVersion="4">
-   <version ClassVersion="4" checksum="1597735835"/>
-       <version ClassVersion="3" checksum="3734711406"/>
+  <class name="l1tp2::io_v1::DigitizedTowerCorrelator"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1944557117"/>
   </class>
   <class name="l1tp2::DigitizedTowerCorrelatorCollection" />
   <class name="edm::Wrapper<l1tp2::DigitizedTowerCorrelatorCollection>" />
@@ -71,7 +68,7 @@
   <class name="edm::Wrapper<std::vector<std::vector<l1tp2::GCTEmDigiCluster> > >" />  
 
   <class name="l1tp2::Phase2L1CaloJet"  ClassVersion="3">
-         <version ClassVersion="3" checksum="374504160"/>
+         <version ClassVersion="3" checksum="150934578"/>
   </class>
   <class name="std::vector<l1tp2::Phase2L1CaloJet>" />
   <class name="l1tp2::Phase2L1CaloJetCollection" />
