@@ -22,7 +22,7 @@ options.register('total',
                  "Ten",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: All, Ten")
+                  "testing every N IDs: All, Ten")
 
 ### get and parse the command line arguments
 options.parseArguments()
