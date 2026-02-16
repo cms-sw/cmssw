@@ -81,12 +81,12 @@ TH1F *ZGammaplusJetsPostProcessor::histos_(DQMStore::IBooker &ibooker,
   int DB_nbins = h_DirectBalance->GetXaxis()->GetNbins();
 
   float bins[DB_nbins + 1];
-  for (int i = 0; i <= (h_DirectBalance->GetXaxis()->GetNbins()) + 1; i++) {
-    double xlow = h_DirectBalance->GetXaxis()->GetBinLowEdge(i);
+  for (int i = 0; i <= (h_DirectBalance->GetXaxis()->GetNbins()); i++) {
+    double xlow = h_DirectBalance->GetXaxis()->GetBinLowEdge(i + 1);
     bins[i] = xlow;
   }
 
-  MonitorElement *meanDBvsRefPt = ibooker.book1D(outName, title, DB_nbins + 1, bins);
+  MonitorElement *meanDBvsRefPt = ibooker.book1D(outName, title, DB_nbins, bins);
 
   TH1F *pr = meanDBvsRefPt->getTH1F();
 
@@ -105,10 +105,10 @@ TH1F *ZGammaplusJetsPostProcessor::histos_(DQMStore::IBooker &ibooker,
   pr->SetMarkerSize(0.8);
   pr->SetStats(kTRUE);
 
-  for (int i = 1; i <= hp->GetNbinsX() + 1; i++) {
-    pr->SetBinContent(i + 1, hp->GetBinContent(i));
+  for (int i = 1; i <= hp->GetNbinsX(); i++) {
+    pr->SetBinContent(i, hp->GetBinContent(i));
     if (hp->GetBinError(i) != 0.)
-      pr->SetBinError(i + 1, hp->GetBinError(i));
+      pr->SetBinError(i, hp->GetBinError(i));
   }
 
   return pr;
