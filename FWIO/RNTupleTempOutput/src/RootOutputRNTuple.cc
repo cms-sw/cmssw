@@ -86,7 +86,7 @@ namespace edm {
     std::exception_ptr e;
     oneapi::tbb::this_task_arena::isolate([&] {
       try {
-        auto entry = writer_->CreateEntry();
+        auto entry = writer_->CreateRawPtrWriteEntry();
         for (auto z = zip(producedBranchPointers_, producedBranches_); auto prod : z) {
           entry->BindRawPtr(prod.second, *prod.first);
         }
@@ -204,7 +204,7 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
       model_->AddField(std::move(field));
     }
     producedBranches_.push_back(model_->GetToken(branchName));
-    producedBranchPointers_.push_back(const_cast<void**>(pProd));
+    producedBranchPointers_.push_back(pProd);
   }
 
   void RootOutputRNTuple::close() {

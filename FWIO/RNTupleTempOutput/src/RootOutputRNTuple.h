@@ -54,7 +54,7 @@ namespace edm {
       auto field = std::make_unique<ROOT::RField<T>>(branchName);
       model_->AddField(std::move(field));
       auxBranches_.push_back(model_->GetToken(branchName));
-      auxBranchPointers_.push_back(reinterpret_cast<void**>(const_cast<T**>(pAux)));
+      auxBranchPointers_.push_back(reinterpret_cast<void const**>(pAux));
     }
 
     bool isValid() const;
@@ -89,9 +89,9 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<ROOT::RNTupleWriter>> writer_;
 
     std::vector<ROOT::RFieldToken> producedBranches_;
-    std::vector<void**> producedBranchPointers_;
+    std::vector<void const**> producedBranchPointers_;
     std::vector<ROOT::RFieldToken> auxBranches_;
-    std::vector<void**> auxBranchPointers_;
+    std::vector<void const**> auxBranchPointers_;
   };
 }  // namespace edm
 #endif

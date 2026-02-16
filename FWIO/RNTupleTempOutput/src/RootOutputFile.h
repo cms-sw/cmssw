@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <memory>
+#include <optional>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -45,7 +46,8 @@ class TClass;
 
 namespace edm {
   class OccurrenceForOutput;
-}
+  class FileFormatVersion;
+}  // namespace edm
 namespace edm::rntuple_temp {
   class RNTupleTempOutputModule;
 
@@ -87,16 +89,17 @@ namespace edm::rntuple_temp {
     std::unique_ptr<ROOT::RFieldBase> setupProductDependencies();
     std::unique_ptr<ROOT::RFieldBase> setupProcessBlockHelper();
 
-    void writeFileFormatVersion(ROOT::REntry&);
-    void writeFileIdentifier(ROOT::REntry&);
-    void writeIndexIntoFile(ROOT::REntry&);
-    void writeStoredMergeableRunProductMetadata(ROOT::REntry&);
-    void writeProcessHistoryRegistry(ROOT::REntry&);
-    void writeProductDescriptionRegistry(ROOT::REntry&, ProductRegistry const&);
-    void writeBranchIDListRegistry(ROOT::REntry&);
-    void writeThinnedAssociationsHelper(ROOT::REntry&);
-    void writeProductDependencies(ROOT::REntry&);
-    void writeProcessBlockHelper(ROOT::REntry&);
+    void writeFileFormatVersion(ROOT::Experimental::Detail::RRawPtrWriteEntry&, FileFormatVersion&) const;
+    void writeFileIdentifier(ROOT::Experimental::Detail::RRawPtrWriteEntry&) const;
+    void writeIndexIntoFile(ROOT::Experimental::Detail::RRawPtrWriteEntry&);
+    void writeStoredMergeableRunProductMetadata(ROOT::Experimental::Detail::RRawPtrWriteEntry&);
+    void writeProcessHistoryRegistry(ROOT::Experimental::Detail::RRawPtrWriteEntry&, ProcessHistoryVector&) const;
+    void writeProductDescriptionRegistry(ROOT::Experimental::Detail::RRawPtrWriteEntry&, ProductRegistry&);
+    void writeBranchIDListRegistry(ROOT::Experimental::Detail::RRawPtrWriteEntry&) const;
+    void writeThinnedAssociationsHelper(ROOT::Experimental::Detail::RRawPtrWriteEntry&) const;
+    void writeProductDependencies(ROOT::Experimental::Detail::RRawPtrWriteEntry&) const;
+    void writeProcessBlockHelper(ROOT::Experimental::Detail::RRawPtrWriteEntry&,
+                                 std::optional<StoredProcessBlockHelper>&) const;
 
     void fillBranches(BranchType const& branchType,
                       OccurrenceForOutput const& occurrence,
