@@ -116,12 +116,8 @@ process.l1tLayer1BarrelTDR.regionizerAlgoParameters = cms.PSet(
         nCalo = cms.uint32(15),
         nEmCalo = cms.uint32(12),
         nMu = cms.uint32(2),
-        nClocks = cms.uint32(162),
-        doSort = cms.bool(False),
-        bigRegionEdges = cms.vint32(-560, -560),
-        netaInBR = cms.uint32(6),
-        nphiInBR = cms.uint32(9),
-        debug = cms.untracked.bool(True)
+        debug = cms.untracked.bool(True),
+        debug_mu = cms.untracked.bool(True)
     )
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nSelCalo = 15
@@ -138,17 +134,12 @@ process.l1tLayer1BarrelTDR.hadClusters = cms.InputTag('l1tPhase2GCTBarrelToCorre
 process.l1tLayer1BarrelTDR.gctHadInputConversionAlgo = cms.string("Emulator")
 
 process.l1tLayer1BarrelTDR.caloSectors = cms.VPSet(
-        cms.PSet(
-            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
-            phiSlices     = cms.uint32(3),
-            phiZero       = cms.double(math.pi/18)
-        ),
-        cms.PSet(
-            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
-            phiSlices     = cms.uint32(3),
-            phiZero       = cms.double(math.pi*7/18)
-        )
+    cms.PSet(
+        etaBoundaries = cms.vdouble(-1.5, 1.5),
+        phiSlices     = cms.uint32(3),
+        phiZero       = cms.double(math.pi/18)
     )
+)
 
 process.l1tLayer1BarrelSerenity = process.l1tLayer1Barrel.clone()
 process.l1tLayer1BarrelSerenity.regionizerAlgo = "MiddleBufferMultififo"

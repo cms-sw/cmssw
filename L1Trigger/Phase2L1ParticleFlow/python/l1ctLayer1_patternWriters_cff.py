@@ -22,8 +22,8 @@ _barrelWriterOutputOnly = cms.PSet(
     eventsPerFile = cms.uint32(_eventsPerFile),
     gmtNumberOfMuons = cms.uint32(12),
     gmtLink = cms.int32(-1),
-    gctLinks = cms.vint32(-1),
-    tfLinks = cms.vint32(-1),
+    gctSectors = cms.VPSet(),
+    tfSectors = cms.VPSet(),
     gttLink = cms.int32(-1),
     gttLatency = cms.uint32(167),
     gttNumberOfPVs = cms.uint32(_gttNumberOfPVs),
@@ -254,8 +254,8 @@ barrelApxWriterConfig = _barrelWriterOutputOnly.clone(
     fileFormat = cms.string("APx"),
     gttLink = cms.int32(123),
     gmtLink = cms.int32(21),
-    gctLinks = cms.vint32(18, 19, 20),
-    tfLinks = cms.vint32(*range(18)),
+    gctSectors = cms.VPSet(*[cms.PSet(gctLink = cms.int32(i)) for i in (18, 19, 20)]),
+    tfSectors = cms.VPSet(*[cms.PSet(tfLink = cms.int32(i)) for i in range(18)]),
     inputFileName = cms.string("l1BarrelApx-inputs")
 )
 

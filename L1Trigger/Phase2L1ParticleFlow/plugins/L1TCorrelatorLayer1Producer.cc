@@ -31,7 +31,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/buffered_folded_multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/middle_buffer_multififo_regionizer_ref.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_regionizer_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_alt_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo2hgc_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo3_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo_dummy_ref.h"
@@ -314,7 +314,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     regionizer_ = std::make_unique<l1ct::MiddleBufferMultififoRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
   } else if (regalgo == "TDR") {
-    regionizer_ = std::make_unique<l1ct::TDRRegionizerEmulator>(
+    regionizer_ = std::make_unique<l1ct::TDRAltRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
   } else
     throw cms::Exception("Configuration", "Unsupported regionizerAlgo");
@@ -416,7 +416,7 @@ void L1TCorrelatorLayer1Producer::fillDescriptions(edm::ConfigurationDescription
                    "Emulator" >> getParDesc<l1ct::GctHadClusterDecoderEmulator>("gctHadInputConversion"));
   // Regionizer
   auto idealRegPD = getParDesc<l1ct::RegionizerEmulator>("regionizerAlgo");
-  auto tdrRegPD = getParDesc<l1ct::TDRRegionizerEmulator>("regionizerAlgo");
+  auto tdrRegPD = getParDesc<l1ct::TDRAltRegionizerEmulator>("regionizerAlgo");
   auto multififoRegPD = getParDesc<l1ct::MultififoRegionizerEmulator>("regionizerAlgo");
   auto bfMultififoRegPD = getParDesc<l1ct::BufferedFoldedMultififoRegionizerEmulator>("regionizerAlgo");
   auto multififoBarrelRegPD = edm::ParameterDescription<edm::ParameterSetDescription>(

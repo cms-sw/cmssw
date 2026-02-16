@@ -78,6 +78,8 @@ void l1ct::TDRAltRegionizerEmulator::initSectorsAndRegions(const RegionizerDecod
   hadCaloRegionizers_.initRegions(out);
   emCaloRegionizers_.initSectors(in.emcalo);
   emCaloRegionizers_.initRegions(out);
+  muRegionizers_.initSectors(in.muon);
+  muRegionizers_.initRegions(out);
 }
 
 void l1ct::TDRAltRegionizerEmulator::run(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out) {
