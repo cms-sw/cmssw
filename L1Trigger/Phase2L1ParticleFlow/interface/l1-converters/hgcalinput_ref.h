@@ -52,7 +52,7 @@ namespace l1ct {
     private:
       void initialize(const std::string &model, const std::vector<double> &wp_eta);
 
-      std::vector<l1ct::eta_t> wp_eta_;
+      std::vector<l1ct::glbeta_t> wp_eta_;
       std::vector<l1ct::HgcalClusterDecoderEmulator::MultiClassID::WPs> wps_;
 
       typedef ap_fixed<18, 8> activation_table_t;

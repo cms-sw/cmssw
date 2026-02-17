@@ -214,7 +214,8 @@ void l1ct::HgcalClusterDecoderEmulator::MultiClassID::initialize(const std::stri
                                                                  const std::vector<double> &wp_eta) {
   assert(wp_eta.size() + 1 == wps_.size());
   for (auto eta : wp_eta)
-    wp_eta_.emplace_back(l1ct::Scales::makeEta(eta));
+    wp_eta_.emplace_back(l1ct::Scales::makeGlbEta(eta));
+
 #ifdef CMSSW_GIT_HASH
   auto resolvedFileName = edm::FileInPath(model).fullPath();
 #else
@@ -242,7 +243,7 @@ bool l1ct::HgcalClusterDecoderEmulator::MultiClassID::evaluate(const l1ct::PFReg
   // softmax_stable<>
   unsigned int eta_bin = 0;
   for (size_t i = wp_eta_.size(); i > 0; --i) {
-    if (fabs(sector.floatGlbEta(cl.hwEta)) >= wp_eta_[i - 1]) {
+    if (abs(sector.hwGlbEta(cl.hwEta)) >= wp_eta_[i - 1]) {
       eta_bin = i;
       break;
     }
