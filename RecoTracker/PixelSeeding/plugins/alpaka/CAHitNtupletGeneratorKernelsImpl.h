@@ -508,17 +508,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if (cellNeighborsHisto->size(idx) == 0)
           continue;
 
+        // check if the layer pair of the cell is among the set of starting pairs
         auto pid = thisCell.layerPairId();
         bool doit = cc[pid].startingPair();
 
+        // check if the most inner hit does not fulfill the starting requirement
+        auto lid = thisCell.innerLayer();
+        if (thisCell.inner_r() > ll[lid].startMaxInnerR())
+          doit = false;
+
         constexpr uint32_t maxDepth = TrackerTraits::maxDepth;
 #ifdef CA_DEBUG
-        printf("LayerPairId %d doit ? %d From cell %d with nNeighbors = %d \n",
-               pid,
-               lid,
-               doit,
-               idx,
-               cellNeighborsHisto->size(idx));
+        printf(
+            "LayerPairId %d and inner layer %d doit ? %d From cell %d with nNeighbors = %d and innerR=%f < "
+            "maxInnerR=%f ?\n",
+            pid,
+            lid,
+            doit,
+            idx,
+            cellNeighborsHisto->size(idx),
+            thisCell.inner_r(),
+            ll[lid].startMaxInnerR());
 #endif
 
         if (doit) {
