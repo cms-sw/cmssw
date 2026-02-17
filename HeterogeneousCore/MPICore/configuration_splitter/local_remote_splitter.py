@@ -16,11 +16,6 @@ Positional arguments:
     config
         Path to the input HLT Python configuration file.
 
-    modules
-        One or more module labels and/or sequence names to offload to the
-        remote process. Sequence names are expanded into their constituent
-        modules.
-
 Optional arguments:
     -ol, --output_local
         Path to the output configuration for the local process.
@@ -39,21 +34,30 @@ Optional arguments:
         False by default. If this script was run before, pass this 
         argument to reuse the generated file with C++ product names
 
-Example:
-    python3 local_remote_splitter.py hlt.py  hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+Example 1 (offloading GPU part of ECAL and HCAL):
+    python3 local_remote_splitter.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
         --shared-modules hltHcalDigis
-        --output_local local.py \
-        --output_remote remote.py
+        --local-output local.py \
+        --remote-output remote.py
+
+Example 2 (offloading GPU part of ECAL, HCAL and pixels):
+    python3 local_remote_splitter.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+        hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
+        hltSiPixelClustersSoA hltSiPixelRecHitsSoA hltPixelTracksSoA hltPixelVerticesSoA \
+        --shared-modules hltHcalDigis hltOnlineBeamSpot   hltOnlineBeamSpotDevice \
+        --local-output local.py \
+        --remote-output remote.py
+
 
 Notes:
     - Only data dependencies expressed via InputTag are considered.
     - Module execution order inside dependency groups is preserved.
 
 Some TBDs:
-    - Mow we check all dependencies by input tags. We have to try utilising DependencyGraph. 
+    - Now we check all dependencies by input tags. We have to try utilising DependencyGraph. 
       Modifying the service is mandatory, because current visual graph is to large to be processed
-    - (maybe later?) Do motre elegant file dumping
+    - (maybe later?) Do more elegant file dumping
     - Test if the results and througputs are the same as in manual split
 
 """
@@ -103,17 +107,22 @@ def load_config(path: pathlib.Path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("config", type=pathlib.Path, help="HLT python config")
-    parser.add_argument("modules", nargs="+", help="Modules and/or sequences to offload")
     parser.add_argument(
-        "-ol",
-        "--output_local",
+        "--remote-modules",
+        nargs="+",
+        default=[],
+        help="Modules and/or sequences to offload",
+    )
+    parser.add_argument(
+        "-lo",
+        "--local-output",
         type=pathlib.Path,
         default=pathlib.Path("splitted_config/local_split.py"),
         help="Output config path for the local process",
     )
     parser.add_argument(
-        "-or",
-        "--output_remote",
+        "-ro",
+        "--remote-output",
         type=pathlib.Path,
         default=pathlib.Path("splitted_config/remote_split.py"),
         help="Output config path for the remote process",
@@ -142,7 +151,7 @@ def main():
 
     local_process = cfg.process
 
-    modules_to_offload = flatten_all_to_module_set(local_process, args.modules)
+    modules_to_offload = flatten_all_to_module_set(local_process, args.remote_modules)
     modules_to_run_on_both = flatten_all_to_module_set(local_process, args.shared_modules)
     
     # list of all modules to run on remote
