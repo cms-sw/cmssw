@@ -11,19 +11,24 @@
 #include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
+// TracksterInferenceAlgoBase.h
+
 namespace ticl {
 
   class TracksterInferenceAlgoBase {
   public:
     struct OrtScratch {
-      // Used with ONNXRuntime::runInto() to reuse buffers across events.
+      // Reused buffers for ONNXRuntime::runInto()
       cms::Ort::FloatArrays inputs;
       cms::Ort::FloatArrays outputs;
 
+      // Reused shapes vector: one entry per input tensor.
+      std::vector<std::vector<int64_t>> input_shapes;
+
       void clearPerEvent() {
         // Keep capacity, reset sizes.
-        inputs.clear();
         outputs.clear();
+        // Do NOT clear inputs or input_shapes here: we want to reuse capacity and overwrite per minibatch.
       }
     };
 
@@ -32,11 +37,10 @@ namespace ticl {
 
     virtual ~TracksterInferenceAlgoBase() = default;
 
-    virtual void inputData(const std::vector<reco::CaloCluster>& layerClusters,
-                           std::vector<Trackster>& tracksters,
-                           const hgcal::RecHitTools& rhtools) = 0;
-
-    virtual void runInference(std::vector<Trackster>& tracksters) = 0;
+    // New API: build minibatches internally
+    virtual void runInference(const std::vector<reco::CaloCluster>& layerClusters,
+                              std::vector<Trackster>& tracksters,
+                              const hgcal::RecHitTools& rhtools) const = 0;
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); }
 
@@ -44,7 +48,7 @@ namespace ticl {
     int algo_verbosity_;
     TICLONNXGlobalCache const* cache_;
 
-    // Per-stream scratch (safe because each stream has its own module + plugin instances).
+    // Per-stream scratch: must be mutable because runInference() is const.
     mutable OrtScratch ortScratch_;
   };
 

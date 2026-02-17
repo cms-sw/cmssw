@@ -256,8 +256,7 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
                         true);
 
   if (regressionAndPid_ && inferenceAlgo_) {
-    inferenceAlgo_->inputData(layerClusters, *resultTracksters, rhtools_);
-    inferenceAlgo_->runInference(*resultTracksters);
+    inferenceAlgo_->runInference(layerClusters, *resultTracksters, rhtools_);
   }
 
   evt.put(std::move(linkedResultTracksters));

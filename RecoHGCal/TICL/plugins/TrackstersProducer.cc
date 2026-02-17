@@ -169,8 +169,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       myAlgoHFNose_->makeTracksters(inputHFNose, *initialResult, seedToTrackstersAssociation);
 
       if (inferenceAlgo_) {
-        inferenceAlgo_->inputData(layerClusters, *initialResult, rhtools_);
-        inferenceAlgo_->runInference(*initialResult);
+        inferenceAlgo_->runInference(layerClusters, *initialResult, rhtools_);
       }
 
       myAlgoHFNose_->filter(*result, *initialResult, inputHFNose, seedToTrackstersAssociation);
@@ -182,8 +181,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       myAlgo_->makeTracksters(input, *initialResult, seedToTrackstersAssociation);
 
       if (inferenceAlgo_) {
-        inferenceAlgo_->inputData(layerClusters, *initialResult, rhtools_);
-        inferenceAlgo_->runInference(*initialResult);
+        inferenceAlgo_->runInference(layerClusters, *initialResult, rhtools_);
       }
 
       myAlgo_->filter(*result, *initialResult, input, seedToTrackstersAssociation);
@@ -248,11 +246,6 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   inferenceDescPFN.addNode(
       edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
   desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByPFN", inferenceDescPFN);
-
-  edm::ParameterSetDescription inferenceDescANN;
-  inferenceDescANN.addNode(
-      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByANN", true));
-  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByANN", inferenceDescANN);
 
   descriptions.add("trackstersProducer", desc);
 }

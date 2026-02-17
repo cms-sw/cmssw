@@ -20,130 +20,151 @@ namespace ticl {
         eidNLayers_(conf.getParameter<int>("eid_n_layers")),
         eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
         doPID_(conf.getParameter<int>("doPID")),
-        doRegression_(conf.getParameter<int>("doRegression")) {
-    // Empty string means "disabled": the cache will not load anything and we keep nullptr sessions.
+        doRegression_(conf.getParameter<int>("doRegression")),
+        miniBatchSize_(conf.getUntrackedParameter<int>("miniBatchSize", 256)) {
     const std::string pidModel = conf.getParameter<std::string>("onnxPIDModelPath");
     const std::string energyModel = conf.getParameter<std::string>("onnxEnergyModelPath");
 
-    if (cache != nullptr) {
+    if (cache_ != nullptr) {
       if (!pidModel.empty()) {
-        onnxPIDSession_ = cache->getByModelPathString(pidModel);
+        onnxPIDSession_ = cache_->getByModelPathString(pidModel);
       }
       if (!energyModel.empty()) {
-        onnxEnergySession_ = cache->getByModelPathString(energyModel);
+        onnxEnergySession_ = cache_->getByModelPathString(energyModel);
       }
     }
 
-    // Enable only if the requested tasks have sessions.
     enabled_ = ((doPID_ != 0 && onnxPIDSession_ != nullptr) || (doRegression_ != 0 && onnxEnergySession_ != nullptr));
 
-    // Reusable buffers (1 input tensor for this model)
-    inputs_.resize(1);
-    outputs_.clear();
+    ortScratch_.inputs.resize(1);
+    ortScratch_.input_shapes.resize(1);
   }
 
-  void TracksterInferenceByDNN::inputData(const std::vector<reco::CaloCluster>& layerClusters,
-                                          std::vector<Trackster>& tracksters,
-                                          const hgcal::RecHitTools& rhtools) {
-    if (!enabled_) {
-      batchSize_ = 0;
+  void TracksterInferenceByDNN::runInference(const std::vector<reco::CaloCluster>& layerClusters,
+                                             std::vector<Trackster>& tracksters,
+                                             const hgcal::RecHitTools& rhtools) const {
+    if (!enabled_ || tracksters.empty()) {
       return;
     }
 
-    tracksterIndices_.clear();
-    for (int i = 0; i < static_cast<int>(tracksters.size()); i++) {
+    // ---- select tracksters (same physics logic), reset outputs once
+    std::vector<int> indices;
+    indices.reserve(tracksters.size());
+
+    for (int i = 0; i < static_cast<int>(tracksters.size()); ++i) {
       float sumClusterEnergy = 0.f;
-      for (const unsigned int& vertex : tracksters[i].vertices()) {
-        if (rhtools.isBarrel(layerClusters[vertex].seed())) {
+
+      // Note: keep the same semantics you had (skip barrel clusters, sum endcap energy)
+      for (const unsigned int& v : tracksters[i].vertices()) {
+        if (rhtools.isBarrel(layerClusters[v].seed())) {
           continue;
         }
-        sumClusterEnergy += static_cast<float>(layerClusters[vertex].energy());
+        sumClusterEnergy += static_cast<float>(layerClusters[v].energy());
         if (sumClusterEnergy >= eidMinClusterEnergy_) {
           tracksters[i].setRegressedEnergy(0.f);
           tracksters[i].zeroProbabilities();
-          tracksterIndices_.push_back(i);
+          indices.push_back(i);
           break;
         }
       }
     }
 
-    batchSize_ = static_cast<int>(tracksterIndices_.size());
-    if (batchSize_ == 0) {
+    const int total = static_cast<int>(indices.size());
+    if (total == 0) {
       return;
     }
 
-    std::vector<int64_t> inputShape = {batchSize_, eidNLayers_, eidNClusters_, eidNFeatures_};
-    input_shapes_.clear();
-    input_shapes_.push_back(std::move(inputShape));
+    const int mb = std::max(1, miniBatchSize_);
 
-    // We fill sparsely into (B,L,C,F) -> must zero the rest.
-    const size_t n = static_cast<size_t>(batchSize_) * eidNLayers_ * eidNClusters_ * eidNFeatures_;
-    inputs_[0].resize(n);
-    std::fill(inputs_[0].begin(), inputs_[0].end(), 0.f);
+    // Reuse buffers across events
+    ortScratch_.clearPerEvent();
 
-    for (int i = 0; i < batchSize_; i++) {
-      const Trackster& trackster = tracksters[tracksterIndices_[i]];
+    // Per-minibatch reusable temporaries to avoid churn
+    std::vector<int> seenClusters;
+    seenClusters.resize(eidNLayers_);
 
-      std::vector<int> clusterIndices(trackster.vertices().size());
-      std::iota(clusterIndices.begin(), clusterIndices.end(), 0);
+    std::vector<int> clusterIndices;
 
-      std::sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](int a, int b) {
-        return layerClusters[trackster.vertices(a)].energy() > layerClusters[trackster.vertices(b)].energy();
-      });
+    // Alias for input tensor
+    auto& in = ortScratch_.inputs[0];
 
-      std::vector<int> seenClusters(eidNLayers_, 0);
+    for (int start = 0; start < total; start += mb) {
+      const int n = std::min(mb, total - start);
 
-      for (int k : clusterIndices) {
-        const reco::CaloCluster& cluster = layerClusters[trackster.vertices(k)];
-        const int j = rhtools.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
+      // shape: [B, L, C, F]
+      ortScratch_.input_shapes[0] = {n, eidNLayers_, eidNClusters_, eidNFeatures_};
 
-        if (j < 0 || j >= eidNLayers_) {
-          continue;
+      const size_t nFloats = static_cast<size_t>(n) * eidNLayers_ * eidNClusters_ * eidNFeatures_;
+      in.assign(nFloats, 0.f);  // sparse fill -> must zero
+
+      // ---- build sparse tensor for this minibatch
+      for (int bi = 0; bi < n; ++bi) {
+        const int tsIdx = indices[start + bi];
+        Trackster const& ts = tracksters[tsIdx];
+
+        const int vtxCount = static_cast<int>(ts.vertices().size());
+        clusterIndices.resize(vtxCount);
+        std::iota(clusterIndices.begin(), clusterIndices.end(), 0);
+
+        std::sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &ts](int a, int b) {
+          return layerClusters[ts.vertices(a)].energy() > layerClusters[ts.vertices(b)].energy();
+        });
+
+        std::fill(seenClusters.begin(), seenClusters.end(), 0);
+
+        for (int k : clusterIndices) {
+          const unsigned int v = ts.vertices(k);
+          auto const& cl = layerClusters[v];
+
+          const int j = rhtools.getLayerWithOffset(cl.hitsAndFractions()[0].first) - 1;
+          if (j < 0 || j >= eidNLayers_) {
+            continue;
+          }
+          if (seenClusters[j] >= eidNClusters_) {
+            continue;
+          }
+
+          const size_t base =
+              (static_cast<size_t>(bi) * eidNLayers_ + static_cast<size_t>(j)) * (eidNClusters_ * eidNFeatures_) +
+              static_cast<size_t>(seenClusters[j]) * eidNFeatures_;
+
+          in[base + 0] = static_cast<float>(cl.energy() / static_cast<float>(ts.vertex_multiplicity(k)));
+          in[base + 1] = static_cast<float>(std::abs(cl.eta()));
+          in[base + 2] = static_cast<float>(cl.phi());
+
+          ++seenClusters[j];
         }
-        if (seenClusters[j] >= eidNClusters_) {
-          continue;
-        }
-
-        const int index = (i * eidNLayers_ + j) * (eidNClusters_ * eidNFeatures_) + seenClusters[j] * eidNFeatures_;
-
-        inputs_[0][index + 0] =
-            static_cast<float>(cluster.energy() / static_cast<float>(trackster.vertex_multiplicity(k)));
-        inputs_[0][index + 1] = static_cast<float>(std::abs(cluster.eta()));
-        inputs_[0][index + 2] = static_cast<float>(cluster.phi());
-
-        seenClusters[j]++;
       }
-    }
-  }
 
-  void TracksterInferenceByDNN::runInference(std::vector<Trackster>& tracksters) {
-    if (!enabled_ || batchSize_ == 0) {
-      return;
-    }
+      // ---- regression
+      if (doRegression_ != 0 && onnxEnergySession_ != nullptr) {
+        ortScratch_.outputs.clear();
 
-    if (doRegression_ != 0 && onnxEnergySession_ != nullptr) {
-      // Reuse outputs_ buffer
-      onnxEnergySession_->runInto(inputNames_, inputs_, input_shapes_, output_en_, outputs_, {}, batchSize_);
+        onnxEnergySession_->runInto(
+            inputNames_, ortScratch_.inputs, ortScratch_.input_shapes, output_en_, ortScratch_.outputs, {}, n);
 
-      if (!outputs_.empty() && !output_en_.empty()) {
-        auto const& energyOutputTensor = outputs_[0];
-        for (int i = 0; i < batchSize_; i++) {
-          const float energy = energyOutputTensor[i];
-          tracksters[tracksterIndices_[i]].setRegressedEnergy(energy);
+        if (!ortScratch_.outputs.empty() && !output_en_.empty()) {
+          auto const& energy = ortScratch_.outputs[0];
+          for (int bi = 0; bi < n; ++bi) {
+            tracksters[indices[start + bi]].setRegressedEnergy(energy[bi]);
+          }
         }
       }
-    }
 
-    if (doPID_ != 0 && onnxPIDSession_ != nullptr) {
-      // Reuse outputs_ buffer
-      onnxPIDSession_->runInto(inputNames_, inputs_, input_shapes_, output_id_, outputs_, {}, batchSize_);
+      // ---- PID
+      if (doPID_ != 0 && onnxPIDSession_ != nullptr) {
+        ortScratch_.outputs.clear();
 
-      if (!outputs_.empty() && !output_id_.empty()) {
-        float* probs = outputs_[0].data();
-        for (int i = 0; i < batchSize_; i++) {
-          auto& ts = tracksters[tracksterIndices_[i]];
-          ts.setProbabilities(probs);
-          probs += ts.id_probabilities().size();
+        onnxPIDSession_->runInto(
+            inputNames_, ortScratch_.inputs, ortScratch_.input_shapes, output_id_, ortScratch_.outputs, {}, n);
+
+        if (!ortScratch_.outputs.empty() && !output_id_.empty()) {
+          float* probs = ortScratch_.outputs[0].data();
+          for (int bi = 0; bi < n; ++bi) {
+            auto& ts = tracksters[indices[start + bi]];
+            ts.setProbabilities(probs);
+            probs += ts.id_probabilities().size();
+          }
         }
       }
     }
@@ -160,11 +181,15 @@ namespace ticl {
     iDesc.add<std::vector<std::string>>("inputNames", {"input"});
     iDesc.add<std::vector<std::string>>("output_en", {"enreg_output"});
     iDesc.add<std::vector<std::string>>("output_id", {"pid_output"});
+
     iDesc.add<double>("eid_min_cluster_energy", 1.0);
     iDesc.add<int>("eid_n_layers", 50);
     iDesc.add<int>("eid_n_clusters", 10);
     iDesc.add<int>("doPID", 1);
     iDesc.add<int>("doRegression", 1);
+
+    iDesc.addUntracked<int>("miniBatchSize", 256)
+        ->setComment("Mini-batch size for inference to limit peak memory usage.");
   }
 
 }  // namespace ticl
