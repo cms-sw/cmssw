@@ -60,4 +60,5 @@
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="PhysicsTools/CandUtils"/>
+<use name="CalibTracker/SiPixelESProducers"/>
 <flags EDM_PLUGIN="1"/>

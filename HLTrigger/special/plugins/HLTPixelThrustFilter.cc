@@ -10,6 +10,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 
 //
 // class declaration
@@ -23,8 +26,22 @@ public:
   bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const final;
 
 private:
+  bool isSaturatedPixel(const SiPixelCluster&, const DetId&) const;
+  SiPixelGainCalibrationServiceBase* getPixelCalib(const edm::ParameterSet& conf, edm::ConsumesCollector iC) const {
+    const auto& pixelCalibType = conf.getParameter<std::string>("pixelCalibType");
+    if (pixelCalibType == "HLT")
+      return new SiPixelGainCalibrationForHLTService(conf, iC);
+    else if (pixelCalibType == "Offline")
+      return new SiPixelGainCalibrationOfflineService(conf, iC);
+    else if (min_nSatPixels_ > 0 || useSaturatedPixels_)
+      throw edm::Exception(edm::errors::Configuration) << "Wrong pixel gain calibration type.";
+    return nullptr;
+  };
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryRcdToken_;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
+  const bool useSaturatedPixels_;
+  const unsigned int min_nPixels_, min_nSatPixels_;
+  const std::unique_ptr<SiPixelGainCalibrationServiceBase> pixelCalib_;
   const double min_thrust_;  // minimum thrust
   const double max_thrust_;  // maximum thrust
 };
@@ -36,12 +53,20 @@ private:
 HLTPixelThrustFilter::HLTPixelThrustFilter(const edm::ParameterSet& config)
     : trackerGeometryRcdToken_(esConsumes()),
       inputToken_(consumes<edmNew::DetSetVector<SiPixelCluster> >(config.getParameter<edm::InputTag>("inputTag"))),
+      useSaturatedPixels_(config.getParameter<bool>("useSaturatedPixels")),
+      min_nPixels_(config.getParameter<unsigned int>("minNPixels")),
+      min_nSatPixels_(config.getParameter<unsigned int>("minNSaturatedPixels")),
+      pixelCalib_(getPixelCalib(config, consumesCollector())),
       min_thrust_(config.getParameter<double>("minThrust")),
       max_thrust_(config.getParameter<double>("maxThrust")) {}
 
 void HLTPixelThrustFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag", edm::InputTag("hltSiPixelClusters"));
+  desc.add<std::string>("pixelCalibType", "");
+  desc.add<bool>("useSaturatedPixels", false);
+  desc.add<unsigned int>("minNPixels", 2);
+  desc.add<unsigned int>("minNSaturatedPixels", 0);
   desc.add<double>("minThrust", 0);
   desc.add<double>("maxThrust", 0);
   descriptions.add("hltPixelThrustFilter", desc);
@@ -55,16 +80,26 @@ bool HLTPixelThrustFilter::filter(edm::StreamID, edm::Event& event, edm::EventSe
   // get hold of products from Event
   auto const& clusters = event.get(inputToken_);
   auto const& trackerGeo = iSetup.getData(trackerGeometryRcdToken_);
+  if (pixelCalib_)
+    pixelCalib_->setESObjects(iSetup);
 
+  size_t nSatPixels(0);
   std::vector<reco::LeafCandidate> vec;
   for (auto DSViter = clusters.begin(); DSViter != clusters.end(); DSViter++) {
     auto const& pgdu = static_cast<const PixelGeomDetUnit*>(trackerGeo.idToDetUnit(DSViter->detId()));
     for (auto const& cluster : *DSViter) {
+      if (pixelCalib_ && isSaturatedPixel(cluster, DSViter->detId()))
+        nSatPixels += 1;
+      else if (useSaturatedPixels_)
+        continue;
       auto const& pos = pgdu->surface().toGlobal(pgdu->specificTopology().localPosition({cluster.x(), cluster.y()}));
       auto const mag = std::sqrt(pos.x() * pos.x() + pos.y() * pos.y());
-      vec.emplace_back(0, reco::Particle::LorentzVector(pos.x() / mag, pos.y() / mag, 0, 0));
+      if (mag > 0)
+        vec.emplace_back(0, reco::Particle::LorentzVector(pos.x() / mag, pos.y() / mag, 0, 0));
     }
   }
+  if (vec.size() < min_nPixels_ || nSatPixels < min_nSatPixels_)
+    return false;
   auto const thrust = Thrust(vec.begin(), vec.end()).thrust();
 
   bool accept = (thrust >= min_thrust_);
@@ -72,6 +107,22 @@ bool HLTPixelThrustFilter::filter(edm::StreamID, edm::Event& event, edm::EventSe
     accept &= (thrust <= max_thrust_);
   // return with final filter decision
   return accept;
+}
+
+bool HLTPixelThrustFilter::isSaturatedPixel(const SiPixelCluster& cluster, const DetId& detId) const {
+  for (size_t j = 0; j < cluster.pixelADC().size(); j++) {
+    const auto& pixel = cluster.pixel(j);
+    if (pixel.adc == std::numeric_limits<uint16_t>::max())
+      return true;
+    // Run3: VCaltoElectronOffset = 0 and VCaltoElectronGain = 1
+    const auto& vcal = pixel.adc;
+    const auto DBgain = pixelCalib_->getGain(detId, pixel.y, pixel.x);
+    const auto DBpedestal = pixelCalib_->getPedestal(detId, pixel.y, pixel.x);
+    const auto adc = DBgain > 0. ? std::round(DBpedestal + vcal / DBgain) : 0;
+    if (adc >= std::numeric_limits<uint8_t>::max())
+      return true;
+  }
+  return false;
 }
 
 // define as a framework module
