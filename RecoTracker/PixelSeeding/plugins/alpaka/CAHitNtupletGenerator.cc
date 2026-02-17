@@ -76,6 +76,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               std::vector<unsigned int>(TrackerTraits::startingPairs,
                                         TrackerTraits::startingPairs + TrackerTraits::nStartingPairs))
           ->setComment("The list of the ids of pairs from which the CA ntuplets building may start.");
+      geometryParams
+          .add<std::vector<double>>("startMaxInnerR", std::vector<double>(TrackerTraits::numberOfLayers, 99.0))
+          ->setComment(
+              "The maximum allowed r coordinate of the inner hit of a doublet to use it as a starting point for "
+              "ntuplet building.");
       /*
       Cut on quadruplets (two triplets sharing a doublet) using the curvatures Ci, Co of the triplets:
       |Co - Ci| < (|Co| + |Ci|)/2 * caDCurvCut + caDCurv0
