@@ -41,6 +41,9 @@ namespace caStructures {
     bool doSharedHitCut_;
     bool dupPassThrough_;
     bool useSimpleTripletCleaner_;
+    bool doTripletCleaner_;
+    bool doFastDuplicateRemover_;
+    bool doEarlyDuplicateRemover_;
   };
 
   // Hits data formats
