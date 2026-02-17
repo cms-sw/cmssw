@@ -76,6 +76,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               std::vector<unsigned int>(TrackerTraits::startingPairs,
                                         TrackerTraits::startingPairs + TrackerTraits::nStartingPairs))
           ->setComment("The list of the ids of pairs from which the CA ntuplets building may start.");
+      /*
+      Cut on quadruplets (two triplets sharing a doublet) using the curvatures Ci, Co of the triplets:
+      |Co - Ci| < (|Co| + |Ci|)/2 * caDCurvCut + caDCurv0
+      */
+      geometryParams.add<std::vector<double>>("caDCurvCuts", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
+          ->setComment("Cut on curvature difference between two consecutive triplets.");
+      geometryParams.add<std::vector<double>>("caDCurv0", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
+          ->setComment("Offset for the cut on curvature difference between two consecutive triplets.");
       // cells params
       geometryParams
           .add<std::vector<unsigned int>>(
