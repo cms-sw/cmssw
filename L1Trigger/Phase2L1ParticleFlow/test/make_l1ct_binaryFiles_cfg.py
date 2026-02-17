@@ -68,10 +68,10 @@ process.l1tTrackSelectionProducer.processSimulatedTracks = False # these would n
 process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 from L1Trigger.Configuration.SimL1Emulator_cff import l1tSAMuonsGmt
 process.l1tSAMuonsGmt = l1tSAMuonsGmt.clone()
-# from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import l1tPhase2L1CaloEGammaEmulator
-# process.l1tPhase2L1CaloEGammaEmulator = l1tPhase2L1CaloEGammaEmulator.clone()
-# from L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi import l1tPhase2CaloPFClusterEmulator
-# process.l1tPhase2CaloPFClusterEmulator = l1tPhase2CaloPFClusterEmulator.clone()
+from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import l1tPhase2L1CaloEGammaEmulator
+process.l1tPhase2L1CaloEGammaEmulator = l1tPhase2L1CaloEGammaEmulator.clone()
+from L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi import l1tPhase2CaloPFClusterEmulator
+process.l1tPhase2CaloPFClusterEmulator = l1tPhase2CaloPFClusterEmulator.clone()
 # from L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi import l1tPhase2GCTBarrelToCorrelatorLayer1Emulator
 # process.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator = l1tPhase2GCTBarrelToCorrelatorLayer1Emulator.clone()
 
@@ -80,6 +80,8 @@ process.l1tPhase2CaloToCorrelatorTMI18 = l1tPhase2CaloToCorrelatorTMI18.clone()
 
 process.L1TInputTask = cms.Task(
     process.l1tSAMuonsGmt,
+    process.l1tPhase2L1CaloEGammaEmulator,
+    process.l1tPhase2CaloPFClusterEmulator,
     process.l1tPhase2CaloToCorrelatorTMI18
 )
 
