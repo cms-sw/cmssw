@@ -936,6 +936,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if (hitToTuple.size(idx) < 2)
           continue;
 
+        // checking if shared hit is on bpix1
+        if (idx < l1end)
+          continue;
+
         int8_t maxNl = 0;
 
         // find maxNl
@@ -957,8 +961,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
           auto nl = tracks_view[*it].nLayers();
 
-          //checking if shared hit is on bpix1 and if the tuple is short enough
-          if (idx < l1end and nl > nmin)
+          // checking if the tuple is short enough
+          if (nl > nmin)
             continue;
 
           if (nl < maxNl && tracks_view[*it].quality() > reject)
