@@ -32,6 +32,7 @@ namespace reco {
 
   GENERATE_SOA_LAYOUT(CALayersLayout,
                       SOA_COLUMN(uint32_t, layerStarts),
+                      SOA_COLUMN(float, startMaxInnerR),
                       SOA_COLUMN(float, caThetaCut),
                       SOA_COLUMN(float, caDCACut),
                       SOA_COLUMN(float, caDCurvCut),
