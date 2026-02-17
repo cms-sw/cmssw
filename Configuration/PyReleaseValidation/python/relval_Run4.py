@@ -36,7 +36,7 @@ numWFIB.extend([prefixDet+34.702]) #mkFit tracking (initialStep)
 numWFIB.extend([prefixDet+34.5])   #pixelTrackingOnly
 numWFIB.extend([prefixDet+34.9])   #vector hits
 numWFIB.extend([prefixDet+34.402]) #Alpaka local reconstruction offloaded on device (GPU if available)
-numWFIB.extend([prefixDet+34.703]) #LST tracking on CPU (initialStep+HighPtTripletStep only)
+numWFIB.extend([prefixDet+34.711]) #LST tracking on CPU (initialStep+HighPtTripletStep only)
 numWFIB.extend([prefixDet+34.21])  #prodlike
 numWFIB.extend([prefixDet+96.0])   #CloseByPGun CE_E_Front_120um
 numWFIB.extend([prefixDet+100.0])  #CloseByPGun CE_H_Coarse_Scint
@@ -50,7 +50,7 @@ numWFIB.extend([prefixDet+234.999])  #premixing combined stage1+stage2 ttbar+PU5
 numWFIB.extend([prefixDet+234.21])   #prodlike PU
 numWFIB.extend([prefixDet+234.9921]) #prodlike premix stage1+stage2
 numWFIB.extend([prefixDet+234.114])  #PU, with 10% OT inefficiency
-numWFIB.extend([prefixDet+234.703])  #LST tracking on CPU (initialStep+HighPtTripletStep only)
+numWFIB.extend([prefixDet+234.711])  #LST tracking on CPU (initialStep+HighPtTripletStep only)
 
 # Phase-2 HLT tests
 numWFIB.extend([prefixDet+34.7501])# HLTTrackingOnly75e33

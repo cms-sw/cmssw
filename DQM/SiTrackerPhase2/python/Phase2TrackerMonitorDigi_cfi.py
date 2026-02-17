@@ -134,20 +134,20 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                         ),
                         XYPositionMapH = cms.PSet(
                             Nxbins = cms.int32(1250),
-                            xmin   = cms.double(-1250.),
-                            xmax   = cms.double(1250.),
+                            xmin   = cms.double(-125.),
+                            xmax   = cms.double(125.),
                             Nybins = cms.int32(1250),
-                            ymin   = cms.double(-1250.),
-                            ymax   = cms.double(1250.),
+                            ymin   = cms.double(-125.),
+                            ymax   = cms.double(125.),
                             switch = cms.bool(True)
                         ),
                         RZPositionMapH = cms.PSet(
                             Nxbins = cms.int32(3000),
-                            xmin   = cms.double(-3000.),
-                            xmax   = cms.double(3000.),
+                            xmin   = cms.double(-300.),
+                            xmax   = cms.double(300.),
                             Nybins = cms.int32(1250),
                             ymin   = cms.double(0.),
-                            ymax   = cms.double(1250.),
+                            ymax   = cms.double(125.),
                             switch = cms.bool(True)
                         )
                     )

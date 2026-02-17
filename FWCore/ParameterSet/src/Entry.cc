@@ -19,41 +19,7 @@
 #include <iostream>
 #include <string_view>
 
-enum : char {
-  kTbool = 'B',
-  kTvBool = 'b',
-  kTint32 = 'I',
-  kTvint32 = 'i',
-  kTuint32 = 'U',
-  kTvuint32 = 'u',
-  kTint64 = 'L',
-  kTvint64 = 'l',
-  kTuint64 = 'X',
-  kTvuint64 = 'x',
-  kTstringHex = 'S',
-  kTvstringHex = 's',
-  kTstringRaw = 'Z',
-  kTvstringRaw = 'z',
-  kTdouble = 'D',
-  kTvdouble = 'd',
-  kTPSet = 'P',
-  kTvPSet = 'p',
-  kTpath = 'T',
-  kTFileInPath = 'F',
-  kTInputTag = 't',
-  kTVInputTag = 'v',
-  kTESInputTag = 'g',
-  kTVESInputTag = 'G',
-  kTEventID = 'E',
-  kTVEventID = 'e',
-  kTLuminosityBlockID = 'M',
-  kTVLuminosityBlockID = 'm',
-  kTLuminosityBlockRange = 'A',
-  kTVLuminosityBlockRange = 'a',
-  kTEventRange = 'R',
-  kTVEventRange = 'r'
-};
-
+using namespace edm::detail;
 static constexpr const std::array<std::string_view, 32> s_types = {{"bool",
                                                                     "double",
                                                                     "int32",
@@ -216,6 +182,8 @@ namespace edm {
   // ----------------------------------------------------------------------
   // consistency-checker
   // ----------------------------------------------------------------------
+
+  std::string_view Entry::typeName() const { return typeFromCode(type_); }
 
   void Entry::validate() const {
     // tracked
@@ -420,7 +388,7 @@ namespace edm {
         break;
       }
     }  // switch(type)
-  }    // Entry::validate()
+  }  // Entry::validate()
 
   // ----------------------------------------------------------------------
   // constructors

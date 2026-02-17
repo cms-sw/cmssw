@@ -65,8 +65,8 @@ namespace cms::perftools {
     friend void* ::operator new[](std::size_t size);
     friend void* ::operator new(std::size_t count, std::align_val_t al);
     friend void* ::operator new[](std::size_t count, std::align_val_t al);
-    friend void* ::operator new(std::size_t count, const std::nothrow_t & tag) noexcept;
-    friend void* ::operator new[](std::size_t count, const std::nothrow_t & tag) noexcept;
+    friend void* ::operator new(std::size_t count, const std::nothrow_t& tag) noexcept;
+    friend void* ::operator new[](std::size_t count, const std::nothrow_t& tag) noexcept;
     friend void* ::operator new(std::size_t count, std::align_val_t al, const std::nothrow_t&) noexcept;
     friend void* ::operator new[](std::size_t count, std::align_val_t al, const std::nothrow_t&) noexcept;
 
@@ -78,10 +78,10 @@ namespace cms::perftools {
     friend void ::operator delete[](void* ptr, std::size_t sz) noexcept;
     friend void ::operator delete(void* ptr, std::size_t sz, std::align_val_t al) noexcept;
     friend void ::operator delete[](void* ptr, std::size_t sz, std::align_val_t al) noexcept;
-    friend void ::operator delete(void* ptr, const std::nothrow_t & tag) noexcept;
-    friend void ::operator delete[](void* ptr, const std::nothrow_t & tag) noexcept;
-    friend void ::operator delete(void* ptr, std::align_val_t al, const std::nothrow_t & tag) noexcept;
-    friend void ::operator delete[](void* ptr, std::align_val_t al, const std::nothrow_t & tag) noexcept;
+    friend void ::operator delete(void* ptr, const std::nothrow_t& tag) noexcept;
+    friend void ::operator delete[](void* ptr, const std::nothrow_t& tag) noexcept;
+    friend void ::operator delete(void* ptr, std::align_val_t al, const std::nothrow_t& tag) noexcept;
+    friend void ::operator delete[](void* ptr, std::align_val_t al, const std::nothrow_t& tag) noexcept;
 
     friend class AllocTester;
 

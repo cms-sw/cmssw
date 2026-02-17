@@ -122,6 +122,23 @@ namespace edm {
                 parameterTypeEnumToString(switch_.type()));
     }
 
+    cfi::Trackiness trackiness_(std::string_view path) const override {
+      cfi::Trackiness switchTrackiness = switch_.trackiness(path);
+      if (switchTrackiness != cfi::Trackiness::kNotAllowed) {
+        return switchTrackiness;
+      }
+
+      // If we reach here, the path is not for the switch parameter itself.
+      // We need to check all cases to see if any of them match the path.
+      for (auto const& casePair : cases_) {
+        cfi::Trackiness caseTrackiness = casePair.second->trackiness(path);
+        if (caseTrackiness != cfi::Trackiness::kNotAllowed) {
+          return caseTrackiness;
+        }
+      }
+      return cfi::Trackiness::kNotAllowed;
+    }
+
     void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const override {
       DocFormatHelper new_dfh(dfh);
       printNestedContentBase(os, dfh, new_dfh, switch_.label());

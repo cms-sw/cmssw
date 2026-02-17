@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace edm;
-using namespace std::rel_ops;
 
 namespace edmtest {
   class ViewAnalyzer : public edm::global::EDAnalyzer<> {

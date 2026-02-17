@@ -31,9 +31,13 @@ PhotonCandidates = cms.EDProducer('OniaPhotonConversionProducer',
     pi0SmallWindow   = cms.vdouble(pi0_small_min, pi0_small_max),
     pi0LargeWindow   = cms.vdouble(pi0_large_min, pi0_large_max),
     TkMinNumOfDOF = cms.uint32(conv_min_dof),
+    addExtraInfo = cms.bool(False),
     wantHighpurity = cms.bool(conv_high_purity),
     vertexChi2ProbCut = cms.double(0.0005),
     trackchi2Cut = cms.double(10),
     minDistanceOfApproachMinCut = cms.double(-0.25),
     minDistanceOfApproachMaxCut = cms.double(1.00)
     )
+
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+run3_upc.toModify(PhotonCandidates, convQuality = [''], wantCompatibleInnerHits = False, addExtraInfo = True)

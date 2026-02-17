@@ -7,7 +7,7 @@ SiPixelAliMilleFileExtractor = cms.EDAnalyzer("MillePedeFileExtractor",
     # file as real binary files to disk, so that the pede step can read them.
     # This includes the formatting directive "%04d" which will be expanded to
     # 0000, 0001, 0002,...
-    outputBinaryFile = cms.string('pedeBinary%04d.dat'))
+    outputBinaryFile = cms.string('pedeBinary%04d.dat.gz'))
 
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff import AlignmentProducer

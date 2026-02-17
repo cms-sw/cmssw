@@ -23,6 +23,10 @@ namespace edm {
                                         CfiOptions&,
                                         bool& /*wroteSomething*/) const {}
 
+  cfi::Trackiness EmptyGroupDescription::trackiness_(std::string_view /*path*/) const {
+    return cfi::Trackiness::kNotAllowed;
+  }
+
   void EmptyGroupDescription::print_(std::ostream& os,
                                      Modifier /*optional*/,
                                      bool /*writeToCfi*/,

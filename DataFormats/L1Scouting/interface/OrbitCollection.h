@@ -23,7 +23,7 @@ public:
   // The method fillAndClear will be used, meaning that, after copying the objects,
   // orbitBuffer's vectors will be cleared.
   OrbitCollection(std::vector<std::vector<T>>& orbitBuffer, unsigned nObjects = 0)
-      : bxOffsets_(orbitBufferSize_ + 1, 0), data_(nObjects) {
+      : bxOffsets_(orbitBufferSize_ + 1, 0), data_() {
     fillAndClear(orbitBuffer, nObjects);
   }
 

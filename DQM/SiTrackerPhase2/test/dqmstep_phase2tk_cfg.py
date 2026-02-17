@@ -23,13 +23,13 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D98Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 process.load('Configuration.StandardSequences.RecoSim_cff')
-process.load('Configuration.StandardSequences.Validation_cff')
+#process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMServices.Core.DQMStoreNonLegacy_cff')
 process.load('DQMOffline.Configuration.DQMOffline_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -99,7 +99,7 @@ process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
 process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -118,19 +118,19 @@ process.load('DQM.SiTrackerPhase2.Phase2OTMonitorRecHit_cfi')
 
 process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy()*process.Phase2OTMonitorRecHit)
 
-process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff')
-process.load('Validation.SiTrackerPhase2V.Phase2OTValidateRecHit_cfi')
+#process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff')
+#process.load('Validation.SiTrackerPhase2V.Phase2OTValidateRecHit_cfi')
 
-process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy()*process.Phase2OTValidateRecHit)
+#process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy()*process.Phase2OTValidateRecHit)
 
 process.dqm_step=cms.Path(process.otdqm_seq)
-process.validation_step=cms.Path(process.otvalid_seq)
+#process.validation_step=cms.Path(process.otvalid_seq)
 
 
 # Schedule definition
 process.schedule = cms.Schedule(process.rechits_step,
                                 process.dqm_step,
-                                process.validation_step,
+                                #process.validation_step,
                                 process.DQMoutput_step
 )
 # customisation of the process.

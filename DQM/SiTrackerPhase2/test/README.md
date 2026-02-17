@@ -1,15 +1,37 @@
-To run the L1 Tk DQM Plotting script:
+# Phase2 Tracker DQM:
 
-Running the DQM plots is split into two parts. You will need to use the GEN-SIM-RECO or GEN-SIM-DIGI-RAW version of the file you want to run on.
+Producing DQM plots is split into two parts. 
 
-To run part 1 of the DQM plotting, ```dqmstep_phase2tk_cfg.py``` is needed. In this code, the user can change the input file. To run code on a small sample size:
-```
-cmsRun dqmstep_phase2tk_cfg.py 
-```
+Input file is GEN-SIM-RECO or GEN-SIM-DIGI-RAW .root file, inside ```dqmstep_phase2tk_cfg.py```.
 
-This outputs a file called ```step3_pre4_inDQM.root``` which will be used as input in the next step. To run part 2:
+Step 1 of the DQM plotting: 
 ```
-cmsRun harvestingstep_phase2tk_cfg.py 
+cmsRun dqmstep_phase2tk_cfg.py
 ```
 
-This outputs a file called ```DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root``` that allows user to view the histograms locally.
+The output file ```step3_pre4_inDQM.root``` is then used as input in the step 2 (harvesting):
+```
+cmsRun harvestingstep_phase2tk_cfg.py
+```
+
+The final output is ```DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root``` with DQM histograms.
+
+# Phase2 C-RACK DQM:
+
+C-RACK is Cosmic Rack test stand in TIF with up to 6 Ladders of 12 2S modules.
+
+To produce DQM plots on C-RACK (for MC, tested, and eventually data, yet to be tested) there are dedicated scripts for both DQM and Harvesting steps.
+
+Step 1:
+```
+cmsRun dqmstep_phase2c-rack_cfg.py
+```
+Step 2:
+```
+cmsRun harvestingstep_phase2c-rack_cfg.py
+```
+These C-RACK scripts include D500 geometry, while not including Inner Tracker steps. RecHit (tracking part not yet defined) and Validation steps are commented.
+
+CRACK DQM steps are defined into ```python/Phase2CRackDQMFirstStep_cff.py```.
+
+DQM plots to be produced only for C-RACK could be set with ```switch = false```, and enabled inside dedicated .cff, like ```python/Phase2CRackMonitorCluster_cff.py```.
