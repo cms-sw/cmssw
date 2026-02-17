@@ -56,13 +56,7 @@ ticlTrackstersCLUE3DHigh = _trackstersProducer.clone(
         doPID = cms.int32(1),
         doRegression = cms.int32(0),
         type = cms.string('TracksterInferenceByPFN')
-    ),
-
-    pluginInferenceAlgoTracksterInferenceByANN = cms.PSet(
-      algo_verbosity = cms.int32(0),
-      type = cms.string('TracksterInferenceByANN')
-    
-    ),
+    )
 
 
 )

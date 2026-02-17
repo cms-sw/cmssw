@@ -90,17 +90,13 @@ hltTiclTrackstersRecoveryL1Seeded = cms.EDProducer("TrackstersProducer",
         inputNames  = cms.vstring('input','input_tr_features'),
         output_en   = cms.vstring('enreg_output'),
         output_id   = cms.vstring('pid_output'),
-	eid_min_cluster_energy = cms.double(1),
+        eid_min_cluster_energy = cms.double(1),
         eid_n_layers = cms.int32(50),
         eid_n_clusters = cms.int32(10),
         doPID = cms.int32(0),
         doRegression = cms.int32(0),
-	type = cms.string('TracksterInferenceByPFN')
-    ),
-    pluginInferenceAlgoTracksterInferenceByANN = cms.PSet(
-      algo_verbosity = cms.int32(0),
-      type = cms.string('TracksterInferenceByANN')
-    
+        type = cms.string('TracksterInferenceByPFN'),
+        miniBatchSize = cms.untracked.int32(64)
     ),
     seeding_regions = cms.InputTag("hltTiclSeedingL1"),
     time_layerclusters = cms.InputTag("hltMergeLayerClustersL1Seeded","timeLayerCluster")
