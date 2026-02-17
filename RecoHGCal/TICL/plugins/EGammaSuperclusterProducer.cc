@@ -49,7 +49,7 @@ private:
   edm::EDGetTokenT<ticl::TracksterCollection> ticlTrackstersEMToken_;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerClustersToken_;
 
-    // Reusable buffers to avoid per-event allocations/copies.
+  // Reusable buffers to avoid per-event allocations/copies.
   static constexpr unsigned int kRegressionFeatureCount = 8;
 
   cms::Ort::FloatArrays onnxInputs_;
@@ -71,8 +71,6 @@ EGammaSuperclusterProducer::EGammaSuperclusterProducer(const edm::ParameterSet& 
       layerClustersToken_(consumes<reco::CaloClusterCollection>(ps.getParameter<edm::InputTag>("layerClusters"))),
       superclusterEtThreshold_(ps.getParameter<double>("superclusterEtThreshold")),
       enableRegression_(ps.getParameter<bool>("enableRegression")) {
-
-
   if (enableRegression_) {
     onnxInputs_.resize(1);
     // rank-2: [batch, features]
@@ -85,7 +83,6 @@ EGammaSuperclusterProducer::EGammaSuperclusterProducer(const edm::ParameterSet& 
 }
 
 void EGammaSuperclusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   if (enableRegression_ && UNLIKELY(globalCache() == nullptr)) {
     throw cms::Exception("Configuration")
         << "EGammaSuperclusterProducer: enableRegression=true but GlobalCache<ONNXRuntime> is null.";
@@ -188,7 +185,6 @@ void EGammaSuperclusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       regressionInputs_[base + 6] = seedFrac;
       regressionInputs_[base + 7] = nTs;
     }
-  
   }
 
   if (enableRegression_ && superclustersPassingSelectionsCount > 0u) {
@@ -204,9 +200,9 @@ void EGammaSuperclusterProducer::produce(edm::Event& iEvent, const edm::EventSet
     globalCache()->runInto(kInputNames,
                            onnxInputs_,
                            onnxInputShapes_,
-                           {},               // all outputs
-                           onnxOutputs_,      // resized as needed
-                           {},               // optional output shapes
+                           {},            // all outputs
+                           onnxOutputs_,  // resized as needed
+                           {},            // optional output shapes
                            static_cast<int64_t>(superclustersPassingSelectionsCount));
 
     if (onnxOutputs_.empty()) {
@@ -216,8 +212,8 @@ void EGammaSuperclusterProducer::produce(edm::Event& iEvent, const edm::EventSet
     auto const& out = onnxOutputs_[0];
     if (out.size() < egammaSuperclusters->size()) {
       throw cms::Exception("RuntimeError")
-          << "Regression output size " << out.size()
-          << " smaller than number of produced superclusters " << egammaSuperclusters->size();
+          << "Regression output size " << out.size() << " smaller than number of produced superclusters "
+          << egammaSuperclusters->size();
     }
 
     for (std::size_t i = 0; i < egammaSuperclusters->size(); ++i) {
@@ -228,7 +224,6 @@ void EGammaSuperclusterProducer::produce(edm::Event& iEvent, const edm::EventSet
     regressionInputs_.swap(onnxInputs_[0]);
     regressionInputs_.clear();
   }
-
 
   iEvent.put(std::move(egammaSuperclusters));
 }

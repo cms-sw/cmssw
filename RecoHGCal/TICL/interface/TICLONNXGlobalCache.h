@@ -27,7 +27,6 @@ namespace ticl {
       return getByFullPath(edm::FileInPath(modelPath).fullPath());
     }
 
-
     //  - Consider inference plugin only if inferenceAlgo is non-empty.
     static std::unique_ptr<TICLONNXGlobalCache> initialize(edm::ParameterSet const& modulePSet) {
       auto cache = std::make_unique<TICLONNXGlobalCache>();
