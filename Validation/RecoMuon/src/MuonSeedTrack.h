@@ -26,6 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -37,7 +38,6 @@ namespace reco {
 }
 
 class MuonServiceProxy;
-class TrajectorySeed;
 class MuonUpdatorAtVertex;
 //
 // class decleration

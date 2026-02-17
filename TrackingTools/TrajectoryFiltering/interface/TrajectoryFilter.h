@@ -9,7 +9,6 @@ namespace edm {
   class ConsumesCollector;
 }  // namespace edm
 
-class Trajectory;
 class TempTrajectory;
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

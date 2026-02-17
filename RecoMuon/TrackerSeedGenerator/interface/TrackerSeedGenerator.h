@@ -8,8 +8,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
-class Trajectory;
 class TrackingRegion;
 class MuonServiceProxy;
 class TrackerTopology;

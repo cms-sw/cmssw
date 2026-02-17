@@ -9,6 +9,7 @@
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
 #include "CondFormats/DataRecord/interface/RPCClusterSizeRcd.h"
+#include "DataFormats/MuonDetId/interface/RPCDetIdFwd.h"
 
 #include <map>
 #include <vector>
@@ -22,7 +23,6 @@
 
 class RPCDigitizer;
 class RPCGeometry;
-class RPCDetId;
 
 class RPCSimSetUp {
 public:

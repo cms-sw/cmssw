@@ -23,7 +23,7 @@
 #include <cassert>
 #include <limits>
 
-class PixelDigi;
+#include "DataFormats/SiPixelDigi/interface/PixelDigiFwd.h"
 
 class SiPixelCluster {
 public:

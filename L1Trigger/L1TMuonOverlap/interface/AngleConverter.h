@@ -6,6 +6,11 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainerFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiFwd.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiFwd.h"
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
+#include "DataFormats/MuonDetId/interface/RPCDetIdFwd.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -17,11 +22,6 @@
 class CSCLayer;
 
 class L1MuDTChambPhDigi;
-class L1MuDTChambThContainer;
-class CSCCorrelatedLCTDigi;
-class RPCDigi;
-class CSCDetId;
-class RPCDetId;
 
 class AngleConverter {
 public:

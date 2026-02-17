@@ -1,8 +1,8 @@
 #ifndef HcalRecAlgos_HcalTDCReco_h
 #define HcalRecAlgos_HcalTDCReco_h
 
+#include "DataFormats/HcalRecHit/interface/HBHERecHitFwd.h"
 class HcalUpgradeDataFrame;
-class HBHERecHit;
 
 class HcalTDCReco {
 public:
