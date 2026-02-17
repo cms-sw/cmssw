@@ -1,0 +1,6 @@
+#ifndef DataFormats_Phase2TrackerDigi_Phase2TrackerDigiFwd_h
+#define DataFormats_Phase2TrackerDigi_Phase2TrackerDigiFwd_h
+
+class Phase2TrackerDigi;
+
+#endif
