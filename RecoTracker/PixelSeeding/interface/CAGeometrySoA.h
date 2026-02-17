@@ -34,6 +34,8 @@ namespace reco {
                       SOA_COLUMN(uint32_t, layerStarts),
                       SOA_COLUMN(float, caThetaCut),
                       SOA_COLUMN(float, caDCACut),
+                      SOA_COLUMN(float, caDCurvCut),
+                      SOA_COLUMN(float, caDCurv0),
                       SOA_COLUMN(bool, isBarrel))
 
   GENERATE_SOA_LAYOUT(CAGraphLayout,

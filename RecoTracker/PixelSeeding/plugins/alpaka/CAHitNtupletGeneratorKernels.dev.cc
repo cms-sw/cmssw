@@ -99,12 +99,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // This will hold where each layer starts in the hit soa
     device_layerStarts_ = cms::alpakatools::make_device_buffer<hindex_type[]>(queue, nLayers + 1);
 
-    // Cell -> Neighbor Cells
+    // Cell -> (Neighbor Cells, Curvature)
+    // It takes 2*Ndoublets keys as for each doublet two container bins are stored:
+    //   1. neighboring doublets (non-layer-skipping ones) at index = 2*iDoublet
+    //   2. neighboring doublets (layer-skipping ones) at index = 2*iDoublet+1
     device_cellToNeighbors_ = cms::alpakatools::make_device_buffer<GenericContainer>(queue);
     device_cellToNeighborsStorage_ =
         cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, nCellsToCells);
     device_cellToNeighborsOffsets_ =
-        cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, maxDoublets + 1);
+        cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, 2 * maxDoublets + 1);
     device_cellToNeighborsView_ = {device_cellToNeighbors_->data(),
                                    device_cellToNeighborsOffsets_->data(),
                                    device_cellToNeighborsStorage_->data(),
@@ -281,7 +284,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
-                        Kernel_fillGenericPair{},
+                        Kernel_fillGenericPair<caStructures::CAPairSoAConstView, GenericContainer>{},
                         this->deviceTriplets_->view(),
                         this->device_nTriplets_->data(),
                         this->device_cellToNeighbors_->data());
@@ -321,6 +324,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
                         Kernel_find_ntuplets<TrackerTraits>{},
+                        hh,
+                        ll,
                         cc,
                         tracks_view,
                         this->device_hitContainer_->data(),
@@ -347,7 +352,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
-                        Kernel_fillGenericPair{},
+                        Kernel_fillGenericPair<caStructures::CAPairSoAConstView, GenericContainer>{},
                         this->deviceTracksCells_->view(),
                         this->device_nCellTracks_->data(),
                         this->device_cellToTracks_->data());

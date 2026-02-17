@@ -46,6 +46,8 @@ namespace reco {
     CAGeometryParams(edm::ParameterSet const& iConfig)
         : caThetaCuts_(iConfig.getParameter<std::vector<double>>("caThetaCuts")),
           caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
+          caDCurvCuts_(iConfig.getParameter<std::vector<double>>("caDCurvCuts")),
+          caDCurv0_(iConfig.getParameter<std::vector<double>>("caDCurv0")),
           pairGraph_(iConfig.getParameter<std::vector<unsigned int>>("pairGraph")),
           startingPairs_(iConfig.getParameter<std::vector<unsigned int>>("startingPairs")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
@@ -69,6 +71,8 @@ namespace reco {
     // Layers params
     const std::vector<double> caThetaCuts_;
     const std::vector<double> caDCACuts_;
+    const std::vector<double> caDCurvCuts_;
+    const std::vector<double> caDCurv0_;
     const std::vector<int> isBarrel_;
 
     // Cells params
@@ -136,6 +140,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       assert(iCache->maxDR_.size() == iCache->phiCuts_.size());
       assert(iCache->maxDR_.size() == iCache->ptCuts_.size());
 
+      assert(iCache->caThetaCuts_.size() == iCache->caDCurvCuts_.size());
+      assert(iCache->caThetaCuts_.size() == iCache->caDCurv0_.size());
       assert(iCache->caThetaCuts_.size() == iCache->caDCACuts_.size());
 
       int n_layers = iCache->caThetaCuts_.size();
@@ -293,6 +299,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         layerSoA.layerStarts()[i] = layerStarts[i];
         layerSoA.caThetaCut()[i] = iCache->caThetaCuts_[i];
         layerSoA.caDCACut()[i] = iCache->caDCACuts_[i];
+        layerSoA.caDCurvCut()[i] = iCache->caDCurvCuts_[i];
+        layerSoA.caDCurv0()[i] = iCache->caDCurv0_[i];
         layerSoA.isBarrel()[i] = layerIsBarrel[i];
       }
 
