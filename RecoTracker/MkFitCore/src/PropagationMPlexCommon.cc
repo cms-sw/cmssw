@@ -143,13 +143,17 @@ namespace mkfit {
       constexpr float me = 0.0005;            // m=0.5 MeV, electron
       const float wmax = 2.f * me * beta2 * gamma2 / (1.f + 2.f * gamma * me / mpi + me * me / (mpi * mpi));
       constexpr float I = 16.0e-9 * 10.75;
-      const float deltahalf =
-          vdt::fast_logf(28.816e-9f * std::sqrt(2.33f * 0.498f) / I) + vdt::fast_logf(beta * gamma) - 0.5f;
-      const float dEdx =
-          beta < 1.f ? (2.f * (hitsXi.constAt(n, 0, 0) * invCos *
-                               (0.5f * vdt::fast_logf(2.f * me * beta2 * gamma2 * wmax / (I * I)) - beta2 - deltahalf) /
-                               beta2))
-                     : 0.f;  //protect against infs and nans
+      const float deltahalf = vdt::fast_logf(28.816e-9f * std::sqrt(2.33f * 0.498f) / I) - 0.5f;
+      // true formula below, but simplifying log(beta*gamma)
+      // vdt::fast_logf(28.816e-9f * std::sqrt(2.33f * 0.498f) / I) + vdt::fast_logf(beta * gamma) - 0.5f;
+
+      const float dEdx = beta < 1.f
+                             ? (2.f * (hitsXi.constAt(n, 0, 0) * invCos *
+                                       (0.5f * vdt::fast_logf(2.f * me * wmax / (I * I)) - beta2 - deltahalf) / beta2))
+                             : 0.f;  //protect against infs and nans
+      // true formula below, but simplifying 0.5*log(beta2*gamma2)
+      // (2.f * (hitsXi.constAt(n, 0, 0) * invCos * (0.5f * vdt::fast_logf(2.f * me * beta2 * gamma2 * wmax / (I * I)) - beta2 - deltahalf) / beta2))
+
       // dEdx = dEdx*2.;//xi in cmssw is defined with an extra factor 0.5 with respect to formula 27.1 in pdg
       //std::cout << "dEdx=" << dEdx << " delta=" << deltahalf << " wmax=" << wmax << " Xi=" << hitsXi.constAt(n,0,0) << std::endl;
       const float dP = propSign.constAt(n, 0, 0) * dEdx / beta;
