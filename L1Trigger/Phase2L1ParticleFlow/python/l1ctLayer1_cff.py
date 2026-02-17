@@ -123,7 +123,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
             phiSlices     = cms.uint32(9),
         ),
     ),
-    boards = cms.VPSet(
+    boards = cms.VPSet(  # In TM18, this is "virtual" boards for egamma
         cms.PSet(
               regions = cms.vuint32(*[0+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
         cms.PSet(

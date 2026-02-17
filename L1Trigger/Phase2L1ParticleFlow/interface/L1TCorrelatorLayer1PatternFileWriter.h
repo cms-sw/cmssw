@@ -33,7 +33,7 @@ private:
   const unsigned int hgcTmuxFactor_ = 18, hgcLinksFactor_ = 4;
   const unsigned int gctTmuxFactor_ = 18, gctEmLinksFactor_ = 1;
   const unsigned int gmtTmuxFactor_ = 18, gmtLinksFactor_ = 1;
-  const unsigned int gttTmuxFactor_ = 18, gttLinksFactor_ = 1;
+  const unsigned int gttTmuxFactor_ = 6, gttLinksFactor_ = 1;
   const unsigned int tfTimeslices_, hgcTimeslices_, gctTimeslices_, gmtTimeslices_, gttTimeslices_;
   uint32_t gctLinksEcal_, gctLinksHad_;
   bool gctSingleLink_;

@@ -396,7 +396,7 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::printDebug(int count) const {
   }
 
   dbgCout() << "SMALL REGIONS" << std::endl;
-  for (unsigned int region = 0; region < neta_ * nphi_; region++) {
+  for (unsigned int region = 0; region < regionmap_.size(); region++) {
     dbgCout() << count << "\tregion\t\titem\tpt\tloceta\tlocphi" << std::endl;
     auto realRegIdx = regionIndex(region);
     auto etaC = regions_[realRegIdx].intEtaCenter();

@@ -138,9 +138,6 @@ namespace l1ct {
       /// get the logical buffer index (i.e. the index in the order in the firmware)
       size_t logicBuffIndex(size_t bufIdx) const;
 
-      
-      /// The numbers of eta and phi in a big region (board)
-      unsigned int neta_, nphi_;
       /// The maximum number of objects to output per small region
       unsigned int maxobjects_;
 
