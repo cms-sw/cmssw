@@ -63,6 +63,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using Quality = ::pixelTrack::Quality;
     static constexpr auto bad = ::pixelTrack::Quality::bad;
 
+    static constexpr float kUninitializeCurvature = std::numeric_limits<float>::max();
+
     enum class StatusBit : uint16_t { kUsed = 1, kInTrack = 2, kKilled = 1 << 15 };
 
     CACell() = default;
@@ -139,7 +141,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
     }
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool dcaCut(const HitsConstView& hh,
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto dcaCut(const HitsConstView& hh,
                                                CACell const& otherCell,
                                                const float region_origin_radius_plus_tolerance,
                                                const float maxCurv) const {
@@ -154,10 +156,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       CircleEq<float> eq(x1, y1, x2, y2, x3, y3);
 
-      if (std::abs(eq.curvature()) > maxCurv)
+      auto curvature = eq.curvature();
+
+      if (std::abs(curvature) > maxCurv)
         return false;
 
-      return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
+      return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(curvature);
+    }
+
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto quadrupletCut(const float innerCurvature,
+                                                      float& outerCurvature,
+                                                      const ::reco::CALayersSoAConstView& ll,
+                                                      const HitsConstView& hh,
+                                                      const float x1,
+                                                      const float y1) const {
+      // calculate curvature for the XY plane cuts
+      float x2 = inner_x(hh);
+      float y2 = inner_y(hh);
+      float x3 = outer_x(hh);
+      float y3 = outer_y(hh);
+      CircleEq<float> eq(x1, y1, x2, y2, x3, y3);
+      outerCurvature = eq.curvature();
+
+      if (innerCurvature == kUninitializeCurvature)
+        return false;
+
+      auto maxDCurv = ll[theOuterLayer_].caDCurvCut();
+      auto dCurv0 = ll[theOuterLayer_].caDCurv0();
+
+#ifdef CA_DEBUG
+      printf("quadCut: layer=%d, dCurv=%f, curv0=%f, Co=%f, Ci=%f",
+             theOuterLayer_,
+             maxDCurv,
+             dCurv0,
+             outerCurvature,
+             innerCurvature);
+#endif
+      // linear cut
+      return std::abs(outerCurvature - innerCurvature) >
+             maxDCurv * (std::abs(innerCurvature + outerCurvature)) + dCurv0;
+      // sqrt cut
+      // return (outerCurvature - innerCurvature) * (outerCurvature - innerCurvature) >
+      //        maxDCurv * (std::abs(innerCurvature + outerCurvature)) + dCurv0;
     }
 
     // trying to free the track building process from hardcoded layers, leaving
@@ -165,7 +205,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <int DEPTH>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void find_ntuplets(Acc1D const& acc,
-                                                      const ::reco::CAGraphSoAConstView& cc,
+                                                      const HitsConstView& hh,
+                                                      const ::reco::CALayersSoAConstView& ll,
                                                       CACell* __restrict__ cells,
                                                       HitContainer& foundNtuplets,
                                                       CellToCell const* __restrict__ cellNeighborsHisto,
@@ -175,7 +216,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                       cms::alpakatools::AtomicPairCounter& apc,
                                                       Quality* __restrict__ quality,
                                                       TmpTuple& tmpNtuplet,
-                                                      const unsigned int minHitsPerNtuplet) const {
+                                                      const unsigned int minHitsPerNtuplet,
+                                                      const float preCurvature = kUninitializeCurvature) const {
       // the building process for a track ends if:
       // it has no right neighbor
       // it has no compatible neighbor
@@ -195,8 +237,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         for (auto idx = 0u; idx < nInBin; idx++) {
           // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
-          unsigned int otherCell = bin[idx];
+          auto otherCell = neighborCells[idx];
           if (cells[otherCell].isKilled())
+            continue;
+
+          // check compatiblity of triplets and calculate this triplets curvature
+          float thisCurvature{kUninitializeCurvature};
+          if (cells[otherCell].quadrupletCut(preCurvature, thisCurvature, ll, hh, inner_x(hh), inner_y(hh)))
             continue;
 #ifdef CA_DEBUG
           printf("Doublet no. %d %d doubletId: %ld -> %d (isKilled %d) (%d,%d) -> (%d,%d) %d %d\n",
@@ -215,7 +262,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           last = false;
           cells[otherCell].template find_ntuplets<DEPTH - 1>(acc,
-                                                             cc,
+                                                             hh,
+                                                             ll,
                                                              cells,
                                                              foundNtuplets,
                                                              cellNeighborsHisto,
@@ -225,7 +273,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                              apc,
                                                              quality,
                                                              tmpNtuplet,
-                                                             minHitsPerNtuplet);
+                                                             minHitsPerNtuplet,
+                                                             thisCurvature);
         }
         if (last) {  // if long enough save...
           if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
