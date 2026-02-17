@@ -14,14 +14,16 @@ namespace lst {
                       SOA_COLUMN(Params_pT3::ArrayU16xLayers, lowerModuleIndices),  // lower module index (OT part)
                       SOA_COLUMN(Params_pT3::ArrayU8xLayers, logicalLayers),        // layer ID
                       SOA_COLUMN(Params_pT3::ArrayUxHits, hitIndices),              // hit indices
-                      SOA_COLUMN(float, rPhiChiSquared),                            // chi2 from pLS to T3
-                      SOA_COLUMN(float, rPhiChiSquaredInwards),                     // chi2 from T3 to pLS
-                      SOA_COLUMN(float, rzChiSquared),
-                      SOA_COLUMN(FPX, pixelRadius),  // pLS pt converted
-                      SOA_COLUMN(FPX, pixelRadiusError),
-                      SOA_COLUMN(FPX, tripletRadius),  // T3 circle
-                      SOA_COLUMN(FPX, pt),
+                      SOA_COLUMN(FPX, pixelRadius),                                 // pLS pt converted
+                      SOA_COLUMN(FPX, tripletRadius),                               // T3 circle
                       SOA_COLUMN(FPX, eta),
+#ifdef CUT_VALUE_DEBUG
+                      SOA_COLUMN(float, rPhiChiSquared),         // chi2 from pLS to T3
+                      SOA_COLUMN(float, rPhiChiSquaredInwards),  // chi2 from T3 to pLS
+                      SOA_COLUMN(float, rzChiSquared),
+                      SOA_COLUMN(FPX, pixelRadiusError),
+                      SOA_COLUMN(FPX, pt),
+#endif
                       SOA_COLUMN(FPX, phi),
                       SOA_COLUMN(FPX, eta_pix),  // eta from pLS
                       SOA_COLUMN(FPX, phi_pix),  // phi from pLS

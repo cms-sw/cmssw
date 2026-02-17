@@ -84,11 +84,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.hitIndices()[quintupletIndex][8] = triplets.hitIndices()[outerTripletIndex][4];
     quintuplets.hitIndices()[quintupletIndex][9] = triplets.hitIndices()[outerTripletIndex][5];
     quintuplets.bridgeRadius()[quintupletIndex] = bridgeRadius;
+#ifdef CUT_VALUE_DEBUG
     quintuplets.rzChiSquared()[quintupletIndex] = rzChiSquared;
     quintuplets.chiSquared()[quintupletIndex] = rPhiChiSquared;
     quintuplets.nonAnchorChiSquared()[quintupletIndex] = nonAnchorChiSquared;
     quintuplets.dBeta1()[quintupletIndex] = dBeta1;
     quintuplets.dBeta2()[quintupletIndex] = dBeta2;
+#endif
     quintuplets.dnnScore()[quintupletIndex] = dnnScore;
 
     CMS_UNROLL_LOOP

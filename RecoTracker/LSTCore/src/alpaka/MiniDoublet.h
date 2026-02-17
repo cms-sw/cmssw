@@ -53,12 +53,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.dphichanges()[idx] = dPhiChange;
     mds.dphis()[idx] = dPhi;
     mds.dzs()[idx] = dz;
+#ifdef CUT_VALUE_DEBUG
     mds.shiftedXs()[idx] = shiftedX;
     mds.shiftedYs()[idx] = shiftedY;
     mds.shiftedZs()[idx] = shiftedZ;
 
     mds.noShiftedDphis()[idx] = noShiftedDphi;
     mds.noShiftedDphiChanges()[idx] = noShiftedDPhiChange;
+#endif
 
     mds.anchorX()[idx] = hitsBase.xs()[anchorHitIndex];
     mds.anchorY()[idx] = hitsBase.ys()[anchorHitIndex];
@@ -76,6 +78,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.outerX()[idx] = hitsBase.xs()[outerHitIndex];
     mds.outerY()[idx] = hitsBase.ys()[outerHitIndex];
     mds.outerZ()[idx] = hitsBase.zs()[outerHitIndex];
+#ifdef CUT_VALUE_DEBUG
     mds.outerRt()[idx] = hitsExtended.rts()[outerHitIndex];
     mds.outerPhi()[idx] = hitsExtended.phis()[outerHitIndex];
     mds.outerEta()[idx] = hitsExtended.etas()[outerHitIndex];
@@ -83,6 +86,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.outerHighEdgeY()[idx] = hitsExtended.highEdgeYs()[outerHitIndex];
     mds.outerLowEdgeX()[idx] = hitsExtended.lowEdgeXs()[outerHitIndex];
     mds.outerLowEdgeY()[idx] = hitsExtended.lowEdgeYs()[outerHitIndex];
+#endif
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isTighterTiltedModules(ModulesConst modules, uint16_t moduleIndex) {
