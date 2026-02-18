@@ -172,7 +172,9 @@ void createT4DNNBranches() {
   ana.tx->createBranch<std::vector<float>>("t4_t3_promptScore2");
   ana.tx->createBranch<std::vector<float>>("t4_t3_displacedScore2");
   ana.tx->createBranch<std::vector<float>>("t4_regressionRadius");
+#ifdef CUT_VALUE_DEBUG
   ana.tx->createBranch<std::vector<float>>("t4_nonAnchorRegressionRadius");
+#endif
 
   // Hit-specific branches
   std::vector<std::string> hitIndices = {"0", "1", "2", "3", "4", "5"};
@@ -451,13 +453,17 @@ void createQuadrupletBranches() {
   ana.tx->createBranch<std::vector<float>>("t4_eta");
   ana.tx->createBranch<std::vector<float>>("t4_phi");
   ana.tx->createBranch<std::vector<int>>("t4_isDup");
+#ifdef CUT_VALUE_DEBUG
   ana.tx->createBranch<std::vector<float>>("t4_rzChiSquared");
+#endif
   ana.tx->createBranch<std::vector<float>>("t4_pMatched");
   ana.tx->createBranch<std::vector<float>>("t4_sim_vxy");
   ana.tx->createBranch<std::vector<float>>("t4_sim_vz");
   ana.tx->createBranch<std::vector<std::vector<int>>>("t4_matched_simIdx");
+#ifdef CUT_VALUE_DEBUG
   ana.tx->createBranch<std::vector<float>>("t4_score_rphisum");
   ana.tx->createBranch<std::vector<float>>("t4_promptScore");
+#endif
   ana.tx->createBranch<std::vector<float>>("t4_displacedScore");
   ana.tx->createBranch<std::vector<float>>("t4_fakeScore");
 
@@ -569,11 +575,13 @@ void createPixelTripletBranches() {
   ana.tx->createBranch<std::vector<std::vector<float>>>("pT3_simIdxAllFrac");
   // pT3 DNN branches below.
   ana.tx->createBranch<std::vector<float>>("pT3_pixelRadius");
-  ana.tx->createBranch<std::vector<float>>("pT3_pixelRadiusError");
   ana.tx->createBranch<std::vector<float>>("pT3_tripletRadius");
+#ifdef CUT_VALUE_DEBUG
+  ana.tx->createBranch<std::vector<float>>("pT3_pixelRadiusError");
   ana.tx->createBranch<std::vector<float>>("pT3_rPhiChiSquared");
   ana.tx->createBranch<std::vector<float>>("pT3_rPhiChiSquaredInwards");
   ana.tx->createBranch<std::vector<float>>("pT3_rzChiSquared");
+#endif
   ana.tx->createBranch<std::vector<int>>("pT3_moduleType_binary");
   ana.tx->createBranch<std::vector<float>>("pT3_pLS_pMatched");
 }
@@ -1435,9 +1443,11 @@ std::map<unsigned int, unsigned int> setQuadrupletBranches(LSTEvent* event,
       ana.tx->pushbackToBranch<float>("t4_innerRadius", __H2F(quadruplets.innerRadius()[t4Idx]));
       ana.tx->pushbackToBranch<float>("t4_outerRadius", __H2F(quadruplets.outerRadius()[t4Idx]));
       ana.tx->pushbackToBranch<float>("t4_pMatched", percent_matched);
+#ifdef CUT_VALUE_DEBUG
       ana.tx->pushbackToBranch<float>("t4_score_rphisum", __H2F(quadruplets.score_rphisum()[t4Idx]));
       ana.tx->pushbackToBranch<float>("t4_rzChiSquared", quadruplets.rzChiSquared()[t4Idx]);
       ana.tx->pushbackToBranch<float>("t4_promptScore", quadruplets.promptScore()[t4Idx]);
+#endif
       ana.tx->pushbackToBranch<float>("t4_displacedScore", quadruplets.displacedScore()[t4Idx]);
       ana.tx->pushbackToBranch<float>("t4_fakeScore", quadruplets.fakeScore()[t4Idx]);
 
@@ -1937,13 +1947,15 @@ std::map<unsigned int, unsigned int> setPixelTripletBranches(LSTEvent* event,
     // pT3 DNN branches below.
 
     float pixelRadius = pixelTriplets.pixelRadius()[ipT3];
-    float pixelRadiusError = pixelTriplets.pixelRadiusError()[ipT3];
     float tripletRadius = pixelTriplets.tripletRadius()[ipT3];
     float phi_t3 = pixelTriplets.phi()[ipT3];       // from the T3
     float phi_pix = pixelTriplets.phi_pix()[ipT3];  // from the pLS
+#ifdef CUT_VALUE_DEBUG
+    float pixelRadiusError = pixelTriplets.pixelRadiusError()[ipT3];
     float rPhiChiSquared = pixelTriplets.rPhiChiSquared()[ipT3];
     float rPhiChiSquaredInwards = pixelTriplets.rPhiChiSquaredInwards()[ipT3];
     float rzChiSquared = pixelTriplets.rzChiSquared()[ipT3];
+#endif
     float eta_t3 = pixelTriplets.eta()[ipT3];
     float eta_pix = pixelTriplets.eta_pix()[ipT3];  // eta from pLS
 
@@ -1997,12 +2009,14 @@ std::map<unsigned int, unsigned int> setPixelTripletBranches(LSTEvent* event,
     ana.tx->pushbackToBranch<float>("pT3_t3_phi", phi_t3);
     ana.tx->pushbackToBranch<float>("pT3_t3_pMatched", t3_percent_matched);
     ana.tx->pushbackToBranch<float>("pT3_pLS_pMatched", pLS_percent_matched);
+    ana.tx->pushbackToBranch<float>("pT3_pixelRadius", pixelRadius);
+    ana.tx->pushbackToBranch<float>("pT3_tripletRadius", tripletRadius);
+#ifdef CUT_VALUE_DEBUG
     ana.tx->pushbackToBranch<float>("pT3_rPhiChiSquared", rPhiChiSquared);
     ana.tx->pushbackToBranch<float>("pT3_rPhiChiSquaredInwards", rPhiChiSquaredInwards);
     ana.tx->pushbackToBranch<float>("pT3_rzChiSquared", rzChiSquared);
-    ana.tx->pushbackToBranch<float>("pT3_pixelRadius", pixelRadius);
     ana.tx->pushbackToBranch<float>("pT3_pixelRadiusError", pixelRadiusError);
-    ana.tx->pushbackToBranch<float>("pT3_tripletRadius", tripletRadius);
+#endif
     ana.tx->pushbackToBranch<int>("pT3_moduleType_binary", module_type_binary);
 
     // end of pT3 DNN branches.
@@ -2825,7 +2839,9 @@ void setT4DNNBranches(LSTEvent* event) {
       ana.tx->pushbackToBranch<float>("t4_t3_displacedScore2", tripletsSoA.displacedScore()[t3sIdx[1]]);
 
       ana.tx->pushbackToBranch<float>("t4_regressionRadius", quadruplets.regressionRadius()[t4Idx]);
+#ifdef CUT_VALUE_DEBUG
       ana.tx->pushbackToBranch<float>("t4_nonAnchorRegressionRadius", quadruplets.nonAnchorRegressionRadius()[t4Idx]);
+#endif
 
       if (t4s_used_in_tc.find(t4Idx) != t4s_used_in_tc.end()) {
         ana.tx->pushbackToBranch<int>("t4_partOfTC", 1);
@@ -2970,11 +2986,11 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   //
   //       *
   //       |\
-    //       | \
-    //       |1 \
-    //       |   \
-    //       |  * \
-    //       |
+  //       | \
+  //       |1 \
+  //       |   \
+  //       |  * \
+  //       |
   //       |
   //       |
   //       |
@@ -3010,10 +3026,10 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   //
   //       *
   //       |\
-    //       | \
-    //       |1 \
-    //       |   \
-    //       |  * X   (* here are "two" MDs but really just one)
+  //       | \
+  //       |1 \
+  //       |   \
+  //       |  * X   (* here are "two" MDs but really just one)
   //       |   /
   //       |2 /
   //       | /

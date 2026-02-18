@@ -96,7 +96,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ModulesDeviceCollection const& modules_;
     PixelMap const& pixelMapping_;
     EndcapGeometryDevDeviceCollection const& endcapGeometry_;
-    bool addObjects_;
+    bool objectsStatistics_ = false;
+    double memoryAllocatedMB_ = 0;
 
   public:
     // Constructor used for CMSSW integration. Uses an external queue.
@@ -112,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           modules_(*deviceESData->modules),
           pixelMapping_(*deviceESData->pixelMapping),
           endcapGeometry_(*deviceESData->endcapGeometry),
-          addObjects_(verbose) {
+          objectsStatistics_(verbose) {
       if (ptCut < 0.6f) {
         throw std::invalid_argument("Minimum pT cut must be at least 0.6 GeV. Provided value: " +
                                     std::to_string(ptCut));
@@ -176,6 +177,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int getNumberOfQuadruplets();
     unsigned int getNumberOfQuadrupletsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfQuadrupletsByLayerEndcap(unsigned int layer);
+
+    double getMemoryAllocatedMB() const { return memoryAllocatedMB_; }
 
     // sync adds alpaka::wait at the end of filling a buffer during lazy fill
     // (has no effect on repeated calls)

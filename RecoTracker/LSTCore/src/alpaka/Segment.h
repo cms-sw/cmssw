@@ -186,13 +186,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          uint16_t outerLowerModuleIndex,
                                                          unsigned int innerMDAnchorHitIndex,
                                                          unsigned int outerMDAnchorHitIndex,
-                                                         float dPhi,
-                                                         float dPhiMin,
-                                                         float dPhiMax,
                                                          float dPhiChange,
                                                          float dPhiChangeMin,
                                                          float dPhiChangeMax,
 #ifdef CUT_VALUE_DEBUG
+                                                         float dPhi,
+                                                         float dPhiMin,
+                                                         float dPhiMax,
                                                          float zHi,
                                                          float zLo,
                                                          float rtHi,
@@ -209,10 +209,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     segments.innerMiniDoubletAnchorHitIndices()[idx] = innerMDAnchorHitIndex;
     segments.outerMiniDoubletAnchorHitIndices()[idx] = outerMDAnchorHitIndex;
 
+    segments.dPhiChanges()[idx] = __F2H(dPhiChange);
+#ifdef CUT_VALUE_DEBUG
     segments.dPhis()[idx] = __F2H(dPhi);
     segments.dPhiMins()[idx] = __F2H(dPhiMin);
     segments.dPhiMaxs()[idx] = __F2H(dPhiMax);
-    segments.dPhiChanges()[idx] = __F2H(dPhiChange);
+#endif
     segments.dPhiChangeMins()[idx] = __F2H(dPhiChangeMin);
     segments.dPhiChangeMaxs()[idx] = __F2H(dPhiChangeMax);
 
@@ -771,13 +773,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                    outerLowerModuleIndex,
                                    innerMiniDoubletAnchorHitIndex,
                                    outerMiniDoubletAnchorHitIndex,
-                                   dPhi,
-                                   dPhiMin,
-                                   dPhiMax,
                                    dPhiChange,
                                    dPhiChangeMin,
                                    dPhiChangeMax,
 #ifdef CUT_VALUE_DEBUG
+                                   dPhi,
+                                   dPhiMin,
+                                   dPhiMax,
                                    zHi,
                                    zLo,
                                    rtHi,
