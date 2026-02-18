@@ -59,8 +59,8 @@ options.register("dropNonMuonCollections", True, VarParsing.multiplicity.singlet
                  "Option to drop most non-muon collections generally considered unnecessary for GEM/CSC analysis")
 options.register("dqmOutputFile", "step_DQM.root", VarParsing.multiplicity.singleton, VarParsing.varType.string,
                  "Name of the DQM output file. Default: step_DQM.root")
-options.register("useGEMCSCAlignment", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
-                 "Set to True if you want to use alignment-corrected LUTs for the GEM-CSC bending angle correction in the CSCGEMMatcher.")
+options.register("use6BitGEMCSCBendingAngle", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True if you want to use 6 bit LUTs for the GEM-CSC bending angle in the CSCGEMMatcher.")
 options.parseArguments()
 
 process_era = Run3
@@ -84,7 +84,7 @@ process.load("DQM.L1TMonitor.L1TdeCSCTPG_cfi")
 process.load("DQM.L1TMonitor.L1TdeGEMTPG_cfi")
 
 
-if options.useGEMCSCAlignment:
+if options.use6BitGEMCSCBendingAngle:
       process = set_6bit_gemcsc_bending_LUTs(process)
 
 

@@ -526,8 +526,8 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
     if (assign_gem_csc_bending_ &&
         gem.isValid()) {  //calculate new slope from strip difference between CLCT and associated GEM
       int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem, lookupTableME11ILT, lookupTableME21ILT);
-      // Does gem.layer() work? Or do I have to use "!gem.isMatchingLayer1() and gem.isMatchingLayer2()"
-      thisLCT.setGemLayerUsedForSlopeComputation(gem.layer());
+      int gemLayer = gem.isMatchingLayer1() ? 1 : (gem.isMatchingLayer2() ? 2 : 0);
+      thisLCT.setGemLayerUsedForSlopeComputation(gemLayer);
       thisLCT.setSlope(abs(slope));
       thisLCT.setBend(std::signbit(slope));
       thisLCT.setPattern(Run2PatternConverter(slope));
@@ -595,8 +595,8 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct,
     if (assign_gem_csc_bending_ &&
         gem.isValid()) {  //calculate new slope from strip difference between CLCT and associated GEM
       int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem, lookupTableME11ILT, lookupTableME21ILT);
-      // Does gem.layer() work? Or do I have to use "!gem.isMatchingLayer1() and gem.isMatchingLayer2()"
-      thisLCT.setGemLayerUsedForSlopeComputation(gem.layer());
+      int gemLayer = gem.isMatchingLayer1() ? 1 : (gem.isMatchingLayer2() ? 2 : 0);
+      thisLCT.setGemLayerUsedForSlopeComputation(gemLayer);
       thisLCT.setSlope(abs(slope));
       thisLCT.setBend(pow(-1, std::signbit(slope)));
       thisLCT.setPattern(Run2PatternConverter(slope));
