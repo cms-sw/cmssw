@@ -320,6 +320,8 @@ float runTrackCandidate(LSTEvent* event, bool no_pls_dupclean, bool tc_pls_tripl
     std::cout << "# of T5 TrackCandidates produced: " << event->getNumberOfT5TrackCandidates() << std::endl;
   if (ana.verbose >= 2)
     std::cout << "# of T4 TrackCandidates produced: " << event->getNumberOfT4TrackCandidates() << std::endl;
+  if (ana.verbose >= 2)
+    printf("[MEM] Total: %.1f MB\n", event->getMemoryAllocatedMB());
 
   return tc_elapsed;
 }
