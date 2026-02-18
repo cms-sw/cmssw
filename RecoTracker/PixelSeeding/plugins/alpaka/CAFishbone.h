@@ -29,6 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   public:
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   HitsConstView hh,
+                                  ::reco::CALayersSoAConstView const& ll,
                                   CACell<TrackerTraits>* cells,
                                   uint32_t const* __restrict__ nCells,
                                   HitToCell const* __restrict__ outerHitHisto,
@@ -52,6 +53,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         auto xo = c0.outer_x(hh);
         auto yo = c0.outer_y(hh);
         auto zo = c0.outer_z(hh);
+        auto const lo = c0.outerLayer();
+        auto const threshold = ll[lo].fishboneCut();
         //printf("first cell %d xo %.2f yo %.2f zo %.2f - ",bin[0],c0.outer_x(hh),c0.outer_y(hh),c0.outer_z(hh));ve
 
 #ifdef GPU_DEBUG
@@ -105,7 +108,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
             auto cos12 = x1 * x2 + y1 * y2 + z1 * z2;
 
-            if (cos12 * cos12 >= 0.99999f * (n1 * n2)) {
+            if (cos12 * cos12 >= threshold * (n1 * n2)) {
               // alligned:  kill farthest (prefer consecutive layers)
               // if same layer prefer farthest (longer level arm) and make space for intermediate hit
               bool sameLayer = int(ci.layerPairId()) == int(cj.layerPairId());
