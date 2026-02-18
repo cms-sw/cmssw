@@ -13,10 +13,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-namespace edm {
-  class HepMCProduct;
-}
-
 class PhotonGenFilter : public edm::global::EDFilter<> {
 public:
   explicit PhotonGenFilter(const edm::ParameterSet&);
