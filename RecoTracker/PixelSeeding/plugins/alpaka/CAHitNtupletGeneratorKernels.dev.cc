@@ -151,12 +151,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_tupleMultiplicityStorage_ =
         cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, maxTuples);
     device_tupleMultiplicityOffsets_ =
-        cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, TrackerTraits::maxHitsOnTrack + 1);
+        cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, TrackerTraits::maxHitsOnTrack + 2);
     device_tupleMultiplicityView_ = {
         device_tupleMultiplicity_->data(),
         device_tupleMultiplicityOffsets_->data(),
         device_tupleMultiplicityStorage_->data(),
-        TrackerTraits::maxHitsOnTrack + 1,  //TODO: this could become configurable with some work
+        // this has to be +2 instead of +1 because you want all values from 0 to maxHitsOnTrack to be valid keys
+        // (N+1 values) + the extra +1 for the Container definition
+        TrackerTraits::maxHitsOnTrack + 2,
         maxTuples};
     TupleMultiplicity::template launchZero<Acc1D>(device_tupleMultiplicityView_, queue);
 
