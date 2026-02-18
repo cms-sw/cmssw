@@ -17,6 +17,8 @@ const double ScoreCutLCtoCP_ = 0.1;
 const double ScoreCutCPtoLC_ = 0.1;
 const double ScoreCutLCtoSC_ = 0.1;
 const double ScoreCutSCtoLC_ = 0.1;
+const double ScoreCutTStoSTSFakeMerge_[] = {0.6, FLT_MIN};  //1.e-09
+const double ScoreCutSTStoTSPurDup_[] = {0.2, FLT_MIN};     //1.e-11
 
 BarrelVHistoProducerAlgo::BarrelVHistoProducerAlgo(const edm::ParameterSet& pset)
     :  //parameters for eta
@@ -80,6 +82,42 @@ BarrelVHistoProducerAlgo::BarrelVHistoProducerAlgo(const edm::ParameterSet& pset
       minSharedEneFrac_(pset.getParameter<double>("minSharedEneFrac")),
       maxSharedEneFrac_(pset.getParameter<double>("maxSharedEneFrac")),
       nintSharedEneFrac_(pset.getParameter<int>("nintSharedEneFrac")),
+      minTSTSharedEneFracEfficiency_(pset.getParameter<double>("minTSTSharedEneFracEfficiency")),
+
+      minTSTSharedEneFrac_(pset.getParameter<double>("minTSTSharedEneFrac")),
+      maxTSTSharedEneFrac_(pset.getParameter<double>("maxTSTSharedEneFrac")),
+      nintTSTSharedEneFrac_(pset.getParameter<int>("nintTSTSharedEneFrac")),
+
+      //Parameters for the total number of Tracksters per event
+      // Always treat one event as two events, one in +z one in -z
+      minTotNTSTs_(pset.getParameter<double>("minTotNTSTs")),
+      maxTotNTSTs_(pset.getParameter<double>("maxTotNTSTs")),
+      nintTotNTSTs_(pset.getParameter<int>("nintTotNTSTs")),
+
+      //Parameters for the total number of layer clusters in Trackster
+      minTotNClsinTSTs_(pset.getParameter<double>("minTotNClsinTSTs")),
+      maxTotNClsinTSTs_(pset.getParameter<double>("maxTotNClsinTSTs")),
+      nintTotNClsinTSTs_(pset.getParameter<int>("nintTotNClsinTSTs")),
+
+      //Parameters for the total number of layer clusters in Trackster per layer
+      minTotNClsinTSTsperlayer_(pset.getParameter<double>("minTotNClsinTSTsperlayer")),
+      maxTotNClsinTSTsperlayer_(pset.getParameter<double>("maxTotNClsinTSTsperlayer")),
+      nintTotNClsinTSTsperlayer_(pset.getParameter<int>("nintTotNClsinTSTsperlayer")),
+
+      //Parameters for the multiplicity of layer clusters in Trackster
+      minMplofLCs_(pset.getParameter<double>("minMplofLCs")),
+      maxMplofLCs_(pset.getParameter<double>("maxMplofLCs")),
+      nintMplofLCs_(pset.getParameter<int>("nintMplofLCs")),
+
+      //Parameters for cluster size
+      minSizeCLsinTSTs_(pset.getParameter<double>("minSizeCLsinTSTs")),
+      maxSizeCLsinTSTs_(pset.getParameter<double>("maxSizeCLsinTSTs")),
+      nintSizeCLsinTSTs_(pset.getParameter<int>("nintSizeCLsinTSTs")),
+
+      //Parameters for the energy of a cluster per thickness per layer
+      minClEnepermultiplicity_(pset.getParameter<double>("minClEnepermultiplicity")),
+      maxClEnepermultiplicity_(pset.getParameter<double>("maxClEnepermultiplicity")),
+      nintClEnepermultiplicity_(pset.getParameter<int>("nintClEnepermultiplicity")),
 
       //parameters for x
       minX_(pset.getParameter<double>("minX")),
@@ -646,6 +684,415 @@ void BarrelVHistoProducerAlgo::bookClusterHistos_CellLevel(DQMStore::IBooker& ib
   }
 }
 //----------------------------------------------------------------------------------------------------------------------------
+
+void BarrelVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook,
+                                                   Histograms& histograms,
+                                                   unsigned int layers) {
+  std::unordered_map<int, dqm::reco::MonitorElement*> clusternum_in_trackster_perlayer;
+  clusternum_in_trackster_perlayer.clear();
+
+  for (unsigned ilayer = 0; ilayer < layers; ++ilayer) {
+    auto istr1 = std::to_string(ilayer);
+    std::string istr2 = istr1 + " in barrel";
+
+    clusternum_in_trackster_perlayer[ilayer] = ibook.book1D("clusternum_in_trackster_perlayer" + istr1,
+                                                            "Number of layer clusters in Trackster for layer " + istr2,
+                                                            nintTotNClsinTSTsperlayer_,
+                                                            minTotNClsinTSTsperlayer_,
+                                                            maxTotNClsinTSTsperlayer_);
+  }
+
+  histograms.h_clusternum_in_trackster_perlayer.push_back(std::move(clusternum_in_trackster_perlayer));
+
+  histograms.h_tracksternum.push_back(ibook.book1D(
+      "tottracksternum", "total number of Tracksters;# of Tracksters", nintTotNTSTs_, minTotNTSTs_, maxTotNTSTs_));
+
+  histograms.h_clusternum_in_trackster.push_back(
+      ibook.book1D("clusternum_in_trackster",
+                   "total number of layer clusters in Trackster;# of LayerClusters",
+                   nintTotNClsinTSTs_,
+                   minTotNClsinTSTs_,
+                   maxTotNClsinTSTs_));
+
+  histograms.h_clusternum_in_trackster_vs_layer.push_back(ibook.bookProfile(
+      "clusternum_in_trackster_vs_layer",
+      "Profile of 2d layer clusters in Trackster vs layer number;layer number;<2D LayerClusters in Trackster>",
+      layers,
+      0.,
+      layers,
+      minTotNClsinTSTsperlayer_,
+      maxTotNClsinTSTsperlayer_));
+
+  histograms.h_multiplicityOfLCinTST.push_back(
+      ibook.book2D("multiplicityOfLCinTST",
+                   "Multiplicity vs Layer cluster size in Tracksters;LayerCluster multiplicity in Tracksters;Cluster "
+                   "size (n_{hits})",
+                   nintMplofLCs_,
+                   minMplofLCs_,
+                   maxMplofLCs_,
+                   nintSizeCLsinTSTs_,
+                   minSizeCLsinTSTs_,
+                   maxSizeCLsinTSTs_));
+  histograms.h_multiplicity_numberOfEventsHistogram.push_back(ibook.book1D("multiplicity_numberOfEventsHistogram",
+                                                                           "multiplicity numberOfEventsHistogram",
+                                                                           nintMplofLCs_,
+                                                                           minMplofLCs_,
+                                                                           maxMplofLCs_));
+
+  histograms.h_multiplicityOfLCinTST_vs_layerclusterenergy.push_back(
+      ibook.book2D("multiplicityOfLCinTST_vs_layerclusterenergy",
+                   "Multiplicity vs Layer cluster energy;LayerCluster multiplicity in Tracksters;Cluster energy [GeV]",
+                   nintMplofLCs_,
+                   minMplofLCs_,
+                   maxMplofLCs_,
+                   nintClEnepermultiplicity_,
+                   minClEnepermultiplicity_,
+                   maxClEnepermultiplicity_));
+
+  histograms.h_trackster_pt.push_back(
+      ibook.book1D("trackster_pt", "Pt of the Trackster;Trackster p_{T} [GeV]", nintPt_, minPt_, maxPt_));
+  histograms.h_trackster_eta.push_back(
+      ibook.book1D("trackster_eta", "Eta of the Trackster;Trackster #eta", nintEta_, minEta_, maxEta_));
+  histograms.h_trackster_phi.push_back(
+      ibook.book1D("trackster_phi", "Phi of the Trackster;Trackster #phi", nintPhi_, minPhi_, maxPhi_));
+  histograms.h_trackster_energy.push_back(
+      ibook.book1D("trackster_energy", "Energy of the Trackster;Trackster energy [GeV]", nintEne_, minEne_, maxEne_));
+  histograms.h_trackster_x.push_back(
+      ibook.book1D("trackster_x", "X position of the Trackster;Trackster x", nintX_, minX_, maxX_));
+  histograms.h_trackster_y.push_back(
+      ibook.book1D("trackster_y", "Y position of the Trackster;Trackster y", nintY_, minY_, maxY_));
+  histograms.h_trackster_z.push_back(
+      ibook.book1D("trackster_z", "Z position of the Trackster;Trackster z", nintZ_, minZ_, maxZ_));
+  histograms.h_trackster_firstlayer.push_back(ibook.book1D(
+      "trackster_firstlayer", "First layer of the Trackster;Trackster First Layer", layers, 0., (float)layers));
+  histograms.h_trackster_lastlayer.push_back(ibook.book1D(
+      "trackster_lastlayer", "Last layer of the Trackster;Trackster Last Layer", layers, 0., (float)layers));
+  histograms.h_trackster_layersnum.push_back(ibook.book1D(
+      "trackster_layersnum", "Number of layers of the Trackster;Trackster Number of Layers", layers, 0., (float)layers));
+}
+
+void BarrelVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook,
+                                                      Histograms& histograms,
+                                                      const validationType valType) {
+  const string rtos = ";score Reco-to-Sim";
+  const string stor = ";score Sim-to-Reco";
+  const string shREnFr = ";shared Reco energy fraction";
+  const string shSEnFr = ";shared Sim energy fraction";
+
+  histograms.h_score_trackster2caloparticle[valType].push_back(
+      ibook.book1D("Score_trackster2" + ref_[valType],
+                   "Score of Trackster per " + refText_[valType] + rtos,
+                   nintScore_,
+                   minScore_,
+                   maxScore_));
+  histograms.h_score_trackster2bestCaloparticle[valType].push_back(
+      ibook.book1D("ScoreFake_trackster2" + ref_[valType],
+                   "Score of Trackster per best " + refText_[valType] + rtos,
+                   nintScore_,
+                   minScore_,
+                   maxScore_));
+  histograms.h_score_trackster2bestCaloparticle2[valType].push_back(
+      ibook.book1D("ScoreMerge_trackster2" + ref_[valType],
+                   "Score of Trackster per 2^{nd} best " + refText_[valType] + rtos,
+                   nintScore_,
+                   minScore_,
+                   maxScore_));
+  histograms.h_score_caloparticle2trackster[valType].push_back(
+      ibook.book1D("Score_" + ref_[valType] + "2trackster",
+                   "Score of " + refText_[valType] + " per Trackster" + stor,
+                   nintScore_,
+                   minScore_,
+                   maxScore_));
+  histograms.h_scorePur_caloparticle2trackster[valType].push_back(
+      ibook.book1D("ScorePur_" + ref_[valType] + "2trackster",
+                   "Score of " + refText_[valType] + " per best Trackster" + stor,
+                   nintScore_,
+                   minScore_,
+                   maxScore_));
+  histograms.h_scoreDupl_caloparticle2trackster[valType].push_back(
+      ibook.book1D("ScoreDupl_" + ref_[valType] + "2trackster",
+                   "Score of " + refText_[valType] + " per 2^{nd} best Trackster" + stor,
+                   nintScore_,
+                   minScore_,
+                   maxScore_));
+  histograms.h_energy_vs_score_trackster2caloparticle[valType].push_back(
+      ibook.book2D("Energy_vs_Score_trackster2" + ref_[valType],
+                   "Energy vs Score of Trackster per " + refText_[valType] + rtos + shREnFr,
+                   nintScore_,
+                   minScore_,
+                   maxScore_,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+  histograms.h_energy_vs_score_trackster2bestCaloparticle[valType].push_back(
+      ibook.book2D("Energy_vs_Score_trackster2best" + ref_[valType],
+                   "Energy vs Score of Trackster per best " + refText_[valType] + rtos + shREnFr,
+                   nintScore_,
+                   minScore_,
+                   maxScore_,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+  histograms.h_energy_vs_score_trackster2bestCaloparticle2[valType].push_back(
+      ibook.book2D("Energy_vs_Score_trackster2secBest" + ref_[valType],
+                   "Energy vs Score of Trackster per 2^{nd} best " + refText_[valType] + rtos + shREnFr,
+                   nintScore_,
+                   minScore_,
+                   maxScore_,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+  histograms.h_energy_vs_score_caloparticle2trackster[valType].push_back(
+      ibook.book2D("Energy_vs_Score_" + ref_[valType] + "2Trackster",
+                   "Energy vs Score of " + refText_[valType] + " per Trackster" + stor + shSEnFr,
+                   nintScore_,
+                   minScore_,
+                   maxScore_,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+  histograms.h_energy_vs_score_caloparticle2bestTrackster[valType].push_back(
+      ibook.book2D("Energy_vs_Score_" + ref_[valType] + "2bestTrackster",
+                   "Energy vs Score of " + refText_[valType] + " per best Trackster" + stor + shSEnFr,
+                   nintScore_,
+                   minScore_,
+                   maxScore_,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+  histograms.h_energy_vs_score_caloparticle2bestTrackster2[valType].push_back(
+      ibook.book2D("Energy_vs_Score_" + ref_[valType] + "2secBestTrackster",
+                   "Energy vs Score of " + refText_[valType] + " per 2^{nd} best Trackster" + stor + shSEnFr,
+                   nintScore_,
+                   minScore_,
+                   maxScore_,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+
+  // Back to all Tracksters
+  // eta
+  histograms.h_num_trackster_eta[valType].push_back(ibook.book1D(
+      "Num_Trackster_Eta" + valSuffix_[valType], "Num Trackster Eta per Trackster;#eta", nintEta_, minEta_, maxEta_));
+  histograms.h_numMerge_trackster_eta[valType].push_back(ibook.book1D("NumMerge_Trackster_Eta" + valSuffix_[valType],
+                                                                      "Num Merge Trackster Eta per Trackster;#eta",
+                                                                      nintEta_,
+                                                                      minEta_,
+                                                                      maxEta_));
+  histograms.h_denom_trackster_eta[valType].push_back(ibook.book1D("Denom_Trackster_Eta" + valSuffix_[valType],
+                                                                   "Denom Trackster Eta per Trackster;#eta",
+                                                                   nintEta_,
+                                                                   minEta_,
+                                                                   maxEta_));
+  // phi
+  histograms.h_num_trackster_phi[valType].push_back(ibook.book1D(
+      "Num_Trackster_Phi" + valSuffix_[valType], "Num Trackster Phi per Trackster;#phi", nintPhi_, minPhi_, maxPhi_));
+  histograms.h_numMerge_trackster_phi[valType].push_back(ibook.book1D("NumMerge_Trackster_Phi" + valSuffix_[valType],
+                                                                      "Num Merge Trackster Phi per Trackster;#phi",
+                                                                      nintPhi_,
+                                                                      minPhi_,
+                                                                      maxPhi_));
+  histograms.h_denom_trackster_phi[valType].push_back(ibook.book1D("Denom_Trackster_Phi" + valSuffix_[valType],
+                                                                   "Denom Trackster Phi per Trackster;#phi",
+                                                                   nintPhi_,
+                                                                   minPhi_,
+                                                                   maxPhi_));
+  // energy
+  histograms.h_num_trackster_en[valType].push_back(ibook.book1D("Num_Trackster_Energy" + valSuffix_[valType],
+                                                                "Num Trackster Energy per Trackster;energy [GeV]",
+                                                                nintEne_,
+                                                                minEne_,
+                                                                maxEne_));
+  histograms.h_numMerge_trackster_en[valType].push_back(
+      ibook.book1D("NumMerge_Trackster_Energy" + valSuffix_[valType],
+                   "Num Merge Trackster Energy per Trackster;energy [GeV]",
+                   nintEne_,
+                   minEne_,
+                   maxEne_));
+  histograms.h_denom_trackster_en[valType].push_back(ibook.book1D("Denom_Trackster_Energy" + valSuffix_[valType],
+                                                                  "Denom Trackster Energy per Trackster;energy [GeV]",
+                                                                  nintEne_,
+                                                                  minEne_,
+                                                                  maxEne_));
+  // pT
+  histograms.h_num_trackster_pt[valType].push_back(ibook.book1D("Num_Trackster_Pt" + valSuffix_[valType],
+                                                                "Num Trackster p_{T} per Trackster;p_{T} [GeV]",
+                                                                nintPt_,
+                                                                minPt_,
+                                                                maxPt_));
+  histograms.h_numMerge_trackster_pt[valType].push_back(
+      ibook.book1D("NumMerge_Trackster_Pt" + valSuffix_[valType],
+                   "Num Merge Trackster p_{T} per Trackster;p_{T} [GeV]",
+                   nintPt_,
+                   minPt_,
+                   maxPt_));
+  histograms.h_denom_trackster_pt[valType].push_back(ibook.book1D("Denom_Trackster_Pt" + valSuffix_[valType],
+                                                                  "Denom Trackster p_{T} per Trackster;p_{T} [GeV]",
+                                                                  nintPt_,
+                                                                  minPt_,
+                                                                  maxPt_));
+
+  histograms.h_sharedenergy_trackster2caloparticle[valType].push_back(
+      ibook.book1D("SharedEnergy_trackster2" + ref_[valType],
+                   "Shared Energy of Trackster per " + refText_[valType] + shREnFr,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+  histograms.h_sharedenergy_trackster2bestCaloparticle[valType].push_back(
+      ibook.book1D("SharedEnergy_trackster2" + ref_[valType] + "_assoc",
+                   "Shared Energy of Trackster per best " + refText_[valType] + shREnFr,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+  histograms.h_sharedenergy_trackster2bestCaloparticle_vs_eta[valType].push_back(ibook.bookProfile(
+      "SharedEnergy_trackster2" + ref_[valType] + "_assoc_vs_eta",
+      "Shared Energy of Trackster vs #eta per best " + refText_[valType] + ";Trackster #eta" + shREnFr,
+      nintEta_,
+      minEta_,
+      maxEta_,
+      minSharedEneFrac_,
+      maxSharedEneFrac_));
+  histograms.h_sharedenergy_trackster2bestCaloparticle_vs_phi[valType].push_back(ibook.bookProfile(
+      "SharedEnergy_trackster2" + ref_[valType] + "_assoc_vs_phi",
+      "Shared Energy of Trackster vs #phi per best " + refText_[valType] + ";Trackster #phi" + shREnFr,
+      nintPhi_,
+      minPhi_,
+      maxPhi_,
+      minSharedEneFrac_,
+      maxSharedEneFrac_));
+  histograms.h_sharedenergy_trackster2bestCaloparticle2[valType].push_back(
+      ibook.book1D("SharedEnergy_trackster2" + ref_[valType] + "_assoc2",
+                   "Shared Energy of Trackster per 2^{nd} best " + refText_[valType] + shREnFr,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+
+  histograms.h_sharedenergy_caloparticle2trackster[valType].push_back(
+      ibook.book1D("SharedEnergy_" + ref_[valType] + "2trackster",
+                   "Shared Energy of " + refText_[valType] + " per Trackster" + shSEnFr,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+  histograms.h_sharedenergy_caloparticle2trackster_assoc[valType].push_back(
+      ibook.book1D("SharedEnergy_" + ref_[valType] + "2trackster_assoc",
+                   "Shared Energy of " + refText_[valType] + " per best Trackster" + shSEnFr,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+  histograms.h_sharedenergy_caloparticle2trackster_assoc_vs_eta[valType].push_back(ibook.bookProfile(
+      "SharedEnergy_" + ref_[valType] + "2trackster_assoc_vs_eta",
+      "Shared Energy of " + refText_[valType] + " vs #eta per best Trackster;" + refText_[valType] + " #eta" + shSEnFr,
+      nintEta_,
+      minEta_,
+      maxEta_,
+      minSharedEneFrac_,
+      maxSharedEneFrac_));
+  histograms.h_sharedenergy_caloparticle2trackster_assoc_vs_phi[valType].push_back(ibook.bookProfile(
+      "SharedEnergy_" + ref_[valType] + "2trackster_assoc_vs_phi",
+      "Shared Energy of " + refText_[valType] + " vs #phi per best Trackster;" + refText_[valType] + " #phi" + shSEnFr,
+      nintPhi_,
+      minPhi_,
+      maxPhi_,
+      minSharedEneFrac_,
+      maxSharedEneFrac_));
+  histograms.h_sharedenergy_caloparticle2trackster_assoc2[valType].push_back(
+      ibook.book1D("SharedEnergy_" + ref_[valType] + "2trackster_assoc2",
+                   "Shared Energy of " + refText_[valType] + " per 2^{nd} best Trackster;" + shSEnFr,
+                   nintSharedEneFrac_,
+                   minSharedEneFrac_,
+                   maxSharedEneFrac_));
+
+  // eta
+  histograms.h_numEff_caloparticle_eta[valType].push_back(
+      ibook.book1D("NumEff_" + ref_[valType] + "_Eta",
+                   "Num Efficiency " + refText_[valType] + " Eta per Trackster;#eta",
+                   nintEta_,
+                   minEta_,
+                   maxEta_));
+  histograms.h_num_caloparticle_eta[valType].push_back(
+      ibook.book1D("Num_" + ref_[valType] + "_Eta",
+                   "Num Purity " + refText_[valType] + " Eta per Trackster;#eta",
+                   nintEta_,
+                   minEta_,
+                   maxEta_));
+  histograms.h_numDup_trackster_eta[valType].push_back(ibook.book1D(
+      "NumDup_Trackster_Eta" + valSuffix_[valType], "Num Duplicate Trackster vs Eta;#eta", nintEta_, minEta_, maxEta_));
+  histograms.h_denom_caloparticle_eta[valType].push_back(
+      ibook.book1D("Denom_" + ref_[valType] + "_Eta",
+                   "Denom " + refText_[valType] + " Eta per Trackster;#eta",
+                   nintEta_,
+                   minEta_,
+                   maxEta_));
+  // phi
+  histograms.h_numEff_caloparticle_phi[valType].push_back(
+      ibook.book1D("NumEff_" + ref_[valType] + "_Phi",
+                   "Num Efficiency " + refText_[valType] + " Phi per Trackster;#phi",
+                   nintPhi_,
+                   minPhi_,
+                   maxPhi_));
+  histograms.h_num_caloparticle_phi[valType].push_back(
+      ibook.book1D("Num_" + ref_[valType] + "_Phi",
+                   "Num Purity " + refText_[valType] + " Phi per Trackster;#phi",
+                   nintPhi_,
+                   minPhi_,
+                   maxPhi_));
+  histograms.h_numDup_trackster_phi[valType].push_back(ibook.book1D(
+      "NumDup_Trackster_Phi" + valSuffix_[valType], "Num Duplicate Trackster vs Phi;#phi", nintPhi_, minPhi_, maxPhi_));
+  histograms.h_denom_caloparticle_phi[valType].push_back(
+      ibook.book1D("Denom_" + ref_[valType] + "_Phi",
+                   "Denom " + refText_[valType] + " Phi per Trackster;#phi",
+                   nintPhi_,
+                   minPhi_,
+                   maxPhi_));
+  // energy
+  histograms.h_numEff_caloparticle_en[valType].push_back(
+      ibook.book1D("NumEff_" + ref_[valType] + "_Energy",
+                   "Num Efficiency " + refText_[valType] + " Energy per Trackster;energy [GeV]",
+                   nintEne_,
+                   minEne_,
+                   maxEne_));
+  histograms.h_num_caloparticle_en[valType].push_back(
+      ibook.book1D("Num_" + ref_[valType] + "_Energy",
+                   "Num Purity " + refText_[valType] + " Energy per Trackster;energy [GeV]",
+                   nintEne_,
+                   minEne_,
+                   maxEne_));
+  histograms.h_numDup_trackster_en[valType].push_back(ibook.book1D("NumDup_Trackster_Energy" + valSuffix_[valType],
+                                                                   "Num Duplicate Trackster vs Energy;energy [GeV]",
+                                                                   nintEne_,
+                                                                   minEne_,
+                                                                   maxEne_));
+  histograms.h_denom_caloparticle_en[valType].push_back(
+      ibook.book1D("Denom_" + ref_[valType] + "_Energy",
+                   "Denom " + refText_[valType] + " Energy per Trackster;energy [GeV]",
+                   nintEne_,
+                   minEne_,
+                   maxEne_));
+  // pT
+  histograms.h_numEff_caloparticle_pt[valType].push_back(
+      ibook.book1D("NumEff_" + ref_[valType] + "_Pt",
+                   "Num Efficiency " + refText_[valType] + " p_{T} per Trackster;p_{T} [GeV]",
+                   nintPt_,
+                   minPt_,
+                   maxPt_));
+  histograms.h_num_caloparticle_pt[valType].push_back(
+      ibook.book1D("Num_" + ref_[valType] + "_Pt",
+                   "Num Purity " + refText_[valType] + " p_{T} per Trackster;p_{T} [GeV]",
+                   nintPt_,
+                   minPt_,
+                   maxPt_));
+  histograms.h_numDup_trackster_pt[valType].push_back(ibook.book1D("NumDup_Trackster_Pt" + valSuffix_[valType],
+                                                                   "Num Duplicate Trackster vs p_{T};p_{T} [GeV]",
+                                                                   nintPt_,
+                                                                   minPt_,
+                                                                   maxPt_));
+  histograms.h_denom_caloparticle_pt[valType].push_back(
+      ibook.book1D("Denom_" + ref_[valType] + "_Pt",
+                   "Denom " + refText_[valType] + " p_{T} per Trackster;p_{T} [GeV]",
+                   nintPt_,
+                   minPt_,
+                   maxPt_));
+}
 
 void BarrelVHistoProducerAlgo::fill_info_histos(const Histograms& histograms, unsigned int layers) const {
   // Save some info straight from geometry to avoid mistakes from updates
@@ -1380,6 +1827,340 @@ void BarrelVHistoProducerAlgo::fill_generic_cluster_histos(
       histograms.h_energyclustered_perlayer.at(ilayer)->Fill(tecpl[ilayer]);
     }
   }  //end of loop over layers
+}
+
+void BarrelVHistoProducerAlgo::tracksters_to_SimTracksters_fp(
+    const Histograms& histograms,
+    const int count,
+    const TracksterToTracksterMap& trackstersToSimTrackstersMap,
+    const TracksterToTracksterMap& simTrackstersToTrackstersMap,
+    const validationType valType,
+    const SimClusterToCaloParticleMap& scToCpMap,
+    const std::vector<size_t>& cPIndices,
+    const std::vector<size_t>& cPSelectedIndices,
+    const edm::ProductID& cPHandle_id) const {
+  const auto nTracksters = trackstersToSimTrackstersMap.getMap().size();
+  const auto nSimTracksters = simTrackstersToTrackstersMap.getMap().size();
+  std::vector<int> tracksters_FakeMerge(nTracksters, 0);
+  std::vector<int> tracksters_PurityDuplicate(nSimTracksters, 0);
+  auto getCPId = [](const ticl::Trackster& simTS,
+                    const edm::ProductID& cPHandle_id,
+                    const SimClusterToCaloParticleMap& scToCpMap) {
+    const auto productID = simTS.seedID();
+    if (productID == cPHandle_id) {
+      return simTS.seedIndex();
+    } else {
+      return int(scToCpMap.at(simTS.seedIndex()).index());
+    }
+  };
+
+  auto ScoreCutSTStoTSPurDup = ScoreCutSTStoTSPurDup_[0];
+  auto ScoreCutTStoSTSFakeMerge = ScoreCutTStoSTSFakeMerge_[0];
+  for (unsigned int tracksterIndex = 0; tracksterIndex < nTracksters; ++tracksterIndex) {
+    const auto& trackster = *(trackstersToSimTrackstersMap.getRefFirst(tracksterIndex));
+    if (trackster.vertices().empty())
+      continue;
+    float iTS_eta = trackster.barycenter().eta();
+    float iTS_phi = trackster.barycenter().phi();
+    float iTS_en = trackster.raw_energy();
+    float iTS_pt = trackster.raw_pt();
+    histograms.h_denom_trackster_eta[valType][count]->Fill(iTS_eta);
+    histograms.h_denom_trackster_phi[valType][count]->Fill(iTS_phi);
+    histograms.h_denom_trackster_en[valType][count]->Fill(iTS_en);
+    histograms.h_denom_trackster_pt[valType][count]->Fill(iTS_pt);
+
+    // loop over trackstersToSimTrackstersMap[tracksterIndex] by index
+    for (unsigned int i = 0; i < trackstersToSimTrackstersMap[tracksterIndex].size(); ++i) {
+      auto sharedEnergy = trackstersToSimTrackstersMap[tracksterIndex][i].sharedEnergy();
+      auto score = trackstersToSimTrackstersMap[tracksterIndex][i].score();
+      float sharedEnergyFraction = sharedEnergy / trackster.raw_energy();
+      if (i == 0) {
+        histograms.h_score_trackster2bestCaloparticle[valType][count]->Fill(score);
+        histograms.h_sharedenergy_trackster2bestCaloparticle[valType][count]->Fill(sharedEnergyFraction);
+        histograms.h_sharedenergy_trackster2bestCaloparticle_vs_eta[valType][count]->Fill(trackster.barycenter().eta(),
+                                                                                          sharedEnergy);
+        histograms.h_sharedenergy_trackster2bestCaloparticle_vs_phi[valType][count]->Fill(trackster.barycenter().phi(),
+                                                                                          sharedEnergy);
+        histograms.h_energy_vs_score_trackster2bestCaloparticle[valType][count]->Fill(score, sharedEnergyFraction);
+      }
+      if (i == 1) {
+        histograms.h_score_trackster2bestCaloparticle2[valType][count]->Fill(score);
+        histograms.h_sharedenergy_trackster2bestCaloparticle2[valType][count]->Fill(sharedEnergyFraction);
+        histograms.h_energy_vs_score_trackster2bestCaloparticle2[valType][count]->Fill(score, sharedEnergyFraction);
+      }
+      histograms.h_score_trackster2caloparticle[valType][count]->Fill(score);
+      histograms.h_sharedenergy_trackster2caloparticle[valType][count]->Fill(sharedEnergyFraction);
+      histograms.h_energy_vs_score_trackster2caloparticle[valType][count]->Fill(score, sharedEnergyFraction);
+      tracksters_FakeMerge[tracksterIndex] += score < ScoreCutTStoSTSFakeMerge;
+    }
+
+    if (tracksters_FakeMerge[tracksterIndex] > 0) {
+      histograms.h_num_trackster_eta[valType][count]->Fill(iTS_eta);
+      histograms.h_num_trackster_phi[valType][count]->Fill(iTS_phi);
+      histograms.h_num_trackster_en[valType][count]->Fill(iTS_en);
+      histograms.h_num_trackster_pt[valType][count]->Fill(iTS_pt);
+
+      if (tracksters_FakeMerge[tracksterIndex] > 1) {
+        histograms.h_numMerge_trackster_eta[valType][count]->Fill(iTS_eta);
+        histograms.h_numMerge_trackster_phi[valType][count]->Fill(iTS_phi);
+        histograms.h_numMerge_trackster_en[valType][count]->Fill(iTS_en);
+        histograms.h_numMerge_trackster_pt[valType][count]->Fill(iTS_pt);
+      }
+    }
+  }
+
+  // Fill the plots to compute the different metrics linked to
+  // gen-level, namely efficiency, purity and duplicate. In this loop should restrict
+  // only to the selected caloParaticles.
+  for (unsigned int simTracksterIndex = 0; simTracksterIndex < nSimTracksters; ++simTracksterIndex) {
+    const auto& simTrackster = *(simTrackstersToTrackstersMap.getRefFirst(simTracksterIndex));
+    const auto cpId = getCPId(simTrackster, cPHandle_id, scToCpMap);
+    if (std::find(cPSelectedIndices.begin(), cPSelectedIndices.end(), cpId) == cPSelectedIndices.end())
+      continue;
+    const auto sts_eta = simTrackster.barycenter().eta();
+    const auto sts_phi = simTrackster.barycenter().phi();
+    const auto sts_en = simTrackster.raw_energy();
+    const auto sts_pt = simTrackster.raw_pt();
+    float inv_simtrackster_energy = 1.f / sts_en;
+    histograms.h_denom_caloparticle_eta[valType][count]->Fill(sts_eta);
+    histograms.h_denom_caloparticle_phi[valType][count]->Fill(sts_phi);
+    histograms.h_denom_caloparticle_en[valType][count]->Fill(sts_en);
+    histograms.h_denom_caloparticle_pt[valType][count]->Fill(sts_pt);
+
+    //Loop through related Tracksters here
+    // In case the threshold to associate a CaloParticle to a Trackster is
+    // below 50%, there could be cases in which the CP is linked to more than
+    // one tracksters, leading to efficiencies >1. This boolean is used to
+    // avoid "over counting".
+    bool sts_considered_efficient = false;
+    bool sts_considered_pure = false;
+
+    for (unsigned int i = 0; i < simTrackstersToTrackstersMap[simTracksterIndex].size(); ++i) {
+      const auto sharedEnergy = simTrackstersToTrackstersMap[simTracksterIndex][i].sharedEnergy();
+      const auto score = simTrackstersToTrackstersMap[simTracksterIndex][i].score();
+      float sharedEnergyFraction = sharedEnergy * inv_simtrackster_energy;
+      if (i == 0) {
+        histograms.h_scorePur_caloparticle2trackster[valType][count]->Fill(score);
+        histograms.h_sharedenergy_caloparticle2trackster_assoc[valType][count]->Fill(sharedEnergyFraction);
+        histograms.h_energy_vs_score_caloparticle2bestTrackster[valType][count]->Fill(score, sharedEnergyFraction);
+        histograms.h_sharedenergy_caloparticle2trackster_assoc_vs_eta[valType][count]->Fill(sts_eta,
+                                                                                            sharedEnergyFraction);
+        histograms.h_sharedenergy_caloparticle2trackster_assoc_vs_phi[valType][count]->Fill(sts_phi,
+                                                                                            sharedEnergyFraction);
+      }
+
+      if (i == 1) {
+        histograms.h_scoreDupl_caloparticle2trackster[valType][count]->Fill(score);
+        histograms.h_sharedenergy_caloparticle2trackster_assoc2[valType][count]->Fill(sharedEnergyFraction);
+        histograms.h_energy_vs_score_caloparticle2bestTrackster2[valType][count]->Fill(score, sharedEnergyFraction);
+      }
+
+      histograms.h_score_caloparticle2trackster[valType][count]->Fill(score);
+      histograms.h_sharedenergy_caloparticle2trackster[valType][count]->Fill(sharedEnergyFraction);
+      histograms.h_energy_vs_score_caloparticle2trackster[valType][count]->Fill(score, sharedEnergyFraction);
+
+      // Fill the numerator for the efficiency calculation. The efficiency is computed by considering the energy shared between a Trackster and a _corresponding_ caloParticle. The threshold is configurable via python.
+      if (!sts_considered_efficient && (sharedEnergyFraction >= minTSTSharedEneFracEfficiency_)) {
+        sts_considered_efficient = true;
+        histograms.h_numEff_caloparticle_eta[valType][count]->Fill(sts_eta);
+        histograms.h_numEff_caloparticle_phi[valType][count]->Fill(sts_phi);
+        histograms.h_numEff_caloparticle_en[valType][count]->Fill(sts_en);
+        histograms.h_numEff_caloparticle_pt[valType][count]->Fill(sts_pt);
+      }
+
+      if (score < ScoreCutSTStoTSPurDup) {
+        if (tracksters_PurityDuplicate[simTracksterIndex] < 1)
+          tracksters_PurityDuplicate[simTracksterIndex]++;  // for Purity
+        if (sts_considered_pure)
+          tracksters_PurityDuplicate[simTracksterIndex]++;  // for Duplicate
+        sts_considered_pure = true;
+      }
+
+    }  // end of loop through Tracksters related to SimTrackster
+    if (tracksters_PurityDuplicate[simTracksterIndex] > 0) {
+      histograms.h_num_caloparticle_eta[valType][count]->Fill(sts_eta);
+      histograms.h_num_caloparticle_phi[valType][count]->Fill(sts_phi);
+      histograms.h_num_caloparticle_en[valType][count]->Fill(sts_en);
+      histograms.h_num_caloparticle_pt[valType][count]->Fill(sts_pt);
+
+      if (tracksters_PurityDuplicate[simTracksterIndex] > 1) {
+        histograms.h_numDup_trackster_eta[valType][count]->Fill(sts_eta);
+        histograms.h_numDup_trackster_phi[valType][count]->Fill(sts_phi);
+        histograms.h_numDup_trackster_en[valType][count]->Fill(sts_en);
+        histograms.h_numDup_trackster_pt[valType][count]->Fill(sts_pt);
+      }
+    }
+
+  }  // end of loop through SimTracksters
+}
+
+void BarrelVHistoProducerAlgo::fill_trackster_histos(
+    const Histograms& histograms,
+    const int count,
+    const ticl::TracksterCollection& tracksters,
+    const reco::CaloClusterCollection& layerClusters,
+    const ticl::TracksterCollection& simTSs,
+    const ticl::TracksterCollection& simTSs_fromCP,
+    const std::map<unsigned int, std::vector<unsigned int>>& cpToSc_SimTrackstersMap,
+    std::vector<SimCluster> const& sC,
+    const edm::ProductID& cPHandle_id,
+    std::vector<CaloParticle> const& cP,
+    std::vector<size_t> const& cPIndices,
+    std::vector<size_t> const& cPSelectedIndices,
+    std::unordered_map<DetId, const unsigned int> const& hitMap,
+    unsigned int layers,
+    edm::MultiSpan<reco::PFRecHit> const& hits,
+    bool mapsFound,
+    const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByLCsMapH,
+    const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByLCsMapH,
+    const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByLCsMapH,
+    const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByLCsMapH,
+    const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByHitsMapH,
+    const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByHitsMapH,
+    const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByHitsMapH,
+    const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByHitsMapH,
+    const SimClusterToCaloParticleMap& scToCpMap) const {
+  //Each event to be treated as two events:
+  if (tracksters.empty())
+    return;
+
+  //[tstId]-> vector of 2d layer clusters size
+  std::unordered_map<unsigned int, std::vector<unsigned int>> multiplicity;
+  //[tstId]-> [layer][cluster size]
+  std::unordered_map<unsigned int, std::vector<unsigned int>> multiplicity_vs_layer;
+  //We will need for the scale text option
+
+  unsigned int totalLcInTsts = 0;
+  for (unsigned int tstId = 0; tstId < tracksters.size(); ++tstId) {
+    totalLcInTsts = totalLcInTsts + tracksters[tstId].vertices().size();
+  }
+
+  const auto nTracksters = tracksters.size();
+  // loop through Tracksters
+  for (unsigned int tstId = 0; tstId < nTracksters; ++tstId) {
+    const auto& tst = tracksters[tstId];
+    if (tst.vertices().empty())
+      continue;
+
+    //Total number of layer clusters in Trackster
+    int tnLcInTst = 0;
+
+    //To keep track of total num of layer clusters per Trackster
+    //tnLcInTstperlaypz[layerid], tnLcInTstperlaymz[layerid]
+    std::vector<int> tnLcInTstperlay(layers, 0);
+
+    //For the layers the Trackster expands to. Will use a set because there would be many
+    //duplicates and then go back to vector for random access, since they say it is faster.
+    std::set<unsigned int> trackster_layers;
+
+    //Loop through layer clusters
+    for (const auto lcId : tst.vertices()) {
+      //take the hits and their fraction of the specific layer cluster.
+      const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
+      const auto firstHitDetId = hits_and_fractions[0].first;
+      if (!recHitTools_->isBarrel(firstHitDetId))
+        continue;
+      //For the multiplicity of the 2d layer clusters in Tracksters
+      multiplicity[tstId].emplace_back(hits_and_fractions.size());
+
+      //The layer that the layer cluster belongs to
+      const auto layerid = recHitTools_->getLayerWithOffset(firstHitDetId);
+      trackster_layers.insert(layerid);
+      multiplicity_vs_layer[tstId].emplace_back(layerid);
+
+      tnLcInTstperlay[layerid]++;
+      tnLcInTst++;
+
+    }  // end of loop through layerClusters
+    // Per layer : Loop 0->5
+    for (unsigned ilayer = 0; ilayer < layers; ++ilayer) {
+      if (histograms.h_clusternum_in_trackster_perlayer[count].count(ilayer) && tnLcInTstperlay[ilayer] != 0) {
+        histograms.h_clusternum_in_trackster_perlayer[count].at(ilayer)->Fill((float)tnLcInTstperlay[ilayer]);
+      }
+      // For the profile now of 2d layer cluster in Tracksters vs layer number.
+      if (tnLcInTstperlay[ilayer] != 0) {
+        histograms.h_clusternum_in_trackster_vs_layer[count]->Fill((float)ilayer, (float)tnLcInTstperlay[ilayer]);
+      }
+    }  // end of loop over layers
+
+    histograms.h_clusternum_in_trackster[count]->Fill(tnLcInTst);
+
+    for (unsigned int lc = 0; lc < multiplicity[tstId].size(); ++lc) {
+      //multiplicity of the current LC
+      float mlp = std::count(std::begin(multiplicity[tstId]), std::end(multiplicity[tstId]), multiplicity[tstId][lc]);
+      histograms.h_multiplicityOfLCinTST[count]->Fill(mlp, multiplicity[tstId][lc]);
+      histograms.h_multiplicity_numberOfEventsHistogram[count]->Fill(mlp);
+      histograms.h_multiplicityOfLCinTST_vs_layerclusterenergy[count]->Fill(mlp,
+                                                                            layerClusters[tst.vertices(lc)].energy());
+    }
+    if (!trackster_layers.empty()) {
+      histograms.h_trackster_x[count]->Fill(tst.barycenter().x());
+      histograms.h_trackster_y[count]->Fill(tst.barycenter().y());
+      histograms.h_trackster_z[count]->Fill(tst.barycenter().z());
+      histograms.h_trackster_eta[count]->Fill(tst.barycenter().eta());
+      histograms.h_trackster_phi[count]->Fill(tst.barycenter().phi());
+
+      histograms.h_trackster_firstlayer[count]->Fill((float)*trackster_layers.begin());
+      histograms.h_trackster_lastlayer[count]->Fill((float)*trackster_layers.rbegin());
+      histograms.h_trackster_layersnum[count]->Fill((float)trackster_layers.size());
+
+      histograms.h_trackster_pt[count]->Fill(tst.raw_pt());
+      histograms.h_trackster_energy[count]->Fill(tst.raw_energy());
+    }
+
+  }  //end of loop through Tracksters
+
+  histograms.h_tracksternum[count]->Fill(nTracksters);
+  if (mapsFound) {
+    const auto& trackstersToSimTrackstersByLCsMap = *trackstersToSimTrackstersByLCsMapH;
+    const auto& simTrackstersToTrackstersByLCsMap = *simTrackstersToTrackstersByLCsMapH;
+    const auto& trackstersToSimTrackstersFromCPsByLCsMap = *trackstersToSimTrackstersFromCPsByLCsMapH;
+    const auto& simTrackstersFromCPsToTrackstersByLCsMap = *simTrackstersFromCPsToTrackstersByLCsMapH;
+    const auto& trackstersToSimTrackstersByHitsMap = *trackstersToSimTrackstersByHitsMapH;
+    const auto& simTrackstersToTrackstersByHitsMap = *simTrackstersToTrackstersByHitsMapH;
+    const auto& trackstersToSimTrackstersFromCPsByHitsMap = *trackstersToSimTrackstersFromCPsByHitsMapH;
+    const auto& simTrackstersFromCPsToTrackstersByHitsMap = *simTrackstersFromCPsToTrackstersByHitsMapH;
+
+    tracksters_to_SimTracksters_fp(histograms,
+                                   count,
+                                   trackstersToSimTrackstersByLCsMap,
+                                   simTrackstersToTrackstersByLCsMap,
+                                   validationType::byLCs,
+                                   scToCpMap,
+                                   cPIndices,
+                                   cPSelectedIndices,
+                                   cPHandle_id);
+
+    tracksters_to_SimTracksters_fp(histograms,
+                                   count,
+                                   trackstersToSimTrackstersFromCPsByLCsMap,
+                                   simTrackstersFromCPsToTrackstersByLCsMap,
+                                   validationType::byLCs_CP,
+                                   scToCpMap,
+                                   cPIndices,
+                                   cPSelectedIndices,
+                                   cPHandle_id);
+
+    tracksters_to_SimTracksters_fp(histograms,
+                                   count,
+                                   trackstersToSimTrackstersFromCPsByHitsMap,
+                                   simTrackstersFromCPsToTrackstersByHitsMap,
+                                   validationType::byHits_CP,
+                                   scToCpMap,
+                                   cPIndices,
+                                   cPSelectedIndices,
+                                   cPHandle_id);
+
+    tracksters_to_SimTracksters_fp(histograms,
+                                   count,
+                                   trackstersToSimTrackstersByHitsMap,
+                                   simTrackstersToTrackstersByHitsMap,
+                                   validationType::byHits,
+                                   scToCpMap,
+                                   cPIndices,
+                                   cPSelectedIndices,
+                                   cPHandle_id);
+  }
 }
 
 double BarrelVHistoProducerAlgo::distance2(const double x1,

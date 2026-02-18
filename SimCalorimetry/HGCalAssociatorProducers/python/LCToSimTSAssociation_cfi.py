@@ -19,3 +19,7 @@ premix_stage2.toModify(layerClusterSimTracksterAssociation,
 layerClusterSimTracksterAssociationHFNose = layerClusterSimTracksterAssociation.clone(
     label_lc = "hgcalLayerClustersHFNose"
 )
+
+layerClusterSimTracksterAssociationBarrel = layerClusterSimTracksterAssociation.clone(
+    label_simTst = cms.InputTag("ticlSimTrackstersBarrel")
+)
