@@ -31,7 +31,7 @@ namespace edm {
       : filePtr_(filePtr),
         name_(processName.empty() ? BranchTypeToProductTreeName(branchType)
                                   : BranchTypeToProductTreeName(branchType, processName)),
-        model_(ROOT::RNTupleModel::Create()),
+        model_(ROOT::RNTupleModel::CreateBare()),
         producedBranches_(),
         auxBranches_() {}
 
@@ -86,14 +86,13 @@ namespace edm {
     std::exception_ptr e;
     oneapi::tbb::this_task_arena::isolate([&] {
       try {
-        auto entry = writer_->CreateEntry();
         for (auto z = zip(producedBranchPointers_, producedBranches_); auto prod : z) {
-          entry->BindRawPtr(prod.second, *prod.first);
+          entry_->BindRawPtr(prod.second, *prod.first);
         }
         for (auto z = zip(auxBranchPointers_, auxBranches_); auto aux : z) {
-          entry->BindRawPtr(aux.second, *aux.first);
+          entry_->BindRawPtr(aux.second, *aux.first);
         }
-        writer_->Fill(*entry);
+        writer_->Fill(*entry_);
       } catch (...) {
         e = std::current_exception();
       }
@@ -130,6 +129,7 @@ namespace edm {
     options.SetUseBufferedWrite(config.useBufferedWrite);
     options.SetUseDirectIO(config.useDirectIO);
     writer_ = ROOT::RNTupleWriter::Append(std::move(model_), name_, *filePtr_, options);
+    entry_ = writer_->CreateEntry();
   }
 
   namespace {
@@ -212,6 +212,7 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
     // Just to play it safe, zero all pointers to quantities in the file.
     auxBranches_.clear();
     producedBranches_.clear();
+    entry_.reset();
     writer_->CommitDataset();
     writer_ = nullptr;   // propagate_const<T> has no reset() function
     filePtr_ = nullptr;  // propagate_const<T> has no reset() function
