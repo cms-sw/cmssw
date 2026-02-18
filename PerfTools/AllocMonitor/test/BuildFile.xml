@@ -33,8 +33,15 @@
     <use name="FWCore/ServiceRegistry"/>
     <use name="PerfTools/AllocMonitor"/>
     <use name="PerfTools/AllocMonitorPreload"/>
+    <!-- This binary run by the tests below. Without a command-line argument it would fail -->
+    <flags NO_TESTRUN="1"/>
   </bin>
-  <test name="testIntrusiveAllocMonitorOutput" command="testIntrusiveAllocMonitor 2>&amp;1 | ${LOCALTOP}/src/PerfTools/AllocMonitor/test/verifyIntrusiveAllocMonitor.py">
+  <test name="testIntrusiveAllocMonitorOutput" command="testIntrusiveAllocMonitor IntrusiveAllocMonitor 2>&amp;1 | ${LOCALTOP}/src/PerfTools/AllocMonitor/test/verifyIntrusiveAllocMonitor.py">
     <flags PRE_TEST="testIntrusiveAllocMonitor"/>
   </test>
+  <ifrelease name="CPP23">
+    <test name="testIntrusiveAllocProfilerOutput" command="testIntrusiveAllocMonitor IntrusiveAllocProfiler 2>&amp;1 | ${LOCALTOP}/src/PerfTools/AllocMonitor/test/verifyIntrusiveAllocProfiler.py">
+      <flags PRE_TEST="testIntrusiveAllocMonitor"/>
+    </test>
+  </ifrelease>
 </ifrelease>
