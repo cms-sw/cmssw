@@ -5,6 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
@@ -53,17 +54,14 @@ void TrackerGeometricDetESModule::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription descDB;
   descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("fromDD4hep", false);
-  descriptions.addDefault(descDB);
   descriptions.add("trackerNumberingGeometryDB", descDB);
 
-  edm::ParameterSetDescription desc;
-  desc.add<bool>("fromDDD", true);
-  desc.add<bool>("fromDD4hep", false);
+  edm::DescriptionCloner desc;
+  desc.set<bool>("fromDDD", true);
   descriptions.add("trackerNumberingGeometry", desc);
 
-  edm::ParameterSetDescription descDD4hep;
-  descDD4hep.add<bool>("fromDDD", false);
-  descDD4hep.add<bool>("fromDD4hep", true);
+  edm::DescriptionCloner descDD4hep;
+  descDD4hep.set<bool>("fromDD4hep", true);
   descriptions.add("DD4hep_trackerNumberingGeometry", descDD4hep);
 }
 
