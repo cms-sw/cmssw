@@ -304,6 +304,32 @@ public:
       edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
 
+  void fill_trackster_histos(const Histograms& histograms,
+                             const int count,
+                             const ticl::TracksterCollection& tracksters,
+                             const reco::CaloClusterCollection& layerClusters,
+                             const ticl::TracksterCollection& simTSs,
+                             const ticl::TracksterCollection& simTSs_fromCP,
+                             const std::map<unsigned int, std::vector<unsigned int>>& cpToSc_SimTrackstersMap,
+                             std::vector<SimCluster> const& sC,
+                             const edm::ProductID& cPHandle_id,
+                             std::vector<CaloParticle> const& cP,
+                             std::vector<size_t> const& cPIndices,
+                             std::vector<size_t> const& cPSelectedIndices,
+                             std::unordered_map<DetId, const unsigned int> const& hitMap,
+                             unsigned int layers,
+                             edm::MultiSpan<reco::PFRecHit> const& hits,
+                             bool mapsFound,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByHitsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByHitsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByHitsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByHitsMapH,
+                             const SimClusterToCaloParticleMap& scToCpMap) const;
+
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
