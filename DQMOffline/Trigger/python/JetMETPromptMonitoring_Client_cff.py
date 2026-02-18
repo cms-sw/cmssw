@@ -178,6 +178,63 @@ ZJetsEfficiency = DQMEDHarvester("DQMGenericClient",
         "effic_HLTJetPt320_HEOuter  'HLT Jet (cut=320GeV) efficiency [HEOuter] vs HLT Z Pt [GeV];  HLT Z (pT) [GeV]; efficiency'  ZpT_for_JetpT_over320_HEOuter_numerator  ZpT_HEOuter_numerator",
         ),
     )
+ 
+
+scoutingpfjetEfficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/JME/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_scoutingpfjetpT          'Jet pT turnON;            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_numerator          scoutingpfjetpT_denominator",
+        "effic_scoutingpfjetpT_pTThresh 'Jet pT turnON;            PFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_pTThresh_numerator scoutingpfjetpT_pTThresh_denominator",
+        "effic_scoutingpfjetphi       'Jet efficiency vs #phi; Scouting PF Jet #phi [rad]; efficiency' scoutingpfjetphi_numerator       scoutingpfjetphi_denominator",
+        "effic_scoutingpfjeteta       'Jet efficiency vs #eta; Scouting PF Jet #eta; efficiency' scoutingpfjeteta_numerator       scoutingpfjeteta_denominator",
+        ## HB
+        "effic_scoutingpfjetpT_HB          'Jet pT turnON (HB);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_HB_numerator          scoutingpfjetpT_HB_denominator",
+        "effic_scoutingpfjetpT_HB_pTThresh 'Jet pT turnON (HB);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_pTThresh_HB_numerator scoutingpfjetpT_pTThresh_HB_denominator",
+        "effic_scoutingpfjetphi_HB       'Jet efficiency vs #phi (HB); Scouting PF Jet #phi [rad]; efficiency' pfjetphi_HB_numerator       pfjetphi_HB_denominator",
+        "effic_scoutingpfjeteta_HB       'Jet efficiency vs #eta (HB); Scouting PF Jet #eta; efficiency' pfjeteta_HB_numerator       pfjeteta_HB_denominator",
+        ## HE
+        "effic_scoutingpfjetpT_HE          'Jet pT turnON (HE);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_HE_numerator          scoutingpfjetpT_HE_denominator",
+        "effic_scoutingpfjetpT_HE_pTThresh 'Jet pT turnON (HE);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_pTThresh_HE_numerator scoutingpfjetpT_pTThresh_HE_denominator",
+        "effic_scoutingpfjetphi_HE       'Jet efficiency vs #phi (HE); Scouting PF Jet #phi [rad]; efficiency' scoutingpfjetphi_HE_numerator       scoutingpfjetphi_HE_denominator",
+        "effic_scoutingpfjeteta_HE       'Jet efficiency vs #eta (HE); Scouting PF Jet #eta; efficiency' scoutingpfjeteta_HE_numerator       scoutingpfjeteta_HE_denominator",
+         ## HE_p
+        "effic_scoutingpfjetpT_HE_p          'Jet pT turnON (HEP);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_HE_p_numerator          scoutingpfjetpT_HE_p_denominator",
+        "effic_scoutingpfjetpT_HE_p_pTThresh 'Jet pT turnON (HEP);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_pTThresh_HE_p_numerator scoutingpfjetpT_pTThresh_HE_p_denominator",
+        "effic_scoutingpfjetphi_HE_p       'Jet efficiency vs #phi (HEP); Scouting PF Jet #phi [rad]; efficiency' scoutingpfjetphi_HE_p_numerator       scoutingpfjetphi_HE_p_denominator",
+        "effic_scoutingpfjeteta_HE_p       'Jet efficiency vs #eta (HEP); Scouting PF Jet #eta; efficiency' scoutingpfjeteta_HE_p_numerator       scoutingpfjeteta_HE_p_denominator",
+        ## HE_m
+        "effic_scoutingpfjetpT_HE_m          'Jet pT turnON (HEM);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_HE_m_numerator          scoutingpfjetpT_HE_m_denominator",
+        "effic_scoutingpfjetpT_HE_m_pTThresh 'Jet pT turnON (HEM);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_pTThresh_HE_m_numerator scoutingpfjetpT_pTThresh_HE_m_denominator",
+        "effic_scoutingpfjetphi_HE_m       'Jet efficiency vs #phi (HEM); Scouting PF Jet #phi [rad]; efficiency' scoutingpfjetphi_HE_m_numerator       scoutingpfjetphi_HE_m_denominator",
+        "effic_scoutingpfjeteta_HE_m       'Jet efficiency vs #eta (HEM); Scouting PF Jet #eta; efficiency' scoutingpfjeteta_HE_m_numerator       scoutingpfjeteta_HE_m_denominator",
+        ## HF
+        "effic_scoutingpfjetpT_HF          'Jet pT turnON (HF);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_HF_numerator          scoutingpfjetpT_HF_denominator",
+        "effic_scoutingpfjetpT_HF_pTThresh 'Jet pT turnON (HF);            ScoutingPFJet(pT) [GeV]; efficiency'     scoutingpfjetpT_pTThresh_HF_numerator scoutingpfjetpT_pTThresh_HF_denominator",
+        "effic_scoutingpfjetphi_HF       'Jet efficiency vs #phi (HF); Scouting PF Jet #phi [rad]; efficiency' scoutingpfjetphi_HF_numerator       scoutingpfjetphi_HF_denominator",
+        "effic_scoutingpfjeteta_HF       'Jet efficiency vs #eta (HF); Scouting PF Jet #eta; efficiency' scoutingpfjeteta_HF_numerator       scoutingpfjeteta_HF_denominator",
+        ## 2D Eff
+        "effic_scoutingpfjetEtaVsPhi       'Jet efficiency vs #eta and #phi; Scouting PF Jet #eta; #phi' scoutingpfjetEtaVsPhi_numerator       scoutingpfjetEtaVsPhi_denominator",
+        "effic_scoutingpfjetEtaVsPhi_HB    'Jet efficiency vs #eta and #phi(HB); Scouting PF Jet #eta; #phi' scoutingpfjetEtaVsPhi_HB_numerator       scoutingpfjetEtaVsPhi_HB_denominator",
+        "effic_scoutingpfjetEtaVsPhi_HE    'Jet efficiency vs #eta and #phi(HE); Scouting PF Jet #eta; #phi' scoutingpfjetEtaVsPhi_HE_numerator       scoutingpfjetEtaVsPhi_HE_denominator",
+        "effic_scoutingpfjetEtaVsPhi_HF    'Jet efficiency vs #eta and #phi(HF); Scouting PF Jet #eta; #phi' scoutingpfjetEtaVsPhi_HF_numerator       scoutingpfjetEtaVsPhi_HF_denominator",
+
+        "effic_scoutingpfjetEtaVsPhi_HE_p 'Jet efficiency vs #eta and #phi(HE_p); Scouting PF Jet #eta; #phi' scoutingpfjetEtaVsPhi_HE_p_numerator       scoutingpfjetEtaVsPhi_HE_p_denominator",
+        "effic_scoutingpfjetEtaVsPhi_HE_m 'Jet efficiency vs #eta and #phi(HE_m); Scouting PF Jet #eta; #phi' scoutingpfjetEtaVsPhi_HE_m_numerator       scoutingpfjetEtaVsPhi_HE_m_denominator",
+
+        "effic_scoutingpfjetEtaVspT        'Jet efficiency #eta vs Pt;     Scouting PF Jet #eta; Pt' scoutingpfjetEtaVspT_numerator          scoutingpfjetEtaVspT_denominator",
+        "effic_scoutingpfjetEtaVspT_HB     'Jet efficiency #eta vs Pt(HB); Scouting PF Jet #eta; Pt' scoutingpfjetEtaVspT_HB_numerator       scoutingpfjetEtaVspT_HB_denominator",
+        "effic_scoutingpfjetEtaVspT_HE     'Jet efficiency #eta vs Pt(HE); Scouting PF Jet #eta; Pt' scoutingpfjetEtaVspT_HE_numerator       scoutingpfjetEtaVspT_HE_denominator",
+        "effic_scoutingpfjetEtaVspT_HF     'Jet efficiency #eta vs Pt(HF); Scouting PF Jet #eta; Pt' scoutingpfjetEtaVspT_HF_numerator       scoutingpfjetEtaVspT_HF_denominator",
+
+        "effic_scoutingpfjetEtaVspT_HE_p   'Jet efficiency #eta vs Pt(HE_p); Scouting PF Jet #eta; Pt' scoutingpfjetEtaVspT_HE_p_numerator       scoutingpfjetEtaVspT_HE_p_denominator",
+        "effic_scoutingpfjetEtaVspT_HE_m   'Jet efficiency #eta vs Pt(HE_m); ScoutingPF Jet #eta; Pt' scoutingpfjetEtaVspT_HE_m_numerator       scoutingpfjetEtaVspT_HE_m_denominator"
+    ),
+    efficiencyProfile = cms.untracked.vstring(
+        "effic_scoutingpfjetpT_vs_LS 'JET efficiency vs LS; LS; Scouting PF JET efficiency' scoutingpfjetpTVsLS_numerator scoutingpfjetpTVsLS_denominator",
+    ),
+  )
 
 #-----------------------------
 
@@ -186,4 +243,5 @@ JetMetPromClient = cms.Sequence(
     *calojetEfficiency
     *GammaJetsEfficiency
     *ZJetsEfficiency
+    *scoutingpfjetEfficiency
 )
