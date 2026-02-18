@@ -60,8 +60,11 @@ protected:
 
   bool passTightJetID(const correctedPFJets& jet);
   bool isCleanJet(double JetEta, double JetPhi, const std::vector<reco::Muon>& muons, double dr2Cut);
-  bool isGoodScoutingMuon(Run3ScoutingMuon const &scoutingMuon);
-  bool isCleanScoutingJet(double ScoutingJetEta, double ScoutingJetPhi, const std::vector<Run3ScoutingMuon>& scoutingMuons, double dr2Cut);
+  bool isGoodScoutingMuon(Run3ScoutingMuon const& scoutingMuon);
+  bool isCleanScoutingJet(double ScoutingJetEta,
+                          double ScoutingJetPhi,
+                          const std::vector<Run3ScoutingMuon>& scoutingMuons,
+                          double dr2Cut);
   bool isBarrel(double eta);
   bool isEndCapP(double eta);
   bool isEndCapM(double eta);
@@ -102,14 +105,14 @@ private:
   bool isScoutingPFJetTrig;
   double dr2cut_;
   bool doVariableBinning;
-  
+
   int verbose_;
   std::string JetIDQuality_;
   std::string JetIDVersion_;
   Run3ScoutingPFJetIDSelectionFunctor::Quality_t run3scoutingpfjetidquality;
   Run3ScoutingPFJetIDSelectionFunctor::Version_t run3scoutingpfjetidversion;
   Run3ScoutingPFJetIDSelectionFunctor run3scoutingpfjetIDFunctor;
-  
+
   const bool enableFullMonitoring_;
 
   edm::InputTag muoInputTag_;
@@ -121,9 +124,9 @@ private:
   const edm::EDGetTokenT<reco::PFJetCollection> jetSrc_;
   const edm::EDGetTokenT<reco::JetCorrector> correctorToken_;
   const edm::EDGetTokenT<reco::CaloJetCollection> calojetToken_;
-  
-  edm::EDGetTokenT<std::vector<Run3ScoutingMuon> > scoutingMuonToken_;
-  edm::EDGetTokenT<std::vector<Run3ScoutingPFJet> > scoutjetSrc_;
+
+  edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonToken_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> scoutjetSrc_;
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
@@ -144,7 +147,7 @@ private:
   ObjME a_ME_HF[7];
   ObjME a_ME_HE_p[7];
   ObjME a_ME_HE_m[7];
-  
+
   struct correctedScoutingJets {
     double pt;
     double eta;
@@ -186,8 +189,8 @@ JetMonitor::JetMonitor(const edm::ParameterSet& iConfig)
       jetSrc_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jetSrc"))),
       correctorToken_(mayConsume<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("corrector"))),
       calojetToken_(mayConsume<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("jetSrc"))),
-      scoutingMuonToken_(mayConsume<std::vector<Run3ScoutingMuon> >(scoutingMuonInputTag_)),
-      scoutjetSrc_(mayConsume<std::vector<Run3ScoutingPFJet> >(iConfig.getParameter<edm::InputTag>("jetSrc"))),
+      scoutingMuonToken_(mayConsume<std::vector<Run3ScoutingMuon>>(scoutingMuonInputTag_)),
+      scoutjetSrc_(mayConsume<std::vector<Run3ScoutingPFJet>>(iConfig.getParameter<edm::InputTag>("jetSrc"))),
       num_genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
       den_genTriggerEventFlag_(new GenericTriggerEventFlag(
@@ -195,7 +198,7 @@ JetMonitor::JetMonitor(const edm::ParameterSet& iConfig)
       muoSelection_(iConfig.getParameter<std::string>("muoSelection")),
       nmuons_(iConfig.getParameter<unsigned>("nmuons")),
       jetPt_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("jetptBinning")),
       jetpt_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPSet"))),
       jetptThr_binning_(getHistoPSet(
@@ -363,10 +366,10 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   // -------- muons ----------
   std::vector<reco::Muon> muons;
   edm::Handle<reco::MuonCollection> muoHandle;
-  
+
   std::vector<Run3ScoutingMuon> scoutingmuons;
   edm::Handle<std::vector<Run3ScoutingMuon>> ScoutingMuonHandle;
-  
+
   if (isScoutingPFJetTrig) {
     iEvent.getByToken(scoutingMuonToken_, ScoutingMuonHandle);
     if (ScoutingMuonHandle.isValid()) {
@@ -381,17 +384,17 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           scoutingmuons.push_back(iscoutmuon);
         }
       }
-      if (scoutingmuons.size() < nmuons_) { // require 1 tight scouting muon if orthogonal method, else nmuons_ is 0
+      if (scoutingmuons.size() < nmuons_) {  // require 1 tight scouting muon if orthogonal method, else nmuons_ is 0
         return;
       }
     } else {
       if (scoutingMuonInputTag_.label().empty()) {
         edm::LogWarning("JetMonitor") << "Scouting muon collection not valid \n";
+      } else {
+        edm::LogWarning("JetMonitor") << "skipping events because the collection "
+                                      << scoutingMuonInputTag_.label().c_str() << " is not available \n";
       }
-      else {
-        edm::LogWarning("JetMonitor") << "skipping events because the collection " <<  scoutingMuonInputTag_.label().c_str() << " is not available \n";
-      }
-        return;
+      return;
     }
   } else {
     iEvent.getByToken(muoToken_, muoHandle);
@@ -400,11 +403,11 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         return;
       for (auto const& m : *muoHandle) {
         bool istightID = m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. &&
-                        m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 &&
-                        fabs(m.muonBestTrack()->dxy(vtx.position())) < 0.2 &&
-                        fabs(m.muonBestTrack()->dz(vtx.position())) < 0.5 &&
-                        m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
-                        m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
+                         m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 &&
+                         fabs(m.muonBestTrack()->dxy(vtx.position())) < 0.2 &&
+                         fabs(m.muonBestTrack()->dz(vtx.position())) < 0.5 &&
+                         m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
+                         m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
         if (muoSelection_(m) && istightID) {
           muons.push_back(m);
         }
@@ -432,7 +435,7 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::JetCorrector> Corrector;
   iEvent.getByToken(correctorToken_, Corrector);
-  
+
   if (isPFJetTrig) {  // if pfjet
     iEvent.getByToken(jetSrc_, PFjetHandle);
     if (!PFjetHandle.isValid()) {
@@ -497,13 +500,13 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   }  // end if Calo Jets
 
-  if (isScoutingPFJetTrig) { //if scouting pf jets
+  if (isScoutingPFJetTrig) {  //if scouting pf jets
     iEvent.getByToken(scoutjetSrc_, ScoutingJetHandle);
     if (!ScoutingJetHandle.isValid()) {
       edm::LogWarning("JetMonitor") << "Scouting jet handle not valid \n";
       return;
     }
-    
+
     if (JetIDVersion_ == "RUN3Scouting") {
       run3scoutingpfjetidversion = Run3ScoutingPFJetIDSelectionFunctor::RUN3Scouting;
     } else {
@@ -518,37 +521,39 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if (verbose_)
         std::cout << "no Valid scouting Run3ScoutinPF JetID quality given" << std::endl;
     }
-    run3scoutingpfjetIDFunctor = Run3ScoutingPFJetIDSelectionFunctor(run3scoutingpfjetidversion, run3scoutingpfjetidquality);
+    run3scoutingpfjetIDFunctor =
+        Run3ScoutingPFJetIDSelectionFunctor(run3scoutingpfjetidversion, run3scoutingpfjetidquality);
     for (auto const& iscoutjet : *ScoutingJetHandle) {
       bool passScoutjetID = false;
       passScoutjetID = run3scoutingpfjetIDFunctor(iscoutjet);
-      if (!passScoutjetID) continue;
-      if (!isCleanScoutingJet(iscoutjet.eta(), iscoutjet.phi(), scoutingmuons, dr2cut_)) continue;
-      
+      if (!passScoutjetID)
+        continue;
+      if (!isCleanScoutingJet(iscoutjet.eta(), iscoutjet.phi(), scoutingmuons, dr2cut_))
+        continue;
+
       reco::PFJet dummy_scoutingpfjet;
-      reco::Particle::PolarLorentzVector dummy_scoutingpfjetP4(iscoutjet.pt(),
-                                                               iscoutjet.eta(),
-                                                               iscoutjet.phi(),
-                                                               iscoutjet.m());
+      reco::Particle::PolarLorentzVector dummy_scoutingpfjetP4(
+          iscoutjet.pt(), iscoutjet.eta(), iscoutjet.phi(), iscoutjet.m());
       dummy_scoutingpfjet.setP4(dummy_scoutingpfjetP4);
       dummy_scoutingpfjet.setJetArea(iscoutjet.jetArea());
 
       // apply corrections on the fly
       double jec = Corrector.isValid() ? Corrector->correction(dummy_scoutingpfjet) : 1.0;
       //std::cout << "Jet Pt: "<< iscoutjet.pt() << " JEC: " << jec << std::endl;
-      
-      double corjet = jec*iscoutjet.pt();  /////------> iscoutjet or dummy_...jet ?????
+
+      double corjet = jec * iscoutjet.pt();  /////------> iscoutjet or dummy_...jet ?????
       if (corjet < ptcut_) {
         continue;
       }
       corrected_scoutingjets.push_back({corjet, iscoutjet.eta(), iscoutjet.phi()});
-    } // end for loop over jets
-    std::sort(corrected_scoutingjets.begin(), corrected_scoutingjets.end(),[](const auto& a, const auto& b){return a.pt > b.pt;});
+    }  // end for loop over jets
+    std::sort(corrected_scoutingjets.begin(), corrected_scoutingjets.end(), [](const auto& a, const auto& b) {
+      return a.pt > b.pt;
+    });
     if (corrected_scoutingjets.empty())
       return;
-  } //end if scouting pf jets
-  
-  
+  }  //end if scouting pf jets
+
   double jetpt_ = (isPFJetTrig && !corrected_jets.empty())                   ? corrected_jets[0].pt
                   : (isCaloJetTrig && !corrected_calojets.empty())           ? corrected_calojets[0].pt
                   : (isScoutingPFJetTrig && !corrected_scoutingjets.empty()) ? corrected_scoutingjets[0].pt
@@ -636,36 +641,31 @@ bool JetMonitor::isCleanJet(double JetEta, double JetPhi, const std::vector<reco
   return true;
 }
 
-
-bool JetMonitor::isGoodScoutingMuon(Run3ScoutingMuon const &scoutingMuon) {
-  //if (scoutingMuon.pt() > 30
-  //if (scoutingMuon.pt() > 10
-  if (scoutingMuon.pt() > 1
-      //&& abs(scoutingMuon.eta()) < 0.8
-      //&& abs(scoutingMuon.trk_dxy()) < 0.2 //
+bool JetMonitor::isGoodScoutingMuon(Run3ScoutingMuon const& scoutingMuon) {
+  if (scoutingMuon.pt() > 10 && abs(scoutingMuon.eta()) < 0.8 &&
+      abs(scoutingMuon.trk_dxy()) < 0.2
       /////&& abs(scoutingMuon.trackIso()) < 0.15 //removed
-      //&& abs(scoutingMuon.trk_dz()) < 0.5 //
-      //&& scoutingMuon.normalizedChi2() < 3
-      && scoutingMuon.nValidRecoMuonHits() > 0) {
-      //&& scoutingMuon.nRecoMuonMatchedStations() > 1
-      //&& scoutingMuon.nValidPixelHits() > 0
-      //&& scoutingMuon.nTrackerLayersWithMeasurement() > 5) {
+      && abs(scoutingMuon.trk_dz()) < 0.5 && scoutingMuon.normalizedChi2() < 3 &&
+      scoutingMuon.nValidRecoMuonHits() > 0 && scoutingMuon.nRecoMuonMatchedStations() > 1 &&
+      scoutingMuon.nValidPixelHits() > 0 && scoutingMuon.nTrackerLayersWithMeasurement() > 5) {
     return true;
   } else {
     return false;
   }
 }
 
-bool JetMonitor::isCleanScoutingJet(double ScoutingJetEta, double ScoutingJetPhi, const std::vector<Run3ScoutingMuon>& scoutingMuons, double dr2Cut) {
+bool JetMonitor::isCleanScoutingJet(double ScoutingJetEta,
+                                    double ScoutingJetPhi,
+                                    const std::vector<Run3ScoutingMuon>& scoutingMuons,
+                                    double dr2Cut) {
   for (const auto& scoutingMuon : scoutingMuons) {
-  	double ScoutingdR2 = deltaR2(ScoutingJetEta, ScoutingJetPhi, scoutingMuon.eta(),  scoutingMuon.phi());
-  	if (ScoutingdR2 < dr2Cut) {
-    		return false;
+    double ScoutingdR2 = deltaR2(ScoutingJetEta, ScoutingJetPhi, scoutingMuon.eta(), scoutingMuon.phi());
+    if (ScoutingdR2 < dr2Cut) {
+      return false;
     }
   }
   return true;
 }
-
 
 bool JetMonitor::isBarrel(double eta) {
   bool output = false;
@@ -850,7 +850,7 @@ void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   desc.add<bool>("isscoutingpfjettrg", false);
   desc.add<bool>("doVariablebinning", false);
-  
+
   desc.add<std::string>("JetIDQuality", "TIGHT");
   desc.add<std::string>("JetIDVersion", "RUN3Scouting");
 
@@ -871,9 +871,9 @@ void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   fillHistoPSetDescription(jetPtThrPSet);
   histoPSet.add<edm::ParameterSetDescription>("jetPSet", jetPSet);
   histoPSet.add<edm::ParameterSetDescription>("jetPtThrPSet", jetPtThrPSet);
-  histoPSet.add<std::vector<double> >("jetptBinning",
-                                      {0.,   20.,  40.,  60.,  80.,  90.,  100., 110., 120., 130., 140., 150., 160.,
-                                       170., 180., 190., 200., 220., 240., 260., 280., 300., 350., 400., 450., 1000.});
+  histoPSet.add<std::vector<double>>("jetptBinning",
+                                     {0.,   20.,  40.,  60.,  80.,  90.,  100., 110., 120., 130., 140., 150., 160.,
+                                      170., 180., 190., 200., 220., 240., 260., 280., 300., 350., 400., 450., 1000.});
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
