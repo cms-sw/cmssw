@@ -249,13 +249,7 @@ int CSCGEMMatcher::matchedClusterDistES(const CSCCLCTDigi& clct,
 
   int cl_es = isME1a ? cl.getKeyStripME1a(8, isLayer2) : cl.getKeyStrip(8, isLayer2);
 
-  int alignCorrection = 0;
-  // Here will be some magic to load the alignment correction from LUTs
-  if (config_useAlignment) {
-    std::cout << "Magic" << std::endl;
-  }
-
-  int eighthStripDiff = cl_es + alignCorrection - clct.getKeyStrip(8);
+  int eighthStripDiff = cl_es - clct.getKeyStrip(8);
 
   if (matchCLCTpropagation_ and !ForceTotal) {  //modification of DeltaStrip by CLCT slope
     int SlopeShift = 0;
@@ -501,12 +495,6 @@ int CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct,
       }
     }
   }
-
-  // Konstantin, do we need to keep the old method in emulator?
-  // To explain, previously, the above "eighthStripDiff" was fed into a LUT that returned a 4-bit slope
-  // Now, we are directly returning eighthStripDiff as a capped 6 bit number
-  // Also, do we want to do the 6-bit capping here, or in CSCGEMMotherboard?
-  slopeShift = eighthStripDiff <= 62 ? eighthStripDiff : 63;
 
   //account for the sign of the difference
   slopeShift *= pow(-1, std::signbit(SignedEighthStripDiff));
