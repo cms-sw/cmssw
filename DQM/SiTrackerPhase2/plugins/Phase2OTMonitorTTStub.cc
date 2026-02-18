@@ -599,7 +599,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
     psd0.add<std::string>("name", "Crack_Overview_Stubs");
     psd0.add<std::string>("title", "Crack_Overview_stubs;Module;Layer");
     psd0.add<double>("xmin", 0.0);
-    psd0.add<bool>("switch", false);
+    psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 13.0);
     psd0.add<double>("ymin", 0.0);
     psd0.add<double>("ymax", 7.5);
