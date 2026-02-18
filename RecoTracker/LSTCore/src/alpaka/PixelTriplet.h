@@ -74,9 +74,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.pixelSegmentIndices()[pixelTripletIndex] = pixelSegmentIndex;
     pixelTriplets.tripletIndices()[pixelTripletIndex] = tripletIndex;
     pixelTriplets.pixelRadius()[pixelTripletIndex] = __F2H(pixelRadius);
-    pixelTriplets.pixelRadiusError()[pixelTripletIndex] = __F2H(pixelRadiusError);
     pixelTriplets.tripletRadius()[pixelTripletIndex] = __F2H(tripletRadius);
+#ifdef CUT_VALUE_DEBUG
+    pixelTriplets.pixelRadiusError()[pixelTripletIndex] = __F2H(pixelRadiusError);
     pixelTriplets.pt()[pixelTripletIndex] = __F2H(pt);
+#endif
     pixelTriplets.eta()[pixelTripletIndex] = __F2H(eta);
     pixelTriplets.phi()[pixelTripletIndex] = __F2H(phi);
     pixelTriplets.eta_pix()[pixelTripletIndex] = __F2H(eta_pix);
@@ -112,9 +114,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.hitIndices()[pixelTripletIndex][7] = triplets.hitIndices()[tripletIndex][3];
     pixelTriplets.hitIndices()[pixelTripletIndex][8] = triplets.hitIndices()[tripletIndex][4];
     pixelTriplets.hitIndices()[pixelTripletIndex][9] = triplets.hitIndices()[tripletIndex][5];
+#ifdef CUT_VALUE_DEBUG
     pixelTriplets.rPhiChiSquared()[pixelTripletIndex] = rPhiChiSquared;
     pixelTriplets.rPhiChiSquaredInwards()[pixelTripletIndex] = rPhiChiSquaredInwards;
     pixelTriplets.rzChiSquared()[pixelTripletIndex] = rzChiSquared;
+#endif
   }
 
   template <alpaka::concepts::Acc TAcc>
