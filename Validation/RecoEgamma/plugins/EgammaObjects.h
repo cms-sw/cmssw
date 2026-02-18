@@ -18,9 +18,7 @@
 #include "TH1D.h"
 #include "TH2D.h"
 
-namespace edm {
-  class HepMCProduct;
-}
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
 
 class EgammaObjects : public edm::one::EDAnalyzer<> {
 public:

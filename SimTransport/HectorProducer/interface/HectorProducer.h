@@ -11,12 +11,13 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
+
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
   class ConsumesCollector;
-  class HepMCProduct;
 }  // namespace edm
 
 class HectorManager;

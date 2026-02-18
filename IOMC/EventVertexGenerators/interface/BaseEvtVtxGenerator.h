@@ -5,6 +5,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
 
 #include "Math/Vector4D.h"
 #include "TMatrixD.h"
@@ -18,7 +19,6 @@ namespace CLHEP {
 }
 
 namespace edm {
-  class HepMCProduct;
   class HepMC3Product;
 }  // namespace edm
 
