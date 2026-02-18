@@ -111,8 +111,7 @@ namespace pixelTopology {
 #ifdef __CUDA_ARCH__
   __device__
 #endif
-      constexpr inline uint32_t
-      layerStart(uint32_t i) {
+      constexpr inline uint32_t layerStart(uint32_t i) {
     return TrackerTraits::layerStart[i];
   }
 
@@ -518,7 +517,9 @@ namespace pixelTopology {
 
     static constexpr uint32_t maxCellNeighbors = 64;
     static constexpr uint32_t maxCellTracks = 302;
-    static constexpr uint32_t maxHitsOnTrack = 20;
+    static constexpr uint32_t maxLayersPerTrack = 13;
+    static constexpr uint32_t maxFishboneHitsPerTrack = 8;
+    static constexpr uint32_t maxHitsOnTrack = maxLayersPerTrack + maxFishboneHitsPerTrack;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
     static constexpr uint32_t avgHitsPerTrack = 7;
     static constexpr uint32_t maxCellsPerHit = 256;
@@ -529,7 +530,6 @@ namespace pixelTopology {
     static constexpr uint32_t maxNumberOfDoublets = 6 * 512 * 1024;
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
-    static constexpr uint32_t maxDepth = 12;
     static constexpr uint32_t numberOfLayers = phase2PixelTopology::nLayersPix;
     static constexpr float avgCellsPerHit = 12.;
     static constexpr float avgCellsPerCell = 0.151;
@@ -663,7 +663,9 @@ namespace pixelTopology {
 
     static constexpr uint32_t maxCellNeighbors = 36;
     static constexpr uint32_t maxCellTracks = 48;
-    static constexpr uint32_t maxHitsOnTrack = 10;
+    static constexpr uint32_t maxLayersPerTrack = 7;
+    static constexpr uint32_t maxFishboneHitsPerTrack = 2;
+    static constexpr uint32_t maxHitsOnTrack = maxLayersPerTrack + maxFishboneHitsPerTrack;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
     static constexpr uint32_t avgHitsPerTrack = 5;
     static constexpr uint32_t maxCellsPerHit = 256;
@@ -673,7 +675,6 @@ namespace pixelTopology {
     static constexpr uint32_t maxNumberOfDoublets = 512 * 1024;
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
-    static constexpr uint32_t maxDepth = 6;
     static constexpr uint32_t numberOfLayers = 10;
     static constexpr float avgCellsPerHit = 25.;
     static constexpr float avgCellsPerCell = 2.;

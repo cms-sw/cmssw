@@ -519,7 +519,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if (thisCell.inner_r() > ll[lid].startMaxInnerR())
           doit = false;
 
-        constexpr uint32_t maxDepth = TrackerTraits::maxDepth;
+        constexpr uint32_t maxDepth = TrackerTraits::maxLayersPerTrack - 1;
 #ifdef CA_DEBUG
         printf(
             "LayerPairId %d and inner layer %d doit ? %d From cell %d with nNeighbors = %d and innerR=%f < "
