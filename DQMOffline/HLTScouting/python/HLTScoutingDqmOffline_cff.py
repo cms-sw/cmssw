@@ -28,7 +28,7 @@ from HLTriggerOffline.Scouting.ScoutingRecHitAnalyzers_cff import *
 from HLTriggerOffline.Scouting.HLTScoutingDileptonMonitor_cfi import *
 
 ### Pi0 Monitoring
-from HLTriggerOffline.Scouting.HLTScoutingPiMonitor_cfi import *
+from HLTriggerOffline.Scouting.HLTScoutingPi0Monitor_cfi import *
 
 hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
                                          scoutingMonitoringTagProbeMuonVtx *
