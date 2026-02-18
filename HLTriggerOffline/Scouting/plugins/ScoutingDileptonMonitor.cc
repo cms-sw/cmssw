@@ -50,6 +50,7 @@ private:
   struct MassHistos {
     MonitorElement* full{nullptr};
     MonitorElement* zwin{nullptr};
+    MonitorElement* jpsiwin{nullptr};
     MonitorElement* barrel{nullptr};
     MonitorElement* endcap{nullptr};
   };
@@ -71,8 +72,13 @@ private:
   const double massMin_;
   const double massMax_;
   const int massBins_;
+  
   const double zMin_;
   const double zMax_;
+
+  const double jpsiMin_;
+  const double jpsiMax_;
+
   const double barrelEta_;
 
   // ---- muons ------------------------------------------------------------
@@ -95,8 +101,13 @@ ScoutingDileptonMonitor::ScoutingDileptonMonitor(const edm::ParameterSet& iConfi
       massMin_(iConfig.getParameter<double>("massMin")),
       massMax_(iConfig.getParameter<double>("massMax")),
       massBins_(iConfig.getParameter<int>("massBins")),
+      
       zMin_(iConfig.getParameter<double>("zMassMin")),
       zMax_(iConfig.getParameter<double>("zMassMax")),
+
+      jpsiMin_(iConfig.getParameter<double>("jpsiMassMin")),
+      jpsiMax_(iConfig.getParameter<double>("jpsiMassMax")),
+
       barrelEta_(iConfig.getParameter<double>("barrelEta")),
 
       doMuons_(iConfig.getParameter<bool>("doMuons")),
@@ -115,7 +126,10 @@ void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   auto bookSet = [&](const std::string& name, MassHistos& h, bool splitEta) {
     h.full = ibooker.book1D(
         name + "_mass", name + " opposite-charge invariant mass;M [GeV];Events", massBins_, massMin_, massMax_);
+    
     h.zwin = ibooker.book1D(name + "_zMass", name + " Z window;M [GeV];Events", massBins_, zMin_, zMax_);
+
+    h.jpsiwin = ibooker.book1D(name + "_jpsiMass", name + " J/Psi window;M [GeV];Events", massBins_, jpsiMin_, jpsiMax_);
 
     if (splitEta) {
       h.barrel = ibooker.book1D(name + "_barrelMass", name + " barrel;M [GeV];Events", massBins_, massMin_, massMax_);
@@ -205,6 +219,9 @@ void ScoutingDileptonMonitor::fillPairs(const std::vector<const T*>& leptons, Ma
       if (mass > zMin_ && mass < zMax_)
         histos.zwin->Fill(mass);
 
+      if (mass > jpsiMin_ && mass < jpsiMax_)
+        histos.jpsiwin->Fill(mass);
+
       if (doEtaSplit) {
         const bool barrel = std::abs(leptons[i]->eta()) < barrelEta_ && std::abs(leptons[j]->eta()) < barrelEta_;
 
@@ -229,8 +246,13 @@ void ScoutingDileptonMonitor::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<int>("massBins", 120);
   desc.add<double>("massMin", 0.0);
   desc.add<double>("massMax", 200.0);
+  
   desc.add<double>("zMassMin", 70.0);
   desc.add<double>("zMassMax", 110.0);
+  
+  desc.add<double>("jpsiMassMin", 2.6);
+  desc.add<double>("jpsiMassMax", 3.5);
+
   desc.add<double>("barrelEta", 1.479);
   desc.add<bool>("muonID", true);
   desc.add<bool>("electronID", true);
