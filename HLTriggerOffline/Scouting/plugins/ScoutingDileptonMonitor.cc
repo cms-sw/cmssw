@@ -72,7 +72,7 @@ private:
   const double massMin_;
   const double massMax_;
   const int massBins_;
-  
+
   const double zMin_;
   const double zMax_;
 
@@ -81,12 +81,17 @@ private:
 
   const double barrelEta_;
 
-  // ---- muons ------------------------------------------------------------
+  // ---- muons (Vtx) ------------------------------------------------------
   const bool doMuons_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonToken_;
   const StringCutObjectSelector<Run3ScoutingMuon> muonCut_;
   MassHistos muonHistos_;
   const bool muonID_;
+
+  // ---- muons (No Vtx) ---------------------------------------------------
+  const bool doMuonsNoVtx_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonNoVtxToken_;
+  MassHistos muonNoVtxHistos_;
 
   // ---- electrons --------------------------------------------------------
   const bool doElectrons_;
@@ -101,7 +106,7 @@ ScoutingDileptonMonitor::ScoutingDileptonMonitor(const edm::ParameterSet& iConfi
       massMin_(iConfig.getParameter<double>("massMin")),
       massMax_(iConfig.getParameter<double>("massMax")),
       massBins_(iConfig.getParameter<int>("massBins")),
-      
+
       zMin_(iConfig.getParameter<double>("zMassMin")),
       zMax_(iConfig.getParameter<double>("zMassMax")),
 
@@ -115,6 +120,9 @@ ScoutingDileptonMonitor::ScoutingDileptonMonitor(const edm::ParameterSet& iConfi
       muonCut_(iConfig.getParameter<std::string>("muonCut")),
       muonID_(iConfig.getParameter<bool>("muonID")),
 
+      doMuonsNoVtx_(iConfig.getParameter<bool>("doMuonsNoVtx")),
+      muonNoVtxToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muonsNoVtx"))),
+
       doElectrons_(iConfig.getParameter<bool>("doElectrons")),
       electronToken_(consumes<std::vector<Run3ScoutingElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
       electronCut_(iConfig.getParameter<std::string>("electronCut")),
@@ -126,10 +134,11 @@ void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   auto bookSet = [&](const std::string& name, MassHistos& h, bool splitEta) {
     h.full = ibooker.book1D(
         name + "_mass", name + " opposite-charge invariant mass;M [GeV];Events", massBins_, massMin_, massMax_);
-    
+
     h.zwin = ibooker.book1D(name + "_zMass", name + " Z window;M [GeV];Events", massBins_, zMin_, zMax_);
 
-    h.jpsiwin = ibooker.book1D(name + "_jpsiMass", name + " J/Psi window;M [GeV];Events", massBins_, jpsiMin_, jpsiMax_);
+    h.jpsiwin =
+        ibooker.book1D(name + "_jpsiMass", name + " J/Psi window;M [GeV];Events", massBins_, jpsiMin_, jpsiMax_);
 
     if (splitEta) {
       h.barrel = ibooker.book1D(name + "_barrelMass", name + " barrel;M [GeV];Events", massBins_, massMin_, massMax_);
@@ -140,6 +149,9 @@ void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   if (doMuons_)
     bookSet("muons", muonHistos_, false);
 
+  if (doMuonsNoVtx_)
+    bookSet("muonsNoVtx", muonNoVtxHistos_, false);
+
   if (doElectrons_)
     bookSet("electrons", electronHistos_, true);
 }
@@ -147,9 +159,13 @@ void ScoutingDileptonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
 void ScoutingDileptonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
   if (doMuons_) {
     edm::LogInfo("ScoutingDileptonMonitor") << "doing muons: ";
-    edm::LogInfo("ScoutingDileptonMonitor") << "\n"
-                                            << "MUON ID ::: " << muonID_;
+    edm::LogInfo("ScoutingDileptonMonitor") << "\n";
     analyzeCollection(iEvent, muonToken_, muonCut_, muonHistos_, false, muonID_);
+  }
+
+  if (doMuonsNoVtx_) {
+    edm::LogInfo("ScoutingDileptonMonitor") << "doing muons NoVtx";
+    analyzeCollection(iEvent, muonNoVtxToken_, muonCut_, muonNoVtxHistos_, false, muonID_);
   }
 
   if (doElectrons_) {
@@ -238,18 +254,20 @@ void ScoutingDileptonMonitor::fillDescriptions(edm::ConfigurationDescriptions& d
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "HLT/ScoutingOffline/DiLepton");
   desc.add<edm::InputTag>("muons", edm::InputTag("hltScoutingMuonPackerVtx"));
+  desc.add<edm::InputTag>("muonsNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("hltScoutingEgammaPacker"));
   desc.add<bool>("doMuons", true);
+  desc.add<bool>("doMuonsNoVtx", true);
   desc.add<bool>("doElectrons", true);
   desc.add<std::string>("muonCut", "");
   desc.add<std::string>("electronCut", "");
   desc.add<int>("massBins", 120);
   desc.add<double>("massMin", 0.0);
   desc.add<double>("massMax", 200.0);
-  
+
   desc.add<double>("zMassMin", 70.0);
   desc.add<double>("zMassMax", 110.0);
-  
+
   desc.add<double>("jpsiMassMin", 2.6);
   desc.add<double>("jpsiMassMax", 3.5);
 
