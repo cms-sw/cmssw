@@ -89,6 +89,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ->setComment("Cut on curvature difference between two consecutive triplets.");
       geometryParams.add<std::vector<double>>("caDCurv0", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
           ->setComment("Offset for the cut on curvature difference between two consecutive triplets.");
+      geometryParams
+          .add<std::vector<double>>("fishboneCuts", std::vector<double>(TrackerTraits::numberOfLayers, 0.99999f))
+          ->setComment(
+              "Threshold for merging aligned doublets in fishbone cleaning. Depends on the layer of the outer RecHit. "
+              "Warning: this will be a float in the final algorithm, therefore 0.9999999 will become 1 == no merging!");
       // cells params
       geometryParams
           .add<std::vector<unsigned int>>(
