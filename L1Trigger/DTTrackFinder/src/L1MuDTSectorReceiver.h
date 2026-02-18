@@ -34,6 +34,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStubFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -45,9 +46,6 @@ class L1MuDTTFParametersRcd;
 class L1MuDTTFMasksRcd;
 template <typename T>
 class CSCTriggerContainer;
-namespace csctf {
-  class TrackStub;
-}
 
 //              ---------------------
 //              -- Class Interface --
