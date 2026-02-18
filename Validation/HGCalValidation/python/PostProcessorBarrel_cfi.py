@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from Validation.HGCalValidation.BarrelValidator_cff import barrelValidator
 
+tracksterLabels = ['ticlTrackstersCLUE3DBarrel']
+tracksterLabels.extend(['ticlSimTrackstersBarrel', 'ticlSimTrackstersBarrel_fromCPs'])
+
 prefix = 'BarrelCalorimeters/BarrelValidator/'
 maxlayer = barrelValidator.totallayers_to_monitor.value()
 
@@ -25,3 +28,41 @@ postProcessorBarrellayerclusters = DQMEDHarvester('DQMGenericClient',
     outputFileName = cms.untracked.string(""),
     verbose = cms.untracked.uint32(4))
 
+eff_tracksters = []
+# Must be in sync with labels in HGVHistoProducerAlgo.cc
+simDict = {"SimTrackster_fromCP_byHits":"_byHits_CP", "SimTrackster_byLCs":"_byLCs", "SimTrackster_fromCP_byLCs":"_byLCs_CP", "SimTrackster_byHits":"_byHits"}
+metrics = {"purity":["Purity","_"], "effic":["Efficiency","Eff_"], "fake":["Fake Rate","_"], "duplicate":["Duplicate(Split)","Dup_"], "merge":["Merge Rate","Merge_"]}
+variables = {"eta":["#eta",""], "phi":["#phi",""], "energy":["energy"," [GeV]"], "pt":["p_{T}"," [GeV]"]}
+for elem in simDict:
+    for m in list(metrics.keys())[:2]:
+        for v in variables:
+            V = v.capitalize()
+            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v][0]+"' Num"+metrics[m][1]+elem+"_"+V+" Denom_"+elem+"_"+V])
+    for m in list(metrics.keys())[2:]:
+        fakerate = " fake" if (m == "fake") else ""
+        for v in variables:
+            V = v.capitalize()
+            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v][0]+"' Num"+metrics[m][1]+"Trackster_"+V+simDict[elem]+" Denom_Trackster_"+V+simDict[elem]+fakerate])
+
+
+TSbyHits_CP = barrelValidator.label_TSbyHitsCP.value()
+subdirsTracksters = [prefix+iteration+'/'+TSbyHits_CP for iteration in tracksterLabels]
+
+TSbyLCs = barrelValidator.label_TSbyLCs.value()
+subdirsTracksters.extend(prefix+iteration+'/'+TSbyLCs for iteration in tracksterLabels)
+
+TSbyLCs_CP = barrelValidator.label_TSbyLCsCP.value()
+subdirsTracksters.extend(prefix+iteration+'/'+TSbyLCs_CP for iteration in tracksterLabels)
+
+TSbyHits = barrelValidator.label_TSbyHits.value()
+subdirsTracksters.extend(prefix+iteration+'/'+TSbyHits for iteration in tracksterLabels)
+
+postProcessorBarrelTracksters = DQMEDHarvester('DQMGenericClient',
+  subDirs = cms.untracked.vstring(subdirsTracksters),
+  efficiency = cms.vstring(eff_tracksters),
+  resolution = cms.vstring(),
+  cumulativeDists = cms.untracked.vstring(),
+  noFlowDists = cms.untracked.vstring(),
+  outputFileName = cms.untracked.string(""),
+  verbose = cms.untracked.uint32(4)
+)
