@@ -9,13 +9,10 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
 
 #include <string>
 #include <vector>
-
-namespace edm {
-  class HepMCProduct;
-}
 class PTrackerSimHit;
 
 class TrackerHitProducer : public edm::one::EDProducer<> {

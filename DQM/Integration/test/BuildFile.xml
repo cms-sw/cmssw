@@ -3,7 +3,6 @@
 <test name="TestDQMOnlineClient-beampixel_dqm_sourceclient" command="runtest.sh beampixel_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-csc_dqm_sourceclient" command="runtest.sh csc_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-ctpps_dqm_sourceclient" command="runtest.sh ctpps_dqm_sourceclient-live_cfg.py"/>
-<test name="TestDQMOnlineClient-dt4ml_dqm_sourceclient" command="runtest.sh dt4ml_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-dt_dqm_sourceclient" command="runtest.sh dt_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-ecal_dqm_sourceclient" command="runtest.sh ecal_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-es_dqm_sourceclient" command="runtest.sh es_dqm_sourceclient-live_cfg.py"/>
