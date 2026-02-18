@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 
 #include <memory>
 
@@ -53,12 +54,10 @@ void MTDGeometricTimingDetESModule::fillDescriptions(edm::ConfigurationDescripti
   edm::ParameterSetDescription descDB;
   descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("fromDD4hep", false);
-  descriptions.addDefault(descDB);
   descriptions.add("mtdNumberingGeometryDB", descDB);
 
-  edm::ParameterSetDescription desc;
-  desc.add<bool>("fromDDD", true);
-  desc.add<bool>("fromDD4hep", false);
+  edm::DescriptionCloner desc;
+  desc.set<bool>("fromDDD", true);
   descriptions.add("mtdNumberingGeometry", desc);
 }
 
