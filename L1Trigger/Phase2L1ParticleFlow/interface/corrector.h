@@ -8,7 +8,9 @@
 #define L1PF_USE_ROOT
 #endif
 
-class PFCluster;
+namespace l1t {
+  class PFCluster;
+} 
 
 // Define this macro to enable ROOT-dependent interfaces
 #ifdef L1PF_USE_ROOT
