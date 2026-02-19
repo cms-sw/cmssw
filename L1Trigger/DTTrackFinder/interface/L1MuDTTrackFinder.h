@@ -39,7 +39,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-class L1MuDTChambPhContainer;
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainerFwd.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCandFwd.h"
+
 class L1MuDTTFConfig;
 class L1MuDTSecProcMap;
 class L1MuDTSecProcId;
@@ -48,7 +50,6 @@ class L1MuDTEtaProcessor;
 class L1MuDTWedgeSorter;
 class L1MuDTMuonSorter;
 class L1MuDTTrackCand;
-class L1MuRegionalCand;
 
 //              ---------------------
 //              -- Class Interface --

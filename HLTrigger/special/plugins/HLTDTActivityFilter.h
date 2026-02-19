@@ -37,7 +37,6 @@ Description: Filter to select events with activity in the muon barrel system
 #include <string>
 
 class DTGeometry;
-class L1MuRegionalCand;
 
 namespace edm {
   class ConfigurationDescriptions;
