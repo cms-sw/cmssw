@@ -61,12 +61,13 @@ namespace evf {
     return retval;
   }
 
-  bool DirManager::checkDirEmpty(std::string &d) {
+  bool DirManager::checkDirEmpty(const std::string &d) {
     int filecount = 0;
     DIR *dir = opendir(d.c_str());
     while (readdir(dir)) {
       filecount++;
     }
+    closedir(dir);
     return (filecount == 0);
   }
 }  // namespace evf
