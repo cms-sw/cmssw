@@ -129,7 +129,7 @@ namespace edm {
     options.SetUseBufferedWrite(config.useBufferedWrite);
     options.SetUseDirectIO(config.useDirectIO);
     writer_ = ROOT::RNTupleWriter::Append(std::move(model_), name_, *filePtr_, options);
-    entry_ = writer_->CreateEntry();
+    entry_ = writer_->GetModel().CreateBareEntry();
   }
 
   namespace {
