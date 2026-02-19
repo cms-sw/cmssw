@@ -300,7 +300,7 @@ inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<l1ct::TkObjEmu>:
     retval.push_back(nom);
     retval.push_back(smaller);
     retval.push_back(bigger);
-    if (iphi == 2) {
+    if (ieta == 2) {
       // also add the other ones
       retval.push_back(nom + 9);
       retval.push_back(smaller + 9);
@@ -313,7 +313,7 @@ inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<l1ct::TkObjEmu>:
     retval.push_back(nom);
     retval.push_back(smaller);
     retval.push_back(bigger);
-    if (iphi == 3) {
+    if (ieta == 3) {
       // also add the other ones
       retval.push_back(nom - 9);
       retval.push_back(smaller - 9);
@@ -389,23 +389,13 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::run() {
     auto links = linksForSR(sr);  // these are the logical links
     auto physSR = regionmap_[sr];
     bool allEmpty;
-    if (debug_) {
-      dbgCout() << "Starting sr = " << sr << ", physSR = " << physSR << std::endl;
-    }
     do {
       allEmpty = true;
       for (auto link : links) {
         auto &buffer = buffers_[sectorMapLogToPhys_[link]];
         if (!buffer.empty(sr)) {
           allEmpty = false;
-          if (debug_) {
-            dbgCout() << "  Link " << link << " not empty, adding it to region" << std::endl;
-          }
           addToSmallRegion(physSR, buffer.getEntry(sr));
-        } else {
-          if (debug_) {
-            dbgCout() << "  Link " << link << " buffer is empty, allEmpty = " << allEmpty << std::endl;
-          }
         }
       }
     } while (!allEmpty);
