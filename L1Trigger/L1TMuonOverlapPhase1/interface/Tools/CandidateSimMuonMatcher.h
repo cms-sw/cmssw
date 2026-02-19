@@ -52,19 +52,9 @@ public:
 
   MatchingResult() {}
 
-  MatchingResult(const SimTrack& simTrack) : simTrack(&simTrack) {
-    pdgId = simTrack.type();
-    genPt = simTrack.momentum().pt();
-    genEta = simTrack.momentum().eta();
-    genPhi = simTrack.momentum().phi();
-  }
+  MatchingResult(const SimTrack& simTrack, const SimVertex* simVertex);
 
-  MatchingResult(const TrackingParticle& trackingParticle) : trackingParticle(&trackingParticle) {
-    pdgId = trackingParticle.pdgId();
-    genPt = trackingParticle.pt();
-    genEta = trackingParticle.momentum().eta();
-    genPhi = trackingParticle.momentum().phi();
-  }
+  MatchingResult(const TrackingParticle& trackingParticle);
 
   ResultType result = ResultType::notMatched;
   //bool propagationFailed = false;
@@ -76,19 +66,28 @@ public:
 
   double matchingLikelihood = 0;
 
-  const l1t::RegionalMuonCand* muonCand = nullptr;
-  AlgoMuonPtr procMuon;  //Processor gbCandidate
+  FinalMuonPtr muonCand;
 
   //to avoid using simTrack or trackingParticle
-  double pdgId = 0;
+  int pdgId = 0;
+  //int parrentPdgId = 0;
   double genPt = 0;
   double genEta = 0;
   double genPhi = 0;
+  int genCharge = 0;
+
+  float vertexEta = 0;
+  float vertexPhi = 0;
+  float muonDxy = 0;
+  float muonRho = 0;
+  int parentPdgId = 0;
 
   const SimTrack* simTrack = nullptr;
   const SimVertex* simVertex = nullptr;
 
   const TrackingParticle* trackingParticle = nullptr;
+
+  friend std::ostream& operator<<(std::ostream& out, const MatchingResult& matchingResult);
 };
 
 /*
@@ -97,7 +96,8 @@ public:
 class CandidateSimMuonMatcher : public IOMTFEmulationObserver {
 public:
   CandidateSimMuonMatcher(const edm::ParameterSet& edmCfg,
-                          const OMTFConfiguration* omtfConfig,
+                          //const OMTFConfiguration* omtfConfig,
+                          int nProcessors,
                           const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& magneticFieldEsToken,
                           const edm::ESGetToken<Propagator, TrackingComponentsRecord>& propagatorEsToken);
 
@@ -110,27 +110,24 @@ public:
                                 const std::shared_ptr<OMTFinput>&,
                                 const AlgoMuons& algoCandidates,
                                 const AlgoMuons& gbCandidates,
-                                const std::vector<l1t::RegionalMuonCand>& candMuons) override;
+                                const FinalMuons& finalMuons) override;
 
   void observeEventBegin(const edm::Event& event) override;
 
-  void observeEventEnd(const edm::Event& event,
-                       std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) override;
+  void observeEventEnd(const edm::Event& event, FinalMuons& finalMuons) override;
 
   void endJob() override;
 
+  int calcGlobalPhi(int locPhi, int proc);
+
   //simplified ghost busting
-  //only candidates in the bx=0 are included
-  //ghost busts at the same time the  mtfCands and the gbCandidates
-  //gbCandidates - all gbCandidates from all processors, should be one-to-one as the mtfCands,
-  //and the ghostBustedProcMuons are one-to-onr to the returned RegionalMuonCands
-  std::vector<const l1t::RegionalMuonCand*> ghostBust(const l1t::RegionalMuonCandBxCollection* mtfCands,
-                                                      const AlgoMuons& gbCandidates,
-                                                      AlgoMuons& ghostBustedProcMuons);
+  FinalMuons ghostBust(const FinalMuons& finalMuons);
 
   FreeTrajectoryState simTrackToFts(const SimTrack& simTrack, const SimVertex& simVertex);
 
   FreeTrajectoryState simTrackToFts(const TrackingParticle& trackingParticle);
+
+  TrajectoryStateOnSurface atStation1(const FreeTrajectoryState& ftsStart) const;
 
   TrajectoryStateOnSurface atStation2(const FreeTrajectoryState& ftsStart) const;
 
@@ -138,45 +135,48 @@ public:
 
   TrajectoryStateOnSurface propagate(const TrackingParticle& trackingParticle);
 
-  //tsof should be the result of track propagation
-  MatchingResult match(const l1t::RegionalMuonCand* omtfCand,
-                       const AlgoMuonPtr& procMuon,
-                       const SimTrack& simTrack,
-                       TrajectoryStateOnSurface& tsof);
+  void propagate(MatchingResult& result);
 
-  MatchingResult match(const l1t::RegionalMuonCand* omtfCand,
-                       const AlgoMuonPtr& procMuon,
-                       const TrackingParticle& trackingParticle,
-                       TrajectoryStateOnSurface& tsof);
+  void match(const FinalMuons& finalMuons, MatchingResult& result, std::vector<MatchingResult>& matchingResults);
 
-  std::vector<MatchingResult> cleanMatching(std::vector<MatchingResult> matchingResults,
-                                            std::vector<const l1t::RegionalMuonCand*>& muonCands,
-                                            AlgoMuons& ghostBustedProcMuons);
+  void match(const FinalMuonPtr& finalMuon3, MatchingResult& result);
 
-  std::vector<MatchingResult> match(std::vector<const l1t::RegionalMuonCand*>& muonCands,
-                                    AlgoMuons& ghostBustedProcMuons,
+  std::vector<MatchingResult> cleanMatching(std::vector<MatchingResult> matchingResults, const FinalMuons& finalMuons);
+
+  std::vector<MatchingResult> match(const FinalMuons& finalMuons,
                                     const edm::SimTrackContainer* simTracks,
                                     const edm::SimVertexContainer* simVertices,
                                     std::function<bool(const SimTrack&)> const& simTrackFilter);
 
-  std::vector<MatchingResult> match(std::vector<const l1t::RegionalMuonCand*>& muonCands,
-                                    AlgoMuons& ghostBustedProcMuons,
+  std::vector<MatchingResult> match(const FinalMuons& finalMuons,
                                     const TrackingParticleCollection* trackingParticles,
                                     std::function<bool(const TrackingParticle&)> const& simTrackFilter);
 
   //matching without any propagation, just checking basic geometrical agreement between simMuon and candidates
   //problem with propagation is the it does not work for low pt muons (pt < ~3GeV)
   //which is not good for dumping the data for the NN training. So for that purpose it is better to use the matchSimple
-  std::vector<MatchingResult> matchSimple(std::vector<const l1t::RegionalMuonCand*>& muonCands,
-                                          AlgoMuons& ghostBustedProcMuons,
+  std::vector<MatchingResult> matchSimple(const FinalMuons& finalMuons,
                                           const edm::SimTrackContainer* simTracks,
                                           const edm::SimVertexContainer* simVertices,
                                           std::function<bool(const SimTrack&)> const& simTrackFilter);
 
+  //no matching, just collect muonCands
+  std::vector<MatchingResult> collectMuonCands(const FinalMuons& finalMuons);
+
   std::vector<MatchingResult> getMatchingResults() { return matchingResults; }
 
+  enum class MatchingType : short {
+    noMatcher = -1,
+    withPropagator = 0,
+    simplePropagation = 1,
+    simpleMatching = 2,
+    collectMuonCands = 3
+  };
+
+  MatchingType getMatchingType() const { return matchingType; }
+
 private:
-  const OMTFConfiguration* omtfConfig;
+  int nProcessors = 6;
 
   const edm::ParameterSet& edmCfg;
 
@@ -189,10 +189,16 @@ private:
   edm::ESHandle<MagneticField> magField;
   edm::ESHandle<Propagator> propagator;
 
-  TH1D* deltaPhiPropCandMean = nullptr;
-  TH1D* deltaPhiPropCandStdDev = nullptr;
+  TH1* minDelta_pos = nullptr;
+  TH1* maxDelta_pos = nullptr;
+  TH1* medianDelta_pos = nullptr;
 
-  bool usePropagation = false;
+  TH1* minDelta_neg = nullptr;
+  TH1* maxDelta_neg = nullptr;
+  TH1* medianDelta_neg = nullptr;
+
+  MatchingType matchingType = MatchingType::simpleMatching;
+  //bool usePropagation = false;
 };
 
 #endif /* L1T_OmtfP1_TOOLS_MUONCANDIDATEMATCHER_H_ */
