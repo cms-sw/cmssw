@@ -3,18 +3,16 @@
 
 // CMSSW
 #include "DataFormats/Provenance/interface/ProductDescription.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
-class PrintCPPNames : public edm::stream::EDProducer<> {
+class PrintCPPNames : public edm::global::EDAnalyzer<> {
 public:
   explicit PrintCPPNames(edm::ParameterSet const&) {
     callWhenNewProductsRegistered([](edm::ProductDescription const& product) {
       static constexpr std::string_view kPathStatus("edm::PathStatus");
       static constexpr std::string_view kEndPathStatus("edm::EndPathStatus");
 
-      // Skip framework-internal status products if desired
       if (product.className() == kPathStatus || product.className() == kEndPathStatus)
         return;
 
@@ -24,7 +22,7 @@ public:
     });
   }
 
-  void produce(edm::Event&, edm::EventSetup const&) override {
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
     // intentionally empty
   }
 };

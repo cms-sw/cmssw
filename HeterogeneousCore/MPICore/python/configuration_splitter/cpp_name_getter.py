@@ -57,23 +57,29 @@ class CPPNameGetter:
 
     def _write_print_cppnames_config(self):
 
-        # add printer
-        self.process.PrintNames = cms.EDProducer("PrintCPPNames")
-        self.process.PrintNamesPath = cms.Path(self.process.PrintNames)
+        # Add analyzer
+        self.process.PrintNames = cms.EDAnalyzer("PrintCPPNames")
+        # Put on EndPath (more semantically correct for analyzers)
+        self.process.PrintNamesPath = cms.EndPath(self.process.PrintNames)
 
+        # Ensure schedule exists
         if not hasattr(self.process, "schedule") or self.process.schedule is None:
             self.process.schedule = cms.Schedule()
 
         self.process.schedule.append(self.process.PrintNamesPath)
 
-        # force zero-event job
+        # Force zero-event job
         self.process.maxEvents.input = 0
+
+        # Force single-threaded execution for deterministic output
         self.process.options.numberOfThreads = 1
         self.process.options.numberOfStreams = 1
         self.process.options.numberOfConcurrentLuminosityBlocks = 1
 
+        # Write config to file
         with open(self.cfg_path, "w") as f:
             f.write(self.process.dumpPython())
+
 
     def _run_cmsrun(self):
         with open(self.log_path, "w") as log:
@@ -126,5 +132,15 @@ class CPPNameGetter:
                     "type": type_part.strip(),
                     "branch": branch,
                 })
+
+        # Hard fail if nothing was parsed
+        if not products:
+            raise RuntimeError(
+                f"No products were parsed from '{self.log_path}'.\n"
+                "The file appears to be empty or does not contain the expected "
+                "PrintCPPNames output.\n"
+                "Please check the cmsRun log and verify that the PrintCPPNames "
+                "analyzer executed correctly."
+            )
 
         return products

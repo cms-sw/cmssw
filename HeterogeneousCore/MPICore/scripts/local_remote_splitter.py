@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 This script splits an HLT configuration into local and remote processes
 by offloading selected modules or sequences.
@@ -17,11 +19,11 @@ Positional arguments:
         Path to the input HLT Python configuration file.
 
 Optional arguments:
-    -ol, --output_local
+    -ol, --output-local
         Path to the output configuration for the local process.
         (default: splitted_config/local_split.py)
 
-    -or, --output_remote
+    -or, --output-remote
         Path to the output configuration for the remote process.
         (default: splitted_config/remote_split.py)
 
@@ -37,17 +39,17 @@ Optional arguments:
 Example 1 (offloading GPU part of ECAL and HCAL):
     python3 local_remote_splitter.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
-        --shared-modules hltHcalDigis
-        --local-output local.py \
-        --remote-output remote.py
+        --shared-modules hltHcalDigis \
+        --output-local local.py \
+        --output-remote remote.py
 
 Example 2 (offloading GPU part of ECAL, HCAL and pixels):
     python3 local_remote_splitter.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
         hltSiPixelClustersSoA hltSiPixelRecHitsSoA hltPixelTracksSoA hltPixelVerticesSoA \
         --shared-modules hltHcalDigis hltOnlineBeamSpot   hltOnlineBeamSpotDevice \
-        --local-output local.py \
-        --remote-output remote.py
+        --output-local local.py \
+        --output-remote remote.py
 
 
 Notes:
@@ -69,10 +71,10 @@ import os
 import sys
 
 
-from cpp_name_getter import CPPNameGetter
-from module_dependency_analyzer import ModuleDependencyAnalyzer, flatten_all_to_module_set
-from editor_functions import *
-from path_state_helpers import *
+from HeterogeneousCore.MPICore.configuration_splitter.cpp_name_getter import CPPNameGetter
+from HeterogeneousCore.MPICore.configuration_splitter.module_dependency_analyzer import ModuleDependencyAnalyzer, flatten_all_to_module_set
+from HeterogeneousCore.MPICore.configuration_splitter.editor_functions import *
+from HeterogeneousCore.MPICore.configuration_splitter.path_state_helpers import *
 
 
 
@@ -114,17 +116,17 @@ def main():
         help="Modules and/or sequences to offload",
     )
     parser.add_argument(
-        "-lo",
-        "--local-output",
+        "-ol",
+        "--output-local",
         type=pathlib.Path,
-        default=pathlib.Path("splitted_config/local_split.py"),
+        default=pathlib.Path("../splitted_config/local_split.py"),
         help="Output config path for the local process",
     )
     parser.add_argument(
-        "-ro",
-        "--remote-output",
+        "-or",
+        "--output-remote",
         type=pathlib.Path,
-        default=pathlib.Path("splitted_config/remote_split.py"),
+        default=pathlib.Path("../splitted_config/remote_split.py"),
         help="Output config path for the remote process",
     )
     parser.add_argument(
