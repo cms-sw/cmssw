@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 This script splits an HLT configuration into local and remote processes
 by offloading selected modules or sequences.
@@ -16,38 +18,47 @@ Positional arguments:
     config
         Path to the input HLT Python configuration file.
 
+Required arguments:
+    --remote-modules
+        Modules to be offloaded to the remote process.
+        Sequences can also be passed as a parameter, in which case
+        all modules of that sequence will be offloaded
+
 Optional arguments:
-    -ol, --output_local
+    -ol, --output-local
         Path to the output configuration for the local process.
         (default: splitted_config/local_split.py)
 
-    -or, --output_remote
+    -or, --output-remote
         Path to the output configuration for the remote process.
         (default: splitted_config/remote_split.py)
 
-    --shared-modules
+    --duplicate-modules
         List of module labels that must run on both local and remote
         processes. Products from these modules are not transferred
         between processes.
     
-    --cpp-names-exist
+    --reuse-cpp-names
         False by default. If this script was run before, pass this 
         argument to reuse the generated file with C++ product names
+    
+    -v, --verbose
+        Print debug outputs
 
 Example 1 (offloading GPU part of ECAL and HCAL):
     python3 local_remote_splitter.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
-        --shared-modules hltHcalDigis
-        --local-output local.py \
-        --remote-output remote.py
+        --duplicate-modules hltHcalDigis \
+        --output-local local.py \
+        --output-remote remote.py
 
 Example 2 (offloading GPU part of ECAL, HCAL and pixels):
     python3 local_remote_splitter.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
         hltSiPixelClustersSoA hltSiPixelRecHitsSoA hltPixelTracksSoA hltPixelVerticesSoA \
-        --shared-modules hltHcalDigis hltOnlineBeamSpot   hltOnlineBeamSpotDevice \
-        --local-output local.py \
-        --remote-output remote.py
+        --duplicate-modules hltHcalDigis hltOnlineBeamSpot   hltOnlineBeamSpotDevice \
+        --output-local local_pixels.py \
+        --output-remote remote_pixels.py
 
 
 Notes:
@@ -64,44 +75,31 @@ Some TBDs:
 
 import argparse
 import pathlib
-import importlib.util
 import os
 import sys
 
-
-from cpp_name_getter import CPPNameGetter
-from module_dependency_analyzer import ModuleDependencyAnalyzer, flatten_all_to_module_set
-from editor_functions import *
-from path_state_helpers import *
-
-
-
+from HeterogeneousCore.MPICore.configuration_splitter.cpp_name_getter import CPPNameGetter
+from HeterogeneousCore.MPICore.configuration_splitter.module_dependency_analyzer import ModuleDependencyAnalyzer, flatten_all_to_module_set
+from HeterogeneousCore.MPICore.configuration_splitter.editor_functions import *
+from HeterogeneousCore.MPICore.configuration_splitter.path_state_helpers import *
+from FWCore.ParameterSet.processFromFile import processFromFile
 
 def load_config(path: pathlib.Path):
     """
-    Load a CMSSW python config as a module.
-    Equivalent to: import hlt
+    Load process from the python file
     """
 
     cfg_dir = os.path.dirname(path)
-
     # Make helper files next to the cfg visible
     sys.path.insert(0, cfg_dir)
 
     try:
-        spec = importlib.util.spec_from_file_location(path.stem, path)
-        if spec is None or spec.loader is None:
-            raise ImportError(f"Cannot load config from {path}")
-
-        config = importlib.util.module_from_spec(spec)
-        sys.modules[path.stem] = config
-        spec.loader.exec_module(config)
+        process = processFromFile(str(path))
     finally:
         # clean up to avoid polluting global state
         sys.path.pop(0)
 
-    return config
-
+    return process
 
 
 def main():
@@ -114,77 +112,82 @@ def main():
         help="Modules and/or sequences to offload",
     )
     parser.add_argument(
-        "-lo",
-        "--local-output",
+        "-ol",
+        "--output-local",
         type=pathlib.Path,
-        default=pathlib.Path("splitted_config/local_split.py"),
+        default=pathlib.Path("local.py"),
         help="Output config path for the local process",
     )
     parser.add_argument(
-        "-ro",
-        "--remote-output",
+        "-or",
+        "--output-remote",
         type=pathlib.Path,
-        default=pathlib.Path("splitted_config/remote_split.py"),
+        default=pathlib.Path("remote.py"),
         help="Output config path for the remote process",
     )
     parser.add_argument(
-        "--shared-modules",
+        "--duplicate-modules",
         nargs="+",
         default=[],
         help="Modules that must run on both local and remote processes",
     )
     parser.add_argument(
-        "--cpp-names-exist",
+        "--reuse-cpp-names",
         action="store_true",
         help="Assume the file with C++ product names already exists; "
             "do not run cmsRun to regenerate it",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Print execution logs of the splitter",
+    )
 
     args = parser.parse_args()
 
-    # Import config
-    cfg = load_config(args.config)
-
-    # Sanity check
-    if not hasattr(cfg, "process"):
-        raise RuntimeError("Config does not define `process`")
-
-    local_process = cfg.process
+    local_process = load_config(args.config)
 
     modules_to_offload = flatten_all_to_module_set(local_process, args.remote_modules)
-    modules_to_run_on_both = flatten_all_to_module_set(local_process, args.shared_modules)
+    modules_to_run_on_both = flatten_all_to_module_set(local_process, args.duplicate_modules)
     
     # list of all modules to run on remote
     modules_to_offload |= modules_to_run_on_both
 
     analyzer = ModuleDependencyAnalyzer(local_process)
 
-
     groups = analyzer.dependency_groups(modules_to_offload)
     grouped_deps = analyzer.grouped_external_dependencies(groups)
     producer_to_groups = analyzer.producer_to_groups(grouped_deps)
 
-
-    print("Dependency groups: ", groups)
-    print("Grouped depencencies:", grouped_deps )
-    print("Local producers - dependant groups correspondance: ", producer_to_groups)
+    if args.verbose:
+        print("Dependency groups: ", groups)
+        print("Grouped depencencies:", grouped_deps )
+        print("Local producers - dependant groups correspondance: ", producer_to_groups)
 
 
     # get products whose data needs to be sent, excluding modules without local dependencies and modules which should run on both processes
     modules_to_send, modules_without_local_deps = analyzer.modules_to_send_back_by_group(groups, modules_to_run_on_both)
 
-    print("Offloaded modues whose products need to be sent: ", modules_to_send)
-    print("Offloaded modules without local dependencies: ", modules_without_local_deps)
+    if args.verbose:
+        print("Offloaded modues whose products need to be sent: ", modules_to_send)
+        print("Offloaded modules without local dependencies: ", modules_without_local_deps)
 
 
     # -- get c++ names --
 
-    if not args.cpp_names_exist:
-        print("Launching cmsRun to get C++ names of all products in the process...")
+    if args.verbose:
+        if not args.reuse_cpp_names:
+            print("Launching cmsRun to get C++ names of all products in the process...")
+        else:
+            print("Truing to get C++ product names from existing file...")
 
-    cpp_names_getter = CPPNameGetter(local_process, exists=args.cpp_names_exist)
+    cpp_names_getter = CPPNameGetter(local_process, reuse=args.reuse_cpp_names)
     cpp_names_of_the_products = cpp_names_getter.get_cpp_types_of_module_products()
 
+    if args.verbose:
+        print("Got C++ product names")
+    
 
     # --- start editing ---
 
@@ -357,7 +360,6 @@ def main():
 
     args.output_local.write_text(local_process.dumpPython())
     args.output_remote.write_text(remote_process.dumpPython())
-
     print("Success!")
 
 
