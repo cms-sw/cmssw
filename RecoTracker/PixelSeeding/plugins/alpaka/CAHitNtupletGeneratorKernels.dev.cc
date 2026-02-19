@@ -392,23 +392,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         tracks_view,
                         tracks_hits_view,
                         this->device_hitContainer_->data(),
-                        hh);
-
-#ifdef GPU_DEBUG
-    alpaka::wait(queue);
-    std::cout << "Kernel_fillHitDetIndices   -> done!" << std::endl;
-#endif
-    alpaka::exec<Acc1D>(queue,
-                        workDiv1D,
-                        Kernel_fillNLayers<TrackerTraits>{},
-                        view,
-                        this->device_layerStarts_->data(),
-                        nLayers,
+                        hh,
                         this->device_hitTuple_apc_);
 
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
-    std::cout << "Kernel_fillNLayers   -> done!" << std::endl;
+    std::cout << "Kernel_fillHitDetIndices   -> done!" << std::endl;
 #endif
 
     if (this->m_params.algoParams_.doEarlyDuplicateRemover_) {
