@@ -82,7 +82,7 @@ def add_displacedtauCHSTables(process, isMC):
 
 
     ## displaced tau part
-    file = "RecoTauTag/TrainingFiles/DisplacedTauId/particlenet_v1_a27159734e304ea4b7f9e0042baa9e22.pb"
+    file = "RecoTauTag/TrainingFiles/data/DisplacedTauId/particlenet_v1_a27159734e304ea4b7f9e0042baa9e22.pb"
     process.options = cms.untracked.PSet(
         numberOfThreads = cms.untracked.uint32(4),  # Global thread count
         numberOfStreams = cms.untracked.uint32(4),   # Should match threads
