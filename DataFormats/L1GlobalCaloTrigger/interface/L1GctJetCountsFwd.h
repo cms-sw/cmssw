@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1GlobalCaloTrigger_L1GctJetCountsFwd_h
+#define DataFormats_L1GlobalCaloTrigger_L1GctJetCountsFwd_h
+
+class L1GctJetCounts;
+
+#endif

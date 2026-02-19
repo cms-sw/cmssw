@@ -2,8 +2,7 @@
 #define L1GCTJETSORTER_H_
 
 #include <vector>
-
-class L1GctJetCand;
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCandFwd.h"
 
 class L1GctJetSorter {
 public:
