@@ -10,8 +10,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 
 //
@@ -27,21 +25,16 @@ public:
 
 private:
   bool isSaturatedPixel(const SiPixelCluster&, const DetId&) const;
-  SiPixelGainCalibrationServiceBase* getPixelCalib(const edm::ParameterSet& conf, edm::ConsumesCollector iC) const {
-    const auto& pixelCalibType = conf.getParameter<std::string>("pixelCalibType");
-    if (pixelCalibType == "HLT")
+  SiPixelGainCalibrationForHLTService* getPixelCalib(const edm::ParameterSet& conf, edm::ConsumesCollector iC) const {
+    if (min_nSatPixels_ > 0 || useSaturatedPixels_)
       return new SiPixelGainCalibrationForHLTService(conf, iC);
-    else if (pixelCalibType == "Offline")
-      return new SiPixelGainCalibrationOfflineService(conf, iC);
-    else if (min_nSatPixels_ > 0 || useSaturatedPixels_)
-      throw edm::Exception(edm::errors::Configuration) << "Wrong pixel gain calibration type.";
     return nullptr;
   };
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryRcdToken_;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
   const bool useSaturatedPixels_;
   const unsigned int min_nPixels_, min_nSatPixels_;
-  const std::unique_ptr<SiPixelGainCalibrationServiceBase> pixelCalib_;
+  const std::unique_ptr<SiPixelGainCalibrationForHLTService> pixelCalib_;
   const double min_thrust_;  // minimum thrust
   const double max_thrust_;  // maximum thrust
 };
@@ -63,7 +56,6 @@ HLTPixelThrustFilter::HLTPixelThrustFilter(const edm::ParameterSet& config)
 void HLTPixelThrustFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag", edm::InputTag("hltSiPixelClusters"));
-  desc.add<std::string>("pixelCalibType", "");
   desc.add<bool>("useSaturatedPixels", false);
   desc.add<unsigned int>("minNPixels", 2);
   desc.add<unsigned int>("minNSaturatedPixels", 0);

@@ -18,7 +18,7 @@ Thrust::ThetaPhi Thrust::initialAxis() const {
   int indI = 0, indJ = 0;
   for (int i = 0; i < nSegsTheta; ++i) {
     double z = vdt::fast_cos(i * fTheta);
-    double r = sqrt(1 - z * z);
+    double r = std::sqrt(1 - z * z);
     for (int j = 0; j < nSegsPhi; ++j) {
       double sinPhi, cosPhi;
       vdt::fast_sincos(j * fPhi, sinPhi, cosPhi);
