@@ -9,6 +9,8 @@ namespace evf {
     struct dirent *buf;
     int maxrun = 0;
     while ((buf = readdir(dir))) {
+      if (buf->d_type != DT_DIR and buf->d_type != DT_UNKNOWN)
+        continue;
       std::string dirnameNum = buf->d_name;
       if (dirnameNum.find("run") != std::string::npos)
         dirnameNum = dirnameNum.substr(3, std::string::npos);
@@ -27,6 +29,8 @@ namespace evf {
     struct dirent *buf;
     int maxrun = 0;
     while ((buf = readdir(dir))) {
+      if (buf->d_type != DT_DIR and buf->d_type != DT_UNKNOWN)
+        continue;
       std::string dirnameNum = buf->d_name;
       if (dirnameNum.find("run") != std::string::npos)
         dirnameNum = dirnameNum.substr(3, std::string::npos);
@@ -46,6 +50,8 @@ namespace evf {
     DIR *dir = opendir(dir_.c_str());
     struct dirent *buf;
     while ((buf = readdir(dir))) {
+      if (buf->d_type != DT_DIR and buf->d_type != DT_UNKNOWN)
+        continue;
       std::string dirnameNum = buf->d_name;
       if (dirnameNum.find("run") != std::string::npos)
         dirnameNum = dirnameNum.substr(3, std::string::npos);
