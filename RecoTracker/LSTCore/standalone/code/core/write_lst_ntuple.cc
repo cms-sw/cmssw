@@ -1802,9 +1802,10 @@ std::map<unsigned int, unsigned int> setPixelLineSegmentBranches(
     ana.tx->pushbackToBranch<int>("pLS_charge", pixelSeeds.charge()[ipLS]);
     ana.tx->pushbackToBranch<float>("pLS_deltaPhi", pixelSeeds.deltaPhi()[ipLS]);
     ana.tx->pushbackToBranch<int>("pLS_nhit", hit_idx.size());
-    for (size_t ihit = 0; ihit < trk_see_hitIdx[ipLS].size() && ihit < lst::Params_pLS::kHits; ++ihit) {
-      int hitidx = trk_see_hitIdx[ipLS][ihit];
-      bool isPixel = static_cast<HitType>(trk_see_hitType[ipLS][ihit]) == HitType::Pixel;
+    unsigned int seedIdx = pixelSeeds.seedIdx()[ipLS];
+    for (size_t ihit = 0; ihit < trk_see_hitIdx[seedIdx].size() && ihit < lst::Params_pLS::kHits; ++ihit) {
+      int hitidx = trk_see_hitIdx[seedIdx][ihit];
+      bool isPixel = static_cast<HitType>(trk_see_hitType[seedIdx][ihit]) == HitType::Pixel;
       auto const& x = isPixel ? trk_pix_x[hitidx] : trk_ph2_x[hitidx];
       auto const& y = isPixel ? trk_pix_y[hitidx] : trk_ph2_y[hitidx];
       auto const& z = isPixel ? trk_pix_z[hitidx] : trk_ph2_z[hitidx];
@@ -1812,7 +1813,7 @@ std::map<unsigned int, unsigned int> setPixelLineSegmentBranches(
       ana.tx->pushbackToBranch<float>(TString::Format("pLS_hit%zu_y", ihit), y);
       ana.tx->pushbackToBranch<float>(TString::Format("pLS_hit%zu_z", ihit), z);
     }
-    if (trk_see_hitIdx[ipLS].size() == 3) {
+    if (trk_see_hitIdx[seedIdx].size() == 3) {
       ana.tx->pushbackToBranch<float>("pLS_hit3_x", -999);
       ana.tx->pushbackToBranch<float>("pLS_hit3_y", -999);
       ana.tx->pushbackToBranch<float>("pLS_hit3_z", -999);
