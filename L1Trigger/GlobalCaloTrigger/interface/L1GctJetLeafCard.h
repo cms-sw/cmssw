@@ -4,6 +4,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCandFwd.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
@@ -22,8 +23,6 @@
  * date: 20/2/2006
  * 
  */
-
-class L1GctJetCand;
 
 class L1GctJetLeafCard : public L1GctProcessor {
 public:
