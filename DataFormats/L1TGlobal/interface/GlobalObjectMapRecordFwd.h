@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1TGlobal_GlobalObjectMapRecordFwd_h
+#define DataFormats_L1TGlobal_GlobalObjectMapRecordFwd_h
+
+class GlobalObjectMapRecord;
+
+#endif

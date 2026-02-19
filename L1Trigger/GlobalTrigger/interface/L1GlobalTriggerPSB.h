@@ -26,6 +26,17 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCandFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCandFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMissFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotalFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHadFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHtMissFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCountsFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCountsFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSumsFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecordFwd.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -39,20 +50,6 @@
 
 // forward declarations
 class L1GctCand;
-
-class L1GctEmCand;
-class L1GctJetCand;
-
-class L1GctEtMiss;
-class L1GctEtTotal;
-class L1GctEtHad;
-class L1GctHtMiss;
-
-class L1GctJetCounts;
-class L1GctHFBitCounts;
-class L1GctHFRingEtSums;
-
-class L1GlobalTriggerReadoutRecord;
 
 // class declaration
 class L1GlobalTriggerPSB {
