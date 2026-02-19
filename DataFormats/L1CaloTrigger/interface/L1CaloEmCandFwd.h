@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1CaloTrigger_L1CaloEmCandFwd_h
+#define DataFormats_L1CaloTrigger_L1CaloEmCandFwd_h
+
+class L1CaloEmCand;
+
+#endif
