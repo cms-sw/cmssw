@@ -121,11 +121,10 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::fillBuffers(const DetectorSector<T
   setBuffers(fillLinks(sector));
 }
 
-// this function is for sorting small regions
-// in eta first, then in phi
+// this function is for sorting small regions; For consistency with new regionizer, swap order.
+// New order: in phi first, then in eta
 template <typename T>
 bool l1ct::tdr_alt_regionizer::Regionizer<T>::sortRegionsRegular(size_t a, size_t b) const {
-  // first do eta
   auto etaa = regions_[a].intEtaCenter();
   auto etab = regions_[b].intEtaCenter();
   auto phia = regions_[a].intPhiCenter();
@@ -134,9 +133,29 @@ bool l1ct::tdr_alt_regionizer::Regionizer<T>::sortRegionsRegular(size_t a, size_
 }
 
 // this function is for sorting small regions
-// in eta first, then in phi
+// in phi first, then in eta
 template <typename T>
 bool l1ct::tdr_alt_regionizer::Regionizer<T>::sortRegionsHelper(int etaa, int etab, int phia, int phib) const {
+  // first do phi
+  if (phia < phib) {
+    return true;
+  } else if (phia > phib) {
+    return false;
+  }
+
+  // Only here if have same phi
+  if (etaa < etab) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+// this function is for sorting Sectors (mainly tracker)
+// note it is opposite of regions to keep consistent
+// It sorts in eta first, then phi
+template <typename T>
+bool l1ct::tdr_alt_regionizer::Regionizer<T>::sortSectorsHelper(int etaa, int etab, int phia, int phib) const {
   // first do eta
   if (etaa < etab) {
     return true;
@@ -144,7 +163,7 @@ bool l1ct::tdr_alt_regionizer::Regionizer<T>::sortRegionsHelper(int etaa, int et
     return false;
   }
 
-  // regular phi
+  // Only here if have same eta
   if (phia < phib) {
     return true;
   } else {
@@ -161,7 +180,7 @@ bool l1ct::tdr_alt_regionizer::Regionizer<T>::sortSectors(size_t a, size_t b) co
   auto etab = sectors_[b].intEtaCenter();
   auto phia = sectors_[a].intPhiCenter();
   auto phib = sectors_[b].intPhiCenter();
-  return sortRegionsHelper(etaa, etab, phia, phib);
+  return sortSectorsHelper(etaa, etab, phia, phib);
 }
 
 template <typename T>
@@ -181,6 +200,14 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::initRegions(const std::vector<PFIn
   }
   std::sort(
       regionmap_.begin(), regionmap_.end(), [this](size_t a, size_t b) { return this->sortRegionsRegular(a, b); });
+
+  if (debug_) {
+    for (auto val : regionmap_) {
+      dbgCout() << "regionmap_ phys index = " << val << ", eta = " << regions_[val].intEtaCenter()
+                << ", phi = " << regions_[val].intPhiCenter() << std::endl;
+    }
+  }
+
 }
 
 
@@ -211,9 +238,6 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::setBuffers(const std::vector<std::
   for (unsigned int buffer = 0; buffer < numBuffers(); buffer++) {
     assert(buffers_[buffer].numEntries() == 0);  // should be empty
     for (auto& obj : objvecvec[buffer]) {
-      if (debug_) {
-        dbgCout() << "Buffer " << buffer << ": add obj with pt = " << obj.intPt() << std::endl;
-      }
       auto glbphi = sectors_[buffer].hwGlbPhiOf(obj).to_int();
       auto glbeta = sectors_[buffer].hwGlbEtaOf(obj).to_int();
       if (debug_) {
@@ -221,8 +245,16 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::setBuffers(const std::vector<std::
           << ", glb eta = " << glbeta << ". glb phi = " << glbphi << std::endl;
       }
       // get the SR indices that this object should go into
+      auto srs = getSmallRegions(glbeta, glbphi);
+      if (debug_) {
+        std::cout << "  sr Indices =";
+        for (auto sr : srs) {
+          std::cout << " " << sr;
+        }
+        std::cout << std::endl;
+      }
       buffers_[buffer].addEntry(obj,
-                                getSmallRegions(glbeta, glbphi),
+                                srs,
                                 glbeta,
                                 glbphi);
     }
@@ -335,15 +367,15 @@ inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<l1ct::MuObjEmu>:
 //  function get_small_region(index : linear_small_region_t) return eta_phi_small_region_t is
 //      variable rval : eta_phi_small_region_t;
 //  begin
-//      rval.eta_index := index / SMALL_REGION_PHI_COUNT;
-//      rval.phi_index := index rem SMALL_REGION_PHI_COUNT;
+//      rval.eta_index := index / SMALL_REGION_ETA_COUNT;
+//      rval.phi_index := index rem SMALL_REGION_ETA_COUNT;
 //      return rval;
 //  end function get_small_region;
 template <typename T>
 std::pair<size_t, size_t> l1ct::tdr_alt_regionizer::Regionizer<T>::get_small_region(size_t sr) const {
   std::pair<size_t, size_t> rval;
-  rval.first = sr / SMALL_REGION_PHI_COUNT;
-  rval.second = sr % SMALL_REGION_PHI_COUNT;
+  rval.second = sr / SMALL_REGION_ETA_COUNT;
+  rval.first = sr % SMALL_REGION_ETA_COUNT;
   return rval;
 }
 
@@ -357,13 +389,23 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::run() {
     auto links = linksForSR(sr);  // these are the logical links
     auto physSR = regionmap_[sr];
     bool allEmpty;
+    if (debug_) {
+      dbgCout() << "Starting sr = " << sr << ", physSR = " << physSR << std::endl;
+    }
     do {
       allEmpty = true;
       for (auto link : links) {
         auto &buffer = buffers_[sectorMapLogToPhys_[link]];
-        if (!buffer.empty(physSR)) {
+        if (!buffer.empty(sr)) {
           allEmpty = false;
-          addToSmallRegion(physSR, buffer.getEntry(physSR));
+          if (debug_) {
+            dbgCout() << "  Link " << link << " not empty, adding it to region" << std::endl;
+          }
+          addToSmallRegion(physSR, buffer.getEntry(sr));
+        } else {
+          if (debug_) {
+            dbgCout() << "  Link " << link << " buffer is empty, allEmpty = " << allEmpty << std::endl;
+          }
         }
       }
     } while (!allEmpty);

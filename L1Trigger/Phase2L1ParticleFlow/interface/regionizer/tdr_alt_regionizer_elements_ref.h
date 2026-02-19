@@ -50,7 +50,7 @@ namespace l1ct {
       Buffer() {}
 
       void addEntry(const T& obj,
-                    std::vector<size_t> srs,
+                    std::vector<size_t> srs,  // LOGICAL SRs
                     int glbeta,
                     int glbphi);
 
@@ -127,10 +127,11 @@ namespace l1ct {
       // this function is for sorting small regions first in phi and then in eta.
       // It takes regions_ indices
       bool sortRegionsRegular(size_t a, size_t b) const;
-
-      bool sortSectors(size_t a, size_t b) const;
-
       bool sortRegionsHelper(int etaa, int etab, int phia, int phib) const;
+
+      // This is for sorting sectors. It sorts in eta first, then phi
+      bool sortSectors(size_t a, size_t b) const;
+      bool sortSectorsHelper(int etaa, int etab, int phia, int phib) const;
 
       /// get the index in regions_ for a particular SR.
       size_t regionIndex(int sr) const { return regionmap_.at(sr); }
