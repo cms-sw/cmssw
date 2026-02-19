@@ -108,6 +108,7 @@ Electron::Electron(const Run3ScoutingElectron& sElec)
       packedPFCandidates_(),
       associatedPackedFCandidateIndices_() {
   initImpactParameters();
+  isScoutingElectron_ = true;
 
   // Set kinematics
   float px = sElec.pt() * std::cos(sElec.phi());
@@ -163,6 +164,21 @@ Electron::Electron(const Run3ScoutingElectron& sElec)
   this->addUserFloat("ecalIso", sElec.ecalIso());
   this->addUserFloat("hcalIso", sElec.hcalIso());
   this->addUserFloat("trackIso", sElec.trackIso());
+
+  // Store scouting-specific track and ECAL information
+  scoutingTrkEta_ = sElec.trketa();
+  scoutingTrkPhi_ = sElec.trkphi();
+  scoutingTrkpMode_ = sElec.trkpMode();
+  scoutingTrketaMode_ = sElec.trketaMode();
+  scoutingTrkphiMode_ = sElec.trkphiMode();
+  scoutingTrkqoverpModeError_ = sElec.trkqoverpModeError();
+  scoutingSeedId_ = sElec.seedId();
+  scoutingNClusters_ = sElec.nClusters();
+  scoutingNCrystals_ = sElec.nCrystals();
+  scoutingEnergyMatrix_ = sElec.energyMatrix();
+  scoutingTimingMatrix_ = sElec.timingMatrix();
+  scoutingDetIds_ = sElec.detIds();
+  scoutingRechitZeroSuppression_ = sElec.rechitZeroSuppression();
 }
 
 /// destructor
@@ -513,4 +529,81 @@ edm::RefVector<pat::PackedCandidateCollection> Electron::associatedPackedPFCandi
     ret.push_back(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, idx));
   }
   return ret;
+}
+
+// ---- Universal accessors with scouting dispatch ----
+
+float Electron::trkEta() const {
+  if (isScoutingElectron_) {
+    return !scoutingTrkEta_.empty() ? scoutingTrkEta_[0] : 0.f;
+  }
+  auto trk = gsfTrack();
+  return trk.isNonnull() ? trk->eta() : 0.f;
+}
+
+float Electron::trkPhi() const {
+  if (isScoutingElectron_) {
+    return !scoutingTrkPhi_.empty() ? scoutingTrkPhi_[0] : 0.f;
+  }
+  auto trk = gsfTrack();
+  return trk.isNonnull() ? trk->phi() : 0.f;
+}
+
+float Electron::trkpMode() const {
+  if (isScoutingElectron_) {
+    return !scoutingTrkpMode_.empty() ? scoutingTrkpMode_[0] : 0.f;
+  }
+  auto trk = gsfTrack();
+  return trk.isNonnull() ? trk->pMode() : 0.f;
+}
+
+float Electron::trketaMode() const {
+  if (isScoutingElectron_) {
+    return !scoutingTrketaMode_.empty() ? scoutingTrketaMode_[0] : 0.f;
+  }
+  auto trk = gsfTrack();
+  return trk.isNonnull() ? trk->etaMode() : 0.f;
+}
+
+float Electron::trkphiMode() const {
+  if (isScoutingElectron_) {
+    return !scoutingTrkphiMode_.empty() ? scoutingTrkphiMode_[0] : 0.f;
+  }
+  auto trk = gsfTrack();
+  return trk.isNonnull() ? trk->phiMode() : 0.f;
+}
+
+float Electron::trkqoverpModeError() const {
+  if (isScoutingElectron_) {
+    return !scoutingTrkqoverpModeError_.empty() ? scoutingTrkqoverpModeError_[0] : 0.f;
+  }
+  auto trk = gsfTrack();
+  return trk.isNonnull() ? trk->qoverpModeError() : 0.f;
+}
+
+uint32_t Electron::seedId() const {
+  if (isScoutingElectron_) {
+    return scoutingSeedId_;
+  }
+  auto sc = superCluster();
+  if (sc.isNonnull() && sc->seed().isNonnull()) {
+    return sc->seed()->seed().rawId();
+  }
+  return 0;
+}
+
+uint32_t Electron::nClusters() const {
+  if (isScoutingElectron_) {
+    return scoutingNClusters_;
+  }
+  auto sc = superCluster();
+  return sc.isNonnull() ? sc->clustersSize() : 0;
+}
+
+uint32_t Electron::nCrystals() const {
+  if (isScoutingElectron_) {
+    return scoutingNCrystals_;
+  }
+  auto sc = superCluster();
+  return sc.isNonnull() ? sc->size() : 0;
 }
