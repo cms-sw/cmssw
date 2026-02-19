@@ -1,6 +1,9 @@
 #include "EventFilter/Utilities/interface/DirManager.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
 #include <iostream>
+#include <string>
+#include <string_view>
 
 namespace evf {
 
@@ -11,11 +14,11 @@ namespace evf {
     while ((buf = readdir(dir))) {
       if (buf->d_type != DT_DIR and buf->d_type != DT_UNKNOWN)
         continue;
-      std::string dirnameNum = buf->d_name;
-      if (dirnameNum.find("run") != std::string::npos)
-        dirnameNum = dirnameNum.substr(3, std::string::npos);
-      if (atoi(dirnameNum.c_str()) > maxrun) {
-        maxrun = atoi(dirnameNum.c_str());
+      std::string_view dirnameNum = buf->d_name;
+      if (dirnameNum.starts_with("run"))
+        dirnameNum.remove_prefix(3);
+      if (int run = atoi(dirnameNum.data()); run > maxrun) {
+        maxrun = run;
       }
     }
     closedir(dir);
@@ -31,12 +34,12 @@ namespace evf {
     while ((buf = readdir(dir))) {
       if (buf->d_type != DT_DIR and buf->d_type != DT_UNKNOWN)
         continue;
-      std::string dirnameNum = buf->d_name;
-      if (dirnameNum.find("run") != std::string::npos)
-        dirnameNum = dirnameNum.substr(3, std::string::npos);
-      if (atoi(dirnameNum.c_str()) > maxrun) {
+      std::string_view dirnameNum = buf->d_name;
+      if (dirnameNum.starts_with("run"))
+        dirnameNum.remove_prefix(3);
+      if (int run = atoi(dirnameNum.data()); run > maxrun) {
         tmpdir = buf->d_name;
-        maxrun = atoi(dirnameNum.c_str());
+        maxrun = run;
       }
     }
     closedir(dir);
@@ -52,10 +55,10 @@ namespace evf {
     while ((buf = readdir(dir))) {
       if (buf->d_type != DT_DIR and buf->d_type != DT_UNKNOWN)
         continue;
-      std::string dirnameNum = buf->d_name;
-      if (dirnameNum.find("run") != std::string::npos)
-        dirnameNum = dirnameNum.substr(3, std::string::npos);
-      if ((unsigned int)atoi(dirnameNum.c_str()) == run) {
+      std::string_view dirnameNum = buf->d_name;
+      if (dirnameNum.starts_with("run"))
+        dirnameNum.remove_prefix(3);
+      if ((unsigned int)atoi(dirnameNum.data()) == run) {
         tmpdir = buf->d_name;
         break;
       }
