@@ -277,7 +277,8 @@ namespace l1ttrackjet {
         clusters[m].pTtot += clusters[m + 1].pTtot;
         clusters[m].ntracks += clusters[m + 1].ntracks;    // total ntrk
         clusters[m].nxtracks += clusters[m + 1].nxtracks;  // total ndisp
-        clusters[m].trackidx.insert(clusters[m].trackidx.end(), clusters[m + 1].trackidx.begin(), clusters[m + 1].trackidx.end());
+        clusters[m].trackidx.insert(
+            clusters[m].trackidx.end(), clusters[m + 1].trackidx.begin(), clusters[m + 1].trackidx.end());
 
         // remove the merged cluster - all the others must be closer to 0
         clusters.erase(clusters.begin() + m + 1);
