@@ -38,7 +38,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-class L1MuDTChambPhContainer;
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainerFwd.h"
+
 class L1MuDTSectorProcessor;
 class L1MuDTTFParameters;
 class L1MuDTTFMasks;
