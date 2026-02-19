@@ -13,13 +13,13 @@
 #include "L1Trigger/CSCTrackFinder/src/CSCTFTrackBuilder.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStubFwd.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainerFwd.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class CSCTFTrackBuilder;
-class L1MuDTChambPhContainer;
 template <typename T>
 class CSCTriggerContainer;
 
