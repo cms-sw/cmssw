@@ -127,6 +127,8 @@ void HLTTopoMuonHtPNetBXGBProducer::produce(edm::Event& iEvent,
       const float ptA = (*muonsH)[a].pt();
       const float ptB = (*muonsH)[b].pt();
 
+      // if iso is 0 for both then sort by descending pt to have a deterministic order, otherwise sort by ascending relative isolation
+      if (isoA == 0.f && isoB == 0.f) return ptA > ptB;
       return (isoA / ptA) < (isoB / ptB);
     });
   } else {
