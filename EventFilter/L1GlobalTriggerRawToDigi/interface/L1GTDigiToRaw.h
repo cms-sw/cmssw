@@ -35,10 +35,11 @@
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
 #include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollectionFwd.h"
+
 // forward declarations
 class FEDRawDataCollection;
 class L1MuGMTReadoutRecord;
-class L1MuGMTReadoutCollection;
 
 class L1GtfeWord;
 class L1GtFdlWord;
