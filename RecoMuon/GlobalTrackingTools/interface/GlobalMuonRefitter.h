@@ -23,6 +23,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
@@ -42,7 +43,6 @@ class TrackerTopology;
 
 class MuonDetLayerMeasurements;
 class MuonServiceProxy;
-class Trajectory;
 
 class TrajectoryFitter;
 class TrajectoryFitterRecord;

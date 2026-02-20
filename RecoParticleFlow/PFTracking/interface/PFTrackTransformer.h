@@ -16,6 +16,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 /// \brief Abstract
 /*!
@@ -30,7 +31,6 @@
  Evaluate the surface corresponding to the maximum shower
 */
 
-class Trajectory;
 class PFTrackTransformer {
 public:
   PFTrackTransformer(const math::XYZVector&);

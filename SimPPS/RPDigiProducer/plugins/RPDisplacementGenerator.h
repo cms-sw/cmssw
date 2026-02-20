@@ -3,10 +3,9 @@
 
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include <Math/Rotation3D.h>
 #include <map>
-
-class PSimHit;
 
 /**
  * \ingroup TotemDigiProduction

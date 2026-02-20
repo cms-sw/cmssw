@@ -13,10 +13,9 @@
 
 #include <DataFormats/TrackingRecHit/interface/RecSegment.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include <DataFormats/MuonDetId/interface/CSCDetIdFwd.h>
 
 #include <iosfwd>
-
-class CSCDetId;
 
 class CSCSegment final : public RecSegment {
 public:

@@ -20,13 +20,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class MagneticField;
 class TrackingGeometry;
 class Propagator;
-class Trajectory;
 class TrajectoryStateOnSurface;
 
 struct FitterCloner {

@@ -6,9 +6,10 @@
 /// return the entry corresponding to this detector id
 ///
 
+#include "DataFormats/DetId/interface/DetIdFwd.h"
+
 class Alignments;
 class AlignTransform;
-class DetId;
 
 namespace align {
   const AlignTransform &DetectorGlobalPosition(const Alignments &allGlobals, const DetId &id);

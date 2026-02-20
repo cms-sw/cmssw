@@ -11,6 +11,11 @@
 #include <set>
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/DetId/interface/DetIdFwd.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 // forward declarations
 class RecSegment;
 
@@ -18,13 +23,10 @@ class FWEventItem;
 class TEveElement;
 class TEveTrack;
 class TEveTrackPropagator;
-class DetId;
 class FWGeometry;
 class TEveStraightLineSet;
 
-class SiPixelCluster;
 class SiStripCluster;
-class TrackingRecHit;
 
 namespace fireworks {
 

@@ -30,6 +30,8 @@
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DataFormats/DTDigi/interface/DTDigi.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -43,8 +45,6 @@
 
 class DTGeometry;
 class DTSuperLayerId;
-class DTLayerId;
-class DTChamberId;
 class DTTtrig;
 class DTT0;
 

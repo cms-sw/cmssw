@@ -23,6 +23,8 @@
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DFwd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // DT trigger
@@ -34,8 +36,6 @@
 #include <map>
 
 class DTGeometry;
-class DTChamberId;
-class DTRecSegment4D;
 class DTTTrigBaseSync;
 class DTLocalTrigger;
 class L1MuDTChambPhDigi;

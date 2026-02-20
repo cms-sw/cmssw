@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionFwd.h"
 
-class L1CaloRegion;
 class L1GlobalCaloTrigger;
 
 namespace edm {

@@ -20,6 +20,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 class TrackerTopology;
@@ -40,7 +41,6 @@ namespace edm {
 
 class MagneticField;
 class PileUpEventPrincipal;
-class PSimHit;
 class SiStripDigitizerAlgorithm;
 class StripGeomDetUnit;
 class TrackerGeometry;
