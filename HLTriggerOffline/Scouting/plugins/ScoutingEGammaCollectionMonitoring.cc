@@ -182,7 +182,7 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::
       histos.patElectron.h1InvMassID->Fill(
           (patEls->ptrAt(tight_patElectron_index[0])->p4() + patEls->ptrAt(tight_patElectron_index[1])->p4()).mass());
     }
-  }
+  }  // if use useOfflineObject_
 
   edm::Handle<std::vector<Run3ScoutingElectron>> sctEls;
   iEvent.getByToken(scoutingElectronCollection_, sctEls);
@@ -281,11 +281,11 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::
 
     double invMass = (sctElCombined0 + sctElCombined1).mass();
     histos.sctElectron.h1InvMassID->Fill(invMass);
-    if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-        fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
+    if (std::abs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+        std::abs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
       histos.sctElectron.h1InvMassIDEBEB->Fill(invMass);
-    } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-               fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
+    } else if (std::abs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+               std::abs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
       histos.sctElectron.h1InvMassIDEBEE->Fill(invMass);
     } else {
       histos.sctElectron.h1InvMassIDEEEE->Fill(invMass);
@@ -295,11 +295,11 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::
     for (unsigned int i_selectTrig = 0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++) {
       if (vtrigger_result.at(i_selectTrig)) {
         histos.sctElectron.hInvMassID_passDST.at(i_selectTrig)[0]->Fill(invMass);
-        if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-            fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
+        if (std::abs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+            std::abs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
           histos.sctElectron.hInvMassIDEBEB_passDST.at(i_selectTrig)[0]->Fill(invMass);
-        } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-                   fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
+        } else if (std::abs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                   std::abs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
           histos.sctElectron.hInvMassIDEBEE_passDST.at(i_selectTrig)[0]->Fill(invMass);
         } else {
           histos.sctElectron.hInvMassIDEEEE_passDST.at(i_selectTrig)[0]->Fill(invMass);
@@ -313,11 +313,11 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::
           l1GtUtils_->getPrescaleByName(l1seed, prescale);
           if (l1htbit == 1) {
             histos.sctElectron.hInvMassID_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
-            if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-                fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
+            if (std::abs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                std::abs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
               histos.sctElectron.hInvMassIDEBEB_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
-            } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-                       fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
+            } else if (std::abs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                       std::abs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
               histos.sctElectron.hInvMassIDEBEE_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
             } else {
               histos.sctElectron.hInvMassIDEEEE_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
@@ -334,34 +334,40 @@ void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook
                                                         edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(outputInternalPath_);
 
-  // PAT Electron Total Summary
-  histos.patElectron.h1N = ibook.book1D("all_patElectron_electrons_N", "all_patElectron_electrons_N", 20, 0., 20.);
-  histos.patElectron.electrons.h1Pt =
-      ibook.book1D("all_patElectron_electrons_Pt", "all_patElectron_electrons_Pt", 5000, 0., 500.);
-  histos.patElectron.electrons.h1Eta =
-      ibook.book1D("all_patElectron_electrons_Eta", "all_patElectron_electrons_Eta", 1000, -5., 5.);
-  histos.patElectron.electrons.h1Phi =
-      ibook.book1D("all_patElectron_electrons_Phi", "all_patElectron_electrons_Phi", 660, -3.3, 3.3);
+  if (useOfflineObject_) {
+    // PAT Electron Total Summary
+    histos.patElectron.h1N = ibook.book1D("all_patElectron_electrons_N", "all_patElectron_electrons_N", 20, 0., 20.);
+    histos.patElectron.electrons.h1Pt =
+        ibook.book1D("all_patElectron_electrons_Pt", "all_patElectron_electrons_Pt", 5000, 0., 500.);
+    histos.patElectron.electrons.h1Eta =
+        ibook.book1D("all_patElectron_electrons_Eta", "all_patElectron_electrons_Eta", 1000, -5., 5.);
+    histos.patElectron.electrons.h1Phi =
+        ibook.book1D("all_patElectron_electrons_Phi", "all_patElectron_electrons_Phi", 660, -3.3, 3.3);
 
-  // Leading pT PAT Electron Summary
-  histos.patElectron.electron1.h1Pt = ibook.book1D("patElectron_leading_Pt", "patElectron_leading_Pt", 5000, 0., 500.);
-  histos.patElectron.electron1.h1Eta =
-      ibook.book1D("patElectron_leading_Eta", "patElectron_leading_Eta", 1000, -5., 5.);
-  histos.patElectron.electron1.h1Phi =
-      ibook.book1D("patElectron_leading_Phi", "patElectron_leading_Phi", 660, -3.3, 3.3);
+    // Leading pT PAT Electron Summary
+    histos.patElectron.electron1.h1Pt =
+        ibook.book1D("patElectron_leading_Pt", "patElectron_leading_Pt", 5000, 0., 500.);
+    histos.patElectron.electron1.h1Eta =
+        ibook.book1D("patElectron_leading_Eta", "patElectron_leading_Eta", 1000, -5., 5.);
+    histos.patElectron.electron1.h1Phi =
+        ibook.book1D("patElectron_leading_Phi", "patElectron_leading_Phi", 660, -3.3, 3.3);
 
-  // Subleading pT PAT Electron Summary
-  histos.patElectron.electron2.h1Pt =
-      ibook.book1D("patElectron_subleading_Pt", "patElectron_subleading_Pt", 5000, 0., 500.);
-  histos.patElectron.electron2.h1Eta =
-      ibook.book1D("patElectron_subleading_Eta", "patElectron_subleading_Eta", 1000, -5., 5.);
-  histos.patElectron.electron2.h1Phi =
-      ibook.book1D("patElectron_subleading_Phi", "patElectron_subleading_Phi", 660, -3.3, 3.3);
+    // Subleading pT PAT Electron Summary
+    histos.patElectron.electron2.h1Pt =
+        ibook.book1D("patElectron_subleading_Pt", "patElectron_subleading_Pt", 5000, 0., 500.);
+    histos.patElectron.electron2.h1Eta =
+        ibook.book1D("patElectron_subleading_Eta", "patElectron_subleading_Eta", 1000, -5., 5.);
+    histos.patElectron.electron2.h1Phi =
+        ibook.book1D("patElectron_subleading_Phi", "patElectron_subleading_Phi", 660, -3.3, 3.3);
 
-  // Inv Mass PAT Electron Summary
-  histos.patElectron.h1InvMass12 = ibook.book1D("patElectron_E1E2_invMass", "patElectron_E1E2_invMass", 400, 0., 200.);
-  histos.patElectron.h1InvMassID =
-      ibook.book1D("patElectron_appliedID_invMass", "patElectron_appliedID_invMass", 400, 0., 200.);
+    // Inv Mass PAT Electron Summary
+    histos.patElectron.h1InvMass12 =
+        ibook.book1D("patElectron_E1E2_invMass", "patElectron_E1E2_invMass", 400, 0., 200.);
+    histos.patElectron.h1InvMassID =
+        ibook.book1D("patElectron_appliedID_invMass", "patElectron_appliedID_invMass", 400, 0., 200.);
+
+  }
+
   // Scouting electron summary
   histos.sctElectron.h1N = ibook.book1D("all_sctElectron_electrons_N", "all_sctElectron_electrons_N", 20, 0., 20.);
   histos.sctElectron.electrons.h1Pt =
