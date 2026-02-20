@@ -45,7 +45,7 @@ private:
   std::vector<int> parentIdVector;
   std::vector<unsigned int> trackIdVector;
   std::set<int> pdgSingles_;
-  std::vector<std::pair<int,int>> pdgRanges_;
+  std::vector<std::pair<int, int>> pdgRanges_;
 };
 
 #endif

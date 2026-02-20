@@ -16,8 +16,8 @@ RHDecayTracer::RHDecayTracer(edm::ParameterSet const& p) : edm::stream::EDProduc
       consumes<edm::SimVertexContainer>(p.getUntrackedParameter<edm::InputTag>("G4VtxSrc", edm::InputTag("g4SimHits")));
   genParticleToken_ = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"));
   genParticleRHadronDecayToken_ = produces<reco::GenParticleCollection>("RHadronDecay");
-  std::vector<std::string> acceptedPDGs = p.getUntrackedParameter<std::vector<std::string>>("RHDecayTracerPDGs",
-                                                                                         std::vector<std::string>{"1000600-1999999", "1000021", "1000006"});
+  std::vector<std::string> acceptedPDGs = p.getUntrackedParameter<std::vector<std::string>>(
+      "RHDecayTracerPDGs", std::vector<std::string>{"1000600-1999999", "1000021", "1000006"});
   updateConfiguredPDGs(acceptedPDGs);
 }
 
@@ -214,7 +214,8 @@ void RHDecayTracer::updateConfiguredPDGs(const std::vector<std::string>& accepte
     if (dashPosition != std::string::npos) {
       int low = std::stoi(s.substr(0, dashPosition));
       int high = std::stoi(s.substr(dashPosition + 1));
-      if (low > high) std::swap(low, high);
+      if (low > high)
+        std::swap(low, high);
       pdgRanges_.emplace_back(low, high);
     } else {
       int id = std::stoi(s);
@@ -225,9 +226,11 @@ void RHDecayTracer::updateConfiguredPDGs(const std::vector<std::string>& accepte
 
 bool RHDecayTracer::isConfiguredPDG(int pdgId) const {
   int absId = std::abs(pdgId);
-  if (pdgSingles_.count(absId)) return true;
-  for (const auto &r : pdgRanges_) {
-    if (absId >= r.first && absId <= r.second) return true;
+  if (pdgSingles_.count(absId))
+    return true;
+  for (const auto& r : pdgRanges_) {
+    if (absId >= r.first && absId <= r.second)
+      return true;
   }
   return false;
 }
