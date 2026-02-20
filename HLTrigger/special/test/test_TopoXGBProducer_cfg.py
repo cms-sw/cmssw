@@ -157,7 +157,7 @@ process.HLTMuIsolationSequence = cms.Sequence(
 from HLTrigger.special.hltTopoBDTProducer_cff import hltTopoMuonHtPNetBXGBProducer
 
 process.hltTopoMuonHtPNetBXGBProducer = hltTopoMuonHtPNetBXGBProducer.clone(
-    modelPath = cms.string("HLTrigger/HLTfilters/data/Feb19_HLT_xgb_model_HH2b2W1L_1mu_HLTHT_Mupt-absiso_PNetB.json"),
+    modelPath = cms.string("HLTrigger/HLTfilters/data/HLT_xgb_model_HH2b2W1L_1mu_HLTHT_Mupt-absiso_PNetB.json"),
     # TrackIsoMap = cms.InputTag("hltMuonTkRelIsolationCut0p3Map", "combinedRelativeIsoDeposits"), # from Mu12Isolation sequence
     TrackIsoMap = cms.InputTag("hltMuonTkRelIsolationCut0p14Map", "combinedRelativeIsoDeposits"), # from scouting MuonIsolation sequence
     debug = cms.bool(True),
@@ -165,7 +165,7 @@ process.hltTopoMuonHtPNetBXGBProducer = hltTopoMuonHtPNetBXGBProducer.clone(
 
 ## model with 1+2 muons
 process.hltTopoMuonHtPNetBXGBProducerMu12 = hltTopoMuonHtPNetBXGBProducer.clone(
-    modelPath = cms.string("HLTrigger/HLTfilters/data/Feb19_HLT_xgb_model_HH2b2W1L_1mu_HLTHT_Mu1-2pt-absiso_PNetB.json"),
+    modelPath = cms.string("HLTrigger/HLTfilters/data/HLT_xgb_model_HH2b2W1L_1mu_HLTHT_Mu1-2pt-absiso_PNetB.json"),
     # TrackIsoMap = cms.InputTag("hltMuonTkRelIsolationCut0p3Map", "combinedRelativeIsoDeposits"), # from Mu12Isolation sequence
     TrackIsoMap = cms.InputTag("hltMuonTkRelIsolationCut0p14Map", "combinedRelativeIsoDeposits"), # from scouting MuonIsolation sequence
     nMuons = cms.uint32(2),
@@ -175,7 +175,7 @@ process.hltTopoMuonHtPNetBXGBProducerMu12 = hltTopoMuonHtPNetBXGBProducer.clone(
 
 ## model with 1 muon but sorted by tkIso
 process.hltTopoMuonHtPNetBXGBProducerMuSortIso = hltTopoMuonHtPNetBXGBProducer.clone(
-    modelPath = cms.string("HLTrigger/HLTfilters/data/Feb19_HLT_xgb_model_HH2b2W1L_1mu_HLTHT_sorttkisoMupt-absiso_PNetB.json"),
+    modelPath = cms.string("HLTrigger/HLTfilters/data/HLT_xgb_model_HH2b2W1L_1mu_HLTHT_sorttkisoMupt-absiso_PNetB.json"),
     # TrackIsoMap = cms.InputTag("hltMuonTkRelIsolationCut0p3Map", "combinedRelativeIsoDeposits"), # from Mu12Isolation sequence
     TrackIsoMap = cms.InputTag("hltMuonTkRelIsolationCut0p14Map", "combinedRelativeIsoDeposits"), # from scouting MuonIsolation sequence
     muonSortByTkIso = cms.bool(True),

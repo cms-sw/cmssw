@@ -5,7 +5,7 @@ hltTopoMuonHtPNetBXGBProducer = cms.EDProducer('HLTTopoMuonHtPNetBXGBProducer',
     # hardcoded: PFHT, PNetBscore, muon pt, trkiso, ecaliso, hcaliso, 2. muon etc. if nMuons>1
 
     # XGBoost JSON path (must be reachable via edm::FileInPath)
-    modelPath = cms.string("HLTrigger/HLTfilters/data/Feb19_HLT_xgb_model_HH2b2W1L_1mu_HLTHT_sorttkisoMupt-absiso_PNetB.json"),
+    modelPath = cms.string("HLTrigger/HLTfilters/data/HLT_xgb_model_HH2b2W1L_1mu_HLTHT_sorttkisoMupt-absiso_PNetB.json"),
 
     # PFHT (from HLTHtMhtProducer)
     PFHT = cms.InputTag("hltPFHTJet30"),
