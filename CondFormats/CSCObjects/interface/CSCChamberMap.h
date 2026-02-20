@@ -4,9 +4,8 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/CSCObjects/interface/CSCMapItem.h"
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
 #include <map>
-
-class CSCDetId;
 
 class CSCChamberMap {
 public:

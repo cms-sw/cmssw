@@ -7,6 +7,7 @@
 //B.M.#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
@@ -16,7 +17,6 @@
 
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
-class Trajectory;
 class TrajectoryMeasurement;
 class TrajectoryMeasurementGroup;
 class FreeTrajectoryState;

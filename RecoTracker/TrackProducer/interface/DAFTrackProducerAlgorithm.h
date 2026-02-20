@@ -19,13 +19,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class MagneticField;
 class TrackingGeometry;
 class TrajAnnealing;
 class TrajectoryFitter;
-class Trajectory;
 class TrajectoryStateOnSurface;
 class TransientTrackingRecHitBuilder;
 class MultiRecHitCollector;

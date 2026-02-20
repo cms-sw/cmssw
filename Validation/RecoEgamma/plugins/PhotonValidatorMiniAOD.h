@@ -12,6 +12,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertexFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -39,8 +41,6 @@ class TH1F;
 class TH2F;
 class TProfile;
 class TTree;
-class SimVertex;
-class SimTrack;
 
 class PhotonValidatorMiniAOD : public DQMEDAnalyzer {
 public:

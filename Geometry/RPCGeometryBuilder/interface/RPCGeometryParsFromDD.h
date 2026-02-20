@@ -10,6 +10,7 @@
  *
  */
 
+#include "DataFormats/MuonDetId/interface/RPCDetIdFwd.h"
 #include <string>
 #include <map>
 #include <list>
@@ -20,7 +21,6 @@ namespace cms {  // DD4hep
   class DDFilteredView;
   class DDCompactView;
 }  // namespace cms
-class RPCDetId;
 class RPCRoll;
 class MuonGeometryConstants;
 class RecoIdealGeometry;

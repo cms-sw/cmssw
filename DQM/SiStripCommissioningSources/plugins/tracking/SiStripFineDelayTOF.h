@@ -1,9 +1,8 @@
 #ifndef CalibTracker_SiSitripLorentzAngle_SiStripFineDelayTOF_h
 #define CalibTracker_SiSitripLorentzAngle_SiStripFineDelayTOF_h
 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-class TrackingRecHit;
 
 class SiStripFineDelayTOF {
 public:

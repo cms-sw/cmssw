@@ -7,12 +7,12 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
 template <typename M>
 class CorrelatedNoisifier;
 class EcalMGPASample;
 class EcalDataFrame;
-class DetId;
 
 #include <vector>
 

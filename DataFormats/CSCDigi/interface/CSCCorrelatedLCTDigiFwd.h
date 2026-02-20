@@ -1,0 +1,6 @@
+#ifndef DataFormats_CSCDigi_CSCCorrelatedLCTDigiFwd_h
+#define DataFormats_CSCDigi_CSCCorrelatedLCTDigiFwd_h
+
+class CSCCorrelatedLCTDigi;
+
+#endif

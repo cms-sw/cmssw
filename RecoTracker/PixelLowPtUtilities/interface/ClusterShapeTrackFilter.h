@@ -11,10 +11,11 @@ typedef Vector2DBase<float, GlobalTag> Global2DVector;
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+
 #include <vector>
 
 class TrackerGeometry;
-class TrackingRecHit;
 class ClusterShapeHitFilter;
 class TrackerTopology;
 class SiPixelClusterShapeCache;

@@ -59,7 +59,6 @@
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 
-class DetId;
 class CaloTopology;
 class CaloGeometry;
 

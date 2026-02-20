@@ -19,6 +19,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 #include <vector>
 #include <array>
@@ -30,7 +31,6 @@
 class TH1;
 class TH2;
 class TDirectory;
-class Trajectory;
 
 class TrackerTopology;
 

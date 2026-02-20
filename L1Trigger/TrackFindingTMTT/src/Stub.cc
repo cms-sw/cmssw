@@ -41,6 +41,7 @@ namespace tmtt {
         bend_(bend),
         iphi_(iphi),
         alpha_(alpha),
+        assocTP_(nullptr),
         digitalStub_(std::make_unique<DigitalStub>(settings, r, phi, z, iPhiSec)),
         layerId_(layerId),
         layerIdReduced_(TrackerModule::calcLayerIdReduced(layerId)),
