@@ -15,6 +15,10 @@ ScoutingEBRechitAnalyzer = DQMEDAnalyzer('ScoutingEBRecHitAnalyzer',
                                              )
                                          ))
 
+ScoutingEBCleanedRechitAnalyzer = ScoutingEBRechitAnalyzer.clone(
+                                         src = cms.InputTag ("hltScoutingRecHitPacker", "EBCleaned"),
+                                         topFolderName = cms.string('HLT/ScoutingOffline/EBCleanedRechits'))
+
 ScoutingHBHERechitAnalyzer = DQMEDAnalyzer('ScoutingHBHERecHitAnalyzer',
                                            src = cms.InputTag("hltScoutingRecHitPacker", "HBHE"),
                                            L1TriggerResults = cms.InputTag('L1BitsScouting'),
@@ -37,4 +41,5 @@ L1BitsScouting = _l1bits.clone(src="gtStage2Digis")
 
 hltScoutingMonitoringRecHits = cms.Sequence(L1BitsScouting +
                                             ScoutingEBRechitAnalyzer +
+                                            ScoutingEBCleanedRechitAnalyzer +
                                             ScoutingHBHERechitAnalyzer)
