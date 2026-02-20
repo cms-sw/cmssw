@@ -4,11 +4,14 @@
 #include <cmath>
 
 #include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
 namespace scoutingDQMUtils {
 
   // Constants
+  static constexpr double MUON_MASS = 0.105658;      // Muon mass in GeV
   static constexpr double ELECTRON_MASS = 0.000511;  // Electron mass in GeV
   static constexpr double ELE_etaEB = 1.479;         // Eta restriction to barrel (for electrons)
 
@@ -16,6 +19,17 @@ namespace scoutingDQMUtils {
   inline double computePtFromEnergyMassEta(double energy, double mass, double eta) {
     double transverseEnergy = std::sqrt(energy * energy - mass * mass);
     return transverseEnergy / std::cosh(eta);
+  }
+
+  // scouting muons ID
+  inline const bool scoutingMuonID(const Run3ScoutingMuon& mu) {
+    if (mu.pt() < 3.0)
+      return false;
+    if (std::abs(mu.eta()) > 2.4)
+      return false;
+    if (mu.normalizedChi2() > 3)
+      return false;
+    return true;
   }
 
   // scouting electron IB
