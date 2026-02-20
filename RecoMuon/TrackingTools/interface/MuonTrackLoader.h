@@ -25,6 +25,7 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 namespace edm {
   class Event;
@@ -32,7 +33,6 @@ namespace edm {
   class ParameterSet;
 }  // namespace edm
 
-class Trajectory;
 class Propagator;
 class MuonServiceProxy;
 class MuonUpdatorAtVertex;

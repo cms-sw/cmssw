@@ -20,8 +20,8 @@
 #include <vector>
 class CSCLayer;
 class CSCDetectorHit;
-class PSimHit;
 class MagneticField;
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 

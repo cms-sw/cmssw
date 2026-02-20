@@ -11,11 +11,11 @@
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFinput.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 
 #include <memory>
 
 class L1TMuonOverlapParams;
-class SimTrack;
 
 template <class GoldenPatternType>
 class ProcessorBase {

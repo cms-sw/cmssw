@@ -27,6 +27,7 @@
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -40,7 +41,6 @@
 
 class MuonServiceProxy;
 class MeasurementEstimator;
-class TrajectorySeed;
 class TrajectoryStateOnSurface;
 
 namespace edm {

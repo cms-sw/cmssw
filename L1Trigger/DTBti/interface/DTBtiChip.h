@@ -20,7 +20,6 @@
 class DTBtiHit;
 class DTBtiTrig;
 class DTBtiTrigData;
-class DTDigi;
 
 //----------------------
 // Base Class Headers --
@@ -28,6 +27,7 @@ class DTDigi;
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/MuonDetId/interface/DTBtiId.h"
+#include "DataFormats/DTDigi/interface/DTDigiFwd.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"

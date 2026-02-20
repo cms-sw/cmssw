@@ -6,6 +6,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainerFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiFwd.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiFwd.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
+#include "DataFormats/MuonDetId/interface/RPCDetIdFwd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
@@ -22,13 +28,6 @@ class DTGeometry;
 
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
-class L1MuDTChambThContainer;
-class CSCCorrelatedLCTDigi;
-class RPCDigi;
-
-class DTChamberId;
-class CSCDetId;
-class RPCDetId;
 
 struct EtaValue {
   int eta = 0;

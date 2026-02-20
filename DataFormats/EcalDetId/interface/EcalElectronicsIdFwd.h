@@ -1,0 +1,6 @@
+#ifndef DataFormats_EcalDetId_EcalElectronicsIdFwd_h
+#define DataFormats_EcalDetId_EcalElectronicsIdFwd_h
+
+class EcalElectronicsId;
+
+#endif

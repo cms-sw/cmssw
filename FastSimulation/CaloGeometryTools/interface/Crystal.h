@@ -15,8 +15,6 @@
 
 #include <vector>
 
-class DetId;
-
 class Crystal {
 public:
   typedef math::XYZVector XYZVector;

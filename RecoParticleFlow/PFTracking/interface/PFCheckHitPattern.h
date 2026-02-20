@@ -11,13 +11,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #define DEBUG_CHECKHITPATTERN
-
-class DetId;
 
 /// \brief PFCheckHitPatter
 /*!

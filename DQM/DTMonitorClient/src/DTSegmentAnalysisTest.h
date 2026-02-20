@@ -24,6 +24,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 #include <memory>
 #include <iostream>
@@ -33,7 +34,6 @@
 #include <map>
 
 class DTGeometry;
-class DTChamberId;
 class DTSuperLayerId;
 
 class DTSegmentAnalysisTest : public DQMEDHarvester {

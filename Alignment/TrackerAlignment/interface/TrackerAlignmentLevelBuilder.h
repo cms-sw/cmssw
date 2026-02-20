@@ -16,8 +16,8 @@
 #include "Alignment/CommonAlignment/interface/AlignmentLevel.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/TrackerAlignment/interface/TrackerNameSpace.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
-class DetId;
 class TrackerTopology;
 class TrackerGeometry;
 

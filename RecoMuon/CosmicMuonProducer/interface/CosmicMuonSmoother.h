@@ -27,7 +27,6 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class Trajectory;
 class TrajectoryMeasurement;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
