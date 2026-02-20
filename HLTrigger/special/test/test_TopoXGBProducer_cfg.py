@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: myNano --conditions 151X_dataRun3_HLT_v1 --era Run3_2025 -s HLT:GRun,NANO:@ScoutMonitor --datatier NANOAOD --eventcontent NANOAOD --data --scenario pp --process reHLT --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run3 -n 100 --filein file:/eos/cms/store/data/Run2025G/EphemeralHLTPhysics0/RAW/v1/000/398/183/00000/029d80cb-ade3-472d-8085-4a4d955b3882.root --fileout file:nanoScout_reHLT_data.root --python_filename=data_reHLT_nanoScoutPrompt_cfg.py
+# with command line options: myNano --conditions 151X_dataRun3_HLT_v1 --era Run3_2025 -s L1REPACK:uGT,HLT:GRun,NANO:@ScoutMonitor --datatier NANOAOD --eventcontent NANOAOD --data --scenario pp --process reHLT --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run3 -n 100 --filein file:/eos/cms/store/data/Run2025G/EphemeralHLTPhysics0/RAW/v1/000/398/183/00000/029d80cb-ade3-472d-8085-4a4d955b3882.root --fileout file:nanoScout_reHLT_data.root --python_filename=data_reHLT_nanoScoutPrompt_cfg.py
 
 import FWCore.ParameterSet.Config as cms
 
@@ -17,10 +17,18 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.SimL1EmulatorRepack_uGT_cff')
 process.load('HLTrigger.Configuration.HLT_GRun_cff')
 process.load('PhysicsTools.NanoAOD.custom_run3scouting_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+# set the L1 menu
+from HLTrigger.Configuration.CustomConfigs import L1XML 
+# to be placed in L1Trigger/L1TGlobal/data/Luminosity/startup 
+# from https://raw.githubusercontent.com/cms-l1-dpg/L1MenuRun3/refs/heads/master/development/L1Menu_Collisions2026_v1_0_0/L1Menu_Collisions2026_v1_0_0.xml
+process = L1XML(process,'L1Menu_Collisions2026_v1_0_0.xml') 
+# process.hltGtStage2ObjectMap.RequireMenuToMatchAlgoBlkInput=False
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1),
@@ -98,18 +106,20 @@ from HLTrigger.Configuration.CustomConfigs import ProcessName
 process = ProcessName(process)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '151X_dataRun3_HLT_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '160X_dataRun3_HLT_v1', '')
 
 # Path and EndPath definitions
 process.path = cms.Path(
     process.hltPFJetForBtagSelector
 )
+process.L1RePack_step = cms.Path(process.SimL1Emulator)
 process.nanoAOD_step = cms.Path(process.scoutingNanoSequence)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.NANOAODoutput_step = cms.EndPath(process.NANOAODoutput)
 
 # Schedule definition
 # process.schedule imported from cff in HLTrigger.Configuration
+process.schedule.insert(0, process.L1RePack_step)
 process.schedule.extend([process.nanoAOD_step,process.endjob_step,process.NANOAODoutput_step])
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
@@ -233,14 +243,15 @@ process.schedule.append(process.HLT_TopoHH1Mu_NoFilter)
 ## TOPO path with filters
 process.HLT_TopoHH1Mu_L1Tprob0p8_HLTprob0p9_Mu12_IsoVVL = cms.Path(
 	process.HLTBeginSequence +
-    process.hltL1sMu12HTT150er +
+    # L1 seeds
+    # 	process.hltL1sMu12HTT150er +
+    process.hltL1sTopoLooseFromObjectMap + # available in the HLT GRun from 16_1_X
     # process.l1tTopoBDTProducerHH1muMuHT + ## replaces L1 seed in GT for now   
     
     # # filter for different BDT score thresholds
     # process.hltL1TopoBDTHH1Mu1p35 + ## equivalent to prob>0.8
     
-# 	process.hltL1sMu12HTT150er +
-# 	process.hltPreMu12IsoVVLPFHT150PNetBTag0p53 +
+	# process.hltPreMu12IsoVVLPFHT150PNetBTag0p53 +
 	cms.ignore(
     	process.hltL1sSingleMuOpenObjectMap
     ) +
