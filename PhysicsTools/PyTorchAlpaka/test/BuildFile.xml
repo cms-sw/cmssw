@@ -5,6 +5,7 @@
   <use name="eigen"/>
   <use name="pytorch"/>
   <use name="pytorch-cuda" for="alpaka/cuda"/>
+  <use name="DataFormats/SoATemplate"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="PhysicsTools/PyTorchAlpaka"/>
   <!-- Omit ROCM because of copy workaround -> copy private to TensorRegistry -->
@@ -18,6 +19,7 @@
   <use name="eigen"/>
   <use name="pytorch"/>
   <use name="pytorch-cuda" for="alpaka/cuda"/>
+  <use name="DataFormats/SoATemplate"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="PhysicsTools/PyTorch"/>
   <use name="PhysicsTools/PyTorchAlpaka"/>
