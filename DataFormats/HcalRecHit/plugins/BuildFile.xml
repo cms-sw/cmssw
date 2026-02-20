@@ -3,3 +3,11 @@
   <use name="HeterogeneousCore/TrivialSerialisation"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="alpaka/TrivialSerialisation.cc" name="DataFormatsHcalRecHitTrivialSerialisationPortable">
+  <use name="DataFormats/HcalRecHit"/>
+  <use name="DataFormats/Portable"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</library>

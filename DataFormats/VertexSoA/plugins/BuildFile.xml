@@ -3,3 +3,11 @@
   <use name="HeterogeneousCore/TrivialSerialisation"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="alpaka/TrivialSerialisation.cc" name="DataFormatsVertexSoATrivialSerialisationPortable">
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/VertexSoA"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</library>

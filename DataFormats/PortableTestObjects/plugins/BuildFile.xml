@@ -3,3 +3,11 @@
   <use name="HeterogeneousCore/TrivialSerialisation"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="alpaka/*.cc" name="DataFormatsPortableTestObjectsPluginsAlpaka">
+  <use name="DataFormats/PortableTestObjects"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

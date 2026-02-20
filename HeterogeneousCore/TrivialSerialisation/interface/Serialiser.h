@@ -1,5 +1,5 @@
-#ifndef TrivialSerialisation_Common_interface_Serialiser_h
-#define TrivialSerialisation_Common_interface_Serialiser_h
+#ifndef HeterogeneousCore_TrivialSerialisation_interface_Serialiser_h
+#define HeterogeneousCore_TrivialSerialisation_interface_Serialiser_h
 
 #include <memory>
 
@@ -13,6 +13,7 @@
 
 namespace ngt {
 
+  // Concrete Serialiser for host products.  T is the bare product type (not wrapped).
   template <typename T>
   class Serialiser : public SerialiserBase {
   public:
@@ -26,4 +27,4 @@ namespace ngt {
 
 }  // namespace ngt
 
-#endif  // TrivialSerialisation_Common_interface_Serialiser_h
+#endif  // HeterogeneousCore_TrivialSerialisation_interface_Serialiser_h

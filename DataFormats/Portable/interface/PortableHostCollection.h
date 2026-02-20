@@ -213,8 +213,17 @@ namespace ngt {
     // The properties needed to initialize a new PrortableHostCollection are just its size.
     static Properties properties(value_type const& object) { return object->metadata().size(); }
 
-    // Replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory.
+    template <typename TQueue>
+      requires(alpaka::isQueue<TQueue>)
+    static void initialize(TQueue& queue, value_type& object, Properties const& size) {
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pageable system memory.
+      object = value_type(queue, size);
+    }
+
     static void initialize(value_type& object, Properties const& size) {
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pageable system memory.
       object = value_type(cms::alpakatools::host(), size);
     }
 

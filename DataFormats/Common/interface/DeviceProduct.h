@@ -50,6 +50,9 @@ namespace edm {
       requires(requires { T(edm::kUninitialized); })
         : data_{edm::kUninitialized} {}
 
+    // Construct from an already-initialized T
+    explicit DeviceProduct(T&& data) : data_(std::move(data)) {}
+
     template <typename M, typename... Args>
       requires std::is_base_of_v<DeviceProductMetadataBase, M>
     explicit DeviceProduct(std::shared_ptr<M> metadata, Args&&... args)
@@ -80,6 +83,14 @@ namespace edm {
       md.synchronize(std::forward<Args>(args)...);
       return data_;
     }
+
+    /**
+     * Get the actual data product without any synchronization, i.e. without the
+     * guarantee that the product's data is ready to be read. This is ok e.g. for
+     * the purpose of accessing the product's memory layout, but the caller must
+     * still ensure synchronization before accessing the product data.
+     */
+    T const& getUnsynchronized() const { return data_; }
 
     // TODO: in principle this function is an implementation detail
     template <typename M>
