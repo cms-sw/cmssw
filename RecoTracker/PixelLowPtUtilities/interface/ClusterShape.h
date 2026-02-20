@@ -7,7 +7,6 @@
 #include <vector>
 
 class PixelGeomDetUnit;
-class SiPixelCluster;
 class SiPixelRecHit;
 class ClusterData;
 

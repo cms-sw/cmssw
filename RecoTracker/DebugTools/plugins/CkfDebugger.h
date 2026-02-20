@@ -20,6 +20,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -29,9 +30,7 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
-class Trajectory;
 class TrajectoryMeasurement;
-class PSimHit;
 class MeasurementTrackerEvent;
 class TrajectoryStateOnSurface;
 class MagneticField;

@@ -23,7 +23,6 @@ namespace edm {
 }  // namespace edm
 
 class MuonServiceProxy;
-class Trajectory;
 
 class GlobalMuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 public:

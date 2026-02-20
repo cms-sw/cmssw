@@ -6,7 +6,7 @@
 #include <atomic>
 #endif
 
-class GEMPadDigiCluster;
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterFwd.h"
 
 class CSCGEMData {
 public:

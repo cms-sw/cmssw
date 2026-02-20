@@ -4,8 +4,6 @@
 class CSCCFEBData;
 class CSCTMBHeader;
 class CSCComparatorData;
-class CSCWireDigi;
-class CSCStripDigi;
 #include <map>
 #include <vector>
 #ifndef LOCAL_UNPACK
@@ -21,6 +19,8 @@ class CSCStripDigi;
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiFwd.h"
 #include <boost/dynamic_bitset.hpp>
 
 class CSCEventData {

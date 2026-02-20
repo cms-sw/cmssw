@@ -14,7 +14,7 @@
 #define EgammaReco_ConversionTrack_h
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-class Trajectory;
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 namespace reco {
   class ConversionTrack {
   public:

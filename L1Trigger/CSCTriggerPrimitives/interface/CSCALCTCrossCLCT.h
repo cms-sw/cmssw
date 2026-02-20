@@ -22,12 +22,11 @@ this feature into the CSC trigger firmware
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiFwd.h"
 
 #include <string>
 #include <array>
-
-class CSCALCTDigi;
-class CSCCLCTDigi;
 
 class CSCALCTCrossCLCT {
 public:

@@ -3,11 +3,11 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
+#include "DataFormats/EcalDetId/interface/EcalElectronicsIdFwd.h"
 
 #include <string>
 
-class DetId;
-class EcalElectronicsId;
 namespace edm {
   class ParameterSet;
   class ParameterSetDescription;

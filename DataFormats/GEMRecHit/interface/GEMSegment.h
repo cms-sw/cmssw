@@ -11,10 +11,9 @@
 
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/MuonDetId/interface/GEMDetIdFwd.h"
 
 #include <iosfwd>
-
-class GEMDetId;
 
 class GEMSegment final : public RecSegment {
 public:

@@ -10,11 +10,11 @@
 
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiFwd.h"
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripAmpResponse.h"
 
 class CSCDetectorHit;
-class CSCComparatorDigi;
 class CSCCrosstalkGenerator;
 class CSCStripConditions;
 #include <list>

@@ -12,11 +12,11 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class DTChamberId;
 
 //---------------
 // C++ Headers --
