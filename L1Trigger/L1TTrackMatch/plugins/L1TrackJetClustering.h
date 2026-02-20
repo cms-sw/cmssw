@@ -277,14 +277,11 @@ namespace l1ttrackjet {
         clusters[m].pTtot += clusters[m + 1].pTtot;
         clusters[m].ntracks += clusters[m + 1].ntracks;    // total ntrk
         clusters[m].nxtracks += clusters[m + 1].nxtracks;  // total ndisp
-        for (unsigned int itrk = 0; itrk < clusters[m + 1].trackidx.size(); itrk++)
-          clusters[m].trackidx.push_back(clusters[m + 1].trackidx[itrk]);
+        clusters[m].trackidx.insert(
+            clusters[m].trackidx.end(), clusters[m + 1].trackidx.begin(), clusters[m + 1].trackidx.end());
 
-        // if remove the merged cluster - all the others must be closer to 0
-        for (int m1 = m + 1; m1 < nclust - 1; ++m1)
-          clusters[m1] = clusters[m1 + 1];
-
-        clusters.erase(clusters.begin() + nclust);
+        // remove the merged cluster - all the others must be closer to 0
+        clusters.erase(clusters.begin() + m + 1);
         nclust--;
       }  // end if for cluster merging
     }  // end for (m) loop
