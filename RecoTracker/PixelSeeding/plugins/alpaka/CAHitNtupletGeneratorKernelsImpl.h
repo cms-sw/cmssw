@@ -38,6 +38,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   constexpr uint32_t tkNotFound = std::numeric_limits<uint32_t>::max();
   constexpr float maxScore = std::numeric_limits<float>::max();
   constexpr float nSigma2 = 25.f;
+  constexpr int nTrackParameters = 5;
+  // map: index of a track parameter -> index of its covariance
+  HOST_DEVICE_CONSTANT std::array<uint8_t, nTrackParameters> iParam2iCov = {0u, 5u, 9u, 12u, 14u};
 
   // all of these below are mostly to avoid carrying around the relative namespace
 
@@ -287,22 +290,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           auto qi = tracks_view[it].quality();
           if (qi <= reject)
             continue;
-          auto opi = tracks_view[it].state()(2);
-          auto e2opi = tracks_view[it].covariance()(9);
-          auto cti = tracks_view[it].state()(3);
-          auto e2cti = tracks_view[it].covariance()(12);
+
+          // get track parameters and covariances
+          float iParams[nTrackParameters];
+          float iCovs[nTrackParameters];
+          for (int p{0}; p < nTrackParameters; ++p) {
+            iParams[p] = tracks_view[it].state()(p);
+            const auto c = iParam2iCov[p];
+            iCovs[p] = tracks_view[it].covariance()(c);
+          }
+          // function that compares the five track parameters of tracks it and jt
+          auto incompatibleTrackParams = [=](int jt) -> bool {
+            // comparing phi, tip, 1/pT, cotan(theta) and zip
+            for (int p{0}; p < nTrackParameters; ++p) {
+              const auto dpij = iParams[p] - tracks_view[jt].state()(p);
+              const auto c = iParam2iCov[p];
+              const auto e2dpij = nSigma2 * (iCovs[p] + tracks_view[jt].covariance()(c));
+              if (dpij * dpij > e2dpij)
+                return true;  // incompatible param found
+            }
+            return false;  // all params compatible
+          };
+
+          // loop over remaining tracks j and compare
           for (int j = i + 1; j < ntr; ++j) {
             auto jt = thisCellTracks[j];
             auto qj = tracks_view[jt].quality();
             if (qj <= reject)
               continue;
-            auto opj = tracks_view[jt].state()(2);
-            auto ctj = tracks_view[jt].state()(3);
-            auto dct = nSigma2 * (tracks_view[jt].covariance()(12) + e2cti);
-            if ((cti - ctj) * (cti - ctj) > dct)
-              continue;
-            auto dop = nSigma2 * (tracks_view[jt].covariance()(9) + e2opi);
-            if ((opi - opj) * (opi - opj) > dop)
+            if (incompatibleTrackParams(jt))
               continue;
             if ((qj < qi) || (qj == qi && score(it) < score(jt)))
               tracks_view[jt].quality() = reject;
@@ -889,23 +905,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           auto qi = tracks_view[it].quality();
           if (qi <= reject)
             continue;
-          auto opi = tracks_view[it].state()(2);
-          auto e2opi = tracks_view[it].covariance()(9);
-          auto cti = tracks_view[it].state()(3);
-          auto e2cti = tracks_view[it].covariance()(12);
+
+          // get track parameters and covariances
+          float iParams[nTrackParameters];
+          float iCovs[nTrackParameters];
+          for (int p{0}; p < nTrackParameters; ++p) {
+            iParams[p] = tracks_view[it].state()(p);
+            const auto c = iParam2iCov[p];
+            iCovs[p] = tracks_view[it].covariance()(c);
+          }
+          // function that compares the five track parameters of tracks it and jt
+          auto incompatibleTrackParams = [=](int jt) -> bool {
+            // comparing phi, tip, 1/pT, cotan(theta) and zip
+            for (int p{0}; p < nTrackParameters; ++p) {
+              const auto dpij = iParams[p] - tracks_view[jt].state()(p);
+              const auto c = iParam2iCov[p];
+              const auto e2dpij = nSigma2 * (iCovs[p] + tracks_view[jt].covariance()(c));
+              if (dpij * dpij > e2dpij)
+                return true;  // incompatible param found
+            }
+            return false;  // all params compatible
+          };
+
           auto nli = tracks_view[it].nLayers();
+
           for (auto jp = ip + 1; jp < hitToTuple.end(idx); ++jp) {
             auto const jt = *jp;
             auto qj = tracks_view[jt].quality();
             if (qj <= reject)
               continue;
-            auto opj = tracks_view[jt].state()(2);
-            auto ctj = tracks_view[jt].state()(3);
-            auto dct = nSigma2 * (tracks_view[jt].covariance()(12) + e2cti);
-            if ((cti - ctj) * (cti - ctj) > dct)
-              continue;
-            auto dop = nSigma2 * (tracks_view[jt].covariance()(9) + e2opi);
-            if ((opi - opj) * (opi - opj) > dop)
+            if (incompatibleTrackParams(jt))
               continue;
             auto nlj = tracks_view[jt].nLayers();
             if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
