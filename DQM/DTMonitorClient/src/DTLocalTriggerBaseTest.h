@@ -26,10 +26,11 @@
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
+
 #include <string>
 #include <map>
 
-class DTChamberId;
 class DTGeometry;
 class TH1F;
 class TH2F;

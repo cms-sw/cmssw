@@ -37,7 +37,6 @@ namespace CLHEP {
 }
 
 class DTLayer;
-class PSimHit;
 class DTWireType;
 class DTBaseDigiSync;
 class DTTopology;

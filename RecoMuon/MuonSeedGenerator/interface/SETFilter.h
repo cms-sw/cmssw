@@ -38,7 +38,6 @@ struct SeedCandidate {
 };
 
 class DetLayer;
-class Trajectory;
 //class MuonServiceProxy;
 class TrajectoryFitter;
 

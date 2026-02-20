@@ -10,7 +10,6 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include <vector>
 
-class SimTrack;
 class EncodedEventId;
 
 class CaloParticle {

@@ -22,11 +22,11 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class DTDigi;
 
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "DataFormats/DTDigi/interface/DTDigiFwd.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigBti.h"
 

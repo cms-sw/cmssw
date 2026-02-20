@@ -5,7 +5,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-class SimTrack;
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 
 namespace HepMC {
   class GenParticle;

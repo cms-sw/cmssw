@@ -10,12 +10,12 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DFwd.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 #include <cmath>
 
 class DTGeometry;
-class DTRecSegment4D;
-class DTChamberId;
 class L1MuDTChambPhDigi;
 
 class DTTrigGeomUtils {

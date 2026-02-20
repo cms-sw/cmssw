@@ -3,7 +3,7 @@
 
 #include <vector>
 
-class TrackingRecHit;
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 class MkFitClusterIndexToHit {
 public:

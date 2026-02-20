@@ -14,8 +14,6 @@
 
 #include <vector>
 
-class DetId;
-
 class BaseCrystal {
 public:
   typedef math::XYZVector XYZVector;

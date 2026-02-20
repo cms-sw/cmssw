@@ -426,26 +426,30 @@ namespace l1ttrackjet {
 
     // merge close-by clusters
     for (int m = 0; m < nclust - 1; ++m) {
-      for (int n = m + 1; n < nclust; ++n) {
-        if (clusters[n].eta != clusters[m].eta)
+      for (int n = m + 1; n < nclust;) {
+        // skip if eta differs or phi is too far
+        if (clusters[n].eta != clusters[m].eta || std::abs(DPhi(clusters[n].phi, clusters[m].phi)) > 1.5 * phiStep_) {
+          ++n;
           continue;
-        if ((DPhi(clusters[n].phi, clusters[m].phi) > (3 * phiStep_) / 2) ||
-            (DPhi(clusters[n].phi, clusters[m].phi) < -(3 * phiStep_) / 2))
-          continue;
+        }
+
+        // merge cluster n into cluster m
         if (clusters[n].pTtot > clusters[m].pTtot)
           clusters[m].phi = clusters[n].phi;
+
         clusters[m].pTtot += clusters[n].pTtot;
         clusters[m].ntracks += clusters[n].ntracks;
         clusters[m].nxtracks += clusters[n].nxtracks;
-        for (unsigned int itrk = 0; itrk < clusters[n].trackidx.size(); itrk++)
-          clusters[m].trackidx.push_back(clusters[n].trackidx[itrk]);
-        for (int m1 = n; m1 < nclust - 1; ++m1)
-          clusters[m1] = clusters[m1 + 1];
-        clusters.erase(clusters.begin() + nclust);
 
-        nclust--;
-      }  // end of n-loop
-    }  // end of m-loop
+        // safely append tracks
+        clusters[m].trackidx.insert(
+            clusters[m].trackidx.end(), clusters[n].trackidx.begin(), clusters[n].trackidx.end());
+
+        // erase cluster n and update total count
+        clusters.erase(clusters.begin() + n);
+        --nclust;  // do not increment n, the next cluster now shifts into index n
+      }  // end n-loop
+    }  // end m-loop
     return clusters;
   }
 }  // namespace l1ttrackjet

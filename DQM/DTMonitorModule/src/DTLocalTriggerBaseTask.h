@@ -27,6 +27,8 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhContainer.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DFwd.h"
 
 #include <vector>
 #include <string>
@@ -34,8 +36,6 @@
 
 class DTGeometry;
 class DTTrigGeomUtils;
-class DTChamberId;
-class DTRecSegment4D;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 class L1Phase2MuDTPhDigi;

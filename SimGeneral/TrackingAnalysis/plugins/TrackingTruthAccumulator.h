@@ -7,13 +7,13 @@
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include <memory>  // required for std::unique_ptr
 
 // Forward declarations
 class PileUpEventPrincipal;
-class PSimHit;
 
 /** @brief Replacement for TrackingTruthProducer in the new pileup mixing setup.
  *

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-class RPCDetId;
+#include "DataFormats/MuonDetId/interface/RPCDetIdFwd.h"
 class RPCGeomServ {
 public:
   RPCGeomServ(const RPCDetId& id);

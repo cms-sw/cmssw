@@ -15,9 +15,9 @@
 #include <atomic>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
-class DetId;
 class CaloGeometry;
 
 class EcalRingCalibrationTools {
