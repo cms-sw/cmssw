@@ -20,7 +20,7 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'standardValidationNoHLTHiMix' : ['prevalidationNoHLT','validationNoHLTHiMix','validationHarvestingNoHLT'],
                    'HGCalValidation' : ['globalPrevalidationHGCal', 'globalValidationHGCal', 'hgcalValidatorPostProcessor'],
                    'BarrelValidation' : ['globalPrevalidationBarrel', 'globalValidationBarrel', 'barrelValidatorPostProcessor'],
-                    'MTDValidation' : ['', 'globalValidationMTD', 'mtdValidationPostProcessor'],
+                   'MTDValidation' : ['', 'globalValidationMTD', 'mtdValidationPostProcessor'],
                    'ecalValidation_phase2' : ['', 'validationECALPhase2', ''],
                    'TrackerPhase2Validation' : ['', 'trackerphase2ValidationSource', 'trackerphase2ValidationHarvesting'],
                  }
