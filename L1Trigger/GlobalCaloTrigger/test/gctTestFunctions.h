@@ -21,9 +21,8 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Event.h"
-
-class L1CaloEmCand;
-class L1CaloRegion;
+#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCandFwd.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionFwd.h"
 
 class gctTestElectrons;
 class gctTestSingleEvent;
