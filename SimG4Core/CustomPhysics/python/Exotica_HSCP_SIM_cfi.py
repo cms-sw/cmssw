@@ -55,7 +55,9 @@ def customise(process):
         )	
 
         # Add Rhadron decay tracking
-        process.RHDecayTracer = cms.EDProducer("RHDecayTracer")
+        process.RHDecayTracer = cms.EDProducer("RHDecayTracer",
+            RHDecayTracerPDGs = cms.untracked.vstring("1000600-1999999", "1000021", "1000006")
+        )
         process.simulation_step *= process.RHDecayTracer
 
         return (process)

@@ -16,6 +16,9 @@ RHDecayTracer::RHDecayTracer(edm::ParameterSet const& p) : edm::stream::EDProduc
       consumes<edm::SimVertexContainer>(p.getUntrackedParameter<edm::InputTag>("G4VtxSrc", edm::InputTag("g4SimHits")));
   genParticleToken_ = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"));
   genParticleRHadronDecayToken_ = produces<reco::GenParticleCollection>("RHadronDecay");
+  std::vector<std::string> acceptedPDGs = p.getUntrackedParameter<std::vector<std::string>>("RHDecayTracerPDGs",
+                                                                                         std::vector<std::string>{"1000600-1999999", "1000021", "1000006"});
+  updateConfiguredPDGs(acceptedPDGs);
 }
 
 void RHDecayTracer::produce(edm::Event& iEvent, const edm::EventSetup&) {
@@ -47,7 +50,7 @@ void RHDecayTracer::addGenRhadronHistoryToCollection(edm::Event& iEvent,
   // Add all R-hadrons from the GenParticle collection to the new collection
   for (const auto& originalGenParticle : *originalGenParticles) {
     int pdgId = std::abs(originalGenParticle.pdgId());
-    if ((pdgId >= 1000600 && pdgId <= 1999999) || pdgId == 1000021 || pdgId == 1000006) {
+    if (isConfiguredPDG(pdgId)) {
       // Skip the daughterless R-hadrons. These will be added later in RHDecayTracer::addSimRhadronHistoryToCollection()
       if (originalGenParticle.numberOfDaughters() == 0)
         continue;
@@ -67,7 +70,7 @@ void RHDecayTracer::addSimRhadronHistoryToCollection(edm::Event& iEvent,
   // Add R-hadrons from the SimTrack collection to the new collection
   for (const auto& simTrack : *simTracks) {
     int pdgId = std::abs(simTrack.type());
-    if (pdgId >= 1000600 && pdgId <= 1999999) {
+    if (isConfiguredPDG(pdgId)) {
       // Get the vertex associated with the SimTrack. The position of the vertex will be needed to construct the genParticle
       int vertIndex = simTrack.vertIndex();
       const SimVertex& simVertex = (*simVertices)[vertIndex];
@@ -75,9 +78,7 @@ void RHDecayTracer::addSimRhadronHistoryToCollection(edm::Event& iEvent,
       math::XYZPoint vertexPosition(simVertex.position().x(), simVertex.position().y(), simVertex.position().z());
 
       // Create a new gen particle from the SimTrack
-      reco::GenParticle genParticleFromSimTrack(
-          simTrack.charge(), simTrack.momentum(), vertexPosition, simTrack.type(), 2, true);
-      genParticles.push_back(genParticleFromSimTrack);
+      genParticles.emplace_back(simTrack.charge(), simTrack.momentum(), vertexPosition, simTrack.type(), 2, true);
       refIndexVector.push_back(genParticles.size() - 1);
       parentIdVector.push_back(parentId);
       trackIdVector.push_back(simTrack.trackId());
@@ -199,11 +200,34 @@ void RHDecayTracer::addDecayDaughtersToCollection(const std::vector<TrackData>& 
                                                   reco::GenParticleCollection& genParticles) {
   for (const auto& daughterData : daughtersData) {
     math::XYZTLorentzVector p4(daughterData.px, daughterData.py, daughterData.pz, daughterData.energy);
-
     math::XYZPoint vertex(daughterData.x, daughterData.y, daughterData.z);
-
-    reco::GenParticle daughter(daughterData.charge, p4, vertex, daughterData.pdgID, 1, true);
-
-    genParticles.push_back(daughter);
+    genParticles.emplace_back(daughterData.charge, p4, vertex, daughterData.pdgID, 1, true);
   }
+}
+
+void RHDecayTracer::updateConfiguredPDGs(const std::vector<std::string>& acceptedPDGs) {
+  for (const auto& acceptedPDG : acceptedPDGs) {
+    std::string s = acceptedPDG;
+    // Remove whitespace
+    s.erase(std::remove_if(s.begin(), s.end(), ::isspace), s.end());
+    auto dashPosition = s.find('-');
+    if (dashPosition != std::string::npos) {
+      int low = std::stoi(s.substr(0, dashPosition));
+      int high = std::stoi(s.substr(dashPosition + 1));
+      if (low > high) std::swap(low, high);
+      pdgRanges_.emplace_back(low, high);
+    } else {
+      int id = std::stoi(s);
+      pdgSingles_.insert(id);
+    }
+  }
+}
+
+bool RHDecayTracer::isConfiguredPDG(int pdgId) const {
+  int absId = std::abs(pdgId);
+  if (pdgSingles_.count(absId)) return true;
+  for (const auto &r : pdgRanges_) {
+    if (absId >= r.first && absId <= r.second) return true;
+  }
+  return false;
 }

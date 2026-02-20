@@ -33,6 +33,8 @@ private:
                              std::vector<unsigned int>& trackIdVector);
   void addDecayDaughtersToCollection(const std::vector<RHadronPythiaDecayDataManager::TrackData>& daughtersData,
                                      reco::GenParticleCollection& genParticles);
+  void updateConfiguredPDGs(const std::vector<std::string>& acceptedPDGs);
+  bool isConfiguredPDG(int pdgId) const;
 
   edm::EDGetTokenT<edm::SimTrackContainer> edmSimTrackContainerToken_;
   edm::EDGetTokenT<edm::SimVertexContainer> edmSimVertexContainerToken_;
@@ -42,6 +44,8 @@ private:
   std::vector<size_t> refIndexVector;
   std::vector<int> parentIdVector;
   std::vector<unsigned int> trackIdVector;
+  std::set<int> pdgSingles_;
+  std::vector<std::pair<int,int>> pdgRanges_;
 };
 
 #endif

@@ -196,7 +196,8 @@ MicroEventContentMC.outputCommands += MicroEventContentGEN.outputCommands
 MicroEventContentMC.outputCommands += [
                                         'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*',
                                         # RUN
-                                        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
+                                        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*',
+                                        'keep recoGenParticles_RHDecayTracer_RHadronDecay_SIM'
                                       ]
 _pp_on_AA_MC_extraCommands = ['keep *_packedGenParticlesSignal_*_*','keep edmGenHIEvent_heavyIon_*_*']
 (pp_on_AA | run3_oxygen).toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _pp_on_AA_MC_extraCommands)

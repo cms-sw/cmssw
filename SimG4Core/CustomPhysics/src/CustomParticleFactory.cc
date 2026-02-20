@@ -11,6 +11,7 @@
 #include "G4ProcessManager.hh"
 #include "G4ParticleDefinition.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 #include "SimG4Core/CustomPhysics/interface/CMSSIMP.h"
 #include "SimG4Core/CustomPhysics/interface/CMSAntiSIMP.h"
@@ -53,7 +54,6 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
   G4double gluinoLifetime = -1.0;
   // Default value for the lifetime of the stop, will be set if a stop lifetime is found in the SLHA file
   G4double stopLifetime = -1.0;
-  double hbar = 6.582122e-22;
   while (getline(configFile, line)) {
     line.erase(0, line.find_first_not_of(" \t"));  // Remove leading whitespace.
     if (line.empty() || line.at(0) == '#') {
@@ -80,10 +80,10 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
       }
       // Set the gluino Rhadron lifetime to the gluino lifetime.
       if (pdgId == 1000021)
-        gluinoLifetime = 1.0 / (width * CLHEP::GeV) * hbar * CLHEP::MeV * CLHEP::s;
+        gluinoLifetime = 1.0 / (width * CLHEP::GeV) * CLHEP::hbar_Planck;
       // Set the stop Rhadron lifetime to the stop lifetime.
       else if (pdgId == 1000006)
-        stopLifetime = 1.0 / (width * CLHEP::GeV) * hbar * CLHEP::MeV * CLHEP::s;
+        stopLifetime = 1.0 / (width * CLHEP::GeV) * CLHEP::hbar_Planck;
 
       G4DecayTable *aDecayTable = getDecayTable(&configFile, pdgId);
       if (!aDecayTable)
@@ -91,7 +91,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
       else {
         aParticle->SetDecayTable(aDecayTable);
         aParticle->SetPDGStable(false);
-        aParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * hbar * CLHEP::MeV * CLHEP::s);
+        aParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * CLHEP::hbar_Planck);
         if (nullptr != aAntiParticle && aAntiParticle->GetPDGEncoding() != pdgId) {
           G4DecayTable *aAntiDecayTable = getAntiDecayTable(pdgId, aDecayTable);
           if (!aAntiDecayTable)
@@ -99,7 +99,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
           else {
             aAntiParticle->SetDecayTable(aAntiDecayTable);
             aAntiParticle->SetPDGStable(false);
-            aAntiParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * hbar * CLHEP::MeV * CLHEP::s);
+            aAntiParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * CLHEP::hbar_Planck);
           }
         }
       }
