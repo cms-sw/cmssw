@@ -47,7 +47,6 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMAssignmentUnit.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
 
-class L1MuBMTrack;
 class L1TMuonBarrelParams;
 class L1TMuonBarrelParamsRcd;
 
