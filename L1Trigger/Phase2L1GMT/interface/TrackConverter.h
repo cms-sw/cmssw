@@ -21,7 +21,7 @@ namespace Phase2L1GMT {
 
     uint generateQuality(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& track) {
       uint chi2Cut = 0xf;
-      if ((track->getChi2RPhiBits() <= chi2Cut) && (track->getChi2RPhiBits() <= chi2Cut))
+      if ((track->getChi2RZBits() <= chi2Cut) && (track->getChi2RPhiBits() <= chi2Cut))
         return 1;
       else
         return 0;

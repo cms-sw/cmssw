@@ -57,13 +57,13 @@ namespace Phase2L1GMT {
     const uint beta() const { return beta_; }
 
     bool isGlobalMuon() const { return isGlobal_; }
-    const int quality0() const { return quality0_; }
-    const int quality1() const { return quality1_; }
-    const int quality2() const { return quality2_; }
-    const int quality3() const { return quality3_; }
-    const int quality4() const { return quality4_; }
-    const int quality() const { return quality_; }
-    const int offline_pt() const { return offline_pt_; }
+    const uint quality0() const { return quality0_; }
+    const uint quality1() const { return quality1_; }
+    const uint quality2() const { return quality2_; }
+    const uint quality3() const { return quality3_; }
+    const uint quality4() const { return quality4_; }
+    const uint quality() const { return quality_; }
+    const float offline_pt() const { return offline_pt_; }
     const float offline_eta() const { return offline_eta_; }
     const float offline_phi() const { return offline_phi_; }
 
@@ -127,14 +127,6 @@ namespace Phase2L1GMT {
     void setTrkPtr(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& trkPtr) { trkPtr_ = trkPtr; }
 
     const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> trkPtr() const { return trkPtr_; }
-
-    // void print() const {
-    //   LogDebug("PreTrackMatchedMuon") << "preconstructed muon : charge=" << charge_ << " pt=" << offline_pt_ << ","
-    //                                    << pt_ << " eta=" << offline_eta_ << "," << eta_ << " phi=" << offline_phi_ << ","
-    //                                   << phi_ << " z0=" << z0_ << " d0=" << d0_ << " quality=" << quality_
-    //                                   << " isGlobal=" << isGlobal_ << " valid=" << valid_ << " stubs: " << stubID0_
-    //                                   << " " << stubID1_ << " " << stubID2_ << " " << stubID3_ << " " << stubID4_;
-    //}
 
     uint64_t lsb() const {
       wordtype w = 0;
