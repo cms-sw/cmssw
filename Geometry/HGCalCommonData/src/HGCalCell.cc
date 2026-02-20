@@ -383,7 +383,7 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(int32_t u, int32_t v, int32_t nc
       if (v == 2 * ncell - 2) {
         cellx = 4;
         cellt = HGCalCell::extendedMBCell;
-      } else if (v == ncell + 1) {
+      } else if (v == ncell) {
         cellx = 5;
         cellt = HGCalCell::extendedMBCell;
       }
@@ -551,7 +551,7 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(int32_t u, int32_t v, int32_t nc
       if (v == 2 * ncell - 2) {
         cellx = 4;
         cellt = HGCalCell::extendedMBCell;
-      } else if (v == ncell + 1) {
+      } else if (v == ncell) {
         cellx = 3;
         cellt = HGCalCell::extendedMBCell;
       }
@@ -757,7 +757,7 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(
         cellt = HGCalCell::extHalfTrunCell;
         cellx = HGCalCell::leftCell;
       } else if (partialType == HGCalTypes::WaferHDRight) {
-        cellt = HGCalCell::extHalfExtCell;
+        cellt = HGCalCell::extHalfTrunCell;
         cellx = HGCalCell::rightCell;
       } else {
         cellt = HGCalCell::extExtCellCenCut;

@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 class HGCalTypes {
@@ -19,12 +20,12 @@ public:
 
   static constexpr int32_t UnknownPosition = -1;
   static constexpr int32_t WaferCenter = 0;
-  static constexpr int32_t CornerCenterYp = 1;
-  static constexpr int32_t CornerCenterYm = 2;
-  static constexpr int32_t CornerCenterXp = 3;
-  static constexpr int32_t CornerCenterXm = 4;
-  static constexpr int32_t WaferCenterB = 5;
-  static constexpr int32_t WaferCenterR = 6;
+  static constexpr int32_t WaferCenterB = 1;
+  static constexpr int32_t CornerCenterYp = 2;
+  static constexpr int32_t CornerCenterYm = 3;
+  static constexpr int32_t WaferCenterR = 4;
+  static constexpr int32_t CornerCenterXp = 5;
+  static constexpr int32_t CornerCenterXm = 6;
 
   static constexpr int32_t WaferTypeUndefined = -1;
   static constexpr int32_t WaferHD120 = 0;
@@ -139,6 +140,9 @@ public:
   // LD vs HD and Fullvs Partial wafer
   static constexpr bool waferHD(int32_t type) { return ((type == WaferHD120) || (type == WaferHD200)); }
   static constexpr bool waferFull(int32_t type) { return (type == WaferFull); }
+  static std::string layerTypeX(int32_t type);
+  static std::string waferType(int32_t type);
+  static std::string waferTypeX(int32_t type);
 
 private:
   static constexpr int32_t facu_ = 1;

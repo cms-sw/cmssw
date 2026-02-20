@@ -71,7 +71,7 @@ public:
                   CaloSubdetectorGeometry::IVec& dinsVector) const override;
 
   GlobalPoint getPosition(const DetId& id, bool cog, bool debug) const;
-  GlobalPoint getPosition(const DetId& id, bool debug) const;
+  GlobalPoint getPosition(const DetId& id, int overRideDebug) const;
   GlobalPoint getPosition(const DetId& id) const;
   GlobalPoint getWaferPosition(const DetId& id) const;
 
