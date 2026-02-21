@@ -1470,6 +1470,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       struct Metadata {                                                                                                \
         friend ConstViewTemplateFreeParams;                                                                            \
         SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                \
+        SOA_HOST_DEVICE SOA_INLINE size_type capacity() const { return parent_.capacity_; }                            \
         /* Alias layout to name-derived identifyer to allow simpler definitions */                                     \
         using TypeOf_Layout = BOOST_PP_CAT(CLASS, _parametrized);                                                      \
                                                                                                                        \
@@ -1510,7 +1511,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* Constructor relying the layout */                                                                             \
       SOA_HOST_ONLY ConstViewTemplateFreeParams(const Metadata::TypeOf_Layout& layout)                                 \
-      : elements_(layout.metadata().size()),                                                                           \
+      : elements_(layout.metadata().size()), capacity_(layout.metadata().size()),                                  \
         _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS, ~, __VA_ARGS__) {}                                    \
                                                                                                                        \
       /* Constructor relying on individually provided column structs */                                                \
@@ -1531,7 +1532,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                 bool OTHER_RANGE_CHECKING>                                                                             \
       ConstViewTemplateFreeParams(ConstViewTemplateFreeParams<OTHER_VIEW_ALIGNMENT,                                    \
         OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY, OTHER_RANGE_CHECKING> const& other)                  \
-        : ConstViewTemplateFreeParams{other.elements_,                                                                 \
+        : ConstViewTemplateFreeParams{other.elements_, other.capacity_,                                                                \
             _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_OTHER_MEMBER_LIST, BOOST_PP_EMPTY(), __VA_ARGS__)                      \
           } {}                                                                                                         \
                                                                                                                        \
@@ -1591,6 +1592,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
         private:                                                                                                       \
           size_type elements_ = 0;                                                                                     \
+          size_type capacity_ = 0;                                                                                     \
           _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SOA_MEMBER, ~, __VA_ARGS__)                                              \
       };                                                                                                               \
                                                                                                                        \
@@ -1637,6 +1639,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       struct Metadata {                                                                                                \
         friend ViewTemplateFreeParams;                                                                                 \
         SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                \
+        SOA_HOST_DEVICE SOA_INLINE size_type capacity() const { return parent_.capacity_; }                            \
         /* Alias layout to name-derived identifyer to allow simpler definitions */                                     \
         using TypeOf_Layout = BOOST_PP_CAT(CLASS, _parametrized);                                                      \
                                                                                                                        \
@@ -1704,7 +1707,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                 bool OTHER_RANGE_CHECKING>                                                                             \
       ViewTemplateFreeParams(ViewTemplateFreeParams<OTHER_VIEW_ALIGNMENT, OTHER_VIEW_ALIGNMENT_ENFORCEMENT,            \
                                                     OTHER_RESTRICT_QUALIFY, OTHER_RANGE_CHECKING> const& other)        \
-      : base_type{other.elements_,                                                                                     \
+      : base_type{other.elements_, other.capacity_,                                                                    \
                   _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_OTHER_MEMBER_LIST, BOOST_PP_EMPTY(), __VA_ARGS__)                \
                 } {}                                                                                                   \
       /* Copy operator for other parameters */                                                                         \
@@ -1767,6 +1770,11 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         return element{_soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)};     \
       }                                                                                                                \
                                                                                                                        \
+      /* change size to valid data range */                                                                            \
+      SOA_HOST_DEVICE SOA_INLINE void setSize(const size_type size) {                                                  \
+         base_type::elements_ = size < 0 ? 0 : size > base_type::capacity_ ? base_type::capacity_ : size;              \
+      }                                                                                                                \
+                                                                                                                       \
       /* inherit const accessors from ConstView */                                                                     \
                                                                                                                        \
       /* non-const accessors */                                                                                        \
@@ -1822,8 +1830,11 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION, ~, __VA_ARGS__) {}                               \
                                                                                                                        \
     /* Constructor relying on user provided storage (implementation shared with ROOT streamer) */                      \
-    SOA_HOST_ONLY CLASS(std::byte* mem, size_type elements) : mem_(mem), elements_(elements), byteSize_(0) {           \
-      organizeColumnsFromBuffer();                                                                                     \
+    SOA_HOST_ONLY CLASS(std::byte* mem, size_type elements)                                                            \
+        : mem_(mem),                                                                                                   \
+          elements_(elements),                                                                                         \
+          byteSize_(0) {                                                                                               \
+            organizeColumnsFromBuffer();                                                                               \
     }                                                                                                                  \
                                                                                                                        \
     /* Explicit copy constructor and assignment operator */                                                            \
