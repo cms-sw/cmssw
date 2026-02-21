@@ -175,26 +175,13 @@ public:
   void deepCopy(TQueue& queue, ConstView const& view) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
-    _deepCopy<0>(queue, desc_, desc);
+    portablecollection::deepCopy<0>(queue, desc_, desc);
   }
 
   // Either Layout::size_type for normal layouts or std::array<Layout::size_type, N> for SoABlocks layouts
   auto size() const { return layout_.metadata().size(); }
 
 private:
-  // Helper function implementing the recursive deep copy
-  template <int I, typename TQueue>
-  void _deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
-    if constexpr (I < ConstDescriptor::num_cols) {
-      assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
-      alpaka::memcpy(
-          queue,
-          alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), std::get<I>(dest.buff).size()),
-          alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), std::get<I>(src.buff).size()));
-      _deepCopy<I + 1>(queue, dest, src);
-    }
-  }
-
   // Data members
   std::optional<Buffer> buffer_;  //!
   Layout layout_;                 //
