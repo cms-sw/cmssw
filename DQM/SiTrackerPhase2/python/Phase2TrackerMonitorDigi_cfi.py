@@ -149,6 +149,15 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             ymin   = cms.double(0.),
                             ymax   = cms.double(125.),
                             switch = cms.bool(True)
+                        ),
+                        CrackOverview = cms.PSet(
+                            name = cms.string('Crack_Overview_digis'),
+                            title = cms.string('Crack_Overview_digis;Module;Layer'),
+                            xmin   = cms.double(0),
+                            xmax   = cms.double(13.5),
+                            ymin   = cms.double(0),
+                            ymax   = cms.double(7.5),
+                            switch = cms.bool(False)
                         )
                     )
 

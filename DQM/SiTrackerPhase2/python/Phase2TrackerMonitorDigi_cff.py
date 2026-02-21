@@ -78,3 +78,37 @@ otDigiMon = digiMon.clone(
         switch = True
     )
 )
+CRACKDigiMon = digiMon.clone(
+    PixelPlotFillingFlag = False,
+    StandAloneClusteriserFlag = False,
+    TopFolderName = "TrackerPhase2OTDigi",
+    CrackOverview = digiMon.CrackOverview.clone(
+        xmin = 0,
+        xmax = 13.5,
+        ymin = 0,
+        ymax = 7.5,
+        switch = True
+    ),
+    XYPositionMapH = digiMon.XYPositionMapH.clone(
+        Nxbins = 250,
+        xmin = -7,
+        xmax = 7,
+        Nybins = 250,
+        ymin = -10,
+        ymax = 50,
+        switch = True
+    ),
+    RZPositionMapH = digiMon.RZPositionMapH.clone(
+        Nxbins = 600,
+        xmin = -70.,
+        xmax = 70.,
+        Nybins = 250,
+        ymin = 0.,
+        ymax = 60.,
+        switch = True
+    ),
+    TotalNumberOfDigisPerLayerH = digiMon.TotalNumberOfDigisPerLayerH.clone(
+        xmax = 100
+    )
+)
+

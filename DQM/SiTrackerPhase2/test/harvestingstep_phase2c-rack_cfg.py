@@ -78,6 +78,7 @@ process.configurationMetadata = cms.untracked.PSet(
 # Additional output definition
 
 # Other statements
+process.trackerGeometry.applyAlignment = False
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 

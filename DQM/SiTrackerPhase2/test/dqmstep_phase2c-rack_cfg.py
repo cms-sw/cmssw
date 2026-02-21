@@ -93,6 +93,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 # Additional output definition
 
 # Other statements
+process.trackerGeometry.applyAlignment = False
 process.mix.playback = True
 process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
