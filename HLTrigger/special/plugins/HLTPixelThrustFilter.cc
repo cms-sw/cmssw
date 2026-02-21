@@ -25,7 +25,8 @@ public:
 
 private:
   bool isSaturatedPixel(const SiPixelCluster&, const DetId&) const;
-  std::unique_ptr<SiPixelGainCalibrationForHLTService> getPixelCalib(const edm::ParameterSet& conf, edm::ConsumesCollector iC) const {
+  std::unique_ptr<SiPixelGainCalibrationForHLTService> getPixelCalib(const edm::ParameterSet& conf,
+                                                                     edm::ConsumesCollector iC) const {
     if (min_nSatPixels_ > 0 || useSaturatedPixels_)
       return std::make_unique<SiPixelGainCalibrationForHLTService>(conf, iC);
     return nullptr;
