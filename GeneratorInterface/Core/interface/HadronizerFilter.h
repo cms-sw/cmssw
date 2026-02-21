@@ -471,6 +471,10 @@ namespace edm {
     }
     std::unique_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(lheRunInfo->getHEPRUP()->IDWTUP);
+    int overrideHEPID = hadronizer_.getOverrideHEPIDWTUP();
+    if (overrideHEPID != -999) {
+      genLumiInfo->setHEPIDWTUP(overrideHEPID);
+    }
     genLumiInfo->setProcessInfo(GenLumiProcess);
 
     lumi.put(std::move(genLumiInfo));
