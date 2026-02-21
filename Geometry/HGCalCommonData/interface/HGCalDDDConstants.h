@@ -223,7 +223,7 @@ public:
             (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
             (mode_ == HGCalGeometryMode::Hexagon8FineCell));
   }
-  inline bool waferHexagon8Fine() const { return ((mode_ == HGCalGeometryMode::Hexagon8FineCell)); }
+  inline bool waferHexagon8Fine() const { return ((mode_ >= HGCalGeometryMode::Hexagon8FineCell)); }
   inline bool waferHexagon8Module() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
             (mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (mode_ == HGCalGeometryMode::Hexagon8FineCell));
