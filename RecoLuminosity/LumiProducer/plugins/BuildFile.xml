@@ -1,5 +1,4 @@
 <use name="FWCore/Framework"/>
-<use name="stdcxx-fs"/>
 <library file="Module.cc" name="LumiServicesPlugins">
   <use name="RecoLuminosity/LumiProducer"/>
   <flags EDM_PLUGIN="1"/>
