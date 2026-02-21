@@ -8,7 +8,13 @@ hltPhase2PixelVertices = cms.EDProducer("PixelVertexProducer",
         refToPSet_ = cms.string('pSetPvClusterComparerForIT')
     ),
     PtMin = cms.double(1.0),
-    TrackCollection = cms.InputTag("hltPhase2PixelTracks"),
+    # Even though pixel tracks with a highPurity ID, i.e. hltPhase2PixelTracks,
+    # are used in other tracking modules, the pixel tracks without an ID,
+    # i.e. hltPhase2PixelTracksCAExtension, are used here.
+    # This avoids a circular dependency, as the highPurity ID requires a vertex,
+    # while also providing satisfactory physics performance.
+    # To be improved with a DNN-based highPurity ID that does not depend on vertices.
+    TrackCollection = cms.InputTag("hltPhase2PixelTracksCAExtension"),
     UseError = cms.bool(True),
     Verbosity = cms.int32(0),
     WtAverage = cms.bool(True),
@@ -17,7 +23,7 @@ hltPhase2PixelVertices = cms.EDProducer("PixelVertexProducer",
     beamSpot = cms.InputTag("hltOnlineBeamSpot")
 )
 
-from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
-phase2CAExtension.toModify(hltPhase2PixelVertices,
-    TrackCollection = "hltPhase2PixelTracksCAExtension"
+from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
+hltPhase2LegacyTracking.toModify(hltPhase2PixelVertices,
+    TrackCollection = "hltPhase2PixelTracks"
 )

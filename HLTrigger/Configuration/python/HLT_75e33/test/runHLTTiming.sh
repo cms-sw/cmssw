@@ -72,7 +72,7 @@ if [ -e 'Phase2_L1P2GT_HLT.py' ]; then
     if [ ! -d 'patatrack-scripts' ]; then
         git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
-    patatrack-scripts/benchmark -j 16 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
+    patatrack-scripts/benchmark -j 8 -t 8 -s 8 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
     check_logs_for_errors || exit 1
     mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources.json
     if [ -e "$(dirname $0)/augmentResources.py" ]; then
@@ -97,11 +97,11 @@ if [ -e 'Phase2_L1P2GT_HLT_OnCPU.py' ]; then
     mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources_OnCPU.json
 fi
 
-# run NGT scouting menu (currently used modifiers ngtScouting,phase2CAExtension)
+# run NGT scouting menu (currently used modifiers ngtScouting)
 cmsDriver.py NGTScouting -s L1P2GT,HLT:NGTScouting --processName=NLTX \
     --conditions auto:phase2_realistic_T35 --geometry ExtendedRun4D110 \
     --era Phase2C17I13M9 \
-    --procModifiers ngtScouting,phase2CAExtension \
+    --procModifiers ngtScouting \
     --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
     --eventcontent FEVTDEBUGHLT \
     --filein=${ALL_FILES} \
