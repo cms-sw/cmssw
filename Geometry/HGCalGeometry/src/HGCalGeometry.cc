@@ -208,8 +208,12 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const { return getPos
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, int overRideDebug) const {
   bool debug = ((overRideDebug % 10) > 0);
   bool cog = m_topology.dddConstants().waferHexagon8Fine() ? true : false;
-  if (((overRideDebug / 10) % 10) > 0)
-    cog = false;
+  if (((overRideDebug / 10) % 10) > 0) {
+    if (cog)
+      cog = false;
+    else
+      cog = true;
+  }
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "HGCalGeometry::getPosition:ID " << std::hex << detid.rawId() << std::dec
                                   << " COG " << cog;
