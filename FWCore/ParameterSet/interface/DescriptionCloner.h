@@ -29,7 +29,6 @@ namespace edm {
       }
       T defaultValue;
     };
-
     /** The vector<WhichEntry> in `entry` is used to represent a PSet with that label and trackiness. The values in
      * that vector represent the parameters within that PSet. The EntryTypeBase is used to represent the actual 
      * parameter to be modified which has that label and trackiness.
@@ -44,6 +43,14 @@ namespace edm {
     void set(std::string_view fullPathName, T const& value) {
       insert(fullPathName, std::make_shared<EntryType<T>>(value));
     }
+    /** Omit is used to indicate that a parameter should be removed from the generated cfi file.
+     *  This is needed in cases where the default description has parameters with defaults that one does
+     *  not want to be included in the generated cfi file for a particular configuration.
+     *  Using omit does not affect the validation of the configuration. The parameter will still be allowed 
+     *  in the configuration and it will still be validated if it is present. It just will not be included in
+     *  the generated cfi file.
+     */
+    void omit(std::string_view fullPathName);
 
     //Should only be called by ConfigurationDescriptions
     void determineTrackinessFromDefaultDescription(const ParameterSetDescription& defaultDesc);

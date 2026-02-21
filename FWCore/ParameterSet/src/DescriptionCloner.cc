@@ -105,10 +105,81 @@ namespace edm {
       }
       return diffDesc;
     }
+
+    class NoneDescriptionNode : public edm::ParameterDescriptionNode {
+    public:
+      explicit NoneDescriptionNode(std::string iLabel) : label_(std::move(iLabel)) {}
+      ~NoneDescriptionNode() override = default;
+
+      ParameterDescriptionNode* clone() const final { return new NoneDescriptionNode(label_); }
+
+    private:
+      std::string label_;
+      void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+                                      std::set<ParameterTypes>& parameterTypes,
+                                      std::set<ParameterTypes>& wildcardTypes) const final {}
+
+      void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const final {
+        //do nothing, this node is used to indicate that a parameter should be omitted from the generated cfi file
+      }
+
+      void writeCfi_(std::ostream& os,
+                     Modifier modifier,
+                     bool& startWithComma,
+                     int indentation,
+                     CfiOptions&,
+                     bool& wroteSomething) const final {
+        wroteSomething = true;
+        if (startWithComma)
+          os << ",";
+        startWithComma = true;
+        os << "\n";
+        printSpaces(os, indentation);
+
+        os << label_ << " = None";
+      }
+
+      void print_(std::ostream& os, Modifier /*modifier*/, bool /*writeToCfi*/, edm::DocFormatHelper& dfh) const final {
+        if (dfh.pass() == 0) {
+          dfh.setAtLeast1(label_.size());
+        } else {
+          if (dfh.brief()) {
+            std::ios::fmtflags oldFlags = os.flags();
+
+            dfh.indent(os);
+            os << std::left << std::setw(dfh.column1()) << label_ << " omitted\n";
+            os.flags(oldFlags);
+          } else {
+            dfh.indent(os);
+            os << label_ << "\n";
+            dfh.indent2(os);
+            os << "This parameter is omitted from the generated cfi file.\n";
+          }
+        }
+      }
+
+      cfi::Trackiness trackiness_(std::string_view path) const final { return cfi::Trackiness::kNotAllowed; }
+
+      bool exists_(ParameterSet const& pset) const final { return false; }
+
+      bool partiallyExists_(ParameterSet const& pset) const final { return false; }
+
+      int howManyXORSubNodesExist_(ParameterSet const& pset) const final { return 0; }
+    };
+    struct EntryTypeOmit : public edm::DescriptionCloner::EntryTypeBase {
+      void addTo(edm::ParameterSetDescription& iDesc, std::string_view iLabel, bool isTracked) const final {
+        iDesc.addNode(std::make_unique<NoneDescriptionNode>(std::string(iLabel)));
+      }
+    };
+
   }  // namespace
 
   void DescriptionCloner::insert(std::string_view fullPathName, std::shared_ptr<EntryTypeBase> entry) {
     insertInto(fullPathName, std::move(entry), entries_);
+  }
+
+  void DescriptionCloner::omit(std::string_view fullPathName) {
+    insert(fullPathName, std::make_shared<EntryTypeOmit>());
   }
 
   ParameterSetDescription DescriptionCloner::createDifference() const { return createDifferenceFromEntries(entries_); }
