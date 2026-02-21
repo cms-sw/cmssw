@@ -4,12 +4,12 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetIdFwd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 class CaloTopology;
-class EBDetId;
 class EcalClusterSeverityLevelAlgo {
 public:
   // the severity is the fraction of cluster energy

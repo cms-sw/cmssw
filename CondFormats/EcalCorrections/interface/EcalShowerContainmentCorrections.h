@@ -39,8 +39,7 @@
 #include <map>
 
 #include <DataFormats/Math/interface/Point3D.h>
-
-class EBDetId;
+#include "DataFormats/EcalDetId/interface/EBDetIdFwd.h"
 
 class EcalShowerContainmentCorrections {
 public:
