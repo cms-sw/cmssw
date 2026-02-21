@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,18 +16,18 @@
 // class declaration
 //
 
-class HLTPixelThrustFilter : public edm::global::EDFilter<> {
+class HLTPixelThrustFilter : public edm::stream::EDFilter<> {
 public:
   explicit HLTPixelThrustFilter(const edm::ParameterSet&);
   ~HLTPixelThrustFilter() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const final;
+  bool filter(edm::Event&, edm::EventSetup const&) final;
 
 private:
   bool isSaturatedPixel(const SiPixelCluster&, const DetId&) const;
-  SiPixelGainCalibrationForHLTService* getPixelCalib(const edm::ParameterSet& conf, edm::ConsumesCollector iC) const {
+  std::unique_ptr<SiPixelGainCalibrationForHLTService> getPixelCalib(const edm::ParameterSet& conf, edm::ConsumesCollector iC) const {
     if (min_nSatPixels_ > 0 || useSaturatedPixels_)
-      return new SiPixelGainCalibrationForHLTService(conf, iC);
+      return std::make_unique<SiPixelGainCalibrationForHLTService>(conf, iC);
     return nullptr;
   };
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryRcdToken_;
@@ -68,7 +68,7 @@ void HLTPixelThrustFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
 // member functions
 //
 // ------------ method called to produce the data  ------------
-bool HLTPixelThrustFilter::filter(edm::StreamID, edm::Event& event, edm::EventSetup const& iSetup) const {
+bool HLTPixelThrustFilter::filter(edm::Event& event, edm::EventSetup const& iSetup) {
   // get hold of products from Event
   auto const& clusters = event.get(inputToken_);
   auto const& trackerGeo = iSetup.getData(trackerGeometryRcdToken_);
