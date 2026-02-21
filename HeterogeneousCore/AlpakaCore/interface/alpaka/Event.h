@@ -129,6 +129,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     }
 
     template <typename T>
+    edm::OrphanHandle<T> put(edm::EDPutToken const& token, std::unique_ptr<T> product) {
+      return event_->put(token, std::move(product));
+    }
+
+    template <typename T>
     void put(device::EDPutToken<T> const& token, std::unique_ptr<T> product) {
       if constexpr (detail::useProductDirectly) {
         event_->emplace(token.underlyingToken(), std::move(*product));

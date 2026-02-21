@@ -1,0 +1,6 @@
+#include "DataFormats/HcalRecHit/interface/alpaka/HcalRecHitDeviceCollection.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/TrivialSerialisation/interface/alpaka/SerialiserFactory.h"
+
+DEFINE_PORTABLE_TRIVIAL_SERIALISER_PLUGIN(ALPAKA_ACCELERATOR_NAMESPACE::hcal::RecHitDeviceCollection,
+                                          "hcal::RecHitDeviceCollection");

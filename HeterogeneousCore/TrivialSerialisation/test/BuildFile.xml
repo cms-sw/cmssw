@@ -8,3 +8,18 @@
 
 <test name="TestHeterogeneousCoreTrivialSerialisationGenericCloner" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/TrivialSerialisation/test/testGenericCloner_cfg.py"/>
 <test name="TestHeterogeneousCoreTrivialSerialisationGenericClonerHost" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/TrivialSerialisation/test/testGenericClonerHost_cfg.py"/>
+<test name="TestHeterogeneousCoreTrivialSerialisationGenericClonerPortable" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/TrivialSerialisation/test/testGenericClonerPortable_cfg.py"/>
+
+<bin name="TestHeterogeneousCoreTrivialSerialisationPortable" file="alpaka/test_catch2_*.cc,alpaka/test_catch2_*.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/PortableTestObjects"/>
+  <use name="DataFormats/TrivialSerialisation"/>
+  <use name="Eigen"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
