@@ -18,6 +18,7 @@
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/DTDigi/interface/DTuROSFEDDataFwd.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
@@ -35,7 +36,6 @@
 #include <string>
 
 class DTReadOutMapping;
-class DTuROSFEDData;
 
 class DTuROSRawToDigi : public edm::stream::EDProducer<> {
 public:
