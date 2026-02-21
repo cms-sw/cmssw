@@ -13,8 +13,9 @@ if 'unitTest=True' in sys.argv:
 	unitTest=True
 
 if unitTest:
-  process.load("DQM.Integration.config.unittestinputsource_cfi")
-  from DQM.Integration.config.unittestinputsource_cfi import options
+  process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+  from DQM.Integration.config.unitteststreamerinputsource_cfi import options
+  process.source.streamLabel = 'streamDQMOnlineScouting' # in test mode use DQMOnlineScouting streamer
 else:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
