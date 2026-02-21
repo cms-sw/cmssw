@@ -1,0 +1,6 @@
+#ifndef SimDataFormats_TrackerDigiSimLink_StripDigiSimLinkFwd_h
+#define SimDataFormats_TrackerDigiSimLink_StripDigiSimLinkFwd_h
+
+class StripDigiSimLink;
+
+#endif

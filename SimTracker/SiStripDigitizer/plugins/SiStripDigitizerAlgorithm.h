@@ -14,6 +14,7 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -47,7 +48,6 @@
 class TrackerTopology;
 
 class SiStripLorentzAngle;
-class StripDigiSimLink;
 
 namespace CLHEP {
   class HepRandomEngine;
