@@ -373,8 +373,7 @@ void SimHitCaloHitDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
     for (int ihit = 0; ihit < (*icoll).first; ++ihit) {
       edm::LogPrint("SimHitCaloHitDumper")
           << theMTDHits[nhit] << " Energy = " << theMTDHits[nhit].energyLoss()
-          << " tid orig/offset= " << theMTDHits[nhit].originalTrackId() << " " << theMTDHits[nhit].offsetTrackId()
-          << " Track Id = " << theMTDHits[nhit].trackId();
+          << " Track Id = " << theMTDHits[nhit].trackId() << " hit type = " << theMTDHits[nhit].hitProdType();
       nhit++;
     }
   }

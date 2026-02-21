@@ -14,8 +14,6 @@ class TrackingSlaveSD;  // for friend declaration only
 
 class PSimHit {
 public:
-  static constexpr unsigned int k_tidOffset = 200000000;
-
   PSimHit() : theDetUnitId(0) {}
 
   PSimHit(const Local3DPoint& entry,
@@ -107,15 +105,6 @@ public:
    */
   unsigned int trackId() const { return theTrackId; }
 
-  /** In case te SimTrack ID is incremented by the k_tidOffset for hit category definition, this
-   * methods returns the original theTrackId value directly.
-   */
-  unsigned int originalTrackId() const { return theTrackId % k_tidOffset; }
-
-  unsigned int offsetTrackId() const { return theTrackId / k_tidOffset; }
-
-  static unsigned int addTrackIdOffset(unsigned int tId, unsigned int offset) { return offset * k_tidOffset + tId; }
-
   EncodedEventId eventId() const { return theEventId; }
 
   void setEventId(EncodedEventId e) { theEventId = e; }
@@ -128,9 +117,19 @@ public:
    *  value with special significance is zero (for "undefined"), so zero should
    *  not be the ID of any process.
    */
-  unsigned short processType() const { return theProcessType; }
+
+  // use 9 bits (up to 511) for process id, reserve the rest for hit production mechanism id
+  // 7 bits field available in PSimHit processType, i.e. up 127, to store processes
+  unsigned short processType() const { return theProcessType & kProcidMask; }
+
+  unsigned short hitProdType() const { return (theProcessType >> kHitidShift) & kHitidMask; }
+  void setHitProdType(unsigned int hitId) { theProcessType |= hitId << kHitidShift; }
 
   void setTof(float tof) { theTof = tof; }
+
+  static constexpr unsigned int kProcidMask = 0x1FF;
+  static constexpr unsigned int kHitidMask = 0x7F;
+  static constexpr unsigned int kHitidShift = 9;
 
 protected:
   // properties
