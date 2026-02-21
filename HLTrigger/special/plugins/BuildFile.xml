@@ -60,4 +60,11 @@
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="PhysicsTools/CandUtils"/>
-<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="HLTriggerSpecialPlugins">
+  <flags SKIP_FILES="HLTTopoMuonHtPNetBXGBProducer.cc"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="HLTTopoMuonHtPNetBXGBProducer.cc" name="HLTriggerSpecialXGBPlugins">
+  <use name="xgboost"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
