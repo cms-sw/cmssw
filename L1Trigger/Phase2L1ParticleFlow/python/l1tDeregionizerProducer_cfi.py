@@ -15,6 +15,8 @@ barrelPhiConfigs = [
     ) for ip in range(3)
 ]
 
+barrelPhiConfigs[2].outputBoard = 4
+
 hgcalConfig_ = cms.PSet(
     partition = cms.string("HGCal"),
     nLinksPuppi = cms.uint32(3),
@@ -25,10 +27,11 @@ hgcalConfig_ = cms.PSet(
 )
 
 hgcalPosConfig = hgcalConfig_.clone(
-    outputBoard = 4
+    outputBoard = 3
 )
 hgcalNegConfig = hgcalConfig_.clone(
-    outputRegions = [54 + i for i in range(9)]
+    outputRegions = [54 + i for i in range(9)],
+    outputBoard = 2
 )
 
 hgcalNoTKConfig = cms.PSet(
@@ -49,7 +52,7 @@ hfConfig_ = cms.PSet(
 hfConfigs = [
     hfConfig_.clone(
         outputRegions = cms.vuint32(*[90+9*ie+i for i in range(9)]),
-        outputBoard = cms.int32(6 + ie),
+        outputBoard = cms.int32(7 - ie),
     ) for ie in range(2)
 ]
 
