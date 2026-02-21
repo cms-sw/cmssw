@@ -101,7 +101,7 @@ void L1TPhase2OuterTrackerTkMET::analyze(const edm::Event& iEvent, const edm::Ev
     int nstubs = (int)theStubs.size();
 
     float chi2dof = tempTrackPtr->chi2Red();
-    float bendchi2 = tempTrackPtr->stubPtConsistency();
+    float bendchi2 = tempTrackPtr->chi2BendRed();
     float z0 = tempTrackPtr->z0();
 
     if (pt < minPt || fabs(z0) > maxZ0 || fabs(eta) > maxEta || chi2dof > chi2dofMax || bendchi2 > bendchi2Max)
