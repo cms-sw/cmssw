@@ -130,7 +130,7 @@ void MkFitFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
     intracks.swap(reducedInput);
   }
 
-  auto cpe = [&](int orig_hit_idx, float ltp_arr[6], float(&hit_arr)[5]) -> bool {
+  auto cpe = [&](int orig_hit_idx, float ltp_arr[6], float (&hit_arr)[5]) -> bool {
     auto const& hit = dynamic_cast<SiPixelRecHit const&>(*hits[orig_hit_idx]);
     LocalTrajectoryParameters ltp =
         LocalTrajectoryParameters(ltp_arr[0], ltp_arr[1], ltp_arr[2], ltp_arr[3], ltp_arr[4], ltp_arr[5]);

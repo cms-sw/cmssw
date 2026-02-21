@@ -427,9 +427,9 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
                                        << subid;
 
 #ifdef HISTOS
-      //hdetunit->Fill(float(detid));
-      //hpixid->Fill(float(detType));
-      //hpixsubid->Fill(float(subid));
+    //hdetunit->Fill(float(detid));
+    //hpixid->Fill(float(detType));
+    //hpixsubid->Fill(float(subid));
 #endif  // HISTOS
 
     if (detType != 1)
