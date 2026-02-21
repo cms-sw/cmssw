@@ -11,6 +11,7 @@
 #include "G4ProcessManager.hh"
 #include "G4ParticleDefinition.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
+#include <CLHEP/Units/PhysicalConstants.h>
 
 #include "SimG4Core/CustomPhysics/interface/CMSSIMP.h"
 #include "SimG4Core/CustomPhysics/interface/CMSAntiSIMP.h"
@@ -49,6 +50,10 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
       << filePath;
   // This should be compatible IMO to SLHA
   G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
+  // Default value for the lifetime of the gluino, will be set if a gluino lifetime is found in the SLHA file
+  G4double gluinoLifetime = -1.0;
+  // Default value for the lifetime of the stop, will be set if a stop lifetime is found in the SLHA file
+  G4double stopLifetime = -1.0;
   while (getline(configFile, line)) {
     line.erase(0, line.find_first_not_of(" \t"));  // Remove leading whitespace.
     if (line.empty() || line.at(0) == '#') {
@@ -69,18 +74,60 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
       edm::LogVerbatim("SimG4CoreCustomPhysics")
           << "CustomParticleFactory: entry to G4DecayTable: pdgID, width " << pdgId << ",  " << width;
       G4ParticleDefinition *aParticle = theParticleTable->FindParticle(pdgId);
-      if (nullptr == aParticle || width == 0.0) {
+      G4ParticleDefinition *aAntiParticle = theParticleTable->FindAntiParticle(pdgId);
+      if (nullptr == aParticle || width == 0.0) {  // Skip if particle is stable or not found
         continue;
       }
+      // Set the gluino Rhadron lifetime to the gluino lifetime.
+      if (pdgId == 1000021)
+        gluinoLifetime = 1.0 / (width * CLHEP::GeV) * CLHEP::hbar_Planck;
+      // Set the stop Rhadron lifetime to the stop lifetime.
+      else if (pdgId == 1000006)
+        stopLifetime = 1.0 / (width * CLHEP::GeV) * CLHEP::hbar_Planck;
+
       G4DecayTable *aDecayTable = getDecayTable(&configFile, pdgId);
-      aParticle->SetDecayTable(aDecayTable);
-      aParticle->SetPDGStable(false);
-      aParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * 6.582122e-22 * CLHEP::MeV * CLHEP::s);
-      G4ParticleDefinition *aAntiParticle = theParticleTable->FindAntiParticle(pdgId);
-      if (nullptr != aAntiParticle && aAntiParticle->GetPDGEncoding() != pdgId) {
-        aAntiParticle->SetDecayTable(getAntiDecayTable(pdgId, aDecayTable));
-        aAntiParticle->SetPDGStable(false);
-        aAntiParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * 6.582122e-22 * CLHEP::MeV * CLHEP::s);
+      if (!aDecayTable)
+        aParticle->SetPDGStable(true);
+      else {
+        aParticle->SetDecayTable(aDecayTable);
+        aParticle->SetPDGStable(false);
+        aParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * CLHEP::hbar_Planck);
+        if (nullptr != aAntiParticle && aAntiParticle->GetPDGEncoding() != pdgId) {
+          G4DecayTable *aAntiDecayTable = getAntiDecayTable(pdgId, aDecayTable);
+          if (!aAntiDecayTable)
+            aAntiParticle->SetPDGStable(true);
+          else {
+            aAntiParticle->SetDecayTable(aAntiDecayTable);
+            aAntiParticle->SetPDGStable(false);
+            aAntiParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * CLHEP::hbar_Planck);
+          }
+        }
+      }
+    }
+  }
+
+  // If the gluinoLifetime is set, set it for all gluino Rhadrons
+  if (gluinoLifetime != -1.0) {
+    for (auto &particle : m_particles) {
+      if (CustomPDGParser::s_isgluinoHadron(particle->GetPDGEncoding())) {
+        particle->SetPDGStable(false);
+        particle->SetPDGLifeTime(gluinoLifetime);
+        edm::LogVerbatim("SimG4CoreCustomPhysics")
+            << "CustomParticleFactory: Setting lifetime for " << particle->GetParticleName()
+            << " equal to lifetime of the gluino. This is " << gluinoLifetime << "ns.";
+      }
+    }
+  }
+
+  // If the stopLifetime is set, set it for all stop Rhadrons
+  if (stopLifetime != -1.0) {
+    for (auto &particle : m_particles) {
+      if (CustomPDGParser::s_isstopHadron(particle->GetPDGEncoding())) {
+        particle->SetPDGStable(false);
+        particle->SetPDGLifeTime(stopLifetime);
+        edm::LogVerbatim("SimG4CoreCustomPhysics")
+            << "CustomParticleFactory: Setting lifetime for " << particle->GetParticleName()
+            << " equal to lifetime of the stop. This is " << stopLifetime << "ns.";
       }
     }
   }
@@ -255,12 +302,12 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
   // This should be compatible IMO to SLHA
   while (getline(*configFile, line)) {
     line.erase(0, line.find_first_not_of(" \t"));  // remove leading whitespace
-    if (line.empty() || line.at(0) == '#')
-      continue;  // skip blank lines and comments
-    if (ToLower(line).find("block") < line.npos) {
+    if ((ToLower(line).find("block") < line.npos) || (line == "#")) {
       edm::LogInfo("SimG4CoreCustomPhysics") << "CustomParticleFactory: Finished the Mass Table ";
       break;
     }
+    if (line.empty() || line.at(0) == '#')
+      continue;  // skip blank lines and comments
     std::stringstream sstr(line);
     sstr >> pdgId >> mass >> tmp >> name;  // Assume SLHA format, e.g.: 1000001 5.68441109E+02 # ~d_L
 
@@ -407,6 +454,12 @@ G4DecayTable *CustomParticleFactory::getAntiDecayTable(int pdgId, G4DecayTable *
     G4VDecayChannel *theDecayChannel = theDecayTable->GetDecayChannel(i);
     int nd = std::min(4, theDecayChannel->GetNumberOfDaughters());
     for (int j = 0; j < nd; ++j) {
+      G4ParticleDefinition *antiParticle = theDecayChannel->GetDaughter(j);
+      if (antiParticle == nullptr) {
+        edm::LogWarning("SimG4CoreCustomPhysics") << "CustomParticleFactory: Daughter " << j << " in decay channel "
+                                                  << i << " for pdgId " << pdgId << " is nullptr. Skipping it.";
+        continue;
+      }
       int id = theDecayChannel->GetDaughter(j)->GetAntiPDGEncoding();
       G4ParticleDefinition *part = theParticleTable->FindParticle(id);
       if (nullptr == part) {
