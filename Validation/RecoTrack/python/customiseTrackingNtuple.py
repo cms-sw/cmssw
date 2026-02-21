@@ -32,9 +32,8 @@ def customiseTrackingNtupleTool(process, isRECO = True, mergeIters = False):
     if not isRECO:
         if not hasattr(process,"hltMultiTrackValidation"):
             process.load("Validation.RecoTrack.HLTmultiTrackValidator_cff")
-        process.trackingNtupleSequence = process.hltMultiTrackValidation.copy()
+        process.trackingNtupleSequence = cms.Sequence(process.hltMultiTrackValidationTask)
         process.trackingNtupleSequence.insert(0,process.trackingParticlesIntime+process.simHitTPAssocProducer)
-        process.trackingNtupleSequence.remove(process.hltTrackValidator)
 
         if hasattr(process, "HLTIterativeTrackingIter02"):
             if not hasattr(process, "hltSiStripRecHits"):
