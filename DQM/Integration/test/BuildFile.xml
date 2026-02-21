@@ -12,7 +12,7 @@
 <!-- <test name="TestDQMOnlineClient-hcal_dqm_sourceclient" command="runtest.sh hcal_dqm_sourceclient-live_cfg.py"/> COMMENT:reads old format file -->
 <!-- <test name="TestDQMOnlineClient-hlt_dqm_clientPB" command="runtest.sh hlt_dqm_clientPB-live_cfg.py"/> COMMENT:reads old format file -->
 <!-- <test name="TestDQMOnlineClient-hlt_dqm_sourceclient" command="runtest.sh hlt_dqm_sourceclient-live_cfg.py"/ COMMENT:reads old format file -->
-<!-- <test name="TestDQMOnlineClient-ngt_dqm_sourceclient" command="runtest.sh ngt_dqm_sourceclient-live_cfg.py"/> COMMENT:reads old format file -->
+<!-- <test name="TestDQMOnlineClient-ngt_dqm_sourceclient" command="runtest.sh ngt_dqm_sourceclient-live_cfg.py 398183"/> COMMENT:reads old format file -->
 <!-- <test name="TestDQMOnlineClient-scouting_dqm_sourceclient" command="runtest.sh scouting_dqm_sourceclient-live_cfg.py 398183"/> COMMENT:reads old format file -->
 <!--<test name="TestDQMOnlineClient-info_dqm_sourceclient" command="runtest.sh info_dqm_sourceclient-live_cfg.py"/> COMMENT:reads old format file -->
 <!-- <test name="TestDQMOnlineClient-l1tstage2_dqm_sourceclient" command="runtest.sh l1tstage2_dqm_sourceclient-live_cfg.py"/> COMMENT:reads old format file -->
