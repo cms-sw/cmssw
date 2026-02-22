@@ -363,7 +363,7 @@ void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
       if (localPrint)
         edm::LogPrint("ReadPixelRecHit") << " Layer " << layer << " ladder " << ladder << " z " << zindex;
-        //<<pdetId.rawId()<<" "<<pdetId.null()<<detTypeP<<" "<<subidP<<" ";
+      //<<pdetId.rawId()<<" "<<pdetId.null()<<detTypeP<<" "<<subidP<<" ";
 
 #ifdef DO_HISTO
       hdetr->Fill(detR);
@@ -537,10 +537,10 @@ void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
           edm::LogPrint("ReadPixelRecHit") << i << " index " << pixx << " " << pixy << " adc " << adc << " edge "
                                            << edgeInX << " " << edgeInY << " big " << bigInX << " " << bigInY;
 
-          //if(print && sizeX==1 && bigInX)
-          //edm::LogPrint("ReadPixelRecHit")<<" single big x "<<xClu<<" "<<pixx<<" ";
-          //if(print && sizeY==1 && bigInY)
-          //edm::LogPrint("ReadPixelRecHit")<<" single big y "<<yClu<<" "<<pixy<<" ";
+        //if(print && sizeX==1 && bigInX)
+        //edm::LogPrint("ReadPixelRecHit")<<" single big x "<<xClu<<" "<<pixx<<" ";
+        //if(print && sizeY==1 && bigInY)
+        //edm::LogPrint("ReadPixelRecHit")<<" single big y "<<yClu<<" "<<pixy<<" ";
 #ifdef DO_HISTO
         if (layer == 1) {
           hadcCharge1->Fill(adc);
