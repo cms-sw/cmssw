@@ -11,3 +11,5 @@
       command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_reproduce_hlt.py"/>
 <test name="testPyTICLValidation"
       command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_validation.py"/>
+<test name="testPyTICLBackend"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_backend.py"/>

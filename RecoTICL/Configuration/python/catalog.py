@@ -224,6 +224,17 @@ _SPECS = [
 CATALOG = {spec.key: spec for spec in _SPECS}
 
 
+# Portable (alpaka) HGCAL local-reco / layer-clustering producers: these DO have
+# a GPU implementation, so pyTICL allows `.on_gpu()` on them (see backend.py).
+# Listed for the backend capability registry; their full consumes/produces are
+# not needed for the TICL plumbing graph.
+GPU_CAPABLE = frozenset([
+    "HGCalSoARecHitsProducer",
+    "HGCalSoARecHitsLayerClustersProducer",
+    "HGCalSoALayerClustersProducer",
+])
+
+
 # --------------------------------------------------------------------------- #
 # Plugin type enumerations (registered factory strings)
 # --------------------------------------------------------------------------- #
