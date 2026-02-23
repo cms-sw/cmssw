@@ -667,8 +667,7 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
                             << "eta=" + to_string(ap_int<BITSETA>(track.eta())) + ", "
                             << "z0=" + to_string(ap_int<BITSZ0>(track.z0())) + ", "
                             << "d0=" + to_string(ap_int<BITSD0>(track.d0())) + ", "
-                            << "quality=" + to_string(ap_uint<1>(track.quality())) + ", "
-                            << "\n"
+                            << "quality=" + to_string(ap_uint<1>(track.quality())) + ", " << "\n"
                             << std::flush;
 
     edm::LogInfo("TPSAlgo") << "Input stubs:" << std::flush;
@@ -678,8 +677,7 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
                               << "layer=" + to_string(stub->tfLayer()) + ", "
                               << "coord1=" + to_string(stub->coord1()) + ", "
                               << "coord2=" + to_string(stub->coord2()) + ", "
-                              << "eta1=" + to_string(stub->eta1()) + ", "
-                              << "eta2=" + to_string(stub->eta2()) + ", "
+                              << "eta1=" + to_string(stub->eta1()) + ", " << "eta2=" + to_string(stub->eta2()) + ", "
                               << "quality=" + to_string(stub->quality()) + ", "
                               << "etaQuality=" + to_string(stub->etaQuality()) + ", "
                               << "id=" + to_string(stub->address()) + ", " << std::flush;
@@ -688,16 +686,12 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
     edm::LogInfo("TPSAlgo") << "End stubs\n" << std::flush;
 
     edm::LogInfo("TPSAlgo") << "Output PreTrackMatchedMuon: "
-                            << "valid=" + to_string(muon.valid()) + ", "
-                            << "q=" + to_string(muon.charge()) + ", "
-                            << "pt=" + to_string(muon.pt()) + ", "
-                            << "phi=" + to_string(muon.phi()) + ", "
-                            << "eta=" + to_string(muon.eta()) + ", "
-                            << "z0=" + to_string(muon.z0()) + ", "
+                            << "valid=" + to_string(muon.valid()) + ", " << "q=" + to_string(muon.charge()) + ", "
+                            << "pt=" + to_string(muon.pt()) + ", " << "phi=" + to_string(muon.phi()) + ", "
+                            << "eta=" + to_string(muon.eta()) + ", " << "z0=" + to_string(muon.z0()) + ", "
                             << "d0=" + to_string(muon.d0()) + ", "
                             << "isGlobalMuon=" + to_string(muon.isGlobalMuon()) + ", "
-                            << "beta=" + to_string(muon.beta()) + ", "
-                            << "quality=" + to_string(muon.quality()) + ", "
+                            << "beta=" + to_string(muon.beta()) + ", " << "quality=" + to_string(muon.quality()) + ", "
                             << "\n"
                             << std::flush;
 
@@ -709,8 +703,7 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
                               << "layer=" + to_string(stub->tfLayer()) + ", "
                               << "coord1=" + to_string(stub->coord1()) + ", "
                               << "coord2=" + to_string(stub->coord2()) + ", "
-                              << "eta1=" + to_string(stub->eta1()) + ", "
-                              << "eta2=" + to_string(stub->eta2()) + ", "
+                              << "eta1=" + to_string(stub->eta1()) + ", " << "eta2=" + to_string(stub->eta2()) + ", "
                               << "phiQuality=" + to_string(stub->quality()) + ", "
                               << "etaQuality=" + to_string(stub->etaQuality()) + ", "
                               << "id=" + to_string(stub->address()) + ", "
