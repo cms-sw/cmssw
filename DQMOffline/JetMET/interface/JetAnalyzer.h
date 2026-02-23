@@ -71,6 +71,9 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include <map>
 #include <string>
@@ -151,7 +154,10 @@ private:
 
   edm::InputTag inputJetIDValueMap;
   edm::EDGetTokenT<edm::ValueMap<reco::JetID>> jetID_ValueMapToken_;
+
+  bool isL1Tstage2_;
   edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1gtTrigMenuToken_;
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> lutmTrigMenuToken_;
 
   //Cleaning parameters
   edm::ParameterSet cleaningParameters_;
