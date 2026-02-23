@@ -1,22 +1,13 @@
 
 <lcgdict>
-  <class name="ticl::Trackster" ClassVersion="12">
-    <version ClassVersion="12" checksum="912917580"/>
-    <version ClassVersion="11" checksum="2111726404"/>
-    <version ClassVersion="10" checksum="556627704"/>
-    <version ClassVersion="9" checksum="1001808235"/>
-    <version ClassVersion="8" checksum="749412802"/>
-    <version ClassVersion="7" checksum="1072014319"/>
-    <version ClassVersion="6" checksum="3003722924"/>
-    <version ClassVersion="5" checksum="1679804166"/>
-    <version ClassVersion="4" checksum="2963413313"/>
-    <version ClassVersion="3" checksum="3878166595"/>
+  <class name="ticl::io_v1::Trackster" ClassVersion="3">
+    <version ClassVersion="3" checksum="2779314320"/>
   </class>
-  <class name="std::vector<ticl::Trackster>" />
-  <class name="edm::RefProd<std::vector<ticl::Trackster> >"/>
-  <class name="std::pair<edm::RefProd<std::vector<ticl::Trackster> >, edm::RefProd<std::vector<ticl::Trackster> > >"/>
-  <class name="edm::Wrapper<ticl::Trackster>" />
-  <class name="edm::Wrapper<std::vector<ticl::Trackster> >" />
+  <class name="std::vector<ticl::io_v1::Trackster>" />
+  <class name="edm::RefProd<std::vector<ticl::io_v1::Trackster> >"/>
+  <class name="std::pair<edm::RefProd<std::vector<ticl::io_v1::Trackster> >, edm::RefProd<std::vector<ticl::io_v1::Trackster> > >"/>
+  <class name="edm::Wrapper<ticl::io_v1::Trackster>" />
+  <class name="edm::Wrapper<std::vector<ticl::io_v1::Trackster> >" />
 
   <class name="ticl::TICLLayerTile" persistent="false">
     <field name="tile_" transient="true"/>
@@ -68,7 +59,7 @@
   <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />
 
   <class name="TICLCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="1904138988"/>
+   <version ClassVersion="3" checksum="3268647916"/>
   </class>
   <class name="std::vector<TICLCandidate>" />
   <class name="edm::Wrapper<TICLCandidate>" />

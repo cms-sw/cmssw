@@ -1,28 +1,27 @@
 <lcgdict>
 
-  <class name="edm::ModuleTime" ClassVersion="10">
-   <version ClassVersion="10" checksum="1426984345"/>
+  <class name="edm::ModuleTime" ClassVersion="3">
+   <version ClassVersion="3" checksum="1426984345"/>
   </class>
   <class name="std::vector<edm::ModuleTime>"/>
-  <class name="edm::EventTime" ClassVersion="10">
-   <version ClassVersion="10" checksum="4025404982"/>
+  <class name="edm::EventTime" ClassVersion="3">
+   <version ClassVersion="3" checksum="4025404982"/>
   </class>
   <class name="edm::Wrapper<edm::EventTime>" splitLevel="0"/>
 
-  <class name="HLTPerformanceInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="3666102048"/>
+  <class name="HLTPerformanceInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="3666102048"/>
   </class>
   <class name="edm::Wrapper<HLTPerformanceInfo >" splitLevel="0"/>
 
-  <class name="HLTPerformanceInfo::Module" ClassVersion="10">
-   <version ClassVersion="10" checksum="3885654529"/>
+  <class name="HLTPerformanceInfo::Module" ClassVersion="3">
+   <version ClassVersion="3" checksum="3885654529"/>
   </class>
   <class name="std::vector<HLTPerformanceInfo::Module>"/>
   <class name="std::vector<HLTPerformanceInfo::Module>::const_iterator"/>
 
-  <class name="HLTPerformanceInfo::Path" ClassVersion="11">
-   <version ClassVersion="10" checksum="3100415018"/>
-   <version ClassVersion="11" checksum="131259281"/>
+  <class name="HLTPerformanceInfo::Path" ClassVersion="3">
+   <version ClassVersion="3" checksum="131259281"/>
   </class>
   <class name="std::vector<HLTPerformanceInfo::Path>"/>
   <class name="std::vector<HLTPerformanceInfo::Path>::const_iterator"/>
@@ -39,8 +38,8 @@
   <class name="trigger::TriggerRefsCollections" ClassVersion="3">
    <version ClassVersion="3" checksum="1210037489"/>
   </class>
-  <class name="trigger::TriggerFilterObjectWithRefs" ClassVersion="3">
-   <version ClassVersion="3" checksum="4124915994"/>
+  <class name="trigger::io_v1::TriggerFilterObjectWithRefs" ClassVersion="3">
+   <version ClassVersion="3" checksum="1456673002"/>
   </class>
 
   <class name="trigger::TriggerEvent::TriggerFilterObject" ClassVersion="10">
@@ -61,13 +60,13 @@
   </class>
 
   <class name="edm::Wrapper<trigger::TriggerObjectCollection>" splitLevel="0"/>
-  <class name="edm::Wrapper<trigger::TriggerFilterObjectWithRefs>" splitLevel="0"/>
+  <class name="edm::Wrapper<trigger::io_v1::TriggerFilterObjectWithRefs>" splitLevel="0"/>
   <class name="edm::Wrapper<trigger::TriggerEvent>" splitLevel="0"/>
   <class name="edm::Wrapper<trigger::TriggerEventWithRefs>" splitLevel="0"/>
 
   <class name="std::map<std::string,std::vector<unsigned int> >"/>
-  <class name="trigger::HLTPrescaleTable" ClassVersion="10">
-   <version ClassVersion="10" checksum="2181075001"/>
+  <class name="trigger::HLTPrescaleTable" ClassVersion="3">
+   <version ClassVersion="3" checksum="2181075001"/>
   </class>
   <class name="edm::Wrapper<trigger::HLTPrescaleTable>"/>
   
