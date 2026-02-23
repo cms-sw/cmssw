@@ -38,7 +38,7 @@ namespace l1tp2 {
                      ap_uint<5> timing,
                      ap_uint<2> brems,
                      ap_uint<10> spare) {
-      clusterData = ((ap_uint<64>)pt) | (((ap_uint<64>)eta) << 12) | (((ap_uint<64>)phi) << 19) |
+      clusterData = ((ap_uint<64>)pt) | (((ap_uint<64>)eta) << 12) | (((ap_uint<64>)(phi & 0x7F)) << 19) |
                     (((ap_uint<64>)hoe) << 26) | (((ap_uint<64>)iso) << 32) | (((ap_uint<64>)shape) << 38) |
                     (((ap_uint<64>)wp) << 44) | (((ap_uint<64>)timing) << 47) | (((ap_uint<64>)brems << 52)) |
                     (((ap_uint<64>)spare << 54));

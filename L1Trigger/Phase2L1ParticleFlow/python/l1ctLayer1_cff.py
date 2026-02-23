@@ -14,8 +14,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
     gctClusters = cms.InputTag("l1tPhase2CaloToCorrelatorTMI18", "DigitizedCaloToCorrelatorTMI18"),
-    hadClusters = cms.InputTag('l1tPFClustersFromCombinedCaloHCal:calibrated'),
-    # hadClusters = cms.InputTag('l1tPhase2GCTBarrelToCorrelatorLayer1Emulator', 'GCTHadDigiClusters'),
+    # hadClusters = cms.InputTag('l1tPFClustersFromCombinedCaloHCal:calibrated'),  -- if you use Ideal gctHadInputConversionAlg
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),
     emPtCut = cms.double(0.5),
@@ -49,7 +48,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
             kind    = cms.string('calo'),
         ),
     ),
-    gctHadInputConversionAlgo = cms.string("Ideal"),
+    gctHadInputConversionAlgo = cms.string("Emulator"),
     regionizerAlgo = cms.string("Ideal"),
     pfAlgo = cms.string("PFAlgo3"),
     pfAlgoParameters = cms.PSet(
@@ -112,7 +111,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     ),
     caloSectors = cms.VPSet(   # for Ideal regionizer only--don't include the duplicates
         cms.PSet(
-            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
+            etaBoundaries = cms.vdouble(-1.5, 1.5),
             phiSlices     = cms.uint32(3),
             phiZero       = cms.double(math.pi/18)
         )

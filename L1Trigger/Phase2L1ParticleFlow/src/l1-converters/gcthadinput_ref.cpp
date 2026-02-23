@@ -29,9 +29,10 @@ l1ct::HadCaloObjEmu l1ct::GctHadClusterDecoderEmulator::decode(const l1ct::PFReg
   calo.hwPhi = l1ct::Scales::makePhi(phi(in) * PHI_LSB + (PHI_LSB / 2));    // This is already in the local frame
 
   // need to add EmPt when it becomes available
+  calo.hwEmPt = ecal(in) * l1ct::pt_t(0.5);
 
-  // need to add emid
-  calo.hwEmID = 1;
+  // need to add emid, default to zero for had/PF clusters from GCT
+  calo.hwEmID = 0;
 
   // convert eta to local
   if (sector.hwEtaCenter < 0) {

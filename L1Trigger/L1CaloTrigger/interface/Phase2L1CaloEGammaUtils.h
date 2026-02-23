@@ -107,7 +107,7 @@ namespace p2eg {
   // Returns the difference in the azimuth coordinates of phi1 and phi2 (all in degrees not radians), taking the wrap-around at 180 degrees into account
   inline float deltaPhiInDegrees(float phi1, float phi2, const float c = 180) {
     float r = std::fmod(phi1 - phi2, 2.0 * c);
-    if (r < -c) {
+    if (r <= -c) {
       r += 2.0 * c;
     } else if (r > c) {
       r -= 2.0 * c;

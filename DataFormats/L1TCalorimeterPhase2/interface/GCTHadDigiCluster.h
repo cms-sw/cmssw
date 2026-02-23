@@ -26,7 +26,7 @@ namespace l1tp2 {
 
     GCTHadDigiCluster(
         ap_uint<12> pt, ap_uint<7> eta, ap_int<7> phi, ap_uint<12> ecal, ap_uint<6> fb, ap_uint<36> spare) {
-      clusterData = ((ap_uint<64>)pt) | (((ap_uint<64>)eta) << 12) | (((ap_uint<64>)phi) << 19) |
+      clusterData = ((ap_uint<64>)pt) | (((ap_uint<64>)eta) << 12) | (((ap_uint<64>)(phi & 0x7F)) << 19) |
                     (((ap_uint<64>)ecal) << 26) | (((ap_uint<64>)fb) << 38) | (((ap_uint<64>)spare << 44));
     }
 

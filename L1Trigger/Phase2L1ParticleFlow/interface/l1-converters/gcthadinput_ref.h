@@ -32,8 +32,9 @@ namespace l1ct {
     // crystal phi (signed 7 bits)
     ap_int<7> phi(const ap_uint<64> &in) const { return (ap_int<7>)in.range(25, 19); }
 
-    // HoE value
-    ap_uint<4> hoe(const ap_uint<64> &in) const { return in.range(29, 26); }
+    // ECAL value
+    ap_uint<12> ecal(const ap_uint<64> &in) const { return (ap_uint<12>)in.range(37, 26); }
+
   };
 }  // namespace l1ct
 
