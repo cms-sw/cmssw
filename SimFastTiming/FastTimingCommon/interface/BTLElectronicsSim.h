@@ -7,7 +7,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+#include "Geometry/MTDCommonData/interface/BTLElectronicsMapping.h"
+
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
+#include "DataFormats/FTLDigiSoA/interface/BTLDigiHostCollection.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
 
 namespace mtd = mtd_digitizer;
@@ -28,6 +31,11 @@ public:
 
   void run(const mtd::MTDSimHitDataAccumulator& input, BTLDigiCollection& output, CLHEP::HepRandomEngine* hre) const;
 
+  void run(const mtd::MTDSimHitDataAccumulator& input,
+           BTLDigiCollection& output,
+           btldigi::BTLDigiHostCollection& outputSoA,
+           CLHEP::HepRandomEngine* hre) const;
+
   void runTrivialShaper(BTLDataFrame& dataFrame,
                         const float (&charge)[2],
                         const float (&toa1)[2],
@@ -35,9 +43,22 @@ public:
                         const uint8_t row,
                         const uint8_t col) const;
 
+  bool checkValidHit(const BTLDataFrame& rawDataFrame) const;
+
   void updateOutput(BTLDigiCollection& coll, const BTLDataFrame& rawDataFrame) const;
 
+  void updateOutputSoA(btldigi::BTLDigiHostCollection& coll,
+                       int hitIndex,
+                       uint32_t rawId,
+                       const float (&charge_adc)[2],
+                       const float (&toa1)[2],
+                       const float (&toa2)[2],
+                       const uint8_t col,
+                       const uint16_t BC0count) const;
+
   static constexpr int dfSIZE = 2;
+
+  BTLElectronicsMapping elMap_ = BTLElectronicsMapping(BTLDetId::CrysLayout::v4);
 
 private:
   float rearming_time(const float& time, const float& npe) const;
@@ -62,12 +83,42 @@ private:
 
   float pulse_qRes(const float& npe) const;
 
+  uint16_t timetoTcoarse(float time, const uint16_t mask) const;
+
+  uint16_t timetoTfine(float time, const uint16_t tcoarse) const;
+
+  uint16_t chargetoQfine(float charge, float toa1, uint16_t EOI) const;
+
   static constexpr float sqrt2_ = 1.41421356f;
 
   static constexpr float tofhirClock_ = 6.25f;  // [ns]
   static constexpr uint32_t adcBitSaturation_ = 1023;
   static constexpr uint32_t tdcBitSaturation_ = 1023;
   static constexpr float tdcLSB_ns_ = 0.020;  // [ns]
+
+  static constexpr uint16_t T1coarseMask = 0x7FFF;  // 15 bits for T1 coarse time
+  static constexpr uint16_t T2coarseMask = 0x2FF;   // 10 bits for T2 coarse time
+  // static constexpr uint16_t TfineShift = 5;   // 10 bits for fine time
+
+  // tdc calibration parameters
+  // To be replaced by CondFormat when available
+  static constexpr float a0_ = 57.244545;
+  static constexpr float a1_ = 511.27832;
+  static constexpr float a2_ = -7.8838577;
+  static constexpr float t0_ = -0.048343264;
+
+  // qdc calibration parameters
+  // To be replaced by CondFormat when available
+  static constexpr float p0_ = 49.542229;
+  static constexpr float p1_ = -0.323424;
+  static constexpr float p2_ = 0.062578;
+  static constexpr float p3_ = -0.002484;
+  static constexpr float p4_ = 0.0;
+  static constexpr float p5_ = 0.0;
+  static constexpr float p6_ = 0.0;
+  static constexpr float p7_ = 0.0;
+  static constexpr float p8_ = 0.0;
+  static constexpr float p9_ = 0.0;
 
   static constexpr uint32_t numberOfRUs_ = 432;
   std::array<float, numberOfRUs_>* smearingClockRU_;
@@ -99,6 +150,7 @@ private:
   const float sigmaClockRU_;
   const std::vector<double> paramPulseQ_;
   const std::vector<double> paramPulseQRes_;
+  const uint32_t integrationTimeFixed_;
   const float corrCoeff_;
   const float cosPhi_;
   const float sinPhi_;

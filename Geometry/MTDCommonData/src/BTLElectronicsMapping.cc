@@ -16,7 +16,7 @@ BTLElectronicsMapping::BTLElectronicsMapping(const BTLDetId::CrysLayout lay) {
 
 // Get SiPM Channel from crystal ID
 
-int BTLElectronicsMapping::SiPMCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide) {
+int BTLElectronicsMapping::SiPMCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide) const {
   if (0 > int(crystal) || crystal > BTLDetId::kCrystalsPerModuleV2) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::BTLElectronicsMapping(): "
                                << "****************** Bad crystal number = " << int(crystal);
@@ -35,32 +35,32 @@ int BTLElectronicsMapping::SiPMCh(uint32_t smodCopy, uint32_t crystal, uint32_t 
     return BTLElectronicsMapping::SiPMChannelMapBW[crystal + SiPMSide * BTLDetId::kCrystalsPerModuleV2];
 }
 
-int BTLElectronicsMapping::SiPMCh(BTLDetId det, uint32_t SiPMSide) {
+int BTLElectronicsMapping::SiPMCh(BTLDetId det, uint32_t SiPMSide) const {
   uint32_t smodCopy = det.smodule();
   uint32_t crystal = det.crystal();
 
   return BTLElectronicsMapping::SiPMCh(smodCopy, crystal, SiPMSide);
 }
 
-int BTLElectronicsMapping::SiPMCh(uint32_t rawId, uint32_t SiPMSide) {
+int BTLElectronicsMapping::SiPMCh(uint32_t rawId, uint32_t SiPMSide) const {
   BTLDetId theId(rawId);
   return BTLElectronicsMapping::SiPMCh(theId, SiPMSide);
 }
 
-BTLElectronicsMapping::SiPMChPair BTLElectronicsMapping::GetSiPMChPair(uint32_t smodCopy, uint32_t crystal) {
+BTLElectronicsMapping::SiPMChPair BTLElectronicsMapping::GetSiPMChPair(uint32_t smodCopy, uint32_t crystal) const {
   BTLElectronicsMapping::SiPMChPair SiPMChs;
   SiPMChs.Minus = BTLElectronicsMapping::SiPMCh(smodCopy, crystal, 0);
   SiPMChs.Plus = BTLElectronicsMapping::SiPMCh(smodCopy, crystal, 1);
   return SiPMChs;
 }
 
-BTLElectronicsMapping::SiPMChPair BTLElectronicsMapping::GetSiPMChPair(BTLDetId det) {
+BTLElectronicsMapping::SiPMChPair BTLElectronicsMapping::GetSiPMChPair(BTLDetId det) const {
   BTLElectronicsMapping::SiPMChPair SiPMChs;
   SiPMChs.Minus = BTLElectronicsMapping::SiPMCh(det, 0);
   SiPMChs.Plus = BTLElectronicsMapping::SiPMCh(det, 1);
   return SiPMChs;
 }
-BTLElectronicsMapping::SiPMChPair BTLElectronicsMapping::GetSiPMChPair(uint32_t rawID) {
+BTLElectronicsMapping::SiPMChPair BTLElectronicsMapping::GetSiPMChPair(uint32_t rawID) const {
   BTLElectronicsMapping::SiPMChPair SiPMChs;
   SiPMChs.Minus = BTLElectronicsMapping::SiPMCh(rawID, 0);
   SiPMChs.Plus = BTLElectronicsMapping::SiPMCh(rawID, 1);
@@ -69,37 +69,37 @@ BTLElectronicsMapping::SiPMChPair BTLElectronicsMapping::GetSiPMChPair(uint32_t 
 
 // Get TOFHIR Channel from crystal ID
 
-int BTLElectronicsMapping::TOFHIRCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide) {
+int BTLElectronicsMapping::TOFHIRCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide) const {
   int SiPMCh_ = BTLElectronicsMapping::SiPMCh(smodCopy, crystal, SiPMSide);
   return BTLElectronicsMapping::THChannelMap[SiPMCh_];
 }
 
-int BTLElectronicsMapping::TOFHIRCh(BTLDetId det, uint32_t SiPMSide) {
+int BTLElectronicsMapping::TOFHIRCh(BTLDetId det, uint32_t SiPMSide) const {
   uint32_t smodCopy = det.smodule();
   uint32_t crystal = det.crystal();
 
   return BTLElectronicsMapping::TOFHIRCh(smodCopy, crystal, SiPMSide);
 }
 
-int BTLElectronicsMapping::TOFHIRCh(uint32_t rawId, uint32_t SiPMSide) {
+int BTLElectronicsMapping::TOFHIRCh(uint32_t rawId, uint32_t SiPMSide) const {
   BTLDetId theId(rawId);
   return BTLElectronicsMapping::TOFHIRCh(theId, SiPMSide);
 }
 
-BTLElectronicsMapping::TOFHIRChPair BTLElectronicsMapping::GetTOFHIRChPair(uint32_t smodCopy, uint32_t crystal) {
+BTLElectronicsMapping::TOFHIRChPair BTLElectronicsMapping::GetTOFHIRChPair(uint32_t smodCopy, uint32_t crystal) const {
   BTLElectronicsMapping::TOFHIRChPair TOFHIRChs;
   TOFHIRChs.Minus = BTLElectronicsMapping::TOFHIRCh(smodCopy, crystal, 0);
   TOFHIRChs.Plus = BTLElectronicsMapping::TOFHIRCh(smodCopy, crystal, 1);
   return TOFHIRChs;
 }
 
-BTLElectronicsMapping::TOFHIRChPair BTLElectronicsMapping::GetTOFHIRChPair(BTLDetId det) {
+BTLElectronicsMapping::TOFHIRChPair BTLElectronicsMapping::GetTOFHIRChPair(BTLDetId det) const {
   BTLElectronicsMapping::TOFHIRChPair TOFHIRChs;
   TOFHIRChs.Minus = BTLElectronicsMapping::TOFHIRCh(det, 0);
   TOFHIRChs.Plus = BTLElectronicsMapping::TOFHIRCh(det, 1);
   return TOFHIRChs;
 }
-BTLElectronicsMapping::TOFHIRChPair BTLElectronicsMapping::GetTOFHIRChPair(uint32_t rawID) {
+BTLElectronicsMapping::TOFHIRChPair BTLElectronicsMapping::GetTOFHIRChPair(uint32_t rawID) const {
   BTLElectronicsMapping::TOFHIRChPair TOFHIRChs;
   TOFHIRChs.Minus = BTLElectronicsMapping::TOFHIRCh(rawID, 0);
   TOFHIRChs.Plus = BTLElectronicsMapping::TOFHIRCh(rawID, 1);
@@ -108,7 +108,7 @@ BTLElectronicsMapping::TOFHIRChPair BTLElectronicsMapping::GetTOFHIRChPair(uint3
 
 // Get crystal ID from TOFHIR Channel
 
-int BTLElectronicsMapping::THChToXtal(uint32_t smodCopy, uint32_t THCh) {
+int BTLElectronicsMapping::THChToXtal(uint32_t smodCopy, uint32_t THCh) const {
   if (0 > int(smodCopy) || BTLDetId::kSModulesPerDM < smodCopy) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                << "****************** Bad detector module copy = " << int(smodCopy);
@@ -130,7 +130,7 @@ int BTLElectronicsMapping::THChToXtal(uint32_t smodCopy, uint32_t THCh) {
 }
 
 BTLDetId BTLElectronicsMapping::THChToBTLDetId(
-    uint32_t zside, uint32_t rod, uint32_t runit, uint32_t dmodule, uint32_t smodCopy, uint32_t THCh) {
+    uint32_t zside, uint32_t rod, uint32_t runit, uint32_t dmodule, uint32_t smodCopy, uint32_t THCh) const {
   if (0 > int(THCh) || 31 < THCh) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                << "****************** Bad TOFHIR channel = " << int(THCh);
@@ -173,46 +173,46 @@ BTLDetId BTLElectronicsMapping::THChToBTLDetId(
 // else if dmodule is even number the order is inverted
 //    SM1 --> TOFHIR A1 (simply 1)
 //    SM2 --> TOFHIR A0 (simply 0)
-int BTLElectronicsMapping::TOFHIRASIC(uint32_t dmodule, uint32_t smodCopy) {
+int BTLElectronicsMapping::TOFHIRASIC(uint32_t dmodule, uint32_t smodCopy) const {
   if (dmodule % BTLDetId::kSModulesInDM == 0)
     return smodCopy;
   else
     return BTLDetId::kSModulesInDM - smodCopy - 1;
 }
 
-int BTLElectronicsMapping::TOFHIRASIC(BTLDetId det) {
+int BTLElectronicsMapping::TOFHIRASIC(BTLDetId det) const {
   uint32_t dmodule = det.dmodule();
   uint32_t smodCopy = det.smodule();
   return BTLElectronicsMapping::TOFHIRASIC(dmodule, smodCopy);
 }
 
-int BTLElectronicsMapping::TOFHIRASIC(uint32_t rawID) {
+int BTLElectronicsMapping::TOFHIRASIC(uint32_t rawID) const {
   BTLDetId theId(rawID);
   return BTLElectronicsMapping::TOFHIRASIC(theId);
 }
 
 /** Returns FE board number */
-int BTLElectronicsMapping::FEBoardFromDM(uint32_t dmodule) { return dmodule; }
+int BTLElectronicsMapping::FEBoardFromDM(uint32_t dmodule) const { return dmodule; }
 
-int BTLElectronicsMapping::FEBoard(BTLDetId det) {
+int BTLElectronicsMapping::FEBoard(BTLDetId det) const {
   uint32_t dmodule = det.dmodule();
   return BTLElectronicsMapping::FEBoardFromDM(dmodule);
 }
 
-int BTLElectronicsMapping::FEBoard(uint32_t rawID) {
+int BTLElectronicsMapping::FEBoard(uint32_t rawID) const {
   BTLDetId theId(rawID);
   return BTLElectronicsMapping::FEBoard(theId);
 }
 
 /** Returns CC board number */
-int BTLElectronicsMapping::CCBoardFromRU(uint32_t runit) { return runit; }
+int BTLElectronicsMapping::CCBoardFromRU(uint32_t runit) const { return runit; }
 
-int BTLElectronicsMapping::CCBoard(BTLDetId det) {
+int BTLElectronicsMapping::CCBoard(BTLDetId det) const {
   uint32_t runit = det.runit();
   return BTLElectronicsMapping::CCBoardFromRU(runit);
 }
 
-int BTLElectronicsMapping::CCBoard(uint32_t rawID) {
+int BTLElectronicsMapping::CCBoard(uint32_t rawID) const {
   BTLDetId theId(rawID);
   return BTLElectronicsMapping::CCBoard(theId);
 }
