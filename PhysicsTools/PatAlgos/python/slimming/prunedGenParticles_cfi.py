@@ -54,13 +54,11 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 def _keep_forward_zdc_fsc_truth(lst):
-    # ZDC/FSC-facing neutrals (signals)
-    lst.append("keep+ abs(pdgId) == 2112 && status == 1 && abs(eta) > 6.0")
-    lst.append("keep+ pdgId == 22        && status == 1 && abs(eta) > 6.0")
-    lst.append("keep+ abs(pdgId) == 130  && status == 1 && abs(eta) > 6.0")
+    # keep neutrons (stable)
+    lst.append("keep abs(pdgId) == 2112 && status == 1")
 
     # Nuclear fragments / ions
-    lst.append("keep+ abs(pdgId) >= 1000000000 && status == 1 && abs(eta) > 6.0")
+    lst.append("keep abs(pdgId) >= 1000000000 && status == 1")
 
 run3_upc.toModify(prunedGenParticles.select, func=_keep_forward_zdc_fsc_truth)
 
