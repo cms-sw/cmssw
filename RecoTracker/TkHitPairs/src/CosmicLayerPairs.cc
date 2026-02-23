@@ -276,7 +276,7 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collrphi,
   }
 
   TIBLayerWithHits.push_back(new LayerWithHits(bl[3], selectTIBHit(collrphi, ttopo, 1)));  //layer
-      //std::cout << "TIB 0" << std::endl;
+  //std::cout << "TIB 0" << std::endl;
   TIBLayerWithHits.push_back(new LayerWithHits(bl[4], selectTIBHit(collrphi, ttopo, 2)));
   //std::cout << "TIB 1" << std::endl;
   TIBLayerWithHits.push_back(new LayerWithHits(bl[5], selectTIBHit(collrphi, ttopo, 3)));
@@ -298,7 +298,7 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collrphi,
   //std::cout << "TOB 5" << std::endl;
 
   TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[0], selectTECHit(collrphi, ttopo, 2, 1)));  //side, disk
-      //std::cout << "wheel 0" << std::endl;
+  //std::cout << "wheel 0" << std::endl;
   TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[1], selectTECHit(collrphi, ttopo, 2, 2)));
   //std::cout << "wheel 1" << std::endl;
   TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[2], selectTECHit(collrphi, ttopo, 2, 3)));
@@ -317,7 +317,7 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collrphi,
   //std::cout << "wheel 8" << std::endl;
 
   TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[0], selectTECHit(collrphi, ttopo, 1, 1)));  //side, disk
-      //std::cout << "wheel 0" << std::endl;
+  //std::cout << "wheel 0" << std::endl;
   TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[1], selectTECHit(collrphi, ttopo, 1, 2)));
   //std::cout << "wheel 1" << std::endl;
   TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[2], selectTECHit(collrphi, ttopo, 1, 3)));

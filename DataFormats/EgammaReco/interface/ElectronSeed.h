@@ -140,7 +140,7 @@ namespace reco {
     private:
       static float bestVal(float val1, float val2) { return std::abs(val1) < std::abs(val2) ? val1 : val2; }
       template <typename T>
-      T getVal(unsigned int hitNr, T PMVars::*val) const {
+      T getVal(unsigned int hitNr, T PMVars::* val) const {
         return hitNr < hitInfo_.size() ? hitInfo_[hitNr].*val : std::numeric_limits<T>::max();
       }
       static std::vector<unsigned int> hitNrsFromMask(unsigned int hitMask);
