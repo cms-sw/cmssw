@@ -83,8 +83,14 @@ jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
       #DebugOn = cms.untracked.bool(True),
       alwaysPass = cms.untracked.bool(False)
-    )
+    ),
+    stage2L1 = cms.bool(False) # by default use legacy L1T code
 )
+
+## change the default to stage2 for all current eras
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(jetDQMAnalyzerAk4CaloUncleaned,
+                         stage2L1 = True)
 
 jetDQMAnalyzerAk4CaloCleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     JetCleaningFlag   = True,

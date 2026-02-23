@@ -46,7 +46,9 @@
 #define GET_BIT(p, i) GET_BIT2(p, i, ;, ;)
 
 #define TREE_GET_BIT(probs, i) \
-  { GET_BIT((probs + i), i); }
+  {                            \
+    GET_BIT((probs + i), i);   \
+  }
 #define TREE_DECODE(probs, limit, i) \
   {                                  \
     i = 1;                           \
@@ -182,8 +184,7 @@ Out:
     = kMatchSpecLenStart + 2 : State Init Marker
 */
 
-    static int MY_FAST_CALL
-    LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte *bufLimit) {
+    static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte *bufLimit) {
   CLzmaProb *probs = p->probs;
 
   unsigned state = p->state;
