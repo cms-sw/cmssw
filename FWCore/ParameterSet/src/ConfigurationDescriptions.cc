@@ -61,24 +61,13 @@ namespace edm {
                              "ConfigurationDescriptions::add, when adding a ParameterSetDescription for a source the "
                              "label must be \"source\"\n");
       }
-      if (!descriptions_.empty() || defaultDescDefined_ == true) {
-        throw edm::Exception(
-            edm::errors::LogicError,
-            "ConfigurationDescriptions::add, for a source only 1 ParameterSetDescription may be added\n");
-      }
-    } else if (0 == strcmp(baseType_.c_str(), kService)) {
-      if (!descriptions_.empty() || defaultDescDefined_ == true) {
-        throw edm::Exception(
-            edm::errors::LogicError,
-            "ConfigurationDescriptions::add, for a service only 1 ParameterSetDescription may be added\n");
-      }
+    }
+    if (!descriptions_.empty() || defaultDescDefined_ == true) {
+      throw edm::Exception(edm::errors::LogicError,
+                           "ConfigurationDescriptions::add, one and only 1 ParameterSetDescription may be added. Use "
+                           "DescriptionCloner to assign additional labels.\n");
     }
 
-    if (!descriptions_.empty() && defaultDescDefined_ == false) {
-      throw edm::Exception(
-          edm::errors::LogicError,
-          "More than one ParameterSetDescription was added, one of them must be added with addDefault()\n");
-    }
     // To minimize the number of copies involved create an empty description first
     // and push it into the vector.  Then perform the copy.
     std::pair<std::string, ParameterSetDescription> pairWithEmptyDescription;
@@ -102,12 +91,10 @@ namespace edm {
   }
 
   void ConfigurationDescriptions::addDefault(ParameterSetDescription const& psetDescription) {
-    if (0 == strcmp(baseType_.c_str(), kSource) || 0 == strcmp(baseType_.c_str(), kService)) {
-      if (!descriptions_.empty() || defaultDescDefined_ == true) {
-        throw edm::Exception(edm::errors::LogicError,
-                             "ConfigurationDescriptions::addDefault, for a source or service only 1 "
-                             "ParameterSetDescription may be added\n");
-      }
+    if (!descriptions_.empty() || defaultDescDefined_ == true) {
+      throw edm::Exception(edm::errors::LogicError,
+                           "ConfigurationDescriptions::addDefault, only 1 "
+                           "ParameterSetDescription may be added. Use DescriptionCloner to assign labels.\n");
     }
 
     defaultDescDefined_ = true;
@@ -115,6 +102,11 @@ namespace edm {
   }
 
   void ConfigurationDescriptions::add(std::string_view label, DescriptionCloner const& cloner) {
+    if (0 == strcmp(baseType_.c_str(), kSource) || 0 == strcmp(baseType_.c_str(), kService)) {
+      throw edm::Exception(edm::errors::LogicError,
+                           "ConfigurationDescriptions::add, for a source or service only 1 "
+                           "ParameterSetDescription may be added with no DescriptionCloners.\n");
+    }
     if (descriptions_.empty() and not defaultDescDefined_) {
       throw edm::Exception(edm::errors::LogicError,
                            "ConfigurationDescriptions::add with DescriptionCloner called before any\n"
@@ -172,7 +164,7 @@ namespace edm {
     bool wroteClassFile = false;
     cfi::Paths paths;
     if (defaultDescDefined_) {
-      paths = writeClassFile(defaultDesc_, not descriptions_.empty());
+      paths = writeClassFile(defaultDesc_, not(descriptions_.empty() and descriptionCloners_.empty()));
       wroteClassFile = true;
     } else if (descriptions_.size() == 1) {
       paths = writeClassFile(descriptions_.begin()->second, true);
