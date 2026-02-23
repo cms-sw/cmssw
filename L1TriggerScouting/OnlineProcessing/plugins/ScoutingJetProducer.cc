@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -107,7 +108,7 @@ void ScoutingJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
     fastjet::ClusterSequence clustSeq(pjCTs, jetDef);
 
     // get the resulting jets ordered in pt
-    std::vector<fastjet::PseudoJet> incJets = fastjet::sorted_by_pt(clustSeq.inclusive_jets(ptMin_));
+    std::vector<fastjet::PseudoJet> incJets = clustSeq.inclusive_jets(ptMin_);
 
     LogTrace("ScoutingJetProducer") << "[ScoutingJetProducer:" << moduleDescription().moduleLabel()
                                     << "]   Outputs (l1ScoutingRun3::FastJet)";
@@ -125,14 +126,18 @@ void ScoutingJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
                                 nConst,
                                 MiniFloatConverter::reduceMantissaToNbitsRounding(area, mantissaPrecision_));
       ++nFastJet;
-
-      LogTrace("ScoutingJetProducer") << "[ScoutingJetProducer:" << moduleDescription().moduleLabel() << "]     ["
-                                      << (bufferThisBX.size() - 1) << "] et=" << bufferThisBX.back().et()
-                                      << " eta=" << bufferThisBX.back().eta() << " phi=" << bufferThisBX.back().phi()
-                                      << " mass=" << bufferThisBX.back().mass()
-                                      << " nConst=" << bufferThisBX.back().nConst()
-                                      << " area=" << bufferThisBX.back().area();
     }
+
+    std::sort(bufferThisBX.begin(), bufferThisBX.end(), [](auto const& a, auto const& b) { return a.et() > b.et(); });
+
+#ifdef EDM_ML_DEBUG
+    for (auto idx = 0u; idx < bufferThisBX.size(); ++idx) {
+      auto const& obj = bufferThisBX[idx];
+      LogTrace("ScoutingJetProducer") << "[ScoutingJetProducer:" << moduleDescription().moduleLabel() << "]     ["
+                                      << idx << "] et=" << obj.et() << " eta=" << obj.eta() << " phi=" << obj.phi()
+                                      << " mass=" << obj.mass() << " nConst=" << obj.nConst() << " area=" << obj.area();
+    }
+#endif
   }
 
   // fill orbit collection with reconstructed jets
