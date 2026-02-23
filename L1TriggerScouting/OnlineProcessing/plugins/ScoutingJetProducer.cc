@@ -106,9 +106,10 @@ void ScoutingJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
     for (const auto& incJet : incJets) {
       int nConst = incJet.has_constituents() ? incJet.constituents().size() : 0;
       float area = incJet.has_area() ? incJet.area() : -1.0f;
+      // use phi_std(), instead of phi(), in order to have angles in the range (-pi,pi]
       bufferThisBX.emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.Et(), mantissaPrecision_),
                                 MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.eta(), mantissaPrecision_),
-                                MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.phi(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.phi_std(), mantissaPrecision_),
                                 MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.m(), mantissaPrecision_),
                                 nConst,
                                 MiniFloatConverter::reduceMantissaToNbitsRounding(area, mantissaPrecision_));
