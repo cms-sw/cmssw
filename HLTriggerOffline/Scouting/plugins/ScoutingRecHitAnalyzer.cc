@@ -104,6 +104,7 @@ protected:
   std::vector<MonitorElement*> time_histograms_;
   std::vector<MonitorElement*> ieta_iphi_histograms_;
   std::vector<MonitorElement*> eta_phi_histograms_;
+  std::vector<MonitorElement*> energy_time_histograms_;
   std::vector<MonitorElement*> ieta_iphi_energy_profiles_;
   std::vector<MonitorElement*> eta_phi_energy_profiles_;
   std::vector<MonitorElement*> ieta_iphi_time_profiles_;
@@ -176,6 +177,8 @@ void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibook
       number_histograms_.push_back(ibooker.book1D("number", "Number;Events", 100, 0., 1000.));
       energy_histograms_.push_back(ibooker.book1D("energy", "Energy (GeV);Events", 100, 0., 20.));
       time_histograms_.push_back(ibooker.book1D("time", "Time (ps);Events", 100, 0., 1000.));
+      energy_time_histograms_.push_back(
+          ibooker.book2D("energy_time", "Energy (GeV);Time (ps);Entries", 100, 0., 20., 100, 0., 1000.));
       ieta_iphi_histograms_.push_back(
           ibooker.book2D("ieta_iphi", "i#eta;i#phi;Entries", 171, -85.5, 85.5, 360, 0.5, 360.5));
       eta_phi_histograms_.push_back(
@@ -217,6 +220,9 @@ void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibook
       number_histograms_.push_back(ibooker.book1D("number", "Number;Events", 100, 0., 2000.));
       energy_histograms_.push_back(ibooker.book1D("energy", "Energy (GeV);Events", 100, 0., 20.));
       time_histograms_.push_back(ibooker.book1D("time", "Time (ns);Events", 100, 0., 30.));
+      energy_time_histograms_.push_back(
+          ibooker.book2D("energy_time", "Energy (GeV);Time (ns);Entries", 100., 0., 20., 100., 0., 30.));
+
       ieta_iphi_histograms_.push_back(
           ibooker.book2D("ieta_iphi", "i#eta;i#phi;Entries", 59, -29.5, 29.5, 72, 0.5, 72.5));
       ieta_iphi_energy_profiles_.push_back(
@@ -295,6 +301,7 @@ void ScoutingRecHitAnalyzer<RecHitType>::analyze(const edm::Event& iEvent, const
       time_histograms_[0]->Fill(time);
       ieta_iphi_histograms_[0]->Fill(ieta, iphi);
       eta_phi_histograms_[0]->Fill(eta, phi);
+      energy_time_histograms_[0]->Fill(energy, time);
       ieta_iphi_energy_profiles_[0]->Fill(ieta, iphi, energy);
       eta_phi_energy_profiles_[0]->Fill(eta, phi, energy);
       ieta_iphi_time_profiles_[0]->Fill(ieta, iphi, time);
@@ -317,6 +324,7 @@ void ScoutingRecHitAnalyzer<RecHitType>::analyze(const edm::Event& iEvent, const
           time_histograms_[itrigger]->Fill(time);
           ieta_iphi_histograms_[itrigger]->Fill(ieta, iphi);
           eta_phi_histograms_[itrigger]->Fill(eta, phi);
+          energy_time_histograms_[itrigger]->Fill(energy, time);
           ieta_iphi_energy_profiles_[itrigger]->Fill(ieta, iphi, energy);
           eta_phi_energy_profiles_[itrigger]->Fill(eta, phi, energy);
           ieta_iphi_time_profiles_[itrigger]->Fill(ieta, iphi, time);
