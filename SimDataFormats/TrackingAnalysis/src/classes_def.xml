@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="TrackingVertex"  ClassVersion="10">
-   <version ClassVersion="10" checksum="378811908"/>
+  <class name="TrackingVertex"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1296296226"/>
   </class>
   <class name="std::vector<TrackingVertex>" />
   <class name="std::vector<TrackingVertex>::iterator" />

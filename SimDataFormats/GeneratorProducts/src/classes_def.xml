@@ -80,15 +80,15 @@
 
 	<!-- HepMCProduct -->
 
-	<class name="edm::Wrapper&lt;edm::HepMCProduct&gt;"/>
-	<class name="edm::HepMCProduct" ClassVersion="10" rntupleStreamerMode="true">
-  <version ClassVersion="10" checksum="3587845075"/>
+	<class name="edm::Wrapper&lt;edm::io_v1::HepMCProduct&gt;"/>
+	<class name="edm::io_v1::HepMCProduct" ClassVersion="3" rntupleStreamerMode="true">
+  <version ClassVersion="3" checksum="1397013087"/>
  </class>
-        <class name="std::vector&lt;const edm::HepMCProduct*&gt;"/>
-	<class name="edm::Ref&lt;edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenVertex&gt;::Find&gt;"/>
-	<class name="edm::Ref&lt;edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
-	<class name="edm::RefVector&lt;edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenVertex&gt;::Find&gt;"/>
-	<class name="edm::RefVector&lt;edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
+        <class name="std::vector&lt;const edm::io_v1::HepMCProduct*&gt;"/>
+	<class name="edm::Ref&lt;edm::io_v1::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait&lt;edm::io_v1::HepMCProduct,HepMC::GenVertex&gt;::Find&gt;"/>
+	<class name="edm::Ref&lt;edm::io_v1::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::io_v1::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
+	<class name="edm::RefVector&lt;edm::io_v1::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait&lt;edm::io_v1::HepMCProduct,HepMC::GenVertex&gt;::Find&gt;"/>
+	<class name="edm::RefVector&lt;edm::io_v1::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::io_v1::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*&gt;"/>
 	<class name="std::pair&lt;const int,HepMC::GenVertex*&gt;"/>
 	<class name="std::pair&lt;int,HepMC::GenVertex*&gt;"/>
@@ -272,7 +272,7 @@
   <version ClassVersion="3" checksum="2760887354"/>
 </class>
 <class name="ExternalGeneratorEventInfo" ClassVersion="3">
-  <version ClassVersion="3" checksum="2860722409"/>
+  <version ClassVersion="3" checksum="613647201"/>
 </class>
 
 </lcgdict>
