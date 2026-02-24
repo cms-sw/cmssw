@@ -207,7 +207,7 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const { return getPos
 
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, int overRideDebug) const {
   bool debug = ((overRideDebug % 10) > 0);
-  bool cog = m_topology.dddConstants().waferHexagon8Fine() ? true : false;
+  bool cog = m_topology.dddConstants().v18OrMore() ? true : false;
   if (((overRideDebug / 10) % 10) > 0) {
     if (cog)
       cog = false;
