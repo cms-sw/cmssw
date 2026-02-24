@@ -20,7 +20,7 @@ namespace ticl {
   // clang-format off
   template <concepts::trivially_copyable TMapped, std::integral TKey>
   struct AssociationMapLayout {
-    GENERATE_SOA_LAYOUT(ContentBuffersLayout, SOA_COLUMN(TMapped, mapped_values))
+    GENERATE_SOA_LAYOUT(ContentBuffersLayout, SOA_COLUMN(TMapped, values))
     GENERATE_SOA_LAYOUT(OffsetBufferLayout, SOA_COLUMN(TKey, keys_offsets))
 
     GENERATE_SOA_BLOCKS(Layout,
@@ -28,22 +28,26 @@ namespace ticl {
                         SOA_BLOCK(offsets, OffsetBufferLayout),
                         SOA_VIEW_METHODS(
 							constexpr SOA_HOST_DEVICE auto operator[](TKey key) {
-							  auto offset = this->offsets().keys_offsets()[key];
-							  auto size = this->offsets().keys_offsets()[key + 1] - offset;
-							  return std::span<TMapped>{this->content().mapped_values().data() + offset, size};
+							  auto offset = (key == 0u) ? 0u : this->offsets()[key].keys_offsets();
+							  auto size = (key == 0u) ? this->offsets()[0].keys_offsets() 
+                                        : this->offsets()[key].keys_offsets() - this->offsets()[key - 1].keys_offsets();
+							  return std::span<TMapped>{this->content().values().data() + offset, size};
 							}
 						),
                         SOA_CONST_VIEW_METHODS(
 							constexpr SOA_HOST_DEVICE auto operator[](TKey key) const {
-							  auto offset = this->offsets().keys_offsets()[key];
-							  auto size = this->offsets().keys_offsets()[key + 1] - offset;
-							  return std::span<const TMapped>{this->content().mapped_values().data() + offset, size};
+							  auto offset = (key == 0) ? 0u : this->offsets().keys_offsets()[key];
+							  auto size = (key == 0u) ? this->offsets()[0].keys_offsets()
+                                        : this->offsets()[key].keys_offsets() - this->offsets()[key - 1].keys_offsets();
+							  return std::span<const TMapped>{this->content().values().data() + offset, size};
 							}
 							constexpr SOA_HOST_DEVICE auto contains(TKey key) const {
-							  return this->offsets().keys_offsets()[key + 1] > this->offsets().keys_offsets()[key];
+							  return (key == 0u) ? this->offsets()[0].keys_offsets() > 0 
+                                   : this->offsets()[key].keys_offsets() > this->offsets()[key - 1].keys_offsets();
 							}
 							constexpr SOA_HOST_DEVICE auto count(TKey key) const {
-							  return this->offsets().keys_offsets()[key + 1] - this->offsets().keys_offsets()[key];
+							  return (key == 0u) ? this->offsets()[0].keys_offsets()
+                                   : this->offsets()[key].keys_offsets() - this->offsets()[key - 1].keys_offsets();
 							}
 							constexpr SOA_HOST_DEVICE auto keys() const {
 							  return this->offsets().metadata().size();
@@ -52,7 +56,7 @@ namespace ticl {
 							  return this->offsets().metadata().size();
 							}
 						)
-	)
+    )
   };
   // clang-format on
 

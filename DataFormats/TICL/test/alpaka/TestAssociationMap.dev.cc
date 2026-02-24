@@ -16,7 +16,6 @@ namespace {
   struct TestKernel {
     template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc, ticl::AssociationMapView<> map, bool* result) const {
-      // with view methods
       for (auto idx : alpaka::uniformElements(acc, map.size())) {
         if (idx < static_cast<uint32_t>(map.size() / 2)) {
           *result &= (map[0][idx] % 2 != 0);
@@ -56,16 +55,16 @@ TEST_CASE("Construct and fill an association map") {
                                   map.view(),
                                   std::span<const uint32_t>{device_associations.data(), nvalues},
                                   std::span<const uint32_t>{device_values.data(), nvalues});
-    auto offsets = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nkeys + 1);
+    auto offsets = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nkeys);
     auto values = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nvalues);
-    alpaka::memcpy(queue,
-                   offsets,
-                   cms::alpakatools::make_device_view(
-                       alpaka::getDev(queue), map.view().offsets().keys_offsets().data(), nkeys + 1));
-    alpaka::memcpy(queue,
-                   values,
-                   cms::alpakatools::make_device_view(
-                       alpaka::getDev(queue), map.view().content().mapped_values().data(), nvalues));
+    alpaka::memcpy(
+        queue,
+        offsets,
+        cms::alpakatools::make_device_view(alpaka::getDev(queue), map.view().offsets().keys_offsets().data(), nkeys));
+    alpaka::memcpy(
+        queue,
+        values,
+        cms::alpakatools::make_device_view(alpaka::getDev(queue), map.view().content().values().data(), nvalues));
 
     auto device_result = cms::alpakatools::make_device_buffer<bool>(queue);
     alpaka::memset(queue, device_result, 1);
@@ -80,9 +79,8 @@ TEST_CASE("Construct and fill an association map") {
     CHECK(*host_result);
 
     // check content back on CPU
-    CHECK(offsets[0] == 0);
-    CHECK(offsets[1] == 50);
-    CHECK(offsets[2] == 100);
+    CHECK(offsets[0] == 50);
+    CHECK(offsets[1] == 100);
     for (auto i = 0u; i < nvalues; ++i) {
       if (i < nvalues / 2) {
         CHECK(values[i] % 2 != 0);
