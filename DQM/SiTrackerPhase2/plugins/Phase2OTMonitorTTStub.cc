@@ -61,6 +61,7 @@ public:
   MonitorElement *Stub_Endcap_Fw_XY = nullptr;  // TTStub Forward Endcap y vs. x
   MonitorElement *Stub_Endcap_Bw_XY = nullptr;  // TTStub Backward Endcap y vs. x
   MonitorElement *Stub_RZ = nullptr;            // TTStub #rho vs. z
+  MonitorElement *CrackOverview = nullptr;      // Cosmic rack: TTStub layer vs module
 
   // Number of stubs
   MonitorElement *Stub_Barrel = nullptr;                                                   // TTStub per layer
@@ -153,6 +154,11 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
       double rawBend = tempStubRef->rawBend();
       double bendOffset = tempStubRef->bendOffset();
 
+      // Get module
+      unsigned int module = tTopo_->module(detIdStub);
+      // CRACK is viewed from behind, so to align plots with what is seen in real life, modules are flipped
+      if (CrackOverview)
+        module = std::abs(int(module - 13));
       /// Define position stub by position inner cluster
       MeasurementPoint mp = (tempStubRef->clusterRef(0))->findAverageLocalCoordinates();
       const GeomDet *theGeomDet = tkGeom_->idToDet(detIdStub);
@@ -165,6 +171,8 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
       Stub_bendFE->Fill(tempStubRef->bendFE());
       Stub_bendBE->Fill(tempStubRef->bendBE());
       Stub_isPS->Fill(tempStubRef->moduleTypePS());
+      if (CrackOverview)
+        CrackOverview->Fill(module, tTopo_->getOTLayerNumber(detIdStub) + 0.05 - (module % 2 * 0.1));
 
       if (detIdStub.subdetId() == static_cast<int>(StripSubdetector::TOB)) {  // Phase 2 Outer Tracker Barrel
         Stub_Barrel->Fill(tTopo_->layer(detIdStub));
@@ -257,6 +265,33 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
                            psTTStub_RZ.getParameter<double>("ymax"));
   Stub_RZ->setAxisTitle("L1 Stub position z [cm]", 1);
   Stub_RZ->setAxisTitle("L1 Stub position #rho [cm]", 2);
+
+  // CRACK ONLY: module vs layer
+  edm::ParameterSet Parameters = conf_.getParameter<edm::ParameterSet>("CrackOverview");
+  if (Parameters.getParameter<bool>("switch")) {
+    CrackOverview = iBooker.book2DPoly(Parameters.getParameter<std::string>("name"),
+                                       Parameters.getParameter<std::string>("title"),
+                                       Parameters.getParameter<double>("xmin"),
+                                       Parameters.getParameter<double>("xmax"),
+                                       Parameters.getParameter<double>("ymin"),
+                                       Parameters.getParameter<double>("ymax"));
+    if (CrackOverview->getTH2Poly()->GetNumberOfBins() == 0) {
+      double yOffset = 0;
+      for (int layer = 1; layer < 7; layer++) {
+        for (int module = 1; module < 13; module++) {
+          if (module % 2 == 1)
+            yOffset = -0.1;
+          else
+            yOffset = 0;
+          CrackOverview->addBin(module - 0.7, layer + yOffset, module + 0.7, layer + yOffset + 0.1);
+        }
+      }
+    }
+    CrackOverview->getTH2Poly()->SetStats(false);
+    CrackOverview->setOption("z0");
+
+  } else
+    CrackOverview = nullptr;
 
   iBooker.setCurrentFolder(topFolderName_ + "/Stubs");
   // TTStub eta
@@ -558,6 +593,17 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
     psd0.add<double>("ymax", 120);
     psd0.add<double>("ymin", 0);
     desc.add<edm::ParameterSetDescription>("TH2TTStub_RZ", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Crack_Overview_Stubs");
+    psd0.add<std::string>("title", "Crack_Overview_stubs;Module;Layer");
+    psd0.add<double>("xmin", 0.0);
+    psd0.add<bool>("switch", false);
+    psd0.add<double>("xmax", 13.0);
+    psd0.add<double>("ymin", 0.0);
+    psd0.add<double>("ymax", 7.5);
+    desc.add<edm::ParameterSetDescription>("CrackOverview", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
