@@ -8,11 +8,14 @@
   <class name="edm::AssociationMap<edm::OneToOne<reco::GsfTrackCollection, std::vector<VertexConstraint>, unsigned int> >" >
     <field name="transientMap_" transient="true" />
   </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>, std::vector<reco::io_v1::GsfTrack>, unsigned short > > >" />
 
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::GsfTrackCollection, std::vector<MomentumConstraint>, unsigned int> > >" />
+  <!-- As per issue https://github.com/cms-sw/cmssw/issues/50165 -->
+  <!-- The following dictionaries are defined outside of DataFormats, thus -->
+  <!-- they need to be non-persistent -->
 
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::GsfTrackCollection, std::vector<VertexConstraint>, unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>, std::vector<reco::io_v1::GsfTrack>, unsigned short > > >" persistent="false"/>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::GsfTrackCollection,std::vector<MomentumConstraint>, unsigned int> > >" persistent="false" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::GsfTrackCollection, std::vector<VertexConstraint>, unsigned int> > >" persistent="false"/>
 
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<Trajectory> >, edm::RefProd<std::vector<reco::io_v1::GsfTrack> > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::io_v1::GsfTrack> >, edm::RefProd<std::vector<MomentumConstraint> > >"/>
