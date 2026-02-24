@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -7,16 +8,14 @@
 #include "DataFormats/Math/interface/libminifloat.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "L1TriggerScouting/Utilities/interface/conversion.h"
 
-// ROOT libraries
-#include "Math/Vector4D.h"
-#include "Math/VectorUtil.h"
-
-// fastjet libraries
 #include "fastjet/ClusterSequence.hh"
+#include "fastjet/JetDefinition.hh"
+#include "fastjet/PseudoJet.hh"
 
 class ScoutingJetProducer : public edm::global::EDProducer<> {
 public:
@@ -37,7 +36,6 @@ private:
   int const towerMinHwEt_;
   int const towerMaxHwEt_;
   int const mantissaPrecision_;
-  bool const debug_;
 };
 
 ScoutingJetProducer::ScoutingJetProducer(const edm::ParameterSet& iPSet)
@@ -46,8 +44,7 @@ ScoutingJetProducer::ScoutingJetProducer(const edm::ParameterSet& iPSet)
       ptMin_(iPSet.getParameter<double>("ptMin")),
       towerMinHwEt_(iPSet.getParameter<int>("towerMinHwEt")),
       towerMaxHwEt_(iPSet.getParameter<int>("towerMaxHwEt")),
-      mantissaPrecision_(iPSet.getParameter<int>("mantissaPrecision")),
-      debug_(iPSet.getUntrackedParameter<bool>("debug")) {
+      mantissaPrecision_(iPSet.getParameter<int>("mantissaPrecision")) {
   produces<l1ScoutingRun3::FastJetOrbitCollection>("FastJet").setBranchAlias("FastJetOrbitCollection");
 }
 
@@ -67,44 +64,80 @@ void ScoutingJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
 
   // loop over valid bunch crossings
   for (auto const bx : caloTowerCollection.getFilledBxs()) {
-    const auto& cts = caloTowerCollection.bxIterator(bx);
+    LogTrace("ScoutingJetProducer") << "[ScoutingJetProducer:" << moduleDescription().moduleLabel() << "] BX = " << bx;
+    LogTrace("ScoutingJetProducer") << "[ScoutingJetProducer:" << moduleDescription().moduleLabel()
+                                    << "]   Inputs (l1ScoutingRun3::CaloTower and fastjet::PseudoJet)";
 
-    // prepare pseudojets to give in input to fastjet
+    auto const& cts = caloTowerCollection.bxIterator(bx);
+
+    // prepare PseudoJets to give in input to fastjet
     pjCTs.clear();
     pjCTs.reserve(cts.size());
-    for (const auto& ct : cts) {
+    for (auto const& ct : cts) {
       if (not((towerMinHwEt_ < 0 or ct.hwEt() >= towerMinHwEt_) and
               (towerMaxHwEt_ < 0 or ct.hwEt() <= towerMaxHwEt_))) {
         continue;
       }
 
-      ROOT::Math::PtEtaPhiMVector ctLV(l1ScoutingRun3::calol1::fEt(ct.hwEt()),
-                                       l1ScoutingRun3::calol1::fEta(ct.hwEta()),
-                                       l1ScoutingRun3::calol1::fPhi(ct.hwPhi()),
-                                       0);
-      pjCTs.emplace_back(ctLV.px(), ctLV.py(), ctLV.pz(), ctLV.E());
+      if (not l1ScoutingRun3::calol1::validHwEta(ct.hwEta())) {
+        edm::LogWarning("ScoutingJetProducer") << "CaloTower in BX=" << bx << " with invalid hwEta value ("
+                                               << ct.hwEta() << ") will not be used for jet clustering !";
+        continue;
+      }
+
+      if (not l1ScoutingRun3::calol1::validHwPhi(ct.hwPhi())) {
+        edm::LogWarning("ScoutingJetProducer") << "CaloTower in BX=" << bx << " with invalid hwPhi value ("
+                                               << ct.hwPhi() << ") will not be used for jet clustering !";
+        continue;
+      }
+
+      float const ctEt = l1ScoutingRun3::calol1::fEt(ct.hwEt());
+      float const ctEta = l1ScoutingRun3::calol1::fEta(ct.hwEta());
+      float const ctPhi = l1ScoutingRun3::calol1::fPhi(ct.hwPhi());
+
+      pjCTs.emplace_back(fastjet::PtYPhiM(ctEt, ctEta, ctPhi, 0));
+
+      LogTrace("ScoutingJetProducer") << "[ScoutingJetProducer:" << moduleDescription().moduleLabel() << "]     ["
+                                      << (pjCTs.size() - 1) << "] hwEt=" << ct.hwEt() << " hwEta=" << ct.hwEta()
+                                      << " hwPhi=" << ct.hwPhi() << " (PseudoJet: pt=" << ctEt << " eta=" << ctEta
+                                      << " phi=" << ctPhi << " px=" << pjCTs.back().px() << " py=" << pjCTs.back().py()
+                                      << " pz=" << pjCTs.back().pz() << " E=" << pjCTs.back().E() << ")";
     }
 
     // run the jet clustering with the given jet definition
     fastjet::ClusterSequence clustSeq(pjCTs, jetDef);
 
     // get the resulting jets ordered in pt
-    std::vector<fastjet::PseudoJet> incJets = fastjet::sorted_by_pt(clustSeq.inclusive_jets(ptMin_));
+    std::vector<fastjet::PseudoJet> incJets = clustSeq.inclusive_jets(ptMin_);
 
-    // fill fast jet objects buffer
+    LogTrace("ScoutingJetProducer") << "[ScoutingJetProducer:" << moduleDescription().moduleLabel()
+                                    << "]   Outputs (l1ScoutingRun3::FastJet)";
+
+    // fill l1ScoutingRun3::FastJet objects buffer
     auto& bufferThisBX = fastJetBuffer[bx];
     bufferThisBX.reserve(incJets.size());
-    for (const auto& incJet : incJets) {
-      int nConst = incJet.has_constituents() ? incJet.constituents().size() : 0;
-      float area = incJet.has_area() ? incJet.area() : -1.0f;
+    for (auto const& incJet : incJets) {
+      int const nConst = incJet.has_constituents() ? incJet.constituents().size() : 0;
+      float const area = incJet.has_area() ? incJet.area() : -1.0f;
       bufferThisBX.emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.Et(), mantissaPrecision_),
                                 MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.eta(), mantissaPrecision_),
-                                MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.phi(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.phi_std(), mantissaPrecision_),
                                 MiniFloatConverter::reduceMantissaToNbitsRounding(incJet.m(), mantissaPrecision_),
                                 nConst,
                                 MiniFloatConverter::reduceMantissaToNbitsRounding(area, mantissaPrecision_));
-      nFastJet++;
+      ++nFastJet;
     }
+
+    std::sort(bufferThisBX.begin(), bufferThisBX.end(), [](auto const& a, auto const& b) { return a.et() > b.et(); });
+
+#ifdef EDM_ML_DEBUG
+    for (auto idx = 0u; idx < bufferThisBX.size(); ++idx) {
+      auto const& obj = bufferThisBX[idx];
+      LogTrace("ScoutingJetProducer") << "[ScoutingJetProducer:" << moduleDescription().moduleLabel() << "]     ["
+                                      << idx << "] et=" << obj.et() << " eta=" << obj.eta() << " phi=" << obj.phi()
+                                      << " mass=" << obj.mass() << " nConst=" << obj.nConst() << " area=" << obj.area();
+    }
+#endif
   }
 
   // fill orbit collection with reconstructed jets
@@ -122,7 +155,6 @@ void ScoutingJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<int>("towerMaxHwEt", -1)
       ->setComment("Max hwEt (inclusive) of CaloTowers used for jet clustering (ignored if negative)");
   desc.add<int>("mantissaPrecision", 10)->setComment("default float16, change to 23 for float32");
-  desc.addUntracked<bool>("debug", false);
   descriptions.addDefault(desc);
 }
 
