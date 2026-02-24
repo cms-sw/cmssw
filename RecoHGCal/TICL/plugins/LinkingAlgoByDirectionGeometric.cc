@@ -303,7 +303,17 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
       continue;
 
     int iSide = int(tk.eta() > 0);
-    const auto &fts = trajectoryStateTransform::outerFreeState((tk), bFieldProd);
+    FreeTrajectoryState fts;
+
+    // Check whether the outer state is actually valid
+    if (tk.outerOk()) {
+      // Use outer state if available
+      fts = trajectoryStateTransform::outerFreeState(tk, bFieldProd);
+    } else {
+      // Fallback: use PCA (reference point)
+      fts = trajectoryStateTransform::initialFreeState(tk, bFieldProd);
+    }
+
     // to the HGCal front
     const auto &tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
     if (tsos.isValid()) {
