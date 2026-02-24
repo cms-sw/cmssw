@@ -10,13 +10,12 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
-
-class HBHEDataFrame;
-class HODataFrame;
-class HFDataFrame;
-class ZDCDataFrame;
-class QIE10DataFrame;
-class QIE11DataFrame;
+#include "DataFormats/HcalDigi/interface/HBHEDataFrameFwd.h"
+#include "DataFormats/HcalDigi/interface/HODataFrameFwd.h"
+#include "DataFormats/HcalDigi/interface/HFDataFrameFwd.h"
+#include "DataFormats/HcalDigi/interface/ZDCDataFrameFwd.h"
+#include "DataFormats/HcalDigi/interface/QIE10DataFrameFwd.h"
+#include "DataFormats/HcalDigi/interface/QIE11DataFrameFwd.h"
 
 namespace CLHEP {
   class HepRandomEngine;
