@@ -180,18 +180,18 @@ void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibook
       energy_time_histograms_.push_back(
           ibooker.book2D("energy_time", "Energy (GeV);Time (ps);Entries", 100, 0., 20., 100, 0., 1000.));
       ieta_iphi_histograms_.push_back(
-          ibooker.book2D("ieta_iphi", "i#eta;i#phi;Entries", 171, -85.5, 85.5, 360, 0.5, 360.5));
+          ibooker.book2D("ieta_iphi", ";i#eta;i#phi;Entries", 171, -85.5, 85.5, 360, 0.5, 360.5));
       eta_phi_histograms_.push_back(
-          ibooker.book2D("eta_phi", "#eta;#phi;Entries", 170, -85 * kDegToRad, 85 * kDegToRad, 360, -M_PI, M_PI));
+          ibooker.book2D("eta_phi", ";#eta;#phi;Entries", 170, -85 * kDegToRad, 85 * kDegToRad, 360, -M_PI, M_PI));
       ieta_iphi_energy_profiles_.push_back(ibooker.bookProfile2D(
-          "ieta_iphi_energy", "i#eta;i#phi;mean Energy", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
+          "ieta_iphi_energy", ";i#eta;i#phi;mean Energy", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
       eta_phi_energy_profiles_.push_back(ibooker.bookProfile2D(
-          "eta_phi_energy", "#eta;#phi;mean Energy", 170, -85 * kDegToRad, 85 * kDegToRad, 360, -M_PI, M_PI, 0, 20));
+          "eta_phi_energy", ";#eta;#phi;mean Energy", 170, -85 * kDegToRad, 85 * kDegToRad, 360, -M_PI, M_PI, 0, 20));
 
       ieta_iphi_time_profiles_.push_back(
-          ibooker.bookProfile2D("ieta_iphi_time", "i#eta;i#phi;mean Time", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
+          ibooker.bookProfile2D("ieta_iphi_time", ";i#eta;i#phi;mean Time", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
       eta_phi_time_profiles_.push_back(ibooker.bookProfile2D(
-          "eta_phi_time", "#eta;#phi;mean Time", 170, -85 * kDegToRad, 85 * kDegToRad, 360, -M_PI, M_PI, 0, 20));
+          "eta_phi_time", ";#eta;#phi;mean Time", 170, -85 * kDegToRad, 85 * kDegToRad, 360, -M_PI, M_PI, 0, 20));
 
     } else if constexpr (std::is_same<RecHitType, Run3ScoutingHBHERecHit>()) {
       std::vector<double> eta_edges(59);
@@ -221,35 +221,35 @@ void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibook
       energy_histograms_.push_back(ibooker.book1D("energy", "Energy (GeV);Events", 100, 0., 20.));
       time_histograms_.push_back(ibooker.book1D("time", "Time (ns);Events", 100, 0., 30.));
       energy_time_histograms_.push_back(
-          ibooker.book2D("energy_time", "Energy (GeV);Time (ns);Entries", 100., 0., 20., 100., 0., 30.));
+          ibooker.book2D("energy_time", ";Energy (GeV);Time (ns);Entries", 100., 0., 50., 100., 0., 50.));
 
       ieta_iphi_histograms_.push_back(
-          ibooker.book2D("ieta_iphi", "i#eta;i#phi;Entries", 59, -29.5, 29.5, 72, 0.5, 72.5));
+          ibooker.book2D("ieta_iphi", ";i#eta;i#phi;Entries", 59, -29.5, 29.5, 72, 0.5, 72.5));
       ieta_iphi_energy_profiles_.push_back(
-          ibooker.bookProfile2D("ieta_iphi_energy", "i#eta;i#phi;mean Energy", 59, -29.5, 29.5, 72, 0.5, 72.5, 0, 20));
+          ibooker.bookProfile2D("ieta_iphi_energy", ";i#eta;i#phi;mean Energy", 59, -29.5, 29.5, 72, 0.5, 72.5, 0, 20));
 
       ieta_iphi_time_profiles_.push_back(
-          ibooker.bookProfile2D("ieta_iphi_time", "i#eta;i#phi;mean Time", 59, -29.5, 29.5, 72, 0.5, 72.5, 0, 20));
+          ibooker.bookProfile2D("ieta_iphi_time", ";i#eta;i#phi;mean Time", 59, -29.5, 29.5, 72, 0.5, 72.5, 0, 20));
 
       // demote edges from double to float
       std::vector<float> eta_edges_f(eta_edges.begin(), eta_edges.end());
       std::vector<float> phi_edges_f(phi_edges.begin(), phi_edges.end());
       eta_phi_histograms_.push_back(ibooker.book2D("eta_phi",
-                                                   "#eta;#phi;Entries",
+                                                   ";#eta;#phi;Entries",
                                                    eta_edges_f.size() - 1,
                                                    eta_edges_f.data(),
                                                    phi_edges_f.size() - 1,
                                                    phi_edges_f.data()));
 
       eta_phi_energy_profiles_.push_back(ibooker.bookProfile2D("eta_phi_energy",
-                                                               "#eta;#phi;mean Energy",
+                                                               ";#eta;#phi;mean Energy",
                                                                eta_edges.size() - 1,
                                                                eta_edges.data(),
                                                                phi_edges.size() - 1,
                                                                phi_edges.data()));
 
       eta_phi_time_profiles_.push_back(ibooker.bookProfile2D("eta_phi_time",
-                                                             "#eta;#phi;mean Time",
+                                                             ";#eta;#phi;mean Time",
                                                              eta_edges.size() - 1,
                                                              eta_edges.data(),
                                                              phi_edges.size() - 1,
