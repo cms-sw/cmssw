@@ -295,7 +295,7 @@ bool l1ct::MiddleBufferMultififoRegionizerEmulator::step(bool newEvent,
       pre_out_hadCalo.resize(pre_out_commCalo.size());
       for (unsigned int i = 0, n = pre_out_commCalo.size(); i < n; ++i) {
         pre_out_commCalo[i].convertTo(pre_out_hadCalo[i]);
-        pre_out_commCalo[i].src = pre_out_hadCalo[i].src;
+        pre_out_hadCalo[i].src = pre_out_commCalo[i].src;
       }
     }
   }
@@ -306,7 +306,7 @@ bool l1ct::MiddleBufferMultififoRegionizerEmulator::step(bool newEvent,
       pre_out_emCalo.resize(pre_out_commCalo.size());
       for (unsigned int i = 0, n = pre_out_commCalo.size(); i < n; ++i) {
         pre_out_commCalo[i].convertTo(pre_out_emCalo[i]);
-        pre_out_commCalo[i].src = pre_out_emCalo[i].src;
+        pre_out_emCalo[i].src = pre_out_commCalo[i].src;
       }
     }
   }

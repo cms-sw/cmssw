@@ -1,8 +1,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1TSC4NGJetID.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/inversion.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/log.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include <cmath>
+#include <algorithm>
 
 L1TSC4NGJetID::L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles, bool debug)
     : modelRef_(model) {

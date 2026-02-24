@@ -143,8 +143,8 @@ namespace l1ct {
     template <typename T>
     void convert_GCTsector_tmux(const std::vector<l1ct::DetectorSector<T>>& tm6_sectors,
                                 std::vector<l1ct::DetectorSector<T>>& tm18_sectors) const {
-      std::vector<unsigned int> gct_slr_tmux18sector_mapping = {0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2};
-      for (auto& sec : tm6_sectors) {
+      static constexpr std::array<unsigned int, 12> gct_slr_tmux18sector_mapping = {0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2};
+      for (const auto& sec : tm6_sectors) {
         // std::cout << "Processing TMUX6 hadcalo sector: " << isec << " #cl: " << sec.obj.size() << std::endl;
         for (auto cl : sec.obj) {
           if (cl.hwPt == 0)
