@@ -13,8 +13,7 @@ namespace math {
 #ifdef __CUDACC__
     __host__ __device__
 #endif
-        inline constexpr void
-        invertNN(M1 const& src, M2& dst) {
+        inline constexpr void invertNN(M1 const& src, M2& dst) {
 
       // origin: CERNLIB
 

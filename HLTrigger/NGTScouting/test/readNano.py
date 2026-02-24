@@ -96,12 +96,12 @@ def main():
             try:  # Offset pattern
                 offset = 0
                 for obj_idx in range(event.nSimCP2hltTiclCandidateByHits - 1):
-                    next_offset = event.SimSC2hltTiclCandidateByHits_oSimSC2hltTiclCandidateByHitsLinks[
+                    next_offset = event.SimCP2hltTiclCandidateByHits_oSimCP2hltTiclCandidateByHitsLinks[
                         obj_idx + 1
                     ]
-                    elements = event.SimCP2hltTiclTrackstersCLUE3DHighByHitsLinks_index[offset:next_offset]
-                    scores = event.SimCP2hltTiclTrackstersCLUE3DHighByHitsLinks_score[offset:next_offset]
-                    sharedEnergy = event.SimCP2hltTiclTrackstersCLUE3DHighByHitsLinks_sharedEnergy[
+                    elements = event.SimCP2hltTiclCandidateByHitsLinks_index[offset:next_offset]
+                    scores = event.SimCP2hltTiclCandidateByHitsLinks_score[offset:next_offset]
+                    sharedEnergy = event.SimCP2hltTiclCandidateByHitsLinks_sharedEnergy[
                         offset:next_offset
                     ]
                     if len(elements) > 0:
@@ -134,6 +134,39 @@ def main():
                     sharedEnergy = event.SimCP2hltTiclCandidateByHitsLinks_sharedEnergy[
                         offset : offset + count
                     ]
+                    if len(elements) > 0:
+                        print("Count ", obj_idx, elements, scores, sharedEnergy)
+                    offset += count
+            except AttributeError as e:
+                print(f"An AttributeError occurred (Count): {e}")
+
+
+            #Reco2Sim
+            
+            try:  # Offset pattern
+                offset = 0
+                for obj_idx in range(event.nRecohltTiclCandidate2SimCPByHits - 1):
+                    next_offset = event.RecohltTiclCandidate2SimCPByHits_oSimCP2hltTiclCandidateByHitsLinks[
+                        obj_idx + 1
+                    ]
+                    elements = event.RecohltTiclCandidate2SimCPByHitsLinks_index[offset:next_offset]
+                    scores = event.RecohltTiclCandidate2SimCPByHitsLinks_score[offset:next_offset]
+                    sharedEnergy = event.RecohltTiclCandidate2SimCPByHitsLinks_sharedEnergy[
+                        offset:next_offset
+                    ]
+                    if len(elements) > 0:
+                        print("Offset ", obj_idx, elements, scores, sharedEnergy)
+                    offset = next_offset
+            except AttributeError as e:
+                print(f"An AttributeError occurred (Offset): {e}")
+
+            try:  # Count pattern
+                offset = 0
+                for obj_idx in range(event.nRecohltTiclCandidate2SimCPByHits):
+                    count = event.RecohltTiclCandidate2SimCPByHits_nRecohltTiclCandidate2SimCPByHitsLinks[obj_idx]
+                    elements = event.RecohltTiclCandidate2SimCPByHitsLinks_index[offset : offset + count]
+                    scores = event.RecohltTiclCandidate2SimCPByHitsLinks_score[offset : offset + count]
+                    sharedEnergy = event.RecohltTiclCandidate2SimCPByHitsLinks_sharedEnergy[offset : offset + count]
                     if len(elements) > 0:
                         print("Count ", obj_idx, elements, scores, sharedEnergy)
                     offset += count

@@ -10,11 +10,11 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 #include <vector>
 
 class MuonServiceProxy;
 class SeedTransformer;
-class TrajectorySeed;
 
 namespace edm {
   class ParameterSet;

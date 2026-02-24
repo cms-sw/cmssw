@@ -198,7 +198,9 @@ void MuonDetLayerMeasurements::checkDTRecHits() {
   if (cacheID == theDTEventCacheID)
     return;
 
-  { theEvent->getByToken(dtToken_, theDTRecHits); }
+  {
+    theEvent->getByToken(dtToken_, theDTRecHits);
+  }
   if (!theDTRecHits.isValid()) {
     throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get DT RecHits";
   }

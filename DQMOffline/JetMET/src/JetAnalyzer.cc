@@ -299,7 +299,13 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   asymmetryThirdJetCut_ = parameters_.getParameter<double>("asymmetryThirdJetCut");
   balanceThirdJetCut_ = parameters_.getParameter<double>("balanceThirdJetCut");
 
-  l1gtTrigMenuToken_ = esConsumes<edm::Transition::BeginRun>();
+  isL1Tstage2_ = pSet.getParameter<bool>("stage2L1");
+
+  if (!isL1Tstage2_) {
+    l1gtTrigMenuToken_ = esConsumes<edm::Transition::BeginRun>();
+  } else {
+    lutmTrigMenuToken_ = esConsumes<edm::Transition::BeginRun>();
+  }
 }
 
 // ***********************************************************
@@ -2605,13 +2611,25 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
     }
   }
 
-  const L1GtTriggerMenu* menu = &iSetup.getData(l1gtTrigMenuToken_);
-  for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end();
-       ++techTrig) {
-    if ((techTrig->second).algoName() == m_l1algoname_) {
-      m_bitAlgTechTrig_ = (techTrig->second).algoBitNumber();
-      break;
+  if (l1gtTrigMenuToken_.isInitialized()) {
+    const L1GtTriggerMenu* menu = &iSetup.getData(l1gtTrigMenuToken_);
+    for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end();
+         ++techTrig) {
+      if ((techTrig->second).algoName() == m_l1algoname_) {
+        m_bitAlgTechTrig_ = (techTrig->second).algoBitNumber();
+        break;
+      }
     }
+  } else if (lutmTrigMenuToken_.isInitialized()) {
+    const L1TUtmTriggerMenu* menu = &iSetup.getData(lutmTrigMenuToken_);
+    const auto& algMap = menu->getAlgorithmMap();
+
+    auto it = algMap.find(m_l1algoname_);
+    if (it != algMap.end()) {
+      m_bitAlgTechTrig_ = it->second.getIndex();
+    }
+  } else {
+    throw cms::Exception("Configuration") << "Exactly one L1 menu token must be initialized";
   }
 }
 

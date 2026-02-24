@@ -10,6 +10,7 @@
 #define SiTrackerMultiRecHitUpdator_h
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
@@ -19,7 +20,6 @@
 
 class SiTrackerMultiRecHit;
 class TrajectoryStateOnSurface;
-class TrackingRecHit;
 class TransientTrackingRecHitBuilder;
 class LocalError;
 class TrackingRecHitPropagator;

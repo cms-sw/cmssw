@@ -16,10 +16,9 @@
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
 
 #include <iosfwd>
-
-class CSCDetId;
 
 class GEMCSCSegment final : public RecSegment {
 public:

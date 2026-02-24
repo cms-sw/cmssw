@@ -18,8 +18,9 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
+
 class DTHVStatus;
-class DTChamberId;
 //class DTLayerId;
 class DTWireId;
 //class DTGeometry;

@@ -53,8 +53,6 @@ class TH1F;
 class TH2F;
 class TProfile;
 class TTree;
-class SimVertex;
-class SimTrack;
 
 class PhotonValidator : public DQMOneEDAnalyzer<> {
 public:

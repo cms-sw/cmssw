@@ -7,13 +7,13 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 //
 // Forward declarations
 //
-class TrackingVertex;
-class SimTrack;
 class EncodedEventId;
 
 /** @brief Monte Carlo truth information used for tracking validation.

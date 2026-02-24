@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1CaloTrigger_L1CaloRegionFwd_h
+#define DataFormats_L1CaloTrigger_L1CaloRegionFwd_h
+
+class L1CaloRegion;
+
+#endif

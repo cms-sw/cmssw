@@ -9,14 +9,13 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include <vector>
 
 namespace edm {
   class Event;
 }
-
-class TrajectorySeed;
 
 class MuonTrajectoryBuilder {
 public:

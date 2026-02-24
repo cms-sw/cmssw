@@ -13,8 +13,9 @@ if 'unitTest=True' in sys.argv:
 	unitTest=True
 
 if unitTest:
-  process.load("DQM.Integration.config.unittestinputsource_cfi")
-  from DQM.Integration.config.unittestinputsource_cfi import options
+  process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+  from DQM.Integration.config.unitteststreamerinputsource_cfi import options
+  process.source.streamLabel = 'streamDQMOnlineScouting' # in test mode use DQMOnlineScouting streamer
 else:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
@@ -53,17 +54,33 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
-
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
-process.scoutingCollectionMonitor.topfoldername = "NGT/ScoutingCollections"
+process.scoutingCollectionMonitor.topfoldername = "NGT/ScoutingOnline/ScoutingCollections"
 process.scoutingCollectionMonitor.onlyScouting = False
 process.scoutingCollectionMonitor.onlineMetaDataDigis = "hltOnlineMetaDataDigis"
 process.scoutingCollectionMonitor.rho = ["hltScoutingPFPacker", "rho"]
+
+process.load("DQM.HLTEvF.ScoutingDileptonMonitor_cfi")
+process.ScoutingDileptonMonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/DiLepton"
+
+process.load("DQM.HLTEvF.ScoutingPi0Monitor_cfi")
+process.ScoutingPi0MonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/PiZero"
+process.ScoutingPi0MonitorOnline.maxEta = 2.5
+process.ScoutingPi0MonitorOnline.minPt = 1.5
+process.ScoutingPi0MonitorOnline.maxMass = 1.
+process.ScoutingPi0MonitorOnline.isolationPtRatio = 0.8
+process.ScoutingPi0MonitorOnline.asymmetryCut = 0.85
+process.ScoutingPi0MonitorOnline.pairMaxDr = 0.1
+
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)#*process.dqmSaverPB)
 
-process.p = cms.Path(process.dqmcommon * process.hltOnlineBeamSpot * process.scoutingCollectionMonitor)
+process.p = cms.Path(process.dqmcommon *
+                     process.hltOnlineBeamSpot *
+                     process.scoutingCollectionMonitor *
+                     process.ScoutingDileptonMonitorOnline *
+                     process.ScoutingPi0MonitorOnline)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

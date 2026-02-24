@@ -3,6 +3,8 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,7 +13,6 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 #include <cassert>
-#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 class CkfDebugger;
 class Chi2MeasurementEstimatorBase;
@@ -31,7 +32,6 @@ class TrajectoryStateOnSurface;
 class TrajectoryFitter;
 class TransientRecHitRecord;
 class TransientTrackingRecHitBuilder;
-class Trajectory;
 class TempTrajectory;
 class TrajectoryFilter;
 class TrackingRegion;
