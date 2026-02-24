@@ -1563,6 +1563,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   ibook.setCurrentFolder(topfoldername_ + "/CaloRecHitsAll");
 
+  // now do HCAL
   const std::array<std::string, 3> subdets = {{"HBHE", "HB", "HE"}};
 
   // helper lambda
@@ -1577,51 +1578,51 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
     hbheRecHitsNumber_hist[i] =
         ibook.book1D(name + "RechitsN",
-                     "number of " + subdet + " RecHits; Number of " + subdet + " recHits; Entries",
+                     "number of " + subdet + " RecHits; Number of " + subdet + " recHits; RecHits",
                      100,
                      0.0,
                      2000.0);
 
     hbheRecHits_energy_hist[i] =
         ibook.book1D(name + "Rechits_energy",
-                     "Energy spectrum of " + subdet + " RecHits; Energy of " + subdet + " recHits (GeV); Entries",
+                     "Energy spectrum of " + subdet + " RecHits; Energy of " + subdet + " recHits (GeV); RecHits",
                      100,
                      0.0,
                      200.0);
 
     // Energy > 5 GeV histograms
-    hbheRecHits_energy_egt5_hist[i] =
-        ibook.book1D(name + "Rechits_energy_Egt5",
-                     "Energy spectrum of " + subdet + " RecHits (E > 5 GeV); Energy (GeV); Entries",
-                     100,
-                     0.0,
-                     30.0);
+    hbheRecHits_energy_egt5_hist[i] = ibook.book1D(
+        name + "StiffRechits_energy",
+        "Energy spectrum of " + subdet + " RecHits  (E > 5 GeV);Energy of stiff " + subdet + " recHits (GeV); RecHits",
+        100,
+        0.0,
+        30.0);
 
     hbheRecHits_time_hist[i] =
         ibook.book1D(name + "Rechits_time",
-                     "Time of " + subdet + " RecHits; Time of " + subdet + " recHits (ns); Entries",
+                     "Time of " + subdet + " RecHits; Time of " + subdet + " recHits (ns); RecHits",
                      100,
                      0.0,
                      30.0);
 
     hbheRecHits_time_egt5_hist[i] =
-        ibook.book1D(name + "Rechits_time_Egt5",
-                     "Time of " + subdet + " RecHits; Time of " + subdet + " recHits (E > 5 GeV) (ns); Entries",
+        ibook.book1D(name + "StiffRechits_time",
+                     "Time of " + subdet + " RecHits (E > 5 GeV); Time of stiff " + subdet + " recHits (ns); RecHits",
                      100,
                      0.0,
                      30.0);
   }
 
   hbheRecHitsEtaPhiMap = ibook.book2D(
-      "hbheRecHitsEtaPhitMap", "Occupancy map of HBHE rechits;ieta;iphi;Entries", 61, -30.5, 30.5, 74, -0.5, 73.5);
+      "hbheRecHitsEtaPhitMap", "Occupancy map of HBHE rechits;ieta;iphi;RecHits", 61, -30.5, 30.5, 74, -0.5, 73.5);
   hbheRecHitsEtaPhiMap->setOption("colz");
 
   hbRecHitsEtaPhiMap = ibook.book2D(
-      "hbRecHitsEtaPhitMap", "Occupancy map of HB rechits;ieta;iphi;Entries", 83, -41.5, 41.5, 72, 0.5, 72.5);
+      "hbRecHitsEtaPhitMap", "Occupancy map of HB rechits;ieta;iphi;RecHits", 83, -41.5, 41.5, 72, 0.5, 72.5);
   hbRecHitsEtaPhiMap->setOption("colz");
 
   heRecHitsEtaPhiMap = ibook.book2D(
-      "heRecHitsEtaPhitMap", "Occupancy map of HE rechits;ieta;iphi;Entries", 83, -41.5, 41.5, 72, 0.5, 72.5);
+      "heRecHitsEtaPhitMap", "Occupancy map of HE rechits;ieta;iphi;RecHits", 83, -41.5, 41.5, 72, 0.5, 72.5);
   heRecHitsEtaPhiMap->setOption("colz");
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
