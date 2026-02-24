@@ -4,9 +4,9 @@
 #ifndef __RecoHGCal_TICL_PRbyCA_H__
 #define __RecoHGCal_TICL_PRbyCA_H__
 #include <memory>  // unique_ptr
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "HGCGraph.h"
 
 namespace ticl {
@@ -25,21 +25,18 @@ namespace ticl {
                 const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
-    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
-                               const tensorflow::Session*,
-                               std::vector<Trackster>& result);
     void emptyTrackstersFromSeedsTRK(std::vector<Trackster>& tracksters,
                                      std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation,
                                      const edm::ProductID& collectionID) const;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+    void setGeometry(hgcal::RecHitTools const& rhtools) override;
 
   private:
     void mergeTrackstersTRK(const std::vector<Trackster>&,
                             const std::vector<reco::CaloCluster>&,
                             std::vector<Trackster>&,
                             std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const std::unique_ptr<HGCGraphT<TILES>> theGraph_;
     const bool oneTracksterPerTrackSeed_;
     const bool promoteEmptyRegionToTrackster_;
@@ -64,8 +61,6 @@ namespace ticl {
     const std::string eidOutputNameEnergy_;
     const std::string eidOutputNameId_;
     const bool computeLocalTime_;
-
-    hgcal::RecHitTools rhtools_;
     const std::vector<double> siblings_maxRSquared_;
   };
 

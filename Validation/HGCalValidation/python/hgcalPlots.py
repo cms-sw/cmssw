@@ -1729,9 +1729,9 @@ _clusternum_in_trackster_vs_layer = PlotGroup("NumberofLayerClustersinTracksterP
 
 _common["scale"] = 100.
 #, ztitle = "% of clusters" normalizeToUnitArea=True
-_multiplicity_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_numberOfEventsHistogram"
-_multiplicity_zminus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zminus_numberOfEventsHistogram"
-_multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zplus_numberOfEventsHistogram"
+_multiplicity_numberOfEventsHistogram = hgcVal_dqm + "ticlCandidate/multiplicity_numberOfEventsHistogram"
+_multiplicity_zminus_numberOfEventsHistogram = hgcVal_dqm + "ticlCandidate/multiplicity_zminus_numberOfEventsHistogram"
+_multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlCandidate/multiplicity_zplus_numberOfEventsHistogram"
 
 _multiplicityOfLCinTST_plots = [Plot("multiplicityOfLCinTST",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]
@@ -2399,6 +2399,9 @@ lc_zplus_extended = [
 
 def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClustersPlots.value(), name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
+  if hasattr(collection, 'value'):
+     collection = collection.value()
+  collection = str(collection)
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
   regions_LCtoCP_association = ["Z-minus: LC_CP association", "Z-plus: LC_CP association"]
@@ -2951,19 +2954,29 @@ hgcalHitCalibPlotter.append("EcalDrivenGsfElectronsFromTrackster_Closest_EoverCP
         purpose=PlotPurpose.Timing, page=hitCalibrationLabel, section=hitCalibrationLabel
         ))
 
-hgcalTICLCandPlotter = Plotter()
+def hgcalTICLCandPlotter(labels):
+  """Build the TICL candidates plotter for a given HGCalValidator base folder."""
+  plotter = Plotter()
 
-hgcalTICLCandPlotter.append('ticlCandidates', [
-             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+hgcalValidator.ticlCandidates.value(),
-            ], PlotFolder(
-            *_candidatesPlots,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="General", section="Candidates"))
+  for label in labels:
+      plotter.append('ticlCandidates', [
+          hgcVal_dqm + label,
+      ], PlotFolder(
+          *_candidatesPlots,
+          loopSubFolders=False,
+          purpose=PlotPurpose.Timing, page="General", section="Candidates"))
 
-for i in range(6):
-    hgcalTICLCandPlotter.append('ticlCandidates', [
-             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+hgcalValidator.ticlCandidates.value()+"/"+cand_type[i],
-            ], PlotFolder(
+      for i in range(6):
+        plotter.append('ticlCandidates', [
+            hgcVal_dqm + label + "/" + cand_type[i],
+        ], PlotFolder(
             *_allCandidatesPlots[i],
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page=cand_type[i], section="Candidates"))
+
+  return plotter
+
+def set_hgcVal_dqm(dqm_base):
+  """Override the HGCalValidator base folder and rebuild dependent plotters."""
+  global hgcVal_dqm
+  hgcVal_dqm = dqm_base

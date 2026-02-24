@@ -64,7 +64,8 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
   iEvent.getByToken(hitMapToken_, hitMap);
 
   if (!iEvent.getHandle(hitsToken_)) {
-    edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "Missing edm::RefProdVector<HGCRecHitCollection>.";
+    edm::LogWarning("AllHitToTracksterAssociatorsProducer")
+        << "Missing edm::RefProdVector<HGCRecHitCollection>. Association maps will be empty.";
     for (const auto& tracksterToken : tracksterCollectionTokens_) {
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");
@@ -76,7 +77,7 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
   const auto hits = iEvent.get(hitsToken_);
   for (std::size_t index = 0; const auto& hgcRecHitCollection : hits) {
     if (hgcRecHitCollection->empty()) {
-      edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "HGCRecHitCollections #" << index << " is not valid.";
+      LogDebug("AllHitToTracksterAssociatorsProducer") << "HGCRecHitCollections #" << index << " is empty.";
     }
     index++;
   }
@@ -84,8 +85,8 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
   edm::MultiSpan<HGCRecHit> rechitSpan(hits);
   // Check if rechitSpan is empty
   if (rechitSpan.size() == 0) {
-    edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
-        << "No valid HGCRecHitCollections found. Association maps will be empty.";
+    LogDebug("HitToSimClusterCaloParticleAssociatorProducer")
+        << "Only empty HGCRecHitCollections found. Association maps will be empty.";
     for (const auto& tracksterToken : tracksterCollectionTokens_) {
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");
@@ -98,7 +99,8 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
     iEvent.getByToken(tracksterToken.second, tracksters);
 
     if (!tracksters.isValid()) {
-      edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "Missing Tracksters for one of the hitsTokens.";
+      LogDebug("AllHitToTracksterAssociatorsProducer")
+          << "Missing Tracksters for collection " << tracksterToken.first << ". Association maps will be empty.";
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");
       continue;

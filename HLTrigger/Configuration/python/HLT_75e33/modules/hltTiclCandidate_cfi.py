@@ -5,8 +5,8 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     regressionAndPid = cms.bool(True),
     pluginInferenceAlgoTracksterInferenceByPFN = cms.PSet(
       algo_verbosity = cms.int32(0),
-      onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
-      onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
+      onnxPIDModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
+      onnxEnergyModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
       inputNames = cms.vstring(
         'input',
         'input_tr_features'
@@ -46,8 +46,8 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     useTimingAverage = cms.bool(False)
 )
 
-from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticl_v5_TrackLinkingGNN
-ticl_v5_TrackLinkingGNN.toModify(hltTiclCandidate,
+from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticlv5_TrackLinkingGNN
+ticlv5_TrackLinkingGNN.toModify(hltTiclCandidate,
     interpretationDescPSet = cms.PSet(
         onnxTrkLinkingModelFirstDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/FirstDiskPropGNN_v0.onnx'),
         onnxTrkLinkingModelInterfaceDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/InterfaceDiskPropGNN_v0.onnx'),

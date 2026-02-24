@@ -143,112 +143,136 @@ void SuperclusteringSampleDumper::analyze(const edm::Event& evt, const edm::Even
   edm::Handle<ticl::RecoToSimCollectionSimTracksters> assoc_CP_recoToSim;
   evt.getByToken(tsRecoToSimCP_token_, assoc_CP_recoToSim);
 
-  /* Sorting tracksters by decreasing order of pT (out-of-place sort). 
-  inputTracksters[trackstersIndicesPt[0]], ..., inputTracksters[trackstersIndicesPt[N]] makes a list of tracksters sorted by decreasing pT
-  Indices into this pT sorted collection will have the suffix _pt. Thus inputTracksters[index] and inputTracksters[trackstersIndicesPt[index_pt]] are correct
-  */
-  std::vector<unsigned int> trackstersIndicesPt(inputTracksters->size());
-  std::iota(trackstersIndicesPt.begin(), trackstersIndicesPt.end(), 0);
+  auto const& tracksters = *inputTracksters;
+  const auto nTs = static_cast<unsigned int>(tracksters.size());
+  if (nTs == 0u) {
+    output_tree_->Fill();
+    return;
+  }
+
+  // ---- pT-sorted indices (out-of-place)
+  std::vector<unsigned int> trackstersIndicesPt(nTs);
+  std::iota(trackstersIndicesPt.begin(), trackstersIndicesPt.end(), 0u);
   std::stable_sort(
-      trackstersIndicesPt.begin(), trackstersIndicesPt.end(), [&inputTracksters](unsigned int i1, unsigned int i2) {
-        return (*inputTracksters)[i1].raw_pt() > (*inputTracksters)[i2].raw_pt();
+      trackstersIndicesPt.begin(), trackstersIndicesPt.end(), [&tracksters](unsigned int a, unsigned int b) {
+        return tracksters[a].raw_pt() > tracksters[b].raw_pt();
       });
 
-  // Order of loops are reversed compared to SuperclusteringProducer (here outer is seed, inner is candidate), for performance reasons.
-  // The same pairs seed-candidate should be present, just in a different order
-  // First loop on seed tracksters
-  for (unsigned int ts_seed_idx_pt = 0; ts_seed_idx_pt < inputTracksters->size(); ts_seed_idx_pt++) {
-    const unsigned int ts_seed_idx_input =
-        trackstersIndicesPt[ts_seed_idx_pt];  // Index of seed trackster in input collection (not in pT sorted collection)
-    Trackster const& ts_seed = (*inputTracksters)[ts_seed_idx_input];
+  const auto nFeatures = static_cast<unsigned int>(features_.size());
+  // Sanity: this module expects the configured feature set to match the DNN input helper.
+  // (If you prefer, replace with a cms::Exception instead of assert.)
+  assert(nFeatures == dnnInput_->featureCount());
 
-    if (ts_seed.raw_pt() < seedPtThreshold_)
-      break;  // All further seeds will have lower pT than threshold (due to pT sorting)
+  // ---- optional: reserve to reduce reallocs (cheap heuristic)
+  // Worst-case is O(N^2); don't do that. Use something modest.
+  // You can tune: e.g. nTs*8 tends to be safe-ish without huge memory.
+  const size_t reservePairs = static_cast<size_t>(nTs) * 8u;
+  for (auto& col : features_) {
+    col.reserve(reservePairs);
+  }
+  seedTracksterIdx_.reserve(reservePairs);
+  candidateTracksterIdx_.reserve(reservePairs);
+  seedTracksterBestAssociationScore_.reserve(reservePairs);
+  seedTracksterBestAssociation_simTsIdx_.reserve(reservePairs);
+  seedTracksterBestAssociation_caloParticleEnergy_.reserve(reservePairs);
+  candidateTracksterBestAssociationScore_.reserve(reservePairs);
+  candidateTracksterBestAssociation_simTsIdx_.reserve(reservePairs);
+  candidateTracksterAssociationWithSeed_score_.reserve(reservePairs);
 
-    if (!checkExplainedVarianceRatioCut(ts_seed))
+  // ---- scratch buffer for features (no per-pair allocation)
+  std::vector<float> featScratch;
+  featScratch.resize(nFeatures);
+
+  auto bestAssoc = [](auto const& val) -> ticl::RecoToSimCollectionSimTracksters::data_type const& {
+    return *std::min_element(val.begin(), val.end(), [](auto const& a, auto const& b) {
+      // pair<Ref, pair<sharedEnergy, associationScore>>; best is smallest score
+      return a.second.second < b.second.second;
+    });
+  };
+
+  // Outer: seed
+  for (unsigned int seed_pt = 0; seed_pt < nTs; ++seed_pt) {
+    const unsigned int seed_idx = trackstersIndicesPt[seed_pt];
+    auto const& ts_seed = tracksters[seed_idx];
+
+    if (ts_seed.raw_pt() < seedPtThreshold_) {
+      break;  // remaining seeds are lower-pT due to sorting
+    }
+    if (!checkExplainedVarianceRatioCut(ts_seed)) {
       continue;
+    }
 
     // Find best associated CaloParticle to the seed
-    auto seed_assocs = assoc_CP_recoToSim->find({inputTracksters, ts_seed_idx_input});
-    if (seed_assocs == assoc_CP_recoToSim->end())
-      continue;  // No CaloParticle associations for the current trackster (extremly unlikely)
-    ticl::RecoToSimCollectionSimTracksters::data_type const& seed_assocWithBestScore =
-        *std::min_element(seed_assocs->val.begin(),
-                          seed_assocs->val.end(),
-                          [](ticl::RecoToSimCollectionSimTracksters::data_type const& assoc_1,
-                             ticl::RecoToSimCollectionSimTracksters::data_type const& assoc_2) {
-                            // assoc_* is of type : std::pair<edmRefIntoSimTracksterCollection, std::pair<sharedEnergy, associationScore>>
-                            // Best score is smallest score
-                            return assoc_1.second.second < assoc_2.second.second;
-                          });
+    auto seed_assocs = assoc_CP_recoToSim->find(edm::Ref<ticl::TracksterCollection>(inputTracksters, seed_idx));
+    if (seed_assocs == assoc_CP_recoToSim->end() || seed_assocs->val.empty()) {
+      continue;
+    }
+    auto const& seed_best = bestAssoc(seed_assocs->val);
 
-    // Second loop on superclustering candidates tracksters
-    // Look only at candidate tracksters with lower pT than the seed (so all pairs are only looked at once)
-    for (unsigned int ts_cand_idx_pt = ts_seed_idx_pt + 1; ts_cand_idx_pt < inputTracksters->size(); ts_cand_idx_pt++) {
-      Trackster const& ts_cand = (*inputTracksters)[trackstersIndicesPt[ts_cand_idx_pt]];
-      // Check that the two tracksters are geometrically compatible for superclustering (using deltaEta, deltaPhi window)
-      // There is no need to run training or inference for tracksters very far apart
-      if (!(std::abs(ts_seed.barycenter().Eta() - ts_cand.barycenter().Eta()) < deltaEtaWindow_ &&
-            std::abs(deltaPhi(ts_seed.barycenter().Phi(), ts_cand.barycenter().Phi())) < deltaPhiWindow_ &&
-            ts_cand.raw_energy() >= candidateEnergyThreshold_ && checkExplainedVarianceRatioCut(ts_cand)))
+    // Inner: candidate (only lower-pT than seed)
+    for (unsigned int cand_pt = seed_pt + 1; cand_pt < nTs; ++cand_pt) {
+      const unsigned int cand_idx = trackstersIndicesPt[cand_pt];
+      auto const& ts_cand = tracksters[cand_idx];
+
+      if (ts_cand.raw_energy() < candidateEnergyThreshold_) {
         continue;
-
-      std::vector<float> features = dnnInput_->computeVector(ts_seed, ts_cand);
-      assert(features.size() == features_.size());
-      for (unsigned int feature_idx = 0; feature_idx < features_.size(); feature_idx++) {
-        features_[feature_idx].push_back(features[feature_idx]);
       }
-      seedTracksterIdx_.push_back(trackstersIndicesPt[ts_seed_idx_pt]);
-      candidateTracksterIdx_.push_back(trackstersIndicesPt[ts_cand_idx_pt]);
+      if (!checkExplainedVarianceRatioCut(ts_cand)) {
+        continue;
+      }
+      if (std::abs(ts_seed.barycenter().Eta() - ts_cand.barycenter().Eta()) >= deltaEtaWindow_) {
+        continue;
+      }
+      if (std::abs(deltaPhi(ts_seed.barycenter().Phi(), ts_cand.barycenter().Phi())) >= deltaPhiWindow_) {
+        continue;
+      }
 
-      float candidateTracksterBestAssociationScore = 1.;  // Best association score of candidate with any CaloParticle
-      long candidateTracksterBestAssociation_simTsIdx = -1;  // Corresponding CaloParticle simTrackster index
-      float candidateTracksterAssociationWithSeed_score =
-          1.;  // Association score of candidate with CaloParticle best associated with seed
+      // ---- compute features in-place
+      dnnInput_->computeInto(ts_seed, ts_cand, std::span<float>(featScratch.data(), featScratch.size()));
 
-      // First find associated CaloParticles with candidate
-      auto cand_assocCP = assoc_CP_recoToSim->find(
-          edm::Ref<ticl::TracksterCollection>(inputTracksters, trackstersIndicesPt[ts_cand_idx_pt]));
-      if (cand_assocCP != assoc_CP_recoToSim->end()) {
-        // find the association with best score
-        ticl::RecoToSimCollectionSimTracksters::data_type const& cand_assocWithBestScore =
-            *std::min_element(cand_assocCP->val.begin(),
-                              cand_assocCP->val.end(),
-                              [](ticl::RecoToSimCollectionSimTracksters::data_type const& assoc_1,
-                                 ticl::RecoToSimCollectionSimTracksters::data_type const& assoc_2) {
-                                // assoc_* is of type : std::pair<edmRefIntoSimTracksterCollection, std::pair<sharedEnergy, associationScore>>
-                                return assoc_1.second.second < assoc_2.second.second;
-                              });
-        candidateTracksterBestAssociationScore = cand_assocWithBestScore.second.second;
-        candidateTracksterBestAssociation_simTsIdx = cand_assocWithBestScore.first.key();
+      // ---- store features (columnar vectors for the tree)
+      // Unrolled-ish simple loop, good locality on featScratch
+      for (unsigned int f = 0; f < nFeatures; ++f) {
+        features_[f].push_back(featScratch[f]);
+      }
 
-        // find the association score with the same CaloParticle as the seed
-        auto cand_assocWithSeedCP =
-            std::find_if(cand_assocCP->val.begin(),
-                         cand_assocCP->val.end(),
-                         [&seed_assocWithBestScore](ticl::RecoToSimCollectionSimTracksters::data_type const& assoc) {
-                           // assoc is of type : std::pair<edmRefIntoSimTracksterCollection, std::pair<sharedEnergy, associationScore>>
-                           return assoc.first == seed_assocWithBestScore.first;
-                         });
-        if (cand_assocWithSeedCP != cand_assocCP->val.end()) {
-          candidateTracksterAssociationWithSeed_score = cand_assocWithSeedCP->second.second;
+      seedTracksterIdx_.push_back(seed_idx);
+      candidateTracksterIdx_.push_back(cand_idx);
+
+      float candBestScore = 1.f;
+      long candBestSimIdx = -1;
+      float candScoreWithSeed = 1.f;
+
+      auto cand_assocs = assoc_CP_recoToSim->find(edm::Ref<ticl::TracksterCollection>(inputTracksters, cand_idx));
+      if (cand_assocs != assoc_CP_recoToSim->end() && !cand_assocs->val.empty()) {
+        auto const& cand_best = bestAssoc(cand_assocs->val);
+        candBestScore = cand_best.second.second;
+        candBestSimIdx = cand_best.first.key();
+
+        auto itSeed = std::find_if(cand_assocs->val.begin(), cand_assocs->val.end(), [&seed_best](auto const& assoc) {
+          return assoc.first == seed_best.first;
+        });
+        if (itSeed != cand_assocs->val.end()) {
+          candScoreWithSeed = itSeed->second.second;
         }
       }
 
-      seedTracksterBestAssociationScore_.push_back(seed_assocWithBestScore.second.second);
-      seedTracksterBestAssociation_simTsIdx_.push_back(seed_assocWithBestScore.first.key());
-      seedTracksterBestAssociation_caloParticleEnergy_.push_back(seed_assocWithBestScore.first->regressed_energy());
+      seedTracksterBestAssociationScore_.push_back(seed_best.second.second);
+      seedTracksterBestAssociation_simTsIdx_.push_back(seed_best.first.key());
+      seedTracksterBestAssociation_caloParticleEnergy_.push_back(seed_best.first->regressed_energy());
 
-      candidateTracksterBestAssociationScore_.push_back(candidateTracksterBestAssociationScore);
-      candidateTracksterBestAssociation_simTsIdx_.push_back(candidateTracksterBestAssociation_simTsIdx);
-
-      candidateTracksterAssociationWithSeed_score_.push_back(candidateTracksterAssociationWithSeed_score);
+      candidateTracksterBestAssociationScore_.push_back(candBestScore);
+      candidateTracksterBestAssociation_simTsIdx_.push_back(candBestSimIdx);
+      candidateTracksterAssociationWithSeed_score_.push_back(candScoreWithSeed);
     }
   }
 
   output_tree_->Fill();
-  for (auto& feats : features_)
-    feats.clear();
+
+  // Clear but keep capacity (important for perf across events)
+  for (auto& col : features_) {
+    col.clear();
+  }
   seedTracksterIdx_.clear();
   candidateTracksterIdx_.clear();
   seedTracksterBestAssociationScore_.clear();

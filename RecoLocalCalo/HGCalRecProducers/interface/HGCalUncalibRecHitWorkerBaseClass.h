@@ -39,7 +39,7 @@ public:
                             const HGCalDigiCollection& digis,
                             HGChfnoseUncalibratedRecHitCollection& result) = 0;
 
-  bool computeLocalTime_ = false;
+  bool computeLocalTime_ = true;
 };
 
 #endif

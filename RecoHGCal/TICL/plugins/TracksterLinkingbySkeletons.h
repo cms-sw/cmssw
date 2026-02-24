@@ -67,6 +67,7 @@ namespace ticl {
                     const edm::ESHandle<Propagator> propH) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+      iDesc.add<std::string>("onnxModelPath", "")->setComment("Optional ONNX model path, empty means unused");
       iDesc.add<double>("cylinder_radius_sqr_split", 9.);
       iDesc.add<double>("proj_distance_split", 5.);
       iDesc.add<double>("track_time_quality_threshold", 0.5);

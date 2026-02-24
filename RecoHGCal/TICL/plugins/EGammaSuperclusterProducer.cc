@@ -48,6 +48,15 @@ private:
   edm::EDGetTokenT<std::vector<std::vector<unsigned int>>> superClusterLinksToken_;
   edm::EDGetTokenT<ticl::TracksterCollection> ticlTrackstersEMToken_;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerClustersToken_;
+
+  // Reusable buffers to avoid per-event allocations/copies.
+  static constexpr unsigned int kRegressionFeatureCount = 8;
+
+  cms::Ort::FloatArrays onnxInputs_;
+  cms::Ort::FloatArrays onnxOutputs_;
+  std::vector<std::vector<int64_t>> onnxInputShapes_;
+  std::vector<float> regressionInputs_;
+
   float superclusterEtThreshold_;
   bool enableRegression_;
 };
@@ -62,11 +71,22 @@ EGammaSuperclusterProducer::EGammaSuperclusterProducer(const edm::ParameterSet& 
       layerClustersToken_(consumes<reco::CaloClusterCollection>(ps.getParameter<edm::InputTag>("layerClusters"))),
       superclusterEtThreshold_(ps.getParameter<double>("superclusterEtThreshold")),
       enableRegression_(ps.getParameter<bool>("enableRegression")) {
+  if (enableRegression_) {
+    onnxInputs_.resize(1);
+    // rank-2: [batch, features]
+    onnxInputShapes_.assign(1, std::vector<int64_t>(2, 0));
+    // Reserve a reasonable default; will be grown if needed.
+    regressionInputs_.reserve(1024u * kRegressionFeatureCount);
+  }
   produces<reco::SuperClusterCollection>();
   produces<reco::CaloClusterCollection>();  // The CaloCluster corresponding to each EM trackster
 }
 
 void EGammaSuperclusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if (enableRegression_ && UNLIKELY(globalCache() == nullptr)) {
+    throw cms::Exception("Configuration")
+        << "EGammaSuperclusterProducer: enableRegression=true but GlobalCache<ONNXRuntime> is null.";
+  }
   auto const& ticlSuperclusters = iEvent.get(ticlSuperClustersToken_);
   auto const& ticlSuperclusterLinks = iEvent.get(superClusterLinksToken_);
   auto emTracksters_h = iEvent.getHandle(ticlTrackstersEMToken_);
@@ -103,15 +123,18 @@ void EGammaSuperclusterProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   // Fill reco::SuperCluster collection and prepare regression inputs
   assert(ticlSuperclusters.size() == ticlSuperclusterLinks.size());
-  const unsigned int regressionFeatureCount = 8;
-  std::vector<float> regressionInputs;
-  regressionInputs.reserve(ticlSuperclusters.size() * regressionFeatureCount);
+  regressionInputs_.clear();
+  regressionInputs_.reserve(ticlSuperclusters.size() * kRegressionFeatureCount);
+
   unsigned int superclustersPassingSelectionsCount = 0;
-  for (std::size_t sc_i = 0; sc_i < ticlSuperclusters.size(); sc_i++) {
-    ticl::Trackster const& ticlSupercluster = ticlSuperclusters[sc_i];
-    if (ticlSupercluster.raw_pt() < superclusterEtThreshold_)
+
+  for (std::size_t sc_i = 0; sc_i < ticlSuperclusters.size(); ++sc_i) {
+    auto const& ticlSupercluster = ticlSuperclusters[sc_i];
+    if (ticlSupercluster.raw_pt() < superclusterEtThreshold_) {
       continue;
-    std::vector<unsigned int> const& superclusterLink = ticlSuperclusterLinks[sc_i];
+    }
+
+    auto const& superclusterLink = ticlSuperclusterLinks[sc_i];
     assert(!superclusterLink.empty());
 
     reco::CaloClusterPtrVector trackstersEMInSupercluster;
@@ -137,35 +160,69 @@ void EGammaSuperclusterProducer::produce(edm::Event& iEvent, const edm::EventSet
         -1,                                         // phiwidth (not implemented yet)
         -1                                          // etawidth (not implemented yet)
     );
-    superclustersPassingSelectionsCount++;
+    ++superclustersPassingSelectionsCount;
 
     if (enableRegression_) {
-      regressionInputs.insert(
-          regressionInputs.end(),
-          {ticlSupercluster.barycenter().eta(),
-           ticlSupercluster.barycenter().phi(),
-           ticlSupercluster.raw_energy(),
-           std::abs(max_eta - min_eta),
-           max_phi - min_phi > M_PI ? 2 * static_cast<float>(M_PI) - (max_phi - min_phi) : max_phi - min_phi,
-           emTracksters[superclusterLink[0]].raw_energy() -
-               (superclusterLink.size() >= 2 ? emTracksters[superclusterLink.back()].raw_energy() : 0.f),
-           emTracksters[superclusterLink[0]].raw_energy() / ticlSupercluster.raw_energy(),
-           static_cast<float>(superclusterLink.size())});
+      const auto& seedTs = emTracksters[superclusterLink[0]];
+      const float lastE = (superclusterLink.size() >= 2) ? emTracksters[superclusterLink.back()].raw_energy() : 0.f;
+
+      const float etaWidth = std::abs(max_eta - min_eta);
+      const float phiWidth = std::abs(deltaPhi(max_phi, min_phi));
+
+      const float seedMinusLastE = seedTs.raw_energy() - lastE;
+      const float seedFrac = seedTs.raw_energy() / ticlSupercluster.raw_energy();
+      const float nTs = static_cast<float>(superclusterLink.size());
+
+      const size_t base = regressionInputs_.size();
+      regressionInputs_.resize(base + kRegressionFeatureCount);
+
+      regressionInputs_[base + 0] = ticlSupercluster.barycenter().eta();
+      regressionInputs_[base + 1] = ticlSupercluster.barycenter().phi();
+      regressionInputs_[base + 2] = ticlSupercluster.raw_energy();
+      regressionInputs_[base + 3] = etaWidth;
+      regressionInputs_[base + 4] = phiWidth;
+      regressionInputs_[base + 5] = seedMinusLastE;
+      regressionInputs_[base + 6] = seedFrac;
+      regressionInputs_[base + 7] = nTs;
     }
   }
 
-  if (enableRegression_ && superclustersPassingSelectionsCount > 0) {
-    // Run the regression
-    // ONNXRuntime takes std::vector<std::vector<float>>& as input (non-const reference) so we have to make a new vector
-    std::vector<std::vector<float>> inputs_for_onnx{{std::move(regressionInputs)}};
-    std::vector<float> outputs =
-        globalCache()->run({"input"}, inputs_for_onnx, {}, {}, superclustersPassingSelectionsCount)[0];
+  if (enableRegression_ && superclustersPassingSelectionsCount > 0u) {
+    // shape: [batch, features]
+    onnxInputShapes_[0][0] = static_cast<int64_t>(superclustersPassingSelectionsCount);
+    onnxInputShapes_[0][1] = static_cast<int64_t>(kRegressionFeatureCount);
 
-    assert(egammaSuperclusters->size() == outputs.size());
-    for (std::size_t sc_i = 0; sc_i < egammaSuperclusters->size(); sc_i++) {
-      (*egammaSuperclusters)[sc_i].setCorrectedEnergy(outputs[sc_i]);
-      // correctedEnergyUncertainty is left at its default value
+    // Hand buffer ownership to ONNXRuntime without realloc/copy.
+    onnxInputs_[0].swap(regressionInputs_);
+
+    onnxOutputs_.clear();
+    static const std::vector<std::string> kInputNames = {"input"};
+    globalCache()->runInto(kInputNames,
+                           onnxInputs_,
+                           onnxInputShapes_,
+                           {},            // all outputs
+                           onnxOutputs_,  // resized as needed
+                           {},            // optional output shapes
+                           static_cast<int64_t>(superclustersPassingSelectionsCount));
+
+    if (onnxOutputs_.empty()) {
+      throw cms::Exception("RuntimeError") << "Regression model returned no outputs.";
     }
+
+    auto const& out = onnxOutputs_[0];
+    if (out.size() < egammaSuperclusters->size()) {
+      throw cms::Exception("RuntimeError")
+          << "Regression output size " << out.size() << " smaller than number of produced superclusters "
+          << egammaSuperclusters->size();
+    }
+
+    for (std::size_t i = 0; i < egammaSuperclusters->size(); ++i) {
+      (*egammaSuperclusters)[i].setCorrectedEnergy(out[i]);
+    }
+
+    // Restore buffer for reuse.
+    regressionInputs_.swap(onnxInputs_[0]);
+    regressionInputs_.clear();
   }
 
   iEvent.put(std::move(egammaSuperclusters));

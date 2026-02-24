@@ -95,7 +95,7 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
 
   // If layer clusters are missing, produce empty maps and return
   if (!layerClustersHandle.isValid()) {
-    edm::LogWarning("MissingInput") << "Layer clusters collection not found. Producing empty maps.";
+    edm::LogWarning("MissingInput") << "Layer clusters collection is invalid. Producing empty maps.";
     for (const auto& tracksterToken : tracksterCollectionTokens_) {
       for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
         iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
@@ -119,7 +119,7 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
     iEvent.getByToken(tracksterToken.second, recoTrackstersHandle);
 
     if (!recoTrackstersHandle.isValid()) {
-      edm::LogWarning("MissingInput") << "trackster  collection not found. Producing empty maps.";
+      LogDebug("MissingInput") << "trackster collection " + tracksterToken.first + " not found. Producing empty maps.";
       for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
         iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
                                                          std::vector<ticl::Trackster>,

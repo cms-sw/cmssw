@@ -10,7 +10,6 @@ from ..modules.hltHGCalRecHit_cfi import *
 from ..modules.hltHGCalUncalibRecHit_cfi import *
 from ..modules.hltParticleFlowClusterHGCalFromTICLUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitHGC_cfi import *
-from ..modules.hltParticleFlowSuperClusterHGCalFromTICLUnseeded_cfi import *
 from ..modules.hltTiclLayerTileProducer_cfi import *
 from ..modules.hltTiclSeedingGlobal_cfi import *
 from ..modules.hltTiclTrackstersCLUE3DHigh_cfi import *
@@ -22,46 +21,15 @@ from ..modules.hltTiclTracksterLinks_cfi import *
 # Barrel layer clusters
 from ..modules.hltBarrelLayerClustersEB_cfi import *
 from ..modules.hltBarrelLayerClustersHB_cfi import *
-_HgcalLocalRecoUnseededSequence = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+
-                                               hltHGCalRecHit+hltParticleFlowRecHitHGC+
-                                               hltHgcalLayerClustersEE+
-                                               hltHgcalLayerClustersHSci+
-                                               hltHgcalLayerClustersHSi+
-                                               hltMergeLayerClusters)
 
-_HgcalTICLPatternRecognitionUnseededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHigh+
-                                                            hltTiclSeedingGlobal+hltTiclLayerTileProducer+
-                                                            hltTiclTrackstersCLUE3DHigh)
 
-_SuperclusteringUnseededSequence = cms.Sequence(hltParticleFlowClusterHGCalFromTICLUnseeded+
-                                                hltParticleFlowSuperClusterHGCalFromTICLUnseeded)
-
-# The baseline sequence
-HLTHgcalTiclPFClusteringForEgammaUnseededSequence = cms.Sequence(_HgcalLocalRecoUnseededSequence + _HgcalTICLPatternRecognitionUnseededSequence + _SuperclusteringUnseededSequence)
-
-# Alpaka
-from Configuration.ProcessModifiers.alpaka_cff import alpaka
-alpaka.toReplaceWith(_HgcalLocalRecoUnseededSequence, 
-                     cms.Sequence(
-                                  hltHgcalDigis
-                                  + hltHGCalUncalibRecHit
-                                  + hltHGCalRecHit+hltParticleFlowRecHitHGC
-                                  + hltHgcalSoARecHitsProducer
-                                  + hltHgcalSoARecHitsLayerClustersProducer
-                                  + hltHgcalSoALayerClustersProducer
-                                  + hltHgCalLayerClustersFromSoAProducer
-                                  + hltHgcalLayerClustersHSci
-                                  + hltHgcalLayerClustersHSi
-                                  + hltMergeLayerClusters
-                     ) 
-)
 
 # Use EGammaSuperClusterProducer at HLT in ticl v5
 hltTiclTracksterLinksSuperclusteringDNNUnseeded = hltTiclTracksterLinks.clone(
     linkingPSet = cms.PSet(
         type=cms.string("SuperClusteringDNN"),
         algo_verbosity=cms.int32(0),
-        onnxModelPath = cms.FileInPath("RecoHGCal/TICL/data/superclustering/supercls_v3.onnx"),
+        onnxModelPath = cms.string("RecoHGCal/TICL/data/superclustering/supercls_v3.onnx"),
         nnWorkingPoint=cms.double(0.57247),
     ),
     tracksters_collections = [cms.InputTag("hltTiclTrackstersCLUE3DHigh")], # to be changed to ticlTrackstersCLUE3DEM once separate CLUE3D iterations are introduced
@@ -82,14 +50,42 @@ hltTiclEGammaSuperClusterProducerUnseeded = _ticlEGammaSuperClusterProducer.clon
     layerClusters = "hltMergeLayerClusters"
 )
 
-# DNN
-from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
-ticl_superclustering_dnn.toReplaceWith(_SuperclusteringUnseededSequence, 
-                                       cms.Sequence(
-                                                    hltTiclTracksterLinksSuperclusteringDNNUnseeded
-                                                    + hltTiclEGammaSuperClusterProducerUnseeded
-                                       )
+
+_HgcalLocalRecoUnseededSequence = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+
+                                               hltHGCalRecHit+hltParticleFlowRecHitHGC+
+                                               hltHgcalLayerClustersEE+
+                                               hltHgcalLayerClustersHSci+
+                                               hltHgcalLayerClustersHSi+
+                                               hltMergeLayerClusters)
+
+_HgcalTICLPatternRecognitionUnseededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHigh+
+                                                            hltTiclSeedingGlobal+hltTiclLayerTileProducer+
+                                                            hltTiclTrackstersCLUE3DHigh)
+
+
+_SuperclusteringUnseededSequence = cms.Sequence(hltTiclTracksterLinksSuperclusteringDNNUnseeded+ hltTiclEGammaSuperClusterProducerUnseeded)
+
+HLTHgcalTiclPFClusteringForEgammaUnseededSequence = cms.Sequence(_HgcalLocalRecoUnseededSequence + _HgcalTICLPatternRecognitionUnseededSequence + _SuperclusteringUnseededSequence)
+
+# Alpaka
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+alpaka.toReplaceWith(_HgcalLocalRecoUnseededSequence, 
+                     cms.Sequence(
+                                  hltHgcalDigis
+                                  + hltHGCalUncalibRecHit
+                                  + hltHGCalRecHit+hltParticleFlowRecHitHGC
+                                  + hltHgcalSoARecHitsProducer
+                                  + hltHgcalSoARecHitsLayerClustersProducer
+                                  + hltHgcalSoALayerClustersProducer
+                                  + hltHgCalLayerClustersFromSoAProducer
+                                  + hltHgcalLayerClustersHSci
+                                  + hltHgcalLayerClustersHSi
+                                  + hltMergeLayerClusters
+                     ) 
 )
+
+
+
 
 # Ticl mustache
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
