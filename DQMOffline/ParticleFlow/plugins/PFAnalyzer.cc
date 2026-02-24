@@ -6,22 +6,24 @@
  *
  */
 
+
 #include "DQMOffline/ParticleFlow/plugins/PFAnalyzer.h"
 #include <iostream>
 
 // ***********************************************************
 PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_directory = "ParticleFlow";
-  m_isMiniAOD = pSet.getParameter<bool>("isMiniAOD");
   parameters_ = pSet.getParameter<edm::ParameterSet>("pfAnalysis");
+  m_isMiniAOD = pSet.getParameter<bool>("isMiniAOD");
+  m_runNumber = pSet.getParameter<unsigned int>("runNumber");
 
-  //patPfCandidateCollection_ = consumes<pat::PFParticleCollection>(pSet.getParameter<edm::InputTag>("pfCandidates"));
   patPfCandidateCollection_ =
       consumes<pat::PackedCandidateCollection>(pSet.getParameter<edm::InputTag>("pfCandidates"));
   patJetsToken_ = consumes<pat::JetCollection>(pSet.getParameter<edm::InputTag>("pfJetCollection"));
 
-  thePfCandidateCollection_ = consumes<reco::PFCandidateCollection>(pSet.getParameter<edm::InputTag>("pfCandidates"));
+  thePfCandidateCollection_ = consumes<CandView>(pSet.getParameter<edm::InputTag>("pfCandidates"));
   pfJetsToken_ = consumes<reco::PFJetCollection>(pSet.getParameter<edm::InputTag>("pfJetCollection"));
+
 
   theTriggerResultsLabel_ = pSet.getParameter<edm::InputTag>("TriggerResultsLabel");
   m_selection = pSet.getParameter<std::string>("eventSelection");
@@ -29,7 +31,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel_));
   m_triggerOptions = pSet.getParameter<vstring>("TriggerNames");
 
-  //puppiWeightToken_ = consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("puppiWeight"));
+  puppiWeightToken_ = consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("puppiWeight"));
 
   m_pfNames = {"allPFC", "neutralHadPFC", "chargedHadPFC", "electronPFC", "muonPFC", "gammaPFC", "hadHFPFC", "emHFPFC"};
   vertexTag_ = pSet.getParameter<edm::InputTag>("PVCollection");
@@ -61,6 +63,8 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_funcMap["abseta"] = getAbsEta;
   m_funcMap["phi"] = getPhi;
   m_funcMap["puppi"] = getPuppiWeight;
+
+
 
   m_funcMap["HCalE_depth1"] = getHcalEnergy_depth1;
   m_funcMap["HCalE_depth2"] = getHcalEnergy_depth2;
@@ -227,6 +231,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   // with the first being the observable name (corresponding to one of
   // the keys in m_funcMap), the second being the number of bins,
   // and the last two being the min and max value for the histogram respectively.
+
   for (unsigned int i = 0; i < m_fullCutList2D.size(); i++) {
     // Loop over all of the different types of PF candidates
     for (unsigned int m = 0; m < m_pfNames.size(); m++) {
@@ -413,7 +418,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   }
 
   std::string histName = Form("NPV");
-  MonitorElement* mHist = ibooker.book1D(histName, Form(";%s;", "N_PV"), 100, 0, 100);
+  MonitorElement* mHist = ibooker.book1D(histName, Form(";%s;", "N_PV"), 200, 0, 200);
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHist));
 }
 
@@ -451,6 +456,8 @@ void PFAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 
 void PFAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("puppiWeight", edm::InputTag("puppi"))->setComment("The name of the puppi weight in the file");
+  desc.add<unsigned int>("runNumber", 0)->setComment("The run number (0 for no selection on the run)");
   desc.add<bool>("isMiniAOD", true)->setComment("Is the input file in miniAOD format? Alternative would be RECO");
   desc.add<edm::InputTag>("pfCandidates", edm::InputTag("particleFlow"))
       ->setComment("Input collection of PF candidates");
@@ -483,6 +490,7 @@ void PFAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   descriptions.addWithDefaultLabel(desc);
 }
+
 
 // How many significant digits do we need to save for the values to be distinct?
 std::string PFAnalyzer::stringWithDecimals(int bin, std::vector<double> bins) {
@@ -633,15 +641,16 @@ int PFAnalyzer::getBinNumbers(std::vector<double> binVal, std::vector<std::vecto
   return bin;
 }
 
-int PFAnalyzer::getPFBin(const reco::PFCandidate pfCand,
+int PFAnalyzer::getPFBin(const reco::PFCandidatePtr pfCand,
                          const pat::PackedCandidate packedCand,
                          const reco::CandidatePtr cand,
                          int partType,
-                         int i) {
+                         int i,
+                         edm::Handle<edm::ValueMap<float>> puppiWeight) {
   std::vector<double> binVals;
   binVals.reserve(m_fullCutList[i].size());
   for (unsigned int j = 0; j < m_fullCutList[i].size(); j++) {
-    binVals.push_back(m_funcMap[m_fullCutList[i][j]](pfCand, packedCand, cand, partType));
+    binVals.push_back(m_funcMap[m_fullCutList[i][j]](pfCand, packedCand, cand, partType, puppiWeight));
   }
 
   return getBinNumbers(binVals, m_binList[i]);
@@ -668,6 +677,10 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //Vertex information
   edm::Handle<reco::VertexCollection> vertexHandle;
   iEvent.getByToken(vertexToken_, vertexHandle);
+  if(m_runNumber !=0 && iEvent.run() != m_runNumber){
+    return;
+  }
+  //std::cout << iEvent.run() << std::endl;
 
   if (!vertexHandle.isValid()) {
     LogDebug("") << "PFAnalyzer: Could not find vertex collection" << std::endl;
@@ -701,9 +714,12 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
 
-  edm::Handle<reco::PFCandidateCollection> recoPfCollection;
+  //edm::Handle<reco::PFCandidateCollection> recoPfCollection;
+  //edm::Handle<std::vector<edm::FwdPtr<reco::PFCandidate>>> recoPfCollection;
+  edm::Handle<CandView> recoPfCollection;
+
   edm::Handle<pat::PackedCandidateCollection> patPfCollection;
-  std::vector<reco::PFCandidate> pfCollection;
+  std::vector<reco::PFCandidatePtr> pfCollection;
 
   edm::Handle<pat::JetCollection> patJets;
   edm::Handle<reco::PFJetCollection> pfJets;
@@ -718,13 +734,19 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       return;
     }
     for (unsigned int i = 0; i < recoPfCollection->size(); i++) {
-      pfCollection.push_back(recoPfCollection->at(i));
+      //pfCollection.push_back(recoPfCollection->at(i));
+      //reco::PFCandidate* cand =  (reco::PFCandidate*) (recoPfCollection->ptrAt(i).get());
+      //reco::PFCandidatePtr cand =  (reco::PFCandidate*) (recoPfCollection->ptrAt(i));
+      reco::PFCandidatePtr cand = (reco::PFCandidatePtr)(recoPfCollection->ptrAt(i));
+      //pfCollection.push_back( recoPfCollection->ptrAt(i) );
+      pfCollection.push_back( cand );
+      //pfCollection.push_back(*((*recoPfCollection)[i].ptr()));
     }
     numPFCands = recoPfCollection->size();
 
     iEvent.getByToken(pfJetsToken_, pfJets);
     if (!pfJets.isValid()) {
-      edm::LogError("PFAnalyzer") << "invalid collection: PF jets \n";
+      edm::LogError("PFAnalyzer") << "invalid collection: PF jets: " << " \n";
       return;
     }
     numJets = pfJets->size();
@@ -734,7 +756,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   } else {
     iEvent.getByToken(patJetsToken_, patJets);
     if (!patJets.isValid()) {
-      edm::LogError("PFAnalyzer") << "invalid collection: PF jets \n";
+      edm::LogError("PFAnalyzer") << "invalid collection: PF pat jets \n";
       return;
     }
     numJets = patJets->size();
@@ -744,16 +766,19 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     iEvent.getByToken(patPfCandidateCollection_, patPfCollection);
     if (!patPfCollection.isValid()) {
-      edm::LogError("PFAnalyzer") << "invalid collection: PF candidate \n";
+      edm::LogError("PFAnalyzer") << "invalid collection: PF pat candidate \n";
       return;
     }
     numPFCands = patPfCollection->size();
   }
 
-  //iEvent.getByToken(puppiWeightToken_, puppiWeight);
-  //if(!puppiWeight.isValid()){
-  //  edm::LogError("PFAnalyzer") << "invalid collection: Puppi weights \n";
-  //}
+  iEvent.getByToken(puppiWeightToken_, puppiWeight);
+  if (!puppiWeightToken_.isUninitialized())
+    iEvent.getByToken(puppiWeightToken_, puppiWeight);
+
+  if(!puppiWeight.isValid()){
+    edm::LogError("PFAnalyzer") << "invalid collection: Puppi weights \n";
+  }
 
   if (!passesTriggerSelection(jets, triggerResults, triggerNames, m_triggerOptions)) {
     return;
@@ -764,7 +789,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   for (unsigned int i_pfcand = 0; i_pfcand < numPFCands; i_pfcand++) {
-    reco::PFCandidate recoPF;
+    reco::PFCandidatePtr recoPF;
     pat::PackedCandidate packedCand;
     reco::CandidatePtr cand;
     int partType = 0;
@@ -776,7 +801,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
     for (unsigned int j = 0; j < m_fullCutList.size(); j++) {
-      int binNumber = getPFBin(recoPF, packedCand, cand, partType, j);
+      int binNumber = getPFBin(recoPF, packedCand, cand, partType, j, puppiWeight);
 
       if (binNumber < 0)
         continue;
@@ -789,12 +814,12 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         // For each observable, we make a couple histograms based on a few generic categorizations.
         // In all cases, the PFCs that go into these histograms must pass the PFC selection from m_cutList.
         std::string histName = Form("%s_%s", m_fullCutList2D[i][0].c_str(), m_fullCutList2D[i][1].c_str());
-        double valX = m_funcMap[m_fullCutList2D[i][0]](recoPF, packedCand, cand, partType);
-        double valY = m_funcMap[m_fullCutList2D[i][1]](recoPF, packedCand, cand, partType);
+        double valX = m_funcMap[m_fullCutList2D[i][0]](recoPF, packedCand, cand, partType, puppiWeight);
+        double valY = m_funcMap[m_fullCutList2D[i][1]](recoPF, packedCand, cand, partType, puppiWeight);
 
         map_of_MEs[m_directory + "/allPFC_" + histName]->Fill(valX, valY, eventWeight);
-        if (partType == 0 && m_particleTypeName.find(recoPF.particleId()) != m_particleTypeName.end()) {
-          map_of_MEs[m_directory + "/" + m_particleTypeName[recoPF.particleId()] + "_" + histName]->Fill(
+        if (partType == 0 && m_particleTypeName.find(recoPF.get()->particleId()) != m_particleTypeName.end()) {
+          map_of_MEs[m_directory + "/" + m_particleTypeName[recoPF.get()->particleId()] + "_" + histName]->Fill(
               valX, valY, eventWeight);
         }
       }
@@ -804,11 +829,11 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       // Make plots of all observables
       for (unsigned int i = 0; i < m_observables.size(); i++) {
         std::string histName = Form("%s%s_%s", m_observableNames[i].c_str(), binString.c_str(), npvString.c_str());
-        double val = m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType);
+        double val = m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType, puppiWeight);
         map_of_MEs[m_directory + "/allPFC_" + histName]->Fill(val, eventWeight);
 
-        if (partType == 0 && m_particleTypeName.find(recoPF.particleId()) != m_particleTypeName.end()) {
-          map_of_MEs[m_directory + "/" + m_particleTypeName[recoPF.particleId()] + "_" + histName]->Fill(val,
+        if (partType == 0 && m_particleTypeName.find(recoPF.get()->particleId()) != m_particleTypeName.end()) {
+          map_of_MEs[m_directory + "/" + m_particleTypeName[recoPF.get()->particleId()] + "_" + histName]->Fill(val,
                                                                                                          eventWeight);
         }
       }
@@ -862,8 +887,8 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     for (unsigned int k = 0; k < m_fullJetCutList.size(); k++) {
       pat::PackedCandidate packedCand;
       reco::CandidatePtr cand;
-      reco::PFCandidatePtr recoPFPtr;
-      reco::PFCandidate recoPF;
+      reco::PFCandidatePtr recoPF;
+      //const reco::PFCandidate* recoPF;
       int jetBinNumber = getJetBin(cjet, pfConstits, k);
       if (jetBinNumber < 0)
         continue;
@@ -875,11 +900,12 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
           cand = patConstits[iConstit];
           partType = 2;
         } else {
-          recoPFPtr = pfConstits[iConstit];
-          recoPF = *recoPFPtr;
+          //recoPFPtr = pfConstits[iConstit];
+          recoPF = pfConstits[iConstit];
+          //recoPF = *recoPFPtr;
         }
         for (unsigned int j = 0; j < m_fullCutList.size(); j++) {
-          int binNumber = getPFBin(recoPF, packedCand, cand, partType, j);
+          int binNumber = getPFBin(recoPF, packedCand, cand, partType, j, puppiWeight);
           if (binNumber < 0)
             continue;
           if (binNumber >= int(m_allSuffixes[j].size())) {
@@ -894,10 +920,10 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                                         jetBinString.c_str(),
                                         npvString.c_str());
             map_of_MEs[m_directory + "/allPFC_jetMatched_" + histName]->Fill(
-                m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType), eventWeight);
-            if (partType == 0 && m_particleTypeName.find(recoPF.particleId()) != m_particleTypeName.end()) {
-              map_of_MEs[m_directory + "/" + m_particleTypeName[recoPF.particleId()] + "_jetMatched_" + histName]->Fill(
-                  m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType), eventWeight);
+                m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType, puppiWeight), eventWeight);
+            if (partType == 0 && m_particleTypeName.find(recoPF.get()->particleId()) != m_particleTypeName.end()) {
+              map_of_MEs[m_directory + "/" + m_particleTypeName[recoPF.get()->particleId()] + "_jetMatched_" + histName]->Fill(
+                  m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType, puppiWeight), eventWeight);
             }
           }
 
@@ -910,8 +936,8 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
             map_of_MEs[m_directory + "/allPFC_jetMatched_" + histName]->Fill(
                 m_pfInJetFuncMap[m_pfInJetObservableNames[i]](recoPF, cjet), eventWeight);
 
-            if (partType == 0 && m_particleTypeName.find(recoPF.particleId()) != m_particleTypeName.end()) {
-              map_of_MEs[m_directory + "/" + m_particleTypeName[recoPF.particleId()] + "_jetMatched_" + histName]->Fill(
+            if (partType == 0 && m_particleTypeName.find(recoPF.get()->particleId()) != m_particleTypeName.end()) {
+              map_of_MEs[m_directory + "/" + m_particleTypeName[recoPF.get()->particleId()] + "_jetMatched_" + histName]->Fill(
                   m_pfInJetFuncMap[m_pfInJetObservableNames[i]](recoPF, cjet), eventWeight);
             }
           }
