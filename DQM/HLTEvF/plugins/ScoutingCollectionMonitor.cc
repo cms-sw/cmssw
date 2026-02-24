@@ -437,6 +437,8 @@ private:
   dqm::reco::MonitorElement* hbheRecHitsNumber_hist[3];
   dqm::reco::MonitorElement* hbheRecHits_energy_hist[3];
   dqm::reco::MonitorElement* hbheRecHits_time_hist[3];
+  dqm::reco::MonitorElement* hbheRecHits_energy_egt5_hist[3];
+  dqm::reco::MonitorElement* hbheRecHits_time_egt5_hist[3];
 
   // separate maps for each subdetector
   dqm::reco::MonitorElement* hbheRecHitsEtaPhiMap;
@@ -974,8 +976,15 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
       getValidHandle(iEvent, hbheRecHitsToken_, hbheRecHitsH, "pfRecHitsHBHE")) {
     hbheRecHitsNumber_hist[0]->Fill(hbheRecHitsH->size());
     for (const auto& hbheRecHit : *hbheRecHitsH) {
+      const bool isStiffRecHit = (hbheRecHit.energy() > 5);
+
       hbheRecHits_energy_hist[0]->Fill(hbheRecHit.energy());
       hbheRecHits_time_hist[0]->Fill(hbheRecHit.time());
+      if (isStiffRecHit) {
+        hbheRecHits_energy_egt5_hist[0]->Fill(hbheRecHit.energy());
+        hbheRecHits_time_egt5_hist[0]->Fill(hbheRecHit.time());
+      }
+
       HcalDetId hcalid(hbheRecHit.detId());
       hbheRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
       const auto& subdet = hcalid.subdetId();
@@ -984,11 +993,19 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
         hbRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
         hbheRecHits_energy_hist[1]->Fill(hbheRecHit.energy());
         hbheRecHits_time_hist[1]->Fill(hbheRecHit.time());
+        if (isStiffRecHit) {
+          hbheRecHits_energy_egt5_hist[1]->Fill(hbheRecHit.energy());
+          hbheRecHits_time_egt5_hist[1]->Fill(hbheRecHit.time());
+        }
       } else {  // HE
         nHERechits++;
         heRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
         hbheRecHits_energy_hist[2]->Fill(hbheRecHit.energy());
         hbheRecHits_time_hist[2]->Fill(hbheRecHit.time());
+        if (isStiffRecHit) {
+          hbheRecHits_energy_egt5_hist[2]->Fill(hbheRecHit.energy());
+          hbheRecHits_time_egt5_hist[2]->Fill(hbheRecHit.time());
+        }
       }
     }
     // check that rechits size is the same
@@ -1572,9 +1589,24 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
                      0.0,
                      200.0);
 
+    // Energy > 5 GeV histograms
+    hbheRecHits_energy_egt5_hist[i] =
+        ibook.book1D(name + "Rechits_energy_Egt5",
+                     "Energy spectrum of " + subdet + " RecHits (E > 5 GeV); Energy (GeV); Entries",
+                     100,
+                     0.0,
+                     30.0);
+
     hbheRecHits_time_hist[i] =
         ibook.book1D(name + "Rechits_time",
                      "Time of " + subdet + " RecHits; Time of " + subdet + " recHits (ns); Entries",
+                     100,
+                     0.0,
+                     30.0);
+
+    hbheRecHits_time_egt5_hist[i] =
+        ibook.book1D(name + "Rechits_time_Egt5",
+                     "Time of " + subdet + " RecHits; Time of " + subdet + " recHits (E > 5 GeV) (ns); Entries",
                      100,
                      0.0,
                      30.0);
