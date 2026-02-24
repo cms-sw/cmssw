@@ -254,7 +254,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       error2 = moduleTypei == 0 ? kPixelPSZpitch * kPixelPSZpitch : kStrip2SZpitch * kStrip2SZpitch;
 
       //check the tilted module, side: PosZ, NegZ, Center(for not tilted)
-      float drdzi = 0.f;
+      float drdz = 0.f;
       short side = 0;
       short subdets = 0;
       if (i == 2) {
