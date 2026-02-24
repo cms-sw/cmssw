@@ -10,7 +10,7 @@
 template <class T>
 std::string templateNameFinder() {
   int status = 0;
-  char *dm = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, &status);
+  char* dm = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, &status);
   std::string str = "failed demangle";
   if (status == 0 && dm != nullptr) {
     str = std::string(dm);
@@ -20,8 +20,8 @@ std::string templateNameFinder() {
 }
 
 template <class T>
-std::string classNameFinder(std::string fName) {
-  std::string str = templateNameFinder<T>();
+std::string classNameFinder(const std::string& fName) {
+  const std::string str = templateNameFinder<T>();
   return (fName + std::string("< ") + str + std::string(" >"));
 }
 

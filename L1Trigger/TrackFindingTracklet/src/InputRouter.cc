@@ -81,7 +81,6 @@ void InputRouter::execute() {
                                   << iphipos << ") has " << iadd << " matching InputLinkMemories.";
         assert(false);
       }
-      //assert(iadd == 1);
     }
   }
 }
