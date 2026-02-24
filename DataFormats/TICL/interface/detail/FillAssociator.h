@@ -32,7 +32,7 @@ namespace ticl::associator::detail {
       for (auto i : alpaka::uniformElements(acc, values.size())) {
         const auto key = keys[i];
         const auto offset = alpaka::atomicAdd(acc, &temp_offsets[key], 1u);
-        view.content().mapped_values()[offset] = values[i];
+        view.content().values()[offset] = values[i];
       }
     }
   };
@@ -49,7 +49,7 @@ namespace ticl::associator::detail {
     const auto nvalues = map.metadata().size()[0];
 
     auto dev = alpaka::getDev(queue);
-    const auto blocksize = 512;
+    const auto blocksize = 1024;
     const auto gridsize = divide_up_by(keys.size(), blocksize);
     const auto workdiv = make_workdiv<TAcc>(gridsize, blocksize);
     auto keys_counts = make_device_buffer<TKey[]>(dev, nkeys);
@@ -75,7 +75,9 @@ namespace ticl::associator::detail {
                        block_counter.data(),
                        warp_size);
 
-    alpaka::memcpy(queue, make_device_view(dev, map.offsets().keys_offsets().data(), nkeys + 1), temp_offsets);
+    alpaka::memcpy(queue,
+                   make_device_view(dev, map.offsets().keys_offsets().data(), nkeys),
+                   make_device_view(dev, temp_offsets.data() + 1, nkeys));
     alpaka::exec<TAcc>(queue, workdiv, KernelFillAssociator{}, map, keys, values, temp_offsets.data());
   }
 
