@@ -169,4 +169,28 @@ TEST_CASE("DescriptionCloner") {
 
     REQUIRE_THROWS_AS(cloner.createDifference(), edm::Exception);
   }
+  SECTION("omit") {
+    edm::DescriptionCloner cloner;
+    cloner.set("param1", 42);
+    cloner.omit("param2");
+
+    edm::ParameterSetDescription defaultDesc;
+    defaultDesc.add<int>("param1", 0);
+    defaultDesc.add<int>("param2", 100);
+
+    cloner.determineTrackinessFromDefaultDescription(defaultDesc);
+
+    auto diffDesc = cloner.createDifference();
+
+    edm::ParameterSet ps;
+    diffDesc.validate(ps);
+
+    REQUIRE(ps.getParameter<int>("param1") == 42);
+    REQUIRE(ps.exists("param2") == false);
+
+    std::ostringstream s;
+    edm::cfi::CfiOptions options = edm::cfi::Untyped{edm::cfi::Paths{}};
+    diffDesc.writeCfi(s, false, 0, options);
+    REQUIRE(s.str() == "\nparam1 = 42,\nparam2 = None\n");
+  }
 }

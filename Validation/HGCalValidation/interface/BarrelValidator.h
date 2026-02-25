@@ -30,7 +30,7 @@
 #include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
-class PileupSummaryInfo;
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfoFwd.h"
 
 struct BarrelValidatorHistograms {
   BarrelVHistoProducerAlgoHistograms histoProducerAlgo;

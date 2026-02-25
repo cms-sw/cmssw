@@ -27,7 +27,11 @@ namespace cms::torch {
     }
 
     // Forward pass (inference) of model, returns torch::IValue (multi output support). Match native torchlib interface.
-    ::torch::IValue forward(std::vector<::torch::IValue> &inputs) { return model_.forward(inputs); }
+    ::torch::IValue forward(std::vector<::torch::IValue> &inputs) {
+      // Disabling autograd
+      ::torch::NoGradGuard no_grad_guard;
+      return model_.forward(inputs);
+    }
 
     // Get model current device information.
     ::torch::Device device() const { return device_; }

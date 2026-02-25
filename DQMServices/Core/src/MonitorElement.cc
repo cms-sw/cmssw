@@ -393,6 +393,37 @@ namespace dqm::impl {
       incompatible(__PRETTY_FUNCTION__);
   }
 
+  std::string MonitorElement::kindHumanReadable() const {
+    if (kind() == Kind::TH1F)
+      return "TH1F";
+    else if (kind() == Kind::TH1S)
+      return "TH1S";
+    else if (kind() == Kind::TH1D)
+      return "TH1D";
+    else if (kind() == Kind::TH1I)
+      return "TH1I";
+    else if (kind() == Kind::TPROFILE)
+      return "TPROFILE";
+    else if (kind() == Kind::TH2F)
+      return "TH2F";
+    else if (kind() == Kind::TH2S)
+      return "TH2S";
+    else if (kind() == Kind::TH2D)
+      return "TH2D";
+    else if (kind() == Kind::TH2I)
+      return "TH2I";
+    else if (kind() == Kind::TH2Poly)
+      return "TH2Poly";
+    else if (kind() == Kind::TPROFILE2D)
+      return "TPROFILE2D";
+    else if (kind() == Kind::TH3F)
+      return "TH3F";
+    else {
+      incompatible(__PRETTY_FUNCTION__);
+      return "incompatible";
+    }
+  }
+
   /// convert scalar data into a string.
   void MonitorElement::packScalarData(std::string &into, const char *prefix) const {
     auto access = this->access();
@@ -553,6 +584,11 @@ namespace dqm::impl {
                                                 << "' cannot be invoked on monitor"
                                                    " element '"
                                                 << data_.objname << "'";
+  }
+
+  void MonitorElement::wrongKind(const std::string rightKind) const {
+    throw cms::Exception("MonitorElementError")
+        << "Wrong kind of MonitorElement: " << kindHumanReadable() << " instead of " << rightKind << ".";
   }
 
   TH1 const *MonitorElement::accessRootObject(Access const &access, const char *func, int reqdim) const {
@@ -1077,73 +1113,85 @@ namespace dqm::impl {
 
   TH1F *MonitorElement::getTH1F() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH1F);
+    if (kind() != Kind::TH1F)
+      wrongKind("TH1F");
     return static_cast<TH1F *>(accessRootObject(access, __PRETTY_FUNCTION__, 1));
   }
 
   TH1S *MonitorElement::getTH1S() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH1S);
+    if (kind() != Kind::TH1S)
+      wrongKind("TH1S");
     return static_cast<TH1S *>(accessRootObject(access, __PRETTY_FUNCTION__, 1));
   }
 
   TH1I *MonitorElement::getTH1I() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH1I);
+    if (kind() != Kind::TH1I)
+      wrongKind("TH1I");
     return static_cast<TH1I *>(accessRootObject(access, __PRETTY_FUNCTION__, 1));
   }
 
   TH1D *MonitorElement::getTH1D() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH1D);
+    if (kind() != Kind::TH1D)
+      wrongKind("TH1D");
     return static_cast<TH1D *>(accessRootObject(access, __PRETTY_FUNCTION__, 1));
   }
 
   TH2F *MonitorElement::getTH2F() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH2F);
+    if (kind() != Kind::TH2F)
+      wrongKind("TH2F");
     return static_cast<TH2F *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 
   TH2S *MonitorElement::getTH2S() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH2S);
+    if (kind() != Kind::TH2S)
+      wrongKind("TH2S");
     return static_cast<TH2S *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 
   TH2I *MonitorElement::getTH2I() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH2I);
+    if (kind() != Kind::TH2I)
+      wrongKind("TH2I");
     return static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 
   TH2D *MonitorElement::getTH2D() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH2D);
+    if (kind() != Kind::TH2D)
+      wrongKind("TH2D");
     return static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 
   TH2Poly *MonitorElement::getTH2Poly() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH2Poly);
+    if (kind() != Kind::TH2Poly)
+      wrongKind("TH2Poly");
     return static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 
   TH3F *MonitorElement::getTH3F() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TH3F);
+    if (kind() != Kind::TH3F)
+      wrongKind("TH3F");
     return static_cast<TH3F *>(accessRootObject(access, __PRETTY_FUNCTION__, 3));
   }
 
   TProfile *MonitorElement::getTProfile() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TPROFILE);
+    if (kind() != Kind::TPROFILE)
+      wrongKind("TPROFILE");
     return static_cast<TProfile *>(accessRootObject(access, __PRETTY_FUNCTION__, 1));
   }
 
   TProfile2D *MonitorElement::getTProfile2D() {
     auto access = this->accessMut();
-    assert(kind() == Kind::TPROFILE2D);
+    if (kind() != Kind::TPROFILE2D)
+      wrongKind("TPROFILE2D");
     return static_cast<TProfile2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 

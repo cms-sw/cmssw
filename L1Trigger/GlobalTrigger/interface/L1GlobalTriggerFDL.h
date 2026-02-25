@@ -21,6 +21,7 @@
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecordFwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -29,7 +30,6 @@
 #include <cstdint>
 
 // forward declarations
-class L1GlobalTriggerReadoutRecord;
 class L1GlobalTriggerEvmReadoutRecord;
 
 class L1GtFdlWord;

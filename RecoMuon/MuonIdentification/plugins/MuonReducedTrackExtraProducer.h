@@ -13,9 +13,9 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterFwd.h"
 #include "DataFormats/Common/interface/Association.h"
 
-class SiPixelCluster;
 class SiStripCluster;
 
 class MuonReducedTrackExtraProducer : public edm::stream::EDProducer<> {

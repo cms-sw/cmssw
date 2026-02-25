@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1GlobalMuonTrigger_L1MuGMTReadoutCollectionFwd_h
+#define DataFormats_L1GlobalMuonTrigger_L1MuGMTReadoutCollectionFwd_h
+
+class L1MuGMTReadoutCollection;
+
+#endif

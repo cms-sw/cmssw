@@ -4,10 +4,10 @@
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimClusterFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 
 #include <vector>
 
-class SimTrack;
 class EncodedEventId;
 
 class MtdCaloParticle : public CaloParticle {

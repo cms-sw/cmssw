@@ -12,12 +12,12 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include <map>
 
-class DTChamberId;
 class TFile;
 class TH1F;
 class TH2F;

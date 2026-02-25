@@ -1,0 +1,6 @@
+#ifndef SimDataFormats_TrackerDigiSimLink_PixelDigiSimLinkFwd_h
+#define SimDataFormats_TrackerDigiSimLink_PixelDigiSimLinkFwd_h
+
+class PixelDigiSimLink;
+
+#endif

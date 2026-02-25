@@ -10,6 +10,7 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 class Propagator;
 
@@ -19,7 +20,6 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class Trajectory;
 class TrajectoryMeasurement;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;

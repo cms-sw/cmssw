@@ -41,6 +41,12 @@
       "ECAL"
     ]
   },
+  "AlCa_EcalPhiSym_extra_v": {
+    "online?": true,
+    "owners": [
+      "ECAL"
+    ]
+  },
   "AlCa_EcalPhiSym_v": {
     "online?": true,
     "owners": [
@@ -450,6 +456,27 @@
       "TSG"
     ]
   },
+  "HLT_AK15PFJet175_SoftDropMass40_GloParTBB0p125_v": {
+    "online?": true,
+    "owners": [
+      "BTV",
+      "HIG"
+    ]
+  },
+  "HLT_AK15PFJet175_SoftDropMass40_GloParTCC0p25_v": {
+    "online?": true,
+    "owners": [
+      "BTV",
+      "HIG"
+    ]
+  },
+  "HLT_AK15PFJet175_SoftDropMass40_v": {
+    "online?": true,
+    "owners": [
+      "BTV",
+      "HIG"
+    ]
+  },
   "HLT_AK4CaloJet100_v": {
     "online?": true,
     "owners": [
@@ -693,6 +720,20 @@
     ]
   },
   "HLT_AK8PFJet230_SoftDropMass40_PNetTauTau0p05_v": {
+    "online?": true,
+    "owners": [
+      "B2G",
+      "HIG"
+    ]
+  },
+  "HLT_AK8PFJet230_SoftDropMass40_PNetV02BB0p14_v": {
+    "online?": true,
+    "owners": [
+      "B2G",
+      "HIG"
+    ]
+  },
+  "HLT_AK8PFJet230_SoftDropMass40_PNetV02BB0p26_v": {
     "online?": true,
     "owners": [
       "B2G",
@@ -1328,6 +1369,12 @@
     "owners": [
       "EGM",
       "EXO"
+    ]
+  },
+  "HLT_Dimuon0_Inclusive_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
     ]
   },
   "HLT_Dimuon0_Jpsi3p5_Muon2_v": {
@@ -4859,6 +4906,24 @@
       "EXO"
     ]
   },
+  "HLT_HT430_DelayedJet40_SingleDelayNeg0p75nsInclusive_BeamHalo_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_HT430_DelayedJet40_SingleDelayNeg2p5nsInclusive_SatBunch_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_HT430_DelayedJet40_SingleDelayPos0p75nsInclusive_BeamHalo_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
   "HLT_HT430_DisplacedDijet40_DisplacedTrack_v": {
     "online?": true,
     "owners": [
@@ -5311,6 +5376,24 @@
     "online?": true,
     "owners": [
       "TSG"
+    ]
+  },
+  "HLT_L1CICADA_Loose_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_L1CICADA_VLoose_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_L1CICADA_VVLoose_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
     ]
   },
   "HLT_L1CICADA_VVTight_v": {
@@ -5784,6 +5867,66 @@
     "online?": true,
     "owners": [
       "EXO"
+    ]
+  },
+  "HLT_L1Tau_DelayedJet40_SingleDelayNeg0p75nsInclusive_BeamHalo_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_L1Tau_DelayedJet40_SingleDelayNeg2p5nsInclusive_SatBunch_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_L1Tau_DelayedJet40_SingleDelayPos0p75nsInclusive_BeamHalo_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_L1Tau_DelayedJet40_SingleDelayPos2p5nsInclusive_SatBunch_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_L1TopoLooseEmu_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1TopoLoose_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1TopoMediumEmu_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1TopoMedium_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1TopoTightEmu_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1TopoTight_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
     ]
   },
   "HLT_L1_CDC_SingleMu_3_er1p2_TOP120_DPHI2p618_3p142_v": {
@@ -7358,6 +7501,20 @@
       "TSG"
     ]
   },
+  "HLT_PFJet40_L1Jet24_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "HIN"
+    ]
+  },
+  "HLT_PFJet40_L1Jet35_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "HIN"
+    ]
+  },
   "HLT_PFJet40_v": {
     "online?": true,
     "owners": [
@@ -7395,6 +7552,13 @@
     "owners": [
       "JME",
       "SMP"
+    ]
+  },
+  "HLT_PFJet80_L1Jet60_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "HIN"
     ]
   },
   "HLT_PFJet80_v": {
@@ -8218,6 +8382,13 @@
       "EXO",
       "HIG",
       "JME"
+    ]
+  },
+  "HLT_Photon30_HoverELoose_L1SingleEG20_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "HIN"
     ]
   },
   "HLT_Photon30_HoverELoose_v": {

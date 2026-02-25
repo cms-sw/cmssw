@@ -378,6 +378,15 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
 
   auto getPathLength =
       [&](const reco::Track &track, float zVal) {
+        // Bail out early if inner/outer surfaces are not available
+        if (!track.innerOk() || !track.outerOk()) {
+          if (edm::isDebugEnabled()) {
+            LogDebug("TICLCandidateProducer")
+                << "Not able to use the track to compute the path length. A straight line will be used instead.";
+          }
+          return 0.f;
+        }
+
         const auto &fts_inn = trajectoryStateTransform::innerFreeState(track, bFieldProd);
         const auto &fts_out = trajectoryStateTransform::outerFreeState(track, bFieldProd);
         const auto &surf_inn = trajectoryStateTransform::innerStateOnSurface(track, *trackingGeometry_, bFieldProd);

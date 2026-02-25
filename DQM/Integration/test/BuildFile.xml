@@ -3,7 +3,6 @@
 <test name="TestDQMOnlineClient-beampixel_dqm_sourceclient" command="runtest.sh beampixel_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-csc_dqm_sourceclient" command="runtest.sh csc_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-ctpps_dqm_sourceclient" command="runtest.sh ctpps_dqm_sourceclient-live_cfg.py"/>
-<test name="TestDQMOnlineClient-dt4ml_dqm_sourceclient" command="runtest.sh dt4ml_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-dt_dqm_sourceclient" command="runtest.sh dt_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-ecal_dqm_sourceclient" command="runtest.sh ecal_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-es_dqm_sourceclient" command="runtest.sh es_dqm_sourceclient-live_cfg.py"/>
@@ -13,7 +12,7 @@
 <test name="TestDQMOnlineClient-hcal_dqm_sourceclient" command="runtest.sh hcal_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-hlt_dqm_clientPB" command="runtest.sh hlt_dqm_clientPB-live_cfg.py"/>
 <test name="TestDQMOnlineClient-hlt_dqm_sourceclient" command="runtest.sh hlt_dqm_sourceclient-live_cfg.py"/>
-<test name="TestDQMOnlineClient-ngt_dqm_sourceclient" command="runtest.sh ngt_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-ngt_dqm_sourceclient" command="runtest.sh ngt_dqm_sourceclient-live_cfg.py 398183"/>
 <test name="TestDQMOnlineClient-scouting_dqm_sourceclient" command="runtest.sh scouting_dqm_sourceclient-live_cfg.py 398183"/>
 <test name="TestDQMOnlineClient-info_dqm_sourceclient" command="runtest.sh info_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-l1tstage2_dqm_sourceclient" command="runtest.sh l1tstage2_dqm_sourceclient-live_cfg.py"/>

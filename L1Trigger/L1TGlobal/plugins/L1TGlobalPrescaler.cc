@@ -75,6 +75,7 @@ namespace {
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
@@ -358,19 +359,16 @@ void L1TGlobalPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descri
             // if mode is "applyColumnValues", "applyColumnRatios" or "forceColumnValues", read the target column
             "applyColumnValues" >> l1tPrescaleColumn or "applyColumnRatios" >> l1tPrescaleColumn or
             "forceColumnValues" >> l1tPrescaleColumn);
-    descriptions.addDefault(desc);
     descriptions.add("l1tGlobalPrescaler", desc);
   }
 
   // applyColumnRatios example
   {
-    edm::ParameterSetDescription desc;
-    desc.addNode(l1tResults);
-    desc.add<std::string>("mode", "applyColumnRatios")
-        ->setComment(
-            "apply prescales equal to ratio between the values corresponsing to the given column index, and the ones "
-            "read from the EventSetup");
-    desc.addNode(l1tPrescaleColumn);
+    edm::DescriptionCloner desc;
+    desc.set<std::string>("mode", "applyColumnRatios");
+    desc.set<uint32_t>("l1tPrescaleColumn", 0);
+    //the default adds l1tPrescales to the cfi, but we need to remove that for this config
+    desc.omit("l1tPrescales");
     descriptions.add("l1tGlobalPrescalerTargetColumn", desc);
   }
 }

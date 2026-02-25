@@ -17,7 +17,6 @@
 //
 // Forward declarations
 //
-class SimTrack;
 class EncodedEventId;
 
 /** @brief Monte Carlo truth information used for tracking validation.

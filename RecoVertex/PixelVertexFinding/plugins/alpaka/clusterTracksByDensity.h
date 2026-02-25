@@ -72,8 +72,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
         printf("booked hist with %d bins, size %d for %d tracks\n", hist.totbins(), hist.capacity(), nt);
     }
 
-    ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= std::numeric_limits<Hist::index_type>::max());
-    ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= hist.capacity());
+    ALPAKA_ASSERT_ACC(nt <= std::numeric_limits<Hist::value_type>::max());
+    ALPAKA_ASSERT_ACC(nt <= hist.capacity());
     ALPAKA_ASSERT_ACC(eps <= 0.1f);  // see below
 
     // fill hist (bin shall be wider than "eps")
