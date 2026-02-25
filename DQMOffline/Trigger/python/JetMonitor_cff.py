@@ -743,7 +743,7 @@ CaloJet500_NoJetID_Orthogonal_Prommonitoring = hltJetMETmonitoring.clone(
 )
 
 
-### Scouitng Trigger and L1 seeds ###
+######### Scouitng Trigger and L1 seeds #########
 # DST_PFScouting_JetHT_v
 PFScoutingJetHT_Prommonitoring = hltJetMETmonitoring.clone(
     FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/PFScoutingJetHT/',
@@ -1021,6 +1021,63 @@ L1SingleJet200_Prommonitoring = hltJetMETmonitoring.clone(
 )
 
 
+### --------- No JECs --------- ###
+PFScoutingJetHT_NoJECs_Prommonitoring = PFScoutingJetHT_Prommonitoring.clone(
+    corrector = ""
+)
+
+# L1_HTT200er
+L1HTT200_NoJECs_Prommonitoring = L1HTT200_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_HTT255er
+L1HTT255_NoJECs_Prommonitoring = L1HTT255_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_HTT280er
+L1HTT280_NoJECs_Prommonitoring = L1HTT280_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+#  L1_HTT320er
+L1HTT320_NoJECs_Prommonitoring = L1HTT320_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_HTT360er
+L1HTT360_NoJECs_Prommonitoring = L1HTT360_Prommonitoring.clone(
+    corrector = ""
+)
+
+# L1_HTT400er
+L1HTT400_NoJECs_Prommonitoring = L1HTT400_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_HTT450er
+L1HTT450_NoJECs_Prommonitoring = L1HTT450_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_SingleJet180
+L1SingleJet180_NoJECs_Prommonitoring = L1SingleJet180_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_SingleJet200
+L1SingleJet200_NoJECs_Prommonitoring = L1SingleJet200_Prommonitoring.clone(
+    corrector = ""
+)
+
 HLTJetmonitoring = cms.Sequence(    
     ak4PFPuppiL1FastL2L3ResidualCorrectorChain
     *PFJet500_Orthogonal_Prommonitoring
@@ -1069,7 +1126,11 @@ HLTJetmonitoring = cms.Sequence(
     *ak4CaloL1FastL2L3ResidualCorrectorChain
     *CaloJet500_NoJetID_Prommonitoring
     *CaloJet500_NoJetID_Orthogonal_Prommonitoring
-    *ak4PFScoutL1FastL2L3ResidualCorrectorChain
+)
+
+
+HLTScoutingJetmonitoring = cms.Sequence(
+    ak4PFScoutL1FastL2L3ResidualCorrectorChain
     *PFScoutingJetHT_Prommonitoring
     *L1HTT200_Prommonitoring
     *L1HTT255_Prommonitoring
@@ -1080,4 +1141,17 @@ HLTJetmonitoring = cms.Sequence(
     *L1HTT450_Prommonitoring
     *L1SingleJet180_Prommonitoring
     *L1SingleJet200_Prommonitoring
+)
+
+HLTScoutingJetnoJECsmonitoring = cms.Sequence(
+    PFScoutingJetHT_NoJECs_Prommonitoring
+    *L1HTT200_NoJECs_Prommonitoring
+    *L1HTT255_NoJECs_Prommonitoring
+    *L1HTT280_NoJECs_Prommonitoring
+    *L1HTT320_NoJECs_Prommonitoring
+    *L1HTT360_NoJECs_Prommonitoring
+    *L1HTT400_NoJECs_Prommonitoring
+    *L1HTT450_NoJECs_Prommonitoring
+    *L1SingleJet180_NoJECs_Prommonitoring
+    *L1SingleJet200_NoJECs_Prommonitoring
 )
