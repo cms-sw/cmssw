@@ -73,7 +73,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const edm::ParameterSet& 
         << " Can't generate non pointing FlatPt samples; please disable FlatPt generation or generate pointing sample";
   fRandomShoot = pgun_params.getParameter<bool>("RandomShoot");
   fNParticles = pgun_params.getParameter<int>("NParticles");
-  fPartIDs = pgun_params.getParameter<vector<int>>("PartID");
+  fPartIDs = pgun_params.getParameter<std::vector<int>>("PartID");
 
   // set dt between particles
   fUseDeltaT = pgun_params.getParameter<bool>("UseDeltaT");
@@ -159,15 +159,15 @@ void CloseByParticleGunProducer::produce(edm::Event& e, const edm::EventSetup& e
 
     if (!fControlledByEta) {
       fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
-      fEta = asinh(fZ / fR);
+      fEta = std::asinh(fZ / fR);
     } else {
       fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
-      fR = (fZ / sinh(fEta));
+      fR = (fZ / std::sinh(fEta));
     }
   } else {
     fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
     fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
-    fZ = sinh(fEta) * fR;
+    fZ = std::sinh(fEta) * fR;
   }
 
   if (fUseDeltaT) {
@@ -198,7 +198,7 @@ void CloseByParticleGunProducer::produce(edm::Event& e, const edm::EventSetup& e
 
     const auto partIdx = static_cast<std::size_t>(CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size()));
     int PartID = fPartIDs[partIdx];
-    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
+    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(std::abs(PartID)));
     if (!PData) {
       throw cms::Exception("CloseByParticleGunProducer") << "Particle ID " << PartID << " not found in PDG table";
     }
@@ -211,24 +211,24 @@ void CloseByParticleGunProducer::produce(edm::Event& e, const edm::EventSetup& e
       double mom2 = fVar * fVar - mass * mass;
       mom = 0.;
       if (mom2 > 0.) {
-        mom = sqrt(mom2);
+        mom = std::sqrt(mom2);
       }
       px = 0.;
       py = 0.;
       pz = mom;
       energy = fVar;
     } else {
-      double theta = 2. * atan(exp(-fEta));
-      mom = fVar / sin(theta);
-      px = fVar * cos(phi);
-      py = fVar * sin(phi);
-      pz = mom * cos(theta);
+      double theta = 2. * std::atan(std::exp(-fEta));
+      mom = fVar / std::sin(theta);
+      px = fVar * std::cos(phi);
+      py = fVar * std::sin(phi);
+      pz = mom * std::cos(theta);
       double energy2 = mom * mom + mass * mass;
-      energy = sqrt(energy2);
+      energy = std::sqrt(energy2);
     }
     // Compute Vertex Position
-    double x = fR * cos(phi);
-    double y = fR * sin(phi);
+    double x = fR * std::cos(phi);
+    double y = fR * std::sin(phi);
     const double r3d = std::hypot(fR, fZ);
     const double rhoXY = std::hypot(x, y);
 
