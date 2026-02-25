@@ -44,10 +44,10 @@ unsigned int l1ct::tdr_alt_regionizer::Buffer<T>::numEntries() const {
 }
 
 template <typename T>
-void l1ct::tdr_alt_regionizer::Buffer<T>::printDebug(size_t bufferIdx) const {
+void l1ct::tdr_alt_regionizer::Buffer<T>::printDebug(size_t bufferIdx, size_t logBufIdx) const {
   for (auto srq_it = data_.rbegin(); srq_it != data_.rend(); ++srq_it) {
     for (unsigned int j = 0; j < srq_it->second.size(); j++) {
-      dbgCout() << "\t" << bufferIdx << "\t" << srq_it->first << "\t" << j << "\t" << srq_it->second[j].pt()
+      dbgCout() << logBufIdx << "\t" << bufferIdx << "\t" << srq_it->first << "\t" << j << "\t" << srq_it->second[j].pt()
                 << "\t" << srq_it->second[j].glbEta() << "\t" << srq_it->second[j].glbPhi() << std::endl;
     }
     dbgCout() << "-------------------------------" << std::endl;
@@ -416,19 +416,20 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::clearSmallRegions() {
 template <typename T>
 void l1ct::tdr_alt_regionizer::Regionizer<T>::printDebug(int count) const {
   dbgCout() << "BUFFERS, (for " << numBuffers() << " buffers)" << std::endl;
-  dbgCout() << count << "\tbuffer\tregion\titem\tpt\teta\tphi\t" << std::endl;
-  for (auto sector : sectorMapLogToPhys_) {
-    buffers_[sector].printDebug(sector);
+  dbgCout() << count << "\tbuffer\tphysreg\titem\tpt\teta\tphi\t" << std::endl;
+  for (size_t logSector = 0; logSector < sectorMapLogToPhys_.size(); logSector++) {
+    auto physSector = sectorMapLogToPhys_[logSector];
+    buffers_[physSector].printDebug(physSector, logSector);
   }
 
   dbgCout() << "SMALL REGIONS" << std::endl;
   for (unsigned int region = 0; region < regionmap_.size(); region++) {
-    dbgCout() << count << "\tregion\t\titem\tpt\tloceta\tlocphi" << std::endl;
-    auto realRegIdx = regionIndex(region);
-    auto etaC = regions_[realRegIdx].intEtaCenter();
-    auto phiC = regions_[realRegIdx].intPhiCenter();
+    dbgCout() << count << "\tregion\t\tphysRegion\titem\tpt\tloceta\tlocphi" << std::endl;
+    auto physRegIdx = regionIndex(region);
+    auto etaC = regions_[physRegIdx].intEtaCenter();
+    auto phiC = regions_[physRegIdx].intPhiCenter();
     for (unsigned int j = 0; j < smallRegionObjects_[region].size(); j++) {
-      dbgCout() << "\t" << region << " (" << etaC << ", " << phiC << ")\t" << j << "\t"
+      dbgCout() << "\t" << region << " (" << etaC << ", " << phiC << ")\t" << j << "\t" << physRegIdx << "\t"
                 << smallRegionObjects_[region][j].intPt() << "\t" << smallRegionObjects_[region][j].intEta() << "\t"
                 << smallRegionObjects_[region][j].intPhi() << std::endl;
     }

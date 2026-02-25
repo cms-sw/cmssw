@@ -249,13 +249,16 @@ barrelWriterDebugPFOutConfigsAPx = _barrelWriterOutputOnly.clone(
     debugFileName = cms.string("l1BarrelApx-pfout")
 )
 
+# For the tracker, the logical (firmware) fiber order sorts negative eta first, then positive,
+# and in a given eta from most negative to most positive phi. That is reflected in this remapping
+trackFiberOrder = (4, 5, 6, 7, 8, 0, 1, 2, 3, 13, 14, 15, 16, 17, 9, 10, 11, 12) # phys to logical
 # This includes the tracker, GCT, muon and GTT sector mapping. There is only one GTT fiber, with a logical firmware link of 123.
 barrelApxWriterConfig = _barrelWriterOutputOnly.clone(
     fileFormat = cms.string("APx"),
     gttLink = cms.int32(123),
     gmtLink = cms.int32(21),
     gctSectors = cms.VPSet(*[cms.PSet(gctLink = cms.int32(i)) for i in (18, 19, 20)]),
-    tfSectors = cms.VPSet(*[cms.PSet(tfLink = cms.int32(i)) for i in range(18)]),
+    tfSectors = cms.VPSet(*[cms.PSet(tfLink = cms.int32(i)) for i in trackFiberOrder]),
     inputFileName = cms.string("l1BarrelApx-inputs")
 )
 

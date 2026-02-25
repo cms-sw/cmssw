@@ -64,7 +64,7 @@ namespace l1ct {
 
       void reset() { data_.clear(); }
 
-      void printDebug(size_t bufIdx) const;
+      void printDebug(size_t bufIdx, size_t logBufIdx) const;
 
     private:
 
