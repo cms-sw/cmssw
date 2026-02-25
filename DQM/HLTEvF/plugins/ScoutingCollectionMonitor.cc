@@ -1512,10 +1512,10 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
                      500.0);
 
     ebRecHits_time_hist[i] = ibook.book1D("ebRechits_time" + sfx,
-                                          "Time of EB RecHits (" + lbl + "); Energy of EB recHits (ps); Entries",
-                                          100,
-                                          0.0,
-                                          1000.0);
+                                          "Time of EB RecHits (" + lbl + "); Energy of EB recHits (ns); Entries",
+                                          200,
+                                          -100.,
+                                          100.0);
     eeRecHitsNumber_hist[i] = ibook.book1D(
         "eeRechitsN" + sfx, "Number of EE RecHits (" + lbl + "); number of EE recHits; Entries", 100, 0.0, 1000.0);
     eeRecHits_energy_hist[i] =
@@ -1524,8 +1524,11 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
                      100,
                      0.0,
                      1000.0);
-    eeRecHits_time_hist[i] = ibook.book1D(
-        "eeRechits_time" + sfx, "Time of EE RecHits (" + lbl + "); Time of EE recHits (ps); Entries", 100, 0.0, 1000.0);
+    eeRecHits_time_hist[i] = ibook.book1D("eeRechits_time" + sfx,
+                                          "Time of EE RecHits (" + lbl + "); Time of EE recHits (ns); Entries",
+                                          200,
+                                          -100.0,
+                                          100.0);
 
     ebRecHitsEtaPhiMap[i] = ibook.book2D("ebRecHitsEtaPhitMap" + sfx,
                                          "Occupancy map of EB rechits (" + lbl + ");ieta;iphi;Entries",
@@ -1602,14 +1605,15 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1D(name + "Rechits_time",
                      "Time of " + subdet + " RecHits; Time of " + subdet + " recHits (ns); RecHits",
                      100,
-                     0.0,
+                     0.,
                      30.0);
 
+    // Energy > 5 GeV histograms
     hbheRecHits_time_egt5_hist[i] =
         ibook.book1D(name + "StiffRechits_time",
                      "Time of " + subdet + " RecHits (E > 5 GeV); Time of stiff " + subdet + " recHits (ns); RecHits",
                      100,
-                     0.0,
+                     0.,
                      30.0);
   }
 
