@@ -226,20 +226,21 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     // Compute Vertex Position
     double x = fR * cos(phi);
     double y = fR * sin(phi);
-    HepMC::FourVector p(px, py, pz, energy);
 
     // If we are requested to be pointing to (0,0,0), correct the momentum direction
     if (fPointing) {
       math::XYZVector direction(x, y, fZ);
       math::XYZVector momentum = direction.unit() * mom;
-      p.setX(momentum.x());
-      p.setY(momentum.y());
-      p.setZ(momentum.z());
+      px = momentum.x();
+      py = momentum.y();
+      pz = momentum.z();
     }
+    HepMC::FourVector p(px, py, pz, energy);
 
     // compute correct path assuming uniform magnetic field in CMS
     double pathLength = 0.;
-    const double pabs = std::sqrt(p.px() * p.px() + p.py() * p.py() + p.pz() * p.pz());
+    //
+    const double pabs = p.rho();  // std::sqrt( px*px + py*py + pz*pz );
     const double speed = pabs / p.e() * c_light / CLHEP::cm;
     if (PData->charge()) {
       // Radius [cm] = P[GeV/c] * 10^9 / (c[mm/ns] * 10^6 * q[C] * B[T]) * 100[cm/m]
