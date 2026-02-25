@@ -196,8 +196,12 @@ class Plotter:
         self._fig, self._ax = plt.subplots(figsize=(10, 10))
         self.fontsize = fontsize
         
-        hep.cms.text(' Phase-2 Simulation Preliminary', ax=self._ax, fontsize=fontsize)
-        hep.cms.lumitext(label + " | 14 TeV", ax=self._ax, fontsize=fontsize)
+        if hasattr(hep.cms, "lumitext"): # mplhep 0.4
+            hep.cms.text(' Phase-2 Simulation Preliminary', ax=self._ax, fontsize=fontsize)
+            hep.cms.lumitext(label + " | 14 TeV", ax=self._ax, fontsize=fontsize)
+        else:                            # mplhep >= 1.0
+            hep.cms.text(text=' Phase-2 Simulation Preliminary', lumi=label + " | 14 TeV", ax=self._ax, fontsize=fontsize)
+
         if grid_color:
             self._ax.grid(which='major', color=grid_color)
         
