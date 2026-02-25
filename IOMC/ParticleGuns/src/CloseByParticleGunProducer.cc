@@ -200,6 +200,9 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     int partIdx = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
     int PartID = fPartIDs[partIdx];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
+    if (!PData) {
+      throw cms::Exception("CloseByParticleGunProducer") << "Particle ID " << PartID << " not found in PDG table";
+    }
     double mass = PData->mass().value();
 
     double mom, px, py, pz;
