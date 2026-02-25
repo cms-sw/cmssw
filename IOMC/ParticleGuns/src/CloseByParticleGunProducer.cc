@@ -1,5 +1,6 @@
 #include <ostream>
 #include <cmath>
+#include <algorithm>
 
 #include "IOMC/ParticleGuns/interface/CloseByParticleGunProducer.h"
 
@@ -250,9 +251,9 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
 
     const auto pabs = std::hypot(pt, p.pz());
     const auto speed = pabs / p.e() * c_light / CLHEP::cm;
-    if (PData->charge()) {
+    if (PData->charge() != 0 and bz != 0 and pt > 0) {
       // Radius [cm] = P[GeV/c] * 10^9 / (c[mm/ns] * 10^6 * q[C] * B[T]) * 100[cm/m]
-      const double radius = pt * kGeVToCmFactor / (std::abs(PData->charge()) * c_light * bz);  // cm
+      const double radius = pt * kGeVToCmFactor / (std::abs(PData->charge()) * c_light * std::abs(bz));  // cm
       const double arg = std::clamp(
           rhoXY / (2.0 * radius), 0.0, 1.0);  // protect against out of range values due to floating point rounding
       const double arc = 2.0 * std::asin(arg) * radius;
