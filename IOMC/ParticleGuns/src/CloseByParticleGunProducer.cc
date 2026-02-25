@@ -20,8 +20,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-CloseByParticleGunProducer::CloseByParticleGunProducer(const edm::ParameterSet& pset)
-    : BaseFlatGunProducer(pset), m_fieldToken(esConsumes()) {
+edm::CloseByParticleGunProducer::CloseByParticleGunProducer(const edm::ParameterSet& pset)
+    : edm::BaseFlatGunProducer(pset), m_fieldToken(esConsumes()) {
   edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
   fControlledByEta = pgun_params.getParameter<bool>("ControlledByEta");
   fControlledByREta = pgun_params.getParameter<bool>("ControlledByREta");
@@ -83,16 +83,17 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const edm::ParameterSet& 
     throw cms::Exception("CloseByParticleGunProducer") << " Please fix TMin and TMax values in the configuration";
   // set a fixed time offset for the particles
   fOffsetFirst = pgun_params.getParameter<double>("OffsetFirst");
+  fVerbosity = pset.getUntrackedParameter<int>("Verbosity", 0);
 
-  produces<HepMCProduct>("unsmeared");
+  produces<edm::HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 }
 
-CloseByParticleGunProducer::~CloseByParticleGunProducer() {
+edm::CloseByParticleGunProducer::~CloseByParticleGunProducer() {
   // no need to cleanup GenEvent memory - done in HepMCProduct
 }
 
-void CloseByParticleGunProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void edm::CloseByParticleGunProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("AddAntiParticle", false);
   {
@@ -133,12 +134,12 @@ void CloseByParticleGunProducer::fillDescriptions(edm::ConfigurationDescriptions
   descriptions.add("CloseByParticleGunProducer", desc);
 }
 
-void CloseByParticleGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+void edm::CloseByParticleGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
   if (fVerbosity > 0) {
-    edm::LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Begin New Event Generation" << std::endl;
+    LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Begin New Event Generation" << std::endl;
   }
   fEvt = new HepMC::GenEvent();
 
@@ -286,13 +287,13 @@ void CloseByParticleGunProducer::produce(edm::Event& e, const edm::EventSetup& e
     fEvt->print();
   }
 
-  auto bProduct = std::make_unique<HepMCProduct>();
+  auto bProduct = std::make_unique<edm::HepMCProduct>();
   bProduct->addHepMCData(fEvt);
   e.put(std::move(bProduct), "unsmeared");
   auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
   e.put(std::move(genEventInfo));
 
   if (fVerbosity > 0) {
-    edm::LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << std::endl;
+    LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << std::endl;
   }
 }
