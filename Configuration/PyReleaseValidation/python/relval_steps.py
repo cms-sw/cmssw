@@ -1,8 +1,8 @@
 import sys
-import copy
+from copy import deepcopy
 from functools import partial
 
-from .MatrixUtil import *
+from .MatrixUtil import Steps, merge, remove, Kby, Mby, genvalid, InputInfo, selectedLS, stCond
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
@@ -3811,9 +3811,6 @@ steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
 #                        '-s':'RECO,HLT:@fake,VALIDATION'},
 #                       steps['RECO']])
 
-#add this line when testing from an input file that is not strictly GEN-SIM
-#addForAll(step3,{'--hltProcess':'DIGI'})
-
 steps['ALCACOSD']={'--conditions':'auto:run1_data',
                    '--datatier':'ALCARECO',
                    '--eventcontent':'ALCARECO',
@@ -4943,7 +4940,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     
     if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
 
-    upgradeStepDict['GenSimCloseBy'][k] = copy.deepcopy(upgradeStepDict['GenSim'][k])
+    upgradeStepDict['GenSimCloseBy'][k] = deepcopy(upgradeStepDict['GenSim'][k])
     upgradeStepDict['GenSimCloseBy'][k]['--beamspot'] = 'CloseBy'
     
     upgradeStepDict['GenSimHLBeamSpot'][k] = {'-s' : 'GEN,SIM',
@@ -4955,7 +4952,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                               '--geometry' : geom
                                               }
 
-    upgradeStepDict['GenSimHLBeamSpot14'][k] = copy.deepcopy(upgradeStepDict['GenSimHLBeamSpot'][k])
+    upgradeStepDict['GenSimHLBeamSpot14'][k] = deepcopy(upgradeStepDict['GenSimHLBeamSpot'][k])
     upgradeStepDict['GenSimHLBeamSpot14'][k]['--conditions'] = gt
 
     upgradeStepDict['GenSimHLBeamSpotCloseBy'][k] = upgradeStepDict['GenSimCloseBy'][k]
@@ -4980,14 +4977,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                   '--geometry' : geom
                                   }
     
-    upgradeStepDict['DigiNoHLT'][k] = copy.deepcopy(upgradeStepDict['Digi'][k])
+    upgradeStepDict['DigiNoHLT'][k] = deepcopy(upgradeStepDict['Digi'][k])
     upgradeStepDict['DigiNoHLT'][k]['-s'] = 'DIGI:pdigi_valid,L1,DIGI2RAW'
     
-    upgradeStepDict['HLTOnly'][k] = copy.deepcopy(upgradeStepDict['Digi'][k])
+    upgradeStepDict['HLTOnly'][k] = deepcopy(upgradeStepDict['Digi'][k])
     upgradeStepDict['HLTOnly'][k]['-s'] = 'HLT:%s'%(hltversion)
 
     # Adding Track trigger step in step2
-    upgradeStepDict['DigiTrigger'][k] = copy.deepcopy(upgradeStepDict['Digi'][k])
+    upgradeStepDict['DigiTrigger'][k] = deepcopy(upgradeStepDict['Digi'][k])
     upgradeStepDict['DigiTrigger'][k]['-s'] = 'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:%s'%(hltversion)
 
     upgradeStepDict['HLTRun3'][k] = {'-s':'HLT:%s'%(hltversion),
