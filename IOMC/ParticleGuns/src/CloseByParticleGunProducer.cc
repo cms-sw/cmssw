@@ -288,11 +288,10 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     fEvt->print();
   }
 
-  unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
-  BProduct->addHepMCData(fEvt);
-  e.put(std::move(BProduct), "unsmeared");
-
-  unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+  auto bProduct = std::make_unique<HepMCProduct>();
+  bProduct->addHepMCData(fEvt);
+  e.put(std::move(bProduct), "unsmeared");
+  auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
   e.put(std::move(genEventInfo));
 
   if (fVerbosity > 0) {
