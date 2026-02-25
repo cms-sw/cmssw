@@ -43,7 +43,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Weight function to use in PFA (not used in PFASimple). 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function. With PFA_WeightFunction=3 and PFA_UseMultiplicityMaxima=False, PFA and PFASimple are the same.
         PFA_WeightFunction = cms.uint32(3),
         # Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT^N-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT^N and association probability (2). Step function and pT^N-weighted average (3) is intended for use with PFA_WeightFunction=3 or PFASimple (to replicate fastHisto).
-        # Additional options (4-11) have different uses of the track resolution (only relevant when eta-dependent) and different powers of trackPt in the weighted sum: see VertexFinder.cc for details.
+        # Additional options (4-11) have different uses of the track resolution (only relevant when eta-dependent) and different powers of trackPt in the weighted sum: see VertexFinder::calcPFAweights() for details.
         PFA_WeightedZ0 = cms.uint32(10), # 10 seems best overall for PFA when using WeightedMean=2, but 7-11 all have similar performance (with the best one depending on the process)
         # Use VxMinTrackPt cut specified below (otherwise no additional track selection is applied)
         PFA_DoQualityCuts = cms.bool(False),

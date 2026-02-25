@@ -67,7 +67,7 @@ namespace l1tVertexFinder {
     // Weight function to use in PFA (not used in PFASimple). 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function. With vx_pfa_weightfunction=3 and PFA_UseMultiplicityMaxima=False, PFA and PFASimple are the same.
     unsigned int vx_pfa_weightfunction() const { return vx_pfa_weightfunction_; }
     // Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT^N-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT^N and association probability (2). Step function and pT^N-weighted average (3) is intended for use with vx_pfa_weightfunction=3 or PFASimple (to replicate fastHisto).
-    // Additional options (4-11) have different uses of the track resolution (only relevant when eta-dependent) and different powers of trackPt in the weighted sum: see VertexFinder.cc for details.
+    // Additional options (4-11) have different uses of the track resolution (only relevant when eta-dependent) and different powers of trackPt in the weighted sum: see VertexFinder::calcPFAweights() for details.
     unsigned int vx_pfa_weightedz0() const { return vx_pfa_weightedz0_; }
     // Use vx_TrackMinPt cut specified below (otherwise no additional track selection is applied)
     bool vx_pfa_doqualitycuts() const { return vx_pfa_doqualitycuts_; }
