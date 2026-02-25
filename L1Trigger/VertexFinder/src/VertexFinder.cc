@@ -7,7 +7,7 @@ namespace l1tVertexFinder {
   // Returns the track resolution in cm (which can depend on track eta), to be used in PFA. Note in future this may not be necessary if the z0 uncertainty is included as a TTTrack property.
   float VertexFinder::computeTrackZ0Res(const L1Track* track) const {
     float trackAbsEta = std::abs(track->eta());
-    // Hard-coded eta-dependent and constant parametrisations of the track resolution taken from the PFA section of Giovanna's thesis: https://cds.cern.ch/record/2909504
+    // Hard-coded eta-dependent and constant parametrisations of the track resolution taken from the PFA section of Giovanna Salvi's CERN-THESIS-2024-143
     return settings_->vx_pfa_etadependentresolution()
                ? 0.09867 + 0.0007 * trackAbsEta + 0.0587 * trackAbsEta * trackAbsEta
                : 0.15;
@@ -22,7 +22,7 @@ namespace l1tVertexFinder {
     float deltaZ = std::abs(track->z0() - vertexZ0);
     float GaussianWeight = std::exp(-0.5 * std::pow(deltaZ / PFAWidth, 2)) / PFAWidth;
 
-    // Alternative definitions of PFA weights (added subsequent to Giovanna's thesis)
+    // Alternative definitions of PFA weights (added subsequent to CERN-THESIS-2024-143)
     // Redefine deltaZ as the distance of the track from the bin edge (zero if inside the bin)
     deltaZ = (deltaZ > 0.5 * settings_->vx_pfa_interval()) ? deltaZ - 0.5 * settings_->vx_pfa_interval() : 0;
     // Use Erfc to reduce the weight based on the probability that a track from a vertex in this bin would be closer than deltaZ to the edge of the bin
@@ -39,7 +39,7 @@ namespace l1tVertexFinder {
       weight *= PFAWidth;
     }
 
-    // Calculate z-weight for weighted average z0 calculation (added subsequent to Giovanna's thesis)
+    // Calculate z-weight for weighted average z0 calculation (added subsequent to CERN-THESIS-2024-143)
     float trackPt = track->pt();
     float zweight = 0.;
 
@@ -65,17 +65,17 @@ namespace l1tVertexFinder {
       // ErfcWeight with only 1/width
       zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / PFAWidth;
     }
-    // Copies of the above options using only trackPt^1 (instead of settings_->vx_weightedmean(), which defaults to 2)
+    // Copies of the above options using only trackPt^1 (instead of settings_->vx_weightedmean(), which is usually set to 2 for PFA)
     else if (settings_->vx_pfa_weightedz0() == 7) {
-      zweight = ErfcWeight * std::pow(trackPt, 1) / PFAWidth / PFAWidth;
+      zweight = ErfcWeight * trackPt / PFAWidth / PFAWidth;
     } else if (settings_->vx_pfa_weightedz0() == 8) {
-      zweight = ErfcWeight * std::pow(trackPt, 1) / PFAWidth;
+      zweight = ErfcWeight * trackPt / PFAWidth;
     } else if (settings_->vx_pfa_weightedz0() == 9) {
-      zweight = StepFunctionWeight * std::pow(trackPt, 1);
+      zweight = StepFunctionWeight * trackPt;
     } else if (settings_->vx_pfa_weightedz0() == 10) {
-      zweight = StepFunctionWeight * std::pow(trackPt, 1) / (PFAWidth + 0.5 * settings_->vx_pfa_interval());
+      zweight = StepFunctionWeight * trackPt / (PFAWidth + 0.5 * settings_->vx_pfa_interval());
     } else if (settings_->vx_pfa_weightedz0() == 11) {
-      zweight = StepFunctionWeight * std::pow(trackPt, 1) / PFAWidth / PFAWidth;
+      zweight = StepFunctionWeight * trackPt / PFAWidth / PFAWidth;
     }
 
     return std::make_pair(weight, zweight);
