@@ -87,13 +87,9 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
     std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> fdWorker(
         EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_));
 
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis", "ebDigis"));
-    desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
-    desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis", "eeDigis"));
-    desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
-    desc.add<std::string>("algo", itInfos->name_);
-    desc.add<edm::ParameterSetDescription>("algoPSet", fdWorker->getAlgoDescription());
+    edm::DescriptionCloner desc;
+    desc.set<std::string>("algo", itInfos->name_);
+    desc.set("algoPSet", fdWorker->getAlgoDescription());
 
     std::string algoName = itInfos->name_.substr(itInfos->name_.find("Worker") + 6, itInfos->name_.length());
     descriptions.add("ecal" + algoName + "UncalibRecHitProducer", desc);
