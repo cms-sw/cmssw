@@ -18,6 +18,7 @@
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Random/RandFlat.h>
+#include <numbers>
 
 using namespace edm;
 using namespace std;
@@ -108,9 +109,9 @@ void CloseByParticleGunProducer::fillDescriptions(ConfigurationDescriptions& des
     psd0.add<bool>("LogSpacedVar", false);
     psd0.add<bool>("FlatPtGeneration", false);
     psd0.add<double>("MaxEta", 2.7);
-    psd0.add<double>("MaxPhi", 3.14159265359);
+    psd0.add<double>("MaxPhi", std::numbers::pi);
     psd0.add<double>("MinEta", 1.7);
-    psd0.add<double>("MinPhi", -3.14159265359);
+    psd0.add<double>("MinPhi", -std::numbers::pi);
     psd0.add<int>("NParticles", 2);
     psd0.add<bool>("Overlapping", false);
     psd0.add<std::vector<int>>("PartID",
