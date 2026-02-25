@@ -39,12 +39,33 @@ hltPFClusterTesterECAL = cms.EDProducer("PFClusterTester",
     ptCut = cms.double(0.),
     etaCut = cms.double(3.0)
 )
-
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(hltPFClusterTesterECAL, PFCand = cms.InputTag("hltParticleFlowTmp"), etaCut = cms.double(1.48))
 
+hltDigisTesterECAL = cms.EDProducer("DigisTester",
+    ecalEBDigis = cms.InputTag("hltEcalDigis", "ebDigis"),
+    ecalEEDigis = cms.InputTag("hltEcalDigis", "eeDigis"),
+    outFolder = cms.string('HLT/ParticleFlow'),
+)
+
+hltRecHitTesterECAL = cms.EDProducer("RecHitTester",
+    outFolder = cms.string('HLT/ParticleFlow'),
+    ebSimHits = cms.InputTag('g4SimHits', 'EcalHitsEB'),
+    eeSimHits = cms.InputTag('g4SimHits', 'EcalHitsEE'),
+    ebRecHits = cms.InputTag('hltEcalRecHit', 'EcalRecHitsEB'),
+    eeRecHits = cms.InputTag('hltEcalRecHit', 'EcalRecHitsEE'),
+    ebUncalibRecHits = cms.InputTag('hltEcalUncalibRecHit', 'EcalUncalibRecHitsEB'),
+    eeUncalibRecHits = cms.InputTag('hltEcalUncalibRecHit', 'EcalUncalibRecHitsEE'),
+    pfRecHits = cms.InputTag('hltParticleFlowRecHitECALUnseeded'),
+)
+phase2_common.toModify(hltRecHitTesterECAL,
+                       eeSimHits = cms.InputTag('g4SimHits', 'HGCHitsEE'),
+                       ebUncalibRecHits = cms.InputTag('hltEcalMultiFitUncalibRecHit', 'EcalUncalibRecHitsEB'),
+                       eeUncalibRecHits = cms.InputTag('hltEcalMultiFitUncalibRecHit', 'EcalUncalibRecHitsEE')
+                       )
+
 hltPFClusterTesterECALWithCut = hltPFClusterTesterECAL.clone(
-    enFracCut =  cms.double(0.01),
+    enFracCut = cms.double(0.01),
     ptCut = cms.double(0.1)
 )
 
@@ -54,7 +75,7 @@ hltPFClusterTesterECALShEnF = hltPFClusterTesterECAL.clone(
 )
 
 hltPFClusterTesterECALShEnFWithCut = hltPFClusterTesterECALShEnF.clone(
-    enFracCut =  cms.double(0.01),
+    enFracCut = cms.double(0.01),
     ptCut = cms.double(0.1)
 )
 
@@ -65,4 +86,6 @@ PFValSeq = cms.Sequence(
     +hltPFClusterCaloParticleAssociationProducerECAL
     +hltPFClusterTesterECALWithCut
     +hltPFClusterTesterECALShEnFWithCut
+    +hltDigisTesterECAL
+    +hltRecHitTesterECAL
 )
