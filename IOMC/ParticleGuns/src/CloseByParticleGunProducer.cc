@@ -148,8 +148,9 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   const double bz = field.inTesla({0.f, 0.f, 0.f}).z();
 
   int barcode = 1;
-  unsigned int numParticles = fRandomShoot ? CLHEP::RandFlat::shoot(engine, 1, fNParticles) : fNParticles;
-
+  const unsigned int numParticles = fRandomShoot
+                                        ? static_cast<unsigned int>(CLHEP::RandFlat::shoot(engine, 1, fNParticles + 1))
+                                        : static_cast<unsigned int>(fNParticles);
   double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
   double fZ;
   double fR, fEta;
@@ -197,7 +198,7 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     } else
       fVar = CLHEP::RandFlat::shoot(engine, fVarMin, fVarMax);
 
-    int partIdx = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
+    const auto partIdx = static_cast<std::size_t>(CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size()));
     int PartID = fPartIDs[partIdx];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     if (!PData) {
