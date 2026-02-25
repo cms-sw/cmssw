@@ -109,12 +109,22 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tkEgSorterParameters = tkEgSorterParameters.clone(
         nObjToSort = 10
     ),
-    caloSectors = cms.VPSet(   # for Ideal regionizer only--don't include the duplicates
+    # these are the sectors for the logical "decoded" clusters; 
+    caloSectors = cms.VPSet(
+        cms.PSet(
+            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
+            phiSlices     = cms.uint32(6),
+            phiZero       = cms.double(math.pi/18)
+        ),
+    ),
+
+    # these are the sectors for the raw GCT clusters; logical sectors can be combined
+    rawGCTSectors = cms.VPSet(
         cms.PSet(
             etaBoundaries = cms.vdouble(-1.5, 1.5),
             phiSlices     = cms.uint32(3),
-            phiZero       = cms.double(math.pi/18)
-        )
+            phiZero       = cms.double(2 * math.pi/9)
+        ),
     ),
     regions = cms.VPSet(
         cms.PSet(

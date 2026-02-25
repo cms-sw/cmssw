@@ -4,8 +4,10 @@
 #include <ap_int.h>
 #include <vector>
 
+#ifdef CMSSW_GIT_HASH
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
+#endif
 
 namespace l1tp2 {
 
@@ -17,11 +19,14 @@ namespace l1tp2 {
     // Constants
     static constexpr float LSB_PT = 0.5;  // 0.5 GeV
 
+
+#ifdef CMSSW_GIT_HASH
     // Reference to the original float cluster
     edm::Ref<l1tp2::CaloCrystalClusterCollection> clusterRef_;
 
     // reference to the original digitized cluster (before duplication in the output links)
     edm::Ref<l1tp2::DigitizedClusterCorrelatorCollection> digiClusterRef_;
+#endif
 
   public:
     GCTEmDigiCluster() { clusterData = 0; }
@@ -44,12 +49,14 @@ namespace l1tp2 {
                     (((ap_uint<64>)spare << 54));
     }
 
+#ifdef CMSSW_GIT_HASH
     // Setters
     void setRef(const edm::Ref<l1tp2::CaloCrystalClusterCollection>& clusterRef) { clusterRef_ = clusterRef; }
 
     void setDigiRef(const edm::Ref<l1tp2::DigitizedClusterCorrelatorCollection>& digiClusterRef) {
       digiClusterRef_ = digiClusterRef;
     }
+#endif
 
     // Getters
     ap_uint<64> data() const { return clusterData; }
@@ -87,10 +94,12 @@ namespace l1tp2 {
     // Encoding region information
     ap_uint<10> spare() const { return ((clusterData >> 54) & 0x3FF); }
 
+#ifdef CMSSW_GIT_HASH
     // Get the underlying float cluster
     const edm::Ref<l1tp2::CaloCrystalClusterCollection>& clusterRef() const { return clusterRef_; }
     // Get the underlying digitized cluster (before duplication and zero-padding)
     const edm::Ref<l1tp2::DigitizedClusterCorrelatorCollection>& digiClusterRef() const { return digiClusterRef_; }
+#endif
   };
 
   // Collection typedefs

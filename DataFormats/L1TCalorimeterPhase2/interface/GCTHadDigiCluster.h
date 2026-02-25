@@ -4,7 +4,9 @@
 #include <ap_int.h>
 #include <vector>
 
+#ifdef CMSSW_GIT_HASH
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFCluster.h"
+#endif
 
 namespace l1tp2 {
 
@@ -16,8 +18,10 @@ namespace l1tp2 {
     // Constants
     static constexpr float LSB_PT = 0.5;  // 0.5 GeV
 
+#ifdef CMSSW_GIT_HASH
     // reference to corresponding float cluster
     edm::Ref<l1tp2::CaloPFClusterCollection> clusterRef_;
+#endif
 
   public:
     GCTHadDigiCluster() { clusterData = 0x0; }
@@ -30,8 +34,11 @@ namespace l1tp2 {
                     (((ap_uint<64>)ecal) << 26) | (((ap_uint<64>)fb) << 38) | (((ap_uint<64>)spare << 44));
     }
 
+#ifdef CMSSW_GIT_HASH
     // Setters
     void setRef(const edm::Ref<l1tp2::CaloPFClusterCollection>& clusterRef) { clusterRef_ = clusterRef; }
+#endif
+
     // Getters
     ap_uint<64> data() const { return clusterData; }
 
@@ -53,8 +60,10 @@ namespace l1tp2 {
     // Encoding region information
     ap_uint<36> spare() const { return ((clusterData >> 44) & 0xFFFFF); }
 
+#ifdef CMSSW_GIT_HASH
     // Get the underlying ref
     const edm::Ref<l1tp2::CaloPFClusterCollection>& clusterRef() const { return clusterRef_; }
+#endif
   };
 
   // Collection typedefs

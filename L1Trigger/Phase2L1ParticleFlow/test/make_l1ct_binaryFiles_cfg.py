@@ -23,7 +23,6 @@ if args.dumpFilesOFF:
 if args.patternFilesOFF:
     print(f'Switching off pattern file creation: patternFilesOFF is {args.patternFilesOFF}')
 
-
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
@@ -33,27 +32,31 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True), allowUnscheduled = cms.untracked.bool(False) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1008))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-# process.MessageLogger.cerr.threshold = "DEBUG"
-# process.MessageLogger.debugModules = ["l1tLayer1BarrelTDR"]
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:inputs110X.root'),
+            fileNames = cms.untracked.vstring('file:inputs140X_1.root',
+                ),
     inputCommands = cms.untracked.vstring("keep *",
             "drop l1tPFClusters_*_*_*",
             "drop l1tPFTracks_*_*_*",
             "drop l1tPFCandidates_*_*_*",
-            "drop l1tTkPrimaryVertexs_*_*_*",
-            "drop l1tKMTFTracks_*_*_*"),
-    skipEvents = cms.untracked.uint32(0),
+            "drop l1tTkPrimaryVertexs_*_*_*")
 )
 
 process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff') # needed to read HCal TPs
+process.load('SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi') # needed for HGCAL_noise_fC
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('RecoMET.Configuration.GenMETParticles_cff')
+process.load('RecoMET.METProducers.genMetTrue_cfi')
+
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+from RecoMET.METProducers.pfMet_cfi import pfMet
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '141X_mcRun4_realistic_v3', '')
@@ -70,47 +73,54 @@ from L1Trigger.Configuration.SimL1Emulator_cff import l1tSAMuonsGmt
 process.l1tSAMuonsGmt = l1tSAMuonsGmt.clone()
 from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import l1tPhase2L1CaloEGammaEmulator
 process.l1tPhase2L1CaloEGammaEmulator = l1tPhase2L1CaloEGammaEmulator.clone()
+
 from L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi import l1tPhase2CaloPFClusterEmulator
 process.l1tPhase2CaloPFClusterEmulator = l1tPhase2CaloPFClusterEmulator.clone()
-# from L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi import l1tPhase2GCTBarrelToCorrelatorLayer1Emulator
-# process.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator = l1tPhase2GCTBarrelToCorrelatorLayer1Emulator.clone()
+
+from L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi import l1tPhase2GCTBarrelToCorrelatorLayer1Emulator
+process.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator = l1tPhase2GCTBarrelToCorrelatorLayer1Emulator.clone()
+
+from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cff import l1tNNTauProducerPuppi
+process.l1tNNTauProducerPuppi = l1tNNTauProducerPuppi.clone()
+
+from L1Trigger.Phase2L1ParticleFlow.l1tMETPFProducer_cfi import l1tMETPFProducer
+process.l1tMETPFProducer = l1tMETPFProducer.clone()
 
 from L1Trigger.L1CaloTrigger.l1tPhase2CaloToCorrelatorTMI18_cfi import l1tPhase2CaloToCorrelatorTMI18
 process.l1tPhase2CaloToCorrelatorTMI18 = l1tPhase2CaloToCorrelatorTMI18.clone()
 
 process.L1TInputTask = cms.Task(
-    process.l1tSAMuonsGmt,
-    process.l1tPhase2L1CaloEGammaEmulator,
-    process.l1tPhase2CaloPFClusterEmulator,
-    process.l1tPhase2CaloToCorrelatorTMI18
+        process.l1tPhase2L1CaloEGammaEmulator,
+        process.l1tPhase2CaloPFClusterEmulator,
+        process.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator,
+        process.l1tPhase2CaloToCorrelatorTMI18,
+        process.l1tSAMuonsGmt,
+        process.l1tGTTInputProducer,
+        process.l1tTrackSelectionProducer,
+        process.l1tVertexFinderEmulator,
+        # process.l1tLayer1Barrel,
+        # process.l1tLayer1HGCal,
+        # process.l1tLayer1HGCalNoTK,
+        process.L1TLayer1TaskInputsTask,
+        # process.L1TLayer1Task,
+        process.L1TLayer2EGTask,
+        process.l1tMETPFProducer)
+
+process.centralGen = cms.EDFilter("CandPtrSelector", src = cms.InputTag("genParticlesForMETAllVisible"), cut = cms.string("abs(eta) < 2.4"))
+process.barrelGen = cms.EDFilter("CandPtrSelector", src = cms.InputTag("genParticlesForMETAllVisible"), cut = cms.string("abs(eta) < 1.5"))
+process.genMetCentralTrue = process.genMetTrue.clone(src = cms.InputTag("centralGen"))
+process.L1TInputTask.add(
+    process.genParticlesForMETAllVisible,
+    process.centralGen,
+    process.barrelGen,
+    process.genMetCentralTrue
 )
 
+#### ntuple producer -- TO BE REMOVED
+process.load('L1Trigger.L1CaloPhase2Analyzer.l1TCaloAnalyzer_cfi')
+process.TFileService = cms.Service("TFileService", fileName = cms.string("perfTuple.root"))
 
-from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
-l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
-                                               nJets = cms.uint32(12),
-                                               mht = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
-                                               nSums = cms.uint32(2),
-                                               jetEncoding = cms.string("GT")),
-                                      cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
-                                               nJets = cms.uint32(12),
-                                               jetEncoding = cms.string("GTWide"))
-                                      ])
-process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(collections = l1ctLayer2SCJetsProducts)
-
-l1ctLayer2SC4NGJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4NGJetProducer","l1tSC4NGJets"),
-                                               nJets = cms.uint32(12),
-                                               mht = cms.InputTag("l1tNGMHTPFProducer"),
-                                               nSums = cms.uint32(2),
-                                               jetEncoding = cms.string("GT")),
-                                      cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
-                                               nJets = cms.uint32(12),
-                                               jetEncoding = cms.string("GTWide"))
-                                      ])
-process.l1tLayer2SeedConeNGJetWriter = l1tSeededConeJetFileWriter.clone(collections = l1ctLayer2SC4NGJetsProducts,
-                                                                        outputFilename = 'L1CTSCNGJetsPatterns')
-
-
+## Realistic barrel emulation
 process.l1tLayer1BarrelTDR = process.l1tLayer1Barrel.clone()
 process.l1tLayer1BarrelTDR.regionizerAlgo = cms.string("TDR")
 process.l1tLayer1BarrelTDR.regionizerAlgoParameters = cms.PSet(
@@ -119,7 +129,7 @@ process.l1tLayer1BarrelTDR.regionizerAlgoParameters = cms.PSet(
         nEmCalo = cms.uint32(12),
         nMu = cms.uint32(2),
         debug = cms.untracked.bool(True),
-        debug_mu = cms.untracked.bool(True)
+        debug_emcalo = cms.untracked.bool(True)
     )
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nSelCalo = 15
@@ -131,17 +141,6 @@ process.l1tLayer1BarrelTDR.puAlgoParameters.nOut = 27
 process.l1tLayer1BarrelTDR.puAlgoParameters.finalSortAlgo = "BitonicVHDL"
 process.l1tLayer1BarrelTDR.tkEgAlgoParameters.nTRACK_EGIN = 22
 process.l1tLayer1BarrelTDR.tkEgAlgoParameters.nEMCALO_EGIN = 12
-
-process.l1tLayer1BarrelTDR.hadClusters = cms.InputTag('l1tPhase2GCTBarrelToCorrelatorLayer1Emulator', 'GCTHadDigiClusters')
-process.l1tLayer1BarrelTDR.gctHadInputConversionAlgo = cms.string("Emulator")
-
-process.l1tLayer1BarrelTDR.caloSectors = cms.VPSet(
-    cms.PSet(
-        etaBoundaries = cms.vdouble(-1.5, 1.5),
-        phiSlices     = cms.uint32(3),
-        phiZero       = cms.double(math.pi/18)
-    )
-)
 
 process.l1tLayer1BarrelSerenity = process.l1tLayer1Barrel.clone()
 process.l1tLayer1BarrelSerenity.regionizerAlgo = "MiddleBufferMultififo"

@@ -35,26 +35,6 @@ namespace l1ct {
     l1ct::EmCaloObjEmu decode(const l1ct::PFRegionEmu &sector, const ap_uint<64> &in) const;
 
   private:
-    ap_uint<12> pt(const ap_uint<64> &in) const { return in.range(11, 0); }
-
-    // crystal eta (unsigned 7 bits)
-    ap_uint<7> eta(const ap_uint<64> &in) const { return (ap_uint<7>)in.range(18, 12); }
-
-    // crystal phi (signed 7 bits)
-    ap_int<7> phi(const ap_uint<64> &in) const { return (ap_int<7>)in.range(25, 19); }
-
-    // iso flag: two bits, least significant bit is the standalone WP (true or false), second bit is the looseTk WP (true or false)
-    // e.g. 0b01 : standalone iso flag passed, loose Tk iso flag did not pass
-    ap_uint<2> isoFlags(const ap_uint<64> &in) const { return in.range(36, 35); }
-    bool passes_iso(const ap_uint<64> &in) const { return (isoFlags(in) & 0x1); }         // standalone iso WP
-    bool passes_looseTkiso(const ap_uint<64> &in) const { return (isoFlags(in) & 0x2); }  // loose Tk iso WP
-
-    // shower shape shape flag: two bits, least significant bit is the standalone WP, second bit is the looseTk WP
-    // e.g. 0b01 : standalone shower shape flag passed, loose Tk shower shape flag did not pass
-    ap_uint<2> shapeFlags(const ap_uint<64> &in) const { return in.range(49, 48); }
-
-    bool passes_ss(const ap_uint<64> &in) const { return (shapeFlags(in) & 0x1); }         // standalone shower shape WP
-    bool passes_looseTkss(const ap_uint<64> &in) const { return (shapeFlags(in) & 0x2); }  // loose Tk shower shape WP
 
     // tools for GCT clusters
     l1tpf::corrector corrector_;

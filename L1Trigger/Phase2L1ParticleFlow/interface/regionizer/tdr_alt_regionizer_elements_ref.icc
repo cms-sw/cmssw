@@ -323,24 +323,25 @@ inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<l1ct::TkObjEmu>:
   return retval;
 }
 
+// slighlty more complicated because of logical index;
 std::vector<size_t> calo_links(size_t iphi) {
-  if (iphi == 0) {
-    std::vector<size_t> retval = {1};
+  if (iphi < 2) {
+    std::vector<size_t> retval = {11, 5, 6, 0, 7, 1, 8, 2};
     return retval;
   } else if (iphi < 3) {
-    std::vector<size_t> retval = {1, 2};
+    std::vector<size_t> retval = {7, 1, 8, 2};
     return retval;
-  } else if (iphi == 3) {
-    std::vector<size_t> retval = {2};
+  } else if (iphi < 5) {
+    std::vector<size_t> retval = {9, 3, 10, 4, 7, 1, 8, 2};
     return retval;
   } else if (iphi < 6) {
-    std::vector<size_t> retval = {0, 2};
+    std::vector<size_t> retval = {9, 3, 10, 4};
     return retval;
-  } else if (iphi == 6) {
-    std::vector<size_t> retval = {0};
+  } else if (iphi < 8) {
+    std::vector<size_t> retval = {9, 3, 10, 4, 11, 5, 6, 0};
     return retval;
   } else {
-    std::vector<size_t> retval = {0, 1};
+    std::vector<size_t> retval = {11, 5, 6, 0};
     return retval;
   }
 }
