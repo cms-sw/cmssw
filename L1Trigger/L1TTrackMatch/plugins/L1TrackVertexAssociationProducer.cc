@@ -458,7 +458,7 @@ void L1TrackVertexAssociationProducer::printTrackInfo(edm::LogInfo& log,
                                                       const TTTrackType& track,
                                                       bool printEmulation) const {
   log << "\t(" << track.momentum().perp() << ", " << track.momentum().eta() << ", " << track.momentum().phi() << ", "
-      << track.getStubRefs().size() << ", " << track.stubPtConsistency() << ", " << track.chi2ZRed() << ", "
+      << track.getStubRefs().size() << ", " << track.chi2BendRed() << ", " << track.chi2ZRed() << ", "
       << track.chi2XYRed() << ", " << track.z0() << ")\n";
 
   if (printEmulation) {
