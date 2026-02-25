@@ -17,7 +17,6 @@
 #include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include <CLHEP/Random/RandFlat.h>
 #include <numbers>
 
 using namespace edm;
