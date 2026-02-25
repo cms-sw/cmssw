@@ -232,8 +232,10 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   sumsData.insert(sumsData.end(), etMissData.at(0).begin(), etMissData.at(0).end());
 
   std::vector<ap_uint<64>> mesonsData;
-  mesonsData.insert(mesonsData.end(), tripletsData.at(0).begin(), tripletsData.at(0).end());
-  mesonsData.insert(mesonsData.end(), 36, 0);
+  
+  std::vector<ap_uint<64>> tripletData;
+  tripletData.insert(tripletData.end(), tripletsData.at(0).begin(), tripletsData.at(0).end());
+  tripletData.insert(tripletData.end(), 36, 0);
 
   std::vector<ap_uint<64>> tracksVerticesData;
   tracksVerticesData.insert(tracksVerticesData.end(), 36, 0);
@@ -243,7 +245,7 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   l1t::demo::EventData eventDataGlobalTrigger;
   eventDataGlobalTrigger.add({"sums", 0}, sumsData);
   eventDataGlobalTrigger.add({"taus", 1}, std::vector<ap_uint<64>>(18, 0));  // Placeholder until tau object is written
-  eventDataGlobalTrigger.add({"mesons", 2}, mesonsData);
+  eventDataGlobalTrigger.add({"triplets", 2}, tripletData);
   eventDataGlobalTrigger.add({"vertices", 3}, tracksVerticesData);
 
   // 3) Pass the 'event data' object to the file writer

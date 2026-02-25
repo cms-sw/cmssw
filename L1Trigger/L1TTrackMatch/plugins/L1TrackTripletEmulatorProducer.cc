@@ -218,13 +218,10 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
   L1track trk3{0, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 0};
 
   l1ttripletemu::tktriplet_mass_sq_t f_tktriplet_mass_sq = 0;
-  int this_l1track = 0;
   int current_track_idx = -1;
-  int nTracks = (*TTTrackHandle).size();
 
   // Loop over L1 tracks in event
-  for (auto iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); ++iterL1Track) {
-    auto current_track = *iterL1Track;
+  for (auto current_track : *TTTrackHandle) {
     double current_track_pt = FloatPtFromBits(*current_track);
     current_track_idx += 1;
 
@@ -311,139 +308,136 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
         trk3.Index = current_track_idx;
       }
     }
+  }
 
-    // Increment counter
-    this_l1track++;
+  // Triplet invariant mass calculation (moved OUTSIDE the track loop)
+  // Check that all triplet tracks are valid
+  if (trk1.f_Pt == 0 || trk2.f_Pt == 0 || trk3.f_Pt == 0) {
+    iEvent.put(std::move(L1TrackTripletContainer), OutputDigisName);
+    iEvent.put(std::move(L1TrackTripletWordContainer), OutputWordName);
+    return;
+  }
 
-    // Triplet invariant mass calculation
-    if (this_l1track == nTracks) {
-      // Check that all triplet tracks are valid
-      if (trk1.f_Pt == 0 || trk2.f_Pt == 0 || trk3.f_Pt == 0) {
-        break;
+  // Define sinh LUT indices
+  const l1ttripletemu::sinh_lut_index_t sinhIndex1 = (l1ttripletemu::sinh_lut_index_t)(
+      (std::abs((float)trk1.f_Eta)) / (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) + 1);
+  const l1ttripletemu::sinh_lut_index_t sinhIndex2 = (l1ttripletemu::sinh_lut_index_t)(
+      (std::abs((float)trk2.f_Eta)) / (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) + 1);
+  const l1ttripletemu::sinh_lut_index_t sinhIndex3 = (l1ttripletemu::sinh_lut_index_t)(
+      (std::abs((float)trk3.f_Eta)) / (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) + 1);
+
+  // Define cosh LUT indices
+  const l1ttripletemu::cosh_lut_index_t coshIndex1 = (l1ttripletemu::cosh_lut_index_t)(
+      (std::abs((float)trk1.f_Eta)) / (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) + 1);
+  const l1ttripletemu::cosh_lut_index_t coshIndex2 = (l1ttripletemu::cosh_lut_index_t)(
+      (std::abs((float)trk2.f_Eta)) / (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) + 1);
+  const l1ttripletemu::cosh_lut_index_t coshIndex3 = (l1ttripletemu::cosh_lut_index_t)(
+      (std::abs((float)trk3.f_Eta)) / (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) + 1);
+
+  // Total track momenta
+  l1ttripletemu::pxyz_t p1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * coshLUT_[coshIndex1];
+  l1ttripletemu::pxyz_t p2 = (l1ttripletemu::pxyz_t)trk2.f_Pt * coshLUT_[coshIndex2];
+  l1ttripletemu::pxyz_t p3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * coshLUT_[coshIndex3];
+
+  // Z-component track momenta
+  l1ttripletemu::pxyz_t pz1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * sinhLUT_[sinhIndex1];
+  l1ttripletemu::pxyz_t pz2 = (l1ttripletemu::pxyz_t)trk2.f_Pt * sinhLUT_[sinhIndex2];
+  l1ttripletemu::pxyz_t pz3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * sinhLUT_[sinhIndex3];
+
+  // Correct pz sign if eta is negative
+  if (trk1.f_Eta < 0) {
+    pz1 = -1 * pz1;
+  }
+  if (trk2.f_Eta < 0) {
+    pz2 = -1 * pz2;
+  }
+  if (trk3.f_Eta < 0) {
+    pz3 = -1 * pz3;
+  }
+
+  // Momentum x,y component definitions
+  l1ttripletemu::pxyz_t px1 = 0, py1 = 0;
+  l1ttripletemu::pxyz_t px2 = 0, py2 = 0;
+  l1ttripletemu::pxyz_t px3 = 0, py3 = 0;
+  L1track tmp_trk{0, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 0};
+
+  // W mass calculation using LUTs (as in firmware)
+  for (int tk = 0; tk < 3; tk++) {
+    if (tk == 0) {
+      tmp_trk = trk1;
+    } else if (tk == 1) {
+      tmp_trk = trk2;
+    } else if (tk == 2) {
+      tmp_trk = trk3;
+    }
+
+    // Compute px, py for triplet tracks
+    if (tmp_trk.globalPhi >= phiQuadrants_[0] && tmp_trk.globalPhi < phiQuadrants_[1]) {
+      const l1ttripletemu::cos_lut_index_t cosIndex = (tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      const l1ttripletemu::cos_lut_index_t sinIndex =
+          (phiQuadrants_[1] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      if (tk == 0) {
+        px1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      } else if (tk == 1) {
+        px2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      } else if (tk == 2) {
+        px3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
       }
-
-      // Define sinh LUT indices
-      const l1ttripletemu::sinh_lut_index_t sinhIndex1 = (l1ttripletemu::sinh_lut_index_t)(
-          (std::abs((float)trk1.f_Eta)) / (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) + 1);
-      const l1ttripletemu::sinh_lut_index_t sinhIndex2 = (l1ttripletemu::sinh_lut_index_t)(
-          (std::abs((float)trk2.f_Eta)) / (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) + 1);
-      const l1ttripletemu::sinh_lut_index_t sinhIndex3 = (l1ttripletemu::sinh_lut_index_t)(
-          (std::abs((float)trk3.f_Eta)) / (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) + 1);
-
-      // Define cosh LUT indices
-      const l1ttripletemu::cosh_lut_index_t coshIndex1 = (l1ttripletemu::cosh_lut_index_t)(
-          (std::abs((float)trk1.f_Eta)) / (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) + 1);
-      const l1ttripletemu::cosh_lut_index_t coshIndex2 = (l1ttripletemu::cosh_lut_index_t)(
-          (std::abs((float)trk2.f_Eta)) / (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) + 1);
-      const l1ttripletemu::cosh_lut_index_t coshIndex3 = (l1ttripletemu::cosh_lut_index_t)(
-          (std::abs((float)trk3.f_Eta)) / (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) + 1);
-
-      // Total track momenta
-      l1ttripletemu::pxyz_t p1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * coshLUT_[coshIndex1];
-      l1ttripletemu::pxyz_t p2 = (l1ttripletemu::pxyz_t)trk2.f_Pt * coshLUT_[coshIndex2];
-      l1ttripletemu::pxyz_t p3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * coshLUT_[coshIndex3];
-
-      // Z-component track momenta
-      l1ttripletemu::pxyz_t pz1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * sinhLUT_[sinhIndex1];
-      l1ttripletemu::pxyz_t pz2 = (l1ttripletemu::pxyz_t)trk2.f_Pt * sinhLUT_[sinhIndex2];
-      l1ttripletemu::pxyz_t pz3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * sinhLUT_[sinhIndex3];
-
-      // Correct pz sign if eta is negative
-      if (trk1.f_Eta < 0) {
-        pz1 = -1 * pz1;
+    } else if (tmp_trk.globalPhi >= phiQuadrants_[1] && tmp_trk.globalPhi < phiQuadrants_[2]) {
+      const l1ttripletemu::cos_lut_index_t cosIndex =
+          (phiQuadrants_[2] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      const l1ttripletemu::cos_lut_index_t sinIndex =
+          (tmp_trk.globalPhi - phiQuadrants_[1]) >> l1ttripletemu::kCosLUTShift;
+      if (tk == 0) {
+        px1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      } else if (tk == 1) {
+        px2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      } else if (tk == 2) {
+        px3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
       }
-      if (trk2.f_Eta < 0) {
-        pz2 = -1 * pz2;
+    } else if (tmp_trk.globalPhi >= phiQuadrants_[2] && tmp_trk.globalPhi < phiQuadrants_[3]) {
+      const l1ttripletemu::cos_lut_index_t cosIndex =
+          (tmp_trk.globalPhi - phiQuadrants_[2]) >> l1ttripletemu::kCosLUTShift;
+      const l1ttripletemu::cos_lut_index_t sinIndex =
+          (phiQuadrants_[3] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      if (tk == 0) {
+        px1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      } else if (tk == 1) {
+        px2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      } else if (tk == 2) {
+        px3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
       }
-      if (trk3.f_Eta < 0) {
-        pz3 = -1 * pz3;
+    } else if (tmp_trk.globalPhi >= phiQuadrants_[3] && tmp_trk.globalPhi < phiQuadrants_[4]) {
+      const l1ttripletemu::cos_lut_index_t cosIndex =
+          (phiQuadrants_[4] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      const l1ttripletemu::cos_lut_index_t sinIndex =
+          (tmp_trk.globalPhi - phiQuadrants_[3]) >> l1ttripletemu::kCosLUTShift;
+      if (tk == 0) {
+        px1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      } else if (tk == 1) {
+        px2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      } else if (tk == 2) {
+        px3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
       }
-
-      // Momentum x,y component definitions
-      l1ttripletemu::pxyz_t px1 = 0, py1 = 0;
-      l1ttripletemu::pxyz_t px2 = 0, py2 = 0;
-      l1ttripletemu::pxyz_t px3 = 0, py3 = 0;
-      L1track tmp_trk{0, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 0};
-
-      // W mass calculation using LUTs (as in firmware)
-      for (int tk = 0; tk < 3; tk++) {
-        if (tk == 0) {
-          tmp_trk = trk1;
-        } else if (tk == 1) {
-          tmp_trk = trk2;
-        } else if (tk == 2) {
-          tmp_trk = trk3;
-        }
-
-        // Compute px, py for triplet tracks
-        if (tmp_trk.globalPhi >= phiQuadrants_[0] && tmp_trk.globalPhi < phiQuadrants_[1]) {
-          const l1ttripletemu::cos_lut_index_t cosIndex = (tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
-          const l1ttripletemu::cos_lut_index_t sinIndex =
-              (phiQuadrants_[1] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
-          if (tk == 0) {
-            px1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
-            py1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
-          } else if (tk == 1) {
-            px2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
-            py2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
-          } else if (tk == 2) {
-            px3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
-            py3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
-          }
-        } else if (tmp_trk.globalPhi >= phiQuadrants_[1] && tmp_trk.globalPhi < phiQuadrants_[2]) {
-          const l1ttripletemu::cos_lut_index_t cosIndex =
-              (phiQuadrants_[2] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
-          const l1ttripletemu::cos_lut_index_t sinIndex =
-              (tmp_trk.globalPhi - phiQuadrants_[1]) >> l1ttripletemu::kCosLUTShift;
-          if (tk == 0) {
-            px1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
-            py1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
-          } else if (tk == 1) {
-            px2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
-            py2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
-          } else if (tk == 2) {
-            px3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
-            py3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
-          }
-        } else if (tmp_trk.globalPhi >= phiQuadrants_[2] && tmp_trk.globalPhi < phiQuadrants_[3]) {
-          const l1ttripletemu::cos_lut_index_t cosIndex =
-              (tmp_trk.globalPhi - phiQuadrants_[2]) >> l1ttripletemu::kCosLUTShift;
-          const l1ttripletemu::cos_lut_index_t sinIndex =
-              (phiQuadrants_[3] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
-          if (tk == 0) {
-            px1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
-            py1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
-          } else if (tk == 1) {
-            px2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
-            py2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
-          } else if (tk == 2) {
-            px3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
-            py3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
-          }
-        } else if (tmp_trk.globalPhi >= phiQuadrants_[3] && tmp_trk.globalPhi < phiQuadrants_[4]) {
-          const l1ttripletemu::cos_lut_index_t cosIndex =
-              (phiQuadrants_[4] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
-          const l1ttripletemu::cos_lut_index_t sinIndex =
-              (tmp_trk.globalPhi - phiQuadrants_[3]) >> l1ttripletemu::kCosLUTShift;
-          if (tk == 0) {
-            px1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
-            py1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
-          } else if (tk == 1) {
-            px2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
-            py2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
-          } else if (tk == 2) {
-            px3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
-            py3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
-          }
-        }
-      }
-
-      // W mass calculation
-      f_tktriplet_mass_sq = (l1ttripletemu::tktriplet_mass_sq_t)(
-          (p1 + p2 + p3) * (p1 + p2 + p3) - (px1 + px2 + px3) * (px1 + px2 + px3) -
-          (py1 + py2 + py3) * (py1 + py2 + py3) - (pz1 + pz2 + pz3) * (pz1 + pz2 + pz3));
     }
   }
+
+  // W mass calculation
+  f_tktriplet_mass_sq = (l1ttripletemu::tktriplet_mass_sq_t)(
+      (p1 + p2 + p3) * (p1 + p2 + p3) - (px1 + px2 + px3) * (px1 + px2 + px3) -
+      (py1 + py2 + py3) * (py1 + py2 + py3) - (pz1 + pz2 + pz3) * (pz1 + pz2 + pz3));
 
   // track selection
   bool track1_pass = TrackSelector(trk1, PVz, trk1_pt_, trk1_eta_, trk1_mva_, trk1_dz_, trk1_nstub_);

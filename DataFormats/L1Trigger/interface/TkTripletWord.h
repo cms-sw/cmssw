@@ -23,22 +23,23 @@ namespace l1t {
     static constexpr double MAX_Z0 = 25.;
 
     enum TkTripletBitWidths {
-      // The sizes of the triplet word components and total word size
-      kValidSize = 1,  // Width of the valid bit
-      kPtSize = 16,
-      kPtMagSize = 11,
-      kPhiSize = 13,
-      kEtaSize = 14,
-      kMassSize = 13,    // Width of the entire triplet mass
-      kMassMagSize = 7,  // Width of the triplet mass magnitude
-      kTrk1PtSize = 13,
-      kTrk1PtMagSize = 8,
-      kTrk2PtSize = 13,
-      kTrk2PtMagSize = 8,
-      kTrk3PtSize = 13,
-      kTrk3PtMagSize = 8,
-      kChargeSize = 1,
-      kUnassignedSize = 31,
+      kValidSize = 1,        // Width of the valid bit
+      kPtSize = 16,          // Width of the triplet pT
+      kPtMagSize = 11,       // Width of the triplet pT magnitude
+      kPhiSize = 13,         // Width of the triplet phi
+      kEtaSize = 14,         // Width of the triplet eta
+      kMassSize = 13,        // Width of the triplet invariant mass
+      kMassMagSize = 7,      // Width of the triplet invariant mass magnitude
+      kTrk1PtSize = 13,      // Width of the leading triplet track pT
+      kTrk1PtMagSize = 8,    // Width of the leading triplet track pT magnitude
+      kTrk2PtSize = 13,      // Width of the subleading triplet track pT
+      kTrk2PtMagSize = 8,    // Width of the subleading triplet track pT magnitude
+      kTrk3PtSize = 13,      // Width of the third triplet track pT
+      kTrk3PtMagSize = 8,    // Width of the third triplet track pT magnitude
+      kChargeSize = 1,       // Width of the triplet charge (positive or negative)
+      kUnassignedSize = 31,  // Width of unassigned bits
+
+      // Output word size is a sum of the individual fields
       kTkTripletWordSize = kValidSize + kPtSize + kPhiSize + kEtaSize + kMassSize + kTrk1PtSize + kTrk2PtSize +
                            kTrk3PtSize + kChargeSize + kUnassignedSize,
     };

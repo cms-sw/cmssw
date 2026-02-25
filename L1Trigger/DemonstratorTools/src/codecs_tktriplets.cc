@@ -38,7 +38,7 @@ namespace l1t::demo::codecs {
       tripletWords.at(i).resize(1, 0);
       linkData.at(i).resize(2, {0});
 
-      for (size_t j = 0; j < tripletWords.at(i).size(); j += 1) {
+      for (size_t j = 0; j < tripletWords.at(i).size(); j++) {
         linkData.at(i).at(2 * j) = tripletWords.at(i).at(j)(63, 0);
         linkData.at(i).at(2 * j + 1) = tripletWords.at(i).at(j)(127, 64);
       }
