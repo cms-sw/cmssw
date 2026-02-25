@@ -243,24 +243,26 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
       pz = momentum.z();
     }
     HepMC::FourVector p(px, py, pz, energy);
-
+    constexpr double kGeVToCmFactor = 1.e5;
     // compute correct path assuming uniform magnetic field in CMS
     double pathLength = 0.;
-    //
-    const double pabs = p.rho();  // std::sqrt( px*px + py*py + pz*pz );
-    const double speed = pabs / p.e() * c_light / CLHEP::cm;
+    const auto pt = std::hypot(p.px(), p.py());
+
+    const auto pabs = std::hypot(pt, p.pz());
+    const auto speed = pabs / p.e() * c_light / CLHEP::cm;
     if (PData->charge()) {
       // Radius [cm] = P[GeV/c] * 10^9 / (c[mm/ns] * 10^6 * q[C] * B[T]) * 100[cm/m]
-      const double radius =
-          pabs * std::pow(10, 5) / (std::abs(PData->charge()) * c_light * field.inTesla({0.f, 0.f, 0.f}).z());  // cm
-      const double arc = 2 * asinf(std::sqrt(x * x + y * y) / (2 * radius)) * radius;
+      const double radius = pt * kGeVToCmFactor / (std::abs(PData->charge()) * c_light * bz);  // cm
+      const double arg = std::clamp(
+          rhoXY / (2.0 * radius), 0.0, 1.0);  // protect against out of range values due to floating point rounding
+      const double arc = 2.0 * std::asin(arg) * radius;
       pathLength = std::sqrt(arc * arc + fZ * fZ);
     } else {
-      pathLength = std::sqrt(x * x + y * y + fZ * fZ);
+      pathLength = r3d;
     }
 
     // if not pointing time doesn't mean a lot, keep the old way
-    const double pathTime = fPointing ? (pathLength / speed) : (std::sqrt(x * x + y * y + fZ * fZ) / speed);
+    const double pathTime = fPointing ? (pathLength / speed) : (r3d / speed);
     double timeOffset = fOffsetFirst + (pathTime + ip * fT) * CLHEP::ns * c_light;
 
     HepMC::GenVertex* Vtx =
