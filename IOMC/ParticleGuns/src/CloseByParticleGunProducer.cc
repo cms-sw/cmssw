@@ -146,6 +146,7 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   fEvt = new HepMC::GenEvent();
 
   auto const& field = es.getData(m_fieldToken);
+  const double bz = field.inTesla({0.f, 0.f, 0.f}).z();
 
   int barcode = 1;
   unsigned int numParticles = fRandomShoot ? CLHEP::RandFlat::shoot(engine, 1, fNParticles) : fNParticles;
@@ -230,6 +231,8 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     // Compute Vertex Position
     double x = fR * cos(phi);
     double y = fR * sin(phi);
+    const double r3d = std::hypot(fR, fZ);
+    const double rhoXY = std::hypot(x, y);
 
     // If we are requested to be pointing to (0,0,0), correct the momentum direction
     if (fPointing) {
