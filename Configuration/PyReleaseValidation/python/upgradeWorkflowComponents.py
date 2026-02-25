@@ -3426,6 +3426,8 @@ upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
 class UpgradeWorkflow_Phase2_HeavyIon(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--procModifiers': 'phase2_pp_on_AA'}, stepDict[step][k]])
+        # override '-n' setting from PUDataSets in relval_steps.py
+        stepDict[stepName][k] = merge([{'-n':'1'}, stepDict[step][k]])
         if 'GenSim' in step:
             stepDict[stepName][k] = merge([{'--conditions': stepDict[step][k]["--conditions"].replace('_13TeV',''), '-n': 1}, stepDict[stepName][k]])
         elif 'Digi' in step:
