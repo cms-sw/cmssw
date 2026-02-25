@@ -1,31 +1,28 @@
-#include <ostream>
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <numbers>
+#include <ostream>
 
-#include "IOMC/ParticleGuns/interface/CloseByParticleGunProducer.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include <CLHEP/Random/RandFlat.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <CLHEP/Random/RandFlat.h>
-#include <CLHEP/Units/SystemOfUnits.h>
-#include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include <numbers>
+#include "IOMC/ParticleGuns/interface/CloseByParticleGunProducer.h"
 
-using namespace edm;
-using namespace std;
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
+CloseByParticleGunProducer::CloseByParticleGunProducer(const edm::ParameterSet& pset)
     : BaseFlatGunProducer(pset), m_fieldToken(esConsumes()) {
-  ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
+  edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
   fControlledByEta = pgun_params.getParameter<bool>("ControlledByEta");
   fControlledByREta = pgun_params.getParameter<bool>("ControlledByREta");
   if (fControlledByEta and fControlledByREta)
