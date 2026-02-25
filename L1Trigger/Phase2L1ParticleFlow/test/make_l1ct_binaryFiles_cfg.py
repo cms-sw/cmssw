@@ -1,6 +1,5 @@
 import argparse
 import sys
-import math
 
 # example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py --patternFilesOFF
 # example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py --dumpFilesOFF --serenity
@@ -32,7 +31,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True), allowUnscheduled = cms.untracked.bool(False) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1008))
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 process.source = cms.Source("PoolSource",
@@ -98,11 +97,7 @@ process.L1TInputTask = cms.Task(
         process.l1tGTTInputProducer,
         process.l1tTrackSelectionProducer,
         process.l1tVertexFinderEmulator,
-        # process.l1tLayer1Barrel,
-        # process.l1tLayer1HGCal,
-        # process.l1tLayer1HGCalNoTK,
         process.L1TLayer1TaskInputsTask,
-        # process.L1TLayer1Task,
         process.L1TLayer2EGTask,
         process.l1tMETPFProducer)
 
@@ -116,9 +111,30 @@ process.L1TInputTask.add(
     process.genMetCentralTrue
 )
 
-#### ntuple producer -- TO BE REMOVED
-process.load('L1Trigger.L1CaloPhase2Analyzer.l1TCaloAnalyzer_cfi')
-process.TFileService = cms.Service("TFileService", fileName = cms.string("perfTuple.root"))
+from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
+l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
+                                               nJets = cms.uint32(12),
+                                               mht = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
+                                               nSums = cms.uint32(2),
+                                               jetEncoding = cms.string("GT")),
+                                      cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
+                                               nJets = cms.uint32(12),
+                                               jetEncoding = cms.string("GTWide"))
+                                      ])
+process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(collections = l1ctLayer2SCJetsProducts)
+
+l1ctLayer2SC4NGJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4NGJetProducer","l1tSC4NGJets"),
+                                               nJets = cms.uint32(12),
+                                               mht = cms.InputTag("l1tNGMHTPFProducer"),
+                                               nSums = cms.uint32(2),
+                                               jetEncoding = cms.string("GT")),
+                                      cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
+                                               nJets = cms.uint32(12),
+                                               jetEncoding = cms.string("GTWide"))
+                                      ])
+process.l1tLayer2SeedConeNGJetWriter = l1tSeededConeJetFileWriter.clone(collections = l1ctLayer2SC4NGJetsProducts,
+                                                                        outputFilename = 'L1CTSCNGJetsPatterns')
+
 
 ## Realistic barrel emulation
 process.l1tLayer1BarrelTDR = process.l1tLayer1Barrel.clone()
@@ -128,8 +144,8 @@ process.l1tLayer1BarrelTDR.regionizerAlgoParameters = cms.PSet(
         nCalo = cms.uint32(15),
         nEmCalo = cms.uint32(12),
         nMu = cms.uint32(2),
-        debug = cms.untracked.bool(True),
-        debug_emcalo = cms.untracked.bool(True)
+        debug = cms.untracked.bool(False),
+        debug_emcalo = cms.untracked.bool(False)
     )
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nSelCalo = 15

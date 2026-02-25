@@ -147,9 +147,8 @@ private:
   void addHGCalHadCalo(const l1t::HGCalMulticluster &calo, const edm::Ptr<l1t::L1Candidate> &caloPtr);
   // GCT input clusters
   void addGCTHadCalo(const l1t::PFCluster &calo, const edm::Ptr<l1t::L1Candidate> &caloPtr);
-  // for GCT raw calos as input (FIXME)
+  // for GCT raw calos as input
   void addGCTCaloRaw(const l1tp2::GCTDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
-  //void addGCTHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
   // add objects in already-decoded format
   void addDecodedTrack(l1ct::DetectorSector<l1ct::TkObjEmu> &sec, const l1t::PFTrack &t);
   void addDecodedMuon(l1ct::DetectorSector<l1ct::MuObjEmu> &sec, const l1t::SAMuon &t);
@@ -864,8 +863,6 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
   event_.raw.hgcalcluster.clear();
   event_.raw.gctcluster.clear();
 
-  std::cout << "Call to initSectorsAndRegions, " << iConfig.getParameter<std::string>("regionizerAlgo") << std::endl;
-
   for (const edm::ParameterSet &preg : iConfig.getParameter<edm::VParameterSet>("caloSectors")) {
     std::vector<double> etaBoundaries = preg.getParameter<std::vector<double>>("etaBoundaries");
     if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end()))
@@ -881,7 +878,6 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
         throw cms::Exception("Configuration", "caloSectors eta range too large for eta_t data type");
       for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
         float phiCenter = reco::reducePhiRange(iphi * phiWidth + phiZero);
-        std::cout << "calo sector eta " << etaBoundaries[ieta] << " to " << etaBoundaries[ieta + 1] << ", phi " << phiCenter * 720 / M_PI << std::endl;
         event_.decoded.hadcalo.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
         event_.decoded.emcalo.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
         event_.raw.hgcalcluster.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
@@ -905,7 +901,6 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
         throw cms::Exception("Configuration", "caloSectors eta range too large for eta_t data type");
       for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
         float phiCenter = reco::reducePhiRange(iphi * phiWidth + phiZero);
-                std::cout << "raw calo sector eta " << etaBoundaries[ieta] << " to " << etaBoundaries[ieta + 1] << ", phi " << phiCenter * 720 / M_PI << std::endl;
         event_.raw.gctcluster.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
       }
     }
@@ -1047,52 +1042,31 @@ unsigned int L1TCorrelatorLayer1Producer::hadDecodedIndex(unsigned int linkidx, 
     return 2*linkidx + 1;
   }
 }
+
 void L1TCorrelatorLayer1Producer::addGCTCaloRaw(const l1tp2::GCTDigiClusterLink &link,
                                                 unsigned int linkidx,
                                                 unsigned int entidx) {
   if (auto p = std::get_if<l1tp2::GCTEmDigiCluster>(&link[entidx])) {
-    std::cout << "GCT Raw em link " << linkidx << ", entry " << entidx << " data "
-              << std::hex << p->data() << std::dec << std::endl;
     // (For EM don't currently suport ideal, so it is always Emulated)
     event_.raw.gctcluster[linkidx].obj.push_back(p->data());
     if (p->pt() > 0) {
       auto decidx = emDecodedIndex(linkidx, entidx);
-      std::cout << "  adding to decoded index " << decidx << std::endl;
       addDecodedGCTEmCalo(event_.decoded.emcalo[decidx], *p);
     }
   } else if (auto p = std::get_if<l1tp2::GCTHadDigiCluster>(&  link[entidx])) {
-    std::cout << "GCT Raw had link " << linkidx << ", entry " << entidx << " data "
-              << std::hex << p->data() << std::dec << std::endl;
     // Only do this if using Emulated GCT input, not Ideal.
     if (hadGCTCands_.isUninitialized()) {
       event_.raw.gctcluster[linkidx].obj.push_back(p->data());
       if (p->pt() > 0) {
         auto decidx = hadDecodedIndex(linkidx, entidx);
-        std::cout << "  adding to decoded index " << decidx << std::endl;
         addDecodedGCTHadCalo(event_.decoded.hadcalo[decidx], *p);
       }
     }
   } else {
     // this is the extra data that is neither had nor em
-    std::cout << "GCT Raw null link " << linkidx << ", entry " << entidx << std::endl;
-    if (entidx == 1) {
-      auto val = std::get<l1tp2::GCTEmDigiCluster>(link.at(entidx));
-      std::cout << "  The emcalo value is " << val.data() << std::endl;
-    }
     event_.raw.gctcluster[linkidx].obj.push_back(0);  // the value should not be used
   }
 }
-
-// void L1TCorrelatorLayer1Producer::addGCTHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link,
-//                                                    unsigned int linkidx,
-//                                                    unsigned int entidx) {
-//   // in the "Ideal" regionizer, ignore the second set that is sent; only use the first
-//   auto caloIdx = calomapping[linkidx];
-//   if (caloIdx < event_.raw.gctHad.size()) {
-//     event_.raw.gctHad[caloIdx].obj.push_back(link[entidx].data());
-//     addDecodedGCTHadCalo(event_.decoded.hadcalo[caloIdx], link[entidx]);
-//   }
-// }
 
 void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkObjEmu> &sec, const l1t::PFTrack &t) {
   std::pair<l1ct::TkObjEmu, bool> tkAndSel;
@@ -1153,10 +1127,7 @@ void L1TCorrelatorLayer1Producer::addDecodedGCTEmCalo(l1ct::DetectorSector<l1ct:
                                                       const l1tp2::GCTEmDigiCluster &digi) {
   l1ct::EmCaloObjEmu calo = gctEmInput_->decode(sec.region, digi.data());
 
-  std::cout <<   "emclus decode " << std::hex << digi.data() << std::dec << " to pt = " << calo.hwPt << std::endl; 
-
   auto caloPtr = edm::refToPtr(digi.clusterRef());
-  // FIXME: should check hwPt > 0
   addDecodedEmCalo(calo, caloPtr, sec);
 }
 
@@ -1165,7 +1136,6 @@ void L1TCorrelatorLayer1Producer::addDecodedGCTHadCalo(l1ct::DetectorSector<l1ct
   l1ct::HadCaloObjEmu calo = gctHadInput_->decode(sec.region, digi.data());
 
   auto caloPtr = edm::refToPtr(digi.clusterRef());
-  // FIXME: should check hwPt > 0
   addDecodedHadCalo(calo, caloPtr, sec);
 }
 

@@ -246,13 +246,6 @@ void l1ct::tdr_alt_regionizer::Regionizer<T>::setBuffers(const std::vector<std::
       }
       // get the SR indices that this object should go into
       auto srs = getSmallRegions(glbeta, glbphi);
-      if (debug_) {
-        std::cout << "  sr Indices =";
-        for (auto sr : srs) {
-          std::cout << " " << sr;
-        }
-        std::cout << std::endl;
-      }
       buffers_[buffer].addEntry(obj,
                                 srs,
                                 glbeta,
