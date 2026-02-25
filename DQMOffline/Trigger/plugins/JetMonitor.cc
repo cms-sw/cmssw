@@ -642,16 +642,12 @@ bool JetMonitor::isCleanJet(double JetEta, double JetPhi, const std::vector<reco
 }
 
 bool JetMonitor::isGoodScoutingMuon(Run3ScoutingMuon const& scoutingMuon) {
-  if (scoutingMuon.pt() > 1
-      && abs(scoutingMuon.eta()) < 0.8
-      && abs(scoutingMuon.trk_dxy()) < 0.2
+  if (scoutingMuon.pt() > 1 && abs(scoutingMuon.eta()) < 0.8 &&
+      abs(scoutingMuon.trk_dxy()) < 0.2
       /////&& abs(scoutingMuon.trackIso()) < 0.15 //removed
-      && abs(scoutingMuon.trk_dz()) < 0.5
-      && scoutingMuon.normalizedChi2() < 3
-      && scoutingMuon.nValidRecoMuonHits() > 0
-      && scoutingMuon.nRecoMuonMatchedStations() > 1
-      && scoutingMuon.nValidPixelHits() > 0
-      && scoutingMuon.nTrackerLayersWithMeasurement() > 5) {
+      && abs(scoutingMuon.trk_dz()) < 0.5 && scoutingMuon.normalizedChi2() < 3 &&
+      scoutingMuon.nValidRecoMuonHits() > 0 && scoutingMuon.nRecoMuonMatchedStations() > 1 &&
+      scoutingMuon.nValidPixelHits() > 0 && scoutingMuon.nTrackerLayersWithMeasurement() > 5) {
     return true;
   } else {
     return false;
