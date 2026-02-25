@@ -293,6 +293,6 @@ void CloseByParticleGunProducer::produce(edm::Event& e, const edm::EventSetup& e
   e.put(std::move(genEventInfo));
 
   if (fVerbosity > 0) {
-    LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << endl;
+    edm::LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << std::endl;
   }
 }
