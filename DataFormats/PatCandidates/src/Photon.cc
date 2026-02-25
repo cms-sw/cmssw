@@ -207,6 +207,7 @@ Photon::Photon(const Run3ScoutingPhoton& sPhoton)
       cryPhi_(-999),
       iEta_(-999),
       iPhi_(-999) {
+  isScoutingPhoton_ = true;
 
   // Store shower shape variables as userFloats
   this->addUserFloat("sigmaIetaIeta", sPhoton.sigmaIetaIeta());
@@ -229,6 +230,15 @@ Photon::Photon(const Run3ScoutingPhoton& sPhoton)
   this->setIsolation(pat::TrackIso, sPhoton.trkIso());
   this->setIsolation(pat::EcalIso, sPhoton.ecalIso());
   this->setIsolation(pat::HcalIso, sPhoton.hcalIso());
+
+  // Store scouting-specific ECAL crystal and rechit information
+  scoutingSeedId_ = sPhoton.seedId();
+  scoutingNClusters_ = sPhoton.nClusters();
+  scoutingNCrystals_ = sPhoton.nCrystals();
+  scoutingEnergyMatrix_ = sPhoton.energyMatrix();
+  scoutingTimingMatrix_ = sPhoton.timingMatrix();
+  scoutingDetIds_ = sPhoton.detIds();
+  scoutingRechitZeroSuppression_ = sPhoton.rechitZeroSuppression();
 }
 
 /// destructor
@@ -381,4 +391,33 @@ reco::CandidatePtr Photon::sourceCandidatePtr(size_type i) const {
     return reco::CandidatePtr(edm::refToPtr(
         edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, associatedPackedFCandidateIndices_[i])));
   }
+}
+
+// ---- Universal accessors with scouting dispatch ----
+
+uint32_t Photon::seedId() const {
+  if (isScoutingPhoton_) {
+    return scoutingSeedId_;
+  }
+  auto sc = superCluster();
+  if (sc.isNonnull() && sc->seed().isNonnull()) {
+    return sc->seed()->seed().rawId();
+  }
+  return 0;
+}
+
+uint32_t Photon::nClusters() const {
+  if (isScoutingPhoton_) {
+    return scoutingNClusters_;
+  }
+  auto sc = superCluster();
+  return sc.isNonnull() ? sc->clustersSize() : 0;
+}
+
+uint32_t Photon::nCrystals() const {
+  if (isScoutingPhoton_) {
+    return scoutingNCrystals_;
+  }
+  auto sc = superCluster();
+  return sc.isNonnull() ? sc->size() : 0;
 }
