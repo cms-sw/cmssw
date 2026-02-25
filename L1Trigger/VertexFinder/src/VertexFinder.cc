@@ -6,11 +6,15 @@ namespace l1tVertexFinder {
 
   // Returns the track resolution in cm (which can depend on track eta), to be used in PFA. Note in future this may not be necessary if the z0 uncertainty is included as a TTTrack property.
   float VertexFinder::computeTrackZ0Res(const L1Track* track) const {
+    constexpr float kPfaZ0ResP0 = 0.09867f;
+    constexpr float kPfaZ0ResP1 = 0.0007f;
+    constexpr float kPfaZ0ResP2 = 0.0587f;
+    constexpr float kPfaZ0ResConst = 0.15f;
     float trackAbsEta = std::abs(track->eta());
     // Hard-coded eta-dependent and constant parametrisations of the track resolution taken from the PFA section of Giovanna Salvi's CERN-THESIS-2024-143
     return settings_->vx_pfa_etadependentresolution()
-               ? 0.09867 + 0.0007 * trackAbsEta + 0.0587 * trackAbsEta * trackAbsEta
-               : 0.15;
+               ? kPfaZ0ResP0 + kPfaZ0ResP1 * trackAbsEta + kPfaZ0ResP2 * trackAbsEta * trackAbsEta
+               : kPfaZ0ResConst;
   }
 
   // Calculates the PFA weight and the weighted average z weight for a given track
