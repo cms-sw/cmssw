@@ -92,7 +92,7 @@ CloseByParticleGunProducer::~CloseByParticleGunProducer() {
   // no need to cleanup GenEvent memory - done in HepMCProduct
 }
 
-void CloseByParticleGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+void CloseByParticleGunProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("AddAntiParticle", false);
   {
@@ -133,12 +133,12 @@ void CloseByParticleGunProducer::fillDescriptions(ConfigurationDescriptions& des
   descriptions.add("CloseByParticleGunProducer", desc);
 }
 
-void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
+void CloseByParticleGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
   if (fVerbosity > 0) {
-    LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Begin New Event Generation" << endl;
+    edm::LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Begin New Event Generation" << std::endl;
   }
   fEvt = new HepMC::GenEvent();
 
