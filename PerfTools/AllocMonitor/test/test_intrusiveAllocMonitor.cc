@@ -12,11 +12,11 @@
 #include <memory>
 #include <vector>
 
-std::unique_ptr<int> nested() {
+int* nested() {
   edm::Service<edm::IntrusiveMonitorBase> imb;
   auto guard = imb->startMonitoring("inner unique_ptr");
 
-  return std::make_unique<int>(42);
+  return new int(42);
 }
 
 // dirty tricks to prevent compiler from optimizing allocations away...
@@ -84,8 +84,9 @@ process.add_(cms.Service('IntrusiveAllocMonitor'))
     int sum = 0;
     {
       auto guard = imb->startMonitoring("Nested allocation empty outer");
-      auto ptr2 = nested();
+      ptr2 = nested();
       sum = *ptr2;
+      delete ptr2.load();
     }
     edm::LogPrint("Test").format("Sum {}", sum);
   }
@@ -96,9 +97,11 @@ process.add_(cms.Service('IntrusiveAllocMonitor'))
     int sum = 0;
     {
       auto guard = imb->startMonitoring("Nested allocation outer unique_ptr");
-      auto ptr1 = std::make_unique<int>(42);
-      auto ptr2 = nested();
+      ptr1 = new int(42);
+      ptr2 = nested();
       sum = *ptr1 + *ptr2;
+      delete ptr2.load();
+      delete ptr1.load();
     }
 
     edm::LogPrint("Test").format("Sum {}", sum);
