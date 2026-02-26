@@ -779,9 +779,9 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
         for (auto const& hit_energy : recoClusters[recoPair.first.index()].recHitFractions()) {
           DetId id(hit_energy.recHitRef()->detId());
           const GlobalPoint pos = caloGeom.getPosition(id);
-          edm::LogPrint("PFTester") << "     DetId=" << hit_energy.recHitRef()->detId() << ", eta=" << pos.eta()
-                                    << ", phi=" << pos.phi() << ", en=" << hit_energy.recHitRef()->energy()
-                                    << ", fr=" << hit_energy.fraction();
+          edm::LogPrint("PFTester") << "     DetId=" << hit_fraction.recHitRef()->detId() << ", eta=" << pos.eta()
+                                    << ", phi=" << pos.phi() << ", en=" << hit_fraction.recHitRef()->energy()
+                                    << ", fr=" << hit_fraction.fraction();
         }
 #endif
 
