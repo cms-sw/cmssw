@@ -60,6 +60,19 @@
 //  debug     (int)          Two digit integer to set debug for each
 //                           of the outputs (opional)
 //
+//  HGCalConvert 6 infile outfile1 outfile2 maxlayEE, maxLayHE, modeGlobal debug
+//  infile   (const char*)   Input file from Philippe conatining layer #,
+//                           size, depth, x, y position, orientation, u, v
+//  outfile1 (const char*)   Output fle for the EE part
+//  outfile2 (const char*)   Output fle for the HE part (full silicon)
+//  maxLayEE (int)           Maximum layer number of the EE part
+//  maxLayHE (int)           Maximum layer number of the HE part
+//  modeGlobal (int)         Flag to create parts to be inserted in the
+//                           global section (0) or to be inserted in
+//                           the ddAlgorithm part (1)
+//  debug     (int)          Three digit integer to set debug for each
+//                           of the outputs
+//
 //  HGCalConvert 99 infile outfile minLayer maxLayer cassette debug
 //               99 for extracting information of a given cassette
 //  infile   (const char*)   Input file from conatining layer #, size, depth,
@@ -117,7 +130,7 @@ struct tileZone {
 };
 
 std::vector<std::string> splitString(const std::string& fLine);
-
+co
 class ConvertSiliconV0 {
 public:
   ConvertSiliconV0(int layMax1 = 28, int layMax2 = 36);
@@ -171,6 +184,28 @@ private:
                     const bool&);
 
   const unsigned int layMax1_, layMax2_, layMax3_;
+};
+
+class ConvertSiliconV3 {
+public:
+  ConvertSiliconV3(unsigned int layMax1 = 10, unsigned int layMax2 = 0);
+  void convert(const char* infile,
+               const char* outfile1,
+               const char* outfile2,
+               int modeGlobal = 0,
+	       int cassette = 0,
+	       int debug = 0);
+
+private:
+  void writeSilicon(const char*,
+                    const unsigned int,
+                    const std::vector<layerInfo>&,
+                    const std::map<int, wafer>&,
+                    const std::string&,
+                    const bool&,
+                    const bool&);
+
+  const unsigned int layMax1_, layMax2_;
 };
 
 class ConvertScintillator {
@@ -329,6 +364,20 @@ int main(int argc, char* argv[]) {
               << " Layers " << maxLayEE << ":" << maxLayHE << " Mode " << modeGlobal << " Cassettes " << cassette
               << " Debug " << debug << std::endl;
     ConvertNoseV0 c1(maxLayEE, maxLayHE);
+    c1.convert(infile, outfile1, outfile2, modeGlobal, cassette, debug);
+  } else if (mode == 6) {
+    const char* outfile1 = argv[3];
+    const char* outfile2 = argv[4];
+    std::cout << "Calls with mode " << mode << " for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2 << std::endl;
+    int maxLayEE = atoi(argv[5]);
+    int maxLayHE = atoi(argv[6]);
+    int modeGlobal = atoi(argv[7]);
+    int cassette = (argc > 7) ? atoi(argv[8]) : -1;
+    int debug = (argc > 8) ? atoi(argv[9]) : 0;
+    std::cout << "Calls ConvertSiliconV3 for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
+              << " Layers " << maxLayEE << ":" << maxLayHE << " Mode " << modeGlobal << " Cassettes " << cassette
+              << " Debug " << debug << std::endl;
+    ConvertSiliconV3 c1(maxLayEE, maxLayHE);
     c1.convert(infile, outfile1, outfile2, modeGlobal, cassette, debug);
   } else if (mode == 99) {
     const char* outfile = argv[3];
@@ -2127,6 +2176,252 @@ void ConvertNoseV0::writeNose(const char* outfile,
                               const std::string& tag,
                               const bool& mode,
                               const bool& debug) {
+  char apost('"');
+  unsigned int k0(0), k1(0), k2(0), k3(0);
+  std::map<int, wafer>::const_iterator itr;
+  std::string blank = (mode) ? "  " : "    ";
+  std::ofstream fOut(outfile);
+  std::vector<int> layerStart;
+  int layer(-1);
+  if (mode) {
+    fOut << blank << "<Vector name=" << apost << "LayerTypes" << tag << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layers.size() << apost << ">";
+  } else {
+    fOut << blank << "<Vector name=" << apost << "LayerTypes" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layers.size() << apost << ">";
+  }
+  for (const auto& l : layers) {
+    std::string last = ((k0 + 1) == layers.size()) ? " " : ",";
+    if (k0 % 20 == 0)
+      fOut << "\n  " << blank << std::setw(2) << l.type << last;
+    else
+      fOut << std::setw(2) << l.type << last;
+    ++k0;
+  }
+  fOut << "\n" << blank << "</Vector>\n";
+  if (mode) {
+    fOut << blank << "<Vector name=" << apost << "WaferIndex" << tag << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << module.size() << apost << ">";
+  } else {
+    fOut << blank << "<Vector name=" << apost << "WaferIndex" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << module.size() << apost << ">";
+  }
+  for (itr = module.begin(); itr != module.end(); ++itr) {
+    std::string last = ((k1 + 1) == module.size()) ? " " : ",";
+    if (k1 % 7 == 0)
+      fOut << "\n  " << blank << std::setw(8) << itr->first << last;
+    else
+      fOut << std::setw(8) << itr->first << last;
+    if (HGCalWaferIndex::waferLayer(itr->first) != layer) {
+      layerStart.emplace_back(k1);
+      layer = HGCalWaferIndex::waferLayer(itr->first);
+    }
+    ++k1;
+    if (debug)
+      std::cout << "Wafer " << HGCalWaferIndex::waferLayer(itr->first) << ":" << HGCalWaferIndex::waferU(itr->first)
+                << ":" << HGCalWaferIndex::waferV(itr->first) << " T " << (itr->second).thick << " P "
+                << (itr->second).partial << " O " << (itr->second).orient << " C " << (itr->second).cassette
+                << " Property "
+                << HGCalProperty::waferProperty(
+                       (itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).cassette)
+                << std::endl;
+  }
+  fOut << "\n" << blank << "</Vector>\n";
+  if (mode)
+    fOut << blank << "<Vector name=" << apost << "WaferProperties" << tag << apost << " type=" << apost << "numeric"
+         << apost << " nEntries=" << apost << module.size() << apost << ">";
+  else
+    fOut << blank << "<Vector name=" << apost << "WaferProperties" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << module.size() << apost << ">";
+  for (itr = module.begin(); itr != module.end(); ++itr) {
+    int property = HGCalProperty::waferProperty(
+        (itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).cassette);
+    std::string last = ((k2 + 1) == module.size()) ? " " : ",";
+    if (k2 % 8 == 0)
+      fOut << "\n  " << blank << std::setw(7) << property << last;
+    else
+      fOut << std::setw(7) << property << last;
+    ++k2;
+  }
+  fOut << "\n" << blank << "</Vector>\n";
+  if (mode) {
+    fOut << blank << "<Vector name=" << apost << "WaferLayerStart" << tag << apost << " type=" << apost << "numeric"
+         << apost << " nEntries=" << apost << layerStart.size() << apost << ">";
+  } else {
+    fOut << blank << "<Vector name=" << apost << "WaferLayerStart" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layerStart.size() << apost << ">";
+  }
+  for (unsigned k = 0; k < layerStart.size(); ++k) {
+    std::string last = ((k + 1) == layerStart.size()) ? " " : ",";
+    if (k % 10 == 0)
+      fOut << "\n  " << blank << std::setw(5) << layerStart[k] << last;
+    else
+      fOut << std::setw(5) << layerStart[k] << last;
+  }
+  fOut << "\n" << blank << "</Vector>\n";
+  unsigned int csize = cassettes * layers.size();
+  if (mode) {
+    fOut << blank << "<Vector name=" << apost << "CassetteShift" << tag << apost << " type=" << apost << "numeric"
+         << apost << " nEntries=" << apost << csize << apost << ">";
+  } else {
+    fOut << blank << "<Vector name=" << apost << "CassetteShift" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << csize << apost << ">";
+  }
+  for (const auto& l : layers) {
+    ++k3;
+    for (unsigned int k = 0; k < cassettes; ++k) {
+      std::string last = ((k3 == layers.size()) && ((k + 1) == cassettes)) ? "*mm" : "*mm,";
+      if ((k % 6) == 0)
+        fOut << "\n  " << blank << std::setw(9) << l.deltaR[k] << last;
+      else
+        fOut << std::setw(9) << l.deltaR[k] << last;
+    }
+  }
+  fOut << "\n" << blank << "</Vector>\n";
+  fOut.close();
+}
+
+ConvertSiliconV3::ConvertSiliconV3(unsigned int layMax1, unsigned int layMax2) : layMax1_(layMax1), layMax2_(layMax2) {
+  std::cout << "ConvertSiliconV3 Iniltailized with " << layMax1_ << ":" << layMax2_ << std::endl;
+}
+
+void ConvertSiliconV3::convert(
+    const char* infile, const char* outfile1, const char* outfile2, int modeGlobal, int caasettesin, int debug) {
+  std::ifstream fInput(infile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infile << std::endl;
+  } else {
+    //First read in all records
+    char buffer[1024];
+    const int thksize = 4;
+    std::string thick[thksize] = {"h120", "l200", "l300", "h200"};
+    int addType[thksize] = {
+        HGCalTypes::WaferHD120, HGCalTypes::WaferLD200, HGCalTypes::WaferLD300, HGCalTypes::WaferHD200};
+    const int partTypeH[6] = {HGCalTypes::WaferFull,
+                              HGCalTypes::WaferHDTop,
+                              HGCalTypes::WaferHDBottom,
+                              HGCalTypes::WaferHDLeft,
+                              HGCalTypes::WaferHDRight,
+                              HGCalTypes::WaferHDFive};
+    const int partTypeL[7] = {HGCalTypes::WaferFull,
+                              HGCalTypes::WaferLDTop,
+                              HGCalTypes::WaferLDBottom,
+                              HGCalTypes::WaferLDLeft,
+                              HGCalTypes::WaferLDRight,
+                              HGCalTypes::WaferLDFive,
+                              HGCalTypes::WaferLDThree};
+    const unsigned int cassetteEE(12), cassetteHE(24);
+    std::map<int, wafer> module1, module2;
+    unsigned int all(0), comments(0), others(0), bad(0), good(0);
+    unsigned int layMax3 = layMax1_ + layMax2_;
+    unsigned int layers(layMax3);
+    std::vector<layerInfo> layer1, layer2;
+    int cminEE(-1), cmaxEE(-1), cminHE(-1), cmaxHE(-1);
+    bool global = (modeGlobal < 1);
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      if (debug % 10 > 1)
+        std::cout << "[" << all << "] " << buffer << std::endl;
+      if (buffer[0] == '#') {
+        ++comments;
+      } else {
+        ++others;
+        std::vector<std::string> items = splitString(std::string(buffer));
+        if (others <= layMax3) {
+          unsigned int cassettes = (others <= layMax1_) ? cassetteEE : cassetteHE;
+          if (caasettesin > 0)
+            cassettes = caasettesin;
+          if (items.size() < (cassettes + 2)) {
+            if (debug % 10 > 1)
+              std::cout << "Size " << items.size() << " expect >= " << (cassettes + 2) << std::endl;
+            ++bad;
+          } else {
+            int layer = std::atoi(items[0].c_str());
+            int type = std::atoi(items[1].c_str());
+            std::vector<double> dR;
+            for (unsigned int k = 0; k < cassettes; ++k)
+              dR.emplace_back(std::atof(items[k + 2].c_str()));
+            layerInfo ltype(layer, type, dR);
+            if (others <= layMax1_) {
+              layer1.emplace_back(ltype);
+            } else {
+              layer2.emplace_back(ltype);
+            }
+          }
+        } else if (items.size() != 9) {
+          ++bad;
+        } else {
+          ++good;
+          unsigned int layer = std::atoi(items[0].c_str());
+          int waferU = std::atoi(items[6].c_str());
+          int waferV = std::atoi(items[7].c_str());
+          int cassette = std::atoi(items[8].c_str());
+          int thck = static_cast<int>(std::find(thick, thick + thksize, items[2]) - thick);
+          int part = std::atoi(items[1].c_str());
+          if ((thck <= thksize) && (part >= 0)) {
+            if ((addType[thck] == HGCalTypes::WaferHD120) || (addType[thck] == HGCalTypes::WaferHD200))
+              part = partTypeH[part];
+            else
+              part = partTypeL[part];
+          }
+          int orient = std::atoi(items[5].c_str());
+          wafer waf(thck, part, orient, cassette);
+          if (layer <= layMax1_) {
+            int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV, false);
+            module1[index] = waf;
+            if ((cminEE < 0) || (cassette < cminEE))
+              cminEE = cassette;
+            if ((cmaxEE < 0) || (cassette > cmaxEE))
+              cmaxEE = cassette;
+          } else {
+            int index = HGCalWaferIndex::waferIndex(layer - layMax1_, waferU, waferV, false);
+            module2[index] = waf;
+            if ((cminHE < 0) || (cassette < cminHE))
+              cminHE = cassette;
+            if ((cmaxHE < 0) || (cassette > cmaxHE))
+              cmaxHE = cassette;
+          }
+        }
+      }
+    }
+    fInput.close();
+    std::cout << "Read " << all << " records with " << comments << " comments " << others
+              << " non-comment records out of which " << good << ":" << module1.size() << ":" << module2.size()
+              << " are good and " << bad << " are bad and with " << layers << " layers\n";
+    std::cout << "\nThere are " << layer1.size() << " of types:" << std::endl;
+    for (const auto& l : layer1) {
+      std::cout << "Layer " << l.layer << " Type " << l.type << " DR";
+      for (unsigned int k = 0; k < l.deltaR.size(); ++k)
+        std::cout << ": " << l.deltaR[k];
+      std::cout << std::endl;
+    }
+    std::cout << "\nThere are " << layer2.size() << " of types:" << std::endl;
+    for (const auto& l : layer2) {
+      std::cout << "Layer " << l.layer << " Type " << l.type << " DR";
+      for (unsigned int k = 0; k < l.deltaR.size(); ++k)
+        std::cout << ": " << l.deltaR[k];
+      std::cout << std::endl;
+    }
+    std::cout << "\nMinimum and Maximum Cassette #'s:: EE: " << cminEE << ":" << cmaxEE << " HE: " << cminHE << ":"
+              << cmaxHE << std::endl;
+    std::cout << std::endl << std::endl;
+
+    //Now write separately for EE and HE
+    int csE = (caasettesin > 0) ? caasettesin : cassetteEE;
+    writeSilicon(outfile1, csE, layer1, module1, "EE", global, (debug % 10 > 0));
+    // Next HEsil part
+    int csH = (caasettesin > 0) ? caasettesin : cassetteHE;
+    writeSilicon(outfile2, csH, layer2, module2, "HE", global, ((debug / 10) % 10 > 0));
+  }
+}
+
+void ConvertSiliconV3::writeSilicon(const char* outfile,
+				    const unsigned int cassettes,
+				    const std::vector<layerInfo>& layers,
+				    const std::map<int, wafer>& module,
+				    const std::string& tag,
+				    const bool& mode,
+				    const bool& debug) {
   char apost('"');
   unsigned int k0(0), k1(0), k2(0), k3(0);
   std::map<int, wafer>::const_iterator itr;
