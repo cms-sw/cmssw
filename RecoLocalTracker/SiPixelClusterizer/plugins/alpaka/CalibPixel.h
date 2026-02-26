@@ -61,6 +61,7 @@ namespace calibPixel {
             printf("bad pixel at %d in %d\n", i, dvgi.moduleId());
           dvgi.moduleId() = ::pixelClustering::invalidModuleId;
           dvgi.adc() = 0;
+          dvgi.rawADC() = 0;
         } else {
           float vcal = dvgi.adc() * gain - pedestal * gain;
 
