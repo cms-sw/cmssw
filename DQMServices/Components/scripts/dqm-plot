@@ -92,7 +92,7 @@ class DQMPlotter:
 
         self.colors.extend(new_colors)
 
-    def root_to_numpy(self, hist):
+    def root_to_numpy(self, hist, rebin=None):
         """
         Convert ROOT histogram to numpy arrays.
 
@@ -102,6 +102,9 @@ class DQMPlotter:
         Returns:
             tuple: (bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels)
         """
+        if rebin is not None:
+            hist = hist.Rebin(int(rebin), hist.GetName() + "_rebin")
+            
         n_bins = hist.GetNbinsX()
         bin_edges = np.array([hist.GetBinLowEdge(i) for i in range(1, n_bins + 2)])
         bin_centers = np.array([hist.GetBinCenter(i) for i in range(1, n_bins + 1)])
@@ -692,6 +695,7 @@ class DQMPlotter:
         output_path,
         logy=False,
         normalize=False,
+        rebin=None,
         cms_text="Preliminary",
         energy_text=None,
         show_energy=False,
@@ -773,7 +777,7 @@ class DQMPlotter:
         
         for i, (hist, label) in enumerate(zip(histograms, labels)):
             bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels = (
-                self.root_to_numpy(hist)
+                self.root_to_numpy(hist, rebin)
             )
 
             if normalize and np.sum(bin_contents) > 0:
@@ -1259,6 +1263,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("-o", "--output-dir", default="plots", help="Output directory")
     parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis")
+    parser.add_argument("--rebin", default=None, type=int, help="Rebin histograms. One number 'X' implies that each new bin corresponds to the merge of X bins. Multiple numbers represent the edges of the new bins.")
     parser.add_argument("--normalize", action="store_true", help="Normalize histograms")
     parser.add_argument(
         "--cms-text",
@@ -1344,6 +1349,7 @@ if __name__ == "__main__":
         labels=args.legend,
         output_dir=args.output_dir,
         logy=args.logy,
+        rebin=args.rebin,
         normalize=args.normalize,
         cms_text=args.cms_text,
         energy_text=args.energy_text,
