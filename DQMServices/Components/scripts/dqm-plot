@@ -1245,8 +1245,9 @@ if __name__ == "__main__":
         required=True,
         nargs="+",
         action="append",
-        help="Histogram path or regex pattern(s) to match. "
-             "Use multiple -s or space-separated values to provide several patterns.",
+        help="Regex pattern(s) to match. "
+             "Use multiple -s or space-separated values to provide several patterns."
+             "Can be accelerated with `--require_full_sources.`",
     )
     parser.add_argument(
         "-l", "--legend", help="Comma-separated list of legend entries for each file. Use \\n for explicit line breaks."
