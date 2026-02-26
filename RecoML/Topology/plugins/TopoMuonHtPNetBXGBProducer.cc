@@ -74,16 +74,12 @@ private:
   const unsigned int nMuons_;      // number of muons used as input features (0 = no muon features)
   const unsigned int nPNetB_;      // number of leading PNetB scores used as input features
   const unsigned int nFeatures_;   // 1 + nPNetB_ + kFeaturesPerMuon * nMuons_
-  const bool muonSortByTkIso_;     // if true: ascending relative tkiso; if false:
-                                   // descending pt
-  const unsigned int nTreeLimit_;  // max number of trees to use in prediction
-                                   // (0 = use all trees)
+  const bool muonSortByTkIso_;     // if true: ascending relative tkiso; if false: descending pt
+  const unsigned int nTreeLimit_;  // max number of trees to use in prediction (0 = use all trees)
 
   /* XGBoost */
   std::unique_ptr<pat::XGBooster> booster_;
   const edm::EDPutTokenT<float> scoreToken_;
-
-  const bool debug_;
 };
 
 using namespace edm;
@@ -102,16 +98,16 @@ TopoMuonHtPNetBXGBProducer::TopoMuonHtPNetBXGBProducer(edm::ParameterSet const& 
       nFeatures_(1 + nPNetB_ + kFeaturesPerMuon * nMuons_),
       muonSortByTkIso_(iConfig.getParameter<bool>("muonSortByTkIso")),
       nTreeLimit_(iConfig.getParameter<unsigned int>("nTreeLimit")),
-      scoreToken_(produces<float>("score")),
-      debug_(iConfig.getParameter<bool>("debug")) {
+      scoreToken_(produces<float>("score")) {
   /* Load model */
   const edm::FileInPath modelPath(iConfig.getParameter<std::string>("modelPath"));
 
-  if (debug_) {
-    std::cout << "Loading XGBoost model from " << modelPath.fullPath() << "\n"
-              << " nMuons=" << nMuons_ << " nPNetB=" << nPNetB_ << " nFeatures=" << nFeatures_
-              << " muonSortByTkIso=" << muonSortByTkIso_ << " nTreeLimit=" << nTreeLimit_ << std::endl;
-  }
+#ifdef EDM_ML_DEBUG
+  LogDebug("TopoMuonHtPNetBXGBProducer") << "Loading XGBoost model from " << modelPath.fullPath() << "\n"
+                                         << " nMuons=" << nMuons_ << " nPNetB=" << nPNetB_
+                                         << " nFeatures=" << nFeatures_ << " muonSortByTkIso=" << muonSortByTkIso_
+                                         << " nTreeLimit=" << nTreeLimit_;
+#endif
 
   booster_ = std::make_unique<pat::XGBooster>(modelPath.fullPath());
 
@@ -132,8 +128,7 @@ TopoMuonHtPNetBXGBProducer::TopoMuonHtPNetBXGBProducer(edm::ParameterSet const& 
 
 void TopoMuonHtPNetBXGBProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const& setup) const {
   float outScore = -1.f;
-  // buffer for features to be fed to XGBoost; zero-padding for missing/empty
-  // features
+  // buffer for features to be fed to XGBoost; zero-padding for missing/empty features
   std::vector<float> features(nFeatures_, 0.f);
 
   /* ---------------- PFHT ---------------- */
@@ -147,8 +142,7 @@ void TopoMuonHtPNetBXGBProducer::produce(edm::StreamID, edm::Event& iEvent, edm:
     LogWarning("TopoMuonHtPNetBXGBProducer") << "Missing PFHT collection";
   }
 
-  /* ---------------- PNetB scores: collect and sort descending ----------------
-   */
+  /* ---------------- PNetB scores: collect and sort descending ---------------- */
 
   std::vector<float> pnetScores;
 
@@ -171,8 +165,7 @@ void TopoMuonHtPNetBXGBProducer::produce(edm::StreamID, edm::Event& iEvent, edm:
     features[1 + ib] = pnetScores[ib];
   // remaining PNetB slots stay 0 (zero-padded) if fewer jets are found
 
-  /* ---------------- Muons (optional: nMuons_=0 skips this block) -----------
-   */
+  /* ---------------- Muons (optional: nMuons_=0 skips this block) ----------- */
 
   std::vector<size_t> muonIndices;
 
@@ -216,8 +209,7 @@ void TopoMuonHtPNetBXGBProducer::produce(edm::StreamID, edm::Event& iEvent, edm:
             trkH.isValid() ? static_cast<float>((*trkH)[edm::getRef(muonsH, b)]) : std::numeric_limits<float>::max();
         const float ptA = (*muonsH)[a].pt();
         const float ptB = (*muonsH)[b].pt();
-        // if iso is 0 for both then sort by descending pt for
-        // deterministic order
+        // if iso is 0 for both then sort by descending pt for deterministic order
         if (isoA == 0.f && isoB == 0.f)
           return ptA > ptB;
         return (isoA / ptA) < (isoB / ptB);
@@ -265,17 +257,17 @@ void TopoMuonHtPNetBXGBProducer::produce(edm::StreamID, edm::Event& iEvent, edm:
   // the full un-pruned model is saved and early stopping was used
   outScore = booster_->predict(features, nTreeLimit_);
 
-  /* ---------------- Debug ---------------- */
-
-  if (debug_) {
+#ifdef EDM_ML_DEBUG
+  {
     std::ostringstream ss;
     ss << "TopoMuonHtPNetBXGBProducer:"
        << " nPNetB(found)=" << pnetScores.size() << " nMuons(found)=" << muonIndices.size() << "\n Features: ";
     for (float f : features)
       ss << f << " ";
     ss << " --> score=" << outScore;
-    std::cout << ss.str() << std::endl;
+    LogDebug("TopoMuonHtPNetBXGBProducer") << ss.str();
   }
+#endif
 
   iEvent.emplace(scoreToken_, outScore);
 }
@@ -301,20 +293,13 @@ void TopoMuonHtPNetBXGBProducer::fillDescriptions(edm::ConfigurationDescriptions
           "number of muons used as input features; 0 = no muon features (b-jet "
           "+ HT only model)");
   desc.add<unsigned int>("nPNetB", 1)
-      ->setComment(
-          "number of leading PNetB scores used as input features, sorted "
-          "descending");
+      ->setComment("number of leading PNetB scores used as input features, sorted descending");
   desc.add<double>("muonPtCut", 10.0);
   desc.add<double>("muonEtaCut", 2.4);
   desc.add<bool>("muonSortByTkIso", true)
-      ->setComment(
-          "false: sort by descending pt, true: sort by ascending relative "
-          "tkiso");
+      ->setComment("false: sort by descending pt, true: sort by ascending relative tkiso");
   desc.add<unsigned int>("nTreeLimit", 0)
-      ->setComment(
-          "max number of trees used in prediction; 0 = use all trees in the "
-          "model");
-  desc.add<bool>("debug", false);
+      ->setComment("max number of trees used in prediction; 0 = use all trees in the model");
 
   descriptions.addWithDefaultLabel(desc);
 }
