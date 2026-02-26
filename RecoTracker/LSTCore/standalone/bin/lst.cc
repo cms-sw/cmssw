@@ -417,6 +417,7 @@ void run_lst() {
                                    trk.getVF("see_stateTrajGlbPz"),
                                    trk.getVI("see_q"),
                                    trk.getVVI("see_hitIdx"),
+                                   trk.getVVI("see_hitType"),
                                    trk.getVU("see_algo"),
                                    trk.getVU("ph2_detId"),
                                    trk_ph2_clustSize,

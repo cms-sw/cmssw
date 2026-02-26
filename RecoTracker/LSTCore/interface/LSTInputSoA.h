@@ -19,12 +19,11 @@ namespace lst {
                       SOA_COLUMN(float, zs),
                       SOA_COLUMN(unsigned int, idxs),
                       SOA_COLUMN(unsigned int, detid),
-                      SOA_COLUMN(uint16_t, clustsize)
+                      SOA_COLUMN(uint16_t, clustsize),
 #ifndef LST_STANDALONE
-                          ,
-                      SOA_COLUMN(TrackingRecHit const*, hits)
+                      SOA_COLUMN(TrackingRecHit const*, hits),
 #endif
-  )
+                      SOA_SCALAR(unsigned int, nHitsOT))
 
   GENERATE_SOA_LAYOUT(PixelSeedsSoALayout,
                       SOA_COLUMN(Params_pLS::ArrayUxHits, hitIndices),
