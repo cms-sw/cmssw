@@ -130,8 +130,7 @@ struct tileZone {
 };
 
 std::vector<std::string> splitString(const std::string& fLine);
-co
-class ConvertSiliconV0 {
+co class ConvertSiliconV0 {
 public:
   ConvertSiliconV0(int layMax1 = 28, int layMax2 = 36);
   void convert(const char* infile,
@@ -193,8 +192,8 @@ public:
                const char* outfile1,
                const char* outfile2,
                int modeGlobal = 0,
-	       int cassette = 0,
-	       int debug = 0);
+               int cassette = 0,
+               int debug = 0);
 
 private:
   void writeSilicon(const char*,
@@ -368,7 +367,8 @@ int main(int argc, char* argv[]) {
   } else if (mode == 6) {
     const char* outfile1 = argv[3];
     const char* outfile2 = argv[4];
-    std::cout << "Calls with mode " << mode << " for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2 << std::endl;
+    std::cout << "Calls with mode " << mode << " for i/p file " << infile << " o/p files " << outfile1 << ":"
+              << outfile2 << std::endl;
     int maxLayEE = atoi(argv[5]);
     int maxLayHE = atoi(argv[6]);
     int modeGlobal = atoi(argv[7]);
@@ -2416,12 +2416,12 @@ void ConvertSiliconV3::convert(
 }
 
 void ConvertSiliconV3::writeSilicon(const char* outfile,
-				    const unsigned int cassettes,
-				    const std::vector<layerInfo>& layers,
-				    const std::map<int, wafer>& module,
-				    const std::string& tag,
-				    const bool& mode,
-				    const bool& debug) {
+                                    const unsigned int cassettes,
+                                    const std::vector<layerInfo>& layers,
+                                    const std::map<int, wafer>& module,
+                                    const std::string& tag,
+                                    const bool& mode,
+                                    const bool& debug) {
   char apost('"');
   unsigned int k0(0), k1(0), k2(0), k3(0);
   std::map<int, wafer>::const_iterator itr;
