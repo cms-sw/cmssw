@@ -483,7 +483,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       const int moduleSubdet = modules.subdets()[lowerModuleIndex];
 
       // calculation is detailed documented here https://indico.cern.ch/event/1185895/contributions/4982756/attachments/2526561/4345805/helix%20pT3%20summarize.pdf
-      float diffr, diffz;
+      float diffr = 0.f;
+      float diffz = 0.f;
       float p = alpaka::math::sqrt(acc, Px * Px + Py * Py + Pz * Pz);
 
       float rou = a / p;
