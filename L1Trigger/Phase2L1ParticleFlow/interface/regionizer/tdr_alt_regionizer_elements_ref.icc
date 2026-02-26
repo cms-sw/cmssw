@@ -317,7 +317,8 @@ inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<l1ct::TkObjEmu>:
 }
 
 // slighlty more complicated because of logical index;
-std::vector<size_t> calo_links(size_t iphi) {
+template <typename T>
+inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<T>::caloLinksHelper(size_t iphi) const {
   if (iphi < 2) {
     std::vector<size_t> retval = {11, 5, 6, 0, 7, 1, 8, 2};
     return retval;
@@ -342,13 +343,13 @@ std::vector<size_t> calo_links(size_t iphi) {
 template <>
 inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<l1ct::HadCaloObjEmu>::linksForSR(size_t sr) const {
   const std::pair logic_sr = get_small_region(sr);
-  return calo_links(logic_sr.second);
+  return caloLinksHelper(logic_sr.second);
 }
 
 template <>
 inline std::vector<size_t> l1ct::tdr_alt_regionizer::Regionizer<l1ct::EmCaloObjEmu>::linksForSR(size_t sr) const {
   const std::pair logic_sr = get_small_region(sr);
-  return calo_links(logic_sr.second);
+  return caloLinksHelper(logic_sr.second);
 }
 
 template <>
