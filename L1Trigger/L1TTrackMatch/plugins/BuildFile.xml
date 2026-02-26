@@ -12,5 +12,6 @@
 <use   name="hls"/>
 <use   name="hepmc"/>
 <use   name="root"/>
+<use   name="DataFormats/L1Trigger"/>
 <flags   EDM_PLUGIN="1"/>
 </library>
